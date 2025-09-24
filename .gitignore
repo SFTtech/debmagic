@@ -1,0 +1,60 @@
+# project specific
+config.yaml
+config.devcontainer.yml
+server.yaml
+
+# python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+/.coverage
+/coverage.xml
+/junit
+
+# native
+*.so
+*.dylib
+*.dll
+
+# python venv
+pyvenv.cfg
+venv*
+.venv
+.pdm-python
+.python-version
+
+# building
+MANIFEST
+dist/
+src/*/*.lock
+
+# testing
+/*.conf
+/*.yaml
+/test
+/build
+
+# ides
+.idea
+*~
+~*
+.*.swp
+\#*
+.#*
+flycheck_*
+.auctex-auto
+.DS_Store
+Thumbs.db
+*.orig
+.dir-locals.el
+
+# nix
+.direnv
+.envrc
+
+# local
+todo.md
+todo.org
+
+

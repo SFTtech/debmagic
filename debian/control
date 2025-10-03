@@ -1,0 +1,23 @@
+Source: debmagic
+Section: devel
+Maintainer: Debmagic Maintainers <debmagic@sft.lol>
+Uploaders:
+ Jonas Jelten <jj@sft.lol>,
+Build-Depends:
+ debhelper-compat (= 13),
+ python3-debian
+Rules-Requires-Root: no
+X-Style: black
+Standards-Version: 4.7.2
+Homepage: https://github.com/SFTtech/debmagic
+Vcs-Git: https://github.com/SFTtech/debmagic.git
+Vcs-Browser: https://github.com/SFTtech/debmagic
+
+Package: debmagic
+Architecture: all
+Depends:
+ python3-debian,
+ ${python3:Depends}
+Multi-Arch: foreign
+Description: TODO
+ TODO

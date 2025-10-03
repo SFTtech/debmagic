@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+import sys
+
+repo_root = Path(__file__).parent.parent / "src"
+sys.path.append(str(repo_root))
+
+from debmagic.v1 import package, python
+
+
+package(
+    preset=python,
+)

@@ -1,6 +1,6 @@
+import json
 import os
 import subprocess
-import json
 import re
 
 
@@ -125,6 +125,6 @@ def get_flags(maint_options: str | None = None) -> dict[str, str]:
         if debug_url := env.get("DEB_BUILD_DEBUG_INFO_URL"):
             elf_meta["debugInfoUrl"] = debug_url
 
-        result["ELF_PACKAGE_METADATA"] = json.dumps(elf_meta, indent=4)
+        result["ELF_PACKAGE_METADATA"] = json.dumps(elf_meta, separators=(",", ":"))
 
     return result

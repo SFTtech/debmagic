@@ -29,6 +29,14 @@ def _get_func_from_preset(name: str, preset: PresetT) -> BuildStep | None:
     return getattr(preset, name, None)
 
 
+def clean_package(
+    build: Build,
+    base_frame: BaseFrame,
+    preset: PresetT,
+) -> None:
+    pass
+
+
 def build_package(
     build: Build,
     base_frame: BaseFrame,

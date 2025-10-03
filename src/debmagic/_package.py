@@ -4,7 +4,7 @@ import shutil
 from debian import deb822
 
 
-from ._build import Build, build_package
+from ._build import Build, build_package, clean_package
 from ._types import PresetT
 from ._environment import get_base_frame
 
@@ -56,7 +56,9 @@ def package(preset: PresetT = None):
         if "Package" in block:
             packages.append(block)
 
-    assert len(packages) == 1  # TODO support >1
+    if len(packages) != 1:  # TODO support >1
+        raise NotImplementedError("Building more than one package is not supported yet")
+
     install_dir = base_frame.path / "debian" / packages[0]["Package"]
 
     if install_dir.is_dir():
@@ -71,7 +73,7 @@ def package(preset: PresetT = None):
 
     match args.operation:
         case "clean":  # undo whatever "build" and "binary" did
-            raise NotImplementedError()
+            clean_package(build, base_frame, preset)
         case "build":  # configure and compile
             raise NotImplementedError()
         case "build-arch":

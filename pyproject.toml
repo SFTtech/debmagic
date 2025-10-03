@@ -2,12 +2,24 @@
 name = "debmagic"
 version = "0.1.0"
 description = "build debian packages"
+license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "python-debian>=1.0",
-]
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = ["python-debian>=1.0"]
+
+[project.scripts]
+debmagic = "debmagic.cli:main"
+
+[project.urls]
+homepage = "https://github.com/SFTtech/debmagic"
+source = "https://github.com/SFTtech/debmagic.git"
+issues = "https://github.com/SFTtech/debmagic/issues"
+releasenotes = "https://github.com/SFTtech/debmagic/-/blob/main/debian/changelog"
 
 [build-system]
-requires = ["uv_build>=0.8.0,<0.9.0"]
-build-backend = "uv_build"
+requires = ["setuptools>=77.0.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = ["pytest>=8.4.2"]

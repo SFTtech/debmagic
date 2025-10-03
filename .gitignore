@@ -11,6 +11,8 @@ __pycache__
 /.coverage
 /coverage.xml
 /junit
+.pybuild
+.pytest_cache
 
 # native
 *.so

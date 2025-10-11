@@ -1,5 +1,7 @@
 import argparse
 
+from debmagic._utils import run_cmd
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Debmagic")
@@ -8,4 +10,5 @@ def parse_args():
 
 def main():
     args = parse_args()
-    print("Hello from debmagic")
+    # just call debuild for now
+    run_cmd(["debuild", "-nc", "-uc", "-b"])

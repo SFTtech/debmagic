@@ -1,13 +1,11 @@
-#!/workspaces/debmagic/.venv/bin/python3
-
-#### !/usr/bin/env python3
+#!/usr/bin/env python3
 
 import os
 
-from debmagic.v1 import Build, package, autodetect
+from debmagic.v1 import Build, package, autodetect, buildflags, autotools
 
-# flags = buildflags.get_flags(maint_options="hardening=+all")
-# os.environ.update(flags)
+flags = buildflags.get_flags(maint_options="hardening=+all")
+os.environ.update(flags)
 
 if os.environ["DEB_HOST_ARCH_OS"] == "linux":
     configure_params = ["--enable-affinity", "--enable-delayacct"]
@@ -29,5 +27,5 @@ def configure(build: Build):
 
 
 package(
-    preset=autodetect,
+    preset=autotools,
 )

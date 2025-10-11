@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
+from debmagic._utils import run_cmd
+
 from ._types import PresetT
 from ._environment import BaseFrame
 
@@ -29,6 +31,18 @@ def _get_func_from_preset(name: str, preset: PresetT) -> BuildStep | None:
     return getattr(preset, name, None)
 
 
+def gen_control_file(build: Build):
+    run_cmd(["dh_gencontrol"], cwd=build.source_dir)
+
+
+def make_md5sums(build: Build):
+    run_cmd(["dh_md5sums"], cwd=build.source_dir)
+
+
+def build_deb(build: Build):
+    run_cmd(["dh_builddeb"], cwd=build.source_dir)
+
+
 def clean_package(
     build: Build,
     base_frame: BaseFrame,
@@ -50,3 +64,7 @@ def build_package(
         else:
             # step not used
             pass
+
+    gen_control_file(build)
+    make_md5sums(build)
+    build_deb(build)

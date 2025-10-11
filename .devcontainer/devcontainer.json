@@ -5,7 +5,7 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postCreateCommand": "uv sync",
+  "postCreateCommand": "./post_setup.sh",
 
   // Configure tool-specific properties.
   "customizations": {

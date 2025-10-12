@@ -1,15 +1,18 @@
 from .._build import Build
 
-from . import autotools
-
+# TODO: detect build system
+# autotools, cmake, python, rust, perl, go, ...
 
 def configure(build: Build, args: list[str] | None = None):
-    autotools.configure(build, args)
+    # TODO
+    pass
 
 
 def compile(build: Build, args: list[str] | None = None):
-    autotools.compile(build, args)
+    # TODO
+    pass
 
 
 def install(build: Build, args: list[str] | None = None):
-    autotools.install(build, args)
+    # TODO
+    pass

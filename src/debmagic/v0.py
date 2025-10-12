@@ -1,7 +1,6 @@
 from ._build import Build
 from ._modules import autotools, autodetect, python
 from ._package import package
-from ._dpkg import buildflags
 
 
 __all__ = [
@@ -9,6 +8,5 @@ __all__ = [
     "autodetect",
     "autotools",
     "python",
-    "buildflags",
     "package",
 ]

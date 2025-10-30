@@ -1,102 +1,117 @@
-import shutil
-from dataclasses import dataclass
+from __future__ import annotations
+
+import shlex
+import typing
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
 
-from debmagic._utils import run_cmd
+from ._build_stage import BuildStage
+from ._utils import run_cmd
 
-from ._rules_file import RulesFile
-from ._types import PresetT
-from ._utils import Namespace
+if typing.TYPE_CHECKING:
+    from ._package import BinaryPackage, PackageFilter, SourcePackage
+    from ._preset import Preset
+    from ._utils import Namespace
 
 
 @dataclass
 class Build:
+    presets: list[Preset]
+    source_package: SourcePackage
     source_dir: Path
-    install_dir: Path
+    binary_packages: list[BinaryPackage]
+    install_base_dir: Path
     architecture_target: str
     architecture_host: str
     flags: Namespace
     parallel: int
-    prefix: str = "/usr"
+    prefix: Path
+    dry_run: bool = False
 
-type BuildStep = Callable[[Build], None]
+    _completed_stages: set[BuildStage] = field(default_factory=set)
+    _selected_packages: list[BinaryPackage] | None = field(default_factory=list)
+
+    def cmd(self, cmd: list[str] | str, **kwargs):
+        """
+        execute a command, auto-converts command strings/lists.
+        use this to supports build dry-runs.
+        """
+        cmd_args : list[str] | str = cmd
+        is_shell = kwargs.get("shell")
+        if not is_shell and isinstance(cmd, str):
+            cmd_args = shlex.split(cmd)
+        elif is_shell and not isinstance(cmd, str):
+            cmd_args = shlex.join(cmd)
+
+        run_cmd(cmd_args, dry_run=self.dry_run, **kwargs)
+
+    @property
+    def install_dirs(self) -> dict[str, Path]:
+        """ return { binary_package_name: install_directory } """
+        return {
+            pkg.name: self.install_base_dir / pkg.name
+            for pkg in self.binary_packages
+        }
+
+    def select_packages(self, names: set[str]):
+        """ only build those packages """
+        if not names:
+            self._selected_packages = None
+
+        self._selected_packages = list()
+        for pkg in self.binary_packages:
+            if pkg.name in names:
+                self._selected_packages.append(pkg)
+
+    def filter_packages(self, package_filter: PackageFilter) -> None:
+        """ apply filter to only build those packages """
+        self.select_packages({pkg.name for pkg in
+                              package_filter.get_packages(self.binary_packages)})
+
+    def is_stage_completed(self, stage: BuildStage) -> bool:
+        return stage in self._completed_stages
+
+    def _mark_stage_done(self, stage: BuildStage) -> None:
+        self._completed_stages.add(stage)
+        # TODO: persist state in build dir
+
+    def run(
+        self,
+        target_stage: BuildStage | None = None,
+    ) -> None:
+        for stage in BuildStage:
+            print(f"debmagic: stage {stage!s}", end="")
+
+            # skip done stages
+            if self.is_stage_completed(stage):
+                print(" already completed, skipping.")
+                continue
+            print(":")
+
+            # run stage function from debian/rules.py
+            if rules_stage_function := self.source_package.stage_functions.get(stage):
+                print(f"debmagic:  running stage from rules file...")
+                rules_stage_function(self)
+                self._mark_stage_done(stage)
+
+            else:
+                # run stage function from first providing preset
+                for preset in self.presets:
+                    print(f"debmagic:  trying preset {preset}...")
+                    if preset_stage_function := preset.get_stage(stage):
+                        print("debmagic:  preset has function")
+                        preset_stage_function(self)
+                        self._mark_stage_done(stage)
+                        break  # stop preset processing
+
+            if not self.is_stage_completed(stage):
+                breakpoint()
+                raise RuntimeError(f"{stage!s} stage was never executed")
+
+            if stage == target_stage:
+                print(f"debmagic: target stage {stage!s} reached")
+                break
 
 
 class BuildError(RuntimeError):
     pass
-
-
-def _get_func_from_preset(name: str, preset: PresetT) -> BuildStep | None:
-    if preset is None:
-        return None
-    # TODO: allow sets, ...
-    if isinstance(preset, list):
-        for p in reversed(preset):
-            func = getattr(p, name, None)
-            if func is not None:
-                return func
-        return None
-
-    return getattr(preset, name, None)
-
-
-def strip(build: Build):
-    run_cmd(["dh_dwz", "-a"], cwd=build.source_dir)
-    run_cmd(["dh_strip", "-a"], cwd=build.source_dir)
-
-
-def gen_shlibs(build: Build):
-    run_cmd(["dh_makeshlibs", "-a"], cwd=build.source_dir)
-    run_cmd(["dh_shlibdeps", "-a"], cwd=build.source_dir)
-
-
-def install_deb(build: Build):
-    run_cmd(["dh_installdeb"], cwd=build.source_dir)
-
-
-def gen_control_file(build: Build):
-    run_cmd(["dh_gencontrol"], cwd=build.source_dir)
-
-
-def make_md5sums(build: Build):
-    run_cmd(["dh_md5sums"], cwd=build.source_dir)
-
-
-def build_deb(build: Build):
-    run_cmd(["dh_builddeb"], cwd=build.source_dir)
-
-
-def clean_package(
-    build: Build,
-    rules_frame: RulesFile,
-    preset: PresetT,
-) -> None:
-
-    # clean install dir
-    if build.install_dir.is_dir():
-        shutil.rmtree(build.install_dir)
-
-
-def build_package(
-    build: Build,
-    rules_frame: RulesFile,
-    preset: PresetT,
-) -> None:
-    build.install_dir.mkdir(exist_ok=True)
-
-    for step_name in ["configure", "compile", "install"]:
-        if step := rules_frame.local_vars.get(step_name):
-            step(build)
-        elif step := _get_func_from_preset(step_name, preset):
-            step(build)
-        else:
-            # step not used
-            pass
-
-    strip(build)
-    gen_shlibs(build)
-    install_deb(build)
-    gen_control_file(build)
-    make_md5sums(build)
-    build_deb(build)

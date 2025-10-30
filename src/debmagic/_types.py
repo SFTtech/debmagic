@@ -1,3 +1,13 @@
-from types import ModuleType
+from dataclasses import dataclass
+from typing import Any, Generic, TypeVar
 
-type PresetT = ModuleType | list[ModuleType] | None
+T = TypeVar('T')
+
+
+@dataclass
+class CustomFuncArg(Generic[T]):
+    name: str
+    type: type[T]
+    default: T | None
+
+type CustomFuncArgsT = dict[str, CustomFuncArg[Any]]

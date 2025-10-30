@@ -24,6 +24,9 @@ build-backend = "setuptools.build_meta"
 [dependency-groups]
 dev = ["pytest>=8.4.2"]
 
+[tool.mypy]
+mypy_path = '$MYPY_CONFIG_FILE_DIR/src'
+
 [tool.ruff]
 line-length = 120
 target-version = "py312"

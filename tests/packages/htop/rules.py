@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 
-from debmagic.v0 import Build, autotools, package
+from debmagic.v0 import Build, package
+from debmagic.v0 import autotools as autotools_mod
+from debmagic.v0 import dh as dh_mod
+
+autotools = autotools_mod.Preset()
+dh = dh_mod.Preset()
 
 pkg = package(
-    preset=autotools,
+    preset=[dh, autotools],
     maint_options="hardening=+all",
 )
 
@@ -19,10 +24,22 @@ else:
     configure_params += ["--enable-sensors"]
 
 
+@pkg.stage
 def configure(build: Build):
     autotools.configure(
         build,
         ["--enable-openvz", "--enable-vserver", "--enable-unicode"] + configure_params,
     )
+
+@dh.override
+def dh_installgsettings(build: Build):
+    print("test dh override works :)")
+    build.cmd("dh_installgsettings")
+
+
+@pkg.custom_function
+def something_custom(some_param: int, another_param: str = "some default"):
+    print(f"you called {some_param=} {another_param=}")
+
 
 pkg.pack()

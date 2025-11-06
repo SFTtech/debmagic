@@ -4,6 +4,8 @@ import shlex
 import subprocess
 import sys
 
+from typing import TypeVar
+
 
 class Namespace:
     """
@@ -63,8 +65,42 @@ def disable_output_buffer():
 
 
 def prefix_idx(prefix: str, seq: list[str]) -> int:
+    """
+    >>> prefix_idx("a", ["c", "a", "d"])
+    1
+    >>> prefix_idx("a", ["c", "d", "e", "a"])
+    3
+    """
     for idx, elem in enumerate(seq):
         if re.match(rf"{prefix}\b", elem):
             return idx
 
     raise ValueError(f"prefix {prefix!r} not found in sequence")
+
+
+T = TypeVar("T")
+
+def list_strip_head(data: list[T], head: list[T]) -> list[T]:
+    """
+    >>> list_strip_head([1,2,3], [])
+    [1, 2, 3]
+    >>> list_strip_head([1,2,3], [1,2])
+    [3]
+    >>> list_strip_head([1,2,3], [1,2,3])
+    []
+    >>> list_strip_head([1,2,3,4,5], [1,2])
+    [3, 4, 5]
+    """
+    idx = 0
+    for elem_a, elem_b in zip(data, head):
+        if elem_a == elem_b:
+            idx += 1
+        else:
+            break
+
+    return data[idx:]
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

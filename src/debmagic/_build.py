@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import shlex
 import typing
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Sequence
 
 from ._build_stage import BuildStage
 from ._utils import run_cmd
@@ -30,19 +30,12 @@ class Build:
 
     _completed_stages: set[BuildStage] = field(default_factory=set)
 
-    def cmd(self, cmd: list[str] | str, **kwargs):
+    def cmd(self, cmd: Sequence[str] | str, **kwargs):
         """
         execute a command, auto-converts command strings/lists.
         use this to supports build dry-runs.
         """
-        cmd_args: list[str] | str = cmd
-        is_shell = kwargs.get("shell")
-        if not is_shell and isinstance(cmd, str):
-            cmd_args = shlex.split(cmd)
-        elif is_shell and not isinstance(cmd, str):
-            cmd_args = shlex.join(cmd)
-
-        run_cmd(cmd_args, dry_run=self.dry_run, **kwargs)
+        run_cmd(cmd, dry_run=self.dry_run, **kwargs)
 
     @property
     def install_dirs(self) -> dict[str, Path]:
@@ -97,7 +90,7 @@ class Build:
                 for preset in self.presets:
                     print(f"debmagic:  trying preset {preset}...")
                     if preset_stage_function := preset.get_stage(stage):
-                        print("debmagic:  preset has function")
+                        print("debmagic:   running stage from preset")
                         preset_stage_function(self)
                         self._mark_stage_done(stage)
                         break  # stop preset processing

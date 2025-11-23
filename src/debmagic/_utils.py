@@ -3,8 +3,7 @@ import re
 import shlex
 import subprocess
 import sys
-
-from typing import TypeVar
+from typing import Sequence, TypeVar
 
 
 class Namespace:
@@ -13,8 +12,8 @@ class Namespace:
     """
 
     def __init__(self, **kwargs):
-        for name in kwargs:
-            setattr(self, name, kwargs[name])
+        for name, value in kwargs.items():
+            setattr(self, name, value)
 
     def __eq__(self, other):
         if not isinstance(other, Namespace):
@@ -37,20 +36,33 @@ class Namespace:
         return self.__dict__.get(key)
 
 
-def run_cmd(args: list[str] | str, check: bool = True, dry_run: bool = False, **kwargs) -> subprocess.CompletedProcess:
-    shell = kwargs.get("shell")
-    if shell:
-        print(f"debmagic: {args}")
+def run_cmd(
+    cmd: Sequence[str] | str,
+    check: bool = True,
+    dry_run: bool = False,
+    **kwargs,
+) -> subprocess.CompletedProcess:
+    cmd_args: Sequence[str] | str = cmd
+    cmd_pretty: str
+
+    if kwargs.get("shell"):
+        if not isinstance(cmd, str):
+            cmd_args = shlex.join(cmd)
     else:
-        if not isinstance(args, (list, tuple)):
-            raise ValueError("need list/tuple as command arguments when not using shell=True")
-        cmd_pretty = shlex.join(args)
-        print(f"debmagic: {cmd_pretty}")
+        if isinstance(cmd, str):
+            cmd_args = shlex.split(cmd)
+
+    if isinstance(cmd, str):
+        cmd_pretty = cmd
+    else:
+        cmd_pretty = shlex.join(cmd_args)
+
+    print(f"debmagic: {cmd_pretty}")
 
     if dry_run:
-        return subprocess.CompletedProcess(args, 0)
+        return subprocess.CompletedProcess(cmd_args, 0)
 
-    ret = subprocess.run(args, check=False, **kwargs)
+    ret = subprocess.run(cmd_args, check=False, **kwargs)
 
     if check and ret.returncode != 0:
         raise RuntimeError(f"failed to execute {cmd_pretty}")

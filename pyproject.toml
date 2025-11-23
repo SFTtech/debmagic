@@ -2,7 +2,8 @@
 name = "debmagic"
 version = "0.1.0"
 description = "build debian packages"
-license = { file = "LICENSE" }
+license = "GPL-2.0-or-later"
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.12"
 classifiers = ["Programming Language :: Python :: 3"]

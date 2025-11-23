@@ -5,10 +5,15 @@ Uploaders:
  Jonas Jelten <jj@sft.lol>,
 Build-Depends:
  debhelper-compat (= 13),
+ dh-python,
+ python3-all,
+ pybuild-plugin-pyproject,
+ python3-setuptools,
  python3-debian
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2
+X-Python-Version: >= 3.12
 Homepage: https://github.com/SFTtech/debmagic
 Vcs-Git: https://github.com/SFTtech/debmagic.git
 Vcs-Browser: https://github.com/SFTtech/debmagic
@@ -17,7 +22,8 @@ Package: debmagic
 Architecture: all
 Depends:
  python3-debian,
+ ${misc:Depends},
  ${python3:Depends}
 Multi-Arch: foreign
-Description: TODO
- TODO
+Description: Debian build instructions written in Python.
+ Explicit is better than implicit.

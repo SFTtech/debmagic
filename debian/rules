@@ -6,8 +6,13 @@ from pathlib import Path
 repo_root = Path(__file__).parent.parent / "src"
 sys.path.append(str(repo_root))
 
-from debmagic.v1 import package, python
+from debmagic.v0 import package
+from debmagic.v0 import dh as dh_mod
 
-package(
-    preset=python,
+dh = dh_mod.Preset(dh_args=["--with", "python3", "--buildsystem=pybuild"])
+
+pkg = package(
+    preset=[dh],
 )
+
+pkg.pack()

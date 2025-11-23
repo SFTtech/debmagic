@@ -122,7 +122,5 @@ jobs:
           enable-cache: true
       - name: Install the project
         run: uv sync --locked --all-extras --dev
-      - name: Install required apt 
-        run: sudo apt-get install -y devscripts
       - name: Run Debmagic build on ourself
-        run: uv run debmagic build --driver=none
+        run: uv run debmagic build --driver=docker

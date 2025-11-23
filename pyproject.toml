@@ -22,7 +22,7 @@ requires = ["setuptools>=77.0.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [dependency-groups]
-dev = ["pytest>=8.4.2", "ruff", "pre-commit"]
+dev = ["pytest>=9.0.1", "pytest-cov>=7.0.0", "ruff", "pre-commit"]
 
 [tool.mypy]
 mypy_path = '$MYPY_CONFIG_FILE_DIR/src'
@@ -36,3 +36,6 @@ exclude = [".git", ".idea", ".mypy_cache", ".venv*", "docs", "debian"]
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I", "PLE", "PLW"]
 ignore = ["E722"]
+
+[tool.pytest]
+testpaths = ["tests"]

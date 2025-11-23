@@ -12,12 +12,13 @@ def run(cmd: list[str], cwd: Path | None = None, check: bool = False):
     subprocess.run(cmd, cwd=cwd, check=check)
 
 
-def clone_repo(package_name: str, repo_url: str, release: str):
+def fetch_sources(package_name: str, version: str) -> Path:
     package_path = PACKAGES_BASE_PATH / package_name
     dest_path = package_path / "pkg_build"
-    dest_path_repo = dest_path / "upstream_src"
+    dest_path.mkdir(exist_ok=True, parents=True)
+    dest_path_repo = dest_path / f"{package_name}-{version}"
     if not dest_path_repo.exists():
-        subprocess.check_call(["git", "clone", "-b", f"ubuntu/{release}", "--depth=1", repo_url, dest_path_repo])
+        subprocess.check_call(["apt-get", "source", package_name], cwd=dest_path)
     # else: one fetch per day?
 
     target_rules = dest_path_repo / "debian" / "rules"
@@ -28,14 +29,17 @@ def clone_repo(package_name: str, repo_url: str, release: str):
 
 
 package_fixtures = [
-    ("htop", "https://git.launchpad.net/ubuntu/+source/htop", "noble"),
+    ("htop", "3.4.1"),
 ]
 
 
-@pytest.mark.parametrize("package, src_url, release", package_fixtures, ids=map(lambda x: x[0], package_fixtures))
-def test_build_package(package: str, src_url: str, release: str):
+@pytest.mark.parametrize("package, version", package_fixtures, ids=map(lambda x: x[0], package_fixtures))
+def test_build_package(package: str, version: str):
     # TODO use sandbox/container, lxd?
-    repo_dir = clone_repo(package_name=package, repo_url=src_url, release=release)
+    repo_dir = fetch_sources(package_name=package, version=version)
     # TODO don't install every time...
-    run(["sudo", "apt-get", "-y", "build-dep", repo_dir], check=True)
+    run(["sudo", "apt-get", "-y", "build-dep", str(repo_dir)], check=True)
     run(["debuild", "-nc", "-uc", "-b"], cwd=repo_dir, check=True)
+
+    deb_file = next(repo_dir.parent.glob(f"{package}_{version}*.deb"))
+    assert deb_file is not None and deb_file.is_file(), "The resulting .deb archive was created correctly"

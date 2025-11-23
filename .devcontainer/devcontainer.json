@@ -1,11 +1,14 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+// README at: https://github.com/devcontainers/templates/tree/main/src/debian
 {
-  "name": "Ubuntu",
+  "name": "Debian Trixie",
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "args": {
+      "DISTRO": "trixie"
+    }
   },
-  "postCreateCommand": "uv sync",
+  "postCreateCommand": "./.devcontainer/post-create.sh",
 
   // Configure tool-specific properties.
   "customizations": {
@@ -16,5 +19,9 @@
         "tamasfe.even-better-toml"
       ]
     }
-  }
+  },
+  // make sure we always mount the project at the same path in the container to have our debmagic.pth symlinking 
+  // work properly to allow the debmagic package to be globally installed in the system python environment
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/debmagic,type=bind,consistency=uncached",
+  "workspaceFolder": "/workspaces/debmagic"
 }

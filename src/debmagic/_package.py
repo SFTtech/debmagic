@@ -253,7 +253,7 @@ def package(
     presets: list[Preset] = as_presets(preset)
 
     # apply default preset last
-    from ._modules.default import Preset as DefaultPreset
+    from ._module.default import Preset as DefaultPreset
 
     presets.append(DefaultPreset())
 

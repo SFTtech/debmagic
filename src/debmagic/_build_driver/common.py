@@ -27,7 +27,7 @@ class BuildDriver:
         pass
 
     @abc.abstractmethod
-    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None):
+    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
         pass
 
     @abc.abstractmethod

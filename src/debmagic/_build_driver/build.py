@@ -18,7 +18,7 @@ def _create_driver(build_driver: BuildDriverType, config: BuildConfig) -> BuildD
 def build(build_driver: BuildDriverType, config: BuildConfig):
     driver = _create_driver(build_driver, config)
     try:
-        driver.run_command(["apt-get", "-y", "build-dep", "."], cwd=config.source_dir)
+        driver.run_command(["apt-get", "-y", "build-dep", "."], cwd=config.source_dir, requires_root=True)
         driver.run_command(["debuild", "-nc", "-uc", "-b"], cwd=config.source_dir)
 
         # TODO: copy packages to output directory

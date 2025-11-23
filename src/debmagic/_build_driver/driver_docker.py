@@ -97,7 +97,9 @@ class BuildDriverDocker(BuildDriver):
         instance = cls(config=config, workdir=workdir, container_name=docker_container_name)
         return instance
 
-    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None):
+    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
+        del requires_root  # we assume to always be root in the container
+
         if cwd:
             cwd = self._translate_source_path(cwd)
 

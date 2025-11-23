@@ -6,7 +6,7 @@ import signal
 import subprocess
 import sys
 from pathlib import Path
-from typing import Sequence, TypeVar
+from typing import Callable, Sequence, TypeVar
 
 
 class Namespace:
@@ -98,22 +98,31 @@ def run_cmd_in_foreground(args: Sequence[str | Path], **kwargs):
     old_pgrp = os.tcgetpgrp(sys.stdin.fileno())
     old_attr = termios.tcgetattr(sys.stdin.fileno())
 
-    # generally, the child process should stop itself
-    # before exec so the parent can set its new pgid.
-    # (setting pgid has to be done before the child execs).
-    # however, Python 'guarantee' that `preexec_fn`
-    # is run before `Popen` returns.
-    # this is because `Popen` waits for the closure of
-    # the error relay pipe '`errpipe_write`',
-    # which happens at child's exec.
-    # this is also the reason the child can't stop itself
-    # in Python's `Popen`, since the `Popen` call would never
-    # terminate then.
-    # `os.kill(os.getpid(), signal.SIGSTOP)`
+    user_preexec_fn: Callable | None = kwargs.pop("preexec_fn", None)
+
+    def new_pgid():
+        if user_preexec_fn:
+            user_preexec_fn()
+
+        # set a new process group id
+        os.setpgid(os.getpid(), os.getpid())
+
+        # generally, the child process should stop itself
+        # before exec so the parent can set its new pgid.
+        # (setting pgid has to be done before the child execs).
+        # however, Python 'guarantee' that `preexec_fn`
+        # is run before `Popen` returns.
+        # this is because `Popen` waits for the closure of
+        # the error relay pipe '`errpipe_write`',
+        # which happens at child's exec.
+        # this is also the reason the child can't stop itself
+        # in Python's `Popen`, since the `Popen` call would never
+        # terminate then.
+        # `os.kill(os.getpid(), signal.SIGSTOP)`
 
     try:
         # fork the child
-        child = subprocess.Popen(args, process_group=os.getpid(), **kwargs)
+        child = subprocess.Popen(args, preexec_fn=new_pgid, **kwargs)  # noqa: PLW1509
 
         # we can't set the process group id from the parent since the child
         # will already have exec'd. and we can't SIGSTOP it before exec,

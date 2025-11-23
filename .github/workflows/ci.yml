@@ -123,6 +123,6 @@ jobs:
       - name: Install the project
         run: uv sync --locked --all-extras --dev
       - name: Install required apt 
-        run: apt-get install -y devscripts
+        run: sudo apt-get install -y devscripts
       - name: Run Debmagic build on ourself
         run: uv run debmagic build --driver=none

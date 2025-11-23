@@ -1,3 +1,4 @@
+import os
 import shutil
 from pathlib import Path
 from typing import Sequence
@@ -14,7 +15,9 @@ class BuildDriverNone(BuildDriver):
     def create(cls, config: BuildConfig):
         return cls(config=config)
 
-    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None):
+    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
+        if requires_root and not os.getuid() == 0:
+            args = ["sudo", *args]
         run_cmd(args=args, dry_run=self._config.dry_run, cwd=cwd)
 
     def copy_file(self, source_dir: Path, glob: str, dest_dir: Path):

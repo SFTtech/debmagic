@@ -9,8 +9,14 @@ class BuildDriverLxd(BuildDriver):
     def create(cls, config: BuildConfig):
         return cls()
 
-    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None):
+    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
+        raise NotImplementedError()
+
+    def copy_file(self, source_dir: Path, glob: str, dest_dir: Path):
         raise NotImplementedError()
 
     def cleanup(self):
-        pass
+        raise NotImplementedError()
+
+    def drop_into_shell(self):
+        raise NotImplementedError()

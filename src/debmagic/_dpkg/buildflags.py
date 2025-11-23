@@ -1,9 +1,8 @@
 import json
 import os
+import re
 import shlex
 import subprocess
-import re
-
 from pathlib import Path
 
 

@@ -81,7 +81,7 @@ class Preset(PresetBase):
         return func
 
     def _run_dh_seq_cmds(self, build: Build, seq_cmds: list[str]) -> None:
-        """ one line of dh output """
+        """one line of dh output"""
         if not self._initialized:
             raise Exception("dh.Preset().initialize() was never called")
 
@@ -109,7 +109,7 @@ class Preset(PresetBase):
         build_seq = self._get_dh_seq(base_dir, dh_invocation, DHSequenceID.build)
         if build_seq[-1] != "create-stamp debian/debhelper-build-stamp":
             raise RuntimeError("build stamp creation line missing from dh build sequence")
-        build_seq = build_seq[:-1]   # remove that stamp line
+        build_seq = build_seq[:-1]  # remove that stamp line
 
         auto_cfg_idx = prefix_idx("dh_auto_configure", build_seq)
         # up to including dh_auto_configure
@@ -133,8 +133,14 @@ class Preset(PresetBase):
         # assume everything else is packing (which is a bit wrong, but packing & installing is mixed in dh)
         self._package_seq = binary_seq[auto_install_idx + 1 :]
 
-        for seq in (self._clean_seq, self._configure_seq, self._build_seq,
-                    self._test_seq, self._install_seq, self._package_seq):
+        for seq in (
+            self._clean_seq,
+            self._configure_seq,
+            self._build_seq,
+            self._test_seq,
+            self._install_seq,
+            self._package_seq,
+        ):
             for seq_cmd in seq:
                 cmd = shlex.split(seq_cmd)
                 cmd_id = cmd[0]

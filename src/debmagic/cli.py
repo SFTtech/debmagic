@@ -9,6 +9,6 @@ def parse_args():
 
 
 def main():
-    args = parse_args()
+    # args = parse_args()
     # just call debuild for now
     run_cmd(["debuild", "-nc", "-uc", "-b"])

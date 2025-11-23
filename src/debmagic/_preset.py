@@ -12,8 +12,7 @@ if TYPE_CHECKING:
 
 
 class Preset:
-    def __init__(self):
-        ...
+    def __init__(self): ...
 
     def get_stage(self, stage: BuildStage) -> BuildStep | None:
         func: BuildStep = _get_member(self, stage)
@@ -34,7 +33,7 @@ class Preset:
         pass
 
     def clean(self, build: Build):
-        """ when dpkg wants to clean the source tree """
+        """when dpkg wants to clean the source tree"""
         raise NotImplementedError()
 
     # now all build stages:
@@ -61,17 +60,20 @@ class Preset:
 type _PresetBuildStepClassMethod = Callable[[Preset, Build], None]
 
 
-T = TypeVar('T', bound="Preset")
+T = TypeVar("T", bound="Preset")
+
 
 @overload
 def _get_member(obj: T, stage: BuildStage) -> BuildStep:
     """Signature for when called with an *instance*."""
     ...
 
+
 @overload
 def _get_member(obj: type[T], stage: BuildStage) -> _PresetBuildStepClassMethod:
     """Signature for when called with the *class*."""
     ...
+
 
 def _get_member(obj: T | type[T], stage: BuildStage) -> BuildStep | _PresetBuildStepClassMethod:
     match stage:
@@ -110,7 +112,7 @@ def _as_preset(preset_entry: PresetT) -> Preset:
     if isinstance(preset_entry, ModuleType):
         return preset_entry.Preset()
     elif isinstance(preset_entry, Preset):
-        return preset_entry    # user has provided preset instance
+        return preset_entry  # user has provided preset instance
     elif preset_entry is Preset:
         return preset_entry()  # create new preset instance
     else:

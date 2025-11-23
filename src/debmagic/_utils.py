@@ -48,9 +48,7 @@ def run_cmd(args: list[str] | str, check: bool = True, dry_run: bool = False, **
     if dry_run:
         return subprocess.CompletedProcess(args, 0)
 
-    ret = subprocess.run(
-        args, check=False, **kwargs
-    )
+    ret = subprocess.run(args, check=False, **kwargs)
 
     if check and ret.returncode != 0:
         raise RuntimeError(f"failed to execute {cmd_pretty}")
@@ -60,8 +58,8 @@ def run_cmd(args: list[str] | str, check: bool = True, dry_run: bool = False, **
 
 def disable_output_buffer():
     # always flush output
-    sys.stdout = io.TextIOWrapper(open(sys.stdout.fileno(), 'wb', 0), write_through=True)
-    sys.stderr = io.TextIOWrapper(open(sys.stderr.fileno(), 'wb', 0), write_through=True)
+    sys.stdout = io.TextIOWrapper(open(sys.stdout.fileno(), "wb", 0), write_through=True)
+    sys.stderr = io.TextIOWrapper(open(sys.stderr.fileno(), "wb", 0), write_through=True)
 
 
 def prefix_idx(prefix: str, seq: list[str]) -> int:

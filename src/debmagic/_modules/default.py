@@ -18,6 +18,7 @@ class Preset(BasePreset):
     TODO: some day should not depend on debhelper at all, instead it should provide
     debmagic's dead simple default packaging behavior.
     """
+
     def __init__(self):
         super().__init__()
         self._dh_preset = DHPreset()

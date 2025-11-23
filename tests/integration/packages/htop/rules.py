@@ -26,10 +26,12 @@ else:
 
 @pkg.stage
 def configure(build: Build):
+    autotools_mod.autoreconf(build)
     autotools.configure(
         build,
         ["--enable-openvz", "--enable-vserver", "--enable-unicode"] + configure_params,
     )
+
 
 @dh.override
 def dh_installgsettings(build: Build):

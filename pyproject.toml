@@ -26,6 +26,7 @@ dev = ["pytest>=8.4.2", "ruff", "pre-commit"]
 
 [tool.mypy]
 mypy_path = '$MYPY_CONFIG_FILE_DIR/src'
+exclude_gitignore = true
 
 [tool.ruff]
 line-length = 120

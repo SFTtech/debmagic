@@ -29,7 +29,6 @@ class Build:
     dry_run: bool = False
 
     _completed_stages: set[BuildStage] = field(default_factory=set)
-    _selected_packages: list[BinaryPackage] | None = field(default_factory=list)
 
     def cmd(self, cmd: list[str] | str, **kwargs):
         """
@@ -52,17 +51,20 @@ class Build:
 
     def select_packages(self, names: set[str]):
         """only build those packages"""
-        if not names:
-            self._selected_packages = None
+        self.binary_packages = []
 
-        self._selected_packages = list()
-        for pkg in self.binary_packages:
+        for pkg in self.source_package.binary_packages:
             if pkg.name in names:
-                self._selected_packages.append(pkg)
+                self.binary_packages.append(pkg)
 
     def filter_packages(self, package_filter: PackageFilter) -> None:
         """apply filter to only build those packages"""
-        self.select_packages({pkg.name for pkg in package_filter.get_packages(self.binary_packages)})
+        self.select_packages({pkg.name for pkg in package_filter.get_packages(self.source_package.binary_packages)})
+
+    def filtered_binary_packages(self, names: set[str]) -> typing.Iterator[BinaryPackage]:
+        for pkg in self.binary_packages:
+            if pkg.name in names:
+                yield pkg
 
     def is_stage_completed(self, stage: BuildStage) -> bool:
         return stage in self._completed_stages

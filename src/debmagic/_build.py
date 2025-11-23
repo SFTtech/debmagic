@@ -36,7 +36,7 @@ class Build:
         execute a command, auto-converts command strings/lists.
         use this to supports build dry-runs.
         """
-        cmd_args : list[str] | str = cmd
+        cmd_args: list[str] | str = cmd
         is_shell = kwargs.get("shell")
         if not is_shell and isinstance(cmd, str):
             cmd_args = shlex.split(cmd)
@@ -47,14 +47,11 @@ class Build:
 
     @property
     def install_dirs(self) -> dict[str, Path]:
-        """ return { binary_package_name: install_directory } """
-        return {
-            pkg.name: self.install_base_dir / pkg.name
-            for pkg in self.binary_packages
-        }
+        """return { binary_package_name: install_directory }"""
+        return {pkg.name: self.install_base_dir / pkg.name for pkg in self.binary_packages}
 
     def select_packages(self, names: set[str]):
-        """ only build those packages """
+        """only build those packages"""
         if not names:
             self._selected_packages = None
 
@@ -64,9 +61,8 @@ class Build:
                 self._selected_packages.append(pkg)
 
     def filter_packages(self, package_filter: PackageFilter) -> None:
-        """ apply filter to only build those packages """
-        self.select_packages({pkg.name for pkg in
-                              package_filter.get_packages(self.binary_packages)})
+        """apply filter to only build those packages"""
+        self.select_packages({pkg.name for pkg in package_filter.get_packages(self.binary_packages)})
 
     def is_stage_completed(self, stage: BuildStage) -> bool:
         return stage in self._completed_stages
@@ -90,7 +86,7 @@ class Build:
 
             # run stage function from debian/rules.py
             if rules_stage_function := self.source_package.stage_functions.get(stage):
-                print(f"debmagic:  running stage from rules file...")
+                print("debmagic:  running stage from rules file...")
                 rules_stage_function(self)
                 self._mark_stage_done(stage)
 

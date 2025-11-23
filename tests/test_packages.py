@@ -1,10 +1,11 @@
-import subprocess
 import shlex
+import subprocess
 from pathlib import Path
 
 import pytest
 
 PACKAGES_BASE_PATH = Path(__file__).parent / "packages"
+
 
 def run(cmd: list[str], cwd: Path | None = None, check: bool = False):
     print(f"$ {shlex.join(str(p) for p in cmd)}")
@@ -31,9 +32,7 @@ package_fixtures = [
 ]
 
 
-@pytest.mark.parametrize(
-    "package, src_url, release", package_fixtures, ids=map(lambda x: x[0], package_fixtures)
-)
+@pytest.mark.parametrize("package, src_url, release", package_fixtures, ids=map(lambda x: x[0], package_fixtures))
 def test_build_package(package: str, src_url: str, release: str):
     # TODO use sandbox/container, lxd?
     repo_dir = clone_repo(package_name=package, repo_url=src_url, release=release)

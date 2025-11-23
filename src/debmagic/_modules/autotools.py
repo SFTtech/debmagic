@@ -3,7 +3,7 @@ from .._preset import Preset as PresetBase
 
 
 class Preset(PresetBase):
-    #def clean(self, build: Build):
+    # def clean(self, build: Build):
     #    TODO: if Makefile exists and has one of distclean, realclean, clean target, run it.
 
     def configure(self, build: Build, args: list[str] | None = None):
@@ -22,10 +22,10 @@ class Preset(PresetBase):
             "--sysconfdir=/etc",
             "--localstatedir=/var",
             "--runstatedir=/run",
-            #"--disable-option-checking",  # TODO: activate if not strict-mode?
+            # "--disable-option-checking",  # TODO: activate if not strict-mode?
             "--disable-maintainer-mode",
             "--disable-dependency-tracking",
-            #"--with-bugurl=https://bugs.launchpad.net/ubuntu/+source/${srcpkg}",
+            # "--with-bugurl=https://bugs.launchpad.net/ubuntu/+source/${srcpkg}",
         ]
 
         if multiarch := build.flags["DEB_HOST_MULTIARCH"]:
@@ -51,18 +51,13 @@ class Preset(PresetBase):
 
         build.cmd(["make"] + args, cwd=build.source_dir)
 
-
     # TODO: def test(): run make test or make check
 
     def install(self, build: Build, args: list[str] = []):
-        build.cmd(
-            ["make", f"DESTDIR={build.install_dir}", "install"] + args, cwd=build.source_dir
-        )
+        build.cmd(["make", f"DESTDIR={build.install_dir}", "install"] + args, cwd=build.source_dir)
 
 
 def autoreconf(build: Build):
     configure_ac_path = build.source_dir / "configure.ac"
     if configure_ac_path.is_file():
-        build.cmd(
-            ["autoreconf", "--force", "--install", "--verbose"], cwd=build.source_dir
-        )
+        build.cmd(["autoreconf", "--force", "--install", "--verbose"], cwd=build.source_dir)

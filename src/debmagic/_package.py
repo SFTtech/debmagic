@@ -42,8 +42,9 @@ def _parse_args(custom_functions: dict[str, CustomFunction] = {}):
     sp.add_parser("help")
 
     common_cli = argparse.ArgumentParser(add_help=False)
-    common_cli.add_argument("--dry-run", action="store_true",
-                            help="don't actually run anything that changes the system/package state")
+    common_cli.add_argument(
+        "--dry-run", action="store_true", help="don't actually run anything that changes the system/package state"
+    )
 
     # debian-required "targets":
     sp.add_parser("clean", parents=[common_cli])
@@ -74,7 +75,7 @@ def _parse_args(custom_functions: dict[str, CustomFunction] = {}):
 
     # register custom function names
     for name, func in custom_functions.items():
-        func_parser = sp.add_parser(name.replace('_', '-'))
+        func_parser = sp.add_parser(name.replace("_", "-"))
         for arg in func.args.values():
             if arg.default is not None:
                 arg_name = f"--{arg.name.replace('_', '-')}"
@@ -105,8 +106,9 @@ class PackageFilter(Flag):
         return ret
 
 
-P = ParamSpec('P')
-R = TypeVar('R')
+P = ParamSpec("P")
+R = TypeVar("R")
+
 
 @dataclass
 class SourcePackage:
@@ -178,7 +180,7 @@ class SourcePackage:
             source_package=self,
             source_dir=self.base_dir,
             binary_packages=self.binary_packages,
-            install_base_dir=self.rules_file.package_dir / "debian", # + added binary package
+            install_base_dir=self.rules_file.package_dir / "debian",  # + added binary package
             architecture_target=self.buildflags.DEB_BUILD_GNU_TYPE,
             architecture_host=self.buildflags.DEB_HOST_GNU_TYPE,
             flags=self.buildflags,
@@ -221,7 +223,7 @@ class SourcePackage:
                 cli.exit()
             case _:
                 # custom functions
-                if func := self.custom_functions.get(args.operation.replace('-', '_')):
+                if func := self.custom_functions.get(args.operation.replace("-", "_")):
                     # pass all requested parameters
                     func_args = {k: vars(args)[k] for k in func.args.keys()}
                     func.fun(**func_args)
@@ -252,6 +254,7 @@ def package(
 
     # apply default preset last
     from ._modules.default import Preset as DefaultPreset
+
     presets.append(DefaultPreset())
 
     # set buildflags as environment variables

@@ -31,14 +31,14 @@ exclude_gitignore = true
 [tool.ruff]
 line-length = 120
 target-version = "py312"
-exclude = [".git", ".idea", ".mypy_cache", ".venv*", "docs", "debian"]
+extend-exclude = [".idea", ".mypy_cache", ".venv*", "docs", "debian", "__pycache__", "*.egg_info"]
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "I", "PLE", "PLW"]
-ignore = ["E722"]
+select = ["E", "W", "F", "I", "C", "N", "PL", "RUF", "I001"]
+ignore = ["E722", "PLR2004", "PLR0912", "PLR5501", "PLC0415"]
+mccabe.max-complexity = 25
+pylint.max-args = 10
 
 [tool.pytest]
 testpaths = ["tests"]
-
-[tool.pytest.ini_options]
-addopts = ["--ignore=tests/packages"]
+addopts = ["--ignore=tests/integration/packages"]

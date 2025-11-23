@@ -47,16 +47,16 @@ class Preset(PresetBase):
         # TODO: show some config.log if configure failed
 
     def build(self, build: Build, args: list[str] = []):
-        args = [f"-j{build.parallel}"] + args
+        args = [f"-j{build.parallel}", *args]
 
-        build.cmd(["make"] + args, cwd=build.source_dir)
+        build.cmd(["make", *args], cwd=build.source_dir)
 
     # TODO: def test(): run make test or make check
 
     def install(self, build: Build, args: list[str] = []):
         # TODO: figure out installdir handling for multi package builds
         destdir = build.install_dirs[build.source_package.name]
-        build.cmd(["make", f"DESTDIR={destdir}", "install"] + args, cwd=build.source_dir)
+        build.cmd(["make", f"DESTDIR={destdir}", "install", *args], cwd=build.source_dir)
 
 
 def autoreconf(build: Build):

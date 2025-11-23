@@ -36,16 +36,16 @@ class Preset(PresetBase):
         if not dh_invocation:
             dh_invocation = "dh"
         self._dh_invocation: str = dh_invocation
-        self._overrides: dict[str, DHOverride] = dict()
+        self._overrides: dict[str, DHOverride] = {}
         self._initialized = False
 
         # debmagic's stages, with matching commands from the dh sequence
-        self._clean_seq: list[str] = list()
-        self._configure_seq: list[str] = list()
-        self._build_seq: list[str] = list()
-        self._test_seq: list[str] = list()
-        self._install_seq: list[str] = list()
-        self._package_seq: list[str] = list()
+        self._clean_seq: list[str] = []
+        self._configure_seq: list[str] = []
+        self._build_seq: list[str] = []
+        self._test_seq: list[str] = []
+        self._install_seq: list[str] = []
+        self._package_seq: list[str] = []
 
         # all seen sequence cmd ids (the dh command script itself)
         self._seq_ids: set[str] = set()
@@ -142,7 +142,6 @@ class Preset(PresetBase):
             self._install_seq,
             self._package_seq,
         ):
-
             for seq_cmd in seq:
                 cmd = shlex.split(seq_cmd)
                 cmd_id = cmd[0]
@@ -150,7 +149,7 @@ class Preset(PresetBase):
 
     def _get_dh_seq(self, base_dir: Path, dh_invocation: str, seq: DHSequenceID) -> list[str]:
         dh_base_cmd = shlex.split(dh_invocation)
-        cmd = dh_base_cmd + [str(seq), "--no-act"]
+        cmd = [*dh_base_cmd, str(seq), "--no-act"]
         proc = run_cmd(cmd, cwd=base_dir, capture_output=True, text=True)
         lines = proc.stdout.splitlines()
         return [line.strip() for line in lines]

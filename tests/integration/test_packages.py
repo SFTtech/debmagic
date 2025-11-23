@@ -33,7 +33,7 @@ package_fixtures = [
 ]
 
 
-@pytest.mark.parametrize("package, version", package_fixtures, ids=map(lambda x: x[0], package_fixtures))
+@pytest.mark.parametrize("package, version", package_fixtures, ids=[x[0] for x in package_fixtures])
 def test_build_package(package: str, version: str):
     # TODO use sandbox/container, lxd?
     repo_dir = fetch_sources(package_name=package, version=version)

@@ -96,7 +96,7 @@ type PresetsT = PresetT | list[PresetT] | None
 
 
 def as_presets(preset_elements: PresetsT) -> list[Preset]:
-    presets: list[Preset] = list()
+    presets: list[Preset] = []
 
     if isinstance(preset_elements, list):
         for preset_module in preset_elements:

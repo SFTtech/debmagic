@@ -80,6 +80,7 @@ def prefix_idx(prefix: str, seq: list[str]) -> int:
 
 T = TypeVar("T")
 
+
 def list_strip_head(data: list[T], head: list[T]) -> list[T]:
     """
     >>> list_strip_head([1,2,3], [])
@@ -103,4 +104,5 @@ def list_strip_head(data: list[T], head: list[T]) -> list[T]:
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

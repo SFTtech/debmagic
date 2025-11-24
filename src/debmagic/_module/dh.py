@@ -32,8 +32,15 @@ type DHOverride = Callable[[Build], None]
 
 
 class Preset(PresetBase):
-    def __init__(self, dh_args: list[str] | None = None):
-        self._dh_args: list[str] = dh_args or []
+    def __init__(self, dh_args: list[str] | str | None = None):
+        self._dh_args: list[str]
+        if dh_args is None:
+            self._dh_args = []
+        elif isinstance(dh_args, str):
+            self._dh_args = shlex.split(dh_args)
+        else:
+            self._dh_args = dh_args
+
         self._overrides: dict[str, DHOverride] = dict()
         self._initialized = False
 

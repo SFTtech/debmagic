@@ -1,5 +1,5 @@
 from ._build import Build
-from ._modules import autotools, dh
+from ._module import autotools, dh
 from ._package import package
 from ._preset import Preset
 from ._utils import run_cmd

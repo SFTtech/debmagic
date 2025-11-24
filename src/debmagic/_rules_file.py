@@ -13,7 +13,7 @@ def find_rules_file() -> RulesFile:
     for frame in inspect.stack():
         file_path = Path(frame.filename)
         # TODO further validation, be in debian/
-        if file_path.name == "rules" or file_path.name == "rules.py":
+        if file_path.name in {"rules", "rules.py"}:
             return RulesFile(
                 package_dir=file_path.parent.parent.resolve(),
                 local_vars=frame.frame.f_locals,

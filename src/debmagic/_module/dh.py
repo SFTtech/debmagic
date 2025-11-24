@@ -12,7 +12,7 @@ from typing import Callable
 from .._build import Build
 from .._package import SourcePackage
 from .._preset import Preset as PresetBase
-from .._utils import prefix_idx, run_cmd
+from .._utils import list_strip_head, prefix_idx, run_cmd
 
 
 class DHSequenceID(StrEnum):
@@ -20,6 +20,9 @@ class DHSequenceID(StrEnum):
     build = "build"
     build_arch = "build-arch"
     build_indep = "build-indep"
+    install = "install"
+    install_arch = "install-arch"
+    install_indep = "install-indep"
     binary = "binary"
     binary_arch = "binary-arch"
     binary_indep = "binary-indep"
@@ -33,16 +36,16 @@ class Preset(PresetBase):
         if not dh_invocation:
             dh_invocation = "dh"
         self._dh_invocation: str = dh_invocation
-        self._overrides: dict[str, DHOverride] = dict()
+        self._overrides: dict[str, DHOverride] = {}
         self._initialized = False
 
         # debmagic's stages, with matching commands from the dh sequence
-        self._clean_seq: list[str] = list()
-        self._configure_seq: list[str] = list()
-        self._build_seq: list[str] = list()
-        self._test_seq: list[str] = list()
-        self._install_seq: list[str] = list()
-        self._package_seq: list[str] = list()
+        self._clean_seq: list[str] = []
+        self._configure_seq: list[str] = []
+        self._build_seq: list[str] = []
+        self._test_seq: list[str] = []
+        self._install_seq: list[str] = []
+        self._package_seq: list[str] = []
 
         # all seen sequence cmd ids (the dh command script itself)
         self._seq_ids: set[str] = set()
@@ -106,10 +109,10 @@ class Preset(PresetBase):
         self._clean_seq = self._get_dh_seq(base_dir, dh_invocation, DHSequenceID.clean)
 
         ## untangle "build" to configure & build & test
-        build_seq = self._get_dh_seq(base_dir, dh_invocation, DHSequenceID.build)
-        if build_seq[-1] != "create-stamp debian/debhelper-build-stamp":
+        build_seq_raw = self._get_dh_seq(base_dir, dh_invocation, DHSequenceID.build)
+        if build_seq_raw[-1] != "create-stamp debian/debhelper-build-stamp":
             raise RuntimeError("build stamp creation line missing from dh build sequence")
-        build_seq = build_seq[:-1]  # remove that stamp line
+        build_seq = build_seq_raw[:-1]  # remove that stamp line
 
         auto_cfg_idx = prefix_idx("dh_auto_configure", build_seq)
         # up to including dh_auto_configure
@@ -125,14 +128,12 @@ class Preset(PresetBase):
         self._test_seq = build_seq[auto_test_idx:]
 
         ## untangle "binary" to install & package
+        install_seq = self._get_dh_seq(base_dir, dh_invocation, DHSequenceID.install)
+        self._install_seq = list_strip_head(install_seq, build_seq_raw)
         binary_seq = self._get_dh_seq(base_dir, dh_invocation, DHSequenceID.binary)
-        build_stamp_idx = prefix_idx("create-stamp debian/debhelper-build-stamp", binary_seq)
-        auto_install_idx = prefix_idx("dh_auto_install", binary_seq)
-        # one after the build-stamp, up to including dh_auto_install
-        self._install_seq = binary_seq[build_stamp_idx + 1 : auto_install_idx + 1]
-        # assume everything else is packing (which is a bit wrong, but packing & installing is mixed in dh)
-        self._package_seq = binary_seq[auto_install_idx + 1 :]
+        self._package_seq = list_strip_head(binary_seq, install_seq)
 
+        # register all sequence items for validity checks
         for seq in (
             self._clean_seq,
             self._configure_seq,
@@ -148,7 +149,7 @@ class Preset(PresetBase):
 
     def _get_dh_seq(self, base_dir: Path, dh_invocation: str, seq: DHSequenceID) -> list[str]:
         dh_base_cmd = shlex.split(dh_invocation)
-        cmd = dh_base_cmd + [str(seq), "--no-act"]
+        cmd = [*dh_base_cmd, str(seq), "--no-act"]
         proc = run_cmd(cmd, cwd=base_dir, capture_output=True, text=True)
         lines = proc.stdout.splitlines()
         return [line.strip() for line in lines]

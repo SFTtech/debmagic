@@ -95,7 +95,7 @@ class PackageFilter(Flag):
     architecture_independent = auto()
 
     def get_packages(self, binary_packages: list[BinaryPackage]) -> list[BinaryPackage]:
-        ret: list[BinaryPackage] = list()
+        ret: list[BinaryPackage] = []
 
         for pkg in binary_packages:
             if self.architecture_independent and pkg.arch_dependent:
@@ -157,7 +157,7 @@ class SourcePackage:
 
         # find arguments and its types to guess argparsing
         args_raw = inspect.getfullargspec(func)
-        args: CustomFuncArgsT = dict()
+        args: CustomFuncArgsT = {}
         default_count = 0 if not args_raw.defaults else len(args_raw.defaults)
         default_start = len(args_raw.args) - default_count
         for idx, arg in enumerate(args_raw.args):
@@ -253,7 +253,7 @@ def package(
     presets: list[Preset] = as_presets(preset)
 
     # apply default preset last
-    from ._modules.default import Preset as DefaultPreset
+    from ._module.default import Preset as DefaultPreset
 
     presets.append(DefaultPreset())
 
@@ -263,7 +263,7 @@ def package(
 
     src_pkg: SourcePackage | None = None
     # which binary packages should be produced?
-    bin_pkgs: list[BinaryPackage] = list()
+    bin_pkgs: list[BinaryPackage] = []
 
     for block in deb822.DebControl.iter_paragraphs(
         (rules_file.package_dir / "debian/control").open(),

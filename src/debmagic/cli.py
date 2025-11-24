@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from debmagic._build_driver.build import build as build_driver_build
-from debmagic._build_driver.common import SUPPORTED_BUILD_DRIVERS, BuildConfig
+from debmagic._build_driver.common import SUPPORTED_BUILD_DRIVERS
 from debmagic._utils import run_cmd
 from debmagic._version import VERSION
 
@@ -24,9 +24,15 @@ def _parse_args():
     build_cli = sp.add_parser(
         "build", parents=[common_cli], help="Build a debian package with the selected containerization driver"
     )
-    build_cli.add_argument("--driver", choices=SUPPORTED_BUILD_DRIVERS, default="none")
+    build_cli.add_argument("--driver", choices=SUPPORTED_BUILD_DRIVERS, required=True)
     build_cli.add_argument("-s", "--source-dir", type=Path, default=Path.cwd())
     build_cli.add_argument("-o", "--output-dir", type=Path, default=Path.cwd())
+
+    sp.add_parser("check", parents=[common_cli], help="Run linters (e.g. lintian)")
+
+    sp.add_parser("shell", parents=[common_cli], help="Attach a shell to a running debmagic build")
+
+    sp.add_parser("test", parents=[common_cli], help="Run package tests")
 
     return cli, cli.parse_args()
 
@@ -42,13 +48,8 @@ def main():
             print(f"{cli.prog} {VERSION}")
             cli.exit(0)
         case "build":
-            build_config = BuildConfig(
-                output_dir=args.output_dir,
-                source_dir=args.source_dir,
-                distro="debian",
-                distro_version="trixie",
-                dry_run=args.dry_run,
+            build_driver_build(
+                build_driver=args.driver, source_dir=args.source_dir, output_dir=args.output_dir, dry_run=args.dry_run
             )
-            build_driver_build(build_driver=args.driver, config=build_config)
         case "debuild":
             run_cmd(["debuild", "-nc", "-uc", "-b"])

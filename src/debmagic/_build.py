@@ -96,7 +96,6 @@ class Build:
                         break  # stop preset processing
 
             if not self.is_stage_completed(stage):
-                breakpoint()
                 raise RuntimeError(f"{stage!s} stage was never executed")
 
             if stage == target_stage:

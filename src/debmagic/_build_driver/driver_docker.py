@@ -77,7 +77,7 @@ class BuildDriverDocker(BuildDriver):
         instance = cls(config=config, container_name=docker_container_name)
         return instance
 
-    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
+    def run_command(self, cmd: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
         del requires_root  # we assume to always be root in the container
 
         if cwd:
@@ -86,7 +86,7 @@ class BuildDriverDocker(BuildDriver):
         else:
             cwd_args = []
 
-        ret = run_cmd(["docker", "exec", *cwd_args, self._container_name, *args], dry_run=self._config.dry_run)
+        ret = run_cmd(["docker", "exec", *cwd_args, self._container_name, *cmd], dry_run=self._config.dry_run)
         if ret.returncode != 0:
             raise BuildError("Error building package")
 

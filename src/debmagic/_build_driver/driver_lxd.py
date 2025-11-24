@@ -9,7 +9,7 @@ class BuildDriverLxd(BuildDriver):
     def create(cls, config: BuildConfig):
         return cls()
 
-    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
+    def run_command(self, cmd: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
         raise NotImplementedError()
 
     def cleanup(self):

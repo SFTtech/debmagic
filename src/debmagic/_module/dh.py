@@ -41,7 +41,7 @@ class Preset(PresetBase):
         else:
             self._dh_args = dh_args
 
-        self._overrides: dict[str, DHOverride] = dict()
+        self._overrides: dict[str, DHOverride] = {}
         self._initialized = False
 
         # debmagic's stages, with matching commands from the dh sequence

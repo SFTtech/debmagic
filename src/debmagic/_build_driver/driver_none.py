@@ -14,10 +14,10 @@ class BuildDriverNone(BuildDriver):
     def create(cls, config: BuildConfig):
         return cls(config=config)
 
-    def run_command(self, args: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
+    def run_command(self, cmd: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
         if requires_root and not os.getuid() == 0:
-            args = ["sudo", *args]
-        run_cmd(args=args, dry_run=self._config.dry_run, cwd=cwd)
+            cmd = ["sudo", *cmd]
+        run_cmd(cmd=cmd, dry_run=self._config.dry_run, cwd=cwd)
 
     def cleanup(self):
         pass

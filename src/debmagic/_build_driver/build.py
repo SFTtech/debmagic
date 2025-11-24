@@ -90,7 +90,8 @@ def build(build_driver: BuildDriverType, source_dir: Path, output_dir: Path, dry
     except Exception as e:
         print(e)
         print(
-            "Something failed during building - dropping into interactive shell in build environment for easier debugging"
+            "Something failed during building -"
+            " dropping into interactive shell in build environment for easier debugging"
         )
         driver.drop_into_shell()
         raise e

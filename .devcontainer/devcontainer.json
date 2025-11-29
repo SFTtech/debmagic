@@ -9,7 +9,6 @@
     }
   },
   "postCreateCommand": "./.devcontainer/post-create.sh",
-
   // Configure tool-specific properties.
   "customizations": {
     "vscode": {

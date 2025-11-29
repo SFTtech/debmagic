@@ -2,6 +2,7 @@ import io
 import os
 import re
 import shlex
+import shutil
 import signal
 import subprocess
 import sys
@@ -199,6 +200,16 @@ def list_strip_head(data: list[T], head: list[T]) -> list[T]:
             break
 
     return data[idx:]
+
+
+def copy_file_if_exists(source: Path, glob: str, dest: Path):
+    for file in source.glob(glob):
+        if file.is_dir():
+            shutil.copytree(file, dest)
+        elif file.is_file():
+            shutil.copy(file, dest)
+        else:
+            raise NotImplementedError("Don't support anything besides files and directories")
 
 
 if __name__ == "__main__":

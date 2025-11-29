@@ -7,7 +7,7 @@ license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.12"
 classifiers = ["Programming Language :: Python :: 3"]
-dependencies = ["python-debian>=1.0"]
+dependencies = ["python-debian>=1.0", "pydantic>=2,<3"]
 
 [project.scripts]
 debmagic = "debmagic.cli:main"

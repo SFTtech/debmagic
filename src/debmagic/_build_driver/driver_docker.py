@@ -2,7 +2,14 @@ import uuid
 from pathlib import Path
 from typing import Self, Sequence
 
-from debmagic._build_driver.common import BuildConfig, BuildDriver, BuildError
+from debmagic._build_driver.common import (
+    BuildConfig,
+    BuildDriver,
+    BuildDriverType,
+    BuildError,
+    BuildMetadata,
+    DriverSpecificBuildMetadata,
+)
 from debmagic._utils import run_cmd, run_cmd_in_foreground
 
 BUILD_DIR_IN_CONTAINER = Path("/debmagic")
@@ -18,15 +25,16 @@ ENTRYPOINT ["sleep", "infinity"]
 
 
 class BuildDriverDocker(BuildDriver):
-    def __init__(self, config: BuildConfig, container_name: str):
-        self._config = config
+    def __init__(self, build_root: Path, dry_run: bool, container_name: str):
+        self._build_root = build_root
+        self._dry_run = dry_run
 
         self._container_name = container_name
 
     def _translate_path_in_container(self, path_in_source: Path) -> Path:
-        if not path_in_source.is_relative_to(self._config.build_root_dir):
+        if not path_in_source.is_relative_to(self._build_root):
             raise BuildError("Cannot run in a path not relative to the original source directory")
-        rel = path_in_source.relative_to(self._config.build_root_dir)
+        rel = path_in_source.relative_to(self._build_root)
         return BUILD_DIR_IN_CONTAINER / rel
 
     @classmethod
@@ -39,7 +47,7 @@ class BuildDriverDocker(BuildDriver):
         dockerfile_path = config.build_temp_dir / "Dockerfile"
         dockerfile_path.write_text(formatted_dockerfile)
 
-        docker_image_name = str(uuid.uuid4())
+        docker_image_name = f"debmagic-{config.build_identifier}"
         ret = run_cmd(
             [
                 "docker",
@@ -74,8 +82,19 @@ class BuildDriverDocker(BuildDriver):
         if ret.returncode != 0:
             raise BuildError("Error creating docker image for build")
 
-        instance = cls(config=config, container_name=docker_container_name)
+        instance = cls(dry_run=config.dry_run, build_root=config.build_root_dir, container_name=docker_container_name)
         return instance
+
+    @classmethod
+    def from_build_metadata(cls, build_metadata: BuildMetadata) -> Self:
+        assert build_metadata.driver == "docker"
+        container_name = build_metadata.driver_metadata.get("container_name")
+        if container_name is None or not isinstance(container_name, str):
+            raise RuntimeError("container_name not specified in build metadata, cannot instantiate build driver")
+        return cls(dry_run=False, build_root=build_metadata.build_root, container_name=container_name)
+
+    def get_build_metadata(self) -> DriverSpecificBuildMetadata:
+        return {"container_name": self._container_name}
 
     def run_command(self, cmd: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
         del requires_root  # we assume to always be root in the container
@@ -86,15 +105,28 @@ class BuildDriverDocker(BuildDriver):
         else:
             cwd_args = []
 
-        ret = run_cmd(["docker", "exec", *cwd_args, self._container_name, *cmd], dry_run=self._config.dry_run)
+        ret = run_cmd(["docker", "exec", *cwd_args, self._container_name, *cmd], dry_run=self._dry_run)
         if ret.returncode != 0:
             raise BuildError("Error building package")
 
     def cleanup(self):
-        run_cmd(["docker", "rm", "-f", self._container_name], dry_run=self._config.dry_run)
+        run_cmd(["docker", "rm", "-f", self._container_name], dry_run=self._dry_run)
 
     def drop_into_shell(self):
-        if not self._config.dry_run:
+        if not self._dry_run:
             run_cmd_in_foreground(
-                ["docker", "exec", "--interactive", "--tty", self._container_name, "/usr/bin/env", "bash"]
+                [
+                    "docker",
+                    "exec",
+                    "--interactive",
+                    "--workdir",
+                    self._translate_path_in_container(self._build_root),
+                    "--tty",
+                    self._container_name,
+                    "/usr/bin/env",
+                    "bash",
+                ]
             )
+
+    def driver_type(self) -> BuildDriverType:
+        return "docker"

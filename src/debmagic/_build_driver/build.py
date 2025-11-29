@@ -5,8 +5,9 @@ from pathlib import Path
 from debmagic._build_driver.driver_docker import BuildDriverDocker
 from debmagic._build_driver.driver_lxd import BuildDriverLxd
 from debmagic._build_driver.driver_none import BuildDriverNone
+from debmagic._utils import copy_file_if_exists
 
-from .common import BuildConfig, BuildDriver, BuildDriverType
+from .common import BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, PackageDescription
 
 DEBMAGIC_TEMP_BUILD_PARENT_DIR = Path("/tmp/debmagic")
 
@@ -21,6 +22,38 @@ def _create_driver(build_driver: BuildDriverType, config: BuildConfig) -> BuildD
             return BuildDriverNone.create(config=config)
 
 
+def _driver_from_build_root(build_root: Path):
+    build_metadata_path = build_root / "build.json"
+    if not build_metadata_path.is_file():
+        raise RuntimeError(f"{build_metadata_path} does not exist")
+    try:
+        metadata = BuildMetadata.model_validate_json(build_metadata_path.read_text())
+    except:
+        raise RuntimeError(f"{build_metadata_path} is invalid")
+
+    match metadata.driver:
+        case "docker":
+            return BuildDriverDocker.from_build_metadata(metadata)
+        case "lxd":
+            return BuildDriverLxd.from_build_metadata(metadata)
+        case "none":
+            return BuildDriverNone.from_build_metadata(metadata)
+        case _:
+            raise RuntimeError(f"Unknown build driver {metadata.driver}")
+
+
+def _write_build_metadata(config: BuildConfig, driver: BuildDriver):
+    driver_metadata = driver.get_build_metadata()
+    build_metadata_path = config.build_root_dir / "build.json"
+    metadata = BuildMetadata(
+        build_root=config.build_root_dir,
+        source_dir=config.build_source_dir,
+        driver=driver.driver_type(),
+        driver_metadata=driver_metadata,
+    )
+    build_metadata_path.write_text(metadata.model_dump_json())
+
+
 def _ignore_patterns_from_gitignore(gitignore_path: Path):
     if not gitignore_path.is_file():
         return None
@@ -30,18 +63,20 @@ def _ignore_patterns_from_gitignore(gitignore_path: Path):
     return shutil.ignore_patterns(*relevant_lines)
 
 
-def _prepare_build_env(source_dir: Path, output_dir: Path, dry_run: bool) -> BuildConfig:
-    package_name = "debmagic"  # TODO
-    package_version = "0.1.0"  # TODO
-
-    package_identifier = f"{package_name}-{package_version}"
+def _get_package_build_root_and_identifier(package: PackageDescription) -> tuple[str, Path]:
+    package_identifier = f"{package.name}-{package.version}"
     build_root = DEBMAGIC_TEMP_BUILD_PARENT_DIR / package_identifier
+    return package_identifier, build_root
+
+
+def _prepare_build_env(package: PackageDescription, output_dir: Path, dry_run: bool) -> BuildConfig:
+    package_identifier, build_root = _get_package_build_root_and_identifier(package)
     if build_root.exists():
         shutil.rmtree(build_root)
 
     config = BuildConfig(
         package_identifier=package_identifier,
-        source_dir=source_dir,
+        source_dir=package.source_dir,
         output_dir=output_dir,
         build_root_dir=build_root,
         distro="debian",
@@ -52,26 +87,28 @@ def _prepare_build_env(source_dir: Path, output_dir: Path, dry_run: bool) -> Bui
 
     # prepare build environment, create the build directory structure, copy the sources
     config.create_dirs()
-    source_ignore_pattern = _ignore_patterns_from_gitignore(source_dir / ".gitignore")
+    source_ignore_pattern = _ignore_patterns_from_gitignore(package.source_dir / ".gitignore")
     shutil.copytree(config.source_dir, config.build_source_dir, dirs_exist_ok=True, ignore=source_ignore_pattern)
 
     return config
 
 
-def _copy_file_if_exists(source: Path, glob: str, dest: Path):
-    for file in source.glob(glob):
-        if file.is_dir():
-            shutil.copytree(file, dest)
-        elif file.is_file():
-            shutil.copy(file, dest)
-        else:
-            raise NotImplementedError("Don't support anything besides files and directories")
+def get_shell_in_build(package: PackageDescription):
+    _, build_root = _get_package_build_root_and_identifier(package)
+    driver = _driver_from_build_root(build_root=build_root)
+    driver.drop_into_shell()
 
 
-def build(build_driver: BuildDriverType, source_dir: Path, output_dir: Path, dry_run: bool = False):
-    config = _prepare_build_env(source_dir=source_dir, output_dir=output_dir, dry_run=dry_run)
+def build(
+    package: PackageDescription,
+    build_driver: BuildDriverType,
+    output_dir: Path,
+    dry_run: bool = False,
+):
+    config = _prepare_build_env(package=package, output_dir=output_dir, dry_run=dry_run)
 
     driver = _create_driver(build_driver, config)
+    _write_build_metadata(config, driver)
     try:
         driver.run_command(["apt-get", "-y", "build-dep", "."], cwd=config.build_source_dir, requires_root=True)
         driver.run_command(["dpkg-buildpackage", "-us", "-uc", "-ui", "-nc", "-b"], cwd=config.build_source_dir)
@@ -83,10 +120,10 @@ def build(build_driver: BuildDriverType, source_dir: Path, output_dir: Path, dry
             # driver.run_command(["debrsign", opts, username, changes], cwd=config.source_dir)
 
         # TODO: copy packages to output directory
-        _copy_file_if_exists(source=config.build_source_dir / "..", glob="*.deb", dest=config.output_dir)
-        _copy_file_if_exists(source=config.build_source_dir / "..", glob="*.buildinfo", dest=config.output_dir)
-        _copy_file_if_exists(source=config.build_source_dir / "..", glob="*.changes", dest=config.output_dir)
-        _copy_file_if_exists(source=config.build_source_dir / "..", glob="*.dsc", dest=config.output_dir)
+        copy_file_if_exists(source=config.build_source_dir / "..", glob="*.deb", dest=config.output_dir)
+        copy_file_if_exists(source=config.build_source_dir / "..", glob="*.buildinfo", dest=config.output_dir)
+        copy_file_if_exists(source=config.build_source_dir / "..", glob="*.changes", dest=config.output_dir)
+        copy_file_if_exists(source=config.build_source_dir / "..", glob="*.dsc", dest=config.output_dir)
     except Exception as e:
         print(e)
         print(

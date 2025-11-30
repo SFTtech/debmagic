@@ -32,10 +32,15 @@ type DHOverride = Callable[[Build], None]
 
 
 class Preset(PresetBase):
-    def __init__(self, dh_invocation: str | None = None):
-        if not dh_invocation:
-            dh_invocation = "dh"
-        self._dh_invocation: str = dh_invocation
+    def __init__(self, dh_args: list[str] | str | None = None):
+        self._dh_args: list[str]
+        if dh_args is None:
+            self._dh_args = []
+        elif isinstance(dh_args, str):
+            self._dh_args = shlex.split(dh_args)
+        else:
+            self._dh_args = dh_args
+
         self._overrides: dict[str, DHOverride] = {}
         self._initialized = False
 
@@ -52,7 +57,7 @@ class Preset(PresetBase):
 
     def initialize(self, src_pkg: SourcePackage) -> None:
         # get all steps the dh sequence would do
-        self._populate_stages(self._dh_invocation, base_dir=src_pkg.base_dir)
+        self._populate_stages(self._dh_args, base_dir=src_pkg.base_dir)
         self._initialized = True
 
     def clean(self, build: Build):
@@ -97,7 +102,7 @@ class Preset(PresetBase):
             else:
                 build.cmd(cmd, cwd=build.source_dir)
 
-    def _populate_stages(self, dh_invocation: str, base_dir: Path) -> None:
+    def _populate_stages(self, dh_args: list[str], base_dir: Path) -> None:
         """
         split up the dh sequences into debmagic's stages.
         this involves guessing, since dh only has "build" (=configure, build, test)
@@ -106,10 +111,10 @@ class Preset(PresetBase):
         if you have a better idea how to map dh sequences to debmagic's stages, please tell us.
         """
         ## clean, which is 1:1 fortunately
-        self._clean_seq = self._get_dh_seq(base_dir, dh_invocation, DHSequenceID.clean)
+        self._clean_seq = self._get_dh_seq(base_dir, dh_args, DHSequenceID.clean)
 
         ## untangle "build" to configure & build & test
-        build_seq_raw = self._get_dh_seq(base_dir, dh_invocation, DHSequenceID.build)
+        build_seq_raw = self._get_dh_seq(base_dir, dh_args, DHSequenceID.build)
         if build_seq_raw[-1] != "create-stamp debian/debhelper-build-stamp":
             raise RuntimeError("build stamp creation line missing from dh build sequence")
         build_seq = build_seq_raw[:-1]  # remove that stamp line
@@ -128,9 +133,9 @@ class Preset(PresetBase):
         self._test_seq = build_seq[auto_test_idx:]
 
         ## untangle "binary" to install & package
-        install_seq = self._get_dh_seq(base_dir, dh_invocation, DHSequenceID.install)
+        install_seq = self._get_dh_seq(base_dir, dh_args, DHSequenceID.install)
         self._install_seq = list_strip_head(install_seq, build_seq_raw)
-        binary_seq = self._get_dh_seq(base_dir, dh_invocation, DHSequenceID.binary)
+        binary_seq = self._get_dh_seq(base_dir, dh_args, DHSequenceID.binary)
         self._package_seq = list_strip_head(binary_seq, install_seq)
 
         # register all sequence items for validity checks
@@ -147,9 +152,8 @@ class Preset(PresetBase):
                 cmd_id = cmd[0]
                 self._seq_ids.add(cmd_id)
 
-    def _get_dh_seq(self, base_dir: Path, dh_invocation: str, seq: DHSequenceID) -> list[str]:
-        dh_base_cmd = shlex.split(dh_invocation)
-        cmd = [*dh_base_cmd, str(seq), "--no-act"]
+    def _get_dh_seq(self, base_dir: Path, dh_args: list[str], seq: DHSequenceID) -> list[str]:
+        cmd = ["dh", str(seq), "--no-act", *dh_args]
         proc = run_cmd(cmd, cwd=base_dir, capture_output=True, text=True)
         lines = proc.stdout.splitlines()
         return [line.strip() for line in lines]

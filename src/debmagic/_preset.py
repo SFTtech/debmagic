@@ -77,6 +77,8 @@ def _get_member(obj: type[T], stage: BuildStage) -> _PresetBuildStepClassMethod:
 
 def _get_member(obj: T | type[T], stage: BuildStage) -> BuildStep | _PresetBuildStepClassMethod:
     match stage:
+        case BuildStage.clean:
+            return obj.clean
         case BuildStage.prepare:
             return obj.prepare
         case BuildStage.configure:

@@ -43,7 +43,9 @@ def _parse_args(custom_functions: dict[str, CustomFunction] = {}):
 
     common_cli = argparse.ArgumentParser(add_help=False)
     common_cli.add_argument(
-        "--dry-run", action="store_true", help="don't actually run anything that changes the system/package state"
+        "--dry-run",
+        action="store_true",
+        help="don't actually run anything that changes the system/package state",
     )
 
     # debian-required "targets":
@@ -186,7 +188,7 @@ class SourcePackage:
             flags=self.buildflags,
             parallel=multiprocessing.cpu_count(),  # TODO
             prefix=Path("/usr"),  # TODO
-            dry_run=args.__dict__.get("dry_run"),  # TODO
+            dry_run=args.dry_run,
         )
 
         match args.operation:
@@ -228,7 +230,8 @@ class SourcePackage:
                     func_args = {k: vars(args)[k] for k in func.args.keys()}
                     func.fun(**func_args)
                 else:
-                    cli.print_help(f"call to unknown operation {args.operation!r}")
+                    print(f"call to unknown operation {args.operation!r}\n")
+                    cli.print_help()
                     cli.exit(1)
 
 

@@ -1,6 +1,6 @@
 [project]
 name = "debmagic"
-version = "0.1.0"
+version = "0.0.1-alpha.1"
 description = "build debian packages"
 license = { file = "LICENSE" }
 readme = "README.md"
@@ -31,7 +31,15 @@ exclude_gitignore = true
 [tool.ruff]
 line-length = 120
 target-version = "py312"
-extend-exclude = [".idea", ".mypy_cache", ".venv*", "docs", "debian", "__pycache__", "*.egg_info"]
+extend-exclude = [
+    ".idea",
+    ".mypy_cache",
+    ".venv*",
+    "docs",
+    "debian",
+    "__pycache__",
+    "*.egg_info",
+]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "N", "PL", "RUF", "I001"]

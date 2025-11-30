@@ -66,10 +66,7 @@ def run_cmd(
     if dry_run:
         return subprocess.CompletedProcess(cmd_args, 0)
 
-    ret = subprocess.run(cmd_args, check=False, **kwargs)
-
-    if check and ret.returncode != 0:
-        raise RuntimeError(f"failed to execute {cmd_pretty}")
+    ret = subprocess.run(cmd_args, check=check, **kwargs)
 
     return ret
 

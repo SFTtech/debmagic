@@ -23,7 +23,21 @@ requires = ["setuptools>=77.0.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [dependency-groups]
-dev = ["pytest>=9.0.1", "pytest-cov>=7.0.0", "ruff", "pre-commit", "mypy"]
+dev = [
+    { include-group = "docs" },
+    "pytest>=9.0.1",
+    "pytest-cov>=7.0.0",
+    "ruff",
+    "pre-commit",
+    "mypy",
+]
+docs = [
+    "sphinx>=8.2.3,<9",
+    "myst-parser>=4.0.1",
+    "sphinx-autobuild>=2025.8.25",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-rtd-theme>=3.0.2",
+]
 
 [tool.mypy]
 mypy_path = '$MYPY_CONFIG_FILE_DIR/src'

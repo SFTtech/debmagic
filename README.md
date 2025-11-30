@@ -56,3 +56,12 @@ Setup:
 uv sync
 uv run pre-commit install
 ```
+
+Build the documentation
+
+```bash
+# oneshot build
+uv run sphinx-build docs docs/_build
+# continous serving
+uv run sphinx-autobuild docs docs/_build
+```

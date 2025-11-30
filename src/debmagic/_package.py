@@ -16,6 +16,7 @@ from ._build_order import BuildOrder
 from ._build_stage import BuildStage
 from ._build_step import BuildStep
 from ._dpkg import buildflags
+from ._package_version import PackageVersion
 from ._preset import Preset, PresetsT, as_presets
 from ._rules_file import RulesFile, find_rules_file
 from ._types import CustomFuncArg, CustomFuncArgsT
@@ -118,6 +119,7 @@ class SourcePackage:
     rules_file: RulesFile
     presets: list[Preset]
     binary_packages: list[BinaryPackage]
+    version: PackageVersion
     buildflags: Namespace
     stage_functions: dict[BuildStage, BuildStep] = field(default_factory=dict)
     custom_functions: dict[str, CustomFunction] = field(default_factory=dict)
@@ -261,7 +263,7 @@ def package(
     presets.append(DefaultPreset())
 
     # set buildflags as environment variables
-    flags = buildflags.get_flags(rules_file.package_dir, maint_options=maint_options)
+    flags, version = buildflags.get_pkg_env(rules_file.package_dir, maint_options=maint_options)
     os.environ.update(flags)
 
     src_pkg: SourcePackage | None = None
@@ -281,6 +283,7 @@ def package(
                 rules_file,
                 presets,
                 bin_pkgs,
+                version,
                 buildflags=Namespace(**flags),
             )
 

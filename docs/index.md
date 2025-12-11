@@ -1,11 +1,13 @@
 # debmagic
 
+![debmagic image](../assets/debmagic-logo.svg){width=250px align=center}
+
 ```{toctree}
 :hidden:
 :caption: Usage
 
 usage/getting-started.md
-usage/installation.md
+usage/modules/index.md
 ```
 
 ```{toctree}

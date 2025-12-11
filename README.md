@@ -3,9 +3,9 @@
 <img align="right" style="float: right; width: 25%;" src="assets/debmagic-logo.svg" alt="debmagic logo"/>
 
 Debmagic is for [Debian](https://debian.org)/[Ubuntu](https://ubuntu.com):
+
 - create packages **build instructions** in Python with `debian/rules.py`
 - tooling do perform packaging itself: **building** and **testing** in isolated container environments
-
 
 [![GitHub Actions Status](https://github.com/SFTtech/debmagic/actions/workflows/ci.yml/badge.svg)](https://github.com/SFTtech/debmagic/actions/workflows/ci.yml)
 
@@ -20,7 +20,6 @@ Included features:
   - language and buildsystem [helper modules](src/debmagic/_module)
 - maintainer tools
   - `debmagic build` - isolated package building
-
 
 ## Example debian/rules.py
 
@@ -82,7 +81,7 @@ pkg.pack()
 
 To add custom functions directly usable from CLI (like custom `debian/rules` targets for maintainers):
 
-``` python
+```python
 pkg = package(...)
 
 @pkg.custom_function
@@ -94,54 +93,30 @@ pkg.pack()
 
 This function can be directly called with:
 
-``` console
+```console
 ./debian/rules.py something-custom --another-param=test 1337
 ```
-``` text
+
+```text
 you passed some_param=test another_param=1337
 ```
 
 And generates automatic help for:
-``` console
+
+```console
 ./debian/rules.py something-custom --help
 ```
-
-
-## Developing
-
-Prerequisites:
-
-- Debian >= trixie, either roll your own environment or to get started faster use the [devcontainer](https://containers.dev/)
-- Python >= 3.12
-- [UV](https://docs.astral.sh/uv/)
-
-Setup:
-
-```bash
-uv sync
-uv run pre-commit install
-```
-
-Build the documentation
-
-```bash
-# oneshot build
-uv run sphinx-build docs docs/_build
-# continous serving
-uv run sphinx-autobuild docs docs/_build
-```
-
 
 ## Documentation
 
 To do packaging with debmagic, please **[read the documentation!](https://debmagic.readthedocs.io)**.
-
 
 ## Contributing
 
 Debmagic can always use more features and modules!
 You can also just request features or report bugs - this project is happy about your contributions!
 
+- [Contributor documentation](https://debmagic.readthedocs.io/en/latest/develop/index.html)
 - [Issue tracker](https://github.com/SFTtech/debmagic/issues)
 - [Code contributions](https://github.com/SFTtech/debmagic/pulls)
 - [Development roadmap](https://github.com/SFTtech/debmagic/projects)
@@ -152,11 +127,10 @@ To directly reach developers and other users, we have chat rooms.
 For questions, suggestions, problem support, please join and just ask!
 
 | Contact       | Where?                                                                                         |
-|---------------|------------------------------------------------------------------------------------------------|
+| ------------- | ---------------------------------------------------------------------------------------------- |
 | Issue Tracker | [SFTtech/debmagic](https://github.com/SFTtech/debmagic/issues)                                 |
 | Matrix Chat   | [`#sfttech:matrix.org`](https://app.element.io/#/room/#sfttech:matrix.org)                     |
 | Support us    | [![donations](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/SFTtech) |
-
 
 ## License
 

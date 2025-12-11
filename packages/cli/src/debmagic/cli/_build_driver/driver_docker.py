@@ -2,7 +2,9 @@ import uuid
 from pathlib import Path
 from typing import Self, Sequence
 
-from debmagic._build_driver.common import (
+from debmagic.common.utils import run_cmd, run_cmd_in_foreground
+
+from .common import (
     BuildConfig,
     BuildDriver,
     BuildDriverType,
@@ -10,7 +12,6 @@ from debmagic._build_driver.common import (
     BuildMetadata,
     DriverSpecificBuildMetadata,
 )
-from debmagic._utils import run_cmd, run_cmd_in_foreground
 
 BUILD_DIR_IN_CONTAINER = Path("/debmagic")
 

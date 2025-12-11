@@ -9,6 +9,8 @@ from enum import Flag, auto
 from pathlib import Path
 from typing import Callable, ParamSpec, TypeVar
 
+from debmagic.common.utils import Namespace, disable_output_buffer
+
 from debian import deb822
 
 from ._build import Build
@@ -20,7 +22,6 @@ from ._package_version import PackageVersion
 from ._preset import Preset, PresetsT, as_presets
 from ._rules_file import RulesFile, find_rules_file
 from ._types import CustomFuncArg, CustomFuncArgsT
-from ._utils import Namespace, disable_output_buffer
 
 
 @dataclass

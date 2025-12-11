@@ -2,6 +2,34 @@ version = 1
 revision = 3
 requires-python = ">=3.12"
 
+[manifest]
+members = [
+    "debmagic",
+    "debmagic-api",
+    "debmagic-common",
+]
+
+[manifest.dependency-groups]
+dev = [
+    { name = "mypy" },
+    { name = "myst-parser", specifier = ">=4.0.1" },
+    { name = "pre-commit" },
+    { name = "pytest", specifier = ">=9.0.1" },
+    { name = "pytest-cov", specifier = ">=7.0.0" },
+    { name = "ruff" },
+    { name = "sphinx", specifier = ">=8.2.3,<9" },
+    { name = "sphinx-autobuild", specifier = ">=2025.8.25" },
+    { name = "sphinx-copybutton", specifier = ">=0.5.2" },
+    { name = "sphinx-rtd-theme", specifier = ">=3.0.2" },
+]
+docs = [
+    { name = "myst-parser", specifier = ">=4.0.1" },
+    { name = "sphinx", specifier = ">=8.2.3,<9" },
+    { name = "sphinx-autobuild", specifier = ">=2025.8.25" },
+    { name = "sphinx-copybutton", specifier = ">=0.5.2" },
+    { name = "sphinx-rtd-theme", specifier = ">=3.0.2" },
+]
+
 [[package]]
 name = "alabaster"
 version = "1.0.0"
@@ -200,59 +228,43 @@ wheels = [
 [[package]]
 name = "debmagic"
 version = "0.0.1a1"
-source = { editable = "." }
+source = { editable = "packages/cli" }
 dependencies = [
+    { name = "debmagic-common" },
     { name = "pydantic" },
-    { name = "python-debian" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "mypy" },
-    { name = "myst-parser" },
-    { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
-    { name = "sphinx" },
-    { name = "sphinx-autobuild" },
-    { name = "sphinx-copybutton" },
-    { name = "sphinx-rtd-theme" },
-]
-docs = [
-    { name = "myst-parser" },
-    { name = "sphinx" },
-    { name = "sphinx-autobuild" },
-    { name = "sphinx-copybutton" },
-    { name = "sphinx-rtd-theme" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "debmagic-common", editable = "packages/common" },
     { name = "pydantic", specifier = ">=2,<3" },
-    { name = "python-debian", specifier = ">=1.0" },
 ]
 
-[package.metadata.requires-dev]
-dev = [
-    { name = "mypy" },
-    { name = "myst-parser", specifier = ">=4.0.1" },
-    { name = "pre-commit" },
-    { name = "pytest", specifier = ">=9.0.1" },
-    { name = "pytest-cov", specifier = ">=7.0.0" },
-    { name = "ruff" },
-    { name = "sphinx", specifier = ">=8.2.3,<9" },
-    { name = "sphinx-autobuild", specifier = ">=2025.8.25" },
-    { name = "sphinx-copybutton", specifier = ">=0.5.2" },
-    { name = "sphinx-rtd-theme", specifier = ">=3.0.2" },
+[[package]]
+name = "debmagic-api"
+version = "0.0.1a1"
+source = { editable = "packages/api" }
+dependencies = [
+    { name = "debmagic-common" },
+    { name = "pydantic" },
 ]
-docs = [
-    { name = "myst-parser", specifier = ">=4.0.1" },
-    { name = "sphinx", specifier = ">=8.2.3,<9" },
-    { name = "sphinx-autobuild", specifier = ">=2025.8.25" },
-    { name = "sphinx-copybutton", specifier = ">=0.5.2" },
-    { name = "sphinx-rtd-theme", specifier = ">=3.0.2" },
+
+[package.metadata]
+requires-dist = [
+    { name = "debmagic-common", editable = "packages/common" },
+    { name = "pydantic", specifier = ">=2,<3" },
 ]
+
+[[package]]
+name = "debmagic-common"
+version = "0.0.1a1"
+source = { editable = "packages/common" }
+dependencies = [
+    { name = "python-debian" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "python-debian", specifier = ">=1.0" }]
 
 [[package]]
 name = "distlib"

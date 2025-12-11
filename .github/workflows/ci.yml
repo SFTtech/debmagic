@@ -99,7 +99,7 @@ jobs:
       - name: Install the project
         run: uv sync --locked --all-extras --dev
       - name: Run Unittests
-        run: uv run pytest tests/unit --cov=debmagic
+        run: uv run pytest --ignore tests/integration .
  
   # TODO: integration tests currently don't work in the CI since they require running apt source on debian trixie -> CI runs on ubuntu
   # integration-tests:

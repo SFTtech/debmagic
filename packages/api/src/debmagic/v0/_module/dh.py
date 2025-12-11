@@ -9,10 +9,11 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Callable
 
+from debmagic.common.utils import list_strip_head, prefix_idx, run_cmd
+
 from .._build import Build
 from .._package import SourcePackage
 from .._preset import Preset as PresetBase
-from .._utils import list_strip_head, prefix_idx, run_cmd
 
 
 class DHSequenceID(StrEnum):

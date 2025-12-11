@@ -1,10 +1,10 @@
 import argparse
 from pathlib import Path
 
-from debmagic._build_driver.build import PackageDescription, get_shell_in_build
-from debmagic._build_driver.build import build as build_driver_build
-from debmagic._build_driver.common import SUPPORTED_BUILD_DRIVERS
-from debmagic._version import VERSION
+from ._build_driver.build import PackageDescription, get_shell_in_build
+from ._build_driver.build import build as build_driver_build
+from ._build_driver.common import SUPPORTED_BUILD_DRIVERS
+from ._version import VERSION
 
 
 def _create_parser() -> argparse.ArgumentParser:

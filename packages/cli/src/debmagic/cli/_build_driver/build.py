@@ -2,12 +2,12 @@ import re
 import shutil
 from pathlib import Path
 
-from debmagic._build_driver.driver_docker import BuildDriverDocker
-from debmagic._build_driver.driver_lxd import BuildDriverLxd
-from debmagic._build_driver.driver_none import BuildDriverNone
-from debmagic._utils import copy_file_if_exists
+from debmagic.common.utils import copy_file_if_exists
 
 from .common import BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, PackageDescription
+from .driver_docker import BuildDriverDocker
+from .driver_lxd import BuildDriverLxd
+from .driver_none import BuildDriverNone
 
 DEBMAGIC_TEMP_BUILD_PARENT_DIR = Path("/tmp/debmagic")
 

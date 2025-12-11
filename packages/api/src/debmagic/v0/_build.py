@@ -5,8 +5,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Sequence
 
+from debmagic.common.utils import run_cmd
+
 from ._build_stage import BuildStage
-from ._utils import run_cmd
 
 if typing.TYPE_CHECKING:
     from ._package import BinaryPackage, PackageFilter, SourcePackage

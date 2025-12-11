@@ -2,8 +2,9 @@ import os
 from pathlib import Path
 from typing import Sequence
 
-from debmagic._build_driver.common import BuildConfig, BuildDriver
-from debmagic._utils import run_cmd, run_cmd_in_foreground
+from debmagic.common.utils import run_cmd, run_cmd_in_foreground
+
+from .common import BuildConfig, BuildDriver
 
 
 class BuildDriverNone(BuildDriver):

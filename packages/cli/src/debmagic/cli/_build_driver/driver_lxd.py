@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Self, Sequence
 
-from debmagic._build_driver.common import BuildConfig, BuildDriver
+from .common import BuildConfig, BuildDriver
 
 
 class BuildDriverLxd(BuildDriver):

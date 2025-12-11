@@ -1,0 +1,1 @@
+# Debhelper Compatibility

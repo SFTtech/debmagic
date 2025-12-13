@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from types import MethodType, ModuleType
 from typing import TYPE_CHECKING, Callable, TypeVar, cast, overload
 
@@ -101,7 +102,7 @@ def as_presets(preset_elements: PresetsT) -> list[Preset]:
     presets: list[Preset] = []
 
     if isinstance(preset_elements, list):
-        for preset_module in preset_elements:
+        for preset_module in typing.cast(list[PresetT], preset_elements):
             presets.append(_as_preset(preset_module))
 
     elif preset_elements is not None:

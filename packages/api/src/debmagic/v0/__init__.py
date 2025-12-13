@@ -1,8 +1,9 @@
+from debmagic.common.utils import run_cmd
+
 from ._build import Build
 from ._module import autotools, dh
 from ._package import package
 from ._preset import Preset
-from ._utils import run_cmd
 
 __all__ = [
     "Build",

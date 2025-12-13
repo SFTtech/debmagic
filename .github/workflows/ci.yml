@@ -41,8 +41,8 @@ jobs:
           enable-cache: true
       - name: Install the project
         run: uv sync --locked --all-extras --dev
-      - name: Run Mypy
-        run: uv run mypy .
+      - name: Run Ty for typechecking
+        run: uv run ty check
 
   format:
     runs-on: ubuntu-latest

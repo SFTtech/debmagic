@@ -10,9 +10,10 @@ from debmagic.common.utils import run_cmd
 from ._build_stage import BuildStage
 
 if typing.TYPE_CHECKING:
+    from debmagic.common.utils import Namespace
+
     from ._package import BinaryPackage, PackageFilter, SourcePackage
     from ._preset import Preset
-    from ._utils import Namespace
 
 
 @dataclass

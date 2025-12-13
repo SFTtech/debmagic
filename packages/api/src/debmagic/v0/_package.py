@@ -4,9 +4,11 @@ import argparse
 import inspect
 import multiprocessing
 import os
+import typing
 from dataclasses import dataclass, field
 from enum import Flag, auto
 from pathlib import Path
+from types import FunctionType
 from typing import Callable, ParamSpec, TypeVar
 
 from debmagic.common.utils import Namespace, disable_output_buffer
@@ -141,7 +143,7 @@ class SourcePackage:
         """
         decorator to register a packaging stage function
         """
-        name = func.__code__.co_name
+        name = typing.cast(FunctionType, func).__code__.co_name
         stage = BuildStage(name)
         self.stage_functions[stage] = func
         return func
@@ -158,7 +160,7 @@ class SourcePackage:
         def something(arg: str = 'stuff'):
             ...
         """
-        name = func.__code__.co_name
+        name = typing.cast(FunctionType, func).__code__.co_name
 
         # find arguments and its types to guess argparsing
         args_raw = inspect.getfullargspec(func)

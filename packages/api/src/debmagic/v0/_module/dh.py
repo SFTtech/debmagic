@@ -83,7 +83,7 @@ class Preset(PresetBase):
         """
         decorator to override a dh sequence command
         """
-        name = func.__code__.co_name
+        name = func.__code__.co_name  # ty:ignore[unresolved-attribute]
         if name not in self._seq_ids:
             raise ValueError(f"dh sequence doesn't contain your override {name!r}")
         self._overrides[name] = func

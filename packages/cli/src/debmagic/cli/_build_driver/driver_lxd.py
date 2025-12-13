@@ -6,7 +6,7 @@ from .common import BuildConfig, BuildDriver
 
 class BuildDriverLxd(BuildDriver):
     @classmethod
-    def create(cls, config: BuildConfig) -> Self:
+    def create(cls, config: BuildConfig, additional_args: list[str]) -> Self:
         raise NotImplementedError()
 
     @classmethod

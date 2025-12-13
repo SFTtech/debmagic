@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from typing import Sequence
 
 from ._build_driver.build import PackageDescription, get_shell_in_build
 from ._build_driver.build import build as build_driver_build
@@ -36,9 +37,13 @@ def _create_parser() -> argparse.ArgumentParser:
     return cli
 
 
-def main():
+def main(passed_args: Sequence[str] | None = None):
     cli = _create_parser()
-    args = cli.parse_args()
+    args, unknown_args = cli.parse_known_args(passed_args)
+
+    if len(unknown_args) > 0 and args.operation != "build":
+        # TODO: proper validation and printout -> maybe differentiate between build subcommand and others???
+        raise RuntimeError("unknown arguments passed")
 
     match args.operation:
         case "help":
@@ -55,6 +60,7 @@ def main():
                 package=PackageDescription(name="debmagic", version="0.1.0", source_dir=args.source_dir),
                 build_driver=args.driver,
                 output_dir=args.output_dir,
+                additional_args=unknown_args,
                 dry_run=args.dry_run,
             )
             cli.exit(0)

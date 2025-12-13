@@ -27,5 +27,7 @@ jobs:
           enable-cache: true
       - name: Build
         run: uv build
-      - name: Publish
-        run: uv publish
+      - name: Publish debmagic-common
+        run: uv publish --package debmagic-common
+      - name: Publish debmagic (cli)
+        run: uv publish --package debmagic

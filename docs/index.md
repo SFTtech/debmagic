@@ -13,6 +13,7 @@ usage/installation.md
 :caption: Development
 
 develop/index.md
+develop/releasing.md
 ```
 
 ```{toctree}

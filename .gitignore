@@ -8,6 +8,7 @@ __pycache__
 /junit
 .pybuild
 .pytest_cache
+.python-version
 
 # native
 *.so

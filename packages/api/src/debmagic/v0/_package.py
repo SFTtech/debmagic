@@ -11,10 +11,9 @@ from pathlib import Path
 from types import FunctionType
 from typing import Callable, ParamSpec, TypeVar
 
+from debmagic.common.package import BinaryPackage, SourcePackage
 from debmagic.common.package_version import PackageVersion
 from debmagic.common.utils import Namespace, disable_output_buffer
-
-from debian import deb822
 
 from ._build import Build
 from ._build_order import BuildOrder
@@ -24,13 +23,6 @@ from ._dpkg import buildflags
 from ._preset import Preset, PresetsT, as_presets
 from ._rules_file import RulesFile, find_rules_file
 from ._types import CustomFuncArg, CustomFuncArgsT
-
-
-@dataclass
-class BinaryPackage:
-    name: str
-    ctrl: deb822.Packages
-    arch_dependent: bool
 
 
 @dataclass
@@ -117,13 +109,12 @@ R = TypeVar("R")
 
 
 @dataclass
-class SourcePackage:
-    name: str
+class SourcePackageBuild:
+    source_package: SourcePackage
     rules_file: RulesFile
     presets: list[Preset]
-    binary_packages: list[BinaryPackage]
-    version: PackageVersion
     buildflags: Namespace
+    version: PackageVersion
     stage_functions: dict[BuildStage, BuildStep] = field(default_factory=dict)
     custom_functions: dict[str, CustomFunction] = field(default_factory=dict)
 
@@ -186,7 +177,7 @@ class SourcePackage:
             presets=self.presets,
             source_package=self,
             source_dir=self.base_dir,
-            binary_packages=self.binary_packages,
+            binary_packages=self.source_package.binary_packages,
             install_base_dir=self.rules_file.package_dir / "debian",  # + added binary package
             architecture_target=self.buildflags.DEB_BUILD_GNU_TYPE,
             architecture_host=self.buildflags.DEB_HOST_GNU_TYPE,
@@ -244,7 +235,7 @@ def package(
     preset: PresetsT = None,
     maint_options: str | None = None,
     build_order: BuildOrder = BuildOrder.stages,
-) -> SourcePackage:
+) -> SourcePackageBuild:
     """
     provides the packaging environment.
 
@@ -269,39 +260,12 @@ def package(
     flags, version = buildflags.get_pkg_env(rules_file.package_dir, maint_options=maint_options)
     os.environ.update(flags)
 
-    src_pkg: SourcePackage | None = None
-    # which binary packages should be produced?
-    bin_pkgs: list[BinaryPackage] = []
-
-    for block in deb822.DebControl.iter_paragraphs(
-        (rules_file.package_dir / "debian/control").open(),
-        use_apt_pkg=False,  # don't depend on python3-apt for now.
-    ):
-        if "Source" in block:
-            if src_pkg is not None:
-                raise RuntimeError("encountered multiple Source: blocks in control file")
-            src_name = block["Source"]
-            src_pkg = SourcePackage(
-                src_name,
-                rules_file,
-                presets,
-                bin_pkgs,
-                version,
-                buildflags=Namespace(**flags),
-            )
-
-        if "Package" in block:
-            bin_pkg = BinaryPackage(
-                name=block["Package"],
-                ctrl=block,
-                arch_dependent=block["Architecture"] != "all",
-            )
-            bin_pkgs.append(bin_pkg)
-
-    if src_pkg is None:
-        raise RuntimeError("no 'Source:' package defined in control file")
-
-    if not bin_pkgs:
-        raise RuntimeError("no binary 'Package:' defined in control file")
-
-    return src_pkg
+    source_package = SourcePackage.from_control_file(rules_file.package_dir / "debian/control")
+    build = SourcePackageBuild(
+        source_package=source_package,
+        rules_file=rules_file,
+        presets=presets,
+        buildflags=Namespace(**flags),
+        version=version,
+    )
+    return build

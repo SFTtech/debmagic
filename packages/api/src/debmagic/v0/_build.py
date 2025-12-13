@@ -10,16 +10,17 @@ from debmagic.common.utils import run_cmd
 from ._build_stage import BuildStage
 
 if typing.TYPE_CHECKING:
+    from debmagic.common.package import BinaryPackage
     from debmagic.common.utils import Namespace
 
-    from ._package import BinaryPackage, PackageFilter, SourcePackage
+    from ._package import PackageFilter, SourcePackageBuild
     from ._preset import Preset
 
 
 @dataclass
 class Build:
     presets: list[Preset]
-    source_package: SourcePackage
+    source_package: SourcePackageBuild
     source_dir: Path
     binary_packages: list[BinaryPackage]
     install_base_dir: Path
@@ -48,13 +49,15 @@ class Build:
         """only build those packages"""
         self.binary_packages = []
 
-        for pkg in self.source_package.binary_packages:
+        for pkg in self.source_package.source_package.binary_packages:
             if pkg.name in names:
                 self.binary_packages.append(pkg)
 
     def filter_packages(self, package_filter: PackageFilter) -> None:
         """apply filter to only build those packages"""
-        self.select_packages({pkg.name for pkg in package_filter.get_packages(self.source_package.binary_packages)})
+        self.select_packages(
+            {pkg.name for pkg in package_filter.get_packages(self.source_package.source_package.binary_packages)}
+        )
 
     def filtered_binary_packages(self, names: set[str]) -> typing.Iterator[BinaryPackage]:
         for pkg in self.binary_packages:

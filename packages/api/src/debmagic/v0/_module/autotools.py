@@ -55,7 +55,7 @@ class Preset(PresetBase):
 
     def install(self, build: Build, args: list[str] = []):
         # TODO: figure out installdir handling for multi package builds
-        destdir = build.install_dirs[build.source_package.name]
+        destdir = build.install_dirs[build.source_package.source_package.name]
         build.cmd(["make", f"DESTDIR={destdir}", "install", *args], cwd=build.source_dir)
 
 

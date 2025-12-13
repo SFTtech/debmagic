@@ -9,7 +9,7 @@ from ._build_stage import BuildStage
 from ._build_step import BuildStep
 
 if TYPE_CHECKING:
-    from ._package import SourcePackage
+    from ._package import SourcePackageBuild
 
 
 class Preset:
@@ -25,7 +25,7 @@ class Preset:
 
         return func
 
-    def initialize(self, src_pkg: SourcePackage) -> None:
+    def initialize(self, src_pkg: SourcePackageBuild) -> None:
         """
         usually called when a Preset is set as preset to a SourcePackage.
         if you don't register pass the Preset to the package() function,

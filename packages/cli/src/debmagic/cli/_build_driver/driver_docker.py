@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Self, Sequence
 
 from debmagic.common.utils import run_cmd, run_cmd_in_foreground
+from pydantic import BaseModel
 
 from .common import (
     BuildConfig,
@@ -23,6 +24,10 @@ RUN apt-get update && apt-get -y install dpkg-dev
 RUN mkdir -p {BUILD_DIR_IN_CONTAINER}
 ENTRYPOINT ["sleep", "infinity"]
 """
+
+
+class DockerDriverBuildMetadata(BaseModel):
+    container_name: str
 
 
 class BuildDriverDocker(BuildDriver):
@@ -89,13 +94,12 @@ class BuildDriverDocker(BuildDriver):
     @classmethod
     def from_build_metadata(cls, build_metadata: BuildMetadata) -> Self:
         assert build_metadata.driver == "docker"
-        container_name = build_metadata.driver_metadata.get("container_name")
-        if container_name is None or not isinstance(container_name, str):
-            raise RuntimeError("container_name not specified in build metadata, cannot instantiate build driver")
-        return cls(dry_run=False, build_root=build_metadata.build_root, container_name=container_name)
+        meta = DockerDriverBuildMetadata.model_validate(build_metadata.driver_metadata)
+        return cls(dry_run=False, build_root=build_metadata.build_root, container_name=meta.container_name)
 
     def get_build_metadata(self) -> DriverSpecificBuildMetadata:
-        return {"container_name": self._container_name}
+        meta = DockerDriverBuildMetadata(container_name=self._container_name)
+        return meta.model_dump()
 
     def run_command(self, cmd: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
         del requires_root  # we assume to always be root in the container

@@ -11,6 +11,7 @@ from pathlib import Path
 from types import FunctionType
 from typing import Callable, ParamSpec, TypeVar
 
+from debmagic.common.package_version import PackageVersion
 from debmagic.common.utils import Namespace, disable_output_buffer
 
 from debian import deb822
@@ -20,7 +21,6 @@ from ._build_order import BuildOrder
 from ._build_stage import BuildStage
 from ._build_step import BuildStep
 from ._dpkg import buildflags
-from ._package_version import PackageVersion
 from ._preset import Preset, PresetsT, as_presets
 from ._rules_file import RulesFile, find_rules_file
 from ._types import CustomFuncArg, CustomFuncArgsT

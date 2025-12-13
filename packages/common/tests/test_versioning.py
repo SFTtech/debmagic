@@ -1,5 +1,5 @@
 import pytest
-from debmagic.v0._package_version import PackageVersion
+from debmagic.common.package_version import PackageVersion
 
 
 @pytest.mark.parametrize(

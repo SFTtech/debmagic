@@ -3,9 +3,8 @@ import os
 import subprocess
 from pathlib import Path
 
+from debmagic.common.package_version import PackageVersion
 from debmagic.common.utils import run_cmd
-
-from .._package_version import PackageVersion
 
 
 def _cmd(cmd: str, input_data: str | None = None, env: dict[str, str] | None = None, cwd: Path | None = None) -> str:

@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
 
-from debmagic.v0 import Build, package
-from debmagic.v0 import autotools as autotools_mod
-from debmagic.v0 import dh as dh_mod
-
-autotools = autotools_mod.Preset()
-dh = dh_mod.Preset()
+from debmagic.v0 import Build, autotools, dh, package
 
 pkg = package(
-    preset=[dh, autotools],
+    preset=[dh],
     maint_options="hardening=+all",
 )
 
@@ -26,22 +21,11 @@ else:
 
 @pkg.stage
 def configure(build: Build):
-    autotools_mod.autoreconf(build)
+    autotools.autoreconf(build)
     autotools.configure(
         build,
         ["--enable-openvz", "--enable-vserver", "--enable-unicode", *configure_params],
     )
-
-
-@dh.override
-def dh_installgsettings(build: Build):
-    print("test dh override works :)")
-    build.cmd("dh_installgsettings")
-
-
-@pkg.custom_function
-def something_custom(some_param: int, another_param: str = "some default"):
-    print(f"you called {some_param=} {another_param=}")
 
 
 pkg.pack()

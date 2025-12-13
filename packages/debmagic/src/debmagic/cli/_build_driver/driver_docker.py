@@ -1,3 +1,4 @@
+import argparse
 import uuid
 from pathlib import Path
 from typing import Self, Sequence
@@ -17,9 +18,9 @@ from .common import (
 BUILD_DIR_IN_CONTAINER = Path("/debmagic")
 
 DOCKERFILE_TEMPLATE = f"""
-FROM docker.io/{{distro}}:{{distro_version}}
+FROM {{base_image}}
 
-RUN apt-get update && apt-get -y install dpkg-dev
+RUN apt-get update && apt-get -y install dpkg-dev python3
 
 RUN mkdir -p {BUILD_DIR_IN_CONTAINER}
 ENTRYPOINT ["sleep", "infinity"]
@@ -43,12 +44,21 @@ class BuildDriverDocker(BuildDriver):
         rel = path_in_source.relative_to(self._build_root)
         return BUILD_DIR_IN_CONTAINER / rel
 
+    @staticmethod
+    def _parse_args(args: list[str]) -> argparse.Namespace:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--docker-image", type=str)
+        return parser.parse_args(args)
+
     @classmethod
-    def create(cls, config: BuildConfig) -> Self:
-        formatted_dockerfile = DOCKERFILE_TEMPLATE.format(
-            distro=config.distro,
-            distro_version=config.distro_version,
-        )
+    def create(cls, config: BuildConfig, additional_args: list[str]) -> Self:
+        args = cls._parse_args(additional_args)
+
+        base_image = f"docker.io/{config.distro}:{config.distro_version}"
+        if args.docker_image is not None:
+            base_image = args.docker_image
+
+        formatted_dockerfile = DOCKERFILE_TEMPLATE.format(base_image=base_image)
 
         dockerfile_path = config.build_temp_dir / "Dockerfile"
         dockerfile_path.write_text(formatted_dockerfile)

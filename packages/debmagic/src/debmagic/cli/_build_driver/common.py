@@ -45,8 +45,8 @@ class BuildConfig:
 
     @property
     def build_identifier(self) -> str:
-        # TODO: include distro + distro version + architecture
-        return self.package_identifier
+        # TODO: include architecture
+        return f"{self.package_identifier}-{self.distro}-{self.distro_version}"
 
     @property
     def build_work_dir(self) -> Path:
@@ -70,7 +70,7 @@ class BuildConfig:
 class BuildDriver:
     @classmethod
     @abc.abstractmethod
-    def create(cls, config: BuildConfig) -> Self:
+    def create(cls, config: BuildConfig, additional_args: list[str]) -> Self:
         pass
 
     @classmethod

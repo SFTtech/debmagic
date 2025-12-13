@@ -12,7 +12,7 @@ class BuildDriverNone(BuildDriver):
         self._config = config
 
     @classmethod
-    def create(cls, config: BuildConfig):
+    def create(cls, config: BuildConfig, additional_args: list[str]):
         return cls(config=config)
 
     def run_command(self, cmd: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):

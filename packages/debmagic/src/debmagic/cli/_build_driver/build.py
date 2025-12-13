@@ -12,14 +12,14 @@ from .driver_none import BuildDriverNone
 DEBMAGIC_TEMP_BUILD_PARENT_DIR = Path("/tmp/debmagic")
 
 
-def _create_driver(build_driver: BuildDriverType, config: BuildConfig) -> BuildDriver:
+def _create_driver(build_driver: BuildDriverType, config: BuildConfig, additional_args: list[str]) -> BuildDriver:
     match build_driver:
         case "docker":
-            return BuildDriverDocker.create(config=config)
+            return BuildDriverDocker.create(config=config, additional_args=additional_args)
         case "lxd":
-            return BuildDriverLxd.create(config=config)
+            return BuildDriverLxd.create(config=config, additional_args=additional_args)
         case "none":
-            return BuildDriverNone.create(config=config)
+            return BuildDriverNone.create(config=config, additional_args=additional_args)
 
 
 def _driver_from_build_root(build_root: Path):
@@ -103,11 +103,12 @@ def build(
     package: PackageDescription,
     build_driver: BuildDriverType,
     output_dir: Path,
+    additional_args: list[str],
     dry_run: bool = False,
 ):
     config = _prepare_build_env(package=package, output_dir=output_dir, dry_run=dry_run)
 
-    driver = _create_driver(build_driver, config)
+    driver = _create_driver(build_driver, config, additional_args)
     _write_build_metadata(config, driver)
     try:
         driver.run_command(["apt-get", "-y", "build-dep", "."], cwd=config.build_source_dir, requires_root=True)

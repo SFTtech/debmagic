@@ -5,8 +5,8 @@ from typing import Literal, Self, Sequence
 
 from pydantic import BaseModel
 
-BuildDriverType = Literal["docker"] | Literal["lxd"] | Literal["none"]
-SUPPORTED_BUILD_DRIVERS: list[BuildDriverType] = ["docker", "none"]
+BuildDriverType = Literal["docker", "lxd", "bare"]
+SUPPORTED_BUILD_DRIVERS: list[BuildDriverType] = ["docker", "bare"]
 
 
 class BuildError(RuntimeError):

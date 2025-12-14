@@ -7,7 +7,7 @@ from debmagic.common.utils import run_cmd, run_cmd_in_foreground
 from .common import BuildConfig, BuildDriver
 
 
-class BuildDriverNone(BuildDriver):
+class BuildDriverBare(BuildDriver):
     def __init__(self, config: BuildConfig) -> None:
         self._config = config
 

@@ -5,11 +5,9 @@ from pathlib import Path
 from debmagic.common.utils import copy_file_if_exists
 
 from .common import BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, PackageDescription
+from .driver_bare import BuildDriverBare
 from .driver_docker import BuildDriverDocker
 from .driver_lxd import BuildDriverLxd
-from .driver_none import BuildDriverNone
-
-DEBMAGIC_TEMP_BUILD_PARENT_DIR = Path("/tmp/debmagic")
 
 
 def _create_driver(build_driver: BuildDriverType, config: BuildConfig, additional_args: list[str]) -> BuildDriver:
@@ -18,8 +16,8 @@ def _create_driver(build_driver: BuildDriverType, config: BuildConfig, additiona
             return BuildDriverDocker.create(config=config, additional_args=additional_args)
         case "lxd":
             return BuildDriverLxd.create(config=config, additional_args=additional_args)
-        case "none":
-            return BuildDriverNone.create(config=config, additional_args=additional_args)
+        case "bare":
+            return BuildDriverBare.create(config=config, additional_args=additional_args)
 
 
 def _driver_from_build_root(build_root: Path):
@@ -37,7 +35,7 @@ def _driver_from_build_root(build_root: Path):
         case "lxd":
             return BuildDriverLxd.from_build_metadata(metadata)
         case "none":
-            return BuildDriverNone.from_build_metadata(metadata)
+            return BuildDriverBare.from_build_metadata(metadata)
         case _:
             raise RuntimeError(f"Unknown build driver {metadata.driver}")
 

@@ -26,8 +26,9 @@ Depends:
  ${misc:Depends},
  ${python3:Depends}
 Multi-Arch: foreign
-Description: Debian build instructions written in Python.
- Explicit is better than implicit.
+Description: Shared components for the debmagic debian buildtool suite
+ Collection of utilities and type definitions used in both the debmagic cli
+ buildtool as well as the debmagic python debian rules file library.
 
 Package: debmagic-pkg
 Architecture: all
@@ -48,5 +49,5 @@ Depends:
  ${misc:Depends},
  ${python3:Depends}
 Multi-Arch: foreign
-Description: Debian build instructions written in Python.
- Explicit is better than implicit.
+Description: Debian package building made easy.
+ Holistic cli for the whole debian package building workflow.

@@ -20,7 +20,7 @@ package = false
 
 [tool.uv.sources]
 debmagic-common = { workspace = true }
-debmagic-api = { workspace = true }
+debmagic-pkg = { workspace = true }
 debmagic = { workspace = true }
 
 [tool.uv.workspace]

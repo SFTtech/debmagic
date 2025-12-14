@@ -1,5 +1,5 @@
 [project]
-name = "debmagic-api"
+name = "debmagic-pkg"
 version = "0.0.1-alpha.1"
 description = "packaging for debian using python"
 license = "GPL-2.0-or-later"
@@ -7,7 +7,7 @@ license = "GPL-2.0-or-later"
 # readme = "../../README.md"
 requires-python = ">=3.12"
 classifiers = ["Programming Language :: Python :: 3"]
-dependencies = ["debmagic-common", "pydantic>=2,<3"]
+dependencies = ["debmagic-common"]
 
 [project.urls]
 homepage = "https://github.com/SFTtech/debmagic"

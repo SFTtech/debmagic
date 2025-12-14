@@ -29,7 +29,7 @@ Multi-Arch: foreign
 Description: Debian build instructions written in Python.
  Explicit is better than implicit.
 
-Package: debmagic
+Package: debmagic-pkg
 Architecture: all
 Depends:
  python3-debmagic-common,
@@ -40,7 +40,7 @@ Multi-Arch: foreign
 Description: Debian build instructions written in Python.
  Explicit is better than implicit.
 
-Package: debmagic-cli
+Package: debmagic
 Architecture: all
 Depends:
  python3-debmagic-common,

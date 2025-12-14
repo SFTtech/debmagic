@@ -4,6 +4,7 @@ from pathlib import Path
 
 from debmagic.common.utils import copy_file_if_exists
 
+from .._config import DebmagicConfig
 from .common import BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, PackageDescription
 from .driver_bare import BuildDriverBare
 from .driver_docker import BuildDriverDocker
@@ -61,18 +62,20 @@ def _ignore_patterns_from_gitignore(gitignore_path: Path):
     return shutil.ignore_patterns(*relevant_lines)
 
 
-def _get_package_build_root_and_identifier(package: PackageDescription) -> tuple[str, Path]:
+def _get_package_build_root_and_identifier(config: DebmagicConfig, package: PackageDescription) -> tuple[str, Path]:
     package_identifier = f"{package.name}-{package.version}"
-    build_root = DEBMAGIC_TEMP_BUILD_PARENT_DIR / package_identifier
+    build_root = config.temp_build_dir / package_identifier
     return package_identifier, build_root
 
 
-def _prepare_build_env(package: PackageDescription, output_dir: Path, dry_run: bool) -> BuildConfig:
-    package_identifier, build_root = _get_package_build_root_and_identifier(package)
+def _prepare_build_env(
+    config: DebmagicConfig, package: PackageDescription, output_dir: Path, dry_run: bool
+) -> BuildConfig:
+    package_identifier, build_root = _get_package_build_root_and_identifier(config, package)
     if build_root.exists():
         shutil.rmtree(build_root)
 
-    config = BuildConfig(
+    build_config = BuildConfig(
         package_identifier=package_identifier,
         source_dir=package.source_dir,
         output_dir=output_dir,
@@ -84,34 +87,37 @@ def _prepare_build_env(package: PackageDescription, output_dir: Path, dry_run: b
     )
 
     # prepare build environment, create the build directory structure, copy the sources
-    config.create_dirs()
+    build_config.create_dirs()
     source_ignore_pattern = _ignore_patterns_from_gitignore(package.source_dir / ".gitignore")
-    shutil.copytree(config.source_dir, config.build_source_dir, dirs_exist_ok=True, ignore=source_ignore_pattern)
+    shutil.copytree(
+        build_config.source_dir, build_config.build_source_dir, dirs_exist_ok=True, ignore=source_ignore_pattern
+    )
 
-    return config
+    return build_config
 
 
-def get_shell_in_build(package: PackageDescription):
-    _, build_root = _get_package_build_root_and_identifier(package)
+def get_shell_in_build(config: DebmagicConfig, package: PackageDescription):
+    _, build_root = _get_package_build_root_and_identifier(config, package)
     driver = _driver_from_build_root(build_root=build_root)
     driver.drop_into_shell()
 
 
 def build(
+    config: DebmagicConfig,
     package: PackageDescription,
     build_driver: BuildDriverType,
     output_dir: Path,
     additional_args: list[str],
     dry_run: bool = False,
 ):
-    config = _prepare_build_env(package=package, output_dir=output_dir, dry_run=dry_run)
+    build_config = _prepare_build_env(config=config, package=package, output_dir=output_dir, dry_run=dry_run)
 
-    driver = _create_driver(build_driver, config, additional_args)
-    _write_build_metadata(config, driver)
+    driver = _create_driver(build_driver, build_config, additional_args)
+    _write_build_metadata(build_config, driver)
     try:
-        driver.run_command(["apt-get", "-y", "build-dep", "."], cwd=config.build_source_dir, requires_root=True)
-        driver.run_command(["dpkg-buildpackage", "-us", "-uc", "-ui", "-nc", "-b"], cwd=config.build_source_dir)
-        if config.sign_package:
+        driver.run_command(["apt-get", "-y", "build-dep", "."], cwd=build_config.build_source_dir, requires_root=True)
+        driver.run_command(["dpkg-buildpackage", "-us", "-uc", "-ui", "-nc", "-b"], cwd=build_config.build_source_dir)
+        if build_config.sign_package:
             pass
             # SIGN .changes and .dsc files
             # changes = *.changes / *.dsc
@@ -119,10 +125,12 @@ def build(
             # driver.run_command(["debrsign", opts, username, changes], cwd=config.source_dir)
 
         # TODO: copy packages to output directory
-        copy_file_if_exists(source=config.build_source_dir / "..", glob="*.deb", dest=config.output_dir)
-        copy_file_if_exists(source=config.build_source_dir / "..", glob="*.buildinfo", dest=config.output_dir)
-        copy_file_if_exists(source=config.build_source_dir / "..", glob="*.changes", dest=config.output_dir)
-        copy_file_if_exists(source=config.build_source_dir / "..", glob="*.dsc", dest=config.output_dir)
+        copy_file_if_exists(source=build_config.build_source_dir / "..", glob="*.deb", dest=build_config.output_dir)
+        copy_file_if_exists(
+            source=build_config.build_source_dir / "..", glob="*.buildinfo", dest=build_config.output_dir
+        )
+        copy_file_if_exists(source=build_config.build_source_dir / "..", glob="*.changes", dest=build_config.output_dir)
+        copy_file_if_exists(source=build_config.build_source_dir / "..", glob="*.dsc", dest=build_config.output_dir)
     except Exception as e:
         print(e)
         print(

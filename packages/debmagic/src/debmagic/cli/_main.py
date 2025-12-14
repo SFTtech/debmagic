@@ -2,9 +2,10 @@ import argparse
 from pathlib import Path
 from typing import Sequence
 
-from ._build_driver.build import PackageDescription, get_shell_in_build
 from ._build_driver.build import build as build_driver_build
-from ._build_driver.common import SUPPORTED_BUILD_DRIVERS
+from ._build_driver.build import get_shell_in_build
+from ._build_driver.common import SUPPORTED_BUILD_DRIVERS, PackageDescription
+from ._config import DebmagicConfig
 from ._version import VERSION
 
 
@@ -45,6 +46,8 @@ def main(passed_args: Sequence[str] | None = None):
         # TODO: proper validation and printout -> maybe differentiate between build subcommand and others???
         raise RuntimeError("unknown arguments passed")
 
+    config = DebmagicConfig()
+
     match args.operation:
         case "help":
             cli.print_help()
@@ -53,10 +56,13 @@ def main(passed_args: Sequence[str] | None = None):
             print(f"{cli.prog} {VERSION}")
             cli.exit(0)
         case "shell":
-            get_shell_in_build(package=PackageDescription(name="debmagic", version="0.1.0", source_dir=args.source_dir))
+            get_shell_in_build(
+                config=config, package=PackageDescription(name="debmagic", version="0.1.0", source_dir=args.source_dir)
+            )
             cli.exit(0)
         case "build":
             build_driver_build(
+                config=config,
                 package=PackageDescription(name="debmagic", version="0.1.0", source_dir=args.source_dir),
                 build_driver=args.driver,
                 output_dir=args.output_dir,

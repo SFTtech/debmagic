@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class DebmagicConfig(BaseModel):
     # driver: BuildDriverType | None = None
-    temp_build_dir = Path("/tmp/debmagic")
+    temp_build_dir: Path = Path("/tmp/debmagic")
 
 
 def merge_configs(configs: Sequence[DebmagicConfig]) -> DebmagicConfig:

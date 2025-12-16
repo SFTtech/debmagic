@@ -11,22 +11,18 @@ from ._build_stage import BuildStage
 
 if typing.TYPE_CHECKING:
     from debmagic.common.package import BinaryPackage
-    from debmagic.common.utils import Namespace
 
-    from ._package import PackageFilter, SourcePackageBuild
-    from ._preset import Preset
+    from ._package import Package, PackageFilter
 
 
 @dataclass
 class Build:
-    presets: list[Preset]
-    source_package: SourcePackageBuild
+    package: Package
     source_dir: Path
     binary_packages: list[BinaryPackage]
     install_base_dir: Path
     architecture_target: str
     architecture_host: str
-    flags: Namespace
     parallel: int
     prefix: Path
     dry_run: bool = False
@@ -49,14 +45,14 @@ class Build:
         """only build those packages"""
         self.binary_packages = []
 
-        for pkg in self.source_package.source_package.binary_packages:
+        for pkg in self.package.source_package.binary_packages:
             if pkg.name in names:
                 self.binary_packages.append(pkg)
 
     def filter_packages(self, package_filter: PackageFilter) -> None:
         """apply filter to only build those packages"""
         self.select_packages(
-            {pkg.name for pkg in package_filter.get_packages(self.source_package.source_package.binary_packages)}
+            {pkg.name for pkg in package_filter.get_packages(self.package.source_package.binary_packages)}
         )
 
     def filtered_binary_packages(self, names: set[str]) -> typing.Iterator[BinaryPackage]:
@@ -85,14 +81,14 @@ class Build:
             print(":")
 
             # run stage function from debian/rules.py
-            if rules_stage_function := self.source_package.stage_functions.get(stage):
+            if rules_stage_function := self.package.stage_functions.get(stage):
                 print("debmagic:  running stage from rules file...")
                 rules_stage_function(self)
                 self._mark_stage_done(stage)
 
             else:
                 # run stage function from first providing preset
-                for preset in self.presets:
+                for preset in self.package.presets:
                     print(f"debmagic:  trying preset {preset}...")
                     if preset_stage_function := preset.get_stage(stage):
                         print("debmagic:   running stage from preset")

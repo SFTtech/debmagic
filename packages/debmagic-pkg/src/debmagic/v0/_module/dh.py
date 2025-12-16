@@ -12,7 +12,7 @@ from typing import Callable
 from debmagic.common.utils import list_strip_head, prefix_idx, run_cmd
 
 from .._build import Build
-from .._package import SourcePackageBuild
+from .._package import Package
 from .._preset import Preset as PresetBase
 
 
@@ -56,7 +56,7 @@ class Preset(PresetBase):
         # all seen sequence cmd ids (the dh command script itself)
         self._seq_ids: set[str] = set()
 
-    def initialize(self, src_pkg: SourcePackageBuild) -> None:
+    def initialize(self, src_pkg: Package) -> None:
         # get all steps the dh sequence would do
         self._populate_stages(self._dh_args, base_dir=src_pkg.base_dir)
         self._initialized = True

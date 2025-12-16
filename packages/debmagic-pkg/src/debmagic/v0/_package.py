@@ -19,7 +19,7 @@ from ._build import Build
 from ._build_order import BuildOrder
 from ._build_stage import BuildStage
 from ._build_step import BuildStep
-from ._dpkg import buildflags
+from ._dpkg import build_env
 from ._preset import Preset, PresetsT, as_presets
 from ._rules_file import RulesFile, find_rules_file
 from ._types import CustomFuncArg, CustomFuncArgsT
@@ -109,11 +109,11 @@ R = TypeVar("R")
 
 
 @dataclass
-class SourcePackageBuild:
+class Package:
     source_package: SourcePackage
     rules_file: RulesFile
     presets: list[Preset]
-    buildflags: Namespace
+    build_env: Namespace
     version: PackageVersion
     stage_functions: dict[BuildStage, BuildStep] = field(default_factory=dict)
     custom_functions: dict[str, CustomFunction] = field(default_factory=dict)
@@ -174,14 +174,12 @@ class SourcePackageBuild:
         cli, args = _parse_args(self.custom_functions)
 
         build = Build(
-            presets=self.presets,
-            source_package=self,
+            package=self,
             source_dir=self.base_dir,
             binary_packages=self.source_package.binary_packages,
             install_base_dir=self.rules_file.package_dir / "debian",  # + added binary package
-            architecture_target=self.buildflags.DEB_BUILD_GNU_TYPE,
-            architecture_host=self.buildflags.DEB_HOST_GNU_TYPE,
-            flags=self.buildflags,
+            architecture_target=self.build_env.DEB_BUILD_GNU_TYPE,
+            architecture_host=self.build_env.DEB_HOST_GNU_TYPE,
             parallel=multiprocessing.cpu_count(),  # TODO
             prefix=Path("/usr"),  # TODO
             dry_run=args.dry_run,
@@ -235,7 +233,7 @@ def package(
     preset: PresetsT = None,
     maint_options: str | None = None,
     build_order: BuildOrder = BuildOrder.stages,
-) -> SourcePackageBuild:
+) -> Package:
     """
     provides the packaging environment.
 
@@ -257,15 +255,15 @@ def package(
     presets.append(DefaultPreset())
 
     # set buildflags as environment variables
-    flags, version = buildflags.get_pkg_env(rules_file.package_dir, maint_options=maint_options)
-    os.environ.update(flags)
+    env, version = build_env.get_pkg_env(rules_file.package_dir, maint_options=maint_options)
+    os.environ.update(env)
 
     source_package = SourcePackage.from_control_file(rules_file.package_dir / "debian/control")
-    build = SourcePackageBuild(
+    pkg = Package(
         source_package=source_package,
         rules_file=rules_file,
         presets=presets,
-        buildflags=Namespace(**flags),
+        build_env=Namespace(**env),
         version=version,
     )
-    return build
+    return pkg

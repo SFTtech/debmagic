@@ -28,7 +28,7 @@ class Preset(PresetBase):
             # "--with-bugurl=https://bugs.launchpad.net/ubuntu/+source/${srcpkg}",
         ]
 
-        if multiarch := build.flags["DEB_HOST_MULTIARCH"]:
+        if multiarch := build.package.build_env["DEB_HOST_MULTIARCH"]:
             default_args.append(f"--libdir=${{prefix}}/lib/{multiarch}")
             default_args.append(f"--libexecdir=${{prefix}}/lib/{multiarch}")
         else:
@@ -55,7 +55,7 @@ class Preset(PresetBase):
 
     def install(self, build: Build, args: list[str] = []):
         # TODO: figure out installdir handling for multi package builds
-        destdir = build.install_dirs[build.source_package.source_package.name]
+        destdir = build.install_dirs[build.package.source_package.name]
         build.cmd(["make", f"DESTDIR={destdir}", "install", *args], cwd=build.source_dir)
 
 

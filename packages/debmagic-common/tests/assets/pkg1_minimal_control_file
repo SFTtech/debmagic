@@ -1,0 +1,15 @@
+Source: pkg1
+Section: devel
+Maintainer: Some Maintainers <maintainers@foo.com>
+Uploaders:
+ Some Uploader <uploader@foo.com>,
+Build-Depends:
+ debhelper-compat (= 13),
+Rules-Requires-Root: no
+Standards-Version: 4.7.2
+
+Package: pkg1
+Architecture: all
+Multi-Arch: foreign
+Description: description-tldr
+ description-extended

@@ -19,13 +19,35 @@ Homepage: https://github.com/SFTtech/debmagic
 Vcs-Git: https://github.com/SFTtech/debmagic.git
 Vcs-Browser: https://github.com/SFTtech/debmagic
 
-Package: debmagic
+Package: python3-debmagic-common
 Architecture: all
 Depends:
  python3-debian,
+ ${misc:Depends},
+ ${python3:Depends}
+Multi-Arch: foreign
+Description: Shared components for the debmagic debian buildtool suite
+ Collection of utilities and type definitions used in both the debmagic cli
+ buildtool as well as the debmagic python debian rules file library.
+
+Package: debmagic-pkg
+Architecture: all
+Depends:
+ python3-debmagic-common,
  python3-pydantic,
  ${misc:Depends},
  ${python3:Depends}
 Multi-Arch: foreign
 Description: Debian build instructions written in Python.
  Explicit is better than implicit.
+
+Package: debmagic
+Architecture: all
+Depends:
+ python3-debmagic-common,
+ python3-pydantic,
+ ${misc:Depends},
+ ${python3:Depends}
+Multi-Arch: foreign
+Description: Debian package building made easy.
+ Holistic cli for the whole debian package building workflow.

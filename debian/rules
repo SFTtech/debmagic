@@ -3,16 +3,56 @@
 import sys
 from pathlib import Path
 
-repo_root = Path(__file__).parent.parent / "src"
-sys.path.append(str(repo_root))
+packages_root = Path(__file__).parent.parent / "packages"
+sys.path.extend(
+    [
+        str(packages_root / "debmagic-common" / "src"),
+        str(packages_root / "debmagic-pkg" / "src"),
+    ]
+)
 
-from debmagic.v0 import package
-from debmagic.v0 import dh as dh_mod
+from debmagic.v0 import package, dh, Build
 
-dh = dh_mod.Preset(dh_args=["--with", "python3", "--buildsystem=pybuild"])
+dhp = dh.Preset(dh_args=["--with", "python3", "--buildsystem=pybuild"])
 
 pkg = package(
-    preset=[dh],
+    preset=[dhp],
 )
+
+packages = {
+    "python3-debmagic-common": ("packages/debmagic-common", "debmagic-common"),
+    "debmagic": ("packages/debmagic", "debmagic"),
+    "debmagic-pkg": ("packages/debmagic-pkg", "debmagic-pkg"),
+}
+
+def dh_auto(build: Build, stage: str, use_destdir: bool = False):
+    for pkg_name, (path, python_pkg_name) in packages.items():
+        destdir = f" --destdir debian/{pkg_name} " if use_destdir else ""
+        build.cmd(f"{stage} -p {pkg_name} --sourcedirectory {path} --buildsystem=pybuild {destdir} -- --name {python_pkg_name}")
+
+@dhp.override
+def dh_auto_configure(build: Build):
+    dh_auto(build, "dh_auto_configure")
+
+
+@dhp.override
+def dh_auto_build(build: Build):
+    dh_auto(build, "dh_auto_build")
+
+
+@dhp.override
+def dh_auto_install(build: Build):
+    dh_auto(build, "dh_auto_install", use_destdir=True)
+
+
+@dhp.override
+def dh_auto_test(build: Build):
+    dh_auto(build, "dh_auto_test")
+
+
+@dhp.override
+def dh_auto_clean(build: Build):
+    dh_auto(build, "dh_auto_clean")
+
 
 pkg.pack()

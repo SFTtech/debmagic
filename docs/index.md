@@ -15,6 +15,7 @@ usage/modules/index.md
 :caption: Development
 
 develop/index.md
+develop/releasing.md
 ```
 
 ```{toctree}

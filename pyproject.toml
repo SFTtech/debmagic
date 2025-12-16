@@ -1,27 +1,3 @@
-[project]
-name = "debmagic"
-version = "0.0.1-alpha.1"
-description = "build debian packages"
-license = "GPL-2.0-or-later"
-license-files = ["LICENSE"]
-readme = "README.md"
-requires-python = ">=3.12"
-classifiers = ["Programming Language :: Python :: 3"]
-dependencies = ["python-debian>=1.0", "pydantic>=2,<3"]
-
-[project.scripts]
-debmagic = "debmagic.cli:main"
-
-[project.urls]
-homepage = "https://github.com/SFTtech/debmagic"
-source = "https://github.com/SFTtech/debmagic.git"
-issues = "https://github.com/SFTtech/debmagic/issues"
-releasenotes = "https://github.com/SFTtech/debmagic/-/blob/main/debian/changelog"
-
-[build-system]
-requires = ["setuptools>=77.0.0", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
 [dependency-groups]
 dev = [
     { include-group = "docs" },
@@ -29,7 +5,7 @@ dev = [
     "pytest-cov>=7.0.0",
     "ruff",
     "pre-commit",
-    "mypy",
+    "ty==0.0.2",
 ]
 docs = [
     "sphinx>=8.2.3,<9",
@@ -39,9 +15,16 @@ docs = [
     "sphinx-rtd-theme>=3.0.2",
 ]
 
-[tool.mypy]
-mypy_path = '$MYPY_CONFIG_FILE_DIR/src'
-exclude_gitignore = true
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+debmagic-common = { workspace = true }
+debmagic-pkg = { workspace = true }
+debmagic = { workspace = true }
+
+[tool.uv.workspace]
+members = ["packages/*"]
 
 [tool.ruff]
 line-length = 120

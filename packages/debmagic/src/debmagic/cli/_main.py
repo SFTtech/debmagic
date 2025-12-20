@@ -1,11 +1,12 @@
 import argparse
+import os
 from pathlib import Path
 from typing import Sequence
 
 from ._build_driver.build import build as build_driver_build
 from ._build_driver.build import get_shell_in_build
 from ._build_driver.common import SUPPORTED_BUILD_DRIVERS, PackageDescription
-from ._config import DebmagicConfig
+from ._config import get_config_argparser, load_config
 from ._version import VERSION
 
 
@@ -17,10 +18,8 @@ def _create_parser() -> argparse.ArgumentParser:
     sp.add_parser("help", help="Show this help page and exit")
     sp.add_parser("version", help="Print the version information and exit")
 
-    common_cli = argparse.ArgumentParser(add_help=False)
-    common_cli.add_argument(
-        "--dry-run", action="store_true", help="don't actually run anything that changes the system/package state"
-    )
+    common_cli = get_config_argparser()
+    common_cli.add_argument("-c", "--config", type=Path, help="Path to a config file")
 
     build_cli = sp.add_parser(
         "build", parents=[common_cli], help="Build a debian package with the selected containerization driver"
@@ -46,7 +45,22 @@ def main(passed_args: Sequence[str] | None = None):
         # TODO: proper validation and printout -> maybe differentiate between build subcommand and others???
         raise RuntimeError("unknown arguments passed")
 
-    config = DebmagicConfig()
+    config_file_paths: list[Path] = []
+    if args.config:
+        config_file_paths.append(args.config)
+
+    if "source_dir" in args:
+        config_file_paths.append(args.source_dir / ".debmagic.toml")
+        config_file_paths.append(args.source_dir / "debmagic.toml")
+    else:
+        config_file_paths.append(Path.cwd() / ".debmagic.toml")
+        config_file_paths.append(Path.cwd() / "debmagic.toml")
+
+    xdg_config_home = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
+    xdg_config_file = xdg_config_home / "debmagic" / "config.toml"
+    config_file_paths.append(xdg_config_file)
+
+    config = load_config(args, config_file_paths)
 
     match args.operation:
         case "help":
@@ -66,7 +80,5 @@ def main(passed_args: Sequence[str] | None = None):
                 package=PackageDescription(name="debmagic", version="0.1.0", source_dir=args.source_dir),
                 build_driver=args.driver,
                 output_dir=args.output_dir,
-                additional_args=unknown_args,
-                dry_run=args.dry_run,
             )
             cli.exit(0)

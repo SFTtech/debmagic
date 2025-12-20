@@ -36,8 +36,8 @@ def fetch_sources(package_name: str, version: str) -> Path:
 
 def _prepare_docker_image(test_tmp_dir: Path, distro: str, distro_version: str):
     debmagic_repo_root_dir = Path(__file__).parent.parent.parent
-    run_cmd(["uv", "build", "--package", "debmagic-api"], check=True)
-    run_cmd(["uv", "build", "--package", "debmagic"], check=True)
+    run_cmd(["uv", "build", "--package", "debmagic-common"], check=True)
+    run_cmd(["uv", "build", "--package", "debmagic-pkg"], check=True)
 
     formatted_dockerfile = DOCKERFILE_TEMPLATE.format(
         distro=distro,
@@ -98,7 +98,7 @@ def test_build_package(test_env: Environment, package: str, version: str):
                 "build",
                 "--driver",
                 "docker",
-                "--docker-image",
+                "--driver-config.docker.base-image",
                 test_env.docker_image_name,
                 "--source-dir",
                 str(repo_dir),

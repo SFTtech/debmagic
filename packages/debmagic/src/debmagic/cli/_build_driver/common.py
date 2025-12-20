@@ -1,7 +1,7 @@
 import abc
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, Self, Sequence
+from typing import Literal, Self, Sequence, TypeVar
 
 from pydantic import BaseModel
 
@@ -67,10 +67,13 @@ class BuildConfig:
         self.build_source_dir.mkdir(exist_ok=True, parents=True)
 
 
-class BuildDriver:
+ConfigT = TypeVar("ConfigT")
+
+
+class BuildDriver[ConfigT]:
     @classmethod
     @abc.abstractmethod
-    def create(cls, config: BuildConfig, additional_args: list[str]) -> Self:
+    def create(cls, config: BuildConfig, driver_config: ConfigT) -> Self:
         pass
 
     @classmethod

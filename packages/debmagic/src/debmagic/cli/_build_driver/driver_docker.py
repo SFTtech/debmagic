@@ -1,10 +1,9 @@
-import argparse
 import uuid
 from pathlib import Path
 from typing import Self, Sequence
 
 from debmagic.common.utils import run_cmd, run_cmd_in_foreground
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .common import (
     BuildConfig,
@@ -27,11 +26,19 @@ ENTRYPOINT ["sleep", "infinity"]
 """
 
 
+class DockerDriverConfig(BaseModel):
+    base_image: str | None = Field(
+        default=None,
+        description="Can be used to override the base image which the docker driver "
+        "uses to create the build environment",
+    )
+
+
 class DockerDriverBuildMetadata(BaseModel):
     container_name: str
 
 
-class BuildDriverDocker(BuildDriver):
+class BuildDriverDocker(BuildDriver[DockerDriverConfig]):
     def __init__(self, build_root: Path, dry_run: bool, container_name: str):
         self._build_root = build_root
         self._dry_run = dry_run
@@ -44,19 +51,9 @@ class BuildDriverDocker(BuildDriver):
         rel = path_in_source.relative_to(self._build_root)
         return BUILD_DIR_IN_CONTAINER / rel
 
-    @staticmethod
-    def _parse_args(args: list[str]) -> argparse.Namespace:
-        parser = argparse.ArgumentParser()
-        parser.add_argument("--docker-image", type=str)
-        return parser.parse_args(args)
-
     @classmethod
-    def create(cls, config: BuildConfig, additional_args: list[str]) -> Self:
-        args = cls._parse_args(additional_args)
-
-        base_image = f"docker.io/{config.distro}:{config.distro_version}"
-        if args.docker_image is not None:
-            base_image = args.docker_image
+    def create(cls, config: BuildConfig, driver_config: DockerDriverConfig) -> Self:
+        base_image = driver_config.base_image or f"docker.io/{config.distro}:{config.distro_version}"
 
         formatted_dockerfile = DOCKERFILE_TEMPLATE.format(base_image=base_image)
 

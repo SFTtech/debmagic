@@ -46,6 +46,7 @@ Architecture: all
 Depends:
  python3-debmagic-common,
  python3-pydantic,
+ python3-pydantic-settings,
  ${misc:Depends},
  ${python3:Depends}
 Multi-Arch: foreign

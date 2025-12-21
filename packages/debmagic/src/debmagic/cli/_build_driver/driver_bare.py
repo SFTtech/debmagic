@@ -3,16 +3,21 @@ from pathlib import Path
 from typing import Sequence
 
 from debmagic.common.utils import run_cmd, run_cmd_in_foreground
+from pydantic import BaseModel
 
 from .common import BuildConfig, BuildDriver
 
 
-class BuildDriverBare(BuildDriver):
+class BareDriverConfig(BaseModel):
+    pass
+
+
+class BuildDriverBare(BuildDriver[BareDriverConfig]):
     def __init__(self, config: BuildConfig) -> None:
         self._config = config
 
     @classmethod
-    def create(cls, config: BuildConfig, additional_args: list[str]):
+    def create(cls, config: BuildConfig, driver_config: BareDriverConfig):
         return cls(config=config)
 
     def run_command(self, cmd: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):

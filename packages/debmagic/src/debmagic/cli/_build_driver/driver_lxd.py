@@ -1,12 +1,18 @@
 from pathlib import Path
 from typing import Self, Sequence
 
+from pydantic import BaseModel
+
 from .common import BuildConfig, BuildDriver
 
 
-class BuildDriverLxd(BuildDriver):
+class LxdDriverConfig(BaseModel):
+    pass
+
+
+class BuildDriverLxd(BuildDriver[LxdDriverConfig]):
     @classmethod
-    def create(cls, config: BuildConfig, additional_args: list[str]) -> Self:
+    def create(cls, config: BuildConfig, driver_config: LxdDriverConfig) -> Self:
         raise NotImplementedError()
 
     @classmethod

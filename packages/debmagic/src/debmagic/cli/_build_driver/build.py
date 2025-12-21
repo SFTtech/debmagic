@@ -6,19 +6,20 @@ from debmagic.common.utils import copy_file_if_exists
 
 from .._config import DebmagicConfig
 from .common import BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, PackageDescription
+from .config import BuildDriverConfig
 from .driver_bare import BuildDriverBare
 from .driver_docker import BuildDriverDocker
 from .driver_lxd import BuildDriverLxd
 
 
-def _create_driver(build_driver: BuildDriverType, config: BuildConfig, additional_args: list[str]) -> BuildDriver:
+def _create_driver(build_driver: BuildDriverType, build_config: BuildConfig, config: BuildDriverConfig) -> BuildDriver:
     match build_driver:
         case "docker":
-            return BuildDriverDocker.create(config=config, additional_args=additional_args)
+            return BuildDriverDocker.create(config=build_config, driver_config=config.docker)
         case "lxd":
-            return BuildDriverLxd.create(config=config, additional_args=additional_args)
+            return BuildDriverLxd.create(config=build_config, driver_config=config.lxd)
         case "bare":
-            return BuildDriverBare.create(config=config, additional_args=additional_args)
+            return BuildDriverBare.create(config=build_config, driver_config=config.bare)
 
 
 def _driver_from_build_root(build_root: Path):
@@ -68,9 +69,7 @@ def _get_package_build_root_and_identifier(config: DebmagicConfig, package: Pack
     return package_identifier, build_root
 
 
-def _prepare_build_env(
-    config: DebmagicConfig, package: PackageDescription, output_dir: Path, dry_run: bool
-) -> BuildConfig:
+def _prepare_build_env(config: DebmagicConfig, package: PackageDescription, output_dir: Path) -> BuildConfig:
     package_identifier, build_root = _get_package_build_root_and_identifier(config, package)
     if build_root.exists():
         shutil.rmtree(build_root)
@@ -82,7 +81,7 @@ def _prepare_build_env(
         build_root_dir=build_root,
         distro="debian",
         distro_version="trixie",
-        dry_run=dry_run,
+        dry_run=config.dry_run,
         sign_package=False,
     )
 
@@ -107,12 +106,10 @@ def build(
     package: PackageDescription,
     build_driver: BuildDriverType,
     output_dir: Path,
-    additional_args: list[str],
-    dry_run: bool = False,
 ):
-    build_config = _prepare_build_env(config=config, package=package, output_dir=output_dir, dry_run=dry_run)
+    build_config = _prepare_build_env(config=config, package=package, output_dir=output_dir)
 
-    driver = _create_driver(build_driver, build_config, additional_args)
+    driver = _create_driver(build_driver, build_config, config.driver_config)
     _write_build_metadata(build_config, driver)
     try:
         driver.run_command(["apt-get", "-y", "build-dep", "."], cwd=build_config.build_source_dir, requires_root=True)

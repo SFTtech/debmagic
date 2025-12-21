@@ -1,10 +1,10 @@
-import argparse
+import os
 import uuid
 from pathlib import Path
 from typing import Self, Sequence
 
 from debmagic.common.utils import run_cmd, run_cmd_in_foreground
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .common import (
     BuildConfig,
@@ -17,21 +17,42 @@ from .common import (
 
 BUILD_DIR_IN_CONTAINER = Path("/debmagic")
 
+DOCKER_USER = "user"
+
 DOCKERFILE_TEMPLATE = f"""
 FROM {{base_image}}
 
-RUN apt-get update && apt-get -y install dpkg-dev python3
+ARG USERNAME={DOCKER_USER}
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN apt-get update && apt-get install -y sudo dpkg-dev python3
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && echo $USERNAME ALL=\\(root\\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
 
 RUN mkdir -p {BUILD_DIR_IN_CONTAINER}
+RUN chown $USERNAME:$USERNAME {BUILD_DIR_IN_CONTAINER}
+USER $USERNAME
 ENTRYPOINT ["sleep", "infinity"]
 """
+
+
+class DockerDriverConfig(BaseModel):
+    base_image: str | None = Field(
+        default=None,
+        description="Can be used to override the base image which the docker driver "
+        "uses to create the build environment",
+    )
 
 
 class DockerDriverBuildMetadata(BaseModel):
     container_name: str
 
 
-class BuildDriverDocker(BuildDriver):
+class BuildDriverDocker(BuildDriver[DockerDriverConfig]):
     def __init__(self, build_root: Path, dry_run: bool, container_name: str):
         self._build_root = build_root
         self._dry_run = dry_run
@@ -44,19 +65,9 @@ class BuildDriverDocker(BuildDriver):
         rel = path_in_source.relative_to(self._build_root)
         return BUILD_DIR_IN_CONTAINER / rel
 
-    @staticmethod
-    def _parse_args(args: list[str]) -> argparse.Namespace:
-        parser = argparse.ArgumentParser()
-        parser.add_argument("--docker-image", type=str)
-        return parser.parse_args(args)
-
     @classmethod
-    def create(cls, config: BuildConfig, additional_args: list[str]) -> Self:
-        args = cls._parse_args(additional_args)
-
-        base_image = f"docker.io/{config.distro}:{config.distro_version}"
-        if args.docker_image is not None:
-            base_image = args.docker_image
+    def create(cls, config: BuildConfig, driver_config: DockerDriverConfig) -> Self:
+        base_image = driver_config.base_image or f"docker.io/{config.distro}:{config.distro_version}"
 
         formatted_dockerfile = DOCKERFILE_TEMPLATE.format(base_image=base_image)
 
@@ -64,10 +75,18 @@ class BuildDriverDocker(BuildDriver):
         dockerfile_path.write_text(formatted_dockerfile)
 
         docker_image_name = f"debmagic-{config.build_identifier}"
+
+        additional_args = []
+        if not os.getuid() == 0:
+            # to reduce potential permission problems with missing user remappings on some systems
+            # we simply create the build user inside the docker container with the same uid / gid as our host user
+            additional_args.extend(["--build-arg", f"USER_UID={os.getuid()}", "--build-arg", f"USER_GID={os.getgid()}"])
+
         ret = run_cmd(
             [
                 "docker",
                 "build",
+                *additional_args,
                 "--tag",
                 docker_image_name,
                 "-f",
@@ -112,15 +131,16 @@ class BuildDriverDocker(BuildDriver):
         return meta.model_dump()
 
     def run_command(self, cmd: Sequence[str | Path], cwd: Path | None = None, requires_root: bool = False):
-        del requires_root  # we assume to always be root in the container
+        conditional_args: list[str | Path] = []
 
         if cwd:
             cwd = self._translate_path_in_container(cwd)
-            cwd_args: list[str | Path] = ["--workdir", cwd]
-        else:
-            cwd_args = []
+            conditional_args.extend(["--workdir", cwd])
 
-        ret = run_cmd(["docker", "exec", *cwd_args, self._container_name, *cmd], dry_run=self._dry_run)
+        if requires_root:
+            conditional_args.extend(["--user", "root"])
+
+        ret = run_cmd(["docker", "exec", *conditional_args, self._container_name, *cmd], dry_run=self._dry_run)
         if ret.returncode != 0:
             raise BuildError("Error building package")
 

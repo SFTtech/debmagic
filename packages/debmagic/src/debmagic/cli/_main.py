@@ -10,6 +10,10 @@ from ._config import get_config_argparser, load_config
 from ._version import VERSION
 
 
+def arg_resolved_path(arg: str) -> Path:
+    return Path(arg).resolve()
+
+
 def _create_parser() -> argparse.ArgumentParser:
     cli = argparse.ArgumentParser(description="Debmagic")
     sp = cli.add_subparsers(dest="operation")
@@ -19,19 +23,19 @@ def _create_parser() -> argparse.ArgumentParser:
     sp.add_parser("version", help="Print the version information and exit")
 
     common_cli = get_config_argparser()
-    common_cli.add_argument("-c", "--config", type=Path, help="Path to a config file")
+    common_cli.add_argument("-c", "--config", type=arg_resolved_path, help="Path to a config file")
 
     build_cli = sp.add_parser(
         "build", parents=[common_cli], help="Build a debian package with the selected containerization driver"
     )
     build_cli.add_argument("--driver", choices=SUPPORTED_BUILD_DRIVERS, required=True)
-    build_cli.add_argument("-s", "--source-dir", type=Path, default=Path.cwd())
-    build_cli.add_argument("-o", "--output-dir", type=Path, default=Path.cwd())
+    build_cli.add_argument("-s", "--source-dir", type=arg_resolved_path, default=Path.cwd())
+    build_cli.add_argument("-o", "--output-dir", type=arg_resolved_path, default=Path.cwd())
 
     sp.add_parser("check", parents=[common_cli], help="Run linters (e.g. lintian)")
 
     shell_cli = sp.add_parser("shell", parents=[common_cli], help="Attach a shell to a running debmagic build")
-    shell_cli.add_argument("-s", "--source-dir", type=Path, default=Path.cwd())
+    shell_cli.add_argument("-s", "--source-dir", type=arg_resolved_path, default=Path.cwd())
 
     sp.add_parser("test", parents=[common_cli], help="Run package tests")
     return cli
@@ -39,11 +43,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 def main(passed_args: Sequence[str] | None = None):
     cli = _create_parser()
-    args, unknown_args = cli.parse_known_args(passed_args)
-
-    if len(unknown_args) > 0 and args.operation != "build":
-        # TODO: proper validation and printout -> maybe differentiate between build subcommand and others???
-        raise RuntimeError("unknown arguments passed")
+    args = cli.parse_args(passed_args)
 
     config_file_paths: list[Path] = []
     if args.config:

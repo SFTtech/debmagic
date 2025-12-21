@@ -1,8 +1,8 @@
 import argparse
 from pathlib import Path
-from typing import ClassVar
+from typing import Annotated, ClassVar
 
-from pydantic import Field
+from pydantic import AfterValidator, Field
 from pydantic_settings import (
     BaseSettings,
     CliApp,
@@ -14,19 +14,23 @@ from pydantic_settings import (
 from ._build_driver.config import BuildDriverConfig
 
 
-# TODO: figure out how to get cli_avoid_json with the nested driver struct to work properly
+def resolve_path(p: Path) -> Path:
+    return p.resolve()
+
+
 class DebmagicConfig(BaseSettings, cli_kebab_case=True, cli_avoid_json=True):
     _config_file_paths: ClassVar[list[Path]] = []
 
     driver_config: BuildDriverConfig = BuildDriverConfig()
 
-    temp_build_dir: Path = Field(
-        default=Path("/tmp/debmagic"),
-        description="Temporary directory on the local machine used as root directory for all package builds",
-    )
+    temp_build_dir: Annotated[
+        Path,
+        Field(description="Temporary directory on the local machine used as root directory for all package builds"),
+        AfterValidator(resolve_path),
+    ] = Path("/tmp/debmagic")
 
-    dry_run: bool = Field(
-        default=False, description="don't actually run anything that changes the system/package state"
+    dry_run: Annotated[bool, Field(description="don't actually run anything that changes the system/package state")] = (
+        False
     )
 
     @classmethod

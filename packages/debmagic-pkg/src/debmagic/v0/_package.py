@@ -31,7 +31,9 @@ class CustomFunction:
     args: CustomFuncArgsT
 
 
-def _parse_args(custom_functions: dict[str, CustomFunction] = {}):
+def _parse_args(custom_functions: dict[str, CustomFunction] | None = None):
+    if custom_functions is None:
+        custom_functions = {}
     cli = argparse.ArgumentParser()
     sp = cli.add_subparsers(dest="operation")
 

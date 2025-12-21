@@ -4,6 +4,8 @@ from typing import Self
 
 from debian import deb822
 
+from .models.changelog import Changelog
+
 
 @dataclass
 class BinaryPackage:
@@ -16,12 +18,16 @@ class BinaryPackage:
 class SourcePackage:
     name: str
     binary_packages: list[BinaryPackage]
+    changelog: Changelog
 
     @classmethod
-    def from_control_file(cls, control_file_path: Path) -> Self:
+    def from_debian_directory(cls, debian_dir_path: Path) -> Self:
+        control_file_path = debian_dir_path / "control"
         src_pkg: Self | None = None
         # which binary packages should be produced?
         bin_pkgs: list[BinaryPackage] = []
+
+        changelog = Changelog.from_changelog_file(debian_dir_path / "changelog")
 
         for block in deb822.DebControl.iter_paragraphs(
             control_file_path.open(),
@@ -31,10 +37,7 @@ class SourcePackage:
                 if src_pkg is not None:
                     raise RuntimeError("encountered multiple Source: blocks in control file")
                 src_name = block["Source"]
-                src_pkg = cls(
-                    src_name,
-                    bin_pkgs,
-                )
+                src_pkg = cls(src_name, bin_pkgs, changelog=changelog)
 
             if "Package" in block:
                 bin_pkg = BinaryPackage(

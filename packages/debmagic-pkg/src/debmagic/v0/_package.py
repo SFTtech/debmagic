@@ -11,8 +11,8 @@ from pathlib import Path
 from types import FunctionType
 from typing import Callable, ParamSpec, TypeVar
 
+from debmagic.common.models.package_version import PackageVersion
 from debmagic.common.package import BinaryPackage, SourcePackage
-from debmagic.common.package_version import PackageVersion
 from debmagic.common.utils import Namespace, disable_output_buffer
 
 from ._build import Build
@@ -258,7 +258,7 @@ def package(
     env, version = build_env.get_pkg_env(rules_file.package_dir, maint_options=maint_options)
     os.environ.update(env)
 
-    source_package = SourcePackage.from_control_file(rules_file.package_dir / "debian/control")
+    source_package = SourcePackage.from_debian_directory(rules_file.package_dir / "debian")
     pkg = Package(
         source_package=source_package,
         rules_file=rules_file,

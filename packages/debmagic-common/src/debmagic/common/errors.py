@@ -1,0 +1,2 @@
+class DebmagicError(RuntimeError):
+    pass

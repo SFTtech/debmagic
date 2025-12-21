@@ -1,0 +1,8 @@
+pkg1 (0.1.0) trixie; urgency=medium
+
+  * dummy changelog entry.
+    multiline description
+  
+  * another entry.
+
+ -- Some Author <author@debian.org>  Sat, 27 Sep 2025 20:55:33 +0200

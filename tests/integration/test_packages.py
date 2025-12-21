@@ -2,7 +2,6 @@ import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Generator
 
 import pytest
 from debmagic.common.utils import run_cmd
@@ -73,7 +72,7 @@ class Environment:
 
 
 @pytest.fixture(scope="session")
-def test_env() -> Generator[Environment]:
+def test_env():
     with tempfile.TemporaryDirectory() as test_tmp_dir:
         test_dir = Path(test_tmp_dir)
         image_name = _prepare_docker_image(test_dir, "debian", "trixie")

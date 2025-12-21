@@ -1,8 +1,8 @@
 Source: pkg1
 Section: devel
-Maintainer: Some Maintainers <maintainers@foo.com>
+Maintainer: Some Maintainers <maintainers@debian.org>
 Uploaders:
- Some Uploader <uploader@foo.com>,
+ Some Uploader <uploader@debian.org>,
 Build-Depends:
  debhelper-compat (= 13),
 Rules-Requires-Root: no

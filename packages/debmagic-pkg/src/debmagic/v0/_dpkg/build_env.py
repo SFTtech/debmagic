@@ -3,7 +3,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from debmagic.common.package_version import PackageVersion
+from debmagic.common.models.package_version import PackageVersion
 from debmagic.common.utils import run_cmd
 
 

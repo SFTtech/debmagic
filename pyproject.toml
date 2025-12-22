@@ -1,6 +1,7 @@
 [dependency-groups]
 dev = [
     { include-group = "docs" },
+    "maturin",
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",
     "ruff",
@@ -21,10 +22,14 @@ package = false
 [tool.uv.sources]
 debmagic-common = { workspace = true }
 debmagic-pkg = { workspace = true }
-debmagic = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/*"]
+members = [
+    "packages/debmagic-common",
+    "packages/debmagic-pkg",
+    # for now we don't want to always add the rust cli to the python workspace to avoid increasing uv sync times in CI
+    # "packages/debmagic",
+]
 
 [tool.ruff]
 line-length = 120

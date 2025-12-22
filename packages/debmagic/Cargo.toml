@@ -1,0 +1,19 @@
+[package]
+name = "debmagic"
+version = "0.0.1-alpha1"
+edition = "2024"
+documentation = "https://debmagic.readthedocs.org"
+homepage = "https://github.com/SFTtech/debmagic"
+repository = "https://github.com/SFTtech/debmagic.git"
+
+[dependencies]
+clap = { version = "4.5.38", features = ["derive"] }
+anyhow = { version = "1.0.100" }
+config = { version = "0.15.9", features = ["toml"] }
+dirs = "5.0.0"
+# thiserror = "2.0.17" # for future uses when we need clearer error handling
+glob = "0.3.3"
+libc = "0.2.178"
+serde = { version = "1.0.171", features = ["derive"] }
+serde_json = "1.0.143"
+uuid = { version = "1.18.1", features = ["v4"] }

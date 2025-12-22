@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 import typing
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -29,12 +30,12 @@ class Build:
 
     _completed_stages: set[BuildStage] = field(default_factory=set)
 
-    def cmd(self, cmd: Sequence[str] | str, **kwargs):
+    def cmd(self, cmd: Sequence[str] | str, **kwargs) -> subprocess.CompletedProcess:
         """
         execute a command, auto-converts command strings/lists.
         use this to supports build dry-runs.
         """
-        run_cmd(cmd, dry_run=self.dry_run, **kwargs)
+        return run_cmd(cmd, dry_run=self.dry_run, **kwargs)
 
     @property
     def install_dirs(self) -> dict[str, Path]:

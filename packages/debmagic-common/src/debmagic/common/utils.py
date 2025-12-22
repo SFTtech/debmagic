@@ -190,7 +190,7 @@ def list_strip_head(data: list[T], head: list[T]) -> list[T]:
     [3, 4, 5]
     """
     idx = 0
-    for elem_a, elem_b in zip(data, head):
+    for elem_a, elem_b in zip(data, head, strict=False):
         if elem_a == elem_b:
             idx += 1
         else:

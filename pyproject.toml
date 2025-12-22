@@ -5,7 +5,7 @@ dev = [
     "pytest-cov>=7.0.0",
     "ruff",
     "pre-commit",
-    "ty==0.0.5",
+    "ty",
 ]
 docs = [
     "sphinx>=8.2.3,<9",
@@ -40,8 +40,8 @@ extend-exclude = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "C", "N", "PL", "RUF", "I001"]
-ignore = ["E722", "PLR2004", "PLR0912", "PLR5501", "PLC0415", "PLR0911"]
+select = ["E", "W", "B", "F", "I", "C", "N", "PL", "RUF", "PYI", "I001"]
+ignore = ["E722", "PLR2004", "PLR0912", "PLR5501", "PLC0415", "PLR0911", "B006"]
 mccabe.max-complexity = 25
 pylint.max-args = 10
 

@@ -2,11 +2,15 @@
 fallback for all build stages.
 """
 
-import shutil
+from __future__ import annotations
 
-from .._build import Build
+import typing
+
 from .._preset import Preset as BasePreset
 from .dh import Preset as DHPreset
+
+if typing.TYPE_CHECKING:
+    from .._build import Build
 
 
 class Preset(BasePreset):
@@ -24,12 +28,6 @@ class Preset(BasePreset):
         self._dh_preset = DHPreset()
 
     def clean(self, build: Build) -> None:
-        # clean install dirs
-        for install_dir in build.install_dirs.values():
-            if install_dir.is_dir():
-                shutil.rmtree(install_dir)
-
-        # run dh's clean sequence
         self._dh_preset.clean(build)
 
     def prepare(self, build: Build) -> None:

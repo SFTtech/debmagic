@@ -4,11 +4,11 @@ import typing
 from types import MethodType, ModuleType
 from typing import TYPE_CHECKING, Callable, TypeVar, cast, overload
 
-from ._build import Build
 from ._build_stage import BuildStage
-from ._build_step import BuildStep
 
 if TYPE_CHECKING:
+    from ._build import Build
+    from ._build_step import BuildStep
     from ._package import Package
 
 

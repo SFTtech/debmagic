@@ -33,11 +33,10 @@ def _create_parser() -> argparse.ArgumentParser:
     build_cli.add_argument("-o", "--output-dir", type=arg_resolved_path, default=Path.cwd())
 
     sp.add_parser("check", parents=[common_cli], help="Run linters (e.g. lintian)")
+    sp.add_parser("test", parents=[common_cli], help="Run package tests (autopkgtest)")
 
     shell_cli = sp.add_parser("shell", parents=[common_cli], help="Attach a shell to a running debmagic build")
     shell_cli.add_argument("-s", "--source-dir", type=arg_resolved_path, default=Path.cwd())
-
-    sp.add_parser("test", parents=[common_cli], help="Run package tests")
     return cli
 
 
@@ -66,14 +65,11 @@ def main(passed_args: Sequence[str] | None = None):
         case "help":
             cli.print_help()
             cli.exit(0)
+
         case "version":
             print(f"{cli.prog} {VERSION}")
             cli.exit(0)
-        case "shell":
-            get_shell_in_build(
-                config=config, package=PackageDescription(name="debmagic", version="0.1.0", source_dir=args.source_dir)
-            )
-            cli.exit(0)
+
         case "build":
             build_driver_build(
                 config=config,
@@ -82,3 +78,18 @@ def main(passed_args: Sequence[str] | None = None):
                 output_dir=args.output_dir,
             )
             cli.exit(0)
+
+        case "check":
+            raise NotImplementedError()
+
+        case "test":
+            raise NotImplementedError()
+
+        case "shell":
+            get_shell_in_build(
+                config=config, package=PackageDescription(name="debmagic", version="0.1.0", source_dir=args.source_dir)
+            )
+            cli.exit(0)
+
+        case _:
+            cli.exit(1, f"unhandled operation {args.operation}")

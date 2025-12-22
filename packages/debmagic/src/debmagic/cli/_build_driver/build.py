@@ -2,6 +2,7 @@ import re
 import shutil
 from pathlib import Path
 
+import pydantic
 from debmagic.common.utils import copy_file_if_exists
 
 from .._config import DebmagicConfig
@@ -28,8 +29,8 @@ def _driver_from_build_root(build_root: Path):
         raise RuntimeError(f"{build_metadata_path} does not exist")
     try:
         metadata = BuildMetadata.model_validate_json(build_metadata_path.read_text())
-    except:
-        raise RuntimeError(f"{build_metadata_path} is invalid")
+    except pydantic.ValidationError as e:
+        raise RuntimeError(f"{build_metadata_path} is invalid: {e}") from None
 
     match metadata.driver:
         case "docker":

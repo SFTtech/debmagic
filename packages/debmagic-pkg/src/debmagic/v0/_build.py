@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import shutil
+import subprocess
 import typing
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -8,11 +10,13 @@ from typing import Sequence
 from debmagic.common.utils import run_cmd
 
 from ._build_stage import BuildStage
+from ._preset import Preset
 
 if typing.TYPE_CHECKING:
     from debmagic.common.package import BinaryPackage
 
-    from ._package import Package, PackageFilter
+    from ._package import Package
+    from ._package_filter import PackageFilter
 
 
 @dataclass
@@ -29,12 +33,12 @@ class Build:
 
     _completed_stages: set[BuildStage] = field(default_factory=set)
 
-    def cmd(self, cmd: Sequence[str] | str, **kwargs):
+    def cmd(self, cmd: Sequence[str] | str, **kwargs) -> subprocess.CompletedProcess:
         """
         execute a command, auto-converts command strings/lists.
         use this to supports build dry-runs.
         """
-        run_cmd(cmd, dry_run=self.dry_run, **kwargs)
+        return run_cmd(cmd, dry_run=self.dry_run, **kwargs)
 
     @property
     def install_dirs(self) -> dict[str, Path]:
@@ -71,6 +75,8 @@ class Build:
         self,
         target_stage: BuildStage | None = None,
     ) -> None:
+        internal_stages = InternalPreset()
+
         for stage in BuildStage:
             print(f"debmagic: stage {stage!s}", end="")
 
@@ -79,6 +85,10 @@ class Build:
                 print(" already completed, skipping.")
                 continue
             print(":")
+
+            # run internal function for stage
+            if internal_stage_function := internal_stages.get_stage(stage):
+                internal_stage_function(self)
 
             # run stage function from debian/rules.py
             if rules_stage_function := self.package.stage_functions.get(stage):
@@ -106,3 +116,16 @@ class Build:
 
 class BuildError(RuntimeError):
     pass
+
+
+class InternalPreset(Preset):
+    """
+    these stages here are always executed before
+    build stage functions from debian/rules.py or a preset from modules/,
+    """
+
+    def clean(self, build: Build) -> None:
+        # clean install dirs
+        for install_dir in build.install_dirs.values():
+            if install_dir.is_dir():
+                shutil.rmtree(install_dir)

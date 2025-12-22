@@ -1,5 +1,25 @@
 """
 use dh from debmagic.
+
+## usage
+
+```python
+from debmagic.vX import dh
+
+# specify dh arguments:
+dhp = dh.Preset("--with=python3 --builddirectory=build")
+pkg = package(preset=dhp)
+
+pkg.pack()
+
+# if needed, define optional overrides before the .pack() line:
+@dhp.override
+def dh_auto_install(build: Build):
+    print("your dh override worked :)")
+    build.cmd("dh_auto_install --max-parallel=1")
+```
+
+## internals
 this preset splits up the dh sequences (dh build, dh binary) into the debmagic stages.
 so in theory, using this preset is the same as using dh.
 """

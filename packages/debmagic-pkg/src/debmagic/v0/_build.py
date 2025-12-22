@@ -13,7 +13,8 @@ from ._build_stage import BuildStage
 if typing.TYPE_CHECKING:
     from debmagic.common.package import BinaryPackage
 
-    from ._package import Package, PackageFilter
+    from ._package import Package
+    from ._package_filter import PackageFilter
 
 
 @dataclass

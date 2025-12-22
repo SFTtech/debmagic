@@ -6,13 +6,12 @@ import multiprocessing
 import os
 import typing
 from dataclasses import dataclass, field
-from enum import Flag, auto
 from pathlib import Path
 from types import FunctionType
 from typing import Callable, ParamSpec, TypeVar
 
 from debmagic.common.models.package_version import PackageVersion
-from debmagic.common.package import BinaryPackage, SourcePackage
+from debmagic.common.package import SourcePackage
 from debmagic.common.utils import Namespace, disable_output_buffer
 
 from ._build import Build
@@ -20,6 +19,7 @@ from ._build_order import BuildOrder
 from ._build_stage import BuildStage
 from ._build_step import BuildStep
 from ._dpkg import build_env
+from ._package_filter import PackageFilter
 from ._preset import Preset, PresetsT, as_presets
 from ._rules_file import RulesFile, find_rules_file
 from ._types import CustomFuncArg, CustomFuncArgsT
@@ -88,22 +88,6 @@ def _parse_args(custom_functions: dict[str, CustomFunction] | None = None):
             )
 
     return cli, cli.parse_args()
-
-
-class PackageFilter(Flag):
-    architecture_specific = auto()
-    architecture_independent = auto()
-
-    def get_packages(self, binary_packages: list[BinaryPackage]) -> list[BinaryPackage]:
-        ret: list[BinaryPackage] = []
-
-        for pkg in binary_packages:
-            if self.architecture_independent and pkg.arch_dependent:
-                ret.append(pkg)
-            if self.architecture_specific and not pkg.arch_dependent:
-                ret.append(pkg)
-
-        return ret
 
 
 P = ParamSpec("P")

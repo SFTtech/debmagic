@@ -2,9 +2,9 @@
 
 <img align="right" style="float: right; width: 25%;" src="assets/debmagic-logo.svg" alt="debmagic logo"/>
 
-Debmagic is for [Debian](https://debian.org)/[Ubuntu](https://ubuntu.com):
+Unified and futuristic developer tools for increased productivity in the [Debian](https://debian.org)/[Ubuntu](https://ubuntu.com) ecosystem.
 
-- create packages **build instructions** in Python with `debian/rules.py`
+- create package **build instructions** in Python with `debian/rules.py`
 - tooling do perform packaging itself: **building** and **testing** in isolated container environments
 
 [![GitHub Actions Status](https://github.com/SFTtech/debmagic/actions/workflows/ci.yml/badge.svg)](https://github.com/SFTtech/debmagic/actions/workflows/ci.yml)
@@ -17,13 +17,26 @@ Debmagic is for [Debian](https://debian.org)/[Ubuntu](https://ubuntu.com):
 Included features:
 
 - for `debian/rules.py`
-  - language and buildsystem [helper modules](src/debmagic/_module)
+  - optional `dh` backward compatibility [module](packages/debmagic-pkg/src/debmagic/v0/_module/dh.py)
+  - language and buildsystem [helper modules](packages/debmagic-pkg/src/debmagic/v0/_module/)
 - maintainer tools
   - `debmagic build` - isolated package building
+  - `debmagic check` - isolated package linting
+  - `debmagic test` - isolated package testing
+- debugging tools
+  - `debmagic shell` - enter current running/finished package environment
 
-## Example debian/rules.py
 
-Python `debian/rules.py` equivalent of [Ubuntu 24.04 htop](https://git.launchpad.net/ubuntu/+source/htop/tree/debian/rules?h=ubuntu/noble):
+## Debmagic packaging
+
+Usually, `debian/rules` is written as shell-oneliners in a **Makefile**.
+
+Debmagic allows straight-forward conversion to **Python**, which is especially useful if the packaging is more complex, like [openldap](https://git.launchpad.net/ubuntu/+source/openldap/tree/debian/rules?h=ubuntu/resolute-devel), [dovecot](https://git.launchpad.net/ubuntu/+source/dovecot/tree/debian/rules?h=ubuntu/resolute-devel), [samba](https://git.launchpad.net/ubuntu/+source/samba/tree/debian/rules?h=ubuntu/resolute-devel) or [gcc](https://git.launchpad.net/ubuntu/+source/gcc-15/tree/debian/rules?h=ubuntu/resolute-devel).
+
+
+### Example debian/rules.py
+
+For example, the [htop rules file from Ubuntu 24.04](https://git.launchpad.net/ubuntu/+source/htop/tree/debian/rules?h=ubuntu/noble) equivalent in debmagic native Python code could look like this:
 
 ```python
 #!/usr/bin/env python3
@@ -59,7 +72,7 @@ pkg.pack()
 
 ### debhelper compatibility
 
-Debmagic can use `dh` and provides **dh overrides** as common in `debian/rules` Makefiles:
+For even more straightforward conversion of `debian/rules` Makefiles, Debmagic can [use `dh`](packages/debmagic-pkg/src/debmagic/v0/_module/dh.py) and provides **dh overrides**:
 
 ```python
 from debmagic.v0 import dh
@@ -68,7 +81,7 @@ from debmagic.v0 import dh
 dhp = dh.Preset("--with=python3 --builddirectory=build")
 pkg = package(preset=dhp)
 
-# define optional overrides:
+# if needed, define optional overrides:
 @dhp.override
 def dh_auto_install(build: Build):
     print("dh override worked :)")

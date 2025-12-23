@@ -30,6 +30,8 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
+RUN mkdir -p /build/package/debian
+RUN --mount=type=bind,source=debian/control,target=/build/package/debian/control apt-get -y build-dep /build/package
 RUN mkdir -p {build_dir}
 RUN chown $USERNAME:$USERNAME {build_dir}
 USER $USERNAME
@@ -60,10 +62,24 @@ impl DriverDocker {
         let formatted_dockerfile = DOCKERFILE_TEMPLATE
             .replace("{base_image}", &base_image)
             .replace("{docker_user}", DOCKER_USER)
-            .replace("{build_dir}", BUILD_DIR_IN_CONTAINER);
+            .replace("{build_dir}", BUILD_DIR_IN_CONTAINER)
+            .replace(
+                "{debian_control_file}",
+                &config
+                    .build_source_dir()
+                    .join("debian")
+                    .join("control")
+                    .to_string_lossy(),
+            );
 
         let dockerfile_path = config.build_temp_dir().join("Dockerfile");
         fs::write(&dockerfile_path, formatted_dockerfile).expect("Failed to write Dockerfile");
+
+        fs::create_dir_all(config.build_temp_dir().join("debian"))?;
+        fs::copy(
+            config.build_source_dir().join("debian").join("control"),
+            config.build_temp_dir().join("debian").join("control"),
+        )?;
 
         let docker_image_name = format!("debmagic-{}", config.build_identifier());
         let mut build_args = Vec::new();

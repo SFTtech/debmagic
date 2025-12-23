@@ -1,5 +1,6 @@
-use std::{env, fs};
+use std::{env, path};
 
+use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
 use crate::{
@@ -12,7 +13,7 @@ pub mod build;
 pub mod cli;
 pub mod config;
 
-fn cli() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let config = Config::new(&cli)?;
 
@@ -23,22 +24,23 @@ fn cli() -> anyhow::Result<()> {
             let package = PackageDescription {
                 name: "debmagic".to_string(),
                 version: "0.1.0".to_string(),
-                source_dir: fs::canonicalize(source_dir)?,
+                source_dir: path::absolute(source_dir).context("resolving source dir failed")?,
             };
             let output_dir = args.output_dir.as_deref().unwrap_or(&current_dir);
             build_package(
                 &config,
                 &package,
                 args.driver,
-                &fs::canonicalize(output_dir)?,
-            )?;
+                &path::absolute(output_dir).context("resolving output dir failed")?,
+            )
+            .context("Building the package failed")?;
         }
         Commands::Shell(args) => {
             let source_dir = args.source_dir.as_deref().unwrap_or(&current_dir);
             let package = PackageDescription {
                 name: "debmagic".to_string(),
                 version: "0.1.0".to_string(),
-                source_dir: fs::canonicalize(source_dir)?,
+                source_dir: path::absolute(source_dir).context("resolving source dir failed")?,
             };
             get_shell_in_build(&config, &package)?;
         }
@@ -55,11 +57,4 @@ fn cli() -> anyhow::Result<()> {
     }
 
     Ok(())
-}
-
-fn main() {
-    let result = cli();
-    if let Err(err) = result {
-        eprintln!("Error: {err}");
-    }
 }

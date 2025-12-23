@@ -32,6 +32,7 @@ def dh_auto(build: Build, stage: str, use_destdir: bool = False):
 
 @dhp.override
 def dh_auto_configure(build: Build):
+    build.cmd("cargo prepare-debian debian/cargo_registry --link-from-system", cwd="packages/debmagic")
     dh_auto(build, "dh_auto_configure")
 
 

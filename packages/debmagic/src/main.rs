@@ -1,4 +1,7 @@
-use std::{env, path};
+use std::{
+    env,
+    path::{self, PathBuf},
+};
 
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
@@ -13,9 +16,26 @@ pub mod build;
 pub mod cli;
 pub mod config;
 
+fn get_config_file_paths() -> Vec<PathBuf> {
+    let mut config_file_paths = vec![];
+    let xdg_config_file = dirs::config_dir().map(|p| p.join("debmagic").join("config.toml"));
+    if let Some(xdg_config_file) = xdg_config_file {
+        if xdg_config_file.is_file() {
+            config_file_paths.push(xdg_config_file);
+        }
+    }
+
+    config_file_paths
+}
+
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
-    let config = Config::new(&cli)?;
+
+    let mut config_file_paths = get_config_file_paths();
+    if let Some(config_override) = &cli.config {
+        config_file_paths.push(config_override.clone());
+    }
+    let config = Config::new(&config_file_paths, &cli)?;
 
     let current_dir = env::current_dir()?;
     match &cli.command {

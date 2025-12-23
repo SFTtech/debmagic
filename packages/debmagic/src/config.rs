@@ -24,22 +24,13 @@ impl Default for Config {
 }
 
 impl Config {
-    pub fn new(cli_args: &Cli) -> anyhow::Result<Self> {
+    pub fn new(config_files: &Vec<PathBuf>, _cli_args: &Cli) -> anyhow::Result<Self> {
         let mut builder = ConfigBuilder::builder();
 
-        let xdg_config_file = dirs::config_dir()
-            .map(|p| p.join("debmagic").join("config.toml"))
-            .ok_or(anyhow!("Could not determine user config directory"))?;
-        if xdg_config_file.is_file() {
-            let xdg_config_file = xdg_config_file.to_str();
-            if let Some(xdg_config_file) = xdg_config_file {
-                builder = builder.add_source(File::with_name(xdg_config_file));
-            }
+        for file in config_files {
+            builder = builder.add_source(File::with_name(&file.to_string_lossy()));
         }
 
-        if let Some(config_override) = cli_args.config.as_ref().and_then(|f| f.to_str()) {
-            builder = builder.add_source(File::with_name(config_override));
-        }
         // TODO: reimplement cli arg overwrites
         let build = builder
             .build()
@@ -48,5 +39,29 @@ impl Config {
             .try_deserialize()
             .map_err(|e| anyhow!("Failed to read config: {e}"));
         config
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::cli::Commands;
+
+    use super::*;
+
+    #[test]
+    fn it_loads_a_simple_config() -> Result<(), anyhow::Error> {
+        let test_asset_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests")
+            .join("assets");
+        let cfg = Config::new(
+            &vec![test_asset_dir.join("config1.toml")],
+            &Cli {
+                config: None,
+                command: Commands::Version {},
+            },
+        )?;
+        assert!(cfg.dry_run);
+
+        Ok(())
     }
 }

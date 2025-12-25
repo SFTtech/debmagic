@@ -26,13 +26,17 @@ pub type DriverSpecificBuildMetadata = HashMap<String, String>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildMetadata {
-    pub driver: BuildDriverType,
     pub config: BuildConfig,
     pub driver_metadata: DriverSpecificBuildMetadata,
+    // number of parallel debmagic processes working on this instance of a build
+    // used to determine when a BuildDriver can be fully stopped and cleaned up
+    pub num_processes_attached: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildConfig {
+    pub driver: BuildDriverType,
+
     pub package_identifier: String,
     pub build_root_dir: PathBuf,
     pub source_dir: PathBuf,
@@ -71,7 +75,6 @@ impl BuildConfig {
         Ok(())
     }
 }
-
 pub trait BuildDriver {
     fn get_build_metadata(&self) -> DriverSpecificBuildMetadata;
 
@@ -79,7 +82,7 @@ pub trait BuildDriver {
 
     fn cleanup(&self);
 
-    fn drop_into_shell(&self) -> std::io::Result<()>;
+    fn interactive_shell(&self) -> std::io::Result<()>;
 
     fn driver_type(&self) -> BuildDriverType;
 }

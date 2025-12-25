@@ -28,7 +28,9 @@ impl Config {
         let mut builder = ConfigBuilder::builder();
 
         for file in config_files {
-            builder = builder.add_source(File::with_name(&file.to_string_lossy()));
+            if file.is_file() {
+                builder = builder.add_source(File::with_name(&file.to_string_lossy()));
+            }
         }
 
         // TODO: reimplement cli arg overwrites

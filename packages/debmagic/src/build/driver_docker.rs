@@ -84,11 +84,11 @@ impl DriverDocker {
         let docker_image_name = format!("debmagic-{}", config.build_identifier());
         let mut build_args = Vec::new();
 
-        let uid = unsafe { libc::getuid() };
+        let uid = unsafe { libc::geteuid() };
         if uid != 0 {
             build_args.extend(["--build-arg".to_string(), format!("USER_UID={uid}")]);
         }
-        let gid = unsafe { libc::getgid() };
+        let gid = unsafe { libc::getegid() };
         if gid != 0 {
             build_args.extend(["--build-arg".to_string(), format!("USER_GID={gid}")]);
         }
@@ -208,7 +208,7 @@ impl BuildDriver for DriverDocker {
             .status();
     }
 
-    fn drop_into_shell(&self) -> std::io::Result<()> {
+    fn interactive_shell(&self) -> std::io::Result<()> {
         if self.config.dry_run {
             return Ok(());
         }

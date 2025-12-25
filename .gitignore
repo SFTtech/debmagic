@@ -24,6 +24,8 @@ venv*
 MANIFEST
 dist/
 src/*/*.lock
+# Rust
+/target
 
 # testing
 /*.conf
@@ -51,10 +53,3 @@ Thumbs.db
 # local
 todo.md
 todo.org
-
-
-
-
-# Added by cargo
-
-/target

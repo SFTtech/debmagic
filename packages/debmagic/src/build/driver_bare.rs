@@ -1,4 +1,4 @@
-use std::{path::Path, process::Command};
+use std::{env, path::Path, process::Command};
 
 use serde::{Deserialize, Serialize};
 
@@ -42,8 +42,7 @@ impl BuildDriver for DriverBare {
     fn run_command(&self, cmd: &[&str], cwd: &Path, requires_root: bool) -> std::io::Result<()> {
         let mut full_cmd: Vec<String> = Vec::new();
 
-        // Handle sudo logic
-        let is_root = unsafe { libc::getuid() == 0 };
+        let is_root = unsafe { libc::geteuid() == 0 };
         if requires_root && !is_root {
             full_cmd.push("sudo".to_string());
         }
@@ -60,7 +59,6 @@ impl BuildDriver for DriverBare {
 
         command.current_dir(cwd);
 
-        // Inherit stdout/stderr to match Python behavior
         let status = command.status()?;
 
         if status.success() {
@@ -77,11 +75,11 @@ impl BuildDriver for DriverBare {
         // No-op for bare driver
     }
 
-    fn drop_into_shell(&self) -> std::io::Result<()> {
+    fn interactive_shell(&self) -> std::io::Result<()> {
         let mut shell = Command::new("/usr/bin/env");
-        shell.arg("bash");
+        let shell_type = env::var("SHELL").unwrap_or("bash".to_string());
+        shell.arg(shell_type);
 
-        // Use status() to wait for the shell to exit
         let _ = shell.status()?;
         Ok(())
     }

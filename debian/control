@@ -10,7 +10,17 @@ Build-Depends:
  pybuild-plugin-pyproject,
  python3-setuptools,
  python3-debian,
- python3-pydantic
+ cargo,
+ python3-maturin,
+ librust-clap-dev (>=4.5.23),
+ librust-anyhow-dev (>=1.0.95),
+ librust-config-dev (>=0.15.9),
+ librust-dirs-dev (>=5.0.0),
+ librust-glob-dev (>=0.3.2),
+ librust-libc-dev (>=0.2.169),
+ librust-serde-dev (>=1.0.217),
+ librust-serde-json-dev (>=1.0.139),
+ librust-uuid-dev (>=1.10.0)
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2
@@ -42,13 +52,13 @@ Description: Debian build instructions written in Python.
  Explicit is better than implicit.
 
 Package: debmagic
-Architecture: all
+Architecture: any
 Depends:
- python3-debmagic-common,
- python3-pydantic,
- python3-pydantic-settings,
  ${misc:Depends},
- ${python3:Depends}
-Multi-Arch: foreign
+ ${python3:Depends},
+ ${shlibs:Depends},
 Description: Debian package building made easy.
  Holistic cli for the whole debian package building workflow.
+Built-Using: ${cargo:Built-Using}
+XB-X-Cargo-Built-Using: ${cargo:X-Cargo-Built-Using}
+Static-Built-Using: ${cargo:Static-Built-Using}

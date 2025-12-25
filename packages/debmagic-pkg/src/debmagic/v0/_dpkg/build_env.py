@@ -6,6 +6,8 @@ from pathlib import Path
 from debmagic.common.models.package_version import PackageVersion
 from debmagic.common.utils import run_cmd
 
+from ._rustc_build_env import build_rustc_build_env
+
 
 def _cmd(cmd: str, input_data: str | None = None, env: dict[str, str] | None = None, cwd: Path | None = None) -> str:
     return run_cmd(cmd, check=True, env=env, input=input_data, text=True, capture_output=True).stdout.strip()
@@ -74,5 +76,8 @@ def get_pkg_env(package_dir: Path, maint_options: str | None = None) -> tuple[di
             elf_meta["debugInfoUrl"] = debug_url
 
         result["ELF_PACKAGE_METADATA"] = json.dumps(elf_meta, separators=(",", ":"))
+
+    # rustc/architecture.mk
+    build_rustc_build_env(result)
 
     return result, version

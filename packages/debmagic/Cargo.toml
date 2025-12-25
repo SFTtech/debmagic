@@ -1,0 +1,20 @@
+[package]
+name = "debmagic"
+version = "0.0.1-alpha1"
+documentation = "https://debmagic.readthedocs.org"
+homepage = "https://github.com/SFTtech/debmagic"
+repository = "https://github.com/SFTtech/debmagic.git"
+rust-version.workspace = true
+edition.workspace = true
+
+[dependencies]
+clap = { version = ">=4.5.23", features = ["derive"] }
+anyhow = { version = ">=1.0.95" }
+config = { version = ">=0.15.9", features = ["toml"] }
+dirs = ">=5.0.0"
+# thiserror = "2.0.17" # for future uses when we need clearer error handling
+glob = ">=0.3.2"
+libc = ">=0.2.169"
+serde = { version = ">=1.0.217", features = ["derive"] }
+serde_json = ">=1.0.139"
+uuid = { version = ">=1.10.0", features = ["v4"] }

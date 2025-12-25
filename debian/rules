@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import shutil
+import os
 
 import sys
 from pathlib import Path
@@ -19,11 +21,23 @@ pkg = package(
     preset=[dhp],
 )
 
+# TODO: add this section to our rust debmagic module to make setting this up less annoying
+os.environ.update({
+    "PATH": f"/usr/share/cargo/bin:{os.environ['PATH']}",
+    "CARGO": "/usr/share/cargo/bin/cargo",
+    "CARGO_HOME": f"{pkg.base_dir}/debian/cargo_home",
+    "CARGO_REGISTRY": f"{pkg.base_dir}/debian/cargo_registry",
+    "DEB_CARGO_CRATE": f"{pkg.build_env.DEB_SOURCE}_{pkg.build_env.DEB_VERSION_UPSTREAM}"
+})
+
 packages = {
     "python3-debmagic-common": ("packages/debmagic-common", "debmagic-common"),
     "debmagic": ("packages/debmagic", "debmagic"),
     "debmagic-pkg": ("packages/debmagic-pkg", "debmagic-pkg"),
 }
+
+cargo_lock = Path("Cargo.lock")
+cargo_lock_saved = Path("Cargo.lock.saved")
 
 def dh_auto(build: Build, stage: str, use_destdir: bool = False):
     for pkg_name, (path, python_pkg_name) in packages.items():
@@ -32,11 +46,14 @@ def dh_auto(build: Build, stage: str, use_destdir: bool = False):
 
 @dhp.override
 def dh_auto_configure(build: Build):
+    build.cmd("cargo prepare-debian debian/cargo_registry --link-from-system", cwd="packages/debmagic")
     dh_auto(build, "dh_auto_configure")
 
 
 @dhp.override
 def dh_auto_build(build: Build):
+    if cargo_lock.is_file():
+        shutil.move(cargo_lock, cargo_lock_saved)
     dh_auto(build, "dh_auto_build")
 
 
@@ -52,6 +69,8 @@ def dh_auto_test(build: Build):
 
 @dhp.override
 def dh_auto_clean(build: Build):
+    if cargo_lock_saved.is_file():
+        shutil.move(cargo_lock_saved, cargo_lock)
     dh_auto(build, "dh_auto_clean")
 
 

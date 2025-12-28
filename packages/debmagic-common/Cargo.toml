@@ -1,0 +1,15 @@
+[package]
+name = "debmagic-common"
+version = "0.0.1-alpha1"
+documentation = "https://debmagic.readthedocs.org"
+homepage = "https://github.com/SFTtech/debmagic"
+repository = "https://github.com/SFTtech/debmagic.git"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+chrono = { workspace = true }
+regex = { workspace = true }
+
+[dev-dependencies]
+test-case = { workspace = true }

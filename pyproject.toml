@@ -25,7 +25,6 @@ debmagic-pkg = { workspace = true }
 
 [tool.uv.workspace]
 members = [
-    "packages/debmagic-common",
     "packages/debmagic-pkg",
     # for now we don't want to always add the rust cli to the python workspace to avoid increasing uv sync times in CI
     # "packages/debmagic",

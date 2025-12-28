@@ -7,7 +7,6 @@ from debian.changelog import Changelog as DebianChangelog
 
 from ..errors import DebmagicError
 from ..type_utils import IterableDataSource
-from .package_version import PackageVersion
 
 
 class ChangelogFormatError(DebmagicError):
@@ -42,7 +41,7 @@ class ChangelogMetadata:
 @dataclass
 class ChangelogEntry:
     package: str | None
-    version: PackageVersion
+    version: str
     distributions: list[str]
     metadata: ChangelogMetadata
     changes: list[str]

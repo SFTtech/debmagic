@@ -20,7 +20,11 @@ Build-Depends:
  librust-libc-dev (>=0.2.169),
  librust-serde-dev (>=1.0.217),
  librust-serde-json-dev (>=1.0.139),
- librust-uuid-dev (>=1.10.0)
+ librust-uuid-dev (>=1.10.0),
+ librust-chrono-dev (>=0.4.42),
+ librust-regex-dev (>=1.12.2),
+ librust-test-case-dev (>=3.3.1),
+ librust-pyo3-dev (>=0.27.2)
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2
@@ -29,21 +33,10 @@ Homepage: https://github.com/SFTtech/debmagic
 Vcs-Git: https://github.com/SFTtech/debmagic.git
 Vcs-Browser: https://github.com/SFTtech/debmagic
 
-Package: python3-debmagic-common
-Architecture: all
-Depends:
- python3-debian,
- ${misc:Depends},
- ${python3:Depends}
-Multi-Arch: foreign
-Description: Shared components for the debmagic debian buildtool suite
- Collection of utilities and type definitions used in both the debmagic cli
- buildtool as well as the debmagic python debian rules file library.
-
 Package: debmagic-pkg
 Architecture: all
 Depends:
- python3-debmagic-common,
+ python3-debian,
  python3-pydantic,
  ${misc:Depends},
  ${python3:Depends}

@@ -12,7 +12,6 @@ DOCKERFILE_TEMPLATE = """
 FROM docker.io/{distro}:{distro_version}
 
 RUN apt-get update && apt-get -y install dpkg-dev python3 python3-pip python3-pydantic
-RUN --mount=from=dist,target=/tmp/dist python3 -m pip install --break-system-packages /tmp/dist/debmagic_common-*.whl
 RUN --mount=from=dist,target=/tmp/dist python3 -m pip install --break-system-packages /tmp/dist/debmagic_pkg*.whl
 """
 

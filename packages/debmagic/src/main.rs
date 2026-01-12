@@ -15,6 +15,7 @@ use crate::{
 pub mod build;
 pub mod cli;
 pub mod config;
+pub mod package;
 
 fn get_config(cli: &Cli, source_dir: &Option<PathBuf>) -> anyhow::Result<Config> {
     let mut config_file_paths = vec![];

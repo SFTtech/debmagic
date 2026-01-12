@@ -7,6 +7,10 @@ edition = "2024"
 rust-version = "1.89"
 
 [workspace.dependencies]
+# internal
+debmagic-common = { path = "packages/debmagic-common" }
+
+# third party
 clap = { version = ">=4.5.23", features = ["derive"] }
 anyhow = { version = ">=1.0.95" }
 config = { version = ">=0.15.9", features = ["toml"] }
@@ -19,6 +23,7 @@ serde_json = ">=1.0.139"
 uuid = { version = ">=1.10.0", features = ["v4"] }
 chrono = { version = ">=0.4.42" }
 regex = { version = ">=1.12.2" }
+debian-changelog = { version = ">=0.2.14" }
 
 # dev dependencies
 test-case = { version = ">=3.3.1" }

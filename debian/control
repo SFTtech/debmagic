@@ -24,7 +24,8 @@ Build-Depends:
  librust-chrono-dev (>=0.4.42),
  librust-regex-dev (>=1.12.2),
  librust-test-case-dev (>=3.3.1),
- librust-pyo3-dev (>=0.27.2)
+ librust-pyo3-dev (>=0.27.2),
+ librust-debian-changelog-dev (>=0.2.14)
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2

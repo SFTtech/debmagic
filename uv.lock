@@ -4,7 +4,6 @@ requires-python = ">=3.12"
 
 [manifest]
 members = [
-    "debmagic-common",
     "debmagic-pkg",
 ]
 
@@ -232,26 +231,15 @@ wheels = [
 ]
 
 [[package]]
-name = "debmagic-common"
+name = "debmagic-pkg"
 version = "0.0.1a1"
-source = { editable = "packages/debmagic-common" }
+source = { editable = "packages/debmagic-pkg" }
 dependencies = [
     { name = "python-debian" },
 ]
 
 [package.metadata]
 requires-dist = [{ name = "python-debian", specifier = ">=1.0" }]
-
-[[package]]
-name = "debmagic-pkg"
-version = "0.0.1a1"
-source = { editable = "packages/debmagic-pkg" }
-dependencies = [
-    { name = "debmagic-common" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "debmagic-common", editable = "packages/debmagic-common" }]
 
 [[package]]
 name = "distlib"

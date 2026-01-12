@@ -6,12 +6,7 @@ import sys
 from pathlib import Path
 
 packages_root = Path(__file__).parent.parent / "packages"
-sys.path.extend(
-    [
-        str(packages_root / "debmagic-common" / "src"),
-        str(packages_root / "debmagic-pkg" / "src"),
-    ]
-)
+sys.path.append(str(packages_root / "debmagic-pkg" / "src"))
 
 from debmagic.v0 import package, dh, Build
 
@@ -31,7 +26,6 @@ os.environ.update({
 })
 
 packages = {
-    "python3-debmagic-common": ("packages/debmagic-common", "debmagic-common"),
     "debmagic": ("packages/debmagic", "debmagic"),
     "debmagic-pkg": ("packages/debmagic-pkg", "debmagic-pkg"),
 }

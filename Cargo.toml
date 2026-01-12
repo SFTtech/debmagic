@@ -1,7 +1,24 @@
 [workspace]
 resolver = "3"
-members = ["packages/debmagic"]
+members = ["packages/debmagic", "packages/debmagic-common"]
 
 [workspace.package]
 edition = "2024"
 rust-version = "1.89"
+
+[workspace.dependencies]
+clap = { version = ">=4.5.23", features = ["derive"] }
+anyhow = { version = ">=1.0.95" }
+config = { version = ">=0.15.9", features = ["toml"] }
+dirs = ">=5.0.0"
+# thiserror = "2.0.17" # for future uses when we need clearer error handling
+glob = ">=0.3.2"
+libc = ">=0.2.169"
+serde = { version = ">=1.0.217", features = ["derive"] }
+serde_json = ">=1.0.139"
+uuid = { version = ">=1.10.0", features = ["v4"] }
+chrono = { version = ">=0.4.42" }
+regex = { version = ">=1.12.2" }
+
+# dev dependencies
+test-case = { version = ">=3.3.1" }

@@ -7,9 +7,10 @@ use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
 use crate::{
-    build::{build_package, common::PackageDescription, get_shell_in_build},
+    build::{build_package, get_shell_in_build},
     cli::{Cli, Commands},
     config::Config,
+    package::PackageDescription,
 };
 
 pub mod build;
@@ -47,11 +48,9 @@ fn main() -> anyhow::Result<()> {
         Commands::Build(args) => {
             let source_dir = args.source_dir.as_deref().unwrap_or(&current_dir);
             let config = get_config(&cli, &Some(source_dir.to_path_buf()))?;
-            let package = PackageDescription {
-                name: "debmagic".to_string(),
-                version: "0.1.0".to_string(),
-                source_dir: path::absolute(source_dir).context("resolving source dir failed")?,
-            };
+            let package = PackageDescription::from_dir(
+                &path::absolute(source_dir).context("resolving source dir failed")?,
+            )?;
             let output_dir = args.output_dir.as_deref().unwrap_or(&current_dir);
             build_package(
                 &config,
@@ -64,11 +63,9 @@ fn main() -> anyhow::Result<()> {
         Commands::Shell(args) => {
             let source_dir = args.source_dir.as_deref().unwrap_or(&current_dir);
             let config = get_config(&cli, &Some(source_dir.to_path_buf()))?;
-            let package = PackageDescription {
-                name: "debmagic".to_string(),
-                version: "0.1.0".to_string(),
-                source_dir: path::absolute(source_dir).context("resolving source dir failed")?,
-            };
+            let package = PackageDescription::from_dir(
+                &path::absolute(source_dir).context("resolving source dir failed")?,
+            )?;
             get_shell_in_build(&config, &package)?;
         }
         Commands::Test {} => {

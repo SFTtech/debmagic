@@ -49,7 +49,6 @@ Package: debmagic
 Architecture: any
 Depends:
  ${misc:Depends},
- ${python3:Depends},
  ${shlibs:Depends},
 Description: Debian package building made easy.
  Holistic cli for the whole debian package building workflow.

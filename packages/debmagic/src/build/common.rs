@@ -15,13 +15,6 @@ pub enum BuildDriverType {
     // Lxd
 }
 
-#[derive(Debug, Clone)]
-pub struct PackageDescription {
-    pub name: String,
-    pub version: String,
-    pub source_dir: PathBuf,
-}
-
 pub type DriverSpecificBuildMetadata = HashMap<String, String>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

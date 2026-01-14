@@ -1,3 +1,4 @@
+use std::fmt;
 use std::str::FromStr;
 
 use regex::Regex;
@@ -5,42 +6,58 @@ use regex::Regex;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PackageVersion {
     // distro packaging override base version (default is 0)
-    epoch: String,
+    epoch: Option<u32>,
 
     // upstream package version
     upstream: String,
 
     // packaging (linux distro) revision
-    revision: String,
+    revision: Option<String>,
 }
 
 impl PackageVersion {
+    pub fn new(epoch: Option<u32>, upstream: String, revision: Option<String>) -> Self {
+        Self {
+            epoch,
+            upstream,
+            revision,
+        }
+    }
+
     pub fn version(&self) -> String {
         let mut ret: String = "".to_owned();
-        if self.epoch != "0" {
-            ret.push_str(&format!("{}:", self.epoch));
+        if let Some(epoch) = self.epoch
+            && epoch != 0
+        {
+            ret.push_str(&format!("{}:", epoch));
         }
         ret.push_str(&self.upstream);
-        if !self.revision.is_empty() {
-            ret.push_str(&format!("-{}", self.revision));
+        if let Some(revision) = &self.revision {
+            ret.push_str(&format!("-{}", revision));
         }
         ret
     }
 
     /// distro epoch plus upstream version
     pub fn epoch_upstream(&self) -> String {
-        if !self.epoch.is_empty() {
-            return format!("{}:{}", self.epoch, self.upstream);
+        if let Some(epoch) = self.epoch {
+            return format!("{}:{}", epoch, self.upstream);
         }
         self.upstream.clone()
     }
 
     /// distro epoch plus upstream version
     pub fn upstream_revision(&self) -> String {
-        if !self.revision.is_empty() {
-            return format!("{}-{}", self.upstream, self.revision);
+        if let Some(revision) = &self.revision {
+            return format!("{}-{}", self.upstream, revision);
         }
         self.upstream.clone()
+    }
+}
+
+impl fmt::Display for PackageVersion {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.version())
     }
 }
 
@@ -58,10 +75,10 @@ impl FromStr for PackageVersion {
         // pkg-info.mk uses the full version if no epoch is in it.
         // instead, we return "0" as oritinally intended if no epoch is in version.
         let epoch = if !version.contains(':') {
-            "0".to_string()
+            Some(0)
         } else {
             let re_epoch = Regex::new(r"^([0-9]+):.*$").map_err(|_| VersionParseError)?;
-            re_epoch.replace(version, "$1").to_string()
+            re_epoch.replace(version, "$1").to_string().parse().ok()
         };
 
         let re_upstream = Regex::new(r"^([0-9]*:)?(.*?)$").map_err(|_| VersionParseError)?;
@@ -75,7 +92,11 @@ impl FromStr for PackageVersion {
         Ok(Self {
             epoch,
             upstream,
-            revision,
+            revision: if revision.is_empty() {
+                None
+            } else {
+                Some(revision)
+            },
         })
     }
 }
@@ -88,19 +109,19 @@ mod tests {
 
     #[test_case(
         "1.2.3a.4-42.2-14ubuntu2~20.04.1", 
-        &PackageVersion{epoch:"0".to_string(), upstream:"1.2.3a.4-42.2".to_string(), revision:"14ubuntu2~20.04.1".to_string()})]
+        &PackageVersion{epoch:Some(0), upstream:"1.2.3a.4-42.2".to_string(), revision:Some("14ubuntu2~20.04.1".to_string())})]
     #[test_case(
         "3:1.2.3a.4-42.2-14ubuntu2~20.04.1", 
-        &PackageVersion{epoch:"3".to_string(), upstream:"1.2.3a.4-42.2".to_string(), revision:"14ubuntu2~20.04.1".to_string()})]
+        &PackageVersion{epoch:Some(3), upstream:"1.2.3a.4-42.2".to_string(), revision:Some("14ubuntu2~20.04.1".to_string())})]
     #[test_case(
         "3:1.2.3a.4ubuntu", 
-        &PackageVersion{epoch:"3".to_string(), upstream:"1.2.3a.4ubuntu".to_string(), revision:"".to_string()})]
+        &PackageVersion{epoch:Some(3), upstream:"1.2.3a.4ubuntu".to_string(), revision:None})]
     #[test_case(
         "3:1.2.3a-4ubuntu", 
-        &PackageVersion{epoch:"3".to_string(), upstream:"1.2.3a".to_string(), revision:"4ubuntu".to_string()})]
+        &PackageVersion{epoch:Some(3), upstream:"1.2.3a".to_string(), revision:Some("4ubuntu".to_string())})]
     #[test_case(
         "3:1.2.3a-4ubuntu1", 
-        &PackageVersion{epoch:"3".to_string(), upstream:"1.2.3a".to_string(), revision:"4ubuntu1".to_string()})]
+        &PackageVersion{epoch:Some(3), upstream:"1.2.3a".to_string(), revision:Some("4ubuntu1".to_string())})]
     fn test_version_parsing(version: &str, expected: &PackageVersion) {
         let parsed_version = PackageVersion::from_str(version).unwrap();
 

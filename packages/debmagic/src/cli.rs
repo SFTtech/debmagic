@@ -30,6 +30,9 @@ pub struct BuildSubcommandArgs {
     #[arg(long)]
     pub driver_docker_build_image: Option<String>,
 
+    #[arg(long)]
+    pub driver_persistent: Option<bool>,
+
     #[arg(short, long)]
     pub source_dir: Option<PathBuf>,
     #[arg(short, long)]

@@ -1,1 +1,2 @@
-dry_run = true
+[driver]
+persistent = true

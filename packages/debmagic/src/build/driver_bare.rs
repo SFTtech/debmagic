@@ -1,4 +1,4 @@
-use std::{env, path::Path, process::Command};
+use std::{path::Path, process::Command};
 
 use serde::{Deserialize, Serialize};
 
@@ -76,11 +76,10 @@ impl BuildDriver for DriverBare {
     }
 
     fn interactive_shell(&self) -> std::io::Result<()> {
-        let mut shell = Command::new("/usr/bin/env");
-        let shell_type = env::var("SHELL").unwrap_or("bash".to_string());
-        shell.arg(shell_type);
-
-        let _ = shell.status()?;
+        println!(
+            "source directory of current package build in {}",
+            self.config.build_source_dir().display()
+        );
         Ok(())
     }
 

@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::{build::config::DriverConfig, cli::Cli};
+use crate::build::config::DriverConfig;
 use anyhow::{Context, anyhow};
 use config::{Config as ConfigBuilder, File};
 use serde::Deserialize;
@@ -10,7 +10,6 @@ use serde::Deserialize;
 pub struct Config {
     pub driver: DriverConfig,
     pub temp_build_dir: PathBuf,
-    pub dry_run: bool,
 }
 
 impl Default for Config {
@@ -18,13 +17,12 @@ impl Default for Config {
         Self {
             driver: DriverConfig::default(),
             temp_build_dir: PathBuf::from("/tmp/debmagic"),
-            dry_run: false,
         }
     }
 }
 
 impl Config {
-    pub fn new(config_files: &Vec<PathBuf>, _cli_args: &Cli) -> anyhow::Result<Self> {
+    pub fn new(config_files: &Vec<PathBuf>) -> anyhow::Result<Self> {
         let mut builder = ConfigBuilder::builder();
 
         for file in config_files {
@@ -40,14 +38,13 @@ impl Config {
         let config: anyhow::Result<Self> = build
             .try_deserialize()
             .map_err(|e| anyhow!("Failed to read config: {e}"));
+
         config
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::cli::Commands;
-
     use super::*;
 
     #[test]
@@ -55,14 +52,8 @@ mod tests {
         let test_asset_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("tests")
             .join("assets");
-        let cfg = Config::new(
-            &vec![test_asset_dir.join("config1.toml")],
-            &Cli {
-                config: None,
-                command: Commands::Version {},
-            },
-        )?;
-        assert!(cfg.dry_run);
+        let cfg = Config::new(&vec![test_asset_dir.join("config1.toml")])?;
+        assert!(cfg.driver.persistent);
 
         Ok(())
     }

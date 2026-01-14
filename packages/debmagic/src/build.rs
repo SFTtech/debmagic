@@ -35,11 +35,8 @@ fn get_build_driver(
     driver_config: &DriverConfig,
 ) -> anyhow::Result<Box<dyn BuildDriver>> {
     match config.driver {
-        BuildDriverType::Docker => Ok(Box::new(DriverDocker::create(
-            config,
-            &driver_config.docker,
-        )?)),
-        BuildDriverType::Bare => Ok(Box::new(DriverBare::create(config, &driver_config.bare))),
+        BuildDriverType::Docker => Ok(Box::new(DriverDocker::create(config, driver_config)?)),
+        BuildDriverType::Bare => Ok(Box::new(DriverBare::create(config, driver_config))),
         // BuildDriverType::Lxd => ...
     }
 }
@@ -51,12 +48,12 @@ fn create_driver_from_metadata(
     let driver: anyhow::Result<Box<dyn BuildDriver>> = match &metadata.config.driver {
         BuildDriverType::Docker => Ok(Box::new(DriverDocker::from_build_metadata(
             &metadata.config,
-            &config.docker,
+            config,
             metadata,
         ))),
         BuildDriverType::Bare => Ok(Box::new(DriverBare::from_build_metadata(
             &metadata.config,
-            &config.bare,
+            config,
             metadata,
         ))),
         // BuildDriverType::Lxd => ...
@@ -66,7 +63,8 @@ fn create_driver_from_metadata(
 
 impl Build {
     pub fn create(config: &BuildConfig, driver_config: &DriverConfig) -> anyhow::Result<Self> {
-        let driver = get_build_driver(config, driver_config)?;
+        let driver = get_build_driver(config, driver_config)
+            .context(format!("failed to create {:?} build driver", config.driver))?;
         Ok(Self {
             config: config.clone(),
             driver,
@@ -248,18 +246,33 @@ fn copy_glob(src_dir: &Path, pattern: &str, dest_dir: &Path) -> anyhow::Result<(
     Ok(())
 }
 
-fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> std::io::Result<()> {
-    // TODO: properly handle gitignore / other ignore files when copying
-    // Use ignore crate
-    // Simple copy logic (for advanced gitignore support, look at the `ignore` crate)
+fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> anyhow::Result<()> {
     fs::create_dir_all(&dst)?;
-    for entry in fs::read_dir(src)? {
+
+    let walker = ignore::WalkBuilder::new(&src)
+        .standard_filters(true)
+        .hidden(false)
+        .filter_entry(|entry| !(entry.path().is_dir() && entry.path().ends_with(".git")))
+        .build();
+
+    for entry in walker {
         let entry = entry?;
-        let file_type = entry.file_type()?;
+        let file_type = entry.file_type().ok_or(anyhow!(
+            "failed to get file type of {}",
+            entry.path().display()
+        ))?;
+
+        // get path of entry relative to src
+        let relative_path = entry
+            .path()
+            .strip_prefix(src.as_ref())
+            .context("failed to get relative path")?;
+
         if file_type.is_dir() {
-            copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
+            fs::create_dir_all(dst.as_ref().join(relative_path))?;
         } else if file_type.is_file() {
-            fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
+            fs::copy(entry.path(), dst.as_ref().join(relative_path))
+                .context(format!("failed to copy file: {}", entry.path().display()))?;
         }
         // handle hardlinks, symlinks and similar weird filetypes
     }
@@ -294,13 +307,15 @@ fn prepare_build_env(
         build_root_dir: build_root,
         distro: "debian".to_string(),
         distro_version: "forky".to_string(),
-        dry_run: config.dry_run,
         sign_package: false,
     };
 
-    build_config.create_dirs()?;
+    build_config
+        .create_dirs()
+        .context("failed to create build directories")?;
 
-    copy_dir_all(&build_config.source_dir, build_config.build_source_dir())?;
+    copy_dir_all(&build_config.source_dir, build_config.build_source_dir())
+        .context("failed to copy source tree to build directory")?;
 
     let build = Build::create(&build_config, &config.driver)?;
     Ok(build)
@@ -324,8 +339,11 @@ pub fn build_package(
     driver_type: BuildDriverType,
     output_dir: &Path,
 ) -> anyhow::Result<()> {
-    let build = prepare_build_env(config, package, driver_type, output_dir)?;
-    build.write_metadata()?;
+    let build = prepare_build_env(config, package, driver_type, output_dir)
+        .context("failed to prepare build environment")?;
+    build
+        .write_metadata()
+        .context("failed to write build metadata")?;
 
     let result = (|| -> anyhow::Result<()> {
         build.driver.run_command(

@@ -34,7 +34,6 @@ pub struct BuildConfig {
     pub build_root_dir: PathBuf,
     pub source_dir: PathBuf,
     pub output_dir: PathBuf,
-    pub dry_run: bool,
     pub distro_version: String,
     pub distro: String,
     pub sign_package: bool,

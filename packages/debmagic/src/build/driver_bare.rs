@@ -2,20 +2,24 @@ use std::{path::Path, process::Command};
 
 use serde::{Deserialize, Serialize};
 
-use crate::build::common::{
-    BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, DriverSpecificBuildMetadata,
+use crate::build::{
+    common::{
+        BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, DriverSpecificBuildMetadata,
+    },
+    config::DriverConfig,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(default)]
 pub struct DriverBareConfig {}
 
 pub struct DriverBare {
     config: BuildConfig,
-    _driver_config: DriverBareConfig,
+    _driver_config: DriverConfig,
 }
 
 impl DriverBare {
-    pub fn create(config: &BuildConfig, driver_config: &DriverBareConfig) -> Self {
+    pub fn create(config: &BuildConfig, driver_config: &DriverConfig) -> Self {
         Self {
             config: config.clone(),
             _driver_config: driver_config.clone(),
@@ -24,7 +28,7 @@ impl DriverBare {
 
     pub fn from_build_metadata(
         config: &BuildConfig,
-        driver_config: &DriverBareConfig,
+        driver_config: &DriverConfig,
         _build_metadata: &BuildMetadata,
     ) -> Self {
         Self {
@@ -48,11 +52,6 @@ impl BuildDriver for DriverBare {
         }
 
         full_cmd.extend(cmd.iter().map(|s| s.to_string()));
-
-        if self.config.dry_run {
-            println!("[dry-run] Would run: {full_cmd:?}");
-            return Ok(());
-        }
 
         let mut command = Command::new(&full_cmd[0]);
         command.args(&full_cmd[1..]);

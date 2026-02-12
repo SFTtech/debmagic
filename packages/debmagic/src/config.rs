@@ -10,6 +10,7 @@ use serde::Deserialize;
 pub struct Config {
     pub driver: DriverConfig,
     pub temp_build_dir: PathBuf,
+    pub incremental: bool,
 }
 
 impl Default for Config {
@@ -17,6 +18,7 @@ impl Default for Config {
         Self {
             driver: DriverConfig::default(),
             temp_build_dir: PathBuf::from("/tmp/debmagic"),
+            incremental: false,
         }
     }
 }

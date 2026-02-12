@@ -90,13 +90,15 @@ def test_build_package(test_env: Environment, package: str, version: str):
     with tempfile.TemporaryDirectory() as output_dir:
         subprocess.run(
             [
-                "uv",
+                "cargo",
                 "run",
+                "--package",
                 "debmagic",
+                "--",
                 "pack",
                 "--driver",
                 "docker",
-                "--driver-config.docker.base-image",
+                "--driver-docker-base-image",
                 test_env.docker_image_name,
                 "--source-dir",
                 str(repo_dir),

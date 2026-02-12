@@ -17,9 +17,21 @@ pub struct Cli {
 pub enum Commands {
     Pack(PackSubcommandArgs),
     Shell(ShellSubcommandArgs),
-    Test {},
-    Check {},
+    Test(TestSubcommandArgs),
+    Check(CheckSubcommandArgs),
     Version {},
+}
+
+#[derive(Args, Debug)]
+pub struct CommonCli {
+    #[arg(short, long)]
+    pub source_dir: Option<PathBuf>,
+}
+
+#[derive(Args, Debug)]
+pub struct DockerArgs {
+    #[arg(long("driver-docker-base-image"))]
+    pub base_image: Option<String>,
 }
 
 #[derive(Args, Debug)]
@@ -27,20 +39,36 @@ pub struct PackSubcommandArgs {
     #[arg(short, long)]
     pub driver: BuildDriverType,
 
-    #[arg(long)]
-    pub driver_docker_build_image: Option<String>,
+    #[arg(long, action = clap::ArgAction::SetTrue)]
+    pub persist_driver: Option<bool>,
 
-    #[arg(long)]
-    pub driver_persistent: Option<bool>,
+    #[command(flatten)]
+    pub docker: DockerArgs,
 
-    #[arg(short, long)]
-    pub source_dir: Option<PathBuf>,
+    #[arg(short, long, action = clap::ArgAction::SetTrue)]
+    pub incremental: Option<bool>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
+
     #[arg(short, long)]
     pub output_dir: Option<PathBuf>,
 }
 
 #[derive(Args, Debug)]
 pub struct ShellSubcommandArgs {
-    #[arg(short, long)]
-    pub source_dir: Option<PathBuf>,
+    #[command(flatten)]
+    pub common: CommonCli,
+}
+
+#[derive(Args, Debug)]
+pub struct TestSubcommandArgs {
+    #[command(flatten)]
+    pub common: CommonCli,
+}
+
+#[derive(Args, Debug)]
+pub struct CheckSubcommandArgs {
+    #[command(flatten)]
+    pub common: CommonCli,
 }

@@ -74,7 +74,7 @@ pub trait BuildDriver {
 
     fn cleanup(&self);
 
-    fn interactive_shell(&self) -> std::io::Result<()>;
+    fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()>;
 
     fn driver_type(&self) -> BuildDriverType;
 }

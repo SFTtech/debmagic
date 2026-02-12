@@ -74,7 +74,7 @@ impl BuildDriver for DriverBare {
         // No-op for bare driver
     }
 
-    fn interactive_shell(&self) -> std::io::Result<()> {
+    fn interactive_shell(&self, _cwd: &Path) -> std::io::Result<()> {
         println!(
             "source directory of current package build in {}",
             self.config.build_source_dir().display()

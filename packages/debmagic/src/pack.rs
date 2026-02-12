@@ -324,7 +324,9 @@ fn prepare_build_env(
 pub fn get_shell_in_build(config: &Config, package: &PackageDescription) -> anyhow::Result<()> {
     let (_package_identifier, build_root) = get_build_root_and_identifier(config, package);
     let build = Build::from_build_root(&build_root, &config.driver)?;
-    let result = build.driver.interactive_shell();
+    let result = build
+        .driver
+        .interactive_shell(&build.config.build_source_dir());
 
     // TODO: detach - decrement num_attached_processes
     build.detach()?;
@@ -376,7 +378,9 @@ pub fn build_package(
     if let Err(e) = result {
         if stdout().is_terminal() {
             eprintln!("Build failed: {e}. Dropping into shell...");
-            let res = build.driver.interactive_shell();
+            let res = build
+                .driver
+                .interactive_shell(&build.config.build_source_dir());
             if let Err(shell_error) = res {
                 eprintln!("Dropping into shell failed: {shell_error}");
             }

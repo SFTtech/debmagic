@@ -278,8 +278,8 @@ impl BuildDriver for DriverDocker {
         }
     }
 
-    fn interactive_shell(&self) -> std::io::Result<()> {
-        let workdir = self.translate_path_in_container(&self.config.build_root_dir)?;
+    fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()> {
+        let workdir = self.translate_path_in_container(cwd)?;
         let _ = Command::new("docker")
             .args([
                 "exec",

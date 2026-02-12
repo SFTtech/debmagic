@@ -12,7 +12,8 @@ DOCKERFILE_TEMPLATE = """
 FROM docker.io/{distro}:{distro_version}
 
 RUN apt-get update && apt-get -y install dpkg-dev python3 python3-pip python3-pydantic
-RUN --mount=from=dist,target=/tmp/dist python3 -m pip install --break-system-packages /tmp/dist/debmagic_pkg*.whl
+RUN --mount=from=dist,target=/tmp/dist python3 -m pip install --root-user-action=ignore \
+    --break-system-packages /tmp/dist/debmagic_pkg*.whl
 """
 
 
@@ -34,7 +35,6 @@ def fetch_sources(package_name: str, version: str) -> Path:
 
 def _prepare_docker_image(test_tmp_dir: Path, distro: str, distro_version: str):
     debmagic_repo_root_dir = Path(__file__).parent.parent.parent
-    run_cmd(["uv", "build", "--package", "debmagic-common"], check=True)
     run_cmd(["uv", "build", "--package", "debmagic-pkg"], check=True)
 
     formatted_dockerfile = DOCKERFILE_TEMPLATE.format(

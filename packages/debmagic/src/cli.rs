@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::build::common::BuildDriverType;
+use crate::pack::common::BuildDriverType;
 use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -15,7 +15,7 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    Build(BuildSubcommandArgs),
+    Pack(PackSubcommandArgs),
     Shell(ShellSubcommandArgs),
     Test {},
     Check {},
@@ -23,7 +23,7 @@ pub enum Commands {
 }
 
 #[derive(Args, Debug)]
-pub struct BuildSubcommandArgs {
+pub struct PackSubcommandArgs {
     #[arg(short, long)]
     pub driver: BuildDriverType,
 

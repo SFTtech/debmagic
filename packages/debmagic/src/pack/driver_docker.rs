@@ -7,7 +7,7 @@ use std::{
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 
-use crate::build::{
+use crate::pack::{
     common::{
         BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, DriverSpecificBuildMetadata,
     },

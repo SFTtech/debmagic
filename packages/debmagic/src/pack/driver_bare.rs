@@ -2,7 +2,7 @@ use std::{path::Path, process::Command};
 
 use serde::{Deserialize, Serialize};
 
-use crate::build::{
+use crate::pack::{
     common::{
         BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, DriverSpecificBuildMetadata,
     },

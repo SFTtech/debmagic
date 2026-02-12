@@ -157,8 +157,8 @@ jobs:
         run: uv sync --locked --all-extras --dev
       - name: Install debmagic (cli)
         run: uv pip install packages/debmagic
-      - name: Run Debmagic build on ourself
-        run: uv run debmagic build --driver=docker
+      - name: Run Debmagic pack on ourself
+        run: uv run debmagic pack --driver=docker
  
   # TODO: integration tests currently don't work in the CI since they require running apt source on debian trixie -> CI runs on ubuntu
   # integration-tests:

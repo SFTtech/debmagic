@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::build::config::DriverConfig;
+use crate::pack::config::DriverConfig;
 use anyhow::{Context, anyhow};
 use config::{Config as ConfigBuilder, File};
 use serde::Deserialize;

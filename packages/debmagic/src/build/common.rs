@@ -21,9 +21,6 @@ pub type DriverSpecificBuildMetadata = HashMap<String, String>;
 pub struct BuildMetadata {
     pub config: BuildConfig,
     pub driver_metadata: DriverSpecificBuildMetadata,
-    // number of parallel debmagic processes working on this instance of a build
-    // used to determine when a BuildDriver can be fully stopped and cleaned up
-    pub num_processes_attached: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,8 +1,10 @@
 use core::time;
+use std::net::Shutdown;
+use std::os::unix::net::{UnixListener, UnixStream};
+use std::sync::{Arc, Mutex};
 use std::{
-    cmp::{self},
     fs,
-    io::{self, BufReader, BufWriter, IsTerminal, Seek, stdout},
+    io::{self, BufReader, IsTerminal, Read, Write, stdout},
     path::{Path, PathBuf},
     thread,
 };
@@ -79,13 +81,10 @@ impl Build {
         if !build_metadata_path.is_file() {
             return Err(anyhow!("No build.json found"));
         }
-
-        let mut file = fs::OpenOptions::new()
+        // read metadata from file
+        let file = fs::OpenOptions::new()
             .read(true)
-            .write(true)
             .open(&build_metadata_path)?;
-        file.lock()?;
-
         let metadata = || -> anyhow::Result<BuildMetadata> {
             let reader = BufReader::new(&file);
             let metadata: BuildMetadata = serde_json::from_reader(reader).with_context(|| {
@@ -97,39 +96,13 @@ impl Build {
             Ok(metadata)
         }();
 
-        let metadata = match metadata {
-            Err(meta_err) => {
-                file.unlock()?;
-                return Err(meta_err);
-            }
-            Ok(metadata) => metadata,
-        };
+        let metadata = metadata?;
 
-        let driver = create_driver_from_metadata(driver_config, &metadata);
+        let driver = create_driver_from_metadata(driver_config, &metadata)?;
 
-        let driver = match driver {
-            Err(driver_err) => {
-                file.unlock()?;
-                return Err(driver_err);
-            }
-            Ok(driver) => driver,
-        };
-
-        let result = || -> anyhow::Result<()> {
-            file.seek(io::SeekFrom::Start(0))?;
-            let updated_metadata = BuildMetadata {
-                num_processes_attached: &metadata.num_processes_attached + 1,
-                ..metadata.clone()
-            };
-            let writer = BufWriter::new(&file);
-            serde_json::to_writer_pretty(writer, &updated_metadata)
-                .context("Failed to serialize build metadata")?;
-            Ok(())
-        }();
-
-        file.unlock()?;
-
-        result?;
+        // Try to signal the main debmagic build process that a shell attached
+        send_socket_command(build_root, "attach")
+            .context("No debmagic build is currently running for this source directory")?;
 
         Ok(Self {
             config: metadata.config.clone(),
@@ -137,91 +110,16 @@ impl Build {
         })
     }
 
-    fn build_metadata_path(&self) -> anyhow::Result<PathBuf> {
-        let build_metadata_path = self.config.build_root_dir.join("build.json");
-        if !build_metadata_path.is_file() {
-            return Err(anyhow!("No build.json found"));
-        }
-        Ok(build_metadata_path)
-    }
-
     pub fn detach(&self) -> anyhow::Result<()> {
-        // TODO: refactor the whole file locking / read + write metadata thing to not be as duplicated and error prone
-        let build_metadata_path = self.build_metadata_path()?;
-
-        let mut file = fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open(&build_metadata_path)?;
-        file.lock()?;
-
-        let metadata = || -> anyhow::Result<BuildMetadata> {
-            let reader = BufReader::new(&file);
-            let metadata: BuildMetadata = serde_json::from_reader(reader).with_context(|| {
-                format!(
-                    "Failed to read build metadata from {} - invalid json",
-                    build_metadata_path.display()
-                )
-            })?;
-            Ok(metadata)
-        }();
-
-        let metadata = match metadata {
-            Err(meta_err) => {
-                file.unlock()?;
-                return Err(meta_err);
-            }
-            Ok(metadata) => metadata,
-        };
-
-        let result = || -> anyhow::Result<()> {
-            file.seek(io::SeekFrom::Start(0))?;
-            let updated_metadata = BuildMetadata {
-                num_processes_attached: cmp::max(0, &metadata.num_processes_attached - 1),
-                ..metadata.clone()
-            };
-            let writer = BufWriter::new(&file);
-            serde_json::to_writer_pretty(writer, &updated_metadata)
-                .context("Failed to serialize build metadata")?;
-            Ok(())
-        }();
-
-        file.unlock()?;
-        result
-    }
-
-    pub fn get_number_of_attached_processes(&self) -> anyhow::Result<i64> {
-        // TODO: refactor the whole file locking / read + write metadata thing to not be as duplicated and error prone
-        let build_metadata_path = self.build_metadata_path()?;
-
-        let file = fs::OpenOptions::new()
-            .read(true)
-            .open(&build_metadata_path)?;
-        file.lock()?;
-
-        let metadata = || -> anyhow::Result<BuildMetadata> {
-            let reader = BufReader::new(&file);
-            let metadata: BuildMetadata = serde_json::from_reader(reader).with_context(|| {
-                format!(
-                    "Failed to read build metadata from {} - invalid json",
-                    build_metadata_path.display()
-                )
-            })?;
-            Ok(metadata)
-        }();
-        file.unlock()?;
-
-        match metadata {
-            Err(meta_err) => Err(meta_err),
-            Ok(metadata) => Ok(metadata.num_processes_attached),
-        }
+        let build_root = &self.config.build_root_dir;
+        send_socket_command(build_root, "detach")?;
+        Ok(())
     }
 
     pub fn write_metadata(&self) -> anyhow::Result<()> {
         let metadata = BuildMetadata {
             config: self.config.clone(),
             driver_metadata: self.driver.get_build_metadata(),
-            num_processes_attached: 0,
         };
         let path = self.config.build_root_dir.join("build.json");
         let json = serde_json::to_string_pretty(&metadata)
@@ -243,6 +141,80 @@ fn copy_glob(src_dir: &Path, pattern: &str, dest_dir: &Path) -> anyhow::Result<(
             fs::copy(&path, dest_dir.join(filename))?;
         }
     }
+    Ok(())
+}
+
+fn socket_path_for_build(build_root: &Path) -> PathBuf {
+    build_root.join("build.sock")
+}
+
+fn start_socket_server(
+    build_root: &Path,
+    should_exit: Arc<Mutex<bool>>,
+) -> anyhow::Result<thread::JoinHandle<()>> {
+    let sock = socket_path_for_build(build_root);
+    if sock.exists() {
+        // try to remove stale socket file
+        let _ = fs::remove_file(&sock);
+    }
+
+    let listener = UnixListener::bind(&sock)
+        .with_context(|| format!("failed to bind unix socket {}", sock.display()))?;
+
+    // Set non-blocking mode so we can check the exit flag
+    listener
+        .set_nonblocking(true)
+        .context("failed to set socket non-blocking")?;
+
+    let handle = thread::spawn(move || {
+        let mut num_attached = 0u64;
+        loop {
+            // Check if we should exit
+            let exit_requested = *should_exit.lock().unwrap();
+            if exit_requested && num_attached == 0 {
+                break;
+            }
+
+            match listener.accept() {
+                Ok((mut s, _)) => {
+                    let mut buf = String::new();
+                    if s.read_to_string(&mut buf).is_err() {
+                        let _ = s.shutdown(Shutdown::Both);
+                        continue;
+                    }
+                    let cmd = buf.trim();
+                    match cmd {
+                        "attach" => {
+                            num_attached += 1;
+                        }
+                        "detach" => {
+                            num_attached = std::cmp::max(0, num_attached - 1);
+                        }
+                        _ => {}
+                    }
+                    let _ = s.shutdown(Shutdown::Both);
+                }
+                Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
+                    // No connection available, sleep briefly to avoid busy-waiting
+                    thread::sleep(time::Duration::from_millis(10));
+                }
+                Err(_) => break,
+            }
+        }
+        let _ = fs::remove_file(&sock);
+    });
+
+    Ok(handle)
+}
+
+fn send_socket_command(build_root: &Path, cmd: &str) -> anyhow::Result<()> {
+    let sock = socket_path_for_build(build_root);
+    let mut stream = UnixStream::connect(&sock)
+        .with_context(|| format!("failed to connect to socket {}", sock.display()))?;
+    stream
+        .write_all(cmd.as_bytes())
+        .context("failed to send socket command")?;
+    stream.shutdown(Shutdown::Write).ok();
     Ok(())
 }
 
@@ -399,6 +371,10 @@ pub fn build_package(
         .write_metadata()
         .context("failed to write build metadata")?;
 
+    let should_exit = Arc::new(Mutex::new(false));
+    let socket_server_handle =
+        start_socket_server(&build.config.build_root_dir, should_exit.clone())?;
+
     let result = (|| -> anyhow::Result<()> {
         build.driver.run_command(
             &["apt-get", "-y", "build-dep", "."],
@@ -440,16 +416,20 @@ pub fn build_package(
             eprintln!("Build failed: {e}");
         }
         build.driver.cleanup();
+        *should_exit.lock().unwrap() = true;
+        if !socket_server_handle.is_finished() {
+            println!("Waiting for all attached shells to exit...");
+        }
+        socket_server_handle.join().ok();
         return Err(e);
     }
 
-    // busy waiting until no pro
-    while let Ok(attached_processes) = build.get_number_of_attached_processes()
-        && attached_processes > 0
-    {
-        println!("Waiting for last shell to detach ...");
-        thread::sleep(time::Duration::from_millis(10));
+    // Signal the socket server to exit and wait for it to complete
+    *should_exit.lock().unwrap() = true;
+    if !socket_server_handle.is_finished() {
+        println!("Waiting for all attached shells to exit...");
     }
+    socket_server_handle.join().ok();
 
     build.driver.cleanup();
     Ok(())

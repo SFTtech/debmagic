@@ -64,7 +64,7 @@ pub struct BuildSubcommandArgs {
         long,
         help = "Select the target distribution version, only required in the debian changelog specifies multiple versions"
     )]
-    pub distro_version: Option<String>,
+    pub distro: Option<String>,
 
     #[command(flatten)]
     pub common: CommonCli,

@@ -57,6 +57,11 @@ mod tests {
         let cfg = Config::new(&vec![test_asset_dir.join("config1.toml")])?;
         assert!(cfg.driver.persistent);
 
+        assert!(
+            cfg.driver.docker.base_images.get("debian:trixie")
+                == Some(&"some-debian-trixie-image:latest".to_string())
+        );
+
         Ok(())
     }
 }

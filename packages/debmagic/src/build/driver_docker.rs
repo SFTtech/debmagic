@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
     process::{Command, Stdio},
@@ -17,6 +18,20 @@ use crate::build::{
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
 pub struct DriverDockerConfig {
+    pub base_images: HashMap<String, String>,
+}
+
+impl DriverDockerConfig {
+    pub fn base_image_for_distro(&self, distro: &str, version: &str) -> String {
+        self.base_images
+            .get(&format!("{}:{}", distro, version))
+            .cloned()
+            .unwrap_or_else(|| format!("docker.io/{}:{}", distro, version))
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct DriverDockerConfigOverrides {
     pub base_image: Option<String>,
 }
 
@@ -52,12 +67,16 @@ pub struct DriverDocker {
     container_name: String,
 }
 
-fn build_build_image(config: &BuildConfig, driver_config: &DriverConfig) -> anyhow::Result<String> {
-    let base_image = driver_config
-        .docker
-        .base_image
-        .clone()
-        .unwrap_or_else(|| format!("docker.io/{}:{}", config.distro, config.distro_version));
+fn build_build_image(
+    config: &BuildConfig,
+    driver_config: &DriverConfig,
+    overrides: &DriverDockerConfigOverrides,
+) -> anyhow::Result<String> {
+    let base_image = overrides.base_image.clone().unwrap_or_else(|| {
+        driver_config
+            .docker
+            .base_image_for_distro(&config.distro, &config.distro_version)
+    });
 
     let debian_control_file_path = config.build_source_dir().join("debian").join("control");
 
@@ -137,7 +156,11 @@ fn does_container_exist(container_name: &str) -> anyhow::Result<bool> {
 }
 
 impl DriverDocker {
-    pub fn create(config: &BuildConfig, driver_config: &DriverConfig) -> anyhow::Result<Self> {
+    pub fn create(
+        config: &BuildConfig,
+        driver_config: &DriverConfig,
+        overrides: &DriverDockerConfigOverrides,
+    ) -> anyhow::Result<Self> {
         let container_name = format!("debmagic-{}", config.build_identifier());
         let container_exists = does_container_exist(&container_name)?;
 
@@ -162,7 +185,7 @@ impl DriverDocker {
                 }
             }
 
-            let docker_image_name = build_build_image(config, driver_config)?;
+            let docker_image_name = build_build_image(config, driver_config, overrides)?;
             let mut run_cmd = Command::new("docker");
             run_cmd.args([
                 "run",

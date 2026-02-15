@@ -9,6 +9,7 @@ use std::{
     thread,
 };
 
+use crate::build::config::DriverOverrides;
 use crate::{
     build::{
         common::{BuildConfig, BuildDriver, BuildDriverType, BuildMetadata},
@@ -35,10 +36,19 @@ struct Build {
 fn get_build_driver(
     config: &BuildConfig,
     driver_config: &DriverConfig,
+    driver_overrides: &DriverOverrides,
 ) -> anyhow::Result<Box<dyn BuildDriver>> {
     match config.driver {
-        BuildDriverType::Docker => Ok(Box::new(DriverDocker::create(config, driver_config)?)),
-        BuildDriverType::Bare => Ok(Box::new(DriverBare::create(config, driver_config))),
+        BuildDriverType::Docker => Ok(Box::new(DriverDocker::create(
+            config,
+            driver_config,
+            &driver_overrides.docker,
+        )?)),
+        BuildDriverType::Bare => Ok(Box::new(DriverBare::create(
+            config,
+            driver_config,
+            &driver_overrides.bare,
+        ))),
         // BuildDriverType::Lxd => ...
     }
 }
@@ -64,8 +74,12 @@ fn create_driver_from_metadata(
 }
 
 impl Build {
-    pub fn create(config: &BuildConfig, driver_config: &DriverConfig) -> anyhow::Result<Self> {
-        let driver = get_build_driver(config, driver_config)
+    pub fn create(
+        config: &BuildConfig,
+        driver_config: &DriverConfig,
+        driver_overrides: &DriverOverrides,
+    ) -> anyhow::Result<Self> {
+        let driver = get_build_driver(config, driver_config, driver_overrides)
             .context(format!("failed to create {:?} build driver", config.driver))?;
         Ok(Self {
             config: config.clone(),
@@ -303,6 +317,7 @@ fn resolve_distro_version(
 
 fn prepare_build_env(
     config: &Config,
+    driver_overrides: &DriverOverrides,
     package: &PackageDescription,
     driver_type: BuildDriverType,
     output_dir: &Path,
@@ -334,7 +349,7 @@ fn prepare_build_env(
     copy_dir_all(&build_config.source_dir, build_config.build_source_dir())
         .context("failed to copy source tree to build directory")?;
 
-    let build = Build::create(&build_config, &config.driver)?;
+    let build = Build::create(&build_config, &config.driver, driver_overrides)?;
     Ok(build)
 }
 
@@ -355,11 +370,13 @@ pub fn build_package(
     config: &Config,
     package: &PackageDescription,
     driver_type: BuildDriverType,
+    driver_overrides: &DriverOverrides,
     output_dir: &Path,
     explicit_distro_version: Option<&str>,
 ) -> anyhow::Result<()> {
     let build = prepare_build_env(
         config,
+        driver_overrides,
         package,
         driver_type,
         output_dir,

@@ -7,7 +7,10 @@ use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
 use crate::{
-    build::{build_package, get_shell_in_build},
+    build::{
+        build_package, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
+        driver_docker::DriverDockerConfigOverrides, get_shell_in_build,
+    },
     cli::{Cli, Commands},
     config::Config,
     package::PackageDescription,
@@ -69,9 +72,12 @@ fn main() -> anyhow::Result<()> {
                 // TODO: investigate if this is actually needed
                 config.driver.persistent = true;
             }
-            if let Some(docker_base_image) = &args.docker.base_image {
-                config.driver.docker.base_image = Some(docker_base_image.clone());
-            }
+            let driver_overrides = DriverOverrides {
+                docker: DriverDockerConfigOverrides {
+                    base_image: args.docker.base_image.clone(),
+                },
+                bare: DriverBareConfigOverrides {},
+            };
 
             let package = PackageDescription::from_dir(
                 &path::absolute(source_dir).context("resolving source dir failed")?,
@@ -81,6 +87,7 @@ fn main() -> anyhow::Result<()> {
                 &config,
                 &package,
                 args.driver,
+                &driver_overrides,
                 &path::absolute(output_dir).context("resolving output dir failed")?,
                 args.distro_version.as_deref(),
             )

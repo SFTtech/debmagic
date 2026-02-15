@@ -37,3 +37,24 @@ impl PackageDescription {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_package_description_from_changelog() -> Result<(), anyhow::Error> {
+        let test_asset_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests")
+            .join("assets")
+            .join("test_package");
+
+        let package = PackageDescription::from_dir(&test_asset_dir)?;
+
+        assert_eq!(package.name, "test-package");
+        assert_eq!(package.version.version(), "1.2.4-1");
+        assert_eq!(package.source_dir, test_asset_dir);
+
+        Ok(())
+    }
+}

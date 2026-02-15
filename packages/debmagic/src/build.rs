@@ -21,6 +21,7 @@ use crate::{
     package::PackageDescription,
 };
 use anyhow::{Context, anyhow};
+use debmagic_common::distro::DistroVersion;
 use glob::glob;
 
 pub mod common;
@@ -282,8 +283,8 @@ fn get_build_root_and_identifier(
 fn resolve_distro_version(
     changelog_distros: &[String],
     explicit_distro: Option<&str>,
-) -> anyhow::Result<String> {
-    match (changelog_distros.len(), explicit_distro) {
+) -> anyhow::Result<DistroVersion> {
+    let resolved_codename = match (changelog_distros.len(), explicit_distro) {
         (0, _) => Err(anyhow!("changelog contains no distributions")),
         (1, None) => Ok(changelog_distros[0].clone()),
         (1, Some(explicit)) => {
@@ -312,7 +313,10 @@ fn resolve_distro_version(
                 ))
             }
         }
-    }
+    }?;
+    let resolved = debmagic_common::distro::get_distro_version(&resolved_codename)
+        .ok_or_else(|| anyhow!("unknown distro codename '{}'", resolved_codename))?;
+    Ok(resolved)
 }
 
 fn prepare_build_env(
@@ -337,8 +341,7 @@ fn prepare_build_env(
         source_dir: package.source_dir.clone(),
         output_dir: output_dir.to_path_buf(),
         build_root_dir: build_root,
-        distro: "debian".to_string(),
-        distro_version,
+        distro: distro_version.clone(),
         sign_package: false,
     };
 
@@ -453,28 +456,34 @@ pub fn build_package(
 
 #[cfg(test)]
 mod tests {
+    use debmagic_common::distro::Distro;
+
     use super::*;
 
     #[test]
     fn test_resolve_distro_version_single_distro_no_explicit() {
-        let distros = vec!["stable".to_string()];
+        let distros = vec!["forky".to_string()];
         let result = resolve_distro_version(&distros, None);
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), "stable");
+        let distro_version = result.unwrap();
+        assert_eq!(distro_version.codename, "forky");
+        assert_eq!(distro_version.distro, Distro::Debian);
     }
 
     #[test]
     fn test_resolve_distro_version_single_distro_matching_explicit() {
-        let distros = vec!["stable".to_string()];
-        let result = resolve_distro_version(&distros, Some("stable"));
+        let distros = vec!["forky".to_string()];
+        let result = resolve_distro_version(&distros, Some("forky"));
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), "stable");
+        let distro_version = result.unwrap();
+        assert_eq!(distro_version.codename, "forky");
+        assert_eq!(distro_version.distro, Distro::Debian);
     }
 
     #[test]
     fn test_resolve_distro_version_single_distro_conflicting_explicit() {
-        let distros = vec!["stable".to_string()];
-        let result = resolve_distro_version(&distros, Some("unstable"));
+        let distros = vec!["forky".to_string()];
+        let result = resolve_distro_version(&distros, Some("duke"));
         assert!(result.is_err());
         assert!(
             result
@@ -486,7 +495,7 @@ mod tests {
 
     #[test]
     fn test_resolve_distro_version_multiple_distros_no_explicit() {
-        let distros = vec!["unstable".to_string(), "testing".to_string()];
+        let distros = vec!["forky".to_string(), "duke".to_string()];
         let result = resolve_distro_version(&distros, None);
         assert!(result.is_err());
         assert!(
@@ -499,16 +508,18 @@ mod tests {
 
     #[test]
     fn test_resolve_distro_version_multiple_distros_explicit_valid() {
-        let distros = vec!["unstable".to_string(), "testing".to_string()];
-        let result = resolve_distro_version(&distros, Some("testing"));
+        let distros = vec!["forky".to_string(), "duke".to_string()];
+        let result = resolve_distro_version(&distros, Some("duke"));
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), "testing");
+        let distro_version = result.unwrap();
+        assert_eq!(distro_version.codename, "duke");
+        assert_eq!(distro_version.distro, Distro::Debian);
     }
 
     #[test]
     fn test_resolve_distro_version_multiple_distros_explicit_invalid() {
-        let distros = vec!["unstable".to_string(), "testing".to_string()];
-        let result = resolve_distro_version(&distros, Some("stable"));
+        let distros = vec!["forky".to_string(), "duke".to_string()];
+        let result = resolve_distro_version(&distros, Some("trixie"));
         assert!(result.is_err());
         assert!(
             result

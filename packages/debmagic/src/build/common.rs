@@ -6,6 +6,7 @@ use std::{
 };
 
 use clap::ValueEnum;
+use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Serialize, Deserialize)]
@@ -31,17 +32,13 @@ pub struct BuildConfig {
     pub build_root_dir: PathBuf,
     pub source_dir: PathBuf,
     pub output_dir: PathBuf,
-    pub distro_version: String,
-    pub distro: String,
+    pub distro: DistroVersion,
     pub sign_package: bool,
 }
 
 impl BuildConfig {
     pub fn build_identifier(&self) -> String {
-        format!(
-            "{}-{}-{}",
-            self.package_identifier, self.distro, self.distro_version
-        )
+        format!("{}-{}", self.package_identifier, self.distro.codename)
     }
 
     pub fn build_work_dir(&self) -> PathBuf {

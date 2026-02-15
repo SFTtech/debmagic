@@ -6,6 +6,7 @@ use std::{
 };
 
 use anyhow::anyhow;
+use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
 
 use crate::build::{
@@ -22,11 +23,11 @@ pub struct DriverDockerConfig {
 }
 
 impl DriverDockerConfig {
-    pub fn base_image_for_distro(&self, distro: &str, version: &str) -> String {
+    pub fn base_image_for_distro(&self, distro: &DistroVersion) -> String {
         self.base_images
-            .get(&format!("{}:{}", distro, version))
+            .get(&format!("{}:{}", distro.distro, distro.codename))
             .cloned()
-            .unwrap_or_else(|| format!("docker.io/{}:{}", distro, version))
+            .unwrap_or_else(|| format!("docker.io/{}:{}", distro.distro, distro.codename))
     }
 }
 
@@ -72,11 +73,10 @@ fn build_build_image(
     driver_config: &DriverConfig,
     overrides: &DriverDockerConfigOverrides,
 ) -> anyhow::Result<String> {
-    let base_image = overrides.base_image.clone().unwrap_or_else(|| {
-        driver_config
-            .docker
-            .base_image_for_distro(&config.distro, &config.distro_version)
-    });
+    let base_image = overrides
+        .base_image
+        .clone()
+        .unwrap_or_else(|| driver_config.docker.base_image_for_distro(&config.distro));
 
     let debian_control_file_path = config.build_source_dir().join("debian").join("control");
 

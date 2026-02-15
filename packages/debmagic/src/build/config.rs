@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
-use crate::pack::driver_bare::DriverBareConfig;
-use crate::pack::driver_docker::DriverDockerConfig;
+use crate::build::driver_bare::DriverBareConfig;
+use crate::build::driver_docker::DriverDockerConfig;
 
 #[derive(Deserialize, Debug, Clone, Default)]
 #[serde(default)]

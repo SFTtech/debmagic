@@ -8,13 +8,13 @@ use std::{
 };
 
 use crate::{
-    config::Config,
-    pack::{
+    build::{
         common::{BuildConfig, BuildDriver, BuildDriverType, BuildMetadata},
         config::DriverConfig,
         driver_bare::DriverBare,
         driver_docker::DriverDocker,
     },
+    config::Config,
     package::PackageDescription,
 };
 use anyhow::{Context, anyhow};

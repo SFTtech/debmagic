@@ -7,15 +7,15 @@ use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
 use crate::{
+    build::{build_package, get_shell_in_build},
     cli::{Cli, Commands},
     config::Config,
-    pack::{build_package, get_shell_in_build},
     package::PackageDescription,
 };
 
+pub mod build;
 pub mod cli;
 pub mod config;
-pub mod pack;
 pub mod package;
 
 /// Precedence of config files is:
@@ -50,7 +50,7 @@ fn main() -> anyhow::Result<()> {
 
     let current_dir = env::current_dir()?;
     match &cli.command {
-        Commands::Pack(args) => {
+        Commands::Build(args) => {
             let source_dir = args.common.source_dir.as_deref().unwrap_or(&current_dir);
             let mut config = get_config(&cli, &Some(source_dir.to_path_buf()))?;
 

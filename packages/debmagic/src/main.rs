@@ -82,6 +82,7 @@ fn main() -> anyhow::Result<()> {
                 &package,
                 args.driver,
                 &path::absolute(output_dir).context("resolving output dir failed")?,
+                args.distro_version.as_deref(),
             )
             .context("Building the package failed")?;
         }

@@ -48,6 +48,9 @@ pub struct BuildSubcommandArgs {
     #[arg(short, long, action = clap::ArgAction::SetTrue)]
     pub incremental: Option<bool>,
 
+    #[arg(long)]
+    pub distro_version: Option<String>,
+
     #[command(flatten)]
     pub common: CommonCli,
 

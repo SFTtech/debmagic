@@ -288,16 +288,61 @@ fn get_build_root_and_identifier(
     (package_identifier, build_root)
 }
 
+/// Determine which distro version to use for the build.
+///
+/// If only one distro version is specified in the changelog, it's used automatically.
+/// If multiple distro versions are specified, an explicit --distro-version is required.
+/// If --distro-version is provided, it's validated against the changelog versions.
+fn resolve_distro_version(
+    changelog_distros: &[String],
+    explicit_distro: Option<&str>,
+) -> anyhow::Result<String> {
+    match (changelog_distros.len(), explicit_distro) {
+        (0, _) => Err(anyhow!("changelog contains no distributions")),
+        (1, None) => Ok(changelog_distros[0].clone()),
+        (1, Some(explicit)) => {
+            if explicit == changelog_distros[0] {
+                Ok(explicit.to_string())
+            } else {
+                Err(anyhow!(
+                    "explicit distro version '{}' conflicts with distribution specified in changelog '{}'",
+                    explicit,
+                    changelog_distros[0]
+                ))
+            }
+        }
+        (_, None) => Err(anyhow!(
+            "changelog contains multiple distributions ({}), please specify which one to build for with --distro-version",
+            changelog_distros.join(", ")
+        )),
+        (_, Some(explicit)) => {
+            if changelog_distros.contains(&explicit.to_string()) {
+                Ok(explicit.to_string())
+            } else {
+                Err(anyhow!(
+                    "explicit distro version '{}' not found in changelog distributions: {}",
+                    explicit,
+                    changelog_distros.join(", ")
+                ))
+            }
+        }
+    }
+}
+
 fn prepare_build_env(
     config: &Config,
     package: &PackageDescription,
     driver_type: BuildDriverType,
     output_dir: &Path,
+    explicit_distro_version: Option<&str>,
 ) -> anyhow::Result<Build> {
     let (package_identifier, build_root) = get_build_root_and_identifier(config, package);
     if build_root.exists() {
         fs::remove_dir_all(&build_root)?;
     }
+
+    let distro_version = resolve_distro_version(&package.distro_versions, explicit_distro_version)
+        .context("failed to determine distro version")?;
 
     let build_config = BuildConfig {
         driver: driver_type,
@@ -306,7 +351,7 @@ fn prepare_build_env(
         output_dir: output_dir.to_path_buf(),
         build_root_dir: build_root,
         distro: "debian".to_string(),
-        distro_version: "forky".to_string(),
+        distro_version,
         sign_package: false,
     };
 
@@ -340,9 +385,16 @@ pub fn build_package(
     package: &PackageDescription,
     driver_type: BuildDriverType,
     output_dir: &Path,
+    explicit_distro_version: Option<&str>,
 ) -> anyhow::Result<()> {
-    let build = prepare_build_env(config, package, driver_type, output_dir)
-        .context("failed to prepare build environment")?;
+    let build = prepare_build_env(
+        config,
+        package,
+        driver_type,
+        output_dir,
+        explicit_distro_version,
+    )
+    .context("failed to prepare build environment")?;
     build
         .write_metadata()
         .context("failed to write build metadata")?;
@@ -401,4 +453,85 @@ pub fn build_package(
 
     build.driver.cleanup();
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_resolve_distro_version_single_distro_no_explicit() {
+        let distros = vec!["stable".to_string()];
+        let result = resolve_distro_version(&distros, None);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "stable");
+    }
+
+    #[test]
+    fn test_resolve_distro_version_single_distro_matching_explicit() {
+        let distros = vec!["stable".to_string()];
+        let result = resolve_distro_version(&distros, Some("stable"));
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "stable");
+    }
+
+    #[test]
+    fn test_resolve_distro_version_single_distro_conflicting_explicit() {
+        let distros = vec!["stable".to_string()];
+        let result = resolve_distro_version(&distros, Some("unstable"));
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("conflicts with distribution specified in changelog")
+        );
+    }
+
+    #[test]
+    fn test_resolve_distro_version_multiple_distros_no_explicit() {
+        let distros = vec!["unstable".to_string(), "testing".to_string()];
+        let result = resolve_distro_version(&distros, None);
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("multiple distributions")
+        );
+    }
+
+    #[test]
+    fn test_resolve_distro_version_multiple_distros_explicit_valid() {
+        let distros = vec!["unstable".to_string(), "testing".to_string()];
+        let result = resolve_distro_version(&distros, Some("testing"));
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "testing");
+    }
+
+    #[test]
+    fn test_resolve_distro_version_multiple_distros_explicit_invalid() {
+        let distros = vec!["unstable".to_string(), "testing".to_string()];
+        let result = resolve_distro_version(&distros, Some("stable"));
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("not found in changelog distributions")
+        );
+    }
+
+    #[test]
+    fn test_resolve_distro_version_empty_distros() {
+        let distros: Vec<String> = vec![];
+        let result = resolve_distro_version(&distros, None);
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("changelog contains no distributions")
+        );
+    }
 }

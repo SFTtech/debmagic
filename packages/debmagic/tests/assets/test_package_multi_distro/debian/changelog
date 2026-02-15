@@ -1,0 +1,5 @@
+test-package (1.2.4-1) unstable testing; urgency=medium
+
+  * bugfix for multiple distros
+
+ -- Test Maintainer <test@example.com>  Mon, 15 Feb 2026 12:00:00 +0000

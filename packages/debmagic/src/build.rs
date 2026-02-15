@@ -345,7 +345,6 @@ pub fn get_shell_in_build(config: &Config, package: &PackageDescription) -> anyh
         .driver
         .interactive_shell(&build.config.build_source_dir());
 
-    // TODO: detach - decrement num_attached_processes
     build.detach()?;
 
     result?;

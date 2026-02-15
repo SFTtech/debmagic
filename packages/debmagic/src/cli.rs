@@ -30,7 +30,7 @@ pub struct CommonCli {
 
 #[derive(Args, Debug)]
 pub struct DockerArgs {
-    #[arg(long("driver-docker-base-image"))]
+    #[arg(long = "driver-docker-base-image")]
     pub base_image: Option<String>,
 }
 

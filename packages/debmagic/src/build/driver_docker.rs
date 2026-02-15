@@ -1,7 +1,7 @@
 use std::{
-    fs,
+    fs, io,
     path::{Path, PathBuf},
-    process::Command,
+    process::{Command, Output},
 };
 
 use anyhow::anyhow;
@@ -52,10 +52,11 @@ pub struct DriverDocker {
     container_name: String,
 }
 
-fn error_from_command(cmd: &mut Command, message: &str) -> anyhow::Error {
+fn error_from_command(cmd_output: &io::Result<Output>, message: &str) -> anyhow::Error {
     anyhow!(
         "{message}:\n{}",
-        cmd.output()
+        cmd_output
+            .as_ref()
             .map(|o| String::from_utf8_lossy(&o.stderr).to_string())
             .unwrap_or("".to_string())
     )
@@ -104,17 +105,21 @@ fn build_build_image(config: &BuildConfig, driver_config: &DriverConfig) -> anyh
     }
 
     let mut build_cmd = Command::new("docker");
-    build_cmd.args(["build"]).args(&build_args).args([
-        "--tag",
-        &docker_image_name,
-        "-f",
-        &dockerfile_path.to_string_lossy(),
-        &config.build_temp_dir().to_string_lossy(),
-    ]);
+    build_cmd
+        .args(["build"])
+        .args(&build_args)
+        .args(["--tag", &docker_image_name, "-f"])
+        .arg(dockerfile_path)
+        .arg(config.build_temp_dir());
 
-    if !build_cmd.status().map(|s| s.success()).unwrap_or(false) {
+    let build_output = build_cmd.output();
+    if !build_output
+        .as_ref()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+    {
         return Err(error_from_command(
-            &mut build_cmd,
+            &build_output,
             "Error creating docker image",
         ));
     }
@@ -153,9 +158,14 @@ impl DriverDocker {
         if driver_config.persistent && container_exists {
             let mut start_cmd = Command::new("docker");
             start_cmd.args(["start", &container_name]);
-            if !start_cmd.status().map(|s| s.success()).unwrap_or(false) {
+            let start_output = start_cmd.output();
+            if !start_output
+                .as_ref()
+                .map(|o| o.status.success())
+                .unwrap_or(false)
+            {
                 return Err(error_from_command(
-                    &mut start_cmd,
+                    &start_output,
                     "Error starting docker container",
                 ));
             }
@@ -163,9 +173,14 @@ impl DriverDocker {
             if container_exists {
                 let mut rm_cmd = Command::new("docker");
                 rm_cmd.args(["rm", "-f", &container_name]);
-                if !rm_cmd.status().map(|s| s.success()).unwrap_or(false) {
+                let rm_output = rm_cmd.output();
+                if !rm_output
+                    .as_ref()
+                    .map(|o| o.status.success())
+                    .unwrap_or(false)
+                {
                     return Err(error_from_command(
-                        &mut rm_cmd,
+                        &rm_output,
                         "Error removing existing docker container",
                     ));
                 }
@@ -187,9 +202,14 @@ impl DriverDocker {
                 &docker_image_name,
             ]);
 
-            if !run_cmd.status().map(|s| s.success()).unwrap_or(false) {
+            let run_output = run_cmd.output();
+            if !run_output
+                .as_ref()
+                .map(|o| o.status.success())
+                .unwrap_or(false)
+            {
                 return Err(error_from_command(
-                    &mut run_cmd,
+                    &run_output,
                     "Error starting docker container",
                 ));
             }
@@ -243,23 +263,22 @@ impl BuildDriver for DriverDocker {
     }
 
     fn run_command(&self, cmd: &[&str], cwd: &Path, requires_root: bool) -> std::io::Result<()> {
-        let mut exec_args = vec!["exec".to_string()];
-
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
-        exec_args.push("--workdir".to_string());
-        exec_args.push(container_path.to_string_lossy().to_string());
+
+        let mut exec_cmd = Command::new("docker");
+        exec_cmd.args(["exec", "--workdir"]);
+        exec_cmd.arg(container_path);
 
         if requires_root {
-            exec_args.push("--user".to_string());
-            exec_args.push("root".to_string());
+            exec_cmd.args(["--user", "root"]);
         }
 
-        exec_args.push(self.container_name.clone());
-        exec_args.extend(cmd.iter().map(|s| s.to_string()));
+        exec_cmd.arg(&self.container_name);
+        exec_cmd.args(cmd);
 
-        let status = Command::new("docker").args(exec_args).status()?;
+        let status = exec_cmd.status()?;
         if !status.success() {
             return Err(std::io::Error::other("Docker exec failed"));
         }
@@ -281,15 +300,9 @@ impl BuildDriver for DriverDocker {
     fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()> {
         let workdir = self.translate_path_in_container(cwd)?;
         let _ = Command::new("docker")
-            .args([
-                "exec",
-                "-it",
-                "--workdir",
-                &workdir.to_string_lossy(),
-                &self.container_name,
-                "/usr/bin/env",
-                "bash",
-            ])
+            .args(["exec", "-it", "--workdir"])
+            .arg(&workdir)
+            .args([&self.container_name, "/usr/bin/env", "bash"])
             .status()?;
 
         Ok(())

@@ -40,7 +40,9 @@ impl PackageVersion {
 
     /// distro epoch plus upstream version
     pub fn epoch_upstream(&self) -> String {
-        if let Some(epoch) = self.epoch {
+        if let Some(epoch) = self.epoch
+            && epoch != 0
+        {
             return format!("{}:{}", epoch, self.upstream);
         }
         self.upstream.clone()
@@ -78,7 +80,10 @@ impl FromStr for PackageVersion {
             Some(0)
         } else {
             let re_epoch = Regex::new(r"^([0-9]+):.*$").map_err(|_| VersionParseError)?;
-            re_epoch.replace(version, "$1").to_string().parse().ok()
+            re_epoch.replace(version, "$1").to_string();
+            let epoch_str = re_epoch.replace(version, "$1").to_string();
+            let parsed_epoch = epoch_str.parse::<u32>().map_err(|_| VersionParseError)?;
+            Some(parsed_epoch)
         };
 
         let re_upstream = Regex::new(r"^([0-9]*:)?(.*?)$").map_err(|_| VersionParseError)?;

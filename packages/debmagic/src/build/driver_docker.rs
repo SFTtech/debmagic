@@ -1,7 +1,7 @@
 use std::{
-    fs, io,
+    fs,
     path::{Path, PathBuf},
-    process::{Command, Output},
+    process::{Command, Stdio},
 };
 
 use anyhow::anyhow;
@@ -50,16 +50,6 @@ pub struct DriverDocker {
     config: BuildConfig,
     driver_config: DriverConfig,
     container_name: String,
-}
-
-fn error_from_command(cmd_output: &io::Result<Output>, message: &str) -> anyhow::Error {
-    anyhow!(
-        "{message}:\n{}",
-        cmd_output
-            .as_ref()
-            .map(|o| String::from_utf8_lossy(&o.stderr).to_string())
-            .unwrap_or("".to_string())
-    )
 }
 
 fn build_build_image(config: &BuildConfig, driver_config: &DriverConfig) -> anyhow::Result<String> {
@@ -112,16 +102,11 @@ fn build_build_image(config: &BuildConfig, driver_config: &DriverConfig) -> anyh
         .arg(dockerfile_path)
         .arg(config.build_temp_dir());
 
-    let build_output = build_cmd.output();
-    if !build_output
-        .as_ref()
-        .map(|o| o.status.success())
-        .unwrap_or(false)
-    {
-        return Err(error_from_command(
-            &build_output,
-            "Error creating docker image",
-        ));
+    let status = build_cmd
+        .status()
+        .map_err(|e| anyhow!("Error running docker build: {}", e))?;
+    if !status.success() {
+        return Err(anyhow!("Error creating docker image"));
     }
 
     Ok(docker_image_name)
@@ -130,14 +115,15 @@ fn build_build_image(config: &BuildConfig, driver_config: &DriverConfig) -> anyh
 fn does_container_exist(container_name: &str) -> anyhow::Result<bool> {
     let mut ps_cmd = Command::new("docker");
     ps_cmd.args(["ps", "--all", "--format", "json"]);
-    ps_cmd.stdout(std::process::Stdio::piped());
-    if !ps_cmd.status().map(|s| s.success()).unwrap_or(false) {
-        return Err(anyhow!("failed to query running docker containers"));
-    }
+    ps_cmd.stdout(Stdio::piped());
 
     let output = ps_cmd
         .output()
         .map_err(|_| anyhow!("Failed to read docker ps output"))?;
+
+    if !output.status.success() {
+        return Err(anyhow!("failed to query running docker containers"));
+    }
     let stdout = String::from_utf8_lossy(&output.stdout);
     for line in stdout.lines() {
         if let Ok(container) = serde_json::from_str::<serde_json::Value>(line)
@@ -158,31 +144,21 @@ impl DriverDocker {
         if driver_config.persistent && container_exists {
             let mut start_cmd = Command::new("docker");
             start_cmd.args(["start", &container_name]);
-            let start_output = start_cmd.output();
-            if !start_output
-                .as_ref()
-                .map(|o| o.status.success())
-                .unwrap_or(false)
-            {
-                return Err(error_from_command(
-                    &start_output,
-                    "Error starting docker container",
-                ));
+            let status = start_cmd
+                .status()
+                .map_err(|e| anyhow!("Error running docker start: {}", e))?;
+            if !status.success() {
+                return Err(anyhow!("Error starting docker container"));
             }
         } else {
             if container_exists {
                 let mut rm_cmd = Command::new("docker");
                 rm_cmd.args(["rm", "-f", &container_name]);
-                let rm_output = rm_cmd.output();
-                if !rm_output
-                    .as_ref()
-                    .map(|o| o.status.success())
-                    .unwrap_or(false)
-                {
-                    return Err(error_from_command(
-                        &rm_output,
-                        "Error removing existing docker container",
-                    ));
+                let status = rm_cmd
+                    .status()
+                    .map_err(|e| anyhow!("Error running docker rm: {}", e))?;
+                if !status.success() {
+                    return Err(anyhow!("Error removing existing docker container"));
                 }
             }
 
@@ -202,16 +178,11 @@ impl DriverDocker {
                 &docker_image_name,
             ]);
 
-            let run_output = run_cmd.output();
-            if !run_output
-                .as_ref()
-                .map(|o| o.status.success())
-                .unwrap_or(false)
-            {
-                return Err(error_from_command(
-                    &run_output,
-                    "Error starting docker container",
-                ));
+            let status = run_cmd
+                .status()
+                .map_err(|e| anyhow!("Error running docker run: {}", e))?;
+            if !status.success() {
+                return Err(anyhow!("Error starting docker container"));
             }
         }
 

@@ -15,7 +15,7 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    #[command(about = "Build a a debian package")]
+    #[command(about = "Build a debian package")]
     Build(BuildSubcommandArgs),
     #[command(about = "Open an interactive shell to the currently active build environment")]
     Shell(ShellSubcommandArgs),

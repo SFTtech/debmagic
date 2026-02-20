@@ -203,7 +203,7 @@ fn start_socket_server(
                             num_attached += 1;
                         }
                         "detach" => {
-                            num_attached = std::cmp::max(0, num_attached - 1);
+                            num_attached = num_attached.saturating_sub(1);
                         }
                         _ => {}
                     }
@@ -278,8 +278,8 @@ fn get_build_root_and_identifier(
 /// Determine which distro version to use for the build.
 ///
 /// If only one distro version is specified in the changelog, it's used automatically.
-/// If multiple distro versions are specified, an explicit --distro-version is required.
-/// If --distro-version is provided, it's validated against the changelog versions.
+/// If multiple distro versions are specified, an explicit --distro is required.
+/// If --distro is provided, it's validated against the changelog versions.
 fn resolve_distro_version(
     changelog_distros: &[String],
     explicit_distro: Option<&str>,
@@ -299,7 +299,7 @@ fn resolve_distro_version(
             }
         }
         (_, None) => Err(anyhow!(
-            "changelog contains multiple distributions ({}), please specify which one to build for with --distro-version",
+            "changelog contains multiple distributions ({}), please specify which one to build for with --distro",
             changelog_distros.join(", ")
         )),
         (_, Some(explicit)) => {

@@ -38,7 +38,10 @@ pub struct BuildConfig {
 
 impl BuildConfig {
     pub fn build_identifier(&self) -> String {
-        format!("{}-{}", self.package_identifier, self.distro.codename)
+        format!(
+            "{}-{}-{}",
+            self.package_identifier, self.distro.distro, self.distro.codename
+        )
     }
 
     pub fn build_work_dir(&self) -> PathBuf {

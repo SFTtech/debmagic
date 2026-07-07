@@ -1,0 +1,12 @@
+test-package (1.2.4-1) stable; urgency=medium
+
+  * bugfix
+
+ -- Test Maintainer <test@example.com>  Mon, 15 Feb 2026 12:00:00 +0000
+
+test-package (1.2.3-4) stable; urgency=medium
+
+  * Initial test release
+  * Some changes made
+
+ -- Test Maintainer <test@example.com>  Mon, 15 Feb 2026 10:00:00 +0000

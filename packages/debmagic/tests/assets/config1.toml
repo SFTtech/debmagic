@@ -1,1 +1,5 @@
-dry_run = true
+[driver]
+persistent = true
+
+[driver.docker]
+base_images = { "debian:trixie" = "some-debian-trixie-image:latest" }

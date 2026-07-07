@@ -6,6 +6,7 @@ use std::{
 };
 
 use clap::ValueEnum;
+use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Serialize, Deserialize)]
@@ -15,22 +16,12 @@ pub enum BuildDriverType {
     // Lxd
 }
 
-#[derive(Debug, Clone)]
-pub struct PackageDescription {
-    pub name: String,
-    pub version: String,
-    pub source_dir: PathBuf,
-}
-
 pub type DriverSpecificBuildMetadata = HashMap<String, String>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildMetadata {
     pub config: BuildConfig,
     pub driver_metadata: DriverSpecificBuildMetadata,
-    // number of parallel debmagic processes working on this instance of a build
-    // used to determine when a BuildDriver can be fully stopped and cleaned up
-    pub num_processes_attached: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,9 +32,7 @@ pub struct BuildConfig {
     pub build_root_dir: PathBuf,
     pub source_dir: PathBuf,
     pub output_dir: PathBuf,
-    pub dry_run: bool,
-    pub distro_version: String,
-    pub distro: String,
+    pub distro: DistroVersion,
     pub sign_package: bool,
 }
 
@@ -51,7 +40,7 @@ impl BuildConfig {
     pub fn build_identifier(&self) -> String {
         format!(
             "{}-{}-{}",
-            self.package_identifier, self.distro, self.distro_version
+            self.package_identifier, self.distro.distro, self.distro.codename
         )
     }
 
@@ -82,7 +71,7 @@ pub trait BuildDriver {
 
     fn cleanup(&self);
 
-    fn interactive_shell(&self) -> std::io::Result<()>;
+    fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()>;
 
     fn driver_type(&self) -> BuildDriverType;
 }

@@ -96,6 +96,7 @@ def test_build_package(test_env: Environment, package: str, version: str):
                 "debmagic",
                 "--",
                 "build",
+                "binary",
                 "--driver",
                 "docker",
                 "--driver-docker-base-image",

@@ -50,7 +50,13 @@ impl BuildDriver for DriverBare {
         DriverSpecificBuildMetadata::from([])
     }
 
-    fn run_command(&self, cmd: &[&str], cwd: &Path, requires_root: bool) -> std::io::Result<()> {
+    fn run_command_env(
+        &self,
+        cmd: &[&str],
+        cwd: &Path,
+        requires_root: bool,
+        env_add: &[(&str, &str)],
+    ) -> std::io::Result<()> {
         let mut full_cmd: Vec<String> = Vec::new();
 
         let is_root = unsafe { libc::geteuid() == 0 };
@@ -64,6 +70,7 @@ impl BuildDriver for DriverBare {
         command.args(&full_cmd[1..]);
 
         command.current_dir(cwd);
+        command.envs(env_add.iter().copied());
 
         let status = command.status()?;
 
@@ -77,8 +84,8 @@ impl BuildDriver for DriverBare {
         }
     }
 
-    fn cleanup(&self) {
-        // No-op for bare driver
+    fn cleanup(&self) -> anyhow::Result<()> {
+        Ok(())
     }
 
     fn interactive_shell(&self, _cwd: &Path) -> std::io::Result<()> {
@@ -91,5 +98,12 @@ impl BuildDriver for DriverBare {
 
     fn driver_type(&self) -> BuildDriverType {
         BuildDriverType::Bare
+    }
+
+    fn reset_build_root(&self) -> std::io::Result<()> {
+        if self.config.build_root_dir.exists() {
+            std::fs::remove_dir_all(&self.config.build_root_dir)?;
+        }
+        Ok(())
     }
 }

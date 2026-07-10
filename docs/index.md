@@ -7,6 +7,8 @@
 :caption: Usage
 
 usage/getting-started.md
+usage/build.md
+usage/source.md
 usage/modules/index.md
 ```
 

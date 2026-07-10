@@ -11,6 +11,18 @@ pub struct Config {
     pub driver: DriverConfig,
     pub temp_build_dir: PathBuf,
     pub incremental: bool,
+    /// Always build the automatic `-dbgsym` debug symbol package.
+    pub build_debug_symbols: bool,
+    /// Sign the resulting `.changes`/`.dsc` with `debsign` after building.
+    pub sign_package: bool,
+    /// GPG key ID/email to sign with (debsign's `-k` option). `None` lets
+    /// debsign fall back to its own maintainer-based key lookup.
+    pub sign_key: Option<String>,
+    /// Run `debian/rules clean` before building (like `dpkg-buildpackage`
+    /// does unless passed `-nc`). Disabled by default because non-incremental
+    /// builds already stage a clean source tree and incremental builds preserve
+    /// outputs intentionally.
+    pub clean: bool,
 }
 
 impl Default for Config {
@@ -19,6 +31,10 @@ impl Default for Config {
             driver: DriverConfig::default(),
             temp_build_dir: PathBuf::from("/tmp/debmagic"),
             incremental: false,
+            build_debug_symbols: false,
+            sign_package: false,
+            sign_key: None,
+            clean: false,
         }
     }
 }

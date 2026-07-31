@@ -107,6 +107,9 @@ fn main() -> anyhow::Result<()> {
             if let Some(no_clean) = build_args.no_clean {
                 config.clean = !no_clean;
             }
+            if let Some(source_sync) = build_args.source_sync {
+                config.source_sync_mode = source_sync;
+            }
             if config.incremental {
                 if config.clean {
                     anyhow::bail!("incremental builds are incompatible with clean builds");

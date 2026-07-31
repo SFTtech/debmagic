@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::build::common::BuildDriverType;
+use crate::build::common::{BuildDriverType, SourceSyncMode};
 use clap::{Args, Parser, Subcommand, builder::BoolishValueParser};
 
 #[derive(Parser, Debug)]
@@ -75,6 +75,12 @@ pub struct CommonBuildArgs {
 
     #[arg(long, action = clap::ArgAction::SetTrue, help = "Keep the build environment for reuse after the build finishes")]
     pub persistent: Option<bool>,
+
+    #[arg(
+        long = "source-sync",
+        help = "Which source files are staged into the build tree: 'tracked' stages git-tracked files including uncommitted changes and warns about untracked files (default), 'committed' additionally fails if the worktree is dirty, 'worktree' stages everything that is not git-ignored. Defaults to the 'source_sync_mode' setting in the config file."
+    )]
+    pub source_sync: Option<SourceSyncMode>,
 
     #[command(flatten)]
     pub docker: DockerArgs,

@@ -50,7 +50,23 @@ Notes:
 - The image, mirror, proposed-pocket setting and host user IDs form the build-environment identity.
   Changing any of them automatically replaces an incompatible persistent container.
 - Handles both the classic `sources.list` format and the deb822 `*.sources` format (Ubuntu 24.04+).
-- To avoid repeating the flag, set it once in `debian/debmagic.toml` (see below) instead.
+- To avoid repeating the flag, set it once in `$XDG_CONFIG_HOME/debmagic/config.toml` (see below) instead — a mirror is a property of your machine, not of a package, so it belongs in the global config rather than in the repo's `debian/debmagic.toml`.
+
+## Selecting which source files are staged
+
+Before building, debmagic stages the source tree into the build environment.
+`--source-sync <mode>` controls which files are staged, so you always know what ends up in the build and in a generated source package:
+
+| Mode | Stages | Notes |
+|---|---|---|
+| `tracked` (default) | git-tracked files, including uncommitted modifications | Untracked files are left out and listed as a warning — `git add` them or switch modes to include them |
+| `committed` | the same files as `tracked` | Fails if the worktree has uncommitted changes or untracked files; use for reproducible, reviewable source packages |
+| `worktree` | everything that isn't git-ignored, tracked or not | |
+
+If the source directory is not a git worktree, `tracked` and `committed` fall back to `worktree` with a warning.
+Git submodules are skipped with a note, since their contents aren't tracked by the parent repository.
+
+To persist a mode, set `source_sync_mode = "committed"` in `debian/debmagic.toml`.
 
 ## Iterating on a build (faster repeat runs)
 

@@ -16,7 +16,9 @@ use std::{
 use crate::build::config::DriverOverrides;
 use crate::{
     build::{
-        common::{BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, run_checked},
+        common::{
+            BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, SourceSyncMode, run_checked,
+        },
         config::DriverConfig,
         driver_bare::DriverBare,
         driver_docker::DriverDocker,
@@ -274,9 +276,80 @@ fn send_socket_command(build_root: &Path, cmd: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> anyhow::Result<()> {
-    let entries = source_tree_entries(src.as_ref())?;
-    copy_source_entries(src.as_ref(), dst.as_ref(), &entries)
+/// Paths of files tracked by git in `src`, as reported by `git ls-files`.
+/// Returns `None` if `src` is not inside a git worktree.
+fn git_tracked_paths(src: &Path) -> anyhow::Result<Option<Vec<PathBuf>>> {
+    let output = Command::new("git")
+        .args(["-C"])
+        .arg(src)
+        .args(["ls-files", "-z"])
+        .output()
+        .context("failed to run git ls-files")?;
+    if !output.status.success() {
+        return Ok(None);
+    }
+    let mut paths = Vec::new();
+    for raw in output.stdout.split(|byte| *byte == 0) {
+        if raw.is_empty() {
+            continue;
+        }
+        let path = PathBuf::from(String::from_utf8(raw.to_vec()).with_context(|| {
+            format!("git-tracked path is not valid UTF-8 in {}", src.display())
+        })?);
+        validate_source_path(&path)?;
+        paths.push(path);
+    }
+    Ok(Some(paths))
+}
+
+/// Paths of files git knows about but does not track (respecting ignore
+/// rules), for warning about what a `tracked` sync leaves out.
+fn git_untracked_paths(src: &Path) -> Vec<PathBuf> {
+    let output = Command::new("git")
+        .args(["-C"])
+        .arg(src)
+        .args(["ls-files", "-z", "--others", "--exclude-standard"])
+        .output();
+    match output {
+        Ok(output) if output.status.success() => output
+            .stdout
+            .split(|byte| *byte == 0)
+            .filter(|raw| !raw.is_empty())
+            .filter_map(|raw| String::from_utf8(raw.to_vec()).ok())
+            .map(PathBuf::from)
+            .collect(),
+        _ => Vec::new(),
+    }
+}
+
+/// Ensure the git worktree in `src` has no uncommitted changes and no
+/// untracked files, as required by `SourceSyncMode::Committed`.
+fn git_ensure_clean_worktree(src: &Path) -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .args(["-C"])
+        .arg(src)
+        .args(["status", "--porcelain"])
+        .output()
+        .context("failed to run git status")?;
+    if !output.status.success() {
+        // Not a git worktree; the caller falls back to worktree staging.
+        return Ok(());
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let entries: Vec<&str> = stdout.lines().filter(|line| !line.is_empty()).collect();
+    if entries.is_empty() {
+        return Ok(());
+    }
+    let mut message =
+        String::from("source-sync mode 'committed' requires a clean git worktree, but found:\n");
+    for entry in entries.iter().take(20) {
+        message.push_str(&format!("  {entry}\n"));
+    }
+    if entries.len() > 20 {
+        message.push_str(&format!("  ... and {} more\n", entries.len() - 20));
+    }
+    message.push_str("commit the changes or use a different --source-sync mode");
+    bail!(message)
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -304,7 +377,82 @@ fn validate_source_path(path: &Path) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn source_tree_entries(src: &Path) -> anyhow::Result<Vec<SourcePath>> {
+fn source_tree_entries(src: &Path, mode: SourceSyncMode) -> anyhow::Result<Vec<SourcePath>> {
+    match mode {
+        SourceSyncMode::Worktree => worktree_entries(src),
+        SourceSyncMode::Tracked | SourceSyncMode::Committed => {
+            if mode == SourceSyncMode::Committed {
+                git_ensure_clean_worktree(src)?;
+            }
+            match git_tracked_paths(src)? {
+                Some(paths) => tracked_entries(src, &paths),
+                None => {
+                    eprintln!(
+                        "debmagic: warning: {} is not a git worktree, falling back to 'worktree' source sync",
+                        src.display()
+                    );
+                    worktree_entries(src)
+                }
+            }
+        }
+    }
+}
+
+fn entry_kind(path: &Path) -> anyhow::Result<SourcePathKind> {
+    let metadata = fs::symlink_metadata(path)
+        .with_context(|| format!("failed to stat source path {}", path.display()))?;
+    if metadata.is_dir() {
+        Ok(SourcePathKind::Directory)
+    } else if metadata.is_file() {
+        Ok(SourcePathKind::File)
+    } else if metadata.is_symlink() {
+        Ok(SourcePathKind::Symlink)
+    } else {
+        Err(anyhow!(
+            "unsupported file type in source tree: {}",
+            path.display()
+        ))
+    }
+}
+
+/// Build the entry list from git-tracked paths: tracked files (plus their
+/// parent directories), with submodule gitlinks skipped.
+fn tracked_entries(src: &Path, paths: &[PathBuf]) -> anyhow::Result<Vec<SourcePath>> {
+    let mut seen = std::collections::HashSet::new();
+    let mut entries = Vec::new();
+    for path in paths {
+        // Add parent directories first.
+        let mut ancestors: Vec<&Path> = path.ancestors().skip(1).collect();
+        ancestors.pop(); // drop the empty "" ancestor
+        ancestors.reverse();
+        for ancestor in ancestors {
+            if seen.insert(ancestor.to_path_buf()) {
+                entries.push(SourcePath {
+                    path: ancestor.to_path_buf(),
+                    kind: SourcePathKind::Directory,
+                });
+            }
+        }
+        let full_path = src.join(path);
+        // Submodule gitlinks are directories; their contents are not staged
+        // since git does not track them as part of this repository.
+        if full_path.is_dir() {
+            eprintln!(
+                "debmagic: skipping git submodule {}; its contents are not staged",
+                path.display()
+            );
+            continue;
+        }
+        entries.push(SourcePath {
+            path: path.clone(),
+            kind: entry_kind(&full_path)?,
+        });
+    }
+    entries.sort_by_key(|entry| entry.path.components().count());
+    Ok(entries)
+}
+
+fn worktree_entries(src: &Path) -> anyhow::Result<Vec<SourcePath>> {
     let walker = ignore::WalkBuilder::new(src)
         .standard_filters(true)
         .hidden(false)
@@ -314,10 +462,6 @@ fn source_tree_entries(src: &Path) -> anyhow::Result<Vec<SourcePath>> {
     let mut entries = Vec::new();
     for entry in walker {
         let entry = entry?;
-        let file_type = entry.file_type().ok_or(anyhow!(
-            "failed to get file type of {}",
-            entry.path().display()
-        ))?;
         let relative_path = entry
             .path()
             .strip_prefix(src)
@@ -325,21 +469,9 @@ fn source_tree_entries(src: &Path) -> anyhow::Result<Vec<SourcePath>> {
         if relative_path.as_os_str().is_empty() {
             continue;
         }
-        let kind = if file_type.is_dir() {
-            SourcePathKind::Directory
-        } else if file_type.is_file() {
-            SourcePathKind::File
-        } else if file_type.is_symlink() {
-            SourcePathKind::Symlink
-        } else {
-            return Err(anyhow!(
-                "unsupported file type in source tree: {}",
-                entry.path().display()
-            ));
-        };
         entries.push(SourcePath {
             path: relative_path.to_path_buf(),
-            kind,
+            kind: entry_kind(entry.path())?,
         });
     }
     entries.sort_by_key(|entry| entry.path.components().count());
@@ -445,7 +577,7 @@ fn sync_source_tree(build_config: &BuildConfig) -> anyhow::Result<()> {
     for entry in &previous {
         validate_source_path(&entry.path)?;
     }
-    let current = source_tree_entries(&build_config.source_dir)?;
+    let current = source_tree_entries(&build_config.source_dir, build_config.source_sync_mode)?;
 
     let current_kinds = current
         .iter()
@@ -487,12 +619,32 @@ fn stage_source_tree(
     build_config: &BuildConfig,
     package: &PackageDescription,
 ) -> anyhow::Result<()> {
+    if build_config.source_sync_mode == SourceSyncMode::Tracked {
+        let untracked = git_untracked_paths(&build_config.source_dir);
+        if !untracked.is_empty() {
+            eprintln!(
+                "debmagic: warning: {} untracked file(s) not staged into the build tree:",
+                untracked.len()
+            );
+            for path in untracked.iter().take(20) {
+                eprintln!("  {}", path.display());
+            }
+            if untracked.len() > 20 {
+                eprintln!("  ... and {} more", untracked.len() - 20);
+            }
+            eprintln!("  git add them or use --source-sync worktree to include them");
+        }
+    }
     if build_config.incremental && source_manifest_path(build_config).is_file() {
         sync_source_tree(build_config).context("failed to synchronize source tree")?;
     } else {
-        copy_dir_all(&build_config.source_dir, build_config.build_source_dir())
-            .context("failed to copy source tree to build directory")?;
-        let entries = source_tree_entries(&build_config.source_dir)?;
+        let entries = source_tree_entries(&build_config.source_dir, build_config.source_sync_mode)?;
+        copy_source_entries(
+            &build_config.source_dir,
+            &build_config.build_source_dir(),
+            &entries,
+        )
+        .context("failed to copy source tree to build directory")?;
         write_source_manifest(build_config, &entries)?;
     }
 
@@ -594,6 +746,7 @@ fn prepare_build_env(
         clean: config.clean,
         persistent: config.driver.persistent,
         incremental: config.incremental,
+        source_sync_mode: config.source_sync_mode,
     };
 
     if config.driver.persistent && build_root.exists() {
@@ -924,10 +1077,16 @@ mod tests {
             clean: false,
             persistent: true,
             incremental: true,
+            source_sync_mode: SourceSyncMode::Worktree,
         };
         build_config.create_dirs()?;
-        copy_dir_all(&source_dir, build_config.build_source_dir())?;
-        write_source_manifest(&build_config, &source_tree_entries(&source_dir)?)?;
+        let initial_entries = source_tree_entries(&source_dir, SourceSyncMode::Worktree)?;
+        copy_source_entries(
+            &source_dir,
+            &build_config.build_source_dir(),
+            &initial_entries,
+        )?;
+        write_source_manifest(&build_config, &initial_entries)?;
         let unchanged_inode =
             fs::metadata(build_config.build_source_dir().join("unchanged.txt"))?.ino();
         fs::write(
@@ -970,6 +1129,94 @@ mod tests {
         for path in ["", ".", "../outside", "debian/../outside", "/tmp/outside"] {
             assert!(validate_source_path(Path::new(path)).is_err(), "{path}");
         }
+    }
+
+    /// Create a git repo with one committed file in a fresh temp dir.
+    fn git_test_repo() -> anyhow::Result<PathBuf> {
+        let repo = std::env::temp_dir().join(format!("debmagic-git-test-{}", uuid::Uuid::new_v4()));
+        fs::create_dir_all(repo.join("debian"))?;
+        fs::write(repo.join("debian/control"), "Source: example")?;
+        let run = |args: &[&str]| -> anyhow::Result<()> {
+            let status = Command::new("git")
+                .arg("-C")
+                .arg(&repo)
+                .args(args)
+                .status()?;
+            if status.success() {
+                Ok(())
+            } else {
+                Err(anyhow!("git {:?} failed", args))
+            }
+        };
+        run(&["init", "-q"])?;
+        run(&["add", "debian/control"])?;
+        run(&[
+            "-c",
+            "user.email=t@t",
+            "-c",
+            "user.name=t",
+            "commit",
+            "-qm",
+            "init",
+        ])?;
+        Ok(repo)
+    }
+
+    #[test]
+    fn tracked_sync_stages_only_git_tracked_files() -> anyhow::Result<()> {
+        let repo = git_test_repo()?;
+        fs::write(repo.join("untracked.txt"), "not staged")?;
+        fs::write(repo.join("dirty.txt"), "uncommitted but tracked? no")?;
+        // A tracked file with uncommitted modifications is staged with its
+        // worktree content.
+        fs::write(repo.join("debian/rules"), "new content")?;
+        Command::new("git")
+            .arg("-C")
+            .arg(&repo)
+            .args(["add", "debian/rules"])
+            .status()?;
+
+        let entries = source_tree_entries(&repo, SourceSyncMode::Tracked)?;
+        let paths: Vec<&Path> = entries.iter().map(|e| e.path.as_path()).collect();
+        assert!(paths.contains(&Path::new("debian")));
+        assert!(paths.contains(&Path::new("debian/control")));
+        assert!(paths.contains(&Path::new("debian/rules")));
+        assert!(!paths.contains(&Path::new("untracked.txt")));
+        assert!(!paths.contains(&Path::new("dirty.txt")));
+        assert_eq!(git_untracked_paths(&repo).len(), 2);
+
+        fs::remove_dir_all(repo)?;
+        Ok(())
+    }
+
+    #[test]
+    fn committed_sync_requires_clean_worktree() -> anyhow::Result<()> {
+        let repo = git_test_repo()?;
+        assert!(source_tree_entries(&repo, SourceSyncMode::Committed).is_ok());
+
+        fs::write(repo.join("untracked.txt"), "dirty")?;
+        let result = source_tree_entries(&repo, SourceSyncMode::Committed);
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("requires a clean git worktree")
+        );
+
+        fs::remove_dir_all(repo)?;
+        Ok(())
+    }
+
+    #[test]
+    fn tracked_sync_falls_back_outside_git_worktree() -> anyhow::Result<()> {
+        let dir = std::env::temp_dir().join(format!("debmagic-nogit-{}", uuid::Uuid::new_v4()));
+        fs::create_dir_all(&dir)?;
+        fs::write(dir.join("file.txt"), "content")?;
+        let entries = source_tree_entries(&dir, SourceSyncMode::Tracked)?;
+        assert!(entries.iter().any(|e| e.path == Path::new("file.txt")));
+        fs::remove_dir_all(dir)?;
+        Ok(())
     }
 
     #[test]

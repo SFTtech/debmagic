@@ -344,13 +344,7 @@ impl DriverLxd {
                 // build-dep is intentionally omitted here: build.rs runs it for
                 // every driver against the real mounted source tree.
                 base.exec_in_container(
-                    &[
-                        "apt-get",
-                        "install",
-                        "-y",
-                        "dpkg-dev",
-                        "python3",
-                    ],
+                    &["apt-get", "install", "-y", "dpkg-dev", "python3"],
                     None,
                     true,
                     &[],

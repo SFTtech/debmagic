@@ -97,6 +97,23 @@ pub enum BuildDriverType {
     Incus,
 }
 
+/// Selects which files from the source directory are staged into the build tree.
+#[derive(
+    Debug, Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Serialize, Deserialize,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum SourceSyncMode {
+    /// Git-tracked files, including uncommitted modifications. Untracked
+    /// files are not staged and reported as a warning.
+    #[default]
+    Tracked,
+    /// Like `tracked`, but the build fails if the worktree has uncommitted
+    /// changes or untracked files.
+    Committed,
+    /// All files except git-ignored ones, regardless of git tracking state.
+    Worktree,
+}
+
 pub type DriverSpecificBuildMetadata = HashMap<String, String>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -131,6 +148,9 @@ pub struct BuildConfig {
     /// Synchronize source inputs while preserving build-generated files.
     #[serde(default)]
     pub incremental: bool,
+    /// Which source files are staged into the build tree.
+    #[serde(default)]
+    pub source_sync_mode: SourceSyncMode,
 }
 
 impl BuildConfig {

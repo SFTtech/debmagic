@@ -38,7 +38,7 @@ impl LxdVariant {
 const BUILD_USER_UID: u32 = 1000;
 const BUILD_USER_GID: u32 = 1000;
 const ENVIRONMENT_CONFIG_KEY: &str = "user.debmagic.environment";
-const ENVIRONMENT_SETUP_VERSION: &str = "dpkg-dev python3 python3-apt; build-user-v1; raw.idmap-v1";
+const ENVIRONMENT_SETUP_VERSION: &str = "dpkg-dev python3; build-user-v1; raw.idmap-v1";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -350,7 +350,6 @@ impl DriverLxd {
                         "-y",
                         "dpkg-dev",
                         "python3",
-                        "python3-apt",
                     ],
                     None,
                     true,

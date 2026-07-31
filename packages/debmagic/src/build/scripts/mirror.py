@@ -13,9 +13,8 @@ ships out of the box.
 from __future__ import annotations
 
 import argparse
+import glob
 import os
-
-from aptsources.sourceslist import SourcesList
 
 OS_RELEASE_FILE = "/etc/os-release"
 
@@ -93,10 +92,50 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def iter_sources() -> list[tuple[str, list[str]]]:
+    """Yield (uri, suites) from deb822 *.sources files and legacy sources.list."""
+    sources: list[tuple[str, list[str]]] = []
+    for path in glob.glob("/etc/apt/sources.list.d/*.sources"):
+        uri: str | None = None
+        suites: list[str] = []
+        enabled = True
+        with open(path, encoding="utf-8") as f:
+            for line in [*f, "\n"]:
+                stripped_line = line.strip()
+                if not stripped_line:
+                    if uri and suites and enabled:
+                        sources.append((uri, suites))
+                    uri, suites, enabled = None, [], True
+                    continue
+                key, _, value = stripped_line.partition(":")
+                key, value = key.strip(), value.strip()
+                if key == "URIs":
+                    uri = value.split()[0]
+                elif key == "Suites":
+                    suites = value.split()
+                elif key == "Enabled":
+                    enabled = value.lower() != "no"
+    for path in ["/etc/apt/sources.list", *glob.glob("/etc/apt/sources.list.d/*.list")]:
+        try:
+            f = open(path, encoding="utf-8")
+        except FileNotFoundError:
+            continue
+        with f:
+            for line in f:
+                fields = line.split()
+                if len(fields) >= 3 and fields[0] in {"deb", "deb-src"}:
+                    fields = fields[1:]
+                    if fields[0].startswith("["):
+                        fields = fields[fields.index(next(f for f in fields if f.endswith("]"))) + 1 :]
+                    if len(fields) >= 2:
+                        sources.append((fields[0], fields[1:]))
+    return sources
+
+
 def configured_mirror(codename: str) -> str:
-    for source in SourcesList().list:
-        if not source.disabled and source.type in {"deb", "deb-src"} and source.dist == codename:
-            return source.uri
+    for uri, suites in iter_sources():
+        if codename in suites:
+            return uri
     raise RuntimeError(f"could not determine the configured mirror for {codename}")
 
 

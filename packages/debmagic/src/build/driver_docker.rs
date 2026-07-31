@@ -53,7 +53,7 @@ const DOCKERFILE_TEMPLATE: &str = r#"
 FROM {base_image}
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-RUN apt-get update && apt-get install -y dpkg-dev python3 python3-apt
+RUN apt-get update && apt-get install -y dpkg-dev python3
 {apt_mirror_setup}
 RUN set -e; \
     getent group "$USER_GID" >/dev/null || groupadd --gid "$USER_GID" debmagic; \

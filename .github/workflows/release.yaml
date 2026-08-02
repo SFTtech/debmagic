@@ -7,7 +7,7 @@ on:
       - v*
 
 jobs:
-  run:
+  publish:
     runs-on: ubuntu-latest
     environment:
       name: pypi-publish
@@ -25,9 +25,11 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      - name: Build
-        run: uv build
-      - name: Publish debmagic-common
-        run: uv publish --package debmagic-common
-      - name: Publish debmagic (cli)
-        run: uv publish --package debmagic
+      - name: Install Rust toolchain
+        run: rustup show
+      - uses: Swatinem/rust-cache@v2
+      - name: Build debmagic (cli)
+        # Outside the uv workspace (keeps `uv sync` in CI fast); build by path into dist/.
+        run: uv build packages/debmagic --out-dir dist
+      - name: Publish to PyPI
+        run: uv publish --trusted-publishing always

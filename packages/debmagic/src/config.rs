@@ -33,7 +33,6 @@ impl Config {
             }
         }
 
-        // TODO: reimplement cli arg overwrites
         let build = builder
             .build()
             .context("Failed to initialize config reader")?;

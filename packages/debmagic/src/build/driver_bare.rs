@@ -13,20 +13,13 @@ use crate::build::{
 #[serde(default)]
 pub struct DriverBareConfig {}
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct DriverBareConfigOverrides {}
-
 pub struct DriverBare {
     config: BuildConfig,
     _driver_config: DriverConfig,
 }
 
 impl DriverBare {
-    pub fn create(
-        config: &BuildConfig,
-        driver_config: &DriverConfig,
-        _overrides: &DriverBareConfigOverrides,
-    ) -> Self {
+    pub fn create(config: &BuildConfig, driver_config: &DriverConfig) -> Self {
         Self {
             config: config.clone(),
             _driver_config: driver_config.clone(),

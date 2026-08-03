@@ -101,7 +101,7 @@ fn build_build_image(
     )
     .map_err(|e| anyhow!("Failed to copy debian control file: {e}"))?;
 
-    let docker_image_name = format!("debmagic-{}", config.build_identifier());
+    let docker_image_name = format!("debmagic-{}", config.docker_identifier());
     let mut build_args = Vec::new();
 
     let uid = unsafe { libc::geteuid() };
@@ -161,7 +161,7 @@ impl DriverDocker {
         driver_config: &DriverConfig,
         overrides: &DriverDockerConfigOverrides,
     ) -> anyhow::Result<Self> {
-        let container_name = format!("debmagic-{}", config.build_identifier());
+        let container_name = format!("debmagic-{}", config.docker_identifier());
         let container_exists = does_container_exist(&container_name)?;
 
         if driver_config.persistent && container_exists {

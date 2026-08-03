@@ -20,14 +20,21 @@ replace = "{new_version}"
 regex = false
 ignore_missing_version = false
 ignore_missing_files = false
-tag = false
+tag = true
 sign_tags = false
 tag_name = "v{new_version}"
-tag_message = "Bump version: {current_version} → {new_version}"
+tag_message = "chore: release v{new_version}"
 allow_dirty = false
-commit = false
-message = "Bump version: {current_version} → {new_version}"
+commit = true
+message = "chore: release v{new_version}"
 commit_args = ""
+pre_commit_hooks = [
+    "uv run scripts/update_debian_changelog.py",
+    # sync newly bumped version to lockfiles
+    "uv sync",
+    "cargo check",
+    "git add uv.lock Cargo.lock debian/changelog",
+]
 
 [tool.bumpversion.parts.pre_l]
 values = ["alpha", "beta", "rc", "final"]
@@ -52,28 +59,6 @@ replace = 'version = "{new_version}"'
 filename = "packages/debmagic-common/Cargo.toml"
 search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
-
-[[tool.bumpversion.files]]
-filename = "Cargo.lock"
-search = '''
-name = "debmagic"
-version = "{current_version}"
-'''
-replace = '''
-name = "debmagic"
-version = "{new_version}"
-'''
-
-[[tool.bumpversion.files]]
-filename = "Cargo.lock"
-search = '''
-name = "debmagic-common"
-version = "{current_version}"
-'''
-replace = '''
-name = "debmagic-common"
-version = "{new_version}"
-'''
 
 # Promote notes under [Unreleased] into a dated release section; keep [Unreleased] for the next cycle.
 [[tool.bumpversion.files]]

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- python packaging with upload to pypi
+
 ## [0.0.1-alpha.1] - 2025-09-27
 
 ### Added

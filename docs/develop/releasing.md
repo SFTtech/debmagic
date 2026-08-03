@@ -15,16 +15,9 @@ final/stable), and `pre_n` (pre-release counter). Real bumps require a clean
 git working tree; use `-n` / `--dry-run` (with `--allow-dirty` if needed) to
 preview without writing.
 
-This updates:
-
-- `packages/debmagic/pyproject.toml`
-- `packages/debmagic-pkg/pyproject.toml`
-- `packages/debmagic/Cargo.toml`
-- `packages/debmagic-common/Cargo.toml`
-- `Cargo.lock` (workspace package entries)
-- `packages/debmagic/CHANGELOG.md` and `packages/debmagic-pkg/CHANGELOG.md`
-  (promotes `[Unreleased]` notes into a new dated release section)
-- `.bumpversion.toml` (`current_version`)
+The bump updates cargo/pyproject versions, promotes Keep-a-Changelog sections in
+each package changelog, and prepends a new [`debian/changelog`](../../debian/changelog)
+entry via a pre-commit hook.
 
 Write upcoming release notes under the `[Unreleased]` heading in each package
 changelog before bumping. The bump inserts `## [<new_version>] - <date>` directly
@@ -35,7 +28,6 @@ Then commit, tag, and push. A `v*` tag (e.g. `v0.0.1-alpha.2`) triggers the
 `debmagic` (cli) and publishes it to PyPI via Trusted Publishing.
 
 ```shell
-git add -u && git commit -m "Bump version to $(uv run bump-my-version show current_version)"
-git tag "v$(uv run bump-my-version show current_version)"
-git push && git push --tags
+git push
+git push origin v$(uv run bump-my-version show current_version)
 ```

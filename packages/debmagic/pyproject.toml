@@ -4,7 +4,7 @@ build-backend = 'maturin'
 
 [project]
 name = "debmagic"
-version = "0.0.1-alpha.3"
+version = "0.0.1-alpha.4"
 description = "build debian packages"
 license = "GPL-2.0-or-later"
 # license-files = ["../../LICENSE"]

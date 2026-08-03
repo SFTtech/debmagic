@@ -1,6 +1,6 @@
 [package]
 name = "debmagic"
-version = "0.0.1-alpha.3"
+version = "0.0.1-alpha.4"
 documentation = "https://debmagic.readthedocs.org"
 homepage = "https://github.com/SFTtech/debmagic"
 repository = "https://github.com/SFTtech/debmagic.git"

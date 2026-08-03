@@ -1,3 +1,9 @@
+debmagic (0.0.1~alpha5) forky; urgency=medium
+
+  * build package in ci with manylinux target for pypi upload
+
+ -- Debmagic Maintainers <debmagic@sft.lol>  Mon, 03 Aug 2026 22:13:36 +0200
+
 debmagic (0.0.1~alpha4) forky; urgency=medium
 
   * maintenance release

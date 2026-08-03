@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1-alpha.5] - 2026-08-03
+
 ## [0.0.1-alpha.4] - 2026-08-03
 
 ## [0.0.1-alpha.3] - 2026-08-03
@@ -19,7 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial alpha release of the Python packaging library.
 
-[Unreleased]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.4...HEAD
+[Unreleased]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.5...HEAD
+[0.0.1-alpha.5]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.4...v0.0.1-alpha.5
 [0.0.1-alpha.4]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.3...v0.0.1-alpha.4
 [0.0.1-alpha.3]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.2...v0.0.1-alpha.3
 [0.0.1-alpha.2]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.1...v0.0.1-alpha.2

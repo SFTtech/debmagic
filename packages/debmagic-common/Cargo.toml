@@ -1,6 +1,6 @@
 [package]
 name = "debmagic-common"
-version = "0.0.1-alpha.4"
+version = "0.0.1-alpha.5"
 documentation = "https://debmagic.readthedocs.org"
 homepage = "https://github.com/SFTtech/debmagic"
 repository = "https://github.com/SFTtech/debmagic.git"

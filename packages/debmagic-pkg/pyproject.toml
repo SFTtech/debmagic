@@ -1,6 +1,6 @@
 [project]
 name = "debmagic-pkg"
-version = "0.0.1-alpha.4"
+version = "0.0.1-alpha.5"
 description = "packaging for debian using python"
 license = "GPL-2.0-or-later"
 # license-files = ["../../LICENSE"]

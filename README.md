@@ -7,7 +7,7 @@ Unified and futuristic developer tools for increased productivity in the [Debian
 - create package **build instructions** in Python with `debian/rules.py`
 - tooling do perform packaging itself: **building** and **testing** in isolated container environments
 
-[![GitHub Actions Status](https://github.com/SFTtech/debmagic/actions/workflows/ci.yml/badge.svg)](https://github.com/SFTtech/debmagic/actions/workflows/ci.yml)
+[![GitHub Actions Status](https://github.com/SFTtech/debmagic/actions/workflows/pull_request.yaml/badge.svg)](https://github.com/SFTtech/debmagic/actions/workflows/push_on_main.yaml)
 
 > [!IMPORTANT]
 > Debmagic's goal: make Debian packaging modern, robust & easy - while being backwards compatible.

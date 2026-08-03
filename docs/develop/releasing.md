@@ -24,8 +24,9 @@ changelog before bumping. The bump inserts `## [<new_version>] - <date>` directl
 below `[Unreleased]`, so those notes become the release notes for the new version.
 
 Then commit, tag, and push. A `v*` tag (e.g. `v0.0.1-alpha.2`) triggers the
-[release workflow](../../.github/workflows/release.yaml), which builds
-`debmagic` (cli) and publishes it to PyPI via Trusted Publishing.
+[release workflow](../../.github/workflows/release.yaml), which runs
+[CI](../../.github/workflows/ci.yaml) first and, on success, builds `debmagic`
+(cli) and publishes it to PyPI via Trusted Publishing.
 
 ```shell
 git push

@@ -1,4 +1,4 @@
-name: "Release"
+name: Release
 
 on:
   push:
@@ -7,7 +7,12 @@ on:
       - v*
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yaml
+    secrets: inherit
+
   publish:
+    needs: ci
     runs-on: ubuntu-latest
     environment:
       name: pypi-publish

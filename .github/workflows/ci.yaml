@@ -1,13 +1,10 @@
 name: CI
 
-permissions: {}
-
+# Reusable test suite. Call from pull_request.yaml / release.yaml — do not trigger directly.
 on:
-  pull_request: 
-    types: [opened, synchronize]
-  push:
-    branches:
-      - main
+  workflow_call:
+
+permissions: {}
 
 jobs:
   lint:
@@ -26,7 +23,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
       - name: Run Ruff Lint
         run: uv run ruff check
-  
+
   typecheck:
     runs-on: ubuntu-latest
     steps:
@@ -77,7 +74,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
       - name: Run sphinx-build
         run: uv run sphinx-build docs docs/_build
-  
+
   unit-tests:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -100,7 +97,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
       - name: Run Unittests
         run: uv run pytest --ignore tests/integration .
-  
+
   # Cargo / Rust stuff
   cargo-fmt:
     name: "cargo fmt"
@@ -110,7 +107,7 @@ jobs:
       - name: "Install Rust toolchain"
         run: rustup component add rustfmt
       - run: cargo fmt --all --check
-  
+
   cargo-clippy:
     name: "cargo clippy"
     runs-on: ubuntu-latest
@@ -159,7 +156,7 @@ jobs:
         run: uv pip install packages/debmagic
       - name: Run Debmagic build on ourself
         run: uv run debmagic build --driver=docker
- 
+
   # TODO: integration tests currently don't work in the CI since they require running apt source on debian trixie -> CI runs on ubuntu
   # integration-tests:
   #   runs-on: ${{ matrix.os }}

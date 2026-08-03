@@ -1,0 +1,103 @@
+[tool.bumpversion]
+current_version = "0.0.1-alpha.1"
+parse = """(?x)
+    (?P<major>0|[1-9]\\d*)\\.
+    (?P<minor>0|[1-9]\\d*)\\.
+    (?P<patch>0|[1-9]\\d*)
+    (?:
+        -
+        (?P<pre_l>alpha|beta|rc)
+        \\.
+        (?P<pre_n>0|[1-9]\\d*)
+    )?
+"""
+serialize = [
+    "{major}.{minor}.{patch}-{pre_l}.{pre_n}",
+    "{major}.{minor}.{patch}",
+]
+search = "{current_version}"
+replace = "{new_version}"
+regex = false
+ignore_missing_version = false
+ignore_missing_files = false
+tag = false
+sign_tags = false
+tag_name = "v{new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+allow_dirty = false
+commit = false
+message = "Bump version: {current_version} → {new_version}"
+commit_args = ""
+
+[tool.bumpversion.parts.pre_l]
+values = ["alpha", "beta", "rc", "final"]
+optional_value = "final"
+
+[[tool.bumpversion.files]]
+filename = "packages/debmagic/pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "packages/debmagic-pkg/pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "packages/debmagic/Cargo.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "packages/debmagic-common/Cargo.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "Cargo.lock"
+search = '''
+name = "debmagic"
+version = "{current_version}"
+'''
+replace = '''
+name = "debmagic"
+version = "{new_version}"
+'''
+
+[[tool.bumpversion.files]]
+filename = "Cargo.lock"
+search = '''
+name = "debmagic-common"
+version = "{current_version}"
+'''
+replace = '''
+name = "debmagic-common"
+version = "{new_version}"
+'''
+
+# Promote notes under [Unreleased] into a dated release section; keep [Unreleased] for the next cycle.
+[[tool.bumpversion.files]]
+filename = "packages/debmagic/CHANGELOG.md"
+search = "## [Unreleased]"
+replace = """## [Unreleased]
+
+## [{new_version}] - {now:%Y-%m-%d}"""
+
+[[tool.bumpversion.files]]
+filename = "packages/debmagic/CHANGELOG.md"
+search = "[Unreleased]: https://github.com/SFTtech/debmagic/compare/v{current_version}...HEAD"
+replace = """[Unreleased]: https://github.com/SFTtech/debmagic/compare/v{new_version}...HEAD
+[{new_version}]: https://github.com/SFTtech/debmagic/compare/v{current_version}...v{new_version}"""
+
+[[tool.bumpversion.files]]
+filename = "packages/debmagic-pkg/CHANGELOG.md"
+search = "## [Unreleased]"
+replace = """## [Unreleased]
+
+## [{new_version}] - {now:%Y-%m-%d}"""
+
+[[tool.bumpversion.files]]
+filename = "packages/debmagic-pkg/CHANGELOG.md"
+search = "[Unreleased]: https://github.com/SFTtech/debmagic/compare/v{current_version}...HEAD"
+replace = """[Unreleased]: https://github.com/SFTtech/debmagic/compare/v{new_version}...HEAD
+[{new_version}]: https://github.com/SFTtech/debmagic/compare/v{current_version}...v{new_version}"""

@@ -34,7 +34,12 @@ jobs:
         run: rustup show
       - uses: Swatinem/rust-cache@v2
       - name: Build debmagic (cli)
-        # Outside the uv workspace (keeps `uv sync` in CI fast); build by path into dist/.
-        run: uv build packages/debmagic --out-dir dist
+        run: |
+          uvx --directory packages/debmagic maturin build \
+            --release \
+            --locked \
+            --manifest-path ./Cargo.toml \
+            --out ../../dist \
+            --compatibility pypi
       - name: Publish to PyPI
         run: uv publish --trusted-publishing always

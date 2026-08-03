@@ -11,9 +11,9 @@ repos:
       name: ty check
       entry: uv run ty check .
       pass_filenames: false
-      language: python
+      language: system
     - id: clippy
       name: clippy check
       entry: cargo clippy --workspace --all-targets --all-features -- -D warnings
       pass_filenames: false
-      language: rust
+      language: system

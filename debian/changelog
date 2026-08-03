@@ -1,3 +1,9 @@
+debmagic (0.0.1~alpha2) forky; urgency=medium
+
+  * python packaging with upload to pypi
+
+ -- Debmagic Maintainers <debmagic@sft.lol>  Mon, 03 Aug 2026 21:25:58 +0200
+
 debmagic (0.0.1~alpha1) forky; urgency=medium
 
   * WIP: Initial release.

@@ -271,7 +271,7 @@ wheels = [
 
 [[package]]
 name = "debmagic-pkg"
-version = "0.0.1a1"
+version = "0.0.1a2"
 source = { editable = "packages/debmagic-pkg" }
 dependencies = [
     { name = "python-debian" },

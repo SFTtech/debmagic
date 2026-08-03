@@ -1,3 +1,9 @@
+debmagic (0.0.1~alpha3) forky; urgency=medium
+
+  * properly sanitize debian version strings before using them in docker image names
+
+ -- Debmagic Maintainers <debmagic@sft.lol>  Mon, 03 Aug 2026 21:42:29 +0200
+
 debmagic (0.0.1~alpha2) forky; urgency=medium
 
   * python packaging with upload to pypi

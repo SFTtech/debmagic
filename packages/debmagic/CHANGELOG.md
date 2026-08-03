@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- maintenance release
+
 ## [0.0.1-alpha.3] - 2026-08-03
 
 - properly sanitize debian version strings before using them in docker image names

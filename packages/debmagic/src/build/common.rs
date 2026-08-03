@@ -133,10 +133,7 @@ mod tests {
     #[test]
     fn docker_identifier_replaces_epoch_and_plus() {
         let config = sample_config("pkg-1:2.0.0+dfsg1");
-        assert_eq!(
-            config.docker_identifier(),
-            "pkg-1-2.0.0-dfsg1-debian-forky"
-        );
+        assert_eq!(config.docker_identifier(), "pkg-1-2.0.0-dfsg1-debian-forky");
     }
 
     #[test]

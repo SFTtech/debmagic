@@ -17,3 +17,8 @@ repos:
       entry: cargo clippy --workspace --all-targets --all-features -- -D warnings
       pass_filenames: false
       language: system
+    - id: cargo-fmt
+      name: cargo fmt check
+      entry: cargo fmt --all
+      pass_filenames: false
+      language: system

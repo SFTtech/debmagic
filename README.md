@@ -26,6 +26,8 @@ Included features:
 - debugging tools
   - `debmagic shell` - enter current running/finished package environment
 
+> [!TIP]
+> Want to use debmagic to build a package? See [docs/usage/build.md](docs/usage/build.md) for a quickstart.
 
 ## Debmagic packaging
 

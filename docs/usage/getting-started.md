@@ -20,6 +20,12 @@ uvx debmagic
 apt install debmagic
 ```
 
+## Building an existing package (CLI)
+
+`debmagic build` builds *any* Debian-packaged source tree inside a throwaway build environment, driven by a build driver.
+
+To learn about `debmagic build`, see the [Building packages](build.md) page.
+
 ## Example debian/rules.py
 
 Python `debian/rules.py` equivalent of [Ubuntu 24.04 htop](https://git.launchpad.net/ubuntu/+source/htop/tree/debian/rules?h=ubuntu/noble):

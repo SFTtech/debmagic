@@ -3,17 +3,115 @@ use std::{
     fmt::Debug,
     fs,
     path::{Path, PathBuf},
+    process::Command,
 };
 
+use anyhow::Context;
 use clap::ValueEnum;
 use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
+
+/// Path at which the build root is bind-mounted inside container-based
+/// drivers (Docker, LXD, Incus).
+pub const BUILD_DIR_IN_CONTAINER: &str = "/debmagic";
+
+/// Rewrite a path inside the host's build root to the equivalent path inside
+/// a container that has it bind-mounted at [`BUILD_DIR_IN_CONTAINER`].
+pub fn translate_path_in_container(
+    build_root_dir: &Path,
+    path_in_source: &Path,
+) -> std::io::Result<PathBuf> {
+    path_in_source
+        .strip_prefix(build_root_dir)
+        .map(|rel| Path::new(BUILD_DIR_IN_CONTAINER).join(rel))
+        .map_err(|_| {
+            std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "Path is not relative to build root".to_string(),
+            )
+        })
+}
+
+/// Run `cmd`, failing with `context` (and, on a clean but unsuccessful exit,
+/// its exit status) if it can't be spawned or exits unsuccessfully.
+pub fn run_checked(cmd: &mut Command, context: &str) -> anyhow::Result<()> {
+    let status = cmd
+        .status()
+        .with_context(|| format!("Error running {context}"))?;
+    if !status.success() {
+        anyhow::bail!("{context} failed (exit status: {status})");
+    }
+    Ok(())
+}
+
+pub fn resource_name(prefix: &str, label: &str, identifier: &str) -> String {
+    const MAX_LEN: usize = 63;
+    const HASH_LEN: usize = 16;
+
+    let mut hash = uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, identifier.as_bytes())
+        .simple()
+        .to_string();
+    hash.truncate(HASH_LEN);
+    let max_label_len = MAX_LEN - prefix.len() - hash.len() - 2;
+    let label = label
+        .chars()
+        .map(|character| {
+            if character.is_ascii_alphanumeric() {
+                character.to_ascii_lowercase()
+            } else {
+                '-'
+            }
+        })
+        .take(max_label_len)
+        .collect::<String>();
+    format!("{prefix}-{label}-{hash}")
+}
+
+pub fn environment_fingerprint(parts: &[&str]) -> String {
+    uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, parts.join("\0").as_bytes())
+        .simple()
+        .to_string()
+}
+
+/// Metadata key under which container-based drivers store their container's
+/// name for later reattachment via `from_build_metadata`.
+const CONTAINER_NAME_KEY: &str = "container_name";
+
+pub fn container_name_metadata(name: &str) -> DriverSpecificBuildMetadata {
+    DriverSpecificBuildMetadata::from([(CONTAINER_NAME_KEY.to_string(), name.to_string())])
+}
+
+pub fn container_name_from_metadata(build_metadata: &BuildMetadata) -> anyhow::Result<String> {
+    build_metadata
+        .driver_metadata
+        .get(CONTAINER_NAME_KEY)
+        .cloned()
+        .context("build metadata has no container_name")
+}
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Serialize, Deserialize)]
 pub enum BuildDriverType {
     Docker,
     Bare,
-    // Lxd
+    Lxd,
+    Incus,
+}
+
+/// Selects which files from the source directory are staged into the build tree.
+#[derive(
+    Debug, Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Serialize, Deserialize,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum SourceSyncMode {
+    /// Git-tracked files, including uncommitted modifications. Untracked
+    /// files are not staged and reported as a warning.
+    #[default]
+    Tracked,
+    /// Like `tracked`, but the build fails if the worktree has uncommitted
+    /// changes or untracked files.
+    Committed,
+    /// All files except git-ignored ones, regardless of git tracking state.
+    Worktree,
 }
 
 pub type DriverSpecificBuildMetadata = HashMap<String, String>;
@@ -28,12 +126,33 @@ pub struct BuildMetadata {
 pub struct BuildConfig {
     pub driver: BuildDriverType,
 
+    #[serde(default)]
+    pub package_name: String,
     pub package_identifier: String,
     pub build_root_dir: PathBuf,
     pub source_dir: PathBuf,
     pub output_dir: PathBuf,
     pub distro: DistroVersion,
     pub sign_package: bool,
+    #[serde(default)]
+    pub sign_with: crate::build::signing::SignWith,
+    /// GPG key ID/email to sign with (debsign's `-k` option).
+    pub sign_key: Option<String>,
+    /// Build the automatic `-dbgsym` debug symbol package alongside the regular binaries.
+    #[serde(default)]
+    pub build_debug_symbols: bool,
+    /// Run `debian/rules clean` before building.
+    #[serde(default)]
+    pub clean: bool,
+    /// Keep the build environment running after the build.
+    #[serde(default)]
+    pub persistent: bool,
+    /// Synchronize source inputs while preserving build-generated files.
+    #[serde(default)]
+    pub incremental: bool,
+    /// Which source files are staged into the build tree.
+    #[serde(default)]
+    pub source_sync_mode: SourceSyncMode,
 }
 
 impl BuildConfig {
@@ -42,14 +161,6 @@ impl BuildConfig {
             "{}-{}-{}",
             self.package_identifier, self.distro.distro, self.distro.codename
         )
-    }
-
-    /// Identifier safe for Docker image tags and container names.
-    ///
-    /// Debian versions may contain `~`, `+`, or `:` (e.g. `0.0.1~alpha2`), which
-    /// are invalid in Docker references.
-    pub fn docker_identifier(&self) -> String {
-        sanitize_docker_reference(&self.build_identifier())
     }
 
     pub fn build_work_dir(&self) -> PathBuf {
@@ -73,33 +184,75 @@ impl BuildConfig {
     }
 }
 
-/// Replace characters that Docker image/container names disallow.
-fn sanitize_docker_reference(name: &str) -> String {
-    name.chars()
-        .map(|c| match c {
-            'a'..='z' | 'A'..='Z' | '0'..='9' | '.' | '_' | '-' => c,
-            _ => '-',
-        })
-        .collect()
-}
+/// Source of a Python script that rewrites the default Debian/Ubuntu apt
+/// sources to point at a mirror. Replaces the base image's default sources
+/// file(s) outright with one debmagic owns, rather than parsing and
+/// patching them in place, defaulting to the release/updates/security
+/// pockets it detects from `/etc/os-release`.
+pub const APT_MIRROR_SCRIPT: &str = include_str!("scripts/mirror.py");
 
 pub trait BuildDriver {
     fn get_build_metadata(&self) -> DriverSpecificBuildMetadata;
 
-    fn run_command(&self, cmd: &[&str], cwd: &Path, requires_root: bool) -> std::io::Result<()>;
+    fn run_command_env(
+        &self,
+        cmd: &[&str],
+        cwd: &Path,
+        requires_root: bool,
+        env_add: &[(&str, &str)],
+    ) -> std::io::Result<()>;
 
-    fn cleanup(&self);
+    fn run_command(&self, cmd: &[&str], cwd: &Path, requires_root: bool) -> std::io::Result<()> {
+        self.run_command_env(cmd, cwd, requires_root, &[])
+    }
+
+    fn cleanup(&self) -> anyhow::Result<()>;
 
     fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()>;
 
     fn driver_type(&self) -> BuildDriverType;
+
+    fn reset_build_root(&self) -> std::io::Result<()>;
+
+    /// Sign `changes_file` (a path on the host) with `debsign` — on the host
+    /// for the bare driver, or inside a minimal same-distro container with
+    /// the host's gpg-agent socket forwarded in. `gpg` carries the agent
+    /// socket and key for container signing; bare ignores it.
+    fn sign_changes(
+        &self,
+        changes_file: &Path,
+        gpg: Option<&crate::build::signing::GpgForwarding>,
+    ) -> anyhow::Result<()>;
+
+    fn reused_environment(&self) -> bool {
+        true
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
     use debmagic_common::distro::{Distro, DistroVersion};
     use std::path::PathBuf;
+
+    #[test]
+    fn resource_names_are_valid_stable_and_distinct() {
+        let first = resource_name("debmagic", "package", "package-1.0~beta-1:2-debian-forky");
+        let second = resource_name("debmagic", "package", "package-1.0-beta-1:2-debian-forky");
+
+        assert_eq!(
+            first,
+            resource_name("debmagic", "package", "package-1.0~beta-1:2-debian-forky")
+        );
+        assert_ne!(first, second);
+        assert!(first.starts_with("debmagic-package-"));
+        assert_eq!(first.len(), "debmagic-package-".len() + 16);
+        assert!(first.len() <= 63);
+        assert!(first.chars().all(|character| character.is_ascii_lowercase()
+            || character.is_ascii_digit()
+            || character == '-'));
+    }
 
     fn sample_config(package_identifier: &str) -> BuildConfig {
         BuildConfig {
@@ -112,8 +265,17 @@ mod tests {
                 distro: Distro::Debian,
                 codename: "forky".to_string(),
                 version: "15".to_string(),
+                is_devel: false,
             },
             sign_package: false,
+            incremental: false,
+            build_debug_symbols: false,
+            clean: false,
+            persistent: false,
+            package_name: "debmagic".to_string(),
+            sign_key: None,
+            sign_with: crate::build::signing::SignWith::Auto,
+            source_sync_mode: crate::build::common::SourceSyncMode::Tracked,
         }
     }
 
@@ -123,24 +285,6 @@ mod tests {
         assert_eq!(
             config.build_identifier(),
             "debmagic-0.0.1~alpha2-debian-forky"
-        );
-        assert_eq!(
-            config.docker_identifier(),
-            "debmagic-0.0.1-alpha2-debian-forky"
-        );
-    }
-
-    #[test]
-    fn docker_identifier_replaces_epoch_and_plus() {
-        let config = sample_config("pkg-1:2.0.0+dfsg1");
-        assert_eq!(config.docker_identifier(), "pkg-1-2.0.0-dfsg1-debian-forky");
-    }
-
-    #[test]
-    fn sanitize_docker_reference_keeps_allowed_chars() {
-        assert_eq!(
-            sanitize_docker_reference("debmagic-0.0.1-alpha1_x86"),
-            "debmagic-0.0.1-alpha1_x86"
         );
     }
 }

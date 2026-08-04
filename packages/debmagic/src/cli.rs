@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::build::common::BuildDriverType;
+use crate::build::common::{BuildDriverType, SourceSyncMode};
 use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -15,8 +15,8 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    #[command(about = "Build a debian package")]
-    Build(BuildSubcommandArgs),
+    #[command(about = "Build a debian package: 'binary' (.deb) or 'source' (.dsc) packages")]
+    Build(Box<BuildSubcommandArgs>),
     #[command(about = "Open an interactive shell to the currently active build environment")]
     Shell(ShellSubcommandArgs),
     #[command(about = "Run tests")]
@@ -40,6 +40,7 @@ pub struct CommonCli {
 #[derive(Args, Debug)]
 pub struct DockerArgs {
     #[arg(
+        id = "docker-base-image",
         long = "driver-docker-base-image",
         help = "If passed will override the base image for the current build"
     )]
@@ -47,30 +48,148 @@ pub struct DockerArgs {
 }
 
 #[derive(Args, Debug)]
-pub struct BuildSubcommandArgs {
-    #[arg(short, long, help = "Build driver type")]
-    pub driver: BuildDriverType,
+pub struct LxdArgs {
+    #[arg(
+        id = "lxd-base-image",
+        long = "driver-lxd-base-image",
+        help = "Override the base image (image alias) for the LXD/Incus container"
+    )]
+    pub base_image: Option<String>,
 
-    #[arg(long, action = clap::ArgAction::SetTrue, help = "Persist the build environment after the build finished")]
-    pub persist_driver: Option<bool>,
+    #[arg(
+        long = "driver-lxd-project",
+        help = "LXD/Incus project to register the container in"
+    )]
+    pub project: Option<String>,
+}
+
+/// Flags shared between `debmagic build binary` and `debmagic build source`.
+#[derive(Args, Debug)]
+pub struct CommonBuildArgs {
+    #[arg(
+        short,
+        long,
+        help = "Build driver type. Required for binary builds; source-only builds default to 'bare', since those need no build-deps or compilation."
+    )]
+    pub driver: Option<BuildDriverType>,
+
+    #[arg(long, action = clap::ArgAction::SetTrue, help = "Keep the build environment for reuse after the build finishes")]
+    pub persistent: Option<bool>,
+
+    #[arg(
+        long = "source-sync",
+        help = "Which source files are staged into the build tree: 'tracked' stages git-tracked files including uncommitted changes and warns about untracked files (default), 'committed' additionally fails if the worktree is dirty, 'worktree' stages everything that is not git-ignored. Defaults to the 'source_sync_mode' setting in the config file."
+    )]
+    pub source_sync: Option<SourceSyncMode>,
 
     #[command(flatten)]
     pub docker: DockerArgs,
 
-    #[arg(short, long, action = clap::ArgAction::SetTrue, help = "Enable incremental builds. This implies --persist-driver")]
-    pub incremental: Option<bool>,
+    #[command(flatten)]
+    pub lxd: LxdArgs,
+
+    #[arg(
+        long = "apt-mirror",
+        help = "Apt mirror URL to use inside the build environment instead of the default archive.ubuntu.com/security.ubuntu.com/deb.debian.org, e.g. http://my-mirror.example/ubuntu. Ignored by the bare driver."
+    )]
+    pub apt_mirror: Option<String>,
 
     #[arg(
         long,
-        help = "Select the target distribution version, only required in the debian changelog specifies multiple versions"
+        action = clap::ArgAction::SetTrue,
+        help = "Also enable the '<release>-proposed' pocket in the build environment. Ignored by the bare driver."
+    )]
+    pub proposed: Option<bool>,
+
+    #[arg(
+        long,
+        help = "Select the target distribution version, only required if the debian changelog specifies multiple versions"
     )]
     pub distro: Option<String>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Sign the resulting .changes/.dsc with debsign after building. Defaults to the 'sign_package' setting in the config file (false if unset)."
+    )]
+    pub sign: Option<bool>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetFalse,
+        help = "Do not sign the resulting .changes/.dsc, overriding a 'sign_package = true' default in the config file."
+    )]
+    pub no_sign: Option<bool>,
+
+    #[arg(
+        long = "sign-with",
+        help = "Where debsign runs: 'host' signs on the host (requires devscripts there), 'same' signs inside a minimal same-distro container with the host gpg-agent socket forwarded in (requires --sign-key), 'auto' (default) uses the host if debsign is available there, else a container. Defaults to the 'sign_with' setting in the config file."
+    )]
+    pub sign_with: Option<crate::build::signing::SignWith>,
+
+    #[arg(
+        long = "sign-key",
+        help = "GPG key ID/email to sign with, passed to debsign's -k option. Defaults to the 'sign_key' setting in the config file, or debsign's own maintainer-based key lookup if unset. Required when signing in a container."
+    )]
+    pub sign_key: Option<String>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Run 'debian/rules clean' before building, like plain dpkg-buildpackage does unless passed -nc. Defaults to the 'clean' setting in the config file (false if unset); non-incremental builds already stage a clean source tree, while incremental builds preserve outputs by design. For source builds this also installs build-dependencies first, since a clean target usually needs its own tooling."
+    )]
+    pub clean: Option<bool>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetFalse,
+        help = "Do not run 'debian/rules clean' before building, overriding a 'clean = true' default in the config file."
+    )]
+    pub no_clean: Option<bool>,
 
     #[command(flatten)]
     pub common: CommonCli,
 
     #[arg(short, long, help = "Output directory for the package artifacts")]
     pub output_dir: Option<PathBuf>,
+}
+
+#[derive(Args, Debug)]
+pub struct BuildSubcommandArgs {
+    #[command(subcommand)]
+    pub target: BuildTarget,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum BuildTarget {
+    #[command(about = "Build binary .deb packages")]
+    Binary(BinaryTargetArgs),
+    #[command(
+        about = "Build a source package only (.dsc + tarball, plus .buildinfo/.changes), no build-deps or compilation required"
+    )]
+    Source(SourceTargetArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct BinaryTargetArgs {
+    #[command(flatten)]
+    pub build: CommonBuildArgs,
+
+    #[arg(short, long, action = clap::ArgAction::SetTrue, help = "Synchronize changed source inputs while preserving build outputs. Implies --persistent")]
+    pub incremental: Option<bool>,
+
+    #[arg(
+        long = "debug-symbols",
+        action = clap::ArgAction::SetTrue,
+        help = "Also build the automatic '-dbgsym' debug symbol package"
+    )]
+    pub debug_symbols: Option<bool>,
+}
+
+#[derive(Args, Debug)]
+pub struct SourceTargetArgs {
+    #[command(flatten)]
+    pub build: CommonBuildArgs,
 }
 
 #[derive(Args, Debug)]

@@ -20,10 +20,11 @@ glob = ">=0.3.2"
 libc = ">=0.2.169"
 serde = { version = ">=1.0.217", features = ["derive"] }
 serde_json = ">=1.0.139"
-uuid = { version = ">=1.10.0", features = ["v4"] }
+uuid = { version = ">=1.10.0", features = ["v4", "v5"] }
 chrono = { version = ">=0.4.42" }
 regex = { version = ">=1.12.2" }
 debian-changelog = { version = ">=0.2.14" }
+debian-control = { version = ">=0.1.39" }
 ignore = { version = ">=0.4.25" }
 
 # dev dependencies

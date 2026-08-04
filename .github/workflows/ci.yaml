@@ -155,7 +155,7 @@ jobs:
       - name: Install debmagic (cli)
         run: uv pip install packages/debmagic
       - name: Run Debmagic build on ourself
-        run: uv run debmagic build --driver=docker
+        run: uv run debmagic build binary --driver=docker
 
   # TODO: integration tests currently don't work in the CI since they require running apt source on debian trixie -> CI runs on ubuntu
   # integration-tests:

@@ -26,6 +26,7 @@ Build-Depends:
  librust-test-case-dev (>=3.3.1),
  librust-pyo3-dev (>=0.27.2),
  librust-debian-changelog-dev (>=0.2.14),
+ librust-debian-control-dev (>= 0.1.39),
  librust-ignore-dev (>=0.4.25)
 Rules-Requires-Root: no
 X-Style: black

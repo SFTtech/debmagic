@@ -1,16 +1,37 @@
 use std::path::PathBuf;
 
+use crate::build::common::SourceSyncMode;
 use crate::build::config::DriverConfig;
+use crate::build::signing::SignWith;
 use anyhow::{Context, anyhow};
 use config::{Config as ConfigBuilder, File};
 use serde::Deserialize;
 
+/// documented in docs/usage/config.md
 #[derive(Deserialize, Debug)]
 #[serde(default)]
 pub struct Config {
     pub driver: DriverConfig,
     pub temp_build_dir: PathBuf,
     pub incremental: bool,
+    /// Which source files are staged into the build tree.
+    pub source_sync_mode: SourceSyncMode,
+    /// Always build the automatic `-dbgsym` debug symbol package.
+    pub build_debug_symbols: bool,
+    /// Sign the resulting `.changes`/`.dsc` with `debsign` after building.
+    pub sign_package: bool,
+    /// Where `debsign` runs: on the host or inside a minimal same-distro
+    /// container with the host's gpg-agent socket forwarded in.
+    pub sign_with: SignWith,
+    /// GPG key ID/email to sign with (debsign's `-k` option). `None` lets
+    /// debsign fall back to its own maintainer-based key lookup, but
+    /// container signing requires an explicit key.
+    pub sign_key: Option<String>,
+    /// Run `debian/rules clean` before building (like `dpkg-buildpackage`
+    /// does unless passed `-nc`). Disabled by default because non-incremental
+    /// builds already stage a clean source tree and incremental builds preserve
+    /// outputs intentionally.
+    pub clean: bool,
 }
 
 impl Default for Config {
@@ -19,6 +40,12 @@ impl Default for Config {
             driver: DriverConfig::default(),
             temp_build_dir: PathBuf::from("/tmp/debmagic"),
             incremental: false,
+            source_sync_mode: SourceSyncMode::default(),
+            build_debug_symbols: false,
+            sign_package: false,
+            sign_with: SignWith::default(),
+            sign_key: None,
+            clean: false,
         }
     }
 }

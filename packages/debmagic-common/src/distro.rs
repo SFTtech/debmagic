@@ -14,6 +14,25 @@ pub struct DistroVersion {
     pub codename: String,
     /// numeric or semver version, e.g. "24.04" for ubuntu or "12" for debian
     pub version: String,
+    /// true for unreleased development releases (affects image selection)
+    #[serde(default)]
+    pub is_devel: bool,
+}
+
+impl DistroVersion {
+    fn new(distro: Distro, codename: &str, version: &str) -> Self {
+        Self {
+            distro,
+            codename: codename.to_string(),
+            version: version.to_string(),
+            is_devel: false,
+        }
+    }
+
+    fn devel(mut self) -> Self {
+        self.is_devel = true;
+        self
+    }
 }
 
 impl Distro {
@@ -32,161 +51,35 @@ impl std::fmt::Display for Distro {
 }
 
 static DISTRO_INFO_MAP: LazyLock<HashMap<&'static str, DistroVersion>> = LazyLock::new(|| {
+    use Distro::{Debian, Ubuntu};
     HashMap::from([
         // debian
         (
             "experimental",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "experimental".to_string(),
-                version: "".to_string(),
-            },
+            DistroVersion::new(Debian, "experimental", ""),
         ),
-        (
-            "unstable",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "unstable".to_string(),
-                version: "".to_string(),
-            },
-        ),
-        (
-            "sid",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "sid".to_string(),
-                version: "".to_string(),
-            },
-        ),
-        (
-            "testing",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "testing".to_string(),
-                version: "".to_string(),
-            },
-        ),
-        (
-            "duke",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "duke".to_string(),
-                version: "15".to_string(),
-            },
-        ),
-        (
-            "forky",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "forky".to_string(),
-                version: "14".to_string(),
-            },
-        ),
-        (
-            "trixie",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "trixie".to_string(),
-                version: "13".to_string(),
-            },
-        ),
-        (
-            "bookworm",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "bookworm".to_string(),
-                version: "12".to_string(),
-            },
-        ),
-        (
-            "bullseye",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "bullseye".to_string(),
-                version: "11".to_string(),
-            },
-        ),
-        (
-            "buster",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "buster".to_string(),
-                version: "10".to_string(),
-            },
-        ),
-        (
-            "stretch",
-            DistroVersion {
-                distro: Distro::Debian,
-                codename: "stretch".to_string(),
-                version: "9".to_string(),
-            },
-        ),
+        ("unstable", DistroVersion::new(Debian, "unstable", "")),
+        ("sid", DistroVersion::new(Debian, "sid", "")),
+        ("testing", DistroVersion::new(Debian, "testing", "")),
+        ("duke", DistroVersion::new(Debian, "duke", "15")),
+        ("forky", DistroVersion::new(Debian, "forky", "14")),
+        ("trixie", DistroVersion::new(Debian, "trixie", "13")),
+        ("bookworm", DistroVersion::new(Debian, "bookworm", "12")),
+        ("bullseye", DistroVersion::new(Debian, "bullseye", "11")),
+        ("buster", DistroVersion::new(Debian, "buster", "10")),
+        ("stretch", DistroVersion::new(Debian, "stretch", "9")),
         // ubuntu
         (
-            "resolute",
-            DistroVersion {
-                distro: Distro::Ubuntu,
-                codename: "resolute".to_string(),
-                version: "26.04".to_string(),
-            },
+            "stonking",
+            DistroVersion::new(Ubuntu, "stonking", "26.10").devel(),
         ),
-        (
-            "questing",
-            DistroVersion {
-                distro: Distro::Ubuntu,
-                codename: "questing".to_string(),
-                version: "25.10".to_string(),
-            },
-        ),
-        (
-            "noble",
-            DistroVersion {
-                distro: Distro::Ubuntu,
-                codename: "noble".to_string(),
-                version: "24.04".to_string(),
-            },
-        ),
-        (
-            "jammy",
-            DistroVersion {
-                distro: Distro::Ubuntu,
-                codename: "jammy".to_string(),
-                version: "22.04".to_string(),
-            },
-        ),
-        (
-            "focal",
-            DistroVersion {
-                distro: Distro::Ubuntu,
-                codename: "focal".to_string(),
-                version: "20.04".to_string(),
-            },
-        ),
-        (
-            "bionic",
-            DistroVersion {
-                distro: Distro::Ubuntu,
-                codename: "bionic".to_string(),
-                version: "18.04".to_string(),
-            },
-        ),
-        (
-            "xenial",
-            DistroVersion {
-                distro: Distro::Ubuntu,
-                codename: "xenial".to_string(),
-                version: "16.04".to_string(),
-            },
-        ),
-        (
-            "trusty",
-            DistroVersion {
-                distro: Distro::Ubuntu,
-                codename: "trusty".to_string(),
-                version: "14.04".to_string(),
-            },
-        ),
+        ("resolute", DistroVersion::new(Ubuntu, "resolute", "26.04")),
+        ("noble", DistroVersion::new(Ubuntu, "noble", "24.04")),
+        ("jammy", DistroVersion::new(Ubuntu, "jammy", "22.04")),
+        ("focal", DistroVersion::new(Ubuntu, "focal", "20.04")),
+        ("bionic", DistroVersion::new(Ubuntu, "bionic", "18.04")),
+        ("xenial", DistroVersion::new(Ubuntu, "xenial", "16.04")),
+        ("trusty", DistroVersion::new(Ubuntu, "trusty", "14.04")),
     ])
 });
 

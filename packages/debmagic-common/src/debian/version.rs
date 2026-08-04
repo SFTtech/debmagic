@@ -48,6 +48,10 @@ impl PackageVersion {
         self.upstream.clone()
     }
 
+    pub fn upstream_version(&self) -> &str {
+        &self.upstream
+    }
+
     /// upstream version plus packaging revision
     pub fn upstream_revision(&self) -> String {
         if let Some(revision) = &self.revision {

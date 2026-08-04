@@ -5,10 +5,10 @@ build-backend = 'maturin'
 [project]
 name = "debmagic"
 version = "0.0.1-alpha.5"
-description = "build debian packages"
+description = "modern tooling for building and packaging Debian/Ubuntu packages in isolated environments"
 license = "GPL-2.0-or-later"
 # license-files = ["../../LICENSE"]
-# readme = "../../README.md"
+readme = "README.md"
 requires-python = ">=3.12"
 classifiers = ["Programming Language :: Python :: 3"]
 

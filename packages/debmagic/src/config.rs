@@ -7,6 +7,7 @@ use anyhow::{Context, anyhow};
 use config::{Config as ConfigBuilder, File};
 use serde::Deserialize;
 
+/// documented in docs/usage/config.md
 #[derive(Deserialize, Debug)]
 #[serde(default)]
 pub struct Config {

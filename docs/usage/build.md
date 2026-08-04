@@ -1,26 +1,39 @@
 # Building packages
 
 Quick reference to build a Debian/Ubuntu package with `debmagic`.
-It covers `debmagic build binary` — the generic entry point that works on *any* `debian/`-packaged source tree, including ones that don't use `debmagic-pkg` to write `debian/rules`.
-For building just a `.dsc`/tarball without compiling anything, see [`debmagic build source`](source.md) instead.
+
 
 ## TL;DR
 
+- Entry point: `debmagic build binary` — build on *any* `debian/`-packaged source tree (including packages with [`debian/rules.py`](packaging.md))
+- Source package: [`debmagic build source`](source.md), creates a `.dsc` without compilation
+
 ```shell
+cd your-package
 debmagic build binary --driver lxd \
-  --source-dir /path/to/parent/of/debian/dir \
-  --output-dir /path/to/put/the/.deb/files \
-  --apt-mirror http://<fast-mirror-host>/ubuntu
+  --output-dir /tmp/build-artifacts
 ```
 
-- `--source-dir` is the directory *containing* `debian/`, not `debian/` itself.
-  Defaults to the current directory.
-- `--output-dir` is where the resulting `.deb`/`.udeb`/`.ddeb`, `.buildinfo` and `.changes` files end up.
-  It's created if missing.
-  Defaults to the current directory.
-- `--driver` is required.
-  Use `lxd` or `incus` if available (isolated containers); fall back to `docker`, then `bare` (builds directly on the host with no isolation, so only use this if you already trust the host environment).
-- Exit code is non-zero on failure; stderr/stdout carry the real `dpkg-buildpackage`/`apt-get` output, so grep that for the actual error instead of guessing from the exit code alone.
+## Available options
+
+`debmagic build`:
+
+| Option | Description |
+|---|---|
+| `--driver <...>` | [Build environment driver to use](#picking-a-driver) |
+| `--source-sync <mode>` | [Which source files to include](#source-file-staging) |
+| `--persistent` | Retain the build environment. This does not do incremental builds. |
+| `--incremental` | Do incremental builds by syncing changed sources only; implies `persistent` |
+| `--distro <name>` | [Select the target distro/release](#selecting-a-distrorelease) (e.g. `trixie`, `resolute`) |
+| `--proposed` | Use [build dependencies from `proposed`](#proposed-dependencies) pocket |
+| `--sign` | [GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`](#signing) with `debsign` |
+| `--clean` | Run [`debian/rules clean` before building](#cleaning) |
+| `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
+| `--apt-mirror <url>` | [Mirror URL](#mirror-selection) |
+| `--source-dir <dir>` | Directory containing the `debian/` package directory |
+| `--output-dir <dir>` | Directory to put the resulting build artifacts |
+
+[`debmagic shell`](#inspecting-a-failed-build) — attach an interactive shell to a build environment
 
 ## Picking a driver
 
@@ -32,9 +45,24 @@ Check what's installed and use the first that applies, in this order:
 | `docker` | `docker info` | Full container isolation |
 | `bare` | none (no daemon) | None — build-deps install with `sudo apt-get` directly on the host; only use in a disposable/CI environment |
 
-There's no auto-detection; pick one and pass it explicitly every time.
+There's no auto-detection; pick one and pass it explicitly every time (or configure it in a [`debmagic.toml`](config.md) file).
 
-## Speeding up builds with a mirror
+## Inspecting a failed build
+
+By default a failed build tears down the container, so nothing is left to inspect.
+If a build might fail and you need to inspect it afterwards, pass `--persistent` up front, then once the run finishes:
+
+```shell
+# if you're in the package still
+debmagic shell
+# from the outside:
+debmagic shell --source-dir /path/to/parent/of/debian/dir
+```
+
+This attaches an interactive shell inside the still-running (or restartable) build environment, at the package's build directory.
+
+
+## Mirror selection
 
 Fresh containers install their base tooling plus every `Build-Depends`, so slow mirrors directly translate into slow builds.
 Pass `--apt-mirror` to use a faster mirror for build-dependency resolution after the base tooling is bootstrapped from the image's configured archives:
@@ -43,18 +71,11 @@ Pass `--apt-mirror` to use a faster mirror for build-dependency resolution after
 debmagic build binary --driver lxd --apt-mirror http://<mirror-host>/ubuntu ...
 ```
 
-Notes:
+You can persistently set this flag in  `.config/debmagic/config.toml`.
 
-- Works for the `lxd`, `incus` and `docker` drivers.
-  It's a no-op for `bare`, which uses the host's own apt sources.
-- The image, mirror, proposed-pocket setting and host user IDs form the build-environment identity.
-  Changing any of them automatically replaces an incompatible persistent container.
-- Handles both the classic `sources.list` format and the deb822 `*.sources` format (Ubuntu 24.04+).
-- To avoid repeating the flag, set it once in `$XDG_CONFIG_HOME/debmagic/config.toml` (see below) instead — a mirror is a property of your machine, not of a package, so it belongs in the global config rather than in the repo's `debian/debmagic.toml`.
+## Source file staging
 
-## Selecting which source files are staged
-
-Before building, debmagic stages the source tree into the build environment.
+Before building, `debmagic` stages the source tree into the build environment.
 `--source-sync <mode>` controls which files are staged, so you always know what ends up in the build and in a generated source package:
 
 | Mode | Stages | Notes |
@@ -66,9 +87,13 @@ Before building, debmagic stages the source tree into the build environment.
 If the source directory is not a git worktree, `tracked` and `committed` fall back to `worktree` with a warning.
 Git submodules are skipped with a note, since their contents aren't tracked by the parent repository.
 
-To persist a mode, set `source_sync_mode = "committed"` in `debian/debmagic.toml`.
+To persist a mode, set `source_sync_mode = "committed"` in [`debmagic.toml`](config.md).
 
-## Iterating on a build (faster repeat runs)
+## Repeating a build
+
+You can iterate on the same build for faster compile times.
+
+### Persistent container
 
 Every `debmagic build binary` invocation creates a new container by default and tears it down afterwards.
 For repeated attempts against the same package and distro, add `--persistent` to retain and reuse the running environment while restaging the source tree for each build:
@@ -78,24 +103,21 @@ debmagic build binary --driver lxd --persistent \
   --source-dir . --output-dir /tmp/out
 ```
 
+### Incremental builds
+
 Use `--incremental` to retain the environment and synchronize only source changes while preserving generated files and unchanged source inodes.
-Incremental mode is binary-only, implies `--persistent`, and cannot be combined with `--clean yes`.
+This flag implies `--persistent`, and cannot be combined with `--clean yes`.
 
-## Inspecting a failed build
-
-By default a failed build tears down the container, so nothing is left to inspect.
-If a build might fail and you need to inspect it afterwards, pass `--persistent` up front, then once the run finishes:
-
-```shell
-debmagic shell --source-dir /path/to/parent/of/debian/dir
-```
-
-This attaches an interactive shell inside the still-running (or restartable) build environment, at the package's build directory.
 
 ## Selecting a distro/release
 
 Only needed when `debian/changelog`'s top entry doesn't unambiguously determine the target: pass `--distro <codename>` (e.g. `--distro noble`, `--distro trixie`).
 If the changelog has a single unambiguous entry, omit it.
+
+## Proposed dependencies
+
+If needed, build dependencies can be used from `<release>-proposed`.
+Pass `--proposed` to enable the proposed pocket in the build environment.
 
 ## Building debug symbol packages
 
@@ -103,12 +125,12 @@ By default `debmagic build binary` passes `DEB_BUILD_OPTIONS=noautodbgsym` to `d
 Pass `--debug-symbols` to build it for one invocation:
 
 ```shell
-debmagic build binary --driver lxd --debug-symbols --source-dir . --output-dir /tmp/out
+debmagic build binary --debug-symbols --output-dir /tmp/out
 ```
 
-Or set `build_debug_symbols = true` in `debian/debmagic.toml`/`$XDG_CONFIG_HOME/debmagic/config.toml` to always build it.
+Or set `build_debug_symbols = true` in the [`debmagic.toml`](config.md).
 
-## Signing and cleaning
+## Signing
 
 `--sign` (plus optionally `--sign-key you@example.com`) GPG-signs the resulting `.changes`/`.dsc`/`.buildinfo` with `debsign` after building.
 This is mainly useful for [source builds destined for Launchpad](source.md#uploading-to-launchpad), but works for binary builds too.
@@ -123,40 +145,19 @@ Where `debsign` runs is selected by `--sign-with` (config: `sign_with`):
   Container signing requires an explicit `--sign-key`, since debsign's maintainer-based key lookup only works on the host.
 
 Signing prerequisites (agent running, secret key available) are validated before the build starts, so a broken gpg setup fails fast instead of after the build.
+
+Defaults can be set in [`debmagic.toml`](config.md).
+
+## Cleaning
+
 `--clean` runs `debian/rules clean` before building, like plain `dpkg-buildpackage` does unless passed `-nc`; `--no-clean` skips it even if the config file defaults to cleaning.
 Non-incremental builds already stage a clean source tree, while incremental builds preserve outputs intentionally.
 Enable cleaning only for packages whose `clean` target performs required setup or code generation.
 
-Both default to the `sign_package`/`sign_with`/`sign_key`/`clean` settings in the config file (see below) if not passed on the CLI.
-
 ## Persisting options in a config file
 
-Instead of repeating CLI flags on every invocation, drop a config file.
-There are two locations, with different scopes:
+Instead of repeating CLI flags on every invocation, drop a [config file](config.md).
 
-- `$XDG_CONFIG_HOME/debmagic/config.toml` — your machine-wide defaults (mirror, signing key, persistent driver, ...).
-- `<source-dir>/debian/debmagic.toml` — per-package defaults, committed next to `debian/rules` (e.g. `build_debug_symbols`, `sign_package`).
+## Internals
 
-```toml
-build_debug_symbols = true
-sign_package = true
-sign_with = "same"
-sign_key = "you@example.com"
-clean = false
-
-[driver]
-persistent = true
-apt_mirror = "http://<mirror-host>/ubuntu"
-
-[driver.lxd]
-# project = "my-project"
-```
-
-Config precedence (highest wins): `--config <file>` on the CLI > `<source-dir>/debian/debmagic.toml` > `$XDG_CONFIG_HOME/debmagic/config.toml`.
-CLI flags like `--apt-mirror`/`--persistent`/`--sign`/`--no-sign`/`--clean`/`--no-clean` always override the matching config file value for that one invocation.
-
-## What NOT to expect yet
-
-- `debmagic test` and `debmagic check` are not implemented yet — don't rely on them for lintian/test output.
-  Rely on `debmagic build binary`'s own `dpkg-buildpackage` run (which already runs `dh_auto_test` unless the package's `debian/rules` disables it).
 - Container/device names are derived and sanitized internally (alphanumeric + hyphen, ≤63 chars for LXD/Incus) — don't try to predict or construct them yourself; use `debmagic shell` instead of `lxc`/`docker` commands directly.

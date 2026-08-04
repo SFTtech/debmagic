@@ -1,52 +1,20 @@
-use std::{
-    env,
-    path::{self, PathBuf},
-};
+use std::env;
 
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
 use crate::{
-    build::{
-        build_package, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
-        driver_docker::DriverDockerConfigOverrides, get_shell_in_build,
-    },
+    build::{build_package, get_shell_in_build},
+    build_intent::{BuildIntentInput, load_config, resolve_build_intent},
     cli::{Cli, Commands},
-    config::Config,
-    package::PackageDescription,
+    package::{load_package_identity, resolve_package_target},
 };
 
 pub mod build;
+pub mod build_intent;
 pub mod cli;
 pub mod config;
 pub mod package;
-
-/// Precedence of config files is:
-///
-/// 1. explicit config file passed on the command line
-/// 2. `<source_dir>/debian/debmagic.toml`
-/// 3. `<XDG_CONFIG_HOME>/debmagic/config.toml`
-///
-fn get_config(cli: &Cli, source_dir: &Option<PathBuf>) -> anyhow::Result<Config> {
-    let mut config_file_paths = vec![];
-    let xdg_config_file = dirs::config_dir().map(|p| p.join("debmagic").join("config.toml"));
-    if let Some(xdg_config_file) = xdg_config_file
-        && xdg_config_file.is_file()
-    {
-        config_file_paths.push(xdg_config_file);
-    }
-
-    if let Some(source_dir) = &source_dir {
-        config_file_paths.push(source_dir.join("debian").join("debmagic.toml"));
-    }
-
-    if let Some(config_file_override) = &cli.config {
-        config_file_paths.push(config_file_override.clone());
-    }
-
-    let config = Config::new(&config_file_paths)?;
-    Ok(config)
-}
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
@@ -54,52 +22,28 @@ fn main() -> anyhow::Result<()> {
     let current_dir = env::current_dir()?;
     match &cli.command {
         Commands::Build(args) => {
-            let source_dir = args.common.source_dir.as_deref().unwrap_or(&current_dir);
-            let mut config = get_config(&cli, &Some(source_dir.to_path_buf()))?;
+            let intent = resolve_build_intent(BuildIntentInput {
+                fallback_dir: current_dir,
+                source_dir: args.common.source_dir.clone(),
+                output_dir: args.output_dir.clone(),
+                config_file: cli.config.clone(),
+                driver: args.driver,
+                persist_driver: args.persist_driver,
+                incremental: args.incremental,
+                docker_base_image: args.docker.base_image.clone(),
+            })?;
 
-            // TODO: figure out a better way to override config from CLI args - maybe more generic, if that is even possible since
-            // we want a nice cli which somewhat matches the config structure
-            // but some config options only make sense in some cli subcommands -> these flags don't make sense in all commands
-            // and should only be used in some
-            if let Some(persist_driver) = args.persist_driver {
-                config.driver.persistent = persist_driver;
-            }
-
-            if let Some(incremental) = args.incremental {
-                config.incremental = incremental;
-            }
-            if config.incremental {
-                // TODO: investigate if this is actually needed
-                config.driver.persistent = true;
-            }
-            let driver_overrides = DriverOverrides {
-                docker: DriverDockerConfigOverrides {
-                    base_image: args.docker.base_image.clone(),
-                },
-                bare: DriverBareConfigOverrides {},
-            };
-
-            let package = PackageDescription::from_dir(
-                &path::absolute(source_dir).context("resolving source dir failed")?,
-            )?;
-            let output_dir = args.output_dir.as_deref().unwrap_or(&current_dir);
-            build_package(
-                &config,
-                &package,
-                args.driver,
-                &driver_overrides,
-                &path::absolute(output_dir).context("resolving output dir failed")?,
-                args.distro.as_deref(),
-            )
-            .context("Building the package failed")?;
+            let target = resolve_package_target(&intent.source_dir, args.distro.as_deref())
+                .context("failed to resolve package target")?;
+            build_package(&intent, &target).context("Building the package failed")?;
         }
         Commands::Shell(args) => {
             let source_dir = args.common.source_dir.as_deref().unwrap_or(&current_dir);
-            let config = get_config(&cli, &Some(source_dir.to_path_buf()))?;
-            let package = PackageDescription::from_dir(
-                &path::absolute(source_dir).context("resolving source dir failed")?,
-            )?;
-            get_shell_in_build(&config, &package)?;
+            let source_dir =
+                std::path::absolute(source_dir).context("resolving source dir failed")?;
+            let config = load_config(Some(&source_dir), cli.config.as_deref())?;
+            let identity = load_package_identity(&source_dir)?;
+            get_shell_in_build(&config, &identity)?;
         }
         Commands::Test(_args) => {
             println!("Test subcommand! - not implemented");

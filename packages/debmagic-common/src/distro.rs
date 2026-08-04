@@ -54,7 +54,7 @@ static DISTRO_INFO_MAP: LazyLock<HashMap<&'static str, DistroVersion>> = LazyLoc
             "sid",
             DistroVersion {
                 distro: Distro::Debian,
-                codename: "sid".to_string(),
+                codename: "unstable".to_string(),
                 version: "".to_string(),
             },
         ),
@@ -91,7 +91,23 @@ static DISTRO_INFO_MAP: LazyLock<HashMap<&'static str, DistroVersion>> = LazyLoc
             },
         ),
         (
+            "stable",
+            DistroVersion {
+                distro: Distro::Debian,
+                codename: "trixie".to_string(),
+                version: "13".to_string(),
+            },
+        ),
+        (
             "bookworm",
+            DistroVersion {
+                distro: Distro::Debian,
+                codename: "bookworm".to_string(),
+                version: "12".to_string(),
+            },
+        ),
+        (
+            "oldstable",
             DistroVersion {
                 distro: Distro::Debian,
                 codename: "bookworm".to_string(),
@@ -125,6 +141,14 @@ static DISTRO_INFO_MAP: LazyLock<HashMap<&'static str, DistroVersion>> = LazyLoc
         // ubuntu
         (
             "resolute",
+            DistroVersion {
+                distro: Distro::Ubuntu,
+                codename: "resolute".to_string(),
+                version: "26.04".to_string(),
+            },
+        ),
+        (
+            "devel",
             DistroVersion {
                 distro: Distro::Ubuntu,
                 codename: "resolute".to_string(),
@@ -190,6 +214,14 @@ static DISTRO_INFO_MAP: LazyLock<HashMap<&'static str, DistroVersion>> = LazyLoc
     ])
 });
 
-pub fn get_distro_version(codename: &str) -> Option<DistroVersion> {
-    DISTRO_INFO_MAP.get(codename).cloned()
+/// Look up a distribution by codename or suite alias.
+///
+/// Suite aliases are map keys that resolve to a concrete release [`DistroVersion`]:
+/// - Debian: `stable` → current stable release, `oldstable` → current oldstable,
+///   `sid` → `unstable`
+/// - Ubuntu: `devel` → current development release
+///
+/// Alias targets are maintained manually when Debian/Ubuntu roll.
+pub fn get_distro_version(name: &str) -> Option<DistroVersion> {
+    DISTRO_INFO_MAP.get(name).cloned()
 }

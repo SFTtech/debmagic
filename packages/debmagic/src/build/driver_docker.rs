@@ -31,11 +31,6 @@ impl DriverDockerConfig {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct DriverDockerConfigOverrides {
-    pub base_image: Option<String>,
-}
-
 // Constants
 const BUILD_DIR_IN_CONTAINER: &str = "/debmagic";
 const DOCKER_USER: &str = "user";
@@ -71,11 +66,10 @@ pub struct DriverDocker {
 fn build_build_image(
     config: &BuildConfig,
     driver_config: &DriverConfig,
-    overrides: &DriverDockerConfigOverrides,
+    docker_base_image: Option<&str>,
 ) -> anyhow::Result<String> {
-    let base_image = overrides
-        .base_image
-        .clone()
+    let base_image = docker_base_image
+        .map(str::to_string)
         .unwrap_or_else(|| driver_config.docker.base_image_for_distro(&config.distro));
 
     let debian_control_file_path = config.build_source_dir().join("debian").join("control");
@@ -128,7 +122,7 @@ fn build_build_image(
         return Err(anyhow!("Error creating docker image"));
     }
 
-    Ok(docker_image_name)
+    Ok(docker_image_name.to_string())
 }
 
 fn does_container_exist(container_name: &str) -> anyhow::Result<bool> {
@@ -159,7 +153,7 @@ impl DriverDocker {
     pub fn create(
         config: &BuildConfig,
         driver_config: &DriverConfig,
-        overrides: &DriverDockerConfigOverrides,
+        docker_base_image: Option<&str>,
     ) -> anyhow::Result<Self> {
         let container_name = format!("debmagic-{}", config.docker_identifier());
         let container_exists = does_container_exist(&container_name)?;
@@ -185,7 +179,7 @@ impl DriverDocker {
                 }
             }
 
-            let docker_image_name = build_build_image(config, driver_config, overrides)?;
+            let docker_image_name = build_build_image(config, driver_config, docker_base_image)?;
             let mut run_cmd = Command::new("docker");
             run_cmd.args([
                 "run",
@@ -212,7 +206,7 @@ impl DriverDocker {
         Ok(Self {
             config: config.clone(),
             driver_config: driver_config.clone(),
-            container_name,
+            container_name: container_name.to_string(),
         })
     }
 

@@ -9,7 +9,7 @@ use std::{
     thread,
 };
 
-use crate::build::config::DriverOverrides;
+use crate::build_intent::BuildIntent;
 use crate::{
     build::{
         common::{BuildConfig, BuildDriver, BuildDriverType, BuildMetadata},
@@ -18,10 +18,9 @@ use crate::{
         driver_docker::DriverDocker,
     },
     config::Config,
-    package::PackageDescription,
+    package::{PackageIdentity, PackageTarget},
 };
 use anyhow::{Context, anyhow};
-use debmagic_common::distro::DistroVersion;
 use glob::glob;
 
 pub mod common;
@@ -37,19 +36,15 @@ struct Build {
 fn get_build_driver(
     config: &BuildConfig,
     driver_config: &DriverConfig,
-    driver_overrides: &DriverOverrides,
+    docker_base_image: Option<&str>,
 ) -> anyhow::Result<Box<dyn BuildDriver>> {
     match config.driver {
         BuildDriverType::Docker => Ok(Box::new(DriverDocker::create(
             config,
             driver_config,
-            &driver_overrides.docker,
+            docker_base_image,
         )?)),
-        BuildDriverType::Bare => Ok(Box::new(DriverBare::create(
-            config,
-            driver_config,
-            &driver_overrides.bare,
-        ))),
+        BuildDriverType::Bare => Ok(Box::new(DriverBare::create(config, driver_config))),
         // BuildDriverType::Lxd => ...
     }
 }
@@ -78,9 +73,9 @@ impl Build {
     pub fn create(
         config: &BuildConfig,
         driver_config: &DriverConfig,
-        driver_overrides: &DriverOverrides,
+        docker_base_image: Option<&str>,
     ) -> anyhow::Result<Self> {
-        let driver = get_build_driver(config, driver_config, driver_overrides)
+        let driver = get_build_driver(config, driver_config, docker_base_image)
             .context(format!("failed to create {:?} build driver", config.driver))?;
         Ok(Self {
             config: config.clone(),
@@ -267,81 +262,28 @@ fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> anyhow::Result<
 }
 
 fn get_build_root_and_identifier(
-    config: &Config,
-    package: &PackageDescription,
+    temp_build_dir: &Path,
+    identity: &PackageIdentity,
 ) -> (String, PathBuf) {
-    let package_identifier = format!("{}-{}", package.name, package.version);
-    let build_root = config.temp_build_dir.join(&package_identifier);
+    let package_identifier = format!("{}-{}", identity.name, identity.version);
+    let build_root = temp_build_dir.join(&package_identifier);
     (package_identifier, build_root)
 }
 
-/// Determine which distro version to use for the build.
-///
-/// If only one distro version is specified in the changelog, it's used automatically.
-/// If multiple distro versions are specified, an explicit --distro is required.
-/// If --distro is provided, it's validated against the changelog versions.
-fn resolve_distro_version(
-    changelog_distros: &[String],
-    explicit_distro: Option<&str>,
-) -> anyhow::Result<DistroVersion> {
-    let resolved_codename = match (changelog_distros.len(), explicit_distro) {
-        (0, _) => Err(anyhow!("changelog contains no distributions")),
-        (1, None) => Ok(changelog_distros[0].clone()),
-        (1, Some(explicit)) => {
-            if explicit == changelog_distros[0] {
-                Ok(explicit.to_string())
-            } else {
-                Err(anyhow!(
-                    "explicit distro version '{}' conflicts with distribution specified in changelog '{}'",
-                    explicit,
-                    changelog_distros[0]
-                ))
-            }
-        }
-        (_, None) => Err(anyhow!(
-            "changelog contains multiple distributions ({}), please specify which one to build for with --distro",
-            changelog_distros.join(", ")
-        )),
-        (_, Some(explicit)) => {
-            if changelog_distros.contains(&explicit.to_string()) {
-                Ok(explicit.to_string())
-            } else {
-                Err(anyhow!(
-                    "explicit distro version '{}' not found in changelog distributions: {}",
-                    explicit,
-                    changelog_distros.join(", ")
-                ))
-            }
-        }
-    }?;
-    let resolved = debmagic_common::distro::get_distro_version(&resolved_codename)
-        .ok_or_else(|| anyhow!("unknown distro codename '{}'", resolved_codename))?;
-    Ok(resolved)
-}
-
-fn prepare_build_env(
-    config: &Config,
-    driver_overrides: &DriverOverrides,
-    package: &PackageDescription,
-    driver_type: BuildDriverType,
-    output_dir: &Path,
-    explicit_distro_version: Option<&str>,
-) -> anyhow::Result<Build> {
-    let (package_identifier, build_root) = get_build_root_and_identifier(config, package);
+fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<Build> {
+    let (package_identifier, build_root) =
+        get_build_root_and_identifier(&intent.temp_build_dir, &target.identity);
     if build_root.exists() {
         fs::remove_dir_all(&build_root)?;
     }
 
-    let distro_version = resolve_distro_version(&package.distro_versions, explicit_distro_version)
-        .context("failed to determine distro version")?;
-
     let build_config = BuildConfig {
-        driver: driver_type,
+        driver: intent.driver,
         package_identifier,
-        source_dir: package.source_dir.clone(),
-        output_dir: output_dir.to_path_buf(),
+        source_dir: target.identity.source_dir.clone(),
+        output_dir: intent.output_dir.clone(),
         build_root_dir: build_root,
-        distro: distro_version.clone(),
+        distro: target.distro.clone(),
         sign_package: false,
     };
 
@@ -352,12 +294,17 @@ fn prepare_build_env(
     copy_dir_all(&build_config.source_dir, build_config.build_source_dir())
         .context("failed to copy source tree to build directory")?;
 
-    let build = Build::create(&build_config, &config.driver, driver_overrides)?;
+    let build = Build::create(
+        &build_config,
+        &intent.driver_config,
+        intent.docker_base_image.as_deref(),
+    )?;
     Ok(build)
 }
 
-pub fn get_shell_in_build(config: &Config, package: &PackageDescription) -> anyhow::Result<()> {
-    let (_package_identifier, build_root) = get_build_root_and_identifier(config, package);
+pub fn get_shell_in_build(config: &Config, identity: &PackageIdentity) -> anyhow::Result<()> {
+    let (_package_identifier, build_root) =
+        get_build_root_and_identifier(&config.temp_build_dir, identity);
     let build = Build::from_build_root(&build_root, &config.driver)?;
     let result = build
         .driver
@@ -369,23 +316,8 @@ pub fn get_shell_in_build(config: &Config, package: &PackageDescription) -> anyh
     Ok(())
 }
 
-pub fn build_package(
-    config: &Config,
-    package: &PackageDescription,
-    driver_type: BuildDriverType,
-    driver_overrides: &DriverOverrides,
-    output_dir: &Path,
-    explicit_distro_version: Option<&str>,
-) -> anyhow::Result<()> {
-    let build = prepare_build_env(
-        config,
-        driver_overrides,
-        package,
-        driver_type,
-        output_dir,
-        explicit_distro_version,
-    )
-    .context("failed to prepare build environment")?;
+pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<()> {
+    let build = prepare_build_env(intent, target).context("failed to prepare build environment")?;
     build
         .write_metadata()
         .context("failed to write build metadata")?;
@@ -452,93 +384,4 @@ pub fn build_package(
 
     build.driver.cleanup();
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use debmagic_common::distro::Distro;
-
-    use super::*;
-
-    #[test]
-    fn test_resolve_distro_version_single_distro_no_explicit() {
-        let distros = vec!["forky".to_string()];
-        let result = resolve_distro_version(&distros, None);
-        assert!(result.is_ok());
-        let distro_version = result.unwrap();
-        assert_eq!(distro_version.codename, "forky");
-        assert_eq!(distro_version.distro, Distro::Debian);
-    }
-
-    #[test]
-    fn test_resolve_distro_version_single_distro_matching_explicit() {
-        let distros = vec!["forky".to_string()];
-        let result = resolve_distro_version(&distros, Some("forky"));
-        assert!(result.is_ok());
-        let distro_version = result.unwrap();
-        assert_eq!(distro_version.codename, "forky");
-        assert_eq!(distro_version.distro, Distro::Debian);
-    }
-
-    #[test]
-    fn test_resolve_distro_version_single_distro_conflicting_explicit() {
-        let distros = vec!["forky".to_string()];
-        let result = resolve_distro_version(&distros, Some("duke"));
-        assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("conflicts with distribution specified in changelog")
-        );
-    }
-
-    #[test]
-    fn test_resolve_distro_version_multiple_distros_no_explicit() {
-        let distros = vec!["forky".to_string(), "duke".to_string()];
-        let result = resolve_distro_version(&distros, None);
-        assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("multiple distributions")
-        );
-    }
-
-    #[test]
-    fn test_resolve_distro_version_multiple_distros_explicit_valid() {
-        let distros = vec!["forky".to_string(), "duke".to_string()];
-        let result = resolve_distro_version(&distros, Some("duke"));
-        assert!(result.is_ok());
-        let distro_version = result.unwrap();
-        assert_eq!(distro_version.codename, "duke");
-        assert_eq!(distro_version.distro, Distro::Debian);
-    }
-
-    #[test]
-    fn test_resolve_distro_version_multiple_distros_explicit_invalid() {
-        let distros = vec!["forky".to_string(), "duke".to_string()];
-        let result = resolve_distro_version(&distros, Some("trixie"));
-        assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("not found in changelog distributions")
-        );
-    }
-
-    #[test]
-    fn test_resolve_distro_version_empty_distros() {
-        let distros: Vec<String> = vec![];
-        let result = resolve_distro_version(&distros, None);
-        assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("changelog contains no distributions")
-        );
-    }
 }

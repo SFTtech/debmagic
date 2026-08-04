@@ -16,21 +16,21 @@ debmagic build source --source-dir /path/to/parent/of/debian/dir --output-dir /p
 - Same `--source-dir`/`--output-dir`/`--distro` semantics as [`debmagic build`](build.md).
 - `--driver` defaults to `bare`: building a source package needs neither package build-dependencies nor a compiler, but the host must provide `dpkg-buildpackage` from `dpkg-dev`.
   Pass `--driver lxd`/`--driver incus`/`--driver docker` when the host does not provide a usable Debian build environment.
-  Container drivers install their base tooling, but package build-dependencies are installed only with `--clean yes`.
+  Container drivers install their base tooling, but package build-dependencies are installed only with `--clean`.
   Binary builds (`debmagic build binary`) still require `--driver` to be passed explicitly.
 
 (uploading-to-launchpad)=
 ## Uploading to Launchpad
 
 ```shell
-debmagic build source --sign yes --sign-key you@example.com \
+debmagic build source --sign --sign-key you@example.com \
   --source-dir . --output-dir /tmp/out
 dput ppa:your-lp-username/your-ppa /tmp/out/*_source.changes
 ```
 
-- `--sign yes` GPG-signs the `.dsc`/`.buildinfo`/`.changes` with `debsign` (from `devscripts`) after building.
-  This always runs on the host — never inside a driver's container — since it needs your own gpg keyring.
-- `--sign-key` picks which key/uid to sign with (`debsign`'s `-k`); omit it to let `debsign` fall back to its own maintainer-address lookup.
+- `--sign` GPG-signs the `.dsc`/`.buildinfo`/`.changes` with `debsign` (from `devscripts`) after building.
+  By default it runs on the host; with `--sign-with same` (or `auto` when `debsign` isn't installed on the host) it runs in a minimal same-distro container with your gpg-agent socket forwarded in — see [Signing and cleaning](build.md#signing-and-cleaning).
+- `--sign-key` picks which key/uid to sign with (`debsign`'s `-k`); omit it to let `debsign` fall back to its own maintainer-address lookup (host signing only).
 - Both can be set as defaults in `debian/debmagic.toml`/`$XDG_CONFIG_HOME/debmagic/config.toml` instead of passing them every time:
 
   ```toml

@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use crate::build::common::SourceSyncMode;
 use crate::build::config::DriverConfig;
+use crate::build::signing::SignWith;
 use anyhow::{Context, anyhow};
 use config::{Config as ConfigBuilder, File};
 use serde::Deserialize;
@@ -18,8 +19,12 @@ pub struct Config {
     pub build_debug_symbols: bool,
     /// Sign the resulting `.changes`/`.dsc` with `debsign` after building.
     pub sign_package: bool,
+    /// Where `debsign` runs: on the host or inside a minimal same-distro
+    /// container with the host's gpg-agent socket forwarded in.
+    pub sign_with: SignWith,
     /// GPG key ID/email to sign with (debsign's `-k` option). `None` lets
-    /// debsign fall back to its own maintainer-based key lookup.
+    /// debsign fall back to its own maintainer-based key lookup, but
+    /// container signing requires an explicit key.
     pub sign_key: Option<String>,
     /// Run `debian/rules clean` before building (like `dpkg-buildpackage`
     /// does unless passed `-nc`). Disabled by default because non-incremental
@@ -37,6 +42,7 @@ impl Default for Config {
             source_sync_mode: SourceSyncMode::default(),
             build_debug_symbols: false,
             sign_package: false,
+            sign_with: SignWith::default(),
             sign_key: None,
             clean: false,
         }

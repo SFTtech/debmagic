@@ -110,22 +110,37 @@ Or set `build_debug_symbols = true` in `debian/debmagic.toml`/`$XDG_CONFIG_HOME/
 
 ## Signing and cleaning
 
-`--sign yes` (plus optionally `--sign-key you@example.com`) GPG-signs the resulting `.changes`/`.dsc`/`.buildinfo` with `debsign` after building — always on the host, using your own gpg keyring, regardless of `--driver`.
+`--sign` (plus optionally `--sign-key you@example.com`) GPG-signs the resulting `.changes`/`.dsc`/`.buildinfo` with `debsign` after building.
 This is mainly useful for [source builds destined for Launchpad](source.md#uploading-to-launchpad), but works for binary builds too.
+If your config file defaults to signing, pass `--no-sign` to skip it for one invocation.
 
-`--clean yes` runs `debian/rules clean` before building, like plain `dpkg-buildpackage` does unless passed `-nc`.
+Where `debsign` runs is selected by `--sign-with` (config: `sign_with`):
+
+- `auto` (default): sign on the host if `debsign` is installed there, otherwise in a container (requires a container driver).
+- `host`: always sign on the host, using your own gpg keyring — requires `devscripts` installed locally.
+- `same`: sign inside a minimal same-distro container, forwarding the host's gpg-agent socket (`gpgconf --list-dirs agent-extra-socket`) into it.
+  Only signing *operations* cross the socket; private key material never enters the container, and only the public key is imported into its throwaway keyring.
+  Container signing requires an explicit `--sign-key`, since debsign's maintainer-based key lookup only works on the host.
+
+Signing prerequisites (agent running, secret key available) are validated before the build starts, so a broken gpg setup fails fast instead of after the build.
+`--clean` runs `debian/rules clean` before building, like plain `dpkg-buildpackage` does unless passed `-nc`; `--no-clean` skips it even if the config file defaults to cleaning.
 Non-incremental builds already stage a clean source tree, while incremental builds preserve outputs intentionally.
 Enable cleaning only for packages whose `clean` target performs required setup or code generation.
 
-Both default to the `sign_package`/`sign_key`/`clean` settings in the config file (see below) if not passed on the CLI.
+Both default to the `sign_package`/`sign_with`/`sign_key`/`clean` settings in the config file (see below) if not passed on the CLI.
 
-## Persisting options in `debian/debmagic.toml`
+## Persisting options in a config file
 
-Instead of repeating CLI flags on every invocation, drop a config file next to `debian/rules`:
+Instead of repeating CLI flags on every invocation, drop a config file.
+There are two locations, with different scopes:
+
+- `$XDG_CONFIG_HOME/debmagic/config.toml` — your machine-wide defaults (mirror, signing key, persistent driver, ...).
+- `<source-dir>/debian/debmagic.toml` — per-package defaults, committed next to `debian/rules` (e.g. `build_debug_symbols`, `sign_package`).
 
 ```toml
 build_debug_symbols = true
 sign_package = true
+sign_with = "same"
 sign_key = "you@example.com"
 clean = false
 
@@ -138,7 +153,7 @@ apt_mirror = "http://<mirror-host>/ubuntu"
 ```
 
 Config precedence (highest wins): `--config <file>` on the CLI > `<source-dir>/debian/debmagic.toml` > `$XDG_CONFIG_HOME/debmagic/config.toml`.
-CLI flags like `--apt-mirror`/`--persistent`/`--sign`/`--clean` always override the matching config file value for that one invocation.
+CLI flags like `--apt-mirror`/`--persistent`/`--sign`/`--no-sign`/`--clean`/`--no-clean` always override the matching config file value for that one invocation.
 
 ## What NOT to expect yet
 

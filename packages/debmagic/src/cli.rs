@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::build::common::{BuildDriverType, SourceSyncMode};
-use clap::{Args, Parser, Subcommand, builder::BoolishValueParser};
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -109,14 +109,27 @@ pub struct CommonBuildArgs {
 
     #[arg(
         long,
-        value_parser = BoolishValueParser::new(),
-        help = "Sign the resulting .changes/.dsc with debsign after building (yes/no). Defaults to the 'sign_package' setting in the config file (false if unset). Always runs on the host, using your own gpg keyring, regardless of --driver."
+        action = clap::ArgAction::SetTrue,
+        help = "Sign the resulting .changes/.dsc with debsign after building. Defaults to the 'sign_package' setting in the config file (false if unset)."
     )]
     pub sign: Option<bool>,
 
     #[arg(
+        long,
+        action = clap::ArgAction::SetFalse,
+        help = "Do not sign the resulting .changes/.dsc, overriding a 'sign_package = true' default in the config file."
+    )]
+    pub no_sign: Option<bool>,
+
+    #[arg(
+        long = "sign-with",
+        help = "Where debsign runs: 'host' signs on the host (requires devscripts there), 'same' signs inside a minimal same-distro container with the host gpg-agent socket forwarded in (requires --sign-key), 'auto' (default) uses the host if debsign is available there, else a container. Defaults to the 'sign_with' setting in the config file."
+    )]
+    pub sign_with: Option<crate::build::signing::SignWith>,
+
+    #[arg(
         long = "sign-key",
-        help = "GPG key ID/email to sign with, passed to debsign's -k option. Defaults to the 'sign_key' setting in the config file, or debsign's own maintainer-based key lookup if unset."
+        help = "GPG key ID/email to sign with, passed to debsign's -k option. Defaults to the 'sign_key' setting in the config file, or debsign's own maintainer-based key lookup if unset. Required when signing in a container."
     )]
     pub sign_key: Option<String>,
 

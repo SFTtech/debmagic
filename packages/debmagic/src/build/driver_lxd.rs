@@ -4,6 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
+use anyhow::Context as _;
 use debmagic_common::distro::Distro;
 use serde::{Deserialize, Serialize};
 
@@ -111,6 +112,9 @@ pub struct DriverLxd {
     container_name: String,
     /// Resolved project name (None → omit `--project` flag).
     project: Option<String>,
+    /// Base image of the distro, used to spin up minimal one-shot containers
+    /// (e.g. for signing) that don't need the build environment's tooling.
+    base_image: String,
     reused_environment: bool,
 }
 
@@ -249,6 +253,7 @@ impl DriverLxd {
             config: config.clone(),
             container_name: container_name.clone(),
             project,
+            base_image: base_image.clone(),
             reused_environment: false,
         };
 
@@ -413,6 +418,7 @@ impl DriverLxd {
     pub fn from_build_metadata(
         variant: LxdVariant,
         config: &BuildConfig,
+        driver_config: &DriverConfig,
         build_metadata: &BuildMetadata,
     ) -> anyhow::Result<Self> {
         let project = build_metadata.driver_metadata.get("project").cloned();
@@ -422,6 +428,9 @@ impl DriverLxd {
             config: config.clone(),
             container_name: container_name_from_metadata(build_metadata)?,
             project,
+            base_image: driver_config
+                .lxd
+                .base_image_for_distro(variant, &config.distro),
             reused_environment: true,
         })
     }
@@ -577,5 +586,113 @@ impl BuildDriver for DriverLxd {
             LxdVariant::Lxd => BuildDriverType::Lxd,
             LxdVariant::Incus => BuildDriverType::Incus,
         }
+    }
+
+    fn sign_changes(
+        &self,
+        changes_file: &Path,
+        gpg: Option<&crate::build::signing::GpgForwarding>,
+    ) -> anyhow::Result<()> {
+        use crate::build::signing;
+
+        let gpg = gpg.context("container signing needs gpg forwarding info")?;
+        let output_dir = changes_file
+            .parent()
+            .context("changes file has no parent directory")?;
+        let staging_dir = self.config.build_temp_dir().join("sign");
+        signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
+        // No chown needed: raw.idmap maps container root to the host user.
+        let script = signing::sign_container_script(
+            signing::changes_filename(changes_file)?,
+            &gpg.sign_key,
+            None,
+        );
+
+        let sign_container = resource_name(
+            "debmagic-sign",
+            &self.config.package_name,
+            &self.config.build_identifier(),
+        );
+        let bin = self.variant.binary();
+        // The sign container is ephemeral; it disappears when stopped.
+        let mut init = self.lxd_cmd("init");
+        init.arg("--ephemeral");
+        init.args([&self.base_image, sign_container.as_str()]);
+        run_checked(&mut init, &format!("initialising {bin} sign container"))?;
+
+        let result = (|| -> anyhow::Result<()> {
+            let host_uid = unsafe { libc::geteuid() };
+            let host_gid = unsafe { libc::getegid() };
+            if host_uid != 0 {
+                let idmap = format!("uid {host_uid} 0\ngid {host_gid} 0");
+                run_checked(
+                    self.lxd_cmd("config")
+                        .arg("set")
+                        .arg(&sign_container)
+                        .arg("raw.idmap")
+                        .arg(&idmap),
+                    "setting raw.idmap on sign container",
+                )?;
+            }
+
+            run_checked(
+                self.lxd_cmd("config")
+                    .arg("device")
+                    .arg("add")
+                    .arg(&sign_container)
+                    .arg("debmagic-output")
+                    .arg("disk")
+                    .arg(format!("source={}", output_dir.display()))
+                    .arg(format!("path={}", signing::OUTPUT_DIR_IN_CONTAINER)),
+                "mounting output directory into sign container",
+            )?;
+            run_checked(
+                self.lxd_cmd("config")
+                    .arg("device")
+                    .arg("add")
+                    .arg(&sign_container)
+                    .arg("debmagic-sign-staging")
+                    .arg("disk")
+                    .arg(format!("source={}", staging_dir.display()))
+                    .arg(format!("path={}", signing::SIGN_STAGING_IN_CONTAINER))
+                    .arg("readonly=true"),
+                "mounting signing material into sign container",
+            )?;
+            // Forward the host gpg-agent's extra socket via a proxy device,
+            // like a manually configured unix proxy but scoped to signing.
+            run_checked(
+                self.lxd_cmd("config")
+                    .arg("device")
+                    .arg("add")
+                    .arg(&sign_container)
+                    .arg("debmagic-gpg-agent")
+                    .arg("proxy")
+                    .arg("bind=container")
+                    .arg(format!("connect=unix:{}", gpg.agent_extra_socket.display()))
+                    .arg(format!("listen=unix:{}", signing::GPG_SOCKET_IN_CONTAINER))
+                    .arg("uid=0")
+                    .arg("gid=0"),
+                "forwarding gpg-agent socket into sign container",
+            )?;
+
+            run_checked(
+                self.lxd_cmd("start").arg(&sign_container),
+                &format!("starting {bin} sign container"),
+            )?;
+
+            let mut exec = self.lxd_cmd("exec");
+            exec.arg(&sign_container);
+            exec.arg("--");
+            exec.args(["sh", "-ec", &script]);
+            run_checked(&mut exec, "signing in container")?;
+            Ok(())
+        })();
+
+        let mut stop = self.lxd_cmd("stop");
+        let stop_result = run_checked(
+            stop.arg(&sign_container),
+            &format!("stopping {bin} sign container"),
+        );
+        result.and(stop_result)
     }
 }

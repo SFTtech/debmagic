@@ -134,6 +134,8 @@ pub struct BuildConfig {
     pub output_dir: PathBuf,
     pub distro: DistroVersion,
     pub sign_package: bool,
+    #[serde(default)]
+    pub sign_with: crate::build::signing::SignWith,
     /// GPG key ID/email to sign with (debsign's `-k` option).
     pub sign_key: Option<String>,
     /// Build the automatic `-dbgsym` debug symbol package alongside the regular binaries.
@@ -211,6 +213,16 @@ pub trait BuildDriver {
     fn driver_type(&self) -> BuildDriverType;
 
     fn reset_build_root(&self) -> std::io::Result<()>;
+
+    /// Sign `changes_file` (a path on the host) with `debsign` — on the host
+    /// for the bare driver, or inside a minimal same-distro container with
+    /// the host's gpg-agent socket forwarded in. `gpg` carries the agent
+    /// socket and key for container signing; bare ignores it.
+    fn sign_changes(
+        &self,
+        changes_file: &Path,
+        gpg: Option<&crate::build::signing::GpgForwarding>,
+    ) -> anyhow::Result<()>;
 
     fn reused_environment(&self) -> bool {
         true

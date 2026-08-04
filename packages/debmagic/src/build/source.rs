@@ -456,6 +456,7 @@ mod tests {
             output_dir: test_root.join("output"),
             distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
             sign_package: false,
+            sign_with: crate::build::signing::SignWith::default(),
             sign_key: None,
             build_debug_symbols: false,
             clean: false,

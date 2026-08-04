@@ -98,6 +98,12 @@ fn main() -> anyhow::Result<()> {
             if let Some(sign) = build_args.sign {
                 config.sign_package = sign;
             }
+            if let Some(no_sign) = build_args.no_sign {
+                config.sign_package = !no_sign;
+            }
+            if let Some(sign_with) = build_args.sign_with {
+                config.sign_with = sign_with;
+            }
             if let Some(sign_key) = build_args.sign_key.clone() {
                 config.sign_key = Some(sign_key);
             }

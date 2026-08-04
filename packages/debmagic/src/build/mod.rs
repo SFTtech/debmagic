@@ -11,7 +11,7 @@ use crate::build::config::DriverOverrides;
 use crate::build::source::{source_manifest_path, stage_source_tree};
 use crate::{
     build::{
-        common::{BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, run_checked},
+        common::{BuildConfig, BuildDriver, BuildDriverType, BuildMetadata},
         config::DriverConfig,
         driver_bare::DriverBare,
         driver_docker::DriverDocker,
@@ -30,12 +30,73 @@ pub mod config;
 pub mod driver_bare;
 pub mod driver_docker;
 pub mod driver_lxd;
+pub mod signing;
 pub mod source;
 
 struct Build {
     config: BuildConfig,
     pub driver: Box<dyn BuildDriver>,
+    /// Prepared when signing happens inside a container: agent socket +
+    /// sign key, validated before the build starts.
+    gpg_forwarding: Option<signing::GpgForwarding>,
     attached: bool,
+}
+
+/// Where debsign will actually run for this build.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+enum SignLocation {
+    Host,
+    Container,
+}
+
+/// Resolve the effective sign location and validate everything signing will
+/// need *before* the build starts, so a broken gpg setup doesn't waste a
+/// whole build.
+fn prepare_signing(
+    build_config: &BuildConfig,
+) -> anyhow::Result<(SignLocation, Option<signing::GpgForwarding>)> {
+    let container_driver = build_config.driver != BuildDriverType::Bare;
+    let host_has_debsign = signing::check_host_debsign_available().is_ok();
+
+    let location = match build_config.sign_with {
+        signing::SignWith::Host => SignLocation::Host,
+        signing::SignWith::Same => {
+            if container_driver {
+                SignLocation::Container
+            } else {
+                // The bare driver's "build environment" is the host.
+                SignLocation::Host
+            }
+        }
+        signing::SignWith::Auto => {
+            if host_has_debsign || !container_driver {
+                SignLocation::Host
+            } else {
+                SignLocation::Container
+            }
+        }
+    };
+
+    match location {
+        SignLocation::Host => {
+            signing::check_host_debsign_available()?;
+            Ok((location, None))
+        }
+        SignLocation::Container => {
+            let sign_key = build_config.sign_key.clone().ok_or_else(|| {
+                anyhow!(
+                    "signing in a container requires sign_key to be set \
+                     (debsign's maintainer-based key lookup only works on the host)"
+                )
+            })?;
+            let forwarding = signing::GpgForwarding {
+                agent_extra_socket: signing::gpg_agent_extra_socket()?,
+                sign_key: sign_key.clone(),
+            };
+            signing::check_signing_key_available(&sign_key)?;
+            Ok((location, Some(forwarding)))
+        }
+    }
 }
 
 fn get_build_driver(
@@ -102,6 +163,7 @@ fn create_driver_from_metadata(
             Ok(Box::new(DriverLxd::from_build_metadata(
                 variant,
                 &metadata.config,
+                config,
                 metadata,
             )?))
         }
@@ -117,9 +179,16 @@ impl Build {
     ) -> anyhow::Result<Self> {
         let driver = get_build_driver(config, driver_config, driver_overrides)
             .context(format!("failed to create {:?} build driver", config.driver))?;
+        let gpg_forwarding = if config.sign_package {
+            let (_location, forwarding) = prepare_signing(config)?;
+            forwarding
+        } else {
+            None
+        };
         Ok(Self {
             config: config.clone(),
             driver,
+            gpg_forwarding,
             attached: false,
         })
     }
@@ -154,6 +223,7 @@ impl Build {
         let attached = send_socket_command(build_root, "attach").is_ok();
 
         Ok(Self {
+            gpg_forwarding: None,
             config: metadata.config.clone(),
             driver,
             attached,
@@ -256,6 +326,7 @@ fn prepare_build_env(
         build_root_dir: build_root.clone(),
         distro: distro_version.clone(),
         sign_package: config.sign_package,
+        sign_with: config.sign_with,
         sign_key: config.sign_key.clone(),
         build_debug_symbols: config.build_debug_symbols,
         clean: config.clean,
@@ -400,7 +471,9 @@ fn run_build(
             &build.config.output_dir,
         )?;
         if build.config.sign_package {
-            sign_changes_file(&changes_file, build.config.sign_key.as_deref())?;
+            build
+                .driver
+                .sign_changes(&changes_file, build.gpg_forwarding.as_ref())?;
         }
         Ok(())
     });
@@ -484,35 +557,6 @@ fn check_dpkg_buildpackage_available() -> anyhow::Result<()> {
         "dpkg-buildpackage",
         "It's part of dpkg-dev; install it, or pass --driver lxd/incus/docker to build inside a Debian-ish container instead.",
     )
-}
-
-/// GPG-sign every `.changes` (and its referenced `.dsc`/`.buildinfo`) in
-/// `output_dir` with `debsign`. Always runs on the host regardless of the
-/// build driver, since signing needs the user's own gpg keyring, which an
-/// ephemeral container doesn't have access to.
-fn sign_changes_file(changes_file: &Path, sign_key: Option<&str>) -> anyhow::Result<()> {
-    check_command_available(
-        "debsign",
-        "It's part of devscripts; install it and set up a gpg signing key to use --sign.",
-    )?;
-
-    let output_dir = changes_file.parent().ok_or_else(|| {
-        anyhow!(
-            "could not get output directory of {}",
-            changes_file.display()
-        )
-    })?;
-    let filename = changes_file
-        .file_name()
-        .ok_or_else(|| anyhow!("could not get filename of {}", changes_file.display()))?;
-
-    let mut cmd = Command::new("debsign");
-    if let Some(key) = sign_key {
-        cmd.arg(format!("-k{key}"));
-    }
-    cmd.arg(filename).current_dir(output_dir);
-    run_checked(&mut cmd, &format!("signing {}", changes_file.display()))?;
-    Ok(())
 }
 
 /// Build a `.dsc` + tarball + `.buildinfo` + `.changes` source package.

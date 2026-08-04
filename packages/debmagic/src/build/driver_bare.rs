@@ -106,4 +106,13 @@ impl BuildDriver for DriverBare {
         }
         Ok(())
     }
+
+    fn sign_changes(
+        &self,
+        changes_file: &Path,
+        _gpg: Option<&crate::build::signing::GpgForwarding>,
+    ) -> anyhow::Result<()> {
+        crate::build::signing::check_host_debsign_available()?;
+        crate::build::signing::sign_on_host(changes_file, self.config.sign_key.as_deref())
+    }
 }

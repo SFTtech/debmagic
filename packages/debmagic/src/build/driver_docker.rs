@@ -5,7 +5,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-use anyhow::anyhow;
+use anyhow::{Context, anyhow};
 use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
 
@@ -42,12 +42,8 @@ pub struct DriverDockerConfigOverrides {
 // Constants
 const ENVIRONMENT_LABEL: &str = "dev.debmagic.environment";
 
-fn bind_mount_arg(build_root: &Path) -> String {
-    format!(
-        "type=bind,src={},dst={}",
-        build_root.display(),
-        BUILD_DIR_IN_CONTAINER
-    )
+fn bind_mount_arg(src: &Path, dst: &str) -> String {
+    format!("type=bind,src={},dst={}", src.display(), dst)
 }
 const DOCKERFILE_TEMPLATE: &str = r#"
 FROM {base_image}
@@ -76,6 +72,9 @@ fn shell_quote(s: &str) -> String {
 pub struct DriverDocker {
     config: BuildConfig,
     container_name: String,
+    /// Base image of the distro, used to spin up minimal one-shot containers
+    /// (e.g. for signing) that don't need the build environment's tooling.
+    base_image: String,
     reused_environment: bool,
 }
 
@@ -267,6 +266,7 @@ impl DriverDocker {
         let mut driver = Self {
             config: config.clone(),
             container_name,
+            base_image: base_image.clone(),
             reused_environment: false,
         };
         let environment_matches = container_environment_fingerprint(&driver.container_name)?
@@ -309,7 +309,10 @@ impl DriverDocker {
                         &format!("{ENVIRONMENT_LABEL}={desired_fingerprint}"),
                         "--mount",
                     ])
-                    .arg(bind_mount_arg(&config.build_root_dir))
+                    .arg(bind_mount_arg(
+                        &config.build_root_dir,
+                        BUILD_DIR_IN_CONTAINER,
+                    ))
                     .arg(&docker_image_name),
                 "starting docker container",
             )?;
@@ -333,12 +336,13 @@ impl DriverDocker {
 
     pub fn from_build_metadata(
         config: &BuildConfig,
-        _driver_config: &DriverConfig,
+        driver_config: &DriverConfig,
         build_metadata: &BuildMetadata,
     ) -> anyhow::Result<Self> {
         Ok(Self {
             config: config.clone(),
             container_name: container_name_from_metadata(build_metadata)?,
+            base_image: driver_config.docker.base_image_for_distro(&config.distro),
             reused_environment: true,
         })
     }
@@ -444,5 +448,57 @@ impl BuildDriver for DriverDocker {
 
     fn driver_type(&self) -> BuildDriverType {
         BuildDriverType::Docker
+    }
+
+    fn sign_changes(
+        &self,
+        changes_file: &Path,
+        gpg: Option<&crate::build::signing::GpgForwarding>,
+    ) -> anyhow::Result<()> {
+        use crate::build::signing;
+
+        let gpg = gpg.context("docker container signing needs gpg forwarding info")?;
+        let output_dir = changes_file
+            .parent()
+            .context("changes file has no parent directory")?;
+        let staging_dir = self.config.build_temp_dir().join("sign");
+        signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
+        let script = signing::sign_container_script(
+            signing::changes_filename(changes_file)?,
+            &gpg.sign_key,
+            // The sign container's root is not id-mapped; fix ownership of
+            // files it rewrites so the host user can manage them afterwards.
+            Some((unsafe { libc::geteuid() }, unsafe { libc::getegid() })),
+        );
+
+        println!(
+            "[docker] $ signing {} in a minimal {} container",
+            changes_file.display(),
+            self.config.distro.codename
+        );
+        run_checked(
+            Command::new("docker")
+                .args(["run", "--rm", "--init"])
+                .args([
+                    "--mount",
+                    &format!(
+                        "{},readonly",
+                        bind_mount_arg(&staging_dir, signing::SIGN_STAGING_IN_CONTAINER)
+                    ),
+                ])
+                .arg(format!(
+                    "--mount=type=bind,src={},dst={},readonly",
+                    gpg.agent_extra_socket.display(),
+                    signing::GPG_SOCKET_IN_CONTAINER
+                ))
+                .args([
+                    "--mount",
+                    &bind_mount_arg(output_dir, signing::OUTPUT_DIR_IN_CONTAINER),
+                ])
+                .arg(&self.base_image)
+                .args(["sh", "-ec", &script]),
+            "signing in docker container",
+        )?;
+        Ok(())
     }
 }

@@ -274,6 +274,8 @@ mod tests {
             persistent: false,
             package_name: "debmagic".to_string(),
             sign_key: None,
+            sign_with: crate::build::signing::SignWith::Auto,
+            source_sync_mode: crate::build::common::SourceSyncMode::Tracked,
         }
     }
 

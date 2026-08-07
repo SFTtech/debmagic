@@ -2,38 +2,53 @@
 
 <img align="right" style="float: right; width: 25%;" src="assets/debmagic-logo.svg" alt="debmagic logo"/>
 
-Unified and futuristic developer tools for increased productivity in the [Debian](https://debian.org)/[Ubuntu](https://ubuntu.com) ecosystem.
-
-- create package **build instructions** in Python with `debian/rules.py`
-- tooling do perform packaging itself: **building** and **testing** in isolated container environments
-
-[![GitHub Actions Status](https://github.com/SFTtech/debmagic/actions/workflows/pull_request.yaml/badge.svg)](https://github.com/SFTtech/debmagic/actions/workflows/push_on_main.yaml)
+Unified and future-proof developer tooling for increased productivity in the [Debian](https://debian.org)/[Ubuntu](https://ubuntu.com) ecosystem.
 
 > [!IMPORTANT]
 > Debmagic's goal: make Debian packaging modern, robust & easy - while being backwards compatible.
 
+Debmagic has two independent parts:
+- tooling to [**build** and **test**](#debmagic-building) packages
+  - in isolated container environments (lxd, docker, ...)
+  - `debmagic build`, `debmagic check`, `debmagic test`, `debmagic shell`, ...
+- create package [**build instructions**](#debmagic-packaging)
+  - using Python with `debian/rules.py` (instead of shell & Makefiles)
+
+[![GitHub Actions Status](https://github.com/SFTtech/debmagic/actions/workflows/pull_request.yaml/badge.svg)](https://github.com/SFTtech/debmagic/actions/workflows/push_on_main.yaml)
+
+
 ---
 
-Included features:
+## Documentation
 
-- for `debian/rules.py`
-  - optional `dh` backward compatibility [module](packages/debmagic-pkg/src/debmagic/v0/_module/dh.py)
-  - language and buildsystem [helper modules](packages/debmagic-pkg/src/debmagic/v0/_module/)
-- maintainer tools
-  - `debmagic build` - isolated package building
-  - `debmagic check` - isolated package linting
-  - `debmagic test` - isolated package testing
-- debugging tools
-  - `debmagic shell` - enter current running/finished package environment
+To learn packaging with debmagic, follow **[the documentation!](https://debmagic.readthedocs.io)**.
+
+
+## Debmagic building
+
+| Command | Goal |
+| - | - |
+| `debmagic build binary` | Build a binary package in a container |
+| `debmagic build source` | Create a source package for upload |
+| `debmagic test` | Run package tests |
+| `debmagic check` | Lint the package |
 
 > [!TIP]
-> Want to use debmagic to build a package? See [docs/usage/build.md](docs/usage/build.md) for a quickstart.
+> Want to know more about how to use debmagic to build a package? See [docs/usage/build.md](docs/usage/build.md) for a quickstart.
+
 
 ## Debmagic packaging
+
+You can use the debmagic API to create package build instructions 🚀
+
+- build steps in `debian/rules.py`:
+  To consolidate the build recipes, we use the [Debmagic API modules](packages/debmagic-pkg/src/debmagic/v0/_module/) which provide a unified **high-level interface** to common build tools like `cargo`, `autotools`, `cmake`, `meson`, `go`, `ninja`, `python setup.py` and more.
 
 Usually, `debian/rules` is written as shell-oneliners in a **Makefile**.
 
 Debmagic allows straight-forward conversion to **Python**, which is especially useful if the packaging is more complex, like [openldap](https://git.launchpad.net/ubuntu/+source/openldap/tree/debian/rules?h=ubuntu/resolute-devel), [dovecot](https://git.launchpad.net/ubuntu/+source/dovecot/tree/debian/rules?h=ubuntu/resolute-devel), [samba](https://git.launchpad.net/ubuntu/+source/samba/tree/debian/rules?h=ubuntu/resolute-devel) or [gcc](https://git.launchpad.net/ubuntu/+source/gcc-15/tree/debian/rules?h=ubuntu/resolute-devel).
+
+We provide an optional `dh` sequence backward compatibility [module](packages/debmagic-pkg/src/debmagic/v0/_module/dh.py).
 
 
 ### Example debian/rules.py
@@ -121,10 +136,6 @@ And generates automatic help for:
 ```console
 ./debian/rules.py something-custom --help
 ```
-
-## Documentation
-
-To do packaging with debmagic, please **[read the documentation!](https://debmagic.readthedocs.io)**.
 
 ## Contributing
 

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- add a proper readme for pypi package upload
+- add lxd build driver
+
 ## [0.0.1-alpha.5] - 2026-08-03
 
 - build package in ci with manylinux target for pypi upload

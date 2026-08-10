@@ -1,3 +1,10 @@
+debmagic (0.0.1~alpha6) forky; urgency=medium
+
+  * add a proper readme for pypi package upload
+  * add lxd build driver
+
+ -- Debmagic Maintainers <debmagic@sft.lol>  Mon, 10 Aug 2026 22:37:54 +0200
+
 debmagic (0.0.1~alpha5) forky; urgency=medium
 
   * build package in ci with manylinux target for pypi upload

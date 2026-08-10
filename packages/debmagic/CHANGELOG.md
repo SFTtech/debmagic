@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1-alpha.6] - 2026-08-10
+
 - add a proper readme for pypi package upload
 - add lxd build driver
 
@@ -34,7 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial alpha release of the Rust-based `debmagic` CLI.
 
-[Unreleased]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.5...HEAD
+[Unreleased]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.6...HEAD
+[0.0.1-alpha.6]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.5...v0.0.1-alpha.6
 [0.0.1-alpha.5]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.4...v0.0.1-alpha.5
 [0.0.1-alpha.4]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.3...v0.0.1-alpha.4
 [0.0.1-alpha.3]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.2...v0.0.1-alpha.3

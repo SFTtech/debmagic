@@ -17,7 +17,7 @@ use anyhow::{Context, anyhow, bail};
 use glob::glob;
 
 use crate::build::common::{BuildConfig, SourceSyncMode};
-use crate::package::PackageDescription;
+use crate::package::PackageIdentity;
 
 /// Paths of files tracked by git in `src`, as reported by `git ls-files`.
 /// Returns `None` if `src` is not inside a git worktree.
@@ -375,7 +375,7 @@ fn sync_source_tree(build_config: &BuildConfig) -> anyhow::Result<()> {
 
 pub fn stage_source_tree(
     build_config: &BuildConfig,
-    package: &PackageDescription,
+    identity: &PackageIdentity,
 ) -> anyhow::Result<()> {
     if build_config.source_sync_mode == SourceSyncMode::Tracked {
         let untracked = git_untracked_paths(&build_config.source_dir);
@@ -410,7 +410,7 @@ pub fn stage_source_tree(
         .source_dir
         .parent()
         .ok_or_else(|| anyhow!("source directory has no parent"))?;
-    let prefix = format!("{}_{}", package.name, package.version.upstream_version());
+    let prefix = format!("{}_{}", identity.name, identity.version.upstream_version());
     copy_glob(
         source_parent,
         &format!("{prefix}.orig.tar.*"),

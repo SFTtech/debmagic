@@ -8,7 +8,7 @@ use config::{Config as ConfigBuilder, File};
 use serde::Deserialize;
 
 /// documented in docs/usage/config.md
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(default)]
 pub struct Config {
     pub driver: DriverConfig,
@@ -60,7 +60,6 @@ impl Config {
             }
         }
 
-        // TODO: reimplement cli arg overwrites
         let build = builder
             .build()
             .context("Failed to initialize config reader")?;

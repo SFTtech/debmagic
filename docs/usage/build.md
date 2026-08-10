@@ -114,6 +114,9 @@ This flag implies `--persistent`, and cannot be combined with `--clean yes`.
 Only needed when `debian/changelog`'s top entry doesn't unambiguously determine the target: pass `--distro <codename>` (e.g. `--distro noble`, `--distro trixie`).
 If the changelog has a single unambiguous entry, omit it.
 
+Suite aliases in the changelog (or via `--distro`) resolve to a concrete release: Debian `stable` / `oldstable` / `sid` (→ `unstable`), and Ubuntu `devel`.
+Alias targets are updated manually when Debian/Ubuntu roll.
+
 ## Proposed dependencies
 
 If needed, build dependencies can be used from `<release>-proposed`.

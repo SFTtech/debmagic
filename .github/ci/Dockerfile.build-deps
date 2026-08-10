@@ -1,0 +1,13 @@
+# Pre-baked build environment for the package_ourself CI job: debmagic's base
+# tooling plus this repo's Build-Depends, so the in-container
+# `apt-get build-dep` only tops up archive drift. Rebuilt whenever
+# debian/control, this file, or the weekly freshness bucket changes
+# (see the tag key in .github/workflows/ci.yaml).
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+WORKDIR /src
+COPY debian /src/debian
+RUN apt-get update \
+    && apt-get install -y dpkg-dev python3 \
+    && apt-get -y build-dep . \
+    && rm -rf /var/lib/apt/lists/*

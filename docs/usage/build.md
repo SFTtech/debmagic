@@ -108,6 +108,8 @@ debmagic build binary --driver lxd --persistent \
 Use `--incremental` to retain the environment and synchronize only source changes while preserving generated files and unchanged source inodes.
 This flag implies `--persistent`, and cannot be combined with `--clean yes`.
 
+The preserved build tree is kept even when the environment itself is *not* reused (e.g. a fresh CI runner where the tree was restored from a cache).
+
 
 ## Selecting a distro/release
 

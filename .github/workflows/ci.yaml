@@ -137,25 +137,55 @@ jobs:
   # integration / self packaging tests
   package_ourself:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Push of the pre-built CI image is additionally gated to main below.
+      packages: write
     steps:
       - uses: actions/checkout@v5
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-      - name: Install uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
-        with:
-          enable-cache: true
       - uses: Swatinem/rust-cache@v2
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - name: Install the project
-        run: uv sync --locked --all-extras --dev
-      - name: Install debmagic (cli)
-        run: uv pip install packages/debmagic
+      - name: Cache the debmagic build tree
+        uses: actions/cache@v4
+        with:
+          path: /tmp/debmagic
+          key: debmagic-build-${{ hashFiles('Cargo.lock', 'debian/changelog', 'debian/control', 'debian/rules') }}
+          restore-keys: debmagic-build-
+      - name: Prune stale build trees from the restored cache
+        run: |
+          mkdir -p /tmp/debmagic
+          current="$(dpkg-parsechangelog -SSource)-$(dpkg-parsechangelog -SVersion)"
+          find /tmp/debmagic -mindepth 1 -maxdepth 1 -type d ! -name "$current" -exec rm -rf {} +
+      - name: Resolve CI image tag
+        id: image
+        run: |
+          codename="$(dpkg-parsechangelog -SDistribution)"
+          key="$(cat debian/control .github/ci/Dockerfile.build-deps | sha256sum | cut -c1-12)-$(date -u +%G-W%V)"
+          echo "tag=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/debmagic-ci:${codename}-${key}" >> "$GITHUB_OUTPUT"
+          echo "codename=${codename}" >> "$GITHUB_OUTPUT"
+      - name: Pull or build the CI image
+        run: |
+          if ! docker pull "${{ steps.image.outputs.tag }}"; then
+            docker build \
+              --build-arg "BASE_IMAGE=docker.io/debian:${{ steps.image.outputs.codename }}" \
+              --tag "${{ steps.image.outputs.tag }}" \
+              --file .github/ci/Dockerfile.build-deps \
+              .
+            echo "image_built=true" >> "$GITHUB_ENV"
+          fi
       - name: Run Debmagic build on ourself
-        run: uv run debmagic build binary --driver=docker
+        run: |
+          cargo run --locked -p debmagic -- build binary \
+            --driver=docker \
+            --persistent \
+            --incremental \
+            --driver-docker-base-image="${{ steps.image.outputs.tag }}"
+      - name: Push the CI image
+        if: github.ref == 'refs/heads/main' && env.image_built == 'true'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
+          docker push "${{ steps.image.outputs.tag }}"
 
   # TODO: integration tests currently don't work in the CI since they require running apt source on debian trixie -> CI runs on ubuntu
   # integration-tests:

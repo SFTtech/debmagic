@@ -291,14 +291,16 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
             &intent.driver_overrides,
         )
         .context(format!("failed to create {:?} build driver", intent.driver))?;
-        if !intent.config.incremental
-            || !source_manifest_path(&build_config).is_file()
-            || !build.driver.reused_environment()
-        {
+        if !intent.config.incremental || !source_manifest_path(&build_config).is_file() {
             build
                 .driver
                 .reset_build_root()
                 .context("failed to reset persistent build directory")?;
+        } else if !build.driver.reused_environment() {
+            // A fresh environment (e.g. a new CI runner with a restored build
+            // tree) keeps incremental outputs; cargo's own fingerprinting
+            // discards whatever the new toolchain/archive state invalidates.
+            println!("Keeping incremental build tree in a fresh build environment");
         }
         build_config
             .create_dirs()

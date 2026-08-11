@@ -7,5 +7,9 @@ on:
 
 jobs:
   ci:
+    permissions:
+      contents: read
+      # package_ourself pushes the pre-built CI image to ghcr.io on main.
+      packages: write
     uses: ./.github/workflows/ci.yaml
     secrets: inherit

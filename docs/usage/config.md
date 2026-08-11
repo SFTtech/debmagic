@@ -23,9 +23,9 @@ All keys are optional.
 | `driver.persistent` | bool | `false` | Keep and reuse the build environment across runs instead of tearing it down. |
 | `driver.apt_mirror` | string | — | Mirror used for build-dependency resolution. Not used by the `bare` driver. |
 | `driver.proposed` | bool | `false` | Also enable the `<release>-proposed` pocket. Not used by the `bare` driver. |
-| `driver.docker.base_images` | map | — | Base image per distro, keyed by `"<distro>:<codename>"` (e.g. `"debian:trixie"`). Falls back to `docker.io/<distro>:<codename>`. |
+| `driver.docker.base_images` | map | — | Base image per distro, keyed by `"<distro>:<codename>"` (e.g. `"debian:trixie"`). Falls back to `docker.io/<distro>:<codename>`. For non-Debian/Ubuntu suites (e.g. `"yocto:kirkstone"`), the map entry is what makes the suite a known DistroVersion for Docker builds. |
 | `driver.lxd.project` | string | — | LXD/Incus project to use. `None` uses the default project. |
-| `driver.lxd.base_images` | map | — | Base image per distro, keyed by `"<distro>:<codename>"`. Falls back to the driver's default remote image. |
+| `driver.lxd.base_images` | map | — | Base image per distro, keyed by `"<distro>:<codename>"`. Falls back to the driver's default remote image. Same custom-suite registry role as Docker's map for LXD/Incus. |
 | `temp_build_dir` | path | `/tmp/debmagic` | Where build trees are staged. |
 | `incremental` | bool | `false` | Retain the environment and sync only source changes, preserving generated files. Binary-only; implies `persistent`; incompatible with `clean`. |
 | `source_sync_mode` | enum | `tracked` | Which source files are staged (see below). |
@@ -64,6 +64,11 @@ clean = false
 [driver]
 persistent = true
 apt_mirror = "http://<mirror-host>/ubuntu"
+
+[driver.docker]
+# Optional image overrides for known Debian/Ubuntu releases, and the registry
+# for custom apt/dpkg suites (family:codename):
+# base_images = { "debian:trixie" = "my-trixie:latest", "yocto:kirkstone" = "my-yocto:latest" }
 
 [driver.lxd]
 # project = "my=lxd-project-id"

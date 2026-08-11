@@ -11,7 +11,7 @@ use crate::{
     },
     build_intent::{BuildIntentInput, load_config, resolve_build_intent},
     cli::{BuildTarget, Cli, Commands},
-    package::{load_package_identity, resolve_package_target},
+    package::{distro_resolve_mode_for_driver, load_package_identity, resolve_package_target},
 };
 
 pub mod build;
@@ -75,8 +75,16 @@ fn main() -> anyhow::Result<()> {
                 },
             })?;
 
-            let target = resolve_package_target(&intent.source_dir, build_args.distro.as_deref())
-                .context("failed to determine package target")?;
+            let target = resolve_package_target(
+                &intent.source_dir,
+                build_args.distro.as_deref(),
+                distro_resolve_mode_for_driver(
+                    intent.driver,
+                    &intent.config.driver.docker.base_images,
+                    &intent.config.driver.lxd.base_images,
+                ),
+            )
+            .context("failed to determine package target")?;
 
             if is_source {
                 build_source_package(&intent, &target)

@@ -32,6 +32,7 @@ pub struct BuildIntentInput {
     pub clean: Option<bool>,
     pub no_clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
+    pub shell_on_failure: bool,
     pub driver_overrides: DriverOverrides,
 }
 
@@ -43,6 +44,7 @@ pub struct BuildIntent {
     pub source_dir: PathBuf,
     pub output_dir: PathBuf,
     pub driver: BuildDriverType,
+    pub shell_on_failure: bool,
     pub config: Config,
     pub driver_overrides: DriverOverrides,
 }
@@ -128,6 +130,7 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         source_dir,
         output_dir,
         driver: input.driver,
+        shell_on_failure: input.shell_on_failure,
         config,
         driver_overrides: input.driver_overrides,
     })
@@ -166,6 +169,7 @@ mod tests {
             clean: None,
             no_clean: None,
             source_sync: None,
+            shell_on_failure: false,
             driver_overrides: DriverOverrides {
                 apt_mirror: None,
                 proposed: None,
@@ -214,6 +218,17 @@ mod tests {
         let intent = resolve_build_intent(input)?;
         assert!(!intent.config.incremental);
         assert!(!intent.config.driver.persistent);
+        Ok(())
+    }
+
+    #[test]
+    fn resolve_passes_through_shell_on_failure() -> anyhow::Result<()> {
+        let dir = std::env::temp_dir();
+        let mut input = base_input(dir);
+        input.shell_on_failure = true;
+
+        let intent = resolve_build_intent(input)?;
+        assert!(intent.shell_on_failure);
         Ok(())
     }
 

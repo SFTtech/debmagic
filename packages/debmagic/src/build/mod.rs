@@ -12,7 +12,7 @@ use crate::build::source::{source_manifest_path, stage_source_tree};
 use crate::build_intent::BuildIntent;
 use crate::{
     build::{
-        common::{BuildConfig, BuildDriver, BuildDriverType, BuildMetadata},
+        common::{BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, EnvironmentPurpose},
         config::DriverConfig,
         driver_bare::DriverBare,
         driver_docker::DriverDocker,
@@ -99,7 +99,7 @@ fn prepare_signing(
     }
 }
 
-fn get_build_driver(
+pub(crate) fn get_build_driver(
     config: &BuildConfig,
     driver_config: &DriverConfig,
     driver_overrides: &DriverOverrides,
@@ -140,7 +140,7 @@ fn get_build_driver(
     }
 }
 
-fn create_driver_from_metadata(
+pub(crate) fn create_driver_from_metadata(
     config: &DriverConfig,
     metadata: &BuildMetadata,
 ) -> anyhow::Result<Box<dyn BuildDriver>> {
@@ -169,6 +169,59 @@ fn create_driver_from_metadata(
         }
     };
     driver
+}
+
+/// Remove `root` from the host. If files are owned by a container user the host
+/// cannot delete, delete them from inside that environment first. Never requires
+/// host root.
+pub(crate) fn remove_environment_root(
+    root: &Path,
+    driver_config: &DriverConfig,
+) -> anyhow::Result<()> {
+    if !root.exists() {
+        return Ok(());
+    }
+    match fs::remove_dir_all(root) {
+        Ok(()) => Ok(()),
+        Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
+            let metadata_path = root.join("build.json");
+            if !metadata_path.is_file() {
+                return Err(e).with_context(|| {
+                    format!(
+                        "failed to remove {} (permission denied) and no build.json is present to delete files from inside the environment",
+                        root.display()
+                    )
+                });
+            }
+            let file = fs::OpenOptions::new()
+                .read(true)
+                .open(&metadata_path)
+                .with_context(|| format!("failed to open {}", metadata_path.display()))?;
+            let metadata: BuildMetadata = serde_json::from_reader(BufReader::new(&file))
+                .with_context(|| format!("failed to parse {}", metadata_path.display()))?;
+            let driver =
+                create_driver_from_metadata(driver_config, &metadata).with_context(|| {
+                    format!(
+                        "failed to reattach to the environment at {} to delete privileged files",
+                        root.display()
+                    )
+                })?;
+            driver.reset_build_root().with_context(|| {
+                format!(
+                    "failed to delete files inside the environment at {}",
+                    root.display()
+                )
+            })?;
+            fs::remove_dir_all(root).with_context(|| {
+                format!(
+                    "failed to remove {} after deleting its contents from inside the environment",
+                    root.display()
+                )
+            })?;
+            Ok(())
+        }
+        Err(e) => Err(e).with_context(|| format!("failed to remove {}", root.display())),
+    }
 }
 
 impl Build {
@@ -280,6 +333,7 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
         persistent: intent.config.driver.persistent,
         incremental: intent.config.incremental,
         source_sync_mode: intent.config.source_sync_mode,
+        purpose: EnvironmentPurpose::Build,
     };
 
     if intent.config.driver.persistent && build_root.exists() {
@@ -309,33 +363,7 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
         return Ok(build);
     }
 
-    if build_root.exists()
-        && let Err(e) = fs::remove_dir_all(&build_root)
-    {
-        if e.kind() == io::ErrorKind::PermissionDenied {
-            // Some files were created by a privileged user inside a container
-            // and can't be deleted by the host user directly. Load the previous
-            // build's driver and ask it to clean up from inside.
-            let metadata_path = build_root.join("build.json");
-            if metadata_path.is_file()
-                && let Ok(file) = fs::OpenOptions::new().read(true).open(&metadata_path)
-                && let Ok(metadata) =
-                    serde_json::from_reader::<_, BuildMetadata>(BufReader::new(&file))
-                && let Ok(driver) = create_driver_from_metadata(&intent.config.driver, &metadata)
-            {
-                let _ = driver.reset_build_root();
-            }
-            fs::remove_dir_all(&build_root).with_context(|| {
-                format!(
-                    "failed to remove build root {}; try: sudo rm -rf {}",
-                    build_root.display(),
-                    build_root.display()
-                )
-            })?;
-        } else {
-            return Err(e.into());
-        }
-    }
+    remove_environment_root(&build_root, &intent.config.driver)?;
 
     build_config
         .create_dirs()
@@ -386,12 +414,11 @@ struct BuildRequest<'a> {
 
 /// Shared build orchestration: prepare the environment, run `build_commands`
 /// in it, export the artifacts to the output dir, sign them if requested, and
-/// clean up (dropping into a shell first on failure of an interactive binary
-/// build). While `shell_on_failure` is set, a socket server lets concurrent
+/// clean up (dropping into a shell first when `--shell-on-failure` is set).
+/// While the run is in progress, a socket server lets concurrent
 /// `debmagic shell` sessions attach to the environment.
 fn run_build(
     request: &BuildRequest,
-    shell_on_failure: bool,
     build_commands: impl FnOnce(&Build) -> anyhow::Result<()>,
 ) -> anyhow::Result<()> {
     let build = prepare_build_env(request.intent, request.target)
@@ -426,7 +453,7 @@ fn run_build(
     });
 
     if let Err(error) = result {
-        if shell_on_failure && stdout().is_terminal() {
+        if request.intent.shell_on_failure && stdout().is_terminal() {
             eprintln!("Build failed: {error}. Dropping into shell...");
             if let Err(shell_error) = build
                 .driver
@@ -434,8 +461,14 @@ fn run_build(
             {
                 eprintln!("Dropping into shell failed: {shell_error}");
             }
+        } else if request.intent.shell_on_failure {
+            eprintln!("Build failed: {error}");
+            eprintln!(
+                "--shell-on-failure is set but stdout is not a TTY; skipping interactive shell"
+            );
         } else {
             eprintln!("Build failed: {error}");
+            eprintln!("Re-run with --shell-on-failure to inspect the build environment");
         }
         if let Err(cleanup_error) = build.driver.cleanup() {
             eprintln!("Failed to clean up build environment: {cleanup_error}");
@@ -454,11 +487,12 @@ fn run_build(
 
 pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<()> {
     let request = BuildRequest { intent, target };
-    run_build(&request, true, |build| {
-        build.driver.run_command(
+    run_build(&request, |build| {
+        build.driver.run_command_checked(
             &["apt-get", "-y", "build-dep", "."],
             &build.config.build_source_dir(),
             true,
+            &[],
         )?;
         let inherited_options = std::env::var("DEB_BUILD_OPTIONS").ok();
         let options = deb_build_options(
@@ -473,7 +507,7 @@ pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
             dpkg_buildpackage_args.push("-nc");
         }
         dpkg_buildpackage_args.push("-b");
-        build.driver.run_command_env(
+        build.driver.run_command_checked(
             &dpkg_buildpackage_args,
             &build.config.build_source_dir(),
             false,
@@ -517,20 +551,23 @@ pub fn build_source_package(intent: &BuildIntent, target: &PackageTarget) -> any
     }
 
     let request = BuildRequest { intent, target };
-    run_build(&request, false, |build| {
+    run_build(&request, |build| {
         let build_source_dir = build.config.build_source_dir();
         if build.config.clean {
-            build.driver.run_command(
+            build.driver.run_command_checked(
                 &["apt-get", "-y", "build-dep", "."],
                 &build_source_dir,
                 true,
+                &[],
             )?;
         }
         let mut args = vec!["dpkg-buildpackage", "-S", "-d", "-us", "-uc", "-ui"];
         if !build.config.clean {
             args.push("-nc");
         }
-        build.driver.run_command(&args, &build_source_dir, false)?;
+        build
+            .driver
+            .run_command_checked(&args, &build_source_dir, false, &[])?;
         Ok(())
     })
     .context("failed to build source package")

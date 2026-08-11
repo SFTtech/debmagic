@@ -116,6 +116,24 @@ pub enum SourceSyncMode {
 
 pub type DriverSpecificBuildMetadata = HashMap<String, String>;
 
+#[derive(Debug, Copy, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum EnvironmentPurpose {
+    #[default]
+    Build,
+    Test,
+}
+
+impl EnvironmentPurpose {
+    /// Extra part for environment fingerprints when purpose is not [`Self::Build`].
+    pub fn fingerprint_part(self) -> Option<&'static str> {
+        match self {
+            Self::Build => None,
+            Self::Test => Some("test"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildMetadata {
     pub config: BuildConfig,
@@ -153,14 +171,20 @@ pub struct BuildConfig {
     /// Which source files are staged into the build tree.
     #[serde(default)]
     pub source_sync_mode: SourceSyncMode,
+    #[serde(default)]
+    pub purpose: EnvironmentPurpose,
 }
 
 impl BuildConfig {
     pub fn build_identifier(&self) -> String {
-        format!(
+        let base = format!(
             "{}-{}-{}",
             self.package_identifier, self.distro.distro, self.distro.codename
-        )
+        );
+        match self.purpose {
+            EnvironmentPurpose::Build => base,
+            EnvironmentPurpose::Test => format!("{base}-test"),
+        }
     }
 
     pub fn build_work_dir(&self) -> PathBuf {
@@ -194,16 +218,28 @@ pub const APT_MIRROR_SCRIPT: &str = include_str!("scripts/mirror.py");
 pub trait BuildDriver {
     fn get_build_metadata(&self) -> DriverSpecificBuildMetadata;
 
-    fn run_command_env(
+    fn run_command(
         &self,
         cmd: &[&str],
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<()>;
+    ) -> std::io::Result<i32>;
 
-    fn run_command(&self, cmd: &[&str], cwd: &Path, requires_root: bool) -> std::io::Result<()> {
-        self.run_command_env(cmd, cwd, requires_root, &[])
+    fn run_command_checked(
+        &self,
+        cmd: &[&str],
+        cwd: &Path,
+        requires_root: bool,
+        env_add: &[(&str, &str)],
+    ) -> std::io::Result<()> {
+        let code = self.run_command(cmd, cwd, requires_root, env_add)?;
+        if code != 0 {
+            return Err(std::io::Error::other(format!(
+                "Command failed with exit code: {code}"
+            )));
+        }
+        Ok(())
     }
 
     fn cleanup(&self) -> anyhow::Result<()>;
@@ -276,15 +312,45 @@ mod tests {
             sign_key: None,
             sign_with: crate::build::signing::SignWith::Auto,
             source_sync_mode: crate::build::common::SourceSyncMode::Tracked,
+            purpose: EnvironmentPurpose::Build,
         }
     }
 
     #[test]
-    fn docker_identifier_replaces_debian_prerelease_tilde() {
+    fn build_identifier_unchanged_for_build_purpose() {
         let config = sample_config("debmagic-0.0.1~alpha2");
         assert_eq!(
             config.build_identifier(),
             "debmagic-0.0.1~alpha2-debian-forky"
         );
+    }
+
+    #[test]
+    fn build_identifier_differs_for_test_purpose() {
+        let mut config = sample_config("debmagic-0.0.1~alpha2");
+        config.purpose = EnvironmentPurpose::Test;
+        assert_eq!(
+            config.build_identifier(),
+            "debmagic-0.0.1~alpha2-debian-forky-test"
+        );
+        assert_ne!(
+            config.build_identifier(),
+            sample_config("debmagic-0.0.1~alpha2").build_identifier()
+        );
+    }
+
+    #[test]
+    fn build_config_without_purpose_deserializes_as_build() {
+        let json = r#"{
+            "driver": "Docker",
+            "package_identifier": "pkg-1.0",
+            "build_root_dir": "/tmp/build",
+            "source_dir": "/tmp/src",
+            "output_dir": "/tmp/out",
+            "distro": { "distro": "Debian", "codename": "forky", "version": "15" },
+            "sign_package": false
+        }"#;
+        let config: BuildConfig = serde_json::from_str(json).unwrap();
+        assert_eq!(config.purpose, EnvironmentPurpose::Build);
     }
 }

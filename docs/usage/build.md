@@ -32,6 +32,7 @@ debmagic build binary --driver lxd \
 | `--apt-mirror <url>` | [Mirror URL](#mirror-selection) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
 | `--output-dir <dir>` | Directory to put the resulting build artifacts |
+| `--shell-on-failure` | On build failure, drop into an interactive shell in the build environment when stdout is a TTY |
 
 [`debmagic shell`](#inspecting-a-failed-build) — attach an interactive shell to a build environment
 
@@ -49,8 +50,9 @@ There's no auto-detection; pick one and pass it explicitly every time (or config
 
 ## Inspecting a failed build
 
-By default a failed build tears down the container, so nothing is left to inspect.
-If a build might fail and you need to inspect it afterwards, pass `--persistent` up front, then once the run finishes:
+On failure the build environment is torn down by default. Pass `--shell-on-failure` to drop into an interactive shell inside the build environment when stdout is a TTY (destroyed on shell exit unless `--persistent` was used).
+
+To inspect after the run finishes, pass `--persistent` up front, then:
 
 ```shell
 # if you're in the package still

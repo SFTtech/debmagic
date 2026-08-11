@@ -256,8 +256,12 @@ impl DriverDocker {
             &uid,
             &gid,
         ]);
-        let desired_fingerprint =
-            environment_fingerprint(&["docker-container", &image_fingerprint, build_root.as_ref()]);
+        let mut container_fingerprint_parts =
+            vec!["docker-container", &image_fingerprint, build_root.as_ref()];
+        if let Some(purpose) = config.purpose.fingerprint_part() {
+            container_fingerprint_parts.push(purpose);
+        }
+        let desired_fingerprint = environment_fingerprint(&container_fingerprint_parts);
         let container_name = resource_name(
             "debmagic",
             &config.package_name,
@@ -319,8 +323,10 @@ impl DriverDocker {
             created_container = true;
         }
 
+        // cwd is the build root (the bind mount itself), not the source dir:
+        // create() must not assume the source tree has been staged yet.
         let update_result = driver
-            .run_command(&["apt-get", "update"], &config.build_source_dir(), true)
+            .run_command_checked(&["apt-get", "update"], &config.build_root_dir, true, &[])
             .map_err(|error| anyhow!("Error running apt-get update in container: {error}"));
         if let Err(error) = update_result {
             if created_container && let Err(cleanup_error) = driver.container_remove_force() {
@@ -360,13 +366,13 @@ impl BuildDriver for DriverDocker {
         container_name_metadata(&self.container_name)
     }
 
-    fn run_command_env(
+    fn run_command(
         &self,
         cmd: &[&str],
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<()> {
+    ) -> std::io::Result<i32> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
@@ -389,10 +395,7 @@ impl BuildDriver for DriverDocker {
         exec_cmd.args(cmd);
 
         let status = exec_cmd.status()?;
-        if !status.success() {
-            return Err(std::io::Error::other("Docker exec failed"));
-        }
-        Ok(())
+        Ok(status.code().unwrap_or(-1))
     }
 
     fn cleanup(&self) -> anyhow::Result<()> {

@@ -1,4 +1,5 @@
 Source: debmagic
+Testsuite: autopkgtest
 Section: devel
 Maintainer: Debmagic Maintainers <debmagic@sft.lol>
 Uploaders:

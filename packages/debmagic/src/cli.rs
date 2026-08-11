@@ -19,7 +19,7 @@ pub enum Commands {
     Build(Box<BuildSubcommandArgs>),
     #[command(about = "Open an interactive shell to the currently active build environment")]
     Shell(ShellSubcommandArgs),
-    #[command(about = "Run tests")]
+    #[command(about = "Run the package's declared Debian autopkgtest tests against a prior build")]
     Test(TestSubcommandArgs),
     #[command(about = "Check the project")]
     Check(CheckSubcommandArgs),
@@ -147,6 +147,13 @@ pub struct CommonBuildArgs {
     )]
     pub no_clean: Option<bool>,
 
+    #[arg(
+        long = "shell-on-failure",
+        action = clap::ArgAction::SetTrue,
+        help = "On build failure, drop into an interactive shell in the build environment when stdout is a TTY"
+    )]
+    pub shell_on_failure: bool,
+
     #[command(flatten)]
     pub common: CommonCli,
 
@@ -200,6 +207,68 @@ pub struct ShellSubcommandArgs {
 
 #[derive(Args, Debug)]
 pub struct TestSubcommandArgs {
+    #[arg(
+        short,
+        long,
+        help = "Build driver type for the test environment. Defaults to the driver recorded in the prior build's build.json."
+    )]
+    pub driver: Option<BuildDriverType>,
+
+    #[arg(long, action = clap::ArgAction::SetTrue, help = "Keep the test environment for reuse after the test run finishes")]
+    pub persistent: Option<bool>,
+
+    #[command(flatten)]
+    pub docker: DockerArgs,
+
+    #[command(flatten)]
+    pub lxd: LxdArgs,
+
+    #[arg(
+        long = "apt-mirror",
+        help = "Apt mirror URL to use inside the test environment instead of the default archive mirrors. Ignored by the bare driver."
+    )]
+    pub apt_mirror: Option<String>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Also enable the '<release>-proposed' pocket in the test environment. Ignored by the bare driver."
+    )]
+    pub proposed: Option<bool>,
+
+    #[arg(
+        long,
+        help = "Override the target distribution for the test environment. Defaults to the distro recorded in the prior build's build.json, not the changelog."
+    )]
+    pub distro: Option<String>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Treat skipped tests and 'no tests declared' as failures (exit code 2)"
+    )]
+    pub strict: bool,
+
+    #[arg(
+        long,
+        help = "Path to a .changes file whose directory supplies the built .debs (for pipeline use)"
+    )]
+    pub changes: Option<PathBuf>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Allow running tests with the bare driver, which executes autopkgtest as root on the host"
+    )]
+    pub allow_host_test: bool,
+
+    #[arg(
+        long = "shell-on-failure",
+        action = clap::ArgAction::SetTrue,
+        help = "On test failure, drop into an interactive shell in the test environment when stdout is a TTY"
+    )]
+    pub shell_on_failure: bool,
+
     #[command(flatten)]
     pub common: CommonCli,
 }

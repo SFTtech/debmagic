@@ -463,6 +463,7 @@ mod tests {
             persistent: true,
             incremental: true,
             source_sync_mode: SourceSyncMode::Worktree,
+            purpose: crate::build::common::EnvironmentPurpose::Build,
         };
         build_config.create_dirs()?;
         let initial_entries = source_tree_entries(&source_dir, SourceSyncMode::Worktree)?;

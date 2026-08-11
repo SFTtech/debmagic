@@ -50,13 +50,13 @@ impl BuildDriver for DriverBare {
         DriverSpecificBuildMetadata::from([])
     }
 
-    fn run_command_env(
+    fn run_command(
         &self,
         cmd: &[&str],
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<()> {
+    ) -> std::io::Result<i32> {
         let mut full_cmd: Vec<String> = Vec::new();
 
         let is_root = unsafe { libc::geteuid() == 0 };
@@ -73,15 +73,7 @@ impl BuildDriver for DriverBare {
         command.envs(env_add.iter().copied());
 
         let status = command.status()?;
-
-        if status.success() {
-            Ok(())
-        } else {
-            Err(std::io::Error::other(format!(
-                "Command failed with exit code: {:?}",
-                status.code()
-            )))
-        }
+        Ok(status.code().unwrap_or(-1))
     }
 
     fn cleanup(&self) -> anyhow::Result<()> {

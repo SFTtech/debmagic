@@ -230,7 +230,7 @@ impl DriverLxd {
         let host_gid = unsafe { libc::getegid() }.to_string();
         let build_root = config.build_root_dir.to_string_lossy();
         let proposed_fingerprint = proposed.to_string();
-        let desired_fingerprint = environment_fingerprint(&[
+        let mut fingerprint_parts = vec![
             variant.binary(),
             ENVIRONMENT_SETUP_VERSION,
             &base_image,
@@ -240,7 +240,11 @@ impl DriverLxd {
             &host_uid,
             &host_gid,
             build_root.as_ref(),
-        ]);
+        ];
+        if let Some(purpose) = config.purpose.fingerprint_part() {
+            fingerprint_parts.push(purpose);
+        }
+        let desired_fingerprint = environment_fingerprint(&fingerprint_parts);
 
         let mut base = Self {
             variant,
@@ -335,14 +339,14 @@ impl DriverLxd {
             // previous invocation that crashed before finishing this setup (or a
             // long-lived incremental container with an aging package cache)
             // doesn't leave `apt-get build-dep` unable to resolve anything.
-            base.exec_in_container(&["apt-get", "update"], None, true, &[])
+            base.exec_in_container_checked(&["apt-get", "update"], None, true, &[])
                 .map_err(|e| anyhow::anyhow!("Error running apt-get update in container: {e}"))?;
 
             if !reusing_container {
                 // Install the base tooling that stock images don't include.
                 // build-dep is intentionally omitted here: build.rs runs it for
                 // every driver against the real mounted source tree.
-                base.exec_in_container(
+                base.exec_in_container_checked(
                     &["apt-get", "install", "-y", "dpkg-dev", "python3"],
                     None,
                     true,
@@ -356,7 +360,7 @@ impl DriverLxd {
                     uid = BUILD_USER_UID,
                     gid = BUILD_USER_GID,
                 );
-                base.exec_in_container(&["sh", "-ec", &ensure_build_user], None, true, &[])
+                base.exec_in_container_checked(&["sh", "-ec", &ensure_build_user], None, true, &[])
                     .map_err(|e| anyhow::anyhow!("Error creating build user in container: {e}"))?;
 
                 if apt_mirror.is_some() || proposed {
@@ -376,9 +380,9 @@ impl DriverLxd {
                         args.push("--proposed".to_string());
                     }
                     let args = args.iter().map(String::as_str).collect::<Vec<_>>();
-                    base.exec_in_container(&args, None, true, &[])
+                    base.exec_in_container_checked(&args, None, true, &[])
                         .map_err(|e| anyhow::anyhow!("Error configuring apt sources: {e}"))?;
-                    base.exec_in_container(&["apt-get", "update"], None, true, &[])
+                    base.exec_in_container_checked(&["apt-get", "update"], None, true, &[])
                         .map_err(|e| {
                             anyhow::anyhow!("Error updating configured apt sources: {e}")
                         })?;
@@ -475,7 +479,7 @@ impl DriverLxd {
         workdir: Option<&Path>,
         as_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<()> {
+    ) -> std::io::Result<i32> {
         println!("[{}] $ {}", self.container_name, cmd.join(" "));
 
         let mut exec_cmd = self.lxd_cmd("exec");
@@ -500,9 +504,20 @@ impl DriverLxd {
         exec_cmd.args(cmd);
 
         let status = exec_cmd.status()?;
-        if !status.success() {
+        Ok(status.code().unwrap_or(-1))
+    }
+
+    fn exec_in_container_checked(
+        &self,
+        cmd: &[&str],
+        workdir: Option<&Path>,
+        as_root: bool,
+        env_add: &[(&str, &str)],
+    ) -> std::io::Result<()> {
+        let code = self.exec_in_container(cmd, workdir, as_root, env_add)?;
+        if code != 0 {
             return Err(std::io::Error::other(format!(
-                "{} exec failed",
+                "{} exec failed with exit code {code}",
                 self.variant.binary()
             )));
         }
@@ -519,13 +534,13 @@ impl BuildDriver for DriverLxd {
         meta
     }
 
-    fn run_command_env(
+    fn run_command(
         &self,
         cmd: &[&str],
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<()> {
+    ) -> std::io::Result<i32> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
@@ -544,7 +559,7 @@ impl BuildDriver for DriverLxd {
 
     fn reset_build_root(&self) -> std::io::Result<()> {
         self.with_running_container(|driver| {
-            driver.exec_in_container(
+            driver.exec_in_container_checked(
                 &["find", BUILD_DIR_IN_CONTAINER, "-mindepth", "1", "-delete"],
                 None,
                 true,

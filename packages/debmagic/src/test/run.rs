@@ -262,18 +262,11 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         .write_metadata()
         .context("failed to write test metadata")?;
 
-    let apt_env = [("DEBIAN_FRONTEND", "noninteractive")];
-    test_run.driver.run_command_checked(
-        &["apt-get", "update"],
-        &environment.staged_source_dir(),
-        true,
-        &apt_env,
-    )?;
     test_run.driver.run_command_checked(
         &["apt-get", "install", "-y", "autopkgtest"],
         &environment.staged_source_dir(),
         true,
-        &apt_env,
+        &[("DEBIAN_FRONTEND", "noninteractive")],
     )?;
 
     let work_dir = environment.work_dir();

@@ -3,12 +3,10 @@ use std::path::{Path, PathBuf};
 use anyhow::Context;
 
 use crate::{
-    build::{
-        common::{BuildDriverType, SourceSyncMode},
-        config::DriverOverrides,
-        signing::SignWith,
-    },
+    build::source::SourceSyncMode,
     config::Config,
+    driver::{DriverType, config::DriverOverrides},
+    signing::SignWith,
 };
 
 /// Clap-free inputs for resolving a [`BuildIntent`].
@@ -19,7 +17,7 @@ pub struct BuildIntentInput {
     pub source_dir: Option<PathBuf>,
     pub output_dir: Option<PathBuf>,
     pub config_file: Option<PathBuf>,
-    pub driver: BuildDriverType,
+    pub driver: DriverType,
     pub persistent: Option<bool>,
     pub incremental: Option<bool>,
     /// Force incremental off (e.g. source-only builds).
@@ -43,7 +41,7 @@ pub struct BuildIntentInput {
 pub struct BuildIntent {
     pub source_dir: PathBuf,
     pub output_dir: PathBuf,
-    pub driver: BuildDriverType,
+    pub driver: DriverType,
     pub shell_on_failure: bool,
     pub config: Config,
     pub driver_overrides: DriverOverrides,
@@ -139,9 +137,9 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::build::{
-        driver_bare::DriverBareConfigOverrides, driver_docker::DriverDockerConfigOverrides,
-        driver_lxd::DriverLxdConfigOverrides,
+    use crate::driver::{
+        DriverType, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
+        driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
     };
 
     fn asset_config() -> PathBuf {
@@ -157,7 +155,7 @@ mod tests {
             source_dir: None,
             output_dir: None,
             config_file: Some(asset_config()),
-            driver: BuildDriverType::Docker,
+            driver: DriverType::Docker,
             persistent: None,
             incremental: None,
             disable_incremental: false,

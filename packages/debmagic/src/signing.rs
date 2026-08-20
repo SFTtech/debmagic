@@ -15,7 +15,7 @@ use std::{
 use anyhow::{Context, anyhow};
 use serde::{Deserialize, Serialize};
 
-use crate::build::common::run_checked;
+use crate::driver::run_checked;
 
 /// Where the forwarded agent socket is bind-mounted inside sign containers.
 /// A fixed, always-existing path; the script symlinks it to gpg's lookup

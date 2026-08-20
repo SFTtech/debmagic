@@ -5,13 +5,13 @@ use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
 use crate::{
-    build::{
-        build_package, build_source_package, common::BuildDriverType, config::DriverOverrides,
-        driver_bare::DriverBareConfigOverrides, driver_docker::DriverDockerConfigOverrides,
-        driver_lxd::DriverLxdConfigOverrides, get_shell_in_build,
-    },
+    build::{build_package, build_source_package, get_shell_in_build},
     build_intent::{BuildIntentInput, load_config, resolve_build_intent},
     cli::{BuildTarget, Cli, Commands},
+    driver::{
+        DriverType, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
+        driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
+    },
     package::{distro_resolve_mode_for_driver, load_package_identity, resolve_package_target},
     test::{TestIntentInput, TestOutcome, resolve_test_intent, run_test},
 };
@@ -20,7 +20,9 @@ pub mod build;
 pub mod build_intent;
 pub mod cli;
 pub mod config;
+pub mod driver;
 pub mod package;
+pub mod signing;
 pub mod test;
 
 fn main() -> ExitCode {
@@ -50,7 +52,7 @@ fn run() -> anyhow::Result<ExitCode> {
             };
 
             let driver = if is_source {
-                build_args.driver.unwrap_or(BuildDriverType::Bare)
+                build_args.driver.unwrap_or(DriverType::Bare)
             } else {
                 build_args.driver.context(
                     "--driver is required for binary builds (docker, bare, lxd or incus)",

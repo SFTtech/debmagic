@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
-use crate::build::common::{BuildDriverType, SourceSyncMode};
+use crate::build::source::SourceSyncMode;
+use crate::driver::DriverType;
 use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -71,7 +72,7 @@ pub struct CommonBuildArgs {
         long,
         help = "Build driver type. Required for binary builds; source-only builds default to 'bare', since those need no build-deps or compilation."
     )]
-    pub driver: Option<BuildDriverType>,
+    pub driver: Option<DriverType>,
 
     #[arg(long, action = clap::ArgAction::SetTrue, help = "Keep the build environment for reuse after the build finishes")]
     pub persistent: Option<bool>,
@@ -125,7 +126,7 @@ pub struct CommonBuildArgs {
         long = "sign-with",
         help = "Where debsign runs: 'host' signs on the host (requires devscripts there), 'same' signs inside a minimal same-distro container with the host gpg-agent socket forwarded in (requires --sign-key), 'auto' (default) uses the host if debsign is available there, else a container. Defaults to the 'sign_with' setting in the config file."
     )]
-    pub sign_with: Option<crate::build::signing::SignWith>,
+    pub sign_with: Option<crate::signing::SignWith>,
 
     #[arg(
         long = "sign-key",
@@ -210,9 +211,9 @@ pub struct TestSubcommandArgs {
     #[arg(
         short,
         long,
-        help = "Build driver type for the test environment. Defaults to the driver recorded in the prior build's build.json."
+        help = "Driver type for the test environment. Defaults to the driver recorded in the prior build's environment.json."
     )]
-    pub driver: Option<BuildDriverType>,
+    pub driver: Option<DriverType>,
 
     #[arg(long, action = clap::ArgAction::SetTrue, help = "Keep the test environment for reuse after the test run finishes")]
     pub persistent: Option<bool>,
@@ -238,7 +239,7 @@ pub struct TestSubcommandArgs {
 
     #[arg(
         long,
-        help = "Override the target distribution for the test environment. Defaults to the distro recorded in the prior build's build.json, not the changelog."
+        help = "Override the target distribution for the test environment. Defaults to the distro recorded in the prior build's environment.json, not the changelog."
     )]
     pub distro: Option<String>,
 

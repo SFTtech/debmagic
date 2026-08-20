@@ -5,17 +5,15 @@ use std::{
 };
 
 use super::intent::TestIntent;
-use crate::build::config::DriverOverrides;
 use crate::build::source::stage_source_tree;
+use crate::driver::{
+    Driver, DriverInstance, DriverType, Environment, EnvironmentMetadata, EnvironmentPurpose,
+    config::{DriverConfig, DriverOverrides},
+    create_driver, remove_environment_root,
+};
 use crate::package::PackageIdentity;
 use crate::{
-    build::{
-        artifacts::{copy_changes_artifacts, copy_dir_all, find_changes_file},
-        common::{BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, EnvironmentPurpose},
-        config::DriverConfig,
-        remove_environment_root,
-        signing::SignWith,
-    },
+    build::artifacts::{copy_changes_artifacts, copy_dir_all, find_changes_file},
     package::load_package_identity,
 };
 use anyhow::{Context, anyhow, bail};
@@ -39,8 +37,8 @@ pub enum TestOutcome {
 }
 
 struct TestRun {
-    config: BuildConfig,
-    driver: Box<dyn BuildDriver>,
+    environment: Environment,
+    driver: DriverInstance,
 }
 
 fn get_build_root_and_identifier(
@@ -90,45 +88,43 @@ fn lookup_distro(name: &str) -> anyhow::Result<DistroVersion> {
         .ok_or_else(|| anyhow!("unknown distro codename '{name}'"))
 }
 
-fn load_build_metadata(build_root: &Path) -> anyhow::Result<BuildMetadata> {
-    let build_metadata_path = build_root.join("build.json");
-    if !build_metadata_path.is_file() {
-        bail!("No build.json found");
+fn load_environment_metadata(root: &Path) -> anyhow::Result<EnvironmentMetadata> {
+    let metadata_path = root.join("environment.json");
+    if !metadata_path.is_file() {
+        bail!("No environment.json found");
     }
-    let file = fs::OpenOptions::new()
-        .read(true)
-        .open(&build_metadata_path)?;
+    let file = fs::OpenOptions::new().read(true).open(&metadata_path)?;
     let reader = BufReader::new(&file);
     serde_json::from_reader(reader).with_context(|| {
         format!(
-            "Failed to read build metadata from {} - invalid json",
-            build_metadata_path.display()
+            "Failed to read environment metadata from {} - invalid json",
+            metadata_path.display()
         )
     })
 }
 
 impl TestRun {
     fn create(
-        config: &BuildConfig,
+        environment: &Environment,
         driver_config: &DriverConfig,
         driver_overrides: &DriverOverrides,
     ) -> anyhow::Result<Self> {
-        let driver = crate::build::get_build_driver(config, driver_config, driver_overrides)
-            .context(format!("failed to create {:?} build driver", config.driver))?;
+        let driver = create_driver(environment, driver_config, driver_overrides)
+            .context(format!("failed to create {:?} driver", environment.driver))?;
         Ok(Self {
-            config: config.clone(),
+            environment: environment.clone(),
             driver,
         })
     }
 
     fn write_metadata(&self) -> anyhow::Result<()> {
-        let metadata = BuildMetadata {
-            config: self.config.clone(),
-            driver_metadata: self.driver.get_build_metadata(),
+        let metadata = EnvironmentMetadata {
+            environment: self.environment.clone(),
+            driver_metadata: self.driver.driver_metadata(),
         };
-        let path = self.config.build_root_dir.join("build.json");
+        let path = self.environment.root_dir.join("environment.json");
         let json = serde_json::to_string_pretty(&metadata)
-            .context("Failed to serialize build metadata")?;
+            .context("Failed to serialize environment metadata")?;
         fs::write(path, json)?;
         Ok(())
     }
@@ -136,38 +132,37 @@ impl TestRun {
 
 fn prepare_test_env(
     intent: &TestIntent,
-    test_config: &BuildConfig,
+    environment: &Environment,
     identity: &PackageIdentity,
     changes_path: &Path,
 ) -> anyhow::Result<TestRun> {
-    let test_root = &test_config.build_root_dir;
+    let test_root = &environment.root_dir;
 
     if intent.config.driver.persistent && test_root.exists() {
         let test_run =
-            TestRun::create(test_config, &intent.config.driver, &intent.driver_overrides).context(
-                format!("failed to create {:?} build driver", test_config.driver),
-            )?;
+            TestRun::create(environment, &intent.config.driver, &intent.driver_overrides)
+                .context(format!("failed to create {:?} driver", environment.driver))?;
         test_run
             .driver
-            .reset_build_root()
+            .reset_root()
             .context("failed to reset persistent test directory")?;
-        test_config
+        environment
             .create_dirs()
             .context("failed to create test directories")?;
-        stage_source_tree(test_config, identity)?;
-        copy_changes_artifacts(changes_path, &test_config.build_work_dir())?;
+        stage_source_tree(environment, identity, intent.config.source_sync_mode, false)?;
+        copy_changes_artifacts(changes_path, &environment.work_dir())?;
         return Ok(test_run);
     }
 
     remove_environment_root(test_root, &intent.config.driver)?;
 
-    test_config
+    environment
         .create_dirs()
         .context("failed to create test directories")?;
-    stage_source_tree(test_config, identity)?;
-    copy_changes_artifacts(changes_path, &test_config.build_work_dir())?;
+    stage_source_tree(environment, identity, intent.config.source_sync_mode, false)?;
+    copy_changes_artifacts(changes_path, &environment.work_dir())?;
 
-    let test_run = TestRun::create(test_config, &intent.config.driver, &intent.driver_overrides)?;
+    let test_run = TestRun::create(environment, &intent.config.driver, &intent.driver_overrides)?;
     Ok(test_run)
 }
 
@@ -207,8 +202,8 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         }
         explicit.clone()
     } else {
-        let build_metadata_path = build_root.join("build.json");
-        if !build_metadata_path.is_file() {
+        let metadata_path = build_root.join("environment.json");
+        if !metadata_path.is_file() {
             bail!(
                 "no prior build found at {}; run `debmagic build binary` first",
                 build_root.display()
@@ -217,22 +212,22 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         find_changes_file(&build_root.join("work"))?
     };
 
-    let prior_build = if build_root.join("build.json").is_file() {
-        Some(load_build_metadata(&build_root)?)
+    let prior_build = if build_root.join("environment.json").is_file() {
+        Some(load_environment_metadata(&build_root)?)
     } else {
         None
     };
 
     let driver = intent
         .driver
-        .or_else(|| prior_build.as_ref().map(|metadata| metadata.config.driver))
+        .or_else(|| prior_build.as_ref().map(|metadata| metadata.environment.driver))
         .ok_or_else(|| {
             anyhow!(
                 "no driver specified and no prior build found; pass --driver or run `debmagic build binary` first"
             )
         })?;
 
-    if driver == BuildDriverType::Bare && !intent.allow_host_test {
+    if driver == DriverType::Bare && !intent.allow_host_test {
         bail!(
             "the bare driver runs autopkgtest as root directly on the host; \
              pass --allow-host-test to opt in explicitly"
@@ -242,7 +237,7 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     let distro = if let Some(ref override_distro) = intent.distro {
         lookup_distro(override_distro)?
     } else if let Some(ref metadata) = prior_build {
-        metadata.config.distro.clone()
+        metadata.environment.distro.clone()
     } else {
         bail!(
             "no prior build metadata found; pass --distro when using --changes without a build root"
@@ -250,31 +245,18 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     };
 
     let test_root = test_build_root(&build_root);
-    let output_dir = prior_build
-        .as_ref()
-        .map(|metadata| metadata.config.output_dir.clone())
-        .unwrap_or_else(|| intent.source_dir.clone());
 
-    let test_config = BuildConfig {
+    let environment = Environment {
         driver,
         package_name: identity.name.clone(),
         package_identifier,
-        source_dir: intent.source_dir.clone(),
-        output_dir,
-        build_root_dir: test_root.clone(),
+        root_dir: test_root.clone(),
         distro,
-        sign_package: false,
-        sign_with: SignWith::Auto,
-        sign_key: None,
-        build_debug_symbols: false,
-        clean: false,
         persistent: intent.config.driver.persistent,
-        incremental: false,
-        source_sync_mode: intent.config.source_sync_mode,
         purpose: EnvironmentPurpose::Test,
     };
 
-    let test_run = prepare_test_env(intent, &test_config, &identity, &changes_path)
+    let test_run = prepare_test_env(intent, &environment, &identity, &changes_path)
         .context("failed to prepare test environment")?;
     test_run
         .write_metadata()
@@ -283,23 +265,23 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     let apt_env = [("DEBIAN_FRONTEND", "noninteractive")];
     test_run.driver.run_command_checked(
         &["apt-get", "update"],
-        &test_config.build_source_dir(),
+        &environment.staged_source_dir(),
         true,
         &apt_env,
     )?;
     test_run.driver.run_command_checked(
         &["apt-get", "install", "-y", "autopkgtest"],
-        &test_config.build_source_dir(),
+        &environment.staged_source_dir(),
         true,
         &apt_env,
     )?;
 
-    let work_dir = test_config.build_work_dir();
+    let work_dir = environment.work_dir();
     let changes_filename = changes_path
         .file_name()
         .and_then(|name| name.to_str())
         .ok_or_else(|| anyhow!("invalid .changes path: {}", changes_path.display()))?;
-    let source_tree_name = test_config.package_identifier.as_str();
+    let source_tree_name = environment.package_identifier.as_str();
     let autopkgtest_out_host = test_root.join("autopkgtest-out");
     if autopkgtest_out_host.exists() {
         fs::remove_dir_all(&autopkgtest_out_host)?;
@@ -355,7 +337,7 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
             eprintln!("Dropping into shell...");
             if let Err(shell_error) = test_run
                 .driver
-                .interactive_shell(&test_config.build_source_dir())
+                .interactive_shell(&environment.staged_source_dir())
             {
                 eprintln!("Dropping into shell failed: {shell_error}");
             }
@@ -368,10 +350,10 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         }
     }
 
-    if !test_config.persistent {
+    if !environment.persistent {
         // Clear container-owned files from the bind mount before destroying
         // the container; otherwise the host user cannot remove them later.
-        if let Err(e) = test_run.driver.reset_build_root() {
+        if let Err(e) = test_run.driver.reset_root() {
             eprintln!("Warning: failed to reset test root before cleanup: {e}");
         }
     }

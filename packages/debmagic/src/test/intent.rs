@@ -3,9 +3,9 @@ use std::path::PathBuf;
 use anyhow::Context;
 
 use crate::{
-    build::{common::BuildDriverType, config::DriverOverrides},
     build_intent::load_config,
     config::Config,
+    driver::{DriverType, config::DriverOverrides},
 };
 
 /// Clap-free inputs for resolving a [`TestIntent`].
@@ -15,7 +15,7 @@ pub struct TestIntentInput {
     pub fallback_dir: PathBuf,
     pub source_dir: Option<PathBuf>,
     pub config_file: Option<PathBuf>,
-    pub driver: Option<BuildDriverType>,
+    pub driver: Option<DriverType>,
     pub persistent: Option<bool>,
     pub strict: bool,
     pub changes: Option<PathBuf>,
@@ -31,7 +31,7 @@ pub struct TestIntentInput {
 #[derive(Debug, Clone)]
 pub struct TestIntent {
     pub source_dir: PathBuf,
-    pub driver: Option<BuildDriverType>,
+    pub driver: Option<DriverType>,
     pub strict: bool,
     pub changes: Option<PathBuf>,
     pub allow_host_test: bool,
@@ -73,9 +73,9 @@ pub fn resolve_test_intent(input: TestIntentInput) -> anyhow::Result<TestIntent>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::build::{
-        driver_bare::DriverBareConfigOverrides, driver_docker::DriverDockerConfigOverrides,
-        driver_lxd::DriverLxdConfigOverrides,
+    use crate::driver::{
+        config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
+        driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
     };
 
     fn asset_config() -> PathBuf {

@@ -2,12 +2,7 @@ use std::{path::Path, process::Command};
 
 use serde::{Deserialize, Serialize};
 
-use crate::build::{
-    common::{
-        BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, DriverSpecificBuildMetadata,
-    },
-    config::DriverConfig,
-};
+use crate::driver::{Driver, DriverType, Environment, EnvironmentMetadata, config::DriverConfig};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
@@ -17,37 +12,47 @@ pub struct DriverBareConfig {}
 pub struct DriverBareConfigOverrides {}
 
 pub struct DriverBare {
-    config: BuildConfig,
+    environment: Environment,
     _driver_config: DriverConfig,
 }
 
 impl DriverBare {
     pub fn create(
-        config: &BuildConfig,
+        environment: &Environment,
         driver_config: &DriverConfig,
         _overrides: &DriverBareConfigOverrides,
     ) -> Self {
         Self {
-            config: config.clone(),
+            environment: environment.clone(),
             _driver_config: driver_config.clone(),
         }
     }
 
-    pub fn from_build_metadata(
-        config: &BuildConfig,
+    pub fn from_metadata(
+        environment: &Environment,
         driver_config: &DriverConfig,
-        _build_metadata: &BuildMetadata,
+        _metadata: &EnvironmentMetadata,
     ) -> Self {
         Self {
-            config: config.clone(),
+            environment: environment.clone(),
             _driver_config: driver_config.clone(),
         }
+    }
+
+    pub(crate) fn sign_changes(
+        &self,
+        changes_file: &Path,
+        _gpg: Option<&crate::signing::GpgForwarding>,
+        sign_key: Option<&str>,
+    ) -> anyhow::Result<()> {
+        crate::signing::check_host_debsign_available()?;
+        crate::signing::sign_on_host(changes_file, sign_key)
     }
 }
 
-impl BuildDriver for DriverBare {
-    fn get_build_metadata(&self) -> DriverSpecificBuildMetadata {
-        DriverSpecificBuildMetadata::from([])
+impl Driver for DriverBare {
+    fn driver_metadata(&self) -> std::collections::HashMap<String, String> {
+        std::collections::HashMap::from([])
     }
 
     fn run_command(
@@ -83,28 +88,19 @@ impl BuildDriver for DriverBare {
     fn interactive_shell(&self, _cwd: &Path) -> std::io::Result<()> {
         println!(
             "source directory of current package build in {}",
-            self.config.build_source_dir().display()
+            self.environment.staged_source_dir().display()
         );
         Ok(())
     }
 
-    fn driver_type(&self) -> BuildDriverType {
-        BuildDriverType::Bare
+    fn driver_type(&self) -> DriverType {
+        DriverType::Bare
     }
 
-    fn reset_build_root(&self) -> std::io::Result<()> {
-        if self.config.build_root_dir.exists() {
-            std::fs::remove_dir_all(&self.config.build_root_dir)?;
+    fn reset_root(&self) -> std::io::Result<()> {
+        if self.environment.root_dir.exists() {
+            std::fs::remove_dir_all(&self.environment.root_dir)?;
         }
         Ok(())
-    }
-
-    fn sign_changes(
-        &self,
-        changes_file: &Path,
-        _gpg: Option<&crate::build::signing::GpgForwarding>,
-    ) -> anyhow::Result<()> {
-        crate::build::signing::check_host_debsign_available()?;
-        crate::build::signing::sign_on_host(changes_file, self.config.sign_key.as_deref())
     }
 }

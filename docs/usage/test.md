@@ -26,11 +26,11 @@ The driver *is* the testbed: `autopkgtest` runs with the `null` backend inside t
 
 | Option | Description |
 |---|---|
-| `--driver <...>` | Test environment driver (defaults to the driver recorded in the prior build's `build.json`) |
+| `--driver <...>` | Test environment driver (defaults to the driver recorded in the prior build's `environment.json`) |
 | `--persistent` | Retain the test environment after the run for reattach/debug |
 | `--strict` | Treat skipped tests and "no tests declared" as failures (exit code 2) |
 | `--changes <path>` | Path to a `.changes` file whose directory supplies the built `.debs` (for pipeline use) |
-| `--distro <name>` | Override the target distro for the test environment (defaults to the prior build's distro from `build.json`, not the changelog) |
+| `--distro <name>` | Override the target distro for the test environment (defaults to the prior build's distro from `environment.json`, not the changelog) |
 | `--proposed` | Enable the `<release>-proposed` pocket in the test environment |
 | `--apt-mirror <url>` | Mirror URL (same as [`debmagic build`](build.md)) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
@@ -41,7 +41,7 @@ Driver-specific flags (`--driver-docker-base-image`, `--driver-lxd-*`) mirror `d
 
 ## Picking a driver
 
-Use the same drivers as for builds. Pass `--driver` explicitly (or rely on the driver recorded in the prior build's `build.json`):
+Use the same drivers as for builds. Pass `--driver` explicitly (or rely on the driver recorded in the prior build's `environment.json`):
 
 | Driver | Isolation |
 |---|---|

@@ -7,39 +7,36 @@ use std::{
 };
 
 use crate::build::attach::{send_socket_command, start_socket_server};
-use crate::build::config::DriverOverrides;
 use crate::build::source::{source_manifest_path, stage_source_tree};
 use crate::build_intent::BuildIntent;
+use crate::driver::{
+    Driver, DriverInstance, DriverType, Environment, EnvironmentMetadata, EnvironmentPurpose,
+    config::DriverConfig, create_driver, create_driver_from_metadata, remove_environment_root,
+};
 use crate::{
-    build::{
-        common::{BuildConfig, BuildDriver, BuildDriverType, BuildMetadata, EnvironmentPurpose},
-        config::DriverConfig,
-        driver_bare::DriverBare,
-        driver_docker::DriverDocker,
-        driver_lxd::{DriverLxd, LxdVariant},
-    },
     config::Config,
     package::{PackageIdentity, PackageTarget},
+    signing::{self, SignWith},
 };
 use anyhow::{Context, anyhow};
 
 pub mod artifacts;
 pub mod attach;
-pub mod common;
-pub mod config;
-pub mod driver_bare;
-pub mod driver_docker;
-pub mod driver_lxd;
-pub mod signing;
 pub mod source;
 
+pub use source::SourceSyncMode;
+
 struct Build {
-    config: BuildConfig,
-    pub driver: Box<dyn BuildDriver>,
+    environment: Environment,
+    driver: DriverInstance,
     /// Prepared when signing happens inside a container: agent socket +
     /// sign key, validated before the build starts.
     gpg_forwarding: Option<signing::GpgForwarding>,
     attached: bool,
+    output_dir: PathBuf,
+    sign_package: bool,
+    clean: bool,
+    build_debug_symbols: bool,
 }
 
 /// Where debsign will actually run for this build.
@@ -53,14 +50,16 @@ enum SignLocation {
 /// need *before* the build starts, so a broken gpg setup doesn't waste a
 /// whole build.
 fn prepare_signing(
-    build_config: &BuildConfig,
+    environment: &Environment,
+    sign_with: SignWith,
+    sign_key: Option<&str>,
 ) -> anyhow::Result<(SignLocation, Option<signing::GpgForwarding>)> {
-    let container_driver = build_config.driver != BuildDriverType::Bare;
+    let container_driver = environment.driver != DriverType::Bare;
     let host_has_debsign = signing::check_host_debsign_available().is_ok();
 
-    let location = match build_config.sign_with {
-        signing::SignWith::Host => SignLocation::Host,
-        signing::SignWith::Same => {
+    let location = match sign_with {
+        SignWith::Host => SignLocation::Host,
+        SignWith::Same => {
             if container_driver {
                 SignLocation::Container
             } else {
@@ -68,7 +67,7 @@ fn prepare_signing(
                 SignLocation::Host
             }
         }
-        signing::SignWith::Auto => {
+        SignWith::Auto => {
             if host_has_debsign || !container_driver {
                 SignLocation::Host
             } else {
@@ -83,7 +82,7 @@ fn prepare_signing(
             Ok((location, None))
         }
         SignLocation::Container => {
-            let sign_key = build_config.sign_key.clone().ok_or_else(|| {
+            let sign_key = sign_key.ok_or_else(|| {
                 anyhow!(
                     "signing in a container requires sign_key to be set \
                      (debsign's maintainer-based key lookup only works on the host)"
@@ -91,158 +90,41 @@ fn prepare_signing(
             })?;
             let forwarding = signing::GpgForwarding {
                 agent_extra_socket: signing::gpg_agent_extra_socket()?,
-                sign_key: sign_key.clone(),
+                sign_key: sign_key.to_string(),
             };
-            signing::check_signing_key_available(&sign_key)?;
+            signing::check_signing_key_available(sign_key)?;
             Ok((location, Some(forwarding)))
         }
     }
 }
 
-pub(crate) fn get_build_driver(
-    config: &BuildConfig,
-    driver_config: &DriverConfig,
-    driver_overrides: &DriverOverrides,
-) -> anyhow::Result<Box<dyn BuildDriver>> {
-    let apt_mirror = driver_overrides
-        .apt_mirror
-        .as_deref()
-        .or(driver_config.apt_mirror.as_deref());
-    let proposed = driver_overrides.proposed.unwrap_or(driver_config.proposed);
-
-    match config.driver {
-        BuildDriverType::Docker => Ok(Box::new(DriverDocker::create(
-            config,
-            driver_config,
-            &driver_overrides.docker,
-            apt_mirror,
-            proposed,
-        )?)),
-        BuildDriverType::Bare => Ok(Box::new(DriverBare::create(
-            config,
-            driver_config,
-            &driver_overrides.bare,
-        ))),
-        BuildDriverType::Lxd | BuildDriverType::Incus => {
-            let variant = match config.driver {
-                BuildDriverType::Lxd => LxdVariant::Lxd,
-                _ => LxdVariant::Incus,
-            };
-            Ok(Box::new(DriverLxd::create(
-                variant,
-                config,
-                driver_config,
-                &driver_overrides.lxd,
-                apt_mirror,
-                proposed,
-            )?))
-        }
-    }
-}
-
-pub(crate) fn create_driver_from_metadata(
-    config: &DriverConfig,
-    metadata: &BuildMetadata,
-) -> anyhow::Result<Box<dyn BuildDriver>> {
-    let driver: anyhow::Result<Box<dyn BuildDriver>> = match &metadata.config.driver {
-        BuildDriverType::Docker => Ok(Box::new(DriverDocker::from_build_metadata(
-            &metadata.config,
-            config,
-            metadata,
-        )?)),
-        BuildDriverType::Bare => Ok(Box::new(DriverBare::from_build_metadata(
-            &metadata.config,
-            config,
-            metadata,
-        ))),
-        BuildDriverType::Lxd | BuildDriverType::Incus => {
-            let variant = match metadata.config.driver {
-                BuildDriverType::Lxd => LxdVariant::Lxd,
-                _ => LxdVariant::Incus,
-            };
-            Ok(Box::new(DriverLxd::from_build_metadata(
-                variant,
-                &metadata.config,
-                config,
-                metadata,
-            )?))
-        }
-    };
-    driver
-}
-
-/// Remove `root` from the host. If files are owned by a container user the host
-/// cannot delete, delete them from inside that environment first. Never requires
-/// host root.
-pub(crate) fn remove_environment_root(
-    root: &Path,
-    driver_config: &DriverConfig,
-) -> anyhow::Result<()> {
-    if !root.exists() {
-        return Ok(());
-    }
-    match fs::remove_dir_all(root) {
-        Ok(()) => Ok(()),
-        Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
-            let metadata_path = root.join("build.json");
-            if !metadata_path.is_file() {
-                return Err(e).with_context(|| {
-                    format!(
-                        "failed to remove {} (permission denied) and no build.json is present to delete files from inside the environment",
-                        root.display()
-                    )
-                });
-            }
-            let file = fs::OpenOptions::new()
-                .read(true)
-                .open(&metadata_path)
-                .with_context(|| format!("failed to open {}", metadata_path.display()))?;
-            let metadata: BuildMetadata = serde_json::from_reader(BufReader::new(&file))
-                .with_context(|| format!("failed to parse {}", metadata_path.display()))?;
-            let driver =
-                create_driver_from_metadata(driver_config, &metadata).with_context(|| {
-                    format!(
-                        "failed to reattach to the environment at {} to delete privileged files",
-                        root.display()
-                    )
-                })?;
-            driver.reset_build_root().with_context(|| {
-                format!(
-                    "failed to delete files inside the environment at {}",
-                    root.display()
-                )
-            })?;
-            fs::remove_dir_all(root).with_context(|| {
-                format!(
-                    "failed to remove {} after deleting its contents from inside the environment",
-                    root.display()
-                )
-            })?;
-            Ok(())
-        }
-        Err(e) => Err(e).with_context(|| format!("failed to remove {}", root.display())),
-    }
-}
-
 impl Build {
-    pub fn create(
-        config: &BuildConfig,
-        driver_config: &DriverConfig,
-        driver_overrides: &DriverOverrides,
-    ) -> anyhow::Result<Self> {
-        let driver = get_build_driver(config, driver_config, driver_overrides)
-            .context(format!("failed to create {:?} build driver", config.driver))?;
-        let gpg_forwarding = if config.sign_package {
-            let (_location, forwarding) = prepare_signing(config)?;
+    pub fn create(environment: Environment, intent: &BuildIntent) -> anyhow::Result<Self> {
+        let driver = create_driver(
+            &environment,
+            &intent.config.driver,
+            &intent.driver_overrides,
+        )
+        .context(format!("failed to create {:?} driver", environment.driver))?;
+        let gpg_forwarding = if intent.config.sign_package {
+            let (_location, forwarding) = prepare_signing(
+                &environment,
+                intent.config.sign_with,
+                intent.config.sign_key.as_deref(),
+            )?;
             forwarding
         } else {
             None
         };
         Ok(Self {
-            config: config.clone(),
+            environment,
             driver,
             gpg_forwarding,
             attached: false,
+            output_dir: intent.output_dir.clone(),
+            sign_package: intent.config.sign_package,
+            clean: intent.config.clean,
+            build_debug_symbols: intent.config.build_debug_symbols,
         })
     }
 
@@ -250,22 +132,20 @@ impl Build {
         build_root: &Path,
         driver_config: &DriverConfig,
     ) -> anyhow::Result<Self> {
-        let build_metadata_path = build_root.join("build.json");
-        if !build_metadata_path.is_file() {
-            return Err(anyhow!("No build.json found"));
+        let metadata_path = build_root.join("environment.json");
+        if !metadata_path.is_file() {
+            return Err(anyhow!("No environment.json found"));
         }
-        // read metadata from file
-        let file = fs::OpenOptions::new()
-            .read(true)
-            .open(&build_metadata_path)?;
-        let metadata = || -> anyhow::Result<BuildMetadata> {
+        let file = fs::OpenOptions::new().read(true).open(&metadata_path)?;
+        let metadata = || -> anyhow::Result<EnvironmentMetadata> {
             let reader = BufReader::new(&file);
-            let metadata: BuildMetadata = serde_json::from_reader(reader).with_context(|| {
-                format!(
-                    "Failed to read build metadata from {} - invalid json",
-                    build_metadata_path.display()
-                )
-            })?;
+            let metadata: EnvironmentMetadata =
+                serde_json::from_reader(reader).with_context(|| {
+                    format!(
+                        "Failed to read environment metadata from {} - invalid json",
+                        metadata_path.display()
+                    )
+                })?;
             Ok(metadata)
         }();
 
@@ -277,14 +157,18 @@ impl Build {
 
         Ok(Self {
             gpg_forwarding: None,
-            config: metadata.config.clone(),
+            environment: metadata.environment.clone(),
             driver,
             attached,
+            output_dir: PathBuf::new(),
+            sign_package: false,
+            clean: false,
+            build_debug_symbols: false,
         })
     }
 
     pub fn detach(&self) -> anyhow::Result<()> {
-        let build_root = &self.config.build_root_dir;
+        let build_root = &self.environment.root_dir;
         if self.attached {
             send_socket_command(build_root, "detach")?;
         }
@@ -292,13 +176,13 @@ impl Build {
     }
 
     pub fn write_metadata(&self) -> anyhow::Result<()> {
-        let metadata = BuildMetadata {
-            config: self.config.clone(),
-            driver_metadata: self.driver.get_build_metadata(),
+        let metadata = EnvironmentMetadata {
+            environment: self.environment.clone(),
+            driver_metadata: self.driver.driver_metadata(),
         };
-        let path = self.config.build_root_dir.join("build.json");
+        let path = self.environment.root_dir.join("environment.json");
         let json = serde_json::to_string_pretty(&metadata)
-            .context("Failed to serialize build metadata")?;
+            .context("Failed to serialize environment metadata")?;
         fs::write(path, json)?;
         Ok(())
     }
@@ -317,38 +201,28 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
     let (package_identifier, build_root) =
         get_build_root_and_identifier(&intent.config.temp_build_dir, &target.identity);
 
-    let build_config = BuildConfig {
+    let environment = Environment {
         driver: intent.driver,
         package_name: target.identity.name.clone(),
         package_identifier,
-        source_dir: target.identity.source_dir.clone(),
-        output_dir: intent.output_dir.clone(),
-        build_root_dir: build_root.clone(),
+        root_dir: build_root.clone(),
         distro: target.distro.clone(),
-        sign_package: intent.config.sign_package,
-        sign_with: intent.config.sign_with,
-        sign_key: intent.config.sign_key.clone(),
-        build_debug_symbols: intent.config.build_debug_symbols,
-        clean: intent.config.clean,
         persistent: intent.config.driver.persistent,
-        incremental: intent.config.incremental,
-        source_sync_mode: intent.config.source_sync_mode,
         purpose: EnvironmentPurpose::Build,
     };
+
+    let output_dir = &intent.output_dir;
+    let incremental = intent.config.incremental;
 
     if intent.config.driver.persistent && build_root.exists() {
         // For persistent containers, starting first lets root inside delete
         // container-owned files the host user can't remove.
-        let build = Build::create(
-            &build_config,
-            &intent.config.driver,
-            &intent.driver_overrides,
-        )
-        .context(format!("failed to create {:?} build driver", intent.driver))?;
-        if !intent.config.incremental || !source_manifest_path(&build_config).is_file() {
+        let build = Build::create(environment.clone(), intent)
+            .context(format!("failed to create {:?} driver", intent.driver))?;
+        if !incremental || !source_manifest_path(&environment).is_file() {
             build
                 .driver
-                .reset_build_root()
+                .reset_root()
                 .context("failed to reset persistent build directory")?;
         } else if !build.driver.reused_environment() {
             // A fresh environment (e.g. a new CI runner with a restored build
@@ -356,27 +230,34 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
             // discards whatever the new toolchain/archive state invalidates.
             println!("Keeping incremental build tree in a fresh build environment");
         }
-        build_config
+        fs::create_dir_all(output_dir).context("failed to create output directory")?;
+        environment
             .create_dirs()
             .context("failed to create build directories")?;
-        stage_source_tree(&build_config, &target.identity)?;
+        stage_source_tree(
+            &environment,
+            &target.identity,
+            intent.config.source_sync_mode,
+            incremental,
+        )?;
         return Ok(build);
     }
 
     remove_environment_root(&build_root, &intent.config.driver)?;
 
-    build_config
+    fs::create_dir_all(output_dir).context("failed to create output directory")?;
+    environment
         .create_dirs()
         .context("failed to create build directories")?;
 
-    stage_source_tree(&build_config, &target.identity)?;
-
-    let build = Build::create(
-        &build_config,
-        &intent.config.driver,
-        &intent.driver_overrides,
+    stage_source_tree(
+        &environment,
+        &target.identity,
+        intent.config.source_sync_mode,
+        incremental,
     )?;
-    Ok(build)
+
+    Build::create(environment, intent)
 }
 
 pub fn get_shell_in_build(config: &Config, identity: &PackageIdentity) -> anyhow::Result<()> {
@@ -385,7 +266,7 @@ pub fn get_shell_in_build(config: &Config, identity: &PackageIdentity) -> anyhow
     let build = Build::from_build_root(&build_root, &config.driver)?;
     let result = build
         .driver
-        .interactive_shell(&build.config.build_source_dir());
+        .interactive_shell(&build.environment.staged_source_dir());
 
     build.detach()?;
 
@@ -425,11 +306,11 @@ fn run_build(
         .context("failed to prepare build environment")?;
     build
         .write_metadata()
-        .context("failed to write build metadata")?;
+        .context("failed to write environment metadata")?;
 
     let should_exit = Arc::new(Mutex::new(false));
     let socket_server_handle =
-        start_socket_server(&build.config.build_root_dir, should_exit.clone())?;
+        start_socket_server(&build.environment.root_dir, should_exit.clone())?;
 
     let stop_socket_server = || {
         *should_exit.lock().unwrap() = true;
@@ -439,15 +320,14 @@ fn run_build(
         socket_server_handle.join().ok();
     };
 
+    let sign_key = request.intent.config.sign_key.as_deref();
     let result = build_commands(&build).and_then(|()| {
-        let changes_file = artifacts::export_build_artifacts(
-            &build.config.build_work_dir(),
-            &build.config.output_dir,
-        )?;
-        if build.config.sign_package {
+        let changes_file =
+            artifacts::export_build_artifacts(&build.environment.work_dir(), &build.output_dir)?;
+        if build.sign_package {
             build
                 .driver
-                .sign_changes(&changes_file, build.gpg_forwarding.as_ref())?;
+                .sign_changes(&changes_file, build.gpg_forwarding.as_ref(), sign_key)?;
         }
         Ok(())
     });
@@ -457,7 +337,7 @@ fn run_build(
             eprintln!("Build failed: {error}. Dropping into shell...");
             if let Err(shell_error) = build
                 .driver
-                .interactive_shell(&build.config.build_source_dir())
+                .interactive_shell(&build.environment.staged_source_dir())
             {
                 eprintln!("Dropping into shell failed: {shell_error}");
             }
@@ -490,18 +370,15 @@ pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
     run_build(&request, |build| {
         build.driver.run_command_checked(
             &["apt-get", "-y", "build-dep", "."],
-            &build.config.build_source_dir(),
+            &build.environment.staged_source_dir(),
             true,
             &[],
         )?;
         let inherited_options = std::env::var("DEB_BUILD_OPTIONS").ok();
-        let options = deb_build_options(
-            inherited_options.as_deref(),
-            build.config.build_debug_symbols,
-        );
+        let options = deb_build_options(inherited_options.as_deref(), build.build_debug_symbols);
         let env_add = [("DEB_BUILD_OPTIONS", options.as_str())];
         let mut dpkg_buildpackage_args = vec!["dpkg-buildpackage", "-us", "-uc", "-ui"];
-        if !build.config.clean {
+        if !build.clean {
             // Non-incremental builds already stage a clean source tree, while
             // incremental builds preserve their outputs intentionally.
             dpkg_buildpackage_args.push("-nc");
@@ -509,7 +386,7 @@ pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
         dpkg_buildpackage_args.push("-b");
         build.driver.run_command_checked(
             &dpkg_buildpackage_args,
-            &build.config.build_source_dir(),
+            &build.environment.staged_source_dir(),
             false,
             &env_add,
         )?;
@@ -546,28 +423,28 @@ fn check_dpkg_buildpackage_available() -> anyhow::Result<()> {
 /// If `config.clean` is set, build-dependencies are installed before
 /// `dpkg-buildpackage` runs `debian/rules clean` once.
 pub fn build_source_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<()> {
-    if intent.driver == BuildDriverType::Bare {
+    if intent.driver == DriverType::Bare {
         check_dpkg_buildpackage_available()?;
     }
 
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
-        let build_source_dir = build.config.build_source_dir();
-        if build.config.clean {
+        let staged_source_dir = build.environment.staged_source_dir();
+        if build.clean {
             build.driver.run_command_checked(
                 &["apt-get", "-y", "build-dep", "."],
-                &build_source_dir,
+                &staged_source_dir,
                 true,
                 &[],
             )?;
         }
         let mut args = vec!["dpkg-buildpackage", "-S", "-d", "-us", "-uc", "-ui"];
-        if !build.config.clean {
+        if !build.clean {
             args.push("-nc");
         }
         build
             .driver
-            .run_command_checked(&args, &build_source_dir, false, &[])?;
+            .run_command_checked(&args, &staged_source_dir, false, &[])?;
         Ok(())
     })
     .context("failed to build source package")

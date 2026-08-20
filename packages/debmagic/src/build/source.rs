@@ -16,8 +16,37 @@ use std::{fs, process::Command};
 use anyhow::{Context, anyhow, bail};
 use glob::glob;
 
-use crate::build::common::{BuildConfig, SourceSyncMode};
+use clap::ValueEnum;
+
+use crate::driver::Environment;
 use crate::package::PackageIdentity;
+
+/// Selects which files from the source directory are staged into the build tree.
+#[derive(
+    Debug,
+    Default,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    ValueEnum,
+    serde::Deserialize,
+    serde::Serialize,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum SourceSyncMode {
+    /// Git-tracked files, including uncommitted modifications. Untracked
+    /// files are not staged and reported as a warning.
+    #[default]
+    Tracked,
+    /// Like `tracked`, but the build fails if the worktree has uncommitted
+    /// changes or untracked files.
+    Committed,
+    /// All files except git-ignored ones, regardless of git tracking state.
+    Worktree,
+}
 
 /// Paths of files tracked by git in `src`, as reported by `git ls-files`.
 /// Returns `None` if `src` is not inside a git worktree.
@@ -313,20 +342,24 @@ fn copy_glob(src_dir: &Path, pattern: &str, dest_dir: &Path) -> anyhow::Result<(
     Ok(())
 }
 
-pub fn source_manifest_path(build_config: &BuildConfig) -> PathBuf {
-    build_config.build_root_dir.join("source-manifest.json")
+pub fn source_manifest_path(environment: &Environment) -> PathBuf {
+    environment.root_dir.join("source-manifest.json")
 }
 
-fn write_source_manifest(build_config: &BuildConfig, entries: &[SourcePath]) -> anyhow::Result<()> {
-    let manifest_path = source_manifest_path(build_config);
+fn write_source_manifest(environment: &Environment, entries: &[SourcePath]) -> anyhow::Result<()> {
+    let manifest_path = source_manifest_path(environment);
     let temporary_path = manifest_path.with_extension("json.tmp");
     fs::write(&temporary_path, serde_json::to_vec_pretty(entries)?)?;
     fs::rename(temporary_path, manifest_path)?;
     Ok(())
 }
 
-fn sync_source_tree(build_config: &BuildConfig) -> anyhow::Result<()> {
-    let manifest_path = source_manifest_path(build_config);
+fn sync_source_tree(
+    environment: &Environment,
+    source_dir: &Path,
+    source_sync_mode: SourceSyncMode,
+) -> anyhow::Result<()> {
+    let manifest_path = source_manifest_path(environment);
     let previous: Vec<SourcePath> = serde_json::from_reader(BufReader::new(
         fs::File::open(&manifest_path)
             .with_context(|| format!("failed to open {}", manifest_path.display()))?,
@@ -335,7 +368,7 @@ fn sync_source_tree(build_config: &BuildConfig) -> anyhow::Result<()> {
     for entry in &previous {
         validate_source_path(&entry.path)?;
     }
-    let current = source_tree_entries(&build_config.source_dir, build_config.source_sync_mode)?;
+    let current = source_tree_entries(source_dir, source_sync_mode)?;
 
     let current_kinds = current
         .iter()
@@ -347,7 +380,7 @@ fn sync_source_tree(build_config: &BuildConfig) -> anyhow::Result<()> {
         .collect::<Vec<_>>();
     stale.sort_by_key(|entry| Reverse(entry.path.components().count()));
     for entry in stale {
-        let destination = build_config.build_source_dir().join(&entry.path);
+        let destination = environment.staged_source_dir().join(&entry.path);
         if entry.kind == SourcePathKind::Directory
             && !current_kinds.contains_key(entry.path.as_path())
         {
@@ -365,20 +398,19 @@ fn sync_source_tree(build_config: &BuildConfig) -> anyhow::Result<()> {
         }
     }
 
-    copy_source_entries(
-        &build_config.source_dir,
-        &build_config.build_source_dir(),
-        &current,
-    )?;
-    write_source_manifest(build_config, &current)
+    copy_source_entries(source_dir, &environment.staged_source_dir(), &current)?;
+    write_source_manifest(environment, &current)
 }
 
 pub fn stage_source_tree(
-    build_config: &BuildConfig,
+    environment: &Environment,
     identity: &PackageIdentity,
+    source_sync_mode: SourceSyncMode,
+    incremental: bool,
 ) -> anyhow::Result<()> {
-    if build_config.source_sync_mode == SourceSyncMode::Tracked {
-        let untracked = git_untracked_paths(&build_config.source_dir);
+    let source_dir = &identity.source_dir;
+    if source_sync_mode == SourceSyncMode::Tracked {
+        let untracked = git_untracked_paths(source_dir);
         if !untracked.is_empty() {
             eprintln!(
                 "debmagic: warning: {} untracked file(s) not staged into the build tree:",
@@ -393,33 +425,29 @@ pub fn stage_source_tree(
             eprintln!("  git add them or use --source-sync worktree to include them");
         }
     }
-    if build_config.incremental && source_manifest_path(build_config).is_file() {
-        sync_source_tree(build_config).context("failed to synchronize source tree")?;
+    if incremental && source_manifest_path(environment).is_file() {
+        sync_source_tree(environment, source_dir, source_sync_mode)
+            .context("failed to synchronize source tree")?;
     } else {
-        let entries = source_tree_entries(&build_config.source_dir, build_config.source_sync_mode)?;
-        copy_source_entries(
-            &build_config.source_dir,
-            &build_config.build_source_dir(),
-            &entries,
-        )
-        .context("failed to copy source tree to build directory")?;
-        write_source_manifest(build_config, &entries)?;
+        let entries = source_tree_entries(source_dir, source_sync_mode)?;
+        copy_source_entries(source_dir, &environment.staged_source_dir(), &entries)
+            .context("failed to copy source tree to build directory")?;
+        write_source_manifest(environment, &entries)?;
     }
 
-    let source_parent = build_config
-        .source_dir
+    let source_parent = source_dir
         .parent()
         .ok_or_else(|| anyhow!("source directory has no parent"))?;
     let prefix = format!("{}_{}", identity.name, identity.version.upstream_version());
     copy_glob(
         source_parent,
         &format!("{prefix}.orig.tar.*"),
-        &build_config.build_work_dir(),
+        &environment.work_dir(),
     )?;
     copy_glob(
         source_parent,
         &format!("{prefix}.orig-*.tar.*"),
-        &build_config.build_work_dir(),
+        &environment.work_dir(),
     )?;
     Ok(())
 }
@@ -428,7 +456,7 @@ pub fn stage_source_tree(
 mod tests {
     use std::os::unix::fs::MetadataExt;
 
-    use crate::build::common::BuildDriverType;
+    use crate::driver::{DriverType, Environment, EnvironmentPurpose};
 
     use super::*;
 
@@ -447,36 +475,27 @@ mod tests {
         fs::write(source_dir.join("cache/input.c"), "source")?;
         symlink("changed.txt", source_dir.join("link"))?;
 
-        let build_config = BuildConfig {
-            driver: BuildDriverType::Bare,
+        let environment = Environment {
+            driver: DriverType::Bare,
             package_name: "example".to_string(),
             package_identifier: "example-1.0".to_string(),
-            build_root_dir: build_root_dir.clone(),
-            source_dir: source_dir.clone(),
-            output_dir: test_root.join("output"),
+            root_dir: build_root_dir.clone(),
             distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
-            sign_package: false,
-            sign_with: crate::build::signing::SignWith::default(),
-            sign_key: None,
-            build_debug_symbols: false,
-            clean: false,
             persistent: true,
-            incremental: true,
-            source_sync_mode: SourceSyncMode::Worktree,
-            purpose: crate::build::common::EnvironmentPurpose::Build,
+            purpose: EnvironmentPurpose::Build,
         };
-        build_config.create_dirs()?;
+        environment.create_dirs()?;
         let initial_entries = source_tree_entries(&source_dir, SourceSyncMode::Worktree)?;
         copy_source_entries(
             &source_dir,
-            &build_config.build_source_dir(),
+            &environment.staged_source_dir(),
             &initial_entries,
         )?;
-        write_source_manifest(&build_config, &initial_entries)?;
+        write_source_manifest(&environment, &initial_entries)?;
         let unchanged_inode =
-            fs::metadata(build_config.build_source_dir().join("unchanged.txt"))?.ino();
+            fs::metadata(environment.staged_source_dir().join("unchanged.txt"))?.ino();
         fs::write(
-            build_config.build_source_dir().join("cache/output.o"),
+            environment.staged_source_dir().join("cache/output.o"),
             "compiled",
         )?;
 
@@ -488,9 +507,9 @@ mod tests {
         symlink("added.txt", source_dir.join("link"))?;
         fs::write(source_dir.join("added.txt"), "new")?;
 
-        sync_source_tree(&build_config)?;
+        sync_source_tree(&environment, &source_dir, SourceSyncMode::Worktree)?;
 
-        let staged = build_config.build_source_dir();
+        let staged = environment.staged_source_dir();
         assert_eq!(fs::read_to_string(staged.join("changed.txt"))?, "after");
         assert_eq!(fs::read_to_string(staged.join("added.txt"))?, "new");
         assert_eq!(

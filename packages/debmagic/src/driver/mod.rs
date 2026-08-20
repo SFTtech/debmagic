@@ -106,6 +106,19 @@ pub enum DriverType {
     Incus,
 }
 
+/// Isolation an Environment actually provides for a TestRun.
+///
+/// A ladder: none, then container, then machine. An Environment advertises
+/// its rung and every rung below. The Driver that created the Environment
+/// reports the rung; it must not claim a rung it does not provide.
+#[derive(Debug, Copy, Clone, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub enum IsolationCapability {
+    #[default]
+    None,
+    Container,
+    Machine,
+}
+
 #[derive(Debug, Copy, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EnvironmentPurpose {
@@ -216,6 +229,9 @@ pub trait Driver {
 
     fn driver_type(&self) -> DriverType;
 
+    /// Isolation this Driver's Environment actually provides.
+    fn isolation_capability(&self) -> IsolationCapability;
+
     fn reset_root(&self) -> io::Result<()>;
 
     fn reused_environment(&self) -> bool {
@@ -273,6 +289,14 @@ impl Driver for DriverInstance {
             Self::Docker(d) => d.driver_type(),
             Self::Bare(d) => d.driver_type(),
             Self::Lxd(d) => d.driver_type(),
+        }
+    }
+
+    fn isolation_capability(&self) -> IsolationCapability {
+        match self {
+            Self::Docker(d) => d.isolation_capability(),
+            Self::Bare(d) => d.isolation_capability(),
+            Self::Lxd(d) => d.isolation_capability(),
         }
     }
 
@@ -505,5 +529,12 @@ mod tests {
         }"#;
         let environment: Environment = serde_json::from_str(json).unwrap();
         assert_eq!(environment.purpose, EnvironmentPurpose::Build);
+    }
+
+    #[test]
+    fn isolation_capability_is_a_ladder() {
+        assert!(IsolationCapability::None < IsolationCapability::Container);
+        assert!(IsolationCapability::Container < IsolationCapability::Machine);
+        assert!(IsolationCapability::None < IsolationCapability::Machine);
     }
 }

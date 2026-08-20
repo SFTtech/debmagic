@@ -8,6 +8,7 @@ use super::intent::TestIntent;
 use crate::build::source::stage_source_tree;
 use crate::driver::{
     Driver, DriverInstance, DriverType, Environment, EnvironmentMetadata, EnvironmentPurpose,
+    IsolationCapability,
     config::{DriverConfig, DriverOverrides},
     create_driver, remove_environment_root,
 };
@@ -191,6 +192,29 @@ fn print_autopkgtest_notices(exit_code: i32, summary_path: &Path) {
     }
 }
 
+/// autopkgtest(1) `--ignore-restrictions` for this IsolationCapability and
+/// every rung below it.
+///
+/// virt-null cannot advertise isolation via `--fake-capability`: it always
+/// sets a host downtmp prefix, and autopkgtest 5.49+ asserts that
+/// isolation-container/machine and downtmp-host are mutually exclusive
+/// (testbed failure, exit 16). Ignoring only the rungs this Environment
+/// actually provides is the same honesty rule: isolation-container tests
+/// run on Docker/LXD/Incus and still skip on Bare; isolation-machine still
+/// skips on every current Driver.
+fn autopkgtest_isolation_args(isolation: IsolationCapability) -> Vec<&'static str> {
+    match isolation {
+        IsolationCapability::None => vec![],
+        IsolationCapability::Container => vec!["--ignore-restrictions", "isolation-container"],
+        IsolationCapability::Machine => {
+            vec![
+                "--ignore-restrictions",
+                "isolation-container,isolation-machine",
+            ]
+        }
+    }
+}
+
 pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     let identity = load_package_identity(&intent.source_dir)?;
     let (package_identifier, build_root) =
@@ -285,17 +309,22 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     // Binary-only builds have no .dsc in the .changes; pass the staged source
     // tree alongside the .changes so debian/tests/ is found without rebuilding
     // (-B). See autopkgtest(1) "TESTING A DEBIAN PACKAGE" (.changes + tree).
-    let autopkgtest_cmd = [
-        "autopkgtest",
-        "-B",
-        "--no-auto-control",
-        &format!("--output-dir={output_dir_arg}"),
-        &format!("--summary={summary_arg}"),
+    // IsolationCapabilities become `--ignore-restrictions` (autopkgtest args,
+    // not virt-null `--fake-capability`; see autopkgtest_isolation_args).
+    let output_dir_flag = format!("--output-dir={output_dir_arg}");
+    let summary_flag = format!("--summary={summary_arg}");
+    let source_tree_arg = format!("{source_tree_name}/");
+    let isolation_args = autopkgtest_isolation_args(test_run.driver.isolation_capability());
+    let mut autopkgtest_cmd = vec!["autopkgtest", "-B", "--no-auto-control"];
+    autopkgtest_cmd.extend(isolation_args);
+    autopkgtest_cmd.extend([
+        output_dir_flag.as_str(),
+        summary_flag.as_str(),
         changes_filename,
-        &format!("{source_tree_name}/"),
+        source_tree_arg.as_str(),
         "--",
         "null",
-    ];
+    ]);
 
     let exit_code = test_run
         .driver
@@ -441,5 +470,39 @@ mod tests {
             map_autopkgtest_exit(AUTOPKGTEST_EXIT_NO_TESTS, true),
             TestOutcome::StrictFailure
         );
+    }
+
+    #[test]
+    fn autopkgtest_isolation_args_ignore_provided_rungs_only() {
+        assert_eq!(
+            autopkgtest_isolation_args(IsolationCapability::None),
+            [] as [&str; 0]
+        );
+        assert_eq!(
+            autopkgtest_isolation_args(IsolationCapability::Container),
+            ["--ignore-restrictions", "isolation-container"]
+        );
+        assert_eq!(
+            autopkgtest_isolation_args(IsolationCapability::Machine),
+            [
+                "--ignore-restrictions",
+                "isolation-container,isolation-machine"
+            ]
+        );
+    }
+
+    #[test]
+    fn autopkgtest_isolation_args_never_use_fake_capability() {
+        for isolation in [
+            IsolationCapability::None,
+            IsolationCapability::Container,
+            IsolationCapability::Machine,
+        ] {
+            let args = autopkgtest_isolation_args(isolation);
+            assert!(
+                !args.iter().any(|arg| arg.contains("fake-capability")),
+                "virt-null --fake-capability isolation-* crashes autopkgtest 5.49+ (downtmp_prefix assert); isolation={isolation:?} args={args:?}"
+            );
+        }
     }
 }

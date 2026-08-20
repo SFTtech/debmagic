@@ -43,11 +43,13 @@ Driver-specific flags (`--driver-docker-base-image`, `--driver-lxd-*`) mirror `d
 
 Use the same drivers as for builds. Pass `--driver` explicitly (or rely on the driver recorded in the prior build's `environment.json`):
 
-| Driver | Isolation |
+| Driver | Isolation the Environment provides |
 |---|---|
-| `lxd` / `incus` | Full container isolation |
-| `docker` | Full container isolation |
+| `lxd` / `incus` | Container (`isolation-container`) |
+| `docker` | Container (`isolation-container`) |
 | `bare` | None — tests run as root on the host; requires `--allow-host-test` |
+
+The driver *is* the testbed, so autopkgtest is told to run tests whose isolation restrictions the environment actually satisfies (`--ignore-restrictions`, only for those rungs). Tests that declare `Restrictions: isolation-container` therefore run on Docker/LXD/Incus instead of skipping. `isolation-machine` is not provided by any current driver (none is a VM); those tests still skip. Bare provides nothing, even with `--allow-host-test`.
 
 ## Exit codes
 
@@ -57,7 +59,7 @@ Use the same drivers as for builds. Pass `--driver` explicitly (or rely on the d
 | `1` | Test failure, testbed error, or other autopkgtest error |
 | `2` | Strict-only failure: skipped tests or no tests declared under `--strict` |
 
-autopkgtest skips tests whose `Restrictions:` the `null` backend cannot satisfy (e.g. `isolation-container`, `isolation-machine`). Skips are reported loudly; use `--strict` to escalate them to exit code 2.
+autopkgtest skips tests whose `Restrictions:` the Environment cannot satisfy (today: `isolation-machine` on every current driver). Skips are reported loudly; use `--strict` to escalate them to exit code 2.
 
 If no `debian/tests/control` exists (or it declares no tests), the run exits 0 with a notice — or exit 2 under `--strict`.
 

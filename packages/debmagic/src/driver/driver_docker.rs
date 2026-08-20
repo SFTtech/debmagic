@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     APT_MIRROR_SCRIPT, Driver, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment,
-    EnvironmentMetadata, config::DriverConfig, container_name_from_metadata,
+    EnvironmentMetadata, IsolationCapability, config::DriverConfig, container_name_from_metadata,
     container_name_metadata, environment_fingerprint, resource_name, run_checked,
     translate_path_in_container,
 };
@@ -457,6 +457,10 @@ impl Driver for DriverDocker {
 
     fn driver_type(&self) -> DriverType {
         DriverType::Docker
+    }
+
+    fn isolation_capability(&self) -> IsolationCapability {
+        IsolationCapability::Container
     }
 }
 

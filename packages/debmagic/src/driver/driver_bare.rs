@@ -2,7 +2,9 @@ use std::{path::Path, process::Command};
 
 use serde::{Deserialize, Serialize};
 
-use crate::driver::{Driver, DriverType, Environment, EnvironmentMetadata, config::DriverConfig};
+use crate::driver::{
+    Driver, DriverType, Environment, EnvironmentMetadata, IsolationCapability, config::DriverConfig,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
@@ -95,6 +97,10 @@ impl Driver for DriverBare {
 
     fn driver_type(&self) -> DriverType {
         DriverType::Bare
+    }
+
+    fn isolation_capability(&self) -> IsolationCapability {
+        IsolationCapability::None
     }
 
     fn reset_root(&self) -> std::io::Result<()> {

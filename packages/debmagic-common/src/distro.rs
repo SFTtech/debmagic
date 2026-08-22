@@ -1,11 +1,75 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt;
 use std::sync::LazyLock;
 
-#[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+/// Distribution family. Known Debian/Ubuntu variants plus an open [`Custom`] name
+/// for other apt/dpkg targets (`yocto`, …).
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Distro {
     Debian,
     Ubuntu,
+    Custom(String),
+}
+
+impl Distro {
+    /// Parse a family name from config keys, `/etc/os-release` `ID`, or serialized form.
+    ///
+    /// `"debian"`/`"Debian"` and `"ubuntu"`/`"Ubuntu"` map to the known variants;
+    /// anything else is [`Distro::Custom`].
+    pub fn parse(name: &str) -> Self {
+        match name {
+            "debian" | "Debian" => Distro::Debian,
+            "ubuntu" | "Ubuntu" => Distro::Ubuntu,
+            other => Distro::Custom(other.to_string()),
+        }
+    }
+
+    pub fn as_str(&self) -> &str {
+        match self {
+            Distro::Debian => "debian",
+            Distro::Ubuntu => "ubuntu",
+            Distro::Custom(name) => name,
+        }
+    }
+}
+
+impl From<&str> for Distro {
+    fn from(name: &str) -> Self {
+        Distro::parse(name)
+    }
+}
+
+impl From<String> for Distro {
+    fn from(name: String) -> Self {
+        Distro::parse(&name)
+    }
+}
+
+impl fmt::Display for Distro {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl Serialize for Distro {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> Deserialize<'de> for Distro {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        // Accept legacy PascalCase unit-enum spellings from older build.json.
+        Ok(Distro::parse(&s))
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
@@ -20,7 +84,7 @@ pub struct DistroVersion {
 }
 
 impl DistroVersion {
-    fn new(distro: Distro, codename: &str, version: &str) -> Self {
+    pub fn new(distro: Distro, codename: &str, version: &str) -> Self {
         Self {
             distro,
             codename: codename.to_string(),
@@ -29,24 +93,18 @@ impl DistroVersion {
         }
     }
 
+    /// Custom (non-built-in) target: family + codename, empty version.
+    pub fn custom(distro: Distro, codename: &str) -> Self {
+        Self::new(distro, codename, "")
+    }
+
     fn devel(mut self) -> Self {
         self.is_devel = true;
         self
     }
-}
 
-impl Distro {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Distro::Debian => "debian",
-            Distro::Ubuntu => "ubuntu",
-        }
-    }
-}
-
-impl std::fmt::Display for Distro {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.as_str())
+    pub fn key(&self) -> String {
+        format!("{}:{}", self.distro, self.codename)
     }
 }
 
@@ -93,7 +151,7 @@ static DISTRO_INFO_MAP: LazyLock<HashMap<&'static str, DistroVersion>> = LazyLoc
     ])
 });
 
-/// Look up a distribution by codename or suite alias.
+/// Look up a built-in distribution by codename or suite alias.
 ///
 /// Suite aliases are map keys that resolve to a concrete release [`DistroVersion`]:
 /// - Debian: `stable` → current stable release, `oldstable` → current oldstable,
@@ -101,6 +159,28 @@ static DISTRO_INFO_MAP: LazyLock<HashMap<&'static str, DistroVersion>> = LazyLoc
 /// - Ubuntu: `devel` → current development release
 ///
 /// Alias targets are maintained manually when Debian/Ubuntu roll.
+/// Non-built-in suites are not returned here; callers resolve those via Driver
+/// `base_images` or Bare `/etc/os-release` checks.
 pub fn get_distro_version(name: &str) -> Option<DistroVersion> {
     DISTRO_INFO_MAP.get(name).cloned()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn distro_serde_accepts_legacy_pascal_case() {
+        let d: Distro = serde_json::from_str("\"Debian\"").unwrap();
+        assert_eq!(d, Distro::Debian);
+        assert_eq!(serde_json::to_string(&d).unwrap(), "\"debian\"");
+    }
+
+    #[test]
+    fn distro_serde_custom_is_plain_string() {
+        let d = Distro::Custom("yocto".into());
+        assert_eq!(serde_json::to_string(&d).unwrap(), "\"yocto\"");
+        let parsed: Distro = serde_json::from_str("\"yocto\"").unwrap();
+        assert_eq!(parsed, d);
+    }
 }

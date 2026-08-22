@@ -119,6 +119,8 @@ If the changelog has a single unambiguous entry, omit it.
 Suite aliases in the changelog (or via `--distro`) resolve to a concrete release: Debian `stable` / `oldstable` / `sid` (→ `unstable`), and Ubuntu `devel`.
 Alias targets are updated manually when Debian/Ubuntu roll.
 
+Non-Debian/Ubuntu suites (still apt/dpkg-based) are supported when declared for the active container Driver via `base_images`, e.g. `driver.docker.base_images = { "yocto:kirkstone" = "my-registry/yocto-kirkstone:latest" }`. The changelog/`--distro` value stays the bare codename (`kirkstone`). On the Bare driver, the host `/etc/os-release` must match: built-in Debian/Ubuntu need matching `ID` and codename; other suites need a matching `VERSION_CODENAME` only.
+
 ## Proposed dependencies
 
 If needed, build dependencies can be used from `<release>-proposed`.

@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::Context as _;
-use debmagic_common::distro::Distro;
+use debmagic_common::distro::{Distro, DistroVersion};
 use serde::{Deserialize, Serialize};
 
 use crate::build::{
@@ -55,11 +55,7 @@ pub struct DriverLxdConfig {
 }
 
 impl DriverLxdConfig {
-    pub fn base_image_for_distro(
-        &self,
-        variant: LxdVariant,
-        distro: &debmagic_common::distro::DistroVersion,
-    ) -> String {
+    pub fn base_image_for_distro(&self, variant: LxdVariant, distro: &DistroVersion) -> String {
         self.base_images
             .get(&format!("{}:{}", distro.distro, distro.codename))
             .cloned()
@@ -67,11 +63,7 @@ impl DriverLxdConfig {
     }
 }
 
-fn default_base_image(
-    variant: LxdVariant,
-    distro: &debmagic_common::distro::DistroVersion,
-) -> String {
-    use debmagic_common::distro::Distro;
+fn default_base_image(variant: LxdVariant, distro: &DistroVersion) -> String {
     match (&distro.distro, variant, distro.is_devel) {
         // LXD ships a dedicated ubuntu: remote; daily builds are on ubuntu-daily:.
         (Distro::Ubuntu, LxdVariant::Lxd, false) => format!("ubuntu:{}", distro.version),
@@ -85,6 +77,8 @@ fn default_base_image(
         (Distro::Debian, _, _) => {
             format!("images:debian/{}", debian_image_codename(&distro.codename))
         }
+        // Custom families must be declared in base_images; this is only a last-resort fallback.
+        (Distro::Custom(family), _, _) => format!("images:{family}/{}", distro.codename),
     }
 }
 
@@ -329,7 +323,7 @@ impl DriverLxd {
                     &format!("starting {} container", variant.binary()),
                 )?;
 
-                if config.distro.distro == Distro::Ubuntu {
+                if matches!(config.distro.distro, Distro::Ubuntu) {
                     base.exec_in_container(&["cloud-init", "status", "--wait"], None, true, &[])
                         .map_err(|e| {
                             anyhow::anyhow!("Error waiting for cloud-init to finish: {e}")

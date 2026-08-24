@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+debian/control: LN0001 [required-field] Maintainer (in section for source)
+debian/control: LN0001 [required-field] Architecture (in section for example)
+debian/control: LN0001 [required-field] Standards-Version (in section for source)
+debian/control: LN0001 [required-field] Standards-Version (in section for source)

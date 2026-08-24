@@ -20,6 +20,7 @@ pub mod distro_info;
 pub mod driver;
 pub mod env;
 pub mod environment;
+pub mod lint;
 pub mod output;
 pub mod output_dir;
 pub mod package;
@@ -188,8 +189,32 @@ async fn run() -> anyhow::Result<ExitCode> {
                 test::TestOutcome::StrictFailure => ExitCode::from(2),
             });
         }
-        Commands::Check(_args) => {
-            println!("Check subcommand! - not implemented");
+        Commands::Lint(args) => {
+            if args.subject.is_some() && args.common.source_dir.is_some() {
+                anyhow::bail!("cannot specify both a subject path and --source-dir");
+            }
+            let subject = args
+                .subject
+                .clone()
+                .or_else(|| args.common.source_dir.clone());
+            let intent = lint::resolve_check_intent(lint::CheckIntentInput {
+                fallback_dir: current_dir.clone(),
+                subject,
+                config_file: cli.config.clone(),
+                select: args.select.clone(),
+                ignore: args.ignore.clone(),
+                fail_on: args.fail_on.clone(),
+            })?;
+            let (diagnostics, outcome) =
+                lint::run_check(&intent).context("linting the package failed")?;
+            for diagnostic in &diagnostics {
+                println!("{}", lint::format_diagnostic(diagnostic));
+            }
+            println!("{}", lint::format_summary(&diagnostics));
+            return Ok(match outcome {
+                lint::CheckOutcome::Success => ExitCode::SUCCESS,
+                lint::CheckOutcome::PolicyFailure => ExitCode::from(1),
+            });
         }
         Commands::Upload(args) => {
             upload::upload(upload::UploadIntent {

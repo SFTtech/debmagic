@@ -31,6 +31,7 @@ Build-Depends:
  librust-futures-util-dev (>= 0.3),
  librust-tokio-dev (>= 1.43),
  librust-test-case-dev (>=3.3.1),
+ librust-insta-dev (>=1.48.0),
  librust-pyo3-dev (>=0.27.2),
  librust-deb822-lossless-dev (>=0.5.19),
  librust-debian-changelog-dev (>=0.2.14),

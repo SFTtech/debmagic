@@ -21,3 +21,7 @@ uuid = { workspace = true, features = ["v4"] }
 debian-changelog = { workspace = true }
 debian-control = { workspace = true }
 ignore = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+insta = { workspace = true }

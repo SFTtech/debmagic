@@ -29,3 +29,5 @@ ignore = { version = ">=0.4.25" }
 
 # dev dependencies
 test-case = { version = ">=3.3.1" }
+tempfile = { version = ">=3.27.0" }
+insta = { version = ">=1.48.0" }

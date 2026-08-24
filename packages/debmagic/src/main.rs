@@ -12,6 +12,10 @@ use crate::{
         DriverType, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
         driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
     },
+    lint::{
+        CheckIntentInput, CheckOutcome, format_diagnostic, format_summary, resolve_check_intent,
+        run_check,
+    },
     package::{distro_resolve_mode_for_driver, load_package_identity, resolve_package_target},
     test::{TestIntentInput, TestOutcome, resolve_test_intent, run_test},
 };
@@ -21,6 +25,7 @@ pub mod build_intent;
 pub mod cli;
 pub mod config;
 pub mod driver;
+pub mod lint;
 pub mod package;
 pub mod signing;
 pub mod test;
@@ -150,8 +155,32 @@ fn run() -> anyhow::Result<ExitCode> {
                 TestOutcome::StrictFailure => ExitCode::from(2),
             });
         }
-        Commands::Check(_args) => {
-            println!("Check subcommand! - not implemented");
+        Commands::Lint(args) => {
+            if args.subject.is_some() && args.common.source_dir.is_some() {
+                anyhow::bail!("cannot specify both a subject path and --source-dir");
+            }
+            let subject = args
+                .subject
+                .clone()
+                .or_else(|| args.common.source_dir.clone());
+            let intent = resolve_check_intent(CheckIntentInput {
+                fallback_dir: current_dir.clone(),
+                subject,
+                config_file: cli.config.clone(),
+                select: args.select.clone(),
+                ignore: args.ignore.clone(),
+                fail_on: args.fail_on.clone(),
+            })?;
+            let (diagnostics, outcome) =
+                run_check(&intent).context("linting the package failed")?;
+            for diagnostic in &diagnostics {
+                println!("{}", format_diagnostic(diagnostic));
+            }
+            println!("{}", format_summary(&diagnostics));
+            return Ok(match outcome {
+                CheckOutcome::Success => ExitCode::SUCCESS,
+                CheckOutcome::PolicyFailure => ExitCode::from(1),
+            });
         }
         Commands::Version {} => {
             let cmd = Cli::command();

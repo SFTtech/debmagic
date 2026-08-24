@@ -22,8 +22,10 @@ pub enum Commands {
     Shell(ShellSubcommandArgs),
     #[command(about = "Run the package's declared Debian autopkgtest tests against a prior build")]
     Test(TestSubcommandArgs),
-    #[command(about = "Check the project")]
-    Check(CheckSubcommandArgs),
+    #[command(
+        about = "Lint a package: source tree, binary package (.deb), or source package (.dsc)"
+    )]
+    Lint(LintSubcommandArgs),
     #[command(about = "Show version information")]
     Version {},
 }
@@ -275,7 +277,33 @@ pub struct TestSubcommandArgs {
 }
 
 #[derive(Args, Debug)]
-pub struct CheckSubcommandArgs {
+pub struct LintSubcommandArgs {
+    /// Subject to lint: a source tree directory, a `.deb`, or a `.dsc`
+    pub subject: Option<PathBuf>,
+
     #[command(flatten)]
     pub common: CommonCli,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::Append,
+        value_delimiter = ',',
+        help = "Select Rules by Code, Tag, or Code prefix, replaces the default set"
+    )]
+    pub select: Vec<String>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::Append,
+        value_delimiter = ',',
+        help = "Subtract Rules from the current set by Code, Tag, or Code prefix"
+    )]
+    pub ignore: Vec<String>,
+
+    #[arg(
+        long = "fail-on",
+        value_delimiter = ',',
+        help = "Severity rungs that make lint exit non-zero (error, warning, info, pedantic). Warning does not imply error; default is error only when unset"
+    )]
+    pub fail_on: Vec<crate::lint::Severity>,
 }

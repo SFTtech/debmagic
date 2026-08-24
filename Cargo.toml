@@ -41,3 +41,4 @@ sqlx = { version = ">=0.9", default-features = false, features = ["runtime-tokio
 
 # dev dependencies
 test-case = { version = ">=3.3.1" }
+insta = { version = ">=1.48.0" }

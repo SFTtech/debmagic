@@ -1,3 +1,9 @@
+debmagic (0.0.1~alpha7) forky; urgency=medium
+
+  * support non-debian and non-ubuntu distros using dpkg
+
+ -- Debmagic Maintainers <debmagic@sft.lol>  Tue, 25 Aug 2026 21:11:20 +0200
+
 debmagic (0.0.1~alpha6) forky; urgency=medium
 
   * add a proper readme for pypi package upload

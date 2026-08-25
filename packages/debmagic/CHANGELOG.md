@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1-alpha.7] - 2026-08-25
+
 - support non-debian and non-ubuntu distros using dpkg
 
 ## [0.0.1-alpha.6] - 2026-08-10
@@ -38,7 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial alpha release of the Rust-based `debmagic` CLI.
 
-[Unreleased]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.6...HEAD
+[Unreleased]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.7...HEAD
+[0.0.1-alpha.7]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.6...v0.0.1-alpha.7
 [0.0.1-alpha.6]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.5...v0.0.1-alpha.6
 [0.0.1-alpha.5]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.4...v0.0.1-alpha.5
 [0.0.1-alpha.4]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.3...v0.0.1-alpha.4

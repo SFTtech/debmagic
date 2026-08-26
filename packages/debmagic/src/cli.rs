@@ -151,9 +151,9 @@ pub struct CommonBuildArgs {
     #[arg(
         long = "shell-on-failure",
         action = clap::ArgAction::SetTrue,
-        help = "On build failure, drop into an interactive shell in the build environment when stdout is a TTY"
+        help = "On build failure, drop into an interactive shell in the build environment when stdout is a TTY. Defaults to the 'shell_on_failure' setting in the config file (false if unset)."
     )]
-    pub shell_on_failure: bool,
+    pub shell_on_failure: Option<bool>,
 
     #[command(flatten)]
     pub common: CommonCli,
@@ -266,9 +266,9 @@ pub struct TestSubcommandArgs {
     #[arg(
         long = "shell-on-failure",
         action = clap::ArgAction::SetTrue,
-        help = "On test failure, drop into an interactive shell in the test environment when stdout is a TTY"
+        help = "On test failure, drop into an interactive shell in the test environment when stdout is a TTY. Defaults to the 'shell_on_failure' setting in the config file (false if unset)."
     )]
-    pub shell_on_failure: bool,
+    pub shell_on_failure: Option<bool>,
 
     #[command(flatten)]
     pub common: CommonCli,

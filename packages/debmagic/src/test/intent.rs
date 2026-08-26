@@ -20,7 +20,7 @@ pub struct TestIntentInput {
     pub strict: bool,
     pub changes: Option<PathBuf>,
     pub allow_host_test: bool,
-    pub shell_on_failure: bool,
+    pub shell_on_failure: Option<bool>,
     pub distro: Option<String>,
     pub driver_overrides: DriverOverrides,
 }
@@ -57,13 +57,15 @@ pub fn resolve_test_intent(input: TestIntentInput) -> anyhow::Result<TestIntent>
         None
     };
 
+    let shell_on_failure = input.shell_on_failure.unwrap_or(config.shell_on_failure);
+
     Ok(TestIntent {
         source_dir,
         driver: input.driver,
         strict: input.strict,
         changes,
         allow_host_test: input.allow_host_test,
-        shell_on_failure: input.shell_on_failure,
+        shell_on_failure,
         distro: input.distro,
         config,
         driver_overrides: input.driver_overrides,
@@ -95,7 +97,7 @@ mod tests {
             strict: false,
             changes: None,
             allow_host_test: false,
-            shell_on_failure: false,
+            shell_on_failure: None,
             distro: None,
             driver_overrides: DriverOverrides {
                 apt_mirror: None,
@@ -136,7 +138,7 @@ mod tests {
     fn resolve_passes_through_shell_on_failure() -> anyhow::Result<()> {
         let dir = std::env::temp_dir();
         let mut input = base_input(dir);
-        input.shell_on_failure = true;
+        input.shell_on_failure = Some(true);
 
         let intent = resolve_test_intent(input)?;
         assert!(intent.shell_on_failure);

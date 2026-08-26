@@ -30,7 +30,7 @@ pub struct BuildIntentInput {
     pub clean: Option<bool>,
     pub no_clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
-    pub shell_on_failure: bool,
+    pub shell_on_failure: Option<bool>,
     pub driver_overrides: DriverOverrides,
 }
 
@@ -124,11 +124,13 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         config.driver.persistent = true;
     }
 
+    let shell_on_failure = input.shell_on_failure.unwrap_or(config.shell_on_failure);
+
     Ok(BuildIntent {
         source_dir,
         output_dir,
         driver: input.driver,
-        shell_on_failure: input.shell_on_failure,
+        shell_on_failure,
         config,
         driver_overrides: input.driver_overrides,
     })
@@ -167,7 +169,7 @@ mod tests {
             clean: None,
             no_clean: None,
             source_sync: None,
-            shell_on_failure: false,
+            shell_on_failure: None,
             driver_overrides: DriverOverrides {
                 apt_mirror: None,
                 proposed: None,
@@ -223,10 +225,30 @@ mod tests {
     fn resolve_passes_through_shell_on_failure() -> anyhow::Result<()> {
         let dir = std::env::temp_dir();
         let mut input = base_input(dir);
-        input.shell_on_failure = true;
+        input.shell_on_failure = Some(true);
 
         let intent = resolve_build_intent(input)?;
         assert!(intent.shell_on_failure);
+        Ok(())
+    }
+
+    #[test]
+    fn resolve_shell_on_failure_from_config() -> anyhow::Result<()> {
+        let dir = std::env::temp_dir();
+        let mut input = base_input(dir);
+        input.config_file = None;
+        input.shell_on_failure = None;
+
+        let config_path = std::env::temp_dir().join(format!(
+            "debmagic-shell-on-failure-{}.toml",
+            std::process::id()
+        ));
+        std::fs::write(&config_path, "shell_on_failure = true\n")?;
+        input.config_file = Some(config_path.clone());
+
+        let intent = resolve_build_intent(input)?;
+        assert!(intent.shell_on_failure);
+        std::fs::remove_file(config_path)?;
         Ok(())
     }
 

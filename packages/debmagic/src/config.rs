@@ -32,6 +32,9 @@ pub struct Config {
     /// builds already stage a clean source tree and incremental builds preserve
     /// outputs intentionally.
     pub clean: bool,
+    /// On build or test failure, drop into an interactive shell in the
+    /// environment when stdout is a TTY.
+    pub shell_on_failure: bool,
 }
 
 impl Default for Config {
@@ -46,6 +49,7 @@ impl Default for Config {
             sign_with: SignWith::default(),
             sign_key: None,
             clean: false,
+            shell_on_failure: false,
         }
     }
 }

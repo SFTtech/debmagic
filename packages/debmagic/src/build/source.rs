@@ -46,6 +46,8 @@ pub enum SourceSyncMode {
     Committed,
     /// All files except git-ignored ones, regardless of git tracking state.
     Worktree,
+    /// All files except including git-ignored ones
+    Everything,
 }
 
 /// Paths of files tracked by git in `src`, as reported by `git ls-files`.
@@ -151,6 +153,7 @@ fn validate_source_path(path: &Path) -> anyhow::Result<()> {
 
 fn source_tree_entries(src: &Path, mode: SourceSyncMode) -> anyhow::Result<Vec<SourcePath>> {
     match mode {
+        SourceSyncMode::Everything => directory_entries(src),
         SourceSyncMode::Worktree => worktree_entries(src),
         SourceSyncMode::Tracked | SourceSyncMode::Committed => {
             if mode == SourceSyncMode::Committed {
@@ -218,6 +221,31 @@ fn tracked_entries(src: &Path, paths: &[PathBuf]) -> anyhow::Result<Vec<SourcePa
         entries.push(SourcePath {
             path: path.clone(),
             kind: entry_kind(&full_path)?,
+        });
+    }
+    entries.sort_by_key(|entry| entry.path.components().count());
+    Ok(entries)
+}
+
+fn directory_entries(src: &Path) -> anyhow::Result<Vec<SourcePath>> {
+    let walker = ignore::WalkBuilder::new(src)
+        .standard_filters(false)
+        .hidden(false)
+        .build();
+
+    let mut entries = Vec::new();
+    for entry in walker {
+        let entry = entry?;
+        let relative_path = entry
+            .path()
+            .strip_prefix(src)
+            .context("failed to get relative path")?;
+        if relative_path.as_os_str().is_empty() {
+            continue;
+        }
+        entries.push(SourcePath {
+            path: relative_path.to_path_buf(),
+            kind: entry_kind(entry.path())?,
         });
     }
     entries.sort_by_key(|entry| entry.path.components().count());

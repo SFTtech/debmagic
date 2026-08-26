@@ -30,7 +30,7 @@ To learn packaging with debmagic, follow **[the documentation!](https://debmagic
 | - | - |
 | `debmagic build binary` | Build a binary package in a container |
 | `debmagic build source` | Create a source package for upload |
-| `debmagic test` | Run package tests |
+| `debmagic test` | Run Debian autopkgtest tests (`debian/tests/`) against a prior build |
 | `debmagic check` | Lint the package |
 
 > [!TIP]

@@ -1,8 +1,8 @@
 use serde::Deserialize;
 
-use crate::build::driver_bare::{DriverBareConfig, DriverBareConfigOverrides};
-use crate::build::driver_docker::{DriverDockerConfig, DriverDockerConfigOverrides};
-use crate::build::driver_lxd::{DriverLxdConfig, DriverLxdConfigOverrides};
+use crate::driver::driver_bare::{DriverBareConfig, DriverBareConfigOverrides};
+use crate::driver::driver_docker::{DriverDockerConfig, DriverDockerConfigOverrides};
+use crate::driver::driver_lxd::{DriverLxdConfig, DriverLxdConfigOverrides};
 
 #[derive(Deserialize, Debug, Clone, Default)]
 #[serde(default)]

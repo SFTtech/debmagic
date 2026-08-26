@@ -3,12 +3,10 @@ use std::path::{Path, PathBuf};
 use anyhow::Context;
 
 use crate::{
-    build::{
-        common::{BuildDriverType, SourceSyncMode},
-        config::DriverOverrides,
-        signing::SignWith,
-    },
+    build::source::SourceSyncMode,
     config::Config,
+    driver::{DriverType, config::DriverOverrides},
+    signing::SignWith,
 };
 
 /// Clap-free inputs for resolving a [`BuildIntent`].
@@ -19,7 +17,7 @@ pub struct BuildIntentInput {
     pub source_dir: Option<PathBuf>,
     pub output_dir: Option<PathBuf>,
     pub config_file: Option<PathBuf>,
-    pub driver: BuildDriverType,
+    pub driver: DriverType,
     pub persistent: Option<bool>,
     pub incremental: Option<bool>,
     /// Force incremental off (e.g. source-only builds).
@@ -32,6 +30,7 @@ pub struct BuildIntentInput {
     pub clean: Option<bool>,
     pub no_clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
+    pub shell_on_failure: bool,
     pub driver_overrides: DriverOverrides,
 }
 
@@ -42,7 +41,8 @@ pub struct BuildIntentInput {
 pub struct BuildIntent {
     pub source_dir: PathBuf,
     pub output_dir: PathBuf,
-    pub driver: BuildDriverType,
+    pub driver: DriverType,
+    pub shell_on_failure: bool,
     pub config: Config,
     pub driver_overrides: DriverOverrides,
 }
@@ -128,6 +128,7 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         source_dir,
         output_dir,
         driver: input.driver,
+        shell_on_failure: input.shell_on_failure,
         config,
         driver_overrides: input.driver_overrides,
     })
@@ -136,9 +137,9 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::build::{
-        driver_bare::DriverBareConfigOverrides, driver_docker::DriverDockerConfigOverrides,
-        driver_lxd::DriverLxdConfigOverrides,
+    use crate::driver::{
+        DriverType, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
+        driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
     };
 
     fn asset_config() -> PathBuf {
@@ -154,7 +155,7 @@ mod tests {
             source_dir: None,
             output_dir: None,
             config_file: Some(asset_config()),
-            driver: BuildDriverType::Docker,
+            driver: DriverType::Docker,
             persistent: None,
             incremental: None,
             disable_incremental: false,
@@ -166,6 +167,7 @@ mod tests {
             clean: None,
             no_clean: None,
             source_sync: None,
+            shell_on_failure: false,
             driver_overrides: DriverOverrides {
                 apt_mirror: None,
                 proposed: None,
@@ -214,6 +216,17 @@ mod tests {
         let intent = resolve_build_intent(input)?;
         assert!(!intent.config.incremental);
         assert!(!intent.config.driver.persistent);
+        Ok(())
+    }
+
+    #[test]
+    fn resolve_passes_through_shell_on_failure() -> anyhow::Result<()> {
+        let dir = std::env::temp_dir();
+        let mut input = base_input(dir);
+        input.shell_on_failure = true;
+
+        let intent = resolve_build_intent(input)?;
+        assert!(intent.shell_on_failure);
         Ok(())
     }
 

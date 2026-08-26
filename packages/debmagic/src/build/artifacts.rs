@@ -1,13 +1,14 @@
 use std::{
     ffi::OsStr,
-    fs,
+    fs, io,
     path::{Component, Path, PathBuf},
 };
 
 use anyhow::{Context, anyhow, bail};
 use debian_control::lossless::changes::Changes;
 
-fn changes_file_in(build_dir: &Path) -> anyhow::Result<PathBuf> {
+/// Locate the single `.changes` file in a build work directory.
+pub fn find_changes_file(build_dir: &Path) -> anyhow::Result<PathBuf> {
     let mut paths = fs::read_dir(build_dir)
         .with_context(|| {
             format!(
@@ -54,7 +55,7 @@ pub fn export_build_artifacts(build_dir: &Path, output_dir: &Path) -> anyhow::Re
     fs::create_dir_all(output_dir)
         .with_context(|| format!("failed to create output directory {}", output_dir.display()))?;
 
-    let changes_path = changes_file_in(build_dir)?;
+    let changes_path = find_changes_file(build_dir)?;
     let changes_metadata = fs::symlink_metadata(&changes_path)?;
     if !changes_metadata.file_type().is_file() {
         bail!(
@@ -104,6 +105,74 @@ pub fn export_build_artifacts(build_dir: &Path, output_dir: &Path) -> anyhow::Re
     fs::copy(&changes_path, &exported_changes)
         .with_context(|| format!("failed to copy {}", changes_path.display()))?;
     Ok(exported_changes)
+}
+
+/// Copy a `.changes` file and every artifact it references into `dest_dir`.
+pub fn copy_changes_artifacts(changes_path: &Path, dest_dir: &Path) -> anyhow::Result<()> {
+    fs::create_dir_all(dest_dir)
+        .with_context(|| format!("failed to create directory {}", dest_dir.display()))?;
+
+    let changes_metadata = fs::symlink_metadata(changes_path)?;
+    if !changes_metadata.file_type().is_file() {
+        bail!(
+            "changes file {} is not a regular file",
+            changes_path.display()
+        );
+    }
+    let source_dir = changes_path.parent().ok_or_else(|| {
+        anyhow!(
+            "changes file {} has no parent directory",
+            changes_path.display()
+        )
+    })?;
+    let changes = Changes::from_file(changes_path)
+        .with_context(|| format!("failed to parse {}", changes_path.display()))?;
+    let files = changes
+        .files()
+        .ok_or_else(|| anyhow!("{} has no Files field", changes_path.display()))?;
+
+    for file in files {
+        let filename = artifact_filename(&file.filename)?;
+        let source = source_dir.join(filename);
+        let metadata = fs::symlink_metadata(&source).with_context(|| {
+            format!(
+                "artifact {} referenced by {} does not exist",
+                source.display(),
+                changes_path.display()
+            )
+        })?;
+        if !metadata.file_type().is_file() {
+            bail!("build artifact {} is not a regular file", source.display());
+        }
+        let destination = dest_dir.join(filename);
+        reject_destination_symlink(&destination)?;
+        fs::copy(&source, destination)
+            .with_context(|| format!("failed to copy build artifact {}", source.display()))?;
+    }
+
+    let changes_filename = changes_path
+        .file_name()
+        .ok_or_else(|| anyhow!("invalid .changes path: {}", changes_path.display()))?;
+    let destination = dest_dir.join(changes_filename);
+    reject_destination_symlink(&destination)?;
+    fs::copy(changes_path, &destination)
+        .with_context(|| format!("failed to copy {}", changes_path.display()))?;
+    Ok(())
+}
+
+/// Recursively copy a directory tree. Destination directories are created as needed.
+pub(crate) fn copy_dir_all(src: &Path, dst: &Path) -> io::Result<()> {
+    fs::create_dir_all(dst)?;
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let dest_path = dst.join(entry.file_name());
+        if entry.file_type()?.is_dir() {
+            copy_dir_all(&entry.path(), &dest_path)?;
+        } else {
+            fs::copy(entry.path(), dest_path)?;
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -215,5 +284,27 @@ mod tests {
         assert_eq!(fs::read_to_string(target).unwrap(), "unchanged");
         fs::remove_dir_all(build_dir).unwrap();
         fs::remove_dir_all(output_dir).unwrap();
+    }
+
+    #[test]
+    fn copy_dir_all_copies_nested_files() {
+        let src = test_dir("copy-dir-src");
+        let dst = test_dir("copy-dir-dst");
+        fs::create_dir(src.join("nested")).unwrap();
+        fs::write(src.join("root.txt"), "root").unwrap();
+        fs::write(src.join("nested").join("child.txt"), "child").unwrap();
+
+        copy_dir_all(&src, &dst.join("copied")).unwrap();
+
+        assert_eq!(
+            fs::read_to_string(dst.join("copied").join("root.txt")).unwrap(),
+            "root"
+        );
+        assert_eq!(
+            fs::read_to_string(dst.join("copied").join("nested").join("child.txt")).unwrap(),
+            "child"
+        );
+        fs::remove_dir_all(src).unwrap();
+        fs::remove_dir_all(dst).unwrap();
     }
 }

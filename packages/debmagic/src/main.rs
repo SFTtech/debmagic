@@ -1,26 +1,41 @@
 use std::env;
+use std::process::ExitCode;
 
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
 use crate::{
-    build::{
-        build_package, build_source_package, common::BuildDriverType, config::DriverOverrides,
-        driver_bare::DriverBareConfigOverrides, driver_docker::DriverDockerConfigOverrides,
-        driver_lxd::DriverLxdConfigOverrides, get_shell_in_build,
-    },
+    build::{build_package, build_source_package, get_shell_in_build},
     build_intent::{BuildIntentInput, load_config, resolve_build_intent},
     cli::{BuildTarget, Cli, Commands},
+    driver::{
+        DriverType, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
+        driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
+    },
     package::{distro_resolve_mode_for_driver, load_package_identity, resolve_package_target},
+    test::{TestIntentInput, TestOutcome, resolve_test_intent, run_test},
 };
 
 pub mod build;
 pub mod build_intent;
 pub mod cli;
 pub mod config;
+pub mod driver;
 pub mod package;
+pub mod signing;
+pub mod test;
 
-fn main() -> anyhow::Result<()> {
+fn main() -> ExitCode {
+    match run() {
+        Ok(code) => code,
+        Err(error) => {
+            eprintln!("{error:?}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+fn run() -> anyhow::Result<ExitCode> {
     let cli = Cli::parse();
 
     let current_dir = env::current_dir()?;
@@ -37,7 +52,7 @@ fn main() -> anyhow::Result<()> {
             };
 
             let driver = if is_source {
-                build_args.driver.unwrap_or(BuildDriverType::Bare)
+                build_args.driver.unwrap_or(DriverType::Bare)
             } else {
                 build_args.driver.context(
                     "--driver is required for binary builds (docker, bare, lxd or incus)",
@@ -61,6 +76,7 @@ fn main() -> anyhow::Result<()> {
                 clean: build_args.clean,
                 no_clean: build_args.no_clean,
                 source_sync: build_args.source_sync,
+                shell_on_failure: build_args.shell_on_failure,
                 driver_overrides: DriverOverrides {
                     apt_mirror: build_args.apt_mirror.clone(),
                     proposed: build_args.proposed,
@@ -101,8 +117,38 @@ fn main() -> anyhow::Result<()> {
             let identity = load_package_identity(&source_dir)?;
             get_shell_in_build(&config, &identity)?;
         }
-        Commands::Test(_args) => {
-            println!("Test subcommand! - not implemented");
+        Commands::Test(args) => {
+            let intent = resolve_test_intent(TestIntentInput {
+                fallback_dir: current_dir.clone(),
+                source_dir: args.common.source_dir.clone(),
+                config_file: cli.config.clone(),
+                driver: args.driver,
+                persistent: args.persistent,
+                strict: args.strict,
+                changes: args.changes.clone(),
+                allow_host_test: args.allow_host_test,
+                shell_on_failure: args.shell_on_failure,
+                distro: args.distro.clone(),
+                driver_overrides: DriverOverrides {
+                    apt_mirror: args.apt_mirror.clone(),
+                    proposed: args.proposed,
+                    docker: DriverDockerConfigOverrides {
+                        base_image: args.docker.base_image.clone(),
+                    },
+                    bare: DriverBareConfigOverrides {},
+                    lxd: DriverLxdConfigOverrides {
+                        base_image: args.lxd.base_image.clone(),
+                        project: args.lxd.project.clone(),
+                    },
+                },
+            })?;
+
+            let outcome = run_test(&intent).context("running tests failed")?;
+            return Ok(match outcome {
+                TestOutcome::Passed => ExitCode::SUCCESS,
+                TestOutcome::Failed => ExitCode::from(1),
+                TestOutcome::StrictFailure => ExitCode::from(2),
+            });
         }
         Commands::Check(_args) => {
             println!("Check subcommand! - not implemented");
@@ -113,5 +159,5 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    Ok(())
+    Ok(ExitCode::SUCCESS)
 }

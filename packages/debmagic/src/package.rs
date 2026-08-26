@@ -5,7 +5,7 @@ use anyhow::anyhow;
 use debmagic_common::debian::version::PackageVersion;
 use debmagic_common::distro::{Distro, DistroVersion, get_distro_version};
 
-use crate::build::common::BuildDriverType;
+use crate::driver::DriverType;
 
 /// Who/what is being built, as read from the source tree changelog.
 #[derive(Debug, Clone)]
@@ -102,20 +102,20 @@ pub fn resolve_package_target(
 
 /// Pick the resolve mode for the active Driver from its config maps.
 pub fn distro_resolve_mode_for_driver<'a>(
-    driver: BuildDriverType,
+    driver: DriverType,
     docker_base_images: &'a HashMap<String, String>,
     lxd_base_images: &'a HashMap<String, String>,
 ) -> DistroResolveMode<'a> {
     match driver {
-        BuildDriverType::Docker => DistroResolveMode::Container {
+        DriverType::Docker => DistroResolveMode::Container {
             base_images: docker_base_images,
             config_key: "driver.docker.base_images",
         },
-        BuildDriverType::Lxd | BuildDriverType::Incus => DistroResolveMode::Container {
+        DriverType::Lxd | DriverType::Incus => DistroResolveMode::Container {
             base_images: lxd_base_images,
             config_key: "driver.lxd.base_images",
         },
-        BuildDriverType::Bare => DistroResolveMode::Bare {
+        DriverType::Bare => DistroResolveMode::Bare {
             os_release_path: Path::new("/etc/os-release"),
         },
     }

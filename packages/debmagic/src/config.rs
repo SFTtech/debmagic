@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
-use crate::build::common::SourceSyncMode;
-use crate::build::config::DriverConfig;
-use crate::build::signing::SignWith;
+use crate::build::source::SourceSyncMode;
+use crate::driver::config::DriverConfig;
+use crate::signing::SignWith;
 use anyhow::{Context, anyhow};
 use config::{Config as ConfigBuilder, File};
 use serde::Deserialize;

@@ -8,14 +8,11 @@ use anyhow::Context as _;
 use debmagic_common::distro::{Distro, DistroVersion};
 use serde::{Deserialize, Serialize};
 
-use crate::build::{
-    common::{
-        APT_MIRROR_SCRIPT, BUILD_DIR_IN_CONTAINER, BuildConfig, BuildDriver, BuildDriverType,
-        BuildMetadata, DriverSpecificBuildMetadata, container_name_from_metadata,
-        container_name_metadata, environment_fingerprint, resource_name, run_checked,
-        translate_path_in_container,
-    },
-    config::DriverConfig,
+use crate::driver::{
+    APT_MIRROR_SCRIPT, Driver, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment,
+    EnvironmentMetadata, IsolationCapability, config::DriverConfig, container_name_from_metadata,
+    container_name_metadata, environment_fingerprint, resource_name, run_checked,
+    translate_path_in_container,
 };
 
 // The binary name differs between LXD and Incus, but everything else is shared.
@@ -102,7 +99,7 @@ pub struct DriverLxdConfigOverrides {
 
 pub struct DriverLxd {
     variant: LxdVariant,
-    config: BuildConfig,
+    environment: Environment,
     container_name: String,
     /// Resolved project name (None → omit `--project` flag).
     project: Option<String>,
@@ -207,14 +204,17 @@ impl DriverLxd {
 
     pub fn create(
         variant: LxdVariant,
-        config: &BuildConfig,
+        environment: &Environment,
         driver_config: &DriverConfig,
         overrides: &DriverLxdConfigOverrides,
         apt_mirror: Option<&str>,
         proposed: bool,
     ) -> anyhow::Result<Self> {
-        let container_name =
-            resource_name("debmagic", &config.package_name, &config.build_identifier());
+        let container_name = resource_name(
+            "debmagic",
+            &environment.package_name,
+            &environment.identifier(),
+        );
 
         // Project: CLI override > config file value
         let project = overrides
@@ -224,27 +224,31 @@ impl DriverLxd {
         let base_image = overrides.base_image.clone().unwrap_or_else(|| {
             driver_config
                 .lxd
-                .base_image_for_distro(variant, &config.distro)
+                .base_image_for_distro(variant, &environment.distro)
         });
         let host_uid = unsafe { libc::geteuid() }.to_string();
         let host_gid = unsafe { libc::getegid() }.to_string();
-        let build_root = config.build_root_dir.to_string_lossy();
+        let build_root = environment.root_dir.to_string_lossy();
         let proposed_fingerprint = proposed.to_string();
-        let desired_fingerprint = environment_fingerprint(&[
+        let mut fingerprint_parts = vec![
             variant.binary(),
             ENVIRONMENT_SETUP_VERSION,
             &base_image,
-            &config.distro.codename,
+            &environment.distro.codename,
             apt_mirror.unwrap_or(""),
             &proposed_fingerprint,
             &host_uid,
             &host_gid,
             build_root.as_ref(),
-        ]);
+        ];
+        if let Some(purpose) = environment.purpose.fingerprint_part() {
+            fingerprint_parts.push(purpose);
+        }
+        let desired_fingerprint = environment_fingerprint(&fingerprint_parts);
 
         let mut base = Self {
             variant,
-            config: config.clone(),
+            environment: environment.clone(),
             container_name: container_name.clone(),
             project,
             base_image: base_image.clone(),
@@ -254,7 +258,7 @@ impl DriverLxd {
         let container_entry = base.container_list_entry()?;
         let environment_matches = container_entry.is_some()
             && base.container_environment_fingerprint()?.as_deref() == Some(&desired_fingerprint);
-        let reusing_container = config.persistent && environment_matches;
+        let reusing_container = environment.persistent && environment_matches;
         base.reused_environment = reusing_container;
 
         let mut initialized_container = false;
@@ -272,7 +276,7 @@ impl DriverLxd {
                 }
 
                 let mut init = base.lxd_cmd("init");
-                if !config.persistent {
+                if !environment.persistent {
                     init.arg("--ephemeral");
                 }
                 init.args([&base_image, &container_name]);
@@ -303,8 +307,8 @@ impl DriverLxd {
 
                 let device_name = resource_name(
                     "debmagic-src",
-                    &config.package_name,
-                    &config.build_identifier(),
+                    &environment.package_name,
+                    &environment.identifier(),
                 );
                 run_checked(
                     base.lxd_cmd("config")
@@ -313,8 +317,8 @@ impl DriverLxd {
                         .arg(&container_name)
                         .arg(&device_name)
                         .arg("disk")
-                        .arg(format!("source={}", config.build_root_dir.display()))
-                        .arg(format!("path={}", BUILD_DIR_IN_CONTAINER)),
+                        .arg(format!("source={}", environment.root_dir.display()))
+                        .arg(format!("path={}", ENVIRONMENT_DIR_IN_CONTAINER)),
                     &format!("mounting build root into {} container", variant.binary()),
                 )?;
 
@@ -323,7 +327,7 @@ impl DriverLxd {
                     &format!("starting {} container", variant.binary()),
                 )?;
 
-                if matches!(config.distro.distro, Distro::Ubuntu) {
+                if matches!(environment.distro.distro, Distro::Ubuntu) {
                     base.exec_in_container(&["cloud-init", "status", "--wait"], None, true, &[])
                         .map_err(|e| {
                             anyhow::anyhow!("Error waiting for cloud-init to finish: {e}")
@@ -335,14 +339,14 @@ impl DriverLxd {
             // previous invocation that crashed before finishing this setup (or a
             // long-lived incremental container with an aging package cache)
             // doesn't leave `apt-get build-dep` unable to resolve anything.
-            base.exec_in_container(&["apt-get", "update"], None, true, &[])
+            base.exec_in_container_checked(&["apt-get", "update"], None, true, &[])
                 .map_err(|e| anyhow::anyhow!("Error running apt-get update in container: {e}"))?;
 
             if !reusing_container {
                 // Install the base tooling that stock images don't include.
                 // build-dep is intentionally omitted here: build.rs runs it for
                 // every driver against the real mounted source tree.
-                base.exec_in_container(
+                base.exec_in_container_checked(
                     &["apt-get", "install", "-y", "dpkg-dev", "python3"],
                     None,
                     true,
@@ -356,18 +360,18 @@ impl DriverLxd {
                     uid = BUILD_USER_UID,
                     gid = BUILD_USER_GID,
                 );
-                base.exec_in_container(&["sh", "-ec", &ensure_build_user], None, true, &[])
+                base.exec_in_container_checked(&["sh", "-ec", &ensure_build_user], None, true, &[])
                     .map_err(|e| anyhow::anyhow!("Error creating build user in container: {e}"))?;
 
                 if apt_mirror.is_some() || proposed {
-                    let script_path = config.build_temp_dir().join("mirror.py");
+                    let script_path = environment.temp_dir().join("mirror.py");
                     fs::write(&script_path, APT_MIRROR_SCRIPT)?;
                     let container_script_path = base.translate_path_in_container(&script_path)?;
                     let mut args = vec![
                         "python3".to_string(),
                         container_script_path.to_string_lossy().into_owned(),
                         "--codename".to_string(),
-                        config.distro.codename.clone(),
+                        environment.distro.codename.clone(),
                     ];
                     if let Some(mirror) = apt_mirror {
                         args.extend(["--mirror".to_string(), mirror.to_string()]);
@@ -376,9 +380,9 @@ impl DriverLxd {
                         args.push("--proposed".to_string());
                     }
                     let args = args.iter().map(String::as_str).collect::<Vec<_>>();
-                    base.exec_in_container(&args, None, true, &[])
+                    base.exec_in_container_checked(&args, None, true, &[])
                         .map_err(|e| anyhow::anyhow!("Error configuring apt sources: {e}"))?;
-                    base.exec_in_container(&["apt-get", "update"], None, true, &[])
+                    base.exec_in_container_checked(&["apt-get", "update"], None, true, &[])
                         .map_err(|e| {
                             anyhow::anyhow!("Error updating configured apt sources: {e}")
                         })?;
@@ -409,22 +413,22 @@ impl DriverLxd {
         Ok(base)
     }
 
-    pub fn from_build_metadata(
+    pub fn from_metadata(
         variant: LxdVariant,
-        config: &BuildConfig,
+        environment: &Environment,
         driver_config: &DriverConfig,
-        build_metadata: &BuildMetadata,
+        metadata: &EnvironmentMetadata,
     ) -> anyhow::Result<Self> {
-        let project = build_metadata.driver_metadata.get("project").cloned();
+        let project = metadata.driver_metadata.get("project").cloned();
 
         Ok(Self {
             variant,
-            config: config.clone(),
-            container_name: container_name_from_metadata(build_metadata)?,
+            environment: environment.clone(),
+            container_name: container_name_from_metadata(metadata)?,
             project,
             base_image: driver_config
                 .lxd
-                .base_image_for_distro(variant, &config.distro),
+                .base_image_for_distro(variant, &environment.distro),
             reused_environment: true,
         })
     }
@@ -433,7 +437,7 @@ impl DriverLxd {
         &self,
         path_in_source: &Path,
     ) -> Result<PathBuf, std::io::Error> {
-        translate_path_in_container(&self.config.build_root_dir, path_in_source)
+        translate_path_in_container(&self.environment.root_dir, path_in_source)
     }
 
     /// Run `action` with the container running, restoring a previously
@@ -475,7 +479,7 @@ impl DriverLxd {
         workdir: Option<&Path>,
         as_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<()> {
+    ) -> std::io::Result<i32> {
         println!("[{}] $ {}", self.container_name, cmd.join(" "));
 
         let mut exec_cmd = self.lxd_cmd("exec");
@@ -500,9 +504,20 @@ impl DriverLxd {
         exec_cmd.args(cmd);
 
         let status = exec_cmd.status()?;
-        if !status.success() {
+        Ok(status.code().unwrap_or(-1))
+    }
+
+    fn exec_in_container_checked(
+        &self,
+        cmd: &[&str],
+        workdir: Option<&Path>,
+        as_root: bool,
+        env_add: &[(&str, &str)],
+    ) -> std::io::Result<()> {
+        let code = self.exec_in_container(cmd, workdir, as_root, env_add)?;
+        if code != 0 {
             return Err(std::io::Error::other(format!(
-                "{} exec failed",
+                "{} exec failed with exit code {code}",
                 self.variant.binary()
             )));
         }
@@ -510,8 +525,8 @@ impl DriverLxd {
     }
 }
 
-impl BuildDriver for DriverLxd {
-    fn get_build_metadata(&self) -> DriverSpecificBuildMetadata {
+impl Driver for DriverLxd {
+    fn driver_metadata(&self) -> std::collections::HashMap<String, String> {
         let mut meta = container_name_metadata(&self.container_name);
         if let Some(ref p) = self.project {
             meta.insert("project".to_string(), p.clone());
@@ -519,13 +534,13 @@ impl BuildDriver for DriverLxd {
         meta
     }
 
-    fn run_command_env(
+    fn run_command(
         &self,
         cmd: &[&str],
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<()> {
+    ) -> std::io::Result<i32> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
@@ -534,7 +549,7 @@ impl BuildDriver for DriverLxd {
     }
 
     fn cleanup(&self) -> anyhow::Result<()> {
-        if self.config.persistent {
+        if self.environment.persistent {
             Ok(())
         } else {
             // Ephemeral containers are auto-deleted after stopping.
@@ -542,10 +557,16 @@ impl BuildDriver for DriverLxd {
         }
     }
 
-    fn reset_build_root(&self) -> std::io::Result<()> {
+    fn reset_root(&self) -> std::io::Result<()> {
         self.with_running_container(|driver| {
-            driver.exec_in_container(
-                &["find", BUILD_DIR_IN_CONTAINER, "-mindepth", "1", "-delete"],
+            driver.exec_in_container_checked(
+                &[
+                    "find",
+                    ENVIRONMENT_DIR_IN_CONTAINER,
+                    "-mindepth",
+                    "1",
+                    "-delete",
+                ],
                 None,
                 true,
                 &[],
@@ -575,25 +596,32 @@ impl BuildDriver for DriverLxd {
         })
     }
 
-    fn driver_type(&self) -> BuildDriverType {
+    fn driver_type(&self) -> DriverType {
         match self.variant {
-            LxdVariant::Lxd => BuildDriverType::Lxd,
-            LxdVariant::Incus => BuildDriverType::Incus,
+            LxdVariant::Lxd => DriverType::Lxd,
+            LxdVariant::Incus => DriverType::Incus,
         }
     }
 
-    fn sign_changes(
+    fn isolation_capability(&self) -> IsolationCapability {
+        IsolationCapability::Container
+    }
+}
+
+impl DriverLxd {
+    pub(crate) fn sign_changes(
         &self,
         changes_file: &Path,
-        gpg: Option<&crate::build::signing::GpgForwarding>,
+        gpg: Option<&crate::signing::GpgForwarding>,
+        _sign_key: Option<&str>,
     ) -> anyhow::Result<()> {
-        use crate::build::signing;
+        use crate::signing;
 
         let gpg = gpg.context("container signing needs gpg forwarding info")?;
         let output_dir = changes_file
             .parent()
             .context("changes file has no parent directory")?;
-        let staging_dir = self.config.build_temp_dir().join("sign");
+        let staging_dir = self.environment.temp_dir().join("sign");
         signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
         // No chown needed: raw.idmap maps container root to the host user.
         let script = signing::sign_container_script(
@@ -604,8 +632,8 @@ impl BuildDriver for DriverLxd {
 
         let sign_container = resource_name(
             "debmagic-sign",
-            &self.config.package_name,
-            &self.config.build_identifier(),
+            &self.environment.package_name,
+            &self.environment.identifier(),
         );
         let bin = self.variant.binary();
         // The sign container is ephemeral; it disappears when stopped.

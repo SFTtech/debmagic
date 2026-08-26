@@ -3,7 +3,8 @@
 Modern, robust & easy tooling for building and packaging [Debian](https://debian.org)/[Ubuntu](https://ubuntu.com) packages — while staying backwards compatible.
 
 - **Build any package** in an isolated container environment with `debmagic build`
-- **Test and lint** with `debmagic test` and `debmagic check`
+- **Run Debian autopkgtest tests** against built packages with `debmagic test`
+- **Lint** with `debmagic check`
 - **Debug** build environments interactively with `debmagic shell`
 
 ## Installation
@@ -42,6 +43,15 @@ Create a source package (`.dsc`) without compilation:
 debmagic build source
 ```
 
+Run the package's declared Debian autopkgtest tests against a prior build:
+
+```shell
+debmagic build binary --driver docker
+debmagic test --driver docker
+```
+
+Use `--strict` to fail on skipped or undeclared tests (exit code 2). The bare driver requires `--allow-host-test`.
+
 ### Useful options
 
 - `--distro <codename>` — select the target distro/release (e.g. `trixie`, `noble`) if the changelog is ambiguous
@@ -54,7 +64,7 @@ Any of these can be persisted in a `debmagic.toml` config file instead of repeat
 
 ### Inspecting a failed build
 
-Failed builds tear down their environment by default. Build with `--persistent` up front, then attach an interactive shell inside the build environment:
+Failed builds tear down their environment by default. Pass `--shell-on-failure` to drop into a shell when stdout is a TTY, or build with `--persistent` and attach afterwards:
 
 ```shell
 debmagic shell

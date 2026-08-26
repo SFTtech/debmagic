@@ -9,14 +9,11 @@ use anyhow::{Context, anyhow};
 use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
 
-use crate::build::{
-    common::{
-        APT_MIRROR_SCRIPT, BUILD_DIR_IN_CONTAINER, BuildConfig, BuildDriver, BuildDriverType,
-        BuildMetadata, DriverSpecificBuildMetadata, container_name_from_metadata,
-        container_name_metadata, environment_fingerprint, resource_name, run_checked,
-        translate_path_in_container,
-    },
-    config::DriverConfig,
+use crate::driver::{
+    APT_MIRROR_SCRIPT, Driver, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment,
+    EnvironmentMetadata, IsolationCapability, config::DriverConfig, container_name_from_metadata,
+    container_name_metadata, environment_fingerprint, resource_name, run_checked,
+    translate_path_in_container,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -70,7 +67,7 @@ fn shell_quote(s: &str) -> String {
 }
 
 pub struct DriverDocker {
-    config: BuildConfig,
+    environment: Environment,
     container_name: String,
     /// Base image of the distro, used to spin up minimal one-shot containers
     /// (e.g. for signing) that don't need the build environment's tooling.
@@ -89,7 +86,7 @@ fn sanitize_docker_reference(name: &str) -> String {
 }
 
 fn build_build_image(
-    config: &BuildConfig,
+    environment: &Environment,
     base_image: &str,
     apt_mirror: Option<&str>,
     proposed: bool,
@@ -97,14 +94,14 @@ fn build_build_image(
 ) -> anyhow::Result<()> {
     let apt_mirror_setup = if apt_mirror.is_some() || proposed {
         fs::write(
-            config.build_temp_dir().join(APT_MIRROR_SCRIPT_FILENAME),
+            environment.temp_dir().join(APT_MIRROR_SCRIPT_FILENAME),
             APT_MIRROR_SCRIPT,
         )
         .map_err(|e| anyhow!("Failed to write apt mirror script: {e}"))?;
 
         let mut args = vec![
             "--codename".to_string(),
-            shell_quote(&config.distro.codename),
+            shell_quote(&environment.distro.codename),
         ];
         if let Some(mirror) = apt_mirror {
             args.extend(["--mirror".to_string(), shell_quote(mirror)]);
@@ -126,9 +123,9 @@ fn build_build_image(
     let formatted_dockerfile = DOCKERFILE_TEMPLATE
         .replace("{base_image}", base_image)
         .replace("{apt_mirror_setup}", &apt_mirror_setup)
-        .replace("{build_dir}", BUILD_DIR_IN_CONTAINER);
+        .replace("{build_dir}", ENVIRONMENT_DIR_IN_CONTAINER);
 
-    let dockerfile_path = config.build_temp_dir().join("Dockerfile");
+    let dockerfile_path = environment.temp_dir().join("Dockerfile");
     fs::write(&dockerfile_path, formatted_dockerfile)
         .map_err(|e| anyhow!("Failed to write Dockerfile, {e}"))?;
 
@@ -149,7 +146,7 @@ fn build_build_image(
         .args(&build_args)
         .args(["--tag", image_name, "-f"])
         .arg(dockerfile_path)
-        .arg(config.build_temp_dir());
+        .arg(environment.temp_dir());
 
     run_checked(&mut build_cmd, "building docker image")?;
 
@@ -231,40 +228,45 @@ impl DriverDocker {
     }
 
     pub fn create(
-        config: &BuildConfig,
+        environment: &Environment,
         driver_config: &DriverConfig,
         overrides: &DriverDockerConfigOverrides,
         apt_mirror: Option<&str>,
         proposed: bool,
     ) -> anyhow::Result<Self> {
-        let base_image = overrides
-            .base_image
-            .clone()
-            .unwrap_or_else(|| driver_config.docker.base_image_for_distro(&config.distro));
+        let base_image = overrides.base_image.clone().unwrap_or_else(|| {
+            driver_config
+                .docker
+                .base_image_for_distro(&environment.distro)
+        });
         let uid = unsafe { libc::geteuid() }.to_string();
         let gid = unsafe { libc::getegid() }.to_string();
-        let build_root = config.build_root_dir.to_string_lossy();
+        let build_root = environment.root_dir.to_string_lossy();
         let proposed_fingerprint = proposed.to_string();
         let image_fingerprint = environment_fingerprint(&[
             "docker",
             DOCKERFILE_TEMPLATE,
             APT_MIRROR_SCRIPT,
             &base_image,
-            &config.distro.codename,
+            &environment.distro.codename,
             apt_mirror.unwrap_or(""),
             &proposed_fingerprint,
             &uid,
             &gid,
         ]);
-        let desired_fingerprint =
-            environment_fingerprint(&["docker-container", &image_fingerprint, build_root.as_ref()]);
+        let mut container_fingerprint_parts =
+            vec!["docker-container", &image_fingerprint, build_root.as_ref()];
+        if let Some(purpose) = environment.purpose.fingerprint_part() {
+            container_fingerprint_parts.push(purpose);
+        }
+        let desired_fingerprint = environment_fingerprint(&container_fingerprint_parts);
         let container_name = resource_name(
             "debmagic",
-            &config.package_name,
-            &sanitize_docker_reference(&config.build_identifier()),
+            &environment.package_name,
+            &sanitize_docker_reference(&environment.identifier()),
         );
         let mut driver = Self {
-            config: config.clone(),
+            environment: environment.clone(),
             container_name,
             base_image: base_image.clone(),
             reused_environment: false,
@@ -272,10 +274,10 @@ impl DriverDocker {
         let environment_matches = container_environment_fingerprint(&driver.container_name)?
             .as_deref()
             == Some(&desired_fingerprint);
-        driver.reused_environment = config.persistent && environment_matches;
+        driver.reused_environment = environment.persistent && environment_matches;
         let created_container;
 
-        if config.persistent && environment_matches {
+        if environment.persistent && environment_matches {
             created_container = false;
             if !driver.container_is_running()? {
                 driver.container_start()?;
@@ -291,7 +293,7 @@ impl DriverDocker {
             let docker_image_name = format!("debmagic-env-{}", &image_fingerprint[..16]);
             if !does_image_exist(&docker_image_name)? {
                 build_build_image(
-                    config,
+                    environment,
                     &base_image,
                     apt_mirror,
                     proposed,
@@ -310,8 +312,8 @@ impl DriverDocker {
                         "--mount",
                     ])
                     .arg(bind_mount_arg(
-                        &config.build_root_dir,
-                        BUILD_DIR_IN_CONTAINER,
+                        &environment.root_dir,
+                        ENVIRONMENT_DIR_IN_CONTAINER,
                     ))
                     .arg(&docker_image_name),
                 "starting docker container",
@@ -319,8 +321,10 @@ impl DriverDocker {
             created_container = true;
         }
 
+        // cwd is the build root (the bind mount itself), not the source dir:
+        // create() must not assume the source tree has been staged yet.
         let update_result = driver
-            .run_command(&["apt-get", "update"], &config.build_source_dir(), true)
+            .run_command_checked(&["apt-get", "update"], &environment.root_dir, true, &[])
             .map_err(|error| anyhow!("Error running apt-get update in container: {error}"));
         if let Err(error) = update_result {
             if created_container && let Err(cleanup_error) = driver.container_remove_force() {
@@ -334,15 +338,17 @@ impl DriverDocker {
         Ok(driver)
     }
 
-    pub fn from_build_metadata(
-        config: &BuildConfig,
+    pub fn from_metadata(
+        environment: &Environment,
         driver_config: &DriverConfig,
-        build_metadata: &BuildMetadata,
+        metadata: &EnvironmentMetadata,
     ) -> anyhow::Result<Self> {
         Ok(Self {
-            config: config.clone(),
-            container_name: container_name_from_metadata(build_metadata)?,
-            base_image: driver_config.docker.base_image_for_distro(&config.distro),
+            environment: environment.clone(),
+            container_name: container_name_from_metadata(metadata)?,
+            base_image: driver_config
+                .docker
+                .base_image_for_distro(&environment.distro),
             reused_environment: true,
         })
     }
@@ -351,22 +357,22 @@ impl DriverDocker {
         &self,
         path_in_source: &Path,
     ) -> Result<PathBuf, std::io::Error> {
-        translate_path_in_container(&self.config.build_root_dir, path_in_source)
+        translate_path_in_container(&self.environment.root_dir, path_in_source)
     }
 }
 
-impl BuildDriver for DriverDocker {
-    fn get_build_metadata(&self) -> DriverSpecificBuildMetadata {
+impl Driver for DriverDocker {
+    fn driver_metadata(&self) -> std::collections::HashMap<String, String> {
         container_name_metadata(&self.container_name)
     }
 
-    fn run_command_env(
+    fn run_command(
         &self,
         cmd: &[&str],
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<()> {
+    ) -> std::io::Result<i32> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
@@ -389,22 +395,25 @@ impl BuildDriver for DriverDocker {
         exec_cmd.args(cmd);
 
         let status = exec_cmd.status()?;
-        if !status.success() {
-            return Err(std::io::Error::other("Docker exec failed"));
-        }
-        Ok(())
+        Ok(status.code().unwrap_or(-1))
     }
 
     fn cleanup(&self) -> anyhow::Result<()> {
-        if self.config.persistent {
+        if self.environment.persistent {
             Ok(())
         } else {
             self.container_remove_force()
         }
     }
 
-    fn reset_build_root(&self) -> std::io::Result<()> {
-        let find_cmd = ["find", BUILD_DIR_IN_CONTAINER, "-mindepth", "1", "-delete"];
+    fn reset_root(&self) -> std::io::Result<()> {
+        let find_cmd = [
+            "find",
+            ENVIRONMENT_DIR_IN_CONTAINER,
+            "-mindepth",
+            "1",
+            "-delete",
+        ];
         println!("[{}] $ {}", self.container_name, find_cmd.join(" "));
         let status = Command::new("docker")
             .args(["exec", "--user", "root", &self.container_name])
@@ -446,22 +455,29 @@ impl BuildDriver for DriverDocker {
         Ok(())
     }
 
-    fn driver_type(&self) -> BuildDriverType {
-        BuildDriverType::Docker
+    fn driver_type(&self) -> DriverType {
+        DriverType::Docker
     }
 
-    fn sign_changes(
+    fn isolation_capability(&self) -> IsolationCapability {
+        IsolationCapability::Container
+    }
+}
+
+impl DriverDocker {
+    pub(crate) fn sign_changes(
         &self,
         changes_file: &Path,
-        gpg: Option<&crate::build::signing::GpgForwarding>,
+        gpg: Option<&crate::signing::GpgForwarding>,
+        _sign_key: Option<&str>,
     ) -> anyhow::Result<()> {
-        use crate::build::signing;
+        use crate::signing;
 
         let gpg = gpg.context("docker container signing needs gpg forwarding info")?;
         let output_dir = changes_file
             .parent()
             .context("changes file has no parent directory")?;
-        let staging_dir = self.config.build_temp_dir().join("sign");
+        let staging_dir = self.environment.temp_dir().join("sign");
         signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
         let script = signing::sign_container_script(
             signing::changes_filename(changes_file)?,
@@ -474,7 +490,7 @@ impl BuildDriver for DriverDocker {
         println!(
             "[docker] $ signing {} in a minimal {} container",
             changes_file.display(),
-            self.config.distro.codename
+            self.environment.distro.codename
         );
         run_checked(
             Command::new("docker")

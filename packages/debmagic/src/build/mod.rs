@@ -48,14 +48,15 @@ enum SignLocation {
 }
 
 /// Resolve the effective sign location and validate everything signing will
-/// need *before* the build starts, so a broken gpg setup doesn't waste a
-/// whole build.
+/// need, so a broken gpg setup doesn't waste a whole build. Must run before
+/// any environment is created — the checks are host-side and free, while
+/// bootstrapping a container is not.
 fn prepare_signing(
-    environment: &Environment,
+    driver: DriverType,
     sign_with: SignWith,
     sign_key: Option<&str>,
 ) -> anyhow::Result<(SignLocation, Option<signing::GpgForwarding>)> {
-    let container_driver = environment.driver != DriverType::Bare;
+    let container_driver = driver != DriverType::Bare;
     let host_has_debsign = signing::check_host_debsign_available().is_ok();
 
     let location = match sign_with {
@@ -100,23 +101,17 @@ fn prepare_signing(
 }
 
 impl Build {
-    pub fn create(environment: Environment, intent: &BuildIntent) -> anyhow::Result<Self> {
+    pub fn create(
+        environment: Environment,
+        intent: &BuildIntent,
+        gpg_forwarding: Option<signing::GpgForwarding>,
+    ) -> anyhow::Result<Self> {
         let driver = create_driver(
             &environment,
             &intent.config.driver,
             &intent.driver_overrides,
         )
         .context(format!("failed to create {:?} driver", environment.driver))?;
-        let gpg_forwarding = if intent.config.sign_package {
-            let (_location, forwarding) = prepare_signing(
-                &environment,
-                intent.config.sign_with,
-                intent.config.sign_key.as_deref(),
-            )?;
-            forwarding
-        } else {
-            None
-        };
         Ok(Self {
             environment,
             driver,
@@ -200,7 +195,11 @@ fn get_build_root_and_identifier(
     (package_identifier, build_root)
 }
 
-fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<Build> {
+fn prepare_build_env(
+    intent: &BuildIntent,
+    target: &PackageTarget,
+    gpg_forwarding: Option<signing::GpgForwarding>,
+) -> anyhow::Result<Build> {
     let (package_identifier, build_root) =
         get_build_root_and_identifier(&intent.config.temp_build_dir, &target.identity);
 
@@ -220,7 +219,7 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
     if intent.config.driver.persistent && build_root.exists() {
         // For persistent containers, starting first lets root inside delete
         // container-owned files the host user can't remove.
-        let build = Build::create(environment.clone(), intent)
+        let build = Build::create(environment.clone(), intent, gpg_forwarding)
             .context(format!("failed to create {:?} driver", intent.driver))?;
         if !incremental || !source_manifest_path(&environment).is_file() {
             build
@@ -260,7 +259,7 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
         incremental,
     )?;
 
-    Build::create(environment, intent)
+    Build::create(environment, intent, gpg_forwarding)
 }
 
 pub fn get_shell_in_build(config: &Config, identity: &PackageIdentity) -> anyhow::Result<()> {
@@ -305,7 +304,17 @@ fn run_build(
     request: &BuildRequest,
     build_commands: impl FnOnce(&Build) -> anyhow::Result<()>,
 ) -> anyhow::Result<()> {
-    let build = prepare_build_env(request.intent, request.target)
+    let gpg_forwarding = if request.intent.config.sign_package {
+        let (_location, forwarding) = prepare_signing(
+            request.intent.driver,
+            request.intent.config.sign_with,
+            request.intent.config.sign_key.as_deref(),
+        )?;
+        forwarding
+    } else {
+        None
+    };
+    let build = prepare_build_env(request.intent, request.target, gpg_forwarding)
         .context("failed to prepare build environment")?;
     build
         .write_metadata()

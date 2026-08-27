@@ -97,10 +97,11 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     if let Some(debug_symbols) = input.debug_symbols {
         config.build_debug_symbols = debug_symbols;
     }
+    // overrides_with already made --sign/--no-sign (and
+    // --clean/--no-clean) mutually exclusive, keeping the later flag.
     if let Some(sign) = input.sign {
         config.sign_package = sign;
-    }
-    if let Some(no_sign) = input.no_sign {
+    } else if let Some(no_sign) = input.no_sign {
         config.sign_package = !no_sign;
     }
     if let Some(sign_with) = input.sign_with {

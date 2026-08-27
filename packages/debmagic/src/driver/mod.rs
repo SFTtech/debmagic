@@ -318,6 +318,10 @@ impl Driver for DriverInstance {
 }
 
 impl DriverInstance {
+    /// Sign `changes_file` (a path on the host) with `debsign`. `gpg`
+    /// carries the agent socket and key for signing inside a minimal
+    /// same-distro container; `None` means signing was resolved to run on
+    /// the host instead.
     pub fn sign_changes(
         &self,
         changes_file: &Path,

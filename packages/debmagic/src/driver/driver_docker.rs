@@ -469,17 +469,23 @@ impl DriverDocker {
         &self,
         changes_file: &Path,
         gpg: Option<&crate::signing::GpgForwarding>,
-        _sign_key: Option<&str>,
+        sign_key: Option<&str>,
     ) -> anyhow::Result<()> {
         use crate::signing;
 
-        let gpg = gpg.context("docker container signing needs gpg forwarding info")?;
+        // None means signing was resolved to run on the host.
+        let Some(gpg) = gpg else {
+            return signing::sign_on_host(changes_file, sign_key);
+        };
         let output_dir = changes_file
             .parent()
             .context("changes file has no parent directory")?;
         let staging_dir = self.environment.temp_dir().join("sign");
         signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
+        let agent_socket =
+            Path::new(signing::GPG_DIR_IN_CONTAINER).join(signing::GPG_SOCKET_FILENAME);
         let script = signing::sign_container_script(
+            &agent_socket,
             signing::changes_filename(changes_file)?,
             &gpg.sign_key,
             // The sign container's root is not id-mapped; fix ownership of
@@ -502,10 +508,12 @@ impl DriverDocker {
                         bind_mount_arg(&staging_dir, signing::SIGN_STAGING_IN_CONTAINER)
                     ),
                 ])
+                // The host agent socket itself is bind-mounted to the fixed
+                // listen path (docker bind-mounts create the parent dir).
                 .arg(format!(
-                    "--mount=type=bind,src={},dst={},readonly",
+                    "--mount=type=bind,src={},dst={}",
                     gpg.agent_extra_socket.display(),
-                    signing::GPG_SOCKET_IN_CONTAINER
+                    agent_socket.display()
                 ))
                 .args([
                     "--mount",

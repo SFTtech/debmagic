@@ -74,7 +74,13 @@ pub struct CommonBuildArgs {
     )]
     pub driver: Option<DriverType>,
 
-    #[arg(long, action = clap::ArgAction::SetTrue, help = "Keep the build environment for reuse after the build finishes")]
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        help = "Keep the build environment for reuse after the build finishes"
+    )]
     pub persistent: Option<bool>,
 
     #[arg(
@@ -97,7 +103,9 @@ pub struct CommonBuildArgs {
 
     #[arg(
         long,
-        action = clap::ArgAction::SetTrue,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
         help = "Also enable the '<release>-proposed' pocket in the build environment. Ignored by the bare driver."
     )]
     pub proposed: Option<bool>,
@@ -113,23 +121,32 @@ pub struct CommonBuildArgs {
     )]
     pub host_arch_variant: Option<String>,
 
+    // NOTE: Option<bool> flags use ArgAction::Set with default_missing_value
+    // for tri-state parsing (None when absent) — SetTrue/SetFalse force an
+    // implicit Some(false)/Some(true) default that would always override the
+    // config file.
     #[arg(
         long,
-        action = clap::ArgAction::SetTrue,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        overrides_with = "no_sign",
         help = "Sign the resulting .changes/.dsc with debsign after building. Defaults to the 'sign_package' setting in the config file (false if unset)."
     )]
     pub sign: Option<bool>,
 
     #[arg(
         long,
-        action = clap::ArgAction::SetFalse,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
         help = "Do not sign the resulting .changes/.dsc, overriding a 'sign_package = true' default in the config file."
     )]
     pub no_sign: Option<bool>,
 
     #[arg(
         long = "sign-with",
-        help = "Where debsign runs: 'host' signs on the host (requires devscripts there), 'same' signs inside a minimal same-distro container with the host gpg-agent socket forwarded in (requires --sign-key), 'auto' (default) uses the host if debsign is available there, else a container. Defaults to the 'sign_with' setting in the config file."
+        help = "Where debsign runs: 'host' signs on the host (requires debsign there), 'same' signs inside a minimal same-distro container with the host gpg-agent socket forwarded in (requires --sign-key), 'auto' (default) uses the host if debsign is available there, else a container. Defaults to the 'sign_with' setting in the config file."
     )]
     pub sign_with: Option<crate::signing::SignWith>,
 
@@ -141,14 +158,19 @@ pub struct CommonBuildArgs {
 
     #[arg(
         long,
-        action = clap::ArgAction::SetTrue,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        overrides_with = "no_clean",
         help = "Run 'debian/rules clean' before building, like plain dpkg-buildpackage does unless passed -nc. Defaults to the 'clean' setting in the config file (false if unset); non-incremental builds already stage a clean source tree, while incremental builds preserve outputs by design. For source builds this also installs build-dependencies first, since a clean target usually needs its own tooling."
     )]
     pub clean: Option<bool>,
 
     #[arg(
         long,
-        action = clap::ArgAction::SetFalse,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
         help = "Do not run 'debian/rules clean' before building, overriding a 'clean = true' default in the config file."
     )]
     pub no_clean: Option<bool>,
@@ -188,12 +210,21 @@ pub struct BinaryTargetArgs {
     #[command(flatten)]
     pub build: CommonBuildArgs,
 
-    #[arg(short, long, action = clap::ArgAction::SetTrue, help = "Synchronize changed source inputs while preserving build outputs. Implies --persistent")]
+    #[arg(
+        short,
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        help = "Synchronize changed source inputs while preserving build outputs. Implies --persistent"
+    )]
     pub incremental: Option<bool>,
 
     #[arg(
         long = "debug-symbols",
-        action = clap::ArgAction::SetTrue,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
         help = "Also build the automatic '-dbgsym' debug symbol package"
     )]
     pub debug_symbols: Option<bool>,

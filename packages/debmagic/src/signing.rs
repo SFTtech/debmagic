@@ -17,10 +17,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::driver::run_checked;
 
-/// Where the forwarded agent socket is bind-mounted inside sign containers.
-/// A fixed, always-existing path; the script symlinks it to gpg's lookup
-/// locations so plain `debsign` works without extra flags or env vars.
-pub const GPG_SOCKET_IN_CONTAINER: &str = "/tmp/debmagic-gpg/S.gpg-agent";
+/// Directory holding the forwarded gpg-agent socket, mounted read-write
+/// into sign containers at [`GPG_DIR_IN_CONTAINER`]. The lxd proxy's listen
+/// path must live in a host-mounted directory: dirs of the container rootfs
+/// don't exist yet when the proxy is set up, /run gets mounted over at boot,
+/// and the user's output dir is not ours to litter in.
+pub const GPG_DIR_IN_CONTAINER: &str = "/debmagic-gpg";
+/// Socket filename created inside the gpg dir.
+pub const GPG_SOCKET_FILENAME: &str = "S.gpg-agent";
 /// Directory mounted read-only into sign containers, holding the exported
 /// public key and ownertrust line produced on the host.
 pub const SIGN_STAGING_IN_CONTAINER: &str = "/debmagic-sign";
@@ -150,6 +154,7 @@ pub fn stage_signing_material(staging_dir: &Path, sign_key: &str) -> anyhow::Res
 /// fixes ownership of the bind-mounted output dir afterwards when the
 /// container's root is not id-mapped to the host user (docker).
 pub fn sign_container_script(
+    agent_socket: &Path,
     changes_filename: &str,
     sign_key: &str,
     chown_to: Option<(u32, u32)>,
@@ -161,6 +166,7 @@ pub fn sign_container_script(
         ),
         None => String::new(),
     };
+    // forward the agent socket and install just `debsign`
     format!(
         "set -e; \
          export GNUPGHOME=/root/.gnupg; \
@@ -169,11 +175,11 @@ pub fn sign_container_script(
          ln -sf {sock} /run/user/0/gnupg/S.gpg-agent; \
          ln -sf {sock} \"$GNUPGHOME/S.gpg-agent\"; \
          apt-get update -qq; \
-         apt-get install -y -qq devscripts; \
+         apt-get install -y -qq --no-install-recommends debsign || apt-get install -y -qq --no-install-recommends devscripts; \
          gpg --batch --import {staging}/{pubkey}; \
          gpg --batch --import-ownertrust {staging}/{ownertrust}; \
          cd {out} && debsign -k{key} {changes}{chown}",
-        sock = GPG_SOCKET_IN_CONTAINER,
+        sock = agent_socket.display(),
         staging = SIGN_STAGING_IN_CONTAINER,
         pubkey = PUBKEY_FILE,
         ownertrust = OWNERTRUST_FILE,
@@ -213,8 +219,9 @@ pub fn check_host_debsign_available() -> anyhow::Result<()> {
     {
         Ok(_) => Ok(()),
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Err(anyhow!(
-            "debsign not found on PATH. It's part of devscripts; install it and set up a \
-             gpg signing key, or set sign_with to \"same\" with a container driver."
+            "debsign not found on PATH. It's shipped in the debsign package (devscripts on \
+             older releases); install it and set up a gpg signing key, or set sign_with to \
+             \"same\" with a container driver."
         )),
         Err(e) => Err(e).context("failed to check for debsign"),
     }
@@ -237,7 +244,12 @@ mod tests {
 
     #[test]
     fn sign_script_quotes_filename_and_key() {
-        let script = sign_container_script("pkg_1.0_amd64.changes", "me@example.com", None);
+        let script = sign_container_script(
+            Path::new("/debmagic-gpg/S.gpg-agent"),
+            "pkg_1.0_amd64.changes",
+            "me@example.com",
+            None,
+        );
         assert!(script.contains("debsign -k'me@example.com' 'pkg_1.0_amd64.changes'"));
         assert!(script.contains("gpg --batch --import /debmagic-sign/pubkey.asc"));
         assert!(!script.contains("chown"));
@@ -245,7 +257,12 @@ mod tests {
 
     #[test]
     fn sign_script_chowns_output_when_requested() {
-        let script = sign_container_script("x.changes", "key", Some((1000, 100)));
+        let script = sign_container_script(
+            Path::new("/debmagic-gpg/S.gpg-agent"),
+            "x.changes",
+            "key",
+            Some((1000, 100)),
+        );
         assert!(script.contains("chown -R 1000:100 /debmagic-output"));
     }
 

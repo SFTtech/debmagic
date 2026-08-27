@@ -1,5 +1,6 @@
 use std::{
     fs,
+    os::unix::fs::{MetadataExt, PermissionsExt},
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
@@ -613,18 +614,32 @@ impl DriverLxd {
         &self,
         changes_file: &Path,
         gpg: Option<&crate::signing::GpgForwarding>,
-        _sign_key: Option<&str>,
+        sign_key: Option<&str>,
     ) -> anyhow::Result<()> {
         use crate::signing;
 
-        let gpg = gpg.context("container signing needs gpg forwarding info")?;
+        // None means signing was resolved to run on the host.
+        let Some(gpg) = gpg else {
+            return signing::sign_on_host(changes_file, sign_key);
+        };
         let output_dir = changes_file
             .parent()
             .context("changes file has no parent directory")?;
         let staging_dir = self.environment.temp_dir().join("sign");
         signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
+        let gpg_dir = self.environment.temp_dir().join("sign-gpg");
+        std::fs::create_dir_all(&gpg_dir).context("failed to create gpg socket dir")?;
+        // The lxd proxy runs on the host as real root, which an idmapped
+        // mount (raw.idmap) maps to "other" on a dir owned by the host user —
+        // so the proxy needs o+wx to create its listen socket here. The dir
+        // is throwaway (build temp dir) and holds only the transient socket.
+        std::fs::set_permissions(&gpg_dir, std::fs::Permissions::from_mode(0o777))
+            .context("failed to make gpg socket dir writable for the proxy")?;
         // No chown needed: raw.idmap maps container root to the host user.
+        let agent_socket =
+            Path::new(signing::GPG_DIR_IN_CONTAINER).join(signing::GPG_SOCKET_FILENAME);
         let script = signing::sign_container_script(
+            &agent_socket,
             signing::changes_filename(changes_file)?,
             &gpg.sign_key,
             None,
@@ -680,8 +695,27 @@ impl DriverLxd {
                     .arg("readonly=true"),
                 "mounting signing material into sign container",
             )?;
+            run_checked(
+                self.lxd_cmd("config")
+                    .arg("device")
+                    .arg("add")
+                    .arg(&sign_container)
+                    .arg("debmagic-gpg-dir")
+                    .arg("disk")
+                    .arg(format!("source={}", gpg_dir.display()))
+                    .arg(format!("path={}", signing::GPG_DIR_IN_CONTAINER)),
+                "mounting gpg socket dir into sign container",
+            )?;
             // Forward the host gpg-agent's extra socket via a proxy device,
-            // like a manually configured unix proxy but scoped to signing.
+            // listening inside the mounted output dir: the proxy needs the
+            // listen path's parent to be a host-mounted directory it can
+            // write to (rootfs dirs don't exist yet when the device is set
+            // up, and /run is mounted over at boot). security.uid/gid select
+            // the credentials lxd connects to the host socket with; gpg-agent
+            // rejects connections that don't come from the socket's owner, so
+            // this must be the host user's ids, not the default root.
+            let socket_owner = std::fs::metadata(&gpg.agent_extra_socket)
+                .context("failed to stat host gpg-agent socket")?;
             run_checked(
                 self.lxd_cmd("config")
                     .arg("device")
@@ -691,9 +725,15 @@ impl DriverLxd {
                     .arg("proxy")
                     .arg("bind=container")
                     .arg(format!("connect=unix:{}", gpg.agent_extra_socket.display()))
-                    .arg(format!("listen=unix:{}", signing::GPG_SOCKET_IN_CONTAINER))
+                    .arg(format!(
+                        "listen=unix:{}/{}",
+                        signing::GPG_DIR_IN_CONTAINER,
+                        signing::GPG_SOCKET_FILENAME
+                    ))
                     .arg("uid=0")
-                    .arg("gid=0"),
+                    .arg("gid=0")
+                    .arg(format!("security.uid={}", socket_owner.uid()))
+                    .arg(format!("security.gid={}", socket_owner.gid())),
                 "forwarding gpg-agent socket into sign container",
             )?;
 

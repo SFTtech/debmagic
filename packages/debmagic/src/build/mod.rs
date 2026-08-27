@@ -37,6 +37,7 @@ struct Build {
     sign_package: bool,
     clean: bool,
     build_debug_symbols: bool,
+    host_arch_variant: Option<String>,
 }
 
 /// Where debsign will actually run for this build.
@@ -125,6 +126,7 @@ impl Build {
             sign_package: intent.config.sign_package,
             clean: intent.config.clean,
             build_debug_symbols: intent.config.build_debug_symbols,
+            host_arch_variant: intent.config.host_arch_variant.clone(),
         })
     }
 
@@ -164,6 +166,7 @@ impl Build {
             sign_package: false,
             clean: false,
             build_debug_symbols: false,
+            host_arch_variant: None,
         })
     }
 
@@ -376,7 +379,10 @@ pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
         )?;
         let inherited_options = std::env::var("DEB_BUILD_OPTIONS").ok();
         let options = deb_build_options(inherited_options.as_deref(), build.build_debug_symbols);
-        let env_add = [("DEB_BUILD_OPTIONS", options.as_str())];
+        let mut env_add = vec![("DEB_BUILD_OPTIONS", options.as_str())];
+        if let Some(variant) = build.host_arch_variant.as_deref() {
+            env_add.push(("DEB_HOST_ARCH_VARIANT", variant));
+        }
         let mut dpkg_buildpackage_args = vec!["dpkg-buildpackage", "-us", "-uc", "-ui"];
         if !build.clean {
             // Non-incremental builds already stage a clean source tree, while

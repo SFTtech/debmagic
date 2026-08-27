@@ -107,6 +107,11 @@ pub struct CommonBuildArgs {
         help = "Select the target distribution version, only required if the debian changelog specifies multiple versions"
     )]
     pub distro: Option<String>,
+    #[arg(
+        long = "host-arch-variant",
+        help = "Build for a dpkg architecture variant (e.g. 'amd64v3' on Ubuntu), like dpkg-buildpackage's --host-arch-variant. Sets DEB_HOST_ARCH_VARIANT for the build, which makes the Ubuntu vendor hook append the variant's -march= flags and names the .changes file after the variant. Defaults to the 'host_arch_variant' setting in the config file."
+    )]
+    pub host_arch_variant: Option<String>,
 
     #[arg(
         long,

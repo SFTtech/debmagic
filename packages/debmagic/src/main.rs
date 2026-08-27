@@ -76,6 +76,7 @@ fn run() -> anyhow::Result<ExitCode> {
                 clean: build_args.clean,
                 no_clean: build_args.no_clean,
                 source_sync: build_args.source_sync,
+                host_arch_variant: build_args.host_arch_variant.clone(),
                 shell_on_failure: build_args.shell_on_failure,
                 driver_overrides: DriverOverrides {
                     apt_mirror: build_args.apt_mirror.clone(),

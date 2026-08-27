@@ -35,6 +35,9 @@ pub struct Config {
     /// On build or test failure, drop into an interactive shell in the
     /// environment when stdout is a TTY.
     pub shell_on_failure: bool,
+    /// Build for a dpkg architecture variant (e.g. `amd64v3` on Ubuntu),
+    /// exported as `DEB_HOST_ARCH_VARIANT` for the build.
+    pub host_arch_variant: Option<String>,
 }
 
 impl Default for Config {
@@ -50,6 +53,7 @@ impl Default for Config {
             sign_key: None,
             clean: false,
             shell_on_failure: false,
+            host_arch_variant: None,
         }
     }
 }

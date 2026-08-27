@@ -30,6 +30,7 @@ pub struct BuildIntentInput {
     pub clean: Option<bool>,
     pub no_clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
+    pub host_arch_variant: Option<String>,
     pub shell_on_failure: Option<bool>,
     pub driver_overrides: DriverOverrides,
 }
@@ -110,12 +111,14 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     }
     if let Some(clean) = input.clean {
         config.clean = clean;
-    }
-    if let Some(no_clean) = input.no_clean {
+    } else if let Some(no_clean) = input.no_clean {
         config.clean = !no_clean;
     }
     if let Some(source_sync) = input.source_sync {
         config.source_sync_mode = source_sync;
+    }
+    if let Some(host_arch_variant) = input.host_arch_variant {
+        config.host_arch_variant = Some(host_arch_variant);
     }
     if config.incremental {
         if config.clean {
@@ -169,6 +172,7 @@ mod tests {
             clean: None,
             no_clean: None,
             source_sync: None,
+            host_arch_variant: None,
             shell_on_failure: None,
             driver_overrides: DriverOverrides {
                 apt_mirror: None,

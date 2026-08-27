@@ -35,6 +35,7 @@ All keys are optional.
 | `sign_key` | string | — | GPG key ID/email for `debsign -k`. Required for container signing. |
 | `clean` | bool | `false` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
 | `shell_on_failure` | bool | `false` | On build or test failure, drop into an interactive shell in the environment when stdout is a TTY. |
+| `host_arch_variant` | string | — | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
 
 ### `source_sync_mode`
 

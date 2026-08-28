@@ -10,9 +10,10 @@ use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
 
 use crate::driver::{
-    APT_MIRROR_SCRIPT, Driver, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment,
-    EnvironmentMetadata, IsolationCapability, config::DriverConfig, container_name_from_metadata,
-    container_name_metadata, environment_fingerprint, resource_name, run_checked,
+    APT_MIRROR_SCRIPT, ContainerSignPrep, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment,
+    EnvironmentDriver, EnvironmentMetadata, IsolationCapability, SignLocation, SignRequest,
+    config::DriverConfig, container_name_from_metadata, container_name_metadata,
+    environment_fingerprint, prepare_container_sign, resource_name, run_checked,
     translate_path_in_container,
 };
 
@@ -361,7 +362,7 @@ impl DriverDocker {
     }
 }
 
-impl Driver for DriverDocker {
+impl EnvironmentDriver for DriverDocker {
     fn driver_metadata(&self) -> std::collections::HashMap<String, String> {
         container_name_metadata(&self.container_name)
     }
@@ -462,67 +463,149 @@ impl Driver for DriverDocker {
     fn isolation_capability(&self) -> IsolationCapability {
         IsolationCapability::Container
     }
+
+    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
+        let Some(prep) = prepare_container_sign(request, &self.environment.temp_dir())? else {
+            return Ok(());
+        };
+        let agent_socket = Path::new(crate::signing::GPG_DIR_IN_CONTAINER)
+            .join(crate::signing::GPG_SOCKET_FILENAME);
+
+        match request.location {
+            SignLocation::BuildContainer => self.sign_in_build_container(request, &prep),
+            SignLocation::EphemeralContainer => {
+                self.sign_in_ephemeral_container(request, &prep, &agent_socket)
+            }
+            SignLocation::Host => unreachable!("handled above"),
+        }
+    }
 }
 
 impl DriverDocker {
-    pub(crate) fn sign_changes(
+    /// Sign inside the running build container: copy the staging dir and the
+    /// agent socket in, then run `debsign` in the work dir where
+    /// `dpkg-buildpackage` left the `.changes`.
+    fn sign_in_build_container(
         &self,
-        changes_file: &Path,
-        gpg: Option<&crate::signing::GpgForwarding>,
-        sign_key: Option<&str>,
+        request: &SignRequest,
+        prep: &ContainerSignPrep,
     ) -> anyhow::Result<()> {
         use crate::signing;
 
-        // None means signing was resolved to run on the host.
-        let Some(gpg) = gpg else {
-            return signing::sign_on_host(changes_file, sign_key);
+        if !self.container_is_running()? {
+            self.container_start()?;
+        }
+
+        // A running container can't take new mounts, so the staging dir and
+        // agent socket are copied in rather than mounted. Both are tiny.
+        let container_staging = "/tmp/debmagic-sign";
+        run_checked(
+            Command::new("docker")
+                .arg("cp")
+                .arg(&prep.staging_dir)
+                .arg(format!("{}:{container_staging}", self.container_name)),
+            "copying signing material into the build container",
+        )?;
+        let container_socket = "/tmp/debmagic-gpg/S.gpg-agent";
+        run_checked(
+            Command::new("docker")
+                .args(["exec", "--user", "root", &self.container_name])
+                .args(["mkdir", "-p", "/tmp/debmagic-gpg"]),
+            "preparing gpg socket dir in build container",
+        )?;
+        run_checked(
+            Command::new("docker")
+                .arg("cp")
+                .arg(&prep.gpg.agent_extra_socket)
+                .arg(format!("{}:{container_socket}", self.container_name)),
+            "copying gpg-agent socket into the build container",
+        )?;
+
+        let work_dir = Path::new(ENVIRONMENT_DIR_IN_CONTAINER).join("work");
+        let scripts = signing::sign_container_scripts(
+            signing::ContainerSignMode::Build {
+                work_dir: &work_dir,
+                staging_dir: Path::new(container_staging),
+            },
+            Path::new(container_socket),
+            &prep.changes,
+            &prep.gpg.sign_key,
+        );
+
+        let work = self.environment.work_dir();
+        let run = |script: &str, context: &str| {
+            self.run_command_checked(&["sh", "-ec", script], &work, true, &[])
+                .map_err(|e| anyhow!("{context}: {e}"))
         };
-        let output_dir = changes_file
+        run(&scripts.setup, "preparing the build container for signing")?;
+        request.notify_signing();
+        run(&scripts.sign, "signing in the build container")?;
+        Ok(())
+    }
+
+    /// Sign in a minimal, throwaway container with the agent socket forwarded
+    /// and the output dir mounted.
+    fn sign_in_ephemeral_container(
+        &self,
+        request: &SignRequest,
+        prep: &ContainerSignPrep,
+        agent_socket: &Path,
+    ) -> anyhow::Result<()> {
+        use crate::signing;
+
+        let output_dir = request
+            .changes_file
             .parent()
             .context("changes file has no parent directory")?;
-        let staging_dir = self.environment.temp_dir().join("sign");
-        signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
-        let agent_socket =
-            Path::new(signing::GPG_DIR_IN_CONTAINER).join(signing::GPG_SOCKET_FILENAME);
-        let script = signing::sign_container_script(
-            &agent_socket,
-            signing::changes_filename(changes_file)?,
-            &gpg.sign_key,
-            // The sign container's root is not id-mapped; fix ownership of
-            // files it rewrites so the host user can manage them afterwards.
-            Some((unsafe { libc::geteuid() }, unsafe { libc::getegid() })),
+        let scripts = signing::sign_container_scripts(
+            signing::ContainerSignMode::Ephemeral {
+                // The sign container's root is not id-mapped; fix ownership of
+                // files it rewrites so the host user can manage them afterwards.
+                chown_to: Some((unsafe { libc::geteuid() }, unsafe { libc::getegid() })),
+            },
+            agent_socket,
+            &prep.changes,
+            &prep.gpg.sign_key,
         );
 
         println!(
             "[docker] $ signing {} in a minimal {} container",
-            changes_file.display(),
+            request.changes_file.display(),
             self.environment.distro.codename
         );
-        run_checked(
-            Command::new("docker")
-                .args(["run", "--rm", "--init"])
-                .args([
-                    "--mount",
-                    &format!(
-                        "{},readonly",
-                        bind_mount_arg(&staging_dir, signing::SIGN_STAGING_IN_CONTAINER)
-                    ),
-                ])
-                // The host agent socket itself is bind-mounted to the fixed
-                // listen path (docker bind-mounts create the parent dir).
-                .arg(format!(
-                    "--mount=type=bind,src={},dst={}",
-                    gpg.agent_extra_socket.display(),
-                    agent_socket.display()
-                ))
-                .args([
-                    "--mount",
-                    &bind_mount_arg(output_dir, signing::OUTPUT_DIR_IN_CONTAINER),
-                ])
-                .arg(&self.base_image)
-                .args(["sh", "-ec", &script]),
-            "signing in docker container",
-        )?;
+        let run = |script: &str, context: &str| {
+            run_checked(
+                Command::new("docker")
+                    .args(["run", "--rm", "--init"])
+                    .args([
+                        "--mount",
+                        &format!(
+                            "{},readonly",
+                            bind_mount_arg(&prep.staging_dir, signing::SIGN_STAGING_IN_CONTAINER)
+                        ),
+                    ])
+                    // The host agent socket itself is bind-mounted to the fixed
+                    // listen path (docker bind-mounts create the parent dir).
+                    .arg(format!(
+                        "--mount=type=bind,src={},dst={}",
+                        prep.gpg.agent_extra_socket.display(),
+                        agent_socket.display()
+                    ))
+                    .args([
+                        "--mount",
+                        &bind_mount_arg(output_dir, signing::OUTPUT_DIR_IN_CONTAINER),
+                    ])
+                    .arg(&self.base_image)
+                    .args(["sh", "-ec", script]),
+                context,
+            )
+        };
+
+        run(&scripts.setup, "preparing the sign container")?;
+        // Notify right before debsign triggers the gpg touch prompt; the
+        // setup above can take long enough to miss it otherwise.
+        request.notify_signing();
+        run(&scripts.sign, "signing in docker container")?;
         Ok(())
     }
 }

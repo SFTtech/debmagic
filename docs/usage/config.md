@@ -31,9 +31,10 @@ All keys are optional.
 | `incremental` | bool | `false` | `--incremental` | Retain the environment and sync only source changes, preserving generated files. Binary-only; implies `persistent`; incompatible with `clean`. |
 | `source_sync_mode` | enum | `tracked` | `--source-sync` | Which source files are staged (see below). |
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |
-| `sign_package` | bool | `false` | `--sign`/`--no-sign` | Sign the resulting `.changes`/`.dsc` with `debsign`. |
-| `sign_with` | enum | `auto` | `--sign-with` | Where `debsign` runs (see below). |
-| `sign_key` | string | — | `--sign-key` | GPG key ID/email for `debsign -k`. Required for container signing. |
+| `sign.source` | bool | `false` | `--sign`/`--no-sign` | Sign the resulting `.changes`/`.dsc` with `debsign` (see below). |
+| `sign.with` | enum | `auto` | `--sign-with` | Where `debsign` runs (see below). |
+| `sign.key` | string | — | `--sign-key` | GPG key ID/email for `debsign -k`. Required for container signing. |
+| `sign.notify` | bool | `false` | `--sign-notify`/`--no-sign-notify` | Send a desktop notification via `notify-send` just before `debsign` runs, so a hardware-key touch prompt isn't missed. |
 | `clean` | bool | `false` | `--clean`/`--no-clean` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
 | `shell_on_failure` | bool | `false` | `--shell-on-failure` | On build or test failure, drop into an interactive shell in the environment when stdout is a TTY. |
 | `host_arch_variant` | string | — | `--host-arch-variant` | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
@@ -46,23 +47,36 @@ All keys are optional.
 | `committed` | Same files as `tracked`, but fails if the worktree has uncommitted changes or untracked files. |
 | `worktree` | Everything that isn't git-ignored, tracked or not. |
 
-### `sign_with`
+### `sign`
+
+| Key | Type | Default | CLI flag | Description |
+|---|---|---|---|---|
+| `source` | bool | `false` | `--sign`/`--no-sign` | Sign the source package (`.changes`/`.dsc`) with `debsign`. |
+| `with` | enum | `auto` | `--sign-with` | Where `debsign` runs (see below). |
+| `key` | string | — | `--sign-key` | GPG key ID/email for `debsign -k`. Required for container signing. |
+| `notify` | bool | `false` | `--sign-notify`/`--no-sign-notify` | Desktop notification via `notify-send` before signing. |
+
+#### `sign.with`
 
 | Value | Behavior |
 |---|---|
-| `auto` (default) | Sign on the host if `debsign` is available there, otherwise in a container. |
+| `auto` (default) | Sign on the host if `debsign` is available there, otherwise in a separate container. |
 | `host` | Always sign on the host with `debsign`. |
-| `same` | Sign inside a minimal same-distro container, forwarding the host's gpg-agent socket. Requires `sign_key`. |
+| `build` | Sign inside the build container itself (no separate container is started). Requires a container driver and `sign.key`. |
+| `separate` | Sign inside a minimal, separate same-distro container, forwarding the host's gpg-agent socket. Requires `sign.key`. |
 
 ## Example
 
 
 ```toml
 build_debug_symbols = true
-sign_package = true
-sign_with = "same"
-sign_key = "you@example.com or gpg key id"
 clean = false
+
+[sign]
+source = true
+with = "separate"
+key = "you@example.com or gpg key id"
+notify = true
 
 [driver]
 default = "lxd"

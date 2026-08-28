@@ -145,13 +145,16 @@ Or set `build_debug_symbols = true` in the [`debmagic.toml`](config.md).
 This is mainly useful for [source builds destined for Launchpad](source.md#uploading-to-launchpad), but works for binary builds too.
 If your config file defaults to signing, pass `--no-sign` to skip it for one invocation.
 
-Where `debsign` runs is selected by `--sign-with` (config: `sign_with`):
+Where `debsign` runs is selected by `--sign-with` (config: `sign.with`):
 
-- `auto` (default): sign on the host if `debsign` is installed there, otherwise in a container (requires a container driver).
+- `auto` (default): sign on the host if `debsign` is installed there, otherwise in a separate container (requires a container driver).
 - `host`: always sign on the host, using your own gpg keyring — requires `devscripts` installed locally.
-- `same`: sign inside a minimal same-distro container, forwarding the host's gpg-agent socket (`gpgconf --list-dirs agent-extra-socket`) into it.
+- `build`: sign inside the build container itself, reusing its environment instead of starting a new one.
+  The host's gpg-agent socket is forwarded in just like `separate`, but no second container is bootstrapped — the package's build environment is trusted anyway.
+- `separate`: sign inside a minimal, separate same-distro container, forwarding the host's gpg-agent socket (`gpgconf --list-dirs agent-extra-socket`) into it.
   Only signing *operations* cross the socket; private key material never enters the container, and only the public key is imported into its throwaway keyring.
-  Container signing requires an explicit `--sign-key`, since debsign's maintainer-based key lookup only works on the host.
+
+Container signing (`build`/`separate`) requires an explicit `--sign-key`, since debsign's maintainer-based key lookup only works on the host.
 
 Signing prerequisites (agent running, secret key available) are validated before the build starts, so a broken gpg setup fails fast instead of after the build.
 

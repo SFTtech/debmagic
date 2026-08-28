@@ -10,8 +10,9 @@ use crate::build::attach::{send_socket_command, start_socket_server};
 use crate::build::source::{source_manifest_path, stage_source_tree};
 use crate::build_intent::BuildIntent;
 use crate::driver::{
-    Driver, DriverInstance, DriverType, Environment, EnvironmentMetadata, EnvironmentPurpose,
-    config::DriverConfig, create_driver, create_driver_from_metadata, remove_environment_root,
+    Driver, DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, EnvironmentPurpose,
+    SignLocation, SignRequest, config::DriverConfig, create_driver, create_driver_from_metadata,
+    remove_environment_root,
 };
 use crate::{
     config::Config,
@@ -28,9 +29,9 @@ pub use source::SourceSyncMode;
 
 struct Build {
     environment: Environment,
-    driver: DriverInstance,
-    /// Prepared when signing happens inside a container: agent socket +
-    /// sign key, validated before the build starts.
+    driver: Driver,
+    /// Agent socket + key for container signing; `None` when signing on the
+    /// host or not signing at all.
     gpg_forwarding: Option<signing::GpgForwarding>,
     attached: bool,
     output_dir: PathBuf,
@@ -40,53 +41,60 @@ struct Build {
     host_arch_variant: Option<String>,
 }
 
-/// Where debsign will actually run for this build.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-enum SignLocation {
-    Host,
-    Container,
-}
-
-/// Resolve the effective sign location and validate everything signing will
-/// need, so a broken gpg setup doesn't waste a whole build. Must run before
-/// any environment is created — the checks are host-side and free, while
-/// bootstrapping a container is not.
-fn prepare_signing(
-    driver: DriverType,
-    sign_with: SignWith,
-    sign_key: Option<&str>,
-) -> anyhow::Result<(SignLocation, Option<signing::GpgForwarding>)> {
+/// Resolve where `debsign` will run from `sign.with`, the driver, and what's
+/// available on the host. Validation of the gpg setup happens in
+/// [`prepare_signing`].
+fn resolve_sign_location(driver: DriverType, sign_with: SignWith) -> anyhow::Result<SignLocation> {
     let container_driver = driver != DriverType::Bare;
     let host_has_debsign = signing::check_host_debsign_available().is_ok();
 
-    let location = match sign_with {
-        SignWith::Host => SignLocation::Host,
-        SignWith::Same => {
+    match sign_with {
+        SignWith::Host => Ok(SignLocation::Host),
+        SignWith::Separate => {
             if container_driver {
-                SignLocation::Container
+                Ok(SignLocation::EphemeralContainer)
             } else {
                 // The bare driver's "build environment" is the host.
-                SignLocation::Host
+                Ok(SignLocation::Host)
+            }
+        }
+        SignWith::Build => {
+            if container_driver {
+                Ok(SignLocation::BuildContainer)
+            } else {
+                Err(anyhow!(
+                    "sign.with = \"build\" needs a container build driver; \
+                     the bare driver can only sign on the host"
+                ))
             }
         }
         SignWith::Auto => {
             if host_has_debsign || !container_driver {
-                SignLocation::Host
+                Ok(SignLocation::Host)
             } else {
-                SignLocation::Container
+                Ok(SignLocation::EphemeralContainer)
             }
         }
-    };
+    }
+}
 
+/// Validate everything signing will need, so a broken gpg setup doesn't waste
+/// a whole build. The container checks are host-side (agent socket, secret
+/// key); they run before any environment is created because bootstrapping one
+/// is not free.
+fn prepare_signing(
+    location: SignLocation,
+    sign_key: Option<&str>,
+) -> anyhow::Result<Option<signing::GpgForwarding>> {
     match location {
         SignLocation::Host => {
             signing::check_host_debsign_available()?;
-            Ok((location, None))
+            Ok(None)
         }
-        SignLocation::Container => {
+        SignLocation::EphemeralContainer | SignLocation::BuildContainer => {
             let sign_key = sign_key.ok_or_else(|| {
                 anyhow!(
-                    "signing in a container requires sign_key to be set \
+                    "signing in a container requires sign.key to be set \
                      (debsign's maintainer-based key lookup only works on the host)"
                 )
             })?;
@@ -95,7 +103,7 @@ fn prepare_signing(
                 sign_key: sign_key.to_string(),
             };
             signing::check_signing_key_available(sign_key)?;
-            Ok((location, Some(forwarding)))
+            Ok(Some(forwarding))
         }
     }
 }
@@ -118,7 +126,7 @@ impl Build {
             gpg_forwarding,
             attached: false,
             output_dir: intent.output_dir.clone(),
-            sign_package: intent.config.sign_package,
+            sign_package: intent.config.sign.source,
             clean: intent.config.clean,
             build_debug_symbols: intent.config.build_debug_symbols,
             host_arch_variant: intent.config.host_arch_variant.clone(),
@@ -252,6 +260,7 @@ fn prepare_build_env(
         .create_dirs()
         .context("failed to create build directories")?;
 
+    crate::output::step("Staging source tree");
     stage_source_tree(
         &environment,
         &target.identity,
@@ -304,16 +313,20 @@ fn run_build(
     request: &BuildRequest,
     build_commands: impl FnOnce(&Build) -> anyhow::Result<()>,
 ) -> anyhow::Result<()> {
-    let gpg_forwarding = if request.intent.config.sign_package {
-        let (_location, forwarding) = prepare_signing(
-            request.intent.driver,
-            request.intent.config.sign_with,
-            request.intent.config.sign_key.as_deref(),
-        )?;
-        forwarding
+    let sign = &request.intent.config.sign;
+    let (sign_location, gpg_forwarding) = if sign.source {
+        let location = resolve_sign_location(request.intent.driver, sign.with)?;
+        let forwarding = prepare_signing(location, sign.key.as_deref())?;
+        (Some(location), forwarding)
     } else {
-        None
+        (None, None)
     };
+
+    let package = &request.target.identity;
+    crate::output::stage(&format!(
+        "Preparing build environment for {} {}",
+        package.name, package.version
+    ));
     let build = prepare_build_env(request.intent, request.target, gpg_forwarding)
         .context("failed to prepare build environment")?;
     build
@@ -332,14 +345,20 @@ fn run_build(
         socket_server_handle.join().ok();
     };
 
-    let sign_key = request.intent.config.sign_key.as_deref();
     let result = build_commands(&build).and_then(|()| {
+        crate::output::stage("Exporting artifacts");
         let changes_file =
             artifacts::export_build_artifacts(&build.environment.work_dir(), &build.output_dir)?;
-        if build.sign_package {
-            build
-                .driver
-                .sign_changes(&changes_file, build.gpg_forwarding.as_ref(), sign_key)?;
+        if let (true, Some(location)) = (build.sign_package, sign_location) {
+            crate::output::stage(&format!("Signing {}", build.environment.package_identifier));
+            build.driver.sign_changes(&SignRequest {
+                changes_file: &changes_file,
+                location,
+                gpg: build.gpg_forwarding.as_ref(),
+                sign_key: sign.key.as_deref(),
+                notify: sign.notify,
+                package: &build.environment.package_identifier,
+            })?;
         }
         Ok(())
     });
@@ -380,6 +399,7 @@ fn run_build(
 pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<()> {
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
+        crate::output::stage("Building binary packages");
         // build-essential is an implicit dependency that `apt-get build-dep`
         // won't resolve, so install it explicitly. No-op when the environment
         // already has it (idempotent, and the bare driver runs on the host).
@@ -453,6 +473,7 @@ pub fn build_source_package(intent: &BuildIntent, target: &PackageTarget) -> any
 
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
+        crate::output::stage("Building source package");
         let staged_source_dir = build.environment.staged_source_dir();
         if build.clean {
             build.driver.run_command_checked(

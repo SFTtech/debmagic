@@ -4,11 +4,33 @@ use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
 use clap::{Args, Parser, Subcommand};
 
+/// When to use colored output. Mirrors common CLI conventions; `auto` is the
+/// default and respects the `NO_COLOR` environment variable.
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, clap::ValueEnum)]
+pub enum ColorChoice {
+    /// Color when stderr is a terminal and `NO_COLOR` is unset.
+    #[default]
+    Auto,
+    /// Always color, even when piped or `NO_COLOR` is set.
+    Always,
+    /// Never color.
+    Never,
+}
+
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
     #[arg(short, long, help = "Path to config file")]
     pub config: Option<PathBuf>,
+
+    #[arg(
+        long,
+        global = true,
+        value_enum,
+        default_value_t = ColorChoice::Auto,
+        help = "When to colorize output: 'auto' (default) colors on a terminal and respects NO_COLOR, 'always' forces color, 'never' disables it"
+    )]
+    pub color: ColorChoice,
 
     #[command(subcommand)]
     pub command: Commands,
@@ -131,7 +153,7 @@ pub struct CommonBuildArgs {
         default_missing_value = "true",
         action = clap::ArgAction::Set,
         overrides_with = "no_sign",
-        help = "Sign the resulting .changes/.dsc with debsign after building. Defaults to the 'sign_package' setting in the config file (false if unset)."
+        help = "Sign the resulting .changes/.dsc with debsign after building. Defaults to the 'sign.source' setting in the config file (false if unset)."
     )]
     pub sign: Option<bool>,
 
@@ -140,21 +162,40 @@ pub struct CommonBuildArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
-        help = "Do not sign the resulting .changes/.dsc, overriding a 'sign_package = true' default in the config file."
+        help = "Do not sign the resulting .changes/.dsc, overriding a 'sign.source = true' default in the config file."
     )]
     pub no_sign: Option<bool>,
 
     #[arg(
         long = "sign-with",
-        help = "Where debsign runs: 'host' signs on the host (requires debsign there), 'same' signs inside a minimal same-distro container with the host gpg-agent socket forwarded in (requires --sign-key), 'auto' (default) uses the host if debsign is available there, else a container. Defaults to the 'sign_with' setting in the config file."
+        help = "Where debsign runs: 'host' signs on the host (requires debsign there), 'build' signs inside the build container itself, 'separate' signs in a minimal, separate same-distro container, 'auto' (default) uses the host if debsign is available there, else a separate container. Container signing forwards the host gpg-agent socket and requires --sign-key. Defaults to the 'sign.with' setting in the config file."
     )]
     pub sign_with: Option<crate::signing::SignWith>,
 
     #[arg(
         long = "sign-key",
-        help = "GPG key ID/email to sign with, passed to debsign's -k option. Defaults to the 'sign_key' setting in the config file, or debsign's own maintainer-based key lookup if unset. Required when signing in a container."
+        help = "GPG key ID/email to sign with, passed to debsign's -k option. Defaults to the 'sign.key' setting in the config file, or debsign's own maintainer-based key lookup if unset. Required when signing in a container."
     )]
     pub sign_key: Option<String>,
+
+    #[arg(
+        long = "sign-notify",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        overrides_with = "no_sign_notify",
+        help = "Send a desktop notification via notify-send just before debsign runs, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
+    )]
+    pub sign_notify: Option<bool>,
+
+    #[arg(
+        long = "no-sign-notify",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        help = "Do not send a signing notification, overriding a 'sign.notify = true' default in the config file."
+    )]
+    pub no_sign_notify: Option<bool>,
 
     #[arg(
         long,

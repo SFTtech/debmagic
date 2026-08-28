@@ -44,13 +44,18 @@ pub enum SignWith {
     Auto,
     /// Always sign on the host with `debsign`.
     Host,
-    /// Sign inside a minimal container of the same distro, forwarding the
-    /// host's gpg-agent socket. Requires `sign_key` to be set.
-    Same,
+    /// Sign inside a minimal, separate container of the same distro,
+    /// forwarding the host's gpg-agent socket. Requires `sign_key` to be set.
+    Separate,
+    /// Sign inside the build container itself (no separate container is
+    /// started), forwarding the host's gpg-agent socket. Requires `sign_key`
+    /// and a containerized build driver.
+    Build,
 }
 
 /// Everything needed to GPG-sign inside a container: the host's gpg-agent
 /// extra socket plus the public key to seed the container's keyring with.
+#[derive(Clone)]
 pub struct GpgForwarding {
     pub agent_extra_socket: PathBuf,
     pub sign_key: String,
@@ -148,49 +153,143 @@ pub fn stage_signing_material(staging_dir: &Path, sign_key: &str) -> anyhow::Res
     Ok(())
 }
 
-/// Shell script run inside a sign container: install debsign, link the
-/// forwarded agent socket where gpg looks for it, seed the throwaway keyring
-/// with the public key plus ownertrust, then sign. Runs as root; `chown_to`
-/// fixes ownership of the bind-mounted output dir afterwards when the
-/// container's root is not id-mapped to the host user (docker).
-pub fn sign_container_script(
+/// The two phases of in-container signing, split so the host can send the
+/// "touch your key" notification after the slow setup but immediately before
+/// `debsign` runs.
+pub struct SignContainerScripts {
+    /// Links the forwarded agent socket, installs debsign, seeds the keyring.
+    pub setup: String,
+    /// Runs `debsign` (and the ownership fixup). Triggers the gpg touch prompt.
+    pub sign: String,
+}
+
+/// How the container signs, which sets where the artifacts live and whether
+/// the container is a throwaway or the build environment itself.
+pub enum ContainerSignMode<'a> {
+    /// A minimal, throwaway container: the output dir is mounted at
+    /// [`OUTPUT_DIR_IN_CONTAINER`], always refresh apt, and fix ownership of
+    /// the rewritten artifacts when the container root isn't id-mapped to the
+    /// host user (docker).
+    Ephemeral { chown_to: Option<(u32, u32)> },
+    /// The build container itself: the `.changes` sits where
+    /// `dpkg-buildpackage` wrote it, the keyring material is at `staging_dir`,
+    /// and apt work is skipped when debsign is already installed.
+    Build {
+        work_dir: &'a Path,
+        staging_dir: &'a Path,
+    },
+}
+
+/// Shell scripts run inside a container to sign `changes_filename`. `setup`
+/// links the forwarded agent socket, installs debsign and prepares the
+/// keyring; `sign` invokes `debsign`. Runs as root.
+pub fn sign_container_scripts(
+    mode: ContainerSignMode,
     agent_socket: &Path,
     changes_filename: &str,
     sign_key: &str,
-    chown_to: Option<(u32, u32)>,
-) -> String {
-    let chown = match chown_to {
-        Some((uid, gid)) => format!(
-            " && chown -R {uid}:{gid} {out}",
-            out = OUTPUT_DIR_IN_CONTAINER
-        ),
-        None => String::new(),
+) -> SignContainerScripts {
+    let sock = agent_socket.display();
+    let pubkey = PUBKEY_FILE;
+    let ownertrust = OWNERTRUST_FILE;
+    let key = shell_single_quote(sign_key);
+    let changes = shell_single_quote(changes_filename);
+
+    let (staging, out, chown, install) = match mode {
+        ContainerSignMode::Ephemeral { chown_to } => {
+            let chown = match chown_to {
+                Some((uid, gid)) => format!(
+                    " && chown -R {uid}:{gid} {out}",
+                    out = OUTPUT_DIR_IN_CONTAINER
+                ),
+                None => String::new(),
+            };
+            // A fresh container: always refresh apt. No -qq — the steps take
+            // seconds and silence looks like a hang.
+            let install = "echo 'debmagic: updating apt package lists'; \
+                 apt-get update; \
+                 echo 'debmagic: installing debsign'; \
+                 apt-get install -y --no-install-recommends debsign \
+                   || { echo 'debmagic: debsign package unavailable, installing devscripts instead'; \
+                       apt-get install -y --no-install-recommends devscripts; }"
+                .to_string();
+            (
+                SIGN_STAGING_IN_CONTAINER.to_string(),
+                OUTPUT_DIR_IN_CONTAINER.to_string(),
+                chown,
+                install,
+            )
+        }
+        ContainerSignMode::Build {
+            work_dir,
+            staging_dir,
+        } => {
+            // The build container already holds an apt cache; only touch apt
+            // when debsign is genuinely missing.
+            let install = "command -v debsign >/dev/null \
+                   || { echo 'debmagic: installing debsign'; \
+                       apt-get update; \
+                       apt-get install -y --no-install-recommends debsign \
+                         || apt-get install -y --no-install-recommends devscripts; }"
+                .to_string();
+            (
+                staging_dir.display().to_string(),
+                work_dir.display().to_string(),
+                String::new(),
+                install,
+            )
+        }
     };
-    // forward the agent socket and install just `debsign`
-    format!(
+
+    // gpg prefers the user-session socket dir (/run/user/$UID/gnupg) over
+    // $GNUPGHOME, so the forwarded agent socket must be linked there; the
+    // keyring (public key + ownertrust) still lives in $GNUPGHOME.
+    let setup = format!(
         "set -e; \
          export GNUPGHOME=/root/.gnupg; \
          mkdir -p /run/user/0/gnupg \"$GNUPGHOME\"; \
          chmod 700 /run/user/0/gnupg \"$GNUPGHOME\"; \
          ln -sf {sock} /run/user/0/gnupg/S.gpg-agent; \
          ln -sf {sock} \"$GNUPGHOME/S.gpg-agent\"; \
-         apt-get update -qq; \
-         apt-get install -y -qq --no-install-recommends debsign || apt-get install -y -qq --no-install-recommends devscripts; \
+         {install}; \
          gpg --batch --import {staging}/{pubkey}; \
-         gpg --batch --import-ownertrust {staging}/{ownertrust}; \
-         cd {out} && debsign -k{key} {changes}{chown}",
-        sock = agent_socket.display(),
-        staging = SIGN_STAGING_IN_CONTAINER,
-        pubkey = PUBKEY_FILE,
-        ownertrust = OWNERTRUST_FILE,
-        out = OUTPUT_DIR_IN_CONTAINER,
-        key = shell_single_quote(sign_key),
-        changes = shell_single_quote(changes_filename),
-    )
+         gpg --batch --import-ownertrust {staging}/{ownertrust}"
+    );
+
+    let sign = format!(
+        "set -e; \
+         export GNUPGHOME=/root/.gnupg; \
+         cd {out} && debsign -k{key} {changes}{chown}"
+    );
+
+    SignContainerScripts { setup, sign }
+}
+
+/// Send a desktop notification via `notify-send`, if available. Never fails
+/// the build: a headless session or missing binary just means no popup.
+pub fn notify_send(summary: &str, body: &str) {
+    match Command::new("notify-send")
+        .arg(summary)
+        .arg(body)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+    {
+        Ok(_) => {}
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+            eprintln!("notify-send not found on PATH; cannot send signing notification");
+        }
+        Err(e) => eprintln!("failed to run notify-send: {e}"),
+    }
 }
 
 /// Sign `changes_file` on the host with `debsign`.
-pub fn sign_on_host(changes_file: &Path, sign_key: Option<&str>) -> anyhow::Result<()> {
+pub fn sign_on_host(
+    changes_file: &Path,
+    sign_key: Option<&str>,
+    sign_notify: bool,
+    package: &str,
+) -> anyhow::Result<()> {
     let output_dir = changes_file.parent().ok_or_else(|| {
         anyhow!(
             "could not get output directory of {}",
@@ -206,6 +305,12 @@ pub fn sign_on_host(changes_file: &Path, sign_key: Option<&str>) -> anyhow::Resu
         cmd.arg(format!("-k{key}"));
     }
     cmd.arg(filename).current_dir(output_dir);
+    if sign_notify {
+        notify_send(
+            "debmagic: signing requested",
+            &format!("touch your key to sign {package}"),
+        );
+    }
     run_checked(&mut cmd, &format!("signing {}", changes_file.display()))?;
     Ok(())
 }
@@ -243,27 +348,70 @@ mod tests {
     use super::*;
 
     #[test]
-    fn sign_script_quotes_filename_and_key() {
-        let script = sign_container_script(
+    fn ephemeral_script_quotes_filename_and_key() {
+        let scripts = sign_container_scripts(
+            ContainerSignMode::Ephemeral { chown_to: None },
             Path::new("/debmagic-gpg/S.gpg-agent"),
             "pkg_1.0_amd64.changes",
             "me@example.com",
-            None,
         );
-        assert!(script.contains("debsign -k'me@example.com' 'pkg_1.0_amd64.changes'"));
-        assert!(script.contains("gpg --batch --import /debmagic-sign/pubkey.asc"));
-        assert!(!script.contains("chown"));
+        assert!(
+            scripts
+                .sign
+                .contains("debsign -k'me@example.com' 'pkg_1.0_amd64.changes'")
+        );
+        assert!(scripts.sign.contains("cd /debmagic-output"));
+        assert!(
+            scripts
+                .setup
+                .contains("gpg --batch --import /debmagic-sign/pubkey.asc")
+        );
+        // Ephemeral always refreshes apt and links the session socket.
+        assert!(scripts.setup.contains("apt-get update"));
+        assert!(scripts.setup.contains("/run/user/0/gnupg/S.gpg-agent"));
+        assert!(!scripts.setup.contains("chown"));
+        assert!(!scripts.sign.contains("chown"));
     }
 
     #[test]
-    fn sign_script_chowns_output_when_requested() {
-        let script = sign_container_script(
+    fn ephemeral_script_chowns_output_when_requested() {
+        let scripts = sign_container_scripts(
+            ContainerSignMode::Ephemeral {
+                chown_to: Some((1000, 100)),
+            },
             Path::new("/debmagic-gpg/S.gpg-agent"),
             "x.changes",
             "key",
-            Some((1000, 100)),
         );
-        assert!(script.contains("chown -R 1000:100 /debmagic-output"));
+        assert!(scripts.sign.contains("chown -R 1000:100 /debmagic-output"));
+        assert!(!scripts.setup.contains("chown"));
+    }
+
+    #[test]
+    fn build_script_signs_in_place_and_skips_apt_when_present() {
+        let scripts = sign_container_scripts(
+            ContainerSignMode::Build {
+                work_dir: Path::new("/debmagic/work"),
+                staging_dir: Path::new("/tmp/debmagic-sign"),
+            },
+            Path::new("/tmp/debmagic-gpg/S.gpg-agent"),
+            "pkg_1.0_amd64.changes",
+            "me@example.com",
+        );
+        assert!(
+            scripts
+                .sign
+                .contains("cd /debmagic/work && debsign -k'me@example.com'")
+        );
+        assert!(
+            scripts
+                .setup
+                .contains("gpg --batch --import /tmp/debmagic-sign/pubkey.asc")
+        );
+        assert!(scripts.setup.contains("command -v debsign"));
+        // The session socket dir is linked in both modes.
+        assert!(scripts.setup.contains("/run/user/0/gnupg/S.gpg-agent"));
+        assert!(!scripts.sign.contains("chown"));
     }
 
     #[test]

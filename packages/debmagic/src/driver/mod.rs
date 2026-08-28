@@ -197,7 +197,7 @@ pub struct EnvironmentMetadata {
 /// pockets it detects from `/etc/os-release`.
 pub const APT_MIRROR_SCRIPT: &str = include_str!("scripts/mirror.py");
 
-pub trait Driver {
+pub trait EnvironmentDriver {
     fn driver_metadata(&self) -> HashMap<String, String>;
 
     fn run_command(
@@ -230,7 +230,7 @@ pub trait Driver {
 
     fn driver_type(&self) -> DriverType;
 
-    /// Isolation this Driver's Environment actually provides.
+    /// Isolation this driver's Environment actually provides.
     fn isolation_capability(&self) -> IsolationCapability;
 
     fn reset_root(&self) -> io::Result<()>;
@@ -238,15 +238,20 @@ pub trait Driver {
     fn reused_environment(&self) -> bool {
         true
     }
+
+    /// Sign `changes_file` (a path on the host) with `debsign`, at the
+    /// location resolved in the request.
+    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()>;
 }
 
-pub enum DriverInstance {
+/// A live environment driver, created for one build/test run.
+pub enum Driver {
     Docker(DriverDocker),
     Bare(DriverBare),
     Lxd(DriverLxd),
 }
 
-impl Driver for DriverInstance {
+impl EnvironmentDriver for Driver {
     fn driver_metadata(&self) -> HashMap<String, String> {
         match self {
             Self::Docker(d) => d.driver_metadata(),
@@ -316,23 +321,12 @@ impl Driver for DriverInstance {
             Self::Lxd(d) => d.reused_environment(),
         }
     }
-}
 
-impl DriverInstance {
-    /// Sign `changes_file` (a path on the host) with `debsign`. `gpg`
-    /// carries the agent socket and key for signing inside a minimal
-    /// same-distro container; `None` means signing was resolved to run on
-    /// the host instead.
-    pub fn sign_changes(
-        &self,
-        changes_file: &Path,
-        gpg: Option<&crate::signing::GpgForwarding>,
-        sign_key: Option<&str>,
-    ) -> anyhow::Result<()> {
+    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
         match self {
-            Self::Docker(d) => d.sign_changes(changes_file, gpg, sign_key),
-            Self::Bare(d) => d.sign_changes(changes_file, gpg, sign_key),
-            Self::Lxd(d) => d.sign_changes(changes_file, gpg, sign_key),
+            Self::Docker(d) => d.sign_changes(request),
+            Self::Bare(d) => d.sign_changes(request),
+            Self::Lxd(d) => d.sign_changes(request),
         }
     }
 }
@@ -341,7 +335,7 @@ pub fn create_driver(
     environment: &Environment,
     driver_config: &DriverConfig,
     overrides: &DriverOverrides,
-) -> anyhow::Result<DriverInstance> {
+) -> anyhow::Result<Driver> {
     let apt_mirror = overrides
         .apt_mirror
         .as_deref()
@@ -349,14 +343,14 @@ pub fn create_driver(
     let proposed = overrides.proposed.unwrap_or(driver_config.proposed);
 
     match environment.driver {
-        DriverType::Docker => Ok(DriverInstance::Docker(DriverDocker::create(
+        DriverType::Docker => Ok(Driver::Docker(DriverDocker::create(
             environment,
             driver_config,
             &overrides.docker,
             apt_mirror,
             proposed,
         )?)),
-        DriverType::Bare => Ok(DriverInstance::Bare(DriverBare::create(
+        DriverType::Bare => Ok(Driver::Bare(DriverBare::create(
             environment,
             driver_config,
             &overrides.bare,
@@ -366,7 +360,7 @@ pub fn create_driver(
                 DriverType::Lxd => LxdVariant::Lxd,
                 _ => LxdVariant::Incus,
             };
-            Ok(DriverInstance::Lxd(DriverLxd::create(
+            Ok(Driver::Lxd(DriverLxd::create(
                 variant,
                 environment,
                 driver_config,
@@ -381,14 +375,14 @@ pub fn create_driver(
 pub fn create_driver_from_metadata(
     driver_config: &DriverConfig,
     metadata: &EnvironmentMetadata,
-) -> anyhow::Result<DriverInstance> {
+) -> anyhow::Result<Driver> {
     match metadata.environment.driver {
-        DriverType::Docker => Ok(DriverInstance::Docker(DriverDocker::from_metadata(
+        DriverType::Docker => Ok(Driver::Docker(DriverDocker::from_metadata(
             &metadata.environment,
             driver_config,
             metadata,
         )?)),
-        DriverType::Bare => Ok(DriverInstance::Bare(DriverBare::from_metadata(
+        DriverType::Bare => Ok(Driver::Bare(DriverBare::from_metadata(
             &metadata.environment,
             driver_config,
             metadata,
@@ -398,7 +392,7 @@ pub fn create_driver_from_metadata(
                 DriverType::Lxd => LxdVariant::Lxd,
                 _ => LxdVariant::Incus,
             };
-            Ok(DriverInstance::Lxd(DriverLxd::from_metadata(
+            Ok(Driver::Lxd(DriverLxd::from_metadata(
                 variant,
                 &metadata.environment,
                 driver_config,
@@ -406,6 +400,88 @@ pub fn create_driver_from_metadata(
             )?))
         }
     }
+}
+
+/// A single `debsign` invocation: what to sign, where to run it, and whether
+/// to send a desktop notification just before the gpg touch prompt.
+pub struct SignRequest<'a> {
+    /// The `.changes` file to sign (a path on the host).
+    pub changes_file: &'a Path,
+    /// Where `debsign` runs, as resolved from `sign.with` and the driver.
+    pub location: SignLocation,
+    /// Agent socket + key for container signing; `None` for host signing.
+    pub gpg: Option<&'a crate::signing::GpgForwarding>,
+    /// `debsign -k` value; `None` lets debsign do its maintainer lookup (host only).
+    pub sign_key: Option<&'a str>,
+    /// Send a `notify-send` popup right before `debsign`.
+    pub notify: bool,
+    /// `"{name}-{version}"`, used in the notification.
+    pub package: &'a str,
+}
+
+/// Where `debsign` actually runs for a build.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum SignLocation {
+    /// On the host, using the host's own gpg keyring.
+    Host,
+    /// In a minimal, throwaway same-distro container.
+    EphemeralContainer,
+    /// Inside the build container itself (requires a container driver).
+    BuildContainer,
+}
+
+impl SignRequest<'_> {
+    /// Send the "touch your key" notification if enabled. Called right before
+    /// `debsign` runs so a hardware-key prompt isn't missed.
+    pub fn notify_signing(&self) {
+        if self.notify {
+            crate::signing::notify_send(
+                "debmagic: signing requested",
+                &format!("touch your key to sign {}", self.package),
+            );
+        }
+    }
+}
+
+/// Host-side preparation shared by the containerized drivers: the gpg
+/// forwarding setup, the staged public key + ownertrust, and the `.changes`
+/// filename. `None` when the request resolved to host signing (already run).
+pub struct ContainerSignPrep {
+    pub gpg: crate::signing::GpgForwarding,
+    pub staging_dir: PathBuf,
+    pub changes: String,
+}
+
+/// Stage everything a container sign needs. Returns `Ok(None)` after signing
+/// on the host when `location` is `Host`, so container drivers can
+/// `let Some(prep) = ... else { return Ok(()) }`. `temp_dir` is the driver's
+/// build-temp dir, under which the `sign` staging dir is created.
+pub fn prepare_container_sign(
+    request: &SignRequest,
+    temp_dir: &Path,
+) -> anyhow::Result<Option<ContainerSignPrep>> {
+    use crate::signing;
+
+    if request.location == SignLocation::Host {
+        signing::sign_on_host(
+            request.changes_file,
+            request.sign_key,
+            request.notify,
+            request.package,
+        )?;
+        return Ok(None);
+    }
+    let gpg = request
+        .gpg
+        .context("container signing needs a gpg forwarding setup")?;
+    let staging_dir = temp_dir.join("sign");
+    signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
+    let changes = signing::changes_filename(request.changes_file)?.to_string();
+    Ok(Some(ContainerSignPrep {
+        gpg: gpg.clone(),
+        staging_dir,
+        changes,
+    }))
 }
 
 /// Remove `root` from the host. If files are owned by a container user the host

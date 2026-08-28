@@ -380,6 +380,15 @@ fn run_build(
 pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<()> {
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
+        // build-essential is an implicit dependency that `apt-get build-dep`
+        // won't resolve, so install it explicitly. No-op when the environment
+        // already has it (idempotent, and the bare driver runs on the host).
+        build.driver.run_command_checked(
+            &["apt-get", "-y", "install", "build-essential"],
+            &build.environment.staged_source_dir(),
+            true,
+            &[],
+        )?;
         build.driver.run_command_checked(
             &["apt-get", "-y", "build-dep", "."],
             &build.environment.staged_source_dir(),

@@ -82,6 +82,7 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::driver::DriverType;
 
     #[test]
     fn it_loads_a_simple_config() -> Result<(), anyhow::Error> {
@@ -89,6 +90,7 @@ mod tests {
             .join("tests")
             .join("assets");
         let cfg = Config::new(&vec![test_asset_dir.join("config1.toml")])?;
+        assert_eq!(cfg.driver.default, Some(DriverType::Docker));
         assert!(cfg.driver.persistent);
 
         assert!(

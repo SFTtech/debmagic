@@ -20,6 +20,7 @@ All keys are optional.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
+| `driver.default` | enum | — | Build driver (`docker`, `bare`, `lxd`, `incus`) |
 | `driver.persistent` | bool | `false` | Keep and reuse the build environment across runs instead of tearing it down. |
 | `driver.apt_mirror` | string | — | Mirror used for build-dependency resolution. Not used by the `bare` driver. |
 | `driver.proposed` | bool | `false` | Also enable the `<release>-proposed` pocket. Not used by the `bare` driver. |
@@ -64,6 +65,7 @@ sign_key = "you@example.com or gpg key id"
 clean = false
 
 [driver]
+default = "lxd"
 persistent = true
 apt_mirror = "http://<mirror-host>/ubuntu"
 

@@ -21,6 +21,7 @@ pub mod build_intent;
 pub mod cli;
 pub mod config;
 pub mod driver;
+pub mod output;
 pub mod package;
 pub mod signing;
 pub mod test;
@@ -37,6 +38,7 @@ fn main() -> ExitCode {
 
 fn run() -> anyhow::Result<ExitCode> {
     let cli = Cli::parse();
+    output::init_color(cli.color);
 
     let current_dir = env::current_dir()?;
     match &cli.command {
@@ -83,6 +85,8 @@ fn run() -> anyhow::Result<ExitCode> {
                 no_sign: build_args.no_sign,
                 sign_with: build_args.sign_with,
                 sign_key: build_args.sign_key.clone(),
+                sign_notify: build_args.sign_notify,
+                no_sign_notify: build_args.no_sign_notify,
                 clean: build_args.clean,
                 no_clean: build_args.no_clean,
                 source_sync: build_args.source_sync,

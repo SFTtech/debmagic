@@ -18,15 +18,8 @@ pub struct Config {
     pub source_sync_mode: SourceSyncMode,
     /// Always build the automatic `-dbgsym` debug symbol package.
     pub build_debug_symbols: bool,
-    /// Sign the resulting `.changes`/`.dsc` with `debsign` after building.
-    pub sign_package: bool,
-    /// Where `debsign` runs: on the host or inside a minimal same-distro
-    /// container with the host's gpg-agent socket forwarded in.
-    pub sign_with: SignWith,
-    /// GPG key ID/email to sign with (debsign's `-k` option). `None` lets
-    /// debsign fall back to its own maintainer-based key lookup, but
-    /// container signing requires an explicit key.
-    pub sign_key: Option<String>,
+    /// Signing of the resulting `.changes`/`.dsc`.
+    pub sign: SignConfig,
     /// Run `debian/rules clean` before building (like `dpkg-buildpackage`
     /// does unless passed `-nc`). Disabled by default because non-incremental
     /// builds already stage a clean source tree and incremental builds preserve
@@ -40,6 +33,25 @@ pub struct Config {
     pub host_arch_variant: Option<String>,
 }
 
+/// `[sign]` section: whether and how to sign the build artifacts.
+#[derive(Deserialize, Debug, Clone, Default)]
+#[serde(default)]
+pub struct SignConfig {
+    /// Sign the source package (`.changes`/`.dsc`) with `debsign` after
+    /// building.
+    pub source: bool,
+    /// Where `debsign` runs: on the host or inside a minimal same-distro
+    /// container with the host's gpg-agent socket forwarded in.
+    pub with: SignWith,
+    /// GPG key ID/email to sign with (debsign's `-k` option). `None` lets
+    /// debsign fall back to its own maintainer-based key lookup, but
+    /// container signing requires an explicit key.
+    pub key: Option<String>,
+    /// Send a desktop notification via `notify-send` just before `debsign`
+    /// runs, so a hardware-key touch prompt isn't missed.
+    pub notify: bool,
+}
+
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -48,9 +60,7 @@ impl Default for Config {
             incremental: false,
             source_sync_mode: SourceSyncMode::default(),
             build_debug_symbols: false,
-            sign_package: false,
-            sign_with: SignWith::default(),
-            sign_key: None,
+            sign: SignConfig::default(),
             clean: false,
             shell_on_failure: false,
             host_arch_variant: None,
@@ -98,6 +108,24 @@ mod tests {
                 == Some(&"some-debian-trixie-image:latest".to_string())
         );
 
+        Ok(())
+    }
+
+    #[test]
+    fn it_loads_the_sign_section() -> Result<(), anyhow::Error> {
+        let dir = std::env::temp_dir().join(format!("debmagic-test-{}", std::process::id()));
+        std::fs::create_dir_all(&dir)?;
+        let file = dir.join("sign.toml");
+        std::fs::write(
+            &file,
+            "[sign]\nsource = true\nwith = \"separate\"\nkey = \"you@example.com\"\nnotify = true\n",
+        )?;
+        let cfg = Config::new(&vec![file.clone()])?;
+        std::fs::remove_dir_all(&dir).ok();
+        assert!(cfg.sign.source);
+        assert_eq!(cfg.sign.with, SignWith::Separate);
+        assert_eq!(cfg.sign.key.as_deref(), Some("you@example.com"));
+        assert!(cfg.sign.notify);
         Ok(())
     }
 }

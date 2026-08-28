@@ -27,6 +27,8 @@ pub struct BuildIntentInput {
     pub no_sign: Option<bool>,
     pub sign_with: Option<SignWith>,
     pub sign_key: Option<String>,
+    pub sign_notify: Option<bool>,
+    pub no_sign_notify: Option<bool>,
     pub clean: Option<bool>,
     pub no_clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
@@ -100,15 +102,20 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     // overrides_with already made --sign/--no-sign (and
     // --clean/--no-clean) mutually exclusive, keeping the later flag.
     if let Some(sign) = input.sign {
-        config.sign_package = sign;
+        config.sign.source = sign;
     } else if let Some(no_sign) = input.no_sign {
-        config.sign_package = !no_sign;
+        config.sign.source = !no_sign;
     }
     if let Some(sign_with) = input.sign_with {
-        config.sign_with = sign_with;
+        config.sign.with = sign_with;
     }
     if let Some(sign_key) = input.sign_key {
-        config.sign_key = Some(sign_key);
+        config.sign.key = Some(sign_key);
+    }
+    if let Some(sign_notify) = input.sign_notify {
+        config.sign.notify = sign_notify;
+    } else if let Some(no_sign_notify) = input.no_sign_notify {
+        config.sign.notify = !no_sign_notify;
     }
     if let Some(clean) = input.clean {
         config.clean = clean;
@@ -170,6 +177,8 @@ mod tests {
             no_sign: None,
             sign_with: None,
             sign_key: None,
+            sign_notify: None,
+            no_sign_notify: None,
             clean: None,
             no_clean: None,
             source_sync: None,

@@ -99,6 +99,7 @@ pub fn container_name_from_metadata(metadata: &EnvironmentMetadata) -> anyhow::R
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum DriverType {
     Docker,
     Bare,
@@ -526,7 +527,7 @@ mod tests {
     #[test]
     fn environment_without_purpose_deserializes_as_build() {
         let json = r#"{
-            "driver": "Docker",
+            "driver": "docker",
             "package_identifier": "pkg-1.0",
             "root_dir": "/tmp/build",
             "distro": { "distro": "Debian", "codename": "forky", "version": "15" }

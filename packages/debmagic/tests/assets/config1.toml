@@ -1,4 +1,5 @@
 [driver]
+default = "docker"
 persistent = true
 
 [driver.docker]

@@ -70,7 +70,7 @@ pub struct CommonBuildArgs {
     #[arg(
         short,
         long,
-        help = "Build driver type. Required for binary builds; source-only builds default to 'bare', since those need no build-deps or compilation."
+        help = "Build driver type. Defaults to the 'driver' key in debmagic.toml; without either, source-only builds use 'bare', since those need no build-deps or compilation."
     )]
     pub driver: Option<DriverType>,
 

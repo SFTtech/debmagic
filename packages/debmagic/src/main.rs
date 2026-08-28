@@ -51,11 +51,21 @@ fn run() -> anyhow::Result<ExitCode> {
                 BuildTarget::Source(source_args) => (&source_args.build, None, None, true),
             };
 
+            let config_driver = load_config(
+                build_args.common.source_dir.as_deref(),
+                cli.config.as_deref(),
+            )?
+            .driver
+            .default;
+
             let driver = if is_source {
-                build_args.driver.unwrap_or(DriverType::Bare)
+                build_args
+                    .driver
+                    .or(config_driver)
+                    .unwrap_or(DriverType::Bare)
             } else {
-                build_args.driver.context(
-                    "--driver is required for binary builds (docker, bare, lxd or incus)",
+                build_args.driver.or(config_driver).context(
+                    "no build driver selected: pass --driver or set 'driver' in debmagic.toml (docker, bare, lxd or incus)",
                 )?
             };
 

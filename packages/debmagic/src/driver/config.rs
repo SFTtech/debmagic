@@ -1,11 +1,11 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::driver::DriverType;
 use crate::driver::driver_bare::{DriverBareConfig, DriverBareConfigOverrides};
 use crate::driver::driver_docker::{DriverDockerConfig, DriverDockerConfigOverrides};
 use crate::driver::driver_lxd::{DriverLxdConfig, DriverLxdConfigOverrides};
 
-#[derive(Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(default)]
 pub struct DriverConfig {
     /// Default driver when `--driver` is not passed. Binary builds still

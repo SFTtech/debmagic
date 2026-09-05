@@ -387,6 +387,8 @@ dependencies = [
  "libc",
  "serde",
  "serde_json",
+ "toml",
+ "toml_edit",
  "uuid",
 ]
 
@@ -471,6 +473,12 @@ checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
 dependencies = [
  "cfg-if",
 ]
+
+[[package]]
+name = "equivalent"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "erased-serde"
@@ -570,6 +578,12 @@ checksum = "9229cfe53dfd69f0609a49f65461bd93001ea1ef889cd5529dd176593f5338a1"
 dependencies = [
  "foldhash",
 ]
+
+[[package]]
+name = "hashbrown"
+version = "0.17.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 
 [[package]]
 name = "hashlink"
@@ -726,6 +740,16 @@ dependencies = [
  "same-file",
  "walkdir",
  "winapi-util",
+]
+
+[[package]]
+name = "indexmap"
+version = "2.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "07aa2048142242915a31d35844fb311e0e53fcca590c3a0a40dcf1b841fa09eb"
+dependencies = [
+ "equivalent",
+ "hashbrown 0.17.1",
 ]
 
 [[package]]
@@ -1308,10 +1332,12 @@ version = "0.9.10+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0825052159284a1a8b4d6c0c86cbc801f2da5afd2b225fa548c72f2e74002f48"
 dependencies = [
+ "indexmap",
  "serde_core",
  "serde_spanned",
  "toml_datetime",
  "toml_parser",
+ "toml_writer",
  "winnow",
 ]
 
@@ -1325,6 +1351,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "toml_edit"
+version = "0.24.0+spec-1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8c740b185920170a6d9191122cafef7010bd6270a3824594bff6784c04d7f09e"
+dependencies = [
+ "indexmap",
+ "toml_datetime",
+ "toml_parser",
+ "toml_writer",
+ "winnow",
+]
+
+[[package]]
 name = "toml_parser"
 version = "1.0.6+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1332,6 +1371,12 @@ checksum = "a3198b4b0a8e11f09dd03e133c0280504d0801269e9afa46362ffde1cbeebf44"
 dependencies = [
  "winnow",
 ]
+
+[[package]]
+name = "toml_writer"
+version = "1.1.1+spec-1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "756daf9b1013ebe47a8776667b466417e2d4c5679d441c26230efd9ef78692db"
 
 [[package]]
 name = "typeid"

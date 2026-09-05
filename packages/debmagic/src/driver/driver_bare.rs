@@ -1,11 +1,10 @@
 use std::{path::Path, process::Command};
 
-use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, IsolationCapability,
-    SignLocation, SignRequest, config::DriverConfig,
+    SignRequest, config::DriverConfig,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -103,25 +102,6 @@ impl EnvironmentDriver for DriverBare {
     }
 
     fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
-        match request.location {
-            // The bare driver builds on the host; the "build environment" *is*
-            // the host, so container-style signing isn't a thing here.
-            SignLocation::BuildContainer | SignLocation::EphemeralContainer
-                if request.gpg.is_some() =>
-            {
-                return Err(anyhow!(
-                    "sign.with = \"build\"/\"separate\" requires a container build driver; \
-                     the bare driver signs on the host"
-                ));
-            }
-            _ => {}
-        }
-        crate::signing::check_host_debsign_available()?;
-        crate::signing::sign_on_host(
-            request.changes_file,
-            request.sign_key,
-            request.notify,
-            request.package,
-        )
+        crate::signing::sign_changes(request)
     }
 }

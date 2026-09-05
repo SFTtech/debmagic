@@ -402,37 +402,22 @@ pub fn create_driver_from_metadata(
     }
 }
 
-/// A single `debsign` invocation: what to sign, where to run it, and whether
-/// to send a desktop notification just before the gpg touch prompt.
+/// A single signing invocation: what to sign and whether to send a desktop
+/// notification just before the gpg touch prompt.
 pub struct SignRequest<'a> {
     /// The `.changes` file to sign (a path on the host).
     pub changes_file: &'a Path,
-    /// Where `debsign` runs, as resolved from `sign.with` and the driver.
-    pub location: SignLocation,
-    /// Agent socket + key for container signing; `None` for host signing.
-    pub gpg: Option<&'a crate::signing::GpgForwarding>,
-    /// `debsign -k` value; `None` lets debsign do its maintainer lookup (host only).
+    /// Key ID/email to sign with; `None` falls back to the maintainer lookup.
     pub sign_key: Option<&'a str>,
-    /// Send a `notify-send` popup right before `debsign`.
+    /// Send a `notify-send` popup right before signing.
     pub notify: bool,
     /// `"{name}-{version}"`, used in the notification.
     pub package: &'a str,
 }
 
-/// Where `debsign` actually runs for a build.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum SignLocation {
-    /// On the host, using the host's own gpg keyring.
-    Host,
-    /// In a minimal, throwaway same-distro container.
-    EphemeralContainer,
-    /// Inside the build container itself (requires a container driver).
-    BuildContainer,
-}
-
 impl SignRequest<'_> {
     /// Send the "touch your key" notification if enabled. Called right before
-    /// `debsign` runs so a hardware-key prompt isn't missed.
+    /// signing runs so a hardware-key prompt isn't missed.
     pub fn notify_signing(&self) {
         if self.notify {
             crate::signing::notify_send(
@@ -441,47 +426,6 @@ impl SignRequest<'_> {
             );
         }
     }
-}
-
-/// Host-side preparation shared by the containerized drivers: the gpg
-/// forwarding setup, the staged public key + ownertrust, and the `.changes`
-/// filename. `None` when the request resolved to host signing (already run).
-pub struct ContainerSignPrep {
-    pub gpg: crate::signing::GpgForwarding,
-    pub staging_dir: PathBuf,
-    pub changes: String,
-}
-
-/// Stage everything a container sign needs. Returns `Ok(None)` after signing
-/// on the host when `location` is `Host`, so container drivers can
-/// `let Some(prep) = ... else { return Ok(()) }`. `temp_dir` is the driver's
-/// build-temp dir, under which the `sign` staging dir is created.
-pub fn prepare_container_sign(
-    request: &SignRequest,
-    temp_dir: &Path,
-) -> anyhow::Result<Option<ContainerSignPrep>> {
-    use crate::signing;
-
-    if request.location == SignLocation::Host {
-        signing::sign_on_host(
-            request.changes_file,
-            request.sign_key,
-            request.notify,
-            request.package,
-        )?;
-        return Ok(None);
-    }
-    let gpg = request
-        .gpg
-        .context("container signing needs a gpg forwarding setup")?;
-    let staging_dir = temp_dir.join("sign");
-    signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
-    let changes = signing::changes_filename(request.changes_file)?.to_string();
-    Ok(Some(ContainerSignPrep {
-        gpg: gpg.clone(),
-        staging_dir,
-        changes,
-    }))
 }
 
 /// Remove `root` from the host. If files are owned by a container user the host

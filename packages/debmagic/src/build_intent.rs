@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use anyhow::Context;
 
@@ -50,41 +50,13 @@ pub struct BuildIntent {
     pub driver_overrides: DriverOverrides,
 }
 
-/// Precedence of config files is:
-///
-/// 1. explicit config file passed on the command line
-/// 2. `<source_dir>/debian/debmagic.toml`
-/// 3. `<XDG_CONFIG_HOME>/debmagic/config.toml`
-pub fn load_config(
-    source_dir: Option<&Path>,
-    config_file: Option<&Path>,
-) -> anyhow::Result<Config> {
-    let mut config_file_paths = vec![];
-    let xdg_config_file = dirs::config_dir().map(|p| p.join("debmagic").join("config.toml"));
-    if let Some(xdg_config_file) = xdg_config_file
-        && xdg_config_file.is_file()
-    {
-        config_file_paths.push(xdg_config_file);
-    }
-
-    if let Some(source_dir) = source_dir {
-        config_file_paths.push(source_dir.join("debian").join("debmagic.toml"));
-    }
-
-    if let Some(config_file) = config_file {
-        config_file_paths.push(config_file.to_path_buf());
-    }
-
-    Config::new(&config_file_paths)
-}
-
 pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildIntent> {
     let source_dir = std::path::absolute(input.source_dir.unwrap_or(input.fallback_dir.clone()))
         .context("resolving source dir failed")?;
     let output_dir = std::path::absolute(input.output_dir.unwrap_or(input.fallback_dir))
         .context("resolving output dir failed")?;
 
-    let mut config = load_config(Some(&source_dir), input.config_file.as_deref())?;
+    let mut config = Config::load(Some(&source_dir), input.config_file.as_deref())?;
 
     if let Some(persistent) = input.persistent {
         config.driver.persistent = persistent;
@@ -199,7 +171,7 @@ mod tests {
 
     #[test]
     fn load_config_reads_explicit_file() -> anyhow::Result<()> {
-        let cfg = load_config(None, Some(&asset_config()))?;
+        let cfg = Config::load(None, Some(&asset_config()))?;
         assert!(cfg.driver.persistent);
         assert_eq!(
             cfg.driver.docker.base_images.get("debian:trixie"),

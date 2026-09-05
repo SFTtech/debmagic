@@ -46,8 +46,63 @@ pub enum Commands {
     Test(TestSubcommandArgs),
     #[command(about = "Check the project")]
     Check(CheckSubcommandArgs),
+    #[command(about = "Inspect the debmagic configuration")]
+    Config(ConfigSubcommandArgs),
     #[command(about = "Show version information")]
     Version {},
+}
+
+#[derive(Args, Debug)]
+pub struct ConfigSubcommandArgs {
+    #[command(subcommand)]
+    pub command: ConfigCommands,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum ConfigCommands {
+    #[command(
+        about = "Print the effective config as TOML, and which config file paths were considered"
+    )]
+    Show(ConfigShowSubcommandArgs),
+    #[command(about = "Print a single config value, addressed by dotted key (e.g. 'sign.key')")]
+    Get(ConfigGetSubcommandArgs),
+    #[command(about = "Set a single config value, addressed by dotted key (e.g. 'sign.key ROFL')")]
+    Set(ConfigSetSubcommandArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct ConfigShowSubcommandArgs {
+    #[command(flatten)]
+    pub common: CommonCli,
+}
+
+#[derive(Args, Debug)]
+pub struct ConfigGetSubcommandArgs {
+    #[arg(help = "Config key, dotted path like 'sign.key' or 'driver.default'")]
+    pub key: String,
+
+    #[command(flatten)]
+    pub common: CommonCli,
+}
+
+#[derive(Args, Debug)]
+pub struct ConfigSetSubcommandArgs {
+    #[arg(help = "Config key, dotted path like 'sign.key' or 'driver.default'")]
+    pub key: String,
+
+    #[arg(
+        help = "Value to set; parsed as TOML when valid (true, 3, [\"a\"]), else treated as a string"
+    )]
+    pub value: String,
+
+    #[arg(
+        long,
+        help = "Write to the user-wide config file instead of the project's debian/debmagic.toml"
+    )]
+    pub global: bool,
+
+    #[command(flatten)]
+    pub common: CommonCli,
 }
 
 #[derive(Args, Debug)]

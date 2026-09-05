@@ -6,8 +6,9 @@ use clap::{CommandFactory, Parser};
 
 use crate::{
     build::{build_package, build_source_package, get_shell_in_build},
-    build_intent::{BuildIntentInput, load_config, resolve_build_intent},
-    cli::{BuildTarget, Cli, Commands},
+    build_intent::{BuildIntentInput, resolve_build_intent},
+    cli::{BuildTarget, Cli, Commands, ConfigCommands},
+    config::{Config, ConfigPathStatus, resolve_set_target},
     driver::{
         DriverType, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
         driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
@@ -53,7 +54,7 @@ fn run() -> anyhow::Result<ExitCode> {
                 BuildTarget::Source(source_args) => (&source_args.build, None, None, true),
             };
 
-            let config_driver = load_config(
+            let config_driver = Config::load(
                 build_args.common.source_dir.as_deref(),
                 cli.config.as_deref(),
             )?
@@ -128,7 +129,7 @@ fn run() -> anyhow::Result<ExitCode> {
             let source_dir = args.common.source_dir.as_deref().unwrap_or(&current_dir);
             let source_dir =
                 std::path::absolute(source_dir).context("resolving source dir failed")?;
-            let config = load_config(Some(&source_dir), cli.config.as_deref())?;
+            let config = Config::load(Some(&source_dir), cli.config.as_deref())?;
             let identity = load_package_identity(&source_dir)?;
             get_shell_in_build(&config, &identity)?;
         }
@@ -168,6 +169,65 @@ fn run() -> anyhow::Result<ExitCode> {
         Commands::Check(_args) => {
             println!("Check subcommand! - not implemented");
         }
+        Commands::Config(args) => match &args.command {
+            ConfigCommands::Show(show_args) => {
+                let source_dir = show_args
+                    .common
+                    .source_dir
+                    .as_deref()
+                    .unwrap_or(&current_dir);
+                let source_dir =
+                    std::path::absolute(source_dir).context("resolving source dir failed")?;
+                let paths = Config::resolve_paths(Some(&source_dir), cli.config.as_deref())?;
+
+                eprintln!("debmagic: config files (highest precedence first):");
+                for entry in &paths {
+                    let status = match entry.status {
+                        ConfigPathStatus::Used => "used",
+                        ConfigPathStatus::NotFound => "not found",
+                    };
+                    eprintln!("debmagic:   {status:<10} {}", entry.path.display());
+                }
+
+                let config = Config::new(&paths)?;
+                print!("{}", toml::to_string_pretty(&config)?);
+            }
+            ConfigCommands::Get(get_args) => {
+                let source_dir = get_args
+                    .common
+                    .source_dir
+                    .as_deref()
+                    .unwrap_or(&current_dir);
+                let source_dir =
+                    std::path::absolute(source_dir).context("resolving source dir failed")?;
+                let config = Config::load(Some(&source_dir), cli.config.as_deref())?;
+                println!("{}", config.get_value(&get_args.key)?);
+            }
+            ConfigCommands::Set(set_args) => {
+                let source_dir = set_args
+                    .common
+                    .source_dir
+                    .as_deref()
+                    .unwrap_or(&current_dir);
+                let source_dir =
+                    std::path::absolute(source_dir).context("resolving source dir failed")?;
+                let target =
+                    resolve_set_target(Some(&source_dir), cli.config.as_deref(), set_args.global)?;
+
+                if let Some(parent) = target.path.parent() {
+                    std::fs::create_dir_all(parent)
+                        .with_context(|| format!("creating {} failed", parent.display()))?;
+                }
+
+                target.set_value(&set_args.key, &set_args.value)?;
+
+                // validate the result parses and the key landed
+                let config = Config::load(Some(&source_dir), cli.config.as_deref())?;
+                let effective = config.get_value(&set_args.key)?;
+                println!("debmagic: {} = {}", set_args.key, effective.trim_end());
+                eprintln!("debmagic: written to {}", target.path.display());
+            }
+        },
         Commands::Version {} => {
             let cmd = Cli::command();
             println!("{}", cmd.render_version());

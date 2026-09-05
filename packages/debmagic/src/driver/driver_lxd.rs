@@ -1,6 +1,5 @@
 use std::{
     fs,
-    os::unix::fs::{MetadataExt, PermissionsExt},
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
@@ -10,11 +9,10 @@ use debmagic_common::distro::{Distro, DistroVersion};
 use serde::{Deserialize, Serialize};
 
 use crate::driver::{
-    APT_MIRROR_SCRIPT, ContainerSignPrep, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment,
-    EnvironmentDriver, EnvironmentMetadata, IsolationCapability, SignLocation, SignRequest,
-    config::DriverConfig, container_name_from_metadata, container_name_metadata,
-    environment_fingerprint, prepare_container_sign, resource_name, run_checked,
-    translate_path_in_container,
+    APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
+    EnvironmentMetadata, IsolationCapability, SignRequest, config::DriverConfig,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint,
+    resource_name, run_checked, translate_path_in_container,
 };
 
 // The binary name differs between LXD and Incus, but everything else is shared.
@@ -105,9 +103,6 @@ pub struct DriverLxd {
     container_name: String,
     /// Resolved project name (None → omit `--project` flag).
     project: Option<String>,
-    /// Base image of the distro, used to spin up minimal one-shot containers
-    /// (e.g. for signing) that don't need the build environment's tooling.
-    base_image: String,
     reused_environment: bool,
 }
 
@@ -253,7 +248,6 @@ impl DriverLxd {
             environment: environment.clone(),
             container_name: container_name.clone(),
             project,
-            base_image: base_image.clone(),
             reused_environment: false,
         };
 
@@ -437,9 +431,6 @@ impl DriverLxd {
             environment: environment.clone(),
             container_name: container_name_from_metadata(metadata)?,
             project,
-            base_image: driver_config
-                .lxd
-                .base_image_for_distro(variant, &environment.distro),
             reused_environment: true,
         })
     }
@@ -619,300 +610,6 @@ impl EnvironmentDriver for DriverLxd {
     }
 
     fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
-        let Some(prep) = prepare_container_sign(request, &self.environment.temp_dir())? else {
-            return Ok(());
-        };
-
-        match request.location {
-            SignLocation::BuildContainer => self.sign_in_build_container(request, &prep),
-            SignLocation::EphemeralContainer => self.sign_in_ephemeral_container(request, &prep),
-            SignLocation::Host => unreachable!("handled above"),
-        }
-    }
-}
-
-impl DriverLxd {
-    /// Sign inside the running build container: add the staging dir and a
-    /// proxy for the agent socket as devices, then run `debsign` in the work
-    /// dir where `dpkg-buildpackage` left the `.changes`.
-    fn sign_in_build_container(
-        &self,
-        request: &SignRequest,
-        prep: &ContainerSignPrep,
-    ) -> anyhow::Result<()> {
-        use crate::signing;
-
-        self.with_running_container(|_| Ok(()))
-            .map_err(|e| anyhow::anyhow!("build container is not available for signing: {e}"))?;
-
-        let bin = self.variant.binary();
-        let container = &self.container_name;
-        // Devices on a running container are hot-plugged; remove them again
-        // after signing so a persistent container doesn't keep them around.
-        let staging_device = resource_name(
-            "debmagic-sign",
-            &self.environment.package_name,
-            &self.environment.identifier(),
-        );
-        let socket_device = format!("{staging_device}-agent");
-        let socket_dir = Path::new("/tmp/debmagic-gpg");
-        let socket = socket_dir.join(signing::GPG_SOCKET_FILENAME);
-
-        let cleanup = |driver: &Self| {
-            for dev in [&staging_device, &socket_device] {
-                let _ = driver
-                    .lxd_cmd("config")
-                    .args(["device", "remove"])
-                    .arg(container)
-                    .arg(dev)
-                    .stdout(Stdio::null())
-                    .stderr(Stdio::null())
-                    .status();
-            }
-        };
-
-        let result = (|| -> anyhow::Result<()> {
-            // The proxy device hot-plugs its listen socket, so its parent dir
-            // must already exist inside the running container.
-            self.exec_in_container_checked(
-                &["mkdir", "-p", &socket_dir.to_string_lossy()],
-                None,
-                true,
-                &[],
-            )
-            .map_err(|e| anyhow::anyhow!("failed to create gpg socket dir in container: {e}"))?;
-
-            run_checked(
-                self.lxd_cmd("config")
-                    .arg("device")
-                    .arg("add")
-                    .arg(container)
-                    .arg(&staging_device)
-                    .arg("disk")
-                    .arg(format!("source={}", prep.staging_dir.display()))
-                    .arg(format!("path={}", signing::SIGN_STAGING_IN_CONTAINER))
-                    .arg("readonly=true"),
-                "mounting signing material into build container",
-            )?;
-            // Forward the host agent socket via a proxy listening in a
-            // container-local /tmp dir (the build root is idmapped, which the
-            // proxy can't write to as root).
-            let socket_owner = std::fs::metadata(&prep.gpg.agent_extra_socket)
-                .context("failed to stat host gpg-agent socket")?;
-            run_checked(
-                self.lxd_cmd("config")
-                    .arg("device")
-                    .arg("add")
-                    .arg(container)
-                    .arg(&socket_device)
-                    .arg("proxy")
-                    .arg("bind=container")
-                    .arg(format!(
-                        "connect=unix:{}",
-                        prep.gpg.agent_extra_socket.display()
-                    ))
-                    .arg(format!("listen=unix:{}", socket.display()))
-                    .arg("uid=0")
-                    .arg("gid=0")
-                    .arg(format!("security.uid={}", socket_owner.uid()))
-                    .arg(format!("security.gid={}", socket_owner.gid())),
-                "forwarding gpg-agent socket into build container",
-            )?;
-
-            let work_dir = Path::new(ENVIRONMENT_DIR_IN_CONTAINER).join("work");
-            let scripts = signing::sign_container_scripts(
-                signing::ContainerSignMode::Build {
-                    work_dir: &work_dir,
-                    staging_dir: Path::new(signing::SIGN_STAGING_IN_CONTAINER),
-                },
-                &socket,
-                &prep.changes,
-                &prep.gpg.sign_key,
-            );
-            let work = self.environment.work_dir();
-            self.exec_in_container_checked(&["sh", "-ec", &scripts.setup], Some(&work), true, &[])
-                .map_err(|e| {
-                    anyhow::anyhow!("preparing the {bin} build container for signing: {e}")
-                })?;
-            request.notify_signing();
-            self.exec_in_container_checked(&["sh", "-ec", &scripts.sign], Some(&work), true, &[])
-                .map_err(|e| anyhow::anyhow!("signing in the {bin} build container failed: {e}"))?;
-            Ok(())
-        })();
-
-        cleanup(self);
-        result
-    }
-
-    /// Sign in a minimal, throwaway container with the agent socket forwarded
-    /// and the output dir mounted.
-    fn sign_in_ephemeral_container(
-        &self,
-        request: &SignRequest,
-        prep: &ContainerSignPrep,
-    ) -> anyhow::Result<()> {
-        use crate::signing;
-
-        let output_dir = request
-            .changes_file
-            .parent()
-            .context("changes file has no parent directory")?;
-        let gpg_dir = self.environment.temp_dir().join("sign-gpg");
-        std::fs::create_dir_all(&gpg_dir).context("failed to create gpg socket dir")?;
-        // The lxd proxy runs on the host as real root, which an idmapped
-        // mount (raw.idmap) maps to "other" on a dir owned by the host user —
-        // so the proxy needs o+wx to create its listen socket here. The dir
-        // is throwaway (build temp dir) and holds only the transient socket.
-        std::fs::set_permissions(&gpg_dir, std::fs::Permissions::from_mode(0o777))
-            .context("failed to make gpg socket dir writable for the proxy")?;
-        // No chown needed: raw.idmap maps container root to the host user.
-        let agent_socket =
-            Path::new(signing::GPG_DIR_IN_CONTAINER).join(signing::GPG_SOCKET_FILENAME);
-        let scripts = signing::sign_container_scripts(
-            signing::ContainerSignMode::Ephemeral { chown_to: None },
-            &agent_socket,
-            &prep.changes,
-            &prep.gpg.sign_key,
-        );
-        let gpg = &prep.gpg;
-
-        let sign_container = resource_name(
-            "debmagic-sign",
-            &self.environment.package_name,
-            &self.environment.identifier(),
-        );
-        let bin = self.variant.binary();
-        // The sign container is ephemeral; it disappears when stopped.
-        let mut init = self.lxd_cmd("init");
-        init.arg("--ephemeral");
-        init.args([&self.base_image, sign_container.as_str()]);
-        run_checked(&mut init, &format!("initialising {bin} sign container"))?;
-
-        let result = (|| -> anyhow::Result<()> {
-            let host_uid = unsafe { libc::geteuid() };
-            let host_gid = unsafe { libc::getegid() };
-            if host_uid != 0 {
-                let idmap = format!("uid {host_uid} 0\ngid {host_gid} 0");
-                run_checked(
-                    self.lxd_cmd("config")
-                        .arg("set")
-                        .arg(&sign_container)
-                        .arg("raw.idmap")
-                        .arg(&idmap),
-                    "setting raw.idmap on sign container",
-                )?;
-            }
-
-            run_checked(
-                self.lxd_cmd("config")
-                    .arg("device")
-                    .arg("add")
-                    .arg(&sign_container)
-                    .arg("debmagic-output")
-                    .arg("disk")
-                    .arg(format!("source={}", output_dir.display()))
-                    .arg(format!("path={}", signing::OUTPUT_DIR_IN_CONTAINER)),
-                "mounting output directory into sign container",
-            )?;
-            run_checked(
-                self.lxd_cmd("config")
-                    .arg("device")
-                    .arg("add")
-                    .arg(&sign_container)
-                    .arg("debmagic-sign-staging")
-                    .arg("disk")
-                    .arg(format!("source={}", prep.staging_dir.display()))
-                    .arg(format!("path={}", signing::SIGN_STAGING_IN_CONTAINER))
-                    .arg("readonly=true"),
-                "mounting signing material into sign container",
-            )?;
-            run_checked(
-                self.lxd_cmd("config")
-                    .arg("device")
-                    .arg("add")
-                    .arg(&sign_container)
-                    .arg("debmagic-gpg-dir")
-                    .arg("disk")
-                    .arg(format!("source={}", gpg_dir.display()))
-                    .arg(format!("path={}", signing::GPG_DIR_IN_CONTAINER)),
-                "mounting gpg socket dir into sign container",
-            )?;
-            // Forward the host gpg-agent's extra socket via a proxy device,
-            // listening inside the mounted output dir: the proxy needs the
-            // listen path's parent to be a host-mounted directory it can
-            // write to (rootfs dirs don't exist yet when the device is set
-            // up, and /run is mounted over at boot). security.uid/gid select
-            // the credentials lxd connects to the host socket with; gpg-agent
-            // rejects connections that don't come from the socket's owner, so
-            // this must be the host user's ids, not the default root.
-            let socket_owner = std::fs::metadata(&gpg.agent_extra_socket)
-                .context("failed to stat host gpg-agent socket")?;
-            run_checked(
-                self.lxd_cmd("config")
-                    .arg("device")
-                    .arg("add")
-                    .arg(&sign_container)
-                    .arg("debmagic-gpg-agent")
-                    .arg("proxy")
-                    .arg("bind=container")
-                    .arg(format!("connect=unix:{}", gpg.agent_extra_socket.display()))
-                    .arg(format!(
-                        "listen=unix:{}/{}",
-                        signing::GPG_DIR_IN_CONTAINER,
-                        signing::GPG_SOCKET_FILENAME
-                    ))
-                    .arg("uid=0")
-                    .arg("gid=0")
-                    .arg(format!("security.uid={}", socket_owner.uid()))
-                    .arg(format!("security.gid={}", socket_owner.gid())),
-                "forwarding gpg-agent socket into sign container",
-            )?;
-
-            run_checked(
-                self.lxd_cmd("start").arg(&sign_container),
-                &format!("starting {bin} sign container"),
-            )?;
-
-            // Same first-boot caveat as the build container: on Ubuntu images
-            // cloud-init may still hold the apt lock.
-            if matches!(self.environment.distro.distro, Distro::Ubuntu) {
-                self.exec_in_container_checked(
-                    &["cloud-init", "status", "--wait"],
-                    None,
-                    true,
-                    &[],
-                )
-                .map_err(|e| anyhow::anyhow!("Error waiting for cloud-init to finish: {e}"))?;
-            }
-
-            println!(
-                "[{bin}] $ signing {} in a minimal {} container",
-                request.changes_file.display(),
-                self.environment.distro.codename
-            );
-
-            let mut setup = self.lxd_cmd("exec");
-            setup.arg(&sign_container);
-            setup.arg("--");
-            setup.args(["sh", "-ec", &scripts.setup]);
-            run_checked(&mut setup, "preparing the sign container")?;
-
-            // Notify right before debsign triggers the gpg touch prompt; the
-            // setup above can take long enough to miss it otherwise.
-            request.notify_signing();
-            let mut sign = self.lxd_cmd("exec");
-            sign.arg(&sign_container);
-            sign.arg("--");
-            sign.args(["sh", "-ec", &scripts.sign]);
-            run_checked(&mut sign, "signing in container")?;
-            Ok(())
-        })();
-
-        let mut stop = self.lxd_cmd("stop");
-        let stop_result = run_checked(
-            stop.arg(&sign_container),
-            &format!("stopping {bin} sign container"),
-        );
-        result.and(stop_result)
+        crate::signing::sign_changes(request)
     }
 }

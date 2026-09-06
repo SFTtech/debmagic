@@ -1,0 +1,3 @@
+patch-systems-quilt-description (source): quilt-patch-using-template-description [debian/patches/04_template_description]
+patch-systems-quilt-description (source): quilt-patch-missing-description [debian/patches/03_a_git_patch]
+patch-systems-quilt-description (source): quilt-patch-missing-description [debian/patches/02_this_one_has_no_description]

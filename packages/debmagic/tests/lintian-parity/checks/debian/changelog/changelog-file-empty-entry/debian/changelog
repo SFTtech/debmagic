@@ -1,0 +1,10 @@
+changelog-file-empty-entry (1.0) unstable; urgency=low
+
+  * .
+  *
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org> Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-empty-entry (0.1) unstable; urgency=low
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Fri, 06 Feb 2009 22:22:37 -0800

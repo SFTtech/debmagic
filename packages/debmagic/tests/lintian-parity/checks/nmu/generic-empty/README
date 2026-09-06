@@ -1,0 +1,4 @@
+This is the smallest possible Debian package that I can get
+dpkg-buildpackage to build (with the exception of this documentation).
+It tests Lintian handling of packages that are missing everything one
+would normally expect to have.

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo /var/lib/dpkg/info/other-package.list

@@ -1,0 +1,56 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Doohickey
+Upstream-Contact: J. Random Hacker <j.r.hacker@example.com>
+Source: http://examples.com/doohickey/source/
+
+Files: *
+Copyright: 2014, somebody1
+License: Fixme
+ Fixme-license text
+
+
+Files: debian/*
+Copyright: 2014, somebody2
+License: unknown
+ Fixme
+
+Files: debian/a
+Copyright: 2014, somebody2
+License: unknow
+ Fixme
+
+Files: debian/b
+Copyright: 2014, somebody2
+License: todo
+ Fixme
+
+Files: debian/c
+comment: some spacing
+Copyright: 2014, somebody2
+License:            -
+ Fixme
+
+Files: debian/d
+comment: some spacing
+Copyright: 2014, somebody2
+License: -       
+ Fixme
+
+Files: debian/e
+Comment: too many false positive with space
+Copyright: 2014, somebody2
+License: undefined license
+ Fixme
+
+Files: debian/f
+comment: some spacing
+Copyright: 2014, somebody2
+License: undefined
+ Fixme
+
+Files: debian/g
+comment: false positive
+Copyright: 2014, somebody2
+License: common public license - v 1.0
+ Fixme
+

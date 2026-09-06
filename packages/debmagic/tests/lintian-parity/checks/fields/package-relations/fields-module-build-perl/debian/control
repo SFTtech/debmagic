@@ -1,0 +1,17 @@
+Source: fields-module-build-perl
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Build-Depends-Indep: libmodule-build-perl, libmodule-build-tiny-perl
+Rules-Requires-Root: no
+
+Package: fields-module-build-perl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test some libmodule-build(-tiny)-perl checks
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

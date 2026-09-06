@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.9.4" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+    http://pear.php.net/dtd/tasks-1.0.xsd
+    http://pear.php.net/dtd/package-2.0
+    http://pear.php.net/dtd/package-2.0.xsd">
+ <name>Lintian_Test</name>
+ <channel>pear.php.net</channel>
+ <summary>Lintian_Test - Does nothing.</summary>
+ <description>Test package</description>
+ <lead>
+  <name>Foo Bar</name>
+  <user>lintian-testing</user>
+  <email>testing@example.org</email>
+  <active />
+ </lead>
+ <date>2025-10-01</date>
+ <time>15:30:00</time>
+ <version>
+  <release>1.0.0</release>
+  <api>1.0.0</api>
+ </version>
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+ <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+ <notes>
+First release
+
+* Foo.
+* Bar.
+ </notes>
+ <contents>
+  <dir baseinstalldir="/" name="/">
+   <file baseinstalldir="/" md5sum="60232647460a0c61e2711154f913a76e" name="required.php" role="php" />
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>7.0.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.6</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <phprelease />
+ <changelog>
+  <release>
+   <version>
+    <release>1.0.0</release>
+    <api>1.0.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2025-10-01</date>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License</license>
+   <notes>
+First release
+
+* Foo.
+* Bar.
+   </notes>
+  </release>
+ </changelog>
+</package>

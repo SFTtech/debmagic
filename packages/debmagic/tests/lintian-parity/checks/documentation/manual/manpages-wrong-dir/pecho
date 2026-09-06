@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+print join(' ', @ARGV), "\n";
+
+=head1 NAME
+
+pecho - POSIX compliant Perl implementation of echo
+
+=head1 SYNOPSIS
+
+pecho [args ...]
+
+=head1 DESCRIPTION
+
+Prints arguments to stdout.
+
+=head1 AUTHORS
+
+Niels Thykier <niels@thykier.net>
+
+=cut
+

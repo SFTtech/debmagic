@@ -1,0 +1,51 @@
+Source: menu-format-general
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: menu-none
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test menu file tags (no icon)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Test for "none" icon and missing icons.
+
+Package: menu-cmd
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test menu file tags (cmd)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Test for command not being in the package.
+
+Package: menu-broken
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test menu file tags (broken)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Test for broken menu file.
+
+Package: menu-section
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test menu file tags (section)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Test for menu file with weird sections.

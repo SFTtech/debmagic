@@ -1,0 +1,213 @@
+#!/usr/bin/make -f
+
+# Copyright (C) 1998 Richard Braakman
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at https://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+VENDORARCH := $(shell perl -MConfig -wE'say substr($$Config{vendorarch},1)')
+
+clean:
+	mkdir -p .svn CVS "{arch}" .arch-ids .bzr
+	touch data/.cvsignore data/svn-commit.tmp data/svk-commitsEr9P.tmp
+	touch data/.arch-inventory
+	touch 'data/.#Maelstrom Sound.1.1.1' 'data/Maelstrom Sounce.r121'
+	touch 'data/Maelstrom Sound.mine'
+	touch "data/'\\ "
+	touch filenames.c~
+
+build-arch:
+
+build-indep:
+
+build: build-arch build-indep
+
+
+binary-arch:
+
+binary-indep:
+	install -d debian/tmp/DEBIAN
+	cp -a data debian/tmp/files
+	chmod -R go=rX debian/tmp/files
+
+	install -d debian/tmp/usr/lib/filenames
+	install -m 555 -d debian/tmp/usr/lib/filenames/readonly
+	touch debian/tmp/usr/lib/filenames/readonly/test
+
+	install -d debian/tmp/usr/lib/menu
+	install -d debian/tmp/usr/share/menu
+	touch debian/tmp/usr/lib/menu/README
+	touch debian/tmp/usr/share/menu/README
+	touch debian/tmp/usr/lib/menu/menu
+	touch debian/tmp/usr/share/menu/menu
+	chmod 644 debian/tmp/usr/lib/menu/*
+
+	install -d debian/tmp/$(VENDORARCH)/foo
+	mkdir debian/tmp/$(VENDORARCH)/.svn
+	mkdir debian/tmp/$(VENDORARCH)/CVS
+	mkdir "debian/tmp/$(VENDORARCH)/{arch}"
+	mkdir debian/tmp/$(VENDORARCH)/.arch-ids
+	mkdir debian/tmp/$(VENDORARCH)/.bzr
+	mkdir debian/tmp/$(VENDORARCH)/.be
+	mkdir debian/tmp/$(VENDORARCH)/.ditrack
+	install -d debian/tmp/usr/share/perl5
+	echo foo > debian/tmp/$(VENDORARCH)/foo/.gitignore
+	echo foo > debian/tmp/$(VENDORARCH)/foo/.hgignore
+	echo foo > debian/tmp/$(VENDORARCH)/foo/.hgtags
+	echo foo > debian/tmp/$(VENDORARCH)/foo/.hg_archival.txt
+
+	touch debian/tmp/$(VENDORARCH)/foo/.packlist
+	chmod 644 debian/tmp/$(VENDORARCH)/foo/.packlist
+	touch debian/tmp/$(VENDORARCH)/foo/bar.pm
+	TZ=UTC touch -t 197501010101 debian/tmp/$(VENDORARCH)/foo/ancient.pm
+	chmod 644 debian/tmp/$(VENDORARCH)/foo/bar.pm
+
+	install -d debian/tmp/usr/share/pixmaps
+	install -d debian/tmp/usr/share/pixmaps/foo
+	touch debian/tmp/usr/share/pixmaps/license.jpeg
+	touch debian/tmp/usr/share/pixmaps/licence.jpg
+	touch debian/tmp/usr/share/pixmaps/copying.xpm
+	touch debian/tmp/usr/share/pixmaps/foo/COPYING.svg
+	touch debian/tmp/usr/share/pixmaps/foo/copying.png
+	touch debian/tmp/usr/share/pixmaps/license.txt
+	touch debian/tmp/usr/share/pixmaps/license.foo
+	touch debian/tmp/usr/share/pixmaps/COPYING
+
+	install -d debian/tmp/usr/share/linda/overrides
+	echo 'foo' > debian/tmp/usr/share/linda/overrides/filenames
+
+	install -d debian/tmp/usr/share/doc/filenames
+	touch debian/tmp/usr/share/doc/filenames/README.macosx
+
+	echo foo > debian/tmp/usr/share/doc/filenames/bokmÃ¥l
+	echo foo > debian/tmp/usr/share/doc/filenames/bokm\\Ã¥l
+	echo foo > debian/tmp/usr/share/doc/filenames/bokmål
+	echo foo > debian/tmp/usr/share/doc/filenames/bokm\\ål
+
+	echo foo > debian/tmp/usr/share/doc/filenames/Thumbs.db
+	echo foo > debian/tmp/usr/share/doc/filenames/.DS_Store
+	echo foo > debian/tmp/usr/share/doc/filenames/._NEWS.Debian
+
+	touch debian/tmp/usr/share/doc/filenames/news.debian
+	gzip -n debian/tmp/usr/share/doc/filenames/news.debian
+	touch debian/tmp/usr/share/doc/filenames/NEWS.Debian
+
+	echo foo > debian/tmp/usr/share/doc/filenames/link-one
+	ln debian/tmp/usr/share/doc/filenames/link-one \
+	    debian/tmp/usr/share/doc/filenames/link-two
+
+	install -d debian/tmp/usr/share/doc/filenames/examples
+	touch debian/tmp/usr/share/doc/filenames/examples/__init__.py
+	touch debian/tmp/usr/share/doc/filenames/examples/very_interesting_example
+	touch debian/tmp/usr/share/doc/filenames/examples/very_interesting_example2
+	gzip -n debian/tmp/usr/share/doc/filenames/examples/very_interesting_example2
+
+	install -d debian/tmp/usr/lib/ada/adalib/
+	touch debian/tmp/usr/lib/ada/adalib/test.ali debian/tmp/usr/lib/ada/adalib/test2.ali
+	chmod 0644 debian/tmp/usr/lib/ada/adalib/test.ali
+	chmod 0444 debian/tmp/usr/lib/ada/adalib/test2.ali
+
+	install -d debian/tmp/usr/bin/X11/
+	touch debian/tmp/usr/bin/X11/testxbin
+	install -d debian/tmp/usr/X11R6/bin
+	touch debian/tmp/usr/X11R6/bin/testxbin2
+	install -d debian/tmp/usr/include/X11
+	touch debian/tmp/usr/include/X11/foo.h
+
+	install -d debian/tmp/usr/bin/mh
+	touch debian/tmp/usr/bin/mh/read
+	chmod 755 debian/tmp/usr/bin/mh/read
+	install -d debian/tmp/usr/bin/bin
+	touch debian/tmp/usr/bin/bin/bad
+	chmod 755 debian/tmp/usr/bin/bin/bad
+
+	install -m 644 debian/changelog debian/tmp/usr/share/doc/filenames/Changes
+	gzip -n -9 debian/tmp/usr/share/doc/filenames/Changes
+	ln -s Changes.gz debian/tmp/usr/share/doc/filenames/changelog.gz
+
+	install -d debian/tmp/var/www
+	echo foo > debian/tmp/var/www/foo
+
+	install -d debian/tmp/srv/foo
+	touch debian/tmp/srv/foo/bar
+	install -d debian/tmp/opt/foo
+	touch debian/tmp/opt/foo/bar
+
+	install -d debian/tmp/etc/gconf/schemas
+	touch debian/tmp/etc/gconf/schemas/test.schema
+
+	install -d debian/tmp/usr/lib/sgml
+	touch debian/tmp/usr/lib/sgml/package
+
+	install -d debian/tmp/usr/share/gnome/apps/System
+	touch debian/tmp/usr/share/gnome/apps/System/foo.desktop
+
+	install -d debian/tmp/usr/share/filenames
+	touch debian/tmp/usr/share/filenames/jquery.js
+	touch debian/tmp/usr/share/filenames/jquery.lite.js
+	touch debian/tmp/usr/share/filenames/jquery.min.js
+	touch debian/tmp/usr/share/filenames/jquery.pack.js
+	touch debian/tmp/usr/share/filenames/mochikit.js
+	touch debian/tmp/usr/share/filenames/prototype-1.2.3.4.js
+	touch debian/tmp/usr/share/filenames/prototype.js
+	touch debian/tmp/usr/share/filenames/prototype.js.gz
+	touch debian/tmp/usr/share/filenames/scriptaculous.js
+	touch debian/tmp/usr/share/filenames/yahoo-dom-event.js
+	touch debian/tmp/usr/share/filenames/yahoo-min.js
+
+	ln -s '../filenames/doc/version6.txt.gz' debian/tmp/usr/share/doc/filenames/version.txt.gz
+	ln -s ../../share/symlink debian/tmp/usr/lib/filenames/symlink1ok
+	ln -s ../../../etc/symlink debian/tmp/usr/lib/filenames/symlink1wrong
+	ln -s ../../../../etc/symlink debian/tmp/usr/lib/filenames/symlink2wrong
+	ln -s /etc/symlink debian/tmp/usr/lib/filenames/symlink2ok
+	ln -s /usr/lib/filenames/symlink2 debian/tmp/usr/lib/filenames/symlink3wrong
+	ln -s test debian/tmp/usr/lib/filenames/symlink3ok
+	ln -s ../filenames/symlink2 debian/tmp/usr/lib/filenames/symlink4wrong
+	ln -s ../menu/../somethingelse debian/tmp/usr/lib/filenames/symlink5wrong
+	ln -s ../menu/somethingelse debian/tmp/usr/lib/filenames/symlink4ok
+	ln -s ./file4 debian/tmp/usr/lib/filenames/symlink6wrong
+	ln -s ../menu/./something debian/tmp/usr/lib/filenames/symlink7wrong
+	ln -s ../menu//something debian/tmp/usr/lib/filenames/symlink8wrong
+	ln -s ../menu/something/ debian/tmp/usr/lib/filenames/symlink9wrong
+	ln -s .. debian/tmp/usr/lib/filenames/symlink5ok+warn
+	ln -s . debian/tmp/usr/lib/filenames/symlink6ok+warn
+	ln -s / debian/tmp/usr/lib/filenames/symlink7ok+warn
+	ln -s ../../.. debian/tmp/usr/lib/filenames/symlink10wrong
+
+	install -d debian/tmp/usr/share/doc-base
+	install -m 644 debian/doc-base debian/tmp/usr/share/doc-base/filenames
+
+	dpkg-gencontrol -pfilenames -Pdebian/tmp
+	dpkg --build debian/tmp ..
+
+	install -d debian/filename-games debian/filename-games/DEBIAN
+	install -d debian/filename-games/usr debian/filename-games/usr/games debian/filename-games/usr/bin
+	echo '#! /bin/sh' > debian/filename-games/usr/bin/test-game
+	chmod 755 debian/filename-games/usr/bin/test-game
+	dpkg-gencontrol -pfilename-games -Pdebian/filename-games
+	dpkg --build debian/filename-games ..
+
+	install -d debian/more-filename-games debian/more-filename-games/DEBIAN
+	install -d debian/more-filename-games/usr debian/more-filename-games/usr/games debian/more-filename-games/usr/bin
+	echo '#! /bin/sh' > debian/more-filename-games/usr/bin/another-test-game
+	echo '#! /bin/sh' > debian/more-filename-games/usr/games/yet-another-test-game
+	chmod 755 debian/more-filename-games/usr/bin/another-test-game debian/more-filename-games/usr/games/yet-another-test-game
+	dpkg-gencontrol -pmore-filename-games -Pdebian/more-filename-games
+	dpkg --build debian/more-filename-games ..
+
+binary: binary-arch binary-indep
+
+.PHONY: build-indep build-arch build binary-arch binary-indep binary clean

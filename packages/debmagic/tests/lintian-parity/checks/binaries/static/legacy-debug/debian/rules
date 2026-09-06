@@ -1,0 +1,99 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper. 
+# This file is public domain software, originally written by Joey Hess.
+
+# turn off PIE in CC in case we have a PIEful toolchain:
+ifneq ($(findstring -no-pie,$(shell gcc -no-pie 2>&1)),)
+  CC := gcc
+else
+  CC := gcc -fno-pie -no-pie
+endif
+
+build-indep:
+
+build-arch: build-stamp
+
+build-stamp:
+	dh_testdir
+	$(CC) -D_REENTRANT -fPIC -c libhello.c
+	$(CC) -o libhello.so.0.0 -shared -Wl,-soname,libhello.so.0 libhello.o
+	ln -s libhello.so.0.0 libhello.so
+	$(CC) -o hello hello.c -L. -lhello
+	touch build-stamp
+
+build: build-arch build-indep
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp *.o libhello.so.0.0 libhello.so
+	dh_clean
+
+install: build-stamp
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	install -D hello $(CURDIR)/debian/hello/usr/bin/hello
+	install -D libhello.so.0.0 \
+	    $(CURDIR)/debian/libhello0/usr/lib/libhello.so.0.0
+	ln -s libhello.so.0.0 \
+	    $(CURDIR)/debian/libhello0/usr/lib/libhello.so.0
+
+# Build architecture-dependent files here.
+export DH_OPTIONS
+binary-arch: DH_OPTIONS=-a
+binary-arch: build-stamp install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs -N hello-dbg
+	dh_installdocs
+	DH_OPTIONS= dh_strip -phello --dbg-package=hello-dbg
+	DH_OPTIONS= dh_strip -plibhello0 --dbg-package=libhello0-dbg
+
+	# Now break a few things.  Copy the debugging data into places it
+	# shouldn't be.
+	cp $(CURDIR)/debian/hello-dbg/usr/lib/debug/usr/bin/hello \
+	    $(CURDIR)/debian/hello/usr/bin/hello.dbg
+	cp $(CURDIR)/debian/libhello0-dbg/usr/lib/debug/usr/lib/libhello.so.0.0 \
+	    $(CURDIR)/debian/libhello0-dbg/usr/lib/libhello.so.dbg
+
+	# Put a full copy of the library in libhello0-dbg in /usr/lib/debug,
+	# which is okay.
+	install -m 644 libhello.so.0.0 \
+	    $(CURDIR)/debian/libhello0-dbg/usr/lib/debug/libhello.so.0.0
+
+	# Also put it in /usr/lib/debug/lib, which isn't.
+	install -D -m 644 libhello.so.0.0 \
+	    $(CURDIR)/debian/libhello0-dbg/usr/lib/debug/lib/libhello.so.0.0
+
+	# Requires a versioned dependency.
+	dh_icons
+
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs -X debug
+	dh_installdeb
+	dh_shlibdeps -X debug
+
+	# We do this by hand as otherwise dpkg-gensymbols
+	# will error due to the broken symbols file
+	# and abort the build; similarly the file in
+	# the source tree is _symbols so that dpkg
+	# doesn't attempt to sanity check it
+	install -d $(CURDIR)/debian/libhello0/DEBIAN
+	install -m 644 $(CURDIR)/debian/_symbols \
+	    $(CURDIR)/debian/libhello0/DEBIAN/symbols
+	# hello doesn't contain any shlibs, but we
+	# make it contain a symbols file
+	install -d $(CURDIR)/debian/hello/DEBIAN
+	install -m 644 $(CURDIR)/debian/_symbols \
+	    $(CURDIR)/debian/hello/DEBIAN/symbols
+
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-indep:
+binary: binary-indep binary-arch
+.PHONY: build-arch build-indep build binary binary-indep binary-arch clean install

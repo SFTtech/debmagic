@@ -1,0 +1,5 @@
+debhelper-dh-clean-k-deprecated (source): package-uses-old-debhelper-compat-version 11
+debhelper-dh-clean-k-deprecated (source): dh-clean-k-is-deprecated [debian/rules]
+debhelper-dh-clean-k-deprecated (source): debian-build-system debhelper [debian/rules]
+debhelper-dh-clean-k-deprecated (source): debhelper-compat-virtual-relation 11 [debian/control]
+debhelper-dh-clean-k-deprecated (source): debhelper-compat-level 11

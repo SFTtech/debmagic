@@ -1,0 +1,13 @@
+spelling-general (1.0-1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: spelling-general
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+  * This line has a speling error.
+    - This line has the same speling error, but we should only
+      get one tag for it.
+  * Corrected spelling: abov -> above.
+  * Corrected typo: abov -> above.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

@@ -1,0 +1,18 @@
+Source: debian-vcs-git-in-non-debian-profile
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+XS-Debian-Vcs-Git: https://salsa.debian.org/foo/bar.git
+Vcs-Git: https://git.launchpad.net/ubuntu/+source/bar
+
+Package: debian-vcs-git-in-non-debian-profile
+Architecture: all
+Depends: ${misc:Depends},
+Description: Test to ensure that on non-Debian profiles, Debian-VCS works (false positive)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+

@@ -1,0 +1,2 @@
+files-general (binary): package-contains-mimeinfo.cache-file [usr/share/applications/mimeinfo.cache]
+files-general (binary): package-contains-mime-cache-file [usr/share/mime/types]

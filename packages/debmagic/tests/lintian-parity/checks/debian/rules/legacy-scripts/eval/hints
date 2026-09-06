@@ -1,0 +1,2 @@
+scripts (source): rules-require-build-prerequisite (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+scripts (source): binary-arch-rules-but-pkg-is-arch-indep [debian/rules]

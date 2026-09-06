@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+if which install-docs >/dev/null 2>&1 ; then
+    install-docs
+fi
+
+if which update-menus >/dev/null 2>&1 ; then
+    update-menus
+fi
+
+#DEBHELPER#

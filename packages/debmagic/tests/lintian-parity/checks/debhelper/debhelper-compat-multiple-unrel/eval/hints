@@ -1,0 +1,4 @@
+debhelper-compat-multiple-unrel (source): uses-debhelper-compat-file [debian/compat]
+debhelper-compat-multiple-unrel (source): package-uses-old-debhelper-compat-version 11
+debhelper-compat-multiple-unrel (source): debian-build-system dh [debian/rules]
+debhelper-compat-multiple-unrel (source): debhelper-compat-level 11

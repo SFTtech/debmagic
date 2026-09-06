@@ -1,0 +1,18 @@
+Source: maintainer-scripts
+Section: misc
+Priority: optional
+Maintainer: QA group <packages@qa.debian.org>
+Uploaders: Anyone but Jeroen <jeroen@wolffelaar.nl>
+Build-Depends: debhelper-compat (= 13), dash (>= 0.5.10.2)
+Standards-Version: 3.1.1
+Rules-Requires-Root: binary-targets
+XS-Dm-Upload-Allowed: Yes
+
+Package: maintainer-scripts
+Architecture: all
+Depends: test
+Description: test lintian's maintainer script checks
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

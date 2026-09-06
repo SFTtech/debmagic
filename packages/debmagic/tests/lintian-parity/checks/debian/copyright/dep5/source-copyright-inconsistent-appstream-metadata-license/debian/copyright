@@ -1,0 +1,16 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Doohickey
+Upstream-Contact: J. Random Hacker <j.r.hacker@example.com>
+Source: http://examples.com/doohickey/source/
+
+Files: *
+Copyright: 2014, somebody1
+License: CC0-1.0
+ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla tortor
+ dolor, laoreet et laoreet non, pretium in nunc. Sed dapibus quis lorem
+ quis gravida. Cras sed purus consequat, dictum purus nec, venenatis sem.
+ Nullam placerat et lacus at bibendum. Maecenas varius sapien ut aliquet
+ elementum. Vestibulum vel rutrum ligula, quis pellentesque velit. Duis
+ molestie velit eget aliquet sollicitudin. Nunc eget metus nec nibh
+ maximus iaculis in non urna. Cras maximus dui ac mauris maximus
+ porttitor.

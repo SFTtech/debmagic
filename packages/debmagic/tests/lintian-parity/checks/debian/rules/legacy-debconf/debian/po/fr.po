@@ -1,0 +1,60 @@
+#
+#    Translators, if you are not familiar with the PO format, gettext
+#    documentation is worth reading, especially sections dedicated to
+#    this format, e.g. by running:
+#         info -n '(gettext)PO Files'
+#         info -n '(gettext)Header Entry'
+#
+#    Some information specific to po-debconf are available at
+#            /usr/share/doc/po-debconf/README-trans
+#         or http://www.debian.org/intl/l10n/po-debconf/README-trans
+#
+#    Developers do not need to manually edit POT or PO files.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: debconf-test 1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-12-06 00:51+0100\n"
+"PO-Revision-Date: 2005-10-13 15:03+0200\n"
+"Last-Translator: Frank Lichtenheld <djpig@debian.org>\n"
+"Language-Team: debian-l10n-german@l.d.o\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: text
+#. description
+#: ../debconf-test.templates:3
+msgid "Foo bar (2)"
+msgstr ""
+
+#. Type: multiselect
+#. Choices
+#: ../debconf-test.templates:7
+msgid "foo"
+msgstr "foo"
+
+#. Type: multiselect
+#. Choices
+#: ../debconf-test.templates:7
+msgid "bar"
+msgstr "bar, boo"
+
+#. Type: multiselect
+#. Choices
+#: ../debconf-test.templates:7
+msgid "boo"
+msgstr "boo"
+
+#. Type: multiselect
+#. Description
+#: ../debconf-test.templates:8
+msgid "test comma usages in choices fields"
+msgstr ""
+
+#. Type: text
+#. description
+#: ../debconf-udeb.templates:3
+msgid "This is just a test"
+msgstr "

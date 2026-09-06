@@ -1,0 +1,1 @@
+files-foo-in-bar (binary): udev-rule-in-etc [etc/udev/rules.d/bar]

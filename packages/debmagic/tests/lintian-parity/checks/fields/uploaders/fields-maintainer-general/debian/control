@@ -1,0 +1,21 @@
+Source: fields-maintainer-general
+Priority: optional
+Section: devel
+Maintainer: Lintian Maintainers <lintian-maint@debian.org>
+Uploaders: Lintian Maintainers <lintian-maint@debian.org>, Russ Allbery <rra@debian.org>,
+ Russ Allbery <rra@debian.org>,
+ Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>,
+ Double comma <double@comma.com>, ,
+ Mrs. Missing Comma <mrsmc@comma.com>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: fields-maintainer-general
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tests of various maintainer and uploader tags
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

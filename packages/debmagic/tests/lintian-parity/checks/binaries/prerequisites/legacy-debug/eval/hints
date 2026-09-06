@@ -1,0 +1,2 @@
+libhello0-dbg (binary): shared-library-lacks-prerequisites [usr/lib/libhello.so.dbg]
+libhello0-dbg (binary): missing-dependency-on-libc needed by usr/lib/debug/lib/libhello.so.0.0 and 1 others

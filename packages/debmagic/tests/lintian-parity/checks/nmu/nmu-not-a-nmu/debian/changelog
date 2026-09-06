@@ -1,0 +1,9 @@
+nmu-not-a-nmu (1.0) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Lintian Test Suite.
+  * Test: nmu-not-a-nmu
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Niels Thykier <niels@thykier.net>  Tue, 31 Mar 2026 17:46:22 +0200

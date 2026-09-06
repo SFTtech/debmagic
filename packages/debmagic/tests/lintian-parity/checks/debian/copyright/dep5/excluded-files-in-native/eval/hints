@@ -1,0 +1,1 @@
+excluded-files-in-native (source): source-ships-excluded-file some-file [debian/copyright:8]

@@ -1,0 +1,4 @@
+scripts-missing-call-to-dpkg-maintscript-helper (binary): maintainer-script-should-not-use-dpkg-maintscript-helper "dpkg-maintscript-helper" [preinst:7]
+scripts-missing-call-to-dpkg-maintscript-helper (binary): maintainer-script-should-not-use-dpkg-maintscript-helper "dpkg-maintscript-helper" [postinst:7]
+scripts-missing-call-to-dpkg-maintscript-helper (binary): maintainer-script-interpreter /bin/sh [preinst]
+scripts-missing-call-to-dpkg-maintscript-helper (binary): maintainer-script-interpreter /bin/sh [postinst]

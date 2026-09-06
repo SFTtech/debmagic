@@ -1,0 +1,4 @@
+changelog-file-backport (source): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changelog-file-backport (changes): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changelog-file-backport (changes): mail-contact Changed-By "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changelog-file-backport (binary): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>

@@ -1,0 +1,12 @@
+symbol-dev.a usr/lib/ocaml/
+libbaz.a usr/lib/ocaml/
+ocaml/foo.cmi usr/lib/
+ocaml/foo.cmi usr/lib/ocaml/
+ocaml/bar.cmi usr/lib/ocaml/
+ocaml/baz.cmi usr/lib/ocaml/
+ocaml/boo.cmi usr/lib/ocaml/
+ocaml/symbol2.cmx usr/lib/ocaml/
+ocaml/symbol-dev.cmx usr/lib/ocaml/
+ocaml/bleh.cmo usr/lib/ocaml/
+ocaml/bleh.cma usr/lib/ocaml/
+ocaml/META usr/lib/ocaml/

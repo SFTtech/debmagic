@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+# Not supposed to do this here.
+db_input medium debconf/test
+
+true

@@ -1,0 +1,14 @@
+#!/bin/sh
+
+BIN_PATH="/bin/our-script"
+SBIN_PATH="/sbin/our-script"
+USR_BIN_PATH="/usr/bin/our-script"
+USR_SBIN_PATH="/usr/sbin/our-script"
+
+printf "Calling %s\n" $BIN_PATH
+printf "Calling %s\n" $SBIN_PATH
+printf "Calling %s\n" $USR_BIN_PATH
+printf "Calling %s\n" $USR_SBIN_PATH
+
+exit 0
+

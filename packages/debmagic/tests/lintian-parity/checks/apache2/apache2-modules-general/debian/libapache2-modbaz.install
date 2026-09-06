@@ -1,0 +1,2 @@
+baz.load	/etc/apache2/mods-available
+mod_baz.so	/usr/lib/apache2/modules/

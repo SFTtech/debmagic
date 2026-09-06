@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	DIR=$$(find -name 'DEBIAN'); \
+	  rm "$$DIR/conffiles" && \
+	  md5sum something.conf | sed 's/ s/ etc\/s/' >> "$$DIR/md5sums"
+	dh_builddeb
+

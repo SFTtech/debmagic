@@ -1,0 +1,1 @@
+binaries-multiarch-wrong-dir (binary): triplet-dir-and-architecture-mismatch INCOMPATIBILITY STATEMENT [usr/lib/TRIPLET/]

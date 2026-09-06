@@ -1,0 +1,3 @@
+libhello0-dbg (binary): binary-with-bad-dynamic-table [usr/lib/libhello.so.dbg]
+hello (binary): binary-with-bad-dynamic-table [usr/bin/hello.dbg]
+hello (binary): elf-error In program headers: Unable to find program interpreter name [usr/bin/hello.dbg]

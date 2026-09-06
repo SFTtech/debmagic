@@ -1,0 +1,7 @@
+fields-orphaned-package-not-maintained-in-debian-infrastructure (1.0) unstable; urgency=low
+
+  * QA Upload.
+  * Lintian Test Suite.
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

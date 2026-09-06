@@ -1,0 +1,2 @@
+files-foo-in-bar (binary): package-installs-into-obsolete-dir : ^etc/dhcp3/ -> etc/dhcp (see also https://bugs.debian.org/673029) [etc/dhcp3/bar]
+files-foo-in-bar (binary): package-installs-into-obsolete-dir : ^etc/dhcp3/ -> etc/dhcp (see also https://bugs.debian.org/673029) [etc/dhcp3/]

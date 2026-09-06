@@ -1,0 +1,8 @@
+# watch file with upstream version mangling
+
+version=2
+opts="uversionmangle=s/$/ds/" \
+http://qa.debian.org/watch/sf.php?project=foo scripts\.([\d.]+)\.tar\.gz debian uupdate
+
+version=3
+http://ftp.sf.net/foo/foo_bar(.+)\.Z 5 uupdate

@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+export DH_COMPAT=10
+
+%:
+	dh $@
+
+DH_COMPAT=8

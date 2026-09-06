@@ -1,0 +1,2 @@
+files-foo-in-bar (binary): vim-addon-within-vim-runtime-path [usr/share/vim/vimcurrent/bar]
+files-foo-in-bar (binary): vim-addon-within-vim-runtime-path [usr/share/vim/vim73/bar]

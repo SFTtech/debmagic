@@ -1,0 +1,6 @@
+source-copyright-wildcard-matching (source): superfluous-file-pattern invalid-escape\n [debian/copyright:19]
+source-copyright-wildcard-matching (source): superfluous-file-pattern i-do-not-exist [debian/copyright:14]
+source-copyright-wildcard-matching (source): superfluous-file-pattern file?with?commas [debian/copyright:6]
+source-copyright-wildcard-matching (source): superfluous-file-pattern deb* [debian/copyright:6]
+source-copyright-wildcard-matching (source): invalid-escape-sequence-in-dep5-copyright \n [debian/copyright:19]
+source-copyright-wildcard-matching (source): file-without-copyright-information i-have-no-copyright-information [debian/copyright]

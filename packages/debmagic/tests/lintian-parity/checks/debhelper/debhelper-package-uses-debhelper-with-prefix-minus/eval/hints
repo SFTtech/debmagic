@@ -1,0 +1,3 @@
+debhelper-package-uses-debhelper-with-prefix-minus (source): debian-build-system dh [debian/rules]
+debhelper-package-uses-debhelper-with-prefix-minus (source): debhelper-compat-virtual-relation 14 [debian/control]
+debhelper-package-uses-debhelper-with-prefix-minus (source): debhelper-compat-level 14

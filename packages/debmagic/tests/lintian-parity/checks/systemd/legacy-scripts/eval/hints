@@ -1,0 +1,6 @@
+scripts (binary): missing-systemd-service-for-init.d-script no-lsb [etc/init.d/no-lsb]
+scripts (binary): missing-systemd-service-for-init.d-script lsb-other [etc/init.d/lsb-other]
+scripts (binary): missing-systemd-service-for-init.d-script lsb-broken [etc/init.d/lsb-broken]
+scripts (binary): init.d-script-does-not-source-init-functions [etc/init.d/no-lsb]
+scripts (binary): init.d-script-does-not-source-init-functions [etc/init.d/lsb-other]
+scripts (binary): init.d-script-does-not-source-init-functions [etc/init.d/lsb-broken]

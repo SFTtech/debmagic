@@ -1,0 +1,3 @@
+whitespace-after-continuation-character (binary): whitespace-after-continuation-character [usr/share/menu/test-menu:5]
+whitespace-after-continuation-character (binary): pkg-not-in-package-test unknown-menu-tag [usr/share/menu/test-menu:5]
+whitespace-after-continuation-character (binary): menu-command-not-in-package usr/bin/test-script [usr/share/menu/test-menu:5]

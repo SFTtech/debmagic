@@ -1,0 +1,6 @@
+Description: Does something very useful - it hides "empty-series" tag
+--- a/README	2010-12-27 14:09:55.025074505 +0100
++++ b/README	2010-12-27 14:10:09.656080199 +0100
+@@ -1 +1,2 @@
+ Hello World
++Goodbye world

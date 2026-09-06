@@ -1,0 +1,8 @@
+%YAML 1.1
+---
+# https://wiki.debian.org/UpstreamMetadata
+Bug-Submit: http://github.com/foo/foo/issues/new
+FAQ: http://foo.sourceforge.net/faq/
+Homepage: http://freecode.com/p/foo
+Repository: git://gitorious.org/foo/foo.git
+Repository-Browse: http://sourceforge.net/p/foo/code/ci/master/tree/

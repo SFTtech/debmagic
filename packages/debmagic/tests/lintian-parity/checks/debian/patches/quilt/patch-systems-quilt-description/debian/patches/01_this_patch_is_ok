@@ -1,0 +1,7 @@
+This is a description of the patch
+
+--- a.orig	2008-11-11 19:38:12.000000000 +0000
++++ a	2008-11-11 19:38:26.000000000 +0000
+@@ -1 +1,2 @@
+ sample text
++and some more sample text

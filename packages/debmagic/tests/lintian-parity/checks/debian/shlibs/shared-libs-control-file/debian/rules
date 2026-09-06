@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+DUPSHF:=debian/libdupshf1/DEBIAN/shlibs
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	# Work around "smart tools" that check the shlibs
+	# before installing them.
+	rm -f debian/libnoshf1/DEBIAN/shlibs
+	echo "# aloha" > debian/libeshf1/DEBIAN/shlibs
+	echo "libfoo 1 libunshf1 (> 0.1)" >> debian/libunshf1/DEBIAN/shlibs
+	sed -i 's/libfdshf1/libforeign1/' debian/libfdshf1/DEBIAN/shlibs
+	cat $(DUPSHF) $(DUPSHF) > $(DUPSHF).tmp
+	mv -f $(DUPSHF).tmp $(DUPSHF)
+	dh_builddeb

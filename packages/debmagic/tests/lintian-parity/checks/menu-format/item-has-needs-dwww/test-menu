@@ -1,0 +1,5 @@
+?package(item-has-needs-dwww):\
+  section="Applications/Programming"\
+  needs="dwww"\
+  title="Test menu entry"\
+  command="/usr/bin/test-script"

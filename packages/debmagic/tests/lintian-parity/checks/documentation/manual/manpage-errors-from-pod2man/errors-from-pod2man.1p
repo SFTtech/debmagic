@@ -1,0 +1,23 @@
+.TH TEST 1P "2004-12-18" "Debian Project" "Debian GNU/Linux manual"
+.SH "NAME"
+\&\fBTEST\fR \- A test manpage with a .1P extension.
+.SH "DESCRIPTION"
+.SH Header "DESCRIPTION"
+\&\fBTEST\fR tests lintian.
+.PP
+Use more up-level tools like human brains to understand lintian.
+Here's a bad undefined macro.
+Here's a serious syntax error.
+.SH "FILES"
+This program does not use any FSSTND location.
+
+.PP
+.nh
+http://example.org/really/long/url/that/cannot/be/wrapped/and/will/produce/errors/from/man
+.\" Copied from caff(1)
+.SH "POD ERRORS"
+.SH Header "POD ERRORS"
+Hey! \fBThe above document had some coding errors, which are explained below:\fR
+.IP "Around line 138:" 4
+.SH Item "Around line 138:"
+You forgot a '=back' before '=head2'

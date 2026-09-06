@@ -1,0 +1,2 @@
+This is just some random other file that isn't a German translation at
+all.

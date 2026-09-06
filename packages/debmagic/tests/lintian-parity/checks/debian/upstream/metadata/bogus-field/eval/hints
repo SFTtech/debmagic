@@ -1,0 +1,5 @@
+bogus-field (source): upstream-metadata-field-unknown Bogus [debian/upstream/metadata]
+bogus-field (source): upstream-metadata-exists [debian/upstream/metadata]
+bogus-field (source): upstream-metadata Repository Some repo. [debian/upstream/metadata]
+bogus-field (source): upstream-metadata Bug-Submit A bug tracker. [debian/upstream/metadata]
+bogus-field (source): upstream-metadata Bogus This field name is not known. [debian/upstream/metadata]

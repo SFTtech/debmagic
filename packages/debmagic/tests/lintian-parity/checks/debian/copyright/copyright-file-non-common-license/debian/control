@@ -1,0 +1,95 @@
+Source: copyright-file-non-common-license
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: copyright-mentions-apache
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks against common license false positive for Apache
+ Tests against common license false positive for Apache.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-mentions-apache2
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks against common license false positive for Apache (2)
+ Tests against common license false positive for Apache (2).
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-mentions-apache3
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks against common license false positive for Apache (3)
+ Tests against common license false positive for Apache (3).
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-mentions-gfdl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks against common license false positive for gfdl
+ Tests against common license false positive for gfdl.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-mentions-gpl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks against common license false positive for gpl
+ Tests against common license false positive for gpl.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-mentions-lgpl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks against common license false positive for lgpl
+ Tests against common license false positive for lgpl.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-mentions-lgpl2
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks against common license false positive for lgpl (2)
+ Tests against common license false positive for lgpl (2).
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-mentions-perl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks against common license false positive for perl
+ Tests against common license false positive for perl.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

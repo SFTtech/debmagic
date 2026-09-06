@@ -1,0 +1,5 @@
+libhello0-dbg (binary): debug-symbols-not-detached [usr/lib/debug/lib/libhello.so.0.0]
+libhello0-dbg (binary): debug-symbols-directly-in-usr-lib-debug [usr/lib/debug/libhello.so.0.0]
+libhello0-dbg (binary): debug-file-with-no-debug-symbols [usr/lib/debug/usr/lib/libhello.so.0.0]
+libhello0-dbg (binary): debug-file-with-no-debug-symbols [usr/lib/debug/lib/libhello.so.0.0]
+hello-dbg (binary): debug-file-with-no-debug-symbols [usr/lib/debug/usr/bin/hello]

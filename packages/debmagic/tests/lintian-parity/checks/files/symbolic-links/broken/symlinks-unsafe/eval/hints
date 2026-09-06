@@ -1,0 +1,2 @@
+symlinks-unsafe (binary): package-contains-unsafe-symlink [usr/share/lintian/bad-links/relative-escape]
+symlinks-unsafe (binary): package-contains-unsafe-symlink [usr/share/lintian/bad-links/absolute]

@@ -1,0 +1,2 @@
+dbus-services (binary): dbus-system-service-wrong-name better: com.example.SystemDaemon1.service [usr/share/dbus-1/system-services/this-name-cannot-work.service]
+dbus-services (binary): dbus-session-service-wrong-name better: org.gtk.vfs.Daemon.service [usr/share/dbus-1/services/gvfs-daemon.service]

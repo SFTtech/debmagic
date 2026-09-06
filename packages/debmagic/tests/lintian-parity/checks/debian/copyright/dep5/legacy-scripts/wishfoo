@@ -1,0 +1,4 @@
+#!/usr/bin/wish
+#
+# This is not actually a wish script, here to force a test of wish
+# dependencies.

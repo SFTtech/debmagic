@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	sed -i '/Depends:/ d' debian/libbasic2/DEBIAN/control
+	dh_builddeb

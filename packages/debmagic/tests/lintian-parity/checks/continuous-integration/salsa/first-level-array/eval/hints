@@ -1,0 +1,3 @@
+first-level-array (source): continuous-integration/salsa/specification [debian/gitlab-ci.yml]
+first-level-array (source): continuous-integration/salsa/include https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml [debian/gitlab-ci.yml]
+first-level-array (source): continuous-integration/salsa/include https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml [debian/gitlab-ci.yml]

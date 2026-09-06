@@ -1,0 +1,1 @@
+Search.setIndex({objtypes:{},objects:{},filenames:["index"],objnames:{},terms:{modul:0,index:0,content:0,page:0,search:0},titles:["Welcome to hello&#8217;s documentation!"],envversion:43,titleterms:{document:0,tabl:0,welcom:0,hello:0,indic:0}})

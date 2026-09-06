@@ -1,0 +1,2 @@
+fields-cpan-homepage (source): homepage-for-cpan-package-contains-version http://search.cpan.org/Foo-Bar-9.0_01/
+fields-cpan-homepage (binary): homepage-for-cpan-package-contains-version http://search.cpan.org/Foo-Bar-9.0_01/

@@ -1,0 +1,121 @@
+#!/usr/bin/make -f
+
+lib_tmp=debian/tmp-lib
+dev_tmp=debian/tmp-dev
+
+LIB=libbaz1
+DEV=libbaz1-dev
+
+VENDORARCH := $(shell perl -MConfig -wE'say substr($$Config{vendorarch},1)')
+
+build-arch:
+	$(MAKE)
+
+build-indep:
+
+build: build-arch build-indep
+
+clean:
+	$(MAKE) clean
+	dh_clean -plibbaz2 -plibbaz2-dev
+	rm -f debian/files debian/substvars
+	rm -rf $(lib_tmp) $(dev_tmp)
+
+# Now the correct libbaz2-dev package
+binary-correct:
+	install -d debian/libbaz2-dev/usr/lib
+	cp -a libbaz2.a libbaz2.so debian/libbaz2-dev/usr/lib
+	# usually, I'd also include some .h files to /usr/include
+
+	# Now the correct libbaz2 package
+	install -d debian/libbaz2/usr/lib
+	cp -a libbaz2.so.* debian/libbaz2/usr/lib
+	chmod a-x debian/libbaz2/usr/lib/*
+
+	# General stuff that is tested in other testsets:
+	dh_installdocs -plibbaz2 -plibbaz2-dev -plibbaz2-dbg
+	dh_compress -plibbaz2 -plibbaz2-dev -plibbaz2-dbg
+
+	# Mess up the libbaz2 changelog files to test the symlink handling.
+	ln -s /usr/share/doc/lintian/changelog.gz \
+	    debian/libbaz2/usr/share/doc/libbaz2/changelog.gz
+	install -m 644 debian/changelog \
+	    debian/libbaz2-dev/usr/share/doc/libbaz2-dev/foo
+	ln -s foo debian/libbaz2-dev/usr/share/doc/libbaz2-dev/changelog
+
+	# Okay, if either line is omitted, it should be noted
+	dh_strip --dbg-package=libbaz2-dbg -plibbaz2 -plibbaz2-dev
+	dh_makeshlibs -plibbaz2 -plibbaz2-dev -plibbaz2-dbg
+	dh_shlibdeps -plibbaz2 -plibbaz2-dev -plibbaz2-dbg
+
+	# and again, regular packaging stuff
+	dh_installdeb -plibbaz2 -plibbaz2-dev -plibbaz2-dbg
+	echo udeb: libbaz2 1.0 libbaz2 >> debian/libbaz2/DEBIAN/shlibs
+	dh_gencontrol -plibbaz2 -plibbaz2-dev -plibbaz2-dbg
+	dh_builddeb -plibbaz2 -plibbaz2-dev -plibbaz2-dbg
+
+# and the incorrect one
+binary-arch: build-arch binary-correct
+	# first, the lib package
+	install -d $(lib_tmp)/usr/lib
+	# resp. no soname (check), wrong soname (check), and no-pic (check)
+	cp -a libbaz1.so.1.0* $(lib_tmp)/usr/lib
+	cp -a libbaz2.so.1.0.3b $(lib_tmp)/usr/lib/libfoo2.so.1.0.3b
+	install -m644 libbaz3.so.1.0.3b $(lib_tmp)/usr/lib/libbaz3.so.1.0.3b
+	# let's include the .a in the non-dev too (TODO)
+	# Also, libbaz1.a hasn't a symbol table (TODO)
+	cp -a *.a $(lib_tmp)/usr/lib
+	# And a wrong .so symlink (wrong, only in -dev, TODO)
+	ln -s libfoo3.so.0.9 $(lib_tmp)/usr/lib/libfoo3.so
+	# And a wrong .so.X symlink (wrong, should point to a real existing
+	# shlib, TODO)
+	ln -s libfoo.so.0.9.1 $(lib_tmp)/usr/lib/libfoo.so.0.9
+	# And a plain .so (wrong, TODO)
+	touch $(lib_tmp)/usr/lib/libbar2.so
+	# And a non-versioned SONAME.
+	install -m644 libbaz.so $(lib_tmp)/usr/lib/libbaz.so
+	strip --remove-section=.comment --strip-unneeded $(lib_tmp)/usr/lib/libbaz.so
+	# Pretend to be a Perl module to test a lack of Perl dependencies.
+	install -d $(lib_tmp)/$(VENDORARCH)/auto/Foo
+	install -m 644 libbaz2.so.1.0.3b $(lib_tmp)/$(VENDORARCH)/auto/Foo/Foo.so
+	strip $(lib_tmp)/$(VENDORARCH)/auto/Foo/Foo.so
+
+	install -d $(lib_tmp)/usr/share/doc/$(LIB)
+	install -m 644 debian/copyright $(lib_tmp)/usr/share/doc/$(LIB)
+	install -m 644 debian/changelog $(lib_tmp)/usr/share/doc/$(LIB)
+	gzip -n -9 $(lib_tmp)/usr/share/doc/$(LIB)/changelog
+	install -d $(lib_tmp)/DEBIAN
+	install -m 755 debian/lib.postinst $(lib_tmp)/DEBIAN/postinst
+	install -m 755 debian/lib.prerm $(lib_tmp)/DEBIAN/prerm
+	touch $(lib_tmp)/usr/share/doc/README.Debian
+	#dpkg-shlibdeps $(lib_tmp)/usr/lib/libbaz.so.1.0
+	install -m 755 debian/lib.shlibs $(lib_tmp)/DEBIAN/shlibs
+	install -m 755 debian/lib.symbols $(lib_tmp)/DEBIAN/symbols
+	dpkg-gencontrol -isp -p$(LIB) -P$(lib_tmp)
+	dpkg --build $(lib_tmp) ..
+
+	# now the -dev package
+	install -d $(dev_tmp)/usr/include
+	install -d $(lib_tmp)/usr/lib
+	# let's also install the .so at the same time... (wrong, TODO)
+	cp -a *.a *.so.* $(lib_tmp)/usr/lib
+	# and fuck up permission (TODO)
+	chmod a+x $(lib_tmp)/usr/lib/*.a
+	# Pretend to be a Perl module to test a lack of Perl dependencies.
+	install -d $(dev_tmp)/$(VENDORARCH)/auto/Foo
+	install -m 644 libbaz2.so.1.0.3b $(dev_tmp)/$(VENDORARCH)/auto/Foo/Foo.so
+	strip $(dev_tmp)/$(VENDORARCH)/auto/Foo/Foo.so
+	install -d $(dev_tmp)/usr/share/doc
+	ln -s $(LIB) $(dev_tmp)/usr/share/doc/$(DEV) 
+	install -d $(dev_tmp)/DEBIAN
+	install -m 755 debian/dev.postinst $(dev_tmp)/DEBIAN/postinst
+	install -m 755 debian/dev.prerm $(dev_tmp)/DEBIAN/prerm
+	dpkg-gencontrol -isp -p$(DEV) -P$(dev_tmp)
+	dpkg --build $(dev_tmp) ..
+
+
+binary: binary-arch
+
+# The mention of binary-indep here should be sufficient to suppress the
+# warning that it's not present.
+.PHONY: build-arch build-indep build binary-arch binary-indep binary clean

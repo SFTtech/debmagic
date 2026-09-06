@@ -1,0 +1,20 @@
+scripts-supports-ancient-package-version (1.0-1) unstable; urgency=low
+
+  * Version reused, new source package name.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+scripts-supports-ancient-package-version (0.5) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: scripts-supports-ancient-package-version
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Fri, 06 Feb 2009 22:22:37 -0800
+
+scripts-supports-ancient-package-version (0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Should be ignored.
+  * Test: scripts-supports-ancient-package-version
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Fri, 06 Feb 2008 22:22:37 -0800

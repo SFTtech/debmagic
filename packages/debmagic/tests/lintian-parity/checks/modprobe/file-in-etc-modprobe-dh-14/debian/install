@@ -1,0 +1,2 @@
+debian/test.conf /etc/modprobe.d/
+debian/test.conf /usr/lib/modprobe.d/

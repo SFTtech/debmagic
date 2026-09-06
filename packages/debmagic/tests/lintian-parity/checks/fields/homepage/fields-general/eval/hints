@@ -1,0 +1,5 @@
+fields-general (source): homepage-field-uses-insecure-uri http://lintian.debian.org/
+fields-general-debug (binary): homepage-field-uses-insecure-uri http://lintian.debian.org/
+fields-general-dbg (binary): superfluous-clutter-in-homepage <http://lintian.debian.org/>
+fields-general-dbg (binary): homepage-field-uses-insecure-uri <http://lintian.debian.org/>
+fields-general (binary): bad-homepage ttp://lintian.debian.org/

@@ -1,0 +1,7 @@
+nodejs-module-not-declared (binary): nodejs-module-not-declared node-mongodb [usr/share/nodejs/mongodb/package.json]
+nodejs-module-not-declared (binary): nodejs-module-not-declared node-foo-bar [usr/share/nodejs/@foo/bar/package.json]
+nodejs-module-not-declared (binary): nodejs-module-not-declared node-bson [usr/share/nodejs/bson/package.json]
+nodejs-module-not-declared (binary): nodejs-module mongodb 3.5.2 [usr/share/nodejs/mongodb/package.json]
+nodejs-module-not-declared (binary): nodejs-module bson undef [usr/share/nodejs/bson/browser_build/package.json]
+nodejs-module-not-declared (binary): nodejs-module bson 1.1.3 [usr/share/nodejs/bson/package.json]
+nodejs-module-not-declared (binary): nodejs-module @foo/bar 1.2.0 [usr/share/nodejs/@foo/bar/package.json]

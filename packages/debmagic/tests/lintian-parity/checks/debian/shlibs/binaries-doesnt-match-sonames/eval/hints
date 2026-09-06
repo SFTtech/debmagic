@@ -1,0 +1,4 @@
+mylibany (binary): symbols-file-missing-build-depends-package-field libany.so.1 [symbols]
+libanyq16-6 (binary): symbols-file-missing-build-depends-package-field libanyQ16.so.6 [symbols]
+libany6gcc1v6 (binary): symbols-file-missing-build-depends-package-field libany6gcc.so.1v6 [symbols]
+libany5gcc1v5 (binary): symbols-file-missing-build-depends-package-field libany5gcc.so.1 [symbols]

@@ -1,0 +1,10 @@
+# broken links
+usr/share/broken-links/some.data usr/lib/broken-links/some.data
+etc/some.conf usr/lib/broken-links/some.conf
+# At the time of writing, debhelper does not expand wildcard in
+# links files.
+etc/some-*.conf usr/lib/broken-links/some-other.conf
+
+# valid links
+usr/share/data-pkg/valid.data usr/lib/data-pkg/valid.data
+etc/valid.conf usr/lib/data-pkg/valid.conf

@@ -1,0 +1,21 @@
+Source: fields-vcs-field-mismatch
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+Homepage: https://lintian.debian.org/
+Vcs-Bzr: https://gitlab.org/lintian/lintian.git
+Vcs-Git: https://salsa.debian.org/lintian/lintian.git
+Vcs-Svn: https://salsa.debian.org/lintian/lintian.git
+Vcs-Browser: https://salsa.debian.org/lintian/lintian
+
+Package: fields-vcs-field-mismatch
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for packages with mismatched Vcs-* fields
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

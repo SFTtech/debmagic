@@ -1,0 +1,155 @@
+Source: description-general
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: description-general
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: description-general is a package which tests lintian's description checks
+ missing
+ The the synopsis should not start with the package's name. Moreover,
+ the long	description
+	should
+	not
+ contain tabs.
+ .control statements are not allowed as well.
+ .
+ All all all of of these these should be matched matched matched
+ .
+ This description was automagically extracted from the module by dh-make-perl
+ .
+ No, not really... (dummy)
+
+Package: description-general-2
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Don't use tabs	in the synopsis and restrict yourself to less than 80 characters, otherwise Lintian will complain
+    Oh, and don't start the long description with spaces.
+ Now here comes a list:
+ - which is
+ - unfortunately
+ - not correctly indented. (dummy)
+
+Package: description-general-3
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description:
+ There should really be a synopsis.
+ The line in an extended description should be less than 80 characters, otherwise you'll get
+ a Lintian warning.
+ .
+ And the old man said "he he is the one!"
+ "No, I am am not", he replied (dummy)
+
+Package: description-general-4
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: some Lintian test package
+ some Lintian test package
+ .
+ Some mroe stuff about this debian test package. (dummy)
+ .
+ Homepage: <http://lintian.debian.org/>
+
+Package: description-general-short
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Short
+ The description is too short. One word is not enough.
+ Second line to avoid the warning.
+ .
+ And a third. (dummy)
+
+Package: foo-duplicate
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: foo duplicate
+ The description is the same as the package name.
+ A real description would be appreciated
+ .
+ And a third. (dummy)
+
+Package: foo-bar-duplicate
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: foo bar duplicate
+ The description is the same as the package name.
+ A real description would be appreciated
+ .
+ And a third. (dummy)
+
+Package: description-general-dummy
+Section: oldlibs
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test package (transitional package)
+ Transitional packages can have short long descriptions.
+
+Package: description-general-empty
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test package with empty extended description (dummy)
+
+Package: description-general-utf8-long
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test package with UTF-8 description (“héhé”“héhé”“héhé”“héhé”)
+ Not really too long: “héhé”“héhé”“héhé”“héhé”“héhé”“héhé”
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-general-not-dup
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test package with duplicated words that aren't
+ Lossless JPEG is defined in ITU-T T.81, ISO/IEC IS 10918-1.
+ Contain the strings " link to ", " -> ", or ": ".
+ This is train A, a particularly fast train.
+ .
+ "hallo" or "evening" or "farewell" should not trigger a duplicate
+ "or or" warning.  Also "or" "or" does not trigger the warning
+ either.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-general-syn-article
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: the synopsis starts with an article
+ A good synopsis should start not start with "a", "an" and "the"
+ according to developer-reference 6.2.2.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-general-syn-spelling
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test for spelling - debian developement
+ Some Lintian test package.
+ .
+ Some more stuff about this Debian test package. (dummy)
+ .
+ Duplicate: Duplicate (false positive due to colon)
+ .
+ FOO (FOO Owsome Object) is a recursive acronym.
+
+Package: description-general-control-statements
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test for overly-indented control statements
+ Some Lintian test package.
+  .
+ Some more stuff about this Debian test package. (dummy)

@@ -1,0 +1,16 @@
+Source: scripts
+Section: interpreters
+Priority: optional
+Maintainer: Lintian Maintainers <lintian-maint@debian.org>
+Uploaders: Jeroen van Wolfelaar <jeroen@wolffelaar.nl>, Marc 'HE' Brockschmidt <he@debian.org>
+Build-Depends-Indep: python3 (>= 3.1), python3 (<< 3.2)
+Standards-Version: 3.2.1
+
+Package: scripts
+Architecture: all
+Depends: test, ruby1.8, build-essential, libssl0.9.7, php7.0-cli
+Recommends: tk8.4 | wish
+Description: test lintian's script file checks
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+
+if false ; then true ; fi
+
+
+# -- we will remove all debhelper stuff later.
+#DEBHELPER#

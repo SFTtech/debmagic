@@ -1,0 +1,5 @@
+this is a binary package to test lintian's handling of bins.
+Check handling of D-Bus and dbus (neither of which should produce
+warnings).
+
+ -- Russ Allbery <rra@debian.org>, Wed,  6 Feb 2008 18:35:11 -0800

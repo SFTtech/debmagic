@@ -1,0 +1,9 @@
+lintian 2.139.0 (575a2bf1bc98500bbc1c78e82f44b40d195d17ea)
+t/recipes/checks/debian/line-separators/cruft-crlf-eols
+
+Filled Source tree from t/templates + t/skeletons, then build-spec overlay
+and hooks (pre-upstream, pre-build). eval/hints is transcribed verbatim.
+Source-tree Parity uses (source) lines whose extra is not a .dsc; other
+processable types wait for those Subjects.
+
+License: GPL-2+ (same as lintian; see lintian debian/copyright).

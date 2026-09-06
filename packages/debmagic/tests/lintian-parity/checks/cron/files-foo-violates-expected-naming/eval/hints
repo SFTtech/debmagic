@@ -1,0 +1,1 @@
+files-foo-violates-expected-naming (binary): run-parts-cron-filename-contains-illegal-chars [etc/cron.hourly/cron-script.hourly]

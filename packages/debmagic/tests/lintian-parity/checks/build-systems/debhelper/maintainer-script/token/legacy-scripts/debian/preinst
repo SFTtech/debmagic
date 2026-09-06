@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+set -x
+
+#
+# Some comments here
+#
+
+# This serves as an example of an "empty" script, so
+# please do not add any real code here, thank you :)
+
+#DEBHELPER#
+
+exit 0

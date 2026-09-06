@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+
+# Forget to load the confmodule
+# . /usr/share/debconf/confmodule
+
+
+db_input low debconf/note-abuse
+db_go
+
+
+db_input unknown debconf/unknown-priority
+db_go
+
+db_fset debconf/deprecated-default isdefault true
+
+db_input low debconf/deprecated-default
+db_go
+
+db_input low debconf/translated
+db_go

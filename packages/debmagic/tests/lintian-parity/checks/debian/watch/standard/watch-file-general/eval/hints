@@ -1,0 +1,4 @@
+watch-file-general (source): unknown-debian-watch-file-standard 42 [debian/watch]
+watch-file-general (source): obsolete-debian-watch-file-standard 3 [debian/watch]
+watch-file-general (source): multiple-debian-watch-file-standards 2 3 42 [debian/watch]
+watch-file-general (source): debian-watch-file-standard 3 [debian/watch]

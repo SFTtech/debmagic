@@ -1,0 +1,52 @@
+Source: debconf
+Section: utils
+Priority: optional
+Build-Depends: debhelper-compat (= 14)
+Maintainer: Lintian Maintainers <debian-lint-maint@debian.org>
+Standards-Version: 3.7.2
+
+Package: debconf-test
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test package for the debconf checks of lintian (dummy)
+
+Package: debconf-test-noscripts
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test package for the debconf checks of lintian (noscripts)
+ Package missing postinst/postrm/config.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: debconf-test-preinst
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test package for the debconf checks of lintian (preinst)
+ Package uses debconf only in preinst.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: debconf-test-postinst
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test package for the debconf checks of lintian (postinst)
+ Package uses debconf only in postinst.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: debconf-udeb
+Section: debian-installer
+XC-Package-Type: udeb
+XB-Installer-Menu-Item: 100
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Test udeb package for the debconf checks of lintian (dummy)

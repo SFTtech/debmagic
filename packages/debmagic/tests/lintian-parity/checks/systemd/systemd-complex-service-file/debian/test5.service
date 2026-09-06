@@ -1,0 +1,11 @@
+[Unit]
+Documentation=https://www.example.com/
+
+[Service]
+Type=oneshot
+ExecStart=/etc/init.d/test5 start
+ExecStartPre=/etc/init.d/test5 start-pre
+ExecStartPost=/etc/init.d/test5 start-post
+ExecReload=/etc/init.d/test5 reload
+ExecStop=/etc/init.d/test5 stop
+ExecStopPost=/etc/init.d/test5 stop-post

@@ -1,0 +1,17 @@
+testsuite-unknown-suite (1.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: testsuite-unknown-suite
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+testsuite-unknown-suite (0.0.1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: testsuite-unknown-suite
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Mon, 01 Jan 1990 00:00:00 +0100

@@ -1,0 +1,7 @@
+fields-missing-vcs-browser (source): vcs-uri Git https://salsa.debian.org/project/repo.git
+fields-missing-vcs-browser (source): vcs git
+fields-missing-vcs-browser (source): package-is-maintained-by-individual
+fields-missing-vcs-browser (source): missing-vcs-browser-field Vcs-Git https://salsa.debian.org/project/repo.git
+fields-missing-vcs-browser (changes): package-is-maintained-by-individual
+fields-missing-vcs-browser (buildinfo): package-is-maintained-by-individual
+fields-missing-vcs-browser (binary): package-is-maintained-by-individual

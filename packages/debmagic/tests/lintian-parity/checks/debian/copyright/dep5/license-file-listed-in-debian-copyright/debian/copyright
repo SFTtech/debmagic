@@ -1,0 +1,38 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: wolfssl
+Upstream-Contact: David Garske <david@wolfssl.com>
+Source: https://github.com/wolfssl/wolfssl/releases
+
+Files:
+ COPYING
+Copyright:
+ 1989, 1991 Free Software Foundation, Inc.
+License: No-Modify
+
+Files:
+ debian/*
+Copyright:
+ 2014-2019 Felix Lechner <felix.lechner@lease-up.com>
+License: GPL-2+
+
+
+License: No-Modify
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".

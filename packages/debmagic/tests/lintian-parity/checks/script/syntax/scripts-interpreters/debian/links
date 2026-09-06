@@ -1,0 +1,14 @@
+usr/share/man/man1/interpreters.1       usr/share/man/man1/bin-env.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/csh-shell.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/cwl-runner.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/no-interpreter.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/not-absolute.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/python2.7.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/syntax.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/unusual.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/unversioned-pike.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/usr-bin-env-perl.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/usr-local.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/usr-local-bin-perl.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/versioned-pike.1
+usr/share/man/man1/interpreters.1       usr/share/man/man1/wrong-perl-path.1

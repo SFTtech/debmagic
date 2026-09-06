@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+print join("\n", @ARGV), "\n";
+exit 0;
+
+=head1 NAME
+
+pargs - print arguments (similar to echo)
+
+=head1 SYNOPSIS
+
+pargs [...]
+
+=head1 DESCRIPTION
+
+Prints all arguments separated by newlines.
+
+=cut
+

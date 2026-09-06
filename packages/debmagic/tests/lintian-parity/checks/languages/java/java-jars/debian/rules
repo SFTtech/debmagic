@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+%:
+	dh $@ --with javahelper
+
+override_jh_build:
+	jh_build --javacopts='-target 1.7' --javacopts='-source 1.7'
+	cp testa.jar testb.jar
+	cp testa.jar 0.jar
+	unzip testa.jar
+	zip -r codeless.jar META-INF/
+	zip -r manifestless.jar org/
+	touch org/debian/lintian/TestA.java
+	zip -r contains-source.jar META-INF/ org/
+	perl generate-unparsable.pl
+
+# Skip - it chokes on "unparsable.jar" and we don't need it
+override_jh_manifest override_jh_depends override_dh_strip_nondeterminism:
+
+override_dh_auto_clean:
+	rm -fr META-INF/ org/

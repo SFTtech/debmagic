@@ -1,0 +1,5 @@
+etcfiles (binary): md5sums-lists-nonexistent-file usr/bin/foo [md5sums]
+etcfiles (binary): md5sum-mismatch etc/improper [md5sums]
+etcfiles (binary): malformed-md5sums-control-file Odd text: this is a malformed line [md5sums]
+etcfiles (binary): file-missing-in-md5sums usr/share/doc/etcfiles/changelog [md5sums]
+etcfiles (binary): file-missing-in-md5sums etc/improper-link [md5sums]

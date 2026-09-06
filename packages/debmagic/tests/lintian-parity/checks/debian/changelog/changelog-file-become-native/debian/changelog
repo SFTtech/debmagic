@@ -1,0 +1,12 @@
+changelog-file-become-native (1.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: changelog-file-become-native
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-become-native (0.1-2) unstable; urgency=low
+
+  * An earlier non-native version.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue,  1 Jan 2008 22:45:57 +0000

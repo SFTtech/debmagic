@@ -1,0 +1,16 @@
+Source: debhelper-lacks-versioned-deps
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper
+Rules-Requires-Root: no
+
+Package: debhelper-lacks-versioned-deps
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test pedantic dependency requirements for debhelper
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

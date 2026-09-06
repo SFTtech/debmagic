@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	dh_builddeb --  -Zxz  -z 9
+	dh_builddeb -- -z9 -Z xz
+	dh_builddeb -- -z8 -Z xz
+	dh_builddeb -- -z9 -Zgzip
+	dh_builddeb -- -Zxz -Sextreme -z9
+	dh_builddeb -- -Zxz -z9 -Sextreme

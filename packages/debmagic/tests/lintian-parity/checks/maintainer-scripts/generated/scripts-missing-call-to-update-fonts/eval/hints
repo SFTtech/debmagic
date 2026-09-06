@@ -1,0 +1,1 @@
+scripts-missing-call-to-update-fonts (binary): debhelper-autoscript-in-maintainer-scripts dh_installxfonts/TOOL-VERSION

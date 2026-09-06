@@ -1,0 +1,4 @@
+bad          /etc/cron.daily
+other-action /etc/cron.daily
+test-first   /etc/cron.daily
+self-invoke  /etc/init.d

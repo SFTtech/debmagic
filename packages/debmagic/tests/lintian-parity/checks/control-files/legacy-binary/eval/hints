@@ -1,0 +1,2 @@
+binary-data (binary): no-ctrl-scripts
+binary (binary): ctrl-script [postinst]

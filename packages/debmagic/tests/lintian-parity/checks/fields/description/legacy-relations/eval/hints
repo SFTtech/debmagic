@@ -1,0 +1,2 @@
+relations-multiple-libs (binary): synopsis-is-a-sentence "Duplicate library dependency relationships."
+relations-multiple-libs (binary): description-synopsis-is-duplicated line 1

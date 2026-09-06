@@ -1,0 +1,6 @@
+#!/bin/sh
+if which invoke-rc.d >/dev/null 2>&1 ; then
+    invoke-rc.d ntp restart
+else
+    /etc/init.d/ntp restart
+fi

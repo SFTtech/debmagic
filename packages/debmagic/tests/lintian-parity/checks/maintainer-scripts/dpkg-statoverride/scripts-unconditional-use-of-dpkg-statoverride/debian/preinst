@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+# Conditional use of dpkg-statoverride --add
+if ! dpkg-statoverride --list /usr/bin/crontab >/dev/null 2>&1
+then
+	dpkg-statoverride --update --add root crontab 2755 /usr/bin/crontab
+fi
+
+exit 0

@@ -1,0 +1,9 @@
+fields-vcs-obsolete-in-debian-infrastructure (source): vcs-uri Svn svn://anonscm.debian.org/foobar/trunk
+fields-vcs-obsolete-in-debian-infrastructure (source): vcs-obsolete-in-debian-infrastructure Svn svn://anonscm.debian.org/foobar/trunk
+fields-vcs-obsolete-in-debian-infrastructure (source): vcs-obsolete-in-debian-infrastructure Browser https://anonscm.debian.org/git/lintian/lintian.git
+fields-vcs-obsolete-in-debian-infrastructure (source): vcs-field-uses-insecure-uri Svn svn://anonscm.debian.org/foobar/trunk
+fields-vcs-obsolete-in-debian-infrastructure (source): vcs svn
+fields-vcs-obsolete-in-debian-infrastructure (source): package-is-maintained-by-individual
+fields-vcs-obsolete-in-debian-infrastructure (changes): package-is-maintained-by-individual
+fields-vcs-obsolete-in-debian-infrastructure (buildinfo): package-is-maintained-by-individual
+fields-vcs-obsolete-in-debian-infrastructure (binary): package-is-maintained-by-individual

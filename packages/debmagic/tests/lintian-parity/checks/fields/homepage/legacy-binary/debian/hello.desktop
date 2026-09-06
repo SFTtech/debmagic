@@ -1,0 +1,14 @@
+# some random comment
+
+# [Foo Bar]
+[KDE Desktop Entry]
+Name=Hello
+Name[en_US]=Hello
+Comment=Say hello!
+Exec=kdesu hello
+Icon=hello
+Terminal=true
+Type=Application
+Categories=GNOME;GTK;System;Applet;X-Foo;Settings;
+Encoding=UTF-8
+OnlyShowIn=GNOME;

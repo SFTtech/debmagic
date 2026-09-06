@@ -1,0 +1,6 @@
+#! /usr/bin/dh-exec
+usr/lib/foo
+usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/${DEB_HOST_MULTIARCH} /usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/${DEB_BUILD_MULTIARCH} /usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/${DEB_HOST_MULTIARCH}/some-package/*.so

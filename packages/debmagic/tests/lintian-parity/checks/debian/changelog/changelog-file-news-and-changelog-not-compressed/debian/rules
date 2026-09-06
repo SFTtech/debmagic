@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+pkg = $(shell dh_listpackages)
+
+%:
+	dh $@
+
+override_dh_installchangelogs:
+	install -c -m 644 debian/changelog \
+	    debian/$(pkg)/usr/share/doc/$(pkg)/changelog
+	install -c -m 644 debian/NEWS \
+	    debian/$(pkg)/usr/share/doc/$(pkg)/NEWS.Debian
+
+override_dh_compress:
+

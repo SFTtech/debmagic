@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_clean:
+	true
+	dh_clean # This rule is a false positive
+
+override_dh_fixperms:
+	true
+	$(overridden_command) # This rule is a false positive
+
+override_dh_fixperms-indep:
+	dh_fixperms
+
+override_dh_fixperms-arch:
+	dh_fixperms

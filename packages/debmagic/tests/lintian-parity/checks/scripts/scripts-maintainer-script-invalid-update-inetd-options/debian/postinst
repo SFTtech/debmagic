@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+if false
+then
+	# Bad
+	update-inetd --group foo
+	update-inetd --pattern --add foo
+	update-inetd --add --pattern foo
+
+	# Good
+	update-inetd --add --group foo
+	update-inetd --group --add foo
+	update-inetd --pattern foo
+fi
+
+#DEBHELPER#

@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+PKG := changelog-file-invalid-date
+
+%:
+	dh $@
+
+override_dh_installchangelogs:
+	cp debian/changelog debian/$(PKG)/usr/share/doc/$(PKG)/changelog

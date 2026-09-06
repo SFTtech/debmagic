@@ -1,0 +1,2 @@
+maintainer-scripts (source): odd-historical-debian-changelog-version 6.1 (for non-native) [debian/changelog:8]
+maintainer-scripts (binary): bogus-mail-host-in-debian-changelog jeroen@mordor (for version 6.1) [usr/share/doc/maintainer-scripts/changelog.gz:8]

@@ -1,0 +1,47 @@
+binary (4-1.1) unstable; urgency=low
+
+  * I'm doing an comaintainer-upload, acknowledging a NMU, but with a version
+    number which suggests I'm doing a NMU myself.
+
+    Lintian-maintainers: Please don't update this changelog, otherwise you'll
+    probably break the checks/nmu checks.
+
+ -- Jeroen van Wolffelaar <jeroen@wolffelaar.nl>  Sun, 18 Apr 2004 01:49:42 +0200
+
+binary (4-1) unstable; urgency=low
+
+  * Weird version number for the new check for accidents with native
+    packaging.
+  * Date was fixed by BR and this test was put on changelog-file-strange-date
+    due to dpkg bug, see #794674.
+
+ -- Marc 'HE' Brockschmidt <he@debian.org>  Thu, 15 Apr 2004 23:33:51 +0200
+
+binary (4) unstable; urgency=low
+
+  * Add big file to /usr/share to trigger the big-usr-share check
+
+ -- Jeroen van Wolffelaar <jeroen@wolffelaar.nl>  Fri, 27 Feb 2004 10:15:59 +0100
+
+binary (3) unstable; urgency=unlimited
+
+  * Add some bogus menu entries using su-to-root in a bogus way
+
+ -- Jeroen van Wolffelaar <jeroen@wolffelaar.nl>  Thu, 12 Feb 2004 20:11:22 +0100
+
+binary (2) unstable; urgency=low
+
+  * Added an INSTALL document which policy 6.3 suggests not to do
+
+ -- Sean 'Shaleh' Perry <shaleh@debian.org>  Tue, 30 Jan 2001 15:23:59 -0800
+
+binary (1) unstable; urgency=low
+
+  * hello.c added
+  * hello-static is same as hello, but compiled statically
+  * added a menu entry which lacks a Section
+  * added a postinst
+  * postinst calls suidregister which is no longer policy compliant
+
+ -- Sean 'Shaleh' Perry <shaleh@debian.org>  Wed, 10 Jan 2001 08:55:34 -0800
+

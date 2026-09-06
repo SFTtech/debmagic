@@ -1,0 +1,2 @@
+scripts-interpreters (binary): shell-script-fails-syntax-check [usr/bin/syntax]
+scripts-interpreters (binary): example-shell-script-fails-syntax-check [usr/share/doc/scripts-interpreters/examples/syntax]

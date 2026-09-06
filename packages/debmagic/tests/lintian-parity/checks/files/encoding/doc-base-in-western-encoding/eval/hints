@@ -1,0 +1,5 @@
+binary (source): national-encoding [debian/doc-base]
+binary (source): national-encoding [debian/copyright]
+binary (source): national-encoding [debian/NEWS.Debian]
+binary (binary): national-encoding [usr/share/doc/binary/copyright]
+binary (binary): national-encoding [usr/share/doc-base/binary]

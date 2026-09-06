@@ -1,0 +1,11 @@
+Some regular patch creating a file.
+
+--- /dev/null
++++ debian/debian/some-file
+@@ -0,0 +1,6 @@
++Some
++file
++created
++in
++debian
++directory.

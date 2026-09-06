@@ -1,0 +1,29 @@
+Source: foo++
+Section: misc
+Priority: optional
+Maintainer: Lintian Maintainer <debian-qa@lists.debian.org>
+Uploaders: Marc 'HE' Brockschmidt <he@unknown.domain>, Jeroen van Wolffelaar <jeroen@localhost.localdomain>,
+ Frank <djpig@debian.org>,
+Standards-Version: 3.1.1
+XS-Dm-Upload-Allowed: no
+
+Package: foo++
+Architecture: all
+Build-Depends: test
+Depends: test, libssl0.9.7
+Description: see how lintian reacts to plus signs in the package name
+ Regression test to see if lintian tests work on a package with plus signs in
+ its name.
+ .
+ This description uses only UTF-8 high bytes chars.
+
+Package: foo++-helper
+Architecture: all
+Depends: test, foo++
+Description: see how lintian reacts to plus signs in the package name
+ Regression test to see if lintian tests work on a package with plus signs in
+ its name.  This has /usr/share/doc links to foo++ to trigger even more checks.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

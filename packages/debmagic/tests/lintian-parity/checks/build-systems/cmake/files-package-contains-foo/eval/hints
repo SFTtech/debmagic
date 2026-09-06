@@ -1,0 +1,2 @@
+files-package-contains-foo (binary): package-contains-cmake-private-file [usr/share/cmake-3.1/Modules/FindVar.cmake]
+files-package-contains-foo (binary): package-contains-cmake-private-file [usr/share/cmake-3.1/FindFoo.cmake]

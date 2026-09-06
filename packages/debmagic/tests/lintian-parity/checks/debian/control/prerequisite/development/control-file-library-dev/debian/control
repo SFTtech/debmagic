@@ -1,0 +1,115 @@
+Source: control-file-library-dev
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: libcontrol-file-foo1
+Section: libs
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Check control file handling of library dev packages (shared lib 1)
+ First shared library.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libcontrol-file-bar7ldbl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Check control file handling of library dev packages (shared lib 2)
+ Second shared library.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libcontrol-file-dev
+Section: libdevel
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libcontrol-file-foo1 (= ${binary:Version}),
+ libcontrol-file-bar7ldbl, libcontrol-file-baz9-4 (>= ${binary:Version}),
+ libfoo4, libcontrol-file-doc, libcontrol-file4-dev
+Description: Check control file handling of library dev packages (dev package)
+ Dev package.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libcontrol-file-baz9-4
+Section: libs
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Check control file handling of library dev packages (shared lib 3)
+ Third shared library.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libcontrol-file-doc
+Section: doc
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Check control file handling of library dev packages (doc package)
+ Doc package.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libcontrol-file4-dev
+Section: libdevel
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libcontrol-file-foo1 (<= ${source:Upstream-Version}-99)
+ | libcontrol-file-baz9-4 (<= ${source:Upstream-Version}-99),
+ libcontrol-file-foo1 (>= ${binary:Version})
+ | libcontrol-file-baz9-4 (>= ${binary:Version})
+Description: Check control file handling of library dev packages (dev package with version)
+ Dev package containing a number.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libcontrol-file-all-dev
+Section: libdevel
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, libcontrol-file-doc,
+ libcontrol-file-foo1 (>= ${source:Upstream-Version}),
+ libcontrol-file-foo1 (<= ${source:Version}.1~),
+ libcontrol-file-baz9-4 (>= ${source:Version})
+Description: Check control file handling of library dev packages (arch: all dev package)
+ Architecture-independent development package.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libcontrol-baz-dev
+Section: libdevel
+Architecture: all
+Depends:
+ libcontrol-file-baz9-4 (= ${binary:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends}
+Description: Check control file handling of library dev packages (dev whitespace)
+ Test proper parsing of leading whitespace in Depends
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

@@ -1,0 +1,2 @@
+libtest-java (binary): unknown-java-class-version org/debian/lintian/TestA.class -> 42 [usr/share/java/testa-1.0.jar]
+libtest-java (binary): incompatible-java-bytecode-format Java19 version (Class format: 63)

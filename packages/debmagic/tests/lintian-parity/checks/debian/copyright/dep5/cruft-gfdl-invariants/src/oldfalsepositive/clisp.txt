@@ -1,0 +1,9 @@
+
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License
+(FDL), either version 1.2 of the license, 
+or (at your option) any later version published by the free software 
+foundation (FSF); with no invariant sections, 
+with no front-cover text, and with no back-cover texts
+A copy of the license is included in the
+section entitled "GNU Free Documentation License".

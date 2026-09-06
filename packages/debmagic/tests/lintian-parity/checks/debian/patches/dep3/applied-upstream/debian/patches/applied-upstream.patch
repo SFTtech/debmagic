@@ -1,0 +1,15 @@
+Description: Convert a source file to UTF-8 encoding.
+Author: Felix Lechner <felix.lechner@lease-up.com>
+Applied-Upstream: https://gitlab.gnome.org/World/lollypop/-/commit/4c1435ee22220c4a7f2ccaa05bce60a3e64cb912
+
+--- a/cyassl/ctaocrypt/tfm.h
++++ b/cyassl/ctaocrypt/tfm.h
+@@ -28,7 +28,7 @@
+ 
+ 
+ /**
+- *  Edited by MoisÈs Guimar„es (moises.guimaraes@phoebus.com.br)
++ *  Edited by Mois√©s Guimar√£es (moises.guimaraes@phoebus.com.br)
+  *  to fit CyaSSL's needs.
+  */
+ 

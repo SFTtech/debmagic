@@ -1,0 +1,3 @@
+file-in-etc-modprobe-dh-14 (source): dh-install-instead-of-dh-installmodules [debian/install:1]
+file-in-etc-modprobe-dh-14 (source): dh-install-instead-of-dh-installmodules [debian/install:2]
+file-in-etc-modprobe-dh-14 (binary): file-in-etc-modprobe.d [etc/modprobe.d/test.conf]

@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+ifeq (abcdef,qwerty)
+# This line is unreachable and must not trigger the warning.
+export DPKG_BUILD_API = -1
+endif
+
+DPKG_BUILD_API = 100500
+
+%:
+	dh $@

@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+PKG:=files-ieee-data
+INSTPATH:=$(CURDIR)/debian/tmp/usr/share/$(PKG)
+
+
+%:
+	dh $@
+
+override_dh_install:
+	mkdir -p $(INSTPATH)
+	gzip -c -n --best src/oui.txt > $(INSTPATH)/oui.txt.gz
+	cp src/oui.txt $(INSTPATH)/oui.idx
+	cp src/oui.txt $(INSTPATH)/oui.db
+	cp src/oui.txt $(INSTPATH)/iab.idx
+	cp src/oui.txt $(INSTPATH)/ieee-oui.idx
+	cp src/oui.txt $(INSTPATH)/get-iab
+	cp src/oui.txt $(INSTPATH)/download-oui
+# false positive
+	ln -s /usr/share/ieee-data/iab.txt $(INSTPATH)/iab.txt
+	dh_install
+
+
+

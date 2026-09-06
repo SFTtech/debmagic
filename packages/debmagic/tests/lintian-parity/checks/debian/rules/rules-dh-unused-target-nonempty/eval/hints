@@ -1,0 +1,1 @@
+rules-dh-unused-target-nonempty (source): binary-arch-rules-but-pkg-is-arch-indep [debian/rules]

@@ -1,0 +1,47 @@
+# taken from https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=779676#30
+# except for secure URL immediately below and block comment further down
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ipe-tools
+Upstream-Contact: Otfried Cheong <otfried@ipe.airpost.net>
+Source: https://github.com/otfried/ipe-tools
+
+Files: figtoipe/*
+Copyright: 1993-2008, Otfried Cheong <otfried@ipe.airpost.net>
+           2007-2015, Alexander Bürger <acfb@users.sf.net>
+License: GPL-2+
+ See /usr/share/common-licenses/GPL-2
+
+Files: ipe5toxml/*
+Copyright: 2005, Otfried Cheong <otfried@ipe.airpost.net>
+           2015, Alexander Bürger <acfb@users.sf.net>
+License: public-domain
+ While the source code of svgtoipe does not include any licensing
+ information, the homepage of the ipe tool,
+ http://ipe7.sourceforge.net/, includes a hyperlink to the ipe-tools
+ github repository and says:
+  ``The source to ipe5toxml is in the public domain.''
+
+Files: pdftoipe/*
+Copyright: 2003-2014, Otfried Cheong <otfried@ipe.airpost.net>
+License: GPL-2
+ See /usr/share/common-licenses/GPL-2
+Comment:
+ the pdftoipe source code itself is GPL-2+, but it is linked
+ to GPL-2 only libpoppler so it must be GPL-2, too
+
+Files: svgtoipe/*
+Copyright: 2009-2014, Otfried Cheong <otfried@ipe.airpost.net>
+License: GPL-3+
+ See /usr/share/common-licenses/GPL-3
+
+#Files: matplotlib/*
+#Copyright: 2014, Otfried Cheong <otfried@ipe.airpost.net>
+#           2014, Soyeon Baek
+#Comment:
+# not included in debian package
+
+Files: debian/*
+Copyright: 2005-2011 Steve Robbins <smr@debian.org>
+           2008-2015, Alexander Bürger <acfb@users.sf.net>
+License: GPL-2+
+ See /usr/share/common-licenses/GPL-2

@@ -1,0 +1,53 @@
+#!/bin/sh
+set -e
+
+if [ install = "$1"  ]; then
+    # This is a correct diversion.
+    dpkg-divert --package scripts-diversions --add --rename \
+        --divert /usr/share/scripts/some-file.real \
+        /usr/share/scripts/some-file
+
+    # This is broken -- can't use local.
+    dpkg-divert --local --add --divert /usr/share/scripts/other-file.real \
+        /usr/share/scripts/other-file
+
+    # This was broken until dpkg 1.16.0 (Wheezy), see #679132
+    dpkg-divert --add --divert /usr/share/scripts/another-file.real \
+        /usr/share/scripts/another-file
+
+    # This is also correct, but we're not going to clean it up.  While we're
+    # at it, make sure we strip trailing redirections.
+    dpkg-divert --package scripts-diversions --add --rename \
+        --divert /usr/share/scripts/orphan.real \
+        /usr/share/scripts/orphan > /dev/null
+
+    # The same one again, but with a different redirection.
+    dpkg-divert --package scripts-diversions --add --rename \
+        --divert /usr/share/scripts/orphan.real \
+        /usr/share/scripts/orphan 2> /dev/null
+
+    # This is broken because the file doesn't exist.
+    dpkg-divert --add --package scripts-diversions --rename \
+        --divert /usr/share/scripts/no-such-file.real \
+        /usr/share/scripts/no-such-file
+
+    # Regression test for diversions ending in numbers (Bug#534942)
+    dpkg-divert --add --rename --package scripts-diversions \
+        --divert /usr/share/scripts/file.1.real \
+        /usr/share/scripts/file.1 > /dev/null
+
+    # We're allowed to divert a man page to install another man page in a
+    # different section but the same numeric section.  (Bug#543781)
+    dpkg-divert --add --rename --package scripts-diversions \
+        --divert /usr/share/man/man1/foo.real.1.gz \
+        /usr/share/man/man1/foo.1.gz
+fi
+
+# This isn't a diversion we create anywhere, but we're allowed to do this in
+# preinst in case we're cleaning up after a previous version.
+if [ upgrade = "$1" ] && dpkg-divert --list '*old-file' >/dev/null ; then
+    dpkg-divert --package scripts-diversions --remove --rename \
+        /usr/share/scripts/old-file
+fi
+
+#DEBHELPER#

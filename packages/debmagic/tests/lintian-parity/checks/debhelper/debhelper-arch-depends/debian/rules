@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_prep:
+	-dh_clideps
+	dh_prep
+

@@ -1,0 +1,4 @@
+fields-essential (source): essential-no-not-needed
+fields-essential (source): essential-in-source-package
+fields-essential2 (binary): unknown-essential-value
+fields-essential (binary): new-essential-package

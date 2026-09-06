@@ -1,0 +1,6 @@
+files-zero-byte-doc (binary): zero-byte-file-in-doc-directory [usr/share/doc/files-zero-byte-doc/some-really-long-file-name-to-make-the-gzip-file-larger.gz]
+files-zero-byte-doc (binary): zero-byte-file-in-doc-directory [usr/share/doc/files-zero-byte-doc/manual/foo.map.gz]
+files-zero-byte-doc (binary): zero-byte-file-in-doc-directory [usr/share/doc/files-zero-byte-doc/htmlfoo.map]
+files-zero-byte-doc (binary): zero-byte-file-in-doc-directory [usr/share/doc/files-zero-byte-doc/html.map]
+files-zero-byte-doc (binary): zero-byte-file-in-doc-directory [usr/share/doc/files-zero-byte-doc/foo__init__.py]
+files-zero-byte-doc (binary): zero-byte-file-in-doc-directory [usr/share/doc/files-zero-byte-doc/NEWS.gz]

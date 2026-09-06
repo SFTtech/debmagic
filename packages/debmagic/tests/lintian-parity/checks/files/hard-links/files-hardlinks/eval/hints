@@ -1,0 +1,3 @@
+files-hardlinks (binary): package-contains-hardlink pointing to: usr/share/files-hardlinks/1st/link2 [usr/share/files-hardlinks/4th/link1]
+files-hardlinks (binary): package-contains-hardlink pointing to: usr/share/files-hardlinks/1st/link2 [usr/share/files-hardlinks/3rd/orig]
+files-hardlinks (binary): package-contains-hardlink pointing to: usr/share/files-hardlinks/1st/link2 [usr/share/files-hardlinks/2nd/link3]

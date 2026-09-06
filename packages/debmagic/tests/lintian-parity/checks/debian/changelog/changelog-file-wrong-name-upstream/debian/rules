@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+PKG:=$(shell dh_listpackages)
+DOC:=debian/$(PKG)/usr/share/doc/$(PKG)
+
+%:
+	dh $@
+
+override_dh_installchangelogs:
+	dh_installchangelogs
+	cp some-changelog $(DOC)/Changes

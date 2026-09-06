@@ -1,0 +1,38 @@
+Name: indep-good
+Description: A library with ugly flags
+Requires:
+Version: 3.1.3
+Libs:
+# a comment removed -L/usr/local/lib/somewhere \
+SOMEFLAGS=-I/var/cache/pbuilder/build/
+Cflags: \
+    -I/usr/local/somewhere \
+    -D__linux__ \
+    -D__x86_64__ \
+    -D__OSVERSION__=2\
+    -g \
+    -D_FORTIFY_SOURCE=2 \
+    -O2 \
+    -Wall \
+    -fvisibility=hidden \
+    -fPIE \
+    -fstack-protector \
+    --param=ssp-buffer-size=2 \
+    -frounding-math \
+    -lmath \
+    -march=core2 \
+    -DNDEBUG \
+    -pedantic \
+    -DNEW_STDCPP \
+    -fno-check-new \
+    -fno-inline \
+    -Wl,z,relro \
+    -pie \
+    -fno-strict-aliasing -fwrapv -fexcess-precision=standard \
+    -ffast-math -funsafe-math-optimizations -fsigned-zeros -fno-trapping-math -fassociative-math -freciprocal-math -fsignaling-math -fno-errno-math -ffp-contract -fassociative-math -ffinite-math-only \
+    @SOME_FLAGS@
+#False positive
+Fflags: \
+    @SOME_FLAGS \
+    @
+

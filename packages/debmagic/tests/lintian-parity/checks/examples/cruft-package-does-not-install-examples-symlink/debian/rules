@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+PKG = $(shell dh_listpackages)
+
+%:
+	dh $@
+
+override_dh_link:
+	dh_link /etc /usr/share/doc/$(PKG)/examples

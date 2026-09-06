@@ -1,0 +1,19 @@
+Source: no-use-name
+Priority: optional
+Section: devel
+Maintainer: Perl Team <pkg-perl-maintainers@lists.alioth.debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+Homepage: https://lintian.debian.org/
+Testsuite: autopkgtest-pkg-perl
+
+Package: no-use-name
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Testsuite autopkgtest-pkg-perl but use-name not available
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

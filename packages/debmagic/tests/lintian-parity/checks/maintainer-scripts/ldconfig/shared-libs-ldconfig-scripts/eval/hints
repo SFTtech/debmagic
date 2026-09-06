@@ -1,0 +1,5 @@
+libuns1 (binary): maintscript-calls-ldconfig [postrm]
+libfish1 (binary): maintscript-calls-ldconfig [prerm]
+libfish1 (binary): maintscript-calls-ldconfig [preinst]
+app (binary): maintscript-calls-ldconfig [postrm]
+app (binary): maintscript-calls-ldconfig [postinst]

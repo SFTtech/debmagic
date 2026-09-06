@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+binary: binary-arch binary-indep
+binary-arch:
+binary-indep:
+	-dh_clideps
+	-dh_gstscancodecs
+	dh_lisp || true
+# We don't warn about commands inside make conditionals, so none of these
+# get any warnings.
+ifeq "$(USE_DH_PYTHON3)" "y"
+	dh_python3
+else
+  ifeq "$(USE_PYSUPPORT)" "y"
+	dh_pysupport
+  endif
+endif
+	dh binary-indep
+	-dh_strip_nondeterminism
+	-dh_scour

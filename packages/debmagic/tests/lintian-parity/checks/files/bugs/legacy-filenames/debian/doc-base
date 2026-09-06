@@ -1,0 +1,11 @@
+Document: testing
+Title: Working doc-base control file
+Author: Russ Allbery
+Abstract: This control file ensures that we don't get false positives for
+ correct doc-base files.
+ .
+ There isn't anything wrong with this one.
+Section: Education
+
+Format: Text
+Files: /usr/share/doc/filenames/README.macosx

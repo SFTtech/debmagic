@@ -1,0 +1,9 @@
+binary (source): vcs-uri Svn http://svn.wolffelaar.nl/lintian/trunk
+binary (source): vcs-field-uses-insecure-uri Svn http://svn.wolffelaar.nl/lintian/trunk
+binary (source): vcs-field-uses-insecure-uri Browser http://svn.wolffelaar.nl/lintian/trunk
+binary (source): vcs svn
+binary (source): package-is-co-maintained (with 3 uploaders)
+binary (changes): package-is-maintained-by-individual
+binary (buildinfo): package-is-maintained-by-individual
+binary-data (binary): package-is-maintained-by-individual
+binary (binary): package-is-maintained-by-individual

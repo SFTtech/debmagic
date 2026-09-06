@@ -1,0 +1,11 @@
+changelog-file-news-general (1.0) UNRELEASED; urgency=high
+
+  * This is a major change, which shouldn't be using an asterisk.  It also
+    has an ISO 8859-1 character: µ and a speling error.
+
+ -- Russ Allbery <rra@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+changelog-file-news-general (0.9) unstable; urgency=low
+
+  Another entry, this one with a syntax error in the date.
+
+ -- Russ Allbery <rra@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200 0

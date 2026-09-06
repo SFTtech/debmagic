@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+DEB_BUILD_OPTIONS := nostrip
+export DEB_BUILD_OPTIONS
+
+%:
+	dh $@
+
+binary:
+	sh debian/dumpobj > debian/elfobject
+	sh debian/dumpobj > debian/fake-guile-object.go
+	dh binary

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+if [ "$1" = "configure" ] ; then
+    # duplicate call as debhelper will add one for us
+    update-rc.d init.d-general-bugs word
+fi

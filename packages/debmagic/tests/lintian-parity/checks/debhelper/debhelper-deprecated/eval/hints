@@ -1,0 +1,6 @@
+debhelper-deprecated (source): uses-debhelper-compat-file [debian/compat]
+debhelper-deprecated (source): missing-build-dependency-for-dh-addon autotools_dev (does not satisfy autotools-dev:any) [debian/rules]
+debhelper-deprecated (source): dh_installmanpages-is-obsolete [debian/rules:24]
+debhelper-deprecated (source): debian-build-system dh [debian/rules]
+debhelper-deprecated (source): debhelper-tools-from-autotools-dev-are-deprecated dh ... --with autotools-dev [debian/rules:46]
+debhelper-deprecated (source): debhelper-compat-level 13

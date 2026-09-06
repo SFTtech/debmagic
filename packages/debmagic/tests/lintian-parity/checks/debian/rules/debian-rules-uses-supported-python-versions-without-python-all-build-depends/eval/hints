@@ -1,0 +1,4 @@
+debian-rules-uses-supported-python-versions-without-python-all-build-depends (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends py3versions -vs [debian/rules:12]
+debian-rules-uses-supported-python-versions-without-python-all-build-depends (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends py3versions -sv [debian/rules:13]
+debian-rules-uses-supported-python-versions-without-python-all-build-depends (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends py3versions -s [debian/rules:11]
+debian-rules-uses-supported-python-versions-without-python-all-build-depends (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends py3versions --supported [debian/rules:14]

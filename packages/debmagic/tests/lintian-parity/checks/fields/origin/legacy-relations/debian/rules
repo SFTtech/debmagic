@@ -1,0 +1,49 @@
+#!/usr/bin/make -f
+
+# Copyright (C) 1998 Richard Braakman
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at https://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+build-arch:
+
+build-indep:
+
+build: build-arch build-indep
+
+binary-arch:
+
+binary-indep:
+	install -d debian/tmp/DEBIAN
+	dpkg-gencontrol -prelations -isp
+	dpkg --build debian/tmp ../relations_5_all.deb
+	install -d debian/tmp/usr/share/doc/
+	ln -s relations debian/tmp/usr/share/doc/relations-multiple-libs
+	dpkg-gencontrol -prelations-multiple-libs -isp
+	dpkg --build debian/tmp ../relations-multiple-libs_5_all.deb
+
+binary: binary-arch binary-indep
+
+clean::
+	rm -rf debian/tmp debian/files
+
+# Test allowing quilt Build-Depends for manual quilt invocations.
+	TESTING=foo ANOTHER=bar quilt || true
+
+# Test requiring perl Build-Depends for manual perl invocations.
+	[ ! -f Build ] || $(PERL) Build distclean
+
+.PHONY: build-arch build-indep build binary-arch binary-indep binary clean

@@ -1,0 +1,4 @@
+no-systemd-timer-for-cron-script (binary): missing-systemd-timer-for-cron-script [etc/cron.weekly/no-systemd-timer-for-cron-script]
+no-systemd-timer-for-cron-script (binary): missing-systemd-timer-for-cron-script [etc/cron.monthly/no-systemd-timer-for-cron-script]
+no-systemd-timer-for-cron-script (binary): missing-systemd-timer-for-cron-script [etc/cron.hourly/no-systemd-timer-for-cron-script]
+no-systemd-timer-for-cron-script (binary): missing-systemd-timer-for-cron-script [etc/cron.daily/no-systemd-timer-for-cron-script]

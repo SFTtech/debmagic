@@ -1,0 +1,1 @@
+depends-on-misc-pre-depends (source): depends-on-misc-pre-depends ${misc:Depends}, ${misc:Pre-Depends} (in section for depends-on-misc-pre-depends) [debian/control:12]

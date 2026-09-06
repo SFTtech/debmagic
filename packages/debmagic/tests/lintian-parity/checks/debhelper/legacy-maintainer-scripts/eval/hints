@@ -1,0 +1,5 @@
+maintainer-scripts (source): package-uses-old-debhelper-compat-version 13
+maintainer-scripts (source): debian-build-system debhelper [debian/rules]
+maintainer-scripts (source): debhelper-compat-virtual-relation 13 [debian/control]
+maintainer-scripts (source): debhelper-compat-level 13
+maintainer-scripts (source): debhelper-but-no-misc-depends maintainer-scripts

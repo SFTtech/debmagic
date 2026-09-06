@@ -1,0 +1,3 @@
+version=3
+# Example watch control file for uscan
+http://www.example.com/software/foo/ .*/<project>-([^-]+)\.tar\.gz

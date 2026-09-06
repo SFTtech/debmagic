@@ -1,0 +1,3 @@
+# Actual content does not matter, Lintain checks only for file names.
+debian/bar.service /lib/systemd/system/
+debian/run         /etc/sv/foo/

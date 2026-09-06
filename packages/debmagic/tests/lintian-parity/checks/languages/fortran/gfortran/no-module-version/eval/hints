@@ -1,0 +1,1 @@
+no-module-version (binary): gfortran-module-does-not-declare-version [usr/lib/fortran/mpi.mod]

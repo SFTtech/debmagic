@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+import sys
+"""
+This is here to fool Lintian to avoid additional tags about debconf.
+db_purge
+"""
+sys.exit(0)
+"""
+#DEBHELPER#
+"""

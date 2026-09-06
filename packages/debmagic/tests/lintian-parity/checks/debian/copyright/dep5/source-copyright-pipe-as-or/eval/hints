@@ -1,0 +1,4 @@
+source-copyright-pipe-as-or (source): space-in-std-shortname-in-dep5-copyright this | that [debian/copyright:8]
+source-copyright-pipe-as-or (source): space-in-std-shortname-in-dep5-copyright this | that [debian/copyright:15]
+source-copyright-pipe-as-or (source): pipe-symbol-used-as-license-disjunction this | that [debian/copyright:8]
+source-copyright-pipe-as-or (source): pipe-symbol-used-as-license-disjunction this | that [debian/copyright:15]

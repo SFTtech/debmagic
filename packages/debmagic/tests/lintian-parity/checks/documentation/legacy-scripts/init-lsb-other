@@ -1,0 +1,22 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          lsb-other
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Description:       This is another LSB script test, which has a missing
+#  Short-Description.
+### END INIT INFO
+
+case "$1" in
+  start|stop|restart|reload|force-reload)
+        echo "Blah"
+        ;;
+  *)
+        echo "Usage: foo start" >&2
+        exit 3
+        ;;
+esac
+
+:

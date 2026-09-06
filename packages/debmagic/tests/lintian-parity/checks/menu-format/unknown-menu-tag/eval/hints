@@ -1,0 +1,2 @@
+unknown-menu-tag (binary): menu-item-contains-unknown-tag custom [usr/share/menu/test-menu:6]
+unknown-menu-tag (binary): menu-command-not-in-package usr/bin/test-script [usr/share/menu/test-menu:6]

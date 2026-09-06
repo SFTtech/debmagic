@@ -1,0 +1,18 @@
+Format: 1.8
+Date: Tue, 31 Mar 2026 17:46:22 +0200
+Source: changes-file-size-checksum-mismatch
+Binary: changes-file-size-checksum-mismatch
+Architecture: source all
+Version: 1.0
+Distribution: unstable
+Urgency: low
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Changed-By: Debian Lintian Maintainers <lintian-maint@debian.org>
+Files:
+ d41d8cd98f00b204e9800998ecf8427e 0 devel optional __some-file__
+Checksums-Sha1:
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 __some-file__
+Checksums-Sha256:
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 __some-file__
+Description:
+ changes-file-size-checksum-mismatch - Test for file size and checksums check

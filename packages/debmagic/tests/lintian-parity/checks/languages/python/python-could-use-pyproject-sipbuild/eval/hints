@@ -1,0 +1,1 @@
+python-could-use-pyproject-sipbuild (source): missing-prerequisite-for-pyproject-backend sipbuild.api (does not satisfy python3-sipbuild:any, pybuild-plugin-pyproject:any) [pyproject.toml:3]

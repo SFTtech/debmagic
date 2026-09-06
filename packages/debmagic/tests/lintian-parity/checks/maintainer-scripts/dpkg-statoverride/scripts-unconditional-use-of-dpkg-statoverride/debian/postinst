@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+# Unconditional use of dpkg-statoverride --add
+dpkg-statoverride --update --add root crontab 2755 /usr/bin/crontab
+
+exit 0

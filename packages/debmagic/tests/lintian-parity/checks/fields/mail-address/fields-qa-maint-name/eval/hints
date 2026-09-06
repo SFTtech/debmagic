@@ -1,0 +1,8 @@
+fields-qa-maint-name (source): mail-contact Maintainer "Debian QA" <packages@qa.debian.org>
+fields-qa-maint-name (source): faulty-debian-qa-group-phrase Maintainer Debian QA -> Debian QA Group
+fields-qa-maint-name (changes): mail-contact Maintainer "Debian QA" <packages@qa.debian.org>
+fields-qa-maint-name (changes): mail-contact Changed-By "Debian QA" <packages@qa.debian.org>
+fields-qa-maint-name (changes): faulty-debian-qa-group-phrase Maintainer Debian QA -> Debian QA Group
+fields-qa-maint-name (changes): faulty-debian-qa-group-phrase Changed-By Debian QA -> Debian QA Group
+fields-qa-maint-name (binary): mail-contact Maintainer "Debian QA" <packages@qa.debian.org>
+fields-qa-maint-name (binary): faulty-debian-qa-group-phrase Maintainer Debian QA -> Debian QA Group

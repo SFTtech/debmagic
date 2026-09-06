@@ -1,0 +1,31 @@
+Source: files-fonts
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+Homepage: http://lintian.debian.org/
+
+Package: files-fonts
+Architecture: all
+Depends: ${misc:Depends}
+Description: Font file checks
+ Non-font package containing fonts.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: ttf-files-fonts
+Section: fonts
+Architecture: all
+# Due to file-conflict
+Conflicts: files-fonts
+Depends: ${misc:Depends}
+Description: Font file checks (okay)
+ Font package containing fonts.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

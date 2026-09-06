@@ -1,0 +1,2 @@
+control-file-rules-requires-root-no (source): rules-do-not-require-root [debian/control:7]
+control-file-rules-requires-root-no (source): redundant-rules-requires-root-no-field [debian/control:7]

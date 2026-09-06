@@ -1,0 +1,27 @@
+Source: spelling-multiword
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: spelling-multiword
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Multi-word spelling errors detection
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Spelling errors:
+   * Allows to
+   * An other error
+   * Debian/GNU Linux
+   * Permits to
+   * This packages
+   * This packages (again, but only tagged once)
+ .
+ Not errors:
+   * These packages

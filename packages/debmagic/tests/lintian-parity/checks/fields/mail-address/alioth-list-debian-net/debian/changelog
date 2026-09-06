@@ -1,0 +1,17 @@
+alioth-list-debian-net (1.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: alioth-list-debian-net
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Packaging Team <pkg-team@alioth-lists.debian.net>  Tue, 31 Mar 2026 17:46:22 +0200
+
+alioth-list-debian-net (0.0.1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: alioth-list-debian-net
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Packaging Team <pkg-team@alioth-lists.debian.net>  Mon, 01 Jan 1990 00:00:00 +0100

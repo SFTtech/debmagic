@@ -1,0 +1,1 @@
+empty-forwarded-no-bug (source): patch-not-forwarded-upstream [debian/patches/silent.patch]

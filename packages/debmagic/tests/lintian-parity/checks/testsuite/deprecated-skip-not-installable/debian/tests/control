@@ -1,0 +1,3 @@
+Tests: test-1
+Restrictions:
+ skip-not-installable

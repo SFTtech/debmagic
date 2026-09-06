@@ -1,0 +1,4 @@
+version=4
+opts="uversionmangle=s/.pre/~pre/,dversionmangle=s/@DEB_EXT@//,repacksuffix=+ds1" \
+   https://github.com/user/project/tags \
+   (?:.*?/)project@ANr_VERSION@\.tar\.gz

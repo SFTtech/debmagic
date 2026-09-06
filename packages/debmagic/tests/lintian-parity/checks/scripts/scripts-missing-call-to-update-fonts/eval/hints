@@ -1,0 +1,2 @@
+scripts-missing-call-to-update-fonts (binary): maintainer-script-interpreter /bin/sh [postrm]
+scripts-missing-call-to-update-fonts (binary): maintainer-script-interpreter /bin/sh [postinst]

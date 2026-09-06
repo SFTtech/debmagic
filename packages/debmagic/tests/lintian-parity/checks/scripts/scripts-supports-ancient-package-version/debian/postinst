@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+
+# Bad
+dpkg --compare-versions "$2" lt "0.5"
+dpkg --compare-versions "$2" lt 0.5~
+dpkg --compare-versions "$2" lt 0.5-1~
+dpkg --compare-versions "$2" lt '0.5-1~'
+dpkg --compare-versions '0.5-1~' gt "$2"
+if dpkg --compare-versions '0.5-1~' gt "$2"; then :; fi
+
+# Good
+dpkg --compare-versions "$2" lt "0"
+dpkg --compare-versions "$2" lt "0~"
+dpkg --compare-versions "$2" lt 0.50.5
+# This is a false-positive for 0.5
+# dpkg --compare-versions "$2" lt 0.5~
+
+#DEBHELPER#

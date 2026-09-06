@@ -1,0 +1,17 @@
+Source: fields-depends-wildcard
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: fields-depends-wildcard
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, foo [linux-any], bar [i386],
+ baz [amd64]
+Description: Check package dependencies with arch wildcards
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

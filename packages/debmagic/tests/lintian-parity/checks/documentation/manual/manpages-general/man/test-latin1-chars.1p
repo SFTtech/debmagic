@@ -1,0 +1,9 @@
+.TH TEST 1P "2004-12-18" "Debian Project" "Debian GNU/Linux Handbuch"
+.SH "NAME"
+\&\fBTEST\fR \- Eine Test-Manpage mit .1P Erweiterung.
+.SH "DESCRIPTION"
+.SH Header "DESCRIPTION"
+\&\fBTEST\fR tests lintian.
+.PP
+Diese Seite dient hauptsächlich dem Testen von latin1-Buchstaben, wie äöüß
+in Manpages.

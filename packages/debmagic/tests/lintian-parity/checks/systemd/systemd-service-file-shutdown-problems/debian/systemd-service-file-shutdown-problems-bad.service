@@ -1,0 +1,12 @@
+[Unit]
+After=network.target
+Before=shutdown.target
+Conflicts=shutdown.target
+DefaultDependencies=no
+Documentation=https://example.com/
+
+[Service]
+ExecStart=/bin/test
+
+[Install]
+WantedBy=multi-user.target

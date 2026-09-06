@@ -1,0 +1,3 @@
+files-python-dot-directory (binary): package-contains-python-dot-directory [usr/lib/python3/dist-packages/foo/.directory/foo]
+files-python-dot-directory (binary): package-contains-python-dot-directory [usr/lib/python3/dist-packages/foo/.directory/bar]
+files-python-dot-directory (binary): package-contains-python-dot-directory [usr/lib/python3/dist-packages/foo/.directory/]

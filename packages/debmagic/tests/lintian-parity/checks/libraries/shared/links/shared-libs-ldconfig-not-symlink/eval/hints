@@ -1,0 +1,1 @@
+libfoo1 (binary): ldconfig-symlink-is-not-a-symlink should point to usr/lib/libfoo.so.1.0.1 [usr/lib/libfoo.so.1]

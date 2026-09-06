@@ -1,0 +1,12 @@
+changelog-file-empty-entry-unrel (1.0) UNRELEASED; urgency=low
+
+  * .
+  *
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-empty-entry-unrel (0.1) unstable; urgency=low
+
+  * First upload (Closes: #123456).
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Fri, 06 Feb 2009 22:22:37 -0800

@@ -1,0 +1,1 @@
+reused-wildcard (source): duplicate-globbing-patterns debian/* (lines 7 11) [debian/copyright]

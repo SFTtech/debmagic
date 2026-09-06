@@ -1,0 +1,30 @@
+copyright-symlink (binary): copyright-file-is-symlink [usr/share/doc/copyright-symlink/copyright]
+copyright-poor-common-licenses (binary): copyright-not-using-common-license-for-gpl
+copyright-poor-common-licenses (binary): copyright-does-not-refer-to-common-license-file /GPL-3
+copyright-old-style (binary): no-copyright-file
+copyright-old-fsf-2 (binary): old-fsf-address-in-copyright-file
+copyright-old-fsf-3 (binary): old-fsf-address-in-copyright-file
+copyright-old-fsf (binary): old-fsf-address-in-copyright-file
+copyright-missing-perl-license-pointer (binary): copyright-file-lacks-pointer-to-perl-license
+copyright-missing-apache2-license-pointer (binary): copyright-not-using-common-license-for-apache2
+copyright-misc-errors (binary): helper-templates-in-copyright
+copyright-misc-errors (binary): copyright-refers-to-old-directory
+copyright-misc-errors (binary): copyright-refers-to-nonexistent-license-file usr/share/common-licenses/GPL2
+copyright-misc-errors (binary): copyright-refers-to-incorrect-directory usr/share/common-licences
+copyright-misc-errors (binary): copyright-refers-to-deprecated-bsd-license-file
+copyright-misc-errors (binary): copyright-refers-to-compressed-license usr/share/common-licenses/BSD.gz
+copyright-misc-errors (binary): copyright-has-url-from-dh_make-boilerplate
+copyright-misc-errors (binary): copyright-contains-automatically-extracted-boilerplate
+copyright-full-lgpl (binary): copyright-not-using-common-license-for-lgpl
+copyright-full-gpl-2 (binary): copyright-not-using-common-license-for-lgpl
+copyright-full-gpl-2 (binary): copyright-file-contains-full-gpl-license
+copyright-full-gpl-1 (binary): copyright-not-using-common-license-for-gpl
+copyright-full-gpl (binary): copyright-not-using-common-license-for-gpl
+copyright-full-gpl (binary): copyright-file-contains-full-gpl-license
+copyright-full-gfdl (binary): copyright-not-using-common-license-for-gfdl
+copyright-full-gfdl (binary): copyright-file-contains-full-gfdl-license
+copyright-full-apache-2 (binary): copyright-without-copyright-notice
+copyright-full-apache-2 (binary): copyright-not-using-common-license-for-apache2
+copyright-full-apache-2 (binary): copyright-file-contains-full-apache-2-license
+copyright-crln (binary): copyright-has-crs
+copyright-compressed (binary): copyright-file-compressed [usr/share/doc/copyright-compressed/copyright.gz]

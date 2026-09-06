@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+pkg=binaries-misplaced
+%:
+	dh $@
+
+override_dh_install:
+	mkdir -p debian/$(pkg)/etc/
+	# --dereference in case /bin/true is a symlink
+	cp -a --dereference /bin/true debian/$(pkg)/etc/foo
+	# explicitly call dh_shlibdeps since debhelper is being
+	# "smart" and not calling it in newer versions (8.9.something)
+	dh_shlibdeps
+	dh_install

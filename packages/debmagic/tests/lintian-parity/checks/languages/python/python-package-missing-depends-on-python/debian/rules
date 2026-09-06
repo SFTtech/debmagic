@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+TARGET = debian/$(shell dh_listpackages)/usr/lib/python3/dist-packages
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	mkdir -p $(TARGET)
+	touch $(TARGET)/lintian.py

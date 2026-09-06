@@ -1,0 +1,2 @@
+fields-no-source-homepage (source): homepage-in-binary-package fields-no-source-homepage
+fields-no-source-homepage (binary): homepage-field-uses-insecure-uri http://lintian.debian.org

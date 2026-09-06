@@ -1,0 +1,4 @@
+binaries-general (binary): debug-symbols-not-detached [usr/lib/debug/.build-id/de/deadbeefdeadbeef.debug]
+binaries-general (binary): debug-symbols-directly-in-usr-lib-debug [usr/lib/debug/basic]
+binaries-general (binary): debug-symbols-directly-in-usr-lib-debug [usr/lib/debug/basic.static]
+binaries-general (binary): debug-file-with-no-debug-symbols [usr/lib/debug/usr/share/foo/basic]

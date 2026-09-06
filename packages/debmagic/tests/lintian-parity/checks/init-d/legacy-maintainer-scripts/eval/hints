@@ -1,0 +1,6 @@
+maintainer-scripts (binary): prerm-calls-updaterc.d foo [prerm:42]
+maintainer-scripts (binary): preinst-calls-updaterc.d bar defaults [preinst:4]
+maintainer-scripts (binary): postrm-does-not-call-updaterc.d-for-init.d-script etc/init.d/foo [postrm]
+maintainer-scripts (binary): postrm-contains-additional-updaterc.d-calls etc/init.d/bar [postrm]
+maintainer-scripts (binary): output-of-updaterc.d-not-redirected-to-dev-null bar [postrm:27]
+maintainer-scripts (binary): init.d-script-not-included-in-package etc/init.d/foo

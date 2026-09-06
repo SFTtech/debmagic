@@ -1,0 +1,31 @@
+fields-depends-general (source): virtual-package-depends-without-real-package-depends Build-Depends: perl-modules
+fields-depends-general (source): package-relation-with-perl-modules Build-Depends: perl-modules
+py-fields-depends-general (binary): depends-on-python-minimal Depends
+libfields-depends-general (binary): package-relation-with-perl-modules Depends: perl-modules-5.22
+libfields-depends-general (binary): lib-recommends-documentation Recommends: debconf-doc
+libfields-depends-general (binary): depends-on-libdb1-compat Depends
+fields-depends-general-doc (binary): doc-package-depends-on-main-package Depends
+fields-depends-general (binary): virtual-package-depends-without-real-package-depends Depends: perl-modules
+fields-depends-general (binary): package-relation-with-self Breaks: fields-depends-general (<< 0.1)
+fields-depends-general (binary): package-relation-with-perl-modules Depends: perl-modules
+fields-depends-general (binary): package-depends-on-an-x-font-package Depends: xfont-a
+fields-depends-general (binary): ored-depends-on-obsolete-package Depends: xbase-clients (>= 0.1)
+fields-depends-general (binary): needlessly-depends-on-awk Depends
+fields-depends-general (binary): depends-on-packaging-dev Depends
+fields-depends-general (binary): depends-on-old-emacs Depends: emacs23-nox
+fields-depends-general (binary): depends-on-old-emacs Depends: emacs23-lucid
+fields-depends-general (binary): depends-on-old-emacs Depends: emacs23-el
+fields-depends-general (binary): depends-on-old-emacs Depends: emacs23
+fields-depends-general (binary): depends-on-old-emacs Depends: emacs22-gtk
+fields-depends-general (binary): depends-on-old-emacs Depends: emacs22
+fields-depends-general (binary): depends-on-old-emacs Depends: emacs21
+fields-depends-general (binary): depends-on-obsolete-package Depends: gaim (>= 0.1)
+fields-depends-general (binary): depends-on-obsolete-bootstrap Depends libjs-bootstrap
+fields-depends-general (binary): depends-on-obsolete-bootstrap Depends fonts-glyphicons-halflings
+fields-depends-general (binary): depends-on-metapackage Depends: xorg
+fields-depends-general (binary): depends-on-essential-package-without-using-version Depends: bash
+fields-depends-general (binary): depends-exclusively-on-makedev Depends
+fields-depends-general (binary): conflicts-with-version package-with-version (<< 3.0)
+fields-depends-general (binary): conflicts-with-dependency Depends conflict-dep
+fields-depends-general (binary): breaks-without-version package-without-version
+fields-depends-general (binary): binary-package-depends-on-toolchain-package Depends: debhelper

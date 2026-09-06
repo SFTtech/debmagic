@@ -1,0 +1,2 @@
+unpack-srcpkg-xz (source): upstream-metadata-missing-repository [debian/upstream/metadata]
+unpack-srcpkg-xz (source): upstream-metadata-missing-bug-tracking [debian/upstream/metadata]

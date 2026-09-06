@@ -1,0 +1,19 @@
+@copying
+This manual documents PHP mode version @value{version} for
+use with GNU Emacs.
+
+Copyright @copyright{} 2008  Aaron S. Hawley
+
+@quotation
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation
+License, Version 1.2 or any later version published by the
+Free Software Foundation; with no Invariant Sections, and no
+Cover Texts.  A copy of the license is included in the
+section entitled ``Copying This Manual.''
+
+A copy of the license is also available from the Free
+Software Foundation Web site at
+@url{http://www.gnu.org/licenses/fdl.html}.
+
+@end quotation

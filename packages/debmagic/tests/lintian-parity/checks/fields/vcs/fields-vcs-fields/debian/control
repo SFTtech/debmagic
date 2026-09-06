@@ -1,0 +1,23 @@
+Source: fields-vcs-fields
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+Vcs-Browser: https://anonscm.debian.org/viewvc/foobar/trunk?rev=0&sc=0
+Vcs-Svn: svn://anonscm.debian.org/foobar/trunk
+Vcs-Mtn: www.example.org org.debian.foobar
+Vcs-Hg: https://anonscm.debian.org/hg/foobar/pkg/foobar -b master
+Vcs-Git: https://anonscm.debian.org/users/djpig/foobar.git -b master
+Vcs-Cvs: :pserver:anonymous@anonscm.debian.org:/cvs/foobar module
+Vcs-Bzr: nosmart+http://anonscm.debian.org/bzr/collab-maint/foobar
+
+Package: fields-vcs-fields
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test well formed VCS-* fields
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

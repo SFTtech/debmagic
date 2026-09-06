@@ -1,0 +1,2 @@
+lintian-install.conf usr/lib/modprobe.d
+lintian-install.conf etc/modules-load.d

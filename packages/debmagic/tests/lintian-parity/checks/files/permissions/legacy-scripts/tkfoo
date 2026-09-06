@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Insane amount of empty lines and comments
+
+#
+#                                          
+#
+#
+
+#
+#
+
+#
+#
+#
+
+#
+#
+   
+#
+# This line makes the next one a comment in Tcl \
+exec wish "$0" -- ${1+"$@"}
+
+# lintian should not check the following for syntax
+# if it detects the line above correctly
+# Code snippet taken from eTkTab
+
+if { [array names prefs keybindings] != "" } {
+  # Read in the file
+   array set unparsed_bindings [ read_settings_file $prefs(keybindings)]
+}

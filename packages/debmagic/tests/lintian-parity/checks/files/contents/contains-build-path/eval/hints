@@ -1,0 +1,1 @@
+contains-build-path (binary): file-references-package-build-path [usr/share/doc/contains-build-path/build-path]

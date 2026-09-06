@@ -1,0 +1,3 @@
+files-foo-in-bar (binary): package-installs-into-etc-rc.d [etc/rc.d/bar]
+files-foo-in-bar (binary): package-installs-into-etc-rc.boot [etc/rc.boot/bar]
+files-foo-in-bar (binary): package-installs-deprecated-upstart-configuration [etc/init/bar]

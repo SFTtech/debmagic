@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	# Apparently some of the tools are too smart to install
+	# a redundant/empty symbols file in the package, so here
+	# is a non-empty useless symbols file!
+	echo "# Aloha!" > debian/libesym1/DEBIAN/symbols
+	echo "# Aloha!" > debian/nolibrary/DEBIAN/symbols
+	# ... they are also too smart to install slightly broken
+	# variants of symbols files
+	install -m 0644 debian/libfoo1.symbols debian/libfoo1/DEBIAN/symbols
+	dh_builddeb

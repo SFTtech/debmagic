@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+%:
+	dh $@ --with javahelper
+
+override_jh_build:
+	jh_build --javacopts='-target 1.7' --javacopts='-source 1.7'
+	unzip test.jar
+	# Unknown class version
+	perl -i -pe 's/^(\xCA\xFE\xBA\xBE...)./$$1\x2A/' org/debian/lintian/TestA.class
+	# Java19 (unsupported)
+	perl -i -pe 's/^(\xCA\xFE\xBA\xBE...)./$$1\x3F/' org/debian/lintian/TestB.class
+	# Put them in separate Jars because Lintian stops when the first
+	# "unknown class format" is seen
+	zip -r testa.jar META-INF/ org/debian/lintian/TestA.class
+	zip -r testb.jar META-INF/ org/debian/lintian/TestB.class
+
+override_dh_auto_clean:
+	rm -fr META-INF/ org/
+	rm -f *.jar

@@ -1,0 +1,4 @@
+debconf-config-general (binary): unknown-debconf-priority unknown [config:12]
+debconf-config-general (binary): possible-debconf-note-abuse debconf/note-abuse [config:8]
+debconf-config-general (binary): isdefault-flag-is-deprecated [config:15]
+debconf-config-general (binary): config-does-not-load-confmodule [config]

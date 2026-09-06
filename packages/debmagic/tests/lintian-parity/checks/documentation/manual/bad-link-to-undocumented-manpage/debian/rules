@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+tmp := $(CURDIR)/debian/$(shell dh_listpackages)
+
+%:
+	dh $@
+
+override_dh_link:
+	dh_link
+	
+	install -d $(tmp)/usr/share/man/man1
+	ln -s undocumented.7.gz $(tmp)/usr/share/man/man1/sbin-binary.1.gz

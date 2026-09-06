@@ -1,0 +1,1 @@
+files-symlink-points-to-tmp (binary): symlink-target-in-tmp /tmp/does-not-exist [usr/share/lintian/data/points-to-tmp]

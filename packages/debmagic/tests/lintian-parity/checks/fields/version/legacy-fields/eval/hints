@@ -1,0 +1,5 @@
+fields (source): debian-revision-not-well-formed 1.5-.3
+fields (changes): debian-revision-not-well-formed 1.5-.3
+fields (buildinfo): debian-revision-not-well-formed 1.5-.3
+fields (binary): debian-revision-not-well-formed 1.5-.3
+another-version (binary): debian-revision-is-zero 123.4-0

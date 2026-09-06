@@ -1,0 +1,2 @@
+foo.conf	/etc/apache2/mods-enabled
+mod_foo2.so	/usr/lib/apache2/modules/

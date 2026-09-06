@@ -1,0 +1,7 @@
+fields-root-maint-address (1.0) unstable; urgency=low
+
+  * Orphaned.
+  * Lintian Test Suite.
+  * Test: fields-root-maint-address
+
+ -- root <someone@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

@@ -1,0 +1,2 @@
+files-general (binary): non-conf-file-in-modprobe.d [usr/lib/modprobe.d/--lzma]
+files-general (binary): file-in-etc-modprobe.d [etc/modprobe.d/lintian.conf]

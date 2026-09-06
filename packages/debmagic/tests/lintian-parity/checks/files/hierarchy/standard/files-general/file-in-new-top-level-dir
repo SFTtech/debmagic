@@ -1,0 +1,2 @@
+Since an empty file triggers "empty-dir" tags; we might as well
+test file-in-unusual-dir together with non-standard-toplevel-dir.

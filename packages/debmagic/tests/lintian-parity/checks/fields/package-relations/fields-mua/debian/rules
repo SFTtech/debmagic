@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_install::
+	set -ex; for X in $$(dh_listpackages); do \
+		dh_install -p$$X some-file.txt usr/share/$$X; \
+	done

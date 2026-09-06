@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+# errors out with: objcopy: '.../binaries-missing-depends-on-xapi.debug': No such file
+override_dh_dwz:

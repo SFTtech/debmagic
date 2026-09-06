@@ -1,0 +1,1 @@
+control-file-suggests-itself (source): circular-installation-prerequisite (in section for control-file-suggests-itself) Suggests control-file-suggests-itself [debian/control:12]

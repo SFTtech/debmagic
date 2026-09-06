@@ -1,0 +1,17 @@
+fields-trailing-comma-in-maintainer-field (1.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: fields-trailing-comma-in-maintainer-field
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Maytham Alsudany <maytha8thedev@gmail.com>  Tue, 23 Dec 2025 18:49:12 +0530
+
+fields-trailing-comma-in-maintainer-field (0.0.1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: fields-trailing-comma-in-maintainer-field
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Maytham Alsudany <maytha8thedev@gmail.com>  Mon, 01 Jan 1990 00:00:00 +0100

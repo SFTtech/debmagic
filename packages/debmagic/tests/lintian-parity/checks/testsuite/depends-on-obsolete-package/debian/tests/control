@@ -1,0 +1,2 @@
+Test-Command: /bin/true
+Depends: @, gaim (>= 0.1), new-package | xbase-clients (>= 0.1), pkg-config

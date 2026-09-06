@@ -1,0 +1,80 @@
+Source: debhelper-brace-expansion
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: debhelper-brace-expansion
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for brace expansion in debhelper config files
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: debhelper-brace-problem-1
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for brace expansion in debhelper config files another extra string
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package. Extra
+ string.  It may be an empty package.
+
+Package: debhelper-brace-problem-2
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for brace expansion in debhelper config files another extra string three
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package. Extra
+ string three.  It may be an empty package.
+
+Package: debhelper-brace-problem-3
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for brace expansion in debhelper config files three test case
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package. Extra
+ string three test case. It may be an empty package.
+
+Package: debhelper-brace-problem-4
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for brace expansion in debhelper config files fourth test case
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package. Extra
+ string fourth test case. It may be an empty package.
+
+Package: debhelper-brace-problem-5
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for brace expansion in debhelper config files fifth test case
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package. Extra
+ string fifth test case. It may be an empty package.
+
+Package: debhelper-brace-problem-6
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for brace expansion in debhelper config files sixth test case
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package. Extra
+ string sixth test case. It may be an empty package.
+
+Package: debhelper-brace-problem-good
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for brace expansion in debhelper config files good test case
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package. Should
+ not trigger lintian test. It may be an empty package.
+

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name:Goodbye
+# Name=Goodbye
+Comment=Say hello!
+SpecialTag=This doesn't exist!
+Exec=goodbye
+icon=hello
+Terminal=true
+Type=Application
+Categories=WeirdStuff;Screensaver;
+Encoding=ISO-10646-1
+[Other Entry]
+Name=Goodbye

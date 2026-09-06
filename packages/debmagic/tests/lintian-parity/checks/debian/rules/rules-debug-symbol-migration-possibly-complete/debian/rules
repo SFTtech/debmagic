@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_strip:
+	dh_strip prefix --ddeb-migration=foo suffix
+	dh_strip prefix --dbgsym-migration=foo suffix
+	dh_strip prefix --dbgsym-migration='apostrophe' suffix
+	dh_strip prefix --dbgsym-migration='apostrophe << 1' suffix

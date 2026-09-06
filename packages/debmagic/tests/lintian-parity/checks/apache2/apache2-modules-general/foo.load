@@ -1,0 +1,5 @@
+# Depends: baz
+# Depends: baz baz2	mod_baz3		baz4.load
+# Conflicts: baz		baz2
+
+LoadModule foo_module /usr/lib/apache2/modules/mod_foo.so

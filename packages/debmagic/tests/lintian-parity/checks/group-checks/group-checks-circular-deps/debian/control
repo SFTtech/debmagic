@@ -1,0 +1,99 @@
+Source: group-checks-circular-deps
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: root
+Architecture: all
+Depends: ${misc:Depends}, c1-a, c1-c, c2-b
+Description: Test for circular dependencies - root
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ root.
+
+Package: leaf
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test for circular dependencies - leaf
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ leaf.
+
+Package: disconnected
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test for circular dependencies - dis
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ disconnected.
+
+
+Package: c1-a
+Architecture: all
+Depends: ${misc:Depends}, c1-b, leaf
+Description: Test for circular dependencies - c1-a
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ c1-a.
+
+Package: c1-b
+Architecture: all
+Depends: ${misc:Depends}, c1-c
+Description: Test for circular dependencies - c1-b
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ c1-b.
+
+Package: c1-c
+Architecture: all
+Depends: ${misc:Depends}, c1-a, leaf
+Description: Test for circular dependencies - c1-c
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ c1-c.
+
+Package: c2-a
+Architecture: all
+Depends: ${misc:Depends}, c2-b, c2-c, leaf
+Description: Test for circular dependencies - c2-a
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ c2-a.
+
+Package: c2-b
+Architecture: all
+Depends: ${misc:Depends}, c2-a, c2-c
+Description: Test for circular dependencies - c2-b
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ c2-b.
+
+Package: c2-c
+Architecture: all
+Depends: ${misc:Depends}, c2-a, c2-b, leaf
+Description: Test for circular dependencies - c2-c
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ c2-c.
+

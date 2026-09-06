@@ -1,0 +1,3 @@
+package-scripts-in-western-encoding (binary): national-encoding [preinst]
+package-scripts-in-western-encoding (binary): national-encoding [postrm]
+package-scripts-in-western-encoding (binary): national-encoding [postinst]

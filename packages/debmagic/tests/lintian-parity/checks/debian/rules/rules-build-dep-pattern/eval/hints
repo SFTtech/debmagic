@@ -1,0 +1,1 @@
+rules-build-dep-pattern (source): rules-require-build-prerequisite (does not satisfy python3:any | python3-dev:any | python3-all:any | python3-all-dev:any | python3.13:any | python3.13-dev:any | python3.14:any | python3.14-dev:any) [debian/rules]

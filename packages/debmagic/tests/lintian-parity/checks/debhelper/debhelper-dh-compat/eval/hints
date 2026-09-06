@@ -1,0 +1,5 @@
+debhelper-dh-compat (source): uses-debhelper-compat-file [debian/compat]
+debhelper-dh-compat (source): package-uses-old-debhelper-compat-version 13
+debhelper-dh-compat (source): declares-possibly-conflicting-debhelper-compat-versions 13 from debian/compat vs DH_COMPAT 8 [debian/rules]
+debhelper-dh-compat (source): debian-build-system dh [debian/rules]
+debhelper-dh-compat (source): debhelper-compat-level 13

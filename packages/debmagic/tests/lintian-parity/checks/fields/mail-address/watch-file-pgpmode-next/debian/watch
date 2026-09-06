@@ -1,0 +1,5 @@
+version=4
+opts="pgpmode=next" https://alioth.debian.org/frs/?group_id=30928 \
+  (?:.*)/@PACKAGE@@ANY_VERSION@@ARCHIVE_EXT@ debian
+opts="pgpmode=previous" https://alioth.debian.org/frs/?group_id=30928 \
+  (?:.*)/@PACKAGE@@ANY_VERSION@@SIGNATURE_EXT@ previous

@@ -1,0 +1,2 @@
+changelog-file-no-dch (binary): syntax-error-in-debian-changelog "not a Debian changelog" [usr/share/doc/changelog-file-no-dch/changelog.gz:1]
+changelog-file-no-dch (binary): debian-changelog-file-missing-or-wrong-name

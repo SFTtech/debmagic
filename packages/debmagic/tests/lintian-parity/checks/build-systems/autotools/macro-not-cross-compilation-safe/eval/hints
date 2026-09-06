@@ -1,0 +1,2 @@
+macro-not-cross-compilation-safe (source): autotools-pkg-config-macro-not-cross-compilation-safe AC_PATH_PROG [src/configure.ac:1]
+macro-not-cross-compilation-safe (source): autotools-pkg-config-macro-not-cross-compilation-safe AC_PATH_PROG [configure.ac:3]

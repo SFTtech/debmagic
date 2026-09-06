@@ -1,0 +1,27 @@
+Source: manpages-dependencies
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: pecho
+Architecture: all
+Depends: ${misc:Depends}, pecho-data
+Description: Test for manpages in dependencies
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: pecho-data
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test for manpages in dependencies - data
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Data package.

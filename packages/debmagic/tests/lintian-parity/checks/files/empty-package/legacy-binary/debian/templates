@@ -1,0 +1,16 @@
+# The debconf templates defined here are the sort that you'd use if
+# providing a wordlist and an ispell dictionary for the language
+# "perl".  This shouldn't trigger warnings about not using debconf-po.
+
+Template: shared/packages-ispell
+Type: text
+Description:
+
+Template: shared/packages-wordlist
+Type: text
+Description:
+
+Template: miscfiles/languages
+Type: text
+Default: perl (Pathologically Eclectic Rubbish Lister)
+Description:

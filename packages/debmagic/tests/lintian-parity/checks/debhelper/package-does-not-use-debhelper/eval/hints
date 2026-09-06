@@ -1,0 +1,2 @@
+package-does-not-use-debhelper (source): package-does-not-use-debhelper [debian/rules]
+package-does-not-use-debhelper (source): debian-build-system other [debian/rules]

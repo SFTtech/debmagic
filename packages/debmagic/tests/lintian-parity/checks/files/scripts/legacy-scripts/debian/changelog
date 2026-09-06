@@ -1,0 +1,41 @@
+scripts (6ds-1ubuntu0.5.10.1) unstable; urgency=low
+
+  * I'm also not able to write my name.
+  * Added a script in /etc/Xsession.d
+  * Bizarre version number courtesy of
+    https://wiki.ubuntu.com/SecurityUpdateProcedures#Prepare
+
+ -- Mark 'HE' Brokschmitt <he@debian.org>  Thu, 23 Jun 2005 14:32:39 +0200
+
+scripts (5-1) unstable; urgency=low
+
+  * I'm making a typo in my own name... And I want lintian to warn me about
+    it.
+
+ -- Jeroen van Wolffelaar <jeroen@wolffelaar.nl>  Sun, 18 Apr 2004 02:26:34 +0200
+
+scripts (4-1) unstable; urgency=low
+
+  * Add new example to check that not executable files with a shebang line
+    called *in don't trigger the script-not-executable warning.
+
+ -- Marc 'HE' Brockschmidt <he@debian.org>  Wed, 14 Apr 2004 19:44:04 +0200
+
+scripts (3-3) unstable; urgency=low
+
+  * Add suidperlfoo and some code in debian/rules to
+    check the new suidperl checks
+
+ -- Frank Lichtenheld <djpig@debian.org>  Wed, 31 Mar 2004 21:06:20 +0000
+
+scripts (2-1) unstable; urgency=low
+
+  * Add tkfoo script for tk checkings
+
+ -- Lintian Maintainers <lintian-maint@debian.org>  Sat, 21 Feb 2004 17:13:36 +0100
+
+scripts (1-0) unstable; urgency=low
+
+  * Initial version
+
+ -- Lintian Maintainers <lintian-maint@debian.org>  Sat, 10 Feb 2001 15:37:31 -0800

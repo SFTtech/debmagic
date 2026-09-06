@@ -29,4 +29,5 @@ uv run sphinx-autobuild docs docs/_build
 
 ```{toctree}
 
+import-lintian-rule.md
 ```

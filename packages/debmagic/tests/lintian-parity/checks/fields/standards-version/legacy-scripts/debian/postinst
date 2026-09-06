@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ -x "/etc/init.d/lsb-broken" ] ; then
+    update-rc.d lsb-broken defaults >/dev/null
+fi
+if [ -x "/etc/init.d/no-lsb" ] ; then
+    update-rc.d no-lsb defaults >/dev/null
+fi
+if [ -x "/etc/init.d/skeleton" ] ; then
+    update-rc.d skeleton defaults >/dev/null
+fi
+if [ -x "/etc/init.d/lsb-other" ] ; then
+    update-rc.d lsb-other defaults >/dev/null
+fi

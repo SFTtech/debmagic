@@ -1,0 +1,4 @@
+files-general (binary): raster-image-in-scalable-directory [usr/share/icons/hicolor/scalable/apps/lintian-16x16.png]
+files-general (binary): icon-size-and-directory-name-mismatch 22x22 [usr/share/apps/lintian/icons/hicolor/64x64/lintian-64x64.png]
+files-general (binary): icon-size-and-directory-name-mismatch 16x16 [usr/share/icons/hicolor/22x22/apps/lintian-16x16.png]
+files-general (binary): icon-size-and-directory-name-mismatch 16x16 [usr/share/apps/lintian/icons/hicolor/22x22/lintian-16x16.png]

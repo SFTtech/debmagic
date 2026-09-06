@@ -1,0 +1,3 @@
+scripts (source): obsolete-debian-watch-file-standard 3 [debian/watch]
+scripts (source): multiple-debian-watch-file-standards 2 3 [debian/watch]
+scripts (source): debian-watch-file-standard 3 [debian/watch]

@@ -1,0 +1,6 @@
+Name: arch-cross
+Description: A library that include cross architecture
+Requires:
+Version: 3.1.3
+Libs:
+Cflags: -I/usr/include/$(ARCH_CROSS)/someconfig.h

@@ -1,0 +1,21 @@
+Source: fields-essential-yes-source
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Essential: yes
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: fields-essential-yes-source
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Canary test for Essential field-related checks and assumptions
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ In the, unlikely, event that dpkg-gencontrol starts considering the
+ source-level Essential field this test should break so that lintian is
+ fixed accordingly.

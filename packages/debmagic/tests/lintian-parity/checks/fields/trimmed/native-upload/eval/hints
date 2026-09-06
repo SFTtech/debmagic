@@ -1,0 +1,3 @@
+native-upload (source): trimmed-field Maintainer Debian Lintian Maintainers <lintian-maint@debian.org>
+native-upload (changes): trimmed-field Maintainer Debian Lintian Maintainers <lintian-maint@debian.org>
+native-upload (binary): trimmed-field Maintainer Debian Lintian Maintainers <lintian-maint@debian.org>

@@ -1,0 +1,1 @@
+libfoo-dev (binary): static-link-time-optimization code.o [usr/lib/libcodeless.a]

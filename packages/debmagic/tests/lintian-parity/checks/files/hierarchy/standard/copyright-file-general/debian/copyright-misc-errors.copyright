@@ -1,0 +1,22 @@
+This copyright file contains several errors.
+
+Downloaded from <url://example.com>
+
+You should not use the template for
+Upstream Author(s): Tobias
+Copyright 2008 Tobias
+
+The path /usr/share/common-licences/GPL contains a spelling error.
+
+It's wrong to reference a compressed license, like this:
+/usr/share/common-licenses/BSD.gz
+
+This path /usr/share/doc/copyright is obsolete.
+
+The path /usr/share/common-licenses/GPL2 is missing a hyphen.
+
+This copyright info was automatically extracted from the perl module.
+It may not be accurate, so you better check the module sources
+if you don't want to get into legal troubles.
+
+References to /usr/share/common-licenses/BSD are deprecated.

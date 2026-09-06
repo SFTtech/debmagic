@@ -1,0 +1,6 @@
+fields-malformed-vcs-fields-unrel (source): vcs-uri Git https://salsa.debian.org/test/test.git [subdir] -b valid/syntax
+fields-malformed-vcs-fields-unrel (source): vcs git
+fields-malformed-vcs-fields-unrel (source): package-is-maintained-by-individual
+fields-malformed-vcs-fields-unrel (changes): package-is-maintained-by-individual
+fields-malformed-vcs-fields-unrel (buildinfo): package-is-maintained-by-individual
+fields-malformed-vcs-fields-unrel (binary): package-is-maintained-by-individual

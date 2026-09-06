@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+# This isn't a diversion we create anywhere, but we're allowed to do this in
+# postinst in case we're cleaning up after a previous version.
+if [ configure = "$1" ] && dpkg-divert --list '*old-file' >/dev/null ; then
+    dpkg-divert --package scripts-diversions --remove --rename \
+        /usr/share/scripts/old-file
+fi
+
+#DEBHELPER#

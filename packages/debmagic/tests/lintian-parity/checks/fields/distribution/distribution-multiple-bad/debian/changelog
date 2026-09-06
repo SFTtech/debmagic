@@ -1,0 +1,6 @@
+distribution-multiple-bad (1.0) stable foo-backportss bar foo; urgency=low
+
+  * Lintian Test Suite.
+  * Test: distribution-multiple-bad
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

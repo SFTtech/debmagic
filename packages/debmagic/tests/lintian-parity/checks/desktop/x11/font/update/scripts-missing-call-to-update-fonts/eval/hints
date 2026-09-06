@@ -1,0 +1,1 @@
+scripts-missing-call-to-update-fonts (binary): missing-call-to-update-fonts usr/share/fonts/X11/Type1/foo.afm [postinst]

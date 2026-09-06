@@ -1,0 +1,3 @@
+ocaml/foo.cmxa usr/lib/ocaml/
+ocaml/bar.cmxs usr/lib/ocaml/
+ocaml/symbol.cmx usr/lib/ocaml/

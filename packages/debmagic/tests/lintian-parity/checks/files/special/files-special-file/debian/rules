@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+PKG=$(shell dh_listpackages)
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	mkdir -p debian/$(PKG)/usr/share/$(PKG)/
+	mkfifo debian/$(PKG)/usr/share/$(PKG)/fifo-pipe
+	dh_builddeb
+

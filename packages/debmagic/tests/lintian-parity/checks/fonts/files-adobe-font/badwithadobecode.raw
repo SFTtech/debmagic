@@ -1,0 +1,17 @@
+%!PS-AdobeFont-1.0: Untitled1 001.000
+%%Title: badwithadobecode
+%Version: 001.000
+%%CreationDate: Mon Dec 10 21:21:58 2012
+%%Creator: roucaries.bastien,,,
+%Copyright: Created by roucaries.bastien,,, hand-crafted
+%%EndComments
+
+/RD{string currentfile exch readstring pop}executeonly def
+
+% The code below is here to trick Lintian...
+% Copyright (c) 1987-1990 Adobe Systems Incorporated.
+% All Rights Reserved.
+trick { /startlock get exec } def
+
+2 index /CharStrings 2 dict dup begin
+

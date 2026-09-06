@@ -1,0 +1,13 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Comment: Test case from https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=888001#33
+
+Files: *
+License: GPL-3
+Copyright: © 2014 Mattia Rizzolo <mattia@mapreri.org>
+
+Files: file-does-not-exist
+License: GPL-3
+Copyright: © 2014 Mattia Rizzolo <mattia@mapreri.org>
+
+License: GPL-3
+ Please call the Free Software Foundation for a copy of the license.

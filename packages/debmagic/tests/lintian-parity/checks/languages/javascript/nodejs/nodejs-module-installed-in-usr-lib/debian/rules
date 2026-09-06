@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+PKG:=nodejs-module-installed-in-usr-lib
+INSTPATH:=$(CURDIR)/debian/tmp/usr/lib/nodejs/module-installed-in-usr-lib
+
+
+%:
+	dh $@
+
+override_dh_install:
+	mkdir -p $(INSTPATH)
+	cp src/test.js $(INSTPATH)/test.js
+	cp src/test.json $(INSTPATH)/package.json
+	dh_install

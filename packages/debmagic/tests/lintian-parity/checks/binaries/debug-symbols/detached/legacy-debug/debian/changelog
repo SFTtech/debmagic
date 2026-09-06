@@ -1,0 +1,13 @@
+debug (1.0) unstable; urgency=low
+
+  * NMU.
+    (uploaded by the maintainer and with repeated version number)
+
+ -- Russ Allbery <rra@debian.org>  Tue,  4 Apr 2006 20:27:22 +0000
+
+debug (1.0) unstable; urgency=low
+
+  * Initial version.
+
+ -- Russ Allbery <rra@debian.org>  Sat,  4 Mar 2006 21:31:06 -0800
+

@@ -1,0 +1,51 @@
+Source: relations
+Section: misc
+Priority: optional
+Build-Depends: mail-transport-agent, libc6-dev, findutils, foo (= 3) [!amd64 !i386], bar, arch-test1 [i386], arch-test2 [!i386], quilt (>= 0.40), perl, python3-all-dev
+Build-Depends-Indep: make, bash, debmake, build-essential, baz (= 2.0), ghostscript | gs,
+  car (>= 1.0), car (<= 2.0), caz (= 1.0) [amd64], caz (>= 2.0) [i386],
+  caz (= 2.0) [powerpc], perl (>= 5.0), foo (<< 4) [!amd64 !i386], libfoo (>= 1.2-1), bozzle [kfreebsd-i386]
+Build-Conflicts: foo [amd64 i386], bar [alpha test], xlibs-dev, arch-test1 [powerpc], arch-test2 [!sparc]
+Build-Conflicts-Indep: debmake [!powerpc]
+Maintainer: Debian QA Group <packages@qa.debian.org>
+Standards-Version: 3.7.3
+Homepage: lintian.debian.org
+Origin: Debian
+Bugs: debbugs://bugs.debian.org/
+
+Package: relations
+Architecture: all
+Section: contrib/misc
+Pre-Depends: awk|gawk
+Depends: relations(<< 3), dpkg, bash (>> 2.0 ), mail-transport-agent, gawk | awk, foo (>> 2.0), foo (<< 2.2), coreutils, ,null (>= 0), ${misc:Depends}, makedev
+Provides: mail-reader
+Replaces: relations
+Conflicts: foobar (<< 5+5), foo, relations,
+           gnuwdf,
+Suggests: alpha, gnu (>= 44-3-4-8-11.4) | ung (<< 89beta) | nug | ngu, beta, some-other-package
+Recommends: emacs21 | emacsen, dpkg, null, some-other-package, ${f-oo:b-ar}, gs | ghostscript | gs-aladdin
+Description: Strange dependency relationships (dummy)
+ This package declares relationships designed to tickle lintian's "fields"
+ check.  It should generate a number of tags for these.
+ .
+ The package is built with "dpkg --build --no-check", because some of the
+ relationships used here are normally rejected by dpkg.
+
+Package: relations-multiple-libs
+Architecture: all
+Section: non-free/misc
+Depends: libstdc++2.10, libstdc++2.10-glibc2.2, libstdc++3.0, tk8.2, tk8.3, tcl8.0, tcl8.2, tkx8.2, tkx8.3, tclx8.2, libpng2, libpng3, xorg, ${shlibs:Depends}, makedev | udev
+Provides: awk
+Enhances: foo
+Recommends: ${shlibs:Depends}, relations-multiple-libs, gs | gs-gpl, makedev
+Breaks: libpng3 (<< 1.0), libpng2
+Suggests: x-dev, ghostscript | gs
+Description: Duplicate library dependency relationships.
+ Duplicate library dependency relationships.
+ This tests the depending on different versions of the same library
+ at the same time.
+ .
+ At the same time, it conveniently tests some description file checks. :)
+ .
+ It is a metapackage from the lintian perspective, so the xorg dependency
+ should be allowed.

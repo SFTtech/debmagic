@@ -1,0 +1,6 @@
+# tries to create an existing file, which fails in dpkg-source
+# some-file
+some-other-file -p0
+# non-existent patches trigger error in dpkg-source
+# some-nonexistent-patch
+# file-commented-out

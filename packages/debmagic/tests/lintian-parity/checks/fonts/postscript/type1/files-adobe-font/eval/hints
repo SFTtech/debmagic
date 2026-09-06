@@ -1,0 +1,3 @@
+fonts-files-adobe-font (binary): license-problem-font-adobe-copyrighted-fragment-no-credit [usr/share/lintian/fonts/badnocredit.pfb]
+fonts-files-adobe-font (binary): license-problem-font-adobe-copyrighted-fragment [usr/share/lintian/fonts/badwithadobecode.pfb]
+fonts-files-adobe-font (binary): license-problem-font-adobe-copyrighted-fragment [usr/share/lintian/fonts/bad.pfb]

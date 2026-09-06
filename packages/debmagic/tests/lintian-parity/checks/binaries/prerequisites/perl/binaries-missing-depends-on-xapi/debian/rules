@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_perl:
+
+override_dh_builddeb:
+	# Work around debhelper bug (triggers useless call to ldconfig)
+	rm -f debian/*/DEBIAN/postinst debian/*/DEBIAN/postrm
+	rm -f debian/*/DEBIAN/triggers
+	dh_builddeb
+
+# errors out with: objcopy: '.../binaries-missing-depends-on-xapi.debug': No such file
+override_dh_dwz:

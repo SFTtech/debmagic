@@ -1,0 +1,5 @@
+--- upstream/README
++++ debian/README
+@@ -1 +1 @@
+-README
++README for wig&pen

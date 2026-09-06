@@ -1,0 +1,7 @@
+fields-qa-maint-name (1.0) unstable; urgency=low
+
+  * Orphaned.
+  * Lintian Test Suite.
+  * Test: fields-qa-maint-name
+
+ -- Debian QA <packages@qa.debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

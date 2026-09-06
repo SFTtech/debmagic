@@ -1,0 +1,12 @@
+changelog-file-epoch-change-without-comment-unrel (2:1.0) unstable; urgency=low
+
+  * This changelog entry bumps the epoch and references the word in the
+    changelog.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-epoch-change-without-comment-unrel (1:999999) unstable; urgency=low
+
+  * Initial upload.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Fri, 06 Feb 2009 22:22:37 -0800

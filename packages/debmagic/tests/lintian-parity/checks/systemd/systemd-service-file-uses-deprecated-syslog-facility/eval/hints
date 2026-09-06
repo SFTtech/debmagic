@@ -1,0 +1,2 @@
+systemd-service-file-uses-deprecated-syslog-facility-bad (binary): systemd-service-file-uses-deprecated-syslog-facility StandardOutput=syslog [usr/lib/systemd/system/systemd-service-file-uses-deprecated-syslog-facility-bad.service]
+systemd-service-file-uses-deprecated-syslog-facility-bad (binary): systemd-service-file-uses-deprecated-syslog-facility StandardError=syslog-console [usr/lib/systemd/system/systemd-service-file-uses-deprecated-syslog-facility-bad.service]

@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+  TARGETS := build clean binary binary-arch binary-indep build-arch build-indep
+
+$(TARGETS):
+	dh $@
+
+.PHONY: $(TARGETS)
+

@@ -1,0 +1,1 @@
+rules-without-newline-at-end (source): no-newline-at-end [debian/rules]

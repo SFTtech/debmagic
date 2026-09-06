@@ -1,0 +1,63 @@
+Source: scripts-control-interpreters
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: scripts-control-interpreters-paths
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Check maintainer and config script interpreters (paths)
+ Interpreters with bad paths.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: scripts-control-interpreters-forbidden
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Check maintainer and config script interpreters (forbidden)
+ Forbidden control interpreters.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: scripts-control-interpreters-unknown
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Check maintainer and config script interpreters (unknown)
+ Unknown control interpreters.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: scripts-control-interpreters-python
+Architecture: all
+Depends: python3, ${shlibs:Depends}, ${misc:Depends}
+Description: Check maintainer and config script interpreters (Python)
+ Python control interpreters with depends.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: scripts-control-interpreters-prepython
+Architecture: all
+Pre-Depends: python3
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Check maintainer and config script interpreters (Python preinst)
+ Python control interpreters with pre-depends.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

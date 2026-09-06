@@ -1,0 +1,1 @@
+usr-lib-to-opt (binary): ldconfig-escape opt/myapp/a-module.so [usr/lib/myapp-module.so]

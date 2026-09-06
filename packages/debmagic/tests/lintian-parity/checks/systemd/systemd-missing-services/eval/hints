@@ -1,0 +1,3 @@
+systemd-missing-services-without-rcs (binary): missing-systemd-service-for-init.d-rcS-script systemd-missing-services-without-rcs [etc/init.d/systemd-missing-services-without-rcs]
+systemd-missing-services-without (binary): missing-systemd-service-for-init.d-script systemd-missing-services-without [etc/init.d/systemd-missing-services-without]
+systemd-missing-services-template (binary): invalid-systemd-documentation https://example.com/%i/ [usr/lib/systemd/system/systemd-missing-services-template@.service]

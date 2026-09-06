@@ -1,0 +1,17 @@
+foreign-testsuite (1.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: foreign-testsuite
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Perl Team <pkg-perl-maintainers@lists.alioth.debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+foreign-testsuite (0.0.1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: foreign-testsuite
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Perl Team <pkg-perl-maintainers@lists.alioth.debian.org>  Mon, 01 Jan 1990 00:00:00 +0100

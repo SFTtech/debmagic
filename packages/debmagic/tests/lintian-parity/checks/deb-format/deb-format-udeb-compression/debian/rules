@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	# manually call dpkg-deb because dh_builddeb uses -Zxz and does
+	# not allow us to override it.
+	dpkg-deb -Zlzma --build debian/some-udeb ../some-udeb_1.0_all.udeb

@@ -1,0 +1,57 @@
+maintainer-scripts (7+dfsg-0.1) unstable; urgency=low
+
+  * Doing an upload for QA  but I fail to give it a correct version number,
+    have some uploaders, and also fail to mention it... Bad me ;)
+
+ -- Jeroen van Wolffelaar <jeroen@wolffelaar.nl>  Sun, 18 Apr 2004 02:05:29 +0200
+
+maintainer-scripts (6.1) unstable; urgency=low
+
+  * I made this entry on my local PC, oops ;)
+
+ -- Jeroen van Wolffelaar <jeroen@mordor>  Sat, 21 Feb 2004 18:29:37 +0100
+
+maintainer-scripts (6) unstable; urgency=low
+
+  * added ldconfig calls to postrm to check test the postrm tests
+    from shared-libs
+
+ -- Frank Lichtenheld <djpig@debian.org>  Sat, 21 Feb 2004 18:29:36 +0100
+
+maintainer-scripts (5) unstable; urgency=low
+
+  * added bash style arrays to postinst, this one is for you Torsten (-:
+
+ -- Sean 'Shaleh' Perry <shaleh@debian.org>  Fri, 30 Mar 2001 23:27:06 -0800
+
+maintainer-scripts (4) unstable; urgency=low
+
+  * added a here document to the prerm, along with two more bashisms
+  * made postrm a bash script to check that bash scripts are not searched
+
+ -- Sean 'Shaleh' Perry <shaleh@debian.org>  Mon, 26 Feb 2001 13:02:57 -0800
+
+maintainer-scripts (3) unstable; urgency=low
+
+  * Added check for '.' called as '. foo || bar', lintian 1.11.15 failed this
+   thinking the '||' was a argument.
+  * also added an invalid call to '. foo bar'
+  * postinst now has a space between the #! and /bin/sh to test the interpreter
+    checking code.
+
+ -- Sean 'Shaleh' Perry <shaleh@debian.org>  Tue,  9 Jan 2001 23:06:25 -0800
+
+maintainer-scripts (2) unstable; urgency=low
+
+  * Fix location of changelog.
+  * prerm and postrm do 'update-alternatives --remove'; should only complain
+    about postrm.
+
+ -- Colin Watson <cjw44@flatline.org.uk>  Fri, 29 Dec 2000 06:01:24 +0000
+
+maintainer-scripts (1) unstable; urgency=low
+
+  * Initial version
+  * postinst and prerm set the usr/doc symlink
+
+ -- Sean 'Shaleh' Perry <shaleh@debian.org>  Thu, 16 Nov 2000 09:11:40 -0800

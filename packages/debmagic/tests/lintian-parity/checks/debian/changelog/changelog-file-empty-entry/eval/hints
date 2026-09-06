@@ -1,0 +1,4 @@
+changelog-file-empty-entry (binary): syntax-error-in-debian-changelog "found trailer where expected start of change data" [usr/share/doc/changelog-file-empty-entry/changelog.gz:10]
+changelog-file-empty-entry (binary): syntax-error-in-debian-changelog "badly formatted trailer line" [usr/share/doc/changelog-file-empty-entry/changelog.gz:6]
+changelog-file-empty-entry (binary): debian-changelog-line-too-short . [usr/share/doc/changelog-file-empty-entry/changelog.gz:3]
+changelog-file-empty-entry (binary): changelog-empty-entry [usr/share/doc/changelog-file-empty-entry/changelog.gz:1]

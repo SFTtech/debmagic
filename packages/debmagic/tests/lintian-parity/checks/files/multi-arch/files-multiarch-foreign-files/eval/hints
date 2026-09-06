@@ -1,0 +1,3 @@
+libfoo-dev (binary): multiarch-foreign-static-library [usr/lib/x86_64-linux-gnu/libfoo.a]
+libfoo-dev (binary): multiarch-foreign-pkgconfig [usr/lib/x86_64-linux-gnu/pkgconfig/libfoo.pc]
+libfoo-dev (binary): multiarch-foreign-cmake-file [usr/lib/x86_64-linux-gnu/cmake/foo.cmake]

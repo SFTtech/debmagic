@@ -1,0 +1,11 @@
+fields-maintainer-general (source): mail-contact Uploaders "Ubuntu Developers" <ubuntu-devel-discuss@lists.ubuntu.com>
+fields-maintainer-general (source): mail-contact Uploaders "Russ Allbery" <rra@debian.org>
+fields-maintainer-general (source): mail-contact Uploaders "Mrs. Missing Comma" <mrsmc@comma.com>
+fields-maintainer-general (source): mail-contact Uploaders "Lintian Maintainers" <lintian-maint@debian.org>
+fields-maintainer-general (source): mail-contact Uploaders "Double comma" <double@comma.com>
+fields-maintainer-general (source): mail-contact Maintainer "Lintian Maintainers" <lintian-maint@debian.org>
+fields-maintainer-general (source): mail-address-loops-or-bounces Uploaders ubuntu-devel-discuss@lists.ubuntu.com
+fields-maintainer-general (source): duplicate-contact Uploaders rra@debian.org
+fields-maintainer-general (changes): mail-contact Maintainer "Lintian Maintainers" <lintian-maint@debian.org>
+fields-maintainer-general (changes): mail-contact Changed-By "Debian Lintian Maintainers" <lintian-maint@debian.org>
+fields-maintainer-general (binary): mail-contact Maintainer "Lintian Maintainers" <lintian-maint@debian.org>

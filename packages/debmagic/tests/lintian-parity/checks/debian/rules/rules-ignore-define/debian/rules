@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+binary-arch:
+	# EMPTY
+
+define checkdir
+	test -f debian/rules
+endef

@@ -1,0 +1,15 @@
+Source: fields-transitional
+Priority: standard
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: fields-transitional
+Architecture: all
+Depends: ${misc:Depends},
+         some-replacement
+Description: Test for transitional package in wrong section
+ This is a transitional package that should have been in section
+ oldlibs and priority extra.

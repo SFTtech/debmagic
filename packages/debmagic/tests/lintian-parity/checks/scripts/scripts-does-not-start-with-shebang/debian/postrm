@@ -1,0 +1,7 @@
+# This file should be triggered by script-without-interpreter
+
+set -e
+
+true
+
+#DEBHELPER#

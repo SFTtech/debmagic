@@ -1,0 +1,14 @@
+Description: "Origin:" field contains email address, use "Author:" or "From:" then.
+Origin: Hideki Yamane <henrich@debian.org>
+Forwarded: Yes
+
+--- a/foobar.h
++++ b/foobar.h
+@@ -20,6 +20,6 @@
+ 
+ 
+ /**
+- * You may know.
++ * You may know...
+  */
+ 

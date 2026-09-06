@@ -1,0 +1,5 @@
+mismatch-between-changes-and-source (source): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+mismatch-between-changes-and-source (changes): mail-contact Maintainer Unknown <never@heard.of>
+mismatch-between-changes-and-source (changes): mail-contact Changed-By "Debian Lintian Maintainers" <lintian-maint@debian.org>
+mismatch-between-changes-and-source (changes): bogus-mail-host Maintainer never@heard.of
+mismatch-between-changes-and-source (binary): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>

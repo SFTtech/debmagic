@@ -1,0 +1,16 @@
+Source: java-class-format
+Priority: optional
+Section: java
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), javahelper, default-jdk, javahelper, default-jdk-headless | default-jdk
+Rules-Requires-Root: no
+
+Package: libtest-java
+Architecture: all
+Depends: ${misc:Depends}
+Description: Various checks for Java Class format
+ This is a test package designed to test various aspects of the
+ java-related QA code in lintian. First part.
+ .
+ This package should not be installed.

@@ -1,0 +1,8 @@
+rules-general (source): missing-build-depends-for-clean-target-in-debian-rules (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+rules-general (source): debian-rules-uses-special-shell-variable [debian/rules:15]
+rules-general (source): debian-rules-uses-deb-build-opts [debian/rules:14]
+rules-general (source): debian-rules-updates-control-automatically [debian/rules:6]
+rules-general (source): debian-rules-should-not-use-DH_EXTRA_ADDONS systemd [debian/rules:7]
+rules-general (source): debian-rules-passes-version-info-to-dh_shlibdeps [debian/rules:23]
+rules-general (source): debian-rules-is-dh_make-template [debian/rules:17]
+rules-general (source): debian-rules-calls-pwd [debian/rules:14]

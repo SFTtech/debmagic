@@ -1,0 +1,4 @@
+binary (binary): file-in-unusual-dir [usr/foo]
+binary (binary): file-in-unusual-dir [usr/bar]
+binary (binary): file-in-unusual-dir [usr/bar2]
+binary (binary): file-directly-in-usr-share [usr/share/baz]

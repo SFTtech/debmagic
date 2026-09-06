@@ -1,0 +1,2 @@
+scripts-diversions-variables (binary): maintainer-script-interpreter /bin/sh [preinst]
+scripts-diversions-variables (binary): maintainer-script-interpreter /bin/sh [postrm]

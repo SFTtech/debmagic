@@ -1,0 +1,27 @@
+Source: rules-missing-targets
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: rules-missing-targets
+Architecture: any
+Depends: ${misc:Depends}, rules-missing-targets-data
+Description: Test for missing targets in debian/rules
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: rules-missing-targets-data
+Architecture: all
+Depends: ${misc:Depends},
+Description: Test for missing targets in debian/rules - data
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Data package.

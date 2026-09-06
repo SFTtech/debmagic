@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# Good
+	echo $(shell py3versions -v)
+
+	# Bad
+	echo $(shell py3versions -s)
+	echo $(shell py3versions -vs)
+	echo $(shell py3versions -sv)
+	echo $(shell py3versions --supported)

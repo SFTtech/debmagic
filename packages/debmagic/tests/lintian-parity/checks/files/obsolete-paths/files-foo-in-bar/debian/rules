@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_auto_build:
+	pod2man --section 1 bar.pod > bar.1
+	gzip -n --best bar.1
+	cp bar Bar.pm
+	cp bar bar.png
+	cp bar perllocal.pod
+	touch .packlist
+	touch preferences
+
+override_dh_auto_install:
+	dh_install bar.1.gz usr/X11R6/man/man1/
+
+# skip
+override_dh_usrlocal:

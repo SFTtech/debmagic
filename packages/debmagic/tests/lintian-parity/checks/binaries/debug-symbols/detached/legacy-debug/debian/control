@@ -1,0 +1,85 @@
+Source: debug
+Section: utils
+Priority: optional
+Maintainer: Russ Allbery <rra@debian.org>
+Build-Depends: debhelper (>= 5.0.0)
+Build-Depends-Indep: not-debhelper (>= 0.4.3)
+Standards-Version: 3.7.0
+
+Package: hello
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for external debugging information
+ Lintian regression test for external debugging file handling.  This test
+ contains the binary.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: hello-dbg
+Priority: optional
+Section: debug
+Architecture: any
+Depends: hello (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Test for external debugging information (symbols)
+ Lintian regression test for external debugging file handling.  This test
+ contains the binary symbols.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: libhello0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for external debugging information (library)
+ Lintian regression test for external debugging file handling.  This test
+ contains a library.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: libhello0-dbg
+Section: debug
+Priority: optional
+Architecture: any
+Depends: libhello (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Test for external debugging information (library symbols)
+ Lintian regression test for external debugging file handling.  This test
+ contains the library symbols.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: hi-dbg
+Section: debug
+Priority: optional
+Architecture: any
+Depends: foo-pkg, not-libhello0
+Description: Test for external debugging symbols
+ Lintian regression test for external debugging files handling.  This test
+ contains the library symbols.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: hello-hello-dbg
+Section: debug
+Priority: optional
+Architecture: any
+Depends: foo-pkg, not-libhello0, hello
+Description: Test for external debugging symbols - another try
+ Lintian regression test for external debugging files handling.  This test
+ contains the library symbols. This package actually tests a combination of
+ the above.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

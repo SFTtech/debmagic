@@ -1,0 +1,11 @@
+libbaz2-dev (binary): no-ctrl-scripts
+libbaz2-dbg (binary): no-ctrl-scripts
+libbaz2 (binary): no-ctrl-scripts
+libbaz1-dev (binary): ctrl-script [prerm]
+libbaz1-dev (binary): ctrl-script [postinst]
+libbaz1 (binary): ctrl-script [symbols]
+libbaz1 (binary): ctrl-script [shlibs]
+libbaz1 (binary): ctrl-script [prerm]
+libbaz1 (binary): ctrl-script [postinst]
+libbaz1 (binary): control-file-has-bad-permissions 0755 != 0644 [symbols]
+libbaz1 (binary): control-file-has-bad-permissions 0755 != 0644 [shlibs]

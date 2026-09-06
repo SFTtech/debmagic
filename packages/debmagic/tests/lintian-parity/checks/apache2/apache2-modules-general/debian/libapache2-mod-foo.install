@@ -1,0 +1,4 @@
+foo.load	/etc/apache2/mods-available
+foo		/etc/apache2/mods-available
+foo.conf	/etc/apache2/mods-available
+mod_foo.so      /usr/lib/apache2/modules/

@@ -1,0 +1,7 @@
+debian-rules-uses-installed-python-versions (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends py3versions -vs [debian/rules:9]
+debian-rules-uses-installed-python-versions (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends py3versions -sv [debian/rules:10]
+debian-rules-uses-installed-python-versions (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends py3versions -s [debian/rules:8]
+debian-rules-uses-installed-python-versions (source): debian-rules-uses-installed-python-versions py3versions -vi [debian/rules:15]
+debian-rules-uses-installed-python-versions (source): debian-rules-uses-installed-python-versions py3versions -i [debian/rules:14]
+debian-rules-uses-installed-python-versions (source): debian-rules-uses-installed-python-versions py3versions --verbose --installed [debian/rules:17]
+debian-rules-uses-installed-python-versions (source): debian-rules-uses-installed-python-versions py3versions --installed [debian/rules:16]

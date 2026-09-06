@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+. /lib/lsb/init-functions
+
+### BEGIN INIT INFO
+# Provides:          other
+# Required-Start:
+# Required-Stop:
+# Default-Start:
+# Default-Stop:
+# Short-Description: Do nothing at all
+# Description: The short description pretty much covers it.
+### END INIT INFO
+
+case "$1" in
+    start|stop|force-reload|restart|status|*)
+	echo hello world!
+    ;;
+esac

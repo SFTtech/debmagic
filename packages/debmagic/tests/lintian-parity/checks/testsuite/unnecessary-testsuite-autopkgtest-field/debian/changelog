@@ -1,0 +1,17 @@
+unnecessary-testsuite-autopkgtest-field (1.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: unnecessary-testsuite-autopkgtest-field
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+unnecessary-testsuite-autopkgtest-field (0.0.1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: unnecessary-testsuite-autopkgtest-field
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Mon, 01 Jan 1990 00:00:00 +0100

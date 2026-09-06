@@ -1,0 +1,10 @@
+fields-root-maint-address (source): root-in-contact Uploaders "John Doe" <root@debian.org>
+fields-root-maint-address (source): root-in-contact Maintainer root <someone@debian.org>
+fields-root-maint-address (source): mail-contact Uploaders "John Doe" <root@debian.org>
+fields-root-maint-address (source): mail-contact Maintainer root <someone@debian.org>
+fields-root-maint-address (changes): root-in-contact Maintainer root <someone@debian.org>
+fields-root-maint-address (changes): root-in-contact Changed-By root <someone@debian.org>
+fields-root-maint-address (changes): mail-contact Maintainer root <someone@debian.org>
+fields-root-maint-address (changes): mail-contact Changed-By root <someone@debian.org>
+fields-root-maint-address (binary): root-in-contact Maintainer root <someone@debian.org>
+fields-root-maint-address (binary): mail-contact Maintainer root <someone@debian.org>

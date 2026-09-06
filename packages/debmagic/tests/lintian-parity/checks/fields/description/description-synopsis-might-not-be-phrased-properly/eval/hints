@@ -1,0 +1,5 @@
+description-synopsis-might-not-be-phrased-properly-two-sentences (binary): synopsis-is-a-sentence "This synopsis starts a sentence. Then starts another."
+description-synopsis-might-not-be-phrased-properly-misspelt (binary): synopsis-is-a-sentence "This synopsis ends with mispelling of stretc."
+description-synopsis-might-not-be-phrased-properly-full-stop (binary): synopsis-is-a-sentence "This synopsis ends with a full-stop."
+description-synopsis-might-not-be-phrased-properly-4-ellipsis (binary): synopsis-is-a-sentence "This synopsis contains a 4-ellipsis .... and other words"
+description-synopsis-might-not-be-phrased-properly-2-ellipsis (binary): synopsis-is-a-sentence "This synopsis contains a 2-ellipsis .. and other words"

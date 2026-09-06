@@ -1,0 +1,48 @@
+Source: apache2-webapplications-general
+Section: web
+Priority: optional
+Maintainer:  Big Kahuna <kahuna@example.com>
+Uploaders: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: phpmyfoo
+Architecture: all
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
+ apache2,
+ apache2-bin
+Description: Several tests related to Apache2 web application packages
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: phpmyfoo2
+Architecture: all
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
+ apache2 | httpd
+Description: Several tests related to Apache2 web application packages - ignore me
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Ignore me.
+
+Package: phpmyfoo3
+Architecture: all
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
+ apache2 | lighttpd | httpd
+Description: Several tests related to Apache2 web application packages - another ignore me
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Yet another ignore me.
+
+

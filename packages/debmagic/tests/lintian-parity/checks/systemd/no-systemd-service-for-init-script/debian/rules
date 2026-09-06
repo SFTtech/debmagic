@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_installinit:
+	dh_installinit
+	dh_installinit --name=other
+
+# In Ubuntu, dh does not catch this file by default.
+#  They have diffed it to reduce the size of packages.
+ifneq (,$(strip $(wildcard Changes)))
+override_dh_installchangelogs:
+	dh_installchangelogs Changes
+endif

@@ -1,0 +1,37 @@
+#!/usr/bin/make -f
+
+tmp := $(CURDIR)/debian/$(shell dh_listpackages)
+
+%:
+	dh $@
+
+override_dh_installman:
+	dh_installman
+
+	install -d $(tmp)/usr/share/man/man1 \
+		$(tmp)/usr/share/man/man6
+
+	touch $(tmp)/usr/share/man/man1/usr-sbin-binary.1.gz
+
+	pod2man --section 6 pod/simple.pod > \
+		$(tmp)/usr/share/man/man6/simple.pod
+
+	pod2man --section 6 pod/simple.pod > \
+		$(tmp)/usr/share/man/man6/_build_buildd-openchangex_1.0-3-i386-mbKpOA_openchange-1.0_simple.6
+
+override_dh_link:
+	dh_link
+
+	ln -s undocumented.7.gz $(tmp)/usr/share/man/man1/sbin-binary.1.gz
+
+	cd $(tmp)/usr/share/man/man1 \
+	    && ln usr-sbin-binary.1.gz usr-bin-binary-alt.1.gz
+
+override_dh_compress:
+	dh_compress \
+		--exclude=usr-bin-binary.1 \
+		--exclude=binary-without-english-manpage.1 \
+		--exclude=usr-games-binary.6 \
+		--exclude=usr-sbin-binary.1.gz
+
+	gzip -n -1 $(tmp)/usr/share/man/man6/usr-games-binary.6

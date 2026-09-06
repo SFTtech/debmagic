@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+# Ignore the "mime" file as we do not really depend on dh-exec and we
+# do not really need the files listed there for the test.
+override_dh_installmime:
+
+
+override_dh_installman:
+
+override_dh_install:
+
+override_dh_installdirs:
+override_dh_link:

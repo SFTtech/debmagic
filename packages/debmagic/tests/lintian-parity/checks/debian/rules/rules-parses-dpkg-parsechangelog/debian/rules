@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+DATE = $(shell dpkg-parsechangelog -SDate)
+SOURCE = $(shell dpkg-parsechangelog -SSource)
+SOURCE2 = $(shell dpkg-parsechangelog | grep ^Source | cut -d" " -f2)
+VERSION = $(shell dpkg-parsechangelog -SVersion)
+VERSION2 = $(shell dpkg-parsechangelog | sed -ne 's,^Version: *\(.*\)$$,\1,p')
+TIMESTAMP = $(shell dpkg-parsechangelog -STimestamp)
+
+%:
+	dh $@

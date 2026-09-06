@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+GOOD = debian/$(shell dh_listpackages)/usr/include/python3.7m
+BAD = debian/$(shell dh_listpackages)/usr/include/python3.7
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	mkdir -p $(GOOD) $(BAD)
+	touch $(GOOD)/good.h $(BAD)/bad.h

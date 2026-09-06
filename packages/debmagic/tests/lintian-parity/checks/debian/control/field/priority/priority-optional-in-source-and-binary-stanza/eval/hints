@@ -1,0 +1,2 @@
+priority-optional-in-source-and-binary-stanza (source): redundant-priority-optional-field [debian/control:2]
+priority-optional-in-source-and-binary-stanza (source): redundant-priority-optional-field [debian/control:23]

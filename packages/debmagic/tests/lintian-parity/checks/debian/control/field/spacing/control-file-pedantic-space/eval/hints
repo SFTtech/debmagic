@@ -1,0 +1,3 @@
+control-file-pedantic-space (source): debian-control-has-unusual-field-spacing Source [debian/control:1]
+control-file-pedantic-space (source): debian-control-has-unusual-field-spacing Section [debian/control:3]
+control-file-pedantic-space (source): debian-control-has-unusual-field-spacing Priority [debian/control:2]

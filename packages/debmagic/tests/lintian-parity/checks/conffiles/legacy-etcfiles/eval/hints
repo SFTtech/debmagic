@@ -1,0 +1,3 @@
+etcfiles (binary): non-etc-file-marked-as-conffile var/lib/foo [conffiles:2]
+etcfiles (binary): file-in-etc-not-marked-as-conffile [etc/improper]
+etcfiles (binary): file-in-etc-not-marked-as-conffile [etc/improper-link]

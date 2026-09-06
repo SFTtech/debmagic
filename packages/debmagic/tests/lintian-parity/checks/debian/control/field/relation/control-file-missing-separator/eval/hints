@@ -1,0 +1,2 @@
+control-file-missing-separator (source): missing-separator-between-items (in section for control-file-missing-separator) 'p1' and 'p2' [debian/control:22]
+control-file-missing-separator (source): missing-separator-between-items (in section for control-file-missing-separator) 'foo (>= 1)' and 'baz (<< 2)' [debian/control:19]

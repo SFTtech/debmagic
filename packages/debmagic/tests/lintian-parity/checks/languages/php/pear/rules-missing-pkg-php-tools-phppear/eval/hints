@@ -1,0 +1,1 @@
+rules-missing-pkg-php-tools-phppear (source): pear-package-without-pkg-php-tools-builddep

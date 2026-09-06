@@ -1,0 +1,2 @@
+files-general (binary): stray-folder-in-manual [usr/share/man/man1/random/]
+files-general (binary): executable-manual-page [usr/share/man/man5/foo.5.gz]

@@ -1,0 +1,2 @@
+libbaz (source): binaries-have-file-conflict libbaz1 libbaz2-dev usr/lib/libbaz2.a
+libbaz (source): binaries-have-file-conflict libbaz1 libbaz1-dev usr/lib/ma-dir/perl/version/auto/Foo/Foo.so

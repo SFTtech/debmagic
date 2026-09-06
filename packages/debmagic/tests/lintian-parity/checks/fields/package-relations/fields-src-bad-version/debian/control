@@ -1,0 +1,14 @@
+Source: fields-src-bad-version
+Section: devel
+Priority: optional
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Build-Depends: debhelper-compat (= 14), g++ (>= s4.0)
+Standards-Version: 4.7.4.1
+
+Package: fields-src-bad-version
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for d/control with syntax errors
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

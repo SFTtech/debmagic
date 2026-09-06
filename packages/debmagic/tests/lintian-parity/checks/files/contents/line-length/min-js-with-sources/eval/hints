@@ -1,0 +1,3 @@
+min-js-with-sources (source): very-long-line-length-in-source-file 3586 > 512 [ugly/missing-source.min.js:1]
+min-js-with-sources (source): very-long-line-length-in-source-file 3586 > 512 [ugly/fullpath.min.js:1]
+min-js-with-sources (source): very-long-line-length-in-source-file 3586 > 512 [ugly/basename.min.js:1]

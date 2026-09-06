@@ -1,0 +1,5 @@
+libbaz1 (binary): lacks-versioned-link-to-shared-library usr/lib/libbaz3.so.1 [usr/lib/libbaz3.so.1.0.3b]
+libbaz1 (binary): lacks-versioned-link-to-shared-library usr/lib/libbaz2.so.1.0 [usr/lib/libfoo2.so.1.0.3b]
+libbaz1 (binary): lacks-unversioned-link-to-shared-library example: usr/lib/libbaz3.so [usr/lib/libbaz3.so.1.0.3b]
+libbaz1 (binary): lacks-unversioned-link-to-shared-library example: usr/lib/libbaz2.so [usr/lib/libfoo2.so.1.0.3b]
+libbaz1 (binary): lacks-unversioned-link-to-shared-library example: usr/lib/libbaz.so [usr/lib/libbaz.so]

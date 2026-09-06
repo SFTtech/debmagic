@@ -1,0 +1,7 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+execute_after_dh_auto_build:
+	echo "dummy content" > text-file.a

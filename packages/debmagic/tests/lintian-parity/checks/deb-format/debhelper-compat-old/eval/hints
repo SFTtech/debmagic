@@ -1,0 +1,2 @@
+debhelper-compat-old (binary): data-tarball-compression-format gz
+debhelper-compat-old (binary): control-tarball-compression-format gz

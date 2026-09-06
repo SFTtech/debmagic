@@ -1,0 +1,2 @@
+libbaz1 (binary): zero-byte-file-in-doc-directory [usr/share/doc/README.Debian]
+libbaz1 (binary): file-directly-in-usr-share-doc [usr/share/doc/README.Debian]

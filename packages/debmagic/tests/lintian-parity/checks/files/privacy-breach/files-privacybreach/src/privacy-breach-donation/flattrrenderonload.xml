@@ -1,0 +1,7 @@
+<script type="text/javascript">
+/* <![CDATA[ */
+    FlattrLoader.addLoadEvent(function() {
+          alert('Hello world!');
+    });
+/* ]]> */
+</script>

@@ -1,0 +1,6 @@
+scripts-maintainer-general (binary): possibly-insecure-handling-of-tmp-files-in-maintainer-script /var/tmp [postinst:28]
+scripts-maintainer-general (binary): possibly-insecure-handling-of-tmp-files-in-maintainer-script /var/tmp [postinst:19]
+scripts-maintainer-general (binary): possibly-insecure-handling-of-tmp-files-in-maintainer-script /tmp [postinst:27]
+scripts-maintainer-general (binary): possibly-insecure-handling-of-tmp-files-in-maintainer-script /tmp [postinst:26]
+scripts-maintainer-general (binary): possibly-insecure-handling-of-tmp-files-in-maintainer-script /tmp [postinst:20]
+scripts-maintainer-general (binary): possibly-insecure-handling-of-tmp-files-in-maintainer-script /tmp [postinst:18]

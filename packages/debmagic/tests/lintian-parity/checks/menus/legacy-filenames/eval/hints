@@ -1,0 +1,4 @@
+filenames (binary): postinst-does-not-call-updatemenus [usr/share/menu/menu]
+filenames (binary): menu-file-in-usr-lib [usr/lib/menu/menu]
+filenames (binary): bad-menu-file-name [usr/share/menu/menu]
+filenames (binary): bad-menu-file-name [usr/lib/menu/menu]

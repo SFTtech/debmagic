@@ -1,0 +1,23 @@
+Source: menus-doc-base-registration
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), debhelper (>= 13.4)
+Rules-Requires-Root: no
+
+Package: menus-doc-base-registration-pdf
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test some doc-base registration related tags -- pdf doc
+ This is a test package with fake pdf documentation designed to exercise
+ some feature or tag of Lintian.  It is part of the Lintian test suite and
+ may do very odd things.  It should not be installed like a regular package.
+
+Package: menus-doc-base-registration-html
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test some doc-base registration related tags -- html doc
+ This is a test package with fake html documentation designed to exercise
+ some feature or tag of Lintian.  It is part of the Lintian test suite and
+ may do very odd things.  It should not be installed like a regular package.

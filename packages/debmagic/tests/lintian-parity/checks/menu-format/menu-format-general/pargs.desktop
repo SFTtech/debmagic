@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=pargs
+Type=Application
+Comment=Argument Printer
+Categories=Development;
+Keywords=Argument;Printer;
+Icon=foo
+Exec=pargs-section

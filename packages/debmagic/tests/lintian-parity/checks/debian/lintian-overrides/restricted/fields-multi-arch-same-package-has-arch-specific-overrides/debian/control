@@ -1,0 +1,28 @@
+Source: fields-multi-arch-same-package-has-arch-specific-overrides
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 13)
+Rules-Requires-Root: no
+
+Package: fields-multi-arch-same-package-has-arch-specific-overrides
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}
+Description: Test for Multi-Arch: same package with arch-specific overrides
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: fields-multi-arch-same-package-has-arch-specific-overrides-nonrel
+Architecture: any
+Depends: ${misc:Depends}
+Description: Test for Multi-Arch: same package with arch-specific overrides (false positive)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This is a false-positive.

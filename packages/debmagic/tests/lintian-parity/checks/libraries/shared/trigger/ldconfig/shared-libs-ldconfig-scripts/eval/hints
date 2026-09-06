@@ -1,0 +1,2 @@
+libfoo1 (binary): lacks-ldconfig-trigger usr/lib/libfoo.so.1.0.1
+app (binary): package-has-unnecessary-activation-of-ldconfig-trigger

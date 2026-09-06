@@ -1,0 +1,7 @@
+version=3
+
+http://gitorious.org/foo/foo/file-(.*)\.tar\.gz
+
+# False positives:
+#
+# http://code.google.com/p/wps-bully/

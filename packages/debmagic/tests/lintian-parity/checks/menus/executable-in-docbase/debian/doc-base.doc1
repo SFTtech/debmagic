@@ -1,0 +1,8 @@
+Document: doc1.txt
+Title: Document 1
+Author: Lintian maintainers
+Abstract: Document 1
+Section: Programming/Something
+
+Format: text
+Files: /usr/share/doc/executable-in-docbase/doc1.txt

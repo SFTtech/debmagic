@@ -1,0 +1,102 @@
+#!/usr/bin/make -f
+
+tmp=debian/tmp
+
+build-arch:
+	echo "Hi, in an arch: all package, I am a bug!"
+
+build-indep:
+
+build: build-arch build-indep
+
+binary-arch:
+	echo "Hi, in an arch: all package, I am a bug!"
+
+binary-indep:
+	install -d $(tmp)/usr/bin/
+	install -d $(tmp)/etc/X11/Xsession.d/
+	install -d $(tmp)/etc/init.d/
+	install -d $(tmp)/etc/csh/login.d/
+	install -d $(tmp)/etc/fish.d/
+	install -d $(tmp)/usr/share/scripts/
+	install -d $(tmp)/usr/share/doc/scripts/
+	install -d $(tmp)/usr/lib/cgi-bin
+	install -d $(tmp)/DEBIAN
+
+	install -m 755 csh-foo $(tmp)/etc/csh/login.d/ 
+	install -m 755 envfoo $(tmp)/usr/bin/
+	install -m 755 fish-foo $(tmp)/etc/fish.d/
+	install -m 755 jruby-broken $(tmp)/usr/bin/
+	install -m 755 perlfoo $(tmp)/usr/bin/
+	install -m 755 rubyfoo $(tmp)/usr/bin/
+# This doesn't use "env" but should also trigger script-in-usr-share-doc
+	install -m 755 rubyfoo $(tmp)/usr/share/doc/scripts/
+	install -m 755 make-foo $(tmp)/usr/bin/
+	install -m 755 lefty-foo $(tmp)/usr/bin/
+	install -m 4751 perlfoo $(tmp)/usr/bin/suidperlfoo2
+	install -m 755 sh-broken $(tmp)/usr/bin/
+	install -m 4555 suidperlfoo $(tmp)/usr/bin/
+	install -m 755 tkfoo $(tmp)/usr/bin/
+	install -m 755 wishfoo $(tmp)/usr/bin/
+	install -m 644 xsession-test $(tmp)/etc/X11/Xsession.d/
+
+# Permissions here aren't part of what's being tested, but let us exercise
+# some other errors.
+	install -m 755 perl-bizarre-1 $(tmp)/usr/bin/
+	install -m 750 perl-bizarre-2 $(tmp)/usr/bin/
+	install -m 754 perl-bizarre-3 $(tmp)/usr/bin/
+	install -m 705 guile-bizarre $(tmp)/usr/bin/
+
+# First one should produce a warning; second one shouldn't.
+
+	install -m 644 init-skeleton $(tmp)/etc/init.d/skeleton
+	install -m 755 init-no-lsb $(tmp)/etc/init.d/no-lsb
+	install -m 755 init-lsb-broken $(tmp)/etc/init.d/lsb-broken
+	install -m 755 init-lsb-other $(tmp)/etc/init.d/lsb-other
+
+	install -m 755 phpfoo $(tmp)/usr/share/scripts/
+	sed 's/php$$/php7.0/' phpfoo > $(tmp)/usr/share/scripts/php7.0foo
+	chmod 755 $(tmp)/usr/share/scripts/php7.0foo
+
+	install -m 755 phpenvfoo $(tmp)/usr/share/scripts/
+	sed 's/php$$/php7.0/' phpenvfoo > $(tmp)/usr/share/scripts/php7.0envfoo
+	chmod 755 $(tmp)/usr/share/scripts/php7.0envfoo
+
+	echo "#!/usr/bin/perl" >> $(tmp)/usr/share/scripts/foobar.in
+	chmod 644 $(tmp)/usr/share/scripts/foobar.in
+
+	touch $(tmp)/usr/share/scripts/mono.exe
+	chmod 755 $(tmp)/usr/share/scripts/mono.exe
+
+	echo "#!/bin/sh" > $(tmp)/usr/share/scripts/foo\$$bar
+	chmod 755 $(tmp)/usr/share/scripts/foo\$$bar
+
+	echo "#!/bin/sh" > $(tmp)/usr/lib/cgi-bin/cgi-script
+	chmod 755 $(tmp)/usr/lib/cgi-bin/cgi-script
+
+	echo "#!/bin/sh" > $(tmp)/usr/bin/test.sh
+	chmod 755 $(tmp)/usr/bin/test.sh
+
+
+	dh_testroot # dummy to test missing debhelper dependency
+
+
+	install -m 644 debian/changelog $(tmp)/usr/share/doc/scripts/changelog.Debian
+	gzip -n -9 $(tmp)/usr/share/doc/scripts/changelog.Debian
+	install -m 644 debian/copyright $(tmp)/usr/share/doc/scripts/copyright
+
+	install -m 644 debian/scripts.conffiles $(tmp)/DEBIAN/conffiles
+	install -m 755 debian/preinst $(tmp)/DEBIAN/preinst
+	install -m 755 debian/postinst $(tmp)/DEBIAN/postinst
+	install -m 755 debian/postrm $(tmp)/DEBIAN/postrm
+	touch $(tmp)/DEBIAN/prerm
+	chmod 755 $(tmp)/DEBIAN/prerm
+	dpkg-gencontrol -isp
+	dpkg-deb --root-owner-group --build $(tmp) ..
+
+binary: binary-arch binary-indep
+
+clean:
+	rm -rf debian/files $(tmp) debian/substvars
+
+.PHONY: build-arch build-indep build binary-arch binary-indep binary clean

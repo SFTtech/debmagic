@@ -1,0 +1,6 @@
+distribution-multiple-bad (changes): multiple-distributions-in-changes-file stable foo-backportss bar foo
+distribution-multiple-bad (changes): bad-distribution-in-changes-file foo-backportss
+distribution-multiple-bad (changes): bad-distribution-in-changes-file foo
+distribution-multiple-bad (changes): bad-distribution-in-changes-file bar
+distribution-multiple-bad (changes): backports-upload-has-incorrect-version-number 1.0 foo-backportss
+distribution-multiple-bad (changes): backports-changes-missing

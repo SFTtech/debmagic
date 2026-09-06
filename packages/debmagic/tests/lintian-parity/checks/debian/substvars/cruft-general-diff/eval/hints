@@ -1,0 +1,2 @@
+cruft-general-diff (source): source-contains-debian-substvars [debian/substvars]
+cruft-general-diff (source): source-contains-debian-substvars [debian/somepackage.substvars]

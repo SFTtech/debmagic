@@ -1,0 +1,3 @@
+triggers-general (binary): uses-implicit-await-trigger interest [triggers:8]
+triggers-general (binary): unknown-trigger random-trigger [triggers:11]
+triggers-general (binary): repeated-trigger-name /usr/share/lintian/foo2 (lines 14 15) [triggers]

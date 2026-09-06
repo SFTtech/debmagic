@@ -1,0 +1,3 @@
+relations (source): bad-homepage lintian.debian.org
+relations-multiple-libs (binary): bad-homepage lintian.debian.org
+relations (binary): bad-homepage lintian.debian.org

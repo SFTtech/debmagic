@@ -1,0 +1,6 @@
+Re-create a file.
+
+--- /dev/null
++++ debian/recreated-file
+@@ -0,0 +1 @@
++This file was created via a patch system and should be ignored.

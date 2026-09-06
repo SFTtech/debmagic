@@ -1,0 +1,3 @@
+filenames (binary): windows-thumbnail-database-in-package [usr/share/doc/filenames/Thumbs.db]
+filenames (binary): macos-resource-fork-file-in-package [usr/share/doc/filenames/._NEWS.Debian]
+filenames (binary): macos-ds-store-file-in-package [usr/share/doc/filenames/.DS_Store]

@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+if [ -x "`which install-docs 2>/dev/null`" ] ; then
+    install-docs -r test-doc
+fi
+
+#DEBHELPER#

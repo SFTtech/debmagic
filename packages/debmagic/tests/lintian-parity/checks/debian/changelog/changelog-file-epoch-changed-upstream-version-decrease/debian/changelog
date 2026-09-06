@@ -1,0 +1,12 @@
+changelog-file-epoch-changed-upstream-version-decrease (2:1.0) unstable; urgency=low
+
+  * This changelog entry bumps the epoch and the upstream version number
+    decreased (correctly).
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-epoch-changed-upstream-version-decrease (1:9999999) unstable; urgency=low
+
+  * Initial upload.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Fri, 06 Feb 2009 22:22:37 -0800

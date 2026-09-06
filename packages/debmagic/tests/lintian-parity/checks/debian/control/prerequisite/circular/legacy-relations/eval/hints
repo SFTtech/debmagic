@@ -1,0 +1,2 @@
+relations (source): circular-installation-prerequisite (in section for relations-multiple-libs) Recommends ${shlibs:Depends}, relations-multiple-libs, gs | gs-gpl, makedev [debian/control:40]
+relations (source): circular-installation-prerequisite (in section for relations) Depends relations (<< 3), dpkg, bash (>> 2.0 ), mail-transport-agent, gawk | awk, foo (>> 2.0), foo (<< 2.2), coreutils, null (>= 0), ${misc:Depends}, makedev [debian/control:20]

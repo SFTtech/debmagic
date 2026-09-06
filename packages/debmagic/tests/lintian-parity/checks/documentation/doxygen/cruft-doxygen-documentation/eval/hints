@@ -1,0 +1,4 @@
+cruft-doxygen-documentation (source): source-contains-prebuilt-doxygen-documentation [src/doc/latex/]
+cruft-doxygen-documentation (source): source-contains-prebuilt-doxygen-documentation [src/doc/html/index.html]
+cruft-doxygen-documentation (source): source-contains-prebuilt-doxygen-documentation [src/doc/html/files.html]
+cruft-doxygen-documentation (source): source-contains-prebuilt-doxygen-documentation [src/doc/html/]

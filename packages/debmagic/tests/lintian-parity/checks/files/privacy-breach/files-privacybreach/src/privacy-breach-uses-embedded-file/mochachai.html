@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="utf-8">
+        <title>Mocha/Chai Basic Tests</title>
+    </head>
+
+    <body>
+        <div id="mocha"></div>
+
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.css" />
+        <script src="//cdnjs.cloudflare.com/ajax/libs/chai/1.10.0/chai.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.js"></script>
+        <script>
+            mocha.setup('bdd');
+            mocha.traceIgnores = ['mocha.min.js', 'chai.min.js'];
+            expect = chai.expect;
+        </script>
+        <script>
+            mocha.run();
+        </script>
+    </body>
+</html>

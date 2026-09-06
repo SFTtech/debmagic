@@ -1,0 +1,2 @@
+[type: gettext/rfc822deb] debconf-test.templates
+[type: gettext/rfc822deb] debconf-udeb.templates

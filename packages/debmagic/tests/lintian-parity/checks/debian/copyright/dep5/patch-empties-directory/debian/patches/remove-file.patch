@@ -1,0 +1,10 @@
+Description: Remove the sole file in a directory
+ Should not trigger wildcard-matches-nothing-in-dep5-copyright.
+ For more information, please see Bug#844274.
+Author: Felix Lechner <felix.lechner@lease-up.com>
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/will-be-empty/removed-by-patch
++++ /dev/null
+@@ -1 +0,0 @@
+-SOME CONTENT

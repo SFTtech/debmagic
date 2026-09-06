@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+udevadm positive
+
+if which udevadm >/dev/null 2>&1
+then
+	udevadm false-positive
+fi
+
+exit 0

@@ -1,0 +1,42 @@
+Source: binary
+Section: misc
+Priority: optional
+Maintainer: Lintian Maintainers <lintian-maint@debian.org>
+Uploaders: Co-maintainer one <one@debian.org>, Jeroen van Wolffelaar <jeroen@wolffelaar.nl>, Co-maintainer three <three@debian.org>
+Standards-Version: 3.2.1
+Homepage: http://lintian.debian.org/
+Vcs-Svn: http://svn.wolffelaar.nl/lintian/trunk
+XS-Vcs-Browser: http://svn.wolffelaar.nl/lintian/trunk
+XS-Dm-Upload-Allowed: yes
+
+Package: binary
+Architecture: any
+Pre-Depends: ${shlibs:Depends}, xorg, binary-data (= ${source:Version}), libssl0.9.8
+Homepage: <http://lintian.debian.org/>
+Vcs-Svn: http://svn.wolffelaar.nl/lintian/trunk
+Description: test handling of binary files
+ Regression test for lintian's handling of binary files for debian.  This
+ is checked for picky spelling errors.
+ .
+ This package list [ subversion | gconf ] should not be flagged as a spelling
+ mistake.  The spelling correction for dont should be correct.
+ .
+  Homepage: http://lintian.debian.org/
+
+Package: binary-data
+Architecture: all
+Depends: binary (= ${source:Version}), libssl-not-openssl,
+ libssl0.9.8 | or-something-else
+Description: test handling of binary relationships
+ Regression test for lintian's checking of package relationships between
+ arch:any and arch:all packages.
+ .
+ This mention of subversion should be flagged as a spelling mistake.
+
+#Package: binary-comment
+#Architecture: space-almonds
+#Depends: *
+#Depends: *
+#Description: test comment support
+# Yes, comments are actually allowed in debian/control, so none of the
+# above should produce errors.

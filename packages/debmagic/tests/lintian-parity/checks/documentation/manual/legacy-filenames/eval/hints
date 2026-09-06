@@ -1,0 +1,5 @@
+more-filename-games (binary): no-manual-page [usr/games/yet-another-test-game]
+more-filename-games (binary): no-manual-page [usr/bin/another-test-game]
+filenames (binary): no-manual-page [usr/bin/mh/read]
+filenames (binary): no-manual-page [usr/bin/X11/testxbin]
+filename-games (binary): no-manual-page [usr/bin/test-game]

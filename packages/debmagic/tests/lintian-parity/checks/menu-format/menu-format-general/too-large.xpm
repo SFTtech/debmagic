@@ -1,0 +1,10 @@
+/* XPM */
+
+/*
+   This is a fake XPM file - it has just enough to fool Lintian into
+   believing this is a 256x256 image...
+ */
+
+ "256 256 10 10"
+
+ /* Lintian is not too bright... :P */

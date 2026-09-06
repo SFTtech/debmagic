@@ -1,0 +1,3 @@
+libexecstack.so.1 libexecstack1 #MINVER#
+ foo@Base 1.0
+ get@Base 1.0

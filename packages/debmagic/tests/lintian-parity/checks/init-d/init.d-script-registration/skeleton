@@ -1,0 +1,2 @@
+The skeleton file looks like an init script, but we don't want to check it
+like an init script.

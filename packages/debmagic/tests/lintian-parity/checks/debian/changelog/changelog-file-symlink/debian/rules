@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+
+override_dh_md5sums:
+	DIR=$$(find debian/*/ -type f -a -name 'changelog.gz' \
+		-exec dirname {} \; ) ; \
+	  rm -f $$DIR/changelog.gz ; \
+	  ln -s ../lintian/changelog.gz $$DIR/changelog.gz
+	dh_md5sums

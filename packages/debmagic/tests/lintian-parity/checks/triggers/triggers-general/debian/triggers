@@ -1,0 +1,15 @@
+# -noawait: not an issue
+interest-noawait /usr/share/lintian/foo
+# explicit -await: Presumed informed decision (no tag)
+interest-await /usr/share/lintian/bar
+
+
+# implicit -await: Should trigger a tag
+interest /usr/share/lintian/baz
+
+# Not known by lintian
+random-trigger /bar
+
+# Repated trigger
+interest-await /usr/share/lintian/foo2
+interest-noawait /usr/share/lintian/foo2

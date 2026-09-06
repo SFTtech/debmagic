@@ -1,0 +1,34 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+# Test for calling debhelper commands out of order.  We take advantage here
+# of the fact checks/rules doesn't care what target the commands are called
+# from by using several uncalled targets.
+
+reverse:
+	dh_builddeb
+	dh_gencontrol
+	dh_installdeb
+	dh_shlibdeps
+	dh_makeshlibs
+
+shared-order:
+	dh_shlibdeps
+	dh_makeshlibs
+	dh_installdeb
+	dh_gencontrol
+	dh_builddeb
+
+multiple-package:
+	dh_makeshlibs -pfoo
+	dh_shlibdeps -pfoo
+	dh_installdeb -pfoo
+	dh_gencontrol -pfoo
+	dh_builddeb -pfoo
+
+	dh_makeshlibs -pbar
+	dh_gencontrol -pbar
+	dh_installdeb -pbar
+	dh_shlibdeps -pbar
+	dh_builddeb -pbar

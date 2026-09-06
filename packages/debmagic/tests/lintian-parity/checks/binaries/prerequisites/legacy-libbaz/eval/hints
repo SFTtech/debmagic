@@ -1,0 +1,6 @@
+libbaz1-dev (binary): missing-dependency-on-libc needed by usr/lib/ma-dir/perl/version/auto/Foo/Foo.so
+libbaz1 (binary): undeclared-elf-prerequisites (libc.so.6) [usr/lib/ma-dir/perl/version/auto/Foo/Foo.so]
+libbaz1 (binary): undeclared-elf-prerequisites (libc.so.6) [usr/lib/libfoo2.so.1.0.3b]
+libbaz1 (binary): undeclared-elf-prerequisites (libc.so.6) [usr/lib/libbaz3.so.1.0.3b]
+libbaz1 (binary): undeclared-elf-prerequisites (libc.so.6) [usr/lib/libbaz1.so.1.0.3b]
+libbaz1 (binary): undeclared-elf-prerequisites (libc.so.6) [usr/lib/libbaz.so]

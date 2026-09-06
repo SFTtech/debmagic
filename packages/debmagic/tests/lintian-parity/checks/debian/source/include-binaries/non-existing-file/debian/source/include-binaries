@@ -1,0 +1,3 @@
+# the format should tolerate this comment
+# and whitespace around the filename
+  debian/icon.png

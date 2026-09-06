@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+PKG:=files-hardlinks
+DIR:=$(CURDIR)/debian/$(PKG)/usr/share/$(PKG)
+
+%:
+	dh $@
+
+override_dh_install:
+	dh_install
+	mkdir -p $(DIR)/1st $(DIR)/2nd $(DIR)/3rd $(DIR)/4th
+	echo "Hallo world" > $(DIR)/3rd/orig
+	ln $(DIR)/3rd/orig $(DIR)/4th/link1
+	ln $(DIR)/4th/link1 $(DIR)/1st/link2
+	ln $(DIR)/3rd/orig $(DIR)/2nd/link3

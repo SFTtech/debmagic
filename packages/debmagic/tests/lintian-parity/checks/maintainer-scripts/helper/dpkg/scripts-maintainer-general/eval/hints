@@ -1,0 +1,2 @@
+scripts-maintainer-general (binary): missing-call-to-dpkg-maintscript-helper symlink_to_dir [preinst]
+scripts-maintainer-general (binary): missing-call-to-dpkg-maintscript-helper symlink_to_dir [postrm]

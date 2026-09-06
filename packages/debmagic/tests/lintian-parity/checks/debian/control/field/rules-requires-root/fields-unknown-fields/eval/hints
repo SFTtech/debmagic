@@ -1,0 +1,3 @@
+fields-unknown-fields (source): spelling-error-in-rules-requires-root Rules-Require-Root [debian/control:7]
+fields-unknown-fields (source): rules-do-not-require-root [debian/control:8]
+fields-unknown-fields (source): redundant-rules-requires-root-no-field [debian/control:8]

@@ -1,0 +1,2 @@
+libbaz (source): weak-library-dev-dependency (in section for libbaz2-dev) Depends libbaz2 (= ${source:Version}) [debian/control:40]
+libbaz (source): weak-library-dev-dependency (in section for libbaz1-dev) Depends libbaz1 (= ${source:Version}) [debian/control:20]

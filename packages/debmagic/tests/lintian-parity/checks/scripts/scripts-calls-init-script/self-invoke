@@ -1,0 +1,30 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          self-invoke
+# Required-Start:    
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Test init script
+# Description:       Test init script.
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+    :
+    ;;
+  stop)
+    :
+    ;;
+  restart)
+    /etc/init.d/self-invoke start
+    ;;
+  status)
+    :
+    ;;
+  force-reload)
+    :
+    ;;
+esac

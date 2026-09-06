@@ -1,0 +1,2 @@
+salsaci-invalid-yaml (source): continuous-integration/salsa/specification [debian/salsa-ci.yml]
+salsaci-invalid-yaml (source): continuous-integration/salsa/invalid-yaml [debian/salsa-ci.yml]

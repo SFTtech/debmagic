@@ -1,0 +1,4 @@
+generic-empty (source): debian-rules-missing-required-target build-indep [debian/rules]
+generic-empty (source): debian-rules-missing-required-target build-arch [debian/rules]
+generic-empty (source): debian-rules-missing-required-target binary-indep [debian/rules]
+generic-empty (source): debian-rules-missing-required-target binary-arch [debian/rules]

@@ -1,0 +1,14 @@
+fields-malformed-vcs-fields (source): vcs-uri Svn svn+ssh://svn.debian.org/svn/foobar/trunk
+fields-malformed-vcs-fields (source): vcs-uri Git https://anonscm.debian.org/test/test.git --branch wrong
+fields-malformed-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Svn svn+ssh://svn.debian.org/svn/foobar/trunk
+fields-malformed-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Git https://anonscm.debian.org/test/test.git --branch wrong
+fields-malformed-vcs-fields (source): vcs-fields-use-more-than-one-vcs git svn
+fields-malformed-vcs-fields (source): vcs-field-uses-unknown-uri-format Browser svn.debian.org/wsvn/foobar/trunk
+fields-malformed-vcs-fields (source): vcs-field-uses-not-recommended-uri-format Svn svn+ssh://svn.debian.org/svn/foobar/trunk
+fields-malformed-vcs-fields (source): vcs-field-has-unexpected-spaces Git https://anonscm.debian.org/test/test.git --branch wrong
+fields-malformed-vcs-fields (source): vcs svn
+fields-malformed-vcs-fields (source): vcs git
+fields-malformed-vcs-fields (source): package-is-maintained-by-individual
+fields-malformed-vcs-fields (changes): package-is-maintained-by-individual
+fields-malformed-vcs-fields (buildinfo): package-is-maintained-by-individual
+fields-malformed-vcs-fields (binary): package-is-maintained-by-individual

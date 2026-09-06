@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=foo
+Comment=This entry has no Application
+Categories=Development;
+Exec=foo

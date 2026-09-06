@@ -1,0 +1,16 @@
+%!PS-AdobeFont-1.0: Untitled1 001.000
+%%Title: bad
+%Version: 001.000
+%%CreationDate: Mon Dec 10 21:21:58 2012
+%%Creator: nthykier,,,
+%Copyright: Created by nthykier,,, hand-crafted
+%%EndComments
+
+/RD{string currentfile exch readstring pop}executeonly def
+
+% The statements below are here to trick Lintian...
+% Copyright (c) 1987-1990 Adobe Systems Incorporated.
+% All Rights Reserved.
+
+2 index /CharStrings 2 dict dup begin
+

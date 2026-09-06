@@ -1,0 +1,10 @@
+Template: po-debconf-general/test
+Type: string
+_Default: foo
+Description: This is a string question used for testing:
+
+Template: po-debconf-general/test-2
+Type: string
+Default: bar
+_Description: This is a second string question:
+ This one ensures no 100% translation of the template.

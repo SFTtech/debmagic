@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+dpkg-maintscript-helper symlink_to_dir /path/name /old/target 1.0-1 scripts-missing-call-to-dpkg-maintscript-helper
+
+exit 0

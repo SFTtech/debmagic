@@ -1,0 +1,18 @@
+Source: typelib-not-missing-gir-depends
+Section: introspection
+Priority: optional
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: gir1.2-not-missing-gir-depends-2.2
+Architecture: all
+Description: Missing binary dependencies on ${gir:Depends} not a problem with dh 14
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package should not be tagged by Lintian,
+ because :Depends substvars are automatically added to Depends.

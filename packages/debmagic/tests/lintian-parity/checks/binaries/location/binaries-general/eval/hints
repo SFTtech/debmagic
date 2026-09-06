@@ -1,0 +1,2 @@
+binaries-general (binary): arch-dependent-file-in-usr-share [usr/share/foo/basicdebug]
+binaries-general (binary): arch-dependent-file-in-usr-share [usr/share/foo/basic]

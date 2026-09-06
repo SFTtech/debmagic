@@ -1,0 +1,2 @@
+more-filename-games (binary): package-section-games-but-has-usr-bin
+filename-games (binary): package-section-games-but-contains-no-game

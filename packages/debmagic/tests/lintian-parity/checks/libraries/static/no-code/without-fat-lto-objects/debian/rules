@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = optimize=-lto
+
+%:
+	dh $@
+
+override_dh_strip:
+	# Don't strip :)

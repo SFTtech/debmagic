@@ -1,0 +1,15 @@
+Description: "Bug:" field should be URL.
+Origin: vendor
+Forwarded: Yes
+Bug: forgot_it
+
+--- a/foobar.h
++++ b/foobar.h
+@@ -20,6 +20,6 @@
+ 
+ 
+ /**
+- * You may know.
++ * You may know...
+  */
+ 

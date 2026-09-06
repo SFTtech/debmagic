@@ -1,0 +1,1 @@
+binaries-general (binary): ocaml-custom-executable [usr/lib/foo/ocaml-exec]

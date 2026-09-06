@@ -1,0 +1,5 @@
+This file contains the phrase "under the same terms as Perl itself" to
+trigger warnings about not having common-licenses references.
+
+This file contains the phrase "public domain" which should suppress
+warnings about no copyright date.

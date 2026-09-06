@@ -1,0 +1,31 @@
+Source: fields-section-general
+Priority: optional
+Section: contrib/devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: fields-section-general
+Architecture: all
+Section: contrib/dveel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for general section/area issues (typo)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package has a typo in its section fields.
+
+Package: fields-section-general-main
+Architecture: all
+Section: devel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for general section/area issues (main)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package can go to main.

@@ -1,0 +1,1 @@
+a-file usr/lib/$(DEB_BUILD_MULTIARCH)/

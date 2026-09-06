@@ -1,0 +1,27 @@
+fields-vcs-fields (source): vcs-uri Svn svn://anonscm.debian.org/foobar/trunk
+fields-vcs-fields (source): vcs-uri Mtn www.example.org org.debian.foobar
+fields-vcs-fields (source): vcs-uri Hg https://anonscm.debian.org/hg/foobar/pkg/foobar -b master
+fields-vcs-fields (source): vcs-uri Git https://anonscm.debian.org/users/djpig/foobar.git -b master
+fields-vcs-fields (source): vcs-uri Cvs :pserver:anonymous@anonscm.debian.org:/cvs/foobar module
+fields-vcs-fields (source): vcs-uri Bzr nosmart+http://anonscm.debian.org/bzr/collab-maint/foobar
+fields-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Svn svn://anonscm.debian.org/foobar/trunk
+fields-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Hg https://anonscm.debian.org/hg/foobar/pkg/foobar -b master
+fields-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Git https://anonscm.debian.org/users/djpig/foobar.git -b master
+fields-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Bzr nosmart+http://anonscm.debian.org/bzr/collab-maint/foobar
+fields-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Browser https://anonscm.debian.org/viewvc/foobar/trunk?rev=0&sc=0
+fields-vcs-fields (source): vcs-fields-use-more-than-one-vcs bzr cvs git hg mtn svn
+fields-vcs-fields (source): vcs-field-uses-not-recommended-uri-format Mtn www.example.org org.debian.foobar
+fields-vcs-fields (source): vcs-field-uses-insecure-uri Svn svn://anonscm.debian.org/foobar/trunk
+fields-vcs-fields (source): vcs-field-uses-insecure-uri Cvs :pserver:anonymous@anonscm.debian.org:/cvs/foobar module
+fields-vcs-fields (source): vcs-field-uses-insecure-uri Bzr nosmart+http://anonscm.debian.org/bzr/collab-maint/foobar
+fields-vcs-fields (source): vcs-browser-links-to-empty-view https://anonscm.debian.org/viewvc/foobar/trunk?rev=0&sc=0
+fields-vcs-fields (source): vcs svn
+fields-vcs-fields (source): vcs mtn
+fields-vcs-fields (source): vcs hg
+fields-vcs-fields (source): vcs git
+fields-vcs-fields (source): vcs cvs
+fields-vcs-fields (source): vcs bzr
+fields-vcs-fields (source): package-is-maintained-by-individual
+fields-vcs-fields (changes): package-is-maintained-by-individual
+fields-vcs-fields (buildinfo): package-is-maintained-by-individual
+fields-vcs-fields (binary): package-is-maintained-by-individual

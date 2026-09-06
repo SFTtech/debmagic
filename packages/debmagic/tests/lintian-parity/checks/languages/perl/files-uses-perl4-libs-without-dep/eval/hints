@@ -1,0 +1,1 @@
+files-uses-perl4-libs-without-dep (binary): perl-module-uses-perl4-libs-without-dep assert.pl [usr/share/perl5/Naughty.pm:5]

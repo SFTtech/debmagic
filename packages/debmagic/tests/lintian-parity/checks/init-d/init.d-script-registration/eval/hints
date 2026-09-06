@@ -1,0 +1,3 @@
+init.d-script-registration (binary): script-in-etc-init.d-not-registered-via-update-rc.d [etc/init.d/foo.in]
+init.d-script-registration (binary): script-in-etc-init.d-not-registered-via-update-rc.d [etc/init.d/bar]
+init.d-script-registration (binary): init.d-script-missing-lsb-section [etc/init.d/foo.in]

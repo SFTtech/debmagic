@@ -1,0 +1,7 @@
+#!/bin/sh
+eval 'exec /usr/bin/perl -wS $0 ${1+"$@"}'
+    if $running_under_some_shell;
+
+# I'm someone following perlrun except without using the Perl #! line.
+# Now something to choke bash.
+while (<>) { if (/%#/) { print } }

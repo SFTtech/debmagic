@@ -1,0 +1,21 @@
+This duplicate duplicate word should not trigger. (re. #897402)
+
+This is part of the testsuite of lintian. See the file debian/copyright
+in the lintian source directory for more details.
+
+Insofar as this is copyrightable, it is:
+
+    Copyright 2010 Russ Allbery <rra@debian.org>
+
+This text should not generate a spelling error for "ment":
+
+ computer  software  documentation,"  as such  terms  are  used in
+ 48 C.F.R. 12.212 (SEPT 1995)  and is provided to the U.S. Govern-
+ ment only as  a commercial end item.   Consistent with  48 C.F.R.
+ 12.212 and  48 C.F.R. 227.7202-1 through  227.7202-4 (JUNE 1995),
+
+But deafult is still a spelling error.
+
+This text should not generate a spelling error for the duplicate "a" (re. #844166)
+
+ following Attribution Information: (a) a copyright notice including the name

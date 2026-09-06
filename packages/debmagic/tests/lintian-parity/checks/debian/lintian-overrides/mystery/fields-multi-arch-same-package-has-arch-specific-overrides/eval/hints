@@ -1,0 +1,2 @@
+fields-multi-arch-same-package-has-arch-specific-overrides-nonrel (binary): alien-tag foo [usr/share/lintian/overrides/fields-multi-arch-same-package-has-arch-specific-overrides-nonrel:1]
+fields-multi-arch-same-package-has-arch-specific-overrides (binary): alien-tag foo [usr/share/lintian/overrides/fields-multi-arch-same-package-has-arch-specific-overrides:1]

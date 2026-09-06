@@ -1,0 +1,1 @@
+/usr/lib/$(DEB_BUILD_MULTIARCH)/target /usr/lib/$(DEB_BUILD_MULTIARCH)/not-working

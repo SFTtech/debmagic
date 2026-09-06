@@ -62,4 +62,5 @@ serialized result itself.
 
 ```{toctree}
 
+import-lintian-rule.md
 ```

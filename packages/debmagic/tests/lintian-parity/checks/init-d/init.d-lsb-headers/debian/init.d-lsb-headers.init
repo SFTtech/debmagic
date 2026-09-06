@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -e
+
+### BEGIN INIT INFO
+# Provides:          nothing $bad_facility
+# Required-Start: mountall networking sysklogd
+# Should-Start: portmap
+# Required-Stop: mountnfs
+# Default-Start: 0 6 X
+# Default-Stop: S Y 0 6
+# Short-Description: Do nothing at all
+# Short-Description: Do nothing at all
+# Description: The short description pretty much covers it.
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+case "$1" in
+    start|stop|force-reload|restart|status|*)
+	echo hello world!
+    ;;
+esac

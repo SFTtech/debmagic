@@ -1,0 +1,14 @@
+Source: package-uses-debputy-build-driver
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: dh-debputy
+Build-Driver: debputy
+
+Package: package-uses-debputy-build-driver
+Architecture: all
+Description: Test for packages using debputy as Build-Driver
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

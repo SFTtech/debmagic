@@ -1,0 +1,2 @@
+scripts-calls-init-script (binary): maintainer-script-interpreter /bin/sh [postrm]
+scripts-calls-init-script (binary): maintainer-script-interpreter /bin/sh [postinst]

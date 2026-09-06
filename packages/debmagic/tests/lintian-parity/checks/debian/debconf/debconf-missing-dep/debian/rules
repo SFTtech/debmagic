@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_gencontrol:
+	sed -i '/^misc:Depends=/ d' debian/*substvars
+	dh_gencontrol

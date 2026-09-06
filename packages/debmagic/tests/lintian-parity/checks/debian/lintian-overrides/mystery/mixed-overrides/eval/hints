@@ -1,0 +1,2 @@
+mixed-overrides (binary): renamed-tag package-install-apt-sources => package-installs-apt-sources [usr/share/lintian/overrides/mixed-overrides:18]
+mixed-overrides (binary): renamed-tag manpage-has-bad-whatis-entry => bad-whatis-entry [usr/share/lintian/overrides/mixed-overrides:6]

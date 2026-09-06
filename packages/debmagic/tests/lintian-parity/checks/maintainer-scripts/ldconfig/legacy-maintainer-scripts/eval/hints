@@ -1,0 +1,1 @@
+maintainer-scripts (binary): maintscript-calls-ldconfig [postrm]

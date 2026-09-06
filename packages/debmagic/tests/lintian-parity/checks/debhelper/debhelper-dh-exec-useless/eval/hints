@@ -1,0 +1,6 @@
+debhelper-dh-exec-useless (source): package-uses-old-debhelper-compat-version 12
+debhelper-dh-exec-useless (source): package-uses-dh-exec-but-lacks-build-depends [debian/rules]
+debhelper-dh-exec-useless (source): dh-exec-useless-usage [debian/install]
+debhelper-dh-exec-useless (source): debian-build-system dh [debian/rules]
+debhelper-dh-exec-useless (source): debhelper-compat-virtual-relation 12 [debian/control]
+debhelper-dh-exec-useless (source): debhelper-compat-level 12

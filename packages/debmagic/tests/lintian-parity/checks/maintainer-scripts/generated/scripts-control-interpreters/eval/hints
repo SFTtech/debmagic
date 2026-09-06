@@ -1,0 +1,1 @@
+scripts-control-interpreters-forbidden (binary): debhelper-autoscript-in-maintainer-scripts dh_installdebconf/TOOL-VERSION

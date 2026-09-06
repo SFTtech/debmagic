@@ -1,0 +1,25 @@
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="0001", \
+    MODE="0666"
+
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="0002", \
+    MODE="0660", GROUP="plugdev"
+
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="0003", \
+    TAG+="uaccess"
+
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="0004", \
+    MODE="0660", GROUP="plugdev", TAG+="uaccess"
+
+ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="0005", \
+    MODE="0660", GROUP="plugdev", TAG+="uaccess"
+
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="000a", \
+    ID_TEST_DEVICE="1"
+
+SUBSYSTEM!="usb", GOTO="target"
+ENV{DEVTYPE}!="usb_device", GOTO="target"
+ATTR{idVendor}=="0000", ATTR{idProduct}=="0000", RUN+="missing-subsystem-false-positive"
+LABEL="target"
+
+# Ensure we trigger this one after a GOTO
+ATTR{idVendor}=="0000", ATTR{idProduct}=="0000", RUN+="missing-subsystem"

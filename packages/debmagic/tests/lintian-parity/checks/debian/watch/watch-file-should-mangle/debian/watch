@@ -1,0 +1,11 @@
+# watch file with no version mangling, even though there's a dfsg in the
+# package version number.
+
+version=2
+https://www.example.com/dist/ dh7-test\.([\d.]+)\.tar\.gz debian uupdate
+
+# version mangling is not needed in this case:
+https://www.example.com/dist/ dh7-test\.([\d.]+)\.tar\.gz 0.24 uupdate
+
+# version mangling *is* needed in this case:
+https://www.example.com/dist/ dh7-test\.([\d.]+)\.tar\.gz

@@ -1,0 +1,1 @@
+AC_PATH_PROG(PKGCONFIG, pkg-config, no, $PATH:/usr/bin:/usr/local/bin)

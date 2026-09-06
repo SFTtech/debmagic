@@ -1,0 +1,2 @@
+copyright-in-western-encoding (source): national-encoding [debian/copyright-iso-8859-1.copyright]
+copyright-iso-8859-1 (binary): national-encoding [usr/share/doc/copyright-iso-8859-1/copyright]

@@ -1,0 +1,4 @@
+debhelper-compat-virtual-relation-both (source): package-uses-old-debhelper-compat-version 10
+debhelper-compat-virtual-relation-both (source): debian-build-system dh [debian/rules]
+debhelper-compat-virtual-relation-both (source): debhelper-compat-virtual-relation 10 [debian/control]
+debhelper-compat-virtual-relation-both (source): debhelper-compat-level 10

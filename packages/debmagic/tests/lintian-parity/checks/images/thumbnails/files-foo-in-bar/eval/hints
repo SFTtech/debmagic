@@ -1,0 +1,2 @@
+files-foo-in-bar (binary): package-contains-xvpics-dir [usr/share/doc/files-foo-in-bar/.xvpics/]
+files-foo-in-bar (binary): package-contains-thumbnails-dir [usr/share/doc/files-foo-in-bar/.thumbnails/]

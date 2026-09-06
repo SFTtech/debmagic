@@ -1,0 +1,8 @@
+fields-uncanonical-salsa-vcs-fields (source): vcs-uri Git https://salsa.debian.org/foo/bar.git.git.git.git
+fields-uncanonical-salsa-vcs-fields (source): vcs-field-not-canonical Git https://salsa.debian.org/foo/bar.git.git.git.git https://salsa.debian.org/foo/bar.git
+fields-uncanonical-salsa-vcs-fields (source): vcs-field-not-canonical Browser https://salsa.debian.org/foo/bar.git https://salsa.debian.org/foo/bar
+fields-uncanonical-salsa-vcs-fields (source): vcs git
+fields-uncanonical-salsa-vcs-fields (source): package-is-maintained-by-individual
+fields-uncanonical-salsa-vcs-fields (changes): package-is-maintained-by-individual
+fields-uncanonical-salsa-vcs-fields (buildinfo): package-is-maintained-by-individual
+fields-uncanonical-salsa-vcs-fields (binary): package-is-maintained-by-individual

@@ -1,0 +1,8 @@
+debconf-test-preinst (binary): old-fsf-address-in-copyright-file
+debconf-test-preinst (binary): copyright-contains-dh_make-todo-boilerplate
+debconf-test-postinst (binary): old-fsf-address-in-copyright-file
+debconf-test-postinst (binary): copyright-contains-dh_make-todo-boilerplate
+debconf-test-noscripts (binary): old-fsf-address-in-copyright-file
+debconf-test-noscripts (binary): copyright-contains-dh_make-todo-boilerplate
+debconf-test (binary): old-fsf-address-in-copyright-file
+debconf-test (binary): copyright-contains-dh_make-todo-boilerplate

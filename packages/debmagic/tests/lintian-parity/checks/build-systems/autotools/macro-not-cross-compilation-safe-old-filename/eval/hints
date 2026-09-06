@@ -1,0 +1,2 @@
+macro-not-cross-compilation-safe-old-filename (source): autotools-pkg-config-macro-not-cross-compilation-safe AC_PATH_PROG [src/configure.in:1]
+macro-not-cross-compilation-safe-old-filename (source): autotools-pkg-config-macro-not-cross-compilation-safe AC_PATH_PROG [configure.in:3]

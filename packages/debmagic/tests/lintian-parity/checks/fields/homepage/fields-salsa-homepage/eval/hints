@@ -1,0 +1,2 @@
+fields-salsa-homepage (source): homepage-salsa-url-ends-with-dot-git https://salsa.debian.org/foo/bar.git
+fields-salsa-homepage (binary): homepage-salsa-url-ends-with-dot-git https://salsa.debian.org/foo/bar.git

@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_fixperms:
+	dh_fixperms
+	chmod -x debian/init.d-script-registration/etc/init.d/README
+	chmod -x debian/init.d-script-registration/etc/init.d/skeleton

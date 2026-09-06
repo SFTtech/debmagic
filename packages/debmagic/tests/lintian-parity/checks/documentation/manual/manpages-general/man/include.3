@@ -1,0 +1,30 @@
+.TH INCLUDE 3
+.SH NAME
+include \- include another chunk of a man page
+.SH INCLUDED BIT
+.nr zY 1
+.so man3/included.3
+.SH HYPHENS
+This isn't a hyphen\*(--just a long dash\*(--and \h'-1' also isn't, nor
+should we warn about `\-' or \-a, but -a
+and `-' (nope, that's fine) are bad news.  So is
+--foo and
+(--bar)
+"--baz"
+and '--foo'.
+So is \f[C]--foo\f[P].
+.\" Draft Mode example from sinfo man page from slurm-llnl.  Draft mode
+.\" disables the normal operation of the backslash character, so we can't
+.\" tell users to use \- inside draft mode.  These hyphens should
+.\" therefore not warn.
+.eo
+.nf
+> sinfo
+PARTITION AVAIL TIMELIMIT NODES STATE  NODELIST
+batch     up     infinite     2 alloc  adev[8-9]
+batch     up     infinite     6 idle   adev[10-15]
+debug*    up        30:00     8 idle   adev[0-7]
+.fi
+.ec
+.SH SEE ALSO
+included(3)

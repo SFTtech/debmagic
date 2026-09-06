@@ -1,0 +1,7 @@
+#!/usr/bin/make -f
+
+DEB_CFLAGS_APPEND:= -Wl,--as-needed
+
+%:
+	dh $@
+

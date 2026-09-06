@@ -1,0 +1,26 @@
+Source: control-has-empty-field
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Uploaders:
+ Wrapped Onto New Line <test@example.com>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: binary-targets
+Homepage: https://lintian.debian.org/
+Vcs-Browser:
+# The following line contains "Vcs-Git: \n"
+Vcs-Git: 
+
+Package: control-has-empty-field
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests:
+# The following line contains "Provides: \n"
+Provides: 
+Recommends: ${false:Positive}
+Description: Check for empty fields
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

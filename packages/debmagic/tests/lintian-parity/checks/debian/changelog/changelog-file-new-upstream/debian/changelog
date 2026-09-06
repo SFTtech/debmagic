@@ -1,0 +1,14 @@
+changelog-file-new-upstream (1.0-2) unstable; urgency=low
+
+  * New upstream bugfix release.
+  * Lintian Test Suite.
+  * Test: changelog-file-new-upstream
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-new-upstream (1.0-1) unstable; urgency=low
+
+  * Old changelog entry to trigger the tag.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Sat, 20 Mar 2010 16:09:18 -0700
+

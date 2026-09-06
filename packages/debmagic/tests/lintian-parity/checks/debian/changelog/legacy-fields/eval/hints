@@ -1,0 +1,2 @@
+fields (binary): debian-changelog-file-missing-or-wrong-name
+another-version (binary): no-changelog usr/share/doc/another-version/changelog.Debian.gz (non-native package)

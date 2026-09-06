@@ -1,0 +1,2 @@
+Test-Command: /bin/true
+Depends: @

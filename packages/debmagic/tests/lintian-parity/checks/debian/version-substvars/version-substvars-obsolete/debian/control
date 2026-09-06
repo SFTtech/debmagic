@@ -1,0 +1,57 @@
+Source: version-substvars-obsolete
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), dpkg (<< 1.17.2)
+Rules-Requires-Root: no
+
+Package: program-bin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         program-data (= ${binary:Version}),
+         program-data-extra (= ${source:Version})
+Description: Test of substvars
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+
+Package: program-data
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         foreign-pkg:any (= ${Source-Version})
+Replaces: other-foreign-pkg:any (<< ${binary:Version})
+Description: Test of substvars - data
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Data package.
+
+Package: program-utils
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         program-bin:any (= ${source:Version}),
+         program-data (>= ${binary:Version})
+Description: Test of substvars - extra utils
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Extra utils.
+
+Package: program-data-extra
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         program-bin:any (= ${binary:Version}),
+Description: Test of substvars - extra data
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Extra-Data package.

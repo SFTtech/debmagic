@@ -1,0 +1,18 @@
+#!/bin/sh
+
+update-rc.d foo remove
+update-rc.d bar defaults
+
+# Obsolete dpkg assertions.
+dpkg --assert-support-predepends || exit 1
+dpkg --assert-working-epoch || exit 1
+dpkg --assert-long-filenames || exit 1
+dpkg --assert-multi-conrep || exit 1
+
+/bin/grep -E --mmap "^Package: foo$" /var/lib/dpkg/status
+
+# continuation lines
+update-alternatives --install /usr/bin/fakeroot fakeroot \
+    /usr/bin/fakeroot-ng 5 \
+    --slave /usr/share/man/man1/fakeroot.1.gz \
+    fakeroot.1.gz /usr/share/man/man1/fakeroot-ng.1.gz

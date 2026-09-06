@@ -1,0 +1,21 @@
+# taken from https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=905747#5
+# but split up for each of the two conditions
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Files:     *
+Copyright: (C) 2018 Niels Thykier
+License:   License1
+
+Files:     debian/patches/*
+Copyright: (C) 2019 Niels Thykier
+License:   License1
+
+Files:     debian/*
+Copyright: (C) 2018 Niels Thykier
+License:   License2
+
+License: License1
+ Please call the author for this license.
+
+License: License2
+ Please call the author for this license.

@@ -1,0 +1,24 @@
+Source: fields-unknown-fields
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Require-Root: no
+Rules-Requires-Root: no
+XS-Comment: This is random comment ending up in the dsc file.
+Autobuild: no
+Go-Import-Path: github.com/example/example
+Ruby-Versions: ${ruby:Versions}
+Python-Version: 2.7
+Python3-Version: 3.7
+
+Package: fields-unknown-fields
+Architecture: all
+Depends: ${misc:Depends},
+Description: General tests for unknown fields
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+

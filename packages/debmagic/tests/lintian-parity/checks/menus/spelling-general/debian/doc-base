@@ -1,0 +1,9 @@
+Document: spelling-general
+Title: Check for debian doc-base spelling errors
+Author: Russ Allbery
+Abstract: This control file exercises, picky, speling error checks for
+ Debian doc-base files, such as meta-package.
+Section: Programming
+
+Format: text
+Files: /usr/share/doc/spelling-general/copyright

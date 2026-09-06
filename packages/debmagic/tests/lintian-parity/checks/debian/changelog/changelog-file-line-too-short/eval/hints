@@ -1,0 +1,3 @@
+changelog-file-line-too-short (binary): debian-changelog-line-too-short dh 11 [usr/share/doc/changelog-file-line-too-short/changelog.Debian.gz:7]
+changelog-file-line-too-short (binary): debian-changelog-line-too-short R³ [usr/share/doc/changelog-file-line-too-short/changelog.Debian.gz:6]
+changelog-file-line-too-short (binary): debian-changelog-line-too-short 12345 [usr/share/doc/changelog-file-line-too-short/changelog.Debian.gz:8]

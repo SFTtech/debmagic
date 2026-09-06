@@ -1,0 +1,4 @@
+qa-group-fp (source): mail-contact Maintainer "Debian QA Group" <packages@qa.debian.org>
+qa-group-fp (changes): mail-contact Maintainer "Debian QA Group" <packages@qa.debian.org>
+qa-group-fp (changes): mail-contact Changed-By "Debian QA Group" <packages@qa.debian.org>
+qa-group-fp (binary): mail-contact Maintainer "Debian QA Group" <packages@qa.debian.org>

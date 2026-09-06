@@ -1,0 +1,67 @@
+#!/usr/bin/make -f
+
+tmp := $(CURDIR)/debian/$(shell dh_listpackages)
+
+%:
+	dh $@
+
+override_dh_install:
+	dh_install
+	echo "#fake conf file" > $(tmp)/etc/pam.conf
+	# true positives
+	touch $(tmp)/etc/skel/.lintianrc
+	# false positives
+	touch $(tmp)/etc/skel/.bashrc
+	touch $(tmp)/etc/skel/.bash_logout
+	touch $(tmp)/etc/skel/.profile
+	touch $(tmp)/etc/skel/.kshrc
+	touch $(tmp)/etc/skel/.mkshrc
+	echo "Back-up file" > $(tmp)/usr/share/foo/file~
+	# The name of the "binary" is "Tori no Uta"
+	# If it is ever messed up, it can be restored by
+	# using something like:
+	#  perl -pe 's/\@FILE\@/\xe9\xb3\xa5\xe3\x81\xae\xe8\xa9\xa9\x0a/'
+	echo "#!/bin/sh" > $(tmp)/usr/bin/鳥の詩
+	chmod +x $(tmp)/usr/bin/鳥の詩
+	# Copy the manpage to its correct name so dh_installman can
+	# find it.
+	# - d/clean will remove it again
+	cp -a tnu.1 鳥の詩.1
+	touch $(tmp)/usr/doc/FSSTND
+	touch $(tmp)/usr/share/foo/'*'
+	touch $(tmp)/usr/share/foo/'ws '
+	touch $(tmp)/usr/share/fonts/X11/misc/fonts.dir
+	touch $(tmp)/usr/share/fonts/X11/misc/fonts.scale
+	touch $(tmp)/usr/share/fonts/X11/misc/fonts.alias
+	touch $(tmp)/usr/share/fonts/X11/misc/encodings.dir
+	touch $(tmp)/usr/share/fonts/X11/misc/false-positive
+	touch $(tmp)/usr/share/foo/.nfs-fake-tmpfile
+	touch $(tmp)/usr/share/foo/foo.doctree
+	touch $(tmp)/usr/share/foo/gschemas.compiled
+	touch $(tmp)/usr/share/glib-2.0/schemas/gschemas.compiled
+	touch $(tmp)/usr/share/hal/foo.fdi
+	touch $(tmp)/usr/lib/python3/dist-packages/test_foo.py
+	touch $(tmp)/usr/lib/python3/dist-packages/foo/test_falsepositive.py
+	# If the following line gets messed up, it can be
+	# restored with something like:
+	#   sed -i 's/@FILE@/bokm\xe5l/'
+	touch $(tmp)/usr/share/foo/bokm�l
+	touch $(tmp)/var/catman/do
+
+override_dh_fixperms:
+	dh_fixperms
+	chmod 644 $(tmp)/etc/sudoers.d/*
+
+override_dh_compress:
+	dh_compress
+	# create a .png and .png.gz
+	gzip -n -1 $(tmp)/usr/share/doc/lintian/lintian-16x16.png
+	zcat $(tmp)/usr/share/doc/lintian/lintian-16x16.png.gz > \
+		$(tmp)/usr/share/doc/lintian/lintian-16x16.png
+	chmod 755 $(tmp)/usr/share/man/man5/foo.5*
+
+override_dh_link:
+	dh_link
+	mkdir -p $(tmp)/usr/share/doc/bar
+	echo "Hallo World" > $(tmp)/usr/share/doc/bar/foo
+	ln -s ../bar/foo $(tmp)/usr/share/doc/bar/star

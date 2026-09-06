@@ -1,0 +1,2 @@
+libfoo-1 (binary): symbols-file-missing-build-depends-package-field libfoo-1.so [symbols]
+libfoo-1 (binary): symbols-file-missing-build-depends-package-field libbar-1.so [symbols]

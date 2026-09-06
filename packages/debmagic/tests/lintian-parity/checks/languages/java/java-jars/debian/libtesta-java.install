@@ -1,0 +1,4 @@
+0.jar usr/share/java/
+0.jar usr/share/private-jars/
+testb.jar usr/lib/
+testc.jar usr/bin

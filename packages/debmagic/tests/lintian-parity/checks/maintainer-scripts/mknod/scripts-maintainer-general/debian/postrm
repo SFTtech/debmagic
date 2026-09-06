@@ -1,0 +1,9 @@
+#!/bin/sh
+# we do not set -e
+
+echo "ok" > /dev/null
+
+# not allowed
+update-alternatives --remove foo
+
+#DEBHELPER#

@@ -1,0 +1,2 @@
+libbaz (source): source-nmu-has-incorrect-version-number 1-1 [debian/changelog:1]
+libbaz (source): no-nmu-in-changelog [debian/changelog:1]

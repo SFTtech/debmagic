@@ -1,0 +1,17 @@
+Source: pkg-js-tools-test-is-missing
+Priority: optional
+Section: libs
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), pkg-js-tools (>= 0.9.6~), nodejs (>= 8.11.1), dh-sequence-nodejs
+Rules-Requires-Root: no
+
+Package: pkg-js-tools-test-is-missing
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Test if debian/tests/pkg-js/test exists
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

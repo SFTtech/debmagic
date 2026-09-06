@@ -1,0 +1,35 @@
+Source: declared-as-empty
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: declared-as-empty
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Empty binary package so declared (false positive)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This is an empty package. The declaration as such should bypass related
+ complaints from Lintian. You can use this package to detect false
+ positives.
+
+Package: declared-as-empty-udeb
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Package-Type: udeb
+Section: debian-installer
+Description: Empty binary package so declared (false positive) (udeb)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This is an empty package. The declaration as such should bypass related
+ complaints from Lintian. You can use this package to detect false
+ positives.
+ .
+ This is the udeb variant of declared-as-empty

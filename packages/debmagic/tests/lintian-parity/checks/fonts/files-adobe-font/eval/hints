@@ -1,0 +1,4 @@
+fonts-files-adobe-font (binary): font-outside-font-dir [usr/share/lintian/fonts/good.pfb]
+fonts-files-adobe-font (binary): font-outside-font-dir [usr/share/lintian/fonts/badwithadobecode.pfb]
+fonts-files-adobe-font (binary): font-outside-font-dir [usr/share/lintian/fonts/badnocredit.pfb]
+fonts-files-adobe-font (binary): font-outside-font-dir [usr/share/lintian/fonts/bad.pfb]

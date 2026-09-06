@@ -1,0 +1,4 @@
+files-ieee-data (binary): package-installs-ieee-data [usr/share/files-ieee-data/oui.txt.gz]
+files-ieee-data (binary): package-installs-ieee-data [usr/share/files-ieee-data/oui.idx]
+files-ieee-data (binary): package-installs-ieee-data [usr/share/files-ieee-data/oui.db]
+files-ieee-data (binary): package-installs-ieee-data [usr/share/files-ieee-data/iab.idx]

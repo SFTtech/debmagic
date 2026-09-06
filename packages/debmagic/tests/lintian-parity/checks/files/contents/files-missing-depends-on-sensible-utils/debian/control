@@ -1,0 +1,51 @@
+Source: files-missing-depends-on-sensible-utils
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: files-missing-depends-on-sensible-utils
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check missing dep on sensible-utils
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: files-missing-depends-on-sensible-utils-has-depends
+Architecture: all
+Depends: ${misc:Depends}, sensible-utils
+Description: Check missing dep on sensible-utils (with dependency)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package has a dependency on sensible-utils.
+
+Package: files-missing-depends-on-sensible-utils-has-recommends
+Architecture: all
+Depends: ${misc:Depends}
+Recommends: sensible-utils
+Description: Check missing dep on sensible-utils (with Recommends dependency)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package has a Recommends dependency on sensible-utils.
+
+Package: files-missing-depends-on-sensible-utils-has-suggests
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: sensible-utils
+Description: Check missing dep on sensible-utils (with Suggests dependency)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package has a Suggests dependency on sensible-utils.

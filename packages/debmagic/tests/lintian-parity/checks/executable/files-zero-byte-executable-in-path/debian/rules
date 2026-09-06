@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+DIR := debian/$(shell dh_listpackages)/usr/bin
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	mkdir -p $(DIR)
+	touch $(DIR)/empty-executable

@@ -1,0 +1,4 @@
+debhelper-dh-python-helpers (source): python3-depends-but-no-python3-helper python3-cheshire
+debhelper-dh-python-helpers (source): debian-build-system dh [debian/rules]
+debhelper-dh-python-helpers (source): debhelper-compat-virtual-relation 14 [debian/control]
+debhelper-dh-python-helpers (source): debhelper-compat-level 14

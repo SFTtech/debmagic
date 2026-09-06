@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+USD:=usr/share/doc
+%:
+	dh $@
+
+
+override_dh_md5sums:
+	rm -fr debian/symlink-to-foreign/$(USD)/symlink-to-foreign
+	ln -sf foreign-package \
+		debian/symlink-to-foreign/$(USD)/symlink-to-foreign
+	rm -fr debian/symlink-without-depends/$(USD)/symlink-without-depends
+	ln -sf foreign-package \
+		debian/symlink-without-depends/$(USD)/symlink-without-depends
+	# Move all of it to usr/lib/<package>/
+	mkdir -p debian/symlink-outside-usd/usr/lib/
+	mv debian/symlink-outside-usd/$(USD)/symlink-outside-usd \
+		debian/symlink-outside-usd/usr/lib/symlink-outside-usd/
+	# with symlink of course :)
+	ln -s ../../lib/symlink-outside-usd/copyright \
+		debian/symlink-outside-usd/$(USD)/symlink-outside-usd
+	dh_md5sums

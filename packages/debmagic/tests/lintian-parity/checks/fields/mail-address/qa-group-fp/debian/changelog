@@ -1,0 +1,17 @@
+qa-group-fp (1.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: qa-group-fp
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian QA Group <packages@qa.debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+qa-group-fp (0.0.1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: qa-group-fp
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian QA Group <packages@qa.debian.org>  Mon, 01 Jan 1990 00:00:00 +0100

@@ -1,0 +1,15 @@
+Source: debconf-config-not-executable
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), dpkg (<< 1.19.0)
+
+Package: debconf-config-not-executable
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for debian/config not being executable
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

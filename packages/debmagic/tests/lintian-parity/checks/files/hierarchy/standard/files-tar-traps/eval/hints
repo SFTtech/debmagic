@@ -1,0 +1,8 @@
+files-tar-traps (binary): non-standard-toplevel-dir [strangename/]
+files-tar-traps (binary): file-in-unusual-dir [strangename/strangename/some-file]
+files-tar-traps (binary): file-in-unusual-dir [strangename/strangename/link-to-weird-file1]
+files-tar-traps (binary): file-in-unusual-dir [strangename/strangename/a\\b]
+files-tar-traps (binary): file-in-unusual-dir [strangename/strangename/\]
+files-tar-traps (binary): file-in-unusual-dir [strangename/strangename/\\]
+files-tar-traps (binary): file-in-unusual-dir [strangename/strangename/\.\./\.\./\.\.]
+files-tar-traps (binary): file-in-unusual-dir [strangename/strangename/'\ ]

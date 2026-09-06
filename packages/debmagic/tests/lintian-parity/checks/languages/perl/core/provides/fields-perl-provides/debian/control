@@ -1,0 +1,27 @@
+Source: fields-perl-provides
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: libtest-simple-perl
+Section: perl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for packages provided by perl
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libversion-perl
+Section: perl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: another Test for packages provided by perl
+ This is another test package, designed to exercise epoch handling
+ in the 'package-superseded-by-perl' check. It is part of the Lintian
+ test suite and may do very odd things.  It should not be installed like
+ a regular package.  It may be an empty package.

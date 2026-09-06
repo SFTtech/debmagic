@@ -1,0 +1,5 @@
+{.txt usr/share/debhelper
+{good}.txt usr/share/debhelper
+{}.txt usr/share/debhelper
+{foo} usr/share/debhelper
+{foo}.txt usr/share/debhelper

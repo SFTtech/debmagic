@@ -1,0 +1,12 @@
+dlname='_python_module.so'
+library_names='_python_module.so'
+old_library=''
+dependency_libs=''
+current=0
+age=0
+revision=0
+installed=yes
+shouldnotlink=no
+dlopen=''
+dlpreopen=''
+libdir='/usr/lib/python2.5/site-packages'

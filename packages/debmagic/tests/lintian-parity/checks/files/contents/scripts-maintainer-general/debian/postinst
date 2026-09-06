@@ -1,0 +1,255 @@
+#!/bin/sh
+
+# This file contains a pile of random junk in maintainer scripts that we
+# should be checking for in checks/scripts.  Don't put bashisms in this file,
+# though; those should go into scripts-bashisms.
+
+set -e
+
+print "Hit enter to continue"
+read foo
+
+echo Please use update-rc.d or invoke-rc.d to set up blah blah.
+
+chown root.root /usr/share/doc/maintainer-scripts/changelog
+chown root:root /usr/share/doc/maintainer-scripts/changelog
+
+# valid
+FOO=/tmp
+FOO=/var/tmp
+: ${FOO:=/tmp}
+FOO=`mktemp /tmp/scripts.XXXXXX`
+rm "$FOO"
+FOO=`tempfile -n/tmp/scripts.tmp`
+mkdir /var/tmp/scripts
+# invalid
+echo foo >>/tmp/scripts.tmp
+rm /tmp/scripts.tmp
+rmdir /var/tmp/scripts
+
+# invalid, maintainer-script-hides-init-failure
+invoke-rc.d foo start || exit 0
+
+# The right way to invoke an rc script
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d package start
+else
+    /etc/init.d/package start
+fi
+
+# Example ucf invocation.
+ucf /usr/share/foo/configuration /etc/foo.conf
+
+# Calling gconftool directly.
+gconftool-2 --makefile-install-rule foo.schema
+
+# Calling gconf-schemas with no dependency.
+gconf-schemas --register foo.schema
+
+# Calling update-xmlcatalog with no dependency.
+update-xmlcatalog --add --type system --id "/usr/share/sgml/dtd/foo" \
+    --package maintainer-scripts --root
+
+# Maintainer scripts shouldn't touch /var/lib/dpkg/status.  This is the old
+# recipe from the dpkg wiki that should be replaced with dpkg-query.
+sed -n -e \"/^Conffiles:/,/^[^ ]/{\\\\' /etc/conffile'{s/.* //;p}}\" \
+    /var/lib/dpkg/status
+
+# Don't modify these files.
+echo 'broken    6714/tcp' >> /etc/services
+cp /nonexistent /etc/protocols
+mv /usr/share/doc/rpc /etc/rpc
+
+# But this is okay.
+cp /etc/protocols /etc/protocols.new
+
+# This is also wrong.
+echo 'broken' > /etc/inetd.conf
+cp /etc/inetd.conf.new /etc/inetd.conf
+
+# But this is fine.
+cp /etc/inetd.conf /srv/chroot/etc/inetd.conf
+
+# Deprecated and not allowed except the second one.
+install-sgmlcatalog --install package
+install-sgmlcatalog --remove package
+
+# Calling start-stop-daemon directly in an init script.
+start-stop-daemon --start --quiet --name foo --startas /usr/bin/foo
+
+# But stopping it is fine -- we may be working around something else.
+start-stop-daemon --stop --quiet --name foo --startas /usr/bin/foo
+
+# Deprecated chown use with flags.
+chown -R root.root /usr/share/doc/maintainer-scripts
+
+# The first should not trigger an error about a command with a path, but the
+# second should.
+case $mainscript in
+        /usr/bin/foo) foobarbaz;;
+esac
+/usr/bin/baz; echo bar
+
+# fc-cache shouldn't be called directly, but make sure we don't see it in a
+# heredoc.
+fc-cache
+cat <<EOF
+fc-cache
+EOF
+
+# Obsolete suidregister program.
+suidregister /usr/bin/foo
+
+# install-info is now handled through triggers.
+install-info --quiet --section Development Development \
+    /usr/share/info/foobar.info
+
+# Packages don't get to modify /etc/ld.so.conf
+echo '/usr/local/lib' >> /etc/ld.so.conf
+( cat /etc/ld.so.conf ; echo '/usr/local/lib' ) > /etc/ld.so.conf.new
+mv /etc/ld.so.conf.new /etc/ld.so.conf
+
+# Further tests for commands with paths in maintainer scripts.  The following
+# should not trigger a tag (Bug#536397).
+chmod `dpkg-statoverride --list /usr/sbin/apache2 | cut -f 3` /usr/sbin/apache2
+
+# These, however, should.
+true `basename "$0"` `/usr/bin/foo bar`
+true `/usr/bin/foo "$0"`
+
+# This line should not trigger a warning about no dependency on ucf because of
+# the || true.  (Bug#541372)
+ucf -p /etc/sensors3.conf || true
+
+if false ; then
+    mknod some thing
+fi
+
+# Calling update alternative --set see #643602
+update-alternatives --set editor /usr/bin/nano
+
+# false positive
+start-stop-daemon--stop --quiet --name foo --startas /usr/bin/foo
+
+# false positive
+start-stop-daemon --quiet --stop --name foo --startas /usr/bin/foo
+
+# false negative 
+start-stop-daemon --quiet --start --name foo --startas /usr/bin/foo
+
+# remove device file
+rm /dev/null
+
+# false positive
+rm /dev/shm/test
+rm /dev/.hiddenfile
+
+# adduser system
+adduser --system foo
+adduser --system foo2 --home /home/foo2
+adduser --system bar --home /var/lib/bar
+adduser --home /var/lib/fnord --system fnord
+adduser --home /home/fnord2 --system fnord2
+
+# other test case for gconftool
+/usr/bin/gconftool-2 --makefile-install-rule foo.schema
+
+# service
+service apache2 start
+
+# adduser through variable
+DEVNULL=/dev/null
+adduser --system bar1 --home $DEVNULL
+adduser --system bar2 --home ${DEVNULL}
+
+# this is a false positive due to quoting
+adduser --system bar2 --home "${DEVNULL}"
+adduser --system --ingroup smmta --home "/var/lib/sendmail" \
+        --disabled-password \
+        --quiet --gecos 'Mail Transfer Agent' smmta;
+
+# false positive
+echo "You can use update-alternatives --config runsystem to select"
+echo "the runsystem to use."
+
+# false negative
+DIVERSIONS=`env LC_ALL=C /usr/sbin/dpkg-divert --list | grep -E 'by amule(-utils)?$'` || true
+DIVERSIONS=`env LC_ALL="C" /usr/sbin/dpkg-divert --list | grep -E 'by amule(-utils)?$'` || true
+DIVERSIONS=`env LC_ALL='C' /usr/sbin/dpkg-divert --list | grep -E 'by amule(-utils)?$'` || true
+
+if [ ! -x /usr/sbin/dpkg-state-override ] || \
+   !  dpkg-state-override > /dev/null
+then
+    true;
+fi
+
+# bad
+dpkg-maintscript-helper symlink_to_dir \
+              /usr/share/autoconf-archive/html/ \
+              ../../autoconf-archive/html \
+               20111221-2~ -- "$@"
+
+# good
+dpkg-maintscript-helper symlink_to_dir \
+              /usr/share/autoconf-archive/html \
+              ../../autoconf-archive/html \
+               20111221-2~ -- "$@"
+
+# true positive
+adduser --system --quiet --ingroup ntp --no-create-home ntp
+adduser festival --quiet --system --ingroup audio --no-create-home
+
+# detect usage that could be replaced by dpkg-maintscript-helper
+if [ -d /usr/share/doc/tworld ]; then
+   if rmdir /usr/share/doc/tworld 2>/dev/null; then
+	ln -s tworld-data /usr/share/doc/tworld
+   fi
+fi
+
+chown root:root /good
+chmod 777 /good
+chown -R root:root /bad
+chown root:root -R /bad
+chown root:root --recursive /bad
+chown --recursive root:root /bad
+chmod -R 777 /bad
+chmod 777 -R /bad
+chmod 777 --recursive /bad
+chmod --recursive 777 /bad
+find /bad -maxdepth 2 -type d -exec chown root:root {} \; # (#895370)
+find /bad -maxdepth 2 -type d -exec chmod 777  # (#895370)
+
+echo /var/lib/dpkg/info/other-package.conffiles
+echo /var/lib/dpkg/info/other-package.md5sums
+echo /var/lib/dpkg/info/other-package.shlibs
+echo /var/lib/dpkg/info/other-package.postinst
+echo /var/lib/dpkg/info/other-package.preinst
+echo /var/lib/dpkg/info/other-package.list
+echo /var/lib/dpkg/triggers/other-package
+
+getent passwd good || true
+getent group good || true
+getent passwd good || true  # grep /etc/passwd false-positive
+getent group good || true # grep /etc/group false-positive
+grep bad /etc/passwd || true
+grep bad /etc/group || true
+grep -E bad /etc/passwd || true
+grep -E bad /etc/passwd || true
+grep -F bad /etc/group || true
+grep -F bad /etc/group || true
+# grep /etc/passwd false-positive
+# grep /etc/group false-positive
+
+echo $PIUPARTS_TEST # bad
+echo ${PIUPARTS_OBJECTS}
+echo ${PIUPARTS_PHASE}
+echo ${PIUPARTS_DISTRIBUTION}
+echo ${PIUPARTS_DISTRIBUTION_NEXT}
+echo ${PIUPARTS_DISTRIBUTION_PREV}
+echo $PIUPARTS_IS_AWESOME # good
+
+#DEBHELPER#
+
+# Automatically added by dh_dummy/12
+true `/usr/bin/false-positive "$0"`
+# End automatically added section

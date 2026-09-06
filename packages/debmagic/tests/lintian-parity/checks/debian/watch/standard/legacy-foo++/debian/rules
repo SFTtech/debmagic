@@ -1,0 +1,36 @@
+#!/usr/bin/make -f
+
+foo=foo++
+helper=foo++-helper
+
+build-arch:
+
+build-indep:
+
+build: build-arch build-indep
+
+binary-arch:
+
+binary-indep:
+	install -d debian/$(foo)/DEBIAN
+	install -d debian/$(foo)/usr/share/doc/$(foo)
+	install -m 644 debian/changelog \
+	  debian/$(foo)/usr/share/doc/$(foo)/changelog
+	gzip -n -9 debian/$(foo)/usr/share/doc/$(foo)/changelog
+	install -m 644 debian/README.Debian \
+	  debian/$(foo)/usr/share/doc/$(foo)/README.Debian
+	gzip -n -9 debian/$(foo)/usr/share/doc/$(foo)/README.Debian
+	dpkg-gencontrol -isp -p$(foo) -Pdebian/$(foo)
+	dpkg --build debian/$(foo) ..
+
+	install -d debian/$(helper)/DEBIAN
+	install -d debian/$(helper)/usr/share/doc/
+	ln -sf $(foo) debian/$(helper)/usr/share/doc/$(helper)
+	dpkg-gencontrol -isp -p$(helper) -Pdebian/$(helper)
+	dpkg --build debian/$(helper) ..
+
+binary: binary-arch binary-indep
+
+clean:
+
+.PHONY: build-arch build-indep build binary-arch binary-indep binary clean

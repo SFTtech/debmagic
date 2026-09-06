@@ -1,0 +1,11 @@
+# A whitespace is fine for uscan:
+ version=5
+
+# Following line should not be matched:
+#opts=uversionmangle=s/$/+debian/,dversionmangle=s/foo/bar/ \
+# Following one is incorrect, there's a missing backslash at the end
+opts=uversionmangle=s/$/+dfsg/,dversionmangle=s/foo/bar/
+
+# 'active' is useless here, but it works anyway
+options=active \
+http://domain.tld/foo-(.+)\.tar\.gz

@@ -1,0 +1,117 @@
+Source: description-synopsis-might-not-be-phrased-properly
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: description-synopsis-might-not-be-phrased-properly-full-stop
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This synopsis ends with a full-stop.
+ This description ends with a full-stop.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-synopsis-might-not-be-phrased-properly-no-full-stop
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This synopsis does not end with a full stop
+ This description does not end with a full stop
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-synopsis-might-not-be-phrased-properly-two-sentences
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This synopsis starts a sentence. Then starts another.
+ This description starts a sentence. Then starts another.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-synopsis-might-not-be-phrased-properly-etc
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This synopsis ends with, etc.
+ This description ends with, etc.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-synopsis-might-not-be-phrased-properly-eg
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This synopsis contains, e.g. /foo/bar/baz.conf
+ This description contains, e.g. /foo/bar/baz.conf
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-synopsis-might-not-be-phrased-properly-eg-variant
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This synopsis contains, eg. /foo/bar/baz.conf
+ This description contains, eg. /foo/bar/baz.conf
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-synopsis-might-not-be-phrased-properly-2-ellipsis
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This synopsis contains a 2-ellipsis .. and other words
+ This description contains a 2-ellipsis .. and other words
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-synopsis-might-not-be-phrased-properly-3-ellipsis
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This synopsis contains a 3-ellipsis ... and other words
+ This description contains a 3-ellipsis ... and other words
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-synopsis-might-not-be-phrased-properly-4-ellipsis
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This synopsis contains a 4-ellipsis .... and other words
+ This description contains a 4-ellipsis .... and other words
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: description-synopsis-might-not-be-phrased-properly-misspelt
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This synopsis ends with mispelling of stretc.
+ This description ends with mispelling of stretc.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

@@ -1,0 +1,5 @@
+fields-multiple-x-deps (binary): package-depends-on-multiple-tk-versions tk8.2 tk8.3
+fields-multiple-x-deps (binary): package-depends-on-multiple-tclx-versions tclx76 tclx8.0.4 tclx8.2
+fields-multiple-x-deps (binary): package-depends-on-multiple-tcl-versions tcl8.0 tcl8.2
+fields-multiple-x-deps (binary): package-depends-on-multiple-libstdc-versions libstdc++2.10 libstdc++2.10-glibc2.2 libstdc++3.0
+fields-multiple-x-deps (binary): package-depends-on-multiple-libpng-versions libpng2 libpng3

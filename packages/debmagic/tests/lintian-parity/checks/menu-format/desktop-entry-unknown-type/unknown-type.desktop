@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=foo
+Name=unknown-type
+Comment=Type should be one of Application, Link or Directory

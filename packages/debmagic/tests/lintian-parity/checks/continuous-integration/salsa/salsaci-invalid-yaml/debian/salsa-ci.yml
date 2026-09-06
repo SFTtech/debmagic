@@ -1,0 +1,7 @@
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+# Does not build on i386
+  SALSA_CI_DISABLE_BUILD_PACKAGE_I386: 1

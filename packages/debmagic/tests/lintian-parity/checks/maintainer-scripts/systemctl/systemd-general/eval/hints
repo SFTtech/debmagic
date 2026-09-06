@@ -1,0 +1,1 @@
+systemd-general (binary): maintainer-script-calls-systemctl [postrm:6]

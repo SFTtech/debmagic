@@ -1,0 +1,6 @@
+cruft-file-contains-trailing-whitespace for Debian
+--------------------------------------------------
+
+This line does not contain any trailing whitespace.
+This line contains a trailing whitespace character but is still a false-positive as we ignore README.source. 
+

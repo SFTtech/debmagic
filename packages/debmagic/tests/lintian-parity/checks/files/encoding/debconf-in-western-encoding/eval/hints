@@ -1,0 +1,2 @@
+debconf-in-western-encoding (source): national-encoding [debian/templates]
+debconf-in-western-encoding (binary): national-encoding [templates]

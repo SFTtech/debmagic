@@ -1,0 +1,24 @@
+Source: magic-architecture-srcpkg-ok
+Section: devel
+Priority: optional
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Build-Depends: debhelper-compat (= 14)
+Standards-Version: 4.7.4.1
+
+Package: magic-architecture-srcpkg-ok-data
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test package for "all" plus specific arch in .dscs
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: magic-architecture-srcpkg-ok
+Architecture: amd64
+Depends: ${misc:Depends}
+Description: Test package for "all" plus specific arch in .dscs (a)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Architecture specific package.

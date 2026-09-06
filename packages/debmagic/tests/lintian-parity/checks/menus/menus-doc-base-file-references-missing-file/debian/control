@@ -1,0 +1,38 @@
+Source: menus-doc-base-file-references-missing-file
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: menus-doc-base-file-references-missing-file
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, menus-doc-base-file-references-missing-file-dependency
+Description: check for missing files in doc-base
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: menus-doc-base-file-references-missing-file-dependency
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: check for missing files in doc-base (dependency)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This is a dependency for menus-doc-base-file-references-missing-file
+
+Package: menus-doc-base-file-references-missing-file-not-a-dependency
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: check for missing files in doc-base (not a dependency)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This is not a dependency for menus-doc-base-file-references-missing-file

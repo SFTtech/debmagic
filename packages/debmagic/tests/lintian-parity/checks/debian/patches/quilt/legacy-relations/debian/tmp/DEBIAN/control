@@ -1,0 +1,14 @@
+Package: relations-multiple-libs
+Version: 4
+Section: misc
+Priority: optional
+Architecture: all
+Depends: libstdc++2.10, libstdc++2.10-glibc2.2, libstdc++3.0, tk8.2, tk8.3, tcl8.0, tcl8.2, tkx8.2, tkx8.3, tclx8.2, libpng2, libpng3
+Installed-Size: 12
+Maintainer: Lintian Maintainer <lintian-maint@debian.org>
+Source: relations
+Description: Duplicate library dependency relationships.
+ Duplicate library dependency relationships. This tests the depending on
+ different versions of the same library at the same time.
+ .
+ At the same time, it conveniently tests some description file checks. :)

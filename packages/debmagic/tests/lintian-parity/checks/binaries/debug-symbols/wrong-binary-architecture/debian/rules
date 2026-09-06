@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_strip:
+	# do not try to strip cross-compiled binaries with native tooling
+
+override_dh_shlibdeps:
+	# do not try to include missing libraries
+
+override_dh_dwz:
+	# cross-compiled binaries do not always seem to have a debug section
+
+# In Ubuntu, dh does not catch this file by default.
+#  They have diffed it to reduce the size of packages.
+ifneq (,$(strip $(wildcard Changes)))
+override_dh_installchangelogs:
+	dh_installchangelogs Changes
+endif

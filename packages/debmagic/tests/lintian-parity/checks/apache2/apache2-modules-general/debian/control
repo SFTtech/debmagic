@@ -1,0 +1,45 @@
+Source: apache2-modules-general
+Section: httpd
+Priority: optional
+Maintainer:  Big Kahuna <kahuna@example.com>
+Uploaders: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: libapache2-mod-foo
+Architecture: all
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
+ apache2-api-19700101
+Description: Several tests related to Apache2 module packages
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libapache2-modbaz
+Architecture: all
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
+ apache2.2-common,
+Description: Several tests related to Apache2 module packages don't care
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ To avoid duplicate description warnings this line differs. Ignore me.
+
+Package: libapache2-mod-foo2
+Architecture: all
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
+ apache2-api-19700101,
+Description: Several tests related to Apache2 module packages still don't care
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ To avoid duplicate description warnings this line differs. Still ignore me.

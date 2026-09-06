@@ -1,0 +1,7 @@
+#!/usr/bin/env php
+<html>
+<head>
+<title>Dumb PHP script</title>
+</head>
+<body><? print(Date("l F d, Y")); ?></body>
+</html>

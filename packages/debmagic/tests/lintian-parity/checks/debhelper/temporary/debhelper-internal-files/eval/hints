@@ -1,0 +1,2 @@
+debhelper-internal-files (source): temporary-debhelper-file [debian/package.postinst.debhelper]
+debhelper-internal-files (source): temporary-debhelper-file [debian/package.debhelper.log]

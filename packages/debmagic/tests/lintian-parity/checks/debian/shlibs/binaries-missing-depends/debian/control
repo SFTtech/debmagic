@@ -1,0 +1,17 @@
+Source: binaries-missing-depends
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper (>= 9.20151004~), perl
+Rules-Requires-Root: no
+
+Package: libbasic2
+Architecture: any
+Section: libs
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Test for missing depends line
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

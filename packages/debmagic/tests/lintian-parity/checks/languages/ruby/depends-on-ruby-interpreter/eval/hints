@@ -1,0 +1,1 @@
+depends-on-ruby-interpreter (binary): ruby-interpreter-is-deprecated ruby-interpreter

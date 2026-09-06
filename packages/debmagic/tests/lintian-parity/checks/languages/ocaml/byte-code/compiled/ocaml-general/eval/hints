@@ -1,0 +1,2 @@
+libocaml-general-ocaml-dev (binary): ocaml-dangling-cmx [usr/lib/ocaml/symbol2.cmx]
+libocaml-general-ocaml (binary): ocaml-dangling-cmx [usr/lib/ocaml/symbol.cmx]

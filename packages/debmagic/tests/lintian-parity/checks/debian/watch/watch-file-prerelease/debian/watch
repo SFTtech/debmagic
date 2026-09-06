@@ -1,0 +1,3 @@
+version=3
+opts=dversionmangle=s/~rc/-rc/ \
+    https://www.example.com/software/foo/ .*/foo-([^-]+)\.tar\.gz

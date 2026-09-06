@@ -1,0 +1,8 @@
+fields-qa-maint-address (source): mail-contact Maintainer "Debian QA Group" <debian-qa@lists.debian.org>
+fields-qa-maint-address (source): faulty-debian-qa-group-address Maintainer debian-qa@lists.debian.org -> packages@qa.debian.org
+fields-qa-maint-address (changes): mail-contact Maintainer "Debian QA Group" <debian-qa@lists.debian.org>
+fields-qa-maint-address (changes): mail-contact Changed-By "Debian QA Group" <debian-qa@lists.debian.org>
+fields-qa-maint-address (changes): faulty-debian-qa-group-address Maintainer debian-qa@lists.debian.org -> packages@qa.debian.org
+fields-qa-maint-address (changes): faulty-debian-qa-group-address Changed-By debian-qa@lists.debian.org -> packages@qa.debian.org
+fields-qa-maint-address (binary): mail-contact Maintainer "Debian QA Group" <debian-qa@lists.debian.org>
+fields-qa-maint-address (binary): faulty-debian-qa-group-address Maintainer debian-qa@lists.debian.org -> packages@qa.debian.org

@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+pkg := copyright-file-doc-symlink
+
+%:
+	dh $@
+
+override_dh_prep:
+	mkdir -p debian/$(pkg)-helper/usr/share/doc
+	ln -s $(pkg) debian/$(pkg)-helper/usr/share/doc/$(pkg)-helper
+	mkdir -p debian/$(pkg)-weak/usr/share/doc
+	ln -s $(pkg) debian/$(pkg)-weak/usr/share/doc/$(pkg)-weak

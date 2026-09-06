@@ -1,0 +1,8 @@
+fields-uploaders (source): mail-contact Uploaders "Valid email" <0@somewhere.com>
+fields-uploaders (source): mail-contact Uploaders "Mrs. Localhost" <user@localhost.domain>
+fields-uploaders (source): mail-contact Uploaders "John A. J. Doe" <i.am.ok@somewhere.com>
+fields-uploaders (source): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+fields-uploaders (source): bogus-mail-host Uploaders user@localhost.domain
+fields-uploaders (changes): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+fields-uploaders (changes): mail-contact Changed-By "Debian Lintian Maintainers" <lintian-maint@debian.org>
+fields-uploaders (binary): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>

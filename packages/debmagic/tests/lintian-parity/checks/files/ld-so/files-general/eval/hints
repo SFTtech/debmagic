@@ -1,0 +1,1 @@
+files-general (binary): package-modifies-ld.so-search-path [etc/ld.so.conf.d/lintian-lib.conf]

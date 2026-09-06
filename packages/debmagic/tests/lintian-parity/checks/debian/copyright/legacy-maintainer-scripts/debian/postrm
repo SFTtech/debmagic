@@ -1,0 +1,47 @@
+#!/bin/bash
+#set -e
+
+update-alternatives --remove dummy /usr/bin/dummy-alternative
+
+# Normally read in a maintainer script is not kosher, but here we're going
+# to do it only if debconf doesn't exist.
+if ! test -f /usr/share/debconf/confmodule ; then
+    echo "Hit enter"
+    read
+fi
+
+# neither of the following should be detected as postrm-unsafe-ldconfig
+# intended, without quotes
+   if [ "$1" = remove ]; then
+       ldconfig
+    fi
+# reversed, many whitespace
+if [ 'remove' = "$1" ]
+then
+ 
+ ldconfig
+fi
+
+[ "remove" ="$1" ] && ldconfig
+
+update-rc.d bar remove
+
+# Shouldn't provoke an error despite no invoke-rc.d.
+echo "/etc/init.d/package stop to stop something"
+
+# Shouldn't require a ucf dependency.  Unfortunately, right now that's
+# just because postrm isn't checked, not because we ensure that the
+# invocation is conditional.
+if which ucf >/dev/null; then
+    ucf --purge /etc/foo.conf
+fi    
+
+# This isn't allowed.
+rm /tmp/foo /dev/device
+rm	/dev/device1
+
+# But this is okay.
+rm /tmp/foo > /dev/null
+
+# Not allowed here even with remove.
+install-sgmlcatalog --remove package

@@ -1,0 +1,19 @@
+Source: fields-maintainer-bounces
+Priority: optional
+Section: devel
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Uploaders: I Will Loop <fields-maintainer-bounces@packages.debian.org>,
+ I Will Loop Too <fields-maintainer-bounces@PACKAGES.QA.DEBIAN.ORG>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: fields-maintainer-bounces
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test e-mail addresses which are known to bounce e-mails
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+

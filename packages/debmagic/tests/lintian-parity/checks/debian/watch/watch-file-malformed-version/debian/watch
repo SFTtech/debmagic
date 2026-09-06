@@ -1,0 +1,5 @@
+# watch file with upstream version mangling
+
+Version: 4
+Source: https://ftp.sf.net/foo/foo_bar(.+)\.Z 5
+Matching-Pattern: @ANY_VERSION@

@@ -1,0 +1,3 @@
+watch-file-bug-765995 (source): debian-watch-line-invalid opts=pgpsigurlmangle=s/$/.asc/ [debian/watch:3]
+watch-file-bug-765995 (source): debian-watch-does-not-check-openpgp-signature [debian/watch]
+watch-file-bug-765995 (source): debian-watch-could-verify-download debian/upstream/signing-key.asc [debian/watch]

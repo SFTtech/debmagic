@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+# Do this manually so it works with jessie's debhelper without
+# breaking of stretch because we get two triggers.
+# - This rules file can be removed once lintian requires
+#   debhelper/9.20160403 or newer.
+override_dh_makeshlibs:
+	dh_makeshlibs -n

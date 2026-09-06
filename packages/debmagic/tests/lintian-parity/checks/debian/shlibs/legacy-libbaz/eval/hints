@@ -1,0 +1,20 @@
+libbaz2 (binary): no-symbols-control-file usr/lib/libbaz2.so.1.0.3b
+libbaz1 (binary): symbols-for-undeclared-shared-library libbaz 2
+libbaz1 (binary): symbols-file-missing-build-depends-package-field libbaz.so.2 [symbols]
+libbaz1 (binary): symbols-file-contains-debian-revision on symbol foo (libbaz.so.2) [symbols]
+libbaz1 (binary): symbols-file-contains-current-version-with-debian-revision on symbol pw (libbaz.so.2) [symbols]
+libbaz1 (binary): surplus-shared-library-symbols libbaz 2 [symbols]
+libbaz1 (binary): ships-undeclared-shared-library libbaz2 1.0 for usr/lib/libfoo2.so.1.0.3b [shlibs]
+libbaz1 (binary): shared-library-symbols-not-tracked libbaz3 1 for usr/lib/libbaz3.so.1.0.3b [symbols]
+libbaz1 (binary): shared-library-symbols-not-tracked libbaz2 1.0 for usr/lib/libfoo2.so.1.0.3b [symbols]
+libbaz1 (binary): shared-library-symbols-not-tracked libbaz.so for usr/lib/libbaz.so [symbols]
+libbaz1 (binary): shared-library-not-shipped udeb: libdoesntexist2 1.0 [shlibs]
+libbaz1 (binary): shared-library-not-shipped libdoesntexist2 1.0 [shlibs]
+libbaz1 (binary): shared-library-not-shipped libbaz5 1 [shlibs]
+libbaz1 (binary): shared-library-not-shipped libbaz4 1 [shlibs]
+libbaz1 (binary): shared-library-not-shipped libbaz2 1.1 [shlibs]
+libbaz1 (binary): shared-library-lacks-version usr/lib/libbaz.so libbaz.so
+libbaz1 (binary): duplicate-in-shlibs (lines 7 8) udeb: libdoesntexist2 1.0 [shlibs]
+libbaz1 (binary): duplicate-in-shlibs (lines 1 2) libdoesntexist2 1.0 [shlibs]
+libbaz1 (binary): distant-prerequisite-in-shlibs libbaz2 [shlibs]
+libbaz1 (binary): distant-prerequisite-in-shlibs libbaz1 (>> 1-1) [shlibs]

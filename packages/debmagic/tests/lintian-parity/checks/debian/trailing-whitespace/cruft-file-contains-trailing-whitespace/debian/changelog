@@ -1,0 +1,9 @@
+cruft-file-contains-trailing-whitespace (1.0) unstable; urgency=low
+
+  * This line contains trailing whitespace. 
+  * This line does not contais trailing whitespace.
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+

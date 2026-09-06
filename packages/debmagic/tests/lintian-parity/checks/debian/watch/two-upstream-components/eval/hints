@@ -1,0 +1,3 @@
+two-upstream-components (source): debian-watch-upstream-component https://github.com/a/x2 x2 [debian/watch:6]
+two-upstream-components (source): debian-watch-upstream-component https://github.com/a/x1/tags x1 [debian/watch:4]
+two-upstream-components (source): debian-watch-does-not-check-openpgp-signature [debian/watch]

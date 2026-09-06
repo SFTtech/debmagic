@@ -1,0 +1,9 @@
+#!/usr/bin/perl -pi
+
+use strict;
+use warnings;
+
+my $PT_GNU_STACK = 0x6474e551;
+my $be = pack('L>', $PT_GNU_STACK);
+my $le = pack('L<', $PT_GNU_STACK);
+s/\Q$be\E|\Q$le\E/\0\0\0\0/g;

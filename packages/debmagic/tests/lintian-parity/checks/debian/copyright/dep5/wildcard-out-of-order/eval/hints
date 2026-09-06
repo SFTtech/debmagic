@@ -1,0 +1,2 @@
+wildcard-out-of-order (source): superfluous-file-pattern debian/patches/* [debian/copyright:9]
+wildcard-out-of-order (source): globbing-patterns-out-of-order debian/patches/* debian/* debian/patches/a.patch [debian/copyright:13]

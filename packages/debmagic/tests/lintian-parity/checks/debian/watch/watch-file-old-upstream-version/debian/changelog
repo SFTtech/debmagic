@@ -1,0 +1,14 @@
+watch-file-old-upstream-version (2.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * Lintian Test Suite.
+  * Test: watch-file-old-upstream-version
+  * We forgot to update the watch file, lalala.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+watch-file-old-upstream-version (1.0-1) unstable; urgency=low
+
+  * An earlier non-native version.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue,  1 Jan 2008 22:45:57 +0000

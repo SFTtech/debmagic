@@ -1,0 +1,4 @@
+debian-readme-general (binary): spelling-error-in-readme-debian accidentaly accidentally [usr/share/doc/debian-readme-general/README.Debian]
+debian-readme-general (binary): spelling-error-in-readme-debian CHNAGES CHANGES [usr/share/doc/debian-readme-general/README.Debian]
+debian-readme-general (binary): readme-debian-mentions-usr-doc [usr/share/doc/debian-readme-general/README.Debian:4]
+debian-readme-general (binary): readme-debian-contains-invalid-email-address unknown@unknown [usr/share/doc/debian-readme-general/README.Debian]

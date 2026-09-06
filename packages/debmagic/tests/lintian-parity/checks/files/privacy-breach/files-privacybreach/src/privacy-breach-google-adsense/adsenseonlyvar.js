@@ -1,0 +1,10 @@
+google_ad_client = "pub-123456789";
+google_ad_width = 728;
+google_ad_height = 90;
+google_ad_format = "728x90_as";
+google_ad_type = "text_image";
+google_color_border = "FFFFFF";
+google_color_bg = "0000FF";
+google_color_link = "FFFFFF";
+google_color_text = "000000";
+google_color_url = "008000";

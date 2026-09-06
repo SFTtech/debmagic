@@ -1,0 +1,4 @@
+debhelper-dh-with-python3 (source): missing-build-dependency-for-dh-addon python3 (does not satisfy dh-python:any | dh-sequence-python3:any | pybuild-plugin-pyproject:any) [debian/rules]
+debhelper-dh-with-python3 (source): debian-build-system dh [debian/rules]
+debhelper-dh-with-python3 (source): debhelper-compat-virtual-relation 14 [debian/control]
+debhelper-dh-with-python3 (source): debhelper-compat-level 14

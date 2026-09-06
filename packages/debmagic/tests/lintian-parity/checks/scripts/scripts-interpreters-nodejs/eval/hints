@@ -1,0 +1,4 @@
+scripts-interpreters-nodejs (binary): script-uses-deprecated-nodejs-location nodejs [usr/bin/usr-bin-env-nodejs]
+scripts-interpreters-nodejs (binary): missing-dep-for-interpreter nodejs (does not satisfy nodejs:any) [usr/bin/usr-bin-env-nodejs]
+scripts-interpreters-nodejs (binary): missing-dep-for-interpreter node (does not satisfy nodejs:any) [usr/bin/usr-bin-env-node]
+scripts-interpreters-nodejs (binary): example-script-uses-deprecated-nodejs-location nodejs [usr/share/doc/scripts-interpreters-nodejs/examples/usr-bin-env-nodejs]

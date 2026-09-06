@@ -1,0 +1,8 @@
+.TH TEST 1P "2004-12-18" "Debian Project" "Debian GNU/Linux Handbook"
+.SH "NAME"
+\&\fBTEST\fR \- A test manpage with .1P extension.
+.SH "DESCRIPTION"
+.SH Header "DESCRIPTION"
+\&\fBTEST\fR tests lintian.
+.PP
+This is a dummy manpage for a Lintian test.

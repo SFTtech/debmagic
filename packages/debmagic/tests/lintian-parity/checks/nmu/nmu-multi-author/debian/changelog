@@ -1,0 +1,9 @@
+nmu-multi-author (1.0-1.1) unstable; urgency=low
+
+  [ Russ Allbery ]
+  * Non-maintainer upload.
+  * Test: nmu-multi-author
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Russ Allbery <rra@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

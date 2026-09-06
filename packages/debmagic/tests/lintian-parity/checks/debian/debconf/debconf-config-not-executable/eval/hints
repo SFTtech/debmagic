@@ -1,0 +1,4 @@
+debconf-config-not-executable (binary): postinst-does-not-load-confmodule
+debconf-config-not-executable (binary): no-debconf-templates
+debconf-config-not-executable (binary): debconf-config-not-executable
+debconf-config-not-executable (binary): control-file-has-bad-permissions config 0644 != 0755

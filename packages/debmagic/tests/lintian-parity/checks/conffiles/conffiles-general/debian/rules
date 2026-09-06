@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+pkg=conffiles-general
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	mkdir -p debian/$(pkg)/etc/
+	echo "Hallo World" > debian/$(pkg)/etc/foo
+	mkdir -p debian/$(pkg)/DEBIAN
+	cp debian/conffiles debian/$(pkg)/DEBIAN
+	dpkg-deb --nocheck --build debian/$(pkg) ../$(pkg)_1.0-1_all.deb

@@ -1,0 +1,87 @@
+Source: application-not-library
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), perl
+Rules-Requires-Root: no
+
+Package: libapp-something-perl
+Architecture: any
+Section: perl
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Test cases where packages look like libraries but are applications libapp
+ This is an App:: test package designed to exercise some feature or
+ tag of Lintian.  It is part of the Lintian test suite and may do very
+ odd things.  It should not be installed like a regular package.  It
+ may be an empty package.
+
+Package: libapp-some-app-helper-module-perl
+Architecture: any
+Section: perl
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: libapp false positive test
+ This is an App:: test package designed to check if Lintian reports
+ false positives.  It is part of the Lintian test suite and may do
+ very odd things.  It should not be installed like a regular package.
+ It may be an empty package.
+
+Package: libsomething-else-perl
+Architecture: any
+Section: perl
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Test cases where packages look like libraries but are applications else
+ This is a perl test package designed to exercise some feature or tag
+ of Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: python-something
+Architecture: any
+Section: python
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Test cases where packages look like libraries but are applications py
+ This is a Python test package designed to exercise some feature or
+ tag of Lintian.  It is part of the Lintian test suite and may do very
+ odd things.  It should not be installed like a regular package.  It
+ may be an empty package.
+
+Package: ruby-something
+Architecture: any
+Section: ruby
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Test cases where packages look like libraries but are applications rb
+ This is a ruby test package designed to exercise some feature or tag
+ of Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: unspecified-something-pl
+Architecture: any
+Section: perl
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Test cases where packages look like libraries but are applications pl
+ This is a perl-ish test package designed to exercise some feature or
+ tag of Lintian.  It is part of the Lintian test suite and may do very
+ odd things.  It should not be installed like a regular package.  It
+ may be an empty package.
+
+Package: unspecified-something-py
+Architecture: any
+Section: python
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Test cases where packages look like libraries but are applications py2
+ This is a python-ish test package designed to exercise some feature
+ or tag of Lintian.  It is part of the Lintian test suite and may do
+ very odd things.  It should not be installed like a regular package.
+ It may be an empty package.
+
+Package: unspecified-something-rb
+Architecture: any
+Section: ruby
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Test cases where packages look like libraries but are applications rb2
+ This is a ruby-ish (rubbish? ;-) test package designed to exercise
+ some feature or tag of Lintian.  It is part of the Lintian test suite
+ and may do very odd things.  It should not be installed like a
+ regular package.  It may be an empty package.

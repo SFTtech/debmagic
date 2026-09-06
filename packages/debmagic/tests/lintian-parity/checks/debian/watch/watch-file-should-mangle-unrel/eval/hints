@@ -1,0 +1,1 @@
+watch-file-should-mangle-unrel (source): debian-watch-does-not-check-openpgp-signature [debian/watch]

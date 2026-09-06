@@ -1,0 +1,3 @@
+fields-virtual-packages2 (binary): bad-provided-package-name iNvAlId-NaMe
+fields-virtual-packages2 (binary): bad-provided-package-name a
+fields-virtual-packages (binary): virtual-package-depends-without-real-package-depends Depends: httpd

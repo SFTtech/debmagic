@@ -1,0 +1,1 @@
+appstream-metadata (source): inconsistent-appstream-metadata-license debian/appstream-metadata.metadata.xml (mit != gpl-2+) [debian/copyright]

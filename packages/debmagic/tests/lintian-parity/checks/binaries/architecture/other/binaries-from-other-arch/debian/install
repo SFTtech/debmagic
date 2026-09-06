@@ -1,0 +1,2 @@
+debian/elfobject  usr/bin/
+debian/fake-guile-object.go  usr/lib/foo/binaries-from-other-arch/guile/2.2/

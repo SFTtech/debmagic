@@ -1,0 +1,1 @@
+files-general (binary): bad-perm-for-file-in-etc-sudoers.d 0644 != 0440 [etc/sudoers.d/sudotest]

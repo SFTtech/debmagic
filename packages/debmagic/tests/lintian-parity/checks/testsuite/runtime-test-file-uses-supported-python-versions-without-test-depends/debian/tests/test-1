@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Good
+echo $(py3versions -i)
+echo $(py3versions -is)
+echo $(py3versions -iv)
+echo $(py3versions -v)
+
+# Bad
+echo $(py3versions -s)
+echo $(py3versions -vs)
+echo $(py3versions --supported)
+echo $(py3versions --verbose --supported)

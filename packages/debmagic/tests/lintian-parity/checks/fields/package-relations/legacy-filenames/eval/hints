@@ -1,0 +1,1 @@
+filenames (binary): depends-on-obsolete-package Depends: python-support => use dh_python2 instead

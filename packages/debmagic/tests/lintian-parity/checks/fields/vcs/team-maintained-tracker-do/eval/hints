@@ -1,0 +1,3 @@
+team-maintained-tracker-do (source): vcs-uri Git https://salsa.debian.org/lechner-guest/pius.git
+team-maintained-tracker-do (source): vcs git
+team-maintained-tracker-do (source): package-is-team-maintained team+team@tracker.debian.org (with 0 uploaders)

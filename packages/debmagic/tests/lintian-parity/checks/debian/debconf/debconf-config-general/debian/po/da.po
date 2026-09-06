@@ -1,0 +1,42 @@
+# Danish translations for PACKAGE package.
+# Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Niels Thykier <niels@thykier.net>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-10-01 22:49+0200\n"
+"PO-Revision-Date: 2012-07-23 23:08+0200\n"
+"Last-Translator: Niels Thykier <niels@thykier.net>\n"
+"Language-Team: Danish\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Type: error
+#. Description
+#: ../templates:1001
+msgid "Useless note"
+msgstr "Ubrugelig note"
+
+#. Type: note
+#. Description
+#: ../templates:2001
+msgid "This is a note abuse"
+msgstr "Dette er et note misbrug"
+
+#. Type: error
+#. Description
+#: ../templates:3001
+msgid "Invoked with unknown debconf priority"
+msgstr "Kaldt med ukendt debconf prioritet"
+
+#. Type: boolean
+#. Description
+#: ../templates:4001
+msgid "Is this use deprecated?"
+msgstr "Er denne brug forældet?"

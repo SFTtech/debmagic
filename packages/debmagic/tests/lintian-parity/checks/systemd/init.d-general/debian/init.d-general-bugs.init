@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -e
+
+### BEGIN INIT INFO
+# Provides:          init.d-general-bugs
+# Required-Start:
+# Required-Stop:
+# Default-Start:
+# Default-Stop:
+# Short-Description: Do nothing at all
+# Description: The short description pretty much covers it.
+### END INIT INFO
+
+# start stop force-reload restart status
+
+. /lib/lsb/init-functions

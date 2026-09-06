@@ -1,0 +1,1 @@
+use-godebug (binary): binary-contains-insecure-defaultgodebug-settings rsa1024min=0,tlssha1=1 [usr/bin/use-godebug]

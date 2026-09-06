@@ -1,0 +1,2 @@
+control-file-rules-requires-root-no (binary): data-tarball-compression-format gz
+control-file-rules-requires-root-no (binary): control-tarball-compression-format gz

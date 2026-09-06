@@ -1,0 +1,17 @@
+yaml-sequence (1.0-1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: yaml-sequence
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+yaml-sequence (0.0.1-1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: yaml-sequence
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Mon, 01 Jan 1990 00:00:00 +0100

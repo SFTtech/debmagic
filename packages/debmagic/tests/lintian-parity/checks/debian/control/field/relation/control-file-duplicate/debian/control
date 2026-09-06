@@ -1,0 +1,23 @@
+Source: control-file-duplicate
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper (>= 14~), debhelper
+Build-Depends-Indep: foobar, foo, foobar
+Build-Conflicts: bar,
+ baz,
+ bar [i386]
+Rules-Requires-Root: no
+X-DH-Compat: 14
+
+Package: control-file-duplicate
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${misc:Depends}
+Recommends: foo (>> 1.0) | bar, foo
+Suggests: baz (= 1.0), baz, baz (>= 2.0)
+Description: Pedantic test for duplicate relations
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

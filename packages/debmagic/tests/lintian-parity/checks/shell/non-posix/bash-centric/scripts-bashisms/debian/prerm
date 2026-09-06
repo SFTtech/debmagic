@@ -1,0 +1,186 @@
+#!/bin/sh
+
+set -e
+
+cat <<EOF
+This is all really bad bash specific code!!!
+read
+source /bar/baz/bat foo
+EOF
+
+# ok, back to checking
+if [ "$2" == "purge" ]; then
+	rm -r /bar/baz
+fi
+
+function foo( ) {
+   # but not here: local
+   local bar
+   echo "foo" &>/dev/null
+}
+
+source $FOO
+
+trap "echo hi" EXIT HUP 3
+
+if [[ "$2" = "purge" ]]; then
+    kill -HUP $$
+fi
+
+#this is ok though
+if test -n $(echo foo | perl -pe 's/[[:space:]]//go'); then
+    echo 1
+fi
+
+# More false positives for bashism checks.  None of these are errors.
+echo "$line" | grep -q '{fonts/map,}/{\$progname,pdftex,dvips,}//'
+echo "$line" | grep -q "${fonts},${foo}"
+echo '$[1+2]'
+printf "foo |& bar"
+perl -e "print q( kill -HUP $? )"
+
+# Still catch disallowed expansions in double-quotes, though.
+echo "${line:3:1}"
+
+# More bashisms checks
+
+read -x foo
+read -x
+read -r foo
+read foo
+read
+
+echo "a\\b"
+echo 'a\nb'
+
+echo "${UID}"
+echo "$EUID"
+echo "$SHLVL"
+echo "$DIRSTACK"
+echo "$SECONDS"
+echo "$BASH"
+echo "$BASH_FOO"
+echo "$SHELLOPTS"
+echo "$PIPESTATUS"
+
+bar="$(cut '-d|' -f2 <<< "$foo")"
+
+VAR=1
+VAR+=a
+
+echos() {
+  echo -n -e "bar"
+  echo -e -n "bar"
+  echo -en "bar"
+  echo -ne "bar"
+  echo "bar"
+  echo "echo -e foo"
+}
+
+ech.os() {
+  echo foo >& 2
+  echo foo >&bar
+  echo foo >& bar
+}
+
+echoes() {
+  echo "abc\nxyz"
+  echo 'xyz\rabc'
+  echo foo\cbar
+
+  echo -e "abc\nxyz"
+  echo -net 'xyz\rabc'
+  echo -e foo\cbar
+}
+
+foobar.() {
+  suspend x
+  suspended x
+  caller x
+  complete x
+  compgen x
+  declare -a foo
+}
+
+.foobar() {
+  typeset -x bar
+  disown 1
+  builtin foo
+  set -B
+  alias -p
+  unalias -a
+}
+
+IFS="()"
+
+ulimit
+shopt
+type -v bar
+time ls
+dirs
+diff <(tac a) <(tac b)
+
+pushd
+
+local foo=bar
+local -x foo
+
+popd
+
+readonly -f
+
+echo bar > /dev/tcp
+export x
+export -x x
+export -p x
+
+sh -x
+sh -D
+sh --foo
+sh +O
+
+# Brace expansion checks
+echo {a,b}
+echo {abc},{bcd}
+
+foobar()
+{
+  # This is a function
+}
+
+ foo.bar()
+(
+  # This is a function with a bad name
+)
+
+foobar@()    # foo
+{
+  # As is this
+}
+
+# This is ok
+read -r foo
+# but these aren't
+read -r
+read -p "Would you like to restart the service?" foo bar
+read --fish
+
+source "$BAR"
+source '$BAR'
+source ~/bar
+source a
+
+# An example from the X maintainer scripts that used to trigger the trap
+# bashism check.
+trap "message;\
+      message \"Received signal.  Aborting $THIS_PACKAGE package $THIS_SCRIPT script.\";\
+      message;\
+      exit 1" HUP INT QUIT TERM
+
+# Also allow for extended single quotes containing double quotes.
+trap 'message;
+      message "Received signal.  Aborting $THIS_PACKAGE package $THIS_SCRIPT script.";
+      message;
+      exit 1' HUP INT QUIT TERM
+
+#DEBHELPER#

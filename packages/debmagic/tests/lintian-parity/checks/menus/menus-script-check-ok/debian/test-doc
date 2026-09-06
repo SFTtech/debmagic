@@ -1,0 +1,8 @@
+Document: test-doc
+Title: Test document for Lintian test
+Author: Russ Allbery
+Abstract: This is just a test document
+Section: Debian
+
+Format: text
+Files: /usr/share/doc/menus-script-check-ok/test-doc.txt

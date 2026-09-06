@@ -1,0 +1,1 @@
+files-zero-byte-executable-in-path (binary): executable-not-elf-or-script [usr/bin/empty-executable]

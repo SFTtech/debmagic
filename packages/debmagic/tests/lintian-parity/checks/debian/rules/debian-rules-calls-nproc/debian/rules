@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+NUM_CPUS=`/usr/bin/nproc`
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# This use of `nproc` will not cause a hint. 
+	@echo "Building with $$(nproc) jobs."
+	dh_auto_build -- -j $(shell nproc)
+	echo Just saying the word nproc also will not cause a hint.

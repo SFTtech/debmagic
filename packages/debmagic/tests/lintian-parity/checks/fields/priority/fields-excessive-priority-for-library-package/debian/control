@@ -1,0 +1,55 @@
+Source: fields-excessive-priority-for-library-package
+Section: libs
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: libfields-excessive-priority-for-library-package42
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Priority: important
+Description: Library packages with excessive Priority field (lib)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libfields-excessive-priority-for-library-package-dev
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Section: libdevel
+Priority: standard
+Description: Library packages with excessive Priority field (dev)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ (This is a dev package.)
+
+Package: libfields-excessive-priority-for-library-package-false-positive-bin
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Section: libdevel
+Priority: required
+Description: Library packages with excessive Priority field (false positive bin)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ (This is a -bin false positive)
+
+Package: libfields-excessive-priority-for-library-package-false-positive-dev
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Section: libdevel
+Priority: optional
+Description: Library packages with excessive Priority field (false positive)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ (This is a -dev false positive)

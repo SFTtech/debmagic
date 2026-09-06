@@ -1,0 +1,3 @@
+#! /usr/lib/dh-exec
+foo => bar
+this-line-uses-tabs	=>	this-line-uses-tabs

@@ -1,0 +1,21 @@
+# This comment will not appear in the output, also the last
+# tag should not have a comment due to the empty line between
+# it and the one before it.
+
+# override without extra information
+manpage-has-bad-whatis-entry
+# Architecture specific override
+[i386]: FSSTND-dir-in-manual-page usr/share/man/man1/foo.1.gz:6 /usr/etc/
+[!i386]: FSSTND-dir-in-manual-page usr/share/man/man1/foo.1.gz:6 /usr/etc/
+# exact extra information
+FSSTND-dir-in-manual-page usr/share/man/man1/foo.1.gz:4 /usr/dict/
+# These are wildcard overrides
+FSSTND-dir-in-manual-page usr/share/man/man1/foo.1.gz:2*
+FSSTND-dir-in-manual-page */foo.1.gz:5 /usr/doc/
+# Comments in UTF-8: ✓ (☃)
+FSSTND-dir-in-manual-page */foo.1.gz:3*
+
+# renamed tag
+package-install-apt-sources *
+
+#FSSTND-dir-in-manual-page usr/share/man/man1/foo.1.gz * more occurrences not shown

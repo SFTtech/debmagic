@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+naughty-script -- uses obsolete perl4 libs
+
+=head1 SYNOPSIS
+
+ naught-script
+
+=head1 DESCRIPTION
+
+This manpage is present to avoid a "binary-without-manpage" warning.  :)
+
+=cut
+
+use strict;
+use warnings;
+
+do 'newgetopt.pl';
+
+NGetOpt();

@@ -1,0 +1,2 @@
+our-script usr/bin
+calls-sbin usr/bin

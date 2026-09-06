@@ -1,0 +1,4 @@
+files-foo-in-bar (binary): package-installs-apt-sources [etc/apt/sources.list.d/bar]
+files-foo-in-bar (binary): package-installs-apt-preferences [etc/apt/preferences]
+files-foo-in-bar (binary): package-installs-apt-preferences [etc/apt/preferences.d/bar]
+files-foo-in-bar (binary): package-installs-apt-keyring [etc/apt/trusted.gpg.d/bar]

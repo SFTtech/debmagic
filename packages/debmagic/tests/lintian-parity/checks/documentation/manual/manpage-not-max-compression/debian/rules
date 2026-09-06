@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+tmp := $(CURDIR)/debian/$(shell dh_listpackages)
+
+%:
+	dh $@
+
+override_dh_compress:
+	dh_compress \
+		--exclude=not-max-compress.6
+
+	gzip -n -1 $(tmp)/usr/share/man/man6/not-max-compress.6

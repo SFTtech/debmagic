@@ -1,0 +1,5 @@
+Version: 5
+
+Template: CRAN
+Source: https://salsa.debian.org/foo/bar
+Matching-Pattern: refs/tags/@ANY_VERSION@

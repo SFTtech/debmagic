@@ -1,0 +1,2 @@
+changelog-file-epoch-changed-upstream-version-same (source): latest-debian-changelog-entry-reuses-existing-version 2:1.0-3 ~ 1:1.0-3 (last used: Fri, 06 Feb 2009 22:22:37 -0800) [debian/changelog:1]
+changelog-file-epoch-changed-upstream-version-same (source): epoch-changed-but-upstream-version-did-not-go-backwards 1:1.0-3 -> 2:1.0-3 [debian/changelog:1]

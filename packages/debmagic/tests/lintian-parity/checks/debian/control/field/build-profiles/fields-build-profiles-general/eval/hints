@@ -1,0 +1,2 @@
+fields-build-profiles-general (source): varies-content-with-nocheck [debian/control:14]
+fields-build-profiles-general (source): invalid-profile-name-in-build-profiles-field unknown (in section for fields-build-profiles-general-unknown-profile) [debian/control:14]

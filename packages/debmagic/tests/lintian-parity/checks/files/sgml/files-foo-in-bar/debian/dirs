@@ -1,0 +1,15 @@
+etc/apt/preferences.d
+etc/apt
+etc/init
+bin/foo
+mnt/foo
+tmp/foo
+usr/bin/foo
+usr/foo
+usr/lib/debug
+usr/local/foo
+usr/lib/site-python/foo
+usr/share/doc/files-foo-in-bar/examples/examples
+var/foo
+var/lock/foo
+var/run/foo

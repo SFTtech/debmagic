@@ -1,0 +1,2 @@
+changes-upstream-signature-missing (source): debian-watch-does-not-check-openpgp-signature [debian/watch]
+changes-upstream-signature-missing (source): debian-watch-could-verify-download debian/upstream/signing-key.asc [debian/watch]

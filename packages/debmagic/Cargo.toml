@@ -22,4 +22,8 @@ toml_edit = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 debian-changelog = { workspace = true }
 debian-control = { workspace = true }
+deb822-lossless = { workspace = true }
 ignore = { workspace = true }
+md-5 = { workspace = true }
+sha1 = { workspace = true }
+sha2 = { workspace = true }

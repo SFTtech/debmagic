@@ -14,7 +14,10 @@ use crate::driver::{
     SignRequest, config::DriverConfig, create_driver, create_driver_from_metadata,
     remove_environment_root,
 };
-use crate::{config::Config, package::{PackageIdentity, PackageTarget}};
+use crate::{
+    config::Config,
+    package::{PackageIdentity, PackageTarget},
+};
 use anyhow::{Context, anyhow};
 
 pub mod artifacts;
@@ -263,6 +266,8 @@ fn run_build(
             build.driver.sign_changes(&SignRequest {
                 changes_file: &changes_file,
                 sign_key: sign.key.as_deref(),
+                sign_tool: sign.tool,
+                sign_command: sign.command.as_deref(),
                 notify: sign.notify,
                 package: &build.environment.package_identifier,
             })?;

@@ -17,6 +17,7 @@ use crate::driver::{
     driver_docker::DriverDocker,
     driver_lxd::{DriverLxd, LxdVariant},
 };
+use crate::sign::SignTool;
 
 pub mod config;
 pub mod driver_bare;
@@ -239,8 +240,8 @@ pub trait EnvironmentDriver {
         true
     }
 
-    /// Sign `changes_file` (a path on the host) with `debsign`, at the
-    /// location resolved in the request.
+    /// Sign `changes_file` (a path on the host) with debmagic's signing
+    /// implementation.
     fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()>;
 }
 
@@ -409,23 +410,14 @@ pub struct SignRequest<'a> {
     pub changes_file: &'a Path,
     /// Key ID/email to sign with; `None` falls back to the maintainer lookup.
     pub sign_key: Option<&'a str>,
+    /// Which OpenPGP implementation to use.
+    pub sign_tool: SignTool,
+    /// Custom signing command when `sign_tool` is `Custom`.
+    pub sign_command: Option<&'a str>,
     /// Send a `notify-send` popup right before signing.
     pub notify: bool,
     /// `"{name}-{version}"`, used in the notification.
     pub package: &'a str,
-}
-
-impl SignRequest<'_> {
-    /// Send the "touch your key" notification if enabled. Called right before
-    /// signing runs so a hardware-key prompt isn't missed.
-    pub fn notify_signing(&self) {
-        if self.notify {
-            crate::signing::notify_send(
-                "debmagic: signing requested",
-                &format!("touch your key to sign {}", self.package),
-            );
-        }
-    }
 }
 
 /// Remove `root` from the host. If files are owned by a container user the host

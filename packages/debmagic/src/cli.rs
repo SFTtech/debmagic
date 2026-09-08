@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
+use crate::sign::SignTool;
 use clap::{Args, Parser, Subcommand};
 
 /// When to use colored output. Mirrors common CLI conventions; `auto` is the
@@ -46,6 +47,8 @@ pub enum Commands {
     Test(TestSubcommandArgs),
     #[command(about = "Check the project")]
     Check(CheckSubcommandArgs),
+    #[command(about = "GPG-sign a .changes file (and its .dsc/.buildinfo) on the host")]
+    Sign(SignSubcommandArgs),
     #[command(about = "Inspect the debmagic configuration")]
     Config(ConfigSubcommandArgs),
     #[command(about = "Show version information")]
@@ -147,6 +150,16 @@ pub struct CommonBuildArgs {
     #[arg(
         short,
         long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        help = "Synchronize changed source inputs while preserving build outputs. Implies --persistent"
+    )]
+    pub incremental: Option<bool>,
+
+    #[arg(
+        short,
+        long,
         help = "Build driver type. Defaults to the 'driver' key in debmagic.toml; without either, source-only builds use 'bare', since those need no build-deps or compilation."
     )]
     pub driver: Option<DriverType>,
@@ -206,70 +219,47 @@ pub struct CommonBuildArgs {
         long,
         num_args = 0..=1,
         default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        overrides_with = "no_sign",
-        help = "Sign the resulting .changes/.dsc with debsign after building. Defaults to the 'sign.source' setting in the config file (false if unset)."
+        value_parser = clap::value_parser!(bool),
+        help = "Sign the resulting .changes/.dsc after building. Defaults to the 'sign.source' setting in the config file (false if unset)."
     )]
     pub sign: Option<bool>,
 
     #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        help = "Do not sign the resulting .changes/.dsc, overriding a 'sign.source = true' default in the config file."
-    )]
-    pub no_sign: Option<bool>,
-
-    #[arg(
-        long = "sign-with",
-        help = "Where debsign runs: 'host' signs on the host (requires debsign there), 'build' signs inside the build container itself, 'separate' signs in a minimal, separate same-distro container, 'auto' (default) uses the host if debsign is available there, else a separate container. Container signing forwards the host gpg-agent socket and requires --sign-key. Defaults to the 'sign.with' setting in the config file."
-    )]
-    pub sign_with: Option<crate::signing::SignWith>,
-
-    #[arg(
         long = "sign-key",
-        help = "GPG key ID/email to sign with, passed to debsign's -k option. Defaults to the 'sign.key' setting in the config file, or debsign's own maintainer-based key lookup if unset. Required when signing in a container."
+        help = "GPG key ID/email to sign with. Defaults to the 'sign.key' setting in the config file, or the Changed-By/Maintainer address of the file being signed if unset."
     )]
     pub sign_key: Option<String>,
+
+    #[arg(
+        long = "sign-tool",
+        value_enum,
+        help = "OpenPGP implementation to sign with: 'gpg' (default), 'sequoia' (sq), or 'custom' (uses --sign-command). Defaults to the 'sign.tool' setting in the config file."
+    )]
+    pub sign_tool: Option<SignTool>,
+
+    #[arg(
+        long = "sign-command",
+        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.command' setting in the config file."
+    )]
+    pub sign_command: Option<String>,
 
     #[arg(
         long = "sign-notify",
         num_args = 0..=1,
         default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        overrides_with = "no_sign_notify",
-        help = "Send a desktop notification via notify-send just before debsign runs, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
+        value_parser = clap::value_parser!(bool),
+        help = "Send a desktop notification via notify-send just before signing, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
     )]
     pub sign_notify: Option<bool>,
 
     #[arg(
-        long = "no-sign-notify",
-        num_args = 0..=1,
-        default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        help = "Do not send a signing notification, overriding a 'sign.notify = true' default in the config file."
-    )]
-    pub no_sign_notify: Option<bool>,
-
-    #[arg(
         long,
         num_args = 0..=1,
         default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        overrides_with = "no_clean",
+        value_parser = clap::value_parser!(bool),
         help = "Run 'debian/rules clean' before building, like plain dpkg-buildpackage does unless passed -nc. Defaults to the 'clean' setting in the config file (false if unset); non-incremental builds already stage a clean source tree, while incremental builds preserve outputs by design. For source builds this also installs build-dependencies first, since a clean target usually needs its own tooling."
     )]
     pub clean: Option<bool>,
-
-    #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        help = "Do not run 'debian/rules clean' before building, overriding a 'clean = true' default in the config file."
-    )]
-    pub no_clean: Option<bool>,
 
     #[arg(
         long = "shell-on-failure",
@@ -305,16 +295,6 @@ pub enum BuildTarget {
 pub struct BinaryTargetArgs {
     #[command(flatten)]
     pub build: CommonBuildArgs,
-
-    #[arg(
-        short,
-        long,
-        num_args = 0..=1,
-        default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        help = "Synchronize changed source inputs while preserving build outputs. Implies --persistent"
-    )]
-    pub incremental: Option<bool>,
 
     #[arg(
         long = "debug-symbols",
@@ -410,4 +390,50 @@ pub struct TestSubcommandArgs {
 pub struct CheckSubcommandArgs {
     #[command(flatten)]
     pub common: CommonCli,
+}
+
+#[derive(Args, Debug)]
+pub struct SignSubcommandArgs {
+    #[arg(
+        long = "sign-key",
+        help = "GPG key ID/email to sign with. Defaults to the 'sign.key' setting in the config file, or the Changed-By/Maintainer address of the file being signed if unset."
+    )]
+    pub sign_key: Option<String>,
+
+    #[arg(
+        long = "sign-tool",
+        value_enum,
+        help = "OpenPGP implementation to sign with: 'gpg' (default), 'sequoia' (sq), or 'custom' (uses --sign-command). Defaults to the 'sign.tool' setting in the config file."
+    )]
+    pub sign_tool: Option<SignTool>,
+
+    #[arg(
+        long = "sign-command",
+        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.command' setting in the config file."
+    )]
+    pub sign_command: Option<String>,
+
+    #[arg(
+        long = "sign-notify",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        value_parser = clap::value_parser!(bool),
+        help = "Send a desktop notification via notify-send just before signing, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
+    )]
+    pub sign_notify: Option<bool>,
+
+    #[arg(
+        short,
+        long,
+        help = "Directory holding the .changes file when no file is given (default '..')."
+    )]
+    pub output_dir: Option<PathBuf>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
+
+    #[arg(
+        help = "The .changes, .buildinfo or .dsc file to sign; when omitted, located via debian/changelog and --output"
+    )]
+    pub file: Option<PathBuf>,
 }

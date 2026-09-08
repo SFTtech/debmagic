@@ -6,7 +6,7 @@ use crate::{
     build::source::SourceSyncMode,
     config::Config,
     driver::{DriverType, config::DriverOverrides},
-    signing::SignWith,
+    sign::SignTool,
 };
 
 /// Clap-free inputs for resolving a [`BuildIntent`].
@@ -20,17 +20,13 @@ pub struct BuildIntentInput {
     pub driver: DriverType,
     pub persistent: Option<bool>,
     pub incremental: Option<bool>,
-    /// Force incremental off (e.g. source-only builds).
-    pub disable_incremental: bool,
     pub debug_symbols: Option<bool>,
     pub sign: Option<bool>,
-    pub no_sign: Option<bool>,
-    pub sign_with: Option<SignWith>,
     pub sign_key: Option<String>,
+    pub sign_tool: Option<SignTool>,
+    pub sign_command: Option<String>,
     pub sign_notify: Option<bool>,
-    pub no_sign_notify: Option<bool>,
     pub clean: Option<bool>,
-    pub no_clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
     pub host_arch_variant: Option<String>,
     pub shell_on_failure: Option<bool>,
@@ -62,37 +58,30 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         config.driver.persistent = persistent;
     }
 
-    if input.disable_incremental {
-        config.incremental = false;
-    } else if let Some(incremental) = input.incremental {
+    if let Some(incremental) = input.incremental {
         config.incremental = incremental;
     }
 
     if let Some(debug_symbols) = input.debug_symbols {
         config.build_debug_symbols = debug_symbols;
     }
-    // overrides_with already made --sign/--no-sign (and
-    // --clean/--no-clean) mutually exclusive, keeping the later flag.
     if let Some(sign) = input.sign {
         config.sign.source = sign;
-    } else if let Some(no_sign) = input.no_sign {
-        config.sign.source = !no_sign;
-    }
-    if let Some(sign_with) = input.sign_with {
-        config.sign.with = sign_with;
     }
     if let Some(sign_key) = input.sign_key {
         config.sign.key = Some(sign_key);
     }
+    if let Some(sign_tool) = input.sign_tool {
+        config.sign.tool = sign_tool;
+    }
+    if let Some(sign_command) = input.sign_command {
+        config.sign.command = Some(sign_command);
+    }
     if let Some(sign_notify) = input.sign_notify {
         config.sign.notify = sign_notify;
-    } else if let Some(no_sign_notify) = input.no_sign_notify {
-        config.sign.notify = !no_sign_notify;
     }
     if let Some(clean) = input.clean {
         config.clean = clean;
-    } else if let Some(no_clean) = input.no_clean {
-        config.clean = !no_clean;
     }
     if let Some(source_sync) = input.source_sync {
         config.source_sync_mode = source_sync;
@@ -143,16 +132,13 @@ mod tests {
             driver: DriverType::Docker,
             persistent: None,
             incremental: None,
-            disable_incremental: false,
             debug_symbols: None,
             sign: None,
-            no_sign: None,
-            sign_with: None,
             sign_key: None,
+            sign_tool: None,
+            sign_command: None,
             sign_notify: None,
-            no_sign_notify: None,
             clean: None,
-            no_clean: None,
             source_sync: None,
             host_arch_variant: None,
             shell_on_failure: None,
@@ -278,17 +264,5 @@ mod tests {
                 .to_string()
                 .contains("incremental builds are incompatible with clean builds")
         );
-    }
-
-    #[test]
-    fn resolve_disable_incremental_for_source_builds() -> anyhow::Result<()> {
-        let dir = std::env::temp_dir();
-        let mut input = base_input(dir);
-        input.incremental = Some(true);
-        input.disable_incremental = true;
-
-        let intent = resolve_build_intent(input)?;
-        assert!(!intent.config.incremental);
-        Ok(())
     }
 }

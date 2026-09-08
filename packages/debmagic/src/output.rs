@@ -6,6 +6,7 @@
 //! implied by the `NO_COLOR` env var unless overridden with `always`.
 
 use std::io::IsTerminal;
+use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
 
 pub use crate::cli::ColorChoice;
@@ -55,6 +56,41 @@ impl Style {
             Style::BoldCyan => "1;36",
         }
     }
+}
+
+/// Send a desktop notification via `notify-send`, if available. Never fails
+/// the build: a headless session or missing binary just means no popup.
+pub fn notify_send(summary: &str, body: &str) {
+    match Command::new("notify-send")
+        .arg(summary)
+        .arg(body)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+    {
+        Ok(_) => {}
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+            eprintln!("notify-send not found on PATH; cannot send signing notification");
+        }
+        Err(e) => eprintln!("failed to run notify-send: {e}"),
+    }
+}
+
+/// Ring the terminal bell so an attention-requiring prompt in a background
+/// window is noticed. No-op when stderr is not a terminal, so piped output
+/// stays clean.
+pub fn bell() {
+    use std::io::Write;
+    if std::io::stderr().is_terminal() {
+        let _ = std::io::stderr().write_all(b"\x07");
+    }
+}
+
+/// Notify the user that their attention with both a desktop notification
+/// and a terminal bell.
+pub fn notify_send_bell(summary: &str, body: &str) {
+    notify_send(summary, body);
+    bell();
 }
 
 /// Whether color is on, after [`init_color`] has run.

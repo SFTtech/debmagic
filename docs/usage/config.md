@@ -31,11 +31,12 @@ All keys are optional.
 | `incremental` | bool | `false` | `--incremental` | Retain the environment and sync only source changes, preserving generated files. Binary-only; implies `persistent`; incompatible with `clean`. |
 | `source_sync_mode` | enum | `tracked` | `--source-sync` | Which source files are staged (see below). |
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |
-| `sign.source` | bool | `false` | `--sign`/`--no-sign` | Sign the resulting `.changes`/`.dsc` with `debsign` (see below). |
-| `sign.with` | enum | `auto` | `--sign-with` | Where `debsign` runs (see below). |
-| `sign.key` | string | — | `--sign-key` | GPG key ID/email for `debsign -k`. Required for container signing. |
-| `sign.notify` | bool | `false` | `--sign-notify`/`--no-sign-notify` | Send a desktop notification via `notify-send` just before `debsign` runs, so a hardware-key touch prompt isn't missed. |
-| `clean` | bool | `false` | `--clean`/`--no-clean` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
+| `sign.source` | bool | `false` | `--sign` | Sign the resulting `.changes`/`.dsc` (see below). |
+| `sign.key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
+| `sign.tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign.command`). |
+| `sign.command` | string | — | `--sign-command` | Custom signing command for `sign.tool = "custom"`, run without a shell with `{file}`/`{key}`/`{email}` placeholders; writes the clearsigned result to stdout. |
+| `sign.notify` | bool | `false` | `--sign-notify` | Send a desktop notification via `notify-send` just before signing, so a hardware-key touch prompt isn't missed. |
+| `clean` | bool | `false` | `--clean` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
 | `shell_on_failure` | bool | `false` | `--shell-on-failure` | On build or test failure, drop into an interactive shell in the environment when stdout is a TTY. |
 | `host_arch_variant` | string | — | `--host-arch-variant` | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
 
@@ -51,19 +52,13 @@ All keys are optional.
 
 | Key | Type | Default | CLI flag | Description |
 |---|---|---|---|---|
-| `source` | bool | `false` | `--sign`/`--no-sign` | Sign the source package (`.changes`/`.dsc`) with `debsign`. |
-| `with` | enum | `auto` | `--sign-with` | Where `debsign` runs (see below). |
-| `key` | string | — | `--sign-key` | GPG key ID/email for `debsign -k`. Required for container signing. |
-| `notify` | bool | `false` | `--sign-notify`/`--no-sign-notify` | Desktop notification via `notify-send` before signing. |
+| `source` | bool | `false` | `--sign` | Sign the source package (`.changes`/`.dsc`) after building. |
+| `key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
+| `tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `command`). |
+| `command` | string | — | `--sign-command` | Custom signing command for `tool = "custom"`, like `debsign`'s `-p`. |
+| `notify` | bool | `false` | `--sign-notify` | Desktop notification via `notify-send` before signing. |
 
-#### `sign.with`
-
-| Value | Behavior |
-|---|---|
-| `auto` (default) | Sign on the host if `debsign` is available there, otherwise in a separate container. |
-| `host` | Always sign on the host with `debsign`. |
-| `build` | Sign inside the build container itself (no separate container is started). Requires a container driver and `sign.key`. |
-| `separate` | Sign inside a minimal, separate same-distro container, forwarding the host's gpg-agent socket. Requires `sign.key`. |
+Signing always runs on the host with your gpg keyring — see [Signing](build.md#signing).
 
 ## Example
 
@@ -74,7 +69,6 @@ clean = false
 
 [sign]
 source = true
-with = "separate"
 key = "you@example.com or gpg key id"
 notify = true
 

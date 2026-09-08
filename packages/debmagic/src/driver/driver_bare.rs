@@ -102,6 +102,6 @@ impl EnvironmentDriver for DriverBare {
     }
 
     fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
-        crate::signing::sign_changes(request)
+        crate::sign::sign_changes(request)
     }
 }

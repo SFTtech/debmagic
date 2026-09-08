@@ -4,15 +4,14 @@ use std::{
     process::{Command, Stdio},
 };
 
-use anyhow::Context as _;
 use debmagic_common::distro::{Distro, DistroVersion};
 use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
     EnvironmentMetadata, IsolationCapability, SignRequest, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint,
-    resource_name, run_checked, translate_path_in_container,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
+    run_checked, translate_path_in_container,
 };
 
 // The binary name differs between LXD and Incus, but everything else is shared.
@@ -421,7 +420,7 @@ impl DriverLxd {
     pub fn from_metadata(
         variant: LxdVariant,
         environment: &Environment,
-        driver_config: &DriverConfig,
+        _driver_config: &DriverConfig,
         metadata: &EnvironmentMetadata,
     ) -> anyhow::Result<Self> {
         let project = metadata.driver_metadata.get("project").cloned();
@@ -610,6 +609,6 @@ impl EnvironmentDriver for DriverLxd {
     }
 
     fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
-        crate::signing::sign_changes(request)
+        crate::sign::sign_changes(request)
     }
 }

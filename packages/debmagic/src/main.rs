@@ -24,7 +24,7 @@ pub mod config;
 pub mod driver;
 pub mod output;
 pub mod package;
-pub mod signing;
+pub mod sign;
 pub mod test;
 
 fn main() -> ExitCode {
@@ -44,14 +44,11 @@ fn run() -> anyhow::Result<ExitCode> {
     let current_dir = env::current_dir()?;
     match &cli.command {
         Commands::Build(args) => {
-            let (build_args, debug_symbols, incremental, is_source) = match &args.target {
-                BuildTarget::Binary(binary_args) => (
-                    &binary_args.build,
-                    binary_args.debug_symbols,
-                    binary_args.incremental,
-                    false,
-                ),
-                BuildTarget::Source(source_args) => (&source_args.build, None, None, true),
+            let (build_args, debug_symbols, is_source) = match &args.target {
+                BuildTarget::Binary(binary_args) => {
+                    (&binary_args.build, binary_args.debug_symbols, false)
+                }
+                BuildTarget::Source(source_args) => (&source_args.build, None, true),
             };
 
             let config_driver = Config::load(
@@ -79,17 +76,14 @@ fn run() -> anyhow::Result<ExitCode> {
                 config_file: cli.config.clone(),
                 driver,
                 persistent: build_args.persistent,
-                incremental,
-                disable_incremental: is_source,
+                incremental: build_args.incremental,
                 debug_symbols,
                 sign: build_args.sign,
-                no_sign: build_args.no_sign,
-                sign_with: build_args.sign_with,
                 sign_key: build_args.sign_key.clone(),
+                sign_tool: build_args.sign_tool,
+                sign_command: build_args.sign_command.clone(),
                 sign_notify: build_args.sign_notify,
-                no_sign_notify: build_args.no_sign_notify,
                 clean: build_args.clean,
-                no_clean: build_args.no_clean,
                 source_sync: build_args.source_sync,
                 host_arch_variant: build_args.host_arch_variant.clone(),
                 shell_on_failure: build_args.shell_on_failure,
@@ -168,6 +162,51 @@ fn run() -> anyhow::Result<ExitCode> {
         }
         Commands::Check(_args) => {
             println!("Check subcommand! - not implemented");
+        }
+        Commands::Sign(args) => {
+            let source_dir = args.common.source_dir.as_deref().unwrap_or(&current_dir);
+            let source_dir =
+                std::path::absolute(source_dir).context("resolving source dir failed")?;
+            let mut config = Config::load(Some(&source_dir), cli.config.as_deref())?;
+
+            if let Some(key) = &args.sign_key {
+                config.sign.key = Some(key.clone());
+            }
+            if let Some(tool) = args.sign_tool {
+                config.sign.tool = tool;
+            }
+            if let Some(command) = &args.sign_command {
+                config.sign.command = Some(command.clone());
+            }
+            if let Some(notify) = args.sign_notify {
+                config.sign.notify = notify;
+            }
+
+            let options = sign::SignOptions {
+                key: config.sign.key.clone(),
+                tool: config.sign.tool,
+                command: config.sign.command.clone(),
+            };
+
+            let file = match &args.file {
+                Some(file) => {
+                    std::path::absolute(file).context("resolving the file to sign failed")?
+                }
+                None => {
+                    let identity = load_package_identity(&source_dir)?;
+                    sign::find_changes_file(
+                        &identity.name,
+                        &identity.version.to_string(),
+                        args.output_dir.as_deref(),
+                    )?
+                }
+            };
+
+            let package = file
+                .file_stem()
+                .map(|stem| stem.to_string_lossy().into_owned())
+                .unwrap_or_default();
+            sign::sign_file(&file, &options, config.sign.notify, &package)?;
         }
         Commands::Config(args) => match &args.command {
             ConfigCommands::Show(show_args) => {

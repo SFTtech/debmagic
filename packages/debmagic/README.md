@@ -57,7 +57,7 @@ Use `--strict` to fail on skipped or undeclared tests (exit code 2). The bare dr
 - `--distro <codename>` — select the target distro/release (e.g. `trixie`, `noble`) if the changelog is ambiguous
 - `--persistent` — retain the build environment for repeated attempts
 - `--incremental` — sync only changed sources for faster rebuilds; implies `--persistent`
-- `--sign` — GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo` with `debsign`
+- `--sign` — GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`
 - `--apt-mirror <url>` — use a faster mirror for build-dependency resolution
 
 Any of these can be persisted in a `debmagic.toml` config file instead of repeating CLI flags.

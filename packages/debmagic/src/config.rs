@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use crate::build::source::SourceSyncMode;
 use crate::driver::config::DriverConfig;
-use crate::signing::SignWith;
+use crate::sign::SignTool;
 use anyhow::{Context, anyhow};
 use config::{Config as ConfigBuilder, File};
 use serde::{Deserialize, Serialize};
@@ -172,18 +172,17 @@ pub struct Config {
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(default)]
 pub struct SignConfig {
-    /// Sign the source package (`.changes`/`.dsc`) with `debsign` after
-    /// building.
+    /// Sign the source package (`.changes`/`.dsc`) after building.
     pub source: bool,
-    /// Where `debsign` runs: on the host or inside a minimal same-distro
-    /// container with the host's gpg-agent socket forwarded in.
-    pub with: SignWith,
-    /// GPG key ID/email to sign with (debsign's `-k` option). `None` lets
-    /// debsign fall back to its own maintainer-based key lookup, but
-    /// container signing requires an explicit key.
+    /// GPG key ID/email to sign with. `None` falls back to the
+    /// `Changed-By:`/`Maintainer:` address of the file being signed.
     pub key: Option<String>,
-    /// Send a desktop notification via `notify-send` just before `debsign`
-    /// runs, so a hardware-key touch prompt isn't missed.
+    /// Which OpenPGP implementation to use.
+    pub tool: SignTool,
+    /// Custom signing command when `tool` is `custom`, like debsign's `-p`.
+    pub command: Option<String>,
+    /// Send a desktop notification via `notify-send` just before signing,
+    /// so a hardware-key touch prompt isn't missed.
     pub notify: bool,
 }
 
@@ -327,7 +326,7 @@ mod tests {
         let file = dir.join("sign.toml");
         std::fs::write(
             &file,
-            "[sign]\nsource = true\nwith = \"separate\"\nkey = \"you@example.com\"\nnotify = true\n",
+            "[sign]\nsource = true\nkey = \"you@example.com\"\ncommand = \"gpg --foo\"\nnotify = true\n",
         )?;
         let cfg = Config::new(&[ConfigPath::new(
             ConfigLayer::Explicit,
@@ -336,8 +335,8 @@ mod tests {
         )])?;
         std::fs::remove_dir_all(&dir).ok();
         assert!(cfg.sign.source);
-        assert_eq!(cfg.sign.with, SignWith::Separate);
         assert_eq!(cfg.sign.key.as_deref(), Some("you@example.com"));
+        assert_eq!(cfg.sign.command.as_deref(), Some("gpg --foo"));
         assert!(cfg.sign.notify);
         Ok(())
     }

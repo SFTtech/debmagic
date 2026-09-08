@@ -5,15 +5,15 @@ use std::{
     process::{Command, Stdio},
 };
 
-use anyhow::{Context, anyhow};
+use anyhow::anyhow;
 use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
     EnvironmentMetadata, IsolationCapability, SignRequest, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint,
-    resource_name, run_checked, translate_path_in_container,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
+    run_checked, translate_path_in_container,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -336,7 +336,7 @@ impl DriverDocker {
 
     pub fn from_metadata(
         environment: &Environment,
-        driver_config: &DriverConfig,
+        _driver_config: &DriverConfig,
         metadata: &EnvironmentMetadata,
     ) -> anyhow::Result<Self> {
         Ok(Self {
@@ -457,6 +457,6 @@ impl EnvironmentDriver for DriverDocker {
     }
 
     fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
-        crate::signing::sign_changes(request)
+        crate::sign::sign_changes(request)
     }
 }

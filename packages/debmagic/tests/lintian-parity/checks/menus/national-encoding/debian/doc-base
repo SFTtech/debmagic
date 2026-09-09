@@ -1,0 +1,41 @@
+Document: binary!docs  
+Title: Broken debian binary doc-base control file
+Author: Russ Allbery
+Abstract: This control file exercises various tests of doc-base control
+  files, including several things that aren't tested yet.  The third and
+  fourth one has trailing whitespace.
+  .
+ This section has a speling error and bad ® character.
+ .
+ The above separator was fine.
+Section: Non/Existant
+Unknown: Some field
+
+
+
+Format: debiandoc-sgML
+Files: /usr/share/doc/binary/binary.sgml.gz
+Unknown: Some field
+
+Format: ESP
+Index: /usr/share/doc/binary/binary.txt
+
+Index: /usr/share/doc/binary/html/index.html  
+ /usr/share/doc/binary/html/ch1.html  
+ /usr/share/doc/binary/html/ch4.html
+
+
+Format: HTML  
+Index: /usr/share/doc/binary/html/index.html
+Files: /usr/share/doc/binary/html/ch?.h*l
+	/usr/share/doc/binary/hml/*.html
+
+Format: inFO
+Files: /usr/share/info/binary.info.gz
+
+Format: HTML
+Index: /usr/share/doc/binary/html/index.html
+Files: /usr/share/doc/binary/html/ch5.html
+       /usr/share/doc/binary/html/ch6.html
+
+

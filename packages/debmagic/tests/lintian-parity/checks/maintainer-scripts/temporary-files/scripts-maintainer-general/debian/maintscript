@@ -1,0 +1,1 @@
+mv_conffile /etc/foo/old.conf /etc/foo/new.conf 0~

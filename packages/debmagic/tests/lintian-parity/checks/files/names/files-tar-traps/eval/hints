@@ -1,0 +1,1 @@
+files-tar-traps (binary): file-name-ends-in-whitespace [strangename/strangename/'\ ]

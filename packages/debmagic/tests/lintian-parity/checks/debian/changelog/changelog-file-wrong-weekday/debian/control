@@ -1,0 +1,16 @@
+Source: changelog-file-wrong-weekday
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 3.9.8
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: changelog-file-wrong-weekday
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for wrong weekday in changelog date
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

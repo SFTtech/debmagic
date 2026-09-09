@@ -1,0 +1,1 @@
+scripts-maintainer-general (binary): uses-dpkg-database-directly [postinst]

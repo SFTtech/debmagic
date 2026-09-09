@@ -1,0 +1,13 @@
+etc
+etc/skel
+usr/bin
+usr/doc
+usr/lib/python3/dist-packages/foo
+usr/share/foo
+usr/share/fonts/X11/misc
+usr/share/glib-2.0/schemas
+usr/share/hal
+usr/share/man/man1/random
+var/catman
+var/lock/lintian
+var/run/lintian

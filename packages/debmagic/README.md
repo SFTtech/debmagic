@@ -4,7 +4,7 @@ Modern, robust & easy tooling for building and packaging [Debian](https://debian
 
 - **Build any package** in an isolated container environment with `debmagic build`
 - **Run Debian autopkgtest tests** against built packages with `debmagic test`
-- **Lint** with `debmagic check`
+- **Lint** with `debmagic lint`
 - **Debug** build environments interactively with `debmagic shell`
 
 ## Installation
@@ -74,6 +74,10 @@ debmagic shell
 
 For the full documentation — the [build quick reference](https://debmagic.readthedocs.io/en/latest/usage/build.html), 
 packaging guides, configuration and module references — visit **[debmagic.readthedocs.io](https://debmagic.readthedocs.io)**.
+
+## Acknowledgements
+
+debmagic's lint implementation is heavily inspired by [oxlint](https://oxc.rs/docs/guide/usage/linter) and [Ruff](https://docs.astral.sh/ruff/). It draws on [lintian](https://lintian.debian.org/)’s checks and tag catalog, with the long-term goal of full lintian compatibility plus additional original rules.
 
 ## License
 

@@ -1,0 +1,12 @@
+usr/X11R6/bin/rstartd /usr/bin/rstartd
+usr/share/man/man7/undocumented.7.gz /usr/share/man/man1/bin-binary.1.gz
+usr/share/man/man3/undocumented.3.gz /usr/share/man/man3/function.3.gz
+usr/bin/usr-bin-binary usr/bin/sbin-binary
+usr/bin/usr-bin-binary usr/bin/test
+usr/bin/usr-bin-binary usr/bin/true
+usr/bin/usr-bin-binary usr/bin/program
+usr/bin/usr-bin-binary usr/bin/bin-binary
+usr/bin/usr-bin-binary usr/bin/bad-so
+usr/bin/usr-bin-binary usr/bin/README
+usr/bin/usr-bin-binary usr/bin/test-utf8-chars
+usr/bin/usr-bin-binary usr/bin/test-latin1-chars

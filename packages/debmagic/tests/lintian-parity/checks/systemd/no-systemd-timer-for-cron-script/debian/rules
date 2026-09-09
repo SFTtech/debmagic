@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_installcron:
+	set -e; for X in daily weekly monthly hourly; do \
+		echo "#!/bin/sh\n\nexit 0" > debian/$(shell dh_listpackages).cron.$$X; \
+	done
+	dh_installcron

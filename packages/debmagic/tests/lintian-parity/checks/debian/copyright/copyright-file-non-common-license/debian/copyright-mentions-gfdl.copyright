@@ -1,0 +1,13 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: lintian
+Upstream-Contact: Lintian Maintainers <debian-lint-maint@lists.debian.org>
+Source: http://git.debian.org/?p=lintian/lintian.git
+
+Files: *
+Copyright: 2015 Lintian Maintainers <debian-lint-maint@lists.debian.org>
+License: Mentions-Other-License
+
+License: Mentions-Other-License
+ lorem ipsum
+ lorem ipsum GNU Free Documentation License (GFDL) lorem ipsum
+ lorem ipsum

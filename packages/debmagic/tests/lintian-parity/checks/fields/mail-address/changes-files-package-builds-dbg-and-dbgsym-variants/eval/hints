@@ -1,0 +1,6 @@
+changes-files-package-builds-dbg-and-dbgsym-variants (source): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changes-files-package-builds-dbg-and-dbgsym-variants (changes): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changes-files-package-builds-dbg-and-dbgsym-variants (changes): mail-contact Changed-By "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changes-files-package-builds-dbg-and-dbgsym-variants-dbgsym (binary): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changes-files-package-builds-dbg-and-dbgsym-variants-dbg (binary): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changes-files-package-builds-dbg-and-dbgsym-variants (binary): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>

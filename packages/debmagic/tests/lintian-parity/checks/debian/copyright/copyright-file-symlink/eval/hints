@@ -1,0 +1,3 @@
+symlink-without-depends (binary): usr-share-doc-symlink-without-dependency foreign-package
+symlink-to-foreign (binary): usr-share-doc-symlink-to-foreign-package foreign-package
+symlink-outside-usd (binary): usr-share-doc-symlink-points-outside-of-usr-share-doc ../../lib/symlink-outside-usd/copyright [usr/share/doc/symlink-outside-usd]

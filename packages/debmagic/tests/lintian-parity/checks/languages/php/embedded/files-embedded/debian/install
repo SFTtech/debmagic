@@ -1,0 +1,9 @@
+jquery*  usr/share/php
+mocha.* usr/share/javascript/mocha
+bootstrap-*  usr/share/php
+bootstrap.js  usr/share/xul-ext/lintian
+*.php usr/share/php
+*.inc usr/share/php
+tiny_mce_popup.js usr/share/php
+jquery.js usr/share/doxygen-test/
+doxygen.css usr/share/doxygen-test

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo $(py3versions -s)
+echo $(py3versions -vs)
+echo $(py3versions --supported)
+echo $(py3versions --verbose --supported)

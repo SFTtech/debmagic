@@ -1,0 +1,18 @@
+Source: lacks-depends-on-r-api
+Priority: optional
+Section: gnu-r
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 13), dh-r
+Rules-Requires-Root: no
+
+Package: r-cran-isospecr
+Architecture: all
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Ships R site library but lacks Depends on r-api-N
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package has an incorrect Depends field.

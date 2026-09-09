@@ -1,0 +1,92 @@
+#!/usr/bin/make -f
+
+tmp=debian/tmp
+
+# This reference to $(PWD) should not cause an error but the one below
+# should.
+build-arch:
+	make
+	echo $(PWD)
+
+build: build-arch
+
+clean:
+	make -i clean
+	[ ! -f debian/files ] || rm -f debian/files
+	[ ! -f debian/substvars ] || rm -f debian/substvars
+	[ ! -d debian/tmp ] || rm -rf debian/tmp
+	[ ! -d debian/binary ] || rm -rf debian/binary
+	[ ! -d debian/binary-data ] || rm -rf debian/binary-data
+
+binary-arch: build
+	install -d $(tmp)/usr/bin
+	install -d $(tmp)/boot/hello
+	install -m 755 hello $(tmp)/usr/bin
+	touch $(tmp)/usr/bin/iminusrbin
+	chmod 755 $(tmp)/usr/bin/iminusrbin
+	install -m 755 hello-static $(tmp)/usr/bin
+	strip $(tmp)/usr/bin/hello-static
+	install -m 755 hello-static $(tmp)/usr/bin/hello.static
+	strip --remove-section=.comment --remove-section=.note $(tmp)/usr/bin/hello.static
+	ln $(tmp)/usr/bin/hello.static $(tmp)/usr/bin/static-hello
+	install -m 755 hello-static $(tmp)/boot/hello
+	strip --remove-section=.comment --remove-section=.note $(tmp)/boot/hello/hello-static
+	install -d $(tmp)/usr/share/doc/binary
+	install -m 644 INSTALL $(tmp)/usr/share/doc/binary
+	install -d $(tmp)/usr/share/doc/binary/html
+	echo '<html></html>' > $(tmp)/usr/share/doc/binary/html/index.html
+	echo '<html></html>' > $(tmp)/usr/share/doc/binary/html/ch1.html
+	ln -s ../html/./ch1.html $(tmp)/usr/share/doc/binary/html/ch2.html
+	ln -s /usr/share/doc/binary/htm/ch1.html $(tmp)/usr/share/doc/binary/html/ch3.html
+	echo '<html></html>' > $(tmp)/usr/share/doc/binary/html/ch5.html
+	ln $(tmp)/usr/share/doc/binary/html/ch5.html \
+	    $(tmp)/usr/share/doc/binary/html/ch6.html
+	install -d $(tmp)/usr/share/menu
+	install -d $(tmp)/usr/lib/menu
+	install -d $(tmp)/usr/share/binary
+	install -m 644 debian/menu $(tmp)/usr/share/menu/binary
+	install -m 644 debian/menu $(tmp)/usr/lib/menu/binary
+	install -d $(tmp)/etc/menu-methods
+	install -m 755 debian/menu-method $(tmp)/etc/menu-methods/lintian
+	install -d $(tmp)/usr/share/doc-base
+	install -m 644 debian/doc-base $(tmp)/usr/share/doc-base/binary
+	touch '$(tmp)/usr/share/doc-base/space '
+	install -m 644 debian/README.Debian $(tmp)/usr/share/doc/binary
+	install -m 644 debian/NEWS.Debian $(tmp)/usr/share/doc/binary
+	gzip -n -9 $(tmp)/usr/share/doc/binary/NEWS.Debian
+	install -m 644 debian/copyright $(tmp)/usr/share/doc/binary
+	install -m 644 debian/changelog $(tmp)/usr/share/doc/binary
+	#gzip -n -9 $(tmp)/usr/share/doc/binary/changelog
+	install -d $(tmp)/DEBIAN
+	install -m 755 debian/postinst $(tmp)/DEBIAN
+	install -m 644 debian/conffiles $(tmp)/DEBIAN
+
+	install -d $(tmp)/usr/share/applications
+	install -m 644 debian/hello.desktop \
+	    $(tmp)/usr/share/applications/hello.desktop
+	install -m 755 debian/goodbye.desktop \
+	    $(tmp)/usr/share/applications/goodbye.desktop
+
+	# should be ok...
+	echo boe > $(tmp)/usr/bar
+	ln $(tmp)/usr/bar $(tmp)/usr/foo 
+	# but this isn't
+	echo boe > $(tmp)/usr/bar2
+	ln $(tmp)/usr/bar2 $(tmp)/usr/share/baz 
+
+	dd if=/dev/zero of=$(tmp)/usr/share/binary/largefile bs=1024 count=4000
+
+	install -d debian/binary-data/DEBIAN
+	install -d debian/binary-data/usr/share/doc
+	ln -s binary debian/binary-data/usr/share/doc/binary-data
+
+	dpkg-shlibdeps $(tmp)/usr/bin/hello
+	dpkg-gencontrol -pbinary -isp
+	dpkg-gencontrol -pbinary-data -Pdebian/binary-data -isp
+
+	dpkg --build debian/tmp ..
+	dpkg --build debian/binary-data ..
+
+binary: binary-arch
+
+.PHONY: build-arch build binary-arch binary clean

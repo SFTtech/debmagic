@@ -26,6 +26,13 @@ regex = { version = ">=1.12.2" }
 debian-changelog = { version = ">=0.2.14" }
 debian-control = { version = ">=0.1.39" }
 ignore = { version = ">=0.4.25" }
+ar = { version = ">=0.9.0" }
+tar = { version = ">=0.4.45" }
+flate2 = { version = ">=1.1.9" }
+xz2 = { version = ">=0.1.7" }
+zstd = { version = ">=0.13.3" }
 
 # dev dependencies
 test-case = { version = ">=3.3.1" }
+tempfile = { version = ">=3.27.0" }
+insta = { version = ">=1.48.0" }

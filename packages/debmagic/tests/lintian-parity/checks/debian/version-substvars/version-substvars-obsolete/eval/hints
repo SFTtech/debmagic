@@ -1,0 +1,7 @@
+version-substvars-obsolete (source): version-substvar-for-external-package program-data -> other-foreign-pkg
+version-substvars-obsolete (source): version-substvar-for-external-package program-data -> foreign-pkg
+version-substvars-obsolete (source): substvar-source-version-is-deprecated program-data
+version-substvars-obsolete (source): not-binnmuable-any-depends-any program-utils -> program-bin
+version-substvars-obsolete (source): not-binnmuable-any-depends-all program-utils -> program-data
+version-substvars-obsolete (source): not-binnmuable-any-depends-all program-bin -> program-data
+version-substvars-obsolete (source): not-binnmuable-all-depends-any program-data-extra -> program-bin

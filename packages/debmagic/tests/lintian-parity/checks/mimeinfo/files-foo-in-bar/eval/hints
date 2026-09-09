@@ -1,0 +1,2 @@
+files-foo-in-bar (binary): package-contains-mime-file-outside-package-dir [usr/share/mime/foo/bar]
+files-foo-in-bar (binary): package-contains-mime-file-outside-package-dir [usr/share/mime/foo/]

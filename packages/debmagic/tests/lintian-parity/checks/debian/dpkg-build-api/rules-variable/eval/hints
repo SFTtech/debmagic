@@ -1,0 +1,2 @@
+rules-variable (source): debian-rules-defines-dpkg-build-api [debian/rules:8]
+rules-variable (source): dpkg-build-api-level 0

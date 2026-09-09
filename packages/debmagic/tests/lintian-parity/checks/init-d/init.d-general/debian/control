@@ -1,0 +1,61 @@
+Source: init.d-general
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: init.d-general
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, lsb-base (>= 3.0-6)
+Description: Test tags related to the init.d checks
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: init.d-general-bugs
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, lsb-base (>= 3.0-6)
+Description: Test tags related to the init.d checks -- bugs
+ Test some simple bugs in the check
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: init.d-general-interpreter-in-usr-dir
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test tags related to the init.d checks -- bad script interpreter
+ Test a check for a /usr dir interpreter used in an init script
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: init.d-general-sourcing-without-test
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, lsb-base (>= 3.0-6)
+Description: Test tags related to the init.d checks -- sourcing without test
+ Test a check for . /etc/default/foo without checking the existence of
+ the file beforehand.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: init.d-general-new-style
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test tags related to the init.d checks -- "new style"
+ New style of init.d. (#919604)
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

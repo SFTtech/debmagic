@@ -1,0 +1,27 @@
+Source: systemd-service-file-uses-nobody-or-nogroup
+Priority: optional
+Section: misc
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: systemd-service-file-uses-nobody-or-nogroup-good
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for User=nobody or Group=nogroup (good)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Good case.
+
+Package: systemd-service-file-uses-nobody-or-nogroup-bad
+Architecture: all
+Depends: ${misc:Depends}
+Description: Check for User=nobody or Group=nogroup (bad)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Bad case.

@@ -1,0 +1,6 @@
+package-uses-python-egg-info (binary): python-package-missing-depends-on-python
+package-uses-python-egg-info (binary): package-installs-legacy-python-egg-info [usr/lib/python3/dist-packages/package-uses-python-egg-info.egg-info/top_level.txt]
+package-uses-python-egg-info (binary): package-installs-legacy-python-egg-info [usr/lib/python3/dist-packages/package-uses-python-egg-info.egg-info/dependency_links.txt]
+package-uses-python-egg-info (binary): package-installs-legacy-python-egg-info [usr/lib/python3/dist-packages/package-uses-python-egg-info.egg-info/]
+package-uses-python-egg-info (binary): package-installs-legacy-python-egg-info [usr/lib/python3/dist-packages/package-uses-python-egg-info.egg-info/SOURCES.txt]
+package-uses-python-egg-info (binary): package-installs-legacy-python-egg-info [usr/lib/python3/dist-packages/package-uses-python-egg-info.egg-info/PKG-INFO]

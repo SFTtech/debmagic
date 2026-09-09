@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+pkg = $(shell dh_listpackages)
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_installdocs:
+	dh_installdocs
+	chmod 755 debian/$(pkg)/usr/share/doc-base/executable-in-docbase.doc1.txt
+
+# In Ubuntu, dh does not catch this file by default.
+#  They have diffed it to reduce the size of packages.
+ifneq (,$(strip $(wildcard Changes)))
+override_dh_installchangelogs:
+	dh_installchangelogs Changes
+endif

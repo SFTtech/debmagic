@@ -1,0 +1,2 @@
+watch-file-prerelease (source): debian-watch-mangles-upstream-version-improperly opts=dversionmangle=s/~rc/-rc/ https://www.example.com/software/foo/ .*/foo-([^-]+)\.tar\.gz [debian/watch:3]
+watch-file-prerelease (source): debian-watch-does-not-check-openpgp-signature [debian/watch]

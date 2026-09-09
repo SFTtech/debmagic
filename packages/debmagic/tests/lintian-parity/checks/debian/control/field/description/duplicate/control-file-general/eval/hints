@@ -1,0 +1,2 @@
+control-file-general (source): duplicate-short-description control-file-general control-file-general-1 [debian/control]
+control-file-general (source): duplicate-long-description control-file-general control-file-general-1 control-file-general-2 control-file-general-3 control-file-general-4 control-file-general-5 control-file-general-dbg control-file-general-dbgsym [debian/control]

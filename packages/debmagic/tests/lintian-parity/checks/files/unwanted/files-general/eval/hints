@@ -1,0 +1,2 @@
+files-general (binary): nfs-temporary-file-in-package [usr/share/foo/.nfs-fake-tmpfile]
+files-general (binary): backup-file-in-package [usr/share/foo/file~]

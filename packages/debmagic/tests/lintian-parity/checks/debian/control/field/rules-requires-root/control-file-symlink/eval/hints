@@ -1,0 +1,1 @@
+control-file-symlink (source): rules-do-not-require-root [debian/control.real]

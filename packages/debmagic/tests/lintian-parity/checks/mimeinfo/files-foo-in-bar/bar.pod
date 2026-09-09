@@ -1,0 +1,18 @@
+
+=head1 NAME
+
+bar - does stuff
+
+=head1 SYNOPSIS
+
+bar
+
+=head1 DESCRIPTION
+
+Does nothing.
+
+=head1 AUTHOR
+
+Niels Thykier <niels@thykier.net>
+
+=cut

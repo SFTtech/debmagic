@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+debiandir="$1"
+controlmembers="$2"
+
+tar --create \
+    --owner=root:0 --group=root:0 \
+    --file members/control.tar.gz \
+    --gzip \
+    --directory "$debiandir" \
+    $controlmembers

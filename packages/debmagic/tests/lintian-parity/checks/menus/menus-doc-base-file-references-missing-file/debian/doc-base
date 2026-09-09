@@ -1,0 +1,13 @@
+Document: example
+Title: An example doc-base control file
+Author: Chris Lamb
+Section: Help
+
+Format: HTML  
+Index: /usr/share/doc/menus-doc-base-file-references-missing-file/documentation.txt
+Files:
+ /missing
+ /usr/share/doc/menus-doc-base-file-references-missing-file/documentation.txt
+ /usr/share/doc/menus-doc-base-file-references-missing-file/documentatio?.t*t
+ /usr/share/doc/menus-doc-base-file-references-missing-file-dependency/documentation.txt
+ /usr/share/doc/menus-doc-base-file-references-missing-file-not-a-dependency/documentation.txt

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+udevadm positive
+
+udevadm false-positive || true
+udevadm false-positive || echo "Warning message"
+
+if udevadm false-positive
+then
+	udevadm false-positive
+fi
+
+# We don't actually catch this one as our test is too naive
+udevadm positive
+
+exit 0

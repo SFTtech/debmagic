@@ -1,0 +1,2 @@
+libbaz2 (binary): package-name-doesnt-match-sonames libbaz2-1.0
+libbaz1 (binary): package-name-doesnt-match-sonames libbaz libbaz2-1.0 libbaz3-1

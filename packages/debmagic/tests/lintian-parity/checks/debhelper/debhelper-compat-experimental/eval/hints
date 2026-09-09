@@ -1,0 +1,4 @@
+debhelper-compat-experimental (source): package-uses-experimental-debhelper-compat-version 13
+debhelper-compat-experimental (source): no-versioned-debhelper-prerequisite 13
+debhelper-compat-experimental (source): debian-build-system dh [debian/rules]
+debhelper-compat-experimental (source): debhelper-compat-level 13

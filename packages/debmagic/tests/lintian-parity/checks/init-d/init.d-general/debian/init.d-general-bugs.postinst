@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "configure" ] ; then
+    # duplicate call
+    update-rc.d init.d-general-bugs word > /dev/null
+    update-rc.d init.d-general-bugs anotherword
+fi
+
+# Actually debhelper will add a third one for us, but since the line
+# number might change with any debhelper release, we don't want to
+# rely on that debhelper only changing seldomly what replaces the
+# token and hence rather add our own second one above. The token below
+# is just to not trigger further lintian warnings.
+
+#DEBHELPER#

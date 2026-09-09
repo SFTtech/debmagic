@@ -1,0 +1,1 @@
+cblas (binary): linked-with-obsolete-library libcblas.so.1 [usr/bin/consumer]

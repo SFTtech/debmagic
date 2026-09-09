@@ -1,0 +1,10 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+##
+## All lines beginning with `## DP:' are a description of the patch.
+
+@DPATCH@
+--- upstream/README
++++ debian/README
+@@ -1 +1 @@
+-README
++README for quilt test

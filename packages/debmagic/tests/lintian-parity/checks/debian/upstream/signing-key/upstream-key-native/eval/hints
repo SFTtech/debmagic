@@ -1,0 +1,1 @@
+upstream-key-native (source): public-upstream-key-in-native-package [debian/upstream/signing-key.asc]

@@ -1,0 +1,4 @@
+debhelper-script-token (source): maintainer-script-lacks-debhelper-token [debian/postinst]
+debhelper-script-token (source): debian-build-system dh [debian/rules]
+debhelper-script-token (source): debhelper-compat-virtual-relation 14 [debian/control]
+debhelper-script-token (source): debhelper-compat-level 14

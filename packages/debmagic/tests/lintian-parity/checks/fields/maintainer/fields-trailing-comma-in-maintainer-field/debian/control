@@ -1,0 +1,17 @@
+Source: fields-trailing-comma-in-maintainer-field
+Section: devel
+Maintainer: Maytham Alsudany <maytha8thedev@gmail.com>,
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Homepage: https://lintian.debian.org/
+
+Package: fields-trailing-comma-in-maintainer-field
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Checks for a trailing comma in the Maintainer field
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package probably has no meaningful contents.

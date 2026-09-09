@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# The following line contains non UTF-8 characters
+# Dieser höchstwichtige Kommentar muß noch übersetzt werden.

@@ -1,0 +1,43 @@
+Source: control-file-important-space
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+Homepage: http://lintian.debian.org/
+
+Package: control-file-important-space-broken
+Architecture: any-amd64 any-arm64 any-mips64 any-mips64el any-ia64
+              any-ppc64 any-ppc64el any-sparc64
+Depends: ${misc:Depends}
+Description: Important tests for control file spacing (multiline architecture, broken)
+ This is a (broken) test package designed to exercise some feature or
+ tag of Lintian.  It is part of the Lintian test suite and may do very
+ odd things.  It should not be installed like a regular package.  It
+ may be an empty package.
+ .
+ The Architecture (multi-)line example above is taken from
+ https://bugs.debian.org/780473
+
+Package: control-file-important-space-fine-any-something
+Architecture: any-amd64 any-arm64 any-mips64 any-mips64el any-ia64 any-ppc64 any-ppc64el any-sparc64
+Depends: ${misc:Depends}
+Description: Important tests for control file spacing (any-something, fine)
+ This is a (non-broken) test package designed to exercise some feature
+ or tag of Lintian.  It is part of the Lintian test suite and may do
+ very odd things.  It should not be installed like a regular package.
+ It may be an empty package.
+ .
+ This "any-something" package should not show up.
+
+Package: control-file-important-space-fine-all
+Architecture: all
+Depends: ${misc:Depends}
+Description: Important tests for control file spacing (all, fine)
+ This is a (non-broken) test package designed to exercise some feature
+ or tag of Lintian.  It is part of the Lintian test suite and may do
+ very odd things.  It should not be installed like a regular package.
+ It may be an empty package.
+ .
+ This "all" package should not show up.

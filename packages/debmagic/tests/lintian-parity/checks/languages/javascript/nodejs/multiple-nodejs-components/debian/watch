@@ -1,0 +1,42 @@
+version=4
+  
+opts=\
+dversionmangle=s/\+(debian|dfsg|ds|deb)(\.\d+)?$//,\
+filenamemangle=s/.*\/v?([\d\.-]+)\.tar\.gz/node-mongodb-native-$1.tar.gz/ \
+ https://github.com/mongodb/node-mongodb-native/tags .*/archive/v?([\d\.]+).tar.gz group
+
+opts="searchmode=plain,pgpmode=none,component=mongodb-core" \
+ https://registry.npmjs.org/mongodb-core https://registry.npmjs.org/mongodb-core/-/mongodb-core-(\d[\d\.]*)@ARCHIVE_EXT@ group
+
+opts="searchmode=plain,pgpmode=none,component=requireoptional" \
+ https://registry.npmjs.org/require_optional https://registry.npmjs.org/require_optional/-/require_optional-(\d[\d\.]*)@ARCHIVE_EXT@ ignore
+
+opts="searchmode=plain,pgpmode=none,component=bson" \
+ https://registry.npmjs.org/bson https://registry.npmjs.org/bson/-/bson-(1[\d\.]*)@ARCHIVE_EXT@ ignore
+
+opts="searchmode=plain,pgpmode=none,component=foobar" \
+ https://registry.npmjs.org/bson https://registry.npmjs.org/foobar/-/foobar-(1[\d\.]*)@ARCHIVE_EXT@ ignore
+
+# It is not recommended use npmregistry. Please investigate more.
+# Take a look at https://wiki.debian.org/debian/watch/
+opts="searchmode=plain,component=denque,pgpmode=none" \
+ https://registry.npmjs.org/denque https://registry.npmjs.org/denque/-/denque-([\d\.]+)@ARCHIVE_EXT@ ignore
+
+opts=\
+component=saslprep,\
+dversionmangle=auto,\
+filenamemangle=s/.*\/v?([\d\.-]+)\.tar\.gz/node-saslprep-$1.tar.gz/ \
+ https://github.com/reklatsmasters/saslprep/tags .*/archive/v?([\d\.]+).tar.gz ignore
+
+opts=\
+component=sparse-bitfield,\
+dversionmangle=auto,\
+filenamemangle=s/.*\/v?([\d\.-]+)\.tar\.gz/node-sparse-bitfield-$1.tar.gz/ \
+ https://github.com/mafintosh/sparse-bitfield/tags .*/archive/v?([\d\.]+).tar.gz ignore
+
+opts=\
+component=memory-pager,\
+dversionmangle=auto,\
+filenamemangle=s/.*\/v?([\d\.-]+)\.tar\.gz/node-memory-pager-$1.tar.gz/ \
+ https://github.com/mafintosh/memory-pager/tags .*/archive/v?([\d\.]+).tar.gz ignore
+

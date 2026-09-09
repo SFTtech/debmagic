@@ -1,0 +1,1 @@
+scripts-exec (binary): script-not-executable [usr/bin/02-no-exec-script]

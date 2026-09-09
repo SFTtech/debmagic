@@ -1,0 +1,3 @@
+cruft-source-is-missing-unrel (source): source-contains-prebuilt-binary [foo]
+cruft-source-is-missing-unrel (source): source-contains-prebuilt-binary [baz/quux]
+cruft-source-is-missing-unrel (source): source-contains-prebuilt-binary [bar]

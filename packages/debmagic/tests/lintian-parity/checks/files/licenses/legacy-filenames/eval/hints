@@ -1,0 +1,3 @@
+filenames (binary): extra-license-file [usr/share/pixmaps/license.txt]
+filenames (binary): extra-license-file [usr/share/pixmaps/license.foo]
+filenames (binary): extra-license-file [usr/share/pixmaps/COPYING]

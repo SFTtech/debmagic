@@ -10,7 +10,7 @@ Unified and future-proof developer tooling for increased productivity in the [De
 Debmagic has two independent parts:
 - tooling to [**build** and **test**](#debmagic-building) packages
   - in isolated container environments (lxd, docker, ...)
-  - `debmagic build`, `debmagic check`, `debmagic test`, `debmagic shell`, ...
+  - `debmagic build`, `debmagic lint`, `debmagic test`, `debmagic shell`, ...
 - create package [**build instructions**](#debmagic-packaging)
   - using Python with `debian/rules.py` (instead of shell & Makefiles)
 
@@ -31,7 +31,7 @@ To learn packaging with debmagic, follow **[the documentation!](https://debmagic
 | `debmagic build binary` | Build a binary package in a container |
 | `debmagic build source` | Create a source package for upload |
 | `debmagic test` | Run Debian autopkgtest tests (`debian/tests/`) against a prior build |
-| `debmagic check` | Lint the package |
+| `debmagic lint` | Lint the package |
 
 > [!TIP]
 > Want to know more about how to use debmagic to build a package? See [docs/usage/build.md](docs/usage/build.md) for a quickstart.
@@ -157,6 +157,10 @@ For questions, suggestions, problem support, please join and just ask!
 | Issue Tracker | [SFTtech/debmagic](https://github.com/SFTtech/debmagic/issues)                                 |
 | Matrix Chat   | [`#sfttech:matrix.org`](https://app.element.io/#/room/#sfttech:matrix.org)                     |
 | Support us    | [![donations](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/SFTtech) |
+
+## Acknowledgements
+
+debmagic's lint implementation is heavily inspired by [oxlint](https://oxc.rs/docs/guide/usage/linter) and [Ruff](https://docs.astral.sh/ruff/). It draws on [lintian](https://lintian.debian.org/)’s checks and tag catalog, with the long-term goal of full lintian compatibility plus additional original rules.
 
 ## License
 

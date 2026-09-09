@@ -1,0 +1,8 @@
+po-debconf-general (source): untranslatable-debconf-templates [debian/templates:4]
+po-debconf-general (source): translated-default-field [debian/templates:3]
+po-debconf-general (source): stray-translated-debconf-templates [debian/templates.en_US]
+po-debconf-general (source): no-complete-debconf-translation
+po-debconf-general (source): missing-file-from-potfiles-in some-other-file [debian/po/POTFILES.in:3]
+po-debconf-general (source): misnamed-po-file [debian/po/English.po]
+po-debconf-general (source): invalid-po-file [debian/po/de.po]
+po-debconf-general (source): invalid-po-file [debian/po/English.po]

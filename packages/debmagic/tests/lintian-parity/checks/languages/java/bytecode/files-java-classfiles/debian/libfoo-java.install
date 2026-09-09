@@ -1,0 +1,3 @@
+mini.class usr/share/java/foo/
+mini.class usr/share/java/WEB-INF
+not-a-class-file.class usr/share/java/foo

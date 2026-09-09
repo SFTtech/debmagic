@@ -1,0 +1,19 @@
+Source: elpa
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), dh-elpa, dh-elpa
+Homepage: https://lintian.debian.org/
+# dh-elpa in stretch chokes on unknown fields T_T
+#Rules-Requires-Root: no
+
+Package: elpa-foo
+Section: lisp
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${elpa:Depends}
+Description: Tests for emacsen-common packages using dh-elpa
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

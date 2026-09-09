@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+PKG:=$(shell dh_listpackages)
+LINK_DIR:=debian/$(PKG)/usr/share/lintian/bad-links
+LINK_TARGET:=non-existent/path/lintian-should-not-open
+
+%:
+	dh $@
+
+override_dh_link:
+	mkdir -p "$(LINK_DIR)"
+	ln -s ../../../../../$(LINK_TARGET) \
+		$(LINK_DIR)/relative-escape
+	ln -s /../$(LINK_TARGET) $(LINK_DIR)/absolute

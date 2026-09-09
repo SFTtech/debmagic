@@ -1,0 +1,2 @@
+libbasic2 (binary): missing-dependency-on-libstdc++ needed by usr/lib/libbasic++.so.2
+libbasic2 (binary): missing-dependency-on-libc needed by usr/lib/libbasic++.so.2 and 1 others

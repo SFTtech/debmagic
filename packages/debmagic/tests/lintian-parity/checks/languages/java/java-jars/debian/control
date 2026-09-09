@@ -1,0 +1,73 @@
+Source: java-jars
+Priority: optional
+Section: java
+Maintainer: Vincent Fourmond <fourmond@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), javahelper, default-jdk, javahelper, default-jdk-headless | default-jdk
+Rules-Requires-Root: no
+
+Package: libtesta-java
+Architecture: all
+Depends: ${misc:Depends}
+Description: Various checks about JAR files - part A
+ This is a test package designed to test various aspects of the
+ java-related QA code in lintian. First part.
+ .
+ This package should not be installed.
+
+Package: libcodeless-java
+Architecture: all
+Depends: ${misc:Depends}
+Description: Various checks about JAR files - codeless
+ This is a test package designed to test various aspects of the
+ java-related QA code in lintian. This package should not be
+ installed.
+ .
+ This package tests for codeless jars.
+
+Package: libmanifestless-java
+Architecture: all
+Depends: ${misc:Depends}
+Description: Various checks about JAR files - manifestless
+ This is a test package designed to test various aspects of the
+ java-related QA code in lintian. This package should not be
+ installed.
+ .
+ This package tests for mainifest-less code jars.
+
+Package: libtestc-java
+Architecture: all
+Depends: ${misc:Depends}
+Description: Various checks about JAR files - part C
+ This is a test package designed to test various aspects of the
+ java-related QA code in lintian. Third part.
+ .
+ This package should not be installed.
+
+Package: libtest-maven-plugin-java
+Architecture: all
+Depends: ${misc:Depends}
+Description: Various checks about JAR files - part D
+ This is a test package designed to test various aspects of the
+ java-related QA code in lintian. Fourth part.
+ .
+ This package should not be installed.
+
+Package: unparsable
+Architecture: all
+Depends: ${misc:Depends}
+Description: Various checks about JAR files - unparsable
+ This is a test package designed to test various aspects of the
+ java-related QA code in lintian. The unparsable part.
+ .
+ This package should not be installed.
+
+Package: libcontains-source-java
+Architecture: all
+Depends: ${misc:Depends}
+Description: Various checks about JAR files - contains .java source
+ This is a test package designed to test various aspects of the
+ java-related QA code in lintian. This package should not be
+ installed.
+ .
+ This package tests for .java files inside jars.

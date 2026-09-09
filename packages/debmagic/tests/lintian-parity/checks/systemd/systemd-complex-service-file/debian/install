@@ -1,0 +1,6 @@
+debian/test.service usr/lib/systemd/system/
+debian/test2.service usr/lib/systemd/system/
+debian/test3.service usr/lib/systemd/system/
+debian/test4.service usr/lib/systemd/system/
+debian/test5.service usr/lib/systemd/system/
+debian/test@.service usr/lib/systemd/system/

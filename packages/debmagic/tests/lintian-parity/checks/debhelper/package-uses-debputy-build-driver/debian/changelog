@@ -1,0 +1,6 @@
+package-uses-debputy-build-driver (1.0-1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: package-uses-debputy-build-driver
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

@@ -1,0 +1,5 @@
+#! /usr/lib/dh-exec/dh-exec-subst
+## The above works, but is not recommended.
+foo => bar
+this-line-uses-tabs	=>	this-line-uses-tabs
+${DEB_BUILD_WHATEVER}

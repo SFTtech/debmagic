@@ -1,0 +1,4 @@
+orphan usr/share/scripts/t1
+some-file usr/share/scripts/t1
+orphan usr/share/scripts/t2/foo
+some-file usr/share/scripts/t2/foo

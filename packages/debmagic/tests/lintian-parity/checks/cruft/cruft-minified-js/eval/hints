@@ -1,0 +1,3 @@
+cruft-minified-js (source): source-contains-prebuilt-pandoc-documentation [oldfalsepositives/pandoc/]
+cruft-minified-js (source): source-contains-browserified-javascript code fragment:CODE
+cruft-minified-js (source): embedded-script-includes-copyright-statement extract of copyright statement: COPYRIGHT

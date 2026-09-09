@@ -1,0 +1,1 @@
+python-could-use-pyproject-hatchling (source): missing-prerequisite-for-pyproject-backend hatchling.build (does not satisfy python3-hatchling:any, pybuild-plugin-pyproject:any) [pyproject.toml:3]

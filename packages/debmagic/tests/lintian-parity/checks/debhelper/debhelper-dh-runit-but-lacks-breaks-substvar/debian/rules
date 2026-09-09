@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+# dh-runit is disabled by default on Ubuntu
+export DH_RUNIT_FORCE_ENABLE=1
+
+%:
+	dh $@ --with runit
+
+override_dh_runit:
+	for X in $(shell dh_listpackages); do \
+		echo "debian/test.runscript disable,name=$$X" >> debian/$$X.runit; \
+	done
+	dh_runit
+	rm -f debian/*.runit

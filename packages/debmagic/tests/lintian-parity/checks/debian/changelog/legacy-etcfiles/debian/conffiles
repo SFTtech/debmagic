@@ -1,0 +1,5 @@
+/etc/proper
+/var/lib/foo
+/etc/cron.daily/cronfile-normal
+/etc/cron.daily/.cronfile-begins-with-fullstop
+/etc/cron.daily/cronfile-contains.fullstop

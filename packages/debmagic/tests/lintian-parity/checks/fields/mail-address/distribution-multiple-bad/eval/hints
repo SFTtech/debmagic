@@ -1,0 +1,4 @@
+distribution-multiple-bad (source): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+distribution-multiple-bad (changes): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+distribution-multiple-bad (changes): mail-contact Changed-By "Debian Lintian Maintainers" <lintian-maint@debian.org>
+distribution-multiple-bad (binary): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>

@@ -1,0 +1,15 @@
+Description: Check Last-Update field as ISO8601 YYYY-MM-DD format
+Author: Hideki Yamane <henrich@debian.org>
+Last-Update: 2023-31-03
+Forwarded: Yes
+
+--- a/foobar.h
++++ b/foobar.h
+@@ -20,6 +20,6 @@
+ 
+ 
+ /**
+- * You may know.
++ * You may know...
+  */
+ 

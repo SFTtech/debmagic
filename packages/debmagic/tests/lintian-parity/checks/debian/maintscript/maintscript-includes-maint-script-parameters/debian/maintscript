@@ -1,0 +1,4 @@
+rm_conffile /etc/correct.conf 0.2~ foo
+rm_conffile /etc/incorrect.conf 0.2~ foo -- "$@"
+rm_conffile /etc/incorrect.conf 0.2~ foo -- "${@}"
+rm_conffile /etc/incorrect.conf 0.2~ foo  --  "$@" 

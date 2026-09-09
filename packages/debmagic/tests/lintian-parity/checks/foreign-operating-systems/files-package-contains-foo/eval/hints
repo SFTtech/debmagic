@@ -1,0 +1,3 @@
+files-package-contains-foo (binary): windows-thumbnail-database-in-package [usr/share/files-package-contains-foo/Thumbs.db]
+files-package-contains-foo (binary): macos-resource-fork-file-in-package [usr/share/files-package-contains-foo/._stuff]
+files-package-contains-foo (binary): macos-ds-store-file-in-package [usr/share/files-package-contains-foo/.DS_Store]

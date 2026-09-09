@@ -1,0 +1,5 @@
+files-foo-in-bar (binary): third-party-package-in-python-dir [usr/lib/python2.7/bar]
+files-foo-in-bar (binary): package-installs-deprecated-python2-path [usr/lib/python2.7/bar]
+files-foo-in-bar (binary): package-installs-deprecated-python2-path [usr/lib/python2.7/]
+files-foo-in-bar (binary): file-in-usr-lib-site-python [usr/lib/site-python/foo/bar]
+files-foo-in-bar (binary): file-in-usr-lib-site-python [usr/lib/site-python/foo/]

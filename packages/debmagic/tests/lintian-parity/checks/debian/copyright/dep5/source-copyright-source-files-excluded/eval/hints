@@ -1,0 +1,5 @@
+source-copyright-source-files-excluded (source): source-ships-excluded-file exclude-this [debian/copyright:2]
+source-copyright-source-files-excluded (source): source-ships-excluded-file exclude-dir/filename-2 [debian/copyright:2]
+source-copyright-source-files-excluded (source): source-ships-excluded-file exclude-dir/filename [debian/copyright:2]
+source-copyright-source-files-excluded (source): source-ships-excluded-file exclude-dir-2/filename [debian/copyright:2]
+source-copyright-source-files-excluded (source): source-ships-excluded-file .matches [debian/copyright:2]

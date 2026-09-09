@@ -1,0 +1,1 @@
+python-could-use-pyproject-mesonpy (source): missing-prerequisite-for-pyproject-backend mesonpy (does not satisfy python3-mesonpy:any, pybuild-plugin-pyproject:any) [pyproject.toml:3]

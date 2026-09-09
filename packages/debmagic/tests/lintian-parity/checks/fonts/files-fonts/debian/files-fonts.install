@@ -1,0 +1,14 @@
+font.otf usr/share/fonts/truetype
+font.ttf usr/share/fonts/truetype
+4shadow.ttf usr/share/fonts/truetype
+foo.pcf usr/share/fonts/X11/100dpi
+foo.pcf usr/share/fonts/X11/75dpi
+foo.pcf usr/share/fonts/X11/misc
+foo.pcf usr/share/fonts/X11/Type1
+foo.pcf usr/share/fonts/X11/encodings
+foo.pcf usr/share/fonts/X11/util
+foo.pcf usr/share/fonts/X11/PEX
+foo.pcf usr/share/fonts/X11/CID
+foo.pcf usr/share/fonts/X11/Speedo
+foo.pcf usr/share/fonts/X11/cyrillic
+foo.pcf usr/share/fonts/X11/other

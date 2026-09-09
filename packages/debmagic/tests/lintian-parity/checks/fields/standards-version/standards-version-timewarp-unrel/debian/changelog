@@ -1,0 +1,8 @@
+standards-version-timewarp-unrel (1.0) UNRELEASED; urgency=low
+
+  * Lintian Test Suite.
+  * Test: standards-version-timewarp-unrel
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Thu, 15 Mar 2001 07:00:00 +0000

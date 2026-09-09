@@ -1,0 +1,1 @@
+files-foo-in-bar (binary): package-installs-into-etc-gconf-schemas [etc/gconf/schemas/bar]

@@ -1,0 +1,3 @@
+#! /usr/bin/suidperl
+
+print "Hello, World!";

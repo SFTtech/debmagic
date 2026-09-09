@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+# This script should fail a syntax check
+
+if [ "$1" = configure ] then # oh look - I forgot a ;
+    echo "Hallo world"
+fi
+
+#DEBHELPER#

@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+pkg=instruction-chicken-soup
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	mkdir -p debian/$(pkg)/DEBIAN
+	cp debian/conffiles debian/$(pkg)/DEBIAN
+	dpkg-deb --nocheck --build debian/$(pkg) ../$(pkg)_1.0-1_all.deb

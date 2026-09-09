@@ -1,0 +1,181 @@
+#! /bin/sh -e
+
+if [ "$1" = "configure" ]; then
+        if [ -d /usr/doc -a ! -e /usr/doc/maintainer-scripts -a -d /usr/share/doc/maintainer-scripts ]; then
+                ln -sf ../share/doc/maintainer-scripts /usr/doc/maintainer-scripts
+        fi
+fi
+
+# valid
+. /usr/share/lintian/shell || exit 0
+. /usr/share/lintian/shell >/dev/null
+. /usr/share/lintian/shell 2>/dev/null
+. /usr/share/lintian/shell </dev/null
+. "$(dirname $0)/shell" ; bar
+# invalid
+. /usr/share/lintian/shell foo
+. "$(dirname $0)/shell" bar
+
+print "Hit enter to continue"
+read
+
+H[0]='this is a string'
+echo ${H[0]}
+echo "Index 0's length is ${#H[0]}"
+echo "All of the array is: ${H[@]}"
+
+install-info /usr/share/info/foo \
+	--quiet \ # make it so
+	--section foo
+
+echo Please use update-rc.d or invoke-rc.d to set up blah blah.
+
+chown root.root /usr/share/doc/maintainer-scripts/changelog
+chown root:root /usr/share/doc/maintainer-scripts/changelog
+
+$FOO=bar
+update-rc.d foo defaults >/dev/null
+update-rc.d $FOO defaults
+update-rc.d foo remove
+
+# valid
+FOO=/tmp
+FOO=/var/tmp
+: ${FOO:=/tmp}
+FOO=`mktemp /tmp/scripts.XXXXXX`
+rm "$FOO"
+FOO=`tempfile -n/tmp/scripts.tmp`
+mkdir /var/tmp/scripts
+FOO="/tmp/false.positive.XXXXXX"
+# invalid
+echo foo >>/tmp/scripts.tmp
+rm /tmp/scripts.tmp
+rmdir /var/tmp/scripts
+
+# invalid, maintainer-script-hides-init-failure
+invoke-rc.d foo start || exit 0
+
+# The right way to invoke an rc script
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d package start
+else
+    /etc/init.d/package start
+fi
+
+# Example ucf invocation.
+ucf /usr/share/foo/configuration /etc/foo.conf
+
+# Calling gconftool directly.
+gconftool-2 --makefile-install-rule foo.schema
+
+# Calling gconf-schemas with no dependency.
+gconf-schemas --register foo.schema
+
+# Calling update-xmlcatalog with no dependency.
+update-xmlcatalog --add --type system --id "/usr/share/sgml/dtd/foo" \
+    --package maintainer-scripts --root
+
+# Maintainer scripts shouldn't touch /var/lib/dpkg/status.  This is the old
+# recipe from the dpkg wiki that should be replaced with dpkg-query.
+sed -n -e \"/^Conffiles:/,/^[^ ]/{\\\\' /etc/conffile'{s/.* //;p}}\" \
+    /var/lib/dpkg/status
+
+# Don't modify these files.
+echo 'broken    6714/tcp' >> /etc/services
+cp /nonexistent /etc/protocols
+mv /usr/share/doc/rpc /etc/rpc
+
+# But this is okay.
+cp /etc/protocols /etc/protocols.new
+
+# This is also wrong.
+echo 'broken' > /etc/inetd.conf
+cp /etc/inetd.conf.new /etc/inetd.conf
+
+# But this is fine.
+cp /etc/inetd.conf /srv/chroot/etc/inetd.conf
+
+# Deprecated
+install-sgmlcatalog --install package
+install-sgmlcatalog --remove package
+
+# This too is a heredoc.
+some-program > /etc/config-file <<'EOF'
+echo "All of the array is: ${H[@]}"
+EOF
+
+# But this isn't.
+cat '<<EOF'
+echo "All of the array is: ${H[@]}"
+EOF
+
+# This is a heredoc
+cat <<-EOF
+echo "All of the array is ${H[@]}"
+EOF
+
+# As is this
+cat <<';'
+echo "All of the array is ${H[@]}"
+;
+
+# and this
+cat <<foo
+echo "All of the array is ${H[@]}"
+foobar
+echo $HOSTNAME
+foo
+
+# and again
+cat <<\bar
+echo "All of the array is ${H[@]}"
+bar
+
+# yet another
+cat <<"x++"
+echo "All of the array is ${H[@]}"
+x++
+
+# Recognize single quotes even if they start at the beginning of a line.
+echo not a bashism \
+'/{ptex,tex}/{amstex,plain,generic,}'
+
+# More bashisms.
+echo -e 'foo\n'
+echo "${!foo}"
+cat $(\< file)
+select foo in a b ; do echo $foo ; done
+cnt=$((cnt + 1))
+if false ; then
+    exec -l /bin/sh
+    exec -c /bin/sh
+    exec -a foo /bin/sh
+fi
+let cnt++
+if test -a /etc/default ; then
+    echo "$RANDOM|stuff"
+fi
+
+# Calling start-stop-daemon directly in an init script.
+start-stop-daemon --start --quiet --name foo --startas /usr/bin/foo
+
+# But stopping it is fine -- we may be working around something else.
+start-stop-daemon --stop --quiet --name foo --startas /usr/bin/foo
+
+# Deprecated chown use with flags.
+chown -R root.root /usr/share/doc/maintainer-scripts
+
+case $mainscript in
+	/usr/bin/foo) foobarbaz;;
+esac
+
+/usr/bin/baz; echo bar
+
+# Some comment checking
+# This should flag $RANDOM
+test $# -gt 2 && echo $RANDOM
+# But these shouldn't
+test 1=1 # echo $RANDOM
+(test 1=1)# echo $RANDOM
+test 1=1;# echo $RANDOM
+backgroundtask &#echo $RA

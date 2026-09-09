@@ -1,0 +1,4 @@
+#!/bin/sh
+# A shell script with a syntax error.
+if true ; then
+    echo True

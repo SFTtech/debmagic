@@ -1,0 +1,13 @@
+Description: patch should have "Origin:", "Author:" or "From:" field
+Forwarded: Yes
+
+--- a/foobar.h
++++ b/foobar.h
+@@ -20,6 +20,6 @@
+ 
+ 
+ /**
+- * You may know.
++ * You may know...
+  */
+ 

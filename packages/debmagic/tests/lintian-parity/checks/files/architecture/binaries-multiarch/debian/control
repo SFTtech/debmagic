@@ -1,0 +1,21 @@
+Source: binaries-multiarch
+Priority: optional
+Section: libs
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper (>= 9.20151004~)
+Rules-Requires-Root: no
+
+Package: libbasic2
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}, multiarch-support
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Test of a correct multiarch package
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Note there is an explicitly pre-depends on multiarch-support, since
+ older versions of debhelper might not use it yet.  dpkg-dev will
+ remove the duplicate entry (if any).

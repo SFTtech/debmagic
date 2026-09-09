@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+export DEB_BADFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+export DEB_GOODFLAGS_MAINT_APPEND = -lprefix -Wl,--no-as-needed -lfoo, -Wl,-as-needed -lsuffix
+export DEB_GOODFLAGS_MAINT_APPEND = -lprefix -Wl,--as-needed -Wl,--no-as-needed -lsuffix
+
+%:
+	dh $@
+
+override_dh_autoreconf:
+	-dh_autoreconf --as-needed

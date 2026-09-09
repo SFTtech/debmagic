@@ -1,0 +1,78 @@
+filenames (1:12-0.1) unstable; urgency=low
+
+  * /me is doing a correct NMU of this package, bumping the epoch too.
+
+ -- Jeroen van Wolffelaar <jeroen@wolffelaar.nl>  Sun, 18 Apr 2004 02:04:39 +0200
+
+filenames (11) unstable; urgency=low
+
+  * Add a README.macos.
+
+ -- Marc 'HE' Brockschmidt <he@debian.org>  Mon, 12 Apr 2004 23:35:24 +0200
+
+filenames (10) unstable; urgency=low
+
+  * Some new files to check the checks for the use of /usr/*/X11 and
+    /usr/X11R6/*.
+
+ -- Marc 'HE' Brockschmidt <he@debian.org>  Sun, 11 Apr 2004 17:35:20 +0200
+
+filenames (9) unstable; urgency=low
+
+  * Add a two *.ali files, one with the right permission, one with
+    the more common, but false one.
+
+ -- Marc 'HE' Brockschmidt <he@debian.org>  Sun, 11 Apr 2004 00:18:16 +0200
+
+filenames (8) unstable; urgency=low
+
+  * Add a real ancient file
+
+ -- Frank Lichtenheld <djpig@debian.org>  Thu,  8 Apr 2004 22:22:40 +0200
+
+filenames (7) unstable; urgency=low
+
+  * Add a dozen symlinks, some correct, some not
+
+ -- Jeroen van Wolffelaar <jeroen@wolffelaar.nl>  Fri, 27 Feb 2004 01:28:42 +0100
+
+filenames (6) unstable; urgency=low
+
+  * Add perl files to check if
+    package-installs-nonbinary-perl-in-usr-lib-perl5 is correctly
+    issued even after attempting to suppress it in some cases
+
+ -- Frank Lichtenheld <djpig@debian.org>  Fri, 27 Feb 2004 00:49:44 +0100
+
+filenames (5) unstable; urgency=low
+
+  * Added check for too long symlink
+
+ -- Sean 'Shaleh' Perry <shaleh@debian.org>  Wed,  3 Jan 2001 13:20:31 -0800
+
+filenames (4) unstable; urgency=low
+
+  * Add /usr/lib/menu/menu file to test the bad-menu-file-name tag.
+  * Add /usr/lib/menu/README to test the new execption for it.
+
+ -- Richard Braakman <dark@xs4all.nl>  Thu, 22 Oct 1998 15:42:52 +0200
+
+filenames (3) unstable; urgency=low
+
+  * Don't rely on the installer's umask.
+
+ -- Richard Braakman <dark@xs4all.nl>  Thu, 20 Aug 1998 12:45:47 +0200
+
+filenames (2) unstable; urgency=low
+
+  * Noted more limitations on what filenames lintian handles.
+  * Added Changes.gz in /usr/doc/filenames and made a symlink from changelog.gz
+    to Changes.gz.
+
+ -- Richard Braakman <dark@xs4all.nl>  Sat,  4 Jul 1998 15:46:11 +0200
+
+filenames (1) unstable; urgency=low
+
+  * Initial version
+
+ -- Richard Braakman <dark@xs4all.nl>  Sat,  4 Jul 1998 15:25:01 +0200

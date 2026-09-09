@@ -1,0 +1,2 @@
+libocaml-general-ocaml-dev (binary): ocaml-stray-cmo [usr/lib/ocaml/bleh.cma]
+libocaml-general-ocaml (binary): ocaml-dangling-cmxa [usr/lib/ocaml/foo.cmxa]

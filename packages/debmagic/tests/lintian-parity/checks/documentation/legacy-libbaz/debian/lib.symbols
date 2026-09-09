@@ -1,0 +1,3 @@
+libbaz.so.2 libbaz1 #MINVER#
+ pw 1-1
+ foo 1.1-1

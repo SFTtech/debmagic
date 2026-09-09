@@ -1,0 +1,5 @@
+cruft-upstream-binaries (source): source-is-missing [notsourced]
+cruft-upstream-binaries (source): source-contains-prebuilt-binary [symlink-to-sourced]
+cruft-upstream-binaries (source): source-contains-prebuilt-binary [sourced]
+cruft-upstream-binaries (source): source-contains-prebuilt-binary [notsourced]
+cruft-upstream-binaries (source): source-contains-prebuilt-binary [hello]

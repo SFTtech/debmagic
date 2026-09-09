@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e
+
+### BEGIN INIT INFO
+# Provides: init.d-lsb-headers-missing
+# Required-Start:
+# Required-Stop:
+# Default-Start: 2 3 5
+# Default-Stop: 0 6
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+case "$1" in
+    start|stop|force-reload|restart|status|*)
+	echo hello world
+    ;;
+esac

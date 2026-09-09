@@ -1,0 +1,4 @@
+debhelper-executable-files-compat-9 (source): executable-debhelper-file-without-being-executable [debian/manpages]
+debhelper-executable-files-compat-9 (source): debian-build-system dh [debian/rules]
+debhelper-executable-files-compat-9 (source): debhelper-compat-virtual-relation 14 [debian/control]
+debhelper-executable-files-compat-9 (source): debhelper-compat-level 14

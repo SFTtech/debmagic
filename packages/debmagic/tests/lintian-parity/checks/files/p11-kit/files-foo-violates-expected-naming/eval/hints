@@ -1,0 +1,1 @@
+files-foo-violates-expected-naming (binary): incorrect-naming-of-pkcs11-module [usr/share/p11-kit/modules/_bad-pkcs11.module]

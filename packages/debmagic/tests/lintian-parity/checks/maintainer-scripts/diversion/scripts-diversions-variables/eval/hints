@@ -1,0 +1,8 @@
+scripts-diversions-variables (binary): remove-of-unknown-diversion usr/share/scripts/*/no-such-file [postrm:18]
+scripts-diversions-variables (binary): remove-of-unknown-diversion usr/lib/*/old-file [postrm:13]
+scripts-diversions-variables (binary): package-uses-local-diversion [preinst:15]
+scripts-diversions-variables (binary): orphaned-diversion usr/share/scripts/t1/* [preinst:21]
+scripts-diversions-variables (binary): orphaned-diversion usr/share/scripts/other-file [preinst:15]
+scripts-diversions-variables (binary): diversion-for-unknown-file usr/share/scripts/other-file [preinst:15]
+scripts-diversions-variables (binary): diversion-for-unknown-file usr/share/foo/* [preinst:30]
+scripts-diversions-variables (binary): diversion-for-unknown-file etc/scripts/* [preinst:26]

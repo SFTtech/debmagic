@@ -1,0 +1,2 @@
+scripts-maintainer-general (binary): debhelper-autoscript-in-maintainer-scripts dh_installdeb/TOOL-VERSION
+scripts-maintainer-general (binary): debhelper-autoscript-in-maintainer-scripts dh_dummy/TOOL-VERSION

@@ -1,0 +1,42 @@
+Source: debhelper-dh-runit-but-lacks-breaks-substvar
+Priority: optional
+Section: python
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 13), dh-runit
+Rules-Requires-Root: no
+
+Package: debhelper-dh-runit-but-lacks-breaks-substvar-missing
+Architecture: all
+Depends: ${misc:Depends}, runit
+Description: Check Breaks requirements for dh --with dh_runit (true positive)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Missing breaks.
+
+Package: debhelper-dh-runit-but-lacks-breaks-substvar-present
+Architecture: all
+Depends: ${misc:Depends}, runit
+Breaks: ${runit:Breaks}
+Description: Check Breaks requirements for dh --with dh_runit (false positive)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Has breaks.
+
+Package: debhelper-dh-runit-but-lacks-breaks-substvar-unrelated
+Architecture: all
+Depends: ${misc:Depends}
+Breaks: ${runit:Breaks}
+Description: Check Breaks requirements for dh --with dh_runit (unrelated)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ No, breaks, but unrelated.

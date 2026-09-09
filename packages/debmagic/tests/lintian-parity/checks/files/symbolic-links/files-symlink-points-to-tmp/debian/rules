@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	mkdir symlinks/
+	ln -s /tmp/does-not-exist symlinks/points-to-tmp
+
+override_dh_auto_clean:
+	rm -fr symlinks/
+
+override_dh_link:
+	# it will fix our symlinks and ruin the test, so skip it.

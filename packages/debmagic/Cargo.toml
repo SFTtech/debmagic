@@ -20,4 +20,16 @@ serde_json = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 debian-changelog = { workspace = true }
 debian-control = { workspace = true }
+chrono = { workspace = true }
+regex = { workspace = true }
 ignore = { workspace = true }
+ar = { workspace = true }
+tar = { workspace = true }
+flate2 = { workspace = true }
+xz2 = { workspace = true }
+zstd = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+insta = { workspace = true }
+test-case = { workspace = true }

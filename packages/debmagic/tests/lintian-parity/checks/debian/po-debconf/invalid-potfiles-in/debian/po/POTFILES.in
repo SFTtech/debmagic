@@ -1,0 +1,2 @@
+# taken from preseed 1.90; see #883653; FL
+[type: gettext/rfc822deb] templates

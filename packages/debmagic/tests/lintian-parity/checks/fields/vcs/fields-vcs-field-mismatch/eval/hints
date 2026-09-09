@@ -1,0 +1,13 @@
+fields-vcs-field-mismatch (source): vcs-uri Svn https://salsa.debian.org/lintian/lintian.git
+fields-vcs-field-mismatch (source): vcs-uri Git https://salsa.debian.org/lintian/lintian.git
+fields-vcs-field-mismatch (source): vcs-uri Bzr https://gitlab.org/lintian/lintian.git
+fields-vcs-field-mismatch (source): vcs-fields-use-more-than-one-vcs bzr git svn
+fields-vcs-field-mismatch (source): vcs-field-mismatch Vcs-Svn != Vcs-Git https://salsa.debian.org/lintian/lintian.git
+fields-vcs-field-mismatch (source): vcs-field-mismatch Vcs-Bzr != Vcs-Git https://gitlab.org/lintian/lintian.git
+fields-vcs-field-mismatch (source): vcs svn
+fields-vcs-field-mismatch (source): vcs git
+fields-vcs-field-mismatch (source): vcs bzr
+fields-vcs-field-mismatch (source): package-is-maintained-by-individual
+fields-vcs-field-mismatch (changes): package-is-maintained-by-individual
+fields-vcs-field-mismatch (buildinfo): package-is-maintained-by-individual
+fields-vcs-field-mismatch (binary): package-is-maintained-by-individual

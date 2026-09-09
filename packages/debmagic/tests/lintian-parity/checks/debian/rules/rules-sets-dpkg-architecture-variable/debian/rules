@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+export DEB_HOST_ARCH = invalid
+export DEB_BUILD_ARCH := invalid
+export DEB_TARGET_ARCH ?= false-positive
+
+%:
+	dh $@

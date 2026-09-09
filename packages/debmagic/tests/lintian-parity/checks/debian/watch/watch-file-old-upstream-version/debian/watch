@@ -1,0 +1,3 @@
+version=3
+
+https://www.example.com/dist/ dh7-test\.([\d.]+)\.tar\.gz 1.0 uupdate

@@ -1,0 +1,17 @@
+Source: fields-cpan-homepage
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+Homepage: http://search.cpan.org/Foo-Bar-9.0_01/
+
+Package: fields-cpan-homepage
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: CPAN Homepage URLs shouldn't have versions
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

@@ -1,0 +1,2 @@
+generic-empty (source): source-nmu-has-incorrect-version-number 1.0 [debian/changelog:1]
+generic-empty (source): no-nmu-in-changelog [debian/changelog:1]

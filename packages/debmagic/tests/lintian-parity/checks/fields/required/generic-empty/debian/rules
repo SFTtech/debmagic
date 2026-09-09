@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+build:
+binary:
+	install -d debian/generic-empty debian/generic-empty/DEBIAN
+	dpkg-gencontrol -pgeneric-empty -Pdebian/generic-empty
+	dpkg --build debian/generic-empty ..
+
+clean:
+	rm -rf debian/generic-empty

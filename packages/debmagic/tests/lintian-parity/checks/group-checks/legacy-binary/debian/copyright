@@ -1,0 +1,15 @@
+hello.c is released under public domain.  This is distributed in the hope that
+it will be useful, but without any warranty; without even the implied warranty
+of merchantability or fitness for a particular purpose.
+
+A reference to /usr/share/common-licenses/GPL-2 to make it look like this
+package is under the GPL and trigger the OpenSSL warning.
+
+Test for old FSF address:
+
+Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+Boston, MA 02111-1307, USA.
+
+Test for deprecated nätionäl äncoding.
+
+Improper capitalization of linux or debian isn't caught here.

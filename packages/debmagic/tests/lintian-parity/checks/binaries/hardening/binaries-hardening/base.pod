@@ -1,0 +1,12 @@
+=head1 NAME
+
+@NAME@ -- binary that does something
+
+=head1 SYNOPSIS
+
+ @NAME@ [options]
+
+=head1 DESCRIPTION
+
+@NAME@ does something very useful.
+

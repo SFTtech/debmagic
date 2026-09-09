@@ -1,0 +1,6 @@
+distribution-ubuntu-native (1.0) lucid; urgency=low
+
+  * Lintian Test Suite.
+  * Test: distribution-ubuntu-native
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

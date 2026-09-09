@@ -1,0 +1,16 @@
+Source: scripts-multi-arch-same-calls-pycompile
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: pkg-same
+Architecture: any
+Depends: ${misc:Depends}
+Multi-Arch: same
+Description: Check for calls to pycompile in MA: same packages
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

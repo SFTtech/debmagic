@@ -1,0 +1,12 @@
+[Unit]
+After=network.target
+Documentation=https://example.com/
+
+[Service]
+ExecStart=/bin/test
+PIDFile=/run/$NAME.pid
+User=nobody
+Group=nogroup
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Doohickey
+Upstream-Contact: J. Random Hacker <j.r.hacker@example.com>
+Source: http://examples.com/doohickey/source/
+
+Files: *
+Copyright: 2014, somebody1
+License: gplv1
+ something
+
+Files: space
+Copyright: 2014, somebody1
+License: some space license
+ something
+
+Files: debian/*
+Copyright: 2014, somebody1
+License: bsd
+ this is a valid license short name
+

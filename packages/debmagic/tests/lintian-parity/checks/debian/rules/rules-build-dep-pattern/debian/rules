@@ -1,0 +1,37 @@
+#!/usr/bin/make -f
+
+build-indep:
+
+build-arch: build-stamp
+
+build-stamp:
+	dh build-arch
+	touch $@
+
+build: build-arch build-indep
+
+# From deejayd 0.8.2-1
+clean: $(PYVERS:%=clean-python%)
+
+clean-python%:
+	dh_testdir
+	dh_testroot
+
+	rm -f build-python*
+	python$* setup.py clean --all
+	find $(CURDIR) -name '*pyc' -exec rm -f {} \;
+	dh_clean
+
+install: install-stamp
+install-stamp: build-stamp
+	dh install
+	touch $@
+
+binary-arch: install
+	dh $@
+
+binary-indep: install
+	dh $@
+
+binary: binary-arch binary-indep
+.PHONY: binary binary-arch binary-indep install clean build build-arch build-indep

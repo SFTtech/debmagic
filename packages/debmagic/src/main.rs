@@ -14,8 +14,8 @@ use crate::{
         driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
     },
     lint::{
-        CheckIntentInput, CheckOutcome, format_diagnostic, format_summary, resolve_check_intent,
-        run_check,
+        LintIntentInput, LintOutcome, format_diagnostic, format_summary, resolve_lint_intent,
+        run_lint,
     },
     package::{distro_resolve_mode_for_driver, load_package_identity, resolve_package_target},
     test::{TestIntentInput, TestOutcome, resolve_test_intent, run_test},
@@ -173,7 +173,7 @@ fn run() -> anyhow::Result<ExitCode> {
                 .subject
                 .clone()
                 .or_else(|| args.common.source_dir.clone());
-            let intent = resolve_check_intent(CheckIntentInput {
+            let intent = resolve_lint_intent(LintIntentInput {
                 fallback_dir: current_dir.clone(),
                 subject,
                 config_file: cli.config.clone(),
@@ -181,15 +181,14 @@ fn run() -> anyhow::Result<ExitCode> {
                 ignore: args.ignore.clone(),
                 fail_on: args.fail_on.clone(),
             })?;
-            let (diagnostics, outcome) =
-                run_check(&intent).context("linting the package failed")?;
+            let (diagnostics, outcome) = run_lint(&intent).context("linting the package failed")?;
             for diagnostic in &diagnostics {
                 println!("{}", format_diagnostic(diagnostic));
             }
             println!("{}", format_summary(&diagnostics));
             return Ok(match outcome {
-                CheckOutcome::Success => ExitCode::SUCCESS,
-                CheckOutcome::PolicyFailure => ExitCode::from(1),
+                LintOutcome::Success => ExitCode::SUCCESS,
+                LintOutcome::PolicyFailure => ExitCode::from(1),
             });
         }
         Commands::Sign(args) => {

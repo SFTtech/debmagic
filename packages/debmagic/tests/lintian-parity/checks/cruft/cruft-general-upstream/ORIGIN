@@ -3,7 +3,8 @@ t/recipes/checks/cruft/cruft-general-upstream
 
 Filled Source tree from t/templates + t/skeletons, then build-spec overlay
 and hooks (pre-upstream, pre-build). eval/hints is transcribed verbatim.
-Source-tree Parity uses (source) lines whose extra is not a .dsc; other
-processable types wait for those Subjects.
+Source-tree Parity uses (source) lines whose extra is not a .dsc.
+Source-package Parity assembles a .dsc from this tree (package files only)
+and compares (source) lines of Tags with Source-package Applicability.
 
 License: GPL-2+ (same as lintian; see lintian debian/copyright).

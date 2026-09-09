@@ -46,7 +46,7 @@ pub enum Commands {
     #[command(about = "Run the package's declared Debian autopkgtest tests against a prior build")]
     Test(TestSubcommandArgs),
     #[command(
-        about = "Lint a package: source tree, binary package (.deb), or source package (.dsc)"
+        about = "Lint a package: source tree, binary package (.deb/.udeb/.ddeb), or source package (.dsc)"
     )]
     Lint(LintSubcommandArgs),
     #[command(about = "GPG-sign a .changes file (and its .dsc/.buildinfo) on the host")]
@@ -390,7 +390,7 @@ pub struct TestSubcommandArgs {
 
 #[derive(Args, Debug)]
 pub struct LintSubcommandArgs {
-    /// Subject to lint: a source tree directory, a `.deb`, or a `.dsc`
+    /// Subject to lint: a source tree directory, a `.deb` / `.udeb` / `.ddeb`, or a `.dsc`
     pub subject: Option<PathBuf>,
 
     #[command(flatten)]

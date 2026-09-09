@@ -1,5 +1,5 @@
-mod dm0001;
-mod ln0001;
+pub(crate) mod lintian;
+pub(crate) mod native;
 
-pub(crate) use dm0001::DebmagicDummyTrigger;
-pub(crate) use ln0001::RequiredField;
+pub(crate) use lintian::*;
+pub(crate) use native::*;

@@ -8,9 +8,9 @@ use super::rule::Severity;
 use super::selection::resolve_selected_codes;
 use super::subject::{Subject, resolve_subject};
 
-/// Clap-free inputs for resolving a [`CheckIntent`].
+/// Clap-free inputs for resolving a [`LintIntent`].
 #[derive(Debug, Clone)]
-pub struct CheckIntentInput {
+pub struct LintIntentInput {
     /// Directory used when `subject` is unset (typically cwd).
     pub fallback_dir: PathBuf,
     pub subject: Option<PathBuf>,
@@ -22,7 +22,7 @@ pub struct CheckIntentInput {
 
 /// Fully resolved description of *how* a lint runs.
 #[derive(Debug, Clone)]
-pub struct CheckIntent {
+pub struct LintIntent {
     pub subject: Subject,
     pub selected: Vec<Code>,
     pub fail_on: HashSet<Severity>,
@@ -37,7 +37,7 @@ fn resolve_fail_on(fail_on: &[Severity]) -> HashSet<Severity> {
     }
 }
 
-pub fn resolve_check_intent(input: CheckIntentInput) -> anyhow::Result<CheckIntent> {
+pub fn resolve_lint_intent(input: LintIntentInput) -> anyhow::Result<LintIntent> {
     let subject_path = input.subject.unwrap_or(input.fallback_dir);
     let subject = resolve_subject(subject_path)?;
 
@@ -47,7 +47,7 @@ pub fn resolve_check_intent(input: CheckIntentInput) -> anyhow::Result<CheckInte
     };
     let _config = Config::load(config_source_dir, input.config_file.as_deref())?;
 
-    Ok(CheckIntent {
+    Ok(LintIntent {
         subject,
         selected: resolve_selected_codes(&input.select, &input.ignore)?,
         fail_on: resolve_fail_on(&input.fail_on),
@@ -69,8 +69,8 @@ mod tests {
             .join("config1.toml")
     }
 
-    fn base_input(fallback: PathBuf) -> CheckIntentInput {
-        CheckIntentInput {
+    fn base_input(fallback: PathBuf) -> LintIntentInput {
+        LintIntentInput {
             fallback_dir: fallback,
             subject: None,
             config_file: Some(asset_config()),
@@ -83,7 +83,7 @@ mod tests {
     #[test]
     fn resolve_absolutizes_source_tree_subject() -> anyhow::Result<()> {
         let dir = std::env::temp_dir();
-        let intent = resolve_check_intent(base_input(dir.clone()))?;
+        let intent = resolve_lint_intent(base_input(dir.clone()))?;
         assert_eq!(intent.subject.kind(), SubjectKind::SourceTree);
         assert!(intent.subject.path().is_absolute());
         assert_eq!(intent.subject.path(), std::path::absolute(&dir)?);
@@ -92,14 +92,14 @@ mod tests {
 
     #[test]
     fn resolve_default_fail_on_is_error_only() -> anyhow::Result<()> {
-        let intent = resolve_check_intent(base_input(std::env::temp_dir()))?;
+        let intent = resolve_lint_intent(base_input(std::env::temp_dir()))?;
         assert_eq!(intent.fail_on, HashSet::from([Severity::Error]));
         Ok(())
     }
 
     #[test]
     fn resolve_selected_contains_dm0001_by_default() -> anyhow::Result<()> {
-        let intent = resolve_check_intent(base_input(std::env::temp_dir()))?;
+        let intent = resolve_lint_intent(base_input(std::env::temp_dir()))?;
         assert!(intent.selected.contains(&DebmagicDummyTrigger::CODE));
         Ok(())
     }

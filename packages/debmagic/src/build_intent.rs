@@ -49,10 +49,15 @@ pub struct BuildIntent {
 pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildIntent> {
     let source_dir = std::path::absolute(input.source_dir.unwrap_or(input.fallback_dir.clone()))
         .context("resolving source dir failed")?;
-    let output_dir = std::path::absolute(input.output_dir.unwrap_or(input.fallback_dir))
-        .context("resolving output dir failed")?;
 
     let mut config = Config::load(Some(&source_dir), input.config_file.as_deref())?;
+
+    // CLI -o wins; else the config value, relative to the package root.
+    let output_dir = match input.output_dir {
+        Some(dir) => std::path::absolute(dir).context("resolving output dir failed")?,
+        None => std::path::absolute(source_dir.join(&config.output_dir))
+            .context("resolving output dir failed")?,
+    };
 
     if let Some(persistent) = input.persistent {
         config.driver.persistent = persistent;
@@ -245,7 +250,8 @@ mod tests {
         assert!(intent.source_dir.is_absolute());
         assert!(intent.output_dir.is_absolute());
         assert_eq!(intent.source_dir, std::path::absolute(&dir)?);
-        assert_eq!(intent.output_dir, std::path::absolute(&dir)?);
+        // default output dir is build/, relative to the package root
+        assert_eq!(intent.output_dir, std::path::absolute(dir.join("build"))?);
         Ok(())
     }
 

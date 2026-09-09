@@ -174,7 +174,7 @@ Defaults can be set in [`debmagic.toml`](config.md).
 debmagic sign ../mypkg_1.0_amd64.changes
 ```
 
-Without a file argument, it locates the `.changes` via `debian/changelog` and `--output`/`-o` (default `..`), preferring the source-only `_source.changes` when several match.
+Without a file argument, it locates the `.changes` via `debian/changelog` and `--output`/`-o` (default: the `output_dir` config, `build/` under the package root), preferring the source-only `_source.changes` when several match.
 
 ## Cleaning
 

@@ -148,6 +148,9 @@ pub fn resolve_set_target(
 pub struct Config {
     pub driver: DriverConfig,
     pub temp_build_dir: PathBuf,
+    /// Where build artifacts are exported; relative paths resolve against
+    /// the package root.
+    pub output_dir: PathBuf,
     pub incremental: bool,
     /// Which source files are staged into the build tree.
     pub source_sync_mode: SourceSyncMode,
@@ -191,6 +194,7 @@ impl Default for Config {
         Self {
             driver: DriverConfig::default(),
             temp_build_dir: PathBuf::from("/tmp/debmagic"),
+            output_dir: PathBuf::from("build"),
             incremental: false,
             source_sync_mode: SourceSyncMode::default(),
             build_debug_symbols: false,

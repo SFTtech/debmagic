@@ -1,4 +1,4 @@
 ---
 source: packages/debmagic/src/lint/tester.rs
 ---
-debian/debmagic-dummy-lint: DM0001 [debmagic-dummy-trigger] dummy Rule triggered
+W: example (source): debmagic-dummy-trigger (DM0001) dummy Rule triggered [debian/debmagic-dummy-lint]

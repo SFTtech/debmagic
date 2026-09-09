@@ -43,6 +43,14 @@ impl DebianControl {
         }
     }
 
+    /// `None` on syntax errors. Same first-paragraph-is-source shape as [`Self::load`].
+    pub fn parse(text: &str) -> Option<Self> {
+        match text.parse::<Control>() {
+            Ok(control) => Some(Self::from_control(&control)),
+            Err(_) => None,
+        }
+    }
+
     fn from_control(control: &Control) -> Self {
         let mut paragraphs = control.as_deb822().paragraphs();
         let source = paragraphs
@@ -82,7 +90,7 @@ impl DebianControl {
 }
 
 impl ControlParagraph {
-    fn from_items(items: impl IntoIterator<Item = (String, String)>) -> Self {
+    pub(crate) fn from_items(items: impl IntoIterator<Item = (String, String)>) -> Self {
         Self {
             fields: items.into_iter().collect(),
         }
@@ -218,5 +226,19 @@ mod tests {
     fn syntax_error_is_unavailable() {
         let (_dir, path) = write_control("not a deb822 file\n: \n");
         assert!(DebianControl::load(&path).is_none());
+        assert!(DebianControl::parse("not a deb822 file\n: \n").is_none());
+    }
+
+    #[test]
+    fn parse_matches_load() {
+        let text = "Source: example\n\
+             Maintainer: Example <ex@example.com>\n\
+             \n\
+             Package: example\n\
+             Architecture: all\n\
+             Description: example\n";
+        let parsed = DebianControl::parse(text).expect("parse");
+        assert_eq!(parsed.source().get("Source"), Some("example"));
+        assert_eq!(parsed.installables().len(), 1);
     }
 }

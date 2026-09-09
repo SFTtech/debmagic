@@ -51,10 +51,10 @@ pub fn resolve_subject(path: PathBuf) -> anyhow::Result<Subject> {
     }
 
     match absolute.extension().and_then(|ext| ext.to_str()) {
-        Some("deb") => Ok(Subject::BinaryPackage(absolute)),
+        Some("deb" | "udeb" | "ddeb") => Ok(Subject::BinaryPackage(absolute)),
         Some("dsc") => Ok(Subject::SourcePackage(absolute)),
         _ => bail!(
-            "cannot infer Subject from {}: expected a directory, .deb, or .dsc",
+            "cannot infer Subject from {}: expected a directory, .deb, .udeb, .ddeb, or .dsc",
             absolute.display()
         ),
     }
@@ -95,6 +95,30 @@ mod tests {
         fs::write(&path, b"")?;
         let subject = resolve_subject(path.clone())?;
         assert_eq!(subject.kind(), SubjectKind::SourcePackage);
+        assert_eq!(subject.path(), std::path::absolute(&path)?);
+        let _ = fs::remove_file(&path);
+        Ok(())
+    }
+
+    #[test]
+    fn udeb_extension_resolves_to_binary_package() -> anyhow::Result<()> {
+        let path =
+            std::env::temp_dir().join(format!("debmagic-subject-{}.udeb", std::process::id()));
+        fs::write(&path, b"")?;
+        let subject = resolve_subject(path.clone())?;
+        assert_eq!(subject.kind(), SubjectKind::BinaryPackage);
+        assert_eq!(subject.path(), std::path::absolute(&path)?);
+        let _ = fs::remove_file(&path);
+        Ok(())
+    }
+
+    #[test]
+    fn ddeb_extension_resolves_to_binary_package() -> anyhow::Result<()> {
+        let path =
+            std::env::temp_dir().join(format!("debmagic-subject-{}.ddeb", std::process::id()));
+        fs::write(&path, b"")?;
+        let subject = resolve_subject(path.clone())?;
+        assert_eq!(subject.kind(), SubjectKind::BinaryPackage);
         assert_eq!(subject.path(), std::path::absolute(&path)?);
         let _ = fs::remove_file(&path);
         Ok(())

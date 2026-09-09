@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): source-contains-prebuilt-windows-binary (LN0004) bin/app.exe [bin/app.exe]
+W: example (source): source-contains-prebuilt-windows-binary (LN0004) lib/foo.dll [lib/foo.dll]
+W: example (source): source-contains-prebuilt-windows-binary (LN0004) fake-win32-bin.exe [fake-win32-bin.exe]
+W: example (source): source-contains-prebuilt-windows-binary (LN0004) tools/legacy.com [tools/legacy.com]
+W: example (source): source-contains-prebuilt-windows-binary (LN0004) shared/payload.exe [shared/payload.exe]

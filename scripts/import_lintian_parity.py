@@ -4,8 +4,9 @@
 Clones (or uses) a pinned lintian tree, runs a Prepare.pm-shaped fill, and
 writes test-package *sources* plus eval/hints + ORIGIN under
 packages/debmagic/tests/lintian-parity, and regenerates
-packages/debmagic/tests/lintian_parity.rs with one test per Source-tree
-recipe whose hints mention a catalogued LN Tag.
+packages/debmagic/tests/lintian_parity.rs with one test per Source-tree,
+Binary-package, or Source-package recipe whose hints mention a catalogued
+LN Tag (Source-package: `SourceRule`).
 
 - upload-* / source-* / upload-builder-only: filled Source tree (orig overlay + debian/)
 - deb: filled DEBIAN/, root/, doc/, and builder scripts
@@ -347,7 +348,9 @@ def write_origin(dest: Path, version: str, commit: str, recipe_rel: str, skeleto
                 "",
                 "Filled test-package sources from t/templates + t/skeletons and the",
                 "build-spec overlay. Does not build .deb / .dsc / .changes; tests do that.",
-                "eval/hints is transcribed verbatim.",
+                "Source-tree Parity lints a filled tree as-is. Binary-package Parity",
+                "assembles deb skeletons. Source-package Parity assembles a .dsc from a",
+                "filled Source tree (ADR 0039). eval/hints is transcribed verbatim.",
                 "",
                 "License: GPL-2+ (same as lintian; see lintian debian/copyright).",
                 "",
@@ -440,6 +443,10 @@ def applies_to_source_tree(processable_type: str, extra: str) -> bool:
     return not parts or not parts[0].endswith(".dsc")
 
 
+def applies_to_binary_package(processable_type: str) -> bool:
+    return processable_type in {"binary", "udeb"}
+
+
 def catalogued_ln_tags(rules_dir: Path) -> set[str]:
     tags: set[str] = set()
     if not rules_dir.is_dir():
@@ -452,8 +459,46 @@ def catalogued_ln_tags(rules_dir: Path) -> set[str]:
     return tags
 
 
+def catalogued_source_package_tags(rules_dir: Path) -> set[str]:
+    tags: set[str] = set()
+    if not rules_dir.is_dir():
+        return tags
+    for path in rules_dir.rglob("*.rs"):
+        text = path.read_text(encoding="utf-8")
+        if "impl SourceRule for" not in text:
+            continue
+        for line in text.splitlines():
+            match = TAG_ASSIGNMENT.match(line.strip())
+            if match:
+                tags.add(match.group(1))
+    return tags
+
+
+def catalogued_binary_package_tags(rules_dir: Path) -> set[str]:
+    tags: set[str] = set()
+    if not rules_dir.is_dir():
+        return tags
+    for path in rules_dir.rglob("*.rs"):
+        text = path.read_text(encoding="utf-8")
+        if "impl BinaryPackageRule for" not in text:
+            continue
+        for line in text.splitlines():
+            match = TAG_ASSIGNMENT.match(line.strip())
+            if match:
+                tags.add(match.group(1))
+    return tags
+
+
 def recipe_is_source_tree(recipe: Path) -> bool:
     return (recipe / "debian").is_dir()
+
+
+def recipe_is_deb_skeleton(recipe: Path) -> bool:
+    origin = recipe / "ORIGIN"
+    if not origin.is_file():
+        return False
+    text, _encoding = read_text(origin)
+    return any(line.strip() == "Skeleton: deb" for line in text.splitlines())
 
 
 def discover_vendored_recipe_dirs(dest_root: Path) -> list[Path]:
@@ -491,42 +536,142 @@ def catalogued_source_tree_recipe_rels(dest_root: Path, tags: set[str]) -> list[
     return rels
 
 
+def has_catalogued_binary_package_hints(recipe: Path, tags: set[str]) -> bool:
+    hints = recipe / "eval" / "hints"
+    if not hints.is_file():
+        return False
+    text, _encoding = read_text(hints)
+    for line in text.splitlines():
+        parsed = parse_universal_hint_line(line)
+        if parsed is None:
+            continue
+        processable_type, tag, _extra = parsed
+        if tag in tags and applies_to_binary_package(processable_type):
+            return True
+    return False
+
+
+def recipe_needs_cross_compiler(recipe: Path) -> bool:
+    makefile = recipe / "Makefile"
+    if not makefile.is_file():
+        return False
+    text, _encoding = read_text(makefile)
+    for line in text.splitlines():
+        stripped_line = line.strip()
+        if stripped_line.startswith("CC :=") and (
+            "arm-linux-gnueabihf-gcc" in stripped_line or "x86_64-linux-gnu-gcc" in stripped_line
+        ):
+            return True
+    return False
+
+
+def catalogued_binary_package_recipe_rels(dest_root: Path, tags: set[str]) -> list[str]:
+    rels: list[str] = []
+    for recipe in discover_vendored_recipe_dirs(dest_root):
+        if not recipe_is_deb_skeleton(recipe) and not recipe_is_source_tree(recipe):
+            continue
+        if recipe_needs_cross_compiler(recipe):
+            continue
+        if not has_catalogued_binary_package_hints(recipe, tags):
+            continue
+        rels.append(recipe.relative_to(dest_root).as_posix())
+    rels.sort()
+    return rels
+
+
+def applies_to_source_package(processable_type: str, tag: str, tags: set[str]) -> bool:
+    return tag in tags and processable_type == "source"
+
+
+def has_catalogued_source_package_hints(recipe: Path, tags: set[str]) -> bool:
+    hints = recipe / "eval" / "hints"
+    if not hints.is_file():
+        return False
+    text, _encoding = read_text(hints)
+    for line in text.splitlines():
+        parsed = parse_universal_hint_line(line)
+        if parsed is None:
+            continue
+        processable_type, tag, _extra = parsed
+        if applies_to_source_package(processable_type, tag, tags):
+            return True
+    return False
+
+
+def catalogued_source_package_recipe_rels(dest_root: Path, tags: set[str]) -> list[str]:
+    rels: list[str] = []
+    for recipe in discover_vendored_recipe_dirs(dest_root):
+        if not recipe_is_source_tree(recipe):
+            continue
+        if not has_catalogued_source_package_hints(recipe, tags):
+            continue
+        rels.append(recipe.relative_to(dest_root).as_posix())
+    rels.sort()
+    return rels
+
+
 def recipe_test_name(rel: str) -> str:
     return rel.replace("/", "_").replace("-", "_")
 
 
-def render_parity_tests(recipes: list[str]) -> str:
+def _const_slice(name: str, recipes: list[str]) -> str:
     recipe_lits = ",\n".join(f'    "{rel}"' for rel in recipes)
     if recipes:
         recipe_lits += ","
+    return f"const {name}: &[&str] = &[\n{recipe_lits}\n];"
+
+
+def _test_cases(recipes: list[str], fn_name: str, helper: str) -> str:
+    if not recipes:
+        return ""
     cases = "\n".join(f'#[test_case("{rel}"; "{recipe_test_name(rel)}")]' for rel in recipes)
-    test_fn = ""
-    if recipes:
-        test_fn = f"""
+    return f"""
 {cases}
-fn lintian_parity_source_tree(recipe: &str) {{
-    common::assert_source_tree_parity(recipe);
+fn {fn_name}(recipe: &str) {{
+    common::{helper}(recipe);
 }}
 """
+
+
+def render_parity_tests(
+    source_tree: list[str],
+    binary_package: list[str],
+    source_package: list[str],
+) -> str:
     return f"""//! Generated by `scripts/import_lintian_parity.py`. Do not edit.
 //!
-//! Source-tree Parity recipes whose `eval/hints` mention a catalogued LN Tag.
+//! Source-tree, Binary-package, and Source-package Parity recipes whose
+//! `eval/hints` mention a catalogued LN Tag.
 
 mod common;
 
 use test_case::test_case;
 
-const SOURCE_TREE_RECIPES: &[&str] = &[
-{recipe_lits}
-];
+{_const_slice("SOURCE_TREE_RECIPES", source_tree)}
+
+{_const_slice("BINARY_PACKAGE_RECIPES", binary_package)}
+
+{_const_slice("SOURCE_PACKAGE_RECIPES", source_package)}
 
 #[test]
 fn listed_source_tree_recipes_match_vendored_catalogued() {{
     let listed: Vec<String> = SOURCE_TREE_RECIPES.iter().map(|rel| (*rel).to_string()).collect();
     assert_eq!(common::catalogued_source_tree_recipe_rels(), listed);
 }}
-{test_fn}
-"""
+
+#[test]
+fn listed_binary_package_recipes_match_vendored_catalogued() {{
+    let listed: Vec<String> = BINARY_PACKAGE_RECIPES.iter().map(|rel| (*rel).to_string()).collect();
+    assert_eq!(common::catalogued_binary_package_recipe_rels(), listed);
+}}
+
+#[test]
+fn listed_source_package_recipes_match_vendored_catalogued() {{
+    let listed: Vec<String> = SOURCE_PACKAGE_RECIPES.iter().map(|rel| (*rel).to_string()).collect();
+    assert_eq!(common::catalogued_source_package_recipe_rels(), listed);
+}}
+{_test_cases(source_tree, "lintian_parity_source_tree", "assert_source_tree_parity")}{_test_cases(binary_package, "lintian_parity_binary_package", "assert_binary_package_parity")}{_test_cases(source_package, "lintian_parity_source_package", "assert_source_package_parity")}
+"""  # noqa: E501
 
 
 def generated_tests_path() -> Path:
@@ -534,10 +679,13 @@ def generated_tests_path() -> Path:
 
 
 def write_parity_tests(dest_root: Path) -> Path:
-    tags = catalogued_ln_tags(repo_root() / RULES_RELATIVE)
-    recipes = catalogued_source_tree_recipe_rels(dest_root, tags)
+    rules_dir = repo_root() / RULES_RELATIVE
+    tags = catalogued_ln_tags(rules_dir)
+    source_tree = catalogued_source_tree_recipe_rels(dest_root, tags)
+    binary_package = catalogued_binary_package_recipe_rels(dest_root, catalogued_binary_package_tags(rules_dir))
+    source_package = catalogued_source_package_recipe_rels(dest_root, catalogued_source_package_tags(rules_dir))
     path = generated_tests_path()
-    path.write_text(render_parity_tests(recipes), encoding="utf-8")
+    path.write_text(render_parity_tests(source_tree, binary_package, source_package), encoding="utf-8")
     subprocess.run(["rustfmt", str(path)], check=False)
     return path
 

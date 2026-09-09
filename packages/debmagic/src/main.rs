@@ -197,7 +197,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 .subject
                 .clone()
                 .or_else(|| args.common.source_dir.clone());
-            let intent = lint::resolve_check_intent(lint::CheckIntentInput {
+            let intent = lint::resolve_lint_intent(lint::LintIntentInput {
                 fallback_dir: current_dir.clone(),
                 subject,
                 config_file: cli.config.clone(),
@@ -206,14 +206,14 @@ async fn run() -> anyhow::Result<ExitCode> {
                 fail_on: args.fail_on.clone(),
             })?;
             let (diagnostics, outcome) =
-                lint::run_check(&intent).context("linting the package failed")?;
+                lint::run_lint(&intent).context("linting the package failed")?;
             for diagnostic in &diagnostics {
                 println!("{}", lint::format_diagnostic(diagnostic));
             }
             println!("{}", lint::format_summary(&diagnostics));
             return Ok(match outcome {
-                lint::CheckOutcome::Success => ExitCode::SUCCESS,
-                lint::CheckOutcome::PolicyFailure => ExitCode::from(1),
+                lint::LintOutcome::Success => ExitCode::SUCCESS,
+                lint::LintOutcome::PolicyFailure => ExitCode::from(1),
             });
         }
         Commands::Upload(args) => {

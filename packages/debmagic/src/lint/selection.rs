@@ -138,9 +138,13 @@ mod tests {
     }
 
     #[test]
-    fn select_ln_prefix_selects_required_field() -> anyhow::Result<()> {
+    fn select_ln_prefix_selects_ln_rules() -> anyhow::Result<()> {
+        use crate::lint::rules::SyntaxErrorInDebianChangelog;
         let selected = resolve_selected_codes(&["LN".to_string()], &[])?;
-        assert_eq!(selected, vec![RequiredField::CODE]);
+        assert!(selected.contains(&RequiredField::CODE));
+        assert!(selected.contains(&SyntaxErrorInDebianChangelog::CODE));
+        assert!(selected.contains(&crate::lint::rules::DebianRulesMissingRequiredTarget::CODE));
+        assert!(selected.iter().all(|code| code.prefix() == "LN"));
         Ok(())
     }
 

@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
 use crate::declare_rule;
-use crate::lint::context::LintContext;
+use crate::lint::context::SourceTreeContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::rule::Rule;
+use crate::lint::rule::SourceTreeRule;
 
 pub struct DebmagicDummyTrigger;
 
@@ -16,12 +16,11 @@ declare_rule! {
     tag = "debmagic-dummy-trigger",
     default_selected = true,
     experimental = false,
-    applicability = [SourceTree],
 }
 
-impl Rule for DebmagicDummyTrigger {
-    fn run(&self, ctx: &mut LintContext<'_>) {
-        let sentinel = ctx.subject().path().join("debian/debmagic-dummy-lint");
+impl SourceTreeRule for DebmagicDummyTrigger {
+    fn run(&self, ctx: &mut SourceTreeContext<'_>) {
+        let sentinel = ctx.path().join("debian/debmagic-dummy-lint");
         if !sentinel.is_file() {
             return;
         }
@@ -38,14 +37,17 @@ impl Rule for DebmagicDummyTrigger {
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::Tester;
+    use crate::lint::tester::SourceTreeTester;
 
     use super::*;
 
     #[test]
     fn test() {
-        let pass = vec![[("debian/changelog", "")]];
-        let fail = vec![[("debian/debmagic-dummy-lint", "trigger\n")]];
-        Tester::new(DebmagicDummyTrigger, pass, fail).test_and_snapshot();
+        let pass = vec![vec![("debian/changelog", "")]];
+        let fail = vec![vec![
+            ("debian/control", "Source: example\n"),
+            ("debian/debmagic-dummy-lint", "trigger\n"),
+        ]];
+        SourceTreeTester::new(DebmagicDummyTrigger, pass, fail).test_and_snapshot();
     }
 }

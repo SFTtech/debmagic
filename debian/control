@@ -30,7 +30,12 @@ Build-Depends:
  librust-pyo3-dev (>=0.27.2),
  librust-debian-changelog-dev (>=0.2.14),
  librust-debian-control-dev (>= 0.1.39),
- librust-ignore-dev (>=0.4.25)
+ librust-ignore-dev (>=0.4.25),
+ librust-ar-dev (>=0.9.0),
+ librust-tar-dev (>=0.4.45),
+ librust-flate2-dev (>=1.1.9),
+ librust-xz2-dev (>=0.1.7),
+ librust-zstd-dev (>=0.13.3)
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2

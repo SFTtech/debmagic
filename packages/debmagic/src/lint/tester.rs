@@ -3,13 +3,12 @@ use std::fmt::Write;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use super::context::LintContext;
+use super::context::{SourceTreeContext, SourceTreeData};
 use super::diagnostic::Diagnostic;
-use super::rule::Rule;
+use super::rule::{BinaryPackageRule, SourcePackageRule, SourceTreeRule};
 use super::run::format_diagnostic;
-use super::subject::Subject;
 
-/// One Subject described as a map of relative paths to file contents.
+/// One Source tree described as a map of relative paths to file contents.
 #[derive(Clone, Debug, Default)]
 pub struct TestCase {
     files: BTreeMap<String, String>,
@@ -62,21 +61,21 @@ enum TestResult {
     Failed,
 }
 
-/// Rule-level test harness inspired by oxlint's `Tester`.
+/// Source-tree Rule-level test harness inspired by oxlint's `Tester`.
 ///
 /// Pass cases must emit no Diagnostics; fail cases must emit at least one.
 /// `test_and_snapshot` records fail-case Diagnostics with insta.
-pub struct Tester {
-    rule: Box<dyn Rule>,
+pub struct SourceTreeTester {
+    rule: Box<dyn SourceTreeRule>,
     expect_pass: Vec<TestCase>,
     expect_fail: Vec<TestCase>,
     snapshot: String,
 }
 
-impl Tester {
+impl SourceTreeTester {
     pub fn new<R, P, F, C>(rule: R, expect_pass: P, expect_fail: F) -> Self
     where
-        R: Rule + 'static,
+        R: SourceTreeRule + 'static,
         P: IntoIterator<Item = C>,
         F: IntoIterator<Item = C>,
         C: Into<TestCase>,
@@ -164,8 +163,8 @@ impl Tester {
 
     fn run(&mut self, case: &TestCase) -> TestResult {
         let root = materialize(case);
-        let subject = Subject::SourceTree(root.path().to_path_buf());
-        let mut ctx = LintContext::new(&subject, self.rule.as_ref());
+        let data = SourceTreeData::new(root.path().to_path_buf());
+        let mut ctx = SourceTreeContext::bind(&data, self.rule.as_ref());
         self.rule.run(&mut ctx);
         let mut diagnostics = ctx.into_diagnostics();
         for diagnostic in &mut diagnostics {
@@ -181,6 +180,58 @@ impl Tester {
                 .expect("writing to string never fails");
         }
         TestResult::Failed
+    }
+}
+
+/// Binary-package Rule-level test harness. Not implemented yet.
+#[allow(dead_code)]
+pub struct BinaryPackageTester {
+    _private: (),
+}
+
+impl BinaryPackageTester {
+    #[allow(dead_code)]
+    pub fn new<R, P, F>(_rule: R, _expect_pass: P, _expect_fail: F) -> Self
+    where
+        R: BinaryPackageRule + 'static,
+    {
+        unimplemented!("BinaryPackageTester is not implemented yet")
+    }
+
+    #[allow(dead_code)]
+    pub fn test(&mut self) {
+        unimplemented!("BinaryPackageTester is not implemented yet")
+    }
+
+    #[allow(dead_code)]
+    pub fn test_and_snapshot(&mut self) {
+        unimplemented!("BinaryPackageTester is not implemented yet")
+    }
+}
+
+/// Source-package Rule-level test harness. Not implemented yet.
+#[allow(dead_code)]
+pub struct SourcePackageTester {
+    _private: (),
+}
+
+impl SourcePackageTester {
+    #[allow(dead_code)]
+    pub fn new<R, P, F>(_rule: R, _expect_pass: P, _expect_fail: F) -> Self
+    where
+        R: SourcePackageRule + 'static,
+    {
+        unimplemented!("SourcePackageTester is not implemented yet")
+    }
+
+    #[allow(dead_code)]
+    pub fn test(&mut self) {
+        unimplemented!("SourcePackageTester is not implemented yet")
+    }
+
+    #[allow(dead_code)]
+    pub fn test_and_snapshot(&mut self) {
+        unimplemented!("SourcePackageTester is not implemented yet")
     }
 }
 

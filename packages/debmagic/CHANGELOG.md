@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- add initial experimental support for lint subcommand
+
 ## [0.0.1-alpha.7] - 2026-08-25
 
 - support non-debian and non-ubuntu distros using dpkg

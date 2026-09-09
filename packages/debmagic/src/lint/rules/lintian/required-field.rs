@@ -1,13 +1,20 @@
 use std::path::PathBuf;
 
 use crate::declare_rule;
-use crate::lint::context::LintContext;
+use crate::lint::context::{BinaryPackageContext, SourceTreeContext};
 use crate::lint::debian_control::InstallablePackageType;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::rule::Rule;
+use crate::lint::rule::{BinaryPackageRule, SourceTreeRule};
 
 const SOURCE_FIELDS: &[&str] = &["Source", "Maintainer", "Standards-Version"];
 const INSTALLABLE_FIELDS: &[&str] = &["Package", "Architecture", "Description"];
+const INSTALLATION_FIELDS: &[&str] = &[
+    "Package",
+    "Version",
+    "Architecture",
+    "Maintainer",
+    "Description",
+];
 
 pub struct RequiredField;
 
@@ -17,52 +24,50 @@ declare_rule! {
     /// Source-tree `debian/control` requires Source, Maintainer, and Standards-Version
     /// on the source paragraph (Standards-Version is omitted when every installable is a
     /// udeb), and Package, Architecture, and Description on each installable paragraph.
+    /// Binary-package Installation control requires Package, Version, Architecture,
+    /// Maintainer, and Description.
     RequiredField,
     code = "LN0001",
     tag = "required-field",
     default_selected = true,
     experimental = false,
-    applicability = [SourceTree, BinaryPackage, SourcePackage],
 }
 
-impl Rule for RequiredField {
-    fn run(&self, ctx: &mut LintContext<'_>) {
-        let reports = {
-            let Some(control) = ctx.debian_control() else {
-                return;
-            };
-
-            let mut source_fields = SOURCE_FIELDS.to_vec();
-            if control
-                .installables()
-                .iter()
-                .all(|installable| installable.package_type() == InstallablePackageType::Udeb)
-            {
-                source_fields.retain(|field| *field != "Standards-Version");
-            }
-
-            let mut reports = Vec::new();
-            for field in source_fields {
-                if !control.source().declares(field) {
-                    reports.push((field.to_string(), "(in section for source)".to_string()));
-                }
-            }
-            for installable in control.installables() {
-                for field in INSTALLABLE_FIELDS {
-                    if !installable.fields().declares(field) {
-                        reports.push((
-                            (*field).to_string(),
-                            format!("(in section for {})", installable.name()),
-                        ));
-                    }
-                }
-            }
-            reports
+impl SourceTreeRule for RequiredField {
+    fn run(&self, ctx: &mut SourceTreeContext<'_>) {
+        let Some(control) = ctx.debian_control() else {
+            return;
         };
+
+        let mut source_fields = SOURCE_FIELDS.to_vec();
+        if control
+            .installables()
+            .iter()
+            .all(|installable| installable.package_type() == InstallablePackageType::Udeb)
+        {
+            source_fields.retain(|field| *field != "Standards-Version");
+        }
+
+        let mut reports = Vec::new();
+        for field in source_fields {
+            if !control.source().declares(field) {
+                reports.push((field.to_string(), "(in section for source)".to_string()));
+            }
+        }
+        for installable in control.installables() {
+            for field in INSTALLABLE_FIELDS {
+                if !installable.fields().declares(field) {
+                    reports.push((
+                        (*field).to_string(),
+                        format!("(in section for {})", installable.name()),
+                    ));
+                }
+            }
+        }
 
         for (field, section) in reports {
             ctx.diagnostic(
-                Diagnostic::error(format!("{field} {section}")).with_location(Location {
+                Diagnostic::error(format!("{section} {field}")).with_location(Location {
                     path: PathBuf::from("debian/control"),
                     line: None,
                     column: None,
@@ -72,9 +77,30 @@ impl Rule for RequiredField {
     }
 }
 
+impl BinaryPackageRule for RequiredField {
+    fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
+        let reports = {
+            let control = ctx.installation_control();
+            let basename = ctx
+                .path()
+                .file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or_default();
+            INSTALLATION_FIELDS
+                .iter()
+                .filter(|field| !control.fields().declares(field))
+                .map(|field| format!("{basename} {field}"))
+                .collect::<Vec<_>>()
+        };
+        for message in reports {
+            ctx.diagnostic(Diagnostic::error(message));
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::Tester;
+    use crate::lint::tester::SourceTreeTester;
 
     use super::*;
 
@@ -147,6 +173,6 @@ mod tests {
                  Description: udeb\n extra\n",
             )],
         ];
-        Tester::new(RequiredField, pass, fail).test_and_snapshot();
+        SourceTreeTester::new(RequiredField, pass, fail).test_and_snapshot();
     }
 }

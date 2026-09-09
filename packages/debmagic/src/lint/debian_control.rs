@@ -82,7 +82,7 @@ impl DebianControl {
 }
 
 impl ControlParagraph {
-    fn from_items(items: impl IntoIterator<Item = (String, String)>) -> Self {
+    pub(crate) fn from_items(items: impl IntoIterator<Item = (String, String)>) -> Self {
         Self {
             fields: items.into_iter().collect(),
         }

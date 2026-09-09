@@ -104,6 +104,18 @@ pub enum Severity {
     Pedantic,
 }
 
+impl Severity {
+    /// Lintian EWI letter for this rung (`E`, `W`, `I`, `P`).
+    pub fn letter(self) -> char {
+        match self {
+            Self::Error => 'E',
+            Self::Warning => 'W',
+            Self::Info => 'I',
+            Self::Pedantic => 'P',
+        }
+    }
+}
+
 impl FromStr for Severity {
     type Err = anyhow::Error;
 
@@ -118,14 +130,11 @@ impl FromStr for Severity {
     }
 }
 
-pub use super::subject::SubjectKind;
-
 pub trait RuleMeta {
     const CODE: Code;
     const TAG: Tag;
     const DEFAULT_SELECTED: bool;
     const EXPERIMENTAL: bool;
-    const APPLICABILITY: &'static [SubjectKind];
     #[allow(dead_code)]
     const DOCUMENTATION: &'static str;
 }
@@ -136,7 +145,6 @@ pub trait RuleAccess: Send + Sync {
     fn tag(&self) -> Tag;
     fn default_selected(&self) -> bool;
     fn experimental(&self) -> bool;
-    fn applicability(&self) -> &'static [SubjectKind];
     #[allow(dead_code)]
     fn documentation(&self) -> &'static str;
 }
@@ -154,16 +162,22 @@ impl<T: RuleMeta + Send + Sync> RuleAccess for T {
     fn experimental(&self) -> bool {
         T::EXPERIMENTAL
     }
-    fn applicability(&self) -> &'static [SubjectKind] {
-        T::APPLICABILITY
-    }
     fn documentation(&self) -> &'static str {
         T::DOCUMENTATION
     }
 }
 
-pub trait Rule: RuleAccess {
-    fn run(&self, ctx: &mut super::context::LintContext<'_>);
+pub trait SourceTreeRule: RuleAccess {
+    fn run(&self, ctx: &mut super::context::SourceTreeContext<'_>);
+}
+
+pub trait BinaryPackageRule: RuleAccess {
+    fn run(&self, ctx: &mut super::context::BinaryPackageContext<'_>);
+}
+
+#[allow(dead_code)]
+pub trait SourcePackageRule: RuleAccess {
+    fn run(&self, ctx: &mut super::context::SourcePackageContext<'_>);
 }
 
 #[macro_export]
@@ -175,15 +189,12 @@ macro_rules! declare_rule {
         tag = $tag:literal,
         default_selected = $default_selected:literal,
         experimental = $experimental:literal,
-        applicability = [$($kind:ident),* $(,)?],
     ) => {
         impl $crate::lint::rule::RuleMeta for $name {
             const CODE: $crate::lint::rule::Code = $crate::lint::rule::Code::from_static($code);
             const TAG: $crate::lint::rule::Tag = $crate::lint::rule::Tag($tag);
             const DEFAULT_SELECTED: bool = $default_selected;
             const EXPERIMENTAL: bool = $experimental;
-            const APPLICABILITY: &'static [$crate::lint::subject::SubjectKind] =
-                &[$($crate::lint::subject::SubjectKind::$kind),*];
             const DOCUMENTATION: &'static str = concat!($($doc, "\n",)+);
         }
     };

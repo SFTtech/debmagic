@@ -19,6 +19,7 @@ usage/modules/index.md
 :caption: Development
 
 develop/index.md
+develop/import-lintian-rule.md
 develop/releasing.md
 ```
 

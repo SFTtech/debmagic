@@ -28,6 +28,7 @@ All keys are optional.
 | `driver.lxd.project` | string | — | — | LXD/Incus project to use. |
 | `driver.lxd.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"`. Falls back to the driver's default remote image. Same custom-suite registry role as Docker's map for LXD/Incus. |
 | `temp_build_dir` | path | `/tmp/debmagic` | — | Where build trees are staged. |
+| `output_dir` | path | `build` | `-o`/`--output-dir` | Where build artifacts are exported; relative paths resolve against the package root. |
 | `incremental` | bool | `false` | `--incremental` | Retain the environment and sync only source changes, preserving generated files. Binary-only; implies `persistent`; incompatible with `clean`. |
 | `source_sync_mode` | enum | `tracked` | `--source-sync` | Which source files are staged (see below). |
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |

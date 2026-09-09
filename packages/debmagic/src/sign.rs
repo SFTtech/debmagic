@@ -441,9 +441,8 @@ pub fn sign_file(
 pub fn find_changes_file(
     package: &str,
     version: &str,
-    output_dir: Option<&Path>,
+    output_dir: &Path,
 ) -> anyhow::Result<PathBuf> {
-    let output_dir = output_dir.unwrap_or_else(|| Path::new(".."));
     let sversion = version
         .split_once(':')
         .map(|(_, rest)| rest)

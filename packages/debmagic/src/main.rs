@@ -194,10 +194,18 @@ fn run() -> anyhow::Result<ExitCode> {
                 }
                 None => {
                     let identity = load_package_identity(&source_dir)?;
+                    // -o wins; else the config value, relative to the package root.
+                    let output_dir = match &args.output_dir {
+                        Some(dir) => {
+                            std::path::absolute(dir).context("resolving output dir failed")?
+                        }
+                        None => std::path::absolute(source_dir.join(&config.output_dir))
+                            .context("resolving output dir failed")?,
+                    };
                     sign::find_changes_file(
                         &identity.name,
                         &identity.version.to_string(),
-                        args.output_dir.as_deref(),
+                        &output_dir,
                     )?
                 }
             };

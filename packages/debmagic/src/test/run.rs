@@ -7,7 +7,7 @@ use std::{
 use super::intent::TestIntent;
 use crate::build::source::stage_source_tree;
 use crate::driver::{
-    Driver, DriverInstance, DriverType, Environment, EnvironmentMetadata, EnvironmentPurpose,
+    Driver, DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, EnvironmentPurpose,
     IsolationCapability,
     config::{DriverConfig, DriverOverrides},
     create_driver, remove_environment_root,
@@ -39,7 +39,7 @@ pub enum TestOutcome {
 
 struct TestRun {
     environment: Environment,
-    driver: DriverInstance,
+    driver: Driver,
 }
 
 fn get_build_root_and_identifier(
@@ -286,6 +286,7 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         .write_metadata()
         .context("failed to write test metadata")?;
 
+    crate::output::stage("Installing autopkgtest");
     test_run.driver.run_command_checked(
         &["apt-get", "install", "-y", "autopkgtest"],
         &environment.staged_source_dir(),
@@ -326,6 +327,7 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         "null",
     ]);
 
+    crate::output::stage(&format!("Running autopkgtest for {}", identity.name));
     let exit_code = test_run
         .driver
         .run_command(&autopkgtest_cmd, &work_dir, true, &[])

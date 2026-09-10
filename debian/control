@@ -21,14 +21,20 @@ Build-Depends:
  librust-libc-dev (>=0.2.169),
  librust-serde-dev (>=1.0.217),
  librust-serde-json-dev (>=1.0.139),
+ librust-toml-dev (>=0.8),
+ librust-toml-edit-dev (>=0.22),
  librust-uuid-dev (>=1.10.0),
  librust-chrono-dev (>=0.4.42),
  librust-regex-dev (>=1.12.2),
  librust-test-case-dev (>=3.3.1),
  librust-pyo3-dev (>=0.27.2),
+ librust-deb822-lossless-dev (>=0.5.18),
  librust-debian-changelog-dev (>=0.2.14),
  librust-debian-control-dev (>= 0.1.39),
- librust-ignore-dev (>=0.4.25)
+ librust-ignore-dev (>=0.4.25),
+ librust-md-5-dev (>= 0.11),
+ librust-sha1-dev (>= 0.11),
+ librust-sha2-dev (>= 0.11)
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2

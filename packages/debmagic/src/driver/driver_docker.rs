@@ -5,15 +5,15 @@ use std::{
     process::{Command, Stdio},
 };
 
-use anyhow::{Context, anyhow};
+use anyhow::anyhow;
 use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
 
 use crate::driver::{
-    APT_MIRROR_SCRIPT, Driver, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment,
-    EnvironmentMetadata, IsolationCapability, config::DriverConfig, container_name_from_metadata,
-    container_name_metadata, environment_fingerprint, resource_name, run_checked,
-    translate_path_in_container,
+    APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
+    EnvironmentMetadata, IsolationCapability, SignRequest, config::DriverConfig,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
+    run_checked, translate_path_in_container,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -46,7 +46,7 @@ const DOCKERFILE_TEMPLATE: &str = r#"
 FROM {base_image}
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-RUN apt-get update && apt-get install -y dpkg-dev python3
+RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev python3
 {apt_mirror_setup}
 RUN set -e; \
     getent group "$USER_GID" >/dev/null || groupadd --gid "$USER_GID" debmagic; \
@@ -69,9 +69,6 @@ fn shell_quote(s: &str) -> String {
 pub struct DriverDocker {
     environment: Environment,
     container_name: String,
-    /// Base image of the distro, used to spin up minimal one-shot containers
-    /// (e.g. for signing) that don't need the build environment's tooling.
-    base_image: String,
     reused_environment: bool,
 }
 
@@ -268,7 +265,6 @@ impl DriverDocker {
         let mut driver = Self {
             environment: environment.clone(),
             container_name,
-            base_image: base_image.clone(),
             reused_environment: false,
         };
         let environment_matches = container_environment_fingerprint(&driver.container_name)?
@@ -340,15 +336,12 @@ impl DriverDocker {
 
     pub fn from_metadata(
         environment: &Environment,
-        driver_config: &DriverConfig,
+        _driver_config: &DriverConfig,
         metadata: &EnvironmentMetadata,
     ) -> anyhow::Result<Self> {
         Ok(Self {
             environment: environment.clone(),
             container_name: container_name_from_metadata(metadata)?,
-            base_image: driver_config
-                .docker
-                .base_image_for_distro(&environment.distro),
             reused_environment: true,
         })
     }
@@ -361,7 +354,7 @@ impl DriverDocker {
     }
 }
 
-impl Driver for DriverDocker {
+impl EnvironmentDriver for DriverDocker {
     fn driver_metadata(&self) -> std::collections::HashMap<String, String> {
         container_name_metadata(&self.container_name)
     }
@@ -462,59 +455,8 @@ impl Driver for DriverDocker {
     fn isolation_capability(&self) -> IsolationCapability {
         IsolationCapability::Container
     }
-}
 
-impl DriverDocker {
-    pub(crate) fn sign_changes(
-        &self,
-        changes_file: &Path,
-        gpg: Option<&crate::signing::GpgForwarding>,
-        _sign_key: Option<&str>,
-    ) -> anyhow::Result<()> {
-        use crate::signing;
-
-        let gpg = gpg.context("docker container signing needs gpg forwarding info")?;
-        let output_dir = changes_file
-            .parent()
-            .context("changes file has no parent directory")?;
-        let staging_dir = self.environment.temp_dir().join("sign");
-        signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
-        let script = signing::sign_container_script(
-            signing::changes_filename(changes_file)?,
-            &gpg.sign_key,
-            // The sign container's root is not id-mapped; fix ownership of
-            // files it rewrites so the host user can manage them afterwards.
-            Some((unsafe { libc::geteuid() }, unsafe { libc::getegid() })),
-        );
-
-        println!(
-            "[docker] $ signing {} in a minimal {} container",
-            changes_file.display(),
-            self.environment.distro.codename
-        );
-        run_checked(
-            Command::new("docker")
-                .args(["run", "--rm", "--init"])
-                .args([
-                    "--mount",
-                    &format!(
-                        "{},readonly",
-                        bind_mount_arg(&staging_dir, signing::SIGN_STAGING_IN_CONTAINER)
-                    ),
-                ])
-                .arg(format!(
-                    "--mount=type=bind,src={},dst={},readonly",
-                    gpg.agent_extra_socket.display(),
-                    signing::GPG_SOCKET_IN_CONTAINER
-                ))
-                .args([
-                    "--mount",
-                    &bind_mount_arg(output_dir, signing::OUTPUT_DIR_IN_CONTAINER),
-                ])
-                .arg(&self.base_image)
-                .args(["sh", "-ec", &script]),
-            "signing in docker container",
-        )?;
-        Ok(())
+    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
+        crate::sign::sign_changes(request)
     }
 }

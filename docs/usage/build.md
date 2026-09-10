@@ -26,7 +26,7 @@ debmagic build binary --driver lxd \
 | `--incremental` | Do incremental builds by syncing changed sources only; implies `persistent` |
 | `--distro <name>` | [Select the target distro/release](#selecting-a-distrorelease) (e.g. `trixie`, `resolute`) |
 | `--proposed` | Use [build dependencies from `proposed`](#proposed-dependencies) pocket |
-| `--sign` | [GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`](#signing) with `debsign` |
+| `--sign` | [GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`](#signing) |
 | `--clean` | Run [`debian/rules clean` before building](#cleaning) |
 | `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
 | `--apt-mirror <url>` | [Mirror URL](#mirror-selection) |
@@ -141,25 +141,44 @@ Or set `build_debug_symbols = true` in the [`debmagic.toml`](config.md).
 
 ## Signing
 
-`--sign` (plus optionally `--sign-key you@example.com`) GPG-signs the resulting `.changes`/`.dsc`/`.buildinfo` with `debsign` after building.
-This is mainly useful for [source builds destined for Launchpad](source.md#uploading-to-launchpad), but works for binary builds too.
-If your config file defaults to signing, pass `--no-sign` to skip it for one invocation.
+`--sign` GPG-signs the resulting `.changes`/`.dsc`/`.buildinfo` after building — mainly useful for [source builds destined for Launchpad](source.md#uploading-to-launchpad), but works for binary builds too.
+Signing is debmagic's own reimplementation of `debsign` and always runs on the host with your gpg keyring: the artifacts are exported to the host output dir first, so no container or agent forwarding is involved.
+Children are signed first (`.dsc`, then `.buildinfo`) and the `.changes` checksums are rewritten after each, exactly like `debsign`.
 
-Where `debsign` runs is selected by `--sign-with` (config: `sign_with`):
+| Option | Config | Description |
+|---|---|---|
+| `--sign` | `sign.source` | Sign after building; `--sign=false` skips it for one invocation |
+| `--sign-key <key>` | `sign.key` | Key ID/fingerprint/email; defaults to the `Changed-By:`/`Maintainer:` address of the file being signed |
+| `--sign-tool <tool>` | `sign.tool` | OpenPGP implementation: `gpg` (default), `sequoia` (sq), or `custom` |
+| `--sign-command <cmd>` | `sign.command` | Custom signing command for `--sign-tool custom` (see below) |
+| `--sign-notify` | `sign.notify` | Desktop notification + terminal bell just before signing, so a hardware-key touch prompt isn't missed after a long build |
 
-- `auto` (default): sign on the host if `debsign` is installed there, otherwise in a container (requires a container driver).
-- `host`: always sign on the host, using your own gpg keyring — requires `devscripts` installed locally.
-- `same`: sign inside a minimal same-distro container, forwarding the host's gpg-agent socket (`gpgconf --list-dirs agent-extra-socket`) into it.
-  Only signing *operations* cross the socket; private key material never enters the container, and only the public key is imported into its throwaway keyring.
-  Container signing requires an explicit `--sign-key`, since debsign's maintainer-based key lookup only works on the host.
+A custom signing command runs without a shell and must write the clearsigned result to stdout.
+The file to sign is passed via the `{file}` placeholder (or, if no placeholder is used, as the last argument).
 
-Signing prerequisites (agent running, secret key available) are validated before the build starts, so a broken gpg setup fails fast instead of after the build.
+| Placeholder | Expands to |
+|---|---|
+| `{file}` | Path of the file to sign |
+| `{key}` | The resolved signing key |
+| `{email}` | The bare address of the key |
+
+Unknown placeholders are an error.
 
 Defaults can be set in [`debmagic.toml`](config.md).
 
+## Signing an existing build
+
+`debmagic sign` signs a `.changes` file (and its `.dsc`/`.buildinfo` children) that already exists — the same code path `--sign` uses after a build:
+
+```shell
+debmagic sign ../mypkg_1.0_amd64.changes
+```
+
+Without a file argument, it locates the `.changes` via `debian/changelog` and `--output`/`-o` (default: the `output_dir` config, `build/` under the package root), preferring the source-only `_source.changes` when several match.
+
 ## Cleaning
 
-`--clean` runs `debian/rules clean` before building, like plain `dpkg-buildpackage` does unless passed `-nc`; `--no-clean` skips it even if the config file defaults to cleaning.
+`--clean` runs `debian/rules clean` before building, like plain `dpkg-buildpackage` does unless passed `-nc`; `--clean=false` skips it even if the config file defaults to cleaning.
 Non-incremental builds already stage a clean source tree, while incremental builds preserve outputs intentionally.
 Enable cleaning only for packages whose `clean` target performs required setup or code generation.
 

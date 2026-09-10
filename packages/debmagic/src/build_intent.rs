@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use anyhow::Context;
 
@@ -6,7 +6,7 @@ use crate::{
     build::source::SourceSyncMode,
     config::Config,
     driver::{DriverType, config::DriverOverrides},
-    signing::SignWith,
+    sign::SignTool,
 };
 
 /// Clap-free inputs for resolving a [`BuildIntent`].
@@ -20,16 +20,15 @@ pub struct BuildIntentInput {
     pub driver: DriverType,
     pub persistent: Option<bool>,
     pub incremental: Option<bool>,
-    /// Force incremental off (e.g. source-only builds).
-    pub disable_incremental: bool,
     pub debug_symbols: Option<bool>,
     pub sign: Option<bool>,
-    pub no_sign: Option<bool>,
-    pub sign_with: Option<SignWith>,
     pub sign_key: Option<String>,
+    pub sign_tool: Option<SignTool>,
+    pub sign_command: Option<String>,
+    pub sign_notify: Option<bool>,
     pub clean: Option<bool>,
-    pub no_clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
+    pub host_arch_variant: Option<String>,
     pub shell_on_failure: Option<bool>,
     pub driver_overrides: DriverOverrides,
 }
@@ -47,49 +46,24 @@ pub struct BuildIntent {
     pub driver_overrides: DriverOverrides,
 }
 
-/// Precedence of config files is:
-///
-/// 1. explicit config file passed on the command line
-/// 2. `<source_dir>/debian/debmagic.toml`
-/// 3. `<XDG_CONFIG_HOME>/debmagic/config.toml`
-pub fn load_config(
-    source_dir: Option<&Path>,
-    config_file: Option<&Path>,
-) -> anyhow::Result<Config> {
-    let mut config_file_paths = vec![];
-    let xdg_config_file = dirs::config_dir().map(|p| p.join("debmagic").join("config.toml"));
-    if let Some(xdg_config_file) = xdg_config_file
-        && xdg_config_file.is_file()
-    {
-        config_file_paths.push(xdg_config_file);
-    }
-
-    if let Some(source_dir) = source_dir {
-        config_file_paths.push(source_dir.join("debian").join("debmagic.toml"));
-    }
-
-    if let Some(config_file) = config_file {
-        config_file_paths.push(config_file.to_path_buf());
-    }
-
-    Config::new(&config_file_paths)
-}
-
 pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildIntent> {
     let source_dir = std::path::absolute(input.source_dir.unwrap_or(input.fallback_dir.clone()))
         .context("resolving source dir failed")?;
-    let output_dir = std::path::absolute(input.output_dir.unwrap_or(input.fallback_dir))
-        .context("resolving output dir failed")?;
 
-    let mut config = load_config(Some(&source_dir), input.config_file.as_deref())?;
+    let mut config = Config::load(Some(&source_dir), input.config_file.as_deref())?;
+
+    // CLI -o wins; else the config value, relative to the package root.
+    let output_dir = match input.output_dir {
+        Some(dir) => std::path::absolute(dir).context("resolving output dir failed")?,
+        None => std::path::absolute(source_dir.join(&config.output_dir))
+            .context("resolving output dir failed")?,
+    };
 
     if let Some(persistent) = input.persistent {
         config.driver.persistent = persistent;
     }
 
-    if input.disable_incremental {
-        config.incremental = false;
-    } else if let Some(incremental) = input.incremental {
+    if let Some(incremental) = input.incremental {
         config.incremental = incremental;
     }
 
@@ -97,25 +71,28 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         config.build_debug_symbols = debug_symbols;
     }
     if let Some(sign) = input.sign {
-        config.sign_package = sign;
-    }
-    if let Some(no_sign) = input.no_sign {
-        config.sign_package = !no_sign;
-    }
-    if let Some(sign_with) = input.sign_with {
-        config.sign_with = sign_with;
+        config.sign.source = sign;
     }
     if let Some(sign_key) = input.sign_key {
-        config.sign_key = Some(sign_key);
+        config.sign.key = Some(sign_key);
+    }
+    if let Some(sign_tool) = input.sign_tool {
+        config.sign.tool = sign_tool;
+    }
+    if let Some(sign_command) = input.sign_command {
+        config.sign.command = Some(sign_command);
+    }
+    if let Some(sign_notify) = input.sign_notify {
+        config.sign.notify = sign_notify;
     }
     if let Some(clean) = input.clean {
         config.clean = clean;
     }
-    if let Some(no_clean) = input.no_clean {
-        config.clean = !no_clean;
-    }
     if let Some(source_sync) = input.source_sync {
         config.source_sync_mode = source_sync;
+    }
+    if let Some(host_arch_variant) = input.host_arch_variant {
+        config.host_arch_variant = Some(host_arch_variant);
     }
     if config.incremental {
         if config.clean {
@@ -160,15 +137,15 @@ mod tests {
             driver: DriverType::Docker,
             persistent: None,
             incremental: None,
-            disable_incremental: false,
             debug_symbols: None,
             sign: None,
-            no_sign: None,
-            sign_with: None,
             sign_key: None,
+            sign_tool: None,
+            sign_command: None,
+            sign_notify: None,
             clean: None,
-            no_clean: None,
             source_sync: None,
+            host_arch_variant: None,
             shell_on_failure: None,
             driver_overrides: DriverOverrides {
                 apt_mirror: None,
@@ -185,7 +162,7 @@ mod tests {
 
     #[test]
     fn load_config_reads_explicit_file() -> anyhow::Result<()> {
-        let cfg = load_config(None, Some(&asset_config()))?;
+        let cfg = Config::load(None, Some(&asset_config()))?;
         assert!(cfg.driver.persistent);
         assert_eq!(
             cfg.driver.docker.base_images.get("debian:trixie"),
@@ -273,7 +250,8 @@ mod tests {
         assert!(intent.source_dir.is_absolute());
         assert!(intent.output_dir.is_absolute());
         assert_eq!(intent.source_dir, std::path::absolute(&dir)?);
-        assert_eq!(intent.output_dir, std::path::absolute(&dir)?);
+        // default output dir is build/, relative to the package root
+        assert_eq!(intent.output_dir, std::path::absolute(dir.join("build"))?);
         Ok(())
     }
 
@@ -292,17 +270,5 @@ mod tests {
                 .to_string()
                 .contains("incremental builds are incompatible with clean builds")
         );
-    }
-
-    #[test]
-    fn resolve_disable_incremental_for_source_builds() -> anyhow::Result<()> {
-        let dir = std::env::temp_dir();
-        let mut input = base_input(dir);
-        input.incremental = Some(true);
-        input.disable_incremental = true;
-
-        let intent = resolve_build_intent(input)?;
-        assert!(!intent.config.incremental);
-        Ok(())
     }
 }

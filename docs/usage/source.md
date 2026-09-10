@@ -28,14 +28,14 @@ debmagic build source --sign --sign-key you@example.com \
 dput ppa:your-lp-username/your-ppa /tmp/out/*_source.changes
 ```
 
-- `--sign` GPG-signs the `.dsc`/`.buildinfo`/`.changes` with `debsign` (from `devscripts`) after building.
-  By default it runs on the host; with `--sign-with same` (or `auto` when `debsign` isn't installed on the host) it runs in a minimal same-distro container with your gpg-agent socket forwarded in — see [Signing and cleaning](build.md#signing-and-cleaning).
-- `--sign-key` picks which key/uid to sign with (`debsign`'s `-k`); omit it to let `debsign` fall back to its own maintainer-address lookup (host signing only).
+- `--sign` GPG-signs the `.dsc`/`.buildinfo`/`.changes` after building, on the host with your gpg keyring — see [Signing](build.md#signing).
+- `--sign-key` picks which key/uid to sign with; omit it to fall back to the `Changed-By:`/`Maintainer:` address of the file being signed.
 - Both can be set as defaults in `debian/debmagic.toml`/`$XDG_CONFIG_HOME/debmagic/config.toml` instead of passing them every time:
 
   ```toml
-  sign_package = true
-  sign_key = "you@example.com"
+  [sign]
+  source = true
+  key = "you@example.com"
   ```
 
 ## What ends up in the source package

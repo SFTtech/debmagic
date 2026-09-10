@@ -17,6 +17,7 @@ use crate::driver::{
     driver_docker::DriverDocker,
     driver_lxd::{DriverLxd, LxdVariant},
 };
+use crate::sign::SignTool;
 
 pub mod config;
 pub mod driver_bare;
@@ -99,6 +100,7 @@ pub fn container_name_from_metadata(metadata: &EnvironmentMetadata) -> anyhow::R
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum DriverType {
     Docker,
     Bare,
@@ -196,7 +198,7 @@ pub struct EnvironmentMetadata {
 /// pockets it detects from `/etc/os-release`.
 pub const APT_MIRROR_SCRIPT: &str = include_str!("scripts/mirror.py");
 
-pub trait Driver {
+pub trait EnvironmentDriver {
     fn driver_metadata(&self) -> HashMap<String, String>;
 
     fn run_command(
@@ -229,7 +231,7 @@ pub trait Driver {
 
     fn driver_type(&self) -> DriverType;
 
-    /// Isolation this Driver's Environment actually provides.
+    /// Isolation this driver's Environment actually provides.
     fn isolation_capability(&self) -> IsolationCapability;
 
     fn reset_root(&self) -> io::Result<()>;
@@ -237,15 +239,20 @@ pub trait Driver {
     fn reused_environment(&self) -> bool {
         true
     }
+
+    /// Sign `changes_file` (a path on the host) with debmagic's signing
+    /// implementation.
+    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()>;
 }
 
-pub enum DriverInstance {
+/// A live environment driver, created for one build/test run.
+pub enum Driver {
     Docker(DriverDocker),
     Bare(DriverBare),
     Lxd(DriverLxd),
 }
 
-impl Driver for DriverInstance {
+impl EnvironmentDriver for Driver {
     fn driver_metadata(&self) -> HashMap<String, String> {
         match self {
             Self::Docker(d) => d.driver_metadata(),
@@ -315,19 +322,12 @@ impl Driver for DriverInstance {
             Self::Lxd(d) => d.reused_environment(),
         }
     }
-}
 
-impl DriverInstance {
-    pub fn sign_changes(
-        &self,
-        changes_file: &Path,
-        gpg: Option<&crate::signing::GpgForwarding>,
-        sign_key: Option<&str>,
-    ) -> anyhow::Result<()> {
+    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
         match self {
-            Self::Docker(d) => d.sign_changes(changes_file, gpg, sign_key),
-            Self::Bare(d) => d.sign_changes(changes_file, gpg, sign_key),
-            Self::Lxd(d) => d.sign_changes(changes_file, gpg, sign_key),
+            Self::Docker(d) => d.sign_changes(request),
+            Self::Bare(d) => d.sign_changes(request),
+            Self::Lxd(d) => d.sign_changes(request),
         }
     }
 }
@@ -336,7 +336,7 @@ pub fn create_driver(
     environment: &Environment,
     driver_config: &DriverConfig,
     overrides: &DriverOverrides,
-) -> anyhow::Result<DriverInstance> {
+) -> anyhow::Result<Driver> {
     let apt_mirror = overrides
         .apt_mirror
         .as_deref()
@@ -344,14 +344,14 @@ pub fn create_driver(
     let proposed = overrides.proposed.unwrap_or(driver_config.proposed);
 
     match environment.driver {
-        DriverType::Docker => Ok(DriverInstance::Docker(DriverDocker::create(
+        DriverType::Docker => Ok(Driver::Docker(DriverDocker::create(
             environment,
             driver_config,
             &overrides.docker,
             apt_mirror,
             proposed,
         )?)),
-        DriverType::Bare => Ok(DriverInstance::Bare(DriverBare::create(
+        DriverType::Bare => Ok(Driver::Bare(DriverBare::create(
             environment,
             driver_config,
             &overrides.bare,
@@ -361,7 +361,7 @@ pub fn create_driver(
                 DriverType::Lxd => LxdVariant::Lxd,
                 _ => LxdVariant::Incus,
             };
-            Ok(DriverInstance::Lxd(DriverLxd::create(
+            Ok(Driver::Lxd(DriverLxd::create(
                 variant,
                 environment,
                 driver_config,
@@ -376,14 +376,14 @@ pub fn create_driver(
 pub fn create_driver_from_metadata(
     driver_config: &DriverConfig,
     metadata: &EnvironmentMetadata,
-) -> anyhow::Result<DriverInstance> {
+) -> anyhow::Result<Driver> {
     match metadata.environment.driver {
-        DriverType::Docker => Ok(DriverInstance::Docker(DriverDocker::from_metadata(
+        DriverType::Docker => Ok(Driver::Docker(DriverDocker::from_metadata(
             &metadata.environment,
             driver_config,
             metadata,
         )?)),
-        DriverType::Bare => Ok(DriverInstance::Bare(DriverBare::from_metadata(
+        DriverType::Bare => Ok(Driver::Bare(DriverBare::from_metadata(
             &metadata.environment,
             driver_config,
             metadata,
@@ -393,7 +393,7 @@ pub fn create_driver_from_metadata(
                 DriverType::Lxd => LxdVariant::Lxd,
                 _ => LxdVariant::Incus,
             };
-            Ok(DriverInstance::Lxd(DriverLxd::from_metadata(
+            Ok(Driver::Lxd(DriverLxd::from_metadata(
                 variant,
                 &metadata.environment,
                 driver_config,
@@ -401,6 +401,23 @@ pub fn create_driver_from_metadata(
             )?))
         }
     }
+}
+
+/// A single signing invocation: what to sign and whether to send a desktop
+/// notification just before the gpg touch prompt.
+pub struct SignRequest<'a> {
+    /// The `.changes` file to sign (a path on the host).
+    pub changes_file: &'a Path,
+    /// Key ID/email to sign with; `None` falls back to the maintainer lookup.
+    pub sign_key: Option<&'a str>,
+    /// Which OpenPGP implementation to use.
+    pub sign_tool: SignTool,
+    /// Custom signing command when `sign_tool` is `Custom`.
+    pub sign_command: Option<&'a str>,
+    /// Send a `notify-send` popup right before signing.
+    pub notify: bool,
+    /// `"{name}-{version}"`, used in the notification.
+    pub package: &'a str,
 }
 
 /// Remove `root` from the host. If files are owned by a container user the host
@@ -522,7 +539,7 @@ mod tests {
     #[test]
     fn environment_without_purpose_deserializes_as_build() {
         let json = r#"{
-            "driver": "Docker",
+            "driver": "docker",
             "package_identifier": "pkg-1.0",
             "root_dir": "/tmp/build",
             "distro": { "distro": "Debian", "codename": "forky", "version": "15" }

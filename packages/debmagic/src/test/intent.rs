@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use anyhow::Context;
 
 use crate::{
-    build_intent::load_config,
     config::Config,
     driver::{DriverType, config::DriverOverrides},
 };
@@ -45,7 +44,7 @@ pub fn resolve_test_intent(input: TestIntentInput) -> anyhow::Result<TestIntent>
     let source_dir = std::path::absolute(input.source_dir.unwrap_or(input.fallback_dir))
         .context("resolving source dir failed")?;
 
-    let mut config = load_config(Some(&source_dir), input.config_file.as_deref())?;
+    let mut config = Config::load(Some(&source_dir), input.config_file.as_deref())?;
 
     if let Some(persistent) = input.persistent {
         config.driver.persistent = persistent;

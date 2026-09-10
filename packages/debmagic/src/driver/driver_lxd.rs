@@ -4,15 +4,14 @@ use std::{
     process::{Command, Stdio},
 };
 
-use anyhow::Context as _;
 use debmagic_common::distro::{Distro, DistroVersion};
 use serde::{Deserialize, Serialize};
 
 use crate::driver::{
-    APT_MIRROR_SCRIPT, Driver, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment,
-    EnvironmentMetadata, IsolationCapability, config::DriverConfig, container_name_from_metadata,
-    container_name_metadata, environment_fingerprint, resource_name, run_checked,
-    translate_path_in_container,
+    APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
+    EnvironmentMetadata, IsolationCapability, SignRequest, config::DriverConfig,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
+    run_checked, translate_path_in_container,
 };
 
 // The binary name differs between LXD and Incus, but everything else is shared.
@@ -36,7 +35,7 @@ impl LxdVariant {
 const BUILD_USER_UID: u32 = 1000;
 const BUILD_USER_GID: u32 = 1000;
 const ENVIRONMENT_CONFIG_KEY: &str = "user.debmagic.environment";
-const ENVIRONMENT_SETUP_VERSION: &str = "dpkg-dev python3; build-user-v1; raw.idmap-v1";
+const ENVIRONMENT_SETUP_VERSION: &str = "dpkg-dev-norec python3; build-user-v1; raw.idmap-v1";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -103,9 +102,6 @@ pub struct DriverLxd {
     container_name: String,
     /// Resolved project name (None → omit `--project` flag).
     project: Option<String>,
-    /// Base image of the distro, used to spin up minimal one-shot containers
-    /// (e.g. for signing) that don't need the build environment's tooling.
-    base_image: String,
     reused_environment: bool,
 }
 
@@ -251,7 +247,6 @@ impl DriverLxd {
             environment: environment.clone(),
             container_name: container_name.clone(),
             project,
-            base_image: base_image.clone(),
             reused_environment: false,
         };
 
@@ -344,10 +339,19 @@ impl DriverLxd {
 
             if !reusing_container {
                 // Install the base tooling that stock images don't include.
-                // build-dep is intentionally omitted here: build.rs runs it for
-                // every driver against the real mounted source tree.
+                // build-essential is intentionally omitted: binary builds pull
+                // it in explicitly, so source-only environments stay lean.
+                // build-dep is omitted too: build.rs runs it for every driver
+                // against the real mounted source tree.
                 base.exec_in_container_checked(
-                    &["apt-get", "install", "-y", "dpkg-dev", "python3"],
+                    &[
+                        "apt-get",
+                        "install",
+                        "-y",
+                        "--no-install-recommends",
+                        "dpkg-dev",
+                        "python3",
+                    ],
                     None,
                     true,
                     &[],
@@ -416,7 +420,7 @@ impl DriverLxd {
     pub fn from_metadata(
         variant: LxdVariant,
         environment: &Environment,
-        driver_config: &DriverConfig,
+        _driver_config: &DriverConfig,
         metadata: &EnvironmentMetadata,
     ) -> anyhow::Result<Self> {
         let project = metadata.driver_metadata.get("project").cloned();
@@ -426,9 +430,6 @@ impl DriverLxd {
             environment: environment.clone(),
             container_name: container_name_from_metadata(metadata)?,
             project,
-            base_image: driver_config
-                .lxd
-                .base_image_for_distro(variant, &environment.distro),
             reused_environment: true,
         })
     }
@@ -525,7 +526,7 @@ impl DriverLxd {
     }
 }
 
-impl Driver for DriverLxd {
+impl EnvironmentDriver for DriverLxd {
     fn driver_metadata(&self) -> std::collections::HashMap<String, String> {
         let mut meta = container_name_metadata(&self.container_name);
         if let Some(ref p) = self.project {
@@ -606,115 +607,8 @@ impl Driver for DriverLxd {
     fn isolation_capability(&self) -> IsolationCapability {
         IsolationCapability::Container
     }
-}
 
-impl DriverLxd {
-    pub(crate) fn sign_changes(
-        &self,
-        changes_file: &Path,
-        gpg: Option<&crate::signing::GpgForwarding>,
-        _sign_key: Option<&str>,
-    ) -> anyhow::Result<()> {
-        use crate::signing;
-
-        let gpg = gpg.context("container signing needs gpg forwarding info")?;
-        let output_dir = changes_file
-            .parent()
-            .context("changes file has no parent directory")?;
-        let staging_dir = self.environment.temp_dir().join("sign");
-        signing::stage_signing_material(&staging_dir, &gpg.sign_key)?;
-        // No chown needed: raw.idmap maps container root to the host user.
-        let script = signing::sign_container_script(
-            signing::changes_filename(changes_file)?,
-            &gpg.sign_key,
-            None,
-        );
-
-        let sign_container = resource_name(
-            "debmagic-sign",
-            &self.environment.package_name,
-            &self.environment.identifier(),
-        );
-        let bin = self.variant.binary();
-        // The sign container is ephemeral; it disappears when stopped.
-        let mut init = self.lxd_cmd("init");
-        init.arg("--ephemeral");
-        init.args([&self.base_image, sign_container.as_str()]);
-        run_checked(&mut init, &format!("initialising {bin} sign container"))?;
-
-        let result = (|| -> anyhow::Result<()> {
-            let host_uid = unsafe { libc::geteuid() };
-            let host_gid = unsafe { libc::getegid() };
-            if host_uid != 0 {
-                let idmap = format!("uid {host_uid} 0\ngid {host_gid} 0");
-                run_checked(
-                    self.lxd_cmd("config")
-                        .arg("set")
-                        .arg(&sign_container)
-                        .arg("raw.idmap")
-                        .arg(&idmap),
-                    "setting raw.idmap on sign container",
-                )?;
-            }
-
-            run_checked(
-                self.lxd_cmd("config")
-                    .arg("device")
-                    .arg("add")
-                    .arg(&sign_container)
-                    .arg("debmagic-output")
-                    .arg("disk")
-                    .arg(format!("source={}", output_dir.display()))
-                    .arg(format!("path={}", signing::OUTPUT_DIR_IN_CONTAINER)),
-                "mounting output directory into sign container",
-            )?;
-            run_checked(
-                self.lxd_cmd("config")
-                    .arg("device")
-                    .arg("add")
-                    .arg(&sign_container)
-                    .arg("debmagic-sign-staging")
-                    .arg("disk")
-                    .arg(format!("source={}", staging_dir.display()))
-                    .arg(format!("path={}", signing::SIGN_STAGING_IN_CONTAINER))
-                    .arg("readonly=true"),
-                "mounting signing material into sign container",
-            )?;
-            // Forward the host gpg-agent's extra socket via a proxy device,
-            // like a manually configured unix proxy but scoped to signing.
-            run_checked(
-                self.lxd_cmd("config")
-                    .arg("device")
-                    .arg("add")
-                    .arg(&sign_container)
-                    .arg("debmagic-gpg-agent")
-                    .arg("proxy")
-                    .arg("bind=container")
-                    .arg(format!("connect=unix:{}", gpg.agent_extra_socket.display()))
-                    .arg(format!("listen=unix:{}", signing::GPG_SOCKET_IN_CONTAINER))
-                    .arg("uid=0")
-                    .arg("gid=0"),
-                "forwarding gpg-agent socket into sign container",
-            )?;
-
-            run_checked(
-                self.lxd_cmd("start").arg(&sign_container),
-                &format!("starting {bin} sign container"),
-            )?;
-
-            let mut exec = self.lxd_cmd("exec");
-            exec.arg(&sign_container);
-            exec.arg("--");
-            exec.args(["sh", "-ec", &script]);
-            run_checked(&mut exec, "signing in container")?;
-            Ok(())
-        })();
-
-        let mut stop = self.lxd_cmd("stop");
-        let stop_result = run_checked(
-            stop.arg(&sign_container),
-            &format!("stopping {bin} sign container"),
-        );
-        result.and(stop_result)
+    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
+        crate::sign::sign_changes(request)
     }
 }

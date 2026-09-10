@@ -3,7 +3,8 @@ use std::{path::Path, process::Command};
 use serde::{Deserialize, Serialize};
 
 use crate::driver::{
-    Driver, DriverType, Environment, EnvironmentMetadata, IsolationCapability, config::DriverConfig,
+    DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, IsolationCapability,
+    SignRequest, config::DriverConfig,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -40,19 +41,9 @@ impl DriverBare {
             _driver_config: driver_config.clone(),
         }
     }
-
-    pub(crate) fn sign_changes(
-        &self,
-        changes_file: &Path,
-        _gpg: Option<&crate::signing::GpgForwarding>,
-        sign_key: Option<&str>,
-    ) -> anyhow::Result<()> {
-        crate::signing::check_host_debsign_available()?;
-        crate::signing::sign_on_host(changes_file, sign_key)
-    }
 }
 
-impl Driver for DriverBare {
+impl EnvironmentDriver for DriverBare {
     fn driver_metadata(&self) -> std::collections::HashMap<String, String> {
         std::collections::HashMap::from([])
     }
@@ -108,5 +99,9 @@ impl Driver for DriverBare {
             std::fs::remove_dir_all(&self.environment.root_dir)?;
         }
         Ok(())
+    }
+
+    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
+        crate::sign::sign_changes(request)
     }
 }

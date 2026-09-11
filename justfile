@@ -44,6 +44,10 @@ ci: fmt-check lint typecheck test docs
 pre-commit:
     uv run pre-commit run --all-files
 
+# Build the debmagic snap
+snap:
+    snapcraft pack
+
 # Build debmagic itself with the docker driver
 self-build *args:
     cargo run --locked -p debmagic -- build binary --driver=docker --persistent --incremental {{ args }}

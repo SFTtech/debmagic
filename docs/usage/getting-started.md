@@ -10,15 +10,17 @@ cargo install debmagic
 
 ### Pip
 
-```shell
-pip install debmagic
-```
-
-or run it directly with uv:
+Run it directly with [`uv`](https://docs.astral.sh/uv/):
 
 ```shell
 uvx debmagic
 ```
+
+or install using `pip`:
+```shell
+pip install debmagic
+```
+
 
 ### Debian / Ubuntu - Soon (tm)
 
@@ -30,90 +32,18 @@ apt install debmagic
 
 `debmagic build` builds *any* Debian-packaged source tree inside a throwaway build environment, driven by a build driver.
 
-To learn about `debmagic build`, see the [Building packages](build.md) page.
-
-## Example debian/rules.py
-
-Python `debian/rules.py` equivalent of [Ubuntu 24.04 htop](https://git.launchpad.net/ubuntu/+source/htop/tree/debian/rules?h=ubuntu/noble):
-
-```python
-#!/usr/bin/env python3
-
-from debmagic.v0 import Build, autotools, dh, package
-
-pkg = package(
-    preset=[dh],
-    maint_options="hardening=+all",
-)
-
-if pkg.buildflags.DEB_HOST_ARCH_OS == "linux":
-    configure_params = ["--enable-affinity", "--enable-delayacct"]
-else:
-    configure_params = ["--enable-hwloc"]
-
-# hurd-i386 can open /proc (nothing there) and /proc/ which works
-if pkg.buildflags.DEB_HOST_ARCH_OS == "hurd":
-    configure_params += ["--with-proc=/proc/"]
-else:
-    configure_params += ["--enable-sensors"]
-
-
-@pkg.stage
-def configure(build: Build):
-    autotools.configure(
-        build,
-        ["--enable-openvz", "--enable-vserver", "--enable-unicode", *configure_params],
-    )
-
-pkg.pack()
+```shell
+cd your-package   # any source tree with a debian/ directory
+debmagic build binary --driver docker
 ```
 
-### debhelper compatibility
+The driver picks the isolation technology — `lxd`, `incus`, `docker` (full container isolation) or `bare` (no isolation, for disposable/CI environments).
+There's no auto-detection; pass one explicitly or set it in a [`debmagic.toml`](config.md).
 
-Debmagic can use `dh` and provides **dh overrides** as common in `debian/rules` Makefiles:
+From here:
 
-```python
-from debmagic.v0 import dh
-
-# specify dh arguments:
-dhp = dh.Preset("--with=python3 --builddirectory=build")
-pkg = package(preset=dhp)
-
-# define optional overrides:
-@dhp.override
-def dh_auto_install(build: Build):
-    print("dh override worked :)")
-    build.cmd("dh_auto_install --max-parallel=1")
-
-pkg.pack()
-```
-
-### Custom functions
-
-To add custom functions directly usable from CLI (like custom `debian/rules` targets for maintainers):
-
-```python
-pkg = package(...)
-
-@pkg.custom_function
-def something_custom(some_param: int, another_param: str = "some default"):
-    print(f"you passed {some_param=} {another_param=}")
-
-pkg.pack()
-```
-
-This function can be directly called with:
-
-```console
-./debian/rules.py something-custom --another-param=test 1337
-```
-
-```text
-you passed some_param=test another_param=1337
-```
-
-And generates automatic help for:
-
-```console
-./debian/rules.py something-custom --help
-```
+- [Building packages](build.md) — all `debmagic build` options: drivers, distro selection, incremental builds, signing, ...
+- [Running package tests](test.md) — `debmagic test` against a prior build
+- [Building source packages](source.md) — `debmagic build source` and uploading to Launchpad
+- [Configuration](config.md) — persistent settings in `debmagic.toml`
+- [Creating package recipes](packaging.md) — writing `debian/rules.py` equivalents with `debmagic-pkg`

@@ -23,6 +23,8 @@ myst_enable_extensions = [
     "html_image",
     "attrs_inline",
 ]
+# generate heading ids for intra-page anchor links
+myst_heading_anchors = 3
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build"]

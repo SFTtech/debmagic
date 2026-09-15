@@ -54,11 +54,26 @@ Multi-Arch: foreign
 Description: Debian build instructions written in Python.
  Explicit is better than implicit.
 
+Package: debmagic-dpkg-driver
+Architecture: all
+Depends:
+ dpkg-dev (>= 1.23.6),
+ ${misc:Depends}
+Recommends:
+ debmagic-pkg
+Description: dpkg build driver for debmagic rules.py packages.
+ Packages declaring `Build-Driver: debmagic` are built from `debian/rules.py`
+ instead of a `debian/rules` Makefile. This package provides the
+ `Dpkg::BuildDriver::Debmagic` perl module that `dpkg-buildpackage` loads to
+ dispatch the dpkg build targets to the python entry point.
+
 Package: debmagic
 Architecture: any
 Depends:
  ${misc:Depends},
  ${shlibs:Depends},
+Suggests:
+ debmagic-dpkg-driver
 Description: Debian package building made easy.
  Holistic cli for the whole debian package building workflow.
 Built-Using: ${cargo:Built-Using}

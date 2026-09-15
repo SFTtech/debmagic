@@ -89,3 +89,26 @@ And generates automatic help for:
 ```console
 ./debian/rules.py something-custom --help
 ```
+
+
+## Building with dpkg-buildpackage
+
+A `rules.py` package builds with plain `dpkg-buildpackage` if it also ships a `debian/rules` Makefile shim forwarding all targets to `rules.py`:
+
+```make
+#!/usr/bin/make -f
+%:
+	python3 debian/rules.py $@
+```
+
+Alternatively, build-depend on `debmagic-dpkg-driver` and let dpkg invoke `rules.py` directly - no shim needed.
+Declare both in `debian/control`:
+
+```
+Build-Driver: debmagic
+Build-Depends: debmagic-pkg, debmagic-dpkg-driver
+```
+
+`debmagic-pkg` provides the python API that `rules.py` imports, `debmagic-dpkg-driver` the perl module dpkg loads.
+`dpkg-buildpackage` (≥ 1.23.6) then loads the `Dpkg::BuildDriver::Debmagic` perl module, which dispatches the dpkg targets (`clean`, `build`, `binary`, ...) to `debian/rules.py`.
+Root handling (`Rules-Requires-Root`, fakeroot) works exactly as with `debian/rules` Makefiles.

@@ -1,4 +1,5 @@
 use std::env;
+use std::path::Path;
 use std::process::ExitCode;
 
 use anyhow::Context;
@@ -13,7 +14,10 @@ use crate::{
         DriverType, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
         driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
     },
-    package::{distro_resolve_mode_for_driver, load_package_identity, resolve_package_target},
+    package::{
+        distro_resolve_mode_for_driver, load_package_identity, resolve_package_target,
+        validate_bare_host_target,
+    },
     test::{TestIntentInput, TestOutcome, resolve_test_intent, run_test},
 };
 
@@ -116,6 +120,14 @@ fn run() -> anyhow::Result<ExitCode> {
                 build_source_package(&intent, &target)
                     .context("Building the source package failed")?;
             } else {
+                let mut target = target;
+                if intent.driver == DriverType::Bare && !build_args.bare_ignore_release {
+                    target.distro =
+                        validate_bare_host_target(&target.distro, Path::new("/etc/os-release"))
+                            .context(
+                                "host's /etc/os-release does not match the build target distro",
+                            )?;
+                }
                 build_package(&intent, &target).context("Building the package failed")?;
             }
         }
@@ -237,6 +249,8 @@ fn run() -> anyhow::Result<ExitCode> {
                 }
 
                 let config = Config::new(&paths)?;
+                let effective_driver = config.driver.default.unwrap_or(DriverType::Bare);
+                eprintln!("debmagic: using driver: {effective_driver} (cfg: driver.default)");
                 print!("{}", toml::to_string_pretty(&config)?);
             }
             ConfigCommands::Get(get_args) => {

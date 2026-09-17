@@ -108,6 +108,16 @@ pub enum DriverType {
     Incus,
 }
 
+impl std::fmt::Display for DriverType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(
+            self.to_possible_value()
+                .expect("no skipped variants")
+                .get_name(),
+        )
+    }
+}
+
 /// Isolation an Environment actually provides for a TestRun.
 ///
 /// A ladder: none, then container, then machine. An Environment advertises

@@ -202,9 +202,16 @@ pub struct CommonBuildArgs {
 
     #[arg(
         long,
-        help = "Select the target distribution version, only required if the debian changelog specifies multiple versions"
+        help = "Target distribution to build for, overriding the changelog's (e.g. 'trixie', 'noble', or a suite declared in base_images). If not provided, use the single distro from changelog."
     )]
     pub distro: Option<String>,
+
+    #[arg(
+        long = "bare-ignore-release",
+        help = "With the bare driver, build even though the target distro differs from the host's os-release. The host must still provide the build dependencies itself."
+    )]
+    pub bare_ignore_release: bool,
+
     #[arg(
         long = "host-arch-variant",
         help = "Build for a dpkg architecture variant (e.g. 'amd64v3' on Ubuntu), like dpkg-buildpackage's --host-arch-variant. Sets DEB_HOST_ARCH_VARIANT for the build, which makes the Ubuntu vendor hook append the variant's -march= flags and names the .changes file after the variant. Defaults to the 'host_arch_variant' setting in the config file."

@@ -176,6 +176,51 @@ impl DriverLxd {
         )
     }
 
+    fn source_device_name(&self) -> String {
+        resource_name(
+            "debmagic-src",
+            &self.environment.package_name,
+            &self.environment.identifier(),
+        )
+    }
+
+    /// Whether `/debmagic` in the container still resolves to the current
+    /// build-root inode on the host.
+    fn mount_is_live(&self) -> anyhow::Result<bool> {
+        let container_probe = crate::driver::write_mount_probe(&self.environment.root_dir)?;
+        let code = self.exec_in_container(
+            &["test", "-f", &container_probe.to_string_lossy()],
+            None,
+            true,
+            &[],
+        );
+        crate::driver::remove_mount_probe(&self.environment.root_dir);
+        Ok(code? == 0)
+    }
+
+    /// Remove and re-add the build-root disk device, re-binding it to the
+    /// current inode. Works on a running container.
+    fn remount_build_root(&self) -> anyhow::Result<()> {
+        let device_name = self.source_device_name();
+        // Removing a device that is already absent is not an error here.
+        let _ = self
+            .lxd_cmd("config")
+            .args(["device", "remove", &self.container_name, &device_name])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status();
+        run_checked(
+            self.lxd_cmd("config")
+                .args(["device", "add", &self.container_name, &device_name, "disk"])
+                .arg(format!("source={}", self.environment.root_dir.display()))
+                .arg(format!("path={}", ENVIRONMENT_DIR_IN_CONTAINER)),
+            &format!(
+                "re-mounting build root into {} container",
+                self.variant.binary()
+            ),
+        )
+    }
+
     fn container_environment_fingerprint(&self) -> anyhow::Result<Option<String>> {
         let output = self
             .lxd_cmd("config")
@@ -265,6 +310,17 @@ impl DriverLxd {
                 if !already_running {
                     base.container_start()?;
                 }
+                // The build root may have been deleted and recreated on the
+                // host since the container was created, leaving its disk
+                // device bound to the dead inode.
+                if !base.mount_is_live()? {
+                    base.remount_build_root()?;
+                    anyhow::ensure!(
+                        base.mount_is_live()?,
+                        "build root mount in the {} container is stale and re-mounting did not restore it",
+                        variant.binary()
+                    );
+                }
             } else {
                 if container_entry.is_some() {
                     base.container_delete_force()?;
@@ -300,11 +356,7 @@ impl DriverLxd {
                     )?;
                 }
 
-                let device_name = resource_name(
-                    "debmagic-src",
-                    &environment.package_name,
-                    &environment.identifier(),
-                );
+                let device_name = base.source_device_name();
                 run_checked(
                     base.lxd_cmd("config")
                         .arg("device")

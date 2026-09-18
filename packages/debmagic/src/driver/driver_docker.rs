@@ -224,6 +224,20 @@ impl DriverDocker {
         )
     }
 
+    /// Whether `/debmagic` in the container still resolves to the current
+    /// build-root inode on the host.
+    fn mount_is_live(&self) -> anyhow::Result<bool> {
+        let container_probe = crate::driver::write_mount_probe(&self.environment.root_dir)?;
+        let code = self.run_command(
+            &["test", "-f", &container_probe.to_string_lossy()],
+            &self.environment.root_dir,
+            true,
+            &[],
+        );
+        crate::driver::remove_mount_probe(&self.environment.root_dir);
+        Ok(code? == 0)
+    }
+
     pub fn create(
         environment: &Environment,
         driver_config: &DriverConfig,
@@ -270,14 +284,22 @@ impl DriverDocker {
         let environment_matches = container_environment_fingerprint(&driver.container_name)?
             .as_deref()
             == Some(&desired_fingerprint);
-        driver.reused_environment = environment.persistent && environment_matches;
         let created_container;
 
-        if environment.persistent && environment_matches {
-            created_container = false;
+        let mut reuse = environment.persistent && environment_matches;
+        if reuse {
             if !driver.container_is_running()? {
                 driver.container_start()?;
             }
+            if !driver.mount_is_live()? {
+                driver.container_remove_force()?;
+                reuse = false;
+            }
+        }
+
+        if reuse {
+            driver.reused_environment = true;
+            created_container = false;
         } else {
             // The container may not exist; removal errors don't matter here.
             let _ = Command::new("docker")

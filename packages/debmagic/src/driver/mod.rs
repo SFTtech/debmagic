@@ -42,6 +42,24 @@ pub fn translate_path_in_container(root_dir: &Path, path_in_source: &Path) -> io
         })
 }
 
+const MOUNT_PROBE_FILENAME: &str = ".debmagic-mount-probe";
+
+/// Write a probe file into the build root and return its expected path inside
+/// the container. A container whose `/debmagic` bind mount still points at the
+/// current build-root inode sees the file; one whose mount went stale (the
+/// build root was deleted and recreated on the host) does not.
+pub fn write_mount_probe(root_dir: &Path) -> io::Result<PathBuf> {
+    fs::write(
+        root_dir.join(MOUNT_PROBE_FILENAME),
+        b"debmagic mount probe\n",
+    )?;
+    Ok(Path::new(ENVIRONMENT_DIR_IN_CONTAINER).join(MOUNT_PROBE_FILENAME))
+}
+
+pub fn remove_mount_probe(root_dir: &Path) {
+    let _ = fs::remove_file(root_dir.join(MOUNT_PROBE_FILENAME));
+}
+
 /// Run `cmd`, failing with `context` (and, on a clean but unsuccessful exit,
 /// its exit status) if it can't be spawned or exits unsuccessfully.
 pub fn run_checked(cmd: &mut Command, context: &str) -> anyhow::Result<()> {

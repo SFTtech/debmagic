@@ -25,8 +25,11 @@ below `[Unreleased]`, so those notes become the release notes for the new versio
 
 Then commit, tag, and push. A `v*` tag (e.g. `v0.0.1-alpha.2`) triggers the
 [release workflow](../../.github/workflows/release.yaml), which runs
-[CI](../../.github/workflows/ci.yaml) first and, on success, builds `debmagic`
-(cli) and publishes it to PyPI via Trusted Publishing.
+[CI](../../.github/workflows/ci.yaml) first and, on success, publishes in
+parallel:
+
+- `debmagic` (cli) to PyPI via Trusted Publishing
+- `debmagic-common` then `debmagic` to crates.io via Trusted Publishing
 
 ```shell
 git push

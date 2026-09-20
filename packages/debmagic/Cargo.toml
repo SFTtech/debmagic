@@ -1,6 +1,6 @@
 [package]
 name = "debmagic"
-version = "0.0.1-alpha.7"
+version = "0.0.1-alpha.8"
 description = "modern tooling for building and packaging Debian/Ubuntu packages in isolated environments"
 license = "GPL-2.0-or-later"
 readme = "README.md"

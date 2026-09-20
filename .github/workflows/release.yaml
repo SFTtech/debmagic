@@ -11,7 +11,7 @@ jobs:
     uses: ./.github/workflows/ci.yaml
     secrets: inherit
 
-  publish:
+  publish-pypi:
     needs: ci
     runs-on: ubuntu-latest
     environment:
@@ -43,3 +43,27 @@ jobs:
             --compatibility pypi
       - name: Publish to PyPI
         run: uv publish --trusted-publishing always
+
+  publish-crates-io:
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: crates-io-publish
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust toolchain
+        run: rustup show
+      - uses: Swatinem/rust-cache@v2
+      - name: Authenticate to crates.io
+        uses: rust-lang/crates-io-auth-action@v1
+        id: auth
+      - name: Publish crates
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+        run: |
+          cargo publish -p debmagic-common --locked
+          cargo publish -p debmagic --locked

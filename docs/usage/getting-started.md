@@ -2,13 +2,19 @@
 
 ## Installation
 
+### Cargo
+
+```shell
+cargo install debmagic
+```
+
 ### Pip
 
 ```shell
 pip install debmagic
 ```
 
-or directly use uv
+or run it directly with uv:
 
 ```shell
 uvx debmagic

@@ -62,8 +62,8 @@ replace = 'version = "{new_version}"'
 
 [[tool.bumpversion.files]]
 filename = "Cargo.toml"
-search = 'debmagic-common = { path = "packages/debmagic-common", version = "{current_version}" }'
-replace = 'debmagic-common = { path = "packages/debmagic-common", version = "{new_version}" }'
+search = 'path = "packages/debmagic-common", version = "{current_version}"'
+replace = 'path = "packages/debmagic-common", version = "{new_version}"'
 
 # Promote notes under [Unreleased] into a dated release section; keep [Unreleased] for the next cycle.
 [[tool.bumpversion.files]]

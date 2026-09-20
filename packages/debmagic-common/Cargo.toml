@@ -1,6 +1,6 @@
 [package]
 name = "debmagic-common"
-version = "0.0.1-alpha.7"
+version = "0.0.1-alpha.8"
 description = "Shared helpers for debmagic (Debian versions, distro detection)"
 license = "GPL-2.0-or-later"
 documentation = "https://debmagic.readthedocs.org"

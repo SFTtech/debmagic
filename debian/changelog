@@ -1,3 +1,10 @@
+debmagic (0.0.1~alpha8) forky; urgency=medium
+
+  * publish the Rust crates to crates.io on tagged releases
+  * provide a native implementation of the package signing workflow
+
+ -- Debmagic Maintainers <debmagic@sft.lol>  Sun, 20 Sep 2026 19:51:59 +0200
+
 debmagic (0.0.1~alpha7) forky; urgency=medium
 
   * support non-debian and non-ubuntu distros using dpkg

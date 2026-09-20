@@ -406,7 +406,7 @@ dependencies = [
 
 [[package]]
 name = "debmagic"
-version = "0.0.1-alpha.7"
+version = "0.0.1-alpha.8"
 dependencies = [
  "anyhow",
  "clap",
@@ -431,7 +431,7 @@ dependencies = [
 
 [[package]]
 name = "debmagic-common"
-version = "0.0.1-alpha.7"
+version = "0.0.1-alpha.8"
 dependencies = [
  "chrono",
  "regex",

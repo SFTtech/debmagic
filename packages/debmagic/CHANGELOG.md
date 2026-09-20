@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1-alpha.8] - 2026-09-20
+
 - publish the Rust crates to crates.io on tagged releases
 - provide a native implementation of the package signing workflow
 
@@ -43,7 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial alpha release of the Rust-based `debmagic` CLI.
 
-[Unreleased]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.7...HEAD
+[Unreleased]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.8...HEAD
+[0.0.1-alpha.8]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.7...v0.0.1-alpha.8
 [0.0.1-alpha.7]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.6...v0.0.1-alpha.7
 [0.0.1-alpha.6]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.5...v0.0.1-alpha.6
 [0.0.1-alpha.5]: https://github.com/SFTtech/debmagic/compare/v0.0.1-alpha.4...v0.0.1-alpha.5

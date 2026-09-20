@@ -8,7 +8,7 @@ rust-version = "1.89"
 
 [workspace.dependencies]
 # internal
-debmagic-common = { path = "packages/debmagic-common", version = "0.0.1-alpha.7" }
+debmagic-common = { path = "packages/debmagic-common", version = "0.0.1-alpha.8" }
 
 # third party
 clap = { version = ">=4.5.23", features = ["derive"] }

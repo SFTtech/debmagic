@@ -10,10 +10,14 @@ Modern, robust & easy tooling for building and packaging [Debian](https://debian
 ## Installation
 
 ```shell
+cargo install debmagic
+```
+
+```shell
 pip install debmagic
 ```
 
-or run it directly:
+or run it directly with uv:
 
 ```shell
 uvx debmagic

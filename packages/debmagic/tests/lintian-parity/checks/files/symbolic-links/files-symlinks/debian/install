@@ -1,0 +1,11 @@
+data-file usr/share/lintian/data/
+pkg.conf etc/lintian/
+symlinks/data-file.old usr/share/lintian/data/
+symlinks/etc-lintian* usr/share/
+symlinks/pkg*.conf usr/share/lintian/data/
+symlinks/self-recursive usr/share/lintian/data/
+symlinks/spurious usr/share/lintian/data/
+symlinks/comp-data usr/lib/lintian/data/
+symlinks/1024 usr/lib/lintian/data/
+
+tmp/comp-data.gz usr/share/lintian/data/

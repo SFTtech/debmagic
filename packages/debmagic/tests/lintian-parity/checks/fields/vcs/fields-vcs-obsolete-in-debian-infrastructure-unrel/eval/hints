@@ -1,0 +1,6 @@
+fields-vcs-obsolete-in-debian-infrastructure-unrel (source): vcs-uri Git https://salsa.debian.org/foo/bar.git
+fields-vcs-obsolete-in-debian-infrastructure-unrel (source): vcs git
+fields-vcs-obsolete-in-debian-infrastructure-unrel (source): package-is-maintained-by-individual
+fields-vcs-obsolete-in-debian-infrastructure-unrel (changes): package-is-maintained-by-individual
+fields-vcs-obsolete-in-debian-infrastructure-unrel (buildinfo): package-is-maintained-by-individual
+fields-vcs-obsolete-in-debian-infrastructure-unrel (binary): package-is-maintained-by-individual

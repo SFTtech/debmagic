@@ -1,0 +1,33 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+# Automatically added by dh_fake_lintian_tool
+if [ "$1" = configure ]; then
+    echo do something ...
+fi
+# End automatically added section
+
+# Automatically added by dh_fake_lintian_tool_versioned/1.0
+if [ "$1" = configure ]; then
+    echo do something ...
+fi
+# End automatically added section
+
+# dh_python tools adds a ":" after for some reason.  Ignore it
+# Automatically added by dh_fake_python3:
+if [ "$1" = configure ]; then
+    echo do something else ...
+fi
+# End automatically added section
+
+# Again, now pretending it has a version
+# Automatically added by dh_fake_python3_versioned/1.0:
+if [ "$1" = configure ]; then
+    echo do something else ...
+fi
+# End automatically added section
+
+
+exit 0

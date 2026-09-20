@@ -1,0 +1,4 @@
+md5sums-general (binary): md5sums-lists-nonexistent-file usr/share/lintian/data-file5 [md5sums]
+md5sums-general (binary): md5sum-mismatch usr/share/lintian/data-file1 [md5sums]
+md5sums-general (binary): malformed-md5sums-control-file Odd text: broken-md5sums [md5sums]
+md5sums-general (binary): file-missing-in-md5sums usr/share/lintian/data-file2 [md5sums]

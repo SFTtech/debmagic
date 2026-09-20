@@ -1,0 +1,19 @@
+Source: files-adobe-font
+Priority: optional
+Section: fonts
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+Homepage: http://lintian.debian.org/
+
+Package: fonts-files-adobe-font
+Architecture: all
+Depends: ${misc:Depends}
+Multi-Arch: foreign
+Description: Test for adobe font license issues
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+

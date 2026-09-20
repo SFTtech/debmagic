@@ -1,0 +1,14 @@
+fail-on-info (source): standards-version 4.5.0
+fail-on-info (source): source-format 3.0 (native)
+fail-on-info (source): rules-does-not-require-root
+fail-on-info (source): package-is-maintained-by-individual
+fail-on-info (source): debian-build-system dh
+fail-on-info (source): debhelper-compat-virtual-relation 13
+fail-on-info (source): debhelper-compat-level 13
+fail-on-info (changes): package-is-maintained-by-individual
+fail-on-info (buildinfo): package-is-maintained-by-individual
+fail-on-info (binary): package-is-maintained-by-individual
+fail-on-info (binary): no-ctrl-scripts
+fail-on-info (binary): manpage-without-executable usr/share/man/man8/lsmod.8.gz
+fail-on-info (binary): data-tarball-compression-format xz
+fail-on-info (binary): control-tarball-compression-format xz

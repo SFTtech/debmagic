@@ -1,0 +1,14 @@
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="0001", \
+    MODE="0666"
+
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="0002", \
+    MODE="0660", GROUP="plugdev"
+
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="0003", \
+    TAG+="uaccess"
+
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="0004", \
+    MODE="0660", GROUP="plugdev", TAG+="uaccess"
+
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0000", ATTR{idProduct}=="000a", \
+    ID_TEST_DEVICE="1"

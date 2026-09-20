@@ -33,8 +33,11 @@ packages = {
 cargo_lock = Path("Cargo.lock")
 cargo_lock_saved = Path("Cargo.lock.saved")
 
-def dh_auto(build: Build, stage: str, use_destdir: bool = False):
+def dh_auto(build: Build, stage: str, use_destdir: bool = False, skip: set[str] | None = None):
+    skip = skip or set()
     for pkg_name, (path, python_pkg_name) in packages.items():
+        if pkg_name in skip:
+            continue
         destdir = f" --destdir debian/{pkg_name} " if use_destdir else ""
         build.cmd(f"{stage} -p {pkg_name} --sourcedirectory {path} --buildsystem=pybuild {destdir} -- --name {python_pkg_name}")
 
@@ -58,7 +61,10 @@ def dh_auto_install(build: Build):
 
 @dhp.override
 def dh_auto_test(build: Build):
-    dh_auto(build, "dh_auto_test")
+    # pybuild copies sourcedirectory/tests into the build dir. The Rust crate's
+    # tests/ is Cargo plus lintian-parity fixtures (FIFOs, dangling/escaping
+    # symlinks) that shutil.copytree cannot copy, and it has no Python tests.
+    dh_auto(build, "dh_auto_test", skip={"debmagic"})
 
 
 @dhp.override

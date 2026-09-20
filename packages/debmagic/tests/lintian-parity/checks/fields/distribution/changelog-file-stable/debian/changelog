@@ -1,0 +1,6 @@
+changelog-file-stable (1.0-1etch1) stable-proposed-updates; urgency=low
+
+  * Lintian Test Suite.
+  * Test: changelog-file-stable
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

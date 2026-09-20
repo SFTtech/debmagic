@@ -1,0 +1,28 @@
+foo-duplicate (binary): description-is-pkg-name foo duplicate
+foo-bar-duplicate (binary): description-is-pkg-name foo bar duplicate
+description-general-syn-spelling (binary): spelling-error-in-description-synopsis developement development
+description-general-syn-spelling (binary): capitalization-error-in-description-synopsis debian Debian
+description-general-syn-article (binary): description-synopsis-starts-with-article
+description-general-short (binary): description-too-short Short
+description-general-empty (binary): extended-description-is-empty
+description-general-control-statements (binary): description-contains-invalid-control-statement line 2
+description-general-4 (binary): spelling-error-in-description mroe more
+description-general-4 (binary): description-synopsis-is-duplicated line 1
+description-general-4 (binary): description-contains-homepage line 5
+description-general-4 (binary): capitalization-error-in-description debian Debian
+description-general-3 (binary): using-first-person-in-description line 6: I
+description-general-3 (binary): extended-description-line-too-long line 2
+description-general-3 (binary): description-synopsis-is-empty
+description-general-2 (binary): synopsis-too-long
+description-general-2 (binary): possible-unindented-list-in-extended-description line 5
+description-general-2 (binary): description-starts-with-leading-spaces line 1
+description-general-2 (binary): description-contains-tabs
+description-general (binary): spelling-error-in-description these these (duplicate word) these
+description-general (binary): spelling-error-in-description of of (duplicate word) of
+description-general (binary): spelling-error-in-description matched matched (duplicate word) matched
+description-general (binary): spelling-error-in-description all all (duplicate word) all
+description-general (binary): description-starts-with-package-name
+description-general (binary): description-is-debmake-template line 1
+description-general (binary): description-contains-tabs line 3
+description-general (binary): description-contains-invalid-control-statement line 7
+description-general (binary): description-contains-dh-make-perl-template line 11

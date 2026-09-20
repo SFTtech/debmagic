@@ -1,0 +1,15 @@
+nmu-with-maintainer-ack (1.0-1.1) unstable; urgency=low
+
+  * NMU with ACK from maintainer.
+  * This should not trigger changelog-should-mention-nmu even though it
+    has "ACK" in the first line.
+
+ -- Russ Allbery <rra@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+nmu-with-maintainer-ack (1.0-1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: nmu-with-maintainer-ack
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Sat, 24 Jan 2009 15:39:06 -0800
+

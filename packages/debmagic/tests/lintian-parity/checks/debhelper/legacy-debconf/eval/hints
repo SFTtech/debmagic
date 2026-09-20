@@ -1,0 +1,4 @@
+debconf (source): maintainer-script-lacks-debhelper-token [debian/debconf-test.postinst]
+debconf (source): debian-build-system debhelper [debian/rules]
+debconf (source): debhelper-compat-virtual-relation 14 [debian/control]
+debconf (source): debhelper-compat-level 14

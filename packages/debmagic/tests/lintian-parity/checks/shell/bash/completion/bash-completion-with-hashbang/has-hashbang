@@ -1,0 +1,4 @@
+#!/bin/sh
+
+This would be a bash-completion script. They are intended to be
+sourced and should not designate an interpreter via a hashbang.

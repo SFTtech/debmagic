@@ -1,0 +1,3 @@
+watch-file-should-mangle (source): debian-watch-not-mangling-version https://www.example.com/dist/ dh7-test\.([\d.]+)\.tar\.gz debian uupdate [debian/watch:5]
+watch-file-should-mangle (source): debian-watch-not-mangling-version https://www.example.com/dist/ dh7-test\.([\d.]+)\.tar\.gz [debian/watch:11]
+watch-file-should-mangle (source): debian-watch-does-not-check-openpgp-signature [debian/watch]

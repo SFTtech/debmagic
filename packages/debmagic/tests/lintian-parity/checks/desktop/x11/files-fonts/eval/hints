@@ -1,0 +1,7 @@
+files-fonts (binary): package-mixes-misc-and-dpi-fonts
+files-fonts (binary): package-contains-multiple-dpi-fonts
+files-fonts (binary): file-in-unknown-x11-font-directory [usr/share/fonts/X11/other/foo.pcf.gz]
+files-fonts (binary): file-in-discouraged-x11-font-directory [usr/share/fonts/X11/cyrillic/foo.pcf.gz]
+files-fonts (binary): file-in-discouraged-x11-font-directory [usr/share/fonts/X11/Speedo/foo.pcf.gz]
+files-fonts (binary): file-in-discouraged-x11-font-directory [usr/share/fonts/X11/PEX/foo.pcf.gz]
+files-fonts (binary): file-in-discouraged-x11-font-directory [usr/share/fonts/X11/CID/foo.pcf.gz]

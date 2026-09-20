@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+# encoding: ISO-8859-1
+#
+
+# We just do a little python... for the show
+
+import os, sys
+if sys.hexversion<0x203000f: raise ImportError("Waf requires python >= 2.3")
+  # and we are pretending to be a waf script
+
+# okay, that's enough... below we will include a binary tarball...
+# That is as fun as it sounds (which is to say not a lot).
+

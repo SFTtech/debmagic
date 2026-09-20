@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_install:
+	for P in $$(dh_listpackages) ; do \
+		dh_install -p$$P data-file usr/share/pkga/ || exit 1 ;\
+	 done

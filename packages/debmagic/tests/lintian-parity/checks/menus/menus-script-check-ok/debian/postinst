@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+# Checks that the maintainer script checks for the existence of programs that
+# it calls.  This should produce no warnings except a bashism warning about
+# using type, a warning about the deprecated wm-menu-config invocation, and a
+# warning for calling the deprecated install-docs outside of a trigger.
+if [ -x /usr/bin/update-menus ] ; then
+    update-menus
+fi
+if type install-docs >/dev/null 2>&1 ; then
+    install-docs -i /usr/share/doc-base/test-doc
+fi
+
+#DEBHELPER#

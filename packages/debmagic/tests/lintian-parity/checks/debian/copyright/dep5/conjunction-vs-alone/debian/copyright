@@ -1,0 +1,21 @@
+# taken from https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=801182#8
+# except completed where needed, and with a secure URL
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Files: *
+Copyright: (C) 2004-2012 NVIDIA Corporation
+License: MooPL
+
+Files: XF86Config-parser/Generate.c
+Copyright: (C) 2005 NVIDIA Corporation
+License: GPL-2+ and other-GPL
+
+Files: debian/*
+Copyright: © 2005 Randall Donald <rdonald@debian.org>
+License: GPL-2+
+
+License: GPL-2+
+ Please call the Free Software Foundation for this license.
+
+License: other-GPL
+ Please call the Free Software Foundation for this license.

@@ -1,0 +1,8 @@
+menus-doc-base-general (binary): duplicate-field-in-doc-base Author [usr/share/doc-base/menus-doc-base-general.doc2:5]
+menus-doc-base-general (binary): doc-base-uses-applications-section Apps/Programming [usr/share/doc-base/menus-doc-base-general.doc2:11]
+menus-doc-base-general (binary): doc-base-file-syntax-error [usr/share/doc-base/menus-doc-base-general.doc2:18]
+menus-doc-base-general (binary): doc-base-file-separator-extra-whitespace [usr/share/doc-base/menus-doc-base-general.doc2:13]
+menus-doc-base-general (binary): doc-base-document-field-not-in-first-line [usr/share/doc-base/menus-doc-base-general.doc2:2]
+menus-doc-base-general (binary): doc-base-abstract-might-contain-extra-leading-whitespace [usr/share/doc-base/menus-doc-base-general.doc2:10]
+menus-doc-base-general (binary): doc-base-abstract-field-separator-extra-whitespace [usr/share/doc-base/menus-doc-base-general.doc2:8]
+menus-doc-base-general (binary): doc-base-abstract-field-is-template [usr/share/doc-base/menus-doc-base-general.doc2:10]

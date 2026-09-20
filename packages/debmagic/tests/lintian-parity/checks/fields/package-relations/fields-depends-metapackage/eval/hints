@@ -1,0 +1,1 @@
+fields-depends-metapackage (source): build-depends-on-metapackage Build-Depends: xorg-dev

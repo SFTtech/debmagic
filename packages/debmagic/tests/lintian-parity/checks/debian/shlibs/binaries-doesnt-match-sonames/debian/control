@@ -1,0 +1,48 @@
+Source: binaries-doesnt-match-sonames
+Priority: optional
+Section: libs
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper (>= 9.20151004~)
+Rules-Requires-Root: no
+
+Package: mylibany
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for library package that does not match SONAME
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+
+Package: libany6gcc1v6
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for library package that does not match SONAME with gcc 6 version
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ It test if v6 string are correctly escaped
+
+Package: libany5gcc1v5
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for library package that does not match SONAME with gcc 5 version
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ It test if v5 string are correctly escaped
+
+Package: libanyq16-6
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for library package that does not match SONAME with Q16 version
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ It test if string are correctly escaped like for imagemagick.
+ .
+ library name is not libanyQ166

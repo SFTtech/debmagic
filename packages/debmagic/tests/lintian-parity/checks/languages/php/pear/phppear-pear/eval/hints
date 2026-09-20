@@ -1,0 +1,10 @@
+phppear-pear (source): pecl-package-requires-build-dependency php-dev [package.xml]
+phppear-pear (source): pecl-package-requires-build-dependency dh-php [package.xml]
+phppear-pear (source): pear-package-not-using-substvar ${phppear:summary}
+phppear-pear (source): pear-package-not-using-substvar ${phppear:description}
+phppear-pear (source): pear-package-but-missing-dependency Recommends
+phppear-pear (source): pear-package-but-missing-dependency Depends
+phppear-pear (source): pear-package-but-missing-dependency Breaks
+phppear-pear (source): missing-pkg-php-tools-buildsystem phppear [debian/rules]
+phppear-pear (source): missing-pkg-php-tools-addon phppear [debian/rules]
+phppear-pear (source): missing-pkg-php-tools-addon php [debian/rules]

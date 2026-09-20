@@ -1,0 +1,19 @@
+Source: ships-legacy-vendorarch
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), perlapi-5.30.0
+Rules-Requires-Root: no
+Homepage: https://lintian.debian.org/
+
+Package: ships-legacy-vendorarch
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
+# bump the value here and in fill-values for building with newer releases
+Depends: ${shlibs:Depends}, ${misc:Depends}, perlapi-5.30.0
+Description: Modern module ships legacy vendor-arch
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

@@ -1,0 +1,101 @@
+Template: debconf/test
+Type: text
+_description: Foo bar (1)
+
+Template: debconf/testmulti
+Type: multiselect
+__Choices: foo, bar, boo
+_Description: test comma usages in choices fields
+
+Template: debconf/testmulti-escape
+Type: multiselect
+_Choices: foo\, bar, boo
+_Description: test escaped comma usages in choices fields:
+
+Template: debconf/testboolean
+Type: boolean
+_Description: Enter yes or no:
+ Do you want to answer this question?
+
+Template: debconf/teststring
+Type: string
+_Description: This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+ This template goes on and on.
+
+Template: debconf/testnote
+Type: note
+Description: This should be a title and not a really long sentence that ends in a regular period.
+
+Template: debconf/1st-person
+Type: select
+__Choices: one, two
+_Description: Select one of these:
+ I am a stupid test of first-person syntax that tells you to select yes
+ even though yes isn't an option in this prompt.
+
+Template: debconf/internal
+Type: boolean
+Description: For internal use only
+ We are testing that style checks are not applied to templates that are
+ marked as internal.
+
+Template: debconf/no-description
+Type: string
+
+Template: debconf/translate
+Type: boolean
+_Default: false
+_Description: Should this really be translated?
+
+Template: debconf/transtring
+Type: string
+_Default: 1
+_Description: Count of templates:
+ The number of useless numbers that a translator would have to translate
+ for this template.
+
+Template: debconf/language
+__Choices: English, Spanish, German, French
+# This is the default choice.  Translators should put their own language,
+# if available, here instead, but the value MUST be the English version
+# of the value for the package scripts to work properly.
+_Default: English[ translators, see the comment in the PO files]
+_Description: The default language, an example of a default that should
+ be translated.
+
+Template: debconf/error
+Type: error
+_Description: An error occurred
+ This is a sample Debconf error template.
+
+Template: debconf/should-be-boolean
+Type: select
+__Choices: yes, no
+_Description: Choose:
+ Pick yes or no.
+
+Template: debconf/should-be-no-longer-a-problem
+Type: boolean
+_Description: Decide, lintian
+ Using "no longer" should no longer be detected as 
+ making-assumptions-about-interfaces-in-templates by lintian.

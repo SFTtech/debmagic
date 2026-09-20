@@ -1,0 +1,7 @@
+debhelper-executable-files (source): package-uses-deprecated-debhelper-compat-version 8
+debhelper-executable-files (source): package-file-is-executable [debian/manpages]
+debhelper-executable-files (source): package-file-is-executable [debian/copyright]
+debhelper-executable-files (source): package-file-is-executable [debian/control]
+debhelper-executable-files (source): package-file-is-executable [debian/changelog]
+debhelper-executable-files (source): debian-build-system dh [debian/rules]
+debhelper-executable-files (source): debhelper-compat-level 8

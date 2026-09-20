@@ -1,0 +1,3 @@
+debian-source-dir-custom-compression-settings (source): source-format 3.0 (native)
+debian-source-dir-custom-compression-settings (source): custom-compression-in-debian-source-options compression-level = 9 [debian/source/options:2]
+debian-source-dir-custom-compression-settings (source): custom-compression-in-debian-source-options compression = xz [debian/source/options:1]

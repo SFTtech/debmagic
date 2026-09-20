@@ -1,0 +1,4 @@
+binaries-hardening (binary): hardening-no-relro [usr/bin/weak]
+binaries-hardening (binary): hardening-no-pie [usr/bin/weak]
+binaries-hardening (binary): hardening-no-fortify-functions [usr/bin/weak]
+binaries-hardening (binary): hardening-no-bindnow [usr/bin/weak]

@@ -1,0 +1,9 @@
+fields-java (source): virtual-package-depends-without-real-package-depends Build-Depends: java-compiler
+fields-java (source): build-depends-on-specific-java-doc-package openjdk-6-doc
+fields-java (source): build-depends-on-obsolete-package Build-Depends: openjdk-6-jdk
+fields-java (source): build-depends-on-an-obsolete-java-package java-compiler
+libfields-java-java-doc (binary): depends-on-specific-java-doc-package Recommends
+libfields-java-java (binary): ored-depends-on-obsolete-package Depends: openjdk-6-jre
+libfields-java-java (binary): needless-suggest-recommend-libservlet-java libservlet3.0-java
+libfields-java-java (binary): needless-suggest-recommend-libservlet-java libservlet2.5-java
+libfields-java-java (binary): needless-dependency-on-jre

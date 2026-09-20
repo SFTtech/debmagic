@@ -1,0 +1,6 @@
+files-doxygen-documentation (source): source-contains-prebuilt-doxygen-documentation [src/doc/html/index.html]
+files-doxygen-documentation (source): source-contains-prebuilt-doxygen-documentation [src/doc/html/graph_legend.html]
+files-doxygen-documentation (source): source-contains-prebuilt-doxygen-documentation [src/doc/html/globals_func.html]
+files-doxygen-documentation (source): source-contains-prebuilt-doxygen-documentation [src/doc/html/globals.html]
+files-doxygen-documentation (source): source-contains-prebuilt-doxygen-documentation [src/doc/html/files.html]
+files-doxygen-documentation (source): source-contains-prebuilt-doxygen-documentation [src/doc/html/]

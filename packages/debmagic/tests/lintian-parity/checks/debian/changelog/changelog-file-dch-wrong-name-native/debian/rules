@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+PKG:=$(shell dh_listpackages)
+DOC_DIR:=debian/$(PKG)/usr/share/doc/$(PKG)
+
+%:
+	dh $@
+
+override_dh_md5sums:
+	mv $(DOC_DIR)/changelog.gz $(DOC_DIR)/changelog.Debian.gz
+	dh_md5sums

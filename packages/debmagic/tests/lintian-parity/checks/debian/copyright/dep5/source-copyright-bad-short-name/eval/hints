@@ -1,0 +1,3 @@
+source-copyright-bad-short-name (source): space-in-std-shortname-in-dep5-copyright some space license [debian/copyright:13]
+source-copyright-bad-short-name (source): invalid-short-name-in-dep5-copyright gplv1 [debian/copyright:8]
+source-copyright-bad-short-name (source): invalid-short-name-in-dep5-copyright bsd [debian/copyright:18]

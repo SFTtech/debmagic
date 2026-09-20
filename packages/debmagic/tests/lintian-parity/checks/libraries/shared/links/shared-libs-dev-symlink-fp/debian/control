@@ -1,0 +1,27 @@
+Source: shared-libs-dev-symlink-fp
+Priority: optional
+Section: libs
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper (>= 9.20151004~)
+Rules-Requires-Root: no
+
+Package: libfoo-1
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test against dev symlink fp
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: libfoo-dev
+Architecture: any
+Section: libdevel
+Depends: ${shlibs:Depends}, ${misc:Depends},
+          libfoo-1 (= ${binary:Version})
+Description: Test against dev symlink fp - dev
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Dev package.

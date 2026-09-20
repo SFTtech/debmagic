@@ -1,0 +1,11 @@
+libunshf1 (binary): symbols-file-missing-build-depends-package-field libunshf.so.1 [symbols]
+libunshf1 (binary): shared-library-not-shipped libfoo 1 [shlibs]
+libunshf1 (binary): outdated-relation-in-shlibs libunshf1 (> 0.1) [shlibs]
+libnoshf1 (binary): symbols-file-missing-build-depends-package-field libnoshf.so.1 [symbols]
+libnoshf1 (binary): no-shlibs usr/lib/libnoshf.so.1.0.1
+libfdshf1 (binary): symbols-file-missing-build-depends-package-field libfdshf.so.1 [symbols]
+libfdshf1 (binary): distant-prerequisite-in-shlibs libforeign1 [shlibs]
+libeshf1 (binary): symbols-file-missing-build-depends-package-field libeshf.so.1 [symbols]
+libeshf1 (binary): ships-undeclared-shared-library libeshf 1 for usr/lib/libeshf.so.1.0.1 [shlibs]
+libdupshf1 (binary): symbols-file-missing-build-depends-package-field libdupshf.so.1 [symbols]
+libdupshf1 (binary): duplicate-in-shlibs (lines 1 2) libdupshf 1 [shlibs]

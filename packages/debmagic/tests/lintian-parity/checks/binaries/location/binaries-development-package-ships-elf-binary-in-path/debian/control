@@ -1,0 +1,53 @@
+Source: binaries-development-package-ships-elf-binary-in-path
+Priority: optional
+Section: libs
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper (>= 9.20160114~)
+Rules-Requires-Root: no
+
+Package: libmultiarch-none-dev
+Architecture: any
+Section: libdevel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for development packages shipping ELF binaries in $PATH (M-A: none)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package does not specify a Multi-Arch field.
+
+Package: libmultiarch-foreign-dev
+Architecture: any
+Section: libdevel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: foreign
+Description: Test for development packages shipping ELF binaries in $PATH (M-A: foreign)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package specifies Multi-Arch: foreign.
+
+Package: libmultiarch-same-dev
+Architecture: any
+Section: libdevel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Description: Test for development packages shipping ELF binaries in $PATH (M-A: same)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package specifies Multi-Arch: same.
+
+Package: libmultiarch-contrib-dev
+Architecture: any
+Section: contrib/libdevel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for development packages shipping ELF binaries in $PATH (contrib)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package is in the contrib/libdevel section.

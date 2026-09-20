@@ -1,0 +1,3 @@
+filenames (binary): shipped-file-without-utf8-name [usr/share/doc/filenames/bokmål]
+filenames (binary): shipped-file-without-utf8-name [usr/share/doc/filenames/bokm\ål]
+filenames (binary): file-name-ends-in-whitespace [files/'\ ]

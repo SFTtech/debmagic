@@ -1,0 +1,2 @@
+files-empty-udeb (udeb): empty-udeb-package
+files-empty (binary): empty-binary-package

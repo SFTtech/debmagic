@@ -1,0 +1,2 @@
+debian/script /bin/
+debian/script /usr/bin

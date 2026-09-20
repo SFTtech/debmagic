@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- This file is under lintian license. Licence in meta data is fake
+     and only for test purpose -->
+<svg
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    width="10"
+    height="10"
+    version="1.1">
+  <title id="lintian test file">File</title>
+
+  <metadata
+      id="metadata3877">
+    <rdf:RDF>
+      <cc:Work
+	  rdf:about="">
+	<dc:format>image/svg+xml</dc:format>
+	<dc:type
+	    rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+	<dc:title>File</dc:title>
+	<dc:date>2014-09-12</dc:date>
+	<dc:creator>
+	  <cc:Agent>
+	    <dc:title>Bastien Roucariès</dc:title>
+	  </cc:Agent>
+	</dc:creator>
+	<cc:license
+	    rdf:resource="http://creativecommons.org/licenses/by-nc-sa/3.0/" />
+      </cc:Work>
+      <cc:License
+	  rdf:about="http://creativecommons.org/licenses/by-nc-sa/3.0/">
+	<cc:permits
+	    rdf:resource="http://creativecommons.org/ns#Reproduction" />
+	<cc:permits
+	    rdf:resource="http://creativecommons.org/ns#Distribution" />
+	<cc:requires
+	    rdf:resource="http://creativecommons.org/ns#Notice" />
+	<cc:requires
+	    rdf:resource="http://creativecommons.org/ns#Attribution" />
+	<cc:prohibits
+	    rdf:resource="http://creativecommons.org/ns#CommercialUse" />
+	<cc:permits
+	    rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+	<cc:requires
+	    rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

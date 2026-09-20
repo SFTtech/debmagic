@@ -1,0 +1,3 @@
+control-file-general (source): obsolete-relation-form-in-source (in source paragraph) Build-Depends-Indep perl (> 5.8) [debian/control:12]
+control-file-general (source): obsolete-relation-form-in-source (in section for control-file-general-1) Breaks libsqlite3-0 (< 3.6.12) [debian/control:37]
+control-file-general (source): missing-separator-between-items (in section for control-file-general) '${shlibs:Depends}' and '${some:Depends}' [debian/control:24]

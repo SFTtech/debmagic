@@ -1,0 +1,1 @@
+what-is-python-depends (binary): bogus-python-prerequisite Depends (satisfies python-is-python3:any)

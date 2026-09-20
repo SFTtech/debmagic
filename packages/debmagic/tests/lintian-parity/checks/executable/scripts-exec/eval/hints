@@ -1,0 +1,1 @@
+scripts-exec (binary): executable-not-elf-or-script [usr/bin/04-not-a-script]

@@ -1,0 +1,16 @@
+#: C/index.docbook:65(legalnotice/para)
+msgid ""
+"Permission is granted to copy, distribute and/or modify this document under "
+"the terms of the <citetitle>GNU Free Documentation License</citetitle>, "
+"Version 1.1 or any later version published by the Free Software Foundation "
+"with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A "
+"copy of the license is <link linkend=\"fdl\">included</link>."
+msgstr ""
+"Das vorliegende Dokument kann gemäß den Bedingungen der GNU Free "
+"Documentation License (GFDL), Version 1.1 oder jeder späteren, von der Free "
+"Software Foundation veröffentlichten Version ohne unveränderbare Abschnitte "
+"sowie ohne Texte auf dem vorderen und hinteren Buchdeckel kopiert, verteilt "
+"und/oder modifiziert werden. Eine Kopie der GFDL finden Sie unter diesem "
+"<ulink type=\"help\" url=\"ghelp:fdl\">Link</ulink> oder in der mit diesem "
+"Handbuch gelieferten Datei COPYING-DOCS."
+

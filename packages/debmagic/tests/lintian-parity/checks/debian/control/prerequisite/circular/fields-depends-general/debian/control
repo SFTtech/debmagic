@@ -1,0 +1,81 @@
+Source: fields-depends-general
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), libtest-simple-perl (>= 0.98), perl-modules
+Rules-Requires-Root: no
+
+Package: fields-depends-general
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, xorg, bash,
+ conflict-dep, gawk | awk, new-package | xbase-clients (>= 0.1), fields-depends-general,
+ gaim (>= 0.1), emacs21, emacs22, emacs23, makedev, libtest-simple-perl (>= 0.98),
+ packaging-dev, xfont-a, emacs22-gtk, emacs23-el, emacs23-nox, emacs23-lucid,
+ emacs222, perl-modules, debhelper
+Breaks: package-without-version, fields-depends-general (<< 0.1),
+ replaced-wo-version
+Replaces: replaced-wo-version
+Conflicts: package-with-version (<< 3.0), conflict-dep
+Description: General tests for binary package dependencies
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: libfields-depends-general
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, libdb1-compat, perl-modules-5.22
+Recommends: debconf-doc
+Conflicts: debhelper
+Section: libs
+Description: General tests for binary package dependencies -- fake library
+ This is a fake library designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: py-fields-depends-general
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, python-minimal
+Description: General tests for binary package dependencies - Fake Python package
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ The fake Python package.
+
+Package: fields-depends-general-doc
+Section: doc
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, fields-depends-general
+Description: General tests for binary package dependencies - Fake Doc package
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ The fake doc package.
+
+Package: dh-fields-depends-general
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, debhelper
+Description: General tests for binary package dependencies - Fake Debhelper package
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ The fake Debhelper package to test false-positives in
+ binary-package-depends-on-toolchain-package.
+
+Package: fields-depends-general-source
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, debhelper
+Description: General tests for binary package dependencies - Fake DKMS-like package
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ The fake DKMS-like package to test false-positives in
+ binary-package-depends-on-toolchain-package.

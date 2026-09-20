@@ -1,0 +1,10 @@
+fields (1.5-.3) unstable; urgency=low
+
+  * This package adds tests for the following tags:
+    - debian-revision-not-well-formed
+    - depends-on-python-minimal
+    - essential-no-not-needed
+    - debian-revision-should-not-be-zero
+    - new-essential-package
+
+ -- Tobias Quathamer <toddy@debian.org>  Sun, 10 Apr 2011 14:30:00 +0100

@@ -1,0 +1,29 @@
+Source: scripts-missing-versioned-depends-on-init-system-helpers
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: scripts-missing-versioned-depends-on-init-system-helpers-with
+Architecture: all
+Depends: ${misc:Depends}, init-system-helpers (>= 1.50)
+Description: Test for packages that are missing init-system-helpers depends (with)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package has the dependency.
+
+Package: scripts-missing-versioned-depends-on-init-system-helpers-without
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test for packages that are missing init-system-helpers depends (without)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package is missing the dependency.

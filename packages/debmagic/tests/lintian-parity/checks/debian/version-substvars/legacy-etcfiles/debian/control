@@ -1,0 +1,20 @@
+Source: etcfiles
+Section: misc
+Priority: optional
+Maintainer: Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 3.5.0
+
+Package: etcfiles
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: test handling of files in /etc
+ Regression test for lintian's handling of files in /etc.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: only-etcfiles
+Architecture: all
+Depends: etcfiles (= ${source:Version})
+Description: test handling of conffile-only package

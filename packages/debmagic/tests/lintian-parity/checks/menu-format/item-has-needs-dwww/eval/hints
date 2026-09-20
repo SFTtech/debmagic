@@ -1,0 +1,2 @@
+item-has-needs-dwww (binary): menu-item-needs-dwww [usr/share/menu/test-menu:5]
+item-has-needs-dwww (binary): menu-command-not-in-package usr/bin/test-script [usr/share/menu/test-menu:5]

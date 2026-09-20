@@ -1,0 +1,64 @@
+#!/usr/bin/make -f
+
+tmp=debian/tmp
+tmponly=debian/only-etcfiles
+
+clean:
+	rm -f debian/files debian/substvars
+	rm -rf debian/tmp
+	rm -rf debian/only-etcfiles
+
+build:
+build-arch:
+build-indep:
+binary-indep:
+	install -d $(tmp)/etc
+	install -m 644 proper $(tmp)/etc
+	install -m 644 improper $(tmp)/etc
+	mkdir $(tmp)/etc/cron.daily
+	touch $(tmp)/etc/cron.daily/cronfile-normal
+	touch $(tmp)/etc/cron.daily/.cronfile-begins-with-fullstop
+	touch $(tmp)/etc/cron.daily/cronfile-contains.fullstop
+	ln $(tmp)/etc/improper $(tmp)/etc/improper-link
+	install -d $(tmp)/usr/share/doc/etcfiles
+	install -d $(tmp)/var/lib
+	install -m 644 proper $(tmp)/var/lib/foo
+	install -m 644 debian/README.Debian $(tmp)/usr/share/doc/etcfiles
+	install -m 644 debian/changelog $(tmp)/usr/share/doc/etcfiles
+	#gzip -9 $(tmp)/usr/share/doc/etcfiles/changelog
+	install -d $(tmp)/DEBIAN
+	install -m 644 debian/conffiles $(tmp)/DEBIAN
+
+	echo 'd41d8cd98f00b204e9800998ecf8427e  ./etc/cron.daily/cronfile-normal' \
+	    > debian/tmp/DEBIAN/md5sums
+	echo 'd41d8cd98f00b204e9800998ecf8427e  ./etc/cron.daily/.cronfile-begins-with-fullstop' \
+	    >> debian/tmp/DEBIAN/md5sums
+	echo 'd41d8cd98f00b204e9800998ecf8427e  ./etc/cron.daily/cronfile-contains.fullstop' \
+	    >> debian/tmp/DEBIAN/md5sums
+	echo '05c72cacce994208128b7d081116b04a  ./etc/proper' \
+	    >> debian/tmp/DEBIAN/md5sums
+	echo 'ab371382468880299e5ebd05921764ce  etc/improper' \
+	    >> debian/tmp/DEBIAN/md5sums
+	echo 'ab371382468880299e5ebd05921764ce  usr/bin/foo' \
+	    >> debian/tmp/DEBIAN/md5sums
+	echo 'this is a malformed line' \
+	    >> debian/tmp/DEBIAN/md5sums
+	echo '56fb27e455dd86d8801f1ecd3a4cee49  usr/share/doc/etcfiles/README.Debian' \
+	    >> debian/tmp/DEBIAN/md5sums
+
+	install -d $(tmponly)/etc/etcfiles
+	touch $(tmponly)/etc/etcfiles/foo
+	touch $(tmponly)/etc/etcfiles/bar
+	install -d $(tmponly)/usr/share/doc
+	cd $(tmponly)/usr/share/doc && ln -s etcfiles only-etcfiles
+	install -d $(tmponly)/DEBIAN
+	install -m 644 debian/conffiles.only $(tmponly)/DEBIAN/conffiles
+
+	dpkg-gencontrol -isp -petcfiles
+	dpkg-gencontrol -isp -ponly-etcfiles -P$(tmponly)
+	dpkg --build $(tmp) ..
+	dpkg --build $(tmponly) ..
+
+binary: binary-indep
+
+.PHONY: binary-indep binary clean

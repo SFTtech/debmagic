@@ -13,11 +13,13 @@ Build-Depends:
  python3-debian,
  cargo,
  python3-maturin,
+ dpkg-dev,
  librust-clap-dev (>=4.5.23),
  librust-anyhow-dev (>=1.0.95),
  librust-config-dev (>=0.15.9),
  librust-dirs-dev (>=5.0.0),
  librust-glob-dev (>=0.3.2),
+ librust-globset-dev (>=0.4.16),
  librust-libc-dev (>=0.2.169),
  librust-serde-dev (>=1.0.217),
  librust-serde-json-dev (>=1.0.139),
@@ -27,6 +29,8 @@ Build-Depends:
  librust-chrono-dev (>=0.4.42),
  librust-regex-dev (>=1.12.2),
  librust-test-case-dev (>=3.3.1),
+ librust-tempfile-dev (>=3.27.0),
+ librust-insta-dev (>=1.48.0),
  librust-pyo3-dev (>=0.27.2),
  librust-deb822-lossless-dev (>=0.5.18),
  librust-debian-changelog-dev (>=0.2.14),
@@ -34,7 +38,13 @@ Build-Depends:
  librust-ignore-dev (>=0.4.25),
  librust-md-5-dev (>= 0.11),
  librust-sha1-dev (>= 0.11),
- librust-sha2-dev (>= 0.11)
+ librust-sha2-dev (>= 0.11),
+ librust-ar-dev (>=0.9.0),
+ librust-tar-dev (>=0.4.45),
+ librust-flate2-dev (>=1.1.9),
+ librust-xz2-dev (>=0.1.7),
+ librust-zstd-dev (>=0.13.3),
+ librust-goblin-dev (>=0.10.7)
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2
@@ -57,6 +67,7 @@ Description: Debian build instructions written in Python.
 Package: debmagic
 Architecture: any
 Depends:
+ dpkg-dev,
  ${misc:Depends},
  ${shlibs:Depends},
 Description: Debian package building made easy.

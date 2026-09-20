@@ -1,0 +1,38 @@
+#!/bin/sh
+set -e
+
+if [ install = "$1"  ]; then
+    # This is a correct diversion.
+    dpkg-divert --package scripts-diversions --add --rename \
+        --divert /usr/share/scripts/t2/foo/some-file.real \
+        /usr/share/scripts/t2/foo/some-file
+
+    # This is broken -- can't use local.
+    dpkg-divert --local \
+		--add \
+		--divert \
+		/usr/share/scripts/other-file.real \
+		/usr/share/scripts/other-file
+
+    f=orphan
+    # This is also correct, but we're not going to clean it up.
+    dpkg-divert --package scripts-diversions --add --rename \
+        --divert /usr/share/scripts/t1/$f.real \
+        /usr/share/scripts/t1/"$f"
+
+    # Try to divert a file we don't ship
+    dpkg-divert --package scripts-diversions --add --rename \
+        --divert /etc/scripts/$f.real \
+        /etc/scripts/$f|| true
+    # Another one
+    dpkg-divert --package scripts-diversions --add --rename \
+        --divert /usr/share/foo/$f.real \
+        /usr/share/foo/${f#f}
+
+    # This is correct too.
+    dpkg-divert $SOMETHING --package scripts-diversions --add --rename \
+        --divert /usr/share/scripts/t2/foo/some-file.real \
+        /usr/share/scripts/t2/foo/some-file
+fi
+
+#DEBHELPER#

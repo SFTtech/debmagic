@@ -1,0 +1,57 @@
+Source: shared-libs-control-file
+Priority: optional
+Section: libs
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper (>= 9.20151004~)
+Rules-Requires-Root: no
+
+Package: libnoshf1
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test checks related to shlibs files (no shlibs file)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Checks for missing shlibs file.
+
+Package: libeshf1
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test checks related to shlibs files (empty shlibs file)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Checks for empty shlibs file.
+
+Package: libunshf1
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test checks related to shlibs files (unused entry)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Checks for unused entry in shlibs file.
+
+Package: libfdshf1
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test checks related to shlibs files (foreign dep)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Checks for foreign dependency entry in shlibs file.
+
+Package: libdupshf1
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test checks related to shlibs files (dup entry)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Checks for duplicate entry in shlibs file.

@@ -1,0 +1,9 @@
+lintian 2.139.0 (3d907cb9f489573ab5a581d13f640319335262b6)
+t/recipes/checks/debian/changelog/changelog-file-strange-date
+Skeleton: upload-native
+
+Filled test-package sources from t/templates + t/skeletons and the
+build-spec overlay. Does not build .deb / .dsc / .changes; tests do that.
+eval/hints is transcribed verbatim.
+
+License: GPL-2+ (same as lintian; see lintian debian/copyright).

@@ -1,0 +1,17 @@
+Source: debhelper-arch-depends
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), cli-common-dev (>= 0.5.7) [i386 sparc amd64 ia64],
+ cli-common-dev (>= 0.5.7) [i386 sparc amd64 ia64]
+Rules-Requires-Root: no
+
+Package: debhelper-arch-depends
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test arch-specific dependencies on dh commands
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+$PKG=libbaz1-dev
+

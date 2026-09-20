@@ -1,0 +1,15 @@
+%!PS-AdobeFont-1.0: Untitled1 001.000
+%%Title: good
+%Version: 001.000
+%%CreationDate: Mon Dec 10 21:21:58 2012
+%%Creator: nthykier,,,
+%Copyright: Created by nthykier,,, hand-crafted
+%%EndComments
+
+/RD{string currentfile exch readstring pop}executeonly def
+
+% This file has no license issues (bad.raw doesn't either, but
+% we pretend it does).
+
+2 index /CharStrings 2 dict dup begin
+

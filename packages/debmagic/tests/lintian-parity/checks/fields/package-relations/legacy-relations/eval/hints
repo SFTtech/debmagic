@@ -1,0 +1,40 @@
+relations (source): virtual-package-depends-without-real-package-depends Build-Depends: mail-transport-agent
+relations (source): redundant-build-prerequisites perl, perl (>= 5.0)
+relations (source): redundant-build-prerequisites foo (<< 4) [!amd64 !i386], foo (= 3) [!amd64 !i386]
+relations (source): ored-build-depends-on-obsolete-package Build-Depends-Indep: gs
+relations (source): mail-transport-agent-dependency-does-not-specify-default-mta Build-Depends: mail-transport-agent, libc6-dev, findutils, foo (= 3) [!amd64 !i386], bar, arch-test1 [i386], arch-test2 [!i386], quilt (>= 0.40), perl, python3-all-dev
+relations (source): invalid-arch-string-in-source-relation test [Build-Conflicts: bar [alpha test]]
+relations (source): invalid-arch-string-in-source-relation kfreebsd-i386 [Build-Depends-Indep: bozzle [kfreebsd-i386]]
+relations (source): build-depends-on-python-dev-with-no-arch-any
+relations (source): build-depends-on-essential-package-without-using-version Build-Depends: findutils
+relations (source): build-depends-on-essential-package-without-using-version Build-Depends-Indep: bash
+relations (source): build-depends-on-build-essential-package-without-using-version make [Build-Depends-Indep: make]
+relations (source): build-depends-on-build-essential-package-without-using-version libc6-dev [Build-Depends: libc6-dev]
+relations (source): build-depends-on-build-essential Build-Depends-Indep
+relations (source): build-depends-on-1-revision Build-Depends-Indep: libfoo (>= 1.2-1)
+relations (source): build-conflicts-with-build-dependency Build-Conflicts-Indep debmake [!powerpc] [debian/control:14]
+relations (source): build-conflicts-with-build-dependency Build-Conflicts bar [alpha test] [debian/control:13]
+relations-multiple-libs (binary): package-depends-on-multiple-tk-versions tk8.2 tk8.3
+relations-multiple-libs (binary): package-depends-on-multiple-tcl-versions tcl8.0 tcl8.2
+relations-multiple-libs (binary): package-depends-on-multiple-libstdc-versions libstdc++2.10 libstdc++2.10-glibc2.2 libstdc++3.0
+relations-multiple-libs (binary): package-depends-on-multiple-libpng-versions libpng2 libpng3
+relations-multiple-libs (binary): ored-depends-on-obsolete-package Suggests: gs
+relations-multiple-libs (binary): depends-on-obsolete-package Suggests: x-dev
+relations-multiple-libs (binary): depends-on-obsolete-package Recommends: gs-gpl
+relations-multiple-libs (binary): depends-on-obsolete-package Recommends: gs
+relations-multiple-libs (binary): conflicts-with-dependency Depends libpng2
+relations-multiple-libs (binary): breaks-without-version libpng2
+relations (binary): virtual-package-depends-without-real-package-depends Pre-Depends: awk
+relations (binary): virtual-package-depends-without-real-package-depends Depends: mail-transport-agent
+relations (binary): package-relation-with-self Depends: relations (<< 3)
+relations (binary): ored-depends-on-obsolete-package Recommends: gs-aladdin
+relations (binary): needlessly-depends-on-awk Pre-Depends
+relations (binary): mail-transport-agent-dependency-does-not-specify-default-mta Depends: relations (<< 3), dpkg, bash (>> 2.0), mail-transport-agent, foo (>> 2.0), foo (<< 2.2), coreutils, null (>= 0), makedev
+relations (binary): depends-on-old-emacs Recommends: emacs21
+relations (binary): depends-on-obsolete-package Recommends: gs
+relations (binary): depends-on-essential-package-without-using-version Depends: dpkg
+relations (binary): depends-on-essential-package-without-using-version Depends: coreutils
+relations (binary): depends-exclusively-on-makedev Depends
+relations (binary): conflicts-with-version foobar (<< 5+5)
+relations (binary): conflicts-with-dependency Depends relations
+relations (binary): conflicts-with-dependency Depends foo

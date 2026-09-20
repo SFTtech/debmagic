@@ -1,0 +1,5 @@
+debhelper-dh-runit-but-lacks-breaks-substvar (source): package-uses-old-debhelper-compat-version 13
+debhelper-dh-runit-but-lacks-breaks-substvar (source): package-uses-dh-runit-but-lacks-breaks-substvar debhelper-dh-runit-but-lacks-breaks-substvar-missing [debian/rules]
+debhelper-dh-runit-but-lacks-breaks-substvar (source): debian-build-system dh [debian/rules]
+debhelper-dh-runit-but-lacks-breaks-substvar (source): debhelper-compat-virtual-relation 13 [debian/control]
+debhelper-dh-runit-but-lacks-breaks-substvar (source): debhelper-compat-level 13

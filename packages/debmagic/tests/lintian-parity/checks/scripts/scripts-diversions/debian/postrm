@@ -1,0 +1,34 @@
+#!/bin/sh
+set -e
+
+if [ remove = "$1" ]; then
+    # Clean up the correct diversion from preinst.
+    dpkg-divert --package scripts-diversions --remove --rename \
+        --divert /usr/share/scripts/some-file.real \
+        /usr/share/scripts/some-file
+
+    # Clean up some other diversion that we didn't create.
+    dpkg-divert --package scripts-diversions --remove --rename \
+        /usr/share/scripts/old-file
+
+    # Clean up a diversion we did create for a non-existent file.
+    dpkg-divert --remove --package scripts-diversions --rename \
+        --divert /usr/share/scripts/no-such-file.real \
+        /usr/share/scripts/no-such-file
+
+    # Regression test for diversions ending in numbers (Bug#534942)
+    dpkg-divert --remove --package scripts-diversions \
+        --divert /usr/share/scripts/file.1.real \
+        /usr/share/scripts/file.1 > /dev/null
+
+    # Clean up the diversion for a binary man page.
+    dpkg-divert --remove --package scripts-diversions \
+        --divert /usr/share/man/man1/foo.real.1.gz \
+        /usr/share/man/man1/foo.1.gz
+
+    # Clean up a local diversion.
+    dpkg-divert --local --remove --divert /usr/share/scripts/other-file.real \
+        /usr/share/scripts/other-file
+fi
+
+#DEBHELPER#

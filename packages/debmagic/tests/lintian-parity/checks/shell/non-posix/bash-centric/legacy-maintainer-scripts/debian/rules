@@ -1,0 +1,36 @@
+#!/usr/bin/make -f
+
+build-arch:
+
+build-indep:
+
+build: build-arch build-indep
+
+binary-arch:
+
+binary-indep:
+	install -d debian/tmp/DEBIAN
+	install -m 0755 debian/config debian/tmp/DEBIAN
+	install -m 0755 debian/preinst debian/tmp/DEBIAN
+	install -m 0755 debian/postinst debian/tmp/DEBIAN
+	install -m 0755 debian/prerm debian/tmp/DEBIAN
+	install -m 0755 debian/postrm debian/tmp/DEBIAN
+	install -m 0644 debian/triggers debian/tmp/DEBIAN
+	install -d debian/tmp/usr/share/doc/maintainer-scripts
+	install -m 0644 debian/changelog \
+	  debian/tmp/usr/share/doc/maintainer-scripts/changelog
+	gzip -n -9 debian/tmp/usr/share/doc/maintainer-scripts/changelog
+	dpkg-gencontrol -isp
+	dpkg --build debian/tmp ..
+
+binary: binary-arch binary-indep
+
+# Make sure we see dh_clean even in a rule clean depends on.  Not the point of
+# this test suite, but a convenient place to put it.
+clean: clean1 clean2 clean3
+clean1:
+clean2:
+	dh_clean
+clean3:
+
+.PHONY: build-arch build-indep build binary-arch binary-indep binary clean

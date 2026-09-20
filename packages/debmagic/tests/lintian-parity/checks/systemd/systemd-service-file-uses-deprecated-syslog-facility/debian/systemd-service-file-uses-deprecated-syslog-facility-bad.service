@@ -1,0 +1,12 @@
+[Unit]
+After=network.target
+Documentation=https://example.com/
+
+[Service]
+ExecStart=/bin/test
+PIDFile=/run/$NAME.pid
+StandardOutput=syslog
+StandardError=syslog-console
+
+[Install]
+WantedBy=multi-user.target

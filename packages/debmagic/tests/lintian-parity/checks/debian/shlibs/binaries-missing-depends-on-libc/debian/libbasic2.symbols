@@ -1,0 +1,4 @@
+libbasic.so.2 libbasic2 #MINVER#
+ lib_interface@Base 1.0
+libbasic++.so.2 libbasic2 #MINVER#
+ (c++)cxx_lib_interface@Base 1.0

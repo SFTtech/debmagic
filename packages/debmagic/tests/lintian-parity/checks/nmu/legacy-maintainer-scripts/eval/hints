@@ -1,0 +1,3 @@
+maintainer-scripts (source): uploaders-in-orphan [debian/changelog:1]
+maintainer-scripts (source): qa-upload-has-incorrect-version-number 7+dfsg-0.1 [debian/changelog:1]
+maintainer-scripts (source): no-qa-in-changelog [debian/changelog:1]

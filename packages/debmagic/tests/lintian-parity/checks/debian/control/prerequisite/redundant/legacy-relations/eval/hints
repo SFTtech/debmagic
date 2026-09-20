@@ -1,0 +1,5 @@
+relations (source): redundant-installation-prerequisite (in section for relations-multiple-libs) Recommends -> Depends ${shlibs:Depends} [debian/control:37]
+relations (source): redundant-installation-prerequisite (in section for relations) Suggests -> Recommends some-other-package [debian/control:26]
+relations (source): redundant-installation-prerequisite (in section for relations) Recommends -> Depends null [debian/control:20]
+relations (source): redundant-installation-prerequisite (in section for relations) Recommends -> Depends dpkg [debian/control:20]
+relations (source): redundant-installation-prerequisite (in section for relations) Depends -> Pre-Depends gawk | awk [debian/control:19]

@@ -1,0 +1,4 @@
+scripts-maintainer-script-empty (binary): maintainer-script-empty [prerm]
+scripts-maintainer-script-empty (binary): maintainer-script-empty [preinst]
+scripts-maintainer-script-empty (binary): maintainer-script-empty [postrm]
+scripts-maintainer-script-empty (binary): maintainer-script-empty [postinst]

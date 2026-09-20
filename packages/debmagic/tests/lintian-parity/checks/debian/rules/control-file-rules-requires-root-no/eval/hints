@@ -1,0 +1,1 @@
+control-file-rules-requires-root-no (source): custom-compression-in-debian-rules dh_builddeb -- -Zgzip [debian/rules:7]

@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	dh_auto_build
+	# changelog says Mon, 02 Mar 2020 17:44:19 +0000
+	touch -m -d "2003-06-21 12:12:12 UTC" before-changelog
+	gzip before-changelog
+	touch -m -d "Mon, 02 Mar 2020 23:44:19 +0000" after-changelog
+	gzip after-changelog
+
+override_dh_install:
+	dh_install
+
+override_dh_clean:
+	dh_clean
+	rm -f before-changelog.gz after-changelog.gz
+
+override_dh_strip_nondeterminism:
+	# Skip, it messes with our test

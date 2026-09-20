@@ -1,0 +1,8 @@
+nmu-local-version (1.0local1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: nmu-local-version
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Russ Allbery <rra@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

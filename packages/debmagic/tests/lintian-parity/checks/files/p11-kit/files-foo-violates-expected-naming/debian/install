@@ -1,0 +1,2 @@
+_bad-pkcs11.module usr/share/p11-kit/modules/
+cron-script.hourly etc/cron.hourly/

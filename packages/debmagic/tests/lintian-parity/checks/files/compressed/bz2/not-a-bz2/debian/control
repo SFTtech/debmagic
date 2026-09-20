@@ -1,0 +1,17 @@
+Source: not-a-bz2
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), bzip2
+Homepage: https://lintian.debian.org/
+
+Package: not-a-bz2
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A file with .bz2 extension that is not a bzip2 file
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package probably has no meaningful contents.

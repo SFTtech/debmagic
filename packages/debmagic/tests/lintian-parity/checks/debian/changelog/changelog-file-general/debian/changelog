@@ -1,0 +1,42 @@
+changelog-file-general (1:1.0-1) unstable; urgency=low
+
+
+  * Test: changelog-file-general
+  * Upload to experimental.
+  * improbable-bug-number-in-closes (Closes: #1234)
+  * Another bug closer without a colon (Closes #555555)
+  * This line is too long since it contains words and words and words but doesn't
+    have any wrapping except at column 81.
+  * http://www.example.com/but-a-really-long-url-does-not-count-as-a-long-line-at-all
+    See http://www.example.com/but-a-really-long-url-does-not-count-as-a-long-line-at-all
+    even if preceded by See.
+  * Misspelled Closes (Close: #666666)
+
+  * Here is another really long in the changelog, and it would be really nice if a
+    certain program would report its line number correctly.  Especially since,
+    we have an extra empty line in the start of the entry.
+
+  * Below is another very long line (UTF-8), which should have a "visual" width
+    of ~75 characters, but consists of over 200 bytes.
+    üüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüü
+
+  * It might even fix TEMP-1234567-abcdef, though probably not.
+  * We refer to the epoch bump here.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-general (1.0-1) unstable; urgency=low
+
+  * Duplicate changelog entry to trigger tags.
+
+ -- Unknown <unknown@unknown>  Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-general (0.1) unstable; urgency=low
+
+  * Used to be a syntax error here.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+Local variables:
+add-log-mailing-address: "rra@debian.org"
+End:

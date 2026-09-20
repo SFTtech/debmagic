@@ -1,0 +1,26 @@
+Source: non-debug-file-in-debug-package
+Section: devel
+Priority: optional
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: non-debug-file-in-debug-package
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for -dbgsym packages with non-.debug files
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: non-debug-file-in-debug-package-dbgsym
+Section: debug
+Architecture: all
+Depends: non-debug-file-in-debug-package, ${shlibs:Depends}, ${misc:Depends}
+Description: Fake dbgsym package
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ even be an empty package.

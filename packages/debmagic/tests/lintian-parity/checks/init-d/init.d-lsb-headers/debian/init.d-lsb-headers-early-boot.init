@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+### BEGIN INIT INFO
+# Provides: init.d-lsb-headers-early-boot
+# Required-Start:
+# Required-Stop:
+# Default-Start: S
+# Default-Stop: 0 6
+# Short-Description: Do nothing at all
+# Description: The short description pretty much covers it.
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+case "$1" in
+    start|stop|force-reload|restart|status|*)
+	echo hello world
+    ;;
+esac

@@ -1,0 +1,5 @@
+debhelper-autoreconf-build-depends (source): useless-autoreconf-build-depends (does not need to satisfy dh-autoreconf:any)
+debhelper-autoreconf-build-depends (source): useless-autoreconf-build-depends (does not need to satisfy autotools-dev:any)
+debhelper-autoreconf-build-depends (source): package-uses-old-debhelper-compat-version 10
+debhelper-autoreconf-build-depends (source): debian-build-system dh [debian/rules]
+debhelper-autoreconf-build-depends (source): debhelper-compat-level 10

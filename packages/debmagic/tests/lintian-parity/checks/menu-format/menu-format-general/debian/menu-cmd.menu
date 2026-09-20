@@ -1,0 +1,4 @@
+?package(menu-cmd):needs="X11" section="Applications/Programming"\
+  title="pargs (png icon)" command="/usr/bin/not-here"\
+  longtitle="Argument printer" icon16x16="/usr/share/pixmaps/pargs.png" \
+  icon="/usr/share/pixmaps/broken.xpm" icon32x32="/usr/share/pixmaps/too-large.xpm"

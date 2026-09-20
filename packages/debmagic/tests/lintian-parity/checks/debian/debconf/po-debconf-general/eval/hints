@@ -1,0 +1,3 @@
+po-debconf-general (binary): unused-debconf-template po-debconf-general/test-2 [templates:6]
+po-debconf-general (binary): unused-debconf-template po-debconf-general/test [templates:1]
+po-debconf-general (binary): no-debconf-config

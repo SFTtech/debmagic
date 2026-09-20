@@ -1,0 +1,5 @@
+debconf-maintscripts-deps (binary): postrm-does-not-purge-debconf [postrm]
+debconf-maintscripts-deps (binary): postinst-uses-db-input [postinst:5]
+debconf-maintscripts-deps (binary): postinst-does-not-load-confmodule [postinst]
+debconf-maintscripts-deps (binary): missing-debconf-dependency-for-preinst
+debconf-maintscripts-deps (binary): loads-obsolete-confmodule /usr/share/debconf/confmodule.sh [postrm:5]

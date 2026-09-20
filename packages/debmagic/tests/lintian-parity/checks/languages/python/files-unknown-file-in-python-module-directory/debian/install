@@ -1,0 +1,5 @@
+__init__.py /usr/lib/python3/dist-packages
+bad /usr/lib/python3/dist-packages
+good /usr/lib/python3/dist-packages/subdir
+good.py /usr/lib/python3/dist-packages
+good.py /usr/lib/python3/dist-packages/subdir

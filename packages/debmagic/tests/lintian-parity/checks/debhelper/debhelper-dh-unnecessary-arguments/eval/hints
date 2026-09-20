@@ -1,0 +1,6 @@
+debhelper-dh-unnecessary-arguments (source): package-uses-old-debhelper-compat-version 10
+debhelper-dh-unnecessary-arguments (source): debian-rules-uses-unnecessary-dh-argument 10 >= 10 dh ... --with=systemd [debian/rules:4]
+debhelper-dh-unnecessary-arguments (source): debian-rules-uses-unnecessary-dh-argument 10 >= 10 dh ... --parallel [debian/rules:4]
+debhelper-dh-unnecessary-arguments (source): debian-build-system dh [debian/rules]
+debhelper-dh-unnecessary-arguments (source): debhelper-compat-virtual-relation 10 [debian/control]
+debhelper-dh-unnecessary-arguments (source): debhelper-compat-level 10

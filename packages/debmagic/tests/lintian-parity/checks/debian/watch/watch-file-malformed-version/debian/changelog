@@ -1,0 +1,14 @@
+watch-file-malformed-version (2.0.ds1-1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: watch-file-malformed-version
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+watch-file-malformed-version (1.0-1) unstable; urgency=low
+
+  * Provoke debian-watch-file-specifies-old-upstream-version.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Thu, 01 Jan 2009 08:34:20 -0800

@@ -1,0 +1,4 @@
+Version: 6
+
+Source: http://www.example.com/dist/ dh7-test\.([\d.]+)\.tar\.gz debian uupdate
+Matching-Version: .*@ANY_VERSION@

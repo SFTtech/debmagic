@@ -1,0 +1,2 @@
+#!/usr/bin/jruby
+# There's no non-versioned jruby, so this should be an error.

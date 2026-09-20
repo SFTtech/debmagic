@@ -1,0 +1,72 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+db_input high debconf/translated || true
+db_go
+
+db_input high debconf/unsplit-choices || true
+db_go
+
+db_input high debconf-malformed-template || true
+db_go
+
+db_input high debconf/no-type || true
+db_go
+
+db_input high debconf/unknown-type || true
+db_go
+
+db_input high debconf/boolean-bogus-default || true
+db_go
+
+db_input high debconf/select-boolean-choice || true
+db_go
+
+db_input high debconf/select-empty-trans-choices || true
+db_go
+
+db_input high debconf/select-without-choices || true
+db_go
+
+db_input high debconf/no-description || true
+db_go
+
+db_input high debconf/duplicate-long-desc || true
+db_go
+
+db_input high debconf/unknown-field || true
+db_go
+
+db_input high debconf/malformed-prompt || true
+db_go
+
+db_input high debconf/imperative-select || true
+db_go
+
+db_input high debconf/malformed-question || true
+db_go
+
+db_input high debconf/question-in-extended || true
+db_go
+
+db_input high debconf/malformed-note-title || true
+db_go
+
+db_input high debconf/too-long-short-desc || true
+db_go
+
+db_input high debconf/first-person || true
+db_go
+
+db_input high debconf/assumption || true
+db_go
+
+db_input high debconf/5-green-bottles-on-the-wall || true
+db_go
+
+db_input high debconf/entropy-type || true
+db_go
+

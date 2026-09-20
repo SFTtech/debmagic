@@ -1,0 +1,2 @@
+nodejs-module-installs-lock-file (binary): nodejs-lock-file [usr/share/nodejs/module-installs-lock-file/yarn.lock]
+nodejs-module-installs-lock-file (binary): nodejs-lock-file [usr/share/nodejs/module-installs-lock-file/package-lock.json]

@@ -1,0 +1,2 @@
+debian-source-dir-gitpkg-series (source): source-format 3.0 (quilt)
+debian-source-dir-gitpkg-series (source): git-patches-not-exported [debian/patches/series]

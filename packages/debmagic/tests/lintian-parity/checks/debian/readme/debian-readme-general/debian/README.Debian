@@ -1,0 +1,11 @@
+This is a test README.Debian with a few problems that Lintian should
+catch, like accidentaly misspelled words.
+
+Here is a reference to /usr/doc/debian-readme-general, which is an old
+path that nothing should use any more.
+
+ALS is not a spelling error for also and ANG is not a spelling error for
+and.  In general, possible acronyms like COMIT should be ignored.  But
+only to a certain length; CHNAGES is still wrong.
+
+ -- Unknown <unknown@unknown>

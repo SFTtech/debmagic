@@ -3,8 +3,11 @@ repos:
   rev: v0.14.6
   hooks:
     - id: ruff-check
-      args: [ --fix ]
+      args: [--fix, --config, pyproject.toml]
+      exclude: ^packages/debmagic/tests/
     - id: ruff-format
+      args: [--config, pyproject.toml]
+      exclude: ^packages/debmagic/tests/
 - repo: local
   hooks:
     - id: ty

@@ -1,0 +1,4 @@
+fields-general-missing (binary): required-field fields-general-missing.deb Version
+fields-general-missing (binary): required-field fields-general-missing.deb Package
+fields-general-missing (binary): required-field fields-general-missing.deb Maintainer
+fields-general-missing (binary): required-field fields-general-missing.deb Architecture

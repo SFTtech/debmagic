@@ -1,0 +1,6 @@
+# A comment \
+version=0
+
+# uscan does not interpret the backslash above, it is just part of the comment
+
+http://domain.tld/file-(.*)\.tar\.gz

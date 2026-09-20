@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+FIND ?= find
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	$(FIND) debian/ -name 'md5sums' -delete
+	dh_builddeb

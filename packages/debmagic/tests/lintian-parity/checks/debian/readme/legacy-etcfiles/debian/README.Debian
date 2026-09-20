@@ -1,0 +1,5 @@
+this is a package to test lintian's handling of files in /etc.
+Also, there's a random mention of /usr/doc here to prompt a warning.
+But /usr/documentation doesn't.
+
+ -- Russ Allbery <rra@debian.org>, Mon, 18 Feb 2008 16:40:55 -0800

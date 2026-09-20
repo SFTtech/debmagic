@@ -1,0 +1,1 @@
+scripts-missing-call-to-dpkg-maintscript-helper (binary): missing-call-to-dpkg-maintscript-helper symlink_to_dir [postrm]

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+if false
+then
+	update-fonts-dir manual
+	update-fonts-scale manual
+fi

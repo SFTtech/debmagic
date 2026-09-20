@@ -1,0 +1,5 @@
+python-imports-distutils (source): uses-deprecated-python-stdlib distutils (deprecated in Python 3.10, removed in Python 3.12) [import.py:8]
+python-imports-distutils (source): uses-deprecated-python-stdlib distutils (deprecated in Python 3.10, removed in Python 3.12) [import.py:5]
+python-imports-distutils (source): uses-deprecated-python-stdlib distutils (deprecated in Python 3.10, removed in Python 3.12) [import.py:4]
+python-imports-distutils (source): uses-deprecated-python-stdlib distutils (deprecated in Python 3.10, removed in Python 3.12) [import.py:3]
+python-imports-distutils (source): uses-deprecated-python-stdlib distutils (deprecated in Python 3.10, removed in Python 3.12) [from.py:7]

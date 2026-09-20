@@ -1,0 +1,29 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_test:
+	dh_auto_test
+	dh_auto_test # Comment
+	mkdir ignore/
+	rm -rf ignore/
+	-dh_auto_test -- SUFFIX=1
+	@dh_auto_test -- SUFFIX=1
+	-cp -r ignore ignore/
+	FOO=mydir dh_auto_test -- BAR=2
+	: Disabled
+	echo "Disabled"
+	@echo "Disabled"
+	-echo "Disabled"
+	-mv -v ignore ignore/
+	[ true ] || echo ignore
+	ENV="var" \
+	ENV="var" \
+	dh_auto_test || true
+	rm -f missing
+	test true && echo "foo"
+	rmdir missing || true
+	ln -sf foo bar
+	true
+	/bin/true

@@ -1,0 +1,2 @@
+binary (binary): maintainer-script-without-set-e [postinst]
+binary (binary): maintainer-script-interpreter /bin/bash [postinst]

@@ -8,7 +8,9 @@
 //! stale paths.
 
 use std::cmp::Reverse;
+use std::ffi::OsStr;
 use std::io::{self, BufReader, Read};
+use std::os::unix::ffi::OsStrExt;
 use std::os::unix::fs::{PermissionsExt, symlink};
 use std::path::{Component, Path, PathBuf};
 use std::{fs, process::Command};
@@ -67,9 +69,7 @@ fn git_tracked_paths(src: &Path) -> anyhow::Result<Option<Vec<PathBuf>>> {
         if raw.is_empty() {
             continue;
         }
-        let path = PathBuf::from(String::from_utf8(raw.to_vec()).with_context(|| {
-            format!("git-tracked path is not valid UTF-8 in {}", src.display())
-        })?);
+        let path = PathBuf::from(OsStr::from_bytes(raw));
         validate_source_path(&path)?;
         paths.push(path);
     }
@@ -89,8 +89,7 @@ fn git_untracked_paths(src: &Path) -> Vec<PathBuf> {
             .stdout
             .split(|byte| *byte == 0)
             .filter(|raw| !raw.is_empty())
-            .filter_map(|raw| String::from_utf8(raw.to_vec()).ok())
-            .map(PathBuf::from)
+            .map(|raw| PathBuf::from(OsStr::from_bytes(raw)))
             .collect(),
         _ => Vec::new(),
     }
@@ -134,8 +133,33 @@ enum SourcePathKind {
     Symlink,
 }
 
+/// Host paths as Unix bytes so Latin-1 lintian fixtures round-trip through JSON.
+mod unix_path {
+    use std::ffi::OsStr;
+    use std::os::unix::ffi::OsStrExt;
+    use std::path::{Path, PathBuf};
+
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    pub fn serialize<S>(path: &Path, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        path.as_os_str().as_bytes().serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<PathBuf, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let bytes = Vec::<u8>::deserialize(deserializer)?;
+        Ok(PathBuf::from(OsStr::from_bytes(&bytes)))
+    }
+}
+
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 struct SourcePath {
+    #[serde(with = "unix_path")]
     path: PathBuf,
     kind: SourcePathKind,
 }
@@ -638,6 +662,61 @@ mod tests {
         );
 
         fs::remove_dir_all(repo)?;
+        Ok(())
+    }
+
+    #[test]
+    fn tracked_sync_stages_git_paths_that_are_not_utf8() -> anyhow::Result<()> {
+        use std::ffi::OsStr;
+        use std::os::unix::ffi::OsStrExt;
+
+        let repo = git_test_repo()?;
+        let name = OsStr::from_bytes(b"bokm\xe5l");
+        fs::write(repo.join(name), "latin-1 filename")?;
+        let status = Command::new("git")
+            .arg("-C")
+            .arg(&repo)
+            .arg("add")
+            .arg("--")
+            .arg(name)
+            .status()?;
+        assert!(status.success());
+
+        let entries = source_tree_entries(&repo, SourceSyncMode::Tracked)?;
+        assert!(
+            entries.iter().any(|entry| entry.path.as_os_str() == name),
+            "tracked entries: {:?}",
+            entries
+                .iter()
+                .map(|entry| entry.path.as_os_str().as_bytes().to_vec())
+                .collect::<Vec<_>>()
+        );
+
+        let test_root =
+            std::env::temp_dir().join(format!("debmagic-latin1-stage-{}", uuid::Uuid::new_v4()));
+        let environment = Environment {
+            driver: DriverType::Bare,
+            package_name: "example".to_string(),
+            package_identifier: "example-1.0".to_string(),
+            root_dir: test_root.clone(),
+            distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
+            persistent: true,
+            purpose: EnvironmentPurpose::Build,
+        };
+        environment.create_dirs()?;
+        copy_source_entries(&repo, &environment.staged_source_dir(), &entries)?;
+        write_source_manifest(&environment, &entries)?;
+        let loaded: Vec<SourcePath> = serde_json::from_reader(BufReader::new(fs::File::open(
+            source_manifest_path(&environment),
+        )?))?;
+        assert!(loaded.iter().any(|entry| entry.path.as_os_str() == name));
+        assert_eq!(
+            fs::read(environment.staged_source_dir().join(name))?,
+            b"latin-1 filename"
+        );
+
+        fs::remove_dir_all(repo)?;
+        fs::remove_dir_all(test_root)?;
         Ok(())
     }
 

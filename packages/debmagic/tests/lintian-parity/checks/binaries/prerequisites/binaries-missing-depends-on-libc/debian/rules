@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+# Make sure the C++ library actually links to libc
+export DEB_LDFLAGS_MAINT_APPEND=-Wl,--no-as-needed
+
+%:
+	dh $@
+
+override_dh_gencontrol:
+	# Remove the shlib:Depends since it will contain libc
+	sed -i '/shlib:Depends=/ d' debian/libbasic2.substvars
+	echo "shlib:depends=" >> debian/libbasic2.substvars
+	dh_gencontrol

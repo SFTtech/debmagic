@@ -17,6 +17,7 @@ anyhow = { workspace = true }
 config = { workspace = true, features = ["toml"] }
 dirs = { workspace = true }
 glob = { workspace = true }
+globset = { workspace = true }
 libc = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
@@ -30,3 +31,16 @@ ignore = { workspace = true }
 md-5 = { workspace = true }
 sha1 = { workspace = true }
 sha2 = { workspace = true }
+chrono = { workspace = true }
+regex = { workspace = true }
+ar = { workspace = true }
+tar = { workspace = true }
+flate2 = { workspace = true }
+xz2 = { workspace = true }
+zstd = { workspace = true }
+goblin = { workspace = true }
+tempfile = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+test-case = { workspace = true }

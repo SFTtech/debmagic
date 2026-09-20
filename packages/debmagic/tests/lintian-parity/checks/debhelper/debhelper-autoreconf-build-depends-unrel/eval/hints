@@ -1,0 +1,4 @@
+debhelper-autoreconf-build-depends-unrel (source): package-uses-old-debhelper-compat-version 10
+debhelper-autoreconf-build-depends-unrel (source): debian-build-system dh [debian/rules]
+debhelper-autoreconf-build-depends-unrel (source): debhelper-tools-from-autotools-dev-are-deprecated dh_autotools-dev_updateconfig [debian/rules:8]
+debhelper-autoreconf-build-depends-unrel (source): debhelper-compat-level 10

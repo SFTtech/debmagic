@@ -1,0 +1,2 @@
+usr/share/java/cp-relative.jar:
+ Class-Path: obviously-relative/stuff.jar

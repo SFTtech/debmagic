@@ -1,0 +1,18 @@
+<!-- SiteSearch Google -->
+<form action="http://www.google.fr" id="cse-search-box">
+  <div>
+    <input type="hidden" name="cx" value="partner-pub-1071905880519467:6430131597" /><!-- SiteSearch Google -->
+<form action="http://www.google.fr" id="cse-search-box">
+  <div>
+    <input type="hidden" name="cx" value="partner-pub-1071905880519467:6430131597" />
+    <input type="hidden" name="ie" value="UTF-8" />
+    <input type="text" name="q" size="55" />
+    <input type="submit" name="sa" value="Search" />
+  </div>
+</form>
+
+    <input type="hidden" name="ie" value="UTF-8" />
+    <input type="text" name="q" size="55" />
+    <input type="submit" name="sa" value="Search" />
+  </div>
+</form>

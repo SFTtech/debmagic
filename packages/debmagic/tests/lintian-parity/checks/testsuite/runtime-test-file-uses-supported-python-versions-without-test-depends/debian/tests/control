@@ -1,0 +1,7 @@
+Tests: test-1
+
+Tests: test-2
+Depends: @builddeps@
+
+Tests: test-2
+Depends: @recommends@

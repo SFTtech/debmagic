@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+if false ; then
+    adduser some user lalal
+    update-inetd some stuff
+    update-fonts-alias blah
+    update-fonts-dir blah
+    update-fonts-scale blah
+fi
+
+#DEBHELPER#
+

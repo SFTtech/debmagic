@@ -1,0 +1,8 @@
+Source: example
+Maintainer: Example <ex@example.com>
+Standards-Version: 4.7.2
+
+Package: example
+Architecture: all
+Description: example
+ A test package.

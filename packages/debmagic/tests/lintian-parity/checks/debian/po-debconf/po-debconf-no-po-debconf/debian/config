@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+db_get po-debconf-general/test || true
+db_get po-debconf-general/test-2 || true
+

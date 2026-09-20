@@ -1,0 +1,14 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Foo
+Upstream-Contact: J. Random Hacker <j.r.hacker@example.com>
+Source: https://foo.berlios.de/
+Positive: ftp://ftp.debian.org/debian/doc/
+False-Positive: http://ftp.debian.org/
+
+Files: *
+Copyright: 2014, me
+License: Bla
+Comment: http://freshmeat.net/p/foo
+
+License: Bla
+ This is the Bla license.

@@ -1,0 +1,6 @@
+#! /bin/sh
+# -*- scheme -*-
+exec guile -s $0 $*
+# Seen in the wild as build-guile-gtk in libguilegtk-1.2-dev (0.31-5.1)
+# Tests script_is_evil_and_wrong
+!#

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- publish the Rust crates to crates.io on tagged releases
+- provide a native implementation of the package signing workflow
+
 ## [0.0.1-alpha.7] - 2026-08-25
 
 - support non-debian and non-ubuntu distros using dpkg

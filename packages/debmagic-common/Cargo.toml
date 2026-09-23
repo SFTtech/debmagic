@@ -10,9 +10,15 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+anyhow = { workspace = true }
 chrono = { workspace = true }
+deb822-lossless = { workspace = true }
+debian-changelog = { workspace = true }
+md-5 = { workspace = true }
 regex = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
+sha1 = { workspace = true }
+sha2 = { workspace = true }
 
 [dev-dependencies]
 test-case = { workspace = true }

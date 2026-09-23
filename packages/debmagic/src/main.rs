@@ -37,6 +37,7 @@ pub mod sign;
 pub mod subprocess;
 pub mod test;
 pub mod time;
+pub mod upload;
 pub mod upstream;
 
 fn main() -> ExitCode {
@@ -60,19 +61,21 @@ async fn run() -> anyhow::Result<ExitCode> {
     let current_dir = env::current_dir()?;
     match &cli.command {
         Commands::Build(args) => {
-            let (build_args, debug_symbols, run_test, is_source) = match &args.target
+            let (build_args, debug_symbols, is_source, include_orig, run_test) = match &args.target
             {
                 BuildTarget::Binary(binary_args) => (
                     &binary_args.build,
                     binary_args.debug_symbols,
-                    binary_args.test,
                     false,
+                    None,
+                    binary_args.test,
                 ),
                 BuildTarget::Source(source_args) => (
                     &source_args.build,
                     None,
-                    None,
                     true,
+                    Some(source_args.include_orig),
+                    Some(false),
                 ),
             };
             let config_driver = Config::load(
@@ -139,7 +142,11 @@ async fn run() -> anyhow::Result<ExitCode> {
             .context("failed to determine package target")?;
 
             if is_source {
-                build_source_package(&intent, &target, &build_args.changes_options, true)
+                let include_orig = match include_orig {
+                    Some(mode) => upload::orig::decide_orig_upload(mode, &intent.source_dir)?,
+                    None => true,
+                };
+                build_source_package(&intent, &target, &build_args.changes_options, include_orig)
                     .await
                     .context("Building the source package failed")?;
             } else {
@@ -153,6 +160,32 @@ async fn run() -> anyhow::Result<ExitCode> {
                 }
                 build_package(&intent, &target, &build_args.changes_options)
                     .context("Building the package failed")?;
+            }
+
+            if let Some(spec) = &build_args.upload {
+                let upload_target =
+                    upload::resolve_target(spec, Some(&intent.config.upload.targets))?;
+                let identity = load_package(&intent.source_dir)?;
+                let changes_file = crate::sign::find_changes_file(
+                    identity.name(),
+                    &identity.version().to_string(),
+                    &intent.output_dir,
+                )?;
+                crate::output::stage(&format!("Uploading to {}", upload_target.name));
+                upload::upload_changes(
+                    &upload_target,
+                    spec,
+                    &changes_file,
+                    false,
+                    false,
+                    Some(identity.version().upstream_version()),
+                )
+                .with_context(|| {
+                    format!(
+                        "uploading {} to target '{spec}' failed",
+                        changes_file.display()
+                    )
+                })?;
             }
         }
         Commands::Shell(args) => {
@@ -199,6 +232,77 @@ async fn run() -> anyhow::Result<ExitCode> {
         }
         Commands::Check(_args) => {
             println!("Check subcommand! - not implemented");
+        }
+        Commands::Upload(args) => {
+            let source_dir = args.common.source_dir.as_deref().unwrap_or(&current_dir);
+            let source_dir =
+                std::path::absolute(source_dir).context("resolving source dir failed")?;
+            let config = Config::load(Some(&source_dir), cli.config.as_deref())?;
+
+            let mut upload_target =
+                upload::resolve_target(&args.target, Some(&config.upload.targets))?;
+            upload_target.apply_overrides(&upload::UploadOverrides {
+                method: args.method,
+                server: args.server.clone(),
+                incoming: args.incoming.clone(),
+                login: args.login.clone(),
+                port: args.port,
+            });
+
+            let identity = load_package(&source_dir)?;
+            let changes_file = match &args.changes {
+                Some(file) => {
+                    std::path::absolute(file).context("resolving the changes file failed")?
+                }
+                None => {
+                    let output_dir = std::path::absolute(source_dir.join(&config.output_dir))
+                        .context("resolving output dir failed")?;
+                    crate::sign::find_changes_file(
+                        identity.name(),
+                        &identity.version().to_string(),
+                        &output_dir,
+                    )?
+                }
+            };
+
+            let upstream_version = identity.version().upstream_version().to_string();
+
+            if let Some(mode) = args.include_orig {
+                let include = upload::orig::decide_orig_upload(mode, &source_dir)?;
+                let sign_options = sign::SignOptions {
+                    key: config.sign.key.clone(),
+                    tool: config.sign.tool,
+                    sign_command: config.sign.sign_command.clone(),
+                    verify_command: config.sign.verify_command.clone(),
+                };
+                upload::orig::changes_include_orig(
+                    &changes_file,
+                    include,
+                    &identity,
+                    &sign_options,
+                )?;
+            }
+
+            crate::output::stage(&format!(
+                "Uploading {} to {}",
+                changes_file.display(),
+                upload_target.name
+            ));
+            upload::upload_changes(
+                &upload_target,
+                &args.target,
+                &changes_file,
+                args.no_hooks,
+                args.force,
+                Some(&upstream_version),
+            )
+            .with_context(|| {
+                format!(
+                    "uploading {} to target '{}' failed",
+                    changes_file.display(),
+                    args.target
+                )
+            })?;
         }
         Commands::Sign(args) => {
             let source_dir = args.common.source_dir.as_deref().unwrap_or(&current_dir);

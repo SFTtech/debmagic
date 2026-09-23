@@ -45,5 +45,7 @@ From here:
 - [Building packages](build.md) — all `debmagic build` options: drivers, distro selection, incremental builds, signing, ...
 - [Running package tests](test.md) — `debmagic test` against a prior build
 - [Building source packages](source.md) — `debmagic build source` and uploading to Launchpad
+- [Uploading](upload.md) — `debmagic upload`, upload targets and pre-upload checks
+- [Upstream management](upstream.md) — `debmagic upstream list`/`switch` for version bumps & backports
 - [Configuration](config.md) — persistent settings in `debmagic.toml`
 - [Creating package recipes](packaging.md) — writing `debian/rules.py` equivalents with `debmagic-pkg`

@@ -77,18 +77,16 @@ fn substitute_placeholders(s: &str, package: &SourcePackage, output_dir: &Path) 
     let version = package.version().to_string();
     let source_dir = package.source_dir().unwrap().to_string_lossy();
     let out = output_dir.to_string_lossy();
-    let vars = [
-        ("name", package.name()),
-        ("version", version.as_str()),
-        ("upstream_version", package.version().upstream_version()),
-        ("source_dir", &source_dir),
-        ("output_dir", &out),
-    ];
-    let mut result = s.to_string();
-    for (name, value) in vars {
-        result = result.replace(&format!("{{{name}}}"), value);
-    }
-    result
+    crate::upload::target::substitute_placeholders(
+        s,
+        &[
+            ("name", package.name()),
+            ("version", version.as_str()),
+            ("upstream_version", package.version().upstream_version()),
+            ("source_dir", &source_dir),
+            ("output_dir", &out),
+        ],
+    )
 }
 
 /// The download cache dir for one package version:
@@ -395,33 +393,22 @@ async fn fetch_from_pool(
             .with_context(|| format!("downloading {orig_name} from {pool_url} failed"))?;
 
         // verify against the .dsc of the newest matching publication
-        let dsc_name = hrefs
-            .iter()
-            .map(String::as_str)
-            .filter(|filename| filename.ends_with(".dsc"))
-            .filter(|filename| {
-                PackageVersion::from_str(filename.trim_end_matches(".dsc"))
-                    .is_ok_and(|v| v.upstream_version() == upstream_version)
-            })
-            .max_by(|a, b| {
-                let a = PackageVersion::from_str(a.trim_end_matches(".dsc"));
-                let b = PackageVersion::from_str(b.trim_end_matches(".dsc"));
-                match (a, b) {
-                    (Ok(a), Ok(b)) => a.cmp(&b),
-                    _ => std::cmp::Ordering::Equal,
-                }
-            })
-            .map(str::to_string);
-        if let Some(dsc_name) = dsc_name {
-            let dsc_path = output_dir.join(format!("{name}.dsc"));
-            crate::requests::http_download(&format!("{pool_url}{dsc_name}"), &dsc_path)
+        if let Some(dsc_name) = newest_dsc(&hrefs, name, upstream_version) {
+            let dsc = crate::requests::http_get(&format!("{pool_url}{dsc_name}"))
                 .await
                 .with_context(|| format!("downloading {dsc_name} from {pool_url} failed"))?;
-            let dsc = crate::control::read_control(&dsc_path)?;
+            let dsc = crate::control::parse_control(&dsc)
+                .with_context(|| format!("parsing {dsc_name} from {pool_url} failed"))?;
             let digests = crate::control::digest_file(&orig_path)?;
-            debmagic_common::debian::control::verify_checksums(&dsc, &orig_name, &digests)
-                .with_context(|| format!("the downloaded {orig_name} does not match its .dsc"))?;
-            std::fs::remove_file(&dsc_path).ok();
+            let verified =
+                debmagic_common::debian::control::verify_checksums(&dsc, &orig_name, &digests);
+            if let Err(error) = verified {
+                // never leave a tarball behind that the archive would reject
+                std::fs::remove_file(&orig_path).ok();
+                return Err(error).with_context(|| {
+                    format!("the downloaded {orig_name} does not match {dsc_name}")
+                });
+            }
         }
 
         if let Some(cache_dir) = &cache {
@@ -439,9 +426,43 @@ async fn fetch_from_pool(
     Ok(None)
 }
 
+/// The newest `<name>_<version>.dsc` in a pool listing whose upstream
+/// version is `upstream_version`. Pool filenames carry no epoch.
+fn newest_dsc(hrefs: &[String], name: &str, upstream_version: &str) -> Option<String> {
+    let prefix = format!("{name}_");
+    hrefs
+        .iter()
+        .filter_map(|filename| {
+            let version = filename.strip_prefix(&prefix)?.strip_suffix(".dsc")?;
+            let version = PackageVersion::from_str(version).ok()?;
+            (version.upstream_version() == upstream_version).then_some((version, filename))
+        })
+        .max_by(|(a, _), (b, _)| a.cmp(b))
+        .map(|(_, filename)| filename.clone())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_newest_dsc() {
+        let hrefs: Vec<String> = [
+            "foo_1.0-1.dsc",
+            "foo_1.0-10.dsc",
+            "foo_1.0-2.dsc",
+            "foo_1.1-1.dsc",
+            "foo-bar_1.0-99.dsc",
+            "foo_1.0.orig.tar.xz",
+        ]
+        .map(str::to_string)
+        .to_vec();
+        assert_eq!(
+            newest_dsc(&hrefs, "foo", "1.0").as_deref(),
+            Some("foo_1.0-10.dsc")
+        );
+        assert_eq!(newest_dsc(&hrefs, "foo", "2.0"), None);
+    }
 
     /// A package over a real temp dir, so the reader exercises the
     /// on-disk path the production code uses.

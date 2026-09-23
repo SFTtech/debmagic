@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use crate::build::source::SourceSyncMode;
 use crate::driver::config::DriverConfig;
 use crate::sign::SignTool;
+use crate::upload::UploadConfig;
 use crate::upstream::orig::OrigTarballConfig;
 use anyhow::{Context, anyhow};
 use config::{Config as ConfigBuilder, File};
@@ -162,6 +163,8 @@ pub struct Config {
     pub run_test: bool,
     /// Signing of the resulting `.changes`/`.dsc`.
     pub sign: SignConfig,
+    /// Named upload targets for `debmagic upload`.
+    pub upload: UploadConfig,
     /// How to fetch the `orig` tarball for source builds.
     pub orig_tarball: OrigTarballConfig,
     /// `upstream` command behavior.
@@ -228,6 +231,7 @@ impl Default for Config {
             build_debug_symbols: false,
             run_test: true,
             sign: SignConfig::default(),
+            upload: UploadConfig::default(),
             orig_tarball: OrigTarballConfig::default(),
             upstream: UpstreamConfig::default(),
             clean: false,

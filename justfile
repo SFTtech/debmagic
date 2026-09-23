@@ -44,6 +44,11 @@ ci: fmt-check lint typecheck test docs
 pre-commit:
     uv run pre-commit run --all-files
 
+# Regenerate the debmagic(1) manpage from the CLI's --help output
+manpage:
+    cargo build -p debmagic
+    help2man --no-info -N -o debian/debmagic.1 target/debug/debmagic
+
 # Build the debmagic snap
 snap:
     snapcraft pack

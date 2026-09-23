@@ -11,6 +11,8 @@ Debmagic unifies this into one CLI with useful defaults:
 - **Isolated builds without the setup**: `debmagic build binary` builds a `debian/`-packaged source tree in a temporary container (using LXD, Incus, Docker)
 - **Fast iteration**: `--persistent`/`--incremental` reuse the environment and sync only source changes; `--shell-on-failure` and `debmagic shell` drop you right where the build broke
 - **Test & sign integrated**: `debmagic test` runs the package's autopkgtest tests in a fresh environment, `debmagic sign` GPG-signs `.changes`/`.dsc`/`.buildinfo` on the host
+- **Package uploading**: `debmagic upload` (to `debian`, `ubuntu`, `ppa:user/repo`) pushes signed builds to archives and PPAs via scp/sftp, with configurable pre-upload checks
+- **Upstream tracking**: `debmagic upstream list`/`switch` replace uscan/uupdate, reading the package's existing `debian/watch` and `debian/copyright`
 - **Python packaging API**: replace complicated `debian/rules` Makefiles with typed Python `debian/rules.py`, with optional `dh` compatibility
 
 [![CI](https://github.com/SFTtech/debmagic/actions/workflows/pull_request.yaml/badge.svg)](https://github.com/SFTtech/debmagic/actions)
@@ -36,6 +38,8 @@ usage/getting-started.md
 usage/build.md
 usage/test.md
 usage/source.md
+usage/upload.md
+usage/upstream.md
 usage/config.md
 usage/packaging.md
 usage/modules/index.md

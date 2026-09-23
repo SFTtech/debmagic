@@ -1,24 +1,16 @@
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-use anyhow::{anyhow, bail};
-use debmagic_common::debian::version::PackageVersion;
+use anyhow::{Context, anyhow, bail};
 use debmagic_common::distro::{Distro, DistroVersion, get_distro_version};
+use debmagic_common::package::{FileReader, Location, SourcePackage};
 
 use crate::driver::DriverType;
 
-/// Who/what is being built, as read from the source tree changelog.
-#[derive(Debug, Clone)]
-pub struct PackageIdentity {
-    pub name: String,
-    pub version: PackageVersion,
-    pub source_dir: PathBuf,
-}
-
-/// A [`PackageIdentity`] plus the chosen [`DistroVersion`] for a build run.
+/// A [`Package`] plus the chosen [`DistroVersion`] for a build run.
 #[derive(Debug, Clone)]
 pub struct PackageTarget {
-    pub identity: PackageIdentity,
+    pub package: SourcePackage,
     pub distro: DistroVersion,
 }
 
@@ -35,46 +27,17 @@ pub enum DistroResolveMode<'a> {
     Bare,
 }
 
-struct ChangelogPackage {
-    identity: PackageIdentity,
-    /// Raw distribution names from the changelog entry (not looked up yet).
-    changelog_distros: Vec<String>,
-}
-
-fn read_changelog_package(dir: &Path) -> anyhow::Result<ChangelogPackage> {
-    let changelog_file = dir.join("debian").join("changelog");
-    let changelog_contents = std::fs::read_to_string(changelog_file)?;
-    let changelog: debian_changelog::ChangeLog = changelog_contents.parse()?;
-
-    let first_entry = changelog
-        .into_iter()
-        .next()
-        .ok_or(anyhow!("changelog is empty"))?;
-
-    let name = first_entry
-        .package()
-        .ok_or(anyhow!("empty package name in changelog entry"))?;
-    let version = first_entry
-        .version()
-        .ok_or(anyhow!("no package version in changelog entry"))
-        .map(|v| PackageVersion::new(v.epoch, v.upstream_version, v.debian_revision))?;
-
-    let changelog_distros = first_entry
-        .distributions()
-        .ok_or(anyhow!("no distribution specified in changelog entry"))?;
-
-    Ok(ChangelogPackage {
-        identity: PackageIdentity {
-            name,
-            version,
-            source_dir: dir.to_path_buf(),
-        },
-        changelog_distros,
-    })
-}
-
-pub fn load_package_identity(dir: &Path) -> anyhow::Result<PackageIdentity> {
-    Ok(read_changelog_package(dir)?.identity)
+/// Read a source tree's `debian/` metadata into the common [`Package`] model.
+/// The package reads its files lazily through a closure over the source
+/// dir, so only the metadata actually requested is ever read.
+pub fn load_package(dir: &Path) -> anyhow::Result<SourcePackage> {
+    let source_dir = dir.to_path_buf();
+    let reader_dir = source_dir.clone();
+    let reader: FileReader = Box::new(move |name| {
+        let path = reader_dir.join("debian").join(name);
+        std::fs::read_to_string(&path).with_context(|| format!("failed to read {}", path.display()))
+    });
+    SourcePackage::from_reader(std::rc::Rc::new(reader), Location::SourceDir(source_dir))
 }
 
 /// Resolve package identity and target distro from a source tree.
@@ -88,12 +51,9 @@ pub fn resolve_package_target(
     explicit_distro: Option<&str>,
     mode: DistroResolveMode<'_>,
 ) -> anyhow::Result<PackageTarget> {
-    let parsed = read_changelog_package(dir)?;
-    let distro = select_distro_version(&parsed.changelog_distros, explicit_distro, mode)?;
-    Ok(PackageTarget {
-        identity: parsed.identity,
-        distro,
-    })
+    let package = load_package(dir)?;
+    let distro = select_distro_version(package.distributions(), explicit_distro, mode)?;
+    Ok(PackageTarget { package, distro })
 }
 
 /// Pick the resolve mode for the active Driver from its config maps.
@@ -339,6 +299,7 @@ fn select_distro_version(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     fn test_package_dir() -> PathBuf {
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -362,13 +323,13 @@ mod tests {
     }
 
     #[test]
-    fn load_package_identity_from_changelog() -> anyhow::Result<()> {
+    fn load_package_from_changelog() -> anyhow::Result<()> {
         let dir = test_package_dir();
-        let identity = load_package_identity(&dir)?;
+        let package = load_package(&dir)?;
 
-        assert_eq!(identity.name, "test-package");
-        assert_eq!(identity.version.version(), "1.2.4-1");
-        assert_eq!(identity.source_dir, dir);
+        assert_eq!(package.name(), "test-package");
+        assert_eq!(package.version().version(), "1.2.4-1");
+        assert_eq!(package.source_dir()?, dir);
         Ok(())
     }
 
@@ -421,7 +382,7 @@ mod tests {
             Some("unstable"),
             docker_mode(&empty),
         )?;
-        assert_eq!(target.identity.name, "test-package");
+        assert_eq!(target.package.name(), "test-package");
         assert_eq!(target.distro.codename, "unstable");
         assert_eq!(target.distro.distro, Distro::Debian);
         Ok(())

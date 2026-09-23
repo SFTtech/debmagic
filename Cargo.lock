@@ -433,10 +433,16 @@ dependencies = [
 name = "debmagic-common"
 version = "0.0.1-alpha.8"
 dependencies = [
+ "anyhow",
  "chrono",
+ "deb822-lossless",
+ "debian-changelog",
+ "md-5",
  "regex",
  "serde",
  "serde_json",
+ "sha1",
+ "sha2 0.11.0",
  "test-case",
 ]
 

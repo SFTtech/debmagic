@@ -153,7 +153,7 @@ Children are signed first (`.dsc`, then `.buildinfo`) and the `.changes` checksu
 | `--sign` | `sign.source` | Sign after building; `--sign=false` skips it for one invocation |
 | `--sign-key <key>` | `sign.key` | Key ID/fingerprint/email; defaults to the `Changed-By:`/`Maintainer:` address of the file being signed |
 | `--sign-tool <tool>` | `sign.tool` | OpenPGP implementation: `gpg` (default), `sequoia` (sq), or `custom` |
-| `--sign-command <cmd>` | `sign.command` | Custom signing command for `--sign-tool custom` (see below) |
+| `--sign-command <cmd>` | `sign.sign_command` | Custom signing command for `--sign-tool custom` (see below) |
 | `--sign-notify` | `sign.notify` | Desktop notification + terminal bell just before signing, so a hardware-key touch prompt isn't missed after a long build |
 
 A custom signing command runs without a shell and must write the clearsigned result to stdout.

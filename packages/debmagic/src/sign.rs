@@ -12,13 +12,11 @@ use std::{
 };
 
 use anyhow::{Context, bail};
-use deb822_lossless::{Deb822, Paragraph};
+use deb822_lossless::Paragraph;
 use debian_control::pgp;
-use md5::Md5;
 use serde::{Deserialize, Serialize};
-use sha1::Sha1;
-use sha2::{Digest, Sha256};
 
+use crate::control::{child_filename, fixup_checksums, read_control, write_control};
 use crate::driver::SignRequest;
 use crate::output::notify_send_bell;
 
@@ -36,6 +34,112 @@ pub enum SignTool {
     Custom,
 }
 
+/// Verify a detached signature `signature` over `file` against the
+/// keyring `keyring` (an exported OpenPGP key, like
+/// `debian/upstream/signing-key.asc`), using the configured backend.
+/// With `tool = "custom"`, `sign.command` runs with the `{file}`,
+/// `{signature}` and `{keyring}` placeholders substituted; a command
+/// without `{signature}` gets the signature path appended as the last
+/// argument. A non-zero exit means the verification failed.
+pub fn verify_signature(
+    options: &SignOptions,
+    file: &Path,
+    signature: &Path,
+    keyring: &Path,
+) -> anyhow::Result<()> {
+    let run = |mut cmd: Command| {
+        let output = cmd.output().with_context(|| {
+            format!(
+                "failed to run the signature verification of {}",
+                file.display()
+            )
+        })?;
+        if !output.status.success() {
+            bail!(
+                "signature verification of {} failed:\n{}",
+                file.display(),
+                String::from_utf8_lossy(&output.stderr).trim()
+            );
+        }
+        Ok(())
+    };
+
+    match options.tool {
+        SignTool::Gpg => {
+            let mut cmd = Command::new("gpg");
+            cmd.args(["--no-default-keyring", "--keyring"])
+                .arg(keyring)
+                .arg("--verify")
+                .arg(signature)
+                .arg(file);
+            run(cmd)
+        }
+        SignTool::Sequoia => {
+            let mut cmd = Command::new("sq");
+            cmd.arg("verify")
+                .arg("--keyring")
+                .arg(keyring)
+                .arg(signature)
+                .arg(file);
+            run(cmd)
+        }
+        SignTool::Custom => {
+            let command = options
+                .verify_command
+                .as_deref()
+                .or(options.sign_command.as_deref())
+                .context("sign.tool = \"custom\" requires sign.verify_command (or sign.sign_command) to be set")?;
+            let mut parts = command.split_whitespace();
+            let program = parts.next().context("the custom verify command is empty")?;
+            let mut cmd = Command::new(program);
+            let mut has_signature = false;
+            for part in parts {
+                has_signature |= part.contains("{signature}");
+                cmd.arg(substitute_verify_placeholders(
+                    part, file, signature, keyring,
+                )?);
+            }
+            if !has_signature {
+                cmd.arg(signature);
+            }
+            run(cmd)
+        }
+    }
+}
+
+/// Substitute the `{file}`, `{signature}` and `{keyring}` placeholders in
+/// one custom verify-command argument, rejecting unknown or unterminated
+/// ones.
+fn substitute_verify_placeholders(
+    arg: &str,
+    file: &Path,
+    signature: &Path,
+    keyring: &Path,
+) -> anyhow::Result<String> {
+    let mut out = String::new();
+    let mut rest = arg;
+    while let Some(start) = rest.find('{') {
+        out.push_str(&rest[..start]);
+        let after = &rest[start + 1..];
+        let end = after
+            .find('}')
+            .with_context(|| format!("unterminated '{{' in the verify command argument '{arg}'"))?;
+        let name = &after[..end];
+        let value = match name {
+            "file" => file.display().to_string(),
+            "signature" => signature.display().to_string(),
+            "keyring" => keyring.display().to_string(),
+            _ => bail!(
+                "unknown placeholder '{{{name}}}' in the verify command (supported: {{file}}, {{signature}}, {{keyring}})"
+            ),
+        };
+        out.push_str(&value);
+        rest = &after[end + 1..];
+    }
+    out.push_str(rest);
+    Ok(out)
+}
+
 /// How to sign: which key to use, and which program does the OpenPGP work.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(default)]
@@ -50,7 +154,13 @@ pub struct SignOptions {
     /// without a shell; `{file}`, `{key}` and `{email}` placeholders are
     /// substituted, and if no `{file}` is given the file path is appended
     /// as the last argument. The clearsigned result is read from stdout.
-    pub command: Option<String>,
+    pub sign_command: Option<String>,
+    /// Custom verification command when `tool` is [`SignTool::Custom`],
+    /// used by signature checks (e.g. `upstream switch`). Run without a
+    /// shell; `{file}`, `{signature}` and `{keyring}` placeholders are
+    /// substituted, and if no `{signature}` is given the signature path is
+    /// appended as the last argument. Falls back to `sign_command`.
+    pub verify_command: Option<String>,
 }
 
 /// Sign the `.changes` file (and its `.dsc`/`.buildinfo` children) on the
@@ -59,7 +169,8 @@ pub fn sign_changes(request: &SignRequest) -> anyhow::Result<()> {
     let options = SignOptions {
         key: request.sign_key.map(str::to_string),
         tool: request.sign_tool,
-        command: request.sign_command.map(str::to_string),
+        sign_command: request.sign_command.map(str::to_string),
+        verify_command: None,
     };
     sign_file(
         request.changes_file,
@@ -67,127 +178,6 @@ pub fn sign_changes(request: &SignRequest) -> anyhow::Result<()> {
         request.notify,
         request.package,
     )
-}
-
-/// Read the single deb822 paragraph of a `.changes`/`.dsc`/`.buildinfo`
-/// control file, losslessly, so checksum rewrites preserve the original
-/// formatting of untouched fields byte-for-byte.
-fn read_control(path: &Path) -> anyhow::Result<Paragraph> {
-    let deb822 =
-        Deb822::from_file(path).with_context(|| format!("failed to parse {}", path.display()))?;
-    deb822
-        .paragraphs()
-        .next()
-        .with_context(|| format!("{} contains no paragraph", path.display()))
-}
-
-fn write_control(paragraph: &Paragraph, path: &Path) -> anyhow::Result<()> {
-    std::fs::write(path, paragraph.to_string())
-        .with_context(|| format!("failed to write {}", path.display()))
-}
-
-/// Filenames ending in `.<ext>` listed under `Files:` or any
-/// `Checksums-*:` field.
-fn child_filename(paragraph: &Paragraph, ext: &str) -> Option<String> {
-    let suffix = format!(".{ext}");
-    for key in paragraph.keys() {
-        if key != "Files" && !key.starts_with("Checksums-") {
-            continue;
-        }
-        for line in paragraph
-            .get(&key)
-            .into_iter()
-            .flat_map(|v| v.lines().map(str::to_string).collect::<Vec<_>>())
-        {
-            if let Some(name) = line.split_whitespace().next_back()
-                && name.ends_with(&suffix)
-            {
-                return Some(name.to_string());
-            }
-        }
-    }
-    None
-}
-
-/// The hash algorithms used by the checksum fields of a control file.
-#[derive(Clone, Copy)]
-enum Hash {
-    Md5,
-    Sha1,
-    Sha256,
-}
-
-impl Hash {
-    fn hex(self, data: &[u8]) -> String {
-        fn hex<D: Digest>(mut hasher: D, data: &[u8]) -> String {
-            hasher.update(data);
-            hasher
-                .finalize()
-                .iter()
-                .map(|b| format!("{b:02x}"))
-                .collect()
-        }
-        match self {
-            Hash::Md5 => hex(Md5::new(), data),
-            Hash::Sha1 => hex(Sha1::new(), data),
-            Hash::Sha256 => hex(Sha256::new(), data),
-        }
-    }
-}
-
-/// The checksum fields debmagic understands, mapped to their hash.
-const CHECKSUM_FIELDS: &[(&str, Hash)] = &[
-    ("Files", Hash::Md5),
-    ("Checksums-Sha1", Hash::Sha1),
-    ("Checksums-Sha256", Hash::Sha256),
-];
-
-/// Rewrite one `Files:`/`Checksums-*:` line: the first token is the
-/// checksum, the second the size, the last the filename; entries for
-/// other files pass through unchanged.
-fn rewrite_checksum_line(line: &str, filename: &str, checksum: &str, size: usize) -> String {
-    let tokens: Vec<&str> = line.split_whitespace().collect();
-    match tokens.as_slice() {
-        [old_checksum, old_size, middle @ .., name] if *name == filename => {
-            let middle = if middle.is_empty() {
-                String::new()
-            } else {
-                format!(" {}", middle.join(" "))
-            };
-            format!("{checksum} {size}{middle} {name}")
-        }
-        _ => line.to_string(),
-    }
-}
-
-/// Rewrite the size and checksum entries for the file listings in a control file
-fn fixup_checksums(paragraph: &mut Paragraph, filename: &str, data: &[u8]) -> anyhow::Result<()> {
-    let size = data.len();
-
-    for key in paragraph.keys() {
-        if key.starts_with("Checksums-") && !CHECKSUM_FIELDS.iter().any(|(field, ..)| *field == key)
-        {
-            // An unknown checksum format would keep a stale checksum for a
-            // re-signed file, producing an upload that fails verification
-            // far away from here.
-            bail!("unknown checksum field '{key}:' in control file");
-        }
-    }
-
-    for (key, hash) in CHECKSUM_FIELDS {
-        let Some(value) = paragraph.get(key) else {
-            continue;
-        };
-        let checksum = hash.hex(data);
-        let updated = value
-            .lines()
-            .filter(|line| !line.is_empty())
-            .map(|line| rewrite_checksum_line(line, filename, &checksum, size))
-            .collect::<Vec<_>>()
-            .join("\n");
-        paragraph.set(key, &updated);
-    }
-    Ok(())
 }
 
 /// Is the file already clearsigned?
@@ -229,7 +219,7 @@ fn guess_signas(options: &SignOptions, control: &Paragraph) -> String {
 }
 
 /// Substitute the `{file}`, `{key}` and `{email}` placeholders in one
-/// `sign.command` argument, rejecting unknown or unterminated ones.
+/// `sign.sign_command` argument, rejecting unknown or unterminated ones.
 fn substitute_placeholders(
     arg: &str,
     file: &str,
@@ -243,17 +233,19 @@ fn substitute_placeholders(
         let after = &rest[start + 1..];
         let end = after
             .find('}')
-            .with_context(|| format!("unterminated '{{' in sign.command argument '{arg}'"))?;
+            .with_context(|| format!("unterminated '{{' in sign.sign_command argument '{arg}'"))?;
         let name = &after[..end];
         let value = match name {
             "file" => file,
             "key" => key,
             "email" => match email {
                 Some(email) => email,
-                None => bail!("{{email}} used in sign.command but '{key}' contains no address"),
+                None => {
+                    bail!("{{email}} used in sign.sign_command but '{key}' contains no address")
+                }
             },
             _ => bail!(
-                "unknown placeholder '{{{name}}}' in sign.command (supported: {{file}}, {{key}}, {{email}})"
+                "unknown placeholder '{{{name}}}' in sign.sign_command (supported: {{file}}, {{key}}, {{email}})"
             ),
         };
         out.push_str(value);
@@ -311,11 +303,11 @@ fn sign_one(path: &Path, signas: &str, options: &SignOptions) -> anyhow::Result<
         }
         SignTool::Custom => {
             let command = options
-                .command
+                .sign_command
                 .as_deref()
-                .with_context(|| "sign.tool = \"custom\" requires sign.command to be set")?;
+                .with_context(|| "sign.tool = \"custom\" requires sign.sign_command to be set")?;
             let mut parts = command.split_whitespace();
-            let program = parts.next().with_context(|| "sign.command is empty")?;
+            let program = parts.next().with_context(|| "sign.sign_command is empty")?;
             cmd = Command::new(program);
             let file = path.display().to_string();
             let email = signer_email(signas);
@@ -486,50 +478,12 @@ mod tests {
     }
 
     #[test]
-    fn child_filename_finds_dsc_and_buildinfo() {
-        let control = parse_control(
-            "Format: 1.8\nSource: pkg\nFiles:\n abc 123 pkg_1.0.dsc\n def 456 pkg_1.0.buildinfo\n ghi 789 other.txt\nChecksums-Sha256:\n xyz 123 pkg_1.0.dsc\n",
-        );
-        assert_eq!(
-            child_filename(&control, "dsc").as_deref(),
-            Some("pkg_1.0.dsc")
-        );
-        assert_eq!(
-            child_filename(&control, "buildinfo").as_deref(),
-            Some("pkg_1.0.buildinfo")
-        );
-        assert_eq!(child_filename(&control, "deb"), None);
-    }
-
-    #[test]
-    fn fixup_rewrites_all_checksum_sections() {
-        let mut control = parse_control(
-            "Format: 1.8\nFiles:\n oldmd5 3 hash optional pkg_1.0.dsc\nChecksums-Sha1:\n oldsha1 3 pkg_1.0.dsc\nChecksums-Sha256:\n oldsha256 3 pkg_1.0.dsc\n",
-        );
-        let data = b"abc";
-        fixup_checksums(&mut control, "pkg_1.0.dsc", data).unwrap();
-
-        fn hex<D: Digest>(mut hasher: D, data: &[u8]) -> String {
-            hasher.update(data);
-            hasher
-                .finalize()
-                .iter()
-                .map(|b| format!("{b:02x}"))
-                .collect()
-        }
-        let md5 = hex(Md5::new(), data);
-        let joined = control.to_string();
-        assert!(joined.contains(&format!("{md5} 3 hash optional pkg_1.0.dsc")));
-        assert!(joined.contains(&format!(" {} 3 pkg_1.0.dsc", hex(Sha1::new(), data))));
-        assert!(joined.contains(&format!(" {} 3 pkg_1.0.dsc", hex(Sha256::new(), data))));
-    }
-
-    #[test]
     fn guess_signas_prefers_key_then_changed_by() {
         let options = SignOptions {
             key: Some("mykey".into()),
             tool: SignTool::Gpg,
-            command: None,
+            sign_command: None,
+            verify_command: None,
         };
         let control =
             parse_control("Maintainer: A <a@example.com>\nChanged-By: B <b@example.com>\n");
@@ -567,6 +521,81 @@ mod tests {
         assert_eq!(signer_email("B <b@example.com>"), Some("b@example.com"));
         assert_eq!(signer_email("b@example.com"), Some("b@example.com"));
         assert_eq!(signer_email("ABC1234"), None);
+    }
+
+    #[test]
+    fn verify_placeholders_substitute() {
+        assert_eq!(
+            substitute_verify_placeholders(
+                "verify --keyring {keyring} {file} {signature}",
+                Path::new("/tmp/f.tar"),
+                Path::new("/tmp/f.tar.asc"),
+                Path::new("/tmp/key.asc"),
+            )
+            .unwrap(),
+            "verify --keyring /tmp/key.asc /tmp/f.tar /tmp/f.tar.asc"
+        );
+        assert!(
+            substitute_verify_placeholders(
+                "{typo}",
+                Path::new("f"),
+                Path::new("s"),
+                Path::new("k")
+            )
+            .is_err()
+        );
+        assert!(
+            substitute_verify_placeholders(
+                "{unterminated",
+                Path::new("f"),
+                Path::new("s"),
+                Path::new("k")
+            )
+            .is_err()
+        );
+    }
+
+    #[test]
+    fn verify_signature_custom_runs_command() {
+        // a custom command that exits 0 verifies; one that exits 1 fails
+        let dir = std::env::temp_dir().join("debmagic-sign-test-verify");
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("f.tar");
+        std::fs::write(&file, "x").unwrap();
+        let sig = dir.join("f.tar.asc");
+        std::fs::write(&sig, "x").unwrap();
+        let keyring = dir.join("key.asc");
+        std::fs::write(&keyring, "x").unwrap();
+
+        let ok = SignOptions {
+            verify_command: Some("true {signature}".to_string()),
+            tool: SignTool::Custom,
+            ..Default::default()
+        };
+        assert!(verify_signature(&ok, &file, &sig, &keyring).is_ok());
+
+        let failing = SignOptions {
+            verify_command: Some("false {signature}".to_string()),
+            tool: SignTool::Custom,
+            ..Default::default()
+        };
+        assert!(verify_signature(&failing, &file, &sig, &keyring).is_err());
+
+        // verify_command falls back to sign_command
+        let fallback = SignOptions {
+            sign_command: Some("true {signature}".to_string()),
+            tool: SignTool::Custom,
+            ..Default::default()
+        };
+        assert!(verify_signature(&fallback, &file, &sig, &keyring).is_ok());
+
+        // custom without any command configured is an error, not a gpg fallback
+        let missing = SignOptions {
+            tool: SignTool::Custom,
+            ..Default::default()
+        };
+        assert!(verify_signature(&missing, &file, &sig, &keyring).is_err());
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

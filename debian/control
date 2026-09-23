@@ -26,6 +26,9 @@ Build-Depends:
  librust-uuid-dev (>=1.10.0),
  librust-chrono-dev (>=0.4.42),
  librust-regex-dev (>=1.12.2),
+ librust-reqwest-dev (>= 0.12),
+ librust-futures-util-dev (>= 0.3),
+ librust-tokio-dev (>= 1.43),
  librust-test-case-dev (>=3.3.1),
  librust-pyo3-dev (>=0.27.2),
  librust-deb822-lossless-dev (>=0.5.18),
@@ -34,7 +37,7 @@ Build-Depends:
  librust-ignore-dev (>=0.4.25),
  librust-md-5-dev (>= 0.11),
  librust-sha1-dev (>= 0.11),
- librust-sha2-dev (>= 0.11)
+ librust-sha2-dev (>= 0.11),
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2

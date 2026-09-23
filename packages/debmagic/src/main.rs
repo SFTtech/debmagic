@@ -4,11 +4,12 @@ use std::process::ExitCode;
 
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
+use std::str::FromStr;
 
 use crate::{
     build::{build_package, build_source_package, get_shell_in_build},
     build_intent::{BuildIntentInput, resolve_build_intent},
-    cli::{BuildTarget, Cli, Commands, ConfigCommands},
+    cli::{BuildTarget, Cli, Commands, ConfigCommands, UpstreamCommands},
     config::{Config, ConfigPathStatus, resolve_set_target},
     driver::{
         DriverType, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
@@ -23,16 +24,25 @@ use crate::{
 
 pub mod build;
 pub mod build_intent;
+pub mod changelog;
+pub mod changes;
 pub mod cli;
 pub mod config;
+pub mod control;
 pub mod driver;
 pub mod output;
 pub mod package;
+pub mod requests;
 pub mod sign;
 pub mod test;
+pub mod upstream;
 
 fn main() -> ExitCode {
-    match run() {
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .expect("failed to build the tokio runtime");
+    match runtime.block_on(run()) {
         Ok(code) => code,
         Err(error) => {
             eprintln!("{error:?}");
@@ -41,7 +51,7 @@ fn main() -> ExitCode {
     }
 }
 
-fn run() -> anyhow::Result<ExitCode> {
+async fn run() -> anyhow::Result<ExitCode> {
     let cli = Cli::parse();
     output::init_color(cli.color);
 
@@ -49,9 +59,7 @@ fn run() -> anyhow::Result<ExitCode> {
     match &cli.command {
         Commands::Build(args) => {
             let (build_args, debug_symbols, is_source) = match &args.target {
-                BuildTarget::Binary(binary_args) => {
-                    (&binary_args.build, binary_args.debug_symbols, false)
-                }
+                BuildTarget::Binary(binary_args) => (&binary_args.build, binary_args.debug_symbols, false),
                 BuildTarget::Source(source_args) => (&source_args.build, None, true),
             };
 
@@ -117,7 +125,8 @@ fn run() -> anyhow::Result<ExitCode> {
             .context("failed to determine package target")?;
 
             if is_source {
-                build_source_package(&intent, &target)
+                build_source_package(&intent, &target, &build_args.changes_options, true)
+                    .await
                     .context("Building the source package failed")?;
             } else {
                 let mut target = target;
@@ -128,7 +137,8 @@ fn run() -> anyhow::Result<ExitCode> {
                                 "host's /etc/os-release does not match the build target distro",
                             )?;
                 }
-                build_package(&intent, &target).context("Building the package failed")?;
+                build_package(&intent, &target, &build_args.changes_options)
+                    .context("Building the package failed")?;
             }
         }
         Commands::Shell(args) => {
@@ -188,7 +198,7 @@ fn run() -> anyhow::Result<ExitCode> {
                 config.sign.tool = tool;
             }
             if let Some(command) = &args.sign_command {
-                config.sign.command = Some(command.clone());
+                config.sign.sign_command = Some(command.clone());
             }
             if let Some(notify) = args.sign_notify {
                 config.sign.notify = notify;
@@ -197,7 +207,8 @@ fn run() -> anyhow::Result<ExitCode> {
             let options = sign::SignOptions {
                 key: config.sign.key.clone(),
                 tool: config.sign.tool,
-                command: config.sign.command.clone(),
+                sign_command: config.sign.sign_command.clone(),
+                verify_command: config.sign.verify_command.clone(),
             };
 
             let file = match &args.file {
@@ -287,6 +298,180 @@ fn run() -> anyhow::Result<ExitCode> {
                 let effective = config.get_value(&set_args.key)?;
                 println!("debmagic: {} = {}", set_args.key, effective.trim_end());
                 eprintln!("debmagic: written to {}", target.path.display());
+            }
+        },
+        Commands::Upstream(args) => match &args.command {
+            UpstreamCommands::List(list_args) => {
+                let source_dir = list_args
+                    .common
+                    .source_dir
+                    .as_deref()
+                    .unwrap_or(&current_dir);
+                let source_dir =
+                    std::path::absolute(source_dir).context("resolving source dir failed")?;
+                let sources = upstream::query::load_watch(&source_dir)?;
+                let identity = load_package(&source_dir)?;
+
+                let mut newest: Option<String> = None;
+                for source in &sources {
+                    if let Some(reason) = &source.untrackable {
+                        println!("debmagic: skipping untrackable source: {reason}");
+                        continue;
+                    }
+                    let candidates = upstream::query::query_source(source, identity.name()).await?;
+                    let current = upstream::query::current_upstream_version(
+                        source,
+                        &identity.version().to_string(),
+                    )?;
+                    let current_version =
+                        debmagic_common::debian::version::PackageVersion::from_str(&current)
+                            .map_err(|_| anyhow::anyhow!("invalid current version: {current}"))?;
+                    let newer: Vec<_> = candidates
+                        .iter()
+                        .filter(|c| {
+                            debmagic_common::debian::version::PackageVersion::from_str(&c.version)
+                                .is_ok_and(|v| v > current_version)
+                        })
+                        .collect();
+                    println!("debmagic: current upstream version: {current}");
+                    if list_args.all {
+                        for candidate in &candidates {
+                            println!("  {}", candidate.version);
+                        }
+                    } else {
+                        let limit = list_args.previous.unwrap_or(1);
+                        for candidate in newer.iter().take(limit) {
+                            println!("  {} (newer)", candidate.version);
+                        }
+                    }
+                    newest = candidates.first().map(|c| c.version.clone());
+                }
+                if newest.is_none() {
+                    println!("debmagic: no candidates found");
+                }
+            }
+            UpstreamCommands::Switch(switch_args) => {
+                let source_dir = switch_args
+                    .common
+                    .source_dir
+                    .as_deref()
+                    .unwrap_or(&current_dir);
+                let source_dir =
+                    std::path::absolute(source_dir).context("resolving source dir failed")?;
+                let sources = upstream::query::load_watch(&source_dir)?;
+                let identity = load_package(&source_dir)?;
+                let mut config = Config::load(Some(&source_dir), cli.config.as_deref())?;
+                let output_dir = source_dir.join(&config.output_dir);
+
+                // the main source (no Component field) drives the version;
+                // component sources contribute their own tarballs
+                let main_source = sources
+                    .iter()
+                    .find(|s| s.untrackable.is_none() && s.component.is_none())
+                    .context("no usable main watch source for {}")?;
+                let candidate = if switch_args.version == "latest" {
+                    // discovery needs the listing
+                    let candidates =
+                        upstream::query::query_source(main_source, identity.name()).await?;
+                    candidates.first().cloned()
+                } else {
+                    // a concrete version: construct the URL from the watch
+                    // pattern directly; only fall back to scraping when the
+                    // pattern is not invertible or the URL does not exist.
+                    // an existing orig tarball hints at the extension first.
+                    let existing_orig = debmagic_common::changes::find_orig_in_dir(
+                        &output_dir,
+                        identity.name(),
+                        identity.version().upstream_version(),
+                    )
+                    .or_else(|| {
+                        source_dir.parent().and_then(|parent| {
+                            debmagic_common::changes::find_orig_in_dir(
+                                parent,
+                                identity.name(),
+                                identity.version().upstream_version(),
+                            )
+                        })
+                    });
+                    match upstream::query::resolve_concrete(
+                        main_source,
+                        identity.name(),
+                        &switch_args.version,
+                        existing_orig.as_deref(),
+                    )
+                    .await
+                    {
+                        Ok(Some(candidate)) => Some(candidate),
+                        Ok(None) | Err(_) => {
+                            let candidates =
+                                upstream::query::query_source(main_source, identity.name()).await?;
+                            upstream::query::find_candidate(&candidates, &switch_args.version)
+                                .cloned()
+                        }
+                    }
+                };
+                let Some(candidate) = candidate else {
+                    if switch_args.version == "latest" {
+                        anyhow::bail!("no upstream candidates found for {}", identity.name());
+                    }
+                    anyhow::bail!(
+                        "upstream version {} not found for {}; run 'debmagic upstream list' to see the available versions",
+                        switch_args.version,
+                        identity.name()
+                    );
+                };
+
+                let package = crate::package::load_package(&source_dir)?;
+                let repack = upstream::repack::load_repack_config(&package, main_source)?;
+                let verify = config.upstream.verify_signatures && !switch_args.no_signature_check;
+                if let Some(command) = &switch_args.verify_command {
+                    config.sign.verify_command = Some(command.clone());
+                }
+                let sign_options = sign::SignOptions {
+                    key: config.sign.key.clone(),
+                    tool: config.sign.tool,
+                    sign_command: config.sign.sign_command.clone(),
+                    verify_command: config.sign.verify_command.clone(),
+                };
+                let options = upstream::switch::SwitchOptions {
+                    repack: &repack,
+                    output_dir: &output_dir,
+                    orig_tarball_config: Some(&config.orig_tarball),
+                    verify_signatures: verify,
+                    sign_options: &sign_options,
+                    dry_run: switch_args.dry_run,
+                };
+                upstream::switch::switch(&source_dir, main_source, &candidate, &options).await?;
+
+                // MUT: switch each component source to the same version
+                for source in &sources {
+                    if source.untrackable.is_some() || source.component.is_none() {
+                        continue;
+                    }
+                    let candidates = upstream::query::query_source(source, identity.name()).await?;
+                    let Some(component_candidate) = candidates
+                        .iter()
+                        .find(|c| c.version == candidate.version)
+                        .or_else(|| candidates.first())
+                    else {
+                        anyhow::bail!(
+                            "no candidates for component {} at version {}",
+                            source.component.as_deref().unwrap_or_default(),
+                            candidate.version
+                        );
+                    };
+                    let repack = upstream::repack::load_repack_config(&package, source)?;
+                    let options = upstream::switch::SwitchOptions {
+                        repack: &repack,
+                        output_dir: &output_dir,
+                        orig_tarball_config: Some(&config.orig_tarball),
+                        verify_signatures: verify,
+                        sign_options: &sign_options,
+                        dry_run: switch_args.dry_run,
+                    };
+                    upstream::switch::switch(&source_dir, source, component_candidate, &options)
+                        .await?;
+                }
             }
         },
         Commands::Version {} => {

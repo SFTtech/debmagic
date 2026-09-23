@@ -266,7 +266,7 @@ fn run_build(
                 changes_file: &changes_file,
                 sign_key: sign.key.as_deref(),
                 sign_tool: sign.tool,
-                sign_command: sign.command.as_deref(),
+                sign_command: sign.sign_command.as_deref(),
                 notify: sign.notify,
                 package: &build.environment.package_identifier,
             })?;
@@ -307,7 +307,11 @@ fn run_build(
     Ok(())
 }
 
-pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<()> {
+pub fn build_package(
+    intent: &BuildIntent,
+    target: &PackageTarget,
+    changes_options: &[String],
+) -> anyhow::Result<()> {
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
         crate::output::stage("Building binary packages");
@@ -332,13 +336,23 @@ pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
         if let Some(variant) = build.host_arch_variant.as_deref() {
             env_add.push(("DEB_HOST_ARCH_VARIANT", variant));
         }
-        let mut dpkg_buildpackage_args = vec!["dpkg-buildpackage", "-us", "-uc", "-ui"];
+        let mut dpkg_buildpackage_args: Vec<String> = vec![
+            "dpkg-buildpackage".into(),
+            "-us".into(),
+            "-uc".into(),
+            "-ui".into(),
+        ];
         if !build.clean {
             // Non-incremental builds already stage a clean source tree, while
             // incremental builds preserve their outputs intentionally.
-            dpkg_buildpackage_args.push("-nc");
+            dpkg_buildpackage_args.push("-nc".into());
         }
-        dpkg_buildpackage_args.push("-b");
+        for option in changes_options {
+            dpkg_buildpackage_args.push(format!("--changes-option={option}"));
+        }
+        dpkg_buildpackage_args.push("-b".into());
+        let dpkg_buildpackage_args: Vec<&str> =
+            dpkg_buildpackage_args.iter().map(String::as_str).collect();
         build.driver.run_command_checked(
             &dpkg_buildpackage_args,
             &build.environment.staged_source_dir(),
@@ -373,19 +387,80 @@ fn check_dpkg_buildpackage_available() -> anyhow::Result<()> {
     )
 }
 
+/// Make `source` available at `destination` without copying bytes when
+/// avoidable: hardlink (same filesystem), then symlink, then copy as the
+/// last resort. dpkg-source only reads the file, so a link is fine.
+fn stage_file(source: &Path, destination: &Path) -> anyhow::Result<()> {
+    if destination.exists() {
+        std::fs::remove_file(destination)
+            .with_context(|| format!("failed to remove {}", destination.display()))?;
+    }
+    if std::fs::hard_link(source, destination).is_ok() {
+        return Ok(());
+    }
+    if std::os::unix::fs::symlink(source, destination).is_ok() {
+        return Ok(());
+    }
+    fs::copy(source, destination).map(|_| ()).with_context(|| {
+        format!(
+            "failed to stage {} into the build environment",
+            source.display()
+        )
+    })
+}
+
 /// Build a `.dsc` + tarball + `.buildinfo` + `.changes` source package.
 ///
 /// If `config.clean` is set, build-dependencies are installed before
 /// `dpkg-buildpackage` runs `debian/rules clean` once.
-pub fn build_source_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<()> {
+/// `changes_options` are extra `--changes-option=...` arguments passed
+/// to `dpkg-buildpackage` verbatim, e.g.
+/// `--changes-option=-DVcs-Git=https://...` for git-ubuntu's
+/// upload/git correlation.
+pub async fn build_source_package(
+    intent: &BuildIntent,
+    target: &PackageTarget,
+    changes_options: &[String],
+    include_orig: bool,
+) -> anyhow::Result<()> {
     if intent.driver == DriverType::Bare {
         check_dpkg_buildpackage_available()?;
     }
+
+    // dpkg-source looks for the orig tarball in the parent of the source
+    // dir it builds, which inside the environment is the work dir.
+    let orig_fetch_dir = intent
+        .config
+        .temp_build_dir
+        .join("orig")
+        .join(target.package.name());
+    let orig_tarball = crate::upstream::orig::fetch_orig_tarball(
+        &intent.config.orig_tarball,
+        &target.package,
+        &orig_fetch_dir,
+    )
+    .await
+    .with_context(|| {
+        format!(
+            "fetching the orig tarball for {} {} failed",
+            target.package.name(),
+            target.package.version().upstream_version()
+        )
+    })?;
 
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
         crate::output::stage("Building source package");
         let staged_source_dir = build.environment.staged_source_dir();
+        if let Some(tarball) = &orig_tarball {
+            // the work dir is the staged source dir's parent, which is where
+            // dpkg-source looks for the tarball
+            let destination = build
+                .environment
+                .work_dir()
+                .join(tarball.file_name().expect("orig tarball has a file name"));
+            stage_file(tarball, &destination)?;
+        }
         if build.clean {
             build.driver.run_command_checked(
                 &["apt-get", "-y", "build-dep", "."],
@@ -394,10 +469,27 @@ pub fn build_source_package(intent: &BuildIntent, target: &PackageTarget) -> any
                 &[],
             )?;
         }
-        let mut args = vec!["dpkg-buildpackage", "-S", "-d", "-us", "-uc", "-ui"];
+        let mut args: Vec<String> = vec![
+            "dpkg-buildpackage".into(),
+            "-S".into(),
+            "-d".into(),
+            "-us".into(),
+            "-uc".into(),
+            "-ui".into(),
+        ];
         if !build.clean {
-            args.push("-nc");
+            args.push("-nc".into());
         }
+        // -sa/-sd decide whether the .changes references the orig tarball
+        args.push(if include_orig {
+            "-sa".into()
+        } else {
+            "-sd".into()
+        });
+        for option in changes_options {
+            args.push(format!("--changes-option={option}"));
+        }
+        let args: Vec<&str> = args.iter().map(String::as_str).collect();
         build
             .driver
             .run_command_checked(&args, &staged_source_dir, false, &[])?;
@@ -409,6 +501,28 @@ pub fn build_source_package(intent: &BuildIntent, target: &PackageTarget) -> any
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn stage_file_prefers_hardlink() {
+        let dir = std::env::temp_dir().join(format!("debmagic-stage-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let source = dir.join("src.tar");
+        std::fs::write(&source, "data").unwrap();
+        let destination = dir.join("dest.tar");
+        stage_file(&source, &destination).unwrap();
+        // same filesystem: a hardlink shares the inode
+        assert_eq!(
+            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&source).unwrap()),
+            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&destination).unwrap())
+        );
+        // restaging replaces the destination
+        stage_file(&source, &destination).unwrap();
+        assert_eq!(
+            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&source).unwrap()),
+            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&destination).unwrap())
+        );
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 
     #[test]
     fn debug_symbol_option_preserves_other_build_options() {

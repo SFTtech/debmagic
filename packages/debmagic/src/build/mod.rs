@@ -14,11 +14,9 @@ use crate::driver::{
     SignRequest, config::DriverConfig, create_driver, create_driver_from_metadata,
     remove_environment_root,
 };
-use crate::{
-    config::Config,
-    package::{PackageIdentity, PackageTarget},
-};
+use crate::{config::Config, package::PackageTarget};
 use anyhow::{Context, anyhow};
+use debmagic_common::package::SourcePackage;
 
 pub mod artifacts;
 pub mod attach;
@@ -119,20 +117,20 @@ impl Build {
 
 fn get_build_root_and_identifier(
     temp_build_dir: &Path,
-    identity: &PackageIdentity,
+    package: &SourcePackage,
 ) -> (String, PathBuf) {
-    let package_identifier = format!("{}-{}", identity.name, identity.version);
+    let package_identifier = format!("{}-{}", package.name(), package.version());
     let build_root = temp_build_dir.join(&package_identifier);
     (package_identifier, build_root)
 }
 
 fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<Build> {
     let (package_identifier, build_root) =
-        get_build_root_and_identifier(&intent.config.temp_build_dir, &target.identity);
+        get_build_root_and_identifier(&intent.config.temp_build_dir, &target.package);
 
     let environment = Environment {
         driver: intent.driver,
-        package_name: target.identity.name.clone(),
+        package_name: target.package.name().to_string(),
         package_identifier,
         root_dir: build_root.clone(),
         distro: target.distro.clone(),
@@ -165,7 +163,7 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
             .context("failed to create build directories")?;
         stage_source_tree(
             &environment,
-            &target.identity,
+            &target.package,
             intent.config.source_sync_mode,
             incremental,
         )?;
@@ -182,7 +180,7 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
     crate::output::step("Staging source tree");
     stage_source_tree(
         &environment,
-        &target.identity,
+        &target.package,
         intent.config.source_sync_mode,
         incremental,
     )?;
@@ -190,9 +188,9 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
     Build::create(environment, intent)
 }
 
-pub fn get_shell_in_build(config: &Config, identity: &PackageIdentity) -> anyhow::Result<()> {
+pub fn get_shell_in_build(config: &Config, package: &SourcePackage) -> anyhow::Result<()> {
     let (_package_identifier, build_root) =
-        get_build_root_and_identifier(&config.temp_build_dir, identity);
+        get_build_root_and_identifier(&config.temp_build_dir, package);
     let build = Build::from_build_root(&build_root, &config.driver)?;
     let result = build
         .driver
@@ -234,10 +232,11 @@ fn run_build(
 ) -> anyhow::Result<()> {
     let sign = &request.intent.config.sign;
 
-    let package = &request.target.identity;
+    let package = &request.target.package;
     crate::output::stage(&format!(
         "Preparing build environment for {} {}",
-        package.name, package.version
+        package.name(),
+        package.version()
     ));
     let build = prepare_build_env(request.intent, request.target)
         .context("failed to prepare build environment")?;

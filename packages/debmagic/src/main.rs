@@ -15,7 +15,7 @@ use crate::{
         driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
     },
     package::{
-        distro_resolve_mode_for_driver, load_package_identity, resolve_package_target,
+        distro_resolve_mode_for_driver, load_package, resolve_package_target,
         validate_bare_host_target,
     },
     test::{TestIntentInput, TestOutcome, resolve_test_intent, run_test},
@@ -136,7 +136,7 @@ fn run() -> anyhow::Result<ExitCode> {
             let source_dir =
                 std::path::absolute(source_dir).context("resolving source dir failed")?;
             let config = Config::load(Some(&source_dir), cli.config.as_deref())?;
-            let identity = load_package_identity(&source_dir)?;
+            let identity = load_package(&source_dir)?;
             get_shell_in_build(&config, &identity)?;
         }
         Commands::Test(args) => {
@@ -205,7 +205,7 @@ fn run() -> anyhow::Result<ExitCode> {
                     std::path::absolute(file).context("resolving the file to sign failed")?
                 }
                 None => {
-                    let identity = load_package_identity(&source_dir)?;
+                    let identity = load_package(&source_dir)?;
                     // -o wins; else the config value, relative to the package root.
                     let output_dir = match &args.output_dir {
                         Some(dir) => {
@@ -215,8 +215,8 @@ fn run() -> anyhow::Result<ExitCode> {
                             .context("resolving output dir failed")?,
                     };
                     sign::find_changes_file(
-                        &identity.name,
-                        &identity.version.to_string(),
+                        identity.name(),
+                        &identity.version().to_string(),
                         &output_dir,
                     )?
                 }

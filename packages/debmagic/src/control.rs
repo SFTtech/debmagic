@@ -48,33 +48,39 @@ pub(crate) fn digest_file(path: &Path) -> anyhow::Result<Digests> {
 /// formatting of untouched fields byte-for-byte. PGP-clearsigned files
 /// (like archive `.dsc` files) have their armor stripped first.
 pub(crate) fn read_control(path: &Path) -> anyhow::Result<Paragraph> {
-    let content = read_control_content(path)?;
+    let content = std::fs::read_to_string(path)
+        .with_context(|| format!("failed to read {}", path.display()))?;
+    parse_control(&content).with_context(|| format!("failed to parse {}", path.display()))
+}
+
+/// Parse the single paragraph of control file content, with the PGP
+/// clearsign armor removed when present.
+pub(crate) fn parse_control(content: &str) -> anyhow::Result<Paragraph> {
+    let content = strip_armor(content)?;
     let deb822 = content
         .parse::<deb822_lossless::Deb822>()
-        .with_context(|| format!("failed to parse {}", path.display()))?;
-    deb822
-        .paragraphs()
-        .next()
-        .with_context(|| format!("{} contains no paragraph", path.display()))
+        .context("invalid deb822")?;
+    deb822.paragraphs().next().context("no paragraph")
 }
 
 /// Read a `.changes` file, losslessly, with PGP armor stripped first —
 /// signed `.changes` files are the norm, not the exception.
 pub(crate) fn read_changes(path: &Path) -> anyhow::Result<Changes> {
-    let content = read_control_content(path)?;
+    let content = std::fs::read_to_string(path)
+        .with_context(|| format!("failed to read {}", path.display()))?;
+    let content =
+        strip_armor(&content).with_context(|| format!("failed to parse {}", path.display()))?;
     Changes::read(content.as_bytes()).with_context(|| format!("failed to parse {}", path.display()))
 }
 
-/// The file content with the PGP clearsign armor removed when present.
-fn read_control_content(path: &Path) -> anyhow::Result<String> {
-    let content = std::fs::read_to_string(path)
-        .with_context(|| format!("failed to read {}", path.display()))?;
+/// The content with the PGP clearsign armor removed when present.
+fn strip_armor(content: &str) -> anyhow::Result<std::borrow::Cow<'_, str>> {
     if content.starts_with("-----BEGIN PGP SIGNED MESSAGE-----") {
-        let (payload, _) = pgp::strip_pgp_signature(&content)
-            .with_context(|| format!("failed to strip the signature from {}", path.display()))?;
-        Ok(payload)
+        let (payload, _) =
+            pgp::strip_pgp_signature(content).context("failed to strip the signature")?;
+        Ok(payload.into())
     } else {
-        Ok(content)
+        Ok(content.into())
     }
 }
 

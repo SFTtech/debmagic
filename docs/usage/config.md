@@ -43,6 +43,7 @@ All keys are optional.
 | `shell_on_failure` | bool | `false` | `--shell-on-failure` | On build or test failure, drop into an interactive shell in the environment when stdout is a TTY. |
 | `host_arch_variant` | string | — | `--host-arch-variant` | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
 | `upstream.verify_signatures` | bool | `true` | `--no-signature-check` | Verify the upstream tarball's PGP signature against `debian/upstream/signing-key.asc` during `upstream switch` (see [Upstream](upstream.md#signature-verification)). |
+| `upload.targets` | map | — | `debmagic upload <target>` | Named upload targets for [uploading](upload.md), merged field-by-field over the builtins (`ppa`, `ubuntu`, `debian`). |
 
 ### `source_sync_mode`
 
@@ -74,6 +75,20 @@ Where `debmagic build source` fetches the `orig` tarball from when it isn't alre
 | `command` | string | — | Custom fetch command for `method = "custom"`, run via `sh -c` in the source dir with `{name}`/`{version}`/`{upstream_version}`/`{source_dir}`/`{output_dir}` placeholders. |
 | `debian_mirror` | string | `https://deb.debian.org/debian` | Mirror root for `method = "debian"`, like an apt sources entry; `/pool` is appended. |
 | `ubuntu_mirror` | string | `http://archive.ubuntu.com/ubuntu` | Mirror root for `method = "ubuntu"`; `/pool` is appended. |
+
+### `upload`
+
+See [Uploading](upload.md) for target resolution, builtins and pre-upload checks.
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `targets.<name>.method` | enum | `scp` | Upload method: `scp` or `sftp`. |
+| `targets.<name>.server` | string | — | Host to upload to. |
+| `targets.<name>.incoming` | string | — | Remote directory; supports the `{target}` placeholder. |
+| `targets.<name>.login` | string | ssh config | Login on the remote host; falls back to the ssh config user, then the local user. The Launchpad/Debian upload hosts expect your own username with a registered SSH key. |
+| `targets.<name>.port` | int | — | Remote port. |
+| `targets.<name>.tofu_hostkey` | bool | `true` | Trust the host key on first use (ssh's `StrictHostKeyChecking=accept-new`). The archive upload hosts publish stable keys; disable to require a known_hosts entry. |
+| `targets.<name>.pre_upload_commands` | list | `[]` | Commands run via `sh -c` before uploading; non-zero aborts the upload. |
 
 ## Example
 

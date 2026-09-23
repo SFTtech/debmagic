@@ -75,18 +75,16 @@ fn substitute_placeholders(s: &str, package: &SourcePackage, output_dir: &Path) 
     let version = package.version().to_string();
     let source_dir = package.source_dir().unwrap().to_string_lossy();
     let out = output_dir.to_string_lossy();
-    let vars = [
-        ("name", package.name()),
-        ("version", version.as_str()),
-        ("upstream_version", package.version().upstream_version()),
-        ("source_dir", &source_dir),
-        ("output_dir", &out),
-    ];
-    let mut result = s.to_string();
-    for (name, value) in vars {
-        result = result.replace(&format!("{{{name}}}"), value);
-    }
-    result
+    crate::upload::target::substitute_placeholders(
+        s,
+        &[
+            ("name", package.name()),
+            ("version", version.as_str()),
+            ("upstream_version", package.version().upstream_version()),
+            ("source_dir", &source_dir),
+            ("output_dir", &out),
+        ],
+    )
 }
 
 /// The download cache dir for one package version:

@@ -4,6 +4,8 @@ use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
 use crate::sign::SignTool;
 use crate::time::RefreshPolicy;
+use crate::upload::UploadMethod;
+use crate::upload::orig::IncludeOrig;
 use clap::{Args, Parser, Subcommand};
 
 /// When to use colored output. Mirrors common CLI conventions; `auto` is the
@@ -50,6 +52,10 @@ pub enum Commands {
     Check(CheckSubcommandArgs),
     #[command(about = "GPG-sign a .changes file (and its .dsc/.buildinfo) on the host")]
     Sign(SignSubcommandArgs),
+    #[command(
+        about = "Upload a .changes file (and everything it references) to an upload target, dput-style"
+    )]
+    Upload(UploadSubcommandArgs),
     #[command(about = "Inspect the debmagic configuration")]
     Config(ConfigSubcommandArgs),
     #[command(about = "Query and switch upstream versions")]
@@ -358,6 +364,12 @@ pub struct CommonBuildArgs {
         help = "Extra field for the .changes file, passed to dpkg-buildpackage as-is, e.g. --changes-option=-DVcs-Git=https://... (repeatable)"
     )]
     pub changes_options: Vec<String>,
+
+    #[arg(
+        long,
+        help = "After building (and signing, if enabled), upload the resulting .changes to this upload target ('name' or 'name:parameter', e.g. 'ppa:user/repo')"
+    )]
+    pub upload: Option<String>,
 }
 
 #[derive(Args, Debug)]
@@ -404,6 +416,14 @@ pub struct BinaryTargetArgs {
 pub struct SourceTargetArgs {
     #[command(flatten)]
     pub build: CommonBuildArgs,
+
+    #[arg(
+        long = "include-orig",
+        value_enum,
+        default_value_t = IncludeOrig::Auto,
+        help = "Include the orig tarball in the source upload: 'auto' (default) includes it only when the archive cannot have it yet (a new upstream version or a deltarebase onto Debian), 'yes' always, 'no' never"
+    )]
+    pub include_orig: IncludeOrig,
 }
 
 #[derive(Args, Debug)]
@@ -536,4 +556,66 @@ pub struct SignSubcommandArgs {
         help = "The .changes, .buildinfo or .dsc file to sign; when omitted, located via debian/changelog and --output"
     )]
     pub file: Option<PathBuf>,
+}
+
+#[derive(Args, Debug)]
+pub struct UploadSubcommandArgs {
+    #[arg(
+        help = "Upload target: 'name' or 'name:parameter' (e.g. 'ppa:user/repo'), resolved from [upload.targets] in the config, merging over the builtins (ppa, ubuntu, debian)"
+    )]
+    pub target: String,
+
+    #[arg(
+        long,
+        value_enum,
+        help = "Upload method: 'scp' or 'sftp'. Overrides the target's 'method'"
+    )]
+    pub method: Option<UploadMethod>,
+
+    #[arg(long, help = "Server to upload to. Overrides the target's 'server'")]
+    pub server: Option<String>,
+
+    #[arg(
+        long,
+        help = "Remote directory to upload into. Overrides the target's 'incoming'"
+    )]
+    pub incoming: Option<String>,
+
+    #[arg(
+        long,
+        help = "Login on the remote server. Overrides the target's 'login'"
+    )]
+    pub login: Option<String>,
+
+    #[arg(long, help = "Remote port. Overrides the target's 'port'")]
+    pub port: Option<u16>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Skip the target's pre_upload_commands"
+    )]
+    pub no_hooks: bool,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Upload even if a successful upload to this target is already recorded"
+    )]
+    pub force: bool,
+
+    #[arg(
+        long = "include-orig",
+        value_enum,
+        help = "Include the orig tarball in the upload: 'auto' includes it only when the archive cannot have it yet (a new upstream version or a deltarebase onto Debian), 'yes' always, 'no' never. Rewrites and re-signs the .changes when it disagrees"
+    )]
+    pub include_orig: Option<IncludeOrig>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
+
+    #[arg(
+        help = "The .changes file to upload; when omitted, located via debian/changelog and the output dir"
+    )]
+    pub changes: Option<PathBuf>,
 }

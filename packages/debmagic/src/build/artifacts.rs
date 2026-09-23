@@ -5,7 +5,6 @@ use std::{
 };
 
 use anyhow::{Context, anyhow, bail};
-use debian_control::lossless::changes::Changes;
 
 /// Locate the single `.changes` file in a build work directory.
 pub fn find_changes_file(build_dir: &Path) -> anyhow::Result<PathBuf> {
@@ -63,8 +62,7 @@ pub fn export_build_artifacts(build_dir: &Path, output_dir: &Path) -> anyhow::Re
             changes_path.display()
         );
     }
-    let changes = Changes::from_file(&changes_path)
-        .with_context(|| format!("failed to parse {}", changes_path.display()))?;
+    let changes = crate::control::read_changes(&changes_path)?;
     let files = changes
         .files()
         .ok_or_else(|| anyhow!("{} has no Files field", changes_path.display()))?;
@@ -125,8 +123,7 @@ pub fn copy_changes_artifacts(changes_path: &Path, dest_dir: &Path) -> anyhow::R
             changes_path.display()
         )
     })?;
-    let changes = Changes::from_file(changes_path)
-        .with_context(|| format!("failed to parse {}", changes_path.display()))?;
+    let changes = crate::control::read_changes(changes_path)?;
     let files = changes
         .files()
         .ok_or_else(|| anyhow!("{} has no Files field", changes_path.display()))?;

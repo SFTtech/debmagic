@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use crate::build::source::SourceSyncMode;
 use crate::driver::config::DriverConfig;
 use crate::sign::SignTool;
+use crate::upstream::orig::OrigTarballConfig;
 use anyhow::{Context, anyhow};
 use config::{Config as ConfigBuilder, File};
 use serde::{Deserialize, Serialize};
@@ -158,6 +159,10 @@ pub struct Config {
     pub build_debug_symbols: bool,
     /// Signing of the resulting `.changes`/`.dsc`.
     pub sign: SignConfig,
+    /// How to fetch the `orig` tarball for source builds.
+    pub orig_tarball: OrigTarballConfig,
+    /// `upstream` command behavior.
+    pub upstream: UpstreamConfig,
     /// Run `debian/rules clean` before building (like `dpkg-buildpackage`
     /// does unless passed `-nc`). Disabled by default because non-incremental
     /// builds already stage a clean source tree and incremental builds preserve
@@ -169,6 +174,23 @@ pub struct Config {
     /// Build for a dpkg architecture variant (e.g. `amd64v3` on Ubuntu),
     /// exported as `DEB_HOST_ARCH_VARIANT` for the build.
     pub host_arch_variant: Option<String>,
+}
+
+/// `[upstream]` section: `upstream` command behavior.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(default)]
+pub struct UpstreamConfig {
+    /// Verify upstream tarball signatures against
+    /// `debian/upstream/signing-key.asc` when it exists.
+    pub verify_signatures: bool,
+}
+
+impl Default for UpstreamConfig {
+    fn default() -> Self {
+        Self {
+            verify_signatures: true,
+        }
+    }
 }
 
 /// `[sign]` section: whether and how to sign the build artifacts.
@@ -183,7 +205,10 @@ pub struct SignConfig {
     /// Which OpenPGP implementation to use.
     pub tool: SignTool,
     /// Custom signing command when `tool` is `custom`, like debsign's `-p`.
-    pub command: Option<String>,
+    pub sign_command: Option<String>,
+    /// Custom verification command when `tool` is `custom`, used for
+    /// upstream tarball signature checks; falls back to `sign_command`.
+    pub verify_command: Option<String>,
     /// Send a desktop notification via `notify-send` just before signing,
     /// so a hardware-key touch prompt isn't missed.
     pub notify: bool,
@@ -199,6 +224,8 @@ impl Default for Config {
             source_sync_mode: SourceSyncMode::default(),
             build_debug_symbols: false,
             sign: SignConfig::default(),
+            orig_tarball: OrigTarballConfig::default(),
+            upstream: UpstreamConfig::default(),
             clean: false,
             shell_on_failure: false,
             host_arch_variant: None,
@@ -330,7 +357,7 @@ mod tests {
         let file = dir.join("sign.toml");
         std::fs::write(
             &file,
-            "[sign]\nsource = true\nkey = \"you@example.com\"\ncommand = \"gpg --foo\"\nnotify = true\n",
+            "[sign]\nsource = true\nkey = \"you@example.com\"\nsign_command = \"gpg --foo\"\nnotify = true\n",
         )?;
         let cfg = Config::new(&[ConfigPath::new(
             ConfigLayer::Explicit,
@@ -340,7 +367,7 @@ mod tests {
         std::fs::remove_dir_all(&dir).ok();
         assert!(cfg.sign.source);
         assert_eq!(cfg.sign.key.as_deref(), Some("you@example.com"));
-        assert_eq!(cfg.sign.command.as_deref(), Some("gpg --foo"));
+        assert_eq!(cfg.sign.sign_command.as_deref(), Some("gpg --foo"));
         assert!(cfg.sign.notify);
         Ok(())
     }

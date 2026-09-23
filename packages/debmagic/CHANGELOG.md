@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `debmagic switch <version>` upstream source fetching and orig tarballs handling with `debmagic upstream` (and caching them)
+
 ## [0.0.1-alpha.8] - 2026-09-20
 
 - publish the Rust crates to crates.io on tagged releases

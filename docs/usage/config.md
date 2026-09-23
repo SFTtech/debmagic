@@ -34,12 +34,13 @@ All keys are optional.
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |
 | `sign.source` | bool | `false` | `--sign` | Sign the resulting `.changes`/`.dsc` (see below). |
 | `sign.key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
-| `sign.tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign.command`). |
-| `sign.command` | string | — | `--sign-command` | Custom signing command for `sign.tool = "custom"`, run without a shell with `{file}`/`{key}`/`{email}` placeholders; writes the clearsigned result to stdout. |
+| `sign.tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign.sign_command`). |
+| `sign.sign_command` | string | — | `--sign-command` | Custom signing command for `sign.tool = "custom"`, run without a shell with `{file}`/`{key}`/`{email}` placeholders; writes the clearsigned result to stdout. |
 | `sign.notify` | bool | `false` | `--sign-notify` | Send a desktop notification via `notify-send` just before signing, so a hardware-key touch prompt isn't missed. |
 | `clean` | bool | `false` | `--clean` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
 | `shell_on_failure` | bool | `false` | `--shell-on-failure` | On build or test failure, drop into an interactive shell in the environment when stdout is a TTY. |
 | `host_arch_variant` | string | — | `--host-arch-variant` | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
+| `upstream.verify_signatures` | bool | `true` | `--no-signature-check` | Verify the upstream tarball's PGP signature against `debian/upstream/signing-key.asc` during `upstream switch` (see [Upstream](upstream.md#signature-verification)). |
 
 ### `source_sync_mode`
 
@@ -55,11 +56,22 @@ All keys are optional.
 |---|---|---|---|---|
 | `source` | bool | `false` | `--sign` | Sign the source package (`.changes`/`.dsc`) after building. |
 | `key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
-| `tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `command`). |
-| `command` | string | — | `--sign-command` | Custom signing command for `tool = "custom"`, like `debsign`'s `-p`. |
+| `tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign_command`). |
+| `sign_command` | string | — | `--sign-command` | Custom signing command for `tool = "custom"`, like `debsign`'s `-p`. |
 | `notify` | bool | `false` | `--sign-notify` | Desktop notification via `notify-send` before signing. |
-
+| `verify_command` | string | — | `--verify-command` (upstream switch) | Custom verification command for `sign.tool = "custom"`, run without a shell with `{file}`/`{signature}`/`{keyring}` placeholders; without `{signature}` the signature path is appended. Falls back to `sign_command`. |
 Signing always runs on the host with your gpg keyring — see [Signing](build.md#signing).
+
+### `orig_tarball`
+
+Where `debmagic build source` fetches the `orig` tarball from when it isn't already in the output dir or next to the source tree — see [Upstream](upstream.md#orig-tarballs-in-builds).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `method` | enum | `launchpad` | `launchpad` (the distro archives via Launchpad's download URLs: Ubuntu first, then Debian), `debian` (Debian's own archive pool, without Launchpad), `ubuntu` (Ubuntu's own archive pool, without Launchpad), `custom` (requires `command`) or `disabled` (never fetch; build only with tarballs found locally). |
+| `command` | string | — | Custom fetch command for `method = "custom"`, run via `sh -c` in the source dir with `{name}`/`{version}`/`{upstream_version}`/`{source_dir}`/`{output_dir}` placeholders. |
+| `debian_mirror` | string | `https://deb.debian.org/debian` | Mirror root for `method = "debian"`, like an apt sources entry; `/pool` is appended. |
+| `ubuntu_mirror` | string | `http://archive.ubuntu.com/ubuntu` | Mirror root for `method = "ubuntu"`; `/pool` is appended. |
 
 ## Example
 

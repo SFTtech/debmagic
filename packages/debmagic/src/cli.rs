@@ -51,8 +51,73 @@ pub enum Commands {
     Sign(SignSubcommandArgs),
     #[command(about = "Inspect the debmagic configuration")]
     Config(ConfigSubcommandArgs),
+    #[command(about = "Query and switch upstream versions")]
+    Upstream(UpstreamSubcommandArgs),
     #[command(about = "Show version information")]
     Version {},
+}
+
+#[derive(Args, Debug)]
+pub struct UpstreamSubcommandArgs {
+    #[command(subcommand)]
+    pub command: UpstreamCommands,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum UpstreamCommands {
+    #[command(
+        about = "List available upstream versions from debian/watch, newest eligible by default"
+    )]
+    List(UpstreamListArgs),
+    #[command(
+        about = "Switch the package tree to an upstream version: fetch, repack, replace the tree (keeping debian/)"
+    )]
+    Switch(UpstreamSwitchArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct UpstreamListArgs {
+    #[arg(
+        long,
+        help = "Show all candidate versions, not just the newest newer than the changelog's"
+    )]
+    pub all: bool,
+
+    #[arg(
+        long,
+        help = "Show the N versions newer than the changelog's, not just the newest"
+    )]
+    pub previous: Option<usize>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
+}
+
+#[derive(Args, Debug)]
+pub struct UpstreamSwitchArgs {
+    #[arg(help = "The upstream version to switch to, or 'latest' for the newest eligible")]
+    pub version: String,
+
+    #[arg(
+        long,
+        help = "Only report what would happen, without touching anything"
+    )]
+    pub dry_run: bool,
+
+    #[arg(
+        long,
+        help = "Skip verifying the upstream tarball signature against debian/upstream/signing-key.asc"
+    )]
+    pub no_signature_check: bool,
+
+    #[arg(
+        long = "verify-command",
+        help = "Custom verification command for sign.tool = 'custom', run without a shell. Supports {file}, {signature} and {keyring} placeholders; without {signature} the signature path is appended. Defaults to the 'sign.verify_command' setting, falling back to 'sign.sign_command'."
+    )]
+    pub verify_command: Option<String>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
 }
 
 #[derive(Args, Debug)]
@@ -246,7 +311,7 @@ pub struct CommonBuildArgs {
 
     #[arg(
         long = "sign-command",
-        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.command' setting in the config file."
+        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
     )]
     pub sign_command: Option<String>,
 
@@ -280,6 +345,12 @@ pub struct CommonBuildArgs {
 
     #[arg(short, long, help = "Output directory for the package artifacts")]
     pub output_dir: Option<PathBuf>,
+
+    #[arg(
+        long = "changes-option",
+        help = "Extra field for the .changes file, passed to dpkg-buildpackage as-is, e.g. --changes-option=-DVcs-Git=https://... (repeatable)"
+    )]
+    pub changes_options: Vec<String>,
 }
 
 #[derive(Args, Debug)]
@@ -416,7 +487,7 @@ pub struct SignSubcommandArgs {
 
     #[arg(
         long = "sign-command",
-        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.command' setting in the config file."
+        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
     )]
     pub sign_command: Option<String>,
 

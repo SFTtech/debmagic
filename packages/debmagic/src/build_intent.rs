@@ -80,7 +80,7 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         config.sign.tool = sign_tool;
     }
     if let Some(sign_command) = input.sign_command {
-        config.sign.command = Some(sign_command);
+        config.sign.sign_command = Some(sign_command);
     }
     if let Some(sign_notify) = input.sign_notify {
         config.sign.notify = sign_notify;

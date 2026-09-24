@@ -21,6 +21,7 @@ pub struct BuildIntentInput {
     pub persistent: Option<bool>,
     pub incremental: Option<bool>,
     pub debug_symbols: Option<bool>,
+    pub test: Option<bool>,
     pub sign: Option<bool>,
     pub sign_key: Option<String>,
     pub sign_tool: Option<SignTool>,
@@ -69,6 +70,9 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
 
     if let Some(debug_symbols) = input.debug_symbols {
         config.build_debug_symbols = debug_symbols;
+    }
+    if let Some(test) = input.test {
+        config.run_test = test;
     }
     if let Some(sign) = input.sign {
         config.sign.source = sign;
@@ -138,6 +142,7 @@ mod tests {
             persistent: None,
             incremental: None,
             debug_symbols: None,
+            test: None,
             sign: None,
             sign_key: None,
             sign_tool: None,

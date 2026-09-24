@@ -218,6 +218,16 @@ fn tracked_entries(src: &Path, paths: &[PathBuf]) -> anyhow::Result<Vec<SourcePa
             );
             continue;
         }
+        // A file deleted from the worktree but still in the index (no
+        // `git rm`) has nothing to stage; the manifest diff removes it from
+        // the build tree.
+        if !full_path.exists() {
+            eprintln!(
+                "debmagic: warning: tracked file {} is missing from the worktree, skipping",
+                path.display()
+            );
+            continue;
+        }
         entries.push(SourcePath {
             path: path.clone(),
             kind: entry_kind(&full_path)?,
@@ -641,6 +651,20 @@ mod tests {
                 .to_string()
                 .contains("requires a clean git worktree")
         );
+
+        fs::remove_dir_all(repo)?;
+        Ok(())
+    }
+
+    #[test]
+    fn tracked_sync_skips_files_deleted_from_worktree() -> anyhow::Result<()> {
+        let repo = git_test_repo()?;
+        fs::remove_file(repo.join("debian/control"))?;
+
+        let entries = source_tree_entries(&repo, SourceSyncMode::Tracked)?;
+        let paths: Vec<&Path> = entries.iter().map(|e| e.path.as_path()).collect();
+        assert!(!paths.contains(&Path::new("debian/control")));
+        assert!(paths.contains(&Path::new("debian")));
 
         fs::remove_dir_all(repo)?;
         Ok(())

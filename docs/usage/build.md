@@ -29,6 +29,7 @@ debmagic build binary --driver lxd \
 | `--sign` | [GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`](#signing) |
 | `--clean` | Run [`debian/rules clean` before building](#cleaning) |
 | `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
+| `--test` | [Run the package's test suite](#running-tests) |
 | `--apt-mirror <url>` | [Mirror URL](#mirror-selection) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
 | `--output-dir <dir>` | Directory to put the resulting build artifacts |
@@ -141,6 +142,17 @@ debmagic build binary --debug-symbols --output-dir /tmp/out
 ```
 
 Or set `build_debug_symbols = true` in the [`debmagic.toml`](config.md).
+
+## Running tests
+
+By default the build runs the package's test suite (the `test` stage of `debian/rules.py`, or `dh_auto_test` via the dh preset).
+Pass `--test=false` to skip it for one invocation, or set `run_test = false` in the [`debmagic.toml`](config.md):
+
+```shell
+debmagic build binary --test=false
+```
+
+This exports `DEB_BUILD_OPTIONS=nocheck`, the standard dpkg mechanism: dpkg-buildpackage propagates it into the build, debmagic's `test` stage is skipped, and classic debhelper packages skip `dh_auto_test` as usual.
 
 ## Signing
 

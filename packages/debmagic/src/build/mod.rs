@@ -32,6 +32,7 @@ struct Build {
     sign_package: bool,
     clean: bool,
     build_debug_symbols: bool,
+    run_test: bool,
     host_arch_variant: Option<String>,
 }
 
@@ -51,6 +52,7 @@ impl Build {
             sign_package: intent.config.sign.source,
             clean: intent.config.clean,
             build_debug_symbols: intent.config.build_debug_symbols,
+            run_test: intent.config.run_test,
             host_arch_variant: intent.config.host_arch_variant.clone(),
         })
     }
@@ -90,6 +92,7 @@ impl Build {
             sign_package: false,
             clean: false,
             build_debug_symbols: false,
+            run_test: true,
             host_arch_variant: None,
         })
     }
@@ -202,14 +205,17 @@ pub fn get_shell_in_build(config: &Config, package: &SourcePackage) -> anyhow::R
     Ok(())
 }
 
-fn deb_build_options(existing: Option<&str>, build_debug_symbols: bool) -> String {
+fn deb_build_options(existing: Option<&str>, build_debug_symbols: bool, run_test: bool) -> String {
     let mut options = existing
         .unwrap_or_default()
         .split_whitespace()
-        .filter(|option| *option != "noautodbgsym")
+        .filter(|option| *option != "noautodbgsym" && *option != "nocheck")
         .collect::<Vec<_>>();
     if !build_debug_symbols {
         options.push("noautodbgsym");
+    }
+    if !run_test {
+        options.push("nocheck");
     }
     options.join(" ")
 }
@@ -331,7 +337,11 @@ pub fn build_package(
             &[],
         )?;
         let inherited_options = std::env::var("DEB_BUILD_OPTIONS").ok();
-        let options = deb_build_options(inherited_options.as_deref(), build.build_debug_symbols);
+        let options = deb_build_options(
+            inherited_options.as_deref(),
+            build.build_debug_symbols,
+            build.run_test,
+        );
         let mut env_add = vec![("DEB_BUILD_OPTIONS", options.as_str())];
         if let Some(variant) = build.host_arch_variant.as_deref() {
             env_add.push(("DEB_HOST_ARCH_VARIANT", variant));
@@ -527,12 +537,28 @@ mod tests {
     #[test]
     fn debug_symbol_option_preserves_other_build_options() {
         assert_eq!(
-            deb_build_options(Some("nocheck parallel=8"), false),
-            "nocheck parallel=8 noautodbgsym"
+            deb_build_options(Some("nocheck parallel=8"), false, true),
+            "parallel=8 noautodbgsym"
         );
         assert_eq!(
-            deb_build_options(Some("nocheck noautodbgsym parallel=8"), true),
-            "nocheck parallel=8"
+            deb_build_options(Some("nocheck noautodbgsym parallel=8"), true, true),
+            "parallel=8"
+        );
+    }
+
+    #[test]
+    fn run_test_option_adds_nocheck() {
+        assert_eq!(
+            deb_build_options(None, false, false),
+            "noautodbgsym nocheck"
+        );
+        assert_eq!(
+            deb_build_options(Some("parallel=8"), true, false),
+            "parallel=8 nocheck"
+        );
+        assert_eq!(
+            deb_build_options(Some("nocheck parallel=8"), true, true),
+            "parallel=8"
         );
     }
 }

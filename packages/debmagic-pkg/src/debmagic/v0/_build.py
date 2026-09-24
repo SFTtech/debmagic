@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import typing
@@ -77,7 +78,16 @@ class Build:
     ) -> None:
         internal_stages = InternalPreset()
 
+        # dpkg-buildpackage exports DEB_BUILD_OPTIONS; nocheck skips the test
+        # stage entirely, like debhelper's dh_auto_test does.
+        skip_tests = "nocheck" in os.environ.get("DEB_BUILD_OPTIONS", "").split()
+
         for stage in BuildStage:
+            if stage is BuildStage.test and skip_tests:
+                print("debmagic: stage test: skipped (DEB_BUILD_OPTIONS=nocheck)")
+                self._mark_stage_done(stage)
+                continue
+
             print(f"debmagic: stage {stage!s}", end="")
 
             # skip done stages

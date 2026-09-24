@@ -157,6 +157,9 @@ pub struct Config {
     pub source_sync_mode: SourceSyncMode,
     /// Always build the automatic `-dbgsym` debug symbol package.
     pub build_debug_symbols: bool,
+    /// Run the package's test suite during the build. When false, exports
+    /// `DEB_BUILD_OPTIONS=nocheck` so dpkg-buildpackage skips tests.
+    pub run_test: bool,
     /// Signing of the resulting `.changes`/`.dsc`.
     pub sign: SignConfig,
     /// How to fetch the `orig` tarball for source builds.
@@ -223,6 +226,7 @@ impl Default for Config {
             incremental: false,
             source_sync_mode: SourceSyncMode::default(),
             build_debug_symbols: false,
+            run_test: true,
             sign: SignConfig::default(),
             orig_tarball: OrigTarballConfig::default(),
             upstream: UpstreamConfig::default(),

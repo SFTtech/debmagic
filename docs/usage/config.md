@@ -32,6 +32,7 @@ All keys are optional.
 | `incremental` | bool | `false` | `--incremental` | Retain the environment and sync only source changes, preserving generated files. Binary-only; implies `persistent`; incompatible with `clean`. |
 | `source_sync_mode` | enum | `tracked` | `--source-sync` | Which source files are staged (see below). |
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |
+| `run_test` | bool | `true` | `--test` | Run the package's test suite during the build; `false` exports `DEB_BUILD_OPTIONS=nocheck` so tests are skipped. |
 | `sign.source` | bool | `false` | `--sign` | Sign the resulting `.changes`/`.dsc` (see below). |
 | `sign.key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
 | `sign.tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign.sign_command`). |

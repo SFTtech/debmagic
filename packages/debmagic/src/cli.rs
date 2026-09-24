@@ -382,6 +382,15 @@ pub struct BinaryTargetArgs {
         help = "Also build the automatic '-dbgsym' debug symbol package"
     )]
     pub debug_symbols: Option<bool>,
+
+    #[arg(
+        long = "test",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        value_parser = clap::value_parser!(bool),
+        help = "Run the package's test suite during the build. Defaults to the 'run_test' setting in the config file (true if unset); --test=false exports DEB_BUILD_OPTIONS=nocheck so dpkg-buildpackage skips tests."
+    )]
+    pub test: Option<bool>,
 }
 
 #[derive(Args, Debug)]

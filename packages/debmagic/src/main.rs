@@ -58,11 +58,21 @@ async fn run() -> anyhow::Result<ExitCode> {
     let current_dir = env::current_dir()?;
     match &cli.command {
         Commands::Build(args) => {
-            let (build_args, debug_symbols, is_source) = match &args.target {
-                BuildTarget::Binary(binary_args) => (&binary_args.build, binary_args.debug_symbols, false),
-                BuildTarget::Source(source_args) => (&source_args.build, None, true),
+            let (build_args, debug_symbols, run_test, is_source) = match &args.target
+            {
+                BuildTarget::Binary(binary_args) => (
+                    &binary_args.build,
+                    binary_args.debug_symbols,
+                    binary_args.test,
+                    false,
+                ),
+                BuildTarget::Source(source_args) => (
+                    &source_args.build,
+                    None,
+                    None,
+                    true,
+                ),
             };
-
             let config_driver = Config::load(
                 build_args.common.source_dir.as_deref(),
                 cli.config.as_deref(),
@@ -90,6 +100,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 persistent: build_args.persistent,
                 incremental: build_args.incremental,
                 debug_symbols,
+                test: run_test,
                 sign: build_args.sign,
                 sign_key: build_args.sign_key.clone(),
                 sign_tool: build_args.sign_tool,

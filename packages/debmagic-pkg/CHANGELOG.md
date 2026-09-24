@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- the `test` build stage is skipped when `DEB_BUILD_OPTIONS` contains `nocheck`
+
 ## [0.0.1-alpha.8] - 2026-09-20
 
 ## [0.0.1-alpha.7] - 2026-08-25

@@ -10,8 +10,8 @@ use serde::{Deserialize, Serialize};
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
     EnvironmentMetadata, IsolationCapability, SignRequest, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
-    run_checked, translate_path_in_container,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint,
+    refresh_apt_index, resource_name, run_checked, translate_path_in_container,
 };
 use crate::subprocess::{self, Capture, CommandResult};
 
@@ -189,7 +189,7 @@ impl DriverLxd {
     /// build-root inode on the host.
     fn mount_is_live(&self) -> anyhow::Result<bool> {
         let container_probe = crate::driver::write_mount_probe(&self.environment.root_dir)?;
-        let result = self.exec_in_container(
+        let output = self.exec_in_container(
             &["test", "-f", &container_probe.to_string_lossy()],
             None,
             true,
@@ -197,7 +197,7 @@ impl DriverLxd {
             Capture::NONE,
         );
         crate::driver::remove_mount_probe(&self.environment.root_dir);
-        Ok(result?.exit_code == 0)
+        Ok(output?.exit_code == 0)
     }
 
     /// Remove and re-add the build-root disk device, re-binding it to the
@@ -384,18 +384,22 @@ impl DriverLxd {
                         &[],
                         Capture::NONE,
                     )
-                    .map_err(|e| {
-                        anyhow::anyhow!("Error waiting for cloud-init to finish: {e}")
-                    })?;
+                    .map_err(|e| anyhow::anyhow!("Error waiting for cloud-init to finish: {e}"))?;
                 }
             }
 
-            // Re-run on every reuse of a persistent container too, so that a
-            // previous invocation that crashed before finishing this setup (or a
-            // long-lived incremental container with an aging package cache)
-            // doesn't leave `apt-get build-dep` unable to resolve anything.
-            base.exec_in_container_checked(&["apt-get", "update"], None, true, &[])
-                .map_err(|e| anyhow::anyhow!("Error running apt-get update in container: {e}"))?;
+            // Fresh containers always update once; reused ones only when the
+            // configured apt update age says their index has gone stale — a
+            // previous invocation that crashed before finishing this setup (or
+            // a long-lived incremental container with an aging package cache)
+            // must not leave `apt-get build-dep` unable to resolve anything.
+            refresh_apt_index(
+                &base,
+                environment,
+                driver_config.apt_update_age,
+                reusing_container,
+            )
+            .map_err(|e| anyhow::anyhow!("Error running apt-get update in container: {e}"))?;
 
             if !reusing_container {
                 // Install the base tooling that stock images don't include.

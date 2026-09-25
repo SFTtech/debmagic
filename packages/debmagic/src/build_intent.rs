@@ -21,6 +21,7 @@ pub struct BuildIntentInput {
     pub persistent: Option<bool>,
     pub incremental: Option<bool>,
     pub debug_symbols: Option<bool>,
+    pub test: Option<bool>,
     pub sign: Option<bool>,
     pub sign_key: Option<String>,
     pub sign_tool: Option<SignTool>,
@@ -70,6 +71,9 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     if let Some(debug_symbols) = input.debug_symbols {
         config.build_debug_symbols = debug_symbols;
     }
+    if let Some(test) = input.test {
+        config.run_test = test;
+    }
     if let Some(sign) = input.sign {
         config.sign.source = sign;
     }
@@ -80,7 +84,7 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         config.sign.tool = sign_tool;
     }
     if let Some(sign_command) = input.sign_command {
-        config.sign.command = Some(sign_command);
+        config.sign.sign_command = Some(sign_command);
     }
     if let Some(sign_notify) = input.sign_notify {
         config.sign.notify = sign_notify;
@@ -138,6 +142,7 @@ mod tests {
             persistent: None,
             incremental: None,
             debug_symbols: None,
+            test: None,
             sign: None,
             sign_key: None,
             sign_tool: None,
@@ -150,6 +155,7 @@ mod tests {
             driver_overrides: DriverOverrides {
                 apt_mirror: None,
                 proposed: None,
+                apt_update_age: None,
                 docker: DriverDockerConfigOverrides { base_image: None },
                 bare: DriverBareConfigOverrides {},
                 lxd: DriverLxdConfigOverrides {

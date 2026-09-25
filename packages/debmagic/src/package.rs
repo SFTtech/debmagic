@@ -1,24 +1,16 @@
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-use anyhow::anyhow;
-use debmagic_common::debian::version::PackageVersion;
+use anyhow::{Context, anyhow, bail};
 use debmagic_common::distro::{Distro, DistroVersion, get_distro_version};
+use debmagic_common::package::{FileReader, Location, SourcePackage};
 
 use crate::driver::DriverType;
 
-/// Who/what is being built, as read from the source tree changelog.
-#[derive(Debug, Clone)]
-pub struct PackageIdentity {
-    pub name: String,
-    pub version: PackageVersion,
-    pub source_dir: PathBuf,
-}
-
-/// A [`PackageIdentity`] plus the chosen [`DistroVersion`] for a build run.
+/// A [`Package`] plus the chosen [`DistroVersion`] for a build run.
 #[derive(Debug, Clone)]
 pub struct PackageTarget {
-    pub identity: PackageIdentity,
+    pub package: SourcePackage,
     pub distro: DistroVersion,
 }
 
@@ -31,54 +23,21 @@ pub enum DistroResolveMode<'a> {
         /// e.g. `driver.docker.base_images` — used in error messages.
         config_key: &'a str,
     },
-    /// Bare: custom suites require a host `/etc/os-release` codename match;
-    /// built-in Debian/Ubuntu also require family (`ID`) match.
-    Bare {
-        /// Usually `/etc/os-release`; overridable in tests.
-        os_release_path: &'a Path,
-    },
+    /// Bare driver: the system running debmagic is used directly.
+    Bare,
 }
 
-struct ChangelogPackage {
-    identity: PackageIdentity,
-    /// Raw distribution names from the changelog entry (not looked up yet).
-    changelog_distros: Vec<String>,
-}
-
-fn read_changelog_package(dir: &Path) -> anyhow::Result<ChangelogPackage> {
-    let changelog_file = dir.join("debian").join("changelog");
-    let changelog_contents = std::fs::read_to_string(changelog_file)?;
-    let changelog: debian_changelog::ChangeLog = changelog_contents.parse()?;
-
-    let first_entry = changelog
-        .into_iter()
-        .next()
-        .ok_or(anyhow!("changelog is empty"))?;
-
-    let name = first_entry
-        .package()
-        .ok_or(anyhow!("empty package name in changelog entry"))?;
-    let version = first_entry
-        .version()
-        .ok_or(anyhow!("no package version in changelog entry"))
-        .map(|v| PackageVersion::new(v.epoch, v.upstream_version, v.debian_revision))?;
-
-    let changelog_distros = first_entry
-        .distributions()
-        .ok_or(anyhow!("no distribution specified in changelog entry"))?;
-
-    Ok(ChangelogPackage {
-        identity: PackageIdentity {
-            name,
-            version,
-            source_dir: dir.to_path_buf(),
-        },
-        changelog_distros,
-    })
-}
-
-pub fn load_package_identity(dir: &Path) -> anyhow::Result<PackageIdentity> {
-    Ok(read_changelog_package(dir)?.identity)
+/// Read a source tree's `debian/` metadata into the common [`Package`] model.
+/// The package reads its files lazily through a closure over the source
+/// dir, so only the metadata actually requested is ever read.
+pub fn load_package(dir: &Path) -> anyhow::Result<SourcePackage> {
+    let source_dir = dir.to_path_buf();
+    let reader_dir = source_dir.clone();
+    let reader: FileReader = Box::new(move |name| {
+        let path = reader_dir.join("debian").join(name);
+        std::fs::read_to_string(&path).with_context(|| format!("failed to read {}", path.display()))
+    });
+    SourcePackage::from_reader(std::rc::Rc::new(reader), Location::SourceDir(source_dir))
 }
 
 /// Resolve package identity and target distro from a source tree.
@@ -92,12 +51,9 @@ pub fn resolve_package_target(
     explicit_distro: Option<&str>,
     mode: DistroResolveMode<'_>,
 ) -> anyhow::Result<PackageTarget> {
-    let parsed = read_changelog_package(dir)?;
-    let distro = select_distro_version(&parsed.changelog_distros, explicit_distro, mode)?;
-    Ok(PackageTarget {
-        identity: parsed.identity,
-        distro,
-    })
+    let package = load_package(dir)?;
+    let distro = select_distro_version(package.distributions(), explicit_distro, mode)?;
+    Ok(PackageTarget { package, distro })
 }
 
 /// Pick the resolve mode for the active Driver from its config maps.
@@ -115,9 +71,7 @@ pub fn distro_resolve_mode_for_driver<'a>(
             base_images: lxd_base_images,
             config_key: "driver.lxd.base_images",
         },
-        DriverType::Bare => DistroResolveMode::Bare {
-            os_release_path: Path::new("/etc/os-release"),
-        },
+        DriverType::Bare => DistroResolveMode::Bare,
     }
 }
 
@@ -200,9 +154,6 @@ fn lookup_distro(name: &str, mode: DistroResolveMode<'_>) -> anyhow::Result<Dist
     }
 
     if let Some(builtin) = get_distro_version(name) {
-        if let DistroResolveMode::Bare { os_release_path } = mode {
-            check_bare_os_release_for_builtin(os_release_path, &builtin)?;
-        }
         return Ok(builtin);
     }
 
@@ -211,60 +162,61 @@ fn lookup_distro(name: &str, mode: DistroResolveMode<'_>) -> anyhow::Result<Dist
             base_images,
             config_key,
         } => custom_distro_from_base_images(name, base_images, config_key),
-        DistroResolveMode::Bare { os_release_path } => {
-            let os = read_os_release(os_release_path)?;
-            let host_codename = os.codename().ok_or_else(|| {
-                anyhow!("host {} has no VERSION_CODENAME", os_release_path.display())
-            })?;
-            if host_codename != name {
-                return Err(anyhow!(
-                    "unknown distro codename '{name}' does not match host VERSION_CODENAME \
-                     '{host_codename}'. For Bare builds of non-Debian/Ubuntu suites, the host \
-                     codename must match; for container Drivers, declare the suite in \
-                     base_images (e.g. driver.docker.base_images = {{ \"yocto:{name}\" = \"<image>\" }})"
-                ));
-            }
-            let family = os
-                .id
-                .ok_or_else(|| anyhow!("host {} has no ID", os_release_path.display()))?;
-            Ok(DistroVersion::custom(Distro::from(family), name))
-        }
+        DistroResolveMode::Bare => Ok(DistroVersion::custom(Distro::from(name), name)),
     }
 }
 
-fn check_bare_os_release_for_builtin(
-    os_release_path: &Path,
+/// A binary build on the Bare driver runs directly on the host, so the host
+/// must provide the target environment: built-in Debian/Ubuntu targets need
+/// a matching `ID` and codename in the host `os-release`, custom suites a
+/// matching codename (their placeholder family is anchored to the host `ID`).
+/// Source builds skip this check — their artifacts are distro-independent.
+pub fn validate_bare_host_target(
     target: &DistroVersion,
-) -> anyhow::Result<()> {
-    if matches!(target.distro, Distro::Custom(_)) {
-        return Ok(());
-    }
+    os_release_path: &Path,
+) -> anyhow::Result<DistroVersion> {
     let os = read_os_release(os_release_path)?;
-    let host_codename = os
-        .codename()
-        .ok_or_else(|| anyhow!("host {} has no VERSION_CODENAME", os_release_path.display()))?;
     let host_id = os
         .id
         .as_deref()
         .ok_or_else(|| anyhow!("host {} has no ID", os_release_path.display()))?;
+    let host_codename = os.codename().ok_or_else(|| {
+        anyhow!(
+            "host {} has no VERSION_CODENAME, cannot verify it for a bare binary build",
+            os_release_path.display()
+        )
+    })?;
+
+    if let Distro::Custom(_) = target.distro {
+        if target.codename != host_codename {
+            bail!(
+                "bare binary build targets custom suite '{}' but host VERSION_CODENAME is \
+                 '{host_codename}'; the host must match, or use a container driver with the \
+                 suite declared in base_images",
+                target.codename
+            );
+        }
+        return Ok(DistroVersion::custom(
+            Distro::from(host_id),
+            &target.codename,
+        ));
+    }
 
     if host_id != target.distro.as_str() {
-        return Err(anyhow!(
-            "Bare build targets {} but host {} ID is '{}'",
+        bail!(
+            "bare binary build targets {} but host {} ID is '{host_id}'",
             target.distro,
-            os_release_path.display(),
-            host_id
-        ));
+            os_release_path.display()
+        );
     }
-    if host_codename != target.codename {
-        return Err(anyhow!(
-            "Bare build targets {} {} but host VERSION_CODENAME is '{}'",
+    if target.codename != host_codename {
+        bail!(
+            "bare binary build targets {} {} but host VERSION_CODENAME is '{host_codename}'",
             target.distro,
-            target.codename,
-            host_codename
-        ));
+            target.codename
+        );
     }
-    Ok(())
+    Ok(target.clone())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -320,48 +272,34 @@ fn select_distro_version(
     explicit_distro: Option<&str>,
     mode: DistroResolveMode<'_>,
 ) -> anyhow::Result<DistroVersion> {
-    match (changelog_distros.len(), explicit_distro) {
-        (0, _) => Err(anyhow!("changelog contains no distributions")),
-        (1, None) => lookup_distro(&changelog_distros[0], mode),
-        (1, Some(explicit)) => {
-            let from_changelog = lookup_distro(&changelog_distros[0], mode)?;
-            let from_explicit = lookup_distro(explicit, mode)?;
-            if from_changelog == from_explicit {
-                Ok(from_explicit)
-            } else {
-                Err(anyhow!(
-                    "explicit distro version '{}' conflicts with distribution specified in changelog '{}'",
-                    explicit,
-                    changelog_distros[0]
-                ))
-            }
-        }
-        (_, None) => Err(anyhow!(
-            "changelog contains multiple distributions ({}), please specify which one to build for with --distro",
+    let Some(explicit) = explicit_distro else {
+        return match changelog_distros {
+            [] => bail!("changelog contains no distributions"),
+            [single] => lookup_distro(single, mode),
+            many => bail!(
+                "changelog contains multiple distributions ({}), please specify which one to build for with --distro",
+                many.join(", ")
+            ),
+        };
+    };
+
+    let resolved = lookup_distro(explicit, mode)?;
+    let in_changelog = changelog_distros
+        .iter()
+        .any(|name| name == explicit || lookup_distro(name, mode).is_ok_and(|d| d == resolved));
+    if !in_changelog {
+        println!(
+            "debmagic: building for '{explicit}', changelog targets {}",
             changelog_distros.join(", ")
-        )),
-        (_, Some(explicit)) => {
-            let from_explicit = lookup_distro(explicit, mode)?;
-            let matched = changelog_distros.iter().any(|name| {
-                lookup_distro(name, mode)
-                    .is_ok_and(|from_changelog| from_changelog == from_explicit)
-            });
-            if matched {
-                Ok(from_explicit)
-            } else {
-                Err(anyhow!(
-                    "explicit distro version '{}' not found in changelog distributions: {}",
-                    explicit,
-                    changelog_distros.join(", ")
-                ))
-            }
-        }
+        );
     }
+    Ok(resolved)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     fn test_package_dir() -> PathBuf {
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -385,13 +323,13 @@ mod tests {
     }
 
     #[test]
-    fn load_package_identity_from_changelog() -> anyhow::Result<()> {
+    fn load_package_from_changelog() -> anyhow::Result<()> {
         let dir = test_package_dir();
-        let identity = load_package_identity(&dir)?;
+        let package = load_package(&dir)?;
 
-        assert_eq!(identity.name, "test-package");
-        assert_eq!(identity.version.version(), "1.2.4-1");
-        assert_eq!(identity.source_dir, dir);
+        assert_eq!(package.name(), "test-package");
+        assert_eq!(package.version().version(), "1.2.4-1");
+        assert_eq!(package.source_dir()?, dir);
         Ok(())
     }
 
@@ -444,7 +382,7 @@ mod tests {
             Some("unstable"),
             docker_mode(&empty),
         )?;
-        assert_eq!(target.identity.name, "test-package");
+        assert_eq!(target.package.name(), "test-package");
         assert_eq!(target.distro.codename, "unstable");
         assert_eq!(target.distro.distro, Distro::Debian);
         Ok(())
@@ -469,17 +407,12 @@ mod tests {
     }
 
     #[test]
-    fn select_distro_version_single_conflicting_explicit() {
+    fn select_distro_version_single_conflicting_explicit_overrides() -> anyhow::Result<()> {
         let empty = HashMap::new();
-        let result =
-            select_distro_version(&["forky".to_string()], Some("duke"), docker_mode(&empty));
-        assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("conflicts with distribution specified in changelog")
-        );
+        let distro =
+            select_distro_version(&["forky".to_string()], Some("duke"), docker_mode(&empty))?;
+        assert_eq!(distro.codename, "duke");
+        Ok(())
     }
 
     #[test]
@@ -512,20 +445,15 @@ mod tests {
     }
 
     #[test]
-    fn select_distro_version_multiple_explicit_invalid() {
+    fn select_distro_version_multiple_explicit_not_in_changelog_overrides() -> anyhow::Result<()> {
         let empty = HashMap::new();
-        let result = select_distro_version(
+        let distro = select_distro_version(
             &["forky".to_string(), "duke".to_string()],
             Some("trixie"),
             docker_mode(&empty),
-        );
-        assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("not found in changelog distributions")
-        );
+        )?;
+        assert_eq!(distro.codename, "trixie");
+        Ok(())
     }
 
     #[test]
@@ -599,42 +527,61 @@ UBUNTU_CODENAME=ignored
     }
 
     #[test]
-    fn bare_builtin_requires_id_and_codename_match() -> anyhow::Result<()> {
+    fn bare_mode_resolves_any_suite_without_host_check() -> anyhow::Result<()> {
+        let distro = select_distro_version(&["trixie".to_string()], None, DistroResolveMode::Bare)?;
+        assert_eq!(distro.distro, Distro::Debian);
+        assert_eq!(distro.codename, "trixie");
+
+        let distro =
+            select_distro_version(&["kirkstone".to_string()], None, DistroResolveMode::Bare)?;
+        assert_eq!(distro.distro, Distro::Custom("kirkstone".into()));
+        assert_eq!(distro.codename, "kirkstone");
+        Ok(())
+    }
+
+    #[test]
+    fn bare_binary_build_requires_id_and_codename_match() -> anyhow::Result<()> {
         let os_path = std::env::temp_dir().join(format!(
             "debmagic-os-release-builtin-{}",
             std::process::id()
         ));
+        let target = DistroVersion::new(Distro::Debian, "trixie", "13");
+
         std::fs::write(&os_path, "ID=debian\nVERSION_CODENAME=bookworm\n")?;
-        let mode = DistroResolveMode::Bare {
-            os_release_path: &os_path,
-        };
-        let err = select_distro_version(&["trixie".to_string()], None, mode).unwrap_err();
-        assert!(err.to_string().contains("VERSION_CODENAME"));
+        let err = validate_bare_host_target(&target, &os_path).unwrap_err();
+        assert!(err.to_string().contains("VERSION_CODENAME is 'bookworm'"));
 
         std::fs::write(&os_path, "ID=ubuntu\nVERSION_CODENAME=trixie\n")?;
-        let err = select_distro_version(&["trixie".to_string()], None, mode).unwrap_err();
+        let err = validate_bare_host_target(&target, &os_path).unwrap_err();
         assert!(err.to_string().contains("ID is 'ubuntu'"));
 
         std::fs::write(&os_path, "ID=debian\nVERSION_CODENAME=trixie\n")?;
-        let distro = select_distro_version(&["trixie".to_string()], None, mode)?;
+        let distro = validate_bare_host_target(&target, &os_path)?;
         assert_eq!(distro.distro, Distro::Debian);
         assert_eq!(distro.codename, "trixie");
+
+        std::fs::write(&os_path, "ID=gentoo\n")?;
+        let err = validate_bare_host_target(&target, &os_path).unwrap_err();
+        assert!(err.to_string().contains("no VERSION_CODENAME"));
         let _ = std::fs::remove_file(&os_path);
         Ok(())
     }
 
     #[test]
-    fn bare_custom_matches_codename_only() -> anyhow::Result<()> {
+    fn bare_binary_build_custom_suite_anchors_family_to_host() -> anyhow::Result<()> {
         let os_path =
             std::env::temp_dir().join(format!("debmagic-os-release-custom-{}", std::process::id()));
+        let target = DistroVersion::custom(Distro::from("kirkstone"), "kirkstone");
+
         std::fs::write(&os_path, "ID=yocto\nVERSION_CODENAME=kirkstone\n")?;
-        let mode = DistroResolveMode::Bare {
-            os_release_path: &os_path,
-        };
-        let distro = select_distro_version(&["kirkstone".to_string()], None, mode)?;
+        let distro = validate_bare_host_target(&target, &os_path)?;
         assert_eq!(distro.distro, Distro::Custom("yocto".into()));
         assert_eq!(distro.codename, "kirkstone");
         assert_eq!(distro.version, "");
+
+        std::fs::write(&os_path, "ID=yocto\nVERSION_CODENAME=other\n")?;
+        let err = validate_bare_host_target(&target, &os_path).unwrap_err();
+        assert!(err.to_string().contains("custom suite 'kirkstone'"));
         let _ = std::fs::remove_file(&os_path);
         Ok(())
     }

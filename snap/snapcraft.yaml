@@ -1,0 +1,34 @@
+name: debmagic
+title: debmagic
+summary: Build and package Debian/Ubuntu packages in isolated environments
+description: |
+  Modern, robust & easy [Debian](https://debian.org)/[Ubuntu](https://ubuntu.com) packaging - while staying backwards compatible.
+
+  Debmagic includes tools for the whole packaging workflow: building, testing, signing, ...
+  It operates in isolated containers, and supports the developer with accessible introspection, debugging and linting.
+license: GPL-2.0-or-later
+source-code: https://github.com/SFTtech/debmagic
+website: https://debmagic.readthedocs.io
+contact: https://github.com/SFTtech/debmagic/issues
+
+type: app
+base: core26
+adopt-info: debmagic
+grade: devel
+confinement: strict
+
+apps:
+  debmagic:
+    command: bin/debmagic
+
+parts:
+  debmagic:
+    plugin: rust
+    source: .
+    rust-path: [packages/debmagic]
+    rust-channel: "none"
+    build-packages: [git, rustc, cargo]
+    override-pull: |
+      craftctl default
+      # store has 32 char limit (-> use +d as dirty and format manually).
+      craftctl set version=$(git describe --tags --always --dirty=+d | sed 's/^v//; s/-\([0-9]*\)-g/.\1+git/')

@@ -10,9 +10,10 @@ use serde::{Deserialize, Serialize};
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
     EnvironmentMetadata, IsolationCapability, SignRequest, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
-    run_checked, translate_path_in_container,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint,
+    refresh_apt_index, resource_name, run_checked, translate_path_in_container,
 };
+use crate::subprocess::{self, Capture, CommandResult};
 
 // The binary name differs between LXD and Incus, but everything else is shared.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -176,6 +177,52 @@ impl DriverLxd {
         )
     }
 
+    fn source_device_name(&self) -> String {
+        resource_name(
+            "debmagic-src",
+            &self.environment.package_name,
+            &self.environment.identifier(),
+        )
+    }
+
+    /// Whether `/debmagic` in the container still resolves to the current
+    /// build-root inode on the host.
+    fn mount_is_live(&self) -> anyhow::Result<bool> {
+        let container_probe = crate::driver::write_mount_probe(&self.environment.root_dir)?;
+        let output = self.exec_in_container(
+            &["test", "-f", &container_probe.to_string_lossy()],
+            None,
+            true,
+            &[],
+            Capture::NONE,
+        );
+        crate::driver::remove_mount_probe(&self.environment.root_dir);
+        Ok(output?.exit_code == 0)
+    }
+
+    /// Remove and re-add the build-root disk device, re-binding it to the
+    /// current inode. Works on a running container.
+    fn remount_build_root(&self) -> anyhow::Result<()> {
+        let device_name = self.source_device_name();
+        // Removing a device that is already absent is not an error here.
+        let _ = self
+            .lxd_cmd("config")
+            .args(["device", "remove", &self.container_name, &device_name])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status();
+        run_checked(
+            self.lxd_cmd("config")
+                .args(["device", "add", &self.container_name, &device_name, "disk"])
+                .arg(format!("source={}", self.environment.root_dir.display()))
+                .arg(format!("path={}", ENVIRONMENT_DIR_IN_CONTAINER)),
+            &format!(
+                "re-mounting build root into {} container",
+                self.variant.binary()
+            ),
+        )
+    }
+
     fn container_environment_fingerprint(&self) -> anyhow::Result<Option<String>> {
         let output = self
             .lxd_cmd("config")
@@ -265,6 +312,17 @@ impl DriverLxd {
                 if !already_running {
                     base.container_start()?;
                 }
+                // The build root may have been deleted and recreated on the
+                // host since the container was created, leaving its disk
+                // device bound to the dead inode.
+                if !base.mount_is_live()? {
+                    base.remount_build_root()?;
+                    anyhow::ensure!(
+                        base.mount_is_live()?,
+                        "build root mount in the {} container is stale and re-mounting did not restore it",
+                        variant.binary()
+                    );
+                }
             } else {
                 if container_entry.is_some() {
                     base.container_delete_force()?;
@@ -300,11 +358,7 @@ impl DriverLxd {
                     )?;
                 }
 
-                let device_name = resource_name(
-                    "debmagic-src",
-                    &environment.package_name,
-                    &environment.identifier(),
-                );
+                let device_name = base.source_device_name();
                 run_checked(
                     base.lxd_cmd("config")
                         .arg("device")
@@ -323,19 +377,29 @@ impl DriverLxd {
                 )?;
 
                 if matches!(environment.distro.distro, Distro::Ubuntu) {
-                    base.exec_in_container(&["cloud-init", "status", "--wait"], None, true, &[])
-                        .map_err(|e| {
-                            anyhow::anyhow!("Error waiting for cloud-init to finish: {e}")
-                        })?;
+                    base.exec_in_container(
+                        &["cloud-init", "status", "--wait"],
+                        None,
+                        true,
+                        &[],
+                        Capture::NONE,
+                    )
+                    .map_err(|e| anyhow::anyhow!("Error waiting for cloud-init to finish: {e}"))?;
                 }
             }
 
-            // Re-run on every reuse of a persistent container too, so that a
-            // previous invocation that crashed before finishing this setup (or a
-            // long-lived incremental container with an aging package cache)
-            // doesn't leave `apt-get build-dep` unable to resolve anything.
-            base.exec_in_container_checked(&["apt-get", "update"], None, true, &[])
-                .map_err(|e| anyhow::anyhow!("Error running apt-get update in container: {e}"))?;
+            // Fresh containers always update once; reused ones only when the
+            // configured apt update age says their index has gone stale — a
+            // previous invocation that crashed before finishing this setup (or
+            // a long-lived incremental container with an aging package cache)
+            // must not leave `apt-get build-dep` unable to resolve anything.
+            refresh_apt_index(
+                &base,
+                environment,
+                driver_config.apt_update_age,
+                reusing_container,
+            )
+            .map_err(|e| anyhow::anyhow!("Error running apt-get update in container: {e}"))?;
 
             if !reusing_container {
                 // Install the base tooling that stock images don't include.
@@ -480,7 +544,8 @@ impl DriverLxd {
         workdir: Option<&Path>,
         as_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<i32> {
+        capture: Capture,
+    ) -> std::io::Result<CommandResult> {
         println!("[{}] $ {}", self.container_name, cmd.join(" "));
 
         let mut exec_cmd = self.lxd_cmd("exec");
@@ -504,8 +569,7 @@ impl DriverLxd {
         exec_cmd.arg("--");
         exec_cmd.args(cmd);
 
-        let status = exec_cmd.status()?;
-        Ok(status.code().unwrap_or(-1))
+        subprocess::command(exec_cmd).capture(capture).run()
     }
 
     fn exec_in_container_checked(
@@ -515,11 +579,12 @@ impl DriverLxd {
         as_root: bool,
         env_add: &[(&str, &str)],
     ) -> std::io::Result<()> {
-        let code = self.exec_in_container(cmd, workdir, as_root, env_add)?;
-        if code != 0 {
+        let result = self.exec_in_container(cmd, workdir, as_root, env_add, Capture::NONE)?;
+        if result.exit_code != 0 {
             return Err(std::io::Error::other(format!(
-                "{} exec failed with exit code {code}",
-                self.variant.binary()
+                "{} exec failed with exit code {}",
+                self.variant.binary(),
+                result.exit_code
             )));
         }
         Ok(())
@@ -541,12 +606,13 @@ impl EnvironmentDriver for DriverLxd {
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<i32> {
+        capture: Capture,
+    ) -> std::io::Result<CommandResult> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
 
-        self.exec_in_container(cmd, Some(&container_path), requires_root, env_add)
+        self.exec_in_container(cmd, Some(&container_path), requires_root, env_add, capture)
     }
 
     fn cleanup(&self) -> anyhow::Result<()> {

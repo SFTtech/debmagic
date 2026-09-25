@@ -33,6 +33,7 @@ The driver *is* the testbed: `autopkgtest` runs with the `null` backend inside t
 | `--distro <name>` | Override the target distro for the test environment (defaults to the prior build's distro from `environment.json`, not the changelog) |
 | `--proposed` | Enable the `<release>-proposed` pocket in the test environment |
 | `--apt-mirror <url>` | Mirror URL (same as [`debmagic build`](build.md)) |
+| `--apt-update-age <when>` | Configure when to run `apt-get update` (same as [`debmagic build`](build.md#apt-update-age)) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
 | `--allow-host-test` | Allow the bare driver, which runs autopkgtest as root on the host |
 | `--shell-on-failure` | On test failure, drop into an interactive shell in the test environment when stdout is a TTY |

@@ -5,6 +5,7 @@ use std::{
 };
 
 use super::intent::TestIntent;
+use crate::build::artifacts::{copy_changes_artifacts, copy_dir_all, find_changes_file};
 use crate::build::source::stage_source_tree;
 use crate::driver::{
     Driver, DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, EnvironmentPurpose,
@@ -12,13 +13,11 @@ use crate::driver::{
     config::{DriverConfig, DriverOverrides},
     create_driver, remove_environment_root,
 };
-use crate::package::PackageIdentity;
-use crate::{
-    build::artifacts::{copy_changes_artifacts, copy_dir_all, find_changes_file},
-    package::load_package_identity,
-};
+use crate::package::load_package;
+use crate::subprocess::Capture;
 use anyhow::{Context, anyhow, bail};
 use debmagic_common::distro::DistroVersion;
+use debmagic_common::package::SourcePackage;
 
 /// autopkgtest(1) exit status values (Debian autopkgtest 6.x).
 /// Some codes combine categories (e.g. 6 = 4|2); treat them as bitmasks where noted.
@@ -44,9 +43,9 @@ struct TestRun {
 
 fn get_build_root_and_identifier(
     temp_build_dir: &Path,
-    identity: &PackageIdentity,
+    package: &SourcePackage,
 ) -> (String, PathBuf) {
-    let package_identifier = format!("{}-{}", identity.name, identity.version);
+    let package_identifier = format!("{}-{}", package.name(), package.version());
     let build_root = temp_build_dir.join(&package_identifier);
     (package_identifier, build_root)
 }
@@ -134,7 +133,7 @@ impl TestRun {
 fn prepare_test_env(
     intent: &TestIntent,
     environment: &Environment,
-    identity: &PackageIdentity,
+    package: &SourcePackage,
     changes_path: &Path,
 ) -> anyhow::Result<TestRun> {
     let test_root = &environment.root_dir;
@@ -150,7 +149,7 @@ fn prepare_test_env(
         environment
             .create_dirs()
             .context("failed to create test directories")?;
-        stage_source_tree(environment, identity, intent.config.source_sync_mode, false)?;
+        stage_source_tree(environment, package, intent.config.source_sync_mode, false)?;
         copy_changes_artifacts(changes_path, &environment.work_dir())?;
         return Ok(test_run);
     }
@@ -160,7 +159,7 @@ fn prepare_test_env(
     environment
         .create_dirs()
         .context("failed to create test directories")?;
-    stage_source_tree(environment, identity, intent.config.source_sync_mode, false)?;
+    stage_source_tree(environment, package, intent.config.source_sync_mode, false)?;
     copy_changes_artifacts(changes_path, &environment.work_dir())?;
 
     let test_run = TestRun::create(environment, &intent.config.driver, &intent.driver_overrides)?;
@@ -216,9 +215,9 @@ fn autopkgtest_isolation_args(isolation: IsolationCapability) -> Vec<&'static st
 }
 
 pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
-    let identity = load_package_identity(&intent.source_dir)?;
+    let package = load_package(&intent.source_dir)?;
     let (package_identifier, build_root) =
-        get_build_root_and_identifier(&intent.config.temp_build_dir, &identity);
+        get_build_root_and_identifier(&intent.config.temp_build_dir, &package);
 
     let changes_path = if let Some(ref explicit) = intent.changes {
         if !explicit.is_file() {
@@ -272,7 +271,7 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
 
     let environment = Environment {
         driver,
-        package_name: identity.name.clone(),
+        package_name: package.name().to_string(),
         package_identifier,
         root_dir: test_root.clone(),
         distro,
@@ -280,7 +279,7 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         purpose: EnvironmentPurpose::Test,
     };
 
-    let test_run = prepare_test_env(intent, &environment, &identity, &changes_path)
+    let test_run = prepare_test_env(intent, &environment, &package, &changes_path)
         .context("failed to prepare test environment")?;
     test_run
         .write_metadata()
@@ -327,10 +326,11 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         "null",
     ]);
 
-    crate::output::stage(&format!("Running autopkgtest for {}", identity.name));
+    crate::output::stage(&format!("Running autopkgtest for {}", package.name()));
     let exit_code = test_run
         .driver
-        .run_command(&autopkgtest_cmd, &work_dir, true, &[])
+        .run_command(&autopkgtest_cmd, &work_dir, true, &[], Capture::NONE)
+        .map(|result| result.exit_code)
         .unwrap_or(-1);
 
     let summary_path = autopkgtest_out_host.join("summary");
@@ -392,21 +392,19 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::package::PackageIdentity;
-    use debmagic_common::debian::version::PackageVersion;
 
-    fn sample_identity() -> PackageIdentity {
-        PackageIdentity {
-            name: "pkg".to_string(),
-            version: PackageVersion::new(None, "1.0".to_string(), Some("1".to_string())),
-            source_dir: PathBuf::from("/src"),
-        }
+    fn sample_package() -> SourcePackage {
+        SourcePackage::from_files([(
+            "changelog",
+            "pkg (1.0-1) unstable; urgency=medium\n\n  * Change.\n\n -- A <a@example.com>  Mon, 01 Jan 2024 00:00:00 +0000\n",
+        )])
+        .unwrap()
     }
 
     #[test]
     fn test_build_root_appends_test_suffix() {
         let (_, build_root) =
-            get_build_root_and_identifier(Path::new("/tmp/debmagic"), &sample_identity());
+            get_build_root_and_identifier(Path::new("/tmp/debmagic"), &sample_package());
         assert_eq!(build_root, PathBuf::from("/tmp/debmagic/pkg-1.0-1"));
         assert_eq!(
             test_build_root(&build_root),

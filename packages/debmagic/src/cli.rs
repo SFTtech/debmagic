@@ -3,6 +3,9 @@ use std::path::PathBuf;
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
 use crate::sign::SignTool;
+use crate::time::RefreshPolicy;
+use crate::upload::UploadMethod;
+use crate::upload::orig::IncludeOrig;
 use clap::{Args, Parser, Subcommand};
 
 /// When to use colored output. Mirrors common CLI conventions; `auto` is the
@@ -49,10 +52,79 @@ pub enum Commands {
     Check(CheckSubcommandArgs),
     #[command(about = "GPG-sign a .changes file (and its .dsc/.buildinfo) on the host")]
     Sign(SignSubcommandArgs),
+    #[command(
+        about = "Upload a .changes file (and everything it references) to an upload target, dput-style"
+    )]
+    Upload(UploadSubcommandArgs),
     #[command(about = "Inspect the debmagic configuration")]
     Config(ConfigSubcommandArgs),
+    #[command(about = "Query and switch upstream versions")]
+    Upstream(UpstreamSubcommandArgs),
     #[command(about = "Show version information")]
     Version {},
+}
+
+#[derive(Args, Debug)]
+pub struct UpstreamSubcommandArgs {
+    #[command(subcommand)]
+    pub command: UpstreamCommands,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum UpstreamCommands {
+    #[command(
+        about = "List available upstream versions from debian/watch, newest eligible by default"
+    )]
+    List(UpstreamListArgs),
+    #[command(
+        about = "Switch the package tree to an upstream version: fetch, repack, replace the tree (keeping debian/)"
+    )]
+    Switch(UpstreamSwitchArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct UpstreamListArgs {
+    #[arg(
+        long,
+        help = "Show all candidate versions, not just the newest newer than the changelog's"
+    )]
+    pub all: bool,
+
+    #[arg(
+        long,
+        help = "Show the N versions newer than the changelog's, not just the newest"
+    )]
+    pub previous: Option<usize>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
+}
+
+#[derive(Args, Debug)]
+pub struct UpstreamSwitchArgs {
+    #[arg(help = "The upstream version to switch to, or 'latest' for the newest eligible")]
+    pub version: String,
+
+    #[arg(
+        long,
+        help = "Only report what would happen, without touching anything"
+    )]
+    pub dry_run: bool,
+
+    #[arg(
+        long,
+        help = "Skip verifying the upstream tarball signature against debian/upstream/signing-key.asc"
+    )]
+    pub no_signature_check: bool,
+
+    #[arg(
+        long = "verify-command",
+        help = "Custom verification command for sign.tool = 'custom', run without a shell. Supports {file}, {signature} and {keyring} placeholders; without {signature} the signature path is appended. Defaults to the 'sign.verify_command' setting, falling back to 'sign.sign_command'."
+    )]
+    pub verify_command: Option<String>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
 }
 
 #[derive(Args, Debug)]
@@ -201,10 +273,23 @@ pub struct CommonBuildArgs {
     pub proposed: Option<bool>,
 
     #[arg(
+        long = "apt-update-age",
+        help = "When a persistent build environment runs 'apt-get update' again: 'now' (every build), 'never' (only on first creation), or a maximum age of the apt index like '1d' (the default), '12h', '30m'. Fresh environments always update once. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
+    )]
+    pub apt_update_age: Option<RefreshPolicy>,
+
+    #[arg(
         long,
-        help = "Select the target distribution version, only required if the debian changelog specifies multiple versions"
+        help = "Target distribution to build for, overriding the changelog's (e.g. 'trixie', 'noble', or a suite declared in base_images). If not provided, use the single distro from changelog."
     )]
     pub distro: Option<String>,
+
+    #[arg(
+        long = "bare-ignore-release",
+        help = "With the bare driver, build even though the target distro differs from the host's os-release. The host must still provide the build dependencies itself."
+    )]
+    pub bare_ignore_release: bool,
+
     #[arg(
         long = "host-arch-variant",
         help = "Build for a dpkg architecture variant (e.g. 'amd64v3' on Ubuntu), like dpkg-buildpackage's --host-arch-variant. Sets DEB_HOST_ARCH_VARIANT for the build, which makes the Ubuntu vendor hook append the variant's -march= flags and names the .changes file after the variant. Defaults to the 'host_arch_variant' setting in the config file."
@@ -239,7 +324,7 @@ pub struct CommonBuildArgs {
 
     #[arg(
         long = "sign-command",
-        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.command' setting in the config file."
+        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
     )]
     pub sign_command: Option<String>,
 
@@ -273,6 +358,18 @@ pub struct CommonBuildArgs {
 
     #[arg(short, long, help = "Output directory for the package artifacts")]
     pub output_dir: Option<PathBuf>,
+
+    #[arg(
+        long = "changes-option",
+        help = "Extra field for the .changes file, passed to dpkg-buildpackage as-is, e.g. --changes-option=-DVcs-Git=https://... (repeatable)"
+    )]
+    pub changes_options: Vec<String>,
+
+    #[arg(
+        long,
+        help = "After building (and signing, if enabled), upload the resulting .changes to this upload target ('name' or 'name:parameter', e.g. 'ppa:user/repo')"
+    )]
+    pub upload: Option<String>,
 }
 
 #[derive(Args, Debug)]
@@ -304,12 +401,29 @@ pub struct BinaryTargetArgs {
         help = "Also build the automatic '-dbgsym' debug symbol package"
     )]
     pub debug_symbols: Option<bool>,
+
+    #[arg(
+        long = "test",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        value_parser = clap::value_parser!(bool),
+        help = "Run the package's test suite during the build. Defaults to the 'run_test' setting in the config file (true if unset); --test=false exports DEB_BUILD_OPTIONS=nocheck so dpkg-buildpackage skips tests."
+    )]
+    pub test: Option<bool>,
 }
 
 #[derive(Args, Debug)]
 pub struct SourceTargetArgs {
     #[command(flatten)]
     pub build: CommonBuildArgs,
+
+    #[arg(
+        long = "include-orig",
+        value_enum,
+        default_value_t = IncludeOrig::Auto,
+        help = "Include the orig tarball in the source upload: 'auto' (default) includes it only when the archive cannot have it yet (a new upstream version or a deltarebase onto Debian), 'yes' always, 'no' never"
+    )]
+    pub include_orig: IncludeOrig,
 }
 
 #[derive(Args, Debug)]
@@ -348,6 +462,12 @@ pub struct TestSubcommandArgs {
         help = "Also enable the '<release>-proposed' pocket in the test environment. Ignored by the bare driver."
     )]
     pub proposed: Option<bool>,
+
+    #[arg(
+        long = "apt-update-age",
+        help = "When a persistent test environment runs 'apt-get update' again: 'now' (every run), 'never' (only on first creation), or a maximum age of the apt index like '1d' (the default), '12h', '30m'. Fresh environments always update once. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
+    )]
+    pub apt_update_age: Option<RefreshPolicy>,
 
     #[arg(
         long,
@@ -409,7 +529,7 @@ pub struct SignSubcommandArgs {
 
     #[arg(
         long = "sign-command",
-        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.command' setting in the config file."
+        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
     )]
     pub sign_command: Option<String>,
 
@@ -436,4 +556,66 @@ pub struct SignSubcommandArgs {
         help = "The .changes, .buildinfo or .dsc file to sign; when omitted, located via debian/changelog and --output"
     )]
     pub file: Option<PathBuf>,
+}
+
+#[derive(Args, Debug)]
+pub struct UploadSubcommandArgs {
+    #[arg(
+        help = "Upload target: 'name' or 'name:parameter' (e.g. 'ppa:user/repo'), resolved from [upload.targets] in the config, merging over the builtins (ppa, ubuntu, debian)"
+    )]
+    pub target: String,
+
+    #[arg(
+        long,
+        value_enum,
+        help = "Upload method: 'scp' or 'sftp'. Overrides the target's 'method'"
+    )]
+    pub method: Option<UploadMethod>,
+
+    #[arg(long, help = "Server to upload to. Overrides the target's 'server'")]
+    pub server: Option<String>,
+
+    #[arg(
+        long,
+        help = "Remote directory to upload into. Overrides the target's 'incoming'"
+    )]
+    pub incoming: Option<String>,
+
+    #[arg(
+        long,
+        help = "Login on the remote server. Overrides the target's 'login'"
+    )]
+    pub login: Option<String>,
+
+    #[arg(long, help = "Remote port. Overrides the target's 'port'")]
+    pub port: Option<u16>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Skip the target's pre_upload_commands"
+    )]
+    pub no_hooks: bool,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Upload even if a successful upload to this target is already recorded"
+    )]
+    pub force: bool,
+
+    #[arg(
+        long = "include-orig",
+        value_enum,
+        help = "Include the orig tarball in the upload: 'auto' includes it only when the archive cannot have it yet (a new upstream version or a deltarebase onto Debian), 'yes' always, 'no' never. Rewrites and re-signs the .changes when it disagrees"
+    )]
+    pub include_orig: Option<IncludeOrig>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
+
+    #[arg(
+        help = "The .changes file to upload; when omitted, located via debian/changelog and the output dir"
+    )]
+    pub changes: Option<PathBuf>,
 }

@@ -1,15 +1,15 @@
+use anyhow::Context;
+use clap::ValueEnum;
+use debmagic_common::distro::DistroVersion;
+use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     fmt::Debug,
     fs, io,
     path::{Path, PathBuf},
     process::Command,
+    time::SystemTime,
 };
-
-use anyhow::Context;
-use clap::ValueEnum;
-use debmagic_common::distro::DistroVersion;
-use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     config::{DriverConfig, DriverOverrides},
@@ -18,6 +18,8 @@ use crate::driver::{
     driver_lxd::{DriverLxd, LxdVariant},
 };
 use crate::sign::SignTool;
+use crate::subprocess::{Capture, CommandResult};
+use crate::time::{RefreshPolicy, iso_timestamp, parse_iso_timestamp};
 
 pub mod config;
 pub mod driver_bare;
@@ -40,6 +42,24 @@ pub fn translate_path_in_container(root_dir: &Path, path_in_source: &Path) -> io
                 "Path is not relative to environment root".to_string(),
             )
         })
+}
+
+const MOUNT_PROBE_FILENAME: &str = ".debmagic-mount-probe";
+
+/// Write a probe file into the build root and return its expected path inside
+/// the container. A container whose `/debmagic` bind mount still points at the
+/// current build-root inode sees the file; one whose mount went stale (the
+/// build root was deleted and recreated on the host) does not.
+pub fn write_mount_probe(root_dir: &Path) -> io::Result<PathBuf> {
+    fs::write(
+        root_dir.join(MOUNT_PROBE_FILENAME),
+        b"debmagic mount probe\n",
+    )?;
+    Ok(Path::new(ENVIRONMENT_DIR_IN_CONTAINER).join(MOUNT_PROBE_FILENAME))
+}
+
+pub fn remove_mount_probe(root_dir: &Path) {
+    let _ = fs::remove_file(root_dir.join(MOUNT_PROBE_FILENAME));
 }
 
 /// Run `cmd`, failing with `context` (and, on a clean but unsuccessful exit,
@@ -83,6 +103,65 @@ pub fn environment_fingerprint(parts: &[&str]) -> String {
         .to_string()
 }
 
+/// Stamp file in a container environment's own filesystem (not the
+/// bind-mounted build root, which `reset_root` wipes) holding the ISO
+/// timestamp of the last successful `apt-get update` there.
+pub const APT_UPDATE_STAMP: &str = "/var/lib/debmagic/apt-updated";
+
+/// Bring a reused environment's apt index up to date under `policy`: check
+/// the stamp file for when `apt-get update` last ran, and when the policy
+/// says it has gone stale (or the stamp is missing), run the update and
+/// record a fresh timestamp. Fresh environments (`reused = false`) always
+/// update once.
+pub fn refresh_apt_index(
+    driver: &dyn EnvironmentDriver,
+    environment: &Environment,
+    policy: RefreshPolicy,
+    reused: bool,
+) -> io::Result<()> {
+    let last_update = if reused {
+        driver
+            .run_command(
+                &["cat", APT_UPDATE_STAMP],
+                &environment.root_dir,
+                true,
+                &[],
+                Capture::STDOUT,
+            )
+            .ok()
+            .filter(|result| result.exit_code == 0)
+            .and_then(|result| result.stdout)
+            .and_then(|stdout| parse_iso_timestamp(&stdout))
+    } else {
+        None
+    };
+    if !apt_update_needed_on_reuse(policy, last_update) {
+        return Ok(());
+    }
+    driver.run_command_checked(&["apt-get", "update"], &environment.root_dir, true, &[])?;
+    let stamp = apt_update_stamp_script(&iso_timestamp());
+    driver.run_command_checked(&["sh", "-ec", &stamp], &environment.root_dir, true, &[])
+}
+
+/// Whether a reused environment needs `apt-get update` again under `policy`.
+/// `last_update` is when its apt index was last refreshed; `None` means
+/// never, which includes a missing stamp file.
+pub fn apt_update_needed_on_reuse(policy: RefreshPolicy, last_update: Option<SystemTime>) -> bool {
+    match policy {
+        RefreshPolicy::Now => true,
+        RefreshPolicy::Never => false,
+        RefreshPolicy::OlderThan(max_age) => last_update
+            .and_then(|last| SystemTime::now().duration_since(last).ok())
+            .is_none_or(|age| age > max_age),
+    }
+}
+
+/// `sh -ec` script storing `timestamp` (from [`crate::time::iso_timestamp`])
+/// in the environment's apt-update stamp file.
+fn apt_update_stamp_script(timestamp: &str) -> String {
+    format!("mkdir -p /var/lib/debmagic && printf %s '{timestamp}' > {APT_UPDATE_STAMP}")
+}
+
 /// Metadata key under which container-based drivers store their container's
 /// name for later reattachment via `create_driver_from_metadata`.
 const CONTAINER_NAME_KEY: &str = "container_name";
@@ -106,6 +185,16 @@ pub enum DriverType {
     Bare,
     Lxd,
     Incus,
+}
+
+impl std::fmt::Display for DriverType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(
+            self.to_possible_value()
+                .expect("no skipped variants")
+                .get_name(),
+        )
+    }
 }
 
 /// Isolation an Environment actually provides for a TestRun.
@@ -201,13 +290,17 @@ pub const APT_MIRROR_SCRIPT: &str = include_str!("scripts/mirror.py");
 pub trait EnvironmentDriver {
     fn driver_metadata(&self) -> HashMap<String, String>;
 
+    /// Run `cmd` in the environment. Streams selected by `capture` are
+    /// collected into the returned [`CommandResult`]; the rest pass
+    /// through to the user's terminal.
     fn run_command(
         &self,
         cmd: &[&str],
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> io::Result<i32>;
+        capture: Capture,
+    ) -> io::Result<CommandResult>;
 
     fn run_command_checked(
         &self,
@@ -216,10 +309,11 @@ pub trait EnvironmentDriver {
         requires_root: bool,
         env_add: &[(&str, &str)],
     ) -> io::Result<()> {
-        let code = self.run_command(cmd, cwd, requires_root, env_add)?;
-        if code != 0 {
+        let result = self.run_command(cmd, cwd, requires_root, env_add, Capture::NONE)?;
+        if result.exit_code != 0 {
             return Err(io::Error::other(format!(
-                "Command failed with exit code: {code}"
+                "Command failed with exit code: {}",
+                result.exit_code
             )));
         }
         Ok(())
@@ -267,11 +361,12 @@ impl EnvironmentDriver for Driver {
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> io::Result<i32> {
+        capture: Capture,
+    ) -> io::Result<CommandResult> {
         match self {
-            Self::Docker(d) => d.run_command(cmd, cwd, requires_root, env_add),
-            Self::Bare(d) => d.run_command(cmd, cwd, requires_root, env_add),
-            Self::Lxd(d) => d.run_command(cmd, cwd, requires_root, env_add),
+            Self::Docker(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
+            Self::Bare(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
+            Self::Lxd(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
         }
     }
 
@@ -342,18 +437,22 @@ pub fn create_driver(
         .as_deref()
         .or(driver_config.apt_mirror.as_deref());
     let proposed = overrides.proposed.unwrap_or(driver_config.proposed);
+    let mut driver_config = driver_config.clone();
+    if let Some(apt_update_age) = overrides.apt_update_age {
+        driver_config.apt_update_age = apt_update_age;
+    }
 
     match environment.driver {
         DriverType::Docker => Ok(Driver::Docker(DriverDocker::create(
             environment,
-            driver_config,
+            &driver_config,
             &overrides.docker,
             apt_mirror,
             proposed,
         )?)),
         DriverType::Bare => Ok(Driver::Bare(DriverBare::create(
             environment,
-            driver_config,
+            &driver_config,
             &overrides.bare,
         ))),
         DriverType::Lxd | DriverType::Incus => {
@@ -364,7 +463,7 @@ pub fn create_driver(
             Ok(Driver::Lxd(DriverLxd::create(
                 variant,
                 environment,
-                driver_config,
+                &driver_config,
                 &overrides.lxd,
                 apt_mirror,
                 proposed,
@@ -477,6 +576,8 @@ mod tests {
 
     use debmagic_common::distro::{Distro, DistroVersion};
     use std::path::PathBuf;
+    use std::time::Duration;
+    use std::time::SystemTime;
 
     #[test]
     fn resource_names_are_valid_stable_and_distinct() {
@@ -553,5 +654,18 @@ mod tests {
         assert!(IsolationCapability::None < IsolationCapability::Container);
         assert!(IsolationCapability::Container < IsolationCapability::Machine);
         assert!(IsolationCapability::None < IsolationCapability::Machine);
+    }
+
+    #[test]
+    fn apt_update_policy_decides_reuse_updates() {
+        let now = SystemTime::now();
+        let hour = Duration::from_secs(60 * 60);
+        let older_than = RefreshPolicy::OlderThan(hour);
+
+        assert!(apt_update_needed_on_reuse(RefreshPolicy::Now, Some(now)));
+        assert!(!apt_update_needed_on_reuse(RefreshPolicy::Never, None));
+        assert!(!apt_update_needed_on_reuse(older_than, Some(now)));
+        assert!(apt_update_needed_on_reuse(older_than, Some(now - 2 * hour)));
+        assert!(apt_update_needed_on_reuse(older_than, None));
     }
 }

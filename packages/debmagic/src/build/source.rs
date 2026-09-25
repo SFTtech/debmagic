@@ -19,7 +19,7 @@ use glob::glob;
 use clap::ValueEnum;
 
 use crate::driver::Environment;
-use crate::package::PackageIdentity;
+use debmagic_common::package::SourcePackage;
 
 /// Selects which files from the source directory are staged into the build tree.
 #[derive(
@@ -214,6 +214,16 @@ fn tracked_entries(src: &Path, paths: &[PathBuf]) -> anyhow::Result<Vec<SourcePa
         if full_path.is_dir() {
             eprintln!(
                 "debmagic: skipping git submodule {}; its contents are not staged",
+                path.display()
+            );
+            continue;
+        }
+        // A file deleted from the worktree but still in the index (no
+        // `git rm`) has nothing to stage; the manifest diff removes it from
+        // the build tree.
+        if !full_path.exists() {
+            eprintln!(
+                "debmagic: warning: tracked file {} is missing from the worktree, skipping",
                 path.display()
             );
             continue;
@@ -432,11 +442,11 @@ fn sync_source_tree(
 
 pub fn stage_source_tree(
     environment: &Environment,
-    identity: &PackageIdentity,
+    package: &SourcePackage,
     source_sync_mode: SourceSyncMode,
     incremental: bool,
 ) -> anyhow::Result<()> {
-    let source_dir = &identity.source_dir;
+    let source_dir = package.source_dir()?;
     if source_sync_mode == SourceSyncMode::Tracked {
         let untracked = git_untracked_paths(source_dir);
         if !untracked.is_empty() {
@@ -450,7 +460,7 @@ pub fn stage_source_tree(
             if untracked.len() > 20 {
                 eprintln!("  ... and {} more", untracked.len() - 20);
             }
-            eprintln!("  git add them or use --source-sync worktree to include them");
+            eprintln!("  `git add` them or use `--source-sync worktree` to include them");
         }
     }
     if incremental && source_manifest_path(environment).is_file() {
@@ -466,17 +476,22 @@ pub fn stage_source_tree(
     let source_parent = source_dir
         .parent()
         .ok_or_else(|| anyhow!("source directory has no parent"))?;
-    let prefix = format!("{}_{}", identity.name, identity.version.upstream_version());
-    copy_glob(
-        source_parent,
-        &format!("{prefix}.orig.tar.*"),
-        &environment.work_dir(),
-    )?;
-    copy_glob(
-        source_parent,
-        &format!("{prefix}.orig-*.tar.*"),
-        &environment.work_dir(),
-    )?;
+    // the naming knowledge lives in debmagic-common; only the glob
+    // wildcard for "any compression" is added here
+    let orig_pattern = format!(
+        "{}*",
+        debmagic_common::changes::orig_prefix(package.name(), package.version().upstream_version())
+    );
+    let component_pattern = format!(
+        "{}*",
+        debmagic_common::changes::component_orig_prefix(
+            package.name(),
+            package.version().upstream_version(),
+            "*"
+        )
+    );
+    copy_glob(source_parent, &orig_pattern, &environment.work_dir())?;
+    copy_glob(source_parent, &component_pattern, &environment.work_dir())?;
     Ok(())
 }
 
@@ -636,6 +651,20 @@ mod tests {
                 .to_string()
                 .contains("requires a clean git worktree")
         );
+
+        fs::remove_dir_all(repo)?;
+        Ok(())
+    }
+
+    #[test]
+    fn tracked_sync_skips_files_deleted_from_worktree() -> anyhow::Result<()> {
+        let repo = git_test_repo()?;
+        fs::remove_file(repo.join("debian/control"))?;
+
+        let entries = source_tree_entries(&repo, SourceSyncMode::Tracked)?;
+        let paths: Vec<&Path> = entries.iter().map(|e| e.path.as_path()).collect();
+        assert!(!paths.contains(&Path::new("debian/control")));
+        assert!(paths.contains(&Path::new("debian")));
 
         fs::remove_dir_all(repo)?;
         Ok(())

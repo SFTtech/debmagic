@@ -12,9 +12,10 @@ use serde::{Deserialize, Serialize};
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
     EnvironmentMetadata, IsolationCapability, SignRequest, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
-    run_checked, translate_path_in_container,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint,
+    refresh_apt_index, resource_name, run_checked, translate_path_in_container,
 };
+use crate::subprocess::{self, Capture, CommandResult};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
@@ -224,6 +225,21 @@ impl DriverDocker {
         )
     }
 
+    /// Whether `/debmagic` in the container still resolves to the current
+    /// build-root inode on the host.
+    fn mount_is_live(&self) -> anyhow::Result<bool> {
+        let container_probe = crate::driver::write_mount_probe(&self.environment.root_dir)?;
+        let output = self.run_command(
+            &["test", "-f", &container_probe.to_string_lossy()],
+            &self.environment.root_dir,
+            true,
+            &[],
+            Capture::NONE,
+        );
+        crate::driver::remove_mount_probe(&self.environment.root_dir);
+        Ok(output?.exit_code == 0)
+    }
+
     pub fn create(
         environment: &Environment,
         driver_config: &DriverConfig,
@@ -270,14 +286,22 @@ impl DriverDocker {
         let environment_matches = container_environment_fingerprint(&driver.container_name)?
             .as_deref()
             == Some(&desired_fingerprint);
-        driver.reused_environment = environment.persistent && environment_matches;
         let created_container;
 
-        if environment.persistent && environment_matches {
-            created_container = false;
+        let mut reuse = environment.persistent && environment_matches;
+        if reuse {
             if !driver.container_is_running()? {
                 driver.container_start()?;
             }
+            if !driver.mount_is_live()? {
+                driver.container_remove_force()?;
+                reuse = false;
+            }
+        }
+
+        if reuse {
+            driver.reused_environment = true;
+            created_container = false;
         } else {
             // The container may not exist; removal errors don't matter here.
             let _ = Command::new("docker")
@@ -319,9 +343,11 @@ impl DriverDocker {
 
         // cwd is the build root (the bind mount itself), not the source dir:
         // create() must not assume the source tree has been staged yet.
-        let update_result = driver
-            .run_command_checked(&["apt-get", "update"], &environment.root_dir, true, &[])
-            .map_err(|error| anyhow!("Error running apt-get update in container: {error}"));
+        // Fresh containers always update once; reused ones only when the
+        // configured apt update age says their index has gone stale.
+        let update_result =
+            refresh_apt_index(&driver, environment, driver_config.apt_update_age, reuse)
+                .map_err(|error| anyhow!("Error running apt-get update in container: {error}"));
         if let Err(error) = update_result {
             if created_container && let Err(cleanup_error) = driver.container_remove_force() {
                 return Err(error.context(format!(
@@ -365,7 +391,8 @@ impl EnvironmentDriver for DriverDocker {
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<i32> {
+        capture: Capture,
+    ) -> std::io::Result<CommandResult> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
@@ -387,8 +414,7 @@ impl EnvironmentDriver for DriverDocker {
         exec_cmd.arg(&self.container_name);
         exec_cmd.args(cmd);
 
-        let status = exec_cmd.status()?;
-        Ok(status.code().unwrap_or(-1))
+        subprocess::command(exec_cmd).capture(capture).run()
     }
 
     fn cleanup(&self) -> anyhow::Result<()> {

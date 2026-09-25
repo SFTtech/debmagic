@@ -1,71 +1,12 @@
-#!/usr/bin/env python3
-import shutil
-import os
+#!/usr/bin/make -f
 
-import sys
-from pathlib import Path
+# This is a self-build shim: All dpkg build targets are forwarded to the
+# real packaging logic in debian/rules.py.
+# d/control `Build-driver: debmagic`` (debmagic-dpkg-driver provides Dpkg::BuildDriver::Debmagic) can directly invoke debian/rules.py once installed.
 
-packages_root = Path(__file__).parent.parent / "packages"
-sys.path.append(str(packages_root / "debmagic-pkg" / "src"))
+PYTHON ?= python3
 
-from debmagic.v0 import package, dh, Build
+%:
+	$(PYTHON) debian/rules.py $@
 
-dhp = dh.Preset(dh_args=["--with", "python3", "--buildsystem=pybuild"])
-
-pkg = package(
-    preset=[dhp],
-)
-
-# TODO: add this section to our rust debmagic module to make setting this up less annoying
-os.environ.update({
-    "PATH": f"/usr/share/cargo/bin:{os.environ['PATH']}",
-    "CARGO": "/usr/share/cargo/bin/cargo",
-    "CARGO_HOME": f"{pkg.base_dir}/debian/cargo_home",
-    "CARGO_REGISTRY": f"{pkg.base_dir}/debian/cargo_registry",
-    "DEB_CARGO_CRATE": f"{pkg.build_env.DEB_SOURCE}_{pkg.build_env.DEB_VERSION_UPSTREAM}"
-})
-
-packages = {
-    "debmagic": ("packages/debmagic", "debmagic"),
-    "debmagic-pkg": ("packages/debmagic-pkg", "debmagic-pkg"),
-}
-
-cargo_lock = Path("Cargo.lock")
-cargo_lock_saved = Path("Cargo.lock.saved")
-
-def dh_auto(build: Build, stage: str, use_destdir: bool = False):
-    for pkg_name, (path, python_pkg_name) in packages.items():
-        destdir = f" --destdir debian/{pkg_name} " if use_destdir else ""
-        build.cmd(f"{stage} -p {pkg_name} --sourcedirectory {path} --buildsystem=pybuild {destdir} -- --name {python_pkg_name}")
-
-@dhp.override
-def dh_auto_configure(build: Build):
-    build.cmd("cargo prepare-debian debian/cargo_registry --link-from-system", cwd="packages/debmagic")
-    dh_auto(build, "dh_auto_configure")
-
-
-@dhp.override
-def dh_auto_build(build: Build):
-    if cargo_lock.is_file():
-        shutil.move(cargo_lock, cargo_lock_saved)
-    dh_auto(build, "dh_auto_build")
-
-
-@dhp.override
-def dh_auto_install(build: Build):
-    dh_auto(build, "dh_auto_install", use_destdir=True)
-
-
-@dhp.override
-def dh_auto_test(build: Build):
-    dh_auto(build, "dh_auto_test")
-
-
-@dhp.override
-def dh_auto_clean(build: Build):
-    if cargo_lock_saved.is_file():
-        shutil.move(cargo_lock_saved, cargo_lock)
-    dh_auto(build, "dh_auto_clean")
-
-
-pkg.pack()
+.PHONY: clean build build-arch build-indep binary binary-arch binary-indep

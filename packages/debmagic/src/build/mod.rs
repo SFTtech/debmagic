@@ -14,11 +14,9 @@ use crate::driver::{
     SignRequest, config::DriverConfig, create_driver, create_driver_from_metadata,
     remove_environment_root,
 };
-use crate::{
-    config::Config,
-    package::{PackageIdentity, PackageTarget},
-};
+use crate::{config::Config, package::PackageTarget};
 use anyhow::{Context, anyhow};
+use debmagic_common::package::SourcePackage;
 
 pub mod artifacts;
 pub mod attach;
@@ -34,6 +32,7 @@ struct Build {
     sign_package: bool,
     clean: bool,
     build_debug_symbols: bool,
+    run_test: bool,
     host_arch_variant: Option<String>,
 }
 
@@ -53,6 +52,7 @@ impl Build {
             sign_package: intent.config.sign.source,
             clean: intent.config.clean,
             build_debug_symbols: intent.config.build_debug_symbols,
+            run_test: intent.config.run_test,
             host_arch_variant: intent.config.host_arch_variant.clone(),
         })
     }
@@ -92,6 +92,7 @@ impl Build {
             sign_package: false,
             clean: false,
             build_debug_symbols: false,
+            run_test: true,
             host_arch_variant: None,
         })
     }
@@ -119,20 +120,20 @@ impl Build {
 
 fn get_build_root_and_identifier(
     temp_build_dir: &Path,
-    identity: &PackageIdentity,
+    package: &SourcePackage,
 ) -> (String, PathBuf) {
-    let package_identifier = format!("{}-{}", identity.name, identity.version);
+    let package_identifier = format!("{}-{}", package.name(), package.version());
     let build_root = temp_build_dir.join(&package_identifier);
     (package_identifier, build_root)
 }
 
 fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<Build> {
     let (package_identifier, build_root) =
-        get_build_root_and_identifier(&intent.config.temp_build_dir, &target.identity);
+        get_build_root_and_identifier(&intent.config.temp_build_dir, &target.package);
 
     let environment = Environment {
         driver: intent.driver,
-        package_name: target.identity.name.clone(),
+        package_name: target.package.name().to_string(),
         package_identifier,
         root_dir: build_root.clone(),
         distro: target.distro.clone(),
@@ -165,7 +166,7 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
             .context("failed to create build directories")?;
         stage_source_tree(
             &environment,
-            &target.identity,
+            &target.package,
             intent.config.source_sync_mode,
             incremental,
         )?;
@@ -182,7 +183,7 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
     crate::output::step("Staging source tree");
     stage_source_tree(
         &environment,
-        &target.identity,
+        &target.package,
         intent.config.source_sync_mode,
         incremental,
     )?;
@@ -190,9 +191,9 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
     Build::create(environment, intent)
 }
 
-pub fn get_shell_in_build(config: &Config, identity: &PackageIdentity) -> anyhow::Result<()> {
+pub fn get_shell_in_build(config: &Config, package: &SourcePackage) -> anyhow::Result<()> {
     let (_package_identifier, build_root) =
-        get_build_root_and_identifier(&config.temp_build_dir, identity);
+        get_build_root_and_identifier(&config.temp_build_dir, package);
     let build = Build::from_build_root(&build_root, &config.driver)?;
     let result = build
         .driver
@@ -204,14 +205,17 @@ pub fn get_shell_in_build(config: &Config, identity: &PackageIdentity) -> anyhow
     Ok(())
 }
 
-fn deb_build_options(existing: Option<&str>, build_debug_symbols: bool) -> String {
+fn deb_build_options(existing: Option<&str>, build_debug_symbols: bool, run_test: bool) -> String {
     let mut options = existing
         .unwrap_or_default()
         .split_whitespace()
-        .filter(|option| *option != "noautodbgsym")
+        .filter(|option| *option != "noautodbgsym" && *option != "nocheck")
         .collect::<Vec<_>>();
     if !build_debug_symbols {
         options.push("noautodbgsym");
+    }
+    if !run_test {
+        options.push("nocheck");
     }
     options.join(" ")
 }
@@ -234,10 +238,11 @@ fn run_build(
 ) -> anyhow::Result<()> {
     let sign = &request.intent.config.sign;
 
-    let package = &request.target.identity;
+    let package = &request.target.package;
     crate::output::stage(&format!(
         "Preparing build environment for {} {}",
-        package.name, package.version
+        package.name(),
+        package.version()
     ));
     let build = prepare_build_env(request.intent, request.target)
         .context("failed to prepare build environment")?;
@@ -267,7 +272,7 @@ fn run_build(
                 changes_file: &changes_file,
                 sign_key: sign.key.as_deref(),
                 sign_tool: sign.tool,
-                sign_command: sign.command.as_deref(),
+                sign_command: sign.sign_command.as_deref(),
                 notify: sign.notify,
                 package: &build.environment.package_identifier,
             })?;
@@ -308,7 +313,11 @@ fn run_build(
     Ok(())
 }
 
-pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<()> {
+pub fn build_package(
+    intent: &BuildIntent,
+    target: &PackageTarget,
+    changes_options: &[String],
+) -> anyhow::Result<()> {
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
         crate::output::stage("Building binary packages");
@@ -328,18 +337,32 @@ pub fn build_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
             &[],
         )?;
         let inherited_options = std::env::var("DEB_BUILD_OPTIONS").ok();
-        let options = deb_build_options(inherited_options.as_deref(), build.build_debug_symbols);
+        let options = deb_build_options(
+            inherited_options.as_deref(),
+            build.build_debug_symbols,
+            build.run_test,
+        );
         let mut env_add = vec![("DEB_BUILD_OPTIONS", options.as_str())];
         if let Some(variant) = build.host_arch_variant.as_deref() {
             env_add.push(("DEB_HOST_ARCH_VARIANT", variant));
         }
-        let mut dpkg_buildpackage_args = vec!["dpkg-buildpackage", "-us", "-uc", "-ui"];
+        let mut dpkg_buildpackage_args: Vec<String> = vec![
+            "dpkg-buildpackage".into(),
+            "-us".into(),
+            "-uc".into(),
+            "-ui".into(),
+        ];
         if !build.clean {
             // Non-incremental builds already stage a clean source tree, while
             // incremental builds preserve their outputs intentionally.
-            dpkg_buildpackage_args.push("-nc");
+            dpkg_buildpackage_args.push("-nc".into());
         }
-        dpkg_buildpackage_args.push("-b");
+        for option in changes_options {
+            dpkg_buildpackage_args.push(format!("--changes-option={option}"));
+        }
+        dpkg_buildpackage_args.push("-b".into());
+        let dpkg_buildpackage_args: Vec<&str> =
+            dpkg_buildpackage_args.iter().map(String::as_str).collect();
         build.driver.run_command_checked(
             &dpkg_buildpackage_args,
             &build.environment.staged_source_dir(),
@@ -374,19 +397,80 @@ fn check_dpkg_buildpackage_available() -> anyhow::Result<()> {
     )
 }
 
+/// Make `source` available at `destination` without copying bytes when
+/// avoidable: hardlink (same filesystem), then symlink, then copy as the
+/// last resort. dpkg-source only reads the file, so a link is fine.
+fn stage_file(source: &Path, destination: &Path) -> anyhow::Result<()> {
+    if destination.exists() {
+        std::fs::remove_file(destination)
+            .with_context(|| format!("failed to remove {}", destination.display()))?;
+    }
+    if std::fs::hard_link(source, destination).is_ok() {
+        return Ok(());
+    }
+    if std::os::unix::fs::symlink(source, destination).is_ok() {
+        return Ok(());
+    }
+    fs::copy(source, destination).map(|_| ()).with_context(|| {
+        format!(
+            "failed to stage {} into the build environment",
+            source.display()
+        )
+    })
+}
+
 /// Build a `.dsc` + tarball + `.buildinfo` + `.changes` source package.
 ///
 /// If `config.clean` is set, build-dependencies are installed before
 /// `dpkg-buildpackage` runs `debian/rules clean` once.
-pub fn build_source_package(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<()> {
+/// `changes_options` are extra `--changes-option=...` arguments passed
+/// to `dpkg-buildpackage` verbatim, e.g.
+/// `--changes-option=-DVcs-Git=https://...` for git-ubuntu's
+/// upload/git correlation.
+pub async fn build_source_package(
+    intent: &BuildIntent,
+    target: &PackageTarget,
+    changes_options: &[String],
+    include_orig: bool,
+) -> anyhow::Result<()> {
     if intent.driver == DriverType::Bare {
         check_dpkg_buildpackage_available()?;
     }
+
+    // dpkg-source looks for the orig tarball in the parent of the source
+    // dir it builds, which inside the environment is the work dir.
+    let orig_fetch_dir = intent
+        .config
+        .temp_build_dir
+        .join("orig")
+        .join(target.package.name());
+    let orig_tarball = crate::upstream::orig::fetch_orig_tarball(
+        &intent.config.orig_tarball,
+        &target.package,
+        &orig_fetch_dir,
+    )
+    .await
+    .with_context(|| {
+        format!(
+            "fetching the orig tarball for {} {} failed",
+            target.package.name(),
+            target.package.version().upstream_version()
+        )
+    })?;
 
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
         crate::output::stage("Building source package");
         let staged_source_dir = build.environment.staged_source_dir();
+        if let Some(tarball) = &orig_tarball {
+            // the work dir is the staged source dir's parent, which is where
+            // dpkg-source looks for the tarball
+            let destination = build
+                .environment
+                .work_dir()
+                .join(tarball.file_name().expect("orig tarball has a file name"));
+            stage_file(tarball, &destination)?;
+        }
         if build.clean {
             build.driver.run_command_checked(
                 &["apt-get", "-y", "build-dep", "."],
@@ -395,10 +479,27 @@ pub fn build_source_package(intent: &BuildIntent, target: &PackageTarget) -> any
                 &[],
             )?;
         }
-        let mut args = vec!["dpkg-buildpackage", "-S", "-d", "-us", "-uc", "-ui"];
+        let mut args: Vec<String> = vec![
+            "dpkg-buildpackage".into(),
+            "-S".into(),
+            "-d".into(),
+            "-us".into(),
+            "-uc".into(),
+            "-ui".into(),
+        ];
         if !build.clean {
-            args.push("-nc");
+            args.push("-nc".into());
         }
+        // -sa/-sd decide whether the .changes references the orig tarball
+        args.push(if include_orig {
+            "-sa".into()
+        } else {
+            "-sd".into()
+        });
+        for option in changes_options {
+            args.push(format!("--changes-option={option}"));
+        }
+        let args: Vec<&str> = args.iter().map(String::as_str).collect();
         build
             .driver
             .run_command_checked(&args, &staged_source_dir, false, &[])?;
@@ -412,14 +513,52 @@ mod tests {
     use super::*;
 
     #[test]
+    fn stage_file_prefers_hardlink() {
+        let dir = std::env::temp_dir().join(format!("debmagic-stage-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let source = dir.join("src.tar");
+        std::fs::write(&source, "data").unwrap();
+        let destination = dir.join("dest.tar");
+        stage_file(&source, &destination).unwrap();
+        // same filesystem: a hardlink shares the inode
+        assert_eq!(
+            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&source).unwrap()),
+            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&destination).unwrap())
+        );
+        // restaging replaces the destination
+        stage_file(&source, &destination).unwrap();
+        assert_eq!(
+            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&source).unwrap()),
+            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&destination).unwrap())
+        );
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
     fn debug_symbol_option_preserves_other_build_options() {
         assert_eq!(
-            deb_build_options(Some("nocheck parallel=8"), false),
-            "nocheck parallel=8 noautodbgsym"
+            deb_build_options(Some("nocheck parallel=8"), false, true),
+            "parallel=8 noautodbgsym"
         );
         assert_eq!(
-            deb_build_options(Some("nocheck noautodbgsym parallel=8"), true),
-            "nocheck parallel=8"
+            deb_build_options(Some("nocheck noautodbgsym parallel=8"), true, true),
+            "parallel=8"
+        );
+    }
+
+    #[test]
+    fn run_test_option_adds_nocheck() {
+        assert_eq!(
+            deb_build_options(None, false, false),
+            "noautodbgsym nocheck"
+        );
+        assert_eq!(
+            deb_build_options(Some("parallel=8"), true, false),
+            "parallel=8 nocheck"
+        );
+        assert_eq!(
+            deb_build_options(Some("nocheck parallel=8"), true, true),
+            "parallel=8"
         );
     }
 }

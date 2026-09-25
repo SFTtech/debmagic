@@ -223,7 +223,7 @@ fn tracked_entries(src: &Path, paths: &[PathBuf]) -> anyhow::Result<Vec<SourcePa
         // the build tree.
         if !full_path.exists() {
             eprintln!(
-                "debmagic: warning: tracked file {} is missing from the worktree, skipping",
+                "debmagic: warning: tracked file {} is missing from the worktree, building without it",
                 path.display()
             );
             continue;

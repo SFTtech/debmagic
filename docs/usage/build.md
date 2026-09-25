@@ -31,6 +31,7 @@ debmagic build binary --driver lxd \
 | `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
 | `--test` | [Run the package's test suite](#running-tests) |
 | `--apt-mirror <url>` | [Mirror URL](#mirror-selection) |
+| `--apt-update-age <when>` | [When a persistent environment re-runs `apt-get update`](#apt-update-age) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
 | `--output-dir <dir>` | Directory to put the resulting build artifacts |
 | `--shell-on-failure` | On build failure, drop into an interactive shell in the build environment when stdout is a TTY |
@@ -75,6 +76,20 @@ debmagic build binary --driver lxd --apt-mirror http://<mirror-host>/ubuntu ...
 ```
 
 You can persistently set this flag in  `.config/debmagic/config.toml`.
+
+## Apt update age
+
+Fresh environments always run `apt-get update` once on creation.
+When a persistent environment is reused, `--apt-update-age` decides whether the apt index is refreshed again:
+
+| Value | Behavior |
+|---|---|
+| `now` | Update before every build |
+| `never` | Only the initial update on creation |
+| `1d` (default), `12h`, `30m`, … | Update again once the last one is older than this |
+
+The default `1d` matches a typical developer machine's daily apt refresh: repeated builds stay fast, while the index can't go arbitrarily stale.
+Persist the setting as `apt_update_age = "1d"` in [`debmagic.toml`](config.md).
 
 ## Source file staging
 

@@ -12,8 +12,8 @@ use serde::{Deserialize, Serialize};
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
     EnvironmentMetadata, IsolationCapability, SignRequest, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
-    run_checked, translate_path_in_container,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint,
+    refresh_apt_index, resource_name, run_checked, translate_path_in_container,
 };
 use crate::subprocess::{self, Capture, CommandResult};
 
@@ -229,7 +229,7 @@ impl DriverDocker {
     /// build-root inode on the host.
     fn mount_is_live(&self) -> anyhow::Result<bool> {
         let container_probe = crate::driver::write_mount_probe(&self.environment.root_dir)?;
-        let result = self.run_command(
+        let output = self.run_command(
             &["test", "-f", &container_probe.to_string_lossy()],
             &self.environment.root_dir,
             true,
@@ -237,7 +237,7 @@ impl DriverDocker {
             Capture::NONE,
         );
         crate::driver::remove_mount_probe(&self.environment.root_dir);
-        Ok(result?.exit_code == 0)
+        Ok(output?.exit_code == 0)
     }
 
     pub fn create(
@@ -343,9 +343,11 @@ impl DriverDocker {
 
         // cwd is the build root (the bind mount itself), not the source dir:
         // create() must not assume the source tree has been staged yet.
-        let update_result = driver
-            .run_command_checked(&["apt-get", "update"], &environment.root_dir, true, &[])
-            .map_err(|error| anyhow!("Error running apt-get update in container: {error}"));
+        // Fresh containers always update once; reused ones only when the
+        // configured apt update age says their index has gone stale.
+        let update_result =
+            refresh_apt_index(&driver, environment, driver_config.apt_update_age, reuse)
+                .map_err(|error| anyhow!("Error running apt-get update in container: {error}"));
         if let Err(error) = update_result {
             if created_container && let Err(cleanup_error) = driver.container_remove_force() {
                 return Err(error.context(format!(

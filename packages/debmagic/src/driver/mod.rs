@@ -1,15 +1,15 @@
+use anyhow::Context;
+use clap::ValueEnum;
+use debmagic_common::distro::DistroVersion;
+use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     fmt::Debug,
     fs, io,
     path::{Path, PathBuf},
     process::Command,
+    time::SystemTime,
 };
-
-use anyhow::Context;
-use clap::ValueEnum;
-use debmagic_common::distro::DistroVersion;
-use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     config::{DriverConfig, DriverOverrides},
@@ -19,6 +19,7 @@ use crate::driver::{
 };
 use crate::sign::SignTool;
 use crate::subprocess::{Capture, CommandResult};
+use crate::time::{RefreshPolicy, iso_timestamp, parse_iso_timestamp};
 
 pub mod config;
 pub mod driver_bare;
@@ -100,6 +101,65 @@ pub fn environment_fingerprint(parts: &[&str]) -> String {
     uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, parts.join("\0").as_bytes())
         .simple()
         .to_string()
+}
+
+/// Stamp file in a container environment's own filesystem (not the
+/// bind-mounted build root, which `reset_root` wipes) holding the ISO
+/// timestamp of the last successful `apt-get update` there.
+pub const APT_UPDATE_STAMP: &str = "/var/lib/debmagic/apt-updated";
+
+/// Bring a reused environment's apt index up to date under `policy`: check
+/// the stamp file for when `apt-get update` last ran, and when the policy
+/// says it has gone stale (or the stamp is missing), run the update and
+/// record a fresh timestamp. Fresh environments (`reused = false`) always
+/// update once.
+pub fn refresh_apt_index(
+    driver: &dyn EnvironmentDriver,
+    environment: &Environment,
+    policy: RefreshPolicy,
+    reused: bool,
+) -> io::Result<()> {
+    let last_update = if reused {
+        driver
+            .run_command(
+                &["cat", APT_UPDATE_STAMP],
+                &environment.root_dir,
+                true,
+                &[],
+                Capture::STDOUT,
+            )
+            .ok()
+            .filter(|result| result.exit_code == 0)
+            .and_then(|result| result.stdout)
+            .and_then(|stdout| parse_iso_timestamp(&stdout))
+    } else {
+        None
+    };
+    if !apt_update_needed_on_reuse(policy, last_update) {
+        return Ok(());
+    }
+    driver.run_command_checked(&["apt-get", "update"], &environment.root_dir, true, &[])?;
+    let stamp = apt_update_stamp_script(&iso_timestamp());
+    driver.run_command_checked(&["sh", "-ec", &stamp], &environment.root_dir, true, &[])
+}
+
+/// Whether a reused environment needs `apt-get update` again under `policy`.
+/// `last_update` is when its apt index was last refreshed; `None` means
+/// never, which includes a missing stamp file.
+pub fn apt_update_needed_on_reuse(policy: RefreshPolicy, last_update: Option<SystemTime>) -> bool {
+    match policy {
+        RefreshPolicy::Now => true,
+        RefreshPolicy::Never => false,
+        RefreshPolicy::OlderThan(max_age) => last_update
+            .and_then(|last| SystemTime::now().duration_since(last).ok())
+            .is_none_or(|age| age > max_age),
+    }
+}
+
+/// `sh -ec` script storing `timestamp` (from [`crate::time::iso_timestamp`])
+/// in the environment's apt-update stamp file.
+fn apt_update_stamp_script(timestamp: &str) -> String {
+    format!("mkdir -p /var/lib/debmagic && printf %s '{timestamp}' > {APT_UPDATE_STAMP}")
 }
 
 /// Metadata key under which container-based drivers store their container's
@@ -377,18 +437,22 @@ pub fn create_driver(
         .as_deref()
         .or(driver_config.apt_mirror.as_deref());
     let proposed = overrides.proposed.unwrap_or(driver_config.proposed);
+    let mut driver_config = driver_config.clone();
+    if let Some(apt_update_age) = overrides.apt_update_age {
+        driver_config.apt_update_age = apt_update_age;
+    }
 
     match environment.driver {
         DriverType::Docker => Ok(Driver::Docker(DriverDocker::create(
             environment,
-            driver_config,
+            &driver_config,
             &overrides.docker,
             apt_mirror,
             proposed,
         )?)),
         DriverType::Bare => Ok(Driver::Bare(DriverBare::create(
             environment,
-            driver_config,
+            &driver_config,
             &overrides.bare,
         ))),
         DriverType::Lxd | DriverType::Incus => {
@@ -399,7 +463,7 @@ pub fn create_driver(
             Ok(Driver::Lxd(DriverLxd::create(
                 variant,
                 environment,
-                driver_config,
+                &driver_config,
                 &overrides.lxd,
                 apt_mirror,
                 proposed,
@@ -512,6 +576,8 @@ mod tests {
 
     use debmagic_common::distro::{Distro, DistroVersion};
     use std::path::PathBuf;
+    use std::time::Duration;
+    use std::time::SystemTime;
 
     #[test]
     fn resource_names_are_valid_stable_and_distinct() {
@@ -588,5 +654,18 @@ mod tests {
         assert!(IsolationCapability::None < IsolationCapability::Container);
         assert!(IsolationCapability::Container < IsolationCapability::Machine);
         assert!(IsolationCapability::None < IsolationCapability::Machine);
+    }
+
+    #[test]
+    fn apt_update_policy_decides_reuse_updates() {
+        let now = SystemTime::now();
+        let hour = Duration::from_secs(60 * 60);
+        let older_than = RefreshPolicy::OlderThan(hour);
+
+        assert!(apt_update_needed_on_reuse(RefreshPolicy::Now, Some(now)));
+        assert!(!apt_update_needed_on_reuse(RefreshPolicy::Never, None));
+        assert!(!apt_update_needed_on_reuse(older_than, Some(now)));
+        assert!(apt_update_needed_on_reuse(older_than, Some(now - 2 * hour)));
+        assert!(apt_update_needed_on_reuse(older_than, None));
     }
 }

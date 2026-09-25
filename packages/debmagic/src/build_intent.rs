@@ -155,6 +155,7 @@ mod tests {
             driver_overrides: DriverOverrides {
                 apt_mirror: None,
                 proposed: None,
+                apt_update_age: None,
                 docker: DriverDockerConfigOverrides { base_image: None },
                 bare: DriverBareConfigOverrides {},
                 lxd: DriverLxdConfigOverrides {

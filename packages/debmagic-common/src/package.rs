@@ -115,6 +115,11 @@ impl SourcePackage {
         self.source_format.is_native()
     }
 
+    /// The source package format from `debian/source/format`.
+    pub fn source_format(&self) -> SourceFormat {
+        self.source_format
+    }
+
     /// Where the package's files live; the source tree dir for a
     /// package opened from disk.
     pub fn location(&self) -> &Location {

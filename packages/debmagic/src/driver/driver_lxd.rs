@@ -13,6 +13,7 @@ use crate::driver::{
     container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
     run_checked, translate_path_in_container,
 };
+use crate::subprocess::{self, Capture, CommandResult};
 
 // The binary name differs between LXD and Incus, but everything else is shared.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -188,14 +189,15 @@ impl DriverLxd {
     /// build-root inode on the host.
     fn mount_is_live(&self) -> anyhow::Result<bool> {
         let container_probe = crate::driver::write_mount_probe(&self.environment.root_dir)?;
-        let code = self.exec_in_container(
+        let result = self.exec_in_container(
             &["test", "-f", &container_probe.to_string_lossy()],
             None,
             true,
             &[],
+            Capture::NONE,
         );
         crate::driver::remove_mount_probe(&self.environment.root_dir);
-        Ok(code? == 0)
+        Ok(result?.exit_code == 0)
     }
 
     /// Remove and re-add the build-root disk device, re-binding it to the
@@ -375,10 +377,16 @@ impl DriverLxd {
                 )?;
 
                 if matches!(environment.distro.distro, Distro::Ubuntu) {
-                    base.exec_in_container(&["cloud-init", "status", "--wait"], None, true, &[])
-                        .map_err(|e| {
-                            anyhow::anyhow!("Error waiting for cloud-init to finish: {e}")
-                        })?;
+                    base.exec_in_container(
+                        &["cloud-init", "status", "--wait"],
+                        None,
+                        true,
+                        &[],
+                        Capture::NONE,
+                    )
+                    .map_err(|e| {
+                        anyhow::anyhow!("Error waiting for cloud-init to finish: {e}")
+                    })?;
                 }
             }
 
@@ -532,7 +540,8 @@ impl DriverLxd {
         workdir: Option<&Path>,
         as_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<i32> {
+        capture: Capture,
+    ) -> std::io::Result<CommandResult> {
         println!("[{}] $ {}", self.container_name, cmd.join(" "));
 
         let mut exec_cmd = self.lxd_cmd("exec");
@@ -556,8 +565,7 @@ impl DriverLxd {
         exec_cmd.arg("--");
         exec_cmd.args(cmd);
 
-        let status = exec_cmd.status()?;
-        Ok(status.code().unwrap_or(-1))
+        subprocess::command(exec_cmd).capture(capture).run()
     }
 
     fn exec_in_container_checked(
@@ -567,11 +575,12 @@ impl DriverLxd {
         as_root: bool,
         env_add: &[(&str, &str)],
     ) -> std::io::Result<()> {
-        let code = self.exec_in_container(cmd, workdir, as_root, env_add)?;
-        if code != 0 {
+        let result = self.exec_in_container(cmd, workdir, as_root, env_add, Capture::NONE)?;
+        if result.exit_code != 0 {
             return Err(std::io::Error::other(format!(
-                "{} exec failed with exit code {code}",
-                self.variant.binary()
+                "{} exec failed with exit code {}",
+                self.variant.binary(),
+                result.exit_code
             )));
         }
         Ok(())
@@ -593,12 +602,13 @@ impl EnvironmentDriver for DriverLxd {
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<i32> {
+        capture: Capture,
+    ) -> std::io::Result<CommandResult> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
 
-        self.exec_in_container(cmd, Some(&container_path), requires_root, env_add)
+        self.exec_in_container(cmd, Some(&container_path), requires_root, env_add, capture)
     }
 
     fn cleanup(&self) -> anyhow::Result<()> {

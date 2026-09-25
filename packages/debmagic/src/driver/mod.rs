@@ -18,6 +18,7 @@ use crate::driver::{
     driver_lxd::{DriverLxd, LxdVariant},
 };
 use crate::sign::SignTool;
+use crate::subprocess::{Capture, CommandResult};
 
 pub mod config;
 pub mod driver_bare;
@@ -229,13 +230,17 @@ pub const APT_MIRROR_SCRIPT: &str = include_str!("scripts/mirror.py");
 pub trait EnvironmentDriver {
     fn driver_metadata(&self) -> HashMap<String, String>;
 
+    /// Run `cmd` in the environment. Streams selected by `capture` are
+    /// collected into the returned [`CommandResult`]; the rest pass
+    /// through to the user's terminal.
     fn run_command(
         &self,
         cmd: &[&str],
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> io::Result<i32>;
+        capture: Capture,
+    ) -> io::Result<CommandResult>;
 
     fn run_command_checked(
         &self,
@@ -244,10 +249,11 @@ pub trait EnvironmentDriver {
         requires_root: bool,
         env_add: &[(&str, &str)],
     ) -> io::Result<()> {
-        let code = self.run_command(cmd, cwd, requires_root, env_add)?;
-        if code != 0 {
+        let result = self.run_command(cmd, cwd, requires_root, env_add, Capture::NONE)?;
+        if result.exit_code != 0 {
             return Err(io::Error::other(format!(
-                "Command failed with exit code: {code}"
+                "Command failed with exit code: {}",
+                result.exit_code
             )));
         }
         Ok(())
@@ -295,11 +301,12 @@ impl EnvironmentDriver for Driver {
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> io::Result<i32> {
+        capture: Capture,
+    ) -> io::Result<CommandResult> {
         match self {
-            Self::Docker(d) => d.run_command(cmd, cwd, requires_root, env_add),
-            Self::Bare(d) => d.run_command(cmd, cwd, requires_root, env_add),
-            Self::Lxd(d) => d.run_command(cmd, cwd, requires_root, env_add),
+            Self::Docker(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
+            Self::Bare(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
+            Self::Lxd(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
         }
     }
 

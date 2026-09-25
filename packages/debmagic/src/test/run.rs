@@ -14,6 +14,7 @@ use crate::driver::{
     create_driver, remove_environment_root,
 };
 use crate::package::load_package;
+use crate::subprocess::Capture;
 use anyhow::{Context, anyhow, bail};
 use debmagic_common::distro::DistroVersion;
 use debmagic_common::package::SourcePackage;
@@ -328,7 +329,8 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     crate::output::stage(&format!("Running autopkgtest for {}", package.name()));
     let exit_code = test_run
         .driver
-        .run_command(&autopkgtest_cmd, &work_dir, true, &[])
+        .run_command(&autopkgtest_cmd, &work_dir, true, &[], Capture::NONE)
+        .map(|result| result.exit_code)
         .unwrap_or(-1);
 
     let summary_path = autopkgtest_out_host.join("summary");

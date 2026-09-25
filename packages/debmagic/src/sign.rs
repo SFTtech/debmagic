@@ -8,7 +8,7 @@
 
 use std::{
     path::{Path, PathBuf},
-    process::{Command, Stdio},
+    process::Command,
 };
 
 use anyhow::{Context, bail};
@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 use crate::control::{child_filename, fixup_checksums, read_control, write_control};
 use crate::driver::SignRequest;
 use crate::output::notify_send_bell;
+use crate::subprocess::Capture;
 
 /// Which OpenPGP implementation performs the signing.
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, clap::ValueEnum)]
@@ -47,18 +48,21 @@ pub fn verify_signature(
     signature: &Path,
     keyring: &Path,
 ) -> anyhow::Result<()> {
-    let run = |mut cmd: Command| {
-        let output = cmd.output().with_context(|| {
+    let run = |cmd: Command| {
+        let result = crate::subprocess::command(cmd)
+            .capture(Capture::ALL)
+            .run()
+            .with_context(|| {
             format!(
                 "failed to run the signature verification of {}",
                 file.display()
             )
         })?;
-        if !output.status.success() {
+        if result.exit_code != 0 {
             bail!(
                 "signature verification of {} failed:\n{}",
                 file.display(),
-                String::from_utf8_lossy(&output.stderr).trim()
+                result.stderr.as_deref().unwrap_or_default().trim()
             );
         }
         Ok(())
@@ -323,25 +327,15 @@ fn sign_one(path: &Path, signas: &str, options: &SignOptions) -> anyhow::Result<
         }
     }
     if pipes_stdin {
-        cmd.args(["--output", "-", "-"])
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped());
-    } else {
-        cmd.stdout(Stdio::piped());
+        cmd.args(["--output", "-", "-"]);
     }
-
-    let mut child = cmd
-        .spawn()
-        .with_context(|| format!("failed to run signing command for {}", path.display()))?;
+    let mut builder = crate::subprocess::command(cmd).capture(Capture::STDOUT);
     if pipes_stdin {
-        use std::io::Write;
-        child
-            .stdin
-            .take()
-            .expect("stdin is piped")
-            .write_all(&to_sign)
-            .with_context(|| format!("failed to pipe {} to the signing command", path.display()))?;
+        builder = builder.input(&to_sign);
     }
+    let child = builder
+        .spawn()
+        .with_context(|| format!("failed to run the signing command for {}", path.display()))?;
     let output = child
         .wait_with_output()
         .with_context(|| format!("waiting for the signing command of {}", path.display()))?;

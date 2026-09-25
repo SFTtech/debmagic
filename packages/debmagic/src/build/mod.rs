@@ -16,6 +16,7 @@ use crate::driver::{
 };
 use crate::{config::Config, package::PackageTarget};
 use anyhow::{Context, anyhow};
+use debmagic_common::debian::source::SourceFormat;
 use debmagic_common::package::SourcePackage;
 
 pub mod artifacts;
@@ -154,11 +155,15 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
                 .driver
                 .reset_root()
                 .context("failed to reset persistent build directory")?;
-        } else if !build.driver.reused_environment() {
-            // A fresh environment (e.g. a new CI runner with a restored build
-            // tree) keeps incremental outputs; cargo's own fingerprinting
-            // discards whatever the new toolchain/archive state invalidates.
-            println!("Keeping incremental build tree in a fresh build environment");
+        } else {
+            if !build.driver.reused_environment() {
+                // A fresh environment (e.g. a new CI runner with a restored
+                // build tree) keeps incremental outputs; cargo's own
+                // fingerprinting discards whatever the new toolchain/archive
+                // state invalidates.
+                println!("Keeping incremental build tree in a fresh build environment");
+            }
+            unapply_quilt_patches(&build, &target.package)?;
         }
         fs::create_dir_all(output_dir).context("failed to create output directory")?;
         environment
@@ -189,6 +194,36 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
     )?;
 
     Build::create(environment, intent)
+}
+
+/// Whether an incremental sync must first unapply quilt patches in the
+/// build tree: only `3.0 (quilt)` manages patches through `.pc`, and no
+/// `.pc` means none are applied.
+fn needs_quilt_unapply(source_format: SourceFormat, staged_source_dir: &Path) -> bool {
+    source_format == SourceFormat::Quilt && staged_source_dir.join(".pc").exists()
+}
+
+/// Unapply quilt patches a previous build or shell session left in the
+/// build tree, before the incremental sync overwrites the patched files
+/// with pristine worktree contents — `.pc` would still record the patches
+/// as applied, making the next source build abort on "unexpected upstream
+/// changes" (or a binary build silently compile unpatched sources).
+/// `dpkg-source --after-build --unapply-patches` restores the pre-patch
+/// state from the `.pc` backups and removes the quilt db entirely.
+fn unapply_quilt_patches(build: &Build, package: &SourcePackage) -> anyhow::Result<()> {
+    let staged_source_dir = build.environment.staged_source_dir();
+    if !needs_quilt_unapply(package.source_format(), &staged_source_dir) {
+        return Ok(());
+    }
+    build
+        .driver
+        .run_command_checked(
+            &["dpkg-source", "--after-build", "--unapply-patches", "."],
+            &staged_source_dir,
+            false,
+            &[],
+        )
+        .context("failed to unapply quilt patches left in the build tree")
 }
 
 pub fn get_shell_in_build(config: &Config, package: &SourcePackage) -> anyhow::Result<()> {
@@ -500,9 +535,17 @@ pub async fn build_source_package(
             args.push(format!("--changes-option={option}"));
         }
         let args: Vec<&str> = args.iter().map(String::as_str).collect();
-        build
+        let result = build
             .driver
-            .run_command_checked(&args, &staged_source_dir, false, &[])?;
+            .run_command_checked(&args, &staged_source_dir, false, &[]);
+        if result.is_err()
+            && needs_quilt_unapply(target.package.source_format(), &staged_source_dir)
+        {
+            eprintln!(
+                "debmagic: hint: debian/patches are still applied in the build tree; the next incremental build unapplies them before syncing sources"
+            );
+        }
+        result?;
         Ok(())
     })
     .context("failed to build source package")
@@ -511,6 +554,18 @@ pub async fn build_source_package(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn quilt_unapply_needed_only_for_quilt_with_applied_patches() {
+        let dir = std::env::temp_dir().join(format!("debmagic-quilt-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        assert!(!needs_quilt_unapply(SourceFormat::Quilt, &dir));
+        std::fs::create_dir_all(dir.join(".pc")).unwrap();
+        assert!(needs_quilt_unapply(SourceFormat::Quilt, &dir));
+        assert!(!needs_quilt_unapply(SourceFormat::Native, &dir));
+        assert!(!needs_quilt_unapply(SourceFormat::V1, &dir));
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 
     #[test]
     fn stage_file_prefers_hardlink() {

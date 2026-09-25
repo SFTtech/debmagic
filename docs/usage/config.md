@@ -24,6 +24,7 @@ All keys are optional.
 | `driver.persistent` | bool | `false` | `--persistent` | Keep and reuse the build environment across runs instead of tearing it down. |
 | `driver.apt_mirror` | string | — | `--apt-mirror` | Mirror used for build-dependency resolution. Not used by the `bare` driver. |
 | `driver.proposed` | bool | `false` | `--proposed` | Also enable the `<release>-proposed` pocket. Not used by the `bare` driver. |
+| `driver.apt_update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update`: `"now"` (every build), `"never"` (only on creation), or a maximum index age like `"1d"`, `"12h"`, `"30m"`. Fresh environments always update once. Not used by the `bare` driver. |
 | `driver.docker.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"` (e.g. `"debian:trixie"`). Falls back to `docker.io/<distro>:<codename>`. For non-Debian/Ubuntu suites (e.g. `"yocto:kirkstone"`), the map entry is what makes the suite a known DistroVersion for Docker builds. |
 | `driver.lxd.project` | string | — | — | LXD/Incus project to use. |
 | `driver.lxd.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"`. Falls back to the driver's default remote image. Same custom-suite registry role as Docker's map for LXD/Incus. |

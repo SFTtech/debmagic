@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
 use crate::sign::SignTool;
+use crate::time::RefreshPolicy;
 use clap::{Args, Parser, Subcommand};
 
 /// When to use colored output. Mirrors common CLI conventions; `auto` is the
@@ -266,6 +267,12 @@ pub struct CommonBuildArgs {
     pub proposed: Option<bool>,
 
     #[arg(
+        long = "apt-update-age",
+        help = "When a persistent build environment runs 'apt-get update' again: 'now' (every build), 'never' (only on first creation), or a maximum age of the apt index like '1d' (the default), '12h', '30m'. Fresh environments always update once. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
+    )]
+    pub apt_update_age: Option<RefreshPolicy>,
+
+    #[arg(
         long,
         help = "Target distribution to build for, overriding the changelog's (e.g. 'trixie', 'noble', or a suite declared in base_images). If not provided, use the single distro from changelog."
     )]
@@ -435,6 +442,12 @@ pub struct TestSubcommandArgs {
         help = "Also enable the '<release>-proposed' pocket in the test environment. Ignored by the bare driver."
     )]
     pub proposed: Option<bool>,
+
+    #[arg(
+        long = "apt-update-age",
+        help = "When a persistent test environment runs 'apt-get update' again: 'now' (every run), 'never' (only on first creation), or a maximum age of the apt index like '1d' (the default), '12h', '30m'. Fresh environments always update once. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
+    )]
+    pub apt_update_age: Option<RefreshPolicy>,
 
     #[arg(
         long,

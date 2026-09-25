@@ -36,6 +36,7 @@ pub mod requests;
 pub mod sign;
 pub mod subprocess;
 pub mod test;
+pub mod time;
 pub mod upstream;
 
 fn main() -> ExitCode {
@@ -114,6 +115,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 driver_overrides: DriverOverrides {
                     apt_mirror: build_args.apt_mirror.clone(),
                     proposed: build_args.proposed,
+                    apt_update_age: build_args.apt_update_age,
                     docker: DriverDockerConfigOverrides {
                         base_image: build_args.docker.base_image.clone(),
                     },
@@ -176,6 +178,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 driver_overrides: DriverOverrides {
                     apt_mirror: args.apt_mirror.clone(),
                     proposed: args.proposed,
+                    apt_update_age: args.apt_update_age,
                     docker: DriverDockerConfigOverrides {
                         base_image: args.docker.base_image.clone(),
                     },

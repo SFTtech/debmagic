@@ -34,6 +34,7 @@ pub mod output;
 pub mod package;
 pub mod requests;
 pub mod sign;
+pub mod subprocess;
 pub mod test;
 pub mod upstream;
 

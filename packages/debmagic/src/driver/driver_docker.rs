@@ -15,6 +15,7 @@ use crate::driver::{
     container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
     run_checked, translate_path_in_container,
 };
+use crate::subprocess::{self, Capture, CommandResult};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
@@ -228,14 +229,15 @@ impl DriverDocker {
     /// build-root inode on the host.
     fn mount_is_live(&self) -> anyhow::Result<bool> {
         let container_probe = crate::driver::write_mount_probe(&self.environment.root_dir)?;
-        let code = self.run_command(
+        let result = self.run_command(
             &["test", "-f", &container_probe.to_string_lossy()],
             &self.environment.root_dir,
             true,
             &[],
+            Capture::NONE,
         );
         crate::driver::remove_mount_probe(&self.environment.root_dir);
-        Ok(code? == 0)
+        Ok(result?.exit_code == 0)
     }
 
     pub fn create(
@@ -387,7 +389,8 @@ impl EnvironmentDriver for DriverDocker {
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<i32> {
+        capture: Capture,
+    ) -> std::io::Result<CommandResult> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
@@ -409,8 +412,7 @@ impl EnvironmentDriver for DriverDocker {
         exec_cmd.arg(&self.container_name);
         exec_cmd.args(cmd);
 
-        let status = exec_cmd.status()?;
-        Ok(status.code().unwrap_or(-1))
+        subprocess::command(exec_cmd).capture(capture).run()
     }
 
     fn cleanup(&self) -> anyhow::Result<()> {

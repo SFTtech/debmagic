@@ -6,6 +6,7 @@ use crate::driver::{
     DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, IsolationCapability,
     SignRequest, config::DriverConfig,
 };
+use crate::subprocess::{self, Capture, CommandResult};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
@@ -54,7 +55,8 @@ impl EnvironmentDriver for DriverBare {
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<i32> {
+        capture: Capture,
+    ) -> std::io::Result<CommandResult> {
         let mut full_cmd: Vec<String> = Vec::new();
 
         let is_root = unsafe { libc::geteuid() == 0 };
@@ -70,8 +72,7 @@ impl EnvironmentDriver for DriverBare {
         command.current_dir(cwd);
         command.envs(env_add.iter().copied());
 
-        let status = command.status()?;
-        Ok(status.code().unwrap_or(-1))
+        subprocess::command(command).capture(capture).run()
     }
 
     fn cleanup(&self) -> anyhow::Result<()> {

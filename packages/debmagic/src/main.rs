@@ -163,8 +163,7 @@ async fn run() -> anyhow::Result<ExitCode> {
             }
 
             if let Some(spec) = &build_args.upload {
-                let upload_target =
-                    upload::resolve_target(spec, Some(&intent.config.upload.targets))?;
+                let upload_target = upload::resolve_target(spec, Some(&intent.config.upload))?;
                 let identity = load_package(&intent.source_dir)?;
                 let changes_file = crate::sign::find_changes_file(
                     identity.name(),
@@ -240,7 +239,7 @@ async fn run() -> anyhow::Result<ExitCode> {
             let config = Config::load(Some(&source_dir), cli.config.as_deref())?;
 
             let mut upload_target =
-                upload::resolve_target(&args.target, Some(&config.upload.targets))?;
+                upload::resolve_target(&args.target, Some(&config.upload))?;
             upload_target.apply_overrides(&upload::UploadOverrides {
                 method: args.method,
                 server: args.server.clone(),

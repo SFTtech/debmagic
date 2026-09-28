@@ -37,6 +37,28 @@ pub enum PgpMode {
     None,
 }
 
+impl WatchSource {
+    /// Substitute `@PACKAGE@` with the source package name in the URL and
+    /// mangle rules, like uscan does. The matching pattern is left alone:
+    /// its substitution is regex-escaped when the pattern is compiled.
+    pub fn substitute_package(&mut self, package: &str) {
+        let fields = std::iter::once(&mut self.source).chain(
+            [
+                &mut self.uversion_mangle,
+                &mut self.dversion_mangle,
+                &mut self.filename_mangle,
+                &mut self.download_url_mangle,
+                &mut self.pgp_sig_url_mangle,
+            ]
+            .into_iter()
+            .flatten(),
+        );
+        for field in fields {
+            *field = field.replace("@PACKAGE@", package);
+        }
+    }
+}
+
 /// Parse `debian/watch` (versions 2–5). Version 1 is rejected;
 /// unsupported options produce a clear error.
 pub fn parse_watch_file(path: &Path) -> anyhow::Result<Vec<WatchSource>> {
@@ -83,15 +105,20 @@ fn detect_version(content: &str) -> anyhow::Result<u32> {
     bail!("watch file is empty");
 }
 
-/// v2–v4: one `opts=...` line per source, with backslash continuations joined.
+/// v2–v4: one `opts=...` line per source. Like uscan, a trailing
+/// backslash joins the next line with its leading whitespace dropped,
+/// so `opts=a,\` + `  b` reads `opts=a,b`.
 fn parse_watch_v4(content: &str) -> anyhow::Result<Vec<WatchSource>> {
     let mut sources = Vec::new();
     let mut logical = String::new();
     for line in content.lines() {
-        let line = line.trim_end();
+        let line = if logical.is_empty() {
+            line
+        } else {
+            line.trim_start()
+        };
         if let Some(cont) = line.strip_suffix('\\') {
-            logical.push_str(cont.trim_end());
-            logical.push(' ');
+            logical.push_str(cont);
             continue;
         }
         logical.push_str(line);
@@ -108,34 +135,73 @@ fn parse_watch_v4(content: &str) -> anyhow::Result<Vec<WatchSource>> {
     Ok(sources)
 }
 
-/// One v2–v4 line: `[opts=...] <url> [matching-pattern]`. The pattern may
-/// be a separate token or embedded in the URL as its last `/`-separated
-/// component (uscan's shorthand).
+/// One v2–v4 line, tokenized like uscan:
+/// `[opts=<opts>|opts="<opts>"] <url> [<pattern>] [<version> [<script>]]`.
+/// The pattern is embedded in the URL as its last `/` component when
+/// that component holds a regex group or a version macro.
 fn parse_watch_line(line: &str) -> anyhow::Result<WatchSource> {
     let mut source = WatchSource::default();
     let mut rest = line;
-    if let Some(opts) = line.strip_prefix("opts=") {
-        let (opts, remainder) = opts
-            .split_once(' ')
-            .context("opts= without url in watch line")?;
+    if let Some(after) = line
+        .strip_prefix("opts=")
+        .or_else(|| line.strip_prefix("options="))
+    {
+        let (opts, remainder) = match after.strip_prefix('"') {
+            Some(quoted) => quoted
+                .split_once('"')
+                .with_context(|| format!("unterminated opts=\"...\" in watch line: {line}"))?,
+            None => after.split_once(char::is_whitespace).unwrap_or((after, "")),
+        };
         apply_opts(&mut source, opts)?;
-        rest = remainder.trim_start();
+        rest = remainder;
     }
-    match rest.split_once(' ') {
-        Some((url, pattern)) => {
-            source.source = url.to_string();
-            source.matching_pattern = pattern.to_string();
-        }
-        // shorthand: the pattern is the URL's last `/` component
-        None => {
-            let (url, pattern) = rest
-                .rsplit_once('/')
-                .with_context(|| format!("watch line has no matching pattern: {line}"))?;
-            source.source = format!("{url}/");
-            source.matching_pattern = pattern.to_string();
-        }
+
+    let mut tokens = rest.split_whitespace();
+    let url = tokens
+        .next()
+        .with_context(|| format!("watch line has no url: {line}"))?;
+    let (url, embedded) = match url.rsplit_once('/') {
+        Some((base, last)) if is_embedded_pattern(last) => (format!("{base}/"), Some(last)),
+        _ => (url.to_string(), None),
+    };
+    let pattern = match embedded {
+        Some(pattern) => pattern,
+        None => tokens
+            .next()
+            .with_context(|| format!("watch line has no matching pattern: {line}"))?,
+    };
+    source.source = url;
+    source.matching_pattern = pattern.to_string();
+
+    // uscan's optional version (`debian`, `prev`, a literal version or a
+    // version schema) and update script; `debian` is what debmagic does
+    let version = tokens.next();
+    if let Some(version) = version
+        && version != "debian"
+    {
+        bail!(
+            "watch line version field '{version}' is not supported yet; \
+             declare the upstream source in debmagic.toml instead"
+        );
+    }
+    if let Some(script) = tokens.next() {
+        bail!(
+            "watch line update script '{script}' is not supported yet; \
+             declare the upstream source in debmagic.toml instead"
+        );
     }
     Ok(source)
+}
+
+/// Whether the URL's last `/` component is a matching pattern, as uscan
+/// decides it: a regex group or a macro other than `@PACKAGE@`.
+fn is_embedded_pattern(component: &str) -> bool {
+    component.contains('(') && component.contains(')')
+        || component
+            .split('@')
+            .skip(1)
+            .step_by(2)
+            .any(|name| !name.is_empty() && name != "PACKAGE")
 }
 
 /// v5: deb822 paragraphs; the first paragraph's options are defaults
@@ -330,6 +396,27 @@ mod tests {
     use test_case::test_case;
 
     #[test]
+    fn test_substitute_package() {
+        let mut source = WatchSource {
+            source: "https://example.com/@PACKAGE@/releases/".to_string(),
+            matching_pattern: "@PACKAGE@-@ANY_VERSION@@ARCHIVE_EXT@".to_string(),
+            filename_mangle: Some("s/.*-(.*)/@PACKAGE@-$1/".to_string()),
+            ..Default::default()
+        };
+        source.substitute_package("libfoo++");
+        assert_eq!(source.source, "https://example.com/libfoo++/releases/");
+        assert_eq!(
+            source.filename_mangle.as_deref(),
+            Some("s/.*-(.*)/libfoo++-$1/")
+        );
+        // escaped at pattern compile time instead
+        assert_eq!(
+            source.matching_pattern,
+            "@PACKAGE@-@ANY_VERSION@@ARCHIVE_EXT@"
+        );
+    }
+
+    #[test]
     fn test_parse_v4_basic() {
         let sources =
             parse_watch("version=4\nhttps://example.com/releases/ foo-(.*)\\.tar\\.gz\n").unwrap();
@@ -347,6 +434,41 @@ mod tests {
         )
         .unwrap();
         assert!(sources[0].uversion_mangle.is_some());
+    }
+
+    #[test_case("https://example.com/ foo-(.*)\\.tar\\.gz debian uupdate"; "update script")]
+    #[test_case("https://example.com/ foo-(.*)\\.tar\\.gz 1.2"; "fixed version")]
+    fn test_parse_v4_unsupported_trailing_fields(line: &str) {
+        assert!(parse_watch(&format!("version=4\n{line}\n")).is_err());
+    }
+
+    #[test]
+    fn test_parse_v4_trailing_debian_and_quoted_opts() {
+        let sources = parse_watch(
+            "version=4\n\
+             opts=\"repacksuffix=+dfsg, \\\n\
+               dversionmangle=s/\\+dfsg//\" \\\n\
+             https://example.com/@PACKAGE@/ foo-(.*)\\.tar\\.gz debian\n",
+        )
+        .unwrap();
+        assert_eq!(sources[0].repack_suffix.as_deref(), Some("+dfsg"));
+        assert_eq!(sources[0].dversion_mangle.as_deref(), Some("s/\\+dfsg//"));
+        // @PACKAGE@ alone does not make the last component a pattern
+        assert_eq!(sources[0].source, "https://example.com/@PACKAGE@/");
+        assert_eq!(sources[0].matching_pattern, "foo-(.*)\\.tar\\.gz");
+    }
+
+    #[test]
+    fn test_parse_v4_embedded_pattern() {
+        let sources = parse_watch(
+            "version=4\nhttps://example.com/dl/foo-@ANY_VERSION@@ARCHIVE_EXT@ debian\n",
+        )
+        .unwrap();
+        assert_eq!(sources[0].source, "https://example.com/dl/");
+        assert_eq!(
+            sources[0].matching_pattern,
+            "foo-@ANY_VERSION@@ARCHIVE_EXT@"
+        );
     }
 
     #[test]

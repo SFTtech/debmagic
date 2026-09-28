@@ -156,7 +156,7 @@ pub struct SwitchResult {
     pub removed_files: usize,
 }
 
-/// Switch the package tree to `candidate`'s upstream version:
+/// How [`switch`] fetches, repacks and places one source's tarball.
 pub struct SwitchOptions<'a> {
     pub repack: &'a RepackConfig,
     pub output_dir: &'a Path,
@@ -166,11 +166,16 @@ pub struct SwitchOptions<'a> {
     pub verify_signatures: bool,
     pub sign_options: &'a crate::config::SignConfig,
     pub dry_run: bool,
+    /// The package's MUT component names, whose subdirs the main tree
+    /// swap keeps.
+    pub components: &'a [String],
 }
 
-/// download, extract, apply the repack excludes, write the orig
-/// tarball next to the source tree, and swap the tree contents
-/// (keeping `debian/`). With `dry_run`, only report what would happen.
+/// Switch the package tree to `candidate`'s upstream version: download,
+/// extract, apply the repack excludes, write the orig tarball to the
+/// output dir, and swap the tree contents (keeping `debian/`). A
+/// component source swaps its `<component>/` subdir instead. With
+/// `dry_run`, only report what would happen.
 pub async fn switch(
     source_dir: &Path,
     source: &WatchSource,
@@ -206,7 +211,10 @@ pub async fn switch(
         if let Some(suffix) = &repack.suffix {
             println!("debmagic: version suffix: {suffix}");
         }
-        println!("debmagic: would replace the source tree, keeping debian/");
+        match &source.component {
+            Some(component) => println!("debmagic: would replace the {component}/ subdir"),
+            None => println!("debmagic: would replace the source tree, keeping debian/"),
+        }
         return Ok(SwitchResult {
             version: oversion,
             orig_tarball: download_dir.join(download_filename(source, candidate)?),
@@ -330,8 +338,24 @@ pub async fn switch(
         }
     };
 
-    // after the tarball: the swap moves the staged tree away
-    swap_tree(source_dir, &stage_dir, output_dir)?;
+    // after the tarball: the swap moves the staged tree away. A component
+    // lives in its own subdir, like dpkg-source unpacks it; the main tree
+    // keeps the component subdirs and the output dir.
+    let (target_dir, mut keep) = match &source.component {
+        Some(component) => (source_dir.join(component), Vec::new()),
+        None => (
+            source_dir.to_path_buf(),
+            options
+                .components
+                .iter()
+                .map(|component| source_dir.join(component))
+                .collect(),
+        ),
+    };
+    keep.push(output_dir.to_path_buf());
+    std::fs::create_dir_all(&target_dir)
+        .with_context(|| format!("failed to create {}", target_dir.display()))?;
+    swap_tree(&target_dir, &stage_dir, &keep)?;
 
     std::fs::remove_dir_all(&work_dir).ok();
     println!(
@@ -422,9 +446,9 @@ fn copy_dir(from: &Path, to: &Path) -> anyhow::Result<()> {
 }
 
 /// Replace the source tree's contents with the extracted tree's,
-/// keeping `debian/`, any VCS metadata dir (`.git`, ...) and the
-/// `output_dir` (holding the orig tarballs) intact.
-fn swap_tree(source_dir: &Path, extract_dir: &Path, output_dir: &Path) -> anyhow::Result<()> {
+/// keeping `debian/`, any VCS metadata dir (`.git`, ...) and every
+/// `keep` path (or path containing one) intact.
+fn swap_tree(source_dir: &Path, extract_dir: &Path, keep: &[PathBuf]) -> anyhow::Result<()> {
     let new_names: Vec<String> = std::fs::read_dir(extract_dir)
         .with_context(|| format!("failed to read {}", extract_dir.display()))?
         .flatten()
@@ -438,7 +462,10 @@ fn swap_tree(source_dir: &Path, extract_dir: &Path, output_dir: &Path) -> anyhow
     {
         let name = entry.file_name().to_string_lossy().into_owned();
         let path = entry.path();
-        if is_kept(&name) || new_names.contains(&name) || output_dir.starts_with(&path) {
+        if is_kept(&name)
+            || new_names.contains(&name)
+            || keep.iter().any(|kept| kept.starts_with(&path))
+        {
             continue;
         }
         if path.is_dir() {
@@ -544,18 +571,28 @@ mod tests {
         let output_dir = source_dir.join("build");
         std::fs::create_dir_all(&output_dir).unwrap();
         std::fs::write(output_dir.join("pkg_2.0.orig.tar.xz"), "orig").unwrap();
+        // a MUT component unpacked into its subdir
+        let component_dir = source_dir.join("plugin");
+        std::fs::create_dir_all(&component_dir).unwrap();
+        std::fs::write(component_dir.join("plugin.c"), "x").unwrap();
         // new tree
         std::fs::write(extract_dir.join("new.txt"), "new").unwrap();
         std::fs::create_dir_all(extract_dir.join("src")).unwrap();
         std::fs::write(extract_dir.join("src").join("main.c"), "x").unwrap();
 
-        swap_tree(&source_dir, &extract_dir, &output_dir).unwrap();
+        swap_tree(
+            &source_dir,
+            &extract_dir,
+            &[output_dir.clone(), component_dir.clone()],
+        )
+        .unwrap();
 
         assert!(source_dir.join("new.txt").exists());
         assert!(source_dir.join("src").join("main.c").exists());
         assert!(!source_dir.join("old.txt").exists());
         assert!(source_dir.join("debian").join("changelog").exists());
         assert!(output_dir.join("pkg_2.0.orig.tar.xz").exists());
+        assert!(component_dir.join("plugin.c").exists());
         std::fs::remove_dir_all(&base).unwrap();
     }
 }

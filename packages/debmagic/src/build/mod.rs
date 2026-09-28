@@ -7,8 +7,8 @@ use std::{
 };
 
 use crate::build::attach::{send_socket_command, start_socket_server};
-use crate::build::source::{source_manifest_path, stage_source_tree};
-use crate::build_intent::BuildIntent;
+use crate::build::source::{source_manifest_path, stage_dir, stage_source_tree};
+use crate::build_intent::{BuildIntent, BuildKind};
 use crate::driver::{
     Driver, DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, EnvironmentPurpose,
     SignRequest, config::DriverConfig, create_driver, create_driver_from_metadata,
@@ -128,6 +128,25 @@ fn get_build_root_and_identifier(
     (package_identifier, build_root)
 }
 
+/// Create the output dir and stage the source tree into the environment.
+fn stage_sources(
+    environment: &Environment,
+    intent: &BuildIntent,
+    target: &PackageTarget,
+) -> anyhow::Result<()> {
+    fs::create_dir_all(&intent.output_dir).context("failed to create output directory")?;
+    environment
+        .create_dirs()
+        .context("failed to create build directories")?;
+    stage_source_tree(
+        environment,
+        intent.kind,
+        &target.package,
+        intent.config.source_sync_mode,
+        intent.config.incremental,
+    )
+}
+
 fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<Build> {
     let (package_identifier, build_root) =
         get_build_root_and_identifier(&intent.config.temp_build_dir, &target.package);
@@ -142,56 +161,42 @@ fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Re
         purpose: EnvironmentPurpose::Build,
     };
 
-    let output_dir = &intent.output_dir;
-    let incremental = intent.config.incremental;
-
     if intent.config.driver.persistent && build_root.exists() {
         // For persistent containers, starting first lets root inside delete
         // container-owned files the host user can't remove.
         let build = Build::create(environment.clone(), intent)
             .context(format!("failed to create {:?} driver", intent.driver))?;
-        if !incremental || !source_manifest_path(&environment).is_file() {
+        // An incremental sync needs a manifest from a previous build of the
+        // same kind; without one the tree is reset so no stale files leak
+        // into the build.
+        let sync_incrementally =
+            intent.config.incremental && source_manifest_path(&environment, intent.kind).is_file();
+        if sync_incrementally {
+            if !build.driver.reused_environment() {
+                // e.g. a new CI runner with a restored build tree; cargo's own
+                // fingerprinting discards whatever the new toolchain/archive
+                // state invalidates
+                println!("Keeping incremental build tree in a fresh build environment");
+            }
+            unapply_quilt_patches(&build, intent.kind, &target.package)?;
+        } else if intent.kind.is_source() {
+            // A source build shares the environment with the binary tree:
+            // only its own stage dir is restaged, never the whole root.
+            reset_stage_dir(&build, &environment, intent.kind)?;
+        } else {
             build
                 .driver
                 .reset_root()
                 .context("failed to reset persistent build directory")?;
-        } else {
-            if !build.driver.reused_environment() {
-                // A fresh environment (e.g. a new CI runner with a restored
-                // build tree) keeps incremental outputs; cargo's own
-                // fingerprinting discards whatever the new toolchain/archive
-                // state invalidates.
-                println!("Keeping incremental build tree in a fresh build environment");
-            }
-            unapply_quilt_patches(&build, &target.package)?;
         }
-        fs::create_dir_all(output_dir).context("failed to create output directory")?;
-        environment
-            .create_dirs()
-            .context("failed to create build directories")?;
-        stage_source_tree(
-            &environment,
-            &target.package,
-            intent.config.source_sync_mode,
-            incremental,
-        )?;
+        stage_sources(&environment, intent, target)?;
         return Ok(build);
     }
 
     remove_environment_root(&build_root, &intent.config.driver)?;
 
-    fs::create_dir_all(output_dir).context("failed to create output directory")?;
-    environment
-        .create_dirs()
-        .context("failed to create build directories")?;
-
     crate::output::step("Staging source tree");
-    stage_source_tree(
-        &environment,
-        &target.package,
-        intent.config.source_sync_mode,
-        incremental,
-    )?;
+    stage_sources(&environment, intent, target)?;
 
     Build::create(environment, intent)
 }
@@ -210,8 +215,12 @@ fn needs_quilt_unapply(source_format: SourceFormat, staged_source_dir: &Path) ->
 /// changes" (or a binary build silently compile unpatched sources).
 /// `dpkg-source --after-build --unapply-patches` restores the pre-patch
 /// state from the `.pc` backups and removes the quilt db entirely.
-fn unapply_quilt_patches(build: &Build, package: &SourcePackage) -> anyhow::Result<()> {
-    let staged_source_dir = build.environment.staged_source_dir();
+fn unapply_quilt_patches(
+    build: &Build,
+    kind: BuildKind,
+    package: &SourcePackage,
+) -> anyhow::Result<()> {
+    let staged_source_dir = stage_dir(&build.environment, kind);
     if !needs_quilt_unapply(package.source_format(), &staged_source_dir) {
         return Ok(());
     }
@@ -226,13 +235,39 @@ fn unapply_quilt_patches(build: &Build, package: &SourcePackage) -> anyhow::Resu
         .context("failed to unapply quilt patches left in the build tree")
 }
 
+/// Remove every previous leftover from a stage dir (binary residue like
+/// `debian/<pkg>/` install trees makes `dpkg-source -b` abort on "unwanted
+/// binary file"). Only this dir is wiped — the other kind's tree sharing
+/// the environment keeps its incremental outputs.
+fn reset_stage_dir(
+    build: &Build,
+    environment: &Environment,
+    kind: BuildKind,
+) -> anyhow::Result<()> {
+    let dir = stage_dir(environment, kind);
+    if !dir.exists() {
+        return Ok(());
+    }
+    build
+        .driver
+        .run_command_checked(&["find", ".", "-mindepth", "1", "-delete"], &dir, true, &[])
+        .context("failed to reset the source stage directory")
+}
+
 pub fn get_shell_in_build(config: &Config, package: &SourcePackage) -> anyhow::Result<()> {
     let (_package_identifier, build_root) =
         get_build_root_and_identifier(&config.temp_build_dir, package);
     let build = Build::from_build_root(&build_root, &config.driver)?;
+    // the binary tree is the iteration workflow; fall back to the source
+    // tree when only source builds ever ran
+    let kind = if stage_dir(&build.environment, BuildKind::Binary).exists() {
+        BuildKind::Binary
+    } else {
+        BuildKind::Source
+    };
     let result = build
         .driver
-        .interactive_shell(&build.environment.staged_source_dir());
+        .interactive_shell(&stage_dir(&build.environment, kind));
 
     build.detach()?;
 
@@ -322,7 +357,7 @@ fn run_build(
             eprintln!("Build failed: {error}. Dropping into shell...");
             if let Err(shell_error) = build
                 .driver
-                .interactive_shell(&build.environment.staged_source_dir())
+                .interactive_shell(&stage_dir(&build.environment, request.intent.kind))
             {
                 eprintln!("Dropping into shell failed: {shell_error}");
             }
@@ -358,18 +393,19 @@ pub fn build_package(
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
         crate::output::stage("Building binary packages");
+        let staged_source_dir = stage_dir(&build.environment, BuildKind::Binary);
         // build-essential is an implicit dependency that `apt-get build-dep`
         // won't resolve, so install it explicitly. No-op when the environment
         // already has it (idempotent, and the bare driver runs on the host).
         build.driver.run_command_checked(
             &["apt-get", "-y", "install", "build-essential"],
-            &build.environment.staged_source_dir(),
+            &staged_source_dir,
             true,
             &[],
         )?;
         build.driver.run_command_checked(
             &["apt-get", "-y", "build-dep", "."],
-            &build.environment.staged_source_dir(),
+            &staged_source_dir,
             true,
             &[],
         )?;
@@ -402,7 +438,7 @@ pub fn build_package(
             dpkg_buildpackage_args.iter().map(String::as_str).collect();
         build.driver.run_command_checked(
             &dpkg_buildpackage_args,
-            &build.environment.staged_source_dir(),
+            &staged_source_dir,
             false,
             &env_add,
         )?;
@@ -498,7 +534,7 @@ pub async fn build_source_package(
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
         crate::output::stage("Building source package");
-        let staged_source_dir = build.environment.staged_source_dir();
+        let staged_source_dir = stage_dir(&build.environment, BuildKind::Source);
         if let Some(tarball) = &orig_tarball {
             // the work dir is the staged source dir's parent, which is where
             // dpkg-source looks for the tarball

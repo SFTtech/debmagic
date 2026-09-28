@@ -262,14 +262,9 @@ impl Environment {
         self.root_dir.join("temp")
     }
 
-    pub fn staged_source_dir(&self) -> PathBuf {
-        self.work_dir().join(&self.package_identifier)
-    }
-
     pub fn create_dirs(&self) -> io::Result<()> {
         fs::create_dir_all(self.work_dir())?;
         fs::create_dir_all(self.temp_dir())?;
-        fs::create_dir_all(self.staged_source_dir())?;
         Ok(())
     }
 }

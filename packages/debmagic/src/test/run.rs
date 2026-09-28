@@ -6,6 +6,7 @@ use std::{
 
 use super::intent::TestIntent;
 use crate::build::artifacts::{self, copy_changes_artifacts, copy_dir_all};
+use crate::build::source::stage_dir;
 use crate::build::source::stage_source_tree;
 use crate::build_intent::BuildKind;
 use crate::driver::{
@@ -150,7 +151,13 @@ fn prepare_test_env(
         environment
             .create_dirs()
             .context("failed to create test directories")?;
-        stage_source_tree(environment, package, intent.config.source_sync_mode, false)?;
+        stage_source_tree(
+            environment,
+            BuildKind::Binary,
+            package,
+            intent.config.source_sync_mode,
+            false,
+        )?;
         copy_changes_artifacts(changes_path, &environment.work_dir())?;
         return Ok(test_run);
     }
@@ -160,7 +167,13 @@ fn prepare_test_env(
     environment
         .create_dirs()
         .context("failed to create test directories")?;
-    stage_source_tree(environment, package, intent.config.source_sync_mode, false)?;
+    stage_source_tree(
+        environment,
+        BuildKind::Binary,
+        package,
+        intent.config.source_sync_mode,
+        false,
+    )?;
     copy_changes_artifacts(changes_path, &environment.work_dir())?;
 
     let test_run = TestRun::create(environment, &intent.config.driver, &intent.driver_overrides)?;
@@ -289,9 +302,10 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         .context("failed to write test metadata")?;
 
     crate::output::stage("Installing autopkgtest");
+    let staged_source_dir = stage_dir(&environment, BuildKind::Binary);
     test_run.driver.run_command_checked(
         &["apt-get", "install", "-y", "autopkgtest"],
-        &environment.staged_source_dir(),
+        &staged_source_dir,
         true,
         &[("DEBIAN_FRONTEND", "noninteractive")],
     )?;
@@ -301,7 +315,10 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         .file_name()
         .and_then(|name| name.to_str())
         .ok_or_else(|| anyhow!("invalid .changes path: {}", changes_path.display()))?;
-    let source_tree_name = environment.package_identifier.as_str();
+    let source_tree_name = staged_source_dir
+        .file_name()
+        .and_then(|name| name.to_str())
+        .context("stage dir has no file name")?;
     let autopkgtest_out_host = test_root.join("autopkgtest-out");
     if autopkgtest_out_host.exists() {
         fs::remove_dir_all(&autopkgtest_out_host)?;
@@ -362,10 +379,7 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         eprintln!("Test logs: {}", exported_test_dir.display());
         if intent.shell_on_failure && stdout().is_terminal() {
             eprintln!("Dropping into shell...");
-            if let Err(shell_error) = test_run
-                .driver
-                .interactive_shell(&environment.staged_source_dir())
-            {
+            if let Err(shell_error) = test_run.driver.interactive_shell(&staged_source_dir) {
                 eprintln!("Dropping into shell failed: {shell_error}");
             }
         } else if intent.shell_on_failure {

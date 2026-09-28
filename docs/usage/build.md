@@ -189,7 +189,7 @@ The `--sign` mode decides what happens to an existing signature:
 
 `auto` is the sensible default: re-signing with the same key is pointless, but a foreign signature is replaced.
 `keep` accepts any existing signature — useful when a `.changes` was already signed by something else.
-`force` matters after a checksum rewrite (e.g. `upload --include-orig` modifying the `.changes`), which invalidates the old signature — debmagic forces a re-sign internally in that case.
+`force` re-signs even what our key already signed, e.g. to switch to a new signature over the same content.
 
 | Option | Config | Description |
 |---|---|---|

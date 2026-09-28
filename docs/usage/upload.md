@@ -77,17 +77,17 @@ Pass `--no-hooks` to skip the checks.
 ## Signing before the upload
 
 `--sign <mode>` signs the `.changes` right before anything is transferred, with the same modes as `debmagic build --sign`: `keep` signs what is unsigned and keeps any existing signature, `auto` additionally replaces a foreign one, `force` always re-signs.
-The default is `no` — an upload needs a valid signature anyway, so signing here is only a convenience for artifacts that are not signed yet.
-It runs after `--include-orig` processing, whose checksum rewrite already forces a re-sign of a modified `.changes`.
+Without `--sign`, nothing is signed, unless `--include-orig` rewrote the `.changes` and so removed its signature: then it is signed in `auto` mode.
+Signing runs after `--include-orig` processing, so the key is used once.
 
 ## Including the `orig` tarball
 
 `--include-orig=auto|yes|no` decides whether the upload carries the `orig` tarball (the `-sa`/`-sd` choice, made at upload time):
 
-- `auto` (default): include only when the archive provably lacks this upstream version's orig (upstream version bump, deltarebase)
+- `auto` (default): include only when the archive provably lacks this upstream version's orig (first changelog entry, upstream version bump, deltarebase)
 - `yes`/`no`: always/never
 
-When the decision disagrees with the `.changes` file, its file listing is rewritten (orig entry added or removed, checksums recomputed) and it is re-signed.
+When the decision disagrees with the `.changes` file, its file listing is rewritten (orig entry added or removed, checksums recomputed) and it is signed again.
 Before adding, the tarball is verified against the checksum the `.dsc` recorded — a stale orig fails loudly instead of being rejected by the archive.
 See [Upstream versions](upstream.md) for the full orig lifecycle.
 

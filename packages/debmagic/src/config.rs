@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::build::source::SourceSyncMode;
+use crate::driver::DriverType;
 use crate::driver::config::DriverConfig;
 use crate::sign::{SignMode, SignTool};
 use crate::upload::UploadConfig;
@@ -142,6 +143,80 @@ pub fn resolve_set_target(
         global_config.path.clone(),
         ConfigPathStatus::Used,
     ))
+}
+
+/// Inputs for the `debmagic config` command.
+#[derive(Debug, Clone)]
+pub struct ConfigCommand {
+    /// Directory used when `source_dir` is unset (typically cwd).
+    pub fallback_dir: PathBuf,
+    pub source_dir: Option<PathBuf>,
+    pub config_file: Option<PathBuf>,
+    pub command: ConfigCommandKind,
+}
+
+/// Which `debmagic config` subcommand to run.
+#[derive(Debug, Clone)]
+pub enum ConfigCommandKind {
+    Show,
+    /// `config get <key>`
+    Get {
+        key: String,
+    },
+    /// `config set <key> <value>`
+    Set {
+        key: String,
+        value: String,
+        /// Write to the user-wide config file instead of the project's.
+        global: bool,
+    },
+}
+
+/// Run the `debmagic config` command: show, get or set config values.
+pub fn run_config(command: ConfigCommand) -> anyhow::Result<()> {
+    let source_dir =
+        crate::package::resolve_source_dir(&command.fallback_dir, command.source_dir.as_deref())?;
+    match &command.command {
+        ConfigCommandKind::Show => {
+            let paths = Config::resolve_paths(Some(&source_dir), command.config_file.as_deref())?;
+
+            eprintln!("debmagic: config files (highest precedence first):");
+            for entry in &paths {
+                let status = match entry.status {
+                    ConfigPathStatus::Used => "used",
+                    ConfigPathStatus::NotFound => "not found",
+                };
+                eprintln!("debmagic:   {status:<10} {}", entry.path.display());
+            }
+
+            let config = Config::new(&paths)?;
+            let effective_driver = config.driver.default.unwrap_or(DriverType::Bare);
+            eprintln!("debmagic: using driver: {effective_driver} (cfg: driver.default)");
+            print!("{}", toml::to_string_pretty(&config)?);
+        }
+        ConfigCommandKind::Get { key } => {
+            let config = Config::load(Some(&source_dir), command.config_file.as_deref())?;
+            println!("{}", config.get_value(key)?);
+        }
+        ConfigCommandKind::Set { key, value, global } => {
+            let target =
+                resolve_set_target(Some(&source_dir), command.config_file.as_deref(), *global)?;
+
+            if let Some(parent) = target.path.parent() {
+                std::fs::create_dir_all(parent)
+                    .with_context(|| format!("creating {} failed", parent.display()))?;
+            }
+
+            target.set_value(key, value)?;
+
+            // validate the result parses and the key landed
+            let config = Config::load(Some(&source_dir), command.config_file.as_deref())?;
+            let effective = config.get_value(key)?;
+            println!("debmagic: {} = {}", key, effective.trim_end());
+            eprintln!("debmagic: written to {}", target.path.display());
+        }
+    }
+    Ok(())
 }
 
 /// documented in docs/usage/config.md

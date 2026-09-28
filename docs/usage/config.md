@@ -82,13 +82,14 @@ See [Uploading](upload.md) for target resolution, builtins and pre-upload checks
 
 | Key | Type | Default | Description |
 |---|---|---|---|
+| `pre_upload_commands` | list | `[]` | Commands run via `sh -c` before uploading to any target, ahead of the target's own. |
 | `targets.<name>.method` | enum | `scp` | Upload method: `scp` or `sftp`. |
 | `targets.<name>.server` | string | — | Host to upload to. |
 | `targets.<name>.incoming` | string | — | Remote directory; supports the `{target}` placeholder. |
 | `targets.<name>.login` | string | ssh config | Login on the remote host; falls back to the ssh config user, then the local user. The Launchpad/Debian upload hosts expect your own username with a registered SSH key. |
 | `targets.<name>.port` | int | — | Remote port. |
 | `targets.<name>.tofu_hostkey` | bool | `true` | Trust the host key on first use (ssh's `StrictHostKeyChecking=accept-new`). The archive upload hosts publish stable keys; disable to require a known_hosts entry. |
-| `targets.<name>.pre_upload_commands` | list | `[]` | Commands run via `sh -c` before uploading; non-zero aborts the upload. |
+| `targets.<name>.pre_upload_commands` | list | `[]` | Commands run via `sh -c` before uploading; non-zero aborts the upload. Run after the global `upload.pre_upload_commands`. |
 
 ## Example
 

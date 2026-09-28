@@ -53,11 +53,21 @@ pre_upload_commands = [
 `pre_upload_commands` run *before anything is transferred*, each via `sh -c`:
 
 - the `{changes}` placeholder is substituted with the `.changes` file path
-- `DEBMAGIC_UPLOAD_CHANGES`, `DEBMAGIC_UPLOAD_TARGET`, `DEBMAGIC_UPLOAD_TARGET_SERVER` and `DEBMAGIC_UPLOAD_TARGET_INCOMING` are set in the environment
+- `DEBMAGIC_UPLOAD_CHANGES`, `DEBMAGIC_UPLOAD_TARGET` (the spec as invoked, e.g. `ppa:user/repo`), `DEBMAGIC_UPLOAD_TARGET_SERVER` and `DEBMAGIC_UPLOAD_TARGET_INCOMING` are set in the environment
 - a non-zero exit aborts the upload entirely
 
 This is deliberately simple: it's a list of commands, not a plugin system.
-Existing `dput-ng` hooks (which use its python "api") can be bridged by wrapping them in one command later, and debmagic's own built-in linter will simply be called from here too.
+Existing `dput-ng` hooks are bridged by the shipped compatibility script — set it once globally so it runs for every target:
+
+```toml
+[upload]
+pre_upload_commands = ["python3 /usr/share/debmagic/dput_ng_hooks.py"]
+```
+
+A target's own `pre_upload_commands` run after the global ones.
+
+With dput-ng installed, it runs the pre-upload hooks the dput-ng profile of the same name enables (e.g. `ppa`), exactly as `dput` would; pass `--profile <name>` to use another profile.
+Without dput-ng, it runs every `"pre": true` hook with an emulation of the python API dput-ng provides, so unmodified dput-ng hook modules work when placed in `/usr/share/dput-ng`, `/etc/dput.d` and `~/.dput.d`.
 
 Pass `--no-hooks` to skip the checks.
 

@@ -34,7 +34,7 @@ All keys are optional.
 | `source_sync_mode` | enum | `tracked` | `--source-sync` | Which source files are staged (see below). |
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |
 | `run_test` | bool | `true` | `--test` | Run the package's test suite during the build; `false` exports `DEB_BUILD_OPTIONS=nocheck` so tests are skipped. |
-| `sign.source` | bool | `false` | `--sign` | Sign the resulting `.changes`/`.dsc` (see below). |
+| `sign.source` | enum | `no` | `--sign` | Sign the resulting `.changes`/`.dsc`: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs (see below). |
 | `sign.key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
 | `sign.tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign.sign_command`). |
 | `sign.sign_command` | string | — | `--sign-command` | Custom signing command for `sign.tool = "custom"`, run without a shell with `{file}`/`{key}`/`{email}` placeholders; writes the clearsigned result to stdout. |
@@ -57,12 +57,13 @@ All keys are optional.
 
 | Key | Type | Default | CLI flag | Description |
 |---|---|---|---|---|
-| `source` | bool | `false` | `--sign` | Sign the source package (`.changes`/`.dsc`) after building. |
+| `source` | enum | `no` | `--sign` | Sign the source package (`.changes`/`.dsc`) after building: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs. |
 | `key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
-| `tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign_command`). |
-| `sign_command` | string | — | `--sign-command` | Custom signing command for `tool = "custom"`, like `debsign`'s `-p`. |
+| `tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg` (sequoia's `sq`) or `custom` (uses `sign_command`). |
 | `notify` | bool | `false` | `--sign-notify` | Desktop notification via `notify-send` before signing. |
+| `sign_command` | string | — | `--sign-command` | Custom signing command for `tool = "custom"`, like `debsign`'s `-p`. |
 | `verify_command` | string | — | `--verify-command` (upstream switch) | Custom verification command for `sign.tool = "custom"`, run without a shell with `{file}`/`{signature}`/`{keyring}` placeholders; without `{signature}` the signature path is appended. Falls back to `sign_command`. |
+| `signed_by_command` | string | — | — | Custom same-key check for `tool = "custom"` under `source = "auto"`: exit code 0 means the file's signature is ours (skip), anything else re-signs. Without it, `auto` always re-signs. |
 Signing always runs on the host with your gpg keyring — see [Signing](build.md#signing).
 
 ### `orig_tarball`

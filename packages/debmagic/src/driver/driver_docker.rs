@@ -11,9 +11,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
-    EnvironmentMetadata, IsolationCapability, SignRequest, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint,
-    refresh_apt_index, resource_name, run_checked, translate_path_in_container,
+    EnvironmentMetadata, IsolationCapability, config::DriverConfig, container_name_from_metadata,
+    container_name_metadata, environment_fingerprint, refresh_apt_index, resource_name,
+    run_checked, translate_path_in_container,
 };
 use crate::subprocess::{self, Capture, CommandResult};
 
@@ -479,9 +479,5 @@ impl EnvironmentDriver for DriverDocker {
 
     fn isolation_capability(&self) -> IsolationCapability {
         IsolationCapability::Container
-    }
-
-    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
-        crate::sign::sign_changes(request)
     }
 }

@@ -178,9 +178,22 @@ This exports `DEB_BUILD_OPTIONS=nocheck`, the standard dpkg mechanism: dpkg-buil
 Signing is debmagic's own reimplementation of `debsign` and always runs on the host with your gpg keyring: the artifacts are exported to the host output dir first, so no container or agent forwarding is involved.
 Children are signed first (`.dsc`, then `.buildinfo`) and the `.changes` checksums are rewritten after each, exactly like `debsign`.
 
+The `--sign` mode decides what happens to an existing signature:
+
+| Mode | Unsigned file | Signed by our key | Signed by another key |
+|---|---|---|---|
+| `no` | left alone | left alone | left alone |
+| `keep` | signed | kept | kept |
+| `auto` | signed | skipped | re-signed |
+| `force` | signed | re-signed | re-signed |
+
+`auto` is the sensible default: re-signing with the same key is pointless, but a foreign signature is replaced.
+`keep` accepts any existing signature — useful when a `.changes` was already signed by something else.
+`force` matters after a checksum rewrite (e.g. `upload --include-orig` modifying the `.changes`), which invalidates the old signature — debmagic forces a re-sign internally in that case.
+
 | Option | Config | Description |
 |---|---|---|
-| `--sign` | `sign.source` | Sign after building; `--sign=false` skips it for one invocation |
+| `--sign <mode>` | `sign.source` | Sign after building: `no`, `keep`, `auto` or `force` |
 | `--sign-key <key>` | `sign.key` | Key ID/fingerprint/email; defaults to the `Changed-By:`/`Maintainer:` address of the file being signed |
 | `--sign-tool <tool>` | `sign.tool` | OpenPGP implementation: `gpg` (default), `sequoia` (sq), or `custom` |
 | `--sign-command <cmd>` | `sign.sign_command` | Custom signing command for `--sign-tool custom` (see below) |

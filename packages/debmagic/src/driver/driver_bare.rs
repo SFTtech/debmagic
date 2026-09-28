@@ -82,7 +82,7 @@ impl EnvironmentDriver for DriverBare {
     fn interactive_shell(&self, _cwd: &Path) -> std::io::Result<()> {
         println!(
             "source directory of current package build in {}",
-            self.environment.staged_source_dir().display()
+            _cwd.display()
         );
         Ok(())
     }

@@ -225,7 +225,7 @@ pub struct CommonBuildArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
-        help = "Synchronize changed source inputs while preserving build outputs. Implies --persistent"
+        help = "Synchronize changed source inputs to preserve build outputs. Implies --persistent"
     )]
     pub incremental: Option<bool>,
 

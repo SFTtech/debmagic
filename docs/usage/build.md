@@ -129,6 +129,8 @@ This flag implies `--persistent`, and cannot be combined with `--clean yes`.
 The preserved build tree is kept even when the environment itself is *not* reused (e.g. a fresh CI runner where the tree was restored from a cache).
 Quilt patches that a previous build or shell session left applied in the build tree are unapplied with `dpkg-source --after-build` before sources are synced, so the worktree remains the source of truth and stale `.pc` state cannot break later builds.
 
+The work dir (`temp_build_dir`, default `/tmp/debmagic`) keeps the artifacts of builds, including their `.changes` files.
+
 
 ## Selecting a distro/release
 

@@ -222,10 +222,7 @@ mod tests {
 
     #[test]
     fn spawn_with_input_leaves_uncaptured_streams_inherited() {
-        let mut child = command(Command::new("cat"))
-            .input(b"x")
-            .spawn()
-            .unwrap();
+        let mut child = command(Command::new("cat")).input(b"x").spawn().unwrap();
         assert!(child.stdout.is_none());
         assert!(child.stderr.is_none());
         assert!(child.wait().unwrap().success());

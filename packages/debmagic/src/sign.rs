@@ -53,11 +53,11 @@ pub fn verify_signature(
             .capture(Capture::ALL)
             .run()
             .with_context(|| {
-            format!(
-                "failed to run the signature verification of {}",
-                file.display()
-            )
-        })?;
+                format!(
+                    "failed to run the signature verification of {}",
+                    file.display()
+                )
+            })?;
         if result.exit_code != 0 {
             bail!(
                 "signature verification of {} failed:\n{}",

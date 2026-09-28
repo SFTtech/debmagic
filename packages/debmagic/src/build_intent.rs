@@ -9,6 +9,21 @@ use crate::{
     sign::SignTool,
 };
 
+/// Which kind of package a build produces: a source-only upload or
+/// binaries. Decides the dpkg-buildpackage mode and which `.changes` set a
+/// (possibly persistent) work dir exports.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BuildKind {
+    Source,
+    Binary,
+}
+
+impl BuildKind {
+    pub fn is_source(self) -> bool {
+        self == Self::Source
+    }
+}
+
 /// Clap-free inputs for resolving a [`BuildIntent`].
 #[derive(Debug, Clone)]
 pub struct BuildIntentInput {
@@ -18,6 +33,7 @@ pub struct BuildIntentInput {
     pub output_dir: Option<PathBuf>,
     pub config_file: Option<PathBuf>,
     pub driver: DriverType,
+    pub kind: BuildKind,
     pub persistent: Option<bool>,
     pub incremental: Option<bool>,
     pub debug_symbols: Option<bool>,
@@ -42,6 +58,7 @@ pub struct BuildIntent {
     pub source_dir: PathBuf,
     pub output_dir: PathBuf,
     pub driver: DriverType,
+    pub kind: BuildKind,
     pub shell_on_failure: bool,
     pub config: Config,
     pub driver_overrides: DriverOverrides,
@@ -111,6 +128,7 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         source_dir,
         output_dir,
         driver: input.driver,
+        kind: input.kind,
         shell_on_failure,
         config,
         driver_overrides: input.driver_overrides,
@@ -139,6 +157,7 @@ mod tests {
             output_dir: None,
             config_file: Some(asset_config()),
             driver: DriverType::Docker,
+            kind: BuildKind::Binary,
             persistent: None,
             incremental: None,
             debug_symbols: None,

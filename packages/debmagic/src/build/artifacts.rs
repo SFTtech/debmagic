@@ -4,10 +4,15 @@ use std::{
     path::{Component, Path, PathBuf},
 };
 
+use crate::build_intent::BuildKind;
 use anyhow::{Context, anyhow, bail};
+use debmagic_common::changes::is_source_changes;
 
-/// Locate the single `.changes` file in a build work directory.
-pub fn find_changes_file(build_dir: &Path) -> anyhow::Result<PathBuf> {
+/// Locate the `.changes` file a build of `kind` produced in a build work
+/// directory. dpkg names source-only uploads `<pkg>_<version>_source.changes`
+/// and binary builds after the build architecture, so a persistent work dir
+/// holding artifacts of both kinds yields exactly one match per kind.
+pub fn find_changes_file(build_dir: &Path, kind: BuildKind) -> anyhow::Result<PathBuf> {
     let mut paths = fs::read_dir(build_dir)
         .with_context(|| {
             format!(
@@ -16,7 +21,13 @@ pub fn find_changes_file(build_dir: &Path) -> anyhow::Result<PathBuf> {
             )
         })?
         .filter_map(|entry| entry.ok().map(|entry| entry.path()))
-        .filter(|path| path.extension() == Some(OsStr::new("changes")));
+        .filter(|path| path.extension() == Some(OsStr::new("changes")))
+        .filter(|path| {
+            let source = path
+                .file_name()
+                .is_some_and(|name| is_source_changes(&name.to_string_lossy()));
+            source == (kind == BuildKind::Source)
+        });
 
     let path = paths
         .next()
@@ -50,11 +61,15 @@ fn reject_destination_symlink(path: &Path) -> anyhow::Result<()> {
     }
 }
 
-pub fn export_build_artifacts(build_dir: &Path, output_dir: &Path) -> anyhow::Result<PathBuf> {
+pub fn export_build_artifacts(
+    build_dir: &Path,
+    output_dir: &Path,
+    kind: BuildKind,
+) -> anyhow::Result<PathBuf> {
     fs::create_dir_all(output_dir)
         .with_context(|| format!("failed to create output directory {}", output_dir.display()))?;
 
-    let changes_path = find_changes_file(build_dir)?;
+    let changes_path = find_changes_file(build_dir, kind)?;
     let changes_metadata = fs::symlink_metadata(&changes_path)?;
     if !changes_metadata.file_type().is_file() {
         bail!(
@@ -217,7 +232,8 @@ mod tests {
         ];
         write_changes(&changes_path, &artifacts);
 
-        let exported_changes = export_build_artifacts(&build_dir, &output_dir).unwrap();
+        let exported_changes =
+            export_build_artifacts(&build_dir, &output_dir, BuildKind::Binary).unwrap();
 
         assert_eq!(exported_changes, output_dir.join("test_1_amd64.changes"));
         for (filename, contents) in artifacts {
@@ -237,11 +253,34 @@ mod tests {
         fs::write(build_dir.join("one.changes"), "").unwrap();
         fs::write(build_dir.join("two.changes"), "").unwrap();
 
-        let error = export_build_artifacts(&build_dir, &output_dir).unwrap_err();
+        let error = export_build_artifacts(&build_dir, &output_dir, BuildKind::Binary).unwrap_err();
 
         assert!(error.to_string().contains("multiple .changes files"));
         fs::remove_dir_all(build_dir).unwrap();
         fs::remove_dir_all(output_dir).unwrap();
+    }
+
+    #[test]
+    fn picks_the_changes_of_the_requested_kind() {
+        let build_dir = test_dir("artifact-kinds");
+        // a persistent work dir after a source build followed by a binary build
+        let source_changes = build_dir.join("test_1_source.changes");
+        write_changes(&source_changes, &[("test_1-1.dsc", "dsc")]);
+        let changes_path = build_dir.join("test_1_amd64.changes");
+        write_changes(&changes_path, &[("test_1_amd64.deb", "deb")]);
+
+        let binary_output = test_dir("artifact-kinds-output");
+        let exported =
+            export_build_artifacts(&build_dir, &binary_output, BuildKind::Binary).unwrap();
+        assert_eq!(exported, binary_output.join("test_1_amd64.changes"));
+
+        let source_output = test_dir("artifact-kinds-output-src");
+        let exported =
+            export_build_artifacts(&build_dir, &source_output, BuildKind::Source).unwrap();
+        assert_eq!(exported, source_output.join("test_1_source.changes"));
+        fs::remove_dir_all(build_dir).unwrap();
+        fs::remove_dir_all(binary_output).unwrap();
+        fs::remove_dir_all(source_output).unwrap();
     }
 
     #[test]
@@ -254,7 +293,7 @@ mod tests {
         fs::write(build_dir.join("target"), "deb").unwrap();
         symlink("target", build_dir.join("test_1_amd64.deb")).unwrap();
 
-        let error = export_build_artifacts(&build_dir, &output_dir).unwrap_err();
+        let error = export_build_artifacts(&build_dir, &output_dir, BuildKind::Binary).unwrap_err();
 
         assert!(error.to_string().contains("not a regular file"));
         fs::remove_dir_all(build_dir).unwrap();
@@ -271,7 +310,7 @@ mod tests {
         fs::write(&target, "unchanged").unwrap();
         symlink("target", output_dir.join("test_1_amd64.deb")).unwrap();
 
-        let error = export_build_artifacts(&build_dir, &output_dir).unwrap_err();
+        let error = export_build_artifacts(&build_dir, &output_dir, BuildKind::Binary).unwrap_err();
 
         assert!(
             error

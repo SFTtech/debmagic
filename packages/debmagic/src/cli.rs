@@ -2,6 +2,10 @@ use std::path::PathBuf;
 
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
+use crate::driver::config::DriverOverrides;
+use crate::driver::driver_bare::DriverBareConfigOverrides;
+use crate::driver::driver_docker::DriverDockerConfigOverrides;
+use crate::driver::driver_lxd::DriverLxdConfigOverrides;
 use crate::sign::{SignMode, SignTool};
 use crate::time::RefreshPolicy;
 use crate::upload::UploadMethod;
@@ -631,4 +635,42 @@ pub struct UploadSubcommandArgs {
         help = "The .changes file to upload; when omitted, located via debian/changelog and the output dir"
     )]
     pub changes: Option<PathBuf>,
+}
+
+impl CommonBuildArgs {
+    /// Collect the driver-specific overrides from the CLI flags.
+    pub fn driver_overrides(&self) -> DriverOverrides {
+        DriverOverrides {
+            apt_mirror: self.apt_mirror.clone(),
+            proposed: self.proposed,
+            apt_update_age: self.apt_update_age,
+            docker: DriverDockerConfigOverrides {
+                base_image: self.docker.base_image.clone(),
+            },
+            bare: DriverBareConfigOverrides {},
+            lxd: DriverLxdConfigOverrides {
+                base_image: self.lxd.base_image.clone(),
+                project: self.lxd.project.clone(),
+            },
+        }
+    }
+}
+
+impl TestSubcommandArgs {
+    /// Collect the driver-specific overrides from the CLI flags.
+    pub fn driver_overrides(&self) -> DriverOverrides {
+        DriverOverrides {
+            apt_mirror: self.apt_mirror.clone(),
+            proposed: self.proposed,
+            apt_update_age: self.apt_update_age,
+            docker: DriverDockerConfigOverrides {
+                base_image: self.docker.base_image.clone(),
+            },
+            bare: DriverBareConfigOverrides {},
+            lxd: DriverLxdConfigOverrides {
+                base_image: self.lxd.base_image.clone(),
+                project: self.lxd.project.clone(),
+            },
+        }
+    }
 }

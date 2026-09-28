@@ -6,6 +6,7 @@ use crate::{
     build::source::SourceSyncMode,
     config::Config,
     driver::{DriverType, config::DriverOverrides},
+    package::resolve_source_dir,
     sign::{SignMode, SignTool},
 };
 
@@ -24,7 +25,7 @@ impl BuildKind {
     }
 }
 
-/// Clap-free inputs for resolving a [`BuildIntent`].
+/// Inputs for resolving a [`BuildIntent`].
 #[derive(Debug, Clone)]
 pub struct BuildIntentInput {
     /// Directory used when `source_dir` / `output_dir` are unset (typically cwd).
@@ -32,7 +33,7 @@ pub struct BuildIntentInput {
     pub source_dir: Option<PathBuf>,
     pub output_dir: Option<PathBuf>,
     pub config_file: Option<PathBuf>,
-    pub driver: DriverType,
+    pub driver: Option<DriverType>,
     pub kind: BuildKind,
     pub persistent: Option<bool>,
     pub incremental: Option<bool>,
@@ -65,10 +66,11 @@ pub struct BuildIntent {
 }
 
 pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildIntent> {
-    let source_dir = std::path::absolute(input.source_dir.unwrap_or(input.fallback_dir.clone()))
-        .context("resolving source dir failed")?;
+    let source_dir = resolve_source_dir(&input.fallback_dir, input.source_dir.as_deref())?;
 
     let mut config = Config::load(Some(&source_dir), input.config_file.as_deref())?;
+
+    let driver = resolve_driver(input.driver, config.driver.default, input.kind)?;
 
     // CLI -o wins; else the config value, relative to the package root.
     let output_dir = match input.output_dir {
@@ -127,12 +129,28 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     Ok(BuildIntent {
         source_dir,
         output_dir,
-        driver: input.driver,
+        driver,
         kind: input.kind,
         shell_on_failure,
         config,
         driver_overrides: input.driver_overrides,
     })
+}
+
+/// CLI `--driver` wins; else the config's `driver.default`; source-only
+/// builds fall back to bare, since they need no build-deps or compilation.
+fn resolve_driver(
+    cli: Option<DriverType>,
+    config_default: Option<DriverType>,
+    kind: BuildKind,
+) -> anyhow::Result<DriverType> {
+    match cli.or(config_default) {
+        Some(driver) => Ok(driver),
+        None if kind.is_source() => Ok(DriverType::Bare),
+        None => anyhow::bail!(
+            "no build driver selected: pass --driver or set 'driver' in debmagic.toml (docker, bare, lxd or incus)"
+        ),
+    }
 }
 
 #[cfg(test)]
@@ -156,7 +174,7 @@ mod tests {
             source_dir: None,
             output_dir: None,
             config_file: Some(asset_config()),
-            driver: DriverType::Docker,
+            driver: Some(DriverType::Docker),
             kind: BuildKind::Binary,
             persistent: None,
             incremental: None,
@@ -192,6 +210,56 @@ mod tests {
         assert_eq!(
             cfg.driver.docker.base_images.get("debian:trixie"),
             Some(&"some-debian-trixie-image:latest".to_string())
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn resolve_defaults_driver_from_config() -> anyhow::Result<()> {
+        let dir = std::env::temp_dir();
+        let mut input = base_input(dir);
+        input.driver = None;
+
+        let intent = resolve_build_intent(input)?;
+        // config1.toml sets driver.default = "docker"
+        assert_eq!(intent.driver, DriverType::Docker);
+        Ok(())
+    }
+
+    #[test]
+    fn resolve_driver_without_any_default() {
+        // source-only builds fall back to bare
+        assert_eq!(
+            resolve_driver(None, None, BuildKind::Source).unwrap(),
+            DriverType::Bare
+        );
+
+        // binary builds require a driver
+        let result = resolve_driver(None, None, BuildKind::Binary);
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("no build driver selected")
+        );
+    }
+
+    #[test]
+    fn resolve_driver_precedence() -> anyhow::Result<()> {
+        // CLI wins over the config default
+        assert_eq!(
+            resolve_driver(
+                Some(DriverType::Lxd),
+                Some(DriverType::Docker),
+                BuildKind::Binary
+            )?,
+            DriverType::Lxd
+        );
+        // config default when no CLI driver
+        assert_eq!(
+            resolve_driver(None, Some(DriverType::Docker), BuildKind::Binary)?,
+            DriverType::Docker
         );
         Ok(())
     }

@@ -414,7 +414,9 @@ pub fn find_candidate<'a>(candidates: &'a [Candidate], requested: &str) -> Optio
     candidates.iter().find(|c| c.version == upstream)
 }
 
-pub fn load_watch(source_dir: &Path) -> anyhow::Result<Vec<WatchSource>> {
+/// Load `debian/watch` of the package in `source_dir`, with `@PACKAGE@`
+/// substituted by `package`.
+pub fn load_watch(source_dir: &Path, package: &str) -> anyhow::Result<Vec<WatchSource>> {
     let watch_path = source_dir.join("debian").join("watch");
     if !watch_path.is_file() {
         bail!(
@@ -422,7 +424,11 @@ pub fn load_watch(source_dir: &Path) -> anyhow::Result<Vec<WatchSource>> {
             source_dir.display()
         );
     }
-    crate::upstream::watch::parse_watch_file(&watch_path)
+    let mut sources = crate::upstream::watch::parse_watch_file(&watch_path)?;
+    for source in &mut sources {
+        source.substitute_package(package);
+    }
+    Ok(sources)
 }
 
 #[cfg(test)]

@@ -8,7 +8,7 @@ use std::{
 
 use crate::build::attach::{send_socket_command, start_socket_server};
 use crate::build::source::{source_manifest_path, stage_dir, stage_source_tree};
-use crate::build_intent::{BuildIntent, BuildKind};
+use crate::build_intent::{BuildIntent, BuildIntentInput, BuildKind, resolve_build_intent};
 use crate::driver::{
     Driver, DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, EnvironmentPurpose,
     config::DriverConfig, create_driver, create_driver_from_metadata, remove_environment_root,
@@ -300,7 +300,7 @@ struct BuildRequest<'a> {
 fn run_build(
     request: &BuildRequest,
     build_commands: impl FnOnce(&Build) -> anyhow::Result<()>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<PathBuf> {
     let sign = &request.intent.config.sign;
 
     let package = &request.target.package;
@@ -344,10 +344,10 @@ fn run_build(
                 &build.environment.package_identifier,
             )?;
         }
-        Ok(())
+        Ok(changes_file)
     });
 
-    if let Err(error) = result {
+    if let Err(error) = &result {
         if request.intent.shell_on_failure && stdout().is_terminal() {
             eprintln!("Build failed: {error}. Dropping into shell...");
             if let Err(shell_error) = build
@@ -369,7 +369,7 @@ fn run_build(
             eprintln!("Failed to clean up build environment: {cleanup_error}");
         }
         stop_socket_server();
-        return Err(error);
+        return result;
     }
 
     stop_socket_server();
@@ -377,14 +377,14 @@ fn run_build(
         .driver
         .cleanup()
         .context("failed to clean up build environment")?;
-    Ok(())
+    result
 }
 
 pub fn build_package(
     intent: &BuildIntent,
     target: &PackageTarget,
     changes_options: &[String],
-) -> anyhow::Result<()> {
+) -> anyhow::Result<PathBuf> {
     let request = BuildRequest { intent, target };
     run_build(&request, |build| {
         crate::output::stage("Building binary packages");
@@ -500,7 +500,7 @@ pub async fn build_source_package(
     target: &PackageTarget,
     changes_options: &[String],
     include_orig: bool,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<PathBuf> {
     if intent.driver == DriverType::Bare {
         check_dpkg_buildpackage_available()?;
     }
@@ -582,6 +582,97 @@ pub async fn build_source_package(
         Ok(())
     })
     .context("failed to build source package")
+}
+
+/// Inputs for the `debmagic build` command: the resolved
+/// intent plus the flags that don't belong in the config.
+#[derive(Debug, Clone)]
+pub struct BuildCommand {
+    pub intent: BuildIntentInput,
+    /// `--distro` override; the changelog's single distro when unset.
+    pub distro: Option<String>,
+    /// `--include-orig` (source builds only).
+    pub include_orig: Option<crate::upload::orig::IncludeOrig>,
+    /// `--bare-ignore-release`: with the bare driver, build even though
+    /// the target distro differs from the host's os-release.
+    pub bare_ignore_release: bool,
+    /// Extra `--changes-option=...` values passed to dpkg-buildpackage.
+    pub changes_options: Vec<String>,
+    /// `--upload <target>`: after building (and signing, if enabled),
+    /// upload the resulting `.changes` to this target.
+    pub upload: Option<String>,
+}
+
+/// Run the `debmagic build` command: resolve the intent and target,
+/// build the binary or source package, and upload the result when
+/// `--upload` was passed.
+pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
+    let intent = resolve_build_intent(command.intent)?;
+    let target = crate::package::resolve_package_target(
+        &intent.source_dir,
+        command.distro.as_deref(),
+        crate::package::distro_resolve_mode_for_driver(
+            intent.driver,
+            &intent.config.driver.docker.base_images,
+            &intent.config.driver.lxd.base_images,
+        ),
+    )
+    .context("failed to determine package target")?;
+
+    let upstream_version = target.package.version().upstream_version().to_string();
+    let changes_file = if intent.kind.is_source() {
+        let include_orig = match command.include_orig {
+            Some(mode) => crate::upload::orig::decide_orig_upload(mode, &intent.source_dir)?,
+            None => true,
+        };
+        build_source_package(&intent, &target, &command.changes_options, include_orig)
+            .await
+            .context("Building the source package failed")?
+    } else {
+        let mut target = target;
+        if intent.driver == DriverType::Bare && !command.bare_ignore_release {
+            target.distro = crate::package::validate_bare_host_target(
+                &target.distro,
+                Path::new("/etc/os-release"),
+            )
+            .context("host's /etc/os-release does not match the build target distro")?;
+        }
+        build_package(&intent, &target, &command.changes_options)
+            .context("Building the package failed")?
+    };
+
+    if let Some(spec) = &command.upload {
+        let upload_target = crate::upload::resolve_target(spec, Some(&intent.config.upload))?;
+        crate::output::stage(&format!("Uploading to {}", upload_target.name));
+        crate::upload::upload_changes(
+            &upload_target,
+            spec,
+            &changes_file,
+            false,
+            false,
+            Some(upstream_version.as_str()),
+        )
+        .with_context(|| {
+            format!(
+                "uploading {} to target '{spec}' failed",
+                changes_file.display()
+            )
+        })?;
+    }
+    Ok(())
+}
+
+/// Run the `debmagic shell` command: attach to the currently active
+/// build environment and open an interactive shell in it.
+pub fn shell(
+    fallback_dir: &Path,
+    source_dir: Option<&Path>,
+    config_file: Option<&Path>,
+) -> anyhow::Result<()> {
+    let source_dir = crate::package::resolve_source_dir(fallback_dir, source_dir)?;
+    let config = Config::load(Some(&source_dir), config_file)?;
+    let identity = crate::package::load_package(&source_dir)?;
+    get_shell_in_build(&config, &identity)
 }
 
 #[cfg(test)]

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use anyhow::{Context, anyhow, bail};
 use debmagic_common::distro::{Distro, DistroVersion, get_distro_version};
@@ -25,6 +25,15 @@ pub enum DistroResolveMode<'a> {
     },
     /// Bare driver: the system running debmagic is used directly.
     Bare,
+}
+
+/// Resolve the package source dir: an explicit dir, else the fallback
+/// (typically the cwd), absolutized.
+pub fn resolve_source_dir(
+    fallback_dir: &Path,
+    source_dir: Option<&Path>,
+) -> anyhow::Result<PathBuf> {
+    std::path::absolute(source_dir.unwrap_or(fallback_dir)).context("resolving source dir failed")
 }
 
 /// Read a source tree's `debian/` metadata into the common [`Package`] model.

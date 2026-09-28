@@ -2,8 +2,6 @@ use std::path::Path;
 
 use anyhow::Context;
 
-use crate::config::SignConfig;
-use crate::sign::SignMode;
 use debmagic_common::package::SourcePackage;
 
 /// Whether an upload should include the `orig` tarball.
@@ -41,16 +39,15 @@ pub fn decide_orig_upload(mode: IncludeOrig, source_dir: &Path) -> anyhow::Resul
 }
 
 /// Apply an orig-inclusion decision to a `.changes` file: add or
-/// remove the orig tarball entries (main and components), re-signing
-/// with `sign_options` when the file changes.
+/// remove the orig tarball entries (main and components). Returns
+/// whether the file changed, which drops its signature.
 pub fn changes_include_orig(
     changes_file: &Path,
     include: bool,
     package: &SourcePackage,
-    sign_options: &SignConfig,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<bool> {
     if package.is_native() {
-        return Ok(());
+        return Ok(false);
     }
     let orig_names: Vec<String> = if include {
         let dir = changes_file
@@ -110,21 +107,7 @@ pub fn changes_include_orig(
     for name in &orig_names {
         modified |= crate::changes::set_changes_orig(changes_file, Some(name))?;
     }
-    if modified {
-        println!(
-            "debmagic: re-signing {} after the orig tarball change",
-            changes_file.display()
-        );
-        // The checksum rewrite invalidated the old signature, so force.
-        crate::sign::sign_file(
-            changes_file,
-            sign_options,
-            SignMode::Force,
-            false,
-            package.name(),
-        )?;
-    }
-    Ok(())
+    Ok(modified)
 }
 
 /// Verify the orig tarball against the checksums the `.dsc` referenced by
@@ -300,21 +283,13 @@ mod tests {
 
         let package = crate::package::load_package(&source).unwrap();
 
-        // a custom "signing" command that just cats the file back keeps
-        // the test independent of a gpg keyring on the host
-        let sign_options = SignConfig {
-            tool: crate::sign::SignTool::Custom,
-            sign_command: Some("cat".to_string()),
-            ..Default::default()
-        };
-
         // add: the orig entry appears
-        changes_include_orig(&changes, true, &package, &sign_options).unwrap();
+        assert!(changes_include_orig(&changes, true, &package).unwrap());
         let content = std::fs::read_to_string(&changes).unwrap();
         assert!(content.contains("pkg_1.0.orig.tar.xz"));
 
         // remove: the orig entry is gone again
-        changes_include_orig(&changes, false, &package, &sign_options).unwrap();
+        assert!(changes_include_orig(&changes, false, &package).unwrap());
         let content = std::fs::read_to_string(&changes).unwrap();
         assert!(!content.contains("orig.tar"));
         // the non-orig entries survive

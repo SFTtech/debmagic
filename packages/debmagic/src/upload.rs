@@ -58,7 +58,7 @@ pub fn create_uploader(target: &UploadTarget) -> anyhow::Result<Box<dyn Uploader
     }
 }
 
-/// Clap-free inputs for the `debmagic upload` command.
+/// Inputs for the `debmagic upload` command.
 #[derive(Debug, Clone)]
 pub struct UploadIntent {
     /// The package root, already resolved to an absolute path.
@@ -107,7 +107,22 @@ pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
         }
     };
 
-    let sign_mode = input.sign.unwrap_or(crate::sign::SignMode::No);
+    // adjust the orig entries before signing: rewriting the .changes
+    // strips its signature, so signing afterwards touches the key once
+    let orig_modified = match input.include_orig {
+        Some(mode) => {
+            let include = orig::decide_orig_upload(mode, &source_dir)?;
+            orig::changes_include_orig(&changes_file, include, &identity)?
+        }
+        None => false,
+    };
+
+    let sign_mode = match input.sign {
+        Some(mode) => mode,
+        // the rewrite dropped the old signature; an unsigned upload is rejected
+        None if orig_modified => crate::sign::SignMode::Auto,
+        None => crate::sign::SignMode::No,
+    };
     if sign_mode.is_enabled() {
         crate::output::stage("Signing");
         let package = changes_file
@@ -121,11 +136,6 @@ pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
             config.sign.notify,
             &package,
         )?;
-    }
-
-    if let Some(mode) = input.include_orig {
-        let include = orig::decide_orig_upload(mode, &source_dir)?;
-        orig::changes_include_orig(&changes_file, include, &identity, &config.sign)?;
     }
 
     crate::output::stage(&format!(
@@ -173,6 +183,7 @@ pub fn changes_upload_files(changes_path: &Path) -> anyhow::Result<Vec<PathBuf>>
 /// set. A non-zero exit aborts the upload before anything is transferred.
 pub fn run_pre_upload_commands(
     target: &UploadTarget,
+    target_spec: &str,
     changes_file: &Path,
     commands: &[String],
 ) -> anyhow::Result<()> {
@@ -184,7 +195,7 @@ pub fn run_pre_upload_commands(
             .arg("-c")
             .arg(&command)
             .env("DEBMAGIC_UPLOAD_CHANGES", changes_file)
-            .env("DEBMAGIC_UPLOAD_TARGET", &target.name)
+            .env("DEBMAGIC_UPLOAD_TARGET", target_spec)
             .env("DEBMAGIC_UPLOAD_TARGET_SERVER", &target.config.server)
             .env("DEBMAGIC_UPLOAD_TARGET_INCOMING", target.incoming_dir())
             .status()
@@ -223,8 +234,13 @@ pub fn upload_changes(
     let files = changes_upload_files(changes_file)?;
 
     if !skip_hooks {
-        run_pre_upload_commands(target, changes_file, &target.config.pre_upload_commands)
-            .context("running the pre-upload commands failed")?;
+        run_pre_upload_commands(
+            target,
+            target_spec,
+            changes_file,
+            &target.config.pre_upload_commands,
+        )
+        .context("running the pre-upload commands failed")?;
     }
 
     let mut uploader = create_uploader(target)?;

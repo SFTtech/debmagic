@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, IsolationCapability,
-    SignRequest, config::DriverConfig,
+    config::DriverConfig,
 };
 use crate::subprocess::{self, Capture, CommandResult};
 
@@ -100,9 +100,5 @@ impl EnvironmentDriver for DriverBare {
             std::fs::remove_dir_all(&self.environment.root_dir)?;
         }
         Ok(())
-    }
-
-    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
-        crate::sign::sign_changes(request)
     }
 }

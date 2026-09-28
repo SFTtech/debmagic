@@ -17,7 +17,6 @@ use crate::driver::{
     driver_docker::DriverDocker,
     driver_lxd::{DriverLxd, LxdVariant},
 };
-use crate::sign::SignTool;
 use crate::subprocess::{Capture, CommandResult};
 use crate::time::{RefreshPolicy, iso_timestamp, parse_iso_timestamp};
 
@@ -328,10 +327,6 @@ pub trait EnvironmentDriver {
     fn reused_environment(&self) -> bool {
         true
     }
-
-    /// Sign `changes_file` (a path on the host) with debmagic's signing
-    /// implementation.
-    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()>;
 }
 
 /// A live environment driver, created for one build/test run.
@@ -412,14 +407,6 @@ impl EnvironmentDriver for Driver {
             Self::Lxd(d) => d.reused_environment(),
         }
     }
-
-    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
-        match self {
-            Self::Docker(d) => d.sign_changes(request),
-            Self::Bare(d) => d.sign_changes(request),
-            Self::Lxd(d) => d.sign_changes(request),
-        }
-    }
 }
 
 pub fn create_driver(
@@ -495,23 +482,6 @@ pub fn create_driver_from_metadata(
             )?))
         }
     }
-}
-
-/// A single signing invocation: what to sign and whether to send a desktop
-/// notification just before the gpg touch prompt.
-pub struct SignRequest<'a> {
-    /// The `.changes` file to sign (a path on the host).
-    pub changes_file: &'a Path,
-    /// Key ID/email to sign with; `None` falls back to the maintainer lookup.
-    pub sign_key: Option<&'a str>,
-    /// Which OpenPGP implementation to use.
-    pub sign_tool: SignTool,
-    /// Custom signing command when `sign_tool` is `Custom`.
-    pub sign_command: Option<&'a str>,
-    /// Send a `notify-send` popup right before signing.
-    pub notify: bool,
-    /// `"{name}-{version}"`, used in the notification.
-    pub package: &'a str,
 }
 
 /// Remove `root` from the host. If files are owned by a container user the host

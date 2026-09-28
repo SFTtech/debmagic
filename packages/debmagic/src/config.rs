@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use crate::build::source::SourceSyncMode;
 use crate::driver::config::DriverConfig;
-use crate::sign::SignTool;
+use crate::sign::{SignMode, SignTool};
 use crate::upload::UploadConfig;
 use crate::upstream::orig::OrigTarballConfig;
 use anyhow::{Context, anyhow};
@@ -203,8 +203,10 @@ impl Default for UpstreamConfig {
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(default)]
 pub struct SignConfig {
-    /// Sign the source package (`.changes`/`.dsc`) after building.
-    pub source: bool,
+    /// Sign the source package (`.changes`/`.dsc`) after building: `no`
+    /// never, `auto` skips files our key already signed, `force` always
+    /// re-signs.
+    pub source: SignMode,
     /// GPG key ID/email to sign with. `None` falls back to the
     /// `Changed-By:`/`Maintainer:` address of the file being signed.
     pub key: Option<String>,
@@ -215,6 +217,10 @@ pub struct SignConfig {
     /// Custom verification command when `tool` is `custom`, used for
     /// upstream tarball signature checks; falls back to `sign_command`.
     pub verify_command: Option<String>,
+    /// Custom same-key check when `tool` is `custom`, for `source =
+    /// "auto"`: exit code 0 means the file's signature is ours and it
+    /// is skipped, anything else means re-sign.
+    pub signed_by_command: Option<String>,
     /// Send a desktop notification via `notify-send` just before signing,
     /// so a hardware-key touch prompt isn't missed.
     pub notify: bool,
@@ -365,7 +371,7 @@ mod tests {
         let file = dir.join("sign.toml");
         std::fs::write(
             &file,
-            "[sign]\nsource = true\nkey = \"you@example.com\"\nsign_command = \"gpg --foo\"\nnotify = true\n",
+            "[sign]\nsource = \"auto\"\nkey = \"you@example.com\"\nsign_command = \"gpg --foo\"\nnotify = true\n",
         )?;
         let cfg = Config::new(&[ConfigPath::new(
             ConfigLayer::Explicit,
@@ -373,7 +379,7 @@ mod tests {
             ConfigPathStatus::Used,
         )])?;
         std::fs::remove_dir_all(&dir).ok();
-        assert!(cfg.sign.source);
+        assert_eq!(cfg.sign.source, crate::sign::SignMode::Auto);
         assert_eq!(cfg.sign.key.as_deref(), Some("you@example.com"));
         assert_eq!(cfg.sign.sign_command.as_deref(), Some("gpg --foo"));
         assert!(cfg.sign.notify);

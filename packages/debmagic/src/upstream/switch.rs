@@ -78,7 +78,7 @@ pub async fn verify_tarball_signature(
     source_dir: &Path,
     candidate: &Candidate,
     tarball: &Path,
-    sign_options: &crate::sign::SignOptions,
+    sign_options: &crate::config::SignConfig,
 ) -> anyhow::Result<()> {
     let keyring = source_dir
         .join("debian")
@@ -164,7 +164,7 @@ pub struct SwitchOptions<'a> {
     /// `None` skips the distro lookup.
     pub orig_tarball_config: Option<&'a OrigTarballConfig>,
     pub verify_signatures: bool,
-    pub sign_options: &'a crate::sign::SignOptions,
+    pub sign_options: &'a crate::config::SignConfig,
     pub dry_run: bool,
 }
 

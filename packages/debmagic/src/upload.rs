@@ -58,6 +58,98 @@ pub fn create_uploader(target: &UploadTarget) -> anyhow::Result<Box<dyn Uploader
     }
 }
 
+/// Clap-free inputs for the `debmagic upload` command.
+#[derive(Debug, Clone)]
+pub struct UploadIntent {
+    /// The package root, already resolved to an absolute path.
+    pub source_dir: PathBuf,
+    pub config_file: Option<PathBuf>,
+    pub target: String,
+    pub method: Option<UploadMethod>,
+    pub server: Option<String>,
+    pub incoming: Option<String>,
+    pub login: Option<String>,
+    pub port: Option<u16>,
+    pub no_hooks: bool,
+    pub force: bool,
+    pub sign: Option<crate::sign::SignMode>,
+    pub include_orig: Option<orig::IncludeOrig>,
+    /// The explicit `.changes` to upload; located via changelog + output dir when unset.
+    pub changes: Option<PathBuf>,
+}
+
+/// Run the `debmagic upload` command: resolve the target, optionally sign
+/// the `.changes` and adjust its orig entries, then upload it.
+pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
+    let source_dir = input.source_dir;
+    let config = crate::config::Config::load(Some(&source_dir), input.config_file.as_deref())?;
+
+    let mut upload_target = resolve_target(&input.target, Some(&config.upload))?;
+    upload_target.apply_overrides(&UploadOverrides {
+        method: input.method,
+        server: input.server.clone(),
+        incoming: input.incoming.clone(),
+        login: input.login.clone(),
+        port: input.port,
+    });
+
+    let identity = crate::package::load_package(&source_dir)?;
+    let changes_file = match &input.changes {
+        Some(file) => std::path::absolute(file).context("resolving the changes file failed")?,
+        None => {
+            let output_dir = std::path::absolute(source_dir.join(&config.output_dir))
+                .context("resolving output dir failed")?;
+            crate::sign::find_changes_file(
+                identity.name(),
+                &identity.version().to_string(),
+                &output_dir,
+            )?
+        }
+    };
+
+    let sign_mode = input.sign.unwrap_or(crate::sign::SignMode::No);
+    if sign_mode.is_enabled() {
+        crate::output::stage("Signing");
+        let package = changes_file
+            .file_stem()
+            .map(|stem| stem.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        crate::sign::sign_file(
+            &changes_file,
+            &config.sign,
+            sign_mode,
+            config.sign.notify,
+            &package,
+        )?;
+    }
+
+    if let Some(mode) = input.include_orig {
+        let include = orig::decide_orig_upload(mode, &source_dir)?;
+        orig::changes_include_orig(&changes_file, include, &identity, &config.sign)?;
+    }
+
+    crate::output::stage(&format!(
+        "Uploading {} to {}",
+        changes_file.display(),
+        upload_target.name
+    ));
+    upload_changes(
+        &upload_target,
+        &input.target,
+        &changes_file,
+        input.no_hooks,
+        input.force,
+        Some(identity.version().upstream_version()),
+    )
+    .with_context(|| {
+        format!(
+            "uploading {} to target '{}' failed",
+            changes_file.display(),
+            input.target
+        )
+    })
+}
+
 /// Read the local file names listed in a `.changes` file, plus
 /// the `.changes` itself: everything that must be uploaded.
 pub fn changes_upload_files(changes_path: &Path) -> anyhow::Result<Vec<PathBuf>> {

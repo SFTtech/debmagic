@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
-use crate::sign::SignTool;
+use crate::sign::{SignMode, SignTool};
 use crate::time::RefreshPolicy;
 use crate::upload::UploadMethod;
 use crate::upload::orig::IncludeOrig;
@@ -296,18 +296,14 @@ pub struct CommonBuildArgs {
     )]
     pub host_arch_variant: Option<String>,
 
-    // NOTE: Option<bool> flags use ArgAction::Set with default_missing_value
-    // for tri-state parsing (None when absent) — SetTrue/SetFalse force an
-    // implicit Some(false)/Some(true) default that would always override the
-    // config file.
     #[arg(
         long,
+        value_enum,
         num_args = 0..=1,
-        default_missing_value = "true",
-        value_parser = clap::value_parser!(bool),
-        help = "Sign the resulting .changes/.dsc after building. Defaults to the 'sign.source' setting in the config file (false if unset)."
+        default_missing_value = "auto",
+        help = "Sign the resulting .changes/.dsc after building: 'auto' (the default when passed without a value) signs what is unsigned and skips what our key already signed, 'force' always re-signs, 'no' never signs. Defaults to the 'sign.source' setting in the config file (no if unset)."
     )]
-    pub sign: Option<bool>,
+    pub sign: Option<SignMode>,
 
     #[arg(
         long = "sign-key",
@@ -515,6 +511,14 @@ pub struct CheckSubcommandArgs {
 #[derive(Args, Debug)]
 pub struct SignSubcommandArgs {
     #[arg(
+        long,
+        value_enum,
+        default_value = "auto",
+        help = "'auto' skips files our key already signed, 'force' always re-signs."
+    )]
+    pub mode: SignMode,
+
+    #[arg(
         long = "sign-key",
         help = "GPG key ID/email to sign with. Defaults to the 'sign.key' setting in the config file, or the Changed-By/Maintainer address of the file being signed if unset."
     )]
@@ -603,6 +607,15 @@ pub struct UploadSubcommandArgs {
         help = "Upload even if a successful upload to this target is already recorded"
     )]
     pub force: bool,
+
+    #[arg(
+        long,
+        value_enum,
+        num_args = 0..=1,
+        default_missing_value = "auto",
+        help = "Sign the .changes right before uploading: 'auto' (the default when passed without a value) signs what is unsigned and skips what our key already signed, 'force' always re-signs. Defaults to the 'sign.source' setting in the config file (no if unset)."
+    )]
+    pub sign: Option<SignMode>,
 
     #[arg(
         long = "include-orig",

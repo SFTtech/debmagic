@@ -2,7 +2,8 @@ use std::path::Path;
 
 use anyhow::Context;
 
-use crate::sign::SignOptions;
+use crate::config::SignConfig;
+use crate::sign::SignMode;
 use debmagic_common::package::SourcePackage;
 
 /// Whether an upload should include the `orig` tarball.
@@ -46,7 +47,7 @@ pub fn changes_include_orig(
     changes_file: &Path,
     include: bool,
     package: &SourcePackage,
-    sign_options: &SignOptions,
+    sign_options: &SignConfig,
 ) -> anyhow::Result<()> {
     if package.is_native() {
         return Ok(());
@@ -114,7 +115,14 @@ pub fn changes_include_orig(
             "debmagic: re-signing {} after the orig tarball change",
             changes_file.display()
         );
-        crate::sign::sign_file(changes_file, sign_options, false, package.name())?;
+        // The checksum rewrite invalidated the old signature, so force.
+        crate::sign::sign_file(
+            changes_file,
+            sign_options,
+            SignMode::Force,
+            false,
+            package.name(),
+        )?;
     }
     Ok(())
 }
@@ -294,7 +302,7 @@ mod tests {
 
         // a custom "signing" command that just cats the file back keeps
         // the test independent of a gpg keyring on the host
-        let sign_options = SignOptions {
+        let sign_options = SignConfig {
             tool: crate::sign::SignTool::Custom,
             sign_command: Some("cat".to_string()),
             ..Default::default()

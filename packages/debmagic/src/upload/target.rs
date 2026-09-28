@@ -127,12 +127,12 @@ pub fn builtin_targets() -> Vec<(&'static str, UploadTargetConfig)> {
 }
 
 /// Resolve an upload target spec against the config's `[upload.targets]`
-/// table merged field-by-field over a same-named builtin.
-pub fn resolve_target(
-    spec: &str,
-    config_targets: Option<&HashMap<String, UploadTargetConfig>>,
-) -> anyhow::Result<UploadTarget> {
+/// table merged field-by-field over a same-named builtin. The `[upload]`
+/// section's global `pre_upload_commands` run before the target's own.
+pub fn resolve_target(spec: &str, config: Option<&UploadConfig>) -> anyhow::Result<UploadTarget> {
     let (name, parameter) = parse_target_spec(spec);
+    let config_targets = config.map(|c| &c.targets);
+    let global_pre_upload = config.map(|c| c.pre_upload_commands.clone());
 
     let builtin = builtin_targets()
         .into_iter()
@@ -150,6 +150,12 @@ pub fn resolve_target(
             "unknown upload target '{name}'; configure [upload.targets.{name}] or use a builtin: ppa, ubuntu, debian"
         ),
     };
+
+    let mut config = config;
+    if let Some(global) = global_pre_upload {
+        config.pre_upload_commands =
+            [global, std::mem::take(&mut config.pre_upload_commands)].concat();
+    }
 
     Ok(UploadTarget {
         name,
@@ -188,6 +194,9 @@ fn merge_target_config(base: &mut UploadTargetConfig, overlay: &UploadTargetConf
 pub struct UploadConfig {
     /// Named upload targets, merged over the builtins.
     pub targets: HashMap<String, UploadTargetConfig>,
+    /// Commands run before uploading to *any* target, ahead of the
+    /// target's own `pre_upload_commands`.
+    pub pre_upload_commands: Vec<String>,
 }
 
 /// CLI overrides for one upload invocation, layered over the
@@ -270,7 +279,11 @@ mod tests {
             "ubuntu".to_string(),
             UploadTargetConfig::new(UploadMethod::Scp, "", "my-incoming", None, None),
         );
-        let target = resolve_target("ubuntu", Some(&targets)).unwrap();
+        let config = UploadConfig {
+            targets,
+            ..Default::default()
+        };
+        let target = resolve_target("ubuntu", Some(&config)).unwrap();
         // server comes from the builtin, incoming/method from the config
         assert_eq!(target.config.server, "upload.ubuntu.com");
         assert_eq!(target.config.incoming, "my-incoming");
@@ -293,7 +306,11 @@ mod tests {
                 pre_upload_commands: Vec::new(),
             },
         );
-        let target = resolve_target("debian", Some(&targets)).unwrap();
+        let config = UploadConfig {
+            targets,
+            ..Default::default()
+        };
+        let target = resolve_target("debian", Some(&config)).unwrap();
         assert_eq!(target.config.method, Some(UploadMethod::Sftp));
     }
 
@@ -316,8 +333,41 @@ mod tests {
                 Some(2222),
             ),
         );
-        let target = resolve_target("myhost", Some(&targets)).unwrap();
+        let config = UploadConfig {
+            targets,
+            ..Default::default()
+        };
+        let target = resolve_target("myhost", Some(&config)).unwrap();
         assert_eq!(target.config.server, "example.com");
         assert_eq!(target.config.port, Some(2222));
+    }
+
+    #[test]
+    fn test_global_pre_upload_commands_prepend() {
+        let mut targets = HashMap::new();
+        targets.insert(
+            "myhost".to_string(),
+            UploadTargetConfig::new(
+                UploadMethod::Scp,
+                "example.com",
+                "/srv/incoming",
+                None,
+                None,
+            ),
+        );
+        targets
+            .get_mut("myhost")
+            .unwrap()
+            .pre_upload_commands
+            .push("target-hook".to_string());
+        let config = UploadConfig {
+            targets,
+            pre_upload_commands: vec!["global-hook".to_string()],
+        };
+        let target = resolve_target("myhost", Some(&config)).unwrap();
+        assert_eq!(
+            target.config.pre_upload_commands,
+            vec!["global-hook".to_string(), "target-hook".to_string()]
+        );
     }
 }

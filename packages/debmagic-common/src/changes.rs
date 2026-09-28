@@ -22,6 +22,16 @@ impl ChangesFiles {
     }
 }
 
+/// Whether a `.changes` filename names a source-only upload:
+/// `dpkg-buildpackage -S` writes `<name>_<version>_source.changes`, while
+/// binary builds name the file after the build architecture instead.
+pub fn is_source_changes(name: &str) -> bool {
+    let Some(stem) = name.strip_suffix(".changes") else {
+        return false;
+    };
+    stem.ends_with("_source")
+}
+
 /// Whether a filename is an `orig` tarball (main or component).
 pub fn is_orig_tarball(name: &str) -> bool {
     // main: foo_1.0.orig.tar.gz; component: foo_1.0.orig-bar.tar.gz
@@ -142,6 +152,17 @@ mod tests {
     #[test_case("pkg_1.0.orig.tar", false; "no compression ext")]
     fn test_is_orig_tarball(name: &str, expected: bool) {
         assert_eq!(is_orig_tarball(name), expected);
+    }
+
+    #[test_case("pkg_1.0-1_source.changes", true; "source upload")]
+    #[test_case("pkg_1.0-1_amd64.changes", false; "binary upload")]
+    #[test_case("pkg_1.0-1_all.changes", false; "arch-indep upload")]
+    #[test_case("pkg_1.0-1_multi.changes", false; "multiarch upload")]
+    #[test_case("pkg_1.0-1_amd64+all.changes", false; "combined upload")]
+    #[test_case("pkg_1.0-1_amd64v3.changes", false; "arch variant upload")]
+    #[test_case("pkg_1.0-1_source.buildinfo", false; "not a changes file")]
+    fn test_is_source_changes(name: &str, expected: bool) {
+        assert_eq!(is_source_changes(name), expected);
     }
 
     #[test]

@@ -8,7 +8,7 @@ use std::str::FromStr;
 
 use crate::{
     build::{build_package, build_source_package, get_shell_in_build},
-    build_intent::{BuildIntentInput, resolve_build_intent},
+    build_intent::{BuildIntentInput, BuildKind, resolve_build_intent},
     cli::{BuildTarget, Cli, Commands, ConfigCommands, UpstreamCommands},
     config::{Config, ConfigPathStatus, resolve_set_target},
     driver::{
@@ -61,19 +61,18 @@ async fn run() -> anyhow::Result<ExitCode> {
     let current_dir = env::current_dir()?;
     match &cli.command {
         Commands::Build(args) => {
-            let (build_args, debug_symbols, is_source, include_orig, run_test) = match &args.target
-            {
+            let (build_args, debug_symbols, kind, include_orig, run_test) = match &args.target {
                 BuildTarget::Binary(binary_args) => (
                     &binary_args.build,
                     binary_args.debug_symbols,
-                    false,
+                    BuildKind::Binary,
                     None,
                     binary_args.test,
                 ),
                 BuildTarget::Source(source_args) => (
                     &source_args.build,
                     None,
-                    true,
+                    BuildKind::Source,
                     Some(source_args.include_orig),
                     Some(false),
                 ),
@@ -85,7 +84,7 @@ async fn run() -> anyhow::Result<ExitCode> {
             .driver
             .default;
 
-            let driver = if is_source {
+            let driver = if kind.is_source() {
                 build_args
                     .driver
                     .or(config_driver)
@@ -102,6 +101,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 output_dir: build_args.output_dir.clone(),
                 config_file: cli.config.clone(),
                 driver,
+                kind,
                 persistent: build_args.persistent,
                 incremental: build_args.incremental,
                 debug_symbols,
@@ -141,7 +141,7 @@ async fn run() -> anyhow::Result<ExitCode> {
             )
             .context("failed to determine package target")?;
 
-            if is_source {
+            if kind.is_source() {
                 let include_orig = match include_orig {
                     Some(mode) => upload::orig::decide_orig_upload(mode, &intent.source_dir)?,
                     None => true,

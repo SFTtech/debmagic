@@ -5,8 +5,9 @@ use std::{
 };
 
 use super::intent::TestIntent;
-use crate::build::artifacts::{copy_changes_artifacts, copy_dir_all, find_changes_file};
+use crate::build::artifacts::{self, copy_changes_artifacts, copy_dir_all};
 use crate::build::source::stage_source_tree;
+use crate::build_intent::BuildKind;
 use crate::driver::{
     Driver, DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, EnvironmentPurpose,
     IsolationCapability,
@@ -232,7 +233,9 @@ pub fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
                 build_root.display()
             );
         }
-        find_changes_file(&build_root.join("work"))?
+        // tests install built binaries, so a binary build's .changes is what
+        // to export — not a leftover source one from the same persistent dir
+        artifacts::find_changes_file(&build_root.join("work"), BuildKind::Binary)?
     };
 
     let prior_build = if build_root.join("environment.json").is_file() {

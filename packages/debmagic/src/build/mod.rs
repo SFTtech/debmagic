@@ -255,8 +255,7 @@ fn deb_build_options(existing: Option<&str>, build_debug_symbols: bool, run_test
     options.join(" ")
 }
 
-/// Everything needed to run one package build, independent of whether the
-/// build produces binary or source packages.
+/// Everything needed to run one package build.
 struct BuildRequest<'a> {
     intent: &'a BuildIntent,
     target: &'a PackageTarget,
@@ -299,8 +298,11 @@ fn run_build(
 
     let result = build_commands(&build).and_then(|()| {
         crate::output::stage("Exporting artifacts");
-        let changes_file =
-            artifacts::export_build_artifacts(&build.environment.work_dir(), &build.output_dir)?;
+        let changes_file = artifacts::export_build_artifacts(
+            &build.environment.work_dir(),
+            &build.output_dir,
+            request.intent.kind,
+        )?;
         if build.sign_package {
             crate::output::stage(&format!("Signing {}", build.environment.package_identifier));
             build.driver.sign_changes(&SignRequest {

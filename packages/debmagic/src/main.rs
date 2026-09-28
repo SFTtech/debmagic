@@ -233,129 +233,46 @@ async fn run() -> anyhow::Result<ExitCode> {
             println!("Check subcommand! - not implemented");
         }
         Commands::Upload(args) => {
-            let source_dir = args.common.source_dir.as_deref().unwrap_or(&current_dir);
-            let source_dir =
-                std::path::absolute(source_dir).context("resolving source dir failed")?;
-            let config = Config::load(Some(&source_dir), cli.config.as_deref())?;
-
-            let mut upload_target =
-                upload::resolve_target(&args.target, Some(&config.upload))?;
-            upload_target.apply_overrides(&upload::UploadOverrides {
+            upload::upload(upload::UploadIntent {
+                source_dir: std::path::absolute(
+                    args.common
+                        .source_dir
+                        .clone()
+                        .unwrap_or(current_dir.clone()),
+                )
+                .context("resolving source dir failed")?,
+                config_file: cli.config.clone(),
+                target: args.target.clone(),
                 method: args.method,
                 server: args.server.clone(),
                 incoming: args.incoming.clone(),
                 login: args.login.clone(),
                 port: args.port,
-            });
-
-            let identity = load_package(&source_dir)?;
-            let changes_file = match &args.changes {
-                Some(file) => {
-                    std::path::absolute(file).context("resolving the changes file failed")?
-                }
-                None => {
-                    let output_dir = std::path::absolute(source_dir.join(&config.output_dir))
-                        .context("resolving output dir failed")?;
-                    crate::sign::find_changes_file(
-                        identity.name(),
-                        &identity.version().to_string(),
-                        &output_dir,
-                    )?
-                }
-            };
-
-            let upstream_version = identity.version().upstream_version().to_string();
-
-            if let Some(mode) = args.include_orig {
-                let include = upload::orig::decide_orig_upload(mode, &source_dir)?;
-                let sign_options = sign::SignOptions {
-                    key: config.sign.key.clone(),
-                    tool: config.sign.tool,
-                    sign_command: config.sign.sign_command.clone(),
-                    verify_command: config.sign.verify_command.clone(),
-                };
-                upload::orig::changes_include_orig(
-                    &changes_file,
-                    include,
-                    &identity,
-                    &sign_options,
-                )?;
-            }
-
-            crate::output::stage(&format!(
-                "Uploading {} to {}",
-                changes_file.display(),
-                upload_target.name
-            ));
-            upload::upload_changes(
-                &upload_target,
-                &args.target,
-                &changes_file,
-                args.no_hooks,
-                args.force,
-                Some(&upstream_version),
-            )
-            .with_context(|| {
-                format!(
-                    "uploading {} to target '{}' failed",
-                    changes_file.display(),
-                    args.target
-                )
+                no_hooks: args.no_hooks,
+                force: args.force,
+                sign: args.sign,
+                include_orig: args.include_orig,
+                changes: args.changes.clone(),
             })?;
         }
         Commands::Sign(args) => {
-            let source_dir = args.common.source_dir.as_deref().unwrap_or(&current_dir);
-            let source_dir =
-                std::path::absolute(source_dir).context("resolving source dir failed")?;
-            let mut config = Config::load(Some(&source_dir), cli.config.as_deref())?;
-
-            if let Some(key) = &args.sign_key {
-                config.sign.key = Some(key.clone());
-            }
-            if let Some(tool) = args.sign_tool {
-                config.sign.tool = tool;
-            }
-            if let Some(command) = &args.sign_command {
-                config.sign.sign_command = Some(command.clone());
-            }
-            if let Some(notify) = args.sign_notify {
-                config.sign.notify = notify;
-            }
-
-            let options = sign::SignOptions {
-                key: config.sign.key.clone(),
-                tool: config.sign.tool,
-                sign_command: config.sign.sign_command.clone(),
-                verify_command: config.sign.verify_command.clone(),
-            };
-
-            let file = match &args.file {
-                Some(file) => {
-                    std::path::absolute(file).context("resolving the file to sign failed")?
-                }
-                None => {
-                    let identity = load_package(&source_dir)?;
-                    // -o wins; else the config value, relative to the package root.
-                    let output_dir = match &args.output_dir {
-                        Some(dir) => {
-                            std::path::absolute(dir).context("resolving output dir failed")?
-                        }
-                        None => std::path::absolute(source_dir.join(&config.output_dir))
-                            .context("resolving output dir failed")?,
-                    };
-                    sign::find_changes_file(
-                        identity.name(),
-                        &identity.version().to_string(),
-                        &output_dir,
-                    )?
-                }
-            };
-
-            let package = file
-                .file_stem()
-                .map(|stem| stem.to_string_lossy().into_owned())
-                .unwrap_or_default();
-            sign::sign_file(&file, &options, config.sign.notify, &package)?;
+            sign::sign(sign::SignIntent {
+                source_dir: std::path::absolute(
+                    args.common
+                        .source_dir
+                        .clone()
+                        .unwrap_or(current_dir.clone()),
+                )
+                .context("resolving source dir failed")?,
+                config_file: cli.config.clone(),
+                mode: args.mode,
+                sign_key: args.sign_key.clone(),
+                sign_tool: args.sign_tool,
+                sign_command: args.sign_command.clone(),
+                sign_notify: args.sign_notify,
+                output_dir: args.output_dir.clone(),
+                file: args.file.clone(),
+            })?;
         }
         Commands::Config(args) => match &args.command {
             ConfigCommands::Show(show_args) => {
@@ -547,18 +464,12 @@ async fn run() -> anyhow::Result<ExitCode> {
                 if let Some(command) = &switch_args.verify_command {
                     config.sign.verify_command = Some(command.clone());
                 }
-                let sign_options = sign::SignOptions {
-                    key: config.sign.key.clone(),
-                    tool: config.sign.tool,
-                    sign_command: config.sign.sign_command.clone(),
-                    verify_command: config.sign.verify_command.clone(),
-                };
                 let options = upstream::switch::SwitchOptions {
                     repack: &repack,
                     output_dir: &output_dir,
                     orig_tarball_config: Some(&config.orig_tarball),
                     verify_signatures: verify,
-                    sign_options: &sign_options,
+                    sign_options: &config.sign,
                     dry_run: switch_args.dry_run,
                 };
                 upstream::switch::switch(&source_dir, main_source, &candidate, &options).await?;
@@ -586,7 +497,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                         output_dir: &output_dir,
                         orig_tarball_config: Some(&config.orig_tarball),
                         verify_signatures: verify,
-                        sign_options: &sign_options,
+                        sign_options: &config.sign,
                         dry_run: switch_args.dry_run,
                     };
                     upstream::switch::switch(&source_dir, source, component_candidate, &options)

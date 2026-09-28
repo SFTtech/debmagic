@@ -11,8 +11,7 @@ use crate::build::source::{source_manifest_path, stage_dir, stage_source_tree};
 use crate::build_intent::{BuildIntent, BuildKind};
 use crate::driver::{
     Driver, DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, EnvironmentPurpose,
-    SignRequest, config::DriverConfig, create_driver, create_driver_from_metadata,
-    remove_environment_root,
+    config::DriverConfig, create_driver, create_driver_from_metadata, remove_environment_root,
 };
 use crate::{config::Config, package::PackageTarget};
 use anyhow::{Context, anyhow};
@@ -30,7 +29,6 @@ struct Build {
     driver: Driver,
     attached: bool,
     output_dir: PathBuf,
-    sign_package: bool,
     clean: bool,
     build_debug_symbols: bool,
     run_test: bool,
@@ -50,7 +48,6 @@ impl Build {
             driver,
             attached: false,
             output_dir: intent.output_dir.clone(),
-            sign_package: intent.config.sign.source,
             clean: intent.config.clean,
             build_debug_symbols: intent.config.build_debug_symbols,
             run_test: intent.config.run_test,
@@ -90,7 +87,6 @@ impl Build {
             driver,
             attached,
             output_dir: PathBuf::new(),
-            sign_package: false,
             clean: false,
             build_debug_symbols: false,
             run_test: true,
@@ -338,16 +334,15 @@ fn run_build(
             &build.output_dir,
             request.intent.kind,
         )?;
-        if build.sign_package {
+        if sign.source.is_enabled() {
             crate::output::stage(&format!("Signing {}", build.environment.package_identifier));
-            build.driver.sign_changes(&SignRequest {
-                changes_file: &changes_file,
-                sign_key: sign.key.as_deref(),
-                sign_tool: sign.tool,
-                sign_command: sign.sign_command.as_deref(),
-                notify: sign.notify,
-                package: &build.environment.package_identifier,
-            })?;
+            crate::sign::sign_file(
+                &changes_file,
+                sign,
+                sign.source,
+                sign.notify,
+                &build.environment.package_identifier,
+            )?;
         }
         Ok(())
     });

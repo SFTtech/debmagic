@@ -6,7 +6,7 @@ use crate::{
     build::source::SourceSyncMode,
     config::Config,
     driver::{DriverType, config::DriverOverrides},
-    sign::SignTool,
+    sign::{SignMode, SignTool},
 };
 
 /// Which kind of package a build produces: a source-only upload or
@@ -38,7 +38,7 @@ pub struct BuildIntentInput {
     pub incremental: Option<bool>,
     pub debug_symbols: Option<bool>,
     pub test: Option<bool>,
-    pub sign: Option<bool>,
+    pub sign: Option<SignMode>,
     pub sign_key: Option<String>,
     pub sign_tool: Option<SignTool>,
     pub sign_command: Option<String>,

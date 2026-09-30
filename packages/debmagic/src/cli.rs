@@ -348,7 +348,9 @@ pub struct CommonBuildArgs {
 
     #[arg(
         long = "shell-on-failure",
-        action = clap::ArgAction::SetTrue,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
         help = "On build failure, drop into an interactive shell in the build environment when stdout is a TTY. Defaults to the 'shell_on_failure' setting in the config file (false if unset)."
     )]
     pub shell_on_failure: Option<bool>,
@@ -441,7 +443,13 @@ pub struct TestSubcommandArgs {
     )]
     pub driver: Option<DriverType>,
 
-    #[arg(long, action = clap::ArgAction::SetTrue, help = "Keep the test environment for reuse after the test run finishes")]
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        help = "Keep the test environment for reuse after the test run finishes"
+    )]
     pub persistent: Option<bool>,
 
     #[command(flatten)]
@@ -458,7 +466,9 @@ pub struct TestSubcommandArgs {
 
     #[arg(
         long,
-        action = clap::ArgAction::SetTrue,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
         help = "Also enable the '<release>-proposed' pocket in the test environment. Ignored by the bare driver."
     )]
     pub proposed: Option<bool>,
@@ -497,7 +507,9 @@ pub struct TestSubcommandArgs {
 
     #[arg(
         long = "shell-on-failure",
-        action = clap::ArgAction::SetTrue,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
         help = "On test failure, drop into an interactive shell in the test environment when stdout is a TTY. Defaults to the 'shell_on_failure' setting in the config file (false if unset)."
     )]
     pub shell_on_failure: Option<bool>,
@@ -671,6 +683,33 @@ impl TestSubcommandArgs {
                 base_image: self.lxd.base_image.clone(),
                 project: self.lxd.project.clone(),
             },
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test_case::test_case;
+
+    fn parse_test(args: &[&str]) -> TestSubcommandArgs {
+        let cli = Cli::try_parse_from([&["debmagic", "test"], args].concat()).unwrap();
+        match cli.command {
+            Commands::Test(args) => args,
+            other => panic!("unexpected command {other:?}"),
+        }
+    }
+
+    // an absent flag must stay None so the config value applies
+    #[test_case(&[], None; "absent")]
+    #[test_case(&["--shell-on-failure"], Some(true); "bare flag")]
+    #[test_case(&["--shell-on-failure=false"], Some(false); "explicit false")]
+    fn tri_state_flag(args: &[&str], expected: Option<bool>) {
+        let args = parse_test(args);
+        assert_eq!(args.shell_on_failure, expected);
+        if expected.is_none() {
+            assert_eq!(args.persistent, None);
+            assert_eq!(args.proposed, None);
         }
     }
 }

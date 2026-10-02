@@ -14,6 +14,8 @@ Config files are merged in order of increasing precedence, so later files overri
 Only files that exist are read; missing ones are skipped.
 Command-line flags override whatever the merged config resolves to.
 
+`DEBMAGIC_DATA_DIR` relocates the Environment registry (`db.sqlite`) and the default `environments_dir` together. A relative value is resolved to an absolute path against the current working directory. It is not a config file key.
+
 ## Options
 
 All keys are optional.
@@ -21,16 +23,16 @@ All keys are optional.
 | Key | Type | Default | CLI flag | Description |
 |---|---|---|---|---|
 | `driver.default` | enum | — | `--driver` | Build driver (`docker`, `bare`, `lxd`, `incus`) |
-| `driver.persistent` | bool | `false` | `--persistent` | Keep and reuse the build environment across runs instead of tearing it down. |
+| `driver.persistent` | enum | `"on-failure"` | `--persistent` | How long the Environment outlives the claim: `"no"`, `"on-failure"`, or `"always"`. A bare `--persistent` means `always`. |
 | `driver.apt_mirror` | string | — | `--apt-mirror` | Mirror used for build-dependency resolution. Not used by the `bare` driver. |
 | `driver.proposed` | bool | `false` | `--proposed` | Also enable the `<release>-proposed` pocket. Not used by the `bare` driver. |
 | `driver.apt_update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update`: `"now"` (every build), `"never"` (only on creation), or a maximum index age like `"1d"`, `"12h"`, `"30m"`. Fresh environments always update once. Not used by the `bare` driver. |
 | `driver.docker.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"` (e.g. `"debian:trixie"`). Falls back to `docker.io/<distro>:<codename>`. For non-Debian/Ubuntu suites (e.g. `"yocto:kirkstone"`), the map entry is what makes the suite a known DistroVersion for Docker builds. |
 | `driver.lxd.project` | string | — | — | LXD/Incus project to use. |
 | `driver.lxd.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"`. Falls back to the driver's default remote image. Same custom-suite registry role as Docker's map for LXD/Incus. |
-| `temp_build_dir` | path | `/tmp/debmagic` | — | Where build trees are staged. |
+| `environments_dir` | path | `$XDG_DATA_HOME/debmagic/environments` | — | Parent directory of Environment Host roots. Must be absolute or start with `~/`. The Environment registry is always `$XDG_DATA_HOME/debmagic/db.sqlite` (override both with `DEBMAGIC_DATA_DIR`). |
 | `output_dir` | path | `build` | `-o`/`--output-dir` | Where build artifacts are exported; relative paths resolve against the package root. |
-| `incremental` | bool | `false` | `--incremental` | Retain the environment and sync only source changes, preserving generated files. Implies `persistent`; incompatible with `clean`. |
+| `incremental` | bool | `false` | `--incremental` | Retain the environment and sync only source changes, preserving generated files. Forces Persistence `always`; incompatible with `clean`. |
 | `source_sync_mode` | enum | `tracked` | `--source-sync` | Which source files are staged (see below). |
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |
 | `run_test` | bool | `true` | `--test` | Run the package's test suite during the build; `false` exports `DEB_BUILD_OPTIONS=nocheck` so tests are skipped. |
@@ -40,7 +42,6 @@ All keys are optional.
 | `sign.sign_command` | string | — | `--sign-command` | Custom signing command for `sign.tool = "custom"`, run without a shell with `{file}`/`{key}`/`{email}` placeholders; writes the clearsigned result to stdout. |
 | `sign.notify` | bool | `false` | `--sign-notify` | Send a desktop notification via `notify-send` just before signing, so a hardware-key touch prompt isn't missed. |
 | `clean` | bool | `false` | `--clean` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
-| `shell_on_failure` | bool | `false` | `--shell-on-failure` | On build or test failure, drop into an interactive shell in the environment when stdout is a TTY. |
 | `host_arch_variant` | string | — | `--host-arch-variant` | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
 | `upstream.verify_signatures` | bool | `true` | `--no-signature-check` | Verify the upstream tarball's PGP signature against `debian/upstream/signing-key.asc` during `upstream switch` (see [Upstream](upstream.md#signature-verification)). |
 | `upload.targets` | map | — | `debmagic upload <target>` | Named upload targets for [uploading](upload.md), merged field-by-field over the builtins (`ppa`, `ubuntu`, `debian`). |
@@ -106,7 +107,7 @@ notify = true
 
 [driver]
 default = "lxd"
-persistent = true
+persistent = "always"
 apt_mirror = "http://<mirror-host>/ubuntu"
 
 [driver.docker]

@@ -157,7 +157,9 @@ fn custom_distro_from_base_images(
     }
 }
 
-fn lookup_distro(name: &str, mode: DistroResolveMode<'_>) -> anyhow::Result<DistroVersion> {
+/// Resolve a distro codename (built-in or a custom suite from the Driver's
+/// `base_images` map) to a full [`DistroVersion`].
+pub fn lookup_distro(name: &str, mode: DistroResolveMode<'_>) -> anyhow::Result<DistroVersion> {
     if let DistroResolveMode::Container { base_images, .. } = mode {
         validate_base_images_keys(base_images.keys().map(|k| k.as_str()))?;
     }

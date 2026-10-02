@@ -38,6 +38,9 @@ Build-Depends:
  librust-md-5-dev (>= 0.11),
  librust-sha1-dev (>= 0.11),
  librust-sha2-dev (>= 0.11),
+ librust-rusqlite-dev (>= 0.32),
+ libsqlite3-dev,
+ pkg-config,
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2

@@ -4,7 +4,7 @@ use std::process::ExitCode;
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
-use crate::cli::{BuildTarget, Cli, Commands, ConfigCommands, UpstreamCommands};
+use crate::cli::{BuildTarget, Cli, Commands, ConfigCommands, EnvCommands, UpstreamCommands};
 
 pub mod build;
 pub mod build_intent;
@@ -13,7 +13,10 @@ pub mod changes;
 pub mod cli;
 pub mod config;
 pub mod control;
+pub mod data_dir;
 pub mod driver;
+pub mod env_cmd;
+pub mod environment;
 pub mod output;
 pub mod package;
 pub mod requests;
@@ -81,7 +84,6 @@ async fn run() -> anyhow::Result<ExitCode> {
                     clean: build_args.clean,
                     source_sync: build_args.source_sync,
                     host_arch_variant: build_args.host_arch_variant.clone(),
-                    shell_on_failure: build_args.shell_on_failure,
                     driver_overrides: build_args.driver_overrides(),
                 },
                 distro: build_args.distro.clone(),
@@ -92,13 +94,37 @@ async fn run() -> anyhow::Result<ExitCode> {
             })
             .await?;
         }
-        Commands::Shell(args) => {
-            build::shell(
-                &current_dir,
-                args.common.source_dir.as_deref(),
-                cli.config.as_deref(),
-            )?;
-        }
+        Commands::Environment(args) => match &args.command {
+            EnvCommands::List => {
+                let config = config::Config::load(None, cli.config.as_deref())?;
+                env_cmd::list_environments(&config)?;
+            }
+            EnvCommands::Clean { id, force } => {
+                let config = config::Config::load(None, cli.config.as_deref())?;
+                env_cmd::clean_environments(&config, id.as_deref(), *force)?;
+            }
+            EnvCommands::Shell { id, common } => {
+                if let Some(id) = id {
+                    let config = config::Config::load(None, cli.config.as_deref())?;
+                    env_cmd::shell_environment(&config, &current_dir, Some(id))?;
+                } else {
+                    let source_dir = common.source_dir.as_deref().unwrap_or(&current_dir);
+                    let source_dir = match env_cmd::resolve_shell_source_dir(
+                        Some(source_dir),
+                        &current_dir,
+                    ) {
+                        Ok(dir) => dir,
+                        Err(_) => {
+                            anyhow::bail!(
+                                "not a Source tree; pass an Environment id (see `debmagic env list`)"
+                            );
+                        }
+                    };
+                    let config = config::Config::load(Some(&source_dir), cli.config.as_deref())?;
+                    env_cmd::shell_environment(&config, &source_dir, None)?;
+                }
+            }
+        },
         Commands::Test(args) => {
             let intent = test::resolve_test_intent(test::TestIntentInput {
                 fallback_dir: current_dir.clone(),
@@ -109,7 +135,6 @@ async fn run() -> anyhow::Result<ExitCode> {
                 strict: args.strict,
                 changes: args.changes.clone(),
                 allow_host_test: args.allow_host_test,
-                shell_on_failure: args.shell_on_failure,
                 distro: args.distro.clone(),
                 driver_overrides: args.driver_overrides(),
             })?;

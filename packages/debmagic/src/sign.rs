@@ -405,6 +405,23 @@ fn substitute_verify_placeholders(
     Ok(out)
 }
 
+/// A single signing invocation: what to sign and whether to send a desktop
+/// notification just before the gpg touch prompt.
+pub struct SignRequest<'a> {
+    /// The `.changes` file to sign (a path on the host).
+    pub changes_file: &'a Path,
+    /// Key ID/email to sign with; `None` falls back to the maintainer lookup.
+    pub sign_key: Option<&'a str>,
+    /// Which OpenPGP implementation to use.
+    pub sign_tool: SignTool,
+    /// Custom signing command when `sign_tool` is `Custom`.
+    pub sign_command: Option<&'a str>,
+    /// Send a `notify-send` popup right before signing.
+    pub notify: bool,
+    /// `"{name}-{version}"`, used in the notification.
+    pub package: &'a str,
+}
+
 /// Sign the `.changes` file (and its `.dsc`/`.buildinfo` children) on the
 /// host, as resolved from the build's `sign` config.
 #[derive(Debug, Clone)]

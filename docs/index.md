@@ -9,7 +9,7 @@ Working with Debian packages without `debmagic` means juggling with several inde
 Debmagic unifies this into one CLI with useful defaults:
 
 - **Isolated builds without the setup**: `debmagic build binary` builds a `debian/`-packaged source tree in a temporary container (using LXD, Incus, Docker)
-- **Fast iteration**: `--persistent`/`--incremental` reuse the environment and sync only source changes; `--shell-on-failure` and `debmagic shell` drop you right where the build broke
+- **Fast iteration**: `--persistent`/`--incremental` reuse the environment and sync only source changes; a failed build prints `debmagic env shell <id>`
 - **Test & sign integrated**: `debmagic test` runs the package's autopkgtest tests in a fresh environment, `debmagic sign` GPG-signs `.changes`/`.dsc`/`.buildinfo` on the host
 - **Package uploading**: `debmagic upload` (to `debian`, `ubuntu`, `ppa:user/repo`) pushes signed builds to archives and PPAs via scp/sftp, with configurable pre-upload checks
 - **Upstream tracking**: `debmagic upstream list`/`switch` replace uscan/uupdate, reading the package's existing `debian/watch` and `debian/copyright`
@@ -37,6 +37,7 @@ Then dive into the pages below — start with [Getting started](usage/getting-st
 usage/getting-started.md
 usage/build.md
 usage/test.md
+usage/env.md
 usage/source.md
 usage/upload.md
 usage/upstream.md

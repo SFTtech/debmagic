@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
     process::{Command, Stdio},
@@ -9,9 +10,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
-    EnvironmentMetadata, IsolationCapability, config::DriverConfig, container_name_from_metadata,
-    container_name_metadata, environment_fingerprint, refresh_apt_index, resource_name,
-    run_checked, translate_path_in_container,
+    EnvironmentMetadata, IsolationCapability, ResourceStatus, config::DriverConfig,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint,
+    refresh_apt_index, resource_name, run_checked, translate_path_in_container,
 };
 use crate::subprocess::{self, Capture, CommandResult};
 
@@ -36,6 +37,7 @@ impl LxdVariant {
 const BUILD_USER_UID: u32 = 1000;
 const BUILD_USER_GID: u32 = 1000;
 const ENVIRONMENT_CONFIG_KEY: &str = "user.debmagic.environment";
+const PROJECT_KEY: &str = "project";
 const ENVIRONMENT_SETUP_VERSION: &str = "dpkg-dev-norec python3; build-user-v1; raw.idmap-v1";
 
 // ── Config ────────────────────────────────────────────────────────────────────
@@ -181,7 +183,7 @@ impl DriverLxd {
         resource_name(
             "debmagic-src",
             &self.environment.package_name,
-            &self.environment.identifier(),
+            &self.environment.id(),
         )
     }
 
@@ -245,6 +247,42 @@ impl DriverLxd {
         Ok((!fingerprint.is_empty()).then_some(fingerprint))
     }
 
+    fn container_name_for(environment: &Environment) -> String {
+        resource_name("debmagic", &environment.package_name, &environment.id())
+    }
+
+    /// Project: CLI override > config file value.
+    fn resolve_project(
+        driver_config: &DriverConfig,
+        overrides: &DriverLxdConfigOverrides,
+    ) -> Option<String> {
+        overrides
+            .project
+            .clone()
+            .or_else(|| driver_config.lxd.project.clone())
+    }
+
+    fn metadata_for(container_name: &str, project: Option<&str>) -> HashMap<String, String> {
+        let mut meta = container_name_metadata(container_name);
+        if let Some(project) = project {
+            meta.insert(PROJECT_KEY.to_string(), project.to_string());
+        }
+        meta
+    }
+
+    /// Driver metadata known before the container exists. The project must be
+    /// recorded up front: reattachment cannot recover it from the config.
+    pub fn planned_metadata(
+        environment: &Environment,
+        driver_config: &DriverConfig,
+        overrides: &DriverLxdConfigOverrides,
+    ) -> HashMap<String, String> {
+        Self::metadata_for(
+            &Self::container_name_for(environment),
+            Self::resolve_project(driver_config, overrides).as_deref(),
+        )
+    }
+
     pub fn create(
         variant: LxdVariant,
         environment: &Environment,
@@ -253,17 +291,8 @@ impl DriverLxd {
         apt_mirror: Option<&str>,
         proposed: bool,
     ) -> anyhow::Result<Self> {
-        let container_name = resource_name(
-            "debmagic",
-            &environment.package_name,
-            &environment.identifier(),
-        );
-
-        // Project: CLI override > config file value
-        let project = overrides
-            .project
-            .clone()
-            .or_else(|| driver_config.lxd.project.clone());
+        let container_name = Self::container_name_for(environment);
+        let project = Self::resolve_project(driver_config, overrides);
         let base_image = overrides.base_image.clone().unwrap_or_else(|| {
             driver_config
                 .lxd
@@ -300,7 +329,7 @@ impl DriverLxd {
         let container_entry = base.container_list_entry()?;
         let environment_matches = container_entry.is_some()
             && base.container_environment_fingerprint()?.as_deref() == Some(&desired_fingerprint);
-        let reusing_container = environment.persistent && environment_matches;
+        let reusing_container = environment.persistence.reuses() && environment_matches;
         base.reused_environment = reusing_container;
 
         let mut initialized_container = false;
@@ -329,7 +358,7 @@ impl DriverLxd {
                 }
 
                 let mut init = base.lxd_cmd("init");
-                if !environment.persistent {
+                if environment.persistence == crate::driver::Persistence::No {
                     init.arg("--ephemeral");
                 }
                 init.args([&base_image, &container_name]);
@@ -487,12 +516,12 @@ impl DriverLxd {
         _driver_config: &DriverConfig,
         metadata: &EnvironmentMetadata,
     ) -> anyhow::Result<Self> {
-        let project = metadata.driver_metadata.get("project").cloned();
+        let project = metadata.driver_metadata.get(PROJECT_KEY).cloned();
 
         Ok(Self {
             variant,
             environment: environment.clone(),
-            container_name: container_name_from_metadata(metadata)?,
+            container_name: container_name_from_metadata(metadata),
             project,
             reused_environment: true,
         })
@@ -593,11 +622,7 @@ impl DriverLxd {
 
 impl EnvironmentDriver for DriverLxd {
     fn driver_metadata(&self) -> std::collections::HashMap<String, String> {
-        let mut meta = container_name_metadata(&self.container_name);
-        if let Some(ref p) = self.project {
-            meta.insert("project".to_string(), p.clone());
-        }
-        meta
+        Self::metadata_for(&self.container_name, self.project.as_deref())
     }
 
     fn run_command(
@@ -613,15 +638,6 @@ impl EnvironmentDriver for DriverLxd {
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
 
         self.exec_in_container(cmd, Some(&container_path), requires_root, env_add, capture)
-    }
-
-    fn cleanup(&self) -> anyhow::Result<()> {
-        if self.environment.persistent {
-            Ok(())
-        } else {
-            // Ephemeral containers are auto-deleted after stopping.
-            self.container_stop()
-        }
     }
 
     fn reset_root(&self) -> std::io::Result<()> {
@@ -672,5 +688,20 @@ impl EnvironmentDriver for DriverLxd {
 
     fn isolation_capability(&self) -> IsolationCapability {
         IsolationCapability::Container
+    }
+
+    fn probe_resource(&self) -> ResourceStatus {
+        match self.container_list_entry() {
+            Ok(Some(_)) => ResourceStatus::Present,
+            Ok(None) => ResourceStatus::Absent,
+            Err(_) => ResourceStatus::Unreachable,
+        }
+    }
+
+    fn destroy_resource(&self) -> anyhow::Result<()> {
+        match self.container_list_entry() {
+            Ok(None) => Ok(()),
+            Ok(Some(_)) | Err(_) => self.container_delete_force(),
+        }
     }
 }

@@ -25,6 +25,8 @@ pub mod driver_bare;
 pub mod driver_docker;
 pub mod driver_lxd;
 
+pub use config::Persistence;
+
 /// Path at which the environment root is bind-mounted inside container-based
 /// drivers (Docker, LXD, Incus).
 pub const ENVIRONMENT_DIR_IN_CONTAINER: &str = "/debmagic";
@@ -169,12 +171,22 @@ pub fn container_name_metadata(name: &str) -> HashMap<String, String> {
     HashMap::from([(CONTAINER_NAME_KEY.to_string(), name.to_string())])
 }
 
-pub fn container_name_from_metadata(metadata: &EnvironmentMetadata) -> anyhow::Result<String> {
+/// The container name for reattachment. Falls back to the deterministic name
+/// derived from the Environment id when the stored metadata is missing it
+/// (e.g. the creating run crashed before `driver_metadata` was recorded) —
+/// the id is hex, so the Docker and LXD/Incus name schemes coincide.
+pub fn container_name_from_metadata(metadata: &EnvironmentMetadata) -> String {
     metadata
         .driver_metadata
         .get(CONTAINER_NAME_KEY)
         .cloned()
-        .context("environment metadata has no container_name")
+        .unwrap_or_else(|| {
+            resource_name(
+                "debmagic",
+                &metadata.environment.package_name,
+                &metadata.environment.id(),
+            )
+        })
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Serialize, Deserialize)]
@@ -188,11 +200,28 @@ pub enum DriverType {
 
 impl std::fmt::Display for DriverType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(
-            self.to_possible_value()
-                .expect("no skipped variants")
-                .get_name(),
-        )
+        f.write_str(self.as_str())
+    }
+}
+
+impl DriverType {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Docker => "docker",
+            Self::Bare => "bare",
+            Self::Lxd => "lxd",
+            Self::Incus => "incus",
+        }
+    }
+
+    pub fn from_name(name: &str) -> anyhow::Result<Self> {
+        match name {
+            "docker" => Ok(Self::Docker),
+            "bare" => Ok(Self::Bare),
+            "lxd" => Ok(Self::Lxd),
+            "incus" => Ok(Self::Incus),
+            other => anyhow::bail!("unknown Driver '{other}'"),
+        }
     }
 }
 
@@ -218,6 +247,21 @@ pub enum EnvironmentPurpose {
 }
 
 impl EnvironmentPurpose {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Build => "build",
+            Self::Test => "test",
+        }
+    }
+
+    pub fn from_name(name: &str) -> anyhow::Result<Self> {
+        match name {
+            "build" => Ok(Self::Build),
+            "test" => Ok(Self::Test),
+            other => anyhow::bail!("unknown EnvironmentPurpose '{other}'"),
+        }
+    }
+
     /// Extra part for environment fingerprints when purpose is not [`Self::Build`].
     pub fn fingerprint_part(self) -> Option<&'static str> {
         match self {
@@ -233,15 +277,57 @@ pub struct Environment {
     #[serde(default)]
     pub package_name: String,
     pub package_identifier: String,
+    pub source_dir: PathBuf,
     pub root_dir: PathBuf,
     pub distro: DistroVersion,
     #[serde(default)]
-    pub persistent: bool,
+    pub persistence: Persistence,
     #[serde(default)]
     pub purpose: EnvironmentPurpose,
 }
 
 impl Environment {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        driver: DriverType,
+        package_name: &str,
+        package_identifier: &str,
+        source_dir: &Path,
+        distro: DistroVersion,
+        persistence: Persistence,
+        purpose: EnvironmentPurpose,
+        environments_dir: &Path,
+    ) -> Self {
+        let mut environment = Self {
+            driver,
+            package_name: package_name.to_string(),
+            package_identifier: package_identifier.to_string(),
+            source_dir: source_dir.to_path_buf(),
+            root_dir: PathBuf::new(),
+            distro,
+            persistence,
+            purpose,
+        };
+        environment.root_dir = environments_dir.join(environment.id());
+        environment
+    }
+
+    /// Short stable Environment id derived from the identity tuple.
+    pub fn id(&self) -> String {
+        let source_dir = self.source_dir.to_string_lossy();
+        let mut id = environment_fingerprint(&[
+            source_dir.as_ref(),
+            &self.package_name,
+            &self.package_identifier,
+            self.distro.distro.as_str(),
+            &self.distro.codename,
+            self.purpose.as_str(),
+            self.driver.as_str(),
+        ]);
+        id.truncate(16);
+        id
+    }
+
     pub fn identifier(&self) -> String {
         let base = format!(
             "{}-{}-{}",
@@ -261,11 +347,25 @@ impl Environment {
         self.root_dir.join("temp")
     }
 
+    /// Directory the Environment module's own staging uses. Build and test
+    /// trees live in kind-specific directories under the work dir instead.
+    pub fn staged_source_dir(&self) -> PathBuf {
+        self.work_dir().join(&self.package_identifier)
+    }
+
     pub fn create_dirs(&self) -> io::Result<()> {
         fs::create_dir_all(self.work_dir())?;
         fs::create_dir_all(self.temp_dir())?;
+        fs::create_dir_all(self.staged_source_dir())?;
         Ok(())
     }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum ResourceStatus {
+    Present,
+    Absent,
+    Unreachable,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -313,8 +413,6 @@ pub trait EnvironmentDriver {
         Ok(())
     }
 
-    fn cleanup(&self) -> anyhow::Result<()>;
-
     fn interactive_shell(&self, cwd: &Path) -> io::Result<()>;
 
     fn driver_type(&self) -> DriverType;
@@ -327,6 +425,13 @@ pub trait EnvironmentDriver {
     fn reused_environment(&self) -> bool {
         true
     }
+
+    /// Whether the Driver resource for this Environment still exists.
+    fn probe_resource(&self) -> ResourceStatus;
+
+    /// Destroy the Driver resource even if this is a Persistent driver.
+    /// Succeeds when the resource is already gone.
+    fn destroy_resource(&self) -> anyhow::Result<()>;
 }
 
 /// A live environment driver, created for one build/test run.
@@ -357,14 +462,6 @@ impl EnvironmentDriver for Driver {
             Self::Docker(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
             Self::Bare(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
             Self::Lxd(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
-        }
-    }
-
-    fn cleanup(&self) -> anyhow::Result<()> {
-        match self {
-            Self::Docker(d) => d.cleanup(),
-            Self::Bare(d) => d.cleanup(),
-            Self::Lxd(d) => d.cleanup(),
         }
     }
 
@@ -405,6 +502,22 @@ impl EnvironmentDriver for Driver {
             Self::Docker(d) => d.reused_environment(),
             Self::Bare(d) => d.reused_environment(),
             Self::Lxd(d) => d.reused_environment(),
+        }
+    }
+
+    fn probe_resource(&self) -> ResourceStatus {
+        match self {
+            Self::Docker(d) => d.probe_resource(),
+            Self::Bare(d) => d.probe_resource(),
+            Self::Lxd(d) => d.probe_resource(),
+        }
+    }
+
+    fn destroy_resource(&self) -> anyhow::Result<()> {
+        match self {
+            Self::Docker(d) => d.destroy_resource(),
+            Self::Bare(d) => d.destroy_resource(),
+            Self::Lxd(d) => d.destroy_resource(),
         }
     }
 }
@@ -454,6 +567,23 @@ pub fn create_driver(
     }
 }
 
+/// The Driver metadata [`create_driver`] will produce, computed without
+/// touching the Driver. Recorded before creation so a run that dies mid-setup
+/// still leaves enough in the registry to find and destroy the resource.
+pub fn planned_driver_metadata(
+    environment: &Environment,
+    driver_config: &DriverConfig,
+    overrides: &DriverOverrides,
+) -> HashMap<String, String> {
+    match environment.driver {
+        DriverType::Docker => DriverDocker::planned_metadata(environment),
+        DriverType::Bare => HashMap::new(),
+        DriverType::Lxd | DriverType::Incus => {
+            DriverLxd::planned_metadata(environment, driver_config, &overrides.lxd)
+        }
+    }
+}
+
 pub fn create_driver_from_metadata(
     driver_config: &DriverConfig,
     metadata: &EnvironmentMetadata,
@@ -487,31 +617,27 @@ pub fn create_driver_from_metadata(
 /// Remove `root` from the host. If files are owned by a container user the host
 /// cannot delete, delete them from inside that environment first. Never requires
 /// host root.
-pub fn remove_environment_root(root: &Path, driver_config: &DriverConfig) -> anyhow::Result<()> {
+pub fn remove_environment_root(
+    root: &Path,
+    driver_config: &DriverConfig,
+    metadata: Option<&EnvironmentMetadata>,
+) -> anyhow::Result<()> {
     if !root.exists() {
         return Ok(());
     }
     match fs::remove_dir_all(root) {
         Ok(()) => Ok(()),
         Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
-            let metadata_path = root.join("environment.json");
-            if !metadata_path.is_file() {
+            let Some(metadata) = metadata else {
                 return Err(e).with_context(|| {
                     format!(
-                        "failed to remove {} (permission denied) and no environment.json is present to delete files from inside the environment",
+                        "failed to remove {} (permission denied) and no Driver metadata is available to delete files from inside the environment",
                         root.display()
                     )
                 });
-            }
-            let file = fs::OpenOptions::new()
-                .read(true)
-                .open(&metadata_path)
-                .with_context(|| format!("failed to open {}", metadata_path.display()))?;
-            let metadata: EnvironmentMetadata =
-                serde_json::from_reader(std::io::BufReader::new(&file))
-                    .with_context(|| format!("failed to parse {}", metadata_path.display()))?;
+            };
             let driver =
-                create_driver_from_metadata(driver_config, &metadata).with_context(|| {
+                create_driver_from_metadata(driver_config, metadata).with_context(|| {
                     format!(
                         "failed to reattach to the environment at {} to delete privileged files",
                         root.display()
@@ -566,6 +692,7 @@ mod tests {
         Environment {
             driver: DriverType::Docker,
             package_identifier: package_identifier.to_string(),
+            source_dir: PathBuf::from("/src"),
             root_dir: PathBuf::from("/tmp"),
             distro: DistroVersion {
                 distro: Distro::Debian,
@@ -573,7 +700,7 @@ mod tests {
                 version: "15".to_string(),
                 is_devel: false,
             },
-            persistent: false,
+            persistence: Persistence::No,
             package_name: "debmagic".to_string(),
             purpose: EnvironmentPurpose::Build,
         }
@@ -600,6 +727,10 @@ mod tests {
             environment.identifier(),
             sample_environment("debmagic-0.0.1~alpha2").identifier()
         );
+        assert_ne!(
+            environment.id(),
+            sample_environment("debmagic-0.0.1~alpha2").id()
+        );
     }
 
     #[test]
@@ -607,6 +738,7 @@ mod tests {
         let json = r#"{
             "driver": "docker",
             "package_identifier": "pkg-1.0",
+            "source_dir": "/src",
             "root_dir": "/tmp/build",
             "distro": { "distro": "Debian", "codename": "forky", "version": "15" }
         }"#;

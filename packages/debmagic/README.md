@@ -5,7 +5,7 @@ Modern, robust & easy tooling for building and packaging [Debian](https://debian
 - **Build any package** in an isolated container environment with `debmagic build`
 - **Run Debian autopkgtest tests** against built packages with `debmagic test`
 - **Lint** with `debmagic check`
-- **Debug** build environments interactively with `debmagic shell`
+- **Debug** environments interactively with `debmagic env shell`
 
 ## Installation
 
@@ -59,8 +59,8 @@ Use `--strict` to fail on skipped or undeclared tests (exit code 2). The bare dr
 ### Useful options
 
 - `--distro <codename>` — select the target distro/release (e.g. `trixie`, `noble`) if the changelog is ambiguous
-- `--persistent` — retain the build environment for repeated attempts
-- `--incremental` — sync only changed sources for faster rebuilds; implies `--persistent`
+- `--persistent` — keep the build environment after every build (`always`); the default `on-failure` keeps it only when the build command fails
+- `--incremental` — sync only changed sources for faster rebuilds; forces `--persistent=always`
 - `--sign` — GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`
 - `--apt-mirror <url>` — use a faster mirror for build-dependency resolution
 
@@ -68,10 +68,10 @@ Any of these can be persisted in a `debmagic.toml` config file instead of repeat
 
 ### Inspecting a failed build
 
-Failed builds tear down their environment by default. Pass `--shell-on-failure` to drop into a shell when stdout is a TTY, or build with `--persistent` and attach afterwards:
+A failed build or test keeps the Environment when Persistence is `on-failure` (the default) or `always`, and prints how to attach:
 
 ```shell
-debmagic shell
+debmagic env shell <id>
 ```
 
 ## Documentation

@@ -5,7 +5,7 @@ Quick reference for running a package's declared Debian autopkgtest tests with `
 ## TL;DR
 
 - Entry point: `debmagic test` — runs tests from `debian/tests/control`; needs a prior `debmagic build`
-- Requires a completed build in the same build root (or pass `--changes` to point at exported artifacts)
+- Requires a completed binary build (looked up from the Environment registry's Invocation history, or pass `--changes`)
 
 ```shell
 cd your-package
@@ -17,7 +17,7 @@ debmagic test --driver docker
 
 `debmagic test` installs the binary packages from a prior build and runs the package's declared autopkgtest tests (`debian/tests/control`)
 inside a **fresh, separate** driver-managed environment.
-The test environment is never the build environment — even when `--persistent` reuses a container across runs,
+The test environment is never the build environment — even when Persistence `on-failure` or `always` reuses a container across runs,
 the test tree is reset and the `.debs` are reinstalled each time.
 
 The driver *is* the testbed: `autopkgtest` runs with the `null` backend inside the container (or on the host for the bare driver). No `autopkgtest-virt-*` backends are used.
@@ -26,23 +26,22 @@ The driver *is* the testbed: `autopkgtest` runs with the `null` backend inside t
 
 | Option | Description |
 |---|---|
-| `--driver <...>` | Test environment driver (defaults to the driver recorded in the prior build's `environment.json`) |
-| `--persistent` | Retain the test environment after the run for reattach/debug |
+| `--driver <...>` | Test environment driver (defaults to the driver recorded on the prior binary-build Invocation) |
+| `--persistent <mode>` | How long the test environment outlives this run: `on-failure` (default) keeps it when the tests fail, `always` keeps it after every run, `no` tears it down. A bare `--persistent` means `always` |
 | `--strict` | Treat skipped tests and "no tests declared" as failures (exit code 2) |
-| `--changes <path>` | Path to a `.changes` file whose directory supplies the built `.debs` (for pipeline use) |
-| `--distro <name>` | Override the target distro for the test environment (defaults to the prior build's distro from `environment.json`, not the changelog) |
+| `--changes <path>` | Path to a `.changes` file whose directory supplies the built `.debs` (for pipeline use). Overrides the artifact path only; driver and distro still default to the prior binary-build Invocation |
+| `--distro <name>` | Override the target distro for the test environment (defaults to the prior binary-build Invocation's distro, not the changelog) |
 | `--proposed` | Enable the `<release>-proposed` pocket in the test environment |
 | `--apt-mirror <url>` | Mirror URL (same as [`debmagic build`](build.md)) |
 | `--apt-update-age <when>` | Configure when to run `apt-get update` (same as [`debmagic build`](build.md#apt-update-age)) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
 | `--allow-host-test` | Allow the bare driver, which runs autopkgtest as root on the host |
-| `--shell-on-failure` | On test failure, drop into an interactive shell in the test environment when stdout is a TTY |
 
 Driver-specific flags (`--driver-docker-base-image`, `--driver-lxd-*`) mirror `debmagic build`.
 
 ## Picking a driver
 
-Use the same drivers as for builds. Pass `--driver` explicitly (or rely on the driver recorded in the prior build's `environment.json`):
+Use the same drivers as for builds. Pass `--driver` explicitly (or rely on the driver recorded on the prior binary-build Invocation):
 
 | Driver | Isolation the Environment provides |
 |---|---|
@@ -66,16 +65,21 @@ If no `debian/tests/control` exists (or it declares no tests), the run exits 0 w
 
 ## Inspecting a failed test run
 
-On failure the test environment is torn down by default. Pass `--shell-on-failure` to drop into an interactive shell inside the test environment when stdout is a TTY (destroyed on shell exit unless `--persistent` was used).
+When the tests themselves fail and this run's Persistence is `on-failure` (the default) or `always`, the Environment stays and debmagic prints `debmagic env shell <id>`. A strict skip tears the Environment down. `no` always tears it down and prints no hint.
 
-Test output and logs are exported to a `test/` subdirectory of the build root; the path is printed at the end of the run.
+Test output and logs are exported to a `<changes name>.test/` directory next to the `.changes` file (for `pkg_1.0-1_amd64.changes`, that is `pkg_1.0-1_amd64.test/`); the path is printed at the end of the run. A later run replaces that directory only if debmagic wrote it; otherwise the run fails rather than deleting it.
+
+```shell
+debmagic env shell <id>
+```
 
 ## Prior build required
 
-By default `debmagic test` resolves the prior build from the build root (same layout as `debmagic shell`). If no build artifacts are found:
-run `debmagic build` first
+By default `debmagic test` looks up the latest successful binary-build Invocation for this Source tree whose exported `.changes` still exists. If more than one DistroVersion matches, it errors and lists them — pass `--distro`. If none are found:
 
-Use `--changes` to supply a `.changes` file from an exported output directory instead.
+run `debmagic build binary` first
+
+Use `--changes` to supply a `.changes` file from an exported output directory. That overrides the artifact path only. Driver and distro still come from the prior binary-build Invocation when one exists; pass `--driver` and `--distro` when it does not. Several DistroVersions still require `--distro`.
 
 ## Bare driver
 

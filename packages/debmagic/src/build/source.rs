@@ -524,7 +524,7 @@ pub fn stage_source_tree(
 mod tests {
     use std::os::unix::fs::MetadataExt;
 
-    use crate::driver::{DriverType, Environment, EnvironmentPurpose};
+    use crate::driver::{DriverType, Environment, EnvironmentPurpose, Persistence};
 
     use super::*;
 
@@ -547,9 +547,10 @@ mod tests {
             driver: DriverType::Bare,
             package_name: "example".to_string(),
             package_identifier: "example-1.0".to_string(),
+            source_dir: source_dir.clone(),
             root_dir: build_root_dir.clone(),
             distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
-            persistent: true,
+            persistence: Persistence::Always,
             purpose: EnvironmentPurpose::Build,
         };
         environment.create_dirs()?;
@@ -615,9 +616,10 @@ mod tests {
             driver: DriverType::Bare,
             package_name: "example".to_string(),
             package_identifier: "example-1.0".to_string(),
+            source_dir: PathBuf::from("/src"),
             root_dir: PathBuf::from("/tmp/debmagic/example-1.0"),
             distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
-            persistent: true,
+            persistence: Persistence::Always,
             purpose: EnvironmentPurpose::Build,
         };
 
@@ -665,9 +667,10 @@ mod tests {
             driver: DriverType::Bare,
             package_name: "example".to_string(),
             package_identifier: "example-1.0".to_string(),
+            source_dir: source_dir.clone(),
             root_dir: test_root.join("build"),
             distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
-            persistent: true,
+            persistence: Persistence::Always,
             purpose: EnvironmentPurpose::Build,
         };
         environment.create_dirs()?;

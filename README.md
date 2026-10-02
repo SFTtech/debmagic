@@ -7,7 +7,7 @@ Modern, robust & easy [Debian](https://debian.org)/[Ubuntu](https://ubuntu.com) 
 Debmagic unifies the the packaging experience as a single, streamlined tool. Additionally, `debmagic-pkg` allows you to define package build recipes in Python.
 
 - **Isolated builds without the setup**: `debmagic build binary` builds a `debian/`-packaged source tree in a temporary container (using LXD, Incus, Docker)
-- **Fast iteration**: `--persistent`/`--incremental` reuse the environment and sync only source changes; `--shell-on-failure` and `debmagic shell` drop you right where the build broke
+- **Fast iteration**: `--persistent`/`--incremental` reuse the environment and sync only source changes; a failed build prints `debmagic env shell <id>`
 - **Test & sign integrated**: `debmagic test` runs the package's autopkgtest tests in a fresh environment, `debmagic sign` GPG-signs `.changes`/`.dsc`/`.buildinfo` on the host
 - **Python packaging API**: replace complicated `debian/rules` Makefiles with typed Python `debian/rules.py`, with optional `dh` compatibility
 
@@ -30,7 +30,7 @@ uvx debmagic build binary --driver docker
 | `debmagic build binary` | Build a binary package (`.deb`) in an isolated environment |
 | `debmagic build source` | Create a source package (`.dsc`) for upload (incl signing) |
 | `debmagic test` | Run the package's autopkgtest tests (`debian/tests/`) against a prior build |
-| `debmagic shell` | Attach an interactive shell to the build environment |
+| `debmagic env` | List, clean, or open a shell in a build or test environment |
 | `debmagic sign` | GPG-sign a `.changes` file (and its `.dsc`/`.buildinfo`) on the host |
 | `debmagic config` | Inspect and edit the effective `debmagic.toml` configuration |
 | `debmagic check` | Lint the package *(in progress)* |

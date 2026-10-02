@@ -22,8 +22,8 @@ debmagic build binary --driver lxd \
 |---|---|
 | `--driver <...>` | [Build environment driver to use](#picking-a-driver) |
 | `--source-sync <mode>` | [Which source files to include](#source-file-staging) |
-| `--persistent` | Retain the build environment. This does not do incremental builds. |
-| `--incremental` | Do incremental builds by syncing changed sources only; implies `persistent` |
+| `--persistent <mode>` | How long the build environment outlives this build: `on-failure` (default) keeps it when the build command fails, `always` keeps it after every build, `no` tears it down. A bare `--persistent` means `always` |
+| `--incremental` | Do incremental builds by syncing changed sources only; forces `--persistent=always` |
 | `--distro <name>` | [Select the target distro/release](#selecting-a-distrorelease) (e.g. `trixie`, `resolute`) |
 | `--proposed` | Use [build dependencies from `proposed`](#proposed-dependencies) pocket |
 | `--sign` | [GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`](#signing) |
@@ -34,9 +34,8 @@ debmagic build binary --driver lxd \
 | `--apt-update-age <when>` | [When a persistent environment re-runs `apt-get update`](#apt-update-age) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
 | `--output-dir <dir>` | Directory to put the resulting build artifacts |
-| `--shell-on-failure` | On build failure, drop into an interactive shell in the build environment when stdout is a TTY |
 
-[`debmagic shell`](#inspecting-a-failed-build) — attach an interactive shell to a build environment
+[`debmagic env shell`](#inspecting-a-failed-build) — attach an interactive shell to an Environment
 
 ## Picking a driver
 
@@ -52,18 +51,13 @@ There's no auto-detection; pick one and pass it explicitly every time (or config
 
 ## Inspecting a failed build
 
-On failure the build environment is torn down by default. Pass `--shell-on-failure` to drop into an interactive shell inside the build environment when stdout is a TTY (destroyed on shell exit unless `--persistent` was used).
-
-To inspect after the run finishes, pass `--persistent` up front, then:
+When the build command itself fails and this run's Persistence is `on-failure` (the default) or `always`, the Environment stays and debmagic prints `debmagic env shell <id>`. Setup failures, and failures after the build command succeeded (export, signing), tear it down. `no` always tears it down and prints no hint.
 
 ```shell
-# if you're in the package still
-debmagic shell
-# from the outside:
-debmagic shell --source-dir /path/to/parent/of/debian/dir
+debmagic env shell <id>
 ```
 
-This attaches an interactive shell inside the still-running (or restartable) build environment, at the package's build directory.
+Each `debmagic env shell` is its own shell, so you can open more than one. A bare `debmagic env shell` attaches only when this checkout has exactly one Environment.
 
 
 ## Mirror selection
@@ -80,7 +74,7 @@ You can persistently set this flag in  `.config/debmagic/config.toml`.
 ## Apt update age
 
 Fresh environments always run `apt-get update` once on creation.
-When a persistent environment is reused, `--apt-update-age` decides whether the apt index is refreshed again:
+When an Environment is reused, `--apt-update-age` decides whether the apt index is refreshed again:
 
 | Value | Behavior |
 |---|---|
@@ -113,23 +107,24 @@ You can iterate on the same build for faster compile times.
 
 ### Persistent container
 
-Every `debmagic build binary` invocation creates a new container by default and tears it down afterwards.
-For repeated attempts against the same package and distro, add `--persistent` to retain and reuse the running environment while restaging the source tree for each build:
+Every `debmagic build binary` keeps the Environment when the build command fails (`--persistent=on-failure`, the default) and tears it down when the build succeeds. Pass `--persistent` (that is, `--persistent=always`) to keep it after success too, and reuse it on the next build while restaging the source tree:
 
 ```shell
 debmagic build binary --driver lxd --persistent \
   --source-dir . --output-dir /tmp/out
 ```
 
+`--persistent=no` discards a kept Environment and starts fresh. A later `on-failure` success also tears down an Environment a previous `always` left behind.
+
 ### Incremental builds
 
 Use `--incremental` to retain the environment and synchronize only source changes while preserving generated files and unchanged source inodes.
-This flag implies `--persistent`, and cannot be combined with `--clean yes`.
+This flag forces `--persistent=always`, including over an explicit `no` or `on-failure`, and cannot be combined with `--clean yes`.
 
 The preserved build tree is kept even when the environment itself is *not* reused (e.g. a fresh CI runner where the tree was restored from a cache).
 Quilt patches that a previous build or shell session left applied in the build tree are unapplied with `dpkg-source --after-build` before sources are synced, so the worktree remains the source of truth and stale `.pc` state cannot break later builds.
 
-The work dir (`temp_build_dir`, default `/tmp/debmagic`) keeps the artifacts of builds, including their `.changes` files.
+The Environment's Host root lives under `environments_dir` (default `$XDG_DATA_HOME/debmagic/environments`). Build artifacts, including `.changes` files, are exported to `output_dir`.
 
 
 ## Selecting a distro/release
@@ -234,4 +229,4 @@ Instead of repeating CLI flags on every invocation, drop a [config file](config.
 
 ## Internals
 
-- Container/device names are derived and sanitized internally (alphanumeric + hyphen, ≤63 chars for LXD/Incus) — don't try to predict or construct them yourself; use `debmagic shell` instead of `lxc`/`docker` commands directly.
+- Container/device names are derived and sanitized internally (alphanumeric + hyphen, ≤63 chars for LXD/Incus) — don't try to predict or construct them yourself; use `debmagic env shell` instead of `lxc`/`docker` commands directly.

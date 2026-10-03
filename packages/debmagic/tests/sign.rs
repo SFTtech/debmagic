@@ -62,6 +62,31 @@ impl TestGpgHome {
 
         Self { dir }
     }
+
+    /// Add a signing subkey, which gpg then prefers over the primary key —
+    /// the usual layout of real-world keys.
+    fn add_signing_subkey(&self) {
+        let listing = run(Command::new("gpg").env("GNUPGHOME", &self.dir).args([
+            "--list-keys",
+            "--with-colons",
+            "sign@example.invalid",
+        ]));
+        let fingerprint = listing
+            .lines()
+            .find_map(|line| line.strip_prefix("fpr:"))
+            .and_then(|rest| rest.split(':').nth(8))
+            .expect("the test key has a fingerprint");
+        run(Command::new("gpg").env("GNUPGHOME", &self.dir).args([
+            "--batch",
+            "--passphrase",
+            "",
+            "--quick-add-key",
+            fingerprint,
+            "ed25519",
+            "sign",
+            "never",
+        ]));
+    }
 }
 
 impl Drop for TestGpgHome {
@@ -198,4 +223,200 @@ fn signs_changes_and_dsc_and_rewrites_checksums() {
         .arg(&dsc_path));
 
     let _ = fs::remove_dir_all(&work_dir);
+}
+
+#[test]
+#[ignore = "needs gpg on the host"]
+fn auto_skips_same_key_and_force_resigns() {
+    let gpg_home = TestGpgHome::create();
+    let work_dir =
+        std::env::temp_dir().join(format!("debmagic-sign-auto-{}", uuid::Uuid::new_v4()));
+    let changes_path = write_fake_artifacts(&work_dir);
+
+    let bin = env!("CARGO_BIN_EXE_debmagic");
+    let sign = |args: &[&str]| {
+        run(Command::new(bin)
+            .env("GNUPGHOME", &gpg_home.dir)
+            .env("DEBMAGIC_CONFIG_GLOBAL", "/dev/null")
+            .args(["sign", "--sign-key", "sign@example.invalid"])
+            .args(args)
+            .arg(&changes_path))
+    };
+
+    // First sign (auto): everything gets signed.
+    sign(&["--mode", "auto"]);
+    let first = fs::read_to_string(&changes_path).unwrap();
+    assert!(first.contains("-----BEGIN PGP SIGNATURE-----"));
+
+    // Second sign (auto): same key already signed it, so the file is
+    // left byte-for-byte alone.
+    let output = sign(&["--mode", "auto"]);
+    let second = fs::read_to_string(&changes_path).unwrap();
+    assert_eq!(first, second, "auto re-signed a same-key signature");
+    assert!(
+        output.contains("already signed with this key; skipping"),
+        "auto did not detect the same-key signature:\n{output}"
+    );
+
+    // Force: the file is re-signed (mtime changes even if the armor
+    // happens to be identical) and still verifies.
+    let mtime_before = fs::metadata(&changes_path).unwrap().modified().unwrap();
+    std::thread::sleep(std::time::Duration::from_millis(1100));
+    sign(&["--mode", "force"]);
+    let mtime_after = fs::metadata(&changes_path).unwrap().modified().unwrap();
+    assert!(mtime_after > mtime_before, "force did not rewrite the file");
+    run(Command::new("gpg")
+        .env("GNUPGHOME", &gpg_home.dir)
+        .args(["--batch", "--verify"])
+        .arg(&changes_path));
+
+    let _ = fs::remove_dir_all(&work_dir);
+}
+
+#[test]
+#[ignore = "needs gpg on the host"]
+fn auto_skips_same_key_signed_by_subkey() {
+    let gpg_home = TestGpgHome::create();
+    gpg_home.add_signing_subkey();
+    let work_dir =
+        std::env::temp_dir().join(format!("debmagic-sign-subkey-{}", uuid::Uuid::new_v4()));
+    let changes_path = write_fake_artifacts(&work_dir);
+
+    let bin = env!("CARGO_BIN_EXE_debmagic");
+    let sign = || {
+        run(Command::new(bin)
+            .env("GNUPGHOME", &gpg_home.dir)
+            .env("DEBMAGIC_CONFIG_GLOBAL", "/dev/null")
+            .args([
+                "sign",
+                "--sign-key",
+                "sign@example.invalid",
+                "--mode",
+                "auto",
+            ])
+            .arg(&changes_path))
+    };
+
+    sign();
+    // deterministic ed25519 signatures within the same second are
+    // byte-identical, so only the reported decision proves the skip
+    let output = sign();
+    assert!(
+        output.contains("already signed with this key; skipping"),
+        "auto re-signed a signature made by our subkey:\n{output}"
+    );
+
+    let _ = fs::remove_dir_all(&work_dir);
+}
+
+#[test]
+#[ignore = "needs gpg on the host"]
+fn auto_resigns_a_different_key() {
+    let ours = TestGpgHome::create();
+    let theirs = TestGpgHome::create();
+    let work_dir =
+        std::env::temp_dir().join(format!("debmagic-sign-other-{}", uuid::Uuid::new_v4()));
+    let changes_path = write_fake_artifacts(&work_dir);
+
+    // Sign with a second, different key.
+    let bin = env!("CARGO_BIN_EXE_debmagic");
+    run(Command::new(bin)
+        .env("GNUPGHOME", &theirs.dir)
+        .env("DEBMAGIC_CONFIG_GLOBAL", "/dev/null")
+        .args([
+            "sign",
+            "--sign-key",
+            "sign@example.invalid",
+            "--mode",
+            "force",
+        ])
+        .arg(&changes_path));
+    let foreign = fs::read_to_string(&changes_path).unwrap();
+    assert!(foreign.contains("-----BEGIN PGP SIGNATURE-----"));
+
+    // auto with our key must detect the foreign signature and re-sign.
+    run(Command::new(bin)
+        .env("GNUPGHOME", &ours.dir)
+        .env("DEBMAGIC_CONFIG_GLOBAL", "/dev/null")
+        .args([
+            "sign",
+            "--sign-key",
+            "sign@example.invalid",
+            "--mode",
+            "auto",
+        ])
+        .arg(&changes_path));
+    let resigned = fs::read_to_string(&changes_path).unwrap();
+    assert_ne!(foreign, resigned, "auto kept a different key's signature");
+    run(Command::new("gpg")
+        .env("GNUPGHOME", &ours.dir)
+        .args(["--batch", "--verify"])
+        .arg(&changes_path));
+
+    let _ = fs::remove_dir_all(&work_dir);
+}
+
+#[test]
+#[ignore = "needs gpg on the host"]
+fn keep_accepts_a_foreign_signature() {
+    let ours = TestGpgHome::create();
+    let theirs = TestGpgHome::create();
+    let work_dir =
+        std::env::temp_dir().join(format!("debmagic-sign-keep-{}", uuid::Uuid::new_v4()));
+    let changes_path = write_fake_artifacts(&work_dir);
+
+    // Sign with a second, different key.
+    let bin = env!("CARGO_BIN_EXE_debmagic");
+    run(Command::new(bin)
+        .env("GNUPGHOME", &theirs.dir)
+        .env("DEBMAGIC_CONFIG_GLOBAL", "/dev/null")
+        .args([
+            "sign",
+            "--sign-key",
+            "sign@example.invalid",
+            "--mode",
+            "force",
+        ])
+        .arg(&changes_path));
+    let foreign = fs::read_to_string(&changes_path).unwrap();
+    assert!(foreign.contains("-----BEGIN PGP SIGNATURE-----"));
+
+    // keep must leave the foreign signature byte-for-byte alone.
+    run(Command::new(bin)
+        .env("GNUPGHOME", &ours.dir)
+        .env("DEBMAGIC_CONFIG_GLOBAL", "/dev/null")
+        .args([
+            "sign",
+            "--sign-key",
+            "sign@example.invalid",
+            "--mode",
+            "keep",
+        ])
+        .arg(&changes_path));
+    let kept = fs::read_to_string(&changes_path).unwrap();
+    assert_eq!(foreign, kept, "keep re-signed a foreign signature");
+
+    // keep still signs an unsigned file.
+    let unsigned_dir =
+        std::env::temp_dir().join(format!("debmagic-sign-keep2-{}", uuid::Uuid::new_v4()));
+    let unsigned_path = write_fake_artifacts(&unsigned_dir);
+    run(Command::new(bin)
+        .env("GNUPGHOME", &ours.dir)
+        .env("DEBMAGIC_CONFIG_GLOBAL", "/dev/null")
+        .args([
+            "sign",
+            "--sign-key",
+            "sign@example.invalid",
+            "--mode",
+            "keep",
+        ])
+        .arg(&unsigned_path));
+    let signed = fs::read_to_string(&unsigned_path).unwrap();
+    assert!(
+        signed.contains("-----BEGIN PGP SIGNATURE-----"),
+        "keep did not sign an unsigned file:\n{signed}"
+    );
+
+    let _ = fs::remove_dir_all(&work_dir);
+    let _ = fs::remove_dir_all(&unsigned_dir);
 }

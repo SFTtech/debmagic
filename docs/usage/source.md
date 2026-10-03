@@ -23,14 +23,29 @@ debmagic build source --source-dir /path/to/parent/of/debian/dir --output-dir /p
 ## Uploading to Launchpad
 
 ```shell
+# build, sign, then upload in one go:
 debmagic build source --sign --sign-key you@example.com \
-  --source-dir . --output-dir /tmp/out
-dput ppa:your-lp-username/your-ppa /tmp/out/*_source.changes
+  --upload ppa:your-lp-username/your-ppa
+
+# or upload an already-built .changes separately:
+debmagic upload ppa:your-lp-username/your-ppa ./build/pkg_*_source.changes
 ```
 
 - `--sign` GPG-signs the `.dsc`/`.buildinfo`/`.changes` after building, on the host with your gpg keyring — see [Signing](build.md#signing).
 - `--sign-key` picks which key/uid to sign with; omit it to fall back to the `Changed-By:`/`Maintainer:` address of the file being signed.
-- Both can be set as defaults in `debian/debmagic.toml`/`$XDG_CONFIG_HOME/debmagic/config.toml` instead of passing them every time:
+- `--upload` picks the upload target (`name` or `name:parameter`), resolved from `[upload.targets]` over the builtins (`ppa`, `ubuntu`, `debian`) — see [Uploading](upload.md). Available on binary builds too.
+- `--include-orig=auto|yes|no` controls whether the built `.changes` references the `orig` tarball (`-sa`/`-sd`): `auto` (default) includes it only when the archive cannot have it yet — a new upstream version or a deltarebase onto Debian. See [Upstream versions](upstream.md#including-the-orig-in-uploads).
+- `--changes-option` adds an extra field to the `.changes` file, passed to `dpkg-buildpackage` as-is (repeatable). This is what git-ubuntu's `prepare-upload` uses to correlate source uploads with git history:
+
+  ```shell
+  debmagic build source --sign --sign-key you@example.com \
+    --changes-option=-DVcs-Git=https://git.launchpad.net/~you/ubuntu/+source/pkg \
+    --changes-option=-DVcs-Git-Ref=refs/heads/lp12345-fix \
+    --changes-option=-DVcs-Git-Commit=36349e3669439603206cffc01dcb903b0ba2c134 \
+    --upload ppa:you/your-ppa
+  ```
+
+- Both signing settings and upload targets can be set as defaults in `debian/debmagic.toml`/`$XDG_CONFIG_HOME/debmagic/config.toml` instead of passing them every time:
 
   ```toml
   [sign]
@@ -43,6 +58,9 @@ dput ppa:your-lp-username/your-ppa /tmp/out/*_source.changes
 The same file selection as `debmagic build` uses to populate the build environment: everything under `--source-dir` except files matched by `.gitignore` (build artifacts, virtualenvs, ...).
 Untracked-but-not-ignored files are included, so uncommitted work-in-progress changes are packaged too — useful while iterating locally.
 `debian/source/options` (`tar-ignore`/`diff-ignore` patterns, etc.) is honored as usual, since it's `dpkg-source` itself that reads it.
+
+Debian packages also require their `orig` tarball (the "upstream" sources).
+For `3.0 (quilt)` packages the `orig` tarball is located automatically — see [Upstream versions](upstream.md#orig-tarballs-in-builds).
 
 ## What's NOT run
 

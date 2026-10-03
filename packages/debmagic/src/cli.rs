@@ -2,7 +2,14 @@ use std::path::PathBuf;
 
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
-use crate::sign::SignTool;
+use crate::driver::config::DriverOverrides;
+use crate::driver::driver_bare::DriverBareConfigOverrides;
+use crate::driver::driver_docker::DriverDockerConfigOverrides;
+use crate::driver::driver_lxd::DriverLxdConfigOverrides;
+use crate::sign::{SignMode, SignTool};
+use crate::time::RefreshPolicy;
+use crate::upload::UploadMethod;
+use crate::upload::orig::IncludeOrig;
 use clap::{Args, Parser, Subcommand};
 
 /// When to use colored output. Mirrors common CLI conventions; `auto` is the
@@ -49,10 +56,79 @@ pub enum Commands {
     Check(CheckSubcommandArgs),
     #[command(about = "GPG-sign a .changes file (and its .dsc/.buildinfo) on the host")]
     Sign(SignSubcommandArgs),
+    #[command(
+        about = "Upload a .changes file (and everything it references) to an upload target, dput-style"
+    )]
+    Upload(UploadSubcommandArgs),
     #[command(about = "Inspect the debmagic configuration")]
     Config(ConfigSubcommandArgs),
+    #[command(about = "Query and switch upstream versions")]
+    Upstream(UpstreamSubcommandArgs),
     #[command(about = "Show version information")]
     Version {},
+}
+
+#[derive(Args, Debug)]
+pub struct UpstreamSubcommandArgs {
+    #[command(subcommand)]
+    pub command: UpstreamCommands,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum UpstreamCommands {
+    #[command(
+        about = "List available upstream versions from debian/watch, newest eligible by default"
+    )]
+    List(UpstreamListArgs),
+    #[command(
+        about = "Switch the package tree to an upstream version: fetch, repack, replace the tree (keeping debian/)"
+    )]
+    Switch(UpstreamSwitchArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct UpstreamListArgs {
+    #[arg(
+        long,
+        help = "Show all candidate versions, not just the newest newer than the changelog's"
+    )]
+    pub all: bool,
+
+    #[arg(
+        long,
+        help = "Show the N versions newer than the changelog's, not just the newest"
+    )]
+    pub previous: Option<usize>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
+}
+
+#[derive(Args, Debug)]
+pub struct UpstreamSwitchArgs {
+    #[arg(help = "The upstream version to switch to, or 'latest' for the newest eligible")]
+    pub version: String,
+
+    #[arg(
+        long,
+        help = "Only report what would happen, without touching anything"
+    )]
+    pub dry_run: bool,
+
+    #[arg(
+        long,
+        help = "Skip verifying the upstream tarball signature against debian/upstream/signing-key.asc"
+    )]
+    pub no_signature_check: bool,
+
+    #[arg(
+        long = "verify-command",
+        help = "Custom verification command for sign.tool = 'custom', run without a shell. Supports {file}, {signature} and {keyring} placeholders; without {signature} the signature path is appended. Defaults to the 'sign.verify_command' setting, falling back to 'sign.sign_command'."
+    )]
+    pub verify_command: Option<String>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
 }
 
 #[derive(Args, Debug)]
@@ -153,7 +229,7 @@ pub struct CommonBuildArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
-        help = "Synchronize changed source inputs while preserving build outputs. Implies --persistent"
+        help = "Synchronize changed source inputs to preserve build outputs. Implies --persistent"
     )]
     pub incremental: Option<bool>,
 
@@ -201,28 +277,37 @@ pub struct CommonBuildArgs {
     pub proposed: Option<bool>,
 
     #[arg(
+        long = "apt-update-age",
+        help = "When a persistent build environment runs 'apt-get update' again: 'now' (every build), 'never' (only on first creation), or a maximum age of the apt index like '1d' (the default), '12h', '30m'. Fresh environments always update once. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
+    )]
+    pub apt_update_age: Option<RefreshPolicy>,
+
+    #[arg(
         long,
-        help = "Select the target distribution version, only required if the debian changelog specifies multiple versions"
+        help = "Target distribution to build for, overriding the changelog's (e.g. 'trixie', 'noble', or a suite declared in base_images). If not provided, use the single distro from changelog."
     )]
     pub distro: Option<String>,
+
+    #[arg(
+        long = "bare-ignore-release",
+        help = "With the bare driver, build even though the target distro differs from the host's os-release. The host must still provide the build dependencies itself."
+    )]
+    pub bare_ignore_release: bool,
+
     #[arg(
         long = "host-arch-variant",
         help = "Build for a dpkg architecture variant (e.g. 'amd64v3' on Ubuntu), like dpkg-buildpackage's --host-arch-variant. Sets DEB_HOST_ARCH_VARIANT for the build, which makes the Ubuntu vendor hook append the variant's -march= flags and names the .changes file after the variant. Defaults to the 'host_arch_variant' setting in the config file."
     )]
     pub host_arch_variant: Option<String>,
 
-    // NOTE: Option<bool> flags use ArgAction::Set with default_missing_value
-    // for tri-state parsing (None when absent) — SetTrue/SetFalse force an
-    // implicit Some(false)/Some(true) default that would always override the
-    // config file.
     #[arg(
         long,
+        value_enum,
         num_args = 0..=1,
-        default_missing_value = "true",
-        value_parser = clap::value_parser!(bool),
-        help = "Sign the resulting .changes/.dsc after building. Defaults to the 'sign.source' setting in the config file (false if unset)."
+        default_missing_value = "auto",
+        help = "Sign the resulting .changes/.dsc after building: 'auto' (the default when passed without a value) signs what is unsigned and skips what our key already signed, 'force' always re-signs, 'no' never signs. Defaults to the 'sign.source' setting in the config file (no if unset)."
     )]
-    pub sign: Option<bool>,
+    pub sign: Option<SignMode>,
 
     #[arg(
         long = "sign-key",
@@ -239,7 +324,7 @@ pub struct CommonBuildArgs {
 
     #[arg(
         long = "sign-command",
-        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.command' setting in the config file."
+        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
     )]
     pub sign_command: Option<String>,
 
@@ -263,7 +348,9 @@ pub struct CommonBuildArgs {
 
     #[arg(
         long = "shell-on-failure",
-        action = clap::ArgAction::SetTrue,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
         help = "On build failure, drop into an interactive shell in the build environment when stdout is a TTY. Defaults to the 'shell_on_failure' setting in the config file (false if unset)."
     )]
     pub shell_on_failure: Option<bool>,
@@ -273,6 +360,18 @@ pub struct CommonBuildArgs {
 
     #[arg(short, long, help = "Output directory for the package artifacts")]
     pub output_dir: Option<PathBuf>,
+
+    #[arg(
+        long = "changes-option",
+        help = "Extra field for the .changes file, passed to dpkg-buildpackage as-is, e.g. --changes-option=-DVcs-Git=https://... (repeatable)"
+    )]
+    pub changes_options: Vec<String>,
+
+    #[arg(
+        long,
+        help = "After building (and signing, if enabled), upload the resulting .changes to this upload target ('name' or 'name:parameter', e.g. 'ppa:user/repo')"
+    )]
+    pub upload: Option<String>,
 }
 
 #[derive(Args, Debug)]
@@ -304,12 +403,29 @@ pub struct BinaryTargetArgs {
         help = "Also build the automatic '-dbgsym' debug symbol package"
     )]
     pub debug_symbols: Option<bool>,
+
+    #[arg(
+        long = "test",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        value_parser = clap::value_parser!(bool),
+        help = "Run the package's test suite during the build. Defaults to the 'run_test' setting in the config file (true if unset); --test=false exports DEB_BUILD_OPTIONS=nocheck so dpkg-buildpackage skips tests."
+    )]
+    pub test: Option<bool>,
 }
 
 #[derive(Args, Debug)]
 pub struct SourceTargetArgs {
     #[command(flatten)]
     pub build: CommonBuildArgs,
+
+    #[arg(
+        long = "include-orig",
+        value_enum,
+        default_value_t = IncludeOrig::Auto,
+        help = "Include the orig tarball in the source upload: 'auto' (default) includes it only when the archive cannot have it yet (a new upstream version or a deltarebase onto Debian), 'yes' always, 'no' never"
+    )]
+    pub include_orig: IncludeOrig,
 }
 
 #[derive(Args, Debug)]
@@ -327,7 +443,13 @@ pub struct TestSubcommandArgs {
     )]
     pub driver: Option<DriverType>,
 
-    #[arg(long, action = clap::ArgAction::SetTrue, help = "Keep the test environment for reuse after the test run finishes")]
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        help = "Keep the test environment for reuse after the test run finishes"
+    )]
     pub persistent: Option<bool>,
 
     #[command(flatten)]
@@ -344,10 +466,18 @@ pub struct TestSubcommandArgs {
 
     #[arg(
         long,
-        action = clap::ArgAction::SetTrue,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
         help = "Also enable the '<release>-proposed' pocket in the test environment. Ignored by the bare driver."
     )]
     pub proposed: Option<bool>,
+
+    #[arg(
+        long = "apt-update-age",
+        help = "When a persistent test environment runs 'apt-get update' again: 'now' (every run), 'never' (only on first creation), or a maximum age of the apt index like '1d' (the default), '12h', '30m'. Fresh environments always update once. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
+    )]
+    pub apt_update_age: Option<RefreshPolicy>,
 
     #[arg(
         long,
@@ -377,7 +507,9 @@ pub struct TestSubcommandArgs {
 
     #[arg(
         long = "shell-on-failure",
-        action = clap::ArgAction::SetTrue,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
         help = "On test failure, drop into an interactive shell in the test environment when stdout is a TTY. Defaults to the 'shell_on_failure' setting in the config file (false if unset)."
     )]
     pub shell_on_failure: Option<bool>,
@@ -395,6 +527,14 @@ pub struct CheckSubcommandArgs {
 #[derive(Args, Debug)]
 pub struct SignSubcommandArgs {
     #[arg(
+        long,
+        value_enum,
+        default_value = "auto",
+        help = "'auto' skips files our key already signed, 'force' always re-signs."
+    )]
+    pub mode: SignMode,
+
+    #[arg(
         long = "sign-key",
         help = "GPG key ID/email to sign with. Defaults to the 'sign.key' setting in the config file, or the Changed-By/Maintainer address of the file being signed if unset."
     )]
@@ -409,7 +549,7 @@ pub struct SignSubcommandArgs {
 
     #[arg(
         long = "sign-command",
-        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.command' setting in the config file."
+        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
     )]
     pub sign_command: Option<String>,
 
@@ -436,4 +576,140 @@ pub struct SignSubcommandArgs {
         help = "The .changes, .buildinfo or .dsc file to sign; when omitted, located via debian/changelog and --output"
     )]
     pub file: Option<PathBuf>,
+}
+
+#[derive(Args, Debug)]
+pub struct UploadSubcommandArgs {
+    #[arg(
+        help = "Upload target: 'name' or 'name:parameter' (e.g. 'ppa:user/repo'), resolved from [upload.targets] in the config, merging over the builtins (ppa, ubuntu, debian)"
+    )]
+    pub target: String,
+
+    #[arg(
+        long,
+        value_enum,
+        help = "Upload method: 'scp' or 'sftp'. Overrides the target's 'method'"
+    )]
+    pub method: Option<UploadMethod>,
+
+    #[arg(long, help = "Server to upload to. Overrides the target's 'server'")]
+    pub server: Option<String>,
+
+    #[arg(
+        long,
+        help = "Remote directory to upload into. Overrides the target's 'incoming'"
+    )]
+    pub incoming: Option<String>,
+
+    #[arg(
+        long,
+        help = "Login on the remote server. Overrides the target's 'login'"
+    )]
+    pub login: Option<String>,
+
+    #[arg(long, help = "Remote port. Overrides the target's 'port'")]
+    pub port: Option<u16>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Skip the target's pre_upload_commands"
+    )]
+    pub no_hooks: bool,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Upload even if a successful upload to this target is already recorded"
+    )]
+    pub force: bool,
+
+    #[arg(
+        long,
+        value_enum,
+        num_args = 0..=1,
+        default_missing_value = "auto",
+        help = "Sign the .changes right before uploading: 'auto' (the default when passed without a value) signs what is unsigned and skips what our key already signed, 'force' always re-signs. Defaults to the 'sign.source' setting in the config file (no if unset)."
+    )]
+    pub sign: Option<SignMode>,
+
+    #[arg(
+        long = "include-orig",
+        value_enum,
+        help = "Include the orig tarball in the upload: 'auto' includes it only when the archive cannot have it yet (a new upstream version or a deltarebase onto Debian), 'yes' always, 'no' never. Rewrites and re-signs the .changes when it disagrees"
+    )]
+    pub include_orig: Option<IncludeOrig>,
+
+    #[command(flatten)]
+    pub common: CommonCli,
+
+    #[arg(
+        help = "The .changes file to upload; when omitted, located via debian/changelog and the output dir"
+    )]
+    pub changes: Option<PathBuf>,
+}
+
+impl CommonBuildArgs {
+    /// Collect the driver-specific overrides from the CLI flags.
+    pub fn driver_overrides(&self) -> DriverOverrides {
+        DriverOverrides {
+            apt_mirror: self.apt_mirror.clone(),
+            proposed: self.proposed,
+            apt_update_age: self.apt_update_age,
+            docker: DriverDockerConfigOverrides {
+                base_image: self.docker.base_image.clone(),
+            },
+            bare: DriverBareConfigOverrides {},
+            lxd: DriverLxdConfigOverrides {
+                base_image: self.lxd.base_image.clone(),
+                project: self.lxd.project.clone(),
+            },
+        }
+    }
+}
+
+impl TestSubcommandArgs {
+    /// Collect the driver-specific overrides from the CLI flags.
+    pub fn driver_overrides(&self) -> DriverOverrides {
+        DriverOverrides {
+            apt_mirror: self.apt_mirror.clone(),
+            proposed: self.proposed,
+            apt_update_age: self.apt_update_age,
+            docker: DriverDockerConfigOverrides {
+                base_image: self.docker.base_image.clone(),
+            },
+            bare: DriverBareConfigOverrides {},
+            lxd: DriverLxdConfigOverrides {
+                base_image: self.lxd.base_image.clone(),
+                project: self.lxd.project.clone(),
+            },
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test_case::test_case;
+
+    fn parse_test(args: &[&str]) -> TestSubcommandArgs {
+        let cli = Cli::try_parse_from([&["debmagic", "test"], args].concat()).unwrap();
+        match cli.command {
+            Commands::Test(args) => args,
+            other => panic!("unexpected command {other:?}"),
+        }
+    }
+
+    // an absent flag must stay None so the config value applies
+    #[test_case(&[], None; "absent")]
+    #[test_case(&["--shell-on-failure"], Some(true); "bare flag")]
+    #[test_case(&["--shell-on-failure=false"], Some(false); "explicit false")]
+    fn tri_state_flag(args: &[&str], expected: Option<bool>) {
+        let args = parse_test(args);
+        assert_eq!(args.shell_on_failure, expected);
+        if expected.is_none() {
+            assert_eq!(args.persistent, None);
+            assert_eq!(args.proposed, None);
+        }
+    }
 }

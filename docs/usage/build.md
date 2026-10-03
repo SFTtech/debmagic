@@ -29,7 +29,9 @@ debmagic build binary --driver lxd \
 | `--sign` | [GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`](#signing) |
 | `--clean` | Run [`debian/rules clean` before building](#cleaning) |
 | `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
+| `--test` | [Run the package's test suite](#running-tests) |
 | `--apt-mirror <url>` | [Mirror URL](#mirror-selection) |
+| `--apt-update-age <when>` | [When a persistent environment re-runs `apt-get update`](#apt-update-age) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
 | `--output-dir <dir>` | Directory to put the resulting build artifacts |
 | `--shell-on-failure` | On build failure, drop into an interactive shell in the build environment when stdout is a TTY |
@@ -75,6 +77,20 @@ debmagic build binary --driver lxd --apt-mirror http://<mirror-host>/ubuntu ...
 
 You can persistently set this flag in  `.config/debmagic/config.toml`.
 
+## Apt update age
+
+Fresh environments always run `apt-get update` once on creation.
+When a persistent environment is reused, `--apt-update-age` decides whether the apt index is refreshed again:
+
+| Value | Behavior |
+|---|---|
+| `now` | Update before every build |
+| `never` | Only the initial update on creation |
+| `1d` (default), `12h`, `30m`, … | Update again once the last one is older than this |
+
+The default `1d` matches a typical developer machine's daily apt refresh: repeated builds stay fast, while the index can't go arbitrarily stale.
+Persist the setting as `apt_update_age = "1d"` in [`debmagic.toml`](config.md).
+
 ## Source file staging
 
 Before building, `debmagic` stages the source tree into the build environment.
@@ -111,6 +127,9 @@ Use `--incremental` to retain the environment and synchronize only source change
 This flag implies `--persistent`, and cannot be combined with `--clean yes`.
 
 The preserved build tree is kept even when the environment itself is *not* reused (e.g. a fresh CI runner where the tree was restored from a cache).
+Quilt patches that a previous build or shell session left applied in the build tree are unapplied with `dpkg-source --after-build` before sources are synced, so the worktree remains the source of truth and stale `.pc` state cannot break later builds.
+
+The work dir (`temp_build_dir`, default `/tmp/debmagic`) keeps the artifacts of builds, including their `.changes` files.
 
 
 ## Selecting a distro/release
@@ -118,10 +137,13 @@ The preserved build tree is kept even when the environment itself is *not* reuse
 Only needed when `debian/changelog`'s top entry doesn't unambiguously determine the target: pass `--distro <codename>` (e.g. `--distro noble`, `--distro trixie`).
 If the changelog has a single unambiguous entry, omit it.
 
+`--distro` also overrides the changelog's distribution: you can use it to rebuild a package released for an older release on a newer one, or to attempt a backport.
+On the Bare driver the target must still match the host's os-release; pass `--bare-ignore-release` to build for a different suite anyway, with the host providing the build dependencies itself.
+
 Suite aliases in the changelog (or via `--distro`) resolve to a concrete release: Debian `stable` / `oldstable` / `sid` (→ `unstable`), and Ubuntu `devel`.
 Alias targets are updated manually when Debian/Ubuntu roll.
 
-Non-Debian/Ubuntu suites (still apt/dpkg-based) are supported when declared for the active container Driver via `base_images`, e.g. `driver.docker.base_images = { "yocto:kirkstone" = "my-registry/yocto-kirkstone:latest" }`. The changelog/`--distro` value stays the bare codename (`kirkstone`). On the Bare driver, the host `/etc/os-release` must match: built-in Debian/Ubuntu need matching `ID` and codename; other suites need a matching `VERSION_CODENAME` only.
+Non-Debian/Ubuntu suites (still apt/dpkg-based) are supported when declared for the active container Driver via `base_images`, e.g. `driver.docker.base_images = { "yocto:kirkstone" = "my-registry/yocto-kirkstone:latest" }`. The changelog/`--distro` value stays the bare codename (`kirkstone`). On the Bare driver, binary builds require the host `/etc/os-release` to match: built-in Debian/Ubuntu need matching `ID` and codename, other suites a matching `VERSION_CODENAME`.
 
 ## Proposed dependencies
 
@@ -139,18 +161,42 @@ debmagic build binary --debug-symbols --output-dir /tmp/out
 
 Or set `build_debug_symbols = true` in the [`debmagic.toml`](config.md).
 
+## Running tests
+
+By default the build runs the package's test suite (the `test` stage of `debian/rules.py`, or `dh_auto_test` via the dh preset).
+Pass `--test=false` to skip it for one invocation, or set `run_test = false` in the [`debmagic.toml`](config.md):
+
+```shell
+debmagic build binary --test=false
+```
+
+This exports `DEB_BUILD_OPTIONS=nocheck`, the standard dpkg mechanism: dpkg-buildpackage propagates it into the build, debmagic's `test` stage is skipped, and classic debhelper packages skip `dh_auto_test` as usual.
+
 ## Signing
 
 `--sign` GPG-signs the resulting `.changes`/`.dsc`/`.buildinfo` after building — mainly useful for [source builds destined for Launchpad](source.md#uploading-to-launchpad), but works for binary builds too.
 Signing is debmagic's own reimplementation of `debsign` and always runs on the host with your gpg keyring: the artifacts are exported to the host output dir first, so no container or agent forwarding is involved.
 Children are signed first (`.dsc`, then `.buildinfo`) and the `.changes` checksums are rewritten after each, exactly like `debsign`.
 
+The `--sign` mode decides what happens to an existing signature:
+
+| Mode | Unsigned file | Signed by our key | Signed by another key |
+|---|---|---|---|
+| `no` | left alone | left alone | left alone |
+| `keep` | signed | kept | kept |
+| `auto` | signed | skipped | re-signed |
+| `force` | signed | re-signed | re-signed |
+
+`auto` is the sensible default: re-signing with the same key is pointless, but a foreign signature is replaced.
+`keep` accepts any existing signature — useful when a `.changes` was already signed by something else.
+`force` re-signs even what our key already signed, e.g. to switch to a new signature over the same content.
+
 | Option | Config | Description |
 |---|---|---|
-| `--sign` | `sign.source` | Sign after building; `--sign=false` skips it for one invocation |
+| `--sign <mode>` | `sign.source` | Sign after building: `no`, `keep`, `auto` or `force` |
 | `--sign-key <key>` | `sign.key` | Key ID/fingerprint/email; defaults to the `Changed-By:`/`Maintainer:` address of the file being signed |
 | `--sign-tool <tool>` | `sign.tool` | OpenPGP implementation: `gpg` (default), `sequoia` (sq), or `custom` |
-| `--sign-command <cmd>` | `sign.command` | Custom signing command for `--sign-tool custom` (see below) |
+| `--sign-command <cmd>` | `sign.sign_command` | Custom signing command for `--sign-tool custom` (see below) |
 | `--sign-notify` | `sign.notify` | Desktop notification + terminal bell just before signing, so a hardware-key touch prompt isn't missed after a long build |
 
 A custom signing command runs without a shell and must write the clearsigned result to stdout.

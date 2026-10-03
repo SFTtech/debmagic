@@ -1,8 +1,11 @@
 use std::path::{Path, PathBuf};
 
 use crate::build::source::SourceSyncMode;
+use crate::driver::DriverType;
 use crate::driver::config::DriverConfig;
-use crate::sign::SignTool;
+use crate::sign::{SignMode, SignTool};
+use crate::upload::UploadConfig;
+use crate::upstream::orig::OrigTarballConfig;
 use anyhow::{Context, anyhow};
 use config::{Config as ConfigBuilder, File};
 use serde::{Deserialize, Serialize};
@@ -142,6 +145,80 @@ pub fn resolve_set_target(
     ))
 }
 
+/// Inputs for the `debmagic config` command.
+#[derive(Debug, Clone)]
+pub struct ConfigCommand {
+    /// Directory used when `source_dir` is unset (typically cwd).
+    pub fallback_dir: PathBuf,
+    pub source_dir: Option<PathBuf>,
+    pub config_file: Option<PathBuf>,
+    pub command: ConfigCommandKind,
+}
+
+/// Which `debmagic config` subcommand to run.
+#[derive(Debug, Clone)]
+pub enum ConfigCommandKind {
+    Show,
+    /// `config get <key>`
+    Get {
+        key: String,
+    },
+    /// `config set <key> <value>`
+    Set {
+        key: String,
+        value: String,
+        /// Write to the user-wide config file instead of the project's.
+        global: bool,
+    },
+}
+
+/// Run the `debmagic config` command: show, get or set config values.
+pub fn run_config(command: ConfigCommand) -> anyhow::Result<()> {
+    let source_dir =
+        crate::package::resolve_source_dir(&command.fallback_dir, command.source_dir.as_deref())?;
+    match &command.command {
+        ConfigCommandKind::Show => {
+            let paths = Config::resolve_paths(Some(&source_dir), command.config_file.as_deref())?;
+
+            eprintln!("debmagic: config files (highest precedence first):");
+            for entry in &paths {
+                let status = match entry.status {
+                    ConfigPathStatus::Used => "used",
+                    ConfigPathStatus::NotFound => "not found",
+                };
+                eprintln!("debmagic:   {status:<10} {}", entry.path.display());
+            }
+
+            let config = Config::new(&paths)?;
+            let effective_driver = config.driver.default.unwrap_or(DriverType::Bare);
+            eprintln!("debmagic: using driver: {effective_driver} (cfg: driver.default)");
+            print!("{}", toml::to_string_pretty(&config)?);
+        }
+        ConfigCommandKind::Get { key } => {
+            let config = Config::load(Some(&source_dir), command.config_file.as_deref())?;
+            println!("{}", config.get_value(key)?);
+        }
+        ConfigCommandKind::Set { key, value, global } => {
+            let target =
+                resolve_set_target(Some(&source_dir), command.config_file.as_deref(), *global)?;
+
+            if let Some(parent) = target.path.parent() {
+                std::fs::create_dir_all(parent)
+                    .with_context(|| format!("creating {} failed", parent.display()))?;
+            }
+
+            target.set_value(key, value)?;
+
+            // validate the result parses and the key landed
+            let config = Config::load(Some(&source_dir), command.config_file.as_deref())?;
+            let effective = config.get_value(key)?;
+            println!("debmagic: {} = {}", key, effective.trim_end());
+            eprintln!("debmagic: written to {}", target.path.display());
+        }
+    }
+    Ok(())
+}
+
 /// documented in docs/usage/config.md
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(default)]
@@ -156,8 +233,17 @@ pub struct Config {
     pub source_sync_mode: SourceSyncMode,
     /// Always build the automatic `-dbgsym` debug symbol package.
     pub build_debug_symbols: bool,
+    /// Run the package's test suite during the build. When false, exports
+    /// `DEB_BUILD_OPTIONS=nocheck` so dpkg-buildpackage skips tests.
+    pub run_test: bool,
     /// Signing of the resulting `.changes`/`.dsc`.
     pub sign: SignConfig,
+    /// Named upload targets for `debmagic upload`.
+    pub upload: UploadConfig,
+    /// How to fetch the `orig` tarball for source builds.
+    pub orig_tarball: OrigTarballConfig,
+    /// `upstream` command behavior.
+    pub upstream: UpstreamConfig,
     /// Run `debian/rules clean` before building (like `dpkg-buildpackage`
     /// does unless passed `-nc`). Disabled by default because non-incremental
     /// builds already stage a clean source tree and incremental builds preserve
@@ -171,19 +257,45 @@ pub struct Config {
     pub host_arch_variant: Option<String>,
 }
 
+/// `[upstream]` section: `upstream` command behavior.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(default)]
+pub struct UpstreamConfig {
+    /// Verify upstream tarball signatures against
+    /// `debian/upstream/signing-key.asc` when it exists.
+    pub verify_signatures: bool,
+}
+
+impl Default for UpstreamConfig {
+    fn default() -> Self {
+        Self {
+            verify_signatures: true,
+        }
+    }
+}
+
 /// `[sign]` section: whether and how to sign the build artifacts.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(default)]
 pub struct SignConfig {
-    /// Sign the source package (`.changes`/`.dsc`) after building.
-    pub source: bool,
+    /// Sign the source package (`.changes`/`.dsc`) after building: `no`
+    /// never, `auto` skips files our key already signed, `force` always
+    /// re-signs.
+    pub source: SignMode,
     /// GPG key ID/email to sign with. `None` falls back to the
     /// `Changed-By:`/`Maintainer:` address of the file being signed.
     pub key: Option<String>,
     /// Which OpenPGP implementation to use.
     pub tool: SignTool,
     /// Custom signing command when `tool` is `custom`, like debsign's `-p`.
-    pub command: Option<String>,
+    pub sign_command: Option<String>,
+    /// Custom verification command when `tool` is `custom`, used for
+    /// upstream tarball signature checks; falls back to `sign_command`.
+    pub verify_command: Option<String>,
+    /// Custom same-key check when `tool` is `custom`, for `source =
+    /// "auto"`: exit code 0 means the file's signature is ours and it
+    /// is skipped, anything else means re-sign.
+    pub signed_by_command: Option<String>,
     /// Send a desktop notification via `notify-send` just before signing,
     /// so a hardware-key touch prompt isn't missed.
     pub notify: bool,
@@ -198,7 +310,11 @@ impl Default for Config {
             incremental: false,
             source_sync_mode: SourceSyncMode::default(),
             build_debug_symbols: false,
+            run_test: true,
             sign: SignConfig::default(),
+            upload: UploadConfig::default(),
+            orig_tarball: OrigTarballConfig::default(),
+            upstream: UpstreamConfig::default(),
             clean: false,
             shell_on_failure: false,
             host_arch_variant: None,
@@ -330,7 +446,7 @@ mod tests {
         let file = dir.join("sign.toml");
         std::fs::write(
             &file,
-            "[sign]\nsource = true\nkey = \"you@example.com\"\ncommand = \"gpg --foo\"\nnotify = true\n",
+            "[sign]\nsource = \"auto\"\nkey = \"you@example.com\"\nsign_command = \"gpg --foo\"\nnotify = true\n",
         )?;
         let cfg = Config::new(&[ConfigPath::new(
             ConfigLayer::Explicit,
@@ -338,9 +454,9 @@ mod tests {
             ConfigPathStatus::Used,
         )])?;
         std::fs::remove_dir_all(&dir).ok();
-        assert!(cfg.sign.source);
+        assert_eq!(cfg.sign.source, crate::sign::SignMode::Auto);
         assert_eq!(cfg.sign.key.as_deref(), Some("you@example.com"));
-        assert_eq!(cfg.sign.command.as_deref(), Some("gpg --foo"));
+        assert_eq!(cfg.sign.sign_command.as_deref(), Some("gpg --foo"));
         assert!(cfg.sign.notify);
         Ok(())
     }

@@ -7,7 +7,7 @@ use crate::{
     driver::{DriverType, config::DriverOverrides},
 };
 
-/// Clap-free inputs for resolving a [`TestIntent`].
+/// Inputs for resolving a [`TestIntent`].
 #[derive(Debug, Clone)]
 pub struct TestIntentInput {
     /// Directory used when `source_dir` is unset (typically cwd).
@@ -101,6 +101,7 @@ mod tests {
             driver_overrides: DriverOverrides {
                 apt_mirror: None,
                 proposed: None,
+                apt_update_age: None,
                 docker: DriverDockerConfigOverrides { base_image: None },
                 bare: DriverBareConfigOverrides {},
                 lxd: DriverLxdConfigOverrides {

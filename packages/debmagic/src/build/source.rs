@@ -18,8 +18,31 @@ use glob::glob;
 
 use clap::ValueEnum;
 
+use crate::build_intent::BuildKind;
 use crate::driver::Environment;
-use crate::package::PackageIdentity;
+use debmagic_common::package::SourcePackage;
+
+/// The staged tree a build kind uses inside the work dir. The `-binary` tree
+/// holds incremental build outputs and must never be wiped by a source
+/// build; the `-source` tree is restaged instead. Both share the
+/// environment (container, apt cache).
+pub fn stage_dir(environment: &Environment, kind: BuildKind) -> PathBuf {
+    let suffix = match kind {
+        BuildKind::Binary => "binary",
+        BuildKind::Source => "source",
+    };
+    environment
+        .work_dir()
+        .join(format!("{}-{suffix}", environment.package_identifier))
+}
+
+pub fn source_manifest_path(environment: &Environment, kind: BuildKind) -> PathBuf {
+    let kind = match kind {
+        BuildKind::Binary => "binary",
+        BuildKind::Source => "source",
+    };
+    environment.root_dir.join(format!("manifest-{kind}.json"))
+}
 
 /// Selects which files from the source directory are staged into the build tree.
 #[derive(
@@ -218,6 +241,16 @@ fn tracked_entries(src: &Path, paths: &[PathBuf]) -> anyhow::Result<Vec<SourcePa
             );
             continue;
         }
+        // A file deleted from the worktree but still in the index (no
+        // `git rm`) has nothing to stage; the manifest diff removes it from
+        // the build tree.
+        if !full_path.exists() {
+            eprintln!(
+                "debmagic: warning: tracked file {} is missing from the worktree, building without it",
+                path.display()
+            );
+            continue;
+        }
         entries.push(SourcePath {
             path: path.clone(),
             kind: entry_kind(&full_path)?,
@@ -370,12 +403,12 @@ fn copy_glob(src_dir: &Path, pattern: &str, dest_dir: &Path) -> anyhow::Result<(
     Ok(())
 }
 
-pub fn source_manifest_path(environment: &Environment) -> PathBuf {
-    environment.root_dir.join("source-manifest.json")
-}
-
-fn write_source_manifest(environment: &Environment, entries: &[SourcePath]) -> anyhow::Result<()> {
-    let manifest_path = source_manifest_path(environment);
+fn write_source_manifest(
+    environment: &Environment,
+    kind: BuildKind,
+    entries: &[SourcePath],
+) -> anyhow::Result<()> {
+    let manifest_path = source_manifest_path(environment, kind);
     let temporary_path = manifest_path.with_extension("json.tmp");
     fs::write(&temporary_path, serde_json::to_vec_pretty(entries)?)?;
     fs::rename(temporary_path, manifest_path)?;
@@ -384,10 +417,11 @@ fn write_source_manifest(environment: &Environment, entries: &[SourcePath]) -> a
 
 fn sync_source_tree(
     environment: &Environment,
+    kind: BuildKind,
     source_dir: &Path,
     source_sync_mode: SourceSyncMode,
 ) -> anyhow::Result<()> {
-    let manifest_path = source_manifest_path(environment);
+    let manifest_path = source_manifest_path(environment, kind);
     let previous: Vec<SourcePath> = serde_json::from_reader(BufReader::new(
         fs::File::open(&manifest_path)
             .with_context(|| format!("failed to open {}", manifest_path.display()))?,
@@ -408,7 +442,7 @@ fn sync_source_tree(
         .collect::<Vec<_>>();
     stale.sort_by_key(|entry| Reverse(entry.path.components().count()));
     for entry in stale {
-        let destination = environment.staged_source_dir().join(&entry.path);
+        let destination = stage_dir(environment, kind).join(&entry.path);
         if entry.kind == SourcePathKind::Directory
             && !current_kinds.contains_key(entry.path.as_path())
         {
@@ -426,17 +460,18 @@ fn sync_source_tree(
         }
     }
 
-    copy_source_entries(source_dir, &environment.staged_source_dir(), &current)?;
-    write_source_manifest(environment, &current)
+    copy_source_entries(source_dir, &stage_dir(environment, kind), &current)?;
+    write_source_manifest(environment, kind, &current)
 }
 
 pub fn stage_source_tree(
     environment: &Environment,
-    identity: &PackageIdentity,
+    kind: BuildKind,
+    package: &SourcePackage,
     source_sync_mode: SourceSyncMode,
     incremental: bool,
 ) -> anyhow::Result<()> {
-    let source_dir = &identity.source_dir;
+    let source_dir = package.source_dir()?;
     if source_sync_mode == SourceSyncMode::Tracked {
         let untracked = git_untracked_paths(source_dir);
         if !untracked.is_empty() {
@@ -450,33 +485,38 @@ pub fn stage_source_tree(
             if untracked.len() > 20 {
                 eprintln!("  ... and {} more", untracked.len() - 20);
             }
-            eprintln!("  git add them or use --source-sync worktree to include them");
+            eprintln!("  `git add` them or use `--source-sync worktree` to include them");
         }
     }
-    if incremental && source_manifest_path(environment).is_file() {
-        sync_source_tree(environment, source_dir, source_sync_mode)
+    if incremental && source_manifest_path(environment, kind).is_file() {
+        sync_source_tree(environment, kind, source_dir, source_sync_mode)
             .context("failed to synchronize source tree")?;
     } else {
         let entries = source_tree_entries(source_dir, source_sync_mode)?;
-        copy_source_entries(source_dir, &environment.staged_source_dir(), &entries)
+        copy_source_entries(source_dir, &stage_dir(environment, kind), &entries)
             .context("failed to copy source tree to build directory")?;
-        write_source_manifest(environment, &entries)?;
+        write_source_manifest(environment, kind, &entries)?;
     }
 
     let source_parent = source_dir
         .parent()
         .ok_or_else(|| anyhow!("source directory has no parent"))?;
-    let prefix = format!("{}_{}", identity.name, identity.version.upstream_version());
-    copy_glob(
-        source_parent,
-        &format!("{prefix}.orig.tar.*"),
-        &environment.work_dir(),
-    )?;
-    copy_glob(
-        source_parent,
-        &format!("{prefix}.orig-*.tar.*"),
-        &environment.work_dir(),
-    )?;
+    // the naming knowledge lives in debmagic-common; only the glob
+    // wildcard for "any compression" is added here
+    let orig_pattern = format!(
+        "{}*",
+        debmagic_common::changes::orig_prefix(package.name(), package.version().upstream_version())
+    );
+    let component_pattern = format!(
+        "{}*",
+        debmagic_common::changes::component_orig_prefix(
+            package.name(),
+            package.version().upstream_version(),
+            "*"
+        )
+    );
+    copy_glob(source_parent, &orig_pattern, &environment.work_dir())?;
+    copy_glob(source_parent, &component_pattern, &environment.work_dir())?;
     Ok(())
 }
 
@@ -516,14 +556,14 @@ mod tests {
         let initial_entries = source_tree_entries(&source_dir, SourceSyncMode::Worktree)?;
         copy_source_entries(
             &source_dir,
-            &environment.staged_source_dir(),
+            &stage_dir(&environment, BuildKind::Binary),
             &initial_entries,
         )?;
-        write_source_manifest(&environment, &initial_entries)?;
+        write_source_manifest(&environment, BuildKind::Binary, &initial_entries)?;
         let unchanged_inode =
-            fs::metadata(environment.staged_source_dir().join("unchanged.txt"))?.ino();
+            fs::metadata(stage_dir(&environment, BuildKind::Binary).join("unchanged.txt"))?.ino();
         fs::write(
-            environment.staged_source_dir().join("cache/output.o"),
+            stage_dir(&environment, BuildKind::Binary).join("cache/output.o"),
             "compiled",
         )?;
 
@@ -535,9 +575,14 @@ mod tests {
         symlink("added.txt", source_dir.join("link"))?;
         fs::write(source_dir.join("added.txt"), "new")?;
 
-        sync_source_tree(&environment, &source_dir, SourceSyncMode::Worktree)?;
+        sync_source_tree(
+            &environment,
+            BuildKind::Binary,
+            &source_dir,
+            SourceSyncMode::Worktree,
+        )?;
 
-        let staged = environment.staged_source_dir();
+        let staged = stage_dir(&environment, BuildKind::Binary);
         assert_eq!(fs::read_to_string(staged.join("changed.txt"))?, "after");
         assert_eq!(fs::read_to_string(staged.join("added.txt"))?, "new");
         assert_eq!(
@@ -562,6 +607,137 @@ mod tests {
         for path in ["", ".", "../outside", "debian/../outside", "/tmp/outside"] {
             assert!(validate_source_path(Path::new(path)).is_err(), "{path}");
         }
+    }
+
+    #[test]
+    fn manifests_and_stage_dirs_are_per_build_kind() {
+        let environment = Environment {
+            driver: DriverType::Bare,
+            package_name: "example".to_string(),
+            package_identifier: "example-1.0".to_string(),
+            root_dir: PathBuf::from("/tmp/debmagic/example-1.0"),
+            distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
+            persistent: true,
+            purpose: EnvironmentPurpose::Build,
+        };
+
+        assert_eq!(
+            source_manifest_path(&environment, BuildKind::Binary),
+            PathBuf::from("/tmp/debmagic/example-1.0/manifest-binary.json")
+        );
+        assert_eq!(
+            source_manifest_path(&environment, BuildKind::Source),
+            PathBuf::from("/tmp/debmagic/example-1.0/manifest-source.json")
+        );
+        assert_eq!(
+            stage_dir(&environment, BuildKind::Binary),
+            PathBuf::from("/tmp/debmagic/example-1.0/work/example-1.0-binary")
+        );
+        assert_eq!(
+            stage_dir(&environment, BuildKind::Source),
+            PathBuf::from("/tmp/debmagic/example-1.0/work/example-1.0-source")
+        );
+    }
+
+    /// A `SourcePackage` whose `Location::SourceDir` points at `dir`.
+    fn test_package(dir: &Path) -> SourcePackage {
+        crate::package::load_package(dir).unwrap()
+    }
+
+    /// A source build sharing a build root with a binary build must never
+    /// touch the binary tree or its manifest: it stages into its own tree
+    /// and syncs against its own manifest.
+    #[test]
+    fn source_stage_sync_leaves_binary_tree_untouched() -> anyhow::Result<()> {
+        let test_root = std::env::temp_dir().join(format!(
+            "debmagic-source-stage-test-{}",
+            uuid::Uuid::new_v4()
+        ));
+        let source_dir = test_root.join("source");
+        fs::create_dir_all(source_dir.join("debian"))?;
+        fs::write(
+            source_dir.join("debian/changelog"),
+            "example (1.0-1) unstable; urgency=medium\n\n  * Change.\n\n -- A <a@example.com>  Mon, 01 Jan 2024 00:00:00 +0000\n",
+        )?;
+        fs::write(source_dir.join("README"), "read me")?;
+
+        let environment = Environment {
+            driver: DriverType::Bare,
+            package_name: "example".to_string(),
+            package_identifier: "example-1.0".to_string(),
+            root_dir: test_root.join("build"),
+            distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
+            persistent: true,
+            purpose: EnvironmentPurpose::Build,
+        };
+        environment.create_dirs()?;
+
+        // a previous binary build staged the tree and left an output behind
+        let package = test_package(&source_dir);
+        stage_source_tree(
+            &environment,
+            BuildKind::Binary,
+            &package,
+            SourceSyncMode::Worktree,
+            false,
+        )?;
+        fs::write(
+            stage_dir(&environment, BuildKind::Binary).join("compiled.o"),
+            "binary build output",
+        )?;
+        let binary_manifest =
+            fs::read_to_string(source_manifest_path(&environment, BuildKind::Binary))?;
+
+        // the source build full-stages into its own tree
+        stage_source_tree(
+            &environment,
+            BuildKind::Source,
+            &package,
+            SourceSyncMode::Worktree,
+            false,
+        )?;
+        assert!(
+            stage_dir(&environment, BuildKind::Source)
+                .join("debian/changelog")
+                .is_file()
+        );
+        assert!(
+            !stage_dir(&environment, BuildKind::Source)
+                .join("compiled.o")
+                .exists()
+        );
+
+        // an incremental source sync updates only the source tree
+        fs::write(source_dir.join("README"), "changed")?;
+        stage_source_tree(
+            &environment,
+            BuildKind::Source,
+            &package,
+            SourceSyncMode::Worktree,
+            true,
+        )?;
+        assert_eq!(
+            fs::read_to_string(stage_dir(&environment, BuildKind::Source).join("README"))?,
+            "changed"
+        );
+
+        // the binary tree and its manifest are untouched throughout
+        assert_eq!(
+            fs::read_to_string(stage_dir(&environment, BuildKind::Binary).join("README"))?,
+            "read me"
+        );
+        assert!(
+            stage_dir(&environment, BuildKind::Binary)
+                .join("compiled.o")
+                .is_file()
+        );
+        assert_eq!(
+            fs::read_to_string(source_manifest_path(&environment, BuildKind::Binary))?,
+            binary_manifest
+        );
+
+        fs::remove_dir_all(test_root)?;
+        Ok(())
     }
 
     /// Create a git repo with one committed file in a fresh temp dir.
@@ -636,6 +812,20 @@ mod tests {
                 .to_string()
                 .contains("requires a clean git worktree")
         );
+
+        fs::remove_dir_all(repo)?;
+        Ok(())
+    }
+
+    #[test]
+    fn tracked_sync_skips_files_deleted_from_worktree() -> anyhow::Result<()> {
+        let repo = git_test_repo()?;
+        fs::remove_file(repo.join("debian/control"))?;
+
+        let entries = source_tree_entries(&repo, SourceSyncMode::Tracked)?;
+        let paths: Vec<&Path> = entries.iter().map(|e| e.path.as_path()).collect();
+        assert!(!paths.contains(&Path::new("debian/control")));
+        assert!(paths.contains(&Path::new("debian")));
 
         fs::remove_dir_all(repo)?;
         Ok(())

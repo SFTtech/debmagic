@@ -4,8 +4,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, IsolationCapability,
-    SignRequest, config::DriverConfig,
+    config::DriverConfig,
 };
+use crate::subprocess::{self, Capture, CommandResult};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
@@ -54,7 +55,8 @@ impl EnvironmentDriver for DriverBare {
         cwd: &Path,
         requires_root: bool,
         env_add: &[(&str, &str)],
-    ) -> std::io::Result<i32> {
+        capture: Capture,
+    ) -> std::io::Result<CommandResult> {
         let mut full_cmd: Vec<String> = Vec::new();
 
         let is_root = unsafe { libc::geteuid() == 0 };
@@ -70,8 +72,7 @@ impl EnvironmentDriver for DriverBare {
         command.current_dir(cwd);
         command.envs(env_add.iter().copied());
 
-        let status = command.status()?;
-        Ok(status.code().unwrap_or(-1))
+        subprocess::command(command).capture(capture).run()
     }
 
     fn cleanup(&self) -> anyhow::Result<()> {
@@ -81,7 +82,7 @@ impl EnvironmentDriver for DriverBare {
     fn interactive_shell(&self, _cwd: &Path) -> std::io::Result<()> {
         println!(
             "source directory of current package build in {}",
-            self.environment.staged_source_dir().display()
+            _cwd.display()
         );
         Ok(())
     }
@@ -99,9 +100,5 @@ impl EnvironmentDriver for DriverBare {
             std::fs::remove_dir_all(&self.environment.root_dir)?;
         }
         Ok(())
-    }
-
-    fn sign_changes(&self, request: &SignRequest) -> anyhow::Result<()> {
-        crate::sign::sign_changes(request)
     }
 }

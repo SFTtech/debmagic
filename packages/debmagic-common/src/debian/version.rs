@@ -67,6 +67,78 @@ impl fmt::Display for PackageVersion {
     }
 }
 
+impl PartialOrd for PackageVersion {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for PackageVersion {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        let epoch = self.epoch.unwrap_or(0);
+        let other_epoch = other.epoch.unwrap_or(0);
+        epoch
+            .cmp(&other_epoch)
+            .then_with(|| compare_version_parts(&self.upstream, &other.upstream))
+            .then_with(|| {
+                compare_version_parts(
+                    self.revision.as_deref().unwrap_or(""),
+                    other.revision.as_deref().unwrap_or(""),
+                )
+            })
+    }
+}
+
+/// Compare one non-epoch part of a debian version (upstream or revision)
+/// like dpkg's `verrevcmp`: alternating non-digit / digit runs; non-digit
+/// runs compare character-wise by [`char_order`], digit runs numerically.
+fn compare_version_parts(a: &str, b: &str) -> std::cmp::Ordering {
+    let mut a = a.as_bytes();
+    let mut b = b.as_bytes();
+    while !a.is_empty() || !b.is_empty() {
+        while a.first().is_some_and(|c| !c.is_ascii_digit())
+            || b.first().is_some_and(|c| !c.is_ascii_digit())
+        {
+            let (a_order, b_order) = (char_order(a.first()), char_order(b.first()));
+            if a_order != b_order {
+                return a_order.cmp(&b_order);
+            }
+            // equal orders are never 0 here, so both sides have a non-digit
+            a = &a[1..];
+            b = &b[1..];
+        }
+
+        let (a_digits, a_rest) = a.split_at(a.iter().take_while(|c| c.is_ascii_digit()).count());
+        let (b_digits, b_rest) = b.split_at(b.iter().take_while(|c| c.is_ascii_digit()).count());
+        let trim = |digits: &[u8]| -> usize { digits.iter().take_while(|&&c| c == b'0').count() };
+        let (a_digits, b_digits) = (&a_digits[trim(a_digits)..], &b_digits[trim(b_digits)..]);
+        // arbitrary length, so no integer parsing: longer means larger
+        match a_digits
+            .len()
+            .cmp(&b_digits.len())
+            .then(a_digits.cmp(b_digits))
+        {
+            std::cmp::Ordering::Equal => {}
+            other => return other,
+        }
+        a = a_rest;
+        b = b_rest;
+    }
+    std::cmp::Ordering::Equal
+}
+
+/// dpkg's sort weight of one character in a non-digit run: `~` sorts before
+/// the end of the part, letters before every other character.
+fn char_order(c: Option<&u8>) -> i32 {
+    match c {
+        Some(b'~') => -1,
+        None => 0,
+        Some(c) if c.is_ascii_digit() => 0,
+        Some(c) if c.is_ascii_alphabetic() => i32::from(*c),
+        Some(c) => i32::from(*c) + 256,
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct VersionParseError;
 
@@ -137,5 +209,28 @@ mod tests {
         assert_eq!(&parsed_version, expected);
         // reverse formatting works as well
         assert_eq!(parsed_version.version(), version);
+    }
+
+    #[test_case("1.0", "1.0", std::cmp::Ordering::Equal; "equal")]
+    #[test_case("1.1", "1.0", std::cmp::Ordering::Greater; "minor bump")]
+    #[test_case("2.0", "10.0", std::cmp::Ordering::Less; "numeric not lexical")]
+    #[test_case("1.0~rc1", "1.0", std::cmp::Ordering::Less; "prerelease before release")]
+    #[test_case("1.0~rc1", "1.0~rc2", std::cmp::Ordering::Less; "prerelease order")]
+    #[test_case("1.0-1", "1.0-1", std::cmp::Ordering::Equal; "revision equal")]
+    #[test_case("1.0-2", "1.0-1", std::cmp::Ordering::Greater; "revision order")]
+    #[test_case("1.0-1ubuntu1", "1.0-1", std::cmp::Ordering::Greater; "ubuntu after debian")]
+    #[test_case("1.0+dfsg1", "1.0", std::cmp::Ordering::Greater; "dfsg suffix after")]
+    #[test_case("1:0.9", "2.0", std::cmp::Ordering::Greater; "epoch wins")]
+    #[test_case("1.2.3a.4-42.2-14ubuntu2", "1.2.3a.4-42.2-14ubuntu3", std::cmp::Ordering::Less; "complex")]
+    #[test_case("2.0rc1", "2.0.1", std::cmp::Ordering::Less; "letters before non-letters")]
+    #[test_case("1.0a", "1.0+", std::cmp::Ordering::Less; "letter before plus")]
+    #[test_case("1.0a~b", "1.0a", std::cmp::Ordering::Less; "tilde inside a non-digit run")]
+    #[test_case("1.0", "1.0a", std::cmp::Ordering::Less; "end before letter")]
+    #[test_case("1.01", "1.1", std::cmp::Ordering::Equal; "leading zeros")]
+    #[test_case("1.99999999999999999999", "1.100000000000000000000", std::cmp::Ordering::Less; "beyond u64")]
+    fn test_version_compare(a: &str, b: &str, expected: std::cmp::Ordering) {
+        let a = PackageVersion::from_str(a).unwrap();
+        let b = PackageVersion::from_str(b).unwrap();
+        assert_eq!(a.cmp(&b), expected);
     }
 }

@@ -182,7 +182,8 @@ jobs:
             --driver=docker \
             --persistent \
             --incremental \
-            --driver-docker-base-image="${{ steps.image.outputs.tag }}"
+            --driver-docker-base-image="${{ steps.image.outputs.tag }}" \
+            --sign=no
       - name: Run Debmagic test on ourself
         run: |
           cargo run --locked -p debmagic -- test \

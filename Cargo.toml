@@ -35,6 +35,7 @@ ignore = { version = ">=0.4.25" }
 md-5 = { version = ">=0.11" }
 sha1 = { version = ">=0.11" }
 sha2 = { version = ">=0.11" }
+rusqlite = { version = ">=0.32" }
 
 # dev dependencies
 test-case = { version = ">=3.3.1" }

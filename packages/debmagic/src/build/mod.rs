@@ -1,200 +1,64 @@
-use std::sync::{Arc, Mutex};
 use std::{
     fs, io,
-    io::{BufReader, IsTerminal, stdout},
-    path::{Path, PathBuf},
+    path::Path,
     process::{Command, Stdio},
 };
 
-use crate::build::attach::{send_socket_command, start_socket_server};
 use crate::build::source::{source_manifest_path, stage_dir, stage_source_tree};
 use crate::build_intent::{BuildIntent, BuildIntentInput, BuildKind, resolve_build_intent};
-use crate::driver::{
-    Driver, DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, EnvironmentPurpose,
-    config::DriverConfig, create_driver, create_driver_from_metadata, remove_environment_root,
+use crate::driver::{Driver, DriverType, Environment, EnvironmentDriver, EnvironmentPurpose};
+use crate::environment::{
+    ClaimedEnvironment, CommandCompletion, HostRootPolicy, InvocationKind, Registry, claim_command,
 };
-use crate::{config::Config, package::PackageTarget};
+use crate::package::PackageTarget;
 use anyhow::{Context, anyhow};
 use debmagic_common::debian::source::SourceFormat;
 use debmagic_common::package::SourcePackage;
 
 pub mod artifacts;
-pub mod attach;
 pub mod source;
 
 pub use source::SourceSyncMode;
 
-struct Build {
+struct PlannedBuild {
     environment: Environment,
-    driver: Driver,
-    attached: bool,
-    output_dir: PathBuf,
-    clean: bool,
-    build_debug_symbols: bool,
-    run_test: bool,
-    host_arch_variant: Option<String>,
+    root_policy: HostRootPolicy,
+    incremental: bool,
 }
 
-impl Build {
-    pub fn create(environment: Environment, intent: &BuildIntent) -> anyhow::Result<Self> {
-        let driver = create_driver(
-            &environment,
-            &intent.config.driver,
-            &intent.driver_overrides,
-        )
-        .context(format!("failed to create {:?} driver", environment.driver))?;
-        Ok(Self {
-            environment,
-            driver,
-            attached: false,
-            output_dir: intent.output_dir.clone(),
-            clean: intent.config.clean,
-            build_debug_symbols: intent.config.build_debug_symbols,
-            run_test: intent.config.run_test,
-            host_arch_variant: intent.config.host_arch_variant.clone(),
-        })
-    }
+fn plan_build(intent: &BuildIntent, target: &PackageTarget) -> PlannedBuild {
+    let package = &target.package;
+    let environment = Environment::new(
+        intent.driver,
+        package.name(),
+        &format!("{}-{}", package.name(), package.version()),
+        &intent.source_dir,
+        target.distro.clone(),
+        intent.config.driver.persistent,
+        EnvironmentPurpose::Build,
+        &intent.config.environments_dir,
+    );
 
-    pub fn from_build_root(
-        build_root: &Path,
-        driver_config: &DriverConfig,
-    ) -> anyhow::Result<Self> {
-        let metadata_path = build_root.join("environment.json");
-        if !metadata_path.is_file() {
-            return Err(anyhow!("No environment.json found"));
+    // An incremental sync needs a manifest from a previous build of the same
+    // kind; without one the tree is reset so no stale files leak into the
+    // build. A source build shares the Environment with the binary tree, so
+    // only its own stage dir is restaged.
+    let manifest = source_manifest_path(&environment, intent.kind);
+    let incremental = intent.config.incremental && manifest.is_file();
+    let root_policy = if incremental {
+        HostRootPolicy::Keep
+    } else if intent.kind.is_source() {
+        HostRootPolicy::ResetStage {
+            stage_dir: stage_dir(&environment, intent.kind),
         }
-        let file = fs::OpenOptions::new().read(true).open(&metadata_path)?;
-        let metadata = || -> anyhow::Result<EnvironmentMetadata> {
-            let reader = BufReader::new(&file);
-            let metadata: EnvironmentMetadata =
-                serde_json::from_reader(reader).with_context(|| {
-                    format!(
-                        "Failed to read environment metadata from {} - invalid json",
-                        metadata_path.display()
-                    )
-                })?;
-            Ok(metadata)
-        }();
-
-        let metadata = metadata?;
-
-        let driver = create_driver_from_metadata(driver_config, &metadata)?;
-
-        let attached = send_socket_command(build_root, "attach").is_ok();
-
-        Ok(Self {
-            environment: metadata.environment.clone(),
-            driver,
-            attached,
-            output_dir: PathBuf::new(),
-            clean: false,
-            build_debug_symbols: false,
-            run_test: true,
-            host_arch_variant: None,
-        })
-    }
-
-    pub fn detach(&self) -> anyhow::Result<()> {
-        let build_root = &self.environment.root_dir;
-        if self.attached {
-            send_socket_command(build_root, "detach")?;
-        }
-        Ok(())
-    }
-
-    pub fn write_metadata(&self) -> anyhow::Result<()> {
-        let metadata = EnvironmentMetadata {
-            environment: self.environment.clone(),
-            driver_metadata: self.driver.driver_metadata(),
-        };
-        let path = self.environment.root_dir.join("environment.json");
-        let json = serde_json::to_string_pretty(&metadata)
-            .context("Failed to serialize environment metadata")?;
-        fs::write(path, json)?;
-        Ok(())
-    }
-}
-
-fn get_build_root_and_identifier(
-    temp_build_dir: &Path,
-    package: &SourcePackage,
-) -> (String, PathBuf) {
-    let package_identifier = format!("{}-{}", package.name(), package.version());
-    let build_root = temp_build_dir.join(&package_identifier);
-    (package_identifier, build_root)
-}
-
-/// Create the output dir and stage the source tree into the environment.
-fn stage_sources(
-    environment: &Environment,
-    intent: &BuildIntent,
-    target: &PackageTarget,
-) -> anyhow::Result<()> {
-    fs::create_dir_all(&intent.output_dir).context("failed to create output directory")?;
-    environment
-        .create_dirs()
-        .context("failed to create build directories")?;
-    stage_source_tree(
-        environment,
-        intent.kind,
-        &target.package,
-        intent.config.source_sync_mode,
-        intent.config.incremental,
-    )
-}
-
-fn prepare_build_env(intent: &BuildIntent, target: &PackageTarget) -> anyhow::Result<Build> {
-    let (package_identifier, build_root) =
-        get_build_root_and_identifier(&intent.config.temp_build_dir, &target.package);
-
-    let environment = Environment {
-        driver: intent.driver,
-        package_name: target.package.name().to_string(),
-        package_identifier,
-        root_dir: build_root.clone(),
-        distro: target.distro.clone(),
-        persistent: intent.config.driver.persistent,
-        purpose: EnvironmentPurpose::Build,
+    } else {
+        HostRootPolicy::Reset
     };
-
-    if intent.config.driver.persistent && build_root.exists() {
-        // For persistent containers, starting first lets root inside delete
-        // container-owned files the host user can't remove.
-        let build = Build::create(environment.clone(), intent)
-            .context(format!("failed to create {:?} driver", intent.driver))?;
-        // An incremental sync needs a manifest from a previous build of the
-        // same kind; without one the tree is reset so no stale files leak
-        // into the build.
-        let sync_incrementally =
-            intent.config.incremental && source_manifest_path(&environment, intent.kind).is_file();
-        if sync_incrementally {
-            if !build.driver.reused_environment() {
-                // e.g. a new CI runner with a restored build tree; cargo's own
-                // fingerprinting discards whatever the new toolchain/archive
-                // state invalidates
-                println!("Keeping incremental build tree in a fresh build environment");
-            }
-            unapply_quilt_patches(&build, intent.kind, &target.package)?;
-        } else if intent.kind.is_source() {
-            // A source build shares the environment with the binary tree:
-            // only its own stage dir is restaged, never the whole root.
-            reset_stage_dir(&build, &environment, intent.kind)?;
-        } else {
-            build
-                .driver
-                .reset_root()
-                .context("failed to reset persistent build directory")?;
-        }
-        stage_sources(&environment, intent, target)?;
-        return Ok(build);
+    PlannedBuild {
+        environment,
+        root_policy,
+        incremental,
     }
-
-    remove_environment_root(&build_root, &intent.config.driver)?;
-
-    crate::output::step("Staging source tree");
-    stage_sources(&environment, intent, target)?;
-
-    Build::create(environment, intent)
 }
 
 /// Whether an incremental sync must first unapply quilt patches in the
@@ -212,16 +76,16 @@ fn needs_quilt_unapply(source_format: SourceFormat, staged_source_dir: &Path) ->
 /// `dpkg-source --after-build --unapply-patches` restores the pre-patch
 /// state from the `.pc` backups and removes the quilt db entirely.
 fn unapply_quilt_patches(
-    build: &Build,
+    driver: &Driver,
+    environment: &Environment,
     kind: BuildKind,
     package: &SourcePackage,
 ) -> anyhow::Result<()> {
-    let staged_source_dir = stage_dir(&build.environment, kind);
+    let staged_source_dir = stage_dir(environment, kind);
     if !needs_quilt_unapply(package.source_format(), &staged_source_dir) {
         return Ok(());
     }
-    build
-        .driver
+    driver
         .run_command_checked(
             &["dpkg-source", "--after-build", "--unapply-patches", "."],
             &staged_source_dir,
@@ -229,46 +93,6 @@ fn unapply_quilt_patches(
             &[],
         )
         .context("failed to unapply quilt patches left in the build tree")
-}
-
-/// Remove every previous leftover from a stage dir (binary residue like
-/// `debian/<pkg>/` install trees makes `dpkg-source -b` abort on "unwanted
-/// binary file"). Only this dir is wiped — the other kind's tree sharing
-/// the environment keeps its incremental outputs.
-fn reset_stage_dir(
-    build: &Build,
-    environment: &Environment,
-    kind: BuildKind,
-) -> anyhow::Result<()> {
-    let dir = stage_dir(environment, kind);
-    if !dir.exists() {
-        return Ok(());
-    }
-    build
-        .driver
-        .run_command_checked(&["find", ".", "-mindepth", "1", "-delete"], &dir, true, &[])
-        .context("failed to reset the source stage directory")
-}
-
-pub fn get_shell_in_build(config: &Config, package: &SourcePackage) -> anyhow::Result<()> {
-    let (_package_identifier, build_root) =
-        get_build_root_and_identifier(&config.temp_build_dir, package);
-    let build = Build::from_build_root(&build_root, &config.driver)?;
-    // the binary tree is the iteration workflow; fall back to the source
-    // tree when only source builds ever ran
-    let kind = if stage_dir(&build.environment, BuildKind::Binary).exists() {
-        BuildKind::Binary
-    } else {
-        BuildKind::Source
-    };
-    let result = build
-        .driver
-        .interactive_shell(&stage_dir(&build.environment, kind));
-
-    build.detach()?;
-
-    result?;
-    Ok(())
 }
 
 fn deb_build_options(existing: Option<&str>, build_debug_symbols: bool, run_test: bool) -> String {
@@ -292,16 +116,16 @@ struct BuildRequest<'a> {
     target: &'a PackageTarget,
 }
 
-/// Shared build orchestration: prepare the environment, run `build_commands`
-/// in it, export the artifacts to the output dir, sign them if requested, and
-/// clean up (dropping into a shell first when `--shell-on-failure` is set).
-/// While the run is in progress, a socket server lets concurrent
-/// `debmagic shell` sessions attach to the environment.
+/// Shared build orchestration: claim the Environment, run `build_commands`
+/// in it, export the artifacts to the output dir, and sign them if requested.
+/// Recording, the failure shell, and finish belong to [`claim_command`].
 fn run_build(
     request: &BuildRequest,
-    build_commands: impl FnOnce(&Build) -> anyhow::Result<()>,
-) -> anyhow::Result<PathBuf> {
+    kind: InvocationKind,
+    build_commands: impl FnOnce(&ClaimedEnvironment) -> anyhow::Result<()>,
+) -> anyhow::Result<std::path::PathBuf> {
     let sign = &request.intent.config.sign;
+    let registry = Registry::open_default_or_ephemeral()?;
 
     let package = &request.target.package;
     crate::output::stage(&format!(
@@ -309,96 +133,104 @@ fn run_build(
         package.name(),
         package.version()
     ));
-    let build = prepare_build_env(request.intent, request.target)
-        .context("failed to prepare build environment")?;
-    build
-        .write_metadata()
-        .context("failed to write environment metadata")?;
+    let planned = plan_build(request.intent, request.target);
+    let build_kind = request.intent.kind;
+    let version = package.version().to_string();
 
-    let should_exit = Arc::new(Mutex::new(false));
-    let socket_server_handle =
-        start_socket_server(&build.environment.root_dir, should_exit.clone())?;
-
-    let stop_socket_server = || {
-        *should_exit.lock().unwrap() = true;
-        if !socket_server_handle.is_finished() {
-            println!("Waiting for all attached shells to exit...");
-        }
-        socket_server_handle.join().ok();
-    };
-
-    let result = build_commands(&build).and_then(|()| {
-        crate::output::stage("Exporting artifacts");
-        let changes_file = artifacts::export_build_artifacts(
-            &build.environment.work_dir(),
-            &build.output_dir,
-            request.intent.kind,
-        )?;
-        if sign.source.is_enabled() {
-            crate::output::stage(&format!("Signing {}", build.environment.package_identifier));
-            crate::sign::sign_file(
-                &changes_file,
-                sign,
-                sign.source,
-                sign.notify,
-                &build.environment.package_identifier,
-            )?;
-        }
-        Ok(changes_file)
-    });
-
-    if let Err(error) = &result {
-        if request.intent.shell_on_failure && stdout().is_terminal() {
-            eprintln!("Build failed: {error}. Dropping into shell...");
-            if let Err(shell_error) = build
-                .driver
-                .interactive_shell(&stage_dir(&build.environment, request.intent.kind))
+    claim_command(
+        &registry,
+        planned.environment,
+        &request.intent.config.driver,
+        &request.intent.driver_overrides,
+        planned.root_policy,
+        |environment, driver| {
+            fs::create_dir_all(&request.intent.output_dir)
+                .context("failed to create output directory")?;
+            if planned.incremental
+                && let Some(driver) = driver
             {
-                eprintln!("Dropping into shell failed: {shell_error}");
+                unapply_quilt_patches(driver, environment, build_kind, package)?;
             }
-        } else if request.intent.shell_on_failure {
-            eprintln!("Build failed: {error}");
-            eprintln!(
-                "--shell-on-failure is set but stdout is not a TTY; skipping interactive shell"
-            );
-        } else {
-            eprintln!("Build failed: {error}");
-            eprintln!("Re-run with --shell-on-failure to inspect the build environment");
-        }
-        if let Err(cleanup_error) = build.driver.cleanup() {
-            eprintln!("Failed to clean up build environment: {cleanup_error}");
-        }
-        stop_socket_server();
-        return result;
-    }
-
-    stop_socket_server();
-    build
-        .driver
-        .cleanup()
-        .context("failed to clean up build environment")?;
-    result
+            crate::output::step("Staging source tree");
+            stage_source_tree(
+                environment,
+                build_kind,
+                package,
+                request.intent.config.source_sync_mode,
+                request.intent.config.incremental,
+            )
+        },
+        kind,
+        &version,
+        |claimed| {
+            let built = build_commands(claimed);
+            let shell_worthy = built.is_err();
+            let result = built.and_then(|()| {
+                let environment = claimed.environment();
+                crate::output::stage(&format!(
+                    "Exporting artifacts to {}",
+                    request.intent.output_dir.display()
+                ));
+                let changes_file = artifacts::export_build_artifacts(
+                    &environment.work_dir(),
+                    &request.intent.output_dir,
+                    build_kind,
+                )?;
+                if sign.source.is_enabled() {
+                    crate::output::stage(&format!("Signing {}", environment.package_identifier));
+                    crate::sign::sign_file(
+                        &changes_file,
+                        sign,
+                        sign.source,
+                        sign.notify,
+                        &environment.package_identifier,
+                    )?;
+                }
+                Ok(changes_file)
+            });
+            let success = result.is_ok();
+            let changes_path = match (&result, kind) {
+                (Ok(path), InvocationKind::BinaryBuild) => Some(path.clone()),
+                _ => None,
+            };
+            let (value, failure_lines) = match result {
+                Ok(path) => (Ok(path), Vec::new()),
+                Err(error) => {
+                    let failure_lines = vec![format!("Build failed: {error}")];
+                    (Err(error), failure_lines)
+                }
+            };
+            Ok(CommandCompletion {
+                value,
+                success,
+                shell_worthy,
+                finish_error_fails_command: success,
+                changes_path,
+                failure_lines,
+            })
+        },
+    )
 }
 
 pub fn build_package(
     intent: &BuildIntent,
     target: &PackageTarget,
     changes_options: &[String],
-) -> anyhow::Result<PathBuf> {
+) -> anyhow::Result<std::path::PathBuf> {
     let request = BuildRequest { intent, target };
-    run_build(&request, |build| {
+    run_build(&request, InvocationKind::BinaryBuild, |claimed| {
         crate::output::stage("Building binary packages");
-        let staged_source_dir = stage_dir(&build.environment, BuildKind::Binary);
+        let staged_source_dir = stage_dir(claimed.environment(), BuildKind::Binary);
         // build-essential is an implicit dependency that `apt-get build-dep`
         // won't resolve, so install it explicitly. No-op when the environment
         // already has it (idempotent, and the bare driver runs on the host).
-        build.driver.run_command_checked(
+        claimed.driver().run_command_checked(
             &["apt-get", "-y", "install", "build-essential"],
             &staged_source_dir,
             true,
             &[],
         )?;
-        build.driver.run_command_checked(
+        claimed.driver().run_command_checked(
             &["apt-get", "-y", "build-dep", "."],
             &staged_source_dir,
             true,
@@ -407,11 +239,11 @@ pub fn build_package(
         let inherited_options = std::env::var("DEB_BUILD_OPTIONS").ok();
         let options = deb_build_options(
             inherited_options.as_deref(),
-            build.build_debug_symbols,
-            build.run_test,
+            intent.config.build_debug_symbols,
+            intent.config.run_test,
         );
         let mut env_add = vec![("DEB_BUILD_OPTIONS", options.as_str())];
-        if let Some(variant) = build.host_arch_variant.as_deref() {
+        if let Some(variant) = intent.config.host_arch_variant.as_deref() {
             env_add.push(("DEB_HOST_ARCH_VARIANT", variant));
         }
         let mut dpkg_buildpackage_args: Vec<String> = vec![
@@ -420,7 +252,7 @@ pub fn build_package(
             "-uc".into(),
             "-ui".into(),
         ];
-        if !build.clean {
+        if !intent.config.clean {
             // Non-incremental builds already stage a clean source tree, while
             // incremental builds preserve their outputs intentionally.
             dpkg_buildpackage_args.push("-nc".into());
@@ -431,7 +263,7 @@ pub fn build_package(
         dpkg_buildpackage_args.push("-b".into());
         let dpkg_buildpackage_args: Vec<&str> =
             dpkg_buildpackage_args.iter().map(String::as_str).collect();
-        build.driver.run_command_checked(
+        claimed.driver().run_command_checked(
             &dpkg_buildpackage_args,
             &staged_source_dir,
             false,
@@ -500,16 +332,16 @@ pub async fn build_source_package(
     target: &PackageTarget,
     changes_options: &[String],
     include_orig: bool,
-) -> anyhow::Result<PathBuf> {
+) -> anyhow::Result<std::path::PathBuf> {
     if intent.driver == DriverType::Bare {
         check_dpkg_buildpackage_available()?;
     }
 
     // dpkg-source looks for the orig tarball in the parent of the source
-    // dir it builds, which inside the environment is the work dir.
-    let orig_fetch_dir = intent
-        .config
-        .temp_build_dir
+    // dir it builds, which inside the environment is the work dir. Fetch
+    // into the data directory first; `temp_build_dir` no longer exists.
+    let orig_fetch_dir = crate::data_dir::data_dir()
+        .context("locating the debmagic data directory")?
         .join("orig")
         .join(target.package.name());
     let orig_tarball = crate::upstream::orig::fetch_orig_tarball(
@@ -527,20 +359,21 @@ pub async fn build_source_package(
     })?;
 
     let request = BuildRequest { intent, target };
-    run_build(&request, |build| {
+    run_build(&request, InvocationKind::SourceBuild, |claimed| {
         crate::output::stage("Building source package");
-        let staged_source_dir = stage_dir(&build.environment, BuildKind::Source);
+        let staged_source_dir = stage_dir(claimed.environment(), BuildKind::Source);
         if let Some(tarball) = &orig_tarball {
             // the work dir is the staged source dir's parent, which is where
             // dpkg-source looks for the tarball
-            let destination = build
-                .environment
-                .work_dir()
-                .join(tarball.file_name().expect("orig tarball has a file name"));
+            let destination = claimed.environment().work_dir().join(
+                tarball
+                    .file_name()
+                    .expect("orig tarball has a file name"),
+            );
             stage_file(tarball, &destination)?;
         }
-        if build.clean {
-            build.driver.run_command_checked(
+        if intent.config.clean {
+            claimed.driver().run_command_checked(
                 &["apt-get", "-y", "build-dep", "."],
                 &staged_source_dir,
                 true,
@@ -555,7 +388,7 @@ pub async fn build_source_package(
             "-uc".into(),
             "-ui".into(),
         ];
-        if !build.clean {
+        if !intent.config.clean {
             args.push("-nc".into());
         }
         // -sa/-sd decide whether the .changes references the orig tarball
@@ -568,9 +401,10 @@ pub async fn build_source_package(
             args.push(format!("--changes-option={option}"));
         }
         let args: Vec<&str> = args.iter().map(String::as_str).collect();
-        let result = build
-            .driver
-            .run_command_checked(&args, &staged_source_dir, false, &[]);
+        let result =
+            claimed
+                .driver()
+                .run_command_checked(&args, &staged_source_dir, false, &[]);
         if result.is_err()
             && needs_quilt_unapply(target.package.source_format(), &staged_source_dir)
         {
@@ -660,19 +494,6 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
         })?;
     }
     Ok(())
-}
-
-/// Run the `debmagic shell` command: attach to the currently active
-/// build environment and open an interactive shell in it.
-pub fn shell(
-    fallback_dir: &Path,
-    source_dir: Option<&Path>,
-    config_file: Option<&Path>,
-) -> anyhow::Result<()> {
-    let source_dir = crate::package::resolve_source_dir(fallback_dir, source_dir)?;
-    let config = Config::load(Some(&source_dir), config_file)?;
-    let identity = crate::package::load_package(&source_dir)?;
-    get_shell_in_build(&config, &identity)
 }
 
 #[cfg(test)]

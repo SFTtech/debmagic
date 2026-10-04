@@ -48,8 +48,12 @@ pub struct Cli {
 pub enum Commands {
     #[command(about = "Build a debian package: 'binary' (.deb) or 'source' (.dsc) packages")]
     Build(Box<BuildSubcommandArgs>),
-    #[command(about = "Open an interactive shell to the currently active build environment")]
-    Shell(ShellSubcommandArgs),
+    #[command(
+        name = "environment",
+        alias = "env",
+        about = "List, clean, or open a shell in a Driver Environment"
+    )]
+    Environment(EnvSubcommandArgs),
     #[command(about = "Run the package's declared Debian autopkgtest tests against a prior build")]
     Test(TestSubcommandArgs),
     #[command(about = "Check the project")]
@@ -229,7 +233,7 @@ pub struct CommonBuildArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
-        help = "Synchronize changed source inputs to preserve build outputs. Implies --persistent"
+        help = "Synchronize changed source inputs to preserve build outputs. Forces --persistent=always"
     )]
     pub incremental: Option<bool>,
 
@@ -243,11 +247,11 @@ pub struct CommonBuildArgs {
     #[arg(
         long,
         num_args = 0..=1,
-        default_missing_value = "true",
+        default_missing_value = "always",
         action = clap::ArgAction::Set,
-        help = "Keep the build environment for reuse after the build finishes"
+        help = "How long the build environment outlives this build: 'on-failure' (the default) keeps it when the build command fails, 'always' keeps it after every build, 'no' tears it down. A bare --persistent means 'always'. A failed build that keeps the environment prints `debmagic env shell <id>`."
     )]
-    pub persistent: Option<bool>,
+    pub persistent: Option<crate::driver::Persistence>,
 
     #[arg(
         long = "source-sync",
@@ -346,15 +350,6 @@ pub struct CommonBuildArgs {
     )]
     pub clean: Option<bool>,
 
-    #[arg(
-        long = "shell-on-failure",
-        num_args = 0..=1,
-        default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        help = "On build failure, drop into an interactive shell in the build environment when stdout is a TTY. Defaults to the 'shell_on_failure' setting in the config file (false if unset)."
-    )]
-    pub shell_on_failure: Option<bool>,
-
     #[command(flatten)]
     pub common: CommonCli,
 
@@ -429,9 +424,34 @@ pub struct SourceTargetArgs {
 }
 
 #[derive(Args, Debug)]
-pub struct ShellSubcommandArgs {
-    #[command(flatten)]
-    pub common: CommonCli,
+pub struct EnvSubcommandArgs {
+    #[command(subcommand)]
+    pub command: EnvCommands,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum EnvCommands {
+    #[command(about = "List Environments in the machine-local registry")]
+    List,
+    #[command(about = "Destroy Stale Environments, or a specific Environment when given its id")]
+    Clean {
+        #[arg(help = "Environment id to destroy, even if it is healthy")]
+        id: Option<String>,
+        #[arg(
+            long,
+            help = "Destroy even when the Environment is Unreachable, without Driver cooperation"
+        )]
+        force: bool,
+    },
+    #[command(about = "Open an interactive shell in an Environment")]
+    Shell {
+        #[arg(
+            help = "Environment id; when omitted, unique Environment for the current Source tree"
+        )]
+        id: Option<String>,
+        #[command(flatten)]
+        common: CommonCli,
+    },
 }
 
 #[derive(Args, Debug)]
@@ -439,18 +459,18 @@ pub struct TestSubcommandArgs {
     #[arg(
         short,
         long,
-        help = "Driver type for the test environment. Defaults to the driver recorded in the prior build's environment.json."
+        help = "Driver type for the test environment. Defaults to the driver recorded on the prior binary-build Invocation."
     )]
     pub driver: Option<DriverType>,
 
     #[arg(
         long,
         num_args = 0..=1,
-        default_missing_value = "true",
+        default_missing_value = "always",
         action = clap::ArgAction::Set,
-        help = "Keep the test environment for reuse after the test run finishes"
+        help = "How long the test environment outlives this run: 'on-failure' (the default) keeps it when the tests fail, 'always' keeps it after every run, 'no' tears it down. A bare --persistent means 'always'. A failed run that keeps the environment prints `debmagic env shell <id>`."
     )]
-    pub persistent: Option<bool>,
+    pub persistent: Option<crate::driver::Persistence>,
 
     #[command(flatten)]
     pub docker: DockerArgs,
@@ -481,7 +501,7 @@ pub struct TestSubcommandArgs {
 
     #[arg(
         long,
-        help = "Override the target distribution for the test environment. Defaults to the distro recorded in the prior build's environment.json, not the changelog."
+        help = "Override the target distribution for the test environment. Defaults to the distro of the prior binary-build Invocation, not the changelog."
     )]
     pub distro: Option<String>,
 
@@ -504,15 +524,6 @@ pub struct TestSubcommandArgs {
         help = "Allow running tests with the bare driver, which executes autopkgtest as root on the host"
     )]
     pub allow_host_test: bool,
-
-    #[arg(
-        long = "shell-on-failure",
-        num_args = 0..=1,
-        default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        help = "On test failure, drop into an interactive shell in the test environment when stdout is a TTY. Defaults to the 'shell_on_failure' setting in the config file (false if unset)."
-    )]
-    pub shell_on_failure: Option<bool>,
 
     #[command(flatten)]
     pub common: CommonCli,
@@ -690,6 +701,7 @@ impl TestSubcommandArgs {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::driver::Persistence;
     use test_case::test_case;
 
     fn parse_test(args: &[&str]) -> TestSubcommandArgs {
@@ -700,16 +712,19 @@ mod tests {
         }
     }
 
-    // an absent flag must stay None so the config value applies
     #[test_case(&[], None; "absent")]
-    #[test_case(&["--shell-on-failure"], Some(true); "bare flag")]
-    #[test_case(&["--shell-on-failure=false"], Some(false); "explicit false")]
-    fn tri_state_flag(args: &[&str], expected: Option<bool>) {
+    #[test_case(&["--persistent"], Some(Persistence::Always); "bare flag")]
+    #[test_case(&["--persistent=always"], Some(Persistence::Always); "always")]
+    #[test_case(&["--persistent=on-failure"], Some(Persistence::OnFailure); "on failure")]
+    #[test_case(&["--persistent=no"], Some(Persistence::No); "no")]
+    fn persistent_flag(args: &[&str], expected: Option<Persistence>) {
         let args = parse_test(args);
-        assert_eq!(args.shell_on_failure, expected);
-        if expected.is_none() {
-            assert_eq!(args.persistent, None);
-            assert_eq!(args.proposed, None);
-        }
+        assert_eq!(args.persistent, expected);
+    }
+
+    #[test]
+    fn persistent_rejects_a_boolean() {
+        let error = Cli::try_parse_from(["debmagic", "test", "--persistent=true"]).unwrap_err();
+        assert!(error.to_string().contains("always"), "{error}");
     }
 }

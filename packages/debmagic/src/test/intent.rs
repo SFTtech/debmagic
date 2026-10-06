@@ -10,9 +10,7 @@ use crate::{
 /// Inputs for resolving a [`TestIntent`].
 #[derive(Debug, Clone)]
 pub struct TestIntentInput {
-    /// Directory used when `source_dir` is unset (typically cwd).
-    pub fallback_dir: PathBuf,
-    pub source_dir: Option<PathBuf>,
+    pub source_dir: PathBuf,
     pub config_file: Option<PathBuf>,
     pub driver: Option<DriverType>,
     pub persistent: Option<Persistence>,
@@ -41,8 +39,8 @@ pub struct TestIntent {
 pub fn resolve_test_intent(input: TestIntentInput) -> anyhow::Result<TestIntent> {
     // Canonicalized: Environment ids and registry lookups key on the
     // source_dir string, so all entry points must agree on one spelling.
-    let source_dir = std::fs::canonicalize(input.source_dir.unwrap_or(input.fallback_dir))
-        .context("resolving source dir failed")?;
+    let source_dir =
+        std::fs::canonicalize(input.source_dir).context("resolving source dir failed")?;
 
     let mut config = Config::load(Some(&source_dir), input.config_file.as_deref())?;
 
@@ -83,10 +81,9 @@ mod tests {
             .join("config1.toml")
     }
 
-    fn base_input(fallback: PathBuf) -> TestIntentInput {
+    fn base_input(source_dir: PathBuf) -> TestIntentInput {
         TestIntentInput {
-            fallback_dir: fallback,
-            source_dir: None,
+            source_dir,
             config_file: Some(asset_config()),
             driver: None,
             persistent: None,

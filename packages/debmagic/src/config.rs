@@ -148,9 +148,7 @@ pub fn resolve_set_target(
 /// Inputs for the `debmagic config` command.
 #[derive(Debug, Clone)]
 pub struct ConfigCommand {
-    /// Directory used when `source_dir` is unset (typically cwd).
-    pub fallback_dir: PathBuf,
-    pub source_dir: Option<PathBuf>,
+    pub source_dir: PathBuf,
     pub config_file: Option<PathBuf>,
     pub command: ConfigCommandKind,
 }
@@ -174,8 +172,7 @@ pub enum ConfigCommandKind {
 
 /// Run the `debmagic config` command: show, get or set config values.
 pub fn run_config(command: ConfigCommand) -> anyhow::Result<()> {
-    let source_dir =
-        crate::package::resolve_source_dir(&command.fallback_dir, command.source_dir.as_deref())?;
+    let source_dir = command.source_dir;
     match &command.command {
         ConfigCommandKind::Show => {
             let paths = Config::resolve_paths(Some(&source_dir), command.config_file.as_deref())?;

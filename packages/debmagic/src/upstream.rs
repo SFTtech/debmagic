@@ -4,7 +4,7 @@ use std::str::FromStr;
 use anyhow::{Context, bail};
 
 use crate::config::Config;
-use crate::package::{load_package, resolve_source_dir};
+use crate::package::load_package;
 
 pub mod mangle;
 pub mod orig;
@@ -16,9 +16,7 @@ pub mod watch;
 /// Inputs for the `debmagic upstream list` command.
 #[derive(Debug, Clone)]
 pub struct UpstreamListCommand {
-    /// Directory used when `source_dir` is unset (typically cwd).
-    pub fallback_dir: PathBuf,
-    pub source_dir: Option<PathBuf>,
+    pub source_dir: PathBuf,
     pub config_file: Option<PathBuf>,
     /// Show all candidate versions, not just the newest newer ones.
     pub all: bool,
@@ -29,9 +27,7 @@ pub struct UpstreamListCommand {
 /// Inputs for the `debmagic upstream switch` command.
 #[derive(Debug, Clone)]
 pub struct UpstreamSwitchCommand {
-    /// Directory used when `source_dir` is unset (typically cwd).
-    pub fallback_dir: PathBuf,
-    pub source_dir: Option<PathBuf>,
+    pub source_dir: PathBuf,
     pub config_file: Option<PathBuf>,
     /// The upstream version to switch to, or "latest" for the newest eligible.
     pub version: String,
@@ -46,7 +42,7 @@ pub struct UpstreamSwitchCommand {
 /// Run the `debmagic upstream list` command: query each watch source and
 /// print its current and newer upstream versions.
 pub async fn list(command: UpstreamListCommand) -> anyhow::Result<()> {
-    let source_dir = resolve_source_dir(&command.fallback_dir, command.source_dir.as_deref())?;
+    let source_dir = command.source_dir;
     let identity = load_package(&source_dir)?;
     let sources = query::load_watch(&source_dir, identity.name())?;
 
@@ -89,7 +85,7 @@ pub async fn list(command: UpstreamListCommand) -> anyhow::Result<()> {
 /// Run the `debmagic upstream switch` command: resolve the candidate
 /// version, then switch the main source and every component source to it.
 pub async fn switch(command: UpstreamSwitchCommand) -> anyhow::Result<()> {
-    let source_dir = resolve_source_dir(&command.fallback_dir, command.source_dir.as_deref())?;
+    let source_dir = command.source_dir.clone();
     let identity = load_package(&source_dir)?;
     let sources = query::load_watch(&source_dir, identity.name())?;
     let mut config = Config::load(Some(&source_dir), command.config_file.as_deref())?;

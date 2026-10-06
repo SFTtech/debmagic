@@ -27,9 +27,7 @@ impl BuildKind {
 /// Inputs for resolving a [`BuildIntent`].
 #[derive(Debug, Clone)]
 pub struct BuildIntentInput {
-    /// Directory used when `source_dir` / `output_dir` are unset (typically cwd).
-    pub fallback_dir: PathBuf,
-    pub source_dir: Option<PathBuf>,
+    pub source_dir: PathBuf,
     pub output_dir: Option<PathBuf>,
     pub config_file: Option<PathBuf>,
     pub driver: Option<DriverType>,
@@ -65,8 +63,8 @@ pub struct BuildIntent {
 pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildIntent> {
     // Canonicalized: Environment ids and registry lookups key on the
     // source_dir string, so all entry points must agree on one spelling.
-    let source_dir = std::fs::canonicalize(input.source_dir.unwrap_or(input.fallback_dir))
-        .context("resolving source dir failed")?;
+    let source_dir =
+        std::fs::canonicalize(input.source_dir).context("resolving source dir failed")?;
 
     let mut config = Config::load(Some(&source_dir), input.config_file.as_deref())?;
 
@@ -165,10 +163,9 @@ mod tests {
             .join("config1.toml")
     }
 
-    fn base_input(fallback: PathBuf) -> BuildIntentInput {
+    fn base_input(source_dir: PathBuf) -> BuildIntentInput {
         BuildIntentInput {
-            fallback_dir: fallback,
-            source_dir: None,
+            source_dir,
             output_dir: None,
             config_file: Some(asset_config()),
             driver: Some(DriverType::Docker),

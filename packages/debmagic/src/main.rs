@@ -67,8 +67,10 @@ async fn run() -> anyhow::Result<ExitCode> {
             };
             build::build(build::BuildCommand {
                 intent: build_intent::BuildIntentInput {
-                    fallback_dir: current_dir.clone(),
-                    source_dir: build_args.common.source_dir.clone(),
+                    source_dir: package::resolve_source_dir(
+                        &current_dir,
+                        build_args.common.source_dir.as_deref(),
+                    )?,
                     output_dir: build_args.output_dir.clone(),
                     config_file: cli.config.clone(),
                     driver: build_args.driver,
@@ -132,8 +134,10 @@ async fn run() -> anyhow::Result<ExitCode> {
         },
         Commands::Test(args) => {
             let intent = test::resolve_test_intent(test::TestIntentInput {
-                fallback_dir: current_dir.clone(),
-                source_dir: args.common.source_dir.clone(),
+                source_dir: package::resolve_source_dir(
+                    &current_dir,
+                    args.common.source_dir.as_deref(),
+                )?,
                 config_file: cli.config.clone(),
                 driver: args.driver,
                 persistent: args.persistent,
@@ -213,8 +217,10 @@ async fn run() -> anyhow::Result<ExitCode> {
                 ),
             };
             config::run_config(config::ConfigCommand {
-                fallback_dir: current_dir.clone(),
-                source_dir: common.source_dir.clone(),
+                source_dir: package::resolve_source_dir(
+                    &current_dir,
+                    common.source_dir.as_deref(),
+                )?,
                 config_file: cli.config.clone(),
                 command,
             })?;
@@ -222,8 +228,10 @@ async fn run() -> anyhow::Result<ExitCode> {
         Commands::Upstream(args) => match &args.command {
             UpstreamCommands::List(list_args) => {
                 upstream::list(upstream::UpstreamListCommand {
-                    fallback_dir: current_dir.clone(),
-                    source_dir: list_args.common.source_dir.clone(),
+                    source_dir: package::resolve_source_dir(
+                        &current_dir,
+                        list_args.common.source_dir.as_deref(),
+                    )?,
                     config_file: cli.config.clone(),
                     all: list_args.all,
                     previous: list_args.previous,
@@ -232,8 +240,10 @@ async fn run() -> anyhow::Result<ExitCode> {
             }
             UpstreamCommands::Switch(switch_args) => {
                 upstream::switch(upstream::UpstreamSwitchCommand {
-                    fallback_dir: current_dir.clone(),
-                    source_dir: switch_args.common.source_dir.clone(),
+                    source_dir: package::resolve_source_dir(
+                        &current_dir,
+                        switch_args.common.source_dir.as_deref(),
+                    )?,
                     config_file: cli.config.clone(),
                     version: switch_args.version.clone(),
                     dry_run: switch_args.dry_run,

@@ -160,9 +160,44 @@ pub fn step(text: &str) {
     eprintln!("{}", styled(Style::Bold, &format!("  -> {text}")));
 }
 
+/// Lay out `rows` (header first) in columns as wide as their widest cell.
+/// The last column is not padded, so a long path does not widen the table.
+pub fn table<const N: usize>(rows: &[[String; N]]) -> String {
+    let widths: [usize; N] = std::array::from_fn(|column| {
+        rows.iter()
+            .map(|row| row[column].chars().count())
+            .max()
+            .unwrap_or(0)
+    });
+    let mut out = String::new();
+    for row in rows {
+        let line: Vec<String> = row
+            .iter()
+            .zip(widths)
+            .map(|(cell, width)| format!("{cell:<width$}"))
+            .collect();
+        out.push_str(line.join(" ").trim_end());
+        out.push('\n');
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn table_sizes_columns_by_content() {
+        let rows = [
+            ["ID", "PATH"].map(String::from),
+            ["abcdef", "/a/very/long/path"].map(String::from),
+            ["x", "/b"].map(String::from),
+        ];
+        assert_eq!(
+            table(&rows),
+            "ID     PATH\nabcdef /a/very/long/path\nx      /b\n"
+        );
+    }
 
     const COLOR_TERM: Option<&str> = Some("xterm-256color");
 

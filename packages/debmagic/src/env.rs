@@ -18,26 +18,28 @@ pub async fn list_environments(config: &Config) -> anyhow::Result<()> {
         return Ok(());
     }
 
-    println!(
-        "{:<16} {:<6} {:<8} {:<18} {:<10} {:<10} {:<6} {:<11} SOURCE",
-        "ID", "PURPOSE", "DRIVER", "PACKAGE", "DISTRO", "PERSIST", "STATUS", "ATTACH"
-    );
+    let mut rows = vec![
+        [
+            "ID", "PURPOSE", "DRIVER", "PACKAGE", "DISTRO", "PERSIST", "STATUS", "ATTACH", "SOURCE",
+        ]
+        .map(String::from),
+    ];
     for registered in environments {
         let assessed = assess_environment(&registry, &registered, &config.driver).await?;
         let env = &registered.environment;
-        println!(
-            "{:<16} {:<6} {:<8} {:<18} {:<10} {:<10} {:<6} {:<11} {}",
-            env.id(),
-            env.purpose.as_str(),
-            env.driver.as_str(),
-            env.package_identifier,
-            env.distro.codename,
-            env.persistence.as_str(),
-            assessed.status.as_str(),
-            assessed.attachments,
-            env.source_dir.display(),
-        );
+        rows.push([
+            env.id().to_string(),
+            env.purpose.as_str().to_string(),
+            env.driver.as_str().to_string(),
+            env.package_identifier.to_string(),
+            env.distro.codename.to_string(),
+            env.persistence.as_str().to_string(),
+            assessed.status.as_str().to_string(),
+            assessed.attachments.to_string(),
+            env.source_dir.display().to_string(),
+        ]);
     }
+    print!("{}", crate::output::table(&rows));
     Ok(())
 }
 

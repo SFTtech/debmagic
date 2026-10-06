@@ -41,6 +41,7 @@ usage/env.md
 usage/source.md
 usage/upload.md
 usage/upstream.md
+usage/changelog.md
 usage/config.md
 usage/packaging.md
 usage/modules/index.md

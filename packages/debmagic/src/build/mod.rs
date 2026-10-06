@@ -212,24 +212,21 @@ async fn run_build(
     .await
 }
 
-pub async fn build_package(
+pub async fn build_binary_package(
     intent: &BuildIntent,
     target: &PackageTarget,
     changes_options: &[String],
 ) -> anyhow::Result<std::path::PathBuf> {
     let request = BuildRequest { intent, target };
     run_build(&request, |claimed| {
-        crate::output::stage("Building binary packages");
+        crate::output::stage("Building binary package(s)");
         let staged_source_dir = stage_dir(claimed.environment(), BuildKind::Binary);
         // build-essential is an implicit dependency that `apt-get build-dep`
-        // won't resolve, so install it explicitly. No-op when the environment
-        // already has it (idempotent, and the bare driver runs on the host).
-        claimed.driver().run_command_checked(
-            &["apt-get", "-y", "install", "build-essential"],
-            &staged_source_dir,
-            true,
-            &[],
-        )?;
+        // won't pull in. No-op when the environment already has it
+        // (idempotent, and the bare driver runs on the host).
+        let mut packages = vec!["build-essential"];
+        packages.extend(gain_root_package(target)?);
+        install_packages(claimed, &staged_source_dir, &packages)?;
         claimed.driver().run_command_checked(
             &["apt-get", "-y", "build-dep", "."],
             &staged_source_dir,
@@ -272,6 +269,28 @@ pub async fn build_package(
         Ok(())
     })
     .await
+}
+
+/// `fakeroot` if `dpkg-buildpackage` will demand it for this package. It is
+/// only recommended by dpkg-dev, which `apt-get build-dep` doesn't pull in.
+fn gain_root_package(target: &PackageTarget) -> anyhow::Result<Option<&'static str>> {
+    Ok(target
+        .package
+        .control()
+        .context("checking Rules-Requires-Root failed")?
+        .needs_gain_root()
+        .then_some("fakeroot"))
+}
+
+fn install_packages(
+    claimed: &ClaimedEnvironment,
+    dir: &Path,
+    packages: &[&str],
+) -> anyhow::Result<()> {
+    let mut cmd = vec!["apt-get", "-y", "install"];
+    cmd.extend(packages);
+    claimed.driver().run_command_checked(&cmd, dir, true, &[])?;
+    Ok(())
 }
 
 /// Confirm `cmd` is on `PATH`, failing with an actionable message (rather
@@ -373,6 +392,10 @@ pub async fn build_source_package(
             );
             stage_file(tarball, &destination)?;
         }
+        // dpkg-buildpackage looks for the gain-root command even for -S
+        if let Some(package) = gain_root_package(target)? {
+            install_packages(claimed, &staged_source_dir, &[package])?;
+        }
         if intent.config.clean {
             claimed.driver().run_command_checked(
                 &["apt-get", "-y", "build-dep", "."],
@@ -473,7 +496,7 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
             )
             .context("host's /etc/os-release does not match the build target distro")?;
         }
-        build_package(&intent, &target, &command.changes_options)
+        build_binary_package(&intent, &target, &command.changes_options)
             .await
             .context("Building the package failed")?
     };

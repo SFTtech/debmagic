@@ -3,7 +3,9 @@ use std::process::ExitCode;
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
-use crate::cli::{BuildTarget, Cli, Commands, ConfigCommands, EnvCommands, UpstreamCommands};
+use crate::cli::{
+    BuildTarget, ChangelogCommands, Cli, Commands, ConfigCommands, EnvCommands, UpstreamCommands,
+};
 
 pub mod build;
 pub mod build_intent;
@@ -239,6 +241,16 @@ async fn run() -> anyhow::Result<ExitCode> {
                     verify_command: switch_args.verify_command.clone(),
                 })
                 .await?;
+            }
+        },
+        Commands::Changelog(args) => match &args.command {
+            ChangelogCommands::New(new_args) => {
+                changelog::new_entry(changelog::ChangelogNewCommand {
+                    source_dir: package::resolve_source_dir(
+                        &current_dir,
+                        new_args.common.source_dir.as_deref(),
+                    )?,
+                })?;
             }
         },
         Commands::Version {} => {

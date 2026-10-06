@@ -21,7 +21,7 @@ The changelog's version is normalized with the watch file's `Dversion-Mangle` ru
 ## `upstream switch`
 
 Fetches the chosen version's tarball, applies the package's repack configuration, writes the `orig` tarball into the package's output dir (`build/` by default) and replaces the source tree's contents — everything except `debian/`, which is kept as-is.
-The changelog is not touched; add the new version entry yourself (automated changelog handling is planned).
+The changelog is not touched; add the new version entry with [`debmagic changelog new`](changelog.md).
 
 `--dry-run` reports what would happen — tarball URL, repack excludes, version suffix — without downloading anything.
 

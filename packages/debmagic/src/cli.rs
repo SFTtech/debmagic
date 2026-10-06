@@ -68,8 +68,30 @@ pub enum Commands {
     Config(ConfigSubcommandArgs),
     #[command(about = "Query and switch upstream versions")]
     Upstream(UpstreamSubcommandArgs),
+    #[command(about = "Add entries to debian/changelog")]
+    Changelog(ChangelogSubcommandArgs),
     #[command(about = "Show version information")]
     Version {},
+}
+
+#[derive(Args, Debug)]
+pub struct ChangelogSubcommandArgs {
+    #[command(subcommand)]
+    pub command: ChangelogCommands,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum ChangelogCommands {
+    #[command(
+        about = "Add an UNRELEASED entry on top of debian/changelog, keeping the current version"
+    )]
+    New(ChangelogNewArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct ChangelogNewArgs {
+    #[command(flatten)]
+    pub common: CommonCli,
 }
 
 #[derive(Args, Debug)]

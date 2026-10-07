@@ -287,7 +287,7 @@ fn install_packages(
     dir: &Path,
     packages: &[&str],
 ) -> anyhow::Result<()> {
-    let mut cmd = vec!["apt-get", "-y", "install"];
+    let mut cmd = vec!["apt-get", "-y", "-q", "--no-install-recommends", "install"];
     cmd.extend(packages);
     claimed.driver().run_command_checked(&cmd, dir, true, &[])?;
     Ok(())
@@ -358,25 +358,25 @@ pub async fn build_source_package(
     }
 
     // dpkg-source looks for the orig tarball in the parent of the source
-    // dir it builds, which inside the environment is the work dir. Fetch
-    // into the data directory first; `temp_build_dir` no longer exists.
-    let orig_fetch_dir = crate::data_dir::data_dir()
-        .context("locating the debmagic data directory")?
-        .join("orig")
-        .join(target.package.name());
+    // dir it builds, which inside the environment is the work dir. The
+    // output dir is where `upstream switch` puts it and where the source
+    // artifacts land anyway, so fetch into it and stage from there.
+    let name = target.package.name();
+    let upstream_version = target.package.version().upstream_version();
     let orig_tarball = crate::upstream::orig::fetch_orig_tarball(
         &intent.config.orig_tarball,
         &target.package,
-        &orig_fetch_dir,
+        &intent.output_dir,
     )
     .await
-    .with_context(|| {
-        format!(
-            "fetching the orig tarball for {} {} failed",
-            target.package.name(),
-            target.package.version().upstream_version()
-        )
-    })?;
+    .with_context(|| format!("fetching the orig tarball for {name} {upstream_version} failed"))?;
+    if orig_tarball.is_none() && target.package.source_format() == SourceFormat::Quilt {
+        anyhow::bail!(
+            "no orig tarball for {name} {upstream_version} in {}, the source tree's parent dir or the distro archives; \
+             run 'debmagic upstream switch {upstream_version}' or place it in one of those dirs",
+            intent.output_dir.display()
+        );
+    }
 
     let request = BuildRequest { intent, target };
     run_build(&request, |claimed| {

@@ -269,7 +269,7 @@ pub async fn resolve_concrete(
             version: version.clone(),
             href: href.clone(),
         };
-        let url = crate::upstream::switch::download_url(source, &candidate)?;
+        let url = crate::upstream::fetch::download_url(source, &candidate)?;
         if crate::requests::http_exists(&url).await {
             return Ok(Some(candidate));
         }
@@ -286,7 +286,7 @@ pub async fn resolve_concrete(
             version: version.clone(),
             href,
         };
-        let url = crate::upstream::switch::download_url(source, &candidate)?;
+        let url = crate::upstream::fetch::download_url(source, &candidate)?;
         if crate::requests::http_exists(&url).await {
             return Ok(Some(candidate));
         }

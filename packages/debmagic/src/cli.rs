@@ -10,6 +10,7 @@ use crate::sign::{SignMode, SignTool};
 use crate::time::RefreshPolicy;
 use crate::upload::UploadMethod;
 use crate::upload::orig::IncludeOrig;
+use crate::upstream::fetch::FetchFrom;
 use clap::builder::BoolishValueParser;
 use clap::{Args, Parser, Subcommand};
 
@@ -107,8 +108,10 @@ pub enum UpstreamCommands {
         about = "List available upstream versions from debian/watch, newest eligible by default"
     )]
     List(UpstreamListArgs),
+    #[command(about = "Fetch the orig tarball of an upstream version into the output dir")]
+    Fetch(UpstreamFetchCliArgs),
     #[command(
-        about = "Switch the package tree to an upstream version: fetch, repack, replace the tree (keeping debian/)"
+        about = "Switch the package tree to an upstream version: fetch its orig tarball, replace the tree (keeping debian/)"
     )]
     Switch(UpstreamSwitchArgs),
 }
@@ -132,9 +135,68 @@ pub struct UpstreamListArgs {
 }
 
 #[derive(Args, Debug)]
+pub struct UpstreamFetchCliArgs {
+    #[arg(
+        help = "The upstream version to fetch, or 'latest' for the newest. Defaults to the changelog's upstream version"
+    )]
+    pub version: Option<String>,
+
+    #[command(flatten)]
+    pub fetch: UpstreamFetchArgs,
+}
+
+#[derive(Args, Debug)]
 pub struct UpstreamSwitchArgs {
-    #[arg(help = "The upstream version to switch to, or 'latest' for the newest eligible")]
+    #[arg(help = "The upstream version to switch to, or 'latest' for the newest")]
     pub version: String,
+
+    #[command(flatten)]
+    pub fetch: UpstreamFetchArgs,
+}
+
+/// Flags shared between `debmagic upstream fetch` and `debmagic upstream switch`.
+#[derive(Args, Debug)]
+pub struct UpstreamFetchArgs {
+    #[arg(
+        short,
+        long,
+        value_enum,
+        default_value_t = FetchFrom::Auto,
+        help = "Where to get the orig tarball: 'auto' (default) tries the 'orig_tarball.method' setting, then upstream; 'upstream' downloads the release from debian/watch; 'launchpad', 'ubuntu' and 'debian' fetch it from the distro archives; 'custom' runs 'orig_tarball.command'"
+    )]
+    pub from: FetchFrom,
+
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
+        help = "Strip the Files-Excluded paths of debian/copyright from upstream and custom tarballs, re-creating them as xz with the watch file's repack suffix. --repack=no keeps the tarball as-is and lists the excluded files it still contains. Distro archive tarballs are never repacked. Defaults to the 'upstream.repack' setting in the config file (yes if unset)"
+    )]
+    pub repack: Option<bool>,
+
+    #[arg(
+        long = "signature-check",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
+        help = "Verify the upstream tarball signature against debian/upstream/signing-key.asc. Defaults to the 'upstream.signature_check' setting in the config file (yes if unset)"
+    )]
+    pub signature_check: Option<bool>,
+
+    #[arg(
+        long = "verify-command",
+        help = "Custom verification command for sign.tool = 'custom', run without a shell. Supports {file}, {signature} and {keyring} placeholders; without {signature} the signature path is appended. Defaults to the 'sign.verify_command' setting, falling back to 'sign.sign_command'."
+    )]
+    pub verify_command: Option<String>,
+
+    #[arg(
+        long,
+        help = "Replace an existing orig tarball for the version instead of keeping it"
+    )]
+    pub force: bool,
 
     #[arg(
         long,
@@ -142,17 +204,8 @@ pub struct UpstreamSwitchArgs {
     )]
     pub dry_run: bool,
 
-    #[arg(
-        long,
-        help = "Skip verifying the upstream tarball signature against debian/upstream/signing-key.asc"
-    )]
-    pub no_signature_check: bool,
-
-    #[arg(
-        long = "verify-command",
-        help = "Custom verification command for sign.tool = 'custom', run without a shell. Supports {file}, {signature} and {keyring} placeholders; without {signature} the signature path is appended. Defaults to the 'sign.verify_command' setting, falling back to 'sign.sign_command'."
-    )]
-    pub verify_command: Option<String>,
+    #[arg(short, long, help = "Output directory for the orig tarball")]
+    pub output_dir: Option<PathBuf>,
 
     #[command(flatten)]
     pub common: CommonCli,

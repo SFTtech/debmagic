@@ -57,7 +57,7 @@ pub struct OrigTarballConfig {
 impl OrigTarballConfig {
     /// The resolved method: the configured one, or the `launchpad`
     /// default when unset.
-    fn method(&self) -> OrigTarballMethod {
+    pub fn method(&self) -> OrigTarballMethod {
         self.method.unwrap_or_default()
     }
 
@@ -73,7 +73,12 @@ impl OrigTarballConfig {
 
 /// Substitute `{name}`, `{version}`, `{upstream_version}`, `{source_dir}`
 /// and `{output_dir}` placeholders.
-fn substitute_placeholders(s: &str, package: &SourcePackage, output_dir: &Path) -> String {
+fn substitute_placeholders(
+    s: &str,
+    package: &SourcePackage,
+    upstream_version: &str,
+    output_dir: &Path,
+) -> String {
     let version = package.version().to_string();
     let source_dir = package.source_dir().unwrap().to_string_lossy();
     let out = output_dir.to_string_lossy();
@@ -82,7 +87,7 @@ fn substitute_placeholders(s: &str, package: &SourcePackage, output_dir: &Path) 
         &[
             ("name", package.name()),
             ("version", version.as_str()),
-            ("upstream_version", package.version().upstream_version()),
+            ("upstream_version", upstream_version),
             ("source_dir", &source_dir),
             ("output_dir", &out),
         ],
@@ -161,10 +166,33 @@ pub async fn fetch_orig_tarball_for_version(
         return Ok(Some(existing));
     }
 
-    let method = config.method();
+    fetch_with_method(
+        config,
+        config.method(),
+        package,
+        output_dir,
+        upstream_version,
+        component,
+    )
+    .await
+}
+
+/// Fetch the `orig` tarball for `upstream_version` with an explicit
+/// `method` into `output_dir`, without looking for local copies first.
+/// `None` when the method does not have it.
+pub async fn fetch_with_method(
+    config: &OrigTarballConfig,
+    method: OrigTarballMethod,
+    package: &SourcePackage,
+    output_dir: &Path,
+    upstream_version: &str,
+    component: Option<&str>,
+) -> anyhow::Result<Option<PathBuf>> {
     if method == OrigTarballMethod::Disabled {
         return Ok(None);
     }
+    let source_dir = package.source_dir()?;
+    let name = package.name();
 
     std::fs::create_dir_all(output_dir)
         .with_context(|| format!("failed to create {}", output_dir.display()))?;
@@ -213,7 +241,7 @@ pub async fn fetch_orig_tarball_for_version(
             let command = config.command.as_deref().context(
                 "orig_tarball.method = \"custom\" requires orig_tarball.command to be set",
             )?;
-            let command = substitute_placeholders(command, package, output_dir);
+            let command = substitute_placeholders(command, package, upstream_version, output_dir);
             println!("debmagic: running orig tarball command: {command}");
             let status = std::process::Command::new("sh")
                 .arg("-c")
@@ -318,17 +346,24 @@ async fn fetch_from_distro_archive(
 /// filesystem, a copy otherwise.
 fn stage_from_cache(cached: &Path, output_dir: &Path) -> anyhow::Result<PathBuf> {
     let destination = output_dir.join(cached.file_name().unwrap_or_default());
-    if std::fs::hard_link(cached, &destination).is_ok() {
-        return Ok(destination);
+    link_or_copy(cached, &destination)?;
+    Ok(destination)
+}
+
+/// Hardlink `source` to `destination` when both are on the same
+/// filesystem, copy otherwise.
+pub fn link_or_copy(source: &Path, destination: &Path) -> anyhow::Result<()> {
+    if std::fs::hard_link(source, destination).is_ok() {
+        return Ok(());
     }
-    std::fs::copy(cached, &destination).with_context(|| {
+    std::fs::copy(source, destination).with_context(|| {
         format!(
             "failed to copy {} to {}",
-            cached.display(),
+            source.display(),
             destination.display()
         )
     })?;
-    Ok(destination)
+    Ok(())
 }
 
 /// The `debian`/`ubuntu` methods: a distro archive pool directly,
@@ -594,6 +629,7 @@ mod tests {
             substitute_placeholders(
                 "fetch {name} {version} {upstream_version} from {source_dir} to {output_dir}",
                 &pkg,
+                "3.11.7",
                 &out
             ),
             format!(

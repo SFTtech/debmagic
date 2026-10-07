@@ -247,6 +247,9 @@ pub struct Config {
     /// builds already stage a clean source tree and incremental builds preserve
     /// outputs intentionally.
     pub clean: bool,
+    /// Send a desktop notification via `notify-send` and ring the terminal
+    /// bell when a build finishes.
+    pub notify: bool,
     /// Build for a dpkg architecture variant (e.g. `amd64v3` on Ubuntu),
     /// exported as `DEB_HOST_ARCH_VARIANT` for the build.
     pub host_arch_variant: Option<String>,
@@ -314,6 +317,7 @@ impl Default for Config {
             orig_tarball: OrigTarballConfig::default(),
             upstream: UpstreamConfig::default(),
             clean: false,
+            notify: false,
             host_arch_variant: None,
         }
     }

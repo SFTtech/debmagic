@@ -104,6 +104,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                     sign_tool: build_args.sign_tool,
                     sign_command: build_args.sign_command.clone(),
                     sign_notify: build_args.sign_notify,
+                    notify: build_args.notify,
                     clean: build_args.clean,
                     source_sync: build_args.source_sync,
                     host_arch_variant: build_args.host_arch_variant.clone(),

@@ -41,6 +41,7 @@ pub struct BuildIntentInput {
     pub sign_tool: Option<SignTool>,
     pub sign_command: Option<String>,
     pub sign_notify: Option<bool>,
+    pub notify: Option<bool>,
     pub clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
     pub host_arch_variant: Option<String>,
@@ -105,6 +106,9 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     }
     if let Some(sign_notify) = input.sign_notify {
         config.sign.notify = sign_notify;
+    }
+    if let Some(notify) = input.notify {
+        config.notify = notify;
     }
     if let Some(clean) = input.clean {
         config.clean = clean;
@@ -179,6 +183,7 @@ mod tests {
             sign_tool: None,
             sign_command: None,
             sign_notify: None,
+            notify: None,
             clean: None,
             source_sync: None,
             host_arch_variant: None,

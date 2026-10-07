@@ -424,6 +424,15 @@ pub struct CommonBuildArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         value_parser = BoolishValueParser::new(),
+        help = "Send a desktop notification via notify-send and ring the terminal bell when the build finishes, successfully or not. Defaults to the 'notify' setting in the config file (false if unset)."
+    )]
+    pub notify: Option<bool>,
+
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        value_parser = BoolishValueParser::new(),
         help = "Run 'debian/rules clean' before building, like plain dpkg-buildpackage does unless passed -nc. Defaults to the 'clean' setting in the config file (false if unset); non-incremental builds already stage a clean source tree, while incremental builds preserve outputs by design. For source builds this also installs build-dependencies first, since a clean target usually needs its own tooling."
     )]
     pub clean: Option<bool>,

@@ -12,8 +12,8 @@ use serde::{Deserialize, Serialize};
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
     EnvironmentMetadata, IsolationCapability, ResourceStatus, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint,
-    refresh_apt_index, resource_name, run_checked, translate_path_in_container,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
+    run_checked, translate_path_in_container,
 };
 use crate::subprocess::{self, Capture, CommandResult};
 
@@ -307,9 +307,8 @@ impl DriverDocker {
             }
         }
 
-        let created_container = if reuse {
+        if reuse {
             driver.reused_environment = true;
-            false
         } else {
             // The container may not exist; removal errors don't matter here.
             let _ = Command::new("docker")
@@ -346,23 +345,6 @@ impl DriverDocker {
                     .arg(&docker_image_name),
                 "starting docker container",
             )?;
-            true
-        };
-
-        // cwd is the build root (the bind mount itself), not the source dir:
-        // create() must not assume the source tree has been staged yet.
-        // Fresh containers always update once; reused ones only when the
-        // configured apt update age says their index has gone stale.
-        let update_result =
-            refresh_apt_index(&driver, environment, driver_config.apt_update_age, reuse)
-                .map_err(|error| anyhow!("Error running apt-get update in container: {error}"));
-        if let Err(error) = update_result {
-            if created_container && let Err(cleanup_error) = driver.container_remove_force() {
-                return Err(error.context(format!(
-                    "also failed to remove Docker container: {cleanup_error}"
-                )));
-            }
-            return Err(error);
         }
 
         Ok(driver)

@@ -1,7 +1,6 @@
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 
 use anyhow::anyhow;
-use chrono::{DateTime, SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 
 /// When something cached is refreshed again: before every use, only the first
@@ -97,18 +96,6 @@ impl std::str::FromStr for RefreshPolicy {
     }
 }
 
-/// UTC timestamp in RFC 3339 with second precision
-pub fn iso_timestamp() -> String {
-    Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true)
-}
-
-/// Parse a timestamp written by [`iso_timestamp`]
-pub fn parse_iso_timestamp(value: &str) -> Option<SystemTime> {
-    DateTime::parse_from_rfc3339(value.trim())
-        .ok()
-        .map(|time| time.into())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -162,18 +149,5 @@ mod tests {
             RefreshPolicy::OlderThan(Duration::from_secs(37)).to_string(),
             "37s"
         );
-    }
-
-    #[test]
-    fn iso_timestamps_roundtrip() {
-        let parsed = parse_iso_timestamp(&iso_timestamp()).unwrap();
-        let age = SystemTime::now().duration_since(parsed).unwrap();
-        assert!(age < Duration::from_secs(120));
-    }
-
-    #[test]
-    fn iso_timestamp_parsing_rejects_garbage() {
-        assert_eq!(parse_iso_timestamp("not a timestamp"), None);
-        assert_eq!(parse_iso_timestamp(""), None);
     }
 }

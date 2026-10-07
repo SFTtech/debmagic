@@ -18,7 +18,7 @@ use crate::driver::{
     driver_lxd::{DriverLxd, LxdVariant},
 };
 use crate::subprocess::{Capture, CommandResult};
-use crate::time::{RefreshPolicy, iso_timestamp, parse_iso_timestamp};
+use crate::time::RefreshPolicy;
 
 pub mod config;
 pub mod driver_bare;
@@ -104,49 +104,31 @@ pub fn environment_fingerprint(parts: &[&str]) -> String {
         .to_string()
 }
 
-/// Stamp file in a container environment's own filesystem (not the
-/// bind-mounted build root, which `reset_root` wipes) holding the ISO
-/// timestamp of the last successful `apt-get update` there.
-pub const APT_UPDATE_STAMP: &str = "/var/lib/debmagic/apt-updated";
-
-/// Bring a reused environment's apt index up to date under `policy`: check
-/// the stamp file for when `apt-get update` last ran, and when the policy
-/// says it has gone stale (or the stamp is missing), run the update and
-/// record a fresh timestamp. Fresh environments (`reused = false`) always
-/// update once.
-pub fn refresh_apt_index(
-    driver: &dyn EnvironmentDriver,
-    environment: &Environment,
-    policy: RefreshPolicy,
-    reused: bool,
-) -> io::Result<()> {
-    let last_update = if reused {
-        driver
-            .run_command(
-                &["cat", APT_UPDATE_STAMP],
-                &environment.root_dir,
-                true,
-                &[],
-                Capture::STDOUT,
-            )
-            .ok()
-            .filter(|result| result.exit_code == 0)
-            .and_then(|result| result.stdout)
-            .and_then(|stdout| parse_iso_timestamp(&stdout))
-    } else {
-        None
-    };
-    if reused && !apt_update_needed_on_reuse(policy, last_update) {
-        return Ok(());
-    }
-    driver.run_command_checked(&["apt-get", "update"], &environment.root_dir, true, &[])?;
-    let stamp = apt_update_stamp_script(&iso_timestamp());
-    driver.run_command_checked(&["sh", "-ec", &stamp], &environment.root_dir, true, &[])
+/// Refresh the apt index and upgrade the installed packages, so a cached
+/// image or a long-lived Environment builds against current packages, like
+/// sbuild does.
+pub fn upgrade_packages(driver: &dyn EnvironmentDriver, cwd: &Path) -> io::Result<()> {
+    let env = [("DEBIAN_FRONTEND", "noninteractive")];
+    driver.run_command_checked(&["apt-get", "update"], cwd, true, &env)?;
+    driver.run_command_checked(
+        &[
+            "apt-get",
+            "-y",
+            "-o",
+            "Dpkg::Options::=--force-confdef",
+            "-o",
+            "Dpkg::Options::=--force-confold",
+            "upgrade",
+        ],
+        cwd,
+        true,
+        &env,
+    )
 }
 
-/// Whether a reused environment needs `apt-get update` again under `policy`.
+/// Whether a reused environment needs an apt refresh again under `policy`.
 /// `last_update` is when its apt index was last refreshed; `None` means
-/// never, which includes a missing stamp file.
+/// never.
 pub fn apt_update_needed_on_reuse(policy: RefreshPolicy, last_update: Option<SystemTime>) -> bool {
     match policy {
         RefreshPolicy::Now => true,
@@ -155,12 +137,6 @@ pub fn apt_update_needed_on_reuse(policy: RefreshPolicy, last_update: Option<Sys
             .and_then(|last| SystemTime::now().duration_since(last).ok())
             .is_none_or(|age| age > max_age),
     }
-}
-
-/// `sh -ec` script storing `timestamp` (from [`crate::time::iso_timestamp`])
-/// in the environment's apt-update stamp file.
-fn apt_update_stamp_script(timestamp: &str) -> String {
-    format!("mkdir -p /var/lib/debmagic && printf %s '{timestamp}' > {APT_UPDATE_STAMP}")
 }
 
 /// Metadata key under which container-based drivers store their container's

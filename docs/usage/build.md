@@ -32,7 +32,7 @@ debmagic build binary --driver lxd \
 | `--test` | [Run the package's test suite](#running-tests) |
 | `--notify` | Desktop notification (`notify-send`) and terminal bell when the build finishes; config `notify` |
 | `--apt-mirror <url>` | [Mirror URL](#mirror-selection) |
-| `--apt-update-age <when>` | [When a persistent environment re-runs `apt-get update`](#apt-update-age) |
+| `--apt-update-age <when>` | [When a persistent environment re-runs `apt-get update` and `upgrade`](#apt-update-age) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
 | `--output-dir <dir>` | Directory to put the resulting build artifacts |
 
@@ -74,14 +74,15 @@ You can persistently set this flag in  `.config/debmagic/config.toml`.
 
 ## Apt update age
 
-Fresh environments always run `apt-get update` once on creation.
-When an Environment is reused, `--apt-update-age` decides whether the apt index is refreshed again:
+When an Environment is reused, `--apt-update-age` decides when `apt-get update/upgrade` are run again:
 
 | Value | Behavior |
 |---|---|
-| `now` | Update before every build |
-| `never` | Only the initial update on creation |
-| `1d` (default), `12h`, `30m`, … | Update again once the last one is older than this |
+| `now` | Upgrade before every build |
+| `never` | Only the initial upgrade on creation |
+| `1d` (default), `12h`, `30m`, … | Upgrade again once the last one is older than this |
+
+The bare driver builds on the host and never upgrades it.
 
 The default `1d` matches a typical developer machine's daily apt refresh: repeated builds stay fast, while the index can't go arbitrarily stale.
 Persist the setting as `apt_update_age = "1d"` in [`debmagic.toml`](config.md).

@@ -360,7 +360,7 @@ pub struct CommonBuildArgs {
 
     #[arg(
         long = "apt-update-age",
-        help = "When a persistent build environment runs 'apt-get update' again: 'now' (every build), 'never' (only on first creation), or a maximum age of the apt index like '1d' (the default), '12h', '30m'. Fresh environments always update once. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
+        help = "When a persistent build environment runs 'apt-get update/upgrade' again: 'now' (every build), 'never' (only on first creation), or a maximum age of the last upgrade like '1d' (the default), '12h', '30m'. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
     )]
     pub apt_update_age: Option<RefreshPolicy>,
 
@@ -589,7 +589,7 @@ pub struct TestSubcommandArgs {
 
     #[arg(
         long = "apt-update-age",
-        help = "When a persistent test environment runs 'apt-get update' again: 'now' (every run), 'never' (only on first creation), or a maximum age of the apt index like '1d' (the default), '12h', '30m'. Fresh environments always update once. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
+        help = "When a persistent build environment runs 'apt-get update/upgrade' again: 'now' (every build), 'never' (only on first creation), or a maximum age of the last upgrade like '1d' (the default), '12h', '30m'. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
     )]
     pub apt_update_age: Option<RefreshPolicy>,
 

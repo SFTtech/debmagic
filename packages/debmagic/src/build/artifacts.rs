@@ -50,6 +50,12 @@ fn artifact_filename(filename: &str) -> anyhow::Result<&OsStr> {
     }
 }
 
+fn is_same_file(source: &fs::Metadata, destination: &Path) -> bool {
+    use std::os::unix::fs::MetadataExt;
+    fs::metadata(destination)
+        .is_ok_and(|dest| dest.dev() == source.dev() && dest.ino() == source.ino())
+}
+
 fn reject_destination_symlink(path: &Path) -> anyhow::Result<()> {
     match fs::symlink_metadata(path) {
         Ok(metadata) if metadata.file_type().is_symlink() => {
@@ -106,6 +112,11 @@ pub fn export_build_artifacts(
         }
         let destination = output_dir.join(filename);
         reject_destination_symlink(&destination)?;
+        // an orig tarball staged into the build dir as a hardlink of the
+        // output dir's copy: copying it onto itself would truncate it
+        if is_same_file(&metadata, &destination) {
+            continue;
+        }
         fs::copy(&source, destination)
             .with_context(|| format!("failed to copy build artifact {}", source.display()))?;
     }

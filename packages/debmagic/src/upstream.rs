@@ -1,11 +1,13 @@
 use std::path::PathBuf;
 use std::str::FromStr;
 
-use anyhow::{Context, bail};
+use anyhow::Context;
 
 use crate::config::Config;
 use crate::package::load_package;
+use fetch::FetchFrom;
 
+pub mod fetch;
 pub mod mangle;
 pub mod orig;
 pub mod query;
@@ -22,21 +24,6 @@ pub struct UpstreamListCommand {
     pub all: bool,
     /// Show the N versions newer than the changelog's, not just the newest.
     pub previous: Option<usize>,
-}
-
-/// Inputs for the `debmagic upstream switch` command.
-#[derive(Debug, Clone)]
-pub struct UpstreamSwitchCommand {
-    pub source_dir: PathBuf,
-    pub config_file: Option<PathBuf>,
-    /// The upstream version to switch to, or "latest" for the newest eligible.
-    pub version: String,
-    /// Only report what would happen, without touching anything.
-    pub dry_run: bool,
-    /// Skip verifying the upstream tarball signature.
-    pub no_signature_check: bool,
-    /// Custom verification command overriding `sign.verify_command`.
-    pub verify_command: Option<String>,
 }
 
 /// Run the `debmagic upstream list` command: query each watch source and
@@ -82,14 +69,66 @@ pub async fn list(command: UpstreamListCommand) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Run the `debmagic upstream switch` command: resolve the candidate
-/// version, then switch the main source and every component source to it.
-pub async fn switch(command: UpstreamSwitchCommand) -> anyhow::Result<()> {
-    let source_dir = command.source_dir.clone();
-    let identity = load_package(&source_dir)?;
-    let sources = query::load_watch(&source_dir, identity.name())?;
+/// Inputs shared by the `debmagic upstream fetch` and `switch` commands.
+#[derive(Debug, Clone)]
+pub struct UpstreamFetchCommand {
+    pub source_dir: PathBuf,
+    pub config_file: Option<PathBuf>,
+    /// An upstream or Debian version, or `latest`; `None` means the
+    /// changelog's upstream version.
+    pub version: Option<String>,
+    pub from: FetchFrom,
+    /// Overrides `upstream.repack`.
+    pub repack: Option<bool>,
+    /// Overrides `upstream.signature_check`.
+    pub signature_check: Option<bool>,
+    /// Custom verification command overriding `sign.verify_command`.
+    pub verify_command: Option<String>,
+    pub force: bool,
+    pub dry_run: bool,
+    /// Overrides the configured output dir.
+    pub output_dir: Option<PathBuf>,
+}
+
+/// Run `debmagic upstream fetch`: put the orig tarballs (main and MUT
+/// components) of an upstream version into the output dir.
+pub async fn fetch(command: UpstreamFetchCommand) -> anyhow::Result<()> {
+    run_fetch(command, false).await
+}
+
+/// Run `debmagic upstream switch`: fetch like `upstream fetch`, then
+/// replace the tree (and each component's subdir) with the tarballs'
+/// contents.
+pub async fn switch(command: UpstreamFetchCommand) -> anyhow::Result<()> {
+    run_fetch(command, true).await
+}
+
+async fn run_fetch(command: UpstreamFetchCommand, switch_tree: bool) -> anyhow::Result<()> {
+    let source_dir = command.source_dir;
+    let package = load_package(&source_dir)?;
+    let sources = query::load_watch(&source_dir, package.name())?;
     let mut config = Config::load(Some(&source_dir), command.config_file.as_deref())?;
-    let output_dir = source_dir.join(&config.output_dir);
+    if let Some(verify_command) = command.verify_command {
+        config.sign.verify_command = Some(verify_command);
+    }
+    let output_dir = std::path::absolute(
+        command
+            .output_dir
+            .unwrap_or_else(|| source_dir.join(&config.output_dir)),
+    )
+    .context("resolving the output dir failed")?;
+    let options = fetch::FetchOptions {
+        from: command.from,
+        orig_tarball: &config.orig_tarball,
+        repack: command.repack.unwrap_or(config.upstream.repack),
+        signature_check: command
+            .signature_check
+            .unwrap_or(config.upstream.signature_check),
+        sign: &config.sign,
+        output_dir: &output_dir,
+        force: command.force,
+        dry_run: command.dry_run,
+    };
 
     // the main source (no Component field) drives the version;
     // component sources contribute their own tarballs
@@ -97,106 +136,34 @@ pub async fn switch(command: UpstreamSwitchCommand) -> anyhow::Result<()> {
         .iter()
         .find(|s| s.untrackable.is_none() && s.component.is_none())
         .context("no usable main watch source found")?;
-    let candidate = if command.version == "latest" {
-        // discovery needs the listing
-        let candidates = query::query_source(main_source, identity.name()).await?;
-        candidates.first().cloned()
-    } else {
-        // a concrete version: construct the URL from the watch
-        // pattern directly; only fall back to scraping when the
-        // pattern is not invertible or the URL does not exist.
-        // an existing orig tarball hints at the extension first.
-        let existing_orig = crate::changes::find_orig_in_dir(
-            &output_dir,
-            identity.name(),
-            identity.version().upstream_version(),
-            None,
-        )
-        .or_else(|| {
-            source_dir.parent().and_then(|parent| {
-                crate::changes::find_orig_in_dir(
-                    parent,
-                    identity.name(),
-                    identity.version().upstream_version(),
-                    None,
-                )
-            })
-        });
-        match query::resolve_concrete(
-            main_source,
-            identity.name(),
-            &command.version,
-            existing_orig.as_deref(),
-        )
-        .await
-        {
-            Ok(Some(candidate)) => Some(candidate),
-            Ok(None) | Err(_) => {
-                let candidates = query::query_source(main_source, identity.name()).await?;
-                query::find_candidate(&candidates, &command.version).cloned()
-            }
-        }
-    };
-    let Some(candidate) = candidate else {
-        if command.version == "latest" {
-            bail!("no upstream candidates found for {}", identity.name());
-        }
-        bail!(
-            "upstream version {} not found for {}; run 'debmagic upstream list' to see the available versions",
-            command.version,
-            identity.name()
-        );
-    };
-
-    let package = load_package(&source_dir)?;
-    let repack = repack::load_repack_config(&package, main_source)?;
-    let verify = config.upstream.verify_signatures && !command.no_signature_check;
-    if let Some(verify_command) = &command.verify_command {
-        config.sign.verify_command = Some(verify_command.clone());
-    }
     let components: Vec<String> = sources
         .iter()
         .filter_map(|source| source.component.clone())
         .collect();
-    let options = switch::SwitchOptions {
-        repack: &repack,
-        output_dir: &output_dir,
-        orig_tarball_config: Some(&config.orig_tarball),
-        verify_signatures: verify,
-        sign_options: &config.sign,
-        dry_run: command.dry_run,
-        components: &components,
-    };
-    switch::switch(&source_dir, main_source, &candidate, &options).await?;
+    let requested = command
+        .version
+        .unwrap_or_else(|| package.version().upstream_version().to_string());
 
-    // MUT: switch each component source to the same version
+    let run = async |source: &watch::WatchSource, version: &str| {
+        let what = match &source.component {
+            Some(component) => format!("component {component} of {}", package.name()),
+            None => package.name().to_string(),
+        };
+        let result = if switch_tree {
+            switch::switch(&package, source, version, &options, &components).await
+        } else {
+            fetch::fetch(&package, source, version, &options).await
+        };
+        result.with_context(|| format!("fetching {what} {version} failed"))
+    };
+
+    let main = run(main_source, &requested).await?;
+    // MUT: the components follow the main tarball's version
     for source in &sources {
         if source.untrackable.is_some() || source.component.is_none() {
             continue;
         }
-        let candidates = query::query_source(source, identity.name()).await?;
-        let Some(component_candidate) = candidates
-            .iter()
-            .find(|c| c.version == candidate.version)
-            .or_else(|| candidates.first())
-        else {
-            bail!(
-                "no candidates for component {} at version {}",
-                source.component.as_deref().unwrap_or_default(),
-                candidate.version
-            );
-        };
-        let repack = repack::load_repack_config(&package, source)?;
-        let options = switch::SwitchOptions {
-            repack: &repack,
-            output_dir: &output_dir,
-            orig_tarball_config: Some(&config.orig_tarball),
-            verify_signatures: verify,
-            sign_options: &config.sign,
-            dry_run: command.dry_run,
-            components: &components,
-        };
-        switch::switch(&source_dir, source, component_candidate, &options).await?;
+        run(source, &main.upstream_version).await?;
     }
     Ok(())
 }

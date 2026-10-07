@@ -43,7 +43,8 @@ All keys are optional.
 | `sign.notify` | bool | `false` | `--sign-notify` | Send a desktop notification via `notify-send` just before signing, so a hardware-key touch prompt isn't missed. |
 | `clean` | bool | `false` | `--clean` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
 | `host_arch_variant` | string | — | `--host-arch-variant` | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
-| `upstream.verify_signatures` | bool | `true` | `--no-signature-check` | Verify the upstream tarball's PGP signature against `debian/upstream/signing-key.asc` during `upstream switch` (see [Upstream](upstream.md#signature-verification)). |
+| `upstream.signature_check` | bool | `true` | `--signature-check` | Verify the upstream tarball's PGP signature against `debian/upstream/signing-key.asc` during `upstream fetch`/`switch` (see [Upstream](upstream.md#signature-verification)). |
+| `upstream.repack` | bool | `true` | `--repack` | Strip the `Files-Excluded` paths from upstream and custom tarballs during `upstream fetch`/`switch` (see [Upstream](upstream.md#repacking)). |
 | `upload.targets` | map | — | `debmagic upload <target>` | Named upload targets for [uploading](upload.md), merged field-by-field over the builtins (`ppa`, `ubuntu`, `debian`). |
 
 ### `source_sync_mode`

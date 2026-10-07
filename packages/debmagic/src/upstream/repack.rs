@@ -41,7 +41,7 @@ pub fn load_repack_config(
 
 /// Whether any exclude pattern matches `path` (relative, forward slashes).
 /// A `dir/*` pattern excludes everything under `dir`, at any depth.
-fn is_excluded(path: &str, excludes: &[String]) -> bool {
+pub fn is_excluded(path: &str, excludes: &[String]) -> bool {
     excludes.iter().any(|pattern| {
         let Ok(glob) = glob::Pattern::new(pattern) else {
             return false;

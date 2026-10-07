@@ -42,6 +42,26 @@ fn main() -> ExitCode {
     }
 }
 
+fn upstream_fetch_command(
+    current_dir: &std::path::Path,
+    cli: &Cli,
+    version: Option<String>,
+    args: &cli::UpstreamFetchArgs,
+) -> anyhow::Result<upstream::UpstreamFetchCommand> {
+    Ok(upstream::UpstreamFetchCommand {
+        source_dir: package::resolve_source_dir(current_dir, args.common.source_dir.as_deref())?,
+        config_file: cli.config.clone(),
+        version,
+        from: args.from,
+        repack: args.repack,
+        signature_check: args.signature_check,
+        verify_command: args.verify_command.clone(),
+        force: args.force,
+        dry_run: args.dry_run,
+        output_dir: args.output_dir.clone(),
+    })
+}
+
 async fn run() -> anyhow::Result<ExitCode> {
     let cli = Cli::parse();
     output::init_color(cli.color);
@@ -238,18 +258,22 @@ async fn run() -> anyhow::Result<ExitCode> {
                 })
                 .await?;
             }
+            UpstreamCommands::Fetch(fetch_args) => {
+                upstream::fetch(upstream_fetch_command(
+                    &current_dir,
+                    &cli,
+                    fetch_args.version.clone(),
+                    &fetch_args.fetch,
+                )?)
+                .await?;
+            }
             UpstreamCommands::Switch(switch_args) => {
-                upstream::switch(upstream::UpstreamSwitchCommand {
-                    source_dir: package::resolve_source_dir(
-                        &current_dir,
-                        switch_args.common.source_dir.as_deref(),
-                    )?,
-                    config_file: cli.config.clone(),
-                    version: switch_args.version.clone(),
-                    dry_run: switch_args.dry_run,
-                    no_signature_check: switch_args.no_signature_check,
-                    verify_command: switch_args.verify_command.clone(),
-                })
+                upstream::switch(upstream_fetch_command(
+                    &current_dir,
+                    &cli,
+                    Some(switch_args.version.clone()),
+                    &switch_args.fetch,
+                )?)
                 .await?;
             }
         },

@@ -258,13 +258,16 @@ pub struct Config {
 pub struct UpstreamConfig {
     /// Verify upstream tarball signatures against
     /// `debian/upstream/signing-key.asc` when it exists.
-    pub verify_signatures: bool,
+    pub signature_check: bool,
+    /// Strip the `Files-Excluded` paths from upstream tarballs.
+    pub repack: bool,
 }
 
 impl Default for UpstreamConfig {
     fn default() -> Self {
         Self {
-            verify_signatures: true,
+            signature_check: true,
+            repack: true,
         }
     }
 }

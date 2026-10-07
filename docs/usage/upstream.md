@@ -90,9 +90,12 @@ repack = false   # keep upstream tarballs as-is, warning about excluded files
 `debian/watch` versions 2–5 are parsed (version 1 is rejected).
 The common options work: `Source`, `Matching-Pattern` (including the `@ANY_VERSION@`/`@ARCHIVE_EXT@`/`@PACKAGE@` substitutions), `Search-Mode`, `Uversion-Mangle`, `Dversion-Mangle`, `Oversion-Mangle`, `Filename-Mangle`, `Download-Url-Mangle`, `Pgp-Mode`/`Pgp-Sig-Url-Mangle`, `Repack`, `Repacksuffix`, `Component` (for MUT packages), `Untrackable`.
 
+In version 2–4 lines, the version field may be `debian`, or `same`/`ignore` for MUT components: components are fetched for the main tarball's version, and an `ignore` component that has no such release falls back to its newest one.
+The `uupdate` update script is accepted, since `debmagic upstream switch` does its job.
+
 http(s) sources are fetched directly; ftp sources fall back to `curl` (install it when a watch file needs it).
 
-Rare options with no debmagic equivalent yet (`Mode: git`/`svn`, `Version-Schema: group/checksum`, `Page-Mangle`, `Update-Script`, ...) produce a clear error suggesting an explicit upstream declaration instead of silently misbehaving.
+Rare options with no debmagic equivalent yet (`Mode: git`/`svn`, `Version-Schema: group/checksum`, `Page-Mangle`, custom update scripts, ...) produce a clear error suggesting an explicit upstream declaration instead of silently misbehaving.
 
 ## Orig tarballs in builds
 

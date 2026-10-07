@@ -228,7 +228,19 @@ pub async fn fetch(
 
     let candidate = match candidate {
         Some(candidate) => candidate,
-        None => resolve_candidate(package, source, &upstream_version, output_dir).await?,
+        None => match resolve_candidate(package, source, &upstream_version, output_dir).await {
+            // its orig tarball is still named after the main version
+            Err(error)
+                if let Some(component) = component
+                    && source.version_unrestricted =>
+            {
+                println!(
+                    "debmagic: {error:#}; the watch file doesn't tie component {component} to the main version, using its newest release"
+                );
+                resolve_candidate(package, source, "latest", output_dir).await?
+            }
+            result => result?,
+        },
     };
     let url = download_url(source, &candidate)?;
     if options.dry_run {

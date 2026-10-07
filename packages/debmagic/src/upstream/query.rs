@@ -440,6 +440,7 @@ pub fn load_watch(source_dir: &Path, package: &str) -> anyhow::Result<Vec<WatchS
         for rule in [
             &mut source.uversion_mangle,
             &mut source.dversion_mangle,
+            &mut source.oversion_mangle,
             &mut source.filename_mangle,
             &mut source.download_url_mangle,
             &mut source.pgp_sig_url_mangle,

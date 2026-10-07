@@ -88,7 +88,7 @@ repack = false   # keep upstream tarballs as-is, warning about excluded files
 ## Watch file support
 
 `debian/watch` versions 2–5 are parsed (version 1 is rejected).
-The common options work: `Source`, `Matching-Pattern` (including the `@ANY_VERSION@`/`@ARCHIVE_EXT@`/`@PACKAGE@` substitutions), `Search-Mode`, `Uversion-Mangle`, `Dversion-Mangle`, `Filename-Mangle`, `Download-Url-Mangle`, `Pgp-Mode`/`Pgp-Sig-Url-Mangle`, `Repack`, `Repacksuffix`, `Component` (for MUT packages), `Untrackable`.
+The common options work: `Source`, `Matching-Pattern` (including the `@ANY_VERSION@`/`@ARCHIVE_EXT@`/`@PACKAGE@` substitutions), `Search-Mode`, `Uversion-Mangle`, `Dversion-Mangle`, `Oversion-Mangle`, `Filename-Mangle`, `Download-Url-Mangle`, `Pgp-Mode`/`Pgp-Sig-Url-Mangle`, `Repack`, `Repacksuffix`, `Component` (for MUT packages), `Untrackable`.
 
 http(s) sources are fetched directly; ftp sources fall back to `curl` (install it when a watch file needs it).
 

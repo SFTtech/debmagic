@@ -317,18 +317,15 @@ fn check_dpkg_buildpackage_available() -> anyhow::Result<()> {
     )
 }
 
-/// Make `source` available at `destination` without copying bytes when
-/// avoidable: hardlink (same filesystem), then symlink, then copy as the
-/// last resort. dpkg-source only reads the file, so a link is fine.
+/// Make `source` available at `destination`: hardlink on the same
+/// filesystem, else copy. A symlink would point at a host path that
+/// doesn't exist inside a container environment.
 fn stage_file(source: &Path, destination: &Path) -> anyhow::Result<()> {
     if destination.exists() {
         std::fs::remove_file(destination)
             .with_context(|| format!("failed to remove {}", destination.display()))?;
     }
     if std::fs::hard_link(source, destination).is_ok() {
-        return Ok(());
-    }
-    if std::os::unix::fs::symlink(source, destination).is_ok() {
         return Ok(());
     }
     fs::copy(source, destination).map(|_| ()).with_context(|| {

@@ -159,11 +159,13 @@ Or set `build_debug_symbols = true` in the [`debmagic.toml`](config.md).
 ## Running tests
 
 By default the build runs the package's test suite (the `test` stage of `debian/rules.py`, or `dh_auto_test` via the dh preset).
-Pass `--test=false` to skip it for one invocation, or set `run_test = false` in the [`debmagic.toml`](config.md):
+Pass `--test=no` to skip it for one invocation, or set `run_test = false` in the [`debmagic.toml`](config.md):
 
 ```shell
-debmagic build binary --test=false
+debmagic build binary --test=no
 ```
+
+Boolean flags accept `yes`/`no`, `true`/`false` and `on`/`off`; a bare flag means `yes`.
 
 This exports `DEB_BUILD_OPTIONS=nocheck`, the standard dpkg mechanism: dpkg-buildpackage propagates it into the build, debmagic's `test` stage is skipped, and classic debhelper packages skip `dh_auto_test` as usual.
 
@@ -219,7 +221,7 @@ Without a file argument, it locates the `.changes` via `debian/changelog` and `-
 
 ## Cleaning
 
-`--clean` runs `debian/rules clean` before building, like plain `dpkg-buildpackage` does unless passed `-nc`; `--clean=false` skips it even if the config file defaults to cleaning.
+`--clean` runs `debian/rules clean` before building, like plain `dpkg-buildpackage` does unless passed `-nc`; `--clean=no` skips it even if the config file defaults to cleaning.
 Non-incremental builds already stage a clean source tree, while incremental builds preserve outputs intentionally.
 Enable cleaning only for packages whose `clean` target performs required setup or code generation.
 

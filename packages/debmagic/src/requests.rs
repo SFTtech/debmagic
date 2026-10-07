@@ -5,9 +5,11 @@ use futures_util::StreamExt;
 
 /// The HTTP client for all external requests: no overall timeout
 /// (tarballs can be huge and slow), but a connect timeout so dead
-/// hosts fail fast.
+/// hosts fail fast. The GitHub API rejects requests without a
+/// User-Agent.
 fn http_client() -> reqwest::Client {
     reqwest::Client::builder()
+        .user_agent(concat!("debmagic/", env!("CARGO_PKG_VERSION")))
         .connect_timeout(std::time::Duration::from_secs(30))
         .build()
         .expect("reqwest client with a custom timeout")

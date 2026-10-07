@@ -140,7 +140,7 @@ fn verify_against_dsc(tarball: &Path, changes_file: &Path) -> anyhow::Result<()>
 
     let digests = crate::control::digest_file(tarball)?;
 
-    debmagic_common::debian::control::verify_checksums(&dsc, &tarball_name, &digests).map_err(
+    debmagic_common::checksums::verify_checksums(&dsc, &tarball_name, &digests).map_err(
         |error| {
             anyhow::anyhow!(
                 "{error}; the tarball next to the .changes is stale (recorded by {dsc_name})"

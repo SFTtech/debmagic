@@ -22,6 +22,9 @@ pub struct WatchSource {
     /// MUT component name: this source describes one component tarball
     /// of a multiple-upstream-tarballs package.
     pub component: Option<String>,
+    /// A MUT component's version is not tied to the main tarball's
+    /// (v4 version field `ignore`).
+    pub version_unrestricted: bool,
     pub untrackable: Option<String>,
 }
 
@@ -177,18 +180,21 @@ fn parse_watch_line(line: &str) -> anyhow::Result<WatchSource> {
     source.source = url;
     source.matching_pattern = pattern.to_string();
 
-    // uscan's optional version (`debian`, `prev`, a literal version or a
-    // version schema) and update script; `debian` is what debmagic does
-    let version = tokens.next();
-    if let Some(version) = version
-        && version != "debian"
-    {
-        bail!(
+    // uscan's optional version field: debmagic fetches the requested
+    // version (`debian`), MUT components follow the main tarball's
+    // version (`same`) or are unrestricted (`ignore`)
+    match tokens.next() {
+        None | Some("debian" | "same") => {}
+        Some("ignore") => source.version_unrestricted = true,
+        Some(version) => bail!(
             "watch line version field '{version}' is not supported yet; \
              declare the upstream source in debmagic.toml instead"
-        );
+        ),
     }
-    if let Some(script) = tokens.next() {
+    // `upstream switch` does uupdate's job in place
+    if let Some(script) = tokens.next()
+        && script != "uupdate"
+    {
         bail!(
             "watch line update script '{script}' is not supported yet; \
              declare the upstream source in debmagic.toml instead"
@@ -285,6 +291,12 @@ fn parse_watch_v5(content: &str) -> anyhow::Result<Vec<WatchSource>> {
                 "repack" => source.repack = value.eq_ignore_ascii_case("yes"),
                 "repacksuffix" => source.repack_suffix = Some(value.clone()),
                 "component" => source.component = Some(value.clone()),
+                "version-schema" | "versionschema"
+                    if matches!(value.as_str(), "debian" | "same" | "ignore") =>
+                {
+                    source.version_unrestricted = value == "ignore"
+                }
+                "update-script" | "updatescript" if value == "uupdate" => {}
                 "ctype" | "version-schema" | "versionseparator" | "update-script"
                 | "page-mangle" | "mode" | "compression" | "unzip-opt" | "git-pretty"
                 | "git-date" | "git-export" | "git-mode" | "git-modules" | "bare" | "maturity"
@@ -353,6 +365,7 @@ fn merge_source(defaults: &WatchSource, source: WatchSource) -> WatchSource {
         .or_else(|| defaults.repack_suffix.clone());
     merged.repack = merged.repack || defaults.repack;
     merged.component = merged.component.or_else(|| defaults.component.clone());
+    merged.version_unrestricted = merged.version_unrestricted || defaults.version_unrestricted;
     merged
 }
 
@@ -382,6 +395,8 @@ fn apply_opts(source: &mut WatchSource, opts: &str) -> anyhow::Result<()> {
             });
         } else if let Some(value) = opt.strip_prefix("repacksuffix=") {
             source.repack_suffix = Some(value.to_string());
+        } else if let Some(value) = opt.strip_prefix("component=") {
+            source.component = Some(value.to_string());
         } else if opt == "repack" {
             source.repack = true;
         } else if opt == "pasv" || opt == "passive" {
@@ -448,10 +463,27 @@ mod tests {
         assert!(sources[0].uversion_mangle.is_some());
     }
 
-    #[test_case("https://example.com/ foo-(.*)\\.tar\\.gz debian uupdate"; "update script")]
+    #[test_case("https://example.com/ foo-(.*)\\.tar\\.gz debian debian/update.sh"; "custom update script")]
     #[test_case("https://example.com/ foo-(.*)\\.tar\\.gz 1.2"; "fixed version")]
+    #[test_case("https://example.com/ foo-(.*)\\.tar\\.gz group"; "grouped version")]
     fn test_parse_v4_unsupported_trailing_fields(line: &str) {
         assert!(parse_watch(&format!("version=4\n{line}\n")).is_err());
+    }
+
+    #[test]
+    fn test_parse_v4_mut() {
+        let sources = parse_watch(
+            "version=4\n\
+             https://example.com/ foo-(.*)\\.tar\\.gz debian uupdate\n\
+             opts=\"pgpmode=none, component=bar\" https://example.com/ bar-(.*)\\.tar\\.gz same\n\
+             opts=component=baz https://example.com/ baz-(.*)\\.tar\\.gz ignore uupdate\n",
+        )
+        .unwrap();
+        let components: Vec<_> = sources.iter().map(|s| s.component.as_deref()).collect();
+        assert_eq!(components, [None, Some("bar"), Some("baz")]);
+        assert_eq!(sources[1].pgp_mode, Some(PgpMode::None));
+        let unrestricted: Vec<_> = sources.iter().map(|s| s.version_unrestricted).collect();
+        assert_eq!(unrestricted, [false, false, true]);
     }
 
     #[test]
@@ -574,11 +606,14 @@ mod tests {
             "Version: 5\n\
              Source: https://example.com/a/\nMatching-Pattern: a-@ANY_VERSION@\n\
              \n\
-             Source: https://example.com/b/\nMatching-Pattern: b-@ANY_VERSION@\nComponent: bar\n",
+             Source: https://example.com/b/\nMatching-Pattern: b-@ANY_VERSION@\nComponent: bar\n\
+             Version-Schema: ignore\nUpdate-Script: uupdate\n",
         )
         .unwrap();
         assert_eq!(sources.len(), 2);
         assert_eq!(sources[0].component, None);
         assert_eq!(sources[1].component.as_deref(), Some("bar"));
+        assert!(!sources[0].version_unrestricted);
+        assert!(sources[1].version_unrestricted);
     }
 }

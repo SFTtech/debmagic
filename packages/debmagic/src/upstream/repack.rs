@@ -40,22 +40,20 @@ pub fn load_repack_config(
 }
 
 /// Whether any exclude pattern matches `path` (relative, forward slashes).
-/// A `dir/*` pattern excludes everything under `dir`, at any depth.
+/// A pattern matching a directory (`doc/rfc`, `win32/*`) excludes
+/// everything under it, at any depth.
 pub fn is_excluded(path: &str, excludes: &[String]) -> bool {
     excludes.iter().any(|pattern| {
         let Ok(glob) = glob::Pattern::new(pattern) else {
             return false;
         };
-        if glob.matches(path) {
-            return true;
-        }
-        // the pattern may match an ancestor: `win32/*` covers win32/nested/b.c
-        let mut ancestor = String::new();
-        path.split('/').any(|part| {
-            ancestor.push_str(part);
-            ancestor.push('/');
-            glob.matches(&ancestor)
-        })
+        path.match_indices('/')
+            .map(|(end, _)| end)
+            .chain([path.len()])
+            .any(|end| {
+                let dir = &path[..end];
+                glob.matches(dir) || glob.matches(&format!("{dir}/"))
+            })
     })
 }
 
@@ -176,5 +174,15 @@ mod tests {
         assert!(is_excluded("docs/manual.pdf", &excludes));
         assert!(!is_excluded("src/main.c", &excludes));
         assert!(!is_excluded("win32.c", &excludes));
+        // the directory itself, so it is removed as a whole
+        assert!(is_excluded("win32", &excludes));
+    }
+
+    #[test]
+    fn test_is_excluded_bare_dir() {
+        let excludes = vec!["doc/rfc".to_string()];
+        assert!(is_excluded("doc/rfc", &excludes));
+        assert!(is_excluded("doc/rfc/rfc5228.txt", &excludes));
+        assert!(!is_excluded("doc/rfc2822.c", &excludes));
     }
 }

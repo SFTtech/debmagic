@@ -1,6 +1,6 @@
 use deb822_lossless::Paragraph;
 
-use crate::debian::control::Hash;
+use crate::checksums::Hash;
 
 /// A parsed `.changes` file listing: which files it references and
 /// whether the `orig` tarball(s) are among them.

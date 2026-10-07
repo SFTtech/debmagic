@@ -400,8 +400,7 @@ async fn fetch_from_pool(
             let dsc = crate::control::parse_control(&dsc)
                 .with_context(|| format!("parsing {dsc_name} from {pool_url} failed"))?;
             let digests = crate::control::digest_file(&orig_path)?;
-            let verified =
-                debmagic_common::debian::control::verify_checksums(&dsc, &orig_name, &digests);
+            let verified = debmagic_common::checksums::verify_checksums(&dsc, &orig_name, &digests);
             if let Err(error) = verified {
                 // never leave a tarball behind that the archive would reject
                 std::fs::remove_file(&orig_path).ok();

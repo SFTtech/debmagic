@@ -1,8 +1,12 @@
+use std::cell::OnceCell;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
+use anyhow::Context;
+
 use crate::debian::changelog::ChangelogHead;
-use crate::debian::copyright::FilesExcluded;
+use crate::debian::control::Control;
+use crate::debian::copyright::Copyright;
 use crate::debian::source::SourceFormat;
 use crate::debian::version::PackageVersion;
 
@@ -35,6 +39,8 @@ pub struct SourcePackage {
     location: Location,
     changelog: ChangelogHead,
     source_format: SourceFormat,
+    control: OnceCell<Control>,
+    copyright: OnceCell<Copyright>,
 }
 
 impl std::fmt::Debug for SourcePackage {
@@ -68,6 +74,8 @@ impl SourcePackage {
             location,
             changelog,
             source_format,
+            control: OnceCell::new(),
+            copyright: OnceCell::new(),
         })
     }
 
@@ -136,13 +144,32 @@ impl SourcePackage {
         }
     }
 
-    /// The `Files-Excluded` patterns from `debian/copyright`.
-    /// Read lazily; a missing file yields no excludes.
-    pub fn copyright_excludes(&self) -> anyhow::Result<FilesExcluded> {
-        Ok((self.reader)("copyright")
-            .map(|content| crate::debian::copyright::files_excluded(&content))
-            .unwrap_or_default())
+    /// The `debian/control` model.
+    pub fn control(&self) -> anyhow::Result<&Control> {
+        lazy(&self.control, || {
+            let content = (self.reader)("control")?;
+            Control::parse(&content).context("failed to parse debian/control")
+        })
     }
+
+    /// The `debian/copyright` model; a missing file is an empty one.
+    pub fn copyright(&self) -> anyhow::Result<&Copyright> {
+        lazy(&self.copyright, || {
+            Ok((self.reader)("copyright")
+                .map(|content| Copyright::parse(&content))
+                .unwrap_or_default())
+        })
+    }
+}
+
+/// A substructure read and parsed on first access, then cached; a failed
+/// load is not cached, so the next access retries.
+fn lazy<T>(cell: &OnceCell<T>, load: impl FnOnce() -> anyhow::Result<T>) -> anyhow::Result<&T> {
+    if let Some(value) = cell.get() {
+        return Ok(value);
+    }
+    let value = load()?;
+    Ok(cell.get_or_init(|| value))
 }
 
 #[cfg(test)]
@@ -207,9 +234,25 @@ mod tests {
         ]);
         let package = SourcePackage::from_reader(reader, Location::InMemory).unwrap();
         assert_eq!(*reads.borrow(), ["changelog", "source/format"]);
-        let excludes = package.copyright_excludes().unwrap();
+        let excludes = &package.copyright().unwrap().files_excluded;
+        // cached: a second access doesn't read again
+        package.copyright().unwrap();
         assert_eq!(excludes.main, ["win32/*"]);
         assert_eq!(*reads.borrow(), ["changelog", "source/format", "copyright"]);
+    }
+
+    #[test]
+    fn test_control_lazy_and_cached() {
+        let (reader, reads) = reader(&[
+            ("changelog", CHANGELOG),
+            ("source/format", "3.0 (quilt)\n"),
+            ("control", "Source: postfix\nRules-Requires-Root: no\n"),
+        ]);
+        let package = SourcePackage::from_reader(reader, Location::InMemory).unwrap();
+        assert_eq!(*reads.borrow(), ["changelog", "source/format"]);
+        assert!(!package.control().unwrap().needs_gain_root());
+        assert!(!package.control().unwrap().needs_gain_root());
+        assert_eq!(*reads.borrow(), ["changelog", "source/format", "control"]);
     }
 
     #[test]
@@ -217,7 +260,7 @@ mod tests {
         let (reader, _) = reader(&[("changelog", CHANGELOG), ("source/format", "3.0 (quilt)\n")]);
         let package = SourcePackage::from_reader(reader, Location::InMemory).unwrap();
         // a missing copyright is no error, just no excludes
-        assert!(package.copyright_excludes().unwrap().main.is_empty());
+        assert!(package.copyright().unwrap().files_excluded.main.is_empty());
     }
 
     #[test]
@@ -230,7 +273,10 @@ mod tests {
         .unwrap();
         assert_eq!(package.name(), "postfix");
         assert!(!package.is_native());
-        assert_eq!(package.copyright_excludes().unwrap().main, ["win32/*"]);
+        assert_eq!(
+            package.copyright().unwrap().files_excluded.main,
+            ["win32/*"]
+        );
     }
 
     #[test]
@@ -241,7 +287,7 @@ mod tests {
             ("source/format", "3.0 (quilt)\n"),
         ])
         .unwrap();
-        assert!(package.copyright_excludes().unwrap().main.is_empty());
+        assert!(package.copyright().unwrap().files_excluded.main.is_empty());
     }
 
     #[test]

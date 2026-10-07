@@ -21,7 +21,7 @@ pub fn load_repack_config(
     package: &debmagic_common::package::SourcePackage,
     watch: &crate::upstream::watch::WatchSource,
 ) -> anyhow::Result<RepackConfig> {
-    let mut excluded = package.copyright_excludes()?;
+    let mut excluded = package.copyright()?.files_excluded.clone();
     let (excludes, field) = match &watch.component {
         Some(component) => (
             excluded.components.remove(component).unwrap_or_default(),

@@ -10,18 +10,19 @@ use crate::sign::{SignMode, SignTool};
 use crate::time::RefreshPolicy;
 use crate::upload::UploadMethod;
 use crate::upload::orig::IncludeOrig;
+use clap::builder::BoolishValueParser;
 use clap::{Args, Parser, Subcommand};
 
 /// When to use colored output. Mirrors common CLI conventions; `auto` is the
 /// default and respects the `NO_COLOR` environment variable.
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, clap::ValueEnum)]
 pub enum ColorChoice {
-    /// Color when stderr is a terminal and `NO_COLOR` is unset.
+    /// enable when stderr is a terminal and NO_COLOR is unset
     #[default]
     Auto,
-    /// Always color, even when piped or `NO_COLOR` is set.
+    /// force enable colors
     Always,
-    /// Never color.
+    /// disable colors
     Never,
 }
 
@@ -36,7 +37,7 @@ pub struct Cli {
         global = true,
         value_enum,
         default_value_t = ColorChoice::Auto,
-        help = "When to colorize output: 'auto' (default) colors on a terminal and respects NO_COLOR, 'always' forces color, 'never' disables it"
+        help = "configure output coloring"
     )]
     pub color: ColorChoice,
 
@@ -255,6 +256,7 @@ pub struct CommonBuildArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
         help = "Synchronize changed source inputs to preserve build outputs. Forces --persistent=always"
     )]
     pub incremental: Option<bool>,
@@ -298,6 +300,7 @@ pub struct CommonBuildArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
         help = "Also enable the '<release>-proposed' pocket in the build environment. Ignored by the bare driver."
     )]
     pub proposed: Option<bool>,
@@ -358,7 +361,7 @@ pub struct CommonBuildArgs {
         long = "sign-notify",
         num_args = 0..=1,
         default_missing_value = "true",
-        value_parser = clap::value_parser!(bool),
+        value_parser = BoolishValueParser::new(),
         help = "Send a desktop notification via notify-send just before signing, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
     )]
     pub sign_notify: Option<bool>,
@@ -367,7 +370,7 @@ pub struct CommonBuildArgs {
         long,
         num_args = 0..=1,
         default_missing_value = "true",
-        value_parser = clap::value_parser!(bool),
+        value_parser = BoolishValueParser::new(),
         help = "Run 'debian/rules clean' before building, like plain dpkg-buildpackage does unless passed -nc. Defaults to the 'clean' setting in the config file (false if unset); non-incremental builds already stage a clean source tree, while incremental builds preserve outputs by design. For source builds this also installs build-dependencies first, since a clean target usually needs its own tooling."
     )]
     pub clean: Option<bool>,
@@ -417,6 +420,7 @@ pub struct BinaryTargetArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
         help = "Also build the automatic '-dbgsym' debug symbol package"
     )]
     pub debug_symbols: Option<bool>,
@@ -425,8 +429,8 @@ pub struct BinaryTargetArgs {
         long = "test",
         num_args = 0..=1,
         default_missing_value = "true",
-        value_parser = clap::value_parser!(bool),
-        help = "Run the package's test suite during the build. Defaults to the 'run_test' setting in the config file (true if unset); --test=false exports DEB_BUILD_OPTIONS=nocheck so dpkg-buildpackage skips tests."
+        value_parser = BoolishValueParser::new(),
+        help = "Run the package's test suite during the build. Defaults to the 'run_test' setting in the config file (true if unset); --test=no exports DEB_BUILD_OPTIONS=nocheck so dpkg-buildpackage skips tests."
     )]
     pub test: Option<bool>,
 }
@@ -516,6 +520,7 @@ pub struct TestSubcommandArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
         help = "Also enable the '<release>-proposed' pocket in the test environment. Ignored by the bare driver."
     )]
     pub proposed: Option<bool>,
@@ -595,7 +600,7 @@ pub struct SignSubcommandArgs {
         long = "sign-notify",
         num_args = 0..=1,
         default_missing_value = "true",
-        value_parser = clap::value_parser!(bool),
+        value_parser = BoolishValueParser::new(),
         help = "Send a desktop notification via notify-send just before signing, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
     )]
     pub sign_notify: Option<bool>,
@@ -747,6 +752,16 @@ mod tests {
     fn persistent_flag(args: &[&str], expected: Option<Persistence>) {
         let args = parse_test(args);
         assert_eq!(args.persistent, expected);
+    }
+
+    #[test_case(&[], None; "absent")]
+    #[test_case(&["--proposed"], Some(true); "bare flag")]
+    #[test_case(&["--proposed=yes"], Some(true); "yes")]
+    #[test_case(&["--proposed=no"], Some(false); "no")]
+    #[test_case(&["--proposed=off"], Some(false); "off")]
+    #[test_case(&["--proposed=true"], Some(true); "literal true")]
+    fn boolish_flag(args: &[&str], expected: Option<bool>) {
+        assert_eq!(parse_test(args).proposed, expected);
     }
 
     #[test]

@@ -578,6 +578,35 @@ pub(super) async fn delete_environment(
     Ok(())
 }
 
+pub(super) async fn apt_updated_at(
+    conn: &mut SqliteConnection,
+    id: &str,
+) -> anyhow::Result<Option<SystemTime>> {
+    let seconds: Option<Option<i64>> =
+        sqlx::query_scalar("select apt_updated_at from environments where id = ?")
+            .bind(id)
+            .fetch_optional(conn)
+            .await
+            .context("reading the apt upgrade time failed")?;
+    Ok(seconds
+        .flatten()
+        .map(|seconds| UNIX_EPOCH + Duration::from_secs(seconds as u64)))
+}
+
+pub(super) async fn set_apt_updated_at(
+    conn: &mut SqliteConnection,
+    id: &str,
+    time: SystemTime,
+) -> anyhow::Result<()> {
+    sqlx::query("update environments set apt_updated_at = ? where id = ?")
+        .bind(unix_time(time))
+        .bind(id)
+        .execute(conn)
+        .await
+        .context("writing the apt upgrade time failed")?;
+    Ok(())
+}
+
 pub(super) async fn attachments(
     conn: &mut SqliteConnection,
     environment_id: &str,
@@ -1017,6 +1046,24 @@ pub(super) mod tests {
         let rows = registry.invocations_for_source(&source).await?;
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].package_version, "1.1");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn apt_updated_at_roundtrips() -> anyhow::Result<()> {
+        let (_dir, registry) = temp_registry().await;
+        let environment = sample_environment(Path::new("/src/a"), EnvironmentPurpose::Build);
+        let id = environment.id();
+        upsert(&registry, &environment, None).await;
+        let mut conn = registry.connection().await?;
+        assert_eq!(apt_updated_at(&mut conn, &id).await?, None);
+
+        let time = UNIX_EPOCH + Duration::from_secs(1_800_000_000);
+        set_apt_updated_at(&mut conn, &id, time).await?;
+        assert_eq!(apt_updated_at(&mut conn, &id).await?, Some(time));
+        // a re-claim keeps the record
+        upsert_environment(&mut conn, &environment, None).await?;
+        assert_eq!(apt_updated_at(&mut conn, &id).await?, Some(time));
         Ok(())
     }
 

@@ -142,13 +142,50 @@ impl<'a> ClaimedEnvironment<'a> {
         if let Err(error) = record_driver_metadata(registry, &environment, &driver).await {
             eprintln!("Warning: failed to record Driver metadata: {error:#}");
         }
-        Ok(Self {
+        let claimed = Self {
             registry,
             driver_config,
             environment,
             driver,
             keep_after_failure: false,
-        })
+        };
+        let policy = overrides
+            .apt_update_age
+            .unwrap_or(driver_config.apt_update_age);
+        if let Err(error) = claimed.upgrade_packages(policy).await {
+            return claimed
+                .abort(error.context("upgrading the packages in the Environment failed"))
+                .await;
+        }
+        Ok(claimed)
+    }
+
+    /// Upgrade the packages of a container Environment: always when it is
+    /// fresh, when reused only once `policy` says the last upgrade (recorded
+    /// in the registry) has gone stale. The Bare driver is the host, which
+    /// the user maintains.
+    async fn upgrade_packages(&self, policy: crate::time::RefreshPolicy) -> anyhow::Result<()> {
+        if self.environment.driver == crate::driver::DriverType::Bare {
+            return Ok(());
+        }
+        let id = self.environment.id();
+        if self.driver.reused_environment() {
+            let last_update =
+                registry::apt_updated_at(&mut *self.registry.connection().await?, &id).await?;
+            if !crate::driver::apt_update_needed_on_reuse(policy, last_update) {
+                return Ok(());
+            }
+        }
+        crate::output::step("Upgrading the packages in the Environment");
+        crate::driver::upgrade_packages(&self.driver, &self.environment.root_dir)?;
+        let recorded = async {
+            let mut conn = self.registry.connection().await?;
+            registry::set_apt_updated_at(&mut conn, &id, std::time::SystemTime::now()).await
+        };
+        if let Err(error) = recorded.await {
+            eprintln!("Warning: failed to record the apt upgrade time: {error:#}");
+        }
+        Ok(())
     }
 
     fn prepare_reused_root(

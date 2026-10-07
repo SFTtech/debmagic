@@ -61,9 +61,7 @@ pub struct DriverConfig {
     /// Also enable the `<release>-proposed` pocket. Not used by the bare
     /// driver, which builds on the host's own sources.
     pub proposed: bool,
-    /// How old the apt index in a persistent environment may get before
-    /// `apt-get update` runs again; fresh environments always update once.
-    /// Not used by the bare driver, which builds on the host's own sources.
+    /// When to run apt-get update/upgrade again.
     pub apt_update_age: RefreshPolicy,
     pub docker: DriverDockerConfig,
     pub bare: DriverBareConfig,

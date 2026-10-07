@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
     EnvironmentMetadata, IsolationCapability, ResourceStatus, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint,
-    refresh_apt_index, resource_name, run_checked, translate_path_in_container,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
+    run_checked, translate_path_in_container,
 };
 use crate::subprocess::{self, Capture, CommandResult};
 
@@ -417,20 +417,12 @@ impl DriverLxd {
                 }
             }
 
-            // Fresh containers always update once; reused ones only when the
-            // configured apt update age says their index has gone stale — a
-            // previous invocation that crashed before finishing this setup (or
-            // a long-lived incremental container with an aging package cache)
-            // must not leave `apt-get build-dep` unable to resolve anything.
-            refresh_apt_index(
-                &base,
-                environment,
-                driver_config.apt_update_age,
-                reusing_container,
-            )
-            .map_err(|e| anyhow::anyhow!("Error running apt-get update in container: {e}"))?;
-
             if !reusing_container {
+                // stock images ship without an apt index
+                base.exec_in_container_checked(&["apt-get", "update"], None, true, &[])
+                    .map_err(|e| {
+                        anyhow::anyhow!("Error running apt-get update in container: {e}")
+                    })?;
                 // Install the base tooling that stock images don't include.
                 // build-essential is intentionally omitted: binary builds pull
                 // it in explicitly, so source-only environments stay lean.

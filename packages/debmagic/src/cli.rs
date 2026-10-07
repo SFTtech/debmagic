@@ -708,10 +708,14 @@ pub struct UploadSubcommandArgs {
 
     #[arg(
         long,
-        action = clap::ArgAction::SetTrue,
-        help = "Skip the target's pre_upload_commands"
+        num_args = 0..=1,
+        default_missing_value = "true",
+        default_value_t = true,
+        action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
+        help = "Run the target's pre_upload_commands; --hooks=no skips them"
     )]
-    pub no_hooks: bool,
+    pub hooks: bool,
 
     #[arg(
         long,

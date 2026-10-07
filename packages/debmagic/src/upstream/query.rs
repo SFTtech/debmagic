@@ -5,12 +5,18 @@ use anyhow::{Context, bail};
 use debmagic_common::debian::version::PackageVersion;
 use regex::Regex;
 
+use crate::upstream::fetch::orig_compression;
 use crate::upstream::mangle::mangle;
 use crate::upstream::watch::{SearchMode, WatchSource};
 
 fn substitute(pattern: &str, package: &str) -> String {
+    substitute_macros(&pattern.replace("@PACKAGE@", &regex::escape(package)))
+}
+
+/// Expand the version and extension macros to their regexes; like uscan
+/// does on the whole watch line, so mangle rules can use them too.
+pub fn substitute_macros(pattern: &str) -> String {
     pattern
-        .replace("@PACKAGE@", &regex::escape(package))
         .replace(
             "@ANY_VERSION@",
             r"[-_]?[Vv]?(\d[\-+\.:\~\da-zA-Z]*)",
@@ -363,17 +369,21 @@ fn parse_candidates(
         });
     }
 
-    // stable sort: among equal versions the first listed href wins the dedup
+    // stable sort: among equal versions a tarball dpkg-source can use
+    // as-is wins the dedup (GitHub lists the .zip before the .tar.gz),
+    // then the first listed href
     candidates.sort_by(|a, b| {
-        let a = PackageVersion::from_str(&a.version);
-        let b = PackageVersion::from_str(&b.version);
-        match (a, b) {
+        let version_a = PackageVersion::from_str(&a.version);
+        let version_b = PackageVersion::from_str(&b.version);
+        let by_version = match (version_a, version_b) {
             (Ok(a), Ok(b)) => b.cmp(&a),
             // unparseable versions sink to the bottom
             (Ok(_), Err(_)) => std::cmp::Ordering::Less,
             (Err(_), Ok(_)) => std::cmp::Ordering::Greater,
             (Err(_), Err(_)) => std::cmp::Ordering::Equal,
-        }
+        };
+        let unusable = |c: &Candidate| orig_compression(&c.href).is_none();
+        by_version.then_with(|| unusable(a).cmp(&unusable(b)))
     });
     candidates.dedup_by(|a, b| a.version == b.version);
     Ok(candidates)
@@ -427,6 +437,18 @@ pub fn load_watch(source_dir: &Path, package: &str) -> anyhow::Result<Vec<WatchS
     let mut sources = crate::upstream::watch::parse_watch_file(&watch_path)?;
     for source in &mut sources {
         source.substitute_package(package);
+        for rule in [
+            &mut source.uversion_mangle,
+            &mut source.dversion_mangle,
+            &mut source.filename_mangle,
+            &mut source.download_url_mangle,
+            &mut source.pgp_sig_url_mangle,
+        ]
+        .into_iter()
+        .flatten()
+        {
+            *rule = substitute_macros(rule);
+        }
     }
     Ok(sources)
 }
@@ -659,6 +681,31 @@ mod tests {
         let versions: Vec<_> = candidates.iter().map(|c| c.version.as_str()).collect();
         assert_eq!(versions, ["1.10", "1.2"]);
         assert_eq!(candidates[0].href, "https://example.com/dl/foo-1.10.tar.gz");
+    }
+
+    #[test]
+    fn test_parse_candidates_prefers_usable_tarball() {
+        let source = WatchSource {
+            source: "https://github.com/foo/foo/tags".to_string(),
+            matching_pattern: "(?:.*?/)?v?@ANY_VERSION@@ARCHIVE_EXT@".to_string(),
+            ..Default::default()
+        };
+        // GitHub lists the .zip before the .tar.gz
+        let page = r#"<a href="/foo/foo/archive/refs/tags/1.0.zip">
+            <a href="/foo/foo/archive/refs/tags/1.0.tar.gz">"#;
+        let candidates = parse_candidates(&source, "foo", page).unwrap();
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(candidates[0].href, "/foo/foo/archive/refs/tags/1.0.tar.gz");
+    }
+
+    #[test]
+    fn test_substitute_macros_in_mangle_rules() {
+        // valkey's filenamemangle uses @ARCHIVE_EXT@
+        let rule = substitute_macros(r"s%(?:.*?)?v?(\d[\d.]*@ARCHIVE_EXT@)%valkey-$1%");
+        assert_eq!(
+            mangle(&rule, "/valkey-io/valkey/archive/refs/tags/8.1.3.tar.gz").unwrap(),
+            "valkey-8.1.3.tar.gz"
+        );
     }
 
     #[test]

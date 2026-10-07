@@ -161,8 +161,23 @@ static DISTRO_INFO_MAP: LazyLock<HashMap<&'static str, DistroVersion>> = LazyLoc
 /// Alias targets are maintained manually when Debian/Ubuntu roll.
 /// Non-built-in suites are not returned here; callers resolve those via Driver
 /// `base_images` or Bare `/etc/os-release` checks.
+///
+/// A pocket suffix (`resolute-security`, `bookworm-backports`, ...) resolves to
+/// its release: the build environment is the same.
 pub fn get_distro_version(name: &str) -> Option<DistroVersion> {
-    DISTRO_INFO_MAP.get(name).cloned()
+    DISTRO_INFO_MAP
+        .get(name)
+        .or_else(|| DISTRO_INFO_MAP.get(strip_pocket(name)?))
+        .cloned()
+}
+
+/// Pocket suffixes of Debian and Ubuntu suites
+const POCKETS: &[&str] = &["security", "updates", "proposed", "backports"];
+
+/// The release part of a `<release>-<pocket>` suite name
+fn strip_pocket(name: &str) -> Option<&str> {
+    let (release, pocket) = name.rsplit_once('-')?;
+    POCKETS.contains(&pocket).then_some(release)
 }
 
 #[cfg(test)]
@@ -174,6 +189,21 @@ mod tests {
         let d: Distro = serde_json::from_str("\"Debian\"").unwrap();
         assert_eq!(d, Distro::Debian);
         assert_eq!(serde_json::to_string(&d).unwrap(), "\"debian\"");
+    }
+
+    #[test]
+    fn pocket_suffix_resolves_to_release() {
+        let resolute = get_distro_version("resolute");
+        assert!(resolute.is_some());
+        for suite in ["resolute-security", "resolute-updates", "resolute-proposed"] {
+            assert_eq!(get_distro_version(suite), resolute, "{suite}");
+        }
+        assert_eq!(
+            get_distro_version("bookworm-backports"),
+            get_distro_version("bookworm")
+        );
+        assert_eq!(get_distro_version("resolute-nope"), None);
+        assert_eq!(get_distro_version("yocto-security"), None);
     }
 
     #[test]

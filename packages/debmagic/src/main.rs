@@ -193,7 +193,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 incoming: args.incoming.clone(),
                 login: args.login.clone(),
                 port: args.port,
-                no_hooks: args.no_hooks,
+                hooks: args.hooks,
                 force: args.force,
                 sign: args.sign,
                 include_orig: args.include_orig,

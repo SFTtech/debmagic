@@ -70,7 +70,8 @@ pub struct UploadIntent {
     pub incoming: Option<String>,
     pub login: Option<String>,
     pub port: Option<u16>,
-    pub no_hooks: bool,
+    /// Run the target's `pre_upload_commands`.
+    pub hooks: bool,
     pub force: bool,
     pub sign: Option<crate::sign::SignMode>,
     pub include_orig: Option<orig::IncludeOrig>,
@@ -147,7 +148,7 @@ pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
         &upload_target,
         &input.target,
         &changes_file,
-        input.no_hooks,
+        !input.hooks,
         input.force,
         Some(identity.version().upstream_version()),
     )

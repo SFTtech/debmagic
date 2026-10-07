@@ -70,7 +70,7 @@ pub fn notify_send(summary: &str, body: &str) {
     {
         Ok(_) => {}
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-            eprintln!("notify-send not found on PATH; cannot send signing notification");
+            eprintln!("notify-send not found on PATH; cannot send notification");
         }
         Err(e) => eprintln!("failed to run notify-send: {e}"),
     }

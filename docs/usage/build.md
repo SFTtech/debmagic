@@ -30,6 +30,7 @@ debmagic build binary --driver lxd \
 | `--clean` | Run [`debian/rules clean` before building](#cleaning) |
 | `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
 | `--test` | [Run the package's test suite](#running-tests) |
+| `--notify` | Desktop notification (`notify-send`) and terminal bell when the build finishes; config `notify` |
 | `--apt-mirror <url>` | [Mirror URL](#mirror-selection) |
 | `--apt-update-age <when>` | [When a persistent environment re-runs `apt-get update`](#apt-update-age) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |

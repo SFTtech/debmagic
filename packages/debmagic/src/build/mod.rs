@@ -466,7 +466,7 @@ pub struct BuildCommand {
 /// build the binary or source package, and upload the result when
 /// `--upload` was passed.
 pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
-    let intent = resolve_build_intent(command.intent)?;
+    let intent = resolve_build_intent(command.intent.clone())?;
     let target = crate::package::resolve_package_target(
         &intent.source_dir,
         command.distro.as_deref(),
@@ -478,13 +478,31 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
     )
     .context("failed to determine package target")?;
 
+    let package = format!("{} {}", target.package.name(), target.package.version());
+    let notify = intent.config.notify;
+    let result = build_and_upload(&intent, target, &command).await;
+    if notify {
+        let summary = match &result {
+            Ok(()) => "debmagic: build finished",
+            Err(_) => "debmagic: build failed",
+        };
+        crate::output::notify_send_bell(summary, &package);
+    }
+    result
+}
+
+async fn build_and_upload(
+    intent: &BuildIntent,
+    target: PackageTarget,
+    command: &BuildCommand,
+) -> anyhow::Result<()> {
     let upstream_version = target.package.version().upstream_version().to_string();
     let changes_file = if intent.kind.is_source() {
         let include_orig = match command.include_orig {
             Some(mode) => crate::upload::orig::decide_orig_upload(mode, &intent.source_dir)?,
             None => true,
         };
-        build_source_package(&intent, &target, &command.changes_options, include_orig)
+        build_source_package(intent, &target, &command.changes_options, include_orig)
             .await
             .context("Building the source package failed")?
     } else {
@@ -496,7 +514,7 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
             )
             .context("host's /etc/os-release does not match the build target distro")?;
         }
-        build_binary_package(&intent, &target, &command.changes_options)
+        build_binary_package(intent, &target, &command.changes_options)
             .await
             .context("Building the package failed")?
     };

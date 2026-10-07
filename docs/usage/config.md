@@ -26,7 +26,7 @@ All keys are optional.
 | `driver.persistent` | enum | `"on-failure"` | `--persistent` | How long the Environment outlives the claim: `"no"`, `"on-failure"`, or `"always"`. A bare `--persistent` means `always`. |
 | `driver.apt_mirror` | string | — | `--apt-mirror` | Mirror used for build-dependency resolution. Not used by the `bare` driver. |
 | `driver.proposed` | bool | `false` | `--proposed` | Also enable the `<release>-proposed` pocket. Not used by the `bare` driver. |
-| `driver.apt_update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update`: `"now"` (every build), `"never"` (only on creation), or a maximum index age like `"1d"`, `"12h"`, `"30m"`. Fresh environments always update once. Not used by the `bare` driver. |
+| `driver.apt_update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update && upgrade`: `"now"` (every build), `"never"` (only on creation), or a maximum age like `"1d"`, `"12h"`, `"30m"`. Not used by the `bare` driver. |
 | `driver.docker.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"` (e.g. `"debian:trixie"`). Falls back to `docker.io/<distro>:<codename>`. For non-Debian/Ubuntu suites (e.g. `"yocto:kirkstone"`), the map entry is what makes the suite a known DistroVersion for Docker builds. |
 | `driver.lxd.project` | string | — | — | LXD/Incus project to use. |
 | `driver.lxd.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"`. Falls back to the driver's default remote image. Same custom-suite registry role as Docker's map for LXD/Incus. |
@@ -42,6 +42,7 @@ All keys are optional.
 | `sign.sign_command` | string | — | `--sign-command` | Custom signing command for `sign.tool = "custom"`, run without a shell with `{file}`/`{key}`/`{email}` placeholders; writes the clearsigned result to stdout. |
 | `sign.notify` | bool | `false` | `--sign-notify` | Send a desktop notification via `notify-send` just before signing, so a hardware-key touch prompt isn't missed. |
 | `clean` | bool | `false` | `--clean` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
+| `notify` | bool | `false` | `--notify` | Send a desktop notification via `notify-send` and ring the terminal bell when a build finishes. |
 | `host_arch_variant` | string | — | `--host-arch-variant` | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
 | `upstream.signature_check` | bool | `true` | `--signature-check` | Verify the upstream tarball's PGP signature against `debian/upstream/signing-key.asc` during `upstream fetch`/`switch` (see [Upstream](upstream.md#signature-verification)). |
 | `upstream.repack` | bool | `true` | `--repack` | Strip the `Files-Excluded` paths from upstream and custom tarballs during `upstream fetch`/`switch` (see [Upstream](upstream.md#repacking)). |

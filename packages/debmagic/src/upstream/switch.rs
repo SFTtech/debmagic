@@ -52,7 +52,7 @@ pub async fn switch(
         keep.push(options.output_dir.to_path_buf());
         std::fs::create_dir_all(&target_dir)
             .with_context(|| format!("failed to create {}", target_dir.display()))?;
-        swap_tree(&target_dir, &extract_dir, &keep)
+        swap_tree(&target_dir, &extract_dir, &keep, source.component.is_none())
     });
     std::fs::remove_dir_all(&work_dir).ok();
     swapped.with_context(|| {
@@ -134,26 +134,32 @@ fn copy_dir(from: &Path, to: &Path) -> anyhow::Result<()> {
 }
 
 /// Replace the source tree's contents with the extracted tree's,
-/// keeping `debian/`, any VCS metadata dir (`.git`, ...) and every
-/// `keep` path (or path containing one) intact.
-fn swap_tree(source_dir: &Path, extract_dir: &Path, keep: &[PathBuf]) -> anyhow::Result<()> {
+/// keeping any VCS metadata dir (`.git`, ...), `debian/` when
+/// `main_tree` and every `keep` path (or path containing one) intact.
+/// dpkg-source only replaces the main orig's `debian/`, a component's
+/// is regular upstream content.
+fn swap_tree(
+    source_dir: &Path,
+    extract_dir: &Path,
+    keep: &[PathBuf],
+    main_tree: bool,
+) -> anyhow::Result<()> {
+    let is_kept = |name: &str| name == ".git" || (main_tree && name == "debian");
     let new_names: Vec<String> = std::fs::read_dir(extract_dir)
         .with_context(|| format!("failed to read {}", extract_dir.display()))?
         .flatten()
         .map(|entry| entry.file_name().to_string_lossy().into_owned())
         .collect();
 
-    // stale entries from the old tree that the new one doesn't have
+    // the whole old tree, so a dir in both trees doesn't keep files the
+    // new one dropped
     for entry in std::fs::read_dir(source_dir)
         .with_context(|| format!("failed to read {}", source_dir.display()))?
         .flatten()
     {
         let name = entry.file_name().to_string_lossy().into_owned();
         let path = entry.path();
-        if is_kept(&name)
-            || new_names.contains(&name)
-            || keep.iter().any(|kept| kept.starts_with(&path))
-        {
+        if is_kept(&name) || keep.iter().any(|kept| kept.starts_with(&path)) {
             continue;
         }
         if path.is_dir() {
@@ -175,12 +181,6 @@ fn swap_tree(source_dir: &Path, extract_dir: &Path, keep: &[PathBuf]) -> anyhow:
     Ok(())
 }
 
-/// Entries that always survive a tree swap: the packaging dir and
-/// VCS storage (`.git`)
-fn is_kept(name: &str) -> bool {
-    name == "debian" || name == ".git"
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -192,8 +192,10 @@ mod tests {
         let extract_dir = base.join("tree");
         std::fs::create_dir_all(source_dir.join("debian")).unwrap();
         std::fs::create_dir_all(&extract_dir).unwrap();
-        // old tree: a file that the new tree lacks, plus debian/
+        // old tree: files that the new tree lacks, plus debian/
         std::fs::write(source_dir.join("old.txt"), "old").unwrap();
+        std::fs::create_dir_all(source_dir.join("src")).unwrap();
+        std::fs::write(source_dir.join("src").join("gone.c"), "x").unwrap();
         std::fs::write(source_dir.join("debian").join("changelog"), "keep").unwrap();
         let output_dir = source_dir.join("build");
         std::fs::create_dir_all(&output_dir).unwrap();
@@ -211,15 +213,35 @@ mod tests {
             &source_dir,
             &extract_dir,
             &[output_dir.clone(), component_dir.clone()],
+            true,
         )
         .unwrap();
 
         assert!(source_dir.join("new.txt").exists());
         assert!(source_dir.join("src").join("main.c").exists());
         assert!(!source_dir.join("old.txt").exists());
+        assert!(!source_dir.join("src").join("gone.c").exists());
         assert!(source_dir.join("debian").join("changelog").exists());
         assert!(output_dir.join("pkg_2.0.orig.tar.xz").exists());
         assert!(component_dir.join("plugin.c").exists());
+        std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    #[test]
+    fn test_swap_component_replaces_debian() {
+        let base =
+            std::env::temp_dir().join(format!("debmagic-switch-comp-{}", std::process::id()));
+        let component_dir = base.join("plugin");
+        let extract_dir = base.join("tree");
+        std::fs::create_dir_all(component_dir.join("debian")).unwrap();
+        std::fs::create_dir_all(extract_dir.join("debian")).unwrap();
+        std::fs::write(component_dir.join("debian").join("old"), "old").unwrap();
+        std::fs::write(extract_dir.join("debian").join("new"), "new").unwrap();
+
+        swap_tree(&component_dir, &extract_dir, &[], false).unwrap();
+
+        assert!(component_dir.join("debian").join("new").exists());
+        assert!(!component_dir.join("debian").join("old").exists());
         std::fs::remove_dir_all(&base).unwrap();
     }
 }

@@ -134,7 +134,11 @@ pub async fn fetch(
             None => version,
         }
     };
-    let orig_version = format!("{upstream_version}{suffix}");
+    let orig_base = match &source.oversion_mangle {
+        Some(rules) => mangle(rules, &upstream_version)?,
+        None => upstream_version.clone(),
+    };
+    let orig_version = format!("{orig_base}{suffix}");
     let fetched = |tarball| Fetched {
         tarball,
         upstream_version: upstream_version.clone(),

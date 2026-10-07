@@ -10,6 +10,9 @@ pub struct WatchSource {
     pub search_mode: SearchMode,
     pub uversion_mangle: Option<String>,
     pub dversion_mangle: Option<String>,
+    /// Turns the upstream version into the orig tarball's version, e.g.
+    /// appending `+dfsg` to a repacked MUT package.
+    pub oversion_mangle: Option<String>,
     pub filename_mangle: Option<String>,
     pub download_url_mangle: Option<String>,
     pub pgp_sig_url_mangle: Option<String>,
@@ -46,6 +49,7 @@ impl WatchSource {
             [
                 &mut self.uversion_mangle,
                 &mut self.dversion_mangle,
+                &mut self.oversion_mangle,
                 &mut self.filename_mangle,
                 &mut self.download_url_mangle,
                 &mut self.pgp_sig_url_mangle,
@@ -257,6 +261,9 @@ fn parse_watch_v5(content: &str) -> anyhow::Result<Vec<WatchSource>> {
                 "dversion-mangle" | "dversionmangle" => {
                     source.dversion_mangle = Some(value.clone())
                 }
+                "oversion-mangle" | "oversionmangle" => {
+                    source.oversion_mangle = Some(value.clone())
+                }
                 "filename-mangle" | "filenamemangle" => {
                     source.filename_mangle = Some(value.clone())
                 }
@@ -282,7 +289,7 @@ fn parse_watch_v5(content: &str) -> anyhow::Result<Vec<WatchSource>> {
                 | "page-mangle" | "mode" | "compression" | "unzip-opt" | "git-pretty"
                 | "git-date" | "git-export" | "git-mode" | "git-modules" | "bare" | "maturity"
                 | "hrefdecode" | "decompress" | "user-agent" | "template" | "dist" | "owner"
-                | "project" | "oversion-mangle" => {
+                | "project" => {
                     bail!(
                         "watch file option '{key}' is not supported yet; \
                          declare the upstream source in debmagic.toml instead"
@@ -328,6 +335,9 @@ fn merge_source(defaults: &WatchSource, source: WatchSource) -> WatchSource {
     merged.dversion_mangle = merged
         .dversion_mangle
         .or_else(|| defaults.dversion_mangle.clone());
+    merged.oversion_mangle = merged
+        .oversion_mangle
+        .or_else(|| defaults.oversion_mangle.clone());
     merged.filename_mangle = merged
         .filename_mangle
         .or_else(|| defaults.filename_mangle.clone());
@@ -354,6 +364,8 @@ fn apply_opts(source: &mut WatchSource, opts: &str) -> anyhow::Result<()> {
             source.uversion_mangle = Some(value.to_string());
         } else if let Some(value) = opt.strip_prefix("dversionmangle=") {
             source.dversion_mangle = Some(value.to_string());
+        } else if let Some(value) = opt.strip_prefix("oversionmangle=") {
+            source.oversion_mangle = Some(value.to_string());
         } else if let Some(value) = opt.strip_prefix("filenamemangle=") {
             source.filename_mangle = Some(value.to_string());
         } else if let Some(value) = opt.strip_prefix("downloadurlmangle=") {
@@ -456,6 +468,24 @@ mod tests {
         // @PACKAGE@ alone does not make the last component a pattern
         assert_eq!(sources[0].source, "https://example.com/@PACKAGE@/");
         assert_eq!(sources[0].matching_pattern, "foo-(.*)\\.tar\\.gz");
+    }
+
+    #[test]
+    fn test_parse_oversion_mangle() {
+        let sources = parse_watch(
+            "version=4\n\
+             opts=\"oversionmangle=s/(.*)/$1+dfsg1/\" https://example.com/ foo-(.*)\\.tar\\.gz\n",
+        )
+        .unwrap();
+        assert_eq!(
+            sources[0].oversion_mangle.as_deref(),
+            Some("s/(.*)/$1+dfsg1/")
+        );
+        let sources = parse_watch(
+            "Version: 5\n\nSource: https://example.com/\nMatching-Pattern: foo-(.*)\\.tar\\.gz\nOversion-Mangle: s/$/+ds/\n",
+        )
+        .unwrap();
+        assert_eq!(sources[0].oversion_mangle.as_deref(), Some("s/$/+ds/"));
     }
 
     #[test]

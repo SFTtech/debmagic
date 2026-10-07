@@ -147,6 +147,34 @@ impl SignBackend for Gpg {
         signature: &Path,
         keyring: &Path,
     ) -> anyhow::Result<Command> {
+        // gpg's --keyring only reads binary keyrings, while
+        // debian/upstream/signing-key.asc is armored
+        let armored = std::fs::read(keyring)
+            .with_context(|| format!("failed to read {}", keyring.display()))?
+            .starts_with(b"-----BEGIN PGP");
+        let keyring = if armored {
+            let mut dearmored = signature.as_os_str().to_owned();
+            dearmored.push(".keyring.gpg");
+            let dearmored = PathBuf::from(dearmored);
+            let mut cmd = Command::new("gpg");
+            cmd.args(["--yes", "--dearmor", "--output"])
+                .arg(&dearmored)
+                .arg(keyring);
+            let result = crate::subprocess::command(cmd)
+                .capture(Capture::ALL)
+                .run()
+                .context("failed to run gpg --dearmor")?;
+            if result.exit_code != 0 {
+                bail!(
+                    "dearmoring {} failed:\n{}",
+                    keyring.display(),
+                    result.stderr.as_deref().unwrap_or_default().trim()
+                );
+            }
+            dearmored
+        } else {
+            keyring.to_path_buf()
+        };
         let mut cmd = Command::new("gpg");
         cmd.args(["--no-default-keyring", "--keyring"])
             .arg(keyring)

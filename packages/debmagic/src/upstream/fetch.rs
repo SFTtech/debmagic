@@ -462,7 +462,7 @@ fn place_orig(
 
 /// The orig tarball compression for an upstream tarball's filename, if
 /// dpkg-source accepts it; maps the short `.tgz`-style forms.
-fn orig_compression(filename: &str) -> Option<&'static str> {
+pub fn orig_compression(filename: &str) -> Option<&'static str> {
     [
         (".tar.gz", "gz"),
         (".tgz", "gz"),
@@ -556,13 +556,14 @@ pub fn download_url(source: &WatchSource, candidate: &Candidate) -> anyhow::Resu
 }
 
 /// The local filename for a downloaded tarball: `Filename-Mangle` if
-/// set, else the last URL component without any query fragment.
+/// set, else the last URL component without any query fragment. Always
+/// a bare filename: a mangle rule that doesn't match leaves a path.
 fn download_filename(source: &WatchSource, candidate: &Candidate) -> anyhow::Result<String> {
-    if let Some(rules) = &source.filename_mangle {
-        return mangle(rules, &candidate.href);
-    }
-    let url = download_url(source, candidate)?;
-    let last = url.rsplit('/').next().unwrap_or_default();
+    let name = match &source.filename_mangle {
+        Some(rules) => mangle(rules, &candidate.href)?,
+        None => download_url(source, candidate)?,
+    };
+    let last = name.rsplit('/').next().unwrap_or_default();
     Ok(last
         .split(['?', '#'])
         .next()

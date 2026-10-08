@@ -177,6 +177,20 @@ pub async fn fetch_orig_tarball_for_version(
     .await
 }
 
+/// The MUT component names `debian/watch` declares; none without a
+/// watch file.
+pub fn mut_components(package: &SourcePackage) -> anyhow::Result<Vec<String>> {
+    let source_dir = package.source_dir()?;
+    if !source_dir.join("debian").join("watch").is_file() {
+        return Ok(Vec::new());
+    }
+    let sources = crate::upstream::query::load_watch(source_dir, package.name())?;
+    Ok(sources
+        .into_iter()
+        .filter_map(|source| source.component)
+        .collect())
+}
+
 /// Fetch the `orig` tarball for `upstream_version` with an explicit
 /// `method` into `output_dir`, without looking for local copies first.
 /// `None` when the method does not have it.
@@ -579,6 +593,23 @@ mod tests {
             fetch_orig_tarball(&config, &pkg, &base).await.unwrap(),
             None
         );
+        std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    #[test]
+    fn test_mut_components_from_watch() {
+        let base = std::env::temp_dir().join(format!("debmagic-mut-{}", std::process::id()));
+        let source = base.join("postfix");
+        let pkg = package(&source, None);
+        assert!(mut_components(&pkg).unwrap().is_empty());
+
+        std::fs::write(
+            source.join("debian").join("watch"),
+            "version=4\nhttps://example.com/ postfix-(.*)\\.tar\\.gz\n\
+             opts=component=vendor https://example.com/ vendor-(.*)\\.tar\\.gz same\n",
+        )
+        .unwrap();
+        assert_eq!(mut_components(&pkg).unwrap(), ["vendor"]);
         std::fs::remove_dir_all(&base).unwrap();
     }
 

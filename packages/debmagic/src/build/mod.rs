@@ -374,14 +374,45 @@ pub async fn build_source_package(
             intent.output_dir.display()
         );
     }
+    let mut orig_tarballs: Vec<std::path::PathBuf> = orig_tarball.into_iter().collect();
+    if !target.package.is_native() {
+        // dpkg-source picks up component origs next to the main one;
+        // without them their subdirs become unrepresentable changes
+        let components =
+            crate::upstream::orig::mut_components(&target.package).unwrap_or_else(|error| {
+                eprintln!("debmagic: warning: ignoring MUT components: {error:#}");
+                Vec::new()
+            });
+        for component in components {
+            let tarball = crate::upstream::orig::fetch_orig_tarball_for_version(
+                &intent.config.orig_tarball,
+                &target.package,
+                &intent.output_dir,
+                upstream_version,
+                Some(&component),
+            )
+            .await
+            .with_context(|| {
+                format!("fetching the orig tarball of component {component} for {name} {upstream_version} failed")
+            })?
+            .with_context(|| {
+                format!(
+                    "no orig tarball of component {component} for {name} {upstream_version} in {}, the source tree's parent dir or the distro archives; \
+                     run 'debmagic upstream fetch' or place it in one of those dirs",
+                    intent.output_dir.display()
+                )
+            })?;
+            orig_tarballs.push(tarball);
+        }
+    }
 
     let request = BuildRequest { intent, target };
     run_build(&request, |claimed| {
         crate::output::stage("Building source package");
         let staged_source_dir = stage_dir(claimed.environment(), BuildKind::Source);
-        if let Some(tarball) = &orig_tarball {
+        for tarball in &orig_tarballs {
             // the work dir is the staged source dir's parent, which is where
-            // dpkg-source looks for the tarball
+            // dpkg-source looks for the tarballs
             let destination = claimed.environment().work_dir().join(
                 tarball
                     .file_name()

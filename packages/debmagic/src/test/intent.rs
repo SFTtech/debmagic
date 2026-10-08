@@ -14,6 +14,8 @@ pub struct TestIntentInput {
     pub config_file: Option<PathBuf>,
     pub driver: Option<DriverType>,
     pub persistent: Option<Persistence>,
+    /// `--notify`, overriding the configured notifications.
+    pub notify: Option<bool>,
     pub strict: bool,
     pub changes: Option<PathBuf>,
     pub allow_host_test: bool,
@@ -47,6 +49,7 @@ pub fn resolve_test_intent(input: TestIntentInput) -> anyhow::Result<TestIntent>
     if let Some(persistent) = input.persistent {
         config.driver.persistent = persistent;
     }
+    config.override_notify(input.notify);
 
     let changes = if let Some(changes) = input.changes {
         Some(std::path::absolute(changes).context("resolving --changes path failed")?)
@@ -87,6 +90,7 @@ mod tests {
             config_file: Some(asset_config()),
             driver: None,
             persistent: None,
+            notify: None,
             strict: false,
             changes: None,
             allow_host_test: false,

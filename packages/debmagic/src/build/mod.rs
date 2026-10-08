@@ -176,14 +176,22 @@ async fn run_build(
                     build_kind,
                 )?;
                 if sign.source.is_enabled() {
-                    crate::output::stage(&format!("Signing {}", environment.package_identifier));
-                    crate::sign::sign_file(
-                        &changes_file,
-                        sign,
-                        sign.source,
-                        sign.notify,
-                        &environment.package_identifier,
-                    )?;
+                    let package = &environment.package_identifier;
+                    crate::output::stage(&format!("Signing {package}"));
+                    // one notification for both: the build is done when
+                    // the key wants a touch
+                    let config = &request.intent.config;
+                    let notice = if config.build_notify() {
+                        Some(crate::output::Notice::new(
+                            "debmagic: build finished, signing",
+                            &format!("touch your key to sign {package}"),
+                        ))
+                    } else {
+                        config
+                            .sign_notify()
+                            .then(|| crate::sign::sign_notice(package))
+                    };
+                    crate::sign::sign_file(&changes_file, sign, sign.source, notice.as_ref())?;
                 }
                 Ok(changes_file)
             });
@@ -507,9 +515,11 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
     .context("failed to determine package target")?;
 
     let package = format!("{} {}", target.package.name(), target.package.version());
-    let notify = intent.config.notify;
+    let notify = intent.config.build_notify();
     let result = build_and_upload(&intent, target, &command).await;
-    if notify {
+    // a signed build already notified when signing started
+    let notified = result.is_ok() && intent.config.sign.source.is_enabled();
+    if notify && !notified {
         let summary = match &result {
             Ok(()) => "debmagic: build finished",
             Err(_) => "debmagic: build failed",

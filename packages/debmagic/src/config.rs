@@ -247,12 +247,57 @@ pub struct Config {
     /// builds already stage a clean source tree and incremental builds preserve
     /// outputs intentionally.
     pub clean: bool,
-    /// Send a desktop notification via `notify-send` and ring the terminal
-    /// bell when a build finishes.
+    /// Default for the `build`, `test` and `sign` notifications.
     pub notify: bool,
+    /// `[build]` section.
+    pub build: BuildConfig,
+    /// `[test]` section.
+    pub test: TestConfig,
     /// Build for a dpkg architecture variant (e.g. `amd64v3` on Ubuntu),
     /// exported as `DEB_HOST_ARCH_VARIANT` for the build.
     pub host_arch_variant: Option<String>,
+}
+
+/// `[build]` section: `debmagic build` behavior.
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[serde(default)]
+pub struct BuildConfig {
+    /// Desktop notification and terminal bell when the build finishes;
+    /// the top-level `notify` when unset.
+    pub notify: Option<bool>,
+}
+
+/// `[test]` section: `debmagic test` behavior.
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[serde(default)]
+pub struct TestConfig {
+    /// Desktop notification and terminal bell when the tests finish;
+    /// the top-level `notify` when unset.
+    pub notify: Option<bool>,
+}
+
+impl Config {
+    pub fn build_notify(&self) -> bool {
+        self.build.notify.unwrap_or(self.notify)
+    }
+
+    pub fn test_notify(&self) -> bool {
+        self.test.notify.unwrap_or(self.notify)
+    }
+
+    pub fn sign_notify(&self) -> bool {
+        self.sign.notify.unwrap_or(self.notify)
+    }
+
+    /// Apply `--notify`: it covers every step of the command.
+    pub fn override_notify(&mut self, notify: Option<bool>) {
+        if let Some(notify) = notify {
+            self.notify = notify;
+            self.build.notify = Some(notify);
+            self.test.notify = Some(notify);
+            self.sign.notify = Some(notify);
+        }
+    }
 }
 
 /// `[upstream]` section: `upstream` command behavior.
@@ -298,8 +343,9 @@ pub struct SignConfig {
     /// is skipped, anything else means re-sign.
     pub signed_by_command: Option<String>,
     /// Send a desktop notification via `notify-send` just before signing,
-    /// so a hardware-key touch prompt isn't missed.
-    pub notify: bool,
+    /// so a hardware-key touch prompt isn't missed; the top-level `notify`
+    /// when unset.
+    pub notify: Option<bool>,
 }
 
 impl Default for Config {
@@ -318,6 +364,8 @@ impl Default for Config {
             upstream: UpstreamConfig::default(),
             clean: false,
             notify: false,
+            build: BuildConfig::default(),
+            test: TestConfig::default(),
             host_arch_variant: None,
         }
     }
@@ -491,7 +539,26 @@ mod tests {
         assert_eq!(cfg.sign.source, crate::sign::SignMode::Auto);
         assert_eq!(cfg.sign.key.as_deref(), Some("you@example.com"));
         assert_eq!(cfg.sign.sign_command.as_deref(), Some("gpg --foo"));
-        assert!(cfg.sign.notify);
+        assert_eq!(cfg.sign.notify, Some(true));
         Ok(())
+    }
+
+    #[test]
+    fn notify_defaults_each_step() {
+        let mut cfg = Config {
+            notify: true,
+            ..Config::default()
+        };
+        cfg.sign.notify = Some(false);
+        assert!(cfg.build_notify());
+        assert!(cfg.test_notify());
+        assert!(!cfg.sign_notify());
+
+        cfg.override_notify(None);
+        assert!(!cfg.sign_notify());
+        cfg.override_notify(Some(false));
+        assert!(!cfg.build_notify() && !cfg.test_notify() && !cfg.sign_notify());
+        cfg.override_notify(Some(true));
+        assert!(cfg.build_notify() && cfg.test_notify() && cfg.sign_notify());
     }
 }

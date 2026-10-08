@@ -93,6 +93,27 @@ pub fn notify_send_bell(summary: &str, body: &str) {
     bell();
 }
 
+/// A [`notify_send_bell`] notification, decided ahead of the step that
+/// sends it.
+#[derive(Debug, Clone)]
+pub struct Notice {
+    pub summary: String,
+    pub body: String,
+}
+
+impl Notice {
+    pub fn new(summary: &str, body: &str) -> Self {
+        Self {
+            summary: summary.to_string(),
+            body: body.to_string(),
+        }
+    }
+
+    pub fn send(&self) {
+        notify_send_bell(&self.summary, &self.body);
+    }
+}
+
 /// Whether color is on, after [`init_color`] has run.
 pub fn color_enabled() -> bool {
     COLOR.load(Ordering::Relaxed)

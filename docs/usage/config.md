@@ -40,9 +40,11 @@ All keys are optional.
 | `sign.key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
 | `sign.tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign.sign_command`). |
 | `sign.sign_command` | string | — | `--sign-command` | Custom signing command for `sign.tool = "custom"`, run without a shell with `{file}`/`{key}`/`{email}` placeholders; writes the clearsigned result to stdout. |
-| `sign.notify` | bool | `false` | `--sign-notify` | Send a desktop notification via `notify-send` just before signing, so a hardware-key touch prompt isn't missed. |
+| `sign.notify` | bool | `notify` | `--notify` | Send a desktop notification via `notify-send` just before signing, so a hardware-key touch prompt isn't missed. |
 | `clean` | bool | `false` | `--clean` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
-| `notify` | bool | `false` | `--notify` | Send a desktop notification via `notify-send` and ring the terminal bell when a build finishes. |
+| `notify` | bool | `false` | `--notify` | Default for `build.notify`, `test.notify` and `sign.notify`. |
+| `build.notify` | bool | `notify` | `--notify` | Desktop notification via `notify-send` and terminal bell when a build finishes; a build that signs notifies once, when signing starts (see [Notifications](build.md#notifications)). |
+| `test.notify` | bool | `notify` | `--notify` | Desktop notification via `notify-send` and terminal bell when `debmagic test` finishes. |
 | `host_arch_variant` | string | — | `--host-arch-variant` | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
 | `upstream.signature_check` | bool | `true` | `--signature-check` | Verify the upstream tarball's PGP signature against `debian/upstream/signing-key.asc` during `upstream fetch`/`switch` (see [Upstream](upstream.md#signature-verification)). |
 | `upstream.repack` | bool | `true` | `--repack` | Strip the `Files-Excluded` paths from upstream and custom tarballs during `upstream fetch`/`switch` (see [Upstream](upstream.md#repacking)). |
@@ -63,7 +65,7 @@ All keys are optional.
 | `source` | enum | `no` | `--sign` | Sign the source package (`.changes`/`.dsc`) after building: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs. |
 | `key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
 | `tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg` (sequoia's `sq`) or `custom` (uses `sign_command`). |
-| `notify` | bool | `false` | `--sign-notify` | Desktop notification via `notify-send` before signing. |
+| `notify` | bool | top-level `notify` | `--notify` | Desktop notification via `notify-send` before signing. |
 | `sign_command` | string | — | `--sign-command` | Custom signing command for `tool = "custom"`, like `debsign`'s `-p`. |
 | `verify_command` | string | — | `--verify-command` (upstream switch) | Custom verification command for `sign.tool = "custom"`, run without a shell with `{file}`/`{signature}`/`{keyring}` placeholders; without `{signature}` the signature path is appended. Falls back to `sign_command`. |
 | `signed_by_command` | string | — | — | Custom same-key check for `tool = "custom"` under `source = "auto"`: exit code 0 means the file's signature is ours (skip), anything else re-signs. Without it, `auto` always re-signs. |

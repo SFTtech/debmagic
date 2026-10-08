@@ -174,6 +174,16 @@ This exports `DEB_BUILD_OPTIONS=nocheck`, the standard dpkg mechanism: dpkg-buil
 ## Signing
 
 `--sign` GPG-signs the resulting `.changes`/`.dsc`/`.buildinfo` after building — mainly useful for [source builds destined for Launchpad](source.md#uploading-to-launchpad), but works for binary builds too.
+
+Without `--sign`, source builds are signed and binary builds are not (if `sign.key`, or `sign.tool = "custom"` are configured).
+`build.sign_source` and `build.sign_binary` change that per kind; `--sign` signs regardless, and `--sign=no` never does.
+
+```toml
+[build]
+sign_binary = true   # also sign binary builds
+sign_source = false  # but not source builds
+```
+
 Signing is debmagic's own reimplementation of `debsign` and always runs on the host with your gpg keyring: the artifacts are exported to the host output dir first, so no container or agent forwarding is involved.
 Children are signed first (`.dsc`, then `.buildinfo`) and the `.changes` checksums are rewritten after each, exactly like `debsign`.
 
@@ -192,7 +202,7 @@ The `--sign` mode decides what happens to an existing signature:
 
 | Option | Config | Description |
 |---|---|---|
-| `--sign <mode>` | `sign.source` | Sign after building: `no`, `keep`, `auto` or `force` |
+| `--sign <mode>` | `build.sign_source`, `build.sign_binary`, `sign.source` | Sign after building: `no`, `keep`, `auto` (default) or `force`; the config decides what happens without the flag |
 | `--sign-key <key>` | `sign.key` | Key ID/fingerprint/email; defaults to the `Changed-By:`/`Maintainer:` address of the file being signed |
 | `--sign-tool <tool>` | `sign.tool` | OpenPGP implementation: `gpg` (default), `sequoia` (sq), or `custom` |
 | `--sign-command <cmd>` | `sign.sign_command` | Custom signing command for `--sign-tool custom` (see below) |

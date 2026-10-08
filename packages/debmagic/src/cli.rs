@@ -441,7 +441,7 @@ pub struct CommonBuildArgs {
         value_enum,
         num_args = 0..=1,
         default_missing_value = "auto",
-        help = "Sign the resulting .changes/.dsc after building: 'auto' (the default when passed without a value) signs what is unsigned and skips what our key already signed, 'force' always re-signs, 'no' never signs. Defaults to the 'sign.source' setting in the config file (no if unset)."
+        help = "Sign the resulting .changes/.dsc/.buildinfo after building: 'auto' (the default when passed without a value) signs what is unsigned and skips what our key already signed, 'keep' keeps any existing signature, 'force' always re-signs, 'no' never signs. Without --sign, source builds sign if 'build.sign_source' (default yes) and binary builds if 'build.sign_binary' (default no) is set, with the 'sign.source' mode (auto if unset), but only when a signing key is configured."
     )]
     pub sign: Option<SignMode>,
 

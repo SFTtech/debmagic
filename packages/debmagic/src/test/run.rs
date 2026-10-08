@@ -284,7 +284,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     );
     let version = package.version().to_string();
 
-    claim_command(
+    let result = claim_command(
         &registry,
         environment,
         &intent.config.driver,
@@ -388,7 +388,16 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
             })
         },
     )
-    .await
+    .await;
+    if intent.config.test_notify() {
+        let summary = match &result {
+            Ok(TestOutcome::Passed) => "debmagic: tests passed",
+            Ok(TestOutcome::Failed | TestOutcome::StrictFailure) => "debmagic: tests failed",
+            Err(_) => "debmagic: test run failed",
+        };
+        crate::output::notify_send_bell(summary, &format!("{} {version}", package.name()));
+    }
+    result
 }
 
 #[cfg(test)]

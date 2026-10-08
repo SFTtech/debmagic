@@ -30,7 +30,7 @@ debmagic build binary --driver lxd \
 | `--clean` | Run [`debian/rules clean` before building](#cleaning) |
 | `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
 | `--test` | [Run the package's test suite](#running-tests) |
-| `--notify` | Desktop notification (`notify-send`) and terminal bell when the build finishes; config `notify` |
+| `--notify` | [Desktop notification and terminal bell](#notifications) when the build finishes or signing needs a key touch |
 | `--apt-mirror <url>` | [Mirror URL](#mirror-selection) |
 | `--apt-update-age <when>` | [When a persistent environment re-runs `apt-get update` and `upgrade`](#apt-update-age) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
@@ -196,7 +196,7 @@ The `--sign` mode decides what happens to an existing signature:
 | `--sign-key <key>` | `sign.key` | Key ID/fingerprint/email; defaults to the `Changed-By:`/`Maintainer:` address of the file being signed |
 | `--sign-tool <tool>` | `sign.tool` | OpenPGP implementation: `gpg` (default), `sequoia` (sq), or `custom` |
 | `--sign-command <cmd>` | `sign.sign_command` | Custom signing command for `--sign-tool custom` (see below) |
-| `--sign-notify` | `sign.notify` | Desktop notification + terminal bell just before signing, so a hardware-key touch prompt isn't missed after a long build |
+| `--notify` | `sign.notify` | Desktop notification + terminal bell just before signing, so a hardware-key touch prompt isn't missed after a long build (see [Notifications](#notifications)) |
 
 A custom signing command runs without a shell and must write the clearsigned result to stdout.
 The file to sign is passed via the `{file}` placeholder (or, if no placeholder is used, as the last argument).
@@ -210,6 +210,22 @@ The file to sign is passed via the `{file}` placeholder (or, if no placeholder i
 Unknown placeholders are an error.
 
 Defaults can be set in [`debmagic.toml`](config.md).
+
+## Notifications
+
+A desktop notification (`notify-send`) plus a terminal bell tells you when a long build needs you.
+The top-level `notify` setting is the default for each step; `build.notify` and `sign.notify` override it per step:
+
+```toml
+notify = true
+
+[sign]
+notify = false  # no touch prompt notification, but "build finished"
+```
+
+A build that signs notifies once, when signing starts: "build finished, signing" if `build.notify` is on, else just the touch prompt if `sign.notify` is.
+An unsigned build notifies when it finishes, a failed one in any case.
+`--notify[=no]` overrides all steps of one run.
 
 ## Signing an existing build
 

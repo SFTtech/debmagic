@@ -363,15 +363,6 @@ pub struct SignArgs {
         help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
     )]
     pub sign_command: Option<String>,
-
-    #[arg(
-        long = "sign-notify",
-        num_args = 0..=1,
-        default_missing_value = "true",
-        value_parser = BoolishValueParser::new(),
-        help = "Send a desktop notification via notify-send just before signing, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
-    )]
-    pub sign_notify: Option<bool>,
 }
 
 impl SignArgs {
@@ -380,9 +371,21 @@ impl SignArgs {
             key: self.sign_key.clone(),
             tool: self.sign_tool,
             command: self.sign_command.clone(),
-            notify: self.sign_notify,
         }
     }
+}
+
+/// `--notify`, shared by the commands that take long or need attention.
+#[derive(Args, Debug)]
+pub struct NotifyArgs {
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        value_parser = BoolishValueParser::new(),
+        help = "Send a desktop notification via notify-send and ring the terminal bell when the command finishes or signing needs a key touch, overriding the 'notify', 'build.notify', 'test.notify' and 'sign.notify' settings. A finished build that signs notifies once, when signing starts."
+    )]
+    pub notify: Option<bool>,
 }
 
 /// Flags shared between `debmagic build binary` and `debmagic build source`.
@@ -445,14 +448,8 @@ pub struct CommonBuildArgs {
     #[command(flatten)]
     pub signing: SignArgs,
 
-    #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "true",
-        value_parser = BoolishValueParser::new(),
-        help = "Send a desktop notification via notify-send and ring the terminal bell when the build finishes, successfully or not. Defaults to the 'notify' setting in the config file (false if unset)."
-    )]
-    pub notify: Option<bool>,
+    #[command(flatten)]
+    pub notify: NotifyArgs,
 
     #[arg(
         long,
@@ -612,6 +609,9 @@ pub struct TestSubcommandArgs {
     pub allow_host_test: bool,
 
     #[command(flatten)]
+    pub notify: NotifyArgs,
+
+    #[command(flatten)]
     pub common: CommonCli,
 }
 
@@ -633,6 +633,9 @@ pub struct SignSubcommandArgs {
 
     #[command(flatten)]
     pub signing: SignArgs,
+
+    #[command(flatten)]
+    pub notify: NotifyArgs,
 
     #[arg(
         short,
@@ -715,6 +718,9 @@ pub struct UploadSubcommandArgs {
         help = "Include the orig tarball in the upload: 'auto' includes it only when the archive cannot have it yet (a new upstream version or a deltarebase onto Debian), 'yes' always, 'no' never. Rewrites and re-signs the .changes when it disagrees"
     )]
     pub include_orig: Option<IncludeOrig>,
+
+    #[command(flatten)]
+    pub notify: NotifyArgs,
 
     #[command(flatten)]
     pub common: CommonCli,

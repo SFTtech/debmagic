@@ -36,6 +36,7 @@ The driver *is* the testbed: `autopkgtest` runs with the `null` backend inside t
 | `--apt-update-age <when>` | Configure when to run `apt-get update` (same as [`debmagic build`](build.md#apt-update-age)) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
 | `--allow-host-test` | Allow the bare driver, which runs autopkgtest as root on the host |
+| `--notify` | Desktop notification and terminal bell when the run finishes |
 
 Driver-specific flags (`--driver-docker-base-image`, `--driver-lxd-*`) mirror `debmagic build`.
 

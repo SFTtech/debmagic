@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::config::SignConfig;
 use crate::control::{child_filename, fixup_checksums, read_control, write_control};
-use crate::output::notify_send_bell;
+use crate::output::Notice;
 use crate::subprocess::Capture;
 
 /// Which OpenPGP implementation performs the signing.
@@ -439,7 +439,6 @@ pub struct SignOverrides {
     pub key: Option<String>,
     pub tool: Option<SignTool>,
     pub command: Option<String>,
-    pub notify: Option<bool>,
 }
 
 impl SignOverrides {
@@ -453,10 +452,15 @@ impl SignOverrides {
         if let Some(command) = self.command {
             config.sign_command = Some(command);
         }
-        if let Some(notify) = self.notify {
-            config.notify = notify;
-        }
     }
+}
+
+/// The notification right before the key-touch prompt of signing `package`.
+pub fn sign_notice(package: &str) -> Notice {
+    Notice::new(
+        "debmagic: signing requested",
+        &format!("touch your key to sign {package}"),
+    )
 }
 
 /// Sign the `.changes` file (and its `.dsc`/`.buildinfo` children) on the
@@ -467,6 +471,8 @@ pub struct SignIntent {
     pub config_file: Option<PathBuf>,
     pub mode: SignMode,
     pub overrides: SignOverrides,
+    /// `--notify`, overriding the configured notifications.
+    pub notify: Option<bool>,
     pub output_dir: Option<PathBuf>,
     /// The explicit file to sign; located via changelog + output dir when unset.
     pub file: Option<PathBuf>,
@@ -478,6 +484,7 @@ pub fn sign(input: SignIntent) -> anyhow::Result<()> {
     let source_dir = input.source_dir;
     let mut config = crate::config::Config::load(Some(&source_dir), input.config_file.as_deref())?;
     input.overrides.apply(&mut config.sign);
+    config.override_notify(input.notify);
 
     let options = SignConfig {
         key: config.sign.key.clone(),
@@ -511,7 +518,8 @@ pub fn sign(input: SignIntent) -> anyhow::Result<()> {
         .file_stem()
         .map(|stem| stem.to_string_lossy().into_owned())
         .unwrap_or_default();
-    sign_file(&file, &options, input.mode, config.sign.notify, &package)
+    let notice = config.sign_notify().then(|| sign_notice(&package));
+    sign_file(&file, &options, input.mode, notice.as_ref())
 }
 
 /// Is the file already clearsigned?
@@ -645,12 +653,12 @@ fn sign_one(path: &Path, signas: &str, options: &SignConfig) -> anyhow::Result<(
 /// files our own key already signed, `force` always re-signs. When any
 /// child is (re)signed the parent is force-signed regardless, since its
 /// checksums change and the old signature would no longer verify.
+/// `notice` is sent right before signing, so a key-touch prompt isn't missed.
 pub fn sign_file(
     path: &Path,
     options: &SignConfig,
     mode: SignMode,
-    notify: bool,
-    package: &str,
+    notice: Option<&Notice>,
 ) -> anyhow::Result<()> {
     let dir = path
         .parent()
@@ -664,11 +672,8 @@ pub fn sign_file(
             path.display()
         );
     }
-    if notify {
-        notify_send_bell(
-            "debmagic: signing requested",
-            &format!("touch your key to sign {package}"),
-        );
+    if let Some(notice) = notice {
+        notice.send();
     }
 
     // Children first: .dsc, then .buildinfo.
@@ -816,7 +821,7 @@ mod tests {
             verify_command: None,
             signed_by_command: None,
             source: SignMode::No,
-            notify: false,
+            notify: None,
         };
         let control =
             parse_control("Maintainer: A <a@example.com>\nChanged-By: B <b@example.com>\n");

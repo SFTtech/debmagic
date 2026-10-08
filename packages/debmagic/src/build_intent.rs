@@ -93,9 +93,7 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         config.sign.source = sign;
     }
     input.sign_overrides.apply(&mut config.sign);
-    if let Some(notify) = input.notify {
-        config.notify = notify;
-    }
+    config.override_notify(input.notify);
     if let Some(clean) = input.clean {
         config.clean = clean;
     }

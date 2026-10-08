@@ -74,6 +74,8 @@ pub struct UploadIntent {
     pub hooks: bool,
     pub force: bool,
     pub sign: Option<crate::sign::SignMode>,
+    /// `--notify`, overriding the configured notifications.
+    pub notify: Option<bool>,
     pub include_orig: Option<orig::IncludeOrig>,
     /// The explicit `.changes` to upload; located via changelog + output dir when unset.
     pub changes: Option<PathBuf>,
@@ -83,7 +85,8 @@ pub struct UploadIntent {
 /// the `.changes` and adjust its orig entries, then upload it.
 pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
     let source_dir = input.source_dir;
-    let config = crate::config::Config::load(Some(&source_dir), input.config_file.as_deref())?;
+    let mut config = crate::config::Config::load(Some(&source_dir), input.config_file.as_deref())?;
+    config.override_notify(input.notify);
 
     let mut upload_target = resolve_target(&input.target, Some(&config.upload))?;
     upload_target.apply_overrides(&UploadOverrides {
@@ -130,13 +133,10 @@ pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
             .file_stem()
             .map(|stem| stem.to_string_lossy().into_owned())
             .unwrap_or_default();
-        crate::sign::sign_file(
-            &changes_file,
-            &config.sign,
-            sign_mode,
-            config.sign.notify,
-            &package,
-        )?;
+        let notice = config
+            .sign_notify()
+            .then(|| crate::sign::sign_notice(&package));
+        crate::sign::sign_file(&changes_file, &config.sign, sign_mode, notice.as_ref())?;
     }
 
     crate::output::stage(&format!(

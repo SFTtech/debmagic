@@ -101,7 +101,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                     test: run_test,
                     sign: build_args.sign,
                     sign_overrides: build_args.signing.overrides(),
-                    notify: build_args.notify,
+                    notify: build_args.notify.notify,
                     clean: build_args.clean,
                     source_sync: build_args.source_sync,
                     host_arch_variant: build_args.host_arch_variant.clone(),
@@ -159,6 +159,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 config_file: cli.config.clone(),
                 driver: args.driver,
                 persistent: args.environment.persistent,
+                notify: args.notify.notify,
                 strict: args.strict,
                 changes: args.changes.clone(),
                 allow_host_test: args.allow_host_test,
@@ -194,6 +195,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 hooks: args.hooks,
                 force: args.force,
                 sign: args.sign,
+                notify: args.notify.notify,
                 include_orig: args.include_orig,
                 changes: args.changes.clone(),
             })?;
@@ -207,6 +209,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 config_file: cli.config.clone(),
                 mode: args.mode,
                 overrides: args.signing.overrides(),
+                notify: args.notify.notify,
                 output_dir: args.output_dir.clone(),
                 file: args.file.clone(),
             })?;

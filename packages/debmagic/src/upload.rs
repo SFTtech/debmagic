@@ -142,7 +142,7 @@ pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
     crate::output::stage(&format!(
         "Uploading {} to {}",
         changes_file.display(),
-        upload_target.name
+        input.target
     ));
     upload_changes(
         &upload_target,
@@ -249,7 +249,7 @@ pub fn upload_changes(
         format!(
             "transferring {} files to {} failed",
             files.len(),
-            target.name
+            target_spec
         )
     })?;
     log.record(changes_file, target_spec, upstream_version)?;

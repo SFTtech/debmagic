@@ -11,6 +11,7 @@ use crate::environment::{
     ClaimedEnvironment, CommandCompletion, HostRootPolicy, InvocationKind, Registry, claim_command,
 };
 use crate::package::PackageTarget;
+use crate::upstream::orig::link_or_copy;
 use anyhow::{Context, anyhow};
 use debmagic_common::debian::source::SourceFormat;
 use debmagic_common::package::SourcePackage;
@@ -325,25 +326,6 @@ fn check_dpkg_buildpackage_available() -> anyhow::Result<()> {
     )
 }
 
-/// Make `source` available at `destination`: hardlink on the same
-/// filesystem, else copy. A symlink would point at a host path that
-/// doesn't exist inside a container environment.
-fn stage_file(source: &Path, destination: &Path) -> anyhow::Result<()> {
-    if destination.exists() {
-        std::fs::remove_file(destination)
-            .with_context(|| format!("failed to remove {}", destination.display()))?;
-    }
-    if std::fs::hard_link(source, destination).is_ok() {
-        return Ok(());
-    }
-    fs::copy(source, destination).map(|_| ()).with_context(|| {
-        format!(
-            "failed to stage {} into the build environment",
-            source.display()
-        )
-    })
-}
-
 /// Build a `.dsc` + tarball + `.buildinfo` + `.changes` source package.
 ///
 /// If `config.clean` is set, build-dependencies are installed before
@@ -426,7 +408,12 @@ pub async fn build_source_package(
                     .file_name()
                     .expect("orig tarball has a file name"),
             );
-            stage_file(tarball, &destination)?;
+            link_or_copy(tarball, &destination).with_context(|| {
+                format!(
+                    "staging {} into the build environment failed",
+                    tarball.display()
+                )
+            })?;
         }
         // dpkg-buildpackage looks for the gain-root command even for -S
         if let Some(package) = gain_root_package(target)? {
@@ -591,28 +578,6 @@ mod tests {
         assert!(needs_quilt_unapply(SourceFormat::Quilt, &dir));
         assert!(!needs_quilt_unapply(SourceFormat::Native, &dir));
         assert!(!needs_quilt_unapply(SourceFormat::V1, &dir));
-        std::fs::remove_dir_all(&dir).unwrap();
-    }
-
-    #[test]
-    fn stage_file_prefers_hardlink() {
-        let dir = std::env::temp_dir().join(format!("debmagic-stage-{}", std::process::id()));
-        std::fs::create_dir_all(&dir).unwrap();
-        let source = dir.join("src.tar");
-        std::fs::write(&source, "data").unwrap();
-        let destination = dir.join("dest.tar");
-        stage_file(&source, &destination).unwrap();
-        // same filesystem: a hardlink shares the inode
-        assert_eq!(
-            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&source).unwrap()),
-            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&destination).unwrap())
-        );
-        // restaging replaces the destination
-        stage_file(&source, &destination).unwrap();
-        assert_eq!(
-            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&source).unwrap()),
-            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&destination).unwrap())
-        );
         std::fs::remove_dir_all(&dir).unwrap();
     }
 

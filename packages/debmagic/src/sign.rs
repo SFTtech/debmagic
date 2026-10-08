@@ -433,6 +433,32 @@ fn substitute_verify_placeholders(
     Ok(out)
 }
 
+/// CLI overrides of the `[sign]` config section.
+#[derive(Debug, Clone, Default)]
+pub struct SignOverrides {
+    pub key: Option<String>,
+    pub tool: Option<SignTool>,
+    pub command: Option<String>,
+    pub notify: Option<bool>,
+}
+
+impl SignOverrides {
+    pub fn apply(self, config: &mut crate::config::SignConfig) {
+        if let Some(key) = self.key {
+            config.key = Some(key);
+        }
+        if let Some(tool) = self.tool {
+            config.tool = tool;
+        }
+        if let Some(command) = self.command {
+            config.sign_command = Some(command);
+        }
+        if let Some(notify) = self.notify {
+            config.notify = notify;
+        }
+    }
+}
+
 /// Sign the `.changes` file (and its `.dsc`/`.buildinfo` children) on the
 /// host, as resolved from the build's `sign` config.
 #[derive(Debug, Clone)]
@@ -440,10 +466,7 @@ pub struct SignIntent {
     pub source_dir: PathBuf,
     pub config_file: Option<PathBuf>,
     pub mode: SignMode,
-    pub sign_key: Option<String>,
-    pub sign_tool: Option<SignTool>,
-    pub sign_command: Option<String>,
-    pub sign_notify: Option<bool>,
+    pub overrides: SignOverrides,
     pub output_dir: Option<PathBuf>,
     /// The explicit file to sign; located via changelog + output dir when unset.
     pub file: Option<PathBuf>,
@@ -454,19 +477,7 @@ pub struct SignIntent {
 pub fn sign(input: SignIntent) -> anyhow::Result<()> {
     let source_dir = input.source_dir;
     let mut config = crate::config::Config::load(Some(&source_dir), input.config_file.as_deref())?;
-
-    if let Some(key) = &input.sign_key {
-        config.sign.key = Some(key.clone());
-    }
-    if let Some(tool) = input.sign_tool {
-        config.sign.tool = tool;
-    }
-    if let Some(command) = &input.sign_command {
-        config.sign.sign_command = Some(command.clone());
-    }
-    if let Some(notify) = input.sign_notify {
-        config.sign.notify = notify;
-    }
+    input.overrides.apply(&mut config.sign);
 
     let options = SignConfig {
         key: config.sign.key.clone(),

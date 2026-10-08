@@ -133,9 +133,12 @@ pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
             .file_stem()
             .map(|stem| stem.to_string_lossy().into_owned())
             .unwrap_or_default();
-        let notice = config
-            .sign_notify()
-            .then(|| crate::sign::sign_notice(&package));
+        let notice = config.sign_notify().then(|| {
+            crate::output::Notice::new(
+                "debmagic: signing for upload",
+                &format!("touch your key to sign {package} for {}", input.target),
+            )
+        });
         crate::sign::sign_file(&changes_file, &config.sign, sign_mode, notice.as_ref())?;
     }
 

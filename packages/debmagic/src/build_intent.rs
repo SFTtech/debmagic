@@ -6,7 +6,7 @@ use crate::{
     build::source::SourceSyncMode,
     config::Config,
     driver::{DriverType, Persistence, config::DriverOverrides},
-    sign::{SignMode, SignTool},
+    sign::{SignMode, SignOverrides},
 };
 
 /// Which kind of package a build produces: a source-only upload or
@@ -37,10 +37,7 @@ pub struct BuildIntentInput {
     pub debug_symbols: Option<bool>,
     pub test: Option<bool>,
     pub sign: Option<SignMode>,
-    pub sign_key: Option<String>,
-    pub sign_tool: Option<SignTool>,
-    pub sign_command: Option<String>,
-    pub sign_notify: Option<bool>,
+    pub sign_overrides: SignOverrides,
     pub notify: Option<bool>,
     pub clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
@@ -95,18 +92,7 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     if let Some(sign) = input.sign {
         config.sign.source = sign;
     }
-    if let Some(sign_key) = input.sign_key {
-        config.sign.key = Some(sign_key);
-    }
-    if let Some(sign_tool) = input.sign_tool {
-        config.sign.tool = sign_tool;
-    }
-    if let Some(sign_command) = input.sign_command {
-        config.sign.sign_command = Some(sign_command);
-    }
-    if let Some(sign_notify) = input.sign_notify {
-        config.sign.notify = sign_notify;
-    }
+    input.sign_overrides.apply(&mut config.sign);
     if let Some(notify) = input.notify {
         config.notify = notify;
     }
@@ -179,10 +165,7 @@ mod tests {
             debug_symbols: None,
             test: None,
             sign: None,
-            sign_key: None,
-            sign_tool: None,
-            sign_command: None,
-            sign_notify: None,
+            sign_overrides: SignOverrides::default(),
             notify: None,
             clean: None,
             source_sync: None,

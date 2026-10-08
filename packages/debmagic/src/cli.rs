@@ -6,7 +6,7 @@ use crate::driver::config::DriverOverrides;
 use crate::driver::driver_bare::DriverBareConfigOverrides;
 use crate::driver::driver_docker::DriverDockerConfigOverrides;
 use crate::driver::driver_lxd::DriverLxdConfigOverrides;
-use crate::sign::{SignMode, SignTool};
+use crate::sign::{SignMode, SignOverrides, SignTool};
 use crate::time::RefreshPolicy;
 use crate::upload::UploadMethod;
 use crate::upload::orig::IncludeOrig;
@@ -300,6 +300,91 @@ pub struct LxdArgs {
     pub project: Option<String>,
 }
 
+/// Flags shared by the commands that run in a driver environment
+/// (`debmagic build`, `debmagic test`).
+#[derive(Args, Debug)]
+pub struct EnvironmentArgs {
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "always",
+        action = clap::ArgAction::Set,
+        help = "How long the environment outlives this run: 'on-failure' (the default) keeps it when the command fails, 'always' keeps it after every run, 'no' tears it down. A bare --persistent means 'always'. A failed run that keeps the environment prints `debmagic env shell <id>`."
+    )]
+    pub persistent: Option<crate::driver::Persistence>,
+
+    #[command(flatten)]
+    pub docker: DockerArgs,
+
+    #[command(flatten)]
+    pub lxd: LxdArgs,
+
+    #[arg(
+        long = "apt-mirror",
+        help = "Apt mirror URL to use inside the environment instead of the default archive.ubuntu.com/security.ubuntu.com/deb.debian.org, e.g. http://my-mirror.example/ubuntu. Ignored by the bare driver."
+    )]
+    pub apt_mirror: Option<String>,
+
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
+        help = "Also enable the '<release>-proposed' pocket in the environment. Ignored by the bare driver."
+    )]
+    pub proposed: Option<bool>,
+
+    #[arg(
+        long = "apt-update-age",
+        help = "When a persistent environment runs 'apt-get update/upgrade' again: 'now' (every run), 'never' (only on first creation), or a maximum age of the last upgrade like '1d' (the default), '12h', '30m'. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
+    )]
+    pub apt_update_age: Option<RefreshPolicy>,
+}
+
+/// Signing flags shared by `debmagic build` and `debmagic sign`.
+#[derive(Args, Debug)]
+pub struct SignArgs {
+    #[arg(
+        long = "sign-key",
+        help = "GPG key ID/email to sign with. Defaults to the 'sign.key' setting in the config file, or the Changed-By/Maintainer address of the file being signed if unset."
+    )]
+    pub sign_key: Option<String>,
+
+    #[arg(
+        long = "sign-tool",
+        value_enum,
+        help = "OpenPGP implementation to sign with: 'gpg' (default), 'sequoia' (sq), or 'custom' (uses --sign-command). Defaults to the 'sign.tool' setting in the config file."
+    )]
+    pub sign_tool: Option<SignTool>,
+
+    #[arg(
+        long = "sign-command",
+        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
+    )]
+    pub sign_command: Option<String>,
+
+    #[arg(
+        long = "sign-notify",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        value_parser = BoolishValueParser::new(),
+        help = "Send a desktop notification via notify-send just before signing, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
+    )]
+    pub sign_notify: Option<bool>,
+}
+
+impl SignArgs {
+    pub fn overrides(&self) -> SignOverrides {
+        SignOverrides {
+            key: self.sign_key.clone(),
+            tool: self.sign_tool,
+            command: self.sign_command.clone(),
+            notify: self.sign_notify,
+        }
+    }
+}
+
 /// Flags shared between `debmagic build binary` and `debmagic build source`.
 #[derive(Args, Debug)]
 pub struct CommonBuildArgs {
@@ -322,47 +407,13 @@ pub struct CommonBuildArgs {
     pub driver: Option<DriverType>,
 
     #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "always",
-        action = clap::ArgAction::Set,
-        help = "How long the build environment outlives this build: 'on-failure' (the default) keeps it when the build command fails, 'always' keeps it after every build, 'no' tears it down. A bare --persistent means 'always'. A failed build that keeps the environment prints `debmagic env shell <id>`."
-    )]
-    pub persistent: Option<crate::driver::Persistence>,
-
-    #[arg(
         long = "source-sync",
         help = "Which source files are staged into the build tree: 'tracked' stages git-tracked files including uncommitted changes and warns about untracked files (default), 'committed' additionally fails if the worktree is dirty, 'worktree' stages everything that is not git-ignored. Defaults to the 'source_sync_mode' setting in the config file."
     )]
     pub source_sync: Option<SourceSyncMode>,
 
     #[command(flatten)]
-    pub docker: DockerArgs,
-
-    #[command(flatten)]
-    pub lxd: LxdArgs,
-
-    #[arg(
-        long = "apt-mirror",
-        help = "Apt mirror URL to use inside the build environment instead of the default archive.ubuntu.com/security.ubuntu.com/deb.debian.org, e.g. http://my-mirror.example/ubuntu. Ignored by the bare driver."
-    )]
-    pub apt_mirror: Option<String>,
-
-    #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        value_parser = BoolishValueParser::new(),
-        help = "Also enable the '<release>-proposed' pocket in the build environment. Ignored by the bare driver."
-    )]
-    pub proposed: Option<bool>,
-
-    #[arg(
-        long = "apt-update-age",
-        help = "When a persistent build environment runs 'apt-get update/upgrade' again: 'now' (every build), 'never' (only on first creation), or a maximum age of the last upgrade like '1d' (the default), '12h', '30m'. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
-    )]
-    pub apt_update_age: Option<RefreshPolicy>,
+    pub environment: EnvironmentArgs,
 
     #[arg(
         long,
@@ -391,33 +442,8 @@ pub struct CommonBuildArgs {
     )]
     pub sign: Option<SignMode>,
 
-    #[arg(
-        long = "sign-key",
-        help = "GPG key ID/email to sign with. Defaults to the 'sign.key' setting in the config file, or the Changed-By/Maintainer address of the file being signed if unset."
-    )]
-    pub sign_key: Option<String>,
-
-    #[arg(
-        long = "sign-tool",
-        value_enum,
-        help = "OpenPGP implementation to sign with: 'gpg' (default), 'sequoia' (sq), or 'custom' (uses --sign-command). Defaults to the 'sign.tool' setting in the config file."
-    )]
-    pub sign_tool: Option<SignTool>,
-
-    #[arg(
-        long = "sign-command",
-        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
-    )]
-    pub sign_command: Option<String>,
-
-    #[arg(
-        long = "sign-notify",
-        num_args = 0..=1,
-        default_missing_value = "true",
-        value_parser = BoolishValueParser::new(),
-        help = "Send a desktop notification via notify-send just before signing, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
-    )]
-    pub sign_notify: Option<bool>,
+    #[command(flatten)]
+    pub signing: SignArgs,
 
     #[arg(
         long,
@@ -556,42 +582,8 @@ pub struct TestSubcommandArgs {
     )]
     pub driver: Option<DriverType>,
 
-    #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "always",
-        action = clap::ArgAction::Set,
-        help = "How long the test environment outlives this run: 'on-failure' (the default) keeps it when the tests fail, 'always' keeps it after every run, 'no' tears it down. A bare --persistent means 'always'. A failed run that keeps the environment prints `debmagic env shell <id>`."
-    )]
-    pub persistent: Option<crate::driver::Persistence>,
-
     #[command(flatten)]
-    pub docker: DockerArgs,
-
-    #[command(flatten)]
-    pub lxd: LxdArgs,
-
-    #[arg(
-        long = "apt-mirror",
-        help = "Apt mirror URL to use inside the test environment instead of the default archive mirrors. Ignored by the bare driver."
-    )]
-    pub apt_mirror: Option<String>,
-
-    #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        value_parser = BoolishValueParser::new(),
-        help = "Also enable the '<release>-proposed' pocket in the test environment. Ignored by the bare driver."
-    )]
-    pub proposed: Option<bool>,
-
-    #[arg(
-        long = "apt-update-age",
-        help = "When a persistent build environment runs 'apt-get update/upgrade' again: 'now' (every build), 'never' (only on first creation), or a maximum age of the last upgrade like '1d' (the default), '12h', '30m'. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
-    )]
-    pub apt_update_age: Option<RefreshPolicy>,
+    pub environment: EnvironmentArgs,
 
     #[arg(
         long,
@@ -639,33 +631,8 @@ pub struct SignSubcommandArgs {
     )]
     pub mode: SignMode,
 
-    #[arg(
-        long = "sign-key",
-        help = "GPG key ID/email to sign with. Defaults to the 'sign.key' setting in the config file, or the Changed-By/Maintainer address of the file being signed if unset."
-    )]
-    pub sign_key: Option<String>,
-
-    #[arg(
-        long = "sign-tool",
-        value_enum,
-        help = "OpenPGP implementation to sign with: 'gpg' (default), 'sequoia' (sq), or 'custom' (uses --sign-command). Defaults to the 'sign.tool' setting in the config file."
-    )]
-    pub sign_tool: Option<SignTool>,
-
-    #[arg(
-        long = "sign-command",
-        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
-    )]
-    pub sign_command: Option<String>,
-
-    #[arg(
-        long = "sign-notify",
-        num_args = 0..=1,
-        default_missing_value = "true",
-        value_parser = BoolishValueParser::new(),
-        help = "Send a desktop notification via notify-send just before signing, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
-    )]
-    pub sign_notify: Option<bool>,
+    #[command(flatten)]
+    pub signing: SignArgs,
 
     #[arg(
         short,
@@ -758,26 +725,7 @@ pub struct UploadSubcommandArgs {
     pub changes: Option<PathBuf>,
 }
 
-impl CommonBuildArgs {
-    /// Collect the driver-specific overrides from the CLI flags.
-    pub fn driver_overrides(&self) -> DriverOverrides {
-        DriverOverrides {
-            apt_mirror: self.apt_mirror.clone(),
-            proposed: self.proposed,
-            apt_update_age: self.apt_update_age,
-            docker: DriverDockerConfigOverrides {
-                base_image: self.docker.base_image.clone(),
-            },
-            bare: DriverBareConfigOverrides {},
-            lxd: DriverLxdConfigOverrides {
-                base_image: self.lxd.base_image.clone(),
-                project: self.lxd.project.clone(),
-            },
-        }
-    }
-}
-
-impl TestSubcommandArgs {
+impl EnvironmentArgs {
     /// Collect the driver-specific overrides from the CLI flags.
     pub fn driver_overrides(&self) -> DriverOverrides {
         DriverOverrides {
@@ -817,7 +765,7 @@ mod tests {
     #[test_case(&["--persistent=no"], Some(Persistence::No); "no")]
     fn persistent_flag(args: &[&str], expected: Option<Persistence>) {
         let args = parse_test(args);
-        assert_eq!(args.persistent, expected);
+        assert_eq!(args.environment.persistent, expected);
     }
 
     #[test_case(&[], None; "absent")]
@@ -827,7 +775,7 @@ mod tests {
     #[test_case(&["--proposed=off"], Some(false); "off")]
     #[test_case(&["--proposed=true"], Some(true); "literal true")]
     fn boolish_flag(args: &[&str], expected: Option<bool>) {
-        assert_eq!(parse_test(args).proposed, expected);
+        assert_eq!(parse_test(args).environment.proposed, expected);
     }
 
     #[test]

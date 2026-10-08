@@ -36,7 +36,7 @@ All keys are optional.
 | `source_sync_mode` | enum | `tracked` | `--source-sync` | Which source files are staged (see below). |
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |
 | `run_test` | bool | `true` | `--test` | Run the package's test suite during the build; `false` exports `DEB_BUILD_OPTIONS=nocheck` so tests are skipped. |
-| `sign.source` | enum | `no` | `--sign` | Sign the resulting `.changes`/`.dsc`: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs (see below). |
+| `sign.source` | enum | `auto` | `--sign` | How to sign the resulting `.changes`/`.dsc`/`.buildinfo`: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs (see below). Whether a build signs at all is up to `build.sign_source`/`build.sign_binary`. |
 | `sign.key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
 | `sign.tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign.sign_command`). |
 | `sign.sign_command` | string | — | `--sign-command` | Custom signing command for `sign.tool = "custom"`, run without a shell with `{file}`/`{key}`/`{email}` placeholders; writes the clearsigned result to stdout. |
@@ -44,6 +44,8 @@ All keys are optional.
 | `clean` | bool | `false` | `--clean` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
 | `notify` | bool | `false` | `--notify` | Default for `build.notify`, `test.notify` and `sign.notify`. |
 | `build.notify` | bool | `notify` | `--notify` | Desktop notification via `notify-send` and terminal bell when a build finishes; a build that signs notifies once, when signing starts (see [Notifications](build.md#notifications)). |
+| `build.sign_source` | bool | `true` | `--sign` | Sign `build source` results without `--sign`, if a signing key is configured (see [Signing](build.md#signing)). |
+| `build.sign_binary` | bool | `false` | `--sign` | Sign `build binary` results without `--sign`, if a signing key is configured. |
 | `test.notify` | bool | `notify` | `--notify` | Desktop notification via `notify-send` and terminal bell when `debmagic test` finishes. |
 | `host_arch_variant` | string | — | `--host-arch-variant` | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
 | `upstream.signature_check` | bool | `true` | `--signature-check` | Verify the upstream tarball's PGP signature against `debian/upstream/signing-key.asc` during `upstream fetch`/`switch` (see [Upstream](upstream.md#signature-verification)). |
@@ -62,7 +64,7 @@ All keys are optional.
 
 | Key | Type | Default | CLI flag | Description |
 |---|---|---|---|---|
-| `source` | enum | `no` | `--sign` | Sign the source package (`.changes`/`.dsc`) after building: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs. |
+| `source` | enum | `auto` | `--sign` | How to sign after building: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs. Whether a build signs at all is up to `build.sign_source`/`build.sign_binary`. |
 | `key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
 | `tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg` (sequoia's `sq`) or `custom` (uses `sign_command`). |
 | `notify` | bool | top-level `notify` | `--notify` | Desktop notification via `notify-send` before signing. |
@@ -104,8 +106,10 @@ See [Uploading](upload.md) for target resolution, builtins and pre-upload checks
 build_debug_symbols = true
 clean = false
 
+[build]
+sign_binary = true  # source builds sign by default, binary builds don't
+
 [sign]
-source = true
 key = "you@example.com or gpg key id"
 notify = true
 

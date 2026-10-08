@@ -89,10 +89,8 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     if let Some(test) = input.test {
         config.run_test = test;
     }
-    if let Some(sign) = input.sign {
-        config.sign.source = sign;
-    }
     input.sign_overrides.apply(&mut config.sign);
+    config.sign.source = resolve_sign_mode(input.sign, &config, input.kind);
     config.override_notify(input.notify);
     if let Some(clean) = input.clean {
         config.clean = clean;
@@ -120,6 +118,26 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     })
 }
 
+/// How to sign a build of `kind`. `--sign` decides when given (so it signs
+/// even without a configured key); otherwise `build.sign_source` or
+/// `build.sign_binary` does, and only when a signing key is configured,
+/// since the key would otherwise be guessed from the maintainer address.
+/// The mode then comes from `sign.source`, where `no` still disables.
+fn resolve_sign_mode(cli: Option<SignMode>, config: &Config, kind: BuildKind) -> SignMode {
+    if let Some(mode) = cli {
+        return mode;
+    }
+    let by_default = match kind {
+        BuildKind::Source => config.build.sign_source,
+        BuildKind::Binary => config.build.sign_binary,
+    };
+    if by_default && config.sign.is_configured() {
+        config.sign.source
+    } else {
+        SignMode::No
+    }
+}
+
 /// CLI `--driver` wins; else the config's `driver.default`; source-only
 /// builds fall back to bare, since they need no build-deps or compilation.
 fn resolve_driver(
@@ -143,6 +161,7 @@ mod tests {
         DriverType, Persistence, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
         driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
     };
+    use test_case::test_case;
 
     fn asset_config() -> PathBuf {
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -300,6 +319,51 @@ mod tests {
             std::path::absolute(std::fs::canonicalize(&dir)?.join("build"))?
         );
         Ok(())
+    }
+
+    fn sign_test_config(key: bool, sign_source: bool, sign_binary: bool) -> Config {
+        let mut config = Config::default();
+        config.sign.key = key.then(|| "you@example.com".to_string());
+        config.build.sign_source = sign_source;
+        config.build.sign_binary = sign_binary;
+        config
+    }
+
+    #[test_case(BuildKind::Source, None, true, true, false, SignMode::Auto; "source builds sign by default")]
+    #[test_case(BuildKind::Binary, None, true, true, false, SignMode::No; "binary builds do not")]
+    #[test_case(BuildKind::Binary, Some(SignMode::Auto), true, true, false, SignMode::Auto; "--sign signs a binary build")]
+    #[test_case(BuildKind::Binary, Some(SignMode::Auto), false, true, false, SignMode::Auto; "--sign needs no configured key")]
+    #[test_case(BuildKind::Binary, Some(SignMode::Force), true, true, false, SignMode::Force; "--sign=force")]
+    #[test_case(BuildKind::Source, Some(SignMode::No), true, true, false, SignMode::No; "--sign=no")]
+    #[test_case(BuildKind::Source, None, false, true, false, SignMode::No; "no key, no default signing")]
+    #[test_case(BuildKind::Binary, None, true, true, true, SignMode::Auto; "build.sign_binary")]
+    #[test_case(BuildKind::Source, None, true, false, false, SignMode::No; "build.sign_source = false")]
+    fn resolve_sign_mode_by_kind(
+        kind: BuildKind,
+        cli: Option<SignMode>,
+        key: bool,
+        sign_source: bool,
+        sign_binary: bool,
+        expected: SignMode,
+    ) {
+        let config = sign_test_config(key, sign_source, sign_binary);
+        assert_eq!(resolve_sign_mode(cli, &config, kind), expected);
+    }
+
+    #[test]
+    fn resolve_sign_mode_uses_the_configured_mode() {
+        let mut config = sign_test_config(true, true, true);
+        config.sign.source = SignMode::Force;
+        assert_eq!(
+            resolve_sign_mode(None, &config, BuildKind::Binary),
+            SignMode::Force
+        );
+
+        config.sign.source = SignMode::No;
+        assert_eq!(
+            resolve_sign_mode(None, &config, BuildKind::Source),
+            SignMode::No
+        );
     }
 
     #[test]

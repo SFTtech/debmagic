@@ -259,12 +259,26 @@ pub struct Config {
 }
 
 /// `[build]` section: `debmagic build` behavior.
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(default)]
 pub struct BuildConfig {
     /// Desktop notification and terminal bell when the build finishes;
     /// the top-level `notify` when unset.
     pub notify: Option<bool>,
+    /// Sign source builds without `--sign`, when signing is configured.
+    pub sign_source: bool,
+    /// Sign binary builds without `--sign`, when signing is configured.
+    pub sign_binary: bool,
+}
+
+impl Default for BuildConfig {
+    fn default() -> Self {
+        Self {
+            notify: None,
+            sign_source: true,
+            sign_binary: false,
+        }
+    }
 }
 
 /// `[test]` section: `debmagic test` behavior.
@@ -346,6 +360,16 @@ pub struct SignConfig {
     /// so a hardware-key touch prompt isn't missed; the top-level `notify`
     /// when unset.
     pub notify: Option<bool>,
+}
+
+impl SignConfig {
+    /// Whether signing is set up explicitly: a key, or a custom command
+    /// that brings its own. Without either the key is guessed from the
+    /// `Changed-By:`/`Maintainer:` address, which is fine when asked for
+    /// with `--sign`, but not for signing by default.
+    pub fn is_configured(&self) -> bool {
+        self.key.is_some() || (self.tool == SignTool::Custom && self.sign_command.is_some())
+    }
 }
 
 impl Default for Config {
@@ -541,6 +565,43 @@ mod tests {
         assert_eq!(cfg.sign.sign_command.as_deref(), Some("gpg --foo"));
         assert_eq!(cfg.sign.notify, Some(true));
         Ok(())
+    }
+
+    #[test]
+    fn build_sign_defaults_survive_a_partial_section() -> Result<(), anyhow::Error> {
+        let defaults = Config::default();
+        assert!(defaults.build.sign_source && !defaults.build.sign_binary);
+
+        let dir =
+            std::env::temp_dir().join(format!("debmagic-test-build-sign-{}", std::process::id()));
+        std::fs::create_dir_all(&dir)?;
+        let file = dir.join("build.toml");
+        std::fs::write(&file, "[build]\nsign_binary = true\n")?;
+        let cfg = Config::new(&[ConfigPath::new(
+            ConfigLayer::Explicit,
+            file,
+            ConfigPathStatus::Used,
+        )])?;
+        std::fs::remove_dir_all(&dir).ok();
+        assert!(cfg.build.sign_source && cfg.build.sign_binary);
+        Ok(())
+    }
+
+    #[test]
+    fn sign_is_configured_by_a_key_or_a_custom_command() {
+        let mut sign = SignConfig::default();
+        assert!(!sign.is_configured());
+
+        sign.sign_command = Some("my-signer {file}".into());
+        assert!(!sign.is_configured(), "a command is ignored by gpg");
+        sign.tool = SignTool::Custom;
+        assert!(sign.is_configured());
+
+        let with_key = SignConfig {
+            key: Some("you@example.com".into()),
+            ..SignConfig::default()
+        };
+        assert!(with_key.is_configured());
     }
 
     #[test]

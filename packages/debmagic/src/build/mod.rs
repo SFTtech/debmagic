@@ -549,7 +549,7 @@ async fn build_and_upload(
 
     if let Some(spec) = &command.upload {
         let upload_target = crate::upload::resolve_target(spec, Some(&intent.config.upload))?;
-        crate::output::stage(&format!("Uploading to {}", upload_target.name));
+        crate::output::stage(&format!("Uploading to {spec}"));
         crate::upload::upload_changes(
             &upload_target,
             spec,

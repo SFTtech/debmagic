@@ -364,13 +364,41 @@ fn stage_from_cache(cached: &Path, output_dir: &Path) -> anyhow::Result<PathBuf>
     Ok(destination)
 }
 
-/// Hardlink `source` to `destination` when both are on the same
-/// filesystem, copy otherwise.
+/// Make `source` available at `destination`: a hardlink when both are on
+/// the same filesystem, a copy otherwise (a symlink would point at a
+/// host path that may not exist where the tarball is used).
+///
+/// A symlinked `source` is resolved first, as `link(2)` would hardlink
+/// the symlink itself, whose relative target dangles from any other
+/// directory. An existing `destination`, a dangling symlink included, is
+/// replaced instead of written through.
 pub fn link_or_copy(source: &Path, destination: &Path) -> anyhow::Result<()> {
-    if std::fs::hard_link(source, destination).is_ok() {
+    let source = source
+        .canonicalize()
+        .with_context(|| format!("failed to resolve {}", source.display()))?;
+    // nothing to do, and removing it would delete the source
+    let is_symlink = destination
+        .symlink_metadata()
+        .is_ok_and(|metadata| metadata.file_type().is_symlink());
+    if !is_symlink
+        && destination
+            .canonicalize()
+            .is_ok_and(|existing| existing == source)
+    {
         return Ok(());
     }
-    std::fs::copy(source, destination).with_context(|| {
+    match std::fs::remove_file(destination) {
+        Ok(()) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => {
+            return Err(error)
+                .with_context(|| format!("failed to remove {}", destination.display()));
+        }
+    }
+    if std::fs::hard_link(&source, destination).is_ok() {
+        return Ok(());
+    }
+    std::fs::copy(&source, destination).with_context(|| {
         format!(
             "failed to copy {} to {}",
             source.display(),
@@ -647,6 +675,64 @@ mod tests {
             std::fs::metadata(&cached).unwrap().ino(),
             std::fs::metadata(&staged).unwrap().ino()
         );
+        std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    #[test]
+    fn test_link_or_copy_resolves_a_relative_symlink_source() {
+        use std::os::unix::fs::MetadataExt;
+        let base =
+            std::env::temp_dir().join(format!("debmagic-orig-symlink-{}", std::process::id()));
+        let cache = base.join("pkg").join("cache");
+        let build = base.join("pkg").join("build");
+        std::fs::create_dir_all(&cache).unwrap();
+        std::fs::create_dir_all(&build).unwrap();
+        let real = cache.join("foo_1.0.orig.tar.xz");
+        std::fs::write(&real, "x").unwrap();
+        // like a tarball kept in `..` as a link into the git cache
+        let link = base.join("foo_1.0.orig.tar.xz");
+        std::os::unix::fs::symlink("pkg/cache/foo_1.0.orig.tar.xz", &link).unwrap();
+
+        let staged = build.join("foo_1.0.orig.tar.xz");
+        link_or_copy(&link, &staged).unwrap();
+        assert!(
+            !std::fs::symlink_metadata(&staged)
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
+        assert_eq!(
+            std::fs::metadata(&real).unwrap().ino(),
+            std::fs::metadata(&staged).unwrap().ino()
+        );
+        std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    #[test]
+    fn test_link_or_copy_replaces_the_destination() {
+        let base =
+            std::env::temp_dir().join(format!("debmagic-orig-replace-{}", std::process::id()));
+        let out = base.join("out");
+        std::fs::create_dir_all(&out).unwrap();
+        let source = base.join("foo_1.0.orig.tar.xz");
+        std::fs::write(&source, "new").unwrap();
+        let destination = out.join("foo_1.0.orig.tar.xz");
+
+        // a stale file
+        std::fs::write(&destination, "old").unwrap();
+        link_or_copy(&source, &destination).unwrap();
+        assert_eq!(std::fs::read_to_string(&destination).unwrap(), "new");
+
+        // a dangling link must not be written through
+        std::fs::remove_file(&destination).unwrap();
+        std::os::unix::fs::symlink("missing/dir/file", &destination).unwrap();
+        link_or_copy(&source, &destination).unwrap();
+        assert_eq!(std::fs::read_to_string(&destination).unwrap(), "new");
+        assert!(!out.join("missing").exists());
+
+        // the source itself stays intact when it already is the destination
+        link_or_copy(&source, &source).unwrap();
+        assert_eq!(std::fs::read_to_string(&source).unwrap(), "new");
         std::fs::remove_dir_all(&base).unwrap();
     }
 

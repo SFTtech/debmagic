@@ -346,7 +346,8 @@ fn remove_existing(
 ) -> anyhow::Result<()> {
     for filename in orig_filenames(name, orig_version, component) {
         let path = output_dir.join(filename);
-        if path.is_file() {
+        // a dangling symlink is leftover too
+        if path.symlink_metadata().is_ok() {
             std::fs::remove_file(&path)
                 .with_context(|| format!("failed to remove {}", path.display()))?;
         }

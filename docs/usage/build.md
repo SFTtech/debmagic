@@ -99,9 +99,18 @@ Before building, `debmagic` stages the source tree into the build environment.
 | `worktree` | everything that isn't git-ignored, tracked or not | |
 
 If the source directory is not a git worktree, `tracked` and `committed` fall back to `worktree` with a warning.
+The [output dir](#output-dir) is never staged.
 Git submodules are skipped with a note, since their contents aren't tracked by the parent repository.
 
 To persist a mode, set `source_sync_mode = "committed"` in [`debmagic.toml`](config.md).
+
+## Output dir
+
+Build artifacts land in `build/` under the package root (`output_dir`, `-o`).
+debmagic marks the output dirs it creates with a [`CACHEDIR.TAG`](https://bford.info/cachedir/), so backup tools skip them.
+The tag also tells debmagic's `build/` apart from one an upstream project ships: an existing `build/` without the tag that holds more than build artifacts belongs to upstream.
+debmagic then uses `build-debmagic/` instead (`output_dir_fallback`), or stops with `output_dir_clash = "fail"`.
+`-o` is always used as given.
 
 ## Repeating a build
 

@@ -31,7 +31,9 @@ All keys are optional.
 | `driver.lxd.project` | string | — | — | LXD/Incus project to use. |
 | `driver.lxd.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"`. Falls back to the driver's default remote image. Same custom-suite registry role as Docker's map for LXD/Incus. |
 | `environments_dir` | path | `$XDG_DATA_HOME/debmagic/environments` | — | Parent directory of Environment Host roots. Must be absolute or start with `~/`. The Environment registry is always `$XDG_DATA_HOME/debmagic/db.sqlite` (override both with `DEBMAGIC_DATA_DIR`). |
-| `output_dir` | path | `build` | `-o`/`--output-dir` | Where build artifacts are exported; relative paths resolve against the package root. |
+| `output_dir` | path | `build` | `-o`/`--output-dir` | Where build artifacts are exported; relative paths resolve against the package root. See [Output dir](build.md#output-dir). |
+| `output_dir_fallback` | path | `build-debmagic` | — | Used instead of `output_dir` when upstream owns that directory. |
+| `output_dir_clash` | enum | `fallback` | — | When upstream owns `output_dir`: `fallback` uses `output_dir_fallback`, `fail` stops. |
 | `incremental` | bool | `false` | `--incremental` | Retain the environment and sync only source changes, preserving generated files. Forces Persistence `always`; incompatible with `clean`. |
 | `source_sync_mode` | enum | `tracked` | `--source-sync` | Which source files are staged (see below). |
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |

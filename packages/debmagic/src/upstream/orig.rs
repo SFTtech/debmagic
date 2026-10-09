@@ -94,16 +94,34 @@ fn substitute_placeholders(
     )
 }
 
+/// The download cache: `<cache>/debmagic/orig/`.
+fn cache_root() -> Option<PathBuf> {
+    dirs::cache_dir().map(|cache| cache.join("debmagic").join("orig"))
+}
+
 /// The download cache dir for one package version:
 /// `<cache>/debmagic/orig/<name>/<upstream_version>/`.
 fn cache_dir(name: &str, upstream_version: &str) -> Option<PathBuf> {
-    dirs::cache_dir().map(|cache| {
-        cache
-            .join("debmagic")
-            .join("orig")
-            .join(name)
-            .join(upstream_version)
-    })
+    cache_root().map(|root| root.join(name).join(upstream_version))
+}
+
+/// Copy a downloaded tarball into its cache dir. A failing cache must
+/// never fail the build, so errors are only reported.
+fn populate_cache(cache_dir: &Path, orig_path: &Path) {
+    let result = std::fs::create_dir_all(cache_dir)
+        .and_then(|()| match cache_root() {
+            Some(root) => crate::output_dir::tag(&root, "debmagic orig tarball download cache."),
+            None => Ok(()),
+        })
+        .and_then(|()| {
+            std::fs::copy(
+                orig_path,
+                cache_dir.join(orig_path.file_name().unwrap_or_default()),
+            )
+        });
+    if let Err(error) = result {
+        println!("debmagic: populating the orig cache failed: {error}");
+    }
 }
 
 /// Fetch the `orig` tarball for `package` into `output_dir`, unless a
@@ -343,13 +361,7 @@ async fn fetch_from_distro_archive(
         .with_context(|| format!("downloading {orig_name} failed"))?;
 
     if let Some(cache_dir) = &cache {
-        let cached = cache_dir.join(orig_name);
-        if let Err(error) =
-            std::fs::create_dir_all(cache_dir).and_then(|()| std::fs::copy(&orig_path, &cached))
-        {
-            // a failing cache must never fail the build
-            println!("debmagic: populating the orig cache failed: {error}");
-        }
+        populate_cache(cache_dir, &orig_path);
     }
 
     Ok(Some(orig_path))
@@ -488,13 +500,7 @@ async fn fetch_from_pool(
         }
 
         if let Some(cache_dir) = &cache {
-            let cached = cache_dir.join(&orig_name);
-            if let Err(error) =
-                std::fs::create_dir_all(cache_dir).and_then(|()| std::fs::copy(&orig_path, &cached))
-            {
-                // a failing cache must never fail the build
-                println!("debmagic: populating the orig cache failed: {error}");
-            }
+            populate_cache(cache_dir, &orig_path);
         }
 
         return Ok(Some(orig_path));

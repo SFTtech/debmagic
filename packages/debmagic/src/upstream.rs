@@ -111,12 +111,13 @@ async fn run_fetch(command: UpstreamFetchCommand, switch_tree: bool) -> anyhow::
     if let Some(verify_command) = command.verify_command {
         config.sign.verify_command = Some(verify_command);
     }
-    let output_dir = std::path::absolute(
-        command
-            .output_dir
-            .unwrap_or_else(|| source_dir.join(&config.output_dir)),
-    )
-    .context("resolving the output dir failed")?;
+    let output_dir =
+        crate::output_dir::resolve(&source_dir, &config, command.output_dir.as_deref())?;
+    let output_dir_fallback =
+        crate::output_dir::switch_fallback(&source_dir, &config, command.output_dir.as_deref())?;
+    if !command.dry_run {
+        crate::output_dir::create(&output_dir)?;
+    }
     let options = fetch::FetchOptions {
         from: command.from,
         orig_tarball: &config.orig_tarball,
@@ -126,6 +127,7 @@ async fn run_fetch(command: UpstreamFetchCommand, switch_tree: bool) -> anyhow::
             .unwrap_or(config.upstream.signature_check),
         sign: &config.sign,
         output_dir: &output_dir,
+        output_dir_fallback: output_dir_fallback.as_deref(),
         force: command.force,
         dry_run: command.dry_run,
     };
@@ -144,26 +146,35 @@ async fn run_fetch(command: UpstreamFetchCommand, switch_tree: bool) -> anyhow::
         .version
         .unwrap_or_else(|| package.version().upstream_version().to_string());
 
-    let run = async |source: &watch::WatchSource, version: &str| {
+    let run = async |source: &watch::WatchSource, version: &str, options: &fetch::FetchOptions| {
         let what = match &source.component {
             Some(component) => format!("component {component} of {}", package.name()),
             None => package.name().to_string(),
         };
         let result = if switch_tree {
-            switch::switch(&package, source, version, &options, &components).await
+            switch::switch(&package, source, version, options, &components).await
         } else {
-            fetch::fetch(&package, source, version, &options).await
+            fetch::fetch(&package, source, version, options).await
         };
         result.with_context(|| format!("fetching {what} {version} failed"))
     };
 
-    let main = run(main_source, &requested).await?;
+    let main = run(main_source, &requested, &options).await?;
+    // the switch may have moved the output dir aside for upstream's
+    let output_dir = match main.tarball.parent() {
+        Some(dir) if !command.dry_run => dir.to_path_buf(),
+        _ => output_dir.clone(),
+    };
+    let options = fetch::FetchOptions {
+        output_dir: &output_dir,
+        ..options
+    };
     // MUT: the components follow the main tarball's version
     for source in &sources {
         if source.untrackable.is_some() || source.component.is_none() {
             continue;
         }
-        run(source, &main.upstream_version).await?;
+        run(source, &main.upstream_version, &options).await?;
     }
     Ok(())
 }

@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
 use crate::driver::config::DriverConfig;
+use crate::output_dir::OutputDirClash;
 use crate::sign::{SignMode, SignTool};
 use crate::upload::UploadConfig;
 use crate::upstream::orig::OrigTarballConfig;
@@ -226,6 +227,10 @@ pub struct Config {
     /// Where build artifacts are exported; relative paths resolve against
     /// the package root.
     pub output_dir: PathBuf,
+    /// Used instead of `output_dir` when that holds upstream's files.
+    pub output_dir_fallback: PathBuf,
+    /// How to handle an output dir clash with upstream's files.
+    pub output_dir_clash: OutputDirClash,
     pub incremental: bool,
     /// Which source files are staged into the build tree.
     pub source_sync_mode: SourceSyncMode,
@@ -378,6 +383,8 @@ impl Default for Config {
             driver: DriverConfig::default(),
             environments_dir: crate::data_dir::default_environments_dir(),
             output_dir: PathBuf::from("build"),
+            output_dir_fallback: PathBuf::from("build-debmagic"),
+            output_dir_clash: OutputDirClash::default(),
             incremental: false,
             source_sync_mode: SourceSyncMode::default(),
             build_debug_symbols: false,

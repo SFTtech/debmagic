@@ -196,6 +196,34 @@ fn source_tree_entries(src: &Path, mode: SourceSyncMode) -> anyhow::Result<Vec<S
     }
 }
 
+/// `output_dir` relative to `src`, when it lies inside it and is debmagic's.
+fn owned_output_dir(src: &Path, output_dir: &Path) -> Option<PathBuf> {
+    output_dir
+        .strip_prefix(src)
+        .ok()
+        .filter(|relative| {
+            !relative.as_os_str().is_empty() && crate::output_dir::is_tagged(output_dir)
+        })
+        .map(Path::to_path_buf)
+}
+
+/// The entries to stage: the sync mode's selection, minus debmagic's
+/// output dir.
+fn staged_entries(
+    src: &Path,
+    mode: SourceSyncMode,
+    output_dir: &Path,
+) -> anyhow::Result<Vec<SourcePath>> {
+    let entries = source_tree_entries(src, mode)?;
+    let Some(output) = owned_output_dir(src, output_dir) else {
+        return Ok(entries);
+    };
+    Ok(entries
+        .into_iter()
+        .filter(|entry| !entry.path.starts_with(&output))
+        .collect())
+}
+
 fn entry_kind(path: &Path) -> anyhow::Result<SourcePathKind> {
     let metadata = fs::symlink_metadata(path)
         .with_context(|| format!("failed to stat source path {}", path.display()))?;
@@ -420,6 +448,7 @@ fn sync_source_tree(
     kind: BuildKind,
     source_dir: &Path,
     source_sync_mode: SourceSyncMode,
+    output_dir: &Path,
 ) -> anyhow::Result<()> {
     let manifest_path = source_manifest_path(environment, kind);
     let previous: Vec<SourcePath> = serde_json::from_reader(BufReader::new(
@@ -430,7 +459,7 @@ fn sync_source_tree(
     for entry in &previous {
         validate_source_path(&entry.path)?;
     }
-    let current = source_tree_entries(source_dir, source_sync_mode)?;
+    let current = staged_entries(source_dir, source_sync_mode, output_dir)?;
 
     let current_kinds = current
         .iter()
@@ -470,10 +499,20 @@ pub fn stage_source_tree(
     package: &SourcePackage,
     source_sync_mode: SourceSyncMode,
     incremental: bool,
+    output_dir: &Path,
 ) -> anyhow::Result<()> {
     let source_dir = package.source_dir()?;
     if source_sync_mode == SourceSyncMode::Tracked {
-        let untracked = git_untracked_paths(source_dir);
+        // the artifacts of earlier builds are not the user's to `git add`
+        let output = owned_output_dir(source_dir, output_dir);
+        let untracked: Vec<PathBuf> = git_untracked_paths(source_dir)
+            .into_iter()
+            .filter(|path| {
+                output
+                    .as_ref()
+                    .is_none_or(|output| !path.starts_with(output))
+            })
+            .collect();
         if !untracked.is_empty() {
             eprintln!(
                 "debmagic: warning: {} untracked file(s) not staged into the build tree:",
@@ -489,10 +528,10 @@ pub fn stage_source_tree(
         }
     }
     if incremental && source_manifest_path(environment, kind).is_file() {
-        sync_source_tree(environment, kind, source_dir, source_sync_mode)
+        sync_source_tree(environment, kind, source_dir, source_sync_mode, output_dir)
             .context("failed to synchronize source tree")?;
     } else {
-        let entries = source_tree_entries(source_dir, source_sync_mode)?;
+        let entries = staged_entries(source_dir, source_sync_mode, output_dir)?;
         copy_source_entries(source_dir, &stage_dir(environment, kind), &entries)
             .context("failed to copy source tree to build directory")?;
         write_source_manifest(environment, kind, &entries)?;
@@ -581,6 +620,7 @@ mod tests {
             BuildKind::Binary,
             &source_dir,
             SourceSyncMode::Worktree,
+            &source_dir.join("build"),
         )?;
 
         let staged = stage_dir(&environment, BuildKind::Binary);
@@ -683,6 +723,7 @@ mod tests {
             &package,
             SourceSyncMode::Worktree,
             false,
+            &source_dir.join("build"),
         )?;
         fs::write(
             stage_dir(&environment, BuildKind::Binary).join("compiled.o"),
@@ -698,6 +739,7 @@ mod tests {
             &package,
             SourceSyncMode::Worktree,
             false,
+            &source_dir.join("build"),
         )?;
         assert!(
             stage_dir(&environment, BuildKind::Source)
@@ -718,6 +760,7 @@ mod tests {
             &package,
             SourceSyncMode::Worktree,
             true,
+            &source_dir.join("build"),
         )?;
         assert_eq!(
             fs::read_to_string(stage_dir(&environment, BuildKind::Source).join("README"))?,
@@ -798,6 +841,32 @@ mod tests {
         assert_eq!(git_untracked_paths(&repo).len(), 2);
 
         fs::remove_dir_all(repo)?;
+        Ok(())
+    }
+
+    #[test]
+    fn staging_skips_the_tagged_output_dir_only() -> anyhow::Result<()> {
+        let dir = std::env::temp_dir().join(format!("debmagic-output-{}", uuid::Uuid::new_v4()));
+        // upstream's build/ next to debmagic's output dir
+        fs::create_dir_all(dir.join("build"))?;
+        fs::write(dir.join("build/config.sub"), "upstream")?;
+        crate::output_dir::create(&dir.join("build-debmagic"))?;
+        fs::write(dir.join("build-debmagic/pkg_1.0_amd64.deb"), "artifact")?;
+
+        let entries = staged_entries(&dir, SourceSyncMode::Worktree, &dir.join("build-debmagic"))?;
+        let paths: Vec<&Path> = entries.iter().map(|e| e.path.as_path()).collect();
+        assert!(paths.contains(&Path::new("build/config.sub")));
+        assert!(!paths.iter().any(|path| path.starts_with("build-debmagic")));
+
+        // -o pointing at upstream's untagged dir stages it
+        let entries = staged_entries(&dir, SourceSyncMode::Worktree, &dir.join("build"))?;
+        assert!(
+            entries
+                .iter()
+                .any(|e| e.path == Path::new("build/config.sub"))
+        );
+
+        fs::remove_dir_all(dir)?;
         Ok(())
     }
 

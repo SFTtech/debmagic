@@ -1,6 +1,6 @@
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
-use anyhow::Context;
+use anyhow::{Context, bail};
 use debmagic_common::package::SourcePackage;
 
 use crate::upstream::fetch::{FetchOptions, Fetched, extract_tarball, fetch};
@@ -19,7 +19,7 @@ pub async fn switch(
     components: &[String],
 ) -> anyhow::Result<Fetched> {
     let source_dir = package.source_dir()?;
-    let fetched = fetch(package, source, requested, options).await?;
+    let mut fetched = fetch(package, source, requested, options).await?;
     let target_dir = match &source.component {
         Some(component) => source_dir.join(component),
         None => source_dir.to_path_buf(),
@@ -49,19 +49,24 @@ pub async fn switch(
                 .map(|component| source_dir.join(component))
                 .collect(),
         };
-        keep.push(options.output_dir.to_path_buf());
+        let output_dir = make_room_for_upstream(&target_dir, &extract_dir, options)?;
+        keep.push(output_dir.clone());
         std::fs::create_dir_all(&target_dir)
             .with_context(|| format!("failed to create {}", target_dir.display()))?;
-        swap_tree(&target_dir, &extract_dir, &keep, source.component.is_none())
+        swap_tree(&target_dir, &extract_dir, &keep, source.component.is_none())?;
+        Ok(output_dir)
     });
     std::fs::remove_dir_all(&work_dir).ok();
-    swapped.with_context(|| {
+    let output_dir = swapped.with_context(|| {
         format!(
             "replacing {} with {} failed",
             target_dir.display(),
             fetched.tarball.display()
         )
     })?;
+    if let Ok(relative) = fetched.tarball.strip_prefix(options.output_dir) {
+        fetched.tarball = output_dir.join(relative);
+    }
     println!(
         "debmagic: switched {} to upstream {} (orig: {})",
         target_dir.display(),
@@ -69,6 +74,56 @@ pub async fn switch(
         fetched.tarball.display()
     );
     Ok(fetched)
+}
+
+/// The output dir the swap must keep. When the tarball ships the top-level
+/// entry holding it, the swap would merge upstream's files into the
+/// artifacts: a debmagic-owned output dir moves to the fallback, anything
+/// else fails.
+fn make_room_for_upstream(
+    target_dir: &Path,
+    extract_dir: &Path,
+    options: &FetchOptions,
+) -> anyhow::Result<PathBuf> {
+    let output_dir = options.output_dir;
+    let Ok(relative) = output_dir.strip_prefix(target_dir) else {
+        return Ok(output_dir.to_path_buf());
+    };
+    let Some(Component::Normal(top)) = relative.components().next() else {
+        return Ok(output_dir.to_path_buf());
+    };
+    if std::fs::symlink_metadata(extract_dir.join(top)).is_err() {
+        return Ok(output_dir.to_path_buf());
+    }
+    if let Some(fallback) = options.output_dir_fallback
+        && target_dir.join(top) == output_dir
+        && crate::output_dir::is_tagged(output_dir)
+        && std::fs::symlink_metadata(fallback).is_err()
+        && extract_dir
+            .join(fallback.strip_prefix(target_dir).unwrap_or(fallback))
+            .symlink_metadata()
+            .is_err()
+    {
+        std::fs::rename(output_dir, fallback).with_context(|| {
+            format!(
+                "failed to move {} to {}",
+                output_dir.display(),
+                fallback.display()
+            )
+        })?;
+        println!(
+            "debmagic: upstream ships its own {}, moved the output dir to {}",
+            top.to_string_lossy(),
+            fallback.display()
+        );
+        return Ok(fallback.to_path_buf());
+    }
+    bail!(
+        "the upstream tarball ships its own {}, which holds the output dir {}; \
+         set `output_dir` or pass `-o` to use another directory",
+        top.to_string_lossy(),
+        output_dir.display()
+    );
 }
 
 /// Move one entry, falling back to copy+remove when a rename crosses
@@ -184,6 +239,63 @@ fn swap_tree(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use test_case::test_case;
+
+    #[test_case("build", &["build"], true, true, Some("build-debmagic"); "own output dir moves aside")]
+    #[test_case("build", &["build"], false, true, None; "untagged output dir")]
+    #[test_case("build", &["build"], true, false, None; "clash configured to fail")]
+    #[test_case("build", &["build", "build-debmagic"], true, true, None; "fallback shipped too")]
+    #[test_case("build/out", &["build"], true, true, None; "output dir below a shipped dir")]
+    #[test_case("build", &["src"], true, true, Some("build"); "output dir not shipped")]
+    #[test_case("/elsewhere/out", &["build"], false, false, Some("/elsewhere/out"); "output dir outside the tree")]
+    #[test_case("..", &["build"], false, false, Some(".."); "output dir is the parent")]
+    fn test_make_room_for_upstream(
+        output_dir: &str,
+        shipped: &[&str],
+        tagged: bool,
+        fallback: bool,
+        expected: Option<&str>,
+    ) {
+        let base = std::env::temp_dir().join(format!("debmagic-clash-{}", uuid::Uuid::new_v4()));
+        let target_dir = base.join("pkg");
+        let extract_dir = base.join("tree");
+        let output_dir = target_dir.join(output_dir);
+        std::fs::create_dir_all(&target_dir).unwrap();
+        if tagged {
+            crate::output_dir::create(&output_dir).unwrap();
+        }
+        for name in shipped {
+            std::fs::create_dir_all(extract_dir.join(name)).unwrap();
+        }
+        let orig_tarball = crate::upstream::orig::OrigTarballConfig::default();
+        let sign = crate::config::SignConfig::default();
+        let fallback_dir = target_dir.join("build-debmagic");
+        let options = FetchOptions {
+            from: crate::upstream::fetch::FetchFrom::Upstream,
+            orig_tarball: &orig_tarball,
+            repack: false,
+            signature_check: false,
+            sign: &sign,
+            output_dir: &output_dir,
+            output_dir_fallback: fallback.then_some(fallback_dir.as_path()),
+            force: false,
+            dry_run: false,
+        };
+
+        let result = make_room_for_upstream(&target_dir, &extract_dir, &options);
+
+        match expected {
+            Some(expected) => {
+                let kept = result.unwrap();
+                assert_eq!(kept, target_dir.join(expected));
+                if tagged {
+                    assert!(crate::output_dir::is_tagged(&kept));
+                }
+            }
+            None => assert!(result.is_err()),
+        }
+        std::fs::remove_dir_all(&base).unwrap();
+    }
 
     #[test]
     fn test_extract_and_swap() {

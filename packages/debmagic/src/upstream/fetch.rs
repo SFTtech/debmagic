@@ -59,6 +59,8 @@ pub struct FetchOptions<'a> {
     pub signature_check: bool,
     pub sign: &'a SignConfig,
     pub output_dir: &'a Path,
+    /// If upstream ships the output dir, use this instead (`None` fails)
+    pub output_dir_fallback: Option<&'a Path>,
     /// Replace an existing orig tarball instead of keeping it.
     pub force: bool,
     /// Only report what would happen.
@@ -802,6 +804,7 @@ mod tests {
             signature_check: false,
             sign: &sign,
             output_dir: &output_dir,
+            output_dir_fallback: None,
             force: false,
             dry_run: false,
         };

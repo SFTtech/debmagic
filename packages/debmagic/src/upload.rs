@@ -101,8 +101,7 @@ pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
     let changes_file = match &input.changes {
         Some(file) => std::path::absolute(file).context("resolving the changes file failed")?,
         None => {
-            let output_dir = std::path::absolute(source_dir.join(&config.output_dir))
-                .context("resolving output dir failed")?;
+            let output_dir = crate::output_dir::resolve(&source_dir, &config, None)?;
             crate::sign::find_changes_file(
                 identity.name(),
                 &identity.version().to_string(),

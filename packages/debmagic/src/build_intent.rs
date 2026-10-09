@@ -68,12 +68,7 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
 
     let driver = resolve_driver(input.driver, config.driver.default, input.kind)?;
 
-    // CLI -o wins; else the config value, relative to the package root.
-    let output_dir = match input.output_dir {
-        Some(dir) => std::path::absolute(dir).context("resolving output dir failed")?,
-        None => std::path::absolute(source_dir.join(&config.output_dir))
-            .context("resolving output dir failed")?,
-    };
+    let output_dir = crate::output_dir::resolve(&source_dir, &config, input.output_dir.as_deref())?;
 
     if let Some(persistent) = input.persistent {
         config.driver.persistent = persistent;

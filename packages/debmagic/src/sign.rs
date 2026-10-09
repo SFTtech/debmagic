@@ -500,12 +500,8 @@ pub fn sign(input: SignIntent) -> anyhow::Result<()> {
         Some(file) => std::path::absolute(file).context("resolving the file to sign failed")?,
         None => {
             let identity = crate::package::load_package(&source_dir)?;
-            // -o wins; else the config value, relative to the package root.
-            let output_dir = match &input.output_dir {
-                Some(dir) => std::path::absolute(dir).context("resolving output dir failed")?,
-                None => std::path::absolute(source_dir.join(&config.output_dir))
-                    .context("resolving output dir failed")?,
-            };
+            let output_dir =
+                crate::output_dir::resolve(&source_dir, &config, input.output_dir.as_deref())?;
             find_changes_file(
                 identity.name(),
                 &identity.version().to_string(),

@@ -297,6 +297,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
                 &package,
                 intent.config.source_sync_mode,
                 false,
+                &crate::output_dir::resolve(&intent.source_dir, &intent.config, None)?,
             )?;
             copy_changes_artifacts(&changes_path, &environment.work_dir())
         },

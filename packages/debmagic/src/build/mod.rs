@@ -1,5 +1,5 @@
 use std::{
-    fs, io,
+    io,
     path::Path,
     process::{Command, Stdio},
 };
@@ -144,7 +144,7 @@ async fn run_build(
         &request.intent.driver_overrides,
         planned.root_policy,
         |environment, driver| {
-            fs::create_dir_all(&request.intent.output_dir)
+            crate::output_dir::create(&request.intent.output_dir)
                 .context("failed to create output directory")?;
             if planned.incremental
                 && let Some(driver) = driver
@@ -158,6 +158,7 @@ async fn run_build(
                 package,
                 request.intent.config.source_sync_mode,
                 request.intent.config.incremental,
+                &request.intent.output_dir,
             )
         },
         InvocationKind::Build(build_kind),
@@ -350,6 +351,7 @@ pub async fn build_source_package(
     // artifacts land anyway, so fetch into it and stage from there.
     let name = target.package.name();
     let upstream_version = target.package.version().upstream_version();
+    crate::output_dir::create(&intent.output_dir)?;
     let orig_tarball = crate::upstream::orig::fetch_orig_tarball(
         &intent.config.orig_tarball,
         &target.package,

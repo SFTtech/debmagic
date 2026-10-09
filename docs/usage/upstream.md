@@ -46,6 +46,9 @@ Distro tarballs are never repacked: the archive already holds them.
 Fetches the chosen version's orig tarball exactly like `upstream fetch` — with the same options — and replaces the source tree's contents with it, everything except `debian/`, which is kept as-is.
 The changelog is not touched; add the new version entry with [`debmagic changelog new`](changelog.md).
 
+The output dir (`build/` by default) is kept across the switch.
+If the new version starts shipping a directory of that name — autotools projects sometimes do — the output dir moves to `build-debmagic/` (see [Output dir](build.md#output-dir)); with `output_dir_clash = "fail"` or `-o`, the switch stops before changing anything.
+
 For a concrete version, the tarball URL is resolved without scraping the download listing:
 
 1. the distro archives (with `--from auto`) — a version Debian or Ubuntu published needs no upstream download at all

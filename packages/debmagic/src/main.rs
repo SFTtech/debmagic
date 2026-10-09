@@ -19,6 +19,7 @@ pub mod driver;
 pub mod env;
 pub mod environment;
 pub mod output;
+pub mod output_dir;
 pub mod package;
 pub mod requests;
 pub mod sign;

@@ -12,7 +12,7 @@ pub fn find_orig_in_dir(
     upstream_version: &str,
     component: Option<&str>,
 ) -> Option<PathBuf> {
-    debmagic_common::changes::orig_filenames(name, upstream_version, component)
+    debmagic_common::artifact::orig_filenames(name, upstream_version, component)
         .into_iter()
         .map(|filename| dir.join(filename))
         .find(|path| path.is_file())

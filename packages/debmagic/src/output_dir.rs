@@ -132,7 +132,7 @@ fn is_foreign(dir: &Path) -> anyhow::Result<bool> {
         let entry = entry.with_context(|| format!("failed to read {}", dir.display()))?;
         let is_dir = entry.file_type().is_ok_and(|kind| kind.is_dir());
         let name = entry.file_name();
-        if is_dir || !debmagic_common::changes::is_artifact_filename(&name.to_string_lossy()) {
+        if is_dir || !debmagic_common::artifact::is_artifact_filename(&name.to_string_lossy()) {
             return Ok(true);
         }
     }

@@ -69,7 +69,7 @@ pub fn changes_include_orig(
             .flatten()
         {
             let name = entry.file_name().to_string_lossy().into_owned();
-            if debmagic_common::changes::is_orig_tarball(&name)
+            if debmagic_common::artifact::is_orig_tarball(&name)
                 && name.contains(".orig-")
                 && name.starts_with(&format!(
                     "{}_{}.",

@@ -118,8 +118,8 @@ impl ConfigPath {
 
 /// Config file that `set` should target, selected from the candidate
 /// locations: the explicit `-c` file, else with `global` the user-global
-/// config file (created on demand), else the project `debian/debmagic.toml`
-/// if it exists, else the user-global config file.
+/// config file, else the project `debian/debmagic.toml`. The global and
+/// project files are created on demand.
 pub fn resolve_set_target(
     source_dir: Option<&Path>,
     config_file: Option<&Path>,
@@ -131,21 +131,18 @@ pub fn resolve_set_target(
         return Ok(explicit.clone());
     }
 
-    if !global
-        && let Some(project) = paths
-            .iter()
-            .find(|p| p.layer == ConfigLayer::Project && p.is_used())
-    {
-        return Ok(project.clone());
-    }
-
-    let global_config = paths
+    let layer = if global {
+        ConfigLayer::Global
+    } else {
+        ConfigLayer::Project
+    };
+    let target = paths
         .iter()
-        .find(|p| p.layer == ConfigLayer::Global)
-        .context("the user-global config location is unknown")?;
+        .find(|p| p.layer == layer)
+        .with_context(|| format!("the {layer:?} config location is unknown"))?;
     Ok(ConfigPath::new(
-        ConfigLayer::Global,
-        global_config.path.clone(),
+        layer,
+        target.path.clone(),
         ConfigPathStatus::Used,
     ))
 }
@@ -532,6 +529,17 @@ mod tests {
             home.join("envs")
         );
         assert!(resolve_environments_dir(Path::new("envs")).is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn set_targets_the_project_config_unless_global() -> anyhow::Result<()> {
+        let source_dir = Path::new("/src/pkg");
+        let target = resolve_set_target(Some(source_dir), None, false)?;
+        assert_eq!(target.layer, ConfigLayer::Project);
+        assert_eq!(target.path, source_dir.join("debian/debmagic.toml"));
+        let target = resolve_set_target(Some(source_dir), None, true)?;
+        assert_eq!(target.layer, ConfigLayer::Global);
         Ok(())
     }
 

@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, bail};
 use clap::ValueEnum;
-use debmagic_common::changes::{component_orig_prefix, orig_filenames, orig_prefix};
+use debmagic_common::artifact::{component_orig_prefix, orig_filenames, orig_prefix};
 use debmagic_common::package::SourcePackage;
 
 use crate::changes::find_orig_in_dir;

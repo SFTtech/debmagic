@@ -545,11 +545,14 @@ pub fn stage_source_tree(
     // wildcard for "any compression" is added here
     let orig_pattern = format!(
         "{}*",
-        debmagic_common::changes::orig_prefix(package.name(), package.version().upstream_version())
+        debmagic_common::artifact::orig_prefix(
+            package.name(),
+            package.version().upstream_version()
+        )
     );
     let component_pattern = format!(
         "{}*",
-        debmagic_common::changes::component_orig_prefix(
+        debmagic_common::artifact::component_orig_prefix(
             package.name(),
             package.version().upstream_version(),
             "*"

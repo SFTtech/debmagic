@@ -7,7 +7,7 @@ use std::{
 use crate::build_intent::BuildKind;
 use crate::upstream::orig::link_or_copy;
 use anyhow::{Context, anyhow, bail};
-use debmagic_common::changes::is_source_changes;
+use debmagic_common::artifact::is_source_changes;
 
 /// Locate the `.changes` file a build of `kind` produced in a build work
 /// directory. dpkg names source-only uploads `<pkg>_<version>_source.changes`

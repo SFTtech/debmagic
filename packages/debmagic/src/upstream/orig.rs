@@ -317,7 +317,7 @@ async fn launchpad_orig_url(
     component: Option<&str>,
 ) -> Option<String> {
     let base = format!("https://launchpad.net/{distro}/+archive/primary/+files/");
-    for filename in debmagic_common::changes::orig_filenames(name, upstream_version, component) {
+    for filename in debmagic_common::artifact::orig_filenames(name, upstream_version, component) {
         let url = format!("{base}{filename}");
         if crate::requests::http_exists(&url).await {
             return Some(url);
@@ -452,13 +452,13 @@ async fn fetch_from_pool(
     // the pool holds origs of many versions; the filename must carry
     // the wanted one
     let orig_prefix = match component {
-        None => debmagic_common::changes::orig_prefix(name, upstream_version),
+        None => debmagic_common::artifact::orig_prefix(name, upstream_version),
         Some(component) => {
-            debmagic_common::changes::component_orig_prefix(name, upstream_version, component)
+            debmagic_common::artifact::component_orig_prefix(name, upstream_version, component)
         }
     };
     let wanted = |filename: &str| -> bool {
-        filename.starts_with(&orig_prefix) && debmagic_common::changes::is_orig_tarball(filename)
+        filename.starts_with(&orig_prefix) && debmagic_common::artifact::is_orig_tarball(filename)
     };
 
     for section in sections {

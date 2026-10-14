@@ -5,6 +5,7 @@ use std::{
 };
 
 use crate::build_intent::BuildKind;
+use crate::upstream::orig::link_or_copy;
 use anyhow::{Context, anyhow, bail};
 use debmagic_common::changes::is_source_changes;
 
@@ -169,8 +170,8 @@ pub fn copy_changes_artifacts(changes_path: &Path, dest_dir: &Path) -> anyhow::R
         }
         let destination = dest_dir.join(filename);
         reject_destination_symlink(&destination)?;
-        fs::copy(&source, destination)
-            .with_context(|| format!("failed to copy build artifact {}", source.display()))?;
+        link_or_copy(&source, &destination)
+            .with_context(|| format!("failed to stage build artifact {}", source.display()))?;
     }
 
     let changes_filename = changes_path

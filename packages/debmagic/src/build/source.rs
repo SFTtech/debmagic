@@ -20,6 +20,7 @@ use clap::ValueEnum;
 
 use crate::build_intent::BuildKind;
 use crate::driver::Environment;
+use crate::upstream::orig::link_or_copy;
 use debmagic_common::package::SourcePackage;
 
 /// The staged tree a build kind uses inside the work dir. The `-binary` tree
@@ -425,7 +426,7 @@ fn copy_glob(src_dir: &Path, pattern: &str, dest_dir: &Path) -> anyhow::Result<(
                 "Could not retrieve filename from {}",
                 path.display()
             ))?;
-            fs::copy(&path, dest_dir.join(filename))?;
+            link_or_copy(&path, &dest_dir.join(filename))?;
         }
     }
     Ok(())
@@ -638,6 +639,32 @@ mod tests {
             "compiled"
         );
 
+        fs::remove_dir_all(test_root)?;
+        Ok(())
+    }
+
+    /// The orig tarball in `..` symlinks to a file already hardlinked into
+    /// the work dir: re-staging it must not truncate the shared inode.
+    #[test]
+    fn copy_glob_keeps_hardlinked_destination() -> anyhow::Result<()> {
+        let test_root =
+            std::env::temp_dir().join(format!("debmagic-copy-glob-test-{}", uuid::Uuid::new_v4()));
+        let parent = test_root.join("parent");
+        let work = test_root.join("work");
+        fs::create_dir_all(&parent)?;
+        fs::create_dir_all(&work)?;
+        let cached = test_root.join("cached.orig.tar.xz");
+        fs::write(&cached, "tarball")?;
+        symlink(&cached, parent.join("pkg_1.0.orig.tar.xz"))?;
+        fs::hard_link(&cached, work.join("pkg_1.0.orig.tar.xz"))?;
+
+        copy_glob(&parent, "pkg_1.0.orig.tar*", &work)?;
+
+        assert_eq!(fs::read_to_string(&cached)?, "tarball");
+        assert_eq!(
+            fs::read_to_string(work.join("pkg_1.0.orig.tar.xz"))?,
+            "tarball"
+        );
         fs::remove_dir_all(test_root)?;
         Ok(())
     }

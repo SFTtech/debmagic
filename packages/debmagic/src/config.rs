@@ -24,6 +24,10 @@ pub enum ConfigPathStatus {
 /// default XDG location (like git's `GIT_CONFIG_GLOBAL`); `/dev/null`
 /// disables it.
 fn global_config_path() -> anyhow::Result<PathBuf> {
+    // unit tests must not depend on the developer's config
+    if cfg!(test) {
+        return Ok(PathBuf::from("/dev/null"));
+    }
     if let Ok(path) = std::env::var("DEBMAGIC_CONFIG_GLOBAL") {
         return Ok(PathBuf::from(path));
     }

@@ -40,6 +40,7 @@ mod tests {
     #[test_case("Source: foo\nRules-Requires-Root: binary-targets\n", true ; "binary targets")]
     #[test_case("Source: foo\nRules-Requires-Root: dpkg/target-subcommand\n", true ; "implementation keyword")]
     #[test_case("Source: foo\n\nPackage: foo\nRules-Requires-Root: no\n", true ; "absent from source paragraph")]
+    #[test_case("Source: foo\nBuild-Depends: a,\n# comment\n b\nRules-Requires-Root: no\n", false ; "comment in continuation")]
     fn test_needs_gain_root(control: &str, expected: bool) {
         assert_eq!(Control::parse(control).unwrap().needs_gain_root(), expected);
     }

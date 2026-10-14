@@ -509,9 +509,9 @@ dependencies = [
 
 [[package]]
 name = "deb822-derive"
-version = "0.2.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b6e5cafe61e77421a090e2a33b8a2e4e2ff1b106fd906ebade111307064d981"
+checksum = "e83ef29a094bcb2b7dd0f609ace7f5a34ef9a62e0731ebd350637640320a3b15"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -519,12 +519,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "deb822-lossless"
-version = "0.2.4"
+name = "deb822-fast"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "812bb5c8052a89edc6d45d1bc3b3400e8186dd166e9b0a9520bfa5a2bd8477ee"
+checksum = "114c474fa4cd5d6d24bb5e68b36fa4ef70f5b830e3cc14a9b66a12e71a15aeb9"
 dependencies = [
  "deb822-derive",
+]
+
+[[package]]
+name = "deb822-lossless"
+version = "0.5.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45bfeac719b1f3441c6f8c29652c60376e11eabbdbd99c53b3f14e0e8585d053"
+dependencies = [
  "regex",
  "rowan",
  "serde",
@@ -547,11 +555,12 @@ dependencies = [
 
 [[package]]
 name = "debian-control"
-version = "0.1.39"
+version = "0.3.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3367f1dc94222cb9cf16e07c782e442b1928a26dd8dcee3aa4d2dbd32ca11d21"
+checksum = "99ffab14a76cf08121d4bf7fb37b40bff0985e49cf050a7cc00b402e0d31e00d"
 dependencies = [
  "chrono",
+ "deb822-fast",
  "deb822-lossless",
  "debversion",
  "regex",

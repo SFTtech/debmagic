@@ -68,6 +68,7 @@ fn dockerfile(environment: &Environment, base_image: &str, setup: &apt::Setup) -
     apt_commands.extend(apt::install_commands(
         debmagic_common::apt::has_satisfy(&environment.distro),
         &apt::Install::default(),
+        None,
     ));
     DOCKERFILE_TEMPLATE
         .replace("{base_image}", base_image)

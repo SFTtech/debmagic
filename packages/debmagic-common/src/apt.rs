@@ -5,7 +5,8 @@ use anyhow::bail;
 
 use crate::distro::{Distro, DistroVersion};
 
-/// Debian suites without `-updates`/`-security` pockets.
+/// Debian suites without `-updates`/`-security` pockets: unstable, and
+/// experimental, an add-on to it.
 const DEBIAN_UNSTABLE: &[&str] = &["unstable", "sid", "experimental"];
 const DEBIAN_ARCHIVE: &str = "http://deb.debian.org/debian";
 /// Debian mirrors don't carry the security pocket.
@@ -15,7 +16,7 @@ const UBUNTU_PORTS_ARCHIVE: &str = "http://ports.ubuntu.com/ubuntu-ports";
 
 /// A deb822 `.sources` file pointing apt at `mirror` (the distro's default
 /// archive if `None`) for the release, its `-updates` and `-security`
-/// pockets, plus its proposed pocket if `proposed`. It
+/// pockets, plus the suite its updates migrate from if `proposed`. It
 /// replaces the base image's own sources. `dpkg_arch` is the environment's
 /// architecture: Ubuntu serves most of them from a separate ports archive.
 pub fn sources_file(
@@ -41,7 +42,11 @@ pub fn sources_file(
     let debian = distro.distro == Distro::Debian;
     let rolling = debian && DEBIAN_UNSTABLE.contains(&codename);
     let security = format!("{codename}-security");
-    let mut suites = vec![codename.to_string()];
+    let mut suites = Vec::new();
+    if not_automatic_suite(distro).is_some() {
+        suites.push("unstable".to_string());
+    }
+    suites.push(codename.to_string());
     if !rolling {
         suites.push(format!("{codename}-updates"));
         if !debian {
@@ -77,14 +82,43 @@ fn debian_components(version: &str) -> &'static [&'static str] {
     }
 }
 
-/// The release's proposed pocket, `None` for unstable, which has none.
+/// The suite updates of the release migrate from, `None` for unstable
+/// itself: unstable migrates into Debian's devel release (testing).
 fn proposed_suite(distro: &DistroVersion) -> Option<String> {
     let codename = &distro.codename;
     match distro.distro {
         Distro::Debian if DEBIAN_UNSTABLE.contains(&codename.as_str()) => None,
+        Distro::Debian if distro.is_devel => Some("unstable".to_string()),
         Distro::Debian => Some(format!("{codename}-proposed-updates")),
         _ => Some(format!("{codename}-proposed")),
     }
+}
+
+/// The NotAutomatic suite a build for the release takes packages from only
+/// when nothing else satisfies its build dependencies: experimental, which
+/// only adds to unstable.
+pub fn not_automatic_suite(distro: &DistroVersion) -> Option<&'static str> {
+    (distro.distro == Distro::Debian && distro.codename == "experimental").then_some("experimental")
+}
+
+/// Whether a build for the release needs [`sources_file`] whatever the
+/// mirror: the base images of experimental lack its suite.
+pub fn needs_own_sources(distro: &DistroVersion) -> bool {
+    not_automatic_suite(distro).is_some()
+}
+
+/// apt preferences for the sources of [`sources_file`]. Ubuntu marks
+/// `-proposed` NotAutomatic, so apt would only upgrade installed packages
+/// from it; pinned to the release's priority like on Launchpad's builders,
+/// the build takes everything newer from it. Debian's proposed suites
+/// aren't NotAutomatic.
+pub fn preferences_file(distro: &DistroVersion, proposed: bool) -> Option<String> {
+    (proposed && distro.distro == Distro::Ubuntu).then(|| {
+        format!(
+            "Package: *\nPin: release a={}-proposed\nPin-Priority: 500\n",
+            distro.codename
+        )
+    })
 }
 
 /// Whether the release's apt has `apt-get satisfy` (apt 1.9: Debian 11,
@@ -112,7 +146,8 @@ mod tests {
             "buster" => (Distro::Debian, "10"),
             "bullseye" => (Distro::Debian, "11"),
             "trixie" => (Distro::Debian, "13"),
-            "unstable" => (Distro::Debian, ""),
+            "forky" => (Distro::Debian, "14"),
+            "unstable" | "experimental" => (Distro::Debian, ""),
             "bionic" => (Distro::Ubuntu, "18.04"),
             "focal" => (Distro::Ubuntu, "20.04"),
             "noble" => (Distro::Ubuntu, "24.04"),
@@ -137,7 +172,7 @@ mod tests {
     }
 
     #[test_case(false ; "release")]
-    #[test_case(true ; "no proposed pocket")]
+    #[test_case(true ; "proposed is unstable itself")]
     fn debian_unstable_is_one_suite(proposed: bool) {
         let sources = sources_file(&distro("unstable"), None, proposed, "arm64").unwrap();
         assert_eq!(
@@ -145,6 +180,41 @@ mod tests {
             "Types: deb deb-src\nURIs: http://deb.debian.org/debian\nSuites: unstable\n\
              Components: main contrib non-free non-free-firmware\n"
         );
+    }
+
+    #[test]
+    fn debian_devel_proposed_is_unstable() {
+        let mut forky = distro("forky");
+        forky.is_devel = true;
+        let sources = sources_file(&forky, None, true, "amd64").unwrap();
+        assert!(
+            sources.contains("Suites: forky forky-updates unstable\n"),
+            "{sources}"
+        );
+        assert!(sources.contains("Suites: forky-security\n"), "{sources}");
+        assert_eq!(preferences_file(&forky, true), None);
+    }
+
+    #[test]
+    fn debian_experimental_adds_to_unstable() {
+        let experimental = distro("experimental");
+        assert!(needs_own_sources(&experimental));
+        assert!(!needs_own_sources(&distro("unstable")));
+        assert_eq!(not_automatic_suite(&experimental), Some("experimental"));
+        let sources = sources_file(&experimental, None, true, "amd64").unwrap();
+        assert!(
+            sources.contains("Suites: unstable experimental\n"),
+            "{sources}"
+        );
+    }
+
+    #[test]
+    fn ubuntu_proposed_is_pinned_like_the_release() {
+        assert_eq!(
+            preferences_file(&distro("noble"), true).unwrap(),
+            "Package: *\nPin: release a=noble-proposed\nPin-Priority: 500\n"
+        );
+        assert_eq!(preferences_file(&distro("noble"), false), None);
     }
 
     #[test]

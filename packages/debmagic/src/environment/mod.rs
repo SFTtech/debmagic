@@ -160,27 +160,39 @@ impl<'a> ClaimedEnvironment<'a> {
         Ok(claimed)
     }
 
-    /// Upgrade the packages of a container Environment: always when it is
-    /// fresh, when reused only once `policy` says the last upgrade (recorded
-    /// in the registry) has gone stale. The Bare driver is the host, which
-    /// the user maintains.
+    /// Upgrade the packages of a container Environment unless `policy` says
+    /// the last upgrade is recent enough: the one recorded in the registry
+    /// for a reused Environment, the image's for a fresh one. A fresh one
+    /// without a refreshed image always upgrades. The Bare driver is the
+    /// host, which the user maintains.
     async fn upgrade_packages(&self, policy: crate::time::RefreshPolicy) -> anyhow::Result<()> {
         if self.environment.driver == crate::driver::DriverType::Bare {
             return Ok(());
         }
         let id = self.environment.id();
-        if self.driver.reused_environment() {
-            let last_update =
-                registry::apt_updated_at(&mut *self.registry.connection().await?, &id).await?;
-            if !crate::driver::apt_update_needed_on_reuse(policy, last_update) {
-                return Ok(());
-            }
+        let reused = self.driver.reused_environment();
+        let last_update = if reused {
+            registry::apt_updated_at(&mut *self.registry.connection().await?, &id).await?
+        } else {
+            self.driver.packages_refreshed_at()
+        };
+        let current = (reused || last_update.is_some())
+            && !crate::driver::apt_update_needed_on_reuse(policy, last_update);
+        if current && reused {
+            return Ok(());
         }
-        crate::output::step("Upgrading the packages in the Environment");
-        crate::driver::upgrade_packages(&self.driver, &self.environment.root_dir)?;
+        // record a fresh Environment's image time for its reuse
+        let updated_at = match last_update.filter(|_| current) {
+            Some(image_refreshed_at) => image_refreshed_at,
+            None => {
+                crate::output::step("Upgrading the packages in the Environment");
+                crate::apt::refresh(&self.driver, &self.environment.root_dir)?;
+                std::time::SystemTime::now()
+            }
+        };
         let recorded = async {
             let mut conn = self.registry.connection().await?;
-            registry::set_apt_updated_at(&mut conn, &id, std::time::SystemTime::now()).await
+            registry::set_apt_updated_at(&mut conn, &id, updated_at).await
         };
         if let Err(error) = recorded.await {
             eprintln!("Warning: failed to record the apt upgrade time: {error:#}");

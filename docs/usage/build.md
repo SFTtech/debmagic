@@ -64,7 +64,7 @@ Each `debmagic env shell` is its own shell, so you can open more than one. A bar
 ## Mirror selection
 
 Fresh containers install their base tooling plus every `Build-Depends`, so slow mirrors directly translate into slow builds.
-Pass `--apt-mirror` to use a faster mirror for build-dependency resolution after the base tooling is bootstrapped from the image's configured archives:
+Pass `--apt-mirror` to replace the image's apt sources with a different mirror:
 
 ```shell
 debmagic build binary --driver lxd --apt-mirror http://<mirror-host>/ubuntu ...
@@ -74,7 +74,7 @@ You can persistently set this flag in  `.config/debmagic/config.toml`.
 
 ## Apt update age
 
-When an Environment is reused, `--apt-update-age` decides when `apt-get update/upgrade` are run again:
+`--apt-update-age` decides when `apt-get update/upgrade` run again, measured from the last upgrade:
 
 | Value | Behavior |
 |---|---|
@@ -179,6 +179,7 @@ debmagic build binary --test=no
 Boolean flags accept `yes`/`no`, `true`/`false` and `on`/`off`; a bare flag means `yes`.
 
 This exports `DEB_BUILD_OPTIONS=nocheck`, the standard dpkg mechanism: dpkg-buildpackage propagates it into the build, debmagic's `test` stage is skipped, and classic debhelper packages skip `dh_auto_test` as usual.
+It also adds the `nocheck` build profile to `DEB_BUILD_PROFILES`, so test-only build dependencies (`<!nocheck>`) aren't installed.
 
 ## Signing
 

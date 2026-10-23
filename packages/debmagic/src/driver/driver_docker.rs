@@ -3,15 +3,17 @@ use std::{
     fs,
     path::{Path, PathBuf},
     process::{Command, Stdio},
+    time::SystemTime,
 };
 
-use anyhow::anyhow;
+use anyhow::{Context, anyhow};
 use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
 
+use crate::apt;
 use crate::driver::{
-    APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
-    EnvironmentMetadata, IsolationCapability, ResourceStatus, config::DriverConfig,
+    DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver, EnvironmentMetadata,
+    EnvironmentPurpose, IsolationCapability, ResourceStatus, config::DriverConfig,
     container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
     run_checked, translate_path_in_container,
 };
@@ -47,8 +49,9 @@ const DOCKERFILE_TEMPLATE: &str = r#"
 FROM {base_image}
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev python3
-{apt_mirror_setup}
+ARG DEBIAN_FRONTEND=noninteractive
+COPY {setup_dir} /tmp/{setup_dir}
+RUN {setup} && rm -rf /tmp/{setup_dir} && {apt}
 RUN set -e; \
     getent group "$USER_GID" >/dev/null || groupadd --gid "$USER_GID" debmagic; \
     getent passwd "$USER_UID" >/dev/null || useradd --uid "$USER_UID" --gid "$USER_GID" -m debmagic
@@ -57,20 +60,29 @@ USER $USER_UID:$USER_GID
 ENTRYPOINT ["sleep", "infinity"]
 "#;
 
-// Ubuntu images ship python3 already; installed explicitly above for the
-// others (e.g. Debian's slim images) before the mirror script needs it.
-const APT_MIRROR_SCRIPT_FILENAME: &str = "mirror.py";
-
-/// Quote `s` as a single POSIX shell word for embedding in a Dockerfile
-/// `RUN` instruction (which is interpreted by `/bin/sh -c`).
-fn shell_quote(s: &str) -> String {
-    format!("'{}'", s.replace('\'', "'\\''"))
+/// The image applies the apt setup and refreshes its packages, so a fresh
+/// container from a cached image is as current as the image.
+fn dockerfile(environment: &Environment, base_image: &str, setup: &apt::Setup) -> String {
+    let setup_dir = apt::SETUP_DIR;
+    let mut apt_commands = apt::refresh_commands();
+    apt_commands.extend(apt::install_commands(
+        debmagic_common::apt::has_satisfy(&environment.distro),
+        &apt::Install::default(),
+    ));
+    DOCKERFILE_TEMPLATE
+        .replace("{base_image}", base_image)
+        .replace("{setup}", &setup.script(&format!("/tmp/{setup_dir}")))
+        .replace("{apt}", &apt::shell_line(&apt_commands))
+        .replace("{setup_dir}", setup_dir)
+        .replace("{build_dir}", ENVIRONMENT_DIR_IN_CONTAINER)
 }
 
 pub struct DriverDocker {
     environment: Environment,
     container_name: String,
     reused_environment: bool,
+    /// Creation time of the image a fresh container was started from.
+    image_created: Option<SystemTime>,
 }
 
 /// Replace characters that Docker image/container names disallow.
@@ -85,46 +97,15 @@ fn sanitize_docker_reference(name: &str) -> String {
 
 fn build_build_image(
     environment: &Environment,
-    base_image: &str,
-    apt_mirror: Option<&str>,
-    proposed: bool,
+    dockerfile: &str,
+    setup: &apt::Setup,
     image_name: &str,
 ) -> anyhow::Result<()> {
-    let apt_mirror_setup = if apt_mirror.is_some() || proposed {
-        fs::write(
-            environment.temp_dir().join(APT_MIRROR_SCRIPT_FILENAME),
-            APT_MIRROR_SCRIPT,
-        )
-        .map_err(|e| anyhow!("Failed to write apt mirror script: {e}"))?;
-
-        let mut args = vec![
-            "--codename".to_string(),
-            shell_quote(&environment.distro.codename),
-        ];
-        if let Some(mirror) = apt_mirror {
-            args.extend(["--mirror".to_string(), shell_quote(mirror)]);
-        }
-        if proposed {
-            args.push("--proposed".to_string());
-        }
-
-        let setup = format!(
-            "COPY {script} /tmp/{script}\nRUN python3 /tmp/{script} {args} && rm /tmp/{script} && apt-get update\n",
-            script = APT_MIRROR_SCRIPT_FILENAME,
-            args = args.join(" "),
-        );
-        setup
-    } else {
-        String::new()
-    };
-
-    let formatted_dockerfile = DOCKERFILE_TEMPLATE
-        .replace("{base_image}", base_image)
-        .replace("{apt_mirror_setup}", &apt_mirror_setup)
-        .replace("{build_dir}", ENVIRONMENT_DIR_IN_CONTAINER);
-
+    setup
+        .write(&environment.temp_dir().join(apt::SETUP_DIR))
+        .context("writing the apt setup failed")?;
     let dockerfile_path = environment.temp_dir().join("Dockerfile");
-    fs::write(&dockerfile_path, formatted_dockerfile)
+    fs::write(&dockerfile_path, dockerfile)
         .map_err(|e| anyhow!("Failed to write Dockerfile, {e}"))?;
 
     let mut build_args = Vec::new();
@@ -151,14 +132,20 @@ fn build_build_image(
     Ok(())
 }
 
-fn does_image_exist(image_name: &str) -> anyhow::Result<bool> {
-    let status = Command::new("docker")
-        .args(["image", "inspect", image_name])
-        .stdout(Stdio::null())
+/// The image's creation time, `None` if it doesn't exist.
+fn image_created(image_name: &str) -> anyhow::Result<Option<SystemTime>> {
+    let output = Command::new("docker")
+        .args(["image", "inspect", "--format", "{{.Created}}", image_name])
         .stderr(Stdio::null())
-        .status()
+        .output()
         .map_err(|error| anyhow!("Failed to inspect Docker image: {error}"))?;
-    Ok(status.success())
+    if !output.status.success() {
+        return Ok(None);
+    }
+    let created = String::from_utf8_lossy(&output.stdout);
+    let created = chrono::DateTime::parse_from_rfc3339(created.trim())
+        .with_context(|| format!("parsing the creation time {created:?} of {image_name} failed"))?;
+    Ok(Some(created.into()))
 }
 
 /// The environment fingerprint stored in the container's labels, or `None`
@@ -268,15 +255,18 @@ impl DriverDocker {
         let uid = unsafe { libc::geteuid() }.to_string();
         let gid = unsafe { libc::getegid() }.to_string();
         let build_root = environment.root_dir.to_string_lossy();
-        let proposed_fingerprint = proposed.to_string();
+        let setup = apt::Setup {
+            distro: &environment.distro,
+            mirror: apt_mirror,
+            proposed,
+            services: environment.purpose == EnvironmentPurpose::Test,
+        };
+        let dockerfile = dockerfile(environment, &base_image, &setup);
         let image_fingerprint = environment_fingerprint(&[
             "docker",
-            DOCKERFILE_TEMPLATE,
-            APT_MIRROR_SCRIPT,
-            &base_image,
+            &dockerfile,
+            &setup.fingerprint(),
             &environment.distro.codename,
-            apt_mirror.unwrap_or(""),
-            &proposed_fingerprint,
             &uid,
             &gid,
         ]);
@@ -291,6 +281,7 @@ impl DriverDocker {
             environment: environment.clone(),
             container_name,
             reused_environment: false,
+            image_created: None,
         };
         let environment_matches = container_environment_fingerprint(&driver.container_name)?
             .as_deref()
@@ -318,14 +309,10 @@ impl DriverDocker {
                 .status();
 
             let docker_image_name = format!("debmagic-env-{}", &image_fingerprint[..16]);
-            if !does_image_exist(&docker_image_name)? {
-                build_build_image(
-                    environment,
-                    &base_image,
-                    apt_mirror,
-                    proposed,
-                    &docker_image_name,
-                )?;
+            driver.image_created = image_created(&docker_image_name)?;
+            if driver.image_created.is_none() {
+                build_build_image(environment, &dockerfile, &setup, &docker_image_name)?;
+                driver.image_created = image_created(&docker_image_name)?;
             }
             run_checked(
                 Command::new("docker")
@@ -359,6 +346,7 @@ impl DriverDocker {
             environment: environment.clone(),
             container_name: container_name_from_metadata(metadata),
             reused_environment: true,
+            image_created: None,
         })
     }
 
@@ -430,6 +418,10 @@ impl EnvironmentDriver for DriverDocker {
 
     fn reused_environment(&self) -> bool {
         self.reused_environment
+    }
+
+    fn packages_refreshed_at(&self) -> Option<SystemTime> {
+        self.image_created
     }
 
     fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()> {

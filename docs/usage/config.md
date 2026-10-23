@@ -24,7 +24,7 @@ All keys are optional.
 |---|---|---|---|---|
 | `driver.default` | enum | — | `--driver` | Build driver (`docker`, `bare`, `lxd`, `incus`) |
 | `driver.persistent` | enum | `"on-failure"` | `--persistent` | How long the Environment outlives the claim: `"no"`, `"on-failure"`, or `"always"`. A bare `--persistent` means `always`. |
-| `driver.apt_mirror` | string | — | `--apt-mirror` | Mirror used for build-dependency resolution. Not used by the `bare` driver. |
+| `driver.apt_mirror` | string | — | `--apt-mirror` | Mirror replacing the image's apt sources. Not used by the `bare` driver. |
 | `driver.proposed` | bool | `false` | `--proposed` | Also enable the `<release>-proposed` pocket. Not used by the `bare` driver. |
 | `driver.apt_update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update && upgrade`: `"now"` (every build), `"never"` (only on creation), or a maximum age like `"1d"`, `"12h"`, `"30m"`. Not used by the `bare` driver. |
 | `driver.docker.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"` (e.g. `"debian:trixie"`). Falls back to `docker.io/<distro>:<codename>`. For non-Debian/Ubuntu suites (e.g. `"yocto:kirkstone"`), the map entry is what makes the suite a known DistroVersion for Docker builds. |
@@ -37,7 +37,7 @@ All keys are optional.
 | `incremental` | bool | `false` | `--incremental` | Retain the environment and sync only source changes, preserving generated files. Forces Persistence `always`; incompatible with `clean`. |
 | `source_sync_mode` | enum | `tracked` | `--source-sync` | Which source files are staged (see below). |
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |
-| `run_test` | bool | `true` | `--test` | Run the package's test suite during the build; `false` exports `DEB_BUILD_OPTIONS=nocheck` so tests are skipped. |
+| `run_test` | bool | `true` | `--test` | Run the package's test suite during the build; `false` exports `DEB_BUILD_OPTIONS=nocheck` and the `nocheck` build profile, so tests and their build dependencies are skipped. |
 | `sign.source` | enum | `auto` | `--sign` | How to sign the resulting `.changes`/`.dsc`/`.buildinfo`: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs (see below). Whether a build signs at all is up to `build.sign_source`/`build.sign_binary`. |
 | `sign.key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
 | `sign.tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign.sign_command`). |

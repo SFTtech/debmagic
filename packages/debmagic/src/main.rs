@@ -7,6 +7,7 @@ use crate::cli::{
     BuildTarget, ChangelogCommands, Cli, Commands, ConfigCommands, EnvCommands, UpstreamCommands,
 };
 
+pub mod apt;
 pub mod build;
 pub mod build_intent;
 pub mod changelog;

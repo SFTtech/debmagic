@@ -1,6 +1,5 @@
 use std::{
     collections::HashMap,
-    fs,
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
@@ -8,9 +7,10 @@ use std::{
 use debmagic_common::distro::{Distro, DistroVersion};
 use serde::{Deserialize, Serialize};
 
+use crate::apt;
 use crate::driver::{
-    APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
-    EnvironmentMetadata, IsolationCapability, ResourceStatus, config::DriverConfig,
+    DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver, EnvironmentMetadata,
+    EnvironmentPurpose, IsolationCapability, ResourceStatus, config::DriverConfig,
     container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
     run_checked, translate_path_in_container,
 };
@@ -38,7 +38,7 @@ const BUILD_USER_UID: u32 = 1000;
 const BUILD_USER_GID: u32 = 1000;
 const ENVIRONMENT_CONFIG_KEY: &str = "user.debmagic.environment";
 const PROJECT_KEY: &str = "project";
-const ENVIRONMENT_SETUP_VERSION: &str = "dpkg-dev-norec python3; build-user-v1; raw.idmap-v1";
+const ENVIRONMENT_SETUP_VERSION: &str = "build-user-v1; raw.idmap-v1";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -301,14 +301,19 @@ impl DriverLxd {
         let host_uid = unsafe { libc::geteuid() }.to_string();
         let host_gid = unsafe { libc::getegid() }.to_string();
         let build_root = environment.root_dir.to_string_lossy();
-        let proposed_fingerprint = proposed.to_string();
+        let setup = apt::Setup {
+            distro: &environment.distro,
+            mirror: apt_mirror,
+            proposed,
+            services: environment.purpose == EnvironmentPurpose::Test,
+        };
+        let setup_fingerprint = setup.fingerprint();
         let mut fingerprint_parts = vec![
             variant.binary(),
             ENVIRONMENT_SETUP_VERSION,
+            &setup_fingerprint,
             &base_image,
             &environment.distro.codename,
-            apt_mirror.unwrap_or(""),
-            &proposed_fingerprint,
             &host_uid,
             &host_gid,
             build_root.as_ref(),
@@ -418,30 +423,13 @@ impl DriverLxd {
             }
 
             if !reusing_container {
-                // stock images ship without an apt index
-                base.exec_in_container_checked(&["apt-get", "update"], None, true, &[])
-                    .map_err(|e| {
-                        anyhow::anyhow!("Error running apt-get update in container: {e}")
-                    })?;
-                // Install the base tooling that stock images don't include.
-                // build-essential is intentionally omitted: binary builds pull
-                // it in explicitly, so source-only environments stay lean.
-                // build-dep is omitted too: build.rs runs it for every driver
-                // against the real mounted source tree.
-                base.exec_in_container_checked(
-                    &[
-                        "apt-get",
-                        "install",
-                        "-y",
-                        "--no-install-recommends",
-                        "dpkg-dev",
-                        "python3",
-                    ],
-                    None,
-                    true,
-                    &[],
-                )
-                .map_err(|e| anyhow::anyhow!("Error installing base packages in container: {e}"))?;
+                // apt runs once the run knows what to install
+                let setup_dir = environment.temp_dir().join(apt::SETUP_DIR);
+                setup.write(&setup_dir)?;
+                let setup_dir = base.translate_path_in_container(&setup_dir)?;
+                let script = setup.script(&setup_dir.to_string_lossy());
+                base.exec_in_container_checked(&["sh", "-ec", &script], None, true, &[])
+                    .map_err(|e| anyhow::anyhow!("Error setting up apt in container: {e}"))?;
 
                 let ensure_build_user = format!(
                     "getent group {gid} >/dev/null || groupadd --gid {gid} debmagic; \
@@ -451,31 +439,6 @@ impl DriverLxd {
                 );
                 base.exec_in_container_checked(&["sh", "-ec", &ensure_build_user], None, true, &[])
                     .map_err(|e| anyhow::anyhow!("Error creating build user in container: {e}"))?;
-
-                if apt_mirror.is_some() || proposed {
-                    let script_path = environment.temp_dir().join("mirror.py");
-                    fs::write(&script_path, APT_MIRROR_SCRIPT)?;
-                    let container_script_path = base.translate_path_in_container(&script_path)?;
-                    let mut args = vec![
-                        "python3".to_string(),
-                        container_script_path.to_string_lossy().into_owned(),
-                        "--codename".to_string(),
-                        environment.distro.codename.clone(),
-                    ];
-                    if let Some(mirror) = apt_mirror {
-                        args.extend(["--mirror".to_string(), mirror.to_string()]);
-                    }
-                    if proposed {
-                        args.push("--proposed".to_string());
-                    }
-                    let args = args.iter().map(String::as_str).collect::<Vec<_>>();
-                    base.exec_in_container_checked(&args, None, true, &[])
-                        .map_err(|e| anyhow::anyhow!("Error configuring apt sources: {e}"))?;
-                    base.exec_in_container_checked(&["apt-get", "update"], None, true, &[])
-                        .map_err(|e| {
-                            anyhow::anyhow!("Error updating configured apt sources: {e}")
-                        })?;
-                }
 
                 run_checked(
                     base.lxd_cmd("config")

@@ -356,6 +356,14 @@ pub struct EnvironmentArgs {
     pub packages: Vec<(String, PackageSettings)>,
 
     #[arg(
+        long = "archive",
+        value_name = "[NAME=]SPEC",
+        value_parser = crate::apt::parse_archive_arg,
+        help = "Add an archive: a PPA as 'ppa:<owner>/<name>[@<suite>]', the suite defaulting to the target Ubuntu release. NAME (by default SPEC) is the ARCHIVE of --package; without packages picked from it, apt takes all newer ones from it. Repeatable. Ignored by the bare driver."
+    )]
+    pub archives: Vec<(String, String)>,
+
+    #[arg(
         long = "apt-update-age",
         help = "When a persistent environment runs 'apt-get update/upgrade' again: 'now' (every run), 'never' (only on first creation), or a maximum age of the last upgrade like '1d' (the default), '12h', '30m'. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
     )]
@@ -781,6 +789,7 @@ impl EnvironmentArgs {
             proposed,
             experimental,
             packages,
+            archives: self.archives.clone(),
         }
     }
 

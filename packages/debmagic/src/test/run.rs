@@ -345,7 +345,10 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
             "no prior build metadata found; pass --distro when using --changes without a prior Invocation"
         );
     };
-    apt.archives(&distro)?;
+    let apt = apt
+        .plan(&distro, &intent.config.sign)
+        .await
+        .context("resolving the apt archives failed")?;
 
     let environment = Environment::new(
         driver,
@@ -363,7 +366,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         &registry,
         environment,
         &intent.config.driver,
-        apt,
+        &apt,
         &intent.driver_overrides,
         HostRootPolicy::Reset,
         |environment, _| {
@@ -392,12 +395,12 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
                 ..Default::default()
             };
             let distro = &claimed.environment().distro;
-            let archives = apt.archives(distro)?;
+            let archives = &claimed.apt().archives;
             crate::apt::install(
                 claimed.driver(),
                 &staged_source_dir,
                 distro,
-                &archives,
+                archives,
                 &install,
             )
             .context("installing autopkgtest failed")?;

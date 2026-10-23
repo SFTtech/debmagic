@@ -11,7 +11,7 @@ use anyhow::{Context, bail};
 use process::Process;
 use sqlx::sqlite::SqliteConnection;
 
-use crate::apt::AptConfig;
+use crate::apt::AptPlan;
 use crate::driver::{
     Driver, Environment, EnvironmentDriver, EnvironmentMetadata, Persistence, ResourceStatus,
     config::{DriverConfig, DriverOverrides},
@@ -44,6 +44,7 @@ pub enum HostRootPolicy {
 pub struct ClaimedEnvironment<'a> {
     registry: &'a Registry,
     driver_config: &'a DriverConfig,
+    apt: &'a AptPlan,
     environment: Environment,
     driver: Driver,
     /// `on-failure` keeps the Environment only when the build or TestRun
@@ -62,7 +63,7 @@ impl<'a> ClaimedEnvironment<'a> {
         registry: &'a Registry,
         environment: Environment,
         driver_config: &'a DriverConfig,
-        apt: &AptConfig,
+        apt: &'a AptPlan,
         overrides: &DriverOverrides,
         root_policy: HostRootPolicy,
         stage: impl FnOnce(&Environment, Option<&Driver>) -> anyhow::Result<()>,
@@ -104,6 +105,11 @@ impl<'a> ClaimedEnvironment<'a> {
         &self.driver
     }
 
+    /// Where the Environment's packages come from.
+    pub fn apt(&self) -> &AptPlan {
+        self.apt
+    }
+
     async fn finish(self) -> anyhow::Result<()> {
         finish_environment(
             self.registry,
@@ -128,7 +134,7 @@ impl<'a> ClaimedEnvironment<'a> {
         registry: &'a Registry,
         environment: Environment,
         driver_config: &'a DriverConfig,
-        apt: &AptConfig,
+        apt: &'a AptPlan,
         overrides: &DriverOverrides,
     ) -> anyhow::Result<Self> {
         let driver = match crate::driver::create_driver(&environment, driver_config, apt, overrides)
@@ -149,6 +155,7 @@ impl<'a> ClaimedEnvironment<'a> {
         let claimed = Self {
             registry,
             driver_config,
+            apt,
             environment,
             driver,
             keep_after_failure: false,
@@ -303,7 +310,7 @@ pub async fn claim_command<T>(
     registry: &Registry,
     environment: Environment,
     driver_config: &DriverConfig,
-    apt: &AptConfig,
+    apt: &AptPlan,
     overrides: &DriverOverrides,
     root_policy: HostRootPolicy,
     stage: impl FnOnce(&Environment, Option<&Driver>) -> anyhow::Result<()>,
@@ -1430,6 +1437,7 @@ mod claimed_environment_tests {
         dir: PathBuf,
         registry: Registry,
         driver_config: DriverConfig,
+        apt: AptPlan,
         overrides: DriverOverrides,
     }
 
@@ -1443,6 +1451,7 @@ mod claimed_environment_tests {
                 dir,
                 registry,
                 driver_config: DriverConfig::default(),
+                apt: AptPlan::default(),
                 overrides: DriverOverrides::default(),
             }
         }
@@ -1470,7 +1479,7 @@ mod claimed_environment_tests {
                 &self.registry,
                 environment,
                 &self.driver_config,
-                &AptConfig::default(),
+                &self.apt,
                 &self.overrides,
                 root_policy,
                 stage,
@@ -1648,7 +1657,7 @@ mod claimed_environment_tests {
             &fixture.registry,
             environment,
             &fixture.driver_config,
-            &AptConfig::default(),
+            &fixture.apt,
             &fixture.overrides,
             HostRootPolicy::Reset,
             |_, _| Ok(()),

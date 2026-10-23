@@ -365,6 +365,9 @@ pub struct SignConfig {
     /// "auto"`: exit code 0 means the file's signature is ours and it
     /// is skipped, anything else means re-sign.
     pub signed_by_command: Option<String>,
+    /// Custom key fingerprint reader when `tool` is `custom`, for PPA
+    /// signing keys: prints the primary key's fingerprint of `{file}`.
+    pub fingerprint_command: Option<String>,
     /// Send a desktop notification via `notify-send` just before signing,
     /// so a hardware-key touch prompt isn't missed; the top-level `notify`
     /// when unset.

@@ -4,7 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-use crate::apt;
+use crate::apt::{self, AptPlan};
 use crate::build::source::{source_manifest_path, stage_dir, stage_source_tree};
 use crate::build_intent::{BuildIntent, BuildIntentInput, BuildKind, resolve_build_intent};
 use crate::driver::{Driver, DriverType, Environment, EnvironmentDriver, EnvironmentPurpose};
@@ -117,6 +117,7 @@ fn deb_build_options(existing: Option<&str>, build_debug_symbols: bool, run_test
 struct BuildRequest<'a> {
     intent: &'a BuildIntent,
     target: &'a PackageTarget,
+    apt: &'a AptPlan,
 }
 
 /// Shared build orchestration: claim the Environment, run `build_commands`
@@ -143,7 +144,7 @@ async fn run_build(
         &registry,
         planned.environment,
         &request.intent.config.driver,
-        &request.intent.config.apt,
+        request.apt,
         &request.intent.driver_overrides,
         planned.root_policy,
         |environment, driver| {
@@ -228,9 +229,14 @@ async fn run_build(
 pub async fn build_binary_package(
     intent: &BuildIntent,
     target: &PackageTarget,
+    apt: &AptPlan,
     changes_options: &[String],
 ) -> anyhow::Result<std::path::PathBuf> {
-    let request = BuildRequest { intent, target };
+    let request = BuildRequest {
+        intent,
+        target,
+        apt,
+    };
     run_build(&request, |claimed| {
         crate::output::stage("Building binary package(s)");
         let staged_source_dir = stage_dir(claimed.environment(), BuildKind::Binary);
@@ -243,7 +249,6 @@ pub async fn build_binary_package(
         packages.extend(gain_root_package(target)?);
         install_packages(
             claimed,
-            intent,
             target,
             BuildKind::Binary,
             packages,
@@ -307,7 +312,6 @@ fn gain_root_package(target: &PackageTarget) -> anyhow::Result<Option<&'static s
 /// source tree, evaluated with `profiles`.
 fn install_packages(
     claimed: &ClaimedEnvironment,
-    intent: &BuildIntent,
     target: &PackageTarget,
     kind: BuildKind,
     packages: Vec<&str>,
@@ -331,13 +335,13 @@ fn install_packages(
         profiles: profiles.to_vec(),
     };
     let environment = claimed.environment();
-    let archives = intent.config.apt.archives(&environment.distro)?;
+    let archives = &claimed.apt().archives;
     let staged_source_dir = stage_dir(environment, kind);
     apt::install(
         claimed.driver(),
         &staged_source_dir,
         &environment.distro,
-        &archives,
+        archives,
         &install,
     )
     .context("installing the build dependencies failed")
@@ -394,6 +398,7 @@ fn check_dpkg_buildpackage_available() -> anyhow::Result<()> {
 pub async fn build_source_package(
     intent: &BuildIntent,
     target: &PackageTarget,
+    apt: &AptPlan,
     changes_options: &[String],
     include_orig: bool,
 ) -> anyhow::Result<std::path::PathBuf> {
@@ -454,7 +459,11 @@ pub async fn build_source_package(
         }
     }
 
-    let request = BuildRequest { intent, target };
+    let request = BuildRequest {
+        intent,
+        target,
+        apt,
+    };
     run_build(&request, |claimed| {
         crate::output::stage("Building source package");
         let staged_source_dir = stage_dir(claimed.environment(), BuildKind::Source);
@@ -478,7 +487,6 @@ pub async fn build_source_package(
         let scope = intent.config.clean.then_some(BuildScope::Clean);
         install_packages(
             claimed,
-            intent,
             target,
             BuildKind::Source,
             packages,
@@ -562,11 +570,16 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
         ),
     )
     .context("failed to determine package target")?;
-    intent.config.apt.archives(&target.distro)?;
+    let apt = intent
+        .config
+        .apt
+        .plan(&target.distro, &intent.config.sign)
+        .await
+        .context("resolving the apt archives failed")?;
 
     let package = format!("{} {}", target.package.name(), target.package.version());
     let notify = intent.config.build_notify();
-    let result = build_and_upload(&intent, target, &command).await;
+    let result = build_and_upload(&intent, target, &apt, &command).await;
     // a signed build already notified when signing started
     let notified = result.is_ok() && intent.config.sign.source.is_enabled();
     if notify && !notified {
@@ -582,6 +595,7 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
 async fn build_and_upload(
     intent: &BuildIntent,
     target: PackageTarget,
+    apt: &AptPlan,
     command: &BuildCommand,
 ) -> anyhow::Result<()> {
     let upstream_version = target.package.version().upstream_version().to_string();
@@ -590,7 +604,7 @@ async fn build_and_upload(
             Some(mode) => crate::upload::orig::decide_orig_upload(mode, &intent.source_dir)?,
             None => true,
         };
-        build_source_package(intent, &target, &command.changes_options, include_orig)
+        build_source_package(intent, &target, apt, &command.changes_options, include_orig)
             .await
             .context("Building the source package failed")?
     } else {
@@ -602,7 +616,7 @@ async fn build_and_upload(
             )
             .context("host's /etc/os-release does not match the build target distro")?;
         }
-        build_binary_package(intent, &target, &command.changes_options)
+        build_binary_package(intent, &target, apt, &command.changes_options)
             .await
             .context("Building the package failed")?
     };

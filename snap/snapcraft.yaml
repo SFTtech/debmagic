@@ -20,6 +20,7 @@ confinement: strict
 apps:
   debmagic:
     command: bin/debmagic
+    plugs: [home, network, network-bind]
 
 parts:
   debmagic:
@@ -28,6 +29,7 @@ parts:
     rust-path: [packages/debmagic]
     rust-channel: "none"
     build-packages: [git, rustc, cargo]
+    stage-packages: [distro-info-data]
     override-pull: |
       craftctl default
       # store has 32 char limit (-> use +d as dirty and format manually).

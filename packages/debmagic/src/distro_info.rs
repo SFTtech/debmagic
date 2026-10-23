@@ -1,4 +1,4 @@
-//! The Debian and Ubuntu release table from distro-info-data: the host's
+//! The Debian and Ubuntu release table from distro-info-data: the system's
 //! copy if it's current, else one fetched from upstream into the cache.
 
 use std::path::{Path, PathBuf};
@@ -7,7 +7,7 @@ use std::time::{Duration, SystemTime};
 use anyhow::Context;
 use debmagic_common::distro::DistroTable;
 
-const HOST_DIR: &str = "/usr/share/distro-info";
+const DATA_DIR: &str = "usr/share/distro-info";
 const UPSTREAM: &str = "https://salsa.debian.org/debian/distro-info-data/-/raw/main";
 const DEBIAN_CSV: &str = "debian.csv";
 const UBUNTU_CSV: &str = "ubuntu.csv";
@@ -19,12 +19,16 @@ const CACHE_MAX_AGE: Duration = Duration::from_secs(30 * 24 * 60 * 60);
 const OUTDATED_RETRY_AGE: Duration = Duration::from_secs(24 * 60 * 60);
 
 /// The release table as of today, from the first current copy of
-/// distro-info-data: the host's, the cached one, a freshly fetched one.
+/// distro-info-data: the system's, the cached one, a freshly fetched one.
 /// When fetching fails, an outdated copy is used with a warning.
 pub async fn load() -> anyhow::Result<DistroTable> {
-    let mut host = read(Path::new(HOST_DIR)).transpose()?;
-    if let Some(table) = host.take_if(|table| table.outdated().is_empty()) {
-        return Ok(table);
+    let system_dirs = system_dirs(std::env::var_os("SNAP").map(PathBuf::from).as_deref());
+    let mut host = None;
+    for dir in &system_dirs {
+        match read(dir).transpose()? {
+            Some(table) if table.outdated().is_empty() => return Ok(table),
+            table => host = host.or(table),
+        }
     }
 
     let cache_dir = dirs::cache_dir()
@@ -54,10 +58,42 @@ pub async fn load() -> anyhow::Result<DistroTable> {
             );
             Ok(stale)
         }
-        (Err(error), None) => Err(error.context(format!(
-            "no distro-info-data in {HOST_DIR} or the cache; install distro-info-data"
-        ))),
+        (Err(error), None) => {
+            let searched: Vec<String> = system_dirs
+                .iter()
+                .chain([&cache_dir])
+                .map(|dir| dir.display().to_string())
+                .collect();
+            Err(error.context(format!(
+                "no distro-info-data in {}; install distro-info-data",
+                searched.join(", ")
+            )))
+        }
     }
+}
+
+/// Where distro-info-data may be installed: the system, and in a snap
+/// (whose `/usr` is its base's under strict confinement) the snap itself and
+/// its base snap.
+fn system_dirs(snap: Option<&Path>) -> Vec<PathBuf> {
+    let mut dirs = vec![Path::new("/").join(DATA_DIR)];
+    if let Some(snap) = snap {
+        dirs.push(snap.join(DATA_DIR));
+        let meta = std::fs::read_to_string(snap.join("meta/snap.yaml")).unwrap_or_default();
+        dirs.extend(
+            snap_base(&meta)
+                .map(|base| Path::new("/snap").join(base).join("current").join(DATA_DIR)),
+        );
+    }
+    dirs
+}
+
+/// The `base` of a snap from its `meta/snap.yaml`.
+fn snap_base(meta: &str) -> Option<&str> {
+    meta.lines()
+        .find_map(|line| line.strip_prefix("base:"))
+        .map(|base| base.trim().trim_matches(['"', '\'']))
+        .filter(|base| !base.is_empty())
 }
 
 fn today() -> chrono::NaiveDate {
@@ -113,5 +149,27 @@ fn warn_if_outdated(table: &DistroTable, source: &str) {
             "debmagic: warning: the distro-info-data from {source} predates the latest {} release",
             outdated.join(" and ")
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn snap_also_searches_itself_and_its_base() {
+        let dir = std::env::temp_dir().join(format!("debmagic-snap-{}", std::process::id()));
+        std::fs::create_dir_all(dir.join("meta")).unwrap();
+        std::fs::write(dir.join("meta/snap.yaml"), "name: debmagic\nbase: core26\n").unwrap();
+        assert_eq!(
+            system_dirs(Some(&dir)),
+            [
+                PathBuf::from("/usr/share/distro-info"),
+                dir.join("usr/share/distro-info"),
+                PathBuf::from("/snap/core26/current/usr/share/distro-info"),
+            ]
+        );
+        std::fs::remove_dir_all(&dir).unwrap();
+        assert_eq!(system_dirs(None), [PathBuf::from("/usr/share/distro-info")]);
     }
 }

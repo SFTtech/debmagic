@@ -306,12 +306,19 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         |claimed| {
             crate::output::stage("Installing autopkgtest");
             let staged_source_dir = stage_dir(claimed.environment(), BuildKind::Binary);
-            claimed.driver().run_command_checked(
-                &["apt-get", "install", "-y", "autopkgtest"],
+            // the former recommends autopkgtest needs for generated tests
+            // and build-needed ones
+            let install = crate::apt::Install {
+                packages: vec!["autopkgtest", "autodep8", "fakeroot"],
+                ..Default::default()
+            };
+            crate::apt::install(
+                claimed.driver(),
                 &staged_source_dir,
-                true,
-                &[("DEBIAN_FRONTEND", "noninteractive")],
-            )?;
+                &claimed.environment().distro,
+                &install,
+            )
+            .context("installing autopkgtest failed")?;
 
             let work_dir = claimed.environment().work_dir();
             let changes_filename = changes_path

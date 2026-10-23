@@ -1,3 +1,4 @@
+pub mod apt;
 pub mod artifact;
 pub mod changes;
 pub mod checksums;

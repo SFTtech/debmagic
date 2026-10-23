@@ -4,6 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
+use crate::apt;
 use crate::build::source::{source_manifest_path, stage_dir, stage_source_tree};
 use crate::build_intent::{BuildIntent, BuildIntentInput, BuildKind, resolve_build_intent};
 use crate::driver::{Driver, DriverType, Environment, EnvironmentDriver, EnvironmentPurpose};
@@ -13,6 +14,7 @@ use crate::environment::{
 use crate::package::PackageTarget;
 use crate::upstream::orig::link_or_copy;
 use anyhow::{Context, anyhow};
+use debmagic_common::debian::control::BuildScope;
 use debmagic_common::debian::source::SourceFormat;
 use debmagic_common::package::SourcePackage;
 
@@ -231,17 +233,20 @@ pub async fn build_binary_package(
     run_build(&request, |claimed| {
         crate::output::stage("Building binary package(s)");
         let staged_source_dir = stage_dir(claimed.environment(), BuildKind::Binary);
-        // build-essential is an implicit dependency that `apt-get build-dep`
-        // won't pull in. No-op when the environment already has it
-        // (idempotent, and the bare driver runs on the host).
+        let profiles = build_profiles(
+            std::env::var("DEB_BUILD_PROFILES").ok().as_deref(),
+            intent.config.run_test,
+        );
+        // build-essential is an implicit build dependency
         let mut packages = vec!["build-essential"];
         packages.extend(gain_root_package(target)?);
-        install_packages(claimed, &staged_source_dir, &packages)?;
-        claimed.driver().run_command_checked(
-            &["apt-get", "-y", "build-dep", "."],
-            &staged_source_dir,
-            true,
-            &[],
+        install_packages(
+            claimed,
+            target,
+            BuildKind::Binary,
+            packages,
+            Some(BuildScope::Full),
+            &profiles,
         )?;
         let inherited_options = std::env::var("DEB_BUILD_OPTIONS").ok();
         let options = deb_build_options(
@@ -249,7 +254,11 @@ pub async fn build_binary_package(
             intent.config.build_debug_symbols,
             intent.config.run_test,
         );
+        let profiles = profiles.join(" ");
         let mut env_add = vec![("DEB_BUILD_OPTIONS", options.as_str())];
+        if !profiles.is_empty() {
+            env_add.push(("DEB_BUILD_PROFILES", &profiles));
+        }
         if let Some(variant) = intent.config.host_arch_variant.as_deref() {
             env_add.push(("DEB_HOST_ARCH_VARIANT", variant));
         }
@@ -292,15 +301,57 @@ fn gain_root_package(target: &PackageTarget) -> anyhow::Result<Option<&'static s
         .then_some("fakeroot"))
 }
 
+/// Install `packages` and, for `scope`, the build relations of the staged
+/// source tree, evaluated with `profiles`.
 fn install_packages(
     claimed: &ClaimedEnvironment,
-    dir: &Path,
-    packages: &[&str],
+    target: &PackageTarget,
+    kind: BuildKind,
+    packages: Vec<&str>,
+    scope: Option<BuildScope>,
+    profiles: &[String],
 ) -> anyhow::Result<()> {
-    let mut cmd = vec!["apt-get", "-y", "-q", "--no-install-recommends", "install"];
-    cmd.extend(packages);
-    claimed.driver().run_command_checked(&cmd, dir, true, &[])?;
-    Ok(())
+    let build_relations = scope
+        .map(|scope| {
+            anyhow::Ok(
+                target
+                    .package
+                    .control()
+                    .context("reading the build dependencies failed")?
+                    .build_relations(scope),
+            )
+        })
+        .transpose()?;
+    let install = apt::Install {
+        packages,
+        build_relations,
+        profiles: profiles.to_vec(),
+    };
+    let environment = claimed.environment();
+    let staged_source_dir = stage_dir(environment, kind);
+    apt::install(
+        claimed.driver(),
+        &staged_source_dir,
+        &environment.distro,
+        &install,
+    )
+    .context("installing the build dependencies failed")
+}
+
+/// The build profiles from `inherited` (`DEB_BUILD_PROFILES`), plus
+/// `nocheck` when tests don't run, so test-only build dependencies are
+/// skipped.
+fn build_profiles(inherited: Option<&str>, run_test: bool) -> Vec<String> {
+    let mut profiles: Vec<String> = inherited
+        .unwrap_or_default()
+        .split_whitespace()
+        .filter(|profile| *profile != "nocheck")
+        .map(str::to_string)
+        .collect();
+    if !run_test {
+        profiles.push("nocheck".to_string());
+    }
+    profiles
 }
 
 /// Confirm `cmd` is on `PATH`, failing with an actionable message (rather
@@ -418,17 +469,9 @@ pub async fn build_source_package(
             })?;
         }
         // dpkg-buildpackage looks for the gain-root command even for -S
-        if let Some(package) = gain_root_package(target)? {
-            install_packages(claimed, &staged_source_dir, &[package])?;
-        }
-        if intent.config.clean {
-            claimed.driver().run_command_checked(
-                &["apt-get", "-y", "build-dep", "."],
-                &staged_source_dir,
-                true,
-                &[],
-            )?;
-        }
+        let packages = gain_root_package(target)?.into_iter().collect();
+        let scope = intent.config.clean.then_some(BuildScope::Clean);
+        install_packages(claimed, target, BuildKind::Source, packages, scope, &[])?;
         let mut args: Vec<String> = vec![
             "dpkg-buildpackage".into(),
             "-S".into(),
@@ -609,5 +652,12 @@ mod tests {
             deb_build_options(Some("nocheck parallel=8"), true, true),
             "parallel=8"
         );
+    }
+
+    #[test]
+    fn run_test_profile_adds_nocheck() {
+        assert_eq!(build_profiles(None, true), Vec::<String>::new());
+        assert_eq!(build_profiles(Some("nodoc"), false), ["nodoc", "nocheck"]);
+        assert_eq!(build_profiles(Some("nocheck nodoc"), true), ["nodoc"]);
     }
 }

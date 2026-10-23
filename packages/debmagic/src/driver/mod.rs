@@ -104,28 +104,6 @@ pub fn environment_fingerprint(parts: &[&str]) -> String {
         .to_string()
 }
 
-/// Refresh the apt index and upgrade the installed packages, so a cached
-/// image or a long-lived Environment builds against current packages, like
-/// sbuild does.
-pub fn upgrade_packages(driver: &dyn EnvironmentDriver, cwd: &Path) -> io::Result<()> {
-    let env = [("DEBIAN_FRONTEND", "noninteractive")];
-    driver.run_command_checked(&["apt-get", "update"], cwd, true, &env)?;
-    driver.run_command_checked(
-        &[
-            "apt-get",
-            "-y",
-            "-o",
-            "Dpkg::Options::=--force-confdef",
-            "-o",
-            "Dpkg::Options::=--force-confold",
-            "upgrade",
-        ],
-        cwd,
-        true,
-        &env,
-    )
-}
-
 /// Whether a reused environment needs an apt refresh again under `policy`.
 /// `last_update` is when its apt index was last refreshed; `None` means
 /// never.
@@ -350,13 +328,6 @@ pub struct EnvironmentMetadata {
     pub driver_metadata: HashMap<String, String>,
 }
 
-/// Source of a Python script that rewrites the default Debian/Ubuntu apt
-/// sources to point at a mirror. Replaces the base image's default sources
-/// file(s) outright with one debmagic owns, rather than parsing and
-/// patching them in place, defaulting to the release/updates/security
-/// pockets it detects from `/etc/os-release`.
-pub const APT_MIRROR_SCRIPT: &str = include_str!("scripts/mirror.py");
-
 pub trait EnvironmentDriver {
     fn driver_metadata(&self) -> HashMap<String, String>;
 
@@ -400,6 +371,12 @@ pub trait EnvironmentDriver {
 
     fn reused_environment(&self) -> bool {
         true
+    }
+
+    /// When the packages of a fresh Environment were last refreshed, if it
+    /// comes with refreshed ones (a container from a cached image).
+    fn packages_refreshed_at(&self) -> Option<SystemTime> {
+        None
     }
 
     /// Whether the Driver resource for this Environment still exists.
@@ -478,6 +455,14 @@ impl EnvironmentDriver for Driver {
             Self::Docker(d) => d.reused_environment(),
             Self::Bare(d) => d.reused_environment(),
             Self::Lxd(d) => d.reused_environment(),
+        }
+    }
+
+    fn packages_refreshed_at(&self) -> Option<SystemTime> {
+        match self {
+            Self::Docker(d) => d.packages_refreshed_at(),
+            Self::Bare(d) => d.packages_refreshed_at(),
+            Self::Lxd(d) => d.packages_refreshed_at(),
         }
     }
 

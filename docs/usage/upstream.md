@@ -22,7 +22,7 @@ The changelog's version is normalized with the watch file's `Dversion-Mangle` ru
 
 ## `upstream fetch`
 
-Puts the `orig` tarball of an upstream version into the package's output dir (`build/` by default, `-o` overrides it), where `debmagic build source` finds it.
+Puts the `orig` tarball of an upstream version into the package's output dir (`build-area/` by default, `-o` overrides it), where `debmagic build source` finds it.
 Without a version it fetches the changelog's upstream version; MUT component tarballs are fetched along with the main one.
 
 An orig tarball already in the output dir is kept, and one next to the source tree (`../`) is linked into it: re-creating a tarball changes its checksums, and the archive rejects an upload whose orig differs from the one it has.
@@ -46,8 +46,8 @@ Distro tarballs are never repacked: the archive already holds them.
 Fetches the chosen version's orig tarball exactly like `upstream fetch` — with the same options — and replaces the source tree's contents with it, everything except `debian/`, which is kept as-is.
 The changelog is not touched; add the new version entry with [`debmagic changelog new`](changelog.md).
 
-The output dir (`build/` by default) is kept across the switch.
-If the new version starts shipping a directory of that name — autotools projects sometimes do — the output dir moves to `build-debmagic/` (see [Output dir](build.md#output-dir)); with `output_dir_clash = "fail"` or `-o`, the switch stops before changing anything.
+The output dir (`build-area/` by default) is kept across the switch.
+If the new version starts shipping a directory of that name, the output dir moves to `build-debmagic/` (see [Output dir](build.md#output-dir)); with `output_dir_clash = "fail"` or `-o`, the switch stops before changing anything.
 
 For a concrete version, the tarball URL is resolved without scraping the download listing:
 
@@ -104,7 +104,7 @@ Rare options with no debmagic equivalent yet (`Mode: git`/`svn`, `Version-Schema
 
 `debmagic build source` needs the `orig` tarball for `3.0 (quilt)` packages and finds it without any configuration:
 
-1. the package's output dir (`build/` by default) — where `upstream switch` puts it
+1. the package's output dir (`build-area/` by default) — where `upstream switch` puts it
 2. next to the source tree (`../`), the conventional location — used as-is, never written to
 3. the download cache (`~/.cache/debmagic/orig/<name>/<upstream_version>/`) — populated by the `launchpad` method; a cached tarball is hardlinked into the output dir when both are on the same filesystem, copied otherwise
 4. the configured fetch method — `launchpad` by default, no configuration needed:

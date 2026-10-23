@@ -491,7 +491,11 @@ pub struct CommonBuildArgs {
     #[command(flatten)]
     pub common: CommonCli,
 
-    #[arg(short, long, help = "Output directory for the package artifacts")]
+    #[arg(
+        short,
+        long,
+        help = "Output directory for the package artifacts (relative paths resolve against the current working directory)"
+    )]
     pub output_dir: Option<PathBuf>,
 
     #[arg(
@@ -695,7 +699,7 @@ pub struct SignSubcommandArgs {
     #[arg(
         short,
         long,
-        help = "Directory holding the .changes file when no file is given (default '..')."
+        help = "Directory holding the .changes file when no file is given (default 'build-area' under the package source directory)."
     )]
     pub output_dir: Option<PathBuf>,
 

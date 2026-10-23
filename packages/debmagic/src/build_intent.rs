@@ -309,10 +309,10 @@ mod tests {
         assert!(intent.source_dir.is_absolute());
         assert!(intent.output_dir.is_absolute());
         assert_eq!(intent.source_dir, std::fs::canonicalize(&dir)?);
-        // default output dir is build/, relative to the package root
+        // default output dir is build-area/, relative to the package source dir
         assert_eq!(
             intent.output_dir,
-            std::path::absolute(std::fs::canonicalize(&dir)?.join("build"))?
+            std::fs::canonicalize(&dir)?.join("build-area")
         );
         Ok(())
     }

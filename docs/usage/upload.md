@@ -16,7 +16,7 @@ debmagic build source --sign --sign-key you@example.com --upload ppa:your-lp-use
 debmagic upload --sign ppa:your-lp-username/your-ppa
 
 # upload a specific .changes file to a host defined in debmagic.toml:
-debmagic upload myhost ./build/pkg_1.0-1_source.changes
+debmagic upload myhost ./build-area/pkg_1.0-1_source.changes
 ```
 
 ## Upload targets

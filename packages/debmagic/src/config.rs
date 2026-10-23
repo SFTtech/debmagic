@@ -229,9 +229,10 @@ pub struct Config {
     /// Parent directory of Environment Host roots.
     pub environments_dir: PathBuf,
     /// Where build artifacts are exported; relative paths resolve against
-    /// the package root.
+    /// the package source directory.
     pub output_dir: PathBuf,
     /// Used instead of `output_dir` when that holds upstream's files.
+    /// Relative paths resolve against the package source directory.
     pub output_dir_fallback: PathBuf,
     /// How to handle an output dir clash with upstream's files.
     pub output_dir_clash: OutputDirClash,
@@ -396,7 +397,7 @@ impl Default for Config {
             driver: DriverConfig::default(),
             apt: AptConfig::default(),
             environments_dir: crate::data_dir::default_environments_dir(),
-            output_dir: PathBuf::from("build"),
+            output_dir: PathBuf::from("build-area"),
             output_dir_fallback: PathBuf::from("build-debmagic"),
             output_dir_clash: OutputDirClash::default(),
             incremental: false,

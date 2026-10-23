@@ -30,7 +30,8 @@ src/*/*.lock
 # testing
 /*.conf
 /test
-/build
+/build-area
+/build-debmagic
 *.snap
 
 # ides

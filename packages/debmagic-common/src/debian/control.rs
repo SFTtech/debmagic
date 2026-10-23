@@ -38,6 +38,8 @@ pub struct Control {
     /// to one line without empty entries; `None` if absent or empty.
     pub build_depends: [Option<String>; 3],
     pub build_conflicts: [Option<String>; 3],
+    /// The binary packages it builds.
+    pub binaries: Vec<String>,
 }
 
 impl Control {
@@ -45,7 +47,8 @@ impl Control {
         let deb822 = content
             .parse::<deb822_lossless::Deb822>()
             .context("invalid deb822")?;
-        let source = deb822.paragraphs().next().context("no source paragraph")?;
+        let mut paragraphs = deb822.paragraphs();
+        let source = paragraphs.next().context("no source paragraph")?;
         let relations = |fields: [&str; 3]| {
             fields.map(|field| {
                 source
@@ -59,6 +62,10 @@ impl Control {
                 .map(|value| value.split_whitespace().map(str::to_string).collect()),
             build_depends: relations(BUILD_DEPENDS_FIELDS),
             build_conflicts: relations(BUILD_CONFLICTS_FIELDS),
+            binaries: paragraphs
+                .filter_map(|binary| binary.get("Package"))
+                .map(|name| name.trim().to_string())
+                .collect(),
         })
     }
 
@@ -140,5 +147,11 @@ mod tests {
                 conflicts: vec!["libbar-dev".to_string()],
             }
         );
+    }
+
+    #[test]
+    fn test_binaries() {
+        let control = Control::parse(&format!("{BUILD_RELATIONS}\nPackage: libfoo1\n")).unwrap();
+        assert_eq!(control.binaries, ["foo", "libfoo1"]);
     }
 }

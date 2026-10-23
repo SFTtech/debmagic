@@ -58,6 +58,37 @@ impl Selection {
     pub fn is_on(&self) -> bool {
         *self != Self::Off
     }
+
+    /// Whether it names the source package `source` or one of its
+    /// `binaries`, globs aside.
+    pub fn names_package(&self, source: &str, binaries: &[String]) -> bool {
+        let Self::Only(packages) = self else {
+            return false;
+        };
+        packages
+            .iter()
+            .any(|package| match package.strip_prefix("src:") {
+                Some(name) => without_arch(name) == source,
+                None => binaries
+                    .iter()
+                    .any(|binary| binary == without_arch(package)),
+            })
+    }
+
+    /// It with all binaries of `source`, if it names packages.
+    pub fn with_source(mut self, source: &str) -> Self {
+        if let Self::Only(packages) = &mut self {
+            let pattern = format!("src:{source}");
+            if !packages.contains(&pattern) {
+                packages.push(pattern);
+            }
+        }
+        self
+    }
+}
+
+fn without_arch(package: &str) -> &str {
+    package.split_once(':').map_or(package, |(name, _)| name)
 }
 
 /// A bool, or a comma-separated list of packages.
@@ -315,6 +346,29 @@ mod tests {
     #[test_case("libfoo, src:bar", Selection::Only(vec!["libfoo".into(), "src:bar".into()]))]
     fn selection_from_str(value: &str, expected: Selection) {
         assert_eq!(value.parse::<Selection>(), Ok(expected));
+    }
+
+    #[test_case("libfoo1:amd64", true ; "binary")]
+    #[test_case("src:foo:any", true ; "source")]
+    #[test_case("libfoo-dev", false ; "other binary")]
+    #[test_case("src:food", false ; "other source")]
+    #[test_case("yes", false ; "all")]
+    fn selection_names_package(value: &str, expected: bool) {
+        let selection = value.parse::<Selection>().unwrap();
+        assert_eq!(
+            selection.names_package("foo", &["libfoo1".into()]),
+            expected
+        );
+    }
+
+    #[test]
+    fn with_source_adds_all_binaries_once() {
+        let selection = Selection::Only(vec!["libfoo1".into()]).with_source("foo");
+        assert_eq!(
+            selection.clone().with_source("foo"),
+            Selection::Only(vec!["libfoo1".into(), "src:foo".into()])
+        );
+        assert_eq!(Selection::All.with_source("foo"), Selection::All);
     }
 
     #[test_case("")]

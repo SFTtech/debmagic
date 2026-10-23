@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use crate::apt::AptOverrides;
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
 use crate::driver::config::DriverOverrides;
@@ -744,12 +745,19 @@ pub struct UploadSubcommandArgs {
 
 impl EnvironmentArgs {
     /// Collect the driver-specific overrides from the CLI flags.
-    pub fn driver_overrides(&self) -> DriverOverrides {
-        DriverOverrides {
-            apt_mirror: self.apt_mirror.clone(),
+    /// Collect the `[apt]` overrides from the CLI flags.
+    pub fn apt_overrides(&self) -> AptOverrides {
+        AptOverrides {
+            mirror: self.apt_mirror.clone(),
+            update_age: self.apt_update_age,
             proposed: self.proposed.clone(),
             experimental: self.experimental.clone(),
-            apt_update_age: self.apt_update_age,
+        }
+    }
+
+    /// Collect the driver-specific overrides from the CLI flags.
+    pub fn driver_overrides(&self) -> DriverOverrides {
+        DriverOverrides {
             docker: DriverDockerConfigOverrides {
                 base_image: self.docker.base_image.clone(),
             },

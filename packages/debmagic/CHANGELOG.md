@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - `debmagic switch <version>` upstream source fetching and orig tarballs handling with `debmagic upstream` (and caching them)
-- dynamic interval for running `apt update` configured by `--apt-update-age` / `driver.apt_update_age`
+- dynamic interval for running `apt update` configured by `--apt-update-age` / `apt.update_age`
+- apt settings move from `[driver]` to `[apt]`: `driver.apt_mirror` is now `apt.mirror`, `driver.proposed` is `apt.proposed`
 - `debmagic env list`, `debmagic env clean`, and `debmagic env shell` for a machine-wide view of environments
 
 ## [0.0.1-alpha.8] - 2026-09-20

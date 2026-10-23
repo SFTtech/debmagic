@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use anyhow::Context;
 
 use crate::{
+    apt::AptOverrides,
     build::source::SourceSyncMode,
     config::Config,
     driver::{DriverType, Persistence, config::DriverOverrides},
@@ -42,6 +43,7 @@ pub struct BuildIntentInput {
     pub clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
     pub host_arch_variant: Option<String>,
+    pub apt_overrides: AptOverrides,
     pub driver_overrides: DriverOverrides,
 }
 
@@ -85,6 +87,7 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         config.run_test = test;
     }
     input.sign_overrides.apply(&mut config.sign);
+    input.apt_overrides.apply(&mut config.apt);
     config.sign.source = resolve_sign_mode(input.sign, &config, input.kind);
     config.override_notify(input.notify);
     if let Some(clean) = input.clean {
@@ -182,11 +185,8 @@ mod tests {
             clean: None,
             source_sync: None,
             host_arch_variant: None,
+            apt_overrides: AptOverrides::default(),
             driver_overrides: DriverOverrides {
-                apt_mirror: None,
-                proposed: None,
-                experimental: None,
-                apt_update_age: None,
                 docker: DriverDockerConfigOverrides { base_image: None },
                 bare: DriverBareConfigOverrides {},
                 lxd: DriverLxdConfigOverrides {

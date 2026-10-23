@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use anyhow::Context;
 
 use crate::{
+    apt::AptOverrides,
     config::Config,
     driver::{DriverType, Persistence, config::DriverOverrides},
 };
@@ -20,6 +21,7 @@ pub struct TestIntentInput {
     pub changes: Option<PathBuf>,
     pub allow_host_test: bool,
     pub distro: Option<String>,
+    pub apt_overrides: AptOverrides,
     pub driver_overrides: DriverOverrides,
 }
 
@@ -50,6 +52,7 @@ pub fn resolve_test_intent(input: TestIntentInput) -> anyhow::Result<TestIntent>
         config.driver.persistent = persistent;
     }
     config.override_notify(input.notify);
+    input.apt_overrides.apply(&mut config.apt);
 
     let changes = if let Some(changes) = input.changes {
         Some(std::path::absolute(changes).context("resolving --changes path failed")?)
@@ -95,11 +98,8 @@ mod tests {
             changes: None,
             allow_host_test: false,
             distro: None,
+            apt_overrides: AptOverrides::default(),
             driver_overrides: DriverOverrides {
-                apt_mirror: None,
-                proposed: None,
-                experimental: None,
-                apt_update_age: None,
                 docker: DriverDockerConfigOverrides { base_image: None },
                 bare: DriverBareConfigOverrides {},
                 lxd: DriverLxdConfigOverrides {

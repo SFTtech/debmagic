@@ -6,12 +6,64 @@ use std::{fs, io, os::unix::fs::PermissionsExt, path::Path};
 
 use anyhow::Context;
 use debmagic_common::{
-    apt::{self, Suites},
+    apt::{self, Selection, Suites},
     debian::control::BuildRelations,
     distro::DistroVersion,
 };
+use serde::{Deserialize, Serialize};
 
 use crate::driver::EnvironmentDriver;
+use crate::time::RefreshPolicy;
+
+/// The `[apt]` section: where an Environment's packages come from. Not
+/// used by the bare driver, which builds on the host's own sources.
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[serde(default)]
+pub struct AptConfig {
+    /// Mirror replacing the distro's default archive.
+    pub mirror: Option<String>,
+    /// When a reused Environment runs apt-get update/upgrade again.
+    pub update_age: RefreshPolicy,
+    /// Packages from the suite the release's updates migrate from: `true`
+    /// for all, or a list.
+    pub proposed: Selection,
+    /// Packages from Debian experimental, for unstable and testing builds.
+    pub experimental: Selection,
+}
+
+impl AptConfig {
+    /// The suites beyond its release an Environment for `distro` takes
+    /// packages from.
+    pub fn suites(&self, distro: &DistroVersion) -> anyhow::Result<Suites> {
+        Suites::for_distro(distro, self.proposed.clone(), self.experimental.clone())
+    }
+}
+
+/// The `[apt]` settings given on the command line.
+#[derive(Debug, Clone, Default)]
+pub struct AptOverrides {
+    pub mirror: Option<String>,
+    pub update_age: Option<RefreshPolicy>,
+    pub proposed: Option<Selection>,
+    pub experimental: Option<Selection>,
+}
+
+impl AptOverrides {
+    pub fn apply(self, config: &mut AptConfig) {
+        if let Some(mirror) = self.mirror {
+            config.mirror = Some(mirror);
+        }
+        if let Some(update_age) = self.update_age {
+            config.update_age = update_age;
+        }
+        if let Some(proposed) = self.proposed {
+            config.proposed = proposed;
+        }
+        if let Some(experimental) = self.experimental {
+            config.experimental = experimental;
+        }
+    }
+}
 
 const ENV: [(&str, &str); 1] = [("DEBIAN_FRONTEND", "noninteractive")];
 

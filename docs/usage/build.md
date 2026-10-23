@@ -86,7 +86,7 @@ You can persistently set this flag in  `.config/debmagic/config.toml`.
 The bare driver builds on the host and never upgrades it.
 
 The default `1d` matches a typical developer machine's daily apt refresh: repeated builds stay fast, while the index can't go arbitrarily stale.
-Persist the setting as `apt_update_age = "1d"` in [`debmagic.toml`](config.md).
+Persist the setting as `update_age = "1d"` in the `[apt]` section of [`debmagic.toml`](config.md).
 
 ## Source file staging
 

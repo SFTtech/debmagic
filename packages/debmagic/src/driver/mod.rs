@@ -1,9 +1,6 @@
 use anyhow::Context;
 use clap::ValueEnum;
-use debmagic_common::{
-    apt::{Selection, Suites},
-    distro::DistroVersion,
-};
+use debmagic_common::distro::DistroVersion;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
@@ -14,6 +11,7 @@ use std::{
     time::SystemTime,
 };
 
+use crate::apt::AptConfig;
 use crate::driver::{
     config::{DriverConfig, DriverOverrides},
     driver_bare::DriverBare,
@@ -489,29 +487,23 @@ impl EnvironmentDriver for Driver {
 pub fn create_driver(
     environment: &Environment,
     driver_config: &DriverConfig,
+    apt: &AptConfig,
     overrides: &DriverOverrides,
 ) -> anyhow::Result<Driver> {
-    let apt_mirror = overrides
-        .apt_mirror
-        .as_deref()
-        .or(driver_config.apt_mirror.as_deref());
-    let suites = apt_suites(&environment.distro, driver_config, overrides)?;
-    let mut driver_config = driver_config.clone();
-    if let Some(apt_update_age) = overrides.apt_update_age {
-        driver_config.apt_update_age = apt_update_age;
-    }
+    let apt_mirror = apt.mirror.as_deref();
+    let suites = apt.suites(&environment.distro)?;
 
     match environment.driver {
         DriverType::Docker => Ok(Driver::Docker(DriverDocker::create(
             environment,
-            &driver_config,
+            driver_config,
             &overrides.docker,
             apt_mirror,
             &suites,
         )?)),
         DriverType::Bare => Ok(Driver::Bare(DriverBare::create(
             environment,
-            &driver_config,
+            driver_config,
             &overrides.bare,
         ))),
         DriverType::Lxd | DriverType::Incus => {
@@ -522,30 +514,13 @@ pub fn create_driver(
             Ok(Driver::Lxd(DriverLxd::create(
                 variant,
                 environment,
-                &driver_config,
+                driver_config,
                 &overrides.lxd,
                 apt_mirror,
                 &suites,
             )?))
         }
     }
-}
-
-/// The suites beyond its release an Environment for `distro` takes
-/// packages from.
-pub fn apt_suites(
-    distro: &DistroVersion,
-    driver_config: &DriverConfig,
-    overrides: &DriverOverrides,
-) -> anyhow::Result<Suites> {
-    let pick = |chosen: &Option<Selection>, configured: &Selection| {
-        chosen.clone().unwrap_or_else(|| configured.clone())
-    };
-    Suites::for_distro(
-        distro,
-        pick(&overrides.proposed, &driver_config.proposed),
-        pick(&overrides.experimental, &driver_config.experimental),
-    )
 }
 
 /// The Driver metadata [`create_driver`] will produce, computed without

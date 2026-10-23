@@ -24,13 +24,13 @@ All keys are optional.
 |---|---|---|---|---|
 | `driver.default` | enum | — | `--driver` | Build driver (`docker`, `bare`, `lxd`, `incus`) |
 | `driver.persistent` | enum | `"on-failure"` | `--persistent` | How long the Environment outlives the claim: `"no"`, `"on-failure"`, or `"always"`. A bare `--persistent` means `always`. |
-| `driver.apt_mirror` | string | — | `--apt-mirror` | Mirror replacing the image's apt sources. Not used by the `bare` driver. |
-| `driver.proposed` | bool or list | `false` | `--proposed` | Packages from the [proposed suite](build.md#proposed-dependencies): `true` for all newer ones, or a list like `["libfoo1", "src:bar"]`. Not used by the `bare` driver. |
-| `driver.experimental` | bool or list | `false` | `--experimental` | Packages from [experimental](build.md#experimental) for unstable and testing. Not used by the `bare` driver. |
-| `driver.apt_update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update && upgrade`: `"now"` (every build), `"never"` (only on creation), or a maximum age like `"1d"`, `"12h"`, `"30m"`. Not used by the `bare` driver. |
 | `driver.docker.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"` (e.g. `"debian:trixie"`). Falls back to `docker.io/<distro>:<codename>`. For non-Debian/Ubuntu suites (e.g. `"yocto:kirkstone"`), the map entry is what makes the suite a known DistroVersion for Docker builds. |
 | `driver.lxd.project` | string | — | — | LXD/Incus project to use. |
 | `driver.lxd.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"`. Falls back to the driver's default remote image. Same custom-suite registry role as Docker's map for LXD/Incus. |
+| `apt.mirror` | string | — | `--apt-mirror` | Mirror replacing the image's apt sources. |
+| `apt.update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update && upgrade`: `"now"` (every build), `"never"` (only on creation), or a maximum age like `"1d"`, `"12h"`, `"30m"`. |
+| `apt.proposed` | bool or list | `false` | `--proposed` | Packages from the [proposed suite](build.md#proposed-dependencies): `true` for all newer ones, or a list like `["libfoo1", "src:bar"]`. |
+| `apt.experimental` | bool or list | `false` | `--experimental` | Packages from [experimental](build.md#experimental) for unstable and testing. |
 | `environments_dir` | path | `$XDG_DATA_HOME/debmagic/environments` | — | Parent directory of Environment Host roots. Must be absolute or start with `~/`. The Environment registry is always `$XDG_DATA_HOME/debmagic/db.sqlite` (override both with `DEBMAGIC_DATA_DIR`). |
 | `output_dir` | path | `build` | `-o`/`--output-dir` | Where build artifacts are exported; relative paths resolve against the package root. See [Output dir](build.md#output-dir). |
 | `output_dir_fallback` | path | `build-debmagic` | — | Used instead of `output_dir` when upstream owns that directory. |
@@ -119,7 +119,9 @@ notify = true
 [driver]
 default = "lxd"
 persistent = "always"
-apt_mirror = "http://<mirror-host>/ubuntu"
+
+[apt]
+mirror = "http://<mirror-host>/ubuntu"
 
 [driver.docker]
 # Optional image overrides for known Debian/Ubuntu releases, and the registry

@@ -4,14 +4,12 @@ use std::{
 };
 
 use super::intent::TestIntent;
+use crate::apt::AptConfig;
 use crate::build::artifacts::{copy_changes_artifacts, copy_dir_all};
 use crate::build::source::{stage_dir, stage_source_tree};
 use crate::build_intent::BuildKind;
 use crate::driver::{DriverType, Environment, EnvironmentDriver, EnvironmentPurpose};
-use crate::driver::{
-    IsolationCapability,
-    config::{DriverConfig, DriverOverrides},
-};
+use crate::driver::{IsolationCapability, config::DriverConfig};
 use crate::environment::{
     CommandCompletion, HostRootPolicy, InvocationKind, RecordedInvocation, Registry, claim_command,
     prior_binary_invocation,
@@ -208,29 +206,24 @@ fn autopkgtest_isolation_args(isolation: IsolationCapability) -> Vec<&'static st
     }
 }
 
-/// The overrides to test the archive's build of `package` instead of a
+/// The apt config to test the archive's build of `package` instead of a
 /// local one, `None` to test a local build: when the proposed or
 /// experimental selection names it or one of its binaries, with all its
 /// binaries from that suite so their versions match.
-fn archive_build_overrides(
+fn archive_build_apt(
     package: &SourcePackage,
-    config: &DriverConfig,
-    overrides: &DriverOverrides,
-) -> anyhow::Result<Option<DriverOverrides>> {
+    apt: &AptConfig,
+) -> anyhow::Result<Option<AptConfig>> {
     let binaries = &package
         .control()
         .context("reading the binary packages failed")?
         .binaries;
     let name = package.name();
-    let mut archive = overrides.clone();
+    let mut archive = apt.clone();
     let mut named = false;
-    for (chosen, configured) in [
-        (&mut archive.proposed, &config.proposed),
-        (&mut archive.experimental, &config.experimental),
-    ] {
-        let selection = chosen.clone().unwrap_or_else(|| configured.clone());
+    for selection in [&mut archive.proposed, &mut archive.experimental] {
         if selection.names_package(name, binaries) {
-            *chosen = Some(selection.with_source(name));
+            *selection = std::mem::take(selection).with_source(name);
             named = true;
         }
     }
@@ -243,12 +236,9 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         .await
         .context("loading the Debian and Ubuntu releases failed")?;
     let registry = Registry::open_default_or_ephemeral().await?;
-    let archive_overrides =
-        archive_build_overrides(&package, &intent.config.driver, &intent.driver_overrides)?;
-    let from_archive = archive_overrides.is_some();
-    let overrides = archive_overrides
-        .as_ref()
-        .unwrap_or(&intent.driver_overrides);
+    let archive_apt = archive_build_apt(&package, &intent.config.apt)?;
+    let from_archive = archive_apt.is_some();
+    let apt = archive_apt.as_ref().unwrap_or(&intent.config.apt);
     if from_archive && intent.changes.is_some() {
         bail!(
             "--changes tests a local build, but the proposed or experimental packages name {} \
@@ -349,7 +339,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
             "no prior build metadata found; pass --distro when using --changes without a prior Invocation"
         );
     };
-    crate::driver::apt_suites(&distro, &intent.config.driver, overrides)?;
+    apt.suites(&distro)?;
 
     let environment = Environment::new(
         driver,
@@ -367,7 +357,8 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         &registry,
         environment,
         &intent.config.driver,
-        overrides,
+        apt,
+        &intent.driver_overrides,
         HostRootPolicy::Reset,
         |environment, _| {
             stage_source_tree(
@@ -395,7 +386,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
                 ..Default::default()
             };
             let distro = &claimed.environment().distro;
-            let suites = crate::driver::apt_suites(distro, &intent.config.driver, overrides)?;
+            let suites = apt.suites(distro)?;
             crate::apt::install(
                 claimed.driver(),
                 &staged_source_dir,
@@ -512,23 +503,19 @@ mod tests {
                 "Source: foo\n\nPackage: libfoo1\n\nPackage: foo-bin\n",
             ),
         ])?;
-        let config = DriverConfig::default();
         let only = |packages: &[&str]| {
             Selection::Only(packages.iter().map(|package| package.to_string()).collect())
         };
-        let mut overrides = DriverOverrides {
-            proposed: Some(only(&["libfoo1", "libbar1"])),
-            ..DriverOverrides::default()
+        let mut apt = AptConfig {
+            proposed: only(&["libfoo1", "libbar1"]),
+            ..AptConfig::default()
         };
-        let archive = archive_build_overrides(&package, &config, &overrides)?.unwrap();
-        assert_eq!(
-            archive.proposed,
-            Some(only(&["libfoo1", "libbar1", "src:foo"]))
-        );
-        assert_eq!(archive.experimental, None);
+        let archive = archive_build_apt(&package, &apt)?.unwrap();
+        assert_eq!(archive.proposed, only(&["libfoo1", "libbar1", "src:foo"]));
+        assert_eq!(archive.experimental, Selection::Off);
 
-        overrides.proposed = Some(Selection::All);
-        assert!(archive_build_overrides(&package, &config, &overrides)?.is_none());
+        apt.proposed = Selection::All;
+        assert!(archive_build_apt(&package, &apt)?.is_none());
         Ok(())
     }
 

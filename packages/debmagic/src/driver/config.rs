@@ -1,12 +1,10 @@
 use clap::ValueEnum;
-use debmagic_common::apt::Selection;
 use serde::{Deserialize, Serialize};
 
 use crate::driver::DriverType;
 use crate::driver::driver_bare::{DriverBareConfig, DriverBareConfigOverrides};
 use crate::driver::driver_docker::{DriverDockerConfig, DriverDockerConfigOverrides};
 use crate::driver::driver_lxd::{DriverLxdConfig, DriverLxdConfigOverrides};
-use crate::time::RefreshPolicy;
 
 /// How long the current claim lets an Environment outlive that claim.
 ///
@@ -57,16 +55,6 @@ pub struct DriverConfig {
     pub default: Option<DriverType>,
     /// Lifetime of the Environment after this claim. Unset is `on-failure`.
     pub persistent: Persistence,
-    /// Not used by the bare driver, which builds on the host's own sources.
-    pub apt_mirror: Option<String>,
-    /// Packages from the suite the release's updates migrate from: `true`
-    /// for all, or a list. Not used by the bare driver, which builds on the
-    /// host's own sources, like `experimental`.
-    pub proposed: Selection,
-    /// Packages from Debian experimental, for unstable and testing builds.
-    pub experimental: Selection,
-    /// When to run apt-get update/upgrade again.
-    pub apt_update_age: RefreshPolicy,
     pub docker: DriverDockerConfig,
     pub bare: DriverBareConfig,
     pub lxd: DriverLxdConfig,
@@ -74,10 +62,6 @@ pub struct DriverConfig {
 
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct DriverOverrides {
-    pub apt_mirror: Option<String>,
-    pub proposed: Option<Selection>,
-    pub experimental: Option<Selection>,
-    pub apt_update_age: Option<RefreshPolicy>,
     pub docker: DriverDockerConfigOverrides,
     pub bare: DriverBareConfigOverrides,
     pub lxd: DriverLxdConfigOverrides,

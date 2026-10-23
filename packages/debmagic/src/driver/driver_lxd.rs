@@ -4,7 +4,10 @@ use std::{
     process::{Command, Stdio},
 };
 
-use debmagic_common::distro::{Distro, DistroVersion};
+use debmagic_common::{
+    apt::Suites,
+    distro::{Distro, DistroVersion},
+};
 use serde::{Deserialize, Serialize};
 
 use crate::apt;
@@ -289,7 +292,7 @@ impl DriverLxd {
         driver_config: &DriverConfig,
         overrides: &DriverLxdConfigOverrides,
         apt_mirror: Option<&str>,
-        proposed: bool,
+        suites: &Suites,
     ) -> anyhow::Result<Self> {
         let container_name = Self::container_name_for(environment);
         let project = Self::resolve_project(driver_config, overrides);
@@ -304,7 +307,7 @@ impl DriverLxd {
         let setup = apt::Setup {
             distro: &environment.distro,
             mirror: apt_mirror,
-            proposed,
+            suites,
             services: environment.purpose == EnvironmentPurpose::Test,
         };
         let setup_fingerprint = setup.fingerprint();

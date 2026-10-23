@@ -31,7 +31,8 @@ The driver *is* the testbed: `autopkgtest` runs with the `null` backend inside t
 | `--strict` | Treat skipped tests and "no tests declared" as failures (exit code 2) |
 | `--changes <path>` | Path to a `.changes` file whose directory supplies the built `.debs` (for pipeline use). Overrides the artifact path only; driver and distro still default to the prior binary-build Invocation |
 | `--distro <name>` | Override the target distro for the test environment (defaults to the prior binary-build Invocation's distro, not the changelog) |
-| `--proposed` | Enable the `<release>-proposed` pocket in the test environment |
+| `--proposed[=<packages>]` | Test against packages from the [proposed suite](build.md#proposed-dependencies): all newer ones, or only the listed ones |
+| `--experimental[=<packages>]` | Test against the listed packages from [experimental](build.md#experimental); without a list, only what nothing else provides |
 | `--apt-mirror <url>` | Mirror URL (same as [`debmagic build`](build.md)) |
 | `--apt-update-age <when>` | Configure when to run `apt-get update` (same as [`debmagic build`](build.md#apt-update-age)) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |

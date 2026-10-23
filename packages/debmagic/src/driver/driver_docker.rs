@@ -7,7 +7,7 @@ use std::{
 };
 
 use anyhow::{Context, anyhow};
-use debmagic_common::distro::DistroVersion;
+use debmagic_common::{apt::Suites, distro::DistroVersion};
 use serde::{Deserialize, Serialize};
 
 use crate::apt;
@@ -246,7 +246,7 @@ impl DriverDocker {
         driver_config: &DriverConfig,
         overrides: &DriverDockerConfigOverrides,
         apt_mirror: Option<&str>,
-        proposed: bool,
+        suites: &Suites,
     ) -> anyhow::Result<Self> {
         let base_image = overrides.base_image.clone().unwrap_or_else(|| {
             driver_config
@@ -259,7 +259,7 @@ impl DriverDocker {
         let setup = apt::Setup {
             distro: &environment.distro,
             mirror: apt_mirror,
-            proposed,
+            suites,
             services: environment.purpose == EnvironmentPurpose::Test,
         };
         let dockerfile = dockerfile(environment, &base_image, &setup);

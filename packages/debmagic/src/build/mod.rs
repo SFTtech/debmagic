@@ -7,7 +7,9 @@ use std::{
 use crate::apt;
 use crate::build::source::{source_manifest_path, stage_dir, stage_source_tree};
 use crate::build_intent::{BuildIntent, BuildIntentInput, BuildKind, resolve_build_intent};
-use crate::driver::{Driver, DriverType, Environment, EnvironmentDriver, EnvironmentPurpose};
+use crate::driver::{
+    Driver, DriverType, Environment, EnvironmentDriver, EnvironmentPurpose, apt_suites,
+};
 use crate::environment::{
     ClaimedEnvironment, CommandCompletion, HostRootPolicy, InvocationKind, Registry, claim_command,
 };
@@ -242,6 +244,7 @@ pub async fn build_binary_package(
         packages.extend(gain_root_package(target)?);
         install_packages(
             claimed,
+            intent,
             target,
             BuildKind::Binary,
             packages,
@@ -305,6 +308,7 @@ fn gain_root_package(target: &PackageTarget) -> anyhow::Result<Option<&'static s
 /// source tree, evaluated with `profiles`.
 fn install_packages(
     claimed: &ClaimedEnvironment,
+    intent: &BuildIntent,
     target: &PackageTarget,
     kind: BuildKind,
     packages: Vec<&str>,
@@ -328,11 +332,17 @@ fn install_packages(
         profiles: profiles.to_vec(),
     };
     let environment = claimed.environment();
+    let suites = apt_suites(
+        &environment.distro,
+        &intent.config.driver,
+        &intent.driver_overrides,
+    )?;
     let staged_source_dir = stage_dir(environment, kind);
     apt::install(
         claimed.driver(),
         &staged_source_dir,
         &environment.distro,
+        &suites,
         &install,
     )
     .context("installing the build dependencies failed")
@@ -471,7 +481,15 @@ pub async fn build_source_package(
         // dpkg-buildpackage looks for the gain-root command even for -S
         let packages = gain_root_package(target)?.into_iter().collect();
         let scope = intent.config.clean.then_some(BuildScope::Clean);
-        install_packages(claimed, target, BuildKind::Source, packages, scope, &[])?;
+        install_packages(
+            claimed,
+            intent,
+            target,
+            BuildKind::Source,
+            packages,
+            scope,
+            &[],
+        )?;
         let mut args: Vec<String> = vec![
             "dpkg-buildpackage".into(),
             "-S".into(),
@@ -549,6 +567,11 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
         ),
     )
     .context("failed to determine package target")?;
+    apt_suites(
+        &target.distro,
+        &intent.config.driver,
+        &intent.driver_overrides,
+    )?;
 
     let package = format!("{} {}", target.package.name(), target.package.version());
     let notify = intent.config.build_notify();

@@ -5,7 +5,11 @@
 use std::{fs, io, os::unix::fs::PermissionsExt, path::Path};
 
 use anyhow::Context;
-use debmagic_common::{apt, debian::control::BuildRelations, distro::DistroVersion};
+use debmagic_common::{
+    apt::{self, Suites},
+    debian::control::BuildRelations,
+    distro::DistroVersion,
+};
 
 use crate::driver::EnvironmentDriver;
 
@@ -51,18 +55,18 @@ const DEFAULT_SOURCES: &[&str] = &[
 /// The apt and dpkg configuration of a fresh container: a file tree to copy
 /// over its root, written on the host so the container needs nothing to
 /// create it. Apt sources replace the base image's only for a `mirror` or
-/// the `proposed` pocket.
+/// extra suites.
 pub struct Setup<'a> {
     pub distro: &'a DistroVersion,
     pub mirror: Option<&'a str>,
-    pub proposed: bool,
+    pub suites: &'a Suites,
     /// Let installed packages start their services, which tests may expect.
     pub services: bool,
 }
 
 impl Setup<'_> {
     fn replaces_sources(&self) -> bool {
-        self.mirror.is_some() || self.proposed || apt::needs_own_sources(self.distro)
+        self.mirror.is_some() || *self.suites != Suites::default()
     }
 
     /// The setup files apart from the apt sources.
@@ -81,7 +85,7 @@ impl Setup<'_> {
             .chain([
                 self.script(""),
                 self.mirror.unwrap_or_default().to_string(),
-                self.proposed.to_string(),
+                format!("{:?}", self.suites),
             ])
             .collect::<Vec<_>>()
             .join("\0")
@@ -91,14 +95,14 @@ impl Setup<'_> {
     pub fn write(&self, dir: &Path) -> anyhow::Result<()> {
         let sources = self
             .replaces_sources()
-            .then(|| apt::sources_file(self.distro, self.mirror, self.proposed, host_dpkg_arch()))
+            .then(|| apt::sources_file(self.distro, self.mirror, self.suites, host_dpkg_arch()))
             .transpose()
             .context("generating the apt sources failed")?;
         if dir.exists() {
             fs::remove_dir_all(dir)
                 .with_context(|| format!("removing the old {} failed", dir.display()))?;
         }
-        let preferences = apt::preferences_file(self.distro, self.proposed);
+        let preferences = apt::preferences_file(self.distro, self.suites);
         let mut files: Vec<(&str, &str, u32)> = self.files().collect();
         for (path, content) in [(SOURCES_FILE, &sources), (PREFERENCES_FILE, &preferences)] {
             files.extend(content.as_deref().map(|content| (path, content, 0o644)));
@@ -205,19 +209,20 @@ pub fn install_commands(
     commands
 }
 
-/// Install `install`, for a release with a NotAutomatic suite like
-/// experimental retried preferring that suite: apt doesn't take a version
+/// Install `install`, with all of a NotAutomatic suite like experimental
+/// in `suites` retried preferring that suite: apt doesn't take a version
 /// only that suite has otherwise, while preferring it upfront would take
 /// everything it has.
 pub fn install(
     driver: &dyn EnvironmentDriver,
     cwd: &Path,
     distro: &DistroVersion,
+    suites: &Suites,
     install: &Install,
 ) -> io::Result<()> {
     let satisfy = apt::has_satisfy(distro);
     let result = run(driver, cwd, &install_commands(satisfy, install, None));
-    match apt::not_automatic_suite(distro) {
+    match apt::retry_suite(suites) {
         Some(suite) if result.is_err() => {
             println!("debmagic: retrying preferring the packages from {suite}");
             run(
@@ -337,7 +342,7 @@ mod tests {
         let mut setup = Setup {
             distro: &trixie,
             mirror: None,
-            proposed: false,
+            suites: &Suites::default(),
             services: false,
         };
         setup.write(&dir)?;

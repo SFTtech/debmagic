@@ -277,6 +277,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
             "no prior build metadata found; pass --distro when using --changes without a prior Invocation"
         );
     };
+    crate::driver::apt_suites(&distro, &intent.config.driver, &intent.driver_overrides)?;
 
     let environment = Environment::new(
         driver,
@@ -318,10 +319,14 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
                 packages: vec!["autopkgtest", "autodep8", "fakeroot"],
                 ..Default::default()
             };
+            let distro = &claimed.environment().distro;
+            let suites =
+                crate::driver::apt_suites(distro, &intent.config.driver, &intent.driver_overrides)?;
             crate::apt::install(
                 claimed.driver(),
                 &staged_source_dir,
-                &claimed.environment().distro,
+                distro,
+                &suites,
                 &install,
             )
             .context("installing autopkgtest failed")?;

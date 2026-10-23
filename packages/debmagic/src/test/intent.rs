@@ -98,6 +98,7 @@ mod tests {
             driver_overrides: DriverOverrides {
                 apt_mirror: None,
                 proposed: None,
+                experimental: None,
                 apt_update_age: None,
                 docker: DriverDockerConfigOverrides { base_image: None },
                 bare: DriverBareConfigOverrides {},

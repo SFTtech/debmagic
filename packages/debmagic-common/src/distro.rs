@@ -1,7 +1,8 @@
+use anyhow::Context;
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
-use std::sync::LazyLock;
 
 /// Distribution family. Known Debian/Ubuntu variants plus an open [`Custom`] name
 /// for other apt/dpkg targets (`yocto`, …).
@@ -98,77 +99,153 @@ impl DistroVersion {
         Self::new(distro, codename, "")
     }
 
-    fn devel(mut self) -> Self {
-        self.is_devel = true;
-        self
-    }
-
     pub fn key(&self) -> String {
         format!("{}:{}", self.distro, self.codename)
     }
 }
 
-static DISTRO_INFO_MAP: LazyLock<HashMap<&'static str, DistroVersion>> = LazyLock::new(|| {
-    use Distro::{Debian, Ubuntu};
-    HashMap::from([
-        // debian
-        (
-            "experimental",
-            DistroVersion::new(Debian, "experimental", ""),
-        ),
-        ("unstable", DistroVersion::new(Debian, "unstable", "")),
-        // Suite alias: sid → unstable (concrete release identity).
-        ("sid", DistroVersion::new(Debian, "unstable", "")),
-        ("testing", DistroVersion::new(Debian, "testing", "")),
-        ("duke", DistroVersion::new(Debian, "duke", "15")),
-        ("forky", DistroVersion::new(Debian, "forky", "14")),
-        ("trixie", DistroVersion::new(Debian, "trixie", "13")),
-        // Suite alias: stable → current stable release (update when Debian rolls).
-        ("stable", DistroVersion::new(Debian, "trixie", "13")),
-        ("bookworm", DistroVersion::new(Debian, "bookworm", "12")),
-        // Suite alias: oldstable → current oldstable release.
-        ("oldstable", DistroVersion::new(Debian, "bookworm", "12")),
-        ("bullseye", DistroVersion::new(Debian, "bullseye", "11")),
-        ("buster", DistroVersion::new(Debian, "buster", "10")),
-        ("stretch", DistroVersion::new(Debian, "stretch", "9")),
-        // ubuntu
-        (
-            "stonking",
-            DistroVersion::new(Ubuntu, "stonking", "26.10").devel(),
-        ),
-        // Suite alias: devel → current Ubuntu development release.
-        (
-            "devel",
-            DistroVersion::new(Ubuntu, "stonking", "26.10").devel(),
-        ),
-        ("resolute", DistroVersion::new(Ubuntu, "resolute", "26.04")),
-        ("noble", DistroVersion::new(Ubuntu, "noble", "24.04")),
-        ("jammy", DistroVersion::new(Ubuntu, "jammy", "22.04")),
-        ("focal", DistroVersion::new(Ubuntu, "focal", "20.04")),
-        ("bionic", DistroVersion::new(Ubuntu, "bionic", "18.04")),
-        ("xenial", DistroVersion::new(Ubuntu, "xenial", "16.04")),
-        ("trusty", DistroVersion::new(Ubuntu, "trusty", "14.04")),
-    ])
-});
+/// The known Debian and Ubuntu releases and suite aliases, from
+/// distro-info-data's `debian.csv` and `ubuntu.csv`.
+///
+/// A release's [`DistroVersion::codename`] is the CSV's `series` (`trixie`);
+/// its `codename` column (`Trixie`) is only a display name.
+#[derive(Debug, Clone, Default)]
+pub struct DistroTable {
+    by_name: HashMap<String, DistroVersion>,
+    /// Families without a release in development: their data predates the
+    /// latest release, like python-distro-info's `DistroDataOutdated`.
+    outdated: Vec<Distro>,
+}
 
-/// Look up a built-in distribution by codename or suite alias.
-///
-/// Suite aliases are map keys that resolve to a concrete release [`DistroVersion`]:
-/// - Debian: `stable` → current stable release, `oldstable` → current oldstable,
-///   `sid` → `unstable`
-/// - Ubuntu: `devel` → current development release
-///
-/// Alias targets are maintained manually when Debian/Ubuntu roll.
-/// Non-built-in suites are not returned here; callers resolve those via Driver
-/// `base_images` or Bare `/etc/os-release` checks.
-///
-/// A pocket suffix (`resolute-security`, `bookworm-backports`, ...) resolves to
-/// its release: the build environment is the same.
-pub fn get_distro_version(name: &str) -> Option<DistroVersion> {
-    DISTRO_INFO_MAP
-        .get(name)
-        .or_else(|| DISTRO_INFO_MAP.get(strip_pocket(name)?))
-        .cloned()
+impl DistroTable {
+    /// The table as of `today`, which decides the suite aliases: Debian's
+    /// `stable` and `oldstable` are the last two releases, `testing` the
+    /// one in development (created, not released yet), as is Ubuntu's
+    /// `devel`. `sid` is `unstable`.
+    pub fn from_distro_info(
+        debian_csv: &str,
+        ubuntu_csv: &str,
+        today: NaiveDate,
+    ) -> anyhow::Result<Self> {
+        let mut table = Self::default();
+        let debian = parse_distro_info(debian_csv).context("parsing debian.csv failed")?;
+        table.add(Distro::Debian, &debian, today);
+        let ubuntu = parse_distro_info(ubuntu_csv).context("parsing ubuntu.csv failed")?;
+        table.add(Distro::Ubuntu, &ubuntu, today);
+        Ok(table)
+    }
+
+    fn add(&mut self, distro: Distro, releases: &[Release], today: NaiveDate) {
+        let (devel_alias, released_aliases) = match distro {
+            Distro::Debian => ("testing", &["stable", "oldstable"][..]),
+            _ => ("devel", &[][..]),
+        };
+        let mut released = Vec::new();
+        let mut has_devel = false;
+        for release in releases {
+            // unstable and experimental have no version
+            let numbered = !release.version.is_empty();
+            let is_released = release.release.is_some_and(|date| date <= today);
+            let version = DistroVersion {
+                distro: distro.clone(),
+                codename: match (&distro, release.series.as_str()) {
+                    (Distro::Debian, "sid") => "unstable".to_string(),
+                    (_, series) => series.to_string(),
+                },
+                version: release.version.clone(),
+                is_devel: numbered && release.created <= today && !is_released,
+            };
+            if version.is_devel {
+                has_devel = true;
+                self.insert(devel_alias, &version);
+            }
+            if numbered && is_released {
+                released.push(version.clone());
+            }
+            self.insert(&release.series, &version);
+            self.insert(&version.codename, &version);
+        }
+        for (alias, version) in released_aliases.iter().zip(released.iter().rev()) {
+            self.insert(alias, version);
+        }
+        if !has_devel {
+            self.outdated.push(distro);
+        }
+    }
+
+    fn insert(&mut self, name: &str, version: &DistroVersion) {
+        self.by_name.insert(name.to_string(), version.clone());
+    }
+
+    /// The families whose data is older than their latest release, so it
+    /// lacks the release now in development.
+    pub fn outdated(&self) -> &[Distro] {
+        &self.outdated
+    }
+
+    /// Look up a release by codename or suite alias.
+    ///
+    /// A pocket suffix (`resolute-security`, `bookworm-backports`, ...)
+    /// resolves to its release: the build environment is the same.
+    /// Other suites are not returned here; callers resolve those via Driver
+    /// `base_images` or Bare `/etc/os-release` checks.
+    pub fn get(&self, name: &str) -> Option<DistroVersion> {
+        self.by_name
+            .get(name)
+            .or_else(|| self.by_name.get(strip_pocket(name)?))
+            .cloned()
+    }
+}
+
+/// One row of a distro-info-data CSV.
+struct Release {
+    /// `26.04` without the ` LTS` suffix, empty for Debian's unstable and
+    /// experimental.
+    version: String,
+    series: String,
+    created: NaiveDate,
+    release: Option<NaiveDate>,
+}
+
+fn parse_distro_info(csv: &str) -> anyhow::Result<Vec<Release>> {
+    let mut lines = csv.lines().filter(|line| !line.trim().is_empty());
+    let header: Vec<&str> = lines.next().context("no header")?.split(',').collect();
+    let column = |name: &str| {
+        header
+            .iter()
+            .position(|column| *column == name)
+            .with_context(|| format!("no {name} column"))
+    };
+    let [version, series, created, release] = [
+        column("version")?,
+        column("series")?,
+        column("created")?,
+        column("release")?,
+    ];
+    let date = |field: &str| NaiveDate::parse_from_str(field, "%Y-%m-%d");
+    lines
+        .enumerate()
+        .map(|(index, line)| {
+            let fields: Vec<&str> = line.split(',').collect();
+            let field = |column: usize| fields.get(column).copied().unwrap_or_default();
+            let release = (|| {
+                Ok::<_, anyhow::Error>(Release {
+                    version: field(version)
+                        .split_whitespace()
+                        .next()
+                        .unwrap_or_default()
+                        .to_string(),
+                    series: field(series).to_string(),
+                    created: date(field(created)).context("invalid created date")?,
+                    release: match field(release) {
+                        "" => None,
+                        release => Some(date(release).context("invalid release date")?),
+                    },
+                })
+            })();
+            release.with_context(|| format!("line {} is invalid: {line}", index + 2))
+        })
+        .collect()
 }
 
 /// Pocket suffixes of Debian and Ubuntu suites
@@ -191,19 +268,88 @@ mod tests {
         assert_eq!(serde_json::to_string(&d).unwrap(), "\"debian\"");
     }
 
+    const DEBIAN: &str = "version,codename,series,created,release,eol\n\
+        12,Bookworm,bookworm,2021-08-14,2023-06-10,2026-07-11\n\
+        13,Trixie,trixie,2023-06-10,2025-08-09\n\
+        14,Forky,forky,2025-08-09\n\
+        15,Duke,duke,2027-08-01\n\
+        ,Sid,sid,1993-08-16\n\
+        ,Experimental,experimental,1993-08-16\n";
+    const UBUNTU: &str = "version,codename,series,created,release,eol\n\
+        26.04 LTS,Resolute Raccoon,resolute,2025-10-09,2026-04-23,2031-05-29\n\
+        26.10,Stonking Stingray,stonking,2026-04-24,2026-10-15,2027-07-15\n\
+        27.04,Tenacious T-Rex,tenacious,2026-10-16,2027-04-22\n";
+
+    fn table(year: i32, month: u32, day: u32) -> DistroTable {
+        let today = NaiveDate::from_ymd_opt(year, month, day).unwrap();
+        DistroTable::from_distro_info(DEBIAN, UBUNTU, today).unwrap()
+    }
+
     #[test]
     fn pocket_suffix_resolves_to_release() {
-        let resolute = get_distro_version("resolute");
+        let table = table(2026, 10, 23);
+        let resolute = table.get("resolute");
         assert!(resolute.is_some());
         for suite in ["resolute-security", "resolute-updates", "resolute-proposed"] {
-            assert_eq!(get_distro_version(suite), resolute, "{suite}");
+            assert_eq!(table.get(suite), resolute, "{suite}");
         }
+        assert_eq!(table.get("bookworm-backports"), table.get("bookworm"));
+        assert_eq!(table.get("resolute-nope"), None);
+        assert_eq!(table.get("yocto-security"), None);
+    }
+
+    #[test_case::test_case("stable", "trixie", "13", false)]
+    #[test_case::test_case("oldstable", "bookworm", "12", false)]
+    #[test_case::test_case("testing", "forky", "14", true)]
+    #[test_case::test_case("forky", "forky", "14", true)]
+    #[test_case::test_case("duke", "duke", "15", false ; "not created yet")]
+    #[test_case::test_case("sid", "unstable", "", false)]
+    #[test_case::test_case("unstable", "unstable", "", false)]
+    #[test_case::test_case("experimental", "experimental", "", false)]
+    #[test_case::test_case("devel", "tenacious", "27.04", true)]
+    #[test_case::test_case("stonking", "stonking", "26.10", false ; "just released")]
+    #[test_case::test_case("resolute", "resolute", "26.04", false ; "lts suffix")]
+    fn table_resolves(name: &str, codename: &str, version: &str, is_devel: bool) {
+        let resolved = table(2026, 10, 23).get(name).unwrap();
         assert_eq!(
-            get_distro_version("bookworm-backports"),
-            get_distro_version("bookworm")
+            (
+                resolved.codename.as_str(),
+                resolved.version.as_str(),
+                resolved.is_devel
+            ),
+            (codename, version, is_devel)
         );
-        assert_eq!(get_distro_version("resolute-nope"), None);
-        assert_eq!(get_distro_version("yocto-security"), None);
+    }
+
+    #[test]
+    fn aliases_follow_the_date() {
+        let before_release = table(2026, 10, 14);
+        assert_eq!(before_release.get("devel").unwrap().codename, "stonking");
+        assert!(before_release.get("stonking").unwrap().is_devel);
+        let old = table(2024, 1, 1);
+        assert_eq!(old.get("stable").unwrap().codename, "bookworm");
+        assert_eq!(old.get("testing").unwrap().codename, "trixie");
+    }
+
+    #[test]
+    fn data_without_a_release_in_development_is_outdated() {
+        assert_eq!(table(2026, 10, 23).outdated(), &[]);
+        // after tenacious and before duke was created
+        assert_eq!(table(2027, 5, 1).outdated(), &[Distro::Ubuntu]);
+    }
+
+    #[test]
+    fn invalid_distro_info_names_the_line() {
+        let error = DistroTable::from_distro_info(
+            "version,codename,series,created,release\n13,Trixie,trixie,soon,\n",
+            UBUNTU,
+            NaiveDate::from_ymd_opt(2026, 10, 23).unwrap(),
+        )
+        .unwrap_err();
+        assert!(
+            format!("{error:#}").contains("line 2 is invalid"),
+            "{error:#}"
+        );
     }
 
     #[test]

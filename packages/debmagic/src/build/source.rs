@@ -592,7 +592,11 @@ mod tests {
             package_identifier: "example-1.0".to_string(),
             source_dir: source_dir.clone(),
             root_dir: build_root_dir.clone(),
-            distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
+            distro: debmagic_common::distro::DistroVersion::new(
+                debmagic_common::distro::Distro::Debian,
+                "trixie",
+                "13",
+            ),
             persistence: Persistence::Always,
             purpose: EnvironmentPurpose::Build,
         };
@@ -688,7 +692,11 @@ mod tests {
             package_identifier: "example-1.0".to_string(),
             source_dir: PathBuf::from("/src"),
             root_dir: PathBuf::from("/tmp/debmagic/example-1.0"),
-            distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
+            distro: debmagic_common::distro::DistroVersion::new(
+                debmagic_common::distro::Distro::Debian,
+                "trixie",
+                "13",
+            ),
             persistence: Persistence::Always,
             purpose: EnvironmentPurpose::Build,
         };
@@ -739,7 +747,11 @@ mod tests {
             package_identifier: "example-1.0".to_string(),
             source_dir: source_dir.clone(),
             root_dir: test_root.join("build"),
-            distro: debmagic_common::distro::get_distro_version("trixie").unwrap(),
+            distro: debmagic_common::distro::DistroVersion::new(
+                debmagic_common::distro::Distro::Debian,
+                "trixie",
+                "13",
+            ),
             persistence: Persistence::Always,
             purpose: EnvironmentPurpose::Build,
         };

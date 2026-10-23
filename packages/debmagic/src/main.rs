@@ -16,6 +16,7 @@ pub mod cli;
 pub mod config;
 pub mod control;
 pub mod data_dir;
+pub mod distro_info;
 pub mod driver;
 pub mod env;
 pub mod environment;

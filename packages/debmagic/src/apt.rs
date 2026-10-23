@@ -6,7 +6,7 @@ use std::{collections::BTreeMap, fs, io, os::unix::fs::PermissionsExt, path::Pat
 
 use anyhow::{Context, bail};
 use debmagic_common::{
-    apt::{self, Archives, ExtraArchive, PackageSettings, Packages, Ppa},
+    apt::{self, ArchiveSpec, Archives, ExtraArchive, PackageSettings, Packages, Ppa},
     debian::control::BuildRelations,
     distro::DistroVersion,
 };
@@ -34,7 +34,8 @@ pub struct AptConfig {
     /// Where to take packages from, or which version, by apt preferences
     /// pattern.
     pub packages: Packages,
-    /// Archives beyond the distro's by name, like `ppa:<owner>/<name>`.
+    /// Archives beyond the distro's by name: `ppa:<owner>/<name>` or a
+    /// sources.list(5) `deb` line.
     pub archives: BTreeMap<String, String>,
 }
 
@@ -86,9 +87,15 @@ async fn resolve_archive(
     distro: &DistroVersion,
     sign: &SignConfig,
 ) -> anyhow::Result<ExtraArchive> {
-    let ppa: Ppa = spec.parse().map_err(anyhow::Error::msg)?;
-    let key = ppa_key(&ppa, sign).await?;
-    ppa.archive(name, distro, key)
+    match spec.parse().map_err(anyhow::Error::msg)? {
+        ArchiveSpec::Ppa(ppa) => ppa.archive(name, distro, ppa_key(&ppa, sign).await?),
+        ArchiveSpec::Deb(line) => {
+            let key = (line.signed_by_file())
+                .map(|path| fs::read(path).with_context(|| format!("reading {path} failed")))
+                .transpose()?;
+            line.archive(name, key)
+        }
+    }
 }
 
 /// The ASCII-armored signing key of `ppa`, fetched once and then kept in
@@ -149,7 +156,7 @@ pub fn parse_archive_arg(arg: &str) -> Result<(String, String), String> {
         }
         _ => (arg, arg),
     };
-    spec.parse::<Ppa>()?;
+    spec.parse::<ArchiveSpec>()?;
     Ok((name.to_string(), spec.to_string()))
 }
 
@@ -275,12 +282,18 @@ impl Setup<'_> {
                 .with_context(|| format!("removing the old {} failed", dir.display()))?;
         }
         let preferences = apt::preferences_file(self.distro, self.archives);
-        let keys: Vec<(String, &str)> = (self.archives.extra.iter())
-            .map(|archive| (archive.key_path(), archive.key.as_str()))
+        let keys: Vec<(String, &[u8])> = (self.archives.extra.iter())
+            .filter_map(|archive| Some((archive.key_path()?, archive.key.as_deref()?)))
             .collect();
-        let mut files: Vec<(&str, &str, u32)> = self.files().collect();
+        let mut files: Vec<(&str, &[u8], u32)> = (self.files())
+            .map(|(path, content, mode)| (path, content.as_bytes(), mode))
+            .collect();
         for (path, content) in [(SOURCES_FILE, &sources), (PREFERENCES_FILE, &preferences)] {
-            files.extend(content.as_deref().map(|content| (path, content, 0o644)));
+            files.extend(
+                content
+                    .as_deref()
+                    .map(|content| (path, content.as_bytes(), 0o644)),
+            );
         }
         files.extend(keys.iter().map(|(path, key)| (path.as_str(), *key, 0o644)));
         for (path, content, mode) in files {
@@ -547,12 +560,13 @@ mod tests {
         );
 
         let ppa: Ppa = "ppa:me/stuff@noble".parse().unwrap();
-        let extra = vec![ppa.archive("stuff", &trixie, "KEY".to_string())?];
+        let armored = "-----BEGIN PGP PUBLIC KEY BLOCK-----\n";
+        let extra = vec![ppa.archive("stuff", &trixie, armored.to_string())?];
         let archives = Archives::for_distro(&trixie, false, false, Packages::new(), extra)?;
         setup.archives = &archives;
         setup.write(&dir)?;
         let key = dir.join("etc/apt/keyrings/debmagic-stuff.asc");
-        assert_eq!(fs::read_to_string(key)?, "KEY");
+        assert_eq!(fs::read_to_string(key)?, armored);
         fs::remove_dir_all(&dir)?;
         Ok(())
     }
@@ -565,8 +579,14 @@ mod tests {
         assert!(spec.starts_with("ppa:me/stuff"));
     }
 
+    #[test_case::test_case("deb [trusted=yes] file:/srv/repo ./", "deb [trusted=yes] file:/srv/repo ./" ; "unnamed deb line")]
+    #[test_case::test_case("local=deb [trusted=yes] file:/srv/repo ./", "local" ; "named deb line")]
+    fn archive_arg_deb_line(arg: &str, name: &str) {
+        assert_eq!(parse_archive_arg(arg).unwrap().0, name);
+    }
+
     #[test_case::test_case("mine=" ; "empty spec")]
-    #[test_case::test_case("deb http://x trixie main" ; "no ppa")]
+    #[test_case::test_case("http://x trixie main" ; "no deb")]
     fn archive_arg_rejects(arg: &str) {
         assert!(parse_archive_arg(arg).is_err());
     }

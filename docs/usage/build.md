@@ -28,7 +28,7 @@ debmagic build binary --driver lxd \
 | `--proposed[=<packages>]` | Use [build dependencies from `proposed`](#proposed-dependencies) |
 | `--experimental[=<packages>]` | Use build dependencies from [experimental](#experimental) |
 | `--package <package>[=<version>][/<archive>]` | Install a [package in a version or from an archive](#package-versions-and-archives) |
-| `--archive [<name>=]<spec>` | Add an [archive like a PPA](#extra-archives) |
+| `--archive [<name>=]<spec>` | Add an [archive](#extra-archives): `ppa:<owner>/<name>` or a `deb` line |
 | `--sign` | [GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`](#signing) |
 | `--clean` | Run [`debian/rules clean` before building](#cleaning) |
 | `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
@@ -202,12 +202,13 @@ libfoo1 = { from = "proposed" }
 
 ## Extra archives
 
-`--archive` adds an archive beyond the distro's, for now a Launchpad PPA:
+`--archive` adds an archive beyond the distro's, a Launchpad PPA or a [sources.list(5)](https://manpages.debian.org/sources.list.5) `deb` line:
 
 ```shell
 debmagic build --archive ppa:me/stuff                      # all newer packages from it
 debmagic build --package libfoo1/ppa:me/stuff              # only libfoo1 from it
 debmagic build --archive mine=ppa:me/stuff --package libfoo1/mine
+debmagic build --archive 'mine=deb [signed-by=/home/me/mine.asc] https://example.org/debian trixie main'
 ```
 
 An archive is named after its spec unless `<name>=` names it; `--package` takes packages from it by that name.
@@ -217,11 +218,16 @@ A PPA is taken for the target Ubuntu release; `ppa:<owner>/<name>@<suite>` picks
 Its signing key is looked up on Launchpad and fetched from keyserver.ubuntu.com before the build starts; if either fails, nothing is built.
 The key is then kept in `~/.cache/debmagic/ppa-keys/<owner>/<name>.asc` and not fetched again; delete it when the PPA's key changes.
 
+A `deb` line's options are apt's, e.g. `trusted=yes` for an unsigned repository.
+A `signed-by` key file is read on the host and copied into the environment; without one, the archive must be signed by a key the environment trusts.
+Picking packages from it pins them by the host of its URI, which matches any other archive on that host too.
+
 In the [config](config.md):
 
 ```toml
 [apt.archives]
 mine = "ppa:me/stuff"
+snapshot = "deb [check-valid-until=no] https://snapshot.debian.org/archive/debian/20260101T000000Z trixie main"
 ```
 
 ## Building debug symbol packages

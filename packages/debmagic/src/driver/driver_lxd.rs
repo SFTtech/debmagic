@@ -12,10 +12,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::apt;
 use crate::driver::{
-    DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver, EnvironmentMetadata,
-    EnvironmentPurpose, IsolationCapability, ResourceStatus, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
-    run_checked, translate_path_in_container,
+    CommandOptions, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
+    EnvironmentMetadata, EnvironmentPurpose, IsolationCapability, ResourceStatus,
+    config::DriverConfig, container_name_from_metadata, container_name_metadata,
+    environment_fingerprint, getent_passwd, resource_name, run_checked,
+    translate_path_in_container,
 };
 use crate::subprocess::{self, Capture, CommandResult};
 
@@ -494,10 +495,10 @@ impl DriverLxd {
 
     /// Run `action` with the container running, restoring a previously
     /// stopped container to the stopped state afterwards.
-    fn with_running_container(
+    fn with_running_container<T>(
         &self,
-        action: impl FnOnce(&Self) -> std::io::Result<()>,
-    ) -> std::io::Result<()> {
+        action: impl FnOnce(&Self) -> std::io::Result<T>,
+    ) -> std::io::Result<T> {
         let entry = self
             .container_list_entry()
             .map_err(std::io::Error::other)?
@@ -515,9 +516,9 @@ impl DriverLxd {
             self.container_stop()
         };
         match (result, stop_result) {
-            (Ok(()), Ok(())) => Ok(()),
+            (Ok(value), Ok(())) => Ok(value),
             (Err(e), Ok(())) => Err(e),
-            (Ok(()), Err(e)) => Err(std::io::Error::other(e)),
+            (Ok(_), Err(e)) => Err(std::io::Error::other(e)),
             (Err(e), Err(stop_error)) => Err(std::io::Error::other(format!(
                 "{e}; also failed to stop {} container: {stop_error}",
                 self.variant.binary()
@@ -533,30 +534,61 @@ impl DriverLxd {
         env_add: &[(&str, &str)],
         capture: Capture,
     ) -> std::io::Result<CommandResult> {
-        println!("[{}] $ {}", self.container_name, cmd.join(" "));
+        self.exec(
+            cmd,
+            workdir,
+            CommandOptions {
+                requires_root: as_root,
+                env_add,
+                capture,
+                ..Default::default()
+            },
+        )
+    }
 
+    fn exec(
+        &self,
+        cmd: &[&str],
+        workdir: Option<&Path>,
+        options: CommandOptions<'_>,
+    ) -> std::io::Result<CommandResult> {
+        if !options.terminal {
+            println!("[{}] $ {}", self.container_name, cmd.join(" "));
+        }
         let mut exec_cmd = self.lxd_cmd("exec");
         exec_cmd.arg(&self.container_name);
-
         if let Some(wd) = workdir {
             exec_cmd.args(["--cwd", &wd.to_string_lossy()]);
         }
-
-        if !as_root {
+        if let Some(user) = options.user {
+            exec_cmd.args(Self::user_exec_args(&self.container_passwd(user)?));
+        } else if !options.requires_root && !options.terminal {
             // Run as BUILD_USER_UID — the host user is mapped to this uid via
             // raw.idmap, so it owns the bind-mounted source tree inside.
             exec_cmd.args(["--user", &BUILD_USER_UID.to_string()]);
             exec_cmd.args(["--group", &BUILD_USER_GID.to_string()]);
         }
-
-        for (key, value) in env_add {
+        for (key, value) in options.env_add {
             exec_cmd.args(["--env", &format!("{key}={value}")]);
         }
+        exec_cmd.arg("--").args(cmd);
+        subprocess::command(exec_cmd).capture(options.capture).run()
+    }
 
-        exec_cmd.arg("--");
-        exec_cmd.args(cmd);
+    fn container_passwd(&self, user: &str) -> std::io::Result<crate::driver::PasswdEntry> {
+        let mut getent = self.lxd_cmd("exec");
+        getent.arg(&self.container_name).arg("--");
+        getent_passwd(getent, user)
+    }
 
-        subprocess::command(exec_cmd).capture(capture).run()
+    /// `lxc exec` only takes numeric ids and sets no `HOME`.
+    fn user_exec_args(account: &crate::driver::PasswdEntry) -> Vec<String> {
+        vec![
+            format!("--user={}", account.uid),
+            format!("--group={}", account.gid),
+            format!("--env=HOME={}", account.home),
+            format!("--env=USER={}", account.name),
+        ]
     }
 
     fn exec_in_container_checked(
@@ -587,15 +619,15 @@ impl EnvironmentDriver for DriverLxd {
         &self,
         cmd: &[&str],
         cwd: &Path,
-        requires_root: bool,
-        env_add: &[(&str, &str)],
-        capture: Capture,
+        options: CommandOptions<'_>,
     ) -> std::io::Result<CommandResult> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
-
-        self.exec_in_container(cmd, Some(&container_path), requires_root, env_add, capture)
+        if !options.terminal {
+            return self.exec(cmd, Some(&container_path), options);
+        }
+        self.with_running_container(|driver| driver.exec(cmd, Some(&container_path), options))
     }
 
     fn reset_root(&self) -> std::io::Result<()> {
@@ -619,21 +651,20 @@ impl EnvironmentDriver for DriverLxd {
         self.reused_environment
     }
 
-    fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()> {
-        let workdir = self.translate_path_in_container(cwd)?;
+    fn interactive_shell(&self, cwd: &Path, user: Option<&str>) -> std::io::Result<i32> {
         self.with_running_container(|driver| {
-            let mut command = driver.lxd_cmd("exec");
-            command
-                .arg(&driver.container_name)
-                .args(["--cwd", &workdir.to_string_lossy()]);
-            let status = command.arg("--").args(["/usr/bin/env", "bash"]).status()?;
-            if !status.success() {
-                return Err(std::io::Error::other(format!(
-                    "{} shell failed",
-                    driver.variant.binary()
-                )));
-            }
-            Ok(())
+            let shell = driver.container_passwd(user.unwrap_or("root"))?.shell;
+            driver
+                .run_command(
+                    &[&shell],
+                    cwd,
+                    CommandOptions {
+                        user,
+                        terminal: true,
+                        ..Default::default()
+                    },
+                )
+                .map(|result| result.exit_code)
         })
     }
 

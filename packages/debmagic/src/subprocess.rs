@@ -39,6 +39,14 @@ pub struct CommandResult {
     pub stderr: Option<String>,
 }
 
+/// The exit code a shell reports for `status`: 128 + signal when killed.
+pub fn shell_exit_code(status: std::process::ExitStatus) -> i32 {
+    use std::os::unix::process::ExitStatusExt;
+    status
+        .code()
+        .unwrap_or_else(|| 128 + status.signal().unwrap_or(0))
+}
+
 /// Pipe the streams selected by `capture`; the rest stay inherited.
 fn pipe_streams(command: &mut Command, capture: Capture) {
     if capture.stdout {

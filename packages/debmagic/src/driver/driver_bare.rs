@@ -1,12 +1,12 @@
-use std::{path::Path, process::Command};
+use std::{ffi::OsString, path::Path, process::Command};
 
 use serde::{Deserialize, Serialize};
 
 use crate::driver::{
-    DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, IsolationCapability,
-    ResourceStatus, config::DriverConfig,
+    CommandOptions, DriverType, Environment, EnvironmentDriver, EnvironmentMetadata,
+    IsolationCapability, ResourceStatus, config::DriverConfig,
 };
-use crate::subprocess::{self, Capture, CommandResult};
+use crate::subprocess::{self, CommandResult};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
@@ -53,38 +53,39 @@ impl EnvironmentDriver for DriverBare {
         &self,
         cmd: &[&str],
         cwd: &Path,
-        requires_root: bool,
-        env_add: &[(&str, &str)],
-        capture: Capture,
+        options: CommandOptions<'_>,
     ) -> std::io::Result<CommandResult> {
-        let mut full_cmd: Vec<String> = Vec::new();
-
         let is_root = unsafe { libc::geteuid() == 0 };
-        if requires_root && !is_root {
-            full_cmd.push("sudo".to_string());
-        }
-
-        full_cmd.extend(cmd.iter().map(|s| s.to_string()));
-
-        let mut command = Command::new(&full_cmd[0]);
-        command.args(&full_cmd[1..]);
-
-        command.current_dir(cwd);
-        command.envs(env_add.iter().copied());
-
-        subprocess::command(command).capture(capture).run()
+        let mut argv: Vec<OsString> = if let Some(user) = options.user {
+            ["sudo", "-u", user, "--"].map(OsString::from).into()
+        } else if options.requires_root && !is_root {
+            vec!["sudo".into()]
+        } else {
+            Vec::new()
+        };
+        argv.extend(cmd.iter().map(OsString::from));
+        let mut command = Command::new(&argv[0]);
+        command
+            .args(&argv[1..])
+            .current_dir(cwd)
+            .envs(options.env_add.iter().copied());
+        subprocess::command(command).capture(options.capture).run()
     }
 
-    fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()> {
-        let shell =
-            std::env::var_os("SHELL").unwrap_or_else(|| std::ffi::OsString::from("/bin/sh"));
-        let mut command = Command::new(shell);
-        command.current_dir(cwd);
-        let status = command.status()?;
-        if !status.success() {
-            return Err(std::io::Error::other(format!("shell exited with {status}")));
-        }
-        Ok(())
+    fn interactive_shell(&self, cwd: &Path, user: Option<&str>) -> std::io::Result<i32> {
+        let mut command = match user {
+            Some(user) => {
+                // -H prevents the caller's SHELL from replacing the target's.
+                let mut command = Command::new("sudo");
+                command.args(["-H", "-s", "-u", user]);
+                command
+            }
+            None => {
+                Command::new(std::env::var_os("SHELL").unwrap_or_else(|| OsString::from("/bin/sh")))
+            }
+        };
+        let status = command.current_dir(cwd).status()?;
+        Ok(subprocess::shell_exit_code(status))
     }
 
     fn driver_type(&self) -> DriverType {

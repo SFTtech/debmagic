@@ -18,7 +18,7 @@ use crate::driver::{
     driver_docker::DriverDocker,
     driver_lxd::{DriverLxd, LxdVariant},
 };
-use crate::subprocess::{Capture, CommandResult};
+use crate::subprocess::{self, Capture, CommandResult};
 use crate::time::RefreshPolicy;
 
 pub mod config;
@@ -31,6 +31,34 @@ pub use config::Persistence;
 /// Path at which the environment root is bind-mounted inside container-based
 /// drivers (Docker, LXD, Incus).
 pub const ENVIRONMENT_DIR_IN_CONTAINER: &str = "/debmagic";
+
+/// The fields needed from a `getent passwd` entry.
+#[derive(Debug, PartialEq, Eq)]
+pub struct PasswdEntry {
+    pub name: String,
+    pub uid: String,
+    pub gid: String,
+    pub home: String,
+    pub shell: String,
+}
+
+impl PasswdEntry {
+    pub fn parse(user: &str, entry: &str) -> io::Result<Self> {
+        let fields: Vec<&str> = entry.trim_end().split(':').collect();
+        let [name, _, uid, gid, _, home, shell] = fields.as_slice() else {
+            return Err(io::Error::other(format!(
+                "no user {user} in the environment"
+            )));
+        };
+        Ok(Self {
+            name: (*name).into(),
+            uid: (*uid).into(),
+            gid: (*gid).into(),
+            home: (*home).into(),
+            shell: (*shell).into(),
+        })
+    }
+}
 
 /// Rewrite a path inside the host's environment root to the equivalent path
 /// inside a container that has it bind-mounted at [`ENVIRONMENT_DIR_IN_CONTAINER`].
@@ -329,6 +357,34 @@ pub struct EnvironmentMetadata {
     pub driver_metadata: HashMap<String, String>,
 }
 
+/// Run `getent passwd` using a command prepared up to its command arguments.
+pub fn getent_passwd(mut command: Command, user: &str) -> io::Result<PasswdEntry> {
+    command
+        .args(["getent", "passwd", user])
+        .stdin(std::process::Stdio::null());
+    let result = subprocess::command(command)
+        .capture(Capture::STDOUT)
+        .run()?;
+    if result.exit_code != 0 {
+        return Err(io::Error::other(format!(
+            "no user {user} in the environment"
+        )));
+    }
+    PasswdEntry::parse(user, &result.stdout.unwrap_or_default())
+}
+
+/// Options for one direct command execution.
+#[derive(Default)]
+pub struct CommandOptions<'a> {
+    pub requires_root: bool,
+    pub user: Option<&'a str>,
+    pub env_add: &'a [(&'a str, &'a str)],
+    pub capture: Capture,
+    /// Attach the user's terminal, start a stopped container if necessary,
+    /// and use the interactive default user (root for containers).
+    pub terminal: bool,
+}
+
 pub trait EnvironmentDriver {
     fn driver_metadata(&self) -> HashMap<String, String>;
 
@@ -339,9 +395,7 @@ pub trait EnvironmentDriver {
         &self,
         cmd: &[&str],
         cwd: &Path,
-        requires_root: bool,
-        env_add: &[(&str, &str)],
-        capture: Capture,
+        options: CommandOptions<'_>,
     ) -> io::Result<CommandResult>;
 
     fn run_command_checked(
@@ -351,7 +405,13 @@ pub trait EnvironmentDriver {
         requires_root: bool,
         env_add: &[(&str, &str)],
     ) -> io::Result<()> {
-        let result = self.run_command(cmd, cwd, requires_root, env_add, Capture::NONE)?;
+        let options = CommandOptions {
+            requires_root,
+            env_add,
+            terminal: false,
+            ..Default::default()
+        };
+        let result = self.run_command(cmd, cwd, options)?;
         if result.exit_code != 0 {
             return Err(io::Error::other(format!(
                 "Command failed with exit code: {}",
@@ -361,7 +421,8 @@ pub trait EnvironmentDriver {
         Ok(())
     }
 
-    fn interactive_shell(&self, cwd: &Path) -> io::Result<()>;
+    /// Start the selected user's login shell on the terminal. Returns its exit code.
+    fn interactive_shell(&self, cwd: &Path, user: Option<&str>) -> io::Result<i32>;
 
     fn driver_type(&self) -> DriverType;
 
@@ -408,22 +469,20 @@ impl EnvironmentDriver for Driver {
         &self,
         cmd: &[&str],
         cwd: &Path,
-        requires_root: bool,
-        env_add: &[(&str, &str)],
-        capture: Capture,
+        options: CommandOptions<'_>,
     ) -> io::Result<CommandResult> {
         match self {
-            Self::Docker(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
-            Self::Bare(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
-            Self::Lxd(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
+            Self::Docker(d) => d.run_command(cmd, cwd, options),
+            Self::Bare(d) => d.run_command(cmd, cwd, options),
+            Self::Lxd(d) => d.run_command(cmd, cwd, options),
         }
     }
 
-    fn interactive_shell(&self, cwd: &Path) -> io::Result<()> {
+    fn interactive_shell(&self, cwd: &Path, user: Option<&str>) -> io::Result<i32> {
         match self {
-            Self::Docker(d) => d.interactive_shell(cwd),
-            Self::Bare(d) => d.interactive_shell(cwd),
-            Self::Lxd(d) => d.interactive_shell(cwd),
+            Self::Docker(d) => d.interactive_shell(cwd, user),
+            Self::Bare(d) => d.interactive_shell(cwd, user),
+            Self::Lxd(d) => d.interactive_shell(cwd, user),
         }
     }
 
@@ -625,6 +684,18 @@ mod tests {
     use std::path::PathBuf;
     use std::time::Duration;
     use std::time::SystemTime;
+
+    #[test]
+    fn passwd_entry_includes_the_login_shell() {
+        let entry = PasswdEntry::parse("1000", "ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/zsh\n")
+            .unwrap();
+        assert_eq!(entry.shell, "/bin/zsh");
+        assert_eq!(entry.name, "ubuntu");
+        assert_eq!(entry.uid, "1000");
+        assert_eq!(entry.gid, "1000");
+        assert_eq!(entry.home, "/home/ubuntu");
+        assert!(PasswdEntry::parse("nobodyx", "").is_err());
+    }
 
     #[test]
     fn resource_names_are_valid_stable_and_distinct() {

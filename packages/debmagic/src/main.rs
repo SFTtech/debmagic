@@ -132,26 +132,33 @@ async fn run() -> anyhow::Result<ExitCode> {
                 let config = config::Config::load(None, cli.config.as_deref())?;
                 env::remove_environments(&config, ids, *force).await?;
             }
-            EnvCommands::Shell { id, common } => {
-                if let Some(id) = id {
-                    let config = config::Config::load(None, cli.config.as_deref())?;
-                    env::shell_environment(&config, &current_dir, Some(id)).await?;
-                } else {
-                    let source_dir = common.source_dir.as_deref().unwrap_or(&current_dir);
-                    let source_dir = match env::resolve_shell_source_dir(
-                        Some(source_dir),
-                        &current_dir,
-                    ) {
-                        Ok(dir) => dir,
-                        Err(_) => {
-                            anyhow::bail!(
-                                "not a Source tree; pass an Environment id (see `debmagic env list`)"
-                            );
-                        }
-                    };
-                    let config = config::Config::load(Some(&source_dir), cli.config.as_deref())?;
-                    env::shell_environment(&config, &source_dir, None).await?;
-                }
+            EnvCommands::Shell { id, user, common } => {
+                let code = env::shell_environment(
+                    &current_dir,
+                    cli.config.as_deref(),
+                    id.as_deref(),
+                    common.source_dir.as_deref(),
+                    user.as_deref(),
+                )
+                .await?;
+                return Ok(ExitCode::from(u8::try_from(code).unwrap_or(u8::MAX)));
+            }
+            EnvCommands::Exec {
+                id,
+                user,
+                command,
+                common,
+            } => {
+                let code = env::exec_environment(
+                    &current_dir,
+                    cli.config.as_deref(),
+                    id.as_deref(),
+                    common.source_dir.as_deref(),
+                    user.as_deref(),
+                    command,
+                )
+                .await?;
+                return Ok(ExitCode::from(u8::try_from(code).unwrap_or(u8::MAX)));
             }
         },
         Commands::Test(args) => {

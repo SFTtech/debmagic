@@ -24,13 +24,15 @@ The driver *is* the testbed: `autopkgtest` runs with the `null` backend inside t
 
 ## Testing the archive's build
 
-Naming the package (`src:<source>`) or one of its binaries in `--proposed` or `--experimental` runs the source tree's tests against that suite's build instead of a local one, so no prior build is needed:
+Naming the package (`src:<source>`) or one of its binaries in a [`--package`](build.md#package-versions-and-archives), `--proposed` or `--experimental` runs the source tree's tests against that build instead of a local one, so no prior build is needed:
 
 ```shell
-debmagic test --driver lxd --proposed=libfoo1
+debmagic test --driver lxd --proposed=libfoo1           # proposed's build
+debmagic test --driver lxd --package src:foo/release    # what the release ships
+debmagic test --driver lxd --package src:foo=1.2-3      # a version
 ```
 
-All binaries of the source come from that suite, so their versions match.
+All binaries of the source get the same setting, so their versions match.
 The distro comes from `--distro` or the changelog, and the test output goes to `<output dir>/<source>_<version>.test`.
 
 ## Available options
@@ -44,6 +46,7 @@ The distro comes from `--distro` or the changelog, and the test output goes to `
 | `--distro <name>` | Override the target distro for the test environment (defaults to the prior binary-build Invocation's distro, not the changelog) |
 | `--proposed[=<packages>]` | Test against packages from the [proposed suite](build.md#proposed-dependencies): all newer ones, or only the listed ones. Naming this package [tests the archive's build](#testing-the-archives-build) |
 | `--experimental[=<packages>]` | Test against the listed packages from [experimental](build.md#experimental); without a list, only what nothing else provides. Naming this package [tests the archive's build](#testing-the-archives-build) |
+| `--package <package>[=<version>][/<archive>]` | Test against a [package in a version or from an archive](build.md#package-versions-and-archives). Naming this package [tests the archive's build](#testing-the-archives-build) |
 | `--apt-mirror <url>` | Mirror URL (same as [`debmagic build`](build.md)) |
 | `--apt-update-age <when>` | Configure when to run `apt-get update` (same as [`debmagic build`](build.md#apt-update-age)) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |

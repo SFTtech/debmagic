@@ -1,7 +1,7 @@
 //! What apt needs to know about a target distro: the archive layout a build
 //! environment pulls from, and the features of the release's apt.
 
-use std::str::FromStr;
+use std::{collections::BTreeMap, str::FromStr};
 
 use anyhow::bail;
 use serde::{Deserialize, Serialize};
@@ -16,74 +16,71 @@ const DEBIAN_ARCHIVE: &str = "http://deb.debian.org/debian";
 const DEBIAN_SECURITY_ARCHIVE: &str = "http://deb.debian.org/debian-security";
 const UBUNTU_ARCHIVE: &str = "http://archive.ubuntu.com/ubuntu";
 const UBUNTU_PORTS_ARCHIVE: &str = "http://ports.ubuntu.com/ubuntu-ports";
+const RELEASE: &str = "release";
+const PROPOSED: &str = "proposed";
 const EXPERIMENTAL: &str = "experimental";
+/// The archives a package can be taken from.
+const ARCHIVES: &[&str] = &[RELEASE, PROPOSED, EXPERIMENTAL];
 
-/// Which packages a build takes from a suite beyond its release.
+/// How a build environment installs the packages matching an apt
+/// preferences pattern: a binary package name, `src:<source>` for all its
+/// binaries, or a glob.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(try_from = "SelectionValue", into = "SelectionValue")]
-pub enum Selection {
-    #[default]
-    Off,
-    /// Whatever apt prefers with the suite enabled.
-    All,
-    /// Only these packages: apt preferences patterns like binary package
-    /// names, `src:<source>` or globs. Everything else stays with the
-    /// release.
-    Only(Vec<String>),
+#[serde(default, deny_unknown_fields)]
+pub struct PackageSettings {
+    /// The archive to take it from: `release` (with its updates),
+    /// `proposed` or `experimental`.
+    pub from: Option<String>,
+    /// The version to install, even if older, from whichever archive in use
+    /// has it.
+    pub version: Option<String>,
 }
 
-/// [`Selection`] in config files: a bool or a list of packages.
-#[derive(Serialize, Deserialize)]
-#[serde(untagged)]
-enum SelectionValue {
-    Enabled(bool),
-    Packages(Vec<String>),
+/// [`PackageSettings`] by pattern.
+pub type Packages = BTreeMap<String, PackageSettings>;
+
+/// A `<pattern>[=<version>][/<archive>]` package spec, apt-get's syntax.
+pub fn parse_package(spec: &str) -> Result<(String, PackageSettings), String> {
+    let (package, from) = match spec.split_once('/') {
+        Some((package, from)) => (package, Some(from.to_string())),
+        None => (spec, None),
+    };
+    let (pattern, version) = match package.split_once('=') {
+        Some((pattern, version)) => (pattern, Some(version.to_string())),
+        None => (package, None),
+    };
+    validate_pattern(pattern)?;
+    let settings = PackageSettings { from, version };
+    if settings == PackageSettings::default() {
+        return Err(format!(
+            "'{spec}' needs a version (=<version>) or an archive (/<archive>)"
+        ));
+    }
+    if let Some(invalid) = [&settings.from, &settings.version]
+        .into_iter()
+        .flatten()
+        .find(|value| value.is_empty() || value.contains(char::is_whitespace))
+    {
+        return Err(format!("invalid '{invalid}' in '{spec}'"));
+    }
+    Ok((pattern.to_string(), settings))
 }
 
-impl Selection {
-    fn packages(packages: Vec<String>) -> Result<Self, String> {
-        if let Some(invalid) = packages
+fn validate_pattern(pattern: &str) -> Result<(), String> {
+    match pattern.is_empty() || pattern.contains(char::is_whitespace) {
+        true => Err(format!("invalid package pattern '{pattern}'")),
+        false => Ok(()),
+    }
+}
+
+/// Whether `pattern` names the source package `source` or one of its
+/// `binaries`, globs aside.
+pub fn names_package(pattern: &str, source: &str, binaries: &[String]) -> bool {
+    match pattern.strip_prefix("src:") {
+        Some(name) => without_arch(name) == source,
+        None => binaries
             .iter()
-            .find(|package| package.is_empty() || package.contains(char::is_whitespace))
-        {
-            return Err(format!("invalid package pattern '{invalid}'"));
-        }
-        Ok(if packages.is_empty() {
-            Self::Off
-        } else {
-            Self::Only(packages)
-        })
-    }
-
-    pub fn is_on(&self) -> bool {
-        *self != Self::Off
-    }
-
-    /// Whether it names the source package `source` or one of its
-    /// `binaries`, globs aside.
-    pub fn names_package(&self, source: &str, binaries: &[String]) -> bool {
-        let Self::Only(packages) = self else {
-            return false;
-        };
-        packages
-            .iter()
-            .any(|package| match package.strip_prefix("src:") {
-                Some(name) => without_arch(name) == source,
-                None => binaries
-                    .iter()
-                    .any(|binary| binary == without_arch(package)),
-            })
-    }
-
-    /// It with all binaries of `source`, if it names packages.
-    pub fn with_source(mut self, source: &str) -> Self {
-        if let Self::Only(packages) = &mut self {
-            let pattern = format!("src:{source}");
-            if !packages.contains(&pattern) {
-                packages.push(pattern);
-            }
-        }
-        self
+            .any(|binary| binary == without_arch(pattern)),
     }
 }
 
@@ -91,7 +88,16 @@ fn without_arch(package: &str) -> &str {
     package.split_once(':').map_or(package, |(name, _)| name)
 }
 
-/// A bool, or a comma-separated list of packages.
+/// `--proposed`/`--experimental`: a bool, or a comma-separated list of
+/// packages to take from that suite.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Selection {
+    Off,
+    /// Whatever apt prefers with the suite enabled.
+    All,
+    Only(Vec<String>),
+}
+
 impl FromStr for Selection {
     type Err = String;
 
@@ -99,68 +105,80 @@ impl FromStr for Selection {
         match value.to_ascii_lowercase().as_str() {
             "y" | "yes" | "t" | "true" | "on" | "1" => Ok(Self::All),
             "n" | "no" | "f" | "false" | "off" | "0" => Ok(Self::Off),
-            _ => Self::packages(value.split(',').map(|p| p.trim().to_string()).collect()),
+            _ => {
+                let packages: Vec<String> =
+                    value.split(',').map(|p| p.trim().to_string()).collect();
+                for package in &packages {
+                    validate_pattern(package)?;
+                }
+                Ok(Self::Only(packages))
+            }
         }
     }
 }
 
-impl TryFrom<SelectionValue> for Selection {
-    type Error = String;
-
-    fn try_from(value: SelectionValue) -> Result<Self, String> {
-        match value {
-            SelectionValue::Enabled(true) => Ok(Self::All),
-            SelectionValue::Enabled(false) => Ok(Self::Off),
-            SelectionValue::Packages(packages) => Self::packages(packages),
-        }
-    }
-}
-
-impl From<Selection> for SelectionValue {
-    fn from(selection: Selection) -> Self {
-        match selection {
-            Selection::Off => Self::Enabled(false),
-            Selection::All => Self::Enabled(true),
-            Selection::Only(packages) => Self::Packages(packages),
-        }
-    }
-}
-
-/// The suites beyond its release a build environment takes packages from.
+/// The archives beyond its release a build environment takes packages
+/// from, and how it installs some packages.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct Suites {
-    /// From the suite the release's updates migrate from.
-    pub proposed: Selection,
-    /// From Debian experimental.
-    pub experimental: Selection,
+pub struct Archives {
+    /// All of the proposed suite, as apt prefers it.
+    pub proposed: bool,
+    /// All of experimental, for what nothing else provides.
+    pub experimental: bool,
+    pub packages: Packages,
 }
 
-impl Suites {
-    /// The suites for a build for `distro`. Experimental only adds to
-    /// Debian unstable and testing, and is all of the experimental release.
+impl Archives {
+    /// The archives for a build for `distro`: all of experimental for the
+    /// experimental release, which only adds to unstable.
     pub fn for_distro(
         distro: &DistroVersion,
-        proposed: Selection,
-        experimental: Selection,
+        proposed: bool,
+        experimental: bool,
+        packages: Packages,
     ) -> anyhow::Result<Self> {
-        let experimental = match experimental {
-            Selection::Off if is_experimental(distro) => Selection::All,
-            Selection::Off => Selection::Off,
-            _ if distro.distro == Distro::Debian
-                && (DEBIAN_UNSTABLE.contains(&distro.codename.as_str()) || distro.is_devel) =>
-            {
-                experimental
-            }
-            _ => bail!(
-                "experimental only adds to Debian unstable and testing, not to {} {}",
-                distro.distro,
-                distro.codename
-            ),
-        };
-        Ok(Self {
+        let archives = Self {
             proposed,
-            experimental,
-        })
+            experimental: experimental || is_experimental(distro),
+            packages,
+        };
+        let release = format!("{} {}", distro.distro, distro.codename);
+        for (pattern, settings) in &archives.packages {
+            match settings.from.as_deref() {
+                Some(from) if !ARCHIVES.contains(&from) => bail!(
+                    "unknown archive '{from}' for {pattern}, known are {}",
+                    ARCHIVES.join(", ")
+                ),
+                Some(PROPOSED) if proposed_suite(distro).is_none() => {
+                    bail!("{release} has no proposed suite to take {pattern} from")
+                }
+                _ => {}
+            }
+        }
+        let adds_to_experimental = distro.distro == Distro::Debian
+            && (DEBIAN_UNSTABLE.contains(&distro.codename.as_str()) || distro.is_devel);
+        if archives.uses(EXPERIMENTAL) && !adds_to_experimental {
+            bail!("experimental only adds to Debian unstable and testing, not to {release}");
+        }
+        Ok(archives)
+    }
+
+    /// Whether it takes packages from `archive`.
+    fn uses(&self, archive: &str) -> bool {
+        let all = match archive {
+            PROPOSED => self.proposed,
+            EXPERIMENTAL => self.experimental,
+            _ => false,
+        };
+        all || self
+            .packages
+            .values()
+            .any(|settings| settings.from.as_deref() == Some(archive))
+    }
+
+    /// Whether it adds suites to the release's.
+    pub fn adds_suites(&self) -> bool {
+        self.uses(PROPOSED) || self.uses(EXPERIMENTAL)
     }
 }
 
@@ -170,13 +188,13 @@ fn is_experimental(distro: &DistroVersion) -> bool {
 
 /// A deb822 `.sources` file pointing apt at `mirror` (the distro's default
 /// archive if `None`) for the release, its `-updates` and `-security`
-/// pockets, plus the opted-in `suites`. It replaces the base image's own
+/// pockets, plus the suites of `archives`. It replaces the base image's own
 /// sources. `dpkg_arch` is the environment's architecture: Ubuntu serves
 /// most of them from a separate ports archive.
 pub fn sources_file(
     distro: &DistroVersion,
     mirror: Option<&str>,
-    extra: &Suites,
+    archives: &Archives,
     dpkg_arch: &str,
 ) -> anyhow::Result<String> {
     let codename = distro.codename.as_str();
@@ -194,28 +212,22 @@ pub fn sources_file(
         }
     };
     let debian = distro.distro == Distro::Debian;
-    let rolling = debian && DEBIAN_UNSTABLE.contains(&codename);
+    let release = release_suites(distro);
     let security = format!("{codename}-security");
-    let mut suites = vec![if is_experimental(distro) {
-        "unstable".to_string()
-    } else {
-        codename.to_string()
-    }];
-    if !rolling {
-        suites.push(format!("{codename}-updates"));
-        if !debian {
-            suites.push(security.clone());
-        }
-    }
-    if extra.proposed.is_on() {
+    let mut suites: Vec<String> = release
+        .iter()
+        .filter(|suite| !debian || **suite != security)
+        .cloned()
+        .collect();
+    if archives.uses(PROPOSED) {
         suites.extend(proposed_suite(distro));
     }
-    if extra.experimental.is_on() {
+    if archives.uses(EXPERIMENTAL) {
         suites.push(EXPERIMENTAL.to_string());
     }
 
     let mut groups = vec![(mirror.unwrap_or(archive), suites)];
-    if debian && !rolling {
+    if debian && release.contains(&security) {
         groups.push((DEBIAN_SECURITY_ARCHIVE, vec![security]));
     }
     let paragraphs: Vec<String> = groups
@@ -239,6 +251,23 @@ fn debian_components(version: &str) -> &'static [&'static str] {
     }
 }
 
+/// The suites of the release: its pockets, or unstable for Debian's
+/// rolling ones.
+fn release_suites(distro: &DistroVersion) -> Vec<String> {
+    let codename = distro.codename.as_str();
+    if distro.distro == Distro::Debian && DEBIAN_UNSTABLE.contains(&codename) {
+        let base = if is_experimental(distro) {
+            "unstable"
+        } else {
+            codename
+        };
+        return vec![base.to_string()];
+    }
+    ["", "-updates", "-security"]
+        .map(|pocket| format!("{codename}{pocket}"))
+        .to_vec()
+}
+
 /// The suite updates of the release migrate from, `None` for unstable
 /// itself: unstable migrates into Debian's devel release (testing).
 fn proposed_suite(distro: &DistroVersion) -> Option<String> {
@@ -253,45 +282,69 @@ fn proposed_suite(distro: &DistroVersion) -> Option<String> {
 
 /// The NotAutomatic suite a build takes all packages from only when nothing
 /// else satisfies its build dependencies: experimental.
-pub fn retry_suite(extra: &Suites) -> Option<&'static str> {
-    (extra.experimental == Selection::All).then_some(EXPERIMENTAL)
+pub fn retry_suite(archives: &Archives) -> Option<&'static str> {
+    archives.experimental.then_some(EXPERIMENTAL)
 }
 
-/// apt preferences for the `extra` suites of [`sources_file`]. Ubuntu
-/// marks `-proposed` NotAutomatic, so apt would only upgrade installed
-/// packages from it; pinned to the release's priority like on Launchpad's
-/// builders, the build takes everything newer from it. Debian's proposed
-/// suites aren't NotAutomatic, so with only some packages from them the
-/// rest is pinned down like Ubuntu's.
-pub fn preferences_file(distro: &DistroVersion, extra: &Suites) -> Option<String> {
+/// apt preferences for the `archives` of [`sources_file`]:
+/// - a package with a version gets it, even if older;
+/// - one from an archive gets that archive's;
+/// - Ubuntu marks `-proposed` NotAutomatic, so apt would only upgrade
+///   installed packages from it: with all of it, it's pinned to the
+///   release's priority like on Launchpad's builders, so the build takes
+///   everything newer from it;
+/// - with only some packages from it, the rest of a proposed suite only
+///   upgrades installed packages, also on Debian, which doesn't mark them
+///   NotAutomatic.
+pub fn preferences_file(distro: &DistroVersion, archives: &Archives) -> Option<String> {
     let mut pins = Vec::new();
-    if let Some(suite) = proposed_suite(distro) {
-        // Debian's proposed-updates have a Suite like `proposed-updates`
-        let release = if suite.ends_with("-proposed-updates") {
-            format!("n={suite}")
-        } else {
-            format!("a={suite}")
-        };
-        match &extra.proposed {
-            Selection::Off => {}
-            Selection::All if distro.distro == Distro::Ubuntu => {
-                pins.push(pin("*", &release, 500));
+    for (pattern, settings) in &archives.packages {
+        match (&settings.version, &settings.from) {
+            (Some(version), _) => pins.push(pin(pattern, &format!("version {version}"), 1001)),
+            (None, Some(from)) => {
+                for suite in archive_suites(distro, from) {
+                    pins.push(pin(pattern, &release_pin(distro, &suite), 990));
+                }
             }
-            Selection::All => {}
-            Selection::Only(packages) => {
-                pins.push(pin(&packages.join(" "), &release, 990));
-                pins.push(pin("*", &release, 100));
-            }
+            (None, None) => {}
         }
     }
-    if let Selection::Only(packages) = &extra.experimental {
-        pins.push(pin(&packages.join(" "), &format!("a={EXPERIMENTAL}"), 990));
+    if let Some(suite) = proposed_suite(distro) {
+        let release = release_pin(distro, &suite);
+        if archives.proposed {
+            if distro.distro == Distro::Ubuntu {
+                pins.push(pin("*", &release, 500));
+            }
+        } else if archives.uses(PROPOSED) {
+            pins.push(pin("*", &release, 100));
+        }
     }
     (!pins.is_empty()).then(|| pins.join("\n"))
 }
 
-fn pin(packages: &str, release: &str, priority: u32) -> String {
-    format!("Package: {packages}\nPin: release {release}\nPin-Priority: {priority}\n")
+fn archive_suites(distro: &DistroVersion, archive: &str) -> Vec<String> {
+    match archive {
+        PROPOSED => proposed_suite(distro).into_iter().collect(),
+        EXPERIMENTAL => vec![EXPERIMENTAL.to_string()],
+        _ => release_suites(distro),
+    }
+}
+
+/// The apt preferences pin of `suite`. Ubuntu's Release files name the
+/// pocket in their Suite, while their Codename is the release's. Debian's
+/// name it in their Codename, while their Suite is an alias like
+/// `stable-updates`, except for unstable (`sid`) and experimental
+/// (`rc-buggy`).
+fn release_pin(distro: &DistroVersion, suite: &str) -> String {
+    if distro.distro == Distro::Ubuntu || DEBIAN_UNSTABLE.contains(&suite) {
+        format!("release a={suite}")
+    } else {
+        format!("release n={suite}")
+    }
+}
+
+fn pin(packages: &str, pin: &str, priority: u32) -> String {
+    format!("Package: {packages}\nPin: {pin}\nPin-Priority: {priority}\n")
 }
 
 /// Whether the release's apt has `apt-get satisfy` (apt 1.9: Debian 11,
@@ -329,16 +382,37 @@ mod tests {
         DistroVersion::new(distro, name, version)
     }
 
-    fn suites(distro: &DistroVersion, proposed: &str, experimental: &str) -> Suites {
-        let proposed = proposed.parse().unwrap();
-        Suites::for_distro(distro, proposed, experimental.parse().unwrap()).unwrap()
+    /// The archives for `distro` with all of proposed if `proposed`, and
+    /// the package `specs`.
+    fn archives(distro: &DistroVersion, proposed: bool, specs: &[&str]) -> Archives {
+        let packages = specs.iter().map(|spec| parse_package(spec).unwrap());
+        Archives::for_distro(distro, proposed, false, packages.collect()).unwrap()
     }
 
-    fn proposed() -> Suites {
-        Suites {
-            proposed: Selection::All,
-            ..Suites::default()
+    fn proposed() -> Archives {
+        Archives {
+            proposed: true,
+            ..Archives::default()
         }
+    }
+
+    #[test_case("libfoo1/proposed", "libfoo1", None, Some("proposed") ; "archive")]
+    #[test_case("src:foo=1:2.0-1", "src:foo", Some("1:2.0-1"), None ; "version with epoch")]
+    #[test_case("libfoo1:amd64=2.0/release", "libfoo1:amd64", Some("2.0"), Some("release") ; "both")]
+    fn package_spec(spec: &str, pattern: &str, version: Option<&str>, from: Option<&str>) {
+        let settings = PackageSettings {
+            from: from.map(str::to_string),
+            version: version.map(str::to_string),
+        };
+        assert_eq!(parse_package(spec), Ok((pattern.to_string(), settings)));
+    }
+
+    #[test_case("libfoo1" ; "no settings")]
+    #[test_case("=1.0" ; "no pattern")]
+    #[test_case("libfoo1/" ; "empty archive")]
+    #[test_case("lib foo/proposed" ; "whitespace")]
+    fn package_spec_rejects(spec: &str) {
+        assert!(parse_package(spec).is_err());
     }
 
     #[test_case("yes", Selection::All)]
@@ -348,29 +422,6 @@ mod tests {
         assert_eq!(value.parse::<Selection>(), Ok(expected));
     }
 
-    #[test_case("libfoo1:amd64", true ; "binary")]
-    #[test_case("src:foo:any", true ; "source")]
-    #[test_case("libfoo-dev", false ; "other binary")]
-    #[test_case("src:food", false ; "other source")]
-    #[test_case("yes", false ; "all")]
-    fn selection_names_package(value: &str, expected: bool) {
-        let selection = value.parse::<Selection>().unwrap();
-        assert_eq!(
-            selection.names_package("foo", &["libfoo1".into()]),
-            expected
-        );
-    }
-
-    #[test]
-    fn with_source_adds_all_binaries_once() {
-        let selection = Selection::Only(vec!["libfoo1".into()]).with_source("foo");
-        assert_eq!(
-            selection.clone().with_source("foo"),
-            Selection::Only(vec!["libfoo1".into(), "src:foo".into()])
-        );
-        assert_eq!(Selection::All.with_source("foo"), Selection::All);
-    }
-
     #[test_case("")]
     #[test_case("libfoo,")]
     #[test_case("lib foo")]
@@ -378,34 +429,63 @@ mod tests {
         assert!(value.parse::<Selection>().is_err());
     }
 
-    #[test]
-    fn selection_in_config_is_bool_or_packages() {
-        let parse = |json| serde_json::from_str::<Selection>(json).unwrap();
-        assert_eq!(parse("true"), Selection::All);
-        assert_eq!(parse("[]"), Selection::Off);
-        assert_eq!(
-            parse(r#"["libfoo"]"#),
-            Selection::Only(vec!["libfoo".into()])
-        );
-        assert!(serde_json::from_str::<Selection>(r#"["a b"]"#).is_err());
+    #[test_case("libfoo1:amd64", true ; "binary")]
+    #[test_case("src:foo:any", true ; "source")]
+    #[test_case("libfoo-dev", false ; "other binary")]
+    #[test_case("src:food", false ; "other source")]
+    fn test_names_package(pattern: &str, expected: bool) {
+        assert_eq!(names_package(pattern, "foo", &["libfoo1".into()]), expected);
     }
 
-    #[test_case("noble")]
-    #[test_case("trixie")]
-    fn experimental_only_adds_to_debian_unstable_and_testing(name: &str) {
-        let error = Suites::for_distro(&distro(name), Selection::Off, Selection::All);
-        assert!(error.is_err());
+    #[test]
+    fn settings_in_config_reject_unknown_keys() {
+        let parse = |json| serde_json::from_str::<PackageSettings>(json);
+        assert_eq!(
+            parse(r#"{"from": "proposed"}"#).unwrap().from.as_deref(),
+            Some("proposed")
+        );
+        assert!(parse(r#"{"form": "proposed"}"#).is_err());
+    }
+
+    #[test_case("noble", "src:foo/experimental" ; "ubuntu")]
+    #[test_case("trixie", "src:foo/experimental" ; "debian stable")]
+    #[test_case("unstable", "src:foo/proposed" ; "proposed of unstable")]
+    #[test_case("noble", "src:foo/backports" ; "unknown archive")]
+    fn archives_reject(name: &str, spec: &str) {
+        let packages = [parse_package(spec).unwrap()].into();
+        assert!(Archives::for_distro(&distro(name), false, false, packages).is_err());
+    }
+
+    #[test]
+    fn experimental_only_adds_to_debian_unstable_and_testing() {
+        assert!(Archives::for_distro(&distro("noble"), false, true, Packages::new()).is_err());
     }
 
     #[test]
     fn experimental_release_is_all_of_experimental() {
-        let experimental = suites(&distro("experimental"), "no", "no");
-        assert_eq!(experimental.experimental, Selection::All);
+        let experimental = archives(&distro("experimental"), false, &[]);
+        assert!(experimental.experimental);
         assert_eq!(retry_suite(&experimental), Some("experimental"));
         assert_eq!(
             preferences_file(&distro("experimental"), &experimental),
             None
         );
+    }
+
+    #[test]
+    fn ubuntu_package_from_the_release_is_pinned_to_all_its_pockets() {
+        let noble = distro("noble");
+        let extra = archives(&noble, true, &["src:foo/release", "libbar1=2.0"]);
+        assert_eq!(
+            preferences_file(&noble, &extra).unwrap(),
+            "Package: libbar1\nPin: version 2.0\nPin-Priority: 1001\n\n\
+             Package: src:foo\nPin: release a=noble\nPin-Priority: 990\n\n\
+             Package: src:foo\nPin: release a=noble-updates\nPin-Priority: 990\n\n\
+             Package: src:foo\nPin: release a=noble-security\nPin-Priority: 990\n\n\
+             Package: *\nPin: release a=noble-proposed\nPin-Priority: 500\n"
+        );
+        let release_only = archives(&noble, false, &["src:foo/release"]);
+        assert!(!release_only.adds_suites());
     }
 
     #[test]
@@ -430,7 +510,7 @@ mod tests {
         let extra = if with_proposed {
             proposed()
         } else {
-            Suites::default()
+            Archives::default()
         };
         let sources = sources_file(&distro("unstable"), None, &extra, "arm64").unwrap();
         assert_eq!(
@@ -452,7 +532,7 @@ mod tests {
         assert!(sources.contains("Suites: forky-security\n"), "{sources}");
         assert_eq!(preferences_file(&forky, &proposed()), None);
 
-        let extra = suites(&forky, "libfoo", "src:bar");
+        let extra = archives(&forky, false, &["libfoo/proposed", "src:bar/experimental"]);
         let sources = sources_file(&forky, None, &extra, "amd64").unwrap();
         assert!(
             sources.contains("Suites: forky forky-updates unstable experimental\n"),
@@ -461,8 +541,8 @@ mod tests {
         assert_eq!(
             preferences_file(&forky, &extra).unwrap(),
             "Package: libfoo\nPin: release a=unstable\nPin-Priority: 990\n\n\
-             Package: *\nPin: release a=unstable\nPin-Priority: 100\n\n\
-             Package: src:bar\nPin: release a=experimental\nPin-Priority: 990\n"
+             Package: src:bar\nPin: release a=experimental\nPin-Priority: 990\n\n\
+             Package: *\nPin: release a=unstable\nPin-Priority: 100\n"
         );
         assert_eq!(retry_suite(&extra), None);
     }
@@ -471,7 +551,7 @@ mod tests {
     fn debian_proposed_updates_is_pinned_by_codename() {
         let trixie = distro("trixie");
         assert_eq!(
-            preferences_file(&trixie, &suites(&trixie, "libfoo", "no")).unwrap(),
+            preferences_file(&trixie, &archives(&trixie, false, &["libfoo/proposed"])).unwrap(),
             "Package: libfoo\nPin: release n=trixie-proposed-updates\nPin-Priority: 990\n\n\
              Package: *\nPin: release n=trixie-proposed-updates\nPin-Priority: 100\n"
         );
@@ -484,7 +564,7 @@ mod tests {
         let sources = sources_file(
             &experimental,
             None,
-            &suites(&experimental, "yes", "no"),
+            &archives(&experimental, true, &[]),
             "amd64",
         );
         assert!(
@@ -495,7 +575,7 @@ mod tests {
             "{sources:?}"
         );
         let unstable = distro("unstable");
-        let extra = suites(&unstable, "no", "yes");
+        let extra = Archives::for_distro(&unstable, false, true, Packages::new()).unwrap();
         let sources = sources_file(&unstable, None, &extra, "amd64").unwrap();
         assert!(
             sources.contains("Suites: unstable experimental\n"),
@@ -511,12 +591,12 @@ mod tests {
             preferences_file(&noble, &proposed()).unwrap(),
             "Package: *\nPin: release a=noble-proposed\nPin-Priority: 500\n"
         );
-        assert_eq!(preferences_file(&noble, &Suites::default()), None);
+        assert_eq!(preferences_file(&noble, &Archives::default()), None);
     }
 
     #[test]
     fn old_debian_has_no_firmware_component() {
-        let extra = Suites::default();
+        let extra = Archives::default();
         let sources = sources_file(&distro("bullseye"), None, &extra, "amd64").unwrap();
         assert!(
             sources.contains("Components: main contrib non-free\n"),
@@ -541,7 +621,7 @@ mod tests {
     #[test]
     fn custom_distro_has_no_known_archive() {
         let custom = DistroVersion::custom(Distro::Custom("yocto".into()), "scarthgap");
-        assert!(sources_file(&custom, Some("http://m"), &Suites::default(), "amd64").is_err());
+        assert!(sources_file(&custom, Some("http://m"), &Archives::default(), "amd64").is_err());
     }
 
     #[test_case("buster", false)]

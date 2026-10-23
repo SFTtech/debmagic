@@ -27,6 +27,7 @@ debmagic build binary --driver lxd \
 | `--distro <name>` | [Select the target distro/release](#selecting-a-distrorelease) (e.g. `trixie`, `resolute`) |
 | `--proposed[=<packages>]` | Use [build dependencies from `proposed`](#proposed-dependencies) |
 | `--experimental[=<packages>]` | Use build dependencies from [experimental](#experimental) |
+| `--package <package>[=<version>][/<archive>]` | Install a [package in a version or from an archive](#package-versions-and-archives) |
 | `--sign` | [GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`](#signing) |
 | `--clean` | Run [`debian/rules clean` before building](#cleaning) |
 | `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
@@ -165,8 +166,7 @@ Pass `--proposed` to build against the suite the release's updates come from, li
 | Debian stable release | `<release>-proposed-updates` |
 | Debian `unstable`, `experimental` | none |
 
-Pass a comma-separated list to take only those packages from it, e.g. `--proposed=libfoo1,src:bar`.
-The names are [apt preferences](https://manpages.debian.org/apt_preferences) patterns: binary packages, `src:<source>` for all binaries of a source, or globs.
+Pass a comma-separated list to take only those packages from it, e.g. `--proposed=libfoo1,src:bar`, short for [`--package libfoo1/proposed --package src:bar/proposed`](#package-versions-and-archives).
 Everything else stays with the release.
 
 ## Experimental
@@ -176,6 +176,28 @@ Only when unstable can't satisfy them, the install is retried preferring the pac
 
 Builds for unstable or testing do the same with `--experimental`, or take only the listed packages from it with `--experimental=<packages>` like `--proposed`.
 Other releases reject it.
+
+## Package versions and archives
+
+`--package` sets how one package is installed, in apt-get's syntax:
+
+```shell
+debmagic build --package libfoo1/proposed     # from proposed
+debmagic build --package src:bar=2.0-1        # all binaries of bar in version 2.0-1
+debmagic build --package libbaz1=1.2-3/proposed
+```
+
+The package is an [apt preferences](https://manpages.debian.org/apt_preferences) pattern: a binary package, `src:<source>` for all binaries of a source, or a glob, each with an optional `:<arch>`.
+The archive is `release` (with its updates), `proposed` or `experimental`; an archive packages come from is added to the environment.
+A version is installed even if older than the installed one, from whichever archive has it.
+
+The [config](config.md) takes the same as a table:
+
+```toml
+[apt.packages]
+libfoo1 = { from = "proposed" }
+"src:bar" = { version = "2.0-1" }
+```
 
 ## Building debug symbol packages
 

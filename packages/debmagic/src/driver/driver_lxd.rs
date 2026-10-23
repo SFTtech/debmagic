@@ -5,7 +5,7 @@ use std::{
 };
 
 use debmagic_common::{
-    apt::Suites,
+    apt::Archives,
     distro::{Distro, DistroVersion},
 };
 use serde::{Deserialize, Serialize};
@@ -292,7 +292,7 @@ impl DriverLxd {
         driver_config: &DriverConfig,
         overrides: &DriverLxdConfigOverrides,
         apt_mirror: Option<&str>,
-        suites: &Suites,
+        archives: &Archives,
     ) -> anyhow::Result<Self> {
         let container_name = Self::container_name_for(environment);
         let project = Self::resolve_project(driver_config, overrides);
@@ -307,7 +307,7 @@ impl DriverLxd {
         let setup = apt::Setup {
             distro: &environment.distro,
             mirror: apt_mirror,
-            suites,
+            archives,
             services: environment.purpose == EnvironmentPurpose::Test,
         };
         let setup_fingerprint = setup.fingerprint();

@@ -6,7 +6,7 @@ use std::{fs, io, os::unix::fs::PermissionsExt, path::Path};
 
 use anyhow::Context;
 use debmagic_common::{
-    apt::{self, Selection, Suites},
+    apt::{self, Archives, PackageSettings, Packages},
     debian::control::BuildRelations,
     distro::DistroVersion,
 };
@@ -24,18 +24,24 @@ pub struct AptConfig {
     pub mirror: Option<String>,
     /// When a reused Environment runs apt-get update/upgrade again.
     pub update_age: RefreshPolicy,
-    /// Packages from the suite the release's updates migrate from: `true`
-    /// for all, or a list.
-    pub proposed: Selection,
-    /// Packages from Debian experimental, for unstable and testing builds.
-    pub experimental: Selection,
+    /// All newer packages from the suite the release's updates migrate
+    /// from.
+    pub proposed: bool,
+    /// What nothing else provides from Debian experimental, for unstable
+    /// and testing builds.
+    pub experimental: bool,
+    /// Where to take packages from, or which version, by apt preferences
+    /// pattern.
+    pub packages: Packages,
 }
 
 impl AptConfig {
-    /// The suites beyond its release an Environment for `distro` takes
+    /// The archives beyond its release an Environment for `distro` takes
     /// packages from.
-    pub fn suites(&self, distro: &DistroVersion) -> anyhow::Result<Suites> {
-        Suites::for_distro(distro, self.proposed.clone(), self.experimental.clone())
+    pub fn archives(&self, distro: &DistroVersion) -> anyhow::Result<Archives> {
+        let packages = self.packages.clone();
+        Archives::for_distro(distro, self.proposed, self.experimental, packages)
+            .context("invalid apt package settings")
     }
 }
 
@@ -44,8 +50,10 @@ impl AptConfig {
 pub struct AptOverrides {
     pub mirror: Option<String>,
     pub update_age: Option<RefreshPolicy>,
-    pub proposed: Option<Selection>,
-    pub experimental: Option<Selection>,
+    pub proposed: Option<bool>,
+    pub experimental: Option<bool>,
+    /// Replacing the configured settings of the same pattern.
+    pub packages: Vec<(String, PackageSettings)>,
 }
 
 impl AptOverrides {
@@ -62,6 +70,7 @@ impl AptOverrides {
         if let Some(experimental) = self.experimental {
             config.experimental = experimental;
         }
+        config.packages.extend(self.packages);
     }
 }
 
@@ -111,14 +120,14 @@ const DEFAULT_SOURCES: &[&str] = &[
 pub struct Setup<'a> {
     pub distro: &'a DistroVersion,
     pub mirror: Option<&'a str>,
-    pub suites: &'a Suites,
+    pub archives: &'a Archives,
     /// Let installed packages start their services, which tests may expect.
     pub services: bool,
 }
 
 impl Setup<'_> {
     fn replaces_sources(&self) -> bool {
-        self.mirror.is_some() || *self.suites != Suites::default()
+        self.mirror.is_some() || self.archives.adds_suites()
     }
 
     /// The setup files apart from the apt sources.
@@ -137,7 +146,7 @@ impl Setup<'_> {
             .chain([
                 self.script(""),
                 self.mirror.unwrap_or_default().to_string(),
-                format!("{:?}", self.suites),
+                format!("{:?}", self.archives),
             ])
             .collect::<Vec<_>>()
             .join("\0")
@@ -147,14 +156,14 @@ impl Setup<'_> {
     pub fn write(&self, dir: &Path) -> anyhow::Result<()> {
         let sources = self
             .replaces_sources()
-            .then(|| apt::sources_file(self.distro, self.mirror, self.suites, host_dpkg_arch()))
+            .then(|| apt::sources_file(self.distro, self.mirror, self.archives, host_dpkg_arch()))
             .transpose()
             .context("generating the apt sources failed")?;
         if dir.exists() {
             fs::remove_dir_all(dir)
                 .with_context(|| format!("removing the old {} failed", dir.display()))?;
         }
-        let preferences = apt::preferences_file(self.distro, self.suites);
+        let preferences = apt::preferences_file(self.distro, self.archives);
         let mut files: Vec<(&str, &str, u32)> = self.files().collect();
         for (path, content) in [(SOURCES_FILE, &sources), (PREFERENCES_FILE, &preferences)] {
             files.extend(content.as_deref().map(|content| (path, content, 0o644)));
@@ -262,19 +271,19 @@ pub fn install_commands(
 }
 
 /// Install `install`, with all of a NotAutomatic suite like experimental
-/// in `suites` retried preferring that suite: apt doesn't take a version
+/// in `archives` retried preferring that suite: apt doesn't take a version
 /// only that suite has otherwise, while preferring it upfront would take
 /// everything it has.
 pub fn install(
     driver: &dyn EnvironmentDriver,
     cwd: &Path,
     distro: &DistroVersion,
-    suites: &Suites,
+    archives: &Archives,
     install: &Install,
 ) -> io::Result<()> {
     let satisfy = apt::has_satisfy(distro);
     let result = run(driver, cwd, &install_commands(satisfy, install, None));
-    match apt::retry_suite(suites) {
+    match apt::retry_suite(archives) {
         Some(suite) if result.is_err() => {
             println!("debmagic: retrying preferring the packages from {suite}");
             run(
@@ -394,7 +403,7 @@ mod tests {
         let mut setup = Setup {
             distro: &trixie,
             mirror: None,
-            suites: &Suites::default(),
+            archives: &Archives::default(),
             services: false,
         };
         setup.write(&dir)?;

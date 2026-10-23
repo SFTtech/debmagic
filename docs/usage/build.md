@@ -28,6 +28,7 @@ debmagic build binary --driver lxd \
 | `--proposed[=<packages>]` | Use [build dependencies from `proposed`](#proposed-dependencies) |
 | `--experimental[=<packages>]` | Use build dependencies from [experimental](#experimental) |
 | `--package <package>[=<version>][/<archive>]` | Install a [package in a version or from an archive](#package-versions-and-archives) |
+| `--archive [<name>=]<spec>` | Add an [archive like a PPA](#extra-archives) |
 | `--sign` | [GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`](#signing) |
 | `--clean` | Run [`debian/rules clean` before building](#cleaning) |
 | `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
@@ -188,7 +189,7 @@ debmagic build --package libbaz1=1.2-3/proposed
 ```
 
 The package is an [apt preferences](https://manpages.debian.org/apt_preferences) pattern: a binary package, `src:<source>` for all binaries of a source, or a glob, each with an optional `:<arch>`.
-The archive is `release` (with its updates), `proposed` or `experimental`; an archive packages come from is added to the environment.
+The archive is `release` (with its updates), `proposed`, `experimental` or an [extra archive](#extra-archives); an archive packages come from is added to the environment.
 A version is installed even if older than the installed one, from whichever archive has it.
 
 The [config](config.md) takes the same as a table:
@@ -197,6 +198,30 @@ The [config](config.md) takes the same as a table:
 [apt.packages]
 libfoo1 = { from = "proposed" }
 "src:bar" = { version = "2.0-1" }
+```
+
+## Extra archives
+
+`--archive` adds an archive beyond the distro's, for now a Launchpad PPA:
+
+```shell
+debmagic build --archive ppa:me/stuff                      # all newer packages from it
+debmagic build --package libfoo1/ppa:me/stuff              # only libfoo1 from it
+debmagic build --archive mine=ppa:me/stuff --package libfoo1/mine
+```
+
+An archive is named after its spec unless `<name>=` names it; `--package` takes packages from it by that name.
+Once packages are picked from an archive, its other packages only upgrade installed ones.
+
+A PPA is taken for the target Ubuntu release; `ppa:<owner>/<name>@<suite>` picks another, which Debian targets need.
+Its signing key is looked up on Launchpad and fetched from keyserver.ubuntu.com before the build starts; if either fails, nothing is built.
+The key is then kept in `~/.cache/debmagic/ppa-keys/<owner>/<name>.asc` and not fetched again; delete it when the PPA's key changes.
+
+In the [config](config.md):
+
+```toml
+[apt.archives]
+mine = "ppa:me/stuff"
 ```
 
 ## Building debug symbol packages

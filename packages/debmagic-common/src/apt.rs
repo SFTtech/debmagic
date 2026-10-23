@@ -117,6 +117,113 @@ impl FromStr for Selection {
     }
 }
 
+/// A Launchpad PPA, `ppa:<owner>/<name>[@<suite>]`: the suite is the
+/// Ubuntu release to take its packages for, by default the target's.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Ppa {
+    pub owner: String,
+    pub name: String,
+    pub suite: Option<String>,
+}
+
+impl FromStr for Ppa {
+    type Err = String;
+
+    fn from_str(spec: &str) -> Result<Self, String> {
+        let invalid = || format!("'{spec}' is no ppa:<owner>/<name>[@<suite>]");
+        let rest = spec.strip_prefix("ppa:").ok_or_else(invalid)?;
+        let (path, suite) = match rest.split_once('@') {
+            Some((path, suite)) => (path, Some(suite)),
+            None => (rest, None),
+        };
+        let valid = |part: &str| {
+            !part.is_empty()
+                && part
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || b"+-.".contains(&b))
+        };
+        match path.split_once('/') {
+            Some((owner, name)) if valid(owner) && valid(name) && suite.is_none_or(valid) => {
+                Ok(Self {
+                    owner: owner.to_string(),
+                    name: name.to_string(),
+                    suite: suite.map(str::to_string),
+                })
+            }
+            _ => Err(invalid()),
+        }
+    }
+}
+
+impl Ppa {
+    /// Its Launchpad API resource, which names its signing key.
+    pub fn api_url(&self) -> String {
+        format!(
+            "https://api.launchpad.net/devel/~{}/+archive/ubuntu/{}",
+            self.owner, self.name
+        )
+    }
+
+    /// It as the archive `name` of a build for `distro`, signed with the
+    /// ASCII-armored `key`.
+    pub fn archive(
+        &self,
+        name: &str,
+        distro: &DistroVersion,
+        key: String,
+    ) -> anyhow::Result<ExtraArchive> {
+        let (owner, ppa) = (&self.owner, &self.name);
+        let suite = match (&self.suite, &distro.distro) {
+            (Some(suite), _) => suite.clone(),
+            (None, Distro::Ubuntu) => distro.codename.clone(),
+            (None, other) => bail!(
+                "PPAs are built for Ubuntu releases: pick one for {other} {} with \
+                 ppa:{owner}/{ppa}@<suite>",
+                distro.codename
+            ),
+        };
+        // Launchpad leaves the name out of the Origin of a PPA named `ppa`
+        let origin = match ppa.as_str() {
+            "ppa" => format!("LP-PPA-{owner}"),
+            _ => format!("LP-PPA-{owner}-{ppa}"),
+        };
+        Ok(ExtraArchive {
+            name: name.to_string(),
+            uri: format!("https://ppa.launchpadcontent.net/{owner}/{ppa}/ubuntu"),
+            suite,
+            components: vec!["main".to_string()],
+            key,
+            pin: format!("release o={origin}"),
+        })
+    }
+}
+
+/// An archive beyond the distro's, with what apt needs to use it.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ExtraArchive {
+    /// What `--package <package>/<name>` calls it.
+    pub name: String,
+    pub uri: String,
+    pub suite: String,
+    pub components: Vec<String>,
+    /// The ASCII-armored key its Release file is signed with.
+    pub key: String,
+    /// The apt preferences `Pin` of its packages.
+    pub pin: String,
+}
+
+impl ExtraArchive {
+    /// Where its key goes, relative to the environment's root.
+    pub fn key_path(&self) -> String {
+        let name: String = self
+            .name
+            .chars()
+            .map(|c| if c.is_ascii_alphanumeric() { c } else { '-' })
+            .collect();
+        format!("etc/apt/keyrings/debmagic-{name}.asc")
+    }
+}
+
 /// The archives beyond its release a build environment takes packages
 /// from, and how it installs some packages.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -126,6 +233,8 @@ pub struct Archives {
     /// All of experimental, for what nothing else provides.
     pub experimental: bool,
     pub packages: Packages,
+    /// Taken all newer packages from, unless some are picked from them.
+    pub extra: Vec<ExtraArchive>,
 }
 
 impl Archives {
@@ -136,18 +245,39 @@ impl Archives {
         proposed: bool,
         experimental: bool,
         packages: Packages,
+        extra: Vec<ExtraArchive>,
     ) -> anyhow::Result<Self> {
         let archives = Self {
             proposed,
             experimental: experimental || is_experimental(distro),
             packages,
+            extra,
         };
+        let mut key_paths = Vec::new();
+        for archive in &archives.extra {
+            if ARCHIVES.contains(&archive.name.as_str()) {
+                bail!("'{}' names a built-in archive", archive.name);
+            }
+            let key_path = archive.key_path();
+            if key_paths.contains(&key_path) {
+                bail!(
+                    "archive names clash in {key_path}, rename '{}'",
+                    archive.name
+                );
+            }
+            key_paths.push(key_path);
+        }
+        let known: Vec<&str> = ARCHIVES
+            .iter()
+            .copied()
+            .chain(archives.extra.iter().map(|archive| archive.name.as_str()))
+            .collect();
         let release = format!("{} {}", distro.distro, distro.codename);
         for (pattern, settings) in &archives.packages {
             match settings.from.as_deref() {
-                Some(from) if !ARCHIVES.contains(&from) => bail!(
+                Some(from) if !known.contains(&from) => bail!(
                     "unknown archive '{from}' for {pattern}, known are {}",
-                    ARCHIVES.join(", ")
+                    known.join(", ")
                 ),
                 Some(PROPOSED) if proposed_suite(distro).is_none() => {
                     bail!("{release} has no proposed suite to take {pattern} from")
@@ -178,7 +308,7 @@ impl Archives {
 
     /// Whether it adds suites to the release's.
     pub fn adds_suites(&self) -> bool {
-        self.uses(PROPOSED) || self.uses(EXPERIMENTAL)
+        self.uses(PROPOSED) || self.uses(EXPERIMENTAL) || !self.extra.is_empty()
     }
 }
 
@@ -226,20 +356,30 @@ pub fn sources_file(
         suites.push(EXPERIMENTAL.to_string());
     }
 
-    let mut groups = vec![(mirror.unwrap_or(archive), suites)];
+    let components = components.join(" ");
+    let mut groups = vec![(
+        mirror.unwrap_or(archive),
+        suites.join(" "),
+        components.clone(),
+    )];
     if debian && release.contains(&security) {
-        groups.push((DEBIAN_SECURITY_ARCHIVE, vec![security]));
+        groups.push((DEBIAN_SECURITY_ARCHIVE, security, components));
     }
-    let paragraphs: Vec<String> = groups
+    let mut paragraphs: Vec<String> = groups
         .into_iter()
-        .map(|(uri, suites)| {
-            format!(
-                "Types: deb deb-src\nURIs: {uri}\nSuites: {}\nComponents: {}\n",
-                suites.join(" "),
-                components.join(" ")
-            )
+        .map(|(uri, suites, components)| {
+            format!("Types: deb deb-src\nURIs: {uri}\nSuites: {suites}\nComponents: {components}\n")
         })
         .collect();
+    paragraphs.extend(archives.extra.iter().map(|extra| {
+        format!(
+            "Types: deb deb-src\nURIs: {}\nSuites: {}\nComponents: {}\nSigned-By: /{}\n",
+            extra.uri,
+            extra.suite,
+            extra.components.join(" "),
+            extra.key_path()
+        )
+    }));
     Ok(paragraphs.join("\n"))
 }
 
@@ -293,21 +433,28 @@ pub fn retry_suite(archives: &Archives) -> Option<&'static str> {
 ///   installed packages from it: with all of it, it's pinned to the
 ///   release's priority like on Launchpad's builders, so the build takes
 ///   everything newer from it;
-/// - with only some packages from it, the rest of a proposed suite only
-///   upgrades installed packages, also on Debian, which doesn't mark them
-///   NotAutomatic.
+/// - with only some packages from it, the rest of a proposed suite or an
+///   extra archive only upgrades installed packages, also on Debian, which
+///   doesn't mark them NotAutomatic.
 pub fn preferences_file(distro: &DistroVersion, archives: &Archives) -> Option<String> {
     let mut pins = Vec::new();
     for (pattern, settings) in &archives.packages {
         match (&settings.version, &settings.from) {
             (Some(version), _) => pins.push(pin(pattern, &format!("version {version}"), 1001)),
             (None, Some(from)) => {
-                for suite in archive_suites(distro, from) {
-                    pins.push(pin(pattern, &release_pin(distro, &suite), 990));
+                for release in archive_pins(distro, archives, from) {
+                    pins.push(pin(pattern, &release, 990));
                 }
             }
             (None, None) => {}
         }
+    }
+    for extra in archives
+        .extra
+        .iter()
+        .filter(|extra| archives.uses(&extra.name))
+    {
+        pins.push(pin("*", &extra.pin, 100));
     }
     if let Some(suite) = proposed_suite(distro) {
         let release = release_pin(distro, &suite);
@@ -322,12 +469,21 @@ pub fn preferences_file(distro: &DistroVersion, archives: &Archives) -> Option<S
     (!pins.is_empty()).then(|| pins.join("\n"))
 }
 
-fn archive_suites(distro: &DistroVersion, archive: &str) -> Vec<String> {
-    match archive {
+/// The apt preferences pins of `archive`'s packages.
+fn archive_pins(distro: &DistroVersion, archives: &Archives, archive: &str) -> Vec<String> {
+    let suites = match archive {
         PROPOSED => proposed_suite(distro).into_iter().collect(),
         EXPERIMENTAL => vec![EXPERIMENTAL.to_string()],
-        _ => release_suites(distro),
-    }
+        RELEASE => release_suites(distro),
+        _ => {
+            let extra = archives.extra.iter().filter(|extra| extra.name == archive);
+            return extra.map(|extra| extra.pin.clone()).collect();
+        }
+    };
+    suites
+        .iter()
+        .map(|suite| release_pin(distro, suite))
+        .collect()
 }
 
 /// The apt preferences pin of `suite`. Ubuntu's Release files name the
@@ -386,7 +542,7 @@ mod tests {
     /// the package `specs`.
     fn archives(distro: &DistroVersion, proposed: bool, specs: &[&str]) -> Archives {
         let packages = specs.iter().map(|spec| parse_package(spec).unwrap());
-        Archives::for_distro(distro, proposed, false, packages.collect()).unwrap()
+        Archives::for_distro(distro, proposed, false, packages.collect(), Vec::new()).unwrap()
     }
 
     fn proposed() -> Archives {
@@ -453,12 +609,15 @@ mod tests {
     #[test_case("noble", "src:foo/backports" ; "unknown archive")]
     fn archives_reject(name: &str, spec: &str) {
         let packages = [parse_package(spec).unwrap()].into();
-        assert!(Archives::for_distro(&distro(name), false, false, packages).is_err());
+        assert!(Archives::for_distro(&distro(name), false, false, packages, Vec::new()).is_err());
     }
 
     #[test]
     fn experimental_only_adds_to_debian_unstable_and_testing() {
-        assert!(Archives::for_distro(&distro("noble"), false, true, Packages::new()).is_err());
+        assert!(
+            Archives::for_distro(&distro("noble"), false, true, Packages::new(), Vec::new())
+                .is_err()
+        );
     }
 
     #[test]
@@ -575,7 +734,8 @@ mod tests {
             "{sources:?}"
         );
         let unstable = distro("unstable");
-        let extra = Archives::for_distro(&unstable, false, true, Packages::new()).unwrap();
+        let extra =
+            Archives::for_distro(&unstable, false, true, Packages::new(), Vec::new()).unwrap();
         let sources = sources_file(&unstable, None, &extra, "amd64").unwrap();
         assert!(
             sources.contains("Suites: unstable experimental\n"),
@@ -616,6 +776,87 @@ mod tests {
                  Components: main restricted universe multiverse\n"
             )
         );
+    }
+
+    #[test_case("ppa:me/stuff", "me", "stuff", None ; "plain")]
+    #[test_case("ppa:me/stuff@noble", "me", "stuff", Some("noble") ; "suite")]
+    fn ppa_spec(spec: &str, owner: &str, name: &str, suite: Option<&str>) {
+        let ppa = spec.parse::<Ppa>().unwrap();
+        assert_eq!((ppa.owner.as_str(), ppa.name.as_str()), (owner, name));
+        assert_eq!(ppa.suite.as_deref(), suite);
+    }
+
+    #[test_case("me/stuff" ; "no prefix")]
+    #[test_case("ppa:me" ; "no name")]
+    #[test_case("ppa:me/stuff@" ; "empty suite")]
+    #[test_case("ppa:me/st uff" ; "whitespace")]
+    fn ppa_spec_rejects(spec: &str) {
+        assert!(spec.parse::<Ppa>().is_err());
+    }
+
+    fn ppa(spec: &str, distro: &DistroVersion) -> anyhow::Result<ExtraArchive> {
+        spec.parse::<Ppa>()
+            .unwrap()
+            .archive(spec, distro, "KEY".to_string())
+    }
+
+    #[test]
+    fn ppa_named_ppa_has_the_owner_as_origin() {
+        let noble = distro("noble");
+        assert_eq!(
+            ppa("ppa:me/ppa", &noble).unwrap().pin,
+            "release o=LP-PPA-me"
+        );
+        assert_eq!(
+            ppa("ppa:me/stuff", &noble).unwrap().pin,
+            "release o=LP-PPA-me-stuff"
+        );
+    }
+
+    #[test]
+    fn ppa_for_debian_needs_a_suite() {
+        let trixie = distro("trixie");
+        assert!(ppa("ppa:me/stuff", &trixie).is_err());
+        assert_eq!(ppa("ppa:me/stuff@noble", &trixie).unwrap().suite, "noble");
+    }
+
+    #[test]
+    fn ppa_is_signed_by_its_key_and_pinned_when_picked_from() {
+        let noble = distro("noble");
+        let extra = vec![ppa("ppa:me/stuff", &noble).unwrap()];
+        let packages = [parse_package("libfoo1/ppa:me/stuff").unwrap()].into();
+        let archives = Archives::for_distro(&noble, false, false, packages, extra).unwrap();
+        let sources = sources_file(&noble, None, &archives, "amd64").unwrap();
+        assert!(
+            sources.ends_with(
+                "\n\nTypes: deb deb-src\nURIs: https://ppa.launchpadcontent.net/me/stuff/ubuntu\n\
+                 Suites: noble\nComponents: main\n\
+                 Signed-By: /etc/apt/keyrings/debmagic-ppa-me-stuff.asc\n"
+            ),
+            "{sources}"
+        );
+        assert_eq!(
+            preferences_file(&noble, &archives).unwrap(),
+            "Package: libfoo1\nPin: release o=LP-PPA-me-stuff\nPin-Priority: 990\n\n\
+             Package: *\nPin: release o=LP-PPA-me-stuff\nPin-Priority: 100\n"
+        );
+
+        let all = Archives::for_distro(&noble, false, false, Packages::new(), archives.extra);
+        let all = all.unwrap();
+        assert!(all.adds_suites());
+        assert_eq!(preferences_file(&noble, &all), None);
+    }
+
+    #[test]
+    fn extra_archives_must_not_shadow_or_clash() {
+        let noble = distro("noble");
+        let mut proposed = ppa("ppa:me/stuff", &noble).unwrap();
+        proposed.name = "proposed".to_string();
+        let mut clash = ppa("ppa:me/stuff", &noble).unwrap();
+        clash.name = "ppa:me-stuff".to_string();
+        let extra = |extra| Archives::for_distro(&noble, false, false, Packages::new(), extra);
+        assert!(extra(vec![proposed]).is_err());
+        assert!(extra(vec![ppa("ppa:me/stuff", &noble).unwrap(), clash]).is_err());
     }
 
     #[test]

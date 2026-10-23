@@ -47,6 +47,7 @@ The distro comes from `--distro` or the changelog, and the test output goes to `
 | `--proposed[=<packages>]` | Test against packages from the [proposed suite](build.md#proposed-dependencies): all newer ones, or only the listed ones. Naming this package [tests the archive's build](#testing-the-archives-build) |
 | `--experimental[=<packages>]` | Test against the listed packages from [experimental](build.md#experimental); without a list, only what nothing else provides. Naming this package [tests the archive's build](#testing-the-archives-build) |
 | `--package <package>[=<version>][/<archive>]` | Test against a [package in a version or from an archive](build.md#package-versions-and-archives). Naming this package [tests the archive's build](#testing-the-archives-build) |
+| `--archive [<name>=]<spec>` | Add an [archive like a PPA](build.md#extra-archives), e.g. to test a PPA's build with `--package src:<source>/<name>` |
 | `--apt-mirror <url>` | Mirror URL (same as [`debmagic build`](build.md)) |
 | `--apt-update-age <when>` | Configure when to run `apt-get update` (same as [`debmagic build`](build.md#apt-update-age)) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |

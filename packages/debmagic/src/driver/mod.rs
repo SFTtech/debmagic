@@ -11,7 +11,7 @@ use std::{
     time::SystemTime,
 };
 
-use crate::apt::AptConfig;
+use crate::apt::AptPlan;
 use crate::driver::{
     config::{DriverConfig, DriverOverrides},
     driver_bare::DriverBare,
@@ -487,11 +487,11 @@ impl EnvironmentDriver for Driver {
 pub fn create_driver(
     environment: &Environment,
     driver_config: &DriverConfig,
-    apt: &AptConfig,
+    apt: &AptPlan,
     overrides: &DriverOverrides,
 ) -> anyhow::Result<Driver> {
     let apt_mirror = apt.mirror.as_deref();
-    let archives = apt.archives(&environment.distro)?;
+    let archives = &apt.archives;
 
     match environment.driver {
         DriverType::Docker => Ok(Driver::Docker(DriverDocker::create(
@@ -499,7 +499,7 @@ pub fn create_driver(
             driver_config,
             &overrides.docker,
             apt_mirror,
-            &archives,
+            archives,
         )?)),
         DriverType::Bare => Ok(Driver::Bare(DriverBare::create(
             environment,
@@ -517,7 +517,7 @@ pub fn create_driver(
                 driver_config,
                 &overrides.lxd,
                 apt_mirror,
-                &archives,
+                archives,
             )?))
         }
     }

@@ -2,16 +2,17 @@
 //! container, refreshing its packages, and installing what a run needs in
 //! one transaction.
 
-use std::{fs, io, os::unix::fs::PermissionsExt, path::Path};
+use std::{collections::BTreeMap, fs, io, os::unix::fs::PermissionsExt, path::Path};
 
-use anyhow::Context;
+use anyhow::{Context, bail};
 use debmagic_common::{
-    apt::{self, Archives, PackageSettings, Packages},
+    apt::{self, Archives, ExtraArchive, PackageSettings, Packages, Ppa},
     debian::control::BuildRelations,
     distro::DistroVersion,
 };
 use serde::{Deserialize, Serialize};
 
+use crate::config::SignConfig;
 use crate::driver::EnvironmentDriver;
 use crate::time::RefreshPolicy;
 
@@ -33,16 +34,123 @@ pub struct AptConfig {
     /// Where to take packages from, or which version, by apt preferences
     /// pattern.
     pub packages: Packages,
+    /// Archives beyond the distro's by name, like `ppa:<owner>/<name>`.
+    pub archives: BTreeMap<String, String>,
 }
 
 impl AptConfig {
-    /// The archives beyond its release an Environment for `distro` takes
-    /// packages from.
-    pub fn archives(&self, distro: &DistroVersion) -> anyhow::Result<Archives> {
+    /// What an Environment for `distro` takes its packages from, with the
+    /// keys of its extra archives fetched and checked with `sign`'s tool.
+    pub async fn plan(&self, distro: &DistroVersion, sign: &SignConfig) -> anyhow::Result<AptPlan> {
+        let mut specs = self.archives.clone();
+        // an archive spec in `from` adds the archive under that name
+        for settings in self.packages.values() {
+            if let Some(from) = &settings.from
+                && from.starts_with("ppa:")
+            {
+                specs.entry(from.clone()).or_insert_with(|| from.clone());
+            }
+        }
+        let mut extra = Vec::new();
+        for (name, spec) in &specs {
+            let archive = resolve_archive(name, spec, distro, sign)
+                .await
+                .with_context(|| format!("adding the archive '{name}' failed"))?;
+            extra.push(archive);
+        }
         let packages = self.packages.clone();
-        Archives::for_distro(distro, self.proposed, self.experimental, packages)
-            .context("invalid apt package settings")
+        let archives =
+            Archives::for_distro(distro, self.proposed, self.experimental, packages, extra)
+                .context("invalid apt package settings")?;
+        Ok(AptPlan {
+            mirror: self.mirror.clone(),
+            update_age: self.update_age,
+            archives,
+        })
     }
+}
+
+/// The `[apt]` settings resolved for one target distro.
+#[derive(Debug, Clone, Default)]
+pub struct AptPlan {
+    pub mirror: Option<String>,
+    pub update_age: RefreshPolicy,
+    pub archives: Archives,
+}
+
+const KEYSERVER: &str = "https://keyserver.ubuntu.com";
+
+async fn resolve_archive(
+    name: &str,
+    spec: &str,
+    distro: &DistroVersion,
+    sign: &SignConfig,
+) -> anyhow::Result<ExtraArchive> {
+    let ppa: Ppa = spec.parse().map_err(anyhow::Error::msg)?;
+    let key = ppa_key(&ppa, sign).await?;
+    ppa.archive(name, distro, key)
+}
+
+/// The ASCII-armored signing key of `ppa`, fetched once and then kept in
+/// the cache, like add-apt-repository does: its fingerprint from
+/// Launchpad, the key from the keyserver, checked against the fingerprint.
+async fn ppa_key(ppa: &Ppa, sign: &SignConfig) -> anyhow::Result<String> {
+    let path = dirs::cache_dir()
+        .context("no cache dir to keep PPA keys in")?
+        .join("debmagic/ppa-keys")
+        .join(&ppa.owner)
+        .join(format!("{}.asc", ppa.name));
+    match fs::read_to_string(&path) {
+        Ok(key) => return Ok(key),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+        Err(error) => {
+            return Err(error).with_context(|| format!("reading {} failed", path.display()));
+        }
+    }
+
+    #[derive(Deserialize)]
+    struct Archive {
+        signing_key_fingerprint: Option<String>,
+    }
+
+    let url = ppa.api_url();
+    let archive: Archive = serde_json::from_str(&crate::requests::http_get(&url).await?)
+        .with_context(|| format!("reading {url} failed"))?;
+    let fingerprint = archive
+        .signing_key_fingerprint
+        .context("Launchpad has no signing key for it yet")?;
+    let url = format!("{KEYSERVER}/pks/lookup?op=get&options=mr&exact=on&search=0x{fingerprint}");
+    let key = crate::requests::http_get(&url).await?;
+
+    let partial = path.with_extension("asc.partial");
+    fs::create_dir_all(path.parent().unwrap_or(&path))
+        .and_then(|()| fs::write(&partial, &key))
+        .with_context(|| format!("writing {} failed", partial.display()))?;
+    let fetched = crate::sign::key_fingerprint(sign, &partial)
+        .with_context(|| format!("checking the key from {url} failed"))?;
+    if !fetched.eq_ignore_ascii_case(&fingerprint) {
+        bail!("{url} returned the key {fetched} instead of {fingerprint}");
+    }
+    fs::rename(&partial, &path)
+        .with_context(|| format!("caching the key in {} failed", path.display()))?;
+    Ok(key)
+}
+
+/// `--archive [<name>=]<spec>`: the name defaults to the spec.
+pub fn parse_archive_arg(arg: &str) -> Result<(String, String), String> {
+    let (name, spec) = match arg.split_once('=') {
+        Some((name, spec))
+            if !name.is_empty()
+                && name
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || b"-_.".contains(&b)) =>
+        {
+            (name, spec)
+        }
+        _ => (arg, arg),
+    };
+    spec.parse::<Ppa>()?;
+    Ok((name.to_string(), spec.to_string()))
 }
 
 /// The `[apt]` settings given on the command line.
@@ -54,6 +162,8 @@ pub struct AptOverrides {
     pub experimental: Option<bool>,
     /// Replacing the configured settings of the same pattern.
     pub packages: Vec<(String, PackageSettings)>,
+    /// Replacing the configured archives of the same name.
+    pub archives: Vec<(String, String)>,
 }
 
 impl AptOverrides {
@@ -71,6 +181,7 @@ impl AptOverrides {
             config.experimental = experimental;
         }
         config.packages.extend(self.packages);
+        config.archives.extend(self.archives);
     }
 }
 
@@ -164,10 +275,14 @@ impl Setup<'_> {
                 .with_context(|| format!("removing the old {} failed", dir.display()))?;
         }
         let preferences = apt::preferences_file(self.distro, self.archives);
+        let keys: Vec<(String, &str)> = (self.archives.extra.iter())
+            .map(|archive| (archive.key_path(), archive.key.as_str()))
+            .collect();
         let mut files: Vec<(&str, &str, u32)> = self.files().collect();
         for (path, content) in [(SOURCES_FILE, &sources), (PREFERENCES_FILE, &preferences)] {
             files.extend(content.as_deref().map(|content| (path, content, 0o644)));
         }
+        files.extend(keys.iter().map(|(path, key)| (path.as_str(), *key, 0o644)));
         for (path, content, mode) in files {
             let path = dir.join(path);
             fs::create_dir_all(path.parent().expect("setup files are in a dir"))
@@ -430,7 +545,29 @@ mod tests {
              echo 'man-db man-db/auto-update boolean false' | debconf-set-selections && \
              rm -f /var/lib/man-db/auto-update"
         );
+
+        let ppa: Ppa = "ppa:me/stuff@noble".parse().unwrap();
+        let extra = vec![ppa.archive("stuff", &trixie, "KEY".to_string())?];
+        let archives = Archives::for_distro(&trixie, false, false, Packages::new(), extra)?;
+        setup.archives = &archives;
+        setup.write(&dir)?;
+        let key = dir.join("etc/apt/keyrings/debmagic-stuff.asc");
+        assert_eq!(fs::read_to_string(key)?, "KEY");
         fs::remove_dir_all(&dir)?;
         Ok(())
+    }
+
+    #[test_case::test_case("ppa:me/stuff", "ppa:me/stuff" ; "unnamed")]
+    #[test_case::test_case("mine=ppa:me/stuff@noble", "mine" ; "named")]
+    fn archive_arg(arg: &str, name: &str) {
+        let (parsed, spec) = parse_archive_arg(arg).unwrap();
+        assert_eq!(parsed, name);
+        assert!(spec.starts_with("ppa:me/stuff"));
+    }
+
+    #[test_case::test_case("mine=" ; "empty spec")]
+    #[test_case::test_case("deb http://x trixie main" ; "no ppa")]
+    fn archive_arg_rejects(arg: &str) {
+        assert!(parse_archive_arg(arg).is_err());
     }
 }

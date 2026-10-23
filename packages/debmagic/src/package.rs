@@ -283,7 +283,7 @@ fn parse_os_release(contents: &str) -> OsRelease {
     }
 }
 
-fn select_distro_version(
+pub fn select_distro_version(
     changelog_distros: &[String],
     explicit_distro: Option<&str>,
     distros: &DistroTable,

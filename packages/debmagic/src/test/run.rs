@@ -8,7 +8,10 @@ use crate::build::artifacts::{copy_changes_artifacts, copy_dir_all};
 use crate::build::source::{stage_dir, stage_source_tree};
 use crate::build_intent::BuildKind;
 use crate::driver::{DriverType, Environment, EnvironmentDriver, EnvironmentPurpose};
-use crate::driver::{IsolationCapability, config::DriverConfig};
+use crate::driver::{
+    IsolationCapability,
+    config::{DriverConfig, DriverOverrides},
+};
 use crate::environment::{
     CommandCompletion, HostRootPolicy, InvocationKind, RecordedInvocation, Registry, claim_command,
     prior_binary_invocation,
@@ -205,12 +208,54 @@ fn autopkgtest_isolation_args(isolation: IsolationCapability) -> Vec<&'static st
     }
 }
 
+/// The overrides to test the archive's build of `package` instead of a
+/// local one, `None` to test a local build: when the proposed or
+/// experimental selection names it or one of its binaries, with all its
+/// binaries from that suite so their versions match.
+fn archive_build_overrides(
+    package: &SourcePackage,
+    config: &DriverConfig,
+    overrides: &DriverOverrides,
+) -> anyhow::Result<Option<DriverOverrides>> {
+    let binaries = &package
+        .control()
+        .context("reading the binary packages failed")?
+        .binaries;
+    let name = package.name();
+    let mut archive = overrides.clone();
+    let mut named = false;
+    for (chosen, configured) in [
+        (&mut archive.proposed, &config.proposed),
+        (&mut archive.experimental, &config.experimental),
+    ] {
+        let selection = chosen.clone().unwrap_or_else(|| configured.clone());
+        if selection.names_package(name, binaries) {
+            *chosen = Some(selection.with_source(name));
+            named = true;
+        }
+    }
+    Ok(named.then_some(archive))
+}
+
 pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     let package = load_package(&intent.source_dir)?;
     let distros = crate::distro_info::load()
         .await
         .context("loading the Debian and Ubuntu releases failed")?;
     let registry = Registry::open_default_or_ephemeral().await?;
+    let archive_overrides =
+        archive_build_overrides(&package, &intent.config.driver, &intent.driver_overrides)?;
+    let from_archive = archive_overrides.is_some();
+    let overrides = archive_overrides
+        .as_ref()
+        .unwrap_or(&intent.driver_overrides);
+    if from_archive && intent.changes.is_some() {
+        bail!(
+            "--changes tests a local build, but the proposed or experimental packages name {} \
+             to test the archive's",
+            package.name()
+        );
+    }
 
     // `--changes` overrides only the artifact path. Driver and distro still
     // default to the prior binary-build Invocation when one exists.
@@ -225,25 +270,44 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         &invocations,
         intent.distro.as_deref(),
         intent.changes.is_some(),
-    )?;
+    );
+    // the archive's build needs a prior one at most for its driver
+    let prior_invocation = match from_archive {
+        true => prior_invocation.ok().flatten(),
+        false => prior_invocation?,
+    };
 
-    let changes_path = if let Some(ref explicit) = intent.changes {
+    let changes_path = if from_archive {
+        None
+    } else if let Some(ref explicit) = intent.changes {
         if !explicit.is_file() {
             bail!("--changes file {} does not exist", explicit.display());
         }
-        explicit.clone()
+        Some(explicit.clone())
     } else {
-        prior_invocation
-            .as_ref()
-            .and_then(|invocation| invocation.changes_path.clone())
-            .context(
-                "no prior binary build found; run `debmagic build binary` first or pass --changes",
-            )?
+        Some(
+            prior_invocation
+                .as_ref()
+                .and_then(|invocation| invocation.changes_path.clone())
+                .context(
+                    "no prior binary build found; run `debmagic build binary` first, pass \
+                     --changes, or name the package in --proposed/--experimental to test the \
+                     archive's build",
+                )?,
+        )
     };
-    if let Some(invocation) = prior_invocation.as_ref() {
-        warn_on_prior_build_mismatch(intent, &package, invocation, &changes_path, &distros);
+    if let (Some(invocation), Some(changes_path)) = (&prior_invocation, &changes_path) {
+        warn_on_prior_build_mismatch(intent, &package, invocation, changes_path, &distros);
     }
-    let exported_test_dir = exported_test_dir(&changes_path)?;
+    let exported_test_dir = match &changes_path {
+        Some(changes_path) => exported_test_dir(changes_path)?,
+        None => {
+            let output_dir = crate::output_dir::resolve(&intent.source_dir, &intent.config, None)?;
+            crate::output_dir::create(&output_dir)?;
+            let version = package.version().upstream_revision();
+            output_dir.join(format!("{}_{version}.test", package.name()))
+        }
+    };
     ensure_exported_test_dir_replaceable(&exported_test_dir)?;
 
     let driver = intent
@@ -266,7 +330,15 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         );
     }
 
-    let distro = if let Some(ref override_distro) = intent.distro {
+    let distro = if from_archive {
+        let mode = distro_resolve_mode_for_driver(
+            driver,
+            &intent.config.driver.docker.base_images,
+            &intent.config.driver.lxd.base_images,
+        );
+        let changelog = package.distributions();
+        crate::package::select_distro_version(changelog, intent.distro.as_deref(), &distros, mode)?
+    } else if let Some(ref override_distro) = intent.distro {
         lookup_distro_override(override_distro, &distros, driver, &intent.config.driver)?
     } else if let Some(ref invocation) = prior_invocation {
         // The Invocation recorded the full DistroVersion, so custom suites
@@ -277,7 +349,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
             "no prior build metadata found; pass --distro when using --changes without a prior Invocation"
         );
     };
-    crate::driver::apt_suites(&distro, &intent.config.driver, &intent.driver_overrides)?;
+    crate::driver::apt_suites(&distro, &intent.config.driver, overrides)?;
 
     let environment = Environment::new(
         driver,
@@ -295,7 +367,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
         &registry,
         environment,
         &intent.config.driver,
-        &intent.driver_overrides,
+        overrides,
         HostRootPolicy::Reset,
         |environment, _| {
             stage_source_tree(
@@ -306,7 +378,10 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
                 false,
                 &crate::output_dir::resolve(&intent.source_dir, &intent.config, None)?,
             )?;
-            copy_changes_artifacts(&changes_path, &environment.work_dir())
+            match &changes_path {
+                Some(changes_path) => copy_changes_artifacts(changes_path, &environment.work_dir()),
+                None => Ok(()),
+            }
         },
         InvocationKind::Test,
         &version,
@@ -320,8 +395,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
                 ..Default::default()
             };
             let distro = &claimed.environment().distro;
-            let suites =
-                crate::driver::apt_suites(distro, &intent.config.driver, &intent.driver_overrides)?;
+            let suites = crate::driver::apt_suites(distro, &intent.config.driver, overrides)?;
             crate::apt::install(
                 claimed.driver(),
                 &staged_source_dir,
@@ -333,9 +407,13 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
 
             let work_dir = claimed.environment().work_dir();
             let changes_filename = changes_path
-                .file_name()
-                .and_then(|name| name.to_str())
-                .ok_or_else(|| anyhow!("invalid .changes path: {}", changes_path.display()))?;
+                .as_ref()
+                .map(|path| {
+                    path.file_name()
+                        .and_then(|name| name.to_str())
+                        .ok_or_else(|| anyhow!("invalid .changes path: {}", path.display()))
+                })
+                .transpose()?;
             let source_tree_name = staged_source_dir
                 .file_name()
                 .and_then(|name| name.to_str())
@@ -350,6 +428,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
             // Binary-only builds have no .dsc in the .changes; pass the staged source
             // tree alongside the .changes so debian/tests/ is found without rebuilding
             // (-B). See autopkgtest(1) "TESTING A DEBIAN PACKAGE" (.changes + tree).
+            // Without a .changes, -B takes the source's binaries from the archive.
             // IsolationCapabilities become `--ignore-restrictions` (autopkgtest args,
             // not virt-null `--fake-capability`; see autopkgtest_isolation_args).
             let output_dir_flag = format!("--output-dir={output_dir_arg}");
@@ -359,14 +438,9 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
                 autopkgtest_isolation_args(claimed.driver().isolation_capability());
             let mut autopkgtest_cmd = vec!["autopkgtest", "-B", "--no-auto-control"];
             autopkgtest_cmd.extend(isolation_args);
-            autopkgtest_cmd.extend([
-                output_dir_flag.as_str(),
-                summary_flag.as_str(),
-                changes_filename,
-                source_tree_arg.as_str(),
-                "--",
-                "null",
-            ]);
+            autopkgtest_cmd.extend([output_dir_flag.as_str(), summary_flag.as_str()]);
+            autopkgtest_cmd.extend(changes_filename);
+            autopkgtest_cmd.extend([source_tree_arg.as_str(), "--", "null"]);
 
             crate::output::stage(&format!("Running autopkgtest for {}", package.name()));
             let exit_code = claimed
@@ -423,6 +497,40 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
 mod tests {
     use super::*;
     use crate::driver::Persistence;
+
+    #[test]
+    fn naming_the_package_tests_the_archive_build_of_all_its_binaries() -> anyhow::Result<()> {
+        use debmagic_common::apt::Selection;
+
+        let package = SourcePackage::from_files([
+            (
+                "changelog",
+                "foo (1.0-1) unstable; urgency=medium\n\n  * Change.\n\n -- A <a@example.com>  Mon, 01 Jan 2024 00:00:00 +0000\n",
+            ),
+            (
+                "control",
+                "Source: foo\n\nPackage: libfoo1\n\nPackage: foo-bin\n",
+            ),
+        ])?;
+        let config = DriverConfig::default();
+        let only = |packages: &[&str]| {
+            Selection::Only(packages.iter().map(|package| package.to_string()).collect())
+        };
+        let mut overrides = DriverOverrides {
+            proposed: Some(only(&["libfoo1", "libbar1"])),
+            ..DriverOverrides::default()
+        };
+        let archive = archive_build_overrides(&package, &config, &overrides)?.unwrap();
+        assert_eq!(
+            archive.proposed,
+            Some(only(&["libfoo1", "libbar1", "src:foo"]))
+        );
+        assert_eq!(archive.experimental, None);
+
+        overrides.proposed = Some(Selection::All);
+        assert!(archive_build_overrides(&package, &config, &overrides)?.is_none());
+        Ok(())
+    }
 
     #[test]
     fn exported_test_dir_is_named_after_the_changes_file() -> anyhow::Result<()> {

@@ -25,7 +25,8 @@ debmagic build binary --driver lxd \
 | `--persistent <mode>` | How long the build environment outlives this build: `on-failure` (default) keeps it when the build command fails, `always` keeps it after every build, `no` tears it down. A bare `--persistent` means `always` |
 | `--incremental` | Do incremental builds by syncing changed sources only; forces `--persistent=always` |
 | `--distro <name>` | [Select the target distro/release](#selecting-a-distrorelease) (e.g. `trixie`, `resolute`) |
-| `--proposed` | Use [build dependencies from `proposed`](#proposed-dependencies) pocket |
+| `--proposed[=<packages>]` | Use [build dependencies from `proposed`](#proposed-dependencies) |
+| `--experimental[=<packages>]` | Use build dependencies from [experimental](#experimental) |
 | `--sign` | [GPG-sign the resulting `.changes`/`.dsc`/`.buildinfo`](#signing) |
 | `--clean` | Run [`debian/rules clean` before building](#cleaning) |
 | `--debug-symbols` | [Build the automatic `-dbgsym` debug symbol packages](#building-debug-symbol-packages) |
@@ -164,10 +165,17 @@ Pass `--proposed` to build against the suite the release's updates come from, li
 | Debian stable release | `<release>-proposed-updates` |
 | Debian `unstable`, `experimental` | none |
 
+Pass a comma-separated list to take only those packages from it, e.g. `--proposed=libfoo1,src:bar`.
+The names are [apt preferences](https://manpages.debian.org/apt_preferences) patterns: binary packages, `src:<source>` for all binaries of a source, or globs.
+Everything else stays with the release.
+
 ## Experimental
 
 A build for Debian `experimental` installs its build dependencies from unstable.
 Only when unstable can't satisfy them, the install is retried preferring the packages from experimental.
+
+Builds for unstable or testing do the same with `--experimental`, or take only the listed packages from it with `--experimental=<packages>` like `--proposed`.
+Other releases reject it.
 
 ## Building debug symbol packages
 

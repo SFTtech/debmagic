@@ -13,6 +13,7 @@ use crate::upload::orig::IncludeOrig;
 use crate::upstream::fetch::FetchFrom;
 use clap::builder::BoolishValueParser;
 use clap::{Args, Parser, Subcommand};
+use debmagic_common::apt::Selection;
 
 /// When to use colored output. Mirrors common CLI conventions; `auto` is the
 /// default and respects the `NO_COLOR` environment variable.
@@ -330,10 +331,20 @@ pub struct EnvironmentArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
-        value_parser = BoolishValueParser::new(),
-        help = "Also enable the '<release>-proposed' pocket in the environment. Ignored by the bare driver."
+        value_name = "PACKAGES",
+        help = "Take packages from the suite the release's updates migrate from (e.g. '<release>-proposed'): all newer ones, or only the comma-separated PACKAGES (binary names, 'src:<source>' or globs). 'no' disables it. Ignored by the bare driver."
     )]
-    pub proposed: Option<bool>,
+    pub proposed: Option<Selection>,
+
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        value_name = "PACKAGES",
+        help = "Take packages from Debian experimental for an unstable or testing environment: those nothing else provides, or only the comma-separated PACKAGES. 'no' disables it. Ignored by the bare driver."
+    )]
+    pub experimental: Option<Selection>,
 
     #[arg(
         long = "apt-update-age",
@@ -736,7 +747,8 @@ impl EnvironmentArgs {
     pub fn driver_overrides(&self) -> DriverOverrides {
         DriverOverrides {
             apt_mirror: self.apt_mirror.clone(),
-            proposed: self.proposed,
+            proposed: self.proposed.clone(),
+            experimental: self.experimental.clone(),
             apt_update_age: self.apt_update_age,
             docker: DriverDockerConfigOverrides {
                 base_image: self.docker.base_image.clone(),
@@ -775,13 +787,18 @@ mod tests {
     }
 
     #[test_case(&[], None; "absent")]
-    #[test_case(&["--proposed"], Some(true); "bare flag")]
-    #[test_case(&["--proposed=yes"], Some(true); "yes")]
-    #[test_case(&["--proposed=no"], Some(false); "no")]
-    #[test_case(&["--proposed=off"], Some(false); "off")]
-    #[test_case(&["--proposed=true"], Some(true); "literal true")]
-    fn boolish_flag(args: &[&str], expected: Option<bool>) {
+    #[test_case(&["--proposed"], Some(Selection::All); "bare flag")]
+    #[test_case(&["--proposed=no"], Some(Selection::Off); "no")]
+    #[test_case(&["--proposed=libfoo,src:bar"], Some(Selection::Only(vec!["libfoo".into(), "src:bar".into()])); "packages")]
+    fn proposed_flag(args: &[&str], expected: Option<Selection>) {
         assert_eq!(parse_test(args).environment.proposed, expected);
+    }
+
+    #[test]
+    fn experimental_flag_is_a_selection() {
+        let args = parse_test(&["--experimental"]).environment;
+        assert_eq!(args.experimental, Some(Selection::All));
+        assert!(Cli::try_parse_from(["debmagic", "test", "--experimental=a b"]).is_err());
     }
 
     #[test]

@@ -25,7 +25,8 @@ All keys are optional.
 | `driver.default` | enum | — | `--driver` | Build driver (`docker`, `bare`, `lxd`, `incus`) |
 | `driver.persistent` | enum | `"on-failure"` | `--persistent` | How long the Environment outlives the claim: `"no"`, `"on-failure"`, or `"always"`. A bare `--persistent` means `always`. |
 | `driver.apt_mirror` | string | — | `--apt-mirror` | Mirror replacing the image's apt sources. Not used by the `bare` driver. |
-| `driver.proposed` | bool | `false` | `--proposed` | Also enable the `<release>-proposed` pocket. Not used by the `bare` driver. |
+| `driver.proposed` | bool or list | `false` | `--proposed` | Packages from the [proposed suite](build.md#proposed-dependencies): `true` for all newer ones, or a list like `["libfoo1", "src:bar"]`. Not used by the `bare` driver. |
+| `driver.experimental` | bool or list | `false` | `--experimental` | Packages from [experimental](build.md#experimental) for unstable and testing. Not used by the `bare` driver. |
 | `driver.apt_update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update && upgrade`: `"now"` (every build), `"never"` (only on creation), or a maximum age like `"1d"`, `"12h"`, `"30m"`. Not used by the `bare` driver. |
 | `driver.docker.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"` (e.g. `"debian:trixie"`). Falls back to `docker.io/<distro>:<codename>`. For non-Debian/Ubuntu suites (e.g. `"yocto:kirkstone"`), the map entry is what makes the suite a known DistroVersion for Docker builds. |
 | `driver.lxd.project` | string | — | — | LXD/Incus project to use. |

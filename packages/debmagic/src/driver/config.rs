@@ -1,4 +1,5 @@
 use clap::ValueEnum;
+use debmagic_common::apt::Selection;
 use serde::{Deserialize, Serialize};
 
 use crate::driver::DriverType;
@@ -58,9 +59,12 @@ pub struct DriverConfig {
     pub persistent: Persistence,
     /// Not used by the bare driver, which builds on the host's own sources.
     pub apt_mirror: Option<String>,
-    /// Also enable the `<release>-proposed` pocket. Not used by the bare
-    /// driver, which builds on the host's own sources.
-    pub proposed: bool,
+    /// Packages from the suite the release's updates migrate from: `true`
+    /// for all, or a list. Not used by the bare driver, which builds on the
+    /// host's own sources, like `experimental`.
+    pub proposed: Selection,
+    /// Packages from Debian experimental, for unstable and testing builds.
+    pub experimental: Selection,
     /// When to run apt-get update/upgrade again.
     pub apt_update_age: RefreshPolicy,
     pub docker: DriverDockerConfig,
@@ -71,7 +75,8 @@ pub struct DriverConfig {
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct DriverOverrides {
     pub apt_mirror: Option<String>,
-    pub proposed: Option<bool>,
+    pub proposed: Option<Selection>,
+    pub experimental: Option<Selection>,
     pub apt_update_age: Option<RefreshPolicy>,
     pub docker: DriverDockerConfigOverrides,
     pub bare: DriverBareConfigOverrides,

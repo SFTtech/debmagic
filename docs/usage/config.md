@@ -31,7 +31,7 @@ All keys are optional.
 | `apt.update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update && upgrade`: `"now"` (every build), `"never"` (only on creation), or a maximum age like `"1d"`, `"12h"`, `"30m"`. |
 | `apt.proposed` | bool | `false` | `--proposed` | All newer packages from the [proposed suite](build.md#proposed-dependencies). |
 | `apt.experimental` | bool | `false` | `--experimental` | What nothing else provides from [experimental](build.md#experimental), for unstable and testing. |
-| `apt.archives` | map | — | `--archive` | [Extra archives](build.md#extra-archives) by name, e.g. `{ mine = "ppa:me/stuff" }`. |
+| `apt.archives` | map | — | `--archive` | [Extra archives](build.md#extra-archives) by name: a PPA or a `deb` line, e.g. `{ mine = "ppa:me/stuff" }`. |
 | `apt.packages` | map | — | `--package` | [Package settings](build.md#package-versions-and-archives) by pattern: `from` (an archive) and `version`, e.g. `{ "src:bar" = { from = "proposed" } }`. |
 | `environments_dir` | path | `$XDG_DATA_HOME/debmagic/environments` | — | Parent directory of Environment Host roots. Must be absolute or start with `~/`. The Environment registry is always `$XDG_DATA_HOME/debmagic/db.sqlite` (override both with `DEBMAGIC_DATA_DIR`). |
 | `output_dir` | path | `build` | `-o`/`--output-dir` | Where build artifacts are exported; relative paths resolve against the package root. See [Output dir](build.md#output-dir). |

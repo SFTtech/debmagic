@@ -117,6 +117,167 @@ impl FromStr for Selection {
     }
 }
 
+/// An extra archive as `--archive` and `apt.archives` take it.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ArchiveSpec {
+    Ppa(Ppa),
+    Deb(DebLine),
+}
+
+impl FromStr for ArchiveSpec {
+    type Err = String;
+
+    fn from_str(spec: &str) -> Result<Self, String> {
+        match spec.starts_with("ppa:") {
+            true => spec.parse().map(Self::Ppa),
+            false => spec.parse().map(Self::Deb),
+        }
+    }
+}
+
+/// A sources.list(5) one-line entry,
+/// `deb [<option>=<value> ...] <uri> <suite> [<component> ...]`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct DebLine {
+    /// `deb` or `deb-src`.
+    pub kind: String,
+    /// By one-line name, like `arch` or `signed-by`.
+    pub options: Vec<(String, String)>,
+    pub uri: String,
+    pub suite: String,
+    pub components: Vec<String>,
+}
+
+impl FromStr for DebLine {
+    type Err = String;
+
+    fn from_str(spec: &str) -> Result<Self, String> {
+        let invalid = |why: &str| {
+            format!(
+                "'{spec}' is neither ppa:<owner>/<name>[@<suite>] nor \
+                 deb [<option>=<value> ...] <uri> <suite> [<component> ...]: {why}"
+            )
+        };
+        let (kind, rest) = spec
+            .trim()
+            .split_once(char::is_whitespace)
+            .filter(|(kind, _)| ["deb", "deb-src"].contains(kind))
+            .ok_or_else(|| invalid("no deb or deb-src"))?;
+        let rest = rest.trim_start();
+        let (options, rest) = match rest.strip_prefix('[') {
+            Some(rest) => rest.split_once(']').ok_or_else(|| invalid("no ]"))?,
+            None => ("", rest),
+        };
+        let options = options
+            .split_whitespace()
+            .map(|option| match option.split_once('=') {
+                Some((key, value)) if !key.is_empty() && !value.is_empty() => {
+                    Ok((key.to_ascii_lowercase(), value.to_string()))
+                }
+                _ => Err(invalid(&format!("no <option>=<value> in {option}"))),
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut words = rest.split_whitespace().map(str::to_string);
+        let (Some(uri), Some(suite)) = (words.next(), words.next()) else {
+            return Err(invalid("no uri and suite"));
+        };
+        let components: Vec<String> = words.collect();
+        if suite.ends_with('/') != components.is_empty() {
+            return Err(invalid(
+                "components go with a suite, not with a path ending in /",
+            ));
+        }
+        let line = Self {
+            kind: kind.to_string(),
+            options,
+            uri,
+            suite,
+            components,
+        };
+        if let Some(path) = line.option("signed-by")
+            && path.starts_with('/')
+            && path.contains([',', ' '])
+        {
+            return Err(invalid("signed-by takes one key file"));
+        }
+        Ok(line)
+    }
+}
+
+impl DebLine {
+    fn option(&self, key: &str) -> Option<&str> {
+        self.options
+            .iter()
+            .find_map(|(k, value)| (k == key).then_some(value.as_str()))
+    }
+
+    /// The key file of its `signed-by`, unless it lists fingerprints.
+    pub fn signed_by_file(&self) -> Option<&str> {
+        self.option("signed-by").filter(|by| by.starts_with('/'))
+    }
+
+    /// It as the archive `name`, signed with the contents of its
+    /// [`Self::signed_by_file`], `key`. Its packages are pinned by the host
+    /// of its URI, which also matches other archives on that host.
+    pub fn archive(&self, name: &str, key: Option<Vec<u8>>) -> anyhow::Result<ExtraArchive> {
+        if self.signed_by_file().is_some() != key.is_some() {
+            bail!("{name} needs the key of its signed-by file, and only then");
+        }
+        let options = self
+            .options
+            .iter()
+            .filter(|(k, _)| key.is_none() || k != "signed-by")
+            .map(|(k, value)| (deb822_field(k), value.replace(',', " ")))
+            .collect();
+        let host = self.uri.split_once("://").map_or("", |(_, rest)| rest);
+        let host = host.split('/').next().unwrap_or_default();
+        let host = host.rsplit_once('@').map_or(host, |(_, host)| host);
+        // apt's origin is the bare host
+        let host = match host.rsplit_once(':') {
+            Some((host, port)) if port.bytes().all(|b| b.is_ascii_digit()) => host,
+            _ => host,
+        };
+        Ok(ExtraArchive {
+            name: name.to_string(),
+            types: vec![self.kind.clone()],
+            uri: self.uri.clone(),
+            suite: self.suite.clone(),
+            components: self.components.clone(),
+            options,
+            key,
+            pin: format!("origin \"{host}\""),
+        })
+    }
+}
+
+/// The deb822 field of a one-line sources option: the same name, but
+/// `arch`, `lang` and `target` are spelled out, and `+`/`-` add to or
+/// remove from a default.
+fn deb822_field(option: &str) -> String {
+    let (base, suffix) = match (option.strip_suffix('+'), option.strip_suffix('-')) {
+        (Some(base), _) => (base, "-Add"),
+        (_, Some(base)) => (base, "-Remove"),
+        _ => (option, ""),
+    };
+    let base = match base {
+        "arch" => "Architectures".to_string(),
+        "lang" => "Languages".to_string(),
+        "target" => "Targets".to_string(),
+        other => other
+            .split('-')
+            .map(|word| {
+                let mut chars = word.chars();
+                chars
+                    .next()
+                    .map(|first| first.to_ascii_uppercase().to_string() + chars.as_str())
+                    .unwrap_or_default()
+            })
+            .collect::<Vec<_>>()
+            .join("-"),
+    };
+    base + suffix
+}
+
 /// A Launchpad PPA, `ppa:<owner>/<name>[@<suite>]`: the suite is the
 /// Ubuntu release to take its packages for, by default the target's.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -189,10 +350,12 @@ impl Ppa {
         };
         Ok(ExtraArchive {
             name: name.to_string(),
+            types: vec!["deb".to_string(), "deb-src".to_string()],
             uri: format!("https://ppa.launchpadcontent.net/{owner}/{ppa}/ubuntu"),
             suite,
             components: vec!["main".to_string()],
-            key,
+            options: Vec::new(),
+            key: Some(key.into_bytes()),
             pin: format!("release o={origin}"),
         })
     }
@@ -203,24 +366,56 @@ impl Ppa {
 pub struct ExtraArchive {
     /// What `--package <package>/<name>` calls it.
     pub name: String,
+    /// `deb`, `deb-src` or both.
+    pub types: Vec<String>,
     pub uri: String,
     pub suite: String,
     pub components: Vec<String>,
-    /// The ASCII-armored key its Release file is signed with.
-    pub key: String,
+    /// More fields of its deb822 sources paragraph.
+    pub options: Vec<(String, String)>,
+    /// The key its Release file is signed with, ASCII-armored or binary;
+    /// without it, apt's trusted keys or its options decide.
+    pub key: Option<Vec<u8>>,
     /// The apt preferences `Pin` of its packages.
     pub pin: String,
 }
 
 impl ExtraArchive {
-    /// Where its key goes, relative to the environment's root.
-    pub fn key_path(&self) -> String {
+    /// Where its key goes, relative to the environment's root: apt tells
+    /// armored from binary keys by the extension.
+    pub fn key_path(&self) -> Option<String> {
+        let key = self.key.as_ref()?;
         let name: String = self
             .name
             .chars()
             .map(|c| if c.is_ascii_alphanumeric() { c } else { '-' })
             .collect();
-        format!("etc/apt/keyrings/debmagic-{name}.asc")
+        let extension = match key.starts_with(b"-----BEGIN PGP") {
+            true => "asc",
+            false => "gpg",
+        };
+        Some(format!("etc/apt/keyrings/debmagic-{name}.{extension}"))
+    }
+
+    /// Its deb822 sources paragraph.
+    fn sources(&self) -> String {
+        let mut fields = vec![
+            ("Types".to_string(), self.types.join(" ")),
+            ("URIs".to_string(), self.uri.clone()),
+            ("Suites".to_string(), self.suite.clone()),
+        ];
+        if !self.components.is_empty() {
+            fields.push(("Components".to_string(), self.components.join(" ")));
+        }
+        fields.extend(self.options.iter().cloned());
+        fields.extend(
+            self.key_path()
+                .map(|path| ("Signed-By".to_string(), format!("/{path}"))),
+        );
+        fields
+            .iter()
+            .map(|(field, value)| format!("{field}: {value}\n"))
+            .collect()
     }
 }
 
@@ -258,7 +453,9 @@ impl Archives {
             if ARCHIVES.contains(&archive.name.as_str()) {
                 bail!("'{}' names a built-in archive", archive.name);
             }
-            let key_path = archive.key_path();
+            let Some(key_path) = archive.key_path() else {
+                continue;
+            };
             if key_paths.contains(&key_path) {
                 bail!(
                     "archive names clash in {key_path}, rename '{}'",
@@ -371,15 +568,7 @@ pub fn sources_file(
             format!("Types: deb deb-src\nURIs: {uri}\nSuites: {suites}\nComponents: {components}\n")
         })
         .collect();
-    paragraphs.extend(archives.extra.iter().map(|extra| {
-        format!(
-            "Types: deb deb-src\nURIs: {}\nSuites: {}\nComponents: {}\nSigned-By: /{}\n",
-            extra.uri,
-            extra.suite,
-            extra.components.join(" "),
-            extra.key_path()
-        )
-    }));
+    paragraphs.extend(archives.extra.iter().map(ExtraArchive::sources));
     Ok(paragraphs.join("\n"))
 }
 
@@ -797,7 +986,7 @@ mod tests {
     fn ppa(spec: &str, distro: &DistroVersion) -> anyhow::Result<ExtraArchive> {
         spec.parse::<Ppa>()
             .unwrap()
-            .archive(spec, distro, "KEY".to_string())
+            .archive(spec, distro, "-----BEGIN PGP".to_string())
     }
 
     #[test]
@@ -857,6 +1046,68 @@ mod tests {
         let extra = |extra| Archives::for_distro(&noble, false, false, Packages::new(), extra);
         assert!(extra(vec![proposed]).is_err());
         assert!(extra(vec![ppa("ppa:me/stuff", &noble).unwrap(), clash]).is_err());
+    }
+
+    #[test]
+    fn deb_line_options_become_fields_and_its_key_file_is_copied() {
+        let line: DebLine =
+            "deb [ arch=amd64,i386 signed-by=/usr/share/keyrings/x.gpg Trusted=yes ] \
+                             https://me@example.org:8080/debian bookworm main contrib"
+                .parse()
+                .unwrap();
+        assert_eq!(line.signed_by_file(), Some("/usr/share/keyrings/x.gpg"));
+        assert!(line.archive("mine", None).is_err());
+        let archive = line.archive("mine", Some(b"\x99binary".to_vec())).unwrap();
+        assert_eq!(
+            archive.sources(),
+            "Types: deb\nURIs: https://me@example.org:8080/debian\nSuites: bookworm\n\
+             Components: main contrib\nArchitectures: amd64 i386\nTrusted: yes\n\
+             Signed-By: /etc/apt/keyrings/debmagic-mine.gpg\n"
+        );
+        assert_eq!(archive.pin, "origin \"example.org\"");
+    }
+
+    #[test]
+    fn deb_line_without_key_file() {
+        let flat = "deb [trusted=yes] file:/srv/repo ./"
+            .parse::<DebLine>()
+            .unwrap();
+        let archive = flat.archive("local", None).unwrap();
+        assert_eq!(archive.key_path(), None);
+        assert_eq!(
+            archive.sources(),
+            "Types: deb\nURIs: file:/srv/repo\nSuites: ./\nTrusted: yes\n"
+        );
+        assert_eq!(archive.pin, "origin \"\"");
+
+        let by_fingerprint = "deb-src [signed-by=0123ABCD] http://x/ s main";
+        let line = by_fingerprint.parse::<DebLine>().unwrap();
+        assert_eq!(line.signed_by_file(), None);
+        assert!(
+            line.archive("x", None)
+                .unwrap()
+                .sources()
+                .ends_with("Signed-By: 0123ABCD\n")
+        );
+    }
+
+    #[test_case("rpm http://x s main" ; "no deb")]
+    #[test_case("deb http://x" ; "no suite")]
+    #[test_case("deb http://x s" ; "suite without components")]
+    #[test_case("deb http://x ./ main" ; "path with components")]
+    #[test_case("deb [arch=amd64 http://x s main" ; "unterminated options")]
+    #[test_case("deb [arch] http://x s main" ; "option without value")]
+    #[test_case("deb [signed-by=/a.gpg,/b.gpg] http://x s main" ; "two key files")]
+    fn deb_line_rejects(spec: &str) {
+        assert!(spec.parse::<DebLine>().is_err());
+    }
+
+    #[test_case("arch", "Architectures")]
+    #[test_case("arch+", "Architectures-Add")]
+    #[test_case("target-", "Targets-Remove")]
+    #[test_case("by-hash", "By-Hash")]
+    fn deb822_fields(option: &str, field: &str) {
+        assert_eq!(deb822_field(option), field);
     }
 
     #[test]

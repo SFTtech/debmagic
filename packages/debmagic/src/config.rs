@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 
+use crate::apt::AptConfig;
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
 use crate::driver::config::DriverConfig;
@@ -223,6 +224,8 @@ pub fn run_config(command: ConfigCommand) -> anyhow::Result<()> {
 #[serde(default)]
 pub struct Config {
     pub driver: DriverConfig,
+    /// `[apt]` section.
+    pub apt: AptConfig,
     /// Parent directory of Environment Host roots.
     pub environments_dir: PathBuf,
     /// Where build artifacts are exported; relative paths resolve against
@@ -378,10 +381,17 @@ impl SignConfig {
     }
 }
 
+const MOVED_KEYS: &[(&str, &str)] = &[
+    ("driver.apt_mirror", "apt.mirror"),
+    ("driver.apt_update_age", "apt.update_age"),
+    ("driver.proposed", "apt.proposed"),
+];
+
 impl Default for Config {
     fn default() -> Self {
         Self {
             driver: DriverConfig::default(),
+            apt: AptConfig::default(),
             environments_dir: crate::data_dir::default_environments_dir(),
             output_dir: PathBuf::from("build"),
             output_dir_fallback: PathBuf::from("build-debmagic"),
@@ -462,6 +472,12 @@ impl Config {
         let build = builder
             .build()
             .context("Failed to initialize config reader")?;
+        // unknown keys are ignored, which would silently drop these
+        for (old, new) in MOVED_KEYS {
+            if build.get::<config::Value>(old).is_ok() {
+                bail!("config key '{old}' is now '{new}'");
+            }
+        }
         let mut config: Self = build
             .try_deserialize()
             .map_err(|e| anyhow!("Failed to read config: {e}"))?;
@@ -583,6 +599,31 @@ mod tests {
         assert_eq!(cfg.sign.key.as_deref(), Some("you@example.com"));
         assert_eq!(cfg.sign.sign_command.as_deref(), Some("gpg --foo"));
         assert_eq!(cfg.sign.notify, Some(true));
+        Ok(())
+    }
+
+    #[test]
+    fn it_loads_the_apt_section_and_rejects_moved_keys() -> Result<(), anyhow::Error> {
+        let dir = std::env::temp_dir().join(format!("debmagic-apt-{}", std::process::id()));
+        std::fs::create_dir_all(&dir)?;
+        let load = |content: &str| {
+            let file = dir.join("apt.toml");
+            std::fs::write(&file, content)?;
+            Config::new(&[ConfigPath::new(
+                ConfigLayer::Explicit,
+                file,
+                ConfigPathStatus::Used,
+            )])
+        };
+        let cfg = load("[apt]\nmirror = \"http://m/ubuntu\"\nproposed = [\"libfoo1\"]\n")?;
+        assert_eq!(cfg.apt.mirror.as_deref(), Some("http://m/ubuntu"));
+        assert_eq!(
+            cfg.apt.proposed,
+            debmagic_common::apt::Selection::Only(vec!["libfoo1".into()])
+        );
+        let error = load("[driver]\nproposed = true\n").unwrap_err();
+        std::fs::remove_dir_all(&dir).ok();
+        assert!(error.to_string().contains("'apt.proposed'"), "{error}");
         Ok(())
     }
 

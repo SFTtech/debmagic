@@ -11,6 +11,7 @@ use anyhow::{Context, bail};
 use process::Process;
 use sqlx::sqlite::SqliteConnection;
 
+use crate::apt::AptConfig;
 use crate::driver::{
     Driver, Environment, EnvironmentDriver, EnvironmentMetadata, Persistence, ResourceStatus,
     config::{DriverConfig, DriverOverrides},
@@ -61,6 +62,7 @@ impl<'a> ClaimedEnvironment<'a> {
         registry: &'a Registry,
         environment: Environment,
         driver_config: &'a DriverConfig,
+        apt: &AptConfig,
         overrides: &DriverOverrides,
         root_policy: HostRootPolicy,
         stage: impl FnOnce(&Environment, Option<&Driver>) -> anyhow::Result<()>,
@@ -72,7 +74,7 @@ impl<'a> ClaimedEnvironment<'a> {
 
         if environment.persistence.reuses() && environment.root_dir.exists() {
             let claimed =
-                Self::create_driver(registry, environment, driver_config, overrides).await?;
+                Self::create_driver(registry, environment, driver_config, apt, overrides).await?;
             if let Err(error) = claimed.prepare_reused_root(root_policy, stage) {
                 return claimed.abort(error).await;
             }
@@ -91,7 +93,7 @@ impl<'a> ClaimedEnvironment<'a> {
             abandon_claim(registry, &environment, driver_config, false).await;
             return Err(error);
         }
-        Self::create_driver(registry, environment, driver_config, overrides).await
+        Self::create_driver(registry, environment, driver_config, apt, overrides).await
     }
 
     pub fn environment(&self) -> &Environment {
@@ -126,9 +128,11 @@ impl<'a> ClaimedEnvironment<'a> {
         registry: &'a Registry,
         environment: Environment,
         driver_config: &'a DriverConfig,
+        apt: &AptConfig,
         overrides: &DriverOverrides,
     ) -> anyhow::Result<Self> {
-        let driver = match crate::driver::create_driver(&environment, driver_config, overrides) {
+        let driver = match crate::driver::create_driver(&environment, driver_config, apt, overrides)
+        {
             Ok(driver) => driver,
             Err(error) => {
                 abandon_claim(registry, &environment, driver_config, true).await;
@@ -149,10 +153,7 @@ impl<'a> ClaimedEnvironment<'a> {
             driver,
             keep_after_failure: false,
         };
-        let policy = overrides
-            .apt_update_age
-            .unwrap_or(driver_config.apt_update_age);
-        if let Err(error) = claimed.upgrade_packages(policy).await {
+        if let Err(error) = claimed.upgrade_packages(apt.update_age).await {
             return claimed
                 .abort(error.context("upgrading the packages in the Environment failed"))
                 .await;
@@ -302,6 +303,7 @@ pub async fn claim_command<T>(
     registry: &Registry,
     environment: Environment,
     driver_config: &DriverConfig,
+    apt: &AptConfig,
     overrides: &DriverOverrides,
     root_policy: HostRootPolicy,
     stage: impl FnOnce(&Environment, Option<&Driver>) -> anyhow::Result<()>,
@@ -313,6 +315,7 @@ pub async fn claim_command<T>(
         registry,
         environment,
         driver_config,
+        apt,
         overrides,
         root_policy,
         stage,
@@ -1467,6 +1470,7 @@ mod claimed_environment_tests {
                 &self.registry,
                 environment,
                 &self.driver_config,
+                &AptConfig::default(),
                 &self.overrides,
                 root_policy,
                 stage,
@@ -1644,6 +1648,7 @@ mod claimed_environment_tests {
             &fixture.registry,
             environment,
             &fixture.driver_config,
+            &AptConfig::default(),
             &fixture.overrides,
             HostRootPolicy::Reset,
             |_, _| Ok(()),

@@ -108,6 +108,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                     clean: build_args.clean,
                     source_sync: build_args.source_sync,
                     host_arch_variant: build_args.host_arch_variant.clone(),
+                    apt_overrides: build_args.environment.apt_overrides(),
                     driver_overrides: build_args.environment.driver_overrides(),
                 },
                 distro: build_args.distro.clone(),
@@ -167,6 +168,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 changes: args.changes.clone(),
                 allow_host_test: args.allow_host_test,
                 distro: args.distro.clone(),
+                apt_overrides: args.environment.apt_overrides(),
                 driver_overrides: args.environment.driver_overrides(),
             })?;
 

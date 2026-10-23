@@ -7,9 +7,7 @@ use std::{
 use crate::apt;
 use crate::build::source::{source_manifest_path, stage_dir, stage_source_tree};
 use crate::build_intent::{BuildIntent, BuildIntentInput, BuildKind, resolve_build_intent};
-use crate::driver::{
-    Driver, DriverType, Environment, EnvironmentDriver, EnvironmentPurpose, apt_suites,
-};
+use crate::driver::{Driver, DriverType, Environment, EnvironmentDriver, EnvironmentPurpose};
 use crate::environment::{
     ClaimedEnvironment, CommandCompletion, HostRootPolicy, InvocationKind, Registry, claim_command,
 };
@@ -145,6 +143,7 @@ async fn run_build(
         &registry,
         planned.environment,
         &request.intent.config.driver,
+        &request.intent.config.apt,
         &request.intent.driver_overrides,
         planned.root_policy,
         |environment, driver| {
@@ -332,11 +331,7 @@ fn install_packages(
         profiles: profiles.to_vec(),
     };
     let environment = claimed.environment();
-    let suites = apt_suites(
-        &environment.distro,
-        &intent.config.driver,
-        &intent.driver_overrides,
-    )?;
+    let suites = intent.config.apt.suites(&environment.distro)?;
     let staged_source_dir = stage_dir(environment, kind);
     apt::install(
         claimed.driver(),
@@ -567,11 +562,7 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
         ),
     )
     .context("failed to determine package target")?;
-    apt_suites(
-        &target.distro,
-        &intent.config.driver,
-        &intent.driver_overrides,
-    )?;
+    intent.config.apt.suites(&target.distro)?;
 
     let package = format!("{} {}", target.package.name(), target.package.version());
     let notify = intent.config.build_notify();

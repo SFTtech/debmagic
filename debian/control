@@ -80,6 +80,7 @@ Description: dpkg build driver for debmagic rules.py packages.
 Package: debmagic
 Architecture: any
 Depends:
+ distro-info-data,
  ${misc:Depends},
  ${shlibs:Depends},
 Suggests:

@@ -105,11 +105,20 @@ pub fn has_satisfy(distro: &DistroVersion) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::distro::get_distro_version;
     use test_case::test_case;
 
     fn distro(name: &str) -> DistroVersion {
-        get_distro_version(name).unwrap()
+        let (distro, version) = match name {
+            "buster" => (Distro::Debian, "10"),
+            "bullseye" => (Distro::Debian, "11"),
+            "trixie" => (Distro::Debian, "13"),
+            "unstable" => (Distro::Debian, ""),
+            "bionic" => (Distro::Ubuntu, "18.04"),
+            "focal" => (Distro::Ubuntu, "20.04"),
+            "noble" => (Distro::Ubuntu, "24.04"),
+            other => panic!("no test release {other}"),
+        };
+        DistroVersion::new(distro, name, version)
     }
 
     #[test]
@@ -130,7 +139,7 @@ mod tests {
     #[test_case(false ; "release")]
     #[test_case(true ; "no proposed pocket")]
     fn debian_unstable_is_one_suite(proposed: bool) {
-        let sources = sources_file(&distro("sid"), None, proposed, "arm64").unwrap();
+        let sources = sources_file(&distro("unstable"), None, proposed, "arm64").unwrap();
         assert_eq!(
             sources,
             "Types: deb deb-src\nURIs: http://deb.debian.org/debian\nSuites: unstable\n\

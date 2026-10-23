@@ -146,8 +146,10 @@ If the changelog has a single unambiguous entry, omit it.
 `--distro` also overrides the changelog's distribution: you can use it to rebuild a package released for an older release on a newer one, or to attempt a backport.
 On the Bare driver the target must still match the host's os-release; pass `--bare-ignore-release` to build for a different suite anyway, with the host providing the build dependencies itself.
 
-Suite aliases in the changelog (or via `--distro`) resolve to a concrete release: Debian `stable` / `oldstable` / `sid` (→ `unstable`), and Ubuntu `devel`.
-Alias targets are updated manually when Debian/Ubuntu roll.
+Suite aliases in the changelog (or via `--distro`) resolve to a concrete release: Debian `stable` / `oldstable` / `testing` / `sid` (→ `unstable`), and Ubuntu `devel`.
+
+The releases and their dates come from [distro-info-data](https://salsa.debian.org/debian/distro-info-data) in `/usr/share/distro-info`.
+Without it, or when it predates the latest release, debmagic fetches the data into `~/.cache/debmagic/distro-info/` and refreshes that copy every 30 days.
 
 Non-Debian/Ubuntu suites (still apt/dpkg-based) are supported when declared for the active container Driver via `base_images`, e.g. `driver.docker.base_images = { "yocto:kirkstone" = "my-registry/yocto-kirkstone:latest" }`. The changelog/`--distro` value stays the bare codename (`kirkstone`). On the Bare driver, binary builds require the host `/etc/os-release` to match: built-in Debian/Ubuntu need matching `ID` and codename, other suites a matching `VERSION_CODENAME`.
 

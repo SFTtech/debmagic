@@ -18,7 +18,7 @@ use crate::package::load_package;
 use crate::subprocess::Capture;
 use anyhow::{Context, anyhow, bail};
 use debian_control::lossless::changes::Changes;
-use debmagic_common::distro::DistroVersion;
+use debmagic_common::distro::{DistroTable, DistroVersion};
 use debmagic_common::package::SourcePackage;
 
 /// autopkgtest(1) exit status values (Debian autopkgtest 6.x).
@@ -67,6 +67,7 @@ fn map_autopkgtest_exit(exit_code: i32, strict: bool) -> TestOutcome {
 /// suites, plus custom suites declared in the chosen Driver's `base_images`.
 fn lookup_distro_override(
     name: &str,
+    distros: &DistroTable,
     driver: DriverType,
     driver_config: &DriverConfig,
 ) -> anyhow::Result<DistroVersion> {
@@ -75,15 +76,16 @@ fn lookup_distro_override(
         &driver_config.docker.base_images,
         &driver_config.lxd.base_images,
     );
-    crate::package::lookup_distro(name, mode)
+    crate::package::lookup_distro(name, distros, mode)
 }
 
 /// Whether any suite in a `.changes` `Distribution` field (space-separated,
 /// codenames or aliases like `unstable`) names `distro`.
-fn distribution_matches(distribution: &str, distro: &DistroVersion) -> bool {
+fn distribution_matches(distribution: &str, distro: &DistroVersion, distros: &DistroTable) -> bool {
     distribution.split_whitespace().any(|suite| {
         suite == distro.codename
-            || debmagic_common::distro::get_distro_version(suite)
+            || distros
+                .get(suite)
                 .is_some_and(|resolved| resolved.codename == distro.codename)
     })
 }
@@ -95,6 +97,7 @@ fn warn_on_prior_build_mismatch(
     package: &SourcePackage,
     invocation: &RecordedInvocation,
     changes_path: &Path,
+    distros: &DistroTable,
 ) {
     let current_version = package.version().to_string();
     if intent.changes.is_none() && invocation.package_version != current_version {
@@ -109,7 +112,7 @@ fn warn_on_prior_build_mismatch(
         && intent.distro.is_none()
         && let Ok(changes) = Changes::from_file(changes_path)
         && let Some(distribution) = changes.distribution()
-        && !distribution_matches(&distribution, &invocation.distro)
+        && !distribution_matches(&distribution, &invocation.distro, distros)
     {
         eprintln!(
             "Warning: {} targets {distribution}, but the test defaults to {} from the \
@@ -204,6 +207,9 @@ fn autopkgtest_isolation_args(isolation: IsolationCapability) -> Vec<&'static st
 
 pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     let package = load_package(&intent.source_dir)?;
+    let distros = crate::distro_info::load()
+        .await
+        .context("loading the Debian and Ubuntu releases failed")?;
     let registry = Registry::open_default_or_ephemeral().await?;
 
     // `--changes` overrides only the artifact path. Driver and distro still
@@ -235,7 +241,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
             )?
     };
     if let Some(invocation) = prior_invocation.as_ref() {
-        warn_on_prior_build_mismatch(intent, &package, invocation, &changes_path);
+        warn_on_prior_build_mismatch(intent, &package, invocation, &changes_path, &distros);
     }
     let exported_test_dir = exported_test_dir(&changes_path)?;
     ensure_exported_test_dir_replaceable(&exported_test_dir)?;
@@ -261,7 +267,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     }
 
     let distro = if let Some(ref override_distro) = intent.distro {
-        lookup_distro_override(override_distro, driver, &intent.config.driver)?
+        lookup_distro_override(override_distro, &distros, driver, &intent.config.driver)?
     } else if let Some(ref invocation) = prior_invocation {
         // The Invocation recorded the full DistroVersion, so custom suites
         // from a Driver's base_images work without re-resolving.

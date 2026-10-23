@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, anyhow, bail};
-use debmagic_common::distro::{Distro, DistroVersion, get_distro_version};
+use debmagic_common::distro::{Distro, DistroTable, DistroVersion};
 use debmagic_common::package::{FileReader, Location, SourcePackage};
 
 use crate::driver::DriverType;
@@ -58,10 +58,11 @@ pub fn load_package(dir: &Path) -> anyhow::Result<SourcePackage> {
 pub fn resolve_package_target(
     dir: &Path,
     explicit_distro: Option<&str>,
+    distros: &DistroTable,
     mode: DistroResolveMode<'_>,
 ) -> anyhow::Result<PackageTarget> {
     let package = load_package(dir)?;
-    let distro = select_distro_version(package.distributions(), explicit_distro, mode)?;
+    let distro = select_distro_version(package.distributions(), explicit_distro, distros, mode)?;
     Ok(PackageTarget { package, distro })
 }
 
@@ -95,7 +96,7 @@ fn parse_base_image_key(key: &str) -> Option<(&str, &str)> {
 
 /// Reject custom (non-debian/ubuntu family) map keys whose codename collides
 /// with a built-in release or suite alias.
-fn validate_base_images_keys<'a, I>(keys: I) -> anyhow::Result<()>
+fn validate_base_images_keys<'a, I>(keys: I, distros: &DistroTable) -> anyhow::Result<()>
 where
     I: IntoIterator<Item = &'a str>,
 {
@@ -107,7 +108,7 @@ where
         };
         match Distro::parse(family) {
             Distro::Debian | Distro::Ubuntu => {}
-            Distro::Custom(_) if get_distro_version(codename).is_some() => {
+            Distro::Custom(_) if distros.get(codename).is_some() => {
                 return Err(anyhow!(
                     "base_images key '{key}' uses codename '{codename}' which is a built-in \
                      Debian/Ubuntu suite; use a different codename or a debian:/ubuntu: image override"
@@ -159,12 +160,16 @@ fn custom_distro_from_base_images(
 
 /// Resolve a distro codename (built-in or a custom suite from the Driver's
 /// `base_images` map) to a full [`DistroVersion`].
-pub fn lookup_distro(name: &str, mode: DistroResolveMode<'_>) -> anyhow::Result<DistroVersion> {
+pub fn lookup_distro(
+    name: &str,
+    distros: &DistroTable,
+    mode: DistroResolveMode<'_>,
+) -> anyhow::Result<DistroVersion> {
     if let DistroResolveMode::Container { base_images, .. } = mode {
-        validate_base_images_keys(base_images.keys().map(|k| k.as_str()))?;
+        validate_base_images_keys(base_images.keys().map(|k| k.as_str()), distros)?;
     }
 
-    if let Some(builtin) = get_distro_version(name) {
+    if let Some(builtin) = distros.get(name) {
         return Ok(builtin);
     }
 
@@ -281,12 +286,13 @@ fn parse_os_release(contents: &str) -> OsRelease {
 fn select_distro_version(
     changelog_distros: &[String],
     explicit_distro: Option<&str>,
+    distros: &DistroTable,
     mode: DistroResolveMode<'_>,
 ) -> anyhow::Result<DistroVersion> {
     let Some(explicit) = explicit_distro else {
         return match changelog_distros {
             [] => bail!("changelog contains no distributions"),
-            [single] => lookup_distro(single, mode),
+            [single] => lookup_distro(single, distros, mode),
             many => bail!(
                 "changelog contains multiple distributions ({}), please specify which one to build for with --distro",
                 many.join(", ")
@@ -294,10 +300,10 @@ fn select_distro_version(
         };
     };
 
-    let resolved = lookup_distro(explicit, mode)?;
-    let in_changelog = changelog_distros
-        .iter()
-        .any(|name| name == explicit || lookup_distro(name, mode).is_ok_and(|d| d == resolved));
+    let resolved = lookup_distro(explicit, distros, mode)?;
+    let in_changelog = changelog_distros.iter().any(|name| {
+        name == explicit || lookup_distro(name, distros, mode).is_ok_and(|d| d == resolved)
+    });
     if !in_changelog {
         println!(
             "debmagic: building for '{explicit}', changelog targets {}",
@@ -326,6 +332,18 @@ mod tests {
             .join("test_package_multi_distro")
     }
 
+    fn table() -> DistroTable {
+        let debian = "version,codename,series,created,release\n\
+            13,Trixie,trixie,2023-06-10,2025-08-09\n\
+            14,Forky,forky,2025-08-09\n\
+            15,Duke,duke,2027-08-01\n\
+            ,Sid,sid,1993-08-16\n";
+        let ubuntu = "version,codename,series,created,release\n\
+            27.04,Tenacious T-Rex,tenacious,2026-10-16,2027-04-22\n";
+        let today = chrono::NaiveDate::from_ymd_opt(2026, 10, 23).unwrap();
+        DistroTable::from_distro_info(debian, ubuntu, today).unwrap()
+    }
+
     fn docker_mode(map: &HashMap<String, String>) -> DistroResolveMode<'_> {
         DistroResolveMode::Container {
             base_images: map,
@@ -347,7 +365,8 @@ mod tests {
     #[test]
     fn resolve_package_target_stable_aliases_to_trixie() -> anyhow::Result<()> {
         let empty = HashMap::new();
-        let target = resolve_package_target(&test_package_dir(), None, docker_mode(&empty))?;
+        let target =
+            resolve_package_target(&test_package_dir(), None, &table(), docker_mode(&empty))?;
         assert_eq!(target.distro.codename, "trixie");
         assert_eq!(target.distro.distro, Distro::Debian);
         Ok(())
@@ -356,8 +375,12 @@ mod tests {
     #[test]
     fn select_distro_version_alias_matches_canonical_explicit() -> anyhow::Result<()> {
         let empty = HashMap::new();
-        let distro =
-            select_distro_version(&["stable".to_string()], Some("trixie"), docker_mode(&empty))?;
+        let distro = select_distro_version(
+            &["stable".to_string()],
+            Some("trixie"),
+            &table(),
+            docker_mode(&empty),
+        )?;
         assert_eq!(distro.codename, "trixie");
         Ok(())
     }
@@ -365,8 +388,12 @@ mod tests {
     #[test]
     fn select_distro_version_sid_matches_unstable_explicit() -> anyhow::Result<()> {
         let empty = HashMap::new();
-        let distro =
-            select_distro_version(&["sid".to_string()], Some("unstable"), docker_mode(&empty))?;
+        let distro = select_distro_version(
+            &["sid".to_string()],
+            Some("unstable"),
+            &table(),
+            docker_mode(&empty),
+        )?;
         assert_eq!(distro.codename, "unstable");
         Ok(())
     }
@@ -374,8 +401,12 @@ mod tests {
     #[test]
     fn resolve_package_target_multiple_distros_requires_explicit() {
         let empty = HashMap::new();
-        let result =
-            resolve_package_target(&test_package_multi_distro_dir(), None, docker_mode(&empty));
+        let result = resolve_package_target(
+            &test_package_multi_distro_dir(),
+            None,
+            &table(),
+            docker_mode(&empty),
+        );
         assert!(result.is_err());
         assert!(
             result
@@ -391,6 +422,7 @@ mod tests {
         let target = resolve_package_target(
             &test_package_multi_distro_dir(),
             Some("unstable"),
+            &table(),
             docker_mode(&empty),
         )?;
         assert_eq!(target.package.name(), "test-package");
@@ -402,7 +434,8 @@ mod tests {
     #[test]
     fn select_distro_version_single_no_explicit() -> anyhow::Result<()> {
         let empty = HashMap::new();
-        let distro = select_distro_version(&["forky".to_string()], None, docker_mode(&empty))?;
+        let distro =
+            select_distro_version(&["forky".to_string()], None, &table(), docker_mode(&empty))?;
         assert_eq!(distro.codename, "forky");
         assert_eq!(distro.distro, Distro::Debian);
         Ok(())
@@ -411,8 +444,12 @@ mod tests {
     #[test]
     fn select_distro_version_single_matching_explicit() -> anyhow::Result<()> {
         let empty = HashMap::new();
-        let distro =
-            select_distro_version(&["forky".to_string()], Some("forky"), docker_mode(&empty))?;
+        let distro = select_distro_version(
+            &["forky".to_string()],
+            Some("forky"),
+            &table(),
+            docker_mode(&empty),
+        )?;
         assert_eq!(distro.codename, "forky");
         Ok(())
     }
@@ -420,8 +457,12 @@ mod tests {
     #[test]
     fn select_distro_version_single_conflicting_explicit_overrides() -> anyhow::Result<()> {
         let empty = HashMap::new();
-        let distro =
-            select_distro_version(&["forky".to_string()], Some("duke"), docker_mode(&empty))?;
+        let distro = select_distro_version(
+            &["forky".to_string()],
+            Some("duke"),
+            &table(),
+            docker_mode(&empty),
+        )?;
         assert_eq!(distro.codename, "duke");
         Ok(())
     }
@@ -432,6 +473,7 @@ mod tests {
         let result = select_distro_version(
             &["forky".to_string(), "duke".to_string()],
             None,
+            &table(),
             docker_mode(&empty),
         );
         assert!(result.is_err());
@@ -449,6 +491,7 @@ mod tests {
         let distro = select_distro_version(
             &["forky".to_string(), "duke".to_string()],
             Some("duke"),
+            &table(),
             docker_mode(&empty),
         )?;
         assert_eq!(distro.codename, "duke");
@@ -461,6 +504,7 @@ mod tests {
         let distro = select_distro_version(
             &["forky".to_string(), "duke".to_string()],
             Some("trixie"),
+            &table(),
             docker_mode(&empty),
         )?;
         assert_eq!(distro.codename, "trixie");
@@ -470,7 +514,7 @@ mod tests {
     #[test]
     fn select_distro_version_empty_distros() {
         let empty = HashMap::new();
-        let result = select_distro_version(&[], None, docker_mode(&empty));
+        let result = select_distro_version(&[], None, &table(), docker_mode(&empty));
         assert!(result.is_err());
         assert!(
             result
@@ -487,7 +531,12 @@ mod tests {
             "yocto:kirkstone".to_string(),
             "registry.example/yocto-kirkstone:latest".to_string(),
         );
-        let distro = select_distro_version(&["kirkstone".to_string()], None, docker_mode(&map))?;
+        let distro = select_distro_version(
+            &["kirkstone".to_string()],
+            None,
+            &table(),
+            docker_mode(&map),
+        )?;
         assert_eq!(distro.distro, Distro::Custom("yocto".into()));
         assert_eq!(distro.codename, "kirkstone");
         assert_eq!(distro.version, "");
@@ -497,9 +546,14 @@ mod tests {
     #[test]
     fn select_unknown_without_base_images_errors_with_hint() {
         let empty = HashMap::new();
-        let err = select_distro_version(&["kirkstone".to_string()], None, docker_mode(&empty))
-            .unwrap_err()
-            .to_string();
+        let err = select_distro_version(
+            &["kirkstone".to_string()],
+            None,
+            &table(),
+            docker_mode(&empty),
+        )
+        .unwrap_err()
+        .to_string();
         assert!(err.contains("unknown distro codename 'kirkstone'"));
         assert!(err.contains("driver.docker.base_images"));
         assert!(err.contains("yocto:kirkstone"));
@@ -509,8 +563,8 @@ mod tests {
     fn select_rejects_colliding_custom_base_images_key() {
         let mut map = HashMap::new();
         map.insert("yocto:trixie".to_string(), "img".to_string());
-        let err =
-            select_distro_version(&["trixie".to_string()], None, docker_mode(&map)).unwrap_err();
+        let err = select_distro_version(&["trixie".to_string()], None, &table(), docker_mode(&map))
+            .unwrap_err();
         assert!(err.to_string().contains("built-in"));
     }
 
@@ -518,7 +572,8 @@ mod tests {
     fn select_allows_debian_base_image_override() -> anyhow::Result<()> {
         let mut map = HashMap::new();
         map.insert("debian:trixie".to_string(), "my-trixie:latest".to_string());
-        let distro = select_distro_version(&["trixie".to_string()], None, docker_mode(&map))?;
+        let distro =
+            select_distro_version(&["trixie".to_string()], None, &table(), docker_mode(&map))?;
         assert_eq!(distro.distro, Distro::Debian);
         assert_eq!(distro.codename, "trixie");
         Ok(())
@@ -539,12 +594,21 @@ UBUNTU_CODENAME=ignored
 
     #[test]
     fn bare_mode_resolves_any_suite_without_host_check() -> anyhow::Result<()> {
-        let distro = select_distro_version(&["trixie".to_string()], None, DistroResolveMode::Bare)?;
+        let distro = select_distro_version(
+            &["trixie".to_string()],
+            None,
+            &table(),
+            DistroResolveMode::Bare,
+        )?;
         assert_eq!(distro.distro, Distro::Debian);
         assert_eq!(distro.codename, "trixie");
 
-        let distro =
-            select_distro_version(&["kirkstone".to_string()], None, DistroResolveMode::Bare)?;
+        let distro = select_distro_version(
+            &["kirkstone".to_string()],
+            None,
+            &table(),
+            DistroResolveMode::Bare,
+        )?;
         assert_eq!(distro.distro, Distro::Custom("kirkstone".into()));
         assert_eq!(distro.codename, "kirkstone");
         Ok(())

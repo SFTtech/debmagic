@@ -535,9 +535,13 @@ pub struct BuildCommand {
 /// `--upload` was passed.
 pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
     let intent = resolve_build_intent(command.intent.clone())?;
+    let distros = crate::distro_info::load()
+        .await
+        .context("loading the Debian and Ubuntu releases failed")?;
     let target = crate::package::resolve_package_target(
         &intent.source_dir,
         command.distro.as_deref(),
+        &distros,
         crate::package::distro_resolve_mode_for_driver(
             intent.driver,
             &intent.config.driver.docker.base_images,

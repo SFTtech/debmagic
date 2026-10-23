@@ -298,7 +298,7 @@ mod tests {
     #[test]
     fn setup_replaces_the_default_sources_only_with_its_own() -> anyhow::Result<()> {
         let dir = std::env::temp_dir().join(format!("debmagic-apt-setup-{}", std::process::id()));
-        let trixie = debmagic_common::distro::get_distro_version("trixie").unwrap();
+        let trixie = DistroVersion::new(debmagic_common::distro::Distro::Debian, "trixie", "13");
 
         let mut setup = Setup {
             distro: &trixie,

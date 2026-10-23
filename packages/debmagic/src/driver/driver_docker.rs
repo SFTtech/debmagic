@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     fs,
+    io::IsTerminal,
     path::{Path, PathBuf},
     process::{Command, Stdio},
     time::SystemTime,
@@ -12,12 +13,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::apt;
 use crate::driver::{
-    DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver, EnvironmentMetadata,
-    EnvironmentPurpose, IsolationCapability, ResourceStatus, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint, resource_name,
-    run_checked, translate_path_in_container,
+    CommandOptions, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
+    EnvironmentMetadata, EnvironmentPurpose, IsolationCapability, ResourceStatus,
+    config::DriverConfig, container_name_from_metadata, container_name_metadata,
+    environment_fingerprint, getent_passwd, resource_name, run_checked,
+    translate_path_in_container,
 };
-use crate::subprocess::{self, Capture, CommandResult};
+use crate::subprocess::{self, CommandResult};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
@@ -220,9 +222,10 @@ impl DriverDocker {
         let output = self.run_command(
             &["test", "-f", &container_probe.to_string_lossy()],
             &self.environment.root_dir,
-            true,
-            &[],
-            Capture::NONE,
+            CommandOptions {
+                requires_root: true,
+                ..Default::default()
+            },
         );
         crate::driver::remove_mount_probe(&self.environment.root_dir);
         Ok(output?.exit_code == 0)
@@ -357,6 +360,55 @@ impl DriverDocker {
     ) -> Result<PathBuf, std::io::Error> {
         translate_path_in_container(&self.environment.root_dir, path_in_source)
     }
+
+    fn exec(
+        &self,
+        cmd: &[&str],
+        cwd: &Path,
+        options: CommandOptions<'_>,
+    ) -> std::io::Result<CommandResult> {
+        let mut exec_cmd = Command::new("docker");
+        exec_cmd.args(["exec", "--workdir"]).arg(cwd);
+        if options.terminal {
+            exec_cmd.arg("--interactive");
+            if std::io::stdin().is_terminal() && std::io::stdout().is_terminal() {
+                exec_cmd.arg("--tty");
+            }
+        } else {
+            println!("[{}] $ {}", self.container_name, cmd.join(" "));
+        }
+        if options.requires_root || options.user.is_some() {
+            exec_cmd.args(["--user", options.user.unwrap_or("root")]);
+        }
+        for (key, value) in options.env_add {
+            exec_cmd.args(["--env", &format!("{key}={value}")]);
+        }
+        exec_cmd.arg(&self.container_name).args(cmd);
+        subprocess::command(exec_cmd).capture(options.capture).run()
+    }
+
+    fn with_running_container<T>(
+        &self,
+        action: impl FnOnce(&Self) -> std::io::Result<T>,
+    ) -> std::io::Result<T> {
+        let was_running = self.container_is_running().map_err(std::io::Error::other)?;
+        if !was_running {
+            self.container_start().map_err(std::io::Error::other)?;
+        }
+        let result = action(self);
+        if !was_running {
+            self.container_stop().map_err(std::io::Error::other)?;
+        }
+        result
+    }
+
+    fn account(&self, user: &str) -> std::io::Result<crate::driver::PasswdEntry> {
+        self.with_running_container(|driver| {
+            let mut getent = Command::new("docker");
+            getent.args(["exec", &driver.container_name]);
+            getent_passwd(getent, user)
+        })
+    }
 }
 
 impl EnvironmentDriver for DriverDocker {
@@ -368,32 +420,15 @@ impl EnvironmentDriver for DriverDocker {
         &self,
         cmd: &[&str],
         cwd: &Path,
-        requires_root: bool,
-        env_add: &[(&str, &str)],
-        capture: Capture,
+        options: CommandOptions<'_>,
     ) -> std::io::Result<CommandResult> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
-
-        println!("[{}] $ {}", self.container_name, cmd.join(" "));
-
-        let mut exec_cmd = Command::new("docker");
-        exec_cmd.args(["exec", "--workdir"]);
-        exec_cmd.arg(container_path);
-
-        if requires_root {
-            exec_cmd.args(["--user", "root"]);
+        if !options.terminal {
+            return self.exec(cmd, &container_path, options);
         }
-
-        for (key, value) in env_add {
-            exec_cmd.args(["--env", &format!("{key}={value}")]);
-        }
-
-        exec_cmd.arg(&self.container_name);
-        exec_cmd.args(cmd);
-
-        subprocess::command(exec_cmd).capture(capture).run()
+        self.with_running_container(|driver| driver.exec(cmd, &container_path, options))
     }
 
     fn reset_root(&self) -> std::io::Result<()> {
@@ -425,28 +460,19 @@ impl EnvironmentDriver for DriverDocker {
         self.image_created
     }
 
-    fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()> {
-        let workdir = self.translate_path_in_container(cwd)?;
-        let was_running = self.container_is_running().map_err(std::io::Error::other)?;
-        if !was_running {
-            self.container_start().map_err(std::io::Error::other)?;
-        }
-
-        let mut command = Command::new("docker");
-        command
-            .args(["exec", "-it", "--user", "root", "--workdir"])
-            .arg(&workdir);
-        let status = command
-            .args([&self.container_name, "/usr/bin/env", "bash"])
-            .status();
-        if !was_running {
-            self.container_stop().map_err(std::io::Error::other)?;
-        }
-        if !status?.success() {
-            return Err(std::io::Error::other("Docker shell failed"));
-        }
-
-        Ok(())
+    fn interactive_shell(&self, cwd: &Path, user: Option<&str>) -> std::io::Result<i32> {
+        let account = self.account(user.unwrap_or("root"))?;
+        self.run_command(
+            &[&account.shell],
+            cwd,
+            CommandOptions {
+                user,
+                env_add: &[("HOME", &account.home)],
+                terminal: true,
+                ..Default::default()
+            },
+        )
+        .map(|result| result.exit_code)
     }
 
     fn driver_type(&self) -> DriverType {

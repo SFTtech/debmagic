@@ -16,7 +16,6 @@ use crate::environment::{
 };
 use crate::package::distro_resolve_mode_for_driver;
 use crate::package::load_package;
-use crate::subprocess::Capture;
 use anyhow::{Context, anyhow, bail};
 use debian_control::lossless::changes::Changes;
 use debmagic_common::apt::names_package;
@@ -445,7 +444,14 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
             crate::output::stage(&format!("Running autopkgtest for {}", package.name()));
             let exit_code = claimed
                 .driver()
-                .run_command(&autopkgtest_cmd, &work_dir, true, &[], Capture::NONE)
+                .run_command(
+                    &autopkgtest_cmd,
+                    &work_dir,
+                    crate::driver::CommandOptions {
+                        requires_root: true,
+                        ..Default::default()
+                    },
+                )
                 .map(|result| result.exit_code)
                 .unwrap_or(-1);
 

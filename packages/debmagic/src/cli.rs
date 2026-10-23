@@ -587,12 +587,39 @@ pub enum EnvCommands {
         )]
         force: bool,
     },
-    #[command(about = "Open an interactive shell in an Environment")]
+    #[command(about = "Open the selected user's login shell in an Environment")]
     Shell {
         #[arg(
             help = "Environment id; when omitted, unique Environment for the current Source tree"
         )]
         id: Option<String>,
+        #[arg(
+            short,
+            long,
+            help = "User (name or uid); defaults to root in containers"
+        )]
+        user: Option<String>,
+        #[command(flatten)]
+        common: CommonCli,
+    },
+    #[command(about = "Run a command directly in an Environment, without a shell")]
+    Exec {
+        #[arg(
+            help = "Environment id; when omitted, unique Environment for the current Source tree"
+        )]
+        id: Option<String>,
+        #[arg(
+            short,
+            long,
+            help = "User (name or uid); defaults to root in containers"
+        )]
+        user: Option<String>,
+        #[arg(
+            last = true,
+            required = true,
+            help = "Command and arguments to execute directly"
+        )]
+        command: Vec<String>,
         #[command(flatten)]
         common: CommonCli,
     },
@@ -870,6 +897,52 @@ mod tests {
         let args = parse_test(&["--experimental"]).environment;
         assert_eq!(args.experimental, Some(Selection::All));
         assert!(Cli::try_parse_from(["debmagic", "test", "--experimental=a b"]).is_err());
+    }
+
+    #[test_case(&[], None, None; "inferred environment")]
+    #[test_case(&["bld-abc", "-u", "1000"], Some("bld-abc"), Some("1000"); "id and user")]
+    fn env_shell(args: &[&str], id: Option<&str>, user: Option<&str>) {
+        let cli = Cli::try_parse_from([&["debmagic", "env", "shell"], args].concat()).unwrap();
+        let Commands::Environment(args) = cli.command else {
+            panic!("unexpected command {:?}", cli.command);
+        };
+        let EnvCommands::Shell {
+            id: parsed_id,
+            user: parsed_user,
+            ..
+        } = args.command
+        else {
+            panic!("unexpected env command {:?}", args.command);
+        };
+        assert_eq!(parsed_id.as_deref(), id);
+        assert_eq!(parsed_user.as_deref(), user);
+    }
+
+    #[test]
+    fn env_exec_parses_direct_command() {
+        let cli = Cli::try_parse_from([
+            "debmagic", "env", "exec", "bld-abc", "-u", "1000", "--", "echo", "-n", "hello",
+        ])
+        .unwrap();
+        let Commands::Environment(args) = cli.command else {
+            panic!("unexpected command {:?}", cli.command);
+        };
+        let EnvCommands::Exec {
+            id, user, command, ..
+        } = args.command
+        else {
+            panic!("unexpected env command {:?}", args.command);
+        };
+        assert_eq!(id.as_deref(), Some("bld-abc"));
+        assert_eq!(user.as_deref(), Some("1000"));
+        assert_eq!(command, ["echo", "-n", "hello"]);
+    }
+
+    #[test]
+    fn env_exec_requires_command_and_double_dash() {
+        assert!(Cli::try_parse_from(["debmagic", "env", "exec"]).is_err());
+        assert!(Cli::try_parse_from(["debmagic", "env", "exec", "echo", "hi"]).is_err());
+        assert!(Cli::try_parse_from(["debmagic", "env", "shell", "--", "echo", "hi"]).is_err());
     }
 
     #[test]

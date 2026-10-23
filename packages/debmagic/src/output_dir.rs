@@ -1,6 +1,6 @@
 //! The output dir, where builds export artifacts and `upstream` puts orig
 //! tarballs. A `CACHEDIR.TAG` marks it as debmagic's: that tells it apart
-//! from a `build/` dir upstream ships, and backup tools skip it.
+//! from a `build-area/` dir upstream ships, and backup tools skip it.
 
 use std::path::{Component, Path, PathBuf};
 
@@ -27,14 +27,18 @@ pub enum OutputDirClash {
     Fail,
 }
 
-/// Resolve the output dir: `-o` as given, else the configured one relative
-/// to the source dir, or its fallback when upstream owns it.
+/// Configured paths are relative to the package source dir, not debmagic's cwd.
+fn configured_path(source_dir: &Path, dir: &Path) -> anyhow::Result<PathBuf> {
+    std::path::absolute(source_dir.join(dir)).context("resolving the output dir failed")
+}
+
+/// Resolve the output dir: `-o` relative to debmagic's cwd, else the
+/// configured one relative to the source dir, or its fallback when upstream owns it.
 pub fn resolve(source_dir: &Path, config: &Config, cli: Option<&Path>) -> anyhow::Result<PathBuf> {
     if let Some(dir) = cli {
         return std::path::absolute(dir).context("resolving the output dir failed");
     }
-    let configured = std::path::absolute(source_dir.join(&config.output_dir))
-        .context("resolving the output dir failed")?;
+    let configured = configured_path(source_dir, &config.output_dir)?;
     // only a dir in the tree can be upstream's; `..` is never debmagic's alone
     if !is_in_tree(&config.output_dir) || !is_foreign(&configured)? {
         return Ok(configured);
@@ -46,8 +50,7 @@ pub fn resolve(source_dir: &Path, config: &Config, cli: Option<&Path>) -> anyhow
             configured.display()
         );
     }
-    let fallback = std::path::absolute(source_dir.join(&config.output_dir_fallback))
-        .context("resolving the fallback output dir failed")?;
+    let fallback = configured_path(source_dir, &config.output_dir_fallback)?;
     if is_foreign(&fallback)? {
         bail!(
             "both the output dir {} and its fallback {} hold files debmagic didn't put there; \
@@ -78,9 +81,7 @@ pub fn switch_fallback(
     {
         return Ok(None);
     }
-    std::path::absolute(source_dir.join(&config.output_dir_fallback))
-        .map(Some)
-        .context("resolving the fallback output dir failed")
+    configured_path(source_dir, &config.output_dir_fallback).map(Some)
 }
 
 /// Create the output dir and tag it as debmagic's, unless it holds other
@@ -157,16 +158,16 @@ mod tests {
         }
     }
 
-    #[test_case(&[], "build"; "no build dir")]
-    #[test_case(&["pkg_1.0-1_amd64.changes", "pkg_1.0.orig.tar.xz"], "build"; "untagged artifacts")]
-    #[test_case(&["config.guess"], "build-debmagic"; "upstream build dir")]
+    #[test_case(&[], "build-area"; "no output dir")]
+    #[test_case(&["pkg_1.0-1_amd64.changes", "pkg_1.0.orig.tar.xz"], "build-area"; "untagged artifacts")]
+    #[test_case(&["config.guess"], "build-debmagic"; "upstream output dir")]
     fn test_resolve(files: &[&str], expected: &str) {
         let source_dir = test_dir();
         if !files.is_empty() {
-            std::fs::create_dir_all(source_dir.join("build")).unwrap();
+            std::fs::create_dir_all(source_dir.join("build-area")).unwrap();
         }
         for file in files {
-            std::fs::write(source_dir.join("build").join(file), "").unwrap();
+            std::fs::write(source_dir.join("build-area").join(file), "").unwrap();
         }
 
         let resolved = resolve(&source_dir, &config(OutputDirClash::Fallback), None).unwrap();
@@ -178,23 +179,91 @@ mod tests {
     #[test]
     fn test_resolve_tagged_upstream_content_is_ours() {
         let source_dir = test_dir();
-        create(&source_dir.join("build")).unwrap();
-        std::fs::write(source_dir.join("build/config.guess"), "").unwrap();
+        create(&source_dir.join("build-area")).unwrap();
+        std::fs::write(source_dir.join("build-area/config.guess"), "").unwrap();
 
         let resolved = resolve(&source_dir, &config(OutputDirClash::Fallback), None).unwrap();
 
-        assert_eq!(resolved, source_dir.join("build"));
+        assert_eq!(resolved, source_dir.join("build-area"));
         std::fs::remove_dir_all(&source_dir).unwrap();
     }
 
     #[test]
     fn test_resolve_clash_fails_when_configured() {
         let source_dir = test_dir();
-        std::fs::create_dir_all(source_dir.join("build/aux")).unwrap();
+        std::fs::create_dir_all(source_dir.join("build-area/aux")).unwrap();
 
         let error = resolve(&source_dir, &config(OutputDirClash::Fail), None).unwrap_err();
 
         assert!(error.to_string().contains("didn't put there"));
+        std::fs::remove_dir_all(&source_dir).unwrap();
+    }
+
+    #[test]
+    fn test_configured_paths_are_relative_to_the_source_dir() {
+        let source_dir = test_dir();
+        let absolute = test_dir().join("artifacts");
+        let config = Config {
+            output_dir: PathBuf::from("relative/artifacts"),
+            output_dir_fallback: absolute.clone(),
+            ..Config::default()
+        };
+
+        assert_eq!(
+            resolve(&source_dir, &config, None).unwrap(),
+            source_dir.join("relative/artifacts")
+        );
+        assert_eq!(
+            switch_fallback(&source_dir, &config, None).unwrap(),
+            Some(absolute)
+        );
+        std::fs::remove_dir_all(&source_dir).unwrap();
+    }
+
+    #[test]
+    fn test_absolute_configured_path_is_unchanged() {
+        let source_dir = test_dir();
+        let output_dir = test_dir().join("artifacts");
+        let config = Config {
+            output_dir: output_dir.clone(),
+            ..Config::default()
+        };
+
+        assert_eq!(resolve(&source_dir, &config, None).unwrap(), output_dir);
+        std::fs::remove_dir_all(&source_dir).unwrap();
+    }
+
+    #[test]
+    fn test_relative_cli_path_is_relative_to_the_cwd() {
+        let source_dir = test_dir();
+        let relative = PathBuf::from(format!("debmagic-cli-output-{}", uuid::Uuid::new_v4()));
+
+        assert_eq!(
+            resolve(
+                &source_dir,
+                &config(OutputDirClash::Fallback),
+                Some(&relative)
+            )
+            .unwrap(),
+            std::path::absolute(&relative).unwrap()
+        );
+        std::fs::remove_dir_all(&source_dir).unwrap();
+    }
+
+    #[test]
+    fn test_absolute_cli_path_is_unchanged() {
+        let source_dir = test_dir();
+        let output_dir = test_dir().join("artifacts");
+
+        assert_eq!(
+            resolve(
+                &source_dir,
+                &config(OutputDirClash::Fallback),
+                Some(&output_dir)
+            )
+            .unwrap(),
+            output_dir
+        );
         std::fs::remove_dir_all(&source_dir).unwrap();
     }
 

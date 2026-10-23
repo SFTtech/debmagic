@@ -109,11 +109,12 @@ To persist a mode, set `source_sync_mode = "committed"` in [`debmagic.toml`](con
 
 ## Output dir
 
-Build artifacts land in `build/` under the package root (`output_dir`, `-o`).
+Build artifacts land in `build-area/` under the package source directory by default.
+Relative `output_dir` and `output_dir_fallback` config paths resolve against the package source directory; absolute paths are used as given.
+`-o` overrides the config: relative paths resolve against debmagic's current working directory, not the source directory.
 debmagic marks the output dirs it creates with a [`CACHEDIR.TAG`](https://bford.info/cachedir/), so backup tools skip them.
-The tag also tells debmagic's `build/` apart from one an upstream project ships: an existing `build/` without the tag that holds more than build artifacts belongs to upstream.
+The tag also tells debmagic's `build-area/` apart from one an upstream project ships: an existing `build-area/` without the tag that holds more than build artifacts belongs to upstream.
 debmagic then uses `build-debmagic/` instead (`output_dir_fallback`), or stops with `output_dir_clash = "fail"`.
-`-o` is always used as given.
 
 ## Repeating a build
 
@@ -329,7 +330,7 @@ An unsigned build notifies when it finishes, a failed one in any case.
 debmagic sign ../mypkg_1.0_amd64.changes
 ```
 
-Without a file argument, it locates the `.changes` via `debian/changelog` and `--output`/`-o` (default: the `output_dir` config, `build/` under the package root), preferring the source-only `_source.changes` when several match.
+Without a file argument, it locates the `.changes` via `debian/changelog` and `--output`/`-o` (default: the `output_dir` config, `build-area/` under the package source directory), preferring the source-only `_source.changes` when several match.
 
 ## Cleaning
 

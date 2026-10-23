@@ -155,8 +155,19 @@ Non-Debian/Ubuntu suites (still apt/dpkg-based) are supported when declared for 
 
 ## Proposed dependencies
 
-If needed, build dependencies can be used from `<release>-proposed`.
-Pass `--proposed` to enable the proposed pocket in the build environment.
+Pass `--proposed` to build against the suite the release's updates come from, like Launchpad builds for `-proposed` do: everything newer there is installed and upgraded.
+
+| Target | Proposed suite |
+|---|---|
+| Ubuntu release | `<release>-proposed` |
+| Debian testing (devel release) | `unstable` |
+| Debian stable release | `<release>-proposed-updates` |
+| Debian `unstable`, `experimental` | none |
+
+## Experimental
+
+A build for Debian `experimental` installs its build dependencies from unstable.
+Only when unstable can't satisfy them, the install is retried preferring the packages from experimental.
 
 ## Building debug symbol packages
 

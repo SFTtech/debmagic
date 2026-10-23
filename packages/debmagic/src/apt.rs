@@ -37,6 +37,7 @@ const SETUP_FILES: &[(&str, &str, u32)] = &[
 const POLICY_RC_D: (&str, &str, u32) = ("usr/sbin/policy-rc.d", "#!/bin/sh\nexit 101\n", 0o755);
 
 const SOURCES_FILE: &str = "etc/apt/sources.list.d/debmagic.sources";
+const PREFERENCES_FILE: &str = "etc/apt/preferences.d/debmagic.pref";
 
 const MAN_DB_PRESEED: &str = "'man-db man-db/auto-update boolean false'";
 
@@ -61,7 +62,7 @@ pub struct Setup<'a> {
 
 impl Setup<'_> {
     fn replaces_sources(&self) -> bool {
-        self.mirror.is_some() || self.proposed
+        self.mirror.is_some() || self.proposed || apt::needs_own_sources(self.distro)
     }
 
     /// The setup files apart from the apt sources.
@@ -97,12 +98,11 @@ impl Setup<'_> {
             fs::remove_dir_all(dir)
                 .with_context(|| format!("removing the old {} failed", dir.display()))?;
         }
+        let preferences = apt::preferences_file(self.distro, self.proposed);
         let mut files: Vec<(&str, &str, u32)> = self.files().collect();
-        files.extend(
-            sources
-                .as_deref()
-                .map(|content| (SOURCES_FILE, content, 0o644)),
-        );
+        for (path, content) in [(SOURCES_FILE, &sources), (PREFERENCES_FILE, &preferences)] {
+            files.extend(content.as_deref().map(|content| (path, content, 0o644)));
+        }
         for (path, content, mode) in files {
             let path = dir.join(path);
             fs::create_dir_all(path.parent().expect("setup files are in a dir"))
@@ -166,9 +166,18 @@ pub struct Install<'a> {
     pub profiles: Vec<String>,
 }
 
-pub fn install_commands(satisfy: bool, install: &Install) -> Vec<Vec<String>> {
-    let options = ["-y", "-q", "--no-install-recommends"];
-    let mut profiled = apt_get(options);
+/// The commands for `install`, preferring the packages of `target_release`
+/// if given.
+pub fn install_commands(
+    satisfy: bool,
+    install: &Install,
+    target_release: Option<&str>,
+) -> Vec<Vec<String>> {
+    let mut options = vec!["-y", "-q", "--no-install-recommends"];
+    if let Some(release) = target_release {
+        options.extend(["-t", release]);
+    }
+    let mut profiled = apt_get(options.iter().copied());
     if !install.profiles.is_empty() {
         profiled.extend(["-P".to_string(), install.profiles.join(",")]);
     }
@@ -196,17 +205,29 @@ pub fn install_commands(satisfy: bool, install: &Install) -> Vec<Vec<String>> {
     commands
 }
 
+/// Install `install`, for a release with a NotAutomatic suite like
+/// experimental retried preferring that suite: apt doesn't take a version
+/// only that suite has otherwise, while preferring it upfront would take
+/// everything it has.
 pub fn install(
     driver: &dyn EnvironmentDriver,
     cwd: &Path,
     distro: &DistroVersion,
     install: &Install,
 ) -> io::Result<()> {
-    run(
-        driver,
-        cwd,
-        &install_commands(apt::has_satisfy(distro), install),
-    )
+    let satisfy = apt::has_satisfy(distro);
+    let result = run(driver, cwd, &install_commands(satisfy, install, None));
+    match apt::not_automatic_suite(distro) {
+        Some(suite) if result.is_err() => {
+            println!("debmagic: retrying preferring the packages from {suite}");
+            run(
+                driver,
+                cwd,
+                &install_commands(satisfy, install, Some(suite)),
+            )
+        }
+        _ => result,
+    }
 }
 
 /// `commands` as one `sh -c` command line.
@@ -268,16 +289,29 @@ mod tests {
     #[test]
     fn satisfy_installs_everything_in_one_transaction() {
         assert_eq!(
-            shell_line(&install_commands(true, &build_install())),
+            shell_line(&install_commands(true, &build_install(), None)),
             "apt-get -y -q --no-install-recommends -P nocheck,nodoc satisfy dpkg-dev build-essential \
              'debhelper-compat (= 13), libfoo-dev <!nocheck>' 'Conflicts: libbar-dev'"
         );
     }
 
     #[test]
+    fn target_release_applies_to_every_command() {
+        assert_eq!(
+            shell_line(&install_commands(
+                false,
+                &build_install(),
+                Some("experimental")
+            )),
+            "apt-get -y -q --no-install-recommends -t experimental install dpkg-dev build-essential && \
+             apt-get -y -q --no-install-recommends -t experimental -P nocheck,nodoc build-dep ."
+        );
+    }
+
+    #[test]
     fn without_satisfy_build_dep_reads_the_source_tree() {
         assert_eq!(
-            shell_line(&install_commands(false, &build_install())),
+            shell_line(&install_commands(false, &build_install(), None)),
             "apt-get -y -q --no-install-recommends install dpkg-dev build-essential && \
              apt-get -y -q --no-install-recommends -P nocheck,nodoc build-dep ."
         );
@@ -290,7 +324,7 @@ mod tests {
             ..Install::default()
         };
         assert_eq!(
-            shell_line(&install_commands(false, &install)),
+            shell_line(&install_commands(false, &install, None)),
             "apt-get -y -q --no-install-recommends install dpkg-dev autopkgtest"
         );
     }

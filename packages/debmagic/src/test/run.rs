@@ -19,6 +19,7 @@ use crate::package::load_package;
 use crate::subprocess::Capture;
 use anyhow::{Context, anyhow, bail};
 use debian_control::lossless::changes::Changes;
+use debmagic_common::apt::names_package;
 use debmagic_common::distro::{DistroTable, DistroVersion};
 use debmagic_common::package::SourcePackage;
 
@@ -207,9 +208,9 @@ fn autopkgtest_isolation_args(isolation: IsolationCapability) -> Vec<&'static st
 }
 
 /// The apt config to test the archive's build of `package` instead of a
-/// local one, `None` to test a local build: when the proposed or
-/// experimental selection names it or one of its binaries, with all its
-/// binaries from that suite so their versions match.
+/// local one, `None` to test a local build: when the package settings name
+/// it or one of its binaries, with the same settings for all its binaries
+/// so their versions match.
 fn archive_build_apt(
     package: &SourcePackage,
     apt: &AptConfig,
@@ -219,15 +220,20 @@ fn archive_build_apt(
         .context("reading the binary packages failed")?
         .binaries;
     let name = package.name();
+    let Some(settings) = apt
+        .packages
+        .iter()
+        .find(|(pattern, _)| names_package(pattern, name, binaries))
+        .map(|(_, settings)| settings.clone())
+    else {
+        return Ok(None);
+    };
     let mut archive = apt.clone();
-    let mut named = false;
-    for selection in [&mut archive.proposed, &mut archive.experimental] {
-        if selection.names_package(name, binaries) {
-            *selection = std::mem::take(selection).with_source(name);
-            named = true;
-        }
-    }
-    Ok(named.then_some(archive))
+    archive
+        .packages
+        .entry(format!("src:{name}"))
+        .or_insert(settings);
+    Ok(Some(archive))
 }
 
 pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
@@ -241,8 +247,8 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
     let apt = archive_apt.as_ref().unwrap_or(&intent.config.apt);
     if from_archive && intent.changes.is_some() {
         bail!(
-            "--changes tests a local build, but the proposed or experimental packages name {} \
-             to test the archive's",
+            "--changes tests a local build, but the package settings name {} to test the \
+             archive's",
             package.name()
         );
     }
@@ -339,7 +345,7 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
             "no prior build metadata found; pass --distro when using --changes without a prior Invocation"
         );
     };
-    apt.suites(&distro)?;
+    apt.archives(&distro)?;
 
     let environment = Environment::new(
         driver,
@@ -386,12 +392,12 @@ pub async fn run_test(intent: &TestIntent) -> anyhow::Result<TestOutcome> {
                 ..Default::default()
             };
             let distro = &claimed.environment().distro;
-            let suites = apt.suites(distro)?;
+            let archives = apt.archives(distro)?;
             crate::apt::install(
                 claimed.driver(),
                 &staged_source_dir,
                 distro,
-                &suites,
+                &archives,
                 &install,
             )
             .context("installing autopkgtest failed")?;
@@ -491,7 +497,7 @@ mod tests {
 
     #[test]
     fn naming_the_package_tests_the_archive_build_of_all_its_binaries() -> anyhow::Result<()> {
-        use debmagic_common::apt::Selection;
+        use debmagic_common::apt::parse_package;
 
         let package = SourcePackage::from_files([
             (
@@ -503,19 +509,19 @@ mod tests {
                 "Source: foo\n\nPackage: libfoo1\n\nPackage: foo-bin\n",
             ),
         ])?;
-        let only = |packages: &[&str]| {
-            Selection::Only(packages.iter().map(|package| package.to_string()).collect())
-        };
-        let mut apt = AptConfig {
-            proposed: only(&["libfoo1", "libbar1"]),
+        let apt = |specs: &[&str]| AptConfig {
+            packages: specs
+                .iter()
+                .map(|spec| parse_package(spec).unwrap())
+                .collect(),
             ..AptConfig::default()
         };
-        let archive = archive_build_apt(&package, &apt)?.unwrap();
-        assert_eq!(archive.proposed, only(&["libfoo1", "libbar1", "src:foo"]));
-        assert_eq!(archive.experimental, Selection::Off);
-
-        apt.proposed = Selection::All;
-        assert!(archive_build_apt(&package, &apt)?.is_none());
+        let archive = archive_build_apt(&package, &apt(&["libbar1/proposed", "libfoo1=2.0"]))?;
+        assert_eq!(
+            archive.unwrap().packages,
+            apt(&["libbar1/proposed", "libfoo1=2.0", "src:foo=2.0"]).packages
+        );
+        assert!(archive_build_apt(&package, &apt(&["libbar1/proposed"]))?.is_none());
         Ok(())
     }
 

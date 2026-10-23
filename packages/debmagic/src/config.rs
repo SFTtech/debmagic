@@ -615,12 +615,14 @@ mod tests {
                 ConfigPathStatus::Used,
             )])
         };
-        let cfg = load("[apt]\nmirror = \"http://m/ubuntu\"\nproposed = [\"libfoo1\"]\n")?;
+        let cfg = load(
+            "[apt]\nmirror = \"http://m/ubuntu\"\n\
+             [apt.packages]\n\"src:foo\" = { from = \"proposed\", version = \"1.0\" }\n",
+        )?;
         assert_eq!(cfg.apt.mirror.as_deref(), Some("http://m/ubuntu"));
-        assert_eq!(
-            cfg.apt.proposed,
-            debmagic_common::apt::Selection::Only(vec!["libfoo1".into()])
-        );
+        let settings = &cfg.apt.packages["src:foo"];
+        assert_eq!(settings.from.as_deref(), Some("proposed"));
+        assert_eq!(settings.version.as_deref(), Some("1.0"));
         let error = load("[driver]\nproposed = true\n").unwrap_err();
         std::fs::remove_dir_all(&dir).ok();
         assert!(error.to_string().contains("'apt.proposed'"), "{error}");

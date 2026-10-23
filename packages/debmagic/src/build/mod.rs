@@ -331,13 +331,13 @@ fn install_packages(
         profiles: profiles.to_vec(),
     };
     let environment = claimed.environment();
-    let suites = intent.config.apt.suites(&environment.distro)?;
+    let archives = intent.config.apt.archives(&environment.distro)?;
     let staged_source_dir = stage_dir(environment, kind);
     apt::install(
         claimed.driver(),
         &staged_source_dir,
         &environment.distro,
-        &suites,
+        &archives,
         &install,
     )
     .context("installing the build dependencies failed")
@@ -562,7 +562,7 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
         ),
     )
     .context("failed to determine package target")?;
-    intent.config.apt.suites(&target.distro)?;
+    intent.config.apt.archives(&target.distro)?;
 
     let package = format!("{} {}", target.package.name(), target.package.version());
     let notify = intent.config.build_notify();

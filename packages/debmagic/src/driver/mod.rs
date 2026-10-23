@@ -491,7 +491,7 @@ pub fn create_driver(
     overrides: &DriverOverrides,
 ) -> anyhow::Result<Driver> {
     let apt_mirror = apt.mirror.as_deref();
-    let suites = apt.suites(&environment.distro)?;
+    let archives = apt.archives(&environment.distro)?;
 
     match environment.driver {
         DriverType::Docker => Ok(Driver::Docker(DriverDocker::create(
@@ -499,7 +499,7 @@ pub fn create_driver(
             driver_config,
             &overrides.docker,
             apt_mirror,
-            &suites,
+            &archives,
         )?)),
         DriverType::Bare => Ok(Driver::Bare(DriverBare::create(
             environment,
@@ -517,7 +517,7 @@ pub fn create_driver(
                 driver_config,
                 &overrides.lxd,
                 apt_mirror,
-                &suites,
+                &archives,
             )?))
         }
     }

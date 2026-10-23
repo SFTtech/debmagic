@@ -14,7 +14,7 @@ use crate::upload::orig::IncludeOrig;
 use crate::upstream::fetch::FetchFrom;
 use clap::builder::BoolishValueParser;
 use clap::{Args, Parser, Subcommand};
-use debmagic_common::apt::Selection;
+use debmagic_common::apt::{PackageSettings, Selection, parse_package};
 
 /// When to use colored output. Mirrors common CLI conventions; `auto` is the
 /// default and respects the `NO_COLOR` environment variable.
@@ -333,7 +333,7 @@ pub struct EnvironmentArgs {
         default_missing_value = "true",
         action = clap::ArgAction::Set,
         value_name = "PACKAGES",
-        help = "Take packages from the suite the release's updates migrate from (e.g. '<release>-proposed'): all newer ones, or only the comma-separated PACKAGES (binary names, 'src:<source>' or globs). 'no' disables it. Ignored by the bare driver."
+        help = "Take packages from the suite the release's updates migrate from (e.g. '<release>-proposed'): all newer ones, or only the comma-separated PACKAGES (binary names, 'src:<source>' or globs), like --package <package>/proposed. 'no' disables it. Ignored by the bare driver."
     )]
     pub proposed: Option<Selection>,
 
@@ -343,9 +343,17 @@ pub struct EnvironmentArgs {
         default_missing_value = "true",
         action = clap::ArgAction::Set,
         value_name = "PACKAGES",
-        help = "Take packages from Debian experimental for an unstable or testing environment: those nothing else provides, or only the comma-separated PACKAGES. 'no' disables it. Ignored by the bare driver."
+        help = "Take packages from Debian experimental for an unstable or testing environment: those nothing else provides, or only the comma-separated PACKAGES, like --package <package>/experimental. 'no' disables it. Ignored by the bare driver."
     )]
     pub experimental: Option<Selection>,
+
+    #[arg(
+        long = "package",
+        value_name = "PACKAGE[=VERSION][/ARCHIVE]",
+        value_parser = parse_package,
+        help = "Install PACKAGE (a binary name, 'src:<source>' for all its binaries, or a glob) in VERSION, even if older, or from ARCHIVE: 'release' (with its updates), 'proposed' or 'experimental'. Naming the tested package makes `debmagic test` test that build. Repeatable. Ignored by the bare driver."
+    )]
+    pub packages: Vec<(String, PackageSettings)>,
 
     #[arg(
         long = "apt-update-age",
@@ -747,11 +755,32 @@ impl EnvironmentArgs {
     /// Collect the driver-specific overrides from the CLI flags.
     /// Collect the `[apt]` overrides from the CLI flags.
     pub fn apt_overrides(&self) -> AptOverrides {
+        let mut packages = Vec::new();
+        let mut whole = |selection: &Option<Selection>, archive: &str| match selection {
+            None => None,
+            Some(Selection::All) => Some(true),
+            Some(Selection::Off) => Some(false),
+            Some(Selection::Only(patterns)) => {
+                packages.extend(patterns.iter().map(|pattern| {
+                    let from = Some(archive.to_string());
+                    let settings = PackageSettings {
+                        from,
+                        version: None,
+                    };
+                    (pattern.clone(), settings)
+                }));
+                None
+            }
+        };
+        let proposed = whole(&self.proposed, "proposed");
+        let experimental = whole(&self.experimental, "experimental");
+        packages.extend(self.packages.iter().cloned());
         AptOverrides {
             mirror: self.apt_mirror.clone(),
             update_age: self.apt_update_age,
-            proposed: self.proposed.clone(),
-            experimental: self.experimental.clone(),
+            proposed,
+            experimental,
+            packages,
         }
     }
 
@@ -800,6 +829,31 @@ mod tests {
     #[test_case(&["--proposed=libfoo,src:bar"], Some(Selection::Only(vec!["libfoo".into(), "src:bar".into()])); "packages")]
     fn proposed_flag(args: &[&str], expected: Option<Selection>) {
         assert_eq!(parse_test(args).environment.proposed, expected);
+    }
+
+    #[test]
+    fn package_lists_become_package_settings() {
+        let args = parse_test(&[
+            "--proposed=libfoo1",
+            "--experimental",
+            "--package",
+            "src:bar=1.0/release",
+        ]);
+        let overrides = args.environment.apt_overrides();
+        assert_eq!(overrides.proposed, None);
+        assert_eq!(overrides.experimental, Some(true));
+        let packages: Vec<_> = overrides
+            .packages
+            .iter()
+            .map(|(p, s)| (p.as_str(), s))
+            .collect();
+        assert_eq!(
+            packages,
+            [
+                ("libfoo1", &parse_package("x/proposed").unwrap().1),
+                ("src:bar", &parse_package("x=1.0/release").unwrap().1),
+            ]
+        );
     }
 
     #[test]

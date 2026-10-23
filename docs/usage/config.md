@@ -29,8 +29,9 @@ All keys are optional.
 | `driver.lxd.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"`. Falls back to the driver's default remote image. Same custom-suite registry role as Docker's map for LXD/Incus. |
 | `apt.mirror` | string | — | `--apt-mirror` | Mirror replacing the image's apt sources. |
 | `apt.update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update && upgrade`: `"now"` (every build), `"never"` (only on creation), or a maximum age like `"1d"`, `"12h"`, `"30m"`. |
-| `apt.proposed` | bool or list | `false` | `--proposed` | Packages from the [proposed suite](build.md#proposed-dependencies): `true` for all newer ones, or a list like `["libfoo1", "src:bar"]`. |
-| `apt.experimental` | bool or list | `false` | `--experimental` | Packages from [experimental](build.md#experimental) for unstable and testing. |
+| `apt.proposed` | bool | `false` | `--proposed` | All newer packages from the [proposed suite](build.md#proposed-dependencies). |
+| `apt.experimental` | bool | `false` | `--experimental` | What nothing else provides from [experimental](build.md#experimental), for unstable and testing. |
+| `apt.packages` | map | — | `--package` | [Package settings](build.md#package-versions-and-archives) by pattern: `from` (an archive) and `version`, e.g. `{ "src:bar" = { from = "proposed" } }`. |
 | `environments_dir` | path | `$XDG_DATA_HOME/debmagic/environments` | — | Parent directory of Environment Host roots. Must be absolute or start with `~/`. The Environment registry is always `$XDG_DATA_HOME/debmagic/db.sqlite` (override both with `DEBMAGIC_DATA_DIR`). |
 | `output_dir` | path | `build` | `-o`/`--output-dir` | Where build artifacts are exported; relative paths resolve against the package root. See [Output dir](build.md#output-dir). |
 | `output_dir_fallback` | path | `build-debmagic` | — | Used instead of `output_dir` when upstream owns that directory. |

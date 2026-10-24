@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     DriverType, Environment, EnvironmentDriver, EnvironmentMetadata, IsolationCapability,
-    config::DriverConfig,
+    ResourceStatus, config::DriverConfig,
 };
 use crate::subprocess::{self, Capture, CommandResult};
 
@@ -75,15 +75,15 @@ impl EnvironmentDriver for DriverBare {
         subprocess::command(command).capture(capture).run()
     }
 
-    fn cleanup(&self) -> anyhow::Result<()> {
-        Ok(())
-    }
-
-    fn interactive_shell(&self, _cwd: &Path) -> std::io::Result<()> {
-        println!(
-            "source directory of current package build in {}",
-            _cwd.display()
-        );
+    fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()> {
+        let shell =
+            std::env::var_os("SHELL").unwrap_or_else(|| std::ffi::OsString::from("/bin/sh"));
+        let mut command = Command::new(shell);
+        command.current_dir(cwd);
+        let status = command.status()?;
+        if !status.success() {
+            return Err(std::io::Error::other(format!("shell exited with {status}")));
+        }
         Ok(())
     }
 
@@ -99,6 +99,18 @@ impl EnvironmentDriver for DriverBare {
         if self.environment.root_dir.exists() {
             std::fs::remove_dir_all(&self.environment.root_dir)?;
         }
+        Ok(())
+    }
+
+    fn probe_resource(&self) -> ResourceStatus {
+        if self.environment.root_dir.exists() {
+            ResourceStatus::Present
+        } else {
+            ResourceStatus::Absent
+        }
+    }
+
+    fn destroy_resource(&self) -> anyhow::Result<()> {
         Ok(())
     }
 }

@@ -1,6 +1,6 @@
 [driver]
 default = "docker"
-persistent = true
+persistent = "always"
 
 [driver.docker]
 base_images = { "debian:trixie" = "some-debian-trixie-image:latest" }

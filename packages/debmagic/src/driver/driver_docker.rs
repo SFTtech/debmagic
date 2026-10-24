@@ -11,9 +11,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::driver::{
     APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
-    EnvironmentMetadata, IsolationCapability, config::DriverConfig, container_name_from_metadata,
-    container_name_metadata, environment_fingerprint, refresh_apt_index, resource_name,
-    run_checked, translate_path_in_container,
+    EnvironmentMetadata, IsolationCapability, ResourceStatus, config::DriverConfig,
+    container_name_from_metadata, container_name_metadata, environment_fingerprint,
+    refresh_apt_index, resource_name, run_checked, translate_path_in_container,
 };
 use crate::subprocess::{self, Capture, CommandResult};
 
@@ -240,6 +240,19 @@ impl DriverDocker {
         Ok(output?.exit_code == 0)
     }
 
+    fn container_name_for(environment: &Environment) -> String {
+        resource_name(
+            "debmagic",
+            &environment.package_name,
+            &sanitize_docker_reference(&environment.id()),
+        )
+    }
+
+    /// Driver metadata known before the container exists.
+    pub fn planned_metadata(environment: &Environment) -> HashMap<String, String> {
+        container_name_metadata(&Self::container_name_for(environment))
+    }
+
     pub fn create(
         environment: &Environment,
         driver_config: &DriverConfig,
@@ -273,11 +286,7 @@ impl DriverDocker {
             container_fingerprint_parts.push(purpose);
         }
         let desired_fingerprint = environment_fingerprint(&container_fingerprint_parts);
-        let container_name = resource_name(
-            "debmagic",
-            &environment.package_name,
-            &sanitize_docker_reference(&environment.identifier()),
-        );
+        let container_name = Self::container_name_for(environment);
         let mut driver = Self {
             environment: environment.clone(),
             container_name,
@@ -287,7 +296,7 @@ impl DriverDocker {
             .as_deref()
             == Some(&desired_fingerprint);
 
-        let mut reuse = environment.persistent && environment_matches;
+        let mut reuse = environment.persistence.reuses() && environment_matches;
         if reuse {
             if !driver.container_is_running()? {
                 driver.container_start()?;
@@ -366,7 +375,7 @@ impl DriverDocker {
     ) -> anyhow::Result<Self> {
         Ok(Self {
             environment: environment.clone(),
-            container_name: container_name_from_metadata(metadata)?,
+            container_name: container_name_from_metadata(metadata),
             reused_environment: true,
         })
     }
@@ -414,14 +423,6 @@ impl EnvironmentDriver for DriverDocker {
         exec_cmd.args(cmd);
 
         subprocess::command(exec_cmd).capture(capture).run()
-    }
-
-    fn cleanup(&self) -> anyhow::Result<()> {
-        if self.environment.persistent {
-            Ok(())
-        } else {
-            self.container_remove_force()
-        }
     }
 
     fn reset_root(&self) -> std::io::Result<()> {
@@ -479,5 +480,36 @@ impl EnvironmentDriver for DriverDocker {
 
     fn isolation_capability(&self) -> IsolationCapability {
         IsolationCapability::Container
+    }
+
+    fn probe_resource(&self) -> ResourceStatus {
+        match Command::new("docker")
+            .args(["inspect", &self.container_name])
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .output()
+        {
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                ResourceStatus::Unreachable
+            }
+            Err(_) => ResourceStatus::Unreachable,
+            Ok(output) if output.status.success() => ResourceStatus::Present,
+            Ok(output) => {
+                // Docker says "No such object", Podman's docker shim "no such object".
+                let stderr = String::from_utf8_lossy(&output.stderr).to_lowercase();
+                if stderr.contains("no such object") || stderr.contains("no such container") {
+                    ResourceStatus::Absent
+                } else {
+                    ResourceStatus::Unreachable
+                }
+            }
+        }
+    }
+
+    fn destroy_resource(&self) -> anyhow::Result<()> {
+        match self.probe_resource() {
+            ResourceStatus::Absent => Ok(()),
+            ResourceStatus::Present | ResourceStatus::Unreachable => self.container_remove_force(),
+        }
     }
 }

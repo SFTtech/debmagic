@@ -30,6 +30,8 @@ fn run(cmd: &mut Command) -> String {
 }
 
 struct TestGpgHome {
+    // removed after the agent is stopped in `drop`
+    _tmp: tempfile::TempDir,
     dir: PathBuf,
 }
 
@@ -37,8 +39,11 @@ impl TestGpgHome {
     /// Create an isolated GNUPGHOME with a throwaway signing key and an
     /// agent that answers without pinentry.
     fn create() -> Self {
-        let dir = std::env::temp_dir().join(format!("debmagic-sign-test-{}", uuid::Uuid::new_v4()));
-        fs::create_dir_all(&dir).unwrap();
+        let tmp = tempfile::Builder::new()
+            .prefix("debmagic-sign-test-")
+            .tempdir()
+            .unwrap();
+        let dir = tmp.path().to_path_buf();
         // gpg refuses to use a homedir others could access.
         run(Command::new("chmod").args(["700"]).arg(&dir));
 
@@ -60,7 +65,7 @@ impl TestGpgHome {
             "never",
         ]));
 
-        Self { dir }
+        Self { _tmp: tmp, dir }
     }
 
     /// Add a signing subkey, which gpg then prefers over the primary key —
@@ -97,7 +102,6 @@ impl Drop for TestGpgHome {
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             .status();
-        let _ = fs::remove_dir_all(&self.dir);
     }
 }
 
@@ -162,7 +166,11 @@ fn write_fake_artifacts(output_dir: &Path) -> PathBuf {
 #[ignore = "needs gpg on the host"]
 fn signs_changes_and_dsc_and_rewrites_checksums() {
     let gpg_home = TestGpgHome::create();
-    let work_dir = std::env::temp_dir().join(format!("debmagic-sign-out-{}", uuid::Uuid::new_v4()));
+    let _work_dir_tmp = tempfile::Builder::new()
+        .prefix("debmagic-sign-out-")
+        .tempdir()
+        .unwrap();
+    let work_dir = _work_dir_tmp.path().to_path_buf();
     let changes_path = write_fake_artifacts(&work_dir);
 
     // Hermetic: ignore the user's global config and pin the key explicitly,
@@ -221,16 +229,17 @@ fn signs_changes_and_dsc_and_rewrites_checksums() {
         .env("GNUPGHOME", &gpg_home.dir)
         .args(["--batch", "--verify"])
         .arg(&dsc_path));
-
-    let _ = fs::remove_dir_all(&work_dir);
 }
 
 #[test]
 #[ignore = "needs gpg on the host"]
 fn auto_skips_same_key_and_force_resigns() {
     let gpg_home = TestGpgHome::create();
-    let work_dir =
-        std::env::temp_dir().join(format!("debmagic-sign-auto-{}", uuid::Uuid::new_v4()));
+    let _work_dir_tmp = tempfile::Builder::new()
+        .prefix("debmagic-sign-auto-")
+        .tempdir()
+        .unwrap();
+    let work_dir = _work_dir_tmp.path().to_path_buf();
     let changes_path = write_fake_artifacts(&work_dir);
 
     let bin = env!("CARGO_BIN_EXE_debmagic");
@@ -269,8 +278,6 @@ fn auto_skips_same_key_and_force_resigns() {
         .env("GNUPGHOME", &gpg_home.dir)
         .args(["--batch", "--verify"])
         .arg(&changes_path));
-
-    let _ = fs::remove_dir_all(&work_dir);
 }
 
 #[test]
@@ -278,8 +285,11 @@ fn auto_skips_same_key_and_force_resigns() {
 fn auto_skips_same_key_signed_by_subkey() {
     let gpg_home = TestGpgHome::create();
     gpg_home.add_signing_subkey();
-    let work_dir =
-        std::env::temp_dir().join(format!("debmagic-sign-subkey-{}", uuid::Uuid::new_v4()));
+    let _work_dir_tmp = tempfile::Builder::new()
+        .prefix("debmagic-sign-subkey-")
+        .tempdir()
+        .unwrap();
+    let work_dir = _work_dir_tmp.path().to_path_buf();
     let changes_path = write_fake_artifacts(&work_dir);
 
     let bin = env!("CARGO_BIN_EXE_debmagic");
@@ -305,8 +315,6 @@ fn auto_skips_same_key_signed_by_subkey() {
         output.contains("already signed with this key; skipping"),
         "auto re-signed a signature made by our subkey:\n{output}"
     );
-
-    let _ = fs::remove_dir_all(&work_dir);
 }
 
 #[test]
@@ -314,8 +322,11 @@ fn auto_skips_same_key_signed_by_subkey() {
 fn auto_resigns_a_different_key() {
     let ours = TestGpgHome::create();
     let theirs = TestGpgHome::create();
-    let work_dir =
-        std::env::temp_dir().join(format!("debmagic-sign-other-{}", uuid::Uuid::new_v4()));
+    let _work_dir_tmp = tempfile::Builder::new()
+        .prefix("debmagic-sign-other-")
+        .tempdir()
+        .unwrap();
+    let work_dir = _work_dir_tmp.path().to_path_buf();
     let changes_path = write_fake_artifacts(&work_dir);
 
     // Sign with a second, different key.
@@ -352,8 +363,6 @@ fn auto_resigns_a_different_key() {
         .env("GNUPGHOME", &ours.dir)
         .args(["--batch", "--verify"])
         .arg(&changes_path));
-
-    let _ = fs::remove_dir_all(&work_dir);
 }
 
 #[test]
@@ -361,8 +370,11 @@ fn auto_resigns_a_different_key() {
 fn keep_accepts_a_foreign_signature() {
     let ours = TestGpgHome::create();
     let theirs = TestGpgHome::create();
-    let work_dir =
-        std::env::temp_dir().join(format!("debmagic-sign-keep-{}", uuid::Uuid::new_v4()));
+    let _work_dir_tmp = tempfile::Builder::new()
+        .prefix("debmagic-sign-keep-")
+        .tempdir()
+        .unwrap();
+    let work_dir = _work_dir_tmp.path().to_path_buf();
     let changes_path = write_fake_artifacts(&work_dir);
 
     // Sign with a second, different key.
@@ -397,8 +409,11 @@ fn keep_accepts_a_foreign_signature() {
     assert_eq!(foreign, kept, "keep re-signed a foreign signature");
 
     // keep still signs an unsigned file.
-    let unsigned_dir =
-        std::env::temp_dir().join(format!("debmagic-sign-keep2-{}", uuid::Uuid::new_v4()));
+    let _unsigned_dir_tmp = tempfile::Builder::new()
+        .prefix("debmagic-sign-keep2-")
+        .tempdir()
+        .unwrap();
+    let unsigned_dir = _unsigned_dir_tmp.path().to_path_buf();
     let unsigned_path = write_fake_artifacts(&unsigned_dir);
     run(Command::new(bin)
         .env("GNUPGHOME", &ours.dir)
@@ -416,7 +431,4 @@ fn keep_accepts_a_foreign_signature() {
         signed.contains("-----BEGIN PGP SIGNATURE-----"),
         "keep did not sign an unsigned file:\n{signed}"
     );
-
-    let _ = fs::remove_dir_all(&work_dir);
-    let _ = fs::remove_dir_all(&unsigned_dir);
 }

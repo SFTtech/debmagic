@@ -289,16 +289,16 @@ mod tests {
     fn leftover_shell_on_failure_key_is_ignored() -> anyhow::Result<()> {
         let dir = std::env::temp_dir();
         let mut input = base_input(dir);
-        let config_path = std::env::temp_dir().join(format!(
-            "debmagic-shell-on-failure-{}.toml",
-            std::process::id()
-        ));
+        let config_file = tempfile::Builder::new()
+            .prefix("debmagic-shell-on-failure-")
+            .suffix(".toml")
+            .tempfile()?;
+        let config_path = config_file.path().to_path_buf();
         std::fs::write(&config_path, "shell_on_failure = true\n")?;
         input.config_file = Some(config_path.clone());
 
         let intent = resolve_build_intent(input)?;
         assert_eq!(intent.config.driver.persistent, Persistence::OnFailure);
-        std::fs::remove_file(config_path)?;
         Ok(())
     }
 

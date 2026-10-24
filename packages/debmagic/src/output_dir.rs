@@ -145,10 +145,11 @@ mod tests {
     use super::*;
     use test_case::test_case;
 
-    fn test_dir() -> PathBuf {
-        let dir = std::env::temp_dir().join(format!("debmagic-output-{}", uuid::Uuid::new_v4()));
-        std::fs::create_dir_all(&dir).unwrap();
-        dir
+    fn test_dir() -> tempfile::TempDir {
+        tempfile::Builder::new()
+            .prefix("debmagic-output-")
+            .tempdir()
+            .unwrap()
     }
 
     fn config(clash: OutputDirClash) -> Config {
@@ -164,45 +165,43 @@ mod tests {
     fn test_resolve(files: &[&str], expected: &str) {
         let source_dir = test_dir();
         if !files.is_empty() {
-            std::fs::create_dir_all(source_dir.join("build-area")).unwrap();
+            std::fs::create_dir_all(source_dir.path().join("build-area")).unwrap();
         }
         for file in files {
-            std::fs::write(source_dir.join("build-area").join(file), "").unwrap();
+            std::fs::write(source_dir.path().join("build-area").join(file), "").unwrap();
         }
 
-        let resolved = resolve(&source_dir, &config(OutputDirClash::Fallback), None).unwrap();
+        let resolved = resolve(source_dir.path(), &config(OutputDirClash::Fallback), None).unwrap();
 
-        assert_eq!(resolved, source_dir.join(expected));
-        std::fs::remove_dir_all(&source_dir).unwrap();
+        assert_eq!(resolved, source_dir.path().join(expected));
     }
 
     #[test]
     fn test_resolve_tagged_upstream_content_is_ours() {
         let source_dir = test_dir();
-        create(&source_dir.join("build-area")).unwrap();
-        std::fs::write(source_dir.join("build-area/config.guess"), "").unwrap();
+        create(&source_dir.path().join("build-area")).unwrap();
+        std::fs::write(source_dir.path().join("build-area/config.guess"), "").unwrap();
 
-        let resolved = resolve(&source_dir, &config(OutputDirClash::Fallback), None).unwrap();
+        let resolved = resolve(source_dir.path(), &config(OutputDirClash::Fallback), None).unwrap();
 
-        assert_eq!(resolved, source_dir.join("build-area"));
-        std::fs::remove_dir_all(&source_dir).unwrap();
+        assert_eq!(resolved, source_dir.path().join("build-area"));
     }
 
     #[test]
     fn test_resolve_clash_fails_when_configured() {
         let source_dir = test_dir();
-        std::fs::create_dir_all(source_dir.join("build-area/aux")).unwrap();
+        std::fs::create_dir_all(source_dir.path().join("build-area/aux")).unwrap();
 
-        let error = resolve(&source_dir, &config(OutputDirClash::Fail), None).unwrap_err();
+        let error = resolve(source_dir.path(), &config(OutputDirClash::Fail), None).unwrap_err();
 
         assert!(error.to_string().contains("didn't put there"));
-        std::fs::remove_dir_all(&source_dir).unwrap();
     }
 
     #[test]
     fn test_configured_paths_are_relative_to_the_source_dir() {
         let source_dir = test_dir();
-        let absolute = test_dir().join("artifacts");
+        let absolute_base = test_dir();
+        let absolute = absolute_base.path().join("artifacts");
         let config = Config {
             output_dir: PathBuf::from("relative/artifacts"),
             output_dir_fallback: absolute.clone(),
@@ -210,27 +209,29 @@ mod tests {
         };
 
         assert_eq!(
-            resolve(&source_dir, &config, None).unwrap(),
-            source_dir.join("relative/artifacts")
+            resolve(source_dir.path(), &config, None).unwrap(),
+            source_dir.path().join("relative/artifacts")
         );
         assert_eq!(
-            switch_fallback(&source_dir, &config, None).unwrap(),
+            switch_fallback(source_dir.path(), &config, None).unwrap(),
             Some(absolute)
         );
-        std::fs::remove_dir_all(&source_dir).unwrap();
     }
 
     #[test]
     fn test_absolute_configured_path_is_unchanged() {
         let source_dir = test_dir();
-        let output_dir = test_dir().join("artifacts");
+        let output_dir_base = test_dir();
+        let output_dir = output_dir_base.path().join("artifacts");
         let config = Config {
             output_dir: output_dir.clone(),
             ..Config::default()
         };
 
-        assert_eq!(resolve(&source_dir, &config, None).unwrap(), output_dir);
-        std::fs::remove_dir_all(&source_dir).unwrap();
+        assert_eq!(
+            resolve(source_dir.path(), &config, None).unwrap(),
+            output_dir
+        );
     }
 
     #[test]
@@ -240,31 +241,30 @@ mod tests {
 
         assert_eq!(
             resolve(
-                &source_dir,
+                source_dir.path(),
                 &config(OutputDirClash::Fallback),
                 Some(&relative)
             )
             .unwrap(),
             std::path::absolute(&relative).unwrap()
         );
-        std::fs::remove_dir_all(&source_dir).unwrap();
     }
 
     #[test]
     fn test_absolute_cli_path_is_unchanged() {
         let source_dir = test_dir();
-        let output_dir = test_dir().join("artifacts");
+        let output_dir_base = test_dir();
+        let output_dir = output_dir_base.path().join("artifacts");
 
         assert_eq!(
             resolve(
-                &source_dir,
+                source_dir.path(),
                 &config(OutputDirClash::Fallback),
                 Some(&output_dir)
             )
             .unwrap(),
             output_dir
         );
-        std::fs::remove_dir_all(&source_dir).unwrap();
     }
 
     #[test]
@@ -275,26 +275,24 @@ mod tests {
             ..Config::default()
         };
 
-        let resolved = resolve(&source_dir, &config, None).unwrap();
+        let resolved = resolve(source_dir.path(), &config, None).unwrap();
 
-        assert_eq!(resolved, source_dir.join(".."));
-        std::fs::remove_dir_all(&source_dir).unwrap();
+        assert_eq!(resolved, source_dir.path().join(".."));
     }
 
     #[test]
     fn test_create_tags_only_debmagic_dirs() {
         let base = test_dir();
-        create(&base.join("new")).unwrap();
-        std::fs::create_dir_all(base.join("upstream/aux")).unwrap();
-        create(&base.join("upstream")).unwrap();
+        create(&base.path().join("new")).unwrap();
+        std::fs::create_dir_all(base.path().join("upstream/aux")).unwrap();
+        create(&base.path().join("upstream")).unwrap();
 
-        assert!(is_tagged(&base.join("new")));
-        assert!(!is_tagged(&base.join("upstream")));
+        assert!(is_tagged(&base.path().join("new")));
+        assert!(!is_tagged(&base.path().join("upstream")));
         assert!(
-            std::fs::read_to_string(base.join("new").join(TAG_NAME))
+            std::fs::read_to_string(base.path().join("new").join(TAG_NAME))
                 .unwrap()
                 .contains("debmagic")
         );
-        std::fs::remove_dir_all(&base).unwrap();
     }
 }

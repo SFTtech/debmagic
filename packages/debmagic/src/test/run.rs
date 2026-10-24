@@ -545,7 +545,11 @@ mod tests {
 
     #[test]
     fn foreign_test_dir_is_never_removed() -> anyhow::Result<()> {
-        let dir = std::env::temp_dir().join(format!("debmagic-test-{}", uuid::Uuid::new_v4()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-test-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         let foreign = dir.join("pkg.test");
         fs::create_dir_all(&foreign)?;
         fs::write(foreign.join("keep"), "user data")?;
@@ -555,7 +559,6 @@ mod tests {
         fs::write(foreign.join(TEST_OUTPUT_MARKER), "")?;
         replace_exported_test_dir(&foreign)?;
         assert!(!foreign.exists());
-        fs::remove_dir_all(&dir)?;
         Ok(())
     }
 

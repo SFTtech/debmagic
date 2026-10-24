@@ -586,7 +586,11 @@ mod tests {
 
     #[test]
     fn it_loads_the_sign_section() -> Result<(), anyhow::Error> {
-        let dir = std::env::temp_dir().join(format!("debmagic-test-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-test-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir)?;
         let file = dir.join("sign.toml");
         std::fs::write(
@@ -598,7 +602,6 @@ mod tests {
             file.clone(),
             ConfigPathStatus::Used,
         )])?;
-        std::fs::remove_dir_all(&dir).ok();
         assert_eq!(cfg.sign.source, crate::sign::SignMode::Auto);
         assert_eq!(cfg.sign.key.as_deref(), Some("you@example.com"));
         assert_eq!(cfg.sign.sign_command.as_deref(), Some("gpg --foo"));
@@ -608,7 +611,11 @@ mod tests {
 
     #[test]
     fn it_loads_the_apt_section_and_rejects_moved_keys() -> Result<(), anyhow::Error> {
-        let dir = std::env::temp_dir().join(format!("debmagic-apt-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-apt-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir)?;
         let load = |content: &str| {
             let file = dir.join("apt.toml");
@@ -628,7 +635,6 @@ mod tests {
         assert_eq!(settings.from.as_deref(), Some("proposed"));
         assert_eq!(settings.version.as_deref(), Some("1.0"));
         let error = load("[driver]\nproposed = true\n").unwrap_err();
-        std::fs::remove_dir_all(&dir).ok();
         assert!(error.to_string().contains("'apt.proposed'"), "{error}");
         Ok(())
     }
@@ -638,8 +644,11 @@ mod tests {
         let defaults = Config::default();
         assert!(defaults.build.sign_source && !defaults.build.sign_binary);
 
-        let dir =
-            std::env::temp_dir().join(format!("debmagic-test-build-sign-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-test-build-sign-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir)?;
         let file = dir.join("build.toml");
         std::fs::write(&file, "[build]\nsign_binary = true\n")?;
@@ -648,7 +657,6 @@ mod tests {
             file,
             ConfigPathStatus::Used,
         )])?;
-        std::fs::remove_dir_all(&dir).ok();
         assert!(cfg.build.sign_source && cfg.build.sign_binary);
         Ok(())
     }

@@ -525,7 +525,11 @@ mod tests {
 
     #[test]
     fn setup_replaces_the_default_sources_only_with_its_own() -> anyhow::Result<()> {
-        let dir = std::env::temp_dir().join(format!("debmagic-apt-setup-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-apt-setup-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         let trixie = DistroVersion::new(debmagic_common::distro::Distro::Debian, "trixie", "13");
 
         let mut setup = Setup {
@@ -567,7 +571,6 @@ mod tests {
         setup.write(&dir)?;
         let key = dir.join("etc/apt/keyrings/debmagic-stuff.asc");
         assert_eq!(fs::read_to_string(key)?, armored);
-        fs::remove_dir_all(&dir)?;
         Ok(())
     }
 

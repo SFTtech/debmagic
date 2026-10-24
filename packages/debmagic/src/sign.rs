@@ -918,7 +918,11 @@ mod tests {
 
     #[test]
     fn custom_fingerprint_command_prints_it() {
-        let dir = std::env::temp_dir().join("debmagic-sign-test-fingerprint");
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-sign-test-fingerprint-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let key = dir.join("key.asc");
         std::fs::write(&key, "ABCD\n").unwrap();
@@ -932,7 +936,6 @@ mod tests {
         assert!(key_fingerprint(&custom(Some("true {file}")), &key).is_err());
         assert!(key_fingerprint(&custom(Some("false")), &key).is_err());
         assert!(key_fingerprint(&custom(None), &key).is_err());
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
@@ -997,7 +1000,11 @@ mod tests {
     #[test]
     fn verify_signature_custom_runs_command() {
         // a custom command that exits 0 verifies; one that exits 1 fails
-        let dir = std::env::temp_dir().join("debmagic-sign-test-verify");
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-sign-test-verify-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let file = dir.join("f.tar");
         std::fs::write(&file, "x").unwrap();
@@ -1034,12 +1041,15 @@ mod tests {
             ..Default::default()
         };
         assert!(verify_signature(&missing, &file, &sig, &keyring).is_err());
-        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]
     fn unsign_strips_armor() {
-        let dir = std::env::temp_dir().join("debmagic-sign-test-unsign");
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-sign-test-unsign-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let path = write_control(
             &dir,
@@ -1049,6 +1059,5 @@ mod tests {
         unsign(&path).unwrap();
         let content = std::fs::read_to_string(&path).unwrap();
         assert_eq!(content, "Format: 3.0\n");
-        let _ = std::fs::remove_dir_all(&dir);
     }
 }

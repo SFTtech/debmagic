@@ -205,10 +205,11 @@ mod tests {
 
     use super::*;
 
-    fn test_dir(name: &str) -> PathBuf {
-        let path = std::env::temp_dir().join(format!("debmagic-{name}-{}", uuid::Uuid::new_v4()));
-        fs::create_dir(&path).unwrap();
-        path
+    fn test_dir(name: &str) -> tempfile::TempDir {
+        tempfile::Builder::new()
+            .prefix(&format!("debmagic-{name}-"))
+            .tempdir()
+            .unwrap()
     }
 
     fn write_changes(path: &Path, files: &[(&str, &str)]) {
@@ -233,8 +234,10 @@ mod tests {
 
     #[test]
     fn exports_every_file_listed_by_changes() {
-        let build_dir = test_dir("artifact-build");
-        let output_dir = test_dir("artifact-output");
+        let _build_dir_tmp = test_dir("artifact-build");
+        let build_dir = _build_dir_tmp.path().to_path_buf();
+        let _output_dir_tmp = test_dir("artifact-output");
+        let output_dir = _output_dir_tmp.path().to_path_buf();
         let changes_path = build_dir.join("test_1_amd64.changes");
         let artifacts = [
             ("test_1_amd64.deb", "deb"),
@@ -254,51 +257,51 @@ mod tests {
                 contents
             );
         }
-        fs::remove_dir_all(build_dir).unwrap();
-        fs::remove_dir_all(output_dir).unwrap();
     }
 
     #[test]
     fn rejects_ambiguous_changes_files() {
-        let build_dir = test_dir("artifact-ambiguous");
-        let output_dir = test_dir("artifact-ambiguous-output");
+        let _build_dir_tmp = test_dir("artifact-ambiguous");
+        let build_dir = _build_dir_tmp.path().to_path_buf();
+        let _output_dir_tmp = test_dir("artifact-ambiguous-output");
+        let output_dir = _output_dir_tmp.path().to_path_buf();
         fs::write(build_dir.join("one.changes"), "").unwrap();
         fs::write(build_dir.join("two.changes"), "").unwrap();
 
         let error = export_build_artifacts(&build_dir, &output_dir, BuildKind::Binary).unwrap_err();
 
         assert!(error.to_string().contains("multiple .changes files"));
-        fs::remove_dir_all(build_dir).unwrap();
-        fs::remove_dir_all(output_dir).unwrap();
     }
 
     #[test]
     fn picks_the_changes_of_the_requested_kind() {
-        let build_dir = test_dir("artifact-kinds");
+        let _build_dir_tmp = test_dir("artifact-kinds");
+        let build_dir = _build_dir_tmp.path().to_path_buf();
         // a persistent work dir after a source build followed by a binary build
         let source_changes = build_dir.join("test_1_source.changes");
         write_changes(&source_changes, &[("test_1-1.dsc", "dsc")]);
         let changes_path = build_dir.join("test_1_amd64.changes");
         write_changes(&changes_path, &[("test_1_amd64.deb", "deb")]);
 
-        let binary_output = test_dir("artifact-kinds-output");
+        let _binary_output_tmp = test_dir("artifact-kinds-output");
+        let binary_output = _binary_output_tmp.path().to_path_buf();
         let exported =
             export_build_artifacts(&build_dir, &binary_output, BuildKind::Binary).unwrap();
         assert_eq!(exported, binary_output.join("test_1_amd64.changes"));
 
-        let source_output = test_dir("artifact-kinds-output-src");
+        let _source_output_tmp = test_dir("artifact-kinds-output-src");
+        let source_output = _source_output_tmp.path().to_path_buf();
         let exported =
             export_build_artifacts(&build_dir, &source_output, BuildKind::Source).unwrap();
         assert_eq!(exported, source_output.join("test_1_source.changes"));
-        fs::remove_dir_all(build_dir).unwrap();
-        fs::remove_dir_all(binary_output).unwrap();
-        fs::remove_dir_all(source_output).unwrap();
     }
 
     #[test]
     fn rejects_artifact_symlinks() {
-        let build_dir = test_dir("artifact-symlink");
-        let output_dir = test_dir("artifact-symlink-output");
+        let _build_dir_tmp = test_dir("artifact-symlink");
+        let build_dir = _build_dir_tmp.path().to_path_buf();
+        let _output_dir_tmp = test_dir("artifact-symlink-output");
+        let output_dir = _output_dir_tmp.path().to_path_buf();
         let changes_path = build_dir.join("test_1_amd64.changes");
         write_changes(&changes_path, &[("test_1_amd64.deb", "deb")]);
         fs::remove_file(build_dir.join("test_1_amd64.deb")).unwrap();
@@ -308,14 +311,14 @@ mod tests {
         let error = export_build_artifacts(&build_dir, &output_dir, BuildKind::Binary).unwrap_err();
 
         assert!(error.to_string().contains("not a regular file"));
-        fs::remove_dir_all(build_dir).unwrap();
-        fs::remove_dir_all(output_dir).unwrap();
     }
 
     #[test]
     fn rejects_destination_symlinks() {
-        let build_dir = test_dir("artifact-destination-symlink");
-        let output_dir = test_dir("artifact-destination-symlink-output");
+        let _build_dir_tmp = test_dir("artifact-destination-symlink");
+        let build_dir = _build_dir_tmp.path().to_path_buf();
+        let _output_dir_tmp = test_dir("artifact-destination-symlink-output");
+        let output_dir = _output_dir_tmp.path().to_path_buf();
         let changes_path = build_dir.join("test_1_amd64.changes");
         write_changes(&changes_path, &[("test_1_amd64.deb", "deb")]);
         let target = output_dir.join("target");
@@ -330,14 +333,14 @@ mod tests {
                 .contains("refusing to overwrite artifact symlink")
         );
         assert_eq!(fs::read_to_string(target).unwrap(), "unchanged");
-        fs::remove_dir_all(build_dir).unwrap();
-        fs::remove_dir_all(output_dir).unwrap();
     }
 
     #[test]
     fn copy_dir_all_copies_nested_files() {
-        let src = test_dir("copy-dir-src");
-        let dst = test_dir("copy-dir-dst");
+        let _src_tmp = test_dir("copy-dir-src");
+        let src = _src_tmp.path().to_path_buf();
+        let _dst_tmp = test_dir("copy-dir-dst");
+        let dst = _dst_tmp.path().to_path_buf();
         fs::create_dir(src.join("nested")).unwrap();
         fs::write(src.join("root.txt"), "root").unwrap();
         fs::write(src.join("nested").join("child.txt"), "child").unwrap();
@@ -352,7 +355,5 @@ mod tests {
             fs::read_to_string(dst.join("copied").join("nested").join("child.txt")).unwrap(),
             "child"
         );
-        fs::remove_dir_all(src).unwrap();
-        fs::remove_dir_all(dst).unwrap();
     }
 }

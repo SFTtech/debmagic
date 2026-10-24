@@ -150,7 +150,11 @@ mod tests {
 
     #[test]
     fn test_apply_excludes() {
-        let dir = std::env::temp_dir().join(format!("debmagic-excl-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-excl-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(dir.join("win32").join("nested")).unwrap();
         std::fs::create_dir_all(dir.join("src")).unwrap();
         std::fs::write(dir.join("win32").join("a.c"), "x").unwrap();
@@ -163,7 +167,6 @@ mod tests {
         assert!(!dir.join("win32").exists());
         assert!(dir.join("src").join("main.c").exists());
         assert!(dir.join("top.c").exists());
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]

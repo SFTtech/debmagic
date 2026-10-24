@@ -158,7 +158,11 @@ mod tests {
 
     #[test]
     fn snap_also_searches_itself_and_its_base() {
-        let dir = std::env::temp_dir().join(format!("debmagic-snap-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-snap-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(dir.join("meta")).unwrap();
         std::fs::write(dir.join("meta/snap.yaml"), "name: debmagic\nbase: core26\n").unwrap();
         assert_eq!(
@@ -169,7 +173,6 @@ mod tests {
                 PathBuf::from("/snap/core26/current/usr/share/distro-info"),
             ]
         );
-        std::fs::remove_dir_all(&dir).unwrap();
         assert_eq!(system_dirs(None), [PathBuf::from("/usr/share/distro-info")]);
     }
 }

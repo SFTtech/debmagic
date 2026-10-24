@@ -143,7 +143,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_failed_download_leaves_no_destination() {
-        let dir = std::env::temp_dir().join(format!("debmagic-dl-{}", uuid::Uuid::new_v4()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-dl-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let destination = dir.join("foo-1.0.tar.gz");
         assert_eq!(partial_path(&destination), dir.join("foo-1.0.tar.gz.part"));
@@ -155,6 +159,5 @@ mod tests {
                 .is_err()
         );
         assert!(!destination.exists());
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 }

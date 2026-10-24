@@ -563,7 +563,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_native_package_needs_no_orig() {
-        let base = std::env::temp_dir().join(format!("debmagic-native-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-native-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("pkg");
         let pkg = package(&source, Some("3.0 (native)\n"));
         // a stale orig tarball next to the source must not be picked up
@@ -574,12 +578,15 @@ mod tests {
             fetch_orig_tarball(&config, &pkg, &base).await.unwrap(),
             None
         );
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[tokio::test]
     async fn test_fetch_prefers_output_dir() {
-        let base = std::env::temp_dir().join(format!("debmagic-orig-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let out = base.join("out");
         std::fs::create_dir_all(&out).unwrap();
@@ -591,13 +598,15 @@ mod tests {
         let config = OrigTarballConfig::default();
         let found = fetch_orig_tarball(&config, &pkg, &out).await.unwrap();
         assert_eq!(found, Some(out.join("postfix_3.11.7.orig.tar.gz")));
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[tokio::test]
     async fn test_fetch_uses_existing_in_parent() {
-        let base =
-            std::env::temp_dir().join(format!("debmagic-orig-parent-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-parent-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let out = base.join("out");
         std::fs::create_dir_all(&out).unwrap();
@@ -610,12 +619,15 @@ mod tests {
         assert_eq!(found, Some(base.join("postfix_3.11.7.orig.tar.xz")));
         // nothing was copied into the output dir
         assert!(out.read_dir().unwrap().next().is_none());
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[tokio::test]
     async fn test_fetch_no_method_no_tarball() {
-        let base = std::env::temp_dir().join(format!("debmagic-orig-none-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-none-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let pkg = package(&source, None);
         // fetching disabled explicitly: no method runs, no tarball appears
@@ -627,12 +639,15 @@ mod tests {
             fetch_orig_tarball(&config, &pkg, &base).await.unwrap(),
             None
         );
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_mut_components_from_watch() {
-        let base = std::env::temp_dir().join(format!("debmagic-mut-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-mut-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let pkg = package(&source, None);
         assert!(mut_components(&pkg).unwrap().is_empty());
@@ -644,12 +659,15 @@ mod tests {
         )
         .unwrap();
         assert_eq!(mut_components(&pkg).unwrap(), ["vendor"]);
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[tokio::test]
     async fn test_fetch_component_uses_component_tarball() {
-        let base = std::env::temp_dir().join(format!("debmagic-orig-comp-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-comp-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let out = base.join("out");
         std::fs::create_dir_all(&out).unwrap();
@@ -662,12 +680,15 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(found, Some(out.join("postfix_3.11.7.orig-bar.tar.xz")));
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_stage_from_cache_hardlinks() {
-        let base = std::env::temp_dir().join(format!("debmagic-orig-link-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-link-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let cache = base.join("cache");
         let out = base.join("out");
         std::fs::create_dir_all(&cache).unwrap();
@@ -681,14 +702,16 @@ mod tests {
             std::fs::metadata(&cached).unwrap().ino(),
             std::fs::metadata(&staged).unwrap().ino()
         );
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_link_or_copy_resolves_a_relative_symlink_source() {
         use std::os::unix::fs::MetadataExt;
-        let base =
-            std::env::temp_dir().join(format!("debmagic-orig-symlink-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-symlink-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let cache = base.join("pkg").join("cache");
         let build = base.join("pkg").join("build");
         std::fs::create_dir_all(&cache).unwrap();
@@ -711,13 +734,15 @@ mod tests {
             std::fs::metadata(&real).unwrap().ino(),
             std::fs::metadata(&staged).unwrap().ino()
         );
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_link_or_copy_replaces_the_destination() {
-        let base =
-            std::env::temp_dir().join(format!("debmagic-orig-replace-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-replace-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let out = base.join("out");
         std::fs::create_dir_all(&out).unwrap();
         let source = base.join("foo_1.0.orig.tar.xz");
@@ -739,12 +764,15 @@ mod tests {
         // the source itself stays intact when it already is the destination
         link_or_copy(&source, &source).unwrap();
         assert_eq!(std::fs::read_to_string(&source).unwrap(), "new");
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_substitute_placeholders() {
-        let base = std::env::temp_dir().join(format!("debmagic-orig-subst-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-subst-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let pkg = package(&source, None);
         let out = base.join("out");
@@ -761,6 +789,5 @@ mod tests {
                 out.display()
             )
         );
-        std::fs::remove_dir_all(&base).unwrap();
     }
 }

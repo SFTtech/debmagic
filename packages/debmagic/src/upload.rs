@@ -334,7 +334,11 @@ mod tests {
 
     #[test]
     fn test_upload_log_roundtrip_and_check() {
-        let dir = std::env::temp_dir().join(format!("debmagic-test-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-test-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let changes = dir.join("pkg_1.0-1_source.changes");
         std::fs::write(&changes, "Format: 1.8\n").unwrap();
@@ -358,7 +362,5 @@ mod tests {
         assert_eq!(&time[10..11], "T");
         assert_eq!(&time[13..14], ":");
         assert!(time[19..].starts_with('+') || time[19..].starts_with('-'));
-
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 }

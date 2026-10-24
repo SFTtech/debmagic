@@ -52,8 +52,11 @@ mod tests {
 
     #[test]
     fn set_changes_orig_adds_and_removes() {
-        let dir =
-            std::env::temp_dir().join(format!("debmagic-orig-changes-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-changes-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let changes = dir.join("pkg_1.0-1_source.changes");
         std::fs::write(
@@ -84,13 +87,15 @@ mod tests {
         let content = std::fs::read_to_string(&changes).unwrap();
         assert!(!content.contains("orig.tar"));
         assert!(!content.contains("orig-bar"));
-
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
     fn test_find_orig_in_dir() {
-        let dir = std::env::temp_dir().join(format!("debmagic-find-orig-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-find-orig-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
 
         // nothing there yet
@@ -112,7 +117,5 @@ mod tests {
             Some(dir.join("pkg_1.0.orig-bar.tar.xz"))
         );
         assert_eq!(find_orig_in_dir(&dir, "pkg", "1.0", Some("baz")), None);
-
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 }

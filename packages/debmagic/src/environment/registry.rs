@@ -762,10 +762,12 @@ impl TryFrom<InvocationRow> for RecordedInvocation {
 pub(super) mod tests {
     use super::*;
 
-    pub(in crate::environment) async fn temp_registry() -> (PathBuf, Registry) {
-        let dir = std::env::temp_dir().join(format!("debmagic-registry-{}", uuid::Uuid::new_v4()));
-        std::fs::create_dir_all(&dir).unwrap();
-        let registry = Registry::open(&dir.join("db.sqlite")).await.unwrap();
+    pub(in crate::environment) async fn temp_registry() -> (tempfile::TempDir, Registry) {
+        let dir = tempfile::Builder::new()
+            .prefix("debmagic-registry-")
+            .tempdir()
+            .unwrap();
+        let registry = Registry::open(&dir.path().join("db.sqlite")).await.unwrap();
         (dir, registry)
     }
 
@@ -901,8 +903,8 @@ pub(super) mod tests {
     #[tokio::test]
     async fn invocation_records_full_distro_version() -> anyhow::Result<()> {
         let (dir, registry) = temp_registry().await;
-        let source = dir.join("src");
-        let changes = dir.join("pkg.changes");
+        let source = dir.path().join("src");
+        let changes = dir.path().join("pkg.changes");
         std::fs::write(&changes, "changes")?;
         let distro = DistroVersion {
             distro: Distro::Custom("yocto".to_string()),
@@ -931,10 +933,10 @@ pub(super) mod tests {
     #[tokio::test]
     async fn binary_changes_lookup_skips_missing_files() -> anyhow::Result<()> {
         let (dir, registry) = temp_registry().await;
-        let source = dir.join("src");
-        let trixie = dir.join("trixie.changes");
+        let source = dir.path().join("src");
+        let trixie = dir.path().join("trixie.changes");
         std::fs::write(&trixie, "changes")?;
-        let missing = dir.join("gone.changes");
+        let missing = dir.path().join("gone.changes");
         let distro_trixie = DistroVersion::new(Distro::Debian, "trixie", "13");
         let distro_sid = DistroVersion::new(Distro::Debian, "sid", "");
         for (distro, changes) in [
@@ -964,9 +966,9 @@ pub(super) mod tests {
     #[tokio::test]
     async fn invocation_history_keeps_the_newest_usable_binary_build() -> anyhow::Result<()> {
         let (dir, registry) = temp_registry().await;
-        let source = dir.join("src");
-        let older = dir.join("older.changes");
-        let newer = dir.join("newer.changes");
+        let source = dir.path().join("src");
+        let older = dir.path().join("older.changes");
+        let newer = dir.path().join("newer.changes");
         std::fs::write(&older, "old")?;
         std::fs::write(&newer, "new")?;
         let distro = DistroVersion::new(Distro::Debian, "trixie", "13");
@@ -1000,8 +1002,8 @@ pub(super) mod tests {
     #[tokio::test]
     async fn deleting_a_changes_file_prunes_that_invocation() -> anyhow::Result<()> {
         let (dir, registry) = temp_registry().await;
-        let source = dir.join("src");
-        let changes = dir.join("pkg.changes");
+        let source = dir.path().join("src");
+        let changes = dir.path().join("pkg.changes");
         std::fs::write(&changes, "changes")?;
         let distro = DistroVersion::new(Distro::Debian, "trixie", "13");
         registry
@@ -1029,7 +1031,7 @@ pub(super) mod tests {
     #[tokio::test]
     async fn non_binary_invocations_collapse_to_the_newest() -> anyhow::Result<()> {
         let (dir, registry) = temp_registry().await;
-        let source = dir.join("src");
+        let source = dir.path().join("src");
         let distro = DistroVersion::new(Distro::Debian, "trixie", "13");
         for version in ["1.0", "1.1"] {
             registry
@@ -1085,7 +1087,7 @@ pub(super) mod tests {
         upsert(&registry, &environment, None).await;
         registry.pool.close().await;
 
-        let registry = Registry::open(&dir.join("db.sqlite")).await?;
+        let registry = Registry::open(&dir.path().join("db.sqlite")).await?;
         let listed = registry.list().await?;
         assert_eq!(listed.len(), 1);
         assert_eq!(listed[0].environment.id(), environment.id());
@@ -1108,7 +1110,7 @@ pub(super) mod tests {
     async fn newer_schema_is_refused() {
         let (dir, registry) = temp_registry().await;
         registry.pool.close().await;
-        let path = dir.join("db.sqlite");
+        let path = dir.path().join("db.sqlite");
         add_future_migration(&path).await;
 
         let Err(error) = Registry::open(&path).await else {
@@ -1128,7 +1130,7 @@ pub(super) mod tests {
     async fn open_or_ephemeral_falls_back_when_the_file_is_unusable() -> anyhow::Result<()> {
         let (dir, _registry) = temp_registry().await;
         // a directory is not a database
-        let registry = Registry::open_or_ephemeral(&dir).await?;
+        let registry = Registry::open_or_ephemeral(dir.path()).await?;
         let environment = sample_environment(Path::new("/src/a"), EnvironmentPurpose::Build);
         upsert(&registry, &environment, None).await;
         assert_eq!(registry.list().await?.len(), 1);
@@ -1138,8 +1140,10 @@ pub(super) mod tests {
     /// Each opener gets its own runtime, like separate debmagic processes.
     #[test]
     fn concurrent_first_opens_all_succeed() -> anyhow::Result<()> {
-        let dir = std::env::temp_dir().join(format!("debmagic-registry-{}", uuid::Uuid::new_v4()));
-        let path = dir.join("db.sqlite");
+        let dir = tempfile::Builder::new()
+            .prefix("debmagic-registry-")
+            .tempdir()?;
+        let path = dir.path().join("db.sqlite");
         let barrier = std::sync::Barrier::new(8);
         std::thread::scope(|scope| {
             let openers: Vec<_> = (0..8)

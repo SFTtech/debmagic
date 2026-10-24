@@ -648,14 +648,17 @@ mod tests {
 
     #[test]
     fn quilt_unapply_needed_only_for_quilt_with_applied_patches() {
-        let dir = std::env::temp_dir().join(format!("debmagic-quilt-{}", uuid::Uuid::new_v4()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-quilt-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         assert!(!needs_quilt_unapply(SourceFormat::Quilt, &dir));
         std::fs::create_dir_all(dir.join(".pc")).unwrap();
         assert!(needs_quilt_unapply(SourceFormat::Quilt, &dir));
         assert!(!needs_quilt_unapply(SourceFormat::Native, &dir));
         assert!(!needs_quilt_unapply(SourceFormat::V1, &dir));
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]

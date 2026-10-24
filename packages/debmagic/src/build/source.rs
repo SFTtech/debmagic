@@ -573,10 +573,11 @@ mod tests {
 
     #[test]
     fn incremental_sync_updates_sources_and_preserves_build_outputs() -> anyhow::Result<()> {
-        let test_root = std::env::temp_dir().join(format!(
-            "debmagic-incremental-test-{}",
-            uuid::Uuid::new_v4()
-        ));
+        let _test_root_tmp = tempfile::Builder::new()
+            .prefix("debmagic-incremental-test-")
+            .tempdir()
+            .unwrap();
+        let test_root = _test_root_tmp.path().to_path_buf();
         let source_dir = test_root.join("source");
         let build_root_dir = test_root.join("build");
         fs::create_dir_all(source_dir.join("cache"))?;
@@ -646,7 +647,6 @@ mod tests {
             "compiled"
         );
 
-        fs::remove_dir_all(test_root)?;
         Ok(())
     }
 
@@ -654,8 +654,11 @@ mod tests {
     /// the work dir: re-staging it must not truncate the shared inode.
     #[test]
     fn copy_glob_keeps_hardlinked_destination() -> anyhow::Result<()> {
-        let test_root =
-            std::env::temp_dir().join(format!("debmagic-copy-glob-test-{}", uuid::Uuid::new_v4()));
+        let _test_root_tmp = tempfile::Builder::new()
+            .prefix("debmagic-copy-glob-test-")
+            .tempdir()
+            .unwrap();
+        let test_root = _test_root_tmp.path().to_path_buf();
         let parent = test_root.join("parent");
         let work = test_root.join("work");
         fs::create_dir_all(&parent)?;
@@ -672,7 +675,6 @@ mod tests {
             fs::read_to_string(work.join("pkg_1.0.orig.tar.xz"))?,
             "tarball"
         );
-        fs::remove_dir_all(test_root)?;
         Ok(())
     }
 
@@ -729,10 +731,11 @@ mod tests {
     /// and syncs against its own manifest.
     #[test]
     fn source_stage_sync_leaves_binary_tree_untouched() -> anyhow::Result<()> {
-        let test_root = std::env::temp_dir().join(format!(
-            "debmagic-source-stage-test-{}",
-            uuid::Uuid::new_v4()
-        ));
+        let _test_root_tmp = tempfile::Builder::new()
+            .prefix("debmagic-source-stage-test-")
+            .tempdir()
+            .unwrap();
+        let test_root = _test_root_tmp.path().to_path_buf();
         let source_dir = test_root.join("source");
         fs::create_dir_all(source_dir.join("debian"))?;
         fs::write(
@@ -824,13 +827,15 @@ mod tests {
             binary_manifest
         );
 
-        fs::remove_dir_all(test_root)?;
         Ok(())
     }
 
     /// Create a git repo with one committed file in a fresh temp dir.
-    fn git_test_repo() -> anyhow::Result<PathBuf> {
-        let repo = std::env::temp_dir().join(format!("debmagic-git-test-{}", uuid::Uuid::new_v4()));
+    fn git_test_repo() -> anyhow::Result<tempfile::TempDir> {
+        let tmp = tempfile::Builder::new()
+            .prefix("debmagic-git-test-")
+            .tempdir()?;
+        let repo = tmp.path().to_path_buf();
         fs::create_dir_all(repo.join("debian"))?;
         fs::write(repo.join("debian/control"), "Source: example")?;
         let run = |args: &[&str]| -> anyhow::Result<()> {
@@ -856,12 +861,13 @@ mod tests {
             "-qm",
             "init",
         ])?;
-        Ok(repo)
+        Ok(tmp)
     }
 
     #[test]
     fn tracked_sync_stages_only_git_tracked_files() -> anyhow::Result<()> {
-        let repo = git_test_repo()?;
+        let _repo_tmp = git_test_repo()?;
+        let repo = _repo_tmp.path().to_path_buf();
         fs::write(repo.join("untracked.txt"), "not staged")?;
         fs::write(repo.join("dirty.txt"), "uncommitted but tracked? no")?;
         // A tracked file with uncommitted modifications is staged with its
@@ -882,13 +888,16 @@ mod tests {
         assert!(!paths.contains(&Path::new("dirty.txt")));
         assert_eq!(git_untracked_paths(&repo).len(), 2);
 
-        fs::remove_dir_all(repo)?;
         Ok(())
     }
 
     #[test]
     fn staging_skips_the_tagged_output_dir_only() -> anyhow::Result<()> {
-        let dir = std::env::temp_dir().join(format!("debmagic-output-{}", uuid::Uuid::new_v4()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-output-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         // upstream's build/ next to debmagic's output dir
         fs::create_dir_all(dir.join("build"))?;
         fs::write(dir.join("build/config.sub"), "upstream")?;
@@ -908,13 +917,13 @@ mod tests {
                 .any(|e| e.path == Path::new("build/config.sub"))
         );
 
-        fs::remove_dir_all(dir)?;
         Ok(())
     }
 
     #[test]
     fn committed_sync_requires_clean_worktree() -> anyhow::Result<()> {
-        let repo = git_test_repo()?;
+        let _repo_tmp = git_test_repo()?;
+        let repo = _repo_tmp.path().to_path_buf();
         assert!(source_tree_entries(&repo, SourceSyncMode::Committed).is_ok());
 
         fs::write(repo.join("untracked.txt"), "dirty")?;
@@ -927,13 +936,13 @@ mod tests {
                 .contains("requires a clean git worktree")
         );
 
-        fs::remove_dir_all(repo)?;
         Ok(())
     }
 
     #[test]
     fn tracked_sync_skips_files_deleted_from_worktree() -> anyhow::Result<()> {
-        let repo = git_test_repo()?;
+        let _repo_tmp = git_test_repo()?;
+        let repo = _repo_tmp.path().to_path_buf();
         fs::remove_file(repo.join("debian/control"))?;
 
         let entries = source_tree_entries(&repo, SourceSyncMode::Tracked)?;
@@ -941,18 +950,20 @@ mod tests {
         assert!(!paths.contains(&Path::new("debian/control")));
         assert!(paths.contains(&Path::new("debian")));
 
-        fs::remove_dir_all(repo)?;
         Ok(())
     }
 
     #[test]
     fn tracked_sync_falls_back_outside_git_worktree() -> anyhow::Result<()> {
-        let dir = std::env::temp_dir().join(format!("debmagic-nogit-{}", uuid::Uuid::new_v4()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-nogit-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         fs::create_dir_all(&dir)?;
         fs::write(dir.join("file.txt"), "content")?;
         let entries = source_tree_entries(&dir, SourceSyncMode::Tracked)?;
         assert!(entries.iter().any(|e| e.path == Path::new("file.txt")));
-        fs::remove_dir_all(dir)?;
         Ok(())
     }
 }

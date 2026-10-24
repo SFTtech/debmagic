@@ -21,6 +21,7 @@ Build-Depends:
  librust-libc-dev (>=0.2.169),
  librust-serde-dev (>=1.0.217),
  librust-serde-json-dev (>=1.0.139),
+ librust-tempfile-dev (>=3.10),
  librust-toml-dev (>=0.8),
  librust-toml-edit-dev (>=0.22),
  librust-uuid-dev (>=1.10.0),

@@ -33,12 +33,11 @@ pub async fn switch(
         return Ok(fetched);
     }
 
-    let work_dir = std::env::temp_dir().join(format!(
-        "debmagic-switch-{}-{}",
-        package.name(),
-        std::process::id()
-    ));
-    let extract_dir = work_dir.join("tree");
+    let work_dir = tempfile::Builder::new()
+        .prefix(&format!("debmagic-switch-{}-", package.name()))
+        .tempdir()
+        .context("failed to create the scratch dir")?;
+    let extract_dir = work_dir.path().join("tree");
     let swapped = extract_tarball(&fetched.tarball, &extract_dir).and_then(|()| {
         // a component lives in its own subdir, like dpkg-source unpacks
         // it; the main tree keeps the component subdirs and the output dir
@@ -56,7 +55,6 @@ pub async fn switch(
         swap_tree(&target_dir, &extract_dir, &keep, source.component.is_none())?;
         Ok(output_dir)
     });
-    std::fs::remove_dir_all(&work_dir).ok();
     let output_dir = swapped.with_context(|| {
         format!(
             "replacing {} with {} failed",
@@ -256,7 +254,11 @@ mod tests {
         fallback: bool,
         expected: Option<&str>,
     ) {
-        let base = std::env::temp_dir().join(format!("debmagic-clash-{}", uuid::Uuid::new_v4()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-clash-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let target_dir = base.join("pkg");
         let extract_dir = base.join("tree");
         let output_dir = target_dir.join(output_dir);
@@ -294,12 +296,15 @@ mod tests {
             }
             None => assert!(result.is_err()),
         }
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_extract_and_swap() {
-        let base = std::env::temp_dir().join(format!("debmagic-switch-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-switch-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source_dir = base.join("pkg");
         let extract_dir = base.join("tree");
         std::fs::create_dir_all(source_dir.join("debian")).unwrap();
@@ -336,13 +341,15 @@ mod tests {
         assert!(source_dir.join("debian").join("changelog").exists());
         assert!(output_dir.join("pkg_2.0.orig.tar.xz").exists());
         assert!(component_dir.join("plugin.c").exists());
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_swap_component_replaces_debian() {
-        let base =
-            std::env::temp_dir().join(format!("debmagic-switch-comp-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-switch-comp-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let component_dir = base.join("plugin");
         let extract_dir = base.join("tree");
         std::fs::create_dir_all(component_dir.join("debian")).unwrap();
@@ -354,6 +361,5 @@ mod tests {
 
         assert!(component_dir.join("debian").join("new").exists());
         assert!(!component_dir.join("debian").join("old").exists());
-        std::fs::remove_dir_all(&base).unwrap();
     }
 }

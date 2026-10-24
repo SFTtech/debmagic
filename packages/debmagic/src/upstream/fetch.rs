@@ -77,22 +77,11 @@ pub struct Fetched {
 }
 
 /// A scratch dir, removed when dropped on success and error alike.
-struct WorkDir(PathBuf);
-
-impl WorkDir {
-    fn new(name: &str) -> anyhow::Result<Self> {
-        let path =
-            std::env::temp_dir().join(format!("debmagic-fetch-{name}-{}", std::process::id()));
-        std::fs::create_dir_all(&path)
-            .with_context(|| format!("failed to create {}", path.display()))?;
-        Ok(Self(path))
-    }
-}
-
-impl Drop for WorkDir {
-    fn drop(&mut self) {
-        std::fs::remove_dir_all(&self.0).ok();
-    }
+fn scratch_dir(name: &str) -> anyhow::Result<tempfile::TempDir> {
+    tempfile::Builder::new()
+        .prefix(&format!("debmagic-fetch-{name}-"))
+        .tempdir()
+        .context("failed to create the scratch dir")
 }
 
 /// Fetch the orig tarball of one watch source (the main tarball, or a
@@ -198,10 +187,10 @@ pub async fn fetch(
             .await
             {
                 Ok(Some(tarball)) if custom => {
-                    let work_dir = WorkDir::new(name)?;
+                    let work_dir = scratch_dir(name)?;
                     return place_orig(
                         &tarball,
-                        &work_dir.0,
+                        work_dir.path(),
                         name,
                         &orig_version,
                         component,
@@ -265,8 +254,8 @@ pub async fn fetch(
         ));
     }
 
-    let work_dir = WorkDir::new(name)?;
-    let download_dir = work_dir.0.join("download");
+    let work_dir = scratch_dir(name)?;
+    let download_dir = work_dir.path().join("download");
     std::fs::create_dir_all(&download_dir)
         .with_context(|| format!("failed to create {}", download_dir.display()))?;
     let tarball = download_tarball(source, &candidate, &download_dir).await?;
@@ -282,7 +271,7 @@ pub async fn fetch(
     }
     place_orig(
         &tarball,
-        &work_dir.0,
+        work_dir.path(),
         name,
         &orig_version,
         component,
@@ -817,16 +806,23 @@ mod tests {
 
     #[test]
     fn test_place_orig_repacks_excluded_files() {
-        let base = std::env::temp_dir().join(format!("debmagic-repack-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-repack-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let orig = place(&base, &pristine_tarball(&base), true, Some("+dfsg"));
         assert_eq!(orig, base.join("out").join("pkg_1.0+dfsg.orig.tar.xz"));
         assert_eq!(list_tarball(&orig).unwrap(), vec!["src/main.c"]);
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_place_orig_without_repack_keeps_tarball() {
-        let base = std::env::temp_dir().join(format!("debmagic-pristine-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-pristine-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let tarball = pristine_tarball(&base);
         let pristine = std::fs::read(&tarball).unwrap();
         let orig = place(&base, &tarball, false, None);
@@ -837,6 +833,5 @@ mod tests {
             list_tarball(&orig).unwrap(),
             vec!["src/main.c", "win32/a.c"]
         );
-        std::fs::remove_dir_all(&base).unwrap();
     }
 }

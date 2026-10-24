@@ -616,10 +616,10 @@ UBUNTU_CODENAME=ignored
 
     #[test]
     fn bare_binary_build_requires_id_and_codename_match() -> anyhow::Result<()> {
-        let os_path = std::env::temp_dir().join(format!(
-            "debmagic-os-release-builtin-{}",
-            std::process::id()
-        ));
+        let os_release = tempfile::Builder::new()
+            .prefix("debmagic-os-release-builtin-")
+            .tempfile()?;
+        let os_path = os_release.path().to_path_buf();
         let target = DistroVersion::new(Distro::Debian, "trixie", "13");
 
         std::fs::write(&os_path, "ID=debian\nVERSION_CODENAME=bookworm\n")?;
@@ -638,14 +638,15 @@ UBUNTU_CODENAME=ignored
         std::fs::write(&os_path, "ID=gentoo\n")?;
         let err = validate_bare_host_target(&target, &os_path).unwrap_err();
         assert!(err.to_string().contains("no VERSION_CODENAME"));
-        let _ = std::fs::remove_file(&os_path);
         Ok(())
     }
 
     #[test]
     fn bare_binary_build_custom_suite_anchors_family_to_host() -> anyhow::Result<()> {
-        let os_path =
-            std::env::temp_dir().join(format!("debmagic-os-release-custom-{}", std::process::id()));
+        let os_release = tempfile::Builder::new()
+            .prefix("debmagic-os-release-custom-")
+            .tempfile()?;
+        let os_path = os_release.path().to_path_buf();
         let target = DistroVersion::custom(Distro::from("kirkstone"), "kirkstone");
 
         std::fs::write(&os_path, "ID=yocto\nVERSION_CODENAME=kirkstone\n")?;
@@ -657,7 +658,6 @@ UBUNTU_CODENAME=ignored
         std::fs::write(&os_path, "ID=yocto\nVERSION_CODENAME=other\n")?;
         let err = validate_bare_host_target(&target, &os_path).unwrap_err();
         assert!(err.to_string().contains("custom suite 'kirkstone'"));
-        let _ = std::fs::remove_file(&os_path);
         Ok(())
     }
 }

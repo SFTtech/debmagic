@@ -1197,17 +1197,24 @@ mod teardown_tests {
     use crate::driver::{DriverType, EnvironmentPurpose};
 
     struct Fixture {
+        _tmp: tempfile::TempDir,
         dir: PathBuf,
         registry: Registry,
     }
 
     impl Fixture {
         async fn new() -> Self {
-            let dir =
-                std::env::temp_dir().join(format!("debmagic-lifecycle-{}", uuid::Uuid::new_v4()));
-            std::fs::create_dir_all(&dir).unwrap();
+            let tmp = tempfile::Builder::new()
+                .prefix("debmagic-lifecycle-")
+                .tempdir()
+                .unwrap();
+            let dir = tmp.path().to_path_buf();
             let registry = Registry::open(&dir.join("db.sqlite")).await.unwrap();
-            Self { dir, registry }
+            Self {
+                _tmp: tmp,
+                dir,
+                registry,
+            }
         }
 
         /// A registered Bare-driver Environment whose Host root exists.
@@ -1250,12 +1257,6 @@ mod teardown_tests {
                 when,
             )
             .await
-        }
-    }
-
-    impl Drop for Fixture {
-        fn drop(&mut self) {
-            let _ = std::fs::remove_dir_all(&self.dir);
         }
     }
 
@@ -1461,6 +1462,7 @@ mod claimed_environment_tests {
     use std::path::{Path, PathBuf};
 
     struct Fixture {
+        _tmp: tempfile::TempDir,
         dir: PathBuf,
         registry: Registry,
         driver_config: DriverConfig,
@@ -1470,11 +1472,14 @@ mod claimed_environment_tests {
 
     impl Fixture {
         async fn new() -> Self {
-            let dir =
-                std::env::temp_dir().join(format!("debmagic-lifecycle-{}", uuid::Uuid::new_v4()));
-            std::fs::create_dir_all(&dir).unwrap();
+            let tmp = tempfile::Builder::new()
+                .prefix("debmagic-lifecycle-")
+                .tempdir()
+                .unwrap();
+            let dir = tmp.path().to_path_buf();
             let registry = Registry::open(&dir.join("db.sqlite")).await.unwrap();
             Self {
+                _tmp: tmp,
                 dir,
                 registry,
                 driver_config: DriverConfig::default(),
@@ -1520,12 +1525,6 @@ mod claimed_environment_tests {
                 .await
                 .unwrap()
                 .map(|row| row.owner.map(|owner| owner.pid))
-        }
-    }
-
-    impl Drop for Fixture {
-        fn drop(&mut self) {
-            let _ = std::fs::remove_dir_all(&self.dir);
         }
     }
 

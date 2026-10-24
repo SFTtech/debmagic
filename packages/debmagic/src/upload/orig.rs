@@ -167,7 +167,11 @@ mod tests {
 
     #[test]
     fn test_verify_against_dsc() {
-        let dir = std::env::temp_dir().join(format!("debmagic-dsc-verify-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-dsc-verify-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let tarball = dir.join("pkg_1.0.orig.tar.xz");
         std::fs::write(&tarball, "tarball content").unwrap();
@@ -196,15 +200,17 @@ mod tests {
         // stale tarball fails
         std::fs::write(&tarball, "different content").unwrap();
         assert!(verify_against_dsc(&tarball, &changes).is_err());
-
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
     fn test_resolve_include_orig_modes() {
         // Yes/No never consult any state; auto is covered by
         // test_resolve_include_orig_auto below
-        let base = std::env::temp_dir().join(format!("debmagic-include-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-include-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("pkg");
         std::fs::create_dir_all(source.join("debian")).unwrap();
         std::fs::write(
@@ -215,16 +221,17 @@ mod tests {
 
         assert!(decide_orig_upload(IncludeOrig::Yes, &source).unwrap());
         assert!(!decide_orig_upload(IncludeOrig::No, &source).unwrap());
-
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_resolve_include_orig_auto() {
         // auto: a plain new Ubuntu revision — the archive already has
         // the orig, so it must not ride along
-        let base =
-            std::env::temp_dir().join(format!("debmagic-include-auto-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-include-auto-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("pkg");
         std::fs::create_dir_all(source.join("debian")).unwrap();
         std::fs::write(
@@ -257,14 +264,15 @@ mod tests {
         )
         .unwrap();
         assert!(decide_orig_upload(IncludeOrig::Auto, &source).unwrap());
-
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_changes_include_orig_removes_entries() {
-        let base =
-            std::env::temp_dir().join(format!("debmagic-include-remove-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-include-remove-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("pkg");
         std::fs::create_dir_all(source.join("debian")).unwrap();
         std::fs::write(
@@ -294,7 +302,5 @@ mod tests {
         assert!(!content.contains("orig.tar"));
         // the non-orig entries survive
         assert!(content.contains("pkg_1.0-1.dsc"));
-
-        std::fs::remove_dir_all(&base).unwrap();
     }
 }

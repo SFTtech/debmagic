@@ -17,13 +17,15 @@ pkg = package(
 )
 
 # TODO: add this section to our rust debmagic module to make setting this up less annoying
-os.environ.update({
-    "PATH": f"/usr/share/cargo/bin:{os.environ['PATH']}",
-    "CARGO": "/usr/share/cargo/bin/cargo",
-    "CARGO_HOME": f"{pkg.base_dir}/debian/cargo_home",
-    "CARGO_REGISTRY": f"{pkg.base_dir}/debian/cargo_registry",
-    "DEB_CARGO_CRATE": f"{pkg.build_env.DEB_SOURCE}_{pkg.build_env.DEB_VERSION_UPSTREAM}"
-})
+os.environ.update(
+    {
+        "PATH": f"/usr/share/cargo/bin:{os.environ['PATH']}",
+        "CARGO": "/usr/share/cargo/bin/cargo",
+        "CARGO_HOME": f"{pkg.base_dir}/debian/cargo_home",
+        "CARGO_REGISTRY": f"{pkg.base_dir}/debian/cargo_registry",
+        "DEB_CARGO_CRATE": f"{pkg.build_env.DEB_SOURCE}_{pkg.build_env.DEB_VERSION_UPSTREAM}",
+    }
+)
 
 packages = {
     "debmagic": ("packages/debmagic", "debmagic"),
@@ -33,10 +35,14 @@ packages = {
 cargo_lock = Path("Cargo.lock")
 cargo_lock_saved = Path("Cargo.lock.saved")
 
+
 def dh_auto(build: Build, stage: str, use_destdir: bool = False):
     for pkg_name, (path, python_pkg_name) in packages.items():
         destdir = f" --destdir debian/{pkg_name} " if use_destdir else ""
-        build.cmd(f"{stage} -p {pkg_name} --sourcedirectory {path} --buildsystem=pybuild {destdir} -- --name {python_pkg_name}")
+        build.cmd(
+            f"{stage} -p {pkg_name} --sourcedirectory {path} --buildsystem=pybuild {destdir} -- --name {python_pkg_name}"
+        )
+
 
 @dhp.override
 def dh_auto_configure(build: Build):

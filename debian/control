@@ -38,6 +38,13 @@ Build-Depends:
  librust-md-5-dev (>= 0.11),
  librust-sha1-dev (>= 0.11),
  librust-sha2-dev (>= 0.11),
+ librust-sqlx-dev (>= 0.9),
+ librust-sqlx+runtime-tokio-dev (>= 0.9),
+ librust-sqlx+sqlite-dev (>= 0.9),
+ librust-sqlx+macros-dev (>= 0.9),
+ librust-sqlx+migrate-dev (>= 0.9),
+ libsqlite3-dev,
+ pkg-config,
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2

@@ -1,10 +1,9 @@
-use std::env;
 use std::process::ExitCode;
 
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
-use crate::cli::{BuildTarget, Cli, Commands, ConfigCommands, UpstreamCommands};
+use crate::cli::{BuildTarget, Cli, Commands, ConfigCommands, EnvCommands, UpstreamCommands};
 
 pub mod build;
 pub mod build_intent;
@@ -13,7 +12,10 @@ pub mod changes;
 pub mod cli;
 pub mod config;
 pub mod control;
+pub mod data_dir;
 pub mod driver;
+pub mod env;
+pub mod environment;
 pub mod output;
 pub mod package;
 pub mod requests;
@@ -42,7 +44,7 @@ async fn run() -> anyhow::Result<ExitCode> {
     let cli = Cli::parse();
     output::init_color(cli.color);
 
-    let current_dir = env::current_dir()?;
+    let current_dir = std::env::current_dir()?;
     match &cli.command {
         Commands::Build(args) => {
             let (build_args, debug_symbols, kind, include_orig, run_test) = match &args.target {
@@ -81,7 +83,6 @@ async fn run() -> anyhow::Result<ExitCode> {
                     clean: build_args.clean,
                     source_sync: build_args.source_sync,
                     host_arch_variant: build_args.host_arch_variant.clone(),
-                    shell_on_failure: build_args.shell_on_failure,
                     driver_overrides: build_args.driver_overrides(),
                 },
                 distro: build_args.distro.clone(),
@@ -92,13 +93,41 @@ async fn run() -> anyhow::Result<ExitCode> {
             })
             .await?;
         }
-        Commands::Shell(args) => {
-            build::shell(
-                &current_dir,
-                args.common.source_dir.as_deref(),
-                cli.config.as_deref(),
-            )?;
-        }
+        Commands::Environment(args) => match &args.command {
+            EnvCommands::List => {
+                let config = config::Config::load(None, cli.config.as_deref())?;
+                env::list_environments(&config).await?;
+            }
+            EnvCommands::Clean => {
+                let config = config::Config::load(None, cli.config.as_deref())?;
+                env::clean_environments(&config).await?;
+            }
+            EnvCommands::Rm { ids, force } => {
+                let config = config::Config::load(None, cli.config.as_deref())?;
+                env::remove_environments(&config, ids, *force).await?;
+            }
+            EnvCommands::Shell { id, common } => {
+                if let Some(id) = id {
+                    let config = config::Config::load(None, cli.config.as_deref())?;
+                    env::shell_environment(&config, &current_dir, Some(id)).await?;
+                } else {
+                    let source_dir = common.source_dir.as_deref().unwrap_or(&current_dir);
+                    let source_dir = match env::resolve_shell_source_dir(
+                        Some(source_dir),
+                        &current_dir,
+                    ) {
+                        Ok(dir) => dir,
+                        Err(_) => {
+                            anyhow::bail!(
+                                "not a Source tree; pass an Environment id (see `debmagic env list`)"
+                            );
+                        }
+                    };
+                    let config = config::Config::load(Some(&source_dir), cli.config.as_deref())?;
+                    env::shell_environment(&config, &source_dir, None).await?;
+                }
+            }
+        },
         Commands::Test(args) => {
             let intent = test::resolve_test_intent(test::TestIntentInput {
                 fallback_dir: current_dir.clone(),
@@ -109,12 +138,13 @@ async fn run() -> anyhow::Result<ExitCode> {
                 strict: args.strict,
                 changes: args.changes.clone(),
                 allow_host_test: args.allow_host_test,
-                shell_on_failure: args.shell_on_failure,
                 distro: args.distro.clone(),
                 driver_overrides: args.driver_overrides(),
             })?;
 
-            let outcome = test::run_test(&intent).context("running tests failed")?;
+            let outcome = test::run_test(&intent)
+                .await
+                .context("running tests failed")?;
             return Ok(match outcome {
                 test::TestOutcome::Passed => ExitCode::SUCCESS,
                 test::TestOutcome::Failed => ExitCode::from(1),

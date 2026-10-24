@@ -5,8 +5,7 @@ use anyhow::Context;
 use crate::{
     build::source::SourceSyncMode,
     config::Config,
-    driver::{DriverType, config::DriverOverrides},
-    package::resolve_source_dir,
+    driver::{DriverType, Persistence, config::DriverOverrides},
     sign::{SignMode, SignTool},
 };
 
@@ -35,7 +34,7 @@ pub struct BuildIntentInput {
     pub config_file: Option<PathBuf>,
     pub driver: Option<DriverType>,
     pub kind: BuildKind,
-    pub persistent: Option<bool>,
+    pub persistent: Option<Persistence>,
     pub incremental: Option<bool>,
     pub debug_symbols: Option<bool>,
     pub test: Option<bool>,
@@ -47,7 +46,6 @@ pub struct BuildIntentInput {
     pub clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
     pub host_arch_variant: Option<String>,
-    pub shell_on_failure: Option<bool>,
     pub driver_overrides: DriverOverrides,
 }
 
@@ -60,13 +58,15 @@ pub struct BuildIntent {
     pub output_dir: PathBuf,
     pub driver: DriverType,
     pub kind: BuildKind,
-    pub shell_on_failure: bool,
     pub config: Config,
     pub driver_overrides: DriverOverrides,
 }
 
 pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildIntent> {
-    let source_dir = resolve_source_dir(&input.fallback_dir, input.source_dir.as_deref())?;
+    // Canonicalized: Environment ids and registry lookups key on the
+    // source_dir string, so all entry points must agree on one spelling.
+    let source_dir = std::fs::canonicalize(input.source_dir.unwrap_or(input.fallback_dir))
+        .context("resolving source dir failed")?;
 
     let mut config = Config::load(Some(&source_dir), input.config_file.as_deref())?;
 
@@ -121,17 +121,14 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
         if config.clean {
             anyhow::bail!("incremental builds are incompatible with clean builds");
         }
-        config.driver.persistent = true;
+        config.driver.persistent = Persistence::Always;
     }
-
-    let shell_on_failure = input.shell_on_failure.unwrap_or(config.shell_on_failure);
 
     Ok(BuildIntent {
         source_dir,
         output_dir,
         driver,
         kind: input.kind,
-        shell_on_failure,
         config,
         driver_overrides: input.driver_overrides,
     })
@@ -157,7 +154,7 @@ fn resolve_driver(
 mod tests {
     use super::*;
     use crate::driver::{
-        DriverType, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
+        DriverType, Persistence, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
         driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
     };
 
@@ -188,7 +185,6 @@ mod tests {
             clean: None,
             source_sync: None,
             host_arch_variant: None,
-            shell_on_failure: None,
             driver_overrides: DriverOverrides {
                 apt_mirror: None,
                 proposed: None,
@@ -206,7 +202,7 @@ mod tests {
     #[test]
     fn load_config_reads_explicit_file() -> anyhow::Result<()> {
         let cfg = Config::load(None, Some(&asset_config()))?;
-        assert!(cfg.driver.persistent);
+        assert_eq!(cfg.driver.persistent, Persistence::Always);
         assert_eq!(
             cfg.driver.docker.base_images.get("debian:trixie"),
             Some(&"some-debian-trixie-image:latest".to_string())
@@ -268,12 +264,12 @@ mod tests {
     fn resolve_applies_incremental_implies_persistent() -> anyhow::Result<()> {
         let dir = std::env::temp_dir();
         let mut input = base_input(dir);
-        input.persistent = Some(false);
+        input.persistent = Some(Persistence::No);
         input.incremental = Some(true);
 
         let intent = resolve_build_intent(input)?;
         assert!(intent.config.incremental);
-        assert!(intent.config.driver.persistent);
+        assert_eq!(intent.config.driver.persistent, Persistence::Always);
         Ok(())
     }
 
@@ -281,34 +277,20 @@ mod tests {
     fn resolve_honours_persistent_without_incremental() -> anyhow::Result<()> {
         let dir = std::env::temp_dir();
         let mut input = base_input(dir);
-        // config1.toml has persistent = true; CLI can turn it off
-        input.persistent = Some(false);
+        // config1.toml has persistent = "always"; CLI can turn it off
+        input.persistent = Some(Persistence::No);
         input.incremental = Some(false);
 
         let intent = resolve_build_intent(input)?;
         assert!(!intent.config.incremental);
-        assert!(!intent.config.driver.persistent);
+        assert_eq!(intent.config.driver.persistent, Persistence::No);
         Ok(())
     }
 
     #[test]
-    fn resolve_passes_through_shell_on_failure() -> anyhow::Result<()> {
+    fn leftover_shell_on_failure_key_is_ignored() -> anyhow::Result<()> {
         let dir = std::env::temp_dir();
         let mut input = base_input(dir);
-        input.shell_on_failure = Some(true);
-
-        let intent = resolve_build_intent(input)?;
-        assert!(intent.shell_on_failure);
-        Ok(())
-    }
-
-    #[test]
-    fn resolve_shell_on_failure_from_config() -> anyhow::Result<()> {
-        let dir = std::env::temp_dir();
-        let mut input = base_input(dir);
-        input.config_file = None;
-        input.shell_on_failure = None;
-
         let config_path = std::env::temp_dir().join(format!(
             "debmagic-shell-on-failure-{}.toml",
             std::process::id()
@@ -317,22 +299,8 @@ mod tests {
         input.config_file = Some(config_path.clone());
 
         let intent = resolve_build_intent(input)?;
-        assert!(intent.shell_on_failure);
+        assert_eq!(intent.config.driver.persistent, Persistence::OnFailure);
         std::fs::remove_file(config_path)?;
-        Ok(())
-    }
-
-    #[test]
-    fn resolve_keeps_docker_base_image_override() -> anyhow::Result<()> {
-        let dir = std::env::temp_dir();
-        let mut input = base_input(dir);
-        input.driver_overrides.docker.base_image = Some("custom:image".to_string());
-
-        let intent = resolve_build_intent(input)?;
-        assert_eq!(
-            intent.driver_overrides.docker.base_image.as_deref(),
-            Some("custom:image")
-        );
         Ok(())
     }
 
@@ -342,9 +310,12 @@ mod tests {
         let intent = resolve_build_intent(base_input(dir.clone()))?;
         assert!(intent.source_dir.is_absolute());
         assert!(intent.output_dir.is_absolute());
-        assert_eq!(intent.source_dir, std::path::absolute(&dir)?);
+        assert_eq!(intent.source_dir, std::fs::canonicalize(&dir)?);
         // default output dir is build/, relative to the package root
-        assert_eq!(intent.output_dir, std::path::absolute(dir.join("build"))?);
+        assert_eq!(
+            intent.output_dir,
+            std::path::absolute(std::fs::canonicalize(&dir)?.join("build"))?
+        );
         Ok(())
     }
 

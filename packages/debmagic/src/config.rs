@@ -6,7 +6,7 @@ use crate::driver::config::DriverConfig;
 use crate::sign::{SignMode, SignTool};
 use crate::upload::UploadConfig;
 use crate::upstream::orig::OrigTarballConfig;
-use anyhow::{Context, anyhow};
+use anyhow::{Context, anyhow, bail};
 use config::{Config as ConfigBuilder, File};
 use serde::{Deserialize, Serialize};
 
@@ -224,7 +224,8 @@ pub fn run_config(command: ConfigCommand) -> anyhow::Result<()> {
 #[serde(default)]
 pub struct Config {
     pub driver: DriverConfig,
-    pub temp_build_dir: PathBuf,
+    /// Parent directory of Environment Host roots.
+    pub environments_dir: PathBuf,
     /// Where build artifacts are exported; relative paths resolve against
     /// the package root.
     pub output_dir: PathBuf,
@@ -249,9 +250,6 @@ pub struct Config {
     /// builds already stage a clean source tree and incremental builds preserve
     /// outputs intentionally.
     pub clean: bool,
-    /// On build or test failure, drop into an interactive shell in the
-    /// environment when stdout is a TTY.
-    pub shell_on_failure: bool,
     /// Build for a dpkg architecture variant (e.g. `amd64v3` on Ubuntu),
     /// exported as `DEB_HOST_ARCH_VARIANT` for the build.
     pub host_arch_variant: Option<String>,
@@ -305,7 +303,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             driver: DriverConfig::default(),
-            temp_build_dir: PathBuf::from("/tmp/debmagic"),
+            environments_dir: crate::data_dir::default_environments_dir(),
             output_dir: PathBuf::from("build"),
             incremental: false,
             source_sync_mode: SourceSyncMode::default(),
@@ -316,7 +314,6 @@ impl Default for Config {
             orig_tarball: OrigTarballConfig::default(),
             upstream: UpstreamConfig::default(),
             clean: false,
-            shell_on_failure: false,
             host_arch_variant: None,
         }
     }
@@ -381,11 +378,11 @@ impl Config {
         let build = builder
             .build()
             .context("Failed to initialize config reader")?;
-        let config: anyhow::Result<Self> = build
+        let mut config: Self = build
             .try_deserialize()
-            .map_err(|e| anyhow!("Failed to read config: {e}"));
-
-        config
+            .map_err(|e| anyhow!("Failed to read config: {e}"))?;
+        config.environments_dir = resolve_environments_dir(&config.environments_dir)?;
+        Ok(config)
     }
 
     /// Look up a dotted key (e.g. `sign.key`) in the serialized config,
@@ -413,10 +410,43 @@ impl Config {
     }
 }
 
+/// Host roots are stored in the Environment registry and used from any
+/// working directory later, so `environments_dir` must not depend on the cwd.
+/// Config layers are merged before this point, so there is no single file to
+/// resolve a relative value against: only `~/` is expanded.
+fn resolve_environments_dir(dir: &Path) -> anyhow::Result<PathBuf> {
+    if let Ok(rest) = dir.strip_prefix("~") {
+        let home = dirs::home_dir().context("cannot expand ~ in environments_dir")?;
+        return Ok(home.join(rest));
+    }
+    if !dir.is_absolute() {
+        bail!(
+            "environments_dir must be an absolute path (or start with ~/), got {}",
+            dir.display()
+        );
+    }
+    Ok(dir.to_path_buf())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::driver::DriverType;
+
+    #[test]
+    fn environments_dir_must_not_depend_on_the_cwd() -> anyhow::Result<()> {
+        assert_eq!(
+            resolve_environments_dir(Path::new("/var/debmagic"))?,
+            PathBuf::from("/var/debmagic")
+        );
+        let home = dirs::home_dir().unwrap();
+        assert_eq!(
+            resolve_environments_dir(Path::new("~/envs"))?,
+            home.join("envs")
+        );
+        assert!(resolve_environments_dir(Path::new("envs")).is_err());
+        Ok(())
+    }
 
     #[test]
     fn it_loads_a_simple_config() -> Result<(), anyhow::Error> {
@@ -429,7 +459,7 @@ mod tests {
             ConfigPathStatus::Used,
         )])?;
         assert_eq!(cfg.driver.default, Some(DriverType::Docker));
-        assert!(cfg.driver.persistent);
+        assert_eq!(cfg.driver.persistent, crate::driver::Persistence::Always);
 
         assert!(
             cfg.driver.docker.base_images.get("debian:trixie")

@@ -10,6 +10,7 @@ use super::diagnostic::Diagnostic;
 use super::dsc::Dsc;
 use super::file_tree::{Entry, FileTree};
 use super::file_type::FileType;
+use super::installation_control::InstallationControl;
 use super::rule::{BinaryPackageRule, SourceRule};
 use super::run::format_diagnostic;
 
@@ -286,6 +287,8 @@ impl SourceTreeTester {
 pub struct BinaryPackageCase {
     files: TestCase,
     package: String,
+    fields: Vec<(String, String)>,
+    udeb: bool,
 }
 
 impl BinaryPackageCase {
@@ -294,13 +297,31 @@ impl BinaryPackageCase {
         self
     }
 
+    /// Set an Installation control field (the package name is `package`).
+    pub fn field(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
+        self.fields.push((name.into(), value.into()));
+        self
+    }
+
+    /// Make the Binary package a udeb.
+    pub fn udeb(mut self) -> Self {
+        self.udeb = true;
+        self
+    }
+
     fn describe(&self) -> String {
         let files = self.files.describe();
-        if self.package == "example" {
-            files
-        } else {
-            format!("package {}: {files}", self.package)
+        let mut prefix = String::new();
+        if self.package != "example" {
+            prefix.push_str(&format!("package {}: ", self.package));
         }
+        if self.udeb {
+            prefix.push_str("udeb: ");
+        }
+        for (name, value) in &self.fields {
+            prefix.push_str(&format!("{name}={value:?}: "));
+        }
+        format!("{prefix}{files}")
     }
 }
 
@@ -309,6 +330,8 @@ impl From<TestCase> for BinaryPackageCase {
         Self {
             files,
             package: "example".to_string(),
+            fields: Vec::new(),
+            udeb: false,
         }
     }
 }
@@ -421,9 +444,16 @@ impl BinaryPackageTester {
     }
 
     fn run(&mut self, case: &BinaryPackageCase) -> TestResult {
+        let mut fields = vec![("Package".to_string(), case.package.clone())];
+        fields.extend(case.fields.iter().cloned());
         let data = BinaryPackageData::with_data_files(
-            PathBuf::from("example.deb"),
+            PathBuf::from(if case.udeb {
+                "example.udeb"
+            } else {
+                "example.deb"
+            }),
             case.package.clone(),
+            InstallationControl::from_fields(fields),
             case.files.file_tree(),
         );
         let mut ctx = BinaryPackageContext::bind(&data, self.rule.as_ref());

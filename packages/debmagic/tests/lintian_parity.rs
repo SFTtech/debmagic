@@ -24,8 +24,19 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/debug-symbols/legacy-libbaz",
     "checks/fields/required/fields-general-missing",
     "checks/fields/required/generic-empty",
+    "checks/files/empty-package/cruft-source-is-missing-unrel",
+    "checks/files/empty-package/files-empty",
+    "checks/files/empty-package/legacy-binary",
+    "checks/files/empty-package/legacy-foo++",
     "checks/files/symbolic-links/broken/legacy-filenames",
     "checks/files/symbolic-links/broken/symlinks-unsafe",
+    "general-false-positives/basic-native-1.0",
+    "general-false-positives/basic-native-3.0",
+    "general-false-positives/basic-native-3.0-with-epoch",
+    "general-false-positives/basic-non-native-1.0",
+    "general-false-positives/basic-non-native-3.0",
+    "general-false-positives/basic-non-native-3.0-purge-debian",
+    "general-false-positives/basic-non-native-3.0-with-epoch",
 ];
 
 const SOURCE_PACKAGE_RECIPES: &[&str] = &[
@@ -82,8 +93,19 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/debug-symbols/legacy-libbaz"; "checks_binaries_debug_symbols_legacy_libbaz")]
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/files/empty-package/cruft-source-is-missing-unrel"; "checks_files_empty_package_cruft_source_is_missing_unrel")]
+#[test_case("checks/files/empty-package/files-empty"; "checks_files_empty_package_files_empty")]
+#[test_case("checks/files/empty-package/legacy-binary"; "checks_files_empty_package_legacy_binary")]
+#[test_case("checks/files/empty-package/legacy-foo++"; "checks_files_empty_package_legacy_foo_")]
 #[test_case("checks/files/symbolic-links/broken/legacy-filenames"; "checks_files_symbolic_links_broken_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/symlinks-unsafe"; "checks_files_symbolic_links_broken_symlinks_unsafe")]
+#[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
+#[test_case("general-false-positives/basic-native-3.0"; "general_false_positives_basic_native_3_0")]
+#[test_case("general-false-positives/basic-native-3.0-with-epoch"; "general_false_positives_basic_native_3_0_with_epoch")]
+#[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
+#[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
+#[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]
+#[test_case("general-false-positives/basic-non-native-3.0-with-epoch"; "general_false_positives_basic_non_native_3_0_with_epoch")]
 fn lintian_parity_binary_package(recipe: &str) {
     common::assert_binary_package_parity(recipe);
 }

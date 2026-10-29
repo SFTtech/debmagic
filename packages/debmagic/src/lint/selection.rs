@@ -161,6 +161,10 @@ mod tests {
         assert!(selected.contains(&crate::lint::rules::CustomCompressionInDebianRules::CODE));
         assert!(selected.contains(&crate::lint::rules::DebianRulesIgnoresMakeCleanError::CODE));
         assert!(selected.contains(&crate::lint::rules::NationalEncoding::CODE));
+        assert!(
+            selected
+                .contains(&crate::lint::rules::PackageUsesDeprecatedDebhelperCompatVersion::CODE)
+        );
         assert!(selected.iter().all(|code| code.prefix() == "LN"));
         Ok(())
     }

@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 use anyhow::anyhow;
 
 use super::binary_package_reader::BinaryPackageReader;
+use super::debhelper::DebhelperFacts;
 use super::debian_changelog::DebianChangelog;
 use super::debian_control::DebianControl;
 use super::debian_copyright::DebianCopyright;
@@ -423,6 +424,14 @@ impl<'a> SourceContext<'a> {
             SourceInner::Tree(data) => &data.root,
             SourceInner::Package(data) => &data.path,
         }
+    }
+
+    /// Debhelper compat level and whether `debian/rules` invokes dh.
+    /// `None` after a global File type failure (returned from [`Self::finish`]).
+    pub fn debhelper(&mut self) -> Option<DebhelperFacts> {
+        let control = self.debian_control().cloned();
+        let files = self.files()?;
+        Some(DebhelperFacts::from_tree(control.as_ref(), files))
     }
 
     /// Structured `debian/control` of the packaging tree (Source tree, or

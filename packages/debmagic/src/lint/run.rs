@@ -28,19 +28,28 @@ pub struct LintResult {
     pub outcome: LintOutcome,
     pub rules: usize,
     pub elapsed: Duration,
-    /// Worker threads that ran Rules: at most the requested count, and never
-    /// more than the number of Rules run.
+    /// Size of the thread pool the run used, for running Rules and for
+    /// walking and classifying files.
     pub threads: usize,
 }
 
 pub fn run_lint(intent: &LintIntent) -> anyhow::Result<LintResult> {
     let started = Instant::now();
-    let mut result = match &intent.subject {
-        Subject::SourcePackage(path) => run_source_package_lint(intent, path)?,
-        Subject::BinaryPackage(path) => run_binary_package_lint(intent, path)?,
-        Subject::SourceTree(path) => run_source_tree_lint(intent, path)?,
-    };
+    let threads = worker_threads(intent.threads);
+    // The whole run happens inside this pool, so everything that
+    // parallelizes (Rules, file classification) follows `--threads`.
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(threads)
+        .thread_name(|index| format!("debmagic-lint-{index}"))
+        .build()
+        .context("starting the lint thread pool failed")?;
+    let mut result = pool.install(|| match &intent.subject {
+        Subject::SourcePackage(path) => run_source_package_lint(intent, path),
+        Subject::BinaryPackage(path) => run_binary_package_lint(intent, path),
+        Subject::SourceTree(path) => run_source_tree_lint(intent, path),
+    })?;
     result.elapsed = started.elapsed();
+    result.threads = threads;
     Ok(result)
 }
 
@@ -79,17 +88,17 @@ fn run_source_tree_lint(intent: &LintIntent, source_tree: &Path) -> anyhow::Resu
     })
 }
 
-/// Worker threads to use for `rule_count` Rules: the requested count, or the
-/// machine's available parallelism, capped by the Rule count and at least 1.
-fn worker_threads(requested: Option<usize>, rule_count: usize) -> usize {
-    let wanted = requested
+/// Worker threads for a run: the requested count (0 counts as unset), or the
+/// machine's available parallelism. At least 1.
+fn worker_threads(requested: Option<usize>) -> usize {
+    requested
         .filter(|&threads| threads > 0)
         .or_else(|| std::thread::available_parallelism().ok().map(Into::into))
-        .unwrap_or(1);
-    wanted.min(rule_count).max(1)
+        .unwrap_or(1)
 }
 
-/// Run every selected Rule. Rules are independent, so they run in parallel;
+/// Run every selected Rule on the current rayon pool. Rules are independent, so
+/// they run in parallel;
 /// diagnostics are collected in Rule order, so output does not depend on the
 /// thread count. If several Rules fail, the first in Rule order is reported.
 fn execute_rules<R: RuleAccess + ?Sized>(
@@ -109,7 +118,6 @@ fn execute_rules<R: RuleAccess + ?Sized>(
     }
 
     let rules_run = execution.len();
-    let threads = worker_threads(intent.threads, rules_run);
 
     let run_one = |rule: &&R| -> anyhow::Result<Vec<Diagnostic>> {
         let mut rule_diagnostics = run_rule(rule)?;
@@ -117,16 +125,8 @@ fn execute_rules<R: RuleAccess + ?Sized>(
         Ok(rule_diagnostics)
     };
 
-    let per_rule: Vec<anyhow::Result<Vec<Diagnostic>>> = if threads == 1 {
-        execution.iter().map(run_one).collect()
-    } else {
-        let pool = rayon::ThreadPoolBuilder::new()
-            .num_threads(threads)
-            .thread_name(|index| format!("debmagic-lint-{index}"))
-            .build()
-            .context("starting the lint thread pool failed")?;
-        pool.install(|| execution.par_iter().map(run_one).collect())
-    };
+    let per_rule: Vec<anyhow::Result<Vec<Diagnostic>>> =
+        execution.par_iter().map(run_one).collect();
 
     let mut diagnostics = Vec::new();
     for rule_diagnostics in per_rule {
@@ -139,7 +139,7 @@ fn execute_rules<R: RuleAccess + ?Sized>(
         outcome,
         rules: rules_run,
         elapsed: Duration::ZERO,
-        threads,
+        threads: 0,
     })
 }
 
@@ -403,7 +403,7 @@ mod tests {
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
-            threads: None,
+            threads: Some(1),
         };
         let result = run_lint(&intent)?;
         assert!(result.diagnostics.is_empty(), "{:?}", result.diagnostics);
@@ -417,12 +417,11 @@ mod tests {
     }
 
     #[test]
-    fn worker_threads_is_capped_by_rule_count_and_at_least_one() {
-        assert_eq!(worker_threads(Some(8), 3), 3);
-        assert_eq!(worker_threads(Some(2), 10), 2);
-        assert_eq!(worker_threads(Some(0), 1), 1);
-        assert_eq!(worker_threads(Some(4), 0), 1);
-        assert!(worker_threads(None, 1000) >= 1);
+    fn worker_threads_uses_request_or_available_parallelism() {
+        assert_eq!(worker_threads(Some(8)), 8);
+        assert_eq!(worker_threads(Some(1)), 1);
+        assert!(worker_threads(Some(0)) >= 1);
+        assert!(worker_threads(None) >= 1);
     }
 
     #[test]
@@ -455,10 +454,7 @@ mod tests {
                 threads,
             };
             let result = run_lint(&intent)?;
-            assert_eq!(
-                result.threads,
-                threads.unwrap_or(result.threads).min(result.rules).max(1)
-            );
+            assert_eq!(result.threads, worker_threads(threads));
             Ok(result.diagnostics.iter().map(format_diagnostic).collect())
         };
 

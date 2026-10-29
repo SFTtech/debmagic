@@ -9,8 +9,9 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::file_tree::{EntryKind, FileTree};
 use crate::lint::rule::SourceRule;
+
+use super::debian_rules::{complete_lines, read_rules_from_tree};
 
 pub struct DebianRulesMissingRequiredTarget;
 
@@ -66,16 +67,6 @@ fn read_rules(path: &Path) -> Option<String> {
         return None;
     }
     let bytes = std::fs::read(path).ok()?;
-    String::from_utf8(bytes).ok()
-}
-
-fn read_rules_from_tree(files: &FileTree) -> Option<String> {
-    let entry = files.get("debian/rules")?;
-    match entry.kind() {
-        EntryKind::RegularFile | EntryKind::Hardlink | EntryKind::Symlink => {}
-        EntryKind::Directory => return None,
-    }
-    let bytes = files.read(entry).ok()?;
     String::from_utf8(bytes).ok()
 }
 
@@ -171,29 +162,6 @@ const KNOWN_MAKEFILES: &[(&str, &[&str])] = &[
     ),
 ];
 
-fn complete_lines(contents: &str) -> Vec<String> {
-    let mut lines = Vec::new();
-    let mut continued = String::new();
-    for line in contents.split('\n') {
-        if COMMENT.is_match(line) {
-            continue;
-        }
-        let line = if continued.is_empty() {
-            line.to_string()
-        } else {
-            let mut joined = std::mem::take(&mut continued);
-            joined.push_str(line);
-            joined
-        };
-        if let Some(stripped) = line.strip_suffix('\\') {
-            continued = stripped.to_string();
-            continue;
-        }
-        lines.push(line);
-    }
-    lines
-}
-
 fn include_makefile(line: &str) -> Option<&str> {
     INCLUDE
         .captures(line)
@@ -283,7 +251,6 @@ fn variable_ref(target: &str) -> Option<&str> {
         .map(|name| name.as_str())
 }
 
-static COMMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^\s*#").expect("regex"));
 static INCLUDE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^\s*[s-]?include\s+(\S+)").expect("regex"));
 static ASSIGNMENT: LazyLock<Regex> =

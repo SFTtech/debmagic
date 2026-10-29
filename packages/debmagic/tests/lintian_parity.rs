@@ -28,11 +28,15 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
     "checks/debian/copyright/dep5/wildcard-out-of-order",
+    "checks/debian/rules/control-file-rules-requires-root-binary-targets",
+    "checks/debian/rules/control-file-rules-requires-root-no",
+    "checks/debian/rules/debhelper-compat-old",
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
     "checks/debian/rules/legacy-etcfiles",
     "checks/debian/rules/rules-missing-targets",
     "checks/debian/rules/rules-missing-targets-with-known-includes",
+    "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/substvars/cruft-general-diff",
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
@@ -107,11 +111,15 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
     "checks/debian/copyright/dep5/wildcard-out-of-order",
+    "checks/debian/rules/control-file-rules-requires-root-binary-targets",
+    "checks/debian/rules/control-file-rules-requires-root-no",
+    "checks/debian/rules/debhelper-compat-old",
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
     "checks/debian/rules/legacy-etcfiles",
     "checks/debian/rules/rules-missing-targets",
     "checks/debian/rules/rules-missing-targets-with-known-includes",
+    "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/substvars/cruft-general-diff",
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
@@ -166,11 +174,15 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
 #[test_case("checks/debian/copyright/dep5/wildcard-out-of-order"; "checks_debian_copyright_dep5_wildcard_out_of_order")]
+#[test_case("checks/debian/rules/control-file-rules-requires-root-binary-targets"; "checks_debian_rules_control_file_rules_requires_root_binary_targets")]
+#[test_case("checks/debian/rules/control-file-rules-requires-root-no"; "checks_debian_rules_control_file_rules_requires_root_no")]
+#[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
 #[test_case("checks/debian/rules/legacy-etcfiles"; "checks_debian_rules_legacy_etcfiles")]
 #[test_case("checks/debian/rules/rules-missing-targets"; "checks_debian_rules_rules_missing_targets")]
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
+#[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
@@ -247,11 +259,15 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
 #[test_case("checks/debian/copyright/dep5/wildcard-out-of-order"; "checks_debian_copyright_dep5_wildcard_out_of_order")]
+#[test_case("checks/debian/rules/control-file-rules-requires-root-binary-targets"; "checks_debian_rules_control_file_rules_requires_root_binary_targets")]
+#[test_case("checks/debian/rules/control-file-rules-requires-root-no"; "checks_debian_rules_control_file_rules_requires_root_no")]
+#[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
 #[test_case("checks/debian/rules/legacy-etcfiles"; "checks_debian_rules_legacy_etcfiles")]
 #[test_case("checks/debian/rules/rules-missing-targets"; "checks_debian_rules_rules_missing_targets")]
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
+#[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]

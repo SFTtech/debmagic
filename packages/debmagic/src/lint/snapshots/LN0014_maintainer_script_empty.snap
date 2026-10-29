@@ -1,0 +1,23 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [preinst]
+W: example (binary): maintainer-script-empty (LN0014) [prerm]
+W: example (binary): maintainer-script-empty (LN0014) [postrm]
+W: example (binary): maintainer-script-empty (LN0014) [config]
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [my-postinst]
+W: example (binary): maintainer-script-empty (LN0014) [config.sh]
+W: example (binary): maintainer-script-empty (LN0014) [postinst]
+W: example (binary): maintainer-script-empty (LN0014) [postrm]
+W: example (binary): maintainer-script-empty (LN0014) [preinst]
+W: example (binary): maintainer-script-empty (LN0014) [prerm]

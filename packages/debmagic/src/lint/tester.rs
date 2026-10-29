@@ -286,6 +286,7 @@ impl SourceTreeTester {
 #[derive(Clone, Debug)]
 pub struct BinaryPackageCase {
     files: TestCase,
+    control_files: TestCase,
     package: String,
     fields: Vec<(String, String)>,
     udeb: bool,
@@ -300,6 +301,13 @@ impl BinaryPackageCase {
     /// Set an Installation control field (the package name is `package`).
     pub fn field(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
         self.fields.push((name.into(), value.into()));
+        self
+    }
+
+    /// Add a Control file (`postinst`, `md5sums`, ...) with `file`'s content.
+    /// Every case has Control files, empty unless set.
+    pub fn control_file(mut self, name: impl Into<String>, file: impl Into<TestFile>) -> Self {
+        self.control_files.files.insert(name.into(), file.into());
         self
     }
 
@@ -321,6 +329,9 @@ impl BinaryPackageCase {
         for (name, value) in &self.fields {
             prefix.push_str(&format!("{name}={value:?}: "));
         }
+        for (name, file) in &self.control_files.files {
+            prefix.push_str(&format!("control {name}={file:?}: "));
+        }
         format!("{prefix}{files}")
     }
 }
@@ -329,6 +340,7 @@ impl From<TestCase> for BinaryPackageCase {
     fn from(files: TestCase) -> Self {
         Self {
             files,
+            control_files: TestCase::default(),
             package: "example".to_string(),
             fields: Vec::new(),
             udeb: false,
@@ -455,7 +467,8 @@ impl BinaryPackageTester {
             case.package.clone(),
             InstallationControl::from_fields(fields),
             case.files.file_tree(),
-        );
+        )
+        .with_control_files(case.control_files.file_tree());
         let mut ctx = BinaryPackageContext::bind(&data, self.rule.as_ref());
         self.rule.run(&mut ctx);
         let diagnostics = ctx

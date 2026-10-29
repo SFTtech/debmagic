@@ -546,6 +546,7 @@ mod tests {
                 crate::lint::rules::FileInUnusualDir::CODE,
                 crate::lint::rules::NoChangelog::CODE,
                 crate::lint::rules::DebianChangelogFileMissingOrWrongName::CODE,
+                crate::lint::rules::MaintainerScriptEmpty::CODE,
             ]
         );
         let intent = LintIntent {

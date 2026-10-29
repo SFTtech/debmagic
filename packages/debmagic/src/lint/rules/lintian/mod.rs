@@ -17,6 +17,7 @@ mod ln0014_maintainer_script_empty;
 mod ln0015_source_contains_debian_substvars;
 mod ln0016_custom_compression_in_debian_rules;
 mod ln0017_debian_rules_ignores_make_clean_error;
+mod ln0018_national_encoding;
 
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
@@ -35,3 +36,4 @@ pub(crate) use ln0014_maintainer_script_empty::MaintainerScriptEmpty;
 pub(crate) use ln0015_source_contains_debian_substvars::SourceContainsDebianSubstvars;
 pub(crate) use ln0016_custom_compression_in_debian_rules::CustomCompressionInDebianRules;
 pub(crate) use ln0017_debian_rules_ignores_make_clean_error::DebianRulesIgnoresMakeCleanError;
+pub(crate) use ln0018_national_encoding::NationalEncoding;

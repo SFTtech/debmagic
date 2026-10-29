@@ -747,6 +747,7 @@ mod tests {
                 crate::lint::rules::NationalEncoding::CODE,
                 crate::lint::rules::PackageUsesDeprecatedDebhelperCompatVersion::CODE,
                 crate::lint::rules::UsesDebhelperCompatFile::CODE,
+                crate::lint::rules::NoHumanMaintainers::CODE,
             ]
         );
         let intent = LintIntent {

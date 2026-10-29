@@ -2,17 +2,21 @@ use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
     ChangelogFileNotCompressed, CustomCompressionInDebianRules, DebianChangelogFileIsASymlink,
     DebianChangelogFileMissingOrWrongName, DebianRulesIgnoresMakeCleanError,
-    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DirInUsrLocal, DirOrFileInEtcOpt,
+    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DescriptionIsPkgName,
+    DescriptionStartsWithPackageName, DescriptionSynopsisIsEmpty,
+    DescriptionSynopsisStartsWithArticle, DescriptionTooShort, DirInUsrLocal, DirOrFileInEtcOpt,
     DirOrFileInHome, DirOrFileInMnt, DirOrFileInOpt, DirOrFileInRun, DirOrFileInSrv,
     DirOrFileInTmp, DirOrFileInVarLock, DirOrFileInVarRun, DirOrFileInVarWww,
-    DmUploadAllowedIsObsolete, EmptyBinaryPackage, ExtendedDescriptionIsEmpty, FileInUnusualDir,
-    FileInUsrLocal, LatestDebianChangelogEntryWithoutNewDate, LengthySymlink,
-    MaintainerScriptEmpty, MalformedDmUploadAllowed, NationalEncoding, NoChangelog,
-    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, NonStandardToplevelDir,
-    PackageContainsUnsafeSymlink, PackageContainsVcsControlDir, PackageRelationWithSelf,
+    DmUploadAllowedIsObsolete, EmptyBinaryPackage, ExtendedDescriptionIsEmpty,
+    ExtendedDescriptionLineTooLong, FileDirectlyInUsrShare, FileInUnusualDir, FileInUsrLocal,
+    LatestDebianChangelogEntryWithoutNewDate, LengthySymlink, MaintainerScriptEmpty,
+    MalformedDmUploadAllowed, NationalEncoding, NoChangelog, NoCopyrightFile, NoDep5Copyright,
+    NoHumanMaintainers, NonStandardToplevelDir, PackageContainsUnsafeSymlink,
+    PackageContainsVcsControlDir, PackageRelationWithSelf,
     PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
-    SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SymlinkContainsSpuriousSegments,
-    SymlinkIsSelfRecursive, SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
+    SourceContainsPrebuiltWindowsBinary, SubdirInUsrBin, SuperfluousFilePattern,
+    SvnCommitFileInPackage, SymlinkContainsSpuriousSegments, SymlinkIsSelfRecursive,
+    SynopsisTooLong, SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
     UsesDebhelperCompatFile, VcsObsoleteInDebianInfrastructure, WrongPackageMailAlias,
 };
 
@@ -66,6 +70,16 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DirOrFileInEtcOpt,
         &DirInUsrLocal,
         &FileInUsrLocal,
+        &FileDirectlyInUsrShare,
+        &SubdirInUsrBin,
+        &DescriptionSynopsisIsEmpty,
+        &DescriptionStartsWithPackageName,
+        &DescriptionSynopsisStartsWithArticle,
+        &DescriptionTooShort,
+        &DescriptionIsPkgName,
+        &SynopsisTooLong,
+        &ExtendedDescriptionLineTooLong,
+        &SvnCommitFileInPackage,
     ]
 }
 
@@ -126,6 +140,16 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DirOrFileInEtcOpt,
         &DirInUsrLocal,
         &FileInUsrLocal,
+        &FileDirectlyInUsrShare,
+        &SubdirInUsrBin,
+        &DescriptionSynopsisIsEmpty,
+        &DescriptionStartsWithPackageName,
+        &DescriptionSynopsisStartsWithArticle,
+        &DescriptionTooShort,
+        &DescriptionIsPkgName,
+        &SynopsisTooLong,
+        &ExtendedDescriptionLineTooLong,
+        &SvnCommitFileInPackage,
     ]
 }
 
@@ -203,6 +227,16 @@ mod tests {
                 DirOrFileInEtcOpt::CODE,
                 DirInUsrLocal::CODE,
                 FileInUsrLocal::CODE,
+                FileDirectlyInUsrShare::CODE,
+                SubdirInUsrBin::CODE,
+                DescriptionSynopsisIsEmpty::CODE,
+                DescriptionStartsWithPackageName::CODE,
+                DescriptionSynopsisStartsWithArticle::CODE,
+                DescriptionTooShort::CODE,
+                DescriptionIsPkgName::CODE,
+                SynopsisTooLong::CODE,
+                ExtendedDescriptionLineTooLong::CODE,
+                SvnCommitFileInPackage::CODE,
             ]
         );
     }

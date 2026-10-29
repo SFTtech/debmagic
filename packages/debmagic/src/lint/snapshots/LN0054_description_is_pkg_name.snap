@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): description-is-pkg-name (LN0054) example
+E: example (binary): description-is-pkg-name (LN0054) Example
+E: example (binary): description-is-pkg-name (LN0054) EXAMPLE
+E: my-pkg (binary): description-is-pkg-name (LN0054) my/pkg
+E: my-pkg (binary): description-is-pkg-name (LN0054) my_pkg
+E: my-pkg (binary): description-is-pkg-name (LN0054) my   pkg

@@ -14,6 +14,19 @@ pub(crate) fn unfold(value: &str) -> String {
     FOLD.replace_all(value.trim(), " ").into_owned()
 }
 
+/// What follows `Name:` in a field's text: leading blanks of the first line and
+/// the final line break dropped, comment lines removed.
+fn untrimmed_from_text(text: &str) -> String {
+    let after_colon = text.split_once(':').map_or(text, |(_, rest)| rest);
+    let value = after_colon.trim_start_matches([' ', '\t']);
+    let value = value.strip_suffix('\n').unwrap_or(value);
+    value
+        .split('\n')
+        .filter(|line| !line.starts_with('#'))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 /// Parsed `debian/control`: first paragraph is source; later named paragraphs are
 /// installables. Matches lintian's `Lintian::Debian::Control`, not
 /// `debian_control::Control::source()` (which only finds a `Source:` field).
@@ -26,6 +39,9 @@ pub struct DebianControl {
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ControlParagraph {
     fields: Vec<(String, String)>,
+    /// Values as lintian's `untrimmed_value` reads them (continuation lines
+    /// keep their indentation). Empty for paragraphs built from plain values.
+    untrimmed: Vec<(String, String)>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -67,12 +83,21 @@ impl DebianControl {
         let mut paragraphs = control.as_deb822().paragraphs();
         let source = paragraphs
             .next()
-            .map(|paragraph| ControlParagraph::from_items(paragraph.items()))
+            .map(|paragraph| {
+                ControlParagraph::from_entries(
+                    paragraph
+                        .entries()
+                        .filter_map(|entry| Some((entry.key()?, entry.value(), entry.to_string()))),
+                )
+            })
             .unwrap_or_default();
 
         let installables = paragraphs
             .filter_map(|paragraph| {
-                let fields = ControlParagraph::from_items(paragraph.items());
+                let fields =
+                    ControlParagraph::from_entries(paragraph.entries().filter_map(|entry| {
+                        Some((entry.key()?, entry.value(), entry.to_string()))
+                    }));
                 let name = fields.get("Package")?;
                 if !is_installable_package_name(name) {
                     return None;
@@ -102,10 +127,37 @@ impl DebianControl {
 }
 
 impl ControlParagraph {
+    #[cfg(test)]
     pub(crate) fn from_items(items: impl IntoIterator<Item = (String, String)>) -> Self {
         Self {
             fields: items.into_iter().collect(),
+            untrimmed: Vec::new(),
         }
+    }
+
+    /// From `(name, value, entry text)`; the entry text is the field as
+    /// written, which is where the indentation of continuation lines lives.
+    pub(crate) fn from_entries(
+        entries: impl IntoIterator<Item = (String, String, String)>,
+    ) -> Self {
+        let mut fields = Vec::new();
+        let mut untrimmed = Vec::new();
+        for (name, value, text) in entries {
+            untrimmed.push((name.clone(), untrimmed_from_text(&text)));
+            fields.push((name, value));
+        }
+        Self { fields, untrimmed }
+    }
+
+    /// The value with continuation lines as written (a leading space and all),
+    /// comment lines dropped: lintian's `untrimmed_value`. Falls back to
+    /// [`Self::get`] when the paragraph was built from plain values.
+    pub fn untrimmed_value(&self, name: &str) -> Option<&str> {
+        self.untrimmed
+            .iter()
+            .find(|(key, _)| key.eq_ignore_ascii_case(name))
+            .map(|(_, value)| value.as_str())
+            .or_else(|| self.get(name))
     }
 
     #[cfg(test)]

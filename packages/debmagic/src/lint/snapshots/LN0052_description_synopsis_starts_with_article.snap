@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): description-synopsis-starts-with-article (LN0052)
+W: example (binary): description-synopsis-starts-with-article (LN0052)
+W: example (binary): description-synopsis-starts-with-article (LN0052)
+W: example (binary): description-synopsis-starts-with-article (LN0052)

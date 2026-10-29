@@ -1,6 +1,6 @@
-use std::cell::OnceCell;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 use anyhow::anyhow;
 
@@ -21,7 +21,7 @@ struct DiagnosticSink {
     code: Code,
     tag: Tag,
     processable_type: ProcessableType,
-    package: OnceCell<String>,
+    package: OnceLock<String>,
     diagnostics: Vec<Diagnostic>,
 }
 
@@ -31,7 +31,7 @@ impl DiagnosticSink {
             code: rule.code(),
             tag: rule.tag(),
             processable_type,
-            package: OnceCell::new(),
+            package: OnceLock::new(),
             diagnostics: Vec::new(),
         }
     }
@@ -62,29 +62,29 @@ impl DiagnosticSink {
 
 pub(crate) struct SourceTreeData {
     root: PathBuf,
-    debian_control: OnceCell<Option<DebianControl>>,
-    debian_changelog: OnceCell<Option<DebianChangelog>>,
-    file_tree: OnceCell<Result<FileTree, String>>,
+    debian_control: OnceLock<Option<DebianControl>>,
+    debian_changelog: OnceLock<Option<DebianChangelog>>,
+    file_tree: OnceLock<Result<FileTree, String>>,
 }
 
 impl SourceTreeData {
     pub fn new(root: PathBuf) -> Self {
         Self {
             root,
-            debian_control: OnceCell::new(),
-            debian_changelog: OnceCell::new(),
-            file_tree: OnceCell::new(),
+            debian_control: OnceLock::new(),
+            debian_changelog: OnceLock::new(),
+            file_tree: OnceLock::new(),
         }
     }
 
     #[cfg(test)]
     pub fn with_file_tree(root: PathBuf, file_tree: FileTree) -> Self {
-        let cell = OnceCell::new();
+        let cell = OnceLock::new();
         let _ = cell.set(Ok(file_tree));
         Self {
             root,
-            debian_control: OnceCell::new(),
-            debian_changelog: OnceCell::new(),
+            debian_control: OnceLock::new(),
+            debian_changelog: OnceLock::new(),
             file_tree: cell,
         }
     }
@@ -127,8 +127,8 @@ pub(crate) struct BinaryPackageData {
     package_name: String,
     reader: Option<BinaryPackageReader>,
     installation_control: InstallationControl,
-    data_files: OnceCell<Result<FileTree, String>>,
-    control_files: OnceCell<Result<FileTree, String>>,
+    data_files: OnceLock<Result<FileTree, String>>,
+    control_files: OnceLock<Result<FileTree, String>>,
 }
 
 impl BinaryPackageData {
@@ -146,8 +146,8 @@ impl BinaryPackageData {
             package_name,
             reader: Some(reader),
             installation_control,
-            data_files: OnceCell::new(),
-            control_files: OnceCell::new(),
+            data_files: OnceLock::new(),
+            control_files: OnceLock::new(),
         })
     }
 
@@ -158,7 +158,7 @@ impl BinaryPackageData {
         installation_control: InstallationControl,
         data_files: FileTree,
     ) -> Self {
-        let cell = OnceCell::new();
+        let cell = OnceLock::new();
         let _ = cell.set(Ok(data_files));
         Self {
             path,
@@ -166,14 +166,14 @@ impl BinaryPackageData {
             reader: None,
             installation_control,
             data_files: cell,
-            control_files: OnceCell::new(),
+            control_files: OnceLock::new(),
         }
     }
 
     /// Fixture Control files. Without them Control files are missing.
     #[cfg(test)]
     pub fn with_control_files(self, control_files: FileTree) -> Self {
-        let cell = OnceCell::new();
+        let cell = OnceLock::new();
         let _ = cell.set(Ok(control_files));
         Self {
             control_files: cell,
@@ -284,10 +284,10 @@ pub(crate) struct SourcePackageData {
     path: PathBuf,
     package_name: String,
     dsc: Option<Dsc>,
-    debian_control: OnceCell<Option<DebianControl>>,
-    debian_changelog: OnceCell<Option<DebianChangelog>>,
-    orig: OnceCell<Result<FileTree, String>>,
-    patched: OnceCell<Result<FileTree, String>>,
+    debian_control: OnceLock<Option<DebianControl>>,
+    debian_changelog: OnceLock<Option<DebianChangelog>>,
+    orig: OnceLock<Result<FileTree, String>>,
+    patched: OnceLock<Result<FileTree, String>>,
     _extract: Option<SourcePackageExtract>,
 }
 
@@ -298,10 +298,10 @@ impl SourcePackageData {
             path,
             package_name: extract.package_name.clone(),
             dsc: Some(extract.dsc.clone()),
-            debian_control: OnceCell::new(),
-            debian_changelog: OnceCell::new(),
-            orig: OnceCell::new(),
-            patched: OnceCell::new(),
+            debian_control: OnceLock::new(),
+            debian_changelog: OnceLock::new(),
+            orig: OnceLock::new(),
+            patched: OnceLock::new(),
             _extract: Some(extract),
         })
     }
@@ -314,16 +314,16 @@ impl SourcePackageData {
         patched: FileTree,
         dsc: Option<Dsc>,
     ) -> Self {
-        let orig_cell = OnceCell::new();
+        let orig_cell = OnceLock::new();
         let _ = orig_cell.set(Ok(orig));
-        let patched_cell = OnceCell::new();
+        let patched_cell = OnceLock::new();
         let _ = patched_cell.set(Ok(patched));
         Self {
             path,
             package_name,
             dsc,
-            debian_control: OnceCell::new(),
-            debian_changelog: OnceCell::new(),
+            debian_control: OnceLock::new(),
+            debian_changelog: OnceLock::new(),
             orig: orig_cell,
             patched: patched_cell,
             _extract: None,
@@ -366,7 +366,7 @@ impl SourcePackageData {
 
     fn tree<'a>(
         &'a self,
-        cell: &'a OnceCell<Result<FileTree, String>>,
+        cell: &'a OnceLock<Result<FileTree, String>>,
         build: impl FnOnce(&SourcePackageExtract) -> anyhow::Result<FileTree>,
     ) -> Result<&'a FileTree, &'a str> {
         match cell.get_or_init(|| match &self._extract {

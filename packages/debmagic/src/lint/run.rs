@@ -3,7 +3,8 @@ use std::fmt::Write;
 use std::path::Path;
 use std::time::{Duration, Instant};
 
-use anyhow::bail;
+use anyhow::{Context as _, bail};
+use rayon::prelude::*;
 
 use super::context::{
     BinaryPackageContext, BinaryPackageData, SourceContext, SourcePackageData, SourceTreeData,
@@ -27,7 +28,8 @@ pub struct LintResult {
     pub outcome: LintOutcome,
     pub rules: usize,
     pub elapsed: Duration,
-    /// Lint runs on one thread. The finished line still names that count.
+    /// Worker threads that ran Rules: at most the requested count, and never
+    /// more than the number of Rules run.
     pub threads: usize,
 }
 
@@ -39,40 +41,24 @@ pub fn run_lint(intent: &LintIntent) -> anyhow::Result<LintResult> {
         Subject::SourceTree(path) => run_source_tree_lint(intent, path)?,
     };
     result.elapsed = started.elapsed();
-    result.threads = 1;
     Ok(result)
 }
 
 fn run_source_package_lint(intent: &LintIntent, path: &Path) -> anyhow::Result<LintResult> {
     let data = SourcePackageData::new(path.to_path_buf())?;
-    let (diagnostics, outcome, rules) = execute_rules(intent, registry::source_rules(), |rule| {
+    execute_rules(intent, registry::source_rules(), |rule| {
         let mut ctx = SourceContext::bind_package(&data, rule);
         rule.run(&mut ctx);
         ctx.finish()
-    })?;
-    Ok(LintResult {
-        diagnostics,
-        outcome,
-        rules,
-        elapsed: Duration::ZERO,
-        threads: 1,
     })
 }
 
 fn run_binary_package_lint(intent: &LintIntent, path: &Path) -> anyhow::Result<LintResult> {
     let data = BinaryPackageData::new(path.to_path_buf())?;
-    let (diagnostics, outcome, rules) =
-        execute_rules(intent, registry::binary_package_rules(), |rule| {
-            let mut ctx = BinaryPackageContext::bind(&data, rule);
-            rule.run(&mut ctx);
-            ctx.finish()
-        })?;
-    Ok(LintResult {
-        diagnostics,
-        outcome,
-        rules,
-        elapsed: Duration::ZERO,
-        threads: 1,
+    execute_rules(intent, registry::binary_package_rules(), |rule| {
+        let mut ctx = BinaryPackageContext::bind(&data, rule);
+        rule.run(&mut ctx);
+        ctx.finish()
     })
 }
 
@@ -86,25 +72,31 @@ fn run_source_tree_lint(intent: &LintIntent, source_tree: &Path) -> anyhow::Resu
     }
 
     let data = SourceTreeData::new(source_tree.to_path_buf());
-    let (diagnostics, outcome, rules) = execute_rules(intent, registry::source_rules(), |rule| {
+    execute_rules(intent, registry::source_rules(), |rule| {
         let mut ctx = SourceContext::bind_tree(&data, rule);
         rule.run(&mut ctx);
         ctx.finish()
-    })?;
-    Ok(LintResult {
-        diagnostics,
-        outcome,
-        rules,
-        elapsed: Duration::ZERO,
-        threads: 1,
     })
 }
 
+/// Worker threads to use for `rule_count` Rules: the requested count, or the
+/// machine's available parallelism, capped by the Rule count and at least 1.
+fn worker_threads(requested: Option<usize>, rule_count: usize) -> usize {
+    let wanted = requested
+        .filter(|&threads| threads > 0)
+        .or_else(|| std::thread::available_parallelism().ok().map(Into::into))
+        .unwrap_or(1);
+    wanted.min(rule_count).max(1)
+}
+
+/// Run every selected Rule. Rules are independent, so they run in parallel;
+/// diagnostics are collected in Rule order, so output does not depend on the
+/// thread count. If several Rules fail, the first in Rule order is reported.
 fn execute_rules<R: RuleAccess + ?Sized>(
     intent: &LintIntent,
     rules: &[&R],
-    mut run_rule: impl FnMut(&R) -> anyhow::Result<Vec<Diagnostic>>,
-) -> anyhow::Result<(Vec<Diagnostic>, LintOutcome, usize)> {
+    run_rule: impl Fn(&R) -> anyhow::Result<Vec<Diagnostic>> + Sync,
+) -> anyhow::Result<LintResult> {
     let selected = intent.selected.iter().copied().collect::<HashSet<_>>();
     let execution: Vec<_> = rules
         .iter()
@@ -117,16 +109,38 @@ fn execute_rules<R: RuleAccess + ?Sized>(
     }
 
     let rules_run = execution.len();
-    let mut diagnostics = Vec::new();
+    let threads = worker_threads(intent.threads, rules_run);
 
-    for rule in execution {
+    let run_one = |rule: &&R| -> anyhow::Result<Vec<Diagnostic>> {
         let mut rule_diagnostics = run_rule(rule)?;
         apply_severity_remaps(&mut rule_diagnostics, intent);
-        diagnostics.extend(rule_diagnostics);
+        Ok(rule_diagnostics)
+    };
+
+    let per_rule: Vec<anyhow::Result<Vec<Diagnostic>>> = if threads == 1 {
+        execution.iter().map(run_one).collect()
+    } else {
+        let pool = rayon::ThreadPoolBuilder::new()
+            .num_threads(threads)
+            .thread_name(|index| format!("debmagic-lint-{index}"))
+            .build()
+            .context("starting the lint thread pool failed")?;
+        pool.install(|| execution.par_iter().map(run_one).collect())
+    };
+
+    let mut diagnostics = Vec::new();
+    for rule_diagnostics in per_rule {
+        diagnostics.extend(rule_diagnostics?);
     }
 
     let outcome = outcome_for(&diagnostics, &intent.fail_on);
-    Ok((diagnostics, outcome, rules_run))
+    Ok(LintResult {
+        diagnostics,
+        outcome,
+        rules: rules_run,
+        elapsed: Duration::ZERO,
+        threads,
+    })
 }
 
 fn apply_severity_remaps(diagnostics: &mut [Diagnostic], intent: &LintIntent) {
@@ -257,6 +271,7 @@ mod tests {
             select: vec![],
             ignore: vec![],
             fail_on: vec![],
+            threads: None,
         })
         .expect("resolve lint intent")
     }
@@ -313,6 +328,7 @@ mod tests {
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
+            threads: None,
         };
         let LintResult { diagnostics, .. } = run_lint(&intent)?;
         assert!(
@@ -387,6 +403,7 @@ mod tests {
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
+            threads: None,
         };
         let result = run_lint(&intent)?;
         assert!(result.diagnostics.is_empty(), "{:?}", result.diagnostics);
@@ -396,6 +413,60 @@ mod tests {
             format_finished(result.elapsed, result.rules, result.threads)
                 .ends_with(" with 1 rule using 1 thread.")
         );
+        Ok(())
+    }
+
+    #[test]
+    fn worker_threads_is_capped_by_rule_count_and_at_least_one() {
+        assert_eq!(worker_threads(Some(8), 3), 3);
+        assert_eq!(worker_threads(Some(2), 10), 2);
+        assert_eq!(worker_threads(Some(0), 1), 1);
+        assert_eq!(worker_threads(Some(4), 0), 1);
+        assert!(worker_threads(None, 1000) >= 1);
+    }
+
+    #[test]
+    fn lint_data_is_shareable_across_threads() {
+        fn assert_sync<T: Sync>() {}
+        assert_sync::<SourceTreeData>();
+        assert_sync::<SourcePackageData>();
+        assert_sync::<BinaryPackageData>();
+    }
+
+    #[test]
+    fn diagnostics_do_not_depend_on_thread_count() -> anyhow::Result<()> {
+        let temp_dir = tempfile_dir("debmagic-check-threads")?;
+        fs::create_dir_all(temp_dir.join("debian"))?;
+        // Missing fields and no changelog, so several Rules report findings.
+        fs::write(
+            temp_dir.join("debian/control"),
+            "Maintainer: Example <ex@example.com>\n\
+             \n\
+             Package: example\n\
+             Architecture: all\n",
+        )?;
+        let selected = resolve_selected_codes(&["LN".to_string()], &[])?;
+        let lint_with = |threads: Option<usize>| -> anyhow::Result<Vec<String>> {
+            let intent = LintIntent {
+                subject: Subject::SourceTree(temp_dir.clone()),
+                selected: selected.clone(),
+                fail_on: HashSet::from([Severity::Error]),
+                severity_remaps: HashMap::new(),
+                threads,
+            };
+            let result = run_lint(&intent)?;
+            assert_eq!(
+                result.threads,
+                threads.unwrap_or(result.threads).min(result.rules).max(1)
+            );
+            Ok(result.diagnostics.iter().map(format_diagnostic).collect())
+        };
+
+        let serial = lint_with(Some(1))?;
+        assert!(!serial.is_empty(), "fixture should produce diagnostics");
+        for threads in [Some(2), Some(8), None] {
+            assert_eq!(lint_with(threads)?, serial, "threads: {threads:?}");
+        }
         Ok(())
     }
 
@@ -445,6 +516,7 @@ mod tests {
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
+            threads: None,
         };
         let LintResult {
             diagnostics,
@@ -490,6 +562,7 @@ mod tests {
             selected: vec![crate::lint::rules::UnstrippedBinaryOrObject::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
+            threads: None,
         };
         let LintResult {
             diagnostics,
@@ -525,6 +598,7 @@ mod tests {
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
+            threads: None,
         };
         let LintResult {
             diagnostics,
@@ -553,6 +627,7 @@ mod tests {
             selected: vec![crate::lint::rules::SyntaxErrorInDebianChangelog::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
+            threads: None,
         };
         let error = run_lint(&intent).unwrap_err();
         assert!(
@@ -598,6 +673,7 @@ mod tests {
             selected: vec![crate::lint::rules::SourceContainsPrebuiltWindowsBinary::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
+            threads: None,
         };
         let LintResult {
             diagnostics,
@@ -625,6 +701,7 @@ mod tests {
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
+            threads: None,
         };
         let LintResult {
             diagnostics,
@@ -680,6 +757,7 @@ mod tests {
             selected,
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
+            threads: None,
         };
         let LintResult {
             diagnostics,

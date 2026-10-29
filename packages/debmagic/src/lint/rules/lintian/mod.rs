@@ -25,6 +25,7 @@ mod ln0022_dm_upload_allowed_is_obsolete;
 mod ln0023_vcs_obsolete_in_debian_infrastructure;
 mod ln0024_changelog_file_not_compressed;
 mod ln0025_non_standard_toplevel_dir;
+mod ln0026_latest_debian_changelog_entry_without_new_date;
 
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
@@ -51,3 +52,4 @@ pub(crate) use ln0022_dm_upload_allowed_is_obsolete::DmUploadAllowedIsObsolete;
 pub(crate) use ln0023_vcs_obsolete_in_debian_infrastructure::VcsObsoleteInDebianInfrastructure;
 pub(crate) use ln0024_changelog_file_not_compressed::ChangelogFileNotCompressed;
 pub(crate) use ln0025_non_standard_toplevel_dir::NonStandardToplevelDir;
+pub(crate) use ln0026_latest_debian_changelog_entry_without_new_date::LatestDebianChangelogEntryWithoutNewDate;

@@ -21,14 +21,88 @@ impl ChangelogParseError {
     }
 }
 
-/// Parsed `debian/changelog` with lintian's grammar errors.
+/// One changelog entry as `Lintian::Changelog` builds it, newest first in
+/// [`DebianChangelog::entries`].
+///
+/// An entry cut short by a syntax error keeps whatever was read: no trailer
+/// means no maintainer, date, or timestamp. An entry lintian synthesises after
+/// stray change data has `unknown` source and distribution, no version worth
+/// reading, and line 0.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ChangelogEntry {
+    line: u32,
+    source: String,
+    version: String,
+    distribution: String,
+    maintainer: String,
+    date: String,
+    timestamp: Option<i64>,
+    changes: String,
+}
+
+// The seam exposes every field of an entry; follow-on Tags (see
+// TODO-lint.md) read the ones no Rule reads yet.
+#[allow(dead_code)]
+impl ChangelogEntry {
+    /// Line of the heading (1-based); 0 for a synthesised entry.
+    pub fn line(&self) -> u32 {
+        self.line
+    }
+
+    pub fn source(&self) -> &str {
+        &self.source
+    }
+
+    /// Version literal from the heading, epoch and revision included.
+    pub fn version(&self) -> &str {
+        &self.version
+    }
+
+    /// The distribution words of the heading, joined as written.
+    pub fn distribution(&self) -> &str {
+        &self.distribution
+    }
+
+    /// `Name <email>` of the trailer.
+    pub fn maintainer(&self) -> &str {
+        &self.maintainer
+    }
+
+    /// The trailer date as written.
+    pub fn date(&self) -> &str {
+        &self.date
+    }
+
+    /// Seconds since the epoch; `None` when the entry has no parseable date.
+    pub fn timestamp(&self) -> Option<i64> {
+        self.timestamp
+    }
+
+    /// Change lines, each with a leading space and a newline, as lintian
+    /// keeps them.
+    pub fn changes(&self) -> &str {
+        &self.changes
+    }
+
+    fn is_empty(&self) -> bool {
+        self.changes.is_empty()
+            && self.source.is_empty()
+            && self.version.is_empty()
+            && self.maintainer.is_empty()
+            && self.date.is_empty()
+    }
+}
+
+/// Parsed `debian/changelog` with lintian's grammar errors and entries.
 ///
 /// Missing files are unavailable. A file that is not UTF-8 is treated as
 /// unavailable (lintian skips parse). Syntax errors stay on the object so
-/// `syntax-error-in-debian-changelog` can emit them.
+/// `syntax-error-in-debian-changelog` can emit them; the entries read before
+/// and after an error stay too.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct DebianChangelog {
     errors: Vec<ChangelogParseError>,
+    entries: Vec<ChangelogEntry>,
 }
 
 impl DebianChangelog {
@@ -42,13 +116,17 @@ impl DebianChangelog {
     }
 
     pub fn parse(contents: &str) -> Self {
-        Self {
-            errors: parse_errors(contents),
-        }
+        let (errors, entries) = parse_changelog(contents);
+        Self { errors, entries }
     }
 
     pub fn errors(&self) -> &[ChangelogParseError] {
         &self.errors
+    }
+
+    /// Entries newest first, as in the file.
+    pub fn entries(&self) -> &[ChangelogEntry] {
+        &self.entries
     }
 }
 
@@ -71,23 +149,7 @@ impl Expect {
     }
 }
 
-#[derive(Default)]
-struct EntryScratch {
-    source: bool,
-    version: bool,
-    changes: bool,
-    maintainer: bool,
-    date: bool,
-    timestamp: bool,
-}
-
-impl EntryScratch {
-    fn is_empty(&self) -> bool {
-        !(self.changes || self.source || self.version || self.maintainer || self.date)
-    }
-}
-
-fn parse_errors(contents: &str) -> Vec<ChangelogParseError> {
+fn parse_changelog(contents: &str) -> (Vec<ChangelogParseError>, Vec<ChangelogEntry>) {
     static LOOKS_LIKE_CHANGELOG: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"(?mx)^ \S+ \s* [(] [^\)]+ [)] \s* (?:[^ \t;]+ \s*)+ ; ").expect("regex")
     });
@@ -135,15 +197,21 @@ fn parse_errors(contents: &str) -> Vec<ChangelogParseError> {
         LazyLock::new(|| Regex::new(r"^/\*.*\*/").expect("regex"));
 
     if !LOOKS_LIKE_CHANGELOG.is_match(contents) {
-        return vec![ChangelogParseError {
-            line: 1,
-            message: "not a Debian changelog".to_string(),
-        }];
+        return (
+            vec![ChangelogParseError {
+                line: 1,
+                message: "not a Debian changelog".to_string(),
+            }],
+            Vec::new(),
+        );
     }
 
     let mut errors = Vec::new();
     let mut expect = Expect::FirstHeading;
-    let mut entry = EntryScratch::default();
+    let mut entries: Vec<ChangelogEntry> = Vec::new();
+    let mut entry = ChangelogEntry::default();
+    let mut blank_lines = 0usize;
+    let mut unknown_version_counter = 1;
 
     let mut lines: Vec<&str> = contents.split('\n').collect();
     while lines.last() == Some(&"") {
@@ -163,9 +231,13 @@ fn parse_errors(contents: &str) -> Vec<ChangelogParseError> {
                     ),
                 });
             }
-            entry = EntryScratch::default();
-            entry.source = true;
-            entry.version = heading.name("version").is_some();
+            if !entry.is_empty() {
+                entries.push(std::mem::take(&mut entry));
+            }
+            entry.line = position;
+            entry.source = heading["source"].to_string();
+            entry.version = heading["version"].to_string();
+            entry.distribution = heading["distribution"].trim_start().to_string();
             parse_kvpairs(
                 heading.name("kvpairs").map(|m| m.as_str()).unwrap_or(""),
                 position,
@@ -210,13 +282,14 @@ fn parse_errors(contents: &str) -> Vec<ChangelogParseError> {
                     message: "badly formatted trailer line".to_string(),
                 });
             }
-            entry.maintainer = true;
-            if !(entry.date && entry.timestamp) {
+            if entry.maintainer.is_empty() {
+                entry.maintainer = format!("{} <{}>", &trailer["name"], &trailer["email"]);
+            }
+            if entry.date.is_empty() || entry.timestamp.is_none() {
                 let date = trailer.name("date").map(|m| m.as_str()).unwrap_or("");
-                entry.date = true;
-                if parse_changelog_timestamp(date) {
-                    entry.timestamp = true;
-                } else {
+                entry.date = date.to_string();
+                entry.timestamp = parse_changelog_timestamp(date);
+                if entry.timestamp.is_none() {
                     errors.push(ChangelogParseError {
                         line: position,
                         message: format!("could not parse date {date}"),
@@ -239,14 +312,21 @@ fn parse_errors(contents: &str) -> Vec<ChangelogParseError> {
                     ),
                 });
                 if expect == Expect::NextHeadingOrEof && !entry.is_empty() {
-                    entry = EntryScratch {
-                        source: true,
-                        version: true,
-                        ..EntryScratch::default()
-                    };
+                    entries.push(std::mem::replace(
+                        &mut entry,
+                        ChangelogEntry {
+                            source: "unknown".to_string(),
+                            distribution: "unknown".to_string(),
+                            version: {
+                                unknown_version_counter += 1;
+                                format!("unknown{unknown_version_counter}")
+                            },
+                            ..ChangelogEntry::default()
+                        },
+                    ));
                 }
             }
-            entry.changes = true;
+            push_change_line(&mut entry, &mut blank_lines, line);
             expect = Expect::MoreChangeDataOrTrailer;
         } else if !line.contains(|ch: char| !ch.is_whitespace()) {
             if expect == Expect::StartOfChangeData || expect == Expect::NextHeadingOrEof {
@@ -261,13 +341,14 @@ fn parse_errors(contents: &str) -> Vec<ChangelogParseError> {
                     ),
                 });
             }
+            blank_lines += 1;
         } else {
             errors.push(ChangelogParseError {
                 line: position,
                 message: "unrecognised line".to_string(),
             });
             if expect == Expect::StartOfChangeData || expect == Expect::MoreChangeDataOrTrailer {
-                entry.changes = true;
+                push_change_line(&mut entry, &mut blank_lines, line);
                 expect = Expect::MoreChangeDataOrTrailer;
             }
         }
@@ -281,7 +362,21 @@ fn parse_errors(contents: &str) -> Vec<ChangelogParseError> {
         });
     }
 
-    errors
+    if !entry.is_empty() {
+        entries.push(entry);
+    }
+
+    (errors, entries)
+}
+
+fn push_change_line(entry: &mut ChangelogEntry, blank_lines: &mut usize, line: &str) {
+    for _ in 0..*blank_lines {
+        entry.changes.push_str(" \n");
+    }
+    entry.changes.push(' ');
+    entry.changes.push_str(line);
+    entry.changes.push('\n');
+    *blank_lines = 0;
 }
 
 fn parse_kvpairs(
@@ -341,22 +436,44 @@ fn parse_kvpairs(
     }
 }
 
-fn parse_changelog_timestamp(date: &str) -> bool {
+fn parse_changelog_timestamp(date: &str) -> Option<i64> {
+    const WEEKDAYS: &[&str] = &[
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    ];
     let date = date
         .rsplit_once(" (")
         .and_then(|(before, rest)| rest.ends_with(')').then_some(before))
         .unwrap_or(date);
-    const FORMATS: &[&str] = &[
-        "%a, %d %b %Y %H:%M:%S %z",
-        "%a, %e %b %Y %H:%M:%S %z",
-        "%d %b %Y %H:%M:%S %z",
-        "%e %b %Y %H:%M:%S %z",
-        "%a, %-d %b %Y %H:%M:%S %z",
-        "%-d %b %Y %H:%M:%S %z",
-    ];
+    // Date::Parse accepts a weekday name and ignores whether it fits the date
+    // (`debian-changelog-has-wrong-day-of-week` judges that); an unknown word
+    // fails the parse.
+    let date = match date.split_once(',') {
+        Some((weekday, rest)) => {
+            if !WEEKDAYS.contains(&weekday.trim().to_ascii_lowercase().as_str()) {
+                return None;
+            }
+            rest.trim_start()
+        }
+        None => date,
+    };
+    const FORMATS: &[&str] = &["%d %b %Y %H:%M:%S %z", "%e %b %Y %H:%M:%S %z"];
     FORMATS
         .iter()
-        .any(|format| DateTime::parse_from_str(date, format).is_ok())
+        .find_map(|format| DateTime::parse_from_str(date, format).ok())
+        .map(|parsed| parsed.timestamp())
 }
 
 #[cfg(test)]
@@ -369,6 +486,79 @@ mod tests {
             .iter()
             .map(|error| (error.line(), error.message().to_string()))
             .collect()
+    }
+
+    const TWO_ENTRIES: &str = "\
+example (2.0-1) UNRELEASED unstable; urgency=low
+
+  * New thing.
+  * Another.
+
+    continued
+
+ -- A Uthor <a@example.com>  Tue, 30 Dec 2008 17:34:02 -0800
+
+example (1.0-1) unstable; urgency=low
+
+  * First.
+
+ -- B Uthor <b@example.com>  Mon, 29 Dec 2008 17:34:02 +0000
+";
+
+    #[test]
+    fn entries_are_kept_newest_first() {
+        let changelog = DebianChangelog::parse(TWO_ENTRIES);
+        assert!(changelog.errors().is_empty());
+        let entries = changelog.entries();
+        assert_eq!(entries.len(), 2);
+        assert_eq!(entries[0].line(), 1);
+        assert_eq!(entries[0].source(), "example");
+        assert_eq!(entries[0].version(), "2.0-1");
+        assert_eq!(entries[0].distribution(), "UNRELEASED unstable");
+        assert_eq!(entries[0].maintainer(), "A Uthor <a@example.com>");
+        assert_eq!(entries[0].date(), "Tue, 30 Dec 2008 17:34:02 -0800");
+        assert_eq!(entries[0].timestamp(), Some(1230687242));
+        assert_eq!(
+            entries[0].changes(),
+            "   * New thing.\n   * Another.\n \n     continued\n"
+        );
+        assert_eq!(entries[1].line(), 10);
+        assert_eq!(entries[1].version(), "1.0-1");
+        assert_eq!(entries[1].timestamp(), Some(1230572042));
+    }
+
+    #[test]
+    fn entry_without_trailer_has_no_timestamp() {
+        let changelog = DebianChangelog::parse("example (1.0) unstable; urgency=low\n\n  * test\n");
+        assert_eq!(changelog.entries().len(), 1);
+        assert_eq!(changelog.entries()[0].timestamp(), None);
+        assert_eq!(changelog.entries()[0].maintainer(), "");
+    }
+
+    #[test]
+    fn unparseable_date_keeps_the_entry_without_timestamp() {
+        let changelog = DebianChangelog::parse(
+            "example (1.0) unstable; urgency=low\n\n  * x\n\n -- A <a@example.com>  The, 15 Apr 2004 23:33:51 +0200\n",
+        );
+        assert_eq!(changelog.entries()[0].timestamp(), None);
+        assert_eq!(
+            changelog.entries()[0].date(),
+            "The, 15 Apr 2004 23:33:51 +0200"
+        );
+    }
+
+    #[test]
+    fn wrong_weekday_still_has_a_timestamp() {
+        let changelog = DebianChangelog::parse(
+            "example (1.0) unstable; urgency=low\n\n  * x\n\n -- A <a@example.com>  Wed, 14 Apr 2003 01:35:47 +0200\n",
+        );
+        assert!(changelog.errors().is_empty());
+        assert_eq!(changelog.entries()[0].timestamp(), Some(1050276947));
+    }
+
+    #[test]
+    fn not_a_changelog_has_no_entries() {
+        assert!(DebianChangelog::parse("").entries().is_empty());
     }
 
     #[test]

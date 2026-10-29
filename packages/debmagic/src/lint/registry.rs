@@ -3,12 +3,12 @@ use super::rules::{
     ChangelogFileNotCompressed, CustomCompressionInDebianRules,
     DebianChangelogFileMissingOrWrongName, DebianRulesIgnoresMakeCleanError,
     DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DmUploadAllowedIsObsolete,
-    EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty, NationalEncoding, NoChangelog,
-    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, NonStandardToplevelDir,
-    PackageContainsUnsafeSymlink, PackageUsesDeprecatedDebhelperCompatVersion, RequiredField,
-    SourceContainsDebianSubstvars, SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern,
-    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject, UsesDebhelperCompatFile,
-    VcsObsoleteInDebianInfrastructure,
+    EmptyBinaryPackage, FileInUnusualDir, LatestDebianChangelogEntryWithoutNewDate,
+    MaintainerScriptEmpty, NationalEncoding, NoChangelog, NoCopyrightFile, NoDep5Copyright,
+    NoHumanMaintainers, NonStandardToplevelDir, PackageContainsUnsafeSymlink,
+    PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
+    SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
+    UnstrippedBinaryOrObject, UsesDebhelperCompatFile, VcsObsoleteInDebianInfrastructure,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -39,6 +39,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &VcsObsoleteInDebianInfrastructure,
         &ChangelogFileNotCompressed,
         &NonStandardToplevelDir,
+        &LatestDebianChangelogEntryWithoutNewDate,
     ]
 }
 
@@ -60,6 +61,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NoHumanMaintainers,
         &DmUploadAllowedIsObsolete,
         &VcsObsoleteInDebianInfrastructure,
+        &LatestDebianChangelogEntryWithoutNewDate,
     ]
 }
 
@@ -107,6 +109,7 @@ mod tests {
                 NoHumanMaintainers::CODE,
                 DmUploadAllowedIsObsolete::CODE,
                 VcsObsoleteInDebianInfrastructure::CODE,
+                LatestDebianChangelogEntryWithoutNewDate::CODE,
             ]
         );
     }

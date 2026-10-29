@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): latest-debian-changelog-entry-without-new-date (LN0026) [debian/changelog:1]
+E: example (source): latest-debian-changelog-entry-without-new-date (LN0026) [debian/changelog:1]
+E: example (source): latest-debian-changelog-entry-without-new-date (LN0026) [debian/changelog:1]
+E: example (source): latest-debian-changelog-entry-without-new-date (LN0026) [debian/changelog:1]

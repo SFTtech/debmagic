@@ -55,6 +55,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
+    "checks/fields/dm-upload-allowed/fields-dmua",
+    "checks/fields/dm-upload-allowed/legacy-binary",
+    "checks/fields/dm-upload-allowed/legacy-foo++",
+    "checks/fields/dm-upload-allowed/legacy-maintainer-scripts",
     "checks/fields/maintainer/alioth-list",
     "checks/fields/maintainer/fields-no-human-maintainer",
     "checks/fields/maintainer/fields-qa-maint-address",
@@ -171,6 +175,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
+    "checks/fields/dm-upload-allowed/fields-dmua",
+    "checks/fields/dm-upload-allowed/legacy-binary",
+    "checks/fields/dm-upload-allowed/legacy-foo++",
+    "checks/fields/dm-upload-allowed/legacy-maintainer-scripts",
     "checks/fields/maintainer/alioth-list",
     "checks/fields/maintainer/fields-no-human-maintainer",
     "checks/fields/maintainer/fields-qa-maint-address",
@@ -260,6 +268,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
+#[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
+#[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
+#[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
+#[test_case("checks/fields/dm-upload-allowed/legacy-maintainer-scripts"; "checks_fields_dm_upload_allowed_legacy_maintainer_scripts")]
 #[test_case("checks/fields/maintainer/alioth-list"; "checks_fields_maintainer_alioth_list")]
 #[test_case("checks/fields/maintainer/fields-no-human-maintainer"; "checks_fields_maintainer_fields_no_human_maintainer")]
 #[test_case("checks/fields/maintainer/fields-qa-maint-address"; "checks_fields_maintainer_fields_qa_maint_address")]
@@ -378,6 +390,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
+#[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
+#[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
+#[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
+#[test_case("checks/fields/dm-upload-allowed/legacy-maintainer-scripts"; "checks_fields_dm_upload_allowed_legacy_maintainer_scripts")]
 #[test_case("checks/fields/maintainer/alioth-list"; "checks_fields_maintainer_alioth_list")]
 #[test_case("checks/fields/maintainer/fields-no-human-maintainer"; "checks_fields_maintainer_fields_no_human_maintainer")]
 #[test_case("checks/fields/maintainer/fields-qa-maint-address"; "checks_fields_maintainer_fields_qa_maint_address")]

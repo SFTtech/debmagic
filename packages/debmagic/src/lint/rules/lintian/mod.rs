@@ -21,6 +21,7 @@ mod ln0018_national_encoding;
 mod ln0019_package_uses_deprecated_debhelper_compat_version;
 mod ln0020_uses_debhelper_compat_file;
 mod ln0021_no_human_maintainers;
+mod ln0022_dm_upload_allowed_is_obsolete;
 
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
@@ -43,3 +44,4 @@ pub(crate) use ln0018_national_encoding::NationalEncoding;
 pub(crate) use ln0019_package_uses_deprecated_debhelper_compat_version::PackageUsesDeprecatedDebhelperCompatVersion;
 pub(crate) use ln0020_uses_debhelper_compat_file::UsesDebhelperCompatFile;
 pub(crate) use ln0021_no_human_maintainers::NoHumanMaintainers;
+pub(crate) use ln0022_dm_upload_allowed_is_obsolete::DmUploadAllowedIsObsolete;

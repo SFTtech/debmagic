@@ -748,6 +748,7 @@ mod tests {
                 crate::lint::rules::PackageUsesDeprecatedDebhelperCompatVersion::CODE,
                 crate::lint::rules::UsesDebhelperCompatFile::CODE,
                 crate::lint::rules::NoHumanMaintainers::CODE,
+                crate::lint::rules::DmUploadAllowedIsObsolete::CODE,
             ]
         );
         let intent = LintIntent {

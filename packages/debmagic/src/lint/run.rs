@@ -759,6 +759,11 @@ mod tests {
                 crate::lint::rules::SymlinkIsSelfRecursive::CODE,
                 crate::lint::rules::LengthySymlink::CODE,
                 crate::lint::rules::WrongPackageMailAlias::CODE,
+                crate::lint::rules::DebianChangelogFileIsASymlink::CODE,
+                crate::lint::rules::PackageContainsVcsControlDir::CODE,
+                crate::lint::rules::DirOrFileInSrv::CODE,
+                crate::lint::rules::DirOrFileInMnt::CODE,
+                crate::lint::rules::ExtendedDescriptionIsEmpty::CODE,
             ]
         );
         let intent = LintIntent {

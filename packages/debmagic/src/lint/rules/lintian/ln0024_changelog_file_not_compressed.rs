@@ -29,30 +29,39 @@ declare_rule! {
 static CHANGELOG: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^changelog(?:\.html|\.Debian)?(?:\.gz)?$").expect("valid regex"));
 
+/// The changelog files (and symlinks) directly in the package's doc directory,
+/// compressed or not, with their kind. Empty when the doc directory is itself
+/// a symlink.
+pub(super) fn doc_changelog_files(ctx: &mut BinaryPackageContext<'_>) -> Vec<(PathBuf, EntryKind)> {
+    let doc_dir = format!("usr/share/doc/{}", ctx.package_name());
+    let Some(files) = ctx.data_files() else {
+        return Vec::new();
+    };
+    if files
+        .get(&doc_dir)
+        .is_some_and(|entry| entry.kind() == EntryKind::Symlink)
+    {
+        return Vec::new();
+    }
+    let prefix = format!("{doc_dir}/");
+    files
+        .entries()
+        .iter()
+        .filter(|entry| entry.kind() != EntryKind::Directory)
+        .filter_map(|entry| {
+            let name = entry.path().to_str()?.strip_prefix(&prefix)?;
+            (!name.contains('/') && CHANGELOG.is_match(name))
+                .then(|| (entry.path().to_path_buf(), entry.kind()))
+        })
+        .collect()
+}
+
 impl BinaryPackageRule for ChangelogFileNotCompressed {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        let doc_dir = format!("usr/share/doc/{}", ctx.package_name());
-        let Some(files) = ctx.data_files() else {
-            return;
-        };
-        if files
-            .get(&doc_dir)
-            .is_some_and(|entry| entry.kind() == EntryKind::Symlink)
-        {
-            return;
-        }
-        let prefix = format!("{doc_dir}/");
-        let paths: Vec<PathBuf> = files
-            .entries()
-            .iter()
-            .filter(|entry| entry.kind() != EntryKind::Directory)
-            .filter_map(|entry| {
-                let name = entry.path().to_str()?.strip_prefix(&prefix)?;
-                (!name.contains('/') && CHANGELOG.is_match(name) && !name.ends_with(".gz"))
-                    .then(|| entry.path().to_path_buf())
-            })
-            .collect();
-        for path in paths {
+        for (path, _) in doc_changelog_files(ctx) {
+            if path.extension().is_some_and(|extension| extension == "gz") {
+                continue;
+            }
             ctx.diagnostic(Diagnostic::error("").with_location(Location {
                 path,
                 line: None,

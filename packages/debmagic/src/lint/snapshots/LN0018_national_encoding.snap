@@ -1,0 +1,15 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): national-encoding (LN0018) [debian/NEWS]
+W: example (source): national-encoding (LN0018) [debian/changelog]
+W: example (source): national-encoding (LN0018) [debian/copyright]
+W: example (source): national-encoding (LN0018) [debian/templates]
+W: example (source): national-encoding (LN0018) [debian/tests/control]
+W: example (source): national-encoding (LN0018) [debian/doc-base]
+W: (source): national-encoding (LN0018) [debian/control]
+W: example (source): national-encoding (LN0018) [debian/NEWS]
+W: example (source): national-encoding (LN0018) [debian/NEWS]
+W: example (source): national-encoding (LN0018) [debian/changelog]
+W: example (source): national-encoding (LN0018) DEP-3 header [debian/patches/utf8.patch]
+W: example (source): national-encoding (LN0018) DEP-3 header [debian/patches/series]

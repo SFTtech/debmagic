@@ -43,6 +43,13 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
     "checks/fields/required/generic-empty",
+    "checks/files/encoding/changelog-in-western-encoding",
+    "checks/files/encoding/copyright-in-western-encoding",
+    "checks/files/encoding/debconf-in-western-encoding",
+    "checks/files/encoding/doc-base-in-western-encoding",
+    "checks/files/encoding/national-header-fix-encoding-patch",
+    "checks/files/encoding/news-in-western-encoding",
+    "checks/files/encoding/testsuite-in-western-encoding",
 ];
 
 const BINARY_PACKAGE_RECIPES: &[&str] = &[
@@ -72,6 +79,12 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/empty-package/files-empty",
     "checks/files/empty-package/legacy-binary",
     "checks/files/empty-package/legacy-foo++",
+    "checks/files/encoding/copyright-in-western-encoding",
+    "checks/files/encoding/debconf-in-western-encoding",
+    "checks/files/encoding/doc-base-in-western-encoding",
+    "checks/files/encoding/document-shipped-in-western-encoding",
+    "checks/files/encoding/manual-page-in-western-encoding",
+    "checks/files/encoding/package-scripts-in-western-encoding",
     "checks/files/hierarchy/standard/files-foo-in-bar",
     "checks/files/hierarchy/standard/files-general",
     "checks/files/hierarchy/standard/files-tar-traps",
@@ -127,6 +140,13 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
     "checks/fields/required/generic-empty",
+    "checks/files/encoding/changelog-in-western-encoding",
+    "checks/files/encoding/copyright-in-western-encoding",
+    "checks/files/encoding/debconf-in-western-encoding",
+    "checks/files/encoding/doc-base-in-western-encoding",
+    "checks/files/encoding/national-header-fix-encoding-patch",
+    "checks/files/encoding/news-in-western-encoding",
+    "checks/files/encoding/testsuite-in-western-encoding",
 ];
 
 #[test]
@@ -191,6 +211,13 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
+#[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
+#[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]
+#[test_case("checks/files/encoding/doc-base-in-western-encoding"; "checks_files_encoding_doc_base_in_western_encoding")]
+#[test_case("checks/files/encoding/national-header-fix-encoding-patch"; "checks_files_encoding_national_header_fix_encoding_patch")]
+#[test_case("checks/files/encoding/news-in-western-encoding"; "checks_files_encoding_news_in_western_encoding")]
+#[test_case("checks/files/encoding/testsuite-in-western-encoding"; "checks_files_encoding_testsuite_in_western_encoding")]
 fn lintian_parity_source_tree(recipe: &str) {
     common::assert_source_tree_parity(recipe);
 }
@@ -221,6 +248,12 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/empty-package/files-empty"; "checks_files_empty_package_files_empty")]
 #[test_case("checks/files/empty-package/legacy-binary"; "checks_files_empty_package_legacy_binary")]
 #[test_case("checks/files/empty-package/legacy-foo++"; "checks_files_empty_package_legacy_foo_")]
+#[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
+#[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]
+#[test_case("checks/files/encoding/doc-base-in-western-encoding"; "checks_files_encoding_doc_base_in_western_encoding")]
+#[test_case("checks/files/encoding/document-shipped-in-western-encoding"; "checks_files_encoding_document_shipped_in_western_encoding")]
+#[test_case("checks/files/encoding/manual-page-in-western-encoding"; "checks_files_encoding_manual_page_in_western_encoding")]
+#[test_case("checks/files/encoding/package-scripts-in-western-encoding"; "checks_files_encoding_package_scripts_in_western_encoding")]
 #[test_case("checks/files/hierarchy/standard/files-foo-in-bar"; "checks_files_hierarchy_standard_files_foo_in_bar")]
 #[test_case("checks/files/hierarchy/standard/files-general"; "checks_files_hierarchy_standard_files_general")]
 #[test_case("checks/files/hierarchy/standard/files-tar-traps"; "checks_files_hierarchy_standard_files_tar_traps")]
@@ -277,6 +310,13 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
+#[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
+#[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]
+#[test_case("checks/files/encoding/doc-base-in-western-encoding"; "checks_files_encoding_doc_base_in_western_encoding")]
+#[test_case("checks/files/encoding/national-header-fix-encoding-patch"; "checks_files_encoding_national_header_fix_encoding_patch")]
+#[test_case("checks/files/encoding/news-in-western-encoding"; "checks_files_encoding_news_in_western_encoding")]
+#[test_case("checks/files/encoding/testsuite-in-western-encoding"; "checks_files_encoding_testsuite_in_western_encoding")]
 fn lintian_parity_source_package(recipe: &str) {
     common::assert_source_package_parity(recipe);
 }

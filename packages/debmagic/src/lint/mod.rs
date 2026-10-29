@@ -2,6 +2,7 @@ mod binary_package_reader;
 mod context;
 mod debian_changelog;
 mod debian_control;
+mod debian_copyright;
 mod diagnostic;
 mod dsc;
 mod file_tree;

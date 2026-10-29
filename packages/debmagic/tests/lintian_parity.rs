@@ -9,6 +9,16 @@ use test_case::test_case;
 
 const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-general-upstream",
+    "checks/debian/copyright/dep5/file-does-not-exist",
+    "checks/debian/copyright/dep5/files-included-covers-none",
+    "checks/debian/copyright/dep5/source-copyright-empty-field",
+    "checks/debian/copyright/dep5/source-copyright-global-files-wildcard-not-first-paragraph",
+    "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons",
+    "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b",
+    "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel",
+    "checks/debian/copyright/dep5/source-copyright-undefined",
+    "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
+    "checks/debian/copyright/dep5/wildcard-out-of-order",
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
     "checks/debian/rules/legacy-etcfiles",
@@ -41,6 +51,16 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
 
 const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-general-upstream",
+    "checks/debian/copyright/dep5/file-does-not-exist",
+    "checks/debian/copyright/dep5/files-included-covers-none",
+    "checks/debian/copyright/dep5/source-copyright-empty-field",
+    "checks/debian/copyright/dep5/source-copyright-global-files-wildcard-not-first-paragraph",
+    "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons",
+    "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b",
+    "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel",
+    "checks/debian/copyright/dep5/source-copyright-undefined",
+    "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
+    "checks/debian/copyright/dep5/wildcard-out-of-order",
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
     "checks/debian/rules/legacy-etcfiles",
@@ -77,6 +97,16 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 }
 
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
+#[test_case("checks/debian/copyright/dep5/file-does-not-exist"; "checks_debian_copyright_dep5_file_does_not_exist")]
+#[test_case("checks/debian/copyright/dep5/files-included-covers-none"; "checks_debian_copyright_dep5_files_included_covers_none")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-empty-field"; "checks_debian_copyright_dep5_source_copyright_empty_field")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-global-files-wildcard-not-first-paragraph"; "checks_debian_copyright_dep5_source_copyright_global_files_wildcard_not_first_paragraph")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_b")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_unrel")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-undefined"; "checks_debian_copyright_dep5_source_copyright_undefined")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
+#[test_case("checks/debian/copyright/dep5/wildcard-out-of-order"; "checks_debian_copyright_dep5_wildcard_out_of_order")]
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
 #[test_case("checks/debian/rules/legacy-etcfiles"; "checks_debian_rules_legacy_etcfiles")]
@@ -111,6 +141,16 @@ fn lintian_parity_binary_package(recipe: &str) {
 }
 
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
+#[test_case("checks/debian/copyright/dep5/file-does-not-exist"; "checks_debian_copyright_dep5_file_does_not_exist")]
+#[test_case("checks/debian/copyright/dep5/files-included-covers-none"; "checks_debian_copyright_dep5_files_included_covers_none")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-empty-field"; "checks_debian_copyright_dep5_source_copyright_empty_field")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-global-files-wildcard-not-first-paragraph"; "checks_debian_copyright_dep5_source_copyright_global_files_wildcard_not_first_paragraph")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_b")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_unrel")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-undefined"; "checks_debian_copyright_dep5_source_copyright_undefined")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
+#[test_case("checks/debian/copyright/dep5/wildcard-out-of-order"; "checks_debian_copyright_dep5_wildcard_out_of_order")]
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
 #[test_case("checks/debian/rules/legacy-etcfiles"; "checks_debian_rules_legacy_etcfiles")]

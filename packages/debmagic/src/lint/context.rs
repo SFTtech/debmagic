@@ -1,4 +1,5 @@
 use std::cell::OnceCell;
+use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
 use anyhow::anyhow;
@@ -6,9 +7,10 @@ use anyhow::anyhow;
 use super::binary_package_reader::BinaryPackageReader;
 use super::debian_changelog::DebianChangelog;
 use super::debian_control::DebianControl;
+use super::debian_copyright::DebianCopyright;
 use super::diagnostic::{Diagnostic, ProcessableType};
 use super::dsc::Dsc;
-use super::file_tree::FileTree;
+use super::file_tree::{EntryKind, FileTree};
 use super::installation_control::InstallationControl;
 use super::rule::{Code, RuleAccess, Tag};
 use super::source_package::SourcePackageExtract;
@@ -429,7 +431,6 @@ impl<'a> SourceContext<'a> {
 
     /// Orig files. `None` on a Source tree, and after a global File type
     /// failure (returned from [`Self::finish`]). Native Orig files is empty.
-    #[allow(dead_code)]
     pub fn orig_files(&mut self) -> Option<&FileTree> {
         match self.inner {
             SourceInner::Tree(_) => None,
@@ -443,6 +444,66 @@ impl<'a> SourceContext<'a> {
                 }
             },
         }
+    }
+
+    /// What lintian counts as shipped in the upstream sources: on a Source
+    /// tree, the whole tree; on a Native Source package, the Patched files; on
+    /// any other Source package, the Orig files (without their `debian/` for
+    /// `3.0 (quilt)`) plus the Patched `debian/` files. `None` after a global
+    /// File type failure (returned from [`Self::finish`]).
+    pub fn shipped_files(&mut self) -> Option<ShippedFiles> {
+        if matches!(self.inner, SourceInner::Tree(_)) {
+            let tree = self.files()?;
+            return Some(ShippedFiles::new(
+                file_names(tree, |_| true),
+                directory_names(tree),
+            ));
+        }
+        let quilt = self
+            .dsc()
+            .and_then(|dsc| dsc.fields().get("Format"))
+            .is_some_and(|format| format.trim() == "3.0 (quilt)");
+        let orig = self.orig_files()?;
+        let native = orig.entries().is_empty();
+        let orig_names = file_names(orig, |path| !(quilt && path.starts_with("debian/")));
+        let orig_directories = directory_names(orig);
+        let patched = self.files()?;
+        if native {
+            return Some(ShippedFiles::new(
+                file_names(patched, |_| true),
+                directory_names(patched),
+            ));
+        }
+        let mut names = orig_names;
+        names.extend(file_names(patched, |path| path.starts_with("debian/")));
+        Some(ShippedFiles::new(names, orig_directories))
+    }
+
+    /// `debian/copyright` and `debian/<installable>.copyright` of the
+    /// packaging tree, parsed. Symlinks, non-files and files that are not
+    /// UTF-8 are left out, as lintian does. Paths are relative to the root.
+    pub fn debian_copyrights(&mut self) -> Vec<(PathBuf, DebianCopyright)> {
+        let mut candidates = vec![PathBuf::from("debian/copyright")];
+        if let Some(control) = self.debian_control() {
+            candidates.extend(control.installables().iter().map(|installable| {
+                PathBuf::from(format!("debian/{}.copyright", installable.name()))
+            }));
+        }
+        let Some(files) = self.files() else {
+            return Vec::new();
+        };
+        candidates
+            .into_iter()
+            .filter_map(|path| {
+                let entry = files.get(&path)?;
+                if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
+                    return None;
+                }
+                let bytes = files.read(entry).ok()?;
+                let text = std::str::from_utf8(&bytes).ok()?;
+                Some((path, DebianCopyright::parse(text)))
+            })
+            .collect()
     }
 
     /// Dsc of a Source package. `None` on a Source tree, and when a tester
@@ -474,6 +535,48 @@ impl<'a> SourceContext<'a> {
         }
         Ok(self.sink.into_diagnostics())
     }
+}
+
+/// Shipped files of a Source tree or Source package; see
+/// [`SourceContext::shipped_files`].
+pub(crate) struct ShippedFiles {
+    names: Vec<String>,
+    directories: HashSet<String>,
+}
+
+impl ShippedFiles {
+    fn new(mut names: Vec<String>, directories: HashSet<String>) -> Self {
+        names.sort();
+        Self { names, directories }
+    }
+
+    /// Paths of regular files and hardlinks, sorted.
+    pub fn file_names(&self) -> &[String] {
+        &self.names
+    }
+
+    /// Whether the Orig files (the tree, on a Source tree) have a directory
+    /// at `path`, given without a trailing slash.
+    pub fn has_directory(&self, path: &str) -> bool {
+        self.directories.contains(path)
+    }
+}
+
+fn file_names(tree: &FileTree, keep: impl Fn(&str) -> bool) -> Vec<String> {
+    tree.query()
+        .kinds([EntryKind::RegularFile, EntryKind::Hardlink])
+        .into_iter()
+        .map(|entry| entry.path().to_string_lossy().into_owned())
+        .filter(|path| keep(path))
+        .collect()
+}
+
+fn directory_names(tree: &FileTree) -> HashSet<String> {
+    tree.query()
+        .kinds([EntryKind::Directory])
+        .into_iter()
+        .map(|entry| entry.path().to_string_lossy().into_owned())
+        .collect()
 }
 
 fn debian_control_from_tree(tree: Option<&FileTree>) -> Option<DebianControl> {

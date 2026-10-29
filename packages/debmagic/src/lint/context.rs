@@ -127,6 +127,7 @@ pub(crate) struct BinaryPackageData {
     reader: Option<BinaryPackageReader>,
     installation_control: InstallationControl,
     data_files: OnceCell<Result<FileTree, String>>,
+    control_files: OnceCell<Result<FileTree, String>>,
 }
 
 impl BinaryPackageData {
@@ -145,6 +146,7 @@ impl BinaryPackageData {
             reader: Some(reader),
             installation_control,
             data_files: OnceCell::new(),
+            control_files: OnceCell::new(),
         })
     }
 
@@ -163,6 +165,18 @@ impl BinaryPackageData {
             reader: None,
             installation_control,
             data_files: cell,
+            control_files: OnceCell::new(),
+        }
+    }
+
+    /// Fixture Control files. Without them Control files are missing.
+    #[cfg(test)]
+    pub fn with_control_files(self, control_files: FileTree) -> Self {
+        let cell = OnceCell::new();
+        let _ = cell.set(Ok(control_files));
+        Self {
+            control_files: cell,
+            ..self
         }
     }
 
@@ -170,6 +184,18 @@ impl BinaryPackageData {
         match self.data_files.get_or_init(|| match &self.reader {
             Some(reader) => reader.data_file_tree().map_err(|error| error.to_string()),
             None => Err("Binary package Data files are missing".to_string()),
+        }) {
+            Ok(tree) => Ok(tree),
+            Err(message) => Err(message.as_str()),
+        }
+    }
+
+    fn control_files(&self) -> Result<&FileTree, &str> {
+        match self.control_files.get_or_init(|| match &self.reader {
+            Some(reader) => reader
+                .control_file_tree()
+                .map_err(|error| error.to_string()),
+            None => Err("Binary package Control files are missing".to_string()),
         }) {
             Ok(tree) => Ok(tree),
             Err(message) => Err(message.as_str()),
@@ -213,6 +239,20 @@ impl<'a> BinaryPackageContext<'a> {
     /// failure is returned from [`Self::finish`].
     pub fn data_files(&mut self) -> Option<&FileTree> {
         match self.data.data_files() {
+            Ok(tree) => Some(tree),
+            Err(message) => {
+                if self.runtime_error.is_none() {
+                    self.runtime_error = Some(anyhow!("{message}"));
+                }
+                None
+            }
+        }
+    }
+
+    /// Control files File tree. `None` after a global File tree failure; that
+    /// failure is returned from [`Self::finish`].
+    pub fn control_files(&mut self) -> Option<&FileTree> {
+        match self.data.control_files() {
             Ok(tree) => Some(tree),
             Err(message) => {
                 if self.runtime_error.is_none() {

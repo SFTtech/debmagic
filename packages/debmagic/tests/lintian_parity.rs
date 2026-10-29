@@ -70,6 +70,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/hierarchy/standard/legacy-filenames",
     "checks/files/symbolic-links/broken/legacy-filenames",
     "checks/files/symbolic-links/broken/symlinks-unsafe",
+    "checks/maintainer-scripts/empty/legacy-maintainer-scripts",
+    "checks/maintainer-scripts/empty/legacy-scripts",
+    "checks/maintainer-scripts/empty/scripts-maintainer-script-empty",
     "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-native-3.0",
     "general-false-positives/basic-native-3.0-with-epoch",
@@ -198,6 +201,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/hierarchy/standard/legacy-filenames"; "checks_files_hierarchy_standard_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/legacy-filenames"; "checks_files_symbolic_links_broken_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/symlinks-unsafe"; "checks_files_symbolic_links_broken_symlinks_unsafe")]
+#[test_case("checks/maintainer-scripts/empty/legacy-maintainer-scripts"; "checks_maintainer_scripts_empty_legacy_maintainer_scripts")]
+#[test_case("checks/maintainer-scripts/empty/legacy-scripts"; "checks_maintainer_scripts_empty_legacy_scripts")]
+#[test_case("checks/maintainer-scripts/empty/scripts-maintainer-script-empty"; "checks_maintainer_scripts_empty_scripts_maintainer_script_empty")]
 #[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-native-3.0"; "general_false_positives_basic_native_3_0")]
 #[test_case("general-false-positives/basic-native-3.0-with-epoch"; "general_false_positives_basic_native_3_0_with_epoch")]

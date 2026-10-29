@@ -56,6 +56,11 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/empty-package/files-empty",
     "checks/files/empty-package/legacy-binary",
     "checks/files/empty-package/legacy-foo++",
+    "checks/files/hierarchy/standard/files-foo-in-bar",
+    "checks/files/hierarchy/standard/files-general",
+    "checks/files/hierarchy/standard/files-tar-traps",
+    "checks/files/hierarchy/standard/legacy-binary",
+    "checks/files/hierarchy/standard/legacy-filenames",
     "checks/files/symbolic-links/broken/legacy-filenames",
     "checks/files/symbolic-links/broken/symlinks-unsafe",
     "general-false-positives/basic-native-1.0",
@@ -172,6 +177,11 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/empty-package/files-empty"; "checks_files_empty_package_files_empty")]
 #[test_case("checks/files/empty-package/legacy-binary"; "checks_files_empty_package_legacy_binary")]
 #[test_case("checks/files/empty-package/legacy-foo++"; "checks_files_empty_package_legacy_foo_")]
+#[test_case("checks/files/hierarchy/standard/files-foo-in-bar"; "checks_files_hierarchy_standard_files_foo_in_bar")]
+#[test_case("checks/files/hierarchy/standard/files-general"; "checks_files_hierarchy_standard_files_general")]
+#[test_case("checks/files/hierarchy/standard/files-tar-traps"; "checks_files_hierarchy_standard_files_tar_traps")]
+#[test_case("checks/files/hierarchy/standard/legacy-binary"; "checks_files_hierarchy_standard_legacy_binary")]
+#[test_case("checks/files/hierarchy/standard/legacy-filenames"; "checks_files_hierarchy_standard_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/legacy-filenames"; "checks_files_symbolic_links_broken_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/symlinks-unsafe"; "checks_files_symbolic_links_broken_symlinks_unsafe")]
 #[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]

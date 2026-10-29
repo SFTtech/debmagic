@@ -4,6 +4,7 @@ use regex::Regex;
 
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
+use crate::lint::debian_control::unfold;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::SourceRule;
 
@@ -35,12 +36,6 @@ static DEBIAN_ORG_HOST: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"//(.+)\.debian\.org/").expect("valid regex"));
 static CURRENT_HOST: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(?:salsa|.*\.dgit)$").expect("valid regex"));
-static FOLD: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\n\s*").expect("valid regex"));
-
-fn unfold(value: &str) -> String {
-    FOLD.replace_all(value.trim(), " ").into_owned()
-}
-
 impl SourceRule for VcsObsoleteInDebianInfrastructure {
     fn run(&self, ctx: &mut SourceContext<'_>) {
         let values: Vec<(&str, String)> = {

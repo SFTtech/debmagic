@@ -753,6 +753,7 @@ mod tests {
                 crate::lint::rules::ChangelogFileNotCompressed::CODE,
                 crate::lint::rules::NonStandardToplevelDir::CODE,
                 crate::lint::rules::LatestDebianChangelogEntryWithoutNewDate::CODE,
+                crate::lint::rules::PackageRelationWithSelf::CODE,
             ]
         );
         let intent = LintIntent {

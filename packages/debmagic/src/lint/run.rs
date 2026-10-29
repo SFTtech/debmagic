@@ -541,6 +541,7 @@ mod tests {
                 crate::lint::rules::PackageContainsUnsafeSymlink::CODE,
                 crate::lint::rules::EmptyBinaryPackage::CODE,
                 crate::lint::rules::SuperfluousFilePattern::CODE,
+                crate::lint::rules::NoDep5Copyright::CODE,
             ]
         );
         let intent = LintIntent {

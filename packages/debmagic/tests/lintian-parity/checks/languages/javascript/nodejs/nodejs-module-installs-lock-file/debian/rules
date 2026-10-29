@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+PKG:=nodejs-module-installed-in-usr-lib
+INSTPATH:=$(CURDIR)/debian/tmp/usr/share/nodejs/module-installs-lock-file
+
+
+%:
+	dh $@
+
+override_dh_install:
+	mkdir -p $(INSTPATH)
+	cp src/test.js $(INSTPATH)/yarn.lock
+	cp src/test.json $(INSTPATH)/package-lock.json
+	dh_install

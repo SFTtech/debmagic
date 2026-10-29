@@ -1,0 +1,31 @@
+foo++ (5) unstable; urgency=low
+
+  * Add a fake README.Debian to trigger a warning.
+  * This should trigger
+    debian-changelog-file-contains-debmake-default-email-address.
+
+ -- Marc 'HE' Brockschmidt <he@unknown>  Wed, 14 Apr 2003 01:35:47 +0200
+
+foo++ (4) unstable; urgency=low
+
+  * This changelog now includes a ISO-8859-1 character: 'ä'
+
+ -- Frank Lichtenheld <djpig@debian.org>  Fri,  5 Mar 2004 13:41:39 +0100
+
+foo++ (3) unstable; urgency=low
+
+  * Set maintainers + uploaders incorrectly
+
+ -- Jeroen van Wolffelaar <jeroen@wolffelaar.nl>  Fri,  5 Mar 2004 04:20:24 +0100
+
+foo++ (2) unstable; urgency=low
+
+  * Added a foo++-helper package to try and catch even more ++ bugs.
+
+ -- Sean 'Shaleh' Perry <shaleh@debian.org>  Sat, 10 Feb 2001 23:16:17 -0800
+
+foo++ (1) unstable; urgency=low
+
+  * Initial version
+
+ -- Sean 'Shaleh' Perry <shaleh@debian.org>  Thu, 16 Nov 2000 09:11:40 -0800

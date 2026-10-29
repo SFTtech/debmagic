@@ -1,0 +1,27 @@
+Source: description-perl
+Priority: optional
+Section: perl
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: libdeb-long-description-perl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: lintian dummy package to test a module name related check
+ This package is solely meant for testing a lintian check to argue
+ about not mentioning the contained perl module.
+ .
+ For testing and length-ish purposes, with Long::Description a similar
+ name is mentioned though.
+
+Package: libdeb-long-description-proper-perl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: lintian dummy package to test a module name related false positive
+ This package is solely meant for testing a lintian check to argue
+ about not mentioning the contained perl module.
+ .
+ This is a package which checks the test for false positives, so it
+ actually mentions Deb::Long::Description::Proper.

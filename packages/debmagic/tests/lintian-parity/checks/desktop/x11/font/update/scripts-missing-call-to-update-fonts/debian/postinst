@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -e
+
+if false
+then
+	echo "Deliberately not including DEBHELPER snippet."
+fi

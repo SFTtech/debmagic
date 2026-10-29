@@ -1,0 +1,7 @@
+scripts (source): package-uses-deprecated-debhelper-compat-version 1
+scripts (source): package-uses-debhelper-but-lacks-build-depends [debian/rules]
+scripts (source): no-versioned-debhelper-prerequisite 1
+scripts (source): missing-build-dependency-for-dh_-command dh_testroot (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+scripts (source): debian-build-system debhelper [debian/rules]
+scripts (source): debhelper-but-no-misc-depends scripts
+scripts (source): debhelper-base-compat-level-is-missing

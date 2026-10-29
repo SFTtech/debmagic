@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+
+GPKG:=game
+PKG:=binary
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	for N in uid gid ugid wexec wuid ro; do \
+		sed s/script/script-$$N/ < script > script-$$N ; \
+		pod2man --section 1 script-$$N > script-$$N.1 ; \
+	done
+	pod2man --section 1 script > script.1
+
+override_dh_fixperms:
+	dh_fixperms
+
+	chmod 0444 debian/$(PKG)/usr/share/doc/$(PKG)/read-only
+	chmod 4755 debian/$(PKG)/usr/bin/script-uid
+	chmod 2755 debian/$(PKG)/usr/bin/script-gid
+	chmod 6755 debian/$(PKG)/usr/bin/script-ugid
+	chmod 0775 debian/$(PKG)/usr/bin/script-wexec
+	chmod 4744 debian/$(PKG)/usr/bin/script-wuid
+	chmod 0751 debian/$(PKG)/usr/bin/script-ro
+	chmod 0644 debian/$(PKG)/usr/lib/some-where/sample.ali
+	chmod 0744 debian/$(PKG)/usr/share/doc/$(PKG)
+	chmod 0755 debian/$(PKG)/usr/share/doc/$(PKG)/some-file
+	chmod 0755 debian/$(PKG)/etc/cron.d/script
+	chmod 0755 debian/$(PKG)/etc/emacs.d/script
+	chmod 0765 debian/$(PKG)/etc/init.d/binary

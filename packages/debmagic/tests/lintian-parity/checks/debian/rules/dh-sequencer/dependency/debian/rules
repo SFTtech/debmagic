@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+export USER=fake
+export HOME=$(CURDIR)/debian/fake-home
+
+$(CURDIR)/debian/fake-home:
+	mkdir $(CURDIR)/debian/fake-home
+
+%: $(CURDIR)/debian/fake-home
+	dh $@

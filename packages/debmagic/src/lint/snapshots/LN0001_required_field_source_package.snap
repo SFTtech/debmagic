@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): required-field (LN0001) example.dsc Standards-Version
+E: example (source): required-field (LN0001) (in section for source) Standards-Version [debian/control]

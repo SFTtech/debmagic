@@ -1,0 +1,23 @@
+Source: fields-uncanonical-vcs-fields
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+Vcs-Browser: https://svn.debian.org/wsvn/foobar/trunk?foo=bar;op=log;something=else
+Vcs-Svn: svn://svn.debian.org/svn/foobar/trunk
+Vcs-Mtn: mtn://www.example.org?org.debian.foobar
+Vcs-Hg: http://hg.debian.org/hg/foobar/pkg/foobar
+Vcs-Git: git://git.debian.org/~djpig/foobar.git -b master
+Vcs-Cvs: :pserver:anonymous@cvs.alioth.debian.org:/cvsroot/foobar module
+Vcs-Bzr: nosmart+http://bzr.debian.org/bzr/collab-maint/foobar
+
+Package: fields-uncanonical-vcs-fields
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test for vcs fields needing canonization
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

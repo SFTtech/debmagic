@@ -1,0 +1,11 @@
+[Unit]
+After=network.target
+Description=Test %I
+Documentation=https://example.com/%i/
+
+[Service]
+ExecStart=/bin/test %i
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

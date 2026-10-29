@@ -1,0 +1,1 @@
+differing-golang-xs-go-import-path (source): xs-go-import-path-differs-from-module-path github.com/Debian/lintian-test-package vs hello

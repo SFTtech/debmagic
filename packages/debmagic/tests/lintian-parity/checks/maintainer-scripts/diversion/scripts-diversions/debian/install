@@ -1,0 +1,7 @@
+orphan usr/share/scripts
+some-file usr/share/scripts
+file.1 usr/share/scripts
+foo usr/bin
+foo.1p usr/share/man/man1
+foo.service usr/lib/systemd/system/
+00-rule.rules lib/udev/rules.d/

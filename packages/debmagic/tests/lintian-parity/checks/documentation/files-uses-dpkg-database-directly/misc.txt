@@ -1,0 +1,1 @@
+This file is false positive as it references /var/lib/dpkg/foo.

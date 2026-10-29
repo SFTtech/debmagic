@@ -1,0 +1,110 @@
+Source: gir
+Priority: optional
+Section: libs
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 13)
+Rules-Requires-Root: no
+
+Package: gir1.2-bad
+Section: misc
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test GObject-Introspection
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package gets GObject-Introspection wrong in various ways.
+
+Package: gir1.2-bad-multiarch
+Section: misc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test GObject-Introspection
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package also gets GObject-Introspection wrong in various ways.
+
+Package: gir1.2-good-42
+Section: oldlibs
+Architecture: any
+Provides: gir1.2-goodextras-42 (= ${binary:Version})
+Depends: ${gir:Depends}, ${shlibs:Depends}, ${misc:Depends}, libgood-42-0
+Description: test GObject-Introspection - GIR
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This contains the GObject-Introspection typelib.
+ .
+ This package is in the oldlibs section (a deprecated typelib), unlike
+ gir1.2-perfect-42 which is in the introspection section.
+
+Package: libgood-42-dev
+Section: oldlibs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, gir1.2-good-42 (= ${binary:Version}), libgood-42-0 (= ${binary:Version})
+Provides: gir1.2-good-42-dev (= ${binary:Version}), gir1.2-goodextras-42-dev (= ${binary:Version})
+Description: test GObject-Introspection - development
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package is in the oldlibs section (a deprecated development
+ package), unlike libperfect-42-dev which is in the libdevel section.
+
+Package: libgood-42-0
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test GObject-Introspection - shared library
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This is the shared library.
+
+Package: gir1.2-perfect-42
+Section: introspection
+Architecture: any
+Depends: ${gir:Depends}, ${shlibs:Depends}, ${misc:Depends}, libperfect-42-0
+Description: test GObject-Introspection - GIR with multiarch
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This contains the GObject-Introspection typelib, with multiarch.
+
+Package: gir1.2-perfect-42-dev
+Section: libdevel
+Architecture: any
+Depends: ${gir:Depends}, ${shlibs:Depends}, ${misc:Depends}, gir1.2-perfect-42 (= ${binary:Version})
+Description: test GObject-Introspection - development GIR XML
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package contains GObject-Introspection XML for libperfect.
+
+Package: libperfect-42-dev
+Section: libdevel
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libperfect-42-0 (= ${binary:Version})
+Description: test GObject-Introspection - development with multiarch
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This contains the development files, with multiarch.
+
+Package: libperfect-42-0
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test GObject-Introspection - shared library with multiarch
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This is the shared library, with multiarch.

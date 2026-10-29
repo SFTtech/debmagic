@@ -1,0 +1,5 @@
+source-copyright-unique (source): unused-license-paragraph-in-dep5-copyright other-license [debian/copyright:35]
+source-copyright-unique (source): unused-license-paragraph-in-dep5-copyright other-license [debian/copyright:32]
+source-copyright-unique (source): dep5-file-paragraph-references-header-paragraph some-license [debian/copyright:8]
+source-copyright-unique (source): dep5-copyright-license-name-not-unique other-license [debian/copyright:35]
+source-copyright-unique (source): dep5-copyright-license-name-not-unique other-license [debian/copyright:32]

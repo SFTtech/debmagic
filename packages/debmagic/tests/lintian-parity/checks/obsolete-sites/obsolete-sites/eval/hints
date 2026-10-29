@@ -1,0 +1,7 @@
+obsolete-sites (source): obsolete-url-in-packaging https://foo.berlios.de/ [debian/copyright]
+obsolete-sites (source): obsolete-url-in-packaging http://gitorious.org/foo/foo/file-(.*)\.tar\.gz [debian/watch]
+obsolete-sites (source): obsolete-url-in-packaging http://freshmeat.net/p/foo [debian/copyright]
+obsolete-sites (source): obsolete-url-in-packaging http://freecode.com/p/foo [debian/upstream/metadata]
+obsolete-sites (source): obsolete-url-in-packaging http://code.google.com/p/foo [debian/control]
+obsolete-sites (source): obsolete-url-in-packaging git://gitorious.org/foo/foo.git [debian/upstream/metadata]
+obsolete-sites (source): obsolete-url-in-packaging ftp://ftp.debian.org [debian/copyright]

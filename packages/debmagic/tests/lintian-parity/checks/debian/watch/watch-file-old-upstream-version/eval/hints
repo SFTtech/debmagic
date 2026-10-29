@@ -1,0 +1,2 @@
+watch-file-old-upstream-version (source): debian-watch-file-specifies-old-upstream-version 1.0 [debian/watch]
+watch-file-old-upstream-version (source): debian-watch-does-not-check-openpgp-signature [debian/watch]

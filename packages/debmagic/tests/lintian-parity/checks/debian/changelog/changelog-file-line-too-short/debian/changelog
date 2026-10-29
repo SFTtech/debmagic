@@ -1,0 +1,17 @@
+changelog-file-line-too-short (1.0-1) unstable; urgency=low
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+  * The following lines are too short.
+  * R³
+  * dh 11
+  * 12345
+
+  * The following entries are long enough.
+  * dh 11.
+  * 123456
+
+  * These are false positives.
+  * 123:
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

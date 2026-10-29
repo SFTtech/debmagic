@@ -1,0 +1,16 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Doohickey
+Upstream-Contact: J. Random Hacker <j.r.hacker@example.com>
+Source: http://examples.com/doohickey/source/
+
+Files: *
+Copyright: 2014, somebody1
+License: this | that
+
+Files: debian/*
+Copyright: 2014, somebody1
+License: this|that
+ this is a valid license short name
+
+License: this | that
+ should be "this or that"

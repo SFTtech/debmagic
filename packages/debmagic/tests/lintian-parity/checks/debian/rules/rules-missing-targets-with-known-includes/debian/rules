@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+# This should trigger a missing $type targets, since
+# we know the makefile does not implement them.
+include /usr/share/javahelper/java-vars.mk
+
+clean build binary:
+	dh $@

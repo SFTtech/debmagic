@@ -1,0 +1,3 @@
+watch-file-template (source): debian-watch-uses-insecure-uri http://www.example.com/software/foo/ [debian/watch:3]
+watch-file-template (source): debian-watch-does-not-check-openpgp-signature [debian/watch]
+watch-file-template (source): debian-watch-contains-dh_make-template Example watch control file for uscan [debian/watch]

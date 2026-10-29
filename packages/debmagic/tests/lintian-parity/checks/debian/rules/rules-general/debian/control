@@ -1,0 +1,16 @@
+Source: rules-general
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends-Indep: debhelper (>= 13~), python
+Rules-Requires-Root: no
+
+Package: rules-general
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test various debian/rules checks
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

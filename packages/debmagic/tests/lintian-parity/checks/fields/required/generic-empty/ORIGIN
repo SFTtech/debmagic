@@ -1,0 +1,9 @@
+lintian 2.139.0 (575a2bf1bc98500bbc1c78e82f44b40d195d17ea)
+t/recipes/checks/fields/required/generic-empty
+Skeleton: upload-native
+
+Filled test-package sources from t/templates + t/skeletons and the
+build-spec overlay. Does not build .deb / .dsc / .changes; tests do that.
+eval/hints is transcribed verbatim.
+
+License: GPL-2+ (same as lintian; see lintian debian/copyright).

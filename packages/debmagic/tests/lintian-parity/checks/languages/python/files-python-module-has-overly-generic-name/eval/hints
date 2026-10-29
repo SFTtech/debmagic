@@ -1,0 +1,9 @@
+python3-foo (binary): python-package-missing-depends-on-python
+python3-foo (binary): python-module-has-overly-generic-name (tests) [usr/lib/python3/dist-packages/tests/__init__.py]
+python3-foo (binary): python-module-has-overly-generic-name (tests) [usr/lib/python3/dist-packages/tests.py]
+python3-foo (binary): python-module-has-overly-generic-name (test) [usr/lib/python3/dist-packages/test/__init__.py]
+python3-foo (binary): python-module-has-overly-generic-name (site) [usr/lib/python3/dist-packages/site.py]
+python3-foo (binary): python-module-has-overly-generic-name (examples) [usr/lib/python3/dist-packages/examples/__init__.py]
+python3-foo (binary): python-module-has-overly-generic-name (example) [usr/lib/python3/dist-packages/example/__init__.py]
+python3-foo (binary): python-module-has-overly-generic-name (docs) [usr/lib/python3/dist-packages/docs/__init__.py]
+python3-foo (binary): python-module-has-overly-generic-name (doc) [usr/lib/python3/dist-packages/doc/__init__.py]

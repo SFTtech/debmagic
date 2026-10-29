@@ -1,0 +1,30 @@
+Source: control-file-missing-separator
+Section: devel
+Priority: optional
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Build-Depends: debhelper-compat (= 14),
+ fiddle [amd64 powerpc
+ mips mipsel
+ hppa
+ s390],
+ faddle
+ (>>
+ 2) [
+ sparc i386 amd64
+ ]
+Standards-Version: 4.7.4.1
+
+Package: control-file-missing-separator
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, foo (>= 1)
+  baz (<< 2),
+  fizz (= 2.0)
+Suggests: p1
+ p2
+ p3
+ p4
+ p5
+Description: Test for missing separators in control files
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

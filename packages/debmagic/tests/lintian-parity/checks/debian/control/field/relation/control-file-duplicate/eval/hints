@@ -1,0 +1,5 @@
+control-file-duplicate (source): redundant-control-relation (in source paragraph) Build-Depends-Indep foobar, foobar [debian/control:7]
+control-file-duplicate (source): redundant-control-relation (in source paragraph) Build-Depends debhelper, debhelper (>= 14~) [debian/control:6]
+control-file-duplicate (source): redundant-control-relation (in source paragraph) Build-Conflicts bar, bar [i386] [debian/control:8]
+control-file-duplicate (source): redundant-control-relation (in section for control-file-duplicate) Suggests baz, baz (= 1.0), baz (>= 2.0) [debian/control:18]
+control-file-duplicate (source): redundant-control-relation (in section for control-file-duplicate) Depends ${misc:Depends}, ${misc:Depends} [debian/control:16]

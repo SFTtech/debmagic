@@ -1,0 +1,9 @@
+fields (source): uses-debhelper-compat-file [debian/compat]
+fields (source): package-uses-old-debhelper-compat-version 13
+fields (source): package-uses-debhelper-but-lacks-build-depends [debian/rules]
+fields (source): no-versioned-debhelper-prerequisite 13
+fields (source): missing-build-dependency-for-dh_-command dh_md5sums (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+fields (source): debian-build-system debhelper [debian/rules]
+fields (source): debhelper-compat-level 13
+fields (source): debhelper-but-no-misc-depends fields
+fields (source): debhelper-but-no-misc-depends another-version

@@ -1,0 +1,6 @@
+appstream-metadata (binary): appstream-metadata-validation-failed Problems reported by "appstreamcli validate-tree".
+appstream-metadata (binary): appstream-metadata-missing-modalias-provide match rule usb:v0000p000Ad* [usr/lib/udev/rules.d/60-appstream-metadata.rules:13]
+appstream-metadata (binary): appstream-metadata-malformed-modalias-provide include non-valid hex digit in USB matching rule 'usb:v0000p000ad*' [usr/share/metainfo/appstream-metadata.metadata.xml]
+appstream-metadata (binary): appstream-metadata-legacy-format [usr/share/appdata/appstream-metadata-obsolete.metadata.xml]
+appstream-metadata (binary): appstream-metadata-invalid [usr/share/metainfo/appstream-metadata-invalid.metadata.xml]
+appstream-metadata (binary): appstream-metadata-in-legacy-location [usr/share/appdata/appstream-metadata-obsolete.metadata.xml]

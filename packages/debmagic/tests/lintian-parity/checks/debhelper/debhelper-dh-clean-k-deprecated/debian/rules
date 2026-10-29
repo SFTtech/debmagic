@@ -1,0 +1,37 @@
+#!/usr/bin/make -f
+#
+# Use an alternate rules file that doesn't call dh to test not warning
+# about debhelper script tokens if we call no programs that care about
+# them.
+
+pkg = $(shell dh_listpackages)
+
+build: build-arch build-indep
+build-arch:
+build-indep:
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean
+
+binary: binary-indep binary-arch
+binary-arch:
+binary-indep:
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_install
+	dh_installchangelogs
+	dh_installdebconf
+	# dh_installdocs may modify maintainer scripts
+	install -m 644 debian/copyright debian/$(pkg)/usr/share/doc/$(pkg)
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+.PHONY: build-arch build-indep build binary binary-arch binary-indep clean

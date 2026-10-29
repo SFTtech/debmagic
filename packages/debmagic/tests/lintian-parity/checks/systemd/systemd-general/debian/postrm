@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "purge" ] && which systemctl >/dev/null 2>&1; then
+    systemctl || true
+fi
+
+#DEBHELPER#
+

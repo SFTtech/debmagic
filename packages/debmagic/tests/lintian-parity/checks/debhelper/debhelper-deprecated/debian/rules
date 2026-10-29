@@ -1,0 +1,48 @@
+#!/usr/bin/make -f
+
+pkg = $(shell dh_listpackages)
+VERSION=2
+
+build: build-indep build-arch
+build-arch:
+build-indep:
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean
+
+binary: binary-indep binary-arch
+binary-arch:
+binary-indep:
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_install
+	dh_installchangelogs
+	dh_installdocs
+	dh_installmanpages
+
+	#dh_scrollkeeper
+	-dh_python-ply # neither should this
+
+# Check not warning about deprecated commands in optional portions, but
+# commands that have been toast for a long time are still warned about.
+ifneq "$(LENNY_BACKPORT)" "y"
+	-dh_help
+	#dh_scrollkeeper
+endif
+	dh_link
+	dh_compress
+	dh_fixperms
+	#dh_suidregister
+
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+somewhere:
+	dh $@ --with autotools-dev
+
+.PHONY: build-arch build-indep build binary binary-arch binary-indep clean

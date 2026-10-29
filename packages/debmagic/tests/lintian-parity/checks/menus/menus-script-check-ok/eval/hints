@@ -1,0 +1,2 @@
+menus-script-check-ok (binary): prerm-has-useless-call-to-install-docs [prerm:4]
+menus-script-check-ok (binary): postinst-has-useless-call-to-install-docs [postinst:12]

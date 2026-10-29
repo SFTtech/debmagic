@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+PREFIX = $(CURDIR)/debian/files-wildcard-characters/usr/share/files-wildcard-characters
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	mkdir -p $(PREFIX)
+	touch $(PREFIX)/star*
+	touch $(PREFIX)/question-mark?

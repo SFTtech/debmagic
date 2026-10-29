@@ -1,0 +1,12 @@
+debconf (source): untranslatable-debconf-templates [debian/debconf-test.templates:58]
+debconf (source): untranslatable-debconf-templates [debian/debconf-test.templates:47]
+debconf (source): unknown-encoding-in-po-file [debian/po/fr.po]
+debconf (source): translated-default-field [debian/debconf-test.templates:72]
+debconf (source): translated-default-field [debian/debconf-test.templates:67]
+debconf (source): stray-translated-debconf-templates [debian/debconf-test.templates.de]
+debconf (source): no-complete-debconf-translation
+debconf (source): newer-debconf-templates [debian/po/templates.pot]
+debconf (source): misnamed-po-file [debian/po/sample-file.po]
+debconf (source): misnamed-po-file [debian/po/lang.po]
+debconf (source): invalid-po-file [debian/po/sample-file.po]
+debconf (source): invalid-po-file [debian/po/fr.po]

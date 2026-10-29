@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): dir-or-file-in-var-run (LN0042) [var/run/x]
+E: example (binary): dir-or-file-in-var-run (LN0042) [var/run/x/]
+E: example (binary): dir-or-file-in-var-run (LN0042) [var/run/x/file]

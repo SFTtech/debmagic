@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "-I/usr/include/$(ARCH_CROSS)/someconfig.h"
+

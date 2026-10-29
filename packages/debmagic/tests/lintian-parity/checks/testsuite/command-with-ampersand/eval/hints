@@ -1,0 +1,1 @@
+command-with-ampersand (source): backgrounded-test-command /bin/true & [debian/tests/control:1]

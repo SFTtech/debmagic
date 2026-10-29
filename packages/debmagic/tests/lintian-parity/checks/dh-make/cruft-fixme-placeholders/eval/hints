@@ -1,0 +1,6 @@
+cruft-fixme-placeholders (source): file-contains-fixme-placeholder FIX_ME [debian/README.source:5]
+cruft-fixme-placeholders (source): file-contains-fixme-placeholder FIXME [debian/rules:4]
+cruft-fixme-placeholders (source): file-contains-fixme-placeholder FIXME [debian/copyright:8]
+cruft-fixme-placeholders (source): file-contains-fixme-placeholder FIXME [debian/control:22]
+cruft-fixme-placeholders (source): file-contains-fixme-placeholder FIXME [debian/control:18]
+cruft-fixme-placeholders (source): file-contains-fixme-placeholder FIXME [debian/README.source:4]

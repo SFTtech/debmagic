@@ -1,0 +1,7 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+	# The line contains a trailing tab (false-positive)
+	
+

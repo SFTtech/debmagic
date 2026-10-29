@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+# must create here; *.so files are ignored by dpkg-source
+override_dh_auto_build:
+	mkdir modules
+	echo "A SHARED OBJECT" > modules/a-module.so
+
+# In Ubuntu, dh does not catch this file by default.
+#  They have diffed it to reduce the size of packages.
+ifneq (,$(strip $(wildcard Changes)))
+override_dh_installchangelogs:
+	dh_installchangelogs Changes
+endif

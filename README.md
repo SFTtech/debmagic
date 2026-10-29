@@ -33,7 +33,7 @@ uvx debmagic build binary --driver docker
 | `debmagic env` | List, clean, or open a shell in a build or test environment |
 | `debmagic sign` | GPG-sign a `.changes` file (and its `.dsc`/`.buildinfo`) on the host |
 | `debmagic config` | Inspect and edit the effective `debmagic.toml` configuration |
-| `debmagic check` | Lint the package *(in progress)* |
+| `debmagic lint` | Lint a source tree, `.deb`, or `.dsc` *(experimental)* |
 
 
 ---

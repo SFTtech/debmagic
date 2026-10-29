@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): description-too-short (LN0053) Short
+E: example (binary): description-too-short (LN0053) Short
+E: example (udeb): description-too-short (LN0053) Short

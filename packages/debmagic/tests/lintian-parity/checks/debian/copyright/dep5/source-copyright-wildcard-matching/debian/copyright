@@ -1,0 +1,49 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Doohickey
+Upstream-Contact: J. Random Hacker <j.r.hacker@example.com>
+Source: http://examples.com/doohickey/source/
+
+Files: file?with?commas
+       deb*
+Copyright: 2014, somebody1
+Comment: this paragraph is superfluous because all files are matched
+ by the following paragraphs
+License: mylicense
+ Fixme
+
+Files: i-do-not-exist
+Copyright: 2014, somebody1
+License: mylicense-1
+ Fixme
+
+Files: invalid-escape\n
+Copyright: 2014, somebody1
+License: mylicense-2
+ Fixme
+
+Files: debian/*
+Copyright: 2014, somebody1
+License: mylicense-3
+ Fixme
+
+Files:
+ file,with,commas 
+Copyright: 2014, somebody1
+Comment: this paragraph starts with a newline and ends with a space
+License: mylicense-4
+ Fixme
+
+Files: rare-filenames/01-file-with-(something-in-parenthesis).png
+       rare-filenames/02-or-perhaps-only-one-{-which-causes-a-compile-failure.png
+       rare-filenames/03-even-]-is-not-safe.png
+       rare-filenames/04-Perhaps-even-|-will-cause-problems.png
+       rare-filenames/05-Lets-not-forget-^-and-$-for-added-fun.png
+       rare-filenames/06-how-about-a-+-sign.png
+Copyright: 2014, somebody1
+License: mylicense-5
+ Fixme
+
+Files: ./folder/another-file
+Copyright: 2015, somebody1
+License: mylicense-6
+ Fixme

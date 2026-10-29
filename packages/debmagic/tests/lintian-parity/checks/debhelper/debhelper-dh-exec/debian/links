@@ -1,0 +1,2 @@
+#! /usr/bin/dh-exec
+link-foo => link-bar

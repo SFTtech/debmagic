@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+DESTDIR = debian/$(shell dh_listpackages)/usr/lib/$(DEB_HOST_MULTIARCH)
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	dh_auto_install
+	
+	mkdir -p $(DESTDIR)/cmake
+	mkdir -p $(DESTDIR)/pkgconfig
+	
+	touch $(DESTDIR)/libfoo.a
+	touch $(DESTDIR)/cmake/foo.cmake
+	touch $(DESTDIR)/pkgconfig/libfoo.pc
+
+override_dh_strip:

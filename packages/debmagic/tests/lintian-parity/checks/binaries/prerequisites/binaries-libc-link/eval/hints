@@ -1,0 +1,2 @@
+binaries-libc-link (binary): shared-library-lacks-prerequisites [usr/lib/basic/libbasic-nodeps]
+binaries-libc-link (binary): program-not-linked-against-libc [usr/bin/basic]

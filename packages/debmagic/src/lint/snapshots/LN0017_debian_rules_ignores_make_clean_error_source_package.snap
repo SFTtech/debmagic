@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-ignores-make-clean-error (LN0017) [debian/rules:7]

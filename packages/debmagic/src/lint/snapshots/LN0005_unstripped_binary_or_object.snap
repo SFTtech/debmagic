@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unstripped-binary-or-object (LN0005) [usr/bin/app]
+E: example (binary): unstripped-binary-or-object (LN0005) [usr/lib/libfoo.so]
+E: example (binary): unstripped-binary-or-object (LN0005) [shared/payload]
+E: foo-dbgsym (binary): unstripped-binary-or-object (LN0005) [usr/bin/app]
+E: example (binary): unstripped-binary-or-object (LN0005) [usr/lib/guile/3.0/foo.go]
+E: example (binary): unstripped-binary-or-object (LN0005) [usr/lib/libcaml.so]

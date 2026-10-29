@@ -1,0 +1,6 @@
+#! /bin/bash -e
+
+if [ $1 eq 'configure' ]
+then
+	suidregister hello-static root root 4755
+fi

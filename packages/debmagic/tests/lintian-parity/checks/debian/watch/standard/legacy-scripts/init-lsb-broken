@@ -1,0 +1,34 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          bad-lsb
+#  Required-Start:    $local_fs $remote_fs
+# Required-Stop:     
+# Default-Start:     1 2 3 4 5
+# Default-Stop:      S 0 1 6 X
+# Short-Description: Example Lintian initscript
+#                    but this can't be continued
+# Description:       An example of a bad LSB section in an init script.
+#                    This continuation is allowed (with spaces).
+#			This one is too (with tabs).
+# X-Debian-Foo:      Some unknown but valid keyword.
+# Foo:               Some invalid keyword.
+
+# Whoops, no terminating line.
+
+# And then we have this duplicate section.
+### BEGIN INIT INFO
+# Required-Start:    This one doesn't count.
+### END INIT INFO
+
+# Hey, look at all of those missing actions!  But stop isn't missing.
+case "$1" in
+  start|stop)
+	echo "Blah"
+	;;
+  *)
+	echo "Usage: foo start" >&2
+	exit 3
+	;;
+esac
+
+:

@@ -1,0 +1,17 @@
+Source: fields-wrong-package-email-alias
+Section: devel
+Maintainer: Lintian Maintainers <wrong-email-alias@packages.debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Homepage: https://lintian.debian.org/
+
+Package: fields-wrong-package-email-alias
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Checks for a package using packages.debian.org email with wrong source package name
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package probably has no meaningful contents.

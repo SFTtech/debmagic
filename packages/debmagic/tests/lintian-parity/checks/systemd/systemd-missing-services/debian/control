@@ -1,0 +1,55 @@
+Source: systemd-missing-services
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: systemd-missing-services-with
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, lsb-base (>= 3.0-6)
+Description: Check for missing service files - with .service file
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package has a .service file for its initscript.
+
+Package: systemd-missing-services-template
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, lsb-base (>= 3.0-6)
+Description: Check for missing service files - with @.service template file
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package has a @.service template file for its initscript.
+
+Package: systemd-missing-services-without
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, lsb-base (>= 3.0-6)
+Description: Check for missing service files - without .service file
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package does not have a .service file for its initscript.
+
+Package: systemd-missing-services-without-rcs
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, lsb-base (>= 3.0-6)
+Description: Check for missing service files - rcS script without .service file
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package does not have a .service file for its rcS initscript.

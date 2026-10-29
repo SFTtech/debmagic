@@ -1,0 +1,124 @@
+Template: debconf/translated
+Type: error
+_Description: Useless note
+
+Template: debconf/unsplit-choices
+Type: select
+_Choices: left, right, up, down
+_Description: Pick the odd one out
+
+Type: text
+_Description: Missing template field.
+
+Template: debconf-malformed-template
+Type: boolean
+_Description: Is this a bad template?
+
+Template: debconf/no-type
+_Description: Missing type
+
+Template: debconf/unknown-type
+Type: lintian
+_Description: Template with unknown type
+
+Template: debconf/boolean-bogus-default
+Type: boolean
+Default: lintian
+_Description: How do you like the default?
+ On a scale of "false" to "true".
+
+Template: debconf/select-boolean-choice
+Type: select
+Choices: yes, no
+_Description: A boolean type would have been better
+
+Template: debconf/select-empty-trans-choices
+Type: select
+Choices: sakana, sake
+Choices-Da:
+_Description: Preference
+
+Template: debconf/select-without-choices
+Type: select
+_Description: Missing a Choices field
+
+Template: debconf/no-description
+Type: error
+
+Template: debconf/duplicate-long-desc
+Type: error
+_Description: Duplicate long description
+ Duplicate long description
+
+Template: debconf/unknown-field
+Type: boolean
+_Description: Is the field below unknown?
+Unknown-field: yes, it is.
+
+Template: debconf/malformed-prompt
+Type: string
+_Description: What is the name of this package checker:
+
+Template: debconf/imperative-select
+Type: select
+Choices: x,y
+_Description: Select either x or y
+
+Template: debconf/malformed-question
+Type: boolean
+_Description: Lintian is the best!
+
+Template: debconf/question-in-extended
+Type: boolean
+_Description: Do you like sakana?
+ Or do you prefer sake?
+
+Template: debconf/malformed-note-title
+Type: note
+_Description: Aren't you tired of all these debconf prompts?
+
+Template: debconf/too-long-short-desc
+Type: boolean
+_Description: This template has a very long short description, is that what you call an oxymoron?
+
+Template: debconf/first-person
+Type: select
+Choices: lintian, no-lintian
+_Description: I think Lintian is the best
+
+Template: debconf/assumption
+Type: boolean
+_Description: Do you like Lintian?
+ Pick "yes" if you do.
+
+Template: debconf/5-green-bottles-on-the-wall
+Type: string
+_Description: Name the title of this song:
+ Five green bottles sitting on the wall,
+ Five green bottles sitting on the wall,
+ And if one green bottle should accidentally fall,
+ There'll be four green bottles sitting on the wall.
+ .
+ Four green bottles sitting on the wall,
+ Four green bottles sitting on the wall,
+ And if one green bottle should accidentally fall,
+ There'll be three green bottles sitting on the wall.
+ .
+ Three green bottles sitting on the wall,
+ Three green bottles sitting on the wall,
+ And if one green bottle should accidentally fall,
+ There'll be two green bottles sitting on the wall.
+ .
+ Two green bottles sitting on the wall,
+ Two green bottles sitting on the wall,
+ And if one green bottle should accidentally fall,
+ There'll be one green bottle sitting on the wall.
+ .
+ One green bottle sitting on the wall,
+ One green bottle sitting on the wall,
+ And if one green bottle should accidentally fall,
+ There'll be no green bottles sitting on the wall.
+
+Template: debconf/entropy-type
+Type: entropy
+_Description: Template with entropy type

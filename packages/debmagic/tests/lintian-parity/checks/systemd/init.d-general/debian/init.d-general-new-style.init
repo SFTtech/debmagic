@@ -1,0 +1,31 @@
+#!/usr/bin/env /lib/init/init-d-script
+### BEGIN INIT INFO
+# Provides:          init.d-general-new-style
+# Should-Start:      $syslog
+# Required-Start:    $time $local_fs
+# Required-Stop:     $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: init.d-general-new-style
+### END INIT INFO
+NAME='init.d-general-new-style'
+DESC='init.d-general-new-style description here'
+DAEMON=/usr/sbin/init.d-general-new-styl
+
+daemon_ () { /usr/bin/daemon --noconfig --name "${NAME}" "$@"; }
+if ! test -x '/usr/bin/daemon' ; then
+	log_failure_msg "install \`daemon' package to use ${NAME} script"
+	exit 1
+fi
+
+do_start_cmd_override () {
+	daemon_ "${DAEMON}"
+}
+
+do_stop_cmd_override () {
+	if daemon_ --running ; then
+		daemon_ --stop
+	fi
+}
+
+# vim: ft=sh

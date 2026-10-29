@@ -33,6 +33,7 @@ members = [
 [tool.ruff]
 line-length = 120
 target-version = "py312"
+force-exclude = true
 extend-exclude = [
     ".idea",
     ".mypy_cache",
@@ -41,6 +42,7 @@ extend-exclude = [
     "debian",
     "__pycache__",
     "*.egg_info",
+    "packages/debmagic/tests/",
 ]
 
 [tool.ruff.lint]
@@ -48,6 +50,9 @@ select = ["E", "W", "B", "F", "I", "C", "N", "PL", "RUF", "PYI", "I001"]
 ignore = ["E722", "PLR2004", "PLR0912", "PLR5501", "PLC0415", "PLR0911", "B006"]
 mccabe.max-complexity = 25
 pylint.max-args = 10
+
+[tool.ty.src]
+exclude = ["packages/debmagic/tests/"]
 
 [tool.pytest]
 testpaths = ["tests"]

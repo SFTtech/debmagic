@@ -1,0 +1,2 @@
+# This is not a script nor an ELF executable, but yet it will be marked
+# executable.  Tsk tsk tsk.

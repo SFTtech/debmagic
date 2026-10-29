@@ -1,0 +1,7 @@
+changelog-file-etch-nmu (1.0-1etch1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Lintian Test Suite.
+  * Test: changelog-file-etch-nmu
+
+ -- Russ Allbery <rra@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

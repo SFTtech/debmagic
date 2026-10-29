@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): changelog-file-not-compressed (LN0024) [usr/share/doc/example/changelog]
+E: example (binary): changelog-file-not-compressed (LN0024) [usr/share/doc/example/changelog.Debian]
+E: example (binary): changelog-file-not-compressed (LN0024) [usr/share/doc/example/changelog.html]
+E: example (binary): changelog-file-not-compressed (LN0024) [usr/share/doc/example/changelog]
+E: example (binary): changelog-file-not-compressed (LN0024) [usr/share/doc/example/changelog.Debian]
+E: example (udeb): changelog-file-not-compressed (LN0024) [usr/share/doc/example/changelog]
+E: example (binary): changelog-file-not-compressed (LN0024) [usr/share/doc/example/changelog]

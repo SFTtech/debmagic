@@ -1,0 +1,12 @@
+changelog-file-strange-date (2.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: changelog-file-strange-date
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-strange-date (1.0) unstable; urgency=low
+
+  * The date will fail with some dpkg version see #794674
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  The, 15 Apr 2004 23:33:51 +0200

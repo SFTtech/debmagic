@@ -1,0 +1,18 @@
+=head1 NAME
+
+@SCRIPT@ - Cool script to do stuff written in some script language.
+
+=head1 SYNOPSIS
+
+@SCRIPT@ --cool-argument
+
+=head1 DESCRIPTION
+
+This script is very awesome and does something you do not even know
+you need.
+
+=head1 AUTHOR
+
+I made this
+
+

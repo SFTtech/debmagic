@@ -1,0 +1,43 @@
+Source: filenames
+Maintainer: Lintian Maintainer <lintian-maint@debian.org>
+Standards-Version: 3.1.1
+Rules-Requires-Root: binary-targets
+
+Package: filenames
+Architecture: any
+Depends: test, python-support
+Description: see how lintian reacts to weird filenames
+ This package contains files with the most evil names I could find,
+ except for ones that lintian is explicitly not designed to handle.
+ .
+ Lintian does not handle filenames containing newlines, or filenames
+ that contain the strings " link to ", " -> ", or ": ".  The last one
+ is used as a separator by the file command, the others are used as
+ separators by tar.
+ .
+ Lintian also does not handle filenames that contain backslashes, or
+ other characters that are mangled by tar's -tv output.
+
+Package: filename-games
+Architecture: all
+Depends: filenames
+Section: games
+Description: Test game filename/location checks
+ This package contains files with slightly less evil names than
+ filenames.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: more-filename-games
+Architecture: all
+Depends: filenames, filename-games
+Section: games
+Priority: optional
+Description: More test for game filename/location checks
+ This package contains no evil names, only evil locations.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

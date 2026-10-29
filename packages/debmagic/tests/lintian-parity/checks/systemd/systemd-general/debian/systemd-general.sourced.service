@@ -1,0 +1,9 @@
+[Unit]
+After=network.target
+Documentation=man:sourced(1)
+
+[Service]
+ExecStart=/usr/bin/test
+
+[Install]
+WantedBy=sleep.target

@@ -1,0 +1,7 @@
+Tests: test-1
+Restrictions:
+ superficial
+
+Tests: test-2
+Restrictions:
+ superficial

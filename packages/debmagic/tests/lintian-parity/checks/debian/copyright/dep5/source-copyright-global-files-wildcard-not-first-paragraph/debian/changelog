@@ -1,0 +1,17 @@
+source-copyright-global-files-wildcard-not-first-paragraph (1.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: source-copyright-global-files-wildcard-not-first-paragraph
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+source-copyright-global-files-wildcard-not-first-paragraph (0.0.1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: source-copyright-global-files-wildcard-not-first-paragraph
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Mon, 01 Jan 1990 00:00:00 +0100

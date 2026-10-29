@@ -1,0 +1,6 @@
+#!/usr/bin/make -f
+
+%:
+	# this comment should not trigger a false positive
+	# neither should this one
+	dh $(@)

@@ -1,0 +1,3 @@
+debhelper-script-token-unneeded (source): debian-build-system debhelper [debian/rules]
+debhelper-script-token-unneeded (source): debhelper-compat-virtual-relation 14 [debian/control]
+debhelper-script-token-unneeded (source): debhelper-compat-level 14

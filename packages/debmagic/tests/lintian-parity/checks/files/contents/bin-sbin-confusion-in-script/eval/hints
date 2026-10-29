@@ -1,0 +1,2 @@
+bin-sbin-confusion-in-script (binary): bin-sbin-mismatch usr/sbin/our-script -> usr/bin/our-script [usr/bin/calls-sbin]
+bin-sbin-confusion-in-script (binary): bin-sbin-mismatch sbin/our-script -> usr/bin/our-script [usr/bin/calls-sbin]

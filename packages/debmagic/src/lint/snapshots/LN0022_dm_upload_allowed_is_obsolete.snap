@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): dm-upload-allowed-is-obsolete (LN0022)
+W: example (source): dm-upload-allowed-is-obsolete (LN0022)
+W: example (source): dm-upload-allowed-is-obsolete (LN0022)
+W: example (source): dm-upload-allowed-is-obsolete (LN0022)

@@ -1,0 +1,4 @@
+fields-no-human-maintainer (source): mail-contact Maintainer "Lintian Maintainers" <debian-lint-maint@lists.debian.org>
+fields-no-human-maintainer (changes): mail-contact Maintainer "Lintian Maintainers" <debian-lint-maint@lists.debian.org>
+fields-no-human-maintainer (changes): mail-contact Changed-By "Lintian Maintainers" <debian-lint-maint@lists.debian.org>
+fields-no-human-maintainer (binary): mail-contact Maintainer "Lintian Maintainers" <debian-lint-maint@lists.debian.org>

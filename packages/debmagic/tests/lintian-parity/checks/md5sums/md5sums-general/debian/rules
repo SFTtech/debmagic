@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+FIND ?= find
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	echo "Broken md5sum" > $$($(FIND) debian/ -name 'data-file1')
+	sed -i 's/data-file2/data-file5/' $$($(FIND) -name 'md5sums')
+	echo "broken-md5sums" >> $$($(FIND) -name 'md5sums')
+	dh_builddeb

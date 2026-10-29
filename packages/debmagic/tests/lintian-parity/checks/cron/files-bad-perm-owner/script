@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+
+echo "Aloha"
+
+exit 0
+
+=head1 NAME
+
+script -- prints Aloha to stdout
+
+=head1 SYNOPSIS
+
+ script
+
+=head1 DESCRIPTION
+
+Prints Aloha to stdout and that is it.
+

@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	for P in $$(dh_listpackages) ; do \
+	  for S in postinst postrm preinst prerm ; do \
+	    if [ -f debian/$${P}.$${S} ] ; then \
+	      cp -af debian/$${P}.$${S} debian/$${P}/DEBIAN/$${S} ; \
+	      chmod 0755 debian/$${P}/DEBIAN/$${S} ; \
+	      sed -i '/#DEBHELPER#/ d' debian/$${P}/DEBIAN/$${S} ; \
+	    fi ; \
+	  done ; \
+	done
+	# Work around debhelper adding triggers instead of explicit
+	# ldconfig calls
+	rm -f debian/libfoo1/DEBIAN/triggers
+	dh_builddeb

@@ -1,0 +1,4 @@
+depends-on-obsolete-package (source): testsuite-ored-depends-on-obsolete-package Depends: xbase-clients (>= 0.1)
+depends-on-obsolete-package (source): testsuite-depends-on-obsolete-package Depends: pkg-config => pkgconf
+depends-on-obsolete-package (source): testsuite-depends-on-obsolete-package Depends: gaim (>= 0.1)
+depends-on-obsolete-package (source): no-op-testsuite [debian/tests/control:1]

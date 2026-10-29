@@ -1,0 +1,17 @@
+#! /bin/sh
+# No LSB section, but otherwise okay.  (Well, the messages are bad, but we
+# don't check that yet.)
+
+case "$1" in
+  start)
+	echo "Blah starting"
+	;;
+  stop)
+        echo "Blah stopping"
+        ;;
+  restart|force-reload)
+        echo "Blah restarting"
+        ;;
+esac
+
+:

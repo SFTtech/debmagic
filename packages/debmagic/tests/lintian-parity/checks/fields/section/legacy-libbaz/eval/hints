@@ -1,0 +1,3 @@
+libbaz2-dev (binary): wrong-section-according-to-package-name libs => libdevel
+libbaz2-dbg (binary): wrong-section-according-to-package-name libs => debug
+libbaz1-dev (binary): wrong-section-according-to-package-name libs => libdevel

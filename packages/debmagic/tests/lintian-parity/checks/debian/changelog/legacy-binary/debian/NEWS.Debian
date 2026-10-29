@@ -1,0 +1,12 @@
+binary (4-1.1) UNRELEASED; urgency=high
+
+  This is a Debian NEWS entry that isn't encoded properly in UTF-8: ü.
+  It also has a usefull speling error.
+
+ -- Russ Allbery <rra@debian.org>  Sun, 14 Oct 2007 17:11:36 -0700
+
+binary (1) unstable; urgency=low
+
+  This is another entry but this one isn't syntactically valid.
+
+ -- Russ Allbery  2007-10-14

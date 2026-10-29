@@ -1,0 +1,3 @@
+#!/bin/sh
+# Only supported invoke-rc.d actions are required to go through invoke-rc.d.
+/etc/init.d/foo frobnicate-the-bazerator

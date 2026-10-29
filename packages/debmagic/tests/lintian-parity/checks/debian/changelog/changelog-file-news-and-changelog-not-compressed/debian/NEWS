@@ -1,0 +1,7 @@
+changelog-file-news-and-changelog-not-compressed (1.0) unstable; urgency=low
+
+  Something incredibly important... or maybe this is just a
+  lintian test for an uncompressed NEWS file.
+
+ -- Niels Thykier <niels@thykier.net>  Wed, 10 Aug 2011 21:09:24 +0200
+  

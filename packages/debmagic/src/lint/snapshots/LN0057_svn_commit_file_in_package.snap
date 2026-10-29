@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): svn-commit-file-in-package (LN0057) [usr/share/x/svn-commit.tmp]
+W: example (binary): svn-commit-file-in-package (LN0057) [usr/share/x/svn-commit-yeehaa.tmp]
+W: example (binary): svn-commit-file-in-package (LN0057) [files/svn-commit.tmp]
+W: example (binary): svn-commit-file-in-package (LN0057) [svn-commit1.tmp]
+W: example (udeb): svn-commit-file-in-package (LN0057) [svn-commit.tmp]

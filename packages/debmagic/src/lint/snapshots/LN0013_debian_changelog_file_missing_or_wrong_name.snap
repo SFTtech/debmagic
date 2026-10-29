@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): debian-changelog-file-missing-or-wrong-name (LN0013)
+E: example (binary): debian-changelog-file-missing-or-wrong-name (LN0013)
+E: example (binary): debian-changelog-file-missing-or-wrong-name (LN0013)
+E: example (binary): debian-changelog-file-missing-or-wrong-name (LN0013)
+E: example (binary): debian-changelog-file-missing-or-wrong-name (LN0013)

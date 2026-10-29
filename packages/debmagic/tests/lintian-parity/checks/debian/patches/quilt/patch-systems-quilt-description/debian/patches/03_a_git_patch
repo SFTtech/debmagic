@@ -1,0 +1,8 @@
+diff --git a/a b/a
+index eb39593..7258d2f 100644
+--- a	2008-11-11 19:38:12.000000000 +0000
++++ a	2008-11-11 19:38:26.000000000 +0000
+@@ -1 +1,3 @@
+ sample text
+ and some more sample text
++and yet another line

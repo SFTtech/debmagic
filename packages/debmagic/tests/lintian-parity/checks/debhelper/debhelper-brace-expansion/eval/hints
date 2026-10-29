@@ -1,0 +1,8 @@
+debhelper-brace-expansion (source): debian-build-system dh [debian/rules]
+debhelper-brace-expansion (source): debhelper-compat-virtual-relation 14 [debian/control]
+debhelper-brace-expansion (source): debhelper-compat-level 14
+debhelper-brace-expansion (source): brace-expansion-in-debhelper-config-file {foo,} [debian/debhelper-brace-problem-3.install:1]
+debhelper-brace-expansion (source): brace-expansion-in-debhelper-config-file {foo,bar} [debian/debhelper-brace-problem-2.install:1]
+debhelper-brace-expansion (source): brace-expansion-in-debhelper-config-file {,foo} [debian/debhelper-brace-problem-1.install:1]
+debhelper-brace-expansion (source): brace-expansion-in-debhelper-config-file {,foo,} [debian/debhelper-brace-problem-5.install:1]
+debhelper-brace-expansion (source): brace-expansion-in-debhelper-config-file {,,foo} [debian/debhelper-brace-problem-4.install:1]

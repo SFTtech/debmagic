@@ -1,0 +1,1 @@
+foo (source): package-does-not-install-examples [examples/]

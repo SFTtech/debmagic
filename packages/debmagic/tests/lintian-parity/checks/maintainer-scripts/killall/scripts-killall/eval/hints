@@ -1,0 +1,1 @@
+scripts-killall (binary): killall-is-dangerous [postinst:5]

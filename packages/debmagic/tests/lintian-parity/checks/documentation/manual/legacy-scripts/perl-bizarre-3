@@ -1,0 +1,6 @@
+eval '(exit $?0)' && eval 'exec perl -wS $0 ${1+"$@"}'
+& eval 'exec /usr/bin/perl -wS $0 $argv:q'
+    if $running_under_some_shell;
+
+# More utterly bizarreness from perlrun.  This one even doesn't work if
+# there's a valid #! line on the first line.  I don't understand why....

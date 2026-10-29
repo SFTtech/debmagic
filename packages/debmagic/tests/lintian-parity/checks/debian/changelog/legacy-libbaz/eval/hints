@@ -1,0 +1,9 @@
+libbaz2-dev (binary): initial-upload-closes-no-bugs [usr/share/doc/libbaz2-dev/changelog:1]
+libbaz2-dev (binary): debian-changelog-file-missing-or-wrong-name
+libbaz2-dev (binary): debian-changelog-file-is-a-symlink [usr/share/doc/libbaz2-dev/changelog]
+libbaz2-dev (binary): changelog-file-not-compressed [usr/share/doc/libbaz2-dev/changelog]
+libbaz2-dbg (binary): no-changelog usr/share/doc/libbaz2-dbg/changelog.Debian.gz (non-native package)
+libbaz2 (binary): debian-changelog-file-missing-or-wrong-name
+libbaz2 (binary): debian-changelog-file-is-a-symlink [usr/share/doc/libbaz2/changelog.gz]
+libbaz1 (binary): initial-upload-closes-no-bugs [usr/share/doc/libbaz1/changelog.gz:1]
+libbaz1 (binary): debian-changelog-file-missing-or-wrong-name

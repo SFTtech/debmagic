@@ -1,0 +1,14 @@
+=head1 NAME
+
+basic -- segfaults
+
+=head1 SYNOPSIS
+
+ basic
+
+=head1 DESCRIPTION
+
+It tends to seg. fault, but if it doesn't it will return 0 like
+/bin/true.
+
+=cut

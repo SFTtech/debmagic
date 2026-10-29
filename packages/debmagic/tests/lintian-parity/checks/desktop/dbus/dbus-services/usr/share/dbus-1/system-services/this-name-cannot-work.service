@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.example.SystemDaemon1
+Exec=/usr/sbin/example-system-daemon
+User=nobody

@@ -1,0 +1,5 @@
+AC_INIT
+
+AC_PATH_PROG(PKGCONFIG, pkg-config, no, $PATH:/usr/bin:/usr/local/bin)
+
+	dnl AC_PATH_PROG(PKG_CONFIG, pkg-config, no)

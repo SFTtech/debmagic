@@ -205,13 +205,16 @@ async fn run() -> anyhow::Result<ExitCode> {
                 ignore: args.ignore.clone(),
                 fail_on: args.fail_on.clone(),
             })?;
-            let (diagnostics, outcome) =
-                lint::run_lint(&intent).context("linting the package failed")?;
-            for diagnostic in &diagnostics {
+            let result = lint::run_lint(&intent).context("linting the package failed")?;
+            for diagnostic in &result.diagnostics {
                 println!("{}", lint::format_diagnostic(diagnostic));
             }
-            println!("{}", lint::format_summary(&diagnostics));
-            return Ok(match outcome {
+            println!("{}", lint::format_summary(&result.diagnostics));
+            println!(
+                "{}",
+                lint::format_finished(result.elapsed, result.rules, result.threads)
+            );
+            return Ok(match result.outcome {
                 lint::LintOutcome::Success => ExitCode::SUCCESS,
                 lint::LintOutcome::PolicyFailure => ExitCode::from(1),
             });

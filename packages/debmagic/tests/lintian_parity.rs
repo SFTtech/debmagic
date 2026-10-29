@@ -24,6 +24,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/debug-symbols/legacy-libbaz",
     "checks/fields/required/fields-general-missing",
     "checks/fields/required/generic-empty",
+    "checks/files/symbolic-links/broken/legacy-filenames",
+    "checks/files/symbolic-links/broken/symlinks-unsafe",
 ];
 
 const SOURCE_PACKAGE_RECIPES: &[&str] = &[
@@ -80,6 +82,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/debug-symbols/legacy-libbaz"; "checks_binaries_debug_symbols_legacy_libbaz")]
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/files/symbolic-links/broken/legacy-filenames"; "checks_files_symbolic_links_broken_legacy_filenames")]
+#[test_case("checks/files/symbolic-links/broken/symlinks-unsafe"; "checks_files_symbolic_links_broken_symlinks_unsafe")]
 fn lintian_parity_binary_package(recipe: &str) {
     common::assert_binary_package_parity(recipe);
 }

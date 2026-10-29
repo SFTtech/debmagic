@@ -1,7 +1,8 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
-    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, RequiredField,
-    SourceContainsPrebuiltWindowsBinary, SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
+    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, PackageContainsUnsafeSymlink,
+    RequiredField, SourceContainsPrebuiltWindowsBinary, SyntaxErrorInDebianChangelog,
+    UnstrippedBinaryOrObject,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -12,6 +13,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianRulesMissingRequiredTarget,
         &SourceContainsPrebuiltWindowsBinary,
         &UnstrippedBinaryOrObject,
+        &PackageContainsUnsafeSymlink,
     ]
 }
 
@@ -26,7 +28,11 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
 }
 
 pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule] {
-    &[&RequiredField, &UnstrippedBinaryOrObject]
+    &[
+        &RequiredField,
+        &UnstrippedBinaryOrObject,
+        &PackageContainsUnsafeSymlink,
+    ]
 }
 
 #[cfg(test)]
@@ -50,14 +56,18 @@ mod tests {
     }
 
     #[test]
-    fn binary_package_rules_are_required_field_and_unstripped() {
+    fn binary_package_rules_cover_catalogued_binary_tags() {
         let codes: Vec<_> = binary_package_rules()
             .iter()
             .map(|rule| rule.code())
             .collect();
         assert_eq!(
             codes,
-            vec![RequiredField::CODE, UnstrippedBinaryOrObject::CODE]
+            vec![
+                RequiredField::CODE,
+                UnstrippedBinaryOrObject::CODE,
+                PackageContainsUnsafeSymlink::CODE,
+            ]
         );
     }
 }

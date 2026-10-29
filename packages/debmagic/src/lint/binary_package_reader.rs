@@ -21,6 +21,13 @@ struct TarballIndex {
     #[allow(dead_code)]
     members: Vec<String>,
     files: HashMap<String, Vec<u8>>,
+    /// Directories and symlinks, in archive order. Symlink targets are as stored.
+    links_and_dirs: Vec<(String, MemberKind)>,
+}
+
+enum MemberKind {
+    Directory,
+    Symlink(PathBuf),
 }
 
 impl BinaryPackageReader {
@@ -96,19 +103,20 @@ impl BinaryPackageReader {
     }
 
     pub(crate) fn data_file_tree(&self) -> anyhow::Result<super::file_tree::FileTree> {
-        use super::file_tree::{Entry, EntryKind, FileTree};
+        use super::file_tree::{Entry, FileTree};
         use super::file_type::FileType;
 
         let index = self.data_index()?;
-        let mut entries = Vec::with_capacity(index.files.len());
+        let mut entries = Vec::with_capacity(index.files.len() + index.links_and_dirs.len());
         for (path, bytes) in &index.files {
             let file_type = FileType::from_bytes(bytes);
-            entries.push(Entry::with_content(
-                path,
-                EntryKind::RegularFile,
-                file_type,
-                bytes.clone(),
-            ));
+            entries.push(Entry::regular_file(path, file_type, Some(bytes.clone())));
+        }
+        for (path, member) in &index.links_and_dirs {
+            entries.push(match member {
+                MemberKind::Directory => Entry::directory(path),
+                MemberKind::Symlink(target) => Entry::symlink(path, target),
+            });
         }
         Ok(FileTree::from_entries(None, entries))
     }
@@ -164,6 +172,7 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
     let mut members = Vec::new();
     let mut seen = HashSet::new();
     let mut files = HashMap::new();
+    let mut links_and_dirs = Vec::new();
     for entry in archive.entries()? {
         let mut entry = entry?;
         let path = entry.path()?;
@@ -173,13 +182,26 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
         if seen.insert(normalized.clone()) {
             members.push(normalized.clone());
         }
-        if entry.header().entry_type().is_file() {
+        let entry_type = entry.header().entry_type();
+        if entry_type.is_file() {
             let mut bytes = Vec::new();
             entry.read_to_end(&mut bytes)?;
             files.insert(normalized, bytes);
+        } else if entry_type.is_dir() {
+            links_and_dirs.push((normalized, MemberKind::Directory));
+        } else if entry_type.is_symlink() {
+            let target = entry
+                .link_name()?
+                .with_context(|| format!("symlink {normalized} has no target"))?
+                .into_owned();
+            links_and_dirs.push((normalized, MemberKind::Symlink(target)));
         }
     }
-    Ok(TarballIndex { members, files })
+    Ok(TarballIndex {
+        members,
+        files,
+        links_and_dirs,
+    })
 }
 
 fn normalize_member_path(path: &Path) -> Option<String> {
@@ -440,6 +462,23 @@ mod tests {
             "{:?}",
             entry.file_type()
         );
+        Ok(())
+    }
+
+    #[test]
+    fn data_file_tree_lists_directories_and_symlinks() -> anyhow::Result<()> {
+        use crate::lint::file_tree::EntryKind;
+
+        let dir = TempDir::new()?;
+        let path = dir.path().join("example.deb");
+        write_deb_with_special_data_members(&path)?;
+        let tree = BinaryPackageReader::from_path(&path)?.data_file_tree()?;
+        let usr = tree.get("usr").expect("usr");
+        assert_eq!(usr.kind(), EntryKind::Directory);
+        assert!(usr.link_target().is_none());
+        let link = tree.get("usr/bin/link").expect("usr/bin/link");
+        assert_eq!(link.kind(), EntryKind::Symlink);
+        assert_eq!(link.link_target(), Some(Path::new("foo")));
         Ok(())
     }
 

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): dir-or-file-in-tmp (LN0039) [tmp/x]
+E: example (binary): dir-or-file-in-tmp (LN0039) [tmp/x/]
+E: example (binary): dir-or-file-in-tmp (LN0039) [tmp/x/file]
+E: example (binary): dir-or-file-in-tmp (LN0039) [usr/tmp/x]
+E: example (binary): dir-or-file-in-tmp (LN0039) [var/tmp/x]

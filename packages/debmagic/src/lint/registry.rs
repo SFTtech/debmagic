@@ -2,12 +2,14 @@ use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
     ChangelogFileNotCompressed, CustomCompressionInDebianRules, DebianChangelogFileIsASymlink,
     DebianChangelogFileMissingOrWrongName, DebianRulesIgnoresMakeCleanError,
-    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DirOrFileInMnt, DirOrFileInSrv,
+    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DirInUsrLocal, DirOrFileInEtcOpt,
+    DirOrFileInHome, DirOrFileInMnt, DirOrFileInOpt, DirOrFileInRun, DirOrFileInSrv,
+    DirOrFileInTmp, DirOrFileInVarLock, DirOrFileInVarRun, DirOrFileInVarWww,
     DmUploadAllowedIsObsolete, EmptyBinaryPackage, ExtendedDescriptionIsEmpty, FileInUnusualDir,
-    LatestDebianChangelogEntryWithoutNewDate, LengthySymlink, MaintainerScriptEmpty,
-    MalformedDmUploadAllowed, NationalEncoding, NoChangelog, NoCopyrightFile, NoDep5Copyright,
-    NoHumanMaintainers, NonStandardToplevelDir, PackageContainsUnsafeSymlink,
-    PackageContainsVcsControlDir, PackageRelationWithSelf,
+    FileInUsrLocal, LatestDebianChangelogEntryWithoutNewDate, LengthySymlink,
+    MaintainerScriptEmpty, MalformedDmUploadAllowed, NationalEncoding, NoChangelog,
+    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, NonStandardToplevelDir,
+    PackageContainsUnsafeSymlink, PackageContainsVcsControlDir, PackageRelationWithSelf,
     PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
     SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SymlinkContainsSpuriousSegments,
     SymlinkIsSelfRecursive, SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
@@ -54,6 +56,16 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DirOrFileInSrv,
         &DirOrFileInMnt,
         &ExtendedDescriptionIsEmpty,
+        &DirOrFileInHome,
+        &DirOrFileInTmp,
+        &DirOrFileInOpt,
+        &DirOrFileInVarWww,
+        &DirOrFileInVarRun,
+        &DirOrFileInVarLock,
+        &DirOrFileInRun,
+        &DirOrFileInEtcOpt,
+        &DirInUsrLocal,
+        &FileInUsrLocal,
     ]
 }
 
@@ -104,6 +116,16 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DirOrFileInSrv,
         &DirOrFileInMnt,
         &ExtendedDescriptionIsEmpty,
+        &DirOrFileInHome,
+        &DirOrFileInTmp,
+        &DirOrFileInOpt,
+        &DirOrFileInVarWww,
+        &DirOrFileInVarRun,
+        &DirOrFileInVarLock,
+        &DirOrFileInRun,
+        &DirOrFileInEtcOpt,
+        &DirInUsrLocal,
+        &FileInUsrLocal,
     ]
 }
 
@@ -171,6 +193,16 @@ mod tests {
                 DirOrFileInSrv::CODE,
                 DirOrFileInMnt::CODE,
                 ExtendedDescriptionIsEmpty::CODE,
+                DirOrFileInHome::CODE,
+                DirOrFileInTmp::CODE,
+                DirOrFileInOpt::CODE,
+                DirOrFileInVarWww::CODE,
+                DirOrFileInVarRun::CODE,
+                DirOrFileInVarLock::CODE,
+                DirOrFileInRun::CODE,
+                DirOrFileInEtcOpt::CODE,
+                DirInUsrLocal::CODE,
+                FileInUsrLocal::CODE,
             ]
         );
     }

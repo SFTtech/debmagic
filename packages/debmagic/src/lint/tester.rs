@@ -8,7 +8,7 @@ use super::context::{
 };
 use super::diagnostic::Diagnostic;
 use super::dsc::Dsc;
-use super::file_tree::{Entry, EntryKind, FileTree};
+use super::file_tree::{Entry, FileTree};
 use super::file_type::FileType;
 use super::rule::{BinaryPackageRule, SourceRule};
 use super::run::format_diagnostic;
@@ -19,31 +19,73 @@ pub struct TestCase {
     files: BTreeMap<String, TestFile>,
 }
 
-/// One fixture Entry: bytes plus optional File type and Entry kind.
+/// One fixture Entry. Mirrors [`Entry`]: only the data a variant has.
 #[derive(Clone, Debug)]
-pub struct TestFile {
-    content: String,
-    file_type: Option<FileType>,
-    kind: Option<EntryKind>,
+pub enum TestFile {
+    RegularFile {
+        content: String,
+        file_type: Option<FileType>,
+    },
+    Hardlink {
+        content: String,
+        file_type: Option<FileType>,
+    },
+    Directory,
+    /// `target` is exactly as stored in the package.
+    Symlink {
+        target: PathBuf,
+    },
 }
 
 impl TestFile {
+    /// A regular file with `content` and no File type.
     pub fn new(content: impl Into<String>) -> Self {
-        Self {
+        Self::RegularFile {
             content: content.into(),
             file_type: None,
-            kind: None,
         }
     }
 
-    pub fn file_type(mut self, file_type: FileType) -> Self {
-        self.file_type = Some(file_type);
+    pub fn directory() -> Self {
+        Self::Directory
+    }
+
+    pub fn symlink(target: impl Into<PathBuf>) -> Self {
+        Self::Symlink {
+            target: target.into(),
+        }
+    }
+
+    /// Make a regular file a hardlink. Panics on other variants.
+    pub fn hardlink(self) -> Self {
+        match self {
+            Self::RegularFile { content, file_type } => Self::Hardlink { content, file_type },
+            other => panic!("only a regular file can become a hardlink, not {other:?}"),
+        }
+    }
+
+    /// Set the File type of a regular file or hardlink. Panics on other variants.
+    pub fn file_type(mut self, new: FileType) -> Self {
+        match &mut self {
+            Self::RegularFile { file_type, .. } | Self::Hardlink { file_type, .. } => {
+                *file_type = Some(new);
+            }
+            other => panic!("only a regular file or hardlink has a File type, not {other:?}"),
+        }
         self
     }
 
-    pub fn kind(mut self, kind: EntryKind) -> Self {
-        self.kind = Some(kind);
-        self
+    fn entry(&self, path: &str) -> Entry {
+        match self {
+            Self::RegularFile { content, file_type } => {
+                Entry::regular_file(path, *file_type, Some(content.as_bytes().to_vec()))
+            }
+            Self::Hardlink { content, file_type } => {
+                Entry::hardlink(path, *file_type, Some(content.as_bytes().to_vec()))
+            }
+            Self::Directory => Entry::directory(path),
+            Self::Symlink { target } => Entry::symlink(path, target),
+        }
     }
 }
 
@@ -84,14 +126,7 @@ impl TestCase {
         let entries = self
             .files
             .iter()
-            .map(|(path, file)| {
-                Entry::fixture(
-                    path,
-                    file.kind.unwrap_or(EntryKind::RegularFile),
-                    file.file_type,
-                    Some(file.content.as_bytes().to_vec()),
-                )
-            })
+            .map(|(path, file)| file.entry(path))
             .collect();
         FileTree::from_entries(None, entries)
     }
@@ -603,8 +638,16 @@ fn materialize(case: &TestCase) -> tempfile::TempDir {
             fs::create_dir_all(parent)
                 .unwrap_or_else(|error| panic!("creating {}: {error}", parent.display()));
         }
-        fs::write(&path, &file.content)
-            .unwrap_or_else(|error| panic!("writing {}: {error}", path.display()));
+        match file {
+            TestFile::RegularFile { content, .. } | TestFile::Hardlink { content, .. } => {
+                fs::write(&path, content)
+                    .unwrap_or_else(|error| panic!("writing {}: {error}", path.display()));
+            }
+            TestFile::Directory => fs::create_dir_all(&path)
+                .unwrap_or_else(|error| panic!("creating {}: {error}", path.display())),
+            TestFile::Symlink { target } => std::os::unix::fs::symlink(target, &path)
+                .unwrap_or_else(|error| panic!("linking {}: {error}", path.display())),
+        }
     }
     dir
 }

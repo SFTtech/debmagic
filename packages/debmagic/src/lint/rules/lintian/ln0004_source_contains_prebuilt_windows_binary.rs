@@ -68,7 +68,6 @@ fn is_windows_binary(entry: &Entry) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::file_tree::EntryKind;
     use crate::lint::file_type::FileType;
     use crate::lint::tester::{SourcePackageCase, SourcePackageTester, SourceTreeTester, TestFile};
 
@@ -106,12 +105,7 @@ mod tests {
             ],
             vec![
                 ("debian/control", TestFile::from(CONTROL)),
-                (
-                    "bin/app.exe",
-                    TestFile::new("link")
-                        .kind(EntryKind::Symlink)
-                        .file_type(FileType::Pe32),
-                ),
+                ("bin/app.exe", TestFile::symlink("app.exe")),
             ],
         ];
         let fail = vec![
@@ -138,9 +132,7 @@ mod tests {
                 ("debian/control", TestFile::from(CONTROL)),
                 (
                     "shared/payload.exe",
-                    TestFile::new("pe")
-                        .kind(EntryKind::Hardlink)
-                        .file_type(FileType::Pe32),
+                    TestFile::new("pe").file_type(FileType::Pe32).hardlink(),
                 ),
             ],
         ];

@@ -134,7 +134,6 @@ static GUILE_PATH: LazyLock<Regex> = LazyLock::new(|| {
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::file_tree::EntryKind;
     use crate::lint::file_type::FileType;
     use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
 
@@ -187,23 +186,12 @@ mod tests {
                 "usr/bin/app.exe",
                 TestFile::new("pe").file_type(FileType::Pe32),
             )]),
-            BinaryPackageCase::from(vec![(
-                "usr/bin/link",
-                TestFile::new("elf")
-                    .kind(EntryKind::Symlink)
-                    .file_type(FileType::Elf {
-                        has_static_symbol_table: true,
-                        executable: true,
-                    }),
-            )]),
+            BinaryPackageCase::from(vec![("usr/bin/link", TestFile::symlink("elf"))]),
         ];
         let fail = vec![
             BinaryPackageCase::from(vec![("usr/bin/app", unstripped(true))]),
             BinaryPackageCase::from(vec![("usr/lib/libfoo.so", unstripped(false))]),
-            BinaryPackageCase::from(vec![(
-                "shared/payload",
-                unstripped(true).kind(EntryKind::Hardlink),
-            )]),
+            BinaryPackageCase::from(vec![("shared/payload", unstripped(true).hardlink())]),
             BinaryPackageCase::from(vec![("usr/bin/app", unstripped(true))]).package("foo-dbgsym"),
             BinaryPackageCase::from(vec![("usr/lib/guile/3.0/foo.go", unstripped(false))]),
             BinaryPackageCase::from(vec![("usr/lib/libcaml.so", caml_bytecode_file(false))]),

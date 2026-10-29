@@ -8,7 +8,7 @@ use globset::{Glob, GlobMatcher};
 
 use super::file_type::FileType;
 
-/// Whether an Entry is a regular file, directory, symlink, or hardlink.
+/// Which variant an [`Entry`] is, without its data. For filtering and matching.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum EntryKind {
     RegularFile,
@@ -17,54 +17,99 @@ pub enum EntryKind {
     Hardlink,
 }
 
-/// A path in a File tree.
+/// A path in a File tree, with the data that variant has.
+///
+/// File `content` is `None` when the bytes live on the host and are read on
+/// demand through [`FileTree::read`].
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Entry {
-    path: PathBuf,
-    kind: EntryKind,
-    file_type: Option<FileType>,
-    content: Option<Vec<u8>>,
+pub enum Entry {
+    RegularFile {
+        path: PathBuf,
+        file_type: Option<FileType>,
+        content: Option<Vec<u8>>,
+    },
+    Hardlink {
+        path: PathBuf,
+        file_type: Option<FileType>,
+        content: Option<Vec<u8>>,
+    },
+    Directory {
+        path: PathBuf,
+    },
+    /// `target` is exactly as stored, not resolved.
+    Symlink {
+        path: PathBuf,
+        target: PathBuf,
+    },
 }
 
 impl Entry {
-    pub fn path(&self) -> &Path {
-        &self.path
-    }
-
-    pub fn kind(&self) -> EntryKind {
-        self.kind
-    }
-
-    pub fn file_type(&self) -> Option<FileType> {
-        self.file_type
-    }
-
-    pub(crate) fn with_content(
+    pub(crate) fn regular_file(
         path: impl Into<PathBuf>,
-        kind: EntryKind,
-        file_type: Option<FileType>,
-        content: Vec<u8>,
-    ) -> Self {
-        Self {
-            path: path.into(),
-            kind,
-            file_type,
-            content: Some(content),
-        }
-    }
-
-    #[cfg(test)]
-    pub(crate) fn fixture(
-        path: impl Into<PathBuf>,
-        kind: EntryKind,
         file_type: Option<FileType>,
         content: Option<Vec<u8>>,
     ) -> Self {
-        Self {
+        Self::RegularFile {
             path: path.into(),
-            kind,
             file_type,
             content,
+        }
+    }
+
+    pub(crate) fn hardlink(
+        path: impl Into<PathBuf>,
+        file_type: Option<FileType>,
+        content: Option<Vec<u8>>,
+    ) -> Self {
+        Self::Hardlink {
+            path: path.into(),
+            file_type,
+            content,
+        }
+    }
+
+    pub(crate) fn directory(path: impl Into<PathBuf>) -> Self {
+        Self::Directory { path: path.into() }
+    }
+
+    pub(crate) fn symlink(path: impl Into<PathBuf>, target: impl Into<PathBuf>) -> Self {
+        Self::Symlink {
+            path: path.into(),
+            target: target.into(),
+        }
+    }
+
+    pub fn path(&self) -> &Path {
+        match self {
+            Self::RegularFile { path, .. }
+            | Self::Hardlink { path, .. }
+            | Self::Directory { path }
+            | Self::Symlink { path, .. } => path,
+        }
+    }
+
+    pub fn kind(&self) -> EntryKind {
+        match self {
+            Self::RegularFile { .. } => EntryKind::RegularFile,
+            Self::Hardlink { .. } => EntryKind::Hardlink,
+            Self::Directory { .. } => EntryKind::Directory,
+            Self::Symlink { .. } => EntryKind::Symlink,
+        }
+    }
+
+    /// File type of a regular file or hardlink, when classifiable.
+    pub fn file_type(&self) -> Option<FileType> {
+        match self {
+            Self::RegularFile { file_type, .. } | Self::Hardlink { file_type, .. } => *file_type,
+            Self::Directory { .. } | Self::Symlink { .. } => None,
+        }
+    }
+
+    /// Where a symlink points. `None` for every other variant.
+    pub fn link_target(&self) -> Option<&Path> {
+        match self {
+            Self::Symlink { target, .. } => Some(target),
+            _ => None,
         }
     }
 }
@@ -78,7 +123,7 @@ pub struct FileTree {
 
 impl FileTree {
     pub fn from_entries(root: Option<PathBuf>, mut entries: Vec<Entry>) -> Self {
-        entries.sort_by(|left, right| left.path.cmp(&right.path));
+        entries.sort_by(|left, right| left.path().cmp(right.path()));
         Self { root, entries }
     }
 
@@ -87,7 +132,6 @@ impl FileTree {
         let mut entries = Vec::new();
         collect_entries(root, root, &mut entries)
             .with_context(|| format!("walking File tree at {}", root.display()))?;
-        apply_file_types(root, &mut entries);
         Ok(Self::from_entries(Some(root.to_path_buf()), entries))
     }
 
@@ -98,7 +142,7 @@ impl FileTree {
 
     pub fn get(&self, path: impl AsRef<Path>) -> Option<&Entry> {
         let path = path.as_ref();
-        self.entries.iter().find(|entry| entry.path == path)
+        self.entries.iter().find(|entry| entry.path() == path)
     }
 
     pub fn query(&self) -> Query<'_> {
@@ -110,17 +154,20 @@ impl FileTree {
     }
 
     pub fn read(&self, entry: &Entry) -> anyhow::Result<Vec<u8>> {
-        if let Some(bytes) = &entry.content {
+        let (Entry::RegularFile { content, .. } | Entry::Hardlink { content, .. }) = entry else {
+            bail!("Entry {} is not a file", entry.path().display());
+        };
+        if let Some(bytes) = content {
             return Ok(bytes.clone());
         }
         let Some(root) = &self.root else {
             bail!(
                 "Entry {} has no content and File tree has no directory root",
-                entry.path.display()
+                entry.path().display()
             );
         };
-        fs::read(root.join(&entry.path))
-            .with_context(|| format!("reading {}", entry.path.display()))
+        fs::read(root.join(entry.path()))
+            .with_context(|| format!("reading {}", entry.path().display()))
     }
 }
 
@@ -161,12 +208,12 @@ impl<'a> IntoIterator for Query<'a> {
 impl Query<'_> {
     fn matches(&self, entry: &Entry) -> bool {
         if let Some(kinds) = &self.kinds
-            && !kinds.contains(&entry.kind)
+            && !kinds.contains(&entry.kind())
         {
             return false;
         }
         if let Some(glob) = &self.glob
-            && !glob.is_match(&entry.path)
+            && !glob.is_match(entry.path())
         {
             return false;
         }
@@ -185,45 +232,41 @@ fn collect_entries(root: &Path, dir: &Path, entries: &mut Vec<Entry>) -> anyhow:
             .to_path_buf();
         let metadata =
             fs::symlink_metadata(&path).with_context(|| format!("stat {}", path.display()))?;
-        let Some(kind) = entry_kind(&metadata) else {
+        let Some(entry) = host_entry(&path, relative, &metadata)? else {
             continue;
         };
-        entries.push(Entry {
-            path: relative,
-            kind,
-            file_type: None,
-            content: None,
-        });
-        if kind == EntryKind::Directory {
+        let is_directory = matches!(entry, Entry::Directory { .. });
+        entries.push(entry);
+        if is_directory {
             collect_entries(root, &path, entries)?;
         }
     }
     Ok(())
 }
 
-fn entry_kind(metadata: &fs::Metadata) -> Option<EntryKind> {
+fn host_entry(
+    path: &Path,
+    relative: PathBuf,
+    metadata: &fs::Metadata,
+) -> anyhow::Result<Option<Entry>> {
     let file_type = metadata.file_type();
     if file_type.is_symlink() {
-        return Some(EntryKind::Symlink);
+        let target =
+            fs::read_link(path).with_context(|| format!("reading symlink {}", path.display()))?;
+        return Ok(Some(Entry::symlink(relative, target)));
     }
     if file_type.is_dir() {
-        return Some(EntryKind::Directory);
+        return Ok(Some(Entry::directory(relative)));
     }
     if file_type.is_file() {
-        if metadata.nlink() > 1 {
-            return Some(EntryKind::Hardlink);
-        }
-        return Some(EntryKind::RegularFile);
+        let classified = classify_path(path);
+        return Ok(Some(if metadata.nlink() > 1 {
+            Entry::hardlink(relative, classified, None)
+        } else {
+            Entry::regular_file(relative, classified, None)
+        }));
     }
-    None
-}
-
-fn apply_file_types(root: &Path, entries: &mut [Entry]) {
-    for entry in entries {
-        if matches!(entry.kind, EntryKind::RegularFile | EntryKind::Hardlink) {
-            entry.file_type = classify_path(&root.join(&entry.path));
-        }
-    }
+    Ok(None)
 }
 
 fn classify_path(path: &Path) -> Option<FileType> {
@@ -253,20 +296,10 @@ mod tests {
         let tree = FileTree::from_entries(
             None,
             vec![
-                Entry::fixture(
-                    "bin/app.exe",
-                    EntryKind::RegularFile,
-                    Some(FileType::Pe32),
-                    None,
-                ),
-                Entry::fixture("bin", EntryKind::Directory, None, None),
-                Entry::fixture("bin/link", EntryKind::Symlink, None, None),
-                Entry::fixture(
-                    "lib/foo.dll",
-                    EntryKind::Hardlink,
-                    Some(FileType::Pe64),
-                    None,
-                ),
+                Entry::regular_file("bin/app.exe", Some(FileType::Pe32), None),
+                Entry::directory("bin"),
+                Entry::symlink("bin/link", "app.exe"),
+                Entry::hardlink("lib/foo.dll", Some(FileType::Pe64), None),
             ],
         );
         let hits: Vec<_> = tree
@@ -305,7 +338,12 @@ mod tests {
             entry.path() == Path::new("link")
                 && entry.kind() == EntryKind::Symlink
                 && entry.file_type().is_none()
+                && entry.link_target() == Some(Path::new("readme"))
         }));
+        assert!(
+            tree.get("readme")
+                .is_some_and(|entry| entry.link_target().is_none())
+        );
         Ok(())
     }
 
@@ -313,16 +351,16 @@ mod tests {
     fn read_uses_fixture_bytes() -> anyhow::Result<()> {
         let tree = FileTree::from_entries(
             None,
-            vec![Entry::fixture(
-                "debian/control",
-                EntryKind::RegularFile,
-                None,
-                Some(b"Source: example\n".to_vec()),
-            )],
+            vec![
+                Entry::regular_file("debian/control", None, Some(b"Source: example\n".to_vec())),
+                Entry::directory("debian"),
+            ],
         );
         let entry = tree.get("debian/control").expect("debian/control");
         assert_eq!(tree.read(entry)?, b"Source: example\n");
         assert!(tree.get("debian/rules").is_none());
+        let directory = tree.get("debian").expect("debian");
+        assert!(tree.read(directory).is_err());
         Ok(())
     }
 }

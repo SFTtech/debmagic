@@ -436,6 +436,13 @@ def parse_universal_hint_line(line: str) -> tuple[str, str, str] | None:
     return match.group("ptype"), match.group("tag"), extra
 
 
+def source_tree_hint_matches_filled_tree(recipe: Path, tag: str) -> bool:
+    """See `source_tree_hint_matches_filled_tree` in `tests/common/mod.rs`."""
+    if tag != "package-uses-deprecated-debhelper-compat-version":
+        return True
+    return not (recipe.name == "debhelper-compat-missing" and recipe.parent.name == "debhelper")
+
+
 def applies_to_source_tree(processable_type: str, extra: str) -> bool:
     if processable_type != "source":
         return False
@@ -519,7 +526,11 @@ def has_catalogued_source_tree_hints(recipe: Path, tags: set[str]) -> bool:
         if parsed is None:
             continue
         processable_type, tag, extra = parsed
-        if tag in tags and applies_to_source_tree(processable_type, extra):
+        if (
+            tag in tags
+            and applies_to_source_tree(processable_type, extra)
+            and source_tree_hint_matches_filled_tree(recipe, tag)
+        ):
             return True
     return False
 

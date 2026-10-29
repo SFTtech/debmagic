@@ -3,9 +3,10 @@ use super::rules::{
     CustomCompressionInDebianRules, DebianChangelogFileMissingOrWrongName,
     DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget, DebmagicDummyTrigger,
     EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty, NationalEncoding, NoChangelog,
-    NoCopyrightFile, NoDep5Copyright, PackageContainsUnsafeSymlink, RequiredField,
-    SourceContainsDebianSubstvars, SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern,
-    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
+    NoCopyrightFile, NoDep5Copyright, PackageContainsUnsafeSymlink,
+    PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
+    SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
+    UnstrippedBinaryOrObject,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -29,6 +30,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CustomCompressionInDebianRules,
         &DebianRulesIgnoresMakeCleanError,
         &NationalEncoding,
+        &PackageUsesDeprecatedDebhelperCompatVersion,
     ]
 }
 
@@ -45,6 +47,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &CustomCompressionInDebianRules,
         &DebianRulesIgnoresMakeCleanError,
         &NationalEncoding,
+        &PackageUsesDeprecatedDebhelperCompatVersion,
     ]
 }
 
@@ -85,6 +88,7 @@ mod tests {
                 CustomCompressionInDebianRules::CODE,
                 DebianRulesIgnoresMakeCleanError::CODE,
                 NationalEncoding::CODE,
+                PackageUsesDeprecatedDebhelperCompatVersion::CODE,
             ]
         );
     }

@@ -1,0 +1,22 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 9
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 8
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 9
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 9
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 9
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: (source): package-uses-deprecated-debhelper-compat-version (LN0019) 1
+W: example (source): package-uses-deprecated-debhelper-compat-version (LN0019) 8

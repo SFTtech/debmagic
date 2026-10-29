@@ -6,7 +6,7 @@ use super::rules::{
     NoCopyrightFile, NoDep5Copyright, PackageContainsUnsafeSymlink,
     PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
     SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
-    UnstrippedBinaryOrObject,
+    UnstrippedBinaryOrObject, UsesDebhelperCompatFile,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -31,6 +31,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianRulesIgnoresMakeCleanError,
         &NationalEncoding,
         &PackageUsesDeprecatedDebhelperCompatVersion,
+        &UsesDebhelperCompatFile,
     ]
 }
 
@@ -48,6 +49,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianRulesIgnoresMakeCleanError,
         &NationalEncoding,
         &PackageUsesDeprecatedDebhelperCompatVersion,
+        &UsesDebhelperCompatFile,
     ]
 }
 
@@ -89,6 +91,7 @@ mod tests {
                 DebianRulesIgnoresMakeCleanError::CODE,
                 NationalEncoding::CODE,
                 PackageUsesDeprecatedDebhelperCompatVersion::CODE,
+                UsesDebhelperCompatFile::CODE,
             ]
         );
     }

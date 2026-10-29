@@ -10,10 +10,17 @@ use test_case::test_case;
 const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-general-upstream",
     "checks/debhelper/debhelper-compat-empty",
+    "checks/debhelper/debhelper-compat-multiple",
+    "checks/debhelper/debhelper-compat-multiple-unrel",
+    "checks/debhelper/debhelper-compat-whitespace",
+    "checks/debhelper/debhelper-deprecated",
+    "checks/debhelper/debhelper-dh-compat",
     "checks/debhelper/debhelper-dh-exec",
     "checks/debhelper/debhelper-executable-files",
     "checks/debhelper/debhelper-lacks-versioned-deps",
     "checks/debhelper/debhelper-no-depends",
+    "checks/debhelper/legacy-fields",
+    "checks/debhelper/legacy-libbaz",
     "checks/debhelper/legacy-scripts",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
@@ -114,10 +121,17 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-general-upstream",
     "checks/debhelper/debhelper-compat-empty",
     "checks/debhelper/debhelper-compat-missing",
+    "checks/debhelper/debhelper-compat-multiple",
+    "checks/debhelper/debhelper-compat-multiple-unrel",
+    "checks/debhelper/debhelper-compat-whitespace",
+    "checks/debhelper/debhelper-deprecated",
+    "checks/debhelper/debhelper-dh-compat",
     "checks/debhelper/debhelper-dh-exec",
     "checks/debhelper/debhelper-executable-files",
     "checks/debhelper/debhelper-lacks-versioned-deps",
     "checks/debhelper/debhelper-no-depends",
+    "checks/debhelper/legacy-fields",
+    "checks/debhelper/legacy-libbaz",
     "checks/debhelper/legacy-scripts",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
@@ -191,10 +205,17 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
+#[test_case("checks/debhelper/debhelper-compat-multiple"; "checks_debhelper_debhelper_compat_multiple")]
+#[test_case("checks/debhelper/debhelper-compat-multiple-unrel"; "checks_debhelper_debhelper_compat_multiple_unrel")]
+#[test_case("checks/debhelper/debhelper-compat-whitespace"; "checks_debhelper_debhelper_compat_whitespace")]
+#[test_case("checks/debhelper/debhelper-deprecated"; "checks_debhelper_debhelper_deprecated")]
+#[test_case("checks/debhelper/debhelper-dh-compat"; "checks_debhelper_debhelper_dh_compat")]
 #[test_case("checks/debhelper/debhelper-dh-exec"; "checks_debhelper_debhelper_dh_exec")]
 #[test_case("checks/debhelper/debhelper-executable-files"; "checks_debhelper_debhelper_executable_files")]
 #[test_case("checks/debhelper/debhelper-lacks-versioned-deps"; "checks_debhelper_debhelper_lacks_versioned_deps")]
 #[test_case("checks/debhelper/debhelper-no-depends"; "checks_debhelper_debhelper_no_depends")]
+#[test_case("checks/debhelper/legacy-fields"; "checks_debhelper_legacy_fields")]
+#[test_case("checks/debhelper/legacy-libbaz"; "checks_debhelper_legacy_libbaz")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
@@ -297,10 +318,17 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
 #[test_case("checks/debhelper/debhelper-compat-missing"; "checks_debhelper_debhelper_compat_missing")]
+#[test_case("checks/debhelper/debhelper-compat-multiple"; "checks_debhelper_debhelper_compat_multiple")]
+#[test_case("checks/debhelper/debhelper-compat-multiple-unrel"; "checks_debhelper_debhelper_compat_multiple_unrel")]
+#[test_case("checks/debhelper/debhelper-compat-whitespace"; "checks_debhelper_debhelper_compat_whitespace")]
+#[test_case("checks/debhelper/debhelper-deprecated"; "checks_debhelper_debhelper_deprecated")]
+#[test_case("checks/debhelper/debhelper-dh-compat"; "checks_debhelper_debhelper_dh_compat")]
 #[test_case("checks/debhelper/debhelper-dh-exec"; "checks_debhelper_debhelper_dh_exec")]
 #[test_case("checks/debhelper/debhelper-executable-files"; "checks_debhelper_debhelper_executable_files")]
 #[test_case("checks/debhelper/debhelper-lacks-versioned-deps"; "checks_debhelper_debhelper_lacks_versioned_deps")]
 #[test_case("checks/debhelper/debhelper-no-depends"; "checks_debhelper_debhelper_no_depends")]
+#[test_case("checks/debhelper/legacy-fields"; "checks_debhelper_legacy_fields")]
+#[test_case("checks/debhelper/legacy-libbaz"; "checks_debhelper_legacy_libbaz")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]

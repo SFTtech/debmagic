@@ -746,6 +746,7 @@ mod tests {
                 crate::lint::rules::DebianRulesIgnoresMakeCleanError::CODE,
                 crate::lint::rules::NationalEncoding::CODE,
                 crate::lint::rules::PackageUsesDeprecatedDebhelperCompatVersion::CODE,
+                crate::lint::rules::UsesDebhelperCompatFile::CODE,
             ]
         );
         let intent = LintIntent {

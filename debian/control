@@ -54,7 +54,8 @@ Build-Depends:
  librust-flate2-dev (>=1.1.9),
  librust-xz2-dev (>=0.1.7),
  librust-zstd-dev (>=0.13.3),
- librust-goblin-dev (>=0.10.7)
+ librust-goblin-dev (>=0.10.7),
+ librust-rayon-dev (>=1.12.0)
 Rules-Requires-Root: no
 X-Style: black
 Standards-Version: 4.7.2

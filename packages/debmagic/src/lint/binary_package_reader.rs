@@ -1,7 +1,7 @@
-use std::cell::OnceCell;
 use std::collections::{HashMap, HashSet};
 use std::io::{Cursor, Read};
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 use anyhow::{Context, bail};
 
@@ -13,8 +13,8 @@ pub(crate) struct BinaryPackageReader {
     control_tar: Vec<u8>,
     data_tar_name: String,
     data_tar: Vec<u8>,
-    control_index: OnceCell<TarballIndex>,
-    data_index: OnceCell<TarballIndex>,
+    control_index: OnceLock<Result<TarballIndex, String>>,
+    data_index: OnceLock<Result<TarballIndex, String>>,
 }
 
 struct TarballIndex {
@@ -76,8 +76,8 @@ impl BinaryPackageReader {
             control_tar,
             data_tar_name,
             data_tar,
-            control_index: OnceCell::new(),
-            data_index: OnceCell::new(),
+            control_index: OnceLock::new(),
+            data_index: OnceLock::new(),
         })
     }
 
@@ -156,17 +156,20 @@ fn file_tree(index: &TarballIndex) -> super::file_tree::FileTree {
 }
 
 fn init_index<'a>(
-    cell: &'a OnceCell<TarballIndex>,
+    cell: &'a OnceLock<Result<TarballIndex, String>>,
     name: &str,
     compressed: &[u8],
     archive_path: &Path,
 ) -> anyhow::Result<&'a TarballIndex> {
-    if cell.get().is_none() {
-        let index = index_tarball(name, compressed)
-            .with_context(|| format!("indexing {name} from {}", archive_path.display()))?;
-        let _ = cell.set(index);
-    }
-    Ok(cell.get().expect("tarball index is initialized"))
+    // The result, errors included, is cached so concurrent callers index each
+    // tarball once and all observe the same outcome.
+    cell.get_or_init(|| {
+        index_tarball(name, compressed)
+            .with_context(|| format!("indexing {name} from {}", archive_path.display()))
+            .map_err(|error| format!("{error:#}"))
+    })
+    .as_ref()
+    .map_err(|message| anyhow::anyhow!("{message}"))
 }
 
 fn lookup_file<'a>(index: &'a TarballIndex, path: &str) -> Option<&'a [u8]> {

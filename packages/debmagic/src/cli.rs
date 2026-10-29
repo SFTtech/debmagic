@@ -706,6 +706,14 @@ pub struct LintSubcommandArgs {
         help = "Severity rungs that make lint exit non-zero (error, warning, info, pedantic). Warning does not imply error; default is error only when unset"
     )]
     pub fail_on: Vec<crate::lint::Severity>,
+
+    #[arg(
+        long,
+        short = 'j',
+        value_parser = clap::value_parser!(usize),
+        help = "Worker threads for running Rules (default: available parallelism, at most one per Rule)"
+    )]
+    pub threads: Option<usize>,
 }
 
 #[derive(Args, Debug)]

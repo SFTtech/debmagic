@@ -18,6 +18,8 @@ pub struct LintIntentInput {
     pub select: Vec<String>,
     pub ignore: Vec<String>,
     pub fail_on: Vec<Severity>,
+    /// Worker threads for running Rules; `None` uses the available parallelism.
+    pub threads: Option<usize>,
 }
 
 /// Fully resolved description of *how* a lint runs.
@@ -27,6 +29,8 @@ pub struct LintIntent {
     pub selected: Vec<Code>,
     pub fail_on: HashSet<Severity>,
     pub severity_remaps: HashMap<Code, Severity>,
+    /// Worker threads for running Rules; `None` uses the available parallelism.
+    pub threads: Option<usize>,
 }
 
 fn resolve_fail_on(fail_on: &[Severity]) -> HashSet<Severity> {
@@ -52,6 +56,7 @@ pub fn resolve_lint_intent(input: LintIntentInput) -> anyhow::Result<LintIntent>
         selected: resolve_selected_codes(&input.select, &input.ignore)?,
         fail_on: resolve_fail_on(&input.fail_on),
         severity_remaps: HashMap::new(),
+        threads: input.threads,
     })
 }
 
@@ -77,6 +82,7 @@ mod tests {
             select: vec![],
             ignore: vec![],
             fail_on: vec![],
+            threads: None,
         }
     }
 

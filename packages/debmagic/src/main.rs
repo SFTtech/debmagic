@@ -204,6 +204,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 select: args.select.clone(),
                 ignore: args.ignore.clone(),
                 fail_on: args.fail_on.clone(),
+                threads: args.threads,
             })?;
             let result = lint::run_lint(&intent).context("linting the package failed")?;
             for diagnostic in &result.diagnostics {

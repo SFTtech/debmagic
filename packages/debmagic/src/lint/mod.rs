@@ -10,6 +10,7 @@ mod file_tree;
 mod file_type;
 mod installation_control;
 mod intent;
+mod package_relation;
 mod registry;
 mod rule;
 mod rules;

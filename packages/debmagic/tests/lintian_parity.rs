@@ -103,6 +103,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/legacy-maintainer-scripts",
     "checks/debian/copyright/legacy-relations",
     "checks/debian/copyright/source-copyright-missing",
+    "checks/fields/package-relations/fields-depends-general",
+    "checks/fields/package-relations/legacy-relations",
     "checks/fields/required/fields-general-missing",
     "checks/fields/required/generic-empty",
     "checks/files/empty-package/cruft-source-is-missing-unrel",
@@ -331,6 +333,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/copyright/legacy-maintainer-scripts"; "checks_debian_copyright_legacy_maintainer_scripts")]
 #[test_case("checks/debian/copyright/legacy-relations"; "checks_debian_copyright_legacy_relations")]
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
+#[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
+#[test_case("checks/fields/package-relations/legacy-relations"; "checks_fields_package_relations_legacy_relations")]
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 #[test_case("checks/files/empty-package/cruft-source-is-missing-unrel"; "checks_files_empty_package_cruft_source_is_missing_unrel")]

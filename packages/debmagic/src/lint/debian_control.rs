@@ -1,6 +1,18 @@
 use std::path::Path;
 
+use std::sync::LazyLock;
+
 use debian_control::lossless::Control;
+use regex::Regex;
+
+use super::package_relation::PackageRelation;
+
+static FOLD: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\n\s*").expect("valid regex"));
+
+/// See [`ControlParagraph::unfolded_value`].
+pub(crate) fn unfold(value: &str) -> String {
+    FOLD.replace_all(value.trim(), " ").into_owned()
+}
 
 /// Parsed `debian/control`: first paragraph is source; later named paragraphs are
 /// installables. Matches lintian's `Lintian::Debian::Control`, not
@@ -118,6 +130,20 @@ impl ControlParagraph {
             .iter()
             .find(|(key, _)| key.eq_ignore_ascii_case(name))
             .map(|(_, value)| value.as_str())
+    }
+
+    /// The value on one line: surrounding space trimmed, each line break and
+    /// the indentation after it a single space (lintian's `unfolded_value`).
+    pub fn unfolded_value(&self, name: &str) -> Option<String> {
+        self.get(name).map(unfold)
+    }
+
+    /// A relation field (`Depends`, `Build-Depends`, ...) parsed per Policy
+    /// 7.1. `None` when the paragraph does not declare it. Malformed text
+    /// stays on the parsed alternatives.
+    pub(crate) fn relation(&self, name: &str) -> Option<PackageRelation> {
+        self.unfolded_value(name)
+            .map(|value| PackageRelation::parse(&value))
     }
 }
 

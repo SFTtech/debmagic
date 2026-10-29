@@ -752,6 +752,7 @@ mod tests {
                 crate::lint::rules::VcsObsoleteInDebianInfrastructure::CODE,
                 crate::lint::rules::ChangelogFileNotCompressed::CODE,
                 crate::lint::rules::NonStandardToplevelDir::CODE,
+                crate::lint::rules::LatestDebianChangelogEntryWithoutNewDate::CODE,
             ]
         );
         let intent = LintIntent {

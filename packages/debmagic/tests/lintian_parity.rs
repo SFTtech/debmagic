@@ -22,6 +22,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-fields",
     "checks/debhelper/legacy-libbaz",
     "checks/debhelper/legacy-scripts",
+    "checks/debian/changelog/changelog-file-general",
+    "checks/debian/changelog/legacy-foo++",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
     "checks/debian/copyright/dep5/file-does-not-exist",
@@ -148,6 +150,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-fields",
     "checks/debhelper/legacy-libbaz",
     "checks/debhelper/legacy-scripts",
+    "checks/debian/changelog/changelog-file-general",
+    "checks/debian/changelog/legacy-foo++",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
     "checks/debian/copyright/dep5/file-does-not-exist",
@@ -245,6 +249,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/legacy-fields"; "checks_debhelper_legacy_fields")]
 #[test_case("checks/debhelper/legacy-libbaz"; "checks_debhelper_legacy_libbaz")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
+#[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
+#[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/dep5/file-does-not-exist"; "checks_debian_copyright_dep5_file_does_not_exist")]
@@ -373,6 +379,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/legacy-fields"; "checks_debhelper_legacy_fields")]
 #[test_case("checks/debhelper/legacy-libbaz"; "checks_debhelper_legacy_libbaz")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
+#[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
+#[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/dep5/file-does-not-exist"; "checks_debian_copyright_dep5_file_does_not_exist")]

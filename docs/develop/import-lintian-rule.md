@@ -90,6 +90,17 @@ Import also rewrites `packages/debmagic/tests/lintian_parity.rs` with one test p
 python3 scripts/import_lintian_parity.py --write-tests
 ```
 
+## Where are we? `just lint-parity`
+
+```shell
+just lint-parity                      # Rule, Check, and oracle-hint coverage; fidelity flags
+just lint-parity --run                # also run the generated Parity tests and show pass/FAIL per Rule
+just lint-parity --candidates 30      # rank uncatalogued default-selected Tags by oracle weight
+just lint-parity --json --strict      # machine-readable; exit 1 on any listed issue
+```
+
+It reads the lintian tag catalogue (`--lintian-data`, default `/usr/share/lintian`), `declare_rule!` / `impl SourceRule` / `impl BinaryPackageRule` in `src/lint/rules/`, the vendored `eval/hints`, and the generated `tests/lintian_parity.rs`. Flags worth acting on: `applicability-gap` (the oracle expects the Tag from a processable type the Rule does not implement), `severity` / `default-selected` mismatches against lintian, `no Parity case` (a Rule whose oracle never exercises the Subjects it implements), and a stale generated test file. The tag catalogue is whatever lintian is installed unless pointed elsewhere; it can drift from the pinned oracle.
+
 ## 7. Worked sketch: `required-field`
 
 Check: `lib/Lintian/Check/Fields/Required.pm`. Tag file: `tags/r/required-field.tag`. Three recipes:

@@ -84,9 +84,11 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/debug-symbols/legacy-debug",
     "checks/binaries/debug-symbols/legacy-libbaz",
     "checks/debian/changelog/changelog-file-missing",
+    "checks/debian/changelog/changelog-file-news-and-changelog-not-compressed",
     "checks/debian/changelog/changelog-file-no-dch",
     "checks/debian/changelog/changelog-file-no-dch-native",
     "checks/debian/changelog/legacy-binary",
+    "checks/debian/changelog/legacy-etcfiles",
     "checks/debian/changelog/legacy-fields",
     "checks/debian/changelog/legacy-libbaz",
     "checks/debian/changelog/legacy-relations",
@@ -306,9 +308,11 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/debug-symbols/legacy-debug"; "checks_binaries_debug_symbols_legacy_debug")]
 #[test_case("checks/binaries/debug-symbols/legacy-libbaz"; "checks_binaries_debug_symbols_legacy_libbaz")]
 #[test_case("checks/debian/changelog/changelog-file-missing"; "checks_debian_changelog_changelog_file_missing")]
+#[test_case("checks/debian/changelog/changelog-file-news-and-changelog-not-compressed"; "checks_debian_changelog_changelog_file_news_and_changelog_not_compressed")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch"; "checks_debian_changelog_changelog_file_no_dch")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch-native"; "checks_debian_changelog_changelog_file_no_dch_native")]
 #[test_case("checks/debian/changelog/legacy-binary"; "checks_debian_changelog_legacy_binary")]
+#[test_case("checks/debian/changelog/legacy-etcfiles"; "checks_debian_changelog_legacy_etcfiles")]
 #[test_case("checks/debian/changelog/legacy-fields"; "checks_debian_changelog_legacy_fields")]
 #[test_case("checks/debian/changelog/legacy-libbaz"; "checks_debian_changelog_legacy_libbaz")]
 #[test_case("checks/debian/changelog/legacy-relations"; "checks_debian_changelog_legacy_relations")]

@@ -750,6 +750,7 @@ mod tests {
                 crate::lint::rules::NoHumanMaintainers::CODE,
                 crate::lint::rules::DmUploadAllowedIsObsolete::CODE,
                 crate::lint::rules::VcsObsoleteInDebianInfrastructure::CODE,
+                crate::lint::rules::ChangelogFileNotCompressed::CODE,
             ]
         );
         let intent = LintIntent {

@@ -70,9 +70,12 @@ pub struct UploadIntent {
     pub incoming: Option<String>,
     pub login: Option<String>,
     pub port: Option<u16>,
-    pub no_hooks: bool,
+    /// Run the target's `pre_upload_commands`.
+    pub hooks: bool,
     pub force: bool,
     pub sign: Option<crate::sign::SignMode>,
+    /// `--notify`, overriding the configured notifications.
+    pub notify: Option<bool>,
     pub include_orig: Option<orig::IncludeOrig>,
     /// The explicit `.changes` to upload; located via changelog + output dir when unset.
     pub changes: Option<PathBuf>,
@@ -82,7 +85,8 @@ pub struct UploadIntent {
 /// the `.changes` and adjust its orig entries, then upload it.
 pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
     let source_dir = input.source_dir;
-    let config = crate::config::Config::load(Some(&source_dir), input.config_file.as_deref())?;
+    let mut config = crate::config::Config::load(Some(&source_dir), input.config_file.as_deref())?;
+    config.override_notify(input.notify);
 
     let mut upload_target = resolve_target(&input.target, Some(&config.upload))?;
     upload_target.apply_overrides(&UploadOverrides {
@@ -97,8 +101,7 @@ pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
     let changes_file = match &input.changes {
         Some(file) => std::path::absolute(file).context("resolving the changes file failed")?,
         None => {
-            let output_dir = std::path::absolute(source_dir.join(&config.output_dir))
-                .context("resolving output dir failed")?;
+            let output_dir = crate::output_dir::resolve(&source_dir, &config, None)?;
             crate::sign::find_changes_file(
                 identity.name(),
                 &identity.version().to_string(),
@@ -129,25 +132,25 @@ pub fn upload(input: UploadIntent) -> anyhow::Result<()> {
             .file_stem()
             .map(|stem| stem.to_string_lossy().into_owned())
             .unwrap_or_default();
-        crate::sign::sign_file(
-            &changes_file,
-            &config.sign,
-            sign_mode,
-            config.sign.notify,
-            &package,
-        )?;
+        let notice = config.sign_notify().then(|| {
+            crate::output::Notice::new(
+                "debmagic: signing for upload",
+                &format!("touch your key to sign {package} for {}", input.target),
+            )
+        });
+        crate::sign::sign_file(&changes_file, &config.sign, sign_mode, notice.as_ref())?;
     }
 
     crate::output::stage(&format!(
         "Uploading {} to {}",
         changes_file.display(),
-        upload_target.name
+        input.target
     ));
     upload_changes(
         &upload_target,
         &input.target,
         &changes_file,
-        input.no_hooks,
+        !input.hooks,
         input.force,
         Some(identity.version().upstream_version()),
     )
@@ -248,7 +251,7 @@ pub fn upload_changes(
         format!(
             "transferring {} files to {} failed",
             files.len(),
-            target.name
+            target_spec
         )
     })?;
     log.record(changes_file, target_spec, upstream_version)?;
@@ -331,7 +334,11 @@ mod tests {
 
     #[test]
     fn test_upload_log_roundtrip_and_check() {
-        let dir = std::env::temp_dir().join(format!("debmagic-test-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-test-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let changes = dir.join("pkg_1.0-1_source.changes");
         std::fs::write(&changes, "Format: 1.8\n").unwrap();
@@ -355,7 +362,5 @@ mod tests {
         assert_eq!(&time[10..11], "T");
         assert_eq!(&time[13..14], ":");
         assert!(time[19..].starts_with('+') || time[19..].starts_with('-'));
-
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 }

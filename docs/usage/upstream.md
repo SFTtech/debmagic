@@ -1,11 +1,13 @@
 # Upstream versions
 
-`debmagic upstream` replaces `uscan`/`uupdate`: it reads the package's existing `debian/watch` and `debian/copyright` and offers two operations — checking for new upstream versions and switching the package tree to one.
+`debmagic upstream` replaces `uscan`/`uupdate`: it reads the package's existing `debian/watch` and `debian/copyright` and offers three operations — checking for new upstream versions, fetching an orig tarball, and switching the package tree to one.
 
 ```shell
 debmagic upstream list                 # newest upstream version newer than the changelog's
 debmagic upstream list --all           # every candidate, newest first
 debmagic upstream list --previous 3    # the 3 newest versions above the current one
+debmagic upstream fetch                # the orig tarball of the changelog's version
+debmagic upstream fetch --from upstream --repack=no   # the unmodified upstream release
 debmagic upstream switch latest        # switch the tree to the newest version
 debmagic upstream switch 3.12.0       # switch to a specific version
 debmagic upstream switch latest --dry-run
@@ -18,16 +20,38 @@ By default only versions newer than the changelog's current upstream version are
 
 The changelog's version is normalized with the watch file's `Dversion-Mangle` rules before comparing, so `+dfsg` suffixes and similar don't hide available updates.
 
+## `upstream fetch`
+
+Puts the `orig` tarball of an upstream version into the package's output dir (`build-area/` by default, `-o` overrides it), where `debmagic build source` finds it.
+Without a version it fetches the changelog's upstream version; MUT component tarballs are fetched along with the main one.
+
+An orig tarball already in the output dir is kept, and one next to the source tree (`../`) is linked into it: re-creating a tarball changes its checksums, and the archive rejects an upload whose orig differs from the one it has.
+`--force` replaces it.
+
+`--from` picks where the tarball comes from:
+
+- `auto` (default): the configured [`orig_tarball.method`](#orig-tarballs-in-builds), then upstream — a version Debian or Ubuntu published must be reused as-is
+- `upstream`: the release `debian/watch` points to
+- `launchpad`, `ubuntu`, `debian`: the distro archives
+- `custom`: the `orig_tarball.command`
+
+Upstream and custom tarballs are [repacked](#repacking) unless `--repack=no` (or `upstream.repack = false`) is given.
+Then the tarball is kept byte for byte, and every file in it that `Files-Excluded` says must go is listed as a warning.
+Distro tarballs are never repacked: the archive already holds them.
+
+`--dry-run` reports what would happen — method, tarball URL, repack excludes — without downloading anything.
+
 ## `upstream switch`
 
-Fetches the chosen version's tarball, applies the package's repack configuration, writes the `orig` tarball into the package's output dir (`build/` by default) and replaces the source tree's contents — everything except `debian/`, which is kept as-is.
-The changelog is not touched; add the new version entry yourself (automated changelog handling is planned).
+Fetches the chosen version's orig tarball exactly like `upstream fetch` — with the same options — and replaces the source tree's contents with it, everything except `debian/`, which is kept as-is.
+The changelog is not touched; add the new version entry with [`debmagic changelog new`](changelog.md).
 
-`--dry-run` reports what would happen — tarball URL, repack excludes, version suffix — without downloading anything.
+The output dir (`build-area/` by default) is kept across the switch.
+If the new version starts shipping a directory of that name, the output dir moves to `build-debmagic/` (see [Output dir](build.md#output-dir)); with `output_dir_clash = "fail"` or `-o`, the switch stops before changing anything.
 
 For a concrete version, the tarball URL is resolved without scraping the download listing:
 
-1. the distro archives (the `launchpad` orig method) — a version Debian or Ubuntu published needs no upstream download at all
+1. the distro archives (with `--from auto`) — a version Debian or Ubuntu published needs no upstream download at all
 2. the watch pattern, read as a URL template: `@ANY_VERSION@` becomes the version, `@ARCHIVE_EXT@` each archive extension in turn (the extension of the project's existing orig tarball is probed first), and the constructed URLs are probed — this also finds versions that have already fallen out of the listing
 3. the listing, fetched as a *structure teacher*: any listed sibling reveals the prefix/extension shape, and the requested version's URL is constructed from it — this covers patterns pure inversion rejects (multiple capture groups, regex constructs) and compression changes
 4. the listing, filtered for the requested version — the last resort
@@ -40,11 +64,11 @@ After downloading, the tarball's PGP signature is verified against the keyring i
 Verification is on by default and uses the same OpenPGP backend as signing — `gpg` by default, `sq` (Sequoia) when `sign.tool = "sequoia"`, or your custom command when `sign.tool = "custom"`: `sign.verify_command` with `{file}`, `{signature}` and `{keyring}` placeholders (without `{signature}` the signature path is appended as the last argument), falling back to `sign.sign_command`.
 
 The signature is looked up via the watch file's `Pgp-Sig-Url-Mangle` rules; without them the common suffixes (`.asc`, `.sig`, `.sign`, `.pgp`, `.gpg`) are tried next to the tarball.
-If no signature exists upstream, the switch fails — disable the check per-run with `--no-signature-check` or persistently with `verify_signatures = false`:
+If no signature exists upstream, the fetch fails — disable the check per-run with `--signature-check=no` or persistently with `signature_check = false`:
 
 ```toml
 [upstream]
-verify_signatures = false
+signature_check = false
 ```
 
 Export the upstream key with `gpg --export --armor <keyid> > debian/upstream/signing-key.asc`.
@@ -56,22 +80,31 @@ Two sources are merged:
 - `Files-Excluded` in `debian/copyright` — the standard way to strip non-DFSG or useless files; `Files-Excluded-<component>` works for multiple-upstream-tarball packages
 - the watch file's `Repack`/`Repacksuffix` options, e.g. `Repacksuffix: +dfsg` appends the suffix to the upstream version of the repacked tarball
 
-The repacked `orig` tarball uses the canonical Debian layout: a single top-level `<source>_<version>/` directory, xz-compressed.
+A tarball containing excluded files is re-created in the canonical Debian layout: a single top-level `<source>-<version>/` directory, xz-compressed.
+One without excluded files is used unchanged, unless dpkg-source can't read its compression (e.g. zip or zstd).
+
+```toml
+[upstream]
+repack = false   # keep upstream tarballs as-is, warning about excluded files
+```
 
 ## Watch file support
 
 `debian/watch` versions 2–5 are parsed (version 1 is rejected).
-The common options work: `Source`, `Matching-Pattern` (including the `@ANY_VERSION@`/`@ARCHIVE_EXT@`/`@PACKAGE@` substitutions), `Search-Mode`, `Uversion-Mangle`, `Dversion-Mangle`, `Filename-Mangle`, `Download-Url-Mangle`, `Pgp-Mode`/`Pgp-Sig-Url-Mangle`, `Repack`, `Repacksuffix`, `Component` (for MUT packages), `Untrackable`.
+The common options work: `Source`, `Matching-Pattern` (including the `@ANY_VERSION@`/`@ARCHIVE_EXT@`/`@PACKAGE@` substitutions), `Search-Mode`, `Uversion-Mangle`, `Dversion-Mangle`, `Oversion-Mangle`, `Filename-Mangle`, `Download-Url-Mangle`, `Pgp-Mode`/`Pgp-Sig-Url-Mangle`, `Repack`, `Repacksuffix`, `Component` (for MUT packages), `Untrackable`.
+
+In version 2–4 lines, the version field may be `debian`, or `same`/`ignore` for MUT components: components are fetched for the main tarball's version, and an `ignore` component that has no such release falls back to its newest one.
+The `uupdate` update script is accepted, since `debmagic upstream switch` does its job.
 
 http(s) sources are fetched directly; ftp sources fall back to `curl` (install it when a watch file needs it).
 
-Rare options with no debmagic equivalent yet (`Mode: git`/`svn`, `Version-Schema: group/checksum`, `Page-Mangle`, `Update-Script`, ...) produce a clear error suggesting an explicit upstream declaration instead of silently misbehaving.
+Rare options with no debmagic equivalent yet (`Mode: git`/`svn`, `Version-Schema: group/checksum`, `Page-Mangle`, custom update scripts, ...) produce a clear error suggesting an explicit upstream declaration instead of silently misbehaving.
 
 ## Orig tarballs in builds
 
 `debmagic build source` needs the `orig` tarball for `3.0 (quilt)` packages and finds it without any configuration:
 
-1. the package's output dir (`build/` by default) — where `upstream switch` puts it
+1. the package's output dir (`build-area/` by default) — where `upstream switch` puts it
 2. next to the source tree (`../`), the conventional location — used as-is, never written to
 3. the download cache (`~/.cache/debmagic/orig/<name>/<upstream_version>/`) — populated by the `launchpad` method; a cached tarball is hardlinked into the output dir when both are on the same filesystem, copied otherwise
 4. the configured fetch method — `launchpad` by default, no configuration needed:

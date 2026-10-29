@@ -1,3 +1,5 @@
+use std::path::{Path, PathBuf};
+
 use anyhow::{Context, bail};
 
 use crate::config::Config;
@@ -18,26 +20,28 @@ pub async fn list_environments(config: &Config) -> anyhow::Result<()> {
         return Ok(());
     }
 
-    println!(
-        "{:<16} {:<6} {:<8} {:<18} {:<10} {:<10} {:<6} {:<11} SOURCE",
-        "ID", "PURPOSE", "DRIVER", "PACKAGE", "DISTRO", "PERSIST", "STATUS", "ATTACH"
-    );
+    let mut rows = vec![
+        [
+            "ID", "PURPOSE", "DRIVER", "PACKAGE", "DISTRO", "PERSIST", "STATUS", "ATTACH", "SOURCE",
+        ]
+        .map(String::from),
+    ];
     for registered in environments {
         let assessed = assess_environment(&registry, &registered, &config.driver).await?;
         let env = &registered.environment;
-        println!(
-            "{:<16} {:<6} {:<8} {:<18} {:<10} {:<10} {:<6} {:<11} {}",
-            env.id(),
-            env.purpose.as_str(),
-            env.driver.as_str(),
-            env.package_identifier,
-            env.distro.codename,
-            env.persistence.as_str(),
-            assessed.status.as_str(),
-            assessed.attachments,
-            env.source_dir.display(),
-        );
+        rows.push([
+            env.id().to_string(),
+            env.purpose.as_str().to_string(),
+            env.driver.as_str().to_string(),
+            env.package_identifier.to_string(),
+            env.distro.codename.to_string(),
+            env.persistence.as_str().to_string(),
+            assessed.status.as_str().to_string(),
+            assessed.attachments.to_string(),
+            env.source_dir.display().to_string(),
+        ]);
     }
+    print!("{}", crate::output::table(&rows));
     Ok(())
 }
 
@@ -137,11 +141,10 @@ async fn remove_one(
     Ok(())
 }
 
-pub async fn shell_environment(
-    config: &Config,
+async fn selected_environment(
     source_dir: &std::path::Path,
     id: Option<&str>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<(Registry, crate::environment::RegisteredEnvironment)> {
     let Some(registry) = Registry::open_default_if_exists().await? else {
         match id {
             Some(id) => bail!("no Environment with id {id}"),
@@ -160,18 +163,61 @@ pub async fn shell_environment(
             select_unique_environment(&candidates, &package_identifier)?.clone()
         }
     };
+    Ok((registry, registered))
+}
 
-    crate::environment::shell_environment(&registry, &config.driver, &registered).await
+fn command_context(
+    current_dir: &Path,
+    config_file: Option<&Path>,
+    id: Option<&str>,
+    source_dir: Option<&Path>,
+) -> anyhow::Result<(Config, PathBuf)> {
+    if id.is_some() {
+        return Ok((Config::load(None, config_file)?, current_dir.to_path_buf()));
+    }
+
+    let source_dir = resolve_shell_source_dir(Some(source_dir.unwrap_or(current_dir)), current_dir)
+        .map_err(|_| {
+            anyhow::anyhow!("not a Source tree; pass an Environment id (see `debmagic env list`)")
+        })?;
+    let config = Config::load(Some(&source_dir), config_file)?;
+    Ok((config, source_dir))
+}
+
+/// Returns the login shell's exit code.
+pub async fn shell_environment(
+    current_dir: &Path,
+    config_file: Option<&Path>,
+    id: Option<&str>,
+    source_dir: Option<&Path>,
+    user: Option<&str>,
+) -> anyhow::Result<i32> {
+    let (config, source_dir) = command_context(current_dir, config_file, id, source_dir)?;
+    let (registry, registered) = selected_environment(&source_dir, id).await?;
+    crate::environment::shell_environment(&registry, &config.driver, &registered, user).await
+}
+
+/// Execute `command` directly, without a shell, and return its exit code.
+pub async fn exec_environment(
+    current_dir: &Path,
+    config_file: Option<&Path>,
+    id: Option<&str>,
+    source_dir: Option<&Path>,
+    user: Option<&str>,
+    command: &[String],
+) -> anyhow::Result<i32> {
+    let (config, source_dir) = command_context(current_dir, config_file, id, source_dir)?;
+    let (registry, registered) = selected_environment(&source_dir, id).await?;
+    let command: Vec<&str> = command.iter().map(String::as_str).collect();
+    crate::environment::exec_environment(&registry, &config.driver, &registered, user, &command)
+        .await
 }
 
 /// When no explicit id is given, resolve the Source tree from cwd / `--source-dir`.
 ///
 /// Canonicalized: Environment ids and registry lookups key on the `source_dir`
 /// string, so all entry points must agree on one spelling per tree.
-pub fn resolve_shell_source_dir(
-    source_dir: Option<&std::path::Path>,
-    cwd: &std::path::Path,
-) -> anyhow::Result<std::path::PathBuf> {
+fn resolve_shell_source_dir(source_dir: Option<&Path>, cwd: &Path) -> anyhow::Result<PathBuf> {
     let dir = std::fs::canonicalize(source_dir.unwrap_or(cwd))?;
     load_package(&dir).map(|_| dir)
 }

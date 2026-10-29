@@ -21,6 +21,7 @@ Build-Depends:
  librust-libc-dev (>=0.2.169),
  librust-serde-dev (>=1.0.217),
  librust-serde-json-dev (>=1.0.139),
+ librust-tempfile-dev (>=3.10),
  librust-toml-dev (>=0.8),
  librust-toml-edit-dev (>=0.22),
  librust-uuid-dev (>=1.10.0),
@@ -31,9 +32,9 @@ Build-Depends:
  librust-tokio-dev (>= 1.43),
  librust-test-case-dev (>=3.3.1),
  librust-pyo3-dev (>=0.27.2),
- librust-deb822-lossless-dev (>=0.5.18),
+ librust-deb822-lossless-dev (>=0.5.19),
  librust-debian-changelog-dev (>=0.2.14),
- librust-debian-control-dev (>= 0.1.39),
+ librust-debian-control-dev (>= 0.3.17),
  librust-ignore-dev (>=0.4.25),
  librust-md-5-dev (>= 0.11),
  librust-sha1-dev (>= 0.11),
@@ -80,6 +81,7 @@ Description: dpkg build driver for debmagic rules.py packages.
 Package: debmagic
 Architecture: any
 Depends:
+ distro-info-data,
  ${misc:Depends},
  ${shlibs:Depends},
 Suggests:

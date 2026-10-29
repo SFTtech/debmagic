@@ -5,7 +5,8 @@ debmagic remembers all Environments on this machine, so you can inspect, reuse a
 
 ```shell
 debmagic env list               # what exists, and in what state
-debmagic env shell [<id>]       # open a shell in an Environment
+debmagic env shell [<id>]             # open the selected user's login shell
+debmagic env exec [<id>] -- <command>...  # run a command directly
 debmagic env clean              # destroy everything Stale
 debmagic env rm <id>...         # destroy specific Environments
 ```
@@ -37,7 +38,23 @@ An Environment is **Stale** when its Driver resource or Host root is gone, or wh
 ```shell
 debmagic env shell        # inside a Source tree: its only Environment
 debmagic env shell <id>   # anywhere
+debmagic env shell -u 1000
 ```
+
+The interactive command is the selected user's login shell from the Environment's passwd database.
+Runs as `root` in containers by default, or as the invoking user with the bare driver; override with `--user`.
+
+## exec
+
+```shell
+debmagic env exec [<id>] -- dpkg -l 'libfoo*'
+debmagic env exec -u 1000 -- sh -c 'echo $HOME'  # as the build user
+```
+
+The command runs directly, without an implicit shell, and debmagic returns its exit code.
+It gets a terminal only when debmagic has one, so pipes and redirections work.
+Use `sh -c` explicitly when shell expansion is wanted.
+Environment selection and `--user` work as for `shell`.
 
 Without an id, debmagic picks the Environment of the current Source tree.
 Environments of the version in `debian/changelog` take precedence over those of earlier versions.

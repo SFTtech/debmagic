@@ -272,7 +272,8 @@ def run_shim(changes_path: Path, target: str, config_dirs: list[Path]) -> int:
 
     changes = Changes(changes_path)
     profile = {
-        "name": target,
+        # dput-ng names the profile after the block ("ppa"), not the full "ppa:user/repo" spec
+        "name": target.split(":", 1)[0],
         "incoming": os.environ.get("DEBMAGIC_UPLOAD_TARGET_INCOMING", ""),
         "fqdn": os.environ.get("DEBMAGIC_UPLOAD_TARGET_SERVER", ""),
     }

@@ -1,3 +1,17 @@
+/// The model of a package's `debian/copyright`.
+#[derive(Debug, Clone, Default)]
+pub struct Copyright {
+    pub files_excluded: FilesExcluded,
+}
+
+impl Copyright {
+    pub fn parse(content: &str) -> Self {
+        Self {
+            files_excluded: files_excluded(content),
+        }
+    }
+}
+
 /// The `Files-Excluded` patterns from a `debian/copyright` file.
 ///
 /// The field is a machine-readable header (not part of the deb822
@@ -14,7 +28,7 @@ pub struct FilesExcluded {
 
 /// Parse the `Files-Excluded` fields from a `debian/copyright`
 /// file's content.
-pub fn files_excluded(content: &str) -> FilesExcluded {
+fn files_excluded(content: &str) -> FilesExcluded {
     let mut result = FilesExcluded::default();
     // the component whose patterns we are collecting; `None` = main
     let mut current: Option<Option<String>> = None;

@@ -6,7 +6,7 @@ It's a target of the same [`debmagic build`](build.md) command that builds binar
 ## TL;DR
 
 ```shell
-# be in debian package directory, output to current directory:
+# be in debian package directory, output to build-area/:
 debmagic build source
 
 # or outside the debian package dir:
@@ -28,7 +28,7 @@ debmagic build source --sign --sign-key you@example.com \
   --upload ppa:your-lp-username/your-ppa
 
 # or upload an already-built .changes separately:
-debmagic upload ppa:your-lp-username/your-ppa ./build/pkg_*_source.changes
+debmagic upload ppa:your-lp-username/your-ppa ./build-area/pkg_*_source.changes
 ```
 
 - `--sign` GPG-signs the `.dsc`/`.buildinfo`/`.changes` after building, on the host with your gpg keyring — see [Signing](build.md#signing).

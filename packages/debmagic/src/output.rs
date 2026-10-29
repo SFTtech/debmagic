@@ -70,7 +70,7 @@ pub fn notify_send(summary: &str, body: &str) {
     {
         Ok(_) => {}
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-            eprintln!("notify-send not found on PATH; cannot send signing notification");
+            eprintln!("notify-send not found on PATH; cannot send notification");
         }
         Err(e) => eprintln!("failed to run notify-send: {e}"),
     }
@@ -91,6 +91,27 @@ pub fn bell() {
 pub fn notify_send_bell(summary: &str, body: &str) {
     notify_send(summary, body);
     bell();
+}
+
+/// A [`notify_send_bell`] notification, decided ahead of the step that
+/// sends it.
+#[derive(Debug, Clone)]
+pub struct Notice {
+    pub summary: String,
+    pub body: String,
+}
+
+impl Notice {
+    pub fn new(summary: &str, body: &str) -> Self {
+        Self {
+            summary: summary.to_string(),
+            body: body.to_string(),
+        }
+    }
+
+    pub fn send(&self) {
+        notify_send_bell(&self.summary, &self.body);
+    }
 }
 
 /// Whether color is on, after [`init_color`] has run.
@@ -160,9 +181,44 @@ pub fn step(text: &str) {
     eprintln!("{}", styled(Style::Bold, &format!("  -> {text}")));
 }
 
+/// Lay out `rows` (header first) in columns as wide as their widest cell.
+/// The last column is not padded, so a long path does not widen the table.
+pub fn table<const N: usize>(rows: &[[String; N]]) -> String {
+    let widths: [usize; N] = std::array::from_fn(|column| {
+        rows.iter()
+            .map(|row| row[column].chars().count())
+            .max()
+            .unwrap_or(0)
+    });
+    let mut out = String::new();
+    for row in rows {
+        let line: Vec<String> = row
+            .iter()
+            .zip(widths)
+            .map(|(cell, width)| format!("{cell:<width$}"))
+            .collect();
+        out.push_str(line.join(" ").trim_end());
+        out.push('\n');
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn table_sizes_columns_by_content() {
+        let rows = [
+            ["ID", "PATH"].map(String::from),
+            ["abcdef", "/a/very/long/path"].map(String::from),
+            ["x", "/b"].map(String::from),
+        ];
+        assert_eq!(
+            table(&rows),
+            "ID     PATH\nabcdef /a/very/long/path\nx      /b\n"
+        );
+    }
 
     const COLOR_TERM: Option<&str> = Some("xterm-256color");
 

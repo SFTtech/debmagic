@@ -57,7 +57,7 @@ pub struct OrigTarballConfig {
 impl OrigTarballConfig {
     /// The resolved method: the configured one, or the `launchpad`
     /// default when unset.
-    fn method(&self) -> OrigTarballMethod {
+    pub fn method(&self) -> OrigTarballMethod {
         self.method.unwrap_or_default()
     }
 
@@ -73,7 +73,12 @@ impl OrigTarballConfig {
 
 /// Substitute `{name}`, `{version}`, `{upstream_version}`, `{source_dir}`
 /// and `{output_dir}` placeholders.
-fn substitute_placeholders(s: &str, package: &SourcePackage, output_dir: &Path) -> String {
+fn substitute_placeholders(
+    s: &str,
+    package: &SourcePackage,
+    upstream_version: &str,
+    output_dir: &Path,
+) -> String {
     let version = package.version().to_string();
     let source_dir = package.source_dir().unwrap().to_string_lossy();
     let out = output_dir.to_string_lossy();
@@ -82,23 +87,41 @@ fn substitute_placeholders(s: &str, package: &SourcePackage, output_dir: &Path) 
         &[
             ("name", package.name()),
             ("version", version.as_str()),
-            ("upstream_version", package.version().upstream_version()),
+            ("upstream_version", upstream_version),
             ("source_dir", &source_dir),
             ("output_dir", &out),
         ],
     )
 }
 
+/// The download cache: `<cache>/debmagic/orig/`.
+fn cache_root() -> Option<PathBuf> {
+    dirs::cache_dir().map(|cache| cache.join("debmagic").join("orig"))
+}
+
 /// The download cache dir for one package version:
 /// `<cache>/debmagic/orig/<name>/<upstream_version>/`.
 fn cache_dir(name: &str, upstream_version: &str) -> Option<PathBuf> {
-    dirs::cache_dir().map(|cache| {
-        cache
-            .join("debmagic")
-            .join("orig")
-            .join(name)
-            .join(upstream_version)
-    })
+    cache_root().map(|root| root.join(name).join(upstream_version))
+}
+
+/// Copy a downloaded tarball into its cache dir. A failing cache must
+/// never fail the build, so errors are only reported.
+fn populate_cache(cache_dir: &Path, orig_path: &Path) {
+    let result = std::fs::create_dir_all(cache_dir)
+        .and_then(|()| match cache_root() {
+            Some(root) => crate::output_dir::tag(&root, "debmagic orig tarball download cache."),
+            None => Ok(()),
+        })
+        .and_then(|()| {
+            std::fs::copy(
+                orig_path,
+                cache_dir.join(orig_path.file_name().unwrap_or_default()),
+            )
+        });
+    if let Err(error) = result {
+        println!("debmagic: populating the orig cache failed: {error}");
+    }
 }
 
 /// Fetch the `orig` tarball for `package` into `output_dir`, unless a
@@ -161,10 +184,47 @@ pub async fn fetch_orig_tarball_for_version(
         return Ok(Some(existing));
     }
 
-    let method = config.method();
+    fetch_with_method(
+        config,
+        config.method(),
+        package,
+        output_dir,
+        upstream_version,
+        component,
+    )
+    .await
+}
+
+/// The MUT component names `debian/watch` declares; none without a
+/// watch file.
+pub fn mut_components(package: &SourcePackage) -> anyhow::Result<Vec<String>> {
+    let source_dir = package.source_dir()?;
+    if !source_dir.join("debian").join("watch").is_file() {
+        return Ok(Vec::new());
+    }
+    let sources = crate::upstream::query::load_watch(source_dir, package.name())?;
+    Ok(sources
+        .into_iter()
+        .filter_map(|source| source.component)
+        .collect())
+}
+
+/// Fetch the `orig` tarball for `upstream_version` with an explicit
+/// `method` into `output_dir`, without looking for local copies first.
+/// `None` when the method does not have it.
+pub async fn fetch_with_method(
+    config: &OrigTarballConfig,
+    method: OrigTarballMethod,
+    package: &SourcePackage,
+    output_dir: &Path,
+    upstream_version: &str,
+    component: Option<&str>,
+) -> anyhow::Result<Option<PathBuf>> {
     if method == OrigTarballMethod::Disabled {
         return Ok(None);
     }
+    let source_dir = package.source_dir()?;
+    let name = package.name();
 
     std::fs::create_dir_all(output_dir)
         .with_context(|| format!("failed to create {}", output_dir.display()))?;
@@ -213,7 +273,7 @@ pub async fn fetch_orig_tarball_for_version(
             let command = config.command.as_deref().context(
                 "orig_tarball.method = \"custom\" requires orig_tarball.command to be set",
             )?;
-            let command = substitute_placeholders(command, package, output_dir);
+            let command = substitute_placeholders(command, package, upstream_version, output_dir);
             println!("debmagic: running orig tarball command: {command}");
             let status = std::process::Command::new("sh")
                 .arg("-c")
@@ -257,7 +317,7 @@ async fn launchpad_orig_url(
     component: Option<&str>,
 ) -> Option<String> {
     let base = format!("https://launchpad.net/{distro}/+archive/primary/+files/");
-    for filename in debmagic_common::changes::orig_filenames(name, upstream_version, component) {
+    for filename in debmagic_common::artifact::orig_filenames(name, upstream_version, component) {
         let url = format!("{base}{filename}");
         if crate::requests::http_exists(&url).await {
             return Some(url);
@@ -301,13 +361,7 @@ async fn fetch_from_distro_archive(
         .with_context(|| format!("downloading {orig_name} failed"))?;
 
     if let Some(cache_dir) = &cache {
-        let cached = cache_dir.join(orig_name);
-        if let Err(error) =
-            std::fs::create_dir_all(cache_dir).and_then(|()| std::fs::copy(&orig_path, &cached))
-        {
-            // a failing cache must never fail the build
-            println!("debmagic: populating the orig cache failed: {error}");
-        }
+        populate_cache(cache_dir, &orig_path);
     }
 
     Ok(Some(orig_path))
@@ -318,17 +372,52 @@ async fn fetch_from_distro_archive(
 /// filesystem, a copy otherwise.
 fn stage_from_cache(cached: &Path, output_dir: &Path) -> anyhow::Result<PathBuf> {
     let destination = output_dir.join(cached.file_name().unwrap_or_default());
-    if std::fs::hard_link(cached, &destination).is_ok() {
-        return Ok(destination);
+    link_or_copy(cached, &destination)?;
+    Ok(destination)
+}
+
+/// Make `source` available at `destination`: a hardlink when both are on
+/// the same filesystem, a copy otherwise (a symlink would point at a
+/// host path that may not exist where the tarball is used).
+///
+/// A symlinked `source` is resolved first, as `link(2)` would hardlink
+/// the symlink itself, whose relative target dangles from any other
+/// directory. An existing `destination`, a dangling symlink included, is
+/// replaced instead of written through.
+pub fn link_or_copy(source: &Path, destination: &Path) -> anyhow::Result<()> {
+    let source = source
+        .canonicalize()
+        .with_context(|| format!("failed to resolve {}", source.display()))?;
+    // nothing to do, and removing it would delete the source
+    let is_symlink = destination
+        .symlink_metadata()
+        .is_ok_and(|metadata| metadata.file_type().is_symlink());
+    if !is_symlink
+        && destination
+            .canonicalize()
+            .is_ok_and(|existing| existing == source)
+    {
+        return Ok(());
     }
-    std::fs::copy(cached, &destination).with_context(|| {
+    match std::fs::remove_file(destination) {
+        Ok(()) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => {
+            return Err(error)
+                .with_context(|| format!("failed to remove {}", destination.display()));
+        }
+    }
+    if std::fs::hard_link(&source, destination).is_ok() {
+        return Ok(());
+    }
+    std::fs::copy(&source, destination).with_context(|| {
         format!(
             "failed to copy {} to {}",
-            cached.display(),
+            source.display(),
             destination.display()
         )
     })?;
-    Ok(destination)
+    Ok(())
 }
 
 /// The `debian`/`ubuntu` methods: a distro archive pool directly,
@@ -363,13 +452,13 @@ async fn fetch_from_pool(
     // the pool holds origs of many versions; the filename must carry
     // the wanted one
     let orig_prefix = match component {
-        None => debmagic_common::changes::orig_prefix(name, upstream_version),
+        None => debmagic_common::artifact::orig_prefix(name, upstream_version),
         Some(component) => {
-            debmagic_common::changes::component_orig_prefix(name, upstream_version, component)
+            debmagic_common::artifact::component_orig_prefix(name, upstream_version, component)
         }
     };
     let wanted = |filename: &str| -> bool {
-        filename.starts_with(&orig_prefix) && debmagic_common::changes::is_orig_tarball(filename)
+        filename.starts_with(&orig_prefix) && debmagic_common::artifact::is_orig_tarball(filename)
     };
 
     for section in sections {
@@ -400,8 +489,7 @@ async fn fetch_from_pool(
             let dsc = crate::control::parse_control(&dsc)
                 .with_context(|| format!("parsing {dsc_name} from {pool_url} failed"))?;
             let digests = crate::control::digest_file(&orig_path)?;
-            let verified =
-                debmagic_common::debian::control::verify_checksums(&dsc, &orig_name, &digests);
+            let verified = debmagic_common::checksums::verify_checksums(&dsc, &orig_name, &digests);
             if let Err(error) = verified {
                 // never leave a tarball behind that the archive would reject
                 std::fs::remove_file(&orig_path).ok();
@@ -412,13 +500,7 @@ async fn fetch_from_pool(
         }
 
         if let Some(cache_dir) = &cache {
-            let cached = cache_dir.join(&orig_name);
-            if let Err(error) =
-                std::fs::create_dir_all(cache_dir).and_then(|()| std::fs::copy(&orig_path, &cached))
-            {
-                // a failing cache must never fail the build
-                println!("debmagic: populating the orig cache failed: {error}");
-            }
+            populate_cache(cache_dir, &orig_path);
         }
 
         return Ok(Some(orig_path));
@@ -481,7 +563,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_native_package_needs_no_orig() {
-        let base = std::env::temp_dir().join(format!("debmagic-native-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-native-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("pkg");
         let pkg = package(&source, Some("3.0 (native)\n"));
         // a stale orig tarball next to the source must not be picked up
@@ -492,12 +578,15 @@ mod tests {
             fetch_orig_tarball(&config, &pkg, &base).await.unwrap(),
             None
         );
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[tokio::test]
     async fn test_fetch_prefers_output_dir() {
-        let base = std::env::temp_dir().join(format!("debmagic-orig-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let out = base.join("out");
         std::fs::create_dir_all(&out).unwrap();
@@ -509,13 +598,15 @@ mod tests {
         let config = OrigTarballConfig::default();
         let found = fetch_orig_tarball(&config, &pkg, &out).await.unwrap();
         assert_eq!(found, Some(out.join("postfix_3.11.7.orig.tar.gz")));
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[tokio::test]
     async fn test_fetch_uses_existing_in_parent() {
-        let base =
-            std::env::temp_dir().join(format!("debmagic-orig-parent-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-parent-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let out = base.join("out");
         std::fs::create_dir_all(&out).unwrap();
@@ -528,12 +619,15 @@ mod tests {
         assert_eq!(found, Some(base.join("postfix_3.11.7.orig.tar.xz")));
         // nothing was copied into the output dir
         assert!(out.read_dir().unwrap().next().is_none());
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[tokio::test]
     async fn test_fetch_no_method_no_tarball() {
-        let base = std::env::temp_dir().join(format!("debmagic-orig-none-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-none-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let pkg = package(&source, None);
         // fetching disabled explicitly: no method runs, no tarball appears
@@ -545,12 +639,35 @@ mod tests {
             fetch_orig_tarball(&config, &pkg, &base).await.unwrap(),
             None
         );
-        std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    #[test]
+    fn test_mut_components_from_watch() {
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-mut-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
+        let source = base.join("postfix");
+        let pkg = package(&source, None);
+        assert!(mut_components(&pkg).unwrap().is_empty());
+
+        std::fs::write(
+            source.join("debian").join("watch"),
+            "version=4\nhttps://example.com/ postfix-(.*)\\.tar\\.gz\n\
+             opts=component=vendor https://example.com/ vendor-(.*)\\.tar\\.gz same\n",
+        )
+        .unwrap();
+        assert_eq!(mut_components(&pkg).unwrap(), ["vendor"]);
     }
 
     #[tokio::test]
     async fn test_fetch_component_uses_component_tarball() {
-        let base = std::env::temp_dir().join(format!("debmagic-orig-comp-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-comp-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let out = base.join("out");
         std::fs::create_dir_all(&out).unwrap();
@@ -563,12 +680,15 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(found, Some(out.join("postfix_3.11.7.orig-bar.tar.xz")));
-        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
     fn test_stage_from_cache_hardlinks() {
-        let base = std::env::temp_dir().join(format!("debmagic-orig-link-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-link-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let cache = base.join("cache");
         let out = base.join("out");
         std::fs::create_dir_all(&cache).unwrap();
@@ -582,12 +702,77 @@ mod tests {
             std::fs::metadata(&cached).unwrap().ino(),
             std::fs::metadata(&staged).unwrap().ino()
         );
-        std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    #[test]
+    fn test_link_or_copy_resolves_a_relative_symlink_source() {
+        use std::os::unix::fs::MetadataExt;
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-symlink-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
+        let cache = base.join("pkg").join("cache");
+        let build = base.join("pkg").join("build");
+        std::fs::create_dir_all(&cache).unwrap();
+        std::fs::create_dir_all(&build).unwrap();
+        let real = cache.join("foo_1.0.orig.tar.xz");
+        std::fs::write(&real, "x").unwrap();
+        // like a tarball kept in `..` as a link into the git cache
+        let link = base.join("foo_1.0.orig.tar.xz");
+        std::os::unix::fs::symlink("pkg/cache/foo_1.0.orig.tar.xz", &link).unwrap();
+
+        let staged = build.join("foo_1.0.orig.tar.xz");
+        link_or_copy(&link, &staged).unwrap();
+        assert!(
+            !std::fs::symlink_metadata(&staged)
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
+        assert_eq!(
+            std::fs::metadata(&real).unwrap().ino(),
+            std::fs::metadata(&staged).unwrap().ino()
+        );
+    }
+
+    #[test]
+    fn test_link_or_copy_replaces_the_destination() {
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-replace-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
+        let out = base.join("out");
+        std::fs::create_dir_all(&out).unwrap();
+        let source = base.join("foo_1.0.orig.tar.xz");
+        std::fs::write(&source, "new").unwrap();
+        let destination = out.join("foo_1.0.orig.tar.xz");
+
+        // a stale file
+        std::fs::write(&destination, "old").unwrap();
+        link_or_copy(&source, &destination).unwrap();
+        assert_eq!(std::fs::read_to_string(&destination).unwrap(), "new");
+
+        // a dangling link must not be written through
+        std::fs::remove_file(&destination).unwrap();
+        std::os::unix::fs::symlink("missing/dir/file", &destination).unwrap();
+        link_or_copy(&source, &destination).unwrap();
+        assert_eq!(std::fs::read_to_string(&destination).unwrap(), "new");
+        assert!(!out.join("missing").exists());
+
+        // the source itself stays intact when it already is the destination
+        link_or_copy(&source, &source).unwrap();
+        assert_eq!(std::fs::read_to_string(&source).unwrap(), "new");
     }
 
     #[test]
     fn test_substitute_placeholders() {
-        let base = std::env::temp_dir().join(format!("debmagic-orig-subst-{}", std::process::id()));
+        let _base_tmp = tempfile::Builder::new()
+            .prefix("debmagic-orig-subst-")
+            .tempdir()
+            .unwrap();
+        let base = _base_tmp.path().to_path_buf();
         let source = base.join("postfix");
         let pkg = package(&source, None);
         let out = base.join("out");
@@ -595,6 +780,7 @@ mod tests {
             substitute_placeholders(
                 "fetch {name} {version} {upstream_version} from {source_dir} to {output_dir}",
                 &pkg,
+                "3.11.7",
                 &out
             ),
             format!(
@@ -603,6 +789,5 @@ mod tests {
                 out.display()
             )
         );
-        std::fs::remove_dir_all(&base).unwrap();
     }
 }

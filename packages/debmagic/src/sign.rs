@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::config::SignConfig;
 use crate::control::{child_filename, fixup_checksums, read_control, write_control};
-use crate::output::notify_send_bell;
+use crate::output::Notice;
 use crate::subprocess::Capture;
 
 /// Which OpenPGP implementation performs the signing.
@@ -69,9 +69,10 @@ enum SignInput {
     File,
 }
 
-/// One OpenPGP implementation's way of performing the three operations
-/// debmagic needs: clearsigning, verifying a detached signature, and
-/// telling whether a clearsigned file's signature is our own. The
+/// One OpenPGP implementation's way of performing the operations debmagic
+/// needs: clearsigning, verifying a detached signature, telling whether a
+/// clearsigned file's signature is our own, and reading a key's
+/// fingerprint. The
 /// invocation plumbing (running the command, reading stdout, error
 /// reporting) is shared in this module; each impl only builds commands
 /// and parses its tool's output.
@@ -93,6 +94,9 @@ trait SignBackend {
     /// resolves to. Whatever the backend cannot tell counts as "no" —
     /// callers then re-sign.
     fn signed_by_us(&self, path: &Path, signas: &str) -> bool;
+
+    /// The fingerprint of the primary key in the key file `key`.
+    fn key_fingerprint(&self, key: &Path) -> anyhow::Result<String>;
 }
 
 /// Run `cmd` and return its captured stdout, or `None` when it cannot
@@ -104,6 +108,40 @@ fn capture_stdout(cmd: Command) -> Option<String> {
         .run()
         .ok()
         .and_then(|result| result.stdout)
+}
+
+/// Run `cmd` and return its stdout, failing with its stderr on a non-zero
+/// exit.
+fn checked_stdout(cmd: Command) -> anyhow::Result<String> {
+    let program = cmd.get_program().to_string_lossy().into_owned();
+    let result = crate::subprocess::command(cmd)
+        .capture(Capture::ALL)
+        .run()
+        .with_context(|| format!("failed to run {program}"))?;
+    if result.exit_code != 0 {
+        bail!(
+            "{program} failed:\n{}",
+            result.stderr.as_deref().unwrap_or_default().trim()
+        );
+    }
+    Ok(result.stdout.unwrap_or_default())
+}
+
+/// The first `Fingerprint:` in `sq inspect` output, the primary key's.
+fn sq_fingerprint(inspect: &str) -> Option<&str> {
+    inspect
+        .lines()
+        .find_map(|line| line.trim_start().strip_prefix("Fingerprint: "))
+        .map(str::trim)
+}
+
+/// The first `fpr:` record in gpg `--with-colons` output, the primary
+/// key's.
+fn gpg_fingerprint(colons: &str) -> Option<&str> {
+    colons
+        .lines()
+        .find(|line| line.starts_with("fpr:"))
+        .and_then(|line| line.split(':').nth(9))
 }
 
 impl SignTool {
@@ -147,6 +185,34 @@ impl SignBackend for Gpg {
         signature: &Path,
         keyring: &Path,
     ) -> anyhow::Result<Command> {
+        // gpg's --keyring only reads binary keyrings, while
+        // debian/upstream/signing-key.asc is armored
+        let armored = std::fs::read(keyring)
+            .with_context(|| format!("failed to read {}", keyring.display()))?
+            .starts_with(b"-----BEGIN PGP");
+        let keyring = if armored {
+            let mut dearmored = signature.as_os_str().to_owned();
+            dearmored.push(".keyring.gpg");
+            let dearmored = PathBuf::from(dearmored);
+            let mut cmd = Command::new("gpg");
+            cmd.args(["--yes", "--dearmor", "--output"])
+                .arg(&dearmored)
+                .arg(keyring);
+            let result = crate::subprocess::command(cmd)
+                .capture(Capture::ALL)
+                .run()
+                .context("failed to run gpg --dearmor")?;
+            if result.exit_code != 0 {
+                bail!(
+                    "dearmoring {} failed:\n{}",
+                    keyring.display(),
+                    result.stderr.as_deref().unwrap_or_default().trim()
+                );
+            }
+            dearmored
+        } else {
+            keyring.to_path_buf()
+        };
         let mut cmd = Command::new("gpg");
         cmd.args(["--no-default-keyring", "--keyring"])
             .arg(keyring)
@@ -177,18 +243,19 @@ impl SignBackend for Gpg {
         let mut list = Command::new("gpg");
         list.args(["--list-secret-keys", "--with-colons"])
             .arg(signas);
-        let Some(colo) = capture_stdout(list) else {
+        let Some(ours) = capture_stdout(list) else {
             return false;
         };
-        // The fpr field of the secret key's primary: fpr:<fingerprint>:...
-        let Some(ours) = colo
-            .lines()
-            .find(|line| line.starts_with("fpr:"))
-            .and_then(|line| line.split(':').nth(9))
-        else {
-            return false;
-        };
-        theirs.eq_ignore_ascii_case(ours)
+        gpg_fingerprint(&ours).is_some_and(|ours| theirs.eq_ignore_ascii_case(ours))
+    }
+
+    fn key_fingerprint(&self, key: &Path) -> anyhow::Result<String> {
+        let mut cmd = Command::new("gpg");
+        cmd.args(["--show-keys", "--with-colons"]).arg(key);
+        let out = checked_stdout(cmd)?;
+        gpg_fingerprint(&out)
+            .map(str::to_string)
+            .context("gpg --show-keys found no key")
     }
 }
 
@@ -240,15 +307,19 @@ impl SignBackend for Sequoia {
 
         let mut inspect = Command::new("sq");
         inspect.args(["inspect", "--cert-email"]).arg(signas);
-        let Some(ours) = capture_stdout(inspect).and_then(|out| {
-            out.lines()
-                .find_map(|line| line.strip_prefix("Fingerprint: "))
-                .map(str::trim)
-                .map(str::to_string)
-        }) else {
+        let Some(ours) = capture_stdout(inspect) else {
             return false;
         };
-        theirs.eq_ignore_ascii_case(&ours)
+        sq_fingerprint(&ours).is_some_and(|ours| theirs.eq_ignore_ascii_case(ours))
+    }
+
+    fn key_fingerprint(&self, key: &Path) -> anyhow::Result<String> {
+        let mut cmd = Command::new("sq");
+        cmd.arg("inspect").arg(key);
+        let out = checked_stdout(cmd)?;
+        sq_fingerprint(&out)
+            .map(str::to_string)
+            .context("sq inspect found no key")
     }
 }
 
@@ -336,6 +407,29 @@ impl SignBackend for Custom<'_> {
         };
         result.exit_code == 0
     }
+
+    fn key_fingerprint(&self, key: &Path) -> anyhow::Result<String> {
+        let command = self.options.fingerprint_command.as_deref().context(
+            "sign.tool = \"custom\" requires sign.fingerprint_command to read key fingerprints",
+        )?;
+        let out = checked_stdout(self.file_command(command, key, "")?)?;
+        let fingerprint = out.trim();
+        if fingerprint.is_empty() {
+            bail!("sign.fingerprint_command printed no fingerprint");
+        }
+        Ok(fingerprint.to_string())
+    }
+}
+
+/// The fingerprint of the primary key in the key file `key`, using the
+/// configured backend. With `tool = "custom"`, `sign.fingerprint_command`
+/// runs with `{file}` substituted (or the path appended) and prints it.
+pub fn key_fingerprint(options: &SignConfig, key: &Path) -> anyhow::Result<String> {
+    options
+        .tool
+        .backend(options)
+        .key_fingerprint(key)
+        .with_context(|| format!("reading the fingerprint of {} failed", key.display()))
 }
 
 /// Verify a detached signature `signature` over `file` against the
@@ -405,6 +499,36 @@ fn substitute_verify_placeholders(
     Ok(out)
 }
 
+/// CLI overrides of the `[sign]` config section.
+#[derive(Debug, Clone, Default)]
+pub struct SignOverrides {
+    pub key: Option<String>,
+    pub tool: Option<SignTool>,
+    pub command: Option<String>,
+}
+
+impl SignOverrides {
+    pub fn apply(self, config: &mut crate::config::SignConfig) {
+        if let Some(key) = self.key {
+            config.key = Some(key);
+        }
+        if let Some(tool) = self.tool {
+            config.tool = tool;
+        }
+        if let Some(command) = self.command {
+            config.sign_command = Some(command);
+        }
+    }
+}
+
+/// The notification right before the key-touch prompt of signing `package`.
+pub fn sign_notice(package: &str) -> Notice {
+    Notice::new(
+        "debmagic: signing requested",
+        &format!("touch your key to sign {package}"),
+    )
+}
+
 /// Sign the `.changes` file (and its `.dsc`/`.buildinfo` children) on the
 /// host, as resolved from the build's `sign` config.
 #[derive(Debug, Clone)]
@@ -412,10 +536,9 @@ pub struct SignIntent {
     pub source_dir: PathBuf,
     pub config_file: Option<PathBuf>,
     pub mode: SignMode,
-    pub sign_key: Option<String>,
-    pub sign_tool: Option<SignTool>,
-    pub sign_command: Option<String>,
-    pub sign_notify: Option<bool>,
+    pub overrides: SignOverrides,
+    /// `--notify`, overriding the configured notifications.
+    pub notify: Option<bool>,
     pub output_dir: Option<PathBuf>,
     /// The explicit file to sign; located via changelog + output dir when unset.
     pub file: Option<PathBuf>,
@@ -426,19 +549,8 @@ pub struct SignIntent {
 pub fn sign(input: SignIntent) -> anyhow::Result<()> {
     let source_dir = input.source_dir;
     let mut config = crate::config::Config::load(Some(&source_dir), input.config_file.as_deref())?;
-
-    if let Some(key) = &input.sign_key {
-        config.sign.key = Some(key.clone());
-    }
-    if let Some(tool) = input.sign_tool {
-        config.sign.tool = tool;
-    }
-    if let Some(command) = &input.sign_command {
-        config.sign.sign_command = Some(command.clone());
-    }
-    if let Some(notify) = input.sign_notify {
-        config.sign.notify = notify;
-    }
+    input.overrides.apply(&mut config.sign);
+    config.override_notify(input.notify);
 
     let options = SignConfig {
         key: config.sign.key.clone(),
@@ -446,6 +558,7 @@ pub fn sign(input: SignIntent) -> anyhow::Result<()> {
         sign_command: config.sign.sign_command.clone(),
         verify_command: config.sign.verify_command.clone(),
         signed_by_command: config.sign.signed_by_command.clone(),
+        fingerprint_command: config.sign.fingerprint_command.clone(),
         source: config.sign.source,
         notify: config.sign.notify,
     };
@@ -454,12 +567,8 @@ pub fn sign(input: SignIntent) -> anyhow::Result<()> {
         Some(file) => std::path::absolute(file).context("resolving the file to sign failed")?,
         None => {
             let identity = crate::package::load_package(&source_dir)?;
-            // -o wins; else the config value, relative to the package root.
-            let output_dir = match &input.output_dir {
-                Some(dir) => std::path::absolute(dir).context("resolving output dir failed")?,
-                None => std::path::absolute(source_dir.join(&config.output_dir))
-                    .context("resolving output dir failed")?,
-            };
+            let output_dir =
+                crate::output_dir::resolve(&source_dir, &config, input.output_dir.as_deref())?;
             find_changes_file(
                 identity.name(),
                 &identity.version().to_string(),
@@ -472,7 +581,8 @@ pub fn sign(input: SignIntent) -> anyhow::Result<()> {
         .file_stem()
         .map(|stem| stem.to_string_lossy().into_owned())
         .unwrap_or_default();
-    sign_file(&file, &options, input.mode, config.sign.notify, &package)
+    let notice = config.sign_notify().then(|| sign_notice(&package));
+    sign_file(&file, &options, input.mode, notice.as_ref())
 }
 
 /// Is the file already clearsigned?
@@ -606,12 +716,12 @@ fn sign_one(path: &Path, signas: &str, options: &SignConfig) -> anyhow::Result<(
 /// files our own key already signed, `force` always re-signs. When any
 /// child is (re)signed the parent is force-signed regardless, since its
 /// checksums change and the old signature would no longer verify.
+/// `notice` is sent right before signing, so a key-touch prompt isn't missed.
 pub fn sign_file(
     path: &Path,
     options: &SignConfig,
     mode: SignMode,
-    notify: bool,
-    package: &str,
+    notice: Option<&Notice>,
 ) -> anyhow::Result<()> {
     let dir = path
         .parent()
@@ -625,11 +735,8 @@ pub fn sign_file(
             path.display()
         );
     }
-    if notify {
-        notify_send_bell(
-            "debmagic: signing requested",
-            &format!("touch your key to sign {package}"),
-        );
+    if let Some(notice) = notice {
+        notice.send();
     }
 
     // Children first: .dsc, then .buildinfo.
@@ -773,11 +880,8 @@ mod tests {
         let options = SignConfig {
             key: Some("mykey".into()),
             tool: SignTool::Gpg,
-            sign_command: None,
-            verify_command: None,
-            signed_by_command: None,
             source: SignMode::No,
-            notify: false,
+            ..Default::default()
         };
         let control =
             parse_control("Maintainer: A <a@example.com>\nChanged-By: B <b@example.com>\n");
@@ -788,6 +892,50 @@ mod tests {
 
         let control = parse_control("Maintainer: A <a@example.com>\n");
         assert_eq!(guess_signas(&options, &control), "A <a@example.com>");
+    }
+
+    #[test]
+    fn fingerprints_of_the_primary_key() {
+        let gpg = "pub:-:4096:1:BA6932366A755776:1501330817:::-:::scSC::::::23::0:\n\
+                   fpr:::::::::F23C5A6CF475977595C89F51BA6932366A755776:\n\
+                   sub:-:4096:1:0123456789ABCDEF:1501330817::::::e::::::23:\n\
+                   fpr:::::::::00000000000000000000000000000000DEADBEEF:\n";
+        assert_eq!(
+            gpg_fingerprint(gpg),
+            Some("F23C5A6CF475977595C89F51BA6932366A755776")
+        );
+        let sq = "key.asc: OpenPGP Certificate.\n\n      \
+                  Fingerprint: F23C5A6CF475977595C89F51BA6932366A755776\n  \
+                  Public-key algo: RSA\n\n         \
+                  Subkey: 00000000000000000000000000000000DEADBEEF\n";
+        assert_eq!(
+            sq_fingerprint(sq),
+            Some("F23C5A6CF475977595C89F51BA6932366A755776")
+        );
+        assert_eq!(gpg_fingerprint(""), None);
+        assert_eq!(sq_fingerprint(""), None);
+    }
+
+    #[test]
+    fn custom_fingerprint_command_prints_it() {
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-sign-test-fingerprint-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
+        std::fs::create_dir_all(&dir).unwrap();
+        let key = dir.join("key.asc");
+        std::fs::write(&key, "ABCD\n").unwrap();
+        let custom = |command: Option<&str>| SignConfig {
+            tool: SignTool::Custom,
+            fingerprint_command: command.map(str::to_string),
+            ..Default::default()
+        };
+
+        assert_eq!(key_fingerprint(&custom(Some("cat")), &key).unwrap(), "ABCD");
+        assert!(key_fingerprint(&custom(Some("true {file}")), &key).is_err());
+        assert!(key_fingerprint(&custom(Some("false")), &key).is_err());
+        assert!(key_fingerprint(&custom(None), &key).is_err());
     }
 
     #[test]
@@ -852,7 +1000,11 @@ mod tests {
     #[test]
     fn verify_signature_custom_runs_command() {
         // a custom command that exits 0 verifies; one that exits 1 fails
-        let dir = std::env::temp_dir().join("debmagic-sign-test-verify");
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-sign-test-verify-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let file = dir.join("f.tar");
         std::fs::write(&file, "x").unwrap();
@@ -889,12 +1041,15 @@ mod tests {
             ..Default::default()
         };
         assert!(verify_signature(&missing, &file, &sig, &keyring).is_err());
-        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]
     fn unsign_strips_armor() {
-        let dir = std::env::temp_dir().join("debmagic-sign-test-unsign");
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-sign-test-unsign-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let path = write_control(
             &dir,
@@ -904,6 +1059,5 @@ mod tests {
         unsign(&path).unwrap();
         let content = std::fs::read_to_string(&path).unwrap();
         assert_eq!(content, "Format: 3.0\n");
-        let _ = std::fs::remove_dir_all(&dir);
     }
 }

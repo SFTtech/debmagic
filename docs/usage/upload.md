@@ -16,7 +16,7 @@ debmagic build source --sign --sign-key you@example.com --upload ppa:your-lp-use
 debmagic upload --sign ppa:your-lp-username/your-ppa
 
 # upload a specific .changes file to a host defined in debmagic.toml:
-debmagic upload myhost ./build/pkg_1.0-1_source.changes
+debmagic upload myhost ./build-area/pkg_1.0-1_source.changes
 ```
 
 ## Upload targets
@@ -72,7 +72,7 @@ A target's own `pre_upload_commands` run after the global ones.
 With dput-ng installed, it runs the pre-upload hooks the dput-ng profile of the same name enables (e.g. `ppa`), exactly as `dput` would; pass `--profile <name>` to use another profile.
 Without dput-ng, it runs every `"pre": true` hook with an emulation of the python API dput-ng provides, so unmodified dput-ng hook modules work when placed in `/usr/share/dput-ng`, `/etc/dput.d` and `~/.dput.d`.
 
-Pass `--no-hooks` to skip the checks.
+Pass `--hooks=no` to skip the checks.
 
 ## Signing before the upload
 

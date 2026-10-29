@@ -1,8 +1,10 @@
 use std::path::{Path, PathBuf};
 
+use crate::apt::AptConfig;
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
 use crate::driver::config::DriverConfig;
+use crate::output_dir::OutputDirClash;
 use crate::sign::{SignMode, SignTool};
 use crate::upload::UploadConfig;
 use crate::upstream::orig::OrigTarballConfig;
@@ -23,6 +25,10 @@ pub enum ConfigPathStatus {
 /// default XDG location (like git's `GIT_CONFIG_GLOBAL`); `/dev/null`
 /// disables it.
 fn global_config_path() -> anyhow::Result<PathBuf> {
+    // unit tests must not depend on the developer's config
+    if cfg!(test) {
+        return Ok(PathBuf::from("/dev/null"));
+    }
     if let Ok(path) = std::env::var("DEBMAGIC_CONFIG_GLOBAL") {
         return Ok(PathBuf::from(path));
     }
@@ -113,8 +119,8 @@ impl ConfigPath {
 
 /// Config file that `set` should target, selected from the candidate
 /// locations: the explicit `-c` file, else with `global` the user-global
-/// config file (created on demand), else the project `debian/debmagic.toml`
-/// if it exists, else the user-global config file.
+/// config file, else the project `debian/debmagic.toml`. The global and
+/// project files are created on demand.
 pub fn resolve_set_target(
     source_dir: Option<&Path>,
     config_file: Option<&Path>,
@@ -126,21 +132,18 @@ pub fn resolve_set_target(
         return Ok(explicit.clone());
     }
 
-    if !global
-        && let Some(project) = paths
-            .iter()
-            .find(|p| p.layer == ConfigLayer::Project && p.is_used())
-    {
-        return Ok(project.clone());
-    }
-
-    let global_config = paths
+    let layer = if global {
+        ConfigLayer::Global
+    } else {
+        ConfigLayer::Project
+    };
+    let target = paths
         .iter()
-        .find(|p| p.layer == ConfigLayer::Global)
-        .context("the user-global config location is unknown")?;
+        .find(|p| p.layer == layer)
+        .with_context(|| format!("the {layer:?} config location is unknown"))?;
     Ok(ConfigPath::new(
-        ConfigLayer::Global,
-        global_config.path.clone(),
+        layer,
+        target.path.clone(),
         ConfigPathStatus::Used,
     ))
 }
@@ -148,9 +151,7 @@ pub fn resolve_set_target(
 /// Inputs for the `debmagic config` command.
 #[derive(Debug, Clone)]
 pub struct ConfigCommand {
-    /// Directory used when `source_dir` is unset (typically cwd).
-    pub fallback_dir: PathBuf,
-    pub source_dir: Option<PathBuf>,
+    pub source_dir: PathBuf,
     pub config_file: Option<PathBuf>,
     pub command: ConfigCommandKind,
 }
@@ -174,8 +175,7 @@ pub enum ConfigCommandKind {
 
 /// Run the `debmagic config` command: show, get or set config values.
 pub fn run_config(command: ConfigCommand) -> anyhow::Result<()> {
-    let source_dir =
-        crate::package::resolve_source_dir(&command.fallback_dir, command.source_dir.as_deref())?;
+    let source_dir = command.source_dir;
     match &command.command {
         ConfigCommandKind::Show => {
             let paths = Config::resolve_paths(Some(&source_dir), command.config_file.as_deref())?;
@@ -224,11 +224,18 @@ pub fn run_config(command: ConfigCommand) -> anyhow::Result<()> {
 #[serde(default)]
 pub struct Config {
     pub driver: DriverConfig,
+    /// `[apt]` section.
+    pub apt: AptConfig,
     /// Parent directory of Environment Host roots.
     pub environments_dir: PathBuf,
     /// Where build artifacts are exported; relative paths resolve against
-    /// the package root.
+    /// the package source directory.
     pub output_dir: PathBuf,
+    /// Used instead of `output_dir` when that holds upstream's files.
+    /// Relative paths resolve against the package source directory.
+    pub output_dir_fallback: PathBuf,
+    /// How to handle an output dir clash with upstream's files.
+    pub output_dir_clash: OutputDirClash,
     pub incremental: bool,
     /// Which source files are staged into the build tree.
     pub source_sync_mode: SourceSyncMode,
@@ -250,9 +257,71 @@ pub struct Config {
     /// builds already stage a clean source tree and incremental builds preserve
     /// outputs intentionally.
     pub clean: bool,
+    /// Default for the `build`, `test` and `sign` notifications.
+    pub notify: bool,
+    /// `[build]` section.
+    pub build: BuildConfig,
+    /// `[test]` section.
+    pub test: TestConfig,
     /// Build for a dpkg architecture variant (e.g. `amd64v3` on Ubuntu),
     /// exported as `DEB_HOST_ARCH_VARIANT` for the build.
     pub host_arch_variant: Option<String>,
+}
+
+/// `[build]` section: `debmagic build` behavior.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(default)]
+pub struct BuildConfig {
+    /// Desktop notification and terminal bell when the build finishes;
+    /// the top-level `notify` when unset.
+    pub notify: Option<bool>,
+    /// Sign source builds without `--sign`, when signing is configured.
+    pub sign_source: bool,
+    /// Sign binary builds without `--sign`, when signing is configured.
+    pub sign_binary: bool,
+}
+
+impl Default for BuildConfig {
+    fn default() -> Self {
+        Self {
+            notify: None,
+            sign_source: true,
+            sign_binary: false,
+        }
+    }
+}
+
+/// `[test]` section: `debmagic test` behavior.
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[serde(default)]
+pub struct TestConfig {
+    /// Desktop notification and terminal bell when the tests finish;
+    /// the top-level `notify` when unset.
+    pub notify: Option<bool>,
+}
+
+impl Config {
+    pub fn build_notify(&self) -> bool {
+        self.build.notify.unwrap_or(self.notify)
+    }
+
+    pub fn test_notify(&self) -> bool {
+        self.test.notify.unwrap_or(self.notify)
+    }
+
+    pub fn sign_notify(&self) -> bool {
+        self.sign.notify.unwrap_or(self.notify)
+    }
+
+    /// Apply `--notify`: it covers every step of the command.
+    pub fn override_notify(&mut self, notify: Option<bool>) {
+        if let Some(notify) = notify {
+            self.notify = notify;
+            self.build.notify = Some(notify);
+            self.test.notify = Some(notify);
+            self.sign.notify = Some(notify);
+        }
+    }
 }
 
 /// `[upstream]` section: `upstream` command behavior.
@@ -261,13 +330,16 @@ pub struct Config {
 pub struct UpstreamConfig {
     /// Verify upstream tarball signatures against
     /// `debian/upstream/signing-key.asc` when it exists.
-    pub verify_signatures: bool,
+    pub signature_check: bool,
+    /// Strip the `Files-Excluded` paths from upstream tarballs.
+    pub repack: bool,
 }
 
 impl Default for UpstreamConfig {
     fn default() -> Self {
         Self {
-            verify_signatures: true,
+            signature_check: true,
+            repack: true,
         }
     }
 }
@@ -294,17 +366,40 @@ pub struct SignConfig {
     /// "auto"`: exit code 0 means the file's signature is ours and it
     /// is skipped, anything else means re-sign.
     pub signed_by_command: Option<String>,
+    /// Custom key fingerprint reader when `tool` is `custom`, for PPA
+    /// signing keys: prints the primary key's fingerprint of `{file}`.
+    pub fingerprint_command: Option<String>,
     /// Send a desktop notification via `notify-send` just before signing,
-    /// so a hardware-key touch prompt isn't missed.
-    pub notify: bool,
+    /// so a hardware-key touch prompt isn't missed; the top-level `notify`
+    /// when unset.
+    pub notify: Option<bool>,
 }
+
+impl SignConfig {
+    /// Whether signing is set up explicitly: a key, or a custom command
+    /// that brings its own. Without either the key is guessed from the
+    /// `Changed-By:`/`Maintainer:` address, which is fine when asked for
+    /// with `--sign`, but not for signing by default.
+    pub fn is_configured(&self) -> bool {
+        self.key.is_some() || (self.tool == SignTool::Custom && self.sign_command.is_some())
+    }
+}
+
+const MOVED_KEYS: &[(&str, &str)] = &[
+    ("driver.apt_mirror", "apt.mirror"),
+    ("driver.apt_update_age", "apt.update_age"),
+    ("driver.proposed", "apt.proposed"),
+];
 
 impl Default for Config {
     fn default() -> Self {
         Self {
             driver: DriverConfig::default(),
+            apt: AptConfig::default(),
             environments_dir: crate::data_dir::default_environments_dir(),
-            output_dir: PathBuf::from("build"),
+            output_dir: PathBuf::from("build-area"),
+            output_dir_fallback: PathBuf::from("build-debmagic"),
+            output_dir_clash: OutputDirClash::default(),
             incremental: false,
             source_sync_mode: SourceSyncMode::default(),
             build_debug_symbols: false,
@@ -314,6 +409,9 @@ impl Default for Config {
             orig_tarball: OrigTarballConfig::default(),
             upstream: UpstreamConfig::default(),
             clean: false,
+            notify: false,
+            build: BuildConfig::default(),
+            test: TestConfig::default(),
             host_arch_variant: None,
         }
     }
@@ -378,6 +476,12 @@ impl Config {
         let build = builder
             .build()
             .context("Failed to initialize config reader")?;
+        // unknown keys are ignored, which would silently drop these
+        for (old, new) in MOVED_KEYS {
+            if build.get::<config::Value>(old).is_ok() {
+                bail!("config key '{old}' is now '{new}'");
+            }
+        }
         let mut config: Self = build
             .try_deserialize()
             .map_err(|e| anyhow!("Failed to read config: {e}"))?;
@@ -449,6 +553,17 @@ mod tests {
     }
 
     #[test]
+    fn set_targets_the_project_config_unless_global() -> anyhow::Result<()> {
+        let source_dir = Path::new("/src/pkg");
+        let target = resolve_set_target(Some(source_dir), None, false)?;
+        assert_eq!(target.layer, ConfigLayer::Project);
+        assert_eq!(target.path, source_dir.join("debian/debmagic.toml"));
+        let target = resolve_set_target(Some(source_dir), None, true)?;
+        assert_eq!(target.layer, ConfigLayer::Global);
+        Ok(())
+    }
+
+    #[test]
     fn it_loads_a_simple_config() -> Result<(), anyhow::Error> {
         let test_asset_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("tests")
@@ -471,7 +586,11 @@ mod tests {
 
     #[test]
     fn it_loads_the_sign_section() -> Result<(), anyhow::Error> {
-        let dir = std::env::temp_dir().join(format!("debmagic-test-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-test-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir)?;
         let file = dir.join("sign.toml");
         std::fs::write(
@@ -483,11 +602,98 @@ mod tests {
             file.clone(),
             ConfigPathStatus::Used,
         )])?;
-        std::fs::remove_dir_all(&dir).ok();
         assert_eq!(cfg.sign.source, crate::sign::SignMode::Auto);
         assert_eq!(cfg.sign.key.as_deref(), Some("you@example.com"));
         assert_eq!(cfg.sign.sign_command.as_deref(), Some("gpg --foo"));
-        assert!(cfg.sign.notify);
+        assert_eq!(cfg.sign.notify, Some(true));
         Ok(())
+    }
+
+    #[test]
+    fn it_loads_the_apt_section_and_rejects_moved_keys() -> Result<(), anyhow::Error> {
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-apt-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
+        std::fs::create_dir_all(&dir)?;
+        let load = |content: &str| {
+            let file = dir.join("apt.toml");
+            std::fs::write(&file, content)?;
+            Config::new(&[ConfigPath::new(
+                ConfigLayer::Explicit,
+                file,
+                ConfigPathStatus::Used,
+            )])
+        };
+        let cfg = load(
+            "[apt]\nmirror = \"http://m/ubuntu\"\n\
+             [apt.packages]\n\"src:foo\" = { from = \"proposed\", version = \"1.0\" }\n",
+        )?;
+        assert_eq!(cfg.apt.mirror.as_deref(), Some("http://m/ubuntu"));
+        let settings = &cfg.apt.packages["src:foo"];
+        assert_eq!(settings.from.as_deref(), Some("proposed"));
+        assert_eq!(settings.version.as_deref(), Some("1.0"));
+        let error = load("[driver]\nproposed = true\n").unwrap_err();
+        assert!(error.to_string().contains("'apt.proposed'"), "{error}");
+        Ok(())
+    }
+
+    #[test]
+    fn build_sign_defaults_survive_a_partial_section() -> Result<(), anyhow::Error> {
+        let defaults = Config::default();
+        assert!(defaults.build.sign_source && !defaults.build.sign_binary);
+
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-test-build-sign-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
+        std::fs::create_dir_all(&dir)?;
+        let file = dir.join("build.toml");
+        std::fs::write(&file, "[build]\nsign_binary = true\n")?;
+        let cfg = Config::new(&[ConfigPath::new(
+            ConfigLayer::Explicit,
+            file,
+            ConfigPathStatus::Used,
+        )])?;
+        assert!(cfg.build.sign_source && cfg.build.sign_binary);
+        Ok(())
+    }
+
+    #[test]
+    fn sign_is_configured_by_a_key_or_a_custom_command() {
+        let mut sign = SignConfig::default();
+        assert!(!sign.is_configured());
+
+        sign.sign_command = Some("my-signer {file}".into());
+        assert!(!sign.is_configured(), "a command is ignored by gpg");
+        sign.tool = SignTool::Custom;
+        assert!(sign.is_configured());
+
+        let with_key = SignConfig {
+            key: Some("you@example.com".into()),
+            ..SignConfig::default()
+        };
+        assert!(with_key.is_configured());
+    }
+
+    #[test]
+    fn notify_defaults_each_step() {
+        let mut cfg = Config {
+            notify: true,
+            ..Config::default()
+        };
+        cfg.sign.notify = Some(false);
+        assert!(cfg.build_notify());
+        assert!(cfg.test_notify());
+        assert!(!cfg.sign_notify());
+
+        cfg.override_notify(None);
+        assert!(!cfg.sign_notify());
+        cfg.override_notify(Some(false));
+        assert!(!cfg.build_notify() && !cfg.test_notify() && !cfg.sign_notify());
+        cfg.override_notify(Some(true));
+        assert!(cfg.build_notify() && cfg.test_notify() && cfg.sign_notify());
     }
 }

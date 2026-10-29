@@ -22,6 +22,19 @@ the test tree is reset and the `.debs` are reinstalled each time.
 
 The driver *is* the testbed: `autopkgtest` runs with the `null` backend inside the container (or on the host for the bare driver). No `autopkgtest-virt-*` backends are used.
 
+## Testing the archive's build
+
+Naming the package (`src:<source>`) or one of its binaries in a [`--package`](build.md#package-versions-and-archives), `--proposed` or `--experimental` runs the source tree's tests against that build instead of a local one, so no prior build is needed:
+
+```shell
+debmagic test --driver lxd --proposed=libfoo1           # proposed's build
+debmagic test --driver lxd --package src:foo/release    # what the release ships
+debmagic test --driver lxd --package src:foo=1.2-3      # a version
+```
+
+All binaries of the source get the same setting, so their versions match.
+The distro comes from `--distro` or the changelog, and the test output goes to `<output dir>/<source>_<version>.test`.
+
 ## Available options
 
 | Option | Description |
@@ -31,11 +44,15 @@ The driver *is* the testbed: `autopkgtest` runs with the `null` backend inside t
 | `--strict` | Treat skipped tests and "no tests declared" as failures (exit code 2) |
 | `--changes <path>` | Path to a `.changes` file whose directory supplies the built `.debs` (for pipeline use). Overrides the artifact path only; driver and distro still default to the prior binary-build Invocation |
 | `--distro <name>` | Override the target distro for the test environment (defaults to the prior binary-build Invocation's distro, not the changelog) |
-| `--proposed` | Enable the `<release>-proposed` pocket in the test environment |
+| `--proposed[=<packages>]` | Test against packages from the [proposed suite](build.md#proposed-dependencies): all newer ones, or only the listed ones. Naming this package [tests the archive's build](#testing-the-archives-build) |
+| `--experimental[=<packages>]` | Test against the listed packages from [experimental](build.md#experimental); without a list, only what nothing else provides. Naming this package [tests the archive's build](#testing-the-archives-build) |
+| `--package <package>[=<version>][/<archive>]` | Test against a [package in a version or from an archive](build.md#package-versions-and-archives). Naming this package [tests the archive's build](#testing-the-archives-build) |
+| `--archive [<name>=]<spec>` | Add an [archive like a PPA](build.md#extra-archives), e.g. to test a PPA's build with `--package src:<source>/<name>` |
 | `--apt-mirror <url>` | Mirror URL (same as [`debmagic build`](build.md)) |
 | `--apt-update-age <when>` | Configure when to run `apt-get update` (same as [`debmagic build`](build.md#apt-update-age)) |
 | `--source-dir <dir>` | Directory containing the `debian/` package directory |
 | `--allow-host-test` | Allow the bare driver, which runs autopkgtest as root on the host |
+| `--notify` | Desktop notification and terminal bell when the run finishes |
 
 Driver-specific flags (`--driver-docker-base-image`, `--driver-lxd-*`) mirror `debmagic build`.
 

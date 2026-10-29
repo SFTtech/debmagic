@@ -1,9 +1,10 @@
 use std::{
-    fs, io,
+    io,
     path::Path,
     process::{Command, Stdio},
 };
 
+use crate::apt::{self, AptPlan};
 use crate::build::source::{source_manifest_path, stage_dir, stage_source_tree};
 use crate::build_intent::{BuildIntent, BuildIntentInput, BuildKind, resolve_build_intent};
 use crate::driver::{Driver, DriverType, Environment, EnvironmentDriver, EnvironmentPurpose};
@@ -11,7 +12,9 @@ use crate::environment::{
     ClaimedEnvironment, CommandCompletion, HostRootPolicy, InvocationKind, Registry, claim_command,
 };
 use crate::package::PackageTarget;
+use crate::upstream::orig::link_or_copy;
 use anyhow::{Context, anyhow};
+use debmagic_common::debian::control::BuildScope;
 use debmagic_common::debian::source::SourceFormat;
 use debmagic_common::package::SourcePackage;
 
@@ -114,6 +117,7 @@ fn deb_build_options(existing: Option<&str>, build_debug_symbols: bool, run_test
 struct BuildRequest<'a> {
     intent: &'a BuildIntent,
     target: &'a PackageTarget,
+    apt: &'a AptPlan,
 }
 
 /// Shared build orchestration: claim the Environment, run `build_commands`
@@ -140,10 +144,11 @@ async fn run_build(
         &registry,
         planned.environment,
         &request.intent.config.driver,
+        request.apt,
         &request.intent.driver_overrides,
         planned.root_policy,
         |environment, driver| {
-            fs::create_dir_all(&request.intent.output_dir)
+            crate::output_dir::create(&request.intent.output_dir)
                 .context("failed to create output directory")?;
             if planned.incremental
                 && let Some(driver) = driver
@@ -157,6 +162,7 @@ async fn run_build(
                 package,
                 request.intent.config.source_sync_mode,
                 request.intent.config.incremental,
+                &request.intent.output_dir,
             )
         },
         InvocationKind::Build(build_kind),
@@ -176,14 +182,22 @@ async fn run_build(
                     build_kind,
                 )?;
                 if sign.source.is_enabled() {
-                    crate::output::stage(&format!("Signing {}", environment.package_identifier));
-                    crate::sign::sign_file(
-                        &changes_file,
-                        sign,
-                        sign.source,
-                        sign.notify,
-                        &environment.package_identifier,
-                    )?;
+                    let package = &environment.package_identifier;
+                    crate::output::stage(&format!("Signing {package}"));
+                    // one notification for both: the build is done when
+                    // the key wants a touch
+                    let config = &request.intent.config;
+                    let notice = if config.build_notify() {
+                        Some(crate::output::Notice::new(
+                            "debmagic: build finished, signing",
+                            &format!("touch your key to sign {package}"),
+                        ))
+                    } else {
+                        config
+                            .sign_notify()
+                            .then(|| crate::sign::sign_notice(package))
+                    };
+                    crate::sign::sign_file(&changes_file, sign, sign.source, notice.as_ref())?;
                 }
                 Ok(changes_file)
             });
@@ -212,29 +226,34 @@ async fn run_build(
     .await
 }
 
-pub async fn build_package(
+pub async fn build_binary_package(
     intent: &BuildIntent,
     target: &PackageTarget,
+    apt: &AptPlan,
     changes_options: &[String],
 ) -> anyhow::Result<std::path::PathBuf> {
-    let request = BuildRequest { intent, target };
+    let request = BuildRequest {
+        intent,
+        target,
+        apt,
+    };
     run_build(&request, |claimed| {
-        crate::output::stage("Building binary packages");
+        crate::output::stage("Building binary package(s)");
         let staged_source_dir = stage_dir(claimed.environment(), BuildKind::Binary);
-        // build-essential is an implicit dependency that `apt-get build-dep`
-        // won't resolve, so install it explicitly. No-op when the environment
-        // already has it (idempotent, and the bare driver runs on the host).
-        claimed.driver().run_command_checked(
-            &["apt-get", "-y", "install", "build-essential"],
-            &staged_source_dir,
-            true,
-            &[],
-        )?;
-        claimed.driver().run_command_checked(
-            &["apt-get", "-y", "build-dep", "."],
-            &staged_source_dir,
-            true,
-            &[],
+        let profiles = build_profiles(
+            std::env::var("DEB_BUILD_PROFILES").ok().as_deref(),
+            intent.config.run_test,
+        );
+        // build-essential is an implicit build dependency
+        let mut packages = vec!["build-essential"];
+        packages.extend(gain_root_package(target)?);
+        install_packages(
+            claimed,
+            target,
+            BuildKind::Binary,
+            packages,
+            Some(BuildScope::Full),
+            &profiles,
         )?;
         let inherited_options = std::env::var("DEB_BUILD_OPTIONS").ok();
         let options = deb_build_options(
@@ -242,7 +261,11 @@ pub async fn build_package(
             intent.config.build_debug_symbols,
             intent.config.run_test,
         );
+        let profiles = profiles.join(" ");
         let mut env_add = vec![("DEB_BUILD_OPTIONS", options.as_str())];
+        if !profiles.is_empty() {
+            env_add.push(("DEB_BUILD_PROFILES", &profiles));
+        }
         if let Some(variant) = intent.config.host_arch_variant.as_deref() {
             env_add.push(("DEB_HOST_ARCH_VARIANT", variant));
         }
@@ -274,6 +297,72 @@ pub async fn build_package(
     .await
 }
 
+/// `fakeroot` if `dpkg-buildpackage` will demand it for this package. It is
+/// only recommended by dpkg-dev, which `apt-get build-dep` doesn't pull in.
+fn gain_root_package(target: &PackageTarget) -> anyhow::Result<Option<&'static str>> {
+    Ok(target
+        .package
+        .control()
+        .context("checking Rules-Requires-Root failed")?
+        .needs_gain_root()
+        .then_some("fakeroot"))
+}
+
+/// Install `packages` and, for `scope`, the build relations of the staged
+/// source tree, evaluated with `profiles`.
+fn install_packages(
+    claimed: &ClaimedEnvironment,
+    target: &PackageTarget,
+    kind: BuildKind,
+    packages: Vec<&str>,
+    scope: Option<BuildScope>,
+    profiles: &[String],
+) -> anyhow::Result<()> {
+    let build_relations = scope
+        .map(|scope| {
+            anyhow::Ok(
+                target
+                    .package
+                    .control()
+                    .context("reading the build dependencies failed")?
+                    .build_relations(scope),
+            )
+        })
+        .transpose()?;
+    let install = apt::Install {
+        packages,
+        build_relations,
+        profiles: profiles.to_vec(),
+    };
+    let environment = claimed.environment();
+    let archives = &claimed.apt().archives;
+    let staged_source_dir = stage_dir(environment, kind);
+    apt::install(
+        claimed.driver(),
+        &staged_source_dir,
+        &environment.distro,
+        archives,
+        &install,
+    )
+    .context("installing the build dependencies failed")
+}
+
+/// The build profiles from `inherited` (`DEB_BUILD_PROFILES`), plus
+/// `nocheck` when tests don't run, so test-only build dependencies are
+/// skipped.
+fn build_profiles(inherited: Option<&str>, run_test: bool) -> Vec<String> {
+    let mut profiles: Vec<String> = inherited
+        .unwrap_or_default()
+        .split_whitespace()
+        .filter(|profile| *profile != "nocheck")
+        .map(str::to_string)
+        .collect();
+    if !run_test {
+        profiles.push("nocheck".to_string());
+    }
+    profiles
+}
+
 /// Confirm `cmd` is on `PATH`, failing with an actionable message (rather
 /// than a raw "command not found") if it isn't.
 fn check_command_available(cmd: &str, install_hint: &str) -> anyhow::Result<()> {
@@ -298,28 +387,6 @@ fn check_dpkg_buildpackage_available() -> anyhow::Result<()> {
     )
 }
 
-/// Make `source` available at `destination` without copying bytes when
-/// avoidable: hardlink (same filesystem), then symlink, then copy as the
-/// last resort. dpkg-source only reads the file, so a link is fine.
-fn stage_file(source: &Path, destination: &Path) -> anyhow::Result<()> {
-    if destination.exists() {
-        std::fs::remove_file(destination)
-            .with_context(|| format!("failed to remove {}", destination.display()))?;
-    }
-    if std::fs::hard_link(source, destination).is_ok() {
-        return Ok(());
-    }
-    if std::os::unix::fs::symlink(source, destination).is_ok() {
-        return Ok(());
-    }
-    fs::copy(source, destination).map(|_| ()).with_context(|| {
-        format!(
-            "failed to stage {} into the build environment",
-            source.display()
-        )
-    })
-}
-
 /// Build a `.dsc` + tarball + `.buildinfo` + `.changes` source package.
 ///
 /// If `config.clean` is set, build-dependencies are installed before
@@ -331,6 +398,7 @@ fn stage_file(source: &Path, destination: &Path) -> anyhow::Result<()> {
 pub async fn build_source_package(
     intent: &BuildIntent,
     target: &PackageTarget,
+    apt: &AptPlan,
     changes_options: &[String],
     include_orig: bool,
 ) -> anyhow::Result<std::path::PathBuf> {
@@ -339,48 +407,92 @@ pub async fn build_source_package(
     }
 
     // dpkg-source looks for the orig tarball in the parent of the source
-    // dir it builds, which inside the environment is the work dir. Fetch
-    // into the data directory first; `temp_build_dir` no longer exists.
-    let orig_fetch_dir = crate::data_dir::data_dir()
-        .context("locating the debmagic data directory")?
-        .join("orig")
-        .join(target.package.name());
+    // dir it builds, which inside the environment is the work dir. The
+    // output dir is where `upstream switch` puts it and where the source
+    // artifacts land anyway, so fetch into it and stage from there.
+    let name = target.package.name();
+    let upstream_version = target.package.version().upstream_version();
+    crate::output_dir::create(&intent.output_dir)?;
     let orig_tarball = crate::upstream::orig::fetch_orig_tarball(
         &intent.config.orig_tarball,
         &target.package,
-        &orig_fetch_dir,
+        &intent.output_dir,
     )
     .await
-    .with_context(|| {
-        format!(
-            "fetching the orig tarball for {} {} failed",
-            target.package.name(),
-            target.package.version().upstream_version()
-        )
-    })?;
+    .with_context(|| format!("fetching the orig tarball for {name} {upstream_version} failed"))?;
+    if orig_tarball.is_none() && target.package.source_format() == SourceFormat::Quilt {
+        anyhow::bail!(
+            "no orig tarball for {name} {upstream_version} in {}, the source tree's parent dir or the distro archives; \
+             run 'debmagic upstream switch {upstream_version}' or place it in one of those dirs",
+            intent.output_dir.display()
+        );
+    }
+    let mut orig_tarballs: Vec<std::path::PathBuf> = orig_tarball.into_iter().collect();
+    if !target.package.is_native() {
+        // dpkg-source picks up component origs next to the main one;
+        // without them their subdirs become unrepresentable changes
+        let components =
+            crate::upstream::orig::mut_components(&target.package).unwrap_or_else(|error| {
+                eprintln!("debmagic: warning: ignoring MUT components: {error:#}");
+                Vec::new()
+            });
+        for component in components {
+            let tarball = crate::upstream::orig::fetch_orig_tarball_for_version(
+                &intent.config.orig_tarball,
+                &target.package,
+                &intent.output_dir,
+                upstream_version,
+                Some(&component),
+            )
+            .await
+            .with_context(|| {
+                format!("fetching the orig tarball of component {component} for {name} {upstream_version} failed")
+            })?
+            .with_context(|| {
+                format!(
+                    "no orig tarball of component {component} for {name} {upstream_version} in {}, the source tree's parent dir or the distro archives; \
+                     run 'debmagic upstream fetch' or place it in one of those dirs",
+                    intent.output_dir.display()
+                )
+            })?;
+            orig_tarballs.push(tarball);
+        }
+    }
 
-    let request = BuildRequest { intent, target };
+    let request = BuildRequest {
+        intent,
+        target,
+        apt,
+    };
     run_build(&request, |claimed| {
         crate::output::stage("Building source package");
         let staged_source_dir = stage_dir(claimed.environment(), BuildKind::Source);
-        if let Some(tarball) = &orig_tarball {
+        for tarball in &orig_tarballs {
             // the work dir is the staged source dir's parent, which is where
-            // dpkg-source looks for the tarball
+            // dpkg-source looks for the tarballs
             let destination = claimed.environment().work_dir().join(
                 tarball
                     .file_name()
                     .expect("orig tarball has a file name"),
             );
-            stage_file(tarball, &destination)?;
+            link_or_copy(tarball, &destination).with_context(|| {
+                format!(
+                    "staging {} into the build environment failed",
+                    tarball.display()
+                )
+            })?;
         }
-        if intent.config.clean {
-            claimed.driver().run_command_checked(
-                &["apt-get", "-y", "build-dep", "."],
-                &staged_source_dir,
-                true,
-                &[],
-            )?;
-        }
+        // dpkg-buildpackage looks for the gain-root command even for -S
+        let packages = gain_root_package(target)?.into_iter().collect();
+        let scope = intent.config.clean.then_some(BuildScope::Clean);
+        install_packages(
+            claimed,
+            target,
+            BuildKind::Source,
+            packages,
+            scope,
+            &[],
+        )?;
         let mut args: Vec<String> = vec![
             "dpkg-buildpackage".into(),
             "-S".into(),
@@ -443,10 +555,14 @@ pub struct BuildCommand {
 /// build the binary or source package, and upload the result when
 /// `--upload` was passed.
 pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
-    let intent = resolve_build_intent(command.intent)?;
+    let intent = resolve_build_intent(command.intent.clone())?;
+    let distros = crate::distro_info::load()
+        .await
+        .context("loading the Debian and Ubuntu releases failed")?;
     let target = crate::package::resolve_package_target(
         &intent.source_dir,
         command.distro.as_deref(),
+        &distros,
         crate::package::distro_resolve_mode_for_driver(
             intent.driver,
             &intent.config.driver.docker.base_images,
@@ -454,14 +570,41 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
         ),
     )
     .context("failed to determine package target")?;
+    let apt = intent
+        .config
+        .apt
+        .plan(&target.distro, &intent.config.sign)
+        .await
+        .context("resolving the apt archives failed")?;
 
+    let package = format!("{} {}", target.package.name(), target.package.version());
+    let notify = intent.config.build_notify();
+    let result = build_and_upload(&intent, target, &apt, &command).await;
+    // a signed build already notified when signing started
+    let notified = result.is_ok() && intent.config.sign.source.is_enabled();
+    if notify && !notified {
+        let summary = match &result {
+            Ok(()) => "debmagic: build finished",
+            Err(_) => "debmagic: build failed",
+        };
+        crate::output::notify_send_bell(summary, &package);
+    }
+    result
+}
+
+async fn build_and_upload(
+    intent: &BuildIntent,
+    target: PackageTarget,
+    apt: &AptPlan,
+    command: &BuildCommand,
+) -> anyhow::Result<()> {
     let upstream_version = target.package.version().upstream_version().to_string();
     let changes_file = if intent.kind.is_source() {
         let include_orig = match command.include_orig {
             Some(mode) => crate::upload::orig::decide_orig_upload(mode, &intent.source_dir)?,
             None => true,
         };
-        build_source_package(&intent, &target, &command.changes_options, include_orig)
+        build_source_package(intent, &target, apt, &command.changes_options, include_orig)
             .await
             .context("Building the source package failed")?
     } else {
@@ -473,14 +616,14 @@ pub async fn build(command: BuildCommand) -> anyhow::Result<()> {
             )
             .context("host's /etc/os-release does not match the build target distro")?;
         }
-        build_package(&intent, &target, &command.changes_options)
+        build_binary_package(intent, &target, apt, &command.changes_options)
             .await
             .context("Building the package failed")?
     };
 
     if let Some(spec) = &command.upload {
         let upload_target = crate::upload::resolve_target(spec, Some(&intent.config.upload))?;
-        crate::output::stage(&format!("Uploading to {}", upload_target.name));
+        crate::output::stage(&format!("Uploading to {spec}"));
         crate::upload::upload_changes(
             &upload_target,
             spec,
@@ -505,36 +648,17 @@ mod tests {
 
     #[test]
     fn quilt_unapply_needed_only_for_quilt_with_applied_patches() {
-        let dir = std::env::temp_dir().join(format!("debmagic-quilt-{}", uuid::Uuid::new_v4()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-quilt-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         assert!(!needs_quilt_unapply(SourceFormat::Quilt, &dir));
         std::fs::create_dir_all(dir.join(".pc")).unwrap();
         assert!(needs_quilt_unapply(SourceFormat::Quilt, &dir));
         assert!(!needs_quilt_unapply(SourceFormat::Native, &dir));
         assert!(!needs_quilt_unapply(SourceFormat::V1, &dir));
-        std::fs::remove_dir_all(&dir).unwrap();
-    }
-
-    #[test]
-    fn stage_file_prefers_hardlink() {
-        let dir = std::env::temp_dir().join(format!("debmagic-stage-{}", std::process::id()));
-        std::fs::create_dir_all(&dir).unwrap();
-        let source = dir.join("src.tar");
-        std::fs::write(&source, "data").unwrap();
-        let destination = dir.join("dest.tar");
-        stage_file(&source, &destination).unwrap();
-        // same filesystem: a hardlink shares the inode
-        assert_eq!(
-            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&source).unwrap()),
-            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&destination).unwrap())
-        );
-        // restaging replaces the destination
-        stage_file(&source, &destination).unwrap();
-        assert_eq!(
-            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&source).unwrap()),
-            std::os::unix::fs::MetadataExt::ino(&std::fs::metadata(&destination).unwrap())
-        );
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
@@ -563,5 +687,12 @@ mod tests {
             deb_build_options(Some("nocheck parallel=8"), true, true),
             "parallel=8"
         );
+    }
+
+    #[test]
+    fn run_test_profile_adds_nocheck() {
+        assert_eq!(build_profiles(None, true), Vec::<String>::new());
+        assert_eq!(build_profiles(Some("nodoc"), false), ["nodoc", "nocheck"]);
+        assert_eq!(build_profiles(Some("nocheck nodoc"), true), ["nodoc"]);
     }
 }

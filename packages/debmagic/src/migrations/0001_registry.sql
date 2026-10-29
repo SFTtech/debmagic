@@ -24,7 +24,9 @@ create table environments (
     owner_pid_start integer,
     destroying integer not null default 0 check (destroying in (0, 1)),
     -- JSON object from Driver::driver_metadata
-    driver_metadata text not null default '{}'
+    driver_metadata text not null default '{}',
+    -- unix time of the last apt upgrade, null for never
+    apt_updated_at integer
 ) strict;
 
 -- `debmagic env shell` sessions, see Process

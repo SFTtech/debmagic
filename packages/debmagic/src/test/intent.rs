@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use anyhow::Context;
 
 use crate::{
+    apt::AptOverrides,
     config::Config,
     driver::{DriverType, Persistence, config::DriverOverrides},
 };
@@ -10,16 +11,17 @@ use crate::{
 /// Inputs for resolving a [`TestIntent`].
 #[derive(Debug, Clone)]
 pub struct TestIntentInput {
-    /// Directory used when `source_dir` is unset (typically cwd).
-    pub fallback_dir: PathBuf,
-    pub source_dir: Option<PathBuf>,
+    pub source_dir: PathBuf,
     pub config_file: Option<PathBuf>,
     pub driver: Option<DriverType>,
     pub persistent: Option<Persistence>,
+    /// `--notify`, overriding the configured notifications.
+    pub notify: Option<bool>,
     pub strict: bool,
     pub changes: Option<PathBuf>,
     pub allow_host_test: bool,
     pub distro: Option<String>,
+    pub apt_overrides: AptOverrides,
     pub driver_overrides: DriverOverrides,
 }
 
@@ -41,14 +43,16 @@ pub struct TestIntent {
 pub fn resolve_test_intent(input: TestIntentInput) -> anyhow::Result<TestIntent> {
     // Canonicalized: Environment ids and registry lookups key on the
     // source_dir string, so all entry points must agree on one spelling.
-    let source_dir = std::fs::canonicalize(input.source_dir.unwrap_or(input.fallback_dir))
-        .context("resolving source dir failed")?;
+    let source_dir =
+        std::fs::canonicalize(input.source_dir).context("resolving source dir failed")?;
 
     let mut config = Config::load(Some(&source_dir), input.config_file.as_deref())?;
 
     if let Some(persistent) = input.persistent {
         config.driver.persistent = persistent;
     }
+    config.override_notify(input.notify);
+    input.apt_overrides.apply(&mut config.apt);
 
     let changes = if let Some(changes) = input.changes {
         Some(std::path::absolute(changes).context("resolving --changes path failed")?)
@@ -83,21 +87,19 @@ mod tests {
             .join("config1.toml")
     }
 
-    fn base_input(fallback: PathBuf) -> TestIntentInput {
+    fn base_input(source_dir: PathBuf) -> TestIntentInput {
         TestIntentInput {
-            fallback_dir: fallback,
-            source_dir: None,
+            source_dir,
             config_file: Some(asset_config()),
             driver: None,
             persistent: None,
+            notify: None,
             strict: false,
             changes: None,
             allow_host_test: false,
             distro: None,
+            apt_overrides: AptOverrides::default(),
             driver_overrides: DriverOverrides {
-                apt_mirror: None,
-                proposed: None,
-                apt_update_age: None,
                 docker: DriverDockerConfigOverrides { base_image: None },
                 bare: DriverBareConfigOverrides {},
                 lxd: DriverLxdConfigOverrides {

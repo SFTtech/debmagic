@@ -21,13 +21,15 @@ struct TarballIndex {
     #[allow(dead_code)]
     members: Vec<String>,
     files: HashMap<String, Vec<u8>>,
-    /// Directories and symlinks, in archive order. Symlink targets are as stored.
+    /// Directories, symlinks and hardlinks, in archive order. Symlink targets
+    /// are as stored; hardlink targets are normalized member paths.
     links_and_dirs: Vec<(String, MemberKind)>,
 }
 
 enum MemberKind {
     Directory,
     Symlink(PathBuf),
+    Hardlink(String),
 }
 
 impl BinaryPackageReader {
@@ -116,6 +118,11 @@ impl BinaryPackageReader {
             entries.push(match member {
                 MemberKind::Directory => Entry::directory(path),
                 MemberKind::Symlink(target) => Entry::symlink(path, target),
+                MemberKind::Hardlink(target) => {
+                    let content = index.files.get(target).cloned();
+                    let file_type = content.as_deref().and_then(FileType::from_bytes);
+                    Entry::hardlink(path, file_type, content)
+                }
             });
         }
         Ok(FileTree::from_entries(None, entries))
@@ -195,6 +202,14 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
                 .with_context(|| format!("symlink {normalized} has no target"))?
                 .into_owned();
             links_and_dirs.push((normalized, MemberKind::Symlink(target)));
+        } else if entry_type.is_hard_link() {
+            let target = entry
+                .link_name()?
+                .with_context(|| format!("hardlink {normalized} has no target"))?;
+            let Some(target) = normalize_member_path(target.as_ref()) else {
+                continue;
+            };
+            links_and_dirs.push((normalized, MemberKind::Hardlink(target)));
         }
     }
     Ok(TarballIndex {
@@ -205,7 +220,7 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
 }
 
 fn normalize_member_path(path: &Path) -> Option<String> {
-    let mut value = path.to_string_lossy().replace('\\', "/");
+    let mut value = path.to_string_lossy().into_owned();
     while let Some(stripped) = value.strip_prefix("./") {
         value = stripped.to_string();
     }
@@ -432,6 +447,43 @@ mod tests {
             "generic-empty"
         );
         assert_eq!(guess_package_name(Path::new("foo.udeb")), "foo");
+    }
+
+    #[test]
+    fn data_file_tree_keeps_hardlinks_and_backslashes() -> anyhow::Result<()> {
+        let mut tar_bytes = Vec::new();
+        {
+            let mut builder = tar::Builder::new(&mut tar_bytes);
+            let mut header = tar::Header::new_gnu();
+            header.set_size(4);
+            header.set_mode(0o644);
+            header.set_cksum();
+            builder.append_data(&mut header, "usr/bin/a\\b", &b"data"[..])?;
+            let mut link = tar::Header::new_gnu();
+            link.set_entry_type(tar::EntryType::Link);
+            link.set_size(0);
+            link.set_mode(0o644);
+            link.set_cksum();
+            builder.append_link(&mut link, "usr/bin/hard", "usr/bin/a\\b")?;
+            builder.finish()?;
+        }
+        let index = index_tarball("data.tar", &tar_bytes)?;
+        let mut entries = Vec::new();
+        for (path, bytes) in &index.files {
+            entries.push((path.clone(), bytes.clone()));
+        }
+        assert_eq!(
+            entries,
+            vec![("usr/bin/a\\b".to_string(), b"data".to_vec())]
+        );
+        let [(path, MemberKind::Hardlink(target))] = index.links_and_dirs.as_slice() else {
+            panic!("expected one hardlink");
+        };
+        assert_eq!(
+            (path.as_str(), target.as_str()),
+            ("usr/bin/hard", "usr/bin/a\\b")
+        );
+        Ok(())
     }
 
     #[test]

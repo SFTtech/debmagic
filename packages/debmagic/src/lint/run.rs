@@ -543,6 +543,7 @@ mod tests {
                 crate::lint::rules::SuperfluousFilePattern::CODE,
                 crate::lint::rules::NoDep5Copyright::CODE,
                 crate::lint::rules::NoCopyrightFile::CODE,
+                crate::lint::rules::FileInUnusualDir::CODE,
             ]
         );
         let intent = LintIntent {

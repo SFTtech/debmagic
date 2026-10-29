@@ -495,6 +495,12 @@ fn copy_tree(src: &Path, dst: &Path) {
             fs::copy(&from, &to).unwrap_or_else(|error| {
                 panic!("copying {} to {}: {error}", from.display(), to.display())
             });
+        } else if file_type.is_symlink() {
+            let target = fs::read_link(&from)
+                .unwrap_or_else(|error| panic!("reading link {}: {error}", from.display()));
+            std::os::unix::fs::symlink(&target, &to).unwrap_or_else(|error| {
+                panic!("linking {} to {}: {error}", to.display(), target.display())
+            });
         }
     }
 }
@@ -667,6 +673,12 @@ fn copy_package_tree(src: &Path, dst: &Path) {
         } else if file_type.is_file() {
             fs::copy(&from, &to).unwrap_or_else(|error| {
                 panic!("copying {} to {}: {error}", from.display(), to.display())
+            });
+        } else if file_type.is_symlink() {
+            let target = fs::read_link(&from)
+                .unwrap_or_else(|error| panic!("reading link {}: {error}", from.display()));
+            std::os::unix::fs::symlink(&target, &to).unwrap_or_else(|error| {
+                panic!("linking {} to {}: {error}", to.display(), target.display())
             });
         }
     }

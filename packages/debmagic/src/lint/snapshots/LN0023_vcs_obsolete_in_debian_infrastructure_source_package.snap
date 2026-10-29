@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): vcs-obsolete-in-debian-infrastructure (LN0023) Svn svn://anonscm.debian.org/foobar/trunk

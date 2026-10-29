@@ -7,6 +7,7 @@ use super::rules::{
     PackageContainsUnsafeSymlink, PackageUsesDeprecatedDebhelperCompatVersion, RequiredField,
     SourceContainsDebianSubstvars, SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern,
     SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject, UsesDebhelperCompatFile,
+    VcsObsoleteInDebianInfrastructure,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -34,6 +35,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UsesDebhelperCompatFile,
         &NoHumanMaintainers,
         &DmUploadAllowedIsObsolete,
+        &VcsObsoleteInDebianInfrastructure,
     ]
 }
 
@@ -54,6 +56,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UsesDebhelperCompatFile,
         &NoHumanMaintainers,
         &DmUploadAllowedIsObsolete,
+        &VcsObsoleteInDebianInfrastructure,
     ]
 }
 
@@ -98,6 +101,7 @@ mod tests {
                 UsesDebhelperCompatFile::CODE,
                 NoHumanMaintainers::CODE,
                 DmUploadAllowedIsObsolete::CODE,
+                VcsObsoleteInDebianInfrastructure::CODE,
             ]
         );
     }

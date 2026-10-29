@@ -749,6 +749,7 @@ mod tests {
                 crate::lint::rules::UsesDebhelperCompatFile::CODE,
                 crate::lint::rules::NoHumanMaintainers::CODE,
                 crate::lint::rules::DmUploadAllowedIsObsolete::CODE,
+                crate::lint::rules::VcsObsoleteInDebianInfrastructure::CODE,
             ]
         );
         let intent = LintIntent {

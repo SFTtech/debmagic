@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): source-contains-debian-substvars (LN0015) [debian/substvars]
+W: example (source): source-contains-debian-substvars (LN0015) [debian/example.substvars]

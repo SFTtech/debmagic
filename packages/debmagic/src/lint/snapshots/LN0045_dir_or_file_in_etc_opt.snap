@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): dir-or-file-in-etc-opt (LN0045) [etc/opt/x]
+E: example (binary): dir-or-file-in-etc-opt (LN0045) [etc/opt/x/]
+E: example (binary): dir-or-file-in-etc-opt (LN0045) [etc/opt/x/file]

@@ -147,14 +147,19 @@ impl BinaryPackageData {
     }
 
     #[cfg(test)]
-    pub fn with_data_files(path: PathBuf, package_name: String, data_files: FileTree) -> Self {
+    pub fn with_data_files(
+        path: PathBuf,
+        package_name: String,
+        installation_control: InstallationControl,
+        data_files: FileTree,
+    ) -> Self {
         let cell = OnceCell::new();
         let _ = cell.set(Ok(data_files));
         Self {
             path,
             package_name,
             reader: None,
-            installation_control: InstallationControl::default(),
+            installation_control,
             data_files: cell,
         }
     }
@@ -195,6 +200,11 @@ impl<'a> BinaryPackageContext<'a> {
 
     pub fn installation_control(&self) -> &InstallationControl {
         &self.data.installation_control
+    }
+
+    /// The Binary package is a udeb (`.udeb` file name), not a deb.
+    pub fn is_udeb(&self) -> bool {
+        processable_type_for_binary(&self.data.path) == ProcessableType::Udeb
     }
 
     /// Data files File tree. `None` after a global File tree failure; that

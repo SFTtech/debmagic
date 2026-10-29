@@ -539,6 +539,7 @@ mod tests {
                 crate::lint::rules::SourceContainsPrebuiltWindowsBinary::CODE,
                 crate::lint::rules::UnstrippedBinaryOrObject::CODE,
                 crate::lint::rules::PackageContainsUnsafeSymlink::CODE,
+                crate::lint::rules::EmptyBinaryPackage::CODE,
             ]
         );
         let intent = LintIntent {

@@ -44,6 +44,15 @@ impl InstallationControl {
         })
     }
 
+    #[cfg(test)]
+    pub(crate) fn from_fields(
+        fields: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,
+    ) -> Self {
+        Self {
+            fields: ControlParagraph::from_fields(fields),
+        }
+    }
+
     pub fn fields(&self) -> &ControlParagraph {
         &self.fields
     }

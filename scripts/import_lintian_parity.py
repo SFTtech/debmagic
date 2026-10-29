@@ -611,7 +611,9 @@ def catalogued_source_package_recipe_rels(dest_root: Path, tags: set[str]) -> li
 
 
 def recipe_test_name(rel: str) -> str:
-    return rel.replace("/", "_").replace("-", "_")
+    # test_case turns every run of non-identifier characters into one `_`
+    # (`foo++` -> `foo_`, `1.0` -> `1_0`); match it so the report finds results.
+    return re.sub(r"[^0-9A-Za-z]+", "_", rel)
 
 
 def _const_slice(name: str, recipes: list[str]) -> str:

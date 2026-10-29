@@ -96,6 +96,17 @@ impl ControlParagraph {
         }
     }
 
+    #[cfg(test)]
+    pub(crate) fn from_fields(
+        fields: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,
+    ) -> Self {
+        Self::from_items(
+            fields
+                .into_iter()
+                .map(|(key, value)| (key.into(), value.into())),
+        )
+    }
+
     pub fn declares(&self, name: &str) -> bool {
         self.fields
             .iter()

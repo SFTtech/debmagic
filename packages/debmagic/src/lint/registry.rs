@@ -2,11 +2,11 @@ use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
     CustomCompressionInDebianRules, DebianChangelogFileMissingOrWrongName,
     DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget, DebmagicDummyTrigger,
-    EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty, NationalEncoding, NoChangelog,
-    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, PackageContainsUnsafeSymlink,
-    PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
-    SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
-    UnstrippedBinaryOrObject, UsesDebhelperCompatFile,
+    DmUploadAllowedIsObsolete, EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty,
+    NationalEncoding, NoChangelog, NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers,
+    PackageContainsUnsafeSymlink, PackageUsesDeprecatedDebhelperCompatVersion, RequiredField,
+    SourceContainsDebianSubstvars, SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern,
+    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject, UsesDebhelperCompatFile,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -33,6 +33,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageUsesDeprecatedDebhelperCompatVersion,
         &UsesDebhelperCompatFile,
         &NoHumanMaintainers,
+        &DmUploadAllowedIsObsolete,
     ]
 }
 
@@ -52,6 +53,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PackageUsesDeprecatedDebhelperCompatVersion,
         &UsesDebhelperCompatFile,
         &NoHumanMaintainers,
+        &DmUploadAllowedIsObsolete,
     ]
 }
 
@@ -95,6 +97,7 @@ mod tests {
                 PackageUsesDeprecatedDebhelperCompatVersion::CODE,
                 UsesDebhelperCompatFile::CODE,
                 NoHumanMaintainers::CODE,
+                DmUploadAllowedIsObsolete::CODE,
             ]
         );
     }

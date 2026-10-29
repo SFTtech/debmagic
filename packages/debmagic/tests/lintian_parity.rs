@@ -124,6 +124,10 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/hierarchy/standard/legacy-filenames",
     "checks/files/symbolic-links/broken/legacy-filenames",
     "checks/files/symbolic-links/broken/symlinks-unsafe",
+    "checks/files/symbolic-links/files-general",
+    "checks/files/symbolic-links/files-symlinks",
+    "checks/files/symbolic-links/legacy-binary",
+    "checks/files/symbolic-links/legacy-filenames",
     "checks/maintainer-scripts/empty/legacy-maintainer-scripts",
     "checks/maintainer-scripts/empty/legacy-scripts",
     "checks/maintainer-scripts/empty/scripts-maintainer-script-empty",
@@ -354,6 +358,10 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/hierarchy/standard/legacy-filenames"; "checks_files_hierarchy_standard_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/legacy-filenames"; "checks_files_symbolic_links_broken_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/symlinks-unsafe"; "checks_files_symbolic_links_broken_symlinks_unsafe")]
+#[test_case("checks/files/symbolic-links/files-general"; "checks_files_symbolic_links_files_general")]
+#[test_case("checks/files/symbolic-links/files-symlinks"; "checks_files_symbolic_links_files_symlinks")]
+#[test_case("checks/files/symbolic-links/legacy-binary"; "checks_files_symbolic_links_legacy_binary")]
+#[test_case("checks/files/symbolic-links/legacy-filenames"; "checks_files_symbolic_links_legacy_filenames")]
 #[test_case("checks/maintainer-scripts/empty/legacy-maintainer-scripts"; "checks_maintainer_scripts_empty_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/empty/legacy-scripts"; "checks_maintainer_scripts_empty_legacy_scripts")]
 #[test_case("checks/maintainer-scripts/empty/scripts-maintainer-script-empty"; "checks_maintainer_scripts_empty_scripts_maintainer_script_empty")]

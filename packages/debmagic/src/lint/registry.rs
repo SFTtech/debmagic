@@ -3,13 +3,14 @@ use super::rules::{
     ChangelogFileNotCompressed, CustomCompressionInDebianRules,
     DebianChangelogFileMissingOrWrongName, DebianRulesIgnoresMakeCleanError,
     DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DmUploadAllowedIsObsolete,
-    EmptyBinaryPackage, FileInUnusualDir, LatestDebianChangelogEntryWithoutNewDate,
-    MaintainerScriptEmpty, NationalEncoding, NoChangelog, NoCopyrightFile, NoDep5Copyright,
-    NoHumanMaintainers, NonStandardToplevelDir, PackageContainsUnsafeSymlink,
-    PackageRelationWithSelf, PackageUsesDeprecatedDebhelperCompatVersion, RequiredField,
-    SourceContainsDebianSubstvars, SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern,
-    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject, UsesDebhelperCompatFile,
-    VcsObsoleteInDebianInfrastructure,
+    EmptyBinaryPackage, FileInUnusualDir, LatestDebianChangelogEntryWithoutNewDate, LengthySymlink,
+    MaintainerScriptEmpty, MalformedDmUploadAllowed, NationalEncoding, NoChangelog,
+    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, NonStandardToplevelDir,
+    PackageContainsUnsafeSymlink, PackageRelationWithSelf,
+    PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
+    SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SymlinkContainsSpuriousSegments,
+    SymlinkIsSelfRecursive, SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
+    UsesDebhelperCompatFile, VcsObsoleteInDebianInfrastructure, WrongPackageMailAlias,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -42,6 +43,11 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NonStandardToplevelDir,
         &LatestDebianChangelogEntryWithoutNewDate,
         &PackageRelationWithSelf,
+        &MalformedDmUploadAllowed,
+        &SymlinkContainsSpuriousSegments,
+        &SymlinkIsSelfRecursive,
+        &LengthySymlink,
+        &WrongPackageMailAlias,
     ]
 }
 
@@ -64,6 +70,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DmUploadAllowedIsObsolete,
         &VcsObsoleteInDebianInfrastructure,
         &LatestDebianChangelogEntryWithoutNewDate,
+        &MalformedDmUploadAllowed,
+        &WrongPackageMailAlias,
     ]
 }
 
@@ -82,6 +90,9 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ChangelogFileNotCompressed,
         &NonStandardToplevelDir,
         &PackageRelationWithSelf,
+        &SymlinkContainsSpuriousSegments,
+        &SymlinkIsSelfRecursive,
+        &LengthySymlink,
     ]
 }
 
@@ -113,6 +124,8 @@ mod tests {
                 DmUploadAllowedIsObsolete::CODE,
                 VcsObsoleteInDebianInfrastructure::CODE,
                 LatestDebianChangelogEntryWithoutNewDate::CODE,
+                MalformedDmUploadAllowed::CODE,
+                WrongPackageMailAlias::CODE,
             ]
         );
     }
@@ -139,6 +152,9 @@ mod tests {
                 ChangelogFileNotCompressed::CODE,
                 NonStandardToplevelDir::CODE,
                 PackageRelationWithSelf::CODE,
+                SymlinkContainsSpuriousSegments::CODE,
+                SymlinkIsSelfRecursive::CODE,
+                LengthySymlink::CODE,
             ]
         );
     }

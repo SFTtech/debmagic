@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): superfluous-file-pattern (LN0008) upstream-patched [debian/copyright:3]
+W: example (source): superfluous-file-pattern (LN0008) debian/orig-only [debian/copyright:3]
+W: example (source): superfluous-file-pattern (LN0008) missing [debian/copyright:3]

@@ -135,7 +135,6 @@ impl FileTree {
         Ok(Self::from_entries(Some(root.to_path_buf()), entries))
     }
 
-    #[allow(dead_code)]
     pub fn entries(&self) -> &[Entry] {
         &self.entries
     }

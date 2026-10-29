@@ -388,7 +388,13 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         extra_args.push(tag.as_str());
     }
 
-    let (_status, stdout, stderr) = run_lint(&recipe, &extra_args);
+    // The recipe directory also holds ORIGIN and eval/, which are not part of
+    // the Source tree lintian saw; lint a copy without them.
+    let work = tempfile::tempdir().expect("temp recipe workdir");
+    let source = work.path().join("src");
+    copy_package_tree(&recipe, &source);
+
+    let (_status, stdout, stderr) = run_lint(&source, &extra_args);
     assert!(
         stderr.is_empty() || !stdout.is_empty(),
         "{recipe_rel}: lint failed with empty stdout\n{stderr}"

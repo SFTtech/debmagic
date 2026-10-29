@@ -2,7 +2,7 @@ use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
     DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, EmptyBinaryPackage,
     PackageContainsUnsafeSymlink, RequiredField, SourceContainsPrebuiltWindowsBinary,
-    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
+    SuperfluousFilePattern, SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -15,6 +15,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnstrippedBinaryOrObject,
         &PackageContainsUnsafeSymlink,
         &EmptyBinaryPackage,
+        &SuperfluousFilePattern,
     ]
 }
 
@@ -25,6 +26,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SyntaxErrorInDebianChangelog,
         &DebianRulesMissingRequiredTarget,
         &SourceContainsPrebuiltWindowsBinary,
+        &SuperfluousFilePattern,
     ]
 }
 
@@ -53,6 +55,7 @@ mod tests {
                 SyntaxErrorInDebianChangelog::CODE,
                 DebianRulesMissingRequiredTarget::CODE,
                 SourceContainsPrebuiltWindowsBinary::CODE,
+                SuperfluousFilePattern::CODE,
             ]
         );
     }

@@ -105,27 +105,12 @@ impl BinaryPackageReader {
     }
 
     pub(crate) fn data_file_tree(&self) -> anyhow::Result<super::file_tree::FileTree> {
-        use super::file_tree::{Entry, FileTree};
-        use super::file_type::FileType;
+        Ok(file_tree(self.data_index()?))
+    }
 
-        let index = self.data_index()?;
-        let mut entries = Vec::with_capacity(index.files.len() + index.links_and_dirs.len());
-        for (path, bytes) in &index.files {
-            let file_type = FileType::from_bytes(bytes);
-            entries.push(Entry::regular_file(path, file_type, Some(bytes.clone())));
-        }
-        for (path, member) in &index.links_and_dirs {
-            entries.push(match member {
-                MemberKind::Directory => Entry::directory(path),
-                MemberKind::Symlink(target) => Entry::symlink(path, target),
-                MemberKind::Hardlink(target) => {
-                    let content = index.files.get(target).cloned();
-                    let file_type = content.as_deref().and_then(FileType::from_bytes);
-                    Entry::hardlink(path, file_type, content)
-                }
-            });
-        }
-        Ok(FileTree::from_entries(None, entries))
+    /// The Control files File tree: every member of the Control tarball.
+    pub(crate) fn control_file_tree(&self) -> anyhow::Result<super::file_tree::FileTree> {
+        Ok(file_tree(self.control_index()?))
     }
 
     fn control_index(&self) -> anyhow::Result<&TarballIndex> {
@@ -145,6 +130,29 @@ impl BinaryPackageReader {
             self.path.as_path(),
         )
     }
+}
+
+fn file_tree(index: &TarballIndex) -> super::file_tree::FileTree {
+    use super::file_tree::{Entry, FileTree};
+    use super::file_type::FileType;
+
+    let mut entries = Vec::with_capacity(index.files.len() + index.links_and_dirs.len());
+    for (path, bytes) in &index.files {
+        let file_type = FileType::from_bytes(bytes);
+        entries.push(Entry::regular_file(path, file_type, Some(bytes.clone())));
+    }
+    for (path, member) in &index.links_and_dirs {
+        entries.push(match member {
+            MemberKind::Directory => Entry::directory(path),
+            MemberKind::Symlink(target) => Entry::symlink(path, target),
+            MemberKind::Hardlink(target) => {
+                let content = index.files.get(target).cloned();
+                let file_type = content.as_deref().and_then(FileType::from_bytes);
+                Entry::hardlink(path, file_type, content)
+            }
+        });
+    }
+    FileTree::from_entries(None, entries)
 }
 
 fn init_index<'a>(
@@ -514,6 +522,34 @@ mod tests {
             "{:?}",
             entry.file_type()
         );
+        Ok(())
+    }
+
+    #[test]
+    fn control_file_tree_lists_control_members() -> anyhow::Result<()> {
+        use crate::lint::file_tree::EntryKind;
+
+        let dir = TempDir::new()?;
+        let path = dir.path().join("example.deb");
+        write_test_deb_with_files(
+            &path,
+            &[
+                ("control", b"Package: example\n"),
+                ("./postinst", b"#!/bin/sh\n"),
+            ],
+            &[("usr/bin/app", b"data")],
+        )?;
+        let tree = BinaryPackageReader::from_path(&path)?.control_file_tree()?;
+        assert_eq!(
+            tree.entries()
+                .iter()
+                .map(|entry| entry.path().to_str().unwrap())
+                .collect::<Vec<_>>(),
+            vec!["control", "postinst"]
+        );
+        let script = tree.get("postinst").expect("postinst");
+        assert_eq!(script.kind(), EntryKind::RegularFile);
+        assert_eq!(tree.read(script)?, b"#!/bin/sh\n");
         Ok(())
     }
 

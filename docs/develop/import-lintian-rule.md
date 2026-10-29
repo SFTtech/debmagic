@@ -31,7 +31,7 @@ Read the Check module. Map I/O to the Subject’s context (Debian control, chang
 
 ## 4. Native tests first
 
-`SourceTreeTester` takes pass/fail Source trees as path → content maps and snapshots fail Diagnostics. That is **not** Parity. Use it to lock the Rule’s behaviour on a few trees (including udeb / missing-file edges the recipes never isolate). `SourcePackageTester` injects Orig files and Patched files the same way (orig defaults to empty) and an optional Dsc paragraph. `BinaryPackageTester` exists as a name; it is not implemented yet.
+`SourceTreeTester` takes pass/fail Source trees as path → content maps and snapshots fail Diagnostics. That is **not** Parity. Use it to lock the Rule’s behaviour on a few trees (including udeb / missing-file edges the recipes never isolate). `SourcePackageTester` injects Orig files and Patched files the same way (orig defaults to empty) and an optional Dsc paragraph. `BinaryPackageTester` injects Data files, Installation control fields (`.field`), and Control files (`.control_file`, empty by default) as fixtures, and can mark the case a udeb.
 
 Keep expected extra/context in the message in lintian’s order (for `required-field`: `(in section for …)` then the field name). Pointers like `[debian/control:1]` belong on `Location` when we have them; they are stripped from `eval/hints` extras and are not part of Parity.
 

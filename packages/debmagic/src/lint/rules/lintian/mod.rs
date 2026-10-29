@@ -12,6 +12,7 @@ mod ln0010_no_copyright_file;
 mod ln0011_file_in_unusual_dir;
 mod ln0012_no_changelog;
 mod ln0013_debian_changelog_file_missing_or_wrong_name;
+mod ln0014_maintainer_script_empty;
 
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
@@ -26,3 +27,4 @@ pub(crate) use ln0010_no_copyright_file::NoCopyrightFile;
 pub(crate) use ln0011_file_in_unusual_dir::FileInUnusualDir;
 pub(crate) use ln0012_no_changelog::NoChangelog;
 pub(crate) use ln0013_debian_changelog_file_missing_or_wrong_name::DebianChangelogFileMissingOrWrongName;
+pub(crate) use ln0014_maintainer_script_empty::MaintainerScriptEmpty;

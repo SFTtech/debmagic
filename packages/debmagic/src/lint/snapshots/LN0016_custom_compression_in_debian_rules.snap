@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- -Zgzip [debian/rules]
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb --  -Zxz  -z 9 [debian/rules]
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- -z9 -Z xz [debian/rules]
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- -Zxz -Sextreme -z9 [debian/rules]
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- -Sextreme [debian/rules]
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- --foo-zebra [debian/rules]
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- -Zxz) [debian/rules]
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- 	  -Zxz [debian/rules]
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- -Zxz [debian/rules]
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- -Zgzip [debian/rules]

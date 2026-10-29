@@ -158,6 +158,7 @@ mod tests {
         );
         assert!(selected.contains(&crate::lint::rules::MaintainerScriptEmpty::CODE));
         assert!(selected.contains(&crate::lint::rules::SourceContainsDebianSubstvars::CODE));
+        assert!(selected.contains(&crate::lint::rules::CustomCompressionInDebianRules::CODE));
         assert!(selected.iter().all(|code| code.prefix() == "LN"));
         Ok(())
     }

@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.Debian.gz (non-native package)
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.gz (native package)
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.Debian.gz (non-native package)
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.gz (native package)
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.Debian.gz (non-native package)
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.gz (native package)
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.Debian.gz (non-native package)
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.Debian.gz (non-native package)
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.gz (native package)
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.Debian.gz (non-native package)
+E: example (binary): no-changelog (LN0012) usr/share/doc/example/changelog.Debian.gz (non-native package)

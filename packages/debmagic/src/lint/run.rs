@@ -751,6 +751,7 @@ mod tests {
                 crate::lint::rules::DmUploadAllowedIsObsolete::CODE,
                 crate::lint::rules::VcsObsoleteInDebianInfrastructure::CODE,
                 crate::lint::rules::ChangelogFileNotCompressed::CODE,
+                crate::lint::rules::NonStandardToplevelDir::CODE,
             ]
         );
         let intent = LintIntent {

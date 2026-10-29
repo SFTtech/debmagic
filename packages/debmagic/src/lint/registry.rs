@@ -1,12 +1,13 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
-    ChangelogFileNotCompressed, CustomCompressionInDebianRules,
+    ChangelogFileNotCompressed, CustomCompressionInDebianRules, DebianChangelogFileIsASymlink,
     DebianChangelogFileMissingOrWrongName, DebianRulesIgnoresMakeCleanError,
-    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DmUploadAllowedIsObsolete,
-    EmptyBinaryPackage, FileInUnusualDir, LatestDebianChangelogEntryWithoutNewDate, LengthySymlink,
-    MaintainerScriptEmpty, MalformedDmUploadAllowed, NationalEncoding, NoChangelog,
-    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, NonStandardToplevelDir,
-    PackageContainsUnsafeSymlink, PackageRelationWithSelf,
+    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DirOrFileInMnt, DirOrFileInSrv,
+    DmUploadAllowedIsObsolete, EmptyBinaryPackage, ExtendedDescriptionIsEmpty, FileInUnusualDir,
+    LatestDebianChangelogEntryWithoutNewDate, LengthySymlink, MaintainerScriptEmpty,
+    MalformedDmUploadAllowed, NationalEncoding, NoChangelog, NoCopyrightFile, NoDep5Copyright,
+    NoHumanMaintainers, NonStandardToplevelDir, PackageContainsUnsafeSymlink,
+    PackageContainsVcsControlDir, PackageRelationWithSelf,
     PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
     SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SymlinkContainsSpuriousSegments,
     SymlinkIsSelfRecursive, SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
@@ -48,6 +49,11 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SymlinkIsSelfRecursive,
         &LengthySymlink,
         &WrongPackageMailAlias,
+        &DebianChangelogFileIsASymlink,
+        &PackageContainsVcsControlDir,
+        &DirOrFileInSrv,
+        &DirOrFileInMnt,
+        &ExtendedDescriptionIsEmpty,
     ]
 }
 
@@ -93,6 +99,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SymlinkContainsSpuriousSegments,
         &SymlinkIsSelfRecursive,
         &LengthySymlink,
+        &DebianChangelogFileIsASymlink,
+        &PackageContainsVcsControlDir,
+        &DirOrFileInSrv,
+        &DirOrFileInMnt,
+        &ExtendedDescriptionIsEmpty,
     ]
 }
 
@@ -155,6 +166,11 @@ mod tests {
                 SymlinkContainsSpuriousSegments::CODE,
                 SymlinkIsSelfRecursive::CODE,
                 LengthySymlink::CODE,
+                DebianChangelogFileIsASymlink::CODE,
+                PackageContainsVcsControlDir::CODE,
+                DirOrFileInSrv::CODE,
+                DirOrFileInMnt::CODE,
+                ExtendedDescriptionIsEmpty::CODE,
             ]
         );
     }

@@ -89,9 +89,11 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-news-and-changelog-not-compressed",
     "checks/debian/changelog/changelog-file-no-dch",
     "checks/debian/changelog/changelog-file-no-dch-native",
+    "checks/debian/changelog/changelog-file-symlink",
     "checks/debian/changelog/legacy-binary",
     "checks/debian/changelog/legacy-etcfiles",
     "checks/debian/changelog/legacy-fields",
+    "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-libbaz",
     "checks/debian/changelog/legacy-relations",
     "checks/debian/copyright/copyright-file-general",
@@ -103,6 +105,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/legacy-maintainer-scripts",
     "checks/debian/copyright/legacy-relations",
     "checks/debian/copyright/source-copyright-missing",
+    "checks/fields/description/description-general",
+    "checks/fields/description/legacy-debconf",
+    "checks/fields/description/legacy-etcfiles",
     "checks/fields/package-relations/fields-depends-general",
     "checks/fields/package-relations/legacy-relations",
     "checks/fields/required/fields-general-missing",
@@ -128,6 +133,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/symbolic-links/files-symlinks",
     "checks/files/symbolic-links/legacy-binary",
     "checks/files/symbolic-links/legacy-filenames",
+    "checks/files/vcs/files-package-contains-foo",
+    "checks/files/vcs/legacy-filenames",
     "checks/maintainer-scripts/empty/legacy-maintainer-scripts",
     "checks/maintainer-scripts/empty/legacy-scripts",
     "checks/maintainer-scripts/empty/scripts-maintainer-script-empty",
@@ -323,9 +330,11 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-news-and-changelog-not-compressed"; "checks_debian_changelog_changelog_file_news_and_changelog_not_compressed")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch"; "checks_debian_changelog_changelog_file_no_dch")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch-native"; "checks_debian_changelog_changelog_file_no_dch_native")]
+#[test_case("checks/debian/changelog/changelog-file-symlink"; "checks_debian_changelog_changelog_file_symlink")]
 #[test_case("checks/debian/changelog/legacy-binary"; "checks_debian_changelog_legacy_binary")]
 #[test_case("checks/debian/changelog/legacy-etcfiles"; "checks_debian_changelog_legacy_etcfiles")]
 #[test_case("checks/debian/changelog/legacy-fields"; "checks_debian_changelog_legacy_fields")]
+#[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-libbaz"; "checks_debian_changelog_legacy_libbaz")]
 #[test_case("checks/debian/changelog/legacy-relations"; "checks_debian_changelog_legacy_relations")]
 #[test_case("checks/debian/copyright/copyright-file-general"; "checks_debian_copyright_copyright_file_general")]
@@ -337,6 +346,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/copyright/legacy-maintainer-scripts"; "checks_debian_copyright_legacy_maintainer_scripts")]
 #[test_case("checks/debian/copyright/legacy-relations"; "checks_debian_copyright_legacy_relations")]
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
+#[test_case("checks/fields/description/description-general"; "checks_fields_description_description_general")]
+#[test_case("checks/fields/description/legacy-debconf"; "checks_fields_description_legacy_debconf")]
+#[test_case("checks/fields/description/legacy-etcfiles"; "checks_fields_description_legacy_etcfiles")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
 #[test_case("checks/fields/package-relations/legacy-relations"; "checks_fields_package_relations_legacy_relations")]
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
@@ -362,6 +374,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/symbolic-links/files-symlinks"; "checks_files_symbolic_links_files_symlinks")]
 #[test_case("checks/files/symbolic-links/legacy-binary"; "checks_files_symbolic_links_legacy_binary")]
 #[test_case("checks/files/symbolic-links/legacy-filenames"; "checks_files_symbolic_links_legacy_filenames")]
+#[test_case("checks/files/vcs/files-package-contains-foo"; "checks_files_vcs_files_package_contains_foo")]
+#[test_case("checks/files/vcs/legacy-filenames"; "checks_files_vcs_legacy_filenames")]
 #[test_case("checks/maintainer-scripts/empty/legacy-maintainer-scripts"; "checks_maintainer_scripts_empty_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/empty/legacy-scripts"; "checks_maintainer_scripts_empty_legacy_scripts")]
 #[test_case("checks/maintainer-scripts/empty/scripts-maintainer-script-empty"; "checks_maintainer_scripts_empty_scripts_maintainer_script_empty")]

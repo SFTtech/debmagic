@@ -468,9 +468,29 @@ fn catalogued_binary_package_hints(recipe: &Path, catalogued: &HashSet<String>) 
             catalogued.contains(&hint.tag) && applies_to_binary_package(processable_type)
         })
         .map(|(_, hint)| hint)
+        .map(|mut hint| {
+            hint.extra = expand_host_placeholders(&hint.extra);
+            hint
+        })
         .collect();
     expected.sort();
     expected
+}
+
+/// Lintian's recipes print the host's Perl vendor architecture directory as
+/// `usr/lib/ma-dir/perl/version` (the recipe's `debian/rules` installs into
+/// `$Config{vendorarch}`); expand it to what this host builds.
+fn expand_host_placeholders(extra: &str) -> String {
+    const PLACEHOLDER: &str = "usr/lib/ma-dir/perl/version";
+    if !extra.contains(PLACEHOLDER) {
+        return extra.to_string();
+    }
+    let output = Command::new("perl")
+        .args(["-MConfig", "-wE", "say substr($Config{vendorarch},1)"])
+        .output()
+        .expect("run perl to find the vendor architecture directory");
+    let vendorarch = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    extra.replace(PLACEHOLDER, &vendorarch)
 }
 
 /// Vendored recipes whose hints mention a catalogued Tag with Binary-package Applicability.

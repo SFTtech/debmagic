@@ -764,6 +764,16 @@ mod tests {
                 crate::lint::rules::DirOrFileInSrv::CODE,
                 crate::lint::rules::DirOrFileInMnt::CODE,
                 crate::lint::rules::ExtendedDescriptionIsEmpty::CODE,
+                crate::lint::rules::DirOrFileInHome::CODE,
+                crate::lint::rules::DirOrFileInTmp::CODE,
+                crate::lint::rules::DirOrFileInOpt::CODE,
+                crate::lint::rules::DirOrFileInVarWww::CODE,
+                crate::lint::rules::DirOrFileInVarRun::CODE,
+                crate::lint::rules::DirOrFileInVarLock::CODE,
+                crate::lint::rules::DirOrFileInRun::CODE,
+                crate::lint::rules::DirOrFileInEtcOpt::CODE,
+                crate::lint::rules::DirInUsrLocal::CODE,
+                crate::lint::rules::FileInUsrLocal::CODE,
             ]
         );
         let intent = LintIntent {

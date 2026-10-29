@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): dir-or-file-in-var-www (LN0041) [var/www/x]
+E: example (binary): dir-or-file-in-var-www (LN0041) [var/www/x/]
+E: example (binary): dir-or-file-in-var-www (LN0041) [var/www/x/file]

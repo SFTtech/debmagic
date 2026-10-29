@@ -1,5 +1,6 @@
 mod changelog_doc;
 mod debian_rules;
+mod hierarchy_standard;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
 mod ln0003_debian_rules_missing_required_target;
@@ -37,6 +38,16 @@ mod ln0034_package_contains_vcs_control_dir;
 mod ln0035_dir_or_file_in_srv;
 mod ln0036_dir_or_file_in_mnt;
 mod ln0037_extended_description_is_empty;
+mod ln0038_dir_or_file_in_home;
+mod ln0039_dir_or_file_in_tmp;
+mod ln0040_dir_or_file_in_opt;
+mod ln0041_dir_or_file_in_var_www;
+mod ln0042_dir_or_file_in_var_run;
+mod ln0043_dir_or_file_in_var_lock;
+mod ln0044_dir_or_file_in_run;
+mod ln0045_dir_or_file_in_etc_opt;
+mod ln0046_dir_in_usr_local;
+mod ln0047_file_in_usr_local;
 mod mailbox;
 mod symlink_links;
 
@@ -77,3 +88,13 @@ pub(crate) use ln0034_package_contains_vcs_control_dir::PackageContainsVcsContro
 pub(crate) use ln0035_dir_or_file_in_srv::DirOrFileInSrv;
 pub(crate) use ln0036_dir_or_file_in_mnt::DirOrFileInMnt;
 pub(crate) use ln0037_extended_description_is_empty::ExtendedDescriptionIsEmpty;
+pub(crate) use ln0038_dir_or_file_in_home::DirOrFileInHome;
+pub(crate) use ln0039_dir_or_file_in_tmp::DirOrFileInTmp;
+pub(crate) use ln0040_dir_or_file_in_opt::DirOrFileInOpt;
+pub(crate) use ln0041_dir_or_file_in_var_www::DirOrFileInVarWww;
+pub(crate) use ln0042_dir_or_file_in_var_run::DirOrFileInVarRun;
+pub(crate) use ln0043_dir_or_file_in_var_lock::DirOrFileInVarLock;
+pub(crate) use ln0044_dir_or_file_in_run::DirOrFileInRun;
+pub(crate) use ln0045_dir_or_file_in_etc_opt::DirOrFileInEtcOpt;
+pub(crate) use ln0046_dir_in_usr_local::DirInUsrLocal;
+pub(crate) use ln0047_file_in_usr_local::FileInUsrLocal;

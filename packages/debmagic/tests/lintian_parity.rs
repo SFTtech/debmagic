@@ -55,6 +55,11 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
+    "checks/fields/maintainer/alioth-list",
+    "checks/fields/maintainer/fields-no-human-maintainer",
+    "checks/fields/maintainer/fields-qa-maint-address",
+    "checks/fields/maintainer/fields-wrong-package-email-alias",
+    "checks/fields/maintainer/java-team-fp",
     "checks/fields/required/generic-empty",
     "checks/files/encoding/changelog-in-western-encoding",
     "checks/files/encoding/copyright-in-western-encoding",
@@ -166,6 +171,11 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
+    "checks/fields/maintainer/alioth-list",
+    "checks/fields/maintainer/fields-no-human-maintainer",
+    "checks/fields/maintainer/fields-qa-maint-address",
+    "checks/fields/maintainer/fields-wrong-package-email-alias",
+    "checks/fields/maintainer/java-team-fp",
     "checks/fields/required/generic-empty",
     "checks/files/encoding/changelog-in-western-encoding",
     "checks/files/encoding/copyright-in-western-encoding",
@@ -250,6 +260,11 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
+#[test_case("checks/fields/maintainer/alioth-list"; "checks_fields_maintainer_alioth_list")]
+#[test_case("checks/fields/maintainer/fields-no-human-maintainer"; "checks_fields_maintainer_fields_no_human_maintainer")]
+#[test_case("checks/fields/maintainer/fields-qa-maint-address"; "checks_fields_maintainer_fields_qa_maint_address")]
+#[test_case("checks/fields/maintainer/fields-wrong-package-email-alias"; "checks_fields_maintainer_fields_wrong_package_email_alias")]
+#[test_case("checks/fields/maintainer/java-team-fp"; "checks_fields_maintainer_java_team_fp")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
 #[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
@@ -363,6 +378,11 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
+#[test_case("checks/fields/maintainer/alioth-list"; "checks_fields_maintainer_alioth_list")]
+#[test_case("checks/fields/maintainer/fields-no-human-maintainer"; "checks_fields_maintainer_fields_no_human_maintainer")]
+#[test_case("checks/fields/maintainer/fields-qa-maint-address"; "checks_fields_maintainer_fields_qa_maint_address")]
+#[test_case("checks/fields/maintainer/fields-wrong-package-email-alias"; "checks_fields_maintainer_fields_wrong_package_email_alias")]
+#[test_case("checks/fields/maintainer/java-team-fp"; "checks_fields_maintainer_java_team_fp")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
 #[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]

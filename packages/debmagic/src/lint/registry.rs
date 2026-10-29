@@ -3,7 +3,7 @@ use super::rules::{
     CustomCompressionInDebianRules, DebianChangelogFileMissingOrWrongName,
     DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget, DebmagicDummyTrigger,
     EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty, NationalEncoding, NoChangelog,
-    NoCopyrightFile, NoDep5Copyright, PackageContainsUnsafeSymlink,
+    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, PackageContainsUnsafeSymlink,
     PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
     SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
     UnstrippedBinaryOrObject, UsesDebhelperCompatFile,
@@ -32,6 +32,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NationalEncoding,
         &PackageUsesDeprecatedDebhelperCompatVersion,
         &UsesDebhelperCompatFile,
+        &NoHumanMaintainers,
     ]
 }
 
@@ -50,6 +51,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NationalEncoding,
         &PackageUsesDeprecatedDebhelperCompatVersion,
         &UsesDebhelperCompatFile,
+        &NoHumanMaintainers,
     ]
 }
 
@@ -92,6 +94,7 @@ mod tests {
                 NationalEncoding::CODE,
                 PackageUsesDeprecatedDebhelperCompatVersion::CODE,
                 UsesDebhelperCompatFile::CODE,
+                NoHumanMaintainers::CODE,
             ]
         );
     }

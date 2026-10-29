@@ -22,6 +22,12 @@ use super::file_tree::{EntryKind, FileTree};
 /// (`data/debhelper/compat-level`, `deprecated`).
 pub(crate) const DEPRECATED_COMPAT_LEVEL: u32 = 10;
 
+/// First level that can be declared with `debhelper-compat` (11.1.5~alpha1).
+pub(crate) const VERSIONED_PREREQUISITE_AVAILABLE: u64 = 11;
+
+/// `data/debhelper/compat-level`, `experimental`.
+pub(crate) const EXPERIMENTAL_COMPAT_LEVEL: u64 = 15;
+
 /// `debian/compat` at 14 or above makes `dh_assistant` abort: 15+ is rejected
 /// outright, and 14 is rejected once `HIGHEST_STABLE_COMPAT_LEVEL` is above 13
 /// (debhelper's constant is 14).
@@ -58,6 +64,10 @@ pub(crate) struct DebhelperFacts {
     /// [`Self::level`] turns that into 1, as Perl `||=` does.
     declared_level: Option<u32>,
     source: Option<CompatSource>,
+    /// Numeric value of the first line of a readable `debian/compat`, as
+    /// Perl reads it (leading digits, else 0). `None` when the file is
+    /// missing, unreadable, or empty after trimming.
+    compat_file_value: Option<u64>,
 }
 
 enum PackagingFile {
@@ -94,11 +104,16 @@ impl DebhelperFacts {
         if !uses_any_dh_command(&rules) {
             return Self::unused();
         }
+        let compat_file_value = match &compat {
+            PackagingFile::Text(text) => compat_file_numeric(text),
+            _ => None,
+        };
         let (declared_level, source) = declared_compat(control, compat);
         Self {
             uses_debhelper: true,
             declared_level,
             source,
+            compat_file_value,
         }
     }
 
@@ -107,6 +122,7 @@ impl DebhelperFacts {
             uses_debhelper: false,
             declared_level: None,
             source: None,
+            compat_file_value: None,
         }
     }
 
@@ -120,6 +136,11 @@ impl DebhelperFacts {
             Some(level) if level > 0 => level,
             _ => 1,
         }
+    }
+
+    /// Numeric value of the `debian/compat` first line, see the field.
+    pub(crate) fn compat_file_value(&self) -> Option<u64> {
+        self.compat_file_value
     }
 
     #[cfg(test)]
@@ -242,6 +263,22 @@ fn positive_integer(text: &str) -> Result<u32, ()> {
 fn compat_file_level(text: &str) -> Result<u32, ()> {
     let line = text.split('\n').next().unwrap_or("").trim_end_matches('\r');
     positive_integer(line.trim())
+}
+
+/// First line of `debian/compat`, trimmed, as a Perl number: leading digits,
+/// else 0. `None` when the trimmed line is empty.
+fn compat_file_numeric(text: &str) -> Option<u64> {
+    let line = text.split('\n').next().unwrap_or("");
+    let line = line.trim();
+    if line.is_empty() {
+        return None;
+    }
+    let digits: String = line.chars().take_while(char::is_ascii_digit).collect();
+    Some(
+        digits
+            .parse()
+            .unwrap_or(if digits.is_empty() { 0 } else { u64::MAX }),
+    )
 }
 
 /// lintian's `$PKGNAME_REGEX`: `[a-z0-9][-+.a-z0-9]+`.

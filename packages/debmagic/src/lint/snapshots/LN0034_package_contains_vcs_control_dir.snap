@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-vcs-control-dir (LN0034) [usr/share/example/.git/]
+W: example (binary): package-contains-vcs-control-dir (LN0034) [usr/share/example/.svn/]
+W: example (binary): package-contains-vcs-control-dir (LN0034) [usr/share/example/.bzr/]
+W: example (binary): package-contains-vcs-control-dir (LN0034) [usr/share/example/.hg/]
+W: example (binary): package-contains-vcs-control-dir (LN0034) [usr/share/example/CVS/]
+W: example (binary): package-contains-vcs-control-dir (LN0034) [usr/share/example/.arch-ids/]
+W: example (binary): package-contains-vcs-control-dir (LN0034) [usr/share/example/{arch}/]
+W: example (udeb): package-contains-vcs-control-dir (LN0034) [usr/share/example/.git/]

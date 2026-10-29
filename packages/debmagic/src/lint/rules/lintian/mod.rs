@@ -32,6 +32,11 @@ mod ln0029_symlink_contains_spurious_segments;
 mod ln0030_symlink_is_self_recursive;
 mod ln0031_lengthy_symlink;
 mod ln0032_wrong_package_mail_alias;
+mod ln0033_debian_changelog_file_is_a_symlink;
+mod ln0034_package_contains_vcs_control_dir;
+mod ln0035_dir_or_file_in_srv;
+mod ln0036_dir_or_file_in_mnt;
+mod ln0037_extended_description_is_empty;
 mod mailbox;
 mod symlink_links;
 
@@ -67,3 +72,8 @@ pub(crate) use ln0029_symlink_contains_spurious_segments::SymlinkContainsSpuriou
 pub(crate) use ln0030_symlink_is_self_recursive::SymlinkIsSelfRecursive;
 pub(crate) use ln0031_lengthy_symlink::LengthySymlink;
 pub(crate) use ln0032_wrong_package_mail_alias::WrongPackageMailAlias;
+pub(crate) use ln0033_debian_changelog_file_is_a_symlink::DebianChangelogFileIsASymlink;
+pub(crate) use ln0034_package_contains_vcs_control_dir::PackageContainsVcsControlDir;
+pub(crate) use ln0035_dir_or_file_in_srv::DirOrFileInSrv;
+pub(crate) use ln0036_dir_or_file_in_mnt::DirOrFileInMnt;
+pub(crate) use ln0037_extended_description_is_empty::ExtendedDescriptionIsEmpty;

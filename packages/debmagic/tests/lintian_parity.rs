@@ -33,6 +33,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/legacy-etcfiles",
     "checks/debian/rules/rules-missing-targets",
     "checks/debian/rules/rules-missing-targets-with-known-includes",
+    "checks/debian/substvars/cruft-general-diff",
+    "checks/debian/substvars/cruft-general-native",
+    "checks/debian/substvars/cruft-general-quilt",
+    "checks/debian/substvars/cruft-general-wig-pen",
     "checks/fields/required/generic-empty",
 ];
 
@@ -108,6 +112,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/legacy-etcfiles",
     "checks/debian/rules/rules-missing-targets",
     "checks/debian/rules/rules-missing-targets-with-known-includes",
+    "checks/debian/substvars/cruft-general-diff",
+    "checks/debian/substvars/cruft-general-native",
+    "checks/debian/substvars/cruft-general-quilt",
+    "checks/debian/substvars/cruft-general-wig-pen",
     "checks/fields/required/generic-empty",
 ];
 
@@ -163,6 +171,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/legacy-etcfiles"; "checks_debian_rules_legacy_etcfiles")]
 #[test_case("checks/debian/rules/rules-missing-targets"; "checks_debian_rules_rules_missing_targets")]
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
+#[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
+#[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
+#[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
+#[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 fn lintian_parity_source_tree(recipe: &str) {
     common::assert_source_tree_parity(recipe);
@@ -240,6 +252,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/legacy-etcfiles"; "checks_debian_rules_legacy_etcfiles")]
 #[test_case("checks/debian/rules/rules-missing-targets"; "checks_debian_rules_rules_missing_targets")]
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
+#[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
+#[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
+#[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
+#[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 fn lintian_parity_source_package(recipe: &str) {
     common::assert_source_package_parity(recipe);

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): extended-description-line-too-long (LN0056) line 1
+W: example (binary): extended-description-line-too-long (LN0056) line 3
+W: example (binary): extended-description-line-too-long (LN0056) line 4
+W: example (udeb): extended-description-line-too-long (LN0056) line 1

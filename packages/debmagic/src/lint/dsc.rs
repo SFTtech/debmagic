@@ -30,7 +30,11 @@ impl Dsc {
             bail!("Dsc has no Deb822 paragraph");
         };
         Ok(Self {
-            fields: ControlParagraph::from_items(first.items()),
+            fields: ControlParagraph::from_entries(
+                first
+                    .entries()
+                    .filter_map(|entry| Some((entry.key()?, entry.value(), entry.to_string()))),
+            ),
         })
     }
 

@@ -774,6 +774,16 @@ mod tests {
                 crate::lint::rules::DirOrFileInEtcOpt::CODE,
                 crate::lint::rules::DirInUsrLocal::CODE,
                 crate::lint::rules::FileInUsrLocal::CODE,
+                crate::lint::rules::FileDirectlyInUsrShare::CODE,
+                crate::lint::rules::SubdirInUsrBin::CODE,
+                crate::lint::rules::DescriptionSynopsisIsEmpty::CODE,
+                crate::lint::rules::DescriptionStartsWithPackageName::CODE,
+                crate::lint::rules::DescriptionSynopsisStartsWithArticle::CODE,
+                crate::lint::rules::DescriptionTooShort::CODE,
+                crate::lint::rules::DescriptionIsPkgName::CODE,
+                crate::lint::rules::SynopsisTooLong::CODE,
+                crate::lint::rules::ExtendedDescriptionLineTooLong::CODE,
+                crate::lint::rules::SvnCommitFileInPackage::CODE,
             ]
         );
         let intent = LintIntent {

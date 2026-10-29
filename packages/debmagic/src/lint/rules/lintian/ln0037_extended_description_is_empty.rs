@@ -3,6 +3,8 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::BinaryPackageRule;
 
+use super::description_field::description;
+
 pub struct ExtendedDescriptionIsEmpty;
 
 declare_rule! {
@@ -25,13 +27,10 @@ impl BinaryPackageRule for ExtendedDescriptionIsEmpty {
         if ctx.is_udeb() || ctx.package_name().contains("-dbg") {
             return;
         }
-        let Some(description) = ctx.installation_control().fields().get("Description") else {
+        let Some(description) = description(ctx) else {
             return;
         };
-        // Perl `split /\n/` drops trailing empty fields.
-        let has_extended_line = description
-            .split_once('\n')
-            .is_some_and(|(_, extended)| !extended.trim_end_matches('\n').is_empty());
+        let has_extended_line = !description.lines.is_empty();
         if !has_extended_line {
             ctx.diagnostic(Diagnostic::error(""));
         }

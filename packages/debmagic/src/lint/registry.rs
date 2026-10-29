@@ -6,9 +6,10 @@ use super::rules::{
     EmptyBinaryPackage, FileInUnusualDir, LatestDebianChangelogEntryWithoutNewDate,
     MaintainerScriptEmpty, NationalEncoding, NoChangelog, NoCopyrightFile, NoDep5Copyright,
     NoHumanMaintainers, NonStandardToplevelDir, PackageContainsUnsafeSymlink,
-    PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
-    SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
-    UnstrippedBinaryOrObject, UsesDebhelperCompatFile, VcsObsoleteInDebianInfrastructure,
+    PackageRelationWithSelf, PackageUsesDeprecatedDebhelperCompatVersion, RequiredField,
+    SourceContainsDebianSubstvars, SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern,
+    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject, UsesDebhelperCompatFile,
+    VcsObsoleteInDebianInfrastructure,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -40,6 +41,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ChangelogFileNotCompressed,
         &NonStandardToplevelDir,
         &LatestDebianChangelogEntryWithoutNewDate,
+        &PackageRelationWithSelf,
     ]
 }
 
@@ -79,6 +81,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NationalEncoding,
         &ChangelogFileNotCompressed,
         &NonStandardToplevelDir,
+        &PackageRelationWithSelf,
     ]
 }
 
@@ -135,6 +138,7 @@ mod tests {
                 NationalEncoding::CODE,
                 ChangelogFileNotCompressed::CODE,
                 NonStandardToplevelDir::CODE,
+                PackageRelationWithSelf::CODE,
             ]
         );
     }

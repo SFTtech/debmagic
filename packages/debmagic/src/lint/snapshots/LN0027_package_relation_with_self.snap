@@ -1,0 +1,17 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-relation-with-self (LN0027) Depends: example
+W: example (binary): package-relation-with-self (LN0027) Depends: example (<< 3)
+W: example (binary): package-relation-with-self (LN0027) Depends: example (>= 1)
+W: example (binary): package-relation-with-self (LN0027) Breaks: example (<< 0.1)
+W: example (binary): package-relation-with-self (LN0027) Pre-Depends: example
+W: example (binary): package-relation-with-self (LN0027) Recommends: example
+W: example (binary): package-relation-with-self (LN0027) Suggests: example
+W: example (binary): package-relation-with-self (LN0027) Enhances: example
+W: example (binary): package-relation-with-self (LN0027) Depends: example(<< 3)
+W: example (binary): package-relation-with-self (LN0027) Depends: example
+W: example (binary): package-relation-with-self (LN0027) Depends: example [amd64]
+W: example (binary): package-relation-with-self (LN0027) Depends: example
+W: example (binary): package-relation-with-self (LN0027) Breaks: example (<< 1)
+W: example (udeb): package-relation-with-self (LN0027) Depends: example

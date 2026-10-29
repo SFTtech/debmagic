@@ -548,6 +548,7 @@ mod tests {
                 crate::lint::rules::DebianChangelogFileMissingOrWrongName::CODE,
                 crate::lint::rules::MaintainerScriptEmpty::CODE,
                 crate::lint::rules::SourceContainsDebianSubstvars::CODE,
+                crate::lint::rules::CustomCompressionInDebianRules::CODE,
             ]
         );
         let intent = LintIntent {

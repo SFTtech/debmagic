@@ -1,4 +1,5 @@
 mod changelog_doc;
+mod debian_rules;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
 mod ln0003_debian_rules_missing_required_target;
@@ -14,6 +15,7 @@ mod ln0012_no_changelog;
 mod ln0013_debian_changelog_file_missing_or_wrong_name;
 mod ln0014_maintainer_script_empty;
 mod ln0015_source_contains_debian_substvars;
+mod ln0016_custom_compression_in_debian_rules;
 
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
@@ -30,3 +32,4 @@ pub(crate) use ln0012_no_changelog::NoChangelog;
 pub(crate) use ln0013_debian_changelog_file_missing_or_wrong_name::DebianChangelogFileMissingOrWrongName;
 pub(crate) use ln0014_maintainer_script_empty::MaintainerScriptEmpty;
 pub(crate) use ln0015_source_contains_debian_substvars::SourceContainsDebianSubstvars;
+pub(crate) use ln0016_custom_compression_in_debian_rules::CustomCompressionInDebianRules;

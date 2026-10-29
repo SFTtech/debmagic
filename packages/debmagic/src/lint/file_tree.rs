@@ -1,7 +1,8 @@
 use std::fs;
-use std::io::Read;
-use std::os::unix::fs::MetadataExt;
+use std::os::unix::fs::{FileExt, MetadataExt};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Mutex, PoisonError};
 
 use anyhow::{Context, bail};
 use globset::{Glob, GlobMatcher};
@@ -127,11 +128,18 @@ impl FileTree {
         Self { root, entries }
     }
 
+    /// Walk a directory on the host. The walk and the file classification both
+    /// use as many threads as the current rayon pool has, so a lint run's
+    /// thread count applies here too.
     pub fn from_host_directory(root: impl AsRef<Path>) -> anyhow::Result<Self> {
         let root = root.as_ref();
-        let mut entries = Vec::new();
-        collect_entries(root, root, &mut entries)
+        let threads = rayon::current_num_threads();
+        let (mut entries, pending) = collect_entries(root, threads)
             .with_context(|| format!("walking File tree at {}", root.display()))?;
+        let classified = classify_files(&pending, threads)?;
+        for (file, classified) in pending.iter().zip(classified) {
+            set_file_type(&mut entries[file.index], classified);
+        }
         Ok(Self::from_entries(Some(root.to_path_buf()), entries))
     }
 
@@ -220,27 +228,143 @@ impl Query<'_> {
     }
 }
 
-fn collect_entries(root: &Path, dir: &Path, entries: &mut Vec<Entry>) -> anyhow::Result<()> {
-    let read = fs::read_dir(dir).with_context(|| format!("reading {}", dir.display()))?;
-    for child in read {
-        let child = child.with_context(|| format!("reading {}", dir.display()))?;
-        let path = child.path();
+/// A file found by the walk, to be classified once the walk is done.
+struct PendingFile {
+    /// Index of its entry in the entries being built.
+    index: usize,
+    host_path: PathBuf,
+}
+
+/// What one walker thread found: an entry per path, and for files the host
+/// path to classify.
+type Found = Vec<(Entry, Option<PathBuf>)>;
+
+/// Walk `root` with up to `threads` threads, returning an entry per path
+/// (unordered; [`FileTree::from_entries`] sorts them). Files get no file type
+/// yet; they are returned in `pending` so they can be classified in parallel.
+///
+/// Every path is listed: no hidden-file, ignore-file or VCS filtering, and
+/// symlinks are not followed. Plain `std::thread` workers, not rayon: this
+/// runs inside a lazy initializer that other Rules wait on (see
+/// [`classify_files`]).
+fn collect_entries(root: &Path, threads: usize) -> anyhow::Result<(Vec<Entry>, Vec<PendingFile>)> {
+    let found: Mutex<Vec<Found>> = Mutex::new(Vec::new());
+    let first_error: Mutex<Option<anyhow::Error>> = Mutex::new(None);
+
+    ignore::WalkBuilder::new(root)
+        .standard_filters(false)
+        .follow_links(false)
+        .threads(threads)
+        .build_parallel()
+        .visit(&mut WalkCollectorBuilder {
+            root,
+            found: &found,
+            first_error: &first_error,
+        });
+
+    if let Some(error) = first_error
+        .into_inner()
+        .unwrap_or_else(PoisonError::into_inner)
+    {
+        return Err(error);
+    }
+    let mut entries = Vec::new();
+    let mut pending = Vec::new();
+    for (entry, host_path) in found
+        .into_inner()
+        .unwrap_or_else(PoisonError::into_inner)
+        .into_iter()
+        .flatten()
+    {
+        if let Some(host_path) = host_path {
+            pending.push(PendingFile {
+                index: entries.len(),
+                host_path,
+            });
+        }
+        entries.push(entry);
+    }
+    Ok((entries, pending))
+}
+
+struct WalkCollectorBuilder<'s> {
+    root: &'s Path,
+    found: &'s Mutex<Vec<Found>>,
+    first_error: &'s Mutex<Option<anyhow::Error>>,
+}
+
+impl<'s> ignore::ParallelVisitorBuilder<'s> for WalkCollectorBuilder<'s> {
+    fn build(&mut self) -> Box<dyn ignore::ParallelVisitor + 's> {
+        Box::new(WalkCollector {
+            root: self.root,
+            found: self.found,
+            first_error: self.first_error,
+            local: Vec::new(),
+        })
+    }
+}
+
+/// One walker thread's state; hands what it found to the shared list when the
+/// walk is done with it.
+struct WalkCollector<'s> {
+    root: &'s Path,
+    found: &'s Mutex<Vec<Found>>,
+    first_error: &'s Mutex<Option<anyhow::Error>>,
+    local: Found,
+}
+
+impl WalkCollector<'_> {
+    fn entry_for(
+        &self,
+        result: Result<ignore::DirEntry, ignore::Error>,
+    ) -> anyhow::Result<Option<(Entry, Option<PathBuf>)>> {
+        let dir_entry = result.context("walking the directory failed")?;
+        if dir_entry.depth() == 0 {
+            return Ok(None);
+        }
+        let path = dir_entry.path();
         let relative = path
-            .strip_prefix(root)
+            .strip_prefix(self.root)
             .with_context(|| format!("relativizing {}", path.display()))?
             .to_path_buf();
         let metadata =
-            fs::symlink_metadata(&path).with_context(|| format!("stat {}", path.display()))?;
-        let Some(entry) = host_entry(&path, relative, &metadata)? else {
-            continue;
+            fs::symlink_metadata(path).with_context(|| format!("stat {}", path.display()))?;
+        let Some(entry) = host_entry(path, relative, &metadata)? else {
+            return Ok(None);
         };
-        let is_directory = matches!(entry, Entry::Directory { .. });
-        entries.push(entry);
-        if is_directory {
-            collect_entries(root, &path, entries)?;
+        let host_path = matches!(entry, Entry::RegularFile { .. } | Entry::Hardlink { .. })
+            .then(|| path.to_path_buf());
+        Ok(Some((entry, host_path)))
+    }
+}
+
+impl ignore::ParallelVisitor for WalkCollector<'_> {
+    fn visit(&mut self, result: Result<ignore::DirEntry, ignore::Error>) -> ignore::WalkState {
+        match self.entry_for(result) {
+            Ok(Some(found)) => {
+                self.local.push(found);
+                ignore::WalkState::Continue
+            }
+            Ok(None) => ignore::WalkState::Continue,
+            Err(error) => {
+                self.first_error
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .get_or_insert(error);
+                ignore::WalkState::Quit
+            }
         }
     }
-    Ok(())
+}
+
+impl Drop for WalkCollector<'_> {
+    fn drop(&mut self) {
+        let local = std::mem::take(&mut self.local);
+        self.found
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .push(local);
+    }
 }
 
 fn host_entry(
@@ -258,22 +382,87 @@ fn host_entry(
         return Ok(Some(Entry::directory(relative)));
     }
     if file_type.is_file() {
-        let classified = classify_path(path);
         return Ok(Some(if metadata.nlink() > 1 {
-            Entry::hardlink(relative, classified, None)
+            Entry::hardlink(relative, None, None)
         } else {
-            Entry::regular_file(relative, classified, None)
+            Entry::regular_file(relative, None, None)
         }));
     }
     Ok(None)
 }
 
+/// Classify `files` with up to `threads` threads, in `files` order.
+fn classify_files(files: &[PendingFile], threads: usize) -> anyhow::Result<Vec<Option<FileType>>> {
+    // Below this, starting threads costs more than classifying serially.
+    const PARALLEL_THRESHOLD: usize = 256;
+
+    let threads = threads.min(files.len().div_ceil(PARALLEL_THRESHOLD));
+    if threads <= 1 {
+        return Ok(files
+            .iter()
+            .map(|file| classify_path(&file.host_path))
+            .collect());
+    }
+    // Plain scoped threads, not a rayon pool: this runs inside a lazy
+    // initializer that other Rules wait on. A rayon worker waiting on another
+    // pool runs queued jobs of its own pool, which can be a Rule that waits
+    // for this very initializer, and that deadlocks.
+    const BATCH: usize = 64;
+    let next = AtomicUsize::new(0);
+    let mut classified = vec![None; files.len()];
+    let batches = std::thread::scope(|scope| {
+        let workers: Vec<_> = (0..threads)
+            .map(|_| {
+                scope.spawn(|| {
+                    let mut done = Vec::new();
+                    loop {
+                        let start = next.fetch_add(BATCH, Ordering::Relaxed);
+                        if start >= files.len() {
+                            return done;
+                        }
+                        let end = (start + BATCH).min(files.len());
+                        done.push((
+                            start,
+                            files[start..end]
+                                .iter()
+                                .map(|file| classify_path(&file.host_path))
+                                .collect::<Vec<_>>(),
+                        ));
+                    }
+                })
+            })
+            .collect();
+        workers
+            .into_iter()
+            .map(|worker| {
+                worker
+                    .join()
+                    .unwrap_or_else(|panic| std::panic::resume_unwind(panic))
+            })
+            .collect::<Vec<_>>()
+    });
+    for (start, batch) in batches.into_iter().flatten() {
+        classified[start..start + batch.len()].copy_from_slice(&batch);
+    }
+    Ok(classified)
+}
+
+fn set_file_type(entry: &mut Entry, classified: Option<FileType>) {
+    if let Entry::RegularFile { file_type, .. } | Entry::Hardlink { file_type, .. } = entry {
+        *file_type = classified;
+    }
+}
+
 fn classify_path(path: &Path) -> Option<FileType> {
-    let mut file = fs::File::open(path).ok()?;
+    let file = fs::File::open(path).ok()?;
     let mut magic = [0u8; 4];
-    let n = file.read(&mut magic).ok()?;
+    let n = file.read_at(&mut magic, 0).ok()?;
     if !FileType::peek_classifiable(&magic[..n]) {
         return None;
+    }
+    if magic.starts_with(b"\x7fELF") {
+        // The headers say all a Rule needs; no need to read the whole file.
+        return FileType::from_elf_file(&file);
     }
     drop(file);
     let bytes = fs::read(path).ok()?;
@@ -312,6 +501,120 @@ mod tests {
             hits,
             vec![PathBuf::from("bin/app.exe"), PathBuf::from("lib/foo.dll")]
         );
+        Ok(())
+    }
+
+    /// A tree large enough to classify on several threads, with ELF files,
+    /// built the same way from inside a rayon pool (as a lint run does) and
+    /// from a single thread.
+    #[test]
+    fn parallel_classification_matches_serial() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let elf = fs::read(std::env::current_exe()?)?;
+        for index in 0..700 {
+            let name = dir.path().join(format!("file-{index:04}"));
+            match index % 3 {
+                0 => fs::write(name, &elf[..elf.len().min(1 << 20)])?,
+                1 => fs::write(name, b"MZ\0\0not pe")?,
+                _ => fs::write(name, b"plain text")?,
+            }
+        }
+        let summary = |tree: &FileTree| -> Vec<(PathBuf, Option<FileType>)> {
+            tree.entries()
+                .iter()
+                .map(|entry| (entry.path().to_path_buf(), entry.file_type()))
+                .collect()
+        };
+
+        let serial = rayon::ThreadPoolBuilder::new()
+            .num_threads(1)
+            .build()?
+            .install(|| FileTree::from_host_directory(dir.path()))?;
+        let parallel = rayon::ThreadPoolBuilder::new()
+            .num_threads(4)
+            .build()?
+            .install(|| FileTree::from_host_directory(dir.path()))?;
+        assert_eq!(summary(&parallel), summary(&serial));
+        assert_eq!(
+            parallel
+                .entries()
+                .iter()
+                .filter(|entry| entry.file_type() == Some(FileType::DosMz))
+                .count(),
+            233
+        );
+        Ok(())
+    }
+
+    /// The walk lists everything: hidden files, VCS directories, and paths a
+    /// `.gitignore` or `.ignore` names. Symlinks to directories are not followed.
+    #[test]
+    fn from_host_directory_does_not_filter_or_follow_links() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        fs::create_dir_all(dir.path().join(".git/objects"))?;
+        fs::create_dir_all(dir.path().join("sub/deep"))?;
+        fs::write(dir.path().join(".gitignore"), "ignored\n")?;
+        fs::write(dir.path().join(".ignore"), "also-ignored\n")?;
+        fs::write(dir.path().join("ignored"), b"x")?;
+        fs::write(dir.path().join("also-ignored"), b"x")?;
+        fs::write(dir.path().join(".hidden"), b"x")?;
+        fs::write(dir.path().join(".git/objects/blob"), b"x")?;
+        fs::write(dir.path().join("sub/deep/leaf"), b"x")?;
+        symlink("sub", dir.path().join("sub-link"))?;
+
+        let tree = FileTree::from_host_directory(dir.path())?;
+        let paths: Vec<_> = tree
+            .entries()
+            .iter()
+            .map(|entry| entry.path().to_str().expect("utf-8 path").to_string())
+            .collect();
+        assert_eq!(
+            paths,
+            [
+                ".git",
+                ".git/objects",
+                ".git/objects/blob",
+                ".gitignore",
+                ".hidden",
+                ".ignore",
+                "also-ignored",
+                "ignored",
+                // Paths sort by component, so `sub/*` precedes `sub-link`.
+                "sub",
+                "sub/deep",
+                "sub/deep/leaf",
+                "sub-link",
+            ]
+        );
+        assert_eq!(
+            tree.get("sub-link").and_then(Entry::link_target),
+            Some(Path::new("sub"))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn from_host_directory_reports_unreadable_directories() -> anyhow::Result<()> {
+        use std::os::unix::fs::PermissionsExt;
+
+        let dir = TempDir::new()?;
+        let locked = dir.path().join("locked");
+        fs::create_dir(&locked)?;
+        fs::write(locked.join("file"), b"x")?;
+        fs::set_permissions(&locked, fs::Permissions::from_mode(0o000))?;
+        // Root can read anything, so there is nothing to fail on.
+        let readable_anyway = fs::read_dir(&locked).is_ok();
+        let result = FileTree::from_host_directory(dir.path());
+        fs::set_permissions(&locked, fs::Permissions::from_mode(0o755))?;
+        if !readable_anyway {
+            let Err(error) = result else {
+                panic!("unreadable directory must fail the walk");
+            };
+            assert!(
+                format!("{error:#}").contains("locked"),
+                "error should name the directory: {error:#}"
+            );
+        }
         Ok(())
     }
 

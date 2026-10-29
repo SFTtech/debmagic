@@ -147,6 +147,7 @@ mod tests {
         assert!(selected.contains(&crate::lint::rules::SourceContainsPrebuiltWindowsBinary::CODE));
         assert!(selected.contains(&crate::lint::rules::UnstrippedBinaryOrObject::CODE));
         assert!(selected.contains(&crate::lint::rules::PackageContainsUnsafeSymlink::CODE));
+        assert!(selected.contains(&crate::lint::rules::EmptyBinaryPackage::CODE));
         assert!(selected.iter().all(|code| code.prefix() == "LN"));
         Ok(())
     }

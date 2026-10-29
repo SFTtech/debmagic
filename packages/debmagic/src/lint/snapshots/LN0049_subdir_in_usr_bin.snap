@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): subdir-in-usr-bin (LN0049) [usr/bin/foo/]
+E: example (binary): subdir-in-usr-bin (LN0049) [usr/bin/bin/]
+E: example (binary): subdir-in-usr-bin (LN0049) [usr/bin/mhx/]
+E: example (udeb): subdir-in-usr-bin (LN0049) [usr/bin/foo/]

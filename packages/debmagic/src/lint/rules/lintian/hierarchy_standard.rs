@@ -19,6 +19,8 @@ pub(super) enum Hierarchy {
     Opt,
     Home,
     Tmp,
+    FileDirectlyInUsrShare,
+    SubdirInUsrBin,
 }
 
 /// `name` is lintian's name: directories end in a slash.
@@ -38,7 +40,9 @@ fn is_subdir_of(name: &str, prefix: &str) -> bool {
         .is_some_and(|rest| !rest.is_empty() && !rest.contains('/'))
 }
 
-pub(super) fn classify(name: &str, is_dir: bool, udeb: bool) -> Option<Hierarchy> {
+pub(super) fn classify(name: &str, kind: EntryKind, udeb: bool) -> Option<Hierarchy> {
+    let is_dir = kind == EntryKind::Directory;
+    let is_file = matches!(kind, EntryKind::RegularFile | EntryKind::Hardlink);
     if has_more(name, "etc/opt/") {
         return Some(Hierarchy::EtcOpt);
     }
@@ -52,10 +56,18 @@ pub(super) fn classify(name: &str, is_dir: bool, udeb: bool) -> Option<Hierarchy
             Hierarchy::FileInUsrLocal
         });
     }
+    if after(name, "usr/share/").is_some_and(|rest| !rest.contains('/')) {
+        return is_file.then_some(Hierarchy::FileDirectlyInUsrShare);
+    }
+    if name.starts_with("usr/bin/") {
+        let hit = is_dir
+            && has_more(name, "usr/bin/")
+            && !name.starts_with("usr/bin/X11/")
+            && !name.starts_with("usr/bin/mh/");
+        return hit.then_some(Hierarchy::SubdirInUsrBin);
+    }
     // Branches of the chain that stop without a Hierarchy hint.
-    if (after(name, "usr/share/").is_some_and(|rest| !rest.contains('/')))
-        || name.starts_with("usr/bin/")
-        || (!udeb && is_subdir_of(name, "usr/"))
+    if (!udeb && is_subdir_of(name, "usr/"))
         || (!udeb && is_subdir_of(name, "var/"))
         || (!udeb && has_more(name, "var/lib/games/"))
     {
@@ -111,7 +123,7 @@ pub(super) fn hierarchy_paths(
             } else {
                 path.to_string()
             };
-            (classify(&name, is_dir, udeb) == Some(hierarchy)).then(|| PathBuf::from(name))
+            (classify(&name, entry.kind(), udeb) == Some(hierarchy)).then(|| PathBuf::from(name))
         })
         .collect()
 }
@@ -123,18 +135,48 @@ mod tests {
 
     #[test]
     fn earlier_branches_hide_later_ones() {
-        assert_eq!(classify("var/run/", true, false), None);
-        assert_eq!(classify("var/run/foo/", true, false), Some(VarRun));
-        assert_eq!(classify("var/run/foo/", true, true), None);
-        assert_eq!(classify("usr/tmp/", true, false), None);
-        assert_eq!(classify("usr/tmp/x", false, false), Some(Tmp));
-        assert_eq!(classify("usr/tmp/", true, true), None);
-        assert_eq!(classify("usr/local/", true, false), None);
-        assert_eq!(classify("usr/local/x/", true, false), Some(DirInUsrLocal));
-        assert_eq!(classify("usr/local/x", false, false), Some(FileInUsrLocal));
-        assert_eq!(classify("var/www/", true, false), None);
-        assert_eq!(classify("var/www/x", false, false), Some(VarWww));
-        assert_eq!(classify("root/x", false, false), Some(Home));
-        assert_eq!(classify("hurd/x", false, false), None);
+        assert_eq!(classify("var/run/", EntryKind::Directory, false), None);
+        assert_eq!(
+            classify("var/run/foo/", EntryKind::Directory, false),
+            Some(VarRun)
+        );
+        assert_eq!(classify("var/run/foo/", EntryKind::Directory, true), None);
+        assert_eq!(classify("usr/tmp/", EntryKind::Directory, false), None);
+        assert_eq!(
+            classify("usr/tmp/x", EntryKind::RegularFile, false),
+            Some(Tmp)
+        );
+        assert_eq!(classify("usr/tmp/", EntryKind::Directory, true), None);
+        assert_eq!(classify("usr/local/", EntryKind::Directory, false), None);
+        assert_eq!(
+            classify("usr/local/x/", EntryKind::Directory, false),
+            Some(DirInUsrLocal)
+        );
+        assert_eq!(
+            classify("usr/local/x", EntryKind::RegularFile, false),
+            Some(FileInUsrLocal)
+        );
+        assert_eq!(classify("var/www/", EntryKind::Directory, false), None);
+        assert_eq!(
+            classify("var/www/x", EntryKind::RegularFile, false),
+            Some(VarWww)
+        );
+        assert_eq!(
+            classify("root/x", EntryKind::RegularFile, false),
+            Some(Home)
+        );
+        assert_eq!(
+            classify("usr/share/x", EntryKind::RegularFile, false),
+            Some(FileDirectlyInUsrShare)
+        );
+        assert_eq!(classify("usr/share/x", EntryKind::Symlink, false), None);
+        assert_eq!(classify("usr/share/x/", EntryKind::Directory, false), None);
+        assert_eq!(
+            classify("usr/bin/x/", EntryKind::Directory, false),
+            Some(SubdirInUsrBin)
+        );
+        assert_eq!(classify("usr/bin/X11/", EntryKind::Directory, false), None);
+        assert_eq!(classify("usr/bin/x", EntryKind::RegularFile, false), None);
+        assert_eq!(classify("hurd/x", EntryKind::RegularFile, false), None);
     }
 }

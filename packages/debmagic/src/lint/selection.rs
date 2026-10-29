@@ -157,6 +157,7 @@ mod tests {
             selected.contains(&crate::lint::rules::DebianChangelogFileMissingOrWrongName::CODE)
         );
         assert!(selected.contains(&crate::lint::rules::MaintainerScriptEmpty::CODE));
+        assert!(selected.contains(&crate::lint::rules::SourceContainsDebianSubstvars::CODE));
         assert!(selected.iter().all(|code| code.prefix() == "LN"));
         Ok(())
     }

@@ -4,10 +4,11 @@ use super::rules::{
     DebianChangelogFileMissingOrWrongName, DebianRulesIgnoresMakeCleanError,
     DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DmUploadAllowedIsObsolete,
     EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty, NationalEncoding, NoChangelog,
-    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, PackageContainsUnsafeSymlink,
-    PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
-    SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
-    UnstrippedBinaryOrObject, UsesDebhelperCompatFile, VcsObsoleteInDebianInfrastructure,
+    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, NonStandardToplevelDir,
+    PackageContainsUnsafeSymlink, PackageUsesDeprecatedDebhelperCompatVersion, RequiredField,
+    SourceContainsDebianSubstvars, SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern,
+    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject, UsesDebhelperCompatFile,
+    VcsObsoleteInDebianInfrastructure,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -37,6 +38,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DmUploadAllowedIsObsolete,
         &VcsObsoleteInDebianInfrastructure,
         &ChangelogFileNotCompressed,
+        &NonStandardToplevelDir,
     ]
 }
 
@@ -74,6 +76,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MaintainerScriptEmpty,
         &NationalEncoding,
         &ChangelogFileNotCompressed,
+        &NonStandardToplevelDir,
     ]
 }
 
@@ -128,6 +131,7 @@ mod tests {
                 MaintainerScriptEmpty::CODE,
                 NationalEncoding::CODE,
                 ChangelogFileNotCompressed::CODE,
+                NonStandardToplevelDir::CODE,
             ]
         );
     }

@@ -163,7 +163,7 @@ mod unix_path {
     use std::os::unix::ffi::OsStrExt;
     use std::path::{Path, PathBuf};
 
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use serde::{Deserializer, Serialize, Serializer};
 
     pub fn serialize<S>(path: &Path, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -176,8 +176,38 @@ mod unix_path {
     where
         D: Deserializer<'de>,
     {
-        let bytes = Vec::<u8>::deserialize(deserializer)?;
-        Ok(PathBuf::from(OsStr::from_bytes(&bytes)))
+        // Manifests written before paths became bytes hold plain strings; a
+        // persistent Environment can still carry one.
+        struct PathVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for PathVisitor {
+            type Value = PathBuf;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("a path as a string or a sequence of bytes")
+            }
+
+            fn visit_str<E: serde::de::Error>(self, value: &str) -> Result<PathBuf, E> {
+                Ok(PathBuf::from(value))
+            }
+
+            fn visit_bytes<E: serde::de::Error>(self, value: &[u8]) -> Result<PathBuf, E> {
+                Ok(PathBuf::from(OsStr::from_bytes(value)))
+            }
+
+            fn visit_seq<A: serde::de::SeqAccess<'de>>(
+                self,
+                mut sequence: A,
+            ) -> Result<PathBuf, A::Error> {
+                let mut bytes = Vec::new();
+                while let Some(byte) = sequence.next_element::<u8>()? {
+                    bytes.push(byte);
+                }
+                Ok(PathBuf::from(OsStr::from_bytes(&bytes)))
+            }
+        }
+
+        deserializer.deserialize_any(PathVisitor)
     }
 }
 
@@ -700,6 +730,18 @@ mod tests {
             "tarball"
         );
         Ok(())
+    }
+
+    #[test]
+    fn source_manifest_reads_string_and_byte_paths() {
+        let entries: Vec<SourcePath> = serde_json::from_str(
+            r#"[{"path": ".bumpversion.toml", "kind": "file"},
+                {"path": [100, 101, 98, 105, 97, 110], "kind": "directory"}]"#,
+        )
+        .expect("both path forms load");
+        assert_eq!(entries[0].path, PathBuf::from(".bumpversion.toml"));
+        assert_eq!(entries[1].path, PathBuf::from("debian"));
+        assert_eq!(entries[1].kind, SourcePathKind::Directory);
     }
 
     #[test]

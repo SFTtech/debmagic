@@ -538,6 +538,7 @@ mod tests {
                 crate::lint::rules::DebianRulesMissingRequiredTarget::CODE,
                 crate::lint::rules::SourceContainsPrebuiltWindowsBinary::CODE,
                 crate::lint::rules::UnstrippedBinaryOrObject::CODE,
+                crate::lint::rules::PackageContainsUnsafeSymlink::CODE,
             ]
         );
         let intent = LintIntent {

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): no-dep5-copyright (LN0009) [debian/copyright]
+W: (source): no-dep5-copyright (LN0009) [debian/copyright]
+W: (source): no-dep5-copyright (LN0009) [debian/copyright]
+W: example (source): no-dep5-copyright (LN0009) [debian/foo.copyright]

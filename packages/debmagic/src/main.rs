@@ -3,8 +3,11 @@ use std::process::ExitCode;
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
 
-use crate::cli::{BuildTarget, Cli, Commands, ConfigCommands, EnvCommands, UpstreamCommands};
+use crate::cli::{
+    BuildTarget, ChangelogCommands, Cli, Commands, ConfigCommands, EnvCommands, UpstreamCommands,
+};
 
+pub mod apt;
 pub mod build;
 pub mod build_intent;
 pub mod changelog;
@@ -13,10 +16,12 @@ pub mod cli;
 pub mod config;
 pub mod control;
 pub mod data_dir;
+pub mod distro_info;
 pub mod driver;
 pub mod env;
 pub mod environment;
 pub mod output;
+pub mod output_dir;
 pub mod package;
 pub mod requests;
 pub mod sign;
@@ -38,6 +43,26 @@ fn main() -> ExitCode {
             ExitCode::FAILURE
         }
     }
+}
+
+fn upstream_fetch_command(
+    current_dir: &std::path::Path,
+    cli: &Cli,
+    version: Option<String>,
+    args: &cli::UpstreamFetchArgs,
+) -> anyhow::Result<upstream::UpstreamFetchCommand> {
+    Ok(upstream::UpstreamFetchCommand {
+        source_dir: package::resolve_source_dir(current_dir, args.common.source_dir.as_deref())?,
+        config_file: cli.config.clone(),
+        version,
+        from: args.from,
+        repack: args.repack,
+        signature_check: args.signature_check,
+        verify_command: args.verify_command.clone(),
+        force: args.force,
+        dry_run: args.dry_run,
+        output_dir: args.output_dir.clone(),
+    })
 }
 
 async fn run() -> anyhow::Result<ExitCode> {
@@ -65,25 +90,26 @@ async fn run() -> anyhow::Result<ExitCode> {
             };
             build::build(build::BuildCommand {
                 intent: build_intent::BuildIntentInput {
-                    fallback_dir: current_dir.clone(),
-                    source_dir: build_args.common.source_dir.clone(),
+                    source_dir: package::resolve_source_dir(
+                        &current_dir,
+                        build_args.common.source_dir.as_deref(),
+                    )?,
                     output_dir: build_args.output_dir.clone(),
                     config_file: cli.config.clone(),
                     driver: build_args.driver,
                     kind,
-                    persistent: build_args.persistent,
+                    persistent: build_args.environment.persistent,
                     incremental: build_args.incremental,
                     debug_symbols,
                     test: run_test,
                     sign: build_args.sign,
-                    sign_key: build_args.sign_key.clone(),
-                    sign_tool: build_args.sign_tool,
-                    sign_command: build_args.sign_command.clone(),
-                    sign_notify: build_args.sign_notify,
+                    sign_overrides: build_args.signing.overrides(),
+                    notify: build_args.notify.notify,
                     clean: build_args.clean,
                     source_sync: build_args.source_sync,
                     host_arch_variant: build_args.host_arch_variant.clone(),
-                    driver_overrides: build_args.driver_overrides(),
+                    apt_overrides: build_args.environment.apt_overrides(),
+                    driver_overrides: build_args.environment.driver_overrides(),
                 },
                 distro: build_args.distro.clone(),
                 include_orig,
@@ -106,40 +132,51 @@ async fn run() -> anyhow::Result<ExitCode> {
                 let config = config::Config::load(None, cli.config.as_deref())?;
                 env::remove_environments(&config, ids, *force).await?;
             }
-            EnvCommands::Shell { id, common } => {
-                if let Some(id) = id {
-                    let config = config::Config::load(None, cli.config.as_deref())?;
-                    env::shell_environment(&config, &current_dir, Some(id)).await?;
-                } else {
-                    let source_dir = common.source_dir.as_deref().unwrap_or(&current_dir);
-                    let source_dir = match env::resolve_shell_source_dir(
-                        Some(source_dir),
-                        &current_dir,
-                    ) {
-                        Ok(dir) => dir,
-                        Err(_) => {
-                            anyhow::bail!(
-                                "not a Source tree; pass an Environment id (see `debmagic env list`)"
-                            );
-                        }
-                    };
-                    let config = config::Config::load(Some(&source_dir), cli.config.as_deref())?;
-                    env::shell_environment(&config, &source_dir, None).await?;
-                }
+            EnvCommands::Shell { id, user, common } => {
+                let code = env::shell_environment(
+                    &current_dir,
+                    cli.config.as_deref(),
+                    id.as_deref(),
+                    common.source_dir.as_deref(),
+                    user.as_deref(),
+                )
+                .await?;
+                return Ok(ExitCode::from(u8::try_from(code).unwrap_or(u8::MAX)));
+            }
+            EnvCommands::Exec {
+                id,
+                user,
+                command,
+                common,
+            } => {
+                let code = env::exec_environment(
+                    &current_dir,
+                    cli.config.as_deref(),
+                    id.as_deref(),
+                    common.source_dir.as_deref(),
+                    user.as_deref(),
+                    command,
+                )
+                .await?;
+                return Ok(ExitCode::from(u8::try_from(code).unwrap_or(u8::MAX)));
             }
         },
         Commands::Test(args) => {
             let intent = test::resolve_test_intent(test::TestIntentInput {
-                fallback_dir: current_dir.clone(),
-                source_dir: args.common.source_dir.clone(),
+                source_dir: package::resolve_source_dir(
+                    &current_dir,
+                    args.common.source_dir.as_deref(),
+                )?,
                 config_file: cli.config.clone(),
                 driver: args.driver,
-                persistent: args.persistent,
+                persistent: args.environment.persistent,
+                notify: args.notify.notify,
                 strict: args.strict,
                 changes: args.changes.clone(),
                 allow_host_test: args.allow_host_test,
                 distro: args.distro.clone(),
-                driver_overrides: args.driver_overrides(),
+                apt_overrides: args.environment.apt_overrides(),
+                driver_overrides: args.environment.driver_overrides(),
             })?;
 
             let outcome = test::run_test(&intent)
@@ -167,9 +204,10 @@ async fn run() -> anyhow::Result<ExitCode> {
                 incoming: args.incoming.clone(),
                 login: args.login.clone(),
                 port: args.port,
-                no_hooks: args.no_hooks,
+                hooks: args.hooks,
                 force: args.force,
                 sign: args.sign,
+                notify: args.notify.notify,
                 include_orig: args.include_orig,
                 changes: args.changes.clone(),
             })?;
@@ -182,10 +220,8 @@ async fn run() -> anyhow::Result<ExitCode> {
                 )?,
                 config_file: cli.config.clone(),
                 mode: args.mode,
-                sign_key: args.sign_key.clone(),
-                sign_tool: args.sign_tool,
-                sign_command: args.sign_command.clone(),
-                sign_notify: args.sign_notify,
+                overrides: args.signing.overrides(),
+                notify: args.notify.notify,
                 output_dir: args.output_dir.clone(),
                 file: args.file.clone(),
             })?;
@@ -211,8 +247,10 @@ async fn run() -> anyhow::Result<ExitCode> {
                 ),
             };
             config::run_config(config::ConfigCommand {
-                fallback_dir: current_dir.clone(),
-                source_dir: common.source_dir.clone(),
+                source_dir: package::resolve_source_dir(
+                    &current_dir,
+                    common.source_dir.as_deref(),
+                )?,
                 config_file: cli.config.clone(),
                 command,
             })?;
@@ -220,25 +258,43 @@ async fn run() -> anyhow::Result<ExitCode> {
         Commands::Upstream(args) => match &args.command {
             UpstreamCommands::List(list_args) => {
                 upstream::list(upstream::UpstreamListCommand {
-                    fallback_dir: current_dir.clone(),
-                    source_dir: list_args.common.source_dir.clone(),
+                    source_dir: package::resolve_source_dir(
+                        &current_dir,
+                        list_args.common.source_dir.as_deref(),
+                    )?,
                     config_file: cli.config.clone(),
                     all: list_args.all,
                     previous: list_args.previous,
                 })
                 .await?;
             }
-            UpstreamCommands::Switch(switch_args) => {
-                upstream::switch(upstream::UpstreamSwitchCommand {
-                    fallback_dir: current_dir.clone(),
-                    source_dir: switch_args.common.source_dir.clone(),
-                    config_file: cli.config.clone(),
-                    version: switch_args.version.clone(),
-                    dry_run: switch_args.dry_run,
-                    no_signature_check: switch_args.no_signature_check,
-                    verify_command: switch_args.verify_command.clone(),
-                })
+            UpstreamCommands::Fetch(fetch_args) => {
+                upstream::fetch(upstream_fetch_command(
+                    &current_dir,
+                    &cli,
+                    fetch_args.version.clone(),
+                    &fetch_args.fetch,
+                )?)
                 .await?;
+            }
+            UpstreamCommands::Switch(switch_args) => {
+                upstream::switch(upstream_fetch_command(
+                    &current_dir,
+                    &cli,
+                    Some(switch_args.version.clone()),
+                    &switch_args.fetch,
+                )?)
+                .await?;
+            }
+        },
+        Commands::Changelog(args) => match &args.command {
+            ChangelogCommands::New(new_args) => {
+                changelog::new_entry(changelog::ChangelogNewCommand {
+                    source_dir: package::resolve_source_dir(
+                        &current_dir,
+                        new_args.common.source_dir.as_deref(),
+                    )?,
+                })?;
             }
         },
         Commands::Version {} => {

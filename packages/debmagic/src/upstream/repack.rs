@@ -21,7 +21,7 @@ pub fn load_repack_config(
     package: &debmagic_common::package::SourcePackage,
     watch: &crate::upstream::watch::WatchSource,
 ) -> anyhow::Result<RepackConfig> {
-    let mut excluded = package.copyright_excludes()?;
+    let mut excluded = package.copyright()?.files_excluded.clone();
     let (excludes, field) = match &watch.component {
         Some(component) => (
             excluded.components.remove(component).unwrap_or_default(),
@@ -40,22 +40,20 @@ pub fn load_repack_config(
 }
 
 /// Whether any exclude pattern matches `path` (relative, forward slashes).
-/// A `dir/*` pattern excludes everything under `dir`, at any depth.
-fn is_excluded(path: &str, excludes: &[String]) -> bool {
+/// A pattern matching a directory (`doc/rfc`, `win32/*`) excludes
+/// everything under it, at any depth.
+pub fn is_excluded(path: &str, excludes: &[String]) -> bool {
     excludes.iter().any(|pattern| {
         let Ok(glob) = glob::Pattern::new(pattern) else {
             return false;
         };
-        if glob.matches(path) {
-            return true;
-        }
-        // the pattern may match an ancestor: `win32/*` covers win32/nested/b.c
-        let mut ancestor = String::new();
-        path.split('/').any(|part| {
-            ancestor.push_str(part);
-            ancestor.push('/');
-            glob.matches(&ancestor)
-        })
+        path.match_indices('/')
+            .map(|(end, _)| end)
+            .chain([path.len()])
+            .any(|end| {
+                let dir = &path[..end];
+                glob.matches(dir) || glob.matches(&format!("{dir}/"))
+            })
     })
 }
 
@@ -152,7 +150,11 @@ mod tests {
 
     #[test]
     fn test_apply_excludes() {
-        let dir = std::env::temp_dir().join(format!("debmagic-excl-{}", std::process::id()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-excl-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(dir.join("win32").join("nested")).unwrap();
         std::fs::create_dir_all(dir.join("src")).unwrap();
         std::fs::write(dir.join("win32").join("a.c"), "x").unwrap();
@@ -165,7 +167,6 @@ mod tests {
         assert!(!dir.join("win32").exists());
         assert!(dir.join("src").join("main.c").exists());
         assert!(dir.join("top.c").exists());
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
@@ -176,5 +177,15 @@ mod tests {
         assert!(is_excluded("docs/manual.pdf", &excludes));
         assert!(!is_excluded("src/main.c", &excludes));
         assert!(!is_excluded("win32.c", &excludes));
+        // the directory itself, so it is removed as a whole
+        assert!(is_excluded("win32", &excludes));
+    }
+
+    #[test]
+    fn test_is_excluded_bare_dir() {
+        let excludes = vec!["doc/rfc".to_string()];
+        assert!(is_excluded("doc/rfc", &excludes));
+        assert!(is_excluded("doc/rfc/rfc5228.txt", &excludes));
+        assert!(!is_excluded("doc/rfc2822.c", &excludes));
     }
 }

@@ -3,10 +3,11 @@ use std::path::PathBuf;
 use anyhow::Context;
 
 use crate::{
+    apt::AptOverrides,
     build::source::SourceSyncMode,
     config::Config,
     driver::{DriverType, Persistence, config::DriverOverrides},
-    sign::{SignMode, SignTool},
+    sign::{SignMode, SignOverrides},
 };
 
 /// Which kind of package a build produces: a source-only upload or
@@ -27,9 +28,7 @@ impl BuildKind {
 /// Inputs for resolving a [`BuildIntent`].
 #[derive(Debug, Clone)]
 pub struct BuildIntentInput {
-    /// Directory used when `source_dir` / `output_dir` are unset (typically cwd).
-    pub fallback_dir: PathBuf,
-    pub source_dir: Option<PathBuf>,
+    pub source_dir: PathBuf,
     pub output_dir: Option<PathBuf>,
     pub config_file: Option<PathBuf>,
     pub driver: Option<DriverType>,
@@ -39,13 +38,12 @@ pub struct BuildIntentInput {
     pub debug_symbols: Option<bool>,
     pub test: Option<bool>,
     pub sign: Option<SignMode>,
-    pub sign_key: Option<String>,
-    pub sign_tool: Option<SignTool>,
-    pub sign_command: Option<String>,
-    pub sign_notify: Option<bool>,
+    pub sign_overrides: SignOverrides,
+    pub notify: Option<bool>,
     pub clean: Option<bool>,
     pub source_sync: Option<SourceSyncMode>,
     pub host_arch_variant: Option<String>,
+    pub apt_overrides: AptOverrides,
     pub driver_overrides: DriverOverrides,
 }
 
@@ -65,19 +63,14 @@ pub struct BuildIntent {
 pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildIntent> {
     // Canonicalized: Environment ids and registry lookups key on the
     // source_dir string, so all entry points must agree on one spelling.
-    let source_dir = std::fs::canonicalize(input.source_dir.unwrap_or(input.fallback_dir))
-        .context("resolving source dir failed")?;
+    let source_dir =
+        std::fs::canonicalize(input.source_dir).context("resolving source dir failed")?;
 
     let mut config = Config::load(Some(&source_dir), input.config_file.as_deref())?;
 
     let driver = resolve_driver(input.driver, config.driver.default, input.kind)?;
 
-    // CLI -o wins; else the config value, relative to the package root.
-    let output_dir = match input.output_dir {
-        Some(dir) => std::path::absolute(dir).context("resolving output dir failed")?,
-        None => std::path::absolute(source_dir.join(&config.output_dir))
-            .context("resolving output dir failed")?,
-    };
+    let output_dir = crate::output_dir::resolve(&source_dir, &config, input.output_dir.as_deref())?;
 
     if let Some(persistent) = input.persistent {
         config.driver.persistent = persistent;
@@ -93,21 +86,10 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     if let Some(test) = input.test {
         config.run_test = test;
     }
-    if let Some(sign) = input.sign {
-        config.sign.source = sign;
-    }
-    if let Some(sign_key) = input.sign_key {
-        config.sign.key = Some(sign_key);
-    }
-    if let Some(sign_tool) = input.sign_tool {
-        config.sign.tool = sign_tool;
-    }
-    if let Some(sign_command) = input.sign_command {
-        config.sign.sign_command = Some(sign_command);
-    }
-    if let Some(sign_notify) = input.sign_notify {
-        config.sign.notify = sign_notify;
-    }
+    input.sign_overrides.apply(&mut config.sign);
+    input.apt_overrides.apply(&mut config.apt);
+    config.sign.source = resolve_sign_mode(input.sign, &config, input.kind);
+    config.override_notify(input.notify);
     if let Some(clean) = input.clean {
         config.clean = clean;
     }
@@ -134,6 +116,26 @@ pub fn resolve_build_intent(input: BuildIntentInput) -> anyhow::Result<BuildInte
     })
 }
 
+/// How to sign a build of `kind`. `--sign` decides when given (so it signs
+/// even without a configured key); otherwise `build.sign_source` or
+/// `build.sign_binary` does, and only when a signing key is configured,
+/// since the key would otherwise be guessed from the maintainer address.
+/// The mode then comes from `sign.source`, where `no` still disables.
+fn resolve_sign_mode(cli: Option<SignMode>, config: &Config, kind: BuildKind) -> SignMode {
+    if let Some(mode) = cli {
+        return mode;
+    }
+    let by_default = match kind {
+        BuildKind::Source => config.build.sign_source,
+        BuildKind::Binary => config.build.sign_binary,
+    };
+    if by_default && config.sign.is_configured() {
+        config.sign.source
+    } else {
+        SignMode::No
+    }
+}
+
 /// CLI `--driver` wins; else the config's `driver.default`; source-only
 /// builds fall back to bare, since they need no build-deps or compilation.
 fn resolve_driver(
@@ -157,6 +159,7 @@ mod tests {
         DriverType, Persistence, config::DriverOverrides, driver_bare::DriverBareConfigOverrides,
         driver_docker::DriverDockerConfigOverrides, driver_lxd::DriverLxdConfigOverrides,
     };
+    use test_case::test_case;
 
     fn asset_config() -> PathBuf {
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -165,10 +168,9 @@ mod tests {
             .join("config1.toml")
     }
 
-    fn base_input(fallback: PathBuf) -> BuildIntentInput {
+    fn base_input(source_dir: PathBuf) -> BuildIntentInput {
         BuildIntentInput {
-            fallback_dir: fallback,
-            source_dir: None,
+            source_dir,
             output_dir: None,
             config_file: Some(asset_config()),
             driver: Some(DriverType::Docker),
@@ -178,17 +180,13 @@ mod tests {
             debug_symbols: None,
             test: None,
             sign: None,
-            sign_key: None,
-            sign_tool: None,
-            sign_command: None,
-            sign_notify: None,
+            sign_overrides: SignOverrides::default(),
+            notify: None,
             clean: None,
             source_sync: None,
             host_arch_variant: None,
+            apt_overrides: AptOverrides::default(),
             driver_overrides: DriverOverrides {
-                apt_mirror: None,
-                proposed: None,
-                apt_update_age: None,
                 docker: DriverDockerConfigOverrides { base_image: None },
                 bare: DriverBareConfigOverrides {},
                 lxd: DriverLxdConfigOverrides {
@@ -291,16 +289,16 @@ mod tests {
     fn leftover_shell_on_failure_key_is_ignored() -> anyhow::Result<()> {
         let dir = std::env::temp_dir();
         let mut input = base_input(dir);
-        let config_path = std::env::temp_dir().join(format!(
-            "debmagic-shell-on-failure-{}.toml",
-            std::process::id()
-        ));
+        let config_file = tempfile::Builder::new()
+            .prefix("debmagic-shell-on-failure-")
+            .suffix(".toml")
+            .tempfile()?;
+        let config_path = config_file.path().to_path_buf();
         std::fs::write(&config_path, "shell_on_failure = true\n")?;
         input.config_file = Some(config_path.clone());
 
         let intent = resolve_build_intent(input)?;
         assert_eq!(intent.config.driver.persistent, Persistence::OnFailure);
-        std::fs::remove_file(config_path)?;
         Ok(())
     }
 
@@ -311,12 +309,57 @@ mod tests {
         assert!(intent.source_dir.is_absolute());
         assert!(intent.output_dir.is_absolute());
         assert_eq!(intent.source_dir, std::fs::canonicalize(&dir)?);
-        // default output dir is build/, relative to the package root
+        // default output dir is build-area/, relative to the package source dir
         assert_eq!(
             intent.output_dir,
-            std::path::absolute(std::fs::canonicalize(&dir)?.join("build"))?
+            std::fs::canonicalize(&dir)?.join("build-area")
         );
         Ok(())
+    }
+
+    fn sign_test_config(key: bool, sign_source: bool, sign_binary: bool) -> Config {
+        let mut config = Config::default();
+        config.sign.key = key.then(|| "you@example.com".to_string());
+        config.build.sign_source = sign_source;
+        config.build.sign_binary = sign_binary;
+        config
+    }
+
+    #[test_case(BuildKind::Source, None, true, true, false, SignMode::Auto; "source builds sign by default")]
+    #[test_case(BuildKind::Binary, None, true, true, false, SignMode::No; "binary builds do not")]
+    #[test_case(BuildKind::Binary, Some(SignMode::Auto), true, true, false, SignMode::Auto; "--sign signs a binary build")]
+    #[test_case(BuildKind::Binary, Some(SignMode::Auto), false, true, false, SignMode::Auto; "--sign needs no configured key")]
+    #[test_case(BuildKind::Binary, Some(SignMode::Force), true, true, false, SignMode::Force; "--sign=force")]
+    #[test_case(BuildKind::Source, Some(SignMode::No), true, true, false, SignMode::No; "--sign=no")]
+    #[test_case(BuildKind::Source, None, false, true, false, SignMode::No; "no key, no default signing")]
+    #[test_case(BuildKind::Binary, None, true, true, true, SignMode::Auto; "build.sign_binary")]
+    #[test_case(BuildKind::Source, None, true, false, false, SignMode::No; "build.sign_source = false")]
+    fn resolve_sign_mode_by_kind(
+        kind: BuildKind,
+        cli: Option<SignMode>,
+        key: bool,
+        sign_source: bool,
+        sign_binary: bool,
+        expected: SignMode,
+    ) {
+        let config = sign_test_config(key, sign_source, sign_binary);
+        assert_eq!(resolve_sign_mode(cli, &config, kind), expected);
+    }
+
+    #[test]
+    fn resolve_sign_mode_uses_the_configured_mode() {
+        let mut config = sign_test_config(true, true, true);
+        config.sign.source = SignMode::Force;
+        assert_eq!(
+            resolve_sign_mode(None, &config, BuildKind::Binary),
+            SignMode::Force
+        );
+
+        config.sign.source = SignMode::No;
+        assert_eq!(
+            resolve_sign_mode(None, &config, BuildKind::Source),
+            SignMode::No
+        );
     }
 
     #[test]

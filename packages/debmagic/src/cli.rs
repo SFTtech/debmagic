@@ -1,27 +1,31 @@
 use std::path::PathBuf;
 
+use crate::apt::AptOverrides;
 use crate::build::source::SourceSyncMode;
 use crate::driver::DriverType;
 use crate::driver::config::DriverOverrides;
 use crate::driver::driver_bare::DriverBareConfigOverrides;
 use crate::driver::driver_docker::DriverDockerConfigOverrides;
 use crate::driver::driver_lxd::DriverLxdConfigOverrides;
-use crate::sign::{SignMode, SignTool};
+use crate::sign::{SignMode, SignOverrides, SignTool};
 use crate::time::RefreshPolicy;
 use crate::upload::UploadMethod;
 use crate::upload::orig::IncludeOrig;
+use crate::upstream::fetch::FetchFrom;
+use clap::builder::BoolishValueParser;
 use clap::{Args, Parser, Subcommand};
+use debmagic_common::apt::{PackageSettings, Selection, parse_package};
 
 /// When to use colored output. Mirrors common CLI conventions; `auto` is the
 /// default and respects the `NO_COLOR` environment variable.
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, clap::ValueEnum)]
 pub enum ColorChoice {
-    /// Color when stderr is a terminal and `NO_COLOR` is unset.
+    /// enable when stderr is a terminal and NO_COLOR is unset
     #[default]
     Auto,
-    /// Always color, even when piped or `NO_COLOR` is set.
+    /// force enable colors
     Always,
-    /// Never color.
+    /// disable colors
     Never,
 }
 
@@ -36,7 +40,7 @@ pub struct Cli {
         global = true,
         value_enum,
         default_value_t = ColorChoice::Auto,
-        help = "When to colorize output: 'auto' (default) colors on a terminal and respects NO_COLOR, 'always' forces color, 'never' disables it"
+        help = "configure output coloring"
     )]
     pub color: ColorChoice,
 
@@ -68,8 +72,30 @@ pub enum Commands {
     Config(ConfigSubcommandArgs),
     #[command(about = "Query and switch upstream versions")]
     Upstream(UpstreamSubcommandArgs),
+    #[command(about = "Add entries to debian/changelog")]
+    Changelog(ChangelogSubcommandArgs),
     #[command(about = "Show version information")]
     Version {},
+}
+
+#[derive(Args, Debug)]
+pub struct ChangelogSubcommandArgs {
+    #[command(subcommand)]
+    pub command: ChangelogCommands,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum ChangelogCommands {
+    #[command(
+        about = "Add an UNRELEASED entry on top of debian/changelog, keeping the current version"
+    )]
+    New(ChangelogNewArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct ChangelogNewArgs {
+    #[command(flatten)]
+    pub common: CommonCli,
 }
 
 #[derive(Args, Debug)]
@@ -84,8 +110,10 @@ pub enum UpstreamCommands {
         about = "List available upstream versions from debian/watch, newest eligible by default"
     )]
     List(UpstreamListArgs),
+    #[command(about = "Fetch the orig tarball of an upstream version into the output dir")]
+    Fetch(UpstreamFetchCliArgs),
     #[command(
-        about = "Switch the package tree to an upstream version: fetch, repack, replace the tree (keeping debian/)"
+        about = "Switch the package tree to an upstream version: fetch its orig tarball, replace the tree (keeping debian/)"
     )]
     Switch(UpstreamSwitchArgs),
 }
@@ -109,9 +137,68 @@ pub struct UpstreamListArgs {
 }
 
 #[derive(Args, Debug)]
+pub struct UpstreamFetchCliArgs {
+    #[arg(
+        help = "The upstream version to fetch, or 'latest' for the newest. Defaults to the changelog's upstream version"
+    )]
+    pub version: Option<String>,
+
+    #[command(flatten)]
+    pub fetch: UpstreamFetchArgs,
+}
+
+#[derive(Args, Debug)]
 pub struct UpstreamSwitchArgs {
-    #[arg(help = "The upstream version to switch to, or 'latest' for the newest eligible")]
+    #[arg(help = "The upstream version to switch to, or 'latest' for the newest")]
     pub version: String,
+
+    #[command(flatten)]
+    pub fetch: UpstreamFetchArgs,
+}
+
+/// Flags shared between `debmagic upstream fetch` and `debmagic upstream switch`.
+#[derive(Args, Debug)]
+pub struct UpstreamFetchArgs {
+    #[arg(
+        short,
+        long,
+        value_enum,
+        default_value_t = FetchFrom::Auto,
+        help = "Where to get the orig tarball: 'auto' (default) tries the 'orig_tarball.method' setting, then upstream; 'upstream' downloads the release from debian/watch; 'launchpad', 'ubuntu' and 'debian' fetch it from the distro archives; 'custom' runs 'orig_tarball.command'"
+    )]
+    pub from: FetchFrom,
+
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
+        help = "Strip the Files-Excluded paths of debian/copyright from upstream and custom tarballs, re-creating them as xz with the watch file's repack suffix. --repack=no keeps the tarball as-is and lists the excluded files it still contains. Distro archive tarballs are never repacked. Defaults to the 'upstream.repack' setting in the config file (yes if unset)"
+    )]
+    pub repack: Option<bool>,
+
+    #[arg(
+        long = "signature-check",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
+        help = "Verify the upstream tarball signature against debian/upstream/signing-key.asc. Defaults to the 'upstream.signature_check' setting in the config file (yes if unset)"
+    )]
+    pub signature_check: Option<bool>,
+
+    #[arg(
+        long = "verify-command",
+        help = "Custom verification command for sign.tool = 'custom', run without a shell. Supports {file}, {signature} and {keyring} placeholders; without {signature} the signature path is appended. Defaults to the 'sign.verify_command' setting, falling back to 'sign.sign_command'."
+    )]
+    pub verify_command: Option<String>,
+
+    #[arg(
+        long,
+        help = "Replace an existing orig tarball for the version instead of keeping it"
+    )]
+    pub force: bool,
 
     #[arg(
         long,
@@ -119,17 +206,8 @@ pub struct UpstreamSwitchArgs {
     )]
     pub dry_run: bool,
 
-    #[arg(
-        long,
-        help = "Skip verifying the upstream tarball signature against debian/upstream/signing-key.asc"
-    )]
-    pub no_signature_check: bool,
-
-    #[arg(
-        long = "verify-command",
-        help = "Custom verification command for sign.tool = 'custom', run without a shell. Supports {file}, {signature} and {keyring} placeholders; without {signature} the signature path is appended. Defaults to the 'sign.verify_command' setting, falling back to 'sign.sign_command'."
-    )]
-    pub verify_command: Option<String>,
+    #[arg(short, long, help = "Output directory for the orig tarball")]
+    pub output_dir: Option<PathBuf>,
 
     #[command(flatten)]
     pub common: CommonCli,
@@ -224,6 +302,120 @@ pub struct LxdArgs {
     pub project: Option<String>,
 }
 
+/// Flags shared by the commands that run in a driver environment
+/// (`debmagic build`, `debmagic test`).
+#[derive(Args, Debug)]
+pub struct EnvironmentArgs {
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "always",
+        action = clap::ArgAction::Set,
+        help = "How long the environment outlives this run: 'on-failure' (the default) keeps it when the command fails, 'always' keeps it after every run, 'no' tears it down. A bare --persistent means 'always'. A failed run that keeps the environment prints `debmagic env shell <id>`."
+    )]
+    pub persistent: Option<crate::driver::Persistence>,
+
+    #[command(flatten)]
+    pub docker: DockerArgs,
+
+    #[command(flatten)]
+    pub lxd: LxdArgs,
+
+    #[arg(
+        long = "apt-mirror",
+        help = "Apt mirror URL to use inside the environment instead of the default archive.ubuntu.com/security.ubuntu.com/deb.debian.org, e.g. http://my-mirror.example/ubuntu. Ignored by the bare driver."
+    )]
+    pub apt_mirror: Option<String>,
+
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        value_name = "PACKAGES",
+        help = "Take packages from the suite the release's updates migrate from (e.g. '<release>-proposed'): all newer ones, or only the comma-separated PACKAGES (binary names, 'src:<source>' or globs), like --package <package>/proposed. 'no' disables it. Ignored by the bare driver."
+    )]
+    pub proposed: Option<Selection>,
+
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        action = clap::ArgAction::Set,
+        value_name = "PACKAGES",
+        help = "Take packages from Debian experimental for an unstable or testing environment: those nothing else provides, or only the comma-separated PACKAGES, like --package <package>/experimental. 'no' disables it. Ignored by the bare driver."
+    )]
+    pub experimental: Option<Selection>,
+
+    #[arg(
+        long = "package",
+        value_name = "PACKAGE[=VERSION][/ARCHIVE]",
+        value_parser = parse_package,
+        help = "Install PACKAGE (a binary name, 'src:<source>' for all its binaries, or a glob) in VERSION, even if older, or from ARCHIVE: 'release' (with its updates), 'proposed' or 'experimental'. Naming the tested package makes `debmagic test` test that build. Repeatable. Ignored by the bare driver."
+    )]
+    pub packages: Vec<(String, PackageSettings)>,
+
+    #[arg(
+        long = "archive",
+        value_name = "[NAME=]SPEC",
+        value_parser = crate::apt::parse_archive_arg,
+        help = "Add an archive: a PPA as 'ppa:<owner>/<name>[@<suite>]', the suite defaulting to the target Ubuntu release. NAME (by default SPEC) is the ARCHIVE of --package; without packages picked from it, apt takes all newer ones from it. Repeatable. Ignored by the bare driver."
+    )]
+    pub archives: Vec<(String, String)>,
+
+    #[arg(
+        long = "apt-update-age",
+        help = "When a persistent environment runs 'apt-get update/upgrade' again: 'now' (every run), 'never' (only on first creation), or a maximum age of the last upgrade like '1d' (the default), '12h', '30m'. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
+    )]
+    pub apt_update_age: Option<RefreshPolicy>,
+}
+
+/// Signing flags shared by `debmagic build` and `debmagic sign`.
+#[derive(Args, Debug)]
+pub struct SignArgs {
+    #[arg(
+        long = "sign-key",
+        help = "GPG key ID/email to sign with. Defaults to the 'sign.key' setting in the config file, or the Changed-By/Maintainer address of the file being signed if unset."
+    )]
+    pub sign_key: Option<String>,
+
+    #[arg(
+        long = "sign-tool",
+        value_enum,
+        help = "OpenPGP implementation to sign with: 'gpg' (default), 'sequoia' (sq), or 'custom' (uses --sign-command). Defaults to the 'sign.tool' setting in the config file."
+    )]
+    pub sign_tool: Option<SignTool>,
+
+    #[arg(
+        long = "sign-command",
+        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
+    )]
+    pub sign_command: Option<String>,
+}
+
+impl SignArgs {
+    pub fn overrides(&self) -> SignOverrides {
+        SignOverrides {
+            key: self.sign_key.clone(),
+            tool: self.sign_tool,
+            command: self.sign_command.clone(),
+        }
+    }
+}
+
+/// `--notify`, shared by the commands that take long or need attention.
+#[derive(Args, Debug)]
+pub struct NotifyArgs {
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "true",
+        value_parser = BoolishValueParser::new(),
+        help = "Send a desktop notification via notify-send and ring the terminal bell when the command finishes or signing needs a key touch, overriding the 'notify', 'build.notify', 'test.notify' and 'sign.notify' settings. A finished build that signs notifies once, when signing starts."
+    )]
+    pub notify: Option<bool>,
+}
+
 /// Flags shared between `debmagic build binary` and `debmagic build source`.
 #[derive(Args, Debug)]
 pub struct CommonBuildArgs {
@@ -233,6 +425,7 @@ pub struct CommonBuildArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
         help = "Synchronize changed source inputs to preserve build outputs. Forces --persistent=always"
     )]
     pub incremental: Option<bool>,
@@ -245,46 +438,13 @@ pub struct CommonBuildArgs {
     pub driver: Option<DriverType>,
 
     #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "always",
-        action = clap::ArgAction::Set,
-        help = "How long the build environment outlives this build: 'on-failure' (the default) keeps it when the build command fails, 'always' keeps it after every build, 'no' tears it down. A bare --persistent means 'always'. A failed build that keeps the environment prints `debmagic env shell <id>`."
-    )]
-    pub persistent: Option<crate::driver::Persistence>,
-
-    #[arg(
         long = "source-sync",
         help = "Which source files are staged into the build tree: 'tracked' stages git-tracked files including uncommitted changes and warns about untracked files (default), 'committed' additionally fails if the worktree is dirty, 'worktree' stages everything that is not git-ignored. Defaults to the 'source_sync_mode' setting in the config file."
     )]
     pub source_sync: Option<SourceSyncMode>,
 
     #[command(flatten)]
-    pub docker: DockerArgs,
-
-    #[command(flatten)]
-    pub lxd: LxdArgs,
-
-    #[arg(
-        long = "apt-mirror",
-        help = "Apt mirror URL to use inside the build environment instead of the default archive.ubuntu.com/security.ubuntu.com/deb.debian.org, e.g. http://my-mirror.example/ubuntu. Ignored by the bare driver."
-    )]
-    pub apt_mirror: Option<String>,
-
-    #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        help = "Also enable the '<release>-proposed' pocket in the build environment. Ignored by the bare driver."
-    )]
-    pub proposed: Option<bool>,
-
-    #[arg(
-        long = "apt-update-age",
-        help = "When a persistent build environment runs 'apt-get update' again: 'now' (every build), 'never' (only on first creation), or a maximum age of the apt index like '1d' (the default), '12h', '30m'. Fresh environments always update once. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
-    )]
-    pub apt_update_age: Option<RefreshPolicy>,
+    pub environment: EnvironmentArgs,
 
     #[arg(
         long,
@@ -309,43 +469,21 @@ pub struct CommonBuildArgs {
         value_enum,
         num_args = 0..=1,
         default_missing_value = "auto",
-        help = "Sign the resulting .changes/.dsc after building: 'auto' (the default when passed without a value) signs what is unsigned and skips what our key already signed, 'force' always re-signs, 'no' never signs. Defaults to the 'sign.source' setting in the config file (no if unset)."
+        help = "Sign the resulting .changes/.dsc/.buildinfo after building: 'auto' (the default when passed without a value) signs what is unsigned and skips what our key already signed, 'keep' keeps any existing signature, 'force' always re-signs, 'no' never signs. Without --sign, source builds sign if 'build.sign_source' (default yes) and binary builds if 'build.sign_binary' (default no) is set, with the 'sign.source' mode (auto if unset), but only when a signing key is configured."
     )]
     pub sign: Option<SignMode>,
 
-    #[arg(
-        long = "sign-key",
-        help = "GPG key ID/email to sign with. Defaults to the 'sign.key' setting in the config file, or the Changed-By/Maintainer address of the file being signed if unset."
-    )]
-    pub sign_key: Option<String>,
+    #[command(flatten)]
+    pub signing: SignArgs,
 
-    #[arg(
-        long = "sign-tool",
-        value_enum,
-        help = "OpenPGP implementation to sign with: 'gpg' (default), 'sequoia' (sq), or 'custom' (uses --sign-command). Defaults to the 'sign.tool' setting in the config file."
-    )]
-    pub sign_tool: Option<SignTool>,
-
-    #[arg(
-        long = "sign-command",
-        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
-    )]
-    pub sign_command: Option<String>,
-
-    #[arg(
-        long = "sign-notify",
-        num_args = 0..=1,
-        default_missing_value = "true",
-        value_parser = clap::value_parser!(bool),
-        help = "Send a desktop notification via notify-send just before signing, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
-    )]
-    pub sign_notify: Option<bool>,
+    #[command(flatten)]
+    pub notify: NotifyArgs,
 
     #[arg(
         long,
         num_args = 0..=1,
         default_missing_value = "true",
-        value_parser = clap::value_parser!(bool),
+        value_parser = BoolishValueParser::new(),
         help = "Run 'debian/rules clean' before building, like plain dpkg-buildpackage does unless passed -nc. Defaults to the 'clean' setting in the config file (false if unset); non-incremental builds already stage a clean source tree, while incremental builds preserve outputs by design. For source builds this also installs build-dependencies first, since a clean target usually needs its own tooling."
     )]
     pub clean: Option<bool>,
@@ -353,7 +491,11 @@ pub struct CommonBuildArgs {
     #[command(flatten)]
     pub common: CommonCli,
 
-    #[arg(short, long, help = "Output directory for the package artifacts")]
+    #[arg(
+        short,
+        long,
+        help = "Output directory for the package artifacts (relative paths resolve against the current working directory)"
+    )]
     pub output_dir: Option<PathBuf>,
 
     #[arg(
@@ -395,6 +537,7 @@ pub struct BinaryTargetArgs {
         num_args = 0..=1,
         default_missing_value = "true",
         action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
         help = "Also build the automatic '-dbgsym' debug symbol package"
     )]
     pub debug_symbols: Option<bool>,
@@ -403,8 +546,8 @@ pub struct BinaryTargetArgs {
         long = "test",
         num_args = 0..=1,
         default_missing_value = "true",
-        value_parser = clap::value_parser!(bool),
-        help = "Run the package's test suite during the build. Defaults to the 'run_test' setting in the config file (true if unset); --test=false exports DEB_BUILD_OPTIONS=nocheck so dpkg-buildpackage skips tests."
+        value_parser = BoolishValueParser::new(),
+        help = "Run the package's test suite during the build. Defaults to the 'run_test' setting in the config file (true if unset); --test=no exports DEB_BUILD_OPTIONS=nocheck and the nocheck build profile, so tests and test-only build dependencies are skipped."
     )]
     pub test: Option<bool>,
 }
@@ -448,12 +591,39 @@ pub enum EnvCommands {
         )]
         force: bool,
     },
-    #[command(about = "Open an interactive shell in an Environment")]
+    #[command(about = "Open the selected user's login shell in an Environment")]
     Shell {
         #[arg(
             help = "Environment id; when omitted, unique Environment for the current Source tree"
         )]
         id: Option<String>,
+        #[arg(
+            short,
+            long,
+            help = "User (name or uid); defaults to root in containers"
+        )]
+        user: Option<String>,
+        #[command(flatten)]
+        common: CommonCli,
+    },
+    #[command(about = "Run a command directly in an Environment, without a shell")]
+    Exec {
+        #[arg(
+            help = "Environment id; when omitted, unique Environment for the current Source tree"
+        )]
+        id: Option<String>,
+        #[arg(
+            short,
+            long,
+            help = "User (name or uid); defaults to root in containers"
+        )]
+        user: Option<String>,
+        #[arg(
+            last = true,
+            required = true,
+            help = "Command and arguments to execute directly"
+        )]
+        command: Vec<String>,
         #[command(flatten)]
         common: CommonCli,
     },
@@ -468,41 +638,8 @@ pub struct TestSubcommandArgs {
     )]
     pub driver: Option<DriverType>,
 
-    #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "always",
-        action = clap::ArgAction::Set,
-        help = "How long the test environment outlives this run: 'on-failure' (the default) keeps it when the tests fail, 'always' keeps it after every run, 'no' tears it down. A bare --persistent means 'always'. A failed run that keeps the environment prints `debmagic env shell <id>`."
-    )]
-    pub persistent: Option<crate::driver::Persistence>,
-
     #[command(flatten)]
-    pub docker: DockerArgs,
-
-    #[command(flatten)]
-    pub lxd: LxdArgs,
-
-    #[arg(
-        long = "apt-mirror",
-        help = "Apt mirror URL to use inside the test environment instead of the default archive mirrors. Ignored by the bare driver."
-    )]
-    pub apt_mirror: Option<String>,
-
-    #[arg(
-        long,
-        num_args = 0..=1,
-        default_missing_value = "true",
-        action = clap::ArgAction::Set,
-        help = "Also enable the '<release>-proposed' pocket in the test environment. Ignored by the bare driver."
-    )]
-    pub proposed: Option<bool>,
-
-    #[arg(
-        long = "apt-update-age",
-        help = "When a persistent test environment runs 'apt-get update' again: 'now' (every run), 'never' (only on first creation), or a maximum age of the apt index like '1d' (the default), '12h', '30m'. Fresh environments always update once. Defaults to the 'apt_update_age' setting in the config file. Ignored by the bare driver."
-    )]
-    pub apt_update_age: Option<RefreshPolicy>,
+    pub environment: EnvironmentArgs,
 
     #[arg(
         long,
@@ -531,6 +668,9 @@ pub struct TestSubcommandArgs {
     pub allow_host_test: bool,
 
     #[command(flatten)]
+    pub notify: NotifyArgs,
+
+    #[command(flatten)]
     pub common: CommonCli,
 }
 
@@ -550,38 +690,16 @@ pub struct SignSubcommandArgs {
     )]
     pub mode: SignMode,
 
-    #[arg(
-        long = "sign-key",
-        help = "GPG key ID/email to sign with. Defaults to the 'sign.key' setting in the config file, or the Changed-By/Maintainer address of the file being signed if unset."
-    )]
-    pub sign_key: Option<String>,
+    #[command(flatten)]
+    pub signing: SignArgs,
 
-    #[arg(
-        long = "sign-tool",
-        value_enum,
-        help = "OpenPGP implementation to sign with: 'gpg' (default), 'sequoia' (sq), or 'custom' (uses --sign-command). Defaults to the 'sign.tool' setting in the config file."
-    )]
-    pub sign_tool: Option<SignTool>,
-
-    #[arg(
-        long = "sign-command",
-        help = "Custom signing command for --sign-tool custom, run without a shell. Supports {file}, {key} and {email} placeholders; writes the clearsigned result to stdout. Defaults to the 'sign.sign_command' setting in the config file."
-    )]
-    pub sign_command: Option<String>,
-
-    #[arg(
-        long = "sign-notify",
-        num_args = 0..=1,
-        default_missing_value = "true",
-        value_parser = clap::value_parser!(bool),
-        help = "Send a desktop notification via notify-send just before signing, so a hardware-key touch prompt isn't missed. Defaults to the 'sign.notify' setting in the config file (false if unset)."
-    )]
-    pub sign_notify: Option<bool>,
+    #[command(flatten)]
+    pub notify: NotifyArgs,
 
     #[arg(
         short,
         long,
-        help = "Directory holding the .changes file when no file is given (default '..')."
+        help = "Directory holding the .changes file when no file is given (default 'build-area' under the package source directory)."
     )]
     pub output_dir: Option<PathBuf>,
 
@@ -628,10 +746,14 @@ pub struct UploadSubcommandArgs {
 
     #[arg(
         long,
-        action = clap::ArgAction::SetTrue,
-        help = "Skip the target's pre_upload_commands"
+        num_args = 0..=1,
+        default_missing_value = "true",
+        default_value_t = true,
+        action = clap::ArgAction::Set,
+        value_parser = BoolishValueParser::new(),
+        help = "Run the target's pre_upload_commands; --hooks=no skips them"
     )]
-    pub no_hooks: bool,
+    pub hooks: bool,
 
     #[arg(
         long,
@@ -657,6 +779,9 @@ pub struct UploadSubcommandArgs {
     pub include_orig: Option<IncludeOrig>,
 
     #[command(flatten)]
+    pub notify: NotifyArgs,
+
+    #[command(flatten)]
     pub common: CommonCli,
 
     #[arg(
@@ -665,32 +790,43 @@ pub struct UploadSubcommandArgs {
     pub changes: Option<PathBuf>,
 }
 
-impl CommonBuildArgs {
+impl EnvironmentArgs {
     /// Collect the driver-specific overrides from the CLI flags.
-    pub fn driver_overrides(&self) -> DriverOverrides {
-        DriverOverrides {
-            apt_mirror: self.apt_mirror.clone(),
-            proposed: self.proposed,
-            apt_update_age: self.apt_update_age,
-            docker: DriverDockerConfigOverrides {
-                base_image: self.docker.base_image.clone(),
-            },
-            bare: DriverBareConfigOverrides {},
-            lxd: DriverLxdConfigOverrides {
-                base_image: self.lxd.base_image.clone(),
-                project: self.lxd.project.clone(),
-            },
+    /// Collect the `[apt]` overrides from the CLI flags.
+    pub fn apt_overrides(&self) -> AptOverrides {
+        let mut packages = Vec::new();
+        let mut whole = |selection: &Option<Selection>, archive: &str| match selection {
+            None => None,
+            Some(Selection::All) => Some(true),
+            Some(Selection::Off) => Some(false),
+            Some(Selection::Only(patterns)) => {
+                packages.extend(patterns.iter().map(|pattern| {
+                    let from = Some(archive.to_string());
+                    let settings = PackageSettings {
+                        from,
+                        version: None,
+                    };
+                    (pattern.clone(), settings)
+                }));
+                None
+            }
+        };
+        let proposed = whole(&self.proposed, "proposed");
+        let experimental = whole(&self.experimental, "experimental");
+        packages.extend(self.packages.iter().cloned());
+        AptOverrides {
+            mirror: self.apt_mirror.clone(),
+            update_age: self.apt_update_age,
+            proposed,
+            experimental,
+            packages,
+            archives: self.archives.clone(),
         }
     }
-}
 
-impl TestSubcommandArgs {
     /// Collect the driver-specific overrides from the CLI flags.
     pub fn driver_overrides(&self) -> DriverOverrides {
         DriverOverrides {
-            apt_mirror: self.apt_mirror.clone(),
-            proposed: self.proposed,
-            apt_update_age: self.apt_update_age,
             docker: DriverDockerConfigOverrides {
                 base_image: self.docker.base_image.clone(),
             },
@@ -724,7 +860,93 @@ mod tests {
     #[test_case(&["--persistent=no"], Some(Persistence::No); "no")]
     fn persistent_flag(args: &[&str], expected: Option<Persistence>) {
         let args = parse_test(args);
-        assert_eq!(args.persistent, expected);
+        assert_eq!(args.environment.persistent, expected);
+    }
+
+    #[test_case(&[], None; "absent")]
+    #[test_case(&["--proposed"], Some(Selection::All); "bare flag")]
+    #[test_case(&["--proposed=no"], Some(Selection::Off); "no")]
+    #[test_case(&["--proposed=libfoo,src:bar"], Some(Selection::Only(vec!["libfoo".into(), "src:bar".into()])); "packages")]
+    fn proposed_flag(args: &[&str], expected: Option<Selection>) {
+        assert_eq!(parse_test(args).environment.proposed, expected);
+    }
+
+    #[test]
+    fn package_lists_become_package_settings() {
+        let args = parse_test(&[
+            "--proposed=libfoo1",
+            "--experimental",
+            "--package",
+            "src:bar=1.0/release",
+        ]);
+        let overrides = args.environment.apt_overrides();
+        assert_eq!(overrides.proposed, None);
+        assert_eq!(overrides.experimental, Some(true));
+        let packages: Vec<_> = overrides
+            .packages
+            .iter()
+            .map(|(p, s)| (p.as_str(), s))
+            .collect();
+        assert_eq!(
+            packages,
+            [
+                ("libfoo1", &parse_package("x/proposed").unwrap().1),
+                ("src:bar", &parse_package("x=1.0/release").unwrap().1),
+            ]
+        );
+    }
+
+    #[test]
+    fn experimental_flag_is_a_selection() {
+        let args = parse_test(&["--experimental"]).environment;
+        assert_eq!(args.experimental, Some(Selection::All));
+        assert!(Cli::try_parse_from(["debmagic", "test", "--experimental=a b"]).is_err());
+    }
+
+    #[test_case(&[], None, None; "inferred environment")]
+    #[test_case(&["bld-abc", "-u", "1000"], Some("bld-abc"), Some("1000"); "id and user")]
+    fn env_shell(args: &[&str], id: Option<&str>, user: Option<&str>) {
+        let cli = Cli::try_parse_from([&["debmagic", "env", "shell"], args].concat()).unwrap();
+        let Commands::Environment(args) = cli.command else {
+            panic!("unexpected command {:?}", cli.command);
+        };
+        let EnvCommands::Shell {
+            id: parsed_id,
+            user: parsed_user,
+            ..
+        } = args.command
+        else {
+            panic!("unexpected env command {:?}", args.command);
+        };
+        assert_eq!(parsed_id.as_deref(), id);
+        assert_eq!(parsed_user.as_deref(), user);
+    }
+
+    #[test]
+    fn env_exec_parses_direct_command() {
+        let cli = Cli::try_parse_from([
+            "debmagic", "env", "exec", "bld-abc", "-u", "1000", "--", "echo", "-n", "hello",
+        ])
+        .unwrap();
+        let Commands::Environment(args) = cli.command else {
+            panic!("unexpected command {:?}", cli.command);
+        };
+        let EnvCommands::Exec {
+            id, user, command, ..
+        } = args.command
+        else {
+            panic!("unexpected env command {:?}", args.command);
+        };
+        assert_eq!(id.as_deref(), Some("bld-abc"));
+        assert_eq!(user.as_deref(), Some("1000"));
+        assert_eq!(command, ["echo", "-n", "hello"]);
+    }
+
+    #[test]
+    fn env_exec_requires_command_and_double_dash() {
+        assert!(Cli::try_parse_from(["debmagic", "env", "exec"]).is_err());
+        assert!(Cli::try_parse_from(["debmagic", "env", "exec", "echo", "hi"]).is_err());
+        assert!(Cli::try_parse_from(["debmagic", "env", "shell", "--", "echo", "hi"]).is_err());
     }
 
     #[test]

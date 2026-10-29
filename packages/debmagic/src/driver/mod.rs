@@ -11,14 +11,15 @@ use std::{
     time::SystemTime,
 };
 
+use crate::apt::AptPlan;
 use crate::driver::{
     config::{DriverConfig, DriverOverrides},
     driver_bare::DriverBare,
     driver_docker::DriverDocker,
     driver_lxd::{DriverLxd, LxdVariant},
 };
-use crate::subprocess::{Capture, CommandResult};
-use crate::time::{RefreshPolicy, iso_timestamp, parse_iso_timestamp};
+use crate::subprocess::{self, Capture, CommandResult};
+use crate::time::RefreshPolicy;
 
 pub mod config;
 pub mod driver_bare;
@@ -30,6 +31,34 @@ pub use config::Persistence;
 /// Path at which the environment root is bind-mounted inside container-based
 /// drivers (Docker, LXD, Incus).
 pub const ENVIRONMENT_DIR_IN_CONTAINER: &str = "/debmagic";
+
+/// The fields needed from a `getent passwd` entry.
+#[derive(Debug, PartialEq, Eq)]
+pub struct PasswdEntry {
+    pub name: String,
+    pub uid: String,
+    pub gid: String,
+    pub home: String,
+    pub shell: String,
+}
+
+impl PasswdEntry {
+    pub fn parse(user: &str, entry: &str) -> io::Result<Self> {
+        let fields: Vec<&str> = entry.trim_end().split(':').collect();
+        let [name, _, uid, gid, _, home, shell] = fields.as_slice() else {
+            return Err(io::Error::other(format!(
+                "no user {user} in the environment"
+            )));
+        };
+        Ok(Self {
+            name: (*name).into(),
+            uid: (*uid).into(),
+            gid: (*gid).into(),
+            home: (*home).into(),
+            shell: (*shell).into(),
+        })
+    }
+}
 
 /// Rewrite a path inside the host's environment root to the equivalent path
 /// inside a container that has it bind-mounted at [`ENVIRONMENT_DIR_IN_CONTAINER`].
@@ -104,49 +133,9 @@ pub fn environment_fingerprint(parts: &[&str]) -> String {
         .to_string()
 }
 
-/// Stamp file in a container environment's own filesystem (not the
-/// bind-mounted build root, which `reset_root` wipes) holding the ISO
-/// timestamp of the last successful `apt-get update` there.
-pub const APT_UPDATE_STAMP: &str = "/var/lib/debmagic/apt-updated";
-
-/// Bring a reused environment's apt index up to date under `policy`: check
-/// the stamp file for when `apt-get update` last ran, and when the policy
-/// says it has gone stale (or the stamp is missing), run the update and
-/// record a fresh timestamp. Fresh environments (`reused = false`) always
-/// update once.
-pub fn refresh_apt_index(
-    driver: &dyn EnvironmentDriver,
-    environment: &Environment,
-    policy: RefreshPolicy,
-    reused: bool,
-) -> io::Result<()> {
-    let last_update = if reused {
-        driver
-            .run_command(
-                &["cat", APT_UPDATE_STAMP],
-                &environment.root_dir,
-                true,
-                &[],
-                Capture::STDOUT,
-            )
-            .ok()
-            .filter(|result| result.exit_code == 0)
-            .and_then(|result| result.stdout)
-            .and_then(|stdout| parse_iso_timestamp(&stdout))
-    } else {
-        None
-    };
-    if reused && !apt_update_needed_on_reuse(policy, last_update) {
-        return Ok(());
-    }
-    driver.run_command_checked(&["apt-get", "update"], &environment.root_dir, true, &[])?;
-    let stamp = apt_update_stamp_script(&iso_timestamp());
-    driver.run_command_checked(&["sh", "-ec", &stamp], &environment.root_dir, true, &[])
-}
-
-/// Whether a reused environment needs `apt-get update` again under `policy`.
+/// Whether a reused environment needs an apt refresh again under `policy`.
 /// `last_update` is when its apt index was last refreshed; `None` means
-/// never, which includes a missing stamp file.
+/// never.
 pub fn apt_update_needed_on_reuse(policy: RefreshPolicy, last_update: Option<SystemTime>) -> bool {
     match policy {
         RefreshPolicy::Now => true,
@@ -155,12 +144,6 @@ pub fn apt_update_needed_on_reuse(policy: RefreshPolicy, last_update: Option<Sys
             .and_then(|last| SystemTime::now().duration_since(last).ok())
             .is_none_or(|age| age > max_age),
     }
-}
-
-/// `sh -ec` script storing `timestamp` (from [`crate::time::iso_timestamp`])
-/// in the environment's apt-update stamp file.
-fn apt_update_stamp_script(timestamp: &str) -> String {
-    format!("mkdir -p /var/lib/debmagic && printf %s '{timestamp}' > {APT_UPDATE_STAMP}")
 }
 
 /// Metadata key under which container-based drivers store their container's
@@ -374,12 +357,33 @@ pub struct EnvironmentMetadata {
     pub driver_metadata: HashMap<String, String>,
 }
 
-/// Source of a Python script that rewrites the default Debian/Ubuntu apt
-/// sources to point at a mirror. Replaces the base image's default sources
-/// file(s) outright with one debmagic owns, rather than parsing and
-/// patching them in place, defaulting to the release/updates/security
-/// pockets it detects from `/etc/os-release`.
-pub const APT_MIRROR_SCRIPT: &str = include_str!("scripts/mirror.py");
+/// Run `getent passwd` using a command prepared up to its command arguments.
+pub fn getent_passwd(mut command: Command, user: &str) -> io::Result<PasswdEntry> {
+    command
+        .args(["getent", "passwd", user])
+        .stdin(std::process::Stdio::null());
+    let result = subprocess::command(command)
+        .capture(Capture::STDOUT)
+        .run()?;
+    if result.exit_code != 0 {
+        return Err(io::Error::other(format!(
+            "no user {user} in the environment"
+        )));
+    }
+    PasswdEntry::parse(user, &result.stdout.unwrap_or_default())
+}
+
+/// Options for one direct command execution.
+#[derive(Default)]
+pub struct CommandOptions<'a> {
+    pub requires_root: bool,
+    pub user: Option<&'a str>,
+    pub env_add: &'a [(&'a str, &'a str)],
+    pub capture: Capture,
+    /// Attach the user's terminal, start a stopped container if necessary,
+    /// and use the interactive default user (root for containers).
+    pub terminal: bool,
+}
 
 pub trait EnvironmentDriver {
     fn driver_metadata(&self) -> HashMap<String, String>;
@@ -391,9 +395,7 @@ pub trait EnvironmentDriver {
         &self,
         cmd: &[&str],
         cwd: &Path,
-        requires_root: bool,
-        env_add: &[(&str, &str)],
-        capture: Capture,
+        options: CommandOptions<'_>,
     ) -> io::Result<CommandResult>;
 
     fn run_command_checked(
@@ -403,7 +405,13 @@ pub trait EnvironmentDriver {
         requires_root: bool,
         env_add: &[(&str, &str)],
     ) -> io::Result<()> {
-        let result = self.run_command(cmd, cwd, requires_root, env_add, Capture::NONE)?;
+        let options = CommandOptions {
+            requires_root,
+            env_add,
+            terminal: false,
+            ..Default::default()
+        };
+        let result = self.run_command(cmd, cwd, options)?;
         if result.exit_code != 0 {
             return Err(io::Error::other(format!(
                 "Command failed with exit code: {}",
@@ -413,7 +421,8 @@ pub trait EnvironmentDriver {
         Ok(())
     }
 
-    fn interactive_shell(&self, cwd: &Path) -> io::Result<()>;
+    /// Start the selected user's login shell on the terminal. Returns its exit code.
+    fn interactive_shell(&self, cwd: &Path, user: Option<&str>) -> io::Result<i32>;
 
     fn driver_type(&self) -> DriverType;
 
@@ -424,6 +433,12 @@ pub trait EnvironmentDriver {
 
     fn reused_environment(&self) -> bool {
         true
+    }
+
+    /// When the packages of a fresh Environment were last refreshed, if it
+    /// comes with refreshed ones (a container from a cached image).
+    fn packages_refreshed_at(&self) -> Option<SystemTime> {
+        None
     }
 
     /// Whether the Driver resource for this Environment still exists.
@@ -454,22 +469,20 @@ impl EnvironmentDriver for Driver {
         &self,
         cmd: &[&str],
         cwd: &Path,
-        requires_root: bool,
-        env_add: &[(&str, &str)],
-        capture: Capture,
+        options: CommandOptions<'_>,
     ) -> io::Result<CommandResult> {
         match self {
-            Self::Docker(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
-            Self::Bare(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
-            Self::Lxd(d) => d.run_command(cmd, cwd, requires_root, env_add, capture),
+            Self::Docker(d) => d.run_command(cmd, cwd, options),
+            Self::Bare(d) => d.run_command(cmd, cwd, options),
+            Self::Lxd(d) => d.run_command(cmd, cwd, options),
         }
     }
 
-    fn interactive_shell(&self, cwd: &Path) -> io::Result<()> {
+    fn interactive_shell(&self, cwd: &Path, user: Option<&str>) -> io::Result<i32> {
         match self {
-            Self::Docker(d) => d.interactive_shell(cwd),
-            Self::Bare(d) => d.interactive_shell(cwd),
-            Self::Lxd(d) => d.interactive_shell(cwd),
+            Self::Docker(d) => d.interactive_shell(cwd, user),
+            Self::Bare(d) => d.interactive_shell(cwd, user),
+            Self::Lxd(d) => d.interactive_shell(cwd, user),
         }
     }
 
@@ -505,6 +518,14 @@ impl EnvironmentDriver for Driver {
         }
     }
 
+    fn packages_refreshed_at(&self) -> Option<SystemTime> {
+        match self {
+            Self::Docker(d) => d.packages_refreshed_at(),
+            Self::Bare(d) => d.packages_refreshed_at(),
+            Self::Lxd(d) => d.packages_refreshed_at(),
+        }
+    }
+
     fn probe_resource(&self) -> ResourceStatus {
         match self {
             Self::Docker(d) => d.probe_resource(),
@@ -525,29 +546,23 @@ impl EnvironmentDriver for Driver {
 pub fn create_driver(
     environment: &Environment,
     driver_config: &DriverConfig,
+    apt: &AptPlan,
     overrides: &DriverOverrides,
 ) -> anyhow::Result<Driver> {
-    let apt_mirror = overrides
-        .apt_mirror
-        .as_deref()
-        .or(driver_config.apt_mirror.as_deref());
-    let proposed = overrides.proposed.unwrap_or(driver_config.proposed);
-    let mut driver_config = driver_config.clone();
-    if let Some(apt_update_age) = overrides.apt_update_age {
-        driver_config.apt_update_age = apt_update_age;
-    }
+    let apt_mirror = apt.mirror.as_deref();
+    let archives = &apt.archives;
 
     match environment.driver {
         DriverType::Docker => Ok(Driver::Docker(DriverDocker::create(
             environment,
-            &driver_config,
+            driver_config,
             &overrides.docker,
             apt_mirror,
-            proposed,
+            archives,
         )?)),
         DriverType::Bare => Ok(Driver::Bare(DriverBare::create(
             environment,
-            &driver_config,
+            driver_config,
             &overrides.bare,
         ))),
         DriverType::Lxd | DriverType::Incus => {
@@ -558,10 +573,10 @@ pub fn create_driver(
             Ok(Driver::Lxd(DriverLxd::create(
                 variant,
                 environment,
-                &driver_config,
+                driver_config,
                 &overrides.lxd,
                 apt_mirror,
-                proposed,
+                archives,
             )?))
         }
     }
@@ -669,6 +684,18 @@ mod tests {
     use std::path::PathBuf;
     use std::time::Duration;
     use std::time::SystemTime;
+
+    #[test]
+    fn passwd_entry_includes_the_login_shell() {
+        let entry = PasswdEntry::parse("1000", "ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/zsh\n")
+            .unwrap();
+        assert_eq!(entry.shell, "/bin/zsh");
+        assert_eq!(entry.name, "ubuntu");
+        assert_eq!(entry.uid, "1000");
+        assert_eq!(entry.gid, "1000");
+        assert_eq!(entry.home, "/home/ubuntu");
+        assert!(PasswdEntry::parse("nobodyx", "").is_err());
+    }
 
     #[test]
     fn resource_names_are_valid_stable_and_distinct() {

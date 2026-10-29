@@ -1,229 +1,157 @@
-use deb822_lossless::Paragraph;
+use anyhow::Context;
 
-/// Filenames ending in `.<ext>` listed under `Files:` or any
-/// `Checksums-*:` field.
-pub fn child_filename(paragraph: &Paragraph, ext: &str) -> Option<String> {
-    let suffix = format!(".{ext}");
-    for key in paragraph.keys() {
-        if key != "Files" && !key.starts_with("Checksums-") {
-            continue;
-        }
-        for line in paragraph
-            .get(&key)
-            .into_iter()
-            .flat_map(|v| v.lines().map(str::to_string).collect::<Vec<_>>())
-        {
-            if let Some(name) = line.split_whitespace().next_back()
-                && name.ends_with(&suffix)
-            {
-                return Some(name.to_string());
-            }
-        }
-    }
-    None
-}
-
-/// The hash algorithms used by the checksum fields of a control file.
-#[derive(Clone, Copy)]
-pub enum Hash {
-    Md5,
-    Sha1,
-    Sha256,
-}
-
-impl Hash {
-    pub fn hex(self, data: &[u8]) -> String {
-        fn hex<D: sha2::Digest>(mut hasher: D, data: &[u8]) -> String {
-            hasher.update(data);
-            hasher
-                .finalize()
-                .iter()
-                .map(|b| format!("{b:02x}"))
-                .collect()
-        }
-        match self {
-            Hash::Md5 => hex(md5::Md5::default(), data),
-            Hash::Sha1 => hex(sha1::Sha1::default(), data),
-            Hash::Sha256 => hex(sha2::Sha256::default(), data),
-        }
-    }
-}
-
-/// The checksum fields debmagic understands, mapped to their hash.
-pub const CHECKSUM_FIELDS: &[(&str, Hash)] = &[
-    ("Files", Hash::Md5),
-    ("Checksums-Sha1", Hash::Sha1),
-    ("Checksums-Sha256", Hash::Sha256),
+/// The source paragraph's build relationship fields, `Build-Depends` first:
+/// a [`BuildScope::Clean`] needs only that one.
+const BUILD_DEPENDS_FIELDS: [&str; 3] =
+    ["Build-Depends", "Build-Depends-Arch", "Build-Depends-Indep"];
+const BUILD_CONFLICTS_FIELDS: [&str; 3] = [
+    "Build-Conflicts",
+    "Build-Conflicts-Arch",
+    "Build-Conflicts-Indep",
 ];
 
-/// Rewrite one `Files:`/`Checksums-*:` line: the first token is the
-/// checksum, the second the size, the last the filename; entries for
-/// other files pass through unchanged.
-fn rewrite_checksum_line(line: &str, filename: &str, checksum: &str, size: usize) -> String {
-    let tokens: Vec<&str> = line.split_whitespace().collect();
-    match tokens.as_slice() {
-        [old_checksum, old_size, middle @ .., name] if *name == filename => {
-            let middle = if middle.is_empty() {
-                String::new()
-            } else {
-                format!(" {}", middle.join(" "))
-            };
-            format!("{checksum} {size}{middle} {name}")
-        }
-        _ => line.to_string(),
-    }
+/// Which build relationship fields a build has to satisfy.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BuildScope {
+    /// `debian/rules clean` (and so a source build): `Build-Depends` and
+    /// `Build-Conflicts` only.
+    Clean,
+    /// A full binary build: also the `-Arch` and `-Indep` fields.
+    Full,
 }
 
-/// Rewrite the size and checksum entries for the file listings in a control file
-pub fn fixup_checksums(
-    paragraph: &mut Paragraph,
-    filename: &str,
-    data: &[u8],
-) -> anyhow::Result<()> {
-    let size = data.len();
-
-    for key in paragraph.keys() {
-        if key.starts_with("Checksums-") && !CHECKSUM_FIELDS.iter().any(|(field, ..)| *field == key)
-        {
-            // An unknown checksum format would keep a stale checksum for a
-            // re-signed file, producing an upload that fails verification
-            // far away from here.
-            anyhow::bail!("unknown checksum field '{key}:' in control file");
-        }
-    }
-
-    for (key, hash) in CHECKSUM_FIELDS {
-        let Some(value) = paragraph.get(key) else {
-            continue;
-        };
-        let checksum = hash.hex(data);
-        let updated = value
-            .lines()
-            .filter(|line| !line.is_empty())
-            .map(|line| rewrite_checksum_line(line, filename, &checksum, size))
-            .collect::<Vec<_>>()
-            .join("\n");
-        paragraph.set(key, &updated);
-    }
-    Ok(())
+/// The relations a build has to satisfy, one comma-separated list per field,
+/// with arch qualifiers and build profiles still in it.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct BuildRelations {
+    pub depends: Vec<String>,
+    pub conflicts: Vec<String>,
 }
 
-/// The digests of one file, for every algorithm a control file's
-/// checksum fields may use.
+/// The model of a package's `debian/control`.
 #[derive(Debug, Clone, Default)]
-pub struct Digests {
-    pub md5: String,
-    pub sha1: String,
-    pub sha256: String,
+pub struct Control {
+    /// The source paragraph's `Rules-Requires-Root` keywords, `None` if absent.
+    pub rules_requires_root: Option<Vec<String>>,
+    /// The source paragraph's build relationship fields in the order of
+    /// [`BUILD_DEPENDS_FIELDS`] and [`BUILD_CONFLICTS_FIELDS`], normalized
+    /// to one line without empty entries; `None` if absent or empty.
+    pub build_depends: [Option<String>; 3],
+    pub build_conflicts: [Option<String>; 3],
+    /// The binary packages it builds.
+    pub binaries: Vec<String>,
 }
 
-impl Digests {
-    /// Digest `data` with every checksum-field algorithm at once.
-    pub fn of(data: &[u8]) -> Self {
-        Self {
-            md5: Hash::Md5.hex(data),
-            sha1: Hash::Sha1.hex(data),
-            sha256: Hash::Sha256.hex(data),
-        }
-    }
-
-    fn for_hash(&self, hash: Hash) -> &str {
-        match hash {
-            Hash::Md5 => &self.md5,
-            Hash::Sha1 => &self.sha1,
-            Hash::Sha256 => &self.sha256,
-        }
-    }
-}
-
-/// Verify that the checksum entries a paragraph records for `filename`
-/// match `digests`. Returns whether any entry was checked; a paragraph
-/// listing no entry for the file is not an error.
-pub fn verify_checksums(
-    paragraph: &Paragraph,
-    filename: &str,
-    digests: &Digests,
-) -> anyhow::Result<bool> {
-    let mut checked = false;
-    for (field, hash) in CHECKSUM_FIELDS {
-        let Some(value) = paragraph.get(field) else {
-            continue;
+impl Control {
+    pub fn parse(content: &str) -> anyhow::Result<Self> {
+        let deb822 = content
+            .parse::<deb822_lossless::Deb822>()
+            .context("invalid deb822")?;
+        let mut paragraphs = deb822.paragraphs();
+        let source = paragraphs.next().context("no source paragraph")?;
+        let relations = |fields: [&str; 3]| {
+            fields.map(|field| {
+                source
+                    .get(field)
+                    .and_then(|value| normalize_relations(&value))
+            })
         };
-        let actual = digests.for_hash(*hash);
-        for line in value.lines().filter(|l| !l.is_empty()) {
-            let tokens: Vec<&str> = line.split_whitespace().collect();
-            if tokens.last() != Some(&filename) {
-                continue;
-            }
-            let Some(&expected) = tokens.first() else {
-                continue;
-            };
-            checked = true;
-            if actual != expected {
-                anyhow::bail!("{filename} does not match the checksum {field} recorded for it");
-            }
+        Ok(Self {
+            rules_requires_root: source
+                .get("Rules-Requires-Root")
+                .map(|value| value.split_whitespace().map(str::to_string).collect()),
+            build_depends: relations(BUILD_DEPENDS_FIELDS),
+            build_conflicts: relations(BUILD_CONFLICTS_FIELDS),
+            binaries: paragraphs
+                .filter_map(|binary| binary.get("Package"))
+                .map(|name| name.trim().to_string())
+                .collect(),
+        })
+    }
+
+    /// The build relations `scope` has to satisfy.
+    pub fn build_relations(&self, scope: BuildScope) -> BuildRelations {
+        let fields = match scope {
+            BuildScope::Clean => 1,
+            BuildScope::Full => 3,
+        };
+        let collect = |relations: &[Option<String>; 3]| {
+            relations[..fields].iter().flatten().cloned().collect()
+        };
+        BuildRelations {
+            depends: collect(&self.build_depends),
+            conflicts: collect(&self.build_conflicts),
         }
     }
-    Ok(checked)
+
+    /// Whether `dpkg-buildpackage` demands a gain-root command (`fakeroot`)
+    /// at startup, whatever targets it runs: unless `Rules-Requires-Root`
+    /// contains `no`. An absent field counts as needing one, since dpkg
+    /// before 1.22.13 defaults it to `binary-targets`.
+    pub fn needs_gain_root(&self) -> bool {
+        self.rules_requires_root
+            .as_ref()
+            .is_none_or(|keywords| !keywords.iter().any(|keyword| keyword == "no"))
+    }
+}
+
+/// A relations field on one line, without the empty entries a trailing
+/// comma leaves (old apt rejects them); `None` if nothing remains.
+fn normalize_relations(value: &str) -> Option<String> {
+    let relations: Vec<String> = value
+        .split(',')
+        .map(|relation| relation.split_whitespace().collect::<Vec<_>>().join(" "))
+        .filter(|relation| !relation.is_empty())
+        .collect();
+    (!relations.is_empty()).then(|| relations.join(", "))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use test_case::test_case;
 
-    #[test]
-    fn verify_checksums_matches_and_mismatches() {
-        let data = b"tarball content";
-        let digests = Digests::of(data);
-        let control: Paragraph = format!(
-            "Format: 3.0 (quilt)\nFiles:\n {} 15 debiandev optional pkg_1.0.orig.tar.xz\nChecksums-Sha256:\n {} 15 pkg_1.0.orig.tar.xz\n",
-            digests.md5, digests.sha256
-        )
-        .parse()
-        .unwrap();
-
-        assert!(verify_checksums(&control, "pkg_1.0.orig.tar.xz", &digests).unwrap());
-
-        // a stale tarball fails
-        let stale = Digests::of(b"different content");
-        assert!(verify_checksums(&control, "pkg_1.0.orig.tar.xz", &stale).is_err());
-
-        // a file the paragraph does not list is not checked
-        assert!(!verify_checksums(&control, "other.tar.xz", &digests).unwrap());
+    #[test_case("Source: foo\nRules-Requires-Root: no\n", false ; "no")]
+    #[test_case("Source: foo\nRules-Requires-Root: binary-targets\n", true ; "binary targets")]
+    #[test_case("Source: foo\nRules-Requires-Root: dpkg/target-subcommand\n", true ; "implementation keyword")]
+    #[test_case("Source: foo\n\nPackage: foo\nRules-Requires-Root: no\n", true ; "absent from source paragraph")]
+    #[test_case("Source: foo\nBuild-Depends: a,\n# comment\n b\nRules-Requires-Root: no\n", false ; "comment in continuation")]
+    fn test_needs_gain_root(control: &str, expected: bool) {
+        assert_eq!(Control::parse(control).unwrap().needs_gain_root(), expected);
     }
 
-    fn parse_control(content: &str) -> Paragraph {
-        content.parse().unwrap()
-    }
+    const BUILD_RELATIONS: &str = "Source: foo\n\
+        Build-Depends: debhelper-compat (= 13),\n\
+        # comment\n\
+        \x20libfoo-dev [amd64] <!nocheck>,\n\
+        Build-Depends-Indep: python3-sphinx\n\
+        Build-Conflicts: libbar-dev\n\
+        Build-Conflicts-Arch:\n\
+        \n\
+        Package: foo\n\
+        Build-Depends: ignored\n";
 
-    #[test]
-    fn child_filename_finds_dsc_and_buildinfo() {
-        let control = parse_control(
-            "Format: 1.8\nSource: pkg\nFiles:\n abc 123 pkg_1.0.dsc\n def 456 pkg_1.0.buildinfo\n ghi 789 other.txt\nChecksums-Sha256:\n xyz 123 pkg_1.0.dsc\n",
-        );
+    #[test_case(BuildScope::Clean, &["debhelper-compat (= 13), libfoo-dev [amd64] <!nocheck>"] ; "clean")]
+    #[test_case(BuildScope::Full, &["debhelper-compat (= 13), libfoo-dev [amd64] <!nocheck>", "python3-sphinx"] ; "full")]
+    fn test_build_relations(scope: BuildScope, depends: &[&str]) {
+        let relations = Control::parse(BUILD_RELATIONS)
+            .unwrap()
+            .build_relations(scope);
         assert_eq!(
-            child_filename(&control, "dsc").as_deref(),
-            Some("pkg_1.0.dsc")
+            relations,
+            BuildRelations {
+                depends: depends
+                    .iter()
+                    .map(|relation| relation.to_string())
+                    .collect(),
+                conflicts: vec!["libbar-dev".to_string()],
+            }
         );
-        assert_eq!(
-            child_filename(&control, "buildinfo").as_deref(),
-            Some("pkg_1.0.buildinfo")
-        );
-        assert_eq!(child_filename(&control, "deb"), None);
     }
 
     #[test]
-    fn fixup_rewrites_all_checksum_sections() {
-        let mut control = parse_control(
-            "Format: 1.8\nFiles:\n oldmd5 3 hash optional pkg_1.0.dsc\nChecksums-Sha1:\n oldsha1 3 pkg_1.0.dsc\nChecksums-Sha256:\n oldsha256 3 pkg_1.0.dsc\n",
-        );
-        let data = b"abc";
-        fixup_checksums(&mut control, "pkg_1.0.dsc", data).unwrap();
-
-        let md5 = Hash::Md5.hex(data);
-        let joined = control.to_string();
-        assert!(joined.contains(&format!("{md5} 3 hash optional pkg_1.0.dsc")));
-        assert!(joined.contains(&format!(" {} 3 pkg_1.0.dsc", Hash::Sha1.hex(data))));
-        assert!(joined.contains(&format!(" {} 3 pkg_1.0.dsc", Hash::Sha256.hex(data))));
+    fn test_binaries() {
+        let control = Control::parse(&format!("{BUILD_RELATIONS}\nPackage: libfoo1\n")).unwrap();
+        assert_eq!(control.binaries, ["foo", "libfoo1"]);
     }
 }

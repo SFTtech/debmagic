@@ -25,6 +25,48 @@ impl ChangelogHead {
     }
 }
 
+/// Who signs off a changelog entry, as `(name, email)`.
+pub type Maintainer = (String, String);
+
+/// Prepend an `UNRELEASED` entry for the head's package at `version`, with an
+/// empty bullet to fill in. Identity and time come from the caller.
+pub fn add_entry(
+    changelog: &mut debian_changelog::ChangeLog,
+    version: &PackageVersion,
+    maintainer: Maintainer,
+    timestamp: chrono::DateTime<chrono::FixedOffset>,
+) -> anyhow::Result<()> {
+    let head = changelog
+        .iter()
+        .next()
+        .ok_or_else(|| anyhow::anyhow!("changelog has no entry to base the new one on"))?;
+    if head.is_unreleased() == Some(true) {
+        anyhow::bail!(
+            "the top entry ({}) is already UNRELEASED; edit it instead",
+            head.version()
+                .map_or_else(|| "no version".into(), |v| v.to_string())
+        );
+    }
+    let package = head
+        .package()
+        .ok_or_else(|| anyhow::anyhow!("the top entry has no package name"))?;
+    let version = version
+        .version()
+        .parse()
+        .map_err(|error| anyhow::anyhow!("invalid version {version}: {error}"))?;
+    changelog
+        .new_empty_entry()
+        .package(package)
+        .version(version)
+        .distribution(debian_changelog::UNRELEASED.into())
+        .urgency(debian_changelog::Urgency::Medium)
+        .maintainer(maintainer)
+        .datetime(timestamp)
+        .change_line("* ".into())
+        .finish();
+    Ok(())
+}
+
 /// Whether a changelog's top entry looks like an Ubuntu deltarebase
 /// onto a Debian version Ubuntu has never seen: the current revision
 /// carries an `ubuntu` component while the previous entry's does not.
@@ -150,6 +192,46 @@ mod tests {
         assert_eq!(head.package, "foo");
         assert_eq!(head.version.version(), "1.2.3-1ubuntu2");
         assert_eq!(head.distributions, ["unstable"]);
+    }
+
+    fn add(changelog: &str) -> anyhow::Result<String> {
+        let mut changelog = parse(changelog);
+        let version = ChangelogHead::from_changelog(&changelog).unwrap().version;
+        let timestamp = chrono::DateTime::parse_from_rfc2822("Tue, 06 Oct 2026 12:34:56 +0200")?;
+        add_entry(
+            &mut changelog,
+            &version,
+            ("Jane Doe".into(), "jane@example.com".into()),
+            timestamp,
+        )?;
+        Ok(changelog.to_string())
+    }
+
+    #[test]
+    fn test_add_entry_copies_version() {
+        let old = format!("{}\n{}", entry("1:1.2.3-1ubuntu2"), entry("1:1.2.3-1"));
+        assert_eq!(
+            add(&old).unwrap(),
+            format!(
+                "foo (1:1.2.3-1ubuntu2) UNRELEASED; urgency=medium\n\n  * \n\n -- Jane Doe <jane@example.com>  Tue, 06 Oct 2026 12:34:56 +0200\n\n{old}"
+            )
+        );
+    }
+
+    #[test]
+    fn test_add_entry_result_parses() {
+        let new = add(&entry("1.2.3-1")).unwrap();
+        let head = ChangelogHead::from_changelog(&parse(&new)).unwrap();
+        assert_eq!(head.version.version(), "1.2.3-1");
+        assert_eq!(head.distributions, ["UNRELEASED"]);
+        assert_eq!(parse(&new).iter().count(), 2);
+    }
+
+    #[test]
+    fn test_add_entry_refuses_on_unreleased_head() {
+        let old = entry("1.2.3-1").replace("unstable", "UNRELEASED");
+        let error = add(&old).unwrap_err().to_string();
+        assert!(error.contains("already UNRELEASED"), "{error}");
     }
 
     #[test]

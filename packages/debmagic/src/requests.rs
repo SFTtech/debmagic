@@ -5,9 +5,11 @@ use futures_util::StreamExt;
 
 /// The HTTP client for all external requests: no overall timeout
 /// (tarballs can be huge and slow), but a connect timeout so dead
-/// hosts fail fast.
+/// hosts fail fast. The GitHub API rejects requests without a
+/// User-Agent.
 fn http_client() -> reqwest::Client {
     reqwest::Client::builder()
+        .user_agent(concat!("debmagic/", env!("CARGO_PKG_VERSION")))
         .connect_timeout(std::time::Duration::from_secs(30))
         .build()
         .expect("reqwest client with a custom timeout")
@@ -141,7 +143,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_failed_download_leaves_no_destination() {
-        let dir = std::env::temp_dir().join(format!("debmagic-dl-{}", uuid::Uuid::new_v4()));
+        let _dir_tmp = tempfile::Builder::new()
+            .prefix("debmagic-dl-")
+            .tempdir()
+            .unwrap();
+        let dir = _dir_tmp.path().to_path_buf();
         std::fs::create_dir_all(&dir).unwrap();
         let destination = dir.join("foo-1.0.tar.gz");
         assert_eq!(partial_path(&destination), dir.join("foo-1.0.tar.gz.part"));
@@ -153,6 +159,5 @@ mod tests {
                 .is_err()
         );
         assert!(!destination.exists());
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 }

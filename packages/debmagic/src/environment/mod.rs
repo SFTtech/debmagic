@@ -11,6 +11,7 @@ use anyhow::{Context, bail};
 use process::Process;
 use sqlx::sqlite::SqliteConnection;
 
+use crate::apt::AptPlan;
 use crate::driver::{
     Driver, Environment, EnvironmentDriver, EnvironmentMetadata, Persistence, ResourceStatus,
     config::{DriverConfig, DriverOverrides},
@@ -43,6 +44,7 @@ pub enum HostRootPolicy {
 pub struct ClaimedEnvironment<'a> {
     registry: &'a Registry,
     driver_config: &'a DriverConfig,
+    apt: &'a AptPlan,
     environment: Environment,
     driver: Driver,
     /// `on-failure` keeps the Environment only when the build or TestRun
@@ -61,6 +63,7 @@ impl<'a> ClaimedEnvironment<'a> {
         registry: &'a Registry,
         environment: Environment,
         driver_config: &'a DriverConfig,
+        apt: &'a AptPlan,
         overrides: &DriverOverrides,
         root_policy: HostRootPolicy,
         stage: impl FnOnce(&Environment, Option<&Driver>) -> anyhow::Result<()>,
@@ -72,7 +75,7 @@ impl<'a> ClaimedEnvironment<'a> {
 
         if environment.persistence.reuses() && environment.root_dir.exists() {
             let claimed =
-                Self::create_driver(registry, environment, driver_config, overrides).await?;
+                Self::create_driver(registry, environment, driver_config, apt, overrides).await?;
             if let Err(error) = claimed.prepare_reused_root(root_policy, stage) {
                 return claimed.abort(error).await;
             }
@@ -91,7 +94,7 @@ impl<'a> ClaimedEnvironment<'a> {
             abandon_claim(registry, &environment, driver_config, false).await;
             return Err(error);
         }
-        Self::create_driver(registry, environment, driver_config, overrides).await
+        Self::create_driver(registry, environment, driver_config, apt, overrides).await
     }
 
     pub fn environment(&self) -> &Environment {
@@ -100,6 +103,11 @@ impl<'a> ClaimedEnvironment<'a> {
 
     pub fn driver(&self) -> &Driver {
         &self.driver
+    }
+
+    /// Where the Environment's packages come from.
+    pub fn apt(&self) -> &AptPlan {
+        self.apt
     }
 
     async fn finish(self) -> anyhow::Result<()> {
@@ -126,9 +134,11 @@ impl<'a> ClaimedEnvironment<'a> {
         registry: &'a Registry,
         environment: Environment,
         driver_config: &'a DriverConfig,
+        apt: &'a AptPlan,
         overrides: &DriverOverrides,
     ) -> anyhow::Result<Self> {
-        let driver = match crate::driver::create_driver(&environment, driver_config, overrides) {
+        let driver = match crate::driver::create_driver(&environment, driver_config, apt, overrides)
+        {
             Ok(driver) => driver,
             Err(error) => {
                 abandon_claim(registry, &environment, driver_config, true).await;
@@ -142,13 +152,60 @@ impl<'a> ClaimedEnvironment<'a> {
         if let Err(error) = record_driver_metadata(registry, &environment, &driver).await {
             eprintln!("Warning: failed to record Driver metadata: {error:#}");
         }
-        Ok(Self {
+        let claimed = Self {
             registry,
             driver_config,
+            apt,
             environment,
             driver,
             keep_after_failure: false,
-        })
+        };
+        if let Err(error) = claimed.upgrade_packages(apt.update_age).await {
+            return claimed
+                .abort(error.context("upgrading the packages in the Environment failed"))
+                .await;
+        }
+        Ok(claimed)
+    }
+
+    /// Upgrade the packages of a container Environment unless `policy` says
+    /// the last upgrade is recent enough: the one recorded in the registry
+    /// for a reused Environment, the image's for a fresh one. A fresh one
+    /// without a refreshed image always upgrades. The Bare driver is the
+    /// host, which the user maintains.
+    async fn upgrade_packages(&self, policy: crate::time::RefreshPolicy) -> anyhow::Result<()> {
+        if self.environment.driver == crate::driver::DriverType::Bare {
+            return Ok(());
+        }
+        let id = self.environment.id();
+        let reused = self.driver.reused_environment();
+        let last_update = if reused {
+            registry::apt_updated_at(&mut *self.registry.connection().await?, &id).await?
+        } else {
+            self.driver.packages_refreshed_at()
+        };
+        let current = (reused || last_update.is_some())
+            && !crate::driver::apt_update_needed_on_reuse(policy, last_update);
+        if current && reused {
+            return Ok(());
+        }
+        // record a fresh Environment's image time for its reuse
+        let updated_at = match last_update.filter(|_| current) {
+            Some(image_refreshed_at) => image_refreshed_at,
+            None => {
+                crate::output::step("Upgrading the packages in the Environment");
+                crate::apt::refresh(&self.driver, &self.environment.root_dir)?;
+                std::time::SystemTime::now()
+            }
+        };
+        let recorded = async {
+            let mut conn = self.registry.connection().await?;
+            registry::set_apt_updated_at(&mut conn, &id, updated_at).await
+        };
+        if let Err(error) = recorded.await {
+            eprintln!("Warning: failed to record the apt upgrade time: {error:#}");
+        }
+        Ok(())
     }
 
     fn prepare_reused_root(
@@ -253,6 +310,7 @@ pub async fn claim_command<T>(
     registry: &Registry,
     environment: Environment,
     driver_config: &DriverConfig,
+    apt: &AptPlan,
     overrides: &DriverOverrides,
     root_policy: HostRootPolicy,
     stage: impl FnOnce(&Environment, Option<&Driver>) -> anyhow::Result<()>,
@@ -264,6 +322,7 @@ pub async fn claim_command<T>(
         registry,
         environment,
         driver_config,
+        apt,
         overrides,
         root_policy,
         stage,
@@ -590,25 +649,53 @@ pub async fn assess_environment(
     })
 }
 
-/// Open a shell on an Environment that is already chosen and Live. Holds an
-/// Attachment for the duration of the shell and releases it afterwards.
+/// Open a login shell on a chosen Live Environment, holding its Attachment.
 pub async fn shell_environment(
     registry: &Registry,
     driver_config: &DriverConfig,
     registered: &RegisteredEnvironment,
-) -> anyhow::Result<()> {
-    shell_while_attached(registry, driver_config, registered, open_interactive_shell).await
+    user: Option<&str>,
+) -> anyhow::Result<i32> {
+    with_attached_environment(registry, driver_config, registered, |driver| {
+        driver
+            .interactive_shell(&shell_cwd(&registered.environment), user)
+            .map_err(|error| anyhow::anyhow!("interactive shell failed: {error}"))
+    })
+    .await
 }
 
-/// Assess, hold an Attachment around `during`, then release it. `during` is
-/// the interactive shell in production. Tests pass their own check so they
-/// exercise this same path without spawning `$SHELL` on the terminal.
-async fn shell_while_attached(
+/// Execute a command directly on a chosen Live Environment, holding its Attachment.
+pub async fn exec_environment(
     registry: &Registry,
     driver_config: &DriverConfig,
     registered: &RegisteredEnvironment,
-    during: impl FnOnce(&DriverConfig, &RegisteredEnvironment) -> anyhow::Result<()>,
-) -> anyhow::Result<()> {
+    user: Option<&str>,
+    command: &[&str],
+) -> anyhow::Result<i32> {
+    with_attached_environment(registry, driver_config, registered, |driver| {
+        driver
+            .run_command(
+                command,
+                &shell_cwd(&registered.environment),
+                crate::driver::CommandOptions {
+                    user,
+                    terminal: true,
+                    ..Default::default()
+                },
+            )
+            .map(|result| result.exit_code)
+            .map_err(|error| anyhow::anyhow!("executing command failed: {error}"))
+    })
+    .await
+}
+
+/// Assess, hold an Attachment around `during`, then release it.
+async fn with_attached_environment<T>(
+    registry: &Registry,
+    driver_config: &DriverConfig,
+    registered: &RegisteredEnvironment,
+    during: impl FnOnce(&Driver) -> anyhow::Result<T>,
+) -> anyhow::Result<T> {
     let id = registered.environment.id();
     match assess_environment(registry, registered, driver_config)
         .await?
@@ -622,24 +709,17 @@ async fn shell_while_attached(
     }
 
     let attachment = attach(registry, &id, Process::current()).await?;
-    let result = during(driver_config, registered);
+    let driver = create_driver_from_metadata(driver_config, &registered.metadata());
+    let result = driver.and_then(|driver| during(&driver));
     let detached =
-        async { registry::delete_attachment(&mut *registry.connection().await?, attachment).await };
-    result.and(detached.await)
+        async { registry::delete_attachment(&mut *registry.connection().await?, attachment).await }
+            .await;
+    let value = result?;
+    detached?;
+    Ok(value)
 }
 
-fn open_interactive_shell(
-    driver_config: &DriverConfig,
-    registered: &RegisteredEnvironment,
-) -> anyhow::Result<()> {
-    let driver = create_driver_from_metadata(driver_config, &registered.metadata())?;
-    driver
-        .interactive_shell(&shell_cwd(&registered.environment))
-        .map_err(|error| anyhow::anyhow!("interactive shell failed: {error}"))?;
-    Ok(())
-}
-
-/// Where an interactive shell starts. Binary and source builds stage into
+/// Where a shell or direct command starts. Binary and source builds stage into
 /// sibling trees; the binary tree is the iteration workflow, with the source
 /// tree as fallback. Environments staged only by the Environment module
 /// itself use [`Environment::staged_source_dir`].
@@ -1117,17 +1197,24 @@ mod teardown_tests {
     use crate::driver::{DriverType, EnvironmentPurpose};
 
     struct Fixture {
+        _tmp: tempfile::TempDir,
         dir: PathBuf,
         registry: Registry,
     }
 
     impl Fixture {
         async fn new() -> Self {
-            let dir =
-                std::env::temp_dir().join(format!("debmagic-lifecycle-{}", uuid::Uuid::new_v4()));
-            std::fs::create_dir_all(&dir).unwrap();
+            let tmp = tempfile::Builder::new()
+                .prefix("debmagic-lifecycle-")
+                .tempdir()
+                .unwrap();
+            let dir = tmp.path().to_path_buf();
             let registry = Registry::open(&dir.join("db.sqlite")).await.unwrap();
-            Self { dir, registry }
+            Self {
+                _tmp: tmp,
+                dir,
+                registry,
+            }
         }
 
         /// A registered Bare-driver Environment whose Host root exists.
@@ -1170,12 +1257,6 @@ mod teardown_tests {
                 when,
             )
             .await
-        }
-    }
-
-    impl Drop for Fixture {
-        fn drop(&mut self) {
-            let _ = std::fs::remove_dir_all(&self.dir);
         }
     }
 
@@ -1330,17 +1411,18 @@ mod teardown_tests {
         let registered = fixture.row(&environment).await.unwrap();
 
         let mut attached = None;
-        shell_while_attached(
+        let exit_code = with_attached_environment(
             &fixture.registry,
             &DriverConfig::default(),
             &registered,
-            |_driver_config, registered| {
+            |_driver| {
                 attached = Some(registered.environment.id());
-                Ok(())
+                Ok(3)
             },
         )
         .await?;
         assert_eq!(attached, Some(environment.id()));
+        assert_eq!(exit_code, 3);
 
         let assessed = fixture.assess(&environment).await;
         assert_eq!(assessed.status, EnvironmentStatus::Live);
@@ -1355,9 +1437,14 @@ mod teardown_tests {
         std::fs::remove_dir_all(&environment.root_dir).unwrap();
         let registered = fixture.row(&environment).await.unwrap();
 
-        let error = shell_environment(&fixture.registry, &DriverConfig::default(), &registered)
-            .await
-            .unwrap_err();
+        let error = shell_environment(
+            &fixture.registry,
+            &DriverConfig::default(),
+            &registered,
+            None,
+        )
+        .await
+        .unwrap_err();
         assert!(error.to_string().contains("Stale"));
 
         let assessed = fixture.assess(&environment).await;
@@ -1375,22 +1462,28 @@ mod claimed_environment_tests {
     use std::path::{Path, PathBuf};
 
     struct Fixture {
+        _tmp: tempfile::TempDir,
         dir: PathBuf,
         registry: Registry,
         driver_config: DriverConfig,
+        apt: AptPlan,
         overrides: DriverOverrides,
     }
 
     impl Fixture {
         async fn new() -> Self {
-            let dir =
-                std::env::temp_dir().join(format!("debmagic-lifecycle-{}", uuid::Uuid::new_v4()));
-            std::fs::create_dir_all(&dir).unwrap();
+            let tmp = tempfile::Builder::new()
+                .prefix("debmagic-lifecycle-")
+                .tempdir()
+                .unwrap();
+            let dir = tmp.path().to_path_buf();
             let registry = Registry::open(&dir.join("db.sqlite")).await.unwrap();
             Self {
+                _tmp: tmp,
                 dir,
                 registry,
                 driver_config: DriverConfig::default(),
+                apt: AptPlan::default(),
                 overrides: DriverOverrides::default(),
             }
         }
@@ -1418,6 +1511,7 @@ mod claimed_environment_tests {
                 &self.registry,
                 environment,
                 &self.driver_config,
+                &self.apt,
                 &self.overrides,
                 root_policy,
                 stage,
@@ -1431,12 +1525,6 @@ mod claimed_environment_tests {
                 .await
                 .unwrap()
                 .map(|row| row.owner.map(|owner| owner.pid))
-        }
-    }
-
-    impl Drop for Fixture {
-        fn drop(&mut self) {
-            let _ = std::fs::remove_dir_all(&self.dir);
         }
     }
 
@@ -1595,6 +1683,7 @@ mod claimed_environment_tests {
             &fixture.registry,
             environment,
             &fixture.driver_config,
+            &fixture.apt,
             &fixture.overrides,
             HostRootPolicy::Reset,
             |_, _| Ok(()),

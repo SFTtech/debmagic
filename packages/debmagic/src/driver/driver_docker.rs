@@ -1,21 +1,25 @@
 use std::{
     collections::HashMap,
     fs,
+    io::IsTerminal,
     path::{Path, PathBuf},
     process::{Command, Stdio},
+    time::SystemTime,
 };
 
-use anyhow::anyhow;
-use debmagic_common::distro::DistroVersion;
+use anyhow::{Context, anyhow};
+use debmagic_common::{apt::Archives, distro::DistroVersion};
 use serde::{Deserialize, Serialize};
 
+use crate::apt;
 use crate::driver::{
-    APT_MIRROR_SCRIPT, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
-    EnvironmentMetadata, IsolationCapability, ResourceStatus, config::DriverConfig,
-    container_name_from_metadata, container_name_metadata, environment_fingerprint,
-    refresh_apt_index, resource_name, run_checked, translate_path_in_container,
+    CommandOptions, DriverType, ENVIRONMENT_DIR_IN_CONTAINER, Environment, EnvironmentDriver,
+    EnvironmentMetadata, EnvironmentPurpose, IsolationCapability, ResourceStatus,
+    config::DriverConfig, container_name_from_metadata, container_name_metadata,
+    environment_fingerprint, getent_passwd, resource_name, run_checked,
+    translate_path_in_container,
 };
-use crate::subprocess::{self, Capture, CommandResult};
+use crate::subprocess::{self, CommandResult};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
@@ -47,8 +51,9 @@ const DOCKERFILE_TEMPLATE: &str = r#"
 FROM {base_image}
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev python3
-{apt_mirror_setup}
+ARG DEBIAN_FRONTEND=noninteractive
+COPY {setup_dir} /tmp/{setup_dir}
+RUN {setup} && rm -rf /tmp/{setup_dir} && {apt}
 RUN set -e; \
     getent group "$USER_GID" >/dev/null || groupadd --gid "$USER_GID" debmagic; \
     getent passwd "$USER_UID" >/dev/null || useradd --uid "$USER_UID" --gid "$USER_GID" -m debmagic
@@ -57,20 +62,30 @@ USER $USER_UID:$USER_GID
 ENTRYPOINT ["sleep", "infinity"]
 "#;
 
-// Ubuntu images ship python3 already; installed explicitly above for the
-// others (e.g. Debian's slim images) before the mirror script needs it.
-const APT_MIRROR_SCRIPT_FILENAME: &str = "mirror.py";
-
-/// Quote `s` as a single POSIX shell word for embedding in a Dockerfile
-/// `RUN` instruction (which is interpreted by `/bin/sh -c`).
-fn shell_quote(s: &str) -> String {
-    format!("'{}'", s.replace('\'', "'\\''"))
+/// The image applies the apt setup and refreshes its packages, so a fresh
+/// container from a cached image is as current as the image.
+fn dockerfile(environment: &Environment, base_image: &str, setup: &apt::Setup) -> String {
+    let setup_dir = apt::SETUP_DIR;
+    let mut apt_commands = apt::refresh_commands();
+    apt_commands.extend(apt::install_commands(
+        debmagic_common::apt::has_satisfy(&environment.distro),
+        &apt::Install::default(),
+        None,
+    ));
+    DOCKERFILE_TEMPLATE
+        .replace("{base_image}", base_image)
+        .replace("{setup}", &setup.script(&format!("/tmp/{setup_dir}")))
+        .replace("{apt}", &apt::shell_line(&apt_commands))
+        .replace("{setup_dir}", setup_dir)
+        .replace("{build_dir}", ENVIRONMENT_DIR_IN_CONTAINER)
 }
 
 pub struct DriverDocker {
     environment: Environment,
     container_name: String,
     reused_environment: bool,
+    /// Creation time of the image a fresh container was started from.
+    image_created: Option<SystemTime>,
 }
 
 /// Replace characters that Docker image/container names disallow.
@@ -85,46 +100,15 @@ fn sanitize_docker_reference(name: &str) -> String {
 
 fn build_build_image(
     environment: &Environment,
-    base_image: &str,
-    apt_mirror: Option<&str>,
-    proposed: bool,
+    dockerfile: &str,
+    setup: &apt::Setup,
     image_name: &str,
 ) -> anyhow::Result<()> {
-    let apt_mirror_setup = if apt_mirror.is_some() || proposed {
-        fs::write(
-            environment.temp_dir().join(APT_MIRROR_SCRIPT_FILENAME),
-            APT_MIRROR_SCRIPT,
-        )
-        .map_err(|e| anyhow!("Failed to write apt mirror script: {e}"))?;
-
-        let mut args = vec![
-            "--codename".to_string(),
-            shell_quote(&environment.distro.codename),
-        ];
-        if let Some(mirror) = apt_mirror {
-            args.extend(["--mirror".to_string(), shell_quote(mirror)]);
-        }
-        if proposed {
-            args.push("--proposed".to_string());
-        }
-
-        let setup = format!(
-            "COPY {script} /tmp/{script}\nRUN python3 /tmp/{script} {args} && rm /tmp/{script} && apt-get update\n",
-            script = APT_MIRROR_SCRIPT_FILENAME,
-            args = args.join(" "),
-        );
-        setup
-    } else {
-        String::new()
-    };
-
-    let formatted_dockerfile = DOCKERFILE_TEMPLATE
-        .replace("{base_image}", base_image)
-        .replace("{apt_mirror_setup}", &apt_mirror_setup)
-        .replace("{build_dir}", ENVIRONMENT_DIR_IN_CONTAINER);
-
+    setup
+        .write(&environment.temp_dir().join(apt::SETUP_DIR))
+        .context("writing the apt setup failed")?;
     let dockerfile_path = environment.temp_dir().join("Dockerfile");
-    fs::write(&dockerfile_path, formatted_dockerfile)
+    fs::write(&dockerfile_path, dockerfile)
         .map_err(|e| anyhow!("Failed to write Dockerfile, {e}"))?;
 
     let mut build_args = Vec::new();
@@ -151,14 +135,20 @@ fn build_build_image(
     Ok(())
 }
 
-fn does_image_exist(image_name: &str) -> anyhow::Result<bool> {
-    let status = Command::new("docker")
-        .args(["image", "inspect", image_name])
-        .stdout(Stdio::null())
+/// The image's creation time, `None` if it doesn't exist.
+fn image_created(image_name: &str) -> anyhow::Result<Option<SystemTime>> {
+    let output = Command::new("docker")
+        .args(["image", "inspect", "--format", "{{.Created}}", image_name])
         .stderr(Stdio::null())
-        .status()
+        .output()
         .map_err(|error| anyhow!("Failed to inspect Docker image: {error}"))?;
-    Ok(status.success())
+    if !output.status.success() {
+        return Ok(None);
+    }
+    let created = String::from_utf8_lossy(&output.stdout);
+    let created = chrono::DateTime::parse_from_rfc3339(created.trim())
+        .with_context(|| format!("parsing the creation time {created:?} of {image_name} failed"))?;
+    Ok(Some(created.into()))
 }
 
 /// The environment fingerprint stored in the container's labels, or `None`
@@ -232,9 +222,10 @@ impl DriverDocker {
         let output = self.run_command(
             &["test", "-f", &container_probe.to_string_lossy()],
             &self.environment.root_dir,
-            true,
-            &[],
-            Capture::NONE,
+            CommandOptions {
+                requires_root: true,
+                ..Default::default()
+            },
         );
         crate::driver::remove_mount_probe(&self.environment.root_dir);
         Ok(output?.exit_code == 0)
@@ -258,7 +249,7 @@ impl DriverDocker {
         driver_config: &DriverConfig,
         overrides: &DriverDockerConfigOverrides,
         apt_mirror: Option<&str>,
-        proposed: bool,
+        archives: &Archives,
     ) -> anyhow::Result<Self> {
         let base_image = overrides.base_image.clone().unwrap_or_else(|| {
             driver_config
@@ -268,15 +259,18 @@ impl DriverDocker {
         let uid = unsafe { libc::geteuid() }.to_string();
         let gid = unsafe { libc::getegid() }.to_string();
         let build_root = environment.root_dir.to_string_lossy();
-        let proposed_fingerprint = proposed.to_string();
+        let setup = apt::Setup {
+            distro: &environment.distro,
+            mirror: apt_mirror,
+            archives,
+            services: environment.purpose == EnvironmentPurpose::Test,
+        };
+        let dockerfile = dockerfile(environment, &base_image, &setup);
         let image_fingerprint = environment_fingerprint(&[
             "docker",
-            DOCKERFILE_TEMPLATE,
-            APT_MIRROR_SCRIPT,
-            &base_image,
+            &dockerfile,
+            &setup.fingerprint(),
             &environment.distro.codename,
-            apt_mirror.unwrap_or(""),
-            &proposed_fingerprint,
             &uid,
             &gid,
         ]);
@@ -291,6 +285,7 @@ impl DriverDocker {
             environment: environment.clone(),
             container_name,
             reused_environment: false,
+            image_created: None,
         };
         let environment_matches = container_environment_fingerprint(&driver.container_name)?
             .as_deref()
@@ -307,9 +302,8 @@ impl DriverDocker {
             }
         }
 
-        let created_container = if reuse {
+        if reuse {
             driver.reused_environment = true;
-            false
         } else {
             // The container may not exist; removal errors don't matter here.
             let _ = Command::new("docker")
@@ -319,14 +313,10 @@ impl DriverDocker {
                 .status();
 
             let docker_image_name = format!("debmagic-env-{}", &image_fingerprint[..16]);
-            if !does_image_exist(&docker_image_name)? {
-                build_build_image(
-                    environment,
-                    &base_image,
-                    apt_mirror,
-                    proposed,
-                    &docker_image_name,
-                )?;
+            driver.image_created = image_created(&docker_image_name)?;
+            if driver.image_created.is_none() {
+                build_build_image(environment, &dockerfile, &setup, &docker_image_name)?;
+                driver.image_created = image_created(&docker_image_name)?;
             }
             run_checked(
                 Command::new("docker")
@@ -346,23 +336,6 @@ impl DriverDocker {
                     .arg(&docker_image_name),
                 "starting docker container",
             )?;
-            true
-        };
-
-        // cwd is the build root (the bind mount itself), not the source dir:
-        // create() must not assume the source tree has been staged yet.
-        // Fresh containers always update once; reused ones only when the
-        // configured apt update age says their index has gone stale.
-        let update_result =
-            refresh_apt_index(&driver, environment, driver_config.apt_update_age, reuse)
-                .map_err(|error| anyhow!("Error running apt-get update in container: {error}"));
-        if let Err(error) = update_result {
-            if created_container && let Err(cleanup_error) = driver.container_remove_force() {
-                return Err(error.context(format!(
-                    "also failed to remove Docker container: {cleanup_error}"
-                )));
-            }
-            return Err(error);
         }
 
         Ok(driver)
@@ -377,6 +350,7 @@ impl DriverDocker {
             environment: environment.clone(),
             container_name: container_name_from_metadata(metadata),
             reused_environment: true,
+            image_created: None,
         })
     }
 
@@ -385,6 +359,55 @@ impl DriverDocker {
         path_in_source: &Path,
     ) -> Result<PathBuf, std::io::Error> {
         translate_path_in_container(&self.environment.root_dir, path_in_source)
+    }
+
+    fn exec(
+        &self,
+        cmd: &[&str],
+        cwd: &Path,
+        options: CommandOptions<'_>,
+    ) -> std::io::Result<CommandResult> {
+        let mut exec_cmd = Command::new("docker");
+        exec_cmd.args(["exec", "--workdir"]).arg(cwd);
+        if options.terminal {
+            exec_cmd.arg("--interactive");
+            if std::io::stdin().is_terminal() && std::io::stdout().is_terminal() {
+                exec_cmd.arg("--tty");
+            }
+        } else {
+            println!("[{}] $ {}", self.container_name, cmd.join(" "));
+        }
+        if options.requires_root || options.user.is_some() {
+            exec_cmd.args(["--user", options.user.unwrap_or("root")]);
+        }
+        for (key, value) in options.env_add {
+            exec_cmd.args(["--env", &format!("{key}={value}")]);
+        }
+        exec_cmd.arg(&self.container_name).args(cmd);
+        subprocess::command(exec_cmd).capture(options.capture).run()
+    }
+
+    fn with_running_container<T>(
+        &self,
+        action: impl FnOnce(&Self) -> std::io::Result<T>,
+    ) -> std::io::Result<T> {
+        let was_running = self.container_is_running().map_err(std::io::Error::other)?;
+        if !was_running {
+            self.container_start().map_err(std::io::Error::other)?;
+        }
+        let result = action(self);
+        if !was_running {
+            self.container_stop().map_err(std::io::Error::other)?;
+        }
+        result
+    }
+
+    fn account(&self, user: &str) -> std::io::Result<crate::driver::PasswdEntry> {
+        self.with_running_container(|driver| {
+            let mut getent = Command::new("docker");
+            getent.args(["exec", &driver.container_name]);
+            getent_passwd(getent, user)
+        })
     }
 }
 
@@ -397,32 +420,15 @@ impl EnvironmentDriver for DriverDocker {
         &self,
         cmd: &[&str],
         cwd: &Path,
-        requires_root: bool,
-        env_add: &[(&str, &str)],
-        capture: Capture,
+        options: CommandOptions<'_>,
     ) -> std::io::Result<CommandResult> {
         let container_path = self
             .translate_path_in_container(cwd)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
-
-        println!("[{}] $ {}", self.container_name, cmd.join(" "));
-
-        let mut exec_cmd = Command::new("docker");
-        exec_cmd.args(["exec", "--workdir"]);
-        exec_cmd.arg(container_path);
-
-        if requires_root {
-            exec_cmd.args(["--user", "root"]);
+        if !options.terminal {
+            return self.exec(cmd, &container_path, options);
         }
-
-        for (key, value) in env_add {
-            exec_cmd.args(["--env", &format!("{key}={value}")]);
-        }
-
-        exec_cmd.arg(&self.container_name);
-        exec_cmd.args(cmd);
-
-        subprocess::command(exec_cmd).capture(capture).run()
+        self.with_running_container(|driver| driver.exec(cmd, &container_path, options))
     }
 
     fn reset_root(&self) -> std::io::Result<()> {
@@ -450,28 +456,23 @@ impl EnvironmentDriver for DriverDocker {
         self.reused_environment
     }
 
-    fn interactive_shell(&self, cwd: &Path) -> std::io::Result<()> {
-        let workdir = self.translate_path_in_container(cwd)?;
-        let was_running = self.container_is_running().map_err(std::io::Error::other)?;
-        if !was_running {
-            self.container_start().map_err(std::io::Error::other)?;
-        }
+    fn packages_refreshed_at(&self) -> Option<SystemTime> {
+        self.image_created
+    }
 
-        let mut command = Command::new("docker");
-        command
-            .args(["exec", "-it", "--user", "root", "--workdir"])
-            .arg(&workdir);
-        let status = command
-            .args([&self.container_name, "/usr/bin/env", "bash"])
-            .status();
-        if !was_running {
-            self.container_stop().map_err(std::io::Error::other)?;
-        }
-        if !status?.success() {
-            return Err(std::io::Error::other("Docker shell failed"));
-        }
-
-        Ok(())
+    fn interactive_shell(&self, cwd: &Path, user: Option<&str>) -> std::io::Result<i32> {
+        let account = self.account(user.unwrap_or("root"))?;
+        self.run_command(
+            &[&account.shell],
+            cwd,
+            CommandOptions {
+                user,
+                env_add: &[("HOME", &account.home)],
+                terminal: true,
+                ..Default::default()
+            },
+        )
+        .map(|result| result.exit_code)
     }
 
     fn driver_type(&self) -> DriverType {

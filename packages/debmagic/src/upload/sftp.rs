@@ -79,7 +79,7 @@ impl Uploader for SftpUploader {
                             .file_name()
                             .map(|n| n.to_string_lossy().into_owned())
                             .unwrap_or_else(|| path.to_string());
-                        println!("debmagic: uploading {name} ({index}/{})", files.len());
+                        println!("debmagic: uploading {index}/{}: {name}", files.len());
                     }
                     if line.contains("Remote working directory:") {
                         done = true;

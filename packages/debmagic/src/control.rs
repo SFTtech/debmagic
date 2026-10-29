@@ -6,7 +6,7 @@ use debian_control::lossless::changes::Changes;
 use debian_control::pgp;
 use sha2::Digest;
 
-pub use debmagic_common::debian::control::{
+pub use debmagic_common::checksums::{
     CHECKSUM_FIELDS, Digests, Hash, child_filename, fixup_checksums, verify_checksums,
 };
 

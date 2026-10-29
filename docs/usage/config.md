@@ -24,26 +24,37 @@ All keys are optional.
 |---|---|---|---|---|
 | `driver.default` | enum | — | `--driver` | Build driver (`docker`, `bare`, `lxd`, `incus`) |
 | `driver.persistent` | enum | `"on-failure"` | `--persistent` | How long the Environment outlives the claim: `"no"`, `"on-failure"`, or `"always"`. A bare `--persistent` means `always`. |
-| `driver.apt_mirror` | string | — | `--apt-mirror` | Mirror used for build-dependency resolution. Not used by the `bare` driver. |
-| `driver.proposed` | bool | `false` | `--proposed` | Also enable the `<release>-proposed` pocket. Not used by the `bare` driver. |
-| `driver.apt_update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update`: `"now"` (every build), `"never"` (only on creation), or a maximum index age like `"1d"`, `"12h"`, `"30m"`. Fresh environments always update once. Not used by the `bare` driver. |
 | `driver.docker.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"` (e.g. `"debian:trixie"`). Falls back to `docker.io/<distro>:<codename>`. For non-Debian/Ubuntu suites (e.g. `"yocto:kirkstone"`), the map entry is what makes the suite a known DistroVersion for Docker builds. |
 | `driver.lxd.project` | string | — | — | LXD/Incus project to use. |
 | `driver.lxd.base_images` | map | — | — | Base image per distro, keyed by `"<distro>:<codename>"`. Falls back to the driver's default remote image. Same custom-suite registry role as Docker's map for LXD/Incus. |
+| `apt.mirror` | string | — | `--apt-mirror` | Mirror replacing the image's apt sources. |
+| `apt.update_age` | string | `"1d"` | `--apt-update-age` | When a persistent environment re-runs `apt-get update && upgrade`: `"now"` (every build), `"never"` (only on creation), or a maximum age like `"1d"`, `"12h"`, `"30m"`. |
+| `apt.proposed` | bool | `false` | `--proposed` | All newer packages from the [proposed suite](build.md#proposed-dependencies). |
+| `apt.experimental` | bool | `false` | `--experimental` | What nothing else provides from [experimental](build.md#experimental), for unstable and testing. |
+| `apt.archives` | map | — | `--archive` | [Extra archives](build.md#extra-archives) by name: a PPA or a `deb` line, e.g. `{ mine = "ppa:me/stuff" }`. |
+| `apt.packages` | map | — | `--package` | [Package settings](build.md#package-versions-and-archives) by pattern: `from` (an archive) and `version`, e.g. `{ "src:bar" = { from = "proposed" } }`. |
 | `environments_dir` | path | `$XDG_DATA_HOME/debmagic/environments` | — | Parent directory of Environment Host roots. Must be absolute or start with `~/`. The Environment registry is always `$XDG_DATA_HOME/debmagic/db.sqlite` (override both with `DEBMAGIC_DATA_DIR`). |
-| `output_dir` | path | `build` | `-o`/`--output-dir` | Where build artifacts are exported; relative paths resolve against the package root. |
+| `output_dir` | path | `build-area` | `-o`/`--output-dir` | Where build artifacts are exported; relative paths resolve against the package source directory. See [Output dir](build.md#output-dir). |
+| `output_dir_fallback` | path | `build-debmagic` | — | Used instead of `output_dir` when upstream owns that directory; relative paths resolve against the package source directory. |
+| `output_dir_clash` | enum | `fallback` | — | When upstream owns `output_dir`: `fallback` uses `output_dir_fallback`, `fail` stops. |
 | `incremental` | bool | `false` | `--incremental` | Retain the environment and sync only source changes, preserving generated files. Forces Persistence `always`; incompatible with `clean`. |
 | `source_sync_mode` | enum | `tracked` | `--source-sync` | Which source files are staged (see below). |
 | `build_debug_symbols` | bool | `false` | `--debug-symbols` | Build the automatic `-dbgsym` debug symbol package. |
-| `run_test` | bool | `true` | `--test` | Run the package's test suite during the build; `false` exports `DEB_BUILD_OPTIONS=nocheck` so tests are skipped. |
-| `sign.source` | enum | `no` | `--sign` | Sign the resulting `.changes`/`.dsc`: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs (see below). |
+| `run_test` | bool | `true` | `--test` | Run the package's test suite during the build; `false` exports `DEB_BUILD_OPTIONS=nocheck` and the `nocheck` build profile, so tests and their build dependencies are skipped. |
+| `sign.source` | enum | `auto` | `--sign` | How to sign the resulting `.changes`/`.dsc`/`.buildinfo`: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs (see below). Whether a build signs at all is up to `build.sign_source`/`build.sign_binary`. |
 | `sign.key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
 | `sign.tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg`, `sequoia` (sq) or `custom` (uses `sign.sign_command`). |
 | `sign.sign_command` | string | — | `--sign-command` | Custom signing command for `sign.tool = "custom"`, run without a shell with `{file}`/`{key}`/`{email}` placeholders; writes the clearsigned result to stdout. |
-| `sign.notify` | bool | `false` | `--sign-notify` | Send a desktop notification via `notify-send` just before signing, so a hardware-key touch prompt isn't missed. |
+| `sign.notify` | bool | `notify` | `--notify` | Send a desktop notification via `notify-send` just before signing, so a hardware-key touch prompt isn't missed. |
 | `clean` | bool | `false` | `--clean` | Run `debian/rules clean` before building. Disabled by default; incompatible with `incremental`. |
+| `notify` | bool | `false` | `--notify` | Default for `build.notify`, `test.notify` and `sign.notify`. |
+| `build.notify` | bool | `notify` | `--notify` | Desktop notification via `notify-send` and terminal bell when a build finishes; a build that signs notifies once, when signing starts (see [Notifications](build.md#notifications)). |
+| `build.sign_source` | bool | `true` | `--sign` | Sign `build source` results without `--sign`, if a signing key is configured (see [Signing](build.md#signing)). |
+| `build.sign_binary` | bool | `false` | `--sign` | Sign `build binary` results without `--sign`, if a signing key is configured. |
+| `test.notify` | bool | `notify` | `--notify` | Desktop notification via `notify-send` and terminal bell when `debmagic test` finishes. |
 | `host_arch_variant` | string | — | `--host-arch-variant` | Build for a dpkg architecture variant (e.g. `"amd64v3"` on Ubuntu) -> `DEB_HOST_ARCH_VARIANT`. |
-| `upstream.verify_signatures` | bool | `true` | `--no-signature-check` | Verify the upstream tarball's PGP signature against `debian/upstream/signing-key.asc` during `upstream switch` (see [Upstream](upstream.md#signature-verification)). |
+| `upstream.signature_check` | bool | `true` | `--signature-check` | Verify the upstream tarball's PGP signature against `debian/upstream/signing-key.asc` during `upstream fetch`/`switch` (see [Upstream](upstream.md#signature-verification)). |
+| `upstream.repack` | bool | `true` | `--repack` | Strip the `Files-Excluded` paths from upstream and custom tarballs during `upstream fetch`/`switch` (see [Upstream](upstream.md#repacking)). |
 | `upload.targets` | map | — | `debmagic upload <target>` | Named upload targets for [uploading](upload.md), merged field-by-field over the builtins (`ppa`, `ubuntu`, `debian`). |
 
 ### `source_sync_mode`
@@ -58,13 +69,14 @@ All keys are optional.
 
 | Key | Type | Default | CLI flag | Description |
 |---|---|---|---|---|
-| `source` | enum | `no` | `--sign` | Sign the source package (`.changes`/`.dsc`) after building: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs. |
+| `source` | enum | `auto` | `--sign` | How to sign after building: `no` never, `keep` keeps any existing signature, `auto` skips what our key already signed, `force` always re-signs. Whether a build signs at all is up to `build.sign_source`/`build.sign_binary`. |
 | `key` | string | — | `--sign-key` | GPG key ID/email to sign with; falls back to the Changed-By/Maintainer address. |
 | `tool` | enum | `gpg` | `--sign-tool` | OpenPGP implementation: `gpg` (sequoia's `sq`) or `custom` (uses `sign_command`). |
-| `notify` | bool | `false` | `--sign-notify` | Desktop notification via `notify-send` before signing. |
+| `notify` | bool | top-level `notify` | `--notify` | Desktop notification via `notify-send` before signing. |
 | `sign_command` | string | — | `--sign-command` | Custom signing command for `tool = "custom"`, like `debsign`'s `-p`. |
 | `verify_command` | string | — | `--verify-command` (upstream switch) | Custom verification command for `sign.tool = "custom"`, run without a shell with `{file}`/`{signature}`/`{keyring}` placeholders; without `{signature}` the signature path is appended. Falls back to `sign_command`. |
 | `signed_by_command` | string | — | — | Custom same-key check for `tool = "custom"` under `source = "auto"`: exit code 0 means the file's signature is ours (skip), anything else re-signs. Without it, `auto` always re-signs. |
+| `fingerprint_command` | string | — | — | Custom key fingerprint reader for `tool = "custom"`, run without a shell with the `{file}` placeholder (or the key path appended): prints the primary key's fingerprint. Checks the signing keys of [PPAs](build.md#extra-archives). |
 Signing always runs on the host with your gpg keyring — see [Signing](build.md#signing).
 
 ### `orig_tarball`
@@ -100,15 +112,19 @@ See [Uploading](upload.md) for target resolution, builtins and pre-upload checks
 build_debug_symbols = true
 clean = false
 
+[build]
+sign_binary = true  # source builds sign by default, binary builds don't
+
 [sign]
-source = true
 key = "you@example.com or gpg key id"
 notify = true
 
 [driver]
 default = "lxd"
 persistent = "always"
-apt_mirror = "http://<mirror-host>/ubuntu"
+
+[apt]
+mirror = "http://<mirror-host>/ubuntu"
 
 [driver.docker]
 # Optional image overrides for known Debian/Ubuntu releases, and the registry

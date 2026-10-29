@@ -152,6 +152,7 @@ mod tests {
         assert!(selected.contains(&crate::lint::rules::NoDep5Copyright::CODE));
         assert!(selected.contains(&crate::lint::rules::NoCopyrightFile::CODE));
         assert!(selected.contains(&crate::lint::rules::FileInUnusualDir::CODE));
+        assert!(selected.contains(&crate::lint::rules::NoChangelog::CODE));
         assert!(selected.iter().all(|code| code.prefix() == "LN"));
         Ok(())
     }

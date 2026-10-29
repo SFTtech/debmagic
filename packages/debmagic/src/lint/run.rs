@@ -754,6 +754,11 @@ mod tests {
                 crate::lint::rules::NonStandardToplevelDir::CODE,
                 crate::lint::rules::LatestDebianChangelogEntryWithoutNewDate::CODE,
                 crate::lint::rules::PackageRelationWithSelf::CODE,
+                crate::lint::rules::MalformedDmUploadAllowed::CODE,
+                crate::lint::rules::SymlinkContainsSpuriousSegments::CODE,
+                crate::lint::rules::SymlinkIsSelfRecursive::CODE,
+                crate::lint::rules::LengthySymlink::CODE,
+                crate::lint::rules::WrongPackageMailAlias::CODE,
             ]
         );
         let intent = LintIntent {

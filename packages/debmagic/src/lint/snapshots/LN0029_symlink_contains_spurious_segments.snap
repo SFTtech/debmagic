@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): symlink-contains-spurious-segments (LN0029) ./file [usr/lib/x/link]
+E: example (binary): symlink-contains-spurious-segments (LN0029) ../menu/./something [usr/lib/x/link]
+E: example (binary): symlink-contains-spurious-segments (LN0029) ../menu/../other [usr/lib/x/link]
+E: example (binary): symlink-contains-spurious-segments (LN0029) ././file [usr/lib/x/link]
+E: example (binary): symlink-contains-spurious-segments (LN0029) ././file [usr/lib/x/link]
+E: example (binary): symlink-contains-spurious-segments (LN0029) ../x/./file [usr/lib/x/link]
+E: example (binary): symlink-contains-spurious-segments (LN0029) ./a/ [usr/lib/x/link]

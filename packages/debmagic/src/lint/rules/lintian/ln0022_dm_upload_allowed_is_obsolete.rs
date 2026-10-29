@@ -1,6 +1,5 @@
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
-use crate::lint::debian_control::ControlParagraph;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::SourceRule;
 
@@ -26,21 +25,24 @@ const SOURCE_PREFIXES: &[&str] = &[
     "XS-", "XSB-", "XBS-", "XSC-", "XCS-", "XSBC-", "XSCB-", "XBSC-", "XBCS-", "XCSB-", "XCBS-",
 ];
 
-fn control_copies_to_dsc(source: &ControlParagraph, field: &str) -> bool {
-    SOURCE_PREFIXES
-        .iter()
-        .any(|prefix| source.declares(&format!("{prefix}{field}")))
+/// The unfolded `DM-Upload-Allowed` value the Dsc carries, or the one
+/// `dpkg-source` would copy into it on a Source tree. `None` when not declared.
+pub(super) fn dm_upload_allowed_value(ctx: &SourceContext<'_>) -> Option<String> {
+    const FIELD: &str = "DM-Upload-Allowed";
+    match ctx.dsc() {
+        Some(dsc) => dsc.fields().unfolded_value(FIELD),
+        None => {
+            let source = ctx.debian_control()?.source();
+            SOURCE_PREFIXES
+                .iter()
+                .find_map(|prefix| source.unfolded_value(&format!("{prefix}{FIELD}")))
+        }
+    }
 }
 
 impl SourceRule for DmUploadAllowedIsObsolete {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let declared = match ctx.dsc() {
-            Some(dsc) => dsc.fields().declares("DM-Upload-Allowed"),
-            None => ctx.debian_control().is_some_and(|control| {
-                control_copies_to_dsc(control.source(), "DM-Upload-Allowed")
-            }),
-        };
-        if declared {
+        if dm_upload_allowed_value(ctx).is_some() {
             ctx.diagnostic(Diagnostic::warn(""));
         }
     }

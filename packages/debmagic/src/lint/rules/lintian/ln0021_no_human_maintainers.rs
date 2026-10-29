@@ -3,6 +3,8 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::SourceRule;
 
+use super::mailbox::parse_mailbox;
+
 pub struct NoHumanMaintainers;
 
 /// Hosts whose addresses are lists or aliases, not people
@@ -41,30 +43,13 @@ impl SourceRule for NoHumanMaintainers {
         let Some(maintainer) = source.get("Maintainer") else {
             return;
         };
-        let Some(host) = mailbox_host(maintainer) else {
+        let Some(mailbox) = parse_mailbox(maintainer) else {
             return;
         };
-        if NON_HUMAN_HOSTS.contains(&host) && !source.declares("Uploaders") {
+        if NON_HUMAN_HOSTS.contains(&mailbox.host) && !source.declares("Uploaders") {
             ctx.diagnostic(Diagnostic::error(""));
         }
     }
-}
-
-/// Host of a single `Name <user@host>` or bare `user@host` mailbox.
-fn mailbox_host(value: &str) -> Option<&str> {
-    let value = value.trim();
-    let address = match (value.rfind('<'), value.rfind('>')) {
-        (Some(open), Some(close)) if open < close && close == value.len() - 1 => {
-            &value[open + 1..close]
-        }
-        (None, None) if !value.contains(char::is_whitespace) => value,
-        _ => return None,
-    };
-    let (user, host) = address.rsplit_once('@')?;
-    if user.is_empty() || host.is_empty() || address.contains(',') {
-        return None;
-    }
-    Some(host)
 }
 
 #[cfg(test)]

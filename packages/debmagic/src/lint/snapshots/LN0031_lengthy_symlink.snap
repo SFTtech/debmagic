@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): lengthy-symlink (LN0031) ../bar/foo [usr/share/doc/bar/star]
+E: example (binary): lengthy-symlink (LN0031) ../filenames/symlink2 [usr/lib/filenames/symlink4wrong]
+E: example (binary): lengthy-symlink (LN0031) ../html/./ch1.html [usr/share/doc/binary/html/ch2.html]
+E: example (binary): lengthy-symlink (LN0031) ../../doc/bar/foo [usr/share/doc/bar/star]

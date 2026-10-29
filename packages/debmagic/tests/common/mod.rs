@@ -232,6 +232,17 @@ pub fn parse_diagnostic_line(line: &str) -> Option<(String, ParityHint)> {
     ))
 }
 
+/// `debhelper-compat-missing` keeps `debian/compat` so the package builds, and
+/// `debian/source/options` tar-ignores it. The `(source)` hint is from the
+/// packed source, where the file is gone. The filled tree still has compat 13,
+/// so Source-tree Parity must not expect the hint. Source-package Parity packs
+/// with `dpkg-source` and still expects it. Kept in step with
+/// `source_tree_hint_matches_filled_tree` in `scripts/import_lintian_parity.py`.
+fn source_tree_hint_matches_filled_tree(recipe: &Path, hint: &ParityHint) -> bool {
+    !(hint.tag == "package-uses-deprecated-debhelper-compat-version"
+        && recipe.ends_with("checks/debhelper/debhelper-compat-missing"))
+}
+
 fn applies_to_source_tree(processable_type: &str, extra: &str) -> bool {
     processable_type == "source"
         && extra
@@ -341,7 +352,9 @@ fn catalogued_source_tree_hints(recipe: &Path, catalogued: &HashSet<String>) -> 
     let mut expected: Vec<ParityHint> = load_hints(&recipe.join("eval/hints"))
         .into_iter()
         .filter(|(processable_type, hint)| {
-            catalogued.contains(&hint.tag) && applies_to_source_tree(processable_type, &hint.extra)
+            catalogued.contains(&hint.tag)
+                && applies_to_source_tree(processable_type, &hint.extra)
+                && source_tree_hint_matches_filled_tree(recipe, hint)
         })
         .map(|(_, hint)| hint)
         .collect();

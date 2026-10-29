@@ -551,6 +551,7 @@ mod tests {
                 crate::lint::rules::CustomCompressionInDebianRules::CODE,
                 crate::lint::rules::DebianRulesIgnoresMakeCleanError::CODE,
                 crate::lint::rules::NationalEncoding::CODE,
+                crate::lint::rules::PackageUsesDeprecatedDebhelperCompatVersion::CODE,
             ]
         );
         let intent = LintIntent {

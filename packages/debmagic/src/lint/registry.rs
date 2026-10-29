@@ -2,10 +2,10 @@ use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
     CustomCompressionInDebianRules, DebianChangelogFileMissingOrWrongName,
     DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget, DebmagicDummyTrigger,
-    EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty, NoChangelog, NoCopyrightFile,
-    NoDep5Copyright, PackageContainsUnsafeSymlink, RequiredField, SourceContainsDebianSubstvars,
-    SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
-    UnstrippedBinaryOrObject,
+    EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty, NationalEncoding, NoChangelog,
+    NoCopyrightFile, NoDep5Copyright, PackageContainsUnsafeSymlink, RequiredField,
+    SourceContainsDebianSubstvars, SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern,
+    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -28,6 +28,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SourceContainsDebianSubstvars,
         &CustomCompressionInDebianRules,
         &DebianRulesIgnoresMakeCleanError,
+        &NationalEncoding,
     ]
 }
 
@@ -43,6 +44,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsDebianSubstvars,
         &CustomCompressionInDebianRules,
         &DebianRulesIgnoresMakeCleanError,
+        &NationalEncoding,
     ]
 }
 
@@ -57,6 +59,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NoChangelog,
         &DebianChangelogFileMissingOrWrongName,
         &MaintainerScriptEmpty,
+        &NationalEncoding,
     ]
 }
 
@@ -81,6 +84,7 @@ mod tests {
                 SourceContainsDebianSubstvars::CODE,
                 CustomCompressionInDebianRules::CODE,
                 DebianRulesIgnoresMakeCleanError::CODE,
+                NationalEncoding::CODE,
             ]
         );
     }
@@ -103,6 +107,7 @@ mod tests {
                 NoChangelog::CODE,
                 DebianChangelogFileMissingOrWrongName::CODE,
                 MaintainerScriptEmpty::CODE,
+                NationalEncoding::CODE,
             ]
         );
     }

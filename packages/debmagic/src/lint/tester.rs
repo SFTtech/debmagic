@@ -24,11 +24,11 @@ pub struct TestCase {
 #[derive(Clone, Debug)]
 pub enum TestFile {
     RegularFile {
-        content: String,
+        content: Vec<u8>,
         file_type: Option<FileType>,
     },
     Hardlink {
-        content: String,
+        content: Vec<u8>,
         file_type: Option<FileType>,
     },
     Directory,
@@ -39,8 +39,13 @@ pub enum TestFile {
 }
 
 impl TestFile {
-    /// A regular file with `content` and no File type.
+    /// A regular file with UTF-8 `content` and no File type.
     pub fn new(content: impl Into<String>) -> Self {
+        Self::from_bytes(content.into().into_bytes())
+    }
+
+    /// A regular file with raw `content` and no File type.
+    pub fn from_bytes(content: impl Into<Vec<u8>>) -> Self {
         Self::RegularFile {
             content: content.into(),
             file_type: None,
@@ -79,10 +84,10 @@ impl TestFile {
     fn entry(&self, path: &str) -> Entry {
         match self {
             Self::RegularFile { content, file_type } => {
-                Entry::regular_file(path, *file_type, Some(content.as_bytes().to_vec()))
+                Entry::regular_file(path, *file_type, Some(content.clone()))
             }
             Self::Hardlink { content, file_type } => {
-                Entry::hardlink(path, *file_type, Some(content.as_bytes().to_vec()))
+                Entry::hardlink(path, *file_type, Some(content.clone()))
             }
             Self::Directory => Entry::directory(path),
             Self::Symlink { target } => Entry::symlink(path, target),
@@ -408,19 +413,29 @@ impl BinaryPackageTester {
     }
 
     pub fn test_and_snapshot(&mut self) {
-        self.test();
-        self.snapshot();
+        self.test_and_snapshot_with_suffix("");
     }
 
-    fn snapshot(&self) {
+    /// Snapshot as `{code}_{tag}_{suffix}` so a Rule that also snapshots
+    /// Source-tree cases keeps a separate Binary-package oracle.
+    pub fn test_and_snapshot_with_suffix(&mut self, suffix: &str) {
+        self.test();
+        self.snapshot(suffix);
+    }
+
+    fn snapshot(&self, suffix: &str) {
         let mut settings = insta::Settings::clone_current();
         settings.set_prepend_module_to_snapshot(false);
         settings.set_omit_expression(true);
-        let name = format!(
+        let mut name = format!(
             "{}_{}",
             self.rule.code(),
             self.rule.tag().as_str().replace('-', "_")
         );
+        if !suffix.is_empty() {
+            name.push('_');
+            name.push_str(suffix);
+        }
         settings.bind(|| {
             insta::assert_snapshot!(name, self.snapshot);
         });

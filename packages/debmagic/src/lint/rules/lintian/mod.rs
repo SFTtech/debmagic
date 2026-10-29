@@ -7,6 +7,7 @@ mod ln0006_package_contains_unsafe_symlink;
 mod ln0007_empty_binary_package;
 mod ln0008_superfluous_file_pattern;
 mod ln0009_no_dep5_copyright;
+mod ln0010_no_copyright_file;
 
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
@@ -17,3 +18,4 @@ pub(crate) use ln0006_package_contains_unsafe_symlink::PackageContainsUnsafeSyml
 pub(crate) use ln0007_empty_binary_package::EmptyBinaryPackage;
 pub(crate) use ln0008_superfluous_file_pattern::SuperfluousFilePattern;
 pub(crate) use ln0009_no_dep5_copyright::NoDep5Copyright;
+pub(crate) use ln0010_no_copyright_file::NoCopyrightFile;

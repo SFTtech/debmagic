@@ -542,6 +542,7 @@ mod tests {
                 crate::lint::rules::EmptyBinaryPackage::CODE,
                 crate::lint::rules::SuperfluousFilePattern::CODE,
                 crate::lint::rules::NoDep5Copyright::CODE,
+                crate::lint::rules::NoCopyrightFile::CODE,
             ]
         );
         let intent = LintIntent {

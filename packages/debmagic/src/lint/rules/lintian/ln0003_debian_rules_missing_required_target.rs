@@ -81,7 +81,7 @@ fn missing_policy_targets(contents: &str) -> Vec<String> {
     let mut unknown_includes = false;
     let mut variables: HashMap<String, String> = HashMap::new();
 
-    for line in complete_lines(contents) {
+    for (_, line) in complete_lines(contents) {
         if let Some(makefile) = include_makefile(&line) {
             if let Some(targets) = known_makefile_targets(makefile) {
                 for target in targets {

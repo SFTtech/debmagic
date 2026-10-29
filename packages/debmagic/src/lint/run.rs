@@ -549,6 +549,7 @@ mod tests {
                 crate::lint::rules::MaintainerScriptEmpty::CODE,
                 crate::lint::rules::SourceContainsDebianSubstvars::CODE,
                 crate::lint::rules::CustomCompressionInDebianRules::CODE,
+                crate::lint::rules::DebianRulesIgnoresMakeCleanError::CODE,
             ]
         );
         let intent = LintIntent {

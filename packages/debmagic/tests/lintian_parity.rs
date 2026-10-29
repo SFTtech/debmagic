@@ -34,6 +34,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
     "checks/debian/rules/legacy-etcfiles",
+    "checks/debian/rules/rules-ignores-error-clean",
     "checks/debian/rules/rules-missing-targets",
     "checks/debian/rules/rules-missing-targets-with-known-includes",
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
@@ -117,6 +118,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
     "checks/debian/rules/legacy-etcfiles",
+    "checks/debian/rules/rules-ignores-error-clean",
     "checks/debian/rules/rules-missing-targets",
     "checks/debian/rules/rules-missing-targets-with-known-includes",
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
@@ -180,6 +182,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
 #[test_case("checks/debian/rules/legacy-etcfiles"; "checks_debian_rules_legacy_etcfiles")]
+#[test_case("checks/debian/rules/rules-ignores-error-clean"; "checks_debian_rules_rules_ignores_error_clean")]
 #[test_case("checks/debian/rules/rules-missing-targets"; "checks_debian_rules_rules_missing_targets")]
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
@@ -265,6 +268,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
 #[test_case("checks/debian/rules/legacy-etcfiles"; "checks_debian_rules_legacy_etcfiles")]
+#[test_case("checks/debian/rules/rules-ignores-error-clean"; "checks_debian_rules_rules_ignores_error_clean")]
 #[test_case("checks/debian/rules/rules-missing-targets"; "checks_debian_rules_rules_missing_targets")]
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]

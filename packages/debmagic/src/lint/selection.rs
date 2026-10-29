@@ -149,6 +149,7 @@ mod tests {
         assert!(selected.contains(&crate::lint::rules::PackageContainsUnsafeSymlink::CODE));
         assert!(selected.contains(&crate::lint::rules::EmptyBinaryPackage::CODE));
         assert!(selected.contains(&crate::lint::rules::SuperfluousFilePattern::CODE));
+        assert!(selected.contains(&crate::lint::rules::NoDep5Copyright::CODE));
         assert!(selected.iter().all(|code| code.prefix() == "LN"));
         Ok(())
     }

@@ -1,4 +1,4 @@
 ---
 source: packages/debmagic/src/lint/tester.rs
 ---
-W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- -Zxz [debian/rules]
+W: example (source): custom-compression-in-debian-rules (LN0016) dh_builddeb -- -Zxz [debian/rules:7]

@@ -21,11 +21,14 @@ pub(super) fn read_rules_from_tree(files: &FileTree) -> Option<String> {
     String::from_utf8(bytes).ok()
 }
 
-/// Logical lines: comment lines dropped, `\` continuations joined.
-pub(super) fn complete_lines(contents: &str) -> Vec<String> {
+/// Logical lines with their line number: comment lines dropped, `\`
+/// continuations joined. The number is that of the last physical line, which
+/// is where lintian points.
+pub(super) fn complete_lines(contents: &str) -> Vec<(u32, String)> {
     let mut lines = Vec::new();
     let mut continued = String::new();
-    for line in contents.split('\n') {
+    for (index, line) in contents.split('\n').enumerate() {
+        let number = u32::try_from(index + 1).unwrap_or(u32::MAX);
         if COMMENT.is_match(line) {
             continue;
         }
@@ -40,7 +43,7 @@ pub(super) fn complete_lines(contents: &str) -> Vec<String> {
             continued = stripped.to_string();
             continue;
         }
-        lines.push(line);
+        lines.push((number, line));
     }
     lines
 }

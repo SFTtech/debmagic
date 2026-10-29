@@ -1,8 +1,9 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
-    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, EmptyBinaryPackage, NoDep5Copyright,
-    PackageContainsUnsafeSymlink, RequiredField, SourceContainsPrebuiltWindowsBinary,
-    SuperfluousFilePattern, SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject,
+    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, EmptyBinaryPackage, NoCopyrightFile,
+    NoDep5Copyright, PackageContainsUnsafeSymlink, RequiredField,
+    SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
+    UnstrippedBinaryOrObject,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -17,6 +18,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &EmptyBinaryPackage,
         &SuperfluousFilePattern,
         &NoDep5Copyright,
+        &NoCopyrightFile,
     ]
 }
 
@@ -38,6 +40,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UnstrippedBinaryOrObject,
         &PackageContainsUnsafeSymlink,
         &EmptyBinaryPackage,
+        &NoCopyrightFile,
     ]
 }
 
@@ -76,6 +79,7 @@ mod tests {
                 UnstrippedBinaryOrObject::CODE,
                 PackageContainsUnsafeSymlink::CODE,
                 EmptyBinaryPackage::CODE,
+                NoCopyrightFile::CODE,
             ]
         );
     }

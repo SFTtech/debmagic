@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): no-copyright-file (LN0010)
+E: example (binary): no-copyright-file (LN0010)
+E: example (binary): no-copyright-file (LN0010)
+E: example (binary): no-copyright-file (LN0010)
+E: example (binary): no-copyright-file (LN0010)
+E: example (binary): no-copyright-file (LN0010)
+E: example (binary): no-copyright-file (LN0010)
+E: perl (binary): no-copyright-file (LN0010)

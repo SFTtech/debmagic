@@ -41,6 +41,15 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/debug-symbols/legacy-binary",
     "checks/binaries/debug-symbols/legacy-debug",
     "checks/binaries/debug-symbols/legacy-libbaz",
+    "checks/debian/copyright/copyright-file-general",
+    "checks/debian/copyright/generic-empty",
+    "checks/debian/copyright/legacy-etcfiles",
+    "checks/debian/copyright/legacy-fields",
+    "checks/debian/copyright/legacy-filenames",
+    "checks/debian/copyright/legacy-foo++",
+    "checks/debian/copyright/legacy-maintainer-scripts",
+    "checks/debian/copyright/legacy-relations",
+    "checks/debian/copyright/source-copyright-missing",
     "checks/fields/required/fields-general-missing",
     "checks/fields/required/generic-empty",
     "checks/files/empty-package/cruft-source-is-missing-unrel",
@@ -148,6 +157,15 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/debug-symbols/legacy-binary"; "checks_binaries_debug_symbols_legacy_binary")]
 #[test_case("checks/binaries/debug-symbols/legacy-debug"; "checks_binaries_debug_symbols_legacy_debug")]
 #[test_case("checks/binaries/debug-symbols/legacy-libbaz"; "checks_binaries_debug_symbols_legacy_libbaz")]
+#[test_case("checks/debian/copyright/copyright-file-general"; "checks_debian_copyright_copyright_file_general")]
+#[test_case("checks/debian/copyright/generic-empty"; "checks_debian_copyright_generic_empty")]
+#[test_case("checks/debian/copyright/legacy-etcfiles"; "checks_debian_copyright_legacy_etcfiles")]
+#[test_case("checks/debian/copyright/legacy-fields"; "checks_debian_copyright_legacy_fields")]
+#[test_case("checks/debian/copyright/legacy-filenames"; "checks_debian_copyright_legacy_filenames")]
+#[test_case("checks/debian/copyright/legacy-foo++"; "checks_debian_copyright_legacy_foo_")]
+#[test_case("checks/debian/copyright/legacy-maintainer-scripts"; "checks_debian_copyright_legacy_maintainer_scripts")]
+#[test_case("checks/debian/copyright/legacy-relations"; "checks_debian_copyright_legacy_relations")]
+#[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 #[test_case("checks/files/empty-package/cruft-source-is-missing-unrel"; "checks_files_empty_package_cruft_source_is_missing_unrel")]

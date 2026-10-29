@@ -1,9 +1,9 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
     CustomCompressionInDebianRules, DebianChangelogFileMissingOrWrongName,
-    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, EmptyBinaryPackage, FileInUnusualDir,
-    MaintainerScriptEmpty, NoChangelog, NoCopyrightFile, NoDep5Copyright,
-    PackageContainsUnsafeSymlink, RequiredField, SourceContainsDebianSubstvars,
+    DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget, DebmagicDummyTrigger,
+    EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty, NoChangelog, NoCopyrightFile,
+    NoDep5Copyright, PackageContainsUnsafeSymlink, RequiredField, SourceContainsDebianSubstvars,
     SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
     UnstrippedBinaryOrObject,
 };
@@ -27,6 +27,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MaintainerScriptEmpty,
         &SourceContainsDebianSubstvars,
         &CustomCompressionInDebianRules,
+        &DebianRulesIgnoresMakeCleanError,
     ]
 }
 
@@ -41,6 +42,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NoDep5Copyright,
         &SourceContainsDebianSubstvars,
         &CustomCompressionInDebianRules,
+        &DebianRulesIgnoresMakeCleanError,
     ]
 }
 
@@ -78,6 +80,7 @@ mod tests {
                 NoDep5Copyright::CODE,
                 SourceContainsDebianSubstvars::CODE,
                 CustomCompressionInDebianRules::CODE,
+                DebianRulesIgnoresMakeCleanError::CODE,
             ]
         );
     }

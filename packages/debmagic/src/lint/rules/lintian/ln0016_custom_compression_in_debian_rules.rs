@@ -18,7 +18,8 @@ declare_rule! {
     /// Scans the logical lines of `debian/rules` (comments dropped, `\`
     /// continuations joined) for `dh_builddeb`, later `--`, and later `-z`,
     /// `-Z`, or `-S`. Extra is the text from `dh_builddeb` to the end of the
-    /// line. Applies to the Source tree and Source package. A missing,
+    /// line. Location is `debian/rules` at the physical line where the logical
+    /// line ends. Applies to the Source tree and Source package. A missing,
     /// unreadable, or non-UTF-8 `debian/rules` is not scanned.
     CustomCompressionInDebianRules,
     code = "LN0016",
@@ -35,14 +36,14 @@ impl SourceRule for CustomCompressionInDebianRules {
         let Some(contents) = ctx.files().and_then(read_rules_from_tree) else {
             return;
         };
-        for line in complete_lines(&contents) {
+        for (number, line) in complete_lines(&contents) {
             let Some(found) = CUSTOM_COMPRESSION.captures(&line) else {
                 continue;
             };
             ctx.diagnostic(
                 Diagnostic::warn(found[1].to_string()).with_location(Location {
                     path: PathBuf::from("debian/rules"),
-                    line: None,
+                    line: Some(number),
                     column: None,
                 }),
             );

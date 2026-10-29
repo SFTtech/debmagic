@@ -23,5 +23,7 @@ pub(crate) mod tester;
 pub use diagnostic::{Diagnostic, DiagnosticInner, Location, ProcessableType};
 pub use intent::{LintIntent, LintIntentInput, resolve_lint_intent};
 pub use rule::{Code, Severity, Tag};
-pub use run::{LintOutcome, format_diagnostic, format_summary, run_lint};
+pub use run::{
+    LintOutcome, LintResult, format_diagnostic, format_finished, format_summary, run_lint,
+};
 pub use subject::{Subject, SubjectKind};

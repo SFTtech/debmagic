@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::fmt::Write;
 use std::path::Path;
+use std::time::{Duration, Instant};
 
 use anyhow::bail;
 
@@ -19,42 +20,63 @@ pub enum LintOutcome {
     PolicyFailure,
 }
 
-pub fn run_lint(intent: &LintIntent) -> anyhow::Result<(Vec<Diagnostic>, LintOutcome)> {
-    match &intent.subject {
-        Subject::SourcePackage(path) => run_source_package_lint(intent, path),
-        Subject::BinaryPackage(path) => run_binary_package_lint(intent, path),
-        Subject::SourceTree(path) => run_source_tree_lint(intent, path),
-    }
+/// One lint run: diagnostics plus the figures for the finished line.
+#[derive(Debug)]
+pub struct LintResult {
+    pub diagnostics: Vec<Diagnostic>,
+    pub outcome: LintOutcome,
+    pub rules: usize,
+    pub elapsed: Duration,
+    /// Lint runs on one thread. The finished line still names that count.
+    pub threads: usize,
 }
 
-fn run_source_package_lint(
-    intent: &LintIntent,
-    path: &Path,
-) -> anyhow::Result<(Vec<Diagnostic>, LintOutcome)> {
+pub fn run_lint(intent: &LintIntent) -> anyhow::Result<LintResult> {
+    let started = Instant::now();
+    let mut result = match &intent.subject {
+        Subject::SourcePackage(path) => run_source_package_lint(intent, path)?,
+        Subject::BinaryPackage(path) => run_binary_package_lint(intent, path)?,
+        Subject::SourceTree(path) => run_source_tree_lint(intent, path)?,
+    };
+    result.elapsed = started.elapsed();
+    result.threads = 1;
+    Ok(result)
+}
+
+fn run_source_package_lint(intent: &LintIntent, path: &Path) -> anyhow::Result<LintResult> {
     let data = SourcePackageData::new(path.to_path_buf())?;
-    execute_rules(intent, registry::source_rules(), |rule| {
+    let (diagnostics, outcome, rules) = execute_rules(intent, registry::source_rules(), |rule| {
         let mut ctx = SourceContext::bind_package(&data, rule);
         rule.run(&mut ctx);
         ctx.finish()
+    })?;
+    Ok(LintResult {
+        diagnostics,
+        outcome,
+        rules,
+        elapsed: Duration::ZERO,
+        threads: 1,
     })
 }
 
-fn run_binary_package_lint(
-    intent: &LintIntent,
-    path: &Path,
-) -> anyhow::Result<(Vec<Diagnostic>, LintOutcome)> {
+fn run_binary_package_lint(intent: &LintIntent, path: &Path) -> anyhow::Result<LintResult> {
     let data = BinaryPackageData::new(path.to_path_buf())?;
-    execute_rules(intent, registry::binary_package_rules(), |rule| {
-        let mut ctx = BinaryPackageContext::bind(&data, rule);
-        rule.run(&mut ctx);
-        ctx.finish()
+    let (diagnostics, outcome, rules) =
+        execute_rules(intent, registry::binary_package_rules(), |rule| {
+            let mut ctx = BinaryPackageContext::bind(&data, rule);
+            rule.run(&mut ctx);
+            ctx.finish()
+        })?;
+    Ok(LintResult {
+        diagnostics,
+        outcome,
+        rules,
+        elapsed: Duration::ZERO,
+        threads: 1,
     })
 }
 
-fn run_source_tree_lint(
-    intent: &LintIntent,
-    source_tree: &Path,
-) -> anyhow::Result<(Vec<Diagnostic>, LintOutcome)> {
+fn run_source_tree_lint(intent: &LintIntent, source_tree: &Path) -> anyhow::Result<LintResult> {
     let debian_dir = source_tree.join("debian");
     if !debian_dir.is_dir() {
         bail!(
@@ -64,10 +86,17 @@ fn run_source_tree_lint(
     }
 
     let data = SourceTreeData::new(source_tree.to_path_buf());
-    execute_rules(intent, registry::source_rules(), |rule| {
+    let (diagnostics, outcome, rules) = execute_rules(intent, registry::source_rules(), |rule| {
         let mut ctx = SourceContext::bind_tree(&data, rule);
         rule.run(&mut ctx);
         ctx.finish()
+    })?;
+    Ok(LintResult {
+        diagnostics,
+        outcome,
+        rules,
+        elapsed: Duration::ZERO,
+        threads: 1,
     })
 }
 
@@ -75,7 +104,7 @@ fn execute_rules<R: RuleAccess + ?Sized>(
     intent: &LintIntent,
     rules: &[&R],
     mut run_rule: impl FnMut(&R) -> anyhow::Result<Vec<Diagnostic>>,
-) -> anyhow::Result<(Vec<Diagnostic>, LintOutcome)> {
+) -> anyhow::Result<(Vec<Diagnostic>, LintOutcome, usize)> {
     let selected = intent.selected.iter().copied().collect::<HashSet<_>>();
     let execution: Vec<_> = rules
         .iter()
@@ -87,6 +116,7 @@ fn execute_rules<R: RuleAccess + ?Sized>(
         bail!("none of the selected Rules apply to this Subject");
     }
 
+    let rules_run = execution.len();
     let mut diagnostics = Vec::new();
 
     for rule in execution {
@@ -96,7 +126,7 @@ fn execute_rules<R: RuleAccess + ?Sized>(
     }
 
     let outcome = outcome_for(&diagnostics, &intent.fail_on);
-    Ok((diagnostics, outcome))
+    Ok((diagnostics, outcome, rules_run))
 }
 
 fn apply_severity_remaps(diagnostics: &mut [Diagnostic], intent: &LintIntent) {
@@ -171,6 +201,29 @@ pub fn format_summary(diagnostics: &[Diagnostic]) -> String {
     format!("Found {}.", parts.join(", "))
 }
 
+/// Oxlint-style end-of-run line, without a file count.
+///
+/// Under a second the duration is whole milliseconds (`786ms`); otherwise
+/// seconds with one decimal (`1.0s`). Rule and thread counts use a singular
+/// word at 1.
+pub fn format_finished(elapsed: Duration, rules: usize, threads: usize) -> String {
+    let ms = elapsed.as_millis();
+    let time = if ms < 1000 {
+        format!("{ms}ms")
+    } else {
+        format!("{:.1}s", elapsed.as_secs_f64())
+    };
+    format!(
+        "Finished in {time} with {rules} {} using {threads} {}.",
+        plural(rules, "rule", "rules"),
+        plural(threads, "thread", "threads"),
+    )
+}
+
+fn plural(count: usize, singular: &'static str, plural_word: &'static str) -> &'static str {
+    if count == 1 { singular } else { plural_word }
+}
+
 fn push_count(parts: &mut Vec<String>, count: usize, singular: &str, plural: &str) {
     match count {
         0 => {}
@@ -185,6 +238,7 @@ mod tests {
     use std::collections::HashSet;
     use std::fs;
     use std::path::PathBuf;
+    use std::time::Duration;
 
     use anyhow::Context;
 
@@ -260,7 +314,7 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
         };
-        let (diagnostics, _) = run_lint(&intent)?;
+        let LintResult { diagnostics, .. } = run_lint(&intent)?;
         assert!(
             diagnostics.iter().any(|diagnostic| {
                 format_diagnostic(diagnostic)
@@ -296,6 +350,53 @@ mod tests {
     #[test]
     fn summary_all_checks_passed_when_empty() {
         assert_eq!(format_summary(&[]), "All checks passed!");
+    }
+
+    #[test]
+    fn finished_line_matches_oxlint_shape() {
+        assert_eq!(
+            format_finished(Duration::from_millis(786), 179, 32),
+            "Finished in 786ms with 179 rules using 32 threads."
+        );
+        assert_eq!(
+            format_finished(Duration::from_secs(1), 1, 1),
+            "Finished in 1.0s with 1 rule using 1 thread."
+        );
+        assert_eq!(
+            format_finished(Duration::from_millis(1500), 2, 1),
+            "Finished in 1.5s with 2 rules using 1 thread."
+        );
+    }
+
+    #[test]
+    fn run_counts_executed_rules() -> anyhow::Result<()> {
+        let temp_dir = tempfile_dir("debmagic-check-finished")?;
+        fs::create_dir_all(temp_dir.join("debian"))?;
+        fs::write(
+            temp_dir.join("debian/control"),
+            "Source: example\n\
+             Maintainer: Example <ex@example.com>\n\
+             Standards-Version: 4.7.2\n\
+             \n\
+             Package: example\n\
+             Architecture: all\n\
+             Description: example\n extra\n",
+        )?;
+        let intent = LintIntent {
+            subject: Subject::SourceTree(temp_dir),
+            selected: vec![RequiredField::CODE],
+            fail_on: HashSet::from([Severity::Error]),
+            severity_remaps: HashMap::new(),
+        };
+        let result = run_lint(&intent)?;
+        assert!(result.diagnostics.is_empty(), "{:?}", result.diagnostics);
+        assert_eq!(result.rules, 1);
+        assert_eq!(result.threads, 1);
+        assert!(
+            format_finished(result.elapsed, result.rules, result.threads)
+                .ends_with(" with 1 rule using 1 thread.")
+        );
+        Ok(())
     }
 
     #[test]
@@ -345,7 +446,11 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
         };
-        let (diagnostics, outcome) = run_lint(&intent)?;
+        let LintResult {
+            diagnostics,
+            outcome,
+            ..
+        } = run_lint(&intent)?;
         assert_eq!(outcome, LintOutcome::PolicyFailure);
         let rendered: Vec<_> = diagnostics.iter().map(format_diagnostic).collect();
         assert!(
@@ -386,7 +491,11 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
         };
-        let (diagnostics, outcome) = run_lint(&intent)?;
+        let LintResult {
+            diagnostics,
+            outcome,
+            ..
+        } = run_lint(&intent)?;
         assert_eq!(outcome, LintOutcome::PolicyFailure);
         let rendered: Vec<_> = diagnostics.iter().map(format_diagnostic).collect();
         assert!(
@@ -417,7 +526,11 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
         };
-        let (diagnostics, outcome) = run_lint(&intent)?;
+        let LintResult {
+            diagnostics,
+            outcome,
+            ..
+        } = run_lint(&intent)?;
         assert!(diagnostics.is_empty(), "{diagnostics:?}");
         assert_eq!(outcome, LintOutcome::Success);
         Ok(())
@@ -486,7 +599,11 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
         };
-        let (diagnostics, outcome) = run_lint(&intent)?;
+        let LintResult {
+            diagnostics,
+            outcome,
+            ..
+        } = run_lint(&intent)?;
         assert_eq!(outcome, LintOutcome::Success);
         let rendered: Vec<_> = diagnostics.iter().map(format_diagnostic).collect();
         assert!(
@@ -509,7 +626,11 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
         };
-        let (diagnostics, outcome) = run_lint(&intent)?;
+        let LintResult {
+            diagnostics,
+            outcome,
+            ..
+        } = run_lint(&intent)?;
         assert!(diagnostics.is_empty(), "{diagnostics:?}");
         assert_eq!(outcome, LintOutcome::Success);
         Ok(())
@@ -560,7 +681,11 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
         };
-        let (diagnostics, outcome) = run_lint(&intent)?;
+        let LintResult {
+            diagnostics,
+            outcome,
+            ..
+        } = run_lint(&intent)?;
         assert!(diagnostics.is_empty());
         assert_eq!(outcome, LintOutcome::Success);
         Ok(())

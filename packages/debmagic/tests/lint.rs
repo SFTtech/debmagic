@@ -30,6 +30,7 @@ fn lint_dummy_hit_prints_diagnostic_and_succeeds() {
         "expected ruff-style summary, stdout: {stdout}"
     );
     assert!(!stdout.contains("All checks passed!"), "stdout: {stdout}");
+    assert_finished(&stdout, 12);
 }
 
 #[test]
@@ -46,6 +47,7 @@ fn lint_dummy_miss_succeeds_without_diagnostic() {
         stdout.contains("All checks passed!"),
         "expected success summary, stdout: {stdout}"
     );
+    assert_finished(&stdout, 12);
 }
 
 #[test]
@@ -62,6 +64,7 @@ fn lint_ignore_excludes_dummy_rule() {
         stdout.contains("All checks passed!"),
         "expected success summary, stdout: {stdout}"
     );
+    assert_finished(&stdout, 11);
 }
 
 #[test]
@@ -78,6 +81,7 @@ fn lint_select_prefix_excludes_dummy_rule() {
         stdout.contains("All checks passed!"),
         "expected success summary, stdout: {stdout}"
     );
+    assert_finished(&stdout, 11);
 }
 
 #[test]
@@ -111,6 +115,7 @@ fn lint_fail_on_warning_exits_nonzero_but_prints_diagnostic() {
         stdout.contains("Found 1 warning."),
         "expected ruff-style summary, stdout: {stdout}"
     );
+    assert_finished(&stdout, 12);
 }
 
 #[test]
@@ -210,6 +215,32 @@ fn lint_source_package_select_required_field_applies() {
     assert!(
         !stdout.contains("required-field"),
         "complete debian/control should not emit required-field, stdout: {stdout}"
+    );
+}
+
+fn assert_finished(stdout: &str, rules: usize) {
+    let rule_word = if rules == 1 { "rule" } else { "rules" };
+    let line = stdout
+        .lines()
+        .find(|line| line.starts_with("Finished in "))
+        .unwrap_or("");
+    let expected = format!(" with {rules} {rule_word} using ");
+    assert!(
+        line.contains(&expected) && (line.ends_with(" thread.") || line.ends_with(" threads.")),
+        "expected finished report ({expected}), stdout: {stdout}"
+    );
+    assert_eq!(
+        stdout.lines().next_back(),
+        Some(line),
+        "finished report should be the last line, stdout: {stdout}"
+    );
+    let time = line
+        .strip_prefix("Finished in ")
+        .and_then(|rest| rest.split(" with ").next())
+        .unwrap_or("");
+    assert!(
+        time.ends_with("ms") || (time.ends_with('s') && time.contains('.')),
+        "unexpected duration {time:?} in {line}"
     );
 }
 

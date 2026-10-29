@@ -45,6 +45,7 @@ flate2 = { version = ">=1.1.9" }
 xz2 = { version = ">=0.1.7" }
 zstd = { version = ">=0.13.3" }
 goblin = { version = ">=0.10.7" }
+rayon = { version = ">=1.12.0" }
 
 # dev dependencies
 test-case = { version = ">=3.3.1" }

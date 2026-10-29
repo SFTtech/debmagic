@@ -1,13 +1,13 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
-    CustomCompressionInDebianRules, DebianChangelogFileMissingOrWrongName,
-    DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget, DebmagicDummyTrigger,
-    DmUploadAllowedIsObsolete, EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty,
-    NationalEncoding, NoChangelog, NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers,
-    PackageContainsUnsafeSymlink, PackageUsesDeprecatedDebhelperCompatVersion, RequiredField,
-    SourceContainsDebianSubstvars, SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern,
-    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject, UsesDebhelperCompatFile,
-    VcsObsoleteInDebianInfrastructure,
+    ChangelogFileNotCompressed, CustomCompressionInDebianRules,
+    DebianChangelogFileMissingOrWrongName, DebianRulesIgnoresMakeCleanError,
+    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DmUploadAllowedIsObsolete,
+    EmptyBinaryPackage, FileInUnusualDir, MaintainerScriptEmpty, NationalEncoding, NoChangelog,
+    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, PackageContainsUnsafeSymlink,
+    PackageUsesDeprecatedDebhelperCompatVersion, RequiredField, SourceContainsDebianSubstvars,
+    SourceContainsPrebuiltWindowsBinary, SuperfluousFilePattern, SyntaxErrorInDebianChangelog,
+    UnstrippedBinaryOrObject, UsesDebhelperCompatFile, VcsObsoleteInDebianInfrastructure,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -36,6 +36,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoHumanMaintainers,
         &DmUploadAllowedIsObsolete,
         &VcsObsoleteInDebianInfrastructure,
+        &ChangelogFileNotCompressed,
     ]
 }
 
@@ -72,6 +73,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DebianChangelogFileMissingOrWrongName,
         &MaintainerScriptEmpty,
         &NationalEncoding,
+        &ChangelogFileNotCompressed,
     ]
 }
 
@@ -125,6 +127,7 @@ mod tests {
                 DebianChangelogFileMissingOrWrongName::CODE,
                 MaintainerScriptEmpty::CODE,
                 NationalEncoding::CODE,
+                ChangelogFileNotCompressed::CODE,
             ]
         );
     }

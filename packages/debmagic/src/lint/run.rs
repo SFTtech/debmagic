@@ -540,6 +540,7 @@ mod tests {
                 crate::lint::rules::UnstrippedBinaryOrObject::CODE,
                 crate::lint::rules::PackageContainsUnsafeSymlink::CODE,
                 crate::lint::rules::EmptyBinaryPackage::CODE,
+                crate::lint::rules::SuperfluousFilePattern::CODE,
             ]
         );
         let intent = LintIntent {

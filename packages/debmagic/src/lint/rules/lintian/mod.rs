@@ -5,6 +5,7 @@ mod ln0004_source_contains_prebuilt_windows_binary;
 mod ln0005_unstripped_binary_or_object;
 mod ln0006_package_contains_unsafe_symlink;
 mod ln0007_empty_binary_package;
+mod ln0008_superfluous_file_pattern;
 
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
@@ -13,3 +14,4 @@ pub(crate) use ln0004_source_contains_prebuilt_windows_binary::SourceContainsPre
 pub(crate) use ln0005_unstripped_binary_or_object::UnstrippedBinaryOrObject;
 pub(crate) use ln0006_package_contains_unsafe_symlink::PackageContainsUnsafeSymlink;
 pub(crate) use ln0007_empty_binary_package::EmptyBinaryPackage;
+pub(crate) use ln0008_superfluous_file_pattern::SuperfluousFilePattern;

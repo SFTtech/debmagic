@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-file-in-etc-skel (LN0080) [etc/skel/.lintianrc]
+E: example (binary): package-contains-file-in-etc-skel (LN0080) [etc/skel/subdir/extra]
+E: example (udeb): package-contains-file-in-etc-skel (LN0080) [etc/skel/.lintianrc]

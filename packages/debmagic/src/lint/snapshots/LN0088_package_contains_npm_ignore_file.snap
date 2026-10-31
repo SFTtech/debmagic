@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-npm-ignore-file (LN0088) [usr/share/doc/pkg/.npmignore]
+E: example (udeb): package-contains-npm-ignore-file (LN0088) [usr/share/doc/pkg/.npmignore]

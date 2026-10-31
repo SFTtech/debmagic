@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-icon-cache-in-generic-dir (LN0082) [usr/share/icons/hicolor/icon-theme.cache]
+W: example (udeb): package-contains-icon-cache-in-generic-dir (LN0082) [usr/share/icons/hicolor/icon-theme.cache]

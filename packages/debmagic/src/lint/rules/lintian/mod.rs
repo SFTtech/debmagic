@@ -1,5 +1,6 @@
 mod changelog_doc;
 mod debian_rules;
+mod debian_watch;
 mod description;
 mod files_hierarchy;
 mod files_names;
@@ -45,9 +46,14 @@ mod ln0069_symlink_ends_with_slash;
 mod ln0070_symlink_has_double_slash;
 mod ln0071_symlink_has_too_many_up_segments;
 mod ln0075_compressed_symlink_with_wrong_ext;
+mod ln0093_ancient_python_version_field;
 mod mailbox;
 mod symlink_links;
 
+pub(crate) use debian_watch::{
+    MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
+    ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
+};
 pub(crate) use description::{
     DescriptionIsPkgName, DescriptionStartsWithPackageName, DescriptionSynopsisIsEmpty,
     DescriptionSynopsisStartsWithArticle, DescriptionTooShort, ExtendedDescriptionIsEmpty,
@@ -61,8 +67,13 @@ pub(crate) use files_hierarchy::{
 };
 pub(crate) use files_names::{
     FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,
-    HyphenFile, PackageContainsCompiledGlibSchema, PackageContainsPythonDotDirectory,
-    PackageContainsPythonHypothesisExample, PackageContainsSassCacheDirectory,
+    HyphenFile, PackageContainsCompiledGlibSchema, PackageContainsEslintConfigFile,
+    PackageContainsFileInEtcSkel, PackageContainsFileInUsrShareHal,
+    PackageContainsIconCacheInGenericDir, PackageContainsNpmIgnoreFile,
+    PackageContainsPythonCoverageFile, PackageContainsPythonDoctreeFile,
+    PackageContainsPythonDotDirectory, PackageContainsPythonHeaderInIncorrectDirectory,
+    PackageContainsPythonHypothesisExample, PackageContainsPythonTestsInGlobalNamespace,
+    PackageContainsSassCacheDirectory, StarFile,
 };
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
@@ -106,3 +117,4 @@ pub(crate) use ln0069_symlink_ends_with_slash::SymlinkEndsWithSlash;
 pub(crate) use ln0070_symlink_has_double_slash::SymlinkHasDoubleSlash;
 pub(crate) use ln0071_symlink_has_too_many_up_segments::SymlinkHasTooManyUpSegments;
 pub(crate) use ln0075_compressed_symlink_with_wrong_ext::CompressedSymlinkWithWrongExt;
+pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;

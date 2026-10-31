@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): star-file (LN0079) [usr/share/foo/*]
+E: example (udeb): star-file (LN0079) [usr/share/foo/*]

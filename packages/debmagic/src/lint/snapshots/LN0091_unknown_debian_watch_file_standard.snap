@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): unknown-debian-watch-file-standard (LN0091) 1 [debian/watch]
+W: example (source): unknown-debian-watch-file-standard (LN0091) 0 [debian/watch]
+W: example (source): unknown-debian-watch-file-standard (LN0091) 6 [debian/watch]
+W: example (source): unknown-debian-watch-file-standard (LN0091) 42 [debian/watch]
+W: example (source): unknown-debian-watch-file-standard (LN0091) 7 [debian/watch]
+W: example (source): unknown-debian-watch-file-standard (LN0091) 1 [debian/watch]
+W: example (source): unknown-debian-watch-file-standard (LN0091) 6 [debian/watch]

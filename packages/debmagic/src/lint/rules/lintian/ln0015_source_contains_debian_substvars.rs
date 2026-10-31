@@ -37,9 +37,9 @@ impl SourceRule for SourceContainsDebianSubstvars {
         let paths: Vec<PathBuf> = files
             .query()
             .kinds([EntryKind::RegularFile, EntryKind::Hardlink])
+            .path(&SUBSTVARS)
             .into_iter()
             .map(|entry| entry.path().to_path_buf())
-            .filter(|path| path.to_str().is_some_and(|name| SUBSTVARS.is_match(name)))
             .collect();
         for path in paths {
             ctx.diagnostic(Diagnostic::warn("").with_location(Location {

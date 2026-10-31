@@ -32,15 +32,10 @@ impl BinaryPackageRule for SvnCommitFileInPackage {
             return;
         };
         let paths: Vec<_> = files
-            .entries()
-            .iter()
-            .filter(|entry| matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink))
-            .filter(|entry| {
-                entry
-                    .path()
-                    .to_str()
-                    .is_some_and(|path| SVN_COMMIT.is_match(path))
-            })
+            .query()
+            .kinds([EntryKind::RegularFile, EntryKind::Hardlink])
+            .path(&SVN_COMMIT)
+            .into_iter()
             .map(|entry| entry.path().to_path_buf())
             .collect();
         for path in paths {

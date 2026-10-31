@@ -35,22 +35,11 @@ impl BinaryPackageRule for PackageContainsVcsControlDir {
             return;
         };
         let paths: Vec<PathBuf> = files
-            .entries()
-            .iter()
-            .filter(|entry| {
-                entry.kind() == EntryKind::Directory
-                    && entry
-                        .path()
-                        .to_str()
-                        .is_some_and(|path| VCS_DIR.is_match(path))
-            })
-            .map(|entry| {
-                let mut path = entry.path().to_path_buf();
-                if entry.kind() == EntryKind::Directory {
-                    path = PathBuf::from(format!("{}/", path.display()));
-                }
-                path
-            })
+            .query()
+            .kinds([EntryKind::Directory])
+            .path(&VCS_DIR)
+            .into_iter()
+            .map(|entry| PathBuf::from(format!("{}/", entry.path().display())))
             .collect();
         for path in paths {
             ctx.diagnostic(Diagnostic::warn("").with_location(Location {

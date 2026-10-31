@@ -36,12 +36,7 @@ pub(super) struct InitHit {
 }
 
 pub(super) fn init_scripts(files: &FileTree, package: &str) -> (bool, Vec<InitHit>) {
-    let any_service = files.entries().iter().any(|entry| {
-        entry
-            .path()
-            .to_str()
-            .is_some_and(|path| SERVICE.is_match(path))
-    });
+    let any_service = files.query().path(&SERVICE).into_iter().next().is_some();
     if package == "initscripts" {
         return (any_service, Vec::new());
     }

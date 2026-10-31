@@ -33,13 +33,11 @@ impl BinaryPackageRule for SvkCommitFileInPackage {
             return;
         };
         let paths: Vec<PathBuf> = files
-            .entries()
-            .iter()
-            .filter(|entry| matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink))
-            .filter_map(|entry| {
-                let path = entry.path().to_str()?;
-                SVK.is_match(path).then_some(PathBuf::from(path))
-            })
+            .query()
+            .kinds([EntryKind::RegularFile, EntryKind::Hardlink])
+            .path(&SVK)
+            .into_iter()
+            .map(|entry| entry.path().to_path_buf())
             .collect();
         for path in paths {
             ctx.diagnostic(Diagnostic::warn("").with_location(Location {

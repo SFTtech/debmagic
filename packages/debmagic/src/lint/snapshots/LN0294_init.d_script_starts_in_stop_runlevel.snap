@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): init.d-script-starts-in-stop-runlevel (LN0294) 0 [etc/init.d/zero]
+E: example (binary): init.d-script-starts-in-stop-runlevel (LN0294) 6 [etc/init.d/six]
+E: example (binary): init.d-script-starts-in-stop-runlevel (LN0294) 0 [etc/init.d/both]
+E: example (binary): init.d-script-starts-in-stop-runlevel (LN0294) 6 [etc/init.d/both]
+E: example (binary): init.d-script-starts-in-stop-runlevel (LN0294) 0 [etc/init.d/duplicate]
+E: example (binary): init.d-script-starts-in-stop-runlevel (LN0294) 0 [etc/init.d/duplicate]
+E: example (udeb): init.d-script-starts-in-stop-runlevel (LN0294) 6 [etc/init.d/udeb-script]

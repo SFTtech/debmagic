@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): systemd-service-file-uses-nobody-or-nogroup (LN0297) User=nobody [usr/lib/systemd/system/both.service]
+W: example (binary): systemd-service-file-uses-nobody-or-nogroup (LN0297) Group=nogroup [usr/lib/systemd/system/both.service]
+W: example (binary): systemd-service-file-uses-nobody-or-nogroup (LN0297) Group=nogroup [usr/lib/systemd/system/group.service]
+W: example (binary): systemd-service-file-uses-nobody-or-nogroup (LN0297) User=nobody [usr/lib/systemd/system/quoted.service]
+W: example (binary): systemd-service-file-uses-nobody-or-nogroup (LN0297) User=nobody [usr/lib/systemd/system/reset-then.service]
+W: example (binary): systemd-service-file-uses-nobody-or-nogroup (LN0297) Group=nogroup [etc/systemd/system/copied.service]
+W: example (udeb): systemd-service-file-uses-nobody-or-nogroup (LN0297) User=nobody [lib/systemd/system/lib.service]

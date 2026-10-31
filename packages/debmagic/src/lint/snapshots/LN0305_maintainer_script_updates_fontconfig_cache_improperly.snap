@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-updates-fontconfig-cache-improperly (LN0305) "fc-cache" [postinst:2]
+W: example (binary): maintainer-script-updates-fontconfig-cache-improperly (LN0305) "fc-cache" [postinst:4]
+W: example (binary): maintainer-script-updates-fontconfig-cache-improperly (LN0305) "/usr/bin/fc-cache" [postinst:2]
+W: example (binary): maintainer-script-updates-fontconfig-cache-improperly (LN0305) "; fc-cache" [postinst:2]
+W: example (binary): maintainer-script-updates-fontconfig-cache-improperly (LN0305) "fc-cache" [postinst:2]
+W: fontconfig-config (binary): maintainer-script-updates-fontconfig-cache-improperly (LN0305) "fc-cache" [postinst:2]
+W: example (binary): maintainer-script-updates-fontconfig-cache-improperly (LN0305) "fc-cache" [postinst:3]

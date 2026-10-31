@@ -22,7 +22,7 @@ static SECTION: LazyLock<Regex> =
 static ASSIGNMENT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(.*?)(\s*)=\s*(.*)$").expect("valid regex"));
 
-pub(super) fn service_texts(files: &FileTree) -> Vec<(PathBuf, String)> {
+pub(in crate::lint::rules::lintian) fn service_texts(files: &FileTree) -> Vec<(PathBuf, String)> {
     files
         .query()
         .kinds([EntryKind::RegularFile, EntryKind::Hardlink])
@@ -64,7 +64,7 @@ pub(super) fn provided_service_names(files: &FileTree) -> HashSet<String> {
     names
 }
 
-pub(super) fn service_lines(text: &str) -> Vec<String> {
+pub(in crate::lint::rules::lintian) fn service_lines(text: &str) -> Vec<String> {
     let mut lines = Vec::new();
     let mut continuation = String::new();
     for raw in text.split('\n') {
@@ -84,7 +84,11 @@ pub(super) fn service_lines(text: &str) -> Vec<String> {
     lines
 }
 
-pub(super) fn service_values(lines: &[String], section: &str, key: &str) -> Vec<String> {
+pub(in crate::lint::rules::lintian) fn service_values(
+    lines: &[String],
+    section: &str,
+    key: &str,
+) -> Vec<String> {
     let mut values = Vec::new();
     let mut current = None;
     for line in lines {

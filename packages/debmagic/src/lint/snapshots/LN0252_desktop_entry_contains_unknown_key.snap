@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): desktop-entry-contains-unknown-key (LN0252) Foo [usr/share/applications/foo.desktop:6]
+W: example (binary): desktop-entry-contains-unknown-key (LN0252) icon [usr/share/applications/foo.desktop:4]
+W: example (binary): desktop-entry-contains-unknown-key (LN0252) Foo[en] [usr/share/applications/foo.desktop:4]
+W: example (binary): desktop-entry-contains-unknown-key (LN0252) Foo [usr/share/applications/foo.desktop:4]
+W: example (binary): desktop-entry-contains-unknown-key (LN0252) SpecialTag [usr/share/xsessions/foo.desktop:4]
+W: example (binary): desktop-entry-contains-unknown-key (LN0252) Foo [usr/share/applications/foo.desktop:4]

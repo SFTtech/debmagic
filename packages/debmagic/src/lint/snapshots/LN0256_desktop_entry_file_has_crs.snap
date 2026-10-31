@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): desktop-entry-file-has-crs (LN0256) [usr/share/applications/crlf.desktop:1]
+W: example (binary): desktop-entry-file-has-crs (LN0256) [usr/share/applications/hello.desktop:7]
+W: example (binary): desktop-entry-file-has-crs (LN0256) [usr/share/applications/foo.desktop:1]
+W: example (binary): desktop-entry-file-has-crs (LN0256) [usr/share/applications/foo.desktop:1]
+W: example (binary): desktop-entry-file-has-crs (LN0256) [usr/share/xsessions/foo.desktop:1]
+W: example (udeb): desktop-entry-file-has-crs (LN0256) [usr/share/applications/foo.desktop:1]

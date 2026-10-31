@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): non-wm-in-windowmanager-menu-section (LN0255) x11 [usr/share/menu/example:1]
+E: example (binary): non-wm-in-windowmanager-menu-section (LN0255) x11 [usr/share/menu/example:1]
+E: example (binary): non-wm-in-windowmanager-menu-section (LN0255) text [usr/share/menu/example:1]
+E: example (binary): non-wm-in-windowmanager-menu-section (LN0255) x11 [usr/share/menu/menu-section:15]
+E: example (binary): non-wm-in-windowmanager-menu-section (LN0255) x11 [usr/lib/menu/example:1]
+E: example (udeb): non-wm-in-windowmanager-menu-section (LN0255) vc [usr/share/menu/example:1]

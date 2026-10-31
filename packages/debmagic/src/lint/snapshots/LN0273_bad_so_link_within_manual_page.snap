@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bad-so-link-within-manual-page (LN0273) [usr/share/man/man1/bad-so.1]
+E: example (binary): bad-so-link-within-manual-page (LN0273) [usr/share/man/man1/bad.1.gz]
+E: example (binary): bad-so-link-within-manual-page (LN0273) [usr/share/man/man1/blank.1]
+E: example (binary): bad-so-link-within-manual-page (LN0273) [usr/share/man/man1/comment.1]
+E: example (binary): bad-so-link-within-manual-page (LN0273) [usr/share/man/man1/hard.1]
+E: example (binary): bad-so-link-within-manual-page (LN0273) [usr/share/man/man1/lang.1]
+E: example (binary): bad-so-link-within-manual-page (LN0273) [usr/share/man/man1/noslash.1]
+E: example (binary): bad-so-link-within-manual-page (LN0273) [usr/share/man/man1/rest.1]

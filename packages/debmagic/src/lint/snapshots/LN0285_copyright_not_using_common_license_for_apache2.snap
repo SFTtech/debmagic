@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): copyright-not-using-common-license-for-apache2 (LN0285)
+E: example (binary): copyright-not-using-common-license-for-apache2 (LN0285)
+E: example (binary): copyright-not-using-common-license-for-apache2 (LN0285)

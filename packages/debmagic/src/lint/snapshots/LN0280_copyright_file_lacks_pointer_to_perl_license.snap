@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): copyright-file-lacks-pointer-to-perl-license (LN0280)
+E: example (binary): copyright-file-lacks-pointer-to-perl-license (LN0280)
+E: example (binary): copyright-file-lacks-pointer-to-perl-license (LN0280)
+E: example (binary): copyright-file-lacks-pointer-to-perl-license (LN0280)

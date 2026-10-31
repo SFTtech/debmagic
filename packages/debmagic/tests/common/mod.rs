@@ -426,6 +426,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         })
         .map(|(_, hint)| hint)
         .collect();
+    rewrite_changelog_last_used(recipe_rel, &mut actual);
     actual.sort();
 
     assert_eq!(
@@ -588,12 +589,104 @@ fn ensure_rules_executable(source: &Path) {
     }
 }
 
+/// Prepend a `dpkg-deb` that passes `--nocheck`.
+///
+/// Lintian recipes build packages current `dpkg-deb` rejects, such as a
+/// `config` script mode `0644`. `--nocheck` refuses a directory target, so a
+/// directory destination is rewritten to the `.deb` path `dpkg-deb` would
+/// have chosen (epoch omitted from the filename). Archive bytes of a package
+/// that already passed the checks stay the same.
+fn dpkg_deb_nocheck_path(source: &Path) -> PathBuf {
+    let bin = source
+        .parent()
+        .expect("recipe source lives in a work directory")
+        .join("bin");
+    fs::create_dir_all(&bin).expect("creating dpkg-deb wrapper dir");
+    let wrapper = bin.join("dpkg-deb");
+    fs::write(
+        &wrapper,
+        r#"#!/usr/bin/python3
+import os, sys
+
+real = "/usr/bin/dpkg-deb"
+args = sys.argv[1:]
+try:
+    idx = next(i for i, arg in enumerate(args) if arg in ("--build", "-b"))
+except StopIteration:
+    os.execv(real, [real, *args])
+
+# `dpkg --build` execs `dpkg-deb --build -- <dir> <dest>`. `--` ends options.
+positionals = []
+tail_opts = []
+for arg in args[idx + 1 :]:
+    if arg == "--" and not positionals and not tail_opts:
+        continue
+    if arg.startswith("-") and not positionals:
+        tail_opts.append(arg)
+        continue
+    if arg.startswith("-"):
+        tail_opts.append(arg)
+        continue
+    positionals.append(arg)
+
+def control_fields(directory):
+    control = os.path.join(directory, "DEBIAN", "control")
+    fields = {}
+    with open(control, encoding="utf-8", errors="replace") as handle:
+        for line in handle:
+            if not line.strip() or line[:1] in " \t" or ":" not in line:
+                continue
+            key, value = line.split(":", 1)
+            fields.setdefault(key, value.strip())
+    return fields
+
+rewritten = False
+if len(positionals) >= 2 and os.path.isdir(positionals[1]):
+    try:
+        fields = control_fields(positionals[0])
+        version = fields["Version"]
+        if ":" in version:
+            version = version.split(":", 1)[1]
+        extension = "udeb" if fields.get("Package-Type") == "udeb" else "deb"
+        filename = f"{fields['Package']}_{version}_{fields['Architecture']}.{extension}"
+        positionals[1] = os.path.join(positionals[1], filename)
+        rewritten = True
+    except (OSError, KeyError):
+        rewritten = False
+
+file_dest = len(positionals) >= 2 and not os.path.isdir(positionals[1])
+command = [real]
+if rewritten or file_dest:
+    command.append("--nocheck")
+command.extend(args[: idx + 1])
+command.extend(positionals)
+command.extend(tail_opts)
+os.execv(real, command)
+"#,
+    )
+    .expect("writing dpkg-deb wrapper");
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mut permissions = fs::metadata(&wrapper)
+            .expect("stat dpkg-deb wrapper")
+            .permissions();
+        permissions.set_mode(0o755);
+        fs::set_permissions(&wrapper, permissions).expect("chmod dpkg-deb wrapper");
+    }
+    bin
+}
+
 fn dpkg_build_binary(source: &Path) {
     ensure_rules_executable(source);
+    let mut path = dpkg_deb_nocheck_path(source).into_os_string();
+    path.push(":");
+    path.push(std::env::var_os("PATH").unwrap_or_default());
     let output = Command::new("dpkg-buildpackage")
         .current_dir(source)
         .args(["-b", "-us", "-uc", "-d"])
         .env("DEB_BUILD_OPTIONS", "nocheck noautodbgsym")
+        .env("PATH", path)
         .stdin(Stdio::null())
         .output()
         .expect("spawning dpkg-buildpackage -b");
@@ -920,10 +1013,24 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
         );
         pack_main_orig(&source, &work.join(&name));
         let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored);
-        assert!(
-            ok,
-            "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"
-        );
+        if !ok && stderr.contains("unexpected upstream changes") {
+            // dpkg-source mis-reads an orig whose last member name contains a
+            // quote (`data/".tif` in legacy-filenames) and reports those
+            // files as new. A later member lets it see the archive correctly.
+            // The pad is in the tree and the orig, so it is not a diff.
+            fs::write(source.join("zz-pad"), "\n").expect("writing orig pad");
+            pack_main_orig(&source, &work.join(&name));
+            let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored);
+            assert!(
+                ok,
+                "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"
+            );
+        } else {
+            assert!(
+                ok,
+                "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"
+            );
+        }
     }
     find_dsc(work)
 }
@@ -967,10 +1074,31 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         })
         .map(|(_, hint)| hint)
         .collect();
+    rewrite_changelog_last_used(recipe_rel, &mut actual);
     actual.sort();
 
     assert_eq!(
         actual, expected,
         "Parity mismatch for {recipe_rel} (source package)"
     );
+}
+
+/// `changelog-file-general`'s lintian `eval/post-test` rewrites the date in
+/// `(last used: …)` to `CURRENT`. The vendored hints keep that token; the
+/// hook itself is not copied into the recipe tree.
+fn rewrite_changelog_last_used(recipe_rel: &str, hints: &mut [ParityHint]) {
+    if recipe_rel != "checks/debian/changelog/changelog-file-general" {
+        return;
+    }
+    for hint in hints {
+        let Some(start) = hint.extra.find("(last used: ") else {
+            continue;
+        };
+        let Some(relative_end) = hint.extra[start..].find(')') else {
+            continue;
+        };
+        let end = start + relative_end;
+        hint.extra
+            .replace_range(start..=end, "(last used: CURRENT)");
+    }
 }

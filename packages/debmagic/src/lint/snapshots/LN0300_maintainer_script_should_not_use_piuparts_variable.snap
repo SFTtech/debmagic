@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-should-not-use-piuparts-variable (LN0300) "PIUPARTS_TEST" [postinst:2]
+W: example (binary): maintainer-script-should-not-use-piuparts-variable (LN0300) "PIUPARTS_OBJECTS" [postinst:3]
+W: example (binary): maintainer-script-should-not-use-piuparts-variable (LN0300) "PIUPARTS_PHASE" [postinst:4]
+W: example (binary): maintainer-script-should-not-use-piuparts-variable (LN0300) "PIUPARTS_DISTRIBUTION" [postinst:5]
+W: example (binary): maintainer-script-should-not-use-piuparts-variable (LN0300) "PIUPARTS_DISTRIBUTION_NEXT" [postinst:6]
+W: example (binary): maintainer-script-should-not-use-piuparts-variable (LN0300) "PIUPARTS_DISTRIBUTION_PREV" [postinst:7]
+W: example (binary): maintainer-script-should-not-use-piuparts-variable (LN0300) "PIUPARTS_TEST" [postinst:2]
+W: example (binary): maintainer-script-should-not-use-piuparts-variable (LN0300) "PIUPARTS_TEST" [postinst:2]
+W: example (binary): maintainer-script-should-not-use-piuparts-variable (LN0300) "PIUPARTS_PHASE" [postrm:3]

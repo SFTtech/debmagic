@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unknown-field-in-templates (LN0236) debconf/unknown-field Unknown-field [templates:4]
+E: example (udeb): unknown-field-in-templates (LN0236) debian-installer/debconf-udeb/title description [templates:3]
+E: example (udeb): unknown-field-in-templates (LN0236) debian-installer/debconf-udeb/title description-de.UTF-8 [templates:4]
+E: example (binary): unknown-field-in-templates (LN0236) no-template-name Weird [templates:2]
+E: example (binary): unknown-field-in-templates (LN0236) a/b Foo [templates:3]
+E: example (binary): unknown-field-in-templates (LN0236) a/b Bar-baz [templates:4]

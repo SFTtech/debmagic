@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): mail-transport-agent-dependency-does-not-specify-default-mta (LN0261) Pre-Depends: mail-transport-agent
+W: example (binary): mail-transport-agent-dependency-does-not-specify-default-mta (LN0261) Depends: exim4 | postfix | mail-transport-agent
+W: example (binary): mail-transport-agent-dependency-does-not-specify-default-mta (LN0261) Suggests: exim4 | mail-transport-agent
+W: example (udeb): mail-transport-agent-dependency-does-not-specify-default-mta (LN0261) Recommends: mail-transport-agent

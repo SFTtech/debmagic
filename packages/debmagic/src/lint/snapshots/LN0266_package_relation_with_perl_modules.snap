@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): package-relation-with-perl-modules (LN0266) Build-Depends: perl-modules
+E: example (source): package-relation-with-perl-modules (LN0266) Build-Depends: perl-modules-5.22 (>= 5.22)
+E: example (source): package-relation-with-perl-modules (LN0266) Build-Depends-Indep: perl-modules:any
+E: example (source): package-relation-with-perl-modules (LN0266) Build-Conflicts: perl-modules

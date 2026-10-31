@@ -33,6 +33,14 @@ static AUTO_START: LazyLock<Regex> =
 
 const AUTO_END: &str = "# End automatically added section";
 
+/// lintian's `$LEADING_PATTERN`: where a shell command may begin.
+pub(super) const LEADING_PATTERN: &str = r#"(?:(?:^|[`&;(|{])\s*|(?:if|then|do|while|!)\s+|env(?:\s+[[:alnum:]_]+=(?:\S+|"[^"]*"|'[^']*'))*\s+)"#;
+
+/// `LEADING_PATTERN` followed by `command`.
+pub(super) fn leading(command: &str) -> String {
+    format!("{LEADING_PATTERN}{command}")
+}
+
 /// One logical line of a maintainer script that has a shebang interpreter.
 pub(super) struct ScriptLine {
     pub path: PathBuf,
@@ -142,6 +150,14 @@ fn is_shell(shebang: &str) -> bool {
     SHELL_BASENAME.is_match(base)
 }
 
+/// lintian's `interpreter`: the first shebang command, with a leading
+/// `/usr/bin/env` removed. `#!/bin/env python` stays `/bin/env`.
+pub(super) fn interpreter(content: &[u8]) -> Option<String> {
+    let line = shebang(content)?;
+    let stripped = ENV_PREFIX.replace(&line, "");
+    stripped.split_whitespace().next().map(str::to_string)
+}
+
 /// Blank lines and comments dropped. In a shell script a trailing `\` joins
 /// the next physical line and the hit points at that later line. A `#`
 /// comment is removed first, so `\` before a comment does not continue.
@@ -197,6 +213,33 @@ fn remove_comments(line: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn interpreter_keeps_bin_env_and_strips_usr_bin_env() {
+        assert_eq!(interpreter(b"#!/bin/sh\n").as_deref(), Some("/bin/sh"));
+        assert_eq!(
+            interpreter(b"#!/bin/env perl\n").as_deref(),
+            Some("/bin/env")
+        );
+        assert_eq!(
+            interpreter(b"#! /bin/env python\n").as_deref(),
+            Some("/bin/env")
+        );
+        assert_eq!(
+            interpreter(b"#!/usr/bin/env python\n").as_deref(),
+            Some("python")
+        );
+        assert_eq!(
+            interpreter(b"#!/usr/bin/env /bin/env\n").as_deref(),
+            Some("/bin/env")
+        );
+        assert_eq!(
+            interpreter(b"#!/usr/bin/env\n").as_deref(),
+            Some("/usr/bin/env")
+        );
+        assert!(interpreter(b"#!\n").is_none());
+        assert!(interpreter(b"#!#!#!\n").is_none());
+    }
 
     #[test]
     fn shell_follows_the_basename_after_env() {

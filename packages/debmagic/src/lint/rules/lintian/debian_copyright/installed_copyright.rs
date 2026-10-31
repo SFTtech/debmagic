@@ -73,6 +73,33 @@ pub(super) fn inspect(files: &FileTree, package: &str) -> InstalledCopyright {
     if !present {
         return found;
     }
+    let Some(contents) = text(files, package) else {
+        return found;
+    };
+    scan_contents(&contents, &mut found);
+    found
+}
+
+/// UTF-8 text of the installed copyright file, when the Check would read it.
+///
+/// Same path as [`inspect`]: a directory `usr/share/doc/<package>`, then
+/// `copyright.gz` (gunzipped) or `copyright` (a symlink is followed). Invalid
+/// UTF-8 is skipped. A symlinked doc directory is not read.
+pub(super) fn text(files: &FileTree, package: &str) -> Option<String> {
+    let doc = format!("usr/share/doc/{package}");
+    let directory = files.get(&doc)?;
+    if directory.kind() != EntryKind::Directory {
+        return None;
+    }
+    let gzip_path = PathBuf::from(format!("{doc}/copyright.gz"));
+    let plain_path = PathBuf::from(format!("{doc}/copyright"));
+    let gzip = files.get(&gzip_path);
+    let plain = files.get(&plain_path);
+    let present = gzip.is_some_and(is_regular)
+        || plain.is_some_and(|entry| entry.kind() == EntryKind::Symlink || is_regular(entry));
+    if !present {
+        return None;
+    }
     let bytes = if gzip.is_some_and(is_regular) {
         files
             .read(gzip.expect("gzip entry"))
@@ -85,15 +112,8 @@ pub(super) fn inspect(files: &FileTree, package: &str) -> InstalledCopyright {
         read_link(files, Path::new(&doc), target)
     } else {
         None
-    };
-    let Some(bytes) = bytes else {
-        return found;
-    };
-    let Ok(contents) = String::from_utf8(bytes) else {
-        return found;
-    };
-    scan_contents(&contents, &mut found);
-    found
+    }?;
+    String::from_utf8(bytes).ok()
 }
 
 fn scan_contents(contents: &str, found: &mut InstalledCopyright) {

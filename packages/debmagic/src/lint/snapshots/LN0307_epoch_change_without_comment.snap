@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): epoch-change-without-comment (LN0307) 1:1.0-1 -> 2:1.0-1 [debian/changelog:1]
+W: example (source): epoch-change-without-comment (LN0307) 1.0 -> 2:1.0 [debian/changelog:1]
+W: example (source): epoch-change-without-comment (LN0307) 999999 -> 1:1.0 [debian/changelog:1]

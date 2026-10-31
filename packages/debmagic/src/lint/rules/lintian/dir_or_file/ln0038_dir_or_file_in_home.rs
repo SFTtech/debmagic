@@ -1,9 +1,9 @@
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
-use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::hierarchy_standard::{Hierarchy, hierarchy_paths};
+use super::hierarchy_standard::{flag_matching, has_more};
 
 pub struct DirOrFileInHome;
 
@@ -21,39 +21,25 @@ declare_rule! {
     experimental = false,
 }
 
+pub(super) static MARK: () = ();
+
+pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool) -> bool {
+    let _ = (kind, udeb);
+    has_more(name, "home/") || has_more(name, "root/")
+}
+
 impl BinaryPackageRule for DirOrFileInHome {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        for path in hierarchy_paths(ctx, Hierarchy::Home) {
-            ctx.diagnostic(Diagnostic::error("").with_location(Location {
-                path,
-                line: None,
-                column: None,
-            }));
-        }
+        flag_matching(ctx, &MARK);
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
+    use crate::lint::tester::BinaryPackageTester;
 
+    use super::super::tree::tree;
     use super::*;
-
-    fn tree(entries: &[(&str, bool)]) -> BinaryPackageCase {
-        BinaryPackageCase::from(
-            entries
-                .iter()
-                .map(|(path, dir)| {
-                    let file = if *dir {
-                        TestFile::directory()
-                    } else {
-                        TestFile::new("x")
-                    };
-                    (path.to_string(), file)
-                })
-                .collect::<Vec<_>>(),
-        )
-    }
 
     #[test]
     fn test() {

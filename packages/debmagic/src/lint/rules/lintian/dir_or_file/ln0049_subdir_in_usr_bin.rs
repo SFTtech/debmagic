@@ -1,9 +1,9 @@
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
-use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::hierarchy_standard::{Hierarchy, hierarchy_paths};
+use super::hierarchy_standard::{flag_matching, has_more};
 
 pub struct SubdirInUsrBin;
 
@@ -20,15 +20,24 @@ declare_rule! {
     experimental = false,
 }
 
+pub(super) static MARK: () = ();
+
+/// Anything under `usr/bin/` ends the chain. A directory other than `X11/`
+/// and `mh/` is flagged.
+pub(super) fn claims(name: &str, _kind: EntryKind, _udeb: bool) -> bool {
+    name.starts_with("usr/bin/")
+}
+
+pub(super) fn matches(name: &str, kind: EntryKind, _udeb: bool) -> bool {
+    kind == EntryKind::Directory
+        && has_more(name, "usr/bin/")
+        && !name.starts_with("usr/bin/X11/")
+        && !name.starts_with("usr/bin/mh/")
+}
+
 impl BinaryPackageRule for SubdirInUsrBin {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        for path in hierarchy_paths(ctx, Hierarchy::SubdirInUsrBin) {
-            ctx.diagnostic(Diagnostic::error("").with_location(Location {
-                path,
-                line: None,
-                column: None,
-            }));
-        }
+        flag_matching(ctx, &MARK);
     }
 }
 

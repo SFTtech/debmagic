@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): malformed-python-version (LN0103) XS-Python-Version current 2.7
+E: example (source): malformed-python-version (LN0103) X-Python3-Version invalid
+E: example (source): malformed-python-version (LN0103) X-Python-Version 2.7, foo, 3.5

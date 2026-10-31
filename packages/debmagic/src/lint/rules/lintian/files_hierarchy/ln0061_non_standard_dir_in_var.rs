@@ -24,7 +24,7 @@ declare_rule! {
     experimental = false,
 }
 
-pub(super) static MARK: () = ();
+pub(super) static MARK: u8 = 16;
 
 /// Every direct `var/` subdirectory on a non-udeb ends the chain. FHS names,
 /// and `base-files`'s `backups` and `local`, are not flagged.

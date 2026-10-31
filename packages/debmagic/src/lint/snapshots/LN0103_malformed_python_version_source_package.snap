@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): malformed-python-version (LN0103) X-Python3-Version invalid

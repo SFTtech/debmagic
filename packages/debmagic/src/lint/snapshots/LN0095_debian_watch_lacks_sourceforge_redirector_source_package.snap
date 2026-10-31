@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-watch-lacks-sourceforge-redirector (LN0095) ftp://upload.sourceforge.net/pub/foo foo-(.+)\.tar\.gz [debian/watch:2]

@@ -21,7 +21,7 @@ declare_rule! {
     experimental = false,
 }
 
-pub(super) static MARK: () = ();
+pub(super) static MARK: u8 = 1;
 
 pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool, _package: &str) -> bool {
     let _ = (kind, udeb);

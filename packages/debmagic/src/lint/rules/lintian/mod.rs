@@ -38,9 +38,17 @@ mod ln0034_package_contains_vcs_control_dir;
 mod ln0057_svn_commit_file_in_package;
 mod ln0066_source_contains_cmake_cache_file;
 mod ln0093_ancient_python_version_field;
+mod ln0103_malformed_python_version;
+mod ln0104_python_version_current_is_deprecated;
+mod ln0105_source_package_encodes_python_version;
 mod mailbox;
+mod python_version;
 
 pub(crate) use debian_watch::{
+    DebianWatchCouldVerifyDownload, DebianWatchFilePubkeyFileIsMissing,
+    DebianWatchFileSpecifiesOldUpstreamVersion, DebianWatchFileSpecifiesWrongUpstreamVersion,
+    DebianWatchFileUsesDeprecatedGithubredir, DebianWatchFileUsesDeprecatedSfRedirectorMethod,
+    DebianWatchLacksSourceforgeRedirector, DebianWatchLineInvalid, DebianWatchNotManglingVersion,
     MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
     ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };
@@ -104,3 +112,6 @@ pub(crate) use ln0034_package_contains_vcs_control_dir::PackageContainsVcsContro
 pub(crate) use ln0057_svn_commit_file_in_package::SvnCommitFileInPackage;
 pub(crate) use ln0066_source_contains_cmake_cache_file::SourceContainsCmakeCacheFile;
 pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;
+pub(crate) use ln0103_malformed_python_version::MalformedPythonVersion;
+pub(crate) use ln0104_python_version_current_is_deprecated::PythonVersionCurrentIsDeprecated;
+pub(crate) use ln0105_source_package_encodes_python_version::SourcePackageEncodesPythonVersion;

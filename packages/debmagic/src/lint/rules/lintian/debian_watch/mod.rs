@@ -1,12 +1,31 @@
-//! Rules for the `version=` / `Version:` line of `debian/watch`.
+//! Rules for `debian/watch`.
 
+mod file;
 mod ln0089_missing_debian_watch_file_standard;
 mod ln0090_obsolete_debian_watch_file_standard;
 mod ln0091_unknown_debian_watch_file_standard;
 mod ln0092_multiple_debian_watch_file_standards;
+mod ln0094_debian_watch_line_invalid;
+mod ln0095_debian_watch_lacks_sourceforge_redirector;
+mod ln0096_debian_watch_file_uses_deprecated_githubredir;
+mod ln0097_debian_watch_file_uses_deprecated_sf_redirector_method;
+mod ln0098_debian_watch_not_mangling_version;
+mod ln0099_debian_watch_file_specifies_wrong_upstream_version;
+mod ln0100_debian_watch_file_specifies_old_upstream_version;
+mod ln0101_debian_watch_file_pubkey_file_is_missing;
+mod ln0102_debian_watch_could_verify_download;
 mod standard;
 
 pub(crate) use ln0089_missing_debian_watch_file_standard::MissingDebianWatchFileStandard;
 pub(crate) use ln0090_obsolete_debian_watch_file_standard::ObsoleteDebianWatchFileStandard;
 pub(crate) use ln0091_unknown_debian_watch_file_standard::UnknownDebianWatchFileStandard;
 pub(crate) use ln0092_multiple_debian_watch_file_standards::MultipleDebianWatchFileStandards;
+pub(crate) use ln0094_debian_watch_line_invalid::DebianWatchLineInvalid;
+pub(crate) use ln0095_debian_watch_lacks_sourceforge_redirector::DebianWatchLacksSourceforgeRedirector;
+pub(crate) use ln0096_debian_watch_file_uses_deprecated_githubredir::DebianWatchFileUsesDeprecatedGithubredir;
+pub(crate) use ln0097_debian_watch_file_uses_deprecated_sf_redirector_method::DebianWatchFileUsesDeprecatedSfRedirectorMethod;
+pub(crate) use ln0098_debian_watch_not_mangling_version::DebianWatchNotManglingVersion;
+pub(crate) use ln0099_debian_watch_file_specifies_wrong_upstream_version::DebianWatchFileSpecifiesWrongUpstreamVersion;
+pub(crate) use ln0100_debian_watch_file_specifies_old_upstream_version::DebianWatchFileSpecifiesOldUpstreamVersion;
+pub(crate) use ln0101_debian_watch_file_pubkey_file_is_missing::DebianWatchFilePubkeyFileIsMissing;
+pub(crate) use ln0102_debian_watch_could_verify_download::DebianWatchCouldVerifyDownload;

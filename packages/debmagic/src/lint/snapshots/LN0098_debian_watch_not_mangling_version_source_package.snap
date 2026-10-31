@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-watch-not-mangling-version (LN0098) https://example.com/dist/ foo\.([\d.]+)\.tar\.gz [debian/watch:2]

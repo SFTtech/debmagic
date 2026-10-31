@@ -29,6 +29,8 @@ mod ln0266_package_relation_with_perl_modules;
 mod ln0267_bad_provided_package_name;
 mod ln0268_build_depends_on_obsolete_bootstrap;
 mod ln0269_depends_on_obsolete_bootstrap;
+mod ln0352_build_depends_on_build_essential_package_without_using_version;
+mod ln0353_depends_on_essential_package_without_using_version;
 mod metapackages;
 mod overlap;
 
@@ -49,6 +51,8 @@ pub(crate) use ln0266_package_relation_with_perl_modules::PackageRelationWithPer
 pub(crate) use ln0267_bad_provided_package_name::BadProvidedPackageName;
 pub(crate) use ln0268_build_depends_on_obsolete_bootstrap::BuildDependsOnObsoleteBootstrap;
 pub(crate) use ln0269_depends_on_obsolete_bootstrap::DependsOnObsoleteBootstrap;
+pub(crate) use ln0352_build_depends_on_build_essential_package_without_using_version::BuildDependsOnBuildEssentialPackageWithoutUsingVersion;
+pub(crate) use ln0353_depends_on_essential_package_without_using_version::DependsOnEssentialPackageWithoutUsingVersion;
 
 /// Source relationship fields the Check walks, in that order.
 pub(super) const SOURCE_RELATION_FIELDS: &[&str] = &[

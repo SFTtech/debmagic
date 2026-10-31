@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): depends-on-essential-package-without-using-version (LN0353) Depends: dpkg
+E: example (binary): depends-on-essential-package-without-using-version (LN0353) Depends: coreutils
+E: example (binary): depends-on-essential-package-without-using-version (LN0353) Depends: tar
+E: example (binary): depends-on-essential-package-without-using-version (LN0353) Depends: grep [amd64]
+E: example (binary): depends-on-essential-package-without-using-version (LN0353) Pre-Depends: bash
+E: example (udeb): depends-on-essential-package-without-using-version (LN0353) Depends: sed

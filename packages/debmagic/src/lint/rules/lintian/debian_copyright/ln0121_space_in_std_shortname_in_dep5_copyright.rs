@@ -41,7 +41,7 @@ impl SourceRule for SpaceInStdShortnameInDep5Copyright {
                     .flat_map(|paragraph| {
                         let line = paragraph.position("License").unwrap_or(1);
                         let path = path.clone();
-                        names(paragraph.value("License"))
+                        names(paragraph.untrimmed_value("License"))
                             .into_iter()
                             .map(move |name| (path.clone(), line, name))
                             .collect::<Vec<_>>()

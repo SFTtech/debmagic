@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): too-long-short-description-in-templates (LN0321) debconf/too-long-short-desc [templates:3]
+W: example (binary): too-long-short-description-in-templates (LN0321) debconf/accent [templates:3]
+W: example (udeb): too-long-short-description-in-templates (LN0321) debconf/udeb-note [templates:3]
+W: example (binary): too-long-short-description-in-templates (LN0321) debconf/text-deb [templates:3]

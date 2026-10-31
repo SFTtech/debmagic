@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): no-template-type (LN0317) debconf/no-type [templates:1]
+E: example (binary): no-template-type (LN0317) no-template-name [templates:1]
+E: example (binary): no-template-type (LN0317) debconf/later [templates:2]
+E: example (udeb): no-template-type (LN0317) debconf/udeb [templates:1]

@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): non-etc-file-marked-as-conffile (LN0354) usr/share/foo
+E: example (binary): non-etc-file-marked-as-conffile (LN0354) var/cache/foo
+E: example (binary): non-etc-file-marked-as-conffile (LN0354) usr/gone
+E: example (binary): non-etc-file-marked-as-conffile (LN0354) var/bye
+E: example (binary): non-etc-file-marked-as-conffile (LN0354) var/lib/foo
+E: example (binary): non-etc-file-marked-as-conffile (LN0354) usr/bin/foo
+E: example (binary): non-etc-file-marked-as-conffile (LN0354) usr/bin/foo
+E: example (binary): non-etc-file-marked-as-conffile (LN0354) usr/bin/foo
+E: example (binary): non-etc-file-marked-as-conffile (LN0354) /etc/foo
+E: example (udeb): non-etc-file-marked-as-conffile (LN0354) usr/lib/foo

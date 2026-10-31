@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bogus-mail-host-in-debian-changelog (LN0361) he@unknown (for version 2.0-1) [usr/share/doc/example/changelog.gz:1]
+E: example (binary): bogus-mail-host-in-debian-changelog (LN0361) jeroen@mordor (for version 1.0-1) [usr/share/doc/example/changelog.gz:7]
+E: example (binary): bogus-mail-host-in-debian-changelog (LN0361) unknown@unknown (for version 1.0-1) [usr/share/doc/example/changelog.Debian:1]
+E: example (binary): bogus-mail-host-in-debian-changelog (LN0361) A Uthor <not-an-email> (for version 1.0-1) [usr/share/doc/example/changelog:1]
+E: example (binary): bogus-mail-host-in-debian-changelog (LN0361) user@localhost (for version 1.0-1) [usr/share/doc/example/changelog:1]

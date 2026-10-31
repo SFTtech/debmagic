@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): doc-base-abstract-field-separator-extra-whitespace (LN0331) [usr/share/doc-base/two:2]
+W: example (binary): doc-base-abstract-field-separator-extra-whitespace (LN0331) [usr/share/doc-base/trail:2]
+W: example (binary): doc-base-abstract-field-separator-extra-whitespace (LN0331) [usr/share/doc-base/tab:2]
+W: example (binary): doc-base-abstract-field-separator-extra-whitespace (LN0331) [usr/share/doc-base/both:2]
+W: example (binary): doc-base-abstract-field-separator-extra-whitespace (LN0331) [usr/share/doc-base/both:4]
+W: example (binary): doc-base-abstract-field-separator-extra-whitespace (LN0331) [usr/share/doc-base/legacy:7]

@@ -90,6 +90,28 @@ pub(super) fn obsolete_module(text: &str) -> Option<String> {
     OBSOLETE.find(text).map(|found| found.as_str().to_string())
 }
 
+static LOADS_CONFMODULE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r"(?:\.|source)\s+/usr/share/debconf/confmodule|(?:use|require)\s+Debconf::Client::ConfModule",
+    )
+    .expect("valid regex")
+});
+
+/// The line loads a confmodule, including an obsolete name.
+///
+/// `.` or `source` of `/usr/share/debconf/confmodule` counts, as do `use` and
+/// `require` of `Debconf::Client::ConfModule`. The obsolete `.sh` path and
+/// `Debian::DebConf::Client::ConfModule` count too: the Check sets the same
+/// flag for them.
+pub(super) fn loads_confmodule(text: &str) -> bool {
+    LOADS_CONFMODULE.is_match(text) || obsolete_module(text).is_some()
+}
+
+/// Substring `db_input`, the same match the Check uses.
+pub(super) fn mentions_db_input(text: &str) -> bool {
+    text.contains("db_input")
+}
+
 struct Phys {
     content: String,
     newline: bool,
@@ -234,5 +256,20 @@ db_input unknown debconf/unknown-priority
     #[test]
     fn no_shebang_is_skipped() {
         assert!(logical_lines(". /usr/share/debconf/confmodule.sh\n").is_none());
+    }
+
+    #[test]
+    fn confmodule_load_and_db_input_match_the_check() {
+        assert!(loads_confmodule(". /usr/share/debconf/confmodule\n"));
+        assert!(loads_confmodule("source /usr/share/debconf/confmodule\n"));
+        assert!(loads_confmodule("use Debconf::Client::ConfModule;\n"));
+        assert!(loads_confmodule("require Debconf::Client::ConfModule;\n"));
+        assert!(loads_confmodule(". /usr/share/debconf/confmodule.sh\n"));
+        assert!(loads_confmodule("Debian::DebConf::Client::ConfModule\n"));
+        assert!(!loads_confmodule("/usr/share/debconf/confmodule\n"));
+        assert!(!loads_confmodule(". \"/usr/share/debconf/confmodule\"\n"));
+        assert!(mentions_db_input("db_input low x\n"));
+        assert!(mentions_db_input("echo db_input\n"));
+        assert!(!mentions_db_input("db_get x\n"));
     }
 }

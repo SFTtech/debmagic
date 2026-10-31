@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): md5sums-lists-nonexistent-file (LN0343) usr/bin/missing [md5sums]
+E: example (binary): md5sums-lists-nonexistent-file (LN0343) usr/bin/foo [md5sums]

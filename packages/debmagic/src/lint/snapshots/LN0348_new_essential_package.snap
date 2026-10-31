@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): new-essential-package (LN0348)
+E: fields-essential (binary): new-essential-package (LN0348)
+E: another-version (binary): new-essential-package (LN0348)
+E: bash-doc (udeb): new-essential-package (LN0348)

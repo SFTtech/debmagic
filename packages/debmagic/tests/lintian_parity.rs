@@ -57,6 +57,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/legacy-foo++",
     "checks/debian/copyright/dep5/legacy-scripts",
     "checks/debian/copyright/dep5/source-copyright-bad-short-name",
+    "checks/debian/copyright/dep5/source-copyright-dep5-general",
     "checks/debian/copyright/dep5/source-copyright-empty-field",
     "checks/debian/copyright/dep5/source-copyright-files-excluded-without-copyright-format-1.0",
     "checks/debian/copyright/dep5/source-copyright-global-files-wildcard-not-first-paragraph",
@@ -72,6 +73,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/generic-empty",
     "checks/debian/copyright/named-copyright-in-source",
     "checks/debian/copyright/source-copyright-missing",
+    "checks/debian/debconf/debconf-templates-general",
+    "checks/debian/debconf/legacy-debconf",
     "checks/debian/rules/control-file-rules-requires-root-binary-targets",
     "checks/debian/rules/control-file-rules-requires-root-no",
     "checks/debian/rules/debhelper-compat-old",
@@ -124,6 +127,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/dm-upload-allowed/legacy-binary",
     "checks/fields/dm-upload-allowed/legacy-foo++",
     "checks/fields/dm-upload-allowed/legacy-maintainer-scripts",
+    "checks/fields/essential/fields-essential",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/mail-address/fields-maintainer",
     "checks/fields/mail-address/fields-uploaders",
@@ -133,11 +137,15 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/maintainer/fields-qa-maint-address",
     "checks/fields/maintainer/fields-wrong-package-email-alias",
     "checks/fields/maintainer/java-team-fp",
+    "checks/fields/origin/fields-redundant",
+    "checks/fields/origin/legacy-relations",
     "checks/fields/package-relations/fields-build-depends-general",
     "checks/fields/package-relations/fields-depends-general",
     "checks/fields/package-relations/fields-depends-metapackage",
     "checks/fields/package-relations/fields-java",
     "checks/fields/package-relations/legacy-relations",
+    "checks/fields/recommended/control-file-general",
+    "checks/fields/recommended/generic-empty",
     "checks/fields/required/generic-empty",
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
@@ -186,11 +194,14 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/debug-symbols/legacy-debug",
     "checks/binaries/debug-symbols/legacy-libbaz",
     "checks/conffiles/conffiles-etc-not-marked",
+    "checks/conffiles/conffiles-general",
     "checks/conffiles/legacy-etcfiles",
     "checks/conffiles/legacy-filenames",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-missing",
     "checks/debian/changelog/changelog-file-news-and-changelog-not-compressed",
+    "checks/debian/changelog/changelog-file-news-general",
+    "checks/debian/changelog/changelog-file-news-wrong-name",
     "checks/debian/changelog/changelog-file-no-dch",
     "checks/debian/changelog/changelog-file-no-dch-native",
     "checks/debian/changelog/changelog-file-symlink",
@@ -201,6 +212,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-libbaz",
+    "checks/debian/changelog/legacy-maintainer-scripts",
     "checks/debian/changelog/legacy-relations",
     "checks/debian/copyright/copyright-file-general",
     "checks/debian/copyright/copyright-file-license-symlink",
@@ -223,6 +235,12 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/debconf/legacy-debconf",
     "checks/debian/debconf/national-encoding",
     "checks/debian/debconf/po-debconf-general",
+    "checks/debian/readme/debian-readme-general",
+    "checks/debian/readme/legacy-etcfiles",
+    "checks/debian/shlibs/legacy-debug",
+    "checks/debian/shlibs/legacy-libbaz",
+    "checks/debian/shlibs/shared-libs-control-file",
+    "checks/debian/shlibs/shared-libs-symbols-file",
     "checks/documentation/files-doxygen-documentation",
     "checks/documentation/files-foo-in-bar",
     "checks/documentation/files-package-contains-foo",
@@ -257,11 +275,16 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/description/legacy-debconf",
     "checks/fields/description/legacy-etcfiles",
     "checks/fields/description/legacy-relations",
+    "checks/fields/essential/fields-essential",
+    "checks/fields/essential/legacy-fields",
     "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/length/depends-field-too-long",
     "checks/fields/length/provides-field-too-long",
     "checks/fields/mail-address/fields-maintainer",
+    "checks/fields/origin/fields-redundant",
+    "checks/fields/origin/legacy-relations",
     "checks/fields/package-relations/fields-depends-general",
     "checks/fields/package-relations/fields-mua",
     "checks/fields/package-relations/fields-multiple-x-deps",
@@ -273,6 +296,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/package-relations/legacy-scripts",
     "checks/fields/required/fields-general-missing",
     "checks/fields/required/generic-empty",
+    "checks/fields/section/fields-section-general",
+    "checks/fields/section/legacy-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
     "checks/files/appimage-check/package-installs-appimage-file",
     "checks/files/appimage-check/package-installs-appimage-magic",
@@ -333,11 +358,15 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/files-python-modules",
     "checks/linda/files-package-contains-foo",
     "checks/linda/legacy-filenames",
+    "checks/mailcap/placeholder-in-quoted-string",
+    "checks/mailcap/single-quoted-placeholder",
     "checks/maintainer-scripts/empty/legacy-maintainer-scripts",
     "checks/maintainer-scripts/empty/legacy-scripts",
     "checks/maintainer-scripts/empty/scripts-maintainer-script-empty",
     "checks/maintainer-scripts/ldconfig/legacy-maintainer-scripts",
     "checks/maintainer-scripts/ldconfig/shared-libs-ldconfig-scripts",
+    "checks/md5sums/legacy-etcfiles",
+    "checks/md5sums/md5sums-general",
     "checks/menu-format/item-has-needs-dwww",
     "checks/menu-format/legacy-binary",
     "checks/menu-format/menu-format-desktop-general",
@@ -346,6 +375,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/menu-format/whitespace-after-continuation-character",
     "checks/menus/legacy-binary",
     "checks/menus/legacy-filenames",
+    "checks/menus/menus-doc-base-general",
+    "checks/menus/menus-foo-calls-bar",
+    "checks/menus/menus-script-check-ok",
     "checks/menus/national-encoding",
     "checks/scripts/legacy-maintainer-scripts",
     "checks/scripts/legacy-scripts",
@@ -362,6 +394,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/systemd/systemd-general",
     "checks/systemd/systemd-missing-services",
     "checks/systemd/systemd-service-file-uses-nobody-or-nogroup",
+    "checks/triggers/legacy-maintainer-scripts",
+    "checks/triggers/triggers-general",
     "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-native-3.0",
     "general-false-positives/basic-native-3.0-with-epoch",
@@ -422,6 +456,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/legacy-foo++",
     "checks/debian/copyright/dep5/legacy-scripts",
     "checks/debian/copyright/dep5/source-copyright-bad-short-name",
+    "checks/debian/copyright/dep5/source-copyright-dep5-general",
     "checks/debian/copyright/dep5/source-copyright-empty-field",
     "checks/debian/copyright/dep5/source-copyright-files-excluded-without-copyright-format-1.0",
     "checks/debian/copyright/dep5/source-copyright-global-files-wildcard-not-first-paragraph",
@@ -437,6 +472,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/generic-empty",
     "checks/debian/copyright/named-copyright-in-source",
     "checks/debian/copyright/source-copyright-missing",
+    "checks/debian/debconf/debconf-templates-general",
+    "checks/debian/debconf/legacy-debconf",
     "checks/debian/rules/control-file-rules-requires-root-binary-targets",
     "checks/debian/rules/control-file-rules-requires-root-no",
     "checks/debian/rules/debhelper-compat-old",
@@ -489,6 +526,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/dm-upload-allowed/legacy-binary",
     "checks/fields/dm-upload-allowed/legacy-foo++",
     "checks/fields/dm-upload-allowed/legacy-maintainer-scripts",
+    "checks/fields/essential/fields-essential",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/mail-address/fields-maintainer",
     "checks/fields/mail-address/fields-uploaders",
@@ -498,11 +536,15 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/maintainer/fields-qa-maint-address",
     "checks/fields/maintainer/fields-wrong-package-email-alias",
     "checks/fields/maintainer/java-team-fp",
+    "checks/fields/origin/fields-redundant",
+    "checks/fields/origin/legacy-relations",
     "checks/fields/package-relations/fields-build-depends-general",
     "checks/fields/package-relations/fields-depends-general",
     "checks/fields/package-relations/fields-depends-metapackage",
     "checks/fields/package-relations/fields-java",
     "checks/fields/package-relations/legacy-relations",
+    "checks/fields/recommended/control-file-general",
+    "checks/fields/recommended/generic-empty",
     "checks/fields/required/generic-empty",
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
@@ -621,6 +663,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/dep5/legacy-foo++"; "checks_debian_copyright_dep5_legacy_foo_")]
 #[test_case("checks/debian/copyright/dep5/legacy-scripts"; "checks_debian_copyright_dep5_legacy_scripts")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-bad-short-name"; "checks_debian_copyright_dep5_source_copyright_bad_short_name")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-dep5-general"; "checks_debian_copyright_dep5_source_copyright_dep5_general")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-empty-field"; "checks_debian_copyright_dep5_source_copyright_empty_field")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-files-excluded-without-copyright-format-1.0"; "checks_debian_copyright_dep5_source_copyright_files_excluded_without_copyright_format_1_0")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-global-files-wildcard-not-first-paragraph"; "checks_debian_copyright_dep5_source_copyright_global_files_wildcard_not_first_paragraph")]
@@ -636,6 +679,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/generic-empty"; "checks_debian_copyright_generic_empty")]
 #[test_case("checks/debian/copyright/named-copyright-in-source"; "checks_debian_copyright_named_copyright_in_source")]
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
+#[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
+#[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-binary-targets"; "checks_debian_rules_control_file_rules_requires_root_binary_targets")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-no"; "checks_debian_rules_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
@@ -688,6 +733,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-maintainer-scripts"; "checks_fields_dm_upload_allowed_legacy_maintainer_scripts")]
+#[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
 #[test_case("checks/fields/mail-address/fields-uploaders"; "checks_fields_mail_address_fields_uploaders")]
@@ -697,11 +743,15 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/maintainer/fields-qa-maint-address"; "checks_fields_maintainer_fields_qa_maint_address")]
 #[test_case("checks/fields/maintainer/fields-wrong-package-email-alias"; "checks_fields_maintainer_fields_wrong_package_email_alias")]
 #[test_case("checks/fields/maintainer/java-team-fp"; "checks_fields_maintainer_java_team_fp")]
+#[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
+#[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package-relations/fields-build-depends-general"; "checks_fields_package_relations_fields_build_depends_general")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
 #[test_case("checks/fields/package-relations/fields-depends-metapackage"; "checks_fields_package_relations_fields_depends_metapackage")]
 #[test_case("checks/fields/package-relations/fields-java"; "checks_fields_package_relations_fields_java")]
 #[test_case("checks/fields/package-relations/legacy-relations"; "checks_fields_package_relations_legacy_relations")]
+#[test_case("checks/fields/recommended/control-file-general"; "checks_fields_recommended_control_file_general")]
+#[test_case("checks/fields/recommended/generic-empty"; "checks_fields_recommended_generic_empty")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
@@ -751,11 +801,14 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/debug-symbols/legacy-debug"; "checks_binaries_debug_symbols_legacy_debug")]
 #[test_case("checks/binaries/debug-symbols/legacy-libbaz"; "checks_binaries_debug_symbols_legacy_libbaz")]
 #[test_case("checks/conffiles/conffiles-etc-not-marked"; "checks_conffiles_conffiles_etc_not_marked")]
+#[test_case("checks/conffiles/conffiles-general"; "checks_conffiles_conffiles_general")]
 #[test_case("checks/conffiles/legacy-etcfiles"; "checks_conffiles_legacy_etcfiles")]
 #[test_case("checks/conffiles/legacy-filenames"; "checks_conffiles_legacy_filenames")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-missing"; "checks_debian_changelog_changelog_file_missing")]
 #[test_case("checks/debian/changelog/changelog-file-news-and-changelog-not-compressed"; "checks_debian_changelog_changelog_file_news_and_changelog_not_compressed")]
+#[test_case("checks/debian/changelog/changelog-file-news-general"; "checks_debian_changelog_changelog_file_news_general")]
+#[test_case("checks/debian/changelog/changelog-file-news-wrong-name"; "checks_debian_changelog_changelog_file_news_wrong_name")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch"; "checks_debian_changelog_changelog_file_no_dch")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch-native"; "checks_debian_changelog_changelog_file_no_dch_native")]
 #[test_case("checks/debian/changelog/changelog-file-symlink"; "checks_debian_changelog_changelog_file_symlink")]
@@ -766,6 +819,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-libbaz"; "checks_debian_changelog_legacy_libbaz")]
+#[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
 #[test_case("checks/debian/changelog/legacy-relations"; "checks_debian_changelog_legacy_relations")]
 #[test_case("checks/debian/copyright/copyright-file-general"; "checks_debian_copyright_copyright_file_general")]
 #[test_case("checks/debian/copyright/copyright-file-license-symlink"; "checks_debian_copyright_copyright_file_license_symlink")]
@@ -788,6 +842,12 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/debconf/national-encoding"; "checks_debian_debconf_national_encoding")]
 #[test_case("checks/debian/debconf/po-debconf-general"; "checks_debian_debconf_po_debconf_general")]
+#[test_case("checks/debian/readme/debian-readme-general"; "checks_debian_readme_debian_readme_general")]
+#[test_case("checks/debian/readme/legacy-etcfiles"; "checks_debian_readme_legacy_etcfiles")]
+#[test_case("checks/debian/shlibs/legacy-debug"; "checks_debian_shlibs_legacy_debug")]
+#[test_case("checks/debian/shlibs/legacy-libbaz"; "checks_debian_shlibs_legacy_libbaz")]
+#[test_case("checks/debian/shlibs/shared-libs-control-file"; "checks_debian_shlibs_shared_libs_control_file")]
+#[test_case("checks/debian/shlibs/shared-libs-symbols-file"; "checks_debian_shlibs_shared_libs_symbols_file")]
 #[test_case("checks/documentation/files-doxygen-documentation"; "checks_documentation_files_doxygen_documentation")]
 #[test_case("checks/documentation/files-foo-in-bar"; "checks_documentation_files_foo_in_bar")]
 #[test_case("checks/documentation/files-package-contains-foo"; "checks_documentation_files_package_contains_foo")]
@@ -822,11 +882,16 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/description/legacy-debconf"; "checks_fields_description_legacy_debconf")]
 #[test_case("checks/fields/description/legacy-etcfiles"; "checks_fields_description_legacy_etcfiles")]
 #[test_case("checks/fields/description/legacy-relations"; "checks_fields_description_legacy_relations")]
+#[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
+#[test_case("checks/fields/essential/legacy-fields"; "checks_fields_essential_legacy_fields")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/length/depends-field-too-long"; "checks_fields_length_depends_field_too_long")]
 #[test_case("checks/fields/length/provides-field-too-long"; "checks_fields_length_provides_field_too_long")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
+#[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
+#[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
 #[test_case("checks/fields/package-relations/fields-mua"; "checks_fields_package_relations_fields_mua")]
 #[test_case("checks/fields/package-relations/fields-multiple-x-deps"; "checks_fields_package_relations_fields_multiple_x_deps")]
@@ -838,6 +903,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/package-relations/legacy-scripts"; "checks_fields_package_relations_legacy_scripts")]
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/fields/section/fields-section-general"; "checks_fields_section_fields_section_general")]
+#[test_case("checks/fields/section/legacy-fields"; "checks_fields_section_legacy_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
 #[test_case("checks/files/appimage-check/package-installs-appimage-file"; "checks_files_appimage_check_package_installs_appimage_file")]
 #[test_case("checks/files/appimage-check/package-installs-appimage-magic"; "checks_files_appimage_check_package_installs_appimage_magic")]
@@ -898,11 +965,15 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/python/files-python-modules"; "checks_languages_python_files_python_modules")]
 #[test_case("checks/linda/files-package-contains-foo"; "checks_linda_files_package_contains_foo")]
 #[test_case("checks/linda/legacy-filenames"; "checks_linda_legacy_filenames")]
+#[test_case("checks/mailcap/placeholder-in-quoted-string"; "checks_mailcap_placeholder_in_quoted_string")]
+#[test_case("checks/mailcap/single-quoted-placeholder"; "checks_mailcap_single_quoted_placeholder")]
 #[test_case("checks/maintainer-scripts/empty/legacy-maintainer-scripts"; "checks_maintainer_scripts_empty_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/empty/legacy-scripts"; "checks_maintainer_scripts_empty_legacy_scripts")]
 #[test_case("checks/maintainer-scripts/empty/scripts-maintainer-script-empty"; "checks_maintainer_scripts_empty_scripts_maintainer_script_empty")]
 #[test_case("checks/maintainer-scripts/ldconfig/legacy-maintainer-scripts"; "checks_maintainer_scripts_ldconfig_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/ldconfig/shared-libs-ldconfig-scripts"; "checks_maintainer_scripts_ldconfig_shared_libs_ldconfig_scripts")]
+#[test_case("checks/md5sums/legacy-etcfiles"; "checks_md5sums_legacy_etcfiles")]
+#[test_case("checks/md5sums/md5sums-general"; "checks_md5sums_md5sums_general")]
 #[test_case("checks/menu-format/item-has-needs-dwww"; "checks_menu_format_item_has_needs_dwww")]
 #[test_case("checks/menu-format/legacy-binary"; "checks_menu_format_legacy_binary")]
 #[test_case("checks/menu-format/menu-format-desktop-general"; "checks_menu_format_menu_format_desktop_general")]
@@ -911,6 +982,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/menu-format/whitespace-after-continuation-character"; "checks_menu_format_whitespace_after_continuation_character")]
 #[test_case("checks/menus/legacy-binary"; "checks_menus_legacy_binary")]
 #[test_case("checks/menus/legacy-filenames"; "checks_menus_legacy_filenames")]
+#[test_case("checks/menus/menus-doc-base-general"; "checks_menus_menus_doc_base_general")]
+#[test_case("checks/menus/menus-foo-calls-bar"; "checks_menus_menus_foo_calls_bar")]
+#[test_case("checks/menus/menus-script-check-ok"; "checks_menus_menus_script_check_ok")]
 #[test_case("checks/menus/national-encoding"; "checks_menus_national_encoding")]
 #[test_case("checks/scripts/legacy-maintainer-scripts"; "checks_scripts_legacy_maintainer_scripts")]
 #[test_case("checks/scripts/legacy-scripts"; "checks_scripts_legacy_scripts")]
@@ -927,6 +1001,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/systemd/systemd-general"; "checks_systemd_systemd_general")]
 #[test_case("checks/systemd/systemd-missing-services"; "checks_systemd_systemd_missing_services")]
 #[test_case("checks/systemd/systemd-service-file-uses-nobody-or-nogroup"; "checks_systemd_systemd_service_file_uses_nobody_or_nogroup")]
+#[test_case("checks/triggers/legacy-maintainer-scripts"; "checks_triggers_legacy_maintainer_scripts")]
+#[test_case("checks/triggers/triggers-general"; "checks_triggers_triggers_general")]
 #[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-native-3.0"; "general_false_positives_basic_native_3_0")]
 #[test_case("general-false-positives/basic-native-3.0-with-epoch"; "general_false_positives_basic_native_3_0_with_epoch")]
@@ -988,6 +1064,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/dep5/legacy-foo++"; "checks_debian_copyright_dep5_legacy_foo_")]
 #[test_case("checks/debian/copyright/dep5/legacy-scripts"; "checks_debian_copyright_dep5_legacy_scripts")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-bad-short-name"; "checks_debian_copyright_dep5_source_copyright_bad_short_name")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-dep5-general"; "checks_debian_copyright_dep5_source_copyright_dep5_general")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-empty-field"; "checks_debian_copyright_dep5_source_copyright_empty_field")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-files-excluded-without-copyright-format-1.0"; "checks_debian_copyright_dep5_source_copyright_files_excluded_without_copyright_format_1_0")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-global-files-wildcard-not-first-paragraph"; "checks_debian_copyright_dep5_source_copyright_global_files_wildcard_not_first_paragraph")]
@@ -1003,6 +1080,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/generic-empty"; "checks_debian_copyright_generic_empty")]
 #[test_case("checks/debian/copyright/named-copyright-in-source"; "checks_debian_copyright_named_copyright_in_source")]
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
+#[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
+#[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-binary-targets"; "checks_debian_rules_control_file_rules_requires_root_binary_targets")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-no"; "checks_debian_rules_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
@@ -1055,6 +1134,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-maintainer-scripts"; "checks_fields_dm_upload_allowed_legacy_maintainer_scripts")]
+#[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
 #[test_case("checks/fields/mail-address/fields-uploaders"; "checks_fields_mail_address_fields_uploaders")]
@@ -1064,11 +1144,15 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/maintainer/fields-qa-maint-address"; "checks_fields_maintainer_fields_qa_maint_address")]
 #[test_case("checks/fields/maintainer/fields-wrong-package-email-alias"; "checks_fields_maintainer_fields_wrong_package_email_alias")]
 #[test_case("checks/fields/maintainer/java-team-fp"; "checks_fields_maintainer_java_team_fp")]
+#[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
+#[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package-relations/fields-build-depends-general"; "checks_fields_package_relations_fields_build_depends_general")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
 #[test_case("checks/fields/package-relations/fields-depends-metapackage"; "checks_fields_package_relations_fields_depends_metapackage")]
 #[test_case("checks/fields/package-relations/fields-java"; "checks_fields_package_relations_fields_java")]
 #[test_case("checks/fields/package-relations/legacy-relations"; "checks_fields_package_relations_legacy_relations")]
+#[test_case("checks/fields/recommended/control-file-general"; "checks_fields_recommended_control_file_general")]
+#[test_case("checks/fields/recommended/generic-empty"; "checks_fields_recommended_generic_empty")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]

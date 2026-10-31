@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: etcfiles (binary): readme-debian-mentions-usr-doc (LN0335) [usr/share/doc/etcfiles/README.Debian:2]
+W: debian-readme-general (binary): readme-debian-mentions-usr-doc (LN0335) [usr/share/doc/debian-readme-general/README.Debian:4]
+W: example (binary): readme-debian-mentions-usr-doc (LN0335) [usr/share/doc/example/README.debian:2]
+W: example (binary): readme-debian-mentions-usr-doc (LN0335) [usr/share/doc/example/README.debian:3]
+W: example (binary): readme-debian-mentions-usr-doc (LN0335) [usr/share/doc/example/README.Debian.gz:2]
+W: example (binary): readme-debian-mentions-usr-doc (LN0335) [usr/share/doc/example/README.Debian.gz:1]

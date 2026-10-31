@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): missing-field-in-dep5-copyright (LN0356) (empty field) Files [debian/copyright:4]
+W: (source): missing-field-in-dep5-copyright (LN0356) (empty field) Copyright [debian/copyright:5]
+W: (source): missing-field-in-dep5-copyright (LN0356) License [debian/copyright:4]
+W: (source): missing-field-in-dep5-copyright (LN0356) Copyright [debian/copyright:4]
+W: (source): missing-field-in-dep5-copyright (LN0356) (empty field) Files [debian/copyright:4]
+W: (source): missing-field-in-dep5-copyright (LN0356) License [debian/copyright:4]
+W: (source): missing-field-in-dep5-copyright (LN0356) (empty field) Copyright [debian/copyright:5]

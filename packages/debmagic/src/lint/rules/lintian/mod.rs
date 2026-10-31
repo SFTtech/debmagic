@@ -1,9 +1,12 @@
 mod changelog_doc;
+mod conffiles;
 mod debhelper_rules;
 mod debian_changelog;
 mod debian_copyright;
 mod debian_debconf;
+mod debian_readme;
 mod debian_rules;
+mod debian_shlibs;
 mod debian_version_substvars;
 mod debian_watch;
 mod description;
@@ -56,7 +59,10 @@ mod ln0183_package_contains_bts_control_dir;
 mod ln0184_uses_dpkg_database_directly;
 mod ln0185_obsolete_url_in_packaging;
 mod mailbox;
+mod mailcap;
+mod md5sums;
 mod menu_format;
+mod menus;
 mod rules_and_control;
 mod scripts_calls;
 mod scripts_depends;
@@ -64,18 +70,22 @@ mod scripts_shell;
 mod scripts_text;
 mod systemd;
 mod tlds;
+mod triggers;
 mod vcs;
 
+pub(crate) use conffiles::NonEtcFileMarkedAsConffile;
 pub(crate) use debhelper_rules::{
     DebhelperBaseCompatLevelIsMissing, MaintainerScriptLacksDebhelperToken,
     TypoInDebhelperOverrideTarget,
 };
 
 pub(crate) use debian_changelog::{
-    DebianChangelogHasWrongDayOfWeek, DebianChangelogLineTooLong, EpochChangeWithoutComment,
+    BogusMailHostInDebianChangelog, DebianChangelogHasWrongDayOfWeek, DebianChangelogLineTooLong,
+    DebianNewsEntryHasStrangeDistribution, EpochChangeWithoutComment,
     EpochChangedButUpstreamVersionDidNotGoBackwards, InitialUploadClosesNoBugs,
-    LatestDebianChangelogEntryReusesExistingVersion, NoNmuInChangelog, NoQaInChangelog,
-    OddHistoricalDebianChangelogVersion, SourceNmuHasIncorrectVersionNumber,
+    LatestChangelogEntryWithoutNewDate, LatestDebianChangelogEntryReusesExistingVersion,
+    NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
+    SourceNmuHasIncorrectVersionNumber, SyntaxErrorInDebianNewsFile, WrongNameForDebianNewsFile,
 };
 pub(crate) use debian_copyright::{
     CopyrightContainsDhMakeTodoBoilerplate, CopyrightFileCompressed,
@@ -85,6 +95,8 @@ pub(crate) use debian_copyright::{
     CopyrightRefersToCompressedLicense, CopyrightRefersToDeprecatedBsdLicenseFile,
     CopyrightRefersToIncorrectDirectory, CopyrightRefersToNonexistentLicenseFile,
     CopyrightRefersToOldDirectory, CopyrightRefersToVersionlessLicenseFile,
+    EmptyShortLicenseInDep5Copyright, IncompleteCreativeCommonsLicense,
+    LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright, MissingLicenseTextInDep5Copyright,
     NamedCopyrightForSingleInstallable, NoCopyrightFile, NoDebianCopyrightInSource,
     NoDep5Copyright, OldFsfAddressInCopyrightFile, SpaceInStdShortnameInDep5Copyright,
 };
@@ -93,15 +105,24 @@ pub(crate) use debian_debconf::{
     LoadsObsoleteConfmodule, MakingAssumptionsAboutInterfacesInTemplates,
     MalformedPromptInTemplates, MalformedQuestionInTemplates, MalformedTitleInTemplates,
     MismatchTranslatedChoices, MissingDebconfDependencyForPreinst, NoDebconfTemplates,
-    PossibleDebconfNoteAbuse, UnknownDebconfPriority, UnknownFieldInTemplates,
-    UsingImperativeFormInTemplates,
+    NoTemplateDescription, NoTemplateType, PossibleDebconfNoteAbuse, PostinstDoesNotLoadConfmodule,
+    PostinstUsesDbInput, SelectWithBooleanChoices, TemplateUsesUnsplitChoices,
+    TooLongExtendedDescriptionInTemplates, TooLongShortDescriptionInTemplates,
+    UnknownDebconfPriority, UnknownFieldInTemplates, UsingFirstPersonInTemplates,
+    UsingImperativeFormInTemplates, UsingQuestionInExtendedDescriptionInTemplates,
 };
+pub(crate) use debian_readme::ReadmeDebianMentionsUsrDoc;
 pub(crate) use debian_rules::{
     BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,
     DebianRulesCallsDebhelperInOddOrder, DebianRulesCallsNproc, DebianRulesCallsPwd,
     DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget,
     DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends,
     OverrideDhFixpermsDoesNotCallDhFixperms,
+};
+pub(crate) use debian_shlibs::{
+    DuplicateEntryInSymbolsControlFile, DuplicateInShlibs, InvalidTemplateIdInSymbolsFile,
+    SymbolsFileContainsCurrentVersionWithDebianRevision, SymbolsFileContainsDebianRevision,
+    SyntaxErrorInSymbolsFile,
 };
 pub(crate) use debian_version_substvars::{
     NotBinnmuableAllDependsAny, NotBinnmuableAnyDependsAll, NotBinnmuableAnyDependsAny,
@@ -133,17 +154,20 @@ pub(crate) use fields_package_relations::{
 };
 pub(crate) use fields_relations_more::{
     BadProvidedPackageName, BuildConflictsWithBuildDependency,
+    BuildDependsOnBuildEssentialPackageWithoutUsingVersion,
     BuildDependsOnEssentialPackageWithoutUsingVersion, BuildDependsOnObsoleteBootstrap,
-    ConflictsWithDependency, DependsOnMetapackage, DependsOnObsoleteBootstrap,
-    DependsOnPackagingDev, DependsOnPythonMinimal, InvalidArchStringInSourceRelation,
-    MailTransportAgentDependencyDoesNotSpecifyDefaultMta, NeedlesslyDependsOnAwk,
-    PackageDependsOnMultipleLibpngVersions, PackageDependsOnMultipleLibstdcVersions,
-    PackageDependsOnMultipleTclVersions, PackageDependsOnMultipleTkVersions,
-    PackageRelationWithPerlModules,
+    ConflictsWithDependency, DependsOnEssentialPackageWithoutUsingVersion, DependsOnMetapackage,
+    DependsOnObsoleteBootstrap, DependsOnPackagingDev, DependsOnPythonMinimal,
+    InvalidArchStringInSourceRelation, MailTransportAgentDependencyDoesNotSpecifyDefaultMta,
+    NeedlesslyDependsOnAwk, PackageDependsOnMultipleLibpngVersions,
+    PackageDependsOnMultipleLibstdcVersions, PackageDependsOnMultipleTclVersions,
+    PackageDependsOnMultipleTkVersions, PackageRelationWithPerlModules,
 };
 pub(crate) use fields_text::{
-    BadHomepage, DescriptionContainsHomepage, DescriptionSynopsisIsDuplicated, FieldTooLong,
-    MissingSeparatorBetweenItems, RedundantBugsField,
+    BadHomepage, DescriptionContainsHomepage, DescriptionSynopsisIsDuplicated,
+    EssentialNoNotNeeded, FieldTooLong, MissingSeparatorBetweenItems, NewEssentialPackage,
+    RecommendedField, RedundantBugsField, RedundantOriginField, SuperfluousClutterInHomepage,
+    UnknownSection,
 };
 pub(crate) use files_artifact::{
     DebianAddsArchControlDir, DebianAddsArchInventoryFile, DebianAddsBtsControlDir,
@@ -199,6 +223,10 @@ pub(crate) use languages_python::{
     PackageInstallsDeprecatedPython2Path, PythonVersionCurrentIsDeprecated,
     SourcePackageEncodesPythonVersion, ThirdPartyPackageInPythonDir,
 };
+pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;
+pub(crate) use md5sums::{
+    FileMissingInMd5sums, MalformedMd5sumsControlFile, Md5sumMismatch, Md5sumsListsNonexistentFile,
+};
 
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
@@ -240,6 +268,11 @@ pub(crate) use menu_format::{
     MenuCommandNotInPackage, MenuItemCreatesNewSection, MenuItemUsesAppsSection,
     MenuItemUsesWindowmanagersSection, NonWmInWindowmanagerMenuSection, PkgNotInPackageTest,
 };
+pub(crate) use menus::{
+    DocBaseAbstractFieldSeparatorExtraWhitespace, DocBaseFileNoFormatSection,
+    MenuMethodLacksInclude, PostinstDoesNotCallUpdatemenus, PostinstHasUselessCallToInstallDocs,
+    PostrmDoesNotCallUpdatemenus, PrermHasUselessCallToInstallDocs,
+};
 pub(crate) use rules_and_control::{
     BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,
     DebhelperToolsFromAutotoolsDevAreDeprecated, DebianControlHasDbgsymPackage,
@@ -273,3 +306,4 @@ pub(crate) use systemd::{
     SystemdServiceAliasWithoutExtension, SystemdServiceFileRefersToObsoleteBindto,
     SystemdServiceFileUsesNobodyOrNogroup,
 };
+pub(crate) use triggers::UsesImplicitAwaitTrigger;

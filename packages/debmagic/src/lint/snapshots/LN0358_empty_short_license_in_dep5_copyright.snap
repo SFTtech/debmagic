@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): empty-short-license-in-dep5-copyright (LN0358) [debian/copyright:4]
+W: (source): empty-short-license-in-dep5-copyright (LN0358) [debian/copyright:4]
+W: (source): empty-short-license-in-dep5-copyright (LN0358) [debian/copyright:4]
+W: (source): empty-short-license-in-dep5-copyright (LN0358) [debian/copyright:3]

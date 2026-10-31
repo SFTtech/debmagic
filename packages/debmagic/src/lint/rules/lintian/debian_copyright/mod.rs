@@ -4,6 +4,7 @@
 //! `usr/share/doc/<package>/copyright`. Each Rule owns one Tag.
 
 mod copyright_text;
+mod dep5;
 mod installed_copyright;
 mod ln0009_no_dep5_copyright;
 mod ln0010_no_copyright_file;
@@ -25,6 +26,11 @@ mod ln0284_copyright_file_contains_full_gpl_license;
 mod ln0285_copyright_not_using_common_license_for_apache2;
 mod ln0286_copyright_not_using_common_license_for_lgpl;
 mod ln0287_named_copyright_for_single_installable;
+mod ln0356_missing_field_in_dep5_copyright;
+mod ln0357_missing_license_text_in_dep5_copyright;
+mod ln0358_empty_short_license_in_dep5_copyright;
+mod ln0359_incomplete_creative_commons_license;
+mod ln0360_license_problem_undefined_license;
 mod source_copyright;
 
 pub(crate) use ln0009_no_dep5_copyright::NoDep5Copyright;
@@ -47,3 +53,8 @@ pub(crate) use ln0284_copyright_file_contains_full_gpl_license::CopyrightFileCon
 pub(crate) use ln0285_copyright_not_using_common_license_for_apache2::CopyrightNotUsingCommonLicenseForApache2;
 pub(crate) use ln0286_copyright_not_using_common_license_for_lgpl::CopyrightNotUsingCommonLicenseForLgpl;
 pub(crate) use ln0287_named_copyright_for_single_installable::NamedCopyrightForSingleInstallable;
+pub(crate) use ln0356_missing_field_in_dep5_copyright::MissingFieldInDep5Copyright;
+pub(crate) use ln0357_missing_license_text_in_dep5_copyright::MissingLicenseTextInDep5Copyright;
+pub(crate) use ln0358_empty_short_license_in_dep5_copyright::EmptyShortLicenseInDep5Copyright;
+pub(crate) use ln0359_incomplete_creative_commons_license::IncompleteCreativeCommonsLicense;
+pub(crate) use ln0360_license_problem_undefined_license::LicenseProblemUndefinedLicense;

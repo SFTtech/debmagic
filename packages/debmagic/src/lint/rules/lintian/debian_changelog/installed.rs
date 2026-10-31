@@ -70,6 +70,54 @@ pub(super) fn installed_changelog(
     Some(InstalledChangelog { path, text, parsed })
 }
 
+/// Installed `NEWS.Debian.gz` (that exact name), gunzipped when the resolved
+/// file name ends in `.gz`.
+pub(super) fn installed_news(ctx: &mut BinaryPackageContext<'_>) -> Option<InstalledChangelog> {
+    let package = ctx.package_name().to_string();
+    let files = ctx.data_files()?;
+    let path = PathBuf::from(format!("usr/share/doc/{package}/NEWS.Debian.gz"));
+    let entry = files.get(&path)?;
+    if !matches!(
+        entry.kind(),
+        EntryKind::RegularFile | EntryKind::Hardlink | EntryKind::Symlink
+    ) {
+        return None;
+    }
+    let text = changelog_text(files, entry)?;
+    let parsed = DebianChangelog::parse(&text);
+    Some(InstalledChangelog { path, text, parsed })
+}
+
+/// Children of `usr/share/doc/<pkg>` whose basename is `NEWS.Debian` with an
+/// optional `.gz`, case-insensitively, compressed, and not exactly
+/// `NEWS.Debian.gz`.
+pub(super) fn wrong_debian_news_paths(files: &FileTree, package: &str) -> Vec<PathBuf> {
+    let dir = PathBuf::from(format!("usr/share/doc/{package}"));
+    files
+        .entries()
+        .iter()
+        .filter_map(|entry| {
+            if entry.path().parent() != Some(dir.as_path()) {
+                return None;
+            }
+            if !matches!(
+                entry.kind(),
+                EntryKind::RegularFile | EntryKind::Hardlink | EntryKind::Symlink
+            ) {
+                return None;
+            }
+            let name = entry.path().file_name()?.to_str()?;
+            let folded = name.to_ascii_lowercase();
+            let news = folded == "news.debian" || folded == "news.debian.gz";
+            if news && name.ends_with(".gz") && name != "NEWS.Debian.gz" {
+                Some(entry.path().to_path_buf())
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+
 fn candidate<'a>(files: &'a FileTree, package: &str) -> Option<(PathBuf, &'a Entry)> {
     let dir = format!("usr/share/doc/{package}");
     for name in CANDIDATES {

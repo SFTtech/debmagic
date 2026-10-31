@@ -36,19 +36,21 @@ struct Link {
     /// When this returns, later links do not see the path.
     claims: Branch,
     /// Flags the Rule that owns `mark` when `claims` returned and `matches` is true.
-    /// Absent for a stop that flags nothing. `mark` is that Rule's `MARK`.
-    hit: Option<(&'static (), Branch)>,
+    /// Absent for a stop that flags nothing. `mark` is that Rule's `MARK`, a
+    /// distinct `u8` static. Identical zero-sized statics can share one
+    /// address, and then every Rule would flag every selected path.
+    hit: Option<(&'static u8, Branch)>,
 }
 
 impl Link {
-    const fn rule(mark: &'static (), matches: Branch) -> Self {
+    const fn rule(mark: &'static u8, matches: Branch) -> Self {
         Self {
             claims: matches,
             hit: Some((mark, matches)),
         }
     }
 
-    const fn wider(mark: &'static (), claims: Branch, matches: Branch) -> Self {
+    const fn wider(mark: &'static u8, claims: Branch, matches: Branch) -> Self {
         Self {
             claims,
             hit: Some((mark, matches)),
@@ -179,7 +181,7 @@ fn lintian_name(path: &str, kind: EntryKind) -> String {
 }
 
 /// The Rule the chain selects for `name`, if it flags one. The pointer is that Rule's `MARK`.
-fn winner(name: &str, kind: EntryKind, udeb: bool, package: &str) -> Option<&'static ()> {
+fn winner(name: &str, kind: EntryKind, udeb: bool, package: &str) -> Option<&'static u8> {
     for link in LINKS {
         if (link.claims)(name, kind, udeb, package) {
             return link
@@ -190,7 +192,7 @@ fn winner(name: &str, kind: EntryKind, udeb: bool, package: &str) -> Option<&'st
     None
 }
 
-fn same_mark(found: Option<&'static ()>, mark: &'static ()) -> bool {
+fn same_mark(found: Option<&'static u8>, mark: &'static u8) -> bool {
     found.is_some_and(|found| std::ptr::eq(found, mark))
 }
 
@@ -198,7 +200,7 @@ fn same_mark(found: Option<&'static ()>, mark: &'static ()) -> bool {
 /// that claims the path leaves this Rule silent.
 pub(in crate::lint::rules::lintian) fn flag_matching(
     ctx: &mut BinaryPackageContext<'_>,
-    mark: &'static (),
+    mark: &'static u8,
 ) {
     flag_matching_with(ctx, mark, Severity::Error);
 }
@@ -206,7 +208,7 @@ pub(in crate::lint::rules::lintian) fn flag_matching(
 /// Same walk as [`flag_matching`], emitting at `severity`.
 pub(super) fn flag_matching_with(
     ctx: &mut BinaryPackageContext<'_>,
-    mark: &'static (),
+    mark: &'static u8,
     severity: Severity,
 ) {
     let udeb = ctx.is_udeb();
@@ -233,11 +235,11 @@ pub(super) fn flag_matching_with(
 mod tests {
     use super::*;
 
-    fn winner(name: &str, kind: EntryKind, udeb: bool) -> Option<&'static ()> {
+    fn winner(name: &str, kind: EntryKind, udeb: bool) -> Option<&'static u8> {
         super::winner(name, kind, udeb, "example")
     }
 
-    fn selected(name: &str, kind: EntryKind, udeb: bool, mark: &'static ()) -> bool {
+    fn selected(name: &str, kind: EntryKind, udeb: bool, mark: &'static u8) -> bool {
         super::same_mark(winner(name, kind, udeb), mark)
     }
 

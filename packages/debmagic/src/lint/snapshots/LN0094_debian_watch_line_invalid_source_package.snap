@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-watch-line-invalid (LN0094) version=0 [debian/watch:1]

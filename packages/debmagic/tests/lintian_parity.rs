@@ -61,6 +61,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
+    "checks/debian/watch/changes-upstream-signature-missing",
+    "checks/debian/watch/legacy-foo++",
+    "checks/debian/watch/legacy-maintainer-scripts",
+    "checks/debian/watch/legacy-scripts",
     "checks/debian/watch/standard/legacy-foo++",
     "checks/debian/watch/standard/legacy-scripts",
     "checks/debian/watch/standard/no-version",
@@ -69,6 +73,12 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/watch/standard/version-3",
     "checks/debian/watch/standard/version-6",
     "checks/debian/watch/standard/watch-file-general",
+    "checks/debian/watch/watch-file-bug-765995",
+    "checks/debian/watch/watch-file-general",
+    "checks/debian/watch/watch-file-malformed-version",
+    "checks/debian/watch/watch-file-old-upstream-version",
+    "checks/debian/watch/watch-file-pubkey-missing",
+    "checks/debian/watch/watch-file-should-mangle",
     "checks/fields/dm-upload-allowed/fields-dmua",
     "checks/fields/dm-upload-allowed/legacy-binary",
     "checks/fields/dm-upload-allowed/legacy-foo++",
@@ -93,6 +103,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-old-python-version-field",
+    "checks/languages/python/python-source-package-encodes-python-version",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
@@ -239,6 +250,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
+    "checks/debian/watch/changes-upstream-signature-missing",
+    "checks/debian/watch/legacy-foo++",
+    "checks/debian/watch/legacy-maintainer-scripts",
+    "checks/debian/watch/legacy-scripts",
     "checks/debian/watch/standard/legacy-foo++",
     "checks/debian/watch/standard/legacy-scripts",
     "checks/debian/watch/standard/no-version",
@@ -247,6 +262,12 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/watch/standard/version-3",
     "checks/debian/watch/standard/version-6",
     "checks/debian/watch/standard/watch-file-general",
+    "checks/debian/watch/watch-file-bug-765995",
+    "checks/debian/watch/watch-file-general",
+    "checks/debian/watch/watch-file-malformed-version",
+    "checks/debian/watch/watch-file-old-upstream-version",
+    "checks/debian/watch/watch-file-pubkey-missing",
+    "checks/debian/watch/watch-file-should-mangle",
     "checks/fields/dm-upload-allowed/fields-dmua",
     "checks/fields/dm-upload-allowed/legacy-binary",
     "checks/fields/dm-upload-allowed/legacy-foo++",
@@ -271,6 +292,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-old-python-version-field",
+    "checks/languages/python/python-source-package-encodes-python-version",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
@@ -360,6 +382,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
+#[test_case("checks/debian/watch/changes-upstream-signature-missing"; "checks_debian_watch_changes_upstream_signature_missing")]
+#[test_case("checks/debian/watch/legacy-foo++"; "checks_debian_watch_legacy_foo_")]
+#[test_case("checks/debian/watch/legacy-maintainer-scripts"; "checks_debian_watch_legacy_maintainer_scripts")]
+#[test_case("checks/debian/watch/legacy-scripts"; "checks_debian_watch_legacy_scripts")]
 #[test_case("checks/debian/watch/standard/legacy-foo++"; "checks_debian_watch_standard_legacy_foo_")]
 #[test_case("checks/debian/watch/standard/legacy-scripts"; "checks_debian_watch_standard_legacy_scripts")]
 #[test_case("checks/debian/watch/standard/no-version"; "checks_debian_watch_standard_no_version")]
@@ -368,6 +394,12 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/watch/standard/version-3"; "checks_debian_watch_standard_version_3")]
 #[test_case("checks/debian/watch/standard/version-6"; "checks_debian_watch_standard_version_6")]
 #[test_case("checks/debian/watch/standard/watch-file-general"; "checks_debian_watch_standard_watch_file_general")]
+#[test_case("checks/debian/watch/watch-file-bug-765995"; "checks_debian_watch_watch_file_bug_765995")]
+#[test_case("checks/debian/watch/watch-file-general"; "checks_debian_watch_watch_file_general")]
+#[test_case("checks/debian/watch/watch-file-malformed-version"; "checks_debian_watch_watch_file_malformed_version")]
+#[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
+#[test_case("checks/debian/watch/watch-file-pubkey-missing"; "checks_debian_watch_watch_file_pubkey_missing")]
+#[test_case("checks/debian/watch/watch-file-should-mangle"; "checks_debian_watch_watch_file_should_mangle")]
 #[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
@@ -392,6 +424,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
+#[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]
@@ -540,6 +573,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
+#[test_case("checks/debian/watch/changes-upstream-signature-missing"; "checks_debian_watch_changes_upstream_signature_missing")]
+#[test_case("checks/debian/watch/legacy-foo++"; "checks_debian_watch_legacy_foo_")]
+#[test_case("checks/debian/watch/legacy-maintainer-scripts"; "checks_debian_watch_legacy_maintainer_scripts")]
+#[test_case("checks/debian/watch/legacy-scripts"; "checks_debian_watch_legacy_scripts")]
 #[test_case("checks/debian/watch/standard/legacy-foo++"; "checks_debian_watch_standard_legacy_foo_")]
 #[test_case("checks/debian/watch/standard/legacy-scripts"; "checks_debian_watch_standard_legacy_scripts")]
 #[test_case("checks/debian/watch/standard/no-version"; "checks_debian_watch_standard_no_version")]
@@ -548,6 +585,12 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/watch/standard/version-3"; "checks_debian_watch_standard_version_3")]
 #[test_case("checks/debian/watch/standard/version-6"; "checks_debian_watch_standard_version_6")]
 #[test_case("checks/debian/watch/standard/watch-file-general"; "checks_debian_watch_standard_watch_file_general")]
+#[test_case("checks/debian/watch/watch-file-bug-765995"; "checks_debian_watch_watch_file_bug_765995")]
+#[test_case("checks/debian/watch/watch-file-general"; "checks_debian_watch_watch_file_general")]
+#[test_case("checks/debian/watch/watch-file-malformed-version"; "checks_debian_watch_watch_file_malformed_version")]
+#[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
+#[test_case("checks/debian/watch/watch-file-pubkey-missing"; "checks_debian_watch_watch_file_pubkey_missing")]
+#[test_case("checks/debian/watch/watch-file-should-mangle"; "checks_debian_watch_watch_file_should_mangle")]
 #[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
@@ -572,6 +615,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
+#[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]

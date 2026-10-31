@@ -20,7 +20,7 @@ declare_rule! {
     experimental = false,
 }
 
-pub(super) static MARK: () = ();
+pub(super) static MARK: u8 = 12;
 
 /// Anything under `usr/bin/` ends the chain. A directory other than `X11/`
 /// and `mh/` is flagged.

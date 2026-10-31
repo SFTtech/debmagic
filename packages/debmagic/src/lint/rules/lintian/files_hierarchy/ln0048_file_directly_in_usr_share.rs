@@ -20,7 +20,7 @@ declare_rule! {
     experimental = false,
 }
 
-pub(super) static MARK: () = ();
+pub(super) static MARK: u8 = 11;
 
 /// Anything directly in `usr/share/` ends the chain. Only a regular file or
 /// hardlink is flagged.

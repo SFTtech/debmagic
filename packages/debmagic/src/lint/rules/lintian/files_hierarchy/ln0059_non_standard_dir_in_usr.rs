@@ -23,7 +23,7 @@ declare_rule! {
     experimental = false,
 }
 
-pub(super) static MARK: () = ();
+pub(super) static MARK: u8 = 14;
 
 /// Every direct `usr/` subdirectory on a non-udeb ends the chain. FHS names,
 /// `libexec`, and the multi-arch lib directories are not flagged.

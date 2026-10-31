@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-watch-file-uses-deprecated-sf-redirector-method (LN0097) http://qa.debian.org/watch/sf.php?project=foo foo-(.+)\.tar\.gz [debian/watch:2]

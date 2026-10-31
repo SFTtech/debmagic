@@ -11,7 +11,7 @@ static COMMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^\s*#").expect("
 /// `debian/rules` contents from the packaging File tree, following a
 /// symlink. Missing files, directories, unreadable files, and non-UTF-8
 /// contents are unavailable (lintian returns before scanning).
-pub(super) fn read_rules_from_tree(files: &FileTree) -> Option<String> {
+pub(in super::super) fn read_rules_from_tree(files: &FileTree) -> Option<String> {
     let entry = files.get("debian/rules")?;
     match entry.kind() {
         EntryKind::RegularFile | EntryKind::Hardlink | EntryKind::Symlink => {}
@@ -24,7 +24,7 @@ pub(super) fn read_rules_from_tree(files: &FileTree) -> Option<String> {
 /// Logical lines with their line number: comment lines dropped, `\`
 /// continuations joined. The number is that of the last physical line, which
 /// is where lintian points.
-pub(super) fn complete_lines(contents: &str) -> Vec<(u32, String)> {
+pub(in super::super) fn complete_lines(contents: &str) -> Vec<(u32, String)> {
     let mut lines = Vec::new();
     let mut continued = String::new();
     for (index, line) in contents.split('\n').enumerate() {

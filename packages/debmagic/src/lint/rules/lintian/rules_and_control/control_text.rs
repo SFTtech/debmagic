@@ -77,7 +77,7 @@ pub(super) fn installable_paragraphs(text: &str) -> Vec<InstallableParagraph> {
 }
 
 /// Package names declared by the source paragraph's build-dependency fields.
-pub(super) fn build_depends_all_names(source: &ControlParagraph) -> Vec<String> {
+pub(in super::super) fn build_depends_all_names(source: &ControlParagraph) -> Vec<String> {
     let mut names = Vec::new();
     for field in BUILD_DEPENDS_ALL {
         let Some(relation) = source.relation(field) else {
@@ -92,7 +92,7 @@ pub(super) fn build_depends_all_names(source: &ControlParagraph) -> Vec<String> 
     names
 }
 
-pub(super) fn names_package(names: &[String], package: &str) -> bool {
+pub(in super::super) fn names_package(names: &[String], package: &str) -> bool {
     names.iter().any(|name| name == package)
 }
 

@@ -24,13 +24,13 @@ pub(super) fn read_utf8(files: &FileTree, path: &str) -> Option<String> {
     String::from_utf8(bytes).ok()
 }
 
-pub(super) fn read_rules(files: &FileTree) -> Option<String> {
+pub(in super::super) fn read_rules(files: &FileTree) -> Option<String> {
     read_utf8(files, "debian/rules")
 }
 
 /// Logical lines of the `debian/rules` Check. The number is the last physical
 /// line of the logical line.
-pub(super) fn rules_lines(contents: &str) -> Vec<(u32, String)> {
+pub(in super::super) fn rules_lines(contents: &str) -> Vec<(u32, String)> {
     let mut lines = Vec::new();
     let mut continued = String::new();
     for (index, line) in contents.split('\n').enumerate() {

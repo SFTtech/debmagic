@@ -8,8 +8,9 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 
-use super::control_text::{build_depends_all_names, names_package};
-use super::rules_text::{read_rules, rules_lines};
+use super::super::rules_and_control::{
+    build_depends_all_names, names_package, read_rules, rules_lines,
+};
 
 pub struct DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends;
 

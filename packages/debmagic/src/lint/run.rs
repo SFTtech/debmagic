@@ -48,9 +48,10 @@ pub struct RuleTiming {
 ///
 /// `bringup` is wall time before any Rule runs (thread pool and opening the
 /// Subject). `shared` is time spent building data every Rule shares — File
-/// trees, Debian control, Debian changelog, and tarball indexes — counted
-/// once, not on the Rule that happened to trigger it. A Rule's `elapsed`
-/// excludes time that Rule spent waiting on or performing that shared work.
+/// trees, Debian control, Debian changelog, tarball indexes, and other facts
+/// computed once per Subject — counted once, not on the Rule that happened to
+/// trigger it. A Rule's `elapsed` excludes time that Rule spent waiting on or
+/// performing that shared work.
 #[derive(Debug, Clone)]
 pub struct LintTimings {
     pub bringup: Duration,

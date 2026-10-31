@@ -1,6 +1,7 @@
-use std::collections::HashSet;
+use std::any::{Any, TypeId};
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
-use std::sync::OnceLock;
+use std::sync::{Arc, Mutex, OnceLock, PoisonError};
 
 use anyhow::anyhow;
 
@@ -66,6 +67,7 @@ pub(crate) struct SourceTreeData {
     debian_control: OnceLock<Option<DebianControl>>,
     debian_changelog: OnceLock<Option<DebianChangelog>>,
     file_tree: OnceLock<Result<FileTree, String>>,
+    shared: SharedSlots,
 }
 
 impl SourceTreeData {
@@ -75,6 +77,7 @@ impl SourceTreeData {
             debian_control: OnceLock::new(),
             debian_changelog: OnceLock::new(),
             file_tree: OnceLock::new(),
+            shared: SharedSlots::default(),
         }
     }
 
@@ -87,6 +90,7 @@ impl SourceTreeData {
             debian_control: OnceLock::new(),
             debian_changelog: OnceLock::new(),
             file_tree: cell,
+            shared: SharedSlots::default(),
         }
     }
 
@@ -302,6 +306,7 @@ pub(crate) struct SourcePackageData {
     debian_changelog: OnceLock<Option<DebianChangelog>>,
     orig: OnceLock<Result<FileTree, String>>,
     patched: OnceLock<Result<FileTree, String>>,
+    shared: SharedSlots,
     _extract: Option<SourcePackageExtract>,
 }
 
@@ -316,6 +321,7 @@ impl SourcePackageData {
             debian_changelog: OnceLock::new(),
             orig: OnceLock::new(),
             patched: OnceLock::new(),
+            shared: SharedSlots::default(),
             _extract: Some(extract),
         })
     }
@@ -340,6 +346,7 @@ impl SourcePackageData {
             debian_changelog: OnceLock::new(),
             orig: orig_cell,
             patched: patched_cell,
+            shared: SharedSlots::default(),
             _extract: None,
         }
     }
@@ -565,6 +572,57 @@ impl<'a> SourceContext<'a> {
             .collect()
     }
 
+    /// Whether [`Self::shipped_files`] would list at least one file.
+    ///
+    /// Stops at the first shipped file, so a Rule that only needs to know the
+    /// tree is non-empty does not allocate a path for every entry.
+    pub fn has_shipped_file(&mut self) -> Option<bool> {
+        if matches!(self.inner, SourceInner::Tree(_)) {
+            let tree = self.files()?;
+            return Some(any_file(tree, |_| true));
+        }
+        let quilt = self
+            .dsc()
+            .and_then(|dsc| dsc.fields().get("Format"))
+            .is_some_and(|format| format.trim() == "3.0 (quilt)");
+        let native = self.orig_files()?.entries().is_empty();
+        if native {
+            let patched = self.files()?;
+            return Some(any_file(patched, |_| true));
+        }
+        let in_orig = {
+            let orig = self.orig_files()?;
+            any_file(orig, |path| !(quilt && path.starts_with("debian/")))
+        };
+        if in_orig {
+            return Some(true);
+        }
+        let patched = self.files()?;
+        Some(any_file(patched, |path| path.starts_with("debian/")))
+    }
+
+    /// Compute `build` once for this Subject. Every Rule on the Subject shares
+    /// the value.
+    ///
+    /// The value's type is the key. `build` may use this context, and must not
+    /// request `T` again (the slot initializes once, and a nested request for
+    /// the same `T` waits on itself).
+    pub(crate) fn shared_once<T, Build>(&mut self, build: Build) -> Arc<T>
+    where
+        T: Send + Sync + 'static,
+        Build: FnOnce(&mut Self) -> T,
+    {
+        let slot = self.shared_slot::<T>();
+        timing::init_once(&slot, || Arc::new(build(self))).clone()
+    }
+
+    fn shared_slot<T: Send + Sync + 'static>(&self) -> Arc<OnceLock<Arc<T>>> {
+        match self.inner {
+            SourceInner::Tree(data) => data.shared.slot(),
+            SourceInner::Package(data) => data.shared.slot(),
+        }
+    }
+
     /// Dsc of a Source package. `None` on a Source tree, and when a tester
     /// omits it.
     pub fn dsc(&self) -> Option<&Dsc> {
@@ -619,6 +677,35 @@ impl ShippedFiles {
     pub fn has_directory(&self, path: &str) -> bool {
         self.directories.contains(path)
     }
+}
+
+/// Facts a Rule computes once per Subject. The value's type is the key, so
+/// the context does not need to name each fact.
+#[derive(Default)]
+struct SharedSlots {
+    slots: Mutex<HashMap<TypeId, Arc<dyn Any + Send + Sync>>>,
+}
+
+impl SharedSlots {
+    fn slot<T: Send + Sync + 'static>(&self) -> Arc<OnceLock<Arc<T>>> {
+        let mut slots = self.slots.lock().unwrap_or_else(PoisonError::into_inner);
+        let entry = slots
+            .entry(TypeId::of::<T>())
+            .or_insert_with(|| Arc::new(OnceLock::<Arc<T>>::new()) as Arc<dyn Any + Send + Sync>);
+        Arc::downcast::<OnceLock<Arc<T>>>(Arc::clone(entry)).expect("shared slot type")
+    }
+}
+
+fn any_file(tree: &FileTree, keep: impl Fn(&str) -> bool) -> bool {
+    tree.entries().iter().any(|entry| {
+        if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
+            return false;
+        }
+        match entry.path().to_str() {
+            Some(path) => keep(path),
+            None => keep(&entry.path().to_string_lossy()),
+        }
+    })
 }
 
 fn file_names(tree: &FileTree, keep: impl Fn(&str) -> bool) -> Vec<String> {

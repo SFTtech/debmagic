@@ -148,9 +148,14 @@ impl FileTree {
         &self.entries
     }
 
+    /// Entry at `path`. The tree is sorted by path, so this is a binary search.
     pub fn get(&self, path: impl AsRef<Path>) -> Option<&Entry> {
         let path = path.as_ref();
-        self.entries.iter().find(|entry| entry.path() == path)
+        let index = self
+            .entries
+            .binary_search_by(|entry| entry.path().cmp(path))
+            .ok()?;
+        Some(&self.entries[index])
     }
 
     pub fn query(&self) -> Query<'_, 'static> {

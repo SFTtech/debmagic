@@ -6,19 +6,19 @@
 //! `1.0` with no `.orig.tar` in `Files`). A non-native package can still have
 //! an empty orig, and then every patched path was added. `3.0 (quilt)` (Dsc
 //! `Format`, otherwise `debian/source/format`; a missing format is `1.0`)
-//! drops paths matching `^.pc/` before the patterns, which is why quilt's own
+//! drops paths under `.pc/` before the patterns, which is why quilt's own
 //! `.pc` does not fire.
 //!
 //! Directory names are matched with the trailing slash lintian stores.
 //! `first_value` order is the Perl array order, so one path emits one Tag.
-//! `source-contains-` and `no-debian-changes` are not implemented.
+//! The classification is computed once per Subject and shared by every
+//! `debian-adds-` Rule. `source-contains-` and `no-debian-changes` are not
+//! implemented.
 
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
-use std::sync::LazyLock;
 
 use debmagic_common::debian::source::SourceFormat;
-use regex::Regex;
 
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
@@ -44,95 +44,63 @@ pub(super) enum Artifact {
     QuiltControlDir,
 }
 
-/// Perl `/pattern/s`: `(?s)` is the `/s` flag, so `.` matches a newline.
-fn perl_regex(pattern: &str) -> Regex {
-    let with_dotall = format!("(?s){pattern}");
-    Regex::new(&with_dotall).unwrap_or_else(|error| panic!("{pattern} is not a regex: {error}"))
+impl Artifact {
+    const COUNT: usize = 16;
+
+    fn index(self) -> usize {
+        self as usize
+    }
 }
 
-static DIRECTORY_CHECKS: LazyLock<Vec<(Regex, Artifact)>> = LazyLock::new(|| {
-    vec![
-        (perl_regex(r"^(.+/)?CVS/?$"), Artifact::CvsControlDir),
-        (perl_regex(r"^(.+/)?\.svn/?$"), Artifact::SvnControlDir),
-        (perl_regex(r"^(.+/)?\.bzr/?$"), Artifact::BzrControlDir),
-        (perl_regex(r"^(.+/)?\{arch\}/?$"), Artifact::ArchControlDir),
-        (
-            perl_regex(r"^(.+/)?\.arch-ids/?$"),
-            Artifact::ArchControlDir,
-        ),
-        (perl_regex(r"^(.+/)?,,.+/?$"), Artifact::ArchControlDir),
-        (perl_regex(r"^(.+/)?\.git/?$"), Artifact::GitControlDir),
-        (perl_regex(r"^(.+/)?\.hg/?$"), Artifact::HgControlDir),
-        (perl_regex(r"^(.+/)?\.be/?$"), Artifact::BtsControlDir),
-        (perl_regex(r"^(.+/)?\.ditrack/?$"), Artifact::BtsControlDir),
-        (perl_regex(r"^(.+/)?\.pc/?$"), Artifact::QuiltControlDir),
-    ]
-});
+/// One classification of the paths Debian added, shared by every
+/// `debian-adds-` Rule. Paths in a bucket are sorted.
+struct AddedIndex {
+    paths: [Vec<PathBuf>; Artifact::COUNT],
+}
 
-static FILE_CHECKS: LazyLock<Vec<(Regex, Artifact)>> = LazyLock::new(|| {
-    vec![
-        (
-            perl_regex(r"^(.+/)?svn-commit\.(.+\.)?tmp$"),
-            Artifact::SvnCommitFile,
-        ),
-        (
-            perl_regex(r"^(.+/)?svk-commit.+\.tmp$"),
-            Artifact::SvkCommitFile,
-        ),
-        (
-            perl_regex(r"^(.+/)?\.arch-inventory$"),
-            Artifact::ArchInventoryFile,
-        ),
-        (perl_regex(r"^(.+/)?\.hgtags$"), Artifact::HgTagsFile),
-        (
-            perl_regex(r"^(.+/)?\.#(.+?)\.\d+(\.\d+)*$"),
-            Artifact::CvsConflictCopy,
-        ),
-        (
-            perl_regex(r"^(.+/)?(.+?)\.(r[1-9]\d*)$"),
-            Artifact::SvnConflictFile,
-        ),
-        (perl_regex(r"\.(orig|rej)$"), Artifact::PatchFailureFile),
-        (
-            perl_regex(r"((^|/)[^/]+\.swp|~)$"),
-            Artifact::EditorBackupFile,
-        ),
-    ]
-});
+impl AddedIndex {
+    fn push(&mut self, artifact: Artifact, path: PathBuf) {
+        self.paths[artifact.index()].push(path);
+    }
+}
 
-/// Perl `m{^.pc/}` with no `/s`. `.` is any character except a newline.
-static QUILT_UNPACK: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^.pc/").expect("valid regex"));
+impl Default for AddedIndex {
+    fn default() -> Self {
+        Self {
+            paths: std::array::from_fn(|_| Vec::new()),
+        }
+    }
+}
 
 pub(super) fn flag_added(ctx: &mut SourceContext<'_>, want: Artifact) {
-    let mut paths: Vec<PathBuf> = added_by_debian(ctx)
-        .into_iter()
-        .filter(|(name, kind)| classify(name, *kind) == Some(want))
-        .map(|(name, _)| PathBuf::from(name))
-        .collect();
-    paths.sort();
-    for path in paths {
+    // Resolve the trees first. The classification below reads them too, and a
+    // wait for the file walk stays on that walk's own span.
+    let _ = ctx.files();
+    let _ = ctx.orig_files();
+    let index = ctx.shared_once(index_paths_debian_added);
+    for path in &index.paths[want.index()] {
         ctx.diagnostic(Diagnostic::warn("").with_location(Location {
-            path,
+            path: path.clone(),
             line: None,
             column: None,
         }));
     }
 }
 
-fn added_by_debian(ctx: &mut SourceContext<'_>) -> Vec<(String, EntryKind)> {
+fn index_paths_debian_added(ctx: &mut SourceContext<'_>) -> AddedIndex {
     let empty_orig = match ctx.orig_files() {
         None => false,
         Some(orig) => orig.entries().is_empty(),
     };
     if empty_orig && package_is_native(ctx) {
-        return Vec::new();
+        return AddedIndex::default();
     }
     let orig_paths = ctx.orig_files().map(stored_paths);
     let quilt = orig_paths.is_some() && is_quilt(ctx);
     let Some(patched) = ctx.files() else {
-        return Vec::new();
+        return AddedIndex::default();
     };
-    let mut found = Vec::new();
+    let mut index = AddedIndex::default();
     for entry in patched.entries() {
         let kind = entry.kind();
         if !is_checked_kind(kind) {
@@ -144,15 +112,35 @@ fn added_by_debian(ctx: &mut SourceContext<'_>) -> Vec<(String, EntryKind)> {
         {
             continue;
         }
-        let Some(name) = lintian_name(entry.path(), kind) else {
+        let Some(name) = entry.path().to_str() else {
             continue;
         };
-        if quilt && QUILT_UNPACK.is_match(&name) {
+        if quilt && quilt_unpack_path(name, kind) {
             continue;
         }
-        found.push((name, kind));
+        let Some(hit) = classify(name, kind) else {
+            continue;
+        };
+        index.push(hit, reported_path(name, kind));
     }
-    found
+    for paths in &mut index.paths {
+        paths.sort();
+    }
+    index
+}
+
+/// Directory locations keep the trailing slash lintian stores.
+fn reported_path(name: &str, kind: EntryKind) -> PathBuf {
+    if kind == EntryKind::Directory && !name.ends_with('/') {
+        PathBuf::from(format!("{name}/"))
+    } else {
+        PathBuf::from(name)
+    }
+}
+
+/// Perl `m{^.pc/}`: the stored directory `.pc` is lintian's `.pc/`.
+fn quilt_unpack_path(name: &str, kind: EntryKind) -> bool {
+    name.starts_with(".pc/") || (kind == EntryKind::Directory && name == ".pc")
 }
 
 fn is_checked_kind(kind: EntryKind) -> bool {
@@ -214,26 +202,188 @@ fn is_quilt(ctx: &mut SourceContext<'_>) -> bool {
     SourceFormat::parse(text) == SourceFormat::Quilt
 }
 
-/// Directory index names end in `/`, which is the form the Perl regexes see.
-fn lintian_name(path: &Path, kind: EntryKind) -> Option<String> {
-    let raw = path.to_str()?;
-    if kind == EntryKind::Directory && !raw.ends_with('/') {
-        Some(format!("{raw}/"))
-    } else {
-        Some(raw.to_string())
+/// Perl directory patterns, in array order. A directory path may already end
+/// in `/` (the form the regexes see) or be the stored path, which does not.
+fn classify(name: &str, kind: EntryKind) -> Option<Artifact> {
+    match kind {
+        EntryKind::Directory => classify_directory(name),
+        EntryKind::RegularFile | EntryKind::Hardlink => classify_file(name),
+        EntryKind::Symlink => None,
     }
 }
 
-fn classify(name: &str, kind: EntryKind) -> Option<Artifact> {
-    let checks = match kind {
-        EntryKind::Directory => DIRECTORY_CHECKS.as_slice(),
-        EntryKind::RegularFile | EntryKind::Hardlink => FILE_CHECKS.as_slice(),
-        EntryKind::Symlink => return None,
+fn classify_directory(name: &str) -> Option<Artifact> {
+    let base = directory_basename(name);
+    if base == "CVS" {
+        return Some(Artifact::CvsControlDir);
+    }
+    if base == ".svn" {
+        return Some(Artifact::SvnControlDir);
+    }
+    if base == ".bzr" {
+        return Some(Artifact::BzrControlDir);
+    }
+    if base == "{arch}" || base == ".arch-ids" {
+        return Some(Artifact::ArchControlDir);
+    }
+    // `,,.+` matches when `,,` starts a component and at least one character
+    // follows, including a trailing slash and the rest of the path. It is
+    // checked before `.git`, so `,,foo/.git/` is arch, while `,,foo/CVS/` is
+    // CVS because that pattern is earlier.
+    if double_comma_directory(name) {
+        return Some(Artifact::ArchControlDir);
+    }
+    if base == ".git" {
+        return Some(Artifact::GitControlDir);
+    }
+    if base == ".hg" {
+        return Some(Artifact::HgControlDir);
+    }
+    if base == ".be" || base == ".ditrack" {
+        return Some(Artifact::BtsControlDir);
+    }
+    if base == ".pc" {
+        return Some(Artifact::QuiltControlDir);
+    }
+    None
+}
+
+fn classify_file(name: &str) -> Option<Artifact> {
+    let base = file_basename(name);
+    if is_svn_commit(base) {
+        return Some(Artifact::SvnCommitFile);
+    }
+    if is_svk_commit(base) {
+        return Some(Artifact::SvkCommitFile);
+    }
+    if base == ".arch-inventory" {
+        return Some(Artifact::ArchInventoryFile);
+    }
+    if base == ".hgtags" {
+        return Some(Artifact::HgTagsFile);
+    }
+    if is_cvs_conflict(base) {
+        return Some(Artifact::CvsConflictCopy);
+    }
+    if is_svn_conflict(base) {
+        return Some(Artifact::SvnConflictFile);
+    }
+    if name.ends_with(".orig") || name.ends_with(".rej") {
+        return Some(Artifact::PatchFailureFile);
+    }
+    if name.ends_with('~') || is_vim_swp(base) {
+        return Some(Artifact::EditorBackupFile);
+    }
+    None
+}
+
+fn directory_basename(name: &str) -> &str {
+    file_basename(name.strip_suffix('/').unwrap_or(name))
+}
+
+fn file_basename(name: &str) -> &str {
+    name.rsplit('/').next().unwrap_or(name)
+}
+
+/// `^(.+/)?,,.+/?$`, plus the trailing slash lintian appends to a directory.
+fn double_comma_directory(name: &str) -> bool {
+    if component_starts_with_double_comma(name) {
+        return true;
+    }
+    // Stored directory paths have no slash. Appending `/` gives `,,.+` the
+    // character it requires when the component is exactly `,,`.
+    !name.ends_with('/') && directory_basename(name) == ",,"
+}
+
+fn component_starts_with_double_comma(name: &str) -> bool {
+    let mut rest = name;
+    loop {
+        if let Some(after) = rest.strip_prefix(",,") {
+            return !after.is_empty();
+        }
+        match rest.find('/') {
+            Some(index) => {
+                rest = &rest[index + 1..];
+                if rest.is_empty() {
+                    return false;
+                }
+            }
+            None => return false,
+        }
+    }
+}
+
+/// `svn-commit.tmp` or `svn-commit.<words>.tmp`.
+fn is_svn_commit(base: &str) -> bool {
+    let Some(rest) = base.strip_prefix("svn-commit.") else {
+        return false;
     };
-    checks
-        .iter()
-        .find(|(pattern, _)| pattern.is_match(name))
-        .map(|(_, hit)| *hit)
+    if rest == "tmp" {
+        return true;
+    }
+    matches!(rest.strip_suffix(".tmp"), Some(middle) if !middle.is_empty())
+}
+
+/// `svk-commit` plus at least one character, then `.tmp`.
+fn is_svk_commit(base: &str) -> bool {
+    let Some(rest) = base.strip_prefix("svk-commit") else {
+        return false;
+    };
+    matches!(rest.strip_suffix(".tmp"), Some(middle) if !middle.is_empty())
+}
+
+/// `.#<name>.<digits>(.<digits>)*` with a non-empty name.
+fn is_cvs_conflict(base: &str) -> bool {
+    let Some(rest) = base.strip_prefix(".#") else {
+        return false;
+    };
+    rest.match_indices('.')
+        .any(|(index, _)| index > 0 && is_dot_digits_tail(&rest[index..]))
+}
+
+/// `\.\d+(\.\d+)*`
+fn is_dot_digits_tail(tail: &str) -> bool {
+    let mut rest = tail;
+    if !rest.starts_with('.') {
+        return false;
+    }
+    loop {
+        let digits = rest[1..]
+            .bytes()
+            .take_while(|byte| byte.is_ascii_digit())
+            .count();
+        if digits == 0 {
+            return false;
+        }
+        rest = &rest[1 + digits..];
+        if rest.is_empty() {
+            return true;
+        }
+        if !rest.starts_with('.') {
+            return false;
+        }
+    }
+}
+
+/// `<name>.r<revision>` with a non-empty name and no leading zero.
+fn is_svn_conflict(base: &str) -> bool {
+    let Some((head, tail)) = base.rsplit_once('.') else {
+        return false;
+    };
+    if head.is_empty() {
+        return false;
+    }
+    let Some(revision) = tail.strip_prefix('r') else {
+        return false;
+    };
+    let mut digits = revision.bytes();
+    matches!(digits.next(), Some(b'1'..=b'9')) && digits.all(|byte| byte.is_ascii_digit())
+}
+
+/// A non-empty basename ending in `.swp`. `.swp` itself does not match.
+fn is_vim_swp(base: &str) -> bool {
+    base.strip_suffix(".swp")
+        .is_some_and(|head| !head.is_empty())
 }
 
 #[cfg(test)]
@@ -411,6 +561,29 @@ mod tests {
                 Some(Artifact::QuiltControlDir),
             ),
             (".pc/applied/", EntryKind::Directory, None),
+            (
+                ",,foo/.git/",
+                EntryKind::Directory,
+                Some(Artifact::ArchControlDir),
+            ),
+            (
+                ",,foo/CVS/",
+                EntryKind::Directory,
+                Some(Artifact::CvsControlDir),
+            ),
+            (
+                "foo/,,/bar/",
+                EntryKind::Directory,
+                Some(Artifact::ArchControlDir),
+            ),
+            (",,", EntryKind::Directory, Some(Artifact::ArchControlDir)),
+            ("svn-commit..tmp", EntryKind::RegularFile, None),
+            (".#.1", EntryKind::RegularFile, None),
+            (
+                ".#.1.2",
+                EntryKind::RegularFile,
+                Some(Artifact::CvsConflictCopy),
+            ),
         ];
         for (name, kind, expected) in cases {
             assert_eq!(classify(name, kind), expected, "{name} {kind:?}");
@@ -419,10 +592,37 @@ mod tests {
 
     #[test]
     fn quilt_unpack_filter_is_anchored() {
-        assert!(QUILT_UNPACK.is_match(".pc/"));
-        assert!(QUILT_UNPACK.is_match(".pc/applied"));
-        assert!(QUILT_UNPACK.is_match(".pc/.git/"));
-        assert!(!QUILT_UNPACK.is_match("debian/.pc/"));
-        assert!(!QUILT_UNPACK.is_match(".pc"));
+        assert!(quilt_unpack_path(".pc/", EntryKind::Directory));
+        assert!(quilt_unpack_path(".pc", EntryKind::Directory));
+        assert!(quilt_unpack_path(".pc/applied", EntryKind::RegularFile));
+        assert!(quilt_unpack_path(".pc/.git/", EntryKind::Directory));
+        assert!(!quilt_unpack_path("debian/.pc/", EntryKind::Directory));
+        assert!(!quilt_unpack_path(".pc", EntryKind::RegularFile));
+    }
+
+    #[test]
+    fn artifact_index_matches_declaration_order() {
+        let all = [
+            Artifact::ArchControlDir,
+            Artifact::ArchInventoryFile,
+            Artifact::BtsControlDir,
+            Artifact::BzrControlDir,
+            Artifact::CvsConflictCopy,
+            Artifact::CvsControlDir,
+            Artifact::EditorBackupFile,
+            Artifact::GitControlDir,
+            Artifact::HgControlDir,
+            Artifact::HgTagsFile,
+            Artifact::PatchFailureFile,
+            Artifact::SvkCommitFile,
+            Artifact::SvnCommitFile,
+            Artifact::SvnConflictFile,
+            Artifact::SvnControlDir,
+            Artifact::QuiltControlDir,
+        ];
+        assert_eq!(all.len(), Artifact::COUNT);
+        for (index, artifact) in all.into_iter().enumerate() {
+            assert_eq!(artifact.index(), index);
+        }
     }
 }

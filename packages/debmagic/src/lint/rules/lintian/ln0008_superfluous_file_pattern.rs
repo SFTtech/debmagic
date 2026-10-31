@@ -1,10 +1,11 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
+use std::path::PathBuf;
 
 use regex::Regex;
 
 use crate::declare_rule;
 use crate::lint::context::{ShippedFiles, SourceContext};
-use crate::lint::debian_copyright::CopyrightParagraph;
+use crate::lint::debian_copyright::{CopyrightParagraph, DebianCopyright};
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 
@@ -39,6 +40,31 @@ impl SourceRule for SuperfluousFilePattern {
         if copyrights.is_empty() {
             return;
         }
+        // `*` (and `./*`) matches every shipped name. Listing every path is
+        // wasted when that is the only wildcard: it is superfluous only when
+        // nothing was shipped.
+        if star_only(&copyrights) {
+            let Some(any) = ctx.has_shipped_file() else {
+                return;
+            };
+            if any {
+                return;
+            }
+            for (path, copyright) in copyrights {
+                let Some(paragraphs) = copyright.paragraphs() else {
+                    continue;
+                };
+                let Some(report) = star_report(paragraphs) else {
+                    continue;
+                };
+                ctx.diagnostic(Diagnostic::warn(report.extra).with_location(Location {
+                    path,
+                    line: report.line,
+                    column: None,
+                }));
+            }
+            return;
+        }
         let Some(shipped) = ctx.shipped_files() else {
             return;
         };
@@ -55,6 +81,69 @@ impl SourceRule for SuperfluousFilePattern {
             }
         }
     }
+}
+
+/// Every machine-readable copyright here has a single `*` wildcard and no
+/// `Files-Included` patterns.
+fn star_only(copyrights: &[(PathBuf, DebianCopyright)]) -> bool {
+    let mut saw_patterns = false;
+    for (_, copyright) in copyrights {
+        let Some(paragraphs) = copyright.paragraphs() else {
+            continue;
+        };
+        if sole_star(paragraphs).is_none() {
+            return false;
+        }
+        saw_patterns = true;
+    }
+    saw_patterns
+}
+
+fn star_report(paragraphs: &[CopyrightParagraph]) -> Option<Report> {
+    let hit = sole_star(paragraphs)?;
+    Some(Report {
+        extra: hit.wildcard.to_string(),
+        line: hit.line,
+    })
+}
+
+struct StarHit<'a> {
+    line: Option<u32>,
+    wildcard: &'a str,
+}
+
+/// The sole `*` wildcard, when the file has exactly one and no
+/// `Files-Included` pattern. A missing line is the implied `Files: *`.
+fn sole_star(paragraphs: &[CopyrightParagraph]) -> Option<StarHit<'_>> {
+    let (header, followers) = paragraphs.split_first()?;
+    if !header.trimmed_list("Files-Included").is_empty() {
+        return None;
+    }
+    let [paragraph] = followers else {
+        return None;
+    };
+    if paragraph.declares("License")
+        && paragraph.declares("Copyright")
+        && !paragraph.declares("Files")
+    {
+        return Some(StarHit {
+            line: None,
+            wildcard: "*",
+        });
+    }
+    let wildcards = paragraph.trimmed_list("Files");
+    if wildcards.len() == 1 && is_star(wildcards[0]) {
+        return Some(StarHit {
+            line: paragraph.position("Files"),
+            wildcard: wildcards[0],
+        });
+    }
+    None
+}
+
+fn is_star(wildcard: &str) -> bool {
+    let wildcard = wildcard.strip_prefix("./").unwrap_or(wildcard);
+    wildcard == "*"
 }
 
 struct Report {
@@ -177,6 +266,9 @@ fn has_illegal_escape(wildcard: &str) -> bool {
 /// are literal. The whole name must match.
 fn match_glob<'a>(wildcard: &str, names: &'a [String]) -> Vec<&'a str> {
     let wildcard = wildcard.strip_prefix("./").unwrap_or(wildcard);
+    if wildcard == "*" {
+        return names.iter().map(String::as_str).collect();
+    }
     let mut pattern = String::from("^");
     let mut chars = wildcard.chars();
     while let Some(character) = chars.next() {
@@ -341,6 +433,17 @@ mod tests {
             ],
         ];
         SourceTreeTester::new(SuperfluousFilePattern, pass, fail).test_and_snapshot();
+    }
+
+    #[test]
+    fn star_is_not_superfluous_when_only_the_copyright_file_is_shipped() {
+        let pass = vec![tree(copyright(&section("*")), &[])];
+        SourceTreeTester::new(
+            SuperfluousFilePattern,
+            pass,
+            Vec::<Vec<(String, TestFile)>>::new(),
+        )
+        .test();
     }
 
     #[test]

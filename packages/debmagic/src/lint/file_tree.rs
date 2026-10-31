@@ -6,6 +6,7 @@ use std::sync::{Mutex, PoisonError};
 
 use anyhow::{Context, bail};
 use globset::{Glob, GlobMatcher};
+use regex::Regex;
 
 use super::file_type::FileType;
 
@@ -152,11 +153,12 @@ impl FileTree {
         self.entries.iter().find(|entry| entry.path() == path)
     }
 
-    pub fn query(&self) -> Query<'_> {
+    pub fn query(&self) -> Query<'_, 'static> {
         Query {
             tree: self,
             kinds: None,
             glob: None,
+            path: None,
         }
     }
 
@@ -178,14 +180,17 @@ impl FileTree {
     }
 }
 
-/// Filter over a File tree: Entry kind and path glob.
-pub struct Query<'a> {
+/// Filter over a File tree: Entry kind, path glob, and a path regex.
+///
+/// `'pat` is `'static` until [`Query::path`] borrows a [`Regex`].
+pub struct Query<'a, 'pat> {
     tree: &'a FileTree,
     kinds: Option<Vec<EntryKind>>,
     glob: Option<GlobMatcher>,
+    path: Option<&'pat Regex>,
 }
 
-impl<'a> Query<'a> {
+impl<'a, 'pat> Query<'a, 'pat> {
     pub fn kinds(mut self, kinds: impl IntoIterator<Item = EntryKind>) -> Self {
         self.kinds = Some(kinds.into_iter().collect());
         self
@@ -196,23 +201,21 @@ impl<'a> Query<'a> {
         self.glob = Some(Glob::new(pattern)?.compile_matcher());
         Ok(self)
     }
-}
 
-impl<'a> IntoIterator for Query<'a> {
-    type Item = &'a Entry;
-    type IntoIter = std::vec::IntoIter<&'a Entry>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.tree
-            .entries
-            .iter()
-            .filter(|entry| self.matches(entry))
-            .collect::<Vec<_>>()
-            .into_iter()
+    /// Keep entries whose stored path matches `pattern`.
+    ///
+    /// The match is [`Regex::is_match`] on the path as UTF-8, so the pattern
+    /// is unanchored unless it anchors itself. A path that is not UTF-8 does
+    /// not match. A later call replaces an earlier one.
+    pub fn path<'p>(self, pattern: &'p Regex) -> Query<'a, 'p> {
+        Query {
+            tree: self.tree,
+            kinds: self.kinds,
+            glob: self.glob,
+            path: Some(pattern),
+        }
     }
-}
 
-impl Query<'_> {
     fn matches(&self, entry: &Entry) -> bool {
         if let Some(kinds) = &self.kinds
             && !kinds.contains(&entry.kind())
@@ -224,7 +227,27 @@ impl Query<'_> {
         {
             return false;
         }
+        if let Some(pattern) = self.path {
+            match entry.path().to_str() {
+                Some(name) if pattern.is_match(name) => {}
+                _ => return false,
+            }
+        }
         true
+    }
+}
+
+impl<'a, 'pat> IntoIterator for Query<'a, 'pat> {
+    type Item = &'a Entry;
+    type IntoIter = std::vec::IntoIter<&'a Entry>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.tree
+            .entries
+            .iter()
+            .filter(|entry| self.matches(entry))
+            .collect::<Vec<_>>()
+            .into_iter()
     }
 }
 
@@ -502,6 +525,47 @@ mod tests {
             vec![PathBuf::from("bin/app.exe"), PathBuf::from("lib/foo.dll")]
         );
         Ok(())
+    }
+
+    #[test]
+    fn query_filters_by_path_regex() {
+        use std::ffi::OsString;
+        use std::os::unix::ffi::OsStringExt;
+
+        let tree = FileTree::from_entries(
+            None,
+            vec![
+                Entry::regular_file("usr/bin/app", None, None),
+                Entry::directory("usr/bin"),
+                Entry::hardlink("debian/example.substvars", None, None),
+                Entry::regular_file(OsString::from_vec(vec![0xff, b'x']), None, None),
+            ],
+        );
+        let under_usr_bin = Regex::new(r"^usr/bin/").expect("valid regex");
+        let hits: Vec<_> = tree
+            .query()
+            .kinds([EntryKind::RegularFile, EntryKind::Hardlink])
+            .path(&under_usr_bin)
+            .into_iter()
+            .map(|entry| entry.path().to_path_buf())
+            .collect();
+        assert_eq!(hits, vec![PathBuf::from("usr/bin/app")]);
+
+        let any = Regex::new(".").expect("valid regex");
+        let utf8: Vec<_> = tree
+            .query()
+            .path(&any)
+            .into_iter()
+            .map(|entry| entry.path().to_path_buf())
+            .collect();
+        assert_eq!(
+            utf8,
+            vec![
+                PathBuf::from("debian/example.substvars"),
+                PathBuf::from("usr/bin"),
+                PathBuf::from("usr/bin/app"),
+            ]
+        );
     }
 
     /// A tree large enough to classify on several threads, with ELF files,

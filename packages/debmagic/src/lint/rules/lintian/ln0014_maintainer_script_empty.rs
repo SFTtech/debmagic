@@ -83,13 +83,8 @@ fn maintainer_scripts(files: &FileTree) -> impl Iterator<Item = (&Entry, Vec<u8>
     files
         .query()
         .kinds([EntryKind::RegularFile])
+        .path(&SCRIPT_NAME)
         .into_iter()
-        .filter(|entry| {
-            entry
-                .path()
-                .to_str()
-                .is_some_and(|name| SCRIPT_NAME.is_match(name))
-        })
         .filter_map(|entry| Some((entry, files.read(entry).ok()?)))
 }
 

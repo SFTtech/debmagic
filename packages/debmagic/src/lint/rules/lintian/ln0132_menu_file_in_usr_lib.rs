@@ -32,15 +32,13 @@ impl BinaryPackageRule for MenuFileInUsrLib {
             return;
         };
         let paths: Vec<PathBuf> = files
-            .entries()
-            .iter()
-            .filter(|entry| matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink))
+            .query()
+            .kinds([EntryKind::RegularFile, EntryKind::Hardlink])
+            .path(&MENU)
+            .into_iter()
             .filter_map(|entry| {
                 let path = entry.path().to_str()?;
-                if !MENU.is_match(path)
-                    || path.ends_with("/README")
-                    || path == "usr/lib/menu/README"
-                {
+                if path.ends_with("/README") || path == "usr/lib/menu/README" {
                     return None;
                 }
                 Some(PathBuf::from(path))

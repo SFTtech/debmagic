@@ -1,0 +1,15 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): postinst-does-not-call-updatemenus (LN0326) [usr/share/menu/example]
+E: example (binary): postinst-does-not-call-updatemenus (LN0326) [usr/lib/menu/example]
+E: example (binary): postinst-does-not-call-updatemenus (LN0326) [usr/share/menu/example]
+E: example (binary): postinst-does-not-call-updatemenus (LN0326) [usr/lib/menu/example]
+E: example (binary): postinst-does-not-call-updatemenus (LN0326) [usr/share/menu/README.Debian]
+E: example (binary): postinst-does-not-call-updatemenus (LN0326) [etc/menu-methods/lintian]
+E: example (binary): postinst-does-not-call-updatemenus (LN0326) [usr/share/menu/example]
+E: example (binary): postinst-does-not-call-updatemenus (LN0326) [usr/share/menu/example]
+E: example (binary): postinst-does-not-call-updatemenus (LN0326) [usr/share/menu/example]
+E: example (udeb): postinst-does-not-call-updatemenus (LN0326) [usr/share/menu/example]
+E: example (binary): postinst-does-not-call-updatemenus (LN0326) [usr/share/menu/example]
+E: menu (binary): postinst-does-not-call-updatemenus (LN0326) [etc/menu-methods/lintian]

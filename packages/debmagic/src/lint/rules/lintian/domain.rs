@@ -18,6 +18,11 @@ pub(super) fn is_domain(value: &str) -> bool {
     tld.is_some_and(|tld| TLDS.binary_search(&tld.as_str()).is_ok())
 }
 
+/// `is_domain` with `domain_disable_tld_validation`: two labels are enough.
+pub(super) fn is_domain_ignoring_tld(value: &str) -> bool {
+    domain_labels(value).is_some_and(|(_, labels)| labels.len() >= 2)
+}
+
 fn domain_labels(value: &str) -> Option<(String, Vec<String>)> {
     let trailing_dot = value.ends_with('.');
     let bare = value.strip_suffix('.').unwrap_or(value);
@@ -75,5 +80,17 @@ mod tests {
         assert!(!is_domain("heard.of"));
         assert!(!is_domain("a.b"));
         assert!(!is_domain("example.local"));
+    }
+
+    #[test]
+    fn ignoring_tld_only_requires_two_labels() {
+        assert!(is_domain_ignoring_tld("example.com"));
+        assert!(is_domain_ignoring_tld("localhost.localdomain"));
+        assert!(is_domain_ignoring_tld("example.invalid"));
+        assert!(is_domain_ignoring_tld("heard.of"));
+        assert!(is_domain_ignoring_tld("a.b"));
+        assert!(!is_domain_ignoring_tld("localhost"));
+        assert!(!is_domain_ignoring_tld("unknown"));
+        assert!(!is_domain_ignoring_tld("mordor"));
     }
 }

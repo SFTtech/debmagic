@@ -77,7 +77,6 @@ impl DebianCopyright {
 
 impl CopyrightParagraph {
     /// Line of the paragraph's first field.
-    #[allow(dead_code)]
     pub fn start_line(&self) -> u32 {
         self.start_line
     }
@@ -94,6 +93,12 @@ impl CopyrightParagraph {
     /// Field value with both ends trimmed; empty when not declared.
     pub fn value(&self, name: &str) -> &str {
         self.field(name).map_or("", |field| field.value.trim())
+    }
+
+    /// Field value as stored. A `License:` whose text starts on the next line
+    /// keeps the leading newline, which [`Self::value`] trims away.
+    pub fn untrimmed_value(&self, name: &str) -> &str {
+        self.field(name).map_or("", |field| field.value.as_str())
     }
 
     /// Whitespace-separated words of the field value (lintian's `trimmed_list`).
@@ -305,6 +310,14 @@ mod tests {
         assert_eq!(paragraphs[1].position("Comment"), None);
         assert_eq!(paragraphs[1].trimmed_list("Files"), ["a", "b", "c"]);
         assert!(paragraphs[1].declares("copyright"));
+    }
+
+    #[test]
+    fn empty_license_name_keeps_the_following_text() {
+        let text = format!("{FORMAT}\nLicense:\n the body\n");
+        let paragraph = &paragraphs(&text)[1];
+        assert_eq!(paragraph.untrimmed_value("License"), "\n the body");
+        assert_eq!(paragraph.value("License"), "the body");
     }
 
     #[test]

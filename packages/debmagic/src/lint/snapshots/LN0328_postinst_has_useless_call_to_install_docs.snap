@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): postinst-has-useless-call-to-install-docs (LN0328) [postinst:4]
+W: example (binary): postinst-has-useless-call-to-install-docs (LN0328) [postinst:2]
+W: example (binary): postinst-has-useless-call-to-install-docs (LN0328) [postinst:2]
+W: example (binary): postinst-has-useless-call-to-install-docs (LN0328) [postinst:3]
+W: example (binary): postinst-has-useless-call-to-install-docs (LN0328) [postinst:2]
+W: example (binary): postinst-has-useless-call-to-install-docs (LN0328) [postinst:2]
+W: example (binary): postinst-has-useless-call-to-install-docs (LN0328) [postinst:1]
+W: example (binary): postinst-has-useless-call-to-install-docs (LN0328) [postinst:2]
+W: example (binary): postinst-has-useless-call-to-install-docs (LN0328) [postinst:3]

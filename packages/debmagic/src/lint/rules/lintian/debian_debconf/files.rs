@@ -55,7 +55,7 @@ pub(super) fn preinst_uses_debconf(text: &str) -> bool {
     })
 }
 
-fn is_present(files: &FileTree, name: &str) -> bool {
+pub(super) fn is_present(files: &FileTree, name: &str) -> bool {
     files.get(name).is_some_and(is_regular)
 }
 

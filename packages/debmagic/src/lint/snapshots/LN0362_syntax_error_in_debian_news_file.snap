@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): syntax-error-in-debian-news-file (LN0362) "badly formatted trailer line" [usr/share/doc/example/NEWS.Debian.gz:10]
+W: example (binary): syntax-error-in-debian-news-file (LN0362) "found eof where expected more change data or trailer" [usr/share/doc/example/NEWS.Debian.gz:11]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): file-missing-in-md5sums (LN0344) usr/share/doc/changelog [md5sums]
+W: example (binary): file-missing-in-md5sums (LN0344) etc/improper-link [md5sums]
+W: example (binary): file-missing-in-md5sums (LN0344) var/lib/spell/foo [md5sums]

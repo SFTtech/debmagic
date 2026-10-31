@@ -73,6 +73,11 @@ impl Template {
         self.field(name).map(|field| field.line)
     }
 
+    /// Line of the first field: lintian's paragraph position.
+    pub(super) fn paragraph_line(&self) -> Option<u32> {
+        self.fields.first().map(|field| field.line)
+    }
+
     fn field(&self, name: &str) -> Option<&Field> {
         self.fields
             .iter()
@@ -103,6 +108,60 @@ pub(super) fn short_description(template: &Template) -> String {
 
 pub(super) fn for_internal_use(short: &str) -> bool {
     INTERNAL_USE.is_match(short)
+}
+
+/// Developer's Reference limit for a template synopsis, in characters.
+pub(super) const MAXIMUM_SHORT_LENGTH: usize = 75;
+
+/// Developer's Reference limit for an extended description, in wrapped lines.
+pub(super) const MAXIMUM_EXTENDED_LINES: usize = 20;
+
+/// Text after the first newline of `Description`.
+///
+/// `None` when the field has no newline, which is how the Check leaves
+/// `$extended` undefined. The string may be empty.
+pub(super) fn extended_description(template: &Template) -> Option<String> {
+    template
+        .value("Description")
+        .split_once('\n')
+        .map(|(_, rest)| rest.to_string())
+}
+
+/// Lines `$extended` occupies after the Check wraps at 80 characters.
+///
+/// A line longer than 80 breaks at the last space at or before column 80.
+/// With no such space, it breaks at the first space anywhere. With no space,
+/// the whole line counts as one.
+pub(super) fn wrapped_line_count(extended: &str) -> usize {
+    const MAXIMUM_LINE_LENGTH: usize = 80;
+    let mut lines = 0usize;
+    for piece in extended.split('\n') {
+        let mut rest: Vec<char> = piece.chars().collect();
+        while rest.len() > MAXIMUM_LINE_LENGTH {
+            let within = rest
+                .iter()
+                .take(MAXIMUM_LINE_LENGTH + 1)
+                .rposition(|ch| *ch == ' ');
+            let index = within.or_else(|| rest.iter().position(|ch| *ch == ' '));
+            match index {
+                None => rest.clear(),
+                Some(index) => {
+                    rest = rest.split_off(index + 1);
+                    lines += 1;
+                }
+            }
+        }
+        lines += 1;
+    }
+    lines
+}
+
+/// Parsed templates when the installable Check would reach them.
+pub(super) fn load_gated(files: &FileTree) -> Option<TemplatesFile> {
+    if !files::gate(files).open() {
+        return None;
+    }
+    load_templates(files)
 }
 
 /// `Choices` and `Choices-ll`, plus a single leading `_`, are known.
@@ -267,6 +326,36 @@ mod tests {
         let parsed = parse("Template: a/b\n# comment\nWeird: 1\n").expect("comments are allowed");
         assert_eq!(parsed[0].fields()[1].line, 3);
         assert_eq!(parsed[0].value("Template"), "a/b");
+    }
+
+    #[test]
+    fn wraps_extended_lines_like_the_check() {
+        assert_eq!(wrapped_line_count(&"a".repeat(80)), 1);
+        assert_eq!(wrapped_line_count(&"a".repeat(81)), 1);
+        assert_eq!(
+            wrapped_line_count(&format!("{} {}", "a".repeat(40), "b".repeat(50))),
+            2
+        );
+        assert_eq!(wrapped_line_count(&format!("{} x", "a".repeat(81))), 2);
+        assert_eq!(wrapped_line_count("a\n\nb"), 3);
+        let twenty = vec!["x"; 20].join("\n");
+        let twenty_one = vec!["x"; 21].join("\n");
+        assert_eq!(wrapped_line_count(&twenty), 20);
+        assert_eq!(wrapped_line_count(&twenty_one), 21);
+        assert!(wrapped_line_count(&twenty) <= MAXIMUM_EXTENDED_LINES);
+        assert!(wrapped_line_count(&twenty_one) > MAXIMUM_EXTENDED_LINES);
+    }
+
+    #[test]
+    fn extended_description_is_the_text_after_the_first_newline() {
+        let parsed = parse("Template: a/b\nDescription: Short\n The rest\n").expect("parsed");
+        assert_eq!(
+            extended_description(&parsed[0]).as_deref(),
+            Some(" The rest")
+        );
+        let one_line = parse("Template: a/b\nDescription: Short\n").expect("parsed");
+        assert_eq!(extended_description(&one_line[0]), None);
+        assert_eq!(one_line[0].paragraph_line(), Some(1));
     }
 
     #[test]

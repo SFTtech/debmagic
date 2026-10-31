@@ -1,0 +1,16 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): using-first-person-in-templates (LN0322) debconf/first-person [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/we [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/we-lower [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/our [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/ours [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/mine [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/myself [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/ourself [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/me [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/us [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/my [templates:4]
+W: example (binary): using-first-person-in-templates (LN0322) debconf/extended [templates:4]
+W: example (udeb): using-first-person-in-templates (LN0322) debconf/udeb [templates:4]

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): old-fsf-address-in-copyright-file (LN0112)

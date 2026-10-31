@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): missing-systemd-service-for-init.d-script (LN0125) no-lsb [etc/init.d/no-lsb]
+E: example (binary): missing-systemd-service-for-init.d-script (LN0125) lsb-other [etc/init.d/lsb-other]

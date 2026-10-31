@@ -1,0 +1,36 @@
+# Manually maintained list of known udeb fields
+#  - note the Ubuntu original-maintainer field is handled separately.
+
+Package
+Version
+Architecture
+Subarchitecture
+Depends
+Recommends
+Enhances
+Provides
+Replaces
+Breaks
+Replaces
+Maintainer
+Section
+Priority
+Source
+Description
+Installed-Size
+Kernel-Version
+Installer-Menu-Item
+Bugs
+Origin
+Auto-Built-Package
+Build-Ids
+Built-Using
+Static-Built-Using
+X-Cargo-Built-Using
+
+# Special-case, original-maintainer is not ok in Debian, but we allow
+# it in any non-Debian profile by default.
+#
+# NB: Do not rely on @if-vendor-is-not in your data files; it may
+# disappear without notice
+@if-vendor-is-not debian original-maintainer

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): copyright-refers-to-compressed-license (LN0115) usr/share/common-licenses/GPL-2.gz

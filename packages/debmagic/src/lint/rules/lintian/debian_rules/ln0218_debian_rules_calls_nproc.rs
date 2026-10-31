@@ -8,7 +8,7 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 
-use super::rules_text::{read_rules, rules_lines};
+use super::super::rules_and_control::{read_rules, rules_lines};
 
 pub struct DebianRulesCallsNproc;
 

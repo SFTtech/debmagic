@@ -11,7 +11,7 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 
-use super::debian_rules::{complete_lines, read_rules_from_tree};
+use super::text::{complete_lines, read_rules_from_tree};
 
 pub struct DebianRulesMissingRequiredTarget;
 
@@ -135,7 +135,7 @@ fn known_makefile_targets(makefile: &str) -> Option<Vec<String>> {
 }
 
 static KNOWN_MAKEFILES: LazyLock<Vec<(String, Vec<String>)>> = LazyLock::new(|| {
-    crate::lint::data::lines(include_str!("../../data/rules/known-makefiles"))
+    crate::lint::data::lines(include_str!("../../../data/rules/known-makefiles"))
         .filter_map(|line| {
             let (path, targets) = line.split_once("||")?;
             let targets = targets

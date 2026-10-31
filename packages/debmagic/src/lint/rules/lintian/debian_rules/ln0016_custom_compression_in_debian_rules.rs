@@ -8,7 +8,7 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 
-use super::debian_rules::{complete_lines, read_rules_from_tree};
+use super::text::{complete_lines, read_rules_from_tree};
 
 pub struct CustomCompressionInDebianRules;
 

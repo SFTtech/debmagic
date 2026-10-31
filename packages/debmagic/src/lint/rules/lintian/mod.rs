@@ -21,7 +21,6 @@ mod known_fields;
 mod languages_python;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
-mod ln0003_debian_rules_missing_required_target;
 mod ln0004_source_contains_prebuilt_windows_binary;
 mod ln0005_unstripped_binary_or_object;
 mod ln0007_empty_binary_package;
@@ -31,8 +30,6 @@ mod ln0012_no_changelog;
 mod ln0013_debian_changelog_file_missing_or_wrong_name;
 mod ln0014_maintainer_script_empty;
 mod ln0015_source_contains_debian_substvars;
-mod ln0016_custom_compression_in_debian_rules;
-mod ln0017_debian_rules_ignores_make_clean_error;
 mod ln0018_national_encoding;
 mod ln0019_package_uses_deprecated_debhelper_compat_version;
 mod ln0020_uses_debhelper_compat_file;
@@ -53,9 +50,6 @@ mod ln0124_unknown_field;
 mod ln0132_menu_file_in_usr_lib;
 mod ln0133_bad_menu_file_name;
 mod ln0135_vcs_field_uses_not_recommended_uri_format;
-mod ln0179_debian_rules_calls_pwd;
-mod ln0180_debian_rules_calls_debhelper_in_odd_order;
-mod ln0182_binary_arch_rules_but_pkg_is_arch_indep;
 mod ln0183_package_contains_bts_control_dir;
 mod ln0184_uses_dpkg_database_directly;
 mod ln0185_obsolete_url_in_packaging;
@@ -79,6 +73,13 @@ pub(crate) use debian_copyright::{
     CopyrightRefersToNonexistentLicenseFile, CopyrightRefersToOldDirectory,
     CopyrightRefersToVersionlessLicenseFile, NoCopyrightFile, NoDep5Copyright,
     OldFsfAddressInCopyrightFile, SpaceInStdShortnameInDep5Copyright,
+};
+pub(crate) use debian_rules::{
+    BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,
+    DebianRulesCallsDebhelperInOddOrder, DebianRulesCallsNproc, DebianRulesCallsPwd,
+    DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget,
+    DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends,
+    OverrideDhFixpermsDoesNotCallDhFixperms,
 };
 pub(crate) use debian_version_substvars::{
     NotBinnmuableAllDependsAny, NotBinnmuableAnyDependsAll, NotBinnmuableAnyDependsAny,
@@ -166,7 +167,6 @@ pub(crate) use languages_python::{
 };
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
-pub(crate) use ln0003_debian_rules_missing_required_target::DebianRulesMissingRequiredTarget;
 pub(crate) use ln0004_source_contains_prebuilt_windows_binary::SourceContainsPrebuiltWindowsBinary;
 pub(crate) use ln0005_unstripped_binary_or_object::UnstrippedBinaryOrObject;
 pub(crate) use ln0007_empty_binary_package::EmptyBinaryPackage;
@@ -176,8 +176,6 @@ pub(crate) use ln0012_no_changelog::NoChangelog;
 pub(crate) use ln0013_debian_changelog_file_missing_or_wrong_name::DebianChangelogFileMissingOrWrongName;
 pub(crate) use ln0014_maintainer_script_empty::MaintainerScriptEmpty;
 pub(crate) use ln0015_source_contains_debian_substvars::SourceContainsDebianSubstvars;
-pub(crate) use ln0016_custom_compression_in_debian_rules::CustomCompressionInDebianRules;
-pub(crate) use ln0017_debian_rules_ignores_make_clean_error::DebianRulesIgnoresMakeCleanError;
 pub(crate) use ln0018_national_encoding::NationalEncoding;
 pub(crate) use ln0019_package_uses_deprecated_debhelper_compat_version::PackageUsesDeprecatedDebhelperCompatVersion;
 pub(crate) use ln0020_uses_debhelper_compat_file::UsesDebhelperCompatFile;
@@ -198,17 +196,13 @@ pub(crate) use ln0124_unknown_field::UnknownField;
 pub(crate) use ln0132_menu_file_in_usr_lib::MenuFileInUsrLib;
 pub(crate) use ln0133_bad_menu_file_name::BadMenuFileName;
 pub(crate) use ln0135_vcs_field_uses_not_recommended_uri_format::VcsFieldUsesNotRecommendedUriFormat;
-pub(crate) use ln0179_debian_rules_calls_pwd::DebianRulesCallsPwd;
-pub(crate) use ln0180_debian_rules_calls_debhelper_in_odd_order::DebianRulesCallsDebhelperInOddOrder;
-pub(crate) use ln0182_binary_arch_rules_but_pkg_is_arch_indep::BinaryArchRulesButPkgIsArchIndep;
 pub(crate) use ln0183_package_contains_bts_control_dir::PackageContainsBtsControlDir;
 pub(crate) use ln0184_uses_dpkg_database_directly::UsesDpkgDatabaseDirectly;
 pub(crate) use ln0185_obsolete_url_in_packaging::ObsoleteUrlInPackaging;
 pub(crate) use rules_and_control::{
     BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,
     DebhelperToolsFromAutotoolsDevAreDeprecated, DebianControlHasDbgsymPackage,
-    DebianRulesCallsNproc, DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends,
-    OverrideDhFixpermsDoesNotCallDhFixperms, PackageUsesDhExecButLacksBuildDepends,
+    PackageUsesDhExecButLacksBuildDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

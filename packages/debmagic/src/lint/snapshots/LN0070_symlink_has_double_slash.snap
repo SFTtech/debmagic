@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): symlink-has-double-slash (LN0070) ../..//..//..//../etc/lintian/pkg.conf [usr/share/lintian/data/pkg.conf]
+W: example (binary): symlink-has-double-slash (LN0070) ../menu//something [usr/lib/filenames/symlink8wrong]
+W: example (udeb): symlink-has-double-slash (LN0070) //usr/bin/tool [usr/bin/tool]

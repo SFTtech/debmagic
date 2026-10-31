@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): hyphen-file (LN0076) [usr/share/foo/-]
+E: example (udeb): hyphen-file (LN0076) [usr/bin/-]

@@ -1,24 +1,29 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
-    AliasedLocation, ChangelogFileNotCompressed, CustomCompressionInDebianRules,
-    DebianChangelogFileIsASymlink, DebianChangelogFileMissingOrWrongName,
-    DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget, DebmagicDummyTrigger,
-    DescriptionIsPkgName, DescriptionStartsWithPackageName, DescriptionSynopsisIsEmpty,
+    AbsoluteSymlinkInTopLevelFolder, AliasedLocation, ChangelogFileNotCompressed,
+    CompressedSymlinkWithWrongExt, CustomCompressionInDebianRules, DebianChangelogFileIsASymlink,
+    DebianChangelogFileMissingOrWrongName, DebianRulesIgnoresMakeCleanError,
+    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DescriptionIsPkgName,
+    DescriptionStartsWithPackageName, DescriptionSynopsisIsEmpty,
     DescriptionSynopsisStartsWithArticle, DescriptionTooShort, DirInUsrLocal, DirOrFileInEtcOpt,
     DirOrFileInHome, DirOrFileInMnt, DirOrFileInOpt, DirOrFileInRun, DirOrFileInSrv,
     DirOrFileInTmp, DirOrFileInVarLock, DirOrFileInVarRun, DirOrFileInVarWww,
     DmUploadAllowedIsObsolete, EmptyBinaryPackage, ExtendedDescriptionIsEmpty,
     ExtendedDescriptionLineTooLong, FileDirectlyInUsrShare, FileInUnusualDir, FileInUsrLocal,
-    FsstndDirInUsr, FsstndDirInVar, LatestDebianChangelogEntryWithoutNewDate, LengthySymlink,
-    MaintainerScriptEmpty, MalformedDmUploadAllowed, NationalEncoding, NoChangelog,
+    FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,
+    FsstndDirInUsr, FsstndDirInVar, HyphenFile, LatestDebianChangelogEntryWithoutNewDate,
+    LengthySymlink, MaintainerScriptEmpty, MalformedDmUploadAllowed, NationalEncoding, NoChangelog,
     NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, NonStandardDirInUsr, NonStandardDirInVar,
-    NonStandardToplevelDir, PackageContainsUnsafeSymlink, PackageContainsVcsControlDir,
-    PackageRelationWithSelf, PackageUsesDeprecatedDebhelperCompatVersion, RequiredField,
-    SourceContainsDebianSubstvars, SourceContainsPrebuiltWindowsBinary, SubdirInUsrBin,
-    SuperfluousFilePattern, SvnCommitFileInPackage, SymlinkContainsSpuriousSegments,
-    SymlinkIsSelfRecursive, SynopsisTooLong, SyntaxErrorInDebianChangelog,
-    UnstrippedBinaryOrObject, UseOfCompatSymlink, UsesDebhelperCompatFile,
-    VcsObsoleteInDebianInfrastructure, WrongPackageMailAlias,
+    NonStandardToplevelDir, PackageContainsCompiledGlibSchema, PackageContainsPythonDotDirectory,
+    PackageContainsPythonHypothesisExample, PackageContainsSassCacheDirectory,
+    PackageContainsUnsafeSymlink, PackageContainsVcsControlDir, PackageRelationWithSelf,
+    PackageUsesDeprecatedDebhelperCompatVersion, RelativeSymlink, RequiredField,
+    SourceContainsCmakeCacheFile, SourceContainsDebianSubstvars,
+    SourceContainsPrebuiltWindowsBinary, SubdirInUsrBin, SuperfluousFilePattern,
+    SvnCommitFileInPackage, SymlinkContainsSpuriousSegments, SymlinkEndsWithSlash,
+    SymlinkHasDoubleSlash, SymlinkHasTooManyUpSegments, SymlinkIsSelfRecursive, SynopsisTooLong,
+    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject, UseOfCompatSymlink,
+    UsesDebhelperCompatFile, VcsObsoleteInDebianInfrastructure, WrongPackageMailAlias,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -87,6 +92,21 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SynopsisTooLong,
         &ExtendedDescriptionLineTooLong,
         &SvnCommitFileInPackage,
+        &AbsoluteSymlinkInTopLevelFolder,
+        &FileNameEndsInWhitespace,
+        &SourceContainsCmakeCacheFile,
+        &FileNameContainsWildcardCharacter,
+        &RelativeSymlink,
+        &SymlinkEndsWithSlash,
+        &SymlinkHasDoubleSlash,
+        &SymlinkHasTooManyUpSegments,
+        &PackageContainsPythonDotDirectory,
+        &PackageContainsPythonHypothesisExample,
+        &PackageContainsSassCacheDirectory,
+        &CompressedSymlinkWithWrongExt,
+        &HyphenFile,
+        &FileNameInPathIsNotAscii,
+        &PackageContainsCompiledGlibSchema,
     ]
 }
 
@@ -111,6 +131,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &LatestDebianChangelogEntryWithoutNewDate,
         &MalformedDmUploadAllowed,
         &WrongPackageMailAlias,
+        &SourceContainsCmakeCacheFile,
     ]
 }
 
@@ -163,6 +184,20 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SynopsisTooLong,
         &ExtendedDescriptionLineTooLong,
         &SvnCommitFileInPackage,
+        &AbsoluteSymlinkInTopLevelFolder,
+        &FileNameEndsInWhitespace,
+        &FileNameContainsWildcardCharacter,
+        &RelativeSymlink,
+        &SymlinkEndsWithSlash,
+        &SymlinkHasDoubleSlash,
+        &SymlinkHasTooManyUpSegments,
+        &PackageContainsPythonDotDirectory,
+        &PackageContainsPythonHypothesisExample,
+        &PackageContainsSassCacheDirectory,
+        &CompressedSymlinkWithWrongExt,
+        &HyphenFile,
+        &FileNameInPathIsNotAscii,
+        &PackageContainsCompiledGlibSchema,
     ]
 }
 
@@ -196,6 +231,7 @@ mod tests {
                 LatestDebianChangelogEntryWithoutNewDate::CODE,
                 MalformedDmUploadAllowed::CODE,
                 WrongPackageMailAlias::CODE,
+                SourceContainsCmakeCacheFile::CODE,
             ]
         );
     }
@@ -256,6 +292,20 @@ mod tests {
                 SynopsisTooLong::CODE,
                 ExtendedDescriptionLineTooLong::CODE,
                 SvnCommitFileInPackage::CODE,
+                AbsoluteSymlinkInTopLevelFolder::CODE,
+                FileNameEndsInWhitespace::CODE,
+                FileNameContainsWildcardCharacter::CODE,
+                RelativeSymlink::CODE,
+                SymlinkEndsWithSlash::CODE,
+                SymlinkHasDoubleSlash::CODE,
+                SymlinkHasTooManyUpSegments::CODE,
+                PackageContainsPythonDotDirectory::CODE,
+                PackageContainsPythonHypothesisExample::CODE,
+                PackageContainsSassCacheDirectory::CODE,
+                CompressedSymlinkWithWrongExt::CODE,
+                HyphenFile::CODE,
+                FileNameInPathIsNotAscii::CODE,
+                PackageContainsCompiledGlibSchema::CODE,
             ]
         );
     }

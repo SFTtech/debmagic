@@ -8,6 +8,10 @@ mod common;
 use test_case::test_case;
 
 const SOURCE_TREE_RECIPES: &[&str] = &[
+    "checks/build-systems/cmake/cruft-general-diff",
+    "checks/build-systems/cmake/cruft-general-native",
+    "checks/build-systems/cmake/cruft-general-quilt",
+    "checks/build-systems/cmake/cruft-general-wig-pen",
     "checks/cruft/cruft-general-upstream",
     "checks/debhelper/debhelper-compat-empty",
     "checks/debhelper/debhelper-compat-multiple",
@@ -128,12 +132,22 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/hierarchy/standard/files-tar-traps",
     "checks/files/hierarchy/standard/legacy-binary",
     "checks/files/hierarchy/standard/legacy-filenames",
+    "checks/files/names/files-general",
+    "checks/files/names/files-hyphen-file",
+    "checks/files/names/files-python-dot-directory",
+    "checks/files/names/files-tar-traps",
+    "checks/files/names/files-wildcard-characters",
+    "checks/files/names/legacy-binary",
+    "checks/files/names/legacy-filenames",
+    "checks/files/names/python-hypothesis-example",
+    "checks/files/names/sass-cache-directory",
     "checks/files/symbolic-links/broken/legacy-filenames",
     "checks/files/symbolic-links/broken/symlinks-unsafe",
     "checks/files/symbolic-links/files-general",
     "checks/files/symbolic-links/files-symlinks",
     "checks/files/symbolic-links/legacy-binary",
     "checks/files/symbolic-links/legacy-filenames",
+    "checks/files/symbolic-links/legacy-libbaz",
     "checks/files/vcs/files-package-contains-foo",
     "checks/files/vcs/legacy-filenames",
     "checks/maintainer-scripts/empty/legacy-maintainer-scripts",
@@ -149,6 +163,10 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
 ];
 
 const SOURCE_PACKAGE_RECIPES: &[&str] = &[
+    "checks/build-systems/cmake/cruft-general-diff",
+    "checks/build-systems/cmake/cruft-general-native",
+    "checks/build-systems/cmake/cruft-general-quilt",
+    "checks/build-systems/cmake/cruft-general-wig-pen",
     "checks/cruft/cruft-general-upstream",
     "checks/debhelper/debhelper-compat-empty",
     "checks/debhelper/debhelper-compat-missing",
@@ -249,6 +267,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
     assert_eq!(common::catalogued_source_package_recipe_rels(), listed);
 }
 
+#[test_case("checks/build-systems/cmake/cruft-general-diff"; "checks_build_systems_cmake_cruft_general_diff")]
+#[test_case("checks/build-systems/cmake/cruft-general-native"; "checks_build_systems_cmake_cruft_general_native")]
+#[test_case("checks/build-systems/cmake/cruft-general-quilt"; "checks_build_systems_cmake_cruft_general_quilt")]
+#[test_case("checks/build-systems/cmake/cruft-general-wig-pen"; "checks_build_systems_cmake_cruft_general_wig_pen")]
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
 #[test_case("checks/debhelper/debhelper-compat-multiple"; "checks_debhelper_debhelper_compat_multiple")]
@@ -370,12 +392,22 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/hierarchy/standard/files-tar-traps"; "checks_files_hierarchy_standard_files_tar_traps")]
 #[test_case("checks/files/hierarchy/standard/legacy-binary"; "checks_files_hierarchy_standard_legacy_binary")]
 #[test_case("checks/files/hierarchy/standard/legacy-filenames"; "checks_files_hierarchy_standard_legacy_filenames")]
+#[test_case("checks/files/names/files-general"; "checks_files_names_files_general")]
+#[test_case("checks/files/names/files-hyphen-file"; "checks_files_names_files_hyphen_file")]
+#[test_case("checks/files/names/files-python-dot-directory"; "checks_files_names_files_python_dot_directory")]
+#[test_case("checks/files/names/files-tar-traps"; "checks_files_names_files_tar_traps")]
+#[test_case("checks/files/names/files-wildcard-characters"; "checks_files_names_files_wildcard_characters")]
+#[test_case("checks/files/names/legacy-binary"; "checks_files_names_legacy_binary")]
+#[test_case("checks/files/names/legacy-filenames"; "checks_files_names_legacy_filenames")]
+#[test_case("checks/files/names/python-hypothesis-example"; "checks_files_names_python_hypothesis_example")]
+#[test_case("checks/files/names/sass-cache-directory"; "checks_files_names_sass_cache_directory")]
 #[test_case("checks/files/symbolic-links/broken/legacy-filenames"; "checks_files_symbolic_links_broken_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/symlinks-unsafe"; "checks_files_symbolic_links_broken_symlinks_unsafe")]
 #[test_case("checks/files/symbolic-links/files-general"; "checks_files_symbolic_links_files_general")]
 #[test_case("checks/files/symbolic-links/files-symlinks"; "checks_files_symbolic_links_files_symlinks")]
 #[test_case("checks/files/symbolic-links/legacy-binary"; "checks_files_symbolic_links_legacy_binary")]
 #[test_case("checks/files/symbolic-links/legacy-filenames"; "checks_files_symbolic_links_legacy_filenames")]
+#[test_case("checks/files/symbolic-links/legacy-libbaz"; "checks_files_symbolic_links_legacy_libbaz")]
 #[test_case("checks/files/vcs/files-package-contains-foo"; "checks_files_vcs_files_package_contains_foo")]
 #[test_case("checks/files/vcs/legacy-filenames"; "checks_files_vcs_legacy_filenames")]
 #[test_case("checks/maintainer-scripts/empty/legacy-maintainer-scripts"; "checks_maintainer_scripts_empty_legacy_maintainer_scripts")]
@@ -392,6 +424,10 @@ fn lintian_parity_binary_package(recipe: &str) {
     common::assert_binary_package_parity(recipe);
 }
 
+#[test_case("checks/build-systems/cmake/cruft-general-diff"; "checks_build_systems_cmake_cruft_general_diff")]
+#[test_case("checks/build-systems/cmake/cruft-general-native"; "checks_build_systems_cmake_cruft_general_native")]
+#[test_case("checks/build-systems/cmake/cruft-general-quilt"; "checks_build_systems_cmake_cruft_general_quilt")]
+#[test_case("checks/build-systems/cmake/cruft-general-wig-pen"; "checks_build_systems_cmake_cruft_general_wig_pen")]
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
 #[test_case("checks/debhelper/debhelper-compat-missing"; "checks_debhelper_debhelper_compat_missing")]

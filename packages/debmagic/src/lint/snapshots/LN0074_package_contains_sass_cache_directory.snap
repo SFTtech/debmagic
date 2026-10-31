@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-sass-cache-directory (LN0074) [usr/share/doc/sass-cache-directory/.sass-cache/]
+W: example (binary): package-contains-sass-cache-directory (LN0074) [usr/share/doc/sass-cache-directory/.sass-cache/nothing]
+W: example (udeb): package-contains-sass-cache-directory (LN0074) [usr/share/doc/pkg/.sass-cache/]

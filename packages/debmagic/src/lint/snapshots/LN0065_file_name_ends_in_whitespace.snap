@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): file-name-ends-in-whitespace (LN0065) [usr/share/foo/ws ]
+W: example (binary): file-name-ends-in-whitespace (LN0065) [files/'\ ]
+W: example (udeb): file-name-ends-in-whitespace (LN0065) [usr/share/foo/tab	]

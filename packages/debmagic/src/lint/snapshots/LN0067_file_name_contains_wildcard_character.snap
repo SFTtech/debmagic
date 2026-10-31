@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): file-name-contains-wildcard-character (LN0067) [usr/share/foo/*]
+W: example (binary): file-name-contains-wildcard-character (LN0067) [usr/share/files-wildcard-characters/question-mark?]
+W: example (binary): file-name-contains-wildcard-character (LN0067) [usr/share/files-wildcard-characters/star*]
+W: example (udeb): file-name-contains-wildcard-character (LN0067) [usr/share/foo/*]

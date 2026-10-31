@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): relative-symlink (LN0068) ../../../../etc/lintian/pkg.conf [usr/share/lintian/data/pkg-old.conf]
+E: example (binary): relative-symlink (LN0068) ../../../etc/symlink [usr/lib/filenames/symlink1wrong]
+E: example (binary): relative-symlink (LN0068) ../../.. [usr/lib/filenames/symlink10wrong]
+E: example (udeb): relative-symlink (LN0068) ../../../etc/symlink [usr/lib/filenames/symlink1wrong]

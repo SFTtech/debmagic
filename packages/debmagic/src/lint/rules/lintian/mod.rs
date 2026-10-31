@@ -2,6 +2,7 @@ mod changelog_doc;
 mod debian_rules;
 mod description;
 mod files_hierarchy;
+mod files_names;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
 mod ln0003_debian_rules_missing_required_target;
@@ -37,6 +38,13 @@ mod ln0032_wrong_package_mail_alias;
 mod ln0033_debian_changelog_file_is_a_symlink;
 mod ln0034_package_contains_vcs_control_dir;
 mod ln0057_svn_commit_file_in_package;
+mod ln0064_absolute_symlink_in_top_level_folder;
+mod ln0066_source_contains_cmake_cache_file;
+mod ln0068_relative_symlink;
+mod ln0069_symlink_ends_with_slash;
+mod ln0070_symlink_has_double_slash;
+mod ln0071_symlink_has_too_many_up_segments;
+mod ln0075_compressed_symlink_with_wrong_ext;
 mod mailbox;
 mod symlink_links;
 
@@ -50,6 +58,11 @@ pub(crate) use files_hierarchy::{
     DirOrFileInOpt, DirOrFileInRun, DirOrFileInSrv, DirOrFileInTmp, DirOrFileInVarLock,
     DirOrFileInVarRun, DirOrFileInVarWww, FileDirectlyInUsrShare, FileInUsrLocal, FsstndDirInUsr,
     FsstndDirInVar, NonStandardDirInUsr, NonStandardDirInVar, SubdirInUsrBin, UseOfCompatSymlink,
+};
+pub(crate) use files_names::{
+    FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,
+    HyphenFile, PackageContainsCompiledGlibSchema, PackageContainsPythonDotDirectory,
+    PackageContainsPythonHypothesisExample, PackageContainsSassCacheDirectory,
 };
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
@@ -86,3 +99,10 @@ pub(crate) use ln0032_wrong_package_mail_alias::WrongPackageMailAlias;
 pub(crate) use ln0033_debian_changelog_file_is_a_symlink::DebianChangelogFileIsASymlink;
 pub(crate) use ln0034_package_contains_vcs_control_dir::PackageContainsVcsControlDir;
 pub(crate) use ln0057_svn_commit_file_in_package::SvnCommitFileInPackage;
+pub(crate) use ln0064_absolute_symlink_in_top_level_folder::AbsoluteSymlinkInTopLevelFolder;
+pub(crate) use ln0066_source_contains_cmake_cache_file::SourceContainsCmakeCacheFile;
+pub(crate) use ln0068_relative_symlink::RelativeSymlink;
+pub(crate) use ln0069_symlink_ends_with_slash::SymlinkEndsWithSlash;
+pub(crate) use ln0070_symlink_has_double_slash::SymlinkHasDoubleSlash;
+pub(crate) use ln0071_symlink_has_too_many_up_segments::SymlinkHasTooManyUpSegments;
+pub(crate) use ln0075_compressed_symlink_with_wrong_ext::CompressedSymlinkWithWrongExt;

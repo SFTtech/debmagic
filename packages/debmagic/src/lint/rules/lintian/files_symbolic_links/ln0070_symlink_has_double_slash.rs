@@ -2,7 +2,7 @@ use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::rule::{BinaryPackageRule, Severity};
 
-use super::symlink_links::{SymlinkIssue, emit_issue};
+use super::links::{SymlinkIssue, emit_issue};
 
 pub struct SymlinkHasDoubleSlash;
 

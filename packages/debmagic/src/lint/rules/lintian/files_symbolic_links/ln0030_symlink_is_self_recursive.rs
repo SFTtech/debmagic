@@ -3,7 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::symlink_links::{SymlinkIssue, symlinks_with_issue};
+use super::links::{SymlinkIssue, symlinks_with_issue};
 
 pub struct SymlinkIsSelfRecursive;
 

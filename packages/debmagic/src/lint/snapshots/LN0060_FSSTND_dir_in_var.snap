@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): FSSTND-dir-in-var (LN0060) [var/adm/]
+E: example (binary): FSSTND-dir-in-var (LN0060) [var/catman/]
+E: example (binary): FSSTND-dir-in-var (LN0060) [var/named/]
+E: example (binary): FSSTND-dir-in-var (LN0060) [var/nis/]
+E: example (binary): FSSTND-dir-in-var (LN0060) [var/preserve/]
+E: example (binary): FSSTND-dir-in-var (LN0060) [var/adm/]

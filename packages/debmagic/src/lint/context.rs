@@ -16,6 +16,7 @@ use super::installation_control::InstallationControl;
 use super::rule::{Code, RuleAccess, Tag};
 use super::source_package::SourcePackageExtract;
 use super::subject::SubjectKind;
+use super::timing;
 
 struct DiagnosticSink {
     code: Code,
@@ -90,15 +91,17 @@ impl SourceTreeData {
     }
 
     fn debian_control(&self) -> Option<&DebianControl> {
-        self.debian_control
-            .get_or_init(|| DebianControl::load(&self.root.join("debian/control")))
-            .as_ref()
+        timing::init_once(&self.debian_control, || {
+            DebianControl::load(&self.root.join("debian/control"))
+        })
+        .as_ref()
     }
 
     fn debian_changelog(&self) -> Option<&DebianChangelog> {
-        self.debian_changelog
-            .get_or_init(|| DebianChangelog::load(&self.root.join("debian/changelog")))
-            .as_ref()
+        timing::init_once(&self.debian_changelog, || {
+            DebianChangelog::load(&self.root.join("debian/changelog"))
+        })
+        .as_ref()
     }
 
     fn package_name(&self) -> String {
@@ -113,7 +116,7 @@ impl SourceTreeData {
     }
 
     fn file_tree(&self) -> Result<&FileTree, &str> {
-        match self.file_tree.get_or_init(|| {
+        match timing::init_once(&self.file_tree, || {
             FileTree::from_host_directory(&self.root).map_err(|error| error.to_string())
         }) {
             Ok(tree) => Ok(tree),
@@ -182,7 +185,7 @@ impl BinaryPackageData {
     }
 
     fn data_files(&self) -> Result<&FileTree, &str> {
-        match self.data_files.get_or_init(|| match &self.reader {
+        match timing::init_once(&self.data_files, || match &self.reader {
             Some(reader) => reader.data_file_tree().map_err(|error| error.to_string()),
             None => Err("Binary package Data files are missing".to_string()),
         }) {
@@ -192,7 +195,7 @@ impl BinaryPackageData {
     }
 
     fn control_files(&self) -> Result<&FileTree, &str> {
-        match self.control_files.get_or_init(|| match &self.reader {
+        match timing::init_once(&self.control_files, || match &self.reader {
             Some(reader) => reader
                 .control_file_tree()
                 .map_err(|error| error.to_string()),
@@ -342,29 +345,25 @@ impl SourcePackageData {
     }
 
     fn debian_control(&self) -> Option<&DebianControl> {
-        self.debian_control
-            .get_or_init(|| match &self._extract {
-                Some(extract) => {
-                    DebianControl::load(&extract.patched_root().join("debian/control"))
-                }
-                None => debian_control_from_tree(
-                    self.patched.get().and_then(|result| result.as_ref().ok()),
-                ),
-            })
-            .as_ref()
+        timing::init_once(&self.debian_control, || match &self._extract {
+            Some(extract) => DebianControl::load(&extract.patched_root().join("debian/control")),
+            None => {
+                debian_control_from_tree(self.patched.get().and_then(|result| result.as_ref().ok()))
+            }
+        })
+        .as_ref()
     }
 
     fn debian_changelog(&self) -> Option<&DebianChangelog> {
-        self.debian_changelog
-            .get_or_init(|| match &self._extract {
-                Some(extract) => {
-                    DebianChangelog::load(&extract.patched_root().join("debian/changelog"))
-                }
-                None => debian_changelog_from_tree(
-                    self.patched.get().and_then(|result| result.as_ref().ok()),
-                ),
-            })
-            .as_ref()
+        timing::init_once(&self.debian_changelog, || match &self._extract {
+            Some(extract) => {
+                DebianChangelog::load(&extract.patched_root().join("debian/changelog"))
+            }
+            None => debian_changelog_from_tree(
+                self.patched.get().and_then(|result| result.as_ref().ok()),
+            ),
+        })
+        .as_ref()
     }
 
     fn orig_files(&self) -> Result<&FileTree, &str> {
@@ -380,7 +379,7 @@ impl SourcePackageData {
         cell: &'a OnceLock<Result<FileTree, String>>,
         build: impl FnOnce(&SourcePackageExtract) -> anyhow::Result<FileTree>,
     ) -> Result<&'a FileTree, &'a str> {
-        match cell.get_or_init(|| match &self._extract {
+        match timing::init_once(cell, || match &self._extract {
             Some(extract) => build(extract).map_err(|error| error.to_string()),
             None => Err("Source package File tree is missing".to_string()),
         }) {

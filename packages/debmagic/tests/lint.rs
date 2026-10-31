@@ -34,6 +34,26 @@ fn lint_dummy_hit_prints_diagnostic_and_succeeds() {
 }
 
 #[test]
+fn lint_timings_prints_initialization_and_each_rule() {
+    let source_dir = assets_dir().join("check_dummy_hit");
+    let (status, stdout, stderr) = run_lint(&source_dir, &["--timings", "--select", "DM0001"]);
+
+    assert!(status.success(), "expected success, stderr: {stderr}");
+    let init_at = stdout
+        .find("Initialization\n")
+        .expect("initialization section");
+    let rules_at = stdout.find("\nRules\n").expect("rules section");
+    assert!(init_at < rules_at, "{stdout}");
+    assert!(stdout.contains("\n  bringup"), "{stdout}");
+    assert!(stdout.contains("\n  shared"), "{stdout}");
+    assert!(
+        stdout.contains("DM0001  debmagic-dummy-trigger"),
+        "{stdout}"
+    );
+    assert_finished(&stdout, 1);
+}
+
+#[test]
 fn lint_dummy_miss_succeeds_without_diagnostic() {
     let source_dir = assets_dir().join("check_dummy_miss");
     let (status, stdout, stderr) = run_lint(&source_dir, &[]);

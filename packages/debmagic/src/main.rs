@@ -205,12 +205,16 @@ async fn run() -> anyhow::Result<ExitCode> {
                 ignore: args.ignore.clone(),
                 fail_on: args.fail_on.clone(),
                 threads: args.threads,
+                timings: args.timings,
             })?;
             let result = lint::run_lint(&intent).context("linting the package failed")?;
             for diagnostic in &result.diagnostics {
                 println!("{}", lint::format_diagnostic(diagnostic));
             }
             println!("{}", lint::format_summary(&result.diagnostics));
+            if let Some(timings) = &result.timings {
+                println!("{}", lint::format_timings(timings));
+            }
             println!(
                 "{}",
                 lint::format_finished(result.elapsed, result.rules, result.threads)

@@ -22,11 +22,13 @@ mod source_package;
 mod subject;
 #[cfg(test)]
 pub(crate) mod tester;
+mod timing;
 
 pub use diagnostic::{Diagnostic, DiagnosticInner, Location, ProcessableType};
 pub use intent::{LintIntent, LintIntentInput, resolve_lint_intent};
 pub use rule::{Code, Severity, Tag};
 pub use run::{
-    LintOutcome, LintResult, format_diagnostic, format_finished, format_summary, run_lint,
+    LintOutcome, LintResult, format_diagnostic, format_finished, format_summary, format_timings,
+    run_lint,
 };
 pub use subject::{Subject, SubjectKind};

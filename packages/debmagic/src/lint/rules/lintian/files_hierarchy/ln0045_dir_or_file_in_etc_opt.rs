@@ -23,7 +23,7 @@ declare_rule! {
 
 pub(super) static MARK: () = ();
 
-pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool) -> bool {
+pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool, _package: &str) -> bool {
     let _ = (kind, udeb);
     has_more(name, "etc/opt/")
 }

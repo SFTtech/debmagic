@@ -8,6 +8,7 @@ use std::path::PathBuf;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::EntryKind;
+use crate::lint::rule::Severity;
 
 /// `prefix` includes the trailing slash (`"srv/"`, `"mnt/"`). The directory
 /// itself is not flagged. Udebs are checked. The hierarchy chain is not
@@ -39,9 +40,17 @@ pub(super) fn flag_prefix(ctx: &mut BinaryPackageContext<'_>, prefix: &str) {
 }
 
 pub(super) fn emit(ctx: &mut BinaryPackageContext<'_>, path: PathBuf) {
-    ctx.diagnostic(Diagnostic::error("").with_location(Location {
-        path,
-        line: None,
-        column: None,
-    }));
+    emit_with(ctx, path, Severity::Error);
+}
+
+pub(super) fn emit_with(ctx: &mut BinaryPackageContext<'_>, path: PathBuf, severity: Severity) {
+    ctx.diagnostic(
+        Diagnostic::error("")
+            .with_severity(severity)
+            .with_location(Location {
+                path,
+                line: None,
+                column: None,
+            }),
+    );
 }

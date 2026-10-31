@@ -24,11 +24,11 @@ pub(super) static MARK: () = ();
 
 /// Anything under `usr/bin/` ends the chain. A directory other than `X11/`
 /// and `mh/` is flagged.
-pub(super) fn claims(name: &str, _kind: EntryKind, _udeb: bool) -> bool {
+pub(super) fn claims(name: &str, _kind: EntryKind, _udeb: bool, _package: &str) -> bool {
     name.starts_with("usr/bin/")
 }
 
-pub(super) fn matches(name: &str, kind: EntryKind, _udeb: bool) -> bool {
+pub(super) fn matches(name: &str, kind: EntryKind, _udeb: bool, _package: &str) -> bool {
     kind == EntryKind::Directory
         && has_more(name, "usr/bin/")
         && !name.starts_with("usr/bin/X11/")

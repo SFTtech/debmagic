@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): non-standard-dir-in-usr (LN0059) [usr/foo/]
+W: example (binary): non-standard-dir-in-usr (LN0059) [usr/libfoo/]
+W: example (binary): non-standard-dir-in-usr (LN0059) [usr/foo/]

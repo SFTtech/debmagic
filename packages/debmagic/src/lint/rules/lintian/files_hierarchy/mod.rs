@@ -4,6 +4,8 @@
 //! the order of lintian's `files/hierarchy/standard` chain, so an earlier
 //! branch still hides a later one. `dir-or-file-in-srv` and
 //! `dir-or-file-in-mnt` are prefix checks outside that chain (`flag`).
+//! `use-of-compat-symlink` is a second hint on the same paths, also outside
+//! the chain.
 
 mod flag;
 mod hierarchy_standard;
@@ -21,6 +23,12 @@ mod ln0046_dir_in_usr_local;
 mod ln0047_file_in_usr_local;
 mod ln0048_file_directly_in_usr_share;
 mod ln0049_subdir_in_usr_bin;
+mod ln0058_fsstnd_dir_in_usr;
+mod ln0059_non_standard_dir_in_usr;
+mod ln0060_fsstnd_dir_in_var;
+mod ln0061_non_standard_dir_in_var;
+mod ln0062_aliased_location;
+mod ln0063_use_of_compat_symlink;
 
 #[cfg(test)]
 mod tree;
@@ -39,3 +47,9 @@ pub(crate) use ln0046_dir_in_usr_local::DirInUsrLocal;
 pub(crate) use ln0047_file_in_usr_local::FileInUsrLocal;
 pub(crate) use ln0048_file_directly_in_usr_share::FileDirectlyInUsrShare;
 pub(crate) use ln0049_subdir_in_usr_bin::SubdirInUsrBin;
+pub(crate) use ln0058_fsstnd_dir_in_usr::FsstndDirInUsr;
+pub(crate) use ln0059_non_standard_dir_in_usr::NonStandardDirInUsr;
+pub(crate) use ln0060_fsstnd_dir_in_var::FsstndDirInVar;
+pub(crate) use ln0061_non_standard_dir_in_var::NonStandardDirInVar;
+pub(crate) use ln0062_aliased_location::AliasedLocation;
+pub(crate) use ln0063_use_of_compat_symlink::UseOfCompatSymlink;

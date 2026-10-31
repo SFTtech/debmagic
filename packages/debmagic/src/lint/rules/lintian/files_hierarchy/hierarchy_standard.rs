@@ -9,7 +9,9 @@ use std::path::PathBuf;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::file_tree::EntryKind;
 
-use super::flag::emit;
+use crate::lint::rule::Severity;
+
+use super::flag::emit_with;
 use super::ln0038_dir_or_file_in_home;
 use super::ln0039_dir_or_file_in_tmp;
 use super::ln0040_dir_or_file_in_opt;
@@ -22,8 +24,13 @@ use super::ln0046_dir_in_usr_local;
 use super::ln0047_file_in_usr_local;
 use super::ln0048_file_directly_in_usr_share;
 use super::ln0049_subdir_in_usr_bin;
+use super::ln0058_fsstnd_dir_in_usr;
+use super::ln0059_non_standard_dir_in_usr;
+use super::ln0060_fsstnd_dir_in_var;
+use super::ln0061_non_standard_dir_in_var;
+use super::ln0062_aliased_location;
 
-pub(super) type Branch = fn(&str, EntryKind, bool) -> bool;
+pub(super) type Branch = fn(&str, EntryKind, bool, &str) -> bool;
 
 struct Link {
     /// When this returns, later links do not see the path.
@@ -78,7 +85,28 @@ const LINKS: &[Link] = &[
         ln0049_subdir_in_usr_bin::claims,
         ln0049_subdir_in_usr_bin::matches,
     ),
-    Link::stop(stop_non_udeb),
+    Link::rule(
+        &ln0058_fsstnd_dir_in_usr::MARK,
+        ln0058_fsstnd_dir_in_usr::matches,
+    ),
+    Link::wider(
+        &ln0059_non_standard_dir_in_usr::MARK,
+        ln0059_non_standard_dir_in_usr::claims,
+        ln0059_non_standard_dir_in_usr::matches,
+    ),
+    Link::rule(
+        &ln0060_fsstnd_dir_in_var::MARK,
+        ln0060_fsstnd_dir_in_var::matches,
+    ),
+    Link::wider(
+        &ln0061_non_standard_dir_in_var::MARK,
+        ln0061_non_standard_dir_in_var::claims,
+        ln0061_non_standard_dir_in_var::matches,
+    ),
+    Link::rule(
+        &ln0061_non_standard_dir_in_var::MARK,
+        ln0061_non_standard_dir_in_var::matches_games,
+    ),
     Link::rule(
         &ln0043_dir_or_file_in_var_lock::MARK,
         ln0043_dir_or_file_in_var_lock::matches,
@@ -108,6 +136,10 @@ const LINKS: &[Link] = &[
         &ln0039_dir_or_file_in_tmp::MARK,
         ln0039_dir_or_file_in_tmp::matches,
     ),
+    Link::rule(
+        &ln0062_aliased_location::MARK,
+        ln0062_aliased_location::matches,
+    ),
 ];
 
 /// `name` is lintian's name: directories end in a slash.
@@ -127,23 +159,14 @@ pub(super) fn non_whitespace_after(name: &str, prefix: &str) -> bool {
         .is_some_and(|character| !character.is_whitespace())
 }
 
-/// `^prefix[^/]+/$`: a top-level directory below `prefix`.
-fn is_subdir_of(name: &str, prefix: &str) -> bool {
+/// `^prefix[^/]+/$`: the single directory name directly below `prefix`.
+pub(super) fn direct_child<'a>(name: &'a str, prefix: &str) -> Option<&'a str> {
     after(name, prefix)
         .and_then(|rest| rest.strip_suffix('/'))
-        .is_some_and(|rest| !rest.is_empty() && !rest.contains('/'))
+        .filter(|rest| !rest.is_empty() && !rest.contains('/'))
 }
 
-/// Non-udeb stops that flag nothing: a direct subdirectory of `usr/` or
-/// `var/`, or anything under `var/lib/games/`.
-fn stop_non_udeb(name: &str, _kind: EntryKind, udeb: bool) -> bool {
-    !udeb
-        && (is_subdir_of(name, "usr/")
-            || is_subdir_of(name, "var/")
-            || has_more(name, "var/lib/games/"))
-}
-
-fn stop_hurd(name: &str, _kind: EntryKind, _udeb: bool) -> bool {
+fn stop_hurd(name: &str, _kind: EntryKind, _udeb: bool, _package: &str) -> bool {
     name.starts_with("hurd/") || name.starts_with("servers/")
 }
 
@@ -156,12 +179,12 @@ fn lintian_name(path: &str, kind: EntryKind) -> String {
 }
 
 /// The Rule the chain selects for `name`, if it flags one. The pointer is that Rule's `MARK`.
-fn winner(name: &str, kind: EntryKind, udeb: bool) -> Option<&'static ()> {
+fn winner(name: &str, kind: EntryKind, udeb: bool, package: &str) -> Option<&'static ()> {
     for link in LINKS {
-        if (link.claims)(name, kind, udeb) {
+        if (link.claims)(name, kind, udeb, package) {
             return link
                 .hit
-                .and_then(|(mark, matches)| matches(name, kind, udeb).then_some(mark));
+                .and_then(|(mark, matches)| matches(name, kind, udeb, package).then_some(mark));
         }
     }
     None
@@ -177,7 +200,17 @@ pub(in crate::lint::rules::lintian) fn flag_matching(
     ctx: &mut BinaryPackageContext<'_>,
     mark: &'static (),
 ) {
+    flag_matching_with(ctx, mark, Severity::Error);
+}
+
+/// Same walk as [`flag_matching`], emitting at `severity`.
+pub(super) fn flag_matching_with(
+    ctx: &mut BinaryPackageContext<'_>,
+    mark: &'static (),
+    severity: Severity,
+) {
     let udeb = ctx.is_udeb();
+    let package = ctx.package_name().to_string();
     let Some(files) = ctx.data_files() else {
         return;
     };
@@ -187,11 +220,12 @@ pub(in crate::lint::rules::lintian) fn flag_matching(
         .filter_map(|entry| {
             let path = entry.path().to_str()?;
             let name = lintian_name(path, entry.kind());
-            same_mark(winner(&name, entry.kind(), udeb), mark).then_some(PathBuf::from(name))
+            same_mark(winner(&name, entry.kind(), udeb, &package), mark)
+                .then_some(PathBuf::from(name))
         })
         .collect();
     for path in paths {
-        emit(ctx, path);
+        emit_with(ctx, path, severity);
     }
 }
 
@@ -199,8 +233,12 @@ pub(in crate::lint::rules::lintian) fn flag_matching(
 mod tests {
     use super::*;
 
+    fn winner(name: &str, kind: EntryKind, udeb: bool) -> Option<&'static ()> {
+        super::winner(name, kind, udeb, "example")
+    }
+
     fn selected(name: &str, kind: EntryKind, udeb: bool, mark: &'static ()) -> bool {
-        super::same_mark(super::winner(name, kind, udeb), mark)
+        super::same_mark(winner(name, kind, udeb), mark)
     }
 
     #[test]
@@ -264,5 +302,48 @@ mod tests {
         assert!(winner("usr/bin/X11/", EntryKind::Directory, false).is_none());
         assert!(winner("usr/bin/x", EntryKind::RegularFile, false).is_none());
         assert!(winner("hurd/x", EntryKind::RegularFile, false).is_none());
+        assert!(selected(
+            "usr/dict/",
+            EntryKind::Directory,
+            false,
+            &ln0058_fsstnd_dir_in_usr::MARK
+        ));
+        assert!(winner("usr/dict/", EntryKind::Directory, true).is_none());
+        assert!(selected(
+            "usr/foo/",
+            EntryKind::Directory,
+            false,
+            &ln0059_non_standard_dir_in_usr::MARK
+        ));
+        assert!(winner("usr/bin/", EntryKind::Directory, false).is_none());
+        assert!(winner("usr/lib64/", EntryKind::Directory, false).is_none());
+        assert!(winner("usr/libexec/", EntryKind::Directory, false).is_none());
+        assert!(selected(
+            "var/adm/",
+            EntryKind::Directory,
+            false,
+            &ln0060_fsstnd_dir_in_var::MARK
+        ));
+        assert!(selected(
+            "var/foo/",
+            EntryKind::Directory,
+            false,
+            &ln0061_non_standard_dir_in_var::MARK
+        ));
+        assert!(super::winner("var/backups/", EntryKind::Directory, false, "base-files").is_none());
+        assert!(selected(
+            "var/lib/games/score",
+            EntryKind::RegularFile,
+            false,
+            &ln0061_non_standard_dir_in_var::MARK
+        ));
+        assert!(winner("var/lib/games/", EntryKind::Directory, false).is_none());
+        assert!(selected(
+            "bin/foo",
+            EntryKind::RegularFile,
+            false,
+            &ln0062_aliased_location::MARK
+        ));
+        assert!(super::winner("bin/foo", EntryKind::RegularFile, false, "base-files").is_none());
     }
 }

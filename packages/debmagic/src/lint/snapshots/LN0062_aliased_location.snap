@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): aliased-location (LN0062) [bin/]
+E: example (binary): aliased-location (LN0062) [bin/tool]
+E: example (binary): aliased-location (LN0062) [sbin/]
+E: example (binary): aliased-location (LN0062) [sbin/tool]
+E: example (binary): aliased-location (LN0062) [lib/]
+E: example (binary): aliased-location (LN0062) [lib/libfoo]
+E: example (binary): aliased-location (LN0062) [lib64/libfoo]
+E: example (binary): aliased-location (LN0062) [library]
+E: example (udeb): aliased-location (LN0062) [bin/tool]

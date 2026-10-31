@@ -122,6 +122,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/encoding/document-shipped-in-western-encoding",
     "checks/files/encoding/manual-page-in-western-encoding",
     "checks/files/encoding/package-scripts-in-western-encoding",
+    "checks/files/hierarchy/standard/copyright-file-general",
     "checks/files/hierarchy/standard/files-foo-in-bar",
     "checks/files/hierarchy/standard/files-general",
     "checks/files/hierarchy/standard/files-tar-traps",
@@ -363,6 +364,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/encoding/document-shipped-in-western-encoding"; "checks_files_encoding_document_shipped_in_western_encoding")]
 #[test_case("checks/files/encoding/manual-page-in-western-encoding"; "checks_files_encoding_manual_page_in_western_encoding")]
 #[test_case("checks/files/encoding/package-scripts-in-western-encoding"; "checks_files_encoding_package_scripts_in_western_encoding")]
+#[test_case("checks/files/hierarchy/standard/copyright-file-general"; "checks_files_hierarchy_standard_copyright_file_general")]
 #[test_case("checks/files/hierarchy/standard/files-foo-in-bar"; "checks_files_hierarchy_standard_files_foo_in_bar")]
 #[test_case("checks/files/hierarchy/standard/files-general"; "checks_files_hierarchy_standard_files_general")]
 #[test_case("checks/files/hierarchy/standard/files-tar-traps"; "checks_files_hierarchy_standard_files_tar_traps")]

@@ -1,7 +1,7 @@
 mod changelog_doc;
 mod debian_rules;
 mod description_field;
-mod dir_or_file;
+mod files_hierarchy;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
 mod ln0003_debian_rules_missing_required_target;
@@ -48,10 +48,11 @@ mod ln0057_svn_commit_file_in_package;
 mod mailbox;
 mod symlink_links;
 
-pub(crate) use dir_or_file::{
-    DirInUsrLocal, DirOrFileInEtcOpt, DirOrFileInHome, DirOrFileInMnt, DirOrFileInOpt,
-    DirOrFileInRun, DirOrFileInSrv, DirOrFileInTmp, DirOrFileInVarLock, DirOrFileInVarRun,
-    DirOrFileInVarWww, FileDirectlyInUsrShare, FileInUsrLocal, SubdirInUsrBin,
+pub(crate) use files_hierarchy::{
+    AliasedLocation, DirInUsrLocal, DirOrFileInEtcOpt, DirOrFileInHome, DirOrFileInMnt,
+    DirOrFileInOpt, DirOrFileInRun, DirOrFileInSrv, DirOrFileInTmp, DirOrFileInVarLock,
+    DirOrFileInVarRun, DirOrFileInVarWww, FileDirectlyInUsrShare, FileInUsrLocal, FsstndDirInUsr,
+    FsstndDirInVar, NonStandardDirInUsr, NonStandardDirInVar, SubdirInUsrBin, UseOfCompatSymlink,
 };
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;

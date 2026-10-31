@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): FSSTND-dir-in-usr (LN0058) [usr/dict/]
+E: example (binary): FSSTND-dir-in-usr (LN0058) [usr/doc/]
+E: example (binary): FSSTND-dir-in-usr (LN0058) [usr/etc/]
+E: example (binary): FSSTND-dir-in-usr (LN0058) [usr/info/]
+E: example (binary): FSSTND-dir-in-usr (LN0058) [usr/man/]
+E: example (binary): FSSTND-dir-in-usr (LN0058) [usr/adm/]
+E: example (binary): FSSTND-dir-in-usr (LN0058) [usr/preserve/]
+E: example (binary): FSSTND-dir-in-usr (LN0058) [usr/doc/]

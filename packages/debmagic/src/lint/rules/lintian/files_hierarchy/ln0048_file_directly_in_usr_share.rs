@@ -24,12 +24,13 @@ pub(super) static MARK: () = ();
 
 /// Anything directly in `usr/share/` ends the chain. Only a regular file or
 /// hardlink is flagged.
-pub(super) fn claims(name: &str, _kind: EntryKind, _udeb: bool) -> bool {
+pub(super) fn claims(name: &str, _kind: EntryKind, _udeb: bool, _package: &str) -> bool {
     after(name, "usr/share/").is_some_and(|rest| !rest.contains('/'))
 }
 
-pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool) -> bool {
-    claims(name, kind, udeb) && matches!(kind, EntryKind::RegularFile | EntryKind::Hardlink)
+pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool, package: &str) -> bool {
+    claims(name, kind, udeb, package)
+        && matches!(kind, EntryKind::RegularFile | EntryKind::Hardlink)
 }
 
 impl BinaryPackageRule for FileDirectlyInUsrShare {

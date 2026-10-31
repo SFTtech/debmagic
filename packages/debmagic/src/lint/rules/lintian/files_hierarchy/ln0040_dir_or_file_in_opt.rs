@@ -3,32 +3,32 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::hierarchy_standard::{flag_matching, non_whitespace_after};
+use super::hierarchy_standard::{flag_matching, has_more};
 
-pub struct FileInUsrLocal;
+pub struct DirOrFileInOpt;
 
 declare_rule! {
     /// The package ships something the Filesystem Hierarchy Standard forbids here.
     ///
-    /// Flags paths with `usr/local/` followed by a non-space character, for anything but directories. Lintian's `files/hierarchy/standard` Check is
+    /// Flags paths with `opt/` followed by at least one more character. Lintian's `files/hierarchy/standard` Check is
     /// one chain of branches, so a path an earlier branch handles is not
     /// flagged here (see `hierarchy_standard.rs`). Extra is empty; the Data
     /// files path (with a trailing slash for directories) is the Location.
-    FileInUsrLocal,
-    code = "LN0047",
-    tag = "file-in-usr-local",
+    DirOrFileInOpt,
+    code = "LN0040",
+    tag = "dir-or-file-in-opt",
     default_selected = true,
     experimental = false,
 }
 
 pub(super) static MARK: () = ();
 
-pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool) -> bool {
-    let _ = udeb;
-    kind != EntryKind::Directory && non_whitespace_after(name, "usr/local/")
+pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool, _package: &str) -> bool {
+    let _ = (kind, udeb);
+    has_more(name, "opt/")
 }
 
-impl BinaryPackageRule for FileInUsrLocal {
+impl BinaryPackageRule for DirOrFileInOpt {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
         flag_matching(ctx, &MARK);
     }
@@ -45,13 +45,13 @@ mod tests {
     fn test() {
         let pass = vec![
             tree(&[]),
-            tree(&[("usr/local/x", true)]),
-            tree(&[("usr/local", false)]),
+            tree(&[("opt", true)]),
+            tree(&[("other/opt/x", false)]),
         ];
         let fail = vec![
-            tree(&[("usr/local/x", false)]),
-            tree(&[("usr/local/x", true), ("usr/local/x/file", false)]),
+            tree(&[("opt/x", false)]),
+            tree(&[("opt/x", true), ("opt/x/file", false)]),
         ];
-        BinaryPackageTester::new(FileInUsrLocal, pass, fail).test_and_snapshot();
+        BinaryPackageTester::new(DirOrFileInOpt, pass, fail).test_and_snapshot();
     }
 }

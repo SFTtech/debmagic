@@ -1,10 +1,10 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::{
-    AbsoluteSymlinkInTopLevelFolder, AliasedLocation, ChangelogFileNotCompressed,
-    CompressedSymlinkWithWrongExt, CustomCompressionInDebianRules, DebianChangelogFileIsASymlink,
-    DebianChangelogFileMissingOrWrongName, DebianRulesIgnoresMakeCleanError,
-    DebianRulesMissingRequiredTarget, DebmagicDummyTrigger, DescriptionIsPkgName,
-    DescriptionStartsWithPackageName, DescriptionSynopsisIsEmpty,
+    AbsoluteSymlinkInTopLevelFolder, AliasedLocation, AncientPythonVersionField,
+    ChangelogFileNotCompressed, CompressedSymlinkWithWrongExt, CustomCompressionInDebianRules,
+    DebianChangelogFileIsASymlink, DebianChangelogFileMissingOrWrongName,
+    DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget, DebmagicDummyTrigger,
+    DescriptionIsPkgName, DescriptionStartsWithPackageName, DescriptionSynopsisIsEmpty,
     DescriptionSynopsisStartsWithArticle, DescriptionTooShort, DirInUsrLocal, DirOrFileInEtcOpt,
     DirOrFileInHome, DirOrFileInMnt, DirOrFileInOpt, DirOrFileInRun, DirOrFileInSrv,
     DirOrFileInTmp, DirOrFileInVarLock, DirOrFileInVarRun, DirOrFileInVarWww,
@@ -12,18 +12,25 @@ use super::rules::{
     ExtendedDescriptionLineTooLong, FileDirectlyInUsrShare, FileInUnusualDir, FileInUsrLocal,
     FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,
     FsstndDirInUsr, FsstndDirInVar, HyphenFile, LatestDebianChangelogEntryWithoutNewDate,
-    LengthySymlink, MaintainerScriptEmpty, MalformedDmUploadAllowed, NationalEncoding, NoChangelog,
-    NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, NonStandardDirInUsr, NonStandardDirInVar,
-    NonStandardToplevelDir, PackageContainsCompiledGlibSchema, PackageContainsPythonDotDirectory,
-    PackageContainsPythonHypothesisExample, PackageContainsSassCacheDirectory,
-    PackageContainsUnsafeSymlink, PackageContainsVcsControlDir, PackageRelationWithSelf,
-    PackageUsesDeprecatedDebhelperCompatVersion, RelativeSymlink, RequiredField,
-    SourceContainsCmakeCacheFile, SourceContainsDebianSubstvars,
-    SourceContainsPrebuiltWindowsBinary, SubdirInUsrBin, SuperfluousFilePattern,
+    LengthySymlink, MaintainerScriptEmpty, MalformedDmUploadAllowed,
+    MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards, NationalEncoding,
+    NoChangelog, NoCopyrightFile, NoDep5Copyright, NoHumanMaintainers, NonStandardDirInUsr,
+    NonStandardDirInVar, NonStandardToplevelDir, ObsoleteDebianWatchFileStandard,
+    PackageContainsCompiledGlibSchema, PackageContainsEslintConfigFile,
+    PackageContainsFileInEtcSkel, PackageContainsFileInUsrShareHal,
+    PackageContainsIconCacheInGenericDir, PackageContainsNpmIgnoreFile,
+    PackageContainsPythonCoverageFile, PackageContainsPythonDoctreeFile,
+    PackageContainsPythonDotDirectory, PackageContainsPythonHeaderInIncorrectDirectory,
+    PackageContainsPythonHypothesisExample, PackageContainsPythonTestsInGlobalNamespace,
+    PackageContainsSassCacheDirectory, PackageContainsUnsafeSymlink, PackageContainsVcsControlDir,
+    PackageRelationWithSelf, PackageUsesDeprecatedDebhelperCompatVersion, RelativeSymlink,
+    RequiredField, SourceContainsCmakeCacheFile, SourceContainsDebianSubstvars,
+    SourceContainsPrebuiltWindowsBinary, StarFile, SubdirInUsrBin, SuperfluousFilePattern,
     SvnCommitFileInPackage, SymlinkContainsSpuriousSegments, SymlinkEndsWithSlash,
     SymlinkHasDoubleSlash, SymlinkHasTooManyUpSegments, SymlinkIsSelfRecursive, SynopsisTooLong,
-    SyntaxErrorInDebianChangelog, UnstrippedBinaryOrObject, UseOfCompatSymlink,
-    UsesDebhelperCompatFile, VcsObsoleteInDebianInfrastructure, WrongPackageMailAlias,
+    SyntaxErrorInDebianChangelog, UnknownDebianWatchFileStandard, UnstrippedBinaryOrObject,
+    UseOfCompatSymlink, UsesDebhelperCompatFile, VcsObsoleteInDebianInfrastructure,
+    WrongPackageMailAlias,
 };
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -107,6 +114,21 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &HyphenFile,
         &FileNameInPathIsNotAscii,
         &PackageContainsCompiledGlibSchema,
+        &StarFile,
+        &PackageContainsFileInEtcSkel,
+        &PackageContainsFileInUsrShareHal,
+        &PackageContainsIconCacheInGenericDir,
+        &PackageContainsPythonCoverageFile,
+        &PackageContainsPythonDoctreeFile,
+        &PackageContainsPythonHeaderInIncorrectDirectory,
+        &PackageContainsPythonTestsInGlobalNamespace,
+        &PackageContainsEslintConfigFile,
+        &PackageContainsNpmIgnoreFile,
+        &MissingDebianWatchFileStandard,
+        &ObsoleteDebianWatchFileStandard,
+        &UnknownDebianWatchFileStandard,
+        &MultipleDebianWatchFileStandards,
+        &AncientPythonVersionField,
     ]
 }
 
@@ -132,6 +154,11 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MalformedDmUploadAllowed,
         &WrongPackageMailAlias,
         &SourceContainsCmakeCacheFile,
+        &MissingDebianWatchFileStandard,
+        &ObsoleteDebianWatchFileStandard,
+        &UnknownDebianWatchFileStandard,
+        &MultipleDebianWatchFileStandards,
+        &AncientPythonVersionField,
     ]
 }
 
@@ -198,6 +225,16 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &HyphenFile,
         &FileNameInPathIsNotAscii,
         &PackageContainsCompiledGlibSchema,
+        &StarFile,
+        &PackageContainsFileInEtcSkel,
+        &PackageContainsFileInUsrShareHal,
+        &PackageContainsIconCacheInGenericDir,
+        &PackageContainsPythonCoverageFile,
+        &PackageContainsPythonDoctreeFile,
+        &PackageContainsPythonHeaderInIncorrectDirectory,
+        &PackageContainsPythonTestsInGlobalNamespace,
+        &PackageContainsEslintConfigFile,
+        &PackageContainsNpmIgnoreFile,
     ]
 }
 
@@ -232,6 +269,11 @@ mod tests {
                 MalformedDmUploadAllowed::CODE,
                 WrongPackageMailAlias::CODE,
                 SourceContainsCmakeCacheFile::CODE,
+                MissingDebianWatchFileStandard::CODE,
+                ObsoleteDebianWatchFileStandard::CODE,
+                UnknownDebianWatchFileStandard::CODE,
+                MultipleDebianWatchFileStandards::CODE,
+                AncientPythonVersionField::CODE,
             ]
         );
     }
@@ -306,6 +348,16 @@ mod tests {
                 HyphenFile::CODE,
                 FileNameInPathIsNotAscii::CODE,
                 PackageContainsCompiledGlibSchema::CODE,
+                StarFile::CODE,
+                PackageContainsFileInEtcSkel::CODE,
+                PackageContainsFileInUsrShareHal::CODE,
+                PackageContainsIconCacheInGenericDir::CODE,
+                PackageContainsPythonCoverageFile::CODE,
+                PackageContainsPythonDoctreeFile::CODE,
+                PackageContainsPythonHeaderInIncorrectDirectory::CODE,
+                PackageContainsPythonTestsInGlobalNamespace::CODE,
+                PackageContainsEslintConfigFile::CODE,
+                PackageContainsNpmIgnoreFile::CODE,
             ]
         );
     }

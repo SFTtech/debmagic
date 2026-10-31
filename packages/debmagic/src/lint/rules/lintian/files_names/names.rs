@@ -22,6 +22,15 @@ static SASS: LazyLock<Regex> =
 static GLIB_SCHEMA: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"^usr/share/glib-[^/]+/schemas/gschemas\.compiled$").expect("valid regex")
 });
+static DOCTREE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\.doctree(?:\.gz)?$").expect("valid regex"));
+static PY_HEADER_DIR: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^usr/include/python3\.[0-7]/$").expect("valid regex"));
+static PY_TESTS: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^usr/lib/python[^/]+/(?:dist|site)-packages/test_.+\.py$").expect("valid regex")
+});
+
+const SKEL_ALLOWED: &[&str] = &[".bashrc", ".bash_logout", ".kshrc", ".mkshrc", ".profile"];
 
 const PATH_DIRECTORIES: &[&str] = &["bin/", "sbin/", "usr/bin/", "usr/sbin/", "usr/games/"];
 
@@ -35,6 +44,16 @@ pub(super) enum NameHit {
     Sass,
     PathNotAscii,
     GlibSchema,
+    Star,
+    EtcSkel,
+    Hal,
+    IconCache,
+    PythonCoverage,
+    PythonDoctree,
+    PythonHeader,
+    PythonTests,
+    Eslint,
+    NpmIgnore,
 }
 
 pub(super) fn name_hits(path: &Path, kind: EntryKind) -> Vec<NameHit> {
@@ -64,6 +83,40 @@ pub(super) fn name_hits(path: &Path, kind: EntryKind) -> Vec<NameHit> {
     }
     if SASS.is_match(&name) {
         hits.push(NameHit::Sass);
+    }
+    if name.ends_with("/*") {
+        hits.push(NameHit::Star);
+    }
+    let basename = path
+        .file_name()
+        .and_then(|base| base.to_str())
+        .unwrap_or("");
+    if dirname.starts_with("etc/skel/") && !SKEL_ALLOWED.contains(&basename) {
+        hits.push(NameHit::EtcSkel);
+    }
+    if dirname.starts_with("usr/share/hal/") {
+        hits.push(NameHit::Hal);
+    }
+    if raw == "usr/share/icons/hicolor/icon-theme.cache" {
+        hits.push(NameHit::IconCache);
+    }
+    if basename == ".coverage" {
+        hits.push(NameHit::PythonCoverage);
+    }
+    if DOCTREE.is_match(basename) {
+        hits.push(NameHit::PythonDoctree);
+    }
+    if PY_HEADER_DIR.is_match(&dirname) && raw.ends_with(".h") {
+        hits.push(NameHit::PythonHeader);
+    }
+    if PY_TESTS.is_match(raw) {
+        hits.push(NameHit::PythonTests);
+    }
+    if basename.starts_with(".eslintrc") {
+        hits.push(NameHit::Eslint);
+    }
+    if basename == ".npmignore" {
+        hits.push(NameHit::NpmIgnore);
     }
     if PATH_DIRECTORIES.contains(&dirname.as_str())
         && path
@@ -123,7 +176,65 @@ mod tests {
         );
         assert_eq!(
             name_hits(Path::new("usr/share/foo/*"), file),
+            [NameHit::Wildcard, NameHit::Star]
+        );
+        assert_eq!(
+            name_hits(Path::new("usr/share/foo/*/nested"), file),
             [NameHit::Wildcard]
+        );
+        assert_eq!(name_hits(Path::new("*"), file), [NameHit::Wildcard]);
+        assert_eq!(
+            name_hits(Path::new("etc/skel/.lintianrc"), file),
+            [NameHit::EtcSkel]
+        );
+        assert!(name_hits(Path::new("etc/skel/.bashrc"), file).is_empty());
+        assert!(name_hits(Path::new("etc/skel/.mkshrc"), file).is_empty());
+        assert!(name_hits(Path::new("etc/skel"), dir).is_empty());
+        assert_eq!(
+            name_hits(Path::new("usr/share/hal/foo.fdi"), file),
+            [NameHit::Hal]
+        );
+        assert_eq!(
+            name_hits(Path::new("usr/share/icons/hicolor/icon-theme.cache"), file),
+            [NameHit::IconCache]
+        );
+        assert_eq!(
+            name_hits(Path::new("usr/share/pkg/.coverage"), file),
+            [NameHit::PythonCoverage]
+        );
+        assert_eq!(
+            name_hits(Path::new("usr/share/foo/foo.doctree"), file),
+            [NameHit::PythonDoctree]
+        );
+        assert_eq!(
+            name_hits(Path::new("usr/share/foo/foo.doctree.gz"), file),
+            [NameHit::PythonDoctree]
+        );
+        assert!(name_hits(Path::new("usr/share/foo/foo.doctree.bak"), file).is_empty());
+        assert_eq!(
+            name_hits(Path::new("usr/include/python3.7/bad.h"), file),
+            [NameHit::PythonHeader]
+        );
+        assert!(name_hits(Path::new("usr/include/python3.8/bad.h"), file).is_empty());
+        assert!(name_hits(Path::new("usr/include/python3.7/sub/bad.h"), file).is_empty());
+        assert_eq!(
+            name_hits(Path::new("usr/lib/python3/dist-packages/test_foo.py"), file),
+            [NameHit::PythonTests]
+        );
+        assert!(
+            name_hits(
+                Path::new("usr/lib/python3/dist-packages/pkg/test_foo.py"),
+                file
+            )
+            .is_empty()
+        );
+        assert_eq!(
+            name_hits(Path::new("usr/share/doc/pkg/.eslintrc.js"), file),
+            [NameHit::Eslint]
+        );
+        assert_eq!(
+            name_hits(Path::new("usr/share/doc/pkg/.npmignore"), file),
+            [NameHit::NpmIgnore]
         );
         assert_eq!(
             name_hits(

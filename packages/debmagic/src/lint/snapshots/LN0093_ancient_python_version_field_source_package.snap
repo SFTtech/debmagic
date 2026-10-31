@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): ancient-python-version-field (LN0093) X-Python3-Version 3.4

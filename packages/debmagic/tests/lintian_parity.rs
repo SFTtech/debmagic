@@ -61,6 +61,14 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
+    "checks/debian/watch/standard/legacy-foo++",
+    "checks/debian/watch/standard/legacy-scripts",
+    "checks/debian/watch/standard/no-version",
+    "checks/debian/watch/standard/version-1",
+    "checks/debian/watch/standard/version-2",
+    "checks/debian/watch/standard/version-3",
+    "checks/debian/watch/standard/version-6",
+    "checks/debian/watch/standard/watch-file-general",
     "checks/fields/dm-upload-allowed/fields-dmua",
     "checks/fields/dm-upload-allowed/legacy-binary",
     "checks/fields/dm-upload-allowed/legacy-foo++",
@@ -82,6 +90,16 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/encoding/national-header-fix-encoding-patch",
     "checks/files/encoding/news-in-western-encoding",
     "checks/files/encoding/testsuite-in-western-encoding",
+    "checks/languages/python/python-ancient-python-version-field",
+    "checks/languages/python/python-malformed-py-version",
+    "checks/languages/python/python-old-python-version-field",
+    "general-false-positives/basic-non-native-1.0",
+    "general-false-positives/basic-non-native-3.0",
+    "general-false-positives/basic-non-native-3.0-purge-debian",
+    "general-false-positives/basic-non-native-3.0-with-epoch",
+    "odd-inputs/source/unpack-srcpkg-dot-dir",
+    "odd-inputs/source/unpack-srcpkg-dot-subdir",
+    "odd-inputs/source/unpack-srcpkg-no-subdir",
 ];
 
 const BINARY_PACKAGE_RECIPES: &[&str] = &[
@@ -132,13 +150,17 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/hierarchy/standard/files-tar-traps",
     "checks/files/hierarchy/standard/legacy-binary",
     "checks/files/hierarchy/standard/legacy-filenames",
+    "checks/files/names/eslint-config-file",
     "checks/files/names/files-general",
     "checks/files/names/files-hyphen-file",
+    "checks/files/names/files-package-contains-python-header-in-incorrect-directory",
+    "checks/files/names/files-python-coverage",
     "checks/files/names/files-python-dot-directory",
     "checks/files/names/files-tar-traps",
     "checks/files/names/files-wildcard-characters",
     "checks/files/names/legacy-binary",
     "checks/files/names/legacy-filenames",
+    "checks/files/names/npm-ignore-file",
     "checks/files/names/python-hypothesis-example",
     "checks/files/names/sass-cache-directory",
     "checks/files/symbolic-links/broken/legacy-filenames",
@@ -217,6 +239,14 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
+    "checks/debian/watch/standard/legacy-foo++",
+    "checks/debian/watch/standard/legacy-scripts",
+    "checks/debian/watch/standard/no-version",
+    "checks/debian/watch/standard/version-1",
+    "checks/debian/watch/standard/version-2",
+    "checks/debian/watch/standard/version-3",
+    "checks/debian/watch/standard/version-6",
+    "checks/debian/watch/standard/watch-file-general",
     "checks/fields/dm-upload-allowed/fields-dmua",
     "checks/fields/dm-upload-allowed/legacy-binary",
     "checks/fields/dm-upload-allowed/legacy-foo++",
@@ -238,6 +268,16 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/encoding/national-header-fix-encoding-patch",
     "checks/files/encoding/news-in-western-encoding",
     "checks/files/encoding/testsuite-in-western-encoding",
+    "checks/languages/python/python-ancient-python-version-field",
+    "checks/languages/python/python-malformed-py-version",
+    "checks/languages/python/python-old-python-version-field",
+    "general-false-positives/basic-non-native-1.0",
+    "general-false-positives/basic-non-native-3.0",
+    "general-false-positives/basic-non-native-3.0-purge-debian",
+    "general-false-positives/basic-non-native-3.0-with-epoch",
+    "odd-inputs/source/unpack-srcpkg-dot-dir",
+    "odd-inputs/source/unpack-srcpkg-dot-subdir",
+    "odd-inputs/source/unpack-srcpkg-no-subdir",
 ];
 
 #[test]
@@ -320,6 +360,14 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
+#[test_case("checks/debian/watch/standard/legacy-foo++"; "checks_debian_watch_standard_legacy_foo_")]
+#[test_case("checks/debian/watch/standard/legacy-scripts"; "checks_debian_watch_standard_legacy_scripts")]
+#[test_case("checks/debian/watch/standard/no-version"; "checks_debian_watch_standard_no_version")]
+#[test_case("checks/debian/watch/standard/version-1"; "checks_debian_watch_standard_version_1")]
+#[test_case("checks/debian/watch/standard/version-2"; "checks_debian_watch_standard_version_2")]
+#[test_case("checks/debian/watch/standard/version-3"; "checks_debian_watch_standard_version_3")]
+#[test_case("checks/debian/watch/standard/version-6"; "checks_debian_watch_standard_version_6")]
+#[test_case("checks/debian/watch/standard/watch-file-general"; "checks_debian_watch_standard_watch_file_general")]
 #[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
@@ -341,6 +389,16 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/encoding/national-header-fix-encoding-patch"; "checks_files_encoding_national_header_fix_encoding_patch")]
 #[test_case("checks/files/encoding/news-in-western-encoding"; "checks_files_encoding_news_in_western_encoding")]
 #[test_case("checks/files/encoding/testsuite-in-western-encoding"; "checks_files_encoding_testsuite_in_western_encoding")]
+#[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
+#[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
+#[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
+#[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
+#[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
+#[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]
+#[test_case("general-false-positives/basic-non-native-3.0-with-epoch"; "general_false_positives_basic_non_native_3_0_with_epoch")]
+#[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
+#[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
+#[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
 fn lintian_parity_source_tree(recipe: &str) {
     common::assert_source_tree_parity(recipe);
 }
@@ -392,13 +450,17 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/hierarchy/standard/files-tar-traps"; "checks_files_hierarchy_standard_files_tar_traps")]
 #[test_case("checks/files/hierarchy/standard/legacy-binary"; "checks_files_hierarchy_standard_legacy_binary")]
 #[test_case("checks/files/hierarchy/standard/legacy-filenames"; "checks_files_hierarchy_standard_legacy_filenames")]
+#[test_case("checks/files/names/eslint-config-file"; "checks_files_names_eslint_config_file")]
 #[test_case("checks/files/names/files-general"; "checks_files_names_files_general")]
 #[test_case("checks/files/names/files-hyphen-file"; "checks_files_names_files_hyphen_file")]
+#[test_case("checks/files/names/files-package-contains-python-header-in-incorrect-directory"; "checks_files_names_files_package_contains_python_header_in_incorrect_directory")]
+#[test_case("checks/files/names/files-python-coverage"; "checks_files_names_files_python_coverage")]
 #[test_case("checks/files/names/files-python-dot-directory"; "checks_files_names_files_python_dot_directory")]
 #[test_case("checks/files/names/files-tar-traps"; "checks_files_names_files_tar_traps")]
 #[test_case("checks/files/names/files-wildcard-characters"; "checks_files_names_files_wildcard_characters")]
 #[test_case("checks/files/names/legacy-binary"; "checks_files_names_legacy_binary")]
 #[test_case("checks/files/names/legacy-filenames"; "checks_files_names_legacy_filenames")]
+#[test_case("checks/files/names/npm-ignore-file"; "checks_files_names_npm_ignore_file")]
 #[test_case("checks/files/names/python-hypothesis-example"; "checks_files_names_python_hypothesis_example")]
 #[test_case("checks/files/names/sass-cache-directory"; "checks_files_names_sass_cache_directory")]
 #[test_case("checks/files/symbolic-links/broken/legacy-filenames"; "checks_files_symbolic_links_broken_legacy_filenames")]
@@ -478,6 +540,14 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
+#[test_case("checks/debian/watch/standard/legacy-foo++"; "checks_debian_watch_standard_legacy_foo_")]
+#[test_case("checks/debian/watch/standard/legacy-scripts"; "checks_debian_watch_standard_legacy_scripts")]
+#[test_case("checks/debian/watch/standard/no-version"; "checks_debian_watch_standard_no_version")]
+#[test_case("checks/debian/watch/standard/version-1"; "checks_debian_watch_standard_version_1")]
+#[test_case("checks/debian/watch/standard/version-2"; "checks_debian_watch_standard_version_2")]
+#[test_case("checks/debian/watch/standard/version-3"; "checks_debian_watch_standard_version_3")]
+#[test_case("checks/debian/watch/standard/version-6"; "checks_debian_watch_standard_version_6")]
+#[test_case("checks/debian/watch/standard/watch-file-general"; "checks_debian_watch_standard_watch_file_general")]
 #[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
@@ -499,6 +569,16 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/encoding/national-header-fix-encoding-patch"; "checks_files_encoding_national_header_fix_encoding_patch")]
 #[test_case("checks/files/encoding/news-in-western-encoding"; "checks_files_encoding_news_in_western_encoding")]
 #[test_case("checks/files/encoding/testsuite-in-western-encoding"; "checks_files_encoding_testsuite_in_western_encoding")]
+#[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
+#[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
+#[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
+#[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
+#[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
+#[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]
+#[test_case("general-false-positives/basic-non-native-3.0-with-epoch"; "general_false_positives_basic_non_native_3_0_with_epoch")]
+#[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
+#[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
+#[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
 fn lintian_parity_source_package(recipe: &str) {
     common::assert_source_package_parity(recipe);
 }

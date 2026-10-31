@@ -177,6 +177,11 @@ impl ControlParagraph {
             .any(|(key, _)| key.eq_ignore_ascii_case(name))
     }
 
+    /// Field names in file order, as written.
+    pub fn names(&self) -> impl Iterator<Item = &str> {
+        self.fields.iter().map(|(name, _)| name.as_str())
+    }
+
     pub fn get(&self, name: &str) -> Option<&str> {
         self.fields
             .iter()

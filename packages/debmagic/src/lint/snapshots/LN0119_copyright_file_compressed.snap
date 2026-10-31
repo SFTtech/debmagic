@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): copyright-file-compressed (LN0119) [usr/share/doc/example/copyright.gz]

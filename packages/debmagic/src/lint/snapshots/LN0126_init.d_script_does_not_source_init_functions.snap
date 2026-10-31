@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-does-not-source-init-functions (LN0126) [etc/init.d/no-lsb]
+W: example (binary): init.d-script-does-not-source-init-functions (LN0126) [etc/init.d/commented]

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): copyright-refers-to-versionless-license-file (LN0117) usr/share/common-licenses/GPL

@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init-d-script-stops-in-s-runlevel (LN0231) [etc/init.d/capital]
+W: example (binary): init-d-script-stops-in-s-runlevel (LN0231) [etc/init.d/lower]
+W: example (binary): init-d-script-stops-in-s-runlevel (LN0231) [etc/init.d/with-numbers]
+W: example (binary): init-d-script-stops-in-s-runlevel (LN0231) [etc/init.d/both]
+W: example (binary): init-d-script-stops-in-s-runlevel (LN0231) [etc/init.d/both]
+W: example (binary): init-d-script-stops-in-s-runlevel (LN0231) [etc/init.d/unterminated]
+W: example (binary): init-d-script-stops-in-s-runlevel (LN0231) [etc/init.d/skeleton]
+W: example (udeb): init-d-script-stops-in-s-runlevel (LN0231) [etc/init.d/udeb-script]

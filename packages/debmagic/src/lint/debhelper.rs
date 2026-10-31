@@ -7,7 +7,8 @@
 //! that without running `dh_assistant`: the compat file, `Build-Depends:
 //! debhelper-compat (= N)`, and `X-DH-Compat`. A make-level `DH_COMPAT` in
 //! `debian/rules` is a different fact (the conflict Tag) and is not stored
-//! here. dh addons are not stored here.
+//! here. Whether `debian/compat` could be read is stored. dh addons are not
+//! stored here.
 
 use std::path::{Component, Path, PathBuf};
 use std::sync::LazyLock;
@@ -90,6 +91,10 @@ pub(crate) struct DebhelperFacts {
     /// Perl reads it (leading digits, else 0). `None` when the file is
     /// missing, unreadable, or empty after trimming.
     compat_file_value: Option<u64>,
+    /// `debian/compat` was opened and read, including an empty file.
+    /// Meaningful when [`Self::uses_debhelper`] is true; otherwise the file
+    /// was not inspected.
+    compat_file_open: bool,
 }
 
 enum PackagingFile {
@@ -126,6 +131,7 @@ impl DebhelperFacts {
         if !uses_any_dh_command(&rules) {
             return Self::unused();
         }
+        let compat_file_open = matches!(compat, PackagingFile::Text(_));
         let compat_file_value = match &compat {
             PackagingFile::Text(text) => compat_file_numeric(text),
             _ => None,
@@ -136,6 +142,7 @@ impl DebhelperFacts {
             declared_level,
             source,
             compat_file_value,
+            compat_file_open,
         }
     }
 
@@ -145,6 +152,7 @@ impl DebhelperFacts {
             declared_level: None,
             source: None,
             compat_file_value: None,
+            compat_file_open: false,
         }
     }
 
@@ -165,8 +173,15 @@ impl DebhelperFacts {
         self.compat_file_value
     }
 
-    #[cfg(test)]
-    fn compat_source(&self) -> Option<&CompatSource> {
+    /// `debian/compat` was opened, including when the contents are empty.
+    /// See the field for when this is meaningful.
+    pub(crate) fn compat_file_open(&self) -> bool {
+        self.compat_file_open
+    }
+
+    /// Where the declared level came from. `None` when nothing was declared
+    /// or determining the level would abort.
+    pub(crate) fn compat_source(&self) -> Option<&CompatSource> {
         self.source.as_ref()
     }
 }
@@ -445,6 +460,7 @@ Description: example\n extra\n";
         assert_eq!(facts.declared_level, Some(1));
         assert_eq!(facts.level(), 1);
         assert_eq!(facts.compat_source(), None);
+        assert!(!facts.compat_file_open());
     }
 
     #[test]
@@ -452,6 +468,7 @@ Description: example\n extra\n";
         let facts = with_rules("\tdh $@\n", PackagingFile::Text("\n".into()));
         assert_eq!(facts.declared_level, None);
         assert_eq!(facts.level(), 1);
+        assert!(facts.compat_file_open());
     }
 
     #[test]

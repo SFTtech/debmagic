@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-linda-override (LN0215) [usr/share/linda/overrides/filenames]
+W: example (binary): package-contains-linda-override (LN0215) [usr/share/linda/overrides/pkg/]
+W: example (binary): package-contains-linda-override (LN0215) [usr/share/linda/overrides/pkg/extra]
+W: example (udeb): package-contains-linda-override (LN0215) [usr/share/linda/overrides/link]

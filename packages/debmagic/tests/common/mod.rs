@@ -233,14 +233,19 @@ pub fn parse_diagnostic_line(line: &str) -> Option<(String, ParityHint)> {
 }
 
 /// `debhelper-compat-missing` keeps `debian/compat` so the package builds, and
-/// `debian/source/options` tar-ignores it. The `(source)` hint is from the
-/// packed source, where the file is gone. The filled tree still has compat 13,
-/// so Source-tree Parity must not expect the hint. Source-package Parity packs
-/// with `dpkg-source` and still expects it. Kept in step with
+/// `debian/source/options` tar-ignores it. The `(source)` hints
+/// `package-uses-deprecated-debhelper-compat-version` and
+/// `debhelper-base-compat-level-is-missing` are from the packed source, where
+/// the file is gone. The filled tree still has compat 13, so Source-tree
+/// Parity must not expect them. Source-package Parity packs with `dpkg-source`
+/// and still expects them. Kept in step with
 /// `source_tree_hint_matches_filled_tree` in `scripts/import_lintian_parity.py`.
 fn source_tree_hint_matches_filled_tree(recipe: &Path, hint: &ParityHint) -> bool {
-    !(hint.tag == "package-uses-deprecated-debhelper-compat-version"
-        && recipe.ends_with("checks/debhelper/debhelper-compat-missing"))
+    !(matches!(
+        hint.tag.as_str(),
+        "package-uses-deprecated-debhelper-compat-version"
+            | "debhelper-base-compat-level-is-missing"
+    ) && recipe.ends_with("checks/debhelper/debhelper-compat-missing"))
 }
 
 fn applies_to_source_tree(processable_type: &str, extra: &str) -> bool {
@@ -744,13 +749,16 @@ fn is_component_orig(name: &str) -> bool {
     name.contains(".orig-")
 }
 
-fn dpkg_source_build(work: &Path) -> (bool, String, String) {
-    let output = Command::new("dpkg-source")
-        .current_dir(work)
-        .args(["-b", "src"])
-        .stdin(Stdio::null())
-        .output()
-        .expect("spawning dpkg-source -b");
+fn dpkg_source_build(work: &Path, keep_ignored: bool) -> (bool, String, String) {
+    let mut command = Command::new("dpkg-source");
+    command.current_dir(work).arg("-b");
+    if keep_ignored {
+        // lintian's upload builder passes these so a recipe's VCS cruft is
+        // packed. The default ignore would drop it before a Rule can see it.
+        command.args(["-iNEVER_MATCH_ANYTHING", "-INEVER_MATCH_ANYTHING"]);
+    }
+    command.arg("src").stdin(Stdio::null());
+    let output = command.output().expect("spawning dpkg-source -b");
     (
         output.status.success(),
         String::from_utf8_lossy(&output.stdout).into_owned(),
@@ -794,10 +802,114 @@ fn find_dsc(dir: &Path) -> PathBuf {
     found.remove(0)
 }
 
+/// Pointers from `debian-adds-*` hint lines. The location is still in the
+/// file; [`load_hints`] strips it.
+fn debian_adds_pointers(recipe: &Path) -> Vec<String> {
+    let Ok(text) = fs::read_to_string(recipe.join("eval/hints")) else {
+        return Vec::new();
+    };
+    let mut pointers = Vec::new();
+    for line in text.lines() {
+        let Some((_, rest)) = line.split_once("): ") else {
+            continue;
+        };
+        let Some(tag) = rest.split_whitespace().next() else {
+            continue;
+        };
+        if !tag.starts_with("debian-adds-") {
+            continue;
+        }
+        let Some((_, pointer)) = rest.rsplit_once(" [") else {
+            continue;
+        };
+        let pointer = pointer.trim_end_matches(']').trim();
+        if !pointer.is_empty() {
+            pointers.push(pointer.to_string());
+        }
+    }
+    pointers
+}
+
+fn outside_debian(pointer: &str) -> bool {
+    let pointer = pointer.trim_start_matches("./");
+    pointer != "debian" && !pointer.starts_with("debian/")
+}
+
+/// `<source>_<upstream>.orig.tar.gz` from `debian/changelog`.
+fn main_orig_name(source: &Path) -> String {
+    let changelog = source.join("debian/changelog");
+    let package = changelog_field(&changelog, "Source");
+    let version = changelog_field(&changelog, "Version");
+    let no_epoch = version
+        .split_once(':')
+        .map(|(_, rest)| rest)
+        .unwrap_or(&version);
+    let upstream = no_epoch
+        .rsplit_once('-')
+        .map(|(upstream, _)| upstream)
+        .unwrap_or(no_epoch);
+    format!("{package}_{upstream}.orig.tar.gz")
+}
+
+fn changelog_field(changelog: &Path, field: &str) -> String {
+    let output = Command::new("dpkg-parsechangelog")
+        .args(["-l"])
+        .arg(changelog)
+        .args(["-S", field])
+        .output()
+        .unwrap_or_else(|error| panic!("spawning dpkg-parsechangelog: {error}"));
+    assert!(
+        output.status.success(),
+        "dpkg-parsechangelog -S {field} failed for {}\n{}",
+        changelog.display(),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    String::from_utf8_lossy(&output.stdout).trim().to_string()
+}
+
+/// Orig without `debian/` and without root paths the hints call `debian-adds-`.
+/// Those paths were created by the recipe `pre-build` after lintian packed
+/// orig, so they belong in the diff.
+fn pack_orig_without_added(tree: &Path, orig: &Path, added: &[String]) {
+    let mut command = Command::new("tar");
+    command
+        .current_dir(tree)
+        .args(["--exclude=./debian", "--exclude=debian"]);
+    for pointer in added {
+        let trimmed = pointer.trim_end_matches('/');
+        command.arg(format!("--exclude=./{trimmed}"));
+        command.arg(format!("--exclude={trimmed}"));
+    }
+    let output = command
+        .args(["-czf"])
+        .arg(orig)
+        .arg(".")
+        .output()
+        .expect("spawning tar for orig");
+    assert!(
+        output.status.success(),
+        "packing {} failed\nstdout:\n{}\nstderr:\n{}",
+        orig.display(),
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
 fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     let source = work.join("src");
     copy_package_tree(recipe, &source);
-    let (ok, stdout, stderr) = dpkg_source_build(work);
+    let pointers = debian_adds_pointers(recipe);
+    let root_adds: Vec<String> = pointers
+        .iter()
+        .filter(|pointer| outside_debian(pointer))
+        .cloned()
+        .collect();
+    let keep_ignored = !pointers.is_empty();
+    if !root_adds.is_empty() {
+        let name = main_orig_name(&source);
+        pack_orig_without_added(&source, &work.join(&name), &root_adds);
+    }
+    let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored);
     if !ok {
         let Some(name) = missing_upstream_tarball(&stderr) else {
             panic!("{recipe:?}: dpkg-source -b failed\n{stdout}\n{stderr}");
@@ -807,7 +919,7 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             "{recipe:?}: component orig {name} is not synthesized"
         );
         pack_main_orig(&source, &work.join(&name));
-        let (ok, stdout, stderr) = dpkg_source_build(work);
+        let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored);
         assert!(
             ok,
             "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"

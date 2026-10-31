@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): build-prerequisite-in-installable-section (LN0223) Build-Conflicts (in section for example) [debian/control:5]

@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): read-in-maintainer-script (LN0159) [postinst:3]
+E: example (binary): read-in-maintainer-script (LN0159) [postinst:3]
+E: example (binary): read-in-maintainer-script (LN0159) [prerm:3]
+E: example (binary): read-in-maintainer-script (LN0159) [prerm:4]
+E: example (binary): read-in-maintainer-script (LN0159) [postinst:3]
+E: example (binary): read-in-maintainer-script (LN0159) [postinst:4]
+E: example (binary): read-in-maintainer-script (LN0159) [postinst:2]
+E: example (binary): read-in-maintainer-script (LN0159) [postrm:2]
+E: example (udeb): read-in-maintainer-script (LN0159) [postinst:2]

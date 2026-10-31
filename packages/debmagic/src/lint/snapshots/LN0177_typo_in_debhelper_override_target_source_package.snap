@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_instakk => override_dh_install [debian/rules:6]

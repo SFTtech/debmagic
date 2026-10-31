@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): build-depends-on-obsolete-package (LN0173) Build-Depends: x-dev (>= 1.0)
+W: example (source): build-depends-on-obsolete-package (LN0173) Build-Depends: gaim
+W: example (source): build-depends-on-obsolete-package (LN0173) Build-Depends: gs
+W: example (source): build-depends-on-obsolete-package (LN0173) Build-Depends: gaim
+W: example (source): build-depends-on-obsolete-package (LN0173) Build-Depends: hardening-wrapper (>= 2.2) => use dpkg-buildflags instead
+W: example (source): build-depends-on-obsolete-package (LN0173) Build-Depends: openjdk-6-jdk
+W: example (source): build-depends-on-obsolete-package (LN0173) Build-Depends: pkg-config => pkgconf
+W: example (source): build-depends-on-obsolete-package (LN0173) Build-Depends-Indep: gs
+W: example (source): build-depends-on-obsolete-package (LN0173) Build-Depends-Arch: ruby1.8

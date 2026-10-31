@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): depends-on-packaging-dev (LN0202) Build-Depends
+W: example (source): depends-on-packaging-dev (LN0202) Build-Depends
+W: example (source): depends-on-packaging-dev (LN0202) Build-Depends-Indep
+W: example (source): depends-on-packaging-dev (LN0202) Build-Conflicts

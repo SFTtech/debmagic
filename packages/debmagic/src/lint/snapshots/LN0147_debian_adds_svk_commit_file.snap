@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-svk-commit-file (LN0147) [svk-commit444.tmp]
+W: example (source): debian-adds-svk-commit-file (LN0147) [debian/svk-commit444.tmp]
+W: example (source): debian-adds-svk-commit-file (LN0147) [svk-commit.x.tmp]
+W: example (source): debian-adds-svk-commit-file (LN0147) [dir/svk-commit9.tmp]
+W: example (source): debian-adds-svk-commit-file (LN0147) [.pc/svk-commit444.tmp]

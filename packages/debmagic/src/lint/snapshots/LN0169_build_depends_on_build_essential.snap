@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): build-depends-on-build-essential (LN0169) Build-Depends
+E: example (source): build-depends-on-build-essential (LN0169) Build-Depends
+E: example (source): build-depends-on-build-essential (LN0169) Build-Depends
+E: example (source): build-depends-on-build-essential (LN0169) Build-Depends-Indep
+E: example (source): build-depends-on-build-essential (LN0169) Build-Conflicts

@@ -438,7 +438,10 @@ def parse_universal_hint_line(line: str) -> tuple[str, str, str] | None:
 
 def source_tree_hint_matches_filled_tree(recipe: Path, tag: str) -> bool:
     """See `source_tree_hint_matches_filled_tree` in `tests/common/mod.rs`."""
-    if tag != "package-uses-deprecated-debhelper-compat-version":
+    if tag not in {
+        "package-uses-deprecated-debhelper-compat-version",
+        "debhelper-base-compat-level-is-missing",
+    }:
         return True
     return not (recipe.name == "debhelper-compat-missing" and recipe.parent.name == "debhelper")
 

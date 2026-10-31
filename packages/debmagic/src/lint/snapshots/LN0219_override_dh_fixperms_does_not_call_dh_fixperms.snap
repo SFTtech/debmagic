@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:6]
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:6]
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:7]
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:8]
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:6]
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:6]
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:6]
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:6]
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:6]
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:6]
+W: example (source): override_dh_fixperms-does-not-call-dh_fixperms (LN0219) [debian/rules:8]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): file-directly-in-usr-share-doc (LN0210) [usr/share/doc/README.Debian]
+E: example (binary): file-directly-in-usr-share-doc (LN0210) [usr/share/doc/bar]
+E: example (binary): file-directly-in-usr-share-doc (LN0210) [usr/share/doc/baz]

@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-svn-conflict-file (LN0149) [foo.r1]
+W: example (source): debian-adds-svn-conflict-file (LN0149) [foo.r1352]
+W: example (source): debian-adds-svn-conflict-file (LN0149) [debian/foo.r1352]
+W: example (source): debian-adds-svn-conflict-file (LN0149) [a.r10]
+W: example (source): debian-adds-svn-conflict-file (LN0149) [dir/foo.r2]
+W: example (source): debian-adds-svn-conflict-file (LN0149) [.#foo.r1]
+W: example (source): debian-adds-svn-conflict-file (LN0149) [.pc/foo.r1352]

@@ -4,12 +4,12 @@ mod debian_watch;
 mod description;
 mod files_hierarchy;
 mod files_names;
+mod files_symbolic_links;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
 mod ln0003_debian_rules_missing_required_target;
 mod ln0004_source_contains_prebuilt_windows_binary;
 mod ln0005_unstripped_binary_or_object;
-mod ln0006_package_contains_unsafe_symlink;
 mod ln0007_empty_binary_package;
 mod ln0008_superfluous_file_pattern;
 mod ln0009_no_dep5_copyright;
@@ -32,23 +32,13 @@ mod ln0025_non_standard_toplevel_dir;
 mod ln0026_latest_debian_changelog_entry_without_new_date;
 mod ln0027_package_relation_with_self;
 mod ln0028_malformed_dm_upload_allowed;
-mod ln0029_symlink_contains_spurious_segments;
-mod ln0030_symlink_is_self_recursive;
-mod ln0031_lengthy_symlink;
 mod ln0032_wrong_package_mail_alias;
 mod ln0033_debian_changelog_file_is_a_symlink;
 mod ln0034_package_contains_vcs_control_dir;
 mod ln0057_svn_commit_file_in_package;
-mod ln0064_absolute_symlink_in_top_level_folder;
 mod ln0066_source_contains_cmake_cache_file;
-mod ln0068_relative_symlink;
-mod ln0069_symlink_ends_with_slash;
-mod ln0070_symlink_has_double_slash;
-mod ln0071_symlink_has_too_many_up_segments;
-mod ln0075_compressed_symlink_with_wrong_ext;
 mod ln0093_ancient_python_version_field;
 mod mailbox;
-mod symlink_links;
 
 pub(crate) use debian_watch::{
     MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
@@ -75,12 +65,17 @@ pub(crate) use files_names::{
     PackageContainsPythonHypothesisExample, PackageContainsPythonTestsInGlobalNamespace,
     PackageContainsSassCacheDirectory, StarFile,
 };
+pub(crate) use files_symbolic_links::{
+    AbsoluteSymlinkInTopLevelFolder, CompressedSymlinkWithWrongExt, LengthySymlink,
+    PackageContainsUnsafeSymlink, RelativeSymlink, SymlinkContainsSpuriousSegments,
+    SymlinkEndsWithSlash, SymlinkHasDoubleSlash, SymlinkHasTooManyUpSegments,
+    SymlinkIsSelfRecursive,
+};
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
 pub(crate) use ln0003_debian_rules_missing_required_target::DebianRulesMissingRequiredTarget;
 pub(crate) use ln0004_source_contains_prebuilt_windows_binary::SourceContainsPrebuiltWindowsBinary;
 pub(crate) use ln0005_unstripped_binary_or_object::UnstrippedBinaryOrObject;
-pub(crate) use ln0006_package_contains_unsafe_symlink::PackageContainsUnsafeSymlink;
 pub(crate) use ln0007_empty_binary_package::EmptyBinaryPackage;
 pub(crate) use ln0008_superfluous_file_pattern::SuperfluousFilePattern;
 pub(crate) use ln0009_no_dep5_copyright::NoDep5Copyright;
@@ -103,18 +98,9 @@ pub(crate) use ln0025_non_standard_toplevel_dir::NonStandardToplevelDir;
 pub(crate) use ln0026_latest_debian_changelog_entry_without_new_date::LatestDebianChangelogEntryWithoutNewDate;
 pub(crate) use ln0027_package_relation_with_self::PackageRelationWithSelf;
 pub(crate) use ln0028_malformed_dm_upload_allowed::MalformedDmUploadAllowed;
-pub(crate) use ln0029_symlink_contains_spurious_segments::SymlinkContainsSpuriousSegments;
-pub(crate) use ln0030_symlink_is_self_recursive::SymlinkIsSelfRecursive;
-pub(crate) use ln0031_lengthy_symlink::LengthySymlink;
 pub(crate) use ln0032_wrong_package_mail_alias::WrongPackageMailAlias;
 pub(crate) use ln0033_debian_changelog_file_is_a_symlink::DebianChangelogFileIsASymlink;
 pub(crate) use ln0034_package_contains_vcs_control_dir::PackageContainsVcsControlDir;
 pub(crate) use ln0057_svn_commit_file_in_package::SvnCommitFileInPackage;
-pub(crate) use ln0064_absolute_symlink_in_top_level_folder::AbsoluteSymlinkInTopLevelFolder;
 pub(crate) use ln0066_source_contains_cmake_cache_file::SourceContainsCmakeCacheFile;
-pub(crate) use ln0068_relative_symlink::RelativeSymlink;
-pub(crate) use ln0069_symlink_ends_with_slash::SymlinkEndsWithSlash;
-pub(crate) use ln0070_symlink_has_double_slash::SymlinkHasDoubleSlash;
-pub(crate) use ln0071_symlink_has_too_many_up_segments::SymlinkHasTooManyUpSegments;
-pub(crate) use ln0075_compressed_symlink_with_wrong_ext::CompressedSymlinkWithWrongExt;
 pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;

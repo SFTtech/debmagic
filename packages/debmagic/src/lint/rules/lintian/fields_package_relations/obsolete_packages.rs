@@ -3,18 +3,13 @@
 use std::sync::LazyLock;
 
 static PACKAGES: LazyLock<Vec<(String, String)>> = LazyLock::new(|| {
-    include_str!("../../../data/fields/obsolete-packages")
-        .lines()
-        .filter_map(|line| {
-            let line = line.trim();
-            if line.is_empty() || line.starts_with('#') {
-                return None;
-            }
+    crate::lint::data::lines(include_str!("../../../data/fields/obsolete-packages"))
+        .map(|line| {
             let (name, replacement) = line
                 .split_once("=>")
                 .map(|(name, replacement)| (name.trim(), replacement.trim()))
                 .unwrap_or((line, ""));
-            Some((name.to_string(), replacement.to_string()))
+            (name.to_string(), replacement.to_string())
         })
         .collect()
 });

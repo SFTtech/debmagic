@@ -8,6 +8,8 @@ use crate::lint::debian_control::unfold;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::SourceRule;
 
+use super::vcs::PLATFORMS;
+
 pub struct VcsObsoleteInDebianInfrastructure;
 
 declare_rule! {
@@ -26,11 +28,6 @@ declare_rule! {
     default_selected = true,
     experimental = false,
 }
-
-/// Lintian's `%VCS_EXTRACT` keys.
-const PLATFORMS: &[&str] = &[
-    "Browser", "Arch", "Bzr", "Cvs", "Darcs", "Hg", "Git", "Svn", "Mtn",
-];
 
 static DEBIAN_ORG_HOST: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"//(.+)\.debian\.org/").expect("valid regex"));

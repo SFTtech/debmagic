@@ -3,7 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::hierarchy_standard::{flag_matching, non_whitespace_after};
+use super::hierarchy_standard::{BranchId, flag_matching, non_whitespace_after};
 
 pub struct DirInUsrLocal;
 
@@ -21,8 +21,6 @@ declare_rule! {
     experimental = false,
 }
 
-pub(super) static MARK: u8 = 9;
-
 pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool, _package: &str) -> bool {
     let _ = udeb;
     kind == EntryKind::Directory && non_whitespace_after(name, "usr/local/")
@@ -30,7 +28,7 @@ pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool, _package: &str) -
 
 impl BinaryPackageRule for DirInUsrLocal {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        flag_matching(ctx, &MARK);
+        flag_matching(ctx, BranchId::DirInUsrLocal);
     }
 }
 

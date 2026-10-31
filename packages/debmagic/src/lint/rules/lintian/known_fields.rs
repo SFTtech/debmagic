@@ -47,9 +47,8 @@ fn sanitize(text: &str, strip: impl Fn(&str) -> bool) -> Vec<String> {
 }
 
 fn entries(text: &str) -> Vec<String> {
-    text.lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty() && !line.starts_with('#') && !line.starts_with('@'))
+    crate::lint::data::lines(text)
+        .filter(|line| !line.starts_with('@'))
         .map(str::to_string)
         .collect()
 }

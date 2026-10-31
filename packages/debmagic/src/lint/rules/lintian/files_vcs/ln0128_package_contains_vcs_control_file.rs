@@ -28,17 +28,13 @@ declare_rule! {
 static PATTERN: LazyLock<Regex> = LazyLock::new(|| {
     let extensions = format!(
         "(?:{})",
-        include_str!("../../../data/files/compressed-file-extensions")
-            .lines()
-            .map(str::trim)
-            .filter(|line| !line.is_empty() && !line.starts_with('#'))
-            .collect::<Vec<_>>()
-            .join("|")
+        crate::lint::data::lines(include_str!(
+            "../../../data/files/compressed-file-extensions"
+        ))
+        .collect::<Vec<_>>()
+        .join("|")
     );
-    let patterns = include_str!("../../../data/files/vcs-control-files")
-        .lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+    let patterns = crate::lint::data::lines(include_str!("../../../data/files/vcs-control-files"))
         .map(|line| {
             format!(
                 "(?:{})",

@@ -15,8 +15,15 @@ use crate::lint::rule::Severity;
 static DOUBLE_SLASH: LazyLock<Regex> = LazyLock::new(|| Regex::new("//+").expect("valid regex"));
 
 /// `files/compressed-file-extensions`, in file order, as the Check joins them.
-static COMPRESSED_EXT: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"[.](bz|bz2|gz|tgz|xz|z|Z)\s*$").expect("valid regex"));
+static COMPRESSED_EXT: LazyLock<Regex> = LazyLock::new(|| {
+    let extensions = crate::lint::data::lines(include_str!(
+        "../../../data/files/compressed-file-extensions"
+    ))
+    .map(regex::escape)
+    .collect::<Vec<_>>()
+    .join("|");
+    Regex::new(&format!(r"[.]({extensions})\s*$")).expect("valid regex")
+});
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum SymlinkIssue {

@@ -3,6 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::BinaryPackageRule;
 
+use super::RELATION_FIELDS;
 use super::obsolete_packages::replacement;
 
 pub struct DependsOnObsoletePackage;
@@ -23,13 +24,11 @@ declare_rule! {
     experimental = false,
 }
 
-const FIELDS: &[&str] = &["Depends", "Pre-Depends", "Recommends", "Suggests"];
-
 impl BinaryPackageRule for DependsOnObsoletePackage {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
         let messages: Vec<String> = {
             let fields = ctx.installation_control().fields();
-            FIELDS
+            RELATION_FIELDS
                 .iter()
                 .filter_map(|field| Some((*field, fields.relation(field)?)))
                 .flat_map(|(field, relation)| {

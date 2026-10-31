@@ -3,7 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::hierarchy_standard::{after, flag_matching};
+use super::hierarchy_standard::{BranchId, after, flag_matching};
 
 pub struct FileDirectlyInUsrShare;
 
@@ -20,8 +20,6 @@ declare_rule! {
     experimental = false,
 }
 
-pub(super) static MARK: u8 = 11;
-
 /// Anything directly in `usr/share/` ends the chain. Only a regular file or
 /// hardlink is flagged.
 pub(super) fn claims(name: &str, _kind: EntryKind, _udeb: bool, _package: &str) -> bool {
@@ -35,7 +33,7 @@ pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool, package: &str) ->
 
 impl BinaryPackageRule for FileDirectlyInUsrShare {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        flag_matching(ctx, &MARK);
+        flag_matching(ctx, BranchId::FileDirectlyInUsrShare);
     }
 }
 

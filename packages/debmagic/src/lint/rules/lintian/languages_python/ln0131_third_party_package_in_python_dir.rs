@@ -36,7 +36,7 @@ static ALLOWED_SOURCE: LazyLock<Regex> = LazyLock::new(|| {
 
 impl BinaryPackageRule for ThirdPartyPackageInPythonDir {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        let source = source_name(ctx);
+        let source = ctx.source_name();
         if ALLOWED_SOURCE.is_match(&source) {
             return;
         }
@@ -64,16 +64,6 @@ impl BinaryPackageRule for ThirdPartyPackageInPythonDir {
             }));
         }
     }
-}
-
-fn source_name(ctx: &BinaryPackageContext<'_>) -> String {
-    ctx.installation_control()
-        .fields()
-        .get("Source")
-        .and_then(|value| value.split_whitespace().next())
-        .filter(|name| !name.is_empty())
-        .unwrap_or(ctx.package_name())
-        .to_string()
 }
 
 #[cfg(test)]

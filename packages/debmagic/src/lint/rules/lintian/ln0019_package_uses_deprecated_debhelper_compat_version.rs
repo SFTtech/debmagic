@@ -1,6 +1,6 @@
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
-use crate::lint::debhelper::DEPRECATED_COMPAT_LEVEL;
+use crate::lint::debhelper::deprecated_compat_level;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::SourceRule;
 
@@ -33,7 +33,7 @@ impl SourceRule for PackageUsesDeprecatedDebhelperCompatVersion {
             return;
         }
         let level = facts.level();
-        if level < DEPRECATED_COMPAT_LEVEL {
+        if level < deprecated_compat_level() {
             ctx.diagnostic(Diagnostic::warn(level.to_string()));
         }
     }

@@ -227,6 +227,17 @@ impl<'a> BinaryPackageContext<'a> {
         &self.data.package_name
     }
 
+    /// Source package name: the first word of `Source`, or this package's name.
+    pub fn source_name(&self) -> String {
+        self.installation_control()
+            .fields()
+            .get("Source")
+            .and_then(|value| value.split_whitespace().next())
+            .filter(|name| !name.is_empty())
+            .unwrap_or(self.package_name())
+            .to_string()
+    }
+
     pub fn installation_control(&self) -> &InstallationControl {
         &self.data.installation_control
     }

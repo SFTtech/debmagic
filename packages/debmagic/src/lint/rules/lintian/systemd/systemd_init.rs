@@ -10,10 +10,7 @@ use regex::Regex;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 
 static WHITELIST: LazyLock<Vec<String>> = LazyLock::new(|| {
-    include_str!("../../../data/systemd/init-whitelist")
-        .lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+    crate::lint::data::lines(include_str!("../../../data/systemd/init-whitelist"))
         .map(str::to_string)
         .collect()
 });

@@ -49,6 +49,7 @@ mod ln0135_vcs_field_uses_not_recommended_uri_format;
 mod mailbox;
 mod systemd;
 mod tlds;
+mod vcs;
 
 pub(crate) use debian_copyright::{
     CopyrightFileCompressed, CopyrightFileIsSymlink, CopyrightRefersToCompressedLicense,

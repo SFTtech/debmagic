@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
-use crate::lint::debhelper::{EXPERIMENTAL_COMPAT_LEVEL, VERSIONED_PREREQUISITE_AVAILABLE};
+use crate::lint::debhelper::{VERSIONED_PREREQUISITE_AVAILABLE, experimental_compat_level};
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 
@@ -36,7 +36,7 @@ impl SourceRule for UsesDebhelperCompatFile {
         let Some(level) = facts.compat_file_value() else {
             return;
         };
-        if (VERSIONED_PREREQUISITE_AVAILABLE..EXPERIMENTAL_COMPAT_LEVEL).contains(&level) {
+        if (VERSIONED_PREREQUISITE_AVAILABLE..experimental_compat_level()).contains(&level) {
             ctx.diagnostic(Diagnostic::warn("").with_location(Location {
                 path: PathBuf::from("debian/compat"),
                 line: None,

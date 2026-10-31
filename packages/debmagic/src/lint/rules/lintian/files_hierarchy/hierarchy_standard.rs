@@ -32,28 +32,48 @@ use super::ln0062_aliased_location;
 
 pub(super) type Branch = fn(&str, EntryKind, bool, &str) -> bool;
 
+/// Which Rule the chain selects. Earlier links hide later ones.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(super) enum BranchId {
+    DirOrFileInEtcOpt,
+    DirInUsrLocal,
+    FileInUsrLocal,
+    FileDirectlyInUsrShare,
+    SubdirInUsrBin,
+    FsstndDirInUsr,
+    NonStandardDirInUsr,
+    FsstndDirInVar,
+    NonStandardDirInVar,
+    DirOrFileInVarLock,
+    DirOrFileInVarRun,
+    DirOrFileInRun,
+    DirOrFileInVarWww,
+    DirOrFileInOpt,
+    DirOrFileInHome,
+    DirOrFileInTmp,
+    AliasedLocation,
+}
+
 struct Link {
     /// When this returns, later links do not see the path.
     claims: Branch,
-    /// Flags the Rule that owns `mark` when `claims` returned and `matches` is true.
-    /// Absent for a stop that flags nothing. `mark` is that Rule's `MARK`, a
-    /// distinct `u8` static. Identical zero-sized statics can share one
-    /// address, and then every Rule would flag every selected path.
-    hit: Option<(&'static u8, Branch)>,
+    /// Flags `id` when `claims` returned and `matches` is true.
+    /// Absent for a stop that flags nothing.
+    hit: Option<(BranchId, Branch)>,
 }
 
 impl Link {
-    const fn rule(mark: &'static u8, matches: Branch) -> Self {
+    const fn rule(id: BranchId, matches: Branch) -> Self {
         Self {
             claims: matches,
-            hit: Some((mark, matches)),
+            hit: Some((id, matches)),
         }
     }
 
-    const fn wider(mark: &'static u8, claims: Branch, matches: Branch) -> Self {
+    const fn wider(id: BranchId, claims: Branch, matches: Branch) -> Self {
         Self {
             claims,
-            hit: Some((mark, matches)),
+            hit: Some((id, matches)),
         }
     }
 
@@ -63,85 +83,61 @@ impl Link {
 }
 
 /// Lintian's branch order. Earlier links hide later ones.
-/// Each predicate and its `MARK` live on the Rule.
+/// Each predicate lives on the Rule.
 const LINKS: &[Link] = &[
     Link::rule(
-        &ln0045_dir_or_file_in_etc_opt::MARK,
+        BranchId::DirOrFileInEtcOpt,
         ln0045_dir_or_file_in_etc_opt::matches,
     ),
-    Link::rule(
-        &ln0046_dir_in_usr_local::MARK,
-        ln0046_dir_in_usr_local::matches,
-    ),
-    Link::rule(
-        &ln0047_file_in_usr_local::MARK,
-        ln0047_file_in_usr_local::matches,
-    ),
+    Link::rule(BranchId::DirInUsrLocal, ln0046_dir_in_usr_local::matches),
+    Link::rule(BranchId::FileInUsrLocal, ln0047_file_in_usr_local::matches),
     Link::wider(
-        &ln0048_file_directly_in_usr_share::MARK,
+        BranchId::FileDirectlyInUsrShare,
         ln0048_file_directly_in_usr_share::claims,
         ln0048_file_directly_in_usr_share::matches,
     ),
     Link::wider(
-        &ln0049_subdir_in_usr_bin::MARK,
+        BranchId::SubdirInUsrBin,
         ln0049_subdir_in_usr_bin::claims,
         ln0049_subdir_in_usr_bin::matches,
     ),
-    Link::rule(
-        &ln0058_fsstnd_dir_in_usr::MARK,
-        ln0058_fsstnd_dir_in_usr::matches,
-    ),
+    Link::rule(BranchId::FsstndDirInUsr, ln0058_fsstnd_dir_in_usr::matches),
     Link::wider(
-        &ln0059_non_standard_dir_in_usr::MARK,
+        BranchId::NonStandardDirInUsr,
         ln0059_non_standard_dir_in_usr::claims,
         ln0059_non_standard_dir_in_usr::matches,
     ),
-    Link::rule(
-        &ln0060_fsstnd_dir_in_var::MARK,
-        ln0060_fsstnd_dir_in_var::matches,
-    ),
+    Link::rule(BranchId::FsstndDirInVar, ln0060_fsstnd_dir_in_var::matches),
     Link::wider(
-        &ln0061_non_standard_dir_in_var::MARK,
+        BranchId::NonStandardDirInVar,
         ln0061_non_standard_dir_in_var::claims,
         ln0061_non_standard_dir_in_var::matches,
     ),
     Link::rule(
-        &ln0061_non_standard_dir_in_var::MARK,
+        BranchId::NonStandardDirInVar,
         ln0061_non_standard_dir_in_var::matches_games,
     ),
     Link::rule(
-        &ln0043_dir_or_file_in_var_lock::MARK,
+        BranchId::DirOrFileInVarLock,
         ln0043_dir_or_file_in_var_lock::matches,
     ),
     Link::rule(
-        &ln0042_dir_or_file_in_var_run::MARK,
+        BranchId::DirOrFileInVarRun,
         ln0042_dir_or_file_in_var_run::matches,
     ),
+    Link::rule(BranchId::DirOrFileInRun, ln0044_dir_or_file_in_run::matches),
     Link::rule(
-        &ln0044_dir_or_file_in_run::MARK,
-        ln0044_dir_or_file_in_run::matches,
-    ),
-    Link::rule(
-        &ln0041_dir_or_file_in_var_www::MARK,
+        BranchId::DirOrFileInVarWww,
         ln0041_dir_or_file_in_var_www::matches,
     ),
-    Link::rule(
-        &ln0040_dir_or_file_in_opt::MARK,
-        ln0040_dir_or_file_in_opt::matches,
-    ),
+    Link::rule(BranchId::DirOrFileInOpt, ln0040_dir_or_file_in_opt::matches),
     Link::stop(stop_hurd),
     Link::rule(
-        &ln0038_dir_or_file_in_home::MARK,
+        BranchId::DirOrFileInHome,
         ln0038_dir_or_file_in_home::matches,
     ),
-    Link::rule(
-        &ln0039_dir_or_file_in_tmp::MARK,
-        ln0039_dir_or_file_in_tmp::matches,
-    ),
-    Link::rule(
-        &ln0062_aliased_location::MARK,
-        ln0062_aliased_location::matches,
-    ),
+    Link::rule(BranchId::DirOrFileInTmp, ln0039_dir_or_file_in_tmp::matches),
+    Link::rule(BranchId::AliasedLocation, ln0062_aliased_location::matches),
 ];
 
 /// `name` is lintian's name: directories end in a slash.
@@ -180,35 +176,31 @@ fn lintian_name(path: &str, kind: EntryKind) -> String {
     }
 }
 
-/// The Rule the chain selects for `name`, if it flags one. The pointer is that Rule's `MARK`.
-fn winner(name: &str, kind: EntryKind, udeb: bool, package: &str) -> Option<&'static u8> {
+/// The Rule the chain selects for `name`, if it flags one.
+fn winner(name: &str, kind: EntryKind, udeb: bool, package: &str) -> Option<BranchId> {
     for link in LINKS {
         if (link.claims)(name, kind, udeb, package) {
             return link
                 .hit
-                .and_then(|(mark, matches)| matches(name, kind, udeb, package).then_some(mark));
+                .and_then(|(id, matches)| matches(name, kind, udeb, package).then_some(id));
         }
     }
     None
 }
 
-fn same_mark(found: Option<&'static u8>, mark: &'static u8) -> bool {
-    found.is_some_and(|found| std::ptr::eq(found, mark))
-}
-
-/// Emit hits the chain assigns to the Rule that owns `mark`. An earlier link
-/// that claims the path leaves this Rule silent.
+/// Emit hits the chain assigns to `id`. An earlier link that claims the path
+/// leaves this Rule silent.
 pub(in crate::lint::rules::lintian) fn flag_matching(
     ctx: &mut BinaryPackageContext<'_>,
-    mark: &'static u8,
+    id: BranchId,
 ) {
-    flag_matching_with(ctx, mark, Severity::Error);
+    flag_matching_with(ctx, id, Severity::Error);
 }
 
 /// Same walk as [`flag_matching`], emitting at `severity`.
 pub(super) fn flag_matching_with(
     ctx: &mut BinaryPackageContext<'_>,
-    mark: &'static u8,
+    id: BranchId,
     severity: Severity,
 ) {
     let udeb = ctx.is_udeb();
@@ -222,8 +214,7 @@ pub(super) fn flag_matching_with(
         .filter_map(|entry| {
             let path = entry.path().to_str()?;
             let name = lintian_name(path, entry.kind());
-            same_mark(winner(&name, entry.kind(), udeb, &package), mark)
-                .then_some(PathBuf::from(name))
+            (winner(&name, entry.kind(), udeb, &package) == Some(id)).then_some(PathBuf::from(name))
         })
         .collect();
     for path in paths {
@@ -235,12 +226,12 @@ pub(super) fn flag_matching_with(
 mod tests {
     use super::*;
 
-    fn winner(name: &str, kind: EntryKind, udeb: bool) -> Option<&'static u8> {
+    fn winner(name: &str, kind: EntryKind, udeb: bool) -> Option<BranchId> {
         super::winner(name, kind, udeb, "example")
     }
 
-    fn selected(name: &str, kind: EntryKind, udeb: bool, mark: &'static u8) -> bool {
-        super::same_mark(winner(name, kind, udeb), mark)
+    fn selected(name: &str, kind: EntryKind, udeb: bool, id: BranchId) -> bool {
+        winner(name, kind, udeb) == Some(id)
     }
 
     #[test]
@@ -250,7 +241,7 @@ mod tests {
             "var/run/foo/",
             EntryKind::Directory,
             false,
-            &ln0042_dir_or_file_in_var_run::MARK
+            BranchId::DirOrFileInVarRun
         ));
         assert!(winner("var/run/foo/", EntryKind::Directory, true).is_none());
         assert!(winner("usr/tmp/", EntryKind::Directory, false).is_none());
@@ -258,7 +249,7 @@ mod tests {
             "usr/tmp/x",
             EntryKind::RegularFile,
             false,
-            &ln0039_dir_or_file_in_tmp::MARK
+            BranchId::DirOrFileInTmp
         ));
         assert!(winner("usr/tmp/", EntryKind::Directory, true).is_none());
         assert!(winner("usr/local/", EntryKind::Directory, false).is_none());
@@ -266,32 +257,32 @@ mod tests {
             "usr/local/x/",
             EntryKind::Directory,
             false,
-            &ln0046_dir_in_usr_local::MARK
+            BranchId::DirInUsrLocal
         ));
         assert!(selected(
             "usr/local/x",
             EntryKind::RegularFile,
             false,
-            &ln0047_file_in_usr_local::MARK
+            BranchId::FileInUsrLocal
         ));
         assert!(winner("var/www/", EntryKind::Directory, false).is_none());
         assert!(selected(
             "var/www/x",
             EntryKind::RegularFile,
             false,
-            &ln0041_dir_or_file_in_var_www::MARK
+            BranchId::DirOrFileInVarWww
         ));
         assert!(selected(
             "root/x",
             EntryKind::RegularFile,
             false,
-            &ln0038_dir_or_file_in_home::MARK
+            BranchId::DirOrFileInHome
         ));
         assert!(selected(
             "usr/share/x",
             EntryKind::RegularFile,
             false,
-            &ln0048_file_directly_in_usr_share::MARK
+            BranchId::FileDirectlyInUsrShare
         ));
         assert!(winner("usr/share/x", EntryKind::Symlink, false).is_none());
         assert!(winner("usr/share/x/", EntryKind::Directory, false).is_none());
@@ -299,7 +290,7 @@ mod tests {
             "usr/bin/x/",
             EntryKind::Directory,
             false,
-            &ln0049_subdir_in_usr_bin::MARK
+            BranchId::SubdirInUsrBin
         ));
         assert!(winner("usr/bin/X11/", EntryKind::Directory, false).is_none());
         assert!(winner("usr/bin/x", EntryKind::RegularFile, false).is_none());
@@ -308,14 +299,14 @@ mod tests {
             "usr/dict/",
             EntryKind::Directory,
             false,
-            &ln0058_fsstnd_dir_in_usr::MARK
+            BranchId::FsstndDirInUsr
         ));
         assert!(winner("usr/dict/", EntryKind::Directory, true).is_none());
         assert!(selected(
             "usr/foo/",
             EntryKind::Directory,
             false,
-            &ln0059_non_standard_dir_in_usr::MARK
+            BranchId::NonStandardDirInUsr
         ));
         assert!(winner("usr/bin/", EntryKind::Directory, false).is_none());
         assert!(winner("usr/lib64/", EntryKind::Directory, false).is_none());
@@ -324,27 +315,27 @@ mod tests {
             "var/adm/",
             EntryKind::Directory,
             false,
-            &ln0060_fsstnd_dir_in_var::MARK
+            BranchId::FsstndDirInVar
         ));
         assert!(selected(
             "var/foo/",
             EntryKind::Directory,
             false,
-            &ln0061_non_standard_dir_in_var::MARK
+            BranchId::NonStandardDirInVar
         ));
         assert!(super::winner("var/backups/", EntryKind::Directory, false, "base-files").is_none());
         assert!(selected(
             "var/lib/games/score",
             EntryKind::RegularFile,
             false,
-            &ln0061_non_standard_dir_in_var::MARK
+            BranchId::NonStandardDirInVar
         ));
         assert!(winner("var/lib/games/", EntryKind::Directory, false).is_none());
         assert!(selected(
             "bin/foo",
             EntryKind::RegularFile,
             false,
-            &ln0062_aliased_location::MARK
+            BranchId::AliasedLocation
         ));
         assert!(super::winner("bin/foo", EntryKind::RegularFile, false, "base-files").is_none());
     }

@@ -84,7 +84,7 @@ fn missing_policy_targets(contents: &str) -> Vec<String> {
     for (_, line) in complete_lines(contents) {
         if let Some(makefile) = include_makefile(&line) {
             if let Some(targets) = known_makefile_targets(makefile) {
-                for target in targets {
+                for target in &targets {
                     mark_policy(&mut seen, target);
                 }
             } else {
@@ -126,41 +126,28 @@ fn missing_policy_targets(contents: &str) -> Vec<String> {
 
 /// Paths from lintian 2.139.0 `data/rules/known-makefiles`. Values are
 /// makefile-provided target names; only Policy targets among them count as
-/// present.
-fn known_makefile_targets(makefile: &str) -> Option<&'static [&'static str]> {
-    for &(path, targets) in KNOWN_MAKEFILES {
-        if path == makefile {
-            return Some(targets);
-        }
-    }
-    None
+/// present. `Some` with an empty list is a known makefile that provides none.
+fn known_makefile_targets(makefile: &str) -> Option<Vec<String>> {
+    KNOWN_MAKEFILES
+        .iter()
+        .find(|(path, _)| path == makefile)
+        .map(|(_, targets)| targets.clone())
 }
 
-const KNOWN_MAKEFILES: &[(&str, &[&str])] = &[
-    ("/usr/share/cli-common/cli-nant.make", &[]),
-    ("/usr/share/cli-common/cli.make", &[]),
-    ("/usr/share/coq/coqvars.mk", &[]),
-    ("/usr/share/dpkg/architecture.mk", &[]),
-    ("/usr/share/dpkg/buildflags.mk", &[]),
-    ("/usr/share/dpkg/default.mk", &[]),
-    ("/usr/share/dpkg/pkg-info.mk", &[]),
-    ("/usr/share/dpkg/vendor.mk", &[]),
-    ("/usr/share/gcj/debian_defaults", &[]),
-    ("/usr/share/hardening-includes/hardening.make", &[]),
-    ("/usr/share/javahelper/java-vars.mk", &[]),
-    ("/usr/share/libdbi-perl/perl-dbdabi.make", &[]),
-    ("/usr/share/mpi-default-dev/debian_defaults", &[]),
-    ("/usr/share/ocaml/ocamlinit.mk", &[]),
-    ("/usr/share/ocaml/ocamlvars.mk", &[]),
-    ("/usr/share/octave/debian/defs.make", &[]),
-    ("/usr/share/pkg-kde-tools/makefiles/1/variables.mk", &[]),
-    ("/usr/share/postgresql-common/pgxs_debian_control.mk", &[]),
-    ("/usr/share/python3/python.mk", &[]),
-    (
-        "/usr/share/quilt/quilt.make",
-        &["patch", "unpatch", "$(QUILT_STAMPFN)"],
-    ),
-];
+static KNOWN_MAKEFILES: LazyLock<Vec<(String, Vec<String>)>> = LazyLock::new(|| {
+    crate::lint::data::lines(include_str!("../../data/rules/known-makefiles"))
+        .filter_map(|line| {
+            let (path, targets) = line.split_once("||")?;
+            let targets = targets
+                .split(',')
+                .map(str::trim)
+                .filter(|target| !target.is_empty())
+                .map(str::to_string)
+                .collect();
+            Some((path.to_string(), targets))
+        })
+        .collect()
+});
 
 fn include_makefile(line: &str) -> Option<&str> {
     INCLUDE

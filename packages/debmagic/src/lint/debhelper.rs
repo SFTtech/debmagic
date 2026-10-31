@@ -17,16 +17,38 @@ use regex::Regex;
 use super::debian_control::DebianControl;
 use super::file_tree::{EntryKind, FileTree};
 
-/// Level below which lintian 2.139.0 emits
-/// `package-uses-deprecated-debhelper-compat-version`
-/// (`data/debhelper/compat-level`, `deprecated`).
-pub(crate) const DEPRECATED_COMPAT_LEVEL: u32 = 10;
-
 /// First level that can be declared with `debhelper-compat` (11.1.5~alpha1).
 pub(crate) const VERSIONED_PREREQUISITE_AVAILABLE: u64 = 11;
 
+/// lintian 2.139.0 `data/debhelper/compat-level`.
+static COMPAT_LEVELS: LazyLock<Vec<(&'static str, u64)>> = LazyLock::new(|| {
+    crate::lint::data::lines(include_str!("data/debhelper/compat-level"))
+        .filter_map(|line| {
+            let (key, value) = crate::lint::data::assignment(line)?;
+            Some((key, value.parse().ok()?))
+        })
+        .collect()
+});
+
+fn compat_level(key: &str) -> u64 {
+    COMPAT_LEVELS
+        .iter()
+        .find(|(name, _)| *name == key)
+        .map(|(_, level)| *level)
+        .unwrap_or_else(|| panic!("data/debhelper/compat-level missing {key}"))
+}
+
+/// Level below which lintian 2.139.0 emits
+/// `package-uses-deprecated-debhelper-compat-version`
+/// (`data/debhelper/compat-level`, `deprecated`).
+pub(crate) fn deprecated_compat_level() -> u32 {
+    u32::try_from(compat_level("deprecated")).expect("deprecated compat level fits u32")
+}
+
 /// `data/debhelper/compat-level`, `experimental`.
-pub(crate) const EXPERIMENTAL_COMPAT_LEVEL: u64 = 15;
+pub(crate) fn experimental_compat_level() -> u64 {
+    compat_level("experimental")
+}
 
 /// `debian/compat` at 14 or above makes `dh_assistant` abort: 15+ is rejected
 /// outright, and 14 is rejected once `HIGHEST_STABLE_COMPAT_LEVEL` is above 13

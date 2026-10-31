@@ -10,7 +10,14 @@ mod ln0232_init_d_script_missing_lsb_section;
 mod ln0233_systemd_service_file_refers_to_obsolete_target;
 mod ln0234_missing_systemd_service_for_init_d_rcs_script;
 mod ln0235_systemd_service_file_wraps_init_script;
-mod systemd_unit;
+mod ln0288_init_d_script_has_conflicting_start_stop;
+mod ln0289_init_d_script_has_bad_stop_runlevel;
+mod ln0290_init_d_script_should_always_start_service;
+mod ln0291_non_virtual_facility_in_initd_script;
+mod ln0292_init_d_script_depends_on_all_virtual_facility;
+mod ln0293_init_d_script_possible_missing_stop;
+mod ln0294_init_d_script_starts_in_stop_runlevel;
+pub(in crate::lint::rules::lintian) mod systemd_unit;
 
 pub(crate) use ln0230_init_d_script_does_not_implement_required_option::InitDScriptDoesNotImplementRequiredOption;
 pub(crate) use ln0231_init_d_script_stops_in_s_runlevel::InitDScriptStopsInSRunlevel;
@@ -18,3 +25,10 @@ pub(crate) use ln0232_init_d_script_missing_lsb_section::InitDScriptMissingLsbSe
 pub(crate) use ln0233_systemd_service_file_refers_to_obsolete_target::SystemdServiceFileRefersToObsoleteTarget;
 pub(crate) use ln0234_missing_systemd_service_for_init_d_rcs_script::MissingSystemdServiceForInitDRcSScript;
 pub(crate) use ln0235_systemd_service_file_wraps_init_script::SystemdServiceFileWrapsInitScript;
+pub(crate) use ln0288_init_d_script_has_conflicting_start_stop::InitDScriptHasConflictingStartStop;
+pub(crate) use ln0289_init_d_script_has_bad_stop_runlevel::InitDScriptHasBadStopRunlevel;
+pub(crate) use ln0290_init_d_script_should_always_start_service::InitDScriptShouldAlwaysStartService;
+pub(crate) use ln0291_non_virtual_facility_in_initd_script::NonVirtualFacilityInInitdScript;
+pub(crate) use ln0292_init_d_script_depends_on_all_virtual_facility::InitDScriptDependsOnAllVirtualFacility;
+pub(crate) use ln0293_init_d_script_possible_missing_stop::InitDScriptPossibleMissingStop;
+pub(crate) use ln0294_init_d_script_starts_in_stop_runlevel::InitDScriptStartsInStopRunlevel;

@@ -120,6 +120,13 @@ pub(super) fn command_from_manual_name(name: &str) -> Option<String> {
     Some(pieces.join("."))
 }
 
+/// The symlink target mentions `undocumented` and is one of the forms the
+/// Check accepts as a link to `undocumented(7)`. `page_path` is the page's
+/// directory with a trailing slash.
+pub(super) fn is_accepted_undocumented_target(target: &str, page_path: &str) -> bool {
+    MENTIONS_UNDOCUMENTED.is_match(target) && !is_broken_undocumented_target(target, page_path)
+}
+
 /// The symlink target mentions `undocumented` and is not one of the targets
 /// the Check accepts. `page_path` is the page's directory with a trailing slash.
 pub(super) fn is_broken_undocumented_target(target: &str, page_path: &str) -> bool {

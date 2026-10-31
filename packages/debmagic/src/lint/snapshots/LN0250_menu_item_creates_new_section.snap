@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): menu-item-creates-new-section (LN0250) Games [usr/share/menu/example:1]
+W: example (binary): menu-item-creates-new-section (LN0250) Applications/System [usr/share/menu/example:1]
+W: example (binary): menu-item-creates-new-section (LN0250) Apps/System [usr/share/menu/example:1]
+W: example (binary): menu-item-creates-new-section (LN0250) WindowManagers/Programming [usr/share/menu/example:1]
+W: example (binary): menu-item-creates-new-section (LN0250) Screen [usr/share/menu/example:1]
+W: example (binary): menu-item-creates-new-section (LN0250) Apps/Games [usr/share/menu/example:1]
+W: example (binary): menu-item-creates-new-section (LN0250) Games [usr/share/menu/menu-section:9]
+W: example (binary): menu-item-creates-new-section (LN0250) WindowManagers/Programming [usr/share/menu/menu-section:15]
+W: example (udeb): menu-item-creates-new-section (LN0250) Games [usr/share/menu/example:1]

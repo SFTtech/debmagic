@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): menu-item-uses-apps-section (LN0253) [usr/share/menu/example:1]
+W: example (binary): menu-item-uses-apps-section (LN0253) [usr/share/menu/example:1]
+W: example (binary): menu-item-uses-apps-section (LN0253) [usr/share/menu/menu-section:12]
+W: example (binary): menu-item-uses-apps-section (LN0253) [usr/lib/menu/example:1]
+W: example (udeb): menu-item-uses-apps-section (LN0253) [usr/share/menu/example:1]

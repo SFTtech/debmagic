@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-possible-missing-stop (LN0293) 1 [etc/init.d/missing-one]
+W: example (binary): init.d-script-possible-missing-stop (LN0293) 1 6 [etc/init.d/parsing]
+W: example (binary): init.d-script-possible-missing-stop (LN0293) 1 6 [etc/init.d/with-start]
+W: example (binary): init.d-script-possible-missing-stop (LN0293) 0 6 [etc/init.d/only-one]
+W: example (udeb): init.d-script-possible-missing-stop (LN0293) 0 1 [etc/init.d/udeb-script]

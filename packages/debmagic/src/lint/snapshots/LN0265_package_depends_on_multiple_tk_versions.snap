@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-depends-on-multiple-tk-versions (LN0265) tk40 tk8.0 tk8.2
+E: example (binary): package-depends-on-multiple-tk-versions (LN0265) tk8.2 tk8.3
+E: example (binary): package-depends-on-multiple-tk-versions (LN0265) tk8.2 tk8.3
+E: example (binary): package-depends-on-multiple-tk-versions (LN0265) tk8.4 tk8.5
+E: example (udeb): package-depends-on-multiple-tk-versions (LN0265) tk8.4 tk8.5

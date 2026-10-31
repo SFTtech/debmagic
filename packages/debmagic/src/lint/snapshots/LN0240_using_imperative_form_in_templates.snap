@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): using-imperative-form-in-templates (LN0240) debconf/choice [templates:4]
+W: example (binary): using-imperative-form-in-templates (LN0240) debconf/choice [templates:4]
+W: example (binary): using-imperative-form-in-templates (LN0240) debconf/choice [templates:4]
+W: example (binary): using-imperative-form-in-templates (LN0240) debconf/choice [templates:4]
+W: example (binary): using-imperative-form-in-templates (LN0240) debconf/choice [templates:4]
+W: example (binary): using-imperative-form-in-templates (LN0240) debconf/choice [templates:4]
+W: example (binary): using-imperative-form-in-templates (LN0240) debconf/choice [templates:4]
+W: example (binary): using-imperative-form-in-templates (LN0240) debconf/multi [templates:4]

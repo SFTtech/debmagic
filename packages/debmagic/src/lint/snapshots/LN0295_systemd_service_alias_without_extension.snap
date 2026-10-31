@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): systemd-service-alias-without-extension (LN0295) [usr/lib/systemd/system/bare.service]
+W: example (binary): systemd-service-alias-without-extension (LN0295) [usr/lib/systemd/system/two.service]
+W: example (binary): systemd-service-alias-without-extension (LN0295) [usr/lib/systemd/system/two.service]
+W: example (binary): systemd-service-alias-without-extension (LN0295) [usr/lib/systemd/system/case.service]
+W: example (binary): systemd-service-alias-without-extension (LN0295) [usr/lib/systemd/system/empty.service]
+W: example (binary): systemd-service-alias-without-extension (LN0295) [usr/lib/systemd/system/continued.service]
+W: example (binary): systemd-service-alias-without-extension (LN0295) [etc/systemd/system/copied.service]
+W: example (udeb): systemd-service-alias-without-extension (LN0295) [lib/systemd/system/lib.service]

@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): groff-message (LN0270) troff:<standard input>:4: warning: name 'dep' not defined (possibly missing space after 'de') [usr/share/man/de/man1/dep.1:1]
+W: example (binary): groff-message (LN0270) troff:<standard input>:1: warning: name 'an*section1' not defined [usr/share/man/ja/man1/dep.1:1]
+W: example (binary): groff-message (LN0270) troff:<standard input>:4: warning: name 'dep' not defined (possibly missing space after 'de') [usr/share/man/ja/man1/dep.1:2]
+W: example (binary): groff-message (LN0270) troff:<standard input>:4: warning: name 'dep' not defined (possibly missing space after 'de') [usr/share/man/man1/dep.1:1]
+W: example (binary): groff-message (LN0270) troff:man1/dep.1:4: warning: name 'dep' not defined (possibly missing space after 'de') [usr/share/man/man1/include.1:1]
+W: example (binary): groff-message (LN0270) troff:<standard input>:4: warning: name 'dep' not defined (possibly missing space after 'de') [usr/share/man/man1/dep.1.gz:1]
+W: example (binary): groff-message (LN0270) troff:<standard input>:4: warning: name 'dep' not defined (possibly missing space after 'de') [usr/share/man/man1/dep.1:1]

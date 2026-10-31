@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): systemd-service-file-refers-to-obsolete-bindto (LN0296) [usr/lib/systemd/system/bound.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-bindto (LN0296) [usr/lib/systemd/system/many.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-bindto (LN0296) [usr/lib/systemd/system/reset-then.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-bindto (LN0296) [etc/systemd/system/copied.service]
+W: example (udeb): systemd-service-file-refers-to-obsolete-bindto (LN0296) [lib/systemd/system/lib.service]

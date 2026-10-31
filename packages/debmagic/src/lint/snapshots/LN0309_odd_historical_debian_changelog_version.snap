@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): odd-historical-debian-changelog-version (LN0309) 0.1-2 (for native) [debian/changelog:6]
+W: example (source): odd-historical-debian-changelog-version (LN0309) 11 (for non-native) [debian/changelog:6]

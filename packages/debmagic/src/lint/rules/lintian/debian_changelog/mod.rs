@@ -1,0 +1,32 @@
+//! Rules for lintian's `debian/changelog` and `nmu` Checks.
+//!
+//! Source Tags read `debian/changelog` entries and parse epoch, upstream, and
+//! revision inside this module. NMU Tags also compare the trailer with
+//! `debian/control`. Binary Tags read the installed changelog from Data files
+//! and parse it with [`DebianChangelog`](crate::lint::debian_changelog::DebianChangelog).
+
+mod installed;
+mod ln0306_epoch_changed_but_upstream_version_did_not_go_backwards;
+mod ln0307_epoch_change_without_comment;
+mod ln0308_latest_debian_changelog_entry_reuses_existing_version;
+mod ln0309_odd_historical_debian_changelog_version;
+mod ln0310_debian_changelog_has_wrong_day_of_week;
+mod ln0311_debian_changelog_line_too_long;
+mod ln0312_initial_upload_closes_no_bugs;
+mod ln0313_no_nmu_in_changelog;
+mod ln0314_source_nmu_has_incorrect_version_number;
+mod ln0315_no_qa_in_changelog;
+mod nmu;
+mod source;
+mod version;
+
+pub(crate) use ln0306_epoch_changed_but_upstream_version_did_not_go_backwards::EpochChangedButUpstreamVersionDidNotGoBackwards;
+pub(crate) use ln0307_epoch_change_without_comment::EpochChangeWithoutComment;
+pub(crate) use ln0308_latest_debian_changelog_entry_reuses_existing_version::LatestDebianChangelogEntryReusesExistingVersion;
+pub(crate) use ln0309_odd_historical_debian_changelog_version::OddHistoricalDebianChangelogVersion;
+pub(crate) use ln0310_debian_changelog_has_wrong_day_of_week::DebianChangelogHasWrongDayOfWeek;
+pub(crate) use ln0311_debian_changelog_line_too_long::DebianChangelogLineTooLong;
+pub(crate) use ln0312_initial_upload_closes_no_bugs::InitialUploadClosesNoBugs;
+pub(crate) use ln0313_no_nmu_in_changelog::NoNmuInChangelog;
+pub(crate) use ln0314_source_nmu_has_incorrect_version_number::SourceNmuHasIncorrectVersionNumber;
+pub(crate) use ln0315_no_qa_in_changelog::NoQaInChangelog;

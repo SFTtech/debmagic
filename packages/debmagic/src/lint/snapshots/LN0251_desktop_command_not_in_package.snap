@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): desktop-command-not-in-package (LN0251) foo [usr/share/applications/foo.desktop]
+W: example (binary): desktop-command-not-in-package (LN0251) usr/bin/missing [usr/share/applications/foo.desktop]
+W: example (binary): desktop-command-not-in-package (LN0251) foo [usr/share/applications/foo.desktop]
+W: example (binary): desktop-command-not-in-package (LN0251) foo [usr/share/applications/foo.desktop]
+W: example (udeb): desktop-command-not-in-package (LN0251) foo [usr/share/applications/foo.desktop]
+W: example (binary): desktop-command-not-in-package (LN0251) [usr/share/applications/foo.desktop]

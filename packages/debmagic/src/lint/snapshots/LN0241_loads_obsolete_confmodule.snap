@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): loads-obsolete-confmodule (LN0241) /usr/share/debconf/confmodule.sh [preinst:4]
+W: example (binary): loads-obsolete-confmodule (LN0241) Debian::DebConf::Client::ConfModule [config:1]
+W: example (binary): loads-obsolete-confmodule (LN0241) /usr/share/debconf/confmodule.sh [config:1]
+W: example (binary): loads-obsolete-confmodule (LN0241) /usr/share/debconf/confmodule.sh [postrm:1]
+W: example (binary): loads-obsolete-confmodule (LN0241) /usr/share/debconf/confmodule.sh [preinst:1]

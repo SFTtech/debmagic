@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): latest-debian-changelog-entry-reuses-existing-version (LN0308) 1:1.0-1 ~ 1.0-1 (last used: Fri, 06 Feb 2008 22:22:37 -0800) [debian/changelog:1]
+W: example (source): latest-debian-changelog-entry-reuses-existing-version (LN0308) 3:1.0 ~ 2:1.0 (last used: Fri, 06 Feb 2008 22:22:37 -0800) [debian/changelog:1]

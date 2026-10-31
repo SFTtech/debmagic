@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): malformed-prompt-in-templates (LN0243) debconf/teststring [templates:3]
+W: example (binary): malformed-prompt-in-templates (LN0243) debconf/teststring [templates:3]
+W: example (binary): malformed-prompt-in-templates (LN0243) debconf/teststring [templates:3]
+W: example (binary): malformed-prompt-in-templates (LN0243) debconf/teststring [templates:3]
+W: example (binary): malformed-prompt-in-templates (LN0243) debconf/teststring [templates:3]

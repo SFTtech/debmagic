@@ -3,6 +3,7 @@
 //! `installed_copyright` is what lintian's `debian/copyright` Check reads from
 //! `usr/share/doc/<package>/copyright`. Each Rule owns one Tag.
 
+mod copyright_text;
 mod installed_copyright;
 mod ln0009_no_dep5_copyright;
 mod ln0010_no_copyright_file;
@@ -16,6 +17,15 @@ mod ln0118_copyright_refers_to_nonexistent_license_file;
 mod ln0119_copyright_file_compressed;
 mod ln0120_copyright_file_is_symlink;
 mod ln0121_space_in_std_shortname_in_dep5_copyright;
+mod ln0280_copyright_file_lacks_pointer_to_perl_license;
+mod ln0281_no_debian_copyright_in_source;
+mod ln0282_copyright_contains_dh_make_todo_boilerplate;
+mod ln0283_copyright_not_using_common_license_for_gpl;
+mod ln0284_copyright_file_contains_full_gpl_license;
+mod ln0285_copyright_not_using_common_license_for_apache2;
+mod ln0286_copyright_not_using_common_license_for_lgpl;
+mod ln0287_named_copyright_for_single_installable;
+mod source_copyright;
 
 pub(crate) use ln0009_no_dep5_copyright::NoDep5Copyright;
 pub(crate) use ln0010_no_copyright_file::NoCopyrightFile;
@@ -29,3 +39,11 @@ pub(crate) use ln0118_copyright_refers_to_nonexistent_license_file::CopyrightRef
 pub(crate) use ln0119_copyright_file_compressed::CopyrightFileCompressed;
 pub(crate) use ln0120_copyright_file_is_symlink::CopyrightFileIsSymlink;
 pub(crate) use ln0121_space_in_std_shortname_in_dep5_copyright::SpaceInStdShortnameInDep5Copyright;
+pub(crate) use ln0280_copyright_file_lacks_pointer_to_perl_license::CopyrightFileLacksPointerToPerlLicense;
+pub(crate) use ln0281_no_debian_copyright_in_source::NoDebianCopyrightInSource;
+pub(crate) use ln0282_copyright_contains_dh_make_todo_boilerplate::CopyrightContainsDhMakeTodoBoilerplate;
+pub(crate) use ln0283_copyright_not_using_common_license_for_gpl::CopyrightNotUsingCommonLicenseForGpl;
+pub(crate) use ln0284_copyright_file_contains_full_gpl_license::CopyrightFileContainsFullGplLicense;
+pub(crate) use ln0285_copyright_not_using_common_license_for_apache2::CopyrightNotUsingCommonLicenseForApache2;
+pub(crate) use ln0286_copyright_not_using_common_license_for_lgpl::CopyrightNotUsingCommonLicenseForLgpl;
+pub(crate) use ln0287_named_copyright_for_single_installable::NamedCopyrightForSingleInstallable;

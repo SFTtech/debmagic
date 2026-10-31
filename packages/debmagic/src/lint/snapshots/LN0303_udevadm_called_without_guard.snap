@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): udevadm-called-without-guard (LN0303) [postinst:3]
+W: example (binary): udevadm-called-without-guard (LN0303) [postinst:3]
+W: example (binary): udevadm-called-without-guard (LN0303) [prerm:3]
+W: example (binary): udevadm-called-without-guard (LN0303) [postrm:3]
+W: example (binary): udevadm-called-without-guard (LN0303) [postinst:2]
+W: example (binary): udevadm-called-without-guard (LN0303) [postinst:5]
+W: example (binary): udevadm-called-without-guard (LN0303) [postinst:3]
+W: example (binary): udevadm-called-without-guard (LN0303) [postinst:3]

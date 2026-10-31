@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): named-copyright-for-single-installable (LN0287) [debian/foo.copyright]
+W: example (source): named-copyright-for-single-installable (LN0287) [debian/foo.copyright]
+W: (source): named-copyright-for-single-installable (LN0287) [packaging/copyright]
+W: (source): named-copyright-for-single-installable (LN0287) [copyright]

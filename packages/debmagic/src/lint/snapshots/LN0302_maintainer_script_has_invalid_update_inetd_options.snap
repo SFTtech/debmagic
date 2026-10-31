@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-has-invalid-update-inetd-options (LN0302) (--group without --add) [postinst:2]
+W: example (binary): maintainer-script-has-invalid-update-inetd-options (LN0302) (--pattern with --add) [postinst:3]
+W: example (binary): maintainer-script-has-invalid-update-inetd-options (LN0302) (--pattern with --add) [postinst:4]
+W: example (binary): maintainer-script-has-invalid-update-inetd-options (LN0302) (--group without --add) [postinst:2]
+W: example (binary): maintainer-script-has-invalid-update-inetd-options (LN0302) (--group without --add) [postinst:2]
+W: example (binary): maintainer-script-has-invalid-update-inetd-options (LN0302) (--pattern with --add) [postinst:2]
+W: example (binary): maintainer-script-has-invalid-update-inetd-options (LN0302) (--group without --add) [prerm:3]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): debian-changelog-has-wrong-day-of-week (LN0310) 2016-04-07 was a Thursday [usr/share/doc/example/changelog.gz:1]
+W: example (binary): debian-changelog-has-wrong-day-of-week (LN0310) 2003-04-14 was a Monday [usr/share/doc/example/changelog.Debian:1]

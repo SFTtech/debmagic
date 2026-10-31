@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): pkg-not-in-package-test (LN0259) wrong-package [usr/share/menu/example:1]
+W: example (binary): pkg-not-in-package-test (LN0259) other, third [usr/share/menu/example:1]
+W: example (binary): pkg-not-in-package-test (LN0259) other [usr/share/menu/example:1]
+W: example (binary): pkg-not-in-package-test (LN0259) other [usr/share/menu/example:1]
+W: example (binary): pkg-not-in-package-test (LN0259) other [usr/share/menu/example:1]
+W: example (binary): pkg-not-in-package-test (LN0259) other [usr/lib/menu/example:1]
+W: example (binary): pkg-not-in-package-test (LN0259) unknown [usr/share/menu/example:2]
+W: example (udeb): pkg-not-in-package-test (LN0259) other [usr/share/menu/example:1]
+W: example (binary): pkg-not-in-package-test (LN0259) other [usr/share/menu/example:1]

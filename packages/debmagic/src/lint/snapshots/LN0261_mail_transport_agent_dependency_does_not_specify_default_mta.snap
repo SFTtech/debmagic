@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): mail-transport-agent-dependency-does-not-specify-default-mta (LN0261) Build-Depends: mail-transport-agent, libc6-dev, findutils
+W: example (source): mail-transport-agent-dependency-does-not-specify-default-mta (LN0261) Build-Depends-Indep: exim4 | mail-transport-agent
+W: example (source): mail-transport-agent-dependency-does-not-specify-default-mta (LN0261) Build-Conflicts: mail-transport-agent

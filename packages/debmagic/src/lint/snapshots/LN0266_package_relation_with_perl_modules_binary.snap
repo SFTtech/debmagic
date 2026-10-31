@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-relation-with-perl-modules (LN0266) Depends: perl-modules
+E: example (binary): package-relation-with-perl-modules (LN0266) Pre-Depends: perl-modules-5.22
+E: example (binary): package-relation-with-perl-modules (LN0266) Conflicts: perl-modules
+E: example (binary): package-relation-with-perl-modules (LN0266) Provides: perl-modules
+E: perl (binary): package-relation-with-perl-modules (LN0266) Depends: perl-modules
+E: example (udeb): package-relation-with-perl-modules (LN0266) Suggests: perl-modules

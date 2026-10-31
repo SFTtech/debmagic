@@ -33,8 +33,17 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-libbaz",
     "checks/debhelper/legacy-scripts",
     "checks/debhelper/oeverride-typo",
+    "checks/debian/changelog/changelog-file-become-native",
+    "checks/debian/changelog/changelog-file-epoch-change-without-comment",
+    "checks/debian/changelog/changelog-file-epoch-change-without-comment-new",
+    "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase",
+    "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same",
     "checks/debian/changelog/changelog-file-general",
+    "checks/debian/changelog/changelog-file-reuses-existing-version",
+    "checks/debian/changelog/changelog-version-special-chars",
+    "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
+    "checks/debian/changelog/legacy-maintainer-scripts",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/relation/control-file-general",
@@ -60,6 +69,9 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
     "checks/debian/copyright/dep5/wildcard-out-of-order",
+    "checks/debian/copyright/generic-empty",
+    "checks/debian/copyright/named-copyright-in-source",
+    "checks/debian/copyright/source-copyright-missing",
     "checks/debian/rules/control-file-rules-requires-root-binary-targets",
     "checks/debian/rules/control-file-rules-requires-root-no",
     "checks/debian/rules/debhelper-compat-old",
@@ -149,12 +161,20 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-old-python-version-field",
     "checks/languages/python/python-source-package-encodes-python-version",
+    "checks/nmu/generic-empty",
+    "checks/nmu/legacy-fields",
+    "checks/nmu/legacy-libbaz",
+    "checks/nmu/legacy-maintainer-scripts",
+    "checks/nmu/legacy-scripts",
+    "checks/nmu/nmu-qa-upload",
+    "checks/nmu/nmu-ubuntu-native",
     "checks/obsolete-sites/fields-cpan-homepage",
     "checks/obsolete-sites/obsolete-sites",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
     "general-false-positives/basic-non-native-3.0-with-epoch",
+    "odd-inputs/source/debian-symlink",
     "odd-inputs/source/unpack-srcpkg-dot-dir",
     "odd-inputs/source/unpack-srcpkg-dot-subdir",
     "odd-inputs/source/unpack-srcpkg-no-subdir",
@@ -168,15 +188,18 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/conffiles/conffiles-etc-not-marked",
     "checks/conffiles/legacy-etcfiles",
     "checks/conffiles/legacy-filenames",
+    "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-missing",
     "checks/debian/changelog/changelog-file-news-and-changelog-not-compressed",
     "checks/debian/changelog/changelog-file-no-dch",
     "checks/debian/changelog/changelog-file-no-dch-native",
     "checks/debian/changelog/changelog-file-symlink",
+    "checks/debian/changelog/changelog-file-wrong-weekday",
     "checks/debian/changelog/legacy-binary",
     "checks/debian/changelog/legacy-etcfiles",
     "checks/debian/changelog/legacy-fields",
     "checks/debian/changelog/legacy-filenames",
+    "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-libbaz",
     "checks/debian/changelog/legacy-relations",
     "checks/debian/copyright/copyright-file-general",
@@ -190,7 +213,13 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/legacy-foo++",
     "checks/debian/copyright/legacy-maintainer-scripts",
     "checks/debian/copyright/legacy-relations",
+    "checks/debian/copyright/legacy-scripts",
     "checks/debian/copyright/source-copyright-missing",
+    "checks/debian/debconf/debconf-config-general",
+    "checks/debian/debconf/debconf-config-not-executable",
+    "checks/debian/debconf/debconf-maintscripts-deps",
+    "checks/debian/debconf/debconf-no-templates",
+    "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
     "checks/debian/debconf/national-encoding",
     "checks/debian/debconf/po-debconf-general",
@@ -201,14 +230,24 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/legacy-filenames",
     "checks/documentation/legacy-libbaz",
     "checks/documentation/manual/bad-link-to-undocumented-manpage",
+    "checks/documentation/manual/bad-so-link-in-manpage",
+    "checks/documentation/manual/executable-without-english-manpage",
     "checks/documentation/manual/executable-without-manpage",
     "checks/documentation/manual/legacy-binary",
     "checks/documentation/manual/legacy-filenames",
     "checks/documentation/manual/legacy-scripts",
+    "checks/documentation/manual/link-to-undocumented-manpage",
+    "checks/documentation/manual/manpage-bad-whatis",
+    "checks/documentation/manual/manpage-dh-make-template",
+    "checks/documentation/manual/manpage-empty",
+    "checks/documentation/manual/manpage-errors-from-man",
+    "checks/documentation/manual/manpage-errors-from-pod2man",
+    "checks/documentation/manual/manpage-generic-name",
     "checks/documentation/manual/manpage-locale-dir-country-specific",
     "checks/documentation/manual/manpage-named-after-build-path",
     "checks/documentation/manual/manpage-not-compressed",
     "checks/documentation/manual/manpage-not-compressed-with-gzip",
+    "checks/documentation/manual/manpage-useless-whatis",
     "checks/documentation/manual/manpages-general",
     "checks/documentation/manual/scripts-ocamlrun",
     "checks/fields/bugs/fields-redundant",
@@ -299,12 +338,19 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/maintainer-scripts/empty/scripts-maintainer-script-empty",
     "checks/maintainer-scripts/ldconfig/legacy-maintainer-scripts",
     "checks/maintainer-scripts/ldconfig/shared-libs-ldconfig-scripts",
+    "checks/menu-format/item-has-needs-dwww",
+    "checks/menu-format/legacy-binary",
+    "checks/menu-format/menu-format-desktop-general",
+    "checks/menu-format/menu-format-general",
+    "checks/menu-format/unknown-menu-tag",
+    "checks/menu-format/whitespace-after-continuation-character",
     "checks/menus/legacy-binary",
     "checks/menus/legacy-filenames",
     "checks/menus/national-encoding",
     "checks/scripts/legacy-maintainer-scripts",
     "checks/scripts/legacy-scripts",
     "checks/scripts/scripts-bashisms",
+    "checks/scripts/scripts-interpreters",
     "checks/scripts/scripts-maintainer-general",
     "checks/scripts/scripts-maintainer-script-invalid-update-inetd-options",
     "checks/scripts/scripts-missing-call-to-dpkg-maintscript-helper",
@@ -315,6 +361,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/systemd/systemd-complex-service-file",
     "checks/systemd/systemd-general",
     "checks/systemd/systemd-missing-services",
+    "checks/systemd/systemd-service-file-uses-nobody-or-nogroup",
     "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-native-3.0",
     "general-false-positives/basic-native-3.0-with-epoch",
@@ -351,8 +398,17 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-libbaz",
     "checks/debhelper/legacy-scripts",
     "checks/debhelper/oeverride-typo",
+    "checks/debian/changelog/changelog-file-become-native",
+    "checks/debian/changelog/changelog-file-epoch-change-without-comment",
+    "checks/debian/changelog/changelog-file-epoch-change-without-comment-new",
+    "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase",
+    "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same",
     "checks/debian/changelog/changelog-file-general",
+    "checks/debian/changelog/changelog-file-reuses-existing-version",
+    "checks/debian/changelog/changelog-version-special-chars",
+    "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
+    "checks/debian/changelog/legacy-maintainer-scripts",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/relation/control-file-general",
@@ -378,6 +434,9 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
     "checks/debian/copyright/dep5/wildcard-out-of-order",
+    "checks/debian/copyright/generic-empty",
+    "checks/debian/copyright/named-copyright-in-source",
+    "checks/debian/copyright/source-copyright-missing",
     "checks/debian/rules/control-file-rules-requires-root-binary-targets",
     "checks/debian/rules/control-file-rules-requires-root-no",
     "checks/debian/rules/debhelper-compat-old",
@@ -467,12 +526,20 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-old-python-version-field",
     "checks/languages/python/python-source-package-encodes-python-version",
+    "checks/nmu/generic-empty",
+    "checks/nmu/legacy-fields",
+    "checks/nmu/legacy-libbaz",
+    "checks/nmu/legacy-maintainer-scripts",
+    "checks/nmu/legacy-scripts",
+    "checks/nmu/nmu-qa-upload",
+    "checks/nmu/nmu-ubuntu-native",
     "checks/obsolete-sites/fields-cpan-homepage",
     "checks/obsolete-sites/obsolete-sites",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
     "general-false-positives/basic-non-native-3.0-with-epoch",
+    "odd-inputs/source/debian-symlink",
     "odd-inputs/source/unpack-srcpkg-dot-dir",
     "odd-inputs/source/unpack-srcpkg-dot-subdir",
     "odd-inputs/source/unpack-srcpkg-no-subdir",
@@ -530,8 +597,17 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/legacy-libbaz"; "checks_debhelper_legacy_libbaz")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debhelper/oeverride-typo"; "checks_debhelper_oeverride_typo")]
+#[test_case("checks/debian/changelog/changelog-file-become-native"; "checks_debian_changelog_changelog_file_become_native")]
+#[test_case("checks/debian/changelog/changelog-file-epoch-change-without-comment"; "checks_debian_changelog_changelog_file_epoch_change_without_comment")]
+#[test_case("checks/debian/changelog/changelog-file-epoch-change-without-comment-new"; "checks_debian_changelog_changelog_file_epoch_change_without_comment_new")]
+#[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_increase")]
+#[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_same")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
+#[test_case("checks/debian/changelog/changelog-file-reuses-existing-version"; "checks_debian_changelog_changelog_file_reuses_existing_version")]
+#[test_case("checks/debian/changelog/changelog-version-special-chars"; "checks_debian_changelog_changelog_version_special_chars")]
+#[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
+#[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
@@ -557,6 +633,9 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
 #[test_case("checks/debian/copyright/dep5/wildcard-out-of-order"; "checks_debian_copyright_dep5_wildcard_out_of_order")]
+#[test_case("checks/debian/copyright/generic-empty"; "checks_debian_copyright_generic_empty")]
+#[test_case("checks/debian/copyright/named-copyright-in-source"; "checks_debian_copyright_named_copyright_in_source")]
+#[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-binary-targets"; "checks_debian_rules_control_file_rules_requires_root_binary_targets")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-no"; "checks_debian_rules_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
@@ -646,12 +725,20 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
 #[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
+#[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
+#[test_case("checks/nmu/legacy-fields"; "checks_nmu_legacy_fields")]
+#[test_case("checks/nmu/legacy-libbaz"; "checks_nmu_legacy_libbaz")]
+#[test_case("checks/nmu/legacy-maintainer-scripts"; "checks_nmu_legacy_maintainer_scripts")]
+#[test_case("checks/nmu/legacy-scripts"; "checks_nmu_legacy_scripts")]
+#[test_case("checks/nmu/nmu-qa-upload"; "checks_nmu_nmu_qa_upload")]
+#[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
 #[test_case("checks/obsolete-sites/obsolete-sites"; "checks_obsolete_sites_obsolete_sites")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]
 #[test_case("general-false-positives/basic-non-native-3.0-with-epoch"; "general_false_positives_basic_non_native_3_0_with_epoch")]
+#[test_case("odd-inputs/source/debian-symlink"; "odd_inputs_source_debian_symlink")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
@@ -666,15 +753,18 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/conffiles/conffiles-etc-not-marked"; "checks_conffiles_conffiles_etc_not_marked")]
 #[test_case("checks/conffiles/legacy-etcfiles"; "checks_conffiles_legacy_etcfiles")]
 #[test_case("checks/conffiles/legacy-filenames"; "checks_conffiles_legacy_filenames")]
+#[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-missing"; "checks_debian_changelog_changelog_file_missing")]
 #[test_case("checks/debian/changelog/changelog-file-news-and-changelog-not-compressed"; "checks_debian_changelog_changelog_file_news_and_changelog_not_compressed")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch"; "checks_debian_changelog_changelog_file_no_dch")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch-native"; "checks_debian_changelog_changelog_file_no_dch_native")]
 #[test_case("checks/debian/changelog/changelog-file-symlink"; "checks_debian_changelog_changelog_file_symlink")]
+#[test_case("checks/debian/changelog/changelog-file-wrong-weekday"; "checks_debian_changelog_changelog_file_wrong_weekday")]
 #[test_case("checks/debian/changelog/legacy-binary"; "checks_debian_changelog_legacy_binary")]
 #[test_case("checks/debian/changelog/legacy-etcfiles"; "checks_debian_changelog_legacy_etcfiles")]
 #[test_case("checks/debian/changelog/legacy-fields"; "checks_debian_changelog_legacy_fields")]
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
+#[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-libbaz"; "checks_debian_changelog_legacy_libbaz")]
 #[test_case("checks/debian/changelog/legacy-relations"; "checks_debian_changelog_legacy_relations")]
 #[test_case("checks/debian/copyright/copyright-file-general"; "checks_debian_copyright_copyright_file_general")]
@@ -688,7 +778,13 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/copyright/legacy-foo++"; "checks_debian_copyright_legacy_foo_")]
 #[test_case("checks/debian/copyright/legacy-maintainer-scripts"; "checks_debian_copyright_legacy_maintainer_scripts")]
 #[test_case("checks/debian/copyright/legacy-relations"; "checks_debian_copyright_legacy_relations")]
+#[test_case("checks/debian/copyright/legacy-scripts"; "checks_debian_copyright_legacy_scripts")]
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
+#[test_case("checks/debian/debconf/debconf-config-general"; "checks_debian_debconf_debconf_config_general")]
+#[test_case("checks/debian/debconf/debconf-config-not-executable"; "checks_debian_debconf_debconf_config_not_executable")]
+#[test_case("checks/debian/debconf/debconf-maintscripts-deps"; "checks_debian_debconf_debconf_maintscripts_deps")]
+#[test_case("checks/debian/debconf/debconf-no-templates"; "checks_debian_debconf_debconf_no_templates")]
+#[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/debconf/national-encoding"; "checks_debian_debconf_national_encoding")]
 #[test_case("checks/debian/debconf/po-debconf-general"; "checks_debian_debconf_po_debconf_general")]
@@ -699,14 +795,24 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/legacy-filenames"; "checks_documentation_legacy_filenames")]
 #[test_case("checks/documentation/legacy-libbaz"; "checks_documentation_legacy_libbaz")]
 #[test_case("checks/documentation/manual/bad-link-to-undocumented-manpage"; "checks_documentation_manual_bad_link_to_undocumented_manpage")]
+#[test_case("checks/documentation/manual/bad-so-link-in-manpage"; "checks_documentation_manual_bad_so_link_in_manpage")]
+#[test_case("checks/documentation/manual/executable-without-english-manpage"; "checks_documentation_manual_executable_without_english_manpage")]
 #[test_case("checks/documentation/manual/executable-without-manpage"; "checks_documentation_manual_executable_without_manpage")]
 #[test_case("checks/documentation/manual/legacy-binary"; "checks_documentation_manual_legacy_binary")]
 #[test_case("checks/documentation/manual/legacy-filenames"; "checks_documentation_manual_legacy_filenames")]
 #[test_case("checks/documentation/manual/legacy-scripts"; "checks_documentation_manual_legacy_scripts")]
+#[test_case("checks/documentation/manual/link-to-undocumented-manpage"; "checks_documentation_manual_link_to_undocumented_manpage")]
+#[test_case("checks/documentation/manual/manpage-bad-whatis"; "checks_documentation_manual_manpage_bad_whatis")]
+#[test_case("checks/documentation/manual/manpage-dh-make-template"; "checks_documentation_manual_manpage_dh_make_template")]
+#[test_case("checks/documentation/manual/manpage-empty"; "checks_documentation_manual_manpage_empty")]
+#[test_case("checks/documentation/manual/manpage-errors-from-man"; "checks_documentation_manual_manpage_errors_from_man")]
+#[test_case("checks/documentation/manual/manpage-errors-from-pod2man"; "checks_documentation_manual_manpage_errors_from_pod2man")]
+#[test_case("checks/documentation/manual/manpage-generic-name"; "checks_documentation_manual_manpage_generic_name")]
 #[test_case("checks/documentation/manual/manpage-locale-dir-country-specific"; "checks_documentation_manual_manpage_locale_dir_country_specific")]
 #[test_case("checks/documentation/manual/manpage-named-after-build-path"; "checks_documentation_manual_manpage_named_after_build_path")]
 #[test_case("checks/documentation/manual/manpage-not-compressed"; "checks_documentation_manual_manpage_not_compressed")]
 #[test_case("checks/documentation/manual/manpage-not-compressed-with-gzip"; "checks_documentation_manual_manpage_not_compressed_with_gzip")]
+#[test_case("checks/documentation/manual/manpage-useless-whatis"; "checks_documentation_manual_manpage_useless_whatis")]
 #[test_case("checks/documentation/manual/manpages-general"; "checks_documentation_manual_manpages_general")]
 #[test_case("checks/documentation/manual/scripts-ocamlrun"; "checks_documentation_manual_scripts_ocamlrun")]
 #[test_case("checks/fields/bugs/fields-redundant"; "checks_fields_bugs_fields_redundant")]
@@ -797,12 +903,19 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/maintainer-scripts/empty/scripts-maintainer-script-empty"; "checks_maintainer_scripts_empty_scripts_maintainer_script_empty")]
 #[test_case("checks/maintainer-scripts/ldconfig/legacy-maintainer-scripts"; "checks_maintainer_scripts_ldconfig_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/ldconfig/shared-libs-ldconfig-scripts"; "checks_maintainer_scripts_ldconfig_shared_libs_ldconfig_scripts")]
+#[test_case("checks/menu-format/item-has-needs-dwww"; "checks_menu_format_item_has_needs_dwww")]
+#[test_case("checks/menu-format/legacy-binary"; "checks_menu_format_legacy_binary")]
+#[test_case("checks/menu-format/menu-format-desktop-general"; "checks_menu_format_menu_format_desktop_general")]
+#[test_case("checks/menu-format/menu-format-general"; "checks_menu_format_menu_format_general")]
+#[test_case("checks/menu-format/unknown-menu-tag"; "checks_menu_format_unknown_menu_tag")]
+#[test_case("checks/menu-format/whitespace-after-continuation-character"; "checks_menu_format_whitespace_after_continuation_character")]
 #[test_case("checks/menus/legacy-binary"; "checks_menus_legacy_binary")]
 #[test_case("checks/menus/legacy-filenames"; "checks_menus_legacy_filenames")]
 #[test_case("checks/menus/national-encoding"; "checks_menus_national_encoding")]
 #[test_case("checks/scripts/legacy-maintainer-scripts"; "checks_scripts_legacy_maintainer_scripts")]
 #[test_case("checks/scripts/legacy-scripts"; "checks_scripts_legacy_scripts")]
 #[test_case("checks/scripts/scripts-bashisms"; "checks_scripts_scripts_bashisms")]
+#[test_case("checks/scripts/scripts-interpreters"; "checks_scripts_scripts_interpreters")]
 #[test_case("checks/scripts/scripts-maintainer-general"; "checks_scripts_scripts_maintainer_general")]
 #[test_case("checks/scripts/scripts-maintainer-script-invalid-update-inetd-options"; "checks_scripts_scripts_maintainer_script_invalid_update_inetd_options")]
 #[test_case("checks/scripts/scripts-missing-call-to-dpkg-maintscript-helper"; "checks_scripts_scripts_missing_call_to_dpkg_maintscript_helper")]
@@ -813,6 +926,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/systemd/systemd-complex-service-file"; "checks_systemd_systemd_complex_service_file")]
 #[test_case("checks/systemd/systemd-general"; "checks_systemd_systemd_general")]
 #[test_case("checks/systemd/systemd-missing-services"; "checks_systemd_systemd_missing_services")]
+#[test_case("checks/systemd/systemd-service-file-uses-nobody-or-nogroup"; "checks_systemd_systemd_service_file_uses_nobody_or_nogroup")]
 #[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-native-3.0"; "general_false_positives_basic_native_3_0")]
 #[test_case("general-false-positives/basic-native-3.0-with-epoch"; "general_false_positives_basic_native_3_0_with_epoch")]
@@ -850,8 +964,17 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/legacy-libbaz"; "checks_debhelper_legacy_libbaz")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debhelper/oeverride-typo"; "checks_debhelper_oeverride_typo")]
+#[test_case("checks/debian/changelog/changelog-file-become-native"; "checks_debian_changelog_changelog_file_become_native")]
+#[test_case("checks/debian/changelog/changelog-file-epoch-change-without-comment"; "checks_debian_changelog_changelog_file_epoch_change_without_comment")]
+#[test_case("checks/debian/changelog/changelog-file-epoch-change-without-comment-new"; "checks_debian_changelog_changelog_file_epoch_change_without_comment_new")]
+#[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_increase")]
+#[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_same")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
+#[test_case("checks/debian/changelog/changelog-file-reuses-existing-version"; "checks_debian_changelog_changelog_file_reuses_existing_version")]
+#[test_case("checks/debian/changelog/changelog-version-special-chars"; "checks_debian_changelog_changelog_version_special_chars")]
+#[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
+#[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
@@ -877,6 +1000,9 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
 #[test_case("checks/debian/copyright/dep5/wildcard-out-of-order"; "checks_debian_copyright_dep5_wildcard_out_of_order")]
+#[test_case("checks/debian/copyright/generic-empty"; "checks_debian_copyright_generic_empty")]
+#[test_case("checks/debian/copyright/named-copyright-in-source"; "checks_debian_copyright_named_copyright_in_source")]
+#[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-binary-targets"; "checks_debian_rules_control_file_rules_requires_root_binary_targets")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-no"; "checks_debian_rules_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
@@ -966,12 +1092,20 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
 #[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
+#[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
+#[test_case("checks/nmu/legacy-fields"; "checks_nmu_legacy_fields")]
+#[test_case("checks/nmu/legacy-libbaz"; "checks_nmu_legacy_libbaz")]
+#[test_case("checks/nmu/legacy-maintainer-scripts"; "checks_nmu_legacy_maintainer_scripts")]
+#[test_case("checks/nmu/legacy-scripts"; "checks_nmu_legacy_scripts")]
+#[test_case("checks/nmu/nmu-qa-upload"; "checks_nmu_nmu_qa_upload")]
+#[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
 #[test_case("checks/obsolete-sites/obsolete-sites"; "checks_obsolete_sites_obsolete_sites")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]
 #[test_case("general-false-positives/basic-non-native-3.0-with-epoch"; "general_false_positives_basic_non_native_3_0_with_epoch")]
+#[test_case("odd-inputs/source/debian-symlink"; "odd_inputs_source_debian_symlink")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]

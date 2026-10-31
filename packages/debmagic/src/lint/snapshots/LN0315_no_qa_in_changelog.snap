@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): no-qa-in-changelog (LN0315) [debian/changelog:1]
+W: example (source): no-qa-in-changelog (LN0315) [debian/changelog:1]

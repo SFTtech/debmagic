@@ -5,6 +5,8 @@ use std::sync::OnceLock;
 
 use anyhow::{Context, bail};
 
+use super::timing;
+
 /// In-process reader for a Binary package. Callers list and read Control files
 /// and Data files; they do not hold the inner tarballs.
 pub(crate) struct BinaryPackageReader {
@@ -163,7 +165,7 @@ fn init_index<'a>(
 ) -> anyhow::Result<&'a TarballIndex> {
     // The result, errors included, is cached so concurrent callers index each
     // tarball once and all observe the same outcome.
-    cell.get_or_init(|| {
+    timing::init_once(cell, || {
         index_tarball(name, compressed)
             .with_context(|| format!("indexing {name} from {}", archive_path.display()))
             .map_err(|error| format!("{error:#}"))

@@ -20,6 +20,8 @@ pub struct LintIntentInput {
     pub fail_on: Vec<Severity>,
     /// Worker threads for running Rules; `None` uses the available parallelism.
     pub threads: Option<usize>,
+    /// Report bringup, initialization shared across Rules, and per-Rule time.
+    pub timings: bool,
 }
 
 /// Fully resolved description of *how* a lint runs.
@@ -31,6 +33,8 @@ pub struct LintIntent {
     pub severity_remaps: HashMap<Code, Severity>,
     /// Worker threads for running Rules; `None` uses the available parallelism.
     pub threads: Option<usize>,
+    /// Report bringup, initialization shared across Rules, and per-Rule time.
+    pub timings: bool,
 }
 
 fn resolve_fail_on(fail_on: &[Severity]) -> HashSet<Severity> {
@@ -57,6 +61,7 @@ pub fn resolve_lint_intent(input: LintIntentInput) -> anyhow::Result<LintIntent>
         fail_on: resolve_fail_on(&input.fail_on),
         severity_remaps: HashMap::new(),
         threads: input.threads,
+        timings: input.timings,
     })
 }
 
@@ -83,6 +88,7 @@ mod tests {
             ignore: vec![],
             fail_on: vec![],
             threads: None,
+            timings: false,
         }
     }
 

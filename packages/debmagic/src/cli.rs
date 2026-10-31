@@ -714,6 +714,13 @@ pub struct LintSubcommandArgs {
         help = "Worker threads for running Rules (default: available parallelism, at most one per Rule)"
     )]
     pub threads: Option<usize>,
+
+    #[arg(
+        long,
+        action = clap::ArgAction::SetTrue,
+        help = "Print bringup time, initialization shared across Rules, and time spent on each Rule"
+    )]
+    pub timings: bool,
 }
 
 #[derive(Args, Debug)]

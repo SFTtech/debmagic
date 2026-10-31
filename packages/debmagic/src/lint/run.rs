@@ -12,8 +12,9 @@ use super::context::{
 use super::diagnostic::Diagnostic;
 use super::intent::LintIntent;
 use super::registry;
-use super::rule::{RuleAccess, Severity};
+use super::rule::{Code, RuleAccess, Severity, Tag};
 use super::subject::Subject;
+use super::timing::{self, TimingSession};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintOutcome {
@@ -31,6 +32,30 @@ pub struct LintResult {
     /// Size of the thread pool the run used, for running Rules and for
     /// walking and classifying files.
     pub threads: usize,
+    /// Present when the run was asked for a timings report.
+    pub timings: Option<LintTimings>,
+}
+
+/// One Rule's time, excluding initialization shared with other Rules.
+#[derive(Debug, Clone, Copy)]
+pub struct RuleTiming {
+    pub code: Code,
+    pub tag: Tag,
+    pub elapsed: Duration,
+}
+
+/// Bringup, shared initialization, and per-Rule time for one lint run.
+///
+/// `bringup` is wall time before any Rule runs (thread pool and opening the
+/// Subject). `shared` is time spent building data every Rule shares — File
+/// trees, Debian control, Debian changelog, and tarball indexes — counted
+/// once, not on the Rule that happened to trigger it. A Rule's `elapsed`
+/// excludes time that Rule spent waiting on or performing that shared work.
+#[derive(Debug, Clone)]
+pub struct LintTimings {
+    pub bringup: Duration,
+    pub shared: Duration,
+    pub rules: Vec<RuleTiming>,
 }
 
 pub fn run_lint(intent: &LintIntent) -> anyhow::Result<LintResult> {
@@ -44,34 +69,46 @@ pub fn run_lint(intent: &LintIntent) -> anyhow::Result<LintResult> {
         .build()
         .context("starting the lint thread pool failed")?;
     let mut result = pool.install(|| match &intent.subject {
-        Subject::SourcePackage(path) => run_source_package_lint(intent, path),
-        Subject::BinaryPackage(path) => run_binary_package_lint(intent, path),
-        Subject::SourceTree(path) => run_source_tree_lint(intent, path),
+        Subject::SourcePackage(path) => run_source_package_lint(intent, path, started),
+        Subject::BinaryPackage(path) => run_binary_package_lint(intent, path, started),
+        Subject::SourceTree(path) => run_source_tree_lint(intent, path, started),
     })?;
     result.elapsed = started.elapsed();
     result.threads = threads;
     Ok(result)
 }
 
-fn run_source_package_lint(intent: &LintIntent, path: &Path) -> anyhow::Result<LintResult> {
+fn run_source_package_lint(
+    intent: &LintIntent,
+    path: &Path,
+    started: Instant,
+) -> anyhow::Result<LintResult> {
     let data = SourcePackageData::new(path.to_path_buf())?;
-    execute_rules(intent, registry::source_rules(), |rule| {
+    execute_rules(intent, registry::source_rules(), started, |rule| {
         let mut ctx = SourceContext::bind_package(&data, rule);
         rule.run(&mut ctx);
         ctx.finish()
     })
 }
 
-fn run_binary_package_lint(intent: &LintIntent, path: &Path) -> anyhow::Result<LintResult> {
+fn run_binary_package_lint(
+    intent: &LintIntent,
+    path: &Path,
+    started: Instant,
+) -> anyhow::Result<LintResult> {
     let data = BinaryPackageData::new(path.to_path_buf())?;
-    execute_rules(intent, registry::binary_package_rules(), |rule| {
+    execute_rules(intent, registry::binary_package_rules(), started, |rule| {
         let mut ctx = BinaryPackageContext::bind(&data, rule);
         rule.run(&mut ctx);
         ctx.finish()
     })
 }
 
-fn run_source_tree_lint(intent: &LintIntent, source_tree: &Path) -> anyhow::Result<LintResult> {
+fn run_source_tree_lint(
+    intent: &LintIntent,
+    source_tree: &Path,
+    started: Instant,
+) -> anyhow::Result<LintResult> {
     let debian_dir = source_tree.join("debian");
     if !debian_dir.is_dir() {
         bail!(
@@ -81,7 +118,7 @@ fn run_source_tree_lint(intent: &LintIntent, source_tree: &Path) -> anyhow::Resu
     }
 
     let data = SourceTreeData::new(source_tree.to_path_buf());
-    execute_rules(intent, registry::source_rules(), |rule| {
+    execute_rules(intent, registry::source_rules(), started, |rule| {
         let mut ctx = SourceContext::bind_tree(&data, rule);
         rule.run(&mut ctx);
         ctx.finish()
@@ -97,13 +134,23 @@ fn worker_threads(requested: Option<usize>) -> usize {
         .unwrap_or(1)
 }
 
+struct RuleProduct {
+    diagnostics: Vec<Diagnostic>,
+    timing: RuleTiming,
+}
+
 /// Run every selected Rule on the current rayon pool. Rules are independent, so
 /// they run in parallel;
 /// diagnostics are collected in Rule order, so output does not depend on the
 /// thread count. If several Rules fail, the first in Rule order is reported.
+///
+/// `started` is the beginning of the lint run. Time up to the moment Rules
+/// launch is bringup. Shared initialization that happens inside a Rule is
+/// subtracted from that Rule and reported once.
 fn execute_rules<R: RuleAccess + ?Sized>(
     intent: &LintIntent,
     rules: &[&R],
+    started: Instant,
     run_rule: impl Fn(&R) -> anyhow::Result<Vec<Diagnostic>> + Sync,
 ) -> anyhow::Result<LintResult> {
     let selected = intent.selected.iter().copied().collect::<HashSet<_>>();
@@ -118,19 +165,40 @@ fn execute_rules<R: RuleAccess + ?Sized>(
     }
 
     let rules_run = execution.len();
+    // Installed before bringup is sampled so pool broadcast is bringup, and
+    // before Rules run so their shared initialization is visible on every worker.
+    let session = intent.timings.then(TimingSession::install_on_current_pool);
+    let bringup = started.elapsed();
 
-    let run_one = |rule: &&R| -> anyhow::Result<Vec<Diagnostic>> {
-        let mut rule_diagnostics = run_rule(rule)?;
-        apply_severity_remaps(&mut rule_diagnostics, intent);
-        Ok(rule_diagnostics)
+    let run_one = |rule: &&R| -> anyhow::Result<RuleProduct> {
+        let start = Instant::now();
+        let waited_before = timing::waited_on_this_thread();
+        let mut diagnostics = run_rule(rule)?;
+        apply_severity_remaps(&mut diagnostics, intent);
+        let waited = timing::waited_on_this_thread().saturating_sub(waited_before);
+        Ok(RuleProduct {
+            diagnostics,
+            timing: RuleTiming {
+                code: rule.code(),
+                tag: rule.tag(),
+                elapsed: start.elapsed().saturating_sub(waited),
+            },
+        })
     };
 
-    let per_rule: Vec<anyhow::Result<Vec<Diagnostic>>> =
-        execution.par_iter().map(run_one).collect();
+    let per_rule: Vec<anyhow::Result<RuleProduct>> = execution.par_iter().map(run_one).collect();
+    let shared = session
+        .as_ref()
+        .map(TimingSession::shared)
+        .unwrap_or_default();
+    drop(session);
 
     let mut diagnostics = Vec::new();
-    for rule_diagnostics in per_rule {
-        diagnostics.extend(rule_diagnostics?);
+    let mut rule_timings = Vec::with_capacity(per_rule.len());
+    for product in per_rule {
+        let product = product?;
+        diagnostics.extend(product.diagnostics);
+        rule_timings.push(product.timing);
     }
 
     let outcome = outcome_for(&diagnostics, &intent.fail_on);
@@ -140,6 +208,11 @@ fn execute_rules<R: RuleAccess + ?Sized>(
         rules: rules_run,
         elapsed: Duration::ZERO,
         threads: 0,
+        timings: intent.timings.then_some(LintTimings {
+            bringup,
+            shared,
+            rules: rule_timings,
+        }),
     })
 }
 
@@ -234,6 +307,74 @@ pub fn format_finished(elapsed: Duration, rules: usize, threads: usize) -> Strin
     )
 }
 
+/// Timings report: shared initialization, then each Rule slowest first.
+///
+/// Initialization is `bringup` (wall time before any Rule runs) and `shared`
+/// (data computed once for every Rule). A Rule's time excludes shared
+/// initialization that Rule waited on or performed.
+pub fn format_timings(timings: &LintTimings) -> String {
+    let mut rules = timings.rules.clone();
+    rules.sort_by(|left, right| {
+        right
+            .elapsed
+            .cmp(&left.elapsed)
+            .then_with(|| left.code.cmp(&right.code))
+    });
+    let rule_labels: Vec<String> = rules
+        .iter()
+        .map(|rule| format!("{}  {}", rule.code, rule.tag))
+        .collect();
+    let bringup = format_timing_duration(timings.bringup);
+    let shared = format_timing_duration(timings.shared);
+    let rule_times: Vec<String> = rules
+        .iter()
+        .map(|rule| format_timing_duration(rule.elapsed))
+        .collect();
+    let width = rule_labels
+        .iter()
+        .map(|label| 2 + label.len())
+        .chain([2 + "bringup".len(), 2 + "shared".len()])
+        .max()
+        .unwrap_or(0);
+    let time_width = [bringup.len(), shared.len()]
+        .into_iter()
+        .chain(rule_times.iter().map(String::len))
+        .max()
+        .unwrap_or(0);
+
+    let mut lines = vec![
+        "Initialization".to_string(),
+        timing_row(2, "bringup", &bringup, width, time_width),
+        timing_row(2, "shared", &shared, width, time_width),
+    ];
+    if !rules.is_empty() {
+        lines.push(String::new());
+        lines.push("Rules".to_string());
+        for (label, time) in rule_labels.iter().zip(&rule_times) {
+            lines.push(timing_row(2, label, time, width, time_width));
+        }
+    }
+    lines.join("\n")
+}
+
+fn format_timing_duration(elapsed: Duration) -> String {
+    if elapsed.as_secs() >= 1 {
+        format!("{:.1}s", elapsed.as_secs_f64())
+    } else {
+        format!("{:.1}ms", elapsed.as_secs_f64() * 1000.0)
+    }
+}
+
+fn timing_row(indent: usize, label: &str, time: &str, width: usize, time_width: usize) -> String {
+    let mut line = " ".repeat(indent);
+    line.push_str(label);
+    line.push_str(&" ".repeat(width.saturating_sub(line.len())));
+    line.push_str("  ");
+    line.push_str(&" ".repeat(time_width.saturating_sub(time.len())));
+    line.push_str(time);
+    line
+}
+
 fn plural(count: usize, singular: &'static str, plural_word: &'static str) -> &'static str {
     if count == 1 { singular } else { plural_word }
 }
@@ -272,6 +413,7 @@ mod tests {
             ignore: vec![],
             fail_on: vec![],
             threads: None,
+            timings: false,
         })
         .expect("resolve lint intent")
     }
@@ -329,6 +471,7 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
             threads: None,
+            timings: false,
         };
         let LintResult { diagnostics, .. } = run_lint(&intent)?;
         assert!(
@@ -385,6 +528,97 @@ mod tests {
     }
 
     #[test]
+    fn timing_duration_switches_to_seconds_at_one_second() {
+        assert_eq!(format_timing_duration(Duration::ZERO), "0.0ms");
+        assert_eq!(format_timing_duration(Duration::from_micros(1500)), "1.5ms");
+        assert_eq!(
+            format_timing_duration(Duration::from_millis(999)),
+            "999.0ms"
+        );
+        assert_eq!(format_timing_duration(Duration::from_secs(1)), "1.0s");
+        assert_eq!(format_timing_duration(Duration::from_millis(1500)), "1.5s");
+    }
+
+    #[test]
+    fn timings_report_splits_initialization_and_rules() {
+        let timings = LintTimings {
+            bringup: Duration::from_millis(12),
+            shared: Duration::from_millis(340),
+            rules: vec![
+                RuleTiming {
+                    code: RequiredField::CODE,
+                    tag: RequiredField::TAG,
+                    elapsed: Duration::from_millis(1),
+                },
+                RuleTiming {
+                    code: DebmagicDummyTrigger::CODE,
+                    tag: DebmagicDummyTrigger::TAG,
+                    elapsed: Duration::from_millis(20),
+                },
+            ],
+        };
+        assert_eq!(
+            format_timings(&timings),
+            "\
+Initialization
+  bringup                          12.0ms
+  shared                          340.0ms
+
+Rules
+  DM0001  debmagic-dummy-trigger   20.0ms
+  LN0001  required-field            1.0ms"
+        );
+    }
+
+    #[test]
+    fn timings_exclude_shared_initialization_from_rules() -> anyhow::Result<()> {
+        let temp_dir = tempfile_dir("debmagic-check-timings")?;
+        fs::create_dir_all(temp_dir.join("debian"))?;
+        fs::write(
+            temp_dir.join("debian/control"),
+            "Source: example\n\
+             Maintainer: Example <ex@example.com>\n\
+             Standards-Version: 4.7.2\n\
+             \n\
+             Package: example\n\
+             Architecture: all\n\
+             Description: example\n extra\n",
+        )?;
+        for index in 0..2_000 {
+            fs::write(temp_dir.join(format!("f{index}")), b"x")?;
+        }
+        let intent = LintIntent {
+            subject: Subject::SourceTree(temp_dir),
+            selected: vec![DebmagicDummyTrigger::CODE],
+            fail_on: HashSet::from([Severity::Error]),
+            severity_remaps: HashMap::new(),
+            threads: Some(1),
+            timings: true,
+        };
+        let result = run_lint(&intent)?;
+        let timings = result.timings.expect("timings");
+        assert_eq!(timings.rules.len(), 1);
+        assert_eq!(timings.rules[0].code, DebmagicDummyTrigger::CODE);
+        assert!(timings.bringup > Duration::ZERO, "{:?}", timings.bringup);
+        assert!(
+            timings.shared > timings.rules[0].elapsed,
+            "shared initialization was charged to the rule: shared {:?} rule {:?}",
+            timings.shared,
+            timings.rules[0].elapsed
+        );
+        let rendered = format_timings(&timings);
+        assert!(rendered.starts_with("Initialization\n"), "{rendered}");
+        assert!(rendered.contains("\n  bringup"), "{rendered}");
+        assert!(rendered.contains("\n  shared"), "{rendered}");
+        assert!(rendered.contains("\n\nRules\n"), "{rendered}");
+        assert!(
+            rendered.contains("DM0001  debmagic-dummy-trigger"),
+            "{rendered}"
+        );
+        Ok(())
+    }
+
+    #[test]
     fn run_counts_executed_rules() -> anyhow::Result<()> {
         let temp_dir = tempfile_dir("debmagic-check-finished")?;
         fs::create_dir_all(temp_dir.join("debian"))?;
@@ -404,11 +638,13 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
             threads: Some(1),
+            timings: false,
         };
         let result = run_lint(&intent)?;
         assert!(result.diagnostics.is_empty(), "{:?}", result.diagnostics);
         assert_eq!(result.rules, 1);
         assert_eq!(result.threads, 1);
+        assert!(result.timings.is_none());
         assert!(
             format_finished(result.elapsed, result.rules, result.threads)
                 .ends_with(" with 1 rule using 1 thread.")
@@ -452,6 +688,7 @@ mod tests {
                 fail_on: HashSet::from([Severity::Error]),
                 severity_remaps: HashMap::new(),
                 threads,
+                timings: false,
             };
             let result = run_lint(&intent)?;
             assert_eq!(result.threads, worker_threads(threads));
@@ -513,6 +750,7 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
             threads: None,
+            timings: false,
         };
         let LintResult {
             diagnostics,
@@ -559,6 +797,7 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
             threads: None,
+            timings: false,
         };
         let LintResult {
             diagnostics,
@@ -595,6 +834,7 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
             threads: None,
+            timings: false,
         };
         let LintResult {
             diagnostics,
@@ -624,6 +864,7 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
             threads: None,
+            timings: false,
         };
         let error = run_lint(&intent).unwrap_err();
         assert!(
@@ -670,6 +911,7 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
             threads: None,
+            timings: false,
         };
         let LintResult {
             diagnostics,
@@ -698,6 +940,7 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
             threads: None,
+            timings: false,
         };
         let LintResult {
             diagnostics,
@@ -965,6 +1208,7 @@ mod tests {
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
             threads: None,
+            timings: false,
         };
         let LintResult {
             diagnostics,

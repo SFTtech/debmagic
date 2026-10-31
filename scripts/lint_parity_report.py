@@ -616,43 +616,6 @@ def render_coverage(report: dict) -> list[str]:
     return lines
 
 
-def render_rules(report: dict) -> list[str]:
-    rows = []
-    for item in report["rules"]:
-        hints = item["hint_lines"]
-        rows.append(
-            [
-                item["code"],
-                item["tag"],
-                item["lintian_severity"] or "?",
-                "+".join(item["kinds"]) or "-",
-                f"{hints['covered']}/{hints['covered'] + hints['uncovered']}",
-                f"{item['primary_recipes']}/{item['all_recipes']}",
-                "/".join(str(item["listed"][k]) for k in ("source_tree", "source_package", "binary_package")),
-                item["status"],
-                " ".join(item["flags"]) or "-",
-            ]
-        )
-    lines = ["", "== Implemented LN Rules"]
-    lines.append(
-        table(
-            [
-                "code",
-                "tag",
-                "lintian",
-                "applies",
-                "hints ok/all",
-                "recipes prim/all",
-                "parity tree/dsc/deb",
-                "status",
-                "flags",
-            ],
-            rows,
-        )
-    )
-    return lines
-
-
 def render_checks(report: dict) -> list[str]:
     checks = report["checks"]
     touched = [c for c in checks if c["implemented"] > 0]
@@ -710,7 +673,6 @@ def render_text(report: dict) -> str:
     sections = [
         render_header(report),
         render_coverage(report),
-        render_rules(report),
         render_checks(report),
         render_fidelity(report),
         render_candidates(report),

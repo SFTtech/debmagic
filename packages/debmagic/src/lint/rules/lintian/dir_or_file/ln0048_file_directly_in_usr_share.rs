@@ -1,9 +1,9 @@
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
-use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::hierarchy_standard::{Hierarchy, hierarchy_paths};
+use super::hierarchy_standard::{after, flag_matching};
 
 pub struct FileDirectlyInUsrShare;
 
@@ -20,15 +20,21 @@ declare_rule! {
     experimental = false,
 }
 
+pub(super) static MARK: () = ();
+
+/// Anything directly in `usr/share/` ends the chain. Only a regular file or
+/// hardlink is flagged.
+pub(super) fn claims(name: &str, _kind: EntryKind, _udeb: bool) -> bool {
+    after(name, "usr/share/").is_some_and(|rest| !rest.contains('/'))
+}
+
+pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool) -> bool {
+    claims(name, kind, udeb) && matches!(kind, EntryKind::RegularFile | EntryKind::Hardlink)
+}
+
 impl BinaryPackageRule for FileDirectlyInUsrShare {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        for path in hierarchy_paths(ctx, Hierarchy::FileDirectlyInUsrShare) {
-            ctx.diagnostic(Diagnostic::error("").with_location(Location {
-                path,
-                line: None,
-                column: None,
-            }));
-        }
+        flag_matching(ctx, &MARK);
     }
 }
 

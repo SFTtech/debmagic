@@ -1,7 +1,7 @@
 mod changelog_doc;
 mod debian_rules;
 mod description_field;
-mod hierarchy_standard;
+mod dir_or_file;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
 mod ln0003_debian_rules_missing_required_target;
@@ -36,21 +36,7 @@ mod ln0031_lengthy_symlink;
 mod ln0032_wrong_package_mail_alias;
 mod ln0033_debian_changelog_file_is_a_symlink;
 mod ln0034_package_contains_vcs_control_dir;
-mod ln0035_dir_or_file_in_srv;
-mod ln0036_dir_or_file_in_mnt;
 mod ln0037_extended_description_is_empty;
-mod ln0038_dir_or_file_in_home;
-mod ln0039_dir_or_file_in_tmp;
-mod ln0040_dir_or_file_in_opt;
-mod ln0041_dir_or_file_in_var_www;
-mod ln0042_dir_or_file_in_var_run;
-mod ln0043_dir_or_file_in_var_lock;
-mod ln0044_dir_or_file_in_run;
-mod ln0045_dir_or_file_in_etc_opt;
-mod ln0046_dir_in_usr_local;
-mod ln0047_file_in_usr_local;
-mod ln0048_file_directly_in_usr_share;
-mod ln0049_subdir_in_usr_bin;
 mod ln0050_description_synopsis_is_empty;
 mod ln0051_description_starts_with_package_name;
 mod ln0052_description_synopsis_starts_with_article;
@@ -62,6 +48,11 @@ mod ln0057_svn_commit_file_in_package;
 mod mailbox;
 mod symlink_links;
 
+pub(crate) use dir_or_file::{
+    DirInUsrLocal, DirOrFileInEtcOpt, DirOrFileInHome, DirOrFileInMnt, DirOrFileInOpt,
+    DirOrFileInRun, DirOrFileInSrv, DirOrFileInTmp, DirOrFileInVarLock, DirOrFileInVarRun,
+    DirOrFileInVarWww, FileDirectlyInUsrShare, FileInUsrLocal, SubdirInUsrBin,
+};
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
 pub(crate) use ln0003_debian_rules_missing_required_target::DebianRulesMissingRequiredTarget;
@@ -96,21 +87,7 @@ pub(crate) use ln0031_lengthy_symlink::LengthySymlink;
 pub(crate) use ln0032_wrong_package_mail_alias::WrongPackageMailAlias;
 pub(crate) use ln0033_debian_changelog_file_is_a_symlink::DebianChangelogFileIsASymlink;
 pub(crate) use ln0034_package_contains_vcs_control_dir::PackageContainsVcsControlDir;
-pub(crate) use ln0035_dir_or_file_in_srv::DirOrFileInSrv;
-pub(crate) use ln0036_dir_or_file_in_mnt::DirOrFileInMnt;
 pub(crate) use ln0037_extended_description_is_empty::ExtendedDescriptionIsEmpty;
-pub(crate) use ln0038_dir_or_file_in_home::DirOrFileInHome;
-pub(crate) use ln0039_dir_or_file_in_tmp::DirOrFileInTmp;
-pub(crate) use ln0040_dir_or_file_in_opt::DirOrFileInOpt;
-pub(crate) use ln0041_dir_or_file_in_var_www::DirOrFileInVarWww;
-pub(crate) use ln0042_dir_or_file_in_var_run::DirOrFileInVarRun;
-pub(crate) use ln0043_dir_or_file_in_var_lock::DirOrFileInVarLock;
-pub(crate) use ln0044_dir_or_file_in_run::DirOrFileInRun;
-pub(crate) use ln0045_dir_or_file_in_etc_opt::DirOrFileInEtcOpt;
-pub(crate) use ln0046_dir_in_usr_local::DirInUsrLocal;
-pub(crate) use ln0047_file_in_usr_local::FileInUsrLocal;
-pub(crate) use ln0048_file_directly_in_usr_share::FileDirectlyInUsrShare;
-pub(crate) use ln0049_subdir_in_usr_bin::SubdirInUsrBin;
 pub(crate) use ln0050_description_synopsis_is_empty::DescriptionSynopsisIsEmpty;
 pub(crate) use ln0051_description_starts_with_package_name::DescriptionStartsWithPackageName;
 pub(crate) use ln0052_description_synopsis_starts_with_article::DescriptionSynopsisStartsWithArticle;

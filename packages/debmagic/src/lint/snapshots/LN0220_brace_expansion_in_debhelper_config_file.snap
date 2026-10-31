@@ -1,0 +1,15 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {foo,bar} [debian/example.install:1]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {,foo} [debian/a.install:1]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {foo,} [debian/b.install:1]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {,,foo} [debian/c.install:1]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {,foo,} [debian/d.install:1]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {foo,bar,baz} [debian/docs:1]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {foo,bar} [debian/example.install:2]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {foo,bar} [debian/example.install:1]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {foo,bar} [debian/example.install:1]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {foo,bar} [debian/example.install:1]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {foo,bar} [debian/a.install:1]
+W: example (source): brace-expansion-in-debhelper-config-file (LN0220) {baz,qux} [debian/b.docs:1]

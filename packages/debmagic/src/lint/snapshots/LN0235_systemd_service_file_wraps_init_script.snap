@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecStart [usr/lib/systemd/system/wrap.service]
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecStart [usr/lib/systemd/system/test5.service]
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecStartPre [usr/lib/systemd/system/test5.service]
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecStartPost [usr/lib/systemd/system/test5.service]
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecReload [usr/lib/systemd/system/test5.service]
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecStop [usr/lib/systemd/system/test5.service]
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecStopPost [usr/lib/systemd/system/test5.service]
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecStart [usr/lib/systemd/system/quoted.service]
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecStart [usr/lib/systemd/system/second-word.service]
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecStop [usr/lib/systemd/system/a.service]
+W: example (binary): systemd-service-file-wraps-init-script (LN0235) ExecReload [usr/lib/systemd/system/b.service]

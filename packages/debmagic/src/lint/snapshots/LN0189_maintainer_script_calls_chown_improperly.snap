@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-calls-chown-improperly (LN0189) "chown root.root" [postinst:2]
+W: example (binary): maintainer-script-calls-chown-improperly (LN0189) "chown -R root.root" [postinst:3]
+W: example (binary): maintainer-script-calls-chown-improperly (LN0189) "chown --recursive root.root" [postinst:2]
+W: example (binary): maintainer-script-calls-chown-improperly (LN0189) "chown root.root" [postinst:2]
+W: example (binary): maintainer-script-calls-chown-improperly (LN0189) "chown root.root" [postinst:2]

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): depends-exclusively-on-makedev (LN0171) Depends
+W: example (binary): depends-exclusively-on-makedev (LN0171) Depends
+W: example (binary): depends-exclusively-on-makedev (LN0171) Depends
+W: example (binary): depends-exclusively-on-makedev (LN0171) Depends
+W: example (udeb): depends-exclusively-on-makedev (LN0171) Depends

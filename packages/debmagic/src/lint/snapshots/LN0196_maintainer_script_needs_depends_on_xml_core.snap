@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-needs-depends-on-xml-core (LN0196) update-xmlcatalog (does not satisfy xml-core) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-xml-core (LN0196) update-xmlcatalog (does not satisfy xml-core) [postinst:3]

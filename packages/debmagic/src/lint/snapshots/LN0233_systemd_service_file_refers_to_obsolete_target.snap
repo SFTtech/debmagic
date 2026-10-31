@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): systemd-service-file-refers-to-obsolete-target (LN0233) syslog.target [usr/lib/systemd/system/syslog.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-target (LN0233) dbus.target [usr/lib/systemd/system/dbus.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-target (LN0233) syslog.target [usr/lib/systemd/system/both.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-target (LN0233) dbus.target [usr/lib/systemd/system/both.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-target (LN0233) syslog.target [usr/lib/systemd/system/continued.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-target (LN0233) syslog.target [usr/lib/systemd/system/reset-then.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-target (LN0233) syslog.target [usr/lib/systemd/system/quoted.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-target (LN0233) syslog.target [etc/systemd/system/copied.service]
+W: example (binary): systemd-service-file-refers-to-obsolete-target (LN0233) syslog.target [usr/lib/systemd/system/copied.service]

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): debug-suffix-not-dbg (LN0214) [usr/lib/debug/bar]
+W: foo-debug (binary): debug-suffix-not-dbg (LN0214) [usr/lib/debug/bar]
+W: example (binary): debug-suffix-not-dbg (LN0214) [usr/lib/debug/.build-id/]
+W: example (binary): debug-suffix-not-dbg (LN0214) [usr/lib/debug/foo-1]
+W: example (udeb): debug-suffix-not-dbg (LN0214) [usr/lib/debug/bar]

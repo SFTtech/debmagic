@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): compressed-documentation (LN0209) [usr/share/doc/doxygen/foo.map.bz2]
+W: example (binary): compressed-documentation (LN0209) [usr/share/doc/files-doxygen-documentation/html/doc/html/graph_legend.map.gz]
+W: example (binary): compressed-documentation (LN0209) [usr/share/doc/html/foo.map.Z]
+W: example (binary): compressed-documentation (LN0209) [usr/share/doc/html/foo.map.gz]
+W: example (binary): compressed-documentation (LN0209) [usr/share/doc/html/foo.map.gz.extra]
+W: example (binary): compressed-documentation (LN0209) [usr/share/doc/html/foo.map.gzip]
+W: example (binary): compressed-documentation (LN0209) [usr/share/doc/html/legend.map.xz/]
+W: example (binary): compressed-documentation (LN0209) [usr/share/doc/html/link.map.gz]
+W: python-kinterbasdb (binary): compressed-documentation (LN0209) [usr/share/doc/python-kinterbasdb/docs/objects.inv.gz]
+W: example (binary): compressed-documentation (LN0209) [usr/share/doc/example/html/x.map.gz/objects.inv.gz]
+W: example (binary): compressed-documentation (LN0209) [usr/share/doc/example/html/x.map.gz/objects.inv.gz]

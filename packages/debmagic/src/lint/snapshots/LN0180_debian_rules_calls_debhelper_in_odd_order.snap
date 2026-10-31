@@ -1,0 +1,22 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_gencontrol [debian/rules:5]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_makeshlibs [debian/rules:5]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_gencontrol [debian/rules:5]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_shlibdeps [debian/rules:6]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_makeshlibs [debian/rules:7]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_gencontrol [debian/rules:6]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_makeshlibs [debian/rules:5]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_makeshlibs [debian/rules:5]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_makeshlibs [debian/rules:6]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_makeshlibs [debian/rules:6]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_makeshlibs [debian/rules:6]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_makeshlibs [debian/rules:6]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_gencontrol [debian/rules:6]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_gencontrol [debian/rules:6]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_gencontrol [debian/rules:11]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_installdeb [debian/rules:12]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_shlibdeps [debian/rules:13]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_makeshlibs [debian/rules:14]
+W: example (source): debian-rules-calls-debhelper-in-odd-order (LN0180) dh_makeshlibs [debian/rules:18]

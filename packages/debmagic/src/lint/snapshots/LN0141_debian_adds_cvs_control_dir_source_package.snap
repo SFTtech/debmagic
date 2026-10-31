@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-cvs-control-dir (LN0141) [debian/CVS/]
+W: example (source): debian-adds-cvs-control-dir (LN0141) [CVS/]
+W: example (source): debian-adds-cvs-control-dir (LN0141) [.pc/CVS/]

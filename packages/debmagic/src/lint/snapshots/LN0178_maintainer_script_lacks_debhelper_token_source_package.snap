@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/postinst]

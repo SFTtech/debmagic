@@ -1,0 +1,22 @@
+//! Maintainer-script text from lintian's `scripts` and `maintainer-scripts/ldconfig` Checks.
+//!
+//! `scan` walks Control files. Each Rule owns one Tag.
+
+mod ln0186_maintainer_script_calls_install_sgmlcatalog;
+mod ln0187_maintainer_script_changes_netbase;
+mod ln0188_maintscript_calls_ldconfig;
+mod ln0189_maintainer_script_calls_chown_improperly;
+mod ln0190_maintainer_script_modifies_inetd_conf;
+mod ln0191_maintainer_script_should_not_use_dpkg_maintscript_helper;
+mod ln0192_install_info_used_in_maintainer_script;
+mod ln0193_maintainer_script_hides_init_failure;
+mod scan;
+
+pub(crate) use ln0186_maintainer_script_calls_install_sgmlcatalog::MaintainerScriptCallsInstallSgmlcatalog;
+pub(crate) use ln0187_maintainer_script_changes_netbase::MaintainerScriptChangesNetbase;
+pub(crate) use ln0188_maintscript_calls_ldconfig::MaintscriptCallsLdconfig;
+pub(crate) use ln0189_maintainer_script_calls_chown_improperly::MaintainerScriptCallsChownImproperly;
+pub(crate) use ln0190_maintainer_script_modifies_inetd_conf::MaintainerScriptModifiesInetdConf;
+pub(crate) use ln0191_maintainer_script_should_not_use_dpkg_maintscript_helper::MaintainerScriptShouldNotUseDpkgMaintscriptHelper;
+pub(crate) use ln0192_install_info_used_in_maintainer_script::InstallInfoUsedInMaintainerScript;
+pub(crate) use ln0193_maintainer_script_hides_init_failure::MaintainerScriptHidesInitFailure;

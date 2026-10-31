@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-arch-control-dir (LN0136) [{arch}/]
+W: example (source): debian-adds-arch-control-dir (LN0136) [.arch-ids/]
+W: example (source): debian-adds-arch-control-dir (LN0136) [,,trace/]
+W: example (source): debian-adds-arch-control-dir (LN0136) [debian/{arch}/]
+W: example (source): debian-adds-arch-control-dir (LN0136) [src/.arch-ids/]
+W: example (source): debian-adds-arch-control-dir (LN0136) [,,/]
+W: example (source): debian-adds-arch-control-dir (LN0136) [,,.git/]
+W: example (source): debian-adds-arch-control-dir (LN0136) [.pc/{arch}/]

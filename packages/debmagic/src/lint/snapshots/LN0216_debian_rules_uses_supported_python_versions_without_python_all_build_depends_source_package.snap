@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions -s [debian/rules:6]

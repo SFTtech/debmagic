@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-hides-init-failure (LN0193) "invoke-rc.d foo start || exit 0" [postinst:2]
+W: example (binary): maintainer-script-hides-init-failure (LN0193) "invoke-rc.d foo start || exit 0" [postinst:3]
+W: example (binary): maintainer-script-hides-init-failure (LN0193) "invoke-rc.d foo start || exit 0" [postinst:2]
+W: example (binary): maintainer-script-hides-init-failure (LN0193) "invoke-rc.d foo start || exit 0 || exit 0" [postinst:2]

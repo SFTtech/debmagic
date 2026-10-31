@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): build-depends-on-1-revision (LN0170) Build-Depends: revision-1 (>= 1.0-1)
+W: example (source): build-depends-on-1-revision (LN0170) Build-Depends: edge (>= 3-1)
+W: example (source): build-depends-on-1-revision (LN0170) Build-Depends: pkg (>= 2:1.0-1) [amd64]
+W: example (source): build-depends-on-1-revision (LN0170) Build-Depends-Indep: libfoo (>= 1.2-1)
+W: example (source): build-depends-on-1-revision (LN0170) Build-Depends-Arch: other (>= 9-1)

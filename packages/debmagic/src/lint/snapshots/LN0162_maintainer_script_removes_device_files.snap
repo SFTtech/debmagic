@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): maintainer-script-removes-device-files (LN0162) "rm /dev/null" [postinst:3]
+E: example (binary): maintainer-script-removes-device-files (LN0162) "rm /tmp/foo /dev/device" [postrm:2]
+E: example (binary): maintainer-script-removes-device-files (LN0162) "rm	/dev/device1" [postrm:2]
+E: example (binary): maintainer-script-removes-device-files (LN0162) "rm -f /dev/null" [postinst:3]
+E: example (binary): maintainer-script-removes-device-files (LN0162) "rm /dev/shm/foo /dev/null" [postinst:3]
+E: example (udeb): maintainer-script-removes-device-files (LN0162) "rm /dev/null" [postinst:2]

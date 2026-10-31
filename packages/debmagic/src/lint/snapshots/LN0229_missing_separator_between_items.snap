@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): missing-separator-between-items (LN0229) (in source paragraph) 'foo' and 'bar'
+E: example (source): missing-separator-between-items (LN0229) (in section for example) 'p1' and 'p2'
+E: example (source): missing-separator-between-items (LN0229) (in section for example) 'alpha' and 'beta'
+E: example (source): missing-separator-between-items (LN0229) (in section for example) 'foo (>= 1)' and 'baz (<< 2)'
+E: example (source): missing-separator-between-items (LN0229) (in section for example) '${shlibs:Depends}' and '${some:Depends}'
+E: example (source): missing-separator-between-items (LN0229) (in section for example) 'foo' and 'bar'
+E: example (source): missing-separator-between-items (LN0229) (in section for example) 'foo' and 'bar'
+E: example (source): missing-separator-between-items (LN0229) (in section for example) 'bar' and 'baz'
+E: control-file-missing-separator (source): missing-separator-between-items (LN0229) (in section for control-file-missing-separator) 'foo (>= 1)' and 'baz (<< 2)'
+E: control-file-missing-separator (source): missing-separator-between-items (LN0229) (in section for control-file-missing-separator) 'p1' and 'p2'
+E: control-file-general (source): missing-separator-between-items (LN0229) (in section for control-file-general) '${shlibs:Depends}' and '${some:Depends}'

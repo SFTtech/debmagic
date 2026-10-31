@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-missing-lsb-section (LN0232) [etc/init.d/no-lsb]
+W: example (binary): init.d-script-missing-lsb-section (LN0232) [etc/init.d/mid-line]
+W: example (binary): init.d-script-missing-lsb-section (LN0232) [etc/init.d/indented]
+W: example (binary): init.d-script-missing-lsb-section (LN0232) [etc/init.d/hooked]
+W: example (binary): init.d-script-missing-lsb-section (LN0232) [etc/init.d/skeleton]
+W: example (udeb): init.d-script-missing-lsb-section (LN0232) [etc/init.d/udeb-script]

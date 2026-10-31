@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-needs-depends-on-update-inetd (LN0164) update-inetd (does not satisfy update-inetd | inet-superserver | openbsd-inetd | inetutils-inetd | rlinetd | xinetd) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-update-inetd (LN0164) update-inetd (does not satisfy update-inetd | inet-superserver | openbsd-inetd | inetutils-inetd | rlinetd | xinetd) [postinst:3]
+W: example (binary): maintainer-script-needs-depends-on-update-inetd (LN0164) update-inetd (does not satisfy update-inetd | inet-superserver | openbsd-inetd | inetutils-inetd | rlinetd | xinetd) [postinst:2]
+W: xinetd (binary): maintainer-script-needs-depends-on-update-inetd (LN0164) update-inetd (does not satisfy update-inetd | inet-superserver | openbsd-inetd | inetutils-inetd | rlinetd | xinetd) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-update-inetd (LN0164) update-inetd (does not satisfy update-inetd | inet-superserver | openbsd-inetd | inetutils-inetd | rlinetd | xinetd) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-update-inetd (LN0164) update-inetd (does not satisfy update-inetd | inet-superserver | openbsd-inetd | inetutils-inetd | rlinetd | xinetd) [preinst:2]
+W: example (binary): maintainer-script-needs-depends-on-update-inetd (LN0164) update-inetd (does not satisfy update-inetd | inet-superserver | openbsd-inetd | inetutils-inetd | rlinetd | xinetd) [postinst:3]
+W: example (udeb): maintainer-script-needs-depends-on-update-inetd (LN0164) update-inetd (does not satisfy update-inetd | inet-superserver | openbsd-inetd | inetutils-inetd | rlinetd | xinetd) [postinst:2]

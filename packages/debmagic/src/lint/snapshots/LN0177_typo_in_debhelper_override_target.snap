@@ -1,0 +1,21 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_nump => override_dh_numpy3 [debian/rules:6]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_instakk => override_dh_install [debian/rules:7]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_installcrons => override_dh_installcron [debian/rules:8]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_install_examples => override_dh_installexamples [debian/rules:9]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_install_changelogs => override_dh_installchangelogs [debian/rules:10]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_perls => override_dh_perl [debian/rules:11]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_perls => override_dh_perl [debian/rules:12]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_instakk => override_dh_install [debian/rules:13]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_install_examples => override_dh_installexamples [debian/rules:13]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_installdebs => override_dh_installdeb [debian/rules:14]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_installxmlcatalog => override_dh_installxmlcatalogs [debian/rules:14]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_testdirs => override_dh_testdir [debian/rules:15]
+W: example (source): typo-in-debhelper-override-target (LN0177) override_dh_build => override_dh_auto_build [debian/rules:16]
+W: example (source): typo-in-debhelper-override-target (LN0177) override dh_install => override_dh_install [debian/rules:17]
+W: example (source): typo-in-debhelper-override-target (LN0177) execute_after_dh_nope => execute_after_dh_gnome [debian/rules:18]
+W: example (source): typo-in-debhelper-override-target (LN0177) execute_before_dh_nope => execute_before_dh_gnome [debian/rules:19]
+W: example (source): typo-in-debhelper-override-target (LN0177) oeverride_dh_missing => override_dh_missing [debian/rules:20]
+W: example (source): typo-in-debhelper-override-target (LN0177) execute_before dh_install => execute_before_dh_install [debian/rules:21]

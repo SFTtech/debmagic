@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): field-too-long (LN0228) Depends (5001 chars > 5000)
+W: example (binary): field-too-long (LN0228) Depends (5001 chars > 5000)
+W: example (binary): field-too-long (LN0228) Provides (6000 chars > 5000)
+W: example (binary): field-too-long (LN0228) Depends (4999 chars > 5000)
+W: example (binary): field-too-long (LN0228) Depends (5001 chars > 5000)
+W: example (binary): field-too-long (LN0228) Suggests (5002 chars > 5000)
+W: example (udeb): field-too-long (LN0228) Homepage (5001 chars > 5000)

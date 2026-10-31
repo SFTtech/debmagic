@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): package-uses-dh-exec-but-lacks-build-depends (LN0221) [debian/rules]

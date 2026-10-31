@@ -1,15 +1,22 @@
 mod changelog_doc;
+mod debhelper_rules;
 mod debian_copyright;
 mod debian_rules;
 mod debian_version_substvars;
 mod debian_watch;
 mod description;
+mod documentation_manual;
 mod domain;
 mod fields_package_relations;
+mod fields_relations_more;
+mod fields_text;
+mod files_artifact;
+mod files_foreign;
 mod files_hierarchy;
 mod files_names;
 mod files_symbolic_links;
 mod files_vcs;
+mod init_scripts;
 mod known_fields;
 mod languages_python;
 mod ln0001_required_field;
@@ -46,11 +53,26 @@ mod ln0124_unknown_field;
 mod ln0132_menu_file_in_usr_lib;
 mod ln0133_bad_menu_file_name;
 mod ln0135_vcs_field_uses_not_recommended_uri_format;
+mod ln0179_debian_rules_calls_pwd;
+mod ln0180_debian_rules_calls_debhelper_in_odd_order;
+mod ln0182_binary_arch_rules_but_pkg_is_arch_indep;
+mod ln0183_package_contains_bts_control_dir;
+mod ln0184_uses_dpkg_database_directly;
+mod ln0185_obsolete_url_in_packaging;
 mod mailbox;
+mod rules_and_control;
+mod scripts_calls;
+mod scripts_depends;
+mod scripts_shell;
+mod scripts_text;
 mod systemd;
 mod tlds;
 mod vcs;
 
+pub(crate) use debhelper_rules::{
+    DebhelperBaseCompatLevelIsMissing, MaintainerScriptLacksDebhelperToken,
+    TypoInDebhelperOverrideTarget,
+};
 pub(crate) use debian_copyright::{
     CopyrightFileCompressed, CopyrightFileIsSymlink, CopyrightRefersToCompressedLicense,
     CopyrightRefersToDeprecatedBsdLicenseFile, CopyrightRefersToIncorrectDirectory,
@@ -74,8 +96,36 @@ pub(crate) use description::{
     DescriptionSynopsisStartsWithArticle, DescriptionTooShort, ExtendedDescriptionIsEmpty,
     ExtendedDescriptionLineTooLong, SynopsisTooLong,
 };
+pub(crate) use documentation_manual::{
+    BrokenLinkToUndocumented, BuildPathInManual, CountryInManual, NoManualPage,
+    UncompressedManualPage, WrongCompressionInManualPage,
+};
 pub(crate) use fields_package_relations::{
-    DependsOnObsoletePackage, DependsOnOldEmacs, PackageRelationWithSelf,
+    BuildDependsOn1Revision, BuildDependsOnBuildEssential, BuildDependsOnMetapackage,
+    BuildDependsOnObsoletePackage, DependsExclusivelyOnMakedev, DependsOnObsoletePackage,
+    DependsOnOldEmacs, PackageRelationWithSelf, VirtualPackageDependsWithoutRealPackageDepends,
+};
+pub(crate) use fields_relations_more::{
+    BuildDependsOnEssentialPackageWithoutUsingVersion, DependsOnMetapackage, DependsOnPackagingDev,
+    DependsOnPythonMinimal, InvalidArchStringInSourceRelation, NeedlesslyDependsOnAwk,
+    PackageDependsOnMultipleLibstdcVersions,
+};
+pub(crate) use fields_text::{
+    BadHomepage, DescriptionContainsHomepage, DescriptionSynopsisIsDuplicated, FieldTooLong,
+    MissingSeparatorBetweenItems, RedundantBugsField,
+};
+pub(crate) use files_artifact::{
+    DebianAddsArchControlDir, DebianAddsArchInventoryFile, DebianAddsBtsControlDir,
+    DebianAddsBzrControlDir, DebianAddsCvsConflictCopy, DebianAddsCvsControlDir,
+    DebianAddsEditorBackupFile, DebianAddsGitControlDir, DebianAddsHgControlDir,
+    DebianAddsHgTagsFile, DebianAddsPatchFailureFile, DebianAddsQuiltControlDir,
+    DebianAddsSvkCommitFile, DebianAddsSvnCommitFile, DebianAddsSvnConflictFile,
+    DebianAddsSvnControlDir,
+};
+pub(crate) use files_foreign::{
+    CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,
+    MacosDsStoreFileInPackage, MacosResourceForkFileInPackage, PackageContainsLindaOverride,
+    PackageContainsReadmeForOtherPlatformOrDistro, PackageInstallsAppimage,
 };
 pub(crate) use files_hierarchy::{
     AliasedLocation, DirInUsrLocal, DirOrFileInEtcOpt, DirOrFileInHome, DirOrFileInMnt,
@@ -103,6 +153,11 @@ pub(crate) use files_symbolic_links::{
 pub(crate) use files_vcs::{
     PackageContainsVcsControlDir, PackageContainsVcsControlFile, SvkCommitFileInPackage,
     SvnCommitFileInPackage,
+};
+pub(crate) use init_scripts::{
+    InitDScriptDoesNotImplementRequiredOption, InitDScriptMissingLsbSection,
+    InitDScriptStopsInSRunlevel, MissingSystemdServiceForInitDRcSScript,
+    SystemdServiceFileRefersToObsoleteTarget, SystemdServiceFileWrapsInitScript,
 };
 pub(crate) use languages_python::{
     AncientPythonVersionField, FileInUsrLibSitePython, MalformedPythonVersion,
@@ -143,6 +198,37 @@ pub(crate) use ln0124_unknown_field::UnknownField;
 pub(crate) use ln0132_menu_file_in_usr_lib::MenuFileInUsrLib;
 pub(crate) use ln0133_bad_menu_file_name::BadMenuFileName;
 pub(crate) use ln0135_vcs_field_uses_not_recommended_uri_format::VcsFieldUsesNotRecommendedUriFormat;
+pub(crate) use ln0179_debian_rules_calls_pwd::DebianRulesCallsPwd;
+pub(crate) use ln0180_debian_rules_calls_debhelper_in_odd_order::DebianRulesCallsDebhelperInOddOrder;
+pub(crate) use ln0182_binary_arch_rules_but_pkg_is_arch_indep::BinaryArchRulesButPkgIsArchIndep;
+pub(crate) use ln0183_package_contains_bts_control_dir::PackageContainsBtsControlDir;
+pub(crate) use ln0184_uses_dpkg_database_directly::UsesDpkgDatabaseDirectly;
+pub(crate) use ln0185_obsolete_url_in_packaging::ObsoleteUrlInPackaging;
+pub(crate) use rules_and_control::{
+    BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,
+    DebhelperToolsFromAutotoolsDevAreDeprecated, DebianControlHasDbgsymPackage,
+    DebianRulesCallsNproc, DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends,
+    OverrideDhFixpermsDoesNotCallDhFixperms, PackageUsesDhExecButLacksBuildDepends,
+};
+pub(crate) use scripts_calls::{
+    MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,
+    MaintainerScriptNeedsDependsOnAdduser, MaintainerScriptNeedsDependsOnUpdateInetd,
+};
+pub(crate) use scripts_depends::{
+    MaintainerScriptCallsInitScriptDirectly, MaintainerScriptNeedsDependsOnGconf2,
+    MaintainerScriptNeedsDependsOnUcf, MaintainerScriptNeedsDependsOnXfontsUtils,
+    MaintainerScriptNeedsDependsOnXmlCore, MaintainerScriptShouldNotParseEtcPasswdOrGroup,
+};
+pub(crate) use scripts_shell::{
+    CommandWithPathInMaintainerScript, MaintainerScriptIgnoresErrors,
+    MaintainerScriptRemovesDeviceFiles, ReadInMaintainerScript, RecursivePrivilegeChange,
+};
+pub(crate) use scripts_text::{
+    InstallInfoUsedInMaintainerScript, MaintainerScriptCallsChownImproperly,
+    MaintainerScriptCallsInstallSgmlcatalog, MaintainerScriptChangesNetbase,
+    MaintainerScriptHidesInitFailure, MaintainerScriptModifiesInetdConf,
+    MaintainerScriptShouldNotUseDpkgMaintscriptHelper, MaintscriptCallsLdconfig,
+};
 pub(crate) use systemd::{
     InitDScriptDoesNotSourceInitFunctions, MissingSystemdServiceForInitDScript,
 };

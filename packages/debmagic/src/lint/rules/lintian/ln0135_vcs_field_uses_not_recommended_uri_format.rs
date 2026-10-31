@@ -8,6 +8,8 @@ use crate::lint::debian_control::{ControlParagraph, unfold};
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::SourceRule;
 
+use super::vcs::PLATFORMS;
+
 pub struct VcsFieldUsesNotRecommendedUriFormat;
 
 declare_rule! {
@@ -23,10 +25,6 @@ declare_rule! {
     default_selected = true,
     experimental = false,
 }
-
-const PLATFORMS: &[&str] = &[
-    "Browser", "Arch", "Bzr", "Cvs", "Darcs", "Hg", "Git", "Svn", "Mtn",
-];
 
 static RECOMMENDED: LazyLock<Vec<(&str, Regex)>> = LazyLock::new(|| {
     vec![

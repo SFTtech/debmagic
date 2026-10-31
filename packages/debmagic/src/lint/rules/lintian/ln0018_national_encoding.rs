@@ -1,5 +1,5 @@
 use std::ffi::OsStr;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, Stdio};
 
@@ -132,7 +132,8 @@ fn message_for(bytes: &[u8], path: &Path, place: Place) -> Option<&'static str> 
     if matches!(place, Place::Installed)
         && under(path, &["usr", "share", "man"])
         && contains_gzip(&description)
-        && gunzip(bytes).is_some_and(|plain| std::str::from_utf8(&plain).is_err())
+        && crate::lint::gzip::gunzip(bytes)
+            .is_some_and(|plain| std::str::from_utf8(&plain).is_err())
     {
         return Some("");
     }
@@ -209,13 +210,6 @@ fn file_description(bytes: &[u8]) -> Option<Vec<u8>> {
         return None;
     }
     Some(output.stdout)
-}
-
-fn gunzip(bytes: &[u8]) -> Option<Vec<u8>> {
-    let mut decoder = flate2::read::GzDecoder::new(bytes);
-    let mut plain = Vec::new();
-    decoder.read_to_end(&mut plain).ok()?;
-    Some(plain)
 }
 
 #[cfg(test)]

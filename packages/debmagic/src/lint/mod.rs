@@ -1,5 +1,6 @@
 mod binary_package_reader;
 mod context;
+mod data;
 mod debhelper;
 mod debian_changelog;
 mod debian_control;
@@ -8,6 +9,7 @@ mod diagnostic;
 mod dsc;
 mod file_tree;
 mod file_type;
+mod gzip;
 mod installation_control;
 mod intent;
 mod package_relation;

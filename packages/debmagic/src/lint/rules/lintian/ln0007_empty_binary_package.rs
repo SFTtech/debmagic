@@ -28,27 +28,12 @@ declare_rule! {
     experimental = false,
 }
 
-/// lintian `files/standard-files`: not enough to make a package non-empty.
-const STANDARD_FILES: &[&str] = &[
-    "AUTHORS",
-    "AUTHORS.gz",
-    "BUGS",
-    "BUGS.gz",
-    "changelog.Debian.gz",
-    "changelog.gz",
-    "CHANGES",
-    "CHANGES.gz",
-    "COPYING.gz",
-    "copyright",
-    "HACKING",
-    "HACKING.gz",
-    "NEWS",
-    "NEWS.Debian",
-    "NEWS.Debian.gz",
-    "NEWS.gz",
-    "TODO",
-    "TODO.gz",
-];
+/// lintian 2.139.0 `files/standard-files`: not enough to make a package non-empty.
+static STANDARD_FILES: LazyLock<Vec<String>> = LazyLock::new(|| {
+    crate::lint::data::lines(include_str!("../../data/files/standard-files"))
+        .map(str::to_string)
+        .collect()
+});
 
 static TRANSITIONAL: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?i)transitional package").expect("valid regex"));
@@ -126,7 +111,7 @@ fn makes_non_empty(path: &str, package: &str, architecture: &str) -> bool {
         return false;
     }
     let basename = path.rsplit('/').next().unwrap_or(path);
-    if STANDARD_FILES.contains(&basename) || README.is_match(basename) {
+    if STANDARD_FILES.iter().any(|name| name == basename) || README.is_match(basename) {
         return false;
     }
     if architecture != "all" && basename == format!("changelog.Debian.{architecture}.gz") {

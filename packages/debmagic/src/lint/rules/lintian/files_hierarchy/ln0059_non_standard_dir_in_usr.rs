@@ -3,7 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::{BinaryPackageRule, Severity};
 
-use super::hierarchy_standard::{direct_child, flag_matching_with};
+use super::hierarchy_standard::{BranchId, direct_child, flag_matching_with};
 
 pub struct NonStandardDirInUsr;
 
@@ -22,8 +22,6 @@ declare_rule! {
     default_selected = true,
     experimental = false,
 }
-
-pub(super) static MARK: u8 = 14;
 
 /// Every direct `usr/` subdirectory on a non-udeb ends the chain. FHS names,
 /// `libexec`, and the multi-arch lib directories are not flagged.
@@ -58,7 +56,7 @@ pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool, package: &str) ->
 
 impl BinaryPackageRule for NonStandardDirInUsr {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        flag_matching_with(ctx, &MARK, Severity::Warning);
+        flag_matching_with(ctx, BranchId::NonStandardDirInUsr, Severity::Warning);
     }
 }
 

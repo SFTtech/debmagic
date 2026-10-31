@@ -1,7 +1,6 @@
 //! What lintian's `debian/copyright` Check reads from a Binary package's
 //! `usr/share/doc/<package>/copyright`.
 
-use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
@@ -10,10 +9,7 @@ use regex::Regex;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 
 static COMMON_LICENSES: LazyLock<Vec<String>> = LazyLock::new(|| {
-    include_str!("../../../data/copyright-file/common-licenses")
-        .lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+    crate::lint::data::lines(include_str!("../../../data/copyright-file/common-licenses"))
         .map(str::to_string)
         .collect()
 });
@@ -28,6 +24,17 @@ static OLD_FSF: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?s)(?:Free\s*Software\s*Foundation.*02139|02111-1307|02110-1301)")
         .expect("valid regex")
 });
+static LATER: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?i)\b(?:any|or)\s+later(?:\s+version)?\b").expect("valid regex")
+});
+static LICENSE_ALIAS_PERL: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)License-Alias:\s+Perl").expect("valid regex"));
+static LICENSE_PERL: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)License:\s+Perl").expect("valid regex"));
+static LICENSE_PLUS: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)License:\s+(L?GPL|GFDL)-[\d.]+\+").expect("valid regex"));
+static VERSION_WORD: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)\bversion\b").expect("valid regex"));
 
 #[derive(Debug, Default)]
 pub(super) struct InstalledCopyright {
@@ -71,7 +78,7 @@ pub(super) fn inspect(files: &FileTree, package: &str) -> InstalledCopyright {
             .read(gzip.expect("gzip entry"))
             .ok()
             .as_deref()
-            .and_then(gunzip)
+            .and_then(crate::lint::gzip::gunzip)
     } else if let Some(entry) = plain.filter(|entry| is_regular(entry)) {
         files.read(entry).ok()
     } else if let Some(Entry::Symlink { target, .. }) = plain {
@@ -129,34 +136,25 @@ fn scan_contents(contents: &str, found: &mut InstalledCopyright) {
 }
 
 fn later_version(contents: &str, license: &str) -> bool {
-    let later = Regex::new(r"(?i)\b(?:any|or)\s+later(?:\s+version)?\b").expect("valid regex");
-    if later.is_match(contents) || contents.contains("as Perl itself") {
+    if LATER.is_match(contents) || contents.contains("as Perl itself") {
         return true;
     }
-    let alias = Regex::new(r"(?i)License-Alias:\s+Perl").expect("valid regex");
-    let perl = Regex::new(r"(?i)License:\s+Perl").expect("valid regex");
-    if alias.is_match(contents) || perl.is_match(contents) {
+    if LICENSE_ALIAS_PERL.is_match(contents) || LICENSE_PERL.is_match(contents) {
         return true;
     }
-    let plus = Regex::new(&format!(r"(?i)License:\s+{license}-[\d.]+\+")).expect("valid regex");
-    plus.is_match(contents)
+    LICENSE_PLUS.captures_iter(contents).any(|captures| {
+        captures
+            .get(1)
+            .is_some_and(|name| name.as_str().eq_ignore_ascii_case(license))
+    })
 }
 
 fn regex_version(contents: &str) -> bool {
-    Regex::new(r"(?i)\bversion\b")
-        .expect("valid regex")
-        .is_match(contents)
+    VERSION_WORD.is_match(contents)
 }
 
 fn is_regular(entry: &Entry) -> bool {
     matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink)
-}
-
-fn gunzip(bytes: &[u8]) -> Option<Vec<u8>> {
-    let mut decoder = flate2::read::GzDecoder::new(bytes);
-    let mut plain = Vec::new();
-    decoder.read_to_end(&mut plain).ok()?;
-    Some(plain)
 }
 
 fn read_link(files: &FileTree, directory: &Path, target: &Path) -> Option<Vec<u8>> {

@@ -3,7 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::hierarchy_standard::{direct_child, flag_matching, has_more};
+use super::hierarchy_standard::{BranchId, direct_child, flag_matching, has_more};
 
 pub struct NonStandardDirInVar;
 
@@ -23,8 +23,6 @@ declare_rule! {
     default_selected = true,
     experimental = false,
 }
-
-pub(super) static MARK: u8 = 16;
 
 /// Every direct `var/` subdirectory on a non-udeb ends the chain. FHS names,
 /// and `base-files`'s `backups` and `local`, are not flagged.
@@ -67,7 +65,7 @@ pub(super) fn matches_games(name: &str, kind: EntryKind, udeb: bool, _package: &
 
 impl BinaryPackageRule for NonStandardDirInVar {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        flag_matching(ctx, &MARK);
+        flag_matching(ctx, BranchId::NonStandardDirInVar);
     }
 }
 

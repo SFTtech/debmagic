@@ -3,6 +3,9 @@
 //! `obsolete_packages` is the obsolete-package and old-Emacs lists. Each Rule
 //! owns one Tag.
 
+/// Relationship fields lintian's obsolete-package and old-Emacs tags read.
+pub(super) const RELATION_FIELDS: &[&str] = &["Depends", "Pre-Depends", "Recommends", "Suggests"];
+
 mod ln0027_package_relation_with_self;
 mod ln0107_depends_on_obsolete_package;
 mod ln0108_depends_on_old_emacs;

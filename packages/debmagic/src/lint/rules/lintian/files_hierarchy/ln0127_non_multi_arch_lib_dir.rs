@@ -27,7 +27,7 @@ impl BinaryPackageRule for NonMultiArchLibDir {
             return;
         }
         let package = ctx.package_name().to_string();
-        let source = source_name(ctx);
+        let source = ctx.source_name();
         let Some(files) = ctx.data_files() else {
             return;
         };
@@ -58,16 +58,6 @@ impl BinaryPackageRule for NonMultiArchLibDir {
             }));
         }
     }
-}
-
-fn source_name(ctx: &BinaryPackageContext<'_>) -> String {
-    ctx.installation_control()
-        .fields()
-        .get("Source")
-        .and_then(|value| value.split_whitespace().next())
-        .filter(|name| !name.is_empty())
-        .unwrap_or(ctx.package_name())
-        .to_string()
 }
 
 #[cfg(test)]

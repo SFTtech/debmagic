@@ -3,7 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::hierarchy_standard::{flag_matching, has_more};
+use super::hierarchy_standard::{BranchId, flag_matching, has_more};
 
 pub struct SubdirInUsrBin;
 
@@ -20,8 +20,6 @@ declare_rule! {
     experimental = false,
 }
 
-pub(super) static MARK: u8 = 12;
-
 /// Anything under `usr/bin/` ends the chain. A directory other than `X11/`
 /// and `mh/` is flagged.
 pub(super) fn claims(name: &str, _kind: EntryKind, _udeb: bool, _package: &str) -> bool {
@@ -37,7 +35,7 @@ pub(super) fn matches(name: &str, kind: EntryKind, _udeb: bool, _package: &str) 
 
 impl BinaryPackageRule for SubdirInUsrBin {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        flag_matching(ctx, &MARK);
+        flag_matching(ctx, BranchId::SubdirInUsrBin);
     }
 }
 

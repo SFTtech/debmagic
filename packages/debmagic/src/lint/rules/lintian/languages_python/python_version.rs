@@ -2,7 +2,7 @@
 //! `Check::Languages::Python`.
 //!
 //! `X-Python-Version`, `XS-Python-Version`, and `X-Python3-Version`, in that
-//! order. `ancient-python-version-field` reads the same fields on its own.
+//! order. Ancient thresholds are lintian 2.139.0 `data/python/versions`.
 
 use std::sync::LazyLock;
 
@@ -11,6 +11,24 @@ use regex::Regex;
 use crate::lint::debian_control::DebianControl;
 
 pub(super) const FIELDS: &[&str] = &["X-Python-Version", "XS-Python-Version", "X-Python3-Version"];
+
+/// `(major, ancient version)` from `ancient-python2` / `ancient-python3`.
+static ANCIENT: LazyLock<Vec<(&'static str, &'static str)>> = LazyLock::new(|| {
+    crate::lint::data::lines(include_str!("../../../data/python/versions"))
+        .filter_map(|line| {
+            let (key, value) = crate::lint::data::assignment(line)?;
+            let major = key.strip_prefix("ancient-python")?;
+            Some((major, value))
+        })
+        .collect()
+});
+
+pub(super) fn ancient_threshold(major: &str) -> Option<&'static str> {
+    ANCIENT
+        .iter()
+        .find(|(python, _)| *python == major)
+        .map(|(_, version)| *version)
+}
 
 static NUMBER: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^[0-9]+\.[0-9]+$").expect("valid regex"));

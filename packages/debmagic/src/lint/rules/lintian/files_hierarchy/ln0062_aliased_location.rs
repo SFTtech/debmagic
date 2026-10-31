@@ -3,7 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::hierarchy_standard::flag_matching;
+use super::hierarchy_standard::{BranchId, flag_matching};
 
 pub struct AliasedLocation;
 
@@ -22,8 +22,6 @@ declare_rule! {
     default_selected = true,
     experimental = false,
 }
-
-pub(super) static MARK: u8 = 17;
 
 pub(super) fn matches(name: &str, kind: EntryKind, udeb: bool, package: &str) -> bool {
     let _ = (kind, udeb);
@@ -45,7 +43,7 @@ fn aliased(name: &str) -> bool {
 
 impl BinaryPackageRule for AliasedLocation {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        flag_matching(ctx, &MARK);
+        flag_matching(ctx, BranchId::AliasedLocation);
     }
 }
 

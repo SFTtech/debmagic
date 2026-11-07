@@ -18,6 +18,8 @@ mod ln0302_maintainer_script_has_invalid_update_inetd_options;
 mod ln0303_udevadm_called_without_guard;
 mod ln0304_maintainer_script_changes_ld_so_conf;
 mod ln0305_maintainer_script_updates_fontconfig_cache_improperly;
+mod ln0376_possibly_insecure_handling_of_tmp_files_in_maintainer_script;
+mod ln0384_missing_call_to_dpkg_maintscript_helper;
 mod scan;
 
 pub(crate) use ln0186_maintainer_script_calls_install_sgmlcatalog::MaintainerScriptCallsInstallSgmlcatalog;
@@ -36,3 +38,5 @@ pub(crate) use ln0302_maintainer_script_has_invalid_update_inetd_options::Mainta
 pub(crate) use ln0303_udevadm_called_without_guard::UdevadmCalledWithoutGuard;
 pub(crate) use ln0304_maintainer_script_changes_ld_so_conf::MaintainerScriptChangesLdSoConf;
 pub(crate) use ln0305_maintainer_script_updates_fontconfig_cache_improperly::MaintainerScriptUpdatesFontconfigCacheImproperly;
+pub(crate) use ln0376_possibly_insecure_handling_of_tmp_files_in_maintainer_script::PossiblyInsecureHandlingOfTmpFilesInMaintainerScript;
+pub(crate) use ln0384_missing_call_to_dpkg_maintscript_helper::MissingCallToDpkgMaintscriptHelper;

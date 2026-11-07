@@ -209,10 +209,8 @@ set -e
 # Forget to load the confmodule
 # . /usr/share/debconf/confmodule
 
-
 db_input low debconf/note-abuse
 db_go
-
 
 db_input unknown debconf/unknown-priority
 ";

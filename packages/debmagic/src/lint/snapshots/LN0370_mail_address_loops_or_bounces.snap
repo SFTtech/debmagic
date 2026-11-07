@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): mail-address-loops-or-bounces (LN0370) Maintainer ubuntu-devel-discuss@lists.ubuntu.com
+E: example (source): mail-address-loops-or-bounces (LN0370) Uploaders ubuntu-devel-discuss@lists.ubuntu.com

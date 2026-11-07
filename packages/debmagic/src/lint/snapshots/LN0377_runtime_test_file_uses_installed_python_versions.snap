@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): runtime-test-file-uses-installed-python-versions (LN0377) py3versions -i [debian/tests/test-1:2]
+W: example (source): runtime-test-file-uses-installed-python-versions (LN0377) py3versions -vi [debian/tests/test-1:3]
+W: example (source): runtime-test-file-uses-installed-python-versions (LN0377) py3versions --installed [debian/tests/test-1:4]
+W: example (source): runtime-test-file-uses-installed-python-versions (LN0377) py3versions --verbose --installed [debian/tests/test-1:5]
+W: example (source): runtime-test-file-uses-installed-python-versions (LN0377) py3versions -is [check:1]

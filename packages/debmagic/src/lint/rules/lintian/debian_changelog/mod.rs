@@ -21,6 +21,8 @@ mod ln0362_syntax_error_in_debian_news_file;
 mod ln0363_latest_changelog_entry_without_new_date;
 mod ln0364_debian_news_entry_has_strange_distribution;
 mod ln0365_wrong_name_for_debian_news_file;
+mod ln0366_qa_upload_has_incorrect_version_number;
+mod ln0380_changelog_news_debian_mismatch;
 mod nmu;
 mod source;
 mod version;
@@ -40,3 +42,5 @@ pub(crate) use ln0362_syntax_error_in_debian_news_file::SyntaxErrorInDebianNewsF
 pub(crate) use ln0363_latest_changelog_entry_without_new_date::LatestChangelogEntryWithoutNewDate;
 pub(crate) use ln0364_debian_news_entry_has_strange_distribution::DebianNewsEntryHasStrangeDistribution;
 pub(crate) use ln0365_wrong_name_for_debian_news_file::WrongNameForDebianNewsFile;
+pub(crate) use ln0366_qa_upload_has_incorrect_version_number::QaUploadHasIncorrectVersionNumber;
+pub(crate) use ln0380_changelog_news_debian_mismatch::ChangelogNewsDebianMismatch;

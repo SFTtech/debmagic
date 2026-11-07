@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): readme-debian-contains-invalid-email-address (LN0368) jane@unknown [usr/share/doc/example/README.Debian]
+W: example (binary): readme-debian-contains-invalid-email-address (LN0368) foo@bar [usr/share/doc/example/README.Debian]
+W: bad-email-format (binary): readme-debian-contains-invalid-email-address (LN0368) foo@unknown [usr/share/doc/bad-email-format/README.Debian]

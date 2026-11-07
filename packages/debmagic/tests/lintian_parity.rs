@@ -8,6 +8,8 @@ mod common;
 use test_case::test_case;
 
 const SOURCE_TREE_RECIPES: &[&str] = &[
+    "checks/build-systems/autotools/macro-not-cross-compilation-safe",
+    "checks/build-systems/autotools/macro-not-cross-compilation-safe-old-filename",
     "checks/build-systems/cmake/cruft-general-diff",
     "checks/build-systems/cmake/cruft-general-native",
     "checks/build-systems/cmake/cruft-general-quilt",
@@ -50,6 +52,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/field/relation/control-file-missing-separator",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
+    "checks/debian/copyright/dep5/excluded-files-in-native",
     "checks/debian/copyright/dep5/file-does-not-exist",
     "checks/debian/copyright/dep5/files-included-covers-none",
     "checks/debian/copyright/dep5/legacy-binary",
@@ -66,6 +69,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel",
     "checks/debian/copyright/dep5/source-copyright-nodep5",
     "checks/debian/copyright/dep5/source-copyright-pipe-as-or",
+    "checks/debian/copyright/dep5/source-copyright-source-files-excluded",
     "checks/debian/copyright/dep5/source-copyright-undefined",
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
@@ -75,6 +79,9 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/source-copyright-missing",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
+    "checks/debian/po-debconf/legacy-debconf",
+    "checks/debian/po-debconf/po-debconf-general",
+    "checks/debian/po-debconf/po-debconf-no-po-debconf",
     "checks/debian/rules/control-file-rules-requires-root-binary-targets",
     "checks/debian/rules/control-file-rules-requires-root-no",
     "checks/debian/rules/debhelper-compat-old",
@@ -98,6 +105,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
+    "checks/debian/variables/build-multiarch-in-install",
+    "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
     "checks/debian/version-substvars/legacy-etcfiles",
     "checks/debian/version-substvars/legacy-libbaz",
@@ -130,8 +139,13 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/essential/fields-essential",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/mail-address/fields-maintainer",
+    "checks/fields/mail-address/fields-maintainer-bounces",
+    "checks/fields/mail-address/fields-maintainer-general",
+    "checks/fields/mail-address/fields-qa-maint-address",
+    "checks/fields/mail-address/fields-qa-maint-name",
     "checks/fields/mail-address/fields-uploaders",
     "checks/fields/mail-address/legacy-foo++",
+    "checks/fields/mail-address/legacy-maintainer-scripts",
     "checks/fields/maintainer/alioth-list",
     "checks/fields/maintainer/fields-no-human-maintainer",
     "checks/fields/maintainer/fields-qa-maint-address",
@@ -155,6 +169,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
+    "checks/fields/version/fields-version-bad",
+    "checks/fields/version/legacy-fields",
     "checks/files/artifact/cruft-general-diff",
     "checks/files/artifact/cruft-general-quilt",
     "checks/files/artifact/cruft-general-wig-pen",
@@ -178,6 +194,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/nmu/nmu-ubuntu-native",
     "checks/obsolete-sites/fields-cpan-homepage",
     "checks/obsolete-sites/obsolete-sites",
+    "checks/testsuite/national-encoding",
+    "checks/testsuite/runtime-test-file-uses-installed-python-versions",
+    "checks/testsuite/runtime-test-file-uses-supported-python-versions-without-test-depends",
+    "checks/testsuite/testsuite-general",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
@@ -235,8 +255,10 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/debconf/legacy-debconf",
     "checks/debian/debconf/national-encoding",
     "checks/debian/debconf/po-debconf-general",
+    "checks/debian/readme/bad-email-format",
     "checks/debian/readme/debian-readme-general",
     "checks/debian/readme/legacy-etcfiles",
+    "checks/debian/readme/legacy-foo++",
     "checks/debian/shlibs/legacy-debug",
     "checks/debian/shlibs/legacy-libbaz",
     "checks/debian/shlibs/shared-libs-control-file",
@@ -283,6 +305,11 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/length/depends-field-too-long",
     "checks/fields/length/provides-field-too-long",
     "checks/fields/mail-address/fields-maintainer",
+    "checks/fields/mail-address/fields-maintainer-bounces",
+    "checks/fields/mail-address/fields-qa-maint-address",
+    "checks/fields/mail-address/fields-qa-maint-name",
+    "checks/fields/mail-address/legacy-foo++",
+    "checks/fields/mail-address/legacy-maintainer-scripts",
     "checks/fields/origin/fields-redundant",
     "checks/fields/origin/legacy-relations",
     "checks/fields/package-relations/fields-depends-general",
@@ -299,6 +326,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/section/fields-section-general",
     "checks/fields/section/legacy-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
+    "checks/fields/version/fields-version-bad",
+    "checks/fields/version/legacy-fields",
     "checks/files/appimage-check/package-installs-appimage-file",
     "checks/files/appimage-check/package-installs-appimage-magic",
     "checks/files/bugs/files-package-contains-foo",
@@ -354,6 +383,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/init-d/legacy-scripts",
     "checks/init-d/maintainer-script/legacy-maintainer-scripts",
     "checks/init-d/maintainer-script/scripts-calls-init-script",
+    "checks/languages/perl/files-foo-in-bar",
+    "checks/languages/perl/legacy-filenames",
     "checks/languages/python/files-foo-in-bar",
     "checks/languages/python/files-python-modules",
     "checks/linda/files-package-contains-foo",
@@ -363,8 +394,12 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/maintainer-scripts/empty/legacy-maintainer-scripts",
     "checks/maintainer-scripts/empty/legacy-scripts",
     "checks/maintainer-scripts/empty/scripts-maintainer-script-empty",
+    "checks/maintainer-scripts/helper/dpkg/scripts-maintainer-general",
+    "checks/maintainer-scripts/helper/dpkg/scripts-missing-call-to-dpkg-maintscript-helper",
     "checks/maintainer-scripts/ldconfig/legacy-maintainer-scripts",
     "checks/maintainer-scripts/ldconfig/shared-libs-ldconfig-scripts",
+    "checks/maintainer-scripts/temporary-files/legacy-maintainer-scripts",
+    "checks/maintainer-scripts/temporary-files/scripts-maintainer-general",
     "checks/md5sums/legacy-etcfiles",
     "checks/md5sums/md5sums-general",
     "checks/menu-format/item-has-needs-dwww",
@@ -406,6 +441,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
 ];
 
 const SOURCE_PACKAGE_RECIPES: &[&str] = &[
+    "checks/build-systems/autotools/macro-not-cross-compilation-safe",
+    "checks/build-systems/autotools/macro-not-cross-compilation-safe-old-filename",
     "checks/build-systems/cmake/cruft-general-diff",
     "checks/build-systems/cmake/cruft-general-native",
     "checks/build-systems/cmake/cruft-general-quilt",
@@ -449,6 +486,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/field/relation/control-file-missing-separator",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
+    "checks/debian/copyright/dep5/excluded-files-in-native",
     "checks/debian/copyright/dep5/file-does-not-exist",
     "checks/debian/copyright/dep5/files-included-covers-none",
     "checks/debian/copyright/dep5/legacy-binary",
@@ -465,6 +503,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel",
     "checks/debian/copyright/dep5/source-copyright-nodep5",
     "checks/debian/copyright/dep5/source-copyright-pipe-as-or",
+    "checks/debian/copyright/dep5/source-copyright-source-files-excluded",
     "checks/debian/copyright/dep5/source-copyright-undefined",
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
@@ -474,6 +513,9 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/source-copyright-missing",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
+    "checks/debian/po-debconf/legacy-debconf",
+    "checks/debian/po-debconf/po-debconf-general",
+    "checks/debian/po-debconf/po-debconf-no-po-debconf",
     "checks/debian/rules/control-file-rules-requires-root-binary-targets",
     "checks/debian/rules/control-file-rules-requires-root-no",
     "checks/debian/rules/debhelper-compat-old",
@@ -497,6 +539,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
+    "checks/debian/variables/build-multiarch-in-install",
+    "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
     "checks/debian/version-substvars/legacy-etcfiles",
     "checks/debian/version-substvars/legacy-libbaz",
@@ -529,8 +573,13 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/essential/fields-essential",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/mail-address/fields-maintainer",
+    "checks/fields/mail-address/fields-maintainer-bounces",
+    "checks/fields/mail-address/fields-maintainer-general",
+    "checks/fields/mail-address/fields-qa-maint-address",
+    "checks/fields/mail-address/fields-qa-maint-name",
     "checks/fields/mail-address/fields-uploaders",
     "checks/fields/mail-address/legacy-foo++",
+    "checks/fields/mail-address/legacy-maintainer-scripts",
     "checks/fields/maintainer/alioth-list",
     "checks/fields/maintainer/fields-no-human-maintainer",
     "checks/fields/maintainer/fields-qa-maint-address",
@@ -554,6 +603,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
+    "checks/fields/version/fields-version-bad",
+    "checks/fields/version/legacy-fields",
     "checks/files/artifact/cruft-general-diff",
     "checks/files/artifact/cruft-general-quilt",
     "checks/files/artifact/cruft-general-wig-pen",
@@ -577,6 +628,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/nmu/nmu-ubuntu-native",
     "checks/obsolete-sites/fields-cpan-homepage",
     "checks/obsolete-sites/obsolete-sites",
+    "checks/testsuite/national-encoding",
+    "checks/testsuite/runtime-test-file-uses-installed-python-versions",
+    "checks/testsuite/runtime-test-file-uses-supported-python-versions-without-test-depends",
+    "checks/testsuite/testsuite-general",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
@@ -614,6 +669,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
     assert_eq!(common::catalogued_source_package_recipe_rels(), listed);
 }
 
+#[test_case("checks/build-systems/autotools/macro-not-cross-compilation-safe"; "checks_build_systems_autotools_macro_not_cross_compilation_safe")]
+#[test_case("checks/build-systems/autotools/macro-not-cross-compilation-safe-old-filename"; "checks_build_systems_autotools_macro_not_cross_compilation_safe_old_filename")]
 #[test_case("checks/build-systems/cmake/cruft-general-diff"; "checks_build_systems_cmake_cruft_general_diff")]
 #[test_case("checks/build-systems/cmake/cruft-general-native"; "checks_build_systems_cmake_cruft_general_native")]
 #[test_case("checks/build-systems/cmake/cruft-general-quilt"; "checks_build_systems_cmake_cruft_general_quilt")]
@@ -656,6 +713,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
+#[test_case("checks/debian/copyright/dep5/excluded-files-in-native"; "checks_debian_copyright_dep5_excluded_files_in_native")]
 #[test_case("checks/debian/copyright/dep5/file-does-not-exist"; "checks_debian_copyright_dep5_file_does_not_exist")]
 #[test_case("checks/debian/copyright/dep5/files-included-covers-none"; "checks_debian_copyright_dep5_files_included_covers_none")]
 #[test_case("checks/debian/copyright/dep5/legacy-binary"; "checks_debian_copyright_dep5_legacy_binary")]
@@ -672,6 +730,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_unrel")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-nodep5"; "checks_debian_copyright_dep5_source_copyright_nodep5")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-pipe-as-or"; "checks_debian_copyright_dep5_source_copyright_pipe_as_or")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-source-files-excluded"; "checks_debian_copyright_dep5_source_copyright_source_files_excluded")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-undefined"; "checks_debian_copyright_dep5_source_copyright_undefined")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
@@ -681,6 +740,9 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
+#[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
+#[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
+#[test_case("checks/debian/po-debconf/po-debconf-no-po-debconf"; "checks_debian_po_debconf_po_debconf_no_po_debconf")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-binary-targets"; "checks_debian_rules_control_file_rules_requires_root_binary_targets")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-no"; "checks_debian_rules_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
@@ -704,6 +766,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
+#[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
+#[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
 #[test_case("checks/debian/version-substvars/legacy-etcfiles"; "checks_debian_version_substvars_legacy_etcfiles")]
 #[test_case("checks/debian/version-substvars/legacy-libbaz"; "checks_debian_version_substvars_legacy_libbaz")]
@@ -736,8 +800,13 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
+#[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]
+#[test_case("checks/fields/mail-address/fields-maintainer-general"; "checks_fields_mail_address_fields_maintainer_general")]
+#[test_case("checks/fields/mail-address/fields-qa-maint-address"; "checks_fields_mail_address_fields_qa_maint_address")]
+#[test_case("checks/fields/mail-address/fields-qa-maint-name"; "checks_fields_mail_address_fields_qa_maint_name")]
 #[test_case("checks/fields/mail-address/fields-uploaders"; "checks_fields_mail_address_fields_uploaders")]
 #[test_case("checks/fields/mail-address/legacy-foo++"; "checks_fields_mail_address_legacy_foo_")]
+#[test_case("checks/fields/mail-address/legacy-maintainer-scripts"; "checks_fields_mail_address_legacy_maintainer_scripts")]
 #[test_case("checks/fields/maintainer/alioth-list"; "checks_fields_maintainer_alioth_list")]
 #[test_case("checks/fields/maintainer/fields-no-human-maintainer"; "checks_fields_maintainer_fields_no_human_maintainer")]
 #[test_case("checks/fields/maintainer/fields-qa-maint-address"; "checks_fields_maintainer_fields_qa_maint_address")]
@@ -761,6 +830,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
+#[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
+#[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
 #[test_case("checks/files/artifact/cruft-general-wig-pen"; "checks_files_artifact_cruft_general_wig_pen")]
@@ -784,6 +855,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
 #[test_case("checks/obsolete-sites/obsolete-sites"; "checks_obsolete_sites_obsolete_sites")]
+#[test_case("checks/testsuite/national-encoding"; "checks_testsuite_national_encoding")]
+#[test_case("checks/testsuite/runtime-test-file-uses-installed-python-versions"; "checks_testsuite_runtime_test_file_uses_installed_python_versions")]
+#[test_case("checks/testsuite/runtime-test-file-uses-supported-python-versions-without-test-depends"; "checks_testsuite_runtime_test_file_uses_supported_python_versions_without_test_depends")]
+#[test_case("checks/testsuite/testsuite-general"; "checks_testsuite_testsuite_general")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]
@@ -842,8 +917,10 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/debconf/national-encoding"; "checks_debian_debconf_national_encoding")]
 #[test_case("checks/debian/debconf/po-debconf-general"; "checks_debian_debconf_po_debconf_general")]
+#[test_case("checks/debian/readme/bad-email-format"; "checks_debian_readme_bad_email_format")]
 #[test_case("checks/debian/readme/debian-readme-general"; "checks_debian_readme_debian_readme_general")]
 #[test_case("checks/debian/readme/legacy-etcfiles"; "checks_debian_readme_legacy_etcfiles")]
+#[test_case("checks/debian/readme/legacy-foo++"; "checks_debian_readme_legacy_foo_")]
 #[test_case("checks/debian/shlibs/legacy-debug"; "checks_debian_shlibs_legacy_debug")]
 #[test_case("checks/debian/shlibs/legacy-libbaz"; "checks_debian_shlibs_legacy_libbaz")]
 #[test_case("checks/debian/shlibs/shared-libs-control-file"; "checks_debian_shlibs_shared_libs_control_file")]
@@ -890,6 +967,11 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/length/depends-field-too-long"; "checks_fields_length_depends_field_too_long")]
 #[test_case("checks/fields/length/provides-field-too-long"; "checks_fields_length_provides_field_too_long")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
+#[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]
+#[test_case("checks/fields/mail-address/fields-qa-maint-address"; "checks_fields_mail_address_fields_qa_maint_address")]
+#[test_case("checks/fields/mail-address/fields-qa-maint-name"; "checks_fields_mail_address_fields_qa_maint_name")]
+#[test_case("checks/fields/mail-address/legacy-foo++"; "checks_fields_mail_address_legacy_foo_")]
+#[test_case("checks/fields/mail-address/legacy-maintainer-scripts"; "checks_fields_mail_address_legacy_maintainer_scripts")]
 #[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
 #[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
@@ -906,6 +988,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/section/fields-section-general"; "checks_fields_section_fields_section_general")]
 #[test_case("checks/fields/section/legacy-fields"; "checks_fields_section_legacy_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
+#[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
+#[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
 #[test_case("checks/files/appimage-check/package-installs-appimage-file"; "checks_files_appimage_check_package_installs_appimage_file")]
 #[test_case("checks/files/appimage-check/package-installs-appimage-magic"; "checks_files_appimage_check_package_installs_appimage_magic")]
 #[test_case("checks/files/bugs/files-package-contains-foo"; "checks_files_bugs_files_package_contains_foo")]
@@ -961,6 +1045,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/init-d/legacy-scripts"; "checks_init_d_legacy_scripts")]
 #[test_case("checks/init-d/maintainer-script/legacy-maintainer-scripts"; "checks_init_d_maintainer_script_legacy_maintainer_scripts")]
 #[test_case("checks/init-d/maintainer-script/scripts-calls-init-script"; "checks_init_d_maintainer_script_scripts_calls_init_script")]
+#[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
+#[test_case("checks/languages/perl/legacy-filenames"; "checks_languages_perl_legacy_filenames")]
 #[test_case("checks/languages/python/files-foo-in-bar"; "checks_languages_python_files_foo_in_bar")]
 #[test_case("checks/languages/python/files-python-modules"; "checks_languages_python_files_python_modules")]
 #[test_case("checks/linda/files-package-contains-foo"; "checks_linda_files_package_contains_foo")]
@@ -970,8 +1056,12 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/maintainer-scripts/empty/legacy-maintainer-scripts"; "checks_maintainer_scripts_empty_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/empty/legacy-scripts"; "checks_maintainer_scripts_empty_legacy_scripts")]
 #[test_case("checks/maintainer-scripts/empty/scripts-maintainer-script-empty"; "checks_maintainer_scripts_empty_scripts_maintainer_script_empty")]
+#[test_case("checks/maintainer-scripts/helper/dpkg/scripts-maintainer-general"; "checks_maintainer_scripts_helper_dpkg_scripts_maintainer_general")]
+#[test_case("checks/maintainer-scripts/helper/dpkg/scripts-missing-call-to-dpkg-maintscript-helper"; "checks_maintainer_scripts_helper_dpkg_scripts_missing_call_to_dpkg_maintscript_helper")]
 #[test_case("checks/maintainer-scripts/ldconfig/legacy-maintainer-scripts"; "checks_maintainer_scripts_ldconfig_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/ldconfig/shared-libs-ldconfig-scripts"; "checks_maintainer_scripts_ldconfig_shared_libs_ldconfig_scripts")]
+#[test_case("checks/maintainer-scripts/temporary-files/legacy-maintainer-scripts"; "checks_maintainer_scripts_temporary_files_legacy_maintainer_scripts")]
+#[test_case("checks/maintainer-scripts/temporary-files/scripts-maintainer-general"; "checks_maintainer_scripts_temporary_files_scripts_maintainer_general")]
 #[test_case("checks/md5sums/legacy-etcfiles"; "checks_md5sums_legacy_etcfiles")]
 #[test_case("checks/md5sums/md5sums-general"; "checks_md5sums_md5sums_general")]
 #[test_case("checks/menu-format/item-has-needs-dwww"; "checks_menu_format_item_has_needs_dwww")]
@@ -1014,6 +1104,8 @@ fn lintian_parity_binary_package(recipe: &str) {
     common::assert_binary_package_parity(recipe);
 }
 
+#[test_case("checks/build-systems/autotools/macro-not-cross-compilation-safe"; "checks_build_systems_autotools_macro_not_cross_compilation_safe")]
+#[test_case("checks/build-systems/autotools/macro-not-cross-compilation-safe-old-filename"; "checks_build_systems_autotools_macro_not_cross_compilation_safe_old_filename")]
 #[test_case("checks/build-systems/cmake/cruft-general-diff"; "checks_build_systems_cmake_cruft_general_diff")]
 #[test_case("checks/build-systems/cmake/cruft-general-native"; "checks_build_systems_cmake_cruft_general_native")]
 #[test_case("checks/build-systems/cmake/cruft-general-quilt"; "checks_build_systems_cmake_cruft_general_quilt")]
@@ -1057,6 +1149,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
+#[test_case("checks/debian/copyright/dep5/excluded-files-in-native"; "checks_debian_copyright_dep5_excluded_files_in_native")]
 #[test_case("checks/debian/copyright/dep5/file-does-not-exist"; "checks_debian_copyright_dep5_file_does_not_exist")]
 #[test_case("checks/debian/copyright/dep5/files-included-covers-none"; "checks_debian_copyright_dep5_files_included_covers_none")]
 #[test_case("checks/debian/copyright/dep5/legacy-binary"; "checks_debian_copyright_dep5_legacy_binary")]
@@ -1073,6 +1166,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_unrel")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-nodep5"; "checks_debian_copyright_dep5_source_copyright_nodep5")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-pipe-as-or"; "checks_debian_copyright_dep5_source_copyright_pipe_as_or")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-source-files-excluded"; "checks_debian_copyright_dep5_source_copyright_source_files_excluded")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-undefined"; "checks_debian_copyright_dep5_source_copyright_undefined")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
@@ -1082,6 +1176,9 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
+#[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
+#[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
+#[test_case("checks/debian/po-debconf/po-debconf-no-po-debconf"; "checks_debian_po_debconf_po_debconf_no_po_debconf")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-binary-targets"; "checks_debian_rules_control_file_rules_requires_root_binary_targets")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-no"; "checks_debian_rules_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
@@ -1105,6 +1202,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
+#[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
+#[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
 #[test_case("checks/debian/version-substvars/legacy-etcfiles"; "checks_debian_version_substvars_legacy_etcfiles")]
 #[test_case("checks/debian/version-substvars/legacy-libbaz"; "checks_debian_version_substvars_legacy_libbaz")]
@@ -1137,8 +1236,13 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
+#[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]
+#[test_case("checks/fields/mail-address/fields-maintainer-general"; "checks_fields_mail_address_fields_maintainer_general")]
+#[test_case("checks/fields/mail-address/fields-qa-maint-address"; "checks_fields_mail_address_fields_qa_maint_address")]
+#[test_case("checks/fields/mail-address/fields-qa-maint-name"; "checks_fields_mail_address_fields_qa_maint_name")]
 #[test_case("checks/fields/mail-address/fields-uploaders"; "checks_fields_mail_address_fields_uploaders")]
 #[test_case("checks/fields/mail-address/legacy-foo++"; "checks_fields_mail_address_legacy_foo_")]
+#[test_case("checks/fields/mail-address/legacy-maintainer-scripts"; "checks_fields_mail_address_legacy_maintainer_scripts")]
 #[test_case("checks/fields/maintainer/alioth-list"; "checks_fields_maintainer_alioth_list")]
 #[test_case("checks/fields/maintainer/fields-no-human-maintainer"; "checks_fields_maintainer_fields_no_human_maintainer")]
 #[test_case("checks/fields/maintainer/fields-qa-maint-address"; "checks_fields_maintainer_fields_qa_maint_address")]
@@ -1162,6 +1266,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
+#[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
+#[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
 #[test_case("checks/files/artifact/cruft-general-wig-pen"; "checks_files_artifact_cruft_general_wig_pen")]
@@ -1185,6 +1291,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
 #[test_case("checks/obsolete-sites/obsolete-sites"; "checks_obsolete_sites_obsolete_sites")]
+#[test_case("checks/testsuite/national-encoding"; "checks_testsuite_national_encoding")]
+#[test_case("checks/testsuite/runtime-test-file-uses-installed-python-versions"; "checks_testsuite_runtime_test_file_uses_installed_python_versions")]
+#[test_case("checks/testsuite/runtime-test-file-uses-supported-python-versions-without-test-depends"; "checks_testsuite_runtime_test_file_uses_supported_python_versions_without_test_depends")]
+#[test_case("checks/testsuite/testsuite-general"; "checks_testsuite_testsuite_general")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]

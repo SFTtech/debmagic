@@ -66,6 +66,7 @@ example (1.0-1) unstable; urgency=low
     const LONG: &str = "\
 changelog-file-general (1:1.0-1) unstable; urgency=low
 
+
   * Test: changelog-file-general
   * Upload to experimental.
   * improbable-bug-number-in-closes (Closes: #1234)

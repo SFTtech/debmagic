@@ -12,15 +12,16 @@ use super::rules::{
     BuildDependsOnEssentialPackageWithoutUsingVersion, BuildDependsOnMetapackage,
     BuildDependsOnObsoleteBootstrap, BuildDependsOnObsoletePackage, BuildPathInManual,
     BuildPrerequisiteInInstallableSection, ChangelogFileNotCompressed, ChangelogNewsDebianMismatch,
-    CommandInMenuFileAndDesktopFile, CommandWithPathInMaintainerScript, CompressedDocumentation,
-    CompressedSymlinkWithWrongExt, ConflictsWithDependency, CopyrightContainsDhMakeTodoBoilerplate,
-    CopyrightFileCompressed, CopyrightFileContainsFullGplLicense, CopyrightFileIsSymlink,
+    CircularInstallationPrerequisite, CommandInMenuFileAndDesktopFile,
+    CommandWithPathInMaintainerScript, CompressedDocumentation, CompressedSymlinkWithWrongExt,
+    ConflictsWithDependency, CopyrightContainsDhMakeTodoBoilerplate, CopyrightFileCompressed,
+    CopyrightFileContainsFullGplLicense, CopyrightFileIsSymlink,
     CopyrightFileLacksPointerToPerlLicense, CopyrightNotUsingCommonLicenseForApache2,
     CopyrightNotUsingCommonLicenseForGpl, CopyrightNotUsingCommonLicenseForLgpl,
     CopyrightRefersToCompressedLicense, CopyrightRefersToDeprecatedBsdLicenseFile,
     CopyrightRefersToIncorrectDirectory, CopyrightRefersToNonexistentLicenseFile,
     CopyrightRefersToOldDirectory, CopyrightRefersToVersionlessLicenseFile, CountryInManual,
-    CustomCompressionInDebianRules, DebhelperBaseCompatLevelIsMissing,
+    CustomCompressionInDebianRules, DebhelperBaseCompatLevelIsMissing, DebhelperButNoMiscDepends,
     DebhelperToolsFromAutotoolsDevAreDeprecated, DebianAddsArchControlDir,
     DebianAddsArchInventoryFile, DebianAddsBtsControlDir, DebianAddsBzrControlDir,
     DebianAddsCvsConflictCopy, DebianAddsCvsControlDir, DebianAddsEditorBackupFile,
@@ -106,13 +107,14 @@ use super::rules::{
     NoChangelog, NoCopyrightFile, NoDebconfConfig, NoDebconfTemplates, NoDebianCopyrightInSource,
     NoDep5Copyright, NoEnglishManualPage, NoHumanMaintainers, NoManualPage, NoNmuInChangelog,
     NoOpTestsuite, NoQaInChangelog, NoTemplateDescription, NoTemplateType,
-    NodePackageInstallInNodejsRootdir, NodejsLockFile, NodejsMissingVersionOverride,
-    NodejsModuleInstalledInUsrLib, NonDebugFileInDebugPackage, NonEtcFileMarkedAsConffile,
-    NonMultiArchLibDir, NonStandardApache2ConfigurationName, NonStandardDirInUsr,
-    NonStandardDirInVar, NonStandardToplevelDir, NonVirtualFacilityInInitdScript,
-    NonWmInWindowmanagerMenuSection, NotBinnmuableAllDependsAny, NotBinnmuableAnyDependsAll,
-    NotBinnmuableAnyDependsAny, ObsoleteCommandInModprobeDFile, ObsoleteDebianWatchFileStandard,
-    ObsoleteUrlInPackaging, OddHistoricalDebianChangelogVersion, OldFsfAddressInCopyrightFile,
+    NoVersionedDebhelperPrerequisite, NodePackageInstallInNodejsRootdir, NodejsLockFile,
+    NodejsMissingVersionOverride, NodejsModuleInstalledInUsrLib, NodejsModuleNotDeclared,
+    NonDebugFileInDebugPackage, NonEtcFileMarkedAsConffile, NonMultiArchLibDir,
+    NonStandardApache2ConfigurationName, NonStandardDirInUsr, NonStandardDirInVar,
+    NonStandardToplevelDir, NonVirtualFacilityInInitdScript, NonWmInWindowmanagerMenuSection,
+    NotBinnmuableAllDependsAny, NotBinnmuableAnyDependsAll, NotBinnmuableAnyDependsAny,
+    ObsoleteCommandInModprobeDFile, ObsoleteDebianWatchFileStandard, ObsoleteUrlInPackaging,
+    OddHistoricalDebianChangelogVersion, OldFsfAddressInCopyrightFile,
     OverrideDhFixpermsDoesNotCallDhFixperms, OverrideFileInWrongLocation,
     PackageContainsBtsControlDir, PackageContainsCompiledFontFile,
     PackageContainsCompiledGlibSchema, PackageContainsEslintConfigFile,
@@ -614,6 +616,10 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OverrideFileInWrongLocation,
         &PackageInstallsFileToUsrX11r6,
         &SuWrapperNotSuToRoot,
+        &NoVersionedDebhelperPrerequisite,
+        &DebhelperButNoMiscDepends,
+        &CircularInstallationPrerequisite,
+        &NodejsModuleNotDeclared,
     ]
 }
 
@@ -757,6 +763,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UploadersInOrphan,
         &DebianControlRepeatsFieldNameInValue,
         &MaintscriptIncludesMaintScriptParameters,
+        &NoVersionedDebhelperPrerequisite,
+        &DebhelperButNoMiscDepends,
+        &CircularInstallationPrerequisite,
     ]
 }
 
@@ -1084,6 +1093,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OverrideFileInWrongLocation,
         &PackageInstallsFileToUsrX11r6,
         &SuWrapperNotSuToRoot,
+        &NodejsModuleNotDeclared,
     ]
 }
 
@@ -1236,6 +1246,9 @@ mod tests {
                 UploadersInOrphan::CODE,
                 DebianControlRepeatsFieldNameInValue::CODE,
                 MaintscriptIncludesMaintScriptParameters::CODE,
+                NoVersionedDebhelperPrerequisite::CODE,
+                DebhelperButNoMiscDepends::CODE,
+                CircularInstallationPrerequisite::CODE,
             ]
         );
     }
@@ -1571,6 +1584,7 @@ mod tests {
                 OverrideFileInWrongLocation::CODE,
                 PackageInstallsFileToUsrX11r6::CODE,
                 SuWrapperNotSuToRoot::CODE,
+                NodejsModuleNotDeclared::CODE,
             ]
         );
     }

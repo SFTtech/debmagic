@@ -5,7 +5,8 @@
 //! packages, with no architecture restriction, architecture qualifier, or
 //! build profile. A version constraint still implies the unversioned name.
 //! The relation implies the target when any of its dependencies does.
-//! `PackageRelation` has no `satisfies` method; this stays in the Check.
+//! [`crate::lint::package_relation::PackageRelation::satisfies`] is the full
+//! query; this fragment stays in the Check.
 
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::package_relation::{Alternative, PackageRelation};

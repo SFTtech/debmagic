@@ -202,6 +202,18 @@ impl ControlParagraph {
         self.unfolded_value(name)
             .map(|value| PackageRelation::parse(&value))
     }
+
+    /// The named fields AND-ed, in order. A field that is not declared is
+    /// skipped. This is lintian's `Build-Depends-All` and binary `all`.
+    pub(crate) fn relations_and(&self, names: &[&str]) -> PackageRelation {
+        names
+            .iter()
+            .fold(PackageRelation::default(), |combined, name| {
+                self.relation(name)
+                    .map(|relation| combined.and(&relation))
+                    .unwrap_or(combined)
+            })
+    }
 }
 
 impl Installable {

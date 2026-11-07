@@ -6,10 +6,17 @@
 //! patterns, so malformed text never makes the field unavailable. Whatever the
 //! patterns do not recognise stays on the alternative as [`Alternative::rest`]
 //! (lintian's `bad-relation`). Substitution variables such as
-//! `${misc:Depends}` are ordinary package names here, as in lintian.
+//! `${misc:Depends}` are ordinary package names here, as in `_split_dep`.
+//!
+//! [`PackageRelation::satisfies`] is lintian's `Relation::satisfies`: it
+//! reparses each alternative with the predicate grammar, so a substvar stays
+//! one package name, and answers whether this relation implies the condition.
 
+use std::cmp::Ordering;
+use std::str::FromStr;
 use std::sync::LazyLock;
 
+use debmagic_common::debian::version::PackageVersion;
 use regex::Regex;
 
 static PACKAGE: LazyLock<Regex> =
@@ -23,6 +30,25 @@ static PROFILE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\s*<([^>]+)>\s*").expect("valid regex"));
 static COMMA: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s*,\s*").expect("valid regex"));
 static PIPE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s*\|\s*").expect("valid regex"));
+/// lintian's `Relation::Predicate` grammar. A substvar is one package name,
+/// including the colon inside `${...}`.
+static PREDICATE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r"(?x)
+        ^\s*
+        (
+          (?: [a-zA-Z0-9][a-zA-Z0-9+.\-]* | \$\{[a-zA-Z0-9:\-]+\} )
+          (?: [a-zA-Z0-9+.\-]+ | \$\{[a-zA-Z0-9:\-]+\} )*
+        )
+        (?: : ([a-z0-9\-]+) )?
+        (?: \s* \( \s* (<<|<=|>=|>>|[=<>]) \s* ([^)]+) \s* \) )?
+        (?: \s* \[ \s* ([^\]]+) \s* \] )?
+        (?: \s* < \s* ([^,]+) \s* > )?
+        \s*$
+        ",
+    )
+    .expect("valid regex")
+});
 
 /// A parsed relation field: dependencies separated by commas, each a list of
 /// alternatives separated by `|`.
@@ -78,6 +104,41 @@ impl PackageRelation {
     /// Every alternative of every dependency, in field order.
     pub(crate) fn alternatives(&self) -> impl Iterator<Item = &Alternative> {
         self.dependencies.iter().flatten()
+    }
+
+    /// AND of `self` and `other`, skipping an empty relation.
+    ///
+    /// lintian's `logical_and`. Comma-separated dependencies of `other` follow
+    /// those of `self`.
+    pub(crate) fn and(&self, other: &Self) -> Self {
+        if other.dependencies.iter().all(Vec::is_empty) {
+            return self.clone();
+        }
+        let mut dependencies = self.dependencies.clone();
+        dependencies.extend(
+            other
+                .dependencies
+                .iter()
+                .filter(|dependency| !dependency.is_empty())
+                .cloned(),
+        );
+        Self { dependencies }
+    }
+
+    /// Whether this relation implies `condition`.
+    ///
+    /// True when every package set that satisfies this relation also satisfies
+    /// `condition` (lintian's `Relation::satisfies`; an unknown implication is
+    /// false). An empty condition is implied. Architecture restrictions are
+    /// honoured. A build profile on either side is not an implication.
+    pub(crate) fn satisfies(&self, condition: &str) -> bool {
+        implies(&formula_from(&self.dependencies), &Formula::load(condition))
+    }
+
+    /// lintian's `to_string`: standardised spacing, substvars kept whole, and
+    /// an alternative the predicate grammar cannot parse left as written.
+    pub(crate) fn to_lintian_string(&self) -> String {
+        formula_from(&self.dependencies).display()
     }
 }
 
@@ -178,6 +239,297 @@ impl Alternative {
     }
 }
 
+/// One alternative as lintian's `Relation::Predicate` parses it.
+struct Predicate {
+    literal: String,
+    parsable: bool,
+    name: String,
+    qualifier: String,
+    operator: String,
+    version: String,
+    /// Architecture restriction as captured, spaces included.
+    architecture: String,
+    /// Architectures of the restriction, `!` kept on negated names.
+    architectures: Vec<String>,
+    /// The one `<...>` build-profile group, when the grammar parsed one.
+    profile: String,
+}
+
+impl Predicate {
+    fn parse(text: &str) -> Self {
+        let Some(captures) = PREDICATE.captures(text) else {
+            return Self {
+                literal: text.to_string(),
+                parsable: false,
+                name: String::new(),
+                qualifier: String::new(),
+                operator: String::new(),
+                version: String::new(),
+                architecture: String::new(),
+                architectures: Vec::new(),
+                profile: String::new(),
+            };
+        };
+        let architecture = captures.get(5).map_or("", |m| m.as_str()).to_string();
+        let mut operator = captures.get(3).map_or("", |m| m.as_str()).to_string();
+        if operator == "<" {
+            operator = "<<".to_string();
+        } else if operator == ">" {
+            operator = ">>".to_string();
+        }
+        Self {
+            literal: text.to_string(),
+            parsable: true,
+            name: captures[1].to_string(),
+            qualifier: captures.get(2).map_or("", |m| m.as_str()).to_string(),
+            version: captures.get(4).map_or("", |m| m.as_str()).to_string(),
+            architectures: architecture
+                .split_whitespace()
+                .map(str::to_string)
+                .collect(),
+            architecture,
+            operator,
+            profile: captures.get(6).map_or("", |m| m.as_str()).to_string(),
+        }
+    }
+
+    /// lintian's `to_string`. An unparsable alternative is the original text.
+    fn display(&self) -> String {
+        if !self.parsable {
+            return self.literal.clone();
+        }
+        let mut text = self.name.clone();
+        if !self.qualifier.is_empty() {
+            text.push(':');
+            text.push_str(&self.qualifier);
+        }
+        if !self.operator.is_empty() {
+            text.push_str(&format!(" ({} {})", self.operator, self.version));
+        }
+        if !self.architecture.is_empty() {
+            text.push_str(&format!(" [{}]", self.architecture));
+        }
+        if !self.profile.is_empty() {
+            text.push_str(&format!(" <{}>", self.profile));
+        }
+        text
+    }
+}
+
+/// A relation as an AND of predicates and OR-groups.
+enum Formula {
+    And(Vec<Formula>),
+    Or(Vec<Formula>),
+    Pred(Predicate),
+}
+
+impl Formula {
+    fn load(condition: &str) -> Self {
+        let mut clauses = Vec::new();
+        for requirement in perl_split(&COMMA, condition) {
+            if requirement.is_empty() {
+                continue;
+            }
+            let alternatives = perl_split(&PIPE, requirement);
+            if alternatives.is_empty() {
+                continue;
+            }
+            clauses.push(or_clause(
+                alternatives
+                    .into_iter()
+                    .map(|text| Self::Pred(Predicate::parse(text)))
+                    .collect(),
+            ));
+        }
+        Self::And(clauses)
+    }
+
+    fn display(&self) -> String {
+        match self {
+            Self::And(clauses) | Self::Or(clauses) => {
+                let separator = if matches!(self, Self::And(_)) {
+                    ", "
+                } else {
+                    " | "
+                };
+                clauses
+                    .iter()
+                    .map(Self::display)
+                    .collect::<Vec<_>>()
+                    .join(separator)
+            }
+            Self::Pred(predicate) => predicate.display(),
+        }
+    }
+}
+
+fn formula_from(dependencies: &[Vec<Alternative>]) -> Formula {
+    let mut clauses = Vec::new();
+    for dependency in dependencies {
+        if dependency.is_empty() {
+            continue;
+        }
+        clauses.push(or_clause(
+            dependency
+                .iter()
+                .map(|alternative| Formula::Pred(Predicate::parse(alternative.text())))
+                .collect(),
+        ));
+    }
+    Formula::And(clauses)
+}
+
+fn or_clause(mut predicates: Vec<Formula>) -> Formula {
+    if predicates.len() == 1 {
+        predicates.pop().expect("one predicate")
+    } else {
+        Formula::Or(predicates)
+    }
+}
+
+/// `true` when `have` implies `want`. Unknown is `false`, as in
+/// `Relation::satisfies`.
+fn implies(have: &Formula, want: &Formula) -> bool {
+    match want {
+        Formula::Pred(_) => match have {
+            Formula::Pred(_) => predicate_implies(have, want),
+            Formula::And(clauses) => clauses.iter().any(|clause| implies(clause, want)),
+            Formula::Or(clauses) => {
+                !clauses.is_empty() && clauses.iter().all(|clause| implies(clause, want))
+            }
+        },
+        Formula::And(wanted) => wanted.iter().all(|clause| implies(have, clause)),
+        Formula::Or(wanted) => match have {
+            Formula::Pred(_) => wanted.iter().any(|clause| implies(have, clause)),
+            Formula::And(clauses) => clauses.iter().any(|clause| implies(clause, want)),
+            Formula::Or(clauses) => {
+                !clauses.is_empty()
+                    && clauses.iter().all(|clause| {
+                        wanted
+                            .iter()
+                            .any(|wanted_clause| implies(clause, wanted_clause))
+                    })
+            }
+        },
+    }
+}
+
+fn predicate_implies(have: &Formula, want: &Formula) -> bool {
+    let (Formula::Pred(have), Formula::Pred(want)) = (have, want) else {
+        return false;
+    };
+    if !have.parsable || !want.parsable {
+        return have.display() == want.display();
+    }
+    if have.name != want.name || !have.profile.is_empty() || !want.profile.is_empty() {
+        return false;
+    }
+    if !architectures_imply(&have.architectures, &want.architectures) {
+        return false;
+    }
+    if !qualifiers_imply(&have.qualifier, &want.qualifier) {
+        return false;
+    }
+    version_implies(&have.operator, &have.version, &want.operator, &want.version)
+}
+
+/// Architectures of `have` must be a superset of `want`. No list is every
+/// architecture. The first name's `!` decides whether the list is negated,
+/// and the `!` stays part of the name, as in lintian.
+fn architectures_imply(have: &[String], want: &[String]) -> bool {
+    if have.is_empty() {
+        return true;
+    }
+    if want.is_empty() {
+        return false;
+    }
+    let have_negated = have[0].starts_with('!');
+    let want_negated = want[0].starts_with('!');
+    if have_negated && want_negated {
+        have.iter().all(|architecture| want.contains(architecture))
+    } else if !have_negated && !want_negated {
+        want.iter().all(|architecture| have.contains(architecture))
+    } else if have_negated {
+        !have.iter().any(|architecture| {
+            architecture
+                .get(1..)
+                .is_some_and(|bare| want.iter().any(|wanted| wanted == bare))
+        })
+    } else {
+        false
+    }
+}
+
+fn qualifiers_imply(have: &str, want: &str) -> bool {
+    if have.is_empty() && !want.is_empty() {
+        return want == "any";
+    }
+    if !have.is_empty() && want.is_empty() {
+        return false;
+    }
+    have == want
+}
+
+fn version_implies(have_op: &str, have_version: &str, want_op: &str, want_version: &str) -> bool {
+    if want_op.is_empty() {
+        return true;
+    }
+    if have_op.is_empty() {
+        return false;
+    }
+    match want_op {
+        "=" => have_op == "=" && version_matches(have_version, "=", want_version),
+        "<=" => match have_op {
+            "=" | "<<" | "<=" => version_matches(have_version, "<=", want_version),
+            _ => false,
+        },
+        // A `<<` relation implies another `<<` when its version is `<=` the
+        // other's (anything below 1 is below 1). `<=` and `=` must be strictly
+        // below, because equality would miss `<<`.
+        "<<" => match have_op {
+            "<<" => version_matches(have_version, "<=", want_version),
+            "<=" | "=" => version_matches(have_version, "<<", want_version),
+            _ => false,
+        },
+        ">=" => match have_op {
+            "=" | ">>" | ">=" => version_matches(have_version, ">=", want_version),
+            _ => false,
+        },
+        ">>" => match have_op {
+            ">>" => version_matches(have_version, ">=", want_version),
+            ">=" | "=" => version_matches(have_version, ">>", want_version),
+            _ => false,
+        },
+        _ => false,
+    }
+}
+
+fn version_matches(left: &str, operator: &str, right: &str) -> bool {
+    let Some(order) = version_ord(left, right) else {
+        return false;
+    };
+    match operator {
+        "=" => order == Ordering::Equal,
+        "<=" => order != Ordering::Greater,
+        ">=" => order != Ordering::Less,
+        "<<" => order == Ordering::Less,
+        ">>" => order == Ordering::Greater,
+        _ => false,
+    }
+}
+
+/// dpkg's version order. Equal strings compare equal before parsing, as
+/// lintian's `versions_equal` does. Surrounding space from the predicate
+/// capture is not part of the version.
+fn version_ord(left: &str, right: &str) -> Option<Ordering> {
+    if left == right {
+        return Some(Ordering::Equal);
+    }
+    let left = PackageVersion::from_str(left.trim()).ok()?;
+    let right = PackageVersion::from_str(right.trim()).ok()?;
+    Some(left.cmp(&right))
+}
+
 /// Perl's `split`: a leading empty field stays, trailing empty fields go, and
 /// an empty string has no fields.
 fn perl_split<'a>(separator: &Regex, value: &'a str) -> Vec<&'a str> {
@@ -276,5 +628,84 @@ mod tests {
         let relation = PackageRelation::parse("${misc:Depends}, ${shlibs:Depends}");
         let names: Vec<_> = relation.alternatives().map(Alternative::package).collect();
         assert_eq!(names, ["${misc", "${shlibs"]);
+    }
+
+    #[test]
+    fn satisfies_names_versions_and_alternatives() {
+        assert!(PackageRelation::parse("foo").satisfies("foo"));
+        assert!(PackageRelation::parse("foo (>= 1)").satisfies("foo"));
+        assert!(!PackageRelation::parse("foo").satisfies("foo (>= 1)"));
+        assert!(PackageRelation::parse("foo, bar").satisfies("foo"));
+        assert!(PackageRelation::parse("foo, bar").satisfies("foo, bar"));
+        assert!(!PackageRelation::parse("foo").satisfies("foo, bar"));
+        assert!(!PackageRelation::parse("foo | bar").satisfies("foo"));
+        assert!(PackageRelation::parse("foo | bar").satisfies("foo | bar | baz"));
+        assert!(!PackageRelation::parse("foo | baz").satisfies("foo | bar"));
+        assert!(PackageRelation::parse("debhelper (>= 13)").satisfies("debhelper (>= 13~)"));
+        assert!(PackageRelation::parse("debhelper (>= 9)").satisfies("debhelper (>= 9~)"));
+        assert!(!PackageRelation::parse("debhelper").satisfies("debhelper (>= 9~)"));
+        assert!(!PackageRelation::parse("debhelper (>= 13)").satisfies("debhelper (>= 13.15~)"));
+        assert!(PackageRelation::parse("debhelper (>= 14)").satisfies("debhelper (>= 13.15~)"));
+        assert!(PackageRelation::parse("foo (= 1.0)").satisfies("foo (= 1.00)"));
+        assert!(PackageRelation::parse("foo (= 1.0)").satisfies("foo (>= 1.0)"));
+        assert!(!PackageRelation::parse("foo (= 1.0)").satisfies("foo (>= 1.1)"));
+        assert!(PackageRelation::parse("foo (>= 2)").satisfies("foo (>= 1)"));
+        assert!(!PackageRelation::parse("foo (>= 1)").satisfies("foo (>= 2)"));
+        assert!(PackageRelation::parse("foo (<< 1)").satisfies("foo (<< 2)"));
+        assert!(PackageRelation::parse("foo (<< 1)").satisfies("foo (<< 1)"));
+        assert!(!PackageRelation::parse("foo (<< 2)").satisfies("foo (<< 1)"));
+        assert!(PackageRelation::parse("foo (>> 1)").satisfies("foo (>> 1)"));
+        assert!(PackageRelation::parse("foo (<< 1)").satisfies("foo (<= 1)"));
+        assert!(!PackageRelation::parse("foo (<= 2)").satisfies("foo (<< 2)"));
+        assert!(PackageRelation::parse("foo (>> 1)").satisfies("foo (>= 1)"));
+        assert!(!PackageRelation::parse("foo (>= 1)").satisfies("foo (>> 1)"));
+        assert!(PackageRelation::parse("").satisfies(""));
+        assert!(!PackageRelation::parse("").satisfies("foo"));
+        assert!(PackageRelation::parse("foo").satisfies(""));
+    }
+
+    #[test]
+    fn satisfies_restrictions_qualifiers_and_substvars() {
+        assert!(!PackageRelation::parse("foo [amd64]").satisfies("foo"));
+        assert!(PackageRelation::parse("foo [amd64 i386]").satisfies("foo [amd64]"));
+        assert!(!PackageRelation::parse("foo [amd64]").satisfies("foo [amd64 i386]"));
+        assert!(
+            PackageRelation::parse("debhelper (>= 13) [amd64]")
+                .satisfies("debhelper (>= 13~) [amd64]")
+        );
+        assert!(!PackageRelation::parse("foo <!nocheck>").satisfies("foo"));
+        assert!(!PackageRelation::parse("foo").satisfies("foo <!nocheck>"));
+        assert!(PackageRelation::parse("libfoo").satisfies("libfoo:any"));
+        assert!(!PackageRelation::parse("libfoo:any").satisfies("libfoo"));
+        assert!(!PackageRelation::parse("libfoo").satisfies("libfoo:amd64"));
+        assert!(PackageRelation::parse("libfoo:any").satisfies("libfoo:any"));
+        assert!(PackageRelation::parse("${misc:Depends}").satisfies("${misc:Depends}"));
+        assert!(PackageRelation::parse("foo, ${misc:Depends}").satisfies("${misc:Depends}"));
+        assert!(!PackageRelation::parse("foo | ${misc:Depends}").satisfies("${misc:Depends}"));
+        assert!(PackageRelation::parse("node-foo (= 1.0-1)").satisfies("node-foo"));
+        let provides =
+            PackageRelation::parse("node-bar").and(&PackageRelation::parse("node-foo (= 1.0-1)"));
+        assert!(provides.satisfies("node-foo"));
+        assert!(provides.satisfies("node-bar"));
+        assert!(!PackageRelation::parse("node-foo | node-bar").satisfies("node-foo"));
+    }
+
+    #[test]
+    fn lintian_string_keeps_substvars_and_version_spacing() {
+        let relation = PackageRelation::parse(
+            "relations (<< 3), dpkg, bash (>> 2.0 ), mail-transport-agent, gawk | awk, foo (>> 2.0), foo (<< 2.2), coreutils, null (>= 0), ${misc:Depends}, makedev",
+        );
+        assert_eq!(
+            relation.to_lintian_string(),
+            "relations (<< 3), dpkg, bash (>> 2.0 ), mail-transport-agent, gawk | awk, foo (>> 2.0), foo (<< 2.2), coreutils, null (>= 0), ${misc:Depends}, makedev"
+        );
+        assert!(relation.satisfies("relations"));
+        let unparsed = PackageRelation::parse(
+            "control-file-general, foo, baz, ${shlibs:Depends} ${some:Depends}, ${misc:Depends}",
+        );
+        assert_eq!(
+            unparsed.to_lintian_string(),
+            "control-file-general, foo, baz, ${shlibs:Depends} ${some:Depends}, ${misc:Depends}"
+        );
     }
 }

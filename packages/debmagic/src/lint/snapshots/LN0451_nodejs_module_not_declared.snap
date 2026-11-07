@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libjs-mongodb (binary): nodejs-module-not-declared (LN0451) node-mongodb [usr/share/nodejs/mongodb/package.json]
+W: node-foo (binary): nodejs-module-not-declared (LN0451) node-foo-bar [usr/share/nodejs/@foo/bar/package.json]
+W: libjs-bson (binary): nodejs-module-not-declared (LN0451) node-bson [usr/lib/nodejs/bson/package.json]
+W: libjs-mongodb (udeb): nodejs-module-not-declared (LN0451) node-mongodb [usr/lib/x86_64-linux-gnu/nodejs/mongodb/package.json]

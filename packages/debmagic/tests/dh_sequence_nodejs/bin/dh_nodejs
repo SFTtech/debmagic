@@ -4,8 +4,9 @@
 This follows the dh-sequence-nodejs layout that the vendored
 nodejs-missing-version-override recipe depends on. The main module goes in
 the nodejs directory. A component listed in debian/nodejs/root_modules goes
-there too. Any other component listed in debian/nodejs/additional_components
-goes in the main module's node_modules. package.json is copied unchanged.
+there too, and `*` in that file means every additional component. Any other
+component listed in debian/nodejs/additional_components goes in the main
+module's node_modules. package.json is copied unchanged.
 """
 
 import json
@@ -92,7 +93,7 @@ def main() -> None:
     for component in listed(source / "debian/nodejs/additional_components"):
         component_dir = source / component
         name = module_name(component_dir)
-        if component in rooted:
+        if "*" in rooted or component in rooted:
             destination = root.joinpath(*name.split("/"))
         else:
             destination = main_dest / "node_modules" / Path(*name.split("/"))

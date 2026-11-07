@@ -689,8 +689,11 @@ fn nodejs_sequence_missing() -> bool {
 }
 
 fn rules_use_nodejs(source: &Path) -> bool {
-    fs::read_to_string(source.join("debian/rules"))
-        .is_ok_and(|text| text.contains("--with nodejs") || text.contains("dh-sequence-nodejs"))
+    let rules = fs::read_to_string(source.join("debian/rules")).unwrap_or_default();
+    let control = fs::read_to_string(source.join("debian/control")).unwrap_or_default();
+    rules.contains("--with nodejs")
+        || rules.contains("dh-sequence-nodejs")
+        || control.contains("dh-sequence-nodejs")
 }
 
 fn dpkg_build_binary(source: &Path) {

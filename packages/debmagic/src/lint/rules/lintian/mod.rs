@@ -109,7 +109,8 @@ pub(crate) use conffiles::{
     FileInUsrMarkedAsConffile, MissingConffile, NonEtcFileMarkedAsConffile,
 };
 pub(crate) use debhelper_rules::{
-    DebhelperBaseCompatLevelIsMissing, MaintainerScriptLacksDebhelperToken,
+    DebhelperBaseCompatLevelIsMissing, DebhelperButNoMiscDepends,
+    MaintainerScriptLacksDebhelperToken, NoVersionedDebhelperPrerequisite,
     TypoInDebhelperOverrideTarget,
 };
 pub(crate) use desktop::{
@@ -353,12 +354,13 @@ pub(crate) use menus::{
     PostrmDoesNotCallUpdatemenus, PrermHasUselessCallToInstallDocs,
 };
 pub(crate) use modprobe::ObsoleteCommandInModprobeDFile;
-pub(crate) use nodejs::NodejsMissingVersionOverride;
+pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};
 pub(crate) use po_debconf::{InvalidPoFile, MisnamedPoFile, TranslatedDefaultField};
 pub(crate) use rules_and_control::{
     BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,
-    DebhelperToolsFromAutotoolsDevAreDeprecated, DebianControlHasDbgsymPackage,
-    DebianControlRepeatsFieldNameInValue, PackageUsesDhExecButLacksBuildDepends,
+    CircularInstallationPrerequisite, DebhelperToolsFromAutotoolsDevAreDeprecated,
+    DebianControlHasDbgsymPackage, DebianControlRepeatsFieldNameInValue,
+    PackageUsesDhExecButLacksBuildDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

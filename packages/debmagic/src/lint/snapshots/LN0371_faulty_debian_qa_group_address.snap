@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): faulty-debian-qa-group-address (LN0371) Maintainer debian-qa@lists.debian.org -> packages@qa.debian.org
+E: example (source): faulty-debian-qa-group-address (LN0371) Maintainer a@example.com -> packages@qa.debian.org
+E: example (source): faulty-debian-qa-group-address (LN0371) Uploaders qa@example.com -> packages@qa.debian.org

@@ -1,20 +1,25 @@
+mod autotools;
 mod changelog_doc;
 mod conffiles;
 mod debhelper_rules;
 mod debian_changelog;
 mod debian_copyright;
 mod debian_debconf;
+mod debian_po_debconf;
 mod debian_readme;
 mod debian_rules;
 mod debian_shlibs;
+mod debian_variables;
 mod debian_version_substvars;
 mod debian_watch;
 mod description;
 mod documentation_manual;
 mod domain;
+mod fields_mail_address;
 mod fields_package_relations;
 mod fields_relations_more;
 mod fields_text;
+mod fields_version;
 mod files_artifact;
 mod files_foreign;
 mod files_hierarchy;
@@ -23,6 +28,7 @@ mod files_symbolic_links;
 mod files_vcs;
 mod init_scripts;
 mod known_fields;
+mod languages_perl;
 mod languages_python;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
@@ -63,16 +69,19 @@ mod mailcap;
 mod md5sums;
 mod menu_format;
 mod menus;
+mod po_debconf;
 mod rules_and_control;
 mod scripts_calls;
 mod scripts_depends;
 mod scripts_shell;
 mod scripts_text;
 mod systemd;
+mod testsuite;
 mod tlds;
 mod triggers;
 mod vcs;
 
+pub(crate) use autotools::AutotoolsPkgConfigMacroNotCrossCompilationSafe;
 pub(crate) use conffiles::NonEtcFileMarkedAsConffile;
 pub(crate) use debhelper_rules::{
     DebhelperBaseCompatLevelIsMissing, MaintainerScriptLacksDebhelperToken,
@@ -80,12 +89,13 @@ pub(crate) use debhelper_rules::{
 };
 
 pub(crate) use debian_changelog::{
-    BogusMailHostInDebianChangelog, DebianChangelogHasWrongDayOfWeek, DebianChangelogLineTooLong,
-    DebianNewsEntryHasStrangeDistribution, EpochChangeWithoutComment,
+    BogusMailHostInDebianChangelog, ChangelogNewsDebianMismatch, DebianChangelogHasWrongDayOfWeek,
+    DebianChangelogLineTooLong, DebianNewsEntryHasStrangeDistribution, EpochChangeWithoutComment,
     EpochChangedButUpstreamVersionDidNotGoBackwards, InitialUploadClosesNoBugs,
     LatestChangelogEntryWithoutNewDate, LatestDebianChangelogEntryReusesExistingVersion,
     NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
-    SourceNmuHasIncorrectVersionNumber, SyntaxErrorInDebianNewsFile, WrongNameForDebianNewsFile,
+    QaUploadHasIncorrectVersionNumber, SourceNmuHasIncorrectVersionNumber,
+    SyntaxErrorInDebianNewsFile, WrongNameForDebianNewsFile,
 };
 pub(crate) use debian_copyright::{
     CopyrightContainsDhMakeTodoBoilerplate, CopyrightFileCompressed,
@@ -98,7 +108,8 @@ pub(crate) use debian_copyright::{
     EmptyShortLicenseInDep5Copyright, IncompleteCreativeCommonsLicense,
     LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright, MissingLicenseTextInDep5Copyright,
     NamedCopyrightForSingleInstallable, NoCopyrightFile, NoDebianCopyrightInSource,
-    NoDep5Copyright, OldFsfAddressInCopyrightFile, SpaceInStdShortnameInDep5Copyright,
+    NoDep5Copyright, OldFsfAddressInCopyrightFile, SourceShipsExcludedFile,
+    SpaceInStdShortnameInDep5Copyright,
 };
 
 pub(crate) use debian_debconf::{
@@ -111,7 +122,9 @@ pub(crate) use debian_debconf::{
     UnknownDebconfPriority, UnknownFieldInTemplates, UsingFirstPersonInTemplates,
     UsingImperativeFormInTemplates, UsingQuestionInExtendedDescriptionInTemplates,
 };
-pub(crate) use debian_readme::ReadmeDebianMentionsUsrDoc;
+pub(crate) use debian_readme::{
+    ReadmeDebianContainsInvalidEmailAddress, ReadmeDebianMentionsUsrDoc,
+};
 pub(crate) use debian_rules::{
     BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,
     DebianRulesCallsDebhelperInOddOrder, DebianRulesCallsNproc, DebianRulesCallsPwd,
@@ -218,6 +231,7 @@ pub(crate) use init_scripts::{
     NonVirtualFacilityInInitdScript, SystemdServiceFileRefersToObsoleteTarget,
     SystemdServiceFileWrapsInitScript,
 };
+pub(crate) use languages_perl::PackageInstallsNonbinaryPerlInUsrLibPerl5;
 pub(crate) use languages_python::{
     AncientPythonVersionField, FileInUsrLibSitePython, MalformedPythonVersion,
     PackageInstallsDeprecatedPython2Path, PythonVersionCurrentIsDeprecated,
@@ -228,6 +242,12 @@ pub(crate) use md5sums::{
     FileMissingInMd5sums, MalformedMd5sumsControlFile, Md5sumMismatch, Md5sumsListsNonexistentFile,
 };
 
+pub(crate) use debian_po_debconf::UntranslatableDebconfTemplates;
+pub(crate) use debian_variables::IllegalVariable;
+pub(crate) use fields_mail_address::{
+    FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase, MailAddressLoopsOrBounces,
+};
+pub(crate) use fields_version::{DebianRevisionIsZero, DebianRevisionNotWellFormed};
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
 pub(crate) use ln0004_source_contains_prebuilt_windows_binary::SourceContainsPrebuiltWindowsBinary;
@@ -273,6 +293,7 @@ pub(crate) use menus::{
     MenuMethodLacksInclude, PostinstDoesNotCallUpdatemenus, PostinstHasUselessCallToInstallDocs,
     PostrmDoesNotCallUpdatemenus, PrermHasUselessCallToInstallDocs,
 };
+pub(crate) use po_debconf::{InvalidPoFile, MisnamedPoFile, TranslatedDefaultField};
 pub(crate) use rules_and_control::{
     BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,
     DebhelperToolsFromAutotoolsDevAreDeprecated, DebianControlHasDbgsymPackage,
@@ -298,12 +319,16 @@ pub(crate) use scripts_text::{
     MaintainerScriptHidesInitFailure, MaintainerScriptModifiesInetdConf,
     MaintainerScriptShouldNotUseDpkgMaintscriptHelper,
     MaintainerScriptShouldNotUsePiupartsVariable, MaintainerScriptUpdatesFontconfigCacheImproperly,
-    MaintscriptCallsLdconfig, PostrmRemovesAlternative, ScriptUsesBinEnv, SystemdAlternatives,
-    UdevadmCalledWithoutGuard,
+    MaintscriptCallsLdconfig, MissingCallToDpkgMaintscriptHelper,
+    PossiblyInsecureHandlingOfTmpFilesInMaintainerScript, PostrmRemovesAlternative,
+    ScriptUsesBinEnv, SystemdAlternatives, UdevadmCalledWithoutGuard,
 };
 pub(crate) use systemd::{
     InitDScriptDoesNotSourceInitFunctions, MissingSystemdServiceForInitDScript,
     SystemdServiceAliasWithoutExtension, SystemdServiceFileRefersToObsoleteBindto,
     SystemdServiceFileUsesNobodyOrNogroup,
+};
+pub(crate) use testsuite::{
+    DebianTestsControlAutodep8IsObsolete, RuntimeTestFileUsesInstalledPythonVersions,
 };
 pub(crate) use triggers::UsesImplicitAwaitTrigger;

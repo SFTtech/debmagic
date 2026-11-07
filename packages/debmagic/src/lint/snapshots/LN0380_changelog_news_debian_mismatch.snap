@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): changelog-news-debian-mismatch (LN0380) Distribution unstable != UNRELEASED [usr/share/doc/example/NEWS.Debian.gz:1]
+W: example (binary): changelog-news-debian-mismatch (LN0380) Urgency low != high [usr/share/doc/example/NEWS.Debian.gz:1]

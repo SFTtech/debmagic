@@ -6,9 +6,10 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::file_tree::{Entry, EntryKind, FileTree};
-use crate::lint::gzip::gunzip;
+use crate::lint::file_tree::FileTree;
 use crate::lint::rule::BinaryPackageRule;
+
+use super::readme::readme_text;
 
 pub struct ReadmeDebianMentionsUsrDoc;
 
@@ -26,13 +27,6 @@ declare_rule! {
     default_selected = true,
     experimental = false,
 }
-
-const README_NAMES: [&str; 4] = [
-    "README.Debian.gz",
-    "README.Debian",
-    "README.debian.gz",
-    "README.debian",
-];
 
 static USR_DOC: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?-u)/usr/doc\b").expect("valid regex"));
@@ -66,31 +60,6 @@ fn readme_hits(files: &FileTree, package: &str) -> Vec<(PathBuf, u32)> {
         .filter(|(_, line)| USR_DOC.is_match(line))
         .map(|(index, _)| (path.clone(), u32::try_from(index + 1).unwrap_or(u32::MAX)))
         .collect()
-}
-
-fn readme_text(files: &FileTree, package: &str) -> Option<(PathBuf, String)> {
-    for name in README_NAMES {
-        let path = PathBuf::from(format!("usr/share/doc/{package}/{name}"));
-        let Some(entry) = files.get(&path) else {
-            continue;
-        };
-        if !is_file(entry) {
-            continue;
-        }
-        let bytes = files.read(entry).ok()?;
-        let text = if name.ends_with(".gz") {
-            let plain = gunzip(&bytes)?;
-            String::from_utf8_lossy(&plain).into_owned()
-        } else {
-            String::from_utf8_lossy(&bytes).into_owned()
-        };
-        return Some((path, text));
-    }
-    None
-}
-
-fn is_file(entry: &Entry) -> bool {
-    matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink)
 }
 
 fn physical_lines(text: &str) -> Vec<&str> {

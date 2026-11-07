@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): debian-tests-control-autodep8-is-obsolete (LN0367) [debian/tests/control.autodep8]
+W: (source): debian-tests-control-autodep8-is-obsolete (LN0367) [debian/tests/control.autodep8]

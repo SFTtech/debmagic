@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): missing-call-to-dpkg-maintscript-helper (LN0384) symlink_to_dir [postrm]
+E: example (binary): missing-call-to-dpkg-maintscript-helper (LN0384) symlink_to_dir [preinst]
+E: example (binary): missing-call-to-dpkg-maintscript-helper (LN0384) symlink_to_dir [postrm]
+E: example (binary): missing-call-to-dpkg-maintscript-helper (LN0384) symlink_to_dir [preinst]
+E: example (binary): missing-call-to-dpkg-maintscript-helper (LN0384) symlink_to_dir [postinst]
+E: example (binary): missing-call-to-dpkg-maintscript-helper (LN0384) symlink_to_dir [postrm]

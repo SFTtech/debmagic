@@ -702,7 +702,7 @@ def write_parity_tests(dest_root: Path) -> Path:
     source_package = catalogued_source_package_recipe_rels(dest_root, catalogued_source_package_tags(rules_dir))
     path = generated_tests_path()
     path.write_text(render_parity_tests(source_tree, binary_package, source_package), encoding="utf-8")
-    subprocess.run(["rustfmt", str(path)], check=False)
+    subprocess.run(["rustfmt", "--edition", "2024", str(path)], check=False)
     return path
 
 

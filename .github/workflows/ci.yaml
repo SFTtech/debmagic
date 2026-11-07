@@ -141,30 +141,11 @@ jobs:
       contents: read
       # Push of the pre-built CI image is additionally gated to main below.
       packages: write
-    env:
-      # Registry and Environment Host roots together, so the cached build
-      # tree stays registered under the same Environment id.
-      DEBMAGIC_DATA_DIR: /tmp/debmagic-data
     steps:
       - uses: actions/checkout@v5
       - uses: Swatinem/rust-cache@v2
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - name: Cache the debmagic build tree
-        uses: actions/cache@v4
-        with:
-          path: /tmp/debmagic-data
-          key: debmagic-data-${{ hashFiles('Cargo.lock', 'debian/changelog', 'debian/control', 'debian/rules') }}
-          restore-keys: debmagic-data-
-      - name: Prune Environments of other package versions from the restored cache
-        run: |
-          current="$(dpkg-parsechangelog -SSource)-$(dpkg-parsechangelog -SVersion)"
-          cargo run --locked -q -p debmagic -- env list \
-            | awk -v current="$current" 'NR > 1 && $4 != current { print $1 }' \
-            | while read -r id; do
-                cargo run --locked -q -p debmagic -- env clean "$id" \
-                  || echo "::warning::could not prune Environment $id"
-              done
       - name: Resolve CI image tag
         id: image
         run: |
@@ -186,8 +167,6 @@ jobs:
         run: |
           cargo run --locked -p debmagic -- build binary \
             --driver=docker \
-            --persistent \
-            --incremental \
             --driver-docker-base-image="${{ steps.image.outputs.tag }}" \
             --sign=no
       - name: Run Debmagic test on ourself

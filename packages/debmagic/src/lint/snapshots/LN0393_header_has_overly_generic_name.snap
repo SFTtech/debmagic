@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): header-has-overly-generic-name (LN0393) [usr/include/util.h]
+E: example (binary): header-has-overly-generic-name (LN0393) [usr/include/utils.h]
+E: example (binary): header-has-overly-generic-name (LN0393) [usr/include/x86_64-linux-gnu/utils.h]
+E: example (binary): header-has-overly-generic-name (LN0393) [usr/include/Utils.H]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): no-op-testsuite (LN0399) [debian/tests/control:1]
+W: example (source): no-op-testsuite (LN0399) [debian/tests/control:1]
+W: example (source): no-op-testsuite (LN0399) [debian/tests/control:1]

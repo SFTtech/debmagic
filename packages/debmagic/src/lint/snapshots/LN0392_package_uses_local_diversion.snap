@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-uses-local-diversion (LN0392) [preinst:2]
+E: example (binary): package-uses-local-diversion (LN0392) [postrm:2]

@@ -1,10 +1,14 @@
+mod apache2;
+mod archive_liberty;
 mod autotools;
+mod binaries_perl;
 mod changelog_doc;
 mod conffiles;
 mod debhelper_rules;
 mod debian_changelog;
 mod debian_copyright;
 mod debian_debconf;
+mod debian_patches;
 mod debian_po_debconf;
 mod debian_readme;
 mod debian_rules;
@@ -23,11 +27,15 @@ mod fields_version;
 mod files_artifact;
 mod files_foreign;
 mod files_hierarchy;
+mod files_includes;
+mod files_installed;
 mod files_names;
 mod files_symbolic_links;
 mod files_vcs;
+mod games;
 mod init_scripts;
 mod known_fields;
+mod languages_javascript;
 mod languages_perl;
 mod languages_python;
 mod ln0001_required_field;
@@ -81,7 +89,13 @@ mod tlds;
 mod triggers;
 mod vcs;
 
-pub(crate) use autotools::AutotoolsPkgConfigMacroNotCrossCompilationSafe;
+pub(crate) use apache2::{
+    Apache2ConfigurationFilesNeedConfSuffix, Apache2ReverseDependencyCallsWrapperScript,
+    Apache2UnparsableDependency,
+};
+pub(crate) use archive_liberty::ArchiveLibertyMismatch;
+pub(crate) use autotools::{AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe};
+pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
 pub(crate) use conffiles::NonEtcFileMarkedAsConffile;
 pub(crate) use debhelper_rules::{
     DebhelperBaseCompatLevelIsMissing, MaintainerScriptLacksDebhelperToken,
@@ -135,7 +149,7 @@ pub(crate) use debian_rules::{
 pub(crate) use debian_shlibs::{
     DuplicateEntryInSymbolsControlFile, DuplicateInShlibs, InvalidTemplateIdInSymbolsFile,
     SymbolsFileContainsCurrentVersionWithDebianRevision, SymbolsFileContainsDebianRevision,
-    SyntaxErrorInSymbolsFile,
+    SymbolsForUndeclaredSharedLibrary, SyntaxErrorInSymbolsFile,
 };
 pub(crate) use debian_version_substvars::{
     NotBinnmuableAllDependsAny, NotBinnmuableAnyDependsAll, NotBinnmuableAnyDependsAny,
@@ -157,8 +171,8 @@ pub(crate) use documentation_manual::{
     BadSoLinkWithinManualPage, BadWhatisEntry, BrokenLinkToUndocumented, BuildPathInManual,
     CountryInManual, EmptyManualPage, GroffMessage, ManualPageFromTemplate,
     ManualPageWithGenericName, NoEnglishManualPage, NoManualPage, PodConversionMessage,
-    UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
-    WrongCompressionInManualPage,
+    PoorCompressionInManualPage, UncompressedManualPage, UndocumentedManualPage,
+    UselessWhatisEntry, WrongCompressionInManualPage,
 };
 pub(crate) use fields_package_relations::{
     BuildDependsOn1Revision, BuildDependsOnBuildEssential, BuildDependsOnMetapackage,
@@ -202,6 +216,10 @@ pub(crate) use files_hierarchy::{
     FsstndDirInVar, NonMultiArchLibDir, NonStandardDirInUsr, NonStandardDirInVar, SubdirInUsrBin,
     UseOfCompatSymlink,
 };
+pub(crate) use files_includes::HeaderHasOverlyGenericName;
+pub(crate) use files_installed::{
+    FileInUsrLibSgml, PackageInstallsIntoEtcGconfSchemas, RunPartsCronFilenameContainsIllegalChars,
+};
 pub(crate) use files_names::{
     FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,
     HyphenFile, PackageContainsCompiledGlibSchema, PackageContainsEslintConfigFile,
@@ -222,6 +240,7 @@ pub(crate) use files_vcs::{
     PackageContainsVcsControlDir, PackageContainsVcsControlFile, SvkCommitFileInPackage,
     SvnCommitFileInPackage,
 };
+pub(crate) use games::{PackageSectionGamesButContainsNoGame, PackageSectionGamesButHasUsrBin};
 pub(crate) use init_scripts::{
     InitDScriptDependsOnAllVirtualFacility, InitDScriptDoesNotImplementRequiredOption,
     InitDScriptHasBadStopRunlevel, InitDScriptHasConflictingStartStop,
@@ -231,18 +250,23 @@ pub(crate) use init_scripts::{
     NonVirtualFacilityInInitdScript, SystemdServiceFileRefersToObsoleteTarget,
     SystemdServiceFileWrapsInitScript,
 };
+pub(crate) use languages_javascript::{PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing};
 pub(crate) use languages_perl::PackageInstallsNonbinaryPerlInUsrLibPerl5;
 pub(crate) use languages_python::{
     AncientPythonVersionField, FileInUsrLibSitePython, MalformedPythonVersion,
     PackageInstallsDeprecatedPython2Path, PythonVersionCurrentIsDeprecated,
     SourcePackageEncodesPythonVersion, ThirdPartyPackageInPythonDir,
+    UnknownFileInPythonModuleDirectory,
 };
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;
 pub(crate) use md5sums::{
     FileMissingInMd5sums, MalformedMd5sumsControlFile, Md5sumMismatch, Md5sumsListsNonexistentFile,
 };
 
-pub(crate) use debian_po_debconf::UntranslatableDebconfTemplates;
+pub(crate) use debian_patches::Format30ButDebianChangesPatch;
+pub(crate) use debian_po_debconf::{
+    StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,
+};
 pub(crate) use debian_variables::IllegalVariable;
 pub(crate) use fields_mail_address::{
     FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase, MailAddressLoopsOrBounces,
@@ -313,13 +337,14 @@ pub(crate) use scripts_shell::{
     MaintainerScriptRemovesDeviceFiles, ReadInMaintainerScript, RecursivePrivilegeChange,
 };
 pub(crate) use scripts_text::{
-    InstallInfoUsedInMaintainerScript, MaintainerScriptCallsChownImproperly,
-    MaintainerScriptCallsInstallSgmlcatalog, MaintainerScriptChangesLdSoConf,
-    MaintainerScriptChangesNetbase, MaintainerScriptHasInvalidUpdateInetdOptions,
+    ForbiddenConfigInterpreter, InstallInfoUsedInMaintainerScript,
+    MaintainerScriptCallsChownImproperly, MaintainerScriptCallsInstallSgmlcatalog,
+    MaintainerScriptChangesLdSoConf, MaintainerScriptChangesNetbase,
+    MaintainerScriptHasInvalidUpdateInetdOptions, MaintainerScriptHasUnexpandedDebhelperToken,
     MaintainerScriptHidesInitFailure, MaintainerScriptModifiesInetdConf,
     MaintainerScriptShouldNotUseDpkgMaintscriptHelper,
     MaintainerScriptShouldNotUsePiupartsVariable, MaintainerScriptUpdatesFontconfigCacheImproperly,
-    MaintscriptCallsLdconfig, MissingCallToDpkgMaintscriptHelper,
+    MaintscriptCallsLdconfig, MissingCallToDpkgMaintscriptHelper, PackageUsesLocalDiversion,
     PossiblyInsecureHandlingOfTmpFilesInMaintainerScript, PostrmRemovesAlternative,
     ScriptUsesBinEnv, SystemdAlternatives, UdevadmCalledWithoutGuard,
 };
@@ -329,6 +354,7 @@ pub(crate) use systemd::{
     SystemdServiceFileUsesNobodyOrNogroup,
 };
 pub(crate) use testsuite::{
-    DebianTestsControlAutodep8IsObsolete, RuntimeTestFileUsesInstalledPythonVersions,
+    DebianTestsControlAutodep8IsObsolete, NoOpTestsuite,
+    RuntimeTestFileUsesInstalledPythonVersions, UnnecessaryTestsuiteAutopkgtestField,
 };
 pub(crate) use triggers::UsesImplicitAwaitTrigger;

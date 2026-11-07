@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-has-unexpanded-debhelper-token (LN0397) #DEBHELPER# [postinst:3]
+W: example (binary): maintainer-script-has-unexpanded-debhelper-token (LN0397) #DEBHELPER# [preinst:13]
+W: example (binary): maintainer-script-has-unexpanded-debhelper-token (LN0397) #DEBHELPER# [prerm:2]
+W: example (binary): maintainer-script-has-unexpanded-debhelper-token (LN0397) #DEBHELPER# [prerm:4]
+W: example (udeb): maintainer-script-has-unexpanded-debhelper-token (LN0397) #DEBHELPER# [config:2]

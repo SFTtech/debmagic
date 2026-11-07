@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): apache2-unparsable-dependency (LN0391) bar2.conf [etc/apache2/conf-available/phpmyfoo.conf:1]
+W: example (binary): apache2-unparsable-dependency (LN0391) mod_baz3 [etc/apache2/mods-available/foo.load:1]
+W: example (binary): apache2-unparsable-dependency (LN0391) baz4.load [etc/apache2/mods-available/foo.load:1]
+W: example (binary): apache2-unparsable-dependency (LN0391) foo|bar [etc/apache2/conf.d/phpmyfoo.conf:1]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): poor-compression-in-manual-page (LN0405) [usr/share/man/man6/not-max-compress.6.gz]
+E: example (binary): poor-compression-in-manual-page (LN0405) [usr/share/man/man6/usr-games-binary.6.gz]
+E: example (binary): poor-compression-in-manual-page (LN0405) [usr/share/man/man1/foo.1.gz]

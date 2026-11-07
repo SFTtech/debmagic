@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): apache2-reverse-dependency-calls-wrapper-script (LN0390) a2enconf [postinst:3]
+W: example (binary): apache2-reverse-dependency-calls-wrapper-script (LN0390) a2disconf [postrm:2]
+W: example (binary): apache2-reverse-dependency-calls-wrapper-script (LN0390) a2enmod [postinst:2]

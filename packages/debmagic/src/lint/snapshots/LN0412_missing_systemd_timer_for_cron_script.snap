@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): missing-systemd-timer-for-cron-script (LN0412) [etc/cron.daily/job]
+W: example (binary): missing-systemd-timer-for-cron-script (LN0412) [etc/cron.d/job]
+W: example (binary): missing-systemd-timer-for-cron-script (LN0412) [etc/cron.hourly/a]
+W: example (binary): missing-systemd-timer-for-cron-script (LN0412) [etc/cron.weekly/b]

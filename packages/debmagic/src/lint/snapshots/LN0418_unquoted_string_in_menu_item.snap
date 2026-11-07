@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): unquoted-string-in-menu-item (LN0418) needs [usr/share/menu/example:1]
+W: example (binary): unquoted-string-in-menu-item (LN0418) needs [usr/share/menu/example:1]

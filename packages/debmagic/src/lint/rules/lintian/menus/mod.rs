@@ -11,6 +11,7 @@ mod ln0329_prerm_has_useless_call_to_install_docs;
 mod ln0331_doc_base_abstract_field_separator_extra_whitespace;
 mod ln0332_doc_base_file_no_format_section;
 mod ln0333_menu_method_lacks_include;
+mod ln0420_doc_base_file_lacks_required_field;
 mod scan;
 
 pub(crate) use ln0326_postinst_does_not_call_updatemenus::PostinstDoesNotCallUpdatemenus;
@@ -20,3 +21,4 @@ pub(crate) use ln0329_prerm_has_useless_call_to_install_docs::PrermHasUselessCal
 pub(crate) use ln0331_doc_base_abstract_field_separator_extra_whitespace::DocBaseAbstractFieldSeparatorExtraWhitespace;
 pub(crate) use ln0332_doc_base_file_no_format_section::DocBaseFileNoFormatSection;
 pub(crate) use ln0333_menu_method_lacks_include::MenuMethodLacksInclude;
+pub(crate) use ln0420_doc_base_file_lacks_required_field::DocBaseFileLacksRequiredField;

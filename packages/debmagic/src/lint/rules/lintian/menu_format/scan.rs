@@ -35,6 +35,10 @@ pub(super) struct Report {
     pub desktop_entry_invalid_category: Vec<Finding>,
     pub desktop_entry_uses_reserved_category: Vec<Finding>,
     pub pkg_not_in_package_test: Vec<Finding>,
+    pub unquoted_string_in_menu_item: Vec<Finding>,
+    pub su_wrapper_without_c: Vec<Finding>,
+    pub su_wrapper_not_su_to_root: Vec<Finding>,
+    pub menu_icon_uses_relative_path: Vec<Finding>,
 }
 
 pub(super) fn take(
@@ -78,6 +82,10 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
         desktop_entry_invalid_category: Vec::new(),
         desktop_entry_uses_reserved_category: Vec::new(),
         pkg_not_in_package_test: Vec::new(),
+        unquoted_string_in_menu_item: Vec::new(),
+        su_wrapper_without_c: Vec::new(),
+        su_wrapper_not_su_to_root: Vec::new(),
+        menu_icon_uses_relative_path: Vec::new(),
     };
     let mut desktop_cmds = HashSet::new();
     for entry in desktop_files(files) {
@@ -88,6 +96,7 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
             entry.path().to_path_buf(),
             &text,
             files,
+            package,
             &mut desktop_cmds,
             &mut report,
         );
@@ -237,8 +246,18 @@ fn verify_menu_line(
     let Some(pairs) = parse_pairs(rest) else {
         return;
     };
+    for (tag, _, quoted) in &pairs {
+        if !quoted {
+            warn_at(
+                &mut report.unquoted_string_in_menu_item,
+                path,
+                Some(line),
+                tag.clone(),
+            );
+        }
+    }
     let mut vals: HashMap<String, String> = HashMap::new();
-    for (tag, value) in pairs {
+    for (tag, value, _) in pairs {
         vals.insert(tag, value);
     }
     if ["needs", "section", "title", "command"]
@@ -251,6 +270,15 @@ fn verify_menu_line(
     let section = squeeze_slashes(&original_section);
     let needs = vals["needs"].to_lowercase();
     let cmd = verify_cmd(files, &vals["command"]);
+    note_su_wrapper(&cmd, path, Some(line), package, report);
+    for (tag, name) in menu_icons(&vals) {
+        warn_at(
+            &mut report.menu_icon_uses_relative_path,
+            path,
+            Some(line),
+            format!("{tag} {name}"),
+        );
+    }
     if !cmd.okay
         && cmd.file.as_ref().is_some_and(|command| !command.is_empty())
         && tested.len() < 2
@@ -313,6 +341,7 @@ fn parse_desktop(
     path: PathBuf,
     text: &str,
     files: &FileTree,
+    package: &str,
     desktop_cmds: &mut HashSet<String>,
     report: &mut Report,
 ) {
@@ -387,6 +416,7 @@ fn parse_desktop(
     {
         let exec = vals["Exec"].clone();
         let cmd = verify_cmd(files, &exec);
+        note_su_wrapper(&cmd, &path, None, package, report);
         if !cmd.okay && cmd.file.as_deref() != Some("kcmshell") {
             warn_at(
                 &mut report.desktop_command_not_in_package,
@@ -437,15 +467,57 @@ struct Cmd {
     okay: bool,
     /// Command with one leading `/` removed. `None` when the wrapper left it unset.
     file: Option<String>,
+    /// Wrapper still named after the gksu/kdesu empty-command clearing.
+    wrapper: Option<&'static str>,
+    /// `verify_cmd` found a command (`-c`, a trailing gksu argument, or the bare command).
+    has_command: bool,
+}
+
+fn note_su_wrapper(cmd: &Cmd, path: &Path, line: Option<u32>, package: &str, report: &mut Report) {
+    let Some(wrapper) = cmd.wrapper else {
+        return;
+    };
+    if !cmd.has_command {
+        warn_at(
+            &mut report.su_wrapper_without_c,
+            path,
+            line,
+            wrapper.to_string(),
+        );
+    }
+    if !wrapper.contains("su-to-root") && wrapper != package {
+        warn_at(
+            &mut report.su_wrapper_not_su_to_root,
+            path,
+            line,
+            wrapper.to_string(),
+        );
+    }
+}
+
+fn menu_icons(vals: &HashMap<String, String>) -> Vec<(&'static str, String)> {
+    let mut icons = Vec::new();
+    for tag in ["icon", "icon32x32", "icon16x16"] {
+        let Some(name) = vals.get(tag) else {
+            continue;
+        };
+        if name.is_empty() || name == "none" || name.starts_with('/') {
+            continue;
+        }
+        icons.push((tag, name.clone()));
+    }
+    icons
 }
 
 fn verify_cmd(files: &FileTree, exec: &str) -> Cmd {
     let mut components = split_fields(exec);
+    let mut wrapper_left = None;
     let file = if components
         .first()
         .is_some_and(|command| wrapper_name(command).is_some())
     {
         let wrapper = wrapper_name(components.remove(0)).expect("wrapper was checked");
+        wrapper_left = Some(wrapper);
         let mut cmd = None;
         while let Some(current) = components.first().copied() {
             if current.is_empty() {
@@ -467,17 +539,18 @@ fn verify_cmd(files: &FileTree, exec: &str) -> Cmd {
             }
         }
         if cmd.is_none() && (wrapper == "gksu" || wrapper == "kdesu") {
-            cmd = Some(
-                components
-                    .first()
-                    .map(|value| (*value).to_string())
-                    .unwrap_or_else(|| wrapper.to_string()),
-            );
+            cmd = Some(if let Some(value) = components.first() {
+                (*value).to_string()
+            } else {
+                wrapper_left = None;
+                wrapper.to_string()
+            });
         }
         cmd
     } else {
         components.first().map(|value| (*value).to_string())
     };
+    let has_command = file.as_ref().is_some_and(|command| !command.is_empty());
     let stored = file
         .as_ref()
         .map(|command| command.strip_prefix('/').unwrap_or(command).to_string());
@@ -492,7 +565,12 @@ fn verify_cmd(files: &FileTree, exec: &str) -> Cmd {
                 .iter()
                 .any(|dir| files.get(format!("{dir}{command}")).is_some())
     });
-    Cmd { okay, file: stored }
+    Cmd {
+        okay,
+        file: stored,
+        wrapper: wrapper_left,
+        has_command,
+    }
 }
 
 const COMMAND_PATH: &[&str] = &["usr/local/bin/", "usr/bin/", "bin/", "usr/games/"];
@@ -674,7 +752,7 @@ fn split_package_prefix(line: &str) -> Option<(&str, &str)> {
     Some((&rest[..end], &rest[end + 2..]))
 }
 
-fn parse_pairs(line: &str) -> Option<Vec<(String, String)>> {
+fn parse_pairs(line: &str) -> Option<Vec<(String, String, bool)>> {
     let chars: Vec<char> = line.chars().collect();
     let mut index = 0;
     let mut pairs = Vec::new();
@@ -704,7 +782,8 @@ fn parse_pairs(line: &str) -> Option<Vec<(String, String)>> {
             take_unquoted(&chars, index)
         };
         index = next;
-        pairs.push((tag, decode_value(&raw)));
+        let quoted = raw.starts_with('"');
+        pairs.push((tag, decode_value(&raw), quoted));
     }
     Some(pairs)
 }

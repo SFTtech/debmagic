@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: phpmyfoo2 (binary): non-standard-apache2-configuration-name (LN0413) phpmyfoo2 != phpmyfoo2.conf [etc/apache2/conf-available/phpmyfoo2]
+W: phpmyfoo2 (binary): non-standard-apache2-configuration-name (LN0413) local-phpmyfoo2.conf != phpmyfoo2.conf [etc/apache2/conf-available/local-phpmyfoo2.conf]
+W: phpmyfoo3 (binary): non-standard-apache2-configuration-name (LN0413) phpmyfoo.conf != phpmyfoo3.conf [etc/apache2/conf.d/phpmyfoo.conf]
+W: site (binary): non-standard-apache2-configuration-name (LN0413) local-site.conf != site.conf [etc/apache2/site-available/local-site.conf]

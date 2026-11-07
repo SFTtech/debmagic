@@ -98,6 +98,25 @@ pub(super) fn nmu_facts(ctx: &SourceContext<'_>) -> Option<NmuFacts> {
     Some(facts)
 }
 
+/// Changelog line when Maintainer is the QA group and `Uploaders` is declared.
+///
+/// The domain is lowercased the way `canonicalize` does. A missing changelog
+/// entry does not emit: the Check returns before it reads Maintainer.
+pub(super) fn uploaders_in_orphan_line(ctx: &SourceContext<'_>) -> Option<u32> {
+    let entry = ctx.debian_changelog()?.entries().first()?;
+    let maintainer = canonicalize(&control_field(ctx, "Maintainer"));
+    if !maintainer.contains("packages@qa.debian.org") {
+        return None;
+    }
+    if !ctx
+        .debian_control()
+        .is_some_and(|control| control.source().declares("Uploaders"))
+    {
+        return None;
+    }
+    Some(entry.line())
+}
+
 fn control_field(ctx: &SourceContext<'_>, name: &str) -> String {
     ctx.debian_control()
         .and_then(|control| control.source().unfolded_value(name))

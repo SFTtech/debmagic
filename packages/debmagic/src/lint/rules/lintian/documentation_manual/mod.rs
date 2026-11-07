@@ -23,6 +23,7 @@ mod ln0276_manual_page_with_generic_name;
 mod ln0277_no_english_manual_page;
 mod ln0278_pod_conversion_message;
 mod ln0279_useless_whatis_entry;
+mod ln0405_poor_compression_in_manual_page;
 mod manual;
 
 pub(crate) use ln0152_no_manual_page::NoManualPage;
@@ -41,3 +42,4 @@ pub(crate) use ln0276_manual_page_with_generic_name::ManualPageWithGenericName;
 pub(crate) use ln0277_no_english_manual_page::NoEnglishManualPage;
 pub(crate) use ln0278_pod_conversion_message::PodConversionMessage;
 pub(crate) use ln0279_useless_whatis_entry::UselessWhatisEntry;
+pub(crate) use ln0405_poor_compression_in_manual_page::PoorCompressionInManualPage;

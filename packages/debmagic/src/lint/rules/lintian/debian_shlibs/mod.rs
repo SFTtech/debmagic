@@ -10,6 +10,7 @@ mod ln0338_duplicate_entry_in_symbols_control_file;
 mod ln0339_symbols_file_contains_current_version_with_debian_revision;
 mod ln0340_symbols_file_contains_debian_revision;
 mod ln0341_duplicate_in_shlibs;
+mod ln0408_symbols_for_undeclared_shared_library;
 mod shlibs;
 mod symbols;
 
@@ -19,3 +20,4 @@ pub(crate) use ln0338_duplicate_entry_in_symbols_control_file::DuplicateEntryInS
 pub(crate) use ln0339_symbols_file_contains_current_version_with_debian_revision::SymbolsFileContainsCurrentVersionWithDebianRevision;
 pub(crate) use ln0340_symbols_file_contains_debian_revision::SymbolsFileContainsDebianRevision;
 pub(crate) use ln0341_duplicate_in_shlibs::DuplicateInShlibs;
+pub(crate) use ln0408_symbols_for_undeclared_shared_library::SymbolsForUndeclaredSharedLibrary;

@@ -124,6 +124,20 @@ fn maintainer_scripts(files: &FileTree) -> Vec<(&Entry, Vec<u8>)> {
         .collect()
 }
 
+/// First shebang token, options excluded, `/usr/bin/env` kept.
+///
+/// `#!/usr/bin/python3 -u` is `/usr/bin/python3`. `#!/usr/bin/env python3` is
+/// `/usr/bin/env`. An empty interpreter is absent.
+pub(super) fn shebang_token(content: &[u8]) -> Option<String> {
+    let line = shebang(content)?;
+    line.split_whitespace().next().map(str::to_string)
+}
+
+/// Regular maintainer scripts and their bytes, including those with no shebang.
+pub(super) fn script_entries(files: &FileTree) -> Vec<(&Entry, Vec<u8>)> {
+    maintainer_scripts(files)
+}
+
 /// The shebang line after `#!`, trimmed. `#!#!#!` and an empty interpreter are
 /// absent. The line still includes options and a trailing `env` command.
 fn shebang(content: &[u8]) -> Option<String> {

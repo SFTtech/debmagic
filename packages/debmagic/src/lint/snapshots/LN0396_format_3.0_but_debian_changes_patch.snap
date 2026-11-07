@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): format-3.0-but-debian-changes-patch (LN0396) [debian/patches/debian-changes-1.0-1]
+W: example (source): format-3.0-but-debian-changes-patch (LN0396) [debian/patches/debian-changes-2:1.0-1]

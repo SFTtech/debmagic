@@ -10,6 +10,7 @@ mod ln0105_source_package_encodes_python_version;
 mod ln0129_package_installs_deprecated_python2_path;
 mod ln0130_file_in_usr_lib_site_python;
 mod ln0131_third_party_package_in_python_dir;
+mod ln0386_unknown_file_in_python_module_directory;
 mod python_version;
 
 pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;
@@ -19,3 +20,4 @@ pub(crate) use ln0105_source_package_encodes_python_version::SourcePackageEncode
 pub(crate) use ln0129_package_installs_deprecated_python2_path::PackageInstallsDeprecatedPython2Path;
 pub(crate) use ln0130_file_in_usr_lib_site_python::FileInUsrLibSitePython;
 pub(crate) use ln0131_third_party_package_in_python_dir::ThirdPartyPackageInPythonDir;
+pub(crate) use ln0386_unknown_file_in_python_module_directory::UnknownFileInPythonModuleDirectory;

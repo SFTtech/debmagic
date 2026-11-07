@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): stray-translated-debconf-templates (LN0407) [debian/templates.en_US]
+W: (source): stray-translated-debconf-templates (LN0407) [debian/debconf-test.templates.de]

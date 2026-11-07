@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-section-games-but-has-usr-bin (LN0402)
+W: example (udeb): package-section-games-but-has-usr-bin (LN0402)

@@ -1,8 +1,13 @@
-//! `debian/tests/control` paragraphs, unfolded the way lintian reads them.
+//! `debian/tests/control` as lintian reads it.
+//!
+//! `folded_paragraphs` unfolds continuation lines the way the python-version
+//! check splits `Tests:`. `paragraphs` is Deb822, the way the no-op testsuite
+//! check counts sections.
 
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
+use debian_control::lossless::Control;
 use regex::Regex;
 
 use crate::lint::file_tree::{EntryKind, FileTree};
@@ -24,7 +29,7 @@ impl Paragraph {
 static TEST_SPLIT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\s*,\s*|\s+").expect("valid regex"));
 
-pub(super) fn paragraphs(text: &str) -> Vec<Paragraph> {
+fn folded_paragraphs(text: &str) -> Vec<Paragraph> {
     let mut paragraphs = Vec::new();
     let mut current = Paragraph::default();
     for raw in text.split('\n') {
@@ -59,7 +64,7 @@ pub(super) fn paragraphs(text: &str) -> Vec<Paragraph> {
 /// Names are unique within one paragraph, in the order lintian's `uniq` keeps.
 pub(super) fn test_paths(text: &str) -> Vec<String> {
     let mut paths = Vec::new();
-    for paragraph in paragraphs(text) {
+    for paragraph in folded_paragraphs(text) {
         let Some(tests) = paragraph.unfolded("Tests") else {
             continue;
         };
@@ -99,4 +104,47 @@ pub(super) fn read_regular(files: &FileTree, path: &str) -> Option<(PathBuf, Str
     let bytes = files.read(entry).ok()?;
     let text = String::from_utf8_lossy(&bytes).into_owned();
     Some((entry.path().to_path_buf(), text))
+}
+
+/// Paragraphs of a tests control file. `None` when the text is not Deb822.
+pub(super) fn paragraphs(text: &str) -> Option<Vec<Vec<(String, String)>>> {
+    let control: Control = text.parse().ok()?;
+    let paragraphs = control
+        .as_deb822()
+        .paragraphs()
+        .map(|paragraph| {
+            paragraph
+                .entries()
+                .filter_map(|entry| Some((entry.key()?.to_string(), entry.value().to_string())))
+                .collect()
+        })
+        .collect();
+    Some(paragraphs)
+}
+
+pub(super) fn field<'a>(paragraph: &'a [(String, String)], name: &str) -> Option<&'a str> {
+    paragraph
+        .iter()
+        .find(|(key, _)| key.eq_ignore_ascii_case(name))
+        .map(|(_, value)| value.as_str())
+}
+
+/// `debian/tests` is a directory and `debian/tests/control` exists.
+pub(super) fn tests_control_present(files: &FileTree) -> bool {
+    let Some(directory) = files.get("debian/tests") else {
+        return false;
+    };
+    if directory.kind() != EntryKind::Directory {
+        return false;
+    }
+    files.get("debian/tests/control").is_some()
+}
+
+pub(super) fn read(files: &FileTree, path: &str) -> Option<String> {
+    let entry = files.get(path)?;
+    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
+        return None;
+    }
+    let bytes = files.read(entry).ok()?;
+    String::from_utf8(bytes).ok()
 }

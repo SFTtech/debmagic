@@ -538,6 +538,16 @@ def has_catalogued_source_tree_hints(recipe: Path, tags: set[str]) -> bool:
     return False
 
 
+def recipe_path_order(rel: str) -> tuple[str, ...]:
+    """Match Rust `Path` ordering, which compares components.
+
+    A raw string sort puts `files/debug-packages` before `files/debug`
+    because `-` sorts before `/`. `Path` compares `debug` with
+    `debug-packages` as sibling names, so `debug` comes first.
+    """
+    return tuple(rel.split("/"))
+
+
 def catalogued_source_tree_recipe_rels(dest_root: Path, tags: set[str]) -> list[str]:
     rels: list[str] = []
     for recipe in discover_vendored_recipe_dirs(dest_root):
@@ -546,7 +556,7 @@ def catalogued_source_tree_recipe_rels(dest_root: Path, tags: set[str]) -> list[
         if not has_catalogued_source_tree_hints(recipe, tags):
             continue
         rels.append(recipe.relative_to(dest_root).as_posix())
-    rels.sort()
+    rels.sort(key=recipe_path_order)
     return rels
 
 
@@ -589,7 +599,7 @@ def catalogued_binary_package_recipe_rels(dest_root: Path, tags: set[str]) -> li
         if not has_catalogued_binary_package_hints(recipe, tags):
             continue
         rels.append(recipe.relative_to(dest_root).as_posix())
-    rels.sort()
+    rels.sort(key=recipe_path_order)
     return rels
 
 
@@ -620,7 +630,7 @@ def catalogued_source_package_recipe_rels(dest_root: Path, tags: set[str]) -> li
         if not has_catalogued_source_package_hints(recipe, tags):
             continue
         rels.append(recipe.relative_to(dest_root).as_posix())
-    rels.sort()
+    rels.sort(key=recipe_path_order)
     return rels
 
 

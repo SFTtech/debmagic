@@ -22,6 +22,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
     "checks/debhelper/debhelper-compat-empty",
+    "checks/debhelper/debhelper-compat-experimental",
     "checks/debhelper/debhelper-compat-multiple",
     "checks/debhelper/debhelper-compat-multiple-unrel",
     "checks/debhelper/debhelper-compat-whitespace",
@@ -37,6 +38,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-debconf",
     "checks/debhelper/legacy-fields",
     "checks/debhelper/legacy-libbaz",
+    "checks/debhelper/legacy-maintainer-scripts",
     "checks/debhelper/legacy-scripts",
     "checks/debhelper/oeverride-typo",
     "checks/debian/changelog/changelog-file-become-native",
@@ -55,6 +57,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
+    "checks/debian/control/prerequisite/circular/control-file-general",
+    "checks/debian/control/prerequisite/circular/control-file-suggests-itself",
+    "checks/debian/control/prerequisite/circular/fields-depends-general",
+    "checks/debian/control/prerequisite/circular/legacy-relations",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
     "checks/debian/copyright/dep5/excluded-files-in-native",
@@ -432,10 +438,15 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/init-d/legacy-scripts",
     "checks/init-d/maintainer-script/legacy-maintainer-scripts",
     "checks/init-d/maintainer-script/scripts-calls-init-script",
+    "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/files-nodejs",
+    "checks/languages/javascript/nodejs/multiple-nodejs-components",
     "checks/languages/javascript/nodejs/nodejs-missing-version-override",
     "checks/languages/javascript/nodejs/nodejs-module-installed-in-usr-lib",
     "checks/languages/javascript/nodejs/nodejs-module-installs-lock-file",
+    "checks/languages/javascript/nodejs/nodejs-module-not-declared",
+    "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
+    "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/perl/files-foo-in-bar",
     "checks/languages/perl/legacy-filenames",
     "checks/languages/python/files-foo-in-bar",
@@ -514,6 +525,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
     "checks/debhelper/debhelper-compat-empty",
+    "checks/debhelper/debhelper-compat-experimental",
     "checks/debhelper/debhelper-compat-missing",
     "checks/debhelper/debhelper-compat-multiple",
     "checks/debhelper/debhelper-compat-multiple-unrel",
@@ -530,6 +542,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-debconf",
     "checks/debhelper/legacy-fields",
     "checks/debhelper/legacy-libbaz",
+    "checks/debhelper/legacy-maintainer-scripts",
     "checks/debhelper/legacy-scripts",
     "checks/debhelper/oeverride-typo",
     "checks/debian/changelog/changelog-file-become-native",
@@ -548,6 +561,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
+    "checks/debian/control/prerequisite/circular/control-file-general",
+    "checks/debian/control/prerequisite/circular/control-file-suggests-itself",
+    "checks/debian/control/prerequisite/circular/fields-depends-general",
+    "checks/debian/control/prerequisite/circular/legacy-relations",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
     "checks/debian/copyright/dep5/excluded-files-in-native",
@@ -760,6 +777,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
+#[test_case("checks/debhelper/debhelper-compat-experimental"; "checks_debhelper_debhelper_compat_experimental")]
 #[test_case("checks/debhelper/debhelper-compat-multiple"; "checks_debhelper_debhelper_compat_multiple")]
 #[test_case("checks/debhelper/debhelper-compat-multiple-unrel"; "checks_debhelper_debhelper_compat_multiple_unrel")]
 #[test_case("checks/debhelper/debhelper-compat-whitespace"; "checks_debhelper_debhelper_compat_whitespace")]
@@ -775,6 +793,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/legacy-debconf"; "checks_debhelper_legacy_debconf")]
 #[test_case("checks/debhelper/legacy-fields"; "checks_debhelper_legacy_fields")]
 #[test_case("checks/debhelper/legacy-libbaz"; "checks_debhelper_legacy_libbaz")]
+#[test_case("checks/debhelper/legacy-maintainer-scripts"; "checks_debhelper_legacy_maintainer_scripts")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debhelper/oeverride-typo"; "checks_debhelper_oeverride_typo")]
 #[test_case("checks/debian/changelog/changelog-file-become-native"; "checks_debian_changelog_changelog_file_become_native")]
@@ -793,6 +812,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
+#[test_case("checks/debian/control/prerequisite/circular/control-file-general"; "checks_debian_control_prerequisite_circular_control_file_general")]
+#[test_case("checks/debian/control/prerequisite/circular/control-file-suggests-itself"; "checks_debian_control_prerequisite_circular_control_file_suggests_itself")]
+#[test_case("checks/debian/control/prerequisite/circular/fields-depends-general"; "checks_debian_control_prerequisite_circular_fields_depends_general")]
+#[test_case("checks/debian/control/prerequisite/circular/legacy-relations"; "checks_debian_control_prerequisite_circular_legacy_relations")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/dep5/excluded-files-in-native"; "checks_debian_copyright_dep5_excluded_files_in_native")]
@@ -1171,10 +1194,15 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/init-d/legacy-scripts"; "checks_init_d_legacy_scripts")]
 #[test_case("checks/init-d/maintainer-script/legacy-maintainer-scripts"; "checks_init_d_maintainer_script_legacy_maintainer_scripts")]
 #[test_case("checks/init-d/maintainer-script/scripts-calls-init-script"; "checks_init_d_maintainer_script_scripts_calls_init_script")]
+#[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/files-nodejs"; "checks_languages_javascript_nodejs_files_nodejs")]
+#[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
 #[test_case("checks/languages/javascript/nodejs/nodejs-missing-version-override"; "checks_languages_javascript_nodejs_nodejs_missing_version_override")]
 #[test_case("checks/languages/javascript/nodejs/nodejs-module-installed-in-usr-lib"; "checks_languages_javascript_nodejs_nodejs_module_installed_in_usr_lib")]
 #[test_case("checks/languages/javascript/nodejs/nodejs-module-installs-lock-file"; "checks_languages_javascript_nodejs_nodejs_module_installs_lock_file")]
+#[test_case("checks/languages/javascript/nodejs/nodejs-module-not-declared"; "checks_languages_javascript_nodejs_nodejs_module_not_declared")]
+#[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
+#[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
 #[test_case("checks/languages/perl/legacy-filenames"; "checks_languages_perl_legacy_filenames")]
 #[test_case("checks/languages/python/files-foo-in-bar"; "checks_languages_python_files_foo_in_bar")]
@@ -1254,6 +1282,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
+#[test_case("checks/debhelper/debhelper-compat-experimental"; "checks_debhelper_debhelper_compat_experimental")]
 #[test_case("checks/debhelper/debhelper-compat-missing"; "checks_debhelper_debhelper_compat_missing")]
 #[test_case("checks/debhelper/debhelper-compat-multiple"; "checks_debhelper_debhelper_compat_multiple")]
 #[test_case("checks/debhelper/debhelper-compat-multiple-unrel"; "checks_debhelper_debhelper_compat_multiple_unrel")]
@@ -1270,6 +1299,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/legacy-debconf"; "checks_debhelper_legacy_debconf")]
 #[test_case("checks/debhelper/legacy-fields"; "checks_debhelper_legacy_fields")]
 #[test_case("checks/debhelper/legacy-libbaz"; "checks_debhelper_legacy_libbaz")]
+#[test_case("checks/debhelper/legacy-maintainer-scripts"; "checks_debhelper_legacy_maintainer_scripts")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debhelper/oeverride-typo"; "checks_debhelper_oeverride_typo")]
 #[test_case("checks/debian/changelog/changelog-file-become-native"; "checks_debian_changelog_changelog_file_become_native")]
@@ -1288,6 +1318,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
+#[test_case("checks/debian/control/prerequisite/circular/control-file-general"; "checks_debian_control_prerequisite_circular_control_file_general")]
+#[test_case("checks/debian/control/prerequisite/circular/control-file-suggests-itself"; "checks_debian_control_prerequisite_circular_control_file_suggests_itself")]
+#[test_case("checks/debian/control/prerequisite/circular/fields-depends-general"; "checks_debian_control_prerequisite_circular_fields_depends_general")]
+#[test_case("checks/debian/control/prerequisite/circular/legacy-relations"; "checks_debian_control_prerequisite_circular_legacy_relations")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/dep5/excluded-files-in-native"; "checks_debian_copyright_dep5_excluded_files_in_native")]

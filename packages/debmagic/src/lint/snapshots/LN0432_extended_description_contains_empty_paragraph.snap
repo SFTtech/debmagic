@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): extended-description-contains-empty-paragraph (LN0432)
+W: example (binary): extended-description-contains-empty-paragraph (LN0432)
+W: example (binary): extended-description-contains-empty-paragraph (LN0432)

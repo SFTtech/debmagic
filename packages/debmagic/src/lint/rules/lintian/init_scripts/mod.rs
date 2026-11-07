@@ -17,6 +17,7 @@ mod ln0291_non_virtual_facility_in_initd_script;
 mod ln0292_init_d_script_depends_on_all_virtual_facility;
 mod ln0293_init_d_script_possible_missing_stop;
 mod ln0294_init_d_script_starts_in_stop_runlevel;
+mod ln0440_init_d_script_has_bad_lsb_line;
 pub(in crate::lint::rules::lintian) mod systemd_unit;
 
 pub(crate) use ln0230_init_d_script_does_not_implement_required_option::InitDScriptDoesNotImplementRequiredOption;
@@ -32,3 +33,4 @@ pub(crate) use ln0291_non_virtual_facility_in_initd_script::NonVirtualFacilityIn
 pub(crate) use ln0292_init_d_script_depends_on_all_virtual_facility::InitDScriptDependsOnAllVirtualFacility;
 pub(crate) use ln0293_init_d_script_possible_missing_stop::InitDScriptPossibleMissingStop;
 pub(crate) use ln0294_init_d_script_starts_in_stop_runlevel::InitDScriptStartsInStopRunlevel;
+pub(crate) use ln0440_init_d_script_has_bad_lsb_line::InitDScriptHasBadLsbLine;

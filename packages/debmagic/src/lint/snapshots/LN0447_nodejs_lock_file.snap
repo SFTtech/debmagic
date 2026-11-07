@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: node-foo (binary): nodejs-lock-file (LN0447) [usr/share/nodejs/module-installs-lock-file/yarn.lock]
+E: node-foo (binary): nodejs-lock-file (LN0447) [usr/share/nodejs/module-installs-lock-file/package-lock.json]
+E: node-foo (udeb): nodejs-lock-file (LN0447) [usr/lib/x86_64-linux-gnu/nodejs/foo/yarn.lock]

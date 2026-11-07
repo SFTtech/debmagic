@@ -23,6 +23,7 @@ mod ln0417_su_wrapper_without__c;
 mod ln0418_unquoted_string_in_menu_item;
 mod ln0423_menu_icon_uses_relative_path;
 mod ln0429_su_wrapper_not_su_to_root;
+mod ln0443_menu_item_needs_tag_has_unknown_value;
 mod scan;
 
 pub(crate) use ln0248_menu_command_not_in_package::MenuCommandNotInPackage;
@@ -41,3 +42,4 @@ pub(crate) use ln0417_su_wrapper_without__c::SuWrapperWithoutC;
 pub(crate) use ln0418_unquoted_string_in_menu_item::UnquotedStringInMenuItem;
 pub(crate) use ln0423_menu_icon_uses_relative_path::MenuIconUsesRelativePath;
 pub(crate) use ln0429_su_wrapper_not_su_to_root::SuWrapperNotSuToRoot;
+pub(crate) use ln0443_menu_item_needs_tag_has_unknown_value::MenuItemNeedsTagHasUnknownValue;

@@ -25,6 +25,8 @@ static COMMAND: LazyLock<Regex> = LazyLock::new(|| {
 });
 static LSB_KEYWORD: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^# ([A-Za-z-]+):\s*(.*?)\s*$").expect("valid regex"));
+static LSB_CONTINUATION: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^#(\t|  )").expect("valid regex"));
 static RCS: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"#.*Default-Start:.*S").expect("valid regex"));
 static EXCLUDE_UPDATE_RC: LazyLock<Regex> =
@@ -281,6 +283,62 @@ fn lsb_header(text: &str) -> LsbHeader {
         break;
     }
     header
+}
+
+/// Lines inside the first LSB section that are not a keyword or a
+/// `Description` continuation. A second `### BEGIN INIT INFO` is ignored.
+pub(super) fn bad_lsb_lines(files: &FileTree, registered: &HashSet<String>) -> Vec<(PathBuf, u32)> {
+    let mut hits = Vec::new();
+    for entry in script_entries(files) {
+        let Some(base) = entry.path().file_name().and_then(|name| name.to_str()) else {
+            continue;
+        };
+        if SPECIAL.contains(&base) && !registered.contains(base) {
+            continue;
+        }
+        let Some(text) = read_text(files, entry) else {
+            continue;
+        };
+        for line in bad_lsb_line_numbers(&text) {
+            hits.push((entry.path().to_path_buf(), line));
+        }
+    }
+    hits
+}
+
+fn bad_lsb_line_numbers(text: &str) -> Vec<u32> {
+    let lines: Vec<&str> = text.lines().collect();
+    let mut bad = Vec::new();
+    let mut begun = false;
+    let mut index = 0;
+    while index < lines.len() {
+        if !lines[index].starts_with("### BEGIN INIT INFO") {
+            index += 1;
+            continue;
+        }
+        if begun {
+            index += 1;
+            continue;
+        }
+        begun = true;
+        index += 1;
+        let mut final_keyword = String::new();
+        while index < lines.len() {
+            let inner = lines[index];
+            let position = u32::try_from(index + 1).unwrap_or(u32::MAX);
+            if inner.starts_with("### END INIT INFO") || !inner.starts_with('#') {
+                index += 1;
+                break;
+            }
+            if let Some(caps) = LSB_KEYWORD.captures(inner) {
+                final_keyword = caps[1].to_ascii_lowercase();
+            } else if !(LSB_CONTINUATION.is_match(inner) && final_keyword == "description") {
+                bad.push(position);
+            }
+            index += 1;
+        }
+    }
+    bad
 }
 
 impl LsbHeader {

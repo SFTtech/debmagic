@@ -145,6 +145,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/dm-upload-allowed/legacy-foo++",
     "checks/fields/dm-upload-allowed/legacy-maintainer-scripts",
     "checks/fields/essential/fields-essential",
+    "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/mail-address/fields-maintainer",
     "checks/fields/mail-address/fields-maintainer-bounces",
@@ -242,6 +244,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/cron/files-foo-violates-expected-naming",
     "checks/cron/legacy-etcfiles",
     "checks/debian/changelog/changelog-file-general",
+    "checks/debian/changelog/changelog-file-invalid-date",
     "checks/debian/changelog/changelog-file-missing",
     "checks/debian/changelog/changelog-file-news-and-changelog-not-compressed",
     "checks/debian/changelog/changelog-file-news-general",
@@ -289,6 +292,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/shlibs/shared-libs-control-file",
     "checks/debian/shlibs/shared-libs-symbols-file",
     "checks/desktop/gnome/files-foo-in-bar",
+    "checks/desktop/gnome/gir/gir",
     "checks/desktop/gnome/legacy-filenames",
     "checks/desktop/icons/files-general",
     "checks/desktop/x11/files-general",
@@ -321,8 +325,10 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/manual/manpage-useless-whatis",
     "checks/documentation/manual/manpages-general",
     "checks/documentation/manual/scripts-ocamlrun",
+    "checks/documentation/texinfo/infofiles-general",
     "checks/fields/bugs/fields-redundant",
     "checks/fields/bugs/legacy-relations",
+    "checks/fields/description/description-empty-paragraph",
     "checks/fields/description/description-general",
     "checks/fields/description/legacy-binary",
     "checks/fields/description/legacy-debconf",
@@ -330,7 +336,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/description/legacy-relations",
     "checks/fields/essential/fields-essential",
     "checks/fields/essential/legacy-fields",
+    "checks/fields/homepage/fields-cpan-homepage",
     "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/length/depends-field-too-long",
@@ -344,6 +352,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/origin/fields-redundant",
     "checks/fields/origin/legacy-relations",
     "checks/fields/package-relations/fields-depends-general",
+    "checks/fields/package-relations/fields-java",
     "checks/fields/package-relations/fields-mua",
     "checks/fields/package-relations/fields-multiple-x-deps",
     "checks/fields/package-relations/fields-virtual-packages",
@@ -352,6 +361,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/package-relations/legacy-filenames",
     "checks/fields/package-relations/legacy-relations",
     "checks/fields/package-relations/legacy-scripts",
+    "checks/fields/priority/fields-excessive-priority-for-library-package",
     "checks/fields/required/fields-general-missing",
     "checks/fields/required/generic-empty",
     "checks/fields/section/fields-section-general",
@@ -422,7 +432,10 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/init-d/legacy-scripts",
     "checks/init-d/maintainer-script/legacy-maintainer-scripts",
     "checks/init-d/maintainer-script/scripts-calls-init-script",
+    "checks/languages/javascript/nodejs/files-nodejs",
     "checks/languages/javascript/nodejs/nodejs-missing-version-override",
+    "checks/languages/javascript/nodejs/nodejs-module-installed-in-usr-lib",
+    "checks/languages/javascript/nodejs/nodejs-module-installs-lock-file",
     "checks/languages/perl/files-foo-in-bar",
     "checks/languages/perl/legacy-filenames",
     "checks/languages/python/files-foo-in-bar",
@@ -625,6 +638,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/dm-upload-allowed/legacy-foo++",
     "checks/fields/dm-upload-allowed/legacy-maintainer-scripts",
     "checks/fields/essential/fields-essential",
+    "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/mail-address/fields-maintainer",
     "checks/fields/mail-address/fields-maintainer-bounces",
@@ -868,6 +883,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-maintainer-scripts"; "checks_fields_dm_upload_allowed_legacy_maintainer_scripts")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
+#[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
 #[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]
@@ -966,6 +983,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/cron/files-foo-violates-expected-naming"; "checks_cron_files_foo_violates_expected_naming")]
 #[test_case("checks/cron/legacy-etcfiles"; "checks_cron_legacy_etcfiles")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
+#[test_case("checks/debian/changelog/changelog-file-invalid-date"; "checks_debian_changelog_changelog_file_invalid_date")]
 #[test_case("checks/debian/changelog/changelog-file-missing"; "checks_debian_changelog_changelog_file_missing")]
 #[test_case("checks/debian/changelog/changelog-file-news-and-changelog-not-compressed"; "checks_debian_changelog_changelog_file_news_and_changelog_not_compressed")]
 #[test_case("checks/debian/changelog/changelog-file-news-general"; "checks_debian_changelog_changelog_file_news_general")]
@@ -1013,6 +1031,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/shlibs/shared-libs-control-file"; "checks_debian_shlibs_shared_libs_control_file")]
 #[test_case("checks/debian/shlibs/shared-libs-symbols-file"; "checks_debian_shlibs_shared_libs_symbols_file")]
 #[test_case("checks/desktop/gnome/files-foo-in-bar"; "checks_desktop_gnome_files_foo_in_bar")]
+#[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/desktop/gnome/legacy-filenames"; "checks_desktop_gnome_legacy_filenames")]
 #[test_case("checks/desktop/icons/files-general"; "checks_desktop_icons_files_general")]
 #[test_case("checks/desktop/x11/files-general"; "checks_desktop_x11_files_general")]
@@ -1045,8 +1064,10 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/manual/manpage-useless-whatis"; "checks_documentation_manual_manpage_useless_whatis")]
 #[test_case("checks/documentation/manual/manpages-general"; "checks_documentation_manual_manpages_general")]
 #[test_case("checks/documentation/manual/scripts-ocamlrun"; "checks_documentation_manual_scripts_ocamlrun")]
+#[test_case("checks/documentation/texinfo/infofiles-general"; "checks_documentation_texinfo_infofiles_general")]
 #[test_case("checks/fields/bugs/fields-redundant"; "checks_fields_bugs_fields_redundant")]
 #[test_case("checks/fields/bugs/legacy-relations"; "checks_fields_bugs_legacy_relations")]
+#[test_case("checks/fields/description/description-empty-paragraph"; "checks_fields_description_description_empty_paragraph")]
 #[test_case("checks/fields/description/description-general"; "checks_fields_description_description_general")]
 #[test_case("checks/fields/description/legacy-binary"; "checks_fields_description_legacy_binary")]
 #[test_case("checks/fields/description/legacy-debconf"; "checks_fields_description_legacy_debconf")]
@@ -1054,7 +1075,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/description/legacy-relations"; "checks_fields_description_legacy_relations")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/essential/legacy-fields"; "checks_fields_essential_legacy_fields")]
+#[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/length/depends-field-too-long"; "checks_fields_length_depends_field_too_long")]
@@ -1068,6 +1091,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
 #[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
+#[test_case("checks/fields/package-relations/fields-java"; "checks_fields_package_relations_fields_java")]
 #[test_case("checks/fields/package-relations/fields-mua"; "checks_fields_package_relations_fields_mua")]
 #[test_case("checks/fields/package-relations/fields-multiple-x-deps"; "checks_fields_package_relations_fields_multiple_x_deps")]
 #[test_case("checks/fields/package-relations/fields-virtual-packages"; "checks_fields_package_relations_fields_virtual_packages")]
@@ -1076,6 +1100,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/package-relations/legacy-filenames"; "checks_fields_package_relations_legacy_filenames")]
 #[test_case("checks/fields/package-relations/legacy-relations"; "checks_fields_package_relations_legacy_relations")]
 #[test_case("checks/fields/package-relations/legacy-scripts"; "checks_fields_package_relations_legacy_scripts")]
+#[test_case("checks/fields/priority/fields-excessive-priority-for-library-package"; "checks_fields_priority_fields_excessive_priority_for_library_package")]
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 #[test_case("checks/fields/section/fields-section-general"; "checks_fields_section_fields_section_general")]
@@ -1146,7 +1171,10 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/init-d/legacy-scripts"; "checks_init_d_legacy_scripts")]
 #[test_case("checks/init-d/maintainer-script/legacy-maintainer-scripts"; "checks_init_d_maintainer_script_legacy_maintainer_scripts")]
 #[test_case("checks/init-d/maintainer-script/scripts-calls-init-script"; "checks_init_d_maintainer_script_scripts_calls_init_script")]
+#[test_case("checks/languages/javascript/nodejs/files-nodejs"; "checks_languages_javascript_nodejs_files_nodejs")]
 #[test_case("checks/languages/javascript/nodejs/nodejs-missing-version-override"; "checks_languages_javascript_nodejs_nodejs_missing_version_override")]
+#[test_case("checks/languages/javascript/nodejs/nodejs-module-installed-in-usr-lib"; "checks_languages_javascript_nodejs_nodejs_module_installed_in_usr_lib")]
+#[test_case("checks/languages/javascript/nodejs/nodejs-module-installs-lock-file"; "checks_languages_javascript_nodejs_nodejs_module_installs_lock_file")]
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
 #[test_case("checks/languages/perl/legacy-filenames"; "checks_languages_perl_legacy_filenames")]
 #[test_case("checks/languages/python/files-foo-in-bar"; "checks_languages_python_files_foo_in_bar")]
@@ -1350,6 +1378,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-maintainer-scripts"; "checks_fields_dm_upload_allowed_legacy_maintainer_scripts")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
+#[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
 #[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]

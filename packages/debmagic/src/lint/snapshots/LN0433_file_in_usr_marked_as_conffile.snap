@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): file-in-usr-marked-as-conffile (LN0433) usr/share/foo
+E: example (binary): file-in-usr-marked-as-conffile (LN0433) usr/gone
+E: example (binary): file-in-usr-marked-as-conffile (LN0433) usr/bin/foo
+E: example (binary): file-in-usr-marked-as-conffile (LN0433) usr/bin/foo
+E: example (binary): file-in-usr-marked-as-conffile (LN0433) usr/bin/foo
+E: example (binary): file-in-usr-marked-as-conffile (LN0433) usr/lib/foo

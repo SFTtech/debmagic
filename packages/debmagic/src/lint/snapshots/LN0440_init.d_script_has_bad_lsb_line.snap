@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-has-bad-lsb-line (LN0440) [etc/init.d/example:4]
+W: example (binary): init.d-script-has-bad-lsb-line (LN0440) [etc/init.d/example:9]
+W: example (udeb): init.d-script-has-bad-lsb-line (LN0440) [etc/init.d/example:4]
+W: example (udeb): init.d-script-has-bad-lsb-line (LN0440) [etc/init.d/example:9]

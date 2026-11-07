@@ -32,6 +32,8 @@ mod ln0358_empty_short_license_in_dep5_copyright;
 mod ln0359_incomplete_creative_commons_license;
 mod ln0360_license_problem_undefined_license;
 mod ln0378_source_ships_excluded_file;
+mod ln0442_invalid_short_name_in_dep5_copyright;
+mod ln0444_missing_license_paragraph_in_dep5_copyright;
 mod source_copyright;
 
 pub(crate) use ln0009_no_dep5_copyright::NoDep5Copyright;
@@ -60,3 +62,5 @@ pub(crate) use ln0358_empty_short_license_in_dep5_copyright::EmptyShortLicenseIn
 pub(crate) use ln0359_incomplete_creative_commons_license::IncompleteCreativeCommonsLicense;
 pub(crate) use ln0360_license_problem_undefined_license::LicenseProblemUndefinedLicense;
 pub(crate) use ln0378_source_ships_excluded_file::SourceShipsExcludedFile;
+pub(crate) use ln0442_invalid_short_name_in_dep5_copyright::InvalidShortNameInDep5Copyright;
+pub(crate) use ln0444_missing_license_paragraph_in_dep5_copyright::MissingLicenseParagraphInDep5Copyright;

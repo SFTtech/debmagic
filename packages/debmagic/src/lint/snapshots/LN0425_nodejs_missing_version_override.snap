@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): nodejs-missing-version-override (LN0425) mongodb 0.0.0-development [usr/share/nodejs/mongodb/package.json]
+E: example (binary): nodejs-missing-version-override (LN0425) @foo/bar 0.0.0-dev [usr/share/nodejs/@foo/bar/package.json]
+E: example (binary): nodejs-missing-version-override (LN0425) bson 0.0.0-dev.1 [usr/lib/nodejs/bson/node_modules/x/package.json]

@@ -8,6 +8,7 @@ mod debhelper_rules;
 mod debian_changelog;
 mod debian_copyright;
 mod debian_debconf;
+mod debian_maintscript;
 mod debian_patches;
 mod debian_po_debconf;
 mod debian_readme;
@@ -17,6 +18,7 @@ mod debian_variables;
 mod debian_version_substvars;
 mod debian_watch;
 mod description;
+mod desktop;
 mod documentation_manual;
 mod domain;
 mod fields_mail_address;
@@ -25,8 +27,10 @@ mod fields_relations_more;
 mod fields_text;
 mod fields_version;
 mod files_artifact;
+mod files_debug;
 mod files_foreign;
 mod files_hierarchy;
+mod files_ieee;
 mod files_includes;
 mod files_installed;
 mod files_names;
@@ -38,6 +42,7 @@ mod known_fields;
 mod languages_javascript;
 mod languages_perl;
 mod languages_python;
+mod lintian_overrides;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
 mod ln0004_source_contains_prebuilt_windows_binary;
@@ -77,6 +82,8 @@ mod mailcap;
 mod md5sums;
 mod menu_format;
 mod menus;
+mod modprobe;
+mod nodejs;
 mod po_debconf;
 mod rules_and_control;
 mod scripts_calls;
@@ -91,15 +98,19 @@ mod vcs;
 
 pub(crate) use apache2::{
     Apache2ConfigurationFilesNeedConfSuffix, Apache2ReverseDependencyCallsWrapperScript,
-    Apache2UnparsableDependency,
+    Apache2UnparsableDependency, NonStandardApache2ConfigurationName,
 };
 pub(crate) use archive_liberty::ArchiveLibertyMismatch;
 pub(crate) use autotools::{AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe};
 pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
-pub(crate) use conffiles::NonEtcFileMarkedAsConffile;
+pub(crate) use conffiles::{MissingConffile, NonEtcFileMarkedAsConffile};
 pub(crate) use debhelper_rules::{
     DebhelperBaseCompatLevelIsMissing, MaintainerScriptLacksDebhelperToken,
     TypoInDebhelperOverrideTarget,
+};
+pub(crate) use desktop::{
+    IconSizeAndDirectoryNameMismatch, PackageContainsCompiledFontFile,
+    PackageInstallsFileToUsrX11r6,
 };
 
 pub(crate) use debian_changelog::{
@@ -109,7 +120,7 @@ pub(crate) use debian_changelog::{
     LatestChangelogEntryWithoutNewDate, LatestDebianChangelogEntryReusesExistingVersion,
     NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
     QaUploadHasIncorrectVersionNumber, SourceNmuHasIncorrectVersionNumber,
-    SyntaxErrorInDebianNewsFile, WrongNameForDebianNewsFile,
+    SyntaxErrorInDebianNewsFile, UploadersInOrphan, WrongNameForDebianNewsFile,
 };
 pub(crate) use debian_copyright::{
     CopyrightContainsDhMakeTodoBoilerplate, CopyrightFileCompressed,
@@ -204,10 +215,12 @@ pub(crate) use files_artifact::{
     DebianAddsSvkCommitFile, DebianAddsSvnCommitFile, DebianAddsSvnConflictFile,
     DebianAddsSvnControlDir,
 };
+pub(crate) use files_debug::NonDebugFileInDebugPackage;
 pub(crate) use files_foreign::{
     CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,
     MacosDsStoreFileInPackage, MacosResourceForkFileInPackage, PackageContainsLindaOverride,
     PackageContainsReadmeForOtherPlatformOrDistro, PackageInstallsAppimage,
+    WindowsThumbnailDatabaseInPackage,
 };
 pub(crate) use files_hierarchy::{
     AliasedLocation, DirInUsrLocal, DirOrFileInEtcOpt, DirOrFileInHome, DirOrFileInMnt,
@@ -216,6 +229,7 @@ pub(crate) use files_hierarchy::{
     FsstndDirInVar, NonMultiArchLibDir, NonStandardDirInUsr, NonStandardDirInVar, SubdirInUsrBin,
     UseOfCompatSymlink,
 };
+pub(crate) use files_ieee::PackageInstallsIeeeData;
 pub(crate) use files_includes::HeaderHasOverlyGenericName;
 pub(crate) use files_installed::{
     FileInUsrLibSgml, PackageInstallsIntoEtcGconfSchemas, RunPartsCronFilenameContainsIllegalChars,
@@ -263,6 +277,7 @@ pub(crate) use md5sums::{
     FileMissingInMd5sums, MalformedMd5sumsControlFile, Md5sumMismatch, Md5sumsListsNonexistentFile,
 };
 
+pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;
 pub(crate) use debian_patches::Format30ButDebianChangesPatch;
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,
@@ -272,6 +287,7 @@ pub(crate) use fields_mail_address::{
     FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase, MailAddressLoopsOrBounces,
 };
 pub(crate) use fields_version::{DebianRevisionIsZero, DebianRevisionNotWellFormed};
+pub(crate) use lintian_overrides::OverrideFileInWrongLocation;
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
 pub(crate) use ln0004_source_contains_prebuilt_windows_binary::SourceContainsPrebuiltWindowsBinary;
@@ -309,19 +325,23 @@ pub(crate) use ln0185_obsolete_url_in_packaging::ObsoleteUrlInPackaging;
 pub(crate) use menu_format::{
     CommandInMenuFileAndDesktopFile, DesktopCommandNotInPackage, DesktopEntryContainsUnknownKey,
     DesktopEntryFileHasCrs, DesktopEntryInvalidCategory, DesktopEntryUsesReservedCategory,
-    MenuCommandNotInPackage, MenuItemCreatesNewSection, MenuItemUsesAppsSection,
-    MenuItemUsesWindowmanagersSection, NonWmInWindowmanagerMenuSection, PkgNotInPackageTest,
+    MenuCommandNotInPackage, MenuIconUsesRelativePath, MenuItemCreatesNewSection,
+    MenuItemUsesAppsSection, MenuItemUsesWindowmanagersSection, NonWmInWindowmanagerMenuSection,
+    PkgNotInPackageTest, SuWrapperNotSuToRoot, SuWrapperWithoutC, UnquotedStringInMenuItem,
 };
 pub(crate) use menus::{
-    DocBaseAbstractFieldSeparatorExtraWhitespace, DocBaseFileNoFormatSection,
-    MenuMethodLacksInclude, PostinstDoesNotCallUpdatemenus, PostinstHasUselessCallToInstallDocs,
-    PostrmDoesNotCallUpdatemenus, PrermHasUselessCallToInstallDocs,
+    DocBaseAbstractFieldSeparatorExtraWhitespace, DocBaseFileLacksRequiredField,
+    DocBaseFileNoFormatSection, MenuMethodLacksInclude, PostinstDoesNotCallUpdatemenus,
+    PostinstHasUselessCallToInstallDocs, PostrmDoesNotCallUpdatemenus,
+    PrermHasUselessCallToInstallDocs,
 };
+pub(crate) use modprobe::ObsoleteCommandInModprobeDFile;
+pub(crate) use nodejs::NodejsMissingVersionOverride;
 pub(crate) use po_debconf::{InvalidPoFile, MisnamedPoFile, TranslatedDefaultField};
 pub(crate) use rules_and_control::{
     BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,
     DebhelperToolsFromAutotoolsDevAreDeprecated, DebianControlHasDbgsymPackage,
-    PackageUsesDhExecButLacksBuildDepends,
+    DebianControlRepeatsFieldNameInValue, PackageUsesDhExecButLacksBuildDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,
@@ -350,8 +370,8 @@ pub(crate) use scripts_text::{
 };
 pub(crate) use systemd::{
     InitDScriptDoesNotSourceInitFunctions, MissingSystemdServiceForInitDScript,
-    SystemdServiceAliasWithoutExtension, SystemdServiceFileRefersToObsoleteBindto,
-    SystemdServiceFileUsesNobodyOrNogroup,
+    MissingSystemdTimerForCronScript, SystemdServiceAliasWithoutExtension,
+    SystemdServiceFileRefersToObsoleteBindto, SystemdServiceFileUsesNobodyOrNogroup,
 };
 pub(crate) use testsuite::{
     DebianTestsControlAutodep8IsObsolete, NoOpTestsuite,

@@ -18,6 +18,11 @@ mod ln0256_desktop_entry_file_has_crs;
 mod ln0257_desktop_entry_invalid_category;
 mod ln0258_desktop_entry_uses_reserved_category;
 mod ln0259_pkg_not_in_package_test;
+#[allow(non_snake_case)]
+mod ln0417_su_wrapper_without__c;
+mod ln0418_unquoted_string_in_menu_item;
+mod ln0423_menu_icon_uses_relative_path;
+mod ln0429_su_wrapper_not_su_to_root;
 mod scan;
 
 pub(crate) use ln0248_menu_command_not_in_package::MenuCommandNotInPackage;
@@ -32,3 +37,7 @@ pub(crate) use ln0256_desktop_entry_file_has_crs::DesktopEntryFileHasCrs;
 pub(crate) use ln0257_desktop_entry_invalid_category::DesktopEntryInvalidCategory;
 pub(crate) use ln0258_desktop_entry_uses_reserved_category::DesktopEntryUsesReservedCategory;
 pub(crate) use ln0259_pkg_not_in_package_test::PkgNotInPackageTest;
+pub(crate) use ln0417_su_wrapper_without__c::SuWrapperWithoutC;
+pub(crate) use ln0418_unquoted_string_in_menu_item::UnquotedStringInMenuItem;
+pub(crate) use ln0423_menu_icon_uses_relative_path::MenuIconUsesRelativePath;
+pub(crate) use ln0429_su_wrapper_not_su_to_root::SuWrapperNotSuToRoot;

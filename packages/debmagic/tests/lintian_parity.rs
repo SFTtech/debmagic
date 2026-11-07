@@ -50,6 +50,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-maintainer-scripts",
+    "checks/debian/control/field/doubled-up/control-file-general",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/relation/control-file-general",
@@ -83,6 +84,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/source-copyright-missing",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
+    "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/po-debconf/legacy-debconf",
@@ -277,6 +279,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/debconf/legacy-debconf",
     "checks/debian/debconf/national-encoding",
     "checks/debian/debconf/po-debconf-general",
+    "checks/debian/lintian-overrides/files-override-misplaced",
     "checks/debian/readme/bad-email-format",
     "checks/debian/readme/debian-readme-general",
     "checks/debian/readme/legacy-etcfiles",
@@ -287,6 +290,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/shlibs/shared-libs-symbols-file",
     "checks/desktop/gnome/files-foo-in-bar",
     "checks/desktop/gnome/legacy-filenames",
+    "checks/desktop/icons/files-general",
+    "checks/desktop/x11/files-general",
+    "checks/desktop/x11/legacy-filenames",
     "checks/documentation/files-doxygen-documentation",
     "checks/documentation/files-foo-in-bar",
     "checks/documentation/files-package-contains-foo",
@@ -360,6 +366,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/contents/files-uses-dpkg-database-directly",
     "checks/files/contents/legacy-maintainer-scripts",
     "checks/files/contents/scripts-maintainer-general",
+    "checks/files/debug-packages/non-debug-file-in-debug-package",
     "checks/files/debug/binaries-general",
     "checks/files/debug/files-foo-in-bar",
     "checks/files/empty-package/cruft-source-is-missing-unrel",
@@ -378,6 +385,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/hierarchy/standard/files-tar-traps",
     "checks/files/hierarchy/standard/legacy-binary",
     "checks/files/hierarchy/standard/legacy-filenames",
+    "checks/files/ieee-data/files-ieee-data",
     "checks/files/includes/util-h",
     "checks/files/includes/utils-h",
     "checks/files/names/eslint-config-file",
@@ -414,6 +422,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/init-d/legacy-scripts",
     "checks/init-d/maintainer-script/legacy-maintainer-scripts",
     "checks/init-d/maintainer-script/scripts-calls-init-script",
+    "checks/languages/javascript/nodejs/nodejs-missing-version-override",
     "checks/languages/perl/files-foo-in-bar",
     "checks/languages/perl/legacy-filenames",
     "checks/languages/python/files-foo-in-bar",
@@ -448,6 +457,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/menus/menus-foo-calls-bar",
     "checks/menus/menus-script-check-ok",
     "checks/menus/national-encoding",
+    "checks/modprobe/obsolete-commands-in-modprobe",
     "checks/scripts/legacy-maintainer-scripts",
     "checks/scripts/legacy-scripts",
     "checks/scripts/scripts-bashisms",
@@ -460,6 +470,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/scripts/scripts-udevadm-called-without-guard",
     "checks/systemd/init.d-general",
     "checks/systemd/legacy-scripts",
+    "checks/systemd/no-systemd-timer-for-cron-script",
     "checks/systemd/systemd-complex-service-file",
     "checks/systemd/systemd-general",
     "checks/systemd/systemd-missing-services",
@@ -519,6 +530,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-maintainer-scripts",
+    "checks/debian/control/field/doubled-up/control-file-general",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/relation/control-file-general",
@@ -552,6 +564,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/source-copyright-missing",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
+    "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/po-debconf/legacy-debconf",
@@ -760,6 +773,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
+#[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
@@ -793,6 +807,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
+#[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
@@ -988,6 +1003,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/debconf/national-encoding"; "checks_debian_debconf_national_encoding")]
 #[test_case("checks/debian/debconf/po-debconf-general"; "checks_debian_debconf_po_debconf_general")]
+#[test_case("checks/debian/lintian-overrides/files-override-misplaced"; "checks_debian_lintian_overrides_files_override_misplaced")]
 #[test_case("checks/debian/readme/bad-email-format"; "checks_debian_readme_bad_email_format")]
 #[test_case("checks/debian/readme/debian-readme-general"; "checks_debian_readme_debian_readme_general")]
 #[test_case("checks/debian/readme/legacy-etcfiles"; "checks_debian_readme_legacy_etcfiles")]
@@ -998,6 +1014,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/shlibs/shared-libs-symbols-file"; "checks_debian_shlibs_shared_libs_symbols_file")]
 #[test_case("checks/desktop/gnome/files-foo-in-bar"; "checks_desktop_gnome_files_foo_in_bar")]
 #[test_case("checks/desktop/gnome/legacy-filenames"; "checks_desktop_gnome_legacy_filenames")]
+#[test_case("checks/desktop/icons/files-general"; "checks_desktop_icons_files_general")]
+#[test_case("checks/desktop/x11/files-general"; "checks_desktop_x11_files_general")]
+#[test_case("checks/desktop/x11/legacy-filenames"; "checks_desktop_x11_legacy_filenames")]
 #[test_case("checks/documentation/files-doxygen-documentation"; "checks_documentation_files_doxygen_documentation")]
 #[test_case("checks/documentation/files-foo-in-bar"; "checks_documentation_files_foo_in_bar")]
 #[test_case("checks/documentation/files-package-contains-foo"; "checks_documentation_files_package_contains_foo")]
@@ -1071,6 +1090,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/contents/files-uses-dpkg-database-directly"; "checks_files_contents_files_uses_dpkg_database_directly")]
 #[test_case("checks/files/contents/legacy-maintainer-scripts"; "checks_files_contents_legacy_maintainer_scripts")]
 #[test_case("checks/files/contents/scripts-maintainer-general"; "checks_files_contents_scripts_maintainer_general")]
+#[test_case("checks/files/debug-packages/non-debug-file-in-debug-package"; "checks_files_debug_packages_non_debug_file_in_debug_package")]
 #[test_case("checks/files/debug/binaries-general"; "checks_files_debug_binaries_general")]
 #[test_case("checks/files/debug/files-foo-in-bar"; "checks_files_debug_files_foo_in_bar")]
 #[test_case("checks/files/empty-package/cruft-source-is-missing-unrel"; "checks_files_empty_package_cruft_source_is_missing_unrel")]
@@ -1089,6 +1109,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/hierarchy/standard/files-tar-traps"; "checks_files_hierarchy_standard_files_tar_traps")]
 #[test_case("checks/files/hierarchy/standard/legacy-binary"; "checks_files_hierarchy_standard_legacy_binary")]
 #[test_case("checks/files/hierarchy/standard/legacy-filenames"; "checks_files_hierarchy_standard_legacy_filenames")]
+#[test_case("checks/files/ieee-data/files-ieee-data"; "checks_files_ieee_data_files_ieee_data")]
 #[test_case("checks/files/includes/util-h"; "checks_files_includes_util_h")]
 #[test_case("checks/files/includes/utils-h"; "checks_files_includes_utils_h")]
 #[test_case("checks/files/names/eslint-config-file"; "checks_files_names_eslint_config_file")]
@@ -1125,6 +1146,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/init-d/legacy-scripts"; "checks_init_d_legacy_scripts")]
 #[test_case("checks/init-d/maintainer-script/legacy-maintainer-scripts"; "checks_init_d_maintainer_script_legacy_maintainer_scripts")]
 #[test_case("checks/init-d/maintainer-script/scripts-calls-init-script"; "checks_init_d_maintainer_script_scripts_calls_init_script")]
+#[test_case("checks/languages/javascript/nodejs/nodejs-missing-version-override"; "checks_languages_javascript_nodejs_nodejs_missing_version_override")]
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
 #[test_case("checks/languages/perl/legacy-filenames"; "checks_languages_perl_legacy_filenames")]
 #[test_case("checks/languages/python/files-foo-in-bar"; "checks_languages_python_files_foo_in_bar")]
@@ -1159,6 +1181,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/menus/menus-foo-calls-bar"; "checks_menus_menus_foo_calls_bar")]
 #[test_case("checks/menus/menus-script-check-ok"; "checks_menus_menus_script_check_ok")]
 #[test_case("checks/menus/national-encoding"; "checks_menus_national_encoding")]
+#[test_case("checks/modprobe/obsolete-commands-in-modprobe"; "checks_modprobe_obsolete_commands_in_modprobe")]
 #[test_case("checks/scripts/legacy-maintainer-scripts"; "checks_scripts_legacy_maintainer_scripts")]
 #[test_case("checks/scripts/legacy-scripts"; "checks_scripts_legacy_scripts")]
 #[test_case("checks/scripts/scripts-bashisms"; "checks_scripts_scripts_bashisms")]
@@ -1171,6 +1194,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/scripts/scripts-udevadm-called-without-guard"; "checks_scripts_scripts_udevadm_called_without_guard")]
 #[test_case("checks/systemd/init.d-general"; "checks_systemd_init_d_general")]
 #[test_case("checks/systemd/legacy-scripts"; "checks_systemd_legacy_scripts")]
+#[test_case("checks/systemd/no-systemd-timer-for-cron-script"; "checks_systemd_no_systemd_timer_for_cron_script")]
 #[test_case("checks/systemd/systemd-complex-service-file"; "checks_systemd_systemd_complex_service_file")]
 #[test_case("checks/systemd/systemd-general"; "checks_systemd_systemd_general")]
 #[test_case("checks/systemd/systemd-missing-services"; "checks_systemd_systemd_missing_services")]
@@ -1231,6 +1255,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
+#[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
@@ -1264,6 +1289,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
+#[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]

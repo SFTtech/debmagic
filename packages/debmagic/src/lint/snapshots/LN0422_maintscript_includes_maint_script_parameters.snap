@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): maintscript-includes-maint-script-parameters (LN0422) [debian/maintscript:2]
+W: (source): maintscript-includes-maint-script-parameters (LN0422) [debian/maintscript:3]
+W: (source): maintscript-includes-maint-script-parameters (LN0422) [debian/maintscript:4]
+W: (source): maintscript-includes-maint-script-parameters (LN0422) [debian/example.maintscript:1]

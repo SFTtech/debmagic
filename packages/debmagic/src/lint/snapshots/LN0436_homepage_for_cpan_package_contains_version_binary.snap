@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): homepage-for-cpan-package-contains-version (LN0436) http://search.cpan.org/Foo-Bar-9.0_01/
+W: example (udeb): homepage-for-cpan-package-contains-version (LN0436) https://metacpan.org/release/Foo-1.2

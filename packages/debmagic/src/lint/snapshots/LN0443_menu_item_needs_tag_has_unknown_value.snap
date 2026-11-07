@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): menu-item-needs-tag-has-unknown-value (LN0443) wm [usr/share/menu/example:1]
+W: example (binary): menu-item-needs-tag-has-unknown-value (LN0443) gnome [usr/share/menu/example:1]
+W: example (binary): menu-item-needs-tag-has-unknown-value (LN0443) fvwmmodule [usr/share/menu/example:1]
+W: example (udeb): menu-item-needs-tag-has-unknown-value (LN0443) wm [usr/share/menu/example:1]

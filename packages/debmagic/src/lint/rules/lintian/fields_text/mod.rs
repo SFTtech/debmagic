@@ -17,6 +17,9 @@ mod ln0348_new_essential_package;
 mod ln0349_recommended_field;
 mod ln0350_unknown_section;
 mod ln0351_superfluous_clutter_in_homepage;
+mod ln0431_excessive_priority_for_library_package;
+mod ln0436_homepage_for_cpan_package_contains_version;
+mod ln0437_homepage_refers_to_obsolete_debian_infrastructure;
 
 pub(crate) use ln0224_redundant_bugs_field::RedundantBugsField;
 pub(crate) use ln0225_bad_homepage::BadHomepage;
@@ -30,3 +33,6 @@ pub(crate) use ln0348_new_essential_package::NewEssentialPackage;
 pub(crate) use ln0349_recommended_field::RecommendedField;
 pub(crate) use ln0350_unknown_section::UnknownSection;
 pub(crate) use ln0351_superfluous_clutter_in_homepage::SuperfluousClutterInHomepage;
+pub(crate) use ln0431_excessive_priority_for_library_package::ExcessivePriorityForLibraryPackage;
+pub(crate) use ln0436_homepage_for_cpan_package_contains_version::HomepageForCpanPackageContainsVersion;
+pub(crate) use ln0437_homepage_refers_to_obsolete_debian_infrastructure::HomepageRefersToObsoleteDebianInfrastructure;

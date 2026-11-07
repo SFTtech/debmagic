@@ -974,7 +974,8 @@ Rules
              \n\
              Files: *\n\
              Copyright: 2024 Example\n\
-             License: Expat\n",
+             License: Expat\n\
+              Permission is hereby granted.\n",
         )?;
         let selected = resolve_selected_codes(&["LN".to_string()], &[])?;
         assert_eq!(
@@ -1403,6 +1404,24 @@ Rules
                 crate::lint::rules::OverrideFileInWrongLocation::CODE,
                 crate::lint::rules::PackageInstallsFileToUsrX11r6::CODE,
                 crate::lint::rules::SuWrapperNotSuToRoot::CODE,
+                crate::lint::rules::DocBaseFileUnknownField::CODE,
+                crate::lint::rules::ExcessivePriorityForLibraryPackage::CODE,
+                crate::lint::rules::ExtendedDescriptionContainsEmptyParagraph::CODE,
+                crate::lint::rules::FileInUsrMarkedAsConffile::CODE,
+                crate::lint::rules::NodejsModuleInstalledInUsrLib::CODE,
+                crate::lint::rules::GirSectionNotLibdevel::CODE,
+                crate::lint::rules::HomepageForCpanPackageContainsVersion::CODE,
+                crate::lint::rules::HomepageRefersToObsoleteDebianInfrastructure::CODE,
+                crate::lint::rules::InfoDocumentMissingDirEntry::CODE,
+                crate::lint::rules::InfoDocumentMissingDirSection::CODE,
+                crate::lint::rules::InitDScriptHasBadLsbLine::CODE,
+                crate::lint::rules::InvalidDateInDebianChangelog::CODE,
+                crate::lint::rules::InvalidShortNameInDep5Copyright::CODE,
+                crate::lint::rules::MenuItemNeedsTagHasUnknownValue::CODE,
+                crate::lint::rules::MissingLicenseParagraphInDep5Copyright::CODE,
+                crate::lint::rules::NeedlessSuggestRecommendLibservletJava::CODE,
+                crate::lint::rules::NodePackageInstallInNodejsRootdir::CODE,
+                crate::lint::rules::NodejsLockFile::CODE,
             ]
         );
         let intent = LintIntent {

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): invalid-date-in-debian-changelog (LN0441) (Thurs -> Thu) [usr/share/doc/example/changelog.gz:1]
+E: example (binary): invalid-date-in-debian-changelog (LN0441) (Sept -> Sep) [usr/share/doc/example/changelog.gz:1]
+E: example (binary): invalid-date-in-debian-changelog (LN0441) (Monday -> Mon) [usr/share/doc/example/changelog.gz:1]

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): invalid-short-name-in-dep5-copyright (LN0442) gplv1 [debian/copyright:6]
+W: (source): invalid-short-name-in-dep5-copyright (LN0442) bsd [debian/copyright:6]
+W: (source): invalid-short-name-in-dep5-copyright (LN0442) lgpl2.1+ [debian/copyright:6]
+W: (source): invalid-short-name-in-dep5-copyright (LN0442) bsd2clause [debian/copyright:6]

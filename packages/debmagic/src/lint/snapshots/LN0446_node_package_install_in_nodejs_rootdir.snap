@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: node-foo (binary): node-package-install-in-nodejs-rootdir (LN0446) [usr/share/nodejs/test.js]
+E: node-foo (binary): node-package-install-in-nodejs-rootdir (LN0446) [usr/share/nodejs/package.json]
+E: node-foo (binary): node-package-install-in-nodejs-rootdir (LN0446) [usr/lib/x86_64-linux-gnu/nodejs/index.js]
+E: node-foo (udeb): node-package-install-in-nodejs-rootdir (LN0446) [usr/lib/nodejs/test.js]

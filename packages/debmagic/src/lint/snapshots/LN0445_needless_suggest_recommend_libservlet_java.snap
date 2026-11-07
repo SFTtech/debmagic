@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): needless-suggest-recommend-libservlet-java (LN0445) libservlet3.0-java
+W: example (binary): needless-suggest-recommend-libservlet-java (LN0445) libservlet2.5-java
+W: example (binary): needless-suggest-recommend-libservlet-java (LN0445) libservlet3.1-java
+W: example (udeb): needless-suggest-recommend-libservlet-java (LN0445) libservlet2.5-java

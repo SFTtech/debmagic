@@ -24,6 +24,7 @@ mod ln0365_wrong_name_for_debian_news_file;
 mod ln0366_qa_upload_has_incorrect_version_number;
 mod ln0380_changelog_news_debian_mismatch;
 mod ln0410_uploaders_in_orphan;
+mod ln0441_invalid_date_in_debian_changelog;
 mod nmu;
 mod source;
 mod version;
@@ -46,3 +47,4 @@ pub(crate) use ln0365_wrong_name_for_debian_news_file::WrongNameForDebianNewsFil
 pub(crate) use ln0366_qa_upload_has_incorrect_version_number::QaUploadHasIncorrectVersionNumber;
 pub(crate) use ln0380_changelog_news_debian_mismatch::ChangelogNewsDebianMismatch;
 pub(crate) use ln0410_uploaders_in_orphan::UploadersInOrphan;
+pub(crate) use ln0441_invalid_date_in_debian_changelog::InvalidDateInDebianChangelog;

@@ -31,6 +31,8 @@ pub(super) struct Report {
     pub menu_item_uses_apps_section: Vec<Finding>,
     pub menu_item_uses_windowmanagers_section: Vec<Finding>,
     pub non_wm_in_windowmanager_menu_section: Vec<Finding>,
+    pub non_wm_module_in_wm_modules_menu_section: Vec<Finding>,
+    pub menu_item_needs_tag_has_unknown_value: Vec<Finding>,
     pub desktop_entry_file_has_crs: Vec<Finding>,
     pub desktop_entry_invalid_category: Vec<Finding>,
     pub desktop_entry_uses_reserved_category: Vec<Finding>,
@@ -78,6 +80,8 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
         menu_item_uses_apps_section: Vec::new(),
         menu_item_uses_windowmanagers_section: Vec::new(),
         non_wm_in_windowmanager_menu_section: Vec::new(),
+        non_wm_module_in_wm_modules_menu_section: Vec::new(),
+        menu_item_needs_tag_has_unknown_value: Vec::new(),
         desktop_entry_file_has_crs: Vec::new(),
         desktop_entry_invalid_category: Vec::new(),
         desktop_entry_uses_reserved_category: Vec::new(),
@@ -302,12 +306,31 @@ fn verify_menu_line(
             );
         }
     }
-    if is_wm_managers_section(&section) && needs != "wm" {
+    if is_modules_section(&section) {
+        if matches!(needs.as_str(), "x11" | "text" | "vc" | "wm") {
+            warn_at(
+                &mut report.non_wm_module_in_wm_modules_menu_section,
+                path,
+                Some(line),
+                needs.clone(),
+            );
+        }
+    } else if is_wm_managers_section(&section) && needs != "wm" {
         warn_at(
             &mut report.non_wm_in_windowmanager_menu_section,
             path,
             Some(line),
-            needs,
+            needs.clone(),
+        );
+    } else if !is_wm_managers_section(&section)
+        && needs != "dwww"
+        && !matches!(needs.as_str(), "x11" | "text" | "vc")
+    {
+        warn_at(
+            &mut report.menu_item_needs_tag_has_unknown_value,
+            path,
+            Some(line),
+            needs.clone(),
         );
     }
     let classified = classify_section(&section);

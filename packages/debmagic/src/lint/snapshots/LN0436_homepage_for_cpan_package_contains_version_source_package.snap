@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): homepage-for-cpan-package-contains-version (LN0436) http://search.cpan.org/Foo-Bar-9.0_01/

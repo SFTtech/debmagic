@@ -58,6 +58,8 @@ pub(super) struct DocBaseFile {
     pub path: PathBuf,
     pub no_format: bool,
     pub abstract_separators: Vec<u32>,
+    /// `(line, field name)` of a field that is not known in its section.
+    pub unknown_fields: Vec<(u32, String)>,
 }
 
 /// Menu file lintian would point at, otherwise the last menu method.
@@ -142,23 +144,41 @@ pub(super) fn doc_base_files(files: &FileTree) -> Vec<DocBaseFile> {
 fn parse_doc_base_entry(files: &FileTree, entry: &Entry) -> Option<DocBaseFile> {
     let bytes = files.read(entry).ok()?;
     let text = std::str::from_utf8(&bytes).ok()?;
-    let (has_format, abstract_separators) = parse_doc_base(text);
+    let parsed = parse_doc_base(text);
     Some(DocBaseFile {
         path: entry.path().to_path_buf(),
-        no_format: !has_format,
-        abstract_separators,
+        no_format: !parsed.has_format,
+        abstract_separators: parsed.abstract_separators,
+        unknown_fields: parsed.unknown_fields,
     })
 }
 
-fn parse_doc_base(text: &str) -> (bool, Vec<u32>) {
+struct ParsedDocBase {
+    has_format: bool,
+    abstract_separators: Vec<u32>,
+    unknown_fields: Vec<(u32, String)>,
+}
+
+const DOCBASE_MAIN_FIELDS: &[&str] = &["Document", "Title", "Section", "Abstract", "Author"];
+const DOCBASE_FORMAT_FIELDS: &[&str] = &["Format", "Files", "Index"];
+
+fn parse_doc_base(text: &str) -> ParsedDocBase {
     let mut has_format = false;
     let mut separators = Vec::new();
+    let mut unknown_fields = Vec::new();
+    let mut format_section = false;
     let mut field: Option<OpenField> = None;
     for (index, line) in physical_lines(text).into_iter().enumerate() {
         let position = u32::try_from(index + 1).unwrap_or(u32::MAX);
         if let Some(caps) = DOC_FIELD.captures(line) {
             if let Some(open) = field.take() {
-                finish_field(&open, &mut has_format, &mut separators);
+                finish_field(
+                    &open,
+                    format_section,
+                    &mut has_format,
+                    &mut separators,
+                    &mut unknown_fields,
+                );
             }
             field = Some(OpenField {
                 name: caps[1].to_string(),
@@ -173,16 +193,47 @@ fn parse_doc_base(text: &str) -> (bool, Vec<u32>) {
         } else if DOC_SEPARATOR.is_match(line)
             && let Some(open) = field.take()
         {
-            finish_field(&open, &mut has_format, &mut separators);
+            finish_field(
+                &open,
+                format_section,
+                &mut has_format,
+                &mut separators,
+                &mut unknown_fields,
+            );
+            format_section = true;
         }
     }
     if let Some(open) = field {
-        finish_field(&open, &mut has_format, &mut separators);
+        finish_field(
+            &open,
+            format_section,
+            &mut has_format,
+            &mut separators,
+            &mut unknown_fields,
+        );
     }
-    (has_format, separators)
+    ParsedDocBase {
+        has_format,
+        abstract_separators: separators,
+        unknown_fields,
+    }
 }
 
-fn finish_field(open: &OpenField, has_format: &mut bool, separators: &mut Vec<u32>) {
+fn finish_field(
+    open: &OpenField,
+    format_section: bool,
+    has_format: &mut bool,
+    separators: &mut Vec<u32>,
+    unknown_fields: &mut Vec<(u32, String)>,
+) {
+    let known = if format_section {
+        DOCBASE_FORMAT_FIELDS
+    } else {
+        DOCBASE_MAIN_FIELDS
+    };
+    if !known.contains(&open.name.as_str()) {
+        unknown_fields.push((open.last_line, open.name.clone()));
+    }
     if open.name == "Format" {
         *has_format = true;
     }

@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""Install node modules when pkg-js-tools is not on the system.
+
+This follows the dh-sequence-nodejs layout that the vendored
+nodejs-missing-version-override recipe depends on. The main module goes in
+the nodejs directory. A component listed in debian/nodejs/root_modules goes
+there too. Any other component listed in debian/nodejs/additional_components
+goes in the main module's node_modules. package.json is copied unchanged.
+"""
+
+import json
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+def control_fields(text: str) -> list[dict[str, str]]:
+    stanzas: list[dict[str, str]] = []
+    current: dict[str, str] = {}
+    for line in text.splitlines():
+        if not line.strip():
+            if current:
+                stanzas.append(current)
+                current = {}
+            continue
+        if line[:1].isspace():
+            continue
+        key, _, value = line.partition(":")
+        if value:
+            current[key] = value.strip()
+    if current:
+        stanzas.append(current)
+    return stanzas
+
+
+def listed(path: Path) -> list[str]:
+    if not path.is_file():
+        return []
+    names = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or line.startswith("!"):
+            continue
+        names.append(line)
+    return names
+
+
+def module_name(directory: Path) -> str:
+    package = json.loads((directory / "package.json").read_text(encoding="utf-8"))
+    name = package.get("name")
+    if not isinstance(name, str) or not name:
+        raise SystemExit(f"{directory / 'package.json'} has no name")
+    return name
+
+
+def install_module(source: Path, destination: Path) -> None:
+    destination.mkdir(parents=True, exist_ok=True)
+    for name in ("package.json", "index.js"):
+        candidate = source / name
+        if candidate.is_file():
+            shutil.copy(candidate, destination / name)
+
+
+def nodejs_root(architecture: str) -> Path:
+    if architecture == "all":
+        return Path("usr/share/nodejs")
+    triplet = subprocess.check_output(
+        ["dpkg-architecture", "-q", "DEB_HOST_MULTIARCH"], text=True
+    ).strip()
+    return Path("usr/lib") / triplet / "nodejs"
+
+
+def main() -> None:
+    source = Path.cwd()
+    if not (source / "package.json").is_file():
+        return
+    stanzas = control_fields((source / "debian/control").read_text(encoding="utf-8"))
+    binary = next((stanza for stanza in stanzas if "Package" in stanza), None)
+    if binary is None:
+        return
+    package_dir = source / "debian" / binary["Package"]
+    if not package_dir.is_dir():
+        return
+
+    root = package_dir / nodejs_root(binary.get("Architecture", "all"))
+    main_name = module_name(source)
+    main_dest = root.joinpath(*main_name.split("/"))
+    install_module(source, main_dest)
+
+    rooted = set(listed(source / "debian/nodejs/root_modules"))
+    for component in listed(source / "debian/nodejs/additional_components"):
+        component_dir = source / component
+        name = module_name(component_dir)
+        if component in rooted:
+            destination = root.joinpath(*name.split("/"))
+        else:
+            destination = main_dest / "node_modules" / Path(*name.split("/"))
+        install_module(component_dir, destination)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

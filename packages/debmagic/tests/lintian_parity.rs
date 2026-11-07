@@ -376,9 +376,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/contents/files-uses-dpkg-database-directly",
     "checks/files/contents/legacy-maintainer-scripts",
     "checks/files/contents/scripts-maintainer-general",
-    "checks/files/debug-packages/non-debug-file-in-debug-package",
     "checks/files/debug/binaries-general",
     "checks/files/debug/files-foo-in-bar",
+    "checks/files/debug-packages/non-debug-file-in-debug-package",
     "checks/files/empty-package/cruft-source-is-missing-unrel",
     "checks/files/empty-package/files-empty",
     "checks/files/empty-package/legacy-binary",
@@ -1115,9 +1115,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/contents/files-uses-dpkg-database-directly"; "checks_files_contents_files_uses_dpkg_database_directly")]
 #[test_case("checks/files/contents/legacy-maintainer-scripts"; "checks_files_contents_legacy_maintainer_scripts")]
 #[test_case("checks/files/contents/scripts-maintainer-general"; "checks_files_contents_scripts_maintainer_general")]
-#[test_case("checks/files/debug-packages/non-debug-file-in-debug-package"; "checks_files_debug_packages_non_debug_file_in_debug_package")]
 #[test_case("checks/files/debug/binaries-general"; "checks_files_debug_binaries_general")]
 #[test_case("checks/files/debug/files-foo-in-bar"; "checks_files_debug_files_foo_in_bar")]
+#[test_case("checks/files/debug-packages/non-debug-file-in-debug-package"; "checks_files_debug_packages_non_debug_file_in_debug_package")]
 #[test_case("checks/files/empty-package/cruft-source-is-missing-unrel"; "checks_files_empty_package_cruft_source_is_missing_unrel")]
 #[test_case("checks/files/empty-package/files-empty"; "checks_files_empty_package_files_empty")]
 #[test_case("checks/files/empty-package/legacy-binary"; "checks_files_empty_package_legacy_binary")]

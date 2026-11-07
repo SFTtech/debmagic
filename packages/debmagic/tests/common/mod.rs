@@ -677,19 +677,49 @@ os.execv(real, command)
     bin
 }
 
+/// `pkg-js-tools` provides `Debian::Debhelper::Sequence::nodejs`. Without it,
+/// `dh --with nodejs` cannot even clean the source.
+fn nodejs_sequence_missing() -> bool {
+    Command::new("perl")
+        .args(["-MDebian::Debhelper::Sequence::nodejs", "-e", "1"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .is_ok_and(|status| !status.success())
+}
+
+fn rules_use_nodejs(source: &Path) -> bool {
+    fs::read_to_string(source.join("debian/rules"))
+        .is_ok_and(|text| text.contains("--with nodejs") || text.contains("dh-sequence-nodejs"))
+}
+
 fn dpkg_build_binary(source: &Path) {
     ensure_rules_executable(source);
+    let stub = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/dh_sequence_nodejs");
+    let use_nodejs_stub = rules_use_nodejs(source) && nodejs_sequence_missing();
     let mut path = dpkg_deb_nocheck_path(source).into_os_string();
     path.push(":");
+    if use_nodejs_stub {
+        path.push(stub.join("bin").as_os_str());
+        path.push(":");
+    }
     path.push(std::env::var_os("PATH").unwrap_or_default());
-    let output = Command::new("dpkg-buildpackage")
+    let mut command = Command::new("dpkg-buildpackage");
+    command
         .current_dir(source)
         .args(["-b", "-us", "-uc", "-d"])
         .env("DEB_BUILD_OPTIONS", "nocheck noautodbgsym")
-        .env("PATH", path)
-        .stdin(Stdio::null())
-        .output()
-        .expect("spawning dpkg-buildpackage -b");
+        .env("PATH", &path)
+        .stdin(Stdio::null());
+    if use_nodejs_stub {
+        let mut perl5lib = stub.into_os_string();
+        if let Some(existing) = std::env::var_os("PERL5LIB") {
+            perl5lib.push(":");
+            perl5lib.push(existing);
+        }
+        command.env("PERL5LIB", perl5lib);
+    }
+    let output = command.output().expect("spawning dpkg-buildpackage -b");
     assert!(
         output.status.success(),
         "{}: dpkg-buildpackage -b failed\nstdout:\n{}\nstderr:\n{}",

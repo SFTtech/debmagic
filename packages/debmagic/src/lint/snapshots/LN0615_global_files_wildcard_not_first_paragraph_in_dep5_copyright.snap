@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): global-files-wildcard-not-first-paragraph-in-dep5-copyright (LN0615) [debian/copyright:8]
+W: (source): global-files-wildcard-not-first-paragraph-in-dep5-copyright (LN0615) [debian/copyright:8]
+W: (source): global-files-wildcard-not-first-paragraph-in-dep5-copyright (LN0615) [debian/copyright:13]

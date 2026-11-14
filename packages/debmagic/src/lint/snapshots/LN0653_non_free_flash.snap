@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): non-free-flash (LN0653) [usr/share/foo/mp3player.swf]
+E: example (binary): non-free-flash (LN0653) [usr/share/foo/FLVPlayer.swf]
+E: example (binary): non-free-flash (LN0653) [usr/share/foo/dewplayer-slim.swf]
+E: example (binary): non-free-flash (LN0653) [usr/share/foo/dewplayer.swf]
+E: example (binary): non-free-flash (LN0653) [usr/share/foo/mp3player.swf]
+E: example (udeb): non-free-flash (LN0653) [usr/share/foo/mp3player.swf]

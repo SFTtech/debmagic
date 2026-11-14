@@ -136,6 +136,7 @@ pub(crate) struct BinaryPackageData {
     installation_control: InstallationControl,
     data_files: OnceLock<Result<FileTree, String>>,
     control_files: OnceLock<Result<FileTree, String>>,
+    shared: SharedSlots,
 }
 
 impl BinaryPackageData {
@@ -155,6 +156,7 @@ impl BinaryPackageData {
             installation_control,
             data_files: OnceLock::new(),
             control_files: OnceLock::new(),
+            shared: SharedSlots::default(),
         })
     }
 
@@ -174,6 +176,7 @@ impl BinaryPackageData {
             installation_control,
             data_files: cell,
             control_files: OnceLock::new(),
+            shared: SharedSlots::default(),
         }
     }
 
@@ -280,6 +283,21 @@ impl<'a> BinaryPackageContext<'a> {
                 None
             }
         }
+    }
+
+    /// Compute `build` once for this Subject. Every Rule on the Subject shares
+    /// the value.
+    ///
+    /// The value's type is the key. `build` may use this context, and must not
+    /// request `T` again (the slot initializes once, and a nested request for
+    /// the same `T` waits on itself).
+    pub(crate) fn shared_once<T, Build>(&mut self, build: Build) -> Arc<T>
+    where
+        T: Send + Sync + 'static,
+        Build: FnOnce(&mut Self) -> T,
+    {
+        let slot = self.data.shared.slot::<T>();
+        timing::init_once(&slot, || Arc::new(build(self))).clone()
     }
 
     /// Report a finding. Code and Tag come from the running Rule; Severity is

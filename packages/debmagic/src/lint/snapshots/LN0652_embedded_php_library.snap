@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): embedded-php-library (LN0652) please use php-fpdf [usr/share/example/fpdf.php]
+W: example (binary): embedded-php-library (LN0652) please use php-fpdf [usr/share/example/FPDF.PHP]
+W: example (binary): embedded-php-library (LN0652) please use libphp-phpmailer [usr/share/example/phpmailer.lang-fr.php]
+W: example (binary): embedded-php-library (LN0652) please use smarty3? [usr/share/example/Smarty_Compiler.class.php]
+W: example (binary): embedded-php-library (LN0652) please use phpsysinfo [usr/share/example/phpsysinfo.dtd]
+W: example (binary): embedded-php-library (LN0652) please use php-getid3 [usr/share/example/GetID3.php]
+W: example (binary): embedded-php-library (LN0652) please use php-getid3 [usr/share/example/getid3.lib.php]
+W: example (udeb): embedded-php-library (LN0652) please use php-tcpdf [usr/share/example/tcpdf.php]
+W: php-tcpdf (binary): embedded-php-library (LN0652) please use php-fpdf [usr/share/example/fpdf.php]

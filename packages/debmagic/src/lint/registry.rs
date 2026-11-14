@@ -223,6 +223,12 @@ use super::rules::{
     VirtualPackageDependsWithoutRealPackageDepends, WindowsThumbnailDatabaseInPackage,
     WrongCompressionInManualPage, WrongNameForDebianNewsFile, WrongPackageMailAlias,
 };
+use super::rules::{
+    EmbeddedJavascriptLibrary, EmbeddedPhpLibrary, NonFreeFlash, PrivacyBreachDonation,
+    PrivacyBreachFacebook, PrivacyBreachGeneric, PrivacyBreachGoogleAdsense,
+    PrivacyBreachGoogleCse, PrivacyBreachGooglePlus, PrivacyBreachLogo, PrivacyBreachPiwik,
+    PrivacyBreachStatisticsWebsite, PrivacyBreachTwitter, PrivacyBreachUsesEmbeddedFile,
+};
 
 use super::rules::NonWmModuleInWmModulesMenuSection;
 
@@ -796,6 +802,20 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TemporaryDebhelperFile,
         &DhExecScriptWithoutDhExecFeatures,
         &DhExecInstallNotAllowedHere,
+        &PrivacyBreachGeneric,
+        &PrivacyBreachUsesEmbeddedFile,
+        &PrivacyBreachGoogleAdsense,
+        &PrivacyBreachDonation,
+        &PrivacyBreachGoogleCse,
+        &PrivacyBreachFacebook,
+        &PrivacyBreachGooglePlus,
+        &PrivacyBreachLogo,
+        &PrivacyBreachStatisticsWebsite,
+        &PrivacyBreachPiwik,
+        &PrivacyBreachTwitter,
+        &EmbeddedJavascriptLibrary,
+        &EmbeddedPhpLibrary,
+        &NonFreeFlash,
     ]
 }
 
@@ -1370,6 +1390,20 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DocBaseUsesApplicationsSection,
         &DuplicateFieldInDocBase,
         &DuplicateFormatInDocBase,
+        &PrivacyBreachGeneric,
+        &PrivacyBreachUsesEmbeddedFile,
+        &PrivacyBreachGoogleAdsense,
+        &PrivacyBreachDonation,
+        &PrivacyBreachGoogleCse,
+        &PrivacyBreachFacebook,
+        &PrivacyBreachGooglePlus,
+        &PrivacyBreachLogo,
+        &PrivacyBreachStatisticsWebsite,
+        &PrivacyBreachPiwik,
+        &PrivacyBreachTwitter,
+        &EmbeddedJavascriptLibrary,
+        &EmbeddedPhpLibrary,
+        &NonFreeFlash,
     ]
 }
 
@@ -1961,6 +1995,20 @@ mod tests {
                 DocBaseUsesApplicationsSection::CODE,
                 DuplicateFieldInDocBase::CODE,
                 DuplicateFormatInDocBase::CODE,
+                PrivacyBreachGeneric::CODE,
+                PrivacyBreachUsesEmbeddedFile::CODE,
+                PrivacyBreachGoogleAdsense::CODE,
+                PrivacyBreachDonation::CODE,
+                PrivacyBreachGoogleCse::CODE,
+                PrivacyBreachFacebook::CODE,
+                PrivacyBreachGooglePlus::CODE,
+                PrivacyBreachLogo::CODE,
+                PrivacyBreachStatisticsWebsite::CODE,
+                PrivacyBreachPiwik::CODE,
+                PrivacyBreachTwitter::CODE,
+                EmbeddedJavascriptLibrary::CODE,
+                EmbeddedPhpLibrary::CODE,
+                NonFreeFlash::CODE,
             ]
         );
     }

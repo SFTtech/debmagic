@@ -1522,6 +1522,20 @@ Rules
                 crate::lint::rules::FileInDiscouragedX11FontDirectory::CODE,
                 crate::lint::rules::FileInUnknownX11FontDirectory::CODE,
                 crate::lint::rules::DesktopFileInWrongDir::CODE,
+                crate::lint::rules::PrivacyBreachGeneric::CODE,
+                crate::lint::rules::PrivacyBreachUsesEmbeddedFile::CODE,
+                crate::lint::rules::PrivacyBreachGoogleAdsense::CODE,
+                crate::lint::rules::PrivacyBreachDonation::CODE,
+                crate::lint::rules::PrivacyBreachGoogleCse::CODE,
+                crate::lint::rules::PrivacyBreachFacebook::CODE,
+                crate::lint::rules::PrivacyBreachGooglePlus::CODE,
+                crate::lint::rules::PrivacyBreachLogo::CODE,
+                crate::lint::rules::PrivacyBreachStatisticsWebsite::CODE,
+                crate::lint::rules::PrivacyBreachPiwik::CODE,
+                crate::lint::rules::PrivacyBreachTwitter::CODE,
+                crate::lint::rules::EmbeddedJavascriptLibrary::CODE,
+                crate::lint::rules::EmbeddedPhpLibrary::CODE,
+                crate::lint::rules::NonFreeFlash::CODE,
             ]
         );
         let intent = LintIntent {

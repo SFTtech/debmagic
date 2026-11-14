@@ -443,6 +443,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/names/npm-ignore-file",
     "checks/files/names/python-hypothesis-example",
     "checks/files/names/sass-cache-directory",
+    "checks/files/non-free/files-flash-non-free",
+    "checks/files/privacy-breach/files-privacybreach",
     "checks/files/sgml/files-foo-in-bar",
     "checks/files/sgml/legacy-filenames",
     "checks/files/symbolic-links/broken/legacy-filenames",
@@ -464,6 +466,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/init-d/legacy-scripts",
     "checks/init-d/maintainer-script/legacy-maintainer-scripts",
     "checks/init-d/maintainer-script/scripts-calls-init-script",
+    "checks/languages/javascript/embedded/files-embedded",
+    "checks/languages/javascript/embedded/legacy-filenames",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/files-nodejs",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
@@ -475,6 +479,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/perl/files-foo-in-bar",
     "checks/languages/perl/legacy-filenames",
+    "checks/languages/php/embedded/files-embedded",
     "checks/languages/python/bogus-prerequisites/what-is-python-depends",
     "checks/languages/python/feedparser/files-embedded",
     "checks/languages/python/feedparser/legacy-filenames",
@@ -1258,6 +1263,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/names/npm-ignore-file"; "checks_files_names_npm_ignore_file")]
 #[test_case("checks/files/names/python-hypothesis-example"; "checks_files_names_python_hypothesis_example")]
 #[test_case("checks/files/names/sass-cache-directory"; "checks_files_names_sass_cache_directory")]
+#[test_case("checks/files/non-free/files-flash-non-free"; "checks_files_non_free_files_flash_non_free")]
+#[test_case("checks/files/privacy-breach/files-privacybreach"; "checks_files_privacy_breach_files_privacybreach")]
 #[test_case("checks/files/sgml/files-foo-in-bar"; "checks_files_sgml_files_foo_in_bar")]
 #[test_case("checks/files/sgml/legacy-filenames"; "checks_files_sgml_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/legacy-filenames"; "checks_files_symbolic_links_broken_legacy_filenames")]
@@ -1279,6 +1286,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/init-d/legacy-scripts"; "checks_init_d_legacy_scripts")]
 #[test_case("checks/init-d/maintainer-script/legacy-maintainer-scripts"; "checks_init_d_maintainer_script_legacy_maintainer_scripts")]
 #[test_case("checks/init-d/maintainer-script/scripts-calls-init-script"; "checks_init_d_maintainer_script_scripts_calls_init_script")]
+#[test_case("checks/languages/javascript/embedded/files-embedded"; "checks_languages_javascript_embedded_files_embedded")]
+#[test_case("checks/languages/javascript/embedded/legacy-filenames"; "checks_languages_javascript_embedded_legacy_filenames")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/files-nodejs"; "checks_languages_javascript_nodejs_files_nodejs")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
@@ -1290,6 +1299,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
 #[test_case("checks/languages/perl/legacy-filenames"; "checks_languages_perl_legacy_filenames")]
+#[test_case("checks/languages/php/embedded/files-embedded"; "checks_languages_php_embedded_files_embedded")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_depends")]
 #[test_case("checks/languages/python/feedparser/files-embedded"; "checks_languages_python_feedparser_files_embedded")]
 #[test_case("checks/languages/python/feedparser/legacy-filenames"; "checks_languages_python_feedparser_legacy_filenames")]

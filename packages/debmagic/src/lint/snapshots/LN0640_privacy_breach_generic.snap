@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): privacy-breach-generic (LN0640) [<img src="http://tracker.example/pixel.png">] (http://tracker.example/pixel.png) [usr/share/example/a.html]
+W: example (binary): privacy-breach-generic (LN0640) [@import url("http://tracker.example/t.css");] (http://tracker.example/t.css) [usr/share/example/b.css]
+W: example (binary): privacy-breach-generic (LN0640) [<link rel="stylesheet" href="//tracker.example/s.css">] (//tracker.example/s.css) [usr/share/example/c.html]
+W: example (binary): privacy-breach-generic (LN0640) [<script src="http://tracker.example/t.js">] (http://tracker.example/t.js) [usr/share/example/d.html]
+W: example (binary): privacy-breach-generic (LN0640) [<img src="http://tracker.example/a.png">] (http://tracker.example/a.png) [usr/share/example/e.html]
+W: example (binary): privacy-breach-generic (LN0640) [<img src="http://tracker.example/b.png">] (http://tracker.example/b.png) [usr/share/example/e.html]
+W: example (binary): privacy-breach-generic (LN0640) [<img src="http://other.example/b.png">] (http://other.example/b.png) [usr/share/example/e.html]

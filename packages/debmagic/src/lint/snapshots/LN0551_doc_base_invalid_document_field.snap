@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): doc-base-invalid-document-field (LN0551) Bad_Name [usr/share/doc-base/example:1]
+E: example (binary): doc-base-invalid-document-field (LN0551) two  words [usr/share/doc-base/example:2]
+E: example (udeb): doc-base-invalid-document-field (LN0551) Bad_Name [usr/share/doc-base/example:1]

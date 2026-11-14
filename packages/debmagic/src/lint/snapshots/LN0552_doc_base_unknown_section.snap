@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): doc-base-unknown-section (LN0552) Non/Existant [usr/share/doc-base/example:2]
+W: example (binary): doc-base-unknown-section (LN0552) Apps/Nonexistent [usr/share/doc-base/example:2]
+W: example (udeb): doc-base-unknown-section (LN0552) Non/Existant [usr/share/doc-base/example:2]

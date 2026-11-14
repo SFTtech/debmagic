@@ -504,6 +504,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/menu-format/whitespace-after-continuation-character",
     "checks/menus/legacy-binary",
     "checks/menus/legacy-filenames",
+    "checks/menus/menus-doc-base-file-references-missing-file",
     "checks/menus/menus-doc-base-general",
     "checks/menus/menus-foo-calls-bar",
     "checks/menus/menus-script-check-ok",
@@ -1304,6 +1305,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/menu-format/whitespace-after-continuation-character"; "checks_menu_format_whitespace_after_continuation_character")]
 #[test_case("checks/menus/legacy-binary"; "checks_menus_legacy_binary")]
 #[test_case("checks/menus/legacy-filenames"; "checks_menus_legacy_filenames")]
+#[test_case("checks/menus/menus-doc-base-file-references-missing-file"; "checks_menus_menus_doc_base_file_references_missing_file")]
 #[test_case("checks/menus/menus-doc-base-general"; "checks_menus_menus_doc_base_general")]
 #[test_case("checks/menus/menus-foo-calls-bar"; "checks_menus_menus_foo_calls_bar")]
 #[test_case("checks/menus/menus-script-check-ok"; "checks_menus_menus_script_check_ok")]

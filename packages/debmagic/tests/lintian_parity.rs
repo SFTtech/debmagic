@@ -101,6 +101,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/control-file-rules-requires-root-binary-targets",
     "checks/debian/rules/control-file-rules-requires-root-no",
     "checks/debian/rules/debhelper-compat-old",
+    "checks/debian/rules/debhelper-deb-build-options",
+    "checks/debian/rules/debhelper-dh-compat",
     "checks/debian/rules/debian-rules-calls-nproc",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
@@ -116,6 +118,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-missing-targets",
     "checks/debian/rules/rules-missing-targets-with-known-includes",
     "checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo",
+    "checks/debian/rules/rules-sanitize-all-buildflag",
+    "checks/debian/rules/rules-sets-dpkg-architecture-variable",
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/substvars/cruft-general-diff",
     "checks/debian/substvars/cruft-general-native",
@@ -618,6 +622,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/control-file-rules-requires-root-binary-targets",
     "checks/debian/rules/control-file-rules-requires-root-no",
     "checks/debian/rules/debhelper-compat-old",
+    "checks/debian/rules/debhelper-deb-build-options",
+    "checks/debian/rules/debhelper-dh-compat",
     "checks/debian/rules/debian-rules-calls-nproc",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
@@ -633,6 +639,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-missing-targets",
     "checks/debian/rules/rules-missing-targets-with-known-includes",
     "checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo",
+    "checks/debian/rules/rules-sanitize-all-buildflag",
+    "checks/debian/rules/rules-sets-dpkg-architecture-variable",
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/substvars/cruft-general-diff",
     "checks/debian/substvars/cruft-general-native",
@@ -872,6 +880,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/control-file-rules-requires-root-binary-targets"; "checks_debian_rules_control_file_rules_requires_root_binary_targets")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-no"; "checks_debian_rules_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
+#[test_case("checks/debian/rules/debhelper-deb-build-options"; "checks_debian_rules_debhelper_deb_build_options")]
+#[test_case("checks/debian/rules/debhelper-dh-compat"; "checks_debian_rules_debhelper_dh_compat")]
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
@@ -887,6 +897,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/rules-missing-targets"; "checks_debian_rules_rules_missing_targets")]
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
 #[test_case("checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo"; "checks_debian_rules_rules_override_dh_foo_does_not_call_dh_foo")]
+#[test_case("checks/debian/rules/rules-sanitize-all-buildflag"; "checks_debian_rules_rules_sanitize_all_buildflag")]
+#[test_case("checks/debian/rules/rules-sets-dpkg-architecture-variable"; "checks_debian_rules_rules_sets_dpkg_architecture_variable")]
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
@@ -1391,6 +1403,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/control-file-rules-requires-root-binary-targets"; "checks_debian_rules_control_file_rules_requires_root_binary_targets")]
 #[test_case("checks/debian/rules/control-file-rules-requires-root-no"; "checks_debian_rules_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
+#[test_case("checks/debian/rules/debhelper-deb-build-options"; "checks_debian_rules_debhelper_deb_build_options")]
+#[test_case("checks/debian/rules/debhelper-dh-compat"; "checks_debian_rules_debhelper_dh_compat")]
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
@@ -1406,6 +1420,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/rules-missing-targets"; "checks_debian_rules_rules_missing_targets")]
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
 #[test_case("checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo"; "checks_debian_rules_rules_override_dh_foo_does_not_call_dh_foo")]
+#[test_case("checks/debian/rules/rules-sanitize-all-buildflag"; "checks_debian_rules_rules_sanitize_all_buildflag")]
+#[test_case("checks/debian/rules/rules-sets-dpkg-architecture-variable"; "checks_debian_rules_rules_sets_dpkg_architecture_variable")]
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-uses-deb-build-opts (LN0589) [debian/rules:6]

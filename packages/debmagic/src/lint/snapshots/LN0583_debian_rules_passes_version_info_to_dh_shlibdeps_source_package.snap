@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-passes-version-info-to-dh_shlibdeps (LN0583) [debian/rules:6]

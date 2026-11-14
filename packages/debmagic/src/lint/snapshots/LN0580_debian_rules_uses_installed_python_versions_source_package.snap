@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-uses-installed-python-versions (LN0580) py3versions -vi [debian/rules:6]

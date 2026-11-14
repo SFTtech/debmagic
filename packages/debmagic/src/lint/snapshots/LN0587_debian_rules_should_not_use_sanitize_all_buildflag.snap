@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debian-rules-should-not-use-sanitize-all-buildflag (LN0587) [debian/rules:6]
+E: example (source): debian-rules-should-not-use-sanitize-all-buildflag (LN0587) [debian/rules:6]
+E: example (source): debian-rules-should-not-use-sanitize-all-buildflag (LN0587) [debian/rules:6]
+E: example (source): debian-rules-should-not-use-sanitize-all-buildflag (LN0587) [debian/rules:6]
+E: example (source): debian-rules-should-not-use-sanitize-all-buildflag (LN0587) [debian/rules:6]
+E: example (source): debian-rules-should-not-use-sanitize-all-buildflag (LN0587) [debian/rules:7]
+E: example (source): debian-rules-should-not-use-sanitize-all-buildflag (LN0587) [debian/rules:6]
+E: example (source): debian-rules-should-not-use-sanitize-all-buildflag (LN0587) [debian/rules:7]

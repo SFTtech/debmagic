@@ -161,7 +161,12 @@ pub(crate) use debian_readme::{
 pub(crate) use debian_rules::{
     BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,
     DebianRulesCallsDebhelperInOddOrder, DebianRulesCallsNproc, DebianRulesCallsPwd,
-    DebianRulesIgnoresMakeCleanError, DebianRulesMissingRequiredTarget,
+    DebianRulesIgnoresMakeCleanError, DebianRulesIsDhMakeTemplate,
+    DebianRulesMissingRequiredTarget, DebianRulesPassesVersionInfoToDhShlibdeps,
+    DebianRulesSetsDebBuildOptions, DebianRulesSetsDhCompat,
+    DebianRulesSetsDpkgArchitectureVariable, DebianRulesShouldNotUseDhExtraAddons,
+    DebianRulesShouldNotUseSanitizeAllBuildflag, DebianRulesUpdatesControlAutomatically,
+    DebianRulesUsesDebBuildOpts, DebianRulesUsesInstalledPythonVersions,
     DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends,
     OverrideDhFixpermsDoesNotCallDhFixperms,
 };

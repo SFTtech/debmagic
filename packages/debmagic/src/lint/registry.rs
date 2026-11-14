@@ -1,4 +1,14 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
+use super::rules::DebianRulesIsDhMakeTemplate;
+use super::rules::DebianRulesPassesVersionInfoToDhShlibdeps;
+use super::rules::DebianRulesSetsDebBuildOptions;
+use super::rules::DebianRulesSetsDhCompat;
+use super::rules::DebianRulesSetsDpkgArchitectureVariable;
+use super::rules::DebianRulesShouldNotUseDhExtraAddons;
+use super::rules::DebianRulesShouldNotUseSanitizeAllBuildflag;
+use super::rules::DebianRulesUpdatesControlAutomatically;
+use super::rules::DebianRulesUsesDebBuildOpts;
+use super::rules::DebianRulesUsesInstalledPythonVersions;
 use super::rules::{
     AbsoluteSymlinkInTopLevelFolder, AliasedLocation, AncientLibtool, AncientPythonVersionField,
     Apache2ConfigurationFilesNeedConfSuffix, Apache2ReverseDependencyCallsWrapperScript,
@@ -686,6 +696,16 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &crate::lint::rules::UnusedLicenseParagraphInDep5Copyright,
         &crate::lint::rules::Dep5FileParagraphReferencesHeaderParagraph,
         &crate::lint::rules::GlobalFilesWildcardNotFirstParagraphInDep5Copyright,
+        &DebianRulesUsesInstalledPythonVersions,
+        &DebianRulesSetsDpkgArchitectureVariable,
+        &DebianRulesIsDhMakeTemplate,
+        &DebianRulesPassesVersionInfoToDhShlibdeps,
+        &DebianRulesSetsDebBuildOptions,
+        &DebianRulesSetsDhCompat,
+        &DebianRulesShouldNotUseDhExtraAddons,
+        &DebianRulesShouldNotUseSanitizeAllBuildflag,
+        &DebianRulesUpdatesControlAutomatically,
+        &DebianRulesUsesDebBuildOpts,
     ]
 }
 
@@ -841,6 +861,16 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &crate::lint::rules::UnusedLicenseParagraphInDep5Copyright,
         &crate::lint::rules::Dep5FileParagraphReferencesHeaderParagraph,
         &crate::lint::rules::GlobalFilesWildcardNotFirstParagraphInDep5Copyright,
+        &DebianRulesUsesInstalledPythonVersions,
+        &DebianRulesSetsDpkgArchitectureVariable,
+        &DebianRulesIsDhMakeTemplate,
+        &DebianRulesPassesVersionInfoToDhShlibdeps,
+        &DebianRulesSetsDebBuildOptions,
+        &DebianRulesSetsDhCompat,
+        &DebianRulesShouldNotUseDhExtraAddons,
+        &DebianRulesShouldNotUseSanitizeAllBuildflag,
+        &DebianRulesUpdatesControlAutomatically,
+        &DebianRulesUsesDebBuildOpts,
     ]
 }
 
@@ -1361,6 +1391,16 @@ mod tests {
                 crate::lint::rules::UnusedLicenseParagraphInDep5Copyright::CODE,
                 crate::lint::rules::Dep5FileParagraphReferencesHeaderParagraph::CODE,
                 crate::lint::rules::GlobalFilesWildcardNotFirstParagraphInDep5Copyright::CODE,
+                DebianRulesUsesInstalledPythonVersions::CODE,
+                DebianRulesSetsDpkgArchitectureVariable::CODE,
+                DebianRulesIsDhMakeTemplate::CODE,
+                DebianRulesPassesVersionInfoToDhShlibdeps::CODE,
+                DebianRulesSetsDebBuildOptions::CODE,
+                DebianRulesSetsDhCompat::CODE,
+                DebianRulesShouldNotUseDhExtraAddons::CODE,
+                DebianRulesShouldNotUseSanitizeAllBuildflag::CODE,
+                DebianRulesUpdatesControlAutomatically::CODE,
+                DebianRulesUsesDebBuildOpts::CODE,
             ]
         );
     }

@@ -201,6 +201,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
+    "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-old-python-version-field",
@@ -449,9 +450,15 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/perl/files-foo-in-bar",
     "checks/languages/perl/legacy-filenames",
+    "checks/languages/python/bogus-prerequisites/what-is-python-depends",
+    "checks/languages/python/feedparser/files-embedded",
+    "checks/languages/python/feedparser/legacy-filenames",
     "checks/languages/python/files-foo-in-bar",
+    "checks/languages/python/files-python-module-has-overly-generic-name",
     "checks/languages/python/files-python-modules",
     "checks/languages/python/files-unknown-file-in-python-module-directory",
+    "checks/languages/python/package-uses-python-egg-info",
+    "checks/languages/python/python-package-missing-depends-on-python",
     "checks/linda/files-package-contains-foo",
     "checks/linda/legacy-filenames",
     "checks/mailcap/placeholder-in-quoted-string",
@@ -705,6 +712,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
+    "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-old-python-version-field",
@@ -956,6 +964,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
+#[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
@@ -1205,9 +1214,15 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
 #[test_case("checks/languages/perl/legacy-filenames"; "checks_languages_perl_legacy_filenames")]
+#[test_case("checks/languages/python/bogus-prerequisites/what-is-python-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_depends")]
+#[test_case("checks/languages/python/feedparser/files-embedded"; "checks_languages_python_feedparser_files_embedded")]
+#[test_case("checks/languages/python/feedparser/legacy-filenames"; "checks_languages_python_feedparser_legacy_filenames")]
 #[test_case("checks/languages/python/files-foo-in-bar"; "checks_languages_python_files_foo_in_bar")]
+#[test_case("checks/languages/python/files-python-module-has-overly-generic-name"; "checks_languages_python_files_python_module_has_overly_generic_name")]
 #[test_case("checks/languages/python/files-python-modules"; "checks_languages_python_files_python_modules")]
 #[test_case("checks/languages/python/files-unknown-file-in-python-module-directory"; "checks_languages_python_files_unknown_file_in_python_module_directory")]
+#[test_case("checks/languages/python/package-uses-python-egg-info"; "checks_languages_python_package_uses_python_egg_info")]
+#[test_case("checks/languages/python/python-package-missing-depends-on-python"; "checks_languages_python_python_package_missing_depends_on_python")]
 #[test_case("checks/linda/files-package-contains-foo"; "checks_linda_files_package_contains_foo")]
 #[test_case("checks/linda/legacy-filenames"; "checks_linda_legacy_filenames")]
 #[test_case("checks/mailcap/placeholder-in-quoted-string"; "checks_mailcap_placeholder_in_quoted_string")]
@@ -1462,6 +1477,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
+#[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]

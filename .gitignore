@@ -3,6 +3,9 @@ __pycache__
 *.pyc
 *.pyo
 *.egg-info
+# lintian recipe package-uses-python-egg-info ships this directory
+!packages/debmagic/tests/lintian-parity/**/*.egg-info/
+!packages/debmagic/tests/lintian-parity/**/*.egg-info/**
 /.coverage
 /coverage.xml
 /junit

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): boolean-template-has-bogus-default (LN0689) debconf/boolean-bogus-default lintian [templates:3]
+E: example (binary): boolean-template-has-bogus-default (LN0689) debconf/case True [templates:3]
+E: example (binary): boolean-template-has-bogus-default (LN0689) debconf/blank  [templates:3]
+E: example (udeb): boolean-template-has-bogus-default (LN0689) no-template-name yes [templates:2]

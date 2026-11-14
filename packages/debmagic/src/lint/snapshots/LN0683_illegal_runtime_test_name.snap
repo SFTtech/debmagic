@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): illegal-runtime-test-name (LN0683) under_score [debian/tests/control:1]
+W: (source): illegal-runtime-test-name (LN0683) a_b [debian/tests/control:1]
+W: (source): illegal-runtime-test-name (LN0683) c@d [debian/tests/control:1]
+W: (source): illegal-runtime-test-name (LN0683) x* [debian/tests/control:3]

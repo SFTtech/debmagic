@@ -320,6 +320,9 @@ pub(crate) use debian_copyright::GlobalFilesWildcardNotFirstParagraphInDep5Copyr
 pub(crate) use debian_copyright::HelperTemplatesInCopyright;
 pub(crate) use debian_copyright::PipeSymbolUsedAsLicenseDisjunction;
 pub(crate) use debian_copyright::UnusedLicenseParagraphInDep5Copyright;
+pub(crate) use debian_debconf::BooleanTemplateHasBogusDefault;
+pub(crate) use debian_debconf::DuplicateLongDescriptionInTemplate;
+pub(crate) use debian_debconf::EmptyTranslatedChoices;
 pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;
 pub(crate) use debian_patches::Format30ButDebianChangesPatch;
 pub(crate) use debian_po_debconf::{
@@ -472,6 +475,15 @@ pub(crate) use systemd::{
     MissingSystemdTimerForCronScript, SystemdServiceAliasWithoutExtension,
     SystemdServiceFileRefersToObsoleteBindto, SystemdServiceFileUsesNobodyOrNogroup,
 };
+pub(crate) use testsuite::BackgroundedTestCommand;
+pub(crate) use testsuite::ConflictingTestFields;
+pub(crate) use testsuite::DeclarePythonVersionsForTest;
+pub(crate) use testsuite::DropPythonVersionDeclaration;
+pub(crate) use testsuite::EmptyDebianTestsControl;
+pub(crate) use testsuite::IllegalRuntimeTestName;
+pub(crate) use testsuite::MissingRuntimeTestFile;
+pub(crate) use testsuite::RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends;
+pub(crate) use testsuite::TestsuiteDependsOnObsoletePackage;
 pub(crate) use testsuite::{
     DebianTestsControlAutodep8IsObsolete, NoOpTestsuite,
     RuntimeTestFileUsesInstalledPythonVersions, UnnecessaryTestsuiteAutopkgtestField,

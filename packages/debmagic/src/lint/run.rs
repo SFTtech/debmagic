@@ -1536,6 +1536,18 @@ Rules
                 crate::lint::rules::EmbeddedJavascriptLibrary::CODE,
                 crate::lint::rules::EmbeddedPhpLibrary::CODE,
                 crate::lint::rules::NonFreeFlash::CODE,
+                crate::lint::rules::EmptyDebianTestsControl::CODE,
+                crate::lint::rules::ConflictingTestFields::CODE,
+                crate::lint::rules::BackgroundedTestCommand::CODE,
+                crate::lint::rules::IllegalRuntimeTestName::CODE,
+                crate::lint::rules::MissingRuntimeTestFile::CODE,
+                crate::lint::rules::RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends::CODE,
+                crate::lint::rules::DeclarePythonVersionsForTest::CODE,
+                crate::lint::rules::DropPythonVersionDeclaration::CODE,
+                crate::lint::rules::TestsuiteDependsOnObsoletePackage::CODE,
+                crate::lint::rules::BooleanTemplateHasBogusDefault::CODE,
+                crate::lint::rules::EmptyTranslatedChoices::CODE,
+                crate::lint::rules::DuplicateLongDescriptionInTemplate::CODE,
             ]
         );
         let intent = LintIntent {

@@ -12,6 +12,8 @@ use regex::Regex;
 
 use crate::lint::file_tree::{EntryKind, FileTree};
 
+use super::sections::resolve;
+
 #[derive(Default)]
 pub(super) struct Paragraph {
     fields: Vec<(String, String)>,
@@ -26,7 +28,7 @@ impl Paragraph {
     }
 }
 
-static TEST_SPLIT: LazyLock<Regex> =
+pub(super) static TEST_SPLIT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\s*,\s*|\s+").expect("valid regex"));
 
 fn folded_paragraphs(text: &str) -> Vec<Paragraph> {
@@ -97,7 +99,7 @@ pub(super) fn read_tests_control(files: &FileTree) -> Option<String> {
 }
 
 pub(super) fn read_regular(files: &FileTree, path: &str) -> Option<(PathBuf, String)> {
-    let entry = files.get(Path::new(path))?;
+    let entry = resolve(files, path)?;
     if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
         return None;
     }

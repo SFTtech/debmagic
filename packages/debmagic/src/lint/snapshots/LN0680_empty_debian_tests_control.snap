@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): empty-debian-tests-control (LN0680) [debian/tests/control]
+E: (source): empty-debian-tests-control (LN0680) [debian/tests/control]
+E: (source): empty-debian-tests-control (LN0680) [debian/tests/control]

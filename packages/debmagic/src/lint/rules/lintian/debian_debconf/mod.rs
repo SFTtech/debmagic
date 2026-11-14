@@ -27,6 +27,9 @@ mod ln0322_using_first_person_in_templates;
 mod ln0323_using_question_in_extended_description_in_templates;
 mod ln0324_postinst_does_not_load_confmodule;
 mod ln0325_postinst_uses_db_input;
+mod ln0689_boolean_template_has_bogus_default;
+mod ln0690_empty_translated_choices;
+mod ln0691_duplicate_long_description_in_template;
 mod satisfy;
 mod scripts;
 mod templates;
@@ -53,3 +56,6 @@ pub(crate) use ln0322_using_first_person_in_templates::UsingFirstPersonInTemplat
 pub(crate) use ln0323_using_question_in_extended_description_in_templates::UsingQuestionInExtendedDescriptionInTemplates;
 pub(crate) use ln0324_postinst_does_not_load_confmodule::PostinstDoesNotLoadConfmodule;
 pub(crate) use ln0325_postinst_uses_db_input::PostinstUsesDbInput;
+pub(crate) use ln0689_boolean_template_has_bogus_default::BooleanTemplateHasBogusDefault;
+pub(crate) use ln0690_empty_translated_choices::EmptyTranslatedChoices;
+pub(crate) use ln0691_duplicate_long_description_in_template::DuplicateLongDescriptionInTemplate;

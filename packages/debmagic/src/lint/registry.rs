@@ -258,6 +258,30 @@ use super::rules::FileInUnknownX11FontDirectory;
 
 use super::rules::DesktopFileInWrongDir;
 
+use super::rules::EmptyDebianTestsControl;
+
+use super::rules::ConflictingTestFields;
+
+use super::rules::BackgroundedTestCommand;
+
+use super::rules::IllegalRuntimeTestName;
+
+use super::rules::MissingRuntimeTestFile;
+
+use super::rules::RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends;
+
+use super::rules::DeclarePythonVersionsForTest;
+
+use super::rules::DropPythonVersionDeclaration;
+
+use super::rules::TestsuiteDependsOnObsoletePackage;
+
+use super::rules::BooleanTemplateHasBogusDefault;
+
+use super::rules::EmptyTranslatedChoices;
+
+use super::rules::DuplicateLongDescriptionInTemplate;
+
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
     &[
         &DebmagicDummyTrigger,
@@ -816,6 +840,18 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &EmbeddedJavascriptLibrary,
         &EmbeddedPhpLibrary,
         &NonFreeFlash,
+        &EmptyDebianTestsControl,
+        &ConflictingTestFields,
+        &BackgroundedTestCommand,
+        &IllegalRuntimeTestName,
+        &MissingRuntimeTestFile,
+        &RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends,
+        &DeclarePythonVersionsForTest,
+        &DropPythonVersionDeclaration,
+        &TestsuiteDependsOnObsoletePackage,
+        &BooleanTemplateHasBogusDefault,
+        &EmptyTranslatedChoices,
+        &DuplicateLongDescriptionInTemplate,
     ]
 }
 
@@ -1010,6 +1046,15 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &TemporaryDebhelperFile,
         &DhExecScriptWithoutDhExecFeatures,
         &DhExecInstallNotAllowedHere,
+        &EmptyDebianTestsControl,
+        &ConflictingTestFields,
+        &BackgroundedTestCommand,
+        &IllegalRuntimeTestName,
+        &MissingRuntimeTestFile,
+        &RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends,
+        &DeclarePythonVersionsForTest,
+        &DropPythonVersionDeclaration,
+        &TestsuiteDependsOnObsoletePackage,
     ]
 }
 
@@ -1404,6 +1449,9 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &EmbeddedJavascriptLibrary,
         &EmbeddedPhpLibrary,
         &NonFreeFlash,
+        &BooleanTemplateHasBogusDefault,
+        &EmptyTranslatedChoices,
+        &DuplicateLongDescriptionInTemplate,
     ]
 }
 
@@ -1607,6 +1655,15 @@ mod tests {
                 TemporaryDebhelperFile::CODE,
                 DhExecScriptWithoutDhExecFeatures::CODE,
                 DhExecInstallNotAllowedHere::CODE,
+                EmptyDebianTestsControl::CODE,
+                ConflictingTestFields::CODE,
+                BackgroundedTestCommand::CODE,
+                IllegalRuntimeTestName::CODE,
+                MissingRuntimeTestFile::CODE,
+                RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends::CODE,
+                DeclarePythonVersionsForTest::CODE,
+                DropPythonVersionDeclaration::CODE,
+                TestsuiteDependsOnObsoletePackage::CODE,
             ]
         );
     }
@@ -2009,6 +2066,9 @@ mod tests {
                 EmbeddedJavascriptLibrary::CODE,
                 EmbeddedPhpLibrary::CODE,
                 NonFreeFlash::CODE,
+                BooleanTemplateHasBogusDefault::CODE,
+                EmptyTranslatedChoices::CODE,
+                DuplicateLongDescriptionInTemplate::CODE,
             ]
         );
     }

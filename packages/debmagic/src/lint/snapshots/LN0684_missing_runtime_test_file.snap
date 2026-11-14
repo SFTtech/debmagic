@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): missing-runtime-test-file (LN0684) debian/tests/gone [debian/tests/control:1]
+W: (source): missing-runtime-test-file (LN0684) debian/tests/two [debian/tests/control:1]
+W: (source): missing-runtime-test-file (LN0684) debian/tests/three [debian/tests/control:3]
+W: (source): missing-runtime-test-file (LN0684) debian/tests/broken [debian/tests/control:1]
+W: (source): missing-runtime-test-file (LN0684) check [debian/tests/control:1]

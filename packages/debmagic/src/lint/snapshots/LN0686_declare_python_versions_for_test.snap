@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): declare-python-versions-for-test (LN0686) py3versions -r [debian/tests/t:1]
+W: example (source): declare-python-versions-for-test (LN0686) py3versions -vr [debian/tests/t:2]
+W: example (source): declare-python-versions-for-test (LN0686) py3versions --requested [debian/tests/t:3]
+W: example (source): declare-python-versions-for-test (LN0686) py3versions --verbose --requested [debian/tests/t:4]

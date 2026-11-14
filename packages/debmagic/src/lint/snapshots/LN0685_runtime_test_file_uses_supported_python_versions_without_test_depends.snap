@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): runtime-test-file-uses-supported-python-versions-without-test-depends (LN0685) py3versions -s [debian/tests/t:1]
+W: example (source): runtime-test-file-uses-supported-python-versions-without-test-depends (LN0685) py3versions -vs [debian/tests/t:2]
+W: example (source): runtime-test-file-uses-supported-python-versions-without-test-depends (LN0685) py3versions --supported [debian/tests/t:3]
+W: example (source): runtime-test-file-uses-supported-python-versions-without-test-depends (LN0685) py3versions --verbose --supported [debian/tests/t:4]
+W: example (source): runtime-test-file-uses-supported-python-versions-without-test-depends (LN0685) py3versions -is [debian/tests/t:5]
+W: example (source): runtime-test-file-uses-supported-python-versions-without-test-depends (LN0685) py3versions -s [debian/tests/t:1]
+W: example (source): runtime-test-file-uses-supported-python-versions-without-test-depends (LN0685) py3versions -s [debian/tests/t:1]

@@ -427,6 +427,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         .map(|(_, hint)| hint)
         .collect();
     rewrite_changelog_last_used(recipe_rel, &mut actual);
+    drop_hints_for_unvendorable_files(recipe_rel, &mut actual);
     actual.sort();
 
     assert_eq!(
@@ -1108,12 +1109,30 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         .map(|(_, hint)| hint)
         .collect();
     rewrite_changelog_last_used(recipe_rel, &mut actual);
+    drop_hints_for_unvendorable_files(recipe_rel, &mut actual);
     actual.sort();
 
     assert_eq!(
         actual, expected,
         "Parity mismatch for {recipe_rel} (source package)"
     );
+}
+
+/// `testsuite-general`'s lintian `pre-build` makes the named pipe
+/// `debian/tests/fifo`; `lfifo` links to it. A pipe cannot be vendored, so the
+/// filled tree lacks both and the Rule reports them missing. Lintian reports
+/// them as not regular files, a Tag we do not have.
+fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHint>) {
+    if recipe_rel != "checks/testsuite/testsuite-general" {
+        return;
+    }
+    hints.retain(|hint| {
+        !(hint.tag == "missing-runtime-test-file"
+            && matches!(
+                hint.extra.as_str(),
+                "debian/tests/fifo" | "debian/tests/lfifo"
+            ))
+    });
 }
 
 /// `changelog-file-general`'s lintian `eval/post-test` rewrites the date in

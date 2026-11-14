@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): privacy-breach-google-adsense (LN0642) (choke on: google_ad_client =) [usr/share/example/a.html]
+E: example (binary): privacy-breach-google-adsense (LN0642) (http://pagead2.googlesyndication.com/pagead/show_ads.js) [usr/share/example/b.html]
+E: example (binary): privacy-breach-google-adsense (LN0642) (choke on: "google-analytics.com/ga.js") [usr/share/example/c.js]

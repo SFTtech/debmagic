@@ -37,6 +37,8 @@ mod files_ieee;
 mod files_includes;
 mod files_installed;
 mod files_names;
+mod files_non_free;
+mod files_privacy_breach;
 mod files_symbolic_links;
 mod files_vcs;
 mod games;
@@ -44,6 +46,7 @@ mod init_scripts;
 mod known_fields;
 mod languages_javascript;
 mod languages_perl;
+mod languages_php;
 mod languages_python;
 mod lintian_overrides;
 mod ln0001_required_field;
@@ -350,6 +353,14 @@ pub(crate) use fields_relations_extra::ObsoleteRelationFormInSource;
 pub(crate) use fields_relations_extra::RedundantInstallationPrerequisite;
 pub(crate) use fields_relations_extra::WeakLibraryDevDependency;
 pub(crate) use fields_version::{DebianRevisionIsZero, DebianRevisionNotWellFormed};
+pub(crate) use files_non_free::NonFreeFlash;
+pub(crate) use files_privacy_breach::{
+    PrivacyBreachDonation, PrivacyBreachFacebook, PrivacyBreachGeneric, PrivacyBreachGoogleAdsense,
+    PrivacyBreachGoogleCse, PrivacyBreachGooglePlus, PrivacyBreachLogo, PrivacyBreachPiwik,
+    PrivacyBreachStatisticsWebsite, PrivacyBreachTwitter, PrivacyBreachUsesEmbeddedFile,
+};
+pub(crate) use languages_javascript::EmbeddedJavascriptLibrary;
+pub(crate) use languages_php::EmbeddedPhpLibrary;
 pub(crate) use lintian_overrides::OverrideFileInWrongLocation;
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;

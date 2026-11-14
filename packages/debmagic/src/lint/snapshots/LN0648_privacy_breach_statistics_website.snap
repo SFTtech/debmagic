@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): privacy-breach-statistics-website (LN0648) (http://c1.statcounter.com/1/0/1/1/) [usr/share/example/a.html]
+E: example (binary): privacy-breach-statistics-website (LN0648) (choke on: var sc_project=123;) [usr/share/example/b.html]

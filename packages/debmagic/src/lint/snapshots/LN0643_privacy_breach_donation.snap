@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): privacy-breach-donation (LN0643) (http://example.org/donate.png) [usr/share/example/a.html]
+E: example (binary): privacy-breach-donation (LN0643) (https://www.paypal.com/en_us/i/btn/btn_donate.gif) [usr/share/example/b.html]
+E: example (binary): privacy-breach-donation (LN0643) (choke on: <a class="flattrbutton") [usr/share/example/c.html]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): privacy-breach-google-plus (LN0646) (http://apis.google.com/js/plusone.js) [usr/share/example/a.html]
+E: example (binary): privacy-breach-google-plus (LN0646) (choke on: <g:plusone) [usr/share/example/b.html]

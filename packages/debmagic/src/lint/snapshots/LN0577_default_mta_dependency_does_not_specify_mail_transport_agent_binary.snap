@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): default-mta-dependency-does-not-specify-mail-transport-agent (LN0577) Depends: default-mta, exim4, nullmailer
+W: example (binary): default-mta-dependency-does-not-specify-mail-transport-agent (LN0577) Pre-Depends: exim4 | default-mta:any
+W: example (binary): default-mta-dependency-does-not-specify-mail-transport-agent (LN0577) Suggests: default-mta
+W: example (udeb): default-mta-dependency-does-not-specify-mail-transport-agent (LN0577) Recommends: default-mta

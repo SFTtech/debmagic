@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): depends-on-libdb1-compat (LN0573) Depends
+E: example (binary): depends-on-libdb1-compat (LN0573) Pre-Depends
+E: libc0 (binary): depends-on-libdb1-compat (LN0573) Depends
+E: example (udeb): depends-on-libdb1-compat (LN0573) Depends

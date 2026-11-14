@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): default-mta-dependency-does-not-specify-mail-transport-agent (LN0577) Build-Depends: debhelper-compat (= 14), default-mta
+W: example (source): default-mta-dependency-does-not-specify-mail-transport-agent (LN0577) Build-Depends: debhelper-compat (= 14), default-mta
+W: example (source): default-mta-dependency-does-not-specify-mail-transport-agent (LN0577) Build-Depends-Indep: exim4 | default-mta
+W: example (source): default-mta-dependency-does-not-specify-mail-transport-agent (LN0577) Build-Conflicts: default-mta

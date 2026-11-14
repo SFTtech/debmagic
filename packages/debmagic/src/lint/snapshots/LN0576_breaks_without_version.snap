@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): breaks-without-version (LN0576) package-without-version
+W: example (binary): breaks-without-version (LN0576) bar
+W: example (binary): breaks-without-version (LN0576) bar
+W: example (udeb): breaks-without-version (LN0576) foo:any

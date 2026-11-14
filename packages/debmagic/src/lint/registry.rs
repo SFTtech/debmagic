@@ -1,4 +1,16 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
+use super::rules::BadVersionInRelation;
+use super::rules::BinaryPackageDependsOnToolchainPackage;
+use super::rules::BreaksWithoutVersion;
+use super::rules::BuildDependsArchWithoutArchDependentBinary;
+use super::rules::BuildDependsIndepWithoutArchIndep;
+use super::rules::BuildDependsOnAnObsoleteJavaPackage;
+use super::rules::BuildDependsOnDhSysuser;
+use super::rules::BuildDependsOnNonBuildPackage;
+use super::rules::BuildDependsOnSpecificJavaDocPackage;
+use super::rules::BuildDependsOnVersionedBerkeleyDb;
+use super::rules::ConflictingNegationInSourceRelation;
+use super::rules::DbgPackageMissingDepends;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesPassesVersionInfoToDhShlibdeps;
 use super::rules::DebianRulesSetsDebBuildOptions;
@@ -9,6 +21,14 @@ use super::rules::DebianRulesShouldNotUseSanitizeAllBuildflag;
 use super::rules::DebianRulesUpdatesControlAutomatically;
 use super::rules::DebianRulesUsesDebBuildOpts;
 use super::rules::DebianRulesUsesInstalledPythonVersions;
+use super::rules::DefaultMtaDependencyDoesNotSpecifyMailTransportAgent;
+use super::rules::DefaultMtaDependencyNotListedFirst;
+use super::rules::DependsOnLibdb1Compat;
+use super::rules::DependsOnSpecificJavaDocPackage;
+use super::rules::DocPackageDependsOnMainPackage;
+use super::rules::ObsoleteRelationFormInSource;
+use super::rules::RedundantInstallationPrerequisite;
+use super::rules::WeakLibraryDevDependency;
 use super::rules::{
     AbsoluteSymlinkInTopLevelFolder, AliasedLocation, AncientLibtool, AncientPythonVersionField,
     Apache2ConfigurationFilesNeedConfSuffix, Apache2ReverseDependencyCallsWrapperScript,
@@ -706,6 +726,26 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianRulesShouldNotUseSanitizeAllBuildflag,
         &DebianRulesUpdatesControlAutomatically,
         &DebianRulesUsesDebBuildOpts,
+        &BuildDependsIndepWithoutArchIndep,
+        &BuildDependsArchWithoutArchDependentBinary,
+        &ConflictingNegationInSourceRelation,
+        &BuildDependsOnVersionedBerkeleyDb,
+        &BuildDependsOnAnObsoleteJavaPackage,
+        &BuildDependsOnSpecificJavaDocPackage,
+        &BuildDependsOnDhSysuser,
+        &BuildDependsOnNonBuildPackage,
+        &BadVersionInRelation,
+        &ObsoleteRelationFormInSource,
+        &DbgPackageMissingDepends,
+        &WeakLibraryDevDependency,
+        &RedundantInstallationPrerequisite,
+        &DependsOnLibdb1Compat,
+        &DocPackageDependsOnMainPackage,
+        &DependsOnSpecificJavaDocPackage,
+        &BreaksWithoutVersion,
+        &DefaultMtaDependencyDoesNotSpecifyMailTransportAgent,
+        &DefaultMtaDependencyNotListedFirst,
+        &BinaryPackageDependsOnToolchainPackage,
     ]
 }
 
@@ -871,6 +911,21 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianRulesShouldNotUseSanitizeAllBuildflag,
         &DebianRulesUpdatesControlAutomatically,
         &DebianRulesUsesDebBuildOpts,
+        &BuildDependsIndepWithoutArchIndep,
+        &BuildDependsArchWithoutArchDependentBinary,
+        &ConflictingNegationInSourceRelation,
+        &BuildDependsOnVersionedBerkeleyDb,
+        &BuildDependsOnAnObsoleteJavaPackage,
+        &BuildDependsOnSpecificJavaDocPackage,
+        &BuildDependsOnDhSysuser,
+        &BuildDependsOnNonBuildPackage,
+        &BadVersionInRelation,
+        &ObsoleteRelationFormInSource,
+        &DbgPackageMissingDepends,
+        &WeakLibraryDevDependency,
+        &RedundantInstallationPrerequisite,
+        &DefaultMtaDependencyDoesNotSpecifyMailTransportAgent,
+        &DefaultMtaDependencyNotListedFirst,
     ]
 }
 
@@ -1227,6 +1282,14 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &crate::lint::rules::CopyrightFileContainsFullApache2License,
         &crate::lint::rules::CopyrightDoesNotReferToCommonLicenseFile,
         &crate::lint::rules::CopyrightNotUsingCommonLicenseForGfdl,
+        &BadVersionInRelation,
+        &DependsOnLibdb1Compat,
+        &DocPackageDependsOnMainPackage,
+        &DependsOnSpecificJavaDocPackage,
+        &BreaksWithoutVersion,
+        &DefaultMtaDependencyDoesNotSpecifyMailTransportAgent,
+        &DefaultMtaDependencyNotListedFirst,
+        &BinaryPackageDependsOnToolchainPackage,
     ]
 }
 
@@ -1401,6 +1464,21 @@ mod tests {
                 DebianRulesShouldNotUseSanitizeAllBuildflag::CODE,
                 DebianRulesUpdatesControlAutomatically::CODE,
                 DebianRulesUsesDebBuildOpts::CODE,
+                BuildDependsIndepWithoutArchIndep::CODE,
+                BuildDependsArchWithoutArchDependentBinary::CODE,
+                ConflictingNegationInSourceRelation::CODE,
+                BuildDependsOnVersionedBerkeleyDb::CODE,
+                BuildDependsOnAnObsoleteJavaPackage::CODE,
+                BuildDependsOnSpecificJavaDocPackage::CODE,
+                BuildDependsOnDhSysuser::CODE,
+                BuildDependsOnNonBuildPackage::CODE,
+                BadVersionInRelation::CODE,
+                ObsoleteRelationFormInSource::CODE,
+                DbgPackageMissingDepends::CODE,
+                WeakLibraryDevDependency::CODE,
+                RedundantInstallationPrerequisite::CODE,
+                DefaultMtaDependencyDoesNotSpecifyMailTransportAgent::CODE,
+                DefaultMtaDependencyNotListedFirst::CODE,
             ]
         );
     }
@@ -1765,6 +1843,14 @@ mod tests {
                 crate::lint::rules::CopyrightFileContainsFullApache2License::CODE,
                 crate::lint::rules::CopyrightDoesNotReferToCommonLicenseFile::CODE,
                 crate::lint::rules::CopyrightNotUsingCommonLicenseForGfdl::CODE,
+                BadVersionInRelation::CODE,
+                DependsOnLibdb1Compat::CODE,
+                DocPackageDependsOnMainPackage::CODE,
+                DependsOnSpecificJavaDocPackage::CODE,
+                BreaksWithoutVersion::CODE,
+                DefaultMtaDependencyDoesNotSpecifyMailTransportAgent::CODE,
+                DefaultMtaDependencyNotListedFirst::CODE,
+                BinaryPackageDependsOnToolchainPackage::CODE,
             ]
         );
     }

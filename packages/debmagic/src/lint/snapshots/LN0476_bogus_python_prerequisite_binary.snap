@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bogus-python-prerequisite (LN0476) Depends (satisfies python-is-python3:any)
+E: example (binary): bogus-python-prerequisite (LN0476) Pre-Depends (satisfies python-dev-is-python3:any)
+E: example (binary): bogus-python-prerequisite (LN0476) Recommends (satisfies python-is-python3:any)
+E: example (binary): bogus-python-prerequisite (LN0476) Recommends (satisfies python-dev-is-python3:any)
+E: example (binary): bogus-python-prerequisite (LN0476) Depends (satisfies python-is-python3:any)
+E: example (binary): bogus-python-prerequisite (LN0476) Pre-Depends (satisfies python-dev-is-python3:any)
+E: example (udeb): bogus-python-prerequisite (LN0476) Depends (satisfies python-is-python3:any)
+E: what-is-python (binary): bogus-python-prerequisite (LN0476) Depends (satisfies python-is-python3:any)

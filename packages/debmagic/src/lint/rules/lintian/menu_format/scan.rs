@@ -8,7 +8,7 @@
 //! There is no file mode on an Entry, so executable menu files are still read.
 
 use std::collections::{HashMap, HashSet};
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
@@ -41,6 +41,8 @@ pub(super) struct Report {
     pub su_wrapper_without_c: Vec<Finding>,
     pub su_wrapper_not_su_to_root: Vec<Finding>,
     pub menu_icon_uses_relative_path: Vec<Finding>,
+    pub menu_icon_missing: Vec<Finding>,
+    pub menu_item_missing_required_tag: Vec<Finding>,
 }
 
 pub(super) fn take(
@@ -90,6 +92,8 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
         su_wrapper_without_c: Vec::new(),
         su_wrapper_not_su_to_root: Vec::new(),
         menu_icon_uses_relative_path: Vec::new(),
+        menu_icon_missing: Vec::new(),
+        menu_item_missing_required_tag: Vec::new(),
     };
     let mut desktop_cmds = HashSet::new();
     for entry in desktop_files(files) {
@@ -264,10 +268,16 @@ fn verify_menu_line(
     for (tag, value, _) in pairs {
         vals.insert(tag, value);
     }
-    if ["needs", "section", "title", "command"]
-        .iter()
-        .any(|tag| !vals.contains_key(*tag))
+    if let Some(tag) = ["needs", "section", "title", "command"]
+        .into_iter()
+        .find(|tag| !vals.contains_key(*tag))
     {
+        warn_at(
+            &mut report.menu_item_missing_required_tag,
+            path,
+            Some(line),
+            tag.to_string(),
+        );
         return;
     }
     let original_section = vals["section"].clone();
@@ -278,6 +288,14 @@ fn verify_menu_line(
     for (tag, name) in menu_icons(&vals) {
         warn_at(
             &mut report.menu_icon_uses_relative_path,
+            path,
+            Some(line),
+            format!("{tag} {name}"),
+        );
+    }
+    for (tag, name) in missing_menu_icons(files, &vals) {
+        warn_at(
+            &mut report.menu_icon_missing,
             path,
             Some(line),
             format!("{tag} {name}"),
@@ -530,6 +548,78 @@ fn menu_icons(vals: &HashMap<String, String>) -> Vec<(&'static str, String)> {
         icons.push((tag, name.clone()));
     }
     icons
+}
+
+/// `.xpm` icons lintian would report missing. Leading slashes are already gone
+/// from the returned path. `none` is decided before that strip.
+fn missing_menu_icons(
+    files: &FileTree,
+    vals: &HashMap<String, String>,
+) -> Vec<(&'static str, String)> {
+    let mut missing = Vec::new();
+    for tag in ["icon", "icon32x32", "icon16x16"] {
+        let Some(name) = vals.get(tag) else {
+            continue;
+        };
+        if name.is_empty() || name == "none" {
+            continue;
+        }
+        let stripped = name.trim_start_matches('/');
+        if !stripped.to_ascii_lowercase().ends_with(".xpm") {
+            continue;
+        }
+        if !icon_is_file(files, stripped) {
+            missing.push((tag, stripped.to_string()));
+        }
+    }
+    missing
+}
+
+fn icon_is_file(files: &FileTree, name: &str) -> bool {
+    resolves_to_file(files, name) || resolves_to_file(files, &format!("usr/share/pixmaps/{name}"))
+}
+
+/// Lintian's `resolve_path` plus `is_open_ok`: a regular file or hardlink,
+/// following symlinks. A directory and a broken link are not openable.
+fn resolves_to_file(files: &FileTree, path: &str) -> bool {
+    let mut current = lexical_join(Path::new(""), Path::new(path));
+    for _ in 0..8 {
+        let Some(entry) = files.get(&current) else {
+            return false;
+        };
+        match entry.kind() {
+            EntryKind::RegularFile | EntryKind::Hardlink => return true,
+            EntryKind::Directory => return false,
+            EntryKind::Symlink => {
+                let Some(target) = entry.link_target() else {
+                    return false;
+                };
+                let base = if target.is_absolute() {
+                    Path::new("")
+                } else {
+                    current.parent().unwrap_or(Path::new(""))
+                };
+                current = lexical_join(base, target);
+            }
+        }
+    }
+    false
+}
+
+fn lexical_join(base: &Path, target: &Path) -> PathBuf {
+    let mut joined = base.to_path_buf();
+    for component in target.components() {
+        match component {
+            Component::CurDir => {}
+            Component::ParentDir => {
+                joined.pop();
+            }
+            Component::Normal(part) => joined.push(part),
+            Component::RootDir => joined = PathBuf::new(),
+            Component::Prefix(_) => {}
+        }
+    }
+    joined
 }
 
 fn verify_cmd(files: &FileTree, exec: &str) -> Cmd {

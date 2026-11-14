@@ -284,10 +284,11 @@ pub(crate) use languages_javascript::{
 };
 pub(crate) use languages_perl::PackageInstallsNonbinaryPerlInUsrLibPerl5;
 pub(crate) use languages_python::{
-    AncientPythonVersionField, FileInUsrLibSitePython, MalformedPythonVersion,
-    PackageInstallsDeprecatedPython2Path, PythonVersionCurrentIsDeprecated,
-    SourcePackageEncodesPythonVersion, ThirdPartyPackageInPythonDir,
-    UnknownFileInPythonModuleDirectory,
+    AncientPythonVersionField, BogusPythonPrerequisite, EmbeddedFeedparserLibrary,
+    FileInUsrLibSitePython, MalformedPythonVersion, PackageInstallsDeprecatedPython2Path,
+    PythonModuleHasOverlyGenericName, PythonPackageMissingDependsOnPython,
+    PythonVersionCurrentIsDeprecated, SourcePackageEncodesPythonVersion,
+    ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory,
 };
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;
 pub(crate) use md5sums::{
@@ -342,10 +343,10 @@ pub(crate) use ln0185_obsolete_url_in_packaging::ObsoleteUrlInPackaging;
 pub(crate) use menu_format::{
     CommandInMenuFileAndDesktopFile, DesktopCommandNotInPackage, DesktopEntryContainsUnknownKey,
     DesktopEntryFileHasCrs, DesktopEntryInvalidCategory, DesktopEntryUsesReservedCategory,
-    MenuCommandNotInPackage, MenuIconUsesRelativePath, MenuItemCreatesNewSection,
-    MenuItemNeedsTagHasUnknownValue, MenuItemUsesAppsSection, MenuItemUsesWindowmanagersSection,
-    NonWmInWindowmanagerMenuSection, PkgNotInPackageTest, SuWrapperNotSuToRoot, SuWrapperWithoutC,
-    UnquotedStringInMenuItem,
+    MenuCommandNotInPackage, MenuIconMissing, MenuIconUsesRelativePath, MenuItemCreatesNewSection,
+    MenuItemMissingRequiredTag, MenuItemNeedsTagHasUnknownValue, MenuItemUsesAppsSection,
+    MenuItemUsesWindowmanagersSection, NonWmInWindowmanagerMenuSection, PkgNotInPackageTest,
+    SuWrapperNotSuToRoot, SuWrapperWithoutC, UnquotedStringInMenuItem,
 };
 pub(crate) use menus::{
     DocBaseAbstractFieldSeparatorExtraWhitespace, DocBaseFileLacksRequiredField,

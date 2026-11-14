@@ -1422,6 +1422,16 @@ Rules
                 crate::lint::rules::NeedlessSuggestRecommendLibservletJava::CODE,
                 crate::lint::rules::NodePackageInstallInNodejsRootdir::CODE,
                 crate::lint::rules::NodejsLockFile::CODE,
+                crate::lint::rules::NoVersionedDebhelperPrerequisite::CODE,
+                crate::lint::rules::DebhelperButNoMiscDepends::CODE,
+                crate::lint::rules::CircularInstallationPrerequisite::CODE,
+                crate::lint::rules::NodejsModuleNotDeclared::CODE,
+                crate::lint::rules::PythonPackageMissingDependsOnPython::CODE,
+                crate::lint::rules::BogusPythonPrerequisite::CODE,
+                crate::lint::rules::EmbeddedFeedparserLibrary::CODE,
+                crate::lint::rules::PythonModuleHasOverlyGenericName::CODE,
+                crate::lint::rules::MenuIconMissing::CODE,
+                crate::lint::rules::MenuItemMissingRequiredTag::CODE,
             ]
         );
         let intent = LintIntent {

@@ -1,0 +1,18 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): menu-icon-missing (LN0505) icon usr/share/menu-none/non-existent.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon32x32 usr/share/menu-none/non-existent32.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon16x16 usr/share/menu-none/non-existent16.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon non-existent.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon32x32 non-existent32.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon16x16 non-existent16.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon usr/share/pixmaps/nope.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon Missing.XPM [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon none.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon usr/share/pixmaps/dir.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon usr/share/pixmaps/broken.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon usr/share/pixmaps/dir-link.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon usr/lib/menu/missing.xpm [usr/lib/menu/example:1]
+W: example (binary): menu-icon-missing (LN0505) icon nope.xpm [usr/share/menu/example:2]
+W: example (udeb): menu-icon-missing (LN0505) icon nope.xpm [usr/share/menu/example:1]

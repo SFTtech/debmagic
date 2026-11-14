@@ -1,0 +1,20 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): python-module-has-overly-generic-name (LN0501) (doc) [usr/lib/python3/dist-packages/doc/__init__.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (docs) [usr/lib/python3/dist-packages/docs/__init__.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (example) [usr/lib/python3/dist-packages/example/__init__.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (examples) [usr/lib/python3/dist-packages/examples/__init__.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (site) [usr/lib/python3/dist-packages/site.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (test) [usr/lib/python3/dist-packages/test/__init__.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (tests) [usr/lib/python3/dist-packages/tests/__init__.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (tests) [usr/lib/python3/dist-packages/tests.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (Tests) [usr/lib/python3/dist-packages/Tests.PY]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (backport) [usr/lib/python3/dist-packages/backport.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (backports) [usr/lib/python3/dist-packages/backports/__init__.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (core) [usr/lib/python3/dist-packages/core.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (script) [usr/lib/python3/dist-packages/script/__init__.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (scripts) [usr/lib/python3/dist-packages/scripts.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (docs) [usr/lib/python3.11/site-packages/docs/__init__.py]
+E: example (binary): python-module-has-overly-generic-name (LN0501) (site) [usr/lib/python3/dist-packages/site.py]
+E: example (udeb): python-module-has-overly-generic-name (LN0501) (core) [usr/lib/python3/dist-packages/core.py]

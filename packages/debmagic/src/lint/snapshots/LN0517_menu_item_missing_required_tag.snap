@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): menu-item-missing-required-tag (LN0517) section [usr/share/menu/example:1]
+E: example (binary): menu-item-missing-required-tag (LN0517) needs [usr/share/menu/example:1]
+E: example (binary): menu-item-missing-required-tag (LN0517) title [usr/share/menu/example:1]
+E: example (binary): menu-item-missing-required-tag (LN0517) command [usr/share/menu/example:1]
+E: example (binary): menu-item-missing-required-tag (LN0517) needs [usr/share/menu/example:1]
+E: example (binary): menu-item-missing-required-tag (LN0517) needs [usr/share/menu/example:1]
+E: example (binary): menu-item-missing-required-tag (LN0517) section [usr/share/menu/example:1]
+E: example (binary): menu-item-missing-required-tag (LN0517) command [usr/lib/menu/example:1]
+E: example (binary): menu-item-missing-required-tag (LN0517) section [usr/share/menu/example:2]
+E: example (udeb): menu-item-missing-required-tag (LN0517) section [usr/share/menu/example:1]

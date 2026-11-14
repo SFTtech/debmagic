@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): description-is-debmake-template (LN0672)
+E: example (binary): description-is-debmake-template (LN0672)
+E: example (binary): description-is-debmake-template (LN0672) line 1
+E: example (udeb): description-is-debmake-template (LN0672) line 1
+E: example (binary): description-is-debmake-template (LN0672)

@@ -304,6 +304,13 @@ pub(crate) use md5sums::{
     FileMissingInMd5sums, MalformedMd5sumsControlFile, Md5sumMismatch, Md5sumsListsNonexistentFile,
 };
 
+pub(crate) use debian_changelog::ChangelogEmptyEntry;
+pub(crate) use debian_changelog::ChangelogReferencesTempSecurityIdentifier;
+pub(crate) use debian_changelog::DebianChangelogFileContainsObsoleteUserEmacsSettings;
+pub(crate) use debian_changelog::DebianNewsEntryHasUnknownVersion;
+pub(crate) use debian_changelog::DebianNewsFileNotCompressed;
+pub(crate) use debian_changelog::HtmlChangelogWithoutTextVersion;
+pub(crate) use debian_changelog::ImprobableBugNumberInCloses;
 pub(crate) use debian_copyright::AmbiguousParagraphInDep5Copyright;
 pub(crate) use debian_copyright::BadExceptionFormatInDep5Copyright;
 pub(crate) use debian_copyright::CopyrightContainsAutomaticallyExtractedBoilerplate;
@@ -329,6 +336,11 @@ pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,
 };
 pub(crate) use debian_variables::IllegalVariable;
+pub(crate) use description::DescriptionContainsDhMakePerlTemplate;
+pub(crate) use description::DescriptionContainsInvalidControlStatement;
+pub(crate) use description::DescriptionContainsTabs;
+pub(crate) use description::DescriptionIsDebmakeTemplate;
+pub(crate) use description::DescriptionStartsWithLeadingSpaces;
 pub(crate) use desktop::DesktopFileInWrongDir;
 pub(crate) use desktop::FileInDiscouragedX11FontDirectory;
 pub(crate) use desktop::FileInUnknownX11FontDirectory;
@@ -355,6 +367,8 @@ pub(crate) use fields_relations_extra::DocPackageDependsOnMainPackage;
 pub(crate) use fields_relations_extra::ObsoleteRelationFormInSource;
 pub(crate) use fields_relations_extra::RedundantInstallationPrerequisite;
 pub(crate) use fields_relations_extra::WeakLibraryDevDependency;
+pub(crate) use fields_text::EssentialInSourcePackage;
+pub(crate) use fields_text::ExplicitDefaultInPackageType;
 pub(crate) use fields_version::{DebianRevisionIsZero, DebianRevisionNotWellFormed};
 pub(crate) use files_non_free::NonFreeFlash;
 pub(crate) use files_privacy_breach::{

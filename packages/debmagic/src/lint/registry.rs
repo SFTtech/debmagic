@@ -280,7 +280,34 @@ use super::rules::BooleanTemplateHasBogusDefault;
 
 use super::rules::EmptyTranslatedChoices;
 
+use super::rules::DebianNewsFileNotCompressed;
 use super::rules::DuplicateLongDescriptionInTemplate;
+
+use super::rules::ChangelogEmptyEntry;
+
+use super::rules::ChangelogReferencesTempSecurityIdentifier;
+
+use super::rules::ImprobableBugNumberInCloses;
+
+use super::rules::DebianChangelogFileContainsObsoleteUserEmacsSettings;
+
+use super::rules::DebianNewsEntryHasUnknownVersion;
+
+use super::rules::HtmlChangelogWithoutTextVersion;
+
+use super::rules::EssentialInSourcePackage;
+
+use super::rules::ExplicitDefaultInPackageType;
+
+use super::rules::DescriptionContainsTabs;
+
+use super::rules::DescriptionContainsInvalidControlStatement;
+
+use super::rules::DescriptionContainsDhMakePerlTemplate;
+
+use super::rules::DescriptionIsDebmakeTemplate;
+
+use super::rules::DescriptionStartsWithLeadingSpaces;
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
     &[
@@ -852,6 +879,20 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BooleanTemplateHasBogusDefault,
         &EmptyTranslatedChoices,
         &DuplicateLongDescriptionInTemplate,
+        &DebianNewsFileNotCompressed,
+        &ChangelogEmptyEntry,
+        &ChangelogReferencesTempSecurityIdentifier,
+        &ImprobableBugNumberInCloses,
+        &DebianChangelogFileContainsObsoleteUserEmacsSettings,
+        &DebianNewsEntryHasUnknownVersion,
+        &HtmlChangelogWithoutTextVersion,
+        &EssentialInSourcePackage,
+        &ExplicitDefaultInPackageType,
+        &DescriptionContainsTabs,
+        &DescriptionContainsInvalidControlStatement,
+        &DescriptionContainsDhMakePerlTemplate,
+        &DescriptionIsDebmakeTemplate,
+        &DescriptionStartsWithLeadingSpaces,
     ]
 }
 
@@ -1055,6 +1096,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DeclarePythonVersionsForTest,
         &DropPythonVersionDeclaration,
         &TestsuiteDependsOnObsoletePackage,
+        &EssentialInSourcePackage,
     ]
 }
 
@@ -1452,6 +1494,19 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BooleanTemplateHasBogusDefault,
         &EmptyTranslatedChoices,
         &DuplicateLongDescriptionInTemplate,
+        &DebianNewsFileNotCompressed,
+        &ChangelogEmptyEntry,
+        &ChangelogReferencesTempSecurityIdentifier,
+        &ImprobableBugNumberInCloses,
+        &DebianChangelogFileContainsObsoleteUserEmacsSettings,
+        &DebianNewsEntryHasUnknownVersion,
+        &HtmlChangelogWithoutTextVersion,
+        &ExplicitDefaultInPackageType,
+        &DescriptionContainsTabs,
+        &DescriptionContainsInvalidControlStatement,
+        &DescriptionContainsDhMakePerlTemplate,
+        &DescriptionIsDebmakeTemplate,
+        &DescriptionStartsWithLeadingSpaces,
     ]
 }
 
@@ -1664,6 +1719,7 @@ mod tests {
                 DeclarePythonVersionsForTest::CODE,
                 DropPythonVersionDeclaration::CODE,
                 TestsuiteDependsOnObsoletePackage::CODE,
+                EssentialInSourcePackage::CODE,
             ]
         );
     }
@@ -2069,6 +2125,19 @@ mod tests {
                 BooleanTemplateHasBogusDefault::CODE,
                 EmptyTranslatedChoices::CODE,
                 DuplicateLongDescriptionInTemplate::CODE,
+                DebianNewsFileNotCompressed::CODE,
+                ChangelogEmptyEntry::CODE,
+                ChangelogReferencesTempSecurityIdentifier::CODE,
+                ImprobableBugNumberInCloses::CODE,
+                DebianChangelogFileContainsObsoleteUserEmacsSettings::CODE,
+                DebianNewsEntryHasUnknownVersion::CODE,
+                HtmlChangelogWithoutTextVersion::CODE,
+                ExplicitDefaultInPackageType::CODE,
+                DescriptionContainsTabs::CODE,
+                DescriptionContainsInvalidControlStatement::CODE,
+                DescriptionContainsDhMakePerlTemplate::CODE,
+                DescriptionIsDebmakeTemplate::CODE,
+                DescriptionStartsWithLeadingSpaces::CODE,
             ]
         );
     }

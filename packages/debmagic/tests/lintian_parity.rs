@@ -277,15 +277,18 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/conffiles/legacy-filenames",
     "checks/cron/files-foo-violates-expected-naming",
     "checks/cron/legacy-etcfiles",
+    "checks/debian/changelog/changelog-file-empty-entry",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-invalid-date",
     "checks/debian/changelog/changelog-file-missing",
     "checks/debian/changelog/changelog-file-news-and-changelog-not-compressed",
     "checks/debian/changelog/changelog-file-news-general",
+    "checks/debian/changelog/changelog-file-news-version",
     "checks/debian/changelog/changelog-file-news-wrong-name",
     "checks/debian/changelog/changelog-file-no-dch",
     "checks/debian/changelog/changelog-file-no-dch-native",
     "checks/debian/changelog/changelog-file-symlink",
+    "checks/debian/changelog/changelog-file-upstream-html-only",
     "checks/debian/changelog/changelog-file-wrong-weekday",
     "checks/debian/changelog/legacy-binary",
     "checks/debian/changelog/legacy-etcfiles",
@@ -396,6 +399,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/package-relations/legacy-filenames",
     "checks/fields/package-relations/legacy-relations",
     "checks/fields/package-relations/legacy-scripts",
+    "checks/fields/package-type/explicit-type-deb",
     "checks/fields/priority/fields-excessive-priority-for-library-package",
     "checks/fields/required/fields-general-missing",
     "checks/fields/required/generic-empty",
@@ -1105,15 +1109,18 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/conffiles/legacy-filenames"; "checks_conffiles_legacy_filenames")]
 #[test_case("checks/cron/files-foo-violates-expected-naming"; "checks_cron_files_foo_violates_expected_naming")]
 #[test_case("checks/cron/legacy-etcfiles"; "checks_cron_legacy_etcfiles")]
+#[test_case("checks/debian/changelog/changelog-file-empty-entry"; "checks_debian_changelog_changelog_file_empty_entry")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-invalid-date"; "checks_debian_changelog_changelog_file_invalid_date")]
 #[test_case("checks/debian/changelog/changelog-file-missing"; "checks_debian_changelog_changelog_file_missing")]
 #[test_case("checks/debian/changelog/changelog-file-news-and-changelog-not-compressed"; "checks_debian_changelog_changelog_file_news_and_changelog_not_compressed")]
 #[test_case("checks/debian/changelog/changelog-file-news-general"; "checks_debian_changelog_changelog_file_news_general")]
+#[test_case("checks/debian/changelog/changelog-file-news-version"; "checks_debian_changelog_changelog_file_news_version")]
 #[test_case("checks/debian/changelog/changelog-file-news-wrong-name"; "checks_debian_changelog_changelog_file_news_wrong_name")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch"; "checks_debian_changelog_changelog_file_no_dch")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch-native"; "checks_debian_changelog_changelog_file_no_dch_native")]
 #[test_case("checks/debian/changelog/changelog-file-symlink"; "checks_debian_changelog_changelog_file_symlink")]
+#[test_case("checks/debian/changelog/changelog-file-upstream-html-only"; "checks_debian_changelog_changelog_file_upstream_html_only")]
 #[test_case("checks/debian/changelog/changelog-file-wrong-weekday"; "checks_debian_changelog_changelog_file_wrong_weekday")]
 #[test_case("checks/debian/changelog/legacy-binary"; "checks_debian_changelog_legacy_binary")]
 #[test_case("checks/debian/changelog/legacy-etcfiles"; "checks_debian_changelog_legacy_etcfiles")]
@@ -1224,6 +1231,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/package-relations/legacy-filenames"; "checks_fields_package_relations_legacy_filenames")]
 #[test_case("checks/fields/package-relations/legacy-relations"; "checks_fields_package_relations_legacy_relations")]
 #[test_case("checks/fields/package-relations/legacy-scripts"; "checks_fields_package_relations_legacy_scripts")]
+#[test_case("checks/fields/package-type/explicit-type-deb"; "checks_fields_package_type_explicit_type_deb")]
 #[test_case("checks/fields/priority/fields-excessive-priority-for-library-package"; "checks_fields_priority_fields_excessive_priority_for_library_package")]
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]

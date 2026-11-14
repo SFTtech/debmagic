@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): improbable-bug-number-in-closes (LN0663) 1234 [usr/share/doc/example/changelog.Debian.gz:1]
+W: example (binary): improbable-bug-number-in-closes (LN0663) 50003 [usr/share/doc/example/changelog:1]
+W: example (binary): improbable-bug-number-in-closes (LN0663) 50003 [usr/share/doc/example/changelog:1]
+W: example (binary): improbable-bug-number-in-closes (LN0663) 1500000 [usr/share/doc/example/changelog:1]

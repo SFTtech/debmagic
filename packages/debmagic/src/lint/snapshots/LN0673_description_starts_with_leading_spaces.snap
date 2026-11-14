@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): description-starts-with-leading-spaces (LN0673) line 1
+W: example (udeb): description-starts-with-leading-spaces (LN0673) line 1

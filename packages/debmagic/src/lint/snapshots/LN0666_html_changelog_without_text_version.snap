@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): html-changelog-without-text-version (LN0666) [usr/share/doc/example/changelog.html.gz]
+E: example (binary): html-changelog-without-text-version (LN0666) [usr/share/doc/example/changelog.html]
+E: example (binary): html-changelog-without-text-version (LN0666) [usr/share/doc/example/changelog.html.gz]

@@ -6,6 +6,8 @@
 //! [`super::debian_rules`].
 
 mod control_text;
+mod dh_exec;
+mod dh_scan;
 mod ln0217_debhelper_tools_from_autotools_dev_are_deprecated;
 mod ln0220_brace_expansion_in_debhelper_config_file;
 mod ln0221_package_uses_dh_exec_but_lacks_build_depends;
@@ -13,6 +15,20 @@ mod ln0222_debian_control_has_dbgsym_package;
 mod ln0223_build_prerequisite_in_installable_section;
 mod ln0419_debian_control_repeats_field_name_in_value;
 mod ln0450_circular_installation_prerequisite;
+mod ln0520_dh_installmanpages_is_obsolete;
+mod ln0521_dh_clean_k_is_deprecated;
+mod ln0522_dh_quilt_addon_but_quilt_source_format;
+mod ln0523_debian_rules_uses_deprecated_systemd_override;
+mod ln0524_excessive_debhelper_overrides;
+mod ln0525_debian_rules_uses_unnecessary_dh_argument;
+mod ln0526_useless_autoreconf_build_depends;
+mod ln0527_package_uses_debhelper_but_lacks_build_depends;
+mod ln0528_debhelper_compat_file_contains_multiple_levels;
+mod ln0529_debhelper_compat_file_is_empty;
+mod ln0530_declares_possibly_conflicting_debhelper_compat_versions;
+mod ln0531_temporary_debhelper_file;
+mod ln0532_dh_exec_script_without_dh_exec_features;
+mod ln0533_dh_exec_install_not_allowed_here;
 mod rules_text;
 
 pub(super) use control_text::{build_depends_all_names, names_package};
@@ -25,3 +41,17 @@ pub(crate) use ln0222_debian_control_has_dbgsym_package::DebianControlHasDbgsymP
 pub(crate) use ln0223_build_prerequisite_in_installable_section::BuildPrerequisiteInInstallableSection;
 pub(crate) use ln0419_debian_control_repeats_field_name_in_value::DebianControlRepeatsFieldNameInValue;
 pub(crate) use ln0450_circular_installation_prerequisite::CircularInstallationPrerequisite;
+pub(crate) use ln0520_dh_installmanpages_is_obsolete::DhInstallmanpagesIsObsolete;
+pub(crate) use ln0521_dh_clean_k_is_deprecated::DhCleanKIsDeprecated;
+pub(crate) use ln0522_dh_quilt_addon_but_quilt_source_format::DhQuiltAddonButQuiltSourceFormat;
+pub(crate) use ln0523_debian_rules_uses_deprecated_systemd_override::DebianRulesUsesDeprecatedSystemdOverride;
+pub(crate) use ln0524_excessive_debhelper_overrides::ExcessiveDebhelperOverrides;
+pub(crate) use ln0525_debian_rules_uses_unnecessary_dh_argument::DebianRulesUsesUnnecessaryDhArgument;
+pub(crate) use ln0526_useless_autoreconf_build_depends::UselessAutoreconfBuildDepends;
+pub(crate) use ln0527_package_uses_debhelper_but_lacks_build_depends::PackageUsesDebhelperButLacksBuildDepends;
+pub(crate) use ln0528_debhelper_compat_file_contains_multiple_levels::DebhelperCompatFileContainsMultipleLevels;
+pub(crate) use ln0529_debhelper_compat_file_is_empty::DebhelperCompatFileIsEmpty;
+pub(crate) use ln0530_declares_possibly_conflicting_debhelper_compat_versions::DeclaresPossiblyConflictingDebhelperCompatVersions;
+pub(crate) use ln0531_temporary_debhelper_file::TemporaryDebhelperFile;
+pub(crate) use ln0532_dh_exec_script_without_dh_exec_features::DhExecScriptWithoutDhExecFeatures;
+pub(crate) use ln0533_dh_exec_install_not_allowed_here::DhExecInstallNotAllowedHere;

@@ -421,9 +421,15 @@ pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};
 pub(crate) use po_debconf::{InvalidPoFile, MisnamedPoFile, TranslatedDefaultField};
 pub(crate) use rules_and_control::{
     BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,
-    CircularInstallationPrerequisite, DebhelperToolsFromAutotoolsDevAreDeprecated,
+    CircularInstallationPrerequisite, DebhelperCompatFileContainsMultipleLevels,
+    DebhelperCompatFileIsEmpty, DebhelperToolsFromAutotoolsDevAreDeprecated,
     DebianControlHasDbgsymPackage, DebianControlRepeatsFieldNameInValue,
-    PackageUsesDhExecButLacksBuildDepends,
+    DebianRulesUsesDeprecatedSystemdOverride, DebianRulesUsesUnnecessaryDhArgument,
+    DeclaresPossiblyConflictingDebhelperCompatVersions, DhCleanKIsDeprecated,
+    DhExecInstallNotAllowedHere, DhExecScriptWithoutDhExecFeatures, DhInstallmanpagesIsObsolete,
+    DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
+    PackageUsesDebhelperButLacksBuildDepends, PackageUsesDhExecButLacksBuildDepends,
+    TemporaryDebhelperFile, UselessAutoreconfBuildDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

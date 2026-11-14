@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-uses-unnecessary-dh-argument (LN0525) 10 >= 10 dh ... --parallel [debian/rules:2]
+W: example (source): debian-rules-uses-unnecessary-dh-argument (LN0525) 12 >= 10 dh ... --with=systemd [debian/rules:2]
+W: example (source): debian-rules-uses-unnecessary-dh-argument (LN0525) 13 >= 10 dh ... --parallel [debian/rules:2]
+W: example (source): debian-rules-uses-unnecessary-dh-argument (LN0525) 13 >= 10 dh ... --with=systemd [debian/rules:2]
+W: example (source): debian-rules-uses-unnecessary-dh-argument (LN0525) 10 >= 10 dh ... --parallel [debian/rules:4]
+W: example (source): debian-rules-uses-unnecessary-dh-argument (LN0525) 10 >= 10 dh ... --with=systemd [debian/rules:4]

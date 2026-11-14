@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): dh-quilt-addon-but-quilt-source-format (LN0522) dh ... --with quilt [debian/rules:2]
+W: example (source): dh-quilt-addon-but-quilt-source-format (LN0522) dh ... --with quilt [debian/rules:2]
+W: example (source): dh-quilt-addon-but-quilt-source-format (LN0522) dh ... --with quilt [debian/rules:2]
+W: example (source): dh-quilt-addon-but-quilt-source-format (LN0522) dh ... --with quilt [debian/rules:2]
+W: example (source): dh-quilt-addon-but-quilt-source-format (LN0522) dh ... --with quilt [debian/rules:2]
+W: example (source): dh-quilt-addon-but-quilt-source-format (LN0522) dh ... --with quilt [debian/rules:2]

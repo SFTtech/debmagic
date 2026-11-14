@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-vcs-control-file (LN0128) [usr/share/foo/.gitignore]
+W: example (binary): package-contains-vcs-control-file (LN0128) [usr/share/foo/.gitignore.gz]
+W: example (binary): package-contains-vcs-control-file (LN0128) [files/.cvsignore]
+W: example (binary): package-contains-vcs-control-file (LN0128) [foo/.hg_archival.txt]
+W: example (binary): package-contains-vcs-control-file (LN0128) [foo/.hgtags]
+W: example (binary): package-contains-vcs-control-file (LN0128) [foo/.arch-inventory]
+W: example (binary): package-contains-vcs-control-file (LN0128) [foo/.gitattributes]
+W: example (binary): package-contains-vcs-control-file (LN0128) [foo/.gitmodules]

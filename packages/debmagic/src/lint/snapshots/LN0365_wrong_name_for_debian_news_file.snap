@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): wrong-name-for-debian-news-file (LN0365) [usr/share/doc/example/news.debian.gz]
+W: example (binary): wrong-name-for-debian-news-file (LN0365) [usr/share/doc/example/NEWS.debian.gz]
+W: example (binary): wrong-name-for-debian-news-file (LN0365) [usr/share/doc/example/News.Debian.gz]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): menu-icon-uses-relative-path (LN0423) icon non-existent.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-uses-relative-path (LN0423) icon32x32 non-existent32.xpm [usr/share/menu/example:1]
+W: example (binary): menu-icon-uses-relative-path (LN0423) icon16x16 non-existent16.xpm [usr/share/menu/example:1]

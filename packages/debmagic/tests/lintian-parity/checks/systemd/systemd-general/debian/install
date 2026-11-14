@@ -1,0 +1,3 @@
+debian/systemd-general.test.service etc/systemd/system/
+debian/systemd-general.test.service usr/lib/systemd/system/
+debian/test.conf etc/tmpfiles.d/

@@ -1,0 +1,41 @@
+Source: description-empty-paragraph
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: description-empty-paragraph
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: package to test empty first paragraph
+ .
+ The first paragraph
+ of this description
+ is empty. It is also an empty package.
+
+Package: description-empty-paragraph-2
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: package to test empty last paragraph
+ The last paragraph
+ of this description
+ is empty. It is also an empty package.
+ .
+ Unfortunately this doesn't trigger the warning, an empty last paragraph
+ seems to get stripped out already before it is handed over.
+ .
+
+Package: description-empty-paragraph-3
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: package to test empty paragraph in the middle
+ There is an
+ empty paragraph
+ in between. It is also an empty package.
+ .
+ .
+ There is an
+ empty paragraph
+ in between. It is also an empty package.

@@ -1,0 +1,6 @@
+nmu-unnecessary-team-upload (1.0) unstable; urgency=low
+
+  * Team upload.
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

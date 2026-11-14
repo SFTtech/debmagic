@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): script-uses-bin-env (LN0299) /bin/env [usr/bin/bin-env]
+W: example (binary): script-uses-bin-env (LN0299) /bin/env [usr/bin/envfoo]
+W: example (binary): script-uses-bin-env (LN0299) /bin/env [usr/bin/tool]
+W: example (udeb): script-uses-bin-env (LN0299) /bin/env [usr/lib/cgi-bin/tool]

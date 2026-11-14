@@ -1,0 +1,4 @@
+debhelper-misc-depends-fp (source): package-uses-old-debhelper-compat-version 13
+debhelper-misc-depends-fp (source): debian-build-system dh [debian/rules]
+debhelper-misc-depends-fp (source): debhelper-compat-virtual-relation 13 [debian/control]
+debhelper-misc-depends-fp (source): debhelper-compat-level 13

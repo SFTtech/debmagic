@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): doc-base-file-lacks-required-field (LN0420) Section [usr/share/doc-base/example:4]
+E: example (binary): doc-base-file-lacks-required-field (LN0420) Files [usr/share/doc-base/example:7]
+E: example (binary): doc-base-file-lacks-required-field (LN0420) Files [usr/share/doc-base/example:8]
+E: example (binary): doc-base-file-lacks-required-field (LN0420) Format [usr/share/doc-base/example:8]

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): depends-on-packaging-dev (LN0202) Depends
+W: example (binary): depends-on-packaging-dev (LN0202) Pre-Depends
+W: example (binary): depends-on-packaging-dev (LN0202) Recommends
+W: example (udeb): depends-on-packaging-dev (LN0202) Depends

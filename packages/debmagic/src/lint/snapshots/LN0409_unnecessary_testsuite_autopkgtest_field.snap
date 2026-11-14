@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): unnecessary-testsuite-autopkgtest-field (LN0409) [debian/control:3]
+W: example (source): unnecessary-testsuite-autopkgtest-field (LN0409) [debian/control:3]

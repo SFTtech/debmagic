@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-has-bad-stop-runlevel (LN0289) X [etc/init.d/letter]
+W: example (binary): init.d-script-has-bad-stop-runlevel (LN0289) 7 [etc/init.d/seven]
+W: example (binary): init.d-script-has-bad-stop-runlevel (LN0289) 00 [etc/init.d/pair]
+W: example (binary): init.d-script-has-bad-stop-runlevel (LN0289) Y [etc/init.d/pair]
+W: example (binary): init.d-script-has-bad-stop-runlevel (LN0289) Y [etc/init.d/y]
+W: example (udeb): init.d-script-has-bad-stop-runlevel (LN0289) Z [etc/init.d/udeb-script]

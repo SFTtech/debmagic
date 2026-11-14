@@ -1,0 +1,18 @@
+=head1 NAME
+
+simple - some interesting manpage
+
+=head1 SYNOPSIS
+
+Explains something interesting
+
+=head1 DESCRIPTION
+
+A very long description of something very interesting.  Really!
+
+=head1 AUTHORS
+
+Niels Thykier <niels@thykier.net>
+
+=cut
+

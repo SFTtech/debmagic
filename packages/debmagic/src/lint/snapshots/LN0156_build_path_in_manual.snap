@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): build-path-in-manual (LN0156) [usr/share/man/man1/_build_buildd-openchangex_1.0-3-i386-mbKpOA_openchange-1.0_simple.1.gz]
+E: example (binary): build-path-in-manual (LN0156) [usr/share/man/man6/_build_buildd-openchangex_1.0-3-i386-mbKpOA_openchange-1.0_simple.6.gz]
+E: example (binary): build-path-in-manual (LN0156) [usr/share/man/man1/foo_tmp_buildd.1.gz]
+E: example (binary): build-path-in-manual (LN0156) [usr/share/man/man1/_build_linked.1.gz]
+E: example (binary): build-path-in-manual (LN0156) [usr/share/man/man1/_tmp_buildd.1.gz]
+E: example (binary): build-path-in-manual (LN0156) [usr/share/man/foo/_build_bar]

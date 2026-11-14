@@ -1,0 +1,8 @@
+maintainer-scripts (source): mail-contact Uploaders "Anyone but Jeroen" <jeroen@wolffelaar.nl>
+maintainer-scripts (source): mail-contact Maintainer "QA group" <packages@qa.debian.org>
+maintainer-scripts (source): faulty-debian-qa-group-phrase Maintainer QA group -> Debian QA Group
+maintainer-scripts (changes): mail-contact Maintainer "QA group" <packages@qa.debian.org>
+maintainer-scripts (changes): mail-contact Changed-By "Jeroen van Wolffelaar" <jeroen@wolffelaar.nl>
+maintainer-scripts (changes): faulty-debian-qa-group-phrase Maintainer QA group -> Debian QA Group
+maintainer-scripts (binary): mail-contact Maintainer "QA group" <packages@qa.debian.org>
+maintainer-scripts (binary): faulty-debian-qa-group-phrase Maintainer QA group -> Debian QA Group

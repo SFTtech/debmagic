@@ -1,0 +1,4 @@
+fields-version-bad (source): debian-revision-not-well-formed 0-.3
+fields-version-bad (changes): debian-revision-not-well-formed 0-.3
+fields-version-bad (buildinfo): debian-revision-not-well-formed 0-.3
+fields-version-bad (binary): debian-revision-is-zero 1.0-0

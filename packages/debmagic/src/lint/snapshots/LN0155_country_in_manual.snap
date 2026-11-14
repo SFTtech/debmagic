@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): country-in-manual (LN0155) [usr/share/man/de_DE/man1/test-utf8-chars.1p.gz]
+W: example (binary): country-in-manual (LN0155) [usr/share/man/en_US/man1/foo.1.gz]
+W: example (binary): country-in-manual (LN0155) [usr/share/man/pt_PT/man1/foo.1.gz]
+W: example (binary): country-in-manual (LN0155) [usr/share/man/zh_Hant/man1/foo.1.gz]
+W: example (binary): country-in-manual (LN0155) [usr/share/man/zh_cn/man1/foo.1.gz]
+W: example (binary): country-in-manual (LN0155) [usr/share/man/fr_FR/man1/foo.1.gz]
+W: example (binary): country-in-manual (LN0155) [usr/share/man/de_DE/man1/plain.1]

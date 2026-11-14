@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+DPKG_EXPORT_BUILDFLAGS:=1
+include /usr/share/dpkg/buildflags.mk
+
+DOCS:=debian/python-kinterbasdb/usr/share/doc/python-kinterbasdb/docs
+%:
+	dh $@
+
+override_dh_strip:
+	dh_strip -ppython-kinterbasdb --dbg-package=python-kinterbasdb-dbg
+	dh_strip --remaining-packages
+
+override_dh_compress:
+	dh_compress
+	# Manually compress it, since debhelper will fix #608907
+	# in the "near" future.
+	[ -f "$(DOCS)/objects.inv.gz" ] || gzip -n --best "$(DOCS)/objects.inv"

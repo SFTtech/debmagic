@@ -1,0 +1,5 @@
+files-foo-in-bar (binary): perl-module-in-core-directory [usr/share/perl/bar]
+files-foo-in-bar (binary): perl-module-in-core-directory [usr/lib/perl/bar]
+files-foo-in-bar (binary): package-installs-perllocal-pod [usr/lib/perl-foo/perllocal.pod]
+files-foo-in-bar (binary): package-installs-packlist [usr/lib/perl5/.packlist]
+files-foo-in-bar (binary): package-installs-nonbinary-perl-in-usr-lib-perl5 [usr/lib/perl5/Foo/Bar.pm]

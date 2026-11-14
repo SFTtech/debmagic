@@ -1,0 +1,18 @@
+
+Document: doc2
+Title: Document 2
+Author: Lintian maintainers
+Author: Duplicate field... oops.
+Abstract: Document 2
+ Blah bla manage online manuals Debian blah bla
+  .
+  The second line is totally a template.  Oh yeah, a space too
+  much on the " ."-line followed by wrong indentation.
+Section: Apps/Programming
+
+  
+
+Format: text
+Files: /usr/share/doc/menus-doc-base-general/doc2.txt
+
+oops, this is a syntax error.

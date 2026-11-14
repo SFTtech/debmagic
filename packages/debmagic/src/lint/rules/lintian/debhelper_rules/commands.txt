@@ -1,0 +1,236 @@
+# Command names from lintian data/debhelper/commands.json.
+# `autoscript` marks commands whose scripts rewrite maintainer scripts
+# (`uses_autoscript`), which lintian calls maint_commands.
+# Names are what typo-in-debhelper-override-target compares; the
+# installed-by packages and the dh addon table are not here.
+dh_acc
+dh_ada_library
+dh_apache2 autoscript
+dh_apparmor autoscript
+dh_aspell-simple
+dh_assistant
+dh_asterisk
+dh_auto_build
+dh_auto_build_nant
+dh_auto_clean
+dh_auto_clean_nant
+dh_auto_configure
+dh_auto_install
+dh_auto_test
+dh_autoreconf
+dh_autoreconf_clean
+dh_autotools-dev_restoreconfig
+dh_autotools-dev_updateconfig
+dh_bash-completion
+dh_bugfiles
+dh_builddeb
+dh_builtusing
+dh_clean
+dh_click autoscript
+dh_clideps
+dh_clifixperms
+dh_cligacpolicy autoscript
+dh_clistrip
+dh_cmake_install
+dh_cme_upgrade autoscript
+dh_compress
+dh_computeautosubstvars
+dh_configpackage autoscript
+dh_consoledata autoscript
+dh_coq
+dh_cpack_generate
+dh_cpack_install
+dh_cpack_substvars
+dh_cruft autoscript
+dh_ctest_build
+dh_ctest_clean
+dh_ctest_configure
+dh_ctest_start
+dh_ctest_submit
+dh_ctest_test
+dh_ctest_update
+dh_debputy
+dh_di_kernel_gencontrol
+dh_di_kernel_install
+dh_di_numbers
+dh_dist_zilla_origtar
+dh_dkms autoscript
+dh_dlopenlibdeps
+dh_doc_privacy
+dh_doxygen
+dh_dwz
+dh_dzil_build
+dh_dzil_clean
+dh_elpa autoscript
+dh_elpa_test
+dh_fixperms
+dh_fortran
+dh_fortran_cmake
+dh_fortran_lib
+dh_fortran_mod
+dh_fortran_pkgconf
+dh_gencontrol
+dh_germinate_clean
+dh_germinate_metapackage
+dh_girepository
+dh_gnome
+dh_gnulib_patch
+dh_gnustep
+dh_golang
+dh_golang_autopkgtest
+dh_grantlee
+dh_gstscancodecs
+dh_haskell_blurbs
+dh_haskell_compiler
+dh_haskell_depends
+dh_haskell_depends_cabal
+dh_haskell_depends_haddock
+dh_haskell_depends_hugs
+dh_haskell_description
+dh_haskell_extra_depends_ghc
+dh_haskell_install_development_libs
+dh_haskell_install_docfiles
+dh_haskell_install_ghc_registration
+dh_haskell_install_haddock
+dh_haskell_install_htmldocs
+dh_haskell_install_profiling_libs
+dh_haskell_provides
+dh_haskell_provides_ghc
+dh_haskell_recommends_documentation_references
+dh_haskell_shlibdeps
+dh_haskell_suggests
+dh_icons autoscript
+dh_install
+dh_installalternatives autoscript
+dh_installcatalogs autoscript
+dh_installchangelogs
+dh_installcliframework autoscript
+dh_installcligac autoscript
+dh_installcron
+dh_installdeb autoscript
+dh_installdebconf autoscript
+dh_installdebputy
+dh_installdirs
+dh_installdocs
+dh_installemacsen autoscript
+dh_installexamples
+dh_installgsettings
+dh_installifupdown
+dh_installinfo
+dh_installinit autoscript
+dh_installinitramfs
+dh_installlogcheck
+dh_installlogrotate
+dh_installman
+dh_installmanpages
+dh_installmenu autoscript
+dh_installmime
+dh_installmodules autoscript
+dh_installnss autoscript
+dh_installpam
+dh_installppp
+dh_installsystemd autoscript
+dh_installsystemduser autoscript
+dh_installsysusers autoscript
+dh_installtex autoscript
+dh_installtmpfiles autoscript
+dh_installudev
+dh_installwm autoscript
+dh_installxfonts autoscript
+dh_installxmlcatalogs autoscript
+dh_installyorick
+dh_kodiaddon_depends
+dh_libva
+dh_link
+dh_linktree
+dh_lintian
+dh_lisp
+dh_listpackages
+dh_lua
+dh_make
+dh_make_pgxs
+dh_makeclilibs
+dh_makefont
+dh_makeshlibs
+dh_md5sums
+dh_missing
+dh_mkdocs
+dh_movefiles
+dh_movelibkdeinit
+dh_movetousr
+dh_nginx autoscript
+dh_nodejs_autodocs
+dh_nodejs_build_debug_package
+dh_nodejs_substvars
+dh_numpy3
+dh_ocaml
+dh_ocamlclean
+dh_ocamldoc
+dh_ocamlinit
+dh_octave_changelogs
+dh_octave_check
+dh_octave_clean
+dh_octave_examples
+dh_octave_make
+dh_octave_substvar
+dh_octave_version
+dh_pdl
+dh_perl
+dh_perl_dbi
+dh_perl_imager
+dh_perl_openssl
+dh_pgxs_test
+dh_php autoscript
+dh_phpcomposer
+dh_phppear
+dh_pidgin
+dh_ppp
+dh_prep
+dh_puppet_module autoscript
+dh_puppet_module_autopkgtest
+dh_puredata_substvar
+dh_pyppd
+dh_python3 autoscript
+dh_python3-ply
+dh_qmlcdeps
+dh_qmldeps
+dh_quilt_patch
+dh_quilt_unpatch
+dh_raku_build
+dh_raku_clean
+dh_raku_install
+dh_raku_test
+dh_rebar
+dh_ruby
+dh_ruby_fixdepends
+dh_ruby_fixdocs
+dh_runit autoscript
+dh_sameversiondep
+dh_scour
+dh_setup_copyright
+dh_shell_completions
+dh_shlibdeps
+dh_sodeps
+dh_sphinxdoc
+dh_strip
+dh_strip_nondeterminism
+dh_systemd_enable autoscript
+dh_systemd_start autoscript
+dh_sysuser autoscript
+dh_testdir
+dh_testroot
+dh_ucf autoscript
+dh_update_autotools_config
+dh_user-session-migration
+dh_usrlocal autoscript
+dh_uwsgi
+dh_vagrant_plugin
+dh_varnishabi
+dh_vdrplugin_depends
+dh_vdrplugin_enable autoscript
+dh_vignette
+dh_vim-addon
+dh_virtualenv autoscript
+dh_xine
+dh_xsf_substvars
+dh_zathura

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): info-document-missing-dir-section (LN0439) [usr/share/info/bar.info.gz]
+E: example (binary): info-document-missing-dir-section (LN0439) [usr/share/info/bar.info.gz]
+E: example (binary): info-document-missing-dir-section (LN0439) [usr/share/info/bar.newinfo.gz]

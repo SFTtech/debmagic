@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-section-games-but-contains-no-game (LN0401)
+E: example (binary): package-section-games-but-contains-no-game (LN0401)
+E: example (udeb): package-section-games-but-contains-no-game (LN0401)

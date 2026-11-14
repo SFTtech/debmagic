@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): initial-upload-closes-no-bugs (LN0312) [usr/share/doc/example/changelog.gz:1]
+W: example (binary): initial-upload-closes-no-bugs (LN0312) [usr/share/doc/example/changelog:1]
+W: example (binary): initial-upload-closes-no-bugs (LN0312) [usr/share/doc/example/changelog:1]

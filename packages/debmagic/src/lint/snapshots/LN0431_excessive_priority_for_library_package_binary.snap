@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo (binary): excessive-priority-for-library-package (LN0431) important
+W: libfoo-dev (binary): excessive-priority-for-library-package (LN0431) standard
+W: libfoo (udeb): excessive-priority-for-library-package (LN0431) required

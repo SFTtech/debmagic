@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): compressed-symlink-with-wrong-ext (LN0075) ../../../share/lintian/data/comp-data.gz [usr/lib/lintian/data/comp-data]
+E: example (binary): compressed-symlink-with-wrong-ext (LN0075) README.bz2 [usr/share/doc/pkg/README]
+E: example (udeb): compressed-symlink-with-wrong-ext (LN0075) README.gz  [usr/share/doc/pkg/README]

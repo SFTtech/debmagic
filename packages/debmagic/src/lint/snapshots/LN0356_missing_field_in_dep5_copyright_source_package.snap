@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): missing-field-in-dep5-copyright (LN0356) License [debian/copyright:4]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): wrong-package-mail-alias (LN0032)
+E: example (source): wrong-package-mail-alias (LN0032)
+E: example (source): wrong-package-mail-alias (LN0032)

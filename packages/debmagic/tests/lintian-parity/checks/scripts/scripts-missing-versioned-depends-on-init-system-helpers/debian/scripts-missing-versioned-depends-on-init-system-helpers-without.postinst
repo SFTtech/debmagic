@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+update-rc.d
+update-rc.d defaults-disabled
+
+exit 0

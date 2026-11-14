@@ -1,0 +1,4 @@
+min-js-with-sources (source): source-is-missing [ugly/missing-source.min.js]
+min-js-with-sources (source): source-contains-prebuilt-javascript-object [ugly/missing-source.min.js]
+min-js-with-sources (source): source-contains-prebuilt-javascript-object [ugly/fullpath.min.js]
+min-js-with-sources (source): source-contains-prebuilt-javascript-object [ugly/basename.min.js]

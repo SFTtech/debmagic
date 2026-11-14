@@ -1,0 +1,3 @@
+unpack-srcpkg-no-subdir (source): upstream-metadata-missing-repository [debian/upstream/metadata]
+unpack-srcpkg-no-subdir (source): upstream-metadata-missing-bug-tracking [debian/upstream/metadata]
+unpack-srcpkg-no-subdir (source): missing-debian-watch-file-standard [debian/watch]

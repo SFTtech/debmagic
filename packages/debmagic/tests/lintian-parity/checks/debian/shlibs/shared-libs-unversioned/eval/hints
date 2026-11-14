@@ -1,0 +1,2 @@
+libfoo (binary): symbols-file-missing-build-depends-package-field libfoo.so [symbols]
+libfoo (binary): shared-library-lacks-version usr/lib/libfoo.so libfoo.so

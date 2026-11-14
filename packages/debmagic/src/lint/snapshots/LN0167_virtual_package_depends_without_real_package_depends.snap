@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): virtual-package-depends-without-real-package-depends (LN0167) Build-Depends: mail-transport-agent
+W: example (source): virtual-package-depends-without-real-package-depends (LN0167) Build-Depends: mail-transport-agent
+W: example (source): virtual-package-depends-without-real-package-depends (LN0167) Build-Depends: perl-modules
+W: example (source): virtual-package-depends-without-real-package-depends (LN0167) Build-Depends: mail-transport-agent
+W: example (source): virtual-package-depends-without-real-package-depends (LN0167) Build-Depends: phpapi-20210902
+W: example (source): virtual-package-depends-without-real-package-depends (LN0167) Build-Depends-Indep: java-compiler
+W: example (source): virtual-package-depends-without-real-package-depends (LN0167) Build-Depends-Arch: httpd
+W: base-files (source): virtual-package-depends-without-real-package-depends (LN0167) Build-Depends: awk

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): making-assumptions-about-interfaces-in-templates (LN0242) debconf/testboolean [templates:3]
+W: example (binary): making-assumptions-about-interfaces-in-templates (LN0242) debconf/testboolean [templates:3]
+W: example (binary): making-assumptions-about-interfaces-in-templates (LN0242) debconf/testboolean [templates:3]
+W: example (binary): making-assumptions-about-interfaces-in-templates (LN0242) debconf/testboolean [templates:3]

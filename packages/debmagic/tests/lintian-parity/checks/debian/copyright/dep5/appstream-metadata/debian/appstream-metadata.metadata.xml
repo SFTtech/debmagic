@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component>
+  <id>appstream-udev-data</id>
+  <metadata_license>MIT</metadata_license>
+  <name>lintian appstream-udev-data</name>
+  <summary>Test AppStream and udev related checks in lintian</summary>
+  <description>
+    <p>
+      This is a test package designed to exercise some feature or tag
+      of Lintian.  It is part of the Lintian test suite and may do
+      very odd things.  It should not be installed like a regular
+      package.  It may be an empty package.
+    </p>
+  </description>
+  <provides>
+    <modalias>usb:v0000p0001d*</modalias>
+    <modalias>usb:v0000p0002d*</modalias>
+    <modalias>usb:v0000p0003d*</modalias>
+    <modalias>usb:v0000p0004d*</modalias>
+    <modalias>usb:v0000p000ad*</modalias>
+  </provides>
+</component>

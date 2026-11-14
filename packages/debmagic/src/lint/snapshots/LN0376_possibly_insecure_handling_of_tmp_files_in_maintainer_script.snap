@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): possibly-insecure-handling-of-tmp-files-in-maintainer-script (LN0376) /tmp [postinst:2]
+W: example (binary): possibly-insecure-handling-of-tmp-files-in-maintainer-script (LN0376) /var/tmp [postinst:3]
+W: example (binary): possibly-insecure-handling-of-tmp-files-in-maintainer-script (LN0376) $TMPDIR/foo [postrm:2]
+W: example (binary): possibly-insecure-handling-of-tmp-files-in-maintainer-script (LN0376) /tmp [postinst:2]

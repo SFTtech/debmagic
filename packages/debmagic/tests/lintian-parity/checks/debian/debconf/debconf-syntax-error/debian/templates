@@ -1,0 +1,3 @@
+Template: debconf/syntax-error
+Type: note
+Description whoops, I forgot a colon

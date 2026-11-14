@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): third-party-package-in-python-dir (LN0131) [usr/lib/python2.7/bar]

@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): syntax-error-in-symbols-file (LN0336) [symbols:1]
+E: example (binary): syntax-error-in-symbols-file (LN0336) [symbols:3]
+E: example (binary): syntax-error-in-symbols-file (LN0336) [symbols:4]
+E: example (binary): syntax-error-in-symbols-file (LN0336) [symbols:11]
+E: example (binary): syntax-error-in-symbols-file (LN0336) [symbols:15]
+E: example (binary): syntax-error-in-symbols-file (LN0336) [symbols:19]
+E: example (udeb): syntax-error-in-symbols-file (LN0336) [symbols:1]

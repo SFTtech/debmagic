@@ -1,0 +1,19 @@
+Source: rules-dh-auto-test-does-not-check-deb-build-options-dh-12
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 12), phpab, phpunit, pkg-php-tools
+Rules-Requires-Root: no
+Homepage: https://lintian.debian.org/
+
+Package: rules-dh-auto-test-does-not-check-deb-build-options-dh-12
+Architecture: all
+Depends: ${misc:Depends}, ${phpcomposer:Debian-require}
+Recommends: ${phpcomposer:Debian-recommend}
+Suggests: ${phpcomposer:Debian-suggest}
+Description: Test for missing checks for DEB_BUILD_PROFILES using DH12
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

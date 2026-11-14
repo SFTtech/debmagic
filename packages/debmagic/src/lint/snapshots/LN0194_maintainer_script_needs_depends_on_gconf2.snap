@@ -1,0 +1,15 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:3]
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:5]
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:2]
+W: example (udeb): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [my-postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-gconf2 (LN0194) gconf-schemas (does not satisfy gconf2) [postinst:2]

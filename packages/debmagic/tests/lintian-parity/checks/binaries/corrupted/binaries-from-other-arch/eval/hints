@@ -1,0 +1,4 @@
+binaries-from-other-arch (binary): elf-error In ELF header: Section headers are not available! [usr/lib/foo/binaries-from-other-arch/guile/2.2/fake-guile-object.go]
+binaries-from-other-arch (binary): elf-error In ELF header: Section headers are not available! [usr/bin/elfobject]
+binaries-from-other-arch (binary): elf-error In ELF header: Reading 1080 bytes extends past end of file for section headers [usr/lib/foo/binaries-from-other-arch/guile/2.2/fake-guile-object.go]
+binaries-from-other-arch (binary): elf-error In ELF header: Reading 1080 bytes extends past end of file for section headers [usr/bin/elfobject]

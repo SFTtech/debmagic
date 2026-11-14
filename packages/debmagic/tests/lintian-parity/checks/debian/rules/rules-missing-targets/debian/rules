@@ -1,0 +1,5 @@
+#!/usr/bin/make -f
+
+# Missing build-arch/build-indep :)
+build clean binary binary-arch binary-indep:
+	dh $@

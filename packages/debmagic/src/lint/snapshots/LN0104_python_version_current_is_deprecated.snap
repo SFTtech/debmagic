@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): python-version-current-is-deprecated (LN0104) X-Python3-Version
+W: example (source): python-version-current-is-deprecated (LN0104) XS-Python-Version

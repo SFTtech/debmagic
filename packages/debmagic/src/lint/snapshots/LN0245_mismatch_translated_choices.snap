@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): mismatch-translated-choices (LN0245) debconf/select-empty-trans-choices Choices-Da [templates:3]
+E: example (binary): mismatch-translated-choices (LN0245) debconf/testmulti-escape Choices-de.UTF-8 [templates:3]
+E: example (binary): mismatch-translated-choices (LN0245) debconf/mixed Choices-fr [templates:3]

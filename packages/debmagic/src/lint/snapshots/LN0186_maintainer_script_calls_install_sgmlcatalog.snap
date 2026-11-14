@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): maintainer-script-calls-install-sgmlcatalog (LN0186) "install-sgmlcatalog" [postinst:2]
+E: example (binary): maintainer-script-calls-install-sgmlcatalog (LN0186) "install-sgmlcatalog" [postinst:3]
+E: example (binary): maintainer-script-calls-install-sgmlcatalog (LN0186) "install-sgmlcatalog" [prerm:2]
+E: example (binary): maintainer-script-calls-install-sgmlcatalog (LN0186) "install-sgmlcatalog" [postrm:2]
+E: example (binary): maintainer-script-calls-install-sgmlcatalog (LN0186) "install-sgmlcatalog" [postinst:2]
+E: example (binary): maintainer-script-calls-install-sgmlcatalog (LN0186) "install-sgmlcatalog" [postinst:2]
+E: example (binary): maintainer-script-calls-install-sgmlcatalog (LN0186) "install-sgmlcatalog" [postinst:3]
+E: example (binary): maintainer-script-calls-install-sgmlcatalog (LN0186) "install-sgmlcatalog" [postinst:3]
+E: example (binary): maintainer-script-calls-install-sgmlcatalog (LN0186) "install-sgmlcatalog" [config.sh:2]

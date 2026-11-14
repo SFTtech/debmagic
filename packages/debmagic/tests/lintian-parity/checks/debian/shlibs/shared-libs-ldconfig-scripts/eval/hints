@@ -1,0 +1,3 @@
+libuns1 (binary): symbols-file-missing-build-depends-package-field libuns.so.1 [symbols]
+libfoo1 (binary): symbols-file-missing-build-depends-package-field libfoo.so.1 [symbols]
+libfish1 (binary): symbols-file-missing-build-depends-package-field libfish.so.1 [symbols]

@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): systemd-alternatives (LN0301) "update-alternatives --install /lib/systemd" [postinst:2]
+E: example (binary): systemd-alternatives (LN0301) "update-alternatives --install /lib/udev" [postinst:3]
+E: example (binary): systemd-alternatives (LN0301) "update-alternatives --install /usr/lib/tmpfiles.d" [postinst:4]
+E: example (binary): systemd-alternatives (LN0301) "update-alternatives     --install /usr/lib/systemd" [postinst:3]
+E: example (binary): systemd-alternatives (LN0301) "update-alternatives --install /lib/sysusers.d" [postinst:2]
+E: example (binary): systemd-alternatives (LN0301) "update-alternatives --install /usr/lib/repart.d" [postinst:3]
+E: example (binary): systemd-alternatives (LN0301) "update-alternatives --install /lib/modules-load.d" [postinst:4]
+E: example (binary): systemd-alternatives (LN0301) "update-alternatives --install /lib/systemd" [postinst:2]
+E: example (binary): systemd-alternatives (LN0301) "update-alternatives --install /lib/udev" [prerm:3]

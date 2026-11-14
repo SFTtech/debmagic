@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): symlink-ends-with-slash (LN0069) /etc/lintian/ [usr/share/etc-lintian]
+W: example (binary): symlink-ends-with-slash (LN0069) ../menu/something/ [usr/lib/filenames/symlink9wrong]
+W: example (udeb): symlink-ends-with-slash (LN0069) foo// [usr/bin/tool]

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): mail-address-loops-or-bounces (LN0370) Maintainer ubuntu-devel-discuss@lists.ubuntu.com

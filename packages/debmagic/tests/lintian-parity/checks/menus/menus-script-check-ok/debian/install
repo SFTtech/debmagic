@@ -1,0 +1,5 @@
+debian/test-doc.txt  usr/share/doc/menus-script-check-ok
+debian/test-doc      usr/share/doc-base
+debian/test-menu     usr/share/menu
+debian/test-script   usr/bin
+debian/test-script.1 usr/share/man/man1

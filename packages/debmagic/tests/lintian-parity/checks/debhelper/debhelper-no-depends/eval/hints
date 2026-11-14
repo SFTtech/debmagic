@@ -1,0 +1,12 @@
+debhelper-no-depends (source): weak-dependency-on-misc-depends debhelper-suggests
+debhelper-no-depends (source): package-uses-deprecated-debhelper-compat-version 9
+debhelper-no-depends (source): package-uses-debhelper-but-lacks-build-depends [debian/rules]
+debhelper-no-depends (source): no-versioned-debhelper-prerequisite 9
+debhelper-no-depends (source): missing-build-dependency-for-dh_-command dh_strip_nondeterminism (does not satisfy dh-strip-nondeterminism:any) [debian/rules]
+debhelper-no-depends (source): missing-build-dependency-for-dh_-command dh_scour (does not satisfy scour:any) [debian/rules]
+debhelper-no-depends (source): missing-build-dependency-for-dh_-command dh_lisp (does not satisfy dh-lisp:any) [debian/rules]
+debhelper-no-depends (source): missing-build-dependency-for-dh_-command dh_gstscancodecs (does not satisfy libgstreamer1.0-dev:any) [debian/rules]
+debhelper-no-depends (source): missing-build-dependency-for-dh_-command dh_clideps (does not satisfy cli-common-dev:any) [debian/rules]
+debhelper-no-depends (source): debian-build-system dh [debian/rules]
+debhelper-no-depends (source): debhelper-compat-level 9
+debhelper-no-depends (source): debhelper-but-no-misc-depends debhelper-no-depends

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bad-menu-file-name (LN0133) [usr/share/menu/menu]
+E: example (binary): bad-menu-file-name (LN0133) [usr/lib/menu/menu]

@@ -1,0 +1,25 @@
+Source: description-mentions-planned-features
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: description-mentions-planned-features
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test for a packages mentioning upcoming features
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Foo will soon allow something.
+ Foo soon will allow something.
+ Foo soon will be able something.
+ Foo will soon be able something.
+ Foo will soon support something.
+ Foo SOON WILL SUPPORT something.
+ Support for foo is planned.
+ Support is also planned for foo.

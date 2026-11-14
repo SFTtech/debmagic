@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-quilt-control-dir (LN0151) [.pc/]
+W: example (source): debian-adds-quilt-control-dir (LN0151) [debian/.pc/]
+W: example (source): debian-adds-quilt-control-dir (LN0151) [src/.pc/]
+W: example (source): debian-adds-quilt-control-dir (LN0151) [debian/.pc/]
+W: example (source): debian-adds-quilt-control-dir (LN0151) [debian/.pc/]
+W: example (source): debian-adds-quilt-control-dir (LN0151) [.pc/]
+W: example (source): debian-adds-quilt-control-dir (LN0151) [.pc/]

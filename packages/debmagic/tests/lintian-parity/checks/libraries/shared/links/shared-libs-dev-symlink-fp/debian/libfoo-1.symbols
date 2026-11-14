@@ -1,0 +1,7 @@
+libfoo-1.so libfoo-1 #MINVER#
+ e@Base 1.0
+ energy@Base 0.9
+
+libbar-1.so libfoo-1 #MINVER#
+ e@Base 1.0
+ energy@Base 0.9

@@ -1,0 +1,20 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debian-rules-missing-required-target (LN0003) build-arch [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) build-indep [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) binary-arch [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) binary-indep [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) build-arch [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) build-indep [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) build-arch [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) build-indep [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) binary-arch [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) binary-indep [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) build [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) build-arch [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) build-indep [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) binary [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) binary-arch [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) binary-indep [debian/rules]
+E: example (source): debian-rules-missing-required-target (LN0003) clean [debian/rules]

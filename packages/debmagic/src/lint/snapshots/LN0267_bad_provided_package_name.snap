@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bad-provided-package-name (LN0267) a
+E: example (binary): bad-provided-package-name (LN0267) iNvAlId-NaMe
+E: example (binary): bad-provided-package-name (LN0267) BadName
+E: example (binary): bad-provided-package-name (LN0267) _foo
+E: example (binary): bad-provided-package-name (LN0267) -foo
+E: example (binary): bad-provided-package-name (LN0267) Foo
+E: example (udeb): bad-provided-package-name (LN0267) A

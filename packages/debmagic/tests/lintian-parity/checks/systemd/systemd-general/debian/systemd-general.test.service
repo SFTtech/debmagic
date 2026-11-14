@@ -1,0 +1,13 @@
+[Unit]
+After=network.target \
+syslog.target
+BindTo=foo
+
+[Service]
+ExecStartPre = /bin/true
+ExecStart=/usr/bin/test
+
+[Install]
+WantedBy=multi-user.target unusual.target
+Alias=systemd-aliasd.service
+Alias=anothertest

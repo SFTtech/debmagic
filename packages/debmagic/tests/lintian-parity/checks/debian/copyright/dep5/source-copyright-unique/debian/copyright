@@ -1,0 +1,36 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Doohickey
+Upstream-Contact: J. Random Hacker <j.r.hacker@example.com>
+Source: http://examples.com/doohickey/source/
+License: some-license
+ some license
+
+Files: *
+Copyright: 2014, somebody1
+License: some-license
+
+Files: code
+Copyright: none
+License: public-domain
+ this work is PD because I say so
+
+Files: code2
+Copyright: none
+License: public-domain
+ this work is also in the public domain
+
+Files: debian/*
+Copyright: 2014, somebody1
+License: other-license
+ this is a valid license short name
+ 
+Files: NEWS
+Copyright: 2014, somebody1
+License: other-license
+ this is a valid license short name 3
+
+License: other-license
+ other-license
+
+License: other-license
+ other-license 2

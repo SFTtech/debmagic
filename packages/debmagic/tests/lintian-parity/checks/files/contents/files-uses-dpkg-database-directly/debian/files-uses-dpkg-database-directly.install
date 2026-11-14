@@ -1,0 +1,6 @@
+test-1 var/lib/test
+test-2 var/lib/test
+README var/lib/test
+misc.txt var/lib/test
+test-1 usr/share/locale
+test-2 usr/share/locale

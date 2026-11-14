@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): symbols-file-contains-debian-revision (LN0340) on symbol energy@Base (libfoo.so.1) [symbols]
+W: example (binary): symbols-file-contains-debian-revision (LN0340) on symbol foo (libbaz.so.2) [symbols]
+W: example (binary): symbols-file-contains-debian-revision (LN0340) on symbol a@Base and 1 others (libfoo.so.1) [symbols]

@@ -1,0 +1,1 @@
+libfoo1 (binary): link-to-shared-library-in-wrong-package usr/lib/libfoo.so.1.0.1 [usr/lib/libfoo.so]

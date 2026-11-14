@@ -1,0 +1,97 @@
+# Manually maintained list of known source fields
+#  - please keep it sorted
+
+Architecture
+Binary
+Bugs
+Build-Conflicts
+Build-Conflicts-Arch
+Build-Conflicts-Indep
+Build-Depends
+Build-Depends-Arch
+Build-Depends-Indep
+Checksums-Md5
+Checksums-Sha1
+Checksums-Sha256
+
+# Allow for non-Debian profiles to specify the location of Debian VCSes
+#
+# NB: Do not rely on @if-vendor-is-not in your data files; it may
+# disappear without notice
+@if-vendor-is-not debian XS-Debian-Vcs-Arch
+@if-vendor-is-not debian XS-Debian-Vcs-Browser
+@if-vendor-is-not debian XS-Debian-Vcs-Bzr
+@if-vendor-is-not debian XS-Debian-Vcs-Cvs
+@if-vendor-is-not debian XS-Debian-Vcs-Darcs
+@if-vendor-is-not debian XS-Debian-Vcs-Git
+@if-vendor-is-not debian XS-Debian-Vcs-Hg
+@if-vendor-is-not debian XS-Debian-Vcs-Mtn
+@if-vendor-is-not debian XS-Debian-Vcs-Svn
+
+# Fields added by tag2upload
+Git-Tag-Info
+Git-Tag-Tagger
+
+# pending in policy via Bug#998165
+Description
+
+Dgit
+Dm-Upload-Allowed
+Files
+Format
+Homepage
+Maintainer
+Origin
+
+# Special-case, original-maintainer is not ok in Debian, but we allow
+# it in any non-Debian profile by default.
+#
+# NB: Do not rely on @if-vendor-is-not in your data files; it may
+# disappear without notice
+@if-vendor-is-not debian XSBC-Original-Maintainer
+
+Package-List
+Rules-Requires-Root
+Source
+Standards-Version
+Testsuite
+Testsuite-Restrictions
+Testsuite-Triggers
+Uploaders
+Vcs-Arch
+Vcs-Browser
+Vcs-Bzr
+Vcs-Cvs
+Vcs-Darcs
+Vcs-Git
+Vcs-Hg
+Vcs-Mtn
+Vcs-Svn
+Version
+
+# These fields require their X[BS]- prefix, see #999768. TODO: Then
+# again, these fields in here don't seem to make any difference in any
+# test, not even in
+#
+# t/recipes/checks/debian/control/field/adopted/control-file-golang-xs-go-import-path/build-spec/debian/control.in
+# t/recipes/checks/debian/control/field/adopted/control-file-source-upload-to-non-free-without-autobuild/build-spec/debian/control.in
+# t/recipes/checks/fields/unknown/fields-unknown-fields/build-spec/debian/control.in
+#
+# despite I would have expected an "unknown-field" tag being emitted
+# if used without X[BS]- prefix as they should according to the
+# comments in #999768.
+#
+# Run tests with:
+# private/runtests -o check:fields/unknown,check:archive/non-free/autobuild,check:debian/control/field/adopted
+
+X-Python-Version
+X-Python3-Version
+
+XB-Ruby-Versions
+
+# See https://bugs.debian.org/1014885 and
+# https://bugs.debian.org/1029471 for Lintian issues with specifically
+# the "XS-" prefix
+XS-Autobuild
+XS-Go-Import-Path
+XS-Ruby-Versions

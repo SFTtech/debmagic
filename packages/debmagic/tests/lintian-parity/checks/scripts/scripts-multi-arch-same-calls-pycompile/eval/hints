@@ -1,0 +1,3 @@
+pkg-same (binary): multi-arch-same-package-calls-pycompile [postinst:8]
+pkg-same (binary): multi-arch-same-package-calls-pycompile [postinst:7]
+pkg-same (binary): maintainer-script-interpreter /bin/sh [postinst]

@@ -1,0 +1,16 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): file-in-unusual-dir (LN0011) [weird]
+W: example (binary): file-in-unusual-dir (LN0011) [weird/file]
+W: example (binary): file-in-unusual-dir (LN0011) [usr/weird/file]
+W: example (binary): file-in-unusual-dir (LN0011) [usr/lib]
+W: example (binary): file-in-unusual-dir (LN0011) [usr/etc/example.conf]
+W: example (binary): file-in-unusual-dir (LN0011) [var/cache/example]
+W: example (binary): file-in-unusual-dir (LN0011) [var/log/example]
+W: example (binary): file-in-unusual-dir (LN0011) [usr/local/bin/example]
+W: example (binary): file-in-unusual-dir (LN0011) [usr/x86_64/example]
+W: example (binary): file-in-unusual-dir (LN0011) [libfoo/example]
+W: example (binary): file-in-unusual-dir (LN0011) [weird/link]
+W: example (binary): file-in-unusual-dir (LN0011) [stray]
+W: example (binary): file-in-unusual-dir (LN0011) [usr/bin-extra/file]

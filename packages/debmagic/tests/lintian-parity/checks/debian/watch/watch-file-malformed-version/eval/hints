@@ -1,0 +1,5 @@
+watch-file-malformed-version (source): debian-watch-not-mangling-version Matching-Pattern: @ANY_VERSION@ [debian/watch:5]
+watch-file-malformed-version (source): debian-watch-line-invalid Version: 4 [debian/watch:1]
+watch-file-malformed-version (source): debian-watch-lacks-sourceforge-redirector Source: https://ftp.sf.net/foo/foo_bar(.+)\.Z 5 [debian/watch:4]
+watch-file-malformed-version (source): debian-watch-does-not-check-openpgp-signature [debian/watch]
+watch-file-malformed-version (source): debian-watch-could-verify-download debian/upstream/signing-key.asc [debian/watch]

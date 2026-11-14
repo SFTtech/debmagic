@@ -1,0 +1,37 @@
+Source: fields-java
+Priority: optional
+Section: java
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), openjdk-6-doc, openjdk-6-jdk, java-compiler
+Rules-Requires-Root: no
+
+Package: libfields-java-java
+Architecture: all
+Depends: ${misc:Depends},
+         default-jre-headless | java-runtime-headless |
+         java2-runtime-headless | kaffe | gcj-jdk |
+         openjdk-6-jre | gcj-4.5-jre
+Suggests: libservlet2.5-java
+Recommends: libservlet3.0-java
+Description: General tests for java package (build) dependencies
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libfields-java-java-doc
+Architecture: all
+Section: doc
+Depends: ${misc:Depends}
+Recommends: openjdk-6-doc
+# Negative testing as well, this should not be triggered.
+Replaces: openjdk-6-doc
+Description: General tests for java package (build) dependencies - API
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Doc package.
+

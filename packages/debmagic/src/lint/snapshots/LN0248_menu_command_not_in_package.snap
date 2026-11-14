@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): menu-command-not-in-package (LN0248) usr/bin/not-here [usr/share/menu/example:1]
+W: example (binary): menu-command-not-in-package (LN0248) xfdisk [usr/share/menu/example:1]
+W: example (binary): menu-command-not-in-package (LN0248) imnothere [usr/lib/menu/example:1]
+W: example (binary): menu-command-not-in-package (LN0248) usr/bin/not-here [usr/share/menu/example:1]
+W: example (udeb): menu-command-not-in-package (LN0248) usr/bin/not-here [usr/share/menu/example:1]
+W: example (binary): menu-command-not-in-package (LN0248) usr/bin/not-here [usr/share/menu/example:1]
+W: menu-section (binary): menu-command-not-in-package (LN0248) usr/bin/pargs-section [usr/share/menu/menu-section:3]
+W: menu-section (binary): menu-command-not-in-package (LN0248) usr/bin/pargs-section [usr/share/menu/menu-section:6]
+W: menu-section (binary): menu-command-not-in-package (LN0248) usr/bin/pargs-section [usr/share/menu/menu-section:9]
+W: menu-section (binary): menu-command-not-in-package (LN0248) usr/bin/pargs-section [usr/share/menu/menu-section:12]
+W: menu-section (binary): menu-command-not-in-package (LN0248) usr/bin/pargs-section [usr/share/menu/menu-section:15]

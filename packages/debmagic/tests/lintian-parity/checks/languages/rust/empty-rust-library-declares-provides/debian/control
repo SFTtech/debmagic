@@ -1,0 +1,17 @@
+Source: empty-rust-library-declares-provides
+Priority: optional
+Section: libs
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: librust-path-abs+serde-derive-dev
+Architecture: all
+Depends: librust-path-abs-dev (= 0.5.0-1), librust-serde-derive-1+default-dev
+Provides: librust-path-abs-0+serde-derive-dev (= 0.5.0-1),
+ librust-path-abs-0.5+serde-derive-dev (= 0.5.0-1),
+ librust-path-abs-0.5.0+serde-derive-dev (= 0.5.0-1)
+Description: Ergonomic paths and files in rust - feature "serde_derive"
+ This metapackage enables feature "serde_derive" for the Rust path_abs crate, by
+ pulling in any additional dependencies needed by that feature.

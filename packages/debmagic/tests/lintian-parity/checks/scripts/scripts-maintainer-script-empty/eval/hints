@@ -1,0 +1,4 @@
+scripts-maintainer-script-empty (binary): maintainer-script-interpreter /bin/sh [prerm]
+scripts-maintainer-script-empty (binary): maintainer-script-interpreter /bin/sh [preinst]
+scripts-maintainer-script-empty (binary): maintainer-script-interpreter /bin/sh [postrm]
+scripts-maintainer-script-empty (binary): maintainer-script-interpreter /bin/sh [postinst]

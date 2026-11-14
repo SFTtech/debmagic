@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-depends-on-multiple-tcl-versions (LN0264) tcl74 tcl8.0 tcl8.2
+E: example (binary): package-depends-on-multiple-tcl-versions (LN0264) tcl8.0 tcl8.2
+E: example (binary): package-depends-on-multiple-tcl-versions (LN0264) tcl8.0 tcl8.2
+E: example (binary): package-depends-on-multiple-tcl-versions (LN0264) tcl8.4 tcl8.5
+E: example (udeb): package-depends-on-multiple-tcl-versions (LN0264) tcl8.3 tcl8.4

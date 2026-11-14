@@ -1,0 +1,8 @@
+Version: 5
+
+# This is test for filemangle along with other fields for repacking
+Source: https://codeberg.org/dnkl/foot/releases
+Matching-Pattern: .*/releases/tag/(\d\S+)
+Download-Url-Mangle: s/\/releases\/tag\/(\d\S+)$/\/archive\/$1\.tar\.gz/
+Dversion-Mangle: auto
+Filename-Mangle: s/.+\/tag\/(\d\S+)$/foot-$1\.tar\.gz/

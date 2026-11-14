@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): duplicate-in-shlibs (LN0341) (lines 1 2) libdoesntexist2 1.0 [shlibs]
+E: example (binary): duplicate-in-shlibs (LN0341) (lines 7 8) udeb: libdoesntexist2 1.0 [shlibs]
+E: example (udeb): duplicate-in-shlibs (LN0341) (lines 1 3) libfoo 1 [shlibs]

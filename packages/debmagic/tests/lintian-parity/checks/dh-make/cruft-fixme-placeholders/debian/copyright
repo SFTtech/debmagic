@@ -1,0 +1,8 @@
+This is part of the testsuite of lintian. See the file debian/copyright
+in the lintian source directory for more details.
+
+Insofar as this is copyrightable, it is:
+
+    Copyright 2017 Chris Lamb <lamby@debian.org>
+
+FIXME: Lintian should detect this text.

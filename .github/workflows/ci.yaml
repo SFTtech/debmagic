@@ -131,6 +131,10 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: "Install Rust toolchain"
         run: rustup show
+      # The Binary-package Parity tests build the lintian recipes with
+      # dpkg-buildpackage, whose rules call debhelper.
+      - name: "Install build tools for the Parity tests"
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends debhelper fakeroot
       - name: "Run tests"
         run: cargo test
 

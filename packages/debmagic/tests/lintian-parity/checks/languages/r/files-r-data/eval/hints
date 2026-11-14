@@ -1,0 +1,4 @@
+files-r-data (source): r-data-without-readme-source [src/test.rdata]
+files-r-data (source): r-data-without-readme-source [src/test.rda]
+files-r-data (source): r-data-without-readme-source [src/test.Rdata]
+files-r-data (source): r-data-without-readme-source [src/test.Rda]

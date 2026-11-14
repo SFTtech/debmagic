@@ -1,0 +1,22 @@
+#!/usr/bin/install-menu
+
+#   -*- mode: shell-script; -*-
+#I need menu-1!
+#
+
+!include notmenu.h
+ 
+compat="menu-2"
+
+outputencoding="UTF-8";
+outputlanguage="C";
+
+x11 = AppEntry("false");
+text = AppEntry("true");
+
+startmenu = "";
+endmenu = "";
+submenutitle = "";
+rootprefix = "/var/lib/lintian/menu";
+userprefix = ".local/share/lintian/menu";
+

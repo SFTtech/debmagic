@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): build-prerequisite-in-installable-section (LN0223) Build-Depends (in section for example) [debian/control:6]
+E: foo++ (source): build-prerequisite-in-installable-section (LN0223) Build-Depends (in section for foo++) [debian/control:5]
+E: example (source): build-prerequisite-in-installable-section (LN0223) Build-Depends-Indep (in section for example) [debian/control:5]
+E: example (source): build-prerequisite-in-installable-section (LN0223) Build-Conflicts (in section for example) [debian/control:6]
+E: example (source): build-prerequisite-in-installable-section (LN0223) Build-Conflicts-Indep (in section for example) [debian/control:7]
+E: example (source): build-prerequisite-in-installable-section (LN0223) Build-Depends (in section for example) [debian/control:5]
+E: example (source): build-prerequisite-in-installable-section (LN0223) Build-Depends (in section for left) [debian/control:5]
+E: example (source): build-prerequisite-in-installable-section (LN0223) Build-Conflicts (in section for right) [debian/control:11]

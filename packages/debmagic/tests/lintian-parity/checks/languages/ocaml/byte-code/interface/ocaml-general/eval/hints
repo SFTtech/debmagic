@@ -1,0 +1,5 @@
+libocaml-general-ocaml-dev (binary): ocaml-dangling-cmi [usr/lib/ocaml/foo.cmi]
+libocaml-general-ocaml-dev (binary): ocaml-dangling-cmi [usr/lib/ocaml/boo.cmi]
+libocaml-general-ocaml-dev (binary): ocaml-dangling-cmi [usr/lib/ocaml/baz.cmi]
+libocaml-general-ocaml-dev (binary): ocaml-dangling-cmi [usr/lib/ocaml/bar.cmi]
+libocaml-general-ocaml-dev (binary): ocaml-dangling-cmi [usr/lib/foo.cmi]

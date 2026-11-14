@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-calls-nproc (LN0218) [debian/rules:6]
+W: example (source): debian-rules-calls-nproc (LN0218) [debian/rules:6]
+W: example (source): debian-rules-calls-nproc (LN0218) [debian/rules:6]
+W: example (source): debian-rules-calls-nproc (LN0218) [debian/rules:6]
+W: example (source): debian-rules-calls-nproc (LN0218) [debian/rules:6]
+W: example (source): debian-rules-calls-nproc (LN0218) [debian/rules:6]
+W: example (source): debian-rules-calls-nproc (LN0218) [debian/rules:6]
+W: example (source): debian-rules-calls-nproc (LN0218) [debian/rules:6]
+W: example (source): debian-rules-calls-nproc (LN0218) [debian/rules:8]
+W: example (source): debian-rules-calls-nproc (LN0218) [debian/rules:7]

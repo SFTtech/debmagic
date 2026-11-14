@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+# Skip dh_install since there are braces in the install configuration file and
+# it would error out on at least some systems.
+override_dh_install:
+

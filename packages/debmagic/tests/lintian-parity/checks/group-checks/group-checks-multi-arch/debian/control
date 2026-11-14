@@ -1,0 +1,52 @@
+Source: group-checks-multi-arch
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: pkg-foreign
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test for multi-arch issues - pkg-foreign
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Should have been Multi-arch foreign package.
+
+Package: pkg-same
+Architecture: any
+Depends: ${misc:Depends}, pkg-foreign
+Multi-Arch: same
+Description: Test for multi-arch issues - pkg-same
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Multi-arch same package.
+
+Package: pkg-dbg
+Section: debug
+Architecture: any
+Depends: ${misc:Depends}, pkg-same (= ${binary:Version}),
+ pkg-foreign (>= ${source:Version})
+Description: Test for multi-arch issues - pkg-dbg
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Multi-arch <none> debug package.
+
+Package: python3-pkg-dbg
+Section: debug
+Architecture: any
+Depends: ${misc:Depends}, pkg-same (= ${binary:Version}),
+ pkg-foreign (>= ${source:Version})
+Description: Test for multi-arch issues - python-pkg-dbg
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ Multi-arch <none> Python "debug package" false positive.

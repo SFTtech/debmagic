@@ -1,0 +1,20 @@
+Source: fields-uploaders
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Uploaders: Mrs. Localhost <user@localhost.domain>,
+           John A. J. Doe <i.am.ok@somewhere.com>,
+           Valid email <0@somewhere.com>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: fields-uploaders
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: General tests of the uploaders field
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+

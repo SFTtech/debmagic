@@ -1,0 +1,9 @@
+site.py /usr/lib/python3/dist-packages
+tests.py /usr/lib/python3/dist-packages
+__init__.py /usr/lib/python3/dist-packages/doc/
+__init__.py /usr/lib/python3/dist-packages/docs/
+__init__.py /usr/lib/python3/dist-packages/test/
+__init__.py /usr/lib/python3/dist-packages/tests/
+__init__.py /usr/lib/python3/dist-packages/example/
+__init__.py /usr/lib/python3/dist-packages/examples/
+__init__.py /usr/lib/python3/dist-packages/false_positive/

@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+include /usr/share/dpkg/buildflags.mk
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	set -e; for X in none same foreign contrib; do \
+		install -d debian/libmultiarch-$$X-dev/usr/bin; \
+		install -d debian/libmultiarch-$$X-dev/var/lib/private; \
+		install -m 755 true debian/libmultiarch-$$X-dev/usr/bin/$$X; \
+		install -m 755 true debian/libmultiarch-$$X-dev/var/lib/private/$$X; \
+		install -m 755 script debian/libmultiarch-$$X-dev/usr/bin/$$X-script; \
+		install -m 755 script debian/libmultiarch-$$X-dev/var/lib/private/$$X-script; \
+	done
+
+override_dh_strip:
+	# Avoid symbol conflicts warnings
+	dh_strip --no-automatic-dbgsym

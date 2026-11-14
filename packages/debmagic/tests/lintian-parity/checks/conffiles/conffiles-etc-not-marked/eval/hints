@@ -1,0 +1,1 @@
+conffiles-etc-not-marked (binary): file-in-etc-not-marked-as-conffile [etc/something.conf]

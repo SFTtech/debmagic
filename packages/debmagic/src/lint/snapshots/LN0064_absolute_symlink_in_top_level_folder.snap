@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): absolute-symlink-in-top-level-folder (LN0064) /usr/share/lintian/data/data-file [usr/share/lintian/data/data-file.old]
+W: example (binary): absolute-symlink-in-top-level-folder (LN0064) /usr/lib/filenames/symlink2 [usr/lib/filenames/symlink3wrong]
+W: example (binary): absolute-symlink-in-top-level-folder (LN0064) /usr/share/doc/binary/htm/ch1.html [usr/share/doc/binary/html/ch3.html]

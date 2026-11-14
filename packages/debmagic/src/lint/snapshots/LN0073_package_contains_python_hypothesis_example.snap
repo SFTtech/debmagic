@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-python-hypothesis-example (LN0073) [usr/share/doc/python-hypothesis-example/.hypothesis/examples/show/]
+W: example (binary): package-contains-python-hypothesis-example (LN0073) [usr/share/doc/python-hypothesis-example/.hypothesis/examples/show/nothing]
+W: example (udeb): package-contains-python-hypothesis-example (LN0073) [usr/lib/pkg/.hypothesis/examples/show/x]

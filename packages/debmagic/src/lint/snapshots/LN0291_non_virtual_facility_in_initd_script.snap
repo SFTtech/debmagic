@@ -1,0 +1,19 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) mountall -> $local_fs [etc/init.d/init.d-lsb-headers]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) networking -> $network [etc/init.d/init.d-lsb-headers]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) sysklogd -> $syslog [etc/init.d/init.d-lsb-headers]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) portmap -> $portmap [etc/init.d/init.d-lsb-headers]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) mountnfs -> $remote_fs [etc/init.d/init.d-lsb-headers]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) mountall -> $local_fs [etc/init.d/mapped]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) mountnfs -> $remote_fs [etc/init.d/mapped]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) hwclock -> $time [etc/init.d/mapped]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) portmap -> $portmap [etc/init.d/mapped]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) named -> $named [etc/init.d/mapped]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) bind9 -> $named [etc/init.d/mapped]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) networking -> $network [etc/init.d/mapped]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) syslog -> $syslog [etc/init.d/mapped]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) rsyslog -> $syslog [etc/init.d/mapped]
+W: example (binary): non-virtual-facility-in-initd-script (LN0291) sysklogd -> $syslog [etc/init.d/mapped]
+W: example (udeb): non-virtual-facility-in-initd-script (LN0291) named -> $named [etc/init.d/udeb-script]

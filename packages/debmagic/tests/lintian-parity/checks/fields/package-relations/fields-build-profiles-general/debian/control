@@ -1,0 +1,21 @@
+Source: fields-build-profiles-general
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14),
+ big <stage1>, bpfail1 <foobar>,
+ bpcomplicated <stage1 nocheck> <cross> <!pkg.fields-build-profiles-general.foo>
+Rules-Requires-Root: no
+
+Package: fields-build-profiles-general-unknown-profile
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Build-Profiles: <!stage1 !nocheck> <!unknown> <pkg.fields-build-profiles-general.foo>
+Description: General tests for build profiles (unknown profile)
+ Check for unknown profile names
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

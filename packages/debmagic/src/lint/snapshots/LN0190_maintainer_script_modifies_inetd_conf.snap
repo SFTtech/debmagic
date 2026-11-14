@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): maintainer-script-modifies-inetd-conf (LN0190) [postinst:2]
+E: example (binary): maintainer-script-modifies-inetd-conf (LN0190) [postinst:3]
+E: example (binary): maintainer-script-modifies-inetd-conf (LN0190) [postinst:2]
+E: example (binary): maintainer-script-modifies-inetd-conf (LN0190) [postinst:2]
+E: example (binary): maintainer-script-modifies-inetd-conf (LN0190) [postinst:2]
+E: example (binary): maintainer-script-modifies-inetd-conf (LN0190) [postinst:2]

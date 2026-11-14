@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): missing-license-paragraph-in-dep5-copyright (LN0444) gpl-3 [debian/copyright:5]
+W: (source): missing-license-paragraph-in-dep5-copyright (LN0444) mit [debian/copyright:8]
+W: (source): missing-license-paragraph-in-dep5-copyright (LN0444) gpl-2 [debian/copyright:6]
+W: (source): missing-license-paragraph-in-dep5-copyright (LN0444) mit [debian/copyright:6]

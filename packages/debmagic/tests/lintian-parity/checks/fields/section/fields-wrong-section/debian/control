@@ -1,0 +1,254 @@
+Source: fields-wrong-section
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: fields-wrong-section
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections
+ Only here as valid dependency for fields-wrong-section-dbg.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: fields-wrong-section-doc
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (doc)
+ Test for doc section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: fields-wrong-section-dbg
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, fields-wrong-section (= ${binary:Version})
+Description: Packages placed in the wrong sections (debug)
+ Test for debug section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libfields-wrong-section-dev
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (dev)
+ Test for libdevel section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libfields-wrong-section-perl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (perl)
+ Test for perl section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: python-fields-wrong-section
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (Python)
+ Test for Python section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: python3-fields-wrong-section
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (Python 3)
+ Test for Python section for Python 3.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libfields-wrong-section-ocaml-dev
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (OCaml)
+ Test for OCaml section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libjs-fields-wrong-section
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (Javascript)
+ Test for web section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libghc-fields-wrong-section
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (Haskell)
+ Test for Haskell section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libfields-wrong-section-cil
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (CLI/Mono)
+ Test for CLI/Mono section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libphp-fields-wrong-section
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (PHP)
+ Test for PHP section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libfields-wrong-section-ruby1.8
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (Ruby)
+ Test for Ruby section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libfields-wrong-section-java
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (Java)
+ Test for Java section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: r-cran-fields-wrong-section
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (GNU R)
+ Test for GNU R section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libfields-wrong-section-oldlibs-dev
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Section: oldlibs
+Description: Packages placed in the wrong sections (oldlibs)
+ Test for oldlibs section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: fields-wrong-section-contrib-doc
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Section: contrib/devel
+Description: Packages placed in the wrong sections (contrib docs)
+ Test for suggestion for packages not in main.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: gir1.2-fields-wrong-section-0.1
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${gir:Depends}
+Description: Packages placed in the wrong sections (gir1.2-pkg)
+ Test for gir1.2 packages.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libnss-fields-wrong-section
+Architecture: all
+Section: web
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (NSS module)
+ Test for NSS modules.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: libpam-fields-wrong-section1
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Packages placed in the wrong sections (PAM module with number suffix)
+ Test for PAM modules.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: fonts-fields-wrong-section1
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: foreign
+Description: Packages placed in the wrong sections (fonts)
+ Test for font modules.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: xfonts-fields-wrong-section1
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: foreign
+Description: Packages placed in the wrong sections (xfonts)
+ Test for xfonts modules.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): missing-systemd-service-for-init.d-rcS-script (LN0234) boot [etc/init.d/boot]
+E: example (binary): missing-systemd-service-for-init.d-rcS-script (LN0234) foo [etc/init.d/foo]
+E: example (binary): missing-systemd-service-for-init.d-rcS-script (LN0234) foo [etc/init.d/foo.sh]
+E: example (udeb): missing-systemd-service-for-init.d-rcS-script (LN0234) udeb-boot [etc/init.d/udeb-boot]
+E: sysvinit (binary): missing-systemd-service-for-init.d-rcS-script (LN0234) early [etc/init.d/early]
+E: example (binary): missing-systemd-service-for-init.d-rcS-script (LN0234) comment [etc/init.d/comment]

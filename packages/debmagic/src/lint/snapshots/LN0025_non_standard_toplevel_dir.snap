@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): non-standard-toplevel-dir (LN0025) [new-top-level-dir/]
+E: example (binary): non-standard-toplevel-dir (LN0025) [build/]
+E: example (binary): non-standard-toplevel-dir (LN0025) [emul/]
+E: hurd-extra (binary): non-standard-toplevel-dir (LN0025) [emul/]
+E: example (udeb): non-standard-toplevel-dir (LN0025) [emul/]
+E: example (binary): non-standard-toplevel-dir (LN0025) [Usr/]

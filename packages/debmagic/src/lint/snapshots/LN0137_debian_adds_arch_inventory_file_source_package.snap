@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-arch-inventory-file (LN0137) [debian/.arch-inventory]
+W: example (source): debian-adds-arch-inventory-file (LN0137) [.arch-inventory]
+W: example (source): debian-adds-arch-inventory-file (LN0137) [.pc/.arch-inventory]

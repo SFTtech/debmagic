@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-python-dot-directory (LN0072) [usr/lib/python3/dist-packages/foo/.directory/]
+W: example (binary): package-contains-python-dot-directory (LN0072) [usr/lib/python3/dist-packages/foo/.directory/bar]
+W: example (binary): package-contains-python-dot-directory (LN0072) [usr/lib/python3/dist-packages/foo/.directory/foo]
+W: example (udeb): package-contains-python-dot-directory (LN0072) [usr/lib/python3/site-packages/pkg/.cache/x]

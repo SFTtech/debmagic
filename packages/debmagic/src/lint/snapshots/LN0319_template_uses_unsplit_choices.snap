@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): template-uses-unsplit-choices (LN0319) debconf/unsplit-choices [debian/templates:3]
+W: (source): template-uses-unsplit-choices (LN0319) debconf/second [debian/templates:7]
+W: example (source): template-uses-unsplit-choices (LN0319) debconf/unsplit-choices [debian/templates:2]
+W: example (source): template-uses-unsplit-choices (LN0319) debconf/testmulti-escape [debian/debconf-test.templates:2]
+W: example (source): template-uses-unsplit-choices (LN0319) other/choice [debian/other-pkg.templates:2]
+W: (source): template-uses-unsplit-choices (LN0319) debconf/still [debian/templates:2]
+W: (source): template-uses-unsplit-choices (LN0319) [debian/templates:2]

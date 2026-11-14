@@ -1,0 +1,6 @@
+version-substvars-general (source): version-substvar-for-external-package Replaces ${binary:Version} program-data -> other-foreign-pkg [debian/control:29]
+version-substvars-general (source): version-substvar-for-external-package Depends ${source:Version} program-data -> foreign-pkg [debian/control:26]
+version-substvars-general (source): not-binnmuable-any-depends-any program-utils -> program-bin
+version-substvars-general (source): not-binnmuable-any-depends-all program-utils -> program-data
+version-substvars-general (source): not-binnmuable-any-depends-all program-bin -> program-data
+version-substvars-general (source): not-binnmuable-all-depends-any program-data-extra -> program-bin

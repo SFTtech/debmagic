@@ -1,0 +1,169 @@
+# Known obsolete packages.  Not all packages are added to this list, only
+# ones for which it's helpful for Lintian to warn about, such as
+# significant transitions or transitional packages that we're trying to
+# remove from the archive.
+#
+# Each list of packages should be tagged with the last Debian release in
+# which the package appeared so that we can remove long-obsolete entries
+# that are no longer worth checking for.
+#
+# It is possible to specify a replacement (which need not be a package).
+# Examples:
+#   # Obsolete with no replacement
+#   <pkgX>
+#   # pkgY is replaced by <replacement>
+#   <pkgY> => <replacement>
+
+# Last seen in sarge.
+xlibs-dev
+exim => exim4
+
+# Last seen in etch.
+gcc-2.95
+apache => apache2
+
+# Last seen in lenny.
+cdrecord
+cupsys
+cupsys-bsd
+cupsys-client
+cupsys-common
+foomatic-data
+gaim
+gnomemeeting
+gs
+gs-aladdin
+gs-esp
+gs-gpl
+kernel-headers
+kernel-image
+kernel-image-2.4
+kernel-image-2.6
+kernel-source
+lambdamoo-core
+lambdamoo-server
+libcupsys2
+libcupsys2-dev
+libglu1-xorg
+libglu1-xorg-dev
+libmime-perl
+libungif4-dev
+libxerces28
+libxerces28-dev
+mkisofs
+netcdfg-dev
+pcmcia-cs
+python-pyopenssl
+ssh-krb5
+tetex-base
+tetex-bin
+tetex-extra
+x-dev
+xbase-clients
+xlibmesa-gl
+xlibmesa-gl-dev
+xlibmesa-glu
+xutils
+
+# Last seen in Squeeze
+default-jdk-builddep
+
+# Last seen in Wheezy
+fuse-utils
+ruby1.8
+libruby1.8
+
+# See: https://wiki.debian.org/Teams/DebianPerlGroup/OpenTasks/Transitions/DigestSHA1ToDigestSHA
+libdigest-sha1-perl
+
+# Deprecated in Jessie (#710466)
+texi2html
+
+# Deprecated versions of automake
+automake1.4
+automake1.5
+automake1.6
+automake1.7
+automake1.8
+automake1.9
+automake1.10
+
+# Deprecated in Jessie (#720911)
+openjdk-6-jdk
+openjdk-6-jre
+openjdk-6-jre-headless
+
+# Deprecated in Jessie (#711193)
+hardening-wrapper => use dpkg-buildflags instead
+hardening-includes => use dpkg-buildflags instead
+# Deprecated in Jessie (#746563)
+python-support => use dh_python2 instead
+
+# Deprecated in Jessie (#722084)
+ruby1.9.1
+ruby1.9.1-dev
+libruby1.9.1
+
+# Deprecated in Jessie (see #966498, #1126352)
+libgd-gd2-noxpm-perl => libgd-perl
+libgd-gd2-perl => libgd-perl
+
+# Deprecated in Forky (https://lists.debian.org/debian-devel/2026/05/msg00161.html)
+default-mysql-server => mariadb-server or mariadb-server-compat | mysql-server
+default-mysql-server-core => mariadb-server-core or mariadb-server-core | mysql-server-core
+default-mysql-client => mariadb-client or mariadb-client-compat | mysql-client
+default-mysql-client-core => mariadb-client-core or mariadb-client-core | mysql-client-core
+default-libmysqlclient-dev => libmariadb-dev or libmariadb-dev-compat | libmysqlclient-dev
+
+# Deprecated in Stretch (#872076)
+dh-systemd => use debhelper (>= 9.20160709)
+
+# Adobe Flash
+mtasc
+libjs-swfobject
+
+# Deprecated in stretch
+libavresample-dev => libswresample-dev
+liblircclient-dev => liblirc-dev
+
+# Any::Moose, see https://bugs.debian.org/960909
+libany-moose-perl
+
+# Deprecated in buster
+apt-transport-https => apt
+e2fslibs-dev => libext2fs-dev
+libncurses5-dev => libncurses-dev
+libncursesw5-dev => libncurses-dev
+libpango1.0-0 => libpango-1.0-0, libpangocairo-1.0-0, libpangoft2-1.0-0 and/or libpangoxft-1.0-0
+libsensors4-dev => libsensors-dev
+libservlet3.1-java => libservlet-api-java
+libtinfo-dev => libncurses-dev
+
+# Deprecated in bullseye
+bsdmainutils => bsdextrautils and/or ncal
+libfontconfig1-dev => libfontconfig-dev
+libfreetype6-dev => libfreetype-dev
+libgdk-pixbuf2.0-0 => libgdk-pixbuf-2.0-0 and optionally libgdk-pixbuf-xlib-2.0-0
+libgdk-pixbuf2.0-dev => libgdk-pixbuf-2.0-dev and optionally libgdk-pixbuf-xlib-2.0-dev
+libgl1-mesa-dev => libgl-dev
+libshout3-dev => libshout-dev
+libtiff5-dev => libtiff-dev
+libxcb-util0-dev => libxcb-util-dev
+
+# Deprecated in bookworm
+libgsasl7-dev => libgsasl-dev
+libidn11-dev => libidn-dev
+policykit-1 => polkitd and optionally pkexec
+lsb-base
+pkg-config => pkgconf
+
+# Deprecated in trixie
+gnome-common => https://wiki.gnome.org/Projects/GnomeCommon/Migration
+python3-pdm-pep517 => python3-pdm-backend
+dh-buildinfo
+python3-tz => python3-pytz
+
+# Deprecated in forky
+# https://lists.debian.org/debian-devel/2025/08/msg00150.html
+libgirepository1.0-dev => gobject-introspection (>= 1.80), gir1.2-*-dev, rarely libgirepository-1.0-dev
+libselinux1-dev => libselinux-dev

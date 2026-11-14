@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+TMP=debian/$(shell dh_listpackages)
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	:>$(TMP)/DEBIAN/md5sums
+	dh_builddeb

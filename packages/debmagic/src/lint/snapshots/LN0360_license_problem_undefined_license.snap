@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): license-problem-undefined-license (LN0360) fixme [debian/copyright:4]
+E: (source): license-problem-undefined-license (LN0360) unknown [debian/copyright:4]
+E: (source): license-problem-undefined-license (LN0360) unknow [debian/copyright:4]
+E: (source): license-problem-undefined-license (LN0360) todo [debian/copyright:4]
+E: (source): license-problem-undefined-license (LN0360) - [debian/copyright:4]
+E: (source): license-problem-undefined-license (LN0360) undefined license [debian/copyright:4]
+E: (source): license-problem-undefined-license (LN0360) undefined [debian/copyright:4]
+E: (source): license-problem-undefined-license (LN0360) todo [debian/copyright:4]
+E: (source): license-problem-undefined-license (LN0360) my-unknown-license [debian/copyright:4]
+E: (source): license-problem-undefined-license (LN0360) undefine [debian/copyright:4]

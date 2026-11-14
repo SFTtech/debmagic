@@ -1,0 +1,1 @@
+libfoo1 (binary): lacks-unversioned-link-to-shared-library example: usr/lib/libfoo.so [usr/lib/libfoo.so.1.0.1]

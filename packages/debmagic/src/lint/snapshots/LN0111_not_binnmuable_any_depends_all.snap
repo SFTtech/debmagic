@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): not-binnmuable-any-depends-all (LN0111) program-bin -> program-data
+E: example (source): not-binnmuable-any-depends-all (LN0111) program-utils -> program-data

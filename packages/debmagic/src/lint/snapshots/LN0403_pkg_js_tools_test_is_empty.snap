@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): pkg-js-tools-test-is-empty (LN0403) [debian/tests/pkg-js/test]
+W: example (source): pkg-js-tools-test-is-empty (LN0403) [debian/tests/pkg-js/test]
+W: example (source): pkg-js-tools-test-is-empty (LN0403) [debian/tests/pkg-js/test]

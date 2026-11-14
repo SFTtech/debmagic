@@ -1,0 +1,29 @@
+Source: files-pkgconfig
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: pkgconfig-all
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Contains test file for pkgconfig arch all
+ This is a test package designed to exercise some feature or tag of
+ Lintian for arch all pkgconfig files.
+ It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: pkgconfig-any
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Contains test file for pkgconfig arch any
+ This is a test package designed to exercise some feature or tag of
+ Lintian for arch any pkgconfig files.
+ It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

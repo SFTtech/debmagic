@@ -1,0 +1,265 @@
+Source: copyright-file-general
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: copyright-iso-8859-1
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks for non-utf-8-encodings
+ Tests non-UTF-8 encodings.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-full-gpl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks inclusion of GPL in full text
+ Tests the tag for including all of the GPL.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-full-lgpl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks inclusion of LGPL in full text
+ Tests the tag for including all of the LGPL.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-full-gfdl
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks inclusion of GFDL in full text
+ Tests the tag for including all of the GFDL.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-full-apache-2
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks inclusion of Apache 2.0 in full text
+ Tests the tag for including all of the Apache 2.0 license.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-misc-errors
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks various errors in copyright files
+ Tests various random errors in copyright files.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-symlink
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: just use a symlink for the copyright file
+ Tests the check for a symlinked copyright file.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-compressed
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: include a valid copyright file and compress it
+ Tests the check for a compressed copyright file.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-old-style
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: use an old-style directory structure
+ Tests a copyright file using an old-style directory structure.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-full-gpl-1
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks inclusion of GPL1
+ This should trigger errors as GPL1 is in the common license dir.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-full-gpl-2
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks inclusion of GPL2
+ This should trigger errors as GPL2 is in the common license dir.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-php
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks problematic PHP licenses
+ The PHP licenses are problematic for any software that isn't PHP.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-w3c
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks inclusion of the W3C license
+ The W3C license text claims to be "GPL compatible", which shouldn't
+ trigger warnings.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-no-errors
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: this should not emit any error
+ This copyright file should be fine.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-versionless
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks a valid versionless GPL reference
+ Refers to the GPL and truly doesn't mention any version.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-missing-perl-license-pointer
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks for perl packages not pointing to common-licenses
+ Packages under the "same terms as Perl itself" should reference a
+ license in common-licenses.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-missing-apache2-license-pointer
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks for apache2 packages not pointing to common-licenses
+ Packages under the apache2-license should reference a
+ license in common-licenses.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-poor-common-licenses
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks not referring to common licenses
+ Packages should refer to common licenses with full path if they
+ use a common license.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-crln
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: check for Windows newlines
+ This package should trigger a tag for having Windows newlines in
+ the copyright file.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-full-agpl-3
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks inclusion of AGPL-3 in full text
+ This should not trigger a tag as AGPL-3 is not in common-licenses.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-old-fsf
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks use of old FSF address
+ This should trigger a tag for using old FSF address.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-old-fsf-2
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks use of old FSF address
+ This should trigger a tag for using old FSF address.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: copyright-old-fsf-3
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: checks use of old FSF address
+ This should trigger a tag for using old FSF address.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): file-in-usr-lib-sgml (LN0394) [usr/lib/sgml/package]
+W: example (binary): file-in-usr-lib-sgml (LN0394) [usr/lib/sgml/bar]
+W: example (binary): file-in-usr-lib-sgml (LN0394) [usr/lib/sgml/dir]
+W: example (udeb): file-in-usr-lib-sgml (LN0394) [usr/lib/sgml/nested/file]

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-installs-appimage (LN0213) [usr/share/appimage-file/dodgy-software.AppImage]
+E: example (binary): package-installs-appimage (LN0213) [usr/bin/app.appimage]
+E: example (binary): package-installs-appimage (LN0213) [usr/bin/dodgy-software]
+E: example (binary): package-installs-appimage (LN0213) [usr/bin/tool.AppImage]
+E: example (binary): package-installs-appimage (LN0213) [usr/bin/tool.AppImage]
+E: example (udeb): package-installs-appimage (LN0213) [usr/bin/linked.AppImage]

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# This file should not be triggered by script-without-interpreter
+
+set -e
+
+true
+
+#DEBHELPER#

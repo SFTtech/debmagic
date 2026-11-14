@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): space-in-std-shortname-in-dep5-copyright (LN0121) some space license [debian/copyright:6]
+W: (source): space-in-std-shortname-in-dep5-copyright (LN0121) this | that [debian/copyright:6]

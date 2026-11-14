@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unknown-file-in-python-module-directory (LN0386) [usr/lib/python3/dist-packages/__init__.py]
+E: example (binary): unknown-file-in-python-module-directory (LN0386) [usr/lib/python3/dist-packages/bad]
+E: example (binary): unknown-file-in-python-module-directory (LN0386) [usr/lib/python3.2/site-packages/python-foo]
+E: example (binary): unknown-file-in-python-module-directory (LN0386) [usr/lib/python3/dist-packages/mod.pyc.bak]

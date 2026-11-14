@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): undocumented-manual-page (LN0272) [usr/share/man/de/man1/rel.1.gz]
+W: example (binary): undocumented-manual-page (LN0272) [usr/share/man/man1/rel.1.gz]
+W: example (binary): undocumented-manual-page (LN0272) [usr/share/man/man1/share.1.gz]
+W: example (binary): undocumented-manual-page (LN0272) [usr/share/man/man1/up.1.gz]
+W: example (binary): undocumented-manual-page (LN0272) [usr/share/man/man1/usr.1.gz]
+W: example (binary): undocumented-manual-page (LN0272) [usr/share/man/man2/foo.2.gz]
+W: example (binary): undocumented-manual-page (LN0272) [usr/share/man/man3/foo.3.gz]
+W: example (binary): undocumented-manual-page (LN0272) [usr/share/man/man7/extra.7.gz]
+W: example (binary): undocumented-manual-page (LN0272) [usr/share/man/man7/foo.7.gz]

@@ -1,0 +1,5 @@
+binary (binary): no-manual-page [usr/bin/static-hello]
+binary (binary): no-manual-page [usr/bin/iminusrbin]
+binary (binary): no-manual-page [usr/bin/hello]
+binary (binary): no-manual-page [usr/bin/hello.static]
+binary (binary): no-manual-page [usr/bin/hello-static]

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+### BEGIN INIT INFO
+# Provides:  init.d-lsb-headers-parsing
+# Required-Start:	$local_fs
+# Required-Stop:$local_fs
+# Default-Start:    0
+# Default-Stop:		0
+# Short-Description: Do nothing at all
+# Description: The short description pretty much covers it.
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+case "$1" in
+    start|stop|force-reload|restart|status|*)
+	echo hello world!
+    ;;
+esac

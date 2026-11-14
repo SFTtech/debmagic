@@ -1,0 +1,3 @@
+debhelper-compat-missing (source): package-uses-deprecated-debhelper-compat-version 1
+debhelper-compat-missing (source): debian-build-system dh [debian/rules]
+debhelper-compat-missing (source): debhelper-base-compat-level-is-missing

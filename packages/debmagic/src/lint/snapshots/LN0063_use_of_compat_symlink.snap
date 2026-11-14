@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): use-of-compat-symlink (LN0063) [usr/spool/]
+E: example (binary): use-of-compat-symlink (LN0063) [usr/spool/mail]
+E: example (binary): use-of-compat-symlink (LN0063) [usr/tmp/]
+E: example (binary): use-of-compat-symlink (LN0063) [usr/tmp/x]
+E: example (binary): use-of-compat-symlink (LN0063) [usr/doc/X11/]
+E: example (binary): use-of-compat-symlink (LN0063) [usr/doc/X11/y]
+E: example (binary): use-of-compat-symlink (LN0063) [usr/bin/X11/]
+E: example (binary): use-of-compat-symlink (LN0063) [usr/bin/X11/y]
+E: example (binary): use-of-compat-symlink (LN0063) [var/adm/]
+E: example (binary): use-of-compat-symlink (LN0063) [var/adm/log]
+E: example (udeb): use-of-compat-symlink (LN0063) [usr/tmp/x]

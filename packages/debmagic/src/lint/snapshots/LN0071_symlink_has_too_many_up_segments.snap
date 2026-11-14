@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): symlink-has-too-many-up-segments (LN0071) ../..//..//..//../etc/lintian/pkg.conf [usr/share/lintian/data/pkg.conf]
+E: example (binary): symlink-has-too-many-up-segments (LN0071) ../../../../etc/symlink [usr/lib/filenames/symlink2wrong]
+E: example (udeb): symlink-has-too-many-up-segments (LN0071) ../../x [a/link]

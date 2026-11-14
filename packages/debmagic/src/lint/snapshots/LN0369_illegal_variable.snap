@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): illegal-variable (LN0369) DEB_BUILD_MULTIARCH [debian/install]
+E: example (source): illegal-variable (LN0369) DEB_BUILD_MULTIARCH [debian/links]
+E: example (source): illegal-variable (LN0369) DEB_BUILD_MULTIARCH [debian/example.install]

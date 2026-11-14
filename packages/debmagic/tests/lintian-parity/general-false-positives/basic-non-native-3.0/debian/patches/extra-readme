@@ -1,0 +1,9 @@
+A simple patch applied by dpkg-source
+
+--- upstream.orig/README
++++ upstream/README
+@@ -1 +1,4 @@
+ README
++
++These are some lines added in the Debian package via a quilt patch
++applied by dpkg-source.

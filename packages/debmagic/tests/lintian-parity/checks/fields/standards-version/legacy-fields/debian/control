@@ -1,0 +1,28 @@
+Source: fields
+Section: does-not-exist
+Priority: standard
+Maintainer: Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 3.9.2
+
+Package: fields
+Essential: no
+Architecture: all
+Depends: python-minimal
+Description: Generate some errors
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: another-version
+Essential: yes
+Section: admin
+Architecture: all
+Description: Also generate some errors
+ This package gets another version number and tries to sneak in a new
+ essential package.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

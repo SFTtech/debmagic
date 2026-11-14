@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): too-long-extended-description-in-templates (LN0320) debconf/long [templates:3]
+W: example (binary): too-long-extended-description-in-templates (LN0320) debconf/wrap [templates:3]
+W: example (udeb): too-long-extended-description-in-templates (LN0320) debconf/long [templates:3]

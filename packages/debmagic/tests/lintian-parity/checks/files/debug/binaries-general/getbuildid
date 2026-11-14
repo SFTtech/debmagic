@@ -1,0 +1,30 @@
+#!/bin/sh
+# get build-id of binary
+
+set -e
+
+usage() {
+    echo "Usage: getbuildid [flag] file";
+    echo "       print build-id of an object file"
+    echo "flags:"
+    echo "  -f : full build-id (default)."
+    echo "  -s : short build-id aka the first two characters."
+}
+
+if test $# -lt 1; then usage; exit 77; fi
+if test $# -gt 3; then usage; exit 77; fi
+
+if test $# -eq 1; then
+ LC_ALL=C readelf -n "$1" |  grep -i 'Build Id:' | sed 's/.*:[[:blank:]]*\([[:digit:]|abcdef]*\).*/\1/g'
+else
+ case "x$1" in
+     'x-f')
+	LC_ALL=C readelf -n "$2" |  grep -i 'Build Id:' | sed 's/.*:[[:blank:]]*\([[:digit:]|abcdef]*\).*/\1/g' ;;
+     'x-s')
+	LC_ALL=C readelf -n "$2" |  grep -i 'Build Id:' | sed 's/.*:[[:blank:]]*\([[:digit:]|abcdef]\{2\}\).*/\1/g' ;;
+     *)
+	exit 2;
+ esac
+fi
+
+exit 0;

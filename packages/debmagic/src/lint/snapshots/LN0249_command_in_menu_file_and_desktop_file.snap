@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): command-in-menu-file-and-desktop-file (LN0249) foo [usr/share/menu/example:1]
+W: example (binary): command-in-menu-file-and-desktop-file (LN0249) pargs-section [usr/share/menu/menu-section:3]
+W: example (binary): command-in-menu-file-and-desktop-file (LN0249) pargs-section [usr/share/menu/menu-section:6]
+W: example (binary): command-in-menu-file-and-desktop-file (LN0249) pargs-section [usr/share/menu/menu-section:9]
+W: example (binary): command-in-menu-file-and-desktop-file (LN0249) pargs-section [usr/share/menu/menu-section:12]
+W: example (binary): command-in-menu-file-and-desktop-file (LN0249) pargs-section [usr/share/menu/menu-section:15]
+W: example (binary): command-in-menu-file-and-desktop-file (LN0249) foo [usr/lib/menu/example:1]

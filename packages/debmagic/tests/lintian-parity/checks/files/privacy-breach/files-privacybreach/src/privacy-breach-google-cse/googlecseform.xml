@@ -1,0 +1,20 @@
+<!-- example from pstoedit -->
+<div class="cse-branding-bottom" style="background-color:#FFFFFF;color:#000000">
+<div class="cse-branding-form">
+<form action="http://www.helga-glunz.homepage.t-online.de/pstoedit/" id="cse-search-box">
+<div>
+<input type="hidden" name="cx" value="partner-pub-2239328204426644:3mybph-3n0p" />
+<input type="hidden" name="cof" value="FORID:10" />
+<input type="hidden" name="ie" value="ISO-8859-1" />
+<input type="text" name="q" size="31" />
+<input type="submit" name="sa" value="Search" />
+</div>
+</form>
+</div>
+<div class="cse-branding-logo">
+<img src="poweredby_FFFFFF.gif" alt="Google" width="56" height="20" />
+</div>
+<div class="cse-branding-text">
+Custom Search
+</div>
+</div>

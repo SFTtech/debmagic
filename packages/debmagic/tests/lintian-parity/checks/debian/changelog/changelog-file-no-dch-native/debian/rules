@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_md5sums:
+	find debian/*/ -type f -a -iname 'changelog.*' -delete
+	dh_md5sums

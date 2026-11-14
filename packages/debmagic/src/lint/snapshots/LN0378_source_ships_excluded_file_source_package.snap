@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): source-ships-excluded-file (LN0378) some-file [debian/copyright:2]

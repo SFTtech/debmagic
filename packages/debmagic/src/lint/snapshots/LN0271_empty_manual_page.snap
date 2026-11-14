@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): empty-manual-page (LN0271) [usr/share/man/de/man1/empty.1]
+E: example (binary): empty-manual-page (LN0271) [usr/share/man/man1/empty.1]
+E: example (binary): empty-manual-page (LN0271) [usr/share/man/man1/hard.1]
+E: example (binary): empty-manual-page (LN0271) [usr/share/man/man1/short.1]
+E: example (binary): empty-manual-page (LN0271) [usr/share/man/man1/touched.1.gz]
+E: example (binary): empty-manual-page (LN0271) [usr/share/man/man1/zero.1]
+E: example (binary): empty-manual-page (LN0271) [usr/share/man/man6/games.6.gz]

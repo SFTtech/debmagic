@@ -1,0 +1,6 @@
+fields-mua (source): default-mta-dependency-does-not-specify-mail-transport-agent Build-Depends: debhelper-compat (= 14), default-mta
+fields-mua-bad-2 (binary): mail-transport-agent-dependency-does-not-specify-default-mta Depends: exim4 | postfix | mail-transport-agent
+fields-mua-bad-2 (binary): default-mta-dependency-not-listed-first Pre-Depends: exim4 | default-mta | mail-transport-agent
+fields-mua-bad-1 (binary): virtual-package-depends-without-real-package-depends Pre-Depends: mail-transport-agent
+fields-mua-bad-1 (binary): mail-transport-agent-dependency-does-not-specify-default-mta Pre-Depends: mail-transport-agent
+fields-mua-bad-1 (binary): default-mta-dependency-does-not-specify-mail-transport-agent Depends: default-mta, exim4, nullmailer

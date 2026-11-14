@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): epoch-changed-but-upstream-version-did-not-go-backwards (LN0306) 1.0-1 -> 1:1.0-1 [debian/changelog:1]
+E: example (source): epoch-changed-but-upstream-version-did-not-go-backwards (LN0306) 1:0.9-4 -> 2:1.0-3 [debian/changelog:1]

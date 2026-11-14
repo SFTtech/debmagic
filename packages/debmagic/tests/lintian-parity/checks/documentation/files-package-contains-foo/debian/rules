@@ -1,0 +1,73 @@
+#!/usr/bin/make -f
+
+PKG  :=$(shell dh_listpackages)
+SHARE:= debian/$(PKG)/usr/share
+DATA := $(SHARE)/$(PKG)
+DOC  := $(SHARE)/doc/$(PKG)
+
+%:
+	dh $@
+
+override_dh_install:
+	dh_install
+	mkdir -p $(DOC) $(DATA)
+
+	# Vcs stuff
+	mkdir $(DATA)/.svn $(DATA)/.git
+	touch $(DATA)/.svn/file
+	touch $(DATA)/.git/file
+	touch $(DATA)/.gitignore
+	touch $(DATA)/.git_ignore
+	mkdir $(DATA)/sub-git1/
+	echo '*.old' | gzip -9n > $(DATA)/sub-git1/.gitignore.gz
+	touch $(DATA)/sub-git1/.gitattributes
+	touch $(DATA)/sub-git1/.gitmodules
+
+	touch $(DATA)/svn-commit-yeehaa.tmp
+	touch $(DATA)/svk-commit-yeehaa.tmp
+
+	# bts control dir
+	mkdir $(DATA)/.be
+	touch $(DATA)/.be/file
+
+	# macos stuff
+	touch $(DATA)/.DS_Store
+	touch $(DATA)/._stuff
+
+	# windows
+	touch $(DATA)/Thumbs.db
+
+	# Foreign READMEs
+	echo "Hallo World Mac" > $(DOC)/README.mac
+	echo "Hallo World Win" > $(DOC)/README.windows
+
+	# Linda override
+	mkdir -p $(SHARE)/linda/overrides
+	touch $(SHARE)/linda/overrides/$(PKG)
+
+	# CMake private files
+	mkdir -p $(SHARE)/cmake-3.1/Modules
+	touch $(SHARE)/cmake-3.1/FindFoo.cmake
+	touch $(SHARE)/cmake-3.1/Modules/FindVar.cmake
+
+	# Ignored Cargo sources
+	mkdir -p $(SHARE)/cargo/registry/crate-1.0.0/templates
+	touch $(SHARE)/cargo/registry/crate-1.0.0/.gitignore
+	touch $(SHARE)/cargo/registry/crate-1.0.0/LICENSE
+	touch $(SHARE)/cargo/registry/crate-1.0.0/templates/readme.tmpl
+	mkdir -p $(SHARE)/cargo/registry/crate-1.0.0/foo_templates
+	touch $(SHARE)/cargo/registry/crate-1.0.0/foo_templates/readme.tmpl
+	mkdir -p $(SHARE)/cargo/registry/crate-1.0.0/my-templates.d
+	touch $(SHARE)/cargo/registry/crate-1.0.0/my-templates.d/readme.tmpl
+	echo '#!/bin/sh' > $(SHARE)/cargo/registry/crate-1.0.0/test.sh
+	echo '#!/usr/bin/python' > $(SHARE)/cargo/registry/crate-1.0.0/test.py
+	chmod a+x $(SHARE)/cargo/registry/crate-1.0.0/test.py
+
+	# Documentation outside /usr/share/doc
+	touch $(DATA)/readme.txt
+	touch $(DATA)/readme1.1.txt
+	touch $(DATA)/readme1.1.txt
+	touch $(DATA)/readme_1.1.txt
+	touch $(DATA)/readme-1.1.txt
+	touch $(DATA)/readmefirst.txt
+	touch $(DATA)/readMesh_off.m  # False-positive from #914500

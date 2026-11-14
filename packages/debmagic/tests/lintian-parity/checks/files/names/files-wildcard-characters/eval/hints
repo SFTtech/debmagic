@@ -1,0 +1,2 @@
+files-wildcard-characters (binary): file-name-contains-wildcard-character [usr/share/files-wildcard-characters/star*]
+files-wildcard-characters (binary): file-name-contains-wildcard-character [usr/share/files-wildcard-characters/question-mark?]

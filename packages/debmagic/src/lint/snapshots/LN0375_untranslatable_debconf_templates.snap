@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): untranslatable-debconf-templates (LN0375) [debian/templates:3]
+E: example (source): untranslatable-debconf-templates (LN0375) [debian/templates.fr:2]
+E: example (source): untranslatable-debconf-templates (LN0375) [debian/example.templates:2]

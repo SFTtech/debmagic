@@ -32,7 +32,8 @@ src/*/*.lock
 /test
 /build-area
 /build-debmagic
-*.snap
+# snapcraft output (repo root only; insta snapshots in src/**/snapshots/ are tracked)
+/*.snap
 
 # ides
 .idea

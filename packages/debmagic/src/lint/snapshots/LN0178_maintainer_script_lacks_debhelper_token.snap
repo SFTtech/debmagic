@@ -1,0 +1,17 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/postinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/example.postinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/postinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/postrm]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/preinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/prerm]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/postinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/postinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/postinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/postinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/postinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/example.postinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/postinst]
+W: example (source): maintainer-script-lacks-debhelper-token (LN0178) [debian/other.postinst]

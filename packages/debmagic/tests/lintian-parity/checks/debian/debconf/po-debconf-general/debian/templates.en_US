@@ -1,0 +1,5 @@
+Template: po-debconf-general/test
+Type: string
+Default: foo
+_Description: This is an English translation that shouldn't be in this
+ directory.

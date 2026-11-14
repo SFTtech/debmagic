@@ -1,0 +1,118 @@
+Source: control-file-general
+Priority: optional
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14),
+ fiddle [amd64 powerpc mips mipsel hppa s390],
+ faddle
+ (>>
+ 2) [
+ sparc i386 amd64
+ ]
+Build-Depends-Indep: perl (> 5.8)
+Rules-Requires-Root: no
+XS-Vcs-Svn: https://svn.example.com/control-file-general/trunk
+#Vcs-Git: git://git.debian.org/collab-maint/<pkg>.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/<pkg>.git;a=summary
+
+Package: control-file-general
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Build-Conflicts: foo
+Architecture: all
+Pre-depends: ${misc:Pre-depends}, multiarch-support
+Depends: control-file-general, foo, baz, ${shlibs:Depends} ${some:Depends}, ${misc:Depends}
+Recommends: foo, bar, no-match${lintian:Foo}, match${lintian:Match}, no-match${lintian:Bar}-foo
+Suggests: bar | baz, no-match${lintian:Bar}, match${lintian:Match}
+Description: Various problems with debian/control
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: control-file-general-1
+Section: devel
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Breaks: libsqlite3-0 (< 3.6.12)
+Description: Various problems with debian/control
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: control-file-general-2
+Section: devel
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Various problems with debian/control (two)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: control-file-general-3
+Section: devel
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, foo (>= 1),
+  baz (<< 2),
+  fizz (= 2.0), gcc-${pv:gcc} ${reqv:gcc}
+Description: Various problems with debian/control (three)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: control-file-general-4
+Section: devel
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, foo |
+  bar (>= 1), baz
+Description: Various problems with debian/control (four)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: control-file-general-5
+Section: devel
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Description: Various problems with debian/control
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: control-file-general-dbgsym
+Section: debug
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Description: dbg-sym
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: control-file-general-dbg
+Section: debug
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Description: debug
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: control-file-general-udeb
+Section: debian-installer
+Package-Type: udeb
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Various problems with debian/control (udeb)
+ udeb tests.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

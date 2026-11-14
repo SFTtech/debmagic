@@ -1,0 +1,1 @@
+scripts-udevadm-called-without-guard-unrel (binary): maintainer-script-interpreter /bin/sh [postinst]

@@ -1,0 +1,1 @@
+libbaz1 (binary): lacks-ldconfig-trigger usr/lib/libbaz.so usr/lib/libbaz3.so.1.0.3b usr/lib/libfoo2.so.1.0.3b

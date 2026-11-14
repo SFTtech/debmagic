@@ -1,0 +1,3 @@
+changelog-version-special-chars (source): hyphen-in-upstream-part-of-debian-changelog-version 1.5+important~personal1-stable [debian/changelog:1]
+changelog-version-special-chars (source): epoch-changed-but-upstream-version-did-not-go-backwards 0.0.1-1 -> 2:1.5+important~personal1-stable-7 [debian/changelog:1]
+changelog-version-special-chars (source): epoch-change-without-comment 0.0.1-1 -> 2:1.5+important~personal1-stable-7 [debian/changelog:1]

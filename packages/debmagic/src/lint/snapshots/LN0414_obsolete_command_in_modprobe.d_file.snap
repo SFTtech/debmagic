@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): obsolete-command-in-modprobe.d-file (LN0414) remove [usr/lib/modprobe.d/lintian-install.conf]
+W: example (binary): obsolete-command-in-modprobe.d-file (LN0414) install [usr/lib/modprobe.d/lintian-install.conf]
+W: example (binary): obsolete-command-in-modprobe.d-file (LN0414) remove [etc/modules-load.d/lintian-install.conf]

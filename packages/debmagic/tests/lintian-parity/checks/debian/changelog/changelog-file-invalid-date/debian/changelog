@@ -1,0 +1,8 @@
+changelog-file-invalid-date (1.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: changelog-file-invalid-date
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+  * Writes out "Sept" and "Thurs"; should be "Sep" and "Thu".
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Thurs, 14 Sept 2017 10:47:43 +0000

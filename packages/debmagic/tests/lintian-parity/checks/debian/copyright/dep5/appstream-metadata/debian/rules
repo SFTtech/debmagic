@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+DESTDIR = debian/$(shell dh_listpackages)
+APPSYNC_DIR=$(DESTDIR)/usr/share/metainfo/
+OBSOLETE_APPSYNC_DIR=$(DESTDIR)/usr/share/appdata/
+UDEV_DIR=$(DESTDIR)/lib/udev/rules.d/
+
+%:
+	dh $@
+
+override_dh_install:
+	dh_install
+	install -m 0644 debian/appstream-metadata.metadata.xml $(APPSYNC_DIR)
+	install -m 0644 debian/appstream-metadata-invalid.metadata.xml $(APPSYNC_DIR)
+	install -m 0644 debian/appstream-metadata-obsolete.metadata.xml $(OBSOLETE_APPSYNC_DIR)

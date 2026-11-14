@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): source-ships-excluded-file (LN0378) exclude-this [debian/copyright:2]
+E: example (source): source-ships-excluded-file (LN0378) exclude-dir/filename [debian/copyright:2]
+E: example (source): source-ships-excluded-file (LN0378) exclude-dir-2/filename [debian/copyright:2]
+E: example (source): source-ships-excluded-file (LN0378) .matches [debian/copyright:2]

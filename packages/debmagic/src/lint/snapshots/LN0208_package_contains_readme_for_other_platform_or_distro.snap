@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: filenames (binary): package-contains-readme-for-other-platform-or-distro (LN0208) [usr/share/doc/filenames/README.be]
+W: filenames (binary): package-contains-readme-for-other-platform-or-distro (LN0208) [usr/share/doc/filenames/README.beos]
+W: filenames (binary): package-contains-readme-for-other-platform-or-distro (LN0208) [usr/share/doc/filenames/README.mac]
+W: filenames (binary): package-contains-readme-for-other-platform-or-distro (LN0208) [usr/share/doc/filenames/README.macosx]
+W: filenames (binary): package-contains-readme-for-other-platform-or-distro (LN0208) [usr/share/doc/filenames/README.windows]
+W: filenames (binary): package-contains-readme-for-other-platform-or-distro (LN0208) [usr/share/doc/filenames/readme.WINDOWS.txt.gz]
+W: Lib++ (binary): package-contains-readme-for-other-platform-or-distro (LN0208) [usr/share/doc/lib++/README.sun]

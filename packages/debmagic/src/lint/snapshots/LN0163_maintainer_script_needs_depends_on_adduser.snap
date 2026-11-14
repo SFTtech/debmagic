@@ -1,0 +1,16 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [postinst:3]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [preinst:2]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [prerm:2]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [config:2]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [my-postrm:2]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [postinst:3]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [postinst:3]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [postinst:2]
+W: example (udeb): maintainer-script-needs-depends-on-adduser (LN0163) adduser (does not satisfy adduser) [postinst:2]

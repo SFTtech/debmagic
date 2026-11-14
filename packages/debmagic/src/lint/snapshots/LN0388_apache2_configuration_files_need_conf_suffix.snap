@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): apache2-configuration-files-need-conf-suffix (LN0388) [etc/apache2/conf-available/phpmyfoo]
+E: example (binary): apache2-configuration-files-need-conf-suffix (LN0388) [etc/apache2/mods-available/foo]
+E: example (binary): apache2-configuration-files-need-conf-suffix (LN0388) [etc/apache2/site-available/local]

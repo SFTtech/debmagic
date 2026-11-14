@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): possible-debconf-note-abuse (LN0237) debconf/note-abuse [config:1]
+W: example (binary): possible-debconf-note-abuse (LN0237) debconf/test [config:1]
+W: example (binary): possible-debconf-note-abuse (LN0237) debconf/note-abuse [config:1]
+W: example (binary): possible-debconf-note-abuse (LN0237) debconf/note-abuse [config:3]
+W: example (binary): possible-debconf-note-abuse (LN0237) debconf/test [config:2]
+W: example (binary): possible-debconf-note-abuse (LN0237) debconf/note-abuse [config:2]
+W: example (binary): possible-debconf-note-abuse (LN0237) debconf/test [config:1]
+W: example (binary): possible-debconf-note-abuse (LN0237) debconf/note-abuse [postinst:1]

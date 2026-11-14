@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): select-with-boolean-choices (LN0318) debconf/select-boolean-choice [templates:3]
+W: example (binary): select-with-boolean-choices (LN0318) debconf/reverse [templates:3]
+W: example (binary): select-with-boolean-choices (LN0318) debconf/tight [templates:3]
+W: example (binary): select-with-boolean-choices (LN0318) debconf/case [templates:3]
+W: example (udeb): select-with-boolean-choices (LN0318) no-template-name [templates:1]

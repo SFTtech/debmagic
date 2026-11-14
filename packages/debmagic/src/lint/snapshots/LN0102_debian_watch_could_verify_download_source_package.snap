@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-watch-could-verify-download (LN0102) debian/upstream/signing-key.asc [debian/watch]

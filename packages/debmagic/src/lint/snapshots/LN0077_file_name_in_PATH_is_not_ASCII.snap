@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): file-name-in-PATH-is-not-ASCII (LN0077) [usr/bin/鳥の詩]
+E: example (binary): file-name-in-PATH-is-not-ASCII (LN0077) [usr/games/ñ]
+E: example (binary): file-name-in-PATH-is-not-ASCII (LN0077) [usr/sbin/é]
+E: example (udeb): file-name-in-PATH-is-not-ASCII (LN0077) [bin/é]

@@ -1,0 +1,16 @@
+Source: debhelper-compat-virtual-relation-both
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper (>= 11.3.6~), debhelper-compat (= 10)
+Rules-Requires-Root: no
+
+Package: debhelper-compat-virtual-relation-both
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test both debhelper and debhelper-compat as a build-dependency
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-should-not-parse-etc-passwd-or-group (LN0199) "grep bad /etc/passwd" [postinst:2]
+W: example (binary): maintainer-script-should-not-parse-etc-passwd-or-group (LN0199) "grep bad /etc/group" [postinst:2]
+W: example (binary): maintainer-script-should-not-parse-etc-passwd-or-group (LN0199) "grep -E bad /etc/passwd" [postinst:2]
+W: example (binary): maintainer-script-should-not-parse-etc-passwd-or-group (LN0199) "grep -F bad /etc/group" [postinst:2]
+W: example (binary): maintainer-script-should-not-parse-etc-passwd-or-group (LN0199) "egrep bad /etc/passwd" [postinst:2]
+W: example (binary): maintainer-script-should-not-parse-etc-passwd-or-group (LN0199) "fgrep bad /etc/group" [postinst:2]
+W: example (binary): maintainer-script-should-not-parse-etc-passwd-or-group (LN0199) "grep bad /etc/passwd" [postinst:2]
+W: example (binary): maintainer-script-should-not-parse-etc-passwd-or-group (LN0199) "grep bad /etc/passwd" [postinst:3]

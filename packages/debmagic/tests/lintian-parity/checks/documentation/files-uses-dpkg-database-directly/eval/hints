@@ -1,0 +1,2 @@
+files-uses-dpkg-database-directly (binary): package-contains-documentation-outside-usr-share-doc [var/lib/test/misc.txt]
+files-uses-dpkg-database-directly (binary): package-contains-documentation-outside-usr-share-doc [var/lib/test/README]

@@ -1,0 +1,223 @@
+# English translations for PACKAGE package.
+# Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Niels Thykier <niels@thykier.net>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-01 22:34+0000\n"
+"PO-Revision-Date: 2012-10-01 22:54+0200\n"
+"Last-Translator: Russ Allbery <rra@debian.org>\n"
+"Language-Team: English <debian-i18n@lists.debian.org>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Type: error
+#. Description
+#: ../templates:1001
+msgid "Useless note"
+msgstr ""
+
+#. Type: select
+#. Choices
+#: ../templates:2001
+msgid "left, right, up, down"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:2002
+msgid "Pick the odd one out"
+msgstr ""
+
+#. Type: text
+#. Description
+#: ../templates:3001
+msgid "Missing template field."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:4001
+msgid "Is this a bad template?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:5001
+msgid "Missing type"
+msgstr ""
+
+#. Type: lintian
+#. Description
+#: ../templates:6001
+msgid "Template with unknown type"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+msgid "How do you like the default?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+msgid "On a scale of \"false\" to \"true\"."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:8001
+msgid "A boolean type would have been better"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:9001
+msgid "Preference"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:10001
+msgid "Missing a Choices field"
+msgstr ""
+
+#. Type: error
+#. Description
+#. Type: error
+#. Description
+#: ../templates:12001
+msgid "Duplicate long description"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:13001
+msgid "Is the field below unknown?"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:14001
+msgid "What is the name of this package checker:"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:15001
+msgid "Select either x or y"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:16001
+msgid "Lintian is the best!"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:17001
+msgid "Do you like sakana?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:17001
+msgid "Or do you prefer sake?"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:18001
+msgid "Aren't you tired of all these debconf prompts?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:19001
+msgid ""
+"This template has a very long short description, is that what you call an "
+"oxymoron?"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:20001
+msgid "I think Lintian is the best"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:21001
+msgid "Do you like Lintian?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:21001
+msgid "Pick \"yes\" if you do."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:22001
+msgid "Name the title of this song:"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:22001
+msgid ""
+"Five green bottles sitting on the wall, Five green bottles sitting on the "
+"wall, And if one green bottle should accidentally fall, There'll be four "
+"green bottles sitting on the wall."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:22001
+msgid ""
+"Four green bottles sitting on the wall, Four green bottles sitting on the "
+"wall, And if one green bottle should accidentally fall, There'll be three "
+"green bottles sitting on the wall."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:22001
+msgid ""
+"Three green bottles sitting on the wall, Three green bottles sitting on the "
+"wall, And if one green bottle should accidentally fall, There'll be two "
+"green bottles sitting on the wall."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:22001
+msgid ""
+"Two green bottles sitting on the wall, Two green bottles sitting on the "
+"wall, And if one green bottle should accidentally fall, There'll be one "
+"green bottle sitting on the wall."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:22001
+msgid ""
+"One green bottle sitting on the wall, One green bottle sitting on the wall, "
+"And if one green bottle should accidentally fall, There'll be no green "
+"bottles sitting on the wall."
+msgstr ""
+
+#. Type: entropy
+#. Description
+#: ../templates:23001
+msgid "Template with entropy type"
+msgstr ""

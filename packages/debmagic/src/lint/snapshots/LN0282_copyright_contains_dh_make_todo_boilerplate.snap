@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): copyright-contains-dh_make-todo-boilerplate (LN0282)
+E: example (binary): copyright-contains-dh_make-todo-boilerplate (LN0282)

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): su-wrapper-without--c (LN0417) su-to-root [usr/share/menu/example:1]
+E: example (binary): su-wrapper-without--c (LN0417) sux [usr/share/menu/example:1]
+E: example (binary): su-wrapper-without--c (LN0417) sux [usr/share/applications/hello.desktop]

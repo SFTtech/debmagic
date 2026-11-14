@@ -1,0 +1,1 @@
+binary (binary): bad-permissions-for-etc-emacs-script 0755 != 0644 [etc/emacs.d/script]

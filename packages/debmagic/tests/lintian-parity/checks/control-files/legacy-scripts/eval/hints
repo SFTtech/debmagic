@@ -1,0 +1,5 @@
+scripts (binary): ctrl-script [prerm]
+scripts (binary): ctrl-script [preinst]
+scripts (binary): ctrl-script [postrm]
+scripts (binary): ctrl-script [postinst]
+scripts (binary): control-file-is-empty [prerm]

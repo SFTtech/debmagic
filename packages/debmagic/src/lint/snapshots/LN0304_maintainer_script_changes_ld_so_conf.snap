@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): maintainer-script-changes-ld-so-conf (LN0304) "> /etc/ld.so.conf" [postinst:2]
+E: example (binary): maintainer-script-changes-ld-so-conf (LN0304) "mv /etc/ld.so.conf.new /etc/ld.so.conf" [postinst:3]
+E: example (binary): maintainer-script-changes-ld-so-conf (LN0304) "cp /tmp/x /etc/ld.so.conf" [postinst:2]
+E: example (binary): maintainer-script-changes-ld-so-conf (LN0304) "mv /etc/ld.so.conf.new /etc/ld.so.conf" [postinst:2]
+E: not-libc (binary): maintainer-script-changes-ld-so-conf (LN0304) "> /etc/ld.so.conf" [postinst:2]
+E: not-libc (binary): maintainer-script-changes-ld-so-conf (LN0304) "mv /etc/ld.so.conf.new /etc/ld.so.conf" [postinst:3]
+E: example (binary): maintainer-script-changes-ld-so-conf (LN0304) ">/etc/ld.so.conf" [my-postinst:2]

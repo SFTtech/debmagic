@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): autotools-pkg-config-macro-not-cross-compilation-safe (LN0379) AC_PATH_PROG [configure.ac:1]
+W: example (source): autotools-pkg-config-macro-not-cross-compilation-safe (LN0379) AC_PATH_PROG [src/configure.in:2]

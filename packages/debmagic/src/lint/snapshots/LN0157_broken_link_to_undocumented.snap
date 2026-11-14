@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): broken-link-to-undocumented (LN0157) [usr/share/man/de/man7/locale.7.gz]
+E: example (binary): broken-link-to-undocumented (LN0157) [usr/share/man/man1/bare.1.gz]
+E: example (binary): broken-link-to-undocumented (LN0157) [usr/share/man/man1/missing-gz.1.gz]
+E: example (binary): broken-link-to-undocumented (LN0157) [usr/share/man/man1/relative-bad.1.gz]
+E: example (binary): broken-link-to-undocumented (LN0157) [usr/share/man/man1/sbin-binary.1.gz]
+E: example (binary): broken-link-to-undocumented (LN0157) [usr/share/man/man1/section-one.1.gz]
+E: example (binary): broken-link-to-undocumented (LN0157) [usr/share/man/man2/not-anchored.2.gz]
+E: example (binary): broken-link-to-undocumented (LN0157) [usr/share/man/man7/absolute.7.gz]
+E: example (binary): broken-link-to-undocumented (LN0157) [usr/share/man/man7/wrong-section.7.gz]

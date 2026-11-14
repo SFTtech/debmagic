@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-cvs-conflict-copy (LN0140) [.#foo.1]
+W: example (source): debian-adds-cvs-conflict-copy (LN0140) [debian/.#foo.1.1]
+W: example (source): debian-adds-cvs-conflict-copy (LN0140) [.#foo.0]
+W: example (source): debian-adds-cvs-conflict-copy (LN0140) [.#bar.12]
+W: example (source): debian-adds-cvs-conflict-copy (LN0140) [.pc/.#foo.1]

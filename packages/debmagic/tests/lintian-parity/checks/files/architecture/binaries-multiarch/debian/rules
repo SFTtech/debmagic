@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+# Since dpkg in stable (Squeeze) does not support MULTIARCH we cannot use
+#  dpkg-architecture -qDEB_HOST_MULTIARCH
+# Therefore this test is hardcoded to x86 and amd64
+
+ARCH=$(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+ifeq (i386,$(ARCH))
+    TRIPLET = i386-linux-gnu
+else
+    TRIPLET = x86_64-linux-gnu
+endif
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_makeshlibs:
+	# dpkg-dev uses ld.so.conf so if we do not pass the lib directly
+	#  this will fail on all x86 machines without with libc6 < 2.13-5
+	dh_makeshlibs -- -edebian/libbasic2/usr/lib/$(TRIPLET)/libbasic.so.2

@@ -43,6 +43,16 @@ pub(super) struct Report {
     pub menu_icon_uses_relative_path: Vec<Finding>,
     pub menu_icon_missing: Vec<Finding>,
     pub menu_item_missing_required_tag: Vec<Finding>,
+    pub su_to_root_with_usr_sbin: Vec<Finding>,
+    pub bad_test_in_menu_item: Vec<Finding>,
+    pub duplicate_tag_in_menu: Vec<Finding>,
+    pub desktop_contains_deprecated_key: Vec<Finding>,
+    pub desktop_entry_contains_deprecated_key: Vec<Finding>,
+    pub duplicate_key_in_desktop: Vec<Finding>,
+    pub desktop_entry_unknown_type: Vec<Finding>,
+    pub desktop_entry_missing_required_key: Vec<Finding>,
+    pub desktop_entry_lacks_main_category: Vec<Finding>,
+    pub desktop_mime_but_no_exec_code: Vec<Finding>,
 }
 
 pub(super) fn take(
@@ -94,6 +104,16 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
         menu_icon_uses_relative_path: Vec::new(),
         menu_icon_missing: Vec::new(),
         menu_item_missing_required_tag: Vec::new(),
+        su_to_root_with_usr_sbin: Vec::new(),
+        bad_test_in_menu_item: Vec::new(),
+        duplicate_tag_in_menu: Vec::new(),
+        desktop_contains_deprecated_key: Vec::new(),
+        desktop_entry_contains_deprecated_key: Vec::new(),
+        duplicate_key_in_desktop: Vec::new(),
+        desktop_entry_unknown_type: Vec::new(),
+        desktop_entry_missing_required_key: Vec::new(),
+        desktop_entry_lacks_main_category: Vec::new(),
+        desktop_mime_but_no_exec_code: Vec::new(),
     };
     let mut desktop_cmds = HashSet::new();
     for entry in desktop_files(files) {
@@ -240,6 +260,7 @@ fn verify_menu_line(
         return;
     }
     let Some((pkg_test, rest)) = split_package_prefix(&line_text) else {
+        warn_at(&mut report.bad_test_in_menu_item, path, Some(line), "");
         return;
     };
     let tested = tested_packages(pkg_test);
@@ -251,10 +272,17 @@ fn verify_menu_line(
             pkg_test,
         );
     }
-    let Some(pairs) = parse_pairs(rest) else {
-        return;
-    };
+    let (pairs, parsed) = parse_pairs(rest);
+    let mut seen_tags = HashSet::new();
     for (tag, _, quoted) in &pairs {
+        if !seen_tags.insert(tag.as_str()) {
+            warn_at(
+                &mut report.duplicate_tag_in_menu,
+                path,
+                Some(line),
+                tag.clone(),
+            );
+        }
         if !quoted {
             warn_at(
                 &mut report.unquoted_string_in_menu_item,
@@ -263,6 +291,9 @@ fn verify_menu_line(
                 tag.clone(),
             );
         }
+    }
+    if !parsed {
+        return;
     }
     let mut vals: HashMap<String, String> = HashMap::new();
     for (tag, value, _) in pairs {
@@ -390,6 +421,7 @@ fn parse_desktop(
     let mut warned_cr = false;
     let mut vals: HashMap<String, String> = HashMap::new();
     let mut unknown: Vec<(u32, String)> = Vec::new();
+    let mut deprecated: Vec<(u32, String)> = Vec::new();
     for (position, phys) in physical_lines(text).into_iter().enumerate() {
         let line_no = u32::try_from(position + 1).unwrap_or(u32::MAX);
         let mut line = phys.body;
@@ -416,15 +448,33 @@ fn parse_desktop(
                 return;
             }
             saw_first = true;
+            if trim_end_ws(&line) == "[KDE Desktop Entry]" {
+                warn_at(
+                    &mut report.desktop_contains_deprecated_key,
+                    &path,
+                    Some(line_no),
+                    "",
+                );
+            }
             continue;
         }
         let Some((tag, value)) = split_desktop_key(&line) else {
             continue;
         };
-        if !vals.contains_key(&tag) {
+        if vals.contains_key(&tag) {
+            warn_at(
+                &mut report.duplicate_key_in_desktop,
+                &path,
+                Some(line_no),
+                tag.clone(),
+            );
+        } else {
             let base = base_tag(&tag);
-            if !data::contains(data::DEPRECATED_DESKTOP_KEYS, base)
-                && !data::contains(data::KNOWN_DESKTOP_KEYS, base)
+            if data::contains(data::DEPRECATED_DESKTOP_KEYS, base) {
+                if base != "Encoding" {
+                    deprecated.push((line_no, tag.clone()));
+                }
+            } else if !data::contains(data::KNOWN_DESKTOP_KEYS, base)
                 && !data::contains(data::KDE_DESKTOP_KEYS, base)
                 && !base.starts_with("X-")
             {
@@ -437,7 +487,21 @@ fn parse_desktop(
         return;
     };
     if !data::contains(data::DESKTOP_TYPES, kind) {
+        warn_at(
+            &mut report.desktop_entry_unknown_type,
+            &path,
+            None,
+            kind.clone(),
+        );
         return;
+    }
+    for (line_no, tag) in deprecated {
+        warn_at(
+            &mut report.desktop_entry_contains_deprecated_key,
+            &path,
+            Some(line_no),
+            tag,
+        );
     }
     for (line_no, tag) in unknown {
         warn_at(
@@ -446,6 +510,16 @@ fn parse_desktop(
             Some(line_no),
             tag,
         );
+    }
+    for key in ["Type", "Name"] {
+        if !vals.contains_key(key) {
+            warn_at(
+                &mut report.desktop_entry_missing_required_key,
+                &path,
+                None,
+                key,
+            );
+        }
     }
     let in_applications = path
         .to_str()
@@ -477,11 +551,13 @@ fn parse_desktop(
     }
     let only_show_in = perl_true(vals.get("OnlyShowIn").map(String::as_str));
     if let Some(categories) = vals.get("Categories") {
+        let mut saw_main = false;
         for category in split_semicolons(categories) {
             if category.starts_with("X-") {
                 continue;
             }
             if data::contains(data::RESERVED_CATEGORIES, category) {
+                saw_main = true;
                 if !only_show_in {
                     warn_at(
                         &mut report.desktop_entry_uses_reserved_category,
@@ -499,9 +575,35 @@ fn parse_desktop(
                     None,
                     category,
                 );
+            } else if data::contains(data::MAIN_CATEGORIES, category) {
+                saw_main = true;
             }
         }
+        if !saw_main {
+            warn_at(
+                &mut report.desktop_entry_lacks_main_category,
+                &path,
+                None,
+                "",
+            );
+        }
     }
+    if in_applications
+        && vals.contains_key("MimeType")
+        && !vals.get("Exec").is_some_and(|exec| has_file_code(exec))
+    {
+        warn_at(&mut report.desktop_mime_but_no_exec_code, &path, None, "");
+    }
+}
+
+/// `(?:^|[^%])%[fFuU]`: a field code that is not an escaped `%%`.
+fn has_file_code(exec: &str) -> bool {
+    let bytes = exec.as_bytes();
+    bytes.iter().enumerate().any(|(index, byte)| {
+        *byte == b'%'
+            && matches!(bytes.get(index + 1), Some(b'f' | b'F' | b'u' | b'U'))
+            && (index == 0 || bytes[index - 1] != b'%')
+    })
 }
 
 struct Cmd {
@@ -512,9 +614,14 @@ struct Cmd {
     wrapper: Option<&'static str>,
     /// `verify_cmd` found a command (`-c`, a trailing gksu argument, or the bare command).
     has_command: bool,
+    /// The first word is exactly `/usr/sbin/su-to-root`.
+    su_to_root_with_usr_sbin: bool,
 }
 
 fn note_su_wrapper(cmd: &Cmd, path: &Path, line: Option<u32>, package: &str, report: &mut Report) {
+    if cmd.su_to_root_with_usr_sbin {
+        warn_at(&mut report.su_to_root_with_usr_sbin, path, line, "");
+    }
     let Some(wrapper) = cmd.wrapper else {
         return;
     };
@@ -624,6 +731,7 @@ fn lexical_join(base: &Path, target: &Path) -> PathBuf {
 
 fn verify_cmd(files: &FileTree, exec: &str) -> Cmd {
     let mut components = split_fields(exec);
+    let su_to_root_with_usr_sbin = components.first() == Some(&"/usr/sbin/su-to-root");
     let mut wrapper_left = None;
     let file = if components
         .first()
@@ -683,6 +791,7 @@ fn verify_cmd(files: &FileTree, exec: &str) -> Cmd {
         file: stored,
         wrapper: wrapper_left,
         has_command,
+        su_to_root_with_usr_sbin,
     }
 }
 
@@ -865,7 +974,10 @@ fn split_package_prefix(line: &str) -> Option<(&str, &str)> {
     Some((&rest[..end], &rest[end + 2..]))
 }
 
-fn parse_pairs(line: &str) -> Option<Vec<(String, String, bool)>> {
+/// Pairs read before the parse stopped, and whether the whole line parsed.
+/// Lintian reports duplicate and unquoted tags while it scans, so a line it
+/// later calls unparsable still yields them.
+fn parse_pairs(line: &str) -> (Vec<(String, String, bool)>, bool) {
     let chars: Vec<char> = line.chars().collect();
     let mut index = 0;
     let mut pairs = Vec::new();
@@ -885,12 +997,18 @@ fn parse_pairs(line: &str) -> Option<Vec<(String, String, bool)>> {
             index += 1;
         }
         if index >= chars.len() || chars[index] != '=' {
-            return None;
+            return (pairs, false);
         }
         let tag: String = chars[tag_start..index].iter().collect();
         index += 1;
         let (next, raw) = if chars.get(index) == Some(&'"') {
-            take_quoted(&chars, index)?
+            match take_quoted(&chars, index) {
+                Some(taken) => taken,
+                None => {
+                    pairs.push((tag, String::new(), false));
+                    return (pairs, false);
+                }
+            }
         } else {
             take_unquoted(&chars, index)
         };
@@ -898,7 +1016,7 @@ fn parse_pairs(line: &str) -> Option<Vec<(String, String, bool)>> {
         let quoted = raw.starts_with('"');
         pairs.push((tag, decode_value(&raw), quoted));
     }
-    Some(pairs)
+    (pairs, true)
 }
 
 fn take_quoted(chars: &[char], start: usize) -> Option<(usize, String)> {

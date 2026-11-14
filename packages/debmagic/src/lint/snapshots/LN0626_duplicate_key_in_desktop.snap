@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): duplicate-key-in-desktop (LN0626) Name [usr/share/applications/example.desktop:3]
+W: example (binary): duplicate-key-in-desktop (LN0626) Name[de] [usr/share/applications/example.desktop:4]
+W: example (binary): duplicate-key-in-desktop (LN0626) Exec [usr/share/applications/example.desktop:6]
+W: example (binary): duplicate-key-in-desktop (LN0626) Name [usr/share/applications/example.desktop:3]
+W: example (binary): duplicate-key-in-desktop (LN0626) Name [usr/share/applications/example.desktop:4]
+W: example (udeb): duplicate-key-in-desktop (LN0626) Exec [usr/share/applications/example.desktop:4]

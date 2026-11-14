@@ -174,6 +174,34 @@ use super::rules::{
     WrongCompressionInManualPage, WrongNameForDebianNewsFile, WrongPackageMailAlias,
 };
 
+use super::rules::NonWmModuleInWmModulesMenuSection;
+
+use super::rules::SuToRootWithUsrSbin;
+
+use super::rules::BadTestInMenuItem;
+
+use super::rules::DuplicateTagInMenu;
+
+use super::rules::DesktopContainsDeprecatedKey;
+
+use super::rules::DesktopEntryContainsDeprecatedKey;
+
+use super::rules::DuplicateKeyInDesktop;
+
+use super::rules::DesktopEntryUnknownType;
+
+use super::rules::DesktopEntryMissingRequiredKey;
+
+use super::rules::DesktopEntryLacksMainCategory;
+
+use super::rules::DesktopMimeButNoExecCode;
+
+use super::rules::FileInDiscouragedX11FontDirectory;
+
+use super::rules::FileInUnknownX11FontDirectory;
+
+use super::rules::DesktopFileInWrongDir;
+
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
     &[
         &DebmagicDummyTrigger,
@@ -628,6 +656,20 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PythonModuleHasOverlyGenericName,
         &MenuIconMissing,
         &MenuItemMissingRequiredTag,
+        &NonWmModuleInWmModulesMenuSection,
+        &SuToRootWithUsrSbin,
+        &BadTestInMenuItem,
+        &DuplicateTagInMenu,
+        &DesktopContainsDeprecatedKey,
+        &DesktopEntryContainsDeprecatedKey,
+        &DuplicateKeyInDesktop,
+        &DesktopEntryUnknownType,
+        &DesktopEntryMissingRequiredKey,
+        &DesktopEntryLacksMainCategory,
+        &DesktopMimeButNoExecCode,
+        &FileInDiscouragedX11FontDirectory,
+        &FileInUnknownX11FontDirectory,
+        &DesktopFileInWrongDir,
     ]
 }
 
@@ -1109,6 +1151,20 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PythonModuleHasOverlyGenericName,
         &MenuIconMissing,
         &MenuItemMissingRequiredTag,
+        &NonWmModuleInWmModulesMenuSection,
+        &SuToRootWithUsrSbin,
+        &BadTestInMenuItem,
+        &DuplicateTagInMenu,
+        &DesktopContainsDeprecatedKey,
+        &DesktopEntryContainsDeprecatedKey,
+        &DuplicateKeyInDesktop,
+        &DesktopEntryUnknownType,
+        &DesktopEntryMissingRequiredKey,
+        &DesktopEntryLacksMainCategory,
+        &DesktopMimeButNoExecCode,
+        &FileInDiscouragedX11FontDirectory,
+        &FileInUnknownX11FontDirectory,
+        &DesktopFileInWrongDir,
     ]
 }
 
@@ -1607,6 +1663,20 @@ mod tests {
                 PythonModuleHasOverlyGenericName::CODE,
                 MenuIconMissing::CODE,
                 MenuItemMissingRequiredTag::CODE,
+                NonWmModuleInWmModulesMenuSection::CODE,
+                SuToRootWithUsrSbin::CODE,
+                BadTestInMenuItem::CODE,
+                DuplicateTagInMenu::CODE,
+                DesktopContainsDeprecatedKey::CODE,
+                DesktopEntryContainsDeprecatedKey::CODE,
+                DuplicateKeyInDesktop::CODE,
+                DesktopEntryUnknownType::CODE,
+                DesktopEntryMissingRequiredKey::CODE,
+                DesktopEntryLacksMainCategory::CODE,
+                DesktopMimeButNoExecCode::CODE,
+                FileInDiscouragedX11FontDirectory::CODE,
+                FileInUnknownX11FontDirectory::CODE,
+                DesktopFileInWrongDir::CODE,
             ]
         );
     }

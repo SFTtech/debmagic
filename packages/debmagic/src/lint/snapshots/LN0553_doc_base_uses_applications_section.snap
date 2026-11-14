@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): doc-base-uses-applications-section (LN0553) Apps/Programming [usr/share/doc-base/example:2]
+W: example (binary): doc-base-uses-applications-section (LN0553) Applications/Editors [usr/share/doc-base/example:2]
+W: example (udeb): doc-base-uses-applications-section (LN0553) Apps/Programming [usr/share/doc-base/example:2]

@@ -405,10 +405,16 @@ pub(crate) use menu_format::{
     SuWrapperNotSuToRoot, SuWrapperWithoutC, UnquotedStringInMenuItem,
 };
 pub(crate) use menus::{
-    DocBaseAbstractFieldSeparatorExtraWhitespace, DocBaseFileLacksRequiredField,
-    DocBaseFileNoFormatSection, DocBaseFileUnknownField, MenuMethodLacksInclude,
-    PostinstDoesNotCallUpdatemenus, PostinstHasUselessCallToInstallDocs,
-    PostrmDoesNotCallUpdatemenus, PrermHasUselessCallToInstallDocs,
+    DocBaseAbstractFieldIsTemplate, DocBaseAbstractFieldSeparatorExtraWhitespace,
+    DocBaseAbstractMightContainExtraLeadingWhitespace, DocBaseDocumentFieldEndsInWhitespace,
+    DocBaseDocumentFieldNotInFirstLine, DocBaseFileLacksRequiredField, DocBaseFileNoFormat,
+    DocBaseFileNoFormatSection, DocBaseFileNoIndex, DocBaseFileReferencesWrongPath,
+    DocBaseFileSeparatorExtraWhitespace, DocBaseFileSyntaxError, DocBaseFileUnknownField,
+    DocBaseFileUnknownFormat, DocBaseIndexReferencesMultipleFiles, DocBaseInvalidDocumentField,
+    DocBaseUnknownSection, DocBaseUsesApplicationsSection, DuplicateFieldInDocBase,
+    DuplicateFormatInDocBase, MenuMethodLacksInclude, PostinstDoesNotCallUpdatemenus,
+    PostinstHasUselessCallToInstallDocs, PostrmDoesNotCallUpdatemenus,
+    PrermHasUselessCallToInstallDocs,
 };
 pub(crate) use modprobe::ObsoleteCommandInModprobeDFile;
 pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};

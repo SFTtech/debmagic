@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): doc-base-file-syntax-error (LN0548) [usr/share/doc-base/example:3]
+E: example (binary): doc-base-file-syntax-error (LN0548) [usr/share/doc-base/example:1]
+E: example (udeb): doc-base-file-syntax-error (LN0548) [usr/share/doc-base/example:3]

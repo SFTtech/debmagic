@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): duplicate-format-in-doc-base (LN0555) text [usr/share/doc-base/example:5]
+E: example (binary): duplicate-format-in-doc-base (LN0555) html [usr/share/doc-base/example:6]
+E: example (udeb): duplicate-format-in-doc-base (LN0555) text [usr/share/doc-base/example:5]

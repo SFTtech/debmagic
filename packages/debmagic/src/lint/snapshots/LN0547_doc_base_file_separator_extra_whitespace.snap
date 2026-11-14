@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): doc-base-file-separator-extra-whitespace (LN0547) [usr/share/doc-base/example:2]
+W: example (binary): doc-base-file-separator-extra-whitespace (LN0547) [usr/share/doc-base/example:3]
+W: example (udeb): doc-base-file-separator-extra-whitespace (LN0547) [usr/share/doc-base/example:2]

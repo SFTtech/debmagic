@@ -4,6 +4,7 @@
 //! lintian treats a path as present when a strongly related installable ships
 //! it, and that needs other binary packages.
 
+mod doc_base;
 mod ln0326_postinst_does_not_call_updatemenus;
 mod ln0327_postrm_does_not_call_updatemenus;
 mod ln0328_postinst_has_useless_call_to_install_docs;
@@ -13,6 +14,22 @@ mod ln0332_doc_base_file_no_format_section;
 mod ln0333_menu_method_lacks_include;
 mod ln0420_doc_base_file_lacks_required_field;
 mod ln0430_doc_base_file_unknown_field;
+mod ln0540_doc_base_abstract_field_is_template;
+mod ln0541_doc_base_abstract_might_contain_extra_leading_whitespace;
+mod ln0542_doc_base_document_field_ends_in_whitespace;
+mod ln0543_doc_base_document_field_not_in_first_line;
+mod ln0544_doc_base_file_no_format;
+mod ln0545_doc_base_file_no_index;
+mod ln0546_doc_base_file_references_wrong_path;
+mod ln0547_doc_base_file_separator_extra_whitespace;
+mod ln0548_doc_base_file_syntax_error;
+mod ln0549_doc_base_file_unknown_format;
+mod ln0550_doc_base_index_references_multiple_files;
+mod ln0551_doc_base_invalid_document_field;
+mod ln0552_doc_base_unknown_section;
+mod ln0553_doc_base_uses_applications_section;
+mod ln0554_duplicate_field_in_doc_base;
+mod ln0555_duplicate_format_in_doc_base;
 mod scan;
 
 pub(crate) use ln0326_postinst_does_not_call_updatemenus::PostinstDoesNotCallUpdatemenus;
@@ -24,3 +41,19 @@ pub(crate) use ln0332_doc_base_file_no_format_section::DocBaseFileNoFormatSectio
 pub(crate) use ln0333_menu_method_lacks_include::MenuMethodLacksInclude;
 pub(crate) use ln0420_doc_base_file_lacks_required_field::DocBaseFileLacksRequiredField;
 pub(crate) use ln0430_doc_base_file_unknown_field::DocBaseFileUnknownField;
+pub(crate) use ln0540_doc_base_abstract_field_is_template::DocBaseAbstractFieldIsTemplate;
+pub(crate) use ln0541_doc_base_abstract_might_contain_extra_leading_whitespace::DocBaseAbstractMightContainExtraLeadingWhitespace;
+pub(crate) use ln0542_doc_base_document_field_ends_in_whitespace::DocBaseDocumentFieldEndsInWhitespace;
+pub(crate) use ln0543_doc_base_document_field_not_in_first_line::DocBaseDocumentFieldNotInFirstLine;
+pub(crate) use ln0544_doc_base_file_no_format::DocBaseFileNoFormat;
+pub(crate) use ln0545_doc_base_file_no_index::DocBaseFileNoIndex;
+pub(crate) use ln0546_doc_base_file_references_wrong_path::DocBaseFileReferencesWrongPath;
+pub(crate) use ln0547_doc_base_file_separator_extra_whitespace::DocBaseFileSeparatorExtraWhitespace;
+pub(crate) use ln0548_doc_base_file_syntax_error::DocBaseFileSyntaxError;
+pub(crate) use ln0549_doc_base_file_unknown_format::DocBaseFileUnknownFormat;
+pub(crate) use ln0550_doc_base_index_references_multiple_files::DocBaseIndexReferencesMultipleFiles;
+pub(crate) use ln0551_doc_base_invalid_document_field::DocBaseInvalidDocumentField;
+pub(crate) use ln0552_doc_base_unknown_section::DocBaseUnknownSection;
+pub(crate) use ln0553_doc_base_uses_applications_section::DocBaseUsesApplicationsSection;
+pub(crate) use ln0554_duplicate_field_in_doc_base::DuplicateFieldInDocBase;
+pub(crate) use ln0555_duplicate_format_in_doc_base::DuplicateFormatInDocBase;

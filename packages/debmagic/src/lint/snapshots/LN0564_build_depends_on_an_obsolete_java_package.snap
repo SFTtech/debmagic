@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): build-depends-on-an-obsolete-java-package (LN0564) java-compiler
+W: example (source): build-depends-on-an-obsolete-java-package (LN0564) java-compiler
+W: example (source): build-depends-on-an-obsolete-java-package (LN0564) java-compiler

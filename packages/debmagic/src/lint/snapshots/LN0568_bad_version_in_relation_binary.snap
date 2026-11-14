@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bad-version-in-relation (LN0568) Depends: bar (>= x1)
+E: example (binary): bad-version-in-relation (LN0568) Replaces: old (<< a-1)
+E: example (binary): bad-version-in-relation (LN0568) Breaks: old (<< 1.0_beta)
+E: example (udeb): bad-version-in-relation (LN0568) Suggests: foo (= -1)

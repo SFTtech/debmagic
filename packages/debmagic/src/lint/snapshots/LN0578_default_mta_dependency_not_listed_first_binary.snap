@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): default-mta-dependency-not-listed-first (LN0578) Pre-Depends: exim4 | default-mta | mail-transport-agent
+W: example (binary): default-mta-dependency-not-listed-first (LN0578) Depends: exim4 | default-mta
+W: example (binary): default-mta-dependency-not-listed-first (LN0578) Suggests: a | b | default-mta
+W: example (udeb): default-mta-dependency-not-listed-first (LN0578) Recommends: a | default-mta (>= 1)

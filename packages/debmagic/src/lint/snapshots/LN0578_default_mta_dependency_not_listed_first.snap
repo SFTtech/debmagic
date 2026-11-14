@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): default-mta-dependency-not-listed-first (LN0578) Build-Depends: exim4 | default-mta, debhelper
+W: example (source): default-mta-dependency-not-listed-first (LN0578) Build-Depends-Indep: a, b | c | default-mta:any
+W: example (source): default-mta-dependency-not-listed-first (LN0578) Build-Conflicts: x | default-mta-foo

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): build-depends-on-non-build-package (LN0567) Build-Depends: java-propose-classpath
+E: example (source): build-depends-on-non-build-package (LN0567) Build-Depends-Indep: java-propose-classpath (>= 1)
+E: example (source): build-depends-on-non-build-package (LN0567) Build-Depends-Arch: java-propose-classpath:any

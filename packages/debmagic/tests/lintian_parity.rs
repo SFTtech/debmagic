@@ -61,6 +61,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/prerequisite/circular/control-file-suggests-itself",
     "checks/debian/control/prerequisite/circular/fields-depends-general",
     "checks/debian/control/prerequisite/circular/legacy-relations",
+    "checks/debian/control/prerequisite/development/control-file-library-dev",
+    "checks/debian/control/prerequisite/development/legacy-libbaz",
+    "checks/debian/control/prerequisite/redundant/control-file-general",
+    "checks/debian/control/prerequisite/redundant/legacy-relations",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
     "checks/debian/copyright/dep5/excluded-files-in-native",
@@ -176,9 +180,15 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/origin/fields-redundant",
     "checks/fields/origin/legacy-relations",
     "checks/fields/package-relations/fields-build-depends-general",
+    "checks/fields/package-relations/fields-build-depends-on-dh-sysuser",
+    "checks/fields/package-relations/fields-dep-without-arch-dep-binary",
     "checks/fields/package-relations/fields-depends-general",
     "checks/fields/package-relations/fields-depends-metapackage",
+    "checks/fields/package-relations/fields-general",
+    "checks/fields/package-relations/fields-indep-without-arch-indep",
     "checks/fields/package-relations/fields-java",
+    "checks/fields/package-relations/fields-mua",
+    "checks/fields/package-relations/fields-src-bad-version",
     "checks/fields/package-relations/legacy-relations",
     "checks/fields/recommended/control-file-general",
     "checks/fields/recommended/generic-empty",
@@ -582,6 +592,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/prerequisite/circular/control-file-suggests-itself",
     "checks/debian/control/prerequisite/circular/fields-depends-general",
     "checks/debian/control/prerequisite/circular/legacy-relations",
+    "checks/debian/control/prerequisite/development/control-file-library-dev",
+    "checks/debian/control/prerequisite/development/legacy-libbaz",
+    "checks/debian/control/prerequisite/redundant/control-file-general",
+    "checks/debian/control/prerequisite/redundant/legacy-relations",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
     "checks/debian/copyright/dep5/excluded-files-in-native",
@@ -697,9 +711,15 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/origin/fields-redundant",
     "checks/fields/origin/legacy-relations",
     "checks/fields/package-relations/fields-build-depends-general",
+    "checks/fields/package-relations/fields-build-depends-on-dh-sysuser",
+    "checks/fields/package-relations/fields-dep-without-arch-dep-binary",
     "checks/fields/package-relations/fields-depends-general",
     "checks/fields/package-relations/fields-depends-metapackage",
+    "checks/fields/package-relations/fields-general",
+    "checks/fields/package-relations/fields-indep-without-arch-indep",
     "checks/fields/package-relations/fields-java",
+    "checks/fields/package-relations/fields-mua",
+    "checks/fields/package-relations/fields-src-bad-version",
     "checks/fields/package-relations/legacy-relations",
     "checks/fields/recommended/control-file-general",
     "checks/fields/recommended/generic-empty",
@@ -840,6 +860,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/prerequisite/circular/control-file-suggests-itself"; "checks_debian_control_prerequisite_circular_control_file_suggests_itself")]
 #[test_case("checks/debian/control/prerequisite/circular/fields-depends-general"; "checks_debian_control_prerequisite_circular_fields_depends_general")]
 #[test_case("checks/debian/control/prerequisite/circular/legacy-relations"; "checks_debian_control_prerequisite_circular_legacy_relations")]
+#[test_case("checks/debian/control/prerequisite/development/control-file-library-dev"; "checks_debian_control_prerequisite_development_control_file_library_dev")]
+#[test_case("checks/debian/control/prerequisite/development/legacy-libbaz"; "checks_debian_control_prerequisite_development_legacy_libbaz")]
+#[test_case("checks/debian/control/prerequisite/redundant/control-file-general"; "checks_debian_control_prerequisite_redundant_control_file_general")]
+#[test_case("checks/debian/control/prerequisite/redundant/legacy-relations"; "checks_debian_control_prerequisite_redundant_legacy_relations")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/dep5/excluded-files-in-native"; "checks_debian_copyright_dep5_excluded_files_in_native")]
@@ -955,9 +979,15 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
 #[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package-relations/fields-build-depends-general"; "checks_fields_package_relations_fields_build_depends_general")]
+#[test_case("checks/fields/package-relations/fields-build-depends-on-dh-sysuser"; "checks_fields_package_relations_fields_build_depends_on_dh_sysuser")]
+#[test_case("checks/fields/package-relations/fields-dep-without-arch-dep-binary"; "checks_fields_package_relations_fields_dep_without_arch_dep_binary")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
 #[test_case("checks/fields/package-relations/fields-depends-metapackage"; "checks_fields_package_relations_fields_depends_metapackage")]
+#[test_case("checks/fields/package-relations/fields-general"; "checks_fields_package_relations_fields_general")]
+#[test_case("checks/fields/package-relations/fields-indep-without-arch-indep"; "checks_fields_package_relations_fields_indep_without_arch_indep")]
 #[test_case("checks/fields/package-relations/fields-java"; "checks_fields_package_relations_fields_java")]
+#[test_case("checks/fields/package-relations/fields-mua"; "checks_fields_package_relations_fields_mua")]
+#[test_case("checks/fields/package-relations/fields-src-bad-version"; "checks_fields_package_relations_fields_src_bad_version")]
 #[test_case("checks/fields/package-relations/legacy-relations"; "checks_fields_package_relations_legacy_relations")]
 #[test_case("checks/fields/recommended/control-file-general"; "checks_fields_recommended_control_file_general")]
 #[test_case("checks/fields/recommended/generic-empty"; "checks_fields_recommended_generic_empty")]
@@ -1363,6 +1393,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/prerequisite/circular/control-file-suggests-itself"; "checks_debian_control_prerequisite_circular_control_file_suggests_itself")]
 #[test_case("checks/debian/control/prerequisite/circular/fields-depends-general"; "checks_debian_control_prerequisite_circular_fields_depends_general")]
 #[test_case("checks/debian/control/prerequisite/circular/legacy-relations"; "checks_debian_control_prerequisite_circular_legacy_relations")]
+#[test_case("checks/debian/control/prerequisite/development/control-file-library-dev"; "checks_debian_control_prerequisite_development_control_file_library_dev")]
+#[test_case("checks/debian/control/prerequisite/development/legacy-libbaz"; "checks_debian_control_prerequisite_development_legacy_libbaz")]
+#[test_case("checks/debian/control/prerequisite/redundant/control-file-general"; "checks_debian_control_prerequisite_redundant_control_file_general")]
+#[test_case("checks/debian/control/prerequisite/redundant/legacy-relations"; "checks_debian_control_prerequisite_redundant_legacy_relations")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/dep5/excluded-files-in-native"; "checks_debian_copyright_dep5_excluded_files_in_native")]
@@ -1478,9 +1512,15 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
 #[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package-relations/fields-build-depends-general"; "checks_fields_package_relations_fields_build_depends_general")]
+#[test_case("checks/fields/package-relations/fields-build-depends-on-dh-sysuser"; "checks_fields_package_relations_fields_build_depends_on_dh_sysuser")]
+#[test_case("checks/fields/package-relations/fields-dep-without-arch-dep-binary"; "checks_fields_package_relations_fields_dep_without_arch_dep_binary")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
 #[test_case("checks/fields/package-relations/fields-depends-metapackage"; "checks_fields_package_relations_fields_depends_metapackage")]
+#[test_case("checks/fields/package-relations/fields-general"; "checks_fields_package_relations_fields_general")]
+#[test_case("checks/fields/package-relations/fields-indep-without-arch-indep"; "checks_fields_package_relations_fields_indep_without_arch_indep")]
 #[test_case("checks/fields/package-relations/fields-java"; "checks_fields_package_relations_fields_java")]
+#[test_case("checks/fields/package-relations/fields-mua"; "checks_fields_package_relations_fields_mua")]
+#[test_case("checks/fields/package-relations/fields-src-bad-version"; "checks_fields_package_relations_fields_src_bad_version")]
 #[test_case("checks/fields/package-relations/legacy-relations"; "checks_fields_package_relations_legacy_relations")]
 #[test_case("checks/fields/recommended/control-file-general"; "checks_fields_recommended_control_file_general")]
 #[test_case("checks/fields/recommended/generic-empty"; "checks_fields_recommended_generic_empty")]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: foo-doc (binary): doc-package-depends-on-main-package (LN0574) Depends
+W: foo-doc (binary): doc-package-depends-on-main-package (LN0574) Pre-Depends
+W: foo-doc (udeb): doc-package-depends-on-main-package (LN0574) Depends

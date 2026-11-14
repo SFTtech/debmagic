@@ -77,9 +77,34 @@ fn missing_policy_targets(contents: &str) -> Vec<String> {
         return Vec::new();
     }
 
+    let scan = scan_policy_targets(contents);
+    if scan.unknown_includes {
+        return Vec::new();
+    }
+
+    POLICY_TARGETS
+        .iter()
+        .filter(|target| !scan.seen.contains(*target))
+        .map(|target| (*target).to_string())
+        .collect()
+}
+
+/// What the line walk of the `debian/rules` Check learns about Policy targets.
+pub(super) struct PolicyScan {
+    seen: HashSet<&'static str>,
+    unknown_includes: bool,
+    /// Per logical line (as [`complete_lines`] yields them): whether any
+    /// Policy target was already seen before that line's own target handling.
+    /// Lintian restricts a few checks to lines outside every target
+    /// (`unless (%seen)`).
+    pub(super) seen_before: Vec<bool>,
+}
+
+pub(super) fn scan_policy_targets(contents: &str) -> PolicyScan {
     let mut seen: HashSet<&'static str> = HashSet::new();
     let mut unknown_includes = false;
     let mut variables: HashMap<String, String> = HashMap::new();
+    let mut seen_before = Vec::new();
 
     for (_, line) in complete_lines(contents) {
         if let Some(makefile) = include_makefile(&line) {
@@ -91,6 +116,7 @@ fn missing_policy_targets(contents: &str) -> Vec<String> {
                 unknown_includes = true;
             }
         }
+        seen_before.push(!seen.is_empty());
 
         if let Some((name, value)) = assignment(&line) {
             variables.insert(name, value);
@@ -113,15 +139,11 @@ fn missing_policy_targets(contents: &str) -> Vec<String> {
         }
     }
 
-    if unknown_includes {
-        return Vec::new();
+    PolicyScan {
+        seen,
+        unknown_includes,
+        seen_before,
     }
-
-    POLICY_TARGETS
-        .iter()
-        .filter(|target| !seen.contains(*target))
-        .map(|target| (*target).to_string())
-        .collect()
 }
 
 /// Paths from lintian 2.139.0 `data/rules/known-makefiles`. Values are

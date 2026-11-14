@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-sets-DH_COMPAT (LN0585) [debian/rules:3]

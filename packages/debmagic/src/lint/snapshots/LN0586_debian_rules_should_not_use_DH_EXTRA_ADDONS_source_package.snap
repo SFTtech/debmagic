@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-should-not-use-DH_EXTRA_ADDONS (LN0586) systemd [debian/rules:6]

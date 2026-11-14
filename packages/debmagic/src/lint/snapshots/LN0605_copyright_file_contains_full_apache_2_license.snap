@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): copyright-file-contains-full-apache-2-license (LN0605)
+E: example (binary): copyright-file-contains-full-apache-2-license (LN0605)

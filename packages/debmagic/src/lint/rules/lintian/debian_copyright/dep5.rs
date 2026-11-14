@@ -52,3 +52,25 @@ pub(super) fn follower_wildcards(paragraph: &CopyrightParagraph, index: usize) -
             .collect()
     }
 }
+
+/// Stand-alone license paragraphs: a `License` with a short-name line and a
+/// body, and no `Files`. Keyed by the whole lowercased first line, in order of
+/// first appearance; each entry lists the paragraph indexes (the header is 0).
+pub(super) fn found_standalone(paragraphs: &[CopyrightParagraph]) -> Vec<(String, Vec<usize>)> {
+    let mut found: Vec<(String, Vec<usize>)> = Vec::new();
+    for (index, paragraph) in paragraphs.iter().enumerate() {
+        if !paragraph.declares("License") || paragraph.declares("Files") {
+            continue;
+        }
+        let raw = paragraph.untrimmed_value("License");
+        let identifier = license_identifier(raw);
+        if identifier.is_empty() || license_text(raw).is_empty() {
+            continue;
+        }
+        match found.iter_mut().find(|(name, _)| *name == identifier) {
+            Some((_, indexes)) => indexes.push(index),
+            None => found.push((identifier, vec![index])),
+        }
+    }
+    found
+}

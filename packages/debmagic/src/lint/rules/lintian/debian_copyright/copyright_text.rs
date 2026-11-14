@@ -18,10 +18,10 @@ const GPL_LENGTH: usize = 12_000;
 
 /// Which common-license Tag the `unless` / `if` / `elsif` chain selects.
 ///
-/// GFDL is part of the chain and suppresses the later Tags; this Check does
-/// not emit it.
+/// GFDL is the first link of the chain and suppresses the later Tags.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum CommonLicenseGap {
+    Gfdl,
     Lgpl,
     Gpl,
     Apache2,
@@ -57,7 +57,7 @@ pub(super) fn common_license_gap(contents: &str) -> Option<CommonLicenseGap> {
         return None;
     }
     if license_matches(contents, &GFDL_NAME, |text| GFDL_TEXT.is_match(text)) {
-        return None;
+        return Some(CommonLicenseGap::Gfdl);
     }
     if license_matches(contents, &LGPL_NAME, |text| LGPL_TEXT.is_match(text)) {
         return Some(CommonLicenseGap::Lgpl);

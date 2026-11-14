@@ -670,6 +670,22 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &FileInDiscouragedX11FontDirectory,
         &FileInUnknownX11FontDirectory,
         &DesktopFileInWrongDir,
+        &crate::lint::rules::CopyrightContainsAutomaticallyExtractedBoilerplate,
+        &crate::lint::rules::CopyrightHasUrlFromDhMakeBoilerplate,
+        &crate::lint::rules::HelperTemplatesInCopyright,
+        &crate::lint::rules::CopyrightWithoutCopyrightNotice,
+        &crate::lint::rules::CopyrightFileContainsFullGfdlLicense,
+        &crate::lint::rules::CopyrightFileContainsFullApache2License,
+        &crate::lint::rules::CopyrightDoesNotReferToCommonLicenseFile,
+        &crate::lint::rules::CopyrightNotUsingCommonLicenseForGfdl,
+        &crate::lint::rules::DebianCopyrightIsSymlink,
+        &crate::lint::rules::PipeSymbolUsedAsLicenseDisjunction,
+        &crate::lint::rules::BadExceptionFormatInDep5Copyright,
+        &crate::lint::rules::AmbiguousParagraphInDep5Copyright,
+        &crate::lint::rules::Dep5CopyrightLicenseNameNotUnique,
+        &crate::lint::rules::UnusedLicenseParagraphInDep5Copyright,
+        &crate::lint::rules::Dep5FileParagraphReferencesHeaderParagraph,
+        &crate::lint::rules::GlobalFilesWildcardNotFirstParagraphInDep5Copyright,
     ]
 }
 
@@ -817,6 +833,14 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebhelperButNoMiscDepends,
         &CircularInstallationPrerequisite,
         &BogusPythonPrerequisite,
+        &crate::lint::rules::DebianCopyrightIsSymlink,
+        &crate::lint::rules::PipeSymbolUsedAsLicenseDisjunction,
+        &crate::lint::rules::BadExceptionFormatInDep5Copyright,
+        &crate::lint::rules::AmbiguousParagraphInDep5Copyright,
+        &crate::lint::rules::Dep5CopyrightLicenseNameNotUnique,
+        &crate::lint::rules::UnusedLicenseParagraphInDep5Copyright,
+        &crate::lint::rules::Dep5FileParagraphReferencesHeaderParagraph,
+        &crate::lint::rules::GlobalFilesWildcardNotFirstParagraphInDep5Copyright,
     ]
 }
 
@@ -1165,6 +1189,14 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &FileInDiscouragedX11FontDirectory,
         &FileInUnknownX11FontDirectory,
         &DesktopFileInWrongDir,
+        &crate::lint::rules::CopyrightContainsAutomaticallyExtractedBoilerplate,
+        &crate::lint::rules::CopyrightHasUrlFromDhMakeBoilerplate,
+        &crate::lint::rules::HelperTemplatesInCopyright,
+        &crate::lint::rules::CopyrightWithoutCopyrightNotice,
+        &crate::lint::rules::CopyrightFileContainsFullGfdlLicense,
+        &crate::lint::rules::CopyrightFileContainsFullApache2License,
+        &crate::lint::rules::CopyrightDoesNotReferToCommonLicenseFile,
+        &crate::lint::rules::CopyrightNotUsingCommonLicenseForGfdl,
     ]
 }
 
@@ -1321,6 +1353,14 @@ mod tests {
                 DebhelperButNoMiscDepends::CODE,
                 CircularInstallationPrerequisite::CODE,
                 BogusPythonPrerequisite::CODE,
+                crate::lint::rules::DebianCopyrightIsSymlink::CODE,
+                crate::lint::rules::PipeSymbolUsedAsLicenseDisjunction::CODE,
+                crate::lint::rules::BadExceptionFormatInDep5Copyright::CODE,
+                crate::lint::rules::AmbiguousParagraphInDep5Copyright::CODE,
+                crate::lint::rules::Dep5CopyrightLicenseNameNotUnique::CODE,
+                crate::lint::rules::UnusedLicenseParagraphInDep5Copyright::CODE,
+                crate::lint::rules::Dep5FileParagraphReferencesHeaderParagraph::CODE,
+                crate::lint::rules::GlobalFilesWildcardNotFirstParagraphInDep5Copyright::CODE,
             ]
         );
     }
@@ -1677,6 +1717,14 @@ mod tests {
                 FileInDiscouragedX11FontDirectory::CODE,
                 FileInUnknownX11FontDirectory::CODE,
                 DesktopFileInWrongDir::CODE,
+                crate::lint::rules::CopyrightContainsAutomaticallyExtractedBoilerplate::CODE,
+                crate::lint::rules::CopyrightHasUrlFromDhMakeBoilerplate::CODE,
+                crate::lint::rules::HelperTemplatesInCopyright::CODE,
+                crate::lint::rules::CopyrightWithoutCopyrightNotice::CODE,
+                crate::lint::rules::CopyrightFileContainsFullGfdlLicense::CODE,
+                crate::lint::rules::CopyrightFileContainsFullApache2License::CODE,
+                crate::lint::rules::CopyrightDoesNotReferToCommonLicenseFile::CODE,
+                crate::lint::rules::CopyrightNotUsingCommonLicenseForGfdl::CODE,
             ]
         );
     }

@@ -82,12 +82,14 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-pipe-as-or",
     "checks/debian/copyright/dep5/source-copyright-source-files-excluded",
     "checks/debian/copyright/dep5/source-copyright-undefined",
+    "checks/debian/copyright/dep5/source-copyright-unique",
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
     "checks/debian/copyright/dep5/wildcard-out-of-order",
     "checks/debian/copyright/generic-empty",
     "checks/debian/copyright/named-copyright-in-source",
     "checks/debian/copyright/source-copyright-missing",
+    "checks/debian/copyright/source-copyright-symlink",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
@@ -597,12 +599,14 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-pipe-as-or",
     "checks/debian/copyright/dep5/source-copyright-source-files-excluded",
     "checks/debian/copyright/dep5/source-copyright-undefined",
+    "checks/debian/copyright/dep5/source-copyright-unique",
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
     "checks/debian/copyright/dep5/wildcard-out-of-order",
     "checks/debian/copyright/generic-empty",
     "checks/debian/copyright/named-copyright-in-source",
     "checks/debian/copyright/source-copyright-missing",
+    "checks/debian/copyright/source-copyright-symlink",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
@@ -849,12 +853,14 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/dep5/source-copyright-pipe-as-or"; "checks_debian_copyright_dep5_source_copyright_pipe_as_or")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-source-files-excluded"; "checks_debian_copyright_dep5_source_copyright_source_files_excluded")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-undefined"; "checks_debian_copyright_dep5_source_copyright_undefined")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-unique"; "checks_debian_copyright_dep5_source_copyright_unique")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
 #[test_case("checks/debian/copyright/dep5/wildcard-out-of-order"; "checks_debian_copyright_dep5_wildcard_out_of_order")]
 #[test_case("checks/debian/copyright/generic-empty"; "checks_debian_copyright_generic_empty")]
 #[test_case("checks/debian/copyright/named-copyright-in-source"; "checks_debian_copyright_named_copyright_in_source")]
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
+#[test_case("checks/debian/copyright/source-copyright-symlink"; "checks_debian_copyright_source_copyright_symlink")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
@@ -1366,12 +1372,14 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/dep5/source-copyright-pipe-as-or"; "checks_debian_copyright_dep5_source_copyright_pipe_as_or")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-source-files-excluded"; "checks_debian_copyright_dep5_source_copyright_source_files_excluded")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-undefined"; "checks_debian_copyright_dep5_source_copyright_undefined")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-unique"; "checks_debian_copyright_dep5_source_copyright_unique")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
 #[test_case("checks/debian/copyright/dep5/wildcard-out-of-order"; "checks_debian_copyright_dep5_wildcard_out_of_order")]
 #[test_case("checks/debian/copyright/generic-empty"; "checks_debian_copyright_generic_empty")]
 #[test_case("checks/debian/copyright/named-copyright-in-source"; "checks_debian_copyright_named_copyright_in_source")]
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
+#[test_case("checks/debian/copyright/source-copyright-symlink"; "checks_debian_copyright_source_copyright_symlink")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]

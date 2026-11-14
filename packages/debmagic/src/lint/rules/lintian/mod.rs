@@ -295,6 +295,22 @@ pub(crate) use md5sums::{
     FileMissingInMd5sums, MalformedMd5sumsControlFile, Md5sumMismatch, Md5sumsListsNonexistentFile,
 };
 
+pub(crate) use debian_copyright::AmbiguousParagraphInDep5Copyright;
+pub(crate) use debian_copyright::BadExceptionFormatInDep5Copyright;
+pub(crate) use debian_copyright::CopyrightContainsAutomaticallyExtractedBoilerplate;
+pub(crate) use debian_copyright::CopyrightDoesNotReferToCommonLicenseFile;
+pub(crate) use debian_copyright::CopyrightFileContainsFullApache2License;
+pub(crate) use debian_copyright::CopyrightFileContainsFullGfdlLicense;
+pub(crate) use debian_copyright::CopyrightHasUrlFromDhMakeBoilerplate;
+pub(crate) use debian_copyright::CopyrightNotUsingCommonLicenseForGfdl;
+pub(crate) use debian_copyright::CopyrightWithoutCopyrightNotice;
+pub(crate) use debian_copyright::DebianCopyrightIsSymlink;
+pub(crate) use debian_copyright::Dep5CopyrightLicenseNameNotUnique;
+pub(crate) use debian_copyright::Dep5FileParagraphReferencesHeaderParagraph;
+pub(crate) use debian_copyright::GlobalFilesWildcardNotFirstParagraphInDep5Copyright;
+pub(crate) use debian_copyright::HelperTemplatesInCopyright;
+pub(crate) use debian_copyright::PipeSymbolUsedAsLicenseDisjunction;
+pub(crate) use debian_copyright::UnusedLicenseParagraphInDep5Copyright;
 pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;
 pub(crate) use debian_patches::Format30ButDebianChangesPatch;
 pub(crate) use debian_po_debconf::{

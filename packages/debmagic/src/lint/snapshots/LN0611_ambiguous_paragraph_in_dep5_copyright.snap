@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): ambiguous-paragraph-in-dep5-copyright (LN0611) [debian/copyright:4]
+W: (source): ambiguous-paragraph-in-dep5-copyright (LN0611) [debian/copyright:8]
+W: (source): ambiguous-paragraph-in-dep5-copyright (LN0611) [debian/copyright:11]

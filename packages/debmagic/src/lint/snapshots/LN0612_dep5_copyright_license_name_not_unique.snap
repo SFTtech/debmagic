@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): dep5-copyright-license-name-not-unique (LN0612) mit [debian/copyright:4]
+W: (source): dep5-copyright-license-name-not-unique (LN0612) mit [debian/copyright:7]
+W: (source): dep5-copyright-license-name-not-unique (LN0612) mit [debian/copyright:4]
+W: (source): dep5-copyright-license-name-not-unique (LN0612) mit [debian/copyright:7]
+W: (source): dep5-copyright-license-name-not-unique (LN0612) mit [debian/copyright:10]

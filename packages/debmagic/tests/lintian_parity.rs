@@ -302,6 +302,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/desktop/gnome/gir/gir",
     "checks/desktop/gnome/legacy-filenames",
     "checks/desktop/icons/files-general",
+    "checks/desktop/x11/files-fonts",
     "checks/desktop/x11/files-general",
     "checks/desktop/x11/legacy-filenames",
     "checks/documentation/files-doxygen-documentation",
@@ -386,6 +387,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/debug/binaries-general",
     "checks/files/debug/files-foo-in-bar",
     "checks/files/debug-packages/non-debug-file-in-debug-package",
+    "checks/files/desktop/legacy-filenames",
     "checks/files/empty-package/cruft-source-is-missing-unrel",
     "checks/files/empty-package/files-empty",
     "checks/files/empty-package/legacy-binary",
@@ -476,9 +478,11 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/maintainer-scripts/temporary-files/scripts-maintainer-general",
     "checks/md5sums/legacy-etcfiles",
     "checks/md5sums/md5sums-general",
+    "checks/menu-format/desktop-entry-unknown-type",
     "checks/menu-format/item-has-needs-dwww",
     "checks/menu-format/legacy-binary",
     "checks/menu-format/menu-format-desktop-general",
+    "checks/menu-format/menu-format-desktop-mimetype",
     "checks/menu-format/menu-format-general",
     "checks/menu-format/unknown-menu-tag",
     "checks/menu-format/whitespace-after-continuation-character",
@@ -1066,6 +1070,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/desktop/gnome/legacy-filenames"; "checks_desktop_gnome_legacy_filenames")]
 #[test_case("checks/desktop/icons/files-general"; "checks_desktop_icons_files_general")]
+#[test_case("checks/desktop/x11/files-fonts"; "checks_desktop_x11_files_fonts")]
 #[test_case("checks/desktop/x11/files-general"; "checks_desktop_x11_files_general")]
 #[test_case("checks/desktop/x11/legacy-filenames"; "checks_desktop_x11_legacy_filenames")]
 #[test_case("checks/documentation/files-doxygen-documentation"; "checks_documentation_files_doxygen_documentation")]
@@ -1150,6 +1155,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/debug/binaries-general"; "checks_files_debug_binaries_general")]
 #[test_case("checks/files/debug/files-foo-in-bar"; "checks_files_debug_files_foo_in_bar")]
 #[test_case("checks/files/debug-packages/non-debug-file-in-debug-package"; "checks_files_debug_packages_non_debug_file_in_debug_package")]
+#[test_case("checks/files/desktop/legacy-filenames"; "checks_files_desktop_legacy_filenames")]
 #[test_case("checks/files/empty-package/cruft-source-is-missing-unrel"; "checks_files_empty_package_cruft_source_is_missing_unrel")]
 #[test_case("checks/files/empty-package/files-empty"; "checks_files_empty_package_files_empty")]
 #[test_case("checks/files/empty-package/legacy-binary"; "checks_files_empty_package_legacy_binary")]
@@ -1240,9 +1246,11 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/maintainer-scripts/temporary-files/scripts-maintainer-general"; "checks_maintainer_scripts_temporary_files_scripts_maintainer_general")]
 #[test_case("checks/md5sums/legacy-etcfiles"; "checks_md5sums_legacy_etcfiles")]
 #[test_case("checks/md5sums/md5sums-general"; "checks_md5sums_md5sums_general")]
+#[test_case("checks/menu-format/desktop-entry-unknown-type"; "checks_menu_format_desktop_entry_unknown_type")]
 #[test_case("checks/menu-format/item-has-needs-dwww"; "checks_menu_format_item_has_needs_dwww")]
 #[test_case("checks/menu-format/legacy-binary"; "checks_menu_format_legacy_binary")]
 #[test_case("checks/menu-format/menu-format-desktop-general"; "checks_menu_format_menu_format_desktop_general")]
+#[test_case("checks/menu-format/menu-format-desktop-mimetype"; "checks_menu_format_menu_format_desktop_mimetype")]
 #[test_case("checks/menu-format/menu-format-general"; "checks_menu_format_menu_format_general")]
 #[test_case("checks/menu-format/unknown-menu-tag"; "checks_menu_format_unknown_menu_tag")]
 #[test_case("checks/menu-format/whitespace-after-continuation-character"; "checks_menu_format_whitespace_after_continuation_character")]

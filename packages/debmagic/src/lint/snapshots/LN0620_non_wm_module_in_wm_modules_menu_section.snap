@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): non-wm-module-in-wm-modules-menu-section (LN0620) wm [usr/share/menu/example:1]
+E: example (binary): non-wm-module-in-wm-modules-menu-section (LN0620) x11 [usr/share/menu/example:1]
+E: example (binary): non-wm-module-in-wm-modules-menu-section (LN0620) text [usr/share/menu/example:1]
+E: example (binary): non-wm-module-in-wm-modules-menu-section (LN0620) vc [usr/share/menu/example:1]
+E: example (binary): non-wm-module-in-wm-modules-menu-section (LN0620) wm [usr/lib/menu/example:1]
+E: example (udeb): non-wm-module-in-wm-modules-menu-section (LN0620) wm [usr/share/menu/example:1]

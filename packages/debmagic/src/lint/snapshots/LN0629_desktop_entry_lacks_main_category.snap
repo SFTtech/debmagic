@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): desktop-entry-lacks-main-category (LN0629) [usr/share/applications/example.desktop]
+W: example (binary): desktop-entry-lacks-main-category (LN0629) [usr/share/applications/example.desktop]
+W: example (binary): desktop-entry-lacks-main-category (LN0629) [usr/share/applications/example.desktop]
+W: example (udeb): desktop-entry-lacks-main-category (LN0629) [usr/share/applications/example.desktop]

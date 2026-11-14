@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): desktop-contains-deprecated-key (LN0624) [usr/share/applications/example.desktop:1]
+W: example (binary): desktop-contains-deprecated-key (LN0624) [usr/share/applications/example.desktop:3]
+W: example (binary): desktop-contains-deprecated-key (LN0624) [usr/share/xsessions/example.desktop:1]
+W: example (udeb): desktop-contains-deprecated-key (LN0624) [usr/share/applications/example.desktop:1]

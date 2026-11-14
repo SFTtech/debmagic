@@ -1432,6 +1432,20 @@ Rules
                 crate::lint::rules::PythonModuleHasOverlyGenericName::CODE,
                 crate::lint::rules::MenuIconMissing::CODE,
                 crate::lint::rules::MenuItemMissingRequiredTag::CODE,
+                crate::lint::rules::NonWmModuleInWmModulesMenuSection::CODE,
+                crate::lint::rules::SuToRootWithUsrSbin::CODE,
+                crate::lint::rules::BadTestInMenuItem::CODE,
+                crate::lint::rules::DuplicateTagInMenu::CODE,
+                crate::lint::rules::DesktopContainsDeprecatedKey::CODE,
+                crate::lint::rules::DesktopEntryContainsDeprecatedKey::CODE,
+                crate::lint::rules::DuplicateKeyInDesktop::CODE,
+                crate::lint::rules::DesktopEntryUnknownType::CODE,
+                crate::lint::rules::DesktopEntryMissingRequiredKey::CODE,
+                crate::lint::rules::DesktopEntryLacksMainCategory::CODE,
+                crate::lint::rules::DesktopMimeButNoExecCode::CODE,
+                crate::lint::rules::FileInDiscouragedX11FontDirectory::CODE,
+                crate::lint::rules::FileInUnknownX11FontDirectory::CODE,
+                crate::lint::rules::DesktopFileInWrongDir::CODE,
             ]
         );
         let intent = LintIntent {

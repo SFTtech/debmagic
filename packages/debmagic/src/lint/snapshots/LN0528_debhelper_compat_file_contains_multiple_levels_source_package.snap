@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debhelper-compat-file-contains-multiple-levels (LN0528) [debian/compat:2]

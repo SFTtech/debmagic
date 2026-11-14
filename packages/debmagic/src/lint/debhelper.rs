@@ -168,6 +168,13 @@ impl DebhelperFacts {
         }
     }
 
+    /// The level `dh_assistant` reports as declared, before Perl `||= 1`.
+    /// `None` when it would abort or nothing is declared; `Some(0)` is a
+    /// compat file of `0`.
+    pub(crate) fn declared_level(&self) -> Option<u32> {
+        self.source.as_ref().and(self.declared_level)
+    }
+
     /// Numeric value of the `debian/compat` first line, see the field.
     pub(crate) fn compat_file_value(&self) -> Option<u64> {
         self.compat_file_value

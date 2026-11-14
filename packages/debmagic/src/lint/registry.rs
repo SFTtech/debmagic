@@ -11,6 +11,8 @@ use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::ConflictingNegationInSourceRelation;
 use super::rules::DbgPackageMissingDepends;
+use super::rules::DebhelperCompatFileContainsMultipleLevels;
+use super::rules::DebhelperCompatFileIsEmpty;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesPassesVersionInfoToDhShlibdeps;
 use super::rules::DebianRulesSetsDebBuildOptions;
@@ -20,14 +22,26 @@ use super::rules::DebianRulesShouldNotUseDhExtraAddons;
 use super::rules::DebianRulesShouldNotUseSanitizeAllBuildflag;
 use super::rules::DebianRulesUpdatesControlAutomatically;
 use super::rules::DebianRulesUsesDebBuildOpts;
+use super::rules::DebianRulesUsesDeprecatedSystemdOverride;
 use super::rules::DebianRulesUsesInstalledPythonVersions;
+use super::rules::DebianRulesUsesUnnecessaryDhArgument;
+use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
 use super::rules::DefaultMtaDependencyDoesNotSpecifyMailTransportAgent;
 use super::rules::DefaultMtaDependencyNotListedFirst;
 use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnSpecificJavaDocPackage;
+use super::rules::DhCleanKIsDeprecated;
+use super::rules::DhExecInstallNotAllowedHere;
+use super::rules::DhExecScriptWithoutDhExecFeatures;
+use super::rules::DhInstallmanpagesIsObsolete;
+use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DocPackageDependsOnMainPackage;
+use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ObsoleteRelationFormInSource;
+use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::RedundantInstallationPrerequisite;
+use super::rules::TemporaryDebhelperFile;
+use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::WeakLibraryDevDependency;
 use super::rules::{
     AbsoluteSymlinkInTopLevelFolder, AliasedLocation, AncientLibtool, AncientPythonVersionField,
@@ -768,6 +782,20 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DocBaseUsesApplicationsSection,
         &DuplicateFieldInDocBase,
         &DuplicateFormatInDocBase,
+        &DhInstallmanpagesIsObsolete,
+        &DhCleanKIsDeprecated,
+        &DhQuiltAddonButQuiltSourceFormat,
+        &DebianRulesUsesDeprecatedSystemdOverride,
+        &ExcessiveDebhelperOverrides,
+        &DebianRulesUsesUnnecessaryDhArgument,
+        &UselessAutoreconfBuildDepends,
+        &PackageUsesDebhelperButLacksBuildDepends,
+        &DebhelperCompatFileContainsMultipleLevels,
+        &DebhelperCompatFileIsEmpty,
+        &DeclaresPossiblyConflictingDebhelperCompatVersions,
+        &TemporaryDebhelperFile,
+        &DhExecScriptWithoutDhExecFeatures,
+        &DhExecInstallNotAllowedHere,
     ]
 }
 
@@ -948,6 +976,20 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RedundantInstallationPrerequisite,
         &DefaultMtaDependencyDoesNotSpecifyMailTransportAgent,
         &DefaultMtaDependencyNotListedFirst,
+        &DhInstallmanpagesIsObsolete,
+        &DhCleanKIsDeprecated,
+        &DhQuiltAddonButQuiltSourceFormat,
+        &DebianRulesUsesDeprecatedSystemdOverride,
+        &ExcessiveDebhelperOverrides,
+        &DebianRulesUsesUnnecessaryDhArgument,
+        &UselessAutoreconfBuildDepends,
+        &PackageUsesDebhelperButLacksBuildDepends,
+        &DebhelperCompatFileContainsMultipleLevels,
+        &DebhelperCompatFileIsEmpty,
+        &DeclaresPossiblyConflictingDebhelperCompatVersions,
+        &TemporaryDebhelperFile,
+        &DhExecScriptWithoutDhExecFeatures,
+        &DhExecInstallNotAllowedHere,
     ]
 }
 
@@ -1517,6 +1559,20 @@ mod tests {
                 RedundantInstallationPrerequisite::CODE,
                 DefaultMtaDependencyDoesNotSpecifyMailTransportAgent::CODE,
                 DefaultMtaDependencyNotListedFirst::CODE,
+                DhInstallmanpagesIsObsolete::CODE,
+                DhCleanKIsDeprecated::CODE,
+                DhQuiltAddonButQuiltSourceFormat::CODE,
+                DebianRulesUsesDeprecatedSystemdOverride::CODE,
+                ExcessiveDebhelperOverrides::CODE,
+                DebianRulesUsesUnnecessaryDhArgument::CODE,
+                UselessAutoreconfBuildDepends::CODE,
+                PackageUsesDebhelperButLacksBuildDepends::CODE,
+                DebhelperCompatFileContainsMultipleLevels::CODE,
+                DebhelperCompatFileIsEmpty::CODE,
+                DeclaresPossiblyConflictingDebhelperCompatVersions::CODE,
+                TemporaryDebhelperFile::CODE,
+                DhExecScriptWithoutDhExecFeatures::CODE,
+                DhExecInstallNotAllowedHere::CODE,
             ]
         );
     }

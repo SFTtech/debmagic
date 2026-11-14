@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debian-rules-uses-deprecated-systemd-override (LN0523) override_dh_systemd_enable [debian/rules:5]
+E: example (source): debian-rules-uses-deprecated-systemd-override (LN0523) override_dh_systemd_enable-indep [debian/rules:5]
+E: example (source): debian-rules-uses-deprecated-systemd-override (LN0523) override_dh_systemd_start-arch [debian/rules:7]
+E: example (source): debian-rules-uses-deprecated-systemd-override (LN0523) override_dh_systemd_start-indep [debian/rules:6]
+E: example (source): debian-rules-uses-deprecated-systemd-override (LN0523) override_dh_systemd_enable [debian/rules:5]

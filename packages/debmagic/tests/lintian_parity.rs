@@ -19,6 +19,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/build-systems/cmake/cruft-general-quilt",
     "checks/build-systems/cmake/cruft-general-wig-pen",
     "checks/cruft/cruft-general-upstream",
+    "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
     "checks/debhelper/debhelper-compat-empty",
@@ -27,9 +28,13 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-compat-multiple-unrel",
     "checks/debhelper/debhelper-compat-whitespace",
     "checks/debhelper/debhelper-deprecated",
+    "checks/debhelper/debhelper-dh-clean-k-deprecated",
     "checks/debhelper/debhelper-dh-compat",
     "checks/debhelper/debhelper-dh-exec",
     "checks/debhelper/debhelper-dh-exec-useless",
+    "checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format",
+    "checks/debhelper/debhelper-dh-unnecessary-arguments",
+    "checks/debhelper/debhelper-excessive-overrides",
     "checks/debhelper/debhelper-executable-files",
     "checks/debhelper/debhelper-lacks-versioned-deps",
     "checks/debhelper/debhelper-no-depends",
@@ -41,6 +46,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-maintainer-scripts",
     "checks/debhelper/legacy-scripts",
     "checks/debhelper/oeverride-typo",
+    "checks/debhelper/rules-uses-deprecated-systemd-override",
+    "checks/debhelper/temporary/debhelper-internal-files",
     "checks/debian/changelog/changelog-file-become-native",
     "checks/debian/changelog/changelog-file-epoch-change-without-comment",
     "checks/debian/changelog/changelog-file-epoch-change-without-comment-new",
@@ -550,6 +557,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/build-systems/cmake/cruft-general-quilt",
     "checks/build-systems/cmake/cruft-general-wig-pen",
     "checks/cruft/cruft-general-upstream",
+    "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
     "checks/debhelper/debhelper-compat-empty",
@@ -559,9 +567,13 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-compat-multiple-unrel",
     "checks/debhelper/debhelper-compat-whitespace",
     "checks/debhelper/debhelper-deprecated",
+    "checks/debhelper/debhelper-dh-clean-k-deprecated",
     "checks/debhelper/debhelper-dh-compat",
     "checks/debhelper/debhelper-dh-exec",
     "checks/debhelper/debhelper-dh-exec-useless",
+    "checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format",
+    "checks/debhelper/debhelper-dh-unnecessary-arguments",
+    "checks/debhelper/debhelper-excessive-overrides",
     "checks/debhelper/debhelper-executable-files",
     "checks/debhelper/debhelper-lacks-versioned-deps",
     "checks/debhelper/debhelper-no-depends",
@@ -573,6 +585,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-maintainer-scripts",
     "checks/debhelper/legacy-scripts",
     "checks/debhelper/oeverride-typo",
+    "checks/debhelper/rules-uses-deprecated-systemd-override",
+    "checks/debhelper/temporary/debhelper-internal-files",
     "checks/debian/changelog/changelog-file-become-native",
     "checks/debian/changelog/changelog-file-epoch-change-without-comment",
     "checks/debian/changelog/changelog-file-epoch-change-without-comment-new",
@@ -819,6 +833,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/build-systems/cmake/cruft-general-quilt"; "checks_build_systems_cmake_cruft_general_quilt")]
 #[test_case("checks/build-systems/cmake/cruft-general-wig-pen"; "checks_build_systems_cmake_cruft_general_wig_pen")]
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
+#[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
@@ -827,9 +842,13 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/debhelper-compat-multiple-unrel"; "checks_debhelper_debhelper_compat_multiple_unrel")]
 #[test_case("checks/debhelper/debhelper-compat-whitespace"; "checks_debhelper_debhelper_compat_whitespace")]
 #[test_case("checks/debhelper/debhelper-deprecated"; "checks_debhelper_debhelper_deprecated")]
+#[test_case("checks/debhelper/debhelper-dh-clean-k-deprecated"; "checks_debhelper_debhelper_dh_clean_k_deprecated")]
 #[test_case("checks/debhelper/debhelper-dh-compat"; "checks_debhelper_debhelper_dh_compat")]
 #[test_case("checks/debhelper/debhelper-dh-exec"; "checks_debhelper_debhelper_dh_exec")]
 #[test_case("checks/debhelper/debhelper-dh-exec-useless"; "checks_debhelper_debhelper_dh_exec_useless")]
+#[test_case("checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format"; "checks_debhelper_debhelper_dh_quilt_addon_but_quilt_source_format")]
+#[test_case("checks/debhelper/debhelper-dh-unnecessary-arguments"; "checks_debhelper_debhelper_dh_unnecessary_arguments")]
+#[test_case("checks/debhelper/debhelper-excessive-overrides"; "checks_debhelper_debhelper_excessive_overrides")]
 #[test_case("checks/debhelper/debhelper-executable-files"; "checks_debhelper_debhelper_executable_files")]
 #[test_case("checks/debhelper/debhelper-lacks-versioned-deps"; "checks_debhelper_debhelper_lacks_versioned_deps")]
 #[test_case("checks/debhelper/debhelper-no-depends"; "checks_debhelper_debhelper_no_depends")]
@@ -841,6 +860,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/legacy-maintainer-scripts"; "checks_debhelper_legacy_maintainer_scripts")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debhelper/oeverride-typo"; "checks_debhelper_oeverride_typo")]
+#[test_case("checks/debhelper/rules-uses-deprecated-systemd-override"; "checks_debhelper_rules_uses_deprecated_systemd_override")]
+#[test_case("checks/debhelper/temporary/debhelper-internal-files"; "checks_debhelper_temporary_debhelper_internal_files")]
 #[test_case("checks/debian/changelog/changelog-file-become-native"; "checks_debian_changelog_changelog_file_become_native")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-change-without-comment"; "checks_debian_changelog_changelog_file_epoch_change_without_comment")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-change-without-comment-new"; "checks_debian_changelog_changelog_file_epoch_change_without_comment_new")]
@@ -1352,6 +1373,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/build-systems/cmake/cruft-general-quilt"; "checks_build_systems_cmake_cruft_general_quilt")]
 #[test_case("checks/build-systems/cmake/cruft-general-wig-pen"; "checks_build_systems_cmake_cruft_general_wig_pen")]
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
+#[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
@@ -1361,9 +1383,13 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/debhelper-compat-multiple-unrel"; "checks_debhelper_debhelper_compat_multiple_unrel")]
 #[test_case("checks/debhelper/debhelper-compat-whitespace"; "checks_debhelper_debhelper_compat_whitespace")]
 #[test_case("checks/debhelper/debhelper-deprecated"; "checks_debhelper_debhelper_deprecated")]
+#[test_case("checks/debhelper/debhelper-dh-clean-k-deprecated"; "checks_debhelper_debhelper_dh_clean_k_deprecated")]
 #[test_case("checks/debhelper/debhelper-dh-compat"; "checks_debhelper_debhelper_dh_compat")]
 #[test_case("checks/debhelper/debhelper-dh-exec"; "checks_debhelper_debhelper_dh_exec")]
 #[test_case("checks/debhelper/debhelper-dh-exec-useless"; "checks_debhelper_debhelper_dh_exec_useless")]
+#[test_case("checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format"; "checks_debhelper_debhelper_dh_quilt_addon_but_quilt_source_format")]
+#[test_case("checks/debhelper/debhelper-dh-unnecessary-arguments"; "checks_debhelper_debhelper_dh_unnecessary_arguments")]
+#[test_case("checks/debhelper/debhelper-excessive-overrides"; "checks_debhelper_debhelper_excessive_overrides")]
 #[test_case("checks/debhelper/debhelper-executable-files"; "checks_debhelper_debhelper_executable_files")]
 #[test_case("checks/debhelper/debhelper-lacks-versioned-deps"; "checks_debhelper_debhelper_lacks_versioned_deps")]
 #[test_case("checks/debhelper/debhelper-no-depends"; "checks_debhelper_debhelper_no_depends")]
@@ -1375,6 +1401,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/legacy-maintainer-scripts"; "checks_debhelper_legacy_maintainer_scripts")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debhelper/oeverride-typo"; "checks_debhelper_oeverride_typo")]
+#[test_case("checks/debhelper/rules-uses-deprecated-systemd-override"; "checks_debhelper_rules_uses_deprecated_systemd_override")]
+#[test_case("checks/debhelper/temporary/debhelper-internal-files"; "checks_debhelper_temporary_debhelper_internal_files")]
 #[test_case("checks/debian/changelog/changelog-file-become-native"; "checks_debian_changelog_changelog_file_become_native")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-change-without-comment"; "checks_debian_changelog_changelog_file_epoch_change_without_comment")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-change-without-comment-new"; "checks_debian_changelog_changelog_file_epoch_change_without_comment_new")]

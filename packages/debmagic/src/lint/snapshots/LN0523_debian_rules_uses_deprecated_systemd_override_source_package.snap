@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debian-rules-uses-deprecated-systemd-override (LN0523) override_dh_systemd_start [debian/rules:5]

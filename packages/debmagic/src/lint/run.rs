@@ -1562,6 +1562,7 @@ Rules
                 crate::lint::rules::BooleanTemplateHasBogusDefault::CODE,
                 crate::lint::rules::EmptyTranslatedChoices::CODE,
                 crate::lint::rules::DuplicateLongDescriptionInTemplate::CODE,
+                crate::lint::rules::NonStandardExecutablePerm::CODE,
                 crate::lint::rules::StaticallyLinkedBinary::CODE,
                 crate::lint::rules::MissingBuildDependencyForDhCommand::CODE,
                 crate::lint::rules::PatchFilePresentButNotMentionedInSeries::CODE,

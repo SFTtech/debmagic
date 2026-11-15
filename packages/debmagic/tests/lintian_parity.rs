@@ -459,6 +459,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/names/python-hypothesis-example",
     "checks/files/names/sass-cache-directory",
     "checks/files/non-free/files-flash-non-free",
+    "checks/files/permissions/files-bad-perm-owner",
+    "checks/files/permissions/legacy-scripts",
     "checks/files/privacy-breach/files-privacybreach",
     "checks/files/sgml/files-foo-in-bar",
     "checks/files/sgml/legacy-filenames",
@@ -1298,6 +1300,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/names/python-hypothesis-example"; "checks_files_names_python_hypothesis_example")]
 #[test_case("checks/files/names/sass-cache-directory"; "checks_files_names_sass_cache_directory")]
 #[test_case("checks/files/non-free/files-flash-non-free"; "checks_files_non_free_files_flash_non_free")]
+#[test_case("checks/files/permissions/files-bad-perm-owner"; "checks_files_permissions_files_bad_perm_owner")]
+#[test_case("checks/files/permissions/legacy-scripts"; "checks_files_permissions_legacy_scripts")]
 #[test_case("checks/files/privacy-breach/files-privacybreach"; "checks_files_privacy_breach_files_privacybreach")]
 #[test_case("checks/files/sgml/files-foo-in-bar"; "checks_files_sgml_files_foo_in_bar")]
 #[test_case("checks/files/sgml/legacy-filenames"; "checks_files_sgml_legacy_filenames")]

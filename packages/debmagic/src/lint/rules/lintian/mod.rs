@@ -39,6 +39,7 @@ mod files_includes;
 mod files_installed;
 mod files_names;
 mod files_non_free;
+mod files_permissions;
 mod files_privacy_breach;
 mod files_symbolic_links;
 mod files_vcs;
@@ -270,6 +271,7 @@ pub(crate) use files_names::{
     PackageContainsPythonHypothesisExample, PackageContainsPythonTestsInGlobalNamespace,
     PackageContainsSassCacheDirectory, StarFile,
 };
+pub(crate) use files_permissions::NonStandardExecutablePerm;
 pub(crate) use files_symbolic_links::{
     AbsoluteSymlinkInTopLevelFolder, CompressedSymlinkWithWrongExt, LengthySymlink,
     PackageContainsUnsafeSymlink, RelativeSymlink, SymlinkContainsSpuriousSegments,

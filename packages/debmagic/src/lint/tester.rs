@@ -21,20 +21,27 @@ pub struct TestCase {
 }
 
 /// One fixture Entry. Mirrors [`Entry`]: only the data a variant has.
+///
+/// `mode` is `None` for the usual mode of the kind (see [`Entry::with_mode`]).
 #[derive(Clone, Debug)]
 pub enum TestFile {
     RegularFile {
         content: Vec<u8>,
         file_type: Option<FileType>,
+        mode: Option<u32>,
     },
     Hardlink {
         content: Vec<u8>,
         file_type: Option<FileType>,
+        mode: Option<u32>,
     },
-    Directory,
+    Directory {
+        mode: Option<u32>,
+    },
     /// `target` is exactly as stored in the package.
     Symlink {
         target: PathBuf,
+        mode: Option<u32>,
     },
 }
 
@@ -49,23 +56,33 @@ impl TestFile {
         Self::RegularFile {
             content: content.into(),
             file_type: None,
+            mode: None,
         }
     }
 
     pub fn directory() -> Self {
-        Self::Directory
+        Self::Directory { mode: None }
     }
 
     pub fn symlink(target: impl Into<PathBuf>) -> Self {
         Self::Symlink {
             target: target.into(),
+            mode: None,
         }
     }
 
     /// Make a regular file a hardlink. Panics on other variants.
     pub fn hardlink(self) -> Self {
         match self {
-            Self::RegularFile { content, file_type } => Self::Hardlink { content, file_type },
+            Self::RegularFile {
+                content,
+                file_type,
+                mode,
+            } => Self::Hardlink {
+                content,
+                file_type,
+                mode,
+            },
             other => panic!("only a regular file can become a hardlink, not {other:?}"),
         }
     }
@@ -81,16 +98,41 @@ impl TestFile {
         self
     }
 
+    /// Set the permission bits (`0o7777`), as a tar header stores them.
+    pub fn mode(mut self, new: u32) -> Self {
+        match &mut self {
+            Self::RegularFile { mode, .. }
+            | Self::Hardlink { mode, .. }
+            | Self::Directory { mode }
+            | Self::Symlink { mode, .. } => *mode = Some(new),
+        }
+        self
+    }
+
     fn entry(&self, path: &str) -> Entry {
-        match self {
-            Self::RegularFile { content, file_type } => {
-                Entry::regular_file(path, *file_type, Some(content.clone()))
-            }
-            Self::Hardlink { content, file_type } => {
-                Entry::hardlink(path, *file_type, Some(content.clone()))
-            }
-            Self::Directory => Entry::directory(path),
-            Self::Symlink { target } => Entry::symlink(path, target),
+        let (entry, mode) = match self {
+            Self::RegularFile {
+                content,
+                file_type,
+                mode,
+            } => (
+                Entry::regular_file(path, *file_type, Some(content.clone())),
+                mode,
+            ),
+            Self::Hardlink {
+                content,
+                file_type,
+                mode,
+            } => (
+                Entry::hardlink(path, *file_type, Some(content.clone())),
+                mode,
+            ),
+            Self::Directory { mode } => (Entry::directory(path), mode),
+            Self::Symlink { target, mode } => (Entry::symlink(path, target), mode),
+        };
+        match mode {
+            Some(mode) => entry.with_mode(*mode),
+            None => entry,
         }
     }
 }
@@ -701,9 +743,9 @@ fn materialize(case: &TestCase) -> tempfile::TempDir {
                 fs::write(&path, content)
                     .unwrap_or_else(|error| panic!("writing {}: {error}", path.display()));
             }
-            TestFile::Directory => fs::create_dir_all(&path)
+            TestFile::Directory { .. } => fs::create_dir_all(&path)
                 .unwrap_or_else(|error| panic!("creating {}: {error}", path.display())),
-            TestFile::Symlink { target } => std::os::unix::fs::symlink(target, &path)
+            TestFile::Symlink { target, .. } => std::os::unix::fs::symlink(target, &path)
                 .unwrap_or_else(|error| panic!("linking {}: {error}", path.display())),
         }
     }

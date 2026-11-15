@@ -23,27 +23,41 @@ pub enum EntryKind {
 ///
 /// File `content` is `None` when the bytes live on the host and are read on
 /// demand through [`FileTree::read`].
+///
+/// `mode` is the permission bits (`0o7777`: setuid, setgid, sticky, and
+/// `rwx` for owner, group and other) as stored in the tar header or read from
+/// host metadata. The file-type bits are not part of it; that is the variant.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Entry {
     RegularFile {
         path: PathBuf,
+        mode: u32,
         file_type: Option<FileType>,
         content: Option<Vec<u8>>,
     },
     Hardlink {
         path: PathBuf,
+        mode: u32,
         file_type: Option<FileType>,
         content: Option<Vec<u8>>,
     },
     Directory {
         path: PathBuf,
+        mode: u32,
     },
     /// `target` is exactly as stored, not resolved.
     Symlink {
         path: PathBuf,
+        mode: u32,
         target: PathBuf,
     },
 }
+
+/// Permission bits an [`Entry`] keeps: setuid, setgid, sticky, and `rwx`.
+const PERMISSION_BITS: u32 = 0o7777;
+
+/// Any execute bit: owner, group, or other.
+const EXECUTE_BITS: u32 = 0o111;
 
 impl Entry {
     pub(crate) fn regular_file(
@@ -53,6 +67,7 @@ impl Entry {
     ) -> Self {
         Self::RegularFile {
             path: path.into(),
+            mode: 0o644,
             file_type,
             content,
         }
@@ -65,29 +80,65 @@ impl Entry {
     ) -> Self {
         Self::Hardlink {
             path: path.into(),
+            mode: 0o644,
             file_type,
             content,
         }
     }
 
     pub(crate) fn directory(path: impl Into<PathBuf>) -> Self {
-        Self::Directory { path: path.into() }
+        Self::Directory {
+            path: path.into(),
+            mode: 0o755,
+        }
     }
 
     pub(crate) fn symlink(path: impl Into<PathBuf>, target: impl Into<PathBuf>) -> Self {
         Self::Symlink {
             path: path.into(),
+            mode: 0o777,
             target: target.into(),
         }
+    }
+
+    /// Set the permission bits; bits outside `0o7777` are dropped. Until this
+    /// is called an Entry has the usual mode for its kind: `0644` for a file
+    /// or hardlink, `0755` for a directory, `0777` for a symlink.
+    pub(crate) fn with_mode(mut self, new: u32) -> Self {
+        match &mut self {
+            Self::RegularFile { mode, .. }
+            | Self::Hardlink { mode, .. }
+            | Self::Directory { mode, .. }
+            | Self::Symlink { mode, .. } => *mode = new & PERMISSION_BITS,
+        }
+        self
     }
 
     pub fn path(&self) -> &Path {
         match self {
             Self::RegularFile { path, .. }
             | Self::Hardlink { path, .. }
-            | Self::Directory { path }
+            | Self::Directory { path, .. }
             | Self::Symlink { path, .. } => path,
         }
+    }
+
+    /// Permission bits, `0o7777` at most (setuid `0o4000`, setgid `0o2000`,
+    /// sticky `0o1000`).
+    pub fn mode(&self) -> u32 {
+        match self {
+            Self::RegularFile { mode, .. }
+            | Self::Hardlink { mode, .. }
+            | Self::Directory { mode, .. }
+            | Self::Symlink { mode, .. } => *mode,
+        }
+    }
+
+    /// A regular file or hardlink with any execute bit set. Lintian's
+    /// `is_file && is_executable`.
+    pub fn is_executable_file(&self) -> bool {
+        matches!(self, Self::RegularFile { .. } | Self::Hardlink { .. })
+            && self.mode() & EXECUTE_BITS != 0
     }
 
     pub fn kind(&self) -> EntryKind {
@@ -404,17 +455,20 @@ fn host_entry(
     if file_type.is_symlink() {
         let target =
             fs::read_link(path).with_context(|| format!("reading symlink {}", path.display()))?;
-        return Ok(Some(Entry::symlink(relative, target)));
+        return Ok(Some(
+            Entry::symlink(relative, target).with_mode(metadata.mode()),
+        ));
     }
     if file_type.is_dir() {
-        return Ok(Some(Entry::directory(relative)));
+        return Ok(Some(Entry::directory(relative).with_mode(metadata.mode())));
     }
     if file_type.is_file() {
-        return Ok(Some(if metadata.nlink() > 1 {
+        let entry = if metadata.nlink() > 1 {
             Entry::hardlink(relative, None, None)
         } else {
             Entry::regular_file(relative, None, None)
-        }));
+        };
+        return Ok(Some(entry.with_mode(metadata.mode())));
     }
     Ok(None)
 }
@@ -716,6 +770,59 @@ mod tests {
                 .is_some_and(|entry| entry.link_target().is_none())
         );
         Ok(())
+    }
+
+    #[test]
+    fn from_host_directory_keeps_permission_bits() -> anyhow::Result<()> {
+        use std::os::unix::fs::PermissionsExt;
+
+        let dir = TempDir::new()?;
+        let set = |name: &str, mode: u32| {
+            fs::set_permissions(dir.path().join(name), fs::Permissions::from_mode(mode))
+        };
+        fs::write(dir.path().join("suid"), b"#!/bin/sh\n")?;
+        set("suid", 0o4755)?;
+        fs::write(dir.path().join("private"), b"#!/bin/sh\n")?;
+        set("private", 0o750)?;
+        fs::write(dir.path().join("data"), b"x")?;
+        set("data", 0o640)?;
+        fs::create_dir(dir.path().join("shared"))?;
+        set("shared", 0o1777)?;
+        symlink("data", dir.path().join("link"))?;
+
+        let tree = FileTree::from_host_directory(dir.path())?;
+        let mode = |name: &str| tree.get(name).map(Entry::mode);
+        assert_eq!(mode("suid"), Some(0o4755));
+        assert_eq!(mode("private"), Some(0o750));
+        assert_eq!(mode("data"), Some(0o640));
+        assert_eq!(mode("shared"), Some(0o1777));
+        assert_eq!(mode("link"), Some(0o777));
+        let executable = |name: &str| tree.get(name).is_some_and(Entry::is_executable_file);
+        assert!(executable("suid"));
+        assert!(executable("private"));
+        assert!(!executable("data"));
+        // Directories and symlinks are never executable files, whatever the bits.
+        assert!(!executable("shared"));
+        assert!(!executable("link"));
+        Ok(())
+    }
+
+    #[test]
+    fn entry_mode_defaults_by_kind_and_masks_type_bits() {
+        assert_eq!(Entry::regular_file("f", None, None).mode(), 0o644);
+        assert_eq!(Entry::hardlink("h", None, None).mode(), 0o644);
+        assert_eq!(Entry::directory("d").mode(), 0o755);
+        assert_eq!(Entry::symlink("s", "f").mode(), 0o777);
+        // S_IFREG | 06755 from a header that keeps the type bits.
+        let entry = Entry::regular_file("f", None, None).with_mode(0o106_755);
+        assert_eq!(entry.mode(), 0o6755);
+        assert!(entry.is_executable_file());
+        assert!(!Entry::regular_file("f", None, None).is_executable_file());
+        assert!(
+            Entry::hardlink("h", None, None)
+                .with_mode(0o701)
+                .is_executable_file()
+        );
     }
 
     #[test]

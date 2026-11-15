@@ -436,6 +436,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/encoding/document-shipped-in-western-encoding",
     "checks/files/encoding/manual-page-in-western-encoding",
     "checks/files/encoding/package-scripts-in-western-encoding",
+    "checks/files/hard-links/files-hardlinks",
+    "checks/files/hard-links/legacy-binary",
+    "checks/files/hard-links/legacy-etcfiles",
     "checks/files/hierarchy/standard/copyright-file-general",
     "checks/files/hierarchy/standard/files-foo-in-bar",
     "checks/files/hierarchy/standard/files-general",
@@ -1277,6 +1280,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/encoding/document-shipped-in-western-encoding"; "checks_files_encoding_document_shipped_in_western_encoding")]
 #[test_case("checks/files/encoding/manual-page-in-western-encoding"; "checks_files_encoding_manual_page_in_western_encoding")]
 #[test_case("checks/files/encoding/package-scripts-in-western-encoding"; "checks_files_encoding_package_scripts_in_western_encoding")]
+#[test_case("checks/files/hard-links/files-hardlinks"; "checks_files_hard_links_files_hardlinks")]
+#[test_case("checks/files/hard-links/legacy-binary"; "checks_files_hard_links_legacy_binary")]
+#[test_case("checks/files/hard-links/legacy-etcfiles"; "checks_files_hard_links_legacy_etcfiles")]
 #[test_case("checks/files/hierarchy/standard/copyright-file-general"; "checks_files_hierarchy_standard_copyright_file_general")]
 #[test_case("checks/files/hierarchy/standard/files-foo-in-bar"; "checks_files_hierarchy_standard_files_foo_in_bar")]
 #[test_case("checks/files/hierarchy/standard/files-general"; "checks_files_hierarchy_standard_files_general")]

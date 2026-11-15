@@ -33,6 +33,7 @@ mod fields_version;
 mod files_artifact;
 mod files_debug;
 mod files_foreign;
+mod files_hard_links;
 mod files_hierarchy;
 mod files_ieee;
 mod files_includes;
@@ -249,6 +250,7 @@ pub(crate) use files_foreign::{
     PackageContainsReadmeForOtherPlatformOrDistro, PackageInstallsAppimage,
     WindowsThumbnailDatabaseInPackage,
 };
+pub(crate) use files_hard_links::PackageContainsHardlink;
 pub(crate) use files_hierarchy::{
     AliasedLocation, DirInUsrLocal, DirOrFileInEtcOpt, DirOrFileInHome, DirOrFileInMnt,
     DirOrFileInOpt, DirOrFileInRun, DirOrFileInSrv, DirOrFileInTmp, DirOrFileInVarLock,

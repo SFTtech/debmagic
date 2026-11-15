@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-hardlink (LN0701) pointing to: usr/bar2 [usr/share/baz]
+W: example (binary): package-contains-hardlink (LN0701) pointing to: etc/improper [etc/improper-link]
+W: example (binary): package-contains-hardlink (LN0701) pointing to: usr/share/p/1st/link2 [usr/share/p/2nd/link3]
+W: example (binary): package-contains-hardlink (LN0701) pointing to: usr/share/p/1st/link2 [usr/share/p/3rd/orig]
+W: example (binary): package-contains-hardlink (LN0701) pointing to: usr/share/p/1st/link2 [usr/share/p/4th/link1]
+W: example (udeb): package-contains-hardlink (LN0701) pointing to: usr/lib/a [usr/lib/sub/b]

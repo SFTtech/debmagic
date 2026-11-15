@@ -235,6 +235,7 @@ use super::rules::NonStandardExecutablePerm;
 
 use super::rules::PackageContainsHardlink;
 
+use super::rules::MissingDepForInterpreter;
 use super::rules::ShippedFileWithoutUtf8Name;
 
 use super::rules::NonWmModuleInWmModulesMenuSection;
@@ -914,6 +915,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NonStandardExecutablePerm,
         &PackageContainsHardlink,
         &ShippedFileWithoutUtf8Name,
+        &MissingDepForInterpreter,
     ]
 }
 
@@ -1536,6 +1538,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NonStandardExecutablePerm,
         &PackageContainsHardlink,
         &ShippedFileWithoutUtf8Name,
+        &MissingDepForInterpreter,
     ]
 }
 
@@ -2175,6 +2178,7 @@ mod tests {
                 NonStandardExecutablePerm::CODE,
                 PackageContainsHardlink::CODE,
                 ShippedFileWithoutUtf8Name::CODE,
+                MissingDepForInterpreter::CODE,
             ]
         );
     }

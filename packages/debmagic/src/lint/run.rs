@@ -1599,6 +1599,7 @@ Rules
                 crate::lint::rules::PackageContainsHardlink::CODE,
                 crate::lint::rules::ShippedFileWithoutUtf8Name::CODE,
                 crate::lint::rules::StaticallyLinkedBinary::CODE,
+                crate::lint::rules::MissingDepForInterpreter::CODE,
                 crate::lint::rules::MissingBuildDependencyForDhCommand::CODE,
                 crate::lint::rules::PatchFilePresentButNotMentionedInSeries::CODE,
                 crate::lint::rules::AlienTag::CODE,

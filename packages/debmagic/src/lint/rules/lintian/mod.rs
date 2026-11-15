@@ -98,6 +98,7 @@ mod po_debconf;
 mod rules_and_control;
 mod scripts_calls;
 mod scripts_depends;
+mod scripts_interpreters;
 mod scripts_shell;
 mod scripts_text;
 mod systemd;
@@ -478,6 +479,7 @@ pub(crate) use scripts_depends::{
     MaintainerScriptNeedsDependsOnUcf, MaintainerScriptNeedsDependsOnXfontsUtils,
     MaintainerScriptNeedsDependsOnXmlCore, MaintainerScriptShouldNotParseEtcPasswdOrGroup,
 };
+pub(crate) use scripts_interpreters::MissingDepForInterpreter;
 pub(crate) use scripts_shell::{
     CommandWithPathInMaintainerScript, MaintainerScriptIgnoresErrors,
     MaintainerScriptRemovesDeviceFiles, ReadInMaintainerScript, RecursivePrivilegeChange,

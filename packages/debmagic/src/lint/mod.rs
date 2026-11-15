@@ -14,6 +14,7 @@ mod file_type;
 mod gzip;
 mod installation_control;
 mod intent;
+mod interpreter;
 mod lintian_overrides;
 mod lintian_tags;
 mod maintainer_script;

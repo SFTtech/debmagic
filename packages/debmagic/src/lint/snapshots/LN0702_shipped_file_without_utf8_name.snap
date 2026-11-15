@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): shipped-file-without-utf8-name (LN0702) [usr/share/foo/bokmål]
+E: example (binary): shipped-file-without-utf8-name (LN0702) [usr/share/doc/filenames/bokm\ål]
+E: example (binary): shipped-file-without-utf8-name (LN0702) [usr/share/doc/filenames/bokmål]
+E: example (binary): shipped-file-without-utf8-name (LN0702) [usr/bin/sub/ÿ]
+E: example (binary): shipped-file-without-utf8-name (LN0702) [usr/share/été/]
+E: example (udeb): shipped-file-without-utf8-name (LN0702) [usr/lib/Ã]

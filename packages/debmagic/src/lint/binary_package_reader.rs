@@ -21,11 +21,11 @@ pub(crate) struct BinaryPackageReader {
 
 struct TarballIndex {
     #[allow(dead_code)]
-    members: Vec<String>,
-    files: HashMap<String, TarFile>,
+    members: Vec<PathBuf>,
+    files: HashMap<PathBuf, TarFile>,
     /// Directories, symlinks and hardlinks, in archive order. Symlink targets
     /// are as stored; hardlink targets are normalized member paths.
-    links_and_dirs: Vec<(String, TarMember)>,
+    links_and_dirs: Vec<(PathBuf, TarMember)>,
 }
 
 /// A regular file member: its bytes and the header's permission bits.
@@ -43,7 +43,7 @@ struct TarMember {
 enum MemberKind {
     Directory,
     Symlink(PathBuf),
-    Hardlink(String),
+    Hardlink(PathBuf),
 }
 
 impl BinaryPackageReader {
@@ -100,12 +100,12 @@ impl BinaryPackageReader {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn list_control_files(&self) -> anyhow::Result<&[String]> {
+    pub(crate) fn list_control_files(&self) -> anyhow::Result<&[PathBuf]> {
         Ok(&self.control_index()?.members)
     }
 
     #[allow(dead_code)]
-    pub(crate) fn list_data_files(&self) -> anyhow::Result<&[String]> {
+    pub(crate) fn list_data_files(&self) -> anyhow::Result<&[PathBuf]> {
         Ok(&self.data_index()?.members)
     }
 
@@ -221,7 +221,7 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
         let mode = entry
             .header()
             .mode()
-            .with_context(|| format!("{normalized} has no valid mode"))?;
+            .with_context(|| format!("{} has no valid mode", normalized.display()))?;
         let member = |kind| TarMember { kind, mode };
         if entry_type.is_file() {
             let mut bytes = Vec::new();
@@ -232,13 +232,13 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
         } else if entry_type.is_symlink() {
             let target = entry
                 .link_name()?
-                .with_context(|| format!("symlink {normalized} has no target"))?
+                .with_context(|| format!("symlink {} has no target", normalized.display()))?
                 .into_owned();
             links_and_dirs.push((normalized, member(MemberKind::Symlink(target))));
         } else if entry_type.is_hard_link() {
             let target = entry
                 .link_name()?
-                .with_context(|| format!("hardlink {normalized} has no target"))?;
+                .with_context(|| format!("hardlink {} has no target", normalized.display()))?;
             let Some(target) = normalize_member_path(target.as_ref()) else {
                 continue;
             };
@@ -252,19 +252,25 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
     })
 }
 
-fn normalize_member_path(path: &Path) -> Option<String> {
-    let mut value = path.to_string_lossy().into_owned();
-    while let Some(stripped) = value.strip_prefix("./") {
-        value = stripped.to_string();
+/// Strip `./` prefixes, one leading `/`, and trailing `/` from a member path.
+/// Works on the stored bytes, so a name that is not UTF-8 stays as it is.
+fn normalize_member_path(path: &Path) -> Option<PathBuf> {
+    use std::os::unix::ffi::OsStrExt;
+
+    let mut value = path.as_os_str().as_bytes();
+    while let Some(stripped) = value.strip_prefix(b"./") {
+        value = stripped;
     }
-    if let Some(stripped) = value.strip_prefix('/') {
-        value = stripped.to_string();
+    if let Some(stripped) = value.strip_prefix(b"/") {
+        value = stripped;
     }
-    let value = value.trim_end_matches('/');
-    if value.is_empty() || value == "." || value == ".." {
+    while let Some(stripped) = value.strip_suffix(b"/") {
+        value = stripped;
+    }
+    if value.is_empty() || value == b"." || value == b".." {
         return None;
     }
-    Some(value.to_string())
+    Some(PathBuf::from(std::ffi::OsStr::from_bytes(value)))
 }
 
 fn decompress_tar(name: &str, bytes: &[u8]) -> anyhow::Result<Vec<u8>> {
@@ -432,11 +438,15 @@ mod tests {
         let reader = BinaryPackageReader::from_path(&path)?;
         assert_eq!(
             reader.list_control_files()?,
-            ["control", "md5sums"].as_slice()
+            [PathBuf::from("control"), PathBuf::from("md5sums")].as_slice()
         );
         assert_eq!(
             reader.list_data_files()?,
-            ["usr/bin/foo", "usr/share/doc/example/copyright"].as_slice()
+            [
+                PathBuf::from("usr/bin/foo"),
+                PathBuf::from("usr/share/doc/example/copyright")
+            ]
+            .as_slice()
         );
         assert_eq!(
             reader.read_control_file("md5sums")?,
@@ -462,8 +472,11 @@ mod tests {
         write_deb_with_special_data_members(&path)?;
         let reader = BinaryPackageReader::from_path(&path)?;
         let listed = reader.list_data_files()?;
-        assert!(listed.contains(&"usr".to_string()), "{listed:?}");
-        assert!(listed.contains(&"usr/bin/link".to_string()), "{listed:?}");
+        assert!(listed.contains(&PathBuf::from("usr")), "{listed:?}");
+        assert!(
+            listed.contains(&PathBuf::from("usr/bin/link")),
+            "{listed:?}"
+        );
         assert!(reader.read_data_file("usr")?.is_none());
         assert!(reader.read_data_file("usr/bin/link")?.is_none());
         Ok(())
@@ -507,7 +520,7 @@ mod tests {
         }
         assert_eq!(
             entries,
-            vec![("usr/bin/a\\b".to_string(), b"data".to_vec())]
+            vec![(PathBuf::from("usr/bin/a\\b"), b"data".to_vec())]
         );
         let [
             (
@@ -522,8 +535,8 @@ mod tests {
             panic!("expected one hardlink");
         };
         assert_eq!(
-            (path.as_str(), target.as_str()),
-            ("usr/bin/hard", "usr/bin/a\\b")
+            (path.as_path(), target.as_path()),
+            (Path::new("usr/bin/hard"), Path::new("usr/bin/a\\b"))
         );
         Ok(())
     }
@@ -599,6 +612,53 @@ mod tests {
             data.get("usr/bin/app").map(|entry| entry.mode()),
             Some(0o644)
         );
+        Ok(())
+    }
+
+    #[test]
+    fn member_names_keep_bytes_that_are_not_utf8() -> anyhow::Result<()> {
+        use std::ffi::OsStr;
+        use std::os::unix::ffi::OsStrExt;
+
+        let latin1 = b"./usr/share/doc/p/bokm\xe5l";
+        let mut tar_bytes = Vec::new();
+        {
+            let mut builder = tar::Builder::new(&mut tar_bytes);
+            let mut file = tar::Header::new_gnu();
+            file.set_size(4);
+            file.set_mode(0o644);
+            builder.append_data(&mut file, OsStr::from_bytes(latin1), &b"data"[..])?;
+            let mut dir = tar::Header::new_gnu();
+            dir.set_entry_type(tar::EntryType::Directory);
+            dir.set_size(0);
+            dir.set_mode(0o755);
+            builder.append_data(
+                &mut dir,
+                OsStr::from_bytes(b"./usr/share/\xff/"),
+                std::io::empty(),
+            )?;
+            let mut link = tar::Header::new_gnu();
+            link.set_entry_type(tar::EntryType::Link);
+            link.set_size(0);
+            link.set_mode(0o644);
+            builder.append_link(
+                &mut link,
+                "./usr/share/doc/p/link",
+                OsStr::from_bytes(latin1),
+            )?;
+            builder.finish()?;
+        }
+        let tree = file_tree(&index_tarball("data.tar", &tar_bytes)?);
+        let name = Path::new(OsStr::from_bytes(b"usr/share/doc/p/bokm\xe5l"));
+        let file = tree.get(name).expect("raw-byte file name");
+        assert!(file.path().to_str().is_none());
+        assert_eq!(tree.read(file)?, b"data");
+        assert!(tree.get(OsStr::from_bytes(b"usr/share/\xff")).is_some());
+        let link = tree.get("usr/share/doc/p/link").expect("hardlink");
+        assert_eq!(link.hardlink_target(), Some(name));
+        assert_eq!(tree.read(link)?, b"data");
+        // The lossy spelling is not the same name.
+        assert!(tree.get("usr/share/doc/p/bokm\u{fffd}l").is_none());
         Ok(())
     }
 

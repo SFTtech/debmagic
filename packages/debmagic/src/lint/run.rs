@@ -1563,6 +1563,7 @@ Rules
                 crate::lint::rules::EmptyTranslatedChoices::CODE,
                 crate::lint::rules::DuplicateLongDescriptionInTemplate::CODE,
                 crate::lint::rules::StaticallyLinkedBinary::CODE,
+                crate::lint::rules::AlienTag::CODE,
             ]
         );
         let intent = LintIntent {

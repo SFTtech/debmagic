@@ -15,6 +15,7 @@ use super::dsc::Dsc;
 use super::elf::ElfFiles;
 use super::file_tree::{EntryKind, FileTree};
 use super::installation_control::InstallationControl;
+use super::lintian_overrides::LintianOverrides;
 use super::rule::{Code, RuleAccess, Tag};
 use super::source_package::SourcePackageExtract;
 use super::subject::SubjectKind;
@@ -296,6 +297,16 @@ impl<'a> BinaryPackageContext<'a> {
                 None
             }
         }
+    }
+
+    /// Installed Lintian override file (`usr/share/lintian/overrides/<package>`,
+    /// else `.gz`), parsed, not applied. `None` when there is none, and after a
+    /// global File tree failure (returned from [`Self::finish`]).
+    pub fn lintian_overrides(&mut self) -> Option<LintianOverrides> {
+        let package = self.data.package_name.clone();
+        let processable_type = processable_type_for_binary(&self.data.path);
+        let files = self.data_files()?;
+        LintianOverrides::installed(files, &package, processable_type)
     }
 
     /// Compute `build` once for this Subject. Every Rule on the Subject shares
@@ -601,6 +612,20 @@ impl<'a> SourceContext<'a> {
                 Some((path, DebianCopyright::parse(text)))
             })
             .collect()
+    }
+
+    /// Source Lintian override file (`debian/source/lintian-overrides`, else
+    /// `debian/source.lintian-overrides`) of the packaging tree, parsed, not
+    /// applied. `None` when there is none, and after a global File tree
+    /// failure (returned from [`Self::finish`]).
+    #[allow(dead_code)]
+    pub fn lintian_overrides(&mut self) -> Option<LintianOverrides> {
+        let source_name = match self.inner {
+            SourceInner::Tree(data) => data.package_name(),
+            SourceInner::Package(data) => data.package_name.clone(),
+        };
+        let files = self.files()?;
+        LintianOverrides::source(files, &source_name)
     }
 
     /// Whether [`Self::shipped_files`] would list at least one file.

@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import locale
+import os
 import re
 import shutil
 import stat
@@ -395,9 +396,22 @@ def import_recipe(
         else:
             copy_filled_work(work, dest)
 
+    escape_git_dirs(dest)
     copy_eval(recipe, dest)
     write_origin(dest / "ORIGIN", version, commit, recipe_rel, skeleton)
     return dest
+
+
+# Git cannot track a directory named `.git`, but `pre-upstream` hooks create
+# them as cruft (lintian makes them at build time for the same reason). The
+# vendored name is restored to `.git` when the Parity harness copies a recipe.
+VENDORED_GIT_DIR = ".git.vendored"
+
+
+def escape_git_dirs(root: Path) -> None:
+    for directory, subdirs, _files in os.walk(root, topdown=False):
+        if ".git" in subdirs:
+            Path(directory, ".git").rename(Path(directory, VENDORED_GIT_DIR))
 
 
 def all_importable_recipes(lintian_root: Path) -> list[str]:

@@ -3,9 +3,6 @@ __pycache__
 *.pyc
 *.pyo
 *.egg-info
-# lintian recipe package-uses-python-egg-info ships this directory
-!packages/debmagic/tests/lintian-parity/**/*.egg-info/
-!packages/debmagic/tests/lintian-parity/**/*.egg-info/**
 /.coverage
 /coverage.xml
 /junit
@@ -59,3 +56,8 @@ Thumbs.db
 # local
 todo.md
 todo.org
+
+# Vendored lintian Parity recipes ship cruft on purpose (editor backups,
+# bytecode, dist/, *.egg-info, ...); keep all of it. Their .git/ directories
+# are vendored as .git.vendored (see scripts/import_lintian_parity.py).
+!packages/debmagic/tests/lintian-parity/**

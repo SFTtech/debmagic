@@ -12,6 +12,7 @@ use super::debian_control::DebianControl;
 use super::debian_copyright::DebianCopyright;
 use super::diagnostic::{Diagnostic, ProcessableType};
 use super::dsc::Dsc;
+use super::elf::ElfFiles;
 use super::file_tree::{EntryKind, FileTree};
 use super::installation_control::InstallationControl;
 use super::rule::{Code, RuleAccess, Tag};
@@ -269,6 +270,18 @@ impl<'a> BinaryPackageContext<'a> {
                 None
             }
         }
+    }
+
+    /// ELF facts of the Data files ELF Entries (regular files and hardlinks),
+    /// parsed once per Subject and shared by every Rule. `None` after a
+    /// global File tree failure, as for [`Self::data_files`].
+    pub fn data_elf_files(&mut self) -> Option<Arc<ElfFiles>> {
+        self.data_files()?;
+        Some(self.shared_once(|ctx| {
+            ctx.data_files()
+                .map(ElfFiles::from_tree)
+                .unwrap_or_default()
+        }))
     }
 
     /// Control files File tree. `None` after a global File tree failure; that

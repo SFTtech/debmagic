@@ -24,7 +24,7 @@ Not sequenced. Still inspectables, not extra Rules on today's surface:
 
 - `debian/source/` + patches (Format, quilt series, DEP-3)
 - [~] **Debhelper facts** — Declared compat level (`debian/compat`, `Build-Depends: debhelper-compat (= N)`, `X-DH-Compat`) and whether `debian/rules` invokes dh. Forcing Tag: `package-uses-deprecated-debhelper-compat-version` is LN0019 (6 Source-tree recipes and 7 Source-package recipes; `debhelper-compat-missing` is Source-package only, because `tar-ignore` drops `debian/compat` from the packed source). **Left**: dh addons, and lifting LN0003's `debian/rules` scan into this object.
-- ELF facts beyond File type (NEEDED, RPATH, SONAME, hardening)
+- [~] **ELF facts beyond File type** — `ElfFacts` (object type as `file(1)` names it, `PT_INTERP`, `NEEDED`, `SONAME`, `RPATH`, `RUNPATH`) parsed on demand from Entry bytes; `BinaryPackageContext::data_elf_files()` parses Data files once per Subject. See [ADR 0047](docs/adr/0047-elf-facts-are-parsed-on-demand-not-file-type.md). Forcing Tag `statically-linked-binary` is LN0703 (5 Binary recipes). Lintian also skips Go builds through the source package's `Build-Depends-All`; a Binary package Subject has no source package (`binaries-golang` has no hints, so no Parity case). **Left**: hardening (`BIND_NOW`, `TEXTREL`, stack, fortify), symbols, and the file-mode fallback `file(1)` uses for `ET_DYN` without `DT_FLAGS_1`. Follow-ons: `relative-library-search-path`, `custom-library-search-path`, `sharedobject-in-library-directory-missing-soname`, `missing-dependency-on-libc`, `package-name-doesnt-match-sonames`.
 
 ## Out
 

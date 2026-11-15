@@ -2,6 +2,7 @@ mod apache2;
 mod archive_liberty;
 mod autotools;
 mod binaries_perl;
+mod binaries_static;
 mod changelog_doc;
 mod conffiles;
 mod debhelper_rules;
@@ -109,6 +110,7 @@ pub(crate) use apache2::{
 pub(crate) use archive_liberty::ArchiveLibertyMismatch;
 pub(crate) use autotools::{AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe};
 pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
+pub(crate) use binaries_static::StaticallyLinkedBinary;
 pub(crate) use conffiles::{
     FileInUsrMarkedAsConffile, MissingConffile, NonEtcFileMarkedAsConffile,
 };

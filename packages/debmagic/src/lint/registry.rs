@@ -309,6 +309,8 @@ use super::rules::DescriptionIsDebmakeTemplate;
 
 use super::rules::DescriptionStartsWithLeadingSpaces;
 
+use super::rules::StaticallyLinkedBinary;
+
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
     &[
         &DebmagicDummyTrigger,
@@ -893,6 +895,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DescriptionContainsDhMakePerlTemplate,
         &DescriptionIsDebmakeTemplate,
         &DescriptionStartsWithLeadingSpaces,
+        &StaticallyLinkedBinary,
     ]
 }
 
@@ -1507,6 +1510,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DescriptionContainsDhMakePerlTemplate,
         &DescriptionIsDebmakeTemplate,
         &DescriptionStartsWithLeadingSpaces,
+        &StaticallyLinkedBinary,
     ]
 }
 
@@ -2138,6 +2142,7 @@ mod tests {
                 DescriptionContainsDhMakePerlTemplate::CODE,
                 DescriptionIsDebmakeTemplate::CODE,
                 DescriptionStartsWithLeadingSpaces::CODE,
+                StaticallyLinkedBinary::CODE,
             ]
         );
     }

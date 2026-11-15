@@ -322,6 +322,7 @@ use super::rules::DescriptionStartsWithLeadingSpaces;
 use super::rules::DiversionForUnknownFile;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::StaticallyLinkedBinary;
+use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
     &[
@@ -916,6 +917,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageContainsHardlink,
         &ShippedFileWithoutUtf8Name,
         &MissingDepForInterpreter,
+        &TruetypeFontProhibitsInstallableEmbedding,
     ]
 }
 
@@ -1539,6 +1541,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageContainsHardlink,
         &ShippedFileWithoutUtf8Name,
         &MissingDepForInterpreter,
+        &TruetypeFontProhibitsInstallableEmbedding,
     ]
 }
 
@@ -2179,6 +2182,7 @@ mod tests {
                 PackageContainsHardlink::CODE,
                 ShippedFileWithoutUtf8Name::CODE,
                 MissingDepForInterpreter::CODE,
+                TruetypeFontProhibitsInstallableEmbedding::CODE,
             ]
         );
     }

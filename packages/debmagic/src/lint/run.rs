@@ -1603,6 +1603,7 @@ Rules
                 crate::lint::rules::MissingBuildDependencyForDhCommand::CODE,
                 crate::lint::rules::PatchFilePresentButNotMentionedInSeries::CODE,
                 crate::lint::rules::AlienTag::CODE,
+                crate::lint::rules::TruetypeFontProhibitsInstallableEmbedding::CODE,
                 crate::lint::rules::DiversionForUnknownFile::CODE,
             ]
         );

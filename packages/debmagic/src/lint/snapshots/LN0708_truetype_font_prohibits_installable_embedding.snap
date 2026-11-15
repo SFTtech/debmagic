@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): truetype-font-prohibits-installable-embedding (LN0708) (never embed) [usr/share/fonts/NeverEmbed.ttf]
+W: example (binary): truetype-font-prohibits-installable-embedding (LN0708) (preview/print only) [usr/share/fonts/Printable.ttf]
+W: example (binary): truetype-font-prohibits-installable-embedding (LN0708) (edit only) [usr/share/fonts/Editable.ttf]
+W: example (binary): truetype-font-prohibits-installable-embedding (LN0708) (never embed, preview/print only, edit only) [usr/share/fonts/All.ttf]
+W: example (binary): truetype-font-prohibits-installable-embedding (LN0708) (never embed) [usr/share/fonts/IsTTF.otf]
+W: example (binary): truetype-font-prohibits-installable-embedding (LN0708) (preview/print only) [usr/share/fonts/Apple.ttf]
+W: example (binary): truetype-font-prohibits-installable-embedding (LN0708) (edit only) [usr/share/fonts/Hardlink.ttf]
+W: example (udeb): truetype-font-prohibits-installable-embedding (LN0708) (never embed) [usr/share/fonts/Udeb.ttf]

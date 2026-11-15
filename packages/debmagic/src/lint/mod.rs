@@ -25,6 +25,7 @@ mod rule;
 mod rules;
 mod run;
 mod selection;
+mod sfnt;
 mod source_package;
 mod subject;
 #[cfg(test)]

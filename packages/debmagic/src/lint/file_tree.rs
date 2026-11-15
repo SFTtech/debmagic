@@ -35,11 +35,15 @@ pub enum Entry {
         file_type: Option<FileType>,
         content: Option<Vec<u8>>,
     },
+    /// `target` is the member the tar header links to, normalized like
+    /// member paths (no `./` or `/` prefix). `None` on host File trees, where
+    /// a file with more than one link has no distinguished original.
     Hardlink {
         path: PathBuf,
         mode: u32,
         file_type: Option<FileType>,
         content: Option<Vec<u8>>,
+        target: Option<PathBuf>,
     },
     Directory {
         path: PathBuf,
@@ -83,7 +87,16 @@ impl Entry {
             mode: 0o644,
             file_type,
             content,
+            target: None,
         }
+    }
+
+    /// Set the path a hardlink links to. Other variants are returned as is.
+    pub(crate) fn with_hardlink_target(mut self, new: impl Into<PathBuf>) -> Self {
+        if let Self::Hardlink { target, .. } = &mut self {
+            *target = Some(new.into());
+        }
+        self
     }
 
     pub(crate) fn directory(path: impl Into<PathBuf>) -> Self {
@@ -162,6 +175,15 @@ impl Entry {
     pub fn link_target(&self) -> Option<&Path> {
         match self {
             Self::Symlink { target, .. } => Some(target),
+            _ => None,
+        }
+    }
+
+    /// The member a hardlink links to, as stored and normalized. `None` for
+    /// every other variant and for hardlinks on host File trees.
+    pub fn hardlink_target(&self) -> Option<&Path> {
+        match self {
+            Self::Hardlink { target, .. } => target.as_deref(),
             _ => None,
         }
     }
@@ -823,6 +845,21 @@ mod tests {
                 .with_mode(0o701)
                 .is_executable_file()
         );
+    }
+
+    #[test]
+    fn hardlink_target_is_only_on_hardlinks() {
+        let hardlink = Entry::hardlink("usr/bin/b", None, None).with_hardlink_target("usr/bin/a");
+        assert_eq!(hardlink.hardlink_target(), Some(Path::new("usr/bin/a")));
+        assert!(hardlink.link_target().is_none());
+        assert!(
+            Entry::hardlink("usr/bin/b", None, None)
+                .hardlink_target()
+                .is_none()
+        );
+        let symlink = Entry::symlink("usr/bin/c", "a").with_hardlink_target("usr/bin/a");
+        assert!(symlink.hardlink_target().is_none());
+        assert_eq!(symlink.link_target(), Some(Path::new("a")));
     }
 
     #[test]

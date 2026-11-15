@@ -30,10 +30,13 @@ pub enum TestFile {
         file_type: Option<FileType>,
         mode: Option<u32>,
     },
+    /// `target` is the linked member path, `None` when the case does not
+    /// care (as on a host File tree).
     Hardlink {
         content: Vec<u8>,
         file_type: Option<FileType>,
         mode: Option<u32>,
+        target: Option<PathBuf>,
     },
     Directory {
         mode: Option<u32>,
@@ -82,8 +85,28 @@ impl TestFile {
                 content,
                 file_type,
                 mode,
+                target: None,
             },
             other => panic!("only a regular file can become a hardlink, not {other:?}"),
+        }
+    }
+
+    /// Make a regular file a hardlink to the member at `target` (normalized,
+    /// as in the tar header). Panics on other variants.
+    pub fn hardlink_to(self, target: impl Into<PathBuf>) -> Self {
+        match self.hardlink() {
+            Self::Hardlink {
+                content,
+                file_type,
+                mode,
+                ..
+            } => Self::Hardlink {
+                content,
+                file_type,
+                mode,
+                target: Some(target.into()),
+            },
+            _ => unreachable!("hardlink() returns a hardlink"),
         }
     }
 
@@ -123,10 +146,14 @@ impl TestFile {
                 content,
                 file_type,
                 mode,
-            } => (
-                Entry::hardlink(path, *file_type, Some(content.clone())),
-                mode,
-            ),
+                target,
+            } => {
+                let entry = Entry::hardlink(path, *file_type, Some(content.clone()));
+                match target {
+                    Some(target) => (entry.with_hardlink_target(target), mode),
+                    None => (entry, mode),
+                }
+            }
             Self::Directory { mode } => (Entry::directory(path), mode),
             Self::Symlink { target, mode } => (Entry::symlink(path, target), mode),
         };

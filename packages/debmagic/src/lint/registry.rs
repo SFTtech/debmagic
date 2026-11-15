@@ -233,6 +233,8 @@ use super::rules::{
 
 use super::rules::NonStandardExecutablePerm;
 
+use super::rules::PackageContainsHardlink;
+
 use super::rules::NonWmModuleInWmModulesMenuSection;
 
 use super::rules::SuToRootWithUsrSbin;
@@ -908,6 +910,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DiversionForUnknownFile,
         &PatchFilePresentButNotMentionedInSeries,
         &NonStandardExecutablePerm,
+        &PackageContainsHardlink,
     ]
 }
 
@@ -1528,6 +1531,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &AlienTag,
         &DiversionForUnknownFile,
         &NonStandardExecutablePerm,
+        &PackageContainsHardlink,
     ]
 }
 
@@ -2165,6 +2169,7 @@ mod tests {
                 AlienTag::CODE,
                 DiversionForUnknownFile::CODE,
                 NonStandardExecutablePerm::CODE,
+                PackageContainsHardlink::CODE,
             ]
         );
     }

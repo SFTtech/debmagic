@@ -164,7 +164,7 @@ fn file_tree(index: &TarballIndex) -> super::file_tree::FileTree {
             MemberKind::Hardlink(target) => {
                 let content = index.files.get(target).map(|file| file.bytes.clone());
                 let file_type = content.as_deref().and_then(FileType::from_bytes);
-                Entry::hardlink(path, file_type, content)
+                Entry::hardlink(path, file_type, content).with_hardlink_target(target)
             }
         };
         entries.push(entry.with_mode(member.mode));
@@ -568,6 +568,13 @@ mod tests {
             !tree
                 .get("var/tmp")
                 .is_some_and(|entry| entry.is_executable_file())
+        );
+        let hard = tree.get("usr/bin/hard").expect("usr/bin/hard");
+        assert_eq!(hard.hardlink_target(), Some(Path::new("usr/bin/suid")));
+        assert_eq!(tree.read(hard)?, b"data");
+        assert!(
+            tree.get("usr/bin/soft")
+                .is_some_and(|entry| entry.hardlink_target().is_none())
         );
         Ok(())
     }

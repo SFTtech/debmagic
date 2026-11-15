@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use std::sync::LazyLock;
 
-use regex::Regex;
+use regex::bytes::Regex;
 
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
@@ -30,8 +30,9 @@ declare_rule! {
 }
 
 static USUAL: LazyLock<Regex> = LazyLock::new(|| {
+    // Bytes, not text: a name that is not UTF-8 is judged by its directory too.
     Regex::new(concat!(
-        r"^usr/(?:bin|dict|doc|games|include|info|lib(?:x?32|64)?|man|sbin|share|src|X11R6)/",
+        r"(?-u)^usr/(?:bin|dict|doc|games|include|info|lib(?:x?32|64)?|man|sbin|share|src|X11R6)/",
         r"|^lib(?:x?32|64)?/",
         r"|^var/(?:games|lib|www|named)/",
         r"|^(?:bin|boot|dev|etc|sbin)/",
@@ -61,7 +62,7 @@ impl BinaryPackageRule for FileInUnusualDir {
             ])
             .into_iter()
             .map(|entry| entry.path().to_path_buf())
-            .filter(|path| !path.to_str().is_some_and(|name| USUAL.is_match(name)))
+            .filter(|path| !USUAL.is_match(path.as_os_str().as_encoded_bytes()))
             .collect();
         for path in paths {
             ctx.diagnostic(Diagnostic::warn("").with_location(Location {
@@ -75,6 +76,9 @@ impl BinaryPackageRule for FileInUnusualDir {
 
 #[cfg(test)]
 mod tests {
+    use std::ffi::OsString;
+    use std::os::unix::ffi::OsStringExt;
+
     use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
 
     use super::*;
@@ -139,6 +143,11 @@ mod tests {
                 ("usr/weird", TestFile::directory()),
             ]),
             files(&["weird/file"]).udeb(),
+            // A name that is not UTF-8 is judged by its directory.
+            BinaryPackageCase::from(vec![(
+                OsString::from_vec(b"usr/share/foo/bokm\xe5l".to_vec()),
+                TestFile::new("content"),
+            )]),
         ];
         let fail = vec![
             files(&["weird"]),
@@ -157,6 +166,10 @@ mod tests {
                 "usr/share/doc/example/copyright",
                 "stray",
             ]),
+            BinaryPackageCase::from(vec![(
+                OsString::from_vec(b"files/bokm\xe5l".to_vec()),
+                TestFile::new("content"),
+            )]),
         ];
         BinaryPackageTester::new(FileInUnusualDir, pass, fail).test_and_snapshot();
     }

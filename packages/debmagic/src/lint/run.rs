@@ -250,7 +250,7 @@ pub fn format_diagnostic(diagnostic: &Diagnostic) -> String {
         write!(output, " {}", diagnostic.message).expect("writing to string never fails");
     }
     if !diagnostic.location.path.as_os_str().is_empty() {
-        let mut pointer = diagnostic.location.path.display().to_string();
+        let mut pointer = pointer_path(&diagnostic.location.path);
         if let Some(line) = diagnostic.location.line {
             write!(pointer, ":{line}").expect("writing to string never fails");
             if let Some(column) = diagnostic.location.column {
@@ -260,6 +260,20 @@ pub fn format_diagnostic(diagnostic: &Diagnostic) -> String {
         write!(output, " [{pointer}]").expect("writing to string never fails");
     }
     output
+}
+
+/// A Location path as lintian prints a pointer: as is when it is UTF-8,
+/// otherwise every byte read as Latin-1, so the bytes stay visible.
+fn pointer_path(path: &Path) -> String {
+    match path.to_str() {
+        Some(text) => text.to_string(),
+        None => path
+            .as_os_str()
+            .as_encoded_bytes()
+            .iter()
+            .map(|&byte| char::from(byte))
+            .collect(),
+    }
 }
 
 /// Ruff-style end-of-run line: `All checks passed!` or `Found 1 warning.`
@@ -447,6 +461,25 @@ mod tests {
             format_diagnostic(&diagnostic),
             "E: generic-empty (source): required-field (LN0001) (in section for generic-empty) Description [debian/control:4]"
         );
+    }
+
+    #[test]
+    fn format_diagnostic_prints_non_utf8_pointer_as_latin1() {
+        use std::ffi::OsStr;
+        use std::os::unix::ffi::OsStrExt;
+
+        let diagnostic = Diagnostic::error("").with_location(Location {
+            path: PathBuf::from(OsStr::from_bytes(b"usr/share/foo/bokm\xe5l")),
+            line: None,
+            column: None,
+        });
+        assert!(format_diagnostic(&diagnostic).ends_with(" [usr/share/foo/bokm\u{e5}l]"));
+        let utf8 = Diagnostic::error("").with_location(Location {
+            path: PathBuf::from("usr/bin/\u{9ce5}"),
+            line: None,
+            column: None,
+        });
+        assert!(format_diagnostic(&utf8).ends_with(" [usr/bin/\u{9ce5}]"));
     }
 
     #[test]
@@ -1564,6 +1597,7 @@ Rules
                 crate::lint::rules::DuplicateLongDescriptionInTemplate::CODE,
                 crate::lint::rules::NonStandardExecutablePerm::CODE,
                 crate::lint::rules::PackageContainsHardlink::CODE,
+                crate::lint::rules::ShippedFileWithoutUtf8Name::CODE,
                 crate::lint::rules::StaticallyLinkedBinary::CODE,
                 crate::lint::rules::MissingBuildDependencyForDhCommand::CODE,
                 crate::lint::rules::PatchFilePresentButNotMentionedInSeries::CODE,

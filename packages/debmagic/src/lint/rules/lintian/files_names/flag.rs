@@ -22,7 +22,8 @@ pub(super) fn flag_name(ctx: &mut BinaryPackageContext<'_>, hit: NameHit, severi
         .map(|entry| {
             let mut path = entry.path().to_path_buf();
             if entry.kind() == EntryKind::Directory {
-                path = PathBuf::from(format!("{}/", path.display()));
+                // Push onto the raw name, so a name that is not UTF-8 keeps its bytes.
+                path.as_mut_os_string().push("/");
             }
             path
         })

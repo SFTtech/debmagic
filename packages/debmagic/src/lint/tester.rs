@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::ffi::{OsStr, OsString};
 use std::fmt::Write;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -17,7 +18,8 @@ use super::run::format_diagnostic;
 /// One Source tree described as a map of relative paths to file contents.
 #[derive(Clone, Debug, Default)]
 pub struct TestCase {
-    files: BTreeMap<String, TestFile>,
+    /// Keys are raw paths, so a case can hold a name that is not UTF-8.
+    files: BTreeMap<OsString, TestFile>,
 }
 
 /// One fixture Entry. Mirrors [`Entry`]: only the data a variant has.
@@ -132,7 +134,7 @@ impl TestFile {
         self
     }
 
-    fn entry(&self, path: &str) -> Entry {
+    fn entry(&self, path: &OsStr) -> Entry {
         let (entry, mode) = match self {
             Self::RegularFile {
                 content,
@@ -179,7 +181,7 @@ impl From<String> for TestFile {
 impl TestCase {
     pub fn source_tree<P, C>(files: impl IntoIterator<Item = (P, C)>) -> Self
     where
-        P: Into<String>,
+        P: Into<OsString>,
         C: Into<TestFile>,
     {
         Self {
@@ -194,7 +196,11 @@ impl TestCase {
         if self.files.is_empty() {
             return "<empty tree>".to_string();
         }
-        self.files.keys().cloned().collect::<Vec<_>>().join(", ")
+        self.files
+            .keys()
+            .map(|path| path.to_string_lossy())
+            .collect::<Vec<_>>()
+            .join(", ")
     }
 
     fn file_tree(&self) -> FileTree {
@@ -209,7 +215,7 @@ impl TestCase {
 
 impl<P, C> From<Vec<(P, C)>> for TestCase
 where
-    P: Into<String>,
+    P: Into<OsString>,
     C: Into<TestFile>,
 {
     fn from(files: Vec<(P, C)>) -> Self {
@@ -219,7 +225,7 @@ where
 
 impl<const N: usize, P, C> From<[(P, C); N]> for TestCase
 where
-    P: Into<String>,
+    P: Into<OsString>,
     C: Into<TestFile>,
 {
     fn from(files: [(P, C); N]) -> Self {
@@ -380,7 +386,7 @@ impl BinaryPackageCase {
 
     /// Add a Control file (`postinst`, `md5sums`, ...) with `file`'s content.
     /// Every case has Control files, empty unless set.
-    pub fn control_file(mut self, name: impl Into<String>, file: impl Into<TestFile>) -> Self {
+    pub fn control_file(mut self, name: impl Into<OsString>, file: impl Into<TestFile>) -> Self {
         self.control_files.files.insert(name.into(), file.into());
         self
     }
@@ -404,7 +410,7 @@ impl BinaryPackageCase {
             prefix.push_str(&format!("{name}={value:?}: "));
         }
         for (name, file) in &self.control_files.files {
-            prefix.push_str(&format!("control {name}={file:?}: "));
+            prefix.push_str(&format!("control {}={file:?}: ", name.display()));
         }
         format!("{prefix}{files}")
     }
@@ -424,7 +430,7 @@ impl From<TestCase> for BinaryPackageCase {
 
 impl<P, C> From<Vec<(P, C)>> for BinaryPackageCase
 where
-    P: Into<String>,
+    P: Into<OsString>,
     C: Into<TestFile>,
 {
     fn from(files: Vec<(P, C)>) -> Self {
@@ -629,7 +635,7 @@ impl From<TestCase> for SourcePackageCase {
 
 impl<P, C> From<Vec<(P, C)>> for SourcePackageCase
 where
-    P: Into<String>,
+    P: Into<OsString>,
     C: Into<TestFile>,
 {
     fn from(files: Vec<(P, C)>) -> Self {

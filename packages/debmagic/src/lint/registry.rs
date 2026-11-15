@@ -235,6 +235,8 @@ use super::rules::NonStandardExecutablePerm;
 
 use super::rules::PackageContainsHardlink;
 
+use super::rules::ShippedFileWithoutUtf8Name;
+
 use super::rules::NonWmModuleInWmModulesMenuSection;
 
 use super::rules::SuToRootWithUsrSbin;
@@ -911,6 +913,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PatchFilePresentButNotMentionedInSeries,
         &NonStandardExecutablePerm,
         &PackageContainsHardlink,
+        &ShippedFileWithoutUtf8Name,
     ]
 }
 
@@ -1532,6 +1535,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DiversionForUnknownFile,
         &NonStandardExecutablePerm,
         &PackageContainsHardlink,
+        &ShippedFileWithoutUtf8Name,
     ]
 }
 
@@ -2170,6 +2174,7 @@ mod tests {
                 DiversionForUnknownFile::CODE,
                 NonStandardExecutablePerm::CODE,
                 PackageContainsHardlink::CODE,
+                ShippedFileWithoutUtf8Name::CODE,
             ]
         );
     }

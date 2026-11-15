@@ -54,11 +54,22 @@ pub(super) enum NameHit {
     PythonTests,
     Eslint,
     NpmIgnore,
+    NotUtf8,
 }
 
 pub(super) fn name_hits(path: &Path, kind: EntryKind) -> Vec<NameHit> {
+    // The Check's `if (PATH directory) ... elsif (!valid_utf8(name))`.
+    let in_path_directory = path.parent().is_some_and(|parent| {
+        PATH_DIRECTORIES.iter().any(|dir| {
+            parent.as_os_str().as_encoded_bytes() == dir.trim_end_matches('/').as_bytes()
+        })
+    });
     let Some(raw) = path.to_str() else {
-        return Vec::new();
+        return if in_path_directory {
+            vec![NameHit::PathNotAscii]
+        } else {
+            vec![NameHit::NotUtf8]
+        };
     };
     let mut hits = Vec::new();
     if raw.chars().last().is_some_and(char::is_whitespace) {
@@ -118,7 +129,7 @@ pub(super) fn name_hits(path: &Path, kind: EntryKind) -> Vec<NameHit> {
     if basename == ".npmignore" {
         hits.push(NameHit::NpmIgnore);
     }
-    if PATH_DIRECTORIES.contains(&dirname.as_str())
+    if in_path_directory
         && path
             .file_name()
             .is_some_and(|base| base.as_encoded_bytes().iter().any(|byte| !byte.is_ascii()))
@@ -306,5 +317,32 @@ mod tests {
         );
         assert!(name_hits(Path::new("usr/share/foo/鳥"), file).is_empty());
         assert!(name_hits(Path::new("usr/bin/tool"), file).is_empty());
+    }
+
+    #[test]
+    fn names_that_are_not_utf8() {
+        use std::ffi::OsStr;
+        use std::os::unix::ffi::OsStrExt;
+
+        let raw = |bytes: &[u8]| Path::new(OsStr::from_bytes(bytes)).to_path_buf();
+        let file = EntryKind::RegularFile;
+        assert_eq!(
+            name_hits(&raw(b"usr/share/foo/bokm\xe5l"), file),
+            [NameHit::NotUtf8]
+        );
+        assert_eq!(
+            name_hits(&raw(b"usr/share/\xff"), EntryKind::Directory),
+            [NameHit::NotUtf8]
+        );
+        // Directly in a PATH directory it is the PATH Tag instead.
+        assert_eq!(
+            name_hits(&raw(b"usr/bin/bokm\xe5l"), file),
+            [NameHit::PathNotAscii]
+        );
+        assert_eq!(
+            name_hits(&raw(b"usr/bin/sub/bokm\xe5l"), file),
+            [NameHit::NotUtf8]
+        );
+        assert!(name_hits(Path::new("usr/share/foo/bokm\u{e5}l"), file).is_empty());
     }
 }

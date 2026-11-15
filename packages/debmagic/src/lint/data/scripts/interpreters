@@ -1,0 +1,107 @@
+# Map interpreter to installation placement (and optionally
+# the dependency relation required to obtain the interpreter)
+#
+# syntax:
+#   <interpreter> => <path>[, <dependency-relation>]
+#
+# an empty <dependency-relation> means the interpreter is provided
+# by an essential package or otherwise does not need a dependency.
+#
+# Do NOT list versioned interpreters here (such as pythonX.Y,
+# rubyX.Y, etc.).  These are handled by the file
+# scripts/versioned-interpreters.
+#
+# Manually maintained table - please keep it sorted (by key,
+# insensitively)!
+#
+
+ash            => /bin, ash:any
+awk            => /usr/bin
+bash           => /bin
+bltwish        => /usr/bin, blt:any
+cfagent        => /usr/sbin, cfengine2:any
+clisp          => /usr/bin, clisp:any
+csh            => /bin, tcsh:any | csh:any | c-shell:any
+cwl-runner     => /usr/bin, cwltool:any | cwl-runner:any
+dash           => /bin
+escript        => /usr/bin, erlang-base:any | erlang-base-hipe:any
+expect         => /usr/bin, expect:any
+expectk        => /usr/bin, expectk:any
+falcon         => /usr/bin, falconpl:any
+fish           => /usr/bin, fish:any
+fontforge      => /usr/bin, fontforge-nox:any | fontforge:any
+gawk           => /usr/bin, gawk:any
+gbr2           => /usr/bin, gambas2-runtime:any
+gbr3           => /usr/bin, gambas3-runtime:any
+gbx            => /usr/bin, gambas-runtime:any
+gbx2           => /usr/bin, gambas2-runtime:any
+gforth         => /usr/bin, gforth:any
+gjs            => /usr/bin, gjs:any
+gjs-console    => /usr/bin, gjs:any
+gnuplot        => /usr/bin, gnuplot:any
+gosh           => /usr/bin, gauche:any
+hhvm           => /usr/bin, hhvm:any
+icmake         => /usr/bin, icmake:any
+init-d-script  => /lib/init
+install-menu   => /usr/bin
+invoke-run     => /lib/runit
+ir             => /usr/bin, ironruby:any
+jed            => /usr/bin, jed:any
+jed-script     => /usr/bin, jed:any | xjed:any
+julia          => /usr/bin, julia:any
+jython         => /usr/bin, jython:any
+kaptain        => /usr/bin, kaptain:any
+ksh            => /bin, ksh:any | mksh:any | pdksh:any | zsh:any
+lefty          => /usr/bin, graphviz:any
+liquidsoap     => /usr/bin, liquidsoap:any
+magicfilter    => /usr/sbin, magicfilter:any
+make           => /usr/bin, make:any | build-essential:any | dpkg-dev:any
+mawk           => /usr/bin, mawk:any
+mksh           => /bin, mksh:any
+mscgen         => /usr/bin, mscgen:any
+newlisp        => /usr/bin, newlisp:any
+ngraph         => /usr/bin, ngraph-gtk:any
+nickle         => /usr/bin, nickle:any
+node           => /usr/bin, nodejs:any
+ocamlrun       => /usr/bin, ocaml-base-nox:any | ocaml-base:any | ocaml-nox:any | ocaml:any
+pagsh          => /usr/bin, openafs-client:any | heimdal-clients:any
+parrot         => /usr/bin, parrot:any
+perl           => /usr/bin
+perl6          => /usr/bin, rakudo:any
+perl6-m        => /usr/bin, rakudo:any
+php            => /usr/bin, php-cli:any
+plackup        => /usr/bin, libplack-perl:any
+procmail       => /usr/bin, procmail:any
+pypy3          => /usr/bin, pypy3:any
+python3        => /usr/bin, python3:any | python3-minimal:any
+pforth         => /usr/bin, pforth:any
+racket         => /usr/bin, racket:any
+rake           => /usr/bin, rake:any
+raku           => /usr/bin, rakudo:any
+r              => /usr/bin, littler:any | r-cran-littler:any
+rackup         => /usr/bin, ruby-rack:any
+rc             => /usr/bin, rc:any
+regina         => /usr/bin, regina-rexx:any
+rep            => /usr/bin, rep:any
+rexx           => /usr/bin, regina-rexx:any
+rrdcgi         => /usr/bin, rrdtool:any
+Rscript        => /usr/bin, r-base-core:any
+ruby           => /usr/bin, ruby:any
+run            => /lib/runit/invoke, runit:any (>= 2.1.2-23)
+runhaskell     => /usr/bin, ghc:any | ghc6:any
+runhugs        => /usr/bin, hugs:any | hugs98:any
+sed            => /bin
+seed           => /usr/bin, seed:any
+sh             => /bin
+slsh           => /usr/bin, slsh:any
+speedy         => /usr/bin, speedy-cgi-perl:any
+stap           => /usr/bin, systemtap:any
+swipl          => /usr/bin, swi-prolog:any | swi-prolog-nox:any
+tcsh           => /bin, tcsh:any
+texlua         => /usr/bin, texlive-binaries:any (>= 2014.20140512.33982)
+tixwish        => /usr/bin, tix:any
+trs            => /usr/bin, konwert:any
+xjed           => /usr/bin, xjed:any
+yforth         => /usr/bin, yforth:any
+yorick         => /usr/bin, yorick:any
+zsh            => /bin, zsh:any | zsh-beta:any

@@ -298,6 +298,8 @@ use super::rules::HtmlChangelogWithoutTextVersion;
 
 use super::rules::EssentialInSourcePackage;
 
+use super::rules::PatchFilePresentButNotMentionedInSeries;
+
 use super::rules::ExplicitDefaultInPackageType;
 
 use super::rules::DescriptionContainsTabs;
@@ -902,6 +904,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AlienTag,
         &MissingBuildDependencyForDhCommand,
         &DiversionForUnknownFile,
+        &PatchFilePresentButNotMentionedInSeries,
     ]
 }
 
@@ -1107,6 +1110,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &TestsuiteDependsOnObsoletePackage,
         &EssentialInSourcePackage,
         &MissingBuildDependencyForDhCommand,
+        &PatchFilePresentButNotMentionedInSeries,
     ]
 }
 
@@ -1734,6 +1738,7 @@ mod tests {
                 TestsuiteDependsOnObsoletePackage::CODE,
                 EssentialInSourcePackage::CODE,
                 MissingBuildDependencyForDhCommand::CODE,
+                PatchFilePresentButNotMentionedInSeries::CODE,
             ]
         );
     }

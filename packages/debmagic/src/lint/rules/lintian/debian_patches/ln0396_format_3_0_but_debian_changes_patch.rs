@@ -29,9 +29,14 @@ declare_rule! {
 
 static QUILT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"3\.\d+ \(quilt\)").expect("regex"));
 
+/// Lintian's `$quilt_format`: Format matches `3\.\d+ \(quilt\)`.
+pub(super) fn is_quilt_format(format: &str) -> bool {
+    QUILT.is_match(format)
+}
+
 impl SourceRule for Format30ButDebianChangesPatch {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        if !QUILT.is_match(&source_format(ctx)) {
+        if !is_quilt_format(&source_format(ctx)) {
             return;
         }
         let Some(version) = package_version(ctx) else {
@@ -55,7 +60,9 @@ impl SourceRule for Format30ButDebianChangesPatch {
     }
 }
 
-fn source_format(ctx: &mut SourceContext<'_>) -> String {
+/// Format from the Dsc when there is one, otherwise the first line of
+/// `debian/source/format`; empty when neither is readable.
+pub(super) fn source_format(ctx: &mut SourceContext<'_>) -> String {
     if let Some(format) = ctx.dsc().and_then(|dsc| dsc.fields().get("Format")) {
         return format.trim().to_string();
     }

@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): statically-linked-binary (LN0703) [usr/bin/static]
+E: example (binary): statically-linked-binary (LN0703) [usr/bin/hello]
+E: example (binary): statically-linked-binary (LN0703) [usr/bin/static-hello]
+E: example (binary): statically-linked-binary (LN0703) [usr/bin/elfobject]
+E: example (binary): statically-linked-binary (LN0703) [usr/bin/hello.dbg]
+E: example (binary): statically-linked-binary (LN0703) [usr/bin/other-interpreter]
+E: example (binary): statically-linked-binary (LN0703) [lib/debug/hello]
+E: example (binary): statically-linked-binary (LN0703) [usr/bin/tool]
+E: example (binary): statically-linked-binary (LN0703) [usr/bin/tool]

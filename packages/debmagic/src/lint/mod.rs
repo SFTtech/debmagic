@@ -7,6 +7,7 @@ mod debian_control;
 mod debian_copyright;
 mod diagnostic;
 mod dsc;
+mod elf;
 mod file_tree;
 mod file_type;
 mod gzip;

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_lisp (does not satisfy dh-lisp:any) [debian/rules]

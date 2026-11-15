@@ -310,6 +310,7 @@ use super::rules::DescriptionIsDebmakeTemplate;
 
 use super::rules::DescriptionStartsWithLeadingSpaces;
 
+use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::StaticallyLinkedBinary;
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -898,6 +899,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DescriptionStartsWithLeadingSpaces,
         &StaticallyLinkedBinary,
         &AlienTag,
+        &MissingBuildDependencyForDhCommand,
     ]
 }
 
@@ -1102,6 +1104,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DropPythonVersionDeclaration,
         &TestsuiteDependsOnObsoletePackage,
         &EssentialInSourcePackage,
+        &MissingBuildDependencyForDhCommand,
     ]
 }
 
@@ -1727,6 +1730,7 @@ mod tests {
                 DropPythonVersionDeclaration::CODE,
                 TestsuiteDependsOnObsoletePackage::CODE,
                 EssentialInSourcePackage::CODE,
+                MissingBuildDependencyForDhCommand::CODE,
             ]
         );
     }

@@ -72,6 +72,8 @@ not EWI (`E: pkg: tag`) and not our Diagnostic stdout.
 
 Do not submodule lintian or read `/usr/share/lintian` at test time. Native `SourceTreeTester` cases stay hand-written. Parity recipes are **filled sources** plus transcribed `eval/hints` (GPL-2+), with an `ORIGIN` pointer to `lintian 2.139.0 t/recipes/…` — not the raw `build-spec`, and not a built `.deb` / `.dsc`. They live under `packages/debmagic/tests/lintian-parity/`. Source-tree Parity lints a copy of that tree without `ORIGIN` and `eval/`. Binary-package Parity lists recipes whose `eval/hints` mention a catalogued Tag with Binary-package Applicability: `deb`-skeleton recipes assemble lintian’s Build-Product (`make` / `ar` / `tar`); filled Source trees are built with `dpkg-buildpackage -b` and each produced archive is linted ([ADR 0043](../adr/0043-binary-package-parity-builds-filled-trees.md)). Source-package Parity copies the filled tree without `ORIGIN`/`eval/`, runs `dpkg-source -b`, and on `no upstream tarball found` packs a main orig from non-`debian/` paths ([ADR 0039](../adr/0039-source-package-parity-assembles-filled-trees.md)).
 
+Recipes ship cruft on purpose (editor backups, bytecode, VCS directories), so `.gitignore` does not ignore anything under `tests/lintian-parity/`. Git cannot track a directory named `.git`, so the importer vendors those as `.git.vendored` and the Parity harness restores `.git` when it copies a recipe.
+
 Import or refresh the full Parity suite from a lintian version tag (every importable recipe: source-tree, deb, and changes):
 
 ```shell

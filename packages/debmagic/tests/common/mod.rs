@@ -520,6 +520,19 @@ pub fn catalogued_binary_package_recipe_rels() -> Vec<String> {
     rels
 }
 
+/// Git cannot track a directory named `.git`, so the importer vendors the
+/// recipes' `.git/` cruft under this name; copies of a recipe restore it.
+const VENDORED_GIT_DIR: &str = ".git.vendored";
+
+/// The name a recipe Entry has in the tree lintian saw.
+fn unvendored_name(name: std::ffi::OsString) -> std::ffi::OsString {
+    if name == VENDORED_GIT_DIR {
+        ".git".into()
+    } else {
+        name
+    }
+}
+
 fn copy_tree(src: &Path, dst: &Path) {
     fs::create_dir_all(dst).unwrap_or_else(|error| panic!("creating {}: {error}", dst.display()));
     for entry in
@@ -527,7 +540,7 @@ fn copy_tree(src: &Path, dst: &Path) {
     {
         let entry = entry.expect("directory entry");
         let from = entry.path();
-        let to = dst.join(entry.file_name());
+        let to = dst.join(unvendored_name(entry.file_name()));
         let file_type = entry.file_type().expect("file type");
         if file_type.is_dir() {
             copy_tree(&from, &to);
@@ -831,7 +844,7 @@ fn copy_package_tree(src: &Path, dst: &Path) {
             continue;
         }
         let from = entry.path();
-        let to = dst.join(&name);
+        let to = dst.join(unvendored_name(name));
         let file_type = entry.file_type().expect("file type");
         if file_type.is_dir() {
             copy_package_tree(&from, &to);

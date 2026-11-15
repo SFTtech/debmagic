@@ -7,7 +7,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::script::{Continuations, maintainer_script_lines};
+use crate::lint::maintainer_script::{Continuations, maintainer_script_lines};
 
 pub struct MaintainerScriptShouldNotParseEtcPasswdOrGroup;
 

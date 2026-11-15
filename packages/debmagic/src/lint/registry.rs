@@ -231,6 +231,8 @@ use super::rules::{
     PrivacyBreachStatisticsWebsite, PrivacyBreachTwitter, PrivacyBreachUsesEmbeddedFile,
 };
 
+use super::rules::NonStandardExecutablePerm;
+
 use super::rules::NonWmModuleInWmModulesMenuSection;
 
 use super::rules::SuToRootWithUsrSbin;
@@ -905,6 +907,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingBuildDependencyForDhCommand,
         &DiversionForUnknownFile,
         &PatchFilePresentButNotMentionedInSeries,
+        &NonStandardExecutablePerm,
     ]
 }
 
@@ -1524,6 +1527,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &StaticallyLinkedBinary,
         &AlienTag,
         &DiversionForUnknownFile,
+        &NonStandardExecutablePerm,
     ]
 }
 
@@ -2160,6 +2164,7 @@ mod tests {
                 StaticallyLinkedBinary::CODE,
                 AlienTag::CODE,
                 DiversionForUnknownFile::CODE,
+                NonStandardExecutablePerm::CODE,
             ]
         );
     }

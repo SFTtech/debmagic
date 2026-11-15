@@ -22,10 +22,22 @@ pub(crate) struct BinaryPackageReader {
 struct TarballIndex {
     #[allow(dead_code)]
     members: Vec<String>,
-    files: HashMap<String, Vec<u8>>,
+    files: HashMap<String, TarFile>,
     /// Directories, symlinks and hardlinks, in archive order. Symlink targets
     /// are as stored; hardlink targets are normalized member paths.
-    links_and_dirs: Vec<(String, MemberKind)>,
+    links_and_dirs: Vec<(String, TarMember)>,
+}
+
+/// A regular file member: its bytes and the header's permission bits.
+struct TarFile {
+    mode: u32,
+    bytes: Vec<u8>,
+}
+
+/// A non-file member and the header's permission bits.
+struct TarMember {
+    kind: MemberKind,
+    mode: u32,
 }
 
 enum MemberKind {
@@ -139,20 +151,23 @@ fn file_tree(index: &TarballIndex) -> super::file_tree::FileTree {
     use super::file_type::FileType;
 
     let mut entries = Vec::with_capacity(index.files.len() + index.links_and_dirs.len());
-    for (path, bytes) in &index.files {
-        let file_type = FileType::from_bytes(bytes);
-        entries.push(Entry::regular_file(path, file_type, Some(bytes.clone())));
+    for (path, file) in &index.files {
+        let file_type = FileType::from_bytes(&file.bytes);
+        entries.push(
+            Entry::regular_file(path, file_type, Some(file.bytes.clone())).with_mode(file.mode),
+        );
     }
     for (path, member) in &index.links_and_dirs {
-        entries.push(match member {
+        let entry = match &member.kind {
             MemberKind::Directory => Entry::directory(path),
             MemberKind::Symlink(target) => Entry::symlink(path, target),
             MemberKind::Hardlink(target) => {
-                let content = index.files.get(target).cloned();
+                let content = index.files.get(target).map(|file| file.bytes.clone());
                 let file_type = content.as_deref().and_then(FileType::from_bytes);
                 Entry::hardlink(path, file_type, content)
             }
-        });
+        };
+        entries.push(entry.with_mode(member.mode));
     }
     FileTree::from_entries(None, entries)
 }
@@ -176,7 +191,7 @@ fn init_index<'a>(
 
 fn lookup_file<'a>(index: &'a TarballIndex, path: &str) -> Option<&'a [u8]> {
     let key = normalize_member_path(Path::new(path))?;
-    index.files.get(&key).map(Vec::as_slice)
+    index.files.get(&key).map(|file| file.bytes.as_slice())
 }
 
 fn ar_member_name(identifier: &[u8]) -> String {
@@ -203,18 +218,23 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
             members.push(normalized.clone());
         }
         let entry_type = entry.header().entry_type();
+        let mode = entry
+            .header()
+            .mode()
+            .with_context(|| format!("{normalized} has no valid mode"))?;
+        let member = |kind| TarMember { kind, mode };
         if entry_type.is_file() {
             let mut bytes = Vec::new();
             entry.read_to_end(&mut bytes)?;
-            files.insert(normalized, bytes);
+            files.insert(normalized, TarFile { mode, bytes });
         } else if entry_type.is_dir() {
-            links_and_dirs.push((normalized, MemberKind::Directory));
+            links_and_dirs.push((normalized, member(MemberKind::Directory)));
         } else if entry_type.is_symlink() {
             let target = entry
                 .link_name()?
                 .with_context(|| format!("symlink {normalized} has no target"))?
                 .into_owned();
-            links_and_dirs.push((normalized, MemberKind::Symlink(target)));
+            links_and_dirs.push((normalized, member(MemberKind::Symlink(target))));
         } else if entry_type.is_hard_link() {
             let target = entry
                 .link_name()?
@@ -222,7 +242,7 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
             let Some(target) = normalize_member_path(target.as_ref()) else {
                 continue;
             };
-            links_and_dirs.push((normalized, MemberKind::Hardlink(target)));
+            links_and_dirs.push((normalized, member(MemberKind::Hardlink(target))));
         }
     }
     Ok(TarballIndex {
@@ -482,19 +502,95 @@ mod tests {
         }
         let index = index_tarball("data.tar", &tar_bytes)?;
         let mut entries = Vec::new();
-        for (path, bytes) in &index.files {
-            entries.push((path.clone(), bytes.clone()));
+        for (path, file) in &index.files {
+            entries.push((path.clone(), file.bytes.clone()));
         }
         assert_eq!(
             entries,
             vec![("usr/bin/a\\b".to_string(), b"data".to_vec())]
         );
-        let [(path, MemberKind::Hardlink(target))] = index.links_and_dirs.as_slice() else {
+        let [
+            (
+                path,
+                TarMember {
+                    kind: MemberKind::Hardlink(target),
+                    ..
+                },
+            ),
+        ] = index.links_and_dirs.as_slice()
+        else {
             panic!("expected one hardlink");
         };
         assert_eq!(
             (path.as_str(), target.as_str()),
             ("usr/bin/hard", "usr/bin/a\\b")
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn file_tree_keeps_header_permission_bits() -> anyhow::Result<()> {
+        let mut tar_bytes = Vec::new();
+        {
+            let mut builder = tar::Builder::new(&mut tar_bytes);
+            let mut dir = tar::Header::new_gnu();
+            dir.set_entry_type(tar::EntryType::Directory);
+            dir.set_size(0);
+            dir.set_mode(0o1777);
+            builder.append_data(&mut dir, "./var/tmp/", std::io::empty())?;
+            let mut file = tar::Header::new_gnu();
+            file.set_size(4);
+            file.set_mode(0o4754);
+            builder.append_data(&mut file, "./usr/bin/suid", &b"data"[..])?;
+            let mut link = tar::Header::new_gnu();
+            link.set_entry_type(tar::EntryType::Link);
+            link.set_size(0);
+            link.set_mode(0o750);
+            builder.append_link(&mut link, "./usr/bin/hard", "./usr/bin/suid")?;
+            let mut symlink = tar::Header::new_gnu();
+            symlink.set_entry_type(tar::EntryType::Symlink);
+            symlink.set_size(0);
+            symlink.set_mode(0o777);
+            builder.append_link(&mut symlink, "./usr/bin/soft", "suid")?;
+            builder.finish()?;
+        }
+        let tree = file_tree(&index_tarball("data.tar", &tar_bytes)?);
+        let mode = |name: &str| tree.get(name).map(|entry| entry.mode());
+        assert_eq!(mode("var/tmp"), Some(0o1777));
+        assert_eq!(mode("usr/bin/suid"), Some(0o4754));
+        assert_eq!(mode("usr/bin/hard"), Some(0o750));
+        assert_eq!(mode("usr/bin/soft"), Some(0o777));
+        assert!(
+            tree.get("usr/bin/hard")
+                .is_some_and(|entry| entry.is_executable_file())
+        );
+        assert!(
+            !tree
+                .get("var/tmp")
+                .is_some_and(|entry| entry.is_executable_file())
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn control_file_tree_keeps_header_permission_bits() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("example.deb");
+        write_test_deb_with_files(
+            &path,
+            &[("control", b"Package: example\n")],
+            &[("usr/bin/app", b"data")],
+        )?;
+        let reader = BinaryPackageReader::from_path(&path)?;
+        let control = reader.control_file_tree()?;
+        assert_eq!(
+            control.get("control").map(|entry| entry.mode()),
+            Some(0o644)
+        );
+        let data = reader.data_file_tree()?;
+        assert_eq!(
+            data.get("usr/bin/app").map(|entry| entry.mode()),
+            Some(0o644)
         );
         Ok(())
     }

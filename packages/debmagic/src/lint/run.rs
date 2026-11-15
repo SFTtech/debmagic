@@ -1563,8 +1563,9 @@ Rules
                 crate::lint::rules::EmptyTranslatedChoices::CODE,
                 crate::lint::rules::DuplicateLongDescriptionInTemplate::CODE,
                 crate::lint::rules::StaticallyLinkedBinary::CODE,
-                crate::lint::rules::AlienTag::CODE,
                 crate::lint::rules::MissingBuildDependencyForDhCommand::CODE,
+                crate::lint::rules::AlienTag::CODE,
+                crate::lint::rules::DiversionForUnknownFile::CODE,
             ]
         );
         let intent = LintIntent {

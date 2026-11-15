@@ -310,6 +310,7 @@ use super::rules::DescriptionIsDebmakeTemplate;
 
 use super::rules::DescriptionStartsWithLeadingSpaces;
 
+use super::rules::DiversionForUnknownFile;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::StaticallyLinkedBinary;
 
@@ -900,6 +901,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &StaticallyLinkedBinary,
         &AlienTag,
         &MissingBuildDependencyForDhCommand,
+        &DiversionForUnknownFile,
     ]
 }
 
@@ -1517,6 +1519,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DescriptionStartsWithLeadingSpaces,
         &StaticallyLinkedBinary,
         &AlienTag,
+        &DiversionForUnknownFile,
     ]
 }
 
@@ -2151,6 +2154,7 @@ mod tests {
                 DescriptionStartsWithLeadingSpaces::CODE,
                 StaticallyLinkedBinary::CODE,
                 AlienTag::CODE,
+                DiversionForUnknownFile::CODE,
             ]
         );
     }

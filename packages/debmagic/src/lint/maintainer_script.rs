@@ -1,4 +1,5 @@
-//! Maintainer-script text as lintian's `scripts` and `init-d/maintainer-script` Checks read it.
+//! Maintainer-script text as lintian's `scripts`, `init-d/maintainer-script`,
+//! and `maintainer-scripts/diversion` Checks read it.
 //!
 //! A Control file is a maintainer script when its name is `config…` or ends in
 //! `preinst`, `postinst`, `prerm`, or `postrm`, and it is a regular file whose
@@ -8,7 +9,8 @@
 //! finishes is not checked. The reported line is the last physical line of the
 //! join. Shell continuations are joined only for a shell interpreter
 //! (`sh` and the `ash` / `bash` / `dash` / `csh` / `ksh` / `zsh` basenames).
-//! `init-d/maintainer-script` joins every script.
+//! `init-d/maintainer-script` and `maintainer-scripts/diversion` join every
+//! script.
 
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
@@ -33,24 +35,25 @@ static TRAILING_COMMENT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?:^|[^\[\\])[\s&;()](#.*$)").expect("valid regex"));
 
 /// How a trailing `\` is joined.
-pub(super) enum Continuations {
+pub(crate) enum Continuations {
     /// `scripts`: join only when the interpreter is a shell.
     ShellOnly,
-    /// `init-d/maintainer-script`: join every script.
+    /// `init-d/maintainer-script` and `maintainer-scripts/diversion`: join
+    /// every script.
     Always,
 }
 
 /// One code line of a maintainer script, after comments and continuations.
-pub(super) struct ScriptLine {
-    pub(super) path: PathBuf,
+pub(crate) struct ScriptLine {
+    pub(crate) path: PathBuf,
     /// 1-based line of the last physical line that makes up this code line.
-    pub(super) number: u32,
-    pub(super) text: String,
-    pub(super) shell: bool,
+    pub(crate) number: u32,
+    pub(crate) text: String,
+    pub(crate) shell: bool,
 }
 
 /// Code lines of every maintainer script in `files`, in file-tree order.
-pub(super) fn maintainer_script_lines(
+pub(crate) fn maintainer_script_lines(
     files: &FileTree,
     continuations: Continuations,
 ) -> Vec<ScriptLine> {

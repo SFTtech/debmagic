@@ -13,7 +13,7 @@ use regex::Regex;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 
-use super::script::{Continuations, maintainer_script_lines};
+use crate::lint::maintainer_script::{Continuations, maintainer_script_lines};
 
 /// `|| true` on the same line, with or without space around `||`.
 static OR_TRUE: std::sync::LazyLock<Regex> =

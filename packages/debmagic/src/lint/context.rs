@@ -11,6 +11,7 @@ use super::debian_changelog::DebianChangelog;
 use super::debian_control::DebianControl;
 use super::debian_copyright::DebianCopyright;
 use super::diagnostic::{Diagnostic, ProcessableType};
+use super::diversion::Diversions;
 use super::dsc::Dsc;
 use super::elf::ElfFiles;
 use super::file_tree::{EntryKind, FileTree};
@@ -307,6 +308,18 @@ impl<'a> BinaryPackageContext<'a> {
         let processable_type = processable_type_for_binary(&self.data.path);
         let files = self.data_files()?;
         LintianOverrides::installed(files, &package, processable_type)
+    }
+
+    /// Diversions the maintainer scripts declare, read once per Binary
+    /// package. `None` after a global File tree failure of Control files;
+    /// that failure is returned from [`Self::finish`].
+    pub fn diversions(&mut self) -> Option<Arc<Diversions>> {
+        self.control_files()?;
+        Some(self.shared_once(|ctx| {
+            ctx.control_files()
+                .map(Diversions::from_control_files)
+                .unwrap_or_default()
+        }))
     }
 
     /// Compute `build` once for this Subject. Every Rule on the Subject shares

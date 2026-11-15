@@ -86,6 +86,7 @@ mod ln0184_uses_dpkg_database_directly;
 mod ln0185_obsolete_url_in_packaging;
 mod mailbox;
 mod mailcap;
+mod maintainer_scripts_diversion;
 mod md5sums;
 mod menu_format;
 mod menus;
@@ -415,6 +416,7 @@ pub(crate) use ln0135_vcs_field_uses_not_recommended_uri_format::VcsFieldUsesNot
 pub(crate) use ln0183_package_contains_bts_control_dir::PackageContainsBtsControlDir;
 pub(crate) use ln0184_uses_dpkg_database_directly::UsesDpkgDatabaseDirectly;
 pub(crate) use ln0185_obsolete_url_in_packaging::ObsoleteUrlInPackaging;
+pub(crate) use maintainer_scripts_diversion::{DiversionForUnknownFile, PackageUsesLocalDiversion};
 pub(crate) use menu_format::BadTestInMenuItem;
 pub(crate) use menu_format::DesktopContainsDeprecatedKey;
 pub(crate) use menu_format::DesktopEntryContainsDeprecatedKey;
@@ -482,7 +484,7 @@ pub(crate) use scripts_text::{
     MaintainerScriptHidesInitFailure, MaintainerScriptModifiesInetdConf,
     MaintainerScriptShouldNotUseDpkgMaintscriptHelper,
     MaintainerScriptShouldNotUsePiupartsVariable, MaintainerScriptUpdatesFontconfigCacheImproperly,
-    MaintscriptCallsLdconfig, MissingCallToDpkgMaintscriptHelper, PackageUsesLocalDiversion,
+    MaintscriptCallsLdconfig, MissingCallToDpkgMaintscriptHelper,
     PossiblyInsecureHandlingOfTmpFilesInMaintainerScript, PostrmRemovesAlternative,
     ScriptUsesBinEnv, SystemdAlternatives, UdevadmCalledWithoutGuard,
 };

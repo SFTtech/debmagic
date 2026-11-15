@@ -13,6 +13,8 @@ mod file_type;
 mod gzip;
 mod installation_control;
 mod intent;
+mod lintian_overrides;
+mod lintian_tags;
 mod package_relation;
 mod registry;
 mod rule;

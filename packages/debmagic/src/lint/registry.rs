@@ -1,4 +1,5 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
+use super::rules::AlienTag;
 use super::rules::BadVersionInRelation;
 use super::rules::BinaryPackageDependsOnToolchainPackage;
 use super::rules::BreaksWithoutVersion;
@@ -896,6 +897,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DescriptionIsDebmakeTemplate,
         &DescriptionStartsWithLeadingSpaces,
         &StaticallyLinkedBinary,
+        &AlienTag,
     ]
 }
 
@@ -1511,6 +1513,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DescriptionIsDebmakeTemplate,
         &DescriptionStartsWithLeadingSpaces,
         &StaticallyLinkedBinary,
+        &AlienTag,
     ]
 }
 
@@ -2143,6 +2146,7 @@ mod tests {
                 DescriptionIsDebmakeTemplate::CODE,
                 DescriptionStartsWithLeadingSpaces::CODE,
                 StaticallyLinkedBinary::CODE,
+                AlienTag::CODE,
             ]
         );
     }

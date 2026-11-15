@@ -6,4 +6,11 @@ and hooks (pre-upstream, pre-build). eval/hints is transcribed verbatim.
 Source-tree Parity uses (source) lines whose extra is not a .dsc; other
 processable types wait for those Subjects.
 
+Hand-added after the fill: build-spec/diff/README is an upstream change that
+dpkg-source auto-commits (upload-make-builder passes --auto-commit) as
+debian/patches/debian-changes-1.0-1 (template description, creates README)
+and appends to debian/patches/series. The importer does not replay diff/.
+The patch header is abbreviated to its template lines, and the patch stays
+unapplied so Source-package Parity can pack the tree.
+
 License: GPL-2+ (same as lintian; see lintian debian/copyright).

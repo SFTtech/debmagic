@@ -334,7 +334,9 @@ pub(crate) use debian_debconf::BooleanTemplateHasBogusDefault;
 pub(crate) use debian_debconf::DuplicateLongDescriptionInTemplate;
 pub(crate) use debian_debconf::EmptyTranslatedChoices;
 pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;
-pub(crate) use debian_patches::Format30ButDebianChangesPatch;
+pub(crate) use debian_patches::{
+    Format30ButDebianChangesPatch, PatchFilePresentButNotMentionedInSeries,
+};
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,
 };

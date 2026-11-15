@@ -4,3 +4,4 @@ some-other-file -p0
 # non-existent patches trigger error in dpkg-source
 # some-nonexistent-patch
 # file-commented-out
+debian-changes-1.0-1

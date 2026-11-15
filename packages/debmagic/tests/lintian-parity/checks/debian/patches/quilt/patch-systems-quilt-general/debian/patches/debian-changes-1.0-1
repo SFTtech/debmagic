@@ -1,7 +1,8 @@
-This is a description of the patch
+Description: <short summary of the patch>
+ TODO: Put a short summary on the line above and replace this paragraph
+ with a longer explanation of this change.
 
---- a/a	2008-11-11 19:38:12.000000000 +0000
-+++ a/a	2008-11-11 19:38:26.000000000 +0000
-@@ -1 +1,2 @@
- sample text
-+and some more sample text
+--- /dev/null
++++ patch-systems-quilt-general-1.0/README
+@@ -0,0 +1 @@
++Debian README

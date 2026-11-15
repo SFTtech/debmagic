@@ -1,6 +1,6 @@
 use std::any::{Any, TypeId};
 use std::collections::{HashMap, HashSet};
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 use std::sync::{Arc, Mutex, OnceLock, PoisonError};
 
 use anyhow::anyhow;
@@ -14,9 +14,10 @@ use super::diagnostic::{Diagnostic, ProcessableType};
 use super::diversion::Diversions;
 use super::dsc::Dsc;
 use super::elf::ElfFiles;
-use super::file_tree::{EntryKind, FileTree};
+use super::file_tree::{Entry, EntryKind, FileTree};
 use super::installation_control::InstallationControl;
 use super::lintian_overrides::LintianOverrides;
+use super::quilt_series::QuiltSeries;
 use super::rule::{Code, RuleAccess, Tag};
 use super::source_package::SourcePackageExtract;
 use super::subject::SubjectKind;
@@ -641,6 +642,33 @@ impl<'a> SourceContext<'a> {
         LintianOverrides::source(files, &source_name)
     }
 
+    /// Quilt series files directly in `debian/patches/`, parsed: `series` and
+    /// every `<vendor>.series` (lintian matches `/(.+\.)?series$` on the full
+    /// path, so `.series` counts too). A symlink counts when it resolves to a
+    /// file inside the tree; directories, dangling or escaping symlinks are
+    /// left out. A file that is not UTF-8 is read lossily. Sorted by path,
+    /// relative to the root; the path is the series' own, not its target.
+    pub fn quilt_series(&mut self) -> Vec<(PathBuf, QuiltSeries)> {
+        let Some(files) = self.files() else {
+            return Vec::new();
+        };
+        files
+            .query()
+            .kinds([
+                EntryKind::RegularFile,
+                EntryKind::Hardlink,
+                EntryKind::Symlink,
+            ])
+            .into_iter()
+            .filter(|entry| is_quilt_series_path(entry.path()))
+            .filter_map(|entry| {
+                let bytes = files.read(follow_symlinks(files, entry)?).ok()?;
+                let text = String::from_utf8_lossy(&bytes);
+                Some((entry.path().to_path_buf(), QuiltSeries::parse(&text)))
+            })
+            .collect()
+    }
+
     /// Whether [`Self::shipped_files`] would list at least one file.
     ///
     /// Stops at the first shipped file, so a Rule that only needs to know the
@@ -775,6 +803,44 @@ fn any_file(tree: &FileTree, keep: impl Fn(&str) -> bool) -> bool {
             None => keep(&entry.path().to_string_lossy()),
         }
     })
+}
+
+fn is_quilt_series_path(path: &Path) -> bool {
+    path.parent() == Some(Path::new("debian/patches"))
+        && path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .is_some_and(|name| name == "series" || name.ends_with(".series"))
+}
+
+/// The regular file or hardlink `entry` names, following relative symlinks
+/// that stay inside the tree (lintian's `is_open_ok`). `None` for directories,
+/// dangling, absolute, or escaping links, and loops.
+fn follow_symlinks<'t>(tree: &'t FileTree, entry: &'t Entry) -> Option<&'t Entry> {
+    let mut current = entry;
+    for _ in 0..8 {
+        match current.kind() {
+            EntryKind::RegularFile | EntryKind::Hardlink => return Some(current),
+            EntryKind::Directory => return None,
+            EntryKind::Symlink => {
+                let mut resolved = current.path().parent()?.to_path_buf();
+                for component in current.link_target()?.components() {
+                    match component {
+                        Component::Normal(part) => resolved.push(part),
+                        Component::CurDir => {}
+                        Component::ParentDir => {
+                            if !resolved.pop() {
+                                return None;
+                            }
+                        }
+                        Component::RootDir | Component::Prefix(_) => return None,
+                    }
+                }
+                current = tree.get(&resolved)?;
+            }
+        }
+    }
+    None
 }
 
 fn file_names(tree: &FileTree, keep: impl Fn(&str) -> bool) -> Vec<String> {

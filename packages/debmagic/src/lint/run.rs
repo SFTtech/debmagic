@@ -1564,6 +1564,7 @@ Rules
                 crate::lint::rules::DuplicateLongDescriptionInTemplate::CODE,
                 crate::lint::rules::StaticallyLinkedBinary::CODE,
                 crate::lint::rules::MissingBuildDependencyForDhCommand::CODE,
+                crate::lint::rules::PatchFilePresentButNotMentionedInSeries::CODE,
                 crate::lint::rules::AlienTag::CODE,
                 crate::lint::rules::DiversionForUnknownFile::CODE,
             ]

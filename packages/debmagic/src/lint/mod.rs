@@ -18,6 +18,7 @@ mod lintian_overrides;
 mod lintian_tags;
 mod maintainer_script;
 mod package_relation;
+mod quilt_series;
 mod registry;
 mod rule;
 mod rules;

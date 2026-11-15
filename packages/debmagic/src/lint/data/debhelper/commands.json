@@ -1,0 +1,1238 @@
+{
+   "commands" : {
+      "dh_acc" : {
+         "installed_by" : [
+            "dh-acc"
+         ]
+      },
+      "dh_ada_library" : {
+         "installed_by" : [
+            "dh-ada-library"
+         ]
+      },
+      "dh_apache2" : {
+         "installed_by" : [
+            "apache2-dev"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_apparmor" : {
+         "installed_by" : [
+            "dh-apparmor"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_aspell-simple" : {
+         "installed_by" : [
+            "dictionaries-common-dev"
+         ]
+      },
+      "dh_assistant" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_asterisk" : {
+         "installed_by" : [
+            "asterisk-dev"
+         ]
+      },
+      "dh_auto_build" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_auto_build_nant" : {
+         "installed_by" : [
+            "cli-common-dev"
+         ]
+      },
+      "dh_auto_clean" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_auto_clean_nant" : {
+         "installed_by" : [
+            "cli-common-dev"
+         ]
+      },
+      "dh_auto_configure" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_auto_install" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_auto_test" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_autoreconf" : {
+         "installed_by" : [
+            "dh-autoreconf"
+         ]
+      },
+      "dh_autoreconf_clean" : {
+         "installed_by" : [
+            "dh-autoreconf"
+         ]
+      },
+      "dh_autotools-dev_restoreconfig" : {
+         "installed_by" : [
+            "autotools-dev"
+         ]
+      },
+      "dh_autotools-dev_updateconfig" : {
+         "installed_by" : [
+            "autotools-dev"
+         ]
+      },
+      "dh_bash-completion" : {
+         "installed_by" : [
+            "bash-completion"
+         ]
+      },
+      "dh_bugfiles" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_builddeb" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_builtusing" : {
+         "installed_by" : [
+            "dh-builtusing"
+         ]
+      },
+      "dh_clean" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_click" : {
+         "installed_by" : [
+            "click-dev"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_clideps" : {
+         "installed_by" : [
+            "cli-common-dev"
+         ]
+      },
+      "dh_clifixperms" : {
+         "installed_by" : [
+            "cli-common-dev"
+         ]
+      },
+      "dh_cligacpolicy" : {
+         "installed_by" : [
+            "cli-common-dev"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_clistrip" : {
+         "installed_by" : [
+            "cli-common-dev"
+         ]
+      },
+      "dh_cmake_install" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_cme_upgrade" : {
+         "installed_by" : [
+            "cme"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_compress" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_computeautosubstvars" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_configpackage" : {
+         "installed_by" : [
+            "config-package-dev"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_consoledata" : {
+         "installed_by" : [
+            "dh-consoledata"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_coq" : {
+         "installed_by" : [
+            "dh-coq"
+         ]
+      },
+      "dh_cpack_generate" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_cpack_install" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_cpack_substvars" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_cruft" : {
+         "installed_by" : [
+            "dh-cruft"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_ctest_build" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_ctest_clean" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_ctest_configure" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_ctest_start" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_ctest_submit" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_ctest_test" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_ctest_update" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "dh_debputy" : {
+         "installed_by" : [
+            "dh-debputy"
+         ]
+      },
+      "dh_di_kernel_gencontrol" : {
+         "installed_by" : [
+            "dh-di"
+         ]
+      },
+      "dh_di_kernel_install" : {
+         "installed_by" : [
+            "dh-di"
+         ]
+      },
+      "dh_di_numbers" : {
+         "installed_by" : [
+            "dh-di"
+         ]
+      },
+      "dh_dist_zilla_origtar" : {
+         "installed_by" : [
+            "dh-dist-zilla"
+         ]
+      },
+      "dh_dkms" : {
+         "installed_by" : [
+            "dh-dkms"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_dlopenlibdeps" : {
+         "installed_by" : [
+            "dh-dlopenlibdeps"
+         ]
+      },
+      "dh_doc_privacy" : {
+         "installed_by" : [
+            "dh-doc-privacy"
+         ]
+      },
+      "dh_doxygen" : {
+         "installed_by" : [
+            "doxygen"
+         ]
+      },
+      "dh_dwz" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_dzil_build" : {
+         "installed_by" : [
+            "dh-dist-zilla"
+         ]
+      },
+      "dh_dzil_clean" : {
+         "installed_by" : [
+            "dh-dist-zilla"
+         ]
+      },
+      "dh_elpa" : {
+         "installed_by" : [
+            "dh-elpa"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_elpa_test" : {
+         "installed_by" : [
+            "dh-elpa"
+         ]
+      },
+      "dh_fixperms" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_fortran" : {
+         "installed_by" : [
+            "dh-fortran"
+         ]
+      },
+      "dh_fortran_cmake" : {
+         "installed_by" : [
+            "dh-fortran"
+         ]
+      },
+      "dh_fortran_lib" : {
+         "installed_by" : [
+            "dh-fortran"
+         ]
+      },
+      "dh_fortran_mod" : {
+         "installed_by" : [
+            "dh-fortran"
+         ]
+      },
+      "dh_fortran_pkgconf" : {
+         "installed_by" : [
+            "dh-fortran"
+         ]
+      },
+      "dh_gencontrol" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_germinate_clean" : {
+         "installed_by" : [
+            "germinate"
+         ]
+      },
+      "dh_germinate_metapackage" : {
+         "installed_by" : [
+            "germinate"
+         ]
+      },
+      "dh_girepository" : {
+         "installed_by" : [
+            "gobject-introspection-bin"
+         ]
+      },
+      "dh_gnome" : {
+         "installed_by" : [
+            "gnome-pkg-tools"
+         ]
+      },
+      "dh_gnulib_patch" : {
+         "installed_by" : [
+            "gnulib"
+         ]
+      },
+      "dh_gnustep" : {
+         "installed_by" : [
+            "gnustep-make"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_golang" : {
+         "installed_by" : [
+            "dh-golang"
+         ]
+      },
+      "dh_golang_autopkgtest" : {
+         "installed_by" : [
+            "dh-golang"
+         ]
+      },
+      "dh_grantlee" : {
+         "installed_by" : [
+            "libgrantlee5-dev"
+         ]
+      },
+      "dh_gstscancodecs" : {
+         "installed_by" : [
+            "libgstreamer1.0-dev"
+         ]
+      },
+      "dh_haskell_blurbs" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_compiler" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_depends" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_depends_cabal" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_depends_haddock" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_depends_hugs" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_description" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_extra_depends_ghc" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_install_development_libs" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_install_docfiles" : {
+         "installed_by" : [
+            "dh-haskell"
+         ]
+      },
+      "dh_haskell_install_ghc_registration" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_install_haddock" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_install_htmldocs" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_install_profiling_libs" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_provides" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_provides_ghc" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_recommends_documentation_references" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_shlibdeps" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_haskell_suggests" : {
+         "installed_by" : [
+            "haskell-devscripts-minimal"
+         ]
+      },
+      "dh_icons" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_install" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installalternatives" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installcatalogs" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_installchangelogs" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installcliframework" : {
+         "installed_by" : [
+            "cli-common-dev"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installcligac" : {
+         "installed_by" : [
+            "cli-common-dev"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installcron" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installdeb" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installdebconf" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_installdebputy" : {
+         "installed_by" : [
+            "dh-debputy"
+         ]
+      },
+      "dh_installdirs" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installdocs" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_installemacsen" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installexamples" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installgsettings" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_installifupdown" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installinfo" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installinit" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installinitramfs" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installlogcheck" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installlogrotate" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installman" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installmanpages" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installmenu" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installmime" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installmodules" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installnss" : {
+         "installed_by" : [
+            "dh-nss"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installpam" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installppp" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installsystemd" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installsystemduser" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_installsysusers" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_installtex" : {
+         "installed_by" : [
+            "tex-common"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_installtmpfiles" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installudev" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_installwm" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_installxfonts" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_installxmlcatalogs" : {
+         "installed_by" : [
+            "xml-core"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_installyorick" : {
+         "installed_by" : [
+            "yorick-dev"
+         ]
+      },
+      "dh_kodiaddon_depends" : {
+         "installed_by" : [
+            "kodi-addons-dev"
+         ]
+      },
+      "dh_libva" : {
+         "installed_by" : [
+            "libva-dev"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_link" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_linktree" : {
+         "installed_by" : [
+            "dh-linktree"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_lintian" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_lisp" : {
+         "installed_by" : [
+            "dh-lisp"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_listpackages" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_lua" : {
+         "installed_by" : [
+            "dh-lua"
+         ]
+      },
+      "dh_make" : {
+         "installed_by" : [
+            "dh-make"
+         ]
+      },
+      "dh_make_pgxs" : {
+         "installed_by" : [
+            "postgresql-common-dev"
+         ]
+      },
+      "dh_makeclilibs" : {
+         "installed_by" : [
+            "cli-common-dev",
+            "mono-devel"
+         ]
+      },
+      "dh_makefont" : {
+         "installed_by" : [
+            "dh-make"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_makeshlibs" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_md5sums" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_missing" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_mkdocs" : {
+         "installed_by" : [
+            "mkdocs"
+         ]
+      },
+      "dh_movefiles" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_movelibkdeinit" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "dh_movetousr" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_nginx" : {
+         "installed_by" : [
+            "nginx-dev"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_nodejs_autodocs" : {
+         "installed_by" : [
+            "dh-nodejs"
+         ]
+      },
+      "dh_nodejs_build_debug_package" : {
+         "installed_by" : [
+            "dh-nodejs"
+         ]
+      },
+      "dh_nodejs_substvars" : {
+         "installed_by" : [
+            "dh-nodejs"
+         ]
+      },
+      "dh_numpy3" : {
+         "installed_by" : [
+            "python3-numpy-dev"
+         ]
+      },
+      "dh_ocaml" : {
+         "installed_by" : [
+            "dh-ocaml"
+         ]
+      },
+      "dh_ocamlclean" : {
+         "installed_by" : [
+            "dh-ocaml"
+         ]
+      },
+      "dh_ocamldoc" : {
+         "installed_by" : [
+            "dh-ocaml"
+         ]
+      },
+      "dh_ocamlinit" : {
+         "installed_by" : [
+            "dh-ocaml"
+         ]
+      },
+      "dh_octave_changelogs" : {
+         "installed_by" : [
+            "dh-octave"
+         ]
+      },
+      "dh_octave_check" : {
+         "installed_by" : [
+            "dh-octave-autopkgtest"
+         ]
+      },
+      "dh_octave_clean" : {
+         "installed_by" : [
+            "dh-octave"
+         ]
+      },
+      "dh_octave_examples" : {
+         "installed_by" : [
+            "dh-octave"
+         ]
+      },
+      "dh_octave_make" : {
+         "installed_by" : [
+            "dh-octave"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_octave_substvar" : {
+         "installed_by" : [
+            "dh-octave"
+         ]
+      },
+      "dh_octave_version" : {
+         "installed_by" : [
+            "dh-octave"
+         ]
+      },
+      "dh_pdl" : {
+         "installed_by" : [
+            "pdl"
+         ]
+      },
+      "dh_perl" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_perl_dbi" : {
+         "installed_by" : [
+            "libdbi-perl"
+         ]
+      },
+      "dh_perl_imager" : {
+         "installed_by" : [
+            "libimager-perl"
+         ]
+      },
+      "dh_perl_openssl" : {
+         "installed_by" : [
+            "perl-openssl-defaults"
+         ]
+      },
+      "dh_pgxs_test" : {
+         "installed_by" : [
+            "postgresql-common-dev"
+         ]
+      },
+      "dh_php" : {
+         "installed_by" : [
+            "dh-php"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_phpcomposer" : {
+         "installed_by" : [
+            "pkg-php-tools"
+         ]
+      },
+      "dh_phppear" : {
+         "installed_by" : [
+            "pkg-php-tools"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_pidgin" : {
+         "installed_by" : [
+            "pidgin-dev"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_ppp" : {
+         "installed_by" : [
+            "ppp-dev"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_prep" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_puppet_module" : {
+         "installed_by" : [
+            "dh-puppet"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_puppet_module_autopkgtest" : {
+         "installed_by" : [
+            "dh-puppet"
+         ]
+      },
+      "dh_puredata_substvar" : {
+         "installed_by" : [
+            "dh-puredata"
+         ]
+      },
+      "dh_pyppd" : {
+         "installed_by" : [
+            "pyppd"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_python3" : {
+         "installed_by" : [
+            "dh-python"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_python3-ply" : {
+         "installed_by" : [
+            "python3-ply"
+         ]
+      },
+      "dh_qmlcdeps" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "dh_qmldeps" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "dh_quilt_patch" : {
+         "installed_by" : [
+            "quilt"
+         ]
+      },
+      "dh_quilt_unpatch" : {
+         "installed_by" : [
+            "quilt"
+         ]
+      },
+      "dh_raku_build" : {
+         "installed_by" : [
+            "dh-raku"
+         ]
+      },
+      "dh_raku_clean" : {
+         "installed_by" : [
+            "dh-raku"
+         ]
+      },
+      "dh_raku_install" : {
+         "installed_by" : [
+            "dh-raku"
+         ]
+      },
+      "dh_raku_test" : {
+         "installed_by" : [
+            "dh-raku"
+         ]
+      },
+      "dh_rebar" : {
+         "installed_by" : [
+            "dh-rebar"
+         ]
+      },
+      "dh_ruby" : {
+         "installed_by" : [
+            "gem2deb"
+         ]
+      },
+      "dh_ruby_fixdepends" : {
+         "installed_by" : [
+            "gem2deb"
+         ]
+      },
+      "dh_ruby_fixdocs" : {
+         "installed_by" : [
+            "gem2deb"
+         ]
+      },
+      "dh_runit" : {
+         "installed_by" : [
+            "dh-runit"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_sameversiondep" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "dh_scour" : {
+         "installed_by" : [
+            "scour"
+         ]
+      },
+      "dh_setup_copyright" : {
+         "installed_by" : [
+            "dh-setup-copyright"
+         ]
+      },
+      "dh_shell_completions" : {
+         "installed_by" : [
+            "dh-shell-completions"
+         ]
+      },
+      "dh_shlibdeps" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_sodeps" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "dh_sphinxdoc" : {
+         "installed_by" : [
+            "sphinx-common"
+         ]
+      },
+      "dh_strip" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_strip_nondeterminism" : {
+         "installed_by" : [
+            "dh-strip-nondeterminism"
+         ]
+      },
+      "dh_systemd_enable" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_systemd_start" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_sysuser" : {
+         "installed_by" : [
+            "dh-sysuser"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_testdir" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_testroot" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_ucf" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1,
+         "uses_misc_depends" : 1
+      },
+      "dh_update_autotools_config" : {
+         "installed_by" : [
+            "debhelper"
+         ]
+      },
+      "dh_user-session-migration" : {
+         "installed_by" : [
+            "dh-user-session-migration"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_usrlocal" : {
+         "installed_by" : [
+            "debhelper"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_uwsgi" : {
+         "installed_by" : [
+            "uwsgi-dev"
+         ]
+      },
+      "dh_vagrant_plugin" : {
+         "installed_by" : [
+            "vagrant"
+         ]
+      },
+      "dh_varnishabi" : {
+         "installed_by" : [
+            "libvarnishapi-dev"
+         ],
+         "uses_misc_depends" : 1
+      },
+      "dh_vdrplugin_depends" : {
+         "installed_by" : [
+            "vdr-dev"
+         ]
+      },
+      "dh_vdrplugin_enable" : {
+         "installed_by" : [
+            "vdr-dev"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_vignette" : {
+         "installed_by" : [
+            "dh-r"
+         ]
+      },
+      "dh_vim-addon" : {
+         "installed_by" : [
+            "dh-vim-addon"
+         ]
+      },
+      "dh_virtualenv" : {
+         "installed_by" : [
+            "dh-virtualenv"
+         ],
+         "uses_autoscript" : 1
+      },
+      "dh_xine" : {
+         "installed_by" : [
+            "libxine2-dev"
+         ]
+      },
+      "dh_xsf_substvars" : {
+         "installed_by" : [
+            "xserver-xorg-dev"
+         ]
+      },
+      "dh_zathura" : {
+         "installed_by" : [
+            "zathura-dev"
+         ],
+         "uses_misc_depends" : 1
+      }
+   },
+   "preamble" : {
+      "cargo" : "commands",
+      "title" : "Debhelper Commands"
+   }
+}

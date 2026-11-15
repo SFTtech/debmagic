@@ -116,8 +116,8 @@ pub(crate) use conffiles::{
 };
 pub(crate) use debhelper_rules::{
     DebhelperBaseCompatLevelIsMissing, DebhelperButNoMiscDepends,
-    MaintainerScriptLacksDebhelperToken, NoVersionedDebhelperPrerequisite,
-    TypoInDebhelperOverrideTarget,
+    MaintainerScriptLacksDebhelperToken, MissingBuildDependencyForDhCommand,
+    NoVersionedDebhelperPrerequisite, TypoInDebhelperOverrideTarget,
 };
 pub(crate) use desktop::{
     IconSizeAndDirectoryNameMismatch, PackageContainsCompiledFontFile,

@@ -1,0 +1,15 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_md5sums (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_clideps (does not satisfy cli-common-dev:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_gstscancodecs (does not satisfy libgstreamer1.0-dev:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_lisp (does not satisfy dh-lisp:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_strip_nondeterminism (does not satisfy dh-strip-nondeterminism:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_scour (does not satisfy scour:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_installdocs (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_installdocs (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_lisp (does not satisfy dh-lisp:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_apache2 (does not satisfy dh-apache2:any | apache2-dev:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_strip_nondeterminism (does not satisfy dh-strip-nondeterminism:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh_-command (LN0705) dh_lisp (does not satisfy dh-lisp:any) [debian/rules]

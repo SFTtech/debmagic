@@ -7,8 +7,12 @@
 //! that without running `dh_assistant`: the compat file, `Build-Depends:
 //! debhelper-compat (= N)`, and `X-DH-Compat`. A make-level `DH_COMPAT` in
 //! `debian/rules` is a different fact (the conflict Tag) and is not stored
-//! here. Whether `debian/compat` could be read is stored. dh addons are not
-//! stored here.
+//! here. Whether `debian/compat` could be read is stored.
+//!
+//! The `dh_*` command lines of `debian/rules` are stored as lintian's walk
+//! sees them, with whether a make conditional surrounds them; [`prerequisites`]
+//! maps a command to the build dependency that provides it. dh addons (`--with`
+//! and `dh-sequence-*`) are not stored here yet.
 
 use std::path::{Component, Path, PathBuf};
 use std::sync::LazyLock;
@@ -17,6 +21,8 @@ use regex::Regex;
 
 use super::debian_control::DebianControl;
 use super::file_tree::{EntryKind, FileTree};
+
+pub(crate) mod prerequisites;
 
 /// First level that can be declared with `debhelper-compat` (11.1.5~alpha1).
 pub(crate) const VERSIONED_PREREQUISITE_AVAILABLE: u64 = 11;
@@ -61,6 +67,9 @@ static DH_COMMAND: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^\s+[@+-]?(?:\S+=\S+\s+)*(dh_\S+)").expect("regex"));
 static DH_SEQUENCER: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(?:\s+[@+-]?(?:\S+=\S+\s+)*)dh\s+").expect("regex"));
+static MAKE_CONDITIONAL: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^ifn?(?:eq|def)\s").expect("regex"));
+static MAKE_ENDIF: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^endif\s").expect("regex"));
 static INDIRECT_DH: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"^include\s+/usr/share/(?:dh-php/pkg-pecl\.mk|blends-dev/rules)").expect("regex")
 });
@@ -75,6 +84,27 @@ pub(crate) enum CompatSource {
     DebianCompat,
     BuildDepends(u32),
     XDhCompat(u32),
+}
+
+/// A `dh_*` command at the start of a recipe line in `debian/rules`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct DhCommand {
+    name: String,
+    in_make_conditional: bool,
+}
+
+impl DhCommand {
+    /// The command as written, e.g. `dh_installdocs`.
+    pub(crate) fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// lintian's `$maybe_skipping`: more `ifeq`/`ifneq`/`ifdef`/`ifndef`
+    /// lines than `endif` lines came before, or fewer (a stray `endif` counts
+    /// too).
+    pub(crate) fn in_make_conditional(&self) -> bool {
+        self.in_make_conditional
+    }
 }
 
 /// Whether this packaging tree uses debhelper, and the declared compat level.
@@ -95,6 +125,9 @@ pub(crate) struct DebhelperFacts {
     /// Meaningful when [`Self::uses_debhelper`] is true; otherwise the file
     /// was not inspected.
     compat_file_open: bool,
+    /// `dh_*` command lines in file order, repeats kept. Empty when
+    /// [`Self::uses_debhelper`] is false.
+    commands: Vec<DhCommand>,
 }
 
 enum PackagingFile {
@@ -128,7 +161,8 @@ impl DebhelperFacts {
         let PackagingFile::Text(rules) = rules else {
             return Self::unused();
         };
-        if !uses_any_dh_command(&rules) {
+        let walk = walk_rules(&rules);
+        if !walk.seen_any_dh_command {
             return Self::unused();
         }
         let compat_file_open = matches!(compat, PackagingFile::Text(_));
@@ -143,6 +177,7 @@ impl DebhelperFacts {
             source,
             compat_file_value,
             compat_file_open,
+            commands: walk.commands,
         }
     }
 
@@ -153,6 +188,7 @@ impl DebhelperFacts {
             source: None,
             compat_file_value: None,
             compat_file_open: false,
+            commands: Vec::new(),
         }
     }
 
@@ -190,6 +226,13 @@ impl DebhelperFacts {
     /// or determining the level would abort.
     pub(crate) fn compat_source(&self) -> Option<&CompatSource> {
         self.source.as_ref()
+    }
+
+    /// `dh_*` command lines of `debian/rules` in file order, as lintian's
+    /// `debhelper` Check matches them (`dh_autoreconf*` excluded). Empty when
+    /// debhelper is not used.
+    pub(crate) fn commands(&self) -> &[DhCommand] {
+        &self.commands
     }
 }
 
@@ -342,41 +385,71 @@ fn valid_source_name(name: &str) -> bool {
     rest >= 1
 }
 
-/// `dh_autoreconf` is excluded by lintian's `(?!autoreconf)` lookahead.
-fn is_counted_dh_command(line: &str) -> bool {
-    DH_COMMAND
-        .captures(line)
-        .is_some_and(|captures| !captures[1].starts_with("dh_autoreconf"))
+/// The `dh_*` command a recipe line starts with. `dh_autoreconf*` is
+/// excluded by lintian's `(?!autoreconf)` lookahead.
+fn counted_dh_command(line: &str) -> Option<&str> {
+    let name = DH_COMMAND.captures(line)?.get(1)?.as_str();
+    (!name.starts_with("dh_autoreconf")).then_some(name)
 }
 
-fn uses_any_dh_command(text: &str) -> bool {
-    let lines: Vec<&str> = text
-        .split('\n')
-        .map(|line| line.trim_end_matches('\r'))
-        .collect();
+/// What one walk over `debian/rules` records.
+struct RulesWalk {
+    /// lintian's `$seen_any_dh_command`.
+    seen_any_dh_command: bool,
+    commands: Vec<DhCommand>,
+}
+
+/// Walk `debian/rules` as lintian's `debhelper` Check reads it: a line ends
+/// after `\n` and keeps it, a backslash at the end (before that newline)
+/// joins the next line with the newline kept, make conditionals are counted,
+/// and only then are comment lines dropped.
+fn walk_rules(text: &str) -> RulesWalk {
+    let physical: Vec<&str> = text.split_inclusive('\n').collect();
+    let mut walk = RulesWalk {
+        seen_any_dh_command: false,
+        commands: Vec::new(),
+    };
+    let mut maybe_skipping = 0i64;
     let mut index = 0;
-    while index < lines.len() {
-        let mut line = lines[index].to_string();
+    while index < physical.len() {
+        let mut line = physical[index].to_string();
         index += 1;
-        while line.ends_with('\\') {
-            line.pop();
-            if index >= lines.len() {
+        while let Some(stripped) = strip_continuation(&line) {
+            line = stripped;
+            let Some(next) = physical.get(index) else {
                 break;
-            }
-            line.push_str(lines[index]);
+            };
+            line.push_str(next);
             index += 1;
+        }
+        if MAKE_CONDITIONAL.is_match(&line) {
+            maybe_skipping += 1;
+        } else if MAKE_ENDIF.is_match(&line) {
+            maybe_skipping -= 1;
         }
         if COMMENT.is_match(&line) {
             continue;
         }
-        if is_counted_dh_command(&line)
-            || DH_SEQUENCER.is_match(&line)
-            || INDIRECT_DH.is_match(&line)
-        {
-            return true;
+        if let Some(name) = counted_dh_command(&line) {
+            walk.commands.push(DhCommand {
+                name: name.to_string(),
+                in_make_conditional: maybe_skipping != 0,
+            });
+            walk.seen_any_dh_command = true;
+        } else if DH_SEQUENCER.is_match(&line) || INDIRECT_DH.is_match(&line) {
+            walk.seen_any_dh_command = true;
         }
     }
-    false
+    walk
+}
+
+/// Perl `s/\\$//`: one backslash at the very end, or just before a final
+/// newline, is dropped; the newline stays.
+fn strip_continuation(line: &str) -> Option<String> {
+    match line.strip_suffix('\n') {
+        Some(body) => body.strip_suffix('\\').map(|body| format!("{body}\n")),
+        None => line.strip_suffix('\\').map(str::to_string),
+    }
 }
 
 fn read_packaging(files: &FileTree, path: &str) -> PackagingFile {
@@ -539,6 +612,89 @@ Description: example\n extra\n";
         );
         assert!(facts.uses_debhelper());
         assert_eq!(facts.level(), 1);
+    }
+
+    fn commands(facts: &DebhelperFacts) -> Vec<(&str, bool)> {
+        facts
+            .commands()
+            .iter()
+            .map(|command| (command.name(), command.in_make_conditional()))
+            .collect()
+    }
+
+    #[test]
+    fn commands_keep_file_order_and_repeats() {
+        let rules = "\
+%:\n\
+\tdh $@\n\
+build:\n\
+\t-dh_clideps\n\
+\t@FOO=1 dh_lisp || true\n\
+\tdh_lisp\n\
+\tdh_autoreconf\n\
+#\tdh_scour\n\
+override_dh_auto_build:\n";
+        let facts = with_rules(rules, PackagingFile::Missing);
+        assert_eq!(
+            commands(&facts),
+            vec![
+                ("dh_clideps", false),
+                ("dh_lisp", false),
+                ("dh_lisp", false)
+            ]
+        );
+    }
+
+    #[test]
+    fn make_conditionals_are_counted_before_comments() {
+        let rules = "\
+\tdh_testroot\n\
+ifeq \"$(A)\" \"y\"\n\
+\tdh_python3\n\
+else\n\
+  ifeq \"$(B)\" \"y\"\n\
+\tdh_pysupport\n\
+  endif\n\
+endif\n\
+\tdh_scour\n\
+endif\n\
+\tdh_lisp\n";
+        let facts = with_rules(rules, PackagingFile::Missing);
+        assert_eq!(
+            commands(&facts),
+            vec![
+                ("dh_testroot", false),
+                ("dh_python3", true),
+                // Indented `ifeq` and `endif` are not counted; lintian
+                // anchors at column 0.
+                ("dh_pysupport", true),
+                ("dh_scour", false),
+                // A stray `endif` leaves the counter negative, which Perl
+                // also treats as skipping.
+                ("dh_lisp", true),
+            ]
+        );
+    }
+
+    #[test]
+    fn continuations_join_with_the_newline_kept() {
+        // The joined line is `\tFOO=1\n dh_lisp`: `\s+` spans the newline.
+        let facts = with_rules("\tFOO=1 \\\n dh_lisp\n", PackagingFile::Missing);
+        assert_eq!(commands(&facts), vec![("dh_lisp", false)]);
+        // A backslash before `\r\n` is no continuation in Perl.
+        let facts = with_rules("\techo \\\r\n\tdh_lisp\r\n", PackagingFile::Missing);
+        assert_eq!(commands(&facts), vec![("dh_lisp", false)]);
+        // A comment swallows the line it continues into.
+        let facts = with_rules("\tdh $@\n# \\\n\tdh_lisp\n", PackagingFile::Missing);
+        assert!(facts.uses_debhelper());
+        assert!(commands(&facts).is_empty());
+    }
+
+    #[test]
+    fn unused_debhelper_has_no_commands() {
+        let facts = with_rules("\tdh_autoreconf\n", PackagingFile::Missing);
+        assert!(!facts.uses_debhelper());
+        assert!(facts.commands().is_empty());
     }
 
     #[test]

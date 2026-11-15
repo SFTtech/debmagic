@@ -30,7 +30,7 @@ fn lint_dummy_hit_prints_diagnostic_and_succeeds() {
         "expected ruff-style summary, stdout: {stdout}"
     );
     assert!(!stdout.contains("All checks passed!"), "stdout: {stdout}");
-    assert_finished(&stdout, 198);
+    assert_finished(&stdout, 199);
 }
 
 #[test]
@@ -67,7 +67,7 @@ fn lint_dummy_miss_succeeds_without_diagnostic() {
         stdout.contains("All checks passed!"),
         "expected success summary, stdout: {stdout}"
     );
-    assert_finished(&stdout, 198);
+    assert_finished(&stdout, 199);
 }
 
 #[test]
@@ -84,7 +84,7 @@ fn lint_ignore_excludes_dummy_rule() {
         stdout.contains("All checks passed!"),
         "expected success summary, stdout: {stdout}"
     );
-    assert_finished(&stdout, 197);
+    assert_finished(&stdout, 198);
 }
 
 #[test]
@@ -101,7 +101,7 @@ fn lint_select_prefix_excludes_dummy_rule() {
         stdout.contains("All checks passed!"),
         "expected success summary, stdout: {stdout}"
     );
-    assert_finished(&stdout, 198);
+    assert_finished(&stdout, 199);
 }
 
 #[test]
@@ -135,7 +135,7 @@ fn lint_fail_on_warning_exits_nonzero_but_prints_diagnostic() {
         stdout.contains("Found 1 warning."),
         "expected ruff-style summary, stdout: {stdout}"
     );
-    assert_finished(&stdout, 198);
+    assert_finished(&stdout, 199);
 }
 
 #[test]

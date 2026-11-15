@@ -128,6 +128,7 @@ impl SourcePackageExtract {
         let workspace = TempDir::new().context("creating Source package extract directory")?;
         let patched_root = workspace.path().join("patched");
         extract_patched(&identity.path, &patched_root)?;
+        restore_debian_pc(&identity, workspace.path(), &patched_root)?;
 
         let orig_root = if identity.is_native() {
             None
@@ -204,6 +205,36 @@ fn extract_patched(dsc: &Path, dest: &Path) -> anyhow::Result<()> {
                 format!(": {}", stderr.trim())
             }
         );
+    }
+    Ok(())
+}
+
+/// `dpkg-source --extract` skips `*/.pc` so a hostile tarball cannot plant
+/// symlinks quilt would follow. Lintian still sees `debian/.pc` as shipped, so
+/// put it back from the debian tarball.
+fn restore_debian_pc(
+    identity: &DscIdentity,
+    workspace: &Path,
+    patched_root: &Path,
+) -> anyhow::Result<()> {
+    let target = patched_root.join("debian/.pc");
+    if fs::symlink_metadata(&target).is_ok() {
+        return Ok(());
+    }
+    let Some(tarball) = identity.files.iter().find(|name| {
+        let name = name.rsplit('/').next().unwrap_or(name);
+        name.contains(".debian.tar.")
+    }) else {
+        return Ok(());
+    };
+    let stage = workspace.join("debian-stage");
+    extract_tarball(&identity.directory().join(tarball), &stage)?;
+    let source = stage.join("debian/.pc");
+    if fs::symlink_metadata(&source).is_ok() {
+        fs::create_dir_all(patched_root.join("debian"))
+            .with_context(|| format!("creating {}", patched_root.join("debian").display()))?;
+        fs::rename(&source, &target)
+            .with_context(|| format!("moving {} to {}", source.display(), target.display()))?;
     }
     Ok(())
 }

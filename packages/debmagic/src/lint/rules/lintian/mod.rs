@@ -62,6 +62,7 @@ mod files_installed;
 mod files_multi_arch;
 mod files_names;
 mod files_non_free;
+mod files_pam;
 mod files_permissions;
 mod files_pkgconfig;
 mod files_privacy_breach;
@@ -365,6 +366,7 @@ pub(crate) use files_names::{
     PackageContainsSassCacheDirectory, ShippedFileWithoutUtf8Name, StarFile,
     ZeroByteExecutableInPath,
 };
+pub(crate) use files_pam::ConfigFileReserved;
 pub(crate) use files_permissions::NonStandardExecutablePerm;
 pub(crate) use files_pkgconfig::{
     PkgConfigBadDirective, PkgConfigMultiArchWrongDir, PkgConfigUnavailableForCrossCompilation,

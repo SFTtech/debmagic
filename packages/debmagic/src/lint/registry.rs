@@ -240,6 +240,7 @@ use super::rules::{
 
 use super::rules::NonStandardExecutablePerm;
 
+use super::rules::ConfigFileReserved;
 use super::rules::PackageContainsHardlink;
 use super::rules::PackageContainsMimeFileOutsidePackageDir;
 
@@ -1123,6 +1124,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BadPermissionsForEtcEmacsScript,
         &EmacsenCommonWithoutDhElpa,
         &PackageContainsMimeFileOutsidePackageDir,
+        &ConfigFileReserved,
     ]
 }
 
@@ -1850,6 +1852,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BadPermissionsForEtcEmacsScript,
         &EmacsenCommonWithoutDhElpa,
         &PackageContainsMimeFileOutsidePackageDir,
+        &ConfigFileReserved,
     ]
 }
 
@@ -2594,6 +2597,7 @@ mod tests {
                 BadPermissionsForEtcEmacsScript::CODE,
                 EmacsenCommonWithoutDhElpa::CODE,
                 PackageContainsMimeFileOutsidePackageDir::CODE,
+                ConfigFileReserved::CODE,
             ]
         );
     }

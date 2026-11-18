@@ -30,6 +30,7 @@ use super::rules::DebianRulesUsesDebBuildOpts;
 use super::rules::DebianRulesUsesDeprecatedSystemdOverride;
 use super::rules::DebianRulesUsesInstalledPythonVersions;
 use super::rules::DebianRulesUsesUnnecessaryDhArgument;
+use super::rules::DebianUpstreamObsoletePath;
 use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
 use super::rules::DefaultMtaDependencyDoesNotSpecifyMailTransportAgent;
 use super::rules::DefaultMtaDependencyNotListedFirst;
@@ -1167,6 +1168,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WaywardSymbolicLinkTargetInSource,
         &NativeSourceFileWithoutUtf8Name,
         &MissingCallToUpdateFonts,
+        &DebianUpstreamObsoletePath,
     ]
 }
 
@@ -1412,6 +1414,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DuplicateOverrideContext,
         &WaywardSymbolicLinkTargetInSource,
         &NativeSourceFileWithoutUtf8Name,
+        &DebianUpstreamObsoletePath,
     ]
 }
 
@@ -2170,6 +2173,7 @@ mod tests {
                 DuplicateOverrideContext::CODE,
                 WaywardSymbolicLinkTargetInSource::CODE,
                 NativeSourceFileWithoutUtf8Name::CODE,
+                DebianUpstreamObsoletePath::CODE,
             ]
         );
     }

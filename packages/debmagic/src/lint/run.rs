@@ -1720,6 +1720,7 @@ Rules
                 crate::lint::rules::WaywardSymbolicLinkTargetInSource::CODE,
                 crate::lint::rules::NativeSourceFileWithoutUtf8Name::CODE,
                 crate::lint::rules::MissingCallToUpdateFonts::CODE,
+                crate::lint::rules::DebianUpstreamObsoletePath::CODE,
             ]
         );
         let intent = LintIntent {

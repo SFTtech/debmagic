@@ -11,8 +11,9 @@
 //!
 //! The `dh_*` command lines of `debian/rules` are stored as lintian's walk
 //! sees them, with whether a make conditional surrounds them; [`prerequisites`]
-//! maps a command to the build dependency that provides it. dh addons (`--with`
-//! and `dh-sequence-*`) are not stored here yet.
+//! maps a command to the build dependency that provides it. The `--with`
+//! addons of `dh` lines are stored the same way. `dh-sequence-*` build
+//! dependencies are not stored here yet.
 
 use std::path::{Component, Path, PathBuf};
 use std::sync::LazyLock;
@@ -67,6 +68,10 @@ static DH_COMMAND: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^\s+[@+-]?(?:\S+=\S+\s+)*(dh_\S+)").expect("regex"));
 static DH_SEQUENCER: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(?:\s+[@+-]?(?:\S+=\S+\s+)*)dh\s+").expect("regex"));
+/// `--with` and its list, as lintian's `dh` branch matches it: a quoted list
+/// first (group 1 or 2), else the bare word (group 3).
+static WITH_ADDONS: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"\s--with(?:=|\s+)(?:'(\S+)'|"(\S+)"|(\S+))"#).expect("regex"));
 static MAKE_CONDITIONAL: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^ifn?(?:eq|def)\s").expect("regex"));
 static MAKE_ENDIF: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^endif\s").expect("regex"));
@@ -128,6 +133,10 @@ pub(crate) struct DebhelperFacts {
     /// `dh_*` command lines in file order, repeats kept. Empty when
     /// [`Self::uses_debhelper`] is false.
     commands: Vec<DhCommand>,
+    /// `--with` addons of `dh` lines in file order, repeats kept, with `-`
+    /// read as `_` (lintian's `$addon`). Not limited to make conditionals.
+    /// Empty when [`Self::uses_debhelper`] is false.
+    addons: Vec<String>,
 }
 
 enum PackagingFile {
@@ -178,6 +187,7 @@ impl DebhelperFacts {
             compat_file_value,
             compat_file_open,
             commands: walk.commands,
+            addons: walk.addons,
         }
     }
 
@@ -189,6 +199,7 @@ impl DebhelperFacts {
             compat_file_value: None,
             compat_file_open: false,
             commands: Vec::new(),
+            addons: Vec::new(),
         }
     }
 
@@ -233,6 +244,12 @@ impl DebhelperFacts {
     /// debhelper is not used.
     pub(crate) fn commands(&self) -> &[DhCommand] {
         &self.commands
+    }
+
+    /// `--with` addons of `dh` lines in file order, repeats kept, with `-`
+    /// read as `_`. Empty when debhelper is not used.
+    pub(crate) fn addons(&self) -> &[String] {
+        &self.addons
     }
 }
 
@@ -392,11 +409,24 @@ fn counted_dh_command(line: &str) -> Option<&str> {
     (!name.starts_with("dh_autoreconf")).then_some(name)
 }
 
+/// The `--with` addons a `dh` line names, split on `,`, with `-` read as `_`.
+/// Empty pieces are dropped: lintian's empty addon has no prerequisite.
+fn with_addons(line: &str) -> Vec<String> {
+    WITH_ADDONS
+        .captures_iter(line)
+        .filter_map(|captures| captures.get(1).or(captures.get(2)).or(captures.get(3)))
+        .flat_map(|list| list.as_str().split(','))
+        .filter(|addon| !addon.is_empty())
+        .map(|addon| addon.replace('-', "_"))
+        .collect()
+}
+
 /// What one walk over `debian/rules` records.
 struct RulesWalk {
     /// lintian's `$seen_any_dh_command`.
     seen_any_dh_command: bool,
     commands: Vec<DhCommand>,
+    addons: Vec<String>,
 }
 
 /// Walk `debian/rules` as lintian's `debhelper` Check reads it: a line ends
@@ -408,6 +438,7 @@ fn walk_rules(text: &str) -> RulesWalk {
     let mut walk = RulesWalk {
         seen_any_dh_command: false,
         commands: Vec::new(),
+        addons: Vec::new(),
     };
     let mut maybe_skipping = 0i64;
     let mut index = 0;
@@ -436,7 +467,10 @@ fn walk_rules(text: &str) -> RulesWalk {
                 in_make_conditional: maybe_skipping != 0,
             });
             walk.seen_any_dh_command = true;
-        } else if DH_SEQUENCER.is_match(&line) || INDIRECT_DH.is_match(&line) {
+        } else if DH_SEQUENCER.is_match(&line) {
+            walk.seen_any_dh_command = true;
+            walk.addons.extend(with_addons(&line));
+        } else if INDIRECT_DH.is_match(&line) {
             walk.seen_any_dh_command = true;
         }
     }
@@ -695,6 +729,36 @@ endif\n\
         let facts = with_rules("\tdh_autoreconf\n", PackagingFile::Missing);
         assert!(!facts.uses_debhelper());
         assert!(facts.commands().is_empty());
+        assert!(facts.addons().is_empty());
+    }
+
+    #[test]
+    fn addons_are_read_from_dh_lines() {
+        let rules = "\
+%:\n\
+\tdh $@ --with autotools-dev,python3 --with=gnome\n\
+\tdh $@ --with 'quilt' --with \"a,,b\" --with foo'bar'\n\
+\tdh_lisp --with quilt\n\
+ifeq \"$(A)\" \"y\"\n\
+\tdh $@ --with systemd\n\
+endif\n\
+\tdh $@ --with 'open\n\
+#\tdh $@ --with scour\n";
+        let facts = with_rules(rules, PackagingFile::Missing);
+        assert_eq!(
+            facts.addons(),
+            [
+                "autotools_dev",
+                "python3",
+                "gnome",
+                "quilt",
+                "a",
+                "b",
+                "foo'bar'",
+                "systemd",
+                "'open",
+            ]
+        );
     }
 
     #[test]

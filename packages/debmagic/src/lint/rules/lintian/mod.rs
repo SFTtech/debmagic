@@ -30,6 +30,7 @@ mod documentation_manual;
 mod documentation_texinfo;
 mod domain;
 mod executable;
+mod fields_architecture;
 mod fields_mail_address;
 mod fields_package_relations;
 mod fields_relations_extra;
@@ -398,6 +399,7 @@ pub(crate) use debian_po_debconf::{
 };
 pub(crate) use debian_source_dir::CustomCompressionInDebianSourceOptions;
 pub(crate) use debian_variables::IllegalVariable;
+pub(crate) use fields_architecture::AspellPackageNotArchAll;
 pub(crate) use fields_mail_address::{
     FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase, MailAddressLoopsOrBounces, RootInContact,
 };

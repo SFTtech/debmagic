@@ -353,6 +353,7 @@ use super::rules::WrongPathForInterpreter;
 use super::rules::AbsoluteSymbolicLinkTargetInSource;
 use super::rules::ArchDependentFileInUsrShare;
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
+use super::rules::AspellPackageNotArchAll;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::IncorrectLibdirInLaFile;
@@ -1035,6 +1036,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OddStaticLibraryName,
         &IncorrectLibdirInLaFile,
         &NonEmptyDependencyLibsInLaFile,
+        &AspellPackageNotArchAll,
     ]
 }
 
@@ -1718,6 +1720,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OddStaticLibraryName,
         &IncorrectLibdirInLaFile,
         &NonEmptyDependencyLibsInLaFile,
+        &AspellPackageNotArchAll,
     ]
 }
 
@@ -2418,6 +2421,7 @@ mod tests {
                 OddStaticLibraryName::CODE,
                 IncorrectLibdirInLaFile::CODE,
                 NonEmptyDependencyLibsInLaFile::CODE,
+                AspellPackageNotArchAll::CODE,
             ]
         );
     }

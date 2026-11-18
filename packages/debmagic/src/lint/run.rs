@@ -1678,6 +1678,7 @@ Rules
                 crate::lint::rules::NoNewlineAtEnd::CODE,
                 crate::lint::rules::CshConsideredHarmful::CODE,
                 crate::lint::rules::VcsFieldBitrotted::CODE,
+                crate::lint::rules::VcsFieldMismatch::CODE,
             ]
         );
         let intent = LintIntent {

@@ -403,6 +403,7 @@ use super::rules::RDataWithoutReadmeSource;
 use super::rules::RemoveOfUnknownDiversion;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
 use super::rules::VcsFieldBitrotted;
+use super::rules::VcsFieldMismatch;
 use super::rules::ZeroByteExecutableInPath;
 use super::rules::ZeroByteFileInDocDirectory;
 
@@ -1081,6 +1082,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoNewlineAtEnd,
         &CshConsideredHarmful,
         &VcsFieldBitrotted,
+        &VcsFieldMismatch,
     ]
 }
 
@@ -1313,6 +1315,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InvalidDep3FormatPatchOriginFieldDefaultValue,
         &NoNewlineAtEnd,
         &VcsFieldBitrotted,
+        &VcsFieldMismatch,
     ]
 }
 
@@ -2028,6 +2031,7 @@ mod tests {
                 InvalidDep3FormatPatchOriginFieldDefaultValue::CODE,
                 NoNewlineAtEnd::CODE,
                 VcsFieldBitrotted::CODE,
+                VcsFieldMismatch::CODE,
             ]
         );
     }

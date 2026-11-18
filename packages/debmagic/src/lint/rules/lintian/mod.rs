@@ -145,6 +145,7 @@ mod scripts_shell;
 mod scripts_text;
 mod shell_csh;
 mod systemd;
+mod template_dh_make_control;
 mod testsuite;
 mod tlds;
 mod triggers;
@@ -187,6 +188,7 @@ pub(crate) use documentation::{ExecutableInUsrShareDoc, ZeroByteFileInDocDirecto
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use files_duplicates::DuplicateChangelogFiles;
 pub(crate) use shell_csh::CshConsideredHarmful;
+pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{

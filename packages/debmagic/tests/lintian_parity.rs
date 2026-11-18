@@ -280,6 +280,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/nmu/nmu-ubuntu-native",
     "checks/obsolete-sites/fields-cpan-homepage",
     "checks/obsolete-sites/obsolete-sites",
+    "checks/template/dh-make/control/vcs/control-file-general",
     "checks/testsuite/command-with-ampersand",
     "checks/testsuite/depends-on-obsolete-package",
     "checks/testsuite/does-not-query-declared-python-versions",
@@ -949,6 +950,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/nmu/nmu-ubuntu-native",
     "checks/obsolete-sites/fields-cpan-homepage",
     "checks/obsolete-sites/obsolete-sites",
+    "checks/template/dh-make/control/vcs/control-file-general",
     "checks/testsuite/command-with-ampersand",
     "checks/testsuite/depends-on-obsolete-package",
     "checks/testsuite/does-not-query-declared-python-versions",
@@ -1270,6 +1272,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
 #[test_case("checks/obsolete-sites/obsolete-sites"; "checks_obsolete_sites_obsolete_sites")]
+#[test_case("checks/template/dh-make/control/vcs/control-file-general"; "checks_template_dh_make_control_vcs_control_file_general")]
 #[test_case("checks/testsuite/command-with-ampersand"; "checks_testsuite_command_with_ampersand")]
 #[test_case("checks/testsuite/depends-on-obsolete-package"; "checks_testsuite_depends_on_obsolete_package")]
 #[test_case("checks/testsuite/does-not-query-declared-python-versions"; "checks_testsuite_does_not_query_declared_python_versions")]
@@ -1941,6 +1944,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
 #[test_case("checks/obsolete-sites/obsolete-sites"; "checks_obsolete_sites_obsolete_sites")]
+#[test_case("checks/template/dh-make/control/vcs/control-file-general"; "checks_template_dh_make_control_vcs_control_file_general")]
 #[test_case("checks/testsuite/command-with-ampersand"; "checks_testsuite_command_with_ampersand")]
 #[test_case("checks/testsuite/depends-on-obsolete-package"; "checks_testsuite_depends_on_obsolete_package")]
 #[test_case("checks/testsuite/does-not-query-declared-python-versions"; "checks_testsuite_does_not_query_declared_python_versions")]

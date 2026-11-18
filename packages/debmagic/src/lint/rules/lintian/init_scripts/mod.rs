@@ -28,6 +28,7 @@ mod ln0791_init_d_script_missing_dependency_on_local_fs;
 mod ln0792_init_d_script_missing_start;
 mod ln0793_init_d_script_not_included_in_package;
 mod ln0794_init_d_script_not_marked_as_conffile;
+mod ln0795_init_d_script_provides_virtual_facility;
 pub(in crate::lint::rules::lintian) mod systemd_unit;
 
 pub(crate) use ln0230_init_d_script_does_not_implement_required_option::InitDScriptDoesNotImplementRequiredOption;
@@ -54,3 +55,4 @@ pub(crate) use ln0791_init_d_script_missing_dependency_on_local_fs::InitDScriptM
 pub(crate) use ln0792_init_d_script_missing_start::InitDScriptMissingStart;
 pub(crate) use ln0793_init_d_script_not_included_in_package::InitDScriptNotIncludedInPackage;
 pub(crate) use ln0794_init_d_script_not_marked_as_conffile::InitDScriptNotMarkedAsConffile;
+pub(crate) use ln0795_init_d_script_provides_virtual_facility::InitDScriptProvidesVirtualFacility;

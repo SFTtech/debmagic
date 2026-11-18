@@ -49,6 +49,7 @@ static WHITELIST: LazyLock<Vec<String>> = LazyLock::new(|| {
 /// wins. A second `### BEGIN INIT INFO` is ignored.
 #[derive(Debug, Default)]
 pub(super) struct LsbHeader {
+    pub provides: Vec<String>,
     pub default_start: Vec<String>,
     pub default_stop: Vec<String>,
     pub required_start: Vec<String>,
@@ -393,6 +394,7 @@ fn lsb_header(text: &str) -> LsbHeader {
                 .map(str::to_string)
                 .collect();
             match caps[1].to_ascii_lowercase().as_str() {
+                "provides" => header.provides = parts,
                 "default-start" => header.default_start = parts,
                 "default-stop" => header.default_stop = parts,
                 "required-start" => header.required_start = parts,

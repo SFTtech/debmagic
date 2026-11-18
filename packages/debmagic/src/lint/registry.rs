@@ -362,6 +362,7 @@ use super::rules::InfoDocumentNotCompressedWithGzip;
 use super::rules::InfoDocumentNotCompressedWithMaxCompression;
 use super::rules::InitDScriptHasBadStartRunlevel;
 use super::rules::InitDScriptHasDuplicateLsbKeyword;
+use super::rules::InitDScriptHasDuplicateLsbSection;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -1015,6 +1016,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InfoDocumentMissingImageFile,
         &InitDScriptHasBadStartRunlevel,
         &InitDScriptHasDuplicateLsbKeyword,
+        &InitDScriptHasDuplicateLsbSection,
     ]
 }
 
@@ -1688,6 +1690,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InfoDocumentMissingImageFile,
         &InitDScriptHasBadStartRunlevel,
         &InitDScriptHasDuplicateLsbKeyword,
+        &InitDScriptHasDuplicateLsbSection,
     ]
 }
 
@@ -2378,6 +2381,7 @@ mod tests {
                 InfoDocumentMissingImageFile::CODE,
                 InitDScriptHasBadStartRunlevel::CODE,
                 InitDScriptHasDuplicateLsbKeyword::CODE,
+                InitDScriptHasDuplicateLsbSection::CODE,
             ]
         );
     }

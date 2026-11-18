@@ -1608,6 +1608,7 @@ Rules
                 crate::lint::rules::ZeroByteFileInDocDirectory::CODE,
                 crate::lint::rules::ExecutableNotElfOrScript::CODE,
                 crate::lint::rules::RelativeLibrarySearchPath::CODE,
+                crate::lint::rules::UnusualInterpreter::CODE,
             ]
         );
         let intent = LintIntent {

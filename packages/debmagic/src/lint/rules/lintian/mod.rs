@@ -316,7 +316,9 @@ pub(crate) use files_includes::HeaderHasOverlyGenericName;
 pub(crate) use files_installed::{
     FileInUsrLibSgml, PackageInstallsIntoEtcGconfSchemas, RunPartsCronFilenameContainsIllegalChars,
 };
-pub(crate) use files_multi_arch::{MultiarchForeignCmakeFile, MultiarchForeignPkgconfig};
+pub(crate) use files_multi_arch::{
+    MultiarchForeignCmakeFile, MultiarchForeignPkgconfig, MultiarchForeignSharedLibrary,
+};
 pub(crate) use files_names::{
     FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,
     HyphenFile, PackageContainsCompiledGlibSchema, PackageContainsEslintConfigFile,

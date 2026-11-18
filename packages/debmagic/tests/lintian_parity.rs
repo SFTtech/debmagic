@@ -116,6 +116,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/debhelper-compat-old",
     "checks/debian/rules/debhelper-deb-build-options",
     "checks/debian/rules/debhelper-dh-compat",
+    "checks/debian/rules/debhelper-no-depends",
     "checks/debian/rules/debian-rules-calls-nproc",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
@@ -123,7 +124,9 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/legacy-binary",
     "checks/debian/rules/legacy-debconf",
     "checks/debian/rules/legacy-etcfiles",
+    "checks/debian/rules/legacy-fields",
     "checks/debian/rules/legacy-scripts",
+    "checks/debian/rules/rules-build-dep-pattern",
     "checks/debian/rules/rules-dh-order",
     "checks/debian/rules/rules-dh-unused-target-nonempty",
     "checks/debian/rules/rules-general",
@@ -697,6 +700,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/debhelper-compat-old",
     "checks/debian/rules/debhelper-deb-build-options",
     "checks/debian/rules/debhelper-dh-compat",
+    "checks/debian/rules/debhelper-no-depends",
     "checks/debian/rules/debian-rules-calls-nproc",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
@@ -704,7 +708,9 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/legacy-binary",
     "checks/debian/rules/legacy-debconf",
     "checks/debian/rules/legacy-etcfiles",
+    "checks/debian/rules/legacy-fields",
     "checks/debian/rules/legacy-scripts",
+    "checks/debian/rules/rules-build-dep-pattern",
     "checks/debian/rules/rules-dh-order",
     "checks/debian/rules/rules-dh-unused-target-nonempty",
     "checks/debian/rules/rules-general",
@@ -978,6 +984,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
 #[test_case("checks/debian/rules/debhelper-deb-build-options"; "checks_debian_rules_debhelper_deb_build_options")]
 #[test_case("checks/debian/rules/debhelper-dh-compat"; "checks_debian_rules_debhelper_dh_compat")]
+#[test_case("checks/debian/rules/debhelper-no-depends"; "checks_debian_rules_debhelper_no_depends")]
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
@@ -985,7 +992,9 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
 #[test_case("checks/debian/rules/legacy-debconf"; "checks_debian_rules_legacy_debconf")]
 #[test_case("checks/debian/rules/legacy-etcfiles"; "checks_debian_rules_legacy_etcfiles")]
+#[test_case("checks/debian/rules/legacy-fields"; "checks_debian_rules_legacy_fields")]
 #[test_case("checks/debian/rules/legacy-scripts"; "checks_debian_rules_legacy_scripts")]
+#[test_case("checks/debian/rules/rules-build-dep-pattern"; "checks_debian_rules_rules_build_dep_pattern")]
 #[test_case("checks/debian/rules/rules-dh-order"; "checks_debian_rules_rules_dh_order")]
 #[test_case("checks/debian/rules/rules-dh-unused-target-nonempty"; "checks_debian_rules_rules_dh_unused_target_nonempty")]
 #[test_case("checks/debian/rules/rules-general"; "checks_debian_rules_rules_general")]
@@ -1561,6 +1570,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/debhelper-compat-old"; "checks_debian_rules_debhelper_compat_old")]
 #[test_case("checks/debian/rules/debhelper-deb-build-options"; "checks_debian_rules_debhelper_deb_build_options")]
 #[test_case("checks/debian/rules/debhelper-dh-compat"; "checks_debian_rules_debhelper_dh_compat")]
+#[test_case("checks/debian/rules/debhelper-no-depends"; "checks_debian_rules_debhelper_no_depends")]
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
@@ -1568,7 +1578,9 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
 #[test_case("checks/debian/rules/legacy-debconf"; "checks_debian_rules_legacy_debconf")]
 #[test_case("checks/debian/rules/legacy-etcfiles"; "checks_debian_rules_legacy_etcfiles")]
+#[test_case("checks/debian/rules/legacy-fields"; "checks_debian_rules_legacy_fields")]
 #[test_case("checks/debian/rules/legacy-scripts"; "checks_debian_rules_legacy_scripts")]
+#[test_case("checks/debian/rules/rules-build-dep-pattern"; "checks_debian_rules_rules_build_dep_pattern")]
 #[test_case("checks/debian/rules/rules-dh-order"; "checks_debian_rules_rules_dh_order")]
 #[test_case("checks/debian/rules/rules-dh-unused-target-nonempty"; "checks_debian_rules_rules_dh_unused_target_nonempty")]
 #[test_case("checks/debian/rules/rules-general"; "checks_debian_rules_rules_general")]

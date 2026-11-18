@@ -23,6 +23,7 @@ mod ln0586_debian_rules_should_not_use_dh_extra_addons;
 mod ln0587_debian_rules_should_not_use_sanitize_all_buildflag;
 mod ln0588_debian_rules_updates_control_automatically;
 mod ln0589_debian_rules_uses_deb_build_opts;
+mod ln0712_rules_require_build_prerequisite;
 mod text;
 
 pub(super) use text::{complete_lines, read_rules_from_tree};
@@ -46,3 +47,4 @@ pub(crate) use ln0586_debian_rules_should_not_use_dh_extra_addons::DebianRulesSh
 pub(crate) use ln0587_debian_rules_should_not_use_sanitize_all_buildflag::DebianRulesShouldNotUseSanitizeAllBuildflag;
 pub(crate) use ln0588_debian_rules_updates_control_automatically::DebianRulesUpdatesControlAutomatically;
 pub(crate) use ln0589_debian_rules_uses_deb_build_opts::DebianRulesUsesDebBuildOpts;
+pub(crate) use ln0712_rules_require_build_prerequisite::RulesRequireBuildPrerequisite;

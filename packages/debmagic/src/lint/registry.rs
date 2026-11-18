@@ -327,6 +327,7 @@ use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::OrphanedDiversion;
 use super::rules::ScriptWithoutInterpreter;
 use super::rules::RelativeLibrarySearchPath;
+use super::rules::RulesRequireBuildPrerequisite;
 use super::rules::StaticallyLinkedBinary;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 
@@ -937,6 +938,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingBuildDependencyForDhAddon,
         &PhpScriptButNoPhpCliDep,
         &OrphanedDiversion,
+        &RulesRequireBuildPrerequisite,
     ]
 }
 
@@ -1144,6 +1146,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MissingBuildDependencyForDhCommand,
         &PatchFilePresentButNotMentionedInSeries,
         &MissingBuildDependencyForDhAddon,
+        &RulesRequireBuildPrerequisite,
     ]
 }
 
@@ -1786,6 +1789,7 @@ mod tests {
                 MissingBuildDependencyForDhCommand::CODE,
                 PatchFilePresentButNotMentionedInSeries::CODE,
                 MissingBuildDependencyForDhAddon::CODE,
+                RulesRequireBuildPrerequisite::CODE,
             ]
         );
     }

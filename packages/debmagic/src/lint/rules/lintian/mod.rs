@@ -40,6 +40,7 @@ mod fields_relations_more;
 mod fields_standards_version;
 mod fields_text;
 mod fields_uploaders;
+mod fields_vcs;
 mod fields_version;
 mod files_artifact;
 mod files_build_path;
@@ -300,6 +301,7 @@ pub(crate) use fields_text::{
     SuperfluousClutterInHomepage, UnknownSection,
 };
 pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
+pub(crate) use fields_vcs::VcsFieldBitrotted;
 pub(crate) use files_artifact::{
     DebianAddsArchControlDir, DebianAddsArchInventoryFile, DebianAddsBtsControlDir,
     DebianAddsBzrControlDir, DebianAddsCvsConflictCopy, DebianAddsCvsControlDir,

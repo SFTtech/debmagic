@@ -1670,6 +1670,7 @@ Rules
                 crate::lint::rules::DuplicateConffile::CODE,
                 crate::lint::rules::FileInEtcRcDMarkedAsConffile::CODE,
                 crate::lint::rules::FileInRootAndUsr::CODE,
+                crate::lint::rules::LibraryInRootAndUsr::CODE,
             ]
         );
         let intent = LintIntent {

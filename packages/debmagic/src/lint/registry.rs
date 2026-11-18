@@ -381,6 +381,7 @@ use super::rules::InvalidDep3FormatPatchBugFieldDefaultValue;
 use super::rules::InvalidDep3FormatPatchBugNotContainUrl;
 use super::rules::InvalidDep3FormatPatchMaybeBugDebian;
 use super::rules::InvalidDep3FormatPatchOriginFieldDefaultValue;
+use super::rules::LibraryInRootAndUsr;
 use super::rules::MissingDebianSourceFormat;
 use super::rules::MultiarchForeignCmakeFile;
 use super::rules::MultiarchForeignSharedLibrary;
@@ -1065,6 +1066,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DuplicateConffile,
         &FileInEtcRcDMarkedAsConffile,
         &FileInRootAndUsr,
+        &LibraryInRootAndUsr,
     ]
 }
 
@@ -1763,6 +1765,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DuplicateConffile,
         &FileInEtcRcDMarkedAsConffile,
         &FileInRootAndUsr,
+        &LibraryInRootAndUsr,
     ]
 }
 
@@ -2484,6 +2487,7 @@ mod tests {
                 DuplicateConffile::CODE,
                 FileInEtcRcDMarkedAsConffile::CODE,
                 FileInRootAndUsr::CODE,
+                LibraryInRootAndUsr::CODE,
             ]
         );
     }

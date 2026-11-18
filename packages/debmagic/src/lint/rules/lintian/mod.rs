@@ -159,7 +159,7 @@ pub(crate) use desktop::{
 };
 pub(crate) use desktop_gir::GirSectionNotLibdevel;
 pub(crate) use documentation::ZeroByteFileInDocDirectory;
-pub(crate) use usrmerge::FileInRootAndUsr;
+pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{
     BogusMailHostInDebianChangelog, ChangelogEmptyEntry, ChangelogIsSymlink,

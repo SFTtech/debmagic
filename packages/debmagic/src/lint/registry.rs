@@ -388,6 +388,7 @@ use super::rules::MissingDebianSourceFormat;
 use super::rules::MultiarchForeignCmakeFile;
 use super::rules::MultiarchForeignSharedLibrary;
 use super::rules::MultiarchForeignStaticLibrary;
+use super::rules::NoNewlineAtEnd;
 use super::rules::NonConfFileInModprobeD;
 use super::rules::NonEmptyDependencyLibsInLaFile;
 use super::rules::OddStaticLibraryName;
@@ -1075,6 +1076,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NonConfFileInModprobeD,
         &OldDevhelpStandard,
         &DuplicateChangelogFiles,
+        &NoNewlineAtEnd,
     ]
 }
 
@@ -1305,6 +1307,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InvalidDep3FormatPatchBugNotContainUrl,
         &InvalidDep3FormatPatchMaybeBugDebian,
         &InvalidDep3FormatPatchOriginFieldDefaultValue,
+        &NoNewlineAtEnd,
     ]
 }
 
@@ -2017,6 +2020,7 @@ mod tests {
                 InvalidDep3FormatPatchBugNotContainUrl::CODE,
                 InvalidDep3FormatPatchMaybeBugDebian::CODE,
                 InvalidDep3FormatPatchOriginFieldDefaultValue::CODE,
+                NoNewlineAtEnd::CODE,
             ]
         );
     }

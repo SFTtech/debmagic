@@ -19,6 +19,7 @@ mod debian_readme;
 mod debian_rules;
 mod debian_shlibs;
 mod debian_source_dir;
+mod debian_trailing_whitespace;
 mod debian_variables;
 mod debian_version_substvars;
 mod debian_watch;
@@ -154,6 +155,7 @@ pub(crate) use debhelper_rules::{
     MissingBuildDependencyForDhCommand, NoVersionedDebhelperPrerequisite,
     TypoInDebhelperOverrideTarget,
 };
+pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
 pub(crate) use desktop::{
     DesktopFileInWrongDir, FileInDiscouragedX11FontDirectory, FileInUnknownX11FontDirectory,
     IconSizeAndDirectoryNameMismatch, PackageContainsCompiledFontFile,

@@ -591,6 +591,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/maintainer-scripts/empty/scripts-maintainer-script-empty",
     "checks/maintainer-scripts/helper/dpkg/scripts-maintainer-general",
     "checks/maintainer-scripts/helper/dpkg/scripts-missing-call-to-dpkg-maintscript-helper",
+    "checks/maintainer-scripts/killall/scripts-killall",
     "checks/maintainer-scripts/ldconfig/legacy-maintainer-scripts",
     "checks/maintainer-scripts/ldconfig/shared-libs-ldconfig-scripts",
     "checks/maintainer-scripts/mknod/scripts-maintainer-general",
@@ -1550,6 +1551,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/maintainer-scripts/empty/scripts-maintainer-script-empty"; "checks_maintainer_scripts_empty_scripts_maintainer_script_empty")]
 #[test_case("checks/maintainer-scripts/helper/dpkg/scripts-maintainer-general"; "checks_maintainer_scripts_helper_dpkg_scripts_maintainer_general")]
 #[test_case("checks/maintainer-scripts/helper/dpkg/scripts-missing-call-to-dpkg-maintscript-helper"; "checks_maintainer_scripts_helper_dpkg_scripts_missing_call_to_dpkg_maintscript_helper")]
+#[test_case("checks/maintainer-scripts/killall/scripts-killall"; "checks_maintainer_scripts_killall_scripts_killall")]
 #[test_case("checks/maintainer-scripts/ldconfig/legacy-maintainer-scripts"; "checks_maintainer_scripts_ldconfig_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/ldconfig/shared-libs-ldconfig-scripts"; "checks_maintainer_scripts_ldconfig_shared_libs_ldconfig_scripts")]
 #[test_case("checks/maintainer-scripts/mknod/scripts-maintainer-general"; "checks_maintainer_scripts_mknod_scripts_maintainer_general")]

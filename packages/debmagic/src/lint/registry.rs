@@ -386,6 +386,7 @@ use super::rules::InvalidDep3FormatPatchBugFieldDefaultValue;
 use super::rules::InvalidDep3FormatPatchBugNotContainUrl;
 use super::rules::InvalidDep3FormatPatchMaybeBugDebian;
 use super::rules::InvalidDep3FormatPatchOriginFieldDefaultValue;
+use super::rules::KillallIsDangerous;
 use super::rules::LibraryInRootAndUsr;
 use super::rules::MaintainerScriptCallsSystemctl;
 use super::rules::MissingDebianSourceFormat;
@@ -1103,6 +1104,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ObsoleteCommentsStyleInPhpIni,
         &MaintainerScriptCallsSystemctl,
         &MknodInMaintainerScript,
+        &KillallIsDangerous,
     ]
 }
 
@@ -1820,6 +1822,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ObsoleteCommentsStyleInPhpIni,
         &MaintainerScriptCallsSystemctl,
         &MknodInMaintainerScript,
+        &KillallIsDangerous,
     ]
 }
 
@@ -2554,6 +2557,7 @@ mod tests {
                 ObsoleteCommentsStyleInPhpIni::CODE,
                 MaintainerScriptCallsSystemctl::CODE,
                 MknodInMaintainerScript::CODE,
+                KillallIsDangerous::CODE,
             ]
         );
     }

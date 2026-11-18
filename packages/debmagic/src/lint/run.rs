@@ -1632,6 +1632,7 @@ Rules
                 crate::lint::rules::GameOutsideSection::CODE,
                 crate::lint::rules::GlobalDataInGamesDirectory::CODE,
                 crate::lint::rules::BackupFileInPackage::CODE,
+                crate::lint::rules::NfsTemporaryFileInPackage::CODE,
             ]
         );
         let intent = LintIntent {

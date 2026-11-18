@@ -332,7 +332,7 @@ pub(crate) use files_symbolic_links::{
     SymlinkContainsSpuriousSegments, SymlinkEndsWithSlash, SymlinkHasDoubleSlash,
     SymlinkHasTooManyUpSegments, SymlinkIsSelfRecursive,
 };
-pub(crate) use files_unwanted::BackupFileInPackage;
+pub(crate) use files_unwanted::{BackupFileInPackage, NfsTemporaryFileInPackage};
 pub(crate) use files_vcs::{
     PackageContainsVcsControlDir, PackageContainsVcsControlFile, SvkCommitFileInPackage,
     SvnCommitFileInPackage,

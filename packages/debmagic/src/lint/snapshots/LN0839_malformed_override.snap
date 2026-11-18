@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): malformed-override (LN0839) Expected a colon [debian/source/lintian-overrides:1]
+E: example (source): malformed-override (LN0839) Cannot parse line: example: [debian/source/lintian-overrides:1]
+E: example (source): malformed-override (LN0839) Cannot parse line: example :   [debian/source/lintian-overrides:1]
+E: example (source): malformed-override (LN0839) Expected a colon [debian/source/lintian-overrides:2]
+E: example (source): malformed-override (LN0839) Expected a colon [debian/source/lintian-overrides:1]
+E: example (source): malformed-override (LN0839) Expected a colon [debian/source/lintian-overrides:1]

@@ -484,7 +484,7 @@ pub(crate) use files_privacy_breach::{
 };
 pub(crate) use languages_php::{EmbeddedPhpLibrary, ObsoleteCommentsStyleInPhpIni};
 pub(crate) use languages_r::RDataWithoutReadmeSource;
-pub(crate) use lintian_overrides::{AlienTag, OverrideFileInWrongLocation};
+pub(crate) use lintian_overrides::{AlienTag, MalformedOverride, OverrideFileInWrongLocation};
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;
 pub(crate) use ln0004_source_contains_prebuilt_windows_binary::SourceContainsPrebuiltWindowsBinary;

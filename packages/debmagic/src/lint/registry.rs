@@ -44,6 +44,7 @@ use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
+use super::rules::MalformedOverride;
 use super::rules::NmuInChangelog;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
@@ -1155,6 +1156,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DfsgVersionMisspelled,
         &DfsgVersionInNativePackage,
         &DuplicateContact,
+        &MalformedOverride,
     ]
 }
 
@@ -1396,6 +1398,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DfsgVersionMisspelled,
         &DfsgVersionInNativePackage,
         &DuplicateContact,
+        &MalformedOverride,
     ]
 }
 
@@ -2148,6 +2151,7 @@ mod tests {
                 DfsgVersionMisspelled::CODE,
                 DfsgVersionInNativePackage::CODE,
                 DuplicateContact::CODE,
+                MalformedOverride::CODE,
             ]
         );
     }

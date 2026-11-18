@@ -394,6 +394,7 @@ use super::rules::NoNewlineAtEnd;
 use super::rules::NonConfFileInModprobeD;
 use super::rules::NonEmptyDependencyLibsInLaFile;
 use super::rules::OcamlDanglingCmxa;
+use super::rules::OcamlDanglingCmxs;
 use super::rules::OddStaticLibraryName;
 use super::rules::OldDevhelpStandard;
 use super::rules::OldStyleConfigScriptMultiarchPath;
@@ -1091,6 +1092,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrphanedPackageNotMaintainedInDebianInfrastructure,
         &BugsFieldDoesNotReferToDebianInfrastructure,
         &OcamlDanglingCmxa,
+        &OcamlDanglingCmxs,
     ]
 }
 
@@ -1802,6 +1804,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &CshConsideredHarmful,
         &BugsFieldDoesNotReferToDebianInfrastructure,
         &OcamlDanglingCmxa,
+        &OcamlDanglingCmxs,
     ]
 }
 
@@ -2530,6 +2533,7 @@ mod tests {
                 CshConsideredHarmful::CODE,
                 BugsFieldDoesNotReferToDebianInfrastructure::CODE,
                 OcamlDanglingCmxa::CODE,
+                OcamlDanglingCmxs::CODE,
             ]
         );
     }

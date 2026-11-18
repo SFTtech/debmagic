@@ -1683,6 +1683,7 @@ Rules
                 crate::lint::rules::OrphanedPackageNotMaintainedInDebianInfrastructure::CODE,
                 crate::lint::rules::BugsFieldDoesNotReferToDebianInfrastructure::CODE,
                 crate::lint::rules::OcamlDanglingCmxa::CODE,
+                crate::lint::rules::OcamlDanglingCmxs::CODE,
             ]
         );
         let intent = LintIntent {

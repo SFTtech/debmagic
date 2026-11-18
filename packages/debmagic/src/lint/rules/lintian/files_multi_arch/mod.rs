@@ -3,7 +3,9 @@
 mod ln0721_multiarch_foreign_pkgconfig;
 mod ln0765_multiarch_foreign_cmake_file;
 mod ln0766_multiarch_foreign_shared_library;
+mod ln0767_multiarch_foreign_static_library;
 
 pub(crate) use ln0721_multiarch_foreign_pkgconfig::MultiarchForeignPkgconfig;
 pub(crate) use ln0765_multiarch_foreign_cmake_file::MultiarchForeignCmakeFile;
 pub(crate) use ln0766_multiarch_foreign_shared_library::MultiarchForeignSharedLibrary;
+pub(crate) use ln0767_multiarch_foreign_static_library::MultiarchForeignStaticLibrary;

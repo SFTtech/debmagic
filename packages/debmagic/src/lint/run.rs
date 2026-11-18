@@ -1651,6 +1651,7 @@ Rules
                 crate::lint::rules::InitDScriptMissingLsbKeyword::CODE,
                 crate::lint::rules::MultiarchForeignCmakeFile::CODE,
                 crate::lint::rules::MultiarchForeignSharedLibrary::CODE,
+                crate::lint::rules::MultiarchForeignStaticLibrary::CODE,
             ]
         );
         let intent = LintIntent {

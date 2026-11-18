@@ -318,6 +318,7 @@ pub(crate) use files_installed::{
 };
 pub(crate) use files_multi_arch::{
     MultiarchForeignCmakeFile, MultiarchForeignPkgconfig, MultiarchForeignSharedLibrary,
+    MultiarchForeignStaticLibrary,
 };
 pub(crate) use files_names::{
     FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,

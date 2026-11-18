@@ -376,6 +376,7 @@ use super::rules::DocumentationPackageNotArchitectureIndependent;
 use super::rules::DuplicateChangelogFiles;
 use super::rules::DuplicateConffile;
 use super::rules::DuplicateP3distOverride;
+use super::rules::DuplicatePackagingFile;
 use super::rules::EmacsenCommonWithoutDhElpa;
 use super::rules::FileInEtcRcDMarkedAsConffile;
 use super::rules::FileInRootAndUsr;
@@ -1145,6 +1146,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptNotMarkedAsConffile,
         &InitDScriptProvidesVirtualFacility,
         &InitDScriptSourcingWithoutTest,
+        &DuplicatePackagingFile,
     ]
 }
 
@@ -1381,6 +1383,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &OrphanedPackageMaintainedInPrivateSpace,
         &OrphanedPackageNotMaintainedInDebianInfrastructure,
         &DuplicateP3distOverride,
+        &DuplicatePackagingFile,
     ]
 }
 
@@ -2128,6 +2131,7 @@ mod tests {
                 OrphanedPackageMaintainedInPrivateSpace::CODE,
                 OrphanedPackageNotMaintainedInDebianInfrastructure::CODE,
                 DuplicateP3distOverride::CODE,
+                DuplicatePackagingFile::CODE,
             ]
         );
     }

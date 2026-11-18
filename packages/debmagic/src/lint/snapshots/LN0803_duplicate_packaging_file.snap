@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): duplicate-packaging-file (LN0803) better: debian/NEWS [debian/NEWS.Debian]
+W: example (source): duplicate-packaging-file (LN0803) better: debian/NEWS [debian/NEWS.debian]
+W: example (source): duplicate-packaging-file (LN0803) better: debian/TODO [debian/TODO.Debian]
+W: example (source): duplicate-packaging-file (LN0803) better: debian/TODO [debian/TODO.debian]
+W: example (source): duplicate-packaging-file (LN0803) better: debian/NEWS [debian/NEWS.Debian]
+W: example (source): duplicate-packaging-file (LN0803) better: debian/NEWS [debian/NEWS.debian]

@@ -11,6 +11,7 @@ mod debhelper_rules;
 mod debian_changelog;
 mod debian_copyright;
 mod debian_debconf;
+mod debian_filenames;
 mod debian_line_separators;
 mod debian_maintscript;
 mod debian_patches;
@@ -238,6 +239,7 @@ pub(crate) use debian_debconf::{
     UnknownDebconfPriority, UnknownFieldInTemplates, UsingFirstPersonInTemplates,
     UsingImperativeFormInTemplates, UsingQuestionInExtendedDescriptionInTemplates,
 };
+pub(crate) use debian_filenames::DuplicatePackagingFile;
 pub(crate) use debian_line_separators::CarriageReturnLineFeed;
 pub(crate) use debian_readme::{
     ReadmeDebianContainsInvalidEmailAddress, ReadmeDebianMentionsUsrDoc,

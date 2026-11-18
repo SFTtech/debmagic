@@ -14,6 +14,7 @@ use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CarriageReturnLineFeed;
 use super::rules::ChangelogIsSymlink;
 use super::rules::ConflictingNegationInSourceRelation;
+use super::rules::ControlFileContainsDhMakeVcsComment;
 use super::rules::CshConsideredHarmful;
 use super::rules::DbgPackageMissingDepends;
 use super::rules::DebhelperCompatFileContainsMultipleLevels;
@@ -1169,6 +1170,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NativeSourceFileWithoutUtf8Name,
         &MissingCallToUpdateFonts,
         &DebianUpstreamObsoletePath,
+        &ControlFileContainsDhMakeVcsComment,
     ]
 }
 
@@ -1415,6 +1417,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &WaywardSymbolicLinkTargetInSource,
         &NativeSourceFileWithoutUtf8Name,
         &DebianUpstreamObsoletePath,
+        &ControlFileContainsDhMakeVcsComment,
     ]
 }
 
@@ -2174,6 +2177,7 @@ mod tests {
                 WaywardSymbolicLinkTargetInSource::CODE,
                 NativeSourceFileWithoutUtf8Name::CODE,
                 DebianUpstreamObsoletePath::CODE,
+                ControlFileContainsDhMakeVcsComment::CODE,
             ]
         );
     }

@@ -1721,6 +1721,7 @@ Rules
                 crate::lint::rules::NativeSourceFileWithoutUtf8Name::CODE,
                 crate::lint::rules::MissingCallToUpdateFonts::CODE,
                 crate::lint::rules::DebianUpstreamObsoletePath::CODE,
+                crate::lint::rules::ControlFileContainsDhMakeVcsComment::CODE,
             ]
         );
         let intent = LintIntent {

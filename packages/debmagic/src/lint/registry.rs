@@ -244,6 +244,7 @@ use super::rules::ConfigFileReserved;
 use super::rules::IncorrectNamingOfPkcs11Module;
 use super::rules::PackageContainsHardlink;
 use super::rules::PackageContainsMimeFileOutsidePackageDir;
+use super::rules::PackageInstallsIntoObsoleteDir;
 
 use super::rules::MissingDepForInterpreter;
 use super::rules::ShippedFileWithoutUtf8Name;
@@ -1127,6 +1128,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageContainsMimeFileOutsidePackageDir,
         &ConfigFileReserved,
         &IncorrectNamingOfPkcs11Module,
+        &PackageInstallsIntoObsoleteDir,
     ]
 }
 
@@ -1856,6 +1858,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageContainsMimeFileOutsidePackageDir,
         &ConfigFileReserved,
         &IncorrectNamingOfPkcs11Module,
+        &PackageInstallsIntoObsoleteDir,
     ]
 }
 
@@ -2602,6 +2605,7 @@ mod tests {
                 PackageContainsMimeFileOutsidePackageDir::CODE,
                 ConfigFileReserved::CODE,
                 IncorrectNamingOfPkcs11Module::CODE,
+                PackageInstallsIntoObsoleteDir::CODE,
             ]
         );
     }

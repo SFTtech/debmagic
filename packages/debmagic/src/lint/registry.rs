@@ -243,6 +243,7 @@ use super::rules::NonStandardExecutablePerm;
 use super::rules::ConfigFileReserved;
 use super::rules::ExecutableInUsrShareDoc;
 use super::rules::IncorrectNamingOfPkcs11Module;
+use super::rules::NestedExamplesDirectory;
 use super::rules::PackageContainsHardlink;
 use super::rules::PackageContainsMimeFileOutsidePackageDir;
 use super::rules::PackageInstallsIntoObsoleteDir;
@@ -1131,6 +1132,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &IncorrectNamingOfPkcs11Module,
         &PackageInstallsIntoObsoleteDir,
         &ExecutableInUsrShareDoc,
+        &NestedExamplesDirectory,
     ]
 }
 
@@ -1862,6 +1864,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &IncorrectNamingOfPkcs11Module,
         &PackageInstallsIntoObsoleteDir,
         &ExecutableInUsrShareDoc,
+        &NestedExamplesDirectory,
     ]
 }
 
@@ -2610,6 +2613,7 @@ mod tests {
                 IncorrectNamingOfPkcs11Module::CODE,
                 PackageInstallsIntoObsoleteDir::CODE,
                 ExecutableInUsrShareDoc::CODE,
+                NestedExamplesDirectory::CODE,
             ]
         );
     }

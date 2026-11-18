@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): odd-static-library-name (LN0768) [usr/lib/libfoo_s.a]
+W: example (binary): odd-static-library-name (LN0768) [usr/lib/sub/libfoo_s.a]
+W: example (binary): odd-static-library-name (LN0768) [usr/lib/libfoo_s.a]
+W: example (binary): odd-static-library-name (LN0768) [usr/lib/libfoo_s.a]
+W: example (udeb): odd-static-library-name (LN0768) [usr/lib/libfoo_s.a]

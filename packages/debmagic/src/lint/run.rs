@@ -1652,6 +1652,7 @@ Rules
                 crate::lint::rules::MultiarchForeignCmakeFile::CODE,
                 crate::lint::rules::MultiarchForeignSharedLibrary::CODE,
                 crate::lint::rules::MultiarchForeignStaticLibrary::CODE,
+                crate::lint::rules::OddStaticLibraryName::CODE,
             ]
         );
         let intent = LintIntent {

@@ -518,6 +518,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/files-unknown-file-in-python-module-directory",
     "checks/languages/python/package-uses-python-egg-info",
     "checks/languages/python/python-package-missing-depends-on-python",
+    "checks/libraries/shared/soname/missing/legacy-debug",
+    "checks/libraries/shared/soname/missing/legacy-libbaz",
+    "checks/libraries/shared/soname/missing/shared-libs-missing-soname",
     "checks/linda/files-package-contains-foo",
     "checks/linda/legacy-filenames",
     "checks/mailcap/placeholder-in-quoted-string",
@@ -1374,6 +1377,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/python/files-unknown-file-in-python-module-directory"; "checks_languages_python_files_unknown_file_in_python_module_directory")]
 #[test_case("checks/languages/python/package-uses-python-egg-info"; "checks_languages_python_package_uses_python_egg_info")]
 #[test_case("checks/languages/python/python-package-missing-depends-on-python"; "checks_languages_python_python_package_missing_depends_on_python")]
+#[test_case("checks/libraries/shared/soname/missing/legacy-debug"; "checks_libraries_shared_soname_missing_legacy_debug")]
+#[test_case("checks/libraries/shared/soname/missing/legacy-libbaz"; "checks_libraries_shared_soname_missing_legacy_libbaz")]
+#[test_case("checks/libraries/shared/soname/missing/shared-libs-missing-soname"; "checks_libraries_shared_soname_missing_shared_libs_missing_soname")]
 #[test_case("checks/linda/files-package-contains-foo"; "checks_linda_files_package_contains_foo")]
 #[test_case("checks/linda/legacy-filenames"; "checks_linda_legacy_filenames")]
 #[test_case("checks/mailcap/placeholder-in-quoted-string"; "checks_mailcap_placeholder_in_quoted_string")]

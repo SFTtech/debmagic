@@ -41,6 +41,8 @@ pub enum ElfObjectType {
 pub struct ElfFacts {
     object_type: ElfObjectType,
     interpreter: Option<String>,
+    pie: bool,
+    debug: bool,
     needed: Vec<String>,
     soname: Vec<String>,
     rpath: Vec<String>,
@@ -75,6 +77,8 @@ impl ElfFacts {
                 .iter()
                 .find(|program_header| program_header.p_type == program_header::PT_INTERP)
                 .and_then(|interp| interpreter(bytes, interp)),
+            pie: false,
+            debug: false,
             needed: Vec::new(),
             soname: Vec::new(),
             rpath: Vec::new(),
@@ -86,6 +90,10 @@ impl ElfFacts {
             is_pie = dynamic.info.flags_1 & dynamic::DF_1_PIE != 0;
             let strings = string_table(bytes, dynamic.info.strtab, dynamic.info.strsz);
             for entry in &dynamic.dyns {
+                if entry.d_tag == dynamic::DT_DEBUG {
+                    facts.debug = true;
+                    continue;
+                }
                 let Some(name) = usize::try_from(entry.d_val)
                     .ok()
                     .and_then(|offset| string_at(strings, offset))
@@ -105,6 +113,7 @@ impl ElfFacts {
             }
         }
 
+        facts.pie = is_pie;
         facts.object_type = match header.e_type {
             header::ET_EXEC => ElfObjectType::Executable,
             header::ET_DYN if is_pie => ElfObjectType::Executable,
@@ -117,6 +126,16 @@ impl ElfFacts {
 
     pub fn object_type(&self) -> ElfObjectType {
         self.object_type
+    }
+
+    /// `DF_1_PIE` is set in the dynamic section (`file(1)`: "pie executable").
+    pub fn is_pie(&self) -> bool {
+        self.pie
+    }
+
+    /// The dynamic section has a `DT_DEBUG` entry (`readelf -d`: `DEBUG`).
+    pub fn has_debug_entry(&self) -> bool {
+        self.debug
     }
 
     /// `PT_INTERP` up to its first NUL. `None` without that segment, or when
@@ -132,7 +151,6 @@ impl ElfFacts {
     }
 
     /// `DT_SONAME` names (normally at most one).
-    #[allow(dead_code)] // seam API; no Rule reads it yet
     pub fn soname(&self) -> &[String] {
         &self.soname
     }
@@ -231,6 +249,7 @@ pub(crate) struct TestElf {
     soname: Option<String>,
     rpath: Option<String>,
     runpath: Option<String>,
+    debug: bool,
     /// Point `e_shoff` past the end of the file, as a cut-off ELF does.
     missing_section_headers: bool,
 }
@@ -246,6 +265,7 @@ impl TestElf {
             soname: None,
             rpath: None,
             runpath: None,
+            debug: false,
             missing_section_headers: false,
         }
     }
@@ -298,6 +318,12 @@ impl TestElf {
         self
     }
 
+    /// Adds `DT_DEBUG`, as glibc links executables.
+    pub fn debug(mut self) -> Self {
+        self.debug = true;
+        self
+    }
+
     pub fn missing_section_headers(mut self) -> Self {
         self.missing_section_headers = true;
         self
@@ -331,6 +357,9 @@ impl TestElf {
         }
         if self.pie {
             dyns.push((dynamic::DT_FLAGS_1, dynamic::DF_1_PIE));
+        }
+        if self.debug {
+            dyns.push((dynamic::DT_DEBUG, 0));
         }
         let has_dynamic = !dyns.is_empty();
 

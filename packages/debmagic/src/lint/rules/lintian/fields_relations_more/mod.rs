@@ -10,7 +10,7 @@ use regex::Regex;
 
 use crate::lint::debian_control::ControlParagraph;
 
-mod architectures;
+pub(super) mod architectures;
 mod essential;
 mod ln0200_invalid_arch_string_in_source_relation;
 mod ln0201_depends_on_metapackage;

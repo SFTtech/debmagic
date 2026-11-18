@@ -1700,6 +1700,7 @@ Rules
                 crate::lint::rules::PackageContainsMimeFileOutsidePackageDir::CODE,
                 crate::lint::rules::ConfigFileReserved::CODE,
                 crate::lint::rules::IncorrectNamingOfPkcs11Module::CODE,
+                crate::lint::rules::PackageInstallsIntoObsoleteDir::CODE,
             ]
         );
         let intent = LintIntent {

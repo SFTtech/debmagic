@@ -355,6 +355,7 @@ use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 use super::rules::WrongPathForInterpreter;
 
 use super::rules::AbsoluteSymbolicLinkTargetInSource;
+use super::rules::AdduserWithHomeVarRun;
 use super::rules::ArchDependentFileInUsrShare;
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::AspellPackageNotArchAll;
@@ -1107,6 +1108,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MknodInMaintainerScript,
         &KillallIsDangerous,
         &SystemdDiversion,
+        &AdduserWithHomeVarRun,
     ]
 }
 
@@ -1826,6 +1828,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MknodInMaintainerScript,
         &KillallIsDangerous,
         &SystemdDiversion,
+        &AdduserWithHomeVarRun,
     ]
 }
 
@@ -2562,6 +2565,7 @@ mod tests {
                 MknodInMaintainerScript::CODE,
                 KillallIsDangerous::CODE,
                 SystemdDiversion::CODE,
+                AdduserWithHomeVarRun::CODE,
             ]
         );
     }

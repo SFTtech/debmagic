@@ -584,6 +584,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/linda/legacy-filenames",
     "checks/mailcap/placeholder-in-quoted-string",
     "checks/mailcap/single-quoted-placeholder",
+    "checks/maintainer-scripts/adduser/home-in-var-run",
     "checks/maintainer-scripts/diversion/scripts-diversions",
     "checks/maintainer-scripts/diversion/scripts-diversions-variables",
     "checks/maintainer-scripts/empty/legacy-maintainer-scripts",
@@ -1544,6 +1545,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/linda/legacy-filenames"; "checks_linda_legacy_filenames")]
 #[test_case("checks/mailcap/placeholder-in-quoted-string"; "checks_mailcap_placeholder_in_quoted_string")]
 #[test_case("checks/mailcap/single-quoted-placeholder"; "checks_mailcap_single_quoted_placeholder")]
+#[test_case("checks/maintainer-scripts/adduser/home-in-var-run"; "checks_maintainer_scripts_adduser_home_in_var_run")]
 #[test_case("checks/maintainer-scripts/diversion/scripts-diversions"; "checks_maintainer_scripts_diversion_scripts_diversions")]
 #[test_case("checks/maintainer-scripts/diversion/scripts-diversions-variables"; "checks_maintainer_scripts_diversion_scripts_diversions_variables")]
 #[test_case("checks/maintainer-scripts/empty/legacy-maintainer-scripts"; "checks_maintainer_scripts_empty_legacy_maintainer_scripts")]

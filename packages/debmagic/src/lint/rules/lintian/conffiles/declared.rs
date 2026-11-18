@@ -2,9 +2,16 @@
 
 use crate::lint::context::BinaryPackageContext;
 
-/// The `conffiles` paths in file order, with one leading `/` removed. Empty
-/// when the member is missing or not UTF-8.
-pub(super) fn declared(ctx: &mut BinaryPackageContext<'_>) -> Vec<String> {
+/// A `conffiles` line: the path with one leading `/` removed, and its
+/// 1-based line number.
+pub(super) struct Declared {
+    pub(super) path: String,
+    pub(super) line: u32,
+}
+
+/// The `conffiles` entries in file order. Empty when the member is missing
+/// or not UTF-8.
+pub(super) fn declared(ctx: &mut BinaryPackageContext<'_>) -> Vec<Declared> {
     let Some(files) = ctx.control_files() else {
         return Vec::new();
     };
@@ -20,12 +27,16 @@ pub(super) fn declared(ctx: &mut BinaryPackageContext<'_>) -> Vec<String> {
     parse(&text)
 }
 
-fn parse(text: &str) -> Vec<String> {
-    text.lines()
-        .filter_map(|line| {
+fn parse(text: &str) -> Vec<Declared> {
+    text.split('\n')
+        .enumerate()
+        .filter_map(|(index, line)| {
             let path = line.split_whitespace().next_back()?;
             let path = path.strip_prefix('/').unwrap_or(path);
-            (!path.is_empty()).then(|| path.to_string())
+            (!path.is_empty()).then(|| Declared {
+                path: path.to_string(),
+                line: u32::try_from(index + 1).unwrap_or(u32::MAX),
+            })
         })
         .collect()
 }
@@ -35,10 +46,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parse_takes_last_word_and_strips_one_slash() {
+    fn parse_keeps_line_numbers_and_strips_one_slash() {
+        let lines: Vec<_> = parse("/etc/foo\n\nremove-on-upgrade //etc/bar  \n  \n etc/baz")
+            .into_iter()
+            .map(|entry| (entry.line, entry.path))
+            .collect();
         assert_eq!(
-            parse("/etc/foo\n\nremove-on-upgrade //etc/bar  \n  \n etc/baz"),
-            vec!["etc/foo", "/etc/bar", "etc/baz"]
+            lines,
+            vec![
+                (1, "etc/foo".to_string()),
+                (3, "/etc/bar".to_string()),
+                (5, "etc/baz".to_string()),
+            ]
         );
     }
 }

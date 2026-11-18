@@ -30,7 +30,8 @@ impl BinaryPackageRule for ConffileHasBadFileType {
         if ctx.is_udeb() {
             return;
         }
-        let declared: BTreeSet<String> = declared(ctx).into_iter().collect();
+        let declared: BTreeSet<String> =
+            declared(ctx).into_iter().map(|entry| entry.path).collect();
         let Some(files) = ctx.data_files() else {
             return;
         };

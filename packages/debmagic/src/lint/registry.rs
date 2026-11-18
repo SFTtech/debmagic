@@ -360,6 +360,7 @@ use super::rules::AspellPackageNotArchAll;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::DocumentationPackageNotArchitectureIndependent;
+use super::rules::GitPatchesNotExported;
 use super::rules::IncorrectLibdirInLaFile;
 use super::rules::InfoDocumentHasWrongExtension;
 use super::rules::InfoDocumentMissingImageFile;
@@ -1047,6 +1048,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NewerStandardsVersion,
         &MaintainerAlsoInUploaders,
         &MissingDebianSourceFormat,
+        &GitPatchesNotExported,
     ]
 }
 
@@ -1272,6 +1274,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NewerStandardsVersion,
         &MaintainerAlsoInUploaders,
         &MissingDebianSourceFormat,
+        &GitPatchesNotExported,
     ]
 }
 
@@ -2442,6 +2445,7 @@ mod tests {
                 AspellPackageNotArchAll::CODE,
                 DocumentationPackageNotArchitectureIndependent::CODE,
                 MissingDebianSourceFormat::CODE,
+                GitPatchesNotExported::CODE,
             ]
         );
     }

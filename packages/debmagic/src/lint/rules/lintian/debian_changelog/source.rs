@@ -39,7 +39,7 @@ pub(super) fn changelog_location(line: u32) -> Location {
 /// else a 1.0-style package. A Source package with a Dsc is native when
 /// `Files` has no `{name}_{version}.diff.gz`. A Source tree has no Dsc, so a
 /// hyphen after the epoch stands in for the diff `dpkg-source` would build.
-pub(super) fn package_is_native(ctx: &mut SourceContext<'_>) -> bool {
+pub(in crate::lint::rules::lintian) fn package_is_native(ctx: &mut SourceContext<'_>) -> bool {
     let format = source_format(ctx);
     let version = ctx
         .debian_changelog()

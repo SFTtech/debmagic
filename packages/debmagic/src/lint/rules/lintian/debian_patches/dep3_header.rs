@@ -11,9 +11,15 @@ use std::path::PathBuf;
 use crate::lint::context::SourceContext;
 use crate::lint::file_tree::EntryKind;
 
+const ORIGIN_TEMPLATES: [&str; 2] = [
+    "(upstream|backport|vendor|other), (<patch-url>|commit:<commit-id>)",
+    "<vendor|upstream|other>, <url of original patch>",
+];
+
 const BUG_TEMPLATE: &str = "<url in upstream bugtracker>";
 
 pub(super) struct Dep3Header {
+    origin: String,
     bug: String,
 }
 
@@ -25,6 +31,11 @@ pub(super) enum BugProblem {
 }
 
 impl Dep3Header {
+    /// Origin still holds one of the template values.
+    pub(super) fn origin_is_template(&self) -> bool {
+        ORIGIN_TEMPLATES.contains(&self.origin.as_str())
+    }
+
     /// Set but not an http or https URL.
     pub(super) fn bug_problem(&self) -> Option<BugProblem> {
         if self.bug.is_empty() || is_http_url(&self.bug) {
@@ -108,6 +119,7 @@ fn parse_header(bytes: &[u8]) -> Option<Dep3Header> {
         return None;
     }
     Some(Dep3Header {
+        origin: value("origin").to_string(),
         bug: value("bug").to_string(),
     })
 }

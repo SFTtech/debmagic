@@ -7,6 +7,7 @@ pub(crate) mod ln0724_patch_system_but_no_source_readme;
 mod ln0761_invalid_dep3_format_patch_bug_field_default_value;
 mod ln0762_invalid_dep3_format_patch_bug_not_contain_url;
 mod ln0763_invalid_dep3_format_patch_maybe_bug_debian;
+mod ln0764_invalid_dep3_format_patch_origin_field_default_value;
 
 pub(crate) use ln0396_format_3_0_but_debian_changes_patch::Format30ButDebianChangesPatch;
 pub(crate) use ln0706_patch_file_present_but_not_mentioned_in_series::PatchFilePresentButNotMentionedInSeries;
@@ -14,3 +15,4 @@ pub(crate) use ln0724_patch_system_but_no_source_readme::PatchSystemButNoSourceR
 pub(crate) use ln0761_invalid_dep3_format_patch_bug_field_default_value::InvalidDep3FormatPatchBugFieldDefaultValue;
 pub(crate) use ln0762_invalid_dep3_format_patch_bug_not_contain_url::InvalidDep3FormatPatchBugNotContainUrl;
 pub(crate) use ln0763_invalid_dep3_format_patch_maybe_bug_debian::InvalidDep3FormatPatchMaybeBugDebian;
+pub(crate) use ln0764_invalid_dep3_format_patch_origin_field_default_value::InvalidDep3FormatPatchOriginFieldDefaultValue;

@@ -376,6 +376,7 @@ use super::rules::InitDScriptMissingLsbKeyword;
 use super::rules::InvalidDep3FormatPatchBugFieldDefaultValue;
 use super::rules::InvalidDep3FormatPatchBugNotContainUrl;
 use super::rules::InvalidDep3FormatPatchMaybeBugDebian;
+use super::rules::InvalidDep3FormatPatchOriginFieldDefaultValue;
 use super::rules::MissingDebianSourceFormat;
 use super::rules::MultiarchForeignCmakeFile;
 use super::rules::MultiarchForeignSharedLibrary;
@@ -1055,6 +1056,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidDep3FormatPatchBugFieldDefaultValue,
         &InvalidDep3FormatPatchBugNotContainUrl,
         &InvalidDep3FormatPatchMaybeBugDebian,
+        &InvalidDep3FormatPatchOriginFieldDefaultValue,
     ]
 }
 
@@ -1284,6 +1286,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InvalidDep3FormatPatchBugFieldDefaultValue,
         &InvalidDep3FormatPatchBugNotContainUrl,
         &InvalidDep3FormatPatchMaybeBugDebian,
+        &InvalidDep3FormatPatchOriginFieldDefaultValue,
     ]
 }
 
@@ -2458,6 +2461,7 @@ mod tests {
                 InvalidDep3FormatPatchBugFieldDefaultValue::CODE,
                 InvalidDep3FormatPatchBugNotContainUrl::CODE,
                 InvalidDep3FormatPatchMaybeBugDebian::CODE,
+                InvalidDep3FormatPatchOriginFieldDefaultValue::CODE,
             ]
         );
     }

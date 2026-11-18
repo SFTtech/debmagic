@@ -226,6 +226,7 @@ pub(crate) use debian_copyright::{
 };
 pub(crate) use fields_version::{
     BinaryNmuDebianRevisionInSource, DebianRevisionIsZero, DebianRevisionNotWellFormed,
+    DfsgVersionMisspelled,
 };
 
 pub(crate) use debian_debconf::{

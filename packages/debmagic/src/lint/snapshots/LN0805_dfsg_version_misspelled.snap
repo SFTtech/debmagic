@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): dfsg-version-misspelled (LN0805) 1.0+dsfg1-1
+W: example (source): dfsg-version-misspelled (LN0805) 1.0+dsfg1-1
+W: example (source): dfsg-version-misspelled (LN0805) 1:1.0+dsfg1-1
+W: example (source): dfsg-version-misspelled (LN0805) 1.0+dsfg1-1

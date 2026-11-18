@@ -371,6 +371,7 @@ use super::rules::BugsFieldDoesNotReferToDebianInfrastructure;
 use super::rules::ConffileHasBadFileType;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
+use super::rules::DfsgVersionMisspelled;
 use super::rules::DirectoryInModprobeD;
 use super::rules::DocumentationPackageNotArchitectureIndependent;
 use super::rules::DuplicateChangelogFiles;
@@ -1149,6 +1150,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptSourcingWithoutTest,
         &DuplicatePackagingFile,
         &IncorrectPackagingFilename,
+        &DfsgVersionMisspelled,
     ]
 }
 
@@ -1387,6 +1389,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DuplicateP3distOverride,
         &DuplicatePackagingFile,
         &IncorrectPackagingFilename,
+        &DfsgVersionMisspelled,
     ]
 }
 
@@ -2136,6 +2139,7 @@ mod tests {
                 DuplicateP3distOverride::CODE,
                 DuplicatePackagingFile::CODE,
                 IncorrectPackagingFilename::CODE,
+                DfsgVersionMisspelled::CODE,
             ]
         );
     }

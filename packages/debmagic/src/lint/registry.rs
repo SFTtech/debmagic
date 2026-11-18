@@ -388,6 +388,7 @@ use super::rules::InvalidDep3FormatPatchBugNotContainUrl;
 use super::rules::InvalidDep3FormatPatchMaybeBugDebian;
 use super::rules::InvalidDep3FormatPatchOriginFieldDefaultValue;
 use super::rules::InvalidValueInBuiltUsingField;
+use super::rules::InvalidValueInStaticBuiltUsingField;
 use super::rules::KillallIsDangerous;
 use super::rules::LibraryInRootAndUsr;
 use super::rules::MaintainerScriptCallsSystemctl;
@@ -1113,6 +1114,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AdduserWithHomeVarRun,
         &ScriptUsesUnversionedPythonInShebang,
         &InvalidValueInBuiltUsingField,
+        &InvalidValueInStaticBuiltUsingField,
     ]
 }
 
@@ -1835,6 +1837,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &AdduserWithHomeVarRun,
         &ScriptUsesUnversionedPythonInShebang,
         &InvalidValueInBuiltUsingField,
+        &InvalidValueInStaticBuiltUsingField,
     ]
 }
 
@@ -2574,6 +2577,7 @@ mod tests {
                 AdduserWithHomeVarRun::CODE,
                 ScriptUsesUnversionedPythonInShebang::CODE,
                 InvalidValueInBuiltUsingField::CODE,
+                InvalidValueInStaticBuiltUsingField::CODE,
             ]
         );
     }

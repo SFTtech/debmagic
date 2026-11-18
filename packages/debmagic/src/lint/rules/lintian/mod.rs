@@ -40,6 +40,7 @@ mod fields_package_relations;
 mod fields_relations_extra;
 mod fields_relations_more;
 mod fields_standards_version;
+mod fields_static_built_using;
 mod fields_text;
 mod fields_uploaders;
 mod fields_vcs;
@@ -453,6 +454,7 @@ pub(crate) use fields_relations_extra::{
 pub(crate) use fields_standards_version::{
     InvalidStandardsVersion, NewerStandardsVersion, TimewarpStandardsVersion,
 };
+pub(crate) use fields_static_built_using::InvalidValueInStaticBuiltUsingField;
 pub(crate) use files_non_free::NonFreeFlash;
 pub(crate) use files_privacy_breach::{
     PrivacyBreachDonation, PrivacyBreachFacebook, PrivacyBreachGeneric, PrivacyBreachGoogleAdsense,

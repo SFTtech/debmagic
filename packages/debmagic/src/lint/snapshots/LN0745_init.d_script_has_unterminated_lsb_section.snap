@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): init.d-script-has-unterminated-lsb-section (LN0745) [etc/init.d/blank:4]
+E: example (binary): init.d-script-has-unterminated-lsb-section (LN0745) [etc/init.d/code:4]
+E: example (binary): init.d-script-has-unterminated-lsb-section (LN0745) [etc/init.d/after-bad-line:5]
+E: example (udeb): init.d-script-has-unterminated-lsb-section (LN0745) [etc/init.d/udeb-script:4]

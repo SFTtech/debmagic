@@ -1647,6 +1647,7 @@ Rules
                 crate::lint::rules::InitDScriptHasDuplicateLsbKeyword::CODE,
                 crate::lint::rules::InitDScriptHasDuplicateLsbSection::CODE,
                 crate::lint::rules::InitDScriptHasUnknownLsbKeyword::CODE,
+                crate::lint::rules::InitDScriptHasUnterminatedLsbSection::CODE,
             ]
         );
         let intent = LintIntent {

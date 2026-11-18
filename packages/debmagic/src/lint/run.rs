@@ -1625,6 +1625,7 @@ Rules
                 crate::lint::rules::OpentypeFontProhibitsInstallableEmbedding::CODE,
                 crate::lint::rules::OldStyleConfigScriptMultiarchPathArchAll::CODE,
                 crate::lint::rules::AbsoluteSymbolicLinkTargetInSource::CODE,
+                crate::lint::rules::CarriageReturnLineFeed::CODE,
             ]
         );
         let intent = LintIntent {

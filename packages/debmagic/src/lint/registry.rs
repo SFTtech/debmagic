@@ -389,6 +389,7 @@ use super::rules::InvalidDep3FormatPatchOriginFieldDefaultValue;
 use super::rules::LibraryInRootAndUsr;
 use super::rules::MaintainerScriptCallsSystemctl;
 use super::rules::MissingDebianSourceFormat;
+use super::rules::MknodInMaintainerScript;
 use super::rules::MultiarchForeignCmakeFile;
 use super::rules::MultiarchForeignSharedLibrary;
 use super::rules::MultiarchForeignStaticLibrary;
@@ -1101,6 +1102,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DuplicateP3distOverride,
         &ObsoleteCommentsStyleInPhpIni,
         &MaintainerScriptCallsSystemctl,
+        &MknodInMaintainerScript,
     ]
 }
 
@@ -1817,6 +1819,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PerlModuleInCoreDirectory,
         &ObsoleteCommentsStyleInPhpIni,
         &MaintainerScriptCallsSystemctl,
+        &MknodInMaintainerScript,
     ]
 }
 
@@ -2550,6 +2553,7 @@ mod tests {
                 PerlModuleInCoreDirectory::CODE,
                 ObsoleteCommentsStyleInPhpIni::CODE,
                 MaintainerScriptCallsSystemctl::CODE,
+                MknodInMaintainerScript::CODE,
             ]
         );
     }

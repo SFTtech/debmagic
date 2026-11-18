@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): mknod-in-maintainer-script (LN0810) [postinst:2]
+E: example (binary): mknod-in-maintainer-script (LN0810) [postinst:3]
+E: example (binary): mknod-in-maintainer-script (LN0810) [postinst:3]
+E: example (binary): mknod-in-maintainer-script (LN0810) [postinst:2]
+E: example (udeb): mknod-in-maintainer-script (LN0810) [postinst:2]

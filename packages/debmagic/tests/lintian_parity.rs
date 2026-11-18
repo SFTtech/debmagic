@@ -283,6 +283,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/debug-symbols/legacy-debug",
     "checks/binaries/debug-symbols/legacy-libbaz",
     "checks/binaries/location/binaries-development-package-ships-elf-binary-in-path",
+    "checks/binaries/location/binaries-general",
     "checks/binaries/location/binaries-multiarch-same",
     "checks/binaries/prerequisites/perl/binaries-missing-depends-on-xapi",
     "checks/binaries/prerequisites/perl/legacy-libbaz",
@@ -1182,6 +1183,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/debug-symbols/legacy-debug"; "checks_binaries_debug_symbols_legacy_debug")]
 #[test_case("checks/binaries/debug-symbols/legacy-libbaz"; "checks_binaries_debug_symbols_legacy_libbaz")]
 #[test_case("checks/binaries/location/binaries-development-package-ships-elf-binary-in-path"; "checks_binaries_location_binaries_development_package_ships_elf_binary_in_path")]
+#[test_case("checks/binaries/location/binaries-general"; "checks_binaries_location_binaries_general")]
 #[test_case("checks/binaries/location/binaries-multiarch-same"; "checks_binaries_location_binaries_multiarch_same")]
 #[test_case("checks/binaries/prerequisites/perl/binaries-missing-depends-on-xapi"; "checks_binaries_prerequisites_perl_binaries_missing_depends_on_xapi")]
 #[test_case("checks/binaries/prerequisites/perl/legacy-libbaz"; "checks_binaries_prerequisites_perl_legacy_libbaz")]

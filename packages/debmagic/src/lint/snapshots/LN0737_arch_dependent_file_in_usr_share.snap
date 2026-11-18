@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): arch-dependent-file-in-usr-share (LN0737) [usr/share/foo/basic]
+E: example (binary): arch-dependent-file-in-usr-share (LN0737) [usr/share/x86_64-linux-gnu/foo/libfoo.so.1]
+E: example (binary): arch-dependent-file-in-usr-share (LN0737) [usr/share/foo/libfoo.a]
+E: example (binary): arch-dependent-file-in-usr-share (LN0737) [usr/share/foo/same-link]
+E: example (udeb): arch-dependent-file-in-usr-share (LN0737) [usr/share/foo/basic]

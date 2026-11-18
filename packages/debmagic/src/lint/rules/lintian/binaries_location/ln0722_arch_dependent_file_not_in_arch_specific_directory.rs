@@ -86,7 +86,7 @@ impl BinaryPackageRule for ArchDependentFileNotInArchSpecificDirectory {
 
 /// `ar` archive with the GNU format magic, other than a `.deb` (whose first
 /// member is `debian-binary`). `file(1)` calls these "current ar archive".
-fn is_static_archive(bytes: &[u8]) -> bool {
+pub(super) fn is_static_archive(bytes: &[u8]) -> bool {
     bytes
         .strip_prefix(b"!<arch>\n")
         .is_some_and(|members| !members.starts_with(b"debian-binary"))

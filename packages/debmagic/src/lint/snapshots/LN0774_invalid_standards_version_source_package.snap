@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): invalid-standards-version (LN0774) 3.8
+E: example (source): invalid-standards-version (LN0774) 1.2.3

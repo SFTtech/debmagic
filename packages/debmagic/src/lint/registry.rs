@@ -335,6 +335,7 @@ use super::rules::ExecutableNotElfOrScript;
 use super::rules::GameOutsideSection;
 use super::rules::GlobalDataInGamesDirectory;
 use super::rules::InvalidStandardsVersion;
+use super::rules::MaintainerAlsoInUploaders;
 use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::MultiarchForeignPkgconfig;
@@ -1043,6 +1044,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DocumentationPackageNotArchitectureIndependent,
         &InvalidStandardsVersion,
         &NewerStandardsVersion,
+        &MaintainerAlsoInUploaders,
     ]
 }
 
@@ -1266,6 +1268,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &ChangelogIsSymlink,
         &InvalidStandardsVersion,
         &NewerStandardsVersion,
+        &MaintainerAlsoInUploaders,
     ]
 }
 
@@ -1962,6 +1965,7 @@ mod tests {
                 ChangelogIsSymlink::CODE,
                 InvalidStandardsVersion::CODE,
                 NewerStandardsVersion::CODE,
+                MaintainerAlsoInUploaders::CODE,
             ]
         );
     }

@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): sharedobject-in-library-directory-missing-soname (LN0716) [usr/lib/libhallo.so]
+E: example (binary): sharedobject-in-library-directory-missing-soname (LN0716) [lib/libhallo.so.1]
+E: example (binary): sharedobject-in-library-directory-missing-soname (LN0716) [usr/lib/x86_64-linux-gnu/libbaz.so.1.0]
+E: example (binary): sharedobject-in-library-directory-missing-soname (LN0716) [usr/local/lib/libbaz.so.1]
+E: example (binary): sharedobject-in-library-directory-missing-soname (LN0716) [usr/lib/libbaz1.so.1.0.3b]
+E: example (binary): sharedobject-in-library-directory-missing-soname (LN0716) [usr/lib/helper]
+E: example (binary): sharedobject-in-library-directory-missing-soname (LN0716) [usr/lib/helper]
+E: example (binary): sharedobject-in-library-directory-missing-soname (LN0716) [usr/lib/libhelper.so]
+E: example (binary): sharedobject-in-library-directory-missing-soname (LN0716) [usr/lib/libhelper.so.dbg]
+E: example (udeb): sharedobject-in-library-directory-missing-soname (LN0716) [usr/lib/libfoo.so.1]

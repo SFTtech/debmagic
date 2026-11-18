@@ -329,6 +329,7 @@ use super::rules::StaticallyLinkedBinary;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 
 use super::rules::ZeroByteFileInDocDirectory;
+use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
     &[
@@ -929,6 +930,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExecutableNotElfOrScript,
         &RelativeLibrarySearchPath,
         &UnusualInterpreter,
+        &SharedobjectInLibraryDirectoryMissingSoname,
     ]
 }
 
@@ -1558,6 +1560,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExecutableNotElfOrScript,
         &RelativeLibrarySearchPath,
         &UnusualInterpreter,
+        &SharedobjectInLibraryDirectoryMissingSoname,
     ]
 }
 
@@ -2204,6 +2207,7 @@ mod tests {
                 ExecutableNotElfOrScript::CODE,
                 RelativeLibrarySearchPath::CODE,
                 UnusualInterpreter::CODE,
+                SharedobjectInLibraryDirectoryMissingSoname::CODE,
             ]
         );
     }

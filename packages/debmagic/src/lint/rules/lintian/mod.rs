@@ -55,6 +55,7 @@ mod languages_javascript;
 mod languages_perl;
 mod languages_php;
 mod languages_python;
+mod libraries_shared_soname;
 mod lintian_overrides;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
@@ -315,6 +316,7 @@ pub(crate) use languages_python::{
     PythonVersionCurrentIsDeprecated, SourcePackageEncodesPythonVersion,
     ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory,
 };
+pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;
 pub(crate) use md5sums::{
     FileMissingInMd5sums, MalformedMd5sumsControlFile, Md5sumMismatch, Md5sumsListsNonexistentFile,

@@ -22,12 +22,29 @@ struct HostArch {
     libc: String,
     #[serde(rename = "DEB_HOST_ARCH_OS")]
     os: String,
+    #[serde(rename = "DEB_HOST_MULTIARCH")]
+    multiarch: String,
 }
 
 struct Architectures {
     names: HashSet<String>,
     wildcards: HashSet<String>,
+    ldconfig_folders: HashSet<String>,
 }
+
+/// Directories without the trailing slash that lintian's `ldconfig_folders`
+/// lists beside the multiarch ones.
+const LDCONFIG_FOLDERS: [&str; 9] = [
+    "lib",
+    "lib32",
+    "lib64",
+    "libx32",
+    "usr/lib",
+    "usr/lib32",
+    "usr/lib64",
+    "usr/libx32",
+    "usr/local/lib",
+];
 
 static ARCHITECTURES: LazyLock<Architectures> = LazyLock::new(|| {
     let file: HostFile =
@@ -35,7 +52,11 @@ static ARCHITECTURES: LazyLock<Architectures> = LazyLock::new(|| {
             .expect("vendored architectures/host.json");
     let mut names = HashSet::new();
     let mut wildcards = HashSet::new();
+    let mut ldconfig_folders: HashSet<String> =
+        LDCONFIG_FOLDERS.iter().map(|dir| dir.to_string()).collect();
     for (hyphenated, arch) in file.host_variables {
+        ldconfig_folders.insert(format!("lib/{}", arch.multiarch));
+        ldconfig_folders.insert(format!("usr/lib/{}", arch.multiarch));
         names.insert(hyphenated.clone());
         if arch.os == "linux" {
             if let Some(short) = hyphenated.strip_prefix("linux-") {
@@ -46,7 +67,11 @@ static ARCHITECTURES: LazyLock<Architectures> = LazyLock::new(|| {
         }
         wildcards.extend(wildcard_names(&arch));
     }
-    Architectures { names, wildcards }
+    Architectures {
+        names,
+        wildcards,
+        ldconfig_folders,
+    }
 });
 
 /// `all`, or neither a release architecture nor a wildcard (`any` is a wildcard).
@@ -56,8 +81,16 @@ pub(super) fn invalid_architecture_string(architecture: &str) -> bool {
             && !ARCHITECTURES.wildcards.contains(architecture))
 }
 
+/// Whether `dir` (no leading or trailing slash) is one of lintian's
+/// `ldconfig_folders`, the library directories of any release architecture.
+pub(crate) fn is_ldconfig_folder(dir: &str) -> bool {
+    ARCHITECTURES.ldconfig_folders.contains(dir)
+}
+
 fn wildcard_names(arch: &HostArch) -> [String; 26] {
-    let HostArch { abi, cpu, libc, os } = arch;
+    let HostArch {
+        abi, cpu, libc, os, ..
+    } = arch;
     [
         "any".to_string(),
         "any-any".to_string(),

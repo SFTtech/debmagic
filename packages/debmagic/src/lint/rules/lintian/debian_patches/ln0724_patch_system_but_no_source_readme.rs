@@ -53,7 +53,7 @@ impl SourceRule for PatchSystemButNoSourceReadme {
 
 /// Whether `debian/README.source` resolves to an entry in the tree, following
 /// relative symlinks.
-fn has_readme_source(files: &FileTree) -> bool {
+pub(crate) fn has_readme_source(files: &FileTree) -> bool {
     let Some(mut entry) = files.get("debian/README.source") else {
         return false;
     };

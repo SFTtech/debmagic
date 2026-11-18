@@ -342,6 +342,7 @@ use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::PhpScriptButNoPhpCliDep;
 use super::rules::PkgConfigMultiArchWrongDir;
 use super::rules::PkgConfigUnavailableForCrossCompilation;
+use super::rules::RDataWithoutReadmeSource;
 use super::rules::RemoveOfUnknownDiversion;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
 use super::rules::ZeroByteExecutableInPath;
@@ -963,6 +964,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PkgConfigUnavailableForCrossCompilation,
         &RootInContact,
         &PkgConfigMultiArchWrongDir,
+        &RDataWithoutReadmeSource,
     ]
 }
 
@@ -1174,6 +1176,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PatchSystemButNoSourceReadme,
         &TimewarpStandardsVersion,
         &RootInContact,
+        &RDataWithoutReadmeSource,
     ]
 }
 
@@ -1830,6 +1833,7 @@ mod tests {
                 PatchSystemButNoSourceReadme::CODE,
                 TimewarpStandardsVersion::CODE,
                 RootInContact::CODE,
+                RDataWithoutReadmeSource::CODE,
             ]
         );
     }

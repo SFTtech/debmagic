@@ -1626,6 +1626,7 @@ Rules
                 crate::lint::rules::OldStyleConfigScriptMultiarchPathArchAll::CODE,
                 crate::lint::rules::AbsoluteSymbolicLinkTargetInSource::CODE,
                 crate::lint::rules::CarriageReturnLineFeed::CODE,
+                crate::lint::rules::CustomCompressionInDebianSourceOptions::CODE,
             ]
         );
         let intent = LintIntent {

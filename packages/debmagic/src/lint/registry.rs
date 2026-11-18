@@ -343,6 +343,7 @@ use super::rules::WrongPathForInterpreter;
 use super::rules::AbsoluteSymbolicLinkTargetInSource;
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::ConfigureGeneratedFileInSource;
+use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -977,6 +978,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ConfigureGeneratedFileInSource,
         &AbsoluteSymbolicLinkTargetInSource,
         &CarriageReturnLineFeed,
+        &CustomCompressionInDebianSourceOptions,
     ]
 }
 
@@ -1192,6 +1194,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &ConfigureGeneratedFileInSource,
         &AbsoluteSymbolicLinkTargetInSource,
         &CarriageReturnLineFeed,
+        &CustomCompressionInDebianSourceOptions,
     ]
 }
 
@@ -1855,6 +1858,7 @@ mod tests {
                 ConfigureGeneratedFileInSource::CODE,
                 AbsoluteSymbolicLinkTargetInSource::CODE,
                 CarriageReturnLineFeed::CODE,
+                CustomCompressionInDebianSourceOptions::CODE,
             ]
         );
     }

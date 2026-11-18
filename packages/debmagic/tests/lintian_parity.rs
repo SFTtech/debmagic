@@ -231,6 +231,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/encoding/national-header-fix-encoding-patch",
     "checks/files/encoding/news-in-western-encoding",
     "checks/files/encoding/testsuite-in-western-encoding",
+    "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
@@ -832,6 +833,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/encoding/national-header-fix-encoding-patch",
     "checks/files/encoding/news-in-western-encoding",
     "checks/files/encoding/testsuite-in-western-encoding",
+    "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
@@ -1123,6 +1125,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/encoding/national-header-fix-encoding-patch"; "checks_files_encoding_national_header_fix_encoding_patch")]
 #[test_case("checks/files/encoding/news-in-western-encoding"; "checks_files_encoding_news_in_western_encoding")]
 #[test_case("checks/files/encoding/testsuite-in-western-encoding"; "checks_files_encoding_testsuite_in_western_encoding")]
+#[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
@@ -1726,6 +1729,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/encoding/national-header-fix-encoding-patch"; "checks_files_encoding_national_header_fix_encoding_patch")]
 #[test_case("checks/files/encoding/news-in-western-encoding"; "checks_files_encoding_news_in_western_encoding")]
 #[test_case("checks/files/encoding/testsuite-in-western-encoding"; "checks_files_encoding_testsuite_in_western_encoding")]
+#[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]

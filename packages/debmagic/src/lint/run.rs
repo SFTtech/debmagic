@@ -1612,6 +1612,7 @@ Rules
                 crate::lint::rules::MissingBuildDependencyForDhAddon::CODE,
                 crate::lint::rules::PhpScriptButNoPhpCliDep::CODE,
                 crate::lint::rules::OrphanedDiversion::CODE,
+                crate::lint::rules::MultiarchForeignPkgconfig::CODE,
             ]
         );
         let intent = LintIntent {

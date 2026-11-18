@@ -41,6 +41,7 @@ mod files_hierarchy;
 mod files_ieee;
 mod files_includes;
 mod files_installed;
+mod files_multi_arch;
 mod files_names;
 mod files_non_free;
 mod files_permissions;
@@ -273,6 +274,7 @@ pub(crate) use files_includes::HeaderHasOverlyGenericName;
 pub(crate) use files_installed::{
     FileInUsrLibSgml, PackageInstallsIntoEtcGconfSchemas, RunPartsCronFilenameContainsIllegalChars,
 };
+pub(crate) use files_multi_arch::MultiarchForeignPkgconfig;
 pub(crate) use files_names::{
     FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,
     HyphenFile, PackageContainsCompiledGlibSchema, PackageContainsEslintConfigFile,

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): multiarch-foreign-pkgconfig (LN0721) [usr/lib/x86_64-linux-gnu/pkgconfig/libfoo.pc]
+E: example (binary): multiarch-foreign-pkgconfig (LN0721) [usr/lib/x86_64-linux-gnu/pkgconfig/a.pc]
+E: example (binary): multiarch-foreign-pkgconfig (LN0721) [usr/lib/x86_64-linux-gnu/pkgconfig/b.pc]
+E: example (binary): multiarch-foreign-pkgconfig (LN0721) [usr/lib/x86_64-linux-gnu/pkgconfig/link.pc]
+E: example (binary): multiarch-foreign-pkgconfig (LN0721) [usr/lib/x86_64-linux-gnu/pkgconfig/hard.pc]
+E: example (udeb): multiarch-foreign-pkgconfig (LN0721) [usr/lib/x86_64-linux-gnu/pkgconfig/libfoo.pc]

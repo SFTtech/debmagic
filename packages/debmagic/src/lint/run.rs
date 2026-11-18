@@ -1641,6 +1641,7 @@ Rules
                 crate::lint::rules::InfoDocumentHasWrongExtension::CODE,
                 crate::lint::rules::InfoDocumentNotCompressed::CODE,
                 crate::lint::rules::InfoDocumentNotCompressedWithGzip::CODE,
+                crate::lint::rules::InfoDocumentNotCompressedWithMaxCompression::CODE,
             ]
         );
         let intent = LintIntent {

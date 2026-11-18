@@ -358,6 +358,7 @@ use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::InfoDocumentHasWrongExtension;
 use super::rules::InfoDocumentNotCompressed;
 use super::rules::InfoDocumentNotCompressedWithGzip;
+use super::rules::InfoDocumentNotCompressedWithMaxCompression;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -1007,6 +1008,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InfoDocumentHasWrongExtension,
         &InfoDocumentNotCompressed,
         &InfoDocumentNotCompressedWithGzip,
+        &InfoDocumentNotCompressedWithMaxCompression,
     ]
 }
 
@@ -1676,6 +1678,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InfoDocumentHasWrongExtension,
         &InfoDocumentNotCompressed,
         &InfoDocumentNotCompressedWithGzip,
+        &InfoDocumentNotCompressedWithMaxCompression,
     ]
 }
 
@@ -2362,6 +2365,7 @@ mod tests {
                 InfoDocumentHasWrongExtension::CODE,
                 InfoDocumentNotCompressed::CODE,
                 InfoDocumentNotCompressedWithGzip::CODE,
+                InfoDocumentNotCompressedWithMaxCompression::CODE,
             ]
         );
     }

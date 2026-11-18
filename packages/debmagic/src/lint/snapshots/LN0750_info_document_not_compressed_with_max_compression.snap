@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): info-document-not-compressed-with-max-compression (LN0750) [usr/share/info/foo.info.gz]
+E: example (binary): info-document-not-compressed-with-max-compression (LN0750) [usr/share/info/foo.info-1.gz]

@@ -21,6 +21,7 @@ mod ln0440_init_d_script_has_bad_lsb_line;
 mod ln0741_init_d_script_has_bad_start_runlevel;
 mod ln0742_init_d_script_has_duplicate_lsb_keyword;
 mod ln0743_init_d_script_has_duplicate_lsb_section;
+mod ln0744_init_d_script_has_unknown_lsb_keyword;
 pub(in crate::lint::rules::lintian) mod systemd_unit;
 
 pub(crate) use ln0230_init_d_script_does_not_implement_required_option::InitDScriptDoesNotImplementRequiredOption;
@@ -40,3 +41,4 @@ pub(crate) use ln0440_init_d_script_has_bad_lsb_line::InitDScriptHasBadLsbLine;
 pub(crate) use ln0741_init_d_script_has_bad_start_runlevel::InitDScriptHasBadStartRunlevel;
 pub(crate) use ln0742_init_d_script_has_duplicate_lsb_keyword::InitDScriptHasDuplicateLsbKeyword;
 pub(crate) use ln0743_init_d_script_has_duplicate_lsb_section::InitDScriptHasDuplicateLsbSection;
+pub(crate) use ln0744_init_d_script_has_unknown_lsb_keyword::InitDScriptHasUnknownLsbKeyword;

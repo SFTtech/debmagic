@@ -56,6 +56,25 @@ pub(super) struct LsbHeader {
     pub should_stop: Vec<String>,
 }
 
+/// LSB keywords the init-d check knows, lowercased. Other keywords are
+/// unknown unless they start with `x-`.
+const LSB_KNOWN_KEYWORDS: &[&str] = &[
+    "provides",
+    "required-start",
+    "required-stop",
+    "should-start",
+    "should-stop",
+    "default-start",
+    "default-stop",
+    "short-description",
+    "description",
+];
+
+/// `keyword` is lowercased.
+pub(super) fn lsb_keyword_known(keyword: &str) -> bool {
+    LSB_KNOWN_KEYWORDS.contains(&keyword) || keyword.starts_with("x-")
+}
+
 /// The first LSB section, read the way the init-d check reads it. Lines are
 /// 1-based. A line that ends a section is consumed, so it is not read again as
 /// a marker.

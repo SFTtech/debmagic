@@ -363,6 +363,7 @@ use super::rules::InfoDocumentNotCompressedWithMaxCompression;
 use super::rules::InitDScriptHasBadStartRunlevel;
 use super::rules::InitDScriptHasDuplicateLsbKeyword;
 use super::rules::InitDScriptHasDuplicateLsbSection;
+use super::rules::InitDScriptHasUnknownLsbKeyword;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -1017,6 +1018,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptHasBadStartRunlevel,
         &InitDScriptHasDuplicateLsbKeyword,
         &InitDScriptHasDuplicateLsbSection,
+        &InitDScriptHasUnknownLsbKeyword,
     ]
 }
 
@@ -1691,6 +1693,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InitDScriptHasBadStartRunlevel,
         &InitDScriptHasDuplicateLsbKeyword,
         &InitDScriptHasDuplicateLsbSection,
+        &InitDScriptHasUnknownLsbKeyword,
     ]
 }
 
@@ -2382,6 +2385,7 @@ mod tests {
                 InitDScriptHasBadStartRunlevel::CODE,
                 InitDScriptHasDuplicateLsbKeyword::CODE,
                 InitDScriptHasDuplicateLsbSection::CODE,
+                InitDScriptHasUnknownLsbKeyword::CODE,
             ]
         );
     }

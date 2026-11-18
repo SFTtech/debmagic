@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-has-unknown-lsb-keyword (LN0744) foo [etc/init.d/foo:4]
+W: example (binary): init.d-script-has-unknown-lsb-keyword (LN0744) short-desc [etc/init.d/typo:3]
+W: example (binary): init.d-script-has-unknown-lsb-keyword (LN0744) short-desc [etc/init.d/typo:4]
+W: example (udeb): init.d-script-has-unknown-lsb-keyword (LN0744) foo [etc/init.d/udeb-script:3]

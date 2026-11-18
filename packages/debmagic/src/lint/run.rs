@@ -1677,6 +1677,7 @@ Rules
                 crate::lint::rules::DuplicateChangelogFiles::CODE,
                 crate::lint::rules::NoNewlineAtEnd::CODE,
                 crate::lint::rules::CshConsideredHarmful::CODE,
+                crate::lint::rules::VcsFieldBitrotted::CODE,
             ]
         );
         let intent = LintIntent {

@@ -1710,6 +1710,7 @@ Rules
                 crate::lint::rules::InitDScriptProvidesVirtualFacility::CODE,
                 crate::lint::rules::InitDScriptSourcingWithoutTest::CODE,
                 crate::lint::rules::DuplicatePackagingFile::CODE,
+                crate::lint::rules::IncorrectPackagingFilename::CODE,
             ]
         );
         let intent = LintIntent {

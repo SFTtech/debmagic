@@ -382,6 +382,7 @@ use super::rules::FileInEtcRcDMarkedAsConffile;
 use super::rules::FileInRootAndUsr;
 use super::rules::GitPatchesNotExported;
 use super::rules::IncorrectLibdirInLaFile;
+use super::rules::IncorrectPackagingFilename;
 use super::rules::InfoDocumentHasWrongExtension;
 use super::rules::InfoDocumentMissingImageFile;
 use super::rules::InfoDocumentNotCompressed;
@@ -1147,6 +1148,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptProvidesVirtualFacility,
         &InitDScriptSourcingWithoutTest,
         &DuplicatePackagingFile,
+        &IncorrectPackagingFilename,
     ]
 }
 
@@ -1384,6 +1386,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &OrphanedPackageNotMaintainedInDebianInfrastructure,
         &DuplicateP3distOverride,
         &DuplicatePackagingFile,
+        &IncorrectPackagingFilename,
     ]
 }
 
@@ -2132,6 +2135,7 @@ mod tests {
                 OrphanedPackageNotMaintainedInDebianInfrastructure::CODE,
                 DuplicateP3distOverride::CODE,
                 DuplicatePackagingFile::CODE,
+                IncorrectPackagingFilename::CODE,
             ]
         );
     }

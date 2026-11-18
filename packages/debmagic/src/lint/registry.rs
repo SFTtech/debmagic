@@ -10,6 +10,7 @@ use super::rules::BuildDependsOnDhSysuser;
 use super::rules::BuildDependsOnNonBuildPackage;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
+use super::rules::CarriageReturnLineFeed;
 use super::rules::ConflictingNegationInSourceRelation;
 use super::rules::DbgPackageMissingDepends;
 use super::rules::DebhelperCompatFileContainsMultipleLevels;
@@ -975,6 +976,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldStyleConfigScriptMultiarchPathArchAll,
         &ConfigureGeneratedFileInSource,
         &AbsoluteSymbolicLinkTargetInSource,
+        &CarriageReturnLineFeed,
     ]
 }
 
@@ -1189,6 +1191,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RDataWithoutReadmeSource,
         &ConfigureGeneratedFileInSource,
         &AbsoluteSymbolicLinkTargetInSource,
+        &CarriageReturnLineFeed,
     ]
 }
 
@@ -1851,6 +1854,7 @@ mod tests {
                 RDataWithoutReadmeSource::CODE,
                 ConfigureGeneratedFileInSource::CODE,
                 AbsoluteSymbolicLinkTargetInSource::CODE,
+                CarriageReturnLineFeed::CODE,
             ]
         );
     }

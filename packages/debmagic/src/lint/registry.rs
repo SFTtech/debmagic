@@ -332,6 +332,7 @@ use super::rules::RelativeLibrarySearchPath;
 use super::rules::RulesRequireBuildPrerequisite;
 use super::rules::ScriptWithoutInterpreter;
 use super::rules::StaticallyLinkedBinary;
+use super::rules::TimewarpStandardsVersion;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 use super::rules::WrongPathForInterpreter;
 
@@ -953,6 +954,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PatchSystemButNoSourceReadme,
         &DirOrFileInBuildTree,
         &ZeroByteExecutableInPath,
+        &TimewarpStandardsVersion,
     ]
 }
 
@@ -1162,6 +1164,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MissingBuildDependencyForDhAddon,
         &RulesRequireBuildPrerequisite,
         &PatchSystemButNoSourceReadme,
+        &TimewarpStandardsVersion,
     ]
 }
 
@@ -1812,6 +1815,7 @@ mod tests {
                 MissingBuildDependencyForDhAddon::CODE,
                 RulesRequireBuildPrerequisite::CODE,
                 PatchSystemButNoSourceReadme::CODE,
+                TimewarpStandardsVersion::CODE,
             ]
         );
     }

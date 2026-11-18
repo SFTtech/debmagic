@@ -32,6 +32,7 @@ mod fields_mail_address;
 mod fields_package_relations;
 mod fields_relations_extra;
 mod fields_relations_more;
+mod fields_standards_version;
 mod fields_text;
 mod fields_version;
 mod files_artifact;
@@ -368,6 +369,7 @@ pub(crate) use fields_relations_extra::{
     DependsOnLibdb1Compat, DependsOnSpecificJavaDocPackage, DocPackageDependsOnMainPackage,
     ObsoleteRelationFormInSource, RedundantInstallationPrerequisite, WeakLibraryDevDependency,
 };
+pub(crate) use fields_standards_version::TimewarpStandardsVersion;
 pub(crate) use fields_version::{DebianRevisionIsZero, DebianRevisionNotWellFormed};
 pub(crate) use files_non_free::NonFreeFlash;
 pub(crate) use files_privacy_breach::{

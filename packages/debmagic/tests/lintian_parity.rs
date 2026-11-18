@@ -207,6 +207,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/recommended/control-file-general",
     "checks/fields/recommended/generic-empty",
     "checks/fields/required/generic-empty",
+    "checks/fields/standards-version/legacy-relations",
+    "checks/fields/standards-version/standards-version-timewarp",
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
@@ -799,6 +801,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/recommended/control-file-general",
     "checks/fields/recommended/generic-empty",
     "checks/fields/required/generic-empty",
+    "checks/fields/standards-version/legacy-relations",
+    "checks/fields/standards-version/standards-version-timewarp",
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
@@ -1085,6 +1089,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/recommended/control-file-general"; "checks_fields_recommended_control_file_general")]
 #[test_case("checks/fields/recommended/generic-empty"; "checks_fields_recommended_generic_empty")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/fields/standards-version/legacy-relations"; "checks_fields_standards_version_legacy_relations")]
+#[test_case("checks/fields/standards-version/standards-version-timewarp"; "checks_fields_standards_version_standards_version_timewarp")]
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
@@ -1679,6 +1685,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/recommended/control-file-general"; "checks_fields_recommended_control_file_general")]
 #[test_case("checks/fields/recommended/generic-empty"; "checks_fields_recommended_generic_empty")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/fields/standards-version/legacy-relations"; "checks_fields_standards_version_legacy_relations")]
+#[test_case("checks/fields/standards-version/standards-version-timewarp"; "checks_fields_standards_version_standards_version_timewarp")]
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]

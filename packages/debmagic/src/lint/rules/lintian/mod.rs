@@ -340,7 +340,8 @@ pub(crate) use fonts_opentype::{
 };
 pub(crate) use fonts_truetype::TruetypeFontProhibitsInstallableEmbedding;
 pub(crate) use games::{
-    GameOutsideSection, PackageSectionGamesButContainsNoGame, PackageSectionGamesButHasUsrBin,
+    GameOutsideSection, GlobalDataInGamesDirectory, PackageSectionGamesButContainsNoGame,
+    PackageSectionGamesButHasUsrBin,
 };
 pub(crate) use init_scripts::{
     InitDScriptDependsOnAllVirtualFacility, InitDScriptDoesNotImplementRequiredOption,

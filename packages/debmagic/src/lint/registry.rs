@@ -327,6 +327,7 @@ use super::rules::DirOrFileInBuildTree;
 use super::rules::DiversionForUnknownFile;
 use super::rules::ExecutableNotElfOrScript;
 use super::rules::GameOutsideSection;
+use super::rules::GlobalDataInGamesDirectory;
 use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::MultiarchForeignPkgconfig;
@@ -985,6 +986,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ArchDependentFileInUsrShare,
         &OpentypeFontWrongFilename,
         &GameOutsideSection,
+        &GlobalDataInGamesDirectory,
     ]
 }
 
@@ -1643,6 +1645,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ArchDependentFileInUsrShare,
         &OpentypeFontWrongFilename,
         &GameOutsideSection,
+        &GlobalDataInGamesDirectory,
     ]
 }
 
@@ -2318,6 +2321,7 @@ mod tests {
                 ArchDependentFileInUsrShare::CODE,
                 OpentypeFontWrongFilename::CODE,
                 GameOutsideSection::CODE,
+                GlobalDataInGamesDirectory::CODE,
             ]
         );
     }

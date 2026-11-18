@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): global-data-in-games-directory (LN0788) [usr/share/games/applications/blaster.desktop]
+E: example (binary): global-data-in-games-directory (LN0788) [usr/share/games/mime/blaster.xml]
+E: example (binary): global-data-in-games-directory (LN0788) [usr/share/games/icons/hicolor/22x22/lintian-22x22.png]
+E: example (binary): global-data-in-games-directory (LN0788) [usr/share/games/pixmaps/blaster.xpm]
+E: example (binary): global-data-in-games-directory (LN0788) [usr/share/games/icons/link.png]
+E: example (udeb): global-data-in-games-directory (LN0788) [usr/share/games/mime/blaster.xml]

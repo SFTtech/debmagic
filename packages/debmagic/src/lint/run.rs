@@ -1643,6 +1643,7 @@ Rules
                 crate::lint::rules::InfoDocumentNotCompressedWithGzip::CODE,
                 crate::lint::rules::InfoDocumentNotCompressedWithMaxCompression::CODE,
                 crate::lint::rules::InfoDocumentMissingImageFile::CODE,
+                crate::lint::rules::InitDScriptHasBadStartRunlevel::CODE,
             ]
         );
         let intent = LintIntent {

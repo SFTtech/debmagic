@@ -395,6 +395,7 @@ use super::rules::InitDScriptMissingDependencyOnLocalFs;
 use super::rules::InitDScriptMissingLsbKeyword;
 use super::rules::InitDScriptMissingStart;
 use super::rules::InitDScriptNotIncludedInPackage;
+use super::rules::InitDScriptNotMarkedAsConffile;
 use super::rules::InvalidDep3FormatPatchBugFieldDefaultValue;
 use super::rules::InvalidDep3FormatPatchBugNotContainUrl;
 use super::rules::InvalidDep3FormatPatchMaybeBugDebian;
@@ -1139,6 +1140,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptMissingDependencyOnLocalFs,
         &InitDScriptMissingStart,
         &InitDScriptNotIncludedInPackage,
+        &InitDScriptNotMarkedAsConffile,
     ]
 }
 
@@ -1874,6 +1876,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InitDScriptMissingDependencyOnLocalFs,
         &InitDScriptMissingStart,
         &InitDScriptNotIncludedInPackage,
+        &InitDScriptNotMarkedAsConffile,
     ]
 }
 
@@ -2626,6 +2629,7 @@ mod tests {
                 InitDScriptMissingDependencyOnLocalFs::CODE,
                 InitDScriptMissingStart::CODE,
                 InitDScriptNotIncludedInPackage::CODE,
+                InitDScriptNotMarkedAsConffile::CODE,
             ]
         );
     }

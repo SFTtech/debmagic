@@ -1706,6 +1706,7 @@ Rules
                 crate::lint::rules::InitDScriptMissingDependencyOnLocalFs::CODE,
                 crate::lint::rules::InitDScriptMissingStart::CODE,
                 crate::lint::rules::InitDScriptNotIncludedInPackage::CODE,
+                crate::lint::rules::InitDScriptNotMarkedAsConffile::CODE,
             ]
         );
         let intent = LintIntent {

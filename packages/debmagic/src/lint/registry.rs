@@ -362,6 +362,7 @@ use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::DirectoryInModprobeD;
 use super::rules::DocumentationPackageNotArchitectureIndependent;
+use super::rules::DuplicateChangelogFiles;
 use super::rules::DuplicateConffile;
 use super::rules::FileInEtcRcDMarkedAsConffile;
 use super::rules::FileInRootAndUsr;
@@ -1073,6 +1074,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DirectoryInModprobeD,
         &NonConfFileInModprobeD,
         &OldDevhelpStandard,
+        &DuplicateChangelogFiles,
     ]
 }
 
@@ -1775,6 +1777,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DirectoryInModprobeD,
         &NonConfFileInModprobeD,
         &OldDevhelpStandard,
+        &DuplicateChangelogFiles,
     ]
 }
 
@@ -2494,6 +2497,7 @@ mod tests {
                 DirectoryInModprobeD::CODE,
                 NonConfFileInModprobeD::CODE,
                 OldDevhelpStandard::CODE,
+                DuplicateChangelogFiles::CODE,
             ]
         );
     }

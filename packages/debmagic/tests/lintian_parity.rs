@@ -473,6 +473,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/debug/files-foo-in-bar",
     "checks/files/debug-packages/non-debug-file-in-debug-package",
     "checks/files/desktop/legacy-filenames",
+    "checks/files/duplicates/duplicate-files",
     "checks/files/empty-package/cruft-source-is-missing-unrel",
     "checks/files/empty-package/files-empty",
     "checks/files/empty-package/legacy-binary",
@@ -1414,6 +1415,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/debug/files-foo-in-bar"; "checks_files_debug_files_foo_in_bar")]
 #[test_case("checks/files/debug-packages/non-debug-file-in-debug-package"; "checks_files_debug_packages_non_debug_file_in_debug_package")]
 #[test_case("checks/files/desktop/legacy-filenames"; "checks_files_desktop_legacy_filenames")]
+#[test_case("checks/files/duplicates/duplicate-files"; "checks_files_duplicates_duplicate_files")]
 #[test_case("checks/files/empty-package/cruft-source-is-missing-unrel"; "checks_files_empty_package_cruft_source_is_missing_unrel")]
 #[test_case("checks/files/empty-package/files-empty"; "checks_files_empty_package_files_empty")]
 #[test_case("checks/files/empty-package/legacy-binary"; "checks_files_empty_package_legacy_binary")]

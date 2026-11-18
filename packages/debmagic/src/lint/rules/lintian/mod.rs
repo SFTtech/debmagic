@@ -44,6 +44,7 @@ mod files_artifact;
 mod files_build_path;
 mod files_config_scripts;
 mod files_debug;
+mod files_duplicates;
 mod files_foreign;
 mod files_hard_links;
 mod files_hierarchy;
@@ -161,6 +162,7 @@ pub(crate) use desktop::{
 pub(crate) use desktop_gir::GirSectionNotLibdevel;
 pub(crate) use documentation::ZeroByteFileInDocDirectory;
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
+pub(crate) use files_duplicates::DuplicateChangelogFiles;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{

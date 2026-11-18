@@ -321,6 +321,7 @@ use super::rules::DescriptionIsDebmakeTemplate;
 
 use super::rules::DescriptionStartsWithLeadingSpaces;
 
+use super::rules::DirOrFileInBuildTree;
 use super::rules::DiversionForUnknownFile;
 use super::rules::ExecutableNotElfOrScript;
 use super::rules::MissingBuildDependencyForDhAddon;
@@ -949,6 +950,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RemoveOfUnknownDiversion,
         &ArchDependentFileNotInArchSpecificDirectory,
         &PatchSystemButNoSourceReadme,
+        &DirOrFileInBuildTree,
     ]
 }
 
@@ -1588,6 +1590,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &WrongPathForInterpreter,
         &RemoveOfUnknownDiversion,
         &ArchDependentFileNotInArchSpecificDirectory,
+        &DirOrFileInBuildTree,
     ]
 }
 
@@ -2244,6 +2247,7 @@ mod tests {
                 WrongPathForInterpreter::CODE,
                 RemoveOfUnknownDiversion::CODE,
                 ArchDependentFileNotInArchSpecificDirectory::CODE,
+                DirOrFileInBuildTree::CODE,
             ]
         );
     }

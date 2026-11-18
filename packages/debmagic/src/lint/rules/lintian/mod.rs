@@ -35,6 +35,7 @@ mod fields_relations_more;
 mod fields_text;
 mod fields_version;
 mod files_artifact;
+mod files_build_path;
 mod files_debug;
 mod files_foreign;
 mod files_hard_links;
@@ -272,6 +273,7 @@ pub(crate) use files_artifact::{
     DebianAddsSvkCommitFile, DebianAddsSvnCommitFile, DebianAddsSvnConflictFile,
     DebianAddsSvnControlDir,
 };
+pub(crate) use files_build_path::DirOrFileInBuildTree;
 pub(crate) use files_debug::NonDebugFileInDebugPackage;
 pub(crate) use files_foreign::{
     CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,

@@ -1639,6 +1639,7 @@ Rules
                 crate::lint::rules::ExtraWhitespaceAroundNameInChangelogTrailer::CODE,
                 crate::lint::rules::ChangelogIsSymlink::CODE,
                 crate::lint::rules::InfoDocumentHasWrongExtension::CODE,
+                crate::lint::rules::InfoDocumentNotCompressed::CODE,
             ]
         );
         let intent = LintIntent {

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): info-document-not-compressed (LN0748) [usr/share/info/foo]
+E: example (binary): info-document-not-compressed (LN0748) [usr/share/info/foo.info]
+E: example (binary): info-document-not-compressed (LN0748) [usr/share/info/foo.txt]
+E: example (binary): info-document-not-compressed (LN0748) [usr/share/info/foo.gz.bak]
+E: example (binary): info-document-not-compressed (LN0748) [usr/share/info/foo]
+E: example (binary): info-document-not-compressed (LN0748) [usr/share/info/foo.info]

@@ -106,6 +106,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/source-copyright-symlink",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
+    "checks/debian/filenames/duplicate-news-files",
     "checks/debian/line-separators/cruft-crlf-eols",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
     "checks/debian/patches/dep3/bug-field-default-value",
@@ -766,6 +767,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/source-copyright-symlink",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
+    "checks/debian/filenames/duplicate-news-files",
     "checks/debian/line-separators/cruft-crlf-eols",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
     "checks/debian/patches/dep3/bug-field-default-value",
@@ -1079,6 +1081,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/source-copyright-symlink"; "checks_debian_copyright_source_copyright_symlink")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
+#[test_case("checks/debian/filenames/duplicate-news-files"; "checks_debian_filenames_duplicate_news_files")]
 #[test_case("checks/debian/line-separators/cruft-crlf-eols"; "checks_debian_line_separators_cruft_crlf_eols")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
@@ -1741,6 +1744,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/source-copyright-symlink"; "checks_debian_copyright_source_copyright_symlink")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
+#[test_case("checks/debian/filenames/duplicate-news-files"; "checks_debian_filenames_duplicate_news_files")]
 #[test_case("checks/debian/line-separators/cruft-crlf-eols"; "checks_debian_line_separators_cruft_crlf_eols")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]

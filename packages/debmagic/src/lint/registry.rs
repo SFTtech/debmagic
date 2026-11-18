@@ -357,6 +357,7 @@ use super::rules::AbsoluteSymbolicLinkTargetInSource;
 use super::rules::ArchDependentFileInUsrShare;
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::AspellPackageNotArchAll;
+use super::rules::ConffileHasBadFileType;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::DocumentationPackageNotArchitectureIndependent;
@@ -1057,6 +1058,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidDep3FormatPatchBugNotContainUrl,
         &InvalidDep3FormatPatchMaybeBugDebian,
         &InvalidDep3FormatPatchOriginFieldDefaultValue,
+        &ConffileHasBadFileType,
     ]
 }
 
@@ -1751,6 +1753,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NonEmptyDependencyLibsInLaFile,
         &AspellPackageNotArchAll,
         &DocumentationPackageNotArchitectureIndependent,
+        &ConffileHasBadFileType,
     ]
 }
 
@@ -2468,6 +2471,7 @@ mod tests {
                 InvalidDep3FormatPatchBugNotContainUrl::CODE,
                 InvalidDep3FormatPatchMaybeBugDebian::CODE,
                 InvalidDep3FormatPatchOriginFieldDefaultValue::CODE,
+                ConffileHasBadFileType::CODE,
             ]
         );
     }

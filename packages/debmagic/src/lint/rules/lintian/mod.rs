@@ -142,7 +142,7 @@ pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
 pub(crate) use binaries_rpath::RelativeLibrarySearchPath;
 pub(crate) use binaries_static::StaticallyLinkedBinary;
 pub(crate) use conffiles::{
-    FileInUsrMarkedAsConffile, MissingConffile, NonEtcFileMarkedAsConffile,
+    ConffileHasBadFileType, FileInUsrMarkedAsConffile, MissingConffile, NonEtcFileMarkedAsConffile,
 };
 pub(crate) use debhelper_rules::{
     DebhelperBaseCompatLevelIsMissing, DebhelperButNoMiscDepends,

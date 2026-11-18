@@ -46,6 +46,7 @@ use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
 use super::rules::MalformedOverride;
+use super::rules::NativeSourceFileWithoutUtf8Name;
 use super::rules::NmuInChangelog;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::OverrideFileInWrongPackage;
@@ -1163,6 +1164,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DuplicateOverrideContext,
         &OverrideFileInWrongPackage,
         &WaywardSymbolicLinkTargetInSource,
+        &NativeSourceFileWithoutUtf8Name,
     ]
 }
 
@@ -1407,6 +1409,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MalformedOverride,
         &DuplicateOverrideContext,
         &WaywardSymbolicLinkTargetInSource,
+        &NativeSourceFileWithoutUtf8Name,
     ]
 }
 
@@ -2163,6 +2166,7 @@ mod tests {
                 MalformedOverride::CODE,
                 DuplicateOverrideContext::CODE,
                 WaywardSymbolicLinkTargetInSource::CODE,
+                NativeSourceFileWithoutUtf8Name::CODE,
             ]
         );
     }

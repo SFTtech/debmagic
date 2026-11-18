@@ -264,7 +264,7 @@ pub fn format_diagnostic(diagnostic: &Diagnostic) -> String {
 
 /// A Location path as lintian prints a pointer: as is when it is UTF-8,
 /// otherwise every byte read as Latin-1, so the bytes stay visible.
-fn pointer_path(path: &Path) -> String {
+pub(crate) fn pointer_path(path: &Path) -> String {
     match path.to_str() {
         Some(text) => text.to_string(),
         None => path
@@ -1718,6 +1718,7 @@ Rules
                 crate::lint::rules::DuplicateOverrideContext::CODE,
                 crate::lint::rules::OverrideFileInWrongPackage::CODE,
                 crate::lint::rules::WaywardSymbolicLinkTargetInSource::CODE,
+                crate::lint::rules::NativeSourceFileWithoutUtf8Name::CODE,
             ]
         );
         let intent = LintIntent {

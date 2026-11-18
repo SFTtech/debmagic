@@ -364,14 +364,14 @@ pub(crate) use files_multi_arch::{
 };
 pub(crate) use files_names::{
     FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,
-    HyphenFile, PackageContainsCompiledGlibSchema, PackageContainsEslintConfigFile,
-    PackageContainsFileInEtcSkel, PackageContainsFileInUsrShareHal,
-    PackageContainsIconCacheInGenericDir, PackageContainsNpmIgnoreFile,
-    PackageContainsPythonCoverageFile, PackageContainsPythonDoctreeFile,
-    PackageContainsPythonDotDirectory, PackageContainsPythonHeaderInIncorrectDirectory,
-    PackageContainsPythonHypothesisExample, PackageContainsPythonTestsInGlobalNamespace,
-    PackageContainsSassCacheDirectory, ShippedFileWithoutUtf8Name, StarFile,
-    ZeroByteExecutableInPath,
+    HyphenFile, NativeSourceFileWithoutUtf8Name, PackageContainsCompiledGlibSchema,
+    PackageContainsEslintConfigFile, PackageContainsFileInEtcSkel,
+    PackageContainsFileInUsrShareHal, PackageContainsIconCacheInGenericDir,
+    PackageContainsNpmIgnoreFile, PackageContainsPythonCoverageFile,
+    PackageContainsPythonDoctreeFile, PackageContainsPythonDotDirectory,
+    PackageContainsPythonHeaderInIncorrectDirectory, PackageContainsPythonHypothesisExample,
+    PackageContainsPythonTestsInGlobalNamespace, PackageContainsSassCacheDirectory,
+    ShippedFileWithoutUtf8Name, StarFile, ZeroByteExecutableInPath,
 };
 pub(crate) use files_obsolete_paths::PackageInstallsIntoObsoleteDir;
 pub(crate) use files_p11_kit::IncorrectNamingOfPkcs11Module;

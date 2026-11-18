@@ -326,6 +326,7 @@ use super::rules::DescriptionStartsWithLeadingSpaces;
 use super::rules::DirOrFileInBuildTree;
 use super::rules::DiversionForUnknownFile;
 use super::rules::ExecutableNotElfOrScript;
+use super::rules::GameOutsideSection;
 use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::MultiarchForeignPkgconfig;
@@ -983,6 +984,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CustomCompressionInDebianSourceOptions,
         &ArchDependentFileInUsrShare,
         &OpentypeFontWrongFilename,
+        &GameOutsideSection,
     ]
 }
 
@@ -1640,6 +1642,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OldStyleConfigScriptMultiarchPathArchAll,
         &ArchDependentFileInUsrShare,
         &OpentypeFontWrongFilename,
+        &GameOutsideSection,
     ]
 }
 
@@ -2314,6 +2317,7 @@ mod tests {
                 OldStyleConfigScriptMultiarchPathArchAll::CODE,
                 ArchDependentFileInUsrShare::CODE,
                 OpentypeFontWrongFilename::CODE,
+                GameOutsideSection::CODE,
             ]
         );
     }

@@ -401,6 +401,7 @@ use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::OrphanedPackageMaintainedInPrivateSpace;
 use super::rules::OrphanedPackageNotMaintainedInDebianInfrastructure;
+use super::rules::PerlModuleInCoreDirectory;
 use super::rules::PhpScriptButNoPhpCliDep;
 use super::rules::PkgConfigMultiArchWrongDir;
 use super::rules::PkgConfigUnavailableForCrossCompilation;
@@ -1093,6 +1094,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BugsFieldDoesNotReferToDebianInfrastructure,
         &OcamlDanglingCmxa,
         &OcamlDanglingCmxs,
+        &PerlModuleInCoreDirectory,
     ]
 }
 
@@ -1805,6 +1807,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BugsFieldDoesNotReferToDebianInfrastructure,
         &OcamlDanglingCmxa,
         &OcamlDanglingCmxs,
+        &PerlModuleInCoreDirectory,
     ]
 }
 
@@ -2534,6 +2537,7 @@ mod tests {
                 BugsFieldDoesNotReferToDebianInfrastructure::CODE,
                 OcamlDanglingCmxa::CODE,
                 OcamlDanglingCmxs::CODE,
+                PerlModuleInCoreDirectory::CODE,
             ]
         );
     }

@@ -53,6 +53,7 @@ use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::TemporaryDebhelperFile;
 use super::rules::UselessAutoreconfBuildDepends;
+use super::rules::WaywardSymbolicLinkTargetInSource;
 use super::rules::WeakLibraryDevDependency;
 use super::rules::{
     AbsoluteSymlinkInTopLevelFolder, AliasedLocation, AncientLibtool, AncientPythonVersionField,
@@ -1161,6 +1162,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MalformedOverride,
         &DuplicateOverrideContext,
         &OverrideFileInWrongPackage,
+        &WaywardSymbolicLinkTargetInSource,
     ]
 }
 
@@ -1404,6 +1406,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DuplicateContact,
         &MalformedOverride,
         &DuplicateOverrideContext,
+        &WaywardSymbolicLinkTargetInSource,
     ]
 }
 
@@ -2159,6 +2162,7 @@ mod tests {
                 DuplicateContact::CODE,
                 MalformedOverride::CODE,
                 DuplicateOverrideContext::CODE,
+                WaywardSymbolicLinkTargetInSource::CODE,
             ]
         );
     }

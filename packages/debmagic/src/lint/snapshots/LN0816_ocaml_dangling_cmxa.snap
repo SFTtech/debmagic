@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): ocaml-dangling-cmxa (LN0816) [usr/lib/ocaml/foo.cmxa]
+E: example (binary): ocaml-dangling-cmxa (LN0816) [usr/lib/ocaml/foo.cmxa]
+E: example (binary): ocaml-dangling-cmxa (LN0816) [usr/lib/ocaml/foo.cmxa]
+E: example (binary): ocaml-dangling-cmxa (LN0816) [usr/lib/ocaml/foo.cmxa]
+E: example (binary): ocaml-dangling-cmxa (LN0816) [usr/lib/ocaml/a.b.cmxa]
+E: example (udeb): ocaml-dangling-cmxa (LN0816) [usr/lib/ocaml/foo.cmxa]

@@ -69,6 +69,7 @@ mod games;
 mod init_scripts;
 mod known_fields;
 mod languages_javascript;
+mod languages_ocaml;
 mod languages_perl;
 mod languages_php;
 mod languages_python;
@@ -393,6 +394,7 @@ pub(crate) use languages_javascript::{
     EmbeddedJavascriptLibrary, NodePackageInstallInNodejsRootdir, NodejsLockFile,
     NodejsModuleInstalledInUsrLib, PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
+pub(crate) use languages_ocaml::OcamlDanglingCmxa;
 pub(crate) use languages_perl::PackageInstallsNonbinaryPerlInUsrLibPerl5;
 pub(crate) use languages_python::{
     AncientPythonVersionField, BogusPythonPrerequisite, EmbeddedFeedparserLibrary,

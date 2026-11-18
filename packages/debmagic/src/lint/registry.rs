@@ -396,6 +396,7 @@ use super::rules::InitDScriptMissingLsbKeyword;
 use super::rules::InitDScriptMissingStart;
 use super::rules::InitDScriptNotIncludedInPackage;
 use super::rules::InitDScriptNotMarkedAsConffile;
+use super::rules::InitDScriptProvidesVirtualFacility;
 use super::rules::InvalidDep3FormatPatchBugFieldDefaultValue;
 use super::rules::InvalidDep3FormatPatchBugNotContainUrl;
 use super::rules::InvalidDep3FormatPatchMaybeBugDebian;
@@ -1141,6 +1142,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptMissingStart,
         &InitDScriptNotIncludedInPackage,
         &InitDScriptNotMarkedAsConffile,
+        &InitDScriptProvidesVirtualFacility,
     ]
 }
 
@@ -1877,6 +1879,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InitDScriptMissingStart,
         &InitDScriptNotIncludedInPackage,
         &InitDScriptNotMarkedAsConffile,
+        &InitDScriptProvidesVirtualFacility,
     ]
 }
 
@@ -2630,6 +2633,7 @@ mod tests {
                 InitDScriptMissingStart::CODE,
                 InitDScriptNotIncludedInPackage::CODE,
                 InitDScriptNotMarkedAsConffile::CODE,
+                InitDScriptProvidesVirtualFacility::CODE,
             ]
         );
     }

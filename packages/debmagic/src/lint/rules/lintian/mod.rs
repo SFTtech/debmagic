@@ -404,10 +404,11 @@ pub(crate) use init_scripts::{
     InitDScriptHasUnterminatedLsbSection, InitDScriptMissingDependencyOnLocalFs,
     InitDScriptMissingLsbKeyword, InitDScriptMissingLsbSection, InitDScriptMissingStart,
     InitDScriptNotIncludedInPackage, InitDScriptNotMarkedAsConffile,
-    InitDScriptPossibleMissingStop, InitDScriptShouldAlwaysStartService,
-    InitDScriptStartsInStopRunlevel, InitDScriptStopsInSRunlevel,
-    MissingSystemdServiceForInitDRcSScript, NonVirtualFacilityInInitdScript,
-    SystemdServiceFileRefersToObsoleteTarget, SystemdServiceFileWrapsInitScript,
+    InitDScriptPossibleMissingStop, InitDScriptProvidesVirtualFacility,
+    InitDScriptShouldAlwaysStartService, InitDScriptStartsInStopRunlevel,
+    InitDScriptStopsInSRunlevel, MissingSystemdServiceForInitDRcSScript,
+    NonVirtualFacilityInInitdScript, SystemdServiceFileRefersToObsoleteTarget,
+    SystemdServiceFileWrapsInitScript,
 };
 pub(crate) use languages_javascript::{
     EmbeddedJavascriptLibrary, NodePackageInstallInNodejsRootdir, NodejsLockFile,

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-provides-virtual-facility (LN0795) $virtual [etc/init.d/single]
+W: example (binary): init.d-script-provides-virtual-facility (LN0795) $one [etc/init.d/several]
+W: example (binary): init.d-script-provides-virtual-facility (LN0795) $two [etc/init.d/several]
+W: example (udeb): init.d-script-provides-virtual-facility (LN0795) $udeb [etc/init.d/udeb-script]

@@ -183,6 +183,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/mail-address/fields-maintainer-general",
     "checks/fields/mail-address/fields-qa-maint-address",
     "checks/fields/mail-address/fields-qa-maint-name",
+    "checks/fields/mail-address/fields-root-maint-address",
     "checks/fields/mail-address/fields-uploaders",
     "checks/fields/mail-address/legacy-foo++",
     "checks/fields/mail-address/legacy-maintainer-scripts",
@@ -411,6 +412,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/mail-address/fields-maintainer-bounces",
     "checks/fields/mail-address/fields-qa-maint-address",
     "checks/fields/mail-address/fields-qa-maint-name",
+    "checks/fields/mail-address/fields-root-maint-address",
     "checks/fields/mail-address/legacy-foo++",
     "checks/fields/mail-address/legacy-maintainer-scripts",
     "checks/fields/origin/fields-redundant",
@@ -778,6 +780,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/mail-address/fields-maintainer-general",
     "checks/fields/mail-address/fields-qa-maint-address",
     "checks/fields/mail-address/fields-qa-maint-name",
+    "checks/fields/mail-address/fields-root-maint-address",
     "checks/fields/mail-address/fields-uploaders",
     "checks/fields/mail-address/legacy-foo++",
     "checks/fields/mail-address/legacy-maintainer-scripts",
@@ -1066,6 +1069,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/mail-address/fields-maintainer-general"; "checks_fields_mail_address_fields_maintainer_general")]
 #[test_case("checks/fields/mail-address/fields-qa-maint-address"; "checks_fields_mail_address_fields_qa_maint_address")]
 #[test_case("checks/fields/mail-address/fields-qa-maint-name"; "checks_fields_mail_address_fields_qa_maint_name")]
+#[test_case("checks/fields/mail-address/fields-root-maint-address"; "checks_fields_mail_address_fields_root_maint_address")]
 #[test_case("checks/fields/mail-address/fields-uploaders"; "checks_fields_mail_address_fields_uploaders")]
 #[test_case("checks/fields/mail-address/legacy-foo++"; "checks_fields_mail_address_legacy_foo_")]
 #[test_case("checks/fields/mail-address/legacy-maintainer-scripts"; "checks_fields_mail_address_legacy_maintainer_scripts")]
@@ -1295,6 +1299,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]
 #[test_case("checks/fields/mail-address/fields-qa-maint-address"; "checks_fields_mail_address_fields_qa_maint_address")]
 #[test_case("checks/fields/mail-address/fields-qa-maint-name"; "checks_fields_mail_address_fields_qa_maint_name")]
+#[test_case("checks/fields/mail-address/fields-root-maint-address"; "checks_fields_mail_address_fields_root_maint_address")]
 #[test_case("checks/fields/mail-address/legacy-foo++"; "checks_fields_mail_address_legacy_foo_")]
 #[test_case("checks/fields/mail-address/legacy-maintainer-scripts"; "checks_fields_mail_address_legacy_maintainer_scripts")]
 #[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
@@ -1663,6 +1668,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/mail-address/fields-maintainer-general"; "checks_fields_mail_address_fields_maintainer_general")]
 #[test_case("checks/fields/mail-address/fields-qa-maint-address"; "checks_fields_mail_address_fields_qa_maint_address")]
 #[test_case("checks/fields/mail-address/fields-qa-maint-name"; "checks_fields_mail_address_fields_qa_maint_name")]
+#[test_case("checks/fields/mail-address/fields-root-maint-address"; "checks_fields_mail_address_fields_root_maint_address")]
 #[test_case("checks/fields/mail-address/fields-uploaders"; "checks_fields_mail_address_fields_uploaders")]
 #[test_case("checks/fields/mail-address/legacy-foo++"; "checks_fields_mail_address_legacy_foo_")]
 #[test_case("checks/fields/mail-address/legacy-maintainer-scripts"; "checks_fields_mail_address_legacy_maintainer_scripts")]

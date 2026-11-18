@@ -359,7 +359,7 @@ pub(crate) use debian_po_debconf::{
 };
 pub(crate) use debian_variables::IllegalVariable;
 pub(crate) use fields_mail_address::{
-    FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase, MailAddressLoopsOrBounces,
+    FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase, MailAddressLoopsOrBounces, RootInContact,
 };
 pub(crate) use fields_relations_extra::{
     BadVersionInRelation, BinaryPackageDependsOnToolchainPackage, BreaksWithoutVersion,

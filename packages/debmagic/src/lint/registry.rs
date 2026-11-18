@@ -308,6 +308,7 @@ use super::rules::EssentialInSourcePackage;
 
 use super::rules::PatchFilePresentButNotMentionedInSeries;
 use super::rules::PatchSystemButNoSourceReadme;
+use super::rules::RootInContact;
 
 use super::rules::ExplicitDefaultInPackageType;
 
@@ -959,6 +960,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TimewarpStandardsVersion,
         &PkgConfigBadDirective,
         &PkgConfigUnavailableForCrossCompilation,
+        &RootInContact,
     ]
 }
 
@@ -1169,6 +1171,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RulesRequireBuildPrerequisite,
         &PatchSystemButNoSourceReadme,
         &TimewarpStandardsVersion,
+        &RootInContact,
     ]
 }
 
@@ -1603,6 +1606,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ZeroByteExecutableInPath,
         &PkgConfigBadDirective,
         &PkgConfigUnavailableForCrossCompilation,
+        &RootInContact,
     ]
 }
 
@@ -1822,6 +1826,7 @@ mod tests {
                 RulesRequireBuildPrerequisite::CODE,
                 PatchSystemButNoSourceReadme::CODE,
                 TimewarpStandardsVersion::CODE,
+                RootInContact::CODE,
             ]
         );
     }
@@ -2264,6 +2269,7 @@ mod tests {
                 ZeroByteExecutableInPath::CODE,
                 PkgConfigBadDirective::CODE,
                 PkgConfigUnavailableForCrossCompilation::CODE,
+                RootInContact::CODE,
             ]
         );
     }

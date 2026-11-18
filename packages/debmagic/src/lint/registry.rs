@@ -370,6 +370,7 @@ use super::rules::InitDScriptMissingLsbKeyword;
 use super::rules::MultiarchForeignCmakeFile;
 use super::rules::MultiarchForeignSharedLibrary;
 use super::rules::MultiarchForeignStaticLibrary;
+use super::rules::NonEmptyDependencyLibsInLaFile;
 use super::rules::OddStaticLibraryName;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
@@ -1033,6 +1034,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MultiarchForeignStaticLibrary,
         &OddStaticLibraryName,
         &IncorrectLibdirInLaFile,
+        &NonEmptyDependencyLibsInLaFile,
     ]
 }
 
@@ -1715,6 +1717,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MultiarchForeignStaticLibrary,
         &OddStaticLibraryName,
         &IncorrectLibdirInLaFile,
+        &NonEmptyDependencyLibsInLaFile,
     ]
 }
 
@@ -2414,6 +2417,7 @@ mod tests {
                 MultiarchForeignStaticLibrary::CODE,
                 OddStaticLibraryName::CODE,
                 IncorrectLibdirInLaFile::CODE,
+                NonEmptyDependencyLibsInLaFile::CODE,
             ]
         );
     }

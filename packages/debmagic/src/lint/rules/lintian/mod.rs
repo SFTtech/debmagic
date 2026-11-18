@@ -179,7 +179,7 @@ pub(crate) use desktop::{
     PackageInstallsFileToUsrX11r6,
 };
 pub(crate) use desktop_gir::GirSectionNotLibdevel;
-pub(crate) use documentation::ZeroByteFileInDocDirectory;
+pub(crate) use documentation::{ExecutableInUsrShareDoc, ZeroByteFileInDocDirectory};
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use files_duplicates::DuplicateChangelogFiles;
 pub(crate) use shell_csh::CshConsideredHarmful;

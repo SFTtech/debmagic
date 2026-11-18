@@ -1701,6 +1701,7 @@ Rules
                 crate::lint::rules::ConfigFileReserved::CODE,
                 crate::lint::rules::IncorrectNamingOfPkcs11Module::CODE,
                 crate::lint::rules::PackageInstallsIntoObsoleteDir::CODE,
+                crate::lint::rules::ExecutableInUsrShareDoc::CODE,
             ]
         );
         let intent = LintIntent {

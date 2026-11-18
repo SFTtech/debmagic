@@ -1621,6 +1621,7 @@ Rules
                 crate::lint::rules::RootInContact::CODE,
                 crate::lint::rules::PkgConfigMultiArchWrongDir::CODE,
                 crate::lint::rules::RDataWithoutReadmeSource::CODE,
+                crate::lint::rules::OldStyleConfigScriptMultiarchPath::CODE,
             ]
         );
         let intent = LintIntent {

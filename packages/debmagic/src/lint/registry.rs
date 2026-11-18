@@ -340,6 +340,7 @@ use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 use super::rules::WrongPathForInterpreter;
 
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
+use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -971,6 +972,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldStyleConfigScriptMultiarchPath,
         &OpentypeFontProhibitsInstallableEmbedding,
         &OldStyleConfigScriptMultiarchPathArchAll,
+        &ConfigureGeneratedFileInSource,
     ]
 }
 
@@ -1183,6 +1185,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &TimewarpStandardsVersion,
         &RootInContact,
         &RDataWithoutReadmeSource,
+        &ConfigureGeneratedFileInSource,
     ]
 }
 
@@ -1843,6 +1846,7 @@ mod tests {
                 TimewarpStandardsVersion::CODE,
                 RootInContact::CODE,
                 RDataWithoutReadmeSource::CODE,
+                ConfigureGeneratedFileInSource::CODE,
             ]
         );
     }

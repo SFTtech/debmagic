@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): configure-generated-file-in-source (LN0739) [config.cache]
+W: example (source): configure-generated-file-in-source (LN0739) [config.log]
+W: example (source): configure-generated-file-in-source (LN0739) [config.status]
+W: example (source): configure-generated-file-in-source (LN0739) [tests/config.cache]
+W: example (source): configure-generated-file-in-source (LN0739) [sub/dir/config.status]
+W: example (source): configure-generated-file-in-source (LN0739) [configXcache]

@@ -481,7 +481,7 @@ pub(crate) use scripts_depends::{
     MaintainerScriptNeedsDependsOnUcf, MaintainerScriptNeedsDependsOnXfontsUtils,
     MaintainerScriptNeedsDependsOnXmlCore, MaintainerScriptShouldNotParseEtcPasswdOrGroup,
 };
-pub(crate) use scripts_interpreters::MissingDepForInterpreter;
+pub(crate) use scripts_interpreters::{MissingDepForInterpreter, ScriptWithoutInterpreter};
 pub(crate) use scripts_shell::{
     CommandWithPathInMaintainerScript, MaintainerScriptIgnoresErrors,
     MaintainerScriptRemovesDeviceFiles, ReadInMaintainerScript, RecursivePrivilegeChange,

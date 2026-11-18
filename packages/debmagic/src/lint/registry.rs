@@ -328,6 +328,7 @@ use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::MultiarchForeignPkgconfig;
 use super::rules::OrphanedDiversion;
+use super::rules::PkgConfigBadDirective;
 use super::rules::RelativeLibrarySearchPath;
 use super::rules::RulesRequireBuildPrerequisite;
 use super::rules::ScriptWithoutInterpreter;
@@ -955,6 +956,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DirOrFileInBuildTree,
         &ZeroByteExecutableInPath,
         &TimewarpStandardsVersion,
+        &PkgConfigBadDirective,
     ]
 }
 
@@ -1597,6 +1599,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ArchDependentFileNotInArchSpecificDirectory,
         &DirOrFileInBuildTree,
         &ZeroByteExecutableInPath,
+        &PkgConfigBadDirective,
     ]
 }
 
@@ -2256,6 +2259,7 @@ mod tests {
                 ArchDependentFileNotInArchSpecificDirectory::CODE,
                 DirOrFileInBuildTree::CODE,
                 ZeroByteExecutableInPath::CODE,
+                PkgConfigBadDirective::CODE,
             ]
         );
     }

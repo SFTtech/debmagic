@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): pkg-config-bad-directive (LN0727) -pie [usr/lib/pkgconfig/libfoo.pc]
+E: example (binary): pkg-config-bad-directive (LN0727) @FOO@ [usr/lib/pkgconfig/libfoo.pc]
+E: example (binary): pkg-config-bad-directive (LN0727) -I/usr/local/x [usr/lib/pkgconfig/libfoo.pc]
+E: example (binary): pkg-config-bad-directive (LN0727) -O2 [usr/lib/pkgconfig/libfoo.pc]
+E: example (binary): pkg-config-bad-directive (LN0727) -pie [usr/lib/pkgconfig/libfoo.pc]
+E: example (binary): pkg-config-bad-directive (LN0727) -g [usr/share/pkgconfig/libfoo.pc]
+E: example (udeb): pkg-config-bad-directive (LN0727) -pie [usr/lib/x86_64-linux-gnu/pkgconfig/libfoo.pc]

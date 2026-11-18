@@ -34,6 +34,7 @@ mod domain;
 mod executable;
 mod fields_architecture;
 mod fields_bugs;
+mod fields_built_using;
 mod fields_mail_address;
 mod fields_package_relations;
 mod fields_relations_extra;
@@ -435,6 +436,7 @@ pub(crate) use debian_variables::IllegalVariable;
 pub(crate) use fields_architecture::{
     AspellPackageNotArchAll, DocumentationPackageNotArchitectureIndependent,
 };
+pub(crate) use fields_built_using::InvalidValueInBuiltUsingField;
 pub(crate) use fields_mail_address::{
     FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase, MailAddressLoopsOrBounces, RootInContact,
 };

@@ -153,8 +153,6 @@ pub(crate) fn command_prerequisite(command: &str) -> Option<String> {
 /// after lintian turns `-` into `_`. `None` when neither the overrides nor
 /// `add_ons.json` know the addon (lintian then records an empty condition,
 /// which every relation satisfies).
-// Read by the follow-on `missing-build-dependency-for-dh-addon`.
-#[allow(dead_code)]
 pub(crate) fn addon_prerequisite(addon: &str) -> Option<String> {
     lookup(ADD_ON_MANUAL, &ADD_ONS, addon)
 }

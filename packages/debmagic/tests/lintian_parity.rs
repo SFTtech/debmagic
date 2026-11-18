@@ -34,6 +34,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-dh-exec-useless",
     "checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format",
     "checks/debhelper/debhelper-dh-unnecessary-arguments",
+    "checks/debhelper/debhelper-dh-with-python3",
+    "checks/debhelper/debhelper-dh-with-quilt",
     "checks/debhelper/debhelper-excessive-overrides",
     "checks/debhelper/debhelper-executable-files",
     "checks/debhelper/debhelper-lacks-versioned-deps",
@@ -613,6 +615,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-dh-exec-useless",
     "checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format",
     "checks/debhelper/debhelper-dh-unnecessary-arguments",
+    "checks/debhelper/debhelper-dh-with-python3",
+    "checks/debhelper/debhelper-dh-with-quilt",
     "checks/debhelper/debhelper-excessive-overrides",
     "checks/debhelper/debhelper-executable-files",
     "checks/debhelper/debhelper-lacks-versioned-deps",
@@ -892,6 +896,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/debhelper-dh-exec-useless"; "checks_debhelper_debhelper_dh_exec_useless")]
 #[test_case("checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format"; "checks_debhelper_debhelper_dh_quilt_addon_but_quilt_source_format")]
 #[test_case("checks/debhelper/debhelper-dh-unnecessary-arguments"; "checks_debhelper_debhelper_dh_unnecessary_arguments")]
+#[test_case("checks/debhelper/debhelper-dh-with-python3"; "checks_debhelper_debhelper_dh_with_python3")]
+#[test_case("checks/debhelper/debhelper-dh-with-quilt"; "checks_debhelper_debhelper_dh_with_quilt")]
 #[test_case("checks/debhelper/debhelper-excessive-overrides"; "checks_debhelper_debhelper_excessive_overrides")]
 #[test_case("checks/debhelper/debhelper-executable-files"; "checks_debhelper_debhelper_executable_files")]
 #[test_case("checks/debhelper/debhelper-lacks-versioned-deps"; "checks_debhelper_debhelper_lacks_versioned_deps")]
@@ -1473,6 +1479,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/debhelper-dh-exec-useless"; "checks_debhelper_debhelper_dh_exec_useless")]
 #[test_case("checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format"; "checks_debhelper_debhelper_dh_quilt_addon_but_quilt_source_format")]
 #[test_case("checks/debhelper/debhelper-dh-unnecessary-arguments"; "checks_debhelper_debhelper_dh_unnecessary_arguments")]
+#[test_case("checks/debhelper/debhelper-dh-with-python3"; "checks_debhelper_debhelper_dh_with_python3")]
+#[test_case("checks/debhelper/debhelper-dh-with-quilt"; "checks_debhelper_debhelper_dh_with_quilt")]
 #[test_case("checks/debhelper/debhelper-excessive-overrides"; "checks_debhelper_debhelper_excessive_overrides")]
 #[test_case("checks/debhelper/debhelper-executable-files"; "checks_debhelper_debhelper_executable_files")]
 #[test_case("checks/debhelper/debhelper-lacks-versioned-deps"; "checks_debhelper_debhelper_lacks_versioned_deps")]

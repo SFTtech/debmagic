@@ -322,6 +322,7 @@ use super::rules::DescriptionStartsWithLeadingSpaces;
 
 use super::rules::DiversionForUnknownFile;
 use super::rules::ExecutableNotElfOrScript;
+use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::ScriptWithoutInterpreter;
 use super::rules::RelativeLibrarySearchPath;
@@ -931,6 +932,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RelativeLibrarySearchPath,
         &UnusualInterpreter,
         &SharedobjectInLibraryDirectoryMissingSoname,
+        &MissingBuildDependencyForDhAddon,
     ]
 }
 
@@ -1137,6 +1139,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &EssentialInSourcePackage,
         &MissingBuildDependencyForDhCommand,
         &PatchFilePresentButNotMentionedInSeries,
+        &MissingBuildDependencyForDhAddon,
     ]
 }
 
@@ -1776,6 +1779,7 @@ mod tests {
                 EssentialInSourcePackage::CODE,
                 MissingBuildDependencyForDhCommand::CODE,
                 PatchFilePresentButNotMentionedInSeries::CODE,
+                MissingBuildDependencyForDhAddon::CODE,
             ]
         );
     }

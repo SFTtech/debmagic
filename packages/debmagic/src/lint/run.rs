@@ -1609,6 +1609,7 @@ Rules
                 crate::lint::rules::ExecutableNotElfOrScript::CODE,
                 crate::lint::rules::RelativeLibrarySearchPath::CODE,
                 crate::lint::rules::UnusualInterpreter::CODE,
+                crate::lint::rules::MissingBuildDependencyForDhAddon::CODE,
             ]
         );
         let intent = LintIntent {

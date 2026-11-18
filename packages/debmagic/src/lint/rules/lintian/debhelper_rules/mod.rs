@@ -14,6 +14,7 @@ mod ln0448_no_versioned_debhelper_prerequisite;
 mod ln0449_debhelper_but_no_misc_depends;
 #[allow(non_snake_case)]
 mod ln0705_missing_build_dependency_for_dh__command;
+mod ln0714_missing_build_dependency_for_dh_addon;
 
 pub(crate) use ln0176_debhelper_base_compat_level_is_missing::DebhelperBaseCompatLevelIsMissing;
 pub(crate) use ln0177_typo_in_debhelper_override_target::TypoInDebhelperOverrideTarget;
@@ -21,6 +22,7 @@ pub(crate) use ln0178_maintainer_script_lacks_debhelper_token::MaintainerScriptL
 pub(crate) use ln0448_no_versioned_debhelper_prerequisite::NoVersionedDebhelperPrerequisite;
 pub(crate) use ln0449_debhelper_but_no_misc_depends::DebhelperButNoMiscDepends;
 pub(crate) use ln0705_missing_build_dependency_for_dh__command::MissingBuildDependencyForDhCommand;
+pub(crate) use ln0714_missing_build_dependency_for_dh_addon::MissingBuildDependencyForDhAddon;
 
 /// Lintian scans `debian/rules` only when `Build-Driver` is absent or
 /// `debian-rules`. Any other declared driver returns before the rules loop.

@@ -1659,6 +1659,7 @@ Rules
                 crate::lint::rules::DocumentationPackageNotArchitectureIndependent::CODE,
                 crate::lint::rules::InvalidStandardsVersion::CODE,
                 crate::lint::rules::NewerStandardsVersion::CODE,
+                crate::lint::rules::MaintainerAlsoInUploaders::CODE,
             ]
         );
         let intent = LintIntent {

@@ -218,6 +218,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
+    "checks/fields/uploaders/fields-maintainer-general",
     "checks/fields/vcs/fields-malformed-vcs-fields",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
@@ -838,6 +839,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
+    "checks/fields/uploaders/fields-maintainer-general",
     "checks/fields/vcs/fields-malformed-vcs-fields",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
@@ -1139,6 +1141,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
+#[test_case("checks/fields/uploaders/fields-maintainer-general"; "checks_fields_uploaders_fields_maintainer_general")]
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
@@ -1761,6 +1764,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
+#[test_case("checks/fields/uploaders/fields-maintainer-general"; "checks_fields_uploaders_fields_maintainer_general")]
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]

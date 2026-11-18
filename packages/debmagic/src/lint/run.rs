@@ -1704,6 +1704,7 @@ Rules
                 crate::lint::rules::ExecutableInUsrShareDoc::CODE,
                 crate::lint::rules::NestedExamplesDirectory::CODE,
                 crate::lint::rules::InitDScriptMissingDependencyOnLocalFs::CODE,
+                crate::lint::rules::InitDScriptMissingStart::CODE,
             ]
         );
         let intent = LintIntent {

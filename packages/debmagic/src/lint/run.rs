@@ -1674,6 +1674,7 @@ Rules
                 crate::lint::rules::DirectoryInModprobeD::CODE,
                 crate::lint::rules::NonConfFileInModprobeD::CODE,
                 crate::lint::rules::OldDevhelpStandard::CODE,
+                crate::lint::rules::DuplicateChangelogFiles::CODE,
             ]
         );
         let intent = LintIntent {

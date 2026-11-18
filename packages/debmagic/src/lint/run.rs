@@ -1613,6 +1613,7 @@ Rules
                 crate::lint::rules::PhpScriptButNoPhpCliDep::CODE,
                 crate::lint::rules::OrphanedDiversion::CODE,
                 crate::lint::rules::MultiarchForeignPkgconfig::CODE,
+                crate::lint::rules::WrongPathForInterpreter::CODE,
             ]
         );
         let intent = LintIntent {

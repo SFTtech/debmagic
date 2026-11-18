@@ -496,6 +496,7 @@ pub(crate) use scripts_depends::{
 };
 pub(crate) use scripts_interpreters::{
     MissingDepForInterpreter, PhpScriptButNoPhpCliDep, ScriptWithoutInterpreter, UnusualInterpreter,
+    MissingDepForInterpreter, ScriptWithoutInterpreter, WrongPathForInterpreter,
 };
 pub(crate) use scripts_shell::{
     CommandWithPathInMaintainerScript, MaintainerScriptIgnoresErrors,

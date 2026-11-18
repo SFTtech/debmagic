@@ -5,8 +5,10 @@ mod ln0704_missing_dep_for_interpreter;
 mod ln0711_unusual_interpreter;
 mod ln0715_script_without_interpreter;
 mod ln0719_php_script_but_no_php_cli_dep;
+mod ln0718_wrong_path_for_interpreter;
 
 pub(crate) use ln0704_missing_dep_for_interpreter::MissingDepForInterpreter;
 pub(crate) use ln0711_unusual_interpreter::UnusualInterpreter;
 pub(crate) use ln0715_script_without_interpreter::ScriptWithoutInterpreter;
 pub(crate) use ln0719_php_script_but_no_php_cli_dep::PhpScriptButNoPhpCliDep;
+pub(crate) use ln0718_wrong_path_for_interpreter::WrongPathForInterpreter;

@@ -126,3 +126,8 @@ pub(super) fn is_info_piece(piece: &str) -> bool {
 pub(super) fn is_image(extension: &str) -> bool {
     matches!(extension, "png" | "jpg" | "jpeg")
 }
+
+/// libmagic's `gzip compressed data`: the gzip magic bytes.
+pub(super) fn is_gzip(bytes: &[u8]) -> bool {
+    bytes.starts_with(&[0x1f, 0x8b])
+}

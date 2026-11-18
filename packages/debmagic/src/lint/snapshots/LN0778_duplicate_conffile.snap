@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): duplicate-conffile (LN0778) etc/foo (lines 1 2) [conffiles]
+E: example (binary): duplicate-conffile (LN0778) etc/foo (lines 1 3 4) [conffiles]
+E: example (udeb): duplicate-conffile (LN0778) etc/foo (lines 1 2) [conffiles]
+E: example (binary): duplicate-conffile (LN0778) etc/foo (lines 1 2) [conffiles]

@@ -361,6 +361,7 @@ use super::rules::ConffileHasBadFileType;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::DocumentationPackageNotArchitectureIndependent;
+use super::rules::DuplicateConffile;
 use super::rules::GitPatchesNotExported;
 use super::rules::IncorrectLibdirInLaFile;
 use super::rules::InfoDocumentHasWrongExtension;
@@ -1059,6 +1060,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidDep3FormatPatchMaybeBugDebian,
         &InvalidDep3FormatPatchOriginFieldDefaultValue,
         &ConffileHasBadFileType,
+        &DuplicateConffile,
     ]
 }
 
@@ -1754,6 +1756,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &AspellPackageNotArchAll,
         &DocumentationPackageNotArchitectureIndependent,
         &ConffileHasBadFileType,
+        &DuplicateConffile,
     ]
 }
 
@@ -2472,6 +2475,7 @@ mod tests {
                 InvalidDep3FormatPatchMaybeBugDebian::CODE,
                 InvalidDep3FormatPatchOriginFieldDefaultValue::CODE,
                 ConffileHasBadFileType::CODE,
+                DuplicateConffile::CODE,
             ]
         );
     }

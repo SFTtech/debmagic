@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): backup-file-in-package (LN0789) [usr/share/foo/file~]
+W: example (binary): backup-file-in-package (LN0789) [usr/share/foo/~]
+W: example (binary): backup-file-in-package (LN0789) [usr/share/foo/#file#]
+W: example (binary): backup-file-in-package (LN0789) [usr/share/foo/#a#]
+W: example (binary): backup-file-in-package (LN0789) [usr/share/foo/.file.swp]
+W: example (binary): backup-file-in-package (LN0789) [usr/share/foo/file~]
+W: example (udeb): backup-file-in-package (LN0789) [usr/share/foo/file~]

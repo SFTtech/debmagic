@@ -54,6 +54,7 @@ mod files_permissions;
 mod files_pkgconfig;
 mod files_privacy_breach;
 mod files_symbolic_links;
+mod files_unwanted;
 mod files_vcs;
 mod fonts_opentype;
 mod fonts_truetype;
@@ -331,6 +332,7 @@ pub(crate) use files_symbolic_links::{
     SymlinkContainsSpuriousSegments, SymlinkEndsWithSlash, SymlinkHasDoubleSlash,
     SymlinkHasTooManyUpSegments, SymlinkIsSelfRecursive,
 };
+pub(crate) use files_unwanted::BackupFileInPackage;
 pub(crate) use files_vcs::{
     PackageContainsVcsControlDir, PackageContainsVcsControlFile, SvkCommitFileInPackage,
     SvnCommitFileInPackage,

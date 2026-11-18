@@ -323,6 +323,7 @@ use super::rules::DescriptionIsDebmakeTemplate;
 
 use super::rules::DescriptionStartsWithLeadingSpaces;
 
+use super::rules::BackupFileInPackage;
 use super::rules::DirOrFileInBuildTree;
 use super::rules::DiversionForUnknownFile;
 use super::rules::ExecutableNotElfOrScript;
@@ -987,6 +988,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OpentypeFontWrongFilename,
         &GameOutsideSection,
         &GlobalDataInGamesDirectory,
+        &BackupFileInPackage,
     ]
 }
 
@@ -1646,6 +1648,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OpentypeFontWrongFilename,
         &GameOutsideSection,
         &GlobalDataInGamesDirectory,
+        &BackupFileInPackage,
     ]
 }
 
@@ -2322,6 +2325,7 @@ mod tests {
                 OpentypeFontWrongFilename::CODE,
                 GameOutsideSection::CODE,
                 GlobalDataInGamesDirectory::CODE,
+                BackupFileInPackage::CODE,
             ]
         );
     }

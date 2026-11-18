@@ -1631,6 +1631,7 @@ Rules
                 crate::lint::rules::OpentypeFontWrongFilename::CODE,
                 crate::lint::rules::GameOutsideSection::CODE,
                 crate::lint::rules::GlobalDataInGamesDirectory::CODE,
+                crate::lint::rules::BackupFileInPackage::CODE,
             ]
         );
         let intent = LintIntent {

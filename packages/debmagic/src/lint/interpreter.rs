@@ -41,6 +41,14 @@ impl Hashbang {
         })
     }
 
+    /// lintian's `calls_env`: the hashbang starts with `/usr/bin/env` and
+    /// whitespace.
+    pub(crate) fn calls_env(&self) -> bool {
+        self.line
+            .strip_prefix(b"/usr/bin/env".as_slice())
+            .is_some_and(|after| after.first().is_some_and(|&byte| is_space(byte)))
+    }
+
     /// lintian's `interpreter`: the first word after a leading
     /// `/usr/bin/env` and its whitespace are removed. Options are dropped.
     /// `#!/usr/bin/env python3 -u` is `python3`; `#!/bin/env perl` is

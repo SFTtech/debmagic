@@ -237,6 +237,7 @@ use super::rules::PackageContainsHardlink;
 
 use super::rules::MissingDepForInterpreter;
 use super::rules::ShippedFileWithoutUtf8Name;
+use super::rules::UnusualInterpreter;
 
 use super::rules::NonWmModuleInWmModulesMenuSection;
 
@@ -927,6 +928,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ZeroByteFileInDocDirectory,
         &ExecutableNotElfOrScript,
         &RelativeLibrarySearchPath,
+        &UnusualInterpreter,
     ]
 }
 
@@ -1555,6 +1557,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ZeroByteFileInDocDirectory,
         &ExecutableNotElfOrScript,
         &RelativeLibrarySearchPath,
+        &UnusualInterpreter,
     ]
 }
 
@@ -2200,6 +2203,7 @@ mod tests {
                 ZeroByteFileInDocDirectory::CODE,
                 ExecutableNotElfOrScript::CODE,
                 RelativeLibrarySearchPath::CODE,
+                UnusualInterpreter::CODE,
             ]
         );
     }

@@ -1660,6 +1660,7 @@ Rules
                 crate::lint::rules::InvalidStandardsVersion::CODE,
                 crate::lint::rules::NewerStandardsVersion::CODE,
                 crate::lint::rules::MaintainerAlsoInUploaders::CODE,
+                crate::lint::rules::MissingDebianSourceFormat::CODE,
             ]
         );
         let intent = LintIntent {

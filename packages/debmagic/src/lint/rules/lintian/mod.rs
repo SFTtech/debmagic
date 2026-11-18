@@ -399,7 +399,9 @@ pub(crate) use debian_patches::{
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,
 };
-pub(crate) use debian_source_dir::CustomCompressionInDebianSourceOptions;
+pub(crate) use debian_source_dir::{
+    CustomCompressionInDebianSourceOptions, MissingDebianSourceFormat,
+};
 pub(crate) use debian_variables::IllegalVariable;
 pub(crate) use fields_architecture::{
     AspellPackageNotArchAll, DocumentationPackageNotArchitectureIndependent,

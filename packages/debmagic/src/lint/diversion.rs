@@ -143,6 +143,7 @@ pub(crate) struct AddedDiversion {
     line: u32,
     path: DivertedPath,
     wildcards: bool,
+    removed: bool,
 }
 
 impl AddedDiversion {
@@ -153,6 +154,11 @@ impl AddedDiversion {
 
     pub fn line(&self) -> u32 {
         self.line
+    }
+
+    /// Some `--remove` has the same path after the wildcard merge.
+    pub fn is_removed(&self) -> bool {
+        self.removed
     }
 
     /// The diverted path as lintian prints it: no leading `/`, each shell
@@ -242,11 +248,15 @@ impl Diversions {
                 .any(|(path, _)| man_page_pattern(&path.0).is_some());
         added
             .into_iter()
-            .map(|(path, diversion)| AddedDiversion {
-                script: diversion.script.clone(),
-                line: diversion.line,
-                path,
-                wildcards,
+            .map(|(path, diversion)| {
+                let removed = removed.iter().any(|(removed, _)| *removed == path);
+                AddedDiversion {
+                    script: diversion.script.clone(),
+                    line: diversion.line,
+                    path,
+                    wildcards,
+                    removed,
+                }
             })
             .collect()
     }

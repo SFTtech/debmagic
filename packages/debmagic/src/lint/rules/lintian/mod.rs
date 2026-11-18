@@ -434,7 +434,9 @@ pub(crate) use ln0135_vcs_field_uses_not_recommended_uri_format::VcsFieldUsesNot
 pub(crate) use ln0183_package_contains_bts_control_dir::PackageContainsBtsControlDir;
 pub(crate) use ln0184_uses_dpkg_database_directly::UsesDpkgDatabaseDirectly;
 pub(crate) use ln0185_obsolete_url_in_packaging::ObsoleteUrlInPackaging;
-pub(crate) use maintainer_scripts_diversion::{DiversionForUnknownFile, PackageUsesLocalDiversion};
+pub(crate) use maintainer_scripts_diversion::{
+    DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,
+};
 pub(crate) use menu_format::BadTestInMenuItem;
 pub(crate) use menu_format::DesktopContainsDeprecatedKey;
 pub(crate) use menu_format::DesktopEntryContainsDeprecatedKey;

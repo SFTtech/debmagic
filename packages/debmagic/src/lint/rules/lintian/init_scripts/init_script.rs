@@ -75,6 +75,16 @@ pub(super) fn lsb_keyword_known(keyword: &str) -> bool {
     LSB_KNOWN_KEYWORDS.contains(&keyword) || keyword.starts_with("x-")
 }
 
+/// Keywords a section with a BEGIN marker must set. `short-description` and
+/// `description` have their own Tags.
+pub(super) const LSB_REQUIRED_KEYWORDS: [&str; 5] = [
+    "provides",
+    "required-start",
+    "required-stop",
+    "default-start",
+    "default-stop",
+];
+
 /// The first LSB section, read the way the init-d check reads it. Lines are
 /// 1-based. A line that ends a section is consumed, so it is not read again as
 /// a marker.

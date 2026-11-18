@@ -1,0 +1,19 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) required-start [etc/init.d/two]
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) default-stop [etc/init.d/two]
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) provides [etc/init.d/empty]
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) required-start [etc/init.d/empty]
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) required-stop [etc/init.d/empty]
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) default-start [etc/init.d/empty]
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) default-stop [etc/init.d/empty]
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) required-start [etc/init.d/unterminated]
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) required-stop [etc/init.d/unterminated]
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) default-start [etc/init.d/unterminated]
+W: example (binary): init.d-script-missing-lsb-keyword (LN0746) default-stop [etc/init.d/unterminated]
+W: example (udeb): init.d-script-missing-lsb-keyword (LN0746) provides [etc/init.d/udeb-script]
+W: example (udeb): init.d-script-missing-lsb-keyword (LN0746) required-start [etc/init.d/udeb-script]
+W: example (udeb): init.d-script-missing-lsb-keyword (LN0746) required-stop [etc/init.d/udeb-script]
+W: example (udeb): init.d-script-missing-lsb-keyword (LN0746) default-start [etc/init.d/udeb-script]
+W: example (udeb): init.d-script-missing-lsb-keyword (LN0746) default-stop [etc/init.d/udeb-script]

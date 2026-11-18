@@ -106,6 +106,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
+    "checks/debian/patches/legacy-relations",
+    "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/po-debconf/legacy-debconf",
@@ -694,6 +696,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
+    "checks/debian/patches/legacy-relations",
+    "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/po-debconf/legacy-debconf",
@@ -978,6 +982,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
+#[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
+#[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
@@ -1568,6 +1574,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
+#[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
+#[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]

@@ -510,6 +510,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/vcs/files-package-contains-foo",
     "checks/files/vcs/legacy-filenames",
     "checks/fonts/opentype/use-restricted",
+    "checks/fonts/opentype/wrong-filename",
     "checks/fonts/truetype/use-restricted",
     "checks/foreign-operating-systems/files-package-contains-foo",
     "checks/foreign-operating-systems/legacy-filenames",
@@ -1410,6 +1411,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/vcs/files-package-contains-foo"; "checks_files_vcs_files_package_contains_foo")]
 #[test_case("checks/files/vcs/legacy-filenames"; "checks_files_vcs_legacy_filenames")]
 #[test_case("checks/fonts/opentype/use-restricted"; "checks_fonts_opentype_use_restricted")]
+#[test_case("checks/fonts/opentype/wrong-filename"; "checks_fonts_opentype_wrong_filename")]
 #[test_case("checks/fonts/truetype/use-restricted"; "checks_fonts_truetype_use_restricted")]
 #[test_case("checks/foreign-operating-systems/files-package-contains-foo"; "checks_foreign_operating_systems_files_package_contains_foo")]
 #[test_case("checks/foreign-operating-systems/legacy-filenames"; "checks_foreign_operating_systems_legacy_filenames")]

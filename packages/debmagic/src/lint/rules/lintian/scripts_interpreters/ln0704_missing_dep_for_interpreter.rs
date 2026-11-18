@@ -66,14 +66,14 @@ impl BinaryPackageRule for MissingDepForInterpreter {
     }
 }
 
-struct Script {
-    path: PathBuf,
-    name: String,
-    interpreter: String,
+pub(super) struct Script {
+    pub(super) path: PathBuf,
+    pub(super) name: String,
+    pub(super) interpreter: String,
 }
 
 /// Executable regular files with a hashbang, outside the skipped trees.
-fn scripts(files: &FileTree) -> Vec<Script> {
+pub(super) fn scripts(files: &FileTree) -> Vec<Script> {
     files
         .query()
         .kinds([EntryKind::RegularFile])
@@ -100,7 +100,7 @@ fn scripts(files: &FileTree) -> Vec<Script> {
 
 /// lintian's `all_prerequisites`: `relation('all')` AND `Provides` AND the
 /// package's own name.
-fn all_prerequisites(fields: &ControlParagraph, package_name: &str) -> PackageRelation {
+pub(super) fn all_prerequisites(fields: &ControlParagraph, package_name: &str) -> PackageRelation {
     fields
         .relations_and(&["Pre-Depends", "Depends", "Recommends", "Suggests"])
         .and(&fields.relation("Provides").unwrap_or_default())

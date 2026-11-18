@@ -1610,6 +1610,7 @@ Rules
                 crate::lint::rules::RelativeLibrarySearchPath::CODE,
                 crate::lint::rules::UnusualInterpreter::CODE,
                 crate::lint::rules::MissingBuildDependencyForDhAddon::CODE,
+                crate::lint::rules::PhpScriptButNoPhpCliDep::CODE,
             ]
         );
         let intent = LintIntent {

@@ -492,6 +492,9 @@ pub(crate) use scripts_depends::{
 };
 pub(crate) use scripts_interpreters::{MissingDepForInterpreter, ScriptWithoutInterpreter};
 pub(crate) use scripts_interpreters::{MissingDepForInterpreter, UnusualInterpreter};
+pub(crate) use scripts_interpreters::{
+    MissingDepForInterpreter, PhpScriptButNoPhpCliDep, ScriptWithoutInterpreter,
+};
 pub(crate) use scripts_shell::{
     CommandWithPathInMaintainerScript, MaintainerScriptIgnoresErrors,
     MaintainerScriptRemovesDeviceFiles, ReadInMaintainerScript, RecursivePrivilegeChange,

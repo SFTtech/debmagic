@@ -329,6 +329,7 @@ use super::rules::RelativeLibrarySearchPath;
 use super::rules::StaticallyLinkedBinary;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 
+use super::rules::PhpScriptButNoPhpCliDep;
 use super::rules::ZeroByteFileInDocDirectory;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
 
@@ -933,6 +934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnusualInterpreter,
         &SharedobjectInLibraryDirectoryMissingSoname,
         &MissingBuildDependencyForDhAddon,
+        &PhpScriptButNoPhpCliDep,
     ]
 }
 
@@ -1564,6 +1566,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &RelativeLibrarySearchPath,
         &UnusualInterpreter,
         &SharedobjectInLibraryDirectoryMissingSoname,
+        &PhpScriptButNoPhpCliDep,
     ]
 }
 
@@ -2212,6 +2215,7 @@ mod tests {
                 RelativeLibrarySearchPath::CODE,
                 UnusualInterpreter::CODE,
                 SharedobjectInLibraryDirectoryMissingSoname::CODE,
+                PhpScriptButNoPhpCliDep::CODE,
             ]
         );
     }

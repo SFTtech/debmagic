@@ -1614,6 +1614,7 @@ Rules
                 crate::lint::rules::OrphanedDiversion::CODE,
                 crate::lint::rules::MultiarchForeignPkgconfig::CODE,
                 crate::lint::rules::WrongPathForInterpreter::CODE,
+                crate::lint::rules::PatchSystemButNoSourceReadme::CODE,
             ]
         );
         let intent = LintIntent {

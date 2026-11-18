@@ -307,6 +307,7 @@ use super::rules::HtmlChangelogWithoutTextVersion;
 use super::rules::EssentialInSourcePackage;
 
 use super::rules::PatchFilePresentButNotMentionedInSeries;
+use super::rules::PatchSystemButNoSourceReadme;
 
 use super::rules::ExplicitDefaultInPackageType;
 
@@ -947,6 +948,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WrongPathForInterpreter,
         &RemoveOfUnknownDiversion,
         &ArchDependentFileNotInArchSpecificDirectory,
+        &PatchSystemButNoSourceReadme,
     ]
 }
 
@@ -1155,6 +1157,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PatchFilePresentButNotMentionedInSeries,
         &MissingBuildDependencyForDhAddon,
         &RulesRequireBuildPrerequisite,
+        &PatchSystemButNoSourceReadme,
     ]
 }
 
@@ -1802,6 +1805,7 @@ mod tests {
                 PatchFilePresentButNotMentionedInSeries::CODE,
                 MissingBuildDependencyForDhAddon::CODE,
                 RulesRequireBuildPrerequisite::CODE,
+                PatchSystemButNoSourceReadme::CODE,
             ]
         );
     }

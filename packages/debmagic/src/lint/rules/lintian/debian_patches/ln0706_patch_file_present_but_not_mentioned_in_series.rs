@@ -31,7 +31,8 @@ declare_rule! {
 }
 
 /// Lintian's `Build-Depends-All`.
-const BUILD_DEPENDS_ALL: &[&str] = &["Build-Depends", "Build-Depends-Indep", "Build-Depends-Arch"];
+pub(super) const BUILD_DEPENDS_ALL: &[&str] =
+    &["Build-Depends", "Build-Depends-Indep", "Build-Depends-Arch"];
 
 impl SourceRule for PatchFilePresentButNotMentionedInSeries {
     fn run(&self, ctx: &mut SourceContext<'_>) {

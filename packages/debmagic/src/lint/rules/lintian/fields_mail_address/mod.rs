@@ -8,9 +8,11 @@ mod ln0370_mail_address_loops_or_bounces;
 mod ln0371_faulty_debian_qa_group_address;
 mod ln0372_faulty_debian_qa_group_phrase;
 mod ln0731_root_in_contact;
+mod ln0807_duplicate_contact;
 mod mailbox;
 
 pub(crate) use ln0370_mail_address_loops_or_bounces::MailAddressLoopsOrBounces;
 pub(crate) use ln0371_faulty_debian_qa_group_address::FaultyDebianQaGroupAddress;
 pub(crate) use ln0372_faulty_debian_qa_group_phrase::FaultyDebianQaGroupPhrase;
 pub(crate) use ln0731_root_in_contact::RootInContact;
+pub(crate) use ln0807_duplicate_contact::DuplicateContact;

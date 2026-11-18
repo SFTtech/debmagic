@@ -377,6 +377,7 @@ use super::rules::DirectoryInModprobeD;
 use super::rules::DocumentationPackageNotArchitectureIndependent;
 use super::rules::DuplicateChangelogFiles;
 use super::rules::DuplicateConffile;
+use super::rules::DuplicateContact;
 use super::rules::DuplicateP3distOverride;
 use super::rules::DuplicatePackagingFile;
 use super::rules::EmacsenCommonWithoutDhElpa;
@@ -1153,6 +1154,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &IncorrectPackagingFilename,
         &DfsgVersionMisspelled,
         &DfsgVersionInNativePackage,
+        &DuplicateContact,
     ]
 }
 
@@ -1393,6 +1395,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &IncorrectPackagingFilename,
         &DfsgVersionMisspelled,
         &DfsgVersionInNativePackage,
+        &DuplicateContact,
     ]
 }
 
@@ -2144,6 +2147,7 @@ mod tests {
                 IncorrectPackagingFilename::CODE,
                 DfsgVersionMisspelled::CODE,
                 DfsgVersionInNativePackage::CODE,
+                DuplicateContact::CODE,
             ]
         );
     }

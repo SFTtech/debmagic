@@ -1708,6 +1708,7 @@ Rules
                 crate::lint::rules::InitDScriptNotIncludedInPackage::CODE,
                 crate::lint::rules::InitDScriptNotMarkedAsConffile::CODE,
                 crate::lint::rules::InitDScriptProvidesVirtualFacility::CODE,
+                crate::lint::rules::InitDScriptSourcingWithoutTest::CODE,
             ]
         );
         let intent = LintIntent {

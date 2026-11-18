@@ -1644,6 +1644,7 @@ Rules
                 crate::lint::rules::InfoDocumentNotCompressedWithMaxCompression::CODE,
                 crate::lint::rules::InfoDocumentMissingImageFile::CODE,
                 crate::lint::rules::InitDScriptHasBadStartRunlevel::CODE,
+                crate::lint::rules::InitDScriptHasDuplicateLsbKeyword::CODE,
             ]
         );
         let intent = LintIntent {

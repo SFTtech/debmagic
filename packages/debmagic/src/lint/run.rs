@@ -1615,6 +1615,7 @@ Rules
                 crate::lint::rules::MultiarchForeignPkgconfig::CODE,
                 crate::lint::rules::WrongPathForInterpreter::CODE,
                 crate::lint::rules::PatchSystemButNoSourceReadme::CODE,
+                crate::lint::rules::DirOrFileInBuildTree::CODE,
             ]
         );
         let intent = LintIntent {

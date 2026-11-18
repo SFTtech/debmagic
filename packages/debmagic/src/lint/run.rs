@@ -1634,6 +1634,7 @@ Rules
                 crate::lint::rules::BackupFileInPackage::CODE,
                 crate::lint::rules::NfsTemporaryFileInPackage::CODE,
                 crate::lint::rules::NmuInChangelog::CODE,
+                crate::lint::rules::MaintainerUploadHasIncorrectVersionNumber::CODE,
             ]
         );
         let intent = LintIntent {

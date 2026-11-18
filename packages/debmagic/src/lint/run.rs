@@ -1690,6 +1690,7 @@ Rules
                 crate::lint::rules::MknodInMaintainerScript::CODE,
                 crate::lint::rules::KillallIsDangerous::CODE,
                 crate::lint::rules::SystemdDiversion::CODE,
+                crate::lint::rules::AdduserWithHomeVarRun::CODE,
             ]
         );
         let intent = LintIntent {

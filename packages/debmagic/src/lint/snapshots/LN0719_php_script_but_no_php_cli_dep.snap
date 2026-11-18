@@ -1,0 +1,15 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): php-script-but-no-php-cli-dep (LN0719) /usr/bin/php (does not satisfy php-cli:any) [usr/bin/php-script]
+E: example (binary): php-script-but-no-php-cli-dep (LN0719) php (does not satisfy php-cli:any) [usr/bin/php-script]
+E: example (binary): php-script-but-no-php-cli-dep (LN0719) /usr/bin/php7.0 (does not satisfy php-cli:any) [usr/bin/php-script]
+E: example (binary): php-script-but-no-php-cli-dep (LN0719) /usr/bin/php (does not satisfy php-cli:any) [usr/bin/php-script]
+E: example (binary): php-script-but-no-php-cli-dep (LN0719) php7.0 (does not satisfy php-cli:any) [usr/bin/php-script]
+E: example (binary): php-script-but-no-php-cli-dep (LN0719) /usr/bin/php-cgi (does not satisfy php-cli:any) [usr/bin/php-script]
+E: example (binary): php-script-but-no-php-cli-dep (LN0719) /usr/local/bin/php (does not satisfy php-cli:any) [usr/local/bin/php-script]
+E: example (binary): php-script-but-no-php-cli-dep (LN0719) /usr/bin/php (does not satisfy php-cli:any) [usr/bin/php-script]
+E: example (binary): php-script-but-no-php-cli-dep (LN0719) /usr/bin/php (does not satisfy php-cli:any) [usr/bin/php-script]
+E: php-cgi (binary): php-script-but-no-php-cli-dep (LN0719) /usr/bin/php (does not satisfy php-cli:any) [usr/bin/php-script]
+E: example (udeb): php-script-but-no-php-cli-dep (LN0719) /usr/bin/php (does not satisfy php-cli:any) [usr/bin/php-script]
+E: example (binary): php-script-but-no-php-cli-dep (LN0719) /usr/bin/php (does not satisfy php-cli:any) [usr/bin/php-script]

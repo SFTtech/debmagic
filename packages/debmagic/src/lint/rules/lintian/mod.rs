@@ -48,6 +48,7 @@ mod files_multi_arch;
 mod files_names;
 mod files_non_free;
 mod files_permissions;
+mod files_pkgconfig;
 mod files_privacy_breach;
 mod files_symbolic_links;
 mod files_vcs;
@@ -308,6 +309,7 @@ pub(crate) use files_names::{
     ZeroByteExecutableInPath,
 };
 pub(crate) use files_permissions::NonStandardExecutablePerm;
+pub(crate) use files_pkgconfig::PkgConfigBadDirective;
 pub(crate) use files_symbolic_links::{
     AbsoluteSymlinkInTopLevelFolder, CompressedSymlinkWithWrongExt, LengthySymlink,
     PackageContainsUnsafeSymlink, RelativeSymlink, SymlinkContainsSpuriousSegments,

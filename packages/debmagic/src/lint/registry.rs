@@ -356,6 +356,7 @@ use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::InfoDocumentHasWrongExtension;
+use super::rules::InfoDocumentNotCompressed;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -1003,6 +1004,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExtraWhitespaceAroundNameInChangelogTrailer,
         &ChangelogIsSymlink,
         &InfoDocumentHasWrongExtension,
+        &InfoDocumentNotCompressed,
     ]
 }
 
@@ -1670,6 +1672,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BackupFileInPackage,
         &NfsTemporaryFileInPackage,
         &InfoDocumentHasWrongExtension,
+        &InfoDocumentNotCompressed,
     ]
 }
 
@@ -2354,6 +2357,7 @@ mod tests {
                 BackupFileInPackage::CODE,
                 NfsTemporaryFileInPackage::CODE,
                 InfoDocumentHasWrongExtension::CODE,
+                InfoDocumentNotCompressed::CODE,
             ]
         );
     }

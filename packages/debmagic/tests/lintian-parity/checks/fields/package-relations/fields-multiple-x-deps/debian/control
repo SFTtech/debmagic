@@ -1,0 +1,22 @@
+Source: fields-multiple-x-deps
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: fields-multiple-x-deps
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         libstdc++2.10, libstdc++2.10-glibc2.2, libstdc++3.0,
+         tk8.2, tk8.3,
+         tcl8.0, tcl8.2,
+         tclx76, tclx8.0.4, tclx8.2,
+         libpng2, libpng3
+Description: Tests for multiple depends on X
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-installs-deprecated-python2-path (LN0129) [usr/lib/python2.7/]
+E: example (binary): package-installs-deprecated-python2-path (LN0129) [usr/lib/python2.7/bar]

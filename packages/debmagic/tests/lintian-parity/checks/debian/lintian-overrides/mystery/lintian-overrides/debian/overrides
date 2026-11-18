@@ -1,0 +1,2 @@
+lintian-override: 
+lintian-overrides: copyright-contains-dh_make-todo-boilerplate foo-bar-extra

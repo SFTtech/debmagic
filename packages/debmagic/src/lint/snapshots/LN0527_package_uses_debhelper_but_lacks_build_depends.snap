@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): package-uses-debhelper-but-lacks-build-depends (LN0527) [debian/rules]
+E: example (source): package-uses-debhelper-but-lacks-build-depends (LN0527) [debian/rules]
+E: example (source): package-uses-debhelper-but-lacks-build-depends (LN0527) [debian/rules]
+E: example (source): package-uses-debhelper-but-lacks-build-depends (LN0527) [debian/rules]
+E: example (source): package-uses-debhelper-but-lacks-build-depends (LN0527) [debian/rules]

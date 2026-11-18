@@ -1,0 +1,4 @@
+maintainer-scripts (source): debian-watch-uses-insecure-uri http://domain.tld/foo-(.+)\.tar\.gz [debian/watch:11]
+maintainer-scripts (source): debian-watch-not-mangling-version opts=uversionmangle=s/$/+dfsg/,dversionmangle=s/foo/bar/ [debian/watch:7]
+maintainer-scripts (source): debian-watch-not-mangling-version options=active http://domain.tld/foo-(.+)\.tar\.gz [debian/watch:11]
+maintainer-scripts (source): debian-watch-does-not-check-openpgp-signature [debian/watch]

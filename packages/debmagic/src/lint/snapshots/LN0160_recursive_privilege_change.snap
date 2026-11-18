@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): recursive-privilege-change (LN0160) "chown -R" [postinst:3]
+W: example (binary): recursive-privilege-change (LN0160) "chown root:root -R" [postinst:3]
+W: example (binary): recursive-privilege-change (LN0160) "chmod 777 --recursive" [postinst:3]
+W: example (binary): recursive-privilege-change (LN0160) "find /bad -maxdepth 2 -type d -exec chown" [postinst:3]
+W: example (binary): recursive-privilege-change (LN0160) "find /bad -maxdepth 2 -exec echo; chown" [postinst:3]
+W: example (binary): recursive-privilege-change (LN0160) "chown -R" [postinst:4]
+W: example (binary): recursive-privilege-change (LN0160) "chown -R" [postinst:2]
+W: example (binary): recursive-privilege-change (LN0160) "chown -R" [config:2]
+W: example (udeb): recursive-privilege-change (LN0160) "chmod -R" [postinst:2]

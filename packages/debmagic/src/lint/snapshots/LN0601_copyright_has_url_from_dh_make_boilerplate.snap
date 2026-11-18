@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): copyright-has-url-from-dh_make-boilerplate (LN0601)
+W: example (binary): copyright-has-url-from-dh_make-boilerplate (LN0601)

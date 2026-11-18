@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): doc-base-file-unknown-field (LN0430) Unknown [usr/share/doc-base/example:3]
+E: example (binary): doc-base-file-unknown-field (LN0430) Unknown [usr/share/doc-base/example:5]
+E: example (binary): doc-base-file-unknown-field (LN0430) Foo [usr/share/doc-base/example:4]
+E: example (udeb): doc-base-file-unknown-field (LN0430) Unknown [usr/share/doc-base/example:2]

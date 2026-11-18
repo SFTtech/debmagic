@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_gencontrol:
+	dh_gencontrol -plibversion-perl -- -v9:999
+	dh_gencontrol -i -Nlibversion-perl
+

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): incomplete-creative-commons-license (LN0359) cc-by-3.0 [debian/copyright:6]
+W: (source): incomplete-creative-commons-license (LN0359) cc-by-3.0 or mit [debian/copyright:4]

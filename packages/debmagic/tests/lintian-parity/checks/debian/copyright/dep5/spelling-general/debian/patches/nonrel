@@ -1,0 +1,6 @@
+This is a deliberate speling error. (false positive; description mentions typo)
+
+--- upstream.orig/nonrel
++++ upstream/nonrel
+@@ -0,0 +1 @@
++Added by patch system.

@@ -1,0 +1,3 @@
+Template: debian-installer/debconf-udeb/title
+Type: text
+_description: This is just a test

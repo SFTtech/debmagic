@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): symbols-for-undeclared-shared-library (LN0408) libbaz 2
+E: example (binary): symbols-for-undeclared-shared-library (LN0408) libhello 2

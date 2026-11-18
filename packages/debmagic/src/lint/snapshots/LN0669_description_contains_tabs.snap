@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): description-contains-tabs (LN0669)
+E: example (binary): description-contains-tabs (LN0669) line 3
+E: example (udeb): description-contains-tabs (LN0669)

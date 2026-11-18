@@ -1,0 +1,7 @@
+upstream-metadata-missing-bug-tracking (source): upstream-metadata-missing-bug-tracking [debian/upstream/metadata]
+upstream-metadata-missing-bug-tracking (source): upstream-metadata-exists [debian/upstream/metadata]
+upstream-metadata-missing-bug-tracking (source): upstream-metadata Repository-Browse https://github.com/isaacs/node-glob [debian/upstream/metadata]
+upstream-metadata-missing-bug-tracking (source): upstream-metadata Repository https://github.com/isaacs/node-glob.git [debian/upstream/metadata]
+upstream-metadata-missing-bug-tracking (source): upstream-metadata Name node-glob [debian/upstream/metadata]
+upstream-metadata-missing-bug-tracking (source): upstream-metadata Contact https://github.com/isaacs/node-glob/issues [debian/upstream/metadata]
+upstream-metadata-missing-bug-tracking (source): upstream-metadata Archive GitHub [debian/upstream/metadata]

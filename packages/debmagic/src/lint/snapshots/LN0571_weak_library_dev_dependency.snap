@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): weak-library-dev-dependency (LN0571) (in section for libexample-dev) Depends libexample1
+E: example (source): weak-library-dev-dependency (LN0571) (in section for libexample-dev) Depends libexample1 (= ${source:Version})
+E: example (source): weak-library-dev-dependency (LN0571) (in section for libexample-dev) Depends libexample1 (>= ${binary:Version})
+E: example (source): weak-library-dev-dependency (LN0571) (in section for libexample-dev) Depends libexample1 (>= ${binary:Version}), libexample1 (>= ${binary:Version})
+E: example (source): weak-library-dev-dependency (LN0571) (in section for libexample-dev) Depends libexample1 (<< 2), libexample1 (>= 1)
+E: example (source): weak-library-dev-dependency (LN0571) (in section for libexample-dev) Depends libexample2 (>= ${source:Version})

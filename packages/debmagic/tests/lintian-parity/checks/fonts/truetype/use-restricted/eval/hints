@@ -1,0 +1,3 @@
+use-restricted (binary): truetype-font-prohibits-installable-embedding (preview/print only) [usr/share/fonts/Printable.ttf]
+use-restricted (binary): truetype-font-prohibits-installable-embedding (never embed) [usr/share/fonts/NeverEmbed.ttf]
+use-restricted (binary): truetype-font-prohibits-installable-embedding (edit only) [usr/share/fonts/Editable.ttf]

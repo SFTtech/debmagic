@@ -1,0 +1,7 @@
+files-general (binary): non-standard-toplevel-dir [new-top-level-dir/]
+files-general (binary): file-in-unusual-dir [var/catman/do]
+files-general (binary): file-in-unusual-dir [new-top-level-dir/file-in-new-top-level-dir]
+files-general (binary): dir-or-file-in-var-run [var/run/lintian/]
+files-general (binary): dir-or-file-in-var-lock [var/lock/lintian/]
+files-general (binary): FSSTND-dir-in-var [var/catman/]
+files-general (binary): FSSTND-dir-in-usr [usr/doc/]

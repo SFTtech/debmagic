@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): embedded-javascript-library (LN0651) please use libjs-jquery [usr/share/example/jquery.min.js]
+W: example (binary): embedded-javascript-library (LN0651) please use libjs-jquery [usr/share/example/jquery-1.2.3.js]
+W: example (binary): embedded-javascript-library (LN0651) please use libjs-prototype [usr/share/example/prototype.js.gz]
+W: example (binary): embedded-javascript-library (LN0651) please use libjs-mocha [usr/share/example/Mocha.CSS]
+W: example (binary): embedded-javascript-library (LN0651) please use libjs-yui [usr/share/example/yahoo-min.js]
+W: example (binary): embedded-javascript-library (LN0651) please use libjs-normalize [usr/share/example/normalize.min.css]
+W: example (binary): embedded-javascript-library (LN0651) please use libjs-bootstrap [usr/share/example/bootstrap-1.1.js]
+W: example (binary): embedded-javascript-library (LN0651) please use libjs-jquery [usr/share/example/jquery.js]
+W: example (binary): embedded-javascript-library (LN0651) please use tinymce [usr/share/example/tiny_mce_popup.js]
+W: example (udeb): embedded-javascript-library (LN0651) please use libjs-jquery [usr/share/example/jquery.js]

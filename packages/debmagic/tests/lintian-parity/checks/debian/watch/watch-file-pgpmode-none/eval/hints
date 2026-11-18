@@ -1,0 +1,1 @@
+watch-file-pgpmode-none (source): debian-watch-does-not-check-openpgp-signature [debian/watch]

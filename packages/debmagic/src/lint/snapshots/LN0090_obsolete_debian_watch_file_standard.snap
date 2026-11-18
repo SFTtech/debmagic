@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): obsolete-debian-watch-file-standard (LN0090) 2 [debian/watch]
+W: example (source): obsolete-debian-watch-file-standard (LN0090) 3 [debian/watch]
+W: example (source): obsolete-debian-watch-file-standard (LN0090) 3 [debian/watch]

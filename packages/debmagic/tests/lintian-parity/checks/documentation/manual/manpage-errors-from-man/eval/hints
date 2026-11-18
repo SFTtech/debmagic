@@ -1,0 +1,1 @@
+manpage-errors-from-man (binary): groff-message troff:<standard input>:13: warning: name 'dep' not defined (possibly missing space after 'de') [usr/share/man/man1/errors-from-man.1P.gz:1]

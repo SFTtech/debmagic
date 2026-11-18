@@ -1,0 +1,7 @@
+fields-present (source): upstream-metadata-exists [debian/upstream/metadata]
+fields-present (source): upstream-metadata Repository-Browse https://github.com/isaacs/node-glob [debian/upstream/metadata]
+fields-present (source): upstream-metadata Repository https://github.com/isaacs/node-glob.git [debian/upstream/metadata]
+fields-present (source): upstream-metadata Name node-glob [debian/upstream/metadata]
+fields-present (source): upstream-metadata Contact https://github.com/isaacs/node-glob/issues [debian/upstream/metadata]
+fields-present (source): upstream-metadata Bug-Database https://github.com/isaacs/node-glob/issues [debian/upstream/metadata]
+fields-present (source): upstream-metadata Archive GitHub [debian/upstream/metadata]

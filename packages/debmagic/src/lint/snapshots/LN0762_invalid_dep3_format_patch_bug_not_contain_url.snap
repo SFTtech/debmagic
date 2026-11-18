@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): invalid-dep3-format-patch-bug-not-contain-url (LN0762) [debian/patches/fix.patch]
+W: (source): invalid-dep3-format-patch-bug-not-contain-url (LN0762) [debian/patches/fix.patch]
+W: (source): invalid-dep3-format-patch-bug-not-contain-url (LN0762) [debian/patches/fix.patch]
+W: (source): invalid-dep3-format-patch-bug-not-contain-url (LN0762) [debian/patches/fix.patch]
+W: (source): invalid-dep3-format-patch-bug-not-contain-url (LN0762) [debian/patches/fix.patch]
+W: (source): invalid-dep3-format-patch-bug-not-contain-url (LN0762) [debian/patches/one.patch]
+W: (source): invalid-dep3-format-patch-bug-not-contain-url (LN0762) [debian/patches/two.patch]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): changelog-is-symlink (LN0757) [debian/changelog]
+W: (source): changelog-is-symlink (LN0757) [debian/changelog]
+W: example (source): changelog-is-symlink (LN0757) [debian/changelog]

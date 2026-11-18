@@ -1,0 +1,7 @@
+[build-system]
+requires = ["flit_core"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.metadata]
+module = "foo"
+author = "Louis-Philippe Véronneau"

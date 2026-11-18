@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): conflicting-test-fields (LN0681) Tests Test-Command [debian/tests/control:1]
+W: (source): conflicting-test-fields (LN0681) Tests Test-Command [debian/tests/control:4]
+W: (source): conflicting-test-fields (LN0681) Tests Test-Command [debian/tests/control:7]

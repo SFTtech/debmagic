@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): unknown-section (LN0350) does-not-exist
+W: example (binary): unknown-section (LN0350) contrib/dveel
+W: example (binary): unknown-section (LN0350) weird/libs
+W: example (binary): unknown-section (LN0350) weird/nope
+W: example (binary): unknown-section (LN0350) weird/nope
+W: example (binary): unknown-section (LN0350) Devel

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): init.d-script-has-duplicate-lsb-section (LN0743) [etc/init.d/twice:5]
+E: example (binary): init.d-script-has-duplicate-lsb-section (LN0743) [etc/init.d/after-unterminated:5]
+E: example (binary): init.d-script-has-duplicate-lsb-section (LN0743) [etc/init.d/three:4]
+E: example (binary): init.d-script-has-duplicate-lsb-section (LN0743) [etc/init.d/three:5]
+E: example (udeb): init.d-script-has-duplicate-lsb-section (LN0743) [etc/init.d/udeb-script:4]

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-watch-file-specifies-wrong-upstream-version (LN0099) 1.0-1 [debian/watch]

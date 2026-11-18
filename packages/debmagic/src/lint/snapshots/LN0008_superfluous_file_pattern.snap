@@ -1,0 +1,21 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): superfluous-file-pattern (LN0008) missing [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) xeb* [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) a?c [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) a [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) a\n [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) a\\b [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) a\ [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) a\* [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) deb* [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) a [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) b [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) b [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) a,b [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) nothing [debian/copyright:7]
+W: (source): superfluous-file-pattern (LN0008) nothing [debian/copyright:3]
+W: (source): superfluous-file-pattern (LN0008) (Files-Included) nothing [debian/copyright:2]
+W: (source): superfluous-file-pattern (LN0008) (Files-Included) dir [debian/copyright:2]
+W: example (source): superfluous-file-pattern (LN0008) missing [debian/foo.copyright:3]

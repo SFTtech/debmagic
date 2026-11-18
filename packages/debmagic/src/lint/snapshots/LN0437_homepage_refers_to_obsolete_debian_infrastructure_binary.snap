@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): homepage-refers-to-obsolete-debian-infrastructure (LN0437) https://alioth.debian.org/foo/
+W: example (udeb): homepage-refers-to-obsolete-debian-infrastructure (LN0437) https://alioth.debian.org/foo/

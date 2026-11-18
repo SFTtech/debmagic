@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): obsolete-comments-style-in-php-ini (LN0820) [etc/php/7.0/mods-available/foo.ini]
+W: example (binary): obsolete-comments-style-in-php-ini (LN0820) [etc/php/7.0/mods-available/foo.ini]
+W: example (binary): obsolete-comments-style-in-php-ini (LN0820) [etc/php/7.0/mods-available/sub/foo.ini]
+W: example (binary): obsolete-comments-style-in-php-ini (LN0820) [etc/php/7.0/mods-available/foo.ini]
+W: example (udeb): obsolete-comments-style-in-php-ini (LN0820) [etc/php/7.0/mods-available/foo.ini]

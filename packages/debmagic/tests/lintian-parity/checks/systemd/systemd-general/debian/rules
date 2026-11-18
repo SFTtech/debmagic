@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+
+ETC_DIR=debian/$(shell dh_listpackages)/etc/
+INITD_DIR=$(ETC_DIR)/init.d
+SYSD_DIR=$(ETC_DIR)/systemd/system
+
+%:
+	dh $@
+
+override_dh_install:
+	dh_install
+	install -m 0755 -d $(INITD_DIR) $(SYSD_DIR)
+	mkfifo $(INITD_DIR)/fifo-pipe-as-init
+	mkfifo $(SYSD_DIR)/fifo-pipe-as-init.service
+	install -m 0755 debian/bootmisc.sh $(INITD_DIR)
+	install -m 0755 debian/systemd-general.masked.init $(INITD_DIR)/masked
+	touch $(INITD_DIR)/README
+
+override_dh_fixperms:
+	dh_fixperms
+	chmod -x $(INITD_DIR)/README
+
+override_dh_installinit:
+	dh_installinit
+	dh_installinit --name systemd-aliasd
+	dh_installinit --name sourced.sh
+
+override_dh_installsystemd:
+	dh_installsystemd
+	dh_installsystemd --name sourced

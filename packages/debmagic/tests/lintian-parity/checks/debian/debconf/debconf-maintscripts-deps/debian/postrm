@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+if [ -f  /usr/share/debconf/confmodule.sh ] ; then
+    . /usr/share/debconf/confmodule.sh
+    # no debconf purging
+fi

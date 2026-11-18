@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-watch-line-invalid (LN0094) version=0 [debian/watch:1]
+W: example (source): debian-watch-line-invalid (LN0094) Version: 4 [debian/watch:1]
+W: example (source): debian-watch-line-invalid (LN0094) opts=pgpsigurlmangle=s/$/.asc/ [debian/watch:2]

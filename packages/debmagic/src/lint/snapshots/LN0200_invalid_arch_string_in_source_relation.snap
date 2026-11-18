@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): invalid-arch-string-in-source-relation (LN0200) all [Build-Depends: foo [all]]
+E: example (source): invalid-arch-string-in-source-relation (LN0200) source [Build-Depends: baz [source lintian-fake-arch]]
+E: example (source): invalid-arch-string-in-source-relation (LN0200) lintian-fake-arch [Build-Depends: baz [source lintian-fake-arch]]
+E: example (source): invalid-arch-string-in-source-relation (LN0200) kfreebsd-any [Build-Depends: other-pkg [kfreebsd-any]]
+E: example (source): invalid-arch-string-in-source-relation (LN0200) kfreebsd-i386 [Build-Depends-Indep: bozzle [kfreebsd-i386]]
+E: example (source): invalid-arch-string-in-source-relation (LN0200) not-an-arch [Build-Depends-Arch: pkg [not-an-arch]]
+E: example (source): invalid-arch-string-in-source-relation (LN0200) test [Build-Conflicts: bar [alpha test]]
+E: example (source): invalid-arch-string-in-source-relation (LN0200) not-a-real-arch [Build-Conflicts-Arch: neg [!not-a-real-arch]]
+E: example (source): invalid-arch-string-in-source-relation (LN0200) kfreebsd-i386 [Build-Depends: libc6:kfreebsd-i386 [kfreebsd-i386]]

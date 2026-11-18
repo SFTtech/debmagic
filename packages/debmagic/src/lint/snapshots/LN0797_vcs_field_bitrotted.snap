@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): vcs-field-bitrotted (LN0797) Cvs :pserver:anonymous@cvs.alioth.debian.org:/cvsroot/foobar :pserver:anonymous@anonscm.debian.org:/cvs/foobar
+W: example (source): vcs-field-bitrotted (LN0797) Cvs :pserver:anon@anonscm.debian.org:/cvsroot/foo :pserver:anon@anonscm.debian.org:/cvs/foo
+W: example (source): vcs-field-bitrotted (LN0797) Browser https://svn.debian.org/wsvn/foobar/trunk?foo=bar;op=log;something=else https://anonscm.debian.org/viewvc/foobar/trunk?foo=bar;something=else
+W: example (source): vcs-field-bitrotted (LN0797) Browser https://anonscm.debian.org/viewvc/foo/trunk?op=log https://anonscm.debian.org/viewvc/foo/trunk

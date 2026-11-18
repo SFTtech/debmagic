@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): unused-license-paragraph-in-dep5-copyright (LN0613) other [debian/copyright:8]
+I: (source): unused-license-paragraph-in-dep5-copyright (LN0613) mit or gpl-2 [debian/copyright:8]
+I: (source): unused-license-paragraph-in-dep5-copyright (LN0613) mit [debian/copyright:9]

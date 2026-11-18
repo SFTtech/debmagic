@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): duplicate-override-context (LN0840) foo (lines 1 2) [debian/source/lintian-overrides]

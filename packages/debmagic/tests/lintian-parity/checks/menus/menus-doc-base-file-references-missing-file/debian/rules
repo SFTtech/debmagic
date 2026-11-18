@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+
+MAIN = $(shell dh_listpackages | head -n1)
+DEPENDENCY = $(MAIN)-dependency
+NOT_A_DEPENDENCY = $(MAIN)-not-a-dependency
+
+%:
+	dh $@
+
+override_dh_installdocs:
+	dh_installdocs -p$(MAIN) documentation.txt
+	dh_installdocs -p$(DEPENDENCY) documentation.txt
+	dh_installdocs -p$(NOT_A_DEPENDENCY) documentation.txt

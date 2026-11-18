@@ -1,0 +1,6 @@
+This is foo.info, produced by hand from thin air.
+
+INFO-DIR-SECTION Lintian
+START-INFO-DIR-ENTRY
+* foo: (foo).                   A miracle occurs.
+END-INFO-DIR-ENTRY

@@ -1,0 +1,4 @@
+files-missing-depends-on-sensible-utils (binary): missing-depends-on-sensible-utils sensible-pager [postinst]
+files-missing-depends-on-sensible-utils (binary): missing-depends-on-sensible-utils sensible-editor [var/lib/test/test-script]
+files-missing-depends-on-sensible-utils (binary): missing-depends-on-sensible-utils sensible-editor [usr/share/locale/test-script]
+files-missing-depends-on-sensible-utils (binary): missing-depends-on-sensible-utils sensible-editor [usr/share/doc/files-missing-depends-on-sensible-utils/test-script]

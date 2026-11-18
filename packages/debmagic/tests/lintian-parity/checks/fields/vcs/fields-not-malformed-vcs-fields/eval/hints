@@ -1,0 +1,7 @@
+fields-not-malformed-vcs-fields (source): vcs-uri Git git@git.debian.org:foobar.git
+fields-not-malformed-vcs-fields (source): vcs-field-uses-not-recommended-uri-format Git git@git.debian.org:foobar.git
+fields-not-malformed-vcs-fields (source): vcs git
+fields-not-malformed-vcs-fields (source): package-is-maintained-by-individual
+fields-not-malformed-vcs-fields (changes): package-is-maintained-by-individual
+fields-not-malformed-vcs-fields (buildinfo): package-is-maintained-by-individual
+fields-not-malformed-vcs-fields (binary): package-is-maintained-by-individual

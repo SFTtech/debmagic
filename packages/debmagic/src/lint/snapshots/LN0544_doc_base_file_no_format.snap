@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): doc-base-file-no-format (LN0544) [usr/share/doc-base/example:3]
+E: example (binary): doc-base-file-no-format (LN0544) [usr/share/doc-base/example:3]
+E: example (udeb): doc-base-file-no-format (LN0544) [usr/share/doc-base/example:3]

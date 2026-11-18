@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_install:
+	install -d debian/huge-usr-share-percent/usr/lib/a
+	echo "Hallo World" > debian/huge-usr-share-percent/usr/lib/a/some-file
+	install -d debian/huge-usr-share-percent/usr/share/a
+	dd if=/dev/zero of=debian/huge-usr-share-percent/usr/share/a/zero \
+	    bs=1024k count=4

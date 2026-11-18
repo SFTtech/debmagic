@@ -1,0 +1,17 @@
+files-gzip-ma-same (1.0) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: files-gzip-ma-same
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Mon, 02 Mar 2020 17:44:19 +0000
+
+files-gzip-ma-same (0.0.1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: files-gzip-ma-same
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Mon, 01 Jan 1990 00:00:00 +0100

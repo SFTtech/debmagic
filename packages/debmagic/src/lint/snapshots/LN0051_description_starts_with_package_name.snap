@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): description-starts-with-package-name (LN0051)
+E: example (binary): description-starts-with-package-name (LN0051)
+E: example (binary): description-starts-with-package-name (LN0051)
+E: example (udeb): description-starts-with-package-name (LN0051)

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): copyright-refers-to-nonexistent-license-file (LN0118) usr/share/common-licenses/GPL2

@@ -1,0 +1,15 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-ignores-errors (LN0158) [postinst]
+W: example (binary): maintainer-script-ignores-errors (LN0158) [preinst]
+W: example (binary): maintainer-script-ignores-errors (LN0158) [postrm]
+W: example (binary): maintainer-script-ignores-errors (LN0158) [postrm]
+W: example (binary): maintainer-script-ignores-errors (LN0158) [prerm]
+W: example (binary): maintainer-script-ignores-errors (LN0158) [postinst]
+W: example (binary): maintainer-script-ignores-errors (LN0158) [config]
+W: example (binary): maintainer-script-ignores-errors (LN0158) [postrm]
+W: example (binary): maintainer-script-ignores-errors (LN0158) [my-postinst]
+W: example (udeb): maintainer-script-ignores-errors (LN0158) [postinst]
+W: example (binary): maintainer-script-ignores-errors (LN0158) [postrm]
+W: example (binary): maintainer-script-ignores-errors (LN0158) [preinst]

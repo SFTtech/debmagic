@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-installs-file-to-usr-x11r6 (LN0428) [usr/X11R6/]
+E: example (binary): package-installs-file-to-usr-x11r6 (LN0428) [usr/X11R6/bin/]
+E: example (binary): package-installs-file-to-usr-x11r6 (LN0428) [usr/X11R6/bin/testxbin2]

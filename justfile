@@ -49,6 +49,10 @@ manpage:
     cargo build -p debmagic
     help2man --no-info -N -o debian/debmagic.1 target/debug/debmagic
 
+# Report `debmagic lint` parity with lintian (add --run for test results, --candidates N for next Rules)
+lint-parity *args:
+    python3 scripts/lint_parity_report.py {{ args }}
+
 # Build the debmagic snap
 snap:
     snapcraft pack

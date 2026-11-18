@@ -1,0 +1,6 @@
+{
+    "name": "lintian/test",
+    "require": {
+        "php": "*"
+    }
+}

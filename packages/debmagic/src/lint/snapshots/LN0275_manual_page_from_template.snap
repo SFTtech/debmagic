@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): manual-page-from-template (LN0275) [usr/share/man/man1/plural.1]
+E: example (binary): manual-page-from-template (LN0275) [usr/share/man/man1/program.1]
+E: example (binary): manual-page-from-template (LN0275) [usr/share/man/man1/program.1.gz]

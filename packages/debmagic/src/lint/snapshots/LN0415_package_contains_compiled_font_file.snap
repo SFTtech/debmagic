@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-compiled-font-file (LN0415) [usr/share/fonts/X11/misc/fonts.dir]
+E: example (binary): package-contains-compiled-font-file (LN0415) [usr/share/fonts/X11/misc/fonts.scale]
+E: example (binary): package-contains-compiled-font-file (LN0415) [usr/share/fonts/X11/misc/fonts.alias]
+E: example (binary): package-contains-compiled-font-file (LN0415) [usr/share/fonts/X11/misc/encodings.dir]
+E: example (binary): package-contains-compiled-font-file (LN0415) [usr/share/fonts/X11/Type1/nested/fonts.dir]

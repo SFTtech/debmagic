@@ -1,0 +1,12 @@
+dlname='trailing-slash.so'
+library_names='trailing-slash.so'
+old_library=''
+dependency_libs=''
+current=0
+age=0
+revision=0
+installed=yes
+shouldnotlink=no
+dlopen=''
+dlpreopen=''
+libdir='/usr/lib/lintian/'

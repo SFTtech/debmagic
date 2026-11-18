@@ -1,0 +1,5 @@
+quoted (binary): relative-library-search-path RUNPATH "/usr/share/foo" [usr/lib/foo/basicshippedrpath]
+quoted (binary): relative-library-search-path RUNPATH "/usr/local/lib" [usr/share/foo/basic]
+quoted (binary): relative-library-search-path RUNPATH "/usr/lib/binaries-general/bar" [usr/lib/foo/basicshippedrpathmore]
+quoted (binary): relative-library-search-path RUNPATH "/usr/lib/binaries-general" [usr/lib/foo/basicshippedrpathmore]
+quoted (binary): relative-library-search-path RUNPATH "/usr/lib" [usr/lib/foo/basiclibrpath]

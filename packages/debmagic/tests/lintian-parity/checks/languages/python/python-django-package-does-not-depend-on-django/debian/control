@@ -1,0 +1,30 @@
+Source: python-django-package-does-not-depend-on-django
+Priority: optional
+Section: python
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: python3-django-positive
+Architecture: all
+Depends: ${misc:Depends}, python3
+Description: Python 3 package without corresponding python3-django dependency
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Python 3 variant.
+
+Package: python3-django-false-positive
+Architecture: all
+Pre-Depends: python3-django
+Depends: ${misc:Depends}, python3
+Description: Python 3 package with corresponding python3-django dependency
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Python 3 variant of the false positive.

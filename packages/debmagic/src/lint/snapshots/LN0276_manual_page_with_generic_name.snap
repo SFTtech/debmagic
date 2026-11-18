@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): manual-page-with-generic-name (LN0276) [usr/share/man/foo/README.txt]
+E: example (binary): manual-page-with-generic-name (LN0276) [usr/share/man/man1/README.1.gz]
+E: example (binary): manual-page-with-generic-name (LN0276) [usr/share/man/man1/README.hard]
+E: example (binary): manual-page-with-generic-name (LN0276) [usr/share/man/man1/README.link]

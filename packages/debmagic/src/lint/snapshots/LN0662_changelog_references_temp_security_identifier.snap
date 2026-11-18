@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): changelog-references-temp-security-identifier (LN0662) TEMP-1234567-abcdef [usr/share/doc/example/changelog.Debian.gz:1]
+W: example (binary): changelog-references-temp-security-identifier (LN0662) TEMP-7654321-ABCDEF [usr/share/doc/example/changelog:1]

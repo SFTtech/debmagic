@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): zero-byte-executable-in-path (LN0726) [bin/empty]
+E: example (binary): zero-byte-executable-in-path (LN0726) [sbin/empty]
+E: example (binary): zero-byte-executable-in-path (LN0726) [usr/bin/empty]
+E: example (binary): zero-byte-executable-in-path (LN0726) [usr/games/empty]
+E: example (binary): zero-byte-executable-in-path (LN0726) [usr/sbin/empty]
+E: example (binary): zero-byte-executable-in-path (LN0726) [usr/bin/group-only]
+E: example (binary): zero-byte-executable-in-path (LN0726) [usr/bin/other-only]
+E: example (binary): zero-byte-executable-in-path (LN0726) [usr/bin/owner-only]
+E: example (binary): zero-byte-executable-in-path (LN0726) [usr/bin/bokmål]
+E: example (udeb): zero-byte-executable-in-path (LN0726) [usr/bin/empty]

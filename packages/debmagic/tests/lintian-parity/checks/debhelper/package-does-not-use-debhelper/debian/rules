@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+PKG = debhelper-package-does-not-use-debhelper
+DOCS = debian/tmp/usr/share/doc/$(PKG)
+
+clean:
+	rm -rf debian/tmp
+
+build:
+
+binary:
+	install -d debian/tmp/DEBIAN $(DOCS)
+	install -m 0644 -t $(DOCS) debian/copyright debian/changelog
+	gzip -9n $(DOCS)/changelog
+	cd debian/tmp && \
+		find * -type f ! -regex "DEBIAN/.*" -print0 | \
+		LC_ALL=C sort -z | xargs -0r md5sum > DEBIAN/md5sums
+	chown -R 0:0 debian/tmp
+	chmod -R u+w,go=rX debian/tmp
+	dpkg-gencontrol
+	dpkg --build debian/tmp ..
+
+.PHONY: binary binary-arch binary-indep build-arch build-indep clean

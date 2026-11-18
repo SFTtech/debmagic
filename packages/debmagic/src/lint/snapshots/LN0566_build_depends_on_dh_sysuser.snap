@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): build-depends-on-dh-sysuser (LN0566) Build-Depends: dh-sysuser (>= 1)
+E: example (source): build-depends-on-dh-sysuser (LN0566) Build-Depends-Indep: dh-sysuser
+E: example (source): build-depends-on-dh-sysuser (LN0566) Build-Depends-Arch: dh-sysuser:any

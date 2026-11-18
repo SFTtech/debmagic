@@ -1,0 +1,9 @@
+debhelper-dh-exec (source): package-uses-dh-exec-but-lacks-build-depends [debian/rules]
+debhelper-dh-exec (source): package-uses-deprecated-debhelper-compat-version 9
+debhelper-dh-exec (source): dh-exec-subst-unknown-variable DEB_BUILD_WHATEVER [debian/manpages:5]
+debhelper-dh-exec (source): dh-exec-script-without-dh-exec-features [debian/mime]
+debhelper-dh-exec (source): dh-exec-private-helper [debian/manpages]
+debhelper-dh-exec (source): dh-exec-install-not-allowed-here [debian/links]
+debhelper-dh-exec (source): debian-build-system dh [debian/rules]
+debhelper-dh-exec (source): debhelper-compat-virtual-relation 9 [debian/control]
+debhelper-dh-exec (source): debhelper-compat-level 9

@@ -1,0 +1,41 @@
+Description: Better document modifiers
+Author: Emanuele Giaquinta
+Origin: upstream, https://github.com/exg/rxvt-unicode/commit/b881e3714ba253d08dc1b900d9333b73759db126
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=839769
+Last-Update: 2017-10-16
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+Index: rxvt-unicode/doc/rxvt.1.pod
+===================================================================
+--- rxvt-unicode.orig/doc/rxvt.1.pod	2017-10-16 11:03:33.669407628 -0400
++++ rxvt-unicode/doc/rxvt.1.pod	2017-10-16 11:03:33.629407435 -0400
+@@ -1081,10 +1081,25 @@
+ 
+    (modifiers-)key
+ 
+-Where I<modifiers> can be any combination of B<ISOLevel3>, B<AppKeypad>,
+-B<Control>, B<NumLock>, B<Shift>, B<Meta>, B<Lock>, B<Mod1>, B<Mod2>,
+-B<Mod3>, B<Mod4>, B<Mod5>, and the abbreviated B<I>, B<K>, B<C>, B<N>,
+-B<S>, B<M>, B<A>, B<L>, B<1>, B<2>, B<3>, B<4>, B<5>.
++Where I<modifiers> can be any combination of the following full or
++abbreviated modifier names:
++
++=begin table
++
++	B<ISOLevel3>	B<I>
++	B<AppKeypad>	B<K>
++	B<Control>	B<C>
++	B<NumLock>	B<N>
++	B<Shift>	B<S>
++	B<Meta>	B<M> B<A>
++	B<Lock>	B<L>
++	B<Mod1>	B<1>
++	B<Mod2>	B<2>
++	B<Mod3>	B<3>
++	B<Mod4>	B<4>
++	B<Mod5>	B<5>
++
++=end table
+ 
+ The B<NumLock>, B<Meta> and B<ISOLevel3> modifiers are usually aliased to
+ whatever modifier the NumLock key, Meta/Alt keys or ISO Level3 Shift/AltGr

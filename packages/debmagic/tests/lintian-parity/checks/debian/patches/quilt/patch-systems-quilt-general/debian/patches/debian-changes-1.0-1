@@ -1,0 +1,8 @@
+Description: <short summary of the patch>
+ TODO: Put a short summary on the line above and replace this paragraph
+ with a longer explanation of this change.
+
+--- /dev/null
++++ patch-systems-quilt-general-1.0/README
+@@ -0,0 +1 @@
++Debian README

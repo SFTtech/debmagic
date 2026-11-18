@@ -1,0 +1,20 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: example (binary): empty-binary-package (LN0007)
+W: tasks-example (binary): empty-binary-package (LN0007)

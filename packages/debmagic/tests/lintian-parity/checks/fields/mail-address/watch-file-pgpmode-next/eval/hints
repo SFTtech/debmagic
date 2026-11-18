@@ -1,0 +1,4 @@
+watch-file-pgpmode-next (source): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+watch-file-pgpmode-next (changes): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+watch-file-pgpmode-next (changes): mail-contact Changed-By "Debian Lintian Maintainers" <lintian-maint@debian.org>
+watch-file-pgpmode-next (binary): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>

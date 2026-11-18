@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): backgrounded-test-command (LN0682) /bin/true & [debian/tests/control:1]
+E: (source): backgrounded-test-command (LN0682) server --run& [debian/tests/control:1]
+E: (source): backgrounded-test-command (LN0682) first second & [debian/tests/control:3]

@@ -1,0 +1,1 @@
+source-copyright-inconsistent-appstream-metadata-license (source): inconsistent-appstream-metadata-license bad.xml (does-not-match-anything != cc0-1.0) [debian/copyright]

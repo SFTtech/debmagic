@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): privacy-breach-facebook (LN0645) (http://www.facebook.com/sdk.js) [usr/share/example/a.html]
+E: example (binary): privacy-breach-facebook (LN0645) (choke on: facebook-jssdk) [usr/share/example/b.html]
+E: example (binary): privacy-breach-facebook (LN0645) (choke on: fb.init) [usr/share/example/c.js]

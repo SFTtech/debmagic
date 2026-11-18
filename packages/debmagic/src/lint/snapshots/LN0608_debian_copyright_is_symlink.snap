@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): debian-copyright-is-symlink (LN0608) [debian/copyright]
+W: example (source): debian-copyright-is-symlink (LN0608) [debian/foo.copyright]
+W: (source): debian-copyright-is-symlink (LN0608) [debian/copyright]

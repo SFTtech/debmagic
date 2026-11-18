@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): file-in-root-and-usr (LN0780) already in: usr/bin/script [bin/script]
+E: example (binary): file-in-root-and-usr (LN0780) already in: usr/sbin/tool [sbin/tool]
+E: example (binary): file-in-root-and-usr (LN0780) already in: usr/bin/sub [bin/sub]
+E: example (binary): file-in-root-and-usr (LN0780) already in: usr/lib64/data.txt [lib64/data.txt]
+E: example (udeb): file-in-root-and-usr (LN0780) already in: usr/bin/script [bin/script]

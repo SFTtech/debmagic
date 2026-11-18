@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): build-depends-on-metapackage (LN0174) Build-Depends: xorg-dev
+E: example (source): build-depends-on-metapackage (LN0174) Build-Depends: xorg
+E: example (source): build-depends-on-metapackage (LN0174) Build-Depends: xorg-dev:any (>= 1)
+E: example (source): build-depends-on-metapackage (LN0174) Build-Depends-Indep: x-window-system
+E: example (source): build-depends-on-metapackage (LN0174) Build-Depends-Arch: mono-complete

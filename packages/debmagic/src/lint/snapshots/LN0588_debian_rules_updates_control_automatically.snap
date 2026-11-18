@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debian-rules-updates-control-automatically (LN0588) [debian/rules:6]
+E: example (source): debian-rules-updates-control-automatically (LN0588) [debian/rules:6]
+E: example (source): debian-rules-updates-control-automatically (LN0588) [debian/rules:6]
+E: example (source): debian-rules-updates-control-automatically (LN0588) [debian/rules:6]
+E: example (source): debian-rules-updates-control-automatically (LN0588) [debian/rules:6]
+E: example (source): debian-rules-updates-control-automatically (LN0588) [debian/rules:7]
+E: example (source): debian-rules-updates-control-automatically (LN0588) [debian/rules:6]
+E: example (source): debian-rules-updates-control-automatically (LN0588) [debian/rules:7]

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=GNU bar
+GenericName=bar
+Comment=A bar test entry for Lintian
+Type=Application
+Categories=Game;BoardGame;GTK;
+MimeType=application/bar;
+Keywords=Lintian
+Icon=foo
+Exec=pargs %U

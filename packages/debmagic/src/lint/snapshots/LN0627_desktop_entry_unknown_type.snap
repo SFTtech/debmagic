@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): desktop-entry-unknown-type (LN0627) foo [usr/share/applications/example.desktop]
+W: example (binary): desktop-entry-unknown-type (LN0627) application [usr/share/applications/example.desktop]
+W: example (binary): desktop-entry-unknown-type (LN0627) [usr/share/applications/example.desktop]
+W: example (binary): desktop-entry-unknown-type (LN0627) Session [usr/share/xsessions/example.desktop]
+W: example (udeb): desktop-entry-unknown-type (LN0627) foo [usr/share/applications/example.desktop]

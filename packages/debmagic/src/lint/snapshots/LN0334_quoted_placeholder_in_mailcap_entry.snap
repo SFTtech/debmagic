@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): quoted-placeholder-in-mailcap-entry (LN0334) '%s' [usr/lib/mime/packages/less:1]
+W: example (binary): quoted-placeholder-in-mailcap-entry (LN0334) 'png:%s' [usr/lib/mime/packages/imagemagick-6.q16:1]
+W: example (binary): quoted-placeholder-in-mailcap-entry (LN0334) "%s" [usr/lib/mime/packages/double:1]
+W: example (binary): quoted-placeholder-in-mailcap-entry (LN0334) '%s' "%s" [usr/lib/mime/packages/both:1]
+W: example (binary): quoted-placeholder-in-mailcap-entry (LN0334) '%s' [usr/lib/mime/packages/dup:1]
+W: example (binary): quoted-placeholder-in-mailcap-entry (LN0334) 'it\'s %s' [usr/lib/mime/packages/escape:1]
+W: example (binary): quoted-placeholder-in-mailcap-entry (LN0334) '%s' [usr/lib/mime/packages/cont:1]
+W: example (binary): quoted-placeholder-in-mailcap-entry (LN0334) '%s' [usr/lib/mime/packages/later:3]

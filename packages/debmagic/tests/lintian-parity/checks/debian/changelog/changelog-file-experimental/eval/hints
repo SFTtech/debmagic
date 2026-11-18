@@ -1,0 +1,2 @@
+changelog-file-experimental (source): non-consecutive-debian-revision 1.0-1 -> 1.0-3 [debian/changelog:1]
+changelog-file-experimental (binary): experimental-to-unstable-without-comment [usr/share/doc/changelog-file-experimental/changelog.Debian.gz:1]

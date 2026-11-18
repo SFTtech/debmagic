@@ -1,0 +1,4 @@
+requests-undeclared-python-versions (source): declare-python-versions-for-test py3versions -vr [debian/tests/script:11]
+requests-undeclared-python-versions (source): declare-python-versions-for-test py3versions -r [debian/tests/script:10]
+requests-undeclared-python-versions (source): declare-python-versions-for-test py3versions --verbose --requested [debian/tests/script:13]
+requests-undeclared-python-versions (source): declare-python-versions-for-test py3versions --requested [debian/tests/script:12]

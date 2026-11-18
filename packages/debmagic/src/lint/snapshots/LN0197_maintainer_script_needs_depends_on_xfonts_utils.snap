@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-needs-depends-on-xfonts-utils (LN0197) update-fonts-scale (does not satisfy xfonts-utils) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-xfonts-utils (LN0197) update-fonts-alias (does not satisfy xfonts-utils) [postinst:3]
+W: example (binary): maintainer-script-needs-depends-on-xfonts-utils (LN0197) update-fonts-dir (does not satisfy xfonts-utils) [postinst:4]
+W: example (binary): maintainer-script-needs-depends-on-xfonts-utils (LN0197) update-fonts-scale (does not satisfy xfonts-utils) [postinst:5]
+W: example (binary): maintainer-script-needs-depends-on-xfonts-utils (LN0197) update-fonts-alias (does not satisfy xfonts-utils) [postinst:2]

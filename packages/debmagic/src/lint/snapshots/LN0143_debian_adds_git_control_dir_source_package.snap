@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-git-control-dir (LN0143) [debian/.git/]
+W: example (source): debian-adds-git-control-dir (LN0143) [.git/]
+W: example (source): debian-adds-git-control-dir (LN0143) [.pc/.git/]
+W: example (source): debian-adds-git-control-dir (LN0143) [.git/]

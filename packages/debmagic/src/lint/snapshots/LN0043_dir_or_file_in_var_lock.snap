@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): dir-or-file-in-var-lock (LN0043) [var/lock/x]
+E: example (binary): dir-or-file-in-var-lock (LN0043) [var/lock/x/]
+E: example (binary): dir-or-file-in-var-lock (LN0043) [var/lock/x/file]

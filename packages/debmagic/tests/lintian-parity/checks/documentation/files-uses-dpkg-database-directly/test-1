@@ -1,0 +1,9 @@
+#!/bin/sh
+
+/bin/grep -E --mmap "^Package: foo$" /var/lib/dpkg/status
+
+echo /var/lib/dpkg/info/other-package.conffiles
+echo /var/lib/dpkg/info/other-package.shlibs
+echo /var/lib/dpkg/info/other-package.postinst
+echo /var/lib/dpkg/info/other-package.preinst
+echo /var/lib/dpkg/triggers/other-package

@@ -1,0 +1,14 @@
+Description: Convert a source file to UTF-8 encoding.
+Author: Felix Lechner <felix.lechner@lease-up.com>
+
+--- a/cyassl/ctaocrypt/tfm.h
++++ b/cyassl/ctaocrypt/tfm.h
+@@ -28,7 +28,7 @@
+ 
+ 
+ /**
+- *  Edited by MoisÈs Guimar„es (moises.guimaraes@phoebus.com.br)
++ *  Edited by Mois√©s Guimar√£es (moises.guimaraes@phoebus.com.br)
+  *  to fit CyaSSL's needs.
+  */
+ 

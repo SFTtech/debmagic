@@ -1,0 +1,1 @@
+does-not-query-declared-python-versions (source): drop-python-version-declaration [debian/control:9]

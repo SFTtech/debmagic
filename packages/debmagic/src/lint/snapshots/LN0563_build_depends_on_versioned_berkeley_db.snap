@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): build-depends-on-versioned-berkeley-db (LN0563) Build-Depends:libdb5.1-java-dev
+W: example (source): build-depends-on-versioned-berkeley-db (LN0563) Build-Depends:libdb5.1++-dev
+W: example (source): build-depends-on-versioned-berkeley-db (LN0563) Build-Depends-Indep:libdb4.8-dev
+W: example (source): build-depends-on-versioned-berkeley-db (LN0563) Build-Depends-Arch:libdb6.0-dev

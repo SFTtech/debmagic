@@ -1,0 +1,2 @@
+fields-gitlab-homepage (source): homepage-gitlab-url-ends-with-dot-git https://gitlab.com/foo/bar.git
+fields-gitlab-homepage (binary): homepage-gitlab-url-ends-with-dot-git https://gitlab.com/foo/bar.git

@@ -1,0 +1,4 @@
+files-general (binary): package-contains-compiled-font-file [usr/share/fonts/X11/misc/fonts.scale]
+files-general (binary): package-contains-compiled-font-file [usr/share/fonts/X11/misc/fonts.dir]
+files-general (binary): package-contains-compiled-font-file [usr/share/fonts/X11/misc/fonts.alias]
+files-general (binary): package-contains-compiled-font-file [usr/share/fonts/X11/misc/encodings.dir]

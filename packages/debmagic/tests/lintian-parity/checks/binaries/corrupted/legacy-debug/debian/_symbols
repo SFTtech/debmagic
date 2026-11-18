@@ -1,0 +1,23 @@
+  This line should flag a syntax error
+# but this one shouldn't
+| although this one should, but for a different reason
+ and so should this
+
+libhello.so.0 libhello0 #MINVER#
+| libhello0c2 (>= 1.2) , libhelloc0c2 (<< 1.3)
+| hello-dbg3| libhelloc0c3|foobar (= 1.2) |hello-dbg2
+| hello-dbg
+ hello@Base 1.0
+* Build-Dep-Foo: bar
+ hello2@Base 2.0 4
+ hello3@Base 2.0 1
+ hello3@Base 2.0 A
+ dummy
+
+libhello.so.2 libhello2 #MINVER#
+* Build-Depends-Package: libbar
+| libhello2 (>= 1:2.3)
+ hello@Base 2.0
+
+libhello.so.0 libhello0 #MINVER#
+ duplicate@Base 1.0

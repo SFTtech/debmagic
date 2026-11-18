@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): pkg-config-unavailable-for-cross-compilation (LN0730) [usr/lib/pkgconfig/libfoo.pc]
+W: example (binary): pkg-config-unavailable-for-cross-compilation (LN0730) [usr/lib/pkgconfig/a.pc]
+W: example (binary): pkg-config-unavailable-for-cross-compilation (LN0730) [usr/lib/pkgconfig/b.pc]
+W: example (udeb): pkg-config-unavailable-for-cross-compilation (LN0730) [usr/lib/pkgconfig/libfoo.pc]

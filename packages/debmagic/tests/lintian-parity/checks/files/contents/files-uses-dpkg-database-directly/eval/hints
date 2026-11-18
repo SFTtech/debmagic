@@ -1,0 +1,7 @@
+files-uses-dpkg-database-directly (binary): uses-dpkg-database-directly [var/lib/test/test-2]
+files-uses-dpkg-database-directly (binary): uses-dpkg-database-directly [var/lib/test/test-1]
+files-uses-dpkg-database-directly (binary): uses-dpkg-database-directly [usr/share/locale/test-2]
+files-uses-dpkg-database-directly (binary): uses-dpkg-database-directly [usr/share/locale/test-1]
+files-uses-dpkg-database-directly (binary): uses-dpkg-database-directly [usr/share/doc/files-uses-dpkg-database-directly/test-2]
+files-uses-dpkg-database-directly (binary): uses-dpkg-database-directly [usr/share/doc/files-uses-dpkg-database-directly/test-1]
+files-uses-dpkg-database-directly (binary): uses-dpkg-database-directly [usr/bin/test]

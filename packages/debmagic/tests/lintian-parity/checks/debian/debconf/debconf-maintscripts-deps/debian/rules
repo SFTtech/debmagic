@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+PKG=debian/$(shell dh_listpackages)
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	# Manually copy the scripts - otherwise debhelper with insert
+	# the "correct magic" in each of them.
+	cp -a debian/preinst debian/postinst debian/postrm "$(PKG)/DEBIAN"
+	chmod 0755 "$(PKG)/DEBIAN/preinst" "$(PKG)/DEBIAN/postinst" \
+		   "$(PKG)/DEBIAN/postrm"
+	sed -i '/#DEBHELPER#/ d' "$(PKG)/DEBIAN/preinst" \
+	     "$(PKG)/DEBIAN/postinst" "$(PKG)/DEBIAN/postrm"
+	dh_builddeb

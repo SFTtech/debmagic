@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example-dbgsym (binary): non-debug-file-in-debug-package (LN0426) [foo]
+E: example-dbgsym (binary): non-debug-file-in-debug-package (LN0426) [usr/share/doc/example-dbgsym/copyright]
+E: libexample-dbg (binary): non-debug-file-in-debug-package (LN0426) [foo]

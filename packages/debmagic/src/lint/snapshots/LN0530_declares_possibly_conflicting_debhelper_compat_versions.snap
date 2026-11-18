@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): declares-possibly-conflicting-debhelper-compat-versions (LN0530) 13 from debian/compat vs DH_COMPAT 8 [debian/rules]
+E: example (source): declares-possibly-conflicting-debhelper-compat-versions (LN0530) 12 from debian/compat vs DH_COMPAT 8 [debian/rules]
+E: example (source): declares-possibly-conflicting-debhelper-compat-versions (LN0530) 9 from debian/compat vs DH_COMPAT 7 [debian/rules]
+E: example (source): declares-possibly-conflicting-debhelper-compat-versions (LN0530) 9 from debian/compat vs DH_COMPAT 5 [debian/rules]
+E: example (source): declares-possibly-conflicting-debhelper-compat-versions (LN0530) 13 from Build-Depends: debhelper-compat (= 13) vs DH_COMPAT 8 [debian/rules]
+E: example (source): declares-possibly-conflicting-debhelper-compat-versions (LN0530) 14 from X-DH-Compat: 14 vs DH_COMPAT 8 [debian/rules]
+E: example (source): declares-possibly-conflicting-debhelper-compat-versions (LN0530) 0 from debian/compat vs DH_COMPAT 8 [debian/rules]

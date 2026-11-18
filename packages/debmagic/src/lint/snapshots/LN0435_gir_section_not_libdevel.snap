@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): gir-section-not-libdevel (LN0435) misc [usr/share/gir-1.0/Bad-23.gir]
+W: example (binary): gir-section-not-libdevel (LN0435) libs [usr/lib/MULTIARCH/gir-1.0/BadExtras-23.gir]
+W: example (udeb): gir-section-not-libdevel (LN0435) NONE [usr/share/gir-1.0/Foo.gir]

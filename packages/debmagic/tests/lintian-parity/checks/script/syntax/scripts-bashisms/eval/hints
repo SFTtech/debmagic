@@ -1,0 +1,2 @@
+scripts-bashisms (binary): maintainer-shell-script-fails-syntax-check [prerm]
+scripts-bashisms (binary): maintainer-shell-script-fails-syntax-check [postinst]

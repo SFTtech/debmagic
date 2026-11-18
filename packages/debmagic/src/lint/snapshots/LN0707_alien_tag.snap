@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): alien-tag (LN0707) foo [usr/share/lintian/overrides/example:1]
+E: example (binary): alien-tag (LN0707) lintian-override: [usr/share/lintian/overrides/example:1]
+E: example (binary): alien-tag (LN0707) unknown-thing [usr/share/lintian/overrides/example:3]
+E: example (binary): alien-tag (LN0707) zipped-mystery [usr/share/lintian/overrides/example.gz:1]
+E: example (udeb): alien-tag (LN0707) binary: [usr/share/lintian/overrides/example:1]
+E: example (binary): alien-tag (LN0707) no-git [usr/share/lintian/overrides/example:1]

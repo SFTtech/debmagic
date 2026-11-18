@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=general
+Name=general
+Comment=Various general errors
+Type=Application
+Foo=Bar
+Encoding=UTF-8
+Categories=Building;Lintian;
+Terminal=true
+TerminalOptions=-g 80x25
+Exec=foo
+#missing Icon
+#missing Keywords

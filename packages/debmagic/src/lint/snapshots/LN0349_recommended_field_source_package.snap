@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): recommended-field (LN0349) (in section for source) Section
+W: example (source): recommended-field (LN0349) example.dsc Package-List
+W: example (source): recommended-field (LN0349) example.dsc Package-List
+W: example (source): recommended-field (LN0349) (in section for source) Section

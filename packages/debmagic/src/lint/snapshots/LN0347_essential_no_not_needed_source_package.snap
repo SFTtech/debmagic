@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): essential-no-not-needed (LN0347)
+W: example (source): essential-no-not-needed (LN0347)

@@ -1,0 +1,7 @@
+fields-qa-maint-address (1.0) unstable; urgency=low
+
+  * Orphaned.
+  * Lintian Test Suite.
+  * Test: fields-qa-maint-address
+
+ -- Debian QA Group <debian-qa@lists.debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): file-in-discouraged-x11-font-directory (LN0631) [usr/share/fonts/X11/PEX/foo.pcf.gz]
+W: example (binary): file-in-discouraged-x11-font-directory (LN0631) [usr/share/fonts/X11/CID/foo.pcf.gz]
+W: example (binary): file-in-discouraged-x11-font-directory (LN0631) [usr/share/fonts/X11/Speedo/foo.pcf.gz]
+W: example (binary): file-in-discouraged-x11-font-directory (LN0631) [usr/share/fonts/X11/cyrillic/nested/foo.pcf.gz]
+W: example (binary): file-in-discouraged-x11-font-directory (LN0631) [usr/share/fonts/X11/CID/link]
+W: example (udeb): file-in-discouraged-x11-font-directory (LN0631) [usr/share/fonts/X11/PEX/foo]

@@ -1,0 +1,6 @@
+version=4
+https://www.kernel.org/pub/linux/utils/raid/mdadm/mdadm-([.[:digit:]]+).tar.gz
+
+opts="component=x1" https://github.com/a/x1/tags archives/v?([\d\-]+)\.tar\.gz
+
+opts="component=x2" https://github.com/a/x2 archives/v?([\d\-]+)\.tar\.gz

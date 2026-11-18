@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-unsafe-symlink (LN0006) [usr/lib/filenames/symlink2wrong]
+E: example (binary): package-contains-unsafe-symlink (LN0006) [usr/share/lintian/bad-links/absolute]
+E: example (binary): package-contains-unsafe-symlink (LN0006) [usr/share/lintian/bad-links/relative-escape]
+E: example (binary): package-contains-unsafe-symlink (LN0006) [top]
+E: example (binary): package-contains-unsafe-symlink (LN0006) [usr/lib/link]
+E: example (binary): package-contains-unsafe-symlink (LN0006) [usr/lib/link]
+E: two-links (binary): package-contains-unsafe-symlink (LN0006) [usr/lib/bad]

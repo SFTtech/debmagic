@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-bts-control-dir (LN0183) [usr/share/files-package-contains-foo/.be/]
+W: example (binary): package-contains-bts-control-dir (LN0183) [usr/lib/ma-dir/perl/version/.ditrack/]
+W: example (binary): package-contains-bts-control-dir (LN0183) [usr/lib/ma-dir/perl/version/.be/]
+W: example (binary): package-contains-bts-control-dir (LN0183) [usr/lib/ma-dir/perl/version/.ditrack/]
+W: example (udeb): package-contains-bts-control-dir (LN0183) [usr/share/example/.be/]

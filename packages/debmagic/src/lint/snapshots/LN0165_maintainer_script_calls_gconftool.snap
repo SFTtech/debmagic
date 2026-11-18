@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-calls-gconftool (LN0165) "gconftool-2" [postinst:2]
+W: example (binary): maintainer-script-calls-gconftool (LN0165) "/usr/bin/gconftool-2" [postinst:2]
+W: example (binary): maintainer-script-calls-gconftool (LN0165) "gconftool" [postinst:2]
+W: example (binary): maintainer-script-calls-gconftool (LN0165) "gconftool-2" [postinst:2]
+W: gconf (binary): maintainer-script-calls-gconftool (LN0165) "gconftool-2" [postinst:2]
+W: example (binary): maintainer-script-calls-gconftool (LN0165) "gconftool-2" [postinst:2]
+W: example (udeb): maintainer-script-calls-gconftool (LN0165) "gconftool-2" [postinst:2]

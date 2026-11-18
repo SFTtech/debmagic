@@ -1,0 +1,6 @@
+?package(unknown-menu-tag):\
+  section="Applications/Programming"\
+  needs="text"\
+  title="Test menu entry"\
+  command="/usr/bin/test-script" \
+  custom="Custom entry"

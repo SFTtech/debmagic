@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): control-file-contains-dh-make-vcs-comment (LN0846) #Vcs-Git: git://git.debian.org/collab-maint/<pkg>.git [debian/control:4]
+W: example (source): control-file-contains-dh-make-vcs-comment (LN0846) # Vcs-Browser: http://git.debian.org/?p=collab-maint/<pkg>.git;a=summary [debian/control:4]
+W: example (source): control-file-contains-dh-make-vcs-comment (LN0846) #Vcs-Git: git://git.debian.org/collab-maint/<pkg>.git [debian/control:4]
+W: example (source): control-file-contains-dh-make-vcs-comment (LN0846) #Vcs-Git: git://git.debian.org/collab-maint/<pkg>.git [debian/control:4]

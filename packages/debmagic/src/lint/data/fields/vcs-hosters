@@ -1,0 +1,31 @@
+# List of hosting services with their corresponding VCS
+#
+# Format:
+#   ^regex \x\s) ~~ vcs,vcs1,vcs2
+
+git://anonscm\.debian\.org/			~~ Git
+https?://anonscm\.debian\.org/git/		~~ Git
+https?://anonscm\.debian\.org/cgit/		~~ Git
+git://git\.debian\.org/				~~ Git
+https?://git\.debian\.org/			~~ Git
+git://alioth\.debian\.org/			~~ Git
+https?://alioth\.debian\.org/anonscm/git/	~~ Git
+git://anongit\.debian\.org/			~~ Git
+https?://git\.dgit\.debian\.org/		~~ Git
+git://anongit\.freedesktop\.org/		~~ Git
+git://anongit\.kde\.org/			~~ Git
+git://git\.code\.sf\.net/			~~ Git
+https?://git\.code\.sf\.net/p/			~~ Git
+git://[a-zA-Z0-9]+\.git\.sourceforge\.net/	~~ Git
+git://git@github\.com:				~~ Git
+git://github\.com/				~~ Git
+https?://github\.com/				~~ Git
+git@gitlab\.com:				~~ Git
+https?://gitlab\.[^/]+/				~~ Git
+https?://salsa\.debian\.org/			~~ Git
+git://git\.kernel\.org/				~~ Git
+git://gitorious\.org/				~~ Git
+git://[a-zA-Z0-9]+\.branchable\.com/		~~ Git
+git://repo\.or\.cz/				~~ Git
+https?://repo\.or\.cz/				~~ Git
+https?://bitbucket\.org/			~~ Git

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): bad-version-in-relation (LN0568) Build-Depends: g++ (>= s4.0)
+E: example (source): bad-version-in-relation (LN0568) Build-Depends-Arch: bar (= 1_0)
+E: example (source): bad-version-in-relation (LN0568) Build-Conflicts: baz (<< 1/2)
+E: example (source): bad-version-in-relation (LN0568) Build-Depends-Indep: foo (>= :1)
+E: example (source): bad-version-in-relation (LN0568) Build-Depends: foo (>= ${source:Version})

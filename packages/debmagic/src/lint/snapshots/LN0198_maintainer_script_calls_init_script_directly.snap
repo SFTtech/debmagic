@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): maintainer-script-calls-init-script-directly (LN0198) [postinst:5]
+E: example (binary): maintainer-script-calls-init-script-directly (LN0198) [postinst:3]
+E: example (binary): maintainer-script-calls-init-script-directly (LN0198) [postinst:3]
+E: example (binary): maintainer-script-calls-init-script-directly (LN0198) [postinst:3]
+E: example (binary): maintainer-script-calls-init-script-directly (LN0198) [postinst:2]
+E: example (binary): maintainer-script-calls-init-script-directly (LN0198) [postinst:2]
+E: example (binary): maintainer-script-calls-init-script-directly (LN0198) [postinst:3]
+E: example (binary): maintainer-script-calls-init-script-directly (LN0198) [postrm:2]
+E: example (binary): maintainer-script-calls-init-script-directly (LN0198) [prerm:2]

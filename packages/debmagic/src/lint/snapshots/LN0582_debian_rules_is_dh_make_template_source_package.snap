@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debian-rules-is-dh_make-template (LN0582) [debian/rules:6]

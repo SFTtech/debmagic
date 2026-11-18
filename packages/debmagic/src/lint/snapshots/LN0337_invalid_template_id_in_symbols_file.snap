@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): invalid-template-id-in-symbols-file (LN0337) should this [symbols:4]
+E: example (binary): invalid-template-id-in-symbols-file (LN0337) 4 [symbols:12]
+E: example (binary): invalid-template-id-in-symbols-file (LN0337) A [symbols:14]
+E: example (binary): invalid-template-id-in-symbols-file (LN0337) 1 [symbols:2]

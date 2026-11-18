@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: foo-doc (binary): documentation-package-not-architecture-independent (LN0772)
+W: foo-docs (binary): documentation-package-not-architecture-independent (LN0772)
+W: foo-doc (binary): documentation-package-not-architecture-independent (LN0772)
+W: foo-docs (udeb): documentation-package-not-architecture-independent (LN0772)

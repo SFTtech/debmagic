@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unknown-debconf-priority (LN0239) LOW [config:1]
+E: example (binary): unknown-debconf-priority (LN0239) normal [config:2]
+E: example (binary): unknown-debconf-priority (LN0239) unknown [config:1]
+E: example (binary): unknown-debconf-priority (LN0239) normal [config:1]
+E: example (binary): unknown-debconf-priority (LN0239) unknown [config:2]

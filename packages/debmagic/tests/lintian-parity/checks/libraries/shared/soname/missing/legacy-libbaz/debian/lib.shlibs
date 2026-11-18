@@ -1,0 +1,8 @@
+libdoesntexist2 1.0 libbaz1
+libdoesntexist2 1.0 libbaz1
+libbaz2 1.1 libbaz
+libbaz3 1 libbaz1 (>> 1-1)
+libbaz4 1 libbaz1 (= 1-1)
+libbaz5 1 libbaz2
+udeb: libdoesntexist2 1.0 libbaz2
+udeb: libdoesntexist2 1.0 libbaz2

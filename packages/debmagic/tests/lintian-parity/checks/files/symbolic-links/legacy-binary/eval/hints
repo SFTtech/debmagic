@@ -1,0 +1,3 @@
+binary (binary): symlink-contains-spurious-segments ../html/./ch1.html [usr/share/doc/binary/html/ch2.html]
+binary (binary): lengthy-symlink ../html/./ch1.html [usr/share/doc/binary/html/ch2.html]
+binary (binary): absolute-symlink-in-top-level-folder /usr/share/doc/binary/htm/ch1.html [usr/share/doc/binary/html/ch3.html]

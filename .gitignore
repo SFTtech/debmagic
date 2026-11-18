@@ -32,7 +32,8 @@ src/*/*.lock
 /test
 /build-area
 /build-debmagic
-*.snap
+# snapcraft output (repo root only; insta snapshots in src/**/snapshots/ are tracked)
+/*.snap
 
 # ides
 .idea
@@ -55,3 +56,8 @@ Thumbs.db
 # local
 todo.md
 todo.org
+
+# Vendored lintian Parity recipes ship cruft on purpose (editor backups,
+# bytecode, dist/, *.egg-info, ...); keep all of it. Their .git/ directories
+# are vendored as .git.vendored (see scripts/import_lintian_parity.py).
+!packages/debmagic/tests/lintian-parity/**

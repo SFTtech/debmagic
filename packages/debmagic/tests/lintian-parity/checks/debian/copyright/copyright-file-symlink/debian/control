@@ -1,0 +1,40 @@
+Source: copyright-file-symlink
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: symlink-to-foreign
+Architecture: all
+Depends: ${misc:Depends}, foreign-package
+Description: Test for symlinked doc directories (foreign)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Foreign.
+
+Package: symlink-outside-usd
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test for symlinked doc directories (usd)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ USD.
+
+Package: symlink-without-depends
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test for symlinked doc directories (no-deepnds)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Symlinks without dependency.

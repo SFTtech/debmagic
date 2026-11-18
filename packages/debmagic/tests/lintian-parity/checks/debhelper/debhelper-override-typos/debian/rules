@@ -1,0 +1,43 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+# Bad
+override_dh_nump: # Multiple matches should emit only one tag
+override_dh_instakk:
+ override_dh_installcrons:
+override_dh_install_examples:
+override_dh_install_changelogs : # Extra space
+override_dh_perls override_dh_python3 : # Bad then good
+override_dh_python3 override_dh_perls : # Good then bad
+override_dh_instakk override_dh_install_examples : # Both broken, with space
+foo override_dh_installdebs bar override_dh_installxmlcatalog: # combining regular and overrides
+
+# Don't worry about anything beyond a colon even if wrong; it will fail anyway.
+override_dh_testdirs: override_dh_ucfs
+
+# Specifically check for missing "auto" ("dh_override_auto_build" has a
+# distance of "5" to "dh_override_build")
+override_dh_build:
+
+# Missing space
+override dh_install:
+
+execute_after_dh_nope:
+execute_before_dh_nope:
+
+# Good
+.PHONY: override_dh_ucfs
+override_dh_install:
+override_dh_install :
+ override_dh_install: #
+prefix_override_dh_gconfs:
+override_dh_will_never_exist:
+override_dh_python3 override_dh_perl :
+override_dh_auto_configure-% override_dh_auto_install-%:
+foo override_dh_installdeb bar override_dh_installxmlcatalogs: # combining regular and overrides
+override_dh_install: $(PY3VERS:%=install-python%)
+# override_dh_instal: would be a typo, but in a comment it doesn't matter
+execute_after_dh_install:
+execute_before_dh_install:

@@ -1,0 +1,50 @@
+Source: files-games-section
+Priority: optional
+Section: games
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: files-games-section-both
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: files-games-section-good, files-games-section-wrong, files-games-section-no-games
+Description: Correct section for games packages (both)
+ Package has both regular binaries and games.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: files-games-section-good
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Correct section for games packages (good)
+ Games package in games section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: files-games-section-no-games
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Correct section for games packages (no games)
+ Games package without any games.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+
+Package: files-games-section-wrong
+Section: devel
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: files-games-section-good
+Description: Correct section for games packages (wrong)
+ Games package in wrong section.
+ .
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

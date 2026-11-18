@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): doc-base-document-field-not-in-first-line (LN0543) [usr/share/doc-base/example:2]
+E: example (binary): doc-base-document-field-not-in-first-line (LN0543) [usr/share/doc-base/example:2]
+E: example (udeb): doc-base-document-field-not-in-first-line (LN0543) [usr/share/doc-base/example:2]

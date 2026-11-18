@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): non-standard-executable-perm (LN0700) 0775 != 0755 [usr/bin/script-wexec]
+W: example (binary): non-standard-executable-perm (LN0700) 0765 != 0755 [etc/init.d/binary]
+W: example (binary): non-standard-executable-perm (LN0700) 0751 != 0755 [usr/bin/script-ro]
+W: example (binary): non-standard-executable-perm (LN0700) 1755 != 0755 [usr/bin/sticky]
+W: example (binary): non-standard-executable-perm (LN0700) 0700 != 0755 [usr/bin/hard]
+W: example (udeb): non-standard-executable-perm (LN0700) 0750 != 0755 [bin/tool]

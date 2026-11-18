@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): binary-arch-rules-but-pkg-is-arch-indep (LN0182) [debian/rules]

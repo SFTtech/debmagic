@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): build-depends-arch-without-arch-dependent-binary (LN0561)
+E: example (source): build-depends-arch-without-arch-dependent-binary (LN0561)

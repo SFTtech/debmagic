@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_installdocs:
+	dh_installdocs
+	install -m 644 debian/copyright-no-errors.copyright debian/copyright-symlink/usr/share/doc/copyright-symlink/symlink
+	rm debian/copyright-symlink/usr/share/doc/copyright-symlink/copyright
+	ln -s symlink debian/copyright-symlink/usr/share/doc/copyright-symlink/copyright
+	gzip -n -9 debian/copyright-compressed/usr/share/doc/copyright-compressed/copyright
+	mkdir -p debian/copyright-old-style/usr/doc/copyright
+	# This should (now) trigger a no-copyright-file (as there is no copyright file
+	# in the right location).
+	mv debian/copyright-old-style/usr/share/doc/copyright-old-style/copyright debian/copyright-old-style/usr/doc/copyright/copyright-old-style

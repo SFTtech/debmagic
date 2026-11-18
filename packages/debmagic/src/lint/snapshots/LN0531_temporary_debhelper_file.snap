@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): temporary-debhelper-file (LN0531) [debian/package.debhelper.log]
+E: (source): temporary-debhelper-file (LN0531) [debian/package.postinst.debhelper]
+E: (source): temporary-debhelper-file (LN0531) [debian/package.prerm.debhelper]
+E: (source): temporary-debhelper-file (LN0531) [debian/.debhelper]
+E: (source): temporary-debhelper-file (LN0531) [debian/debhelper.log]
+E: (source): temporary-debhelper-file (LN0531) [debian/.debhelper.log]
+E: (source): temporary-debhelper-file (LN0531) [debian/link.debhelper]

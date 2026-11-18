@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): icon-size-and-directory-name-mismatch (LN0421) 16x16 [usr/share/icons/hicolor/22x22/apps/lintian-16x16.png]
+W: example (binary): icon-size-and-directory-name-mismatch (LN0421) 22x22 [usr/share/apps/lintian/icons/hicolor/64x64/lintian-64x64.png]
+W: example (binary): icon-size-and-directory-name-mismatch (LN0421) 22x22 [usr/share/apps/lintian/icons/hicolor/64x64/lintian-64x64.png]

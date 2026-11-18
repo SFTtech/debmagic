@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): temporary-debhelper-file (LN0531) [debian/package.postinst.debhelper]

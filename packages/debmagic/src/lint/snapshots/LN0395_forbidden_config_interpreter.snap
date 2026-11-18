@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): forbidden-config-interpreter (LN0395) /usr/bin/python3 [config]
+E: example (binary): forbidden-config-interpreter (LN0395) /usr/bin/python [config]
+E: example (binary): forbidden-config-interpreter (LN0395) /usr/bin/env [config]
+E: example (udeb): forbidden-config-interpreter (LN0395) /usr/bin/python3 [config]

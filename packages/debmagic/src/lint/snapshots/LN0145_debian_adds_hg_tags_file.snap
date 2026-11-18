@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-hg-tags-file (LN0145) [.hgtags]
+W: example (source): debian-adds-hg-tags-file (LN0145) [debian/.hgtags]
+W: example (source): debian-adds-hg-tags-file (LN0145) [src/.hgtags]
+W: example (source): debian-adds-hg-tags-file (LN0145) [.pc/.hgtags]

@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): missing-debconf-dependency-for-preinst (LN0246)
+W: example (binary): missing-debconf-dependency-for-preinst (LN0246)
+W: example (binary): missing-debconf-dependency-for-preinst (LN0246)
+W: example (binary): missing-debconf-dependency-for-preinst (LN0246)
+W: example (binary): missing-debconf-dependency-for-preinst (LN0246)
+W: example (binary): missing-debconf-dependency-for-preinst (LN0246)
+W: debconf (binary): missing-debconf-dependency-for-preinst (LN0246)

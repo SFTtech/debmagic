@@ -1,0 +1,12 @@
+changelog-file-consecutive-debian-revision-unrel (1.0-1) unstable; urgency=low
+
+  * Version reused, new source package name.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-consecutive-debian-revision-unrel-oldname (1.0-3) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: changelog-file-consecutive-debian-revision-unrel
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Fri, 06 Feb 2009 22:22:37 -0800

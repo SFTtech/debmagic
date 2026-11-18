@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): privacy-breach-piwik (LN0649) (http://stats.example.org/piwik.php?idsite=1) [usr/share/example/a.html]
+E: example (binary): privacy-breach-piwik (LN0649) (choke on: piwik_url =) [usr/share/example/b.html]

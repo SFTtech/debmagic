@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): perl-module-in-core-directory (LN0818) [usr/share/perl/bar]
+E: example (binary): perl-module-in-core-directory (LN0818) [usr/lib/perl/bar]
+E: example (binary): perl-module-in-core-directory (LN0818) [usr/share/perl/5.36]
+E: example (binary): perl-module-in-core-directory (LN0818) [usr/share/perl/bar]
+E: example (binary): perl-module-in-core-directory (LN0818) [usr/share/perl/bar]
+E: example (udeb): perl-module-in-core-directory (LN0818) [usr/share/perl/bar]

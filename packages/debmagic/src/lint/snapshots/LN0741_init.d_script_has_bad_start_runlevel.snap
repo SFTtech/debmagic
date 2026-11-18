@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-has-bad-start-runlevel (LN0741) X [etc/init.d/letter]
+W: example (binary): init.d-script-has-bad-start-runlevel (LN0741) 7 [etc/init.d/seven]
+W: example (binary): init.d-script-has-bad-start-runlevel (LN0741) 00 [etc/init.d/pair]
+W: example (binary): init.d-script-has-bad-start-runlevel (LN0741) Y [etc/init.d/pair]
+W: example (udeb): init.d-script-has-bad-start-runlevel (LN0741) Z [etc/init.d/udeb-script]

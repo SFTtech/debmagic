@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+
+DESTDIR = debian/pkgconfig-any/usr/lib
+
+%:
+	dh $@
+
+override_dh_install:
+	dh_install
+	mkdir -p $(DESTDIR)
+	touch $(DESTDIR)/libstaticlib.a
+
+override_dh_strip:

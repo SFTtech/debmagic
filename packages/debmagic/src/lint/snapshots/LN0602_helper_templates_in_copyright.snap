@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): helper-templates-in-copyright (LN0602)
+E: example (binary): helper-templates-in-copyright (LN0602)
+E: example (binary): helper-templates-in-copyright (LN0602)
+E: example (binary): helper-templates-in-copyright (LN0602)
+E: example (binary): helper-templates-in-copyright (LN0602)
+E: example (binary): helper-templates-in-copyright (LN0602)
+E: example (binary): helper-templates-in-copyright (LN0602)

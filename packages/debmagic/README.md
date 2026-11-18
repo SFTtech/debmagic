@@ -4,7 +4,7 @@ Modern, robust & easy tooling for building and packaging [Debian](https://debian
 
 - **Build any package** in an isolated container environment with `debmagic build`
 - **Run Debian autopkgtest tests** against built packages with `debmagic test`
-- **Lint** with `debmagic check`
+- **Lint** with `debmagic lint`
 - **Debug** environments interactively with `debmagic env shell`
 
 ## Installation

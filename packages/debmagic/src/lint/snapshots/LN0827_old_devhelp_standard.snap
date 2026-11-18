@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): old-devhelp-standard (LN0827) [usr/share/devhelp/books/example/index.devhelp]
+W: example (binary): old-devhelp-standard (LN0827) [usr/share/devhelp/books/example/index.devhelp.gz]
+W: example (udeb): old-devhelp-standard (LN0827) [usr/share/doc/example/manual.devhelp]
+W: example (binary): old-devhelp-standard (LN0827) [usr/share/devhelp/books/example.devhelp]
+W: example (binary): old-devhelp-standard (LN0827) [usr/share/devhelp/books/example.devhelp]

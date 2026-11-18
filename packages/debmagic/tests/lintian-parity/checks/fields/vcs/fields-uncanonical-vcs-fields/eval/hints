@@ -1,0 +1,33 @@
+fields-uncanonical-vcs-fields (source): vcs-uri Svn svn://svn.debian.org/svn/foobar/trunk
+fields-uncanonical-vcs-fields (source): vcs-uri Mtn mtn://www.example.org?org.debian.foobar
+fields-uncanonical-vcs-fields (source): vcs-uri Hg http://hg.debian.org/hg/foobar/pkg/foobar
+fields-uncanonical-vcs-fields (source): vcs-uri Git git://git.debian.org/~djpig/foobar.git -b master
+fields-uncanonical-vcs-fields (source): vcs-uri Cvs :pserver:anonymous@cvs.alioth.debian.org:/cvsroot/foobar module
+fields-uncanonical-vcs-fields (source): vcs-uri Bzr nosmart+http://bzr.debian.org/bzr/collab-maint/foobar
+fields-uncanonical-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Svn svn://svn.debian.org/svn/foobar/trunk
+fields-uncanonical-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Hg http://hg.debian.org/hg/foobar/pkg/foobar
+fields-uncanonical-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Git git://git.debian.org/~djpig/foobar.git -b master
+fields-uncanonical-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Bzr nosmart+http://bzr.debian.org/bzr/collab-maint/foobar
+fields-uncanonical-vcs-fields (source): vcs-obsolete-in-debian-infrastructure Browser https://svn.debian.org/wsvn/foobar/trunk?foo=bar;op=log;something=else
+fields-uncanonical-vcs-fields (source): vcs-git-uses-invalid-user-uri Git git://git.debian.org/~djpig/foobar.git https://anonscm.debian.org/git/users/djpig/foobar.git
+fields-uncanonical-vcs-fields (source): vcs-fields-use-more-than-one-vcs bzr cvs git hg mtn svn
+fields-uncanonical-vcs-fields (source): vcs-field-uses-insecure-uri Svn svn://svn.debian.org/svn/foobar/trunk
+fields-uncanonical-vcs-fields (source): vcs-field-uses-insecure-uri Hg http://hg.debian.org/hg/foobar/pkg/foobar
+fields-uncanonical-vcs-fields (source): vcs-field-uses-insecure-uri Git git://git.debian.org/~djpig/foobar.git -b master
+fields-uncanonical-vcs-fields (source): vcs-field-uses-insecure-uri Cvs :pserver:anonymous@cvs.alioth.debian.org:/cvsroot/foobar module
+fields-uncanonical-vcs-fields (source): vcs-field-uses-insecure-uri Bzr nosmart+http://bzr.debian.org/bzr/collab-maint/foobar
+fields-uncanonical-vcs-fields (source): vcs-field-not-canonical Svn svn://svn.debian.org/svn/foobar/trunk svn://anonscm.debian.org/foobar/trunk
+fields-uncanonical-vcs-fields (source): vcs-field-not-canonical Hg http://hg.debian.org/hg/foobar/pkg/foobar https://anonscm.debian.org/hg/foobar/pkg/foobar
+fields-uncanonical-vcs-fields (source): vcs-field-not-canonical Bzr nosmart+http://bzr.debian.org/bzr/collab-maint/foobar nosmart+https://anonscm.debian.org/bzr/collab-maint/foobar
+fields-uncanonical-vcs-fields (source): vcs-field-bitrotted Cvs :pserver:anonymous@cvs.alioth.debian.org:/cvsroot/foobar :pserver:anonymous@anonscm.debian.org:/cvs/foobar
+fields-uncanonical-vcs-fields (source): vcs-field-bitrotted Browser https://svn.debian.org/wsvn/foobar/trunk?foo=bar;op=log;something=else https://anonscm.debian.org/viewvc/foobar/trunk?foo=bar;something=else
+fields-uncanonical-vcs-fields (source): vcs svn
+fields-uncanonical-vcs-fields (source): vcs mtn
+fields-uncanonical-vcs-fields (source): vcs hg
+fields-uncanonical-vcs-fields (source): vcs git
+fields-uncanonical-vcs-fields (source): vcs cvs
+fields-uncanonical-vcs-fields (source): vcs bzr
+fields-uncanonical-vcs-fields (source): package-is-maintained-by-individual
+fields-uncanonical-vcs-fields (changes): package-is-maintained-by-individual
+fields-uncanonical-vcs-fields (buildinfo): package-is-maintained-by-individual
+fields-uncanonical-vcs-fields (binary): package-is-maintained-by-individual

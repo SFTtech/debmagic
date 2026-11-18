@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): root-in-contact (LN0731) Maintainer root <someone@debian.org>

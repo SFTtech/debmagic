@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-depends-on-multiple-libstdc-versions (LN0206) libstdc++2.10 libstdc++2.10-glibc2.2 libstdc++3.0
+E: example (binary): package-depends-on-multiple-libstdc-versions (LN0206) libstdc++6 libstdc++5
+E: example (binary): package-depends-on-multiple-libstdc-versions (LN0206) libstdc++3 libstdc++2.10
+E: example (binary): package-depends-on-multiple-libstdc-versions (LN0206) libstdc++6 libstdc++4
+E: example (udeb): package-depends-on-multiple-libstdc-versions (LN0206) lib64stdc++6 libstdc++6

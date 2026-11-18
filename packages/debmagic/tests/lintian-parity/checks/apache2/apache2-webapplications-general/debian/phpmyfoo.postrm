@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = 'configure' ] ; then
+        a2disconf -q phpmyfoo
+fi
+
+invoke-rc.d apache2 reload
+
+#DEBHELPER#
+

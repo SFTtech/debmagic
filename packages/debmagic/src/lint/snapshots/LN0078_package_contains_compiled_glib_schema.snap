@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-compiled-glib-schema (LN0078) [usr/share/glib-2.0/schemas/gschemas.compiled]
+E: example (udeb): package-contains-compiled-glib-schema (LN0078) [usr/share/glib-2.0/schemas/gschemas.compiled]

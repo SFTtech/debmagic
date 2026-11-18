@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debian-control-has-dbgsym-package (LN0222) (in section for example-dbgsym) Package [debian/control:3]

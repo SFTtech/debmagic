@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): duplicate-entry-in-symbols-control-file (LN0338) (lines 1 8) libfoo 1 [symbols]
+E: example (binary): duplicate-entry-in-symbols-control-file (LN0338) (lines 1 2) libfoo 1.2 [symbols]

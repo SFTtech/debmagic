@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): depends-on-old-emacs (LN0108) Depends: emacs23
+W: example (binary): depends-on-old-emacs (LN0108) Depends: emacs23-nox
+W: example (binary): depends-on-old-emacs (LN0108) Depends: emacs22-gtk
+W: example (binary): depends-on-old-emacs (LN0108) Depends: emacs21
+W: example (binary): depends-on-old-emacs (LN0108) Recommends: emacs21-el
+W: example (udeb): depends-on-old-emacs (LN0108) Depends: emacs23-lucid

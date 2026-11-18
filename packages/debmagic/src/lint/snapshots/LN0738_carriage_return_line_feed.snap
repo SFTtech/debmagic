@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: x (source): carriage-return-line-feed (LN0738) [debian/control]
+E: example (source): carriage-return-line-feed (LN0738) [debian/changelog]
+E: x (source): carriage-return-line-feed (LN0738) [debian/control]
+E: x (source): carriage-return-line-feed (LN0738) [debian/control]
+E: example (source): carriage-return-line-feed (LN0738) [debian/control]
+E: example (source): carriage-return-line-feed (LN0738) [debian/changelog]

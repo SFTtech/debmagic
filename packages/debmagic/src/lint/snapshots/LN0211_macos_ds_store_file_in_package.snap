@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): macos-ds-store-file-in-package (LN0211) [usr/share/doc/filenames/.DS_Store]
+W: example (binary): macos-ds-store-file-in-package (LN0211) [usr/share/pkg/.DS_Store.gz]
+W: example (udeb): macos-ds-store-file-in-package (LN0211) [usr/share/pkg/.DS_Store]

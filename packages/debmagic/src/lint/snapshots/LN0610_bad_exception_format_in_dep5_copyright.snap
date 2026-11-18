@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): bad-exception-format-in-dep5-copyright (LN0610) gpl-3 with font [debian/copyright:6]
+W: (source): bad-exception-format-in-dep5-copyright (LN0610) gpl-3+ with exception [debian/copyright:6]
+W: (source): bad-exception-format-in-dep5-copyright (LN0610) gpl-3 with font [debian/copyright:6]
+W: (source): bad-exception-format-in-dep5-copyright (LN0610) lgpl-2 with something else [debian/copyright:6]
+W: (source): bad-exception-format-in-dep5-copyright (LN0610) gpl-3 with font [debian/copyright:10]

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): malformed-override (LN0839) Expected a colon [debian/source/lintian-overrides:1]

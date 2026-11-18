@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): remove-of-unknown-diversion (LN0723) usr/bin/foo [postrm:2]
+E: example (binary): remove-of-unknown-diversion (LN0723) usr/bin/bar [postrm:2]
+E: example (binary): remove-of-unknown-diversion (LN0723) usr/bin/bar [postrm:4]
+E: example (binary): remove-of-unknown-diversion (LN0723) usr/*/old-file [postrm:3]
+E: example (binary): remove-of-unknown-diversion (LN0723) etc/scripts/other [postrm:2]

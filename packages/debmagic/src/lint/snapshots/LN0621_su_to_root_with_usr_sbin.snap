@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): su-to-root-with-usr-sbin (LN0621) [usr/share/menu/example:1]
+W: example (binary): su-to-root-with-usr-sbin (LN0621) [usr/share/menu/example:1]
+W: example (binary): su-to-root-with-usr-sbin (LN0621) [usr/lib/menu/example:1]
+W: example (binary): su-to-root-with-usr-sbin (LN0621) [usr/share/applications/hello.desktop]
+W: example (udeb): su-to-root-with-usr-sbin (LN0621) [usr/share/menu/example:1]

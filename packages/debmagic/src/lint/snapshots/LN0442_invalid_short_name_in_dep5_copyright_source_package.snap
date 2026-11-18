@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): invalid-short-name-in-dep5-copyright (LN0442) gplv1 [debian/copyright:6]

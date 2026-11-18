@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): orphaned-package-maintained-in-private-space (LN0799) Vcs-Git https://salsa.debian.org/lechner/pius.git
+W: example (source): orphaned-package-maintained-in-private-space (LN0799) Vcs-Git https://anonscm.debian.org/git/foo/bar.git
+W: example (source): orphaned-package-maintained-in-private-space (LN0799) Vcs-Svn svn://svn.debian.org/svn/foo/trunk

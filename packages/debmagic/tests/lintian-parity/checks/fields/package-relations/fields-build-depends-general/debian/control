@@ -1,0 +1,26 @@
+Source: fields-build-depends-general
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14), bd-conflict, revision-1 (>= 1.0-1),
+ bash, make, x-dev (>= 1.0) | ok, build-essential, new-package | xlibmesa-gl-dev,
+ xorg-dev, java-propose-classpath, python3-dev, foo [all],
+ bar [i386 any], baz [source lintian-fake-arch], baz [i386 !amd64],
+ other-pkg [kfreebsd-any], yet-another [any-powerpc],
+ packaging-dev, libdb5.1++-dev, libdb5.1-java-dev, hardening-wrapper (>= 2.2),
+ mount, libjs-bootstrap
+Build-Depends-Indep: libjs-bootstrap4
+Build-Conflicts:
+ bd-conflict
+Rules-Requires-Root: no
+
+Package: fields-build-depends-general
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: General tests for build dependencies
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+

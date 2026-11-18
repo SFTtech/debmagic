@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): build-conflicts-with-build-dependency (LN0262) Build-Conflicts bar [alpha test] [debian/control:4]
+E: example (source): build-conflicts-with-build-dependency (LN0262) Build-Conflicts-Indep debmake [!powerpc] [debian/control:5]
+E: example (source): build-conflicts-with-build-dependency (LN0262) Build-Conflicts bd-conflict [debian/control:3]
+E: example (source): build-conflicts-with-build-dependency (LN0262) Build-Conflicts-Arch make [debian/control:3]
+E: example (source): build-conflicts-with-build-dependency (LN0262) Build-Conflicts foo [debian/control:3]

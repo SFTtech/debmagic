@@ -1,0 +1,60 @@
+//! Init script and systemd unit Rules.
+//!
+//! `init_script` reads `etc/init.d` script text. `systemd_unit` reads unit
+//! files. Each Rule owns one Tag.
+
+mod init_script;
+mod ln0230_init_d_script_does_not_implement_required_option;
+mod ln0231_init_d_script_stops_in_s_runlevel;
+mod ln0232_init_d_script_missing_lsb_section;
+mod ln0233_systemd_service_file_refers_to_obsolete_target;
+mod ln0234_missing_systemd_service_for_init_d_rcs_script;
+mod ln0235_systemd_service_file_wraps_init_script;
+mod ln0288_init_d_script_has_conflicting_start_stop;
+mod ln0289_init_d_script_has_bad_stop_runlevel;
+mod ln0290_init_d_script_should_always_start_service;
+mod ln0291_non_virtual_facility_in_initd_script;
+mod ln0292_init_d_script_depends_on_all_virtual_facility;
+mod ln0293_init_d_script_possible_missing_stop;
+mod ln0294_init_d_script_starts_in_stop_runlevel;
+mod ln0440_init_d_script_has_bad_lsb_line;
+mod ln0741_init_d_script_has_bad_start_runlevel;
+mod ln0742_init_d_script_has_duplicate_lsb_keyword;
+mod ln0743_init_d_script_has_duplicate_lsb_section;
+mod ln0744_init_d_script_has_unknown_lsb_keyword;
+mod ln0745_init_d_script_has_unterminated_lsb_section;
+mod ln0746_init_d_script_missing_lsb_keyword;
+mod ln0791_init_d_script_missing_dependency_on_local_fs;
+mod ln0792_init_d_script_missing_start;
+mod ln0793_init_d_script_not_included_in_package;
+mod ln0794_init_d_script_not_marked_as_conffile;
+mod ln0795_init_d_script_provides_virtual_facility;
+mod ln0796_init_d_script_sourcing_without_test;
+pub(in crate::lint::rules::lintian) mod systemd_unit;
+
+pub(crate) use ln0230_init_d_script_does_not_implement_required_option::InitDScriptDoesNotImplementRequiredOption;
+pub(crate) use ln0231_init_d_script_stops_in_s_runlevel::InitDScriptStopsInSRunlevel;
+pub(crate) use ln0232_init_d_script_missing_lsb_section::InitDScriptMissingLsbSection;
+pub(crate) use ln0233_systemd_service_file_refers_to_obsolete_target::SystemdServiceFileRefersToObsoleteTarget;
+pub(crate) use ln0234_missing_systemd_service_for_init_d_rcs_script::MissingSystemdServiceForInitDRcSScript;
+pub(crate) use ln0235_systemd_service_file_wraps_init_script::SystemdServiceFileWrapsInitScript;
+pub(crate) use ln0288_init_d_script_has_conflicting_start_stop::InitDScriptHasConflictingStartStop;
+pub(crate) use ln0289_init_d_script_has_bad_stop_runlevel::InitDScriptHasBadStopRunlevel;
+pub(crate) use ln0290_init_d_script_should_always_start_service::InitDScriptShouldAlwaysStartService;
+pub(crate) use ln0291_non_virtual_facility_in_initd_script::NonVirtualFacilityInInitdScript;
+pub(crate) use ln0292_init_d_script_depends_on_all_virtual_facility::InitDScriptDependsOnAllVirtualFacility;
+pub(crate) use ln0293_init_d_script_possible_missing_stop::InitDScriptPossibleMissingStop;
+pub(crate) use ln0294_init_d_script_starts_in_stop_runlevel::InitDScriptStartsInStopRunlevel;
+pub(crate) use ln0440_init_d_script_has_bad_lsb_line::InitDScriptHasBadLsbLine;
+pub(crate) use ln0741_init_d_script_has_bad_start_runlevel::InitDScriptHasBadStartRunlevel;
+pub(crate) use ln0742_init_d_script_has_duplicate_lsb_keyword::InitDScriptHasDuplicateLsbKeyword;
+pub(crate) use ln0743_init_d_script_has_duplicate_lsb_section::InitDScriptHasDuplicateLsbSection;
+pub(crate) use ln0744_init_d_script_has_unknown_lsb_keyword::InitDScriptHasUnknownLsbKeyword;
+pub(crate) use ln0745_init_d_script_has_unterminated_lsb_section::InitDScriptHasUnterminatedLsbSection;
+pub(crate) use ln0746_init_d_script_missing_lsb_keyword::InitDScriptMissingLsbKeyword;
+pub(crate) use ln0791_init_d_script_missing_dependency_on_local_fs::InitDScriptMissingDependencyOnLocalFs;
+pub(crate) use ln0792_init_d_script_missing_start::InitDScriptMissingStart;
+pub(crate) use ln0793_init_d_script_not_included_in_package::InitDScriptNotIncludedInPackage;
+pub(crate) use ln0794_init_d_script_not_marked_as_conffile::InitDScriptNotMarkedAsConffile;
+pub(crate) use ln0795_init_d_script_provides_virtual_facility::InitDScriptProvidesVirtualFacility;
+pub(crate) use ln0796_init_d_script_sourcing_without_test::InitDScriptSourcingWithoutTest;

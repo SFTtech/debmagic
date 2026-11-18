@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): redundant-installation-prerequisite (LN0572) (in section for example) Depends -> Pre-Depends gawk | awk
+W: example (source): redundant-installation-prerequisite (LN0572) (in section for example) Recommends -> Depends foo
+W: example (source): redundant-installation-prerequisite (LN0572) (in section for example) Suggests -> Depends foo
+W: example (source): redundant-installation-prerequisite (LN0572) (in section for example) Suggests -> Recommends foo
+W: example (source): redundant-installation-prerequisite (LN0572) (in section for example) Suggests -> Depends foo (>= 1)
+W: example (source): redundant-installation-prerequisite (LN0572) (in section for example) Suggests -> Depends foo
+W: example (source): redundant-installation-prerequisite (LN0572) (in section for example) Recommends -> Depends ${shlibs:Depends}
+W: example (source): redundant-installation-prerequisite (LN0572) (in section for example) Recommends -> Depends bar | baz
+W: example (source): redundant-installation-prerequisite (LN0572) (in section for one) Suggests -> Depends x
+W: example (source): redundant-installation-prerequisite (LN0572) (in section for two) Suggests -> Recommends y

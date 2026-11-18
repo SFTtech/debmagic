@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): archive-liberty-mismatch (LN0389) (in section for example-main) main vs contrib [debian/control]
+E: example (source): archive-liberty-mismatch (LN0389) (in section for example-nonfree) non-free vs main [debian/control]
+E: example (source): archive-liberty-mismatch (LN0389) (in source paragraph) main -> non-free [debian/control]
+E: example (source): archive-liberty-mismatch (LN0389) (in source paragraph) main -> contrib [debian/control]

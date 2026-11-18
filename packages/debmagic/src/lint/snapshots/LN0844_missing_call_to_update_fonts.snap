@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): missing-call-to-update-fonts (LN0844) usr/share/fonts/X11/Type1/foo.afm [postinst]
+W: example (binary): missing-call-to-update-fonts (LN0844) usr/share/fonts/X11/Type1/foo.pcf.gz [postinst]
+W: example (binary): missing-call-to-update-fonts (LN0844) usr/share/fonts/X11/Type1/foo.afm [postinst]
+W: example (binary): missing-call-to-update-fonts (LN0844) usr/share/fonts/X11/Type1/foo.afm [postinst]
+W: example (binary): missing-call-to-update-fonts (LN0844) usr/share/fonts/X11/Type1/bar.pfb [postinst]
+W: example (binary): missing-call-to-update-fonts (LN0844) usr/share/fonts/X11/Type1/baz.pfa [postinst]
+W: example (binary): missing-call-to-update-fonts (LN0844) usr/share/fonts/X11/Type1/foo.afm [postinst]

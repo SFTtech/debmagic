@@ -1,0 +1,17 @@
+Source: rules-override-dh-foo-does-not-call-dh-foo-unrel
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Homepage: https://lintian.debian.org/
+
+Package: rules-override-dh-foo-does-not-call-dh-foo-unrel
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test for missing calls to dh_foo in override_dh_foo (false positives)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.
+ .
+ This package probably has no meaningful contents.

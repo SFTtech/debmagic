@@ -1,0 +1,2 @@
+nmu-ubuntu-native (source): source-nmu-has-incorrect-version-number 1.0 [debian/changelog:1]
+nmu-ubuntu-native (source): no-nmu-in-changelog [debian/changelog:1]

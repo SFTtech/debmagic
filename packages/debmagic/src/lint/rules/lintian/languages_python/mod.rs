@@ -1,0 +1,35 @@
+//! Rules for lintian's `languages/python` Check.
+//!
+//! `python_version` reads the `X-Python-Version` and `X-Python3-Version`
+//! fields. The path Rules match installed names on their own.
+
+mod ln0093_ancient_python_version_field;
+mod ln0103_malformed_python_version;
+mod ln0104_python_version_current_is_deprecated;
+mod ln0105_source_package_encodes_python_version;
+mod ln0129_package_installs_deprecated_python2_path;
+mod ln0130_file_in_usr_lib_site_python;
+mod ln0131_third_party_package_in_python_dir;
+mod ln0386_unknown_file_in_python_module_directory;
+mod ln0452_python_package_missing_depends_on_python;
+mod ln0476_bogus_python_prerequisite;
+mod ln0479_embedded_feedparser_library;
+mod ln0501_python_module_has_overly_generic_name;
+mod ln0814_script_uses_unversioned_python_in_shebang;
+mod ln0819_duplicate_p3dist_override;
+mod python_version;
+
+pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;
+pub(crate) use ln0103_malformed_python_version::MalformedPythonVersion;
+pub(crate) use ln0104_python_version_current_is_deprecated::PythonVersionCurrentIsDeprecated;
+pub(crate) use ln0105_source_package_encodes_python_version::SourcePackageEncodesPythonVersion;
+pub(crate) use ln0129_package_installs_deprecated_python2_path::PackageInstallsDeprecatedPython2Path;
+pub(crate) use ln0130_file_in_usr_lib_site_python::FileInUsrLibSitePython;
+pub(crate) use ln0131_third_party_package_in_python_dir::ThirdPartyPackageInPythonDir;
+pub(crate) use ln0386_unknown_file_in_python_module_directory::UnknownFileInPythonModuleDirectory;
+pub(crate) use ln0452_python_package_missing_depends_on_python::PythonPackageMissingDependsOnPython;
+pub(crate) use ln0476_bogus_python_prerequisite::BogusPythonPrerequisite;
+pub(crate) use ln0479_embedded_feedparser_library::EmbeddedFeedparserLibrary;
+pub(crate) use ln0501_python_module_has_overly_generic_name::PythonModuleHasOverlyGenericName;
+pub(crate) use ln0814_script_uses_unversioned_python_in_shebang::ScriptUsesUnversionedPythonInShebang;
+pub(crate) use ln0819_duplicate_p3dist_override::DuplicateP3distOverride;

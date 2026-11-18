@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): desktop-entry-uses-reserved-category (LN0258) Screensaver [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-uses-reserved-category (LN0258) TrayIcon [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-uses-reserved-category (LN0258) Applet [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-uses-reserved-category (LN0258) Shell [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-uses-reserved-category (LN0258) Screensaver [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-uses-reserved-category (LN0258) Screensaver [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-uses-reserved-category (LN0258) Screensaver [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-uses-reserved-category (LN0258) Applet [usr/share/applications/foo.desktop]
+W: example (udeb): desktop-entry-uses-reserved-category (LN0258) Screensaver [usr/share/applications/foo.desktop]

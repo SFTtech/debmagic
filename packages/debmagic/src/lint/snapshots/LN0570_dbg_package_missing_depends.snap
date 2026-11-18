@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): dbg-package-missing-depends (LN0570) example-dbg
+W: example (source): dbg-package-missing-depends (LN0570) example-dbg
+W: example (source): dbg-package-missing-depends (LN0570) example-dbg
+W: example (source): dbg-package-missing-depends (LN0570) other-dbg
+W: example (source): dbg-package-missing-depends (LN0570) example-old-dbg

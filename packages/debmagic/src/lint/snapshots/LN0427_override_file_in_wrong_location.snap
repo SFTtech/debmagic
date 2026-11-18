@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): override-file-in-wrong-location (LN0427) [usr/share/doc/example/override.lintian]
+E: example (binary): override-file-in-wrong-location (LN0427) [usr/share/doc/example/override.Lintian.gz]
+E: example (binary): override-file-in-wrong-location (LN0427) [usr/share/lintian/overrides/example/some-override]

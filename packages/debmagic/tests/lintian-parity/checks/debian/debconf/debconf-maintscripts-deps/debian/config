@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+db_get debconf/translated
+db_go
+

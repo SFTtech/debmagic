@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): description-synopsis-is-duplicated (LN0227) line 1
+E: example (binary): description-synopsis-is-duplicated (LN0227) line 1
+E: example (binary): description-synopsis-is-duplicated (LN0227) line 1
+E: example (binary): description-synopsis-is-duplicated (LN0227) line 1
+E: example (udeb): description-synopsis-is-duplicated (LN0227) line 1

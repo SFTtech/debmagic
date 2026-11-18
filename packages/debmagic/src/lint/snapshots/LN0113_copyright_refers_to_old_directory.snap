@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): copyright-refers-to-old-directory (LN0113)

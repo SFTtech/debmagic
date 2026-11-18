@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): git-patches-not-exported (LN0760) [debian/source/git-patches]

@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): wrong-compression-in-manual-page (LN0154) [usr/share/man/man1/pretend-compress.1.gz]
+E: example (binary): wrong-compression-in-manual-page (LN0154) [usr/share/man/man1/usr-bin-binary-alt.1.gz]
+E: example (binary): wrong-compression-in-manual-page (LN0154) [usr/share/man/de/man1/foo.1.gz]
+E: example (binary): wrong-compression-in-manual-page (LN0154) [usr/share/man/man1/usr-bin-binary-alt.1.gz]
+E: example (binary): wrong-compression-in-manual-page (LN0154) [usr/share/man/man1/empty.1.gz]
+E: example (binary): wrong-compression-in-manual-page (LN0154) [usr/share/man/man1/foo.1.gz.]
+E: example (binary): wrong-compression-in-manual-page (LN0154) [usr/share/man/man1/gz]
+E: example (binary): wrong-compression-in-manual-page (LN0154) [usr/share/man/man1/short.1.gz]
+E: example (binary): wrong-compression-in-manual-page (LN0154) [usr/share/man/man3/bad.3.gz]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-python-tests-in-global-namespace (LN0086) [usr/lib/python3/dist-packages/test_foo.py]
+W: example (binary): package-contains-python-tests-in-global-namespace (LN0086) [usr/lib/python3/site-packages/test_bar.py]
+W: example (udeb): package-contains-python-tests-in-global-namespace (LN0086) [usr/lib/python3/dist-packages/test_foo.py]

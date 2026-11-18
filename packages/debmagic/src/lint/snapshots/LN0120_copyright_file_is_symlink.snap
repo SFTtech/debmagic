@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): copyright-file-is-symlink (LN0120) [usr/share/doc/example/copyright]

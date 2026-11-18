@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-patch-failure-file (LN0146) [foo.orig]
+W: example (source): debian-adds-patch-failure-file (LN0146) [foo.rej]
+W: example (source): debian-adds-patch-failure-file (LN0146) [debian/foo.rej]
+W: example (source): debian-adds-patch-failure-file (LN0146) [dir/x.rej]
+W: example (source): debian-adds-patch-failure-file (LN0146) [foo~.orig]
+W: example (source): debian-adds-patch-failure-file (LN0146) [.pc/foo.orig]

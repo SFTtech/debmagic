@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): killall-is-dangerous (LN0811) [postinst:2]
+W: example (binary): killall-is-dangerous (LN0811) [postrm:3]
+W: example (binary): killall-is-dangerous (LN0811) [postinst:3]
+W: example (binary): killall-is-dangerous (LN0811) [postinst:2]
+W: example (udeb): killall-is-dangerous (LN0811) [postinst:2]

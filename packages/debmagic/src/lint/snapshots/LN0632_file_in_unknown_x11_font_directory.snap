@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): file-in-unknown-x11-font-directory (LN0632) [usr/share/fonts/X11/other/foo.pcf.gz]
+E: example (binary): file-in-unknown-x11-font-directory (LN0632) [usr/share/fonts/X11/Misc/foo]
+E: example (binary): file-in-unknown-x11-font-directory (LN0632) [usr/share/fonts/X11/other/nested/foo]
+E: example (udeb): file-in-unknown-x11-font-directory (LN0632) [usr/share/fonts/X11/other/foo]

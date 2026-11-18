@@ -324,6 +324,7 @@ use super::rules::DiversionForUnknownFile;
 use super::rules::ExecutableNotElfOrScript;
 use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
+use super::rules::OrphanedDiversion;
 use super::rules::ScriptWithoutInterpreter;
 use super::rules::RelativeLibrarySearchPath;
 use super::rules::StaticallyLinkedBinary;
@@ -935,6 +936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SharedobjectInLibraryDirectoryMissingSoname,
         &MissingBuildDependencyForDhAddon,
         &PhpScriptButNoPhpCliDep,
+        &OrphanedDiversion,
     ]
 }
 
@@ -1567,6 +1569,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UnusualInterpreter,
         &SharedobjectInLibraryDirectoryMissingSoname,
         &PhpScriptButNoPhpCliDep,
+        &OrphanedDiversion,
     ]
 }
 
@@ -2216,6 +2219,7 @@ mod tests {
                 UnusualInterpreter::CODE,
                 SharedobjectInLibraryDirectoryMissingSoname::CODE,
                 PhpScriptButNoPhpCliDep::CODE,
+                OrphanedDiversion::CODE,
             ]
         );
     }

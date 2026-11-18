@@ -1635,6 +1635,7 @@ Rules
                 crate::lint::rules::NfsTemporaryFileInPackage::CODE,
                 crate::lint::rules::NmuInChangelog::CODE,
                 crate::lint::rules::MaintainerUploadHasIncorrectVersionNumber::CODE,
+                crate::lint::rules::BinaryNmuDebianRevisionInSource::CODE,
             ]
         );
         let intent = LintIntent {

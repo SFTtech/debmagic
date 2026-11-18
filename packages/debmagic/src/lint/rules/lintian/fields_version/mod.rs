@@ -8,9 +8,11 @@ use crate::lint::context::SourceContext;
 
 mod ln0373_debian_revision_is_zero;
 mod ln0374_debian_revision_not_well_formed;
+mod ln0755_binary_nmu_debian_revision_in_source;
 
 pub(crate) use ln0373_debian_revision_is_zero::DebianRevisionIsZero;
 pub(crate) use ln0374_debian_revision_not_well_formed::DebianRevisionNotWellFormed;
+pub(crate) use ln0755_binary_nmu_debian_revision_in_source::BinaryNmuDebianRevisionInSource;
 
 /// The Version of a Source package (its Dsc) or of a Source tree (the newest
 /// changelog heading). `None` when neither gives one.

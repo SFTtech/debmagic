@@ -1,6 +1,7 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::AlienTag;
 use super::rules::BadVersionInRelation;
+use super::rules::BinaryNmuDebianRevisionInSource;
 use super::rules::BinaryPackageDependsOnToolchainPackage;
 use super::rules::BreaksWithoutVersion;
 use super::rules::BuildDependsArchWithoutArchDependentBinary;
@@ -995,6 +996,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NfsTemporaryFileInPackage,
         &NmuInChangelog,
         &MaintainerUploadHasIncorrectVersionNumber,
+        &BinaryNmuDebianRevisionInSource,
     ]
 }
 
@@ -1213,6 +1215,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &CustomCompressionInDebianSourceOptions,
         &NmuInChangelog,
         &MaintainerUploadHasIncorrectVersionNumber,
+        &BinaryNmuDebianRevisionInSource,
     ]
 }
 
@@ -1885,6 +1888,7 @@ mod tests {
                 CustomCompressionInDebianSourceOptions::CODE,
                 NmuInChangelog::CODE,
                 MaintainerUploadHasIncorrectVersionNumber::CODE,
+                BinaryNmuDebianRevisionInSource::CODE,
             ]
         );
     }

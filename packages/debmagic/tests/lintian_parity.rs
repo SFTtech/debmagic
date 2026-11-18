@@ -221,6 +221,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
+    "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
     "checks/files/artifact/cruft-general-diff",
@@ -831,6 +832,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
+    "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
     "checks/files/artifact/cruft-general-diff",
@@ -1127,6 +1129,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
+#[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
@@ -1739,6 +1742,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
+#[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]

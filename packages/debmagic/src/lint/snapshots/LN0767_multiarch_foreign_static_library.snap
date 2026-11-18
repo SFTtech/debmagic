@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): multiarch-foreign-static-library (LN0767) [usr/lib/x86_64-linux-gnu/libfoo.a]
+E: example (binary): multiarch-foreign-static-library (LN0767) [usr/lib/x86_64-linux-gnu/liba.a]
+E: example (binary): multiarch-foreign-static-library (LN0767) [usr/lib/x86_64-linux-gnu/libbar.a]
+E: example (binary): multiarch-foreign-static-library (LN0767) [usr/lib/x86_64-linux-gnu/libfoo.a]
+E: example (binary): multiarch-foreign-static-library (LN0767) [usr/lib/x86_64-linux-gnu/libfoo.a]
+E: example (binary): multiarch-foreign-static-library (LN0767) [usr/lib/x86_64-linux-gnu/libhard.a]
+E: example (udeb): multiarch-foreign-static-library (LN0767) [usr/lib/x86_64-linux-gnu/libfoo.a]

@@ -157,9 +157,7 @@ pub(crate) use apache2::{
     Apache2UnparsableDependency, NonStandardApache2ConfigurationName,
 };
 pub(crate) use archive_liberty::ArchiveLibertyMismatch;
-pub(crate) use autotools::{
-    AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,
-};
+pub(crate) use autotools::{AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe};
 pub(crate) use binaries_location::{
     ArchDependentFileInUsrShare, ArchDependentFileNotInArchSpecificDirectory,
 };

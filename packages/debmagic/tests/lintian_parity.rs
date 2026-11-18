@@ -10,7 +10,6 @@ use test_case::test_case;
 const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/archive/liberty/mismatch/fields-section-general",
     "checks/archive/liberty/mismatch/legacy-relations",
-    "checks/build-systems/autotools/cruft-general-test-suite",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool-2",
     "checks/build-systems/autotools/macro-not-cross-compilation-safe",
@@ -679,7 +678,6 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
 const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/archive/liberty/mismatch/fields-section-general",
     "checks/archive/liberty/mismatch/legacy-relations",
-    "checks/build-systems/autotools/cruft-general-test-suite",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool-2",
     "checks/build-systems/autotools/macro-not-cross-compilation-safe",
@@ -1002,7 +1000,6 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
-#[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool-2"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool_2")]
 #[test_case("checks/build-systems/autotools/macro-not-cross-compilation-safe"; "checks_build_systems_autotools_macro_not_cross_compilation_safe")]
@@ -1673,7 +1670,6 @@ fn lintian_parity_binary_package(recipe: &str) {
 
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
-#[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool-2"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool_2")]
 #[test_case("checks/build-systems/autotools/macro-not-cross-compilation-safe"; "checks_build_systems_autotools_macro_not_cross_compilation_safe")]

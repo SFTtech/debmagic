@@ -57,13 +57,18 @@ pub(super) enum NameHit {
     NotUtf8,
 }
 
-pub(super) fn name_hits(path: &Path, kind: EntryKind) -> Vec<NameHit> {
-    // The Check's `if (PATH directory) ... elsif (!valid_utf8(name))`.
-    let in_path_directory = path.parent().is_some_and(|parent| {
+/// The file sits directly in one of the Check's PATH directories.
+pub(super) fn in_path_directory(path: &Path) -> bool {
+    path.parent().is_some_and(|parent| {
         PATH_DIRECTORIES.iter().any(|dir| {
             parent.as_os_str().as_encoded_bytes() == dir.trim_end_matches('/').as_bytes()
         })
-    });
+    })
+}
+
+pub(super) fn name_hits(path: &Path, kind: EntryKind) -> Vec<NameHit> {
+    // The Check's `if (PATH directory) ... elsif (!valid_utf8(name))`.
+    let in_path_directory = in_path_directory(path);
     let Some(raw) = path.to_str() else {
         return if in_path_directory {
             vec![NameHit::PathNotAscii]

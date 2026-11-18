@@ -476,6 +476,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/names/files-python-dot-directory",
     "checks/files/names/files-tar-traps",
     "checks/files/names/files-wildcard-characters",
+    "checks/files/names/files-zero-byte-executable-in-path",
     "checks/files/names/legacy-binary",
     "checks/files/names/legacy-filenames",
     "checks/files/names/npm-ignore-file",
@@ -1354,6 +1355,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/names/files-python-dot-directory"; "checks_files_names_files_python_dot_directory")]
 #[test_case("checks/files/names/files-tar-traps"; "checks_files_names_files_tar_traps")]
 #[test_case("checks/files/names/files-wildcard-characters"; "checks_files_names_files_wildcard_characters")]
+#[test_case("checks/files/names/files-zero-byte-executable-in-path"; "checks_files_names_files_zero_byte_executable_in_path")]
 #[test_case("checks/files/names/legacy-binary"; "checks_files_names_legacy_binary")]
 #[test_case("checks/files/names/legacy-filenames"; "checks_files_names_legacy_filenames")]
 #[test_case("checks/files/names/npm-ignore-file"; "checks_files_names_npm_ignore_file")]

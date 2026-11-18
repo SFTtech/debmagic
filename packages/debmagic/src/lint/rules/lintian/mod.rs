@@ -304,6 +304,7 @@ pub(crate) use files_names::{
     PackageContainsPythonDotDirectory, PackageContainsPythonHeaderInIncorrectDirectory,
     PackageContainsPythonHypothesisExample, PackageContainsPythonTestsInGlobalNamespace,
     PackageContainsSassCacheDirectory, ShippedFileWithoutUtf8Name, StarFile,
+    ZeroByteExecutableInPath,
 };
 pub(crate) use files_permissions::NonStandardExecutablePerm;
 pub(crate) use files_symbolic_links::{

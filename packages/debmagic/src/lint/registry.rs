@@ -339,6 +339,7 @@ use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::PhpScriptButNoPhpCliDep;
 use super::rules::RemoveOfUnknownDiversion;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
+use super::rules::ZeroByteExecutableInPath;
 use super::rules::ZeroByteFileInDocDirectory;
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
@@ -951,6 +952,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ArchDependentFileNotInArchSpecificDirectory,
         &PatchSystemButNoSourceReadme,
         &DirOrFileInBuildTree,
+        &ZeroByteExecutableInPath,
     ]
 }
 
@@ -1591,6 +1593,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &RemoveOfUnknownDiversion,
         &ArchDependentFileNotInArchSpecificDirectory,
         &DirOrFileInBuildTree,
+        &ZeroByteExecutableInPath,
     ]
 }
 
@@ -2248,6 +2251,7 @@ mod tests {
                 RemoveOfUnknownDiversion::CODE,
                 ArchDependentFileNotInArchSpecificDirectory::CODE,
                 DirOrFileInBuildTree::CODE,
+                ZeroByteExecutableInPath::CODE,
             ]
         );
     }

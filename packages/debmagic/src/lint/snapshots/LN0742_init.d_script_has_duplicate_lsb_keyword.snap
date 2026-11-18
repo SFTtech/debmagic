@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-has-duplicate-lsb-keyword (LN0742) short-description [etc/init.d/short:4]
+W: example (binary): init.d-script-has-duplicate-lsb-keyword (LN0742) x-foo [etc/init.d/case:4]
+W: example (binary): init.d-script-has-duplicate-lsb-keyword (LN0742) x-foo [etc/init.d/case:5]
+W: example (binary): init.d-script-has-duplicate-lsb-keyword (LN0742) provides [etc/init.d/unterminated:4]
+W: example (udeb): init.d-script-has-duplicate-lsb-keyword (LN0742) provides [etc/init.d/udeb-script:4]

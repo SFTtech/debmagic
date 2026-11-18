@@ -56,12 +56,28 @@ pub(super) struct LsbHeader {
     pub should_stop: Vec<String>,
 }
 
+/// The first LSB section, read the way the init-d check reads it. Lines are
+/// 1-based. A line that ends a section is consumed, so it is not read again as
+/// a marker.
+#[derive(Debug, Default)]
+pub(super) struct LsbSection {
+    /// A `### BEGIN INIT INFO` marker was seen.
+    pub begun: bool,
+    /// Keyword lines of the first section, in order, lowercased.
+    pub keywords: Vec<(u32, String)>,
+    /// Markers after the first section ended.
+    pub duplicate_sections: Vec<u32>,
+    /// The line that ended the first section without an END marker.
+    pub unterminated: Option<u32>,
+}
+
 pub(super) struct InitDScript {
     pub path: PathBuf,
     pub missing_commands: Vec<&'static str>,
     pub has_lsb: bool,
     pub stops_in_s: usize,
     pub lsb: LsbHeader,
+    pub section: LsbSection,
 }
 
 /// A matching line in a direct child of `etc/default`.
@@ -95,6 +111,7 @@ pub(super) fn init_d_scripts(
                 path: entry.path().to_path_buf(),
                 missing_commands: missing_commands(&text),
                 has_lsb: has_lsb_section(&text),
+                section: lsb_section(&text),
                 stops_in_s: lsb
                     .default_stop
                     .iter()
@@ -283,6 +300,45 @@ fn lsb_header(text: &str) -> LsbHeader {
         break;
     }
     header
+}
+
+/// Walks the file as the init-d check does: markers outside a section, then the
+/// keyword lines of the first section until its END marker or a non-comment
+/// line.
+fn lsb_section(text: &str) -> LsbSection {
+    let mut section = LsbSection::default();
+    let lines: Vec<&str> = text.lines().collect();
+    let mut index = 0;
+    while index < lines.len() {
+        let line = lines[index];
+        index += 1;
+        if !line.starts_with("### BEGIN INIT INFO") {
+            continue;
+        }
+        if section.begun {
+            section.duplicate_sections.push(index as u32);
+            continue;
+        }
+        section.begun = true;
+        while index < lines.len() {
+            let inner = lines[index];
+            index += 1;
+            let position = index as u32;
+            if inner.starts_with("### END INIT INFO") {
+                break;
+            }
+            if !inner.starts_with('#') {
+                section.unterminated = Some(position);
+                break;
+            }
+            if let Some(caps) = LSB_KEYWORD.captures(inner) {
+                section
+                    .keywords
+                    .push((position, caps[1].to_ascii_lowercase()));
+            }
+        }
+    }
+    section
 }
 
 /// Lines inside the first LSB section that are not a keyword or a

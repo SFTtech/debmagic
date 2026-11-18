@@ -373,6 +373,7 @@ use super::rules::InitDScriptHasDuplicateLsbSection;
 use super::rules::InitDScriptHasUnknownLsbKeyword;
 use super::rules::InitDScriptHasUnterminatedLsbSection;
 use super::rules::InitDScriptMissingLsbKeyword;
+use super::rules::InvalidDep3FormatPatchBugFieldDefaultValue;
 use super::rules::MissingDebianSourceFormat;
 use super::rules::MultiarchForeignCmakeFile;
 use super::rules::MultiarchForeignSharedLibrary;
@@ -1049,6 +1050,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MaintainerAlsoInUploaders,
         &MissingDebianSourceFormat,
         &GitPatchesNotExported,
+        &InvalidDep3FormatPatchBugFieldDefaultValue,
     ]
 }
 
@@ -1275,6 +1277,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MaintainerAlsoInUploaders,
         &MissingDebianSourceFormat,
         &GitPatchesNotExported,
+        &InvalidDep3FormatPatchBugFieldDefaultValue,
     ]
 }
 
@@ -2446,6 +2449,7 @@ mod tests {
                 DocumentationPackageNotArchitectureIndependent::CODE,
                 MissingDebianSourceFormat::CODE,
                 GitPatchesNotExported::CODE,
+                InvalidDep3FormatPatchBugFieldDefaultValue::CODE,
             ]
         );
     }

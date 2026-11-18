@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): bugs-field-does-not-refer-to-debian-infrastructure (LN0801) https://upstream.org/
+W: example (binary): bugs-field-does-not-refer-to-debian-infrastructure (LN0801) mailto:bugs@example.com
+W: example (binary): bugs-field-does-not-refer-to-debian-infrastructure (LN0801) https://debian-org.example.com/
+W: example (udeb): bugs-field-does-not-refer-to-debian-infrastructure (LN0801) https://upstream.org/

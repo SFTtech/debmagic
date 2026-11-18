@@ -194,7 +194,6 @@ impl LintianOverrides {
     }
 
     /// Lines that are not overrides, in file order.
-    #[allow(dead_code)]
     pub fn errors(&self) -> &[OverrideError] {
         &self.errors
     }
@@ -234,12 +233,10 @@ impl LintianOverride {
 }
 
 impl OverrideError {
-    #[allow(dead_code)]
     pub fn line(&self) -> u32 {
         self.line
     }
 
-    #[allow(dead_code)]
     pub fn message(&self) -> &str {
         &self.message
     }

@@ -109,6 +109,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/filenames/duplicate-news-files",
     "checks/debian/filenames/news-has-debian-extension",
     "checks/debian/line-separators/cruft-crlf-eols",
+    "checks/debian/lintian-overrides/malformed/missing-colon",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
@@ -773,6 +774,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/filenames/duplicate-news-files",
     "checks/debian/filenames/news-has-debian-extension",
     "checks/debian/line-separators/cruft-crlf-eols",
+    "checks/debian/lintian-overrides/malformed/missing-colon",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
@@ -1090,6 +1092,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/filenames/duplicate-news-files"; "checks_debian_filenames_duplicate_news_files")]
 #[test_case("checks/debian/filenames/news-has-debian-extension"; "checks_debian_filenames_news_has_debian_extension")]
 #[test_case("checks/debian/line-separators/cruft-crlf-eols"; "checks_debian_line_separators_cruft_crlf_eols")]
+#[test_case("checks/debian/lintian-overrides/malformed/missing-colon"; "checks_debian_lintian_overrides_malformed_missing_colon")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
@@ -1756,6 +1759,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/filenames/duplicate-news-files"; "checks_debian_filenames_duplicate_news_files")]
 #[test_case("checks/debian/filenames/news-has-debian-extension"; "checks_debian_filenames_news_has_debian_extension")]
 #[test_case("checks/debian/line-separators/cruft-crlf-eols"; "checks_debian_line_separators_cruft_crlf_eols")]
+#[test_case("checks/debian/lintian-overrides/malformed/missing-colon"; "checks_debian_lintian_overrides_malformed_missing_colon")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]

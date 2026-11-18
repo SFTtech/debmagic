@@ -394,6 +394,7 @@ use super::rules::MultiarchForeignStaticLibrary;
 use super::rules::NoNewlineAtEnd;
 use super::rules::NonConfFileInModprobeD;
 use super::rules::NonEmptyDependencyLibsInLaFile;
+use super::rules::ObsoleteCommentsStyleInPhpIni;
 use super::rules::OcamlDanglingCmxa;
 use super::rules::OcamlDanglingCmxs;
 use super::rules::OddStaticLibraryName;
@@ -1097,6 +1098,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OcamlDanglingCmxs,
         &PerlModuleInCoreDirectory,
         &DuplicateP3distOverride,
+        &ObsoleteCommentsStyleInPhpIni,
     ]
 }
 
@@ -1811,6 +1813,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OcamlDanglingCmxa,
         &OcamlDanglingCmxs,
         &PerlModuleInCoreDirectory,
+        &ObsoleteCommentsStyleInPhpIni,
     ]
 }
 
@@ -2542,6 +2545,7 @@ mod tests {
                 OcamlDanglingCmxa::CODE,
                 OcamlDanglingCmxs::CODE,
                 PerlModuleInCoreDirectory::CODE,
+                ObsoleteCommentsStyleInPhpIni::CODE,
             ]
         );
     }

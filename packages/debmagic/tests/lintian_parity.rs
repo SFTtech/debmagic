@@ -566,6 +566,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/perl/files-foo-in-bar",
     "checks/languages/perl/legacy-filenames",
     "checks/languages/php/embedded/files-embedded",
+    "checks/languages/php/files-general",
     "checks/languages/python/bogus-prerequisites/what-is-python-depends",
     "checks/languages/python/feedparser/files-embedded",
     "checks/languages/python/feedparser/legacy-filenames",
@@ -1522,6 +1523,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
 #[test_case("checks/languages/perl/legacy-filenames"; "checks_languages_perl_legacy_filenames")]
 #[test_case("checks/languages/php/embedded/files-embedded"; "checks_languages_php_embedded_files_embedded")]
+#[test_case("checks/languages/php/files-general"; "checks_languages_php_files_general")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_depends")]
 #[test_case("checks/languages/python/feedparser/files-embedded"; "checks_languages_python_feedparser_files_embedded")]
 #[test_case("checks/languages/python/feedparser/legacy-filenames"; "checks_languages_python_feedparser_legacy_filenames")]

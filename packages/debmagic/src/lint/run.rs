@@ -1685,6 +1685,7 @@ Rules
                 crate::lint::rules::OcamlDanglingCmxa::CODE,
                 crate::lint::rules::OcamlDanglingCmxs::CODE,
                 crate::lint::rules::PerlModuleInCoreDirectory::CODE,
+                crate::lint::rules::ObsoleteCommentsStyleInPhpIni::CODE,
             ]
         );
         let intent = LintIntent {

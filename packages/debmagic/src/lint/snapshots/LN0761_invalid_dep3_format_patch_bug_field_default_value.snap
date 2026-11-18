@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): invalid-dep3-format-patch-bug-field-default-value (LN0761) [debian/patches/fix.patch]
+E: (source): invalid-dep3-format-patch-bug-field-default-value (LN0761) [debian/patches/fix.patch]
+E: (source): invalid-dep3-format-patch-bug-field-default-value (LN0761) [debian/patches/fix.patch]
+E: (source): invalid-dep3-format-patch-bug-field-default-value (LN0761) [debian/patches/one.patch]
+E: (source): invalid-dep3-format-patch-bug-field-default-value (LN0761) [debian/patches/two.patch]

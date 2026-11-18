@@ -1675,6 +1675,7 @@ Rules
                 crate::lint::rules::NonConfFileInModprobeD::CODE,
                 crate::lint::rules::OldDevhelpStandard::CODE,
                 crate::lint::rules::DuplicateChangelogFiles::CODE,
+                crate::lint::rules::NoNewlineAtEnd::CODE,
             ]
         );
         let intent = LintIntent {

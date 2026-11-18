@@ -340,6 +340,7 @@ use super::rules::WrongPathForInterpreter;
 
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::PhpScriptButNoPhpCliDep;
+use super::rules::PkgConfigMultiArchWrongDir;
 use super::rules::PkgConfigUnavailableForCrossCompilation;
 use super::rules::RemoveOfUnknownDiversion;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
@@ -961,6 +962,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PkgConfigBadDirective,
         &PkgConfigUnavailableForCrossCompilation,
         &RootInContact,
+        &PkgConfigMultiArchWrongDir,
     ]
 }
 
@@ -1607,6 +1609,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PkgConfigBadDirective,
         &PkgConfigUnavailableForCrossCompilation,
         &RootInContact,
+        &PkgConfigMultiArchWrongDir,
     ]
 }
 
@@ -2270,6 +2273,7 @@ mod tests {
                 PkgConfigBadDirective::CODE,
                 PkgConfigUnavailableForCrossCompilation::CODE,
                 RootInContact::CODE,
+                PkgConfigMultiArchWrongDir::CODE,
             ]
         );
     }

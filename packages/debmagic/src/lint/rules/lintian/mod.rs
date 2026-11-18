@@ -309,7 +309,9 @@ pub(crate) use files_names::{
     ZeroByteExecutableInPath,
 };
 pub(crate) use files_permissions::NonStandardExecutablePerm;
-pub(crate) use files_pkgconfig::{PkgConfigBadDirective, PkgConfigUnavailableForCrossCompilation};
+pub(crate) use files_pkgconfig::{
+    PkgConfigBadDirective, PkgConfigMultiArchWrongDir, PkgConfigUnavailableForCrossCompilation,
+};
 pub(crate) use files_symbolic_links::{
     AbsoluteSymlinkInTopLevelFolder, CompressedSymlinkWithWrongExt, LengthySymlink,
     PackageContainsUnsafeSymlink, RelativeSymlink, SymlinkContainsSpuriousSegments,

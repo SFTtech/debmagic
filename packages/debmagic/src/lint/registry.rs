@@ -320,6 +320,7 @@ use super::rules::DescriptionIsDebmakeTemplate;
 use super::rules::DescriptionStartsWithLeadingSpaces;
 
 use super::rules::DiversionForUnknownFile;
+use super::rules::ExecutableNotElfOrScript;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::ScriptWithoutInterpreter;
 use super::rules::StaticallyLinkedBinary;
@@ -923,6 +924,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TruetypeFontProhibitsInstallableEmbedding,
         &ScriptWithoutInterpreter,
         &ZeroByteFileInDocDirectory,
+        &ExecutableNotElfOrScript,
     ]
 }
 
@@ -1549,6 +1551,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TruetypeFontProhibitsInstallableEmbedding,
         &ScriptWithoutInterpreter,
         &ZeroByteFileInDocDirectory,
+        &ExecutableNotElfOrScript,
     ]
 }
 
@@ -2192,6 +2195,7 @@ mod tests {
                 TruetypeFontProhibitsInstallableEmbedding::CODE,
                 ScriptWithoutInterpreter::CODE,
                 ZeroByteFileInDocDirectory::CODE,
+                ExecutableNotElfOrScript::CODE,
             ]
         );
     }

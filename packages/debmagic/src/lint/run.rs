@@ -1606,6 +1606,7 @@ Rules
                 crate::lint::rules::TruetypeFontProhibitsInstallableEmbedding::CODE,
                 crate::lint::rules::DiversionForUnknownFile::CODE,
                 crate::lint::rules::ZeroByteFileInDocDirectory::CODE,
+                crate::lint::rules::ExecutableNotElfOrScript::CODE,
             ]
         );
         let intent = LintIntent {

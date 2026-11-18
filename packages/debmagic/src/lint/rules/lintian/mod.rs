@@ -25,6 +25,7 @@ mod documentation;
 mod documentation_manual;
 mod documentation_texinfo;
 mod domain;
+mod executable;
 mod fields_mail_address;
 mod fields_package_relations;
 mod fields_relations_extra;
@@ -215,6 +216,7 @@ pub(crate) use documentation_manual::{
 pub(crate) use documentation_texinfo::{
     InfoDocumentMissingDirEntry, InfoDocumentMissingDirSection,
 };
+pub(crate) use executable::ExecutableNotElfOrScript;
 pub(crate) use fields_package_relations::{
     BuildDependsOn1Revision, BuildDependsOnBuildEssential, BuildDependsOnMetapackage,
     BuildDependsOnObsoletePackage, DependsExclusivelyOnMakedev, DependsOnObsoletePackage,

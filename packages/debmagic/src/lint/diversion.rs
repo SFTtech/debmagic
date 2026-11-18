@@ -126,12 +126,50 @@ impl DivertedPath {
     }
 }
 
+/// Declared additions of one path, in declaration order of the path.
+type Additions<'a> = Vec<(DivertedPath, &'a Diversion)>;
+
+/// Declared removals of one path, in declaration order of the path.
+type Removals<'a> = Vec<(DivertedPath, Vec<&'a Diversion>)>;
+
 /// Diversions declared by the maintainer scripts of one Binary package.
 #[derive(Debug, Default)]
 pub(crate) struct Diversions {
     declared: Vec<Diversion>,
     /// A declared path has a shell expansion.
     wildcards: bool,
+}
+
+/// One `--remove` call after lintian's merge.
+#[derive(Debug)]
+pub(crate) struct RemovedDiversion {
+    script: PathBuf,
+    line: u32,
+    path: DivertedPath,
+    wildcards: bool,
+    is_added: bool,
+}
+
+impl RemovedDiversion {
+    /// The maintainer script of the call, as a Control files path.
+    pub fn script(&self) -> &Path {
+        &self.script
+    }
+
+    /// 1-based last physical line of the call.
+    pub fn line(&self) -> u32 {
+        self.line
+    }
+
+    /// The diverted path as lintian prints it, see [`AddedDiversion::path`].
+    pub fn path(&self) -> String {
+        self.path.unquote(self.wildcards)
+    }
+
+    /// An added diversion of the same path survives the merge.
+    pub fn is_added(&self) -> bool {
+        self.is_added
+    }
 }
 
 /// An added diversion after lintian's merge: one per path, the last `--add`
@@ -226,22 +264,7 @@ impl Diversions {
     /// wildcard mode partway through at random. Here it does so for every
     /// added diversion.
     pub fn added(&self) -> Vec<AddedDiversion> {
-        let mut added: Vec<(DivertedPath, &Diversion)> = Vec::new();
-        let mut removed: Vec<(DivertedPath, Vec<&Diversion>)> = Vec::new();
-        for diversion in &self.declared {
-            match diversion.action {
-                DiversionAction::Add => insert(&mut added, diversion.path.clone(), diversion),
-                DiversionAction::Remove => {
-                    match removed.iter_mut().find(|(path, _)| *path == diversion.path) {
-                        Some((_, all)) => all.push(diversion),
-                        None => removed.push((diversion.path.clone(), vec![diversion])),
-                    }
-                }
-            }
-        }
-        if self.wildcards {
-            widen(&mut added, &mut removed);
-        }
+        let (added, removed) = self.merged();
         let wildcards = self.wildcards
             || added
                 .iter()
@@ -259,6 +282,48 @@ impl Diversions {
                 }
             })
             .collect()
+    }
+
+    /// Every removal after lintian's merge, in declaration order within a
+    /// path. `is_added` says whether an added diversion of the same path
+    /// survives the merge.
+    pub fn removed(&self) -> Vec<RemovedDiversion> {
+        let (added, removed) = self.merged();
+        let mut calls = Vec::new();
+        for (path, diversions) in &removed {
+            let is_added = added.iter().any(|(added, _)| added == path);
+            for diversion in diversions {
+                calls.push(RemovedDiversion {
+                    script: diversion.script.clone(),
+                    line: diversion.line,
+                    path: path.clone(),
+                    wildcards: self.wildcards,
+                    is_added,
+                });
+            }
+        }
+        calls
+    }
+
+    /// lintian's merge of the declared calls into added and removed paths.
+    fn merged(&self) -> (Additions<'_>, Removals<'_>) {
+        let mut added: Additions = Vec::new();
+        let mut removed: Removals = Vec::new();
+        for diversion in &self.declared {
+            match diversion.action {
+                DiversionAction::Add => insert(&mut added, diversion.path.clone(), diversion),
+                DiversionAction::Remove => {
+                    match removed.iter_mut().find(|(path, _)| *path == diversion.path) {
+                        Some((_, all)) => all.push(diversion),
+                        None => removed.push((diversion.path.clone(), vec![diversion])),
+                    }
+                }
+            }
+        }
+        if self.wildcards {
+            widen(&mut added, &mut removed);
+        }
+        (added, removed)
     }
 }
 

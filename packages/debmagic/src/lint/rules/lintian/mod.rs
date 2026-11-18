@@ -127,6 +127,7 @@ mod maintainer_scripts_systemctl;
 mod md5sums;
 mod menu_format;
 mod menus;
+mod mimeinfo;
 mod modprobe;
 mod nodejs;
 mod po_debconf;
@@ -536,6 +537,7 @@ pub(crate) use menus::{
     PostinstHasUselessCallToInstallDocs, PostrmDoesNotCallUpdatemenus,
     PrermHasUselessCallToInstallDocs,
 };
+pub(crate) use mimeinfo::PackageContainsMimeFileOutsidePackageDir;
 pub(crate) use modprobe::{
     DirectoryInModprobeD, NonConfFileInModprobeD, ObsoleteCommandInModprobeDFile,
 };

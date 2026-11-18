@@ -14,6 +14,7 @@ use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CarriageReturnLineFeed;
 use super::rules::ChangelogIsSymlink;
 use super::rules::ConflictingNegationInSourceRelation;
+use super::rules::CshConsideredHarmful;
 use super::rules::DbgPackageMissingDepends;
 use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
@@ -1077,6 +1078,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldDevhelpStandard,
         &DuplicateChangelogFiles,
         &NoNewlineAtEnd,
+        &CshConsideredHarmful,
     ]
 }
 
@@ -1781,6 +1783,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NonConfFileInModprobeD,
         &OldDevhelpStandard,
         &DuplicateChangelogFiles,
+        &CshConsideredHarmful,
     ]
 }
 
@@ -2502,6 +2505,7 @@ mod tests {
                 NonConfFileInModprobeD::CODE,
                 OldDevhelpStandard::CODE,
                 DuplicateChangelogFiles::CODE,
+                CshConsideredHarmful::CODE,
             ]
         );
     }

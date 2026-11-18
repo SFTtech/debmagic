@@ -366,6 +366,7 @@ use super::rules::InitDScriptHasDuplicateLsbSection;
 use super::rules::InitDScriptHasUnknownLsbKeyword;
 use super::rules::InitDScriptHasUnterminatedLsbSection;
 use super::rules::InitDScriptMissingLsbKeyword;
+use super::rules::MultiarchForeignCmakeFile;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -1023,6 +1024,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptHasUnknownLsbKeyword,
         &InitDScriptHasUnterminatedLsbSection,
         &InitDScriptMissingLsbKeyword,
+        &MultiarchForeignCmakeFile,
     ]
 }
 
@@ -1700,6 +1702,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InitDScriptHasUnknownLsbKeyword,
         &InitDScriptHasUnterminatedLsbSection,
         &InitDScriptMissingLsbKeyword,
+        &MultiarchForeignCmakeFile,
     ]
 }
 
@@ -2394,6 +2397,7 @@ mod tests {
                 InitDScriptHasUnknownLsbKeyword::CODE,
                 InitDScriptHasUnterminatedLsbSection::CODE,
                 InitDScriptMissingLsbKeyword::CODE,
+                MultiarchForeignCmakeFile::CODE,
             ]
         );
     }

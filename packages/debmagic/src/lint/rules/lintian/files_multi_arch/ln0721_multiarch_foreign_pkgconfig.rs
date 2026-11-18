@@ -79,7 +79,7 @@ fn is_public_pkgconfig(name: &str, triplet: &str) -> bool {
 }
 
 /// `DEB_HOST_ARCH` to `DEB_HOST_MULTIARCH`, from the vendored `host.json`.
-static HOST_MULTIARCH: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
+pub(super) static HOST_MULTIARCH: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
     let file: serde_json::Value =
         serde_json::from_str(include_str!("../../../data/architectures/host.json"))
             .expect("vendored architectures/host.json");

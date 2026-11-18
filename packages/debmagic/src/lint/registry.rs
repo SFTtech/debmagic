@@ -338,6 +338,7 @@ use super::rules::InvalidStandardsVersion;
 use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::MultiarchForeignPkgconfig;
+use super::rules::NewerStandardsVersion;
 use super::rules::NfsTemporaryFileInPackage;
 use super::rules::OpentypeFontProhibitsInstallableEmbedding;
 use super::rules::OpentypeFontWrongFilename;
@@ -1041,6 +1042,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AspellPackageNotArchAll,
         &DocumentationPackageNotArchitectureIndependent,
         &InvalidStandardsVersion,
+        &NewerStandardsVersion,
     ]
 }
 
@@ -1263,6 +1265,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &ExtraWhitespaceAroundNameInChangelogTrailer,
         &ChangelogIsSymlink,
         &InvalidStandardsVersion,
+        &NewerStandardsVersion,
     ]
 }
 
@@ -1958,6 +1961,7 @@ mod tests {
                 ExtraWhitespaceAroundNameInChangelogTrailer::CODE,
                 ChangelogIsSymlink::CODE,
                 InvalidStandardsVersion::CODE,
+                NewerStandardsVersion::CODE,
             ]
         );
     }

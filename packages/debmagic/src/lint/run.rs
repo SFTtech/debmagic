@@ -1658,6 +1658,7 @@ Rules
                 crate::lint::rules::AspellPackageNotArchAll::CODE,
                 crate::lint::rules::DocumentationPackageNotArchitectureIndependent::CODE,
                 crate::lint::rules::InvalidStandardsVersion::CODE,
+                crate::lint::rules::NewerStandardsVersion::CODE,
             ]
         );
         let intent = LintIntent {

@@ -365,6 +365,7 @@ use super::rules::InitDScriptHasDuplicateLsbKeyword;
 use super::rules::InitDScriptHasDuplicateLsbSection;
 use super::rules::InitDScriptHasUnknownLsbKeyword;
 use super::rules::InitDScriptHasUnterminatedLsbSection;
+use super::rules::InitDScriptMissingLsbKeyword;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -1021,6 +1022,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptHasDuplicateLsbSection,
         &InitDScriptHasUnknownLsbKeyword,
         &InitDScriptHasUnterminatedLsbSection,
+        &InitDScriptMissingLsbKeyword,
     ]
 }
 
@@ -1697,6 +1699,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InitDScriptHasDuplicateLsbSection,
         &InitDScriptHasUnknownLsbKeyword,
         &InitDScriptHasUnterminatedLsbSection,
+        &InitDScriptMissingLsbKeyword,
     ]
 }
 
@@ -2390,6 +2393,7 @@ mod tests {
                 InitDScriptHasDuplicateLsbSection::CODE,
                 InitDScriptHasUnknownLsbKeyword::CODE,
                 InitDScriptHasUnterminatedLsbSection::CODE,
+                InitDScriptMissingLsbKeyword::CODE,
             ]
         );
     }

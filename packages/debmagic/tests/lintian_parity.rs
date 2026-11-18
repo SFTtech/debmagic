@@ -484,6 +484,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/includes/utils-h",
     "checks/files/multi-arch/files-multiarch-foreign-files",
     "checks/files/multi-arch/files-pkgconfig",
+    "checks/files/multi-arch/files-wrong-ma-foreign",
     "checks/files/names/eslint-config-file",
     "checks/files/names/files-general",
     "checks/files/names/files-hyphen-file",
@@ -1397,6 +1398,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/includes/utils-h"; "checks_files_includes_utils_h")]
 #[test_case("checks/files/multi-arch/files-multiarch-foreign-files"; "checks_files_multi_arch_files_multiarch_foreign_files")]
 #[test_case("checks/files/multi-arch/files-pkgconfig"; "checks_files_multi_arch_files_pkgconfig")]
+#[test_case("checks/files/multi-arch/files-wrong-ma-foreign"; "checks_files_multi_arch_files_wrong_ma_foreign")]
 #[test_case("checks/files/names/eslint-config-file"; "checks_files_names_eslint_config_file")]
 #[test_case("checks/files/names/files-general"; "checks_files_names_files_general")]
 #[test_case("checks/files/names/files-hyphen-file"; "checks_files_names_files_hyphen_file")]

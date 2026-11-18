@@ -1650,6 +1650,7 @@ Rules
                 crate::lint::rules::InitDScriptHasUnterminatedLsbSection::CODE,
                 crate::lint::rules::InitDScriptMissingLsbKeyword::CODE,
                 crate::lint::rules::MultiarchForeignCmakeFile::CODE,
+                crate::lint::rules::MultiarchForeignSharedLibrary::CODE,
             ]
         );
         let intent = LintIntent {

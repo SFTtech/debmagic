@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debian-upstream-obsolete-path (LN0845) [debian/upstream]
+E: example (source): debian-upstream-obsolete-path (LN0845) [debian/upstream-metadata.yaml]
+E: example (source): debian-upstream-obsolete-path (LN0845) [debian/upstream]
+E: example (source): debian-upstream-obsolete-path (LN0845) [debian/upstream-metadata.yaml]
+E: example (source): debian-upstream-obsolete-path (LN0845) [debian/upstream]

@@ -157,6 +157,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
     "checks/debian/trailing-whitespace/rules-without-newline-at-end",
+    "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
@@ -825,6 +826,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
     "checks/debian/trailing-whitespace/rules-without-newline-at-end",
+    "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
@@ -1145,6 +1147,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
 #[test_case("checks/debian/trailing-whitespace/rules-without-newline-at-end"; "checks_debian_trailing_whitespace_rules_without_newline_at_end")]
+#[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
@@ -1815,6 +1818,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
 #[test_case("checks/debian/trailing-whitespace/rules-without-newline-at-end"; "checks_debian_trailing_whitespace_rules_without_newline_at_end")]
+#[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]

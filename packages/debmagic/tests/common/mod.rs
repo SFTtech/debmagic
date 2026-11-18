@@ -427,6 +427,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         .map(|(_, hint)| hint)
         .collect();
     rewrite_changelog_last_used(recipe_rel, &mut actual);
+    rewrite_current_policy_release_date(recipe_rel, &mut actual);
     drop_hints_for_unvendorable_files(recipe_rel, &mut actual);
     actual.sort();
 
@@ -1122,6 +1123,7 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         .map(|(_, hint)| hint)
         .collect();
     rewrite_changelog_last_used(recipe_rel, &mut actual);
+    rewrite_current_policy_release_date(recipe_rel, &mut actual);
     drop_hints_for_unvendorable_files(recipe_rel, &mut actual);
     actual.sort();
 
@@ -1146,6 +1148,28 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
                 "debian/tests/fifo" | "debian/tests/lfifo"
             ))
     });
+}
+
+/// `standards-version-timewarp`'s lintian `eval/post-test` rewrites the date of
+/// the current Policy release, the newest in the vendored table, to `CURRENT`.
+/// The vendored hint keeps that token; the hook is not copied into the tree.
+fn rewrite_current_policy_release_date(recipe_rel: &str, hints: &mut [ParityHint]) {
+    if recipe_rel != "checks/fields/standards-version/standards-version-timewarp" {
+        return;
+    }
+    for hint in hints {
+        if hint.tag != "timewarp-standards-version" {
+            continue;
+        }
+        let Some(start) = hint.extra.find(" < ") else {
+            continue;
+        };
+        let Some(relative_end) = hint.extra[start..].find(')') else {
+            continue;
+        };
+        let end = start + relative_end;
+        hint.extra.replace_range(start..end, " < CURRENT");
+    }
 }
 
 /// `changelog-file-general`'s lintian `eval/post-test` rewrites the date in

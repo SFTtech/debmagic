@@ -394,7 +394,7 @@ pub(crate) use languages_javascript::{
     EmbeddedJavascriptLibrary, NodePackageInstallInNodejsRootdir, NodejsLockFile,
     NodejsModuleInstalledInUsrLib, PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
-pub(crate) use languages_ocaml::OcamlDanglingCmxa;
+pub(crate) use languages_ocaml::{OcamlDanglingCmxa, OcamlDanglingCmxs};
 pub(crate) use languages_perl::PackageInstallsNonbinaryPerlInUsrLibPerl5;
 pub(crate) use languages_python::{
     AncientPythonVersionField, BogusPythonPrerequisite, EmbeddedFeedparserLibrary,

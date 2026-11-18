@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo (binary): ocaml-dangling-cmxs (LN0817) [usr/lib/ocaml/bar.cmxs]
+W: libfoo (binary): ocaml-dangling-cmxs (LN0817) [usr/lib/ocaml/bar.cmxs]
+W: libfoo (binary): ocaml-dangling-cmxs (LN0817) [usr/lib/ocaml/bar.cmxs]
+W: libfoo (binary): ocaml-dangling-cmxs (LN0817) [usr/lib/ocaml/a.b.cmxs]
+W: libfoo (udeb): ocaml-dangling-cmxs (LN0817) [usr/lib/ocaml/bar.cmxs]

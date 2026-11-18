@@ -83,7 +83,6 @@ pub(crate) fn basename(path: &str) -> &str {
 pub(crate) struct KnownInterpreter {
     /// Folder the interpreter is installed in (`/usr/bin`). The expected
     /// path is this folder, a slash, and the basename.
-    #[allow(dead_code)]
     pub folder: &'static str,
     /// Relation that provides the interpreter, as lintian builds the text.
     /// Empty when no prerequisite is needed (an essential package).

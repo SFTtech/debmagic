@@ -331,6 +331,7 @@ use super::rules::RulesRequireBuildPrerequisite;
 use super::rules::ScriptWithoutInterpreter;
 use super::rules::StaticallyLinkedBinary;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
+use super::rules::WrongPathForInterpreter;
 
 use super::rules::PhpScriptButNoPhpCliDep;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
@@ -941,6 +942,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrphanedDiversion,
         &RulesRequireBuildPrerequisite,
         &MultiarchForeignPkgconfig,
+        &WrongPathForInterpreter,
     ]
 }
 
@@ -1576,6 +1578,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PhpScriptButNoPhpCliDep,
         &OrphanedDiversion,
         &MultiarchForeignPkgconfig,
+        &WrongPathForInterpreter,
     ]
 }
 
@@ -2228,6 +2231,7 @@ mod tests {
                 PhpScriptButNoPhpCliDep::CODE,
                 OrphanedDiversion::CODE,
                 MultiarchForeignPkgconfig::CODE,
+                WrongPathForInterpreter::CODE,
             ]
         );
     }

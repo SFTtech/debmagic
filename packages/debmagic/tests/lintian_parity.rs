@@ -507,6 +507,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/symbolic-links/legacy-binary",
     "checks/files/symbolic-links/legacy-filenames",
     "checks/files/symbolic-links/legacy-libbaz",
+    "checks/files/unwanted/files-general",
     "checks/files/vcs/files-package-contains-foo",
     "checks/files/vcs/legacy-filenames",
     "checks/fonts/opentype/use-restricted",
@@ -1409,6 +1410,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/symbolic-links/legacy-binary"; "checks_files_symbolic_links_legacy_binary")]
 #[test_case("checks/files/symbolic-links/legacy-filenames"; "checks_files_symbolic_links_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/legacy-libbaz"; "checks_files_symbolic_links_legacy_libbaz")]
+#[test_case("checks/files/unwanted/files-general"; "checks_files_unwanted_files_general")]
 #[test_case("checks/files/vcs/files-package-contains-foo"; "checks_files_vcs_files_package_contains_foo")]
 #[test_case("checks/files/vcs/legacy-filenames"; "checks_files_vcs_legacy_filenames")]
 #[test_case("checks/fonts/opentype/use-restricted"; "checks_fonts_opentype_use_restricted")]

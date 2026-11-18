@@ -360,6 +360,7 @@ use super::rules::AspellPackageNotArchAll;
 use super::rules::ConffileHasBadFileType;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
+use super::rules::DirectoryInModprobeD;
 use super::rules::DocumentationPackageNotArchitectureIndependent;
 use super::rules::DuplicateConffile;
 use super::rules::FileInEtcRcDMarkedAsConffile;
@@ -1067,6 +1068,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &FileInEtcRcDMarkedAsConffile,
         &FileInRootAndUsr,
         &LibraryInRootAndUsr,
+        &DirectoryInModprobeD,
     ]
 }
 
@@ -1766,6 +1768,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &FileInEtcRcDMarkedAsConffile,
         &FileInRootAndUsr,
         &LibraryInRootAndUsr,
+        &DirectoryInModprobeD,
     ]
 }
 
@@ -2488,6 +2491,7 @@ mod tests {
                 FileInEtcRcDMarkedAsConffile::CODE,
                 FileInRootAndUsr::CODE,
                 LibraryInRootAndUsr::CODE,
+                DirectoryInModprobeD::CODE,
             ]
         );
     }

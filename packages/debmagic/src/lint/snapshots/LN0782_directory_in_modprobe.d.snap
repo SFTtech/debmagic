@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): directory-in-modprobe.d (LN0782) [usr/lib/modprobe.d/test.conf/]
+E: example (binary): directory-in-modprobe.d (LN0782) [etc/modules-load.d/sub/]
+E: example (binary): directory-in-modprobe.d (LN0782) [etc/modprobe.d/nested/]
+E: example (udeb): directory-in-modprobe.d (LN0782) [etc/modprobe.d/nested/]

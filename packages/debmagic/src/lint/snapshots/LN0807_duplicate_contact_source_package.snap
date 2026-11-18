@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): duplicate-contact (LN0807) Uploaders a@example.com

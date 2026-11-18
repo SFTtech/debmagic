@@ -239,6 +239,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
+    "checks/fields/version/repack/native/fields-version-dfsg-native",
     "checks/fields/version/repack/typo/fields-version-dsfg",
     "checks/files/artifact/cruft-general-diff",
     "checks/files/artifact/cruft-general-quilt",
@@ -902,6 +903,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
+    "checks/fields/version/repack/native/fields-version-dfsg-native",
     "checks/fields/version/repack/typo/fields-version-dsfg",
     "checks/files/artifact/cruft-general-diff",
     "checks/files/artifact/cruft-general-quilt",
@@ -1218,6 +1220,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
+#[test_case("checks/fields/version/repack/native/fields-version-dfsg-native"; "checks_fields_version_repack_native_fields_version_dfsg_native")]
 #[test_case("checks/fields/version/repack/typo/fields-version-dsfg"; "checks_fields_version_repack_typo_fields_version_dsfg")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
@@ -1883,6 +1886,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
+#[test_case("checks/fields/version/repack/native/fields-version-dfsg-native"; "checks_fields_version_repack_native_fields_version_dfsg_native")]
 #[test_case("checks/fields/version/repack/typo/fields-version-dsfg"; "checks_fields_version_repack_typo_fields_version_dsfg")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]

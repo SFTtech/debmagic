@@ -1712,6 +1712,7 @@ Rules
                 crate::lint::rules::DuplicatePackagingFile::CODE,
                 crate::lint::rules::IncorrectPackagingFilename::CODE,
                 crate::lint::rules::DfsgVersionMisspelled::CODE,
+                crate::lint::rules::DfsgVersionInNativePackage::CODE,
             ]
         );
         let intent = LintIntent {

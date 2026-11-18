@@ -301,7 +301,9 @@ pub(crate) use fields_text::{
     SuperfluousClutterInHomepage, UnknownSection,
 };
 pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
-pub(crate) use fields_vcs::{VcsFieldBitrotted, VcsFieldMismatch};
+pub(crate) use fields_vcs::{
+    OrphanedPackageMaintainedInPrivateSpace, VcsFieldBitrotted, VcsFieldMismatch,
+};
 pub(crate) use files_artifact::{
     DebianAddsArchControlDir, DebianAddsArchInventoryFile, DebianAddsBtsControlDir,
     DebianAddsBzrControlDir, DebianAddsCvsConflictCopy, DebianAddsCvsControlDir,

@@ -232,6 +232,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-vcs-field-mismatch",
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
+    "checks/fields/vcs/orphaned-package-in-private-salsa-space",
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
@@ -868,6 +869,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-vcs-field-mismatch",
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
+    "checks/fields/vcs/orphaned-package-in-private-salsa-space",
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
@@ -1178,6 +1180,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/vcs/fields-vcs-field-mismatch"; "checks_fields_vcs_fields_vcs_field_mismatch")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
+#[test_case("checks/fields/vcs/orphaned-package-in-private-salsa-space"; "checks_fields_vcs_orphaned_package_in_private_salsa_space")]
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
@@ -1816,6 +1819,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/vcs/fields-vcs-field-mismatch"; "checks_fields_vcs_fields_vcs_field_mismatch")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
+#[test_case("checks/fields/vcs/orphaned-package-in-private-salsa-space"; "checks_fields_vcs_orphaned_package_in_private_salsa_space")]
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]

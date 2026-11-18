@@ -396,6 +396,7 @@ use super::rules::OddStaticLibraryName;
 use super::rules::OldDevhelpStandard;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
+use super::rules::OrphanedPackageMaintainedInPrivateSpace;
 use super::rules::PhpScriptButNoPhpCliDep;
 use super::rules::PkgConfigMultiArchWrongDir;
 use super::rules::PkgConfigUnavailableForCrossCompilation;
@@ -1083,6 +1084,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CshConsideredHarmful,
         &VcsFieldBitrotted,
         &VcsFieldMismatch,
+        &OrphanedPackageMaintainedInPrivateSpace,
     ]
 }
 
@@ -1316,6 +1318,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NoNewlineAtEnd,
         &VcsFieldBitrotted,
         &VcsFieldMismatch,
+        &OrphanedPackageMaintainedInPrivateSpace,
     ]
 }
 
@@ -2032,6 +2035,7 @@ mod tests {
                 NoNewlineAtEnd::CODE,
                 VcsFieldBitrotted::CODE,
                 VcsFieldMismatch::CODE,
+                OrphanedPackageMaintainedInPrivateSpace::CODE,
             ]
         );
     }

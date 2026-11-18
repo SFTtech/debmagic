@@ -413,6 +413,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/manual/manpages-general",
     "checks/documentation/manual/scripts-ocamlrun",
     "checks/documentation/texinfo/infofiles-general",
+    "checks/emacs/elpa/emacsen-common",
     "checks/emacs/files-bad-perm-owner",
     "checks/executable/files-zero-byte-executable-in-path",
     "checks/executable/legacy-binary",
@@ -1379,6 +1380,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/manual/manpages-general"; "checks_documentation_manual_manpages_general")]
 #[test_case("checks/documentation/manual/scripts-ocamlrun"; "checks_documentation_manual_scripts_ocamlrun")]
 #[test_case("checks/documentation/texinfo/infofiles-general"; "checks_documentation_texinfo_infofiles_general")]
+#[test_case("checks/emacs/elpa/emacsen-common"; "checks_emacs_elpa_emacsen_common")]
 #[test_case("checks/emacs/files-bad-perm-owner"; "checks_emacs_files_bad_perm_owner")]
 #[test_case("checks/executable/files-zero-byte-executable-in-path"; "checks_executable_files_zero_byte_executable_in_path")]
 #[test_case("checks/executable/legacy-binary"; "checks_executable_legacy_binary")]

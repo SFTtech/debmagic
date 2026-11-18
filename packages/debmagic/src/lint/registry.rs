@@ -370,6 +370,7 @@ use super::rules::DocumentationPackageNotArchitectureIndependent;
 use super::rules::DuplicateChangelogFiles;
 use super::rules::DuplicateConffile;
 use super::rules::DuplicateP3distOverride;
+use super::rules::EmacsenCommonWithoutDhElpa;
 use super::rules::FileInEtcRcDMarkedAsConffile;
 use super::rules::FileInRootAndUsr;
 use super::rules::GitPatchesNotExported;
@@ -1119,6 +1120,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidValueInStaticBuiltUsingField,
         &BadMenuItem,
         &BadPermissionsForEtcEmacsScript,
+        &EmacsenCommonWithoutDhElpa,
     ]
 }
 
@@ -1844,6 +1846,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InvalidValueInStaticBuiltUsingField,
         &BadMenuItem,
         &BadPermissionsForEtcEmacsScript,
+        &EmacsenCommonWithoutDhElpa,
     ]
 }
 
@@ -2586,6 +2589,7 @@ mod tests {
                 InvalidValueInStaticBuiltUsingField::CODE,
                 BadMenuItem::CODE,
                 BadPermissionsForEtcEmacsScript::CODE,
+                EmacsenCommonWithoutDhElpa::CODE,
             ]
         );
     }

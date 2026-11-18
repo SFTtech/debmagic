@@ -32,6 +32,7 @@ mod documentation_manual;
 mod documentation_texinfo;
 mod domain;
 mod emacs;
+mod emacs_elpa;
 mod executable;
 mod fields_architecture;
 mod fields_bugs;
@@ -437,6 +438,7 @@ pub(crate) use debian_source_dir::{
 };
 pub(crate) use debian_variables::IllegalVariable;
 pub(crate) use emacs::BadPermissionsForEtcEmacsScript;
+pub(crate) use emacs_elpa::EmacsenCommonWithoutDhElpa;
 pub(crate) use fields_architecture::{
     AspellPackageNotArchAll, DocumentationPackageNotArchitectureIndependent,
 };

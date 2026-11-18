@@ -1616,6 +1616,7 @@ Rules
                 crate::lint::rules::WrongPathForInterpreter::CODE,
                 crate::lint::rules::PatchSystemButNoSourceReadme::CODE,
                 crate::lint::rules::DirOrFileInBuildTree::CODE,
+                crate::lint::rules::ZeroByteExecutableInPath::CODE,
             ]
         );
         let intent = LintIntent {

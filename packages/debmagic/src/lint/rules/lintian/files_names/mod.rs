@@ -23,6 +23,7 @@ mod ln0086_package_contains_python_tests_in_global_namespace;
 mod ln0087_package_contains_eslint_config_file;
 mod ln0088_package_contains_npm_ignore_file;
 mod ln0702_shipped_file_without_utf8_name;
+mod ln0726_zero_byte_executable_in_path;
 mod names;
 
 pub(crate) use ln0065_file_name_ends_in_whitespace::FileNameEndsInWhitespace;
@@ -44,3 +45,4 @@ pub(crate) use ln0086_package_contains_python_tests_in_global_namespace::Package
 pub(crate) use ln0087_package_contains_eslint_config_file::PackageContainsEslintConfigFile;
 pub(crate) use ln0088_package_contains_npm_ignore_file::PackageContainsNpmIgnoreFile;
 pub(crate) use ln0702_shipped_file_without_utf8_name::ShippedFileWithoutUtf8Name;
+pub(crate) use ln0726_zero_byte_executable_in_path::ZeroByteExecutableInPath;

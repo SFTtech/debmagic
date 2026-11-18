@@ -177,7 +177,7 @@ pub(crate) use debhelper_rules::{
 pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
 pub(crate) use desktop::{
     DesktopFileInWrongDir, FileInDiscouragedX11FontDirectory, FileInUnknownX11FontDirectory,
-    IconSizeAndDirectoryNameMismatch, PackageContainsCompiledFontFile,
+    IconSizeAndDirectoryNameMismatch, MissingCallToUpdateFonts, PackageContainsCompiledFontFile,
     PackageInstallsFileToUsrX11r6,
 };
 pub(crate) use desktop_gir::GirSectionNotLibdevel;

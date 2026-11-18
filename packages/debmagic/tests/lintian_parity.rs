@@ -388,6 +388,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/desktop/icons/files-general",
     "checks/desktop/x11/files-fonts",
     "checks/desktop/x11/files-general",
+    "checks/desktop/x11/font/update/scripts-missing-call-to-update-fonts",
     "checks/desktop/x11/legacy-filenames",
     "checks/documentation/devhelp/standard/version-1",
     "checks/documentation/examples/files-foo-in-bar",
@@ -1376,6 +1377,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/desktop/icons/files-general"; "checks_desktop_icons_files_general")]
 #[test_case("checks/desktop/x11/files-fonts"; "checks_desktop_x11_files_fonts")]
 #[test_case("checks/desktop/x11/files-general"; "checks_desktop_x11_files_general")]
+#[test_case("checks/desktop/x11/font/update/scripts-missing-call-to-update-fonts"; "checks_desktop_x11_font_update_scripts_missing_call_to_update_fonts")]
 #[test_case("checks/desktop/x11/legacy-filenames"; "checks_desktop_x11_legacy_filenames")]
 #[test_case("checks/documentation/devhelp/standard/version-1"; "checks_documentation_devhelp_standard_version_1")]
 #[test_case("checks/documentation/examples/files-foo-in-bar"; "checks_documentation_examples_files_foo_in_bar")]

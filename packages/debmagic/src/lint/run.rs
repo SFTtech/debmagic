@@ -1719,6 +1719,7 @@ Rules
                 crate::lint::rules::OverrideFileInWrongPackage::CODE,
                 crate::lint::rules::WaywardSymbolicLinkTargetInSource::CODE,
                 crate::lint::rules::NativeSourceFileWithoutUtf8Name::CODE,
+                crate::lint::rules::MissingCallToUpdateFonts::CODE,
             ]
         );
         let intent = LintIntent {

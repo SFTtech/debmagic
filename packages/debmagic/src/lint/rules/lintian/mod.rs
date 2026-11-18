@@ -399,11 +399,12 @@ pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PerlModuleInCoreDirectory,
 };
 pub(crate) use languages_python::{
-    AncientPythonVersionField, BogusPythonPrerequisite, EmbeddedFeedparserLibrary,
-    FileInUsrLibSitePython, MalformedPythonVersion, PackageInstallsDeprecatedPython2Path,
-    PythonModuleHasOverlyGenericName, PythonPackageMissingDependsOnPython,
-    PythonVersionCurrentIsDeprecated, SourcePackageEncodesPythonVersion,
-    ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory,
+    AncientPythonVersionField, BogusPythonPrerequisite, DuplicateP3distOverride,
+    EmbeddedFeedparserLibrary, FileInUsrLibSitePython, MalformedPythonVersion,
+    PackageInstallsDeprecatedPython2Path, PythonModuleHasOverlyGenericName,
+    PythonPackageMissingDependsOnPython, PythonVersionCurrentIsDeprecated,
+    SourcePackageEncodesPythonVersion, ThirdPartyPackageInPythonDir,
+    UnknownFileInPythonModuleDirectory,
 };
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
 pub(crate) use libraries_static::OddStaticLibraryName;

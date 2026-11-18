@@ -366,6 +366,7 @@ use super::rules::DirectoryInModprobeD;
 use super::rules::DocumentationPackageNotArchitectureIndependent;
 use super::rules::DuplicateChangelogFiles;
 use super::rules::DuplicateConffile;
+use super::rules::DuplicateP3distOverride;
 use super::rules::FileInEtcRcDMarkedAsConffile;
 use super::rules::FileInRootAndUsr;
 use super::rules::GitPatchesNotExported;
@@ -1095,6 +1096,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OcamlDanglingCmxa,
         &OcamlDanglingCmxs,
         &PerlModuleInCoreDirectory,
+        &DuplicateP3distOverride,
     ]
 }
 
@@ -1330,6 +1332,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &VcsFieldMismatch,
         &OrphanedPackageMaintainedInPrivateSpace,
         &OrphanedPackageNotMaintainedInDebianInfrastructure,
+        &DuplicateP3distOverride,
     ]
 }
 
@@ -2052,6 +2055,7 @@ mod tests {
                 VcsFieldMismatch::CODE,
                 OrphanedPackageMaintainedInPrivateSpace::CODE,
                 OrphanedPackageNotMaintainedInDebianInfrastructure::CODE,
+                DuplicateP3distOverride::CODE,
             ]
         );
     }

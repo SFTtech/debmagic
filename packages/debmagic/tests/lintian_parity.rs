@@ -253,6 +253,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
+    "checks/languages/python/dist-overrides/duplicate-identifier",
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-old-python-version-field",
@@ -894,6 +895,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
+    "checks/languages/python/dist-overrides/duplicate-identifier",
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-old-python-version-field",
@@ -1206,6 +1208,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
+#[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
@@ -1849,6 +1852,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
+#[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]

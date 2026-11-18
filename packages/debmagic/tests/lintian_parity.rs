@@ -560,6 +560,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/nodejs-module-not-declared",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
+    "checks/languages/ocaml/byte-code/library/ocaml-general",
     "checks/languages/perl/files-foo-in-bar",
     "checks/languages/perl/legacy-filenames",
     "checks/languages/php/embedded/files-embedded",
@@ -1512,6 +1513,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/nodejs-module-not-declared"; "checks_languages_javascript_nodejs_nodejs_module_not_declared")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
+#[test_case("checks/languages/ocaml/byte-code/library/ocaml-general"; "checks_languages_ocaml_byte_code_library_ocaml_general")]
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
 #[test_case("checks/languages/perl/legacy-filenames"; "checks_languages_perl_legacy_filenames")]
 #[test_case("checks/languages/php/embedded/files-embedded"; "checks_languages_php_embedded_files_embedded")]

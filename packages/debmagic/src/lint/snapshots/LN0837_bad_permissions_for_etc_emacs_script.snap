@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bad-permissions-for-etc-emacs-script (LN0837) 0755 != 0644 [etc/emacs.d/script]
+E: example (binary): bad-permissions-for-etc-emacs-script (LN0837) 0600 != 0644 [etc/emacs/site-start.d/50x.el]
+E: example (binary): bad-permissions-for-etc-emacs-script (LN0837) 0664 != 0644 [etc/emacs.d/sub/script]
+E: example (binary): bad-permissions-for-etc-emacs-script (LN0837) 0755 != 0644 [etc/emacs.d/script]
+E: example (udeb): bad-permissions-for-etc-emacs-script (LN0837) 0755 != 0644 [etc/emacs.d/script]

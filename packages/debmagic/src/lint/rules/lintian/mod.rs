@@ -191,6 +191,9 @@ pub(crate) use debian_copyright::{
     SourceShipsExcludedFile, SpaceInStdShortnameInDep5Copyright,
     UnusedLicenseParagraphInDep5Copyright,
 };
+pub(crate) use fields_version::{
+    BinaryNmuDebianRevisionInSource, DebianRevisionIsZero, DebianRevisionNotWellFormed,
+};
 
 pub(crate) use debian_debconf::{
     BooleanTemplateHasBogusDefault, DuplicateLongDescriptionInTemplate, EmptyTranslatedChoices,
@@ -397,7 +400,6 @@ pub(crate) use fields_relations_extra::{
     ObsoleteRelationFormInSource, RedundantInstallationPrerequisite, WeakLibraryDevDependency,
 };
 pub(crate) use fields_standards_version::TimewarpStandardsVersion;
-pub(crate) use fields_version::{DebianRevisionIsZero, DebianRevisionNotWellFormed};
 pub(crate) use files_non_free::NonFreeFlash;
 pub(crate) use files_privacy_breach::{
     PrivacyBreachDonation, PrivacyBreachFacebook, PrivacyBreachGeneric, PrivacyBreachGoogleAdsense,

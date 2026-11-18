@@ -1,0 +1,15 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): script-without-interpreter (LN0715) [usr/bin/no-interpreter]
+E: example (binary): script-without-interpreter (LN0715) [usr/bin/no-interpreter]
+E: example (binary): script-without-interpreter (LN0715) [usr/bin/no-interpreter]
+E: example (binary): script-without-interpreter (LN0715) [usr/lib/bin/tool]
+E: example (binary): script-without-interpreter (LN0715) [etc/init.d/tool]
+E: example (binary): script-without-interpreter (LN0715) [usr/share/doc-base/tool]
+E: example (udeb): script-without-interpreter (LN0715) [usr/lib/cgi-bin/tool]
+E: example (binary): script-without-interpreter (LN0715) [postrm]
+E: example (binary): script-without-interpreter (LN0715) [postinst]
+E: example (binary): script-without-interpreter (LN0715) [config]
+E: example (binary): script-without-interpreter (LN0715) [preinst]
+E: example (udeb): script-without-interpreter (LN0715) [prerm]

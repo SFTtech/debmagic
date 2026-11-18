@@ -547,6 +547,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/scripts/legacy-scripts",
     "checks/scripts/scripts-bashisms",
     "checks/scripts/scripts-control-interpreters",
+    "checks/scripts/scripts-does-not-start-with-shebang",
     "checks/scripts/scripts-interpreters",
     "checks/scripts/scripts-interpreters-nodejs",
     "checks/scripts/scripts-maintainer-general",
@@ -1393,6 +1394,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/scripts/legacy-scripts"; "checks_scripts_legacy_scripts")]
 #[test_case("checks/scripts/scripts-bashisms"; "checks_scripts_scripts_bashisms")]
 #[test_case("checks/scripts/scripts-control-interpreters"; "checks_scripts_scripts_control_interpreters")]
+#[test_case("checks/scripts/scripts-does-not-start-with-shebang"; "checks_scripts_scripts_does_not_start_with_shebang")]
 #[test_case("checks/scripts/scripts-interpreters"; "checks_scripts_scripts_interpreters")]
 #[test_case("checks/scripts/scripts-interpreters-nodejs"; "checks_scripts_scripts_interpreters_nodejs")]
 #[test_case("checks/scripts/scripts-maintainer-general"; "checks_scripts_scripts_maintainer_general")]

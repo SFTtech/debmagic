@@ -321,6 +321,7 @@ use super::rules::DescriptionStartsWithLeadingSpaces;
 
 use super::rules::DiversionForUnknownFile;
 use super::rules::MissingBuildDependencyForDhCommand;
+use super::rules::ScriptWithoutInterpreter;
 use super::rules::StaticallyLinkedBinary;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 
@@ -918,6 +919,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ShippedFileWithoutUtf8Name,
         &MissingDepForInterpreter,
         &TruetypeFontProhibitsInstallableEmbedding,
+        &ScriptWithoutInterpreter,
     ]
 }
 
@@ -1542,6 +1544,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ShippedFileWithoutUtf8Name,
         &MissingDepForInterpreter,
         &TruetypeFontProhibitsInstallableEmbedding,
+        &ScriptWithoutInterpreter,
     ]
 }
 
@@ -2183,6 +2186,7 @@ mod tests {
                 ShippedFileWithoutUtf8Name::CODE,
                 MissingDepForInterpreter::CODE,
                 TruetypeFontProhibitsInstallableEmbedding::CODE,
+                ScriptWithoutInterpreter::CODE,
             ]
         );
     }

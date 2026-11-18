@@ -1622,6 +1622,7 @@ Rules
                 crate::lint::rules::PkgConfigMultiArchWrongDir::CODE,
                 crate::lint::rules::RDataWithoutReadmeSource::CODE,
                 crate::lint::rules::OldStyleConfigScriptMultiarchPath::CODE,
+                crate::lint::rules::OpentypeFontProhibitsInstallableEmbedding::CODE,
             ]
         );
         let intent = LintIntent {

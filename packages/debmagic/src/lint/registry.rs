@@ -369,6 +369,7 @@ use super::rules::InitDScriptMissingLsbKeyword;
 use super::rules::MultiarchForeignCmakeFile;
 use super::rules::MultiarchForeignSharedLibrary;
 use super::rules::MultiarchForeignStaticLibrary;
+use super::rules::OddStaticLibraryName;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -1029,6 +1030,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MultiarchForeignCmakeFile,
         &MultiarchForeignSharedLibrary,
         &MultiarchForeignStaticLibrary,
+        &OddStaticLibraryName,
     ]
 }
 
@@ -1709,6 +1711,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MultiarchForeignCmakeFile,
         &MultiarchForeignSharedLibrary,
         &MultiarchForeignStaticLibrary,
+        &OddStaticLibraryName,
     ]
 }
 
@@ -2406,6 +2409,7 @@ mod tests {
                 MultiarchForeignCmakeFile::CODE,
                 MultiarchForeignSharedLibrary::CODE,
                 MultiarchForeignStaticLibrary::CODE,
+                OddStaticLibraryName::CODE,
             ]
         );
     }

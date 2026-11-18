@@ -241,6 +241,7 @@ use super::rules::{
 use super::rules::NonStandardExecutablePerm;
 
 use super::rules::PackageContainsHardlink;
+use super::rules::PackageContainsMimeFileOutsidePackageDir;
 
 use super::rules::MissingDepForInterpreter;
 use super::rules::ShippedFileWithoutUtf8Name;
@@ -1121,6 +1122,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BadMenuItem,
         &BadPermissionsForEtcEmacsScript,
         &EmacsenCommonWithoutDhElpa,
+        &PackageContainsMimeFileOutsidePackageDir,
     ]
 }
 
@@ -1847,6 +1849,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BadMenuItem,
         &BadPermissionsForEtcEmacsScript,
         &EmacsenCommonWithoutDhElpa,
+        &PackageContainsMimeFileOutsidePackageDir,
     ]
 }
 
@@ -2590,6 +2593,7 @@ mod tests {
                 BadMenuItem::CODE,
                 BadPermissionsForEtcEmacsScript::CODE,
                 EmacsenCommonWithoutDhElpa::CODE,
+                PackageContainsMimeFileOutsidePackageDir::CODE,
             ]
         );
     }

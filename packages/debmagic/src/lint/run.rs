@@ -1697,6 +1697,7 @@ Rules
                 crate::lint::rules::BadMenuItem::CODE,
                 crate::lint::rules::BadPermissionsForEtcEmacsScript::CODE,
                 crate::lint::rules::EmacsenCommonWithoutDhElpa::CODE,
+                crate::lint::rules::PackageContainsMimeFileOutsidePackageDir::CODE,
             ]
         );
         let intent = LintIntent {

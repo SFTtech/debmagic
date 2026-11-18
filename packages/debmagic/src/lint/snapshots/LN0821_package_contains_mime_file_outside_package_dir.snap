@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-mime-file-outside-package-dir (LN0821) [usr/share/mime/foo/bar]
+E: example (binary): package-contains-mime-file-outside-package-dir (LN0821) [usr/share/mime/foo/]
+E: example (binary): package-contains-mime-file-outside-package-dir (LN0821) [usr/share/mime/packagesx/foo.xml]
+E: example (binary): package-contains-mime-file-outside-package-dir (LN0821) [usr/share/mime/foo/bar]
+E: example (udeb): package-contains-mime-file-outside-package-dir (LN0821) [usr/share/mime/foo/bar]

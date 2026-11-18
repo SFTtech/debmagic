@@ -163,7 +163,7 @@ pub(crate) use debian_changelog::{
     EpochChangedButUpstreamVersionDidNotGoBackwards, HtmlChangelogWithoutTextVersion,
     ImprobableBugNumberInCloses, InitialUploadClosesNoBugs, InvalidDateInDebianChangelog,
     LatestChangelogEntryWithoutNewDate, LatestDebianChangelogEntryReusesExistingVersion,
-    NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
+    NmuInChangelog, NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
     QaUploadHasIncorrectVersionNumber, SourceNmuHasIncorrectVersionNumber,
     SyntaxErrorInDebianNewsFile, UploadersInOrphan, WrongNameForDebianNewsFile,
 };

@@ -81,7 +81,7 @@ pub(crate) fn maintainer_script_lines(
 }
 
 /// lintian's `interpreter`: the first command on the shebang, `env` stripped.
-fn interpreter(content: &str) -> Option<String> {
+pub(crate) fn interpreter(content: &str) -> Option<String> {
     if content.starts_with("#!#!#!") || !content.starts_with("#!") {
         return None;
     }

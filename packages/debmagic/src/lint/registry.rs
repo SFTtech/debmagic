@@ -46,6 +46,7 @@ use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
 use super::rules::MalformedOverride;
+use super::rules::MissingCallToUpdateFonts;
 use super::rules::NativeSourceFileWithoutUtf8Name;
 use super::rules::NmuInChangelog;
 use super::rules::ObsoleteRelationFormInSource;
@@ -1165,6 +1166,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OverrideFileInWrongPackage,
         &WaywardSymbolicLinkTargetInSource,
         &NativeSourceFileWithoutUtf8Name,
+        &MissingCallToUpdateFonts,
     ]
 }
 
@@ -1913,6 +1915,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InitDScriptProvidesVirtualFacility,
         &InitDScriptSourcingWithoutTest,
         &OverrideFileInWrongPackage,
+        &MissingCallToUpdateFonts,
     ]
 }
 
@@ -2678,6 +2681,7 @@ mod tests {
                 InitDScriptProvidesVirtualFacility::CODE,
                 InitDScriptSourcingWithoutTest::CODE,
                 OverrideFileInWrongPackage::CODE,
+                MissingCallToUpdateFonts::CODE,
             ]
         );
     }

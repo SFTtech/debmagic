@@ -11,9 +11,11 @@ use crate::lint::context::SourceContext;
 
 mod ln0725_timewarp_standards_version;
 mod ln0774_invalid_standards_version;
+mod ln0775_newer_standards_version;
 
 pub(crate) use ln0725_timewarp_standards_version::TimewarpStandardsVersion;
 pub(crate) use ln0774_invalid_standards_version::InvalidStandardsVersion;
+pub(crate) use ln0775_newer_standards_version::NewerStandardsVersion;
 
 /// Policy releases and their epochs, from lintian 2.139.0's
 /// `debian-policy/releases.json`.
@@ -102,6 +104,15 @@ pub(super) fn is_three_part_number(version: &str) -> bool {
 /// The newest Policy release, as the table lists it.
 pub(super) fn latest_policy_version() -> &'static str {
     &RELEASES.latest
+}
+
+/// The newest Policy release with its fourth component dropped.
+pub(super) fn latest_policy_version_normalized() -> String {
+    latest_policy_version()
+        .split('.')
+        .take(3)
+        .collect::<Vec<_>>()
+        .join(".")
 }
 
 /// Whether `version` is a Policy release in the table.

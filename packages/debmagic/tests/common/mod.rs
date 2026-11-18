@@ -428,6 +428,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         .collect();
     rewrite_changelog_last_used(recipe_rel, &mut actual);
     rewrite_current_policy_release_date(recipe_rel, &mut actual);
+    rewrite_current_policy_version(recipe_rel, &mut actual);
     drop_hints_for_unvendorable_files(recipe_rel, &mut actual);
     actual.sort();
 
@@ -1124,6 +1125,7 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         .collect();
     rewrite_changelog_last_used(recipe_rel, &mut actual);
     rewrite_current_policy_release_date(recipe_rel, &mut actual);
+    rewrite_current_policy_version(recipe_rel, &mut actual);
     drop_hints_for_unvendorable_files(recipe_rel, &mut actual);
     actual.sort();
 
@@ -1169,6 +1171,29 @@ fn rewrite_current_policy_release_date(recipe_rel: &str, hints: &mut [ParityHint
         };
         let end = start + relative_end;
         hint.extra.replace_range(start..end, " < CURRENT");
+    }
+}
+
+/// `standards-version-newer`'s lintian `eval/post-test` rewrites the newest
+/// Policy release in `(current is …)` to `CURRENT`. The vendored hint keeps
+/// that token; the hook is not copied into the tree.
+fn rewrite_current_policy_version(recipe_rel: &str, hints: &mut [ParityHint]) {
+    if recipe_rel != "checks/fields/standards-version/standards-version-newer" {
+        return;
+    }
+    for hint in hints {
+        if hint.tag != "newer-standards-version" {
+            continue;
+        }
+        let Some(start) = hint.extra.find("(current is ") else {
+            continue;
+        };
+        let Some(relative_end) = hint.extra[start..].find(')') else {
+            continue;
+        };
+        let end = start + relative_end;
+        hint.extra
+            .replace_range(start..=end, "(current is CURRENT)");
     }
 }
 

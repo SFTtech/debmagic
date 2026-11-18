@@ -1679,6 +1679,7 @@ Rules
                 crate::lint::rules::CshConsideredHarmful::CODE,
                 crate::lint::rules::VcsFieldBitrotted::CODE,
                 crate::lint::rules::VcsFieldMismatch::CODE,
+                crate::lint::rules::OrphanedPackageMaintainedInPrivateSpace::CODE,
             ]
         );
         let intent = LintIntent {

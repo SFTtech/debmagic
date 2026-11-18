@@ -324,19 +324,17 @@ use super::rules::DiversionForUnknownFile;
 use super::rules::ExecutableNotElfOrScript;
 use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
+use super::rules::MultiarchForeignPkgconfig;
 use super::rules::OrphanedDiversion;
-use super::rules::ScriptWithoutInterpreter;
 use super::rules::RelativeLibrarySearchPath;
 use super::rules::RulesRequireBuildPrerequisite;
-use super::rules::MultiarchForeignPkgconfig;
-use super::rules::RelativeLibrarySearchPath;
 use super::rules::ScriptWithoutInterpreter;
 use super::rules::StaticallyLinkedBinary;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 
 use super::rules::PhpScriptButNoPhpCliDep;
-use super::rules::ZeroByteFileInDocDirectory;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
+use super::rules::ZeroByteFileInDocDirectory;
 
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
     &[

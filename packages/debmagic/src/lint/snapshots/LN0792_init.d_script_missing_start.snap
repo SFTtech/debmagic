@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-missing-start (LN0792) 5 [etc/init.d/three]
+W: example (binary): init.d-script-missing-start (LN0792) 3 4 [etc/init.d/two]
+W: example (binary): init.d-script-missing-start (LN0792) 2 4 5 [etc/init.d/one]
+W: example (binary): init.d-script-missing-start (LN0792) 3 4 5 [etc/init.d/invalid-then-two]
+W: example (udeb): init.d-script-missing-start (LN0792) 4 5 [etc/init.d/udeb-script]

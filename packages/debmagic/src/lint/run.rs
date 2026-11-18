@@ -1698,6 +1698,7 @@ Rules
                 crate::lint::rules::BadPermissionsForEtcEmacsScript::CODE,
                 crate::lint::rules::EmacsenCommonWithoutDhElpa::CODE,
                 crate::lint::rules::PackageContainsMimeFileOutsidePackageDir::CODE,
+                crate::lint::rules::ConfigFileReserved::CODE,
             ]
         );
         let intent = LintIntent {

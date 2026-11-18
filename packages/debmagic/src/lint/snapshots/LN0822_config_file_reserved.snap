@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): config-file-reserved (LN0822) by libpam-runtime [etc/pam.conf]
+E: libpam-pkg (binary): config-file-reserved (LN0822) by libpam-runtime [etc/pam.conf]
+E: example (binary): config-file-reserved (LN0822) by libpam-runtime [etc/pam.conf]
+E: example (udeb): config-file-reserved (LN0822) by libpam-runtime [etc/pam.conf]

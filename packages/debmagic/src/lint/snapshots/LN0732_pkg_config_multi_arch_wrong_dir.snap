@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): pkg-config-multi-arch-wrong-dir (LN0732) full text contains architecture specific dir x86_64-linux-gnu [usr/lib/pkgconfig/indep.pc]
+E: example (binary): pkg-config-multi-arch-wrong-dir (LN0732) full text contains architecture specific dir x86_64-linux-gnu [usr/lib/pkgconfig/indep.pc]
+E: example (binary): pkg-config-multi-arch-wrong-dir (LN0732) full text contains architecture specific dir i386-linux-gnu [usr/lib/x86_64-linux-gnu/pkgconfig/arch-cross.pc]
+E: example (binary): pkg-config-multi-arch-wrong-dir (LN0732) full text contains architecture specific dir i386-linux-gnu [usr/share/pkgconfig/foo.pc]
+E: example (binary): pkg-config-multi-arch-wrong-dir (LN0732) full text contains architecture specific dir i386-linux-gnu [usr/lib/pkgconfig/foo.pc]
+E: example (binary): pkg-config-multi-arch-wrong-dir (LN0732) full text contains architecture specific dir i386-linux-gnu [usr/lib/pkgconfig/foo.pc]
+E: example (binary): pkg-config-multi-arch-wrong-dir (LN0732) full text contains architecture specific dir aarch64-linux-gnu [usr/lib/x86_64-linux-gnu/pkgconfig/foo.pc]

@@ -1619,6 +1619,7 @@ Rules
                 crate::lint::rules::ZeroByteExecutableInPath::CODE,
                 crate::lint::rules::PkgConfigBadDirective::CODE,
                 crate::lint::rules::RootInContact::CODE,
+                crate::lint::rules::PkgConfigMultiArchWrongDir::CODE,
             ]
         );
         let intent = LintIntent {

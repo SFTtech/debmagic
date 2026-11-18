@@ -101,6 +101,20 @@ pub(crate) fn deb_host_multiarch(architecture: &str) -> Option<&'static str> {
         .filter(|triplet| !triplet.is_empty())
 }
 
+/// Every non-empty `DEB_HOST_MULTIARCH` triplet of the release architectures,
+/// sorted and without duplicates.
+pub(crate) fn deb_host_multiarch_triplets() -> Vec<&'static str> {
+    let mut triplets: Vec<&'static str> = ARCHITECTURES
+        .multiarch
+        .values()
+        .map(String::as_str)
+        .filter(|triplet| !triplet.is_empty())
+        .collect();
+    triplets.sort_unstable();
+    triplets.dedup();
+    triplets
+}
+
 fn wildcard_names(arch: &HostArch) -> [String; 26] {
     let HostArch {
         abi, cpu, libc, os, ..

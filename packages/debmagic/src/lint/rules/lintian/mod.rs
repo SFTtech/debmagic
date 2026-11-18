@@ -186,7 +186,7 @@ pub(crate) use debian_rules::{
     DebianRulesShouldNotUseSanitizeAllBuildflag, DebianRulesUpdatesControlAutomatically,
     DebianRulesUsesDebBuildOpts, DebianRulesUsesInstalledPythonVersions,
     DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends,
-    OverrideDhFixpermsDoesNotCallDhFixperms,
+    OverrideDhFixpermsDoesNotCallDhFixperms, RulesRequireBuildPrerequisite,
 };
 pub(crate) use debian_shlibs::{
     DuplicateEntryInSymbolsControlFile, DuplicateInShlibs, InvalidTemplateIdInSymbolsFile,

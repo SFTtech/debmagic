@@ -557,6 +557,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/init-d/init.d-general",
     "checks/init-d/init.d-lsb-headers",
     "checks/init-d/init.d-script-registration",
+    "checks/init-d/legacy-maintainer-scripts",
     "checks/init-d/legacy-scripts",
     "checks/init-d/maintainer-script/legacy-maintainer-scripts",
     "checks/init-d/maintainer-script/scripts-calls-init-script",
@@ -1530,6 +1531,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/init-d/init.d-general"; "checks_init_d_init_d_general")]
 #[test_case("checks/init-d/init.d-lsb-headers"; "checks_init_d_init_d_lsb_headers")]
 #[test_case("checks/init-d/init.d-script-registration"; "checks_init_d_init_d_script_registration")]
+#[test_case("checks/init-d/legacy-maintainer-scripts"; "checks_init_d_legacy_maintainer_scripts")]
 #[test_case("checks/init-d/legacy-scripts"; "checks_init_d_legacy_scripts")]
 #[test_case("checks/init-d/maintainer-script/legacy-maintainer-scripts"; "checks_init_d_maintainer_script_legacy_maintainer_scripts")]
 #[test_case("checks/init-d/maintainer-script/scripts-calls-init-script"; "checks_init_d_maintainer_script_scripts_calls_init_script")]

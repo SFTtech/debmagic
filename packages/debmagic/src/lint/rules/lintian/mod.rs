@@ -403,10 +403,11 @@ pub(crate) use init_scripts::{
     InitDScriptHasDuplicateLsbSection, InitDScriptHasUnknownLsbKeyword,
     InitDScriptHasUnterminatedLsbSection, InitDScriptMissingDependencyOnLocalFs,
     InitDScriptMissingLsbKeyword, InitDScriptMissingLsbSection, InitDScriptMissingStart,
-    InitDScriptPossibleMissingStop, InitDScriptShouldAlwaysStartService,
-    InitDScriptStartsInStopRunlevel, InitDScriptStopsInSRunlevel,
-    MissingSystemdServiceForInitDRcSScript, NonVirtualFacilityInInitdScript,
-    SystemdServiceFileRefersToObsoleteTarget, SystemdServiceFileWrapsInitScript,
+    InitDScriptNotIncludedInPackage, InitDScriptPossibleMissingStop,
+    InitDScriptShouldAlwaysStartService, InitDScriptStartsInStopRunlevel,
+    InitDScriptStopsInSRunlevel, MissingSystemdServiceForInitDRcSScript,
+    NonVirtualFacilityInInitdScript, SystemdServiceFileRefersToObsoleteTarget,
+    SystemdServiceFileWrapsInitScript,
 };
 pub(crate) use languages_javascript::{
     EmbeddedJavascriptLibrary, NodePackageInstallInNodejsRootdir, NodejsLockFile,

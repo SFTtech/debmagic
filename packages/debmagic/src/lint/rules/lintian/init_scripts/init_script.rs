@@ -4,6 +4,7 @@
 //! they are not scanned (an upstart-job link is skipped by both checks).
 
 use std::collections::HashSet;
+use std::path::Component;
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
@@ -206,6 +207,54 @@ pub(super) fn rc_s_scripts(data: &FileTree, package: &str) -> Vec<RcSScript> {
 
 pub(super) fn whitelisted(service: &str) -> bool {
     WHITELIST.iter().any(|name| name == service)
+}
+
+/// Whether `etc/init.d/<name>` is in the package. A file, directory, or
+/// hardlink counts. A symlink counts when it is the upstart-job link, or when
+/// its chain of relative links ends at an entry of the package.
+pub(super) fn init_d_script_shipped(data: &FileTree, name: &str) -> bool {
+    let path = Path::new("etc/init.d").join(name);
+    let Some(mut entry) = data.get(&path) else {
+        return false;
+    };
+    if entry.kind() == EntryKind::Symlink
+        && entry.link_target() == Some(Path::new("/lib/init/upstart-job"))
+    {
+        return true;
+    }
+    for _ in 0..8 {
+        if entry.kind() != EntryKind::Symlink {
+            return true;
+        }
+        let Some(target) = entry.link_target() else {
+            return false;
+        };
+        let mut resolved = if target.is_absolute() {
+            PathBuf::new()
+        } else {
+            entry
+                .path()
+                .parent()
+                .map(Path::to_path_buf)
+                .unwrap_or_default()
+        };
+        for component in target.components() {
+            match component {
+                Component::Normal(part) => resolved.push(part),
+                Component::CurDir | Component::RootDir | Component::Prefix(_) => {}
+                Component::ParentDir => {
+                    if !resolved.pop() {
+                        return false;
+                    }
+                }
+            }
+        }
+        let Some(next) = data.get(&resolved) else {
+            return false;
+        };
+        entry = next;
+    }
+    false
 }
 
 fn script_entries(data: &FileTree) -> impl Iterator<Item = &Entry> {

@@ -390,6 +390,7 @@ use super::rules::MultiarchForeignStaticLibrary;
 use super::rules::NonConfFileInModprobeD;
 use super::rules::NonEmptyDependencyLibsInLaFile;
 use super::rules::OddStaticLibraryName;
+use super::rules::OldDevhelpStandard;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -1071,6 +1072,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LibraryInRootAndUsr,
         &DirectoryInModprobeD,
         &NonConfFileInModprobeD,
+        &OldDevhelpStandard,
     ]
 }
 
@@ -1772,6 +1774,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &LibraryInRootAndUsr,
         &DirectoryInModprobeD,
         &NonConfFileInModprobeD,
+        &OldDevhelpStandard,
     ]
 }
 
@@ -2490,6 +2493,7 @@ mod tests {
                 LibraryInRootAndUsr::CODE,
                 DirectoryInModprobeD::CODE,
                 NonConfFileInModprobeD::CODE,
+                OldDevhelpStandard::CODE,
             ]
         );
     }

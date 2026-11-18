@@ -60,6 +60,7 @@ mod languages_javascript;
 mod languages_perl;
 mod languages_php;
 mod languages_python;
+mod languages_r;
 mod libraries_shared_soname;
 mod lintian_overrides;
 mod ln0001_required_field;
@@ -382,6 +383,7 @@ pub(crate) use files_privacy_breach::{
     PrivacyBreachStatisticsWebsite, PrivacyBreachTwitter, PrivacyBreachUsesEmbeddedFile,
 };
 pub(crate) use languages_php::EmbeddedPhpLibrary;
+pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use lintian_overrides::{AlienTag, OverrideFileInWrongLocation};
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;

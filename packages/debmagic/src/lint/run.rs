@@ -1620,6 +1620,7 @@ Rules
                 crate::lint::rules::PkgConfigBadDirective::CODE,
                 crate::lint::rules::RootInContact::CODE,
                 crate::lint::rules::PkgConfigMultiArchWrongDir::CODE,
+                crate::lint::rules::RDataWithoutReadmeSource::CODE,
             ]
         );
         let intent = LintIntent {

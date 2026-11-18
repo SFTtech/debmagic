@@ -239,6 +239,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-old-python-version-field",
     "checks/languages/python/python-source-package-encodes-python-version",
+    "checks/languages/r/files-r-data",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-fields",
     "checks/nmu/legacy-libbaz",
@@ -836,6 +837,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-old-python-version-field",
     "checks/languages/python/python-source-package-encodes-python-version",
+    "checks/languages/r/files-r-data",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-fields",
     "checks/nmu/legacy-libbaz",
@@ -1125,6 +1127,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
 #[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
+#[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-fields"; "checks_nmu_legacy_fields")]
 #[test_case("checks/nmu/legacy-libbaz"; "checks_nmu_legacy_libbaz")]
@@ -1724,6 +1727,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
 #[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
+#[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-fields"; "checks_nmu_legacy_fields")]
 #[test_case("checks/nmu/legacy-libbaz"; "checks_nmu_legacy_libbaz")]

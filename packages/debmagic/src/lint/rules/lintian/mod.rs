@@ -21,6 +21,7 @@ mod debian_watch;
 mod description;
 mod desktop;
 mod desktop_gir;
+mod documentation;
 mod documentation_manual;
 mod documentation_texinfo;
 mod domain;
@@ -129,6 +130,7 @@ pub(crate) use desktop::{
     PackageInstallsFileToUsrX11r6,
 };
 pub(crate) use desktop_gir::GirSectionNotLibdevel;
+pub(crate) use documentation::ZeroByteFileInDocDirectory;
 
 pub(crate) use debian_changelog::{
     BogusMailHostInDebianChangelog, ChangelogNewsDebianMismatch, DebianChangelogHasWrongDayOfWeek,

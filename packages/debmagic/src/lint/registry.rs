@@ -325,6 +325,8 @@ use super::rules::ScriptWithoutInterpreter;
 use super::rules::StaticallyLinkedBinary;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 
+use super::rules::ZeroByteFileInDocDirectory;
+
 pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
     &[
         &DebmagicDummyTrigger,
@@ -920,6 +922,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingDepForInterpreter,
         &TruetypeFontProhibitsInstallableEmbedding,
         &ScriptWithoutInterpreter,
+        &ZeroByteFileInDocDirectory,
     ]
 }
 
@@ -1545,6 +1548,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MissingDepForInterpreter,
         &TruetypeFontProhibitsInstallableEmbedding,
         &ScriptWithoutInterpreter,
+        &ZeroByteFileInDocDirectory,
     ]
 }
 
@@ -2187,6 +2191,7 @@ mod tests {
                 MissingDepForInterpreter::CODE,
                 TruetypeFontProhibitsInstallableEmbedding::CODE,
                 ScriptWithoutInterpreter::CODE,
+                ZeroByteFileInDocDirectory::CODE,
             ]
         );
     }

@@ -24,6 +24,7 @@ mod ln0743_init_d_script_has_duplicate_lsb_section;
 mod ln0744_init_d_script_has_unknown_lsb_keyword;
 mod ln0745_init_d_script_has_unterminated_lsb_section;
 mod ln0746_init_d_script_missing_lsb_keyword;
+mod ln0791_init_d_script_missing_dependency_on_local_fs;
 pub(in crate::lint::rules::lintian) mod systemd_unit;
 
 pub(crate) use ln0230_init_d_script_does_not_implement_required_option::InitDScriptDoesNotImplementRequiredOption;
@@ -46,3 +47,4 @@ pub(crate) use ln0743_init_d_script_has_duplicate_lsb_section::InitDScriptHasDup
 pub(crate) use ln0744_init_d_script_has_unknown_lsb_keyword::InitDScriptHasUnknownLsbKeyword;
 pub(crate) use ln0745_init_d_script_has_unterminated_lsb_section::InitDScriptHasUnterminatedLsbSection;
 pub(crate) use ln0746_init_d_script_missing_lsb_keyword::InitDScriptMissingLsbKeyword;
+pub(crate) use ln0791_init_d_script_missing_dependency_on_local_fs::InitDScriptMissingDependencyOnLocalFs;

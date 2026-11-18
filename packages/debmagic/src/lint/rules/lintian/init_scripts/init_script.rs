@@ -107,6 +107,7 @@ pub(super) struct InitDScript {
     pub stops_in_s: usize,
     pub lsb: LsbHeader,
     pub section: LsbSection,
+    pub text: String,
 }
 
 /// A matching line in a direct child of `etc/default`.
@@ -147,8 +148,34 @@ pub(super) fn init_d_scripts(
                     .filter(|level| *level == "S" || *level == "s")
                     .count(),
                 lsb,
+                text,
             })
         })
+        .collect()
+}
+
+/// Lines the init-d check runs its body tests on, with 1-based numbers. The
+/// first LSB section is not a body: the check reads its lines up to and
+/// including the END marker, or the first line that is not a comment.
+pub(super) fn body_lines(text: &str) -> Vec<(u32, &str)> {
+    let lines: Vec<&str> = text.lines().collect();
+    let mut skipped = vec![false; lines.len()];
+    if let Some(begin) = lines
+        .iter()
+        .position(|line| line.starts_with("### BEGIN INIT INFO"))
+    {
+        for (index, line) in lines.iter().enumerate().skip(begin + 1) {
+            skipped[index] = true;
+            if line.starts_with("### END INIT INFO") || !line.starts_with('#') {
+                break;
+            }
+        }
+    }
+    lines
+        .into_iter()
+        .enumerate()
+        .filter(|(index, _)| !skipped[*index])
+        .map(|(index, line)| (u32::try_from(index + 1).unwrap_or(u32::MAX), line))
         .collect()
 }
 
@@ -620,5 +647,30 @@ mod tests {
         assert!(!ALWAYS_START.is_match("ENABLED =1"));
         assert!(!ALWAYS_START.is_match("AB_ENABLED=1"));
         assert!(!ALWAYS_START.is_match("# # ENABLED=1"));
+    }
+
+    #[test]
+    fn body_lines_skip_the_first_lsb_section() {
+        let text = "\
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides: a
+# . /etc/default/x
+### END INIT INFO
+. /etc/default/y
+### BEGIN INIT INFO
+# Provides: b
+### END INIT INFO
+. /etc/default/z
+";
+        let lines: Vec<u32> = body_lines(text).into_iter().map(|(line, _)| line).collect();
+        assert_eq!(lines, [1, 2, 6, 7, 8, 9, 10]);
+
+        let unterminated = "#!/bin/sh\n### BEGIN INIT INFO\n# Provides: a\nexit 0\nexit 1\n";
+        let lines: Vec<u32> = body_lines(unterminated)
+            .into_iter()
+            .map(|(line, _)| line)
+            .collect();
+        assert_eq!(lines, [1, 2, 5]);
     }
 }

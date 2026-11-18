@@ -15,6 +15,7 @@ mod ln0452_python_package_missing_depends_on_python;
 mod ln0476_bogus_python_prerequisite;
 mod ln0479_embedded_feedparser_library;
 mod ln0501_python_module_has_overly_generic_name;
+mod ln0819_duplicate_p3dist_override;
 mod python_version;
 
 pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;
@@ -29,3 +30,4 @@ pub(crate) use ln0452_python_package_missing_depends_on_python::PythonPackageMis
 pub(crate) use ln0476_bogus_python_prerequisite::BogusPythonPrerequisite;
 pub(crate) use ln0479_embedded_feedparser_library::EmbeddedFeedparserLibrary;
 pub(crate) use ln0501_python_module_has_overly_generic_name::PythonModuleHasOverlyGenericName;
+pub(crate) use ln0819_duplicate_p3dist_override::DuplicateP3distOverride;

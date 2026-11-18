@@ -40,6 +40,7 @@ use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::ExcessiveDebhelperOverrides;
+use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
 use super::rules::NmuInChangelog;
 use super::rules::ObsoleteRelationFormInSource;
@@ -997,6 +998,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NmuInChangelog,
         &MaintainerUploadHasIncorrectVersionNumber,
         &BinaryNmuDebianRevisionInSource,
+        &ExtraWhitespaceAroundNameInChangelogTrailer,
     ]
 }
 
@@ -1216,6 +1218,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NmuInChangelog,
         &MaintainerUploadHasIncorrectVersionNumber,
         &BinaryNmuDebianRevisionInSource,
+        &ExtraWhitespaceAroundNameInChangelogTrailer,
     ]
 }
 
@@ -1889,6 +1892,7 @@ mod tests {
                 NmuInChangelog::CODE,
                 MaintainerUploadHasIncorrectVersionNumber::CODE,
                 BinaryNmuDebianRevisionInSource::CODE,
+                ExtraWhitespaceAroundNameInChangelogTrailer::CODE,
             ]
         );
     }

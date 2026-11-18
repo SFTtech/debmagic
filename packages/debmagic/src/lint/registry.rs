@@ -41,6 +41,7 @@ use super::rules::DhExecScriptWithoutDhExecFeatures;
 use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DocPackageDependsOnMainPackage;
+use super::rules::DuplicateOverrideContext;
 use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
@@ -1157,6 +1158,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DfsgVersionInNativePackage,
         &DuplicateContact,
         &MalformedOverride,
+        &DuplicateOverrideContext,
     ]
 }
 
@@ -1399,6 +1401,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DfsgVersionInNativePackage,
         &DuplicateContact,
         &MalformedOverride,
+        &DuplicateOverrideContext,
     ]
 }
 
@@ -2152,6 +2155,7 @@ mod tests {
                 DfsgVersionInNativePackage::CODE,
                 DuplicateContact::CODE,
                 MalformedOverride::CODE,
+                DuplicateOverrideContext::CODE,
             ]
         );
     }

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): duplicate-override-context (LN0840) cute-field (lines 1 2) [debian/source/lintian-overrides]
+W: example (source): duplicate-override-context (LN0840) cute-field (lines 1 2) [debian/source/lintian-overrides]
+W: example (source): duplicate-override-context (LN0840) cute-field (lines 1 2 3) [debian/source/lintian-overrides]
+W: example (source): duplicate-override-context (LN0840) package-installs-apt-sources (lines 1 2) [debian/source/lintian-overrides]
+W: example (source): duplicate-override-context (LN0840) a (lines 10 2) [debian/source/lintian-overrides]

@@ -1715,6 +1715,7 @@ Rules
                 crate::lint::rules::DfsgVersionInNativePackage::CODE,
                 crate::lint::rules::DuplicateContact::CODE,
                 crate::lint::rules::MalformedOverride::CODE,
+                crate::lint::rules::DuplicateOverrideContext::CODE,
             ]
         );
         let intent = LintIntent {

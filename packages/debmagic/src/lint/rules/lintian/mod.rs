@@ -130,7 +130,9 @@ pub(crate) use archive_liberty::ArchiveLibertyMismatch;
 pub(crate) use autotools::{
     AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,
 };
-pub(crate) use binaries_location::ArchDependentFileNotInArchSpecificDirectory;
+pub(crate) use binaries_location::{
+    ArchDependentFileInUsrShare, ArchDependentFileNotInArchSpecificDirectory,
+};
 pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
 pub(crate) use binaries_rpath::RelativeLibrarySearchPath;
 pub(crate) use binaries_static::StaticallyLinkedBinary;

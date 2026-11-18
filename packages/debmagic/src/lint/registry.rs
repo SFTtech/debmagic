@@ -341,6 +341,7 @@ use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 use super::rules::WrongPathForInterpreter;
 
 use super::rules::AbsoluteSymbolicLinkTargetInSource;
+use super::rules::ArchDependentFileInUsrShare;
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
@@ -979,6 +980,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AbsoluteSymbolicLinkTargetInSource,
         &CarriageReturnLineFeed,
         &CustomCompressionInDebianSourceOptions,
+        &ArchDependentFileInUsrShare,
     ]
 }
 
@@ -1634,6 +1636,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OldStyleConfigScriptMultiarchPath,
         &OpentypeFontProhibitsInstallableEmbedding,
         &OldStyleConfigScriptMultiarchPathArchAll,
+        &ArchDependentFileInUsrShare,
     ]
 }
 
@@ -2306,6 +2309,7 @@ mod tests {
                 OldStyleConfigScriptMultiarchPath::CODE,
                 OpentypeFontProhibitsInstallableEmbedding::CODE,
                 OldStyleConfigScriptMultiarchPathArchAll::CODE,
+                ArchDependentFileInUsrShare::CODE,
             ]
         );
     }

@@ -1627,6 +1627,7 @@ Rules
                 crate::lint::rules::AbsoluteSymbolicLinkTargetInSource::CODE,
                 crate::lint::rules::CarriageReturnLineFeed::CODE,
                 crate::lint::rules::CustomCompressionInDebianSourceOptions::CODE,
+                crate::lint::rules::ArchDependentFileInUsrShare::CODE,
             ]
         );
         let intent = LintIntent {

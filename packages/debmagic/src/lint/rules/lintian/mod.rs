@@ -453,7 +453,7 @@ pub(crate) use files_privacy_breach::{
     PrivacyBreachGoogleCse, PrivacyBreachGooglePlus, PrivacyBreachLogo, PrivacyBreachPiwik,
     PrivacyBreachStatisticsWebsite, PrivacyBreachTwitter, PrivacyBreachUsesEmbeddedFile,
 };
-pub(crate) use languages_php::EmbeddedPhpLibrary;
+pub(crate) use languages_php::{EmbeddedPhpLibrary, ObsoleteCommentsStyleInPhpIni};
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use lintian_overrides::{AlienTag, OverrideFileInWrongLocation};
 pub(crate) use ln0001_required_field::RequiredField;

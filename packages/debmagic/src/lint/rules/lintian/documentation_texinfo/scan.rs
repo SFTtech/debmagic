@@ -131,3 +131,8 @@ pub(super) fn is_image(extension: &str) -> bool {
 pub(super) fn is_gzip(bytes: &[u8]) -> bool {
     bytes.starts_with(&[0x1f, 0x8b])
 }
+
+/// libmagic's `max compression`: gzip data whose header XFL byte is 2.
+pub(super) fn is_max_compression(bytes: &[u8]) -> bool {
+    is_gzip(bytes) && bytes.get(8) == Some(&2)
+}

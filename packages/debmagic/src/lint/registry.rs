@@ -363,6 +363,7 @@ use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::DocumentationPackageNotArchitectureIndependent;
 use super::rules::DuplicateConffile;
 use super::rules::FileInEtcRcDMarkedAsConffile;
+use super::rules::FileInRootAndUsr;
 use super::rules::GitPatchesNotExported;
 use super::rules::IncorrectLibdirInLaFile;
 use super::rules::InfoDocumentHasWrongExtension;
@@ -1063,6 +1064,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ConffileHasBadFileType,
         &DuplicateConffile,
         &FileInEtcRcDMarkedAsConffile,
+        &FileInRootAndUsr,
     ]
 }
 
@@ -1760,6 +1762,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ConffileHasBadFileType,
         &DuplicateConffile,
         &FileInEtcRcDMarkedAsConffile,
+        &FileInRootAndUsr,
     ]
 }
 
@@ -2480,6 +2483,7 @@ mod tests {
                 ConffileHasBadFileType::CODE,
                 DuplicateConffile::CODE,
                 FileInEtcRcDMarkedAsConffile::CODE,
+                FileInRootAndUsr::CODE,
             ]
         );
     }

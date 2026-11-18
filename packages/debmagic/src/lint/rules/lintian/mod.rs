@@ -125,7 +125,9 @@ pub(crate) use apache2::{
     Apache2UnparsableDependency, NonStandardApache2ConfigurationName,
 };
 pub(crate) use archive_liberty::ArchiveLibertyMismatch;
-pub(crate) use autotools::{AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe};
+pub(crate) use autotools::{
+    AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,
+};
 pub(crate) use binaries_location::ArchDependentFileNotInArchSpecificDirectory;
 pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
 pub(crate) use binaries_rpath::RelativeLibrarySearchPath;

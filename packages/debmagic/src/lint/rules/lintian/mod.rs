@@ -302,7 +302,8 @@ pub(crate) use fields_text::{
 };
 pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
 pub(crate) use fields_vcs::{
-    OrphanedPackageMaintainedInPrivateSpace, VcsFieldBitrotted, VcsFieldMismatch,
+    OrphanedPackageMaintainedInPrivateSpace, OrphanedPackageNotMaintainedInDebianInfrastructure,
+    VcsFieldBitrotted, VcsFieldMismatch,
 };
 pub(crate) use files_artifact::{
     DebianAddsArchControlDir, DebianAddsArchInventoryFile, DebianAddsBtsControlDir,

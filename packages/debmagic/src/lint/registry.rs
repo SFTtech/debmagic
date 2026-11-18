@@ -333,6 +333,7 @@ use super::rules::StaticallyLinkedBinary;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 use super::rules::WrongPathForInterpreter;
 
+use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::PhpScriptButNoPhpCliDep;
 use super::rules::RemoveOfUnknownDiversion;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
@@ -945,6 +946,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MultiarchForeignPkgconfig,
         &WrongPathForInterpreter,
         &RemoveOfUnknownDiversion,
+        &ArchDependentFileNotInArchSpecificDirectory,
     ]
 }
 
@@ -1582,6 +1584,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MultiarchForeignPkgconfig,
         &WrongPathForInterpreter,
         &RemoveOfUnknownDiversion,
+        &ArchDependentFileNotInArchSpecificDirectory,
     ]
 }
 
@@ -2236,6 +2239,7 @@ mod tests {
                 MultiarchForeignPkgconfig::CODE,
                 WrongPathForInterpreter::CODE,
                 RemoveOfUnknownDiversion::CODE,
+                ArchDependentFileNotInArchSpecificDirectory::CODE,
             ]
         );
     }

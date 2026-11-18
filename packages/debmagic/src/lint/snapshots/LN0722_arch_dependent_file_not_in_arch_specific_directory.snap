@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): arch-dependent-file-not-in-arch-specific-directory (LN0722) [usr/bin/same]
+E: example (binary): arch-dependent-file-not-in-arch-specific-directory (LN0722) [usr/lib/libbasic.so.2]
+E: example (binary): arch-dependent-file-not-in-arch-specific-directory (LN0722) [var/lib/private/same]
+E: example (binary): arch-dependent-file-not-in-arch-specific-directory (LN0722) [usr/lib/libfoo.a]
+E: example (binary): arch-dependent-file-not-in-arch-specific-directory (LN0722) [usr/lib/x86_64-linux-gnufoo/libfoo.so.1]
+E: example (binary): arch-dependent-file-not-in-arch-specific-directory (LN0722) [usr/lib/x86_64-linux.so]
+E: example (binary): arch-dependent-file-not-in-arch-specific-directory (LN0722) [usr/lib/jvm/java-11-openjdk-arm64/lib/libjava.so]
+E: example (binary): arch-dependent-file-not-in-arch-specific-directory (LN0722) [usr/lib/build-id/ab/cdef.debug]
+E: example (binary): arch-dependent-file-not-in-arch-specific-directory (LN0722) [usr/bin/same-link]
+E: example (udeb): arch-dependent-file-not-in-arch-specific-directory (LN0722) [usr/lib/libfoo.so.1]

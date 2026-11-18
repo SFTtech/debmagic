@@ -413,6 +413,7 @@ use super::rules::PkgConfigMultiArchWrongDir;
 use super::rules::PkgConfigUnavailableForCrossCompilation;
 use super::rules::RDataWithoutReadmeSource;
 use super::rules::RemoveOfUnknownDiversion;
+use super::rules::ScriptUsesUnversionedPythonInShebang;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
 use super::rules::SystemdDiversion;
 use super::rules::VcsFieldBitrotted;
@@ -1109,6 +1110,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &KillallIsDangerous,
         &SystemdDiversion,
         &AdduserWithHomeVarRun,
+        &ScriptUsesUnversionedPythonInShebang,
     ]
 }
 
@@ -1829,6 +1831,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &KillallIsDangerous,
         &SystemdDiversion,
         &AdduserWithHomeVarRun,
+        &ScriptUsesUnversionedPythonInShebang,
     ]
 }
 
@@ -2566,6 +2569,7 @@ mod tests {
                 KillallIsDangerous::CODE,
                 SystemdDiversion::CODE,
                 AdduserWithHomeVarRun::CODE,
+                ScriptUsesUnversionedPythonInShebang::CODE,
             ]
         );
     }

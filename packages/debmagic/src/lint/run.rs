@@ -1689,6 +1689,7 @@ Rules
                 crate::lint::rules::MaintainerScriptCallsSystemctl::CODE,
                 crate::lint::rules::MknodInMaintainerScript::CODE,
                 crate::lint::rules::KillallIsDangerous::CODE,
+                crate::lint::rules::SystemdDiversion::CODE,
             ]
         );
         let intent = LintIntent {

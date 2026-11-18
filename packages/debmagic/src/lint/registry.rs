@@ -413,6 +413,7 @@ use super::rules::PkgConfigUnavailableForCrossCompilation;
 use super::rules::RDataWithoutReadmeSource;
 use super::rules::RemoveOfUnknownDiversion;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
+use super::rules::SystemdDiversion;
 use super::rules::VcsFieldBitrotted;
 use super::rules::VcsFieldMismatch;
 use super::rules::ZeroByteExecutableInPath;
@@ -1105,6 +1106,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MaintainerScriptCallsSystemctl,
         &MknodInMaintainerScript,
         &KillallIsDangerous,
+        &SystemdDiversion,
     ]
 }
 
@@ -1823,6 +1825,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MaintainerScriptCallsSystemctl,
         &MknodInMaintainerScript,
         &KillallIsDangerous,
+        &SystemdDiversion,
     ]
 }
 
@@ -2558,6 +2561,7 @@ mod tests {
                 MaintainerScriptCallsSystemctl::CODE,
                 MknodInMaintainerScript::CODE,
                 KillallIsDangerous::CODE,
+                SystemdDiversion::CODE,
             ]
         );
     }

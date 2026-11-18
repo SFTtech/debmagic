@@ -13,3 +13,6 @@ pub(crate) use ln0720_orphaned_diversion::OrphanedDiversion;
 mod ln0723_remove_of_unknown_diversion;
 
 pub(crate) use ln0723_remove_of_unknown_diversion::RemoveOfUnknownDiversion;
+mod ln0812_systemd_diversion;
+
+pub(crate) use ln0812_systemd_diversion::SystemdDiversion;

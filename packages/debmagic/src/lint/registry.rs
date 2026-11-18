@@ -377,7 +377,6 @@ use super::rules::BadMenuItem;
 use super::rules::BadPermissionsForEtcEmacsScript;
 use super::rules::BugsFieldDoesNotReferToDebianInfrastructure;
 use super::rules::ConffileHasBadFileType;
-use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::DfsgVersionInNativePackage;
 use super::rules::DfsgVersionMisspelled;
@@ -1071,7 +1070,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldStyleConfigScriptMultiarchPath,
         &OpentypeFontProhibitsInstallableEmbedding,
         &OldStyleConfigScriptMultiarchPathArchAll,
-        &ConfigureGeneratedFileInSource,
         &AbsoluteSymbolicLinkTargetInSource,
         &CarriageReturnLineFeed,
         &CustomCompressionInDebianSourceOptions,
@@ -1383,7 +1381,6 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &TimewarpStandardsVersion,
         &RootInContact,
         &RDataWithoutReadmeSource,
-        &ConfigureGeneratedFileInSource,
         &AbsoluteSymbolicLinkTargetInSource,
         &CarriageReturnLineFeed,
         &CustomCompressionInDebianSourceOptions,
@@ -2143,7 +2140,6 @@ mod tests {
                 TimewarpStandardsVersion::CODE,
                 RootInContact::CODE,
                 RDataWithoutReadmeSource::CODE,
-                ConfigureGeneratedFileInSource::CODE,
                 AbsoluteSymbolicLinkTargetInSource::CODE,
                 CarriageReturnLineFeed::CODE,
                 CustomCompressionInDebianSourceOptions::CODE,

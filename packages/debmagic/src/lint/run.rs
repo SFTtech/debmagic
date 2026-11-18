@@ -1672,6 +1672,7 @@ Rules
                 crate::lint::rules::FileInRootAndUsr::CODE,
                 crate::lint::rules::LibraryInRootAndUsr::CODE,
                 crate::lint::rules::DirectoryInModprobeD::CODE,
+                crate::lint::rules::NonConfFileInModprobeD::CODE,
             ]
         );
         let intent = LintIntent {

@@ -497,7 +497,9 @@ pub(crate) use menus::{
     PostinstHasUselessCallToInstallDocs, PostrmDoesNotCallUpdatemenus,
     PrermHasUselessCallToInstallDocs,
 };
-pub(crate) use modprobe::{DirectoryInModprobeD, ObsoleteCommandInModprobeDFile};
+pub(crate) use modprobe::{
+    DirectoryInModprobeD, NonConfFileInModprobeD, ObsoleteCommandInModprobeDFile,
+};
 pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};
 pub(crate) use po_debconf::{InvalidPoFile, MisnamedPoFile, TranslatedDefaultField};
 pub(crate) use rules_and_control::{

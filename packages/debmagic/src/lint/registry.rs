@@ -387,6 +387,7 @@ use super::rules::MissingDebianSourceFormat;
 use super::rules::MultiarchForeignCmakeFile;
 use super::rules::MultiarchForeignSharedLibrary;
 use super::rules::MultiarchForeignStaticLibrary;
+use super::rules::NonConfFileInModprobeD;
 use super::rules::NonEmptyDependencyLibsInLaFile;
 use super::rules::OddStaticLibraryName;
 use super::rules::OldStyleConfigScriptMultiarchPath;
@@ -1069,6 +1070,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &FileInRootAndUsr,
         &LibraryInRootAndUsr,
         &DirectoryInModprobeD,
+        &NonConfFileInModprobeD,
     ]
 }
 
@@ -1769,6 +1771,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &FileInRootAndUsr,
         &LibraryInRootAndUsr,
         &DirectoryInModprobeD,
+        &NonConfFileInModprobeD,
     ]
 }
 
@@ -2492,6 +2495,7 @@ mod tests {
                 FileInRootAndUsr::CODE,
                 LibraryInRootAndUsr::CODE,
                 DirectoryInModprobeD::CODE,
+                NonConfFileInModprobeD::CODE,
             ]
         );
     }

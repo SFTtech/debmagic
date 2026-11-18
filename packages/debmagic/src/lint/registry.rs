@@ -394,6 +394,7 @@ use super::rules::InitDScriptHasUnterminatedLsbSection;
 use super::rules::InitDScriptMissingDependencyOnLocalFs;
 use super::rules::InitDScriptMissingLsbKeyword;
 use super::rules::InitDScriptMissingStart;
+use super::rules::InitDScriptNotIncludedInPackage;
 use super::rules::InvalidDep3FormatPatchBugFieldDefaultValue;
 use super::rules::InvalidDep3FormatPatchBugNotContainUrl;
 use super::rules::InvalidDep3FormatPatchMaybeBugDebian;
@@ -1137,6 +1138,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NestedExamplesDirectory,
         &InitDScriptMissingDependencyOnLocalFs,
         &InitDScriptMissingStart,
+        &InitDScriptNotIncludedInPackage,
     ]
 }
 
@@ -1871,6 +1873,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NestedExamplesDirectory,
         &InitDScriptMissingDependencyOnLocalFs,
         &InitDScriptMissingStart,
+        &InitDScriptNotIncludedInPackage,
     ]
 }
 
@@ -2622,6 +2625,7 @@ mod tests {
                 NestedExamplesDirectory::CODE,
                 InitDScriptMissingDependencyOnLocalFs::CODE,
                 InitDScriptMissingStart::CODE,
+                InitDScriptNotIncludedInPackage::CODE,
             ]
         );
     }

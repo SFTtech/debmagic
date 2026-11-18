@@ -1716,6 +1716,7 @@ Rules
                 crate::lint::rules::DuplicateContact::CODE,
                 crate::lint::rules::MalformedOverride::CODE,
                 crate::lint::rules::DuplicateOverrideContext::CODE,
+                crate::lint::rules::OverrideFileInWrongPackage::CODE,
             ]
         );
         let intent = LintIntent {

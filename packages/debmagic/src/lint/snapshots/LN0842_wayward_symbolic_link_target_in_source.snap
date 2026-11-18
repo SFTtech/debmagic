@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): wayward-symbolic-link-target-in-source (LN0842) ../target [link]
+E: example (source): wayward-symbolic-link-target-in-source (LN0842) ../../non-existent/path [link]
+E: example (source): wayward-symbolic-link-target-in-source (LN0842) ../../target [dir/link]
+E: example (source): wayward-symbolic-link-target-in-source (LN0842) ../../../x [a/b/link]
+E: example (source): wayward-symbolic-link-target-in-source (LN0842) ../../x [debian/link]

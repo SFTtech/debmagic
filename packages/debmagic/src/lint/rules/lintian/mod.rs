@@ -279,7 +279,9 @@ pub(crate) use files_artifact::{
     DebianAddsSvnControlDir,
 };
 pub(crate) use files_build_path::DirOrFileInBuildTree;
-pub(crate) use files_config_scripts::OldStyleConfigScriptMultiarchPath;
+pub(crate) use files_config_scripts::{
+    OldStyleConfigScriptMultiarchPath, OldStyleConfigScriptMultiarchPathArchAll,
+};
 pub(crate) use files_debug::NonDebugFileInDebugPackage;
 pub(crate) use files_foreign::{
     CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,

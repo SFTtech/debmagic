@@ -1623,6 +1623,7 @@ Rules
                 crate::lint::rules::RDataWithoutReadmeSource::CODE,
                 crate::lint::rules::OldStyleConfigScriptMultiarchPath::CODE,
                 crate::lint::rules::OpentypeFontProhibitsInstallableEmbedding::CODE,
+                crate::lint::rules::OldStyleConfigScriptMultiarchPathArchAll::CODE,
             ]
         );
         let intent = LintIntent {

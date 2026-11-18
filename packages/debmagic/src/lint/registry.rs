@@ -12,6 +12,7 @@ use super::rules::BuildDependsOnNonBuildPackage;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CarriageReturnLineFeed;
+use super::rules::ChangelogIsSymlink;
 use super::rules::ConflictingNegationInSourceRelation;
 use super::rules::DbgPackageMissingDepends;
 use super::rules::DebhelperCompatFileContainsMultipleLevels;
@@ -999,6 +1000,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MaintainerUploadHasIncorrectVersionNumber,
         &BinaryNmuDebianRevisionInSource,
         &ExtraWhitespaceAroundNameInChangelogTrailer,
+        &ChangelogIsSymlink,
     ]
 }
 
@@ -1219,6 +1221,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MaintainerUploadHasIncorrectVersionNumber,
         &BinaryNmuDebianRevisionInSource,
         &ExtraWhitespaceAroundNameInChangelogTrailer,
+        &ChangelogIsSymlink,
     ]
 }
 
@@ -1893,6 +1896,7 @@ mod tests {
                 MaintainerUploadHasIncorrectVersionNumber::CODE,
                 BinaryNmuDebianRevisionInSource::CODE,
                 ExtraWhitespaceAroundNameInChangelogTrailer::CODE,
+                ChangelogIsSymlink::CODE,
             ]
         );
     }

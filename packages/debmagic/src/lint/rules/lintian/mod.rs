@@ -115,6 +115,7 @@ mod ln0185_obsolete_url_in_packaging;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_diversion;
+mod maintainer_scripts_systemctl;
 mod md5sums;
 mod menu_format;
 mod menus;
@@ -493,6 +494,7 @@ pub(crate) use ln0185_obsolete_url_in_packaging::ObsoleteUrlInPackaging;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion, RemoveOfUnknownDiversion,
 };
+pub(crate) use maintainer_scripts_systemctl::MaintainerScriptCallsSystemctl;
 pub(crate) use menu_format::{
     BadTestInMenuItem, CommandInMenuFileAndDesktopFile, DesktopCommandNotInPackage,
     DesktopContainsDeprecatedKey, DesktopEntryContainsDeprecatedKey,

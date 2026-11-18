@@ -356,6 +356,7 @@ use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::AspellPackageNotArchAll;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
+use super::rules::DocumentationPackageNotArchitectureIndependent;
 use super::rules::IncorrectLibdirInLaFile;
 use super::rules::InfoDocumentHasWrongExtension;
 use super::rules::InfoDocumentMissingImageFile;
@@ -1037,6 +1038,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &IncorrectLibdirInLaFile,
         &NonEmptyDependencyLibsInLaFile,
         &AspellPackageNotArchAll,
+        &DocumentationPackageNotArchitectureIndependent,
     ]
 }
 
@@ -1721,6 +1723,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &IncorrectLibdirInLaFile,
         &NonEmptyDependencyLibsInLaFile,
         &AspellPackageNotArchAll,
+        &DocumentationPackageNotArchitectureIndependent,
     ]
 }
 
@@ -2422,6 +2425,7 @@ mod tests {
                 IncorrectLibdirInLaFile::CODE,
                 NonEmptyDependencyLibsInLaFile::CODE,
                 AspellPackageNotArchAll::CODE,
+                DocumentationPackageNotArchitectureIndependent::CODE,
             ]
         );
     }

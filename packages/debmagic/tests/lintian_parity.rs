@@ -404,6 +404,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/executable/legacy-scripts",
     "checks/executable/scripts-exec",
     "checks/fields/architecture/fields-aspell",
+    "checks/fields/architecture/fields-doc-pkg-wrong-arch",
     "checks/fields/bugs/fields-redundant",
     "checks/fields/bugs/legacy-relations",
     "checks/fields/description/description-empty-paragraph",
@@ -1321,6 +1322,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/executable/legacy-scripts"; "checks_executable_legacy_scripts")]
 #[test_case("checks/executable/scripts-exec"; "checks_executable_scripts_exec")]
 #[test_case("checks/fields/architecture/fields-aspell"; "checks_fields_architecture_fields_aspell")]
+#[test_case("checks/fields/architecture/fields-doc-pkg-wrong-arch"; "checks_fields_architecture_fields_doc_pkg_wrong_arch")]
 #[test_case("checks/fields/bugs/fields-redundant"; "checks_fields_bugs_fields_redundant")]
 #[test_case("checks/fields/bugs/legacy-relations"; "checks_fields_bugs_legacy_relations")]
 #[test_case("checks/fields/description/description-empty-paragraph"; "checks_fields_description_description_empty_paragraph")]

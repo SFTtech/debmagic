@@ -239,7 +239,7 @@ pub(crate) use debian_debconf::{
     UnknownDebconfPriority, UnknownFieldInTemplates, UsingFirstPersonInTemplates,
     UsingImperativeFormInTemplates, UsingQuestionInExtendedDescriptionInTemplates,
 };
-pub(crate) use debian_filenames::DuplicatePackagingFile;
+pub(crate) use debian_filenames::{DuplicatePackagingFile, IncorrectPackagingFilename};
 pub(crate) use debian_line_separators::CarriageReturnLineFeed;
 pub(crate) use debian_readme::{
     ReadmeDebianContainsInvalidEmailAddress, ReadmeDebianMentionsUsrDoc,

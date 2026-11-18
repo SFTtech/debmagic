@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): incorrect-packaging-filename (LN0804) better: debian/NEWS [debian/NEWS.Debian]
+W: example (source): incorrect-packaging-filename (LN0804) better: debian/NEWS [debian/NEWS.debian]
+W: example (source): incorrect-packaging-filename (LN0804) better: debian/TODO [debian/TODO.Debian]
+W: example (source): incorrect-packaging-filename (LN0804) better: debian/TODO [debian/TODO.debian]
+W: example (source): incorrect-packaging-filename (LN0804) better: debian/NEWS [debian/NEWS.Debian]
+W: example (source): incorrect-packaging-filename (LN0804) better: debian/NEWS [debian/NEWS.debian]
+W: example (source): incorrect-packaging-filename (LN0804) better: debian/NEWS [debian/NEWS.Debian]
+W: example (source): incorrect-packaging-filename (LN0804) better: debian/TODO [debian/TODO.Debian]

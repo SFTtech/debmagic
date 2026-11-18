@@ -4,6 +4,8 @@
 //! emits one Tag.
 
 mod ln0803_duplicate_packaging_file;
+mod ln0804_incorrect_packaging_filename;
 mod misnamed;
 
 pub(crate) use ln0803_duplicate_packaging_file::DuplicatePackagingFile;
+pub(crate) use ln0804_incorrect_packaging_filename::IncorrectPackagingFilename;

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (udeb): bad-menu-item (LN0836) network
+E: example (udeb): bad-menu-item (LN0836) -1
+E: example (udeb): bad-menu-item (LN0836) 1a
+E: example (udeb): bad-menu-item (LN0836)
+E: example (udeb): bad-menu-item (LN0836) 10 20

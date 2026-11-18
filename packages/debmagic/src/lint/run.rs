@@ -1694,6 +1694,7 @@ Rules
                 crate::lint::rules::ScriptUsesUnversionedPythonInShebang::CODE,
                 crate::lint::rules::InvalidValueInBuiltUsingField::CODE,
                 crate::lint::rules::InvalidValueInStaticBuiltUsingField::CODE,
+                crate::lint::rules::BadMenuItem::CODE,
             ]
         );
         let intent = LintIntent {

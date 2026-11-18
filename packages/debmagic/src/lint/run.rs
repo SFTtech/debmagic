@@ -1656,6 +1656,7 @@ Rules
                 crate::lint::rules::IncorrectLibdirInLaFile::CODE,
                 crate::lint::rules::NonEmptyDependencyLibsInLaFile::CODE,
                 crate::lint::rules::AspellPackageNotArchAll::CODE,
+                crate::lint::rules::DocumentationPackageNotArchitectureIndependent::CODE,
             ]
         );
         let intent = LintIntent {

@@ -399,7 +399,9 @@ pub(crate) use debian_po_debconf::{
 };
 pub(crate) use debian_source_dir::CustomCompressionInDebianSourceOptions;
 pub(crate) use debian_variables::IllegalVariable;
-pub(crate) use fields_architecture::AspellPackageNotArchAll;
+pub(crate) use fields_architecture::{
+    AspellPackageNotArchAll, DocumentationPackageNotArchitectureIndependent,
+};
 pub(crate) use fields_mail_address::{
     FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase, MailAddressLoopsOrBounces, RootInContact,
 };

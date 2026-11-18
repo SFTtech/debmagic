@@ -407,8 +407,8 @@ pub(crate) use languages_python::{
     EmbeddedFeedparserLibrary, FileInUsrLibSitePython, MalformedPythonVersion,
     PackageInstallsDeprecatedPython2Path, PythonModuleHasOverlyGenericName,
     PythonPackageMissingDependsOnPython, PythonVersionCurrentIsDeprecated,
-    SourcePackageEncodesPythonVersion, ThirdPartyPackageInPythonDir,
-    UnknownFileInPythonModuleDirectory,
+    ScriptUsesUnversionedPythonInShebang, SourcePackageEncodesPythonVersion,
+    ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory,
 };
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
 pub(crate) use libraries_static::OddStaticLibraryName;

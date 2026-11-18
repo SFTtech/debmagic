@@ -1691,6 +1691,7 @@ Rules
                 crate::lint::rules::KillallIsDangerous::CODE,
                 crate::lint::rules::SystemdDiversion::CODE,
                 crate::lint::rules::AdduserWithHomeVarRun::CODE,
+                crate::lint::rules::ScriptUsesUnversionedPythonInShebang::CODE,
             ]
         );
         let intent = LintIntent {

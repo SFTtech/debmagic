@@ -576,6 +576,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/files-unknown-file-in-python-module-directory",
     "checks/languages/python/package-uses-python-egg-info",
     "checks/languages/python/python-package-missing-depends-on-python",
+    "checks/languages/python/scripts/python-script-uses-unversioned-python-in-shebang",
     "checks/libraries/shared/soname/missing/legacy-debug",
     "checks/libraries/shared/soname/missing/legacy-libbaz",
     "checks/libraries/shared/soname/missing/shared-libs-missing-soname",
@@ -1537,6 +1538,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/python/files-unknown-file-in-python-module-directory"; "checks_languages_python_files_unknown_file_in_python_module_directory")]
 #[test_case("checks/languages/python/package-uses-python-egg-info"; "checks_languages_python_package_uses_python_egg_info")]
 #[test_case("checks/languages/python/python-package-missing-depends-on-python"; "checks_languages_python_python_package_missing_depends_on_python")]
+#[test_case("checks/languages/python/scripts/python-script-uses-unversioned-python-in-shebang"; "checks_languages_python_scripts_python_script_uses_unversioned_python_in_shebang")]
 #[test_case("checks/libraries/shared/soname/missing/legacy-debug"; "checks_libraries_shared_soname_missing_legacy_debug")]
 #[test_case("checks/libraries/shared/soname/missing/legacy-libbaz"; "checks_libraries_shared_soname_missing_legacy_libbaz")]
 #[test_case("checks/libraries/shared/soname/missing/shared-libs-missing-soname"; "checks_libraries_shared_soname_missing_shared_libs_missing_soname")]

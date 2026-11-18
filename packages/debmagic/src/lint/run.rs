@@ -1661,6 +1661,7 @@ Rules
                 crate::lint::rules::NewerStandardsVersion::CODE,
                 crate::lint::rules::MaintainerAlsoInUploaders::CODE,
                 crate::lint::rules::MissingDebianSourceFormat::CODE,
+                crate::lint::rules::GitPatchesNotExported::CODE,
             ]
         );
         let intent = LintIntent {

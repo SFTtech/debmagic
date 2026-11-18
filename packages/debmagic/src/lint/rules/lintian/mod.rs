@@ -28,6 +28,7 @@ mod desktop;
 mod desktop_gir;
 mod documentation;
 mod documentation_devhelp_standard;
+mod documentation_examples;
 mod documentation_manual;
 mod documentation_texinfo;
 mod domain;
@@ -277,6 +278,7 @@ pub(crate) use description::{
     ExtendedDescriptionContainsEmptyParagraph, ExtendedDescriptionIsEmpty,
     ExtendedDescriptionLineTooLong, SynopsisTooLong,
 };
+pub(crate) use documentation_examples::NestedExamplesDirectory;
 pub(crate) use documentation_manual::{
     BadSoLinkWithinManualPage, BadWhatisEntry, BrokenLinkToUndocumented, BuildPathInManual,
     CountryInManual, EmptyManualPage, GroffMessage, ManualPageFromTemplate,

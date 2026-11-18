@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): nested-examples-directory (LN0826) [usr/share/doc/pkg/examples/examples/]
+E: example (udeb): nested-examples-directory (LN0826) [usr/share/doc/a-b/examples/examples/]

@@ -339,6 +339,7 @@ use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 use super::rules::WrongPathForInterpreter;
 
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
+use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::PhpScriptButNoPhpCliDep;
 use super::rules::PkgConfigMultiArchWrongDir;
 use super::rules::PkgConfigUnavailableForCrossCompilation;
@@ -965,6 +966,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RootInContact,
         &PkgConfigMultiArchWrongDir,
         &RDataWithoutReadmeSource,
+        &OldStyleConfigScriptMultiarchPath,
     ]
 }
 
@@ -1613,6 +1615,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PkgConfigUnavailableForCrossCompilation,
         &RootInContact,
         &PkgConfigMultiArchWrongDir,
+        &OldStyleConfigScriptMultiarchPath,
     ]
 }
 
@@ -2278,6 +2281,7 @@ mod tests {
                 PkgConfigUnavailableForCrossCompilation::CODE,
                 RootInContact::CODE,
                 PkgConfigMultiArchWrongDir::CODE,
+                OldStyleConfigScriptMultiarchPath::CODE,
             ]
         );
     }

@@ -37,6 +37,7 @@ mod fields_text;
 mod fields_version;
 mod files_artifact;
 mod files_build_path;
+mod files_config_scripts;
 mod files_debug;
 mod files_foreign;
 mod files_hard_links;
@@ -277,6 +278,7 @@ pub(crate) use files_artifact::{
     DebianAddsSvnControlDir,
 };
 pub(crate) use files_build_path::DirOrFileInBuildTree;
+pub(crate) use files_config_scripts::OldStyleConfigScriptMultiarchPath;
 pub(crate) use files_debug::NonDebugFileInDebugPackage;
 pub(crate) use files_foreign::{
     CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,

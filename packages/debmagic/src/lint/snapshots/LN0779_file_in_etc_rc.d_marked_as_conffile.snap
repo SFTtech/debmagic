@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): file-in-etc-rc.d-marked-as-conffile (LN0779) etc/rc2.d/file [conffiles:1]
+E: example (binary): file-in-etc-rc.d-marked-as-conffile (LN0779) etc/rcS.d/foo [conffiles:1]
+E: example (binary): file-in-etc-rc.d-marked-as-conffile (LN0779) etc/rc3.d/x [conffiles:3]
+E: example (binary): file-in-etc-rc.d-marked-as-conffile (LN0779) etc/rc3.d/x [conffiles:4]
+E: example (udeb): file-in-etc-rc.d-marked-as-conffile (LN0779) etc/rc2.d/file [conffiles:1]

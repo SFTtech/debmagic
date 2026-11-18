@@ -1668,6 +1668,7 @@ Rules
                 crate::lint::rules::InvalidDep3FormatPatchOriginFieldDefaultValue::CODE,
                 crate::lint::rules::ConffileHasBadFileType::CODE,
                 crate::lint::rules::DuplicateConffile::CODE,
+                crate::lint::rules::FileInEtcRcDMarkedAsConffile::CODE,
             ]
         );
         let intent = LintIntent {

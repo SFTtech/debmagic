@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): info-document-missing-image-file (LN0751) some-image.png [usr/share/info/w.info.gz:7]
+W: example (binary): info-document-missing-image-file (LN0751) bar.png [usr/share/info/w.info-1.gz:7]
+W: example (binary): info-document-missing-image-file (LN0751) x.png [usr/share/info/w.info.gz:7]
+W: example (binary): info-document-missing-image-file (LN0751) ../foo.png [usr/share/info/w.info.gz:7]
+W: example (binary): info-document-missing-image-file (LN0751) ../../../x.png [usr/share/info/w.info.gz:7]

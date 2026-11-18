@@ -136,3 +136,24 @@ pub(super) fn is_gzip(bytes: &[u8]) -> bool {
 pub(super) fn is_max_compression(bytes: &[u8]) -> bool {
     is_gzip(bytes) && bytes.get(8) == Some(&2)
 }
+
+/// Lintian's `normalize_link_target`: `target` resolved against `dir`, or
+/// `None` when it climbs out of the package root.
+pub(super) fn normalize_link_target(dir: &str, target: &str) -> Option<PathBuf> {
+    let joined = if target.starts_with('/') {
+        target.to_string()
+    } else {
+        format!("{dir}/{target}")
+    };
+    let mut parts: Vec<&str> = Vec::new();
+    for component in joined.split('/') {
+        match component {
+            "" | "." => {}
+            ".." => {
+                parts.pop()?;
+            }
+            other => parts.push(other),
+        }
+    }
+    Some(PathBuf::from(parts.join("/")))
+}

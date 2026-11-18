@@ -1699,6 +1699,7 @@ Rules
                 crate::lint::rules::EmacsenCommonWithoutDhElpa::CODE,
                 crate::lint::rules::PackageContainsMimeFileOutsidePackageDir::CODE,
                 crate::lint::rules::ConfigFileReserved::CODE,
+                crate::lint::rules::IncorrectNamingOfPkcs11Module::CODE,
             ]
         );
         let intent = LintIntent {

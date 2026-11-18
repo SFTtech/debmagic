@@ -241,6 +241,7 @@ use super::rules::{
 use super::rules::NonStandardExecutablePerm;
 
 use super::rules::ConfigFileReserved;
+use super::rules::IncorrectNamingOfPkcs11Module;
 use super::rules::PackageContainsHardlink;
 use super::rules::PackageContainsMimeFileOutsidePackageDir;
 
@@ -1125,6 +1126,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &EmacsenCommonWithoutDhElpa,
         &PackageContainsMimeFileOutsidePackageDir,
         &ConfigFileReserved,
+        &IncorrectNamingOfPkcs11Module,
     ]
 }
 
@@ -1853,6 +1855,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &EmacsenCommonWithoutDhElpa,
         &PackageContainsMimeFileOutsidePackageDir,
         &ConfigFileReserved,
+        &IncorrectNamingOfPkcs11Module,
     ]
 }
 
@@ -2598,6 +2601,7 @@ mod tests {
                 EmacsenCommonWithoutDhElpa::CODE,
                 PackageContainsMimeFileOutsidePackageDir::CODE,
                 ConfigFileReserved::CODE,
+                IncorrectNamingOfPkcs11Module::CODE,
             ]
         );
     }

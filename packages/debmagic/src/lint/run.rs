@@ -1688,6 +1688,7 @@ Rules
                 crate::lint::rules::ObsoleteCommentsStyleInPhpIni::CODE,
                 crate::lint::rules::MaintainerScriptCallsSystemctl::CODE,
                 crate::lint::rules::MknodInMaintainerScript::CODE,
+                crate::lint::rules::KillallIsDangerous::CODE,
             ]
         );
         let intent = LintIntent {

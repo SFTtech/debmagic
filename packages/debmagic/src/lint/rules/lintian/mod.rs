@@ -255,7 +255,7 @@ pub(crate) use documentation_manual::{
 };
 pub(crate) use documentation_texinfo::{
     InfoDocumentHasWrongExtension, InfoDocumentMissingDirEntry, InfoDocumentMissingDirSection,
-    InfoDocumentNotCompressed, InfoDocumentNotCompressedWithGzip,
+    InfoDocumentMissingImageFile, InfoDocumentNotCompressed, InfoDocumentNotCompressedWithGzip,
     InfoDocumentNotCompressedWithMaxCompression,
 };
 pub(crate) use executable::ExecutableNotElfOrScript;

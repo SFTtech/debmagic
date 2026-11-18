@@ -356,6 +356,7 @@ use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
 use super::rules::InfoDocumentHasWrongExtension;
+use super::rules::InfoDocumentMissingImageFile;
 use super::rules::InfoDocumentNotCompressed;
 use super::rules::InfoDocumentNotCompressedWithGzip;
 use super::rules::InfoDocumentNotCompressedWithMaxCompression;
@@ -1009,6 +1010,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InfoDocumentNotCompressed,
         &InfoDocumentNotCompressedWithGzip,
         &InfoDocumentNotCompressedWithMaxCompression,
+        &InfoDocumentMissingImageFile,
     ]
 }
 
@@ -1679,6 +1681,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InfoDocumentNotCompressed,
         &InfoDocumentNotCompressedWithGzip,
         &InfoDocumentNotCompressedWithMaxCompression,
+        &InfoDocumentMissingImageFile,
     ]
 }
 
@@ -2366,6 +2369,7 @@ mod tests {
                 InfoDocumentNotCompressed::CODE,
                 InfoDocumentNotCompressedWithGzip::CODE,
                 InfoDocumentNotCompressedWithMaxCompression::CODE,
+                InfoDocumentMissingImageFile::CODE,
             ]
         );
     }

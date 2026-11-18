@@ -45,6 +45,7 @@ pub(super) struct NmuFacts {
     pub qa_incorrect_version: bool,
     pub nmu_in_changelog: bool,
     pub maintainer_incorrect_version: bool,
+    pub trailer_padded: bool,
 }
 
 pub(super) fn nmu_facts(ctx: &SourceContext<'_>) -> Option<NmuFacts> {
@@ -52,7 +53,8 @@ pub(super) fn nmu_facts(ctx: &SourceContext<'_>) -> Option<NmuFacts> {
     let maintainer = canonicalize(&control_field(ctx, "Maintainer"));
     let mut uploader = canonicalize(entry.maintainer());
     let trimmed = uploader.trim();
-    if trimmed.len() != uploader.len() {
+    let trailer_padded = trimmed.len() != uploader.len();
+    if trailer_padded {
         uploader = trimmed.to_string();
     }
 
@@ -90,6 +92,7 @@ pub(super) fn nmu_facts(ctx: &SourceContext<'_>) -> Option<NmuFacts> {
         qa_incorrect_version: false,
         nmu_in_changelog: false,
         maintainer_incorrect_version: false,
+        trailer_padded,
     };
     if maintainer.contains("packages@qa.debian.org") {
         facts.no_qa = !mentions_qa;

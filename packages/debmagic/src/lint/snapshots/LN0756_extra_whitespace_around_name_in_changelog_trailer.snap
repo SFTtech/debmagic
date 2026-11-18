@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): extra-whitespace-around-name-in-changelog-trailer (LN0756) [debian/changelog:1]
+W: example (source): extra-whitespace-around-name-in-changelog-trailer (LN0756) [debian/changelog:1]
+W: example (source): extra-whitespace-around-name-in-changelog-trailer (LN0756) [debian/changelog:1]

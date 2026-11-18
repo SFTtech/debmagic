@@ -1646,6 +1646,7 @@ Rules
                 crate::lint::rules::InitDScriptHasBadStartRunlevel::CODE,
                 crate::lint::rules::InitDScriptHasDuplicateLsbKeyword::CODE,
                 crate::lint::rules::InitDScriptHasDuplicateLsbSection::CODE,
+                crate::lint::rules::InitDScriptHasUnknownLsbKeyword::CODE,
             ]
         );
         let intent = LintIntent {

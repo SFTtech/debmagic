@@ -358,6 +358,7 @@ use super::rules::AbsoluteSymbolicLinkTargetInSource;
 use super::rules::ArchDependentFileInUsrShare;
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::AspellPackageNotArchAll;
+use super::rules::BugsFieldDoesNotReferToDebianInfrastructure;
 use super::rules::ConffileHasBadFileType;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
@@ -1087,6 +1088,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &VcsFieldMismatch,
         &OrphanedPackageMaintainedInPrivateSpace,
         &OrphanedPackageNotMaintainedInDebianInfrastructure,
+        &BugsFieldDoesNotReferToDebianInfrastructure,
     ]
 }
 
@@ -1796,6 +1798,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OldDevhelpStandard,
         &DuplicateChangelogFiles,
         &CshConsideredHarmful,
+        &BugsFieldDoesNotReferToDebianInfrastructure,
     ]
 }
 
@@ -2522,6 +2525,7 @@ mod tests {
                 OldDevhelpStandard::CODE,
                 DuplicateChangelogFiles::CODE,
                 CshConsideredHarmful::CODE,
+                BugsFieldDoesNotReferToDebianInfrastructure::CODE,
             ]
         );
     }

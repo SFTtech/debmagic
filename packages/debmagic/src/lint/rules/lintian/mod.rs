@@ -33,6 +33,7 @@ mod documentation_texinfo;
 mod domain;
 mod executable;
 mod fields_architecture;
+mod fields_bugs;
 mod fields_mail_address;
 mod fields_package_relations;
 mod fields_relations_extra;
@@ -275,6 +276,7 @@ pub(crate) use documentation_texinfo::{
     InfoDocumentNotCompressedWithMaxCompression,
 };
 pub(crate) use executable::ExecutableNotElfOrScript;
+pub(crate) use fields_bugs::BugsFieldDoesNotReferToDebianInfrastructure;
 pub(crate) use fields_package_relations::{
     BuildDependsOn1Revision, BuildDependsOnBuildEssential, BuildDependsOnMetapackage,
     BuildDependsOnObsoletePackage, DependsExclusivelyOnMakedev, DependsOnObsoletePackage,

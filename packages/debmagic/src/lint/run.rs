@@ -1681,6 +1681,7 @@ Rules
                 crate::lint::rules::VcsFieldMismatch::CODE,
                 crate::lint::rules::OrphanedPackageMaintainedInPrivateSpace::CODE,
                 crate::lint::rules::OrphanedPackageNotMaintainedInDebianInfrastructure::CODE,
+                crate::lint::rules::BugsFieldDoesNotReferToDebianInfrastructure::CODE,
             ]
         );
         let intent = LintIntent {

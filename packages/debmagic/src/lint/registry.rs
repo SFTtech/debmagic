@@ -339,6 +339,7 @@ use super::rules::WrongPathForInterpreter;
 
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::PhpScriptButNoPhpCliDep;
+use super::rules::PkgConfigUnavailableForCrossCompilation;
 use super::rules::RemoveOfUnknownDiversion;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
 use super::rules::ZeroByteExecutableInPath;
@@ -957,6 +958,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ZeroByteExecutableInPath,
         &TimewarpStandardsVersion,
         &PkgConfigBadDirective,
+        &PkgConfigUnavailableForCrossCompilation,
     ]
 }
 
@@ -1600,6 +1602,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DirOrFileInBuildTree,
         &ZeroByteExecutableInPath,
         &PkgConfigBadDirective,
+        &PkgConfigUnavailableForCrossCompilation,
     ]
 }
 
@@ -2260,6 +2263,7 @@ mod tests {
                 DirOrFileInBuildTree::CODE,
                 ZeroByteExecutableInPath::CODE,
                 PkgConfigBadDirective::CODE,
+                PkgConfigUnavailableForCrossCompilation::CODE,
             ]
         );
     }

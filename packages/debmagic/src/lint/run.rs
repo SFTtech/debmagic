@@ -1640,6 +1640,7 @@ Rules
                 crate::lint::rules::ChangelogIsSymlink::CODE,
                 crate::lint::rules::InfoDocumentHasWrongExtension::CODE,
                 crate::lint::rules::InfoDocumentNotCompressed::CODE,
+                crate::lint::rules::InfoDocumentNotCompressedWithGzip::CODE,
             ]
         );
         let intent = LintIntent {

@@ -625,6 +625,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/triggers/legacy-maintainer-scripts",
     "checks/triggers/triggers-general",
     "checks/usrmerge/usrmerge-bin",
+    "checks/usrmerge/usrmerge-lib",
     "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-native-3.0",
     "general-false-positives/basic-native-3.0-with-epoch",
@@ -1562,6 +1563,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/triggers/legacy-maintainer-scripts"; "checks_triggers_legacy_maintainer_scripts")]
 #[test_case("checks/triggers/triggers-general"; "checks_triggers_triggers_general")]
 #[test_case("checks/usrmerge/usrmerge-bin"; "checks_usrmerge_usrmerge_bin")]
+#[test_case("checks/usrmerge/usrmerge-lib"; "checks_usrmerge_usrmerge_lib")]
 #[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-native-3.0"; "general_false_positives_basic_native_3_0")]
 #[test_case("general-false-positives/basic-native-3.0-with-epoch"; "general_false_positives_basic_native_3_0_with_epoch")]

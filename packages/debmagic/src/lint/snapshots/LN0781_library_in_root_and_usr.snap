@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): library-in-root-and-usr (LN0781) already in: usr/lib/libbasic.so.2 [lib/libbasic.so.2]
+E: example (binary): library-in-root-and-usr (LN0781) already in: usr/lib64/libstatic.a [lib64/libstatic.a]
+E: example (binary): library-in-root-and-usr (LN0781) already in: usr/lib/x86_64-linux-gnu/libbaz.so.1 [lib/x86_64-linux-gnu/libbaz.so.1]
+E: example (binary): library-in-root-and-usr (LN0781) already in: usr/lib/libfoo.so.1 [lib/libfoo.so.1]
+E: example (udeb): library-in-root-and-usr (LN0781) already in: usr/lib/libbasic.so.2 [lib/libbasic.so.2]

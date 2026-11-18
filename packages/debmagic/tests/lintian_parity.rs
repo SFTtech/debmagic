@@ -437,6 +437,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
+    "checks/fields/installer-menu-item/fields-udeb",
     "checks/fields/length/depends-field-too-long",
     "checks/fields/length/provides-field-too-long",
     "checks/fields/mail-address/fields-maintainer",
@@ -1401,6 +1402,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
+#[test_case("checks/fields/installer-menu-item/fields-udeb"; "checks_fields_installer_menu_item_fields_udeb")]
 #[test_case("checks/fields/length/depends-field-too-long"; "checks_fields_length_depends_field_too_long")]
 #[test_case("checks/fields/length/provides-field-too-long"; "checks_fields_length_provides_field_too_long")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]

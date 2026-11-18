@@ -328,6 +328,7 @@ use super::rules::ExecutableNotElfOrScript;
 use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::MultiarchForeignPkgconfig;
+use super::rules::OpentypeFontProhibitsInstallableEmbedding;
 use super::rules::OrphanedDiversion;
 use super::rules::PkgConfigBadDirective;
 use super::rules::RelativeLibrarySearchPath;
@@ -967,6 +968,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PkgConfigMultiArchWrongDir,
         &RDataWithoutReadmeSource,
         &OldStyleConfigScriptMultiarchPath,
+        &OpentypeFontProhibitsInstallableEmbedding,
     ]
 }
 
@@ -1616,6 +1618,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &RootInContact,
         &PkgConfigMultiArchWrongDir,
         &OldStyleConfigScriptMultiarchPath,
+        &OpentypeFontProhibitsInstallableEmbedding,
     ]
 }
 
@@ -2282,6 +2285,7 @@ mod tests {
                 RootInContact::CODE,
                 PkgConfigMultiArchWrongDir::CODE,
                 OldStyleConfigScriptMultiarchPath::CODE,
+                OpentypeFontProhibitsInstallableEmbedding::CODE,
             ]
         );
     }

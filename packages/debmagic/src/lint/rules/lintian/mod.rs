@@ -53,6 +53,7 @@ mod files_pkgconfig;
 mod files_privacy_breach;
 mod files_symbolic_links;
 mod files_vcs;
+mod fonts_opentype;
 mod fonts_truetype;
 mod games;
 mod init_scripts;
@@ -325,6 +326,7 @@ pub(crate) use files_vcs::{
     PackageContainsVcsControlDir, PackageContainsVcsControlFile, SvkCommitFileInPackage,
     SvnCommitFileInPackage,
 };
+pub(crate) use fonts_opentype::OpentypeFontProhibitsInstallableEmbedding;
 pub(crate) use fonts_truetype::TruetypeFontProhibitsInstallableEmbedding;
 pub(crate) use games::{PackageSectionGamesButContainsNoGame, PackageSectionGamesButHasUsrBin};
 pub(crate) use init_scripts::{

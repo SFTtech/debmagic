@@ -1703,6 +1703,7 @@ Rules
                 crate::lint::rules::PackageInstallsIntoObsoleteDir::CODE,
                 crate::lint::rules::ExecutableInUsrShareDoc::CODE,
                 crate::lint::rules::NestedExamplesDirectory::CODE,
+                crate::lint::rules::InitDScriptMissingDependencyOnLocalFs::CODE,
             ]
         );
         let intent = LintIntent {

@@ -391,6 +391,7 @@ use super::rules::InitDScriptHasDuplicateLsbKeyword;
 use super::rules::InitDScriptHasDuplicateLsbSection;
 use super::rules::InitDScriptHasUnknownLsbKeyword;
 use super::rules::InitDScriptHasUnterminatedLsbSection;
+use super::rules::InitDScriptMissingDependencyOnLocalFs;
 use super::rules::InitDScriptMissingLsbKeyword;
 use super::rules::InvalidDep3FormatPatchBugFieldDefaultValue;
 use super::rules::InvalidDep3FormatPatchBugNotContainUrl;
@@ -1133,6 +1134,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageInstallsIntoObsoleteDir,
         &ExecutableInUsrShareDoc,
         &NestedExamplesDirectory,
+        &InitDScriptMissingDependencyOnLocalFs,
     ]
 }
 
@@ -1865,6 +1867,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageInstallsIntoObsoleteDir,
         &ExecutableInUsrShareDoc,
         &NestedExamplesDirectory,
+        &InitDScriptMissingDependencyOnLocalFs,
     ]
 }
 
@@ -2614,6 +2617,7 @@ mod tests {
                 PackageInstallsIntoObsoleteDir::CODE,
                 ExecutableInUsrShareDoc::CODE,
                 NestedExamplesDirectory::CODE,
+                InitDScriptMissingDependencyOnLocalFs::CODE,
             ]
         );
     }

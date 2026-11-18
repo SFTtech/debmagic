@@ -355,6 +355,7 @@ use super::rules::ArchDependentFileInUsrShare;
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
+use super::rules::IncorrectLibdirInLaFile;
 use super::rules::InfoDocumentHasWrongExtension;
 use super::rules::InfoDocumentMissingImageFile;
 use super::rules::InfoDocumentNotCompressed;
@@ -1031,6 +1032,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MultiarchForeignSharedLibrary,
         &MultiarchForeignStaticLibrary,
         &OddStaticLibraryName,
+        &IncorrectLibdirInLaFile,
     ]
 }
 
@@ -1712,6 +1714,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MultiarchForeignSharedLibrary,
         &MultiarchForeignStaticLibrary,
         &OddStaticLibraryName,
+        &IncorrectLibdirInLaFile,
     ]
 }
 
@@ -2410,6 +2413,7 @@ mod tests {
                 MultiarchForeignSharedLibrary::CODE,
                 MultiarchForeignStaticLibrary::CODE,
                 OddStaticLibraryName::CODE,
+                IncorrectLibdirInLaFile::CODE,
             ]
         );
     }

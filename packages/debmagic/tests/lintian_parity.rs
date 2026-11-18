@@ -249,6 +249,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/nmu/legacy-libbaz",
     "checks/nmu/legacy-maintainer-scripts",
     "checks/nmu/legacy-scripts",
+    "checks/nmu/nmu-not-a-nmu",
     "checks/nmu/nmu-qa-upload",
     "checks/nmu/nmu-ubuntu-native",
     "checks/obsolete-sites/fields-cpan-homepage",
@@ -857,6 +858,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/nmu/legacy-libbaz",
     "checks/nmu/legacy-maintainer-scripts",
     "checks/nmu/legacy-scripts",
+    "checks/nmu/nmu-not-a-nmu",
     "checks/nmu/nmu-qa-upload",
     "checks/nmu/nmu-ubuntu-native",
     "checks/obsolete-sites/fields-cpan-homepage",
@@ -1151,6 +1153,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/nmu/legacy-libbaz"; "checks_nmu_legacy_libbaz")]
 #[test_case("checks/nmu/legacy-maintainer-scripts"; "checks_nmu_legacy_maintainer_scripts")]
 #[test_case("checks/nmu/legacy-scripts"; "checks_nmu_legacy_scripts")]
+#[test_case("checks/nmu/nmu-not-a-nmu"; "checks_nmu_nmu_not_a_nmu")]
 #[test_case("checks/nmu/nmu-qa-upload"; "checks_nmu_nmu_qa_upload")]
 #[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
@@ -1761,6 +1764,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/nmu/legacy-libbaz"; "checks_nmu_legacy_libbaz")]
 #[test_case("checks/nmu/legacy-maintainer-scripts"; "checks_nmu_legacy_maintainer_scripts")]
 #[test_case("checks/nmu/legacy-scripts"; "checks_nmu_legacy_scripts")]
+#[test_case("checks/nmu/nmu-not-a-nmu"; "checks_nmu_nmu_not_a_nmu")]
 #[test_case("checks/nmu/nmu-qa-upload"; "checks_nmu_nmu_qa_upload")]
 #[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]

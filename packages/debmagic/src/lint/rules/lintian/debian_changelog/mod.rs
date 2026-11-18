@@ -32,6 +32,7 @@ mod ln0663_improbable_bug_number_in_closes;
 mod ln0664_debian_changelog_file_contains_obsolete_user_emacs_settings;
 mod ln0665_debian_news_entry_has_unknown_version;
 mod ln0666_html_changelog_without_text_version;
+mod ln0753_nmu_in_changelog;
 mod nmu;
 mod source;
 mod version;
@@ -62,3 +63,4 @@ pub(crate) use ln0663_improbable_bug_number_in_closes::ImprobableBugNumberInClos
 pub(crate) use ln0664_debian_changelog_file_contains_obsolete_user_emacs_settings::DebianChangelogFileContainsObsoleteUserEmacsSettings;
 pub(crate) use ln0665_debian_news_entry_has_unknown_version::DebianNewsEntryHasUnknownVersion;
 pub(crate) use ln0666_html_changelog_without_text_version::HtmlChangelogWithoutTextVersion;
+pub(crate) use ln0753_nmu_in_changelog::NmuInChangelog;

@@ -1633,6 +1633,7 @@ Rules
                 crate::lint::rules::GlobalDataInGamesDirectory::CODE,
                 crate::lint::rules::BackupFileInPackage::CODE,
                 crate::lint::rules::NfsTemporaryFileInPackage::CODE,
+                crate::lint::rules::NmuInChangelog::CODE,
             ]
         );
         let intent = LintIntent {

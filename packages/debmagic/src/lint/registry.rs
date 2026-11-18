@@ -39,6 +39,7 @@ use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::ExcessiveDebhelperOverrides;
+use super::rules::NmuInChangelog;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::RedundantInstallationPrerequisite;
@@ -991,6 +992,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &GlobalDataInGamesDirectory,
         &BackupFileInPackage,
         &NfsTemporaryFileInPackage,
+        &NmuInChangelog,
     ]
 }
 
@@ -1207,6 +1209,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &AbsoluteSymbolicLinkTargetInSource,
         &CarriageReturnLineFeed,
         &CustomCompressionInDebianSourceOptions,
+        &NmuInChangelog,
     ]
 }
 
@@ -1877,6 +1880,7 @@ mod tests {
                 AbsoluteSymbolicLinkTargetInSource::CODE,
                 CarriageReturnLineFeed::CODE,
                 CustomCompressionInDebianSourceOptions::CODE,
+                NmuInChangelog::CODE,
             ]
         );
     }

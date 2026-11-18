@@ -2,7 +2,7 @@
 //!
 //! Each Rule owns one Tag. The control member is the `conffiles` file.
 
-mod declared;
+pub(in crate::lint::rules::lintian) mod declared;
 mod ln0354_non_etc_file_marked_as_conffile;
 mod ln0424_missing_conffile;
 mod ln0433_file_in_usr_marked_as_conffile;

@@ -4,14 +4,16 @@ use crate::lint::context::BinaryPackageContext;
 
 /// A `conffiles` line: the path with one leading `/` removed, and its
 /// 1-based line number.
-pub(super) struct Declared {
-    pub(super) path: String,
+pub(in crate::lint::rules::lintian) struct Declared {
+    pub(in crate::lint::rules::lintian) path: String,
     pub(super) line: u32,
 }
 
 /// The `conffiles` entries in file order. Empty when the member is missing
 /// or not UTF-8.
-pub(super) fn declared(ctx: &mut BinaryPackageContext<'_>) -> Vec<Declared> {
+pub(in crate::lint::rules::lintian) fn declared(
+    ctx: &mut BinaryPackageContext<'_>,
+) -> Vec<Declared> {
     let Some(files) = ctx.control_files() else {
         return Vec::new();
     };

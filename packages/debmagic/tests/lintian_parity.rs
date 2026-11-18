@@ -593,6 +593,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/maintainer-scripts/helper/dpkg/scripts-missing-call-to-dpkg-maintscript-helper",
     "checks/maintainer-scripts/ldconfig/legacy-maintainer-scripts",
     "checks/maintainer-scripts/ldconfig/shared-libs-ldconfig-scripts",
+    "checks/maintainer-scripts/systemctl/systemd-general",
     "checks/maintainer-scripts/temporary-files/legacy-maintainer-scripts",
     "checks/maintainer-scripts/temporary-files/scripts-maintainer-general",
     "checks/md5sums/legacy-etcfiles",
@@ -1550,6 +1551,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/maintainer-scripts/helper/dpkg/scripts-missing-call-to-dpkg-maintscript-helper"; "checks_maintainer_scripts_helper_dpkg_scripts_missing_call_to_dpkg_maintscript_helper")]
 #[test_case("checks/maintainer-scripts/ldconfig/legacy-maintainer-scripts"; "checks_maintainer_scripts_ldconfig_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/ldconfig/shared-libs-ldconfig-scripts"; "checks_maintainer_scripts_ldconfig_shared_libs_ldconfig_scripts")]
+#[test_case("checks/maintainer-scripts/systemctl/systemd-general"; "checks_maintainer_scripts_systemctl_systemd_general")]
 #[test_case("checks/maintainer-scripts/temporary-files/legacy-maintainer-scripts"; "checks_maintainer_scripts_temporary_files_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/temporary-files/scripts-maintainer-general"; "checks_maintainer_scripts_temporary_files_scripts_maintainer_general")]
 #[test_case("checks/md5sums/legacy-etcfiles"; "checks_md5sums_legacy_etcfiles")]

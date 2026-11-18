@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): invalid-value-in-static-built-using-field (LN0834) foo (>= 1.0)
+E: example (binary): invalid-value-in-static-built-using-field (LN0834) foo
+E: example (binary): invalid-value-in-static-built-using-field (LN0834) foo (<< 2)
+E: example (binary): invalid-value-in-static-built-using-field (LN0834) foo (= 1.0) | bar (= 2.0)
+E: example (binary): invalid-value-in-static-built-using-field (LN0834) foo:any (= 1.0)
+E: example (binary): invalid-value-in-static-built-using-field (LN0834) foo (= 1.0) [amd64]
+E: example (binary): invalid-value-in-static-built-using-field (LN0834) foo (= 1.0) junk
+E: example (binary): invalid-value-in-static-built-using-field (LN0834) Foo (= 1.0)
+E: example (udeb): invalid-value-in-static-built-using-field (LN0834) foo (>= 1.0)

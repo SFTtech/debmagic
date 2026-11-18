@@ -1693,6 +1693,7 @@ Rules
                 crate::lint::rules::AdduserWithHomeVarRun::CODE,
                 crate::lint::rules::ScriptUsesUnversionedPythonInShebang::CODE,
                 crate::lint::rules::InvalidValueInBuiltUsingField::CODE,
+                crate::lint::rules::InvalidValueInStaticBuiltUsingField::CODE,
             ]
         );
         let intent = LintIntent {

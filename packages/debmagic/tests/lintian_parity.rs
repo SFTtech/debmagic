@@ -464,6 +464,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/required/generic-empty",
     "checks/fields/section/fields-section-general",
     "checks/fields/section/legacy-fields",
+    "checks/fields/static-built-using/fields-static-built-using",
     "checks/fields/unknown/unpack-slashes-in-field-name",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
@@ -1427,6 +1428,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 #[test_case("checks/fields/section/fields-section-general"; "checks_fields_section_fields_section_general")]
 #[test_case("checks/fields/section/legacy-fields"; "checks_fields_section_legacy_fields")]
+#[test_case("checks/fields/static-built-using/fields-static-built-using"; "checks_fields_static_built_using_fields_static_built_using")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]

@@ -138,13 +138,11 @@ impl ElfFacts {
     }
 
     /// `DT_RPATH` components, split on `:`.
-    #[allow(dead_code)] // seam API; no Rule reads it yet
     pub fn rpath(&self) -> &[String] {
         &self.rpath
     }
 
     /// `DT_RUNPATH` components, split on `:`.
-    #[allow(dead_code)] // seam API; no Rule reads it yet
     pub fn runpath(&self) -> &[String] {
         &self.runpath
     }

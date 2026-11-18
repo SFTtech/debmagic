@@ -269,6 +269,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/debug-symbols/legacy-libbaz",
     "checks/binaries/prerequisites/perl/binaries-missing-depends-on-xapi",
     "checks/binaries/prerequisites/perl/legacy-libbaz",
+    "checks/binaries/rpath/quoted",
+    "checks/binaries/rpath/relative",
     "checks/binaries/static/binaries-from-other-arch",
     "checks/binaries/static/binaries-general",
     "checks/binaries/static/legacy-binary",
@@ -1122,6 +1124,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/debug-symbols/legacy-libbaz"; "checks_binaries_debug_symbols_legacy_libbaz")]
 #[test_case("checks/binaries/prerequisites/perl/binaries-missing-depends-on-xapi"; "checks_binaries_prerequisites_perl_binaries_missing_depends_on_xapi")]
 #[test_case("checks/binaries/prerequisites/perl/legacy-libbaz"; "checks_binaries_prerequisites_perl_legacy_libbaz")]
+#[test_case("checks/binaries/rpath/quoted"; "checks_binaries_rpath_quoted")]
+#[test_case("checks/binaries/rpath/relative"; "checks_binaries_rpath_relative")]
 #[test_case("checks/binaries/static/binaries-from-other-arch"; "checks_binaries_static_binaries_from_other_arch")]
 #[test_case("checks/binaries/static/binaries-general"; "checks_binaries_static_binaries_general")]
 #[test_case("checks/binaries/static/legacy-binary"; "checks_binaries_static_legacy_binary")]

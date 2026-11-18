@@ -323,6 +323,7 @@ use super::rules::DiversionForUnknownFile;
 use super::rules::ExecutableNotElfOrScript;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::ScriptWithoutInterpreter;
+use super::rules::RelativeLibrarySearchPath;
 use super::rules::StaticallyLinkedBinary;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 
@@ -925,6 +926,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ScriptWithoutInterpreter,
         &ZeroByteFileInDocDirectory,
         &ExecutableNotElfOrScript,
+        &RelativeLibrarySearchPath,
     ]
 }
 
@@ -1552,6 +1554,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ScriptWithoutInterpreter,
         &ZeroByteFileInDocDirectory,
         &ExecutableNotElfOrScript,
+        &RelativeLibrarySearchPath,
     ]
 }
 
@@ -2196,6 +2199,7 @@ mod tests {
                 ScriptWithoutInterpreter::CODE,
                 ZeroByteFileInDocDirectory::CODE,
                 ExecutableNotElfOrScript::CODE,
+                RelativeLibrarySearchPath::CODE,
             ]
         );
     }

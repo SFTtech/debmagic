@@ -1,0 +1,16 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): relative-library-search-path (LN0717) RPATH usr/lib [usr/bin/rpath]
+E: example (binary): relative-library-search-path (LN0717) RUNPATH usr/share/foo [usr/bin/runpath]
+E: example (binary): relative-library-search-path (LN0717) RPATH usr/lib [usr/bin/dot]
+E: example (binary): relative-library-search-path (LN0717) RPATH . [usr/bin/dot-only]
+E: example (binary): relative-library-search-path (LN0717) RPATH lib [usr/bin/dup]
+E: example (binary): relative-library-search-path (LN0717) RPATH lib [usr/bin/dup]
+E: example (binary): relative-library-search-path (LN0717) RPATH lib [usr/bin/mixed]
+E: example (binary): relative-library-search-path (LN0717) RUNPATH "/usr/share/foo" [usr/bin/quoted]
+E: example (binary): relative-library-search-path (LN0717) RPATH usr/lib [usr/bin/both]
+E: example (binary): relative-library-search-path (LN0717) RUNPATH usr/share/foo [usr/bin/both]
+E: example (binary): relative-library-search-path (LN0717) RPATH lib [usr/bin/hardlink]
+E: example (udeb): relative-library-search-path (LN0717) RPATH lib [usr/bin/udeb]
+E: example (binary): relative-library-search-path (LN0717) RUNPATH lib [usr/lib/haskell-packages/ghcfoo/lib/libfoo.so]

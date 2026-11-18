@@ -254,7 +254,7 @@ pub(crate) use documentation_manual::{
     UselessWhatisEntry, WrongCompressionInManualPage,
 };
 pub(crate) use documentation_texinfo::{
-    InfoDocumentMissingDirEntry, InfoDocumentMissingDirSection,
+    InfoDocumentHasWrongExtension, InfoDocumentMissingDirEntry, InfoDocumentMissingDirSection,
 };
 pub(crate) use executable::ExecutableNotElfOrScript;
 pub(crate) use fields_package_relations::{

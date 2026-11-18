@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): non-conf-file-in-modprobe.d (LN0783) [usr/lib/modprobe.d/--lzma]
+E: example (binary): non-conf-file-in-modprobe.d (LN0783) [etc/modules-load.d/readme]
+E: example (binary): non-conf-file-in-modprobe.d (LN0783) [etc/modprobe.d/nested/x]
+E: example (binary): non-conf-file-in-modprobe.d (LN0783) [etc/modprobe.d/link]
+E: example (udeb): non-conf-file-in-modprobe.d (LN0783) [etc/modprobe.d/foo.conf.bak]

@@ -602,6 +602,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/menus/menus-script-check-ok",
     "checks/menus/national-encoding",
     "checks/modprobe/directory-in-usr-lib-modprobe",
+    "checks/modprobe/files-general",
     "checks/modprobe/obsolete-commands-in-modprobe",
     "checks/scripts/legacy-maintainer-scripts",
     "checks/scripts/legacy-scripts",
@@ -1541,6 +1542,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/menus/menus-script-check-ok"; "checks_menus_menus_script_check_ok")]
 #[test_case("checks/menus/national-encoding"; "checks_menus_national_encoding")]
 #[test_case("checks/modprobe/directory-in-usr-lib-modprobe"; "checks_modprobe_directory_in_usr_lib_modprobe")]
+#[test_case("checks/modprobe/files-general"; "checks_modprobe_files_general")]
 #[test_case("checks/modprobe/obsolete-commands-in-modprobe"; "checks_modprobe_obsolete_commands_in_modprobe")]
 #[test_case("checks/scripts/legacy-maintainer-scripts"; "checks_scripts_legacy_maintainer_scripts")]
 #[test_case("checks/scripts/legacy-scripts"; "checks_scripts_legacy_scripts")]

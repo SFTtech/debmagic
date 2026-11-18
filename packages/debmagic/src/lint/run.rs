@@ -1629,6 +1629,7 @@ Rules
                 crate::lint::rules::CustomCompressionInDebianSourceOptions::CODE,
                 crate::lint::rules::ArchDependentFileInUsrShare::CODE,
                 crate::lint::rules::OpentypeFontWrongFilename::CODE,
+                crate::lint::rules::GameOutsideSection::CODE,
             ]
         );
         let intent = LintIntent {

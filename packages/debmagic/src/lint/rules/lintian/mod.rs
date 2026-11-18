@@ -339,7 +339,9 @@ pub(crate) use fonts_opentype::{
     OpentypeFontProhibitsInstallableEmbedding, OpentypeFontWrongFilename,
 };
 pub(crate) use fonts_truetype::TruetypeFontProhibitsInstallableEmbedding;
-pub(crate) use games::{PackageSectionGamesButContainsNoGame, PackageSectionGamesButHasUsrBin};
+pub(crate) use games::{
+    GameOutsideSection, PackageSectionGamesButContainsNoGame, PackageSectionGamesButHasUsrBin,
+};
 pub(crate) use init_scripts::{
     InitDScriptDependsOnAllVirtualFacility, InitDScriptDoesNotImplementRequiredOption,
     InitDScriptHasBadLsbLine, InitDScriptHasBadStopRunlevel, InitDScriptHasConflictingStartStop,

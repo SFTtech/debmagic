@@ -33,6 +33,7 @@ mod ln0664_debian_changelog_file_contains_obsolete_user_emacs_settings;
 mod ln0665_debian_news_entry_has_unknown_version;
 mod ln0666_html_changelog_without_text_version;
 mod ln0753_nmu_in_changelog;
+mod ln0754_maintainer_upload_has_incorrect_version_number;
 mod nmu;
 mod source;
 mod version;
@@ -64,3 +65,4 @@ pub(crate) use ln0664_debian_changelog_file_contains_obsolete_user_emacs_setting
 pub(crate) use ln0665_debian_news_entry_has_unknown_version::DebianNewsEntryHasUnknownVersion;
 pub(crate) use ln0666_html_changelog_without_text_version::HtmlChangelogWithoutTextVersion;
 pub(crate) use ln0753_nmu_in_changelog::NmuInChangelog;
+pub(crate) use ln0754_maintainer_upload_has_incorrect_version_number::MaintainerUploadHasIncorrectVersionNumber;

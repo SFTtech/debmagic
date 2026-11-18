@@ -44,6 +44,7 @@ pub(super) struct NmuFacts {
     pub no_qa: bool,
     pub qa_incorrect_version: bool,
     pub nmu_in_changelog: bool,
+    pub maintainer_incorrect_version: bool,
 }
 
 pub(super) fn nmu_facts(ctx: &SourceContext<'_>) -> Option<NmuFacts> {
@@ -88,12 +89,14 @@ pub(super) fn nmu_facts(ctx: &SourceContext<'_>) -> Option<NmuFacts> {
         no_qa: false,
         qa_incorrect_version: false,
         nmu_in_changelog: false,
+        maintainer_incorrect_version: false,
     };
     if maintainer.contains("packages@qa.debian.org") {
         facts.no_qa = !mentions_qa;
         facts.qa_incorrect_version = nmuness == 1;
     } else if !mentions_team {
         facts.nmu_in_changelog = mentions_nmu && !upload_is_nmu;
+        facts.maintainer_incorrect_version = !upload_is_nmu && nmuness != 0;
         if !mentions_local && !version_local {
             facts.no_nmu = !mentions_nmu && upload_is_nmu;
             facts.incorrect_version =

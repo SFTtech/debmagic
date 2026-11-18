@@ -163,9 +163,10 @@ pub(crate) use debian_changelog::{
     EpochChangedButUpstreamVersionDidNotGoBackwards, HtmlChangelogWithoutTextVersion,
     ImprobableBugNumberInCloses, InitialUploadClosesNoBugs, InvalidDateInDebianChangelog,
     LatestChangelogEntryWithoutNewDate, LatestDebianChangelogEntryReusesExistingVersion,
-    NmuInChangelog, NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
-    QaUploadHasIncorrectVersionNumber, SourceNmuHasIncorrectVersionNumber,
-    SyntaxErrorInDebianNewsFile, UploadersInOrphan, WrongNameForDebianNewsFile,
+    MaintainerUploadHasIncorrectVersionNumber, NmuInChangelog, NoNmuInChangelog, NoQaInChangelog,
+    OddHistoricalDebianChangelogVersion, QaUploadHasIncorrectVersionNumber,
+    SourceNmuHasIncorrectVersionNumber, SyntaxErrorInDebianNewsFile, UploadersInOrphan,
+    WrongNameForDebianNewsFile,
 };
 pub(crate) use debian_copyright::{
     AmbiguousParagraphInDep5Copyright, BadExceptionFormatInDep5Copyright,

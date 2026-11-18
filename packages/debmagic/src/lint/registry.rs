@@ -397,6 +397,7 @@ use super::rules::OldDevhelpStandard;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::OrphanedPackageMaintainedInPrivateSpace;
+use super::rules::OrphanedPackageNotMaintainedInDebianInfrastructure;
 use super::rules::PhpScriptButNoPhpCliDep;
 use super::rules::PkgConfigMultiArchWrongDir;
 use super::rules::PkgConfigUnavailableForCrossCompilation;
@@ -1085,6 +1086,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &VcsFieldBitrotted,
         &VcsFieldMismatch,
         &OrphanedPackageMaintainedInPrivateSpace,
+        &OrphanedPackageNotMaintainedInDebianInfrastructure,
     ]
 }
 
@@ -1319,6 +1321,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &VcsFieldBitrotted,
         &VcsFieldMismatch,
         &OrphanedPackageMaintainedInPrivateSpace,
+        &OrphanedPackageNotMaintainedInDebianInfrastructure,
     ]
 }
 
@@ -2036,6 +2039,7 @@ mod tests {
                 VcsFieldBitrotted::CODE,
                 VcsFieldMismatch::CODE,
                 OrphanedPackageMaintainedInPrivateSpace::CODE,
+                OrphanedPackageNotMaintainedInDebianInfrastructure::CODE,
             ]
         );
     }

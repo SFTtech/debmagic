@@ -486,6 +486,7 @@ pub(crate) use languages_php::{EmbeddedPhpLibrary, ObsoleteCommentsStyleInPhpIni
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use lintian_overrides::{
     AlienTag, DuplicateOverrideContext, MalformedOverride, OverrideFileInWrongLocation,
+    OverrideFileInWrongPackage,
 };
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;

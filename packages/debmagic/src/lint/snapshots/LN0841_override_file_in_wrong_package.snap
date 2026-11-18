@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): override-file-in-wrong-package (LN0841) other [usr/share/lintian/overrides/other/some-override]
+E: example (binary): override-file-in-wrong-package (LN0841) other [usr/share/lintian/overrides/other/x.gz]
+E: example (binary): override-file-in-wrong-package (LN0841) a/b [usr/share/lintian/overrides/a/b/c]
+E: example (binary): override-file-in-wrong-package (LN0841) other/sub [usr/share/lintian/overrides/other/sub/file]
+E: example (binary): override-file-in-wrong-package (LN0841) other [usr/share/lintian/overrides/other/sub]
+E: example (udeb): override-file-in-wrong-package (LN0841) other [usr/share/lintian/overrides/other/x]

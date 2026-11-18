@@ -48,6 +48,7 @@ use super::rules::MaintainerUploadHasIncorrectVersionNumber;
 use super::rules::MalformedOverride;
 use super::rules::NmuInChangelog;
 use super::rules::ObsoleteRelationFormInSource;
+use super::rules::OverrideFileInWrongPackage;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::TemporaryDebhelperFile;
@@ -1159,6 +1160,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DuplicateContact,
         &MalformedOverride,
         &DuplicateOverrideContext,
+        &OverrideFileInWrongPackage,
     ]
 }
 
@@ -1904,6 +1906,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InitDScriptNotMarkedAsConffile,
         &InitDScriptProvidesVirtualFacility,
         &InitDScriptSourcingWithoutTest,
+        &OverrideFileInWrongPackage,
     ]
 }
 
@@ -2666,6 +2669,7 @@ mod tests {
                 InitDScriptNotMarkedAsConffile::CODE,
                 InitDScriptProvidesVirtualFacility::CODE,
                 InitDScriptSourcingWithoutTest::CODE,
+                OverrideFileInWrongPackage::CODE,
             ]
         );
     }

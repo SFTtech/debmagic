@@ -339,6 +339,7 @@ use super::rules::TimewarpStandardsVersion;
 use super::rules::TruetypeFontProhibitsInstallableEmbedding;
 use super::rules::WrongPathForInterpreter;
 
+use super::rules::AbsoluteSymbolicLinkTargetInSource;
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::OldStyleConfigScriptMultiarchPath;
@@ -973,6 +974,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OpentypeFontProhibitsInstallableEmbedding,
         &OldStyleConfigScriptMultiarchPathArchAll,
         &ConfigureGeneratedFileInSource,
+        &AbsoluteSymbolicLinkTargetInSource,
     ]
 }
 
@@ -1186,6 +1188,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RootInContact,
         &RDataWithoutReadmeSource,
         &ConfigureGeneratedFileInSource,
+        &AbsoluteSymbolicLinkTargetInSource,
     ]
 }
 
@@ -1847,6 +1850,7 @@ mod tests {
                 RootInContact::CODE,
                 RDataWithoutReadmeSource::CODE,
                 ConfigureGeneratedFileInSource::CODE,
+                AbsoluteSymbolicLinkTargetInSource::CODE,
             ]
         );
     }

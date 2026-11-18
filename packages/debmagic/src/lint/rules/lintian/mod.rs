@@ -321,10 +321,10 @@ pub(crate) use files_pkgconfig::{
     PkgConfigBadDirective, PkgConfigMultiArchWrongDir, PkgConfigUnavailableForCrossCompilation,
 };
 pub(crate) use files_symbolic_links::{
-    AbsoluteSymlinkInTopLevelFolder, CompressedSymlinkWithWrongExt, LengthySymlink,
-    PackageContainsUnsafeSymlink, RelativeSymlink, SymlinkContainsSpuriousSegments,
-    SymlinkEndsWithSlash, SymlinkHasDoubleSlash, SymlinkHasTooManyUpSegments,
-    SymlinkIsSelfRecursive,
+    AbsoluteSymbolicLinkTargetInSource, AbsoluteSymlinkInTopLevelFolder,
+    CompressedSymlinkWithWrongExt, LengthySymlink, PackageContainsUnsafeSymlink, RelativeSymlink,
+    SymlinkContainsSpuriousSegments, SymlinkEndsWithSlash, SymlinkHasDoubleSlash,
+    SymlinkHasTooManyUpSegments, SymlinkIsSelfRecursive,
 };
 pub(crate) use files_vcs::{
     PackageContainsVcsControlDir, PackageContainsVcsControlFile, SvkCommitFileInPackage,

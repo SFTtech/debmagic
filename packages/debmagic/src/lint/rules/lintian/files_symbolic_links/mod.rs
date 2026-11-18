@@ -1,5 +1,6 @@
-//! Rules for symlink targets in a Binary package, matching lintian's
-//! `files/symbolic-links` Check.
+//! Rules for symlink targets, matching lintian's `files/symbolic-links` Check.
+//! Most judge Binary package Data files; `absolute-symbolic-link-target-in-source`
+//! judges the packaging File tree.
 //!
 //! `links` judges the link text once per symlink. `package-contains-unsafe-symlink`
 //! is the nested `files/symbolic-links/broken` Check: it resolves the target
@@ -16,6 +17,7 @@ mod ln0069_symlink_ends_with_slash;
 mod ln0070_symlink_has_double_slash;
 mod ln0071_symlink_has_too_many_up_segments;
 mod ln0075_compressed_symlink_with_wrong_ext;
+mod ln0733_absolute_symbolic_link_target_in_source;
 
 pub(crate) use ln0006_package_contains_unsafe_symlink::PackageContainsUnsafeSymlink;
 pub(crate) use ln0029_symlink_contains_spurious_segments::SymlinkContainsSpuriousSegments;
@@ -27,3 +29,4 @@ pub(crate) use ln0069_symlink_ends_with_slash::SymlinkEndsWithSlash;
 pub(crate) use ln0070_symlink_has_double_slash::SymlinkHasDoubleSlash;
 pub(crate) use ln0071_symlink_has_too_many_up_segments::SymlinkHasTooManyUpSegments;
 pub(crate) use ln0075_compressed_symlink_with_wrong_ext::CompressedSymlinkWithWrongExt;
+pub(crate) use ln0733_absolute_symbolic_link_target_in_source::AbsoluteSymbolicLinkTargetInSource;

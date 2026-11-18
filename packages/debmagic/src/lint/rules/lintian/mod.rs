@@ -124,6 +124,7 @@ mod scripts_depends;
 mod scripts_interpreters;
 mod scripts_shell;
 mod scripts_text;
+mod shell_csh;
 mod systemd;
 mod testsuite;
 mod tlds;
@@ -165,6 +166,7 @@ pub(crate) use desktop_gir::GirSectionNotLibdevel;
 pub(crate) use documentation::ZeroByteFileInDocDirectory;
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use files_duplicates::DuplicateChangelogFiles;
+pub(crate) use shell_csh::CshConsideredHarmful;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{

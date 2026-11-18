@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): csh-considered-harmful (LN0831) /bin/csh [usr/bin/tool:1]
+W: example (binary): csh-considered-harmful (LN0831) tcsh [usr/bin/tool:1]
+W: example (binary): csh-considered-harmful (LN0831) /bin/csh [usr/bin/tool:1]
+W: example (binary): csh-considered-harmful (LN0831) /bin/csh [usr/share/doc/example/examples/tool:1]
+W: example (binary): csh-considered-harmful (LN0831) /bin/csh [etc/csh/other.csh:1]
+W: example (udeb): csh-considered-harmful (LN0831) /bin/csh [usr/bin/tool:1]
+W: example (binary): csh-considered-harmful (LN0831) /bin/csh [postinst:1]

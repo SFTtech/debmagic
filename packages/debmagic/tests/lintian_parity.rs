@@ -620,6 +620,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/scripts/scripts-missing-dep",
     "checks/scripts/scripts-missing-dep-fp",
     "checks/scripts/scripts-udevadm-called-without-guard",
+    "checks/shell/csh/scripts-interpreters",
     "checks/systemd/init.d-general",
     "checks/systemd/legacy-scripts",
     "checks/systemd/no-systemd-timer-for-cron-script",
@@ -1564,6 +1565,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/scripts/scripts-missing-dep"; "checks_scripts_scripts_missing_dep")]
 #[test_case("checks/scripts/scripts-missing-dep-fp"; "checks_scripts_scripts_missing_dep_fp")]
 #[test_case("checks/scripts/scripts-udevadm-called-without-guard"; "checks_scripts_scripts_udevadm_called_without_guard")]
+#[test_case("checks/shell/csh/scripts-interpreters"; "checks_shell_csh_scripts_interpreters")]
 #[test_case("checks/systemd/init.d-general"; "checks_systemd_init_d_general")]
 #[test_case("checks/systemd/legacy-scripts"; "checks_systemd_legacy_scripts")]
 #[test_case("checks/systemd/no-systemd-timer-for-cron-script"; "checks_systemd_no_systemd_timer_for_cron_script")]

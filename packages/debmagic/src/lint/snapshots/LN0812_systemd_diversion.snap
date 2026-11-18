@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): systemd-diversion (LN0812) usr/lib/systemd/system/foo.service [preinst:2]
+E: example (binary): systemd-diversion (LN0812) lib/udev/rules.d/00-rule.rules [preinst:2]
+E: example (binary): systemd-diversion (LN0812) usr/lib/tmpfiles.d/x.conf [postinst:3]
+E: example (binary): systemd-diversion (LN0812) usr/lib/sysusers.d/x [preinst:2]
+E: example (binary): systemd-diversion (LN0812) usr/lib/repart.d/x [preinst:2]
+E: example (binary): systemd-diversion (LN0812) usr/lib/modules-load.d/x.conf [preinst:2]
+E: example (binary): systemd-diversion (LN0812) lib/systemd/system/x [preinst:2]
+E: example (udeb): systemd-diversion (LN0812) usr/lib/systemd/system/foo.service [preinst:2]

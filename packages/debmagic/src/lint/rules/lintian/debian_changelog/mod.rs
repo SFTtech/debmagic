@@ -35,6 +35,7 @@ mod ln0666_html_changelog_without_text_version;
 mod ln0753_nmu_in_changelog;
 mod ln0754_maintainer_upload_has_incorrect_version_number;
 mod ln0756_extra_whitespace_around_name_in_changelog_trailer;
+mod ln0757_changelog_is_symlink;
 mod nmu;
 mod source;
 mod version;
@@ -68,3 +69,4 @@ pub(crate) use ln0666_html_changelog_without_text_version::HtmlChangelogWithoutT
 pub(crate) use ln0753_nmu_in_changelog::NmuInChangelog;
 pub(crate) use ln0754_maintainer_upload_has_incorrect_version_number::MaintainerUploadHasIncorrectVersionNumber;
 pub(crate) use ln0756_extra_whitespace_around_name_in_changelog_trailer::ExtraWhitespaceAroundNameInChangelogTrailer;
+pub(crate) use ln0757_changelog_is_symlink::ChangelogIsSymlink;

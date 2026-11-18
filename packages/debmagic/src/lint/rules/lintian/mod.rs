@@ -155,8 +155,8 @@ pub(crate) use desktop_gir::GirSectionNotLibdevel;
 pub(crate) use documentation::ZeroByteFileInDocDirectory;
 
 pub(crate) use debian_changelog::{
-    BogusMailHostInDebianChangelog, ChangelogEmptyEntry, ChangelogNewsDebianMismatch,
-    ChangelogReferencesTempSecurityIdentifier,
+    BogusMailHostInDebianChangelog, ChangelogEmptyEntry, ChangelogIsSymlink,
+    ChangelogNewsDebianMismatch, ChangelogReferencesTempSecurityIdentifier,
     DebianChangelogFileContainsObsoleteUserEmacsSettings, DebianChangelogHasWrongDayOfWeek,
     DebianChangelogLineTooLong, DebianNewsEntryHasStrangeDistribution,
     DebianNewsEntryHasUnknownVersion, DebianNewsFileNotCompressed, EpochChangeWithoutComment,

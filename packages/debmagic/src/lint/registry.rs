@@ -334,6 +334,7 @@ use super::rules::DiversionForUnknownFile;
 use super::rules::ExecutableNotElfOrScript;
 use super::rules::GameOutsideSection;
 use super::rules::GlobalDataInGamesDirectory;
+use super::rules::InvalidStandardsVersion;
 use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::MultiarchForeignPkgconfig;
@@ -1039,6 +1040,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NonEmptyDependencyLibsInLaFile,
         &AspellPackageNotArchAll,
         &DocumentationPackageNotArchitectureIndependent,
+        &InvalidStandardsVersion,
     ]
 }
 
@@ -1260,6 +1262,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &BinaryNmuDebianRevisionInSource,
         &ExtraWhitespaceAroundNameInChangelogTrailer,
         &ChangelogIsSymlink,
+        &InvalidStandardsVersion,
     ]
 }
 
@@ -1954,6 +1957,7 @@ mod tests {
                 BinaryNmuDebianRevisionInSource::CODE,
                 ExtraWhitespaceAroundNameInChangelogTrailer::CODE,
                 ChangelogIsSymlink::CODE,
+                InvalidStandardsVersion::CODE,
             ]
         );
     }

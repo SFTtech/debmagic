@@ -415,7 +415,7 @@ pub(crate) use fields_relations_extra::{
     DependsOnLibdb1Compat, DependsOnSpecificJavaDocPackage, DocPackageDependsOnMainPackage,
     ObsoleteRelationFormInSource, RedundantInstallationPrerequisite, WeakLibraryDevDependency,
 };
-pub(crate) use fields_standards_version::TimewarpStandardsVersion;
+pub(crate) use fields_standards_version::{InvalidStandardsVersion, TimewarpStandardsVersion};
 pub(crate) use files_non_free::NonFreeFlash;
 pub(crate) use files_privacy_breach::{
     PrivacyBreachDonation, PrivacyBreachFacebook, PrivacyBreachGeneric, PrivacyBreachGoogleAdsense,

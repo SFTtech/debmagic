@@ -330,6 +330,7 @@ use super::rules::MissingBuildDependencyForDhAddon;
 use super::rules::MissingBuildDependencyForDhCommand;
 use super::rules::MultiarchForeignPkgconfig;
 use super::rules::OpentypeFontProhibitsInstallableEmbedding;
+use super::rules::OpentypeFontWrongFilename;
 use super::rules::OrphanedDiversion;
 use super::rules::PkgConfigBadDirective;
 use super::rules::RelativeLibrarySearchPath;
@@ -981,6 +982,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CarriageReturnLineFeed,
         &CustomCompressionInDebianSourceOptions,
         &ArchDependentFileInUsrShare,
+        &OpentypeFontWrongFilename,
     ]
 }
 
@@ -1637,6 +1639,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OpentypeFontProhibitsInstallableEmbedding,
         &OldStyleConfigScriptMultiarchPathArchAll,
         &ArchDependentFileInUsrShare,
+        &OpentypeFontWrongFilename,
     ]
 }
 
@@ -2310,6 +2313,7 @@ mod tests {
                 OpentypeFontProhibitsInstallableEmbedding::CODE,
                 OldStyleConfigScriptMultiarchPathArchAll::CODE,
                 ArchDependentFileInUsrShare::CODE,
+                OpentypeFontWrongFilename::CODE,
             ]
         );
     }

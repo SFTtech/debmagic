@@ -1628,6 +1628,7 @@ Rules
                 crate::lint::rules::CarriageReturnLineFeed::CODE,
                 crate::lint::rules::CustomCompressionInDebianSourceOptions::CODE,
                 crate::lint::rules::ArchDependentFileInUsrShare::CODE,
+                crate::lint::rules::OpentypeFontWrongFilename::CODE,
             ]
         );
         let intent = LintIntent {

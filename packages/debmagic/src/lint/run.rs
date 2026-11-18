@@ -1638,6 +1638,7 @@ Rules
                 crate::lint::rules::BinaryNmuDebianRevisionInSource::CODE,
                 crate::lint::rules::ExtraWhitespaceAroundNameInChangelogTrailer::CODE,
                 crate::lint::rules::ChangelogIsSymlink::CODE,
+                crate::lint::rules::InfoDocumentHasWrongExtension::CODE,
             ]
         );
         let intent = LintIntent {

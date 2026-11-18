@@ -10,7 +10,7 @@ use std::sync::LazyLock;
 use flate2::read::GzDecoder;
 use regex::Regex;
 
-use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 
 static NUMBERED: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"-\d+\.gz").expect("valid regex"));
 static DIR_SECTION: LazyLock<Regex> =
@@ -79,4 +79,50 @@ pub(super) fn info_documents(files: &FileTree) -> Vec<InfoDocument> {
         });
     }
     found
+}
+
+/// Entries `documentation/texinfo` reads as documents: files, hardlinks and
+/// symlinks under `usr/share/info`, skipping names that start with `dir`.
+pub(super) fn info_items<'a>(files: &'a FileTree) -> impl Iterator<Item = &'a Entry> + 'a {
+    files.entries().iter().filter(|entry| {
+        matches!(
+            entry.kind(),
+            EntryKind::RegularFile | EntryKind::Hardlink | EntryKind::Symlink
+        ) && entry.path().starts_with("usr/share/info")
+            && !basename(entry).starts_with("dir")
+    })
+}
+
+/// Final path component, lossily decoded.
+pub(super) fn basename(entry: &Entry) -> String {
+    entry
+        .path()
+        .file_name()
+        .map(|name| name.to_string_lossy().into_owned())
+        .unwrap_or_default()
+}
+
+/// Perl `split /\./`: trailing empty fields are dropped.
+pub(super) fn name_pieces(basename: &str) -> Vec<&str> {
+    let mut pieces: Vec<&str> = basename.split('.').collect();
+    while pieces.last() == Some(&"") {
+        pieces.pop();
+    }
+    pieces
+}
+
+/// `info` or `info-<digits>`.
+pub(super) fn is_info_piece(piece: &str) -> bool {
+    match piece.strip_prefix("info") {
+        Some("") => true,
+        Some(rest) => rest
+            .strip_prefix('-')
+            .is_some_and(|digits| !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit())),
+        None => false,
+    }
+}
+
+/// Image extensions that `documentation/texinfo` ignores.
+pub(super) fn is_image(extension: &str) -> bool {
+    matches!(extension, "png" | "jpg" | "jpeg")
 }

@@ -355,6 +355,7 @@ use super::rules::ArchDependentFileInUsrShare;
 use super::rules::ArchDependentFileNotInArchSpecificDirectory;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::CustomCompressionInDebianSourceOptions;
+use super::rules::InfoDocumentHasWrongExtension;
 use super::rules::OldStyleConfigScriptMultiarchPath;
 use super::rules::OldStyleConfigScriptMultiarchPathArchAll;
 use super::rules::PhpScriptButNoPhpCliDep;
@@ -1001,6 +1002,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BinaryNmuDebianRevisionInSource,
         &ExtraWhitespaceAroundNameInChangelogTrailer,
         &ChangelogIsSymlink,
+        &InfoDocumentHasWrongExtension,
     ]
 }
 
@@ -1667,6 +1669,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &GlobalDataInGamesDirectory,
         &BackupFileInPackage,
         &NfsTemporaryFileInPackage,
+        &InfoDocumentHasWrongExtension,
     ]
 }
 
@@ -2350,6 +2353,7 @@ mod tests {
                 GlobalDataInGamesDirectory::CODE,
                 BackupFileInPackage::CODE,
                 NfsTemporaryFileInPackage::CODE,
+                InfoDocumentHasWrongExtension::CODE,
             ]
         );
     }

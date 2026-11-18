@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): info-document-has-wrong-extension (LN0747) [usr/share/info/bar.newinfo.gz]
+W: example (binary): info-document-has-wrong-extension (LN0747) [usr/share/info/bar.newinfo]
+W: example (binary): info-document-has-wrong-extension (LN0747) [usr/share/info/bar.txt]
+W: example (binary): info-document-has-wrong-extension (LN0747) [usr/share/info/foo.bar.baz.gz]
+W: example (binary): info-document-has-wrong-extension (LN0747) [usr/share/info/foo.info-x.gz]
+W: example (binary): info-document-has-wrong-extension (LN0747) [usr/share/info/bar.newinfo.gz]
+W: example (binary): info-document-has-wrong-extension (LN0747) [usr/share/info/bar.txt]

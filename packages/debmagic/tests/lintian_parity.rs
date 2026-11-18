@@ -142,6 +142,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-sets-dpkg-architecture-variable",
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
+    "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/substvars/cruft-general-diff",
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
@@ -763,6 +764,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-sets-dpkg-architecture-variable",
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
+    "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/substvars/cruft-general-diff",
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
@@ -1065,6 +1067,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/rules-sets-dpkg-architecture-variable"; "checks_debian_rules_rules_sets_dpkg_architecture_variable")]
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
+#[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
@@ -1688,6 +1691,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/rules-sets-dpkg-architecture-variable"; "checks_debian_rules_rules_sets_dpkg_architecture_variable")]
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
+#[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]

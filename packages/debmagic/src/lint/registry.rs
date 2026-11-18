@@ -372,6 +372,7 @@ use super::rules::InitDScriptHasDuplicateLsbSection;
 use super::rules::InitDScriptHasUnknownLsbKeyword;
 use super::rules::InitDScriptHasUnterminatedLsbSection;
 use super::rules::InitDScriptMissingLsbKeyword;
+use super::rules::MissingDebianSourceFormat;
 use super::rules::MultiarchForeignCmakeFile;
 use super::rules::MultiarchForeignSharedLibrary;
 use super::rules::MultiarchForeignStaticLibrary;
@@ -1045,6 +1046,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidStandardsVersion,
         &NewerStandardsVersion,
         &MaintainerAlsoInUploaders,
+        &MissingDebianSourceFormat,
     ]
 }
 
@@ -1269,6 +1271,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InvalidStandardsVersion,
         &NewerStandardsVersion,
         &MaintainerAlsoInUploaders,
+        &MissingDebianSourceFormat,
     ]
 }
 
@@ -2438,6 +2441,7 @@ mod tests {
                 NonEmptyDependencyLibsInLaFile::CODE,
                 AspellPackageNotArchAll::CODE,
                 DocumentationPackageNotArchitectureIndependent::CODE,
+                MissingDebianSourceFormat::CODE,
             ]
         );
     }

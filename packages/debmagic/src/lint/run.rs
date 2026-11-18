@@ -1664,6 +1664,7 @@ Rules
                 crate::lint::rules::GitPatchesNotExported::CODE,
                 crate::lint::rules::InvalidDep3FormatPatchBugFieldDefaultValue::CODE,
                 crate::lint::rules::InvalidDep3FormatPatchBugNotContainUrl::CODE,
+                crate::lint::rules::InvalidDep3FormatPatchMaybeBugDebian::CODE,
             ]
         );
         let intent = LintIntent {

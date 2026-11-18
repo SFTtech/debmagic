@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): invalid-dep3-format-patch-maybe-bug-debian (LN0763) [debian/patches/fix.patch]
+W: (source): invalid-dep3-format-patch-maybe-bug-debian (LN0763) [debian/patches/fix.patch]
+W: (source): invalid-dep3-format-patch-maybe-bug-debian (LN0763) [debian/patches/fix.patch]
+W: (source): invalid-dep3-format-patch-maybe-bug-debian (LN0763) [debian/patches/one.patch]
+W: (source): invalid-dep3-format-patch-maybe-bug-debian (LN0763) [debian/patches/two.patch]

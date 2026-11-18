@@ -2,7 +2,7 @@
 //! `data/architectures/host.json`, the same derivation as
 //! `Lintian::Data::Architectures`.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::sync::LazyLock;
 
 use serde::Deserialize;
@@ -30,6 +30,7 @@ struct Architectures {
     names: HashSet<String>,
     wildcards: HashSet<String>,
     ldconfig_folders: HashSet<String>,
+    multiarch: HashMap<String, String>,
 }
 
 /// Directories without the trailing slash that lintian's `ldconfig_folders`
@@ -54,9 +55,11 @@ static ARCHITECTURES: LazyLock<Architectures> = LazyLock::new(|| {
     let mut wildcards = HashSet::new();
     let mut ldconfig_folders: HashSet<String> =
         LDCONFIG_FOLDERS.iter().map(|dir| dir.to_string()).collect();
+    let mut multiarch = HashMap::new();
     for (hyphenated, arch) in file.host_variables {
         ldconfig_folders.insert(format!("lib/{}", arch.multiarch));
         ldconfig_folders.insert(format!("usr/lib/{}", arch.multiarch));
+        multiarch.insert(hyphenated.clone(), arch.multiarch.clone());
         names.insert(hyphenated.clone());
         if arch.os == "linux" {
             if let Some(short) = hyphenated.strip_prefix("linux-") {
@@ -71,6 +74,7 @@ static ARCHITECTURES: LazyLock<Architectures> = LazyLock::new(|| {
         names,
         wildcards,
         ldconfig_folders,
+        multiarch,
     }
 });
 
@@ -85,6 +89,16 @@ pub(super) fn invalid_architecture_string(architecture: &str) -> bool {
 /// `ldconfig_folders`, the library directories of any release architecture.
 pub(crate) fn is_ldconfig_folder(dir: &str) -> bool {
     ARCHITECTURES.ldconfig_folders.contains(dir)
+}
+
+/// `DEB_HOST_MULTIARCH` of a Debian architecture name such as `amd64`; `None`
+/// when the architecture has none (`all`, wildcards, unknown names).
+pub(crate) fn deb_host_multiarch(architecture: &str) -> Option<&'static str> {
+    ARCHITECTURES
+        .multiarch
+        .get(architecture)
+        .map(String::as_str)
+        .filter(|triplet| !triplet.is_empty())
 }
 
 fn wildcard_names(arch: &HostArch) -> [String; 26] {

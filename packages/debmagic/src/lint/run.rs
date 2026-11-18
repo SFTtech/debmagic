@@ -1654,6 +1654,7 @@ Rules
                 crate::lint::rules::MultiarchForeignStaticLibrary::CODE,
                 crate::lint::rules::OddStaticLibraryName::CODE,
                 crate::lint::rules::IncorrectLibdirInLaFile::CODE,
+                crate::lint::rules::NonEmptyDependencyLibsInLaFile::CODE,
             ]
         );
         let intent = LintIntent {

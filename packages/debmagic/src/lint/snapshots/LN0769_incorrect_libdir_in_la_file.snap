@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): incorrect-libdir-in-la-file (LN0769) usr/lib/other/ != usr/lib/x86_64-linux-gnu/ [usr/lib/x86_64-linux-gnu/libfoo.la:1]
+E: example (binary): incorrect-libdir-in-la-file (LN0769) build/usr/lib/kde3/ != usr/lib/kde3/ [usr/lib/kde3/kio.la:3]
+E: example (binary): incorrect-libdir-in-la-file (LN0769) a/ != usr/lib/ [usr/lib/libfoo.la:1]
+E: example (binary): incorrect-libdir-in-la-file (LN0769) b/ != usr/lib/ [usr/lib/libfoo.la:2]
+E: example (binary): incorrect-libdir-in-la-file (LN0769) usr/lib/ !=  [libfoo.la:1]
+E: example (binary): incorrect-libdir-in-la-file (LN0769) usr/lib/python3.12/foo/ != usr/share/pyshared/foo/ [usr/share/pyshared/foo/libbar.la:1]
+E: example (binary): incorrect-libdir-in-la-file (LN0769) usr/lib/python3/site-packages/ != usr/lib/python3/dist-packages/ [usr/lib/python3/dist-packages/libbar.la:1]
+E: example (udeb): incorrect-libdir-in-la-file (LN0769) elsewhere/ != usr/lib/ [usr/lib/libfoo.la:1]

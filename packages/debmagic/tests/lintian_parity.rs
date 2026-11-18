@@ -301,6 +301,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/static/static-pie-binary",
     "checks/build-systems/debhelper/maintainer-script/token/legacy-scripts",
     "checks/build-systems/debhelper/maintainer-script/token/scripts-maintainer-general",
+    "checks/build-systems/libtool/la-file/shared-libs-la-files",
     "checks/conffiles/conffiles-etc-not-marked",
     "checks/conffiles/conffiles-general",
     "checks/conffiles/legacy-etcfiles",
@@ -1216,6 +1217,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/static/static-pie-binary"; "checks_binaries_static_static_pie_binary")]
 #[test_case("checks/build-systems/debhelper/maintainer-script/token/legacy-scripts"; "checks_build_systems_debhelper_maintainer_script_token_legacy_scripts")]
 #[test_case("checks/build-systems/debhelper/maintainer-script/token/scripts-maintainer-general"; "checks_build_systems_debhelper_maintainer_script_token_scripts_maintainer_general")]
+#[test_case("checks/build-systems/libtool/la-file/shared-libs-la-files"; "checks_build_systems_libtool_la_file_shared_libs_la_files")]
 #[test_case("checks/conffiles/conffiles-etc-not-marked"; "checks_conffiles_conffiles_etc_not_marked")]
 #[test_case("checks/conffiles/conffiles-general"; "checks_conffiles_conffiles_general")]
 #[test_case("checks/conffiles/legacy-etcfiles"; "checks_conffiles_legacy_etcfiles")]

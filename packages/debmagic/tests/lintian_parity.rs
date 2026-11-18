@@ -515,6 +515,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/foreign-operating-systems/files-package-contains-foo",
     "checks/foreign-operating-systems/legacy-filenames",
     "checks/games/files-games-section",
+    "checks/games/files-general",
     "checks/games/legacy-filenames",
     "checks/init-d/init.d-general",
     "checks/init-d/init.d-lsb-headers",
@@ -1416,6 +1417,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/foreign-operating-systems/files-package-contains-foo"; "checks_foreign_operating_systems_files_package_contains_foo")]
 #[test_case("checks/foreign-operating-systems/legacy-filenames"; "checks_foreign_operating_systems_legacy_filenames")]
 #[test_case("checks/games/files-games-section"; "checks_games_files_games_section")]
+#[test_case("checks/games/files-general"; "checks_games_files_general")]
 #[test_case("checks/games/legacy-filenames"; "checks_games_legacy_filenames")]
 #[test_case("checks/init-d/init.d-general"; "checks_init_d_init_d_general")]
 #[test_case("checks/init-d/init.d-lsb-headers"; "checks_init_d_init_d_lsb_headers")]

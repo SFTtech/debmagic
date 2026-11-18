@@ -1630,6 +1630,7 @@ Rules
                 crate::lint::rules::ArchDependentFileInUsrShare::CODE,
                 crate::lint::rules::OpentypeFontWrongFilename::CODE,
                 crate::lint::rules::GameOutsideSection::CODE,
+                crate::lint::rules::GlobalDataInGamesDirectory::CODE,
             ]
         );
         let intent = LintIntent {

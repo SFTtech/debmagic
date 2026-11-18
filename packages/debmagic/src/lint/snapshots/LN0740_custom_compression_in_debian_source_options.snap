@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): custom-compression-in-debian-source-options (LN0740) compression = xz [debian/source/options:1]
+W: (source): custom-compression-in-debian-source-options (LN0740) compression-level = 9 [debian/source/options:1]
+W: (source): custom-compression-in-debian-source-options (LN0740) compression   =   xz [debian/source/options:1]
+W: (source): custom-compression-in-debian-source-options (LN0740) compression = xz [debian/source/options:1]
+W: (source): custom-compression-in-debian-source-options (LN0740) compression-level = 9 [debian/source/options:3]

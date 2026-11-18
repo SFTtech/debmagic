@@ -18,6 +18,7 @@ mod debian_po_debconf;
 mod debian_readme;
 mod debian_rules;
 mod debian_shlibs;
+mod debian_source_dir;
 mod debian_variables;
 mod debian_version_substvars;
 mod debian_watch;
@@ -370,6 +371,7 @@ pub(crate) use debian_patches::{
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,
 };
+pub(crate) use debian_source_dir::CustomCompressionInDebianSourceOptions;
 pub(crate) use debian_variables::IllegalVariable;
 pub(crate) use fields_mail_address::{
     FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase, MailAddressLoopsOrBounces, RootInContact,

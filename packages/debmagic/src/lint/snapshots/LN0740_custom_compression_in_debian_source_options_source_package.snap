@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): custom-compression-in-debian-source-options (LN0740) compression = xz [debian/source/options:1]

@@ -394,8 +394,8 @@ pub(crate) use md5sums::{
 pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;
 pub(crate) use debian_patches::{
     Format30ButDebianChangesPatch, InvalidDep3FormatPatchBugFieldDefaultValue,
-    InvalidDep3FormatPatchBugNotContainUrl, PatchFilePresentButNotMentionedInSeries,
-    PatchSystemButNoSourceReadme,
+    InvalidDep3FormatPatchBugNotContainUrl, InvalidDep3FormatPatchMaybeBugDebian,
+    PatchFilePresentButNotMentionedInSeries, PatchSystemButNoSourceReadme,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,

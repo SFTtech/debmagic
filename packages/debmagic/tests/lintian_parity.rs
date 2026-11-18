@@ -110,6 +110,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
+    "checks/debian/patches/dep3/maybe-bug-debian",
     "checks/debian/patches/legacy-relations",
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
@@ -735,6 +736,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
+    "checks/debian/patches/dep3/maybe-bug-debian",
     "checks/debian/patches/legacy-relations",
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
@@ -1041,6 +1043,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
+#[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
@@ -1668,6 +1671,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
+#[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]

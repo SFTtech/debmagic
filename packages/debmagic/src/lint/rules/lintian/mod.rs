@@ -31,6 +31,7 @@ mod documentation_devhelp_standard;
 mod documentation_manual;
 mod documentation_texinfo;
 mod domain;
+mod emacs;
 mod executable;
 mod fields_architecture;
 mod fields_bugs;
@@ -435,6 +436,7 @@ pub(crate) use debian_source_dir::{
     CustomCompressionInDebianSourceOptions, GitPatchesNotExported, MissingDebianSourceFormat,
 };
 pub(crate) use debian_variables::IllegalVariable;
+pub(crate) use emacs::BadPermissionsForEtcEmacsScript;
 pub(crate) use fields_architecture::{
     AspellPackageNotArchAll, DocumentationPackageNotArchitectureIndependent,
 };

@@ -1695,6 +1695,7 @@ Rules
                 crate::lint::rules::InvalidValueInBuiltUsingField::CODE,
                 crate::lint::rules::InvalidValueInStaticBuiltUsingField::CODE,
                 crate::lint::rules::BadMenuItem::CODE,
+                crate::lint::rules::BadPermissionsForEtcEmacsScript::CODE,
             ]
         );
         let intent = LintIntent {

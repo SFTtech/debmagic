@@ -1984,6 +1984,12 @@ mod tests {
                 InvalidStandardsVersion::CODE,
                 NewerStandardsVersion::CODE,
                 MaintainerAlsoInUploaders::CODE,
+                MissingDebianSourceFormat::CODE,
+                GitPatchesNotExported::CODE,
+                InvalidDep3FormatPatchBugFieldDefaultValue::CODE,
+                InvalidDep3FormatPatchBugNotContainUrl::CODE,
+                InvalidDep3FormatPatchMaybeBugDebian::CODE,
+                InvalidDep3FormatPatchOriginFieldDefaultValue::CODE,
             ]
         );
     }

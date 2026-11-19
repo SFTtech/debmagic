@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- publish Linux ARM64 wheels to PyPI
+
 ## [0.0.1-alpha.9] - 2026-11-14
 
 - `debmagic switch <version>` upstream source fetching and orig tarballs handling with `debmagic upstream` (and caching them)

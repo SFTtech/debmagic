@@ -11,14 +11,16 @@ jobs:
     uses: ./.github/workflows/ci.yaml
     secrets: inherit
 
-  publish-pypi:
+  build-pypi-wheels:
     needs: ci
-    runs-on: ubuntu-latest
-    environment:
-      name: pypi-publish
-    permissions:
-      id-token: write
-      contents: read
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            arch: x86_64
+          - os: ubuntu-24.04-arm
+            arch: aarch64
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -27,7 +29,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        uses: astral-sh/setup-uv@v10.3.3
         with:
           enable-cache: true
       - name: Install Rust toolchain
@@ -41,6 +43,32 @@ jobs:
             --manifest-path ./Cargo.toml \
             --out ../../dist \
             --compatibility pypi
+      - name: Upload wheel
+        uses: actions/upload-artifact@v7
+        with:
+          name: pypi-wheel-${{ matrix.arch }}
+          path: dist/*.whl
+          if-no-files-found: error
+
+  publish-pypi:
+    needs: build-pypi-wheels
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi-publish
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Download wheels
+        uses: actions/download-artifact@v8
+        with:
+          pattern: pypi-wheel-*
+          path: dist
+          merge-multiple: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          enable-cache: true
       - name: Publish to PyPI
         run: uv publish --trusted-publishing always
 

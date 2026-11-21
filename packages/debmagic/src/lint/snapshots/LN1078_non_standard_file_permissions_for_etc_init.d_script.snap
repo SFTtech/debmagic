@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): non-standard-file-permissions-for-etc-init.d-script (LN1078) 0765 != 0755 [etc/init.d/foo]
+E: example (binary): non-standard-file-permissions-for-etc-init.d-script (LN1078) 0644 != 0755 [etc/init.d/foo]
+E: example (binary): non-standard-file-permissions-for-etc-init.d-script (LN1078) 4755 != 0755 [etc/init.d/foo]
+E: example (binary): non-standard-file-permissions-for-etc-init.d-script (LN1078) 0600 != 0755 [etc/init.d/foo]
+E: example (binary): non-standard-file-permissions-for-etc-init.d-script (LN1078) 0644 != 0755 [etc/init.d/fÿo]
+E: example (udeb): non-standard-file-permissions-for-etc-init.d-script (LN1078) 0644 != 0755 [etc/init.d/foo]

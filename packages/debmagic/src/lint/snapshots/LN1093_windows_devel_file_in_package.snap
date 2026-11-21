@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): windows-devel-file-in-package (LN1093) [usr/lib/foo/foo.vcproj]
+W: example (binary): windows-devel-file-in-package (LN1093) [usr/lib/.vcproj]
+W: example (binary): windows-devel-file-in-package (LN1093) [usr/lib/foo.sln.gz]
+W: example (binary): windows-devel-file-in-package (LN1093) [usr/lib/foo/foo.dsp]
+W: example (binary): windows-devel-file-in-package (LN1093) [usr/lib/foo/foo.dsw.gz]
+W: example (binary): windows-devel-file-in-package (LN1093) [usr/lib/foo/foo.sln]
+W: example (udeb): windows-devel-file-in-package (LN1093) [usr/lib/foo/foo.dsw]

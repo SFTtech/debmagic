@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): systemd-service-file-uses-deprecated-syslog-facility (LN0990) StandardError=syslog-console [usr/lib/systemd/system/bad.service]
+W: example (binary): systemd-service-file-uses-deprecated-syslog-facility (LN0990) StandardOutput=syslog [usr/lib/systemd/system/bad.service]
+W: example (binary): systemd-service-file-uses-deprecated-syslog-facility (LN0990) StandardError=syslog [etc/systemd/system/copied.service]
+W: example (udeb): systemd-service-file-uses-deprecated-syslog-facility (LN0990) StandardOutput=syslog-console [usr/lib/systemd/system/udeb.service]

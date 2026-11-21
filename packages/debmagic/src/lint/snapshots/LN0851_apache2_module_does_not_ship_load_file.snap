@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): apache2-module-does-not-ship-load-file (LN0851) etc/apache2/mods-available/foo2.load [usr/lib/apache2/modules/mod_foo2.so]
+E: example (binary): apache2-module-does-not-ship-load-file (LN0851) etc/apache2/mods-available/foo2.load [usr/lib/apache2/modules/mod_foo2.so]
+E: example (binary): apache2-module-does-not-ship-load-file (LN0851) etc/apache2/mods-available/foo.load [usr/lib/apache2/modules/mod_foo.so]

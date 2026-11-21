@@ -309,19 +309,46 @@ def run_hook(hook: Path, *args: Path | str) -> None:
         )
 
 
-def assemble_source_tree(work: Path, dest: Path, values: dict[str, str]) -> None:
+def assemble_source_tree(work: Path, dest: Path, values: dict[str, str]) -> bool:
+    """Fill `dest` with the Source tree; true when `pre-upstream` put files under `debian/`.
+
+    That `debian/` is the orig's. The tree carries only the packaged one, so the
+    harness has to rebuild the orig's from the vendored hook (`vendor_build_spec`).
+    """
     if dest.exists():
         shutil.rmtree(dest)
     dest.mkdir(parents=True)
     orig = work / "orig"
     if orig.is_dir():
         copy_contents(orig, dest)
+    orig_has_debian = False
     if values.get("type") != "native":
         run_hook(work / "pre-upstream", dest)
+        orig_has_debian = (dest / "debian").exists() and not (orig / "debian").exists()
     debian_src = work / "debian"
     if debian_src.is_dir():
         copy_contents(debian_src, dest / "debian")
     run_hook(work / "pre-build", dest)
+    return orig_has_debian
+
+
+def vendor_build_spec(spec: Path, dest: Path, orig_has_debian: bool) -> None:
+    """Keep the build-spec pieces a filled tree cannot show, under `dest/build-spec/`.
+
+    `dpkg-overrides` (`-DField=value` words lintian passes to `dpkg-source`) changes
+    the `.dsc`. `pre-upstream.in` is kept, unfilled, only when it creates `debian/`
+    in the orig. The harness reads both (`tests/common/mod.rs`, ADR 0039).
+    """
+    kept = []
+    if (spec / "dpkg-overrides").is_file():
+        kept.append("dpkg-overrides")
+    if orig_has_debian and (spec / "pre-upstream.in").is_file():
+        kept.append("pre-upstream.in")
+    if not kept:
+        return
+    (dest / "build-spec").mkdir()
+    for name in kept:
+        shutil.copy2(spec / name, dest / "build-spec" / name)
 
 
 def copy_filled_work(work: Path, dest: Path) -> None:
@@ -392,7 +419,8 @@ def import_recipe(
         work.mkdir()
         values = prepare_work(lintian_root, spec, work)
         if skeleton in SOURCE_TREE_SKELETONS:
-            assemble_source_tree(work, dest, values)
+            orig_has_debian = assemble_source_tree(work, dest, values)
+            vendor_build_spec(spec, dest, orig_has_debian)
         else:
             copy_filled_work(work, dest)
 
@@ -452,6 +480,8 @@ def parse_universal_hint_line(line: str) -> tuple[str, str, str] | None:
 
 def source_tree_hint_matches_filled_tree(recipe: Path, tag: str) -> bool:
     """See `source_tree_hint_matches_filled_tree` in `tests/common/mod.rs`."""
+    if tag == "no-debian-changes":
+        return False
     if tag not in {
         "package-uses-deprecated-debhelper-compat-version",
         "debhelper-base-compat-level-is-missing",
@@ -759,6 +789,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Parity suite root (default: packages/debmagic/tests/lintian-parity)",
     )
     parser.add_argument(
+        "--recipe",
+        action="append",
+        default=[],
+        help="import only this recipe (path under t/recipes, repeatable); leaves PIN alone",
+    )
+    parser.add_argument(
         "--write-tests",
         action="store_true",
         help="regenerate tests/lintian_parity.rs from vendored recipes (also runs after import)",
@@ -783,7 +819,7 @@ def main(argv: list[str] | None = None) -> int:
             lintian_root = Path(tmp) / "lintian"
             commit = git_clone(args.version, lintian_root)
 
-        selected = all_importable_recipes(lintian_root)
+        selected = args.recipe or all_importable_recipes(lintian_root)
         failed: list[tuple[str, BaseException]] = []
         for recipe_rel in selected:
             dest = args.output / Path(recipe_rel)
@@ -795,7 +831,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"FAIL {recipe_rel}: {error}", file=sys.stderr)
                 if dest.exists() and not (dest / "ORIGIN").is_file():
                     shutil.rmtree(dest)
-        write_pin(args.output, args.version, commit)
+        if not args.recipe:
+            write_pin(args.output, args.version, commit)
         print(write_parity_tests(args.output))
         if failed:
             print(f"{len(failed)} of {len(selected)} recipes failed", file=sys.stderr)

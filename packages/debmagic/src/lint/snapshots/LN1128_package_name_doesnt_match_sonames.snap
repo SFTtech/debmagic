@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo1 (binary): package-name-doesnt-match-sonames (LN1128) libbogus1
+W: libfoo1 (binary): package-name-doesnt-match-sonames (LN1128) libb2 libbaz
+W: libfoo1 (binary): package-name-doesnt-match-sonames (LN1128) libz1
+W: libbogus1 (binary): package-name-doesnt-match-sonames (LN1128) libfoo1

@@ -11,6 +11,7 @@ pub struct InitScriptIsNotAFile;
 declare_rule! {
     /// An entry directly in `etc/init.d` is not a regular file or hardlink.
     ///
+    /// A named pipe, a device node and a symbolic link are such entries.
     /// Directories are skipped, as are `README`, `skeleton`, `rc` and `rcS`,
     /// and a symbolic link whose stored target is exactly `lib/init/upstart-job`.
     /// Symbolic links to ordinary files are reported too, since they are not
@@ -82,6 +83,12 @@ mod tests {
             script("etc/init.d/sub", TestFile::directory()),
             script("etc/init.d/hard", TestFile::new("#!/bin/sh\n").hardlink()),
             script("etc/init.d/linked", TestFile::symlink("/usr/share/foo")).package("initscripts"),
+            script("etc/init.d/pipe", TestFile::fifo()).package("initscripts"),
+            // Skipped names, and only the direct children of etc/init.d.
+            script("etc/init.d/README", TestFile::fifo()),
+            script("etc/init.d/rcS", TestFile::fifo()),
+            script("etc/init.d/sub/pipe", TestFile::fifo()),
+            script("etc/default/pipe", TestFile::fifo()),
         ];
         let fail = vec![
             script("etc/init.d/linked", TestFile::symlink("/usr/share/foo")),
@@ -91,6 +98,10 @@ mod tests {
                 TestFile::symlink("/lib/init/upstart-job"),
             ),
             script("etc/init.d/udeb", TestFile::symlink("/usr/share/foo")).udeb(),
+            script("etc/init.d/fifo-pipe-as-init", TestFile::fifo()),
+            script("etc/init.d/tty", TestFile::char_device()),
+            script("etc/init.d/disk", TestFile::block_device()),
+            script("etc/init.d/pipe", TestFile::fifo()).udeb(),
         ];
         BinaryPackageTester::new(InitScriptIsNotAFile, pass, fail).test_and_snapshot();
     }

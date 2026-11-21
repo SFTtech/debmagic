@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-control-file-is-a-symlink (LN1019) [debian/control]
+W: (source): debian-control-file-is-a-symlink (LN1019) [debian/control]
+W: (source): debian-control-file-is-a-symlink (LN1019) [real/control]

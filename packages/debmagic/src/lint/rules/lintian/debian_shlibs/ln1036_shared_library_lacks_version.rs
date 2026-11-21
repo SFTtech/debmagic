@@ -1,12 +1,24 @@
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
-use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::BinaryPackageRule;
+
+use super::lines::{elf_sonames, human_soname, in_ldconfig_folder};
 
 pub struct SharedLibraryLacksVersion;
 
 declare_rule! {
-    /// TODO: what the Rule reports, in lintian's words, and the cases it skips.
+    /// A public shared library has an ELF SONAME with no version.
+    ///
+    /// The SONAME of each Data file is turned into `name version` the way
+    /// dpkg-shlibdeps splits it. A SONAME that yields no space (no `.so.N`
+    /// or `-N.so` suffix) cannot be represented in shlibs. Only files
+    /// directly in a lintian `ldconfig_folders` entry are reported: the
+    /// multiarch `lib/<triplet>` and `usr/lib/<triplet>` folders and the fixed
+    /// `lib`, `usr/lib`, `usr/local/lib` and `*32`/`*64`/`*x32` folders.
+    /// Private libraries elsewhere are quiet. Extra is `path pretty-soname`
+    /// with no Location. Only ELF SONAMEs are read; a library without an
+    /// SONAME is not reported. Symlinks are not ELF files and are quiet.
     SharedLibraryLacksVersion,
     code = "LN1036",
     tag = "shared-library-lacks-version",
@@ -15,24 +27,69 @@ declare_rule! {
 }
 
 impl BinaryPackageRule for SharedLibraryLacksVersion {
-    fn run(&self, _ctx: &mut BinaryPackageContext<'_>) {
-        // TODO: port lintian's `debian/shlibs` Check (just lintian-tag shared-library-lacks-version).
-        // Report with `ctx.diagnostic(Diagnostic::warn(extra).with_location(Location { .. }))`.
-        let _ = (Diagnostic::warn(""), None::<Location>);
+    fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
+        let Some(elf) = ctx.data_elf_files() else {
+            return;
+        };
+        for (path, soname) in elf_sonames(&elf) {
+            let pretty = human_soname(&soname);
+            if pretty.contains(' ') || !in_ldconfig_folder(&path) {
+                continue;
+            }
+            let extra = format!("{} {pretty}", path.to_string_lossy());
+            ctx.diagnostic(Diagnostic::warn(extra));
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester};
+    use crate::lint::elf::TestElf;
+    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
 
     use super::*;
 
+    fn elf(elf: TestElf) -> TestFile {
+        TestFile::from_bytes(elf.build())
+    }
+
     #[test]
     fn binary() {
-        // Pass and fail cases; `.test_and_snapshot()` once there are fail cases (`just snap-accept`).
-        let pass = Vec::<BinaryPackageCase>::new();
-        let fail = Vec::<BinaryPackageCase>::new();
-        BinaryPackageTester::new(SharedLibraryLacksVersion, pass, fail).test();
+        let pass = vec![
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
+            BinaryPackageCase::from(vec![(
+                "usr/lib/libfoo.so.1",
+                elf(TestElf::shared_object().soname("libfoo.so.1")),
+            )]),
+            BinaryPackageCase::from(vec![(
+                "usr/lib/foo/libpriv.so",
+                elf(TestElf::shared_object().soname("libpriv.so")),
+            )]),
+            BinaryPackageCase::from(vec![("usr/lib/libbaz.so", elf(TestElf::shared_object()))]),
+            BinaryPackageCase::from(vec![(
+                "usr/lib/libbaz.so",
+                TestFile::symlink("libbaz.so.1"),
+            )]),
+            BinaryPackageCase::from(vec![(
+                "usr/lib/libbaz.so",
+                TestFile::new("not an ELF file\n"),
+            )]),
+        ];
+        let fail = vec![
+            BinaryPackageCase::from(vec![(
+                "usr/lib/libbaz.so",
+                elf(TestElf::shared_object().soname("libbaz.so")),
+            )]),
+            BinaryPackageCase::from(vec![(
+                "usr/lib/libbaz.so",
+                elf(TestElf::shared_object().soname("libbaz.so")),
+            )])
+            .udeb(),
+            BinaryPackageCase::from(vec![(
+                "usr/lib/x86_64-linux-gnu/libbaz.so",
+                elf(TestElf::shared_object().soname("libbaz.so")),
+            )]),
+        ];
+        BinaryPackageTester::new(SharedLibraryLacksVersion, pass, fail).test_and_snapshot();
     }
 }

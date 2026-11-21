@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): preinst-calls-updaterc.d (LN1099) bar defaults [preinst:1]
+E: example (binary): preinst-calls-updaterc.d (LN1099) bar stop [preinst:1]
+E: example (binary): preinst-calls-updaterc.d (LN1099) bar defaults [preinst:1]
+E: example (binary): preinst-calls-updaterc.d (LN1099) baz start [preinst:3]
+E: example (binary): preinst-calls-updaterc.d (LN1099) bar defaults [preinst:1]
+E: example (binary): preinst-calls-updaterc.d (LN1099) bar defaults [preinst:2]
+E: example (udeb): preinst-calls-updaterc.d (LN1099) bar defaults [preinst:1]
+E: example (binary): preinst-calls-updaterc.d (LN1099) bar defaults [preinst:1]

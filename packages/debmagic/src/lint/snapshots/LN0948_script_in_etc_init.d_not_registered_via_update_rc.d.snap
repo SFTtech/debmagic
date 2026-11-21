@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): script-in-etc-init.d-not-registered-via-update-rc.d (LN0948) [etc/init.d/foo]
+W: example (binary): script-in-etc-init.d-not-registered-via-update-rc.d (LN0948) [etc/init.d/bar]
+W: example (binary): script-in-etc-init.d-not-registered-via-update-rc.d (LN0948) [etc/init.d/foo]
+W: example (binary): script-in-etc-init.d-not-registered-via-update-rc.d (LN0948) [etc/init.d/foo]
+W: example (binary): script-in-etc-init.d-not-registered-via-update-rc.d (LN0948) [etc/init.d/baz]
+W: example (binary): script-in-etc-init.d-not-registered-via-update-rc.d (LN0948) [etc/init.d/foo]
+W: example (binary): script-in-etc-init.d-not-registered-via-update-rc.d (LN0948) [etc/init.d/README]
+W: example (udeb): script-in-etc-init.d-not-registered-via-update-rc.d (LN0948) [etc/init.d/foo]

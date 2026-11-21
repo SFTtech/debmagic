@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): control-interpreter-in-usr-local (LN0979) /usr/local/bin/bash [preinst]
+E: example (binary): control-interpreter-in-usr-local (LN0979) /usr/local/bin/perl [postinst]
+E: example (binary): control-interpreter-in-usr-local (LN0979) /usr/local/bin/python3 [config]
+E: example (udeb): control-interpreter-in-usr-local (LN0979) /usr/local/bin/python3 [prerm]

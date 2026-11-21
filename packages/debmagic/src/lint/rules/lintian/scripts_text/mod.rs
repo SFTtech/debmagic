@@ -2,6 +2,7 @@
 //!
 //! `scan` walks Control files. Each Rule owns one Tag.
 
+mod interpreter_hits;
 mod ln0186_maintainer_script_calls_install_sgmlcatalog;
 mod ln0187_maintainer_script_changes_netbase;
 mod ln0188_maintscript_calls_ldconfig;

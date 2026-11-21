@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): php-script-with-unusual-interpreter (LN0978) php7.0 [usr/share/scripts/tool]
+W: example (binary): php-script-with-unusual-interpreter (LN0978) /usr/bin/php7.0 [usr/share/scripts/tool]
+W: example (udeb): php-script-with-unusual-interpreter (LN0978) /usr/bin/php7.0 [usr/bin/tool]

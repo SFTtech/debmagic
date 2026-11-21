@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): example-script-uses-deprecated-nodejs-location (LN0981) nodejs [usr/share/doc/pkg/examples/tool]
+W: example (udeb): example-script-uses-deprecated-nodejs-location (LN0981) nodejs [usr/share/doc/pkg/examples/tool]

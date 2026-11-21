@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): multi-arch-same-package-calls-pycompile (LN0977) [postinst:7]
+W: example (binary): multi-arch-same-package-calls-pycompile (LN0977) [postinst:8]
+W: example (udeb): multi-arch-same-package-calls-pycompile (LN0977) [postinst:2]
+W: example (binary): multi-arch-same-package-calls-pycompile (LN0977) [postinst:3]

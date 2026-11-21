@@ -38,7 +38,6 @@ mod ln0756_extra_whitespace_around_name_in_changelog_trailer;
 mod ln0757_changelog_is_symlink;
 mod ln0865_changelog_is_dh_make_template;
 mod ln0866_wrong_bug_number_in_closes;
-mod ln0867_changelog_distribution_does_not_match_changes_file;
 mod ln0868_changelog_file_missing_explicit_entry;
 mod ln0869_changelog_not_compressed_with_max_compression;
 mod ln0870_malformed_debian_changelog_version;
@@ -80,7 +79,6 @@ pub(crate) use ln0756_extra_whitespace_around_name_in_changelog_trailer::ExtraWh
 pub(crate) use ln0757_changelog_is_symlink::ChangelogIsSymlink;
 pub(crate) use ln0865_changelog_is_dh_make_template::ChangelogIsDhMakeTemplate;
 pub(crate) use ln0866_wrong_bug_number_in_closes::WrongBugNumberInCloses;
-pub(crate) use ln0867_changelog_distribution_does_not_match_changes_file::ChangelogDistributionDoesNotMatchChangesFile;
 pub(crate) use ln0868_changelog_file_missing_explicit_entry::ChangelogFileMissingExplicitEntry;
 pub(crate) use ln0869_changelog_not_compressed_with_max_compression::ChangelogNotCompressedWithMaxCompression;
 pub(crate) use ln0870_malformed_debian_changelog_version::MalformedDebianChangelogVersion;

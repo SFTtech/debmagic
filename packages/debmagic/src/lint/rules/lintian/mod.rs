@@ -192,7 +192,6 @@ pub(crate) use desktop::{
     PackageInstallsFileToUsrX11r6,
 };
 pub(crate) use desktop_gir::GirInArchAllPackage;
-pub(crate) use desktop_gir::GirMissingTypelibDependency;
 pub(crate) use desktop_gir::GirPackageNameDoesNotMatch;
 pub(crate) use desktop_gir::GirSectionNotLibdevel;
 pub(crate) use desktop_gir::TypelibMissingGirDepends;
@@ -207,10 +206,9 @@ pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{
-    BogusMailHostInDebianChangelog, ChangelogDistributionDoesNotMatchChangesFile,
-    ChangelogEmptyEntry, ChangelogFileMissingExplicitEntry, ChangelogIsDhMakeTemplate,
-    ChangelogIsSymlink, ChangelogNewsDebianMismatch, ChangelogNotCompressedWithMaxCompression,
-    ChangelogReferencesTempSecurityIdentifier,
+    BogusMailHostInDebianChangelog, ChangelogEmptyEntry, ChangelogFileMissingExplicitEntry,
+    ChangelogIsDhMakeTemplate, ChangelogIsSymlink, ChangelogNewsDebianMismatch,
+    ChangelogNotCompressedWithMaxCompression, ChangelogReferencesTempSecurityIdentifier,
     DebianChangelogFileContainsObsoleteUserEmacsSettings, DebianChangelogHasWrongDayOfWeek,
     DebianChangelogLineTooLong, DebianNewsEntryHasStrangeDistribution,
     DebianNewsEntryHasUnknownVersion, DebianNewsFileNotCompressed, EpochChangeWithoutComment,
@@ -242,8 +240,8 @@ pub(crate) use debian_copyright::{
     EmptyShortLicenseInDep5Copyright, FileIncludedAlready, FileWithoutCopyrightInformation,
     FilesExcludedWithoutCopyrightFormat10, GlobalFilesWildcardNotFirstParagraphInDep5Copyright,
     GlobbingPatternsOutOfOrder, HelperTemplatesInCopyright, IncompleteCreativeCommonsLicense,
-    InconsistentAppstreamMetadataLicense, InvalidEscapeSequenceInDep5Copyright,
-    InvalidShortNameInDep5Copyright, LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright,
+    InvalidEscapeSequenceInDep5Copyright, InvalidShortNameInDep5Copyright,
+    LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright,
     MissingLicenseParagraphInDep5Copyright, MissingLicenseTextInDep5Copyright,
     NamedCopyrightForSingleInstallable, NoCopyrightFile, NoDebianCopyrightInSource,
     NoDep5Copyright, ObsoleteFieldInDep5Copyright, OldFsfAddressInCopyrightFile,
@@ -421,7 +419,6 @@ pub(crate) use files_p11_kit::IncorrectNamingOfPkcs11Module;
 pub(crate) use files_pam::ConfigFileReserved;
 pub(crate) use files_permissions::BadPermForFileInEtcSudoersD;
 pub(crate) use files_permissions::BadPermissionsForAliFile;
-pub(crate) use files_permissions::ElevatedPrivileges;
 pub(crate) use files_permissions::ExecutableIsNotWorldReadable;
 pub(crate) use files_permissions::NonStandardDirPerm;
 pub(crate) use files_permissions::NonStandardExecutablePerm;
@@ -432,10 +429,9 @@ pub(crate) use files_pkgconfig::{
 };
 pub(crate) use files_symbolic_links::{
     AbsoluteSymbolicLinkTargetInSource, AbsoluteSymlinkInTopLevelFolder,
-    CompressedSymlinkWithWrongExt, LengthySymlink, PackageContainsBrokenSymlinkWildcard,
-    PackageContainsUnsafeSymlink, RelativeSymlink, SymlinkContainsSpuriousSegments,
-    SymlinkEndsWithSlash, SymlinkHasDoubleSlash, SymlinkHasTooManyUpSegments,
-    SymlinkIsSelfRecursive, WaywardSymbolicLinkTargetInSource,
+    CompressedSymlinkWithWrongExt, LengthySymlink, PackageContainsUnsafeSymlink, RelativeSymlink,
+    SymlinkContainsSpuriousSegments, SymlinkEndsWithSlash, SymlinkHasDoubleSlash,
+    SymlinkHasTooManyUpSegments, SymlinkIsSelfRecursive, WaywardSymbolicLinkTargetInSource,
 };
 pub(crate) use files_unwanted::{BackupFileInPackage, NfsTemporaryFileInPackage};
 pub(crate) use files_vcs::{
@@ -611,12 +607,12 @@ pub(crate) use menus::{
     DocBaseAbstractFieldIsTemplate, DocBaseAbstractFieldSeparatorExtraWhitespace,
     DocBaseAbstractMightContainExtraLeadingWhitespace, DocBaseDocumentFieldEndsInWhitespace,
     DocBaseDocumentFieldNotInFirstLine, DocBaseFileLacksRequiredField, DocBaseFileNoFormat,
-    DocBaseFileNoFormatSection, DocBaseFileNoIndex, DocBaseFileReferencesMissingFile,
-    DocBaseFileReferencesWrongPath, DocBaseFileSeparatorExtraWhitespace, DocBaseFileSyntaxError,
-    DocBaseFileUnknownField, DocBaseFileUnknownFormat, DocBaseIndexReferencesMultipleFiles,
-    DocBaseInvalidDocumentField, DocBaseUnknownSection, DocBaseUsesApplicationsSection,
-    DuplicateFieldInDocBase, DuplicateFormatInDocBase, ExecutableInUsrShareDocbase,
-    ExecutableMenuFile, MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,
+    DocBaseFileNoFormatSection, DocBaseFileNoIndex, DocBaseFileReferencesWrongPath,
+    DocBaseFileSeparatorExtraWhitespace, DocBaseFileSyntaxError, DocBaseFileUnknownField,
+    DocBaseFileUnknownFormat, DocBaseIndexReferencesMultipleFiles, DocBaseInvalidDocumentField,
+    DocBaseUnknownSection, DocBaseUsesApplicationsSection, DuplicateFieldInDocBase,
+    DuplicateFormatInDocBase, ExecutableInUsrShareDocbase, ExecutableMenuFile,
+    MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,
     MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus, MenuMethodLacksInclude,
     PostinstDoesNotCallUpdatemenus, PostinstHasUselessCallToInstallDocs,
     PostrmDoesNotCallUpdatemenus, PrermHasUselessCallToInstallDocs,
@@ -628,20 +624,18 @@ pub(crate) use modprobe::{
 };
 pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};
 pub(crate) use po_debconf::{
-    DebconfTranslationUsingGeneralList, InvalidPoFile, InvalidPotfilesIn, MisnamedPoFile,
-    MissingFileFromPotfilesIn, MissingPotfilesIn, MissingTemplatesPot, NewerDebconfTemplates,
-    NotUsingPoDebconf, TranslatedDefaultField,
+    DebconfTranslationUsingGeneralList, InvalidPoFile, MisnamedPoFile, MissingFileFromPotfilesIn,
+    MissingPotfilesIn, MissingTemplatesPot, NotUsingPoDebconf, TranslatedDefaultField,
 };
 pub(crate) use rules_and_control::{
     BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,
     CircularInstallationPrerequisite, DebhelperCompatFileContainsMultipleLevels,
-    DebhelperCompatFileIsEmpty, DebhelperCompatNotANumber,
-    DebhelperToolsFromAutotoolsDevAreDeprecated, DebianControlHasDbgsymPackage,
-    DebianControlRepeatsFieldNameInValue, DebianRulesUsesDeprecatedSystemdOverride,
-    DebianRulesUsesUnnecessaryDhArgument, DeclaresPossiblyConflictingDebhelperCompatVersions,
-    DhCleanKIsDeprecated, DhExecInstallNotAllowedHere, DhExecPrivateHelper,
-    DhExecScriptWithoutDhExecFeatures, DhInstallmanpagesIsObsolete,
-    DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
+    DebhelperCompatFileIsEmpty, DebhelperToolsFromAutotoolsDevAreDeprecated,
+    DebianControlHasDbgsymPackage, DebianControlRepeatsFieldNameInValue,
+    DebianRulesUsesDeprecatedSystemdOverride, DebianRulesUsesUnnecessaryDhArgument,
+    DeclaresPossiblyConflictingDebhelperCompatVersions, DhCleanKIsDeprecated,
+    DhExecInstallNotAllowedHere, DhExecPrivateHelper, DhExecScriptWithoutDhExecFeatures,
+    DhInstallmanpagesIsObsolete, DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
     ExecutableDebhelperFileWithoutBeingExecutable, PackageFileIsExecutable,
     PackageUsesDebhelperButLacksBuildDepends, PackageUsesDhExecButLacksBuildDepends,
     TemporaryDebhelperFile, UselessAutoreconfBuildDepends,

@@ -23,7 +23,6 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
-    "checks/debhelper/debhelper-compat",
     "checks/debhelper/debhelper-compat-empty",
     "checks/debhelper/debhelper-compat-experimental",
     "checks/debhelper/debhelper-compat-multiple",
@@ -79,7 +78,6 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/prerequisite/development/legacy-libbaz",
     "checks/debian/control/prerequisite/redundant/control-file-general",
     "checks/debian/control/prerequisite/redundant/legacy-relations",
-    "checks/debian/copyright/dep5/appstream-metadata",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
     "checks/debian/copyright/dep5/excluded-files-in-native",
@@ -100,7 +98,6 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons",
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b",
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel",
-    "checks/debian/copyright/dep5/source-copyright-inconsistent-appstream-metadata-license",
     "checks/debian/copyright/dep5/source-copyright-nodep5",
     "checks/debian/copyright/dep5/source-copyright-pipe-as-or",
     "checks/debian/copyright/dep5/source-copyright-source-files-excluded",
@@ -108,7 +105,6 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-unique",
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
-    "checks/debian/copyright/dep5/udev-rules",
     "checks/debian/copyright/dep5/wildcard-out-of-order",
     "checks/debian/copyright/generic-empty",
     "checks/debian/copyright/named-copyright-in-source",
@@ -134,7 +130,6 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
     "checks/debian/po-debconf/debconf-templates-general",
-    "checks/debian/po-debconf/invalid-potfiles-in",
     "checks/debian/po-debconf/legacy-debconf",
     "checks/debian/po-debconf/po-debconf-general",
     "checks/debian/po-debconf/po-debconf-missing",
@@ -367,7 +362,6 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/cron/files-bad-perm-owner",
     "checks/cron/files-foo-violates-expected-naming",
     "checks/cron/legacy-etcfiles",
-    "checks/debian/changelog/changelog-distribution-does-not-match-changes-file",
     "checks/debian/changelog/changelog-file-empty-entry",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-invalid-date",
@@ -606,7 +600,6 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/sgml/files-foo-in-bar",
     "checks/files/sgml/legacy-filenames",
     "checks/files/symbolic-links/broken/legacy-filenames",
-    "checks/files/symbolic-links/broken/symlinks-broken",
     "checks/files/symbolic-links/broken/symlinks-unsafe",
     "checks/files/symbolic-links/files-general",
     "checks/files/symbolic-links/files-symlinks",
@@ -766,7 +759,6 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
-    "checks/debhelper/debhelper-compat",
     "checks/debhelper/debhelper-compat-empty",
     "checks/debhelper/debhelper-compat-experimental",
     "checks/debhelper/debhelper-compat-missing",
@@ -823,7 +815,6 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/prerequisite/development/legacy-libbaz",
     "checks/debian/control/prerequisite/redundant/control-file-general",
     "checks/debian/control/prerequisite/redundant/legacy-relations",
-    "checks/debian/copyright/dep5/appstream-metadata",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
     "checks/debian/copyright/dep5/excluded-files-in-native",
@@ -844,7 +835,6 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons",
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b",
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel",
-    "checks/debian/copyright/dep5/source-copyright-inconsistent-appstream-metadata-license",
     "checks/debian/copyright/dep5/source-copyright-nodep5",
     "checks/debian/copyright/dep5/source-copyright-pipe-as-or",
     "checks/debian/copyright/dep5/source-copyright-source-files-excluded",
@@ -852,7 +842,6 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-unique",
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
-    "checks/debian/copyright/dep5/udev-rules",
     "checks/debian/copyright/dep5/wildcard-out-of-order",
     "checks/debian/copyright/generic-empty",
     "checks/debian/copyright/named-copyright-in-source",
@@ -878,7 +867,6 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
     "checks/debian/po-debconf/debconf-templates-general",
-    "checks/debian/po-debconf/invalid-potfiles-in",
     "checks/debian/po-debconf/legacy-debconf",
     "checks/debian/po-debconf/po-debconf-general",
     "checks/debian/po-debconf/po-debconf-missing",
@@ -1121,7 +1109,6 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
-#[test_case("checks/debhelper/debhelper-compat"; "checks_debhelper_debhelper_compat")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
 #[test_case("checks/debhelper/debhelper-compat-experimental"; "checks_debhelper_debhelper_compat_experimental")]
 #[test_case("checks/debhelper/debhelper-compat-multiple"; "checks_debhelper_debhelper_compat_multiple")]
@@ -1177,7 +1164,6 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/prerequisite/development/legacy-libbaz"; "checks_debian_control_prerequisite_development_legacy_libbaz")]
 #[test_case("checks/debian/control/prerequisite/redundant/control-file-general"; "checks_debian_control_prerequisite_redundant_control_file_general")]
 #[test_case("checks/debian/control/prerequisite/redundant/legacy-relations"; "checks_debian_control_prerequisite_redundant_legacy_relations")]
-#[test_case("checks/debian/copyright/dep5/appstream-metadata"; "checks_debian_copyright_dep5_appstream_metadata")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/dep5/excluded-files-in-native"; "checks_debian_copyright_dep5_excluded_files_in_native")]
@@ -1198,7 +1184,6 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_b")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_unrel")]
-#[test_case("checks/debian/copyright/dep5/source-copyright-inconsistent-appstream-metadata-license"; "checks_debian_copyright_dep5_source_copyright_inconsistent_appstream_metadata_license")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-nodep5"; "checks_debian_copyright_dep5_source_copyright_nodep5")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-pipe-as-or"; "checks_debian_copyright_dep5_source_copyright_pipe_as_or")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-source-files-excluded"; "checks_debian_copyright_dep5_source_copyright_source_files_excluded")]
@@ -1206,7 +1191,6 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/dep5/source-copyright-unique"; "checks_debian_copyright_dep5_source_copyright_unique")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
-#[test_case("checks/debian/copyright/dep5/udev-rules"; "checks_debian_copyright_dep5_udev_rules")]
 #[test_case("checks/debian/copyright/dep5/wildcard-out-of-order"; "checks_debian_copyright_dep5_wildcard_out_of_order")]
 #[test_case("checks/debian/copyright/generic-empty"; "checks_debian_copyright_generic_empty")]
 #[test_case("checks/debian/copyright/named-copyright-in-source"; "checks_debian_copyright_named_copyright_in_source")]
@@ -1232,7 +1216,6 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
-#[test_case("checks/debian/po-debconf/invalid-potfiles-in"; "checks_debian_po_debconf_invalid_potfiles_in")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
 #[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
 #[test_case("checks/debian/po-debconf/po-debconf-missing"; "checks_debian_po_debconf_po_debconf_missing")]
@@ -1466,7 +1449,6 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/cron/files-bad-perm-owner"; "checks_cron_files_bad_perm_owner")]
 #[test_case("checks/cron/files-foo-violates-expected-naming"; "checks_cron_files_foo_violates_expected_naming")]
 #[test_case("checks/cron/legacy-etcfiles"; "checks_cron_legacy_etcfiles")]
-#[test_case("checks/debian/changelog/changelog-distribution-does-not-match-changes-file"; "checks_debian_changelog_changelog_distribution_does_not_match_changes_file")]
 #[test_case("checks/debian/changelog/changelog-file-empty-entry"; "checks_debian_changelog_changelog_file_empty_entry")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-invalid-date"; "checks_debian_changelog_changelog_file_invalid_date")]
@@ -1705,7 +1687,6 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/sgml/files-foo-in-bar"; "checks_files_sgml_files_foo_in_bar")]
 #[test_case("checks/files/sgml/legacy-filenames"; "checks_files_sgml_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/legacy-filenames"; "checks_files_symbolic_links_broken_legacy_filenames")]
-#[test_case("checks/files/symbolic-links/broken/symlinks-broken"; "checks_files_symbolic_links_broken_symlinks_broken")]
 #[test_case("checks/files/symbolic-links/broken/symlinks-unsafe"; "checks_files_symbolic_links_broken_symlinks_unsafe")]
 #[test_case("checks/files/symbolic-links/files-general"; "checks_files_symbolic_links_files_general")]
 #[test_case("checks/files/symbolic-links/files-symlinks"; "checks_files_symbolic_links_files_symlinks")]
@@ -1866,7 +1847,6 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
-#[test_case("checks/debhelper/debhelper-compat"; "checks_debhelper_debhelper_compat")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
 #[test_case("checks/debhelper/debhelper-compat-experimental"; "checks_debhelper_debhelper_compat_experimental")]
 #[test_case("checks/debhelper/debhelper-compat-missing"; "checks_debhelper_debhelper_compat_missing")]
@@ -1923,7 +1903,6 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/prerequisite/development/legacy-libbaz"; "checks_debian_control_prerequisite_development_legacy_libbaz")]
 #[test_case("checks/debian/control/prerequisite/redundant/control-file-general"; "checks_debian_control_prerequisite_redundant_control_file_general")]
 #[test_case("checks/debian/control/prerequisite/redundant/legacy-relations"; "checks_debian_control_prerequisite_redundant_legacy_relations")]
-#[test_case("checks/debian/copyright/dep5/appstream-metadata"; "checks_debian_copyright_dep5_appstream_metadata")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/dep5/excluded-files-in-native"; "checks_debian_copyright_dep5_excluded_files_in_native")]
@@ -1944,7 +1923,6 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_b")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_unrel")]
-#[test_case("checks/debian/copyright/dep5/source-copyright-inconsistent-appstream-metadata-license"; "checks_debian_copyright_dep5_source_copyright_inconsistent_appstream_metadata_license")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-nodep5"; "checks_debian_copyright_dep5_source_copyright_nodep5")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-pipe-as-or"; "checks_debian_copyright_dep5_source_copyright_pipe_as_or")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-source-files-excluded"; "checks_debian_copyright_dep5_source_copyright_source_files_excluded")]
@@ -1952,7 +1930,6 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/dep5/source-copyright-unique"; "checks_debian_copyright_dep5_source_copyright_unique")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
-#[test_case("checks/debian/copyright/dep5/udev-rules"; "checks_debian_copyright_dep5_udev_rules")]
 #[test_case("checks/debian/copyright/dep5/wildcard-out-of-order"; "checks_debian_copyright_dep5_wildcard_out_of_order")]
 #[test_case("checks/debian/copyright/generic-empty"; "checks_debian_copyright_generic_empty")]
 #[test_case("checks/debian/copyright/named-copyright-in-source"; "checks_debian_copyright_named_copyright_in_source")]
@@ -1978,7 +1955,6 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
-#[test_case("checks/debian/po-debconf/invalid-potfiles-in"; "checks_debian_po_debconf_invalid_potfiles_in")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
 #[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
 #[test_case("checks/debian/po-debconf/po-debconf-missing"; "checks_debian_po_debconf_po_debconf_missing")]

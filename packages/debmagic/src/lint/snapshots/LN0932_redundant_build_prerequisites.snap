@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): redundant-build-prerequisites (LN0932) perl (>= 5.10), perl (>= 5.10) | libmodule-build-perl
+W: example (source): redundant-build-prerequisites (LN0932) perl (>= 5.10), perl (>= 5.10) | libmodule-build-perl
+W: example (source): redundant-build-prerequisites (LN0932) perl (>= 5.10), perl (>= 5.10) | libmodule-build-perl
+W: example (source): redundant-build-prerequisites (LN0932) perl, perl (>= 5.0)
+W: example (source): redundant-build-prerequisites (LN0932) foo, foo (>= 1)
+W: example (source): redundant-build-prerequisites (LN0932) foo, foo (>= 1)
+W: example (source): redundant-build-prerequisites (LN0932) foo, foo (<< 4), foo (>= 1)
+W: example (source): redundant-build-prerequisites (LN0932) foo (<< 4) [!amd64 !i386], foo (= 3)

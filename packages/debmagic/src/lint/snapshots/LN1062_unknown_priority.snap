@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unknown-priority (LN1062) is weird
+E: example (binary): unknown-priority (LN1062) opt ional
+E: example (binary): unknown-priority (LN1062) Optional
+E: example (binary): unknown-priority (LN1062)
+E: example (udeb): unknown-priority (LN1062) nonsense
+E: example (binary): unknown-priority (LN1062) extra

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): multi-arch-same-package-has-arch-specific-overrides (LN1056) [debian/example.lintian-overrides.amd64]
+W: example (source): multi-arch-same-package-has-arch-specific-overrides (LN1056) [debian/example.lintian-overrides.amd64]
+W: example (source): multi-arch-same-package-has-arch-specific-overrides (LN1056) [debian/example.lintian-overrides.amd64]
+W: example (source): multi-arch-same-package-has-arch-specific-overrides (LN1056) [debian/example.lintian-overrides.amd64]
+W: example (source): multi-arch-same-package-has-arch-specific-overrides (LN1056) [debian/example.lintian-overrides.arm64]

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): misplaced-systemd-tmpfiles (LN1137) [etc/tmpfiles.d/test.conf]
+E: example (binary): misplaced-systemd-tmpfiles (LN1137) [etc/tmpfiles.d/test.conf]
+E: example (binary): misplaced-systemd-tmpfiles (LN1137) [etc/tmpfiles.d/sub/test.conf]
+E: example (binary): misplaced-systemd-tmpfiles (LN1137) [etc/tmpfiles.d/.conf]
+E: example (binary): misplaced-systemd-tmpfiles (LN1137) [etc/tmpfiles.d/ÿ.conf]

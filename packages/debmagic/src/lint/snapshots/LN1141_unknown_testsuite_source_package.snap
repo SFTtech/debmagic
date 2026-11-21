@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): unknown-testsuite (LN1141) golf [debian/control:3]

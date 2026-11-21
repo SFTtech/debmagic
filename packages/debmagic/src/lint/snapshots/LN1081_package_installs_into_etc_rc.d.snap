@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-installs-into-etc-rc.d (LN1081) [etc/rc.d/foo]
+E: example (binary): package-installs-into-etc-rc.d (LN1081) [etc/rc.d/foo]
+E: example (binary): package-installs-into-etc-rc.d (LN1081) [etc/rc2.d/S01foo]
+E: example (binary): package-installs-into-etc-rc.d (LN1081) [etc/rcS.d/S01foo]
+E: example (binary): package-installs-into-etc-rc.d (LN1081) [etc/rc3.d/K01foo]
+E: example (binary): package-installs-into-etc-rc.d (LN1081) [etc/rc.d/foo]
+E: foo (binary): package-installs-into-etc-rc.d (LN1081) [etc/rc.d/foo]

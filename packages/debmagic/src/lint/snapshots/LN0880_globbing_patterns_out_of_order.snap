@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): globbing-patterns-out-of-order (LN0880) debian/patches/* debian/* debian/patches/a.patch [debian/copyright:7]

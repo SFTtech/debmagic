@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): readme-debian-contains-debmake-template (LN0893) [usr/share/doc/example/README.Debian]
+W: example (binary): readme-debian-contains-debmake-template (LN0893) [usr/share/doc/example/README.Debian]
+W: example (binary): readme-debian-contains-debmake-template (LN0893) [usr/share/doc/example/README.Debian]
+W: example (binary): readme-debian-contains-debmake-template (LN0893) [usr/share/doc/example/README.debian]
+W: example (binary): readme-debian-contains-debmake-template (LN0893) [usr/share/doc/example/README.Debian.gz]
+W: example (binary): readme-debian-contains-debmake-template (LN0893) [usr/share/doc/example/README.Debian]

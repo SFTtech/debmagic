@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): interpreter-not-absolute (LN0986) perl [usr/bin/tool]
+W: example (binary): interpreter-not-absolute (LN0986) env [usr/bin/tool]
+W: example (binary): interpreter-not-absolute (LN0986) perl [usr/share/foo/tool]
+W: example (binary): interpreter-not-absolute (LN0986) perl [usr/bin/tool]
+W: example (binary): interpreter-not-absolute (LN0986) perl [etc/init.d/tool]
+W: example (udeb): interpreter-not-absolute (LN0986) perl [usr/bin/tool]
+W: example (binary): interpreter-not-absolute (LN0986) sh [postinst]
+W: example (binary): interpreter-not-absolute (LN0986) python3 [preinst]

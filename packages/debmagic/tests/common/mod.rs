@@ -622,6 +622,15 @@ fn copy_tree(src: &Path, dst: &Path) {
             fs::copy(&from, &to).unwrap_or_else(|error| {
                 panic!("copying {} to {}: {error}", from.display(), to.display())
             });
+            // Git keeps only the executable bit, so a checkout under a
+            // group-writable umask (002) leaves 0664 and 0775 files that
+            // lintian's recipes never had. Drop group and other write.
+            {
+                use std::os::unix::fs::PermissionsExt;
+                let mut permissions = fs::metadata(&to).expect("stat copied file").permissions();
+                permissions.set_mode(permissions.mode() & !0o022);
+                fs::set_permissions(&to, permissions).expect("chmod copied file");
+            }
         } else if file_type.is_symlink() {
             let target = fs::read_link(&from)
                 .unwrap_or_else(|error| panic!("reading link {}: {error}", from.display()));
@@ -810,6 +819,19 @@ fn dpkg_build_binary(source: &Path) {
         }
         command.env("PERL5LIB", perl5lib);
     }
+    // lintian's recipes are built under umask 022; a group-writable host umask
+    // (002) would make the compiler emit 0775 libraries.
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        // SAFETY: `umask` is async-signal-safe and touches no Rust state.
+        unsafe {
+            command.pre_exec(|| {
+                libc::umask(0o022);
+                Ok(())
+            });
+        }
+    }
     let output = command.output().expect("spawning dpkg-buildpackage -b");
     assert!(
         output.status.success(),
@@ -900,6 +922,8 @@ pub fn assert_binary_package_parity(recipe_rel: &str) {
         );
     }
     rewrite_font_package_list(recipe_rel, &mut actual);
+    rewrite_incompatibility_statement(recipe_rel, &mut actual);
+    rewrite_control_file_group(recipe_rel, &mut actual);
     actual.sort();
 
     assert_eq!(
@@ -1377,6 +1401,44 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         actual, expected,
         "Parity mismatch for {recipe_rel} (source package)"
     );
+}
+
+/// `binaries-multiarch-wrong-dir`'s lintian `eval/post-test` rewrites
+/// `is for i386 instead of amd64` (either way round) to
+/// `INCOMPATIBILITY STATEMENT`. The vendored hint keeps that token; the hook
+/// is not copied into the tree.
+fn rewrite_incompatibility_statement(recipe_rel: &str, hints: &mut [ParityHint]) {
+    if recipe_rel != "checks/files/architecture/binaries-multiarch-wrong-dir" {
+        return;
+    }
+    for hint in hints {
+        if hint.tag == "triplet-dir-and-architecture-mismatch" && hint.extra.starts_with("is for ")
+        {
+            hint.extra = "INCOMPATIBILITY STATEMENT".to_string();
+        }
+    }
+}
+
+/// `control-files-bad`'s `tar-control` hook packs the control members with
+/// `--owner=nobody` and no `--group`, so the group is the primary group of
+/// whoever runs the test (lintian's own runs are root). The vendored hint
+/// expects `nobody/root`; map the host's group to `root`.
+fn rewrite_control_file_group(recipe_rel: &str, hints: &mut [ParityHint]) {
+    if recipe_rel != "checks/control-files/control-files-bad" {
+        return;
+    }
+    for hint in hints {
+        if hint.tag != "control-file-has-bad-owner" {
+            continue;
+        }
+        let Some(rest) = hint.extra.strip_prefix("nobody/") else {
+            continue;
+        };
+        let Some((_, tail)) = rest.split_once(" != ") else {
+            continue;
+        };
+        hint.extra = format!("nobody/root != {tail}");
+    }
 }
 
 /// `files-fonts`'s lintian `eval/post-test` rewrites the packages listed in

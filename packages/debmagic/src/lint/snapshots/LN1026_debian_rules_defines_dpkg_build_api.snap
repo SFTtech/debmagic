@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): debian-rules-defines-dpkg-build-api (LN1026) [debian/rules:1]
+W: (source): debian-rules-defines-dpkg-build-api (LN1026) [debian/rules:1]
+W: (source): debian-rules-defines-dpkg-build-api (LN1026) [debian/rules:1]
+W: (source): debian-rules-defines-dpkg-build-api (LN1026) [debian/rules:1]
+W: (source): debian-rules-defines-dpkg-build-api (LN1026) [debian/rules:3]
+W: (source): debian-rules-defines-dpkg-build-api (LN1026) [debian/rules:3]
+W: (source): debian-rules-defines-dpkg-build-api (LN1026) [debian/rules.real:1]
+W: (source): debian-rules-defines-dpkg-build-api (LN1026) [debian/rules:1]

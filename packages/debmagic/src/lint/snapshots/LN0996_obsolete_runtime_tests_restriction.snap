@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): obsolete-runtime-tests-restriction (LN0996) needs-recommends [debian/tests/control:2]
+W: (source): obsolete-runtime-tests-restriction (LN0996) needs-recommends [debian/tests/control:4]

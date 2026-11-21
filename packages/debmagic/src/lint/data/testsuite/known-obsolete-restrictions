@@ -1,0 +1,3 @@
+# Known Restrictions in debian/tests/control that are obsolete
+
+needs-recommends

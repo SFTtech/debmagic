@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-uses-usr-interpreter (LN0954) /usr/bin/perl [etc/init.d/foo:1]
+W: example (binary): init.d-script-uses-usr-interpreter (LN0954) /usr/bin/perl [etc/init.d/foo:1]
+W: example (udeb): init.d-script-uses-usr-interpreter (LN0954) /usr/bin/python3 [etc/init.d/foo:1]
+W: example (binary): init.d-script-uses-usr-interpreter (LN0954) /usr/bin/perl [etc/init.d/rc:1]

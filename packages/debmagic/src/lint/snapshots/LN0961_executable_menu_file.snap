@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): executable-menu-file (LN0961) 0755 [usr/share/menu/test-menu]
+W: example (binary): executable-menu-file (LN0961) 0700 [usr/lib/menu/test-menu]
+W: example (binary): executable-menu-file (LN0961) 0755 [usr/share/menu/README]
+W: example (udeb): executable-menu-file (LN0961) 0755 [usr/share/menu/test-menu]

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): binary-in-etc (LN0855) [etc/foo]
+E: example (binary): binary-in-etc (LN0855) [etc/foo/libfoo.a]
+E: example (binary): binary-in-etc (LN0855) [etc/foo/same-link]
+E: example (udeb): binary-in-etc (LN0855) [etc/foo]

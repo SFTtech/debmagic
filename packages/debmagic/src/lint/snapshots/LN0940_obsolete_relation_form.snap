@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): obsolete-relation-form (LN0940) Conflicts: libsqlite3-0 (< 3.6.12)
+W: example (binary): obsolete-relation-form (LN0940) Depends: a (> 1)
+W: example (binary): obsolete-relation-form (LN0940) Replaces: c (< 3)

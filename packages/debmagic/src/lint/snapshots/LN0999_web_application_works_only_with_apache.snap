@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: phpmyfoo (binary): web-application-works-only-with-apache (LN0999) phpmyfoo.conf [etc/apache2/conf-available/phpmyfoo.conf]
+W: phpmyfoo (binary): web-application-works-only-with-apache (LN0999) phpmyfoo.conf [etc/apache2/conf-available/phpmyfoo.conf]
+W: phpmyfoo (binary): web-application-works-only-with-apache (LN0999) phpmyfoo.conf [etc/apache2/conf-available/phpmyfoo.conf]
+W: phpmyfoo (binary): web-application-works-only-with-apache (LN0999) phpmyfoo.conf [etc/apache2/conf.d/phpmyfoo.conf]
+W: phpmyfoo (binary): web-application-works-only-with-apache (LN0999) b.conf [etc/apache2/conf-available/b.conf]
+W: phpmyfoo (binary): web-application-works-only-with-apache (LN0999) a.conf [etc/apache2/site-available/a.conf]

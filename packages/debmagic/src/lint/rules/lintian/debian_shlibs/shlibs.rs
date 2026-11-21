@@ -116,6 +116,32 @@ pub(super) fn is_nss_plugin(path: &Path) -> bool {
     path.to_str().is_some_and(|path| NSS_PLUGIN.is_match(path))
 }
 
+/// The prerequisites of the non-udeb lines of the shlibs file, each line's
+/// dependencies joined by single spaces, once each, in file order. A line
+/// with no dependencies gives the empty prerequisite.
+pub(super) fn prerequisites(text: &str) -> Vec<String> {
+    let mut seen = std::collections::HashSet::new();
+    let mut prerequisites = Vec::new();
+    for line in lines::perl_lines(text) {
+        if lines::is_blank_or_comment(line) {
+            continue;
+        }
+        let (udeb, body) = strip_udeb(line);
+        if !udeb.is_empty() {
+            continue;
+        }
+        let prerequisite = body
+            .split_whitespace()
+            .skip(2)
+            .collect::<Vec<_>>()
+            .join(" ");
+        if seen.insert(prerequisite.clone()) {
+            prerequisites.push(prerequisite);
+        }
+    }
+    prerequisites
+}
+
 #[cfg(test)]
 pub(super) const LIBBAZ_SHLIBS: &str = include_str!(concat!(
     env!("CARGO_MANIFEST_DIR"),

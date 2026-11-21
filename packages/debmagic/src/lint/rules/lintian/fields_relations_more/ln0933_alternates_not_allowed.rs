@@ -1,12 +1,19 @@
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
-use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::BinaryPackageRule;
+
+use super::{BINARY_DEP_FIELDS, BINARY_RELATION_FIELDS};
 
 pub struct AlternatesNotAllowed;
 
 declare_rule! {
-    /// TODO: what the Rule reports, in lintian's words, and the cases it skips.
+    /// A relationship field other than the dependency fields contains `|`.
+    ///
+    /// Checked on the unfolded value of `Conflicts`, `Provides`, `Enhances`,
+    /// `Replaces`, and `Breaks`. `Depends`, `Pre-Depends`, `Recommends`, and
+    /// `Suggests` may use alternatives and are skipped. Extra is the field name.
+    /// Applies to debs and udebs.
     AlternatesNotAllowed,
     code = "LN0933",
     tag = "alternates-not-allowed",
@@ -15,24 +22,58 @@ declare_rule! {
 }
 
 impl BinaryPackageRule for AlternatesNotAllowed {
-    fn run(&self, _ctx: &mut BinaryPackageContext<'_>) {
-        // TODO: port lintian's `fields/package-relations` Check (just lintian-tag alternates-not-allowed).
-        // Report with `ctx.diagnostic(Diagnostic::error(extra).with_location(Location { .. }))`.
-        let _ = (Diagnostic::error(""), None::<Location>);
+    fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
+        let messages: Vec<String> = {
+            let fields = ctx.installation_control().fields();
+            BINARY_RELATION_FIELDS
+                .iter()
+                .copied()
+                .filter(|field| !BINARY_DEP_FIELDS.contains(field))
+                .filter(|field| {
+                    fields
+                        .unfolded_value(field)
+                        .is_some_and(|value| value.contains('|'))
+                })
+                .map(str::to_string)
+                .collect()
+        };
+        for message in messages {
+            ctx.diagnostic(Diagnostic::error(message));
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester};
+    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
 
     use super::*;
 
+    fn fields(items: &[(&str, &str)]) -> BinaryPackageCase {
+        items.iter().fold(
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
+            |case, (name, value)| case.field(*name, *value),
+        )
+    }
+
     #[test]
-    fn binary() {
-        // Pass and fail cases; `.test_and_snapshot()` once there are fail cases (`just snap-accept`).
-        let pass = Vec::<BinaryPackageCase>::new();
-        let fail = Vec::<BinaryPackageCase>::new();
-        BinaryPackageTester::new(AlternatesNotAllowed, pass, fail).test();
+    fn test() {
+        let pass = vec![
+            fields(&[]),
+            fields(&[("Depends", "foo | bar")]),
+            fields(&[("Pre-Depends", "foo | bar"), ("Recommends", "a | b")]),
+            fields(&[("Suggests", "a | b"), ("Conflicts", "foo, bar")]),
+            fields(&[("Provides", "foo"), ("Breaks", "bar (<< 1)")]),
+        ];
+        let fail = vec![
+            fields(&[("Conflicts", "foo | bar")]),
+            fields(&[("Provides", "foo | bar")]),
+            fields(&[
+                ("Enhances", "a|b"),
+                ("Replaces", "c | d"),
+                ("Breaks", "e | f"),
+            ]),
+        ];
+        BinaryPackageTester::new(AlternatesNotAllowed, pass, fail).test_and_snapshot();
     }
 }

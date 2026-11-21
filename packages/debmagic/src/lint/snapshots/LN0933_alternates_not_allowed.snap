@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): alternates-not-allowed (LN0933) Conflicts
+E: example (binary): alternates-not-allowed (LN0933) Provides
+E: example (binary): alternates-not-allowed (LN0933) Enhances
+E: example (binary): alternates-not-allowed (LN0933) Replaces
+E: example (binary): alternates-not-allowed (LN0933) Breaks

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-installs-apt-sources (LN1003) [etc/apt/sources.list]
+E: example (binary): package-installs-apt-sources (LN1003) [etc/apt/sources.list.d/bar.list]
+E: example (binary): package-installs-apt-sources (LN1003) [etc/apt/sources.list.d/sub/bar.list]
+E: example (binary): package-installs-apt-sources (LN1003) [etc/apt/sources.list.d/bar.list]
+E: example (binary): package-installs-apt-sources (LN1003) [etc/apt/sources.list]
+E: example (udeb): package-installs-apt-sources (LN1003) [etc/apt/sources.list]

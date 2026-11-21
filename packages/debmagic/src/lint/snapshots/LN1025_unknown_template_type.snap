@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unknown-template-type (LN1025) lintian [templates:2]
+E: example (binary): unknown-template-type (LN1025) String [templates:2]
+E: example (binary): unknown-template-type (LN1025) entropy [templates:2]
+E: example (binary): unknown-template-type (LN1025) entropy [templates:2]
+E: example (binary): unknown-template-type (LN1025) [templates:2]
+E: example (udeb): unknown-template-type (LN1025) lintian [templates:2]

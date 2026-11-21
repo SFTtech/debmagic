@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bad-version-number (LN0925) 1.0?
+E: example (udeb): bad-version-number (LN0925) 1.0?
+E: example (binary): bad-version-number (LN0925) a1.0
+E: example (binary): bad-version-number (LN0925) :1.0
+E: example (binary): bad-version-number (LN0925) x:1.0
+E: example (binary): bad-version-number (LN0925) 1.0-
+E: example (binary): bad-version-number (LN0925) 1.0-x_y
+E: example (binary): bad-version-number (LN0925) 1.0-1-2:
+E: example (binary): bad-version-number (LN0925)

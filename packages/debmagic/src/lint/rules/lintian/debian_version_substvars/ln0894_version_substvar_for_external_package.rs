@@ -24,7 +24,11 @@ declare_rule! {
     /// `pkg` itself contains a `${…}` substitution. Extra is
     /// `<field> <substvar> <installable> -> <pkg>`. The Location is
     /// `debian/control`, with no line. Applies to the Source tree and Source
-    /// package.
+    /// package. Like lintian, only the `source:` and `binary:` forms count:
+    /// the obsolete `${Source-Version}` is not matched here (lintian reports
+    /// it as `substvar-source-version-is-deprecated`). The vendored
+    /// `version-substvars-obsolete` hints predate lintian's current extra
+    /// format; Parity corrects them to what the Perl prints.
     VersionSubstvarForExternalPackage,
     code = "LN0894",
     tag = "version-substvar-for-external-package",

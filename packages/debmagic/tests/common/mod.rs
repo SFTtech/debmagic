@@ -421,6 +421,7 @@ fn catalogued_source_tree_hints(recipe: &Path, catalogued: &HashSet<String>) -> 
         })
         .map(|(_, hint)| hint)
         .collect();
+    correct_stale_expected_hints(recipe, &mut expected);
     expected.sort();
     expected
 }
@@ -507,6 +508,7 @@ fn catalogued_source_package_hints(
         })
         .map(|(_, hint)| hint)
         .collect();
+    correct_stale_expected_hints(recipe, &mut expected);
     expected.sort();
     expected
 }
@@ -1208,6 +1210,39 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
                 "debian/tests/fifo" | "debian/tests/lfifo"
             ))
     });
+}
+
+/// Two vendored recipes carry `eval/hints` lines from before lintian printed
+/// pointers and the full extra, which lintian 2.144's Perl no longer emits.
+/// The expected hints are brought to what that Perl prints; the Rules follow
+/// the Perl, as the sibling recipes (`cruft-general-test-suite`,
+/// `version-substvars-general`) confirm.
+///
+/// - `cruft-general-upstream` (a lintian `Todo` test): the bare
+///   `configure-generated-file-in-source config.cache` is `[config.cache]`
+///   (`pointed_hint` with a pointer and no note).
+/// - `version-substvars-obsolete`: the Perl's `version-substvar-for-external-package`
+///   extra is `<field> <substvar> <installable> -> <pkg>`, and its regex only
+///   accepts `${source:…}` / `${binary:…}`, so `foreign-pkg:any (= ${Source-Version})`
+///   yields no hint. Only `Replaces ${binary:Version} program-data ->
+///   other-foreign-pkg` remains.
+fn correct_stale_expected_hints(recipe: &Path, hints: &mut Vec<ParityHint>) {
+    if recipe.ends_with("checks/cruft/cruft-general-upstream") {
+        for hint in hints.iter_mut() {
+            if hint.tag == "configure-generated-file-in-source" && hint.extra == "config.cache" {
+                hint.extra = "[config.cache]".to_string();
+            }
+        }
+    } else if recipe.ends_with("checks/debian/version-substvars/version-substvars-obsolete") {
+        let tag = "version-substvar-for-external-package";
+        if hints.iter().any(|hint| hint.tag == tag) {
+            hints.retain(|hint| hint.tag != tag);
+            hints.push(ParityHint {
+                tag: tag.to_string(),
+                extra: "Replaces ${binary:Version} program-data -> other-foreign-pkg".to_string(),
+            });
+        }
+    }
 }
 
 /// `standards-version-timewarp`'s lintian `eval/post-test` rewrites the date of

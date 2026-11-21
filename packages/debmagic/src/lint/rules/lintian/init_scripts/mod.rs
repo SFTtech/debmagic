@@ -37,6 +37,11 @@ mod ln0951_duplicate_updaterc_d_calls_in_postrm;
 mod ln0952_init_d_script_contains_skeleton_template_content;
 mod ln0953_init_d_script_depends_on_unknown_virtual_facility;
 mod ln0954_init_d_script_uses_usr_interpreter;
+mod ln1097_postrm_contains_additional_updaterc_d_calls;
+mod ln1098_postrm_does_not_call_updaterc_d_for_init_d_script;
+mod ln1099_preinst_calls_updaterc_d;
+mod ln1100_prerm_calls_updaterc_d;
+mod ln1101_upstart_job_in_etc_init_d_not_registered_via_update_rc_d;
 pub(in crate::lint::rules::lintian) mod systemd_unit;
 
 pub(crate) use ln0230_init_d_script_does_not_implement_required_option::InitDScriptDoesNotImplementRequiredOption;
@@ -72,3 +77,8 @@ pub(crate) use ln0951_duplicate_updaterc_d_calls_in_postrm::DuplicateUpdatercDCa
 pub(crate) use ln0952_init_d_script_contains_skeleton_template_content::InitDScriptContainsSkeletonTemplateContent;
 pub(crate) use ln0953_init_d_script_depends_on_unknown_virtual_facility::InitDScriptDependsOnUnknownVirtualFacility;
 pub(crate) use ln0954_init_d_script_uses_usr_interpreter::InitDScriptUsesUsrInterpreter;
+pub(crate) use ln1097_postrm_contains_additional_updaterc_d_calls::PostrmContainsAdditionalUpdatercDCalls;
+pub(crate) use ln1098_postrm_does_not_call_updaterc_d_for_init_d_script::PostrmDoesNotCallUpdatercDForInitDScript;
+pub(crate) use ln1099_preinst_calls_updaterc_d::PreinstCallsUpdatercD;
+pub(crate) use ln1100_prerm_calls_updaterc_d::PrermCallsUpdatercD;
+pub(crate) use ln1101_upstart_job_in_etc_init_d_not_registered_via_update_rc_d::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;

@@ -23,6 +23,10 @@ mod ln0437_homepage_refers_to_obsolete_debian_infrastructure;
 mod ln0667_essential_in_source_package;
 mod ln0668_explicit_default_in_package_type;
 mod ln0924_section_is_dh_make_template;
+mod ln1051_unknown_essential_value;
+mod ln1061_priority_extra_is_replaced_by_priority_optional;
+mod ln1062_unknown_priority;
+mod ln1063_wrong_section_for_udeb;
 
 pub(crate) use ln0224_redundant_bugs_field::RedundantBugsField;
 pub(crate) use ln0225_bad_homepage::BadHomepage;
@@ -42,3 +46,7 @@ pub(crate) use ln0437_homepage_refers_to_obsolete_debian_infrastructure::Homepag
 pub(crate) use ln0667_essential_in_source_package::EssentialInSourcePackage;
 pub(crate) use ln0668_explicit_default_in_package_type::ExplicitDefaultInPackageType;
 pub(crate) use ln0924_section_is_dh_make_template::SectionIsDhMakeTemplate;
+pub(crate) use ln1051_unknown_essential_value::UnknownEssentialValue;
+pub(crate) use ln1061_priority_extra_is_replaced_by_priority_optional::PriorityExtraIsReplacedByPriorityOptional;
+pub(crate) use ln1062_unknown_priority::UnknownPriority;
+pub(crate) use ln1063_wrong_section_for_udeb::WrongSectionForUdeb;

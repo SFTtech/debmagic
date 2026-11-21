@@ -21,6 +21,10 @@ mod ln0955_package_installs_python_bytecode;
 mod ln0956_python_module_in_wrong_location;
 mod ln0957_django_package_does_not_depend_on_django;
 mod ln0958_new_package_should_not_package_python2_module;
+mod ln1114_package_installs_python_egg;
+mod ln1115_package_installs_python_pycache_dir;
+mod ln1116_python_debug_in_wrong_location;
+mod ln1117_pypi_homepage;
 mod python_version;
 
 pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;
@@ -41,3 +45,7 @@ pub(crate) use ln0955_package_installs_python_bytecode::PackageInstallsPythonByt
 pub(crate) use ln0956_python_module_in_wrong_location::PythonModuleInWrongLocation;
 pub(crate) use ln0957_django_package_does_not_depend_on_django::DjangoPackageDoesNotDependOnDjango;
 pub(crate) use ln0958_new_package_should_not_package_python2_module::NewPackageShouldNotPackagePython2Module;
+pub(crate) use ln1114_package_installs_python_egg::PackageInstallsPythonEgg;
+pub(crate) use ln1115_package_installs_python_pycache_dir::PackageInstallsPythonPycacheDir;
+pub(crate) use ln1116_python_debug_in_wrong_location::PythonDebugInWrongLocation;
+pub(crate) use ln1117_pypi_homepage::PypiHomepage;

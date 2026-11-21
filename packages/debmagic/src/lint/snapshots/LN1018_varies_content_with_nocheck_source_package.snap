@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): varies-content-with-nocheck (LN1018) [debian/control:6]

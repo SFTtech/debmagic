@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): obsolete-field-in-dep5-copyright (LN0882) Upstream-Maintainer Upstream-Contact [debian/copyright:2]
+W: (source): obsolete-field-in-dep5-copyright (LN0882) Contact Upstream-Contact [debian/copyright:3]
+W: (source): obsolete-field-in-dep5-copyright (LN0882) Name Upstream-Name [debian/copyright:2]

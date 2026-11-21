@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo-maven-plugin-java (binary): maven-plugin-in-usr-share-java (LN1174) [usr/share/java/foo.jar]
+W: libtest-maven-plugin-java (binary): maven-plugin-in-usr-share-java (LN1174) [usr/share/java/testb-1.0.jar]
+W: libtest-maven-plugin-java (binary): maven-plugin-in-usr-share-java (LN1174) [usr/share/java/testb.jar]
+W: libfoo-maven-plugin-java (binary): maven-plugin-in-usr-share-java (LN1174) [usr/share/java/foo.jar]
+W: libfoo-maven-plugin-java (binary): maven-plugin-in-usr-share-java (LN1174) [usr/share/java/sub/bar.jar]
+W: libfoo-maven-plugin-java (binary): maven-plugin-in-usr-share-java (LN1174) [usr/share/java/foo.jar]
+W: libfoo-maven-plugin-java (binary): maven-plugin-in-usr-share-java (LN1174) [usr/share/zzz/bar.jar]

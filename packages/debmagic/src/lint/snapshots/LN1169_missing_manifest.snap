@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): missing-manifest (LN1169) [usr/share/java/a-1.0.jar]
+I: example (binary): missing-manifest (LN1169) [usr/share/java/a-1.0.jar]
+I: example (binary): missing-manifest (LN1169) [usr/share/java/a-1.0.jar]

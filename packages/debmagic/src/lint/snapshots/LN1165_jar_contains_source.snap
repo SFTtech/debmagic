@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): jar-contains-source (LN1165) a/A.java [usr/share/java/a-1.0.jar]
+W: example (binary): jar-contains-source (LN1165) a/A.java [usr/share/java/a-1.0.jar]
+W: example (binary): jar-contains-source (LN1165) a/B.java [usr/share/java/a-1.0.jar]
+W: example (binary): jar-contains-source (LN1165) core.java [usr/share/java/a-1.0.jar]
+W: example (binary): jar-contains-source (LN1165) a/A.java [usr/share/java/a-1.0.jar]

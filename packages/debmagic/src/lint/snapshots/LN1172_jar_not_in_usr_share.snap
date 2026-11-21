@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): jar-not-in-usr-share (LN1172) [usr/lib/testb.jar]
+W: example (binary): jar-not-in-usr-share (LN1172) [opt/foo/a.jar]
+W: example (binary): jar-not-in-usr-share (LN1172) [usr/sharefoo/a.jar]
+W: example (binary): jar-not-in-usr-share (LN1172) [usr/lib/jvm/direct.jar]

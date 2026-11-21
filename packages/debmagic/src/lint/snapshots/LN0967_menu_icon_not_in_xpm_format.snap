@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): menu-icon-not-in-xpm-format (LN0967) icon usr/share/pixmaps/pargs.png [usr/share/menu/example:1]
+E: example (binary): menu-icon-not-in-xpm-format (LN0967) icon16x16 pargs.png [usr/share/menu/example:1]
+E: example (udeb): menu-icon-not-in-xpm-format (LN0967) icon32x32 a.PNG [usr/share/menu/example:1]

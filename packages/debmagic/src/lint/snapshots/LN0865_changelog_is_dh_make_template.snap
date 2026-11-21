@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): changelog-is-dh_make-template (LN0865) [usr/share/doc/example/changelog.gz:1]
+E: example (binary): changelog-is-dh_make-template (LN0865) [usr/share/doc/example/changelog:1]
+E: example (binary): changelog-is-dh_make-template (LN0865) [usr/share/doc/example/changelog:1]

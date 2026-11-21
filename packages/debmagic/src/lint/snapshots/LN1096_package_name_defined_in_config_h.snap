@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-name-defined-in-config-h (LN1096) usr/include/custom/config.h
+W: example (binary): package-name-defined-in-config-h (LN1096) usr/include/config.h
+W: example (binary): package-name-defined-in-config-h (LN1096) usr/include/example/config.h
+W: example (binary): package-name-defined-in-config-h (LN1096) usr/include/example/config.h
+W: example (udeb): package-name-defined-in-config-h (LN1096) usr/include/example/config.h
+W: example (binary): package-name-defined-in-config-h (LN1096) usr/include/bokm�l/config.h

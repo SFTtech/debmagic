@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): prerm-calls-updaterc.d (LN1100) foo [prerm:1]
+E: example (binary): prerm-calls-updaterc.d (LN1100) foo [prerm:1]
+E: example (binary): prerm-calls-updaterc.d (LN1100) foo [prerm:1]
+E: example (binary): prerm-calls-updaterc.d (LN1100) foo [prerm:2]
+E: example (binary): prerm-calls-updaterc.d (LN1100) foo [prerm:1]
+E: example (binary): prerm-calls-updaterc.d (LN1100) bar [prerm:2]
+E: example (udeb): prerm-calls-updaterc.d (LN1100) foo [prerm:1]
+E: example (binary): prerm-calls-updaterc.d (LN1100) foo [prerm:1]

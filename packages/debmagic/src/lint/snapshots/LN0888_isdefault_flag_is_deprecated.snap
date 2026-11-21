@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): isdefault-flag-is-deprecated (LN0888) [postinst:1]
+W: example (udeb): isdefault-flag-is-deprecated (LN0888) [postinst:1]
+W: example (binary): isdefault-flag-is-deprecated (LN0888) [postinst:3]
+W: example (binary): isdefault-flag-is-deprecated (LN0888) [config:1]

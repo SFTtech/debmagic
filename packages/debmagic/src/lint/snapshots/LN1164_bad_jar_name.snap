@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): bad-jar-name (LN1164) [usr/share/java/foo.jar]
+W: example (binary): bad-jar-name (LN1164) [usr/share/java/0.jar]
+W: example (binary): bad-jar-name (LN1164) [usr/share/java/Foo-1.0.jar]
+W: example (binary): bad-jar-name (LN1164) [usr/share/java/foo-1.0-.jar]
+W: example (binary): bad-jar-name (LN1164) [usr/share/java/foo_1.0.jar]
+W: example (binary): bad-jar-name (LN1164) [usr/share/java/-1.0.jar]

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): unknown-java-class-version (LN1166) org/debian/lintian/TestA.class -> 42 [usr/share/java/a-1.0.jar]
+W: example (binary): unknown-java-class-version (LN1166) a/A.class -> 44 [usr/share/java/a-1.0.jar]
+W: example (binary): unknown-java-class-version (LN1166) a/A.class -> 72 [usr/share/java/a-1.0.jar]
+W: example (binary): unknown-java-class-version (LN1166) b/B.class -> 99 [usr/share/java/a-1.0.jar]

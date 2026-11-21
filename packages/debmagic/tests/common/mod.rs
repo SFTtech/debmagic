@@ -886,6 +886,18 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "the host's libxcrypt has no `crypt.h` and no longer exports `setkey` and `encrypt`",
     ),
     (
+        "checks/languages/java/java-class-format",
+        "the recipe needs `javahelper` and a JDK (`javac`, `jar`), which this host lacks",
+    ),
+    (
+        "checks/languages/java/java-classpath",
+        "the recipe needs `javahelper` and a JDK (`javac`, `jar`), which this host lacks",
+    ),
+    (
+        "checks/languages/java/java-jars",
+        "the recipe needs `javahelper` and a JDK (`javac`, `jar`), which this host lacks",
+    ),
+    (
         "checks/deb-format/deb-format-udeb-compression",
         "the recipe runs `dpkg-deb -Zlzma`, which dpkg 1.23 rejects",
     ),

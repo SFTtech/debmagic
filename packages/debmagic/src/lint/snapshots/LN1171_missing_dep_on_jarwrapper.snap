@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): missing-dep-on-jarwrapper (LN1171)
+E: example (binary): missing-dep-on-jarwrapper (LN1171)
+E: example (binary): missing-dep-on-jarwrapper (LN1171)
+E: example (binary): missing-dep-on-jarwrapper (LN1171)

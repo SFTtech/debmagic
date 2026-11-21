@@ -18,6 +18,7 @@ mod hardening;
 mod installation_control;
 mod intent;
 mod interpreter;
+mod jar;
 mod lintian_overrides;
 mod lintian_tags;
 mod maintainer_script;
@@ -34,6 +35,7 @@ mod subject;
 #[cfg(test)]
 pub(crate) mod tester;
 mod timing;
+mod zip;
 
 pub use diagnostic::{Diagnostic, DiagnosticInner, Location, ProcessableType};
 pub use intent::{LintIntent, LintIntentInput, resolve_lint_intent};

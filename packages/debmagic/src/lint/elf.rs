@@ -395,7 +395,7 @@ impl ElfFiles {
 
 /// Bytes of a file Entry, borrowed when the tree holds them in memory, so
 /// non-ELF files are not copied just to look at their magic.
-fn entry_bytes<'a>(files: &FileTree, entry: &'a Entry) -> Option<Cow<'a, [u8]>> {
+pub(crate) fn entry_bytes<'a>(files: &FileTree, entry: &'a Entry) -> Option<Cow<'a, [u8]>> {
     match entry {
         Entry::RegularFile {
             content: Some(bytes),

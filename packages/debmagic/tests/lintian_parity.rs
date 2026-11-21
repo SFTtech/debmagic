@@ -703,6 +703,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/fortran/gfortran/missing-prerequisite-for-module",
     "checks/languages/fortran/gfortran/no-module-version",
     "checks/languages/java/bytecode/files-java-classfiles",
+    "checks/languages/java/java-class-format",
+    "checks/languages/java/java-classpath",
+    "checks/languages/java/java-jars",
     "checks/languages/javascript/embedded/files-embedded",
     "checks/languages/javascript/embedded/legacy-filenames",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
@@ -1909,6 +1912,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/fortran/gfortran/missing-prerequisite-for-module"; "checks_languages_fortran_gfortran_missing_prerequisite_for_module")]
 #[test_case("checks/languages/fortran/gfortran/no-module-version"; "checks_languages_fortran_gfortran_no_module_version")]
 #[test_case("checks/languages/java/bytecode/files-java-classfiles"; "checks_languages_java_bytecode_files_java_classfiles")]
+#[test_case("checks/languages/java/java-class-format"; "checks_languages_java_java_class_format")]
+#[test_case("checks/languages/java/java-classpath"; "checks_languages_java_java_classpath")]
+#[test_case("checks/languages/java/java-jars"; "checks_languages_java_java_jars")]
 #[test_case("checks/languages/javascript/embedded/files-embedded"; "checks_languages_javascript_embedded_files_embedded")]
 #[test_case("checks/languages/javascript/embedded/legacy-filenames"; "checks_languages_javascript_embedded_legacy_filenames")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]

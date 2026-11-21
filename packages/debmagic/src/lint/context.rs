@@ -17,6 +17,7 @@ use super::dsc::Dsc;
 use super::elf::ElfFiles;
 use super::file_tree::{Entry, EntryKind, FileTree};
 use super::installation_control::InstallationControl;
+use super::jar::JarFiles;
 use super::lintian_overrides::LintianOverrides;
 use super::quilt_series::QuiltSeries;
 use super::rule::{Code, RuleAccess, Tag};
@@ -314,6 +315,18 @@ impl<'a> BinaryPackageContext<'a> {
         Some(self.shared_once(|ctx| {
             ctx.data_files()
                 .map(ElfFiles::from_tree)
+                .unwrap_or_default()
+        }))
+    }
+
+    /// The jars among the Data files, read once per Subject and shared by
+    /// every Rule. `None` after a global File tree failure, as for
+    /// [`Self::data_files`].
+    pub fn data_jars(&mut self) -> Option<Arc<JarFiles>> {
+        self.data_files()?;
+        Some(self.shared_once(|ctx| {
+            ctx.data_files()
+                .map(JarFiles::from_tree)
                 .unwrap_or_default()
         }))
     }

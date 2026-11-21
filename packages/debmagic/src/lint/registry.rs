@@ -10,6 +10,7 @@ use super::rules::Apache2ReverseDependencyUsesObsoleteDirectory;
 use super::rules::Apache2UnsupportedDependency;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
+use super::rules::BadJarName;
 use super::rules::BadPackageName;
 use super::rules::BadPermForFileInEtcSudoersD;
 use super::rules::BadPermissionsForAliFile;
@@ -39,6 +40,8 @@ use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
 use super::rules::ChangelogIsSymlink;
 use super::rules::ChangelogNotCompressedWithMaxCompression;
+use super::rules::ClasspathContainsRelativePath;
+use super::rules::CodelessJar;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
 use super::rules::ComposerPrerequisite;
 use super::rules::ConfigDoesNotLoadConfmodule;
@@ -112,6 +115,7 @@ use super::rules::ExecutableDebhelperFileWithoutBeingExecutable;
 use super::rules::ExecutableDesktopFile;
 use super::rules::ExecutableInUsrShareDocbase;
 use super::rules::ExecutableIsNotWorldReadable;
+use super::rules::ExecutableJarWithoutMainClass;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
@@ -134,6 +138,7 @@ use super::rules::HardeningNoFortifyFunctions;
 use super::rules::HardeningNoPie;
 use super::rules::HardeningNoRelro;
 use super::rules::IllegalMultiArchValue;
+use super::rules::IncompatibleJavaBytecodeFormat;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
@@ -146,6 +151,8 @@ use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::IsdefaultFlagIsDeprecated;
+use super::rules::JarContainsSource;
+use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
 use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
@@ -160,6 +167,7 @@ use super::rules::MaintainerUploadHasIncorrectVersionNumber;
 use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
 use super::rules::MalformedTemplateName;
+use super::rules::MavenPluginInUsrShareJava;
 use super::rules::MawkScriptButNoMawkDep;
 use super::rules::MenuIconCannotBeParsed;
 use super::rules::MenuIconNotInXpmFormat;
@@ -174,10 +182,12 @@ use super::rules::MisplacedSystemdTmpfiles;
 use super::rules::MissingBuildDependsForCleanTargetInDebianRules;
 use super::rules::MissingCallToUpdateFonts;
 use super::rules::MissingDebconfDependency;
+use super::rules::MissingDepOnJarwrapper;
 use super::rules::MissingDependencyOnPhpapi;
 use super::rules::MissingDependsOnSensibleUtils;
 use super::rules::MissingFileFromPotfilesIn;
 use super::rules::MissingIntermediateDirectory;
+use super::rules::MissingManifest;
 use super::rules::MissingPotfilesIn;
 use super::rules::MissingPrerequisiteForGfortranModule;
 use super::rules::MissingTemplatesPot;
@@ -312,6 +322,7 @@ use super::rules::UnknownArchitecture;
 use super::rules::UnknownConffileInstruction;
 use super::rules::UnknownEncodingInPoFile;
 use super::rules::UnknownEssentialValue;
+use super::rules::UnknownJavaClassVersion;
 use super::rules::UnknownMetaFieldInSymbolsFile;
 use super::rules::UnknownMultiArchValue;
 use super::rules::UnknownParagraphInDep5Copyright;
@@ -342,6 +353,7 @@ use super::rules::WrongManualSection;
 use super::rules::WrongNameForManualPage;
 use super::rules::WrongSectionForUdeb;
 use super::rules::WrongTeam;
+use super::rules::ZipParseError;
 use super::rules::{
     AbsoluteSymlinkInTopLevelFolder, AliasedLocation, AncientLibtool, AncientPythonVersionField,
     Apache2ConfigurationFilesNeedConfSuffix, Apache2ReverseDependencyCallsWrapperScript,
@@ -1735,6 +1747,18 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ObsoleteCryptAlias,
         &UdebUsesUnsupportedCompressionForDataTarball,
         &BinaryWithBadDynamicTable,
+        &ZipParseError,
+        &BadJarName,
+        &JarContainsSource,
+        &UnknownJavaClassVersion,
+        &IncompatibleJavaBytecodeFormat,
+        &CodelessJar,
+        &MissingManifest,
+        &ExecutableJarWithoutMainClass,
+        &MissingDepOnJarwrapper,
+        &JarNotInUsrShare,
+        &ClasspathContainsRelativePath,
+        &MavenPluginInUsrShareJava,
     ]
 }
 
@@ -2770,6 +2794,18 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ObsoleteCryptAlias,
         &UdebUsesUnsupportedCompressionForDataTarball,
         &BinaryWithBadDynamicTable,
+        &ZipParseError,
+        &BadJarName,
+        &JarContainsSource,
+        &UnknownJavaClassVersion,
+        &IncompatibleJavaBytecodeFormat,
+        &CodelessJar,
+        &MissingManifest,
+        &ExecutableJarWithoutMainClass,
+        &MissingDepOnJarwrapper,
+        &JarNotInUsrShare,
+        &ClasspathContainsRelativePath,
+        &MavenPluginInUsrShareJava,
     ]
 }
 

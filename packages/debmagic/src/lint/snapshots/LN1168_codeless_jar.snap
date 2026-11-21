@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): codeless-jar (LN1168) [usr/share/java/codeless-1.0.jar]
+W: example (binary): codeless-jar (LN1168) [usr/share/java/empty-1.0.jar]
+W: example (binary): codeless-jar (LN1168) [usr/share/java/a-1.0.jar]
+W: example (binary): codeless-jar (LN1168) [usr/share/maven-repo/org/foo/foo-1.0-javadoc.jar]
+W: example (binary): codeless-jar (LN1168) [usr/share/eclipse/plugins/org.foo.doc_x/1.jar]
+W: example (binary): codeless-jar (LN1168) [usr/share/java/a-1.0.jar]

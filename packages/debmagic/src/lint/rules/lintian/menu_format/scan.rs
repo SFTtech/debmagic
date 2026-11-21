@@ -13,8 +13,25 @@ use std::path::{Component, Path, PathBuf};
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
+use regex::Regex;
 
 use super::data;
+
+/// Lintian's `@known_tags`: the menu item tags debmagic knows.
+const KNOWN_MENU_TAGS: &[&str] = &[
+    "needs",
+    "section",
+    "title",
+    "sort",
+    "command",
+    "longtitle",
+    "icon",
+    "icon16x16",
+    "icon32x32",
+    "description",
+    "hotkey",
+    "hints",
+];
 
 pub(super) struct Finding {
     pub path: PathBuf,
@@ -53,6 +70,14 @@ pub(super) struct Report {
     pub desktop_entry_missing_required_key: Vec<Finding>,
     pub desktop_entry_lacks_main_category: Vec<Finding>,
     pub desktop_mime_but_no_exec_code: Vec<Finding>,
+    pub menu_item_contains_unknown_tag: Vec<Finding>,
+    pub menu_item_creates_new_root_section: Vec<Finding>,
+    pub menu_item_needs_dwww: Vec<Finding>,
+    pub menu_item_uses_apps_games_section: Vec<Finding>,
+    pub menu_item_uses_icon_none: Vec<Finding>,
+    pub menu_icon_not_in_xpm_format: Vec<Finding>,
+    pub menu_icon_too_big: Vec<Finding>,
+    pub menu_icon_cannot_be_parsed: Vec<Finding>,
 }
 
 pub(super) fn take(
@@ -114,6 +139,14 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
         desktop_entry_missing_required_key: Vec::new(),
         desktop_entry_lacks_main_category: Vec::new(),
         desktop_mime_but_no_exec_code: Vec::new(),
+        menu_item_contains_unknown_tag: Vec::new(),
+        menu_item_creates_new_root_section: Vec::new(),
+        menu_item_needs_dwww: Vec::new(),
+        menu_item_uses_apps_games_section: Vec::new(),
+        menu_item_uses_icon_none: Vec::new(),
+        menu_icon_not_in_xpm_format: Vec::new(),
+        menu_icon_too_big: Vec::new(),
+        menu_icon_cannot_be_parsed: Vec::new(),
     };
     let mut desktop_cmds = HashSet::new();
     for entry in desktop_files(files) {
@@ -311,6 +344,19 @@ fn verify_menu_line(
         );
         return;
     }
+    let mut unknown: Vec<&String> = vals
+        .keys()
+        .filter(|tag| !KNOWN_MENU_TAGS.contains(&tag.as_str()))
+        .collect();
+    unknown.sort();
+    for tag in unknown {
+        warn_at(
+            &mut report.menu_item_contains_unknown_tag,
+            path,
+            Some(line),
+            tag.clone(),
+        );
+    }
     let original_section = vals["section"].clone();
     let section = squeeze_slashes(&original_section);
     let needs = vals["needs"].to_lowercase();
@@ -332,6 +378,7 @@ fn verify_menu_line(
             format!("{tag} {name}"),
         );
     }
+    icon_checks(files, &vals, path, Some(line), report);
     if !cmd.okay
         && cmd.file.as_ref().is_some_and(|command| !command.is_empty())
         && tested.len() < 2
@@ -371,6 +418,8 @@ fn verify_menu_line(
             Some(line),
             needs.clone(),
         );
+    } else if needs == "dwww" {
+        warn_at(&mut report.menu_item_needs_dwww, path, Some(line), "");
     } else if !is_wm_managers_section(&section)
         && needs != "dwww"
         && !matches!(needs.as_str(), "x11" | "text" | "vc")
@@ -383,6 +432,14 @@ fn verify_menu_line(
         );
     }
     let classified = classify_section(&section);
+    if classified.uses_apps_games {
+        warn_at(
+            &mut report.menu_item_uses_apps_games_section,
+            path,
+            Some(line),
+            "",
+        );
+    }
     if classified.uses_apps {
         warn_at(
             &mut report.menu_item_uses_apps_section,
@@ -405,6 +462,15 @@ fn verify_menu_line(
             path,
             Some(line),
             original_section,
+        );
+    }
+    let root = classified.rewritten.split('/').next().unwrap_or("");
+    if !data::menu_root_known(root) && !root.to_lowercase().contains(&package.to_lowercase()) {
+        warn_at(
+            &mut report.menu_item_creates_new_root_section,
+            path,
+            Some(line),
+            root,
         );
     }
 }
@@ -657,6 +723,87 @@ fn menu_icons(vals: &HashMap<String, String>) -> Vec<(&'static str, String)> {
     icons
 }
 
+/// Lintian's `verify_icon` for the three icon tags, except the missing check
+/// (LN0505). An icon found in the package has its XPM header and size read.
+fn icon_checks(
+    files: &FileTree,
+    vals: &HashMap<String, String>,
+    path: &Path,
+    line: Option<u32>,
+    report: &mut Report,
+) {
+    for (tag, size) in [("icon", 32), ("icon32x32", 32), ("icon16x16", 16)] {
+        let Some(value) = vals.get(tag) else {
+            continue;
+        };
+        if value.is_empty() {
+            continue;
+        }
+        if value == "none" {
+            warn_at(&mut report.menu_item_uses_icon_none, path, line, tag);
+            continue;
+        }
+        let name = value.trim_start_matches('/');
+        if !name.to_ascii_lowercase().ends_with(".xpm") {
+            warn_at(
+                &mut report.menu_icon_not_in_xpm_format,
+                path,
+                line,
+                format!("{tag} {name}"),
+            );
+            continue;
+        }
+        let pixmap = format!("usr/share/pixmaps/{name}");
+        let Some(icon) = resolve_entry(files, name).or_else(|| resolve_entry(files, &pixmap))
+        else {
+            continue;
+        };
+        if !is_file(icon) {
+            continue;
+        }
+        let text = files
+            .read(icon)
+            .map(|bytes| String::from_utf8_lossy(&bytes).into_owned())
+            .unwrap_or_default();
+        match xpm_size(&text) {
+            Err(step) => warn_at(
+                &mut report.menu_icon_cannot_be_parsed,
+                path,
+                line,
+                format!("{tag} {name}: looking for {step}"),
+            ),
+            Ok((width, height)) => {
+                if width > size || height > size {
+                    warn_at(
+                        &mut report.menu_icon_too_big,
+                        path,
+                        line,
+                        format!("{tag} {name}: {width}x{height} > {size}x{size}"),
+                    );
+                }
+            }
+        }
+    }
+}
+
+/// The width and height on the XPM size line, after the `/* XPM */` header.
+/// `Err` names the step that found no match.
+fn xpm_size(text: &str) -> Result<(u64, u64), &'static str> {
+    let header = Regex::new(r"/\*\s*XPM\s*\*/").expect("valid regex");
+    let size = Regex::new(r#""\s*([0-9]+)\s*([0-9]+)\s*(?:[0-9]+)\s*(?:[0-9]+)\s*""#)
+        .expect("valid regex");
+    let mut lines = text.split_inclusive('\n');
+    if !lines.any(|line| header.is_match(line)) {
+        return Err("XPM header");
+    }
+    let Some(caps) = lines.find_map(|line| size.captures(line)) else {
+        return Err("size line");
+    };
+    let width = caps[1].parse::<u64>().unwrap_or(u64::MAX);
+    let height = caps[2].parse::<u64>().unwrap_or(u64::MAX);
+    Ok((width, height))
+}
+
 /// `.xpm` icons lintian would report missing. Leading slashes are already gone
 /// from the returned path. `none` is decided before that strip.
 fn missing_menu_icons(
@@ -684,6 +831,28 @@ fn missing_menu_icons(
 
 fn icon_is_file(files: &FileTree, name: &str) -> bool {
     resolves_to_file(files, name) || resolves_to_file(files, &format!("usr/share/pixmaps/{name}"))
+}
+
+/// Lintian's `resolve_path`: the entry at `path` after following symlinks,
+/// whatever its kind. `None` when the path is missing or a link is broken.
+fn resolve_entry<'a>(files: &'a FileTree, path: &str) -> Option<&'a Entry> {
+    let mut current = lexical_join(Path::new(""), Path::new(path));
+    for _ in 0..8 {
+        let entry = files.get(&current)?;
+        match entry.kind() {
+            EntryKind::Symlink => {
+                let target = entry.link_target()?;
+                let base = if target.is_absolute() {
+                    Path::new("")
+                } else {
+                    current.parent().unwrap_or(Path::new(""))
+                };
+                current = lexical_join(base, target);
+            }
+            _ => return Some(entry),
+        }
+    }
+    None
 }
 
 /// Lintian's `resolve_path` plus `is_open_ok`: a regular file or hardlink,
@@ -883,12 +1052,14 @@ fn is_wm_managers_section(section: &str) -> bool {
 
 struct ClassifiedSection {
     rewritten: String,
+    uses_apps_games: bool,
     uses_apps: bool,
     uses_windowmanagers: bool,
 }
 
 fn classify_section(section: &str) -> ClassifiedSection {
     let mut rewritten = section.to_string();
+    let uses_apps_games = rewritten.starts_with("Apps/Games");
     if rewritten.starts_with("Apps/Games") {
         rewritten.replace_range(0.."Apps/".len(), "");
     }
@@ -902,6 +1073,7 @@ fn classify_section(section: &str) -> ClassifiedSection {
     }
     ClassifiedSection {
         rewritten,
+        uses_apps_games,
         uses_apps,
         uses_windowmanagers,
     }

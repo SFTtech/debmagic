@@ -1,12 +1,20 @@
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
-use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
+
+use super::scan;
 
 pub struct MenuItemNeedsDwww;
 
 declare_rule! {
-    /// TODO: what the Rule reports, in lintian's words, and the cases it skips.
+    /// A menu item outside the window manager sections uses `needs="dwww"`.
+    ///
+    /// `needs` is compared case-insensitively. Items in the Window Managers
+    /// and Window Managers/Modules sections are checked by their own Tags
+    /// (LN0255, LN0620), so they are not this Tag. For other sections lintian
+    /// reports `dwww` here instead of as an unknown `needs` value (LN0443).
+    /// No extra. Location is the menu file and lintian's line. Udebs are
+    /// checked too.
     MenuItemNeedsDwww,
     code = "LN0971",
     tag = "menu-item-needs-dwww",
@@ -15,24 +23,36 @@ declare_rule! {
 }
 
 impl BinaryPackageRule for MenuItemNeedsDwww {
-    fn run(&self, _ctx: &mut BinaryPackageContext<'_>) {
-        // TODO: port lintian's `menu-format` Check (just lintian-tag menu-item-needs-dwww).
-        // Report with `ctx.diagnostic(Diagnostic::warn(extra).with_location(Location { .. }))`.
-        let _ = (Diagnostic::warn(""), None::<Location>);
+    fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
+        for finding in scan::take(ctx, |report| report.menu_item_needs_dwww) {
+            scan::warn(ctx, &finding);
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester};
+    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
 
     use super::*;
 
+    fn menu(needs: &str) -> BinaryPackageCase {
+        BinaryPackageCase::from(vec![(
+            "usr/share/menu/example",
+            TestFile::new(format!(
+                "?package(example):needs=\"{needs}\" section=\"Applications/System\" title=\"T\" command=\"sh\"\n"
+            )),
+        )])
+    }
+
     #[test]
-    fn binary() {
-        // Pass and fail cases; `.test_and_snapshot()` once there are fail cases (`just snap-accept`).
-        let pass = Vec::<BinaryPackageCase>::new();
-        let fail = Vec::<BinaryPackageCase>::new();
-        BinaryPackageTester::new(MenuItemNeedsDwww, pass, fail).test();
+    fn test() {
+        let pass = vec![
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
+            menu("text"),
+            menu("x11"),
+        ];
+        let fail = vec![menu("dwww"), menu("DWWW").udeb()];
+        BinaryPackageTester::new(MenuItemNeedsDwww, pass, fail).test_and_snapshot();
     }
 }

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): menu-icon-cannot-be-parsed (LN0966) icon usr/share/pixmaps/broken.xpm: looking for XPM header [usr/share/menu/example:1]
+W: example (binary): menu-icon-cannot-be-parsed (LN0966) icon16x16 usr/share/pixmaps/broken.xpm: looking for size line [usr/share/menu/example:1]
+W: example (udeb): menu-icon-cannot-be-parsed (LN0966) icon usr/share/pixmaps/broken.xpm: looking for size line [usr/share/menu/example:1]

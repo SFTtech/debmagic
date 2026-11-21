@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): shared-library-symbols-not-tracked (LN1038) libesym 1 for usr/lib/libesym.so.1 [symbols]
+W: example (binary): shared-library-symbols-not-tracked (LN1038) libesym 1 for usr/lib/libesym.so.1 [symbols]
+W: example (udeb): shared-library-symbols-not-tracked (LN1038) libesym 1 for usr/lib/libesym.so.1 [symbols]
+W: example (binary): shared-library-symbols-not-tracked (LN1038) libbaz.so for usr/lib/libbaz.so [symbols]

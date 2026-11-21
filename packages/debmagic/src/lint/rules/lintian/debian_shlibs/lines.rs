@@ -1,6 +1,6 @@
 //! Shared control-file text helpers for the `debian/shlibs` Check.
 
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
@@ -80,6 +80,11 @@ static SO_VERSION: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(.*)\.so\.(.*)$").expect("lib.so.version"));
 static DASH_SO: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(.*)-(\d.*)\.so$").expect("lib-version.so"));
+static NSS_PLUGIN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(?:.*/)?libnss_[^.]+\.so\.\d+$").expect("nss plugin"));
+static SONAME_LINE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^([^\s|*]\S+)\s\S+\s*(?:\(\S+\s+\S+\)|#MINVER#)?").expect("soname line")
+});
 
 /// `human_soname` of the Check: `name version`, or the SONAME unchanged.
 pub(super) fn human_soname(soname: &str) -> String {
@@ -91,6 +96,12 @@ pub(super) fn human_soname(soname: &str) -> String {
     }
     soname.to_string()
 }
+
+/// `is_nss_plugin` of the Check, on the full path.
+pub(super) fn is_nss_plugin(path: &Path) -> bool {
+    NSS_PLUGIN.is_match(&path.to_string_lossy())
+}
+
 /// `dirname($path) . "/"` is one of lintian's `ldconfig_folders`: the
 /// multiarch `lib/<triplet>` and `usr/lib/<triplet>`, plus the fixed list.
 pub(super) fn in_ldconfig_folder(path: &Path) -> bool {
@@ -166,4 +177,28 @@ fn body_after_udeb(line: &str) -> Option<&str> {
     let rest = line.strip_prefix("udeb:")?;
     rest.starts_with(char::is_whitespace)
         .then(|| rest.trim_start())
+}
+
+/// Sonames named by the symbols text (`symbols_positions_by_soname` keys),
+/// as written in the file.
+pub(super) fn symbols_sonames(text: &str) -> HashSet<String> {
+    perl_lines(text)
+        .into_iter()
+        .filter(|line| !is_blank_or_comment(line))
+        .filter_map(|line| SONAME_LINE.captures(line))
+        .map(|captures| captures[1].to_string())
+        .collect()
+}
+
+/// Text of the symbols control file, if one exists. A file that is not a
+/// regular file or hardlink reads as empty, and invalid UTF-8 reads as empty,
+/// as lintian's `decoded_utf8` does.
+pub(super) fn symbols_text(ctx: &mut BinaryPackageContext<'_>) -> Option<String> {
+    let files = ctx.control_files()?;
+    let entry = files.get("symbols")?;
+    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
+        return Some(String::new());
+    }
+    let bytes = files.read(entry).ok()?;
+    Some(String::from_utf8(bytes).unwrap_or_default())
 }

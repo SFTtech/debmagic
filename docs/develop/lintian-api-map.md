@@ -38,11 +38,12 @@ Extras keep lintian's words and order. Recipes are the oracle.
 | `$item->name` | `entry.path()` | Relative, no leading `/`. lintian adds a trailing `/` to directories, debmagic does not. Paths keep raw bytes; use `as_os_str().as_bytes()` for non-UTF-8 names. |
 | `$item->basename` | `entry.path().file_name()` | For a string, `interpreter::basename` mirrors Perl's `basename`. |
 | `$item->dirname` | `entry.path().parent()` | |
-| `$item->is_file` | `matches!(entry.kind(), EntryKind::RegularFile \| EntryKind::Hardlink)` | lintian's `is_file` includes hardlinks. |
-| `$item->is_regular_file` | `entry.kind() == EntryKind::RegularFile` | |
-| `$item->is_dir` | `entry.kind() == EntryKind::Directory` | |
-| `$item->is_symlink` | `entry.kind() == EntryKind::Symlink` | |
-| `$item->is_hardlink` | `entry.kind() == EntryKind::Hardlink` | |
+| `$item->is_file` | `entry.is_file()` | lintian's `is_file` includes hardlinks. A fifo or device is not a file. |
+| `$item->is_regular_file` | `entry.is_regular_file()` | |
+| `$item->is_dir` | `entry.is_dir()` | |
+| `$item->is_symlink` | `entry.is_symlink()` | |
+| `$item->is_hardlink` | `entry.is_hardlink()` | |
+| `$item->perm =~ /^[pcb]/` (fifo, character, block device) | `entry.kind()` is `EntryKind::Fifo`, `CharDevice` or `BlockDevice` | No content, no File type, device numbers not kept. A `match` on `EntryKind` must list them; `.kinds([...])` queries are unaffected. |
 | `$item->link` | `entry.link_target()` (symlink) or `entry.hardlink_target()` (hardlink) | As stored, not resolved. |
 | `$item->link_normalized` | none shared | Resolve with `Path` logic. Several Rules have private resolvers, for example `testsuite/sections.rs::resolve`. |
 | `$item->resolve_path` | `tree.get(path)`, then follow `link_target()` yourself | |
@@ -56,8 +57,11 @@ Extras keep lintian's words and order. Recipes are the oracle.
 | `$item->is_executable` | `entry.is_executable_file()` (file or hardlink), or `entry.mode() & 0o111 != 0` | |
 | `$item->is_setuid` | `entry.mode() & 0o4000 != 0` | |
 | `$item->is_setgid` | `entry.mode() & 0o2000 != 0` | |
-| `$item->identity` | none | Owner and group are not on Entry yet. |
-| `$item->uid` | none | Owner is not on Entry yet. |
+| `$item->identity` | `entry.has_identity("root/games")`, or `entry.owner()?.identity()` | `owner()` is `None` on host File trees and fixtures that set none; it is not `root/root`. Binary package Entries have it from the tar header. |
+| `$item->owner` | `entry.owner()?.user()` | The name, else the number (`0` is `root`). |
+| `$item->group` | `entry.owner()?.group()` | As `owner`. |
+| `$item->uid` | `entry.owner()?.uid()` | |
+| `$item->gid` | `entry.owner()?.gid()` | |
 | `$item->file_type` | `entry.file_type()` (ELF, PE, DOS MZ only), `ElfFacts`, `SfntMagic`, or a sniff in the Rule | No `file(1)` strings (ADR 0041). Match the lintian regex against the facts it implies. |
 | `$item->is_elf` | `entry.file_type()` is `FileType::Elf`, or `ElfFacts::from_bytes` is `Some` | `ElfFacts` also covers ELF files whose section headers are cut off (ADR 0047). |
 | `$item->elf` | `ctx.data_elf_files()?.get(path)` → `ElfFacts` | `needed()`, `soname()`, `rpath()`, `runpath()`, `interpreter()`. No symbols or hardening yet. |

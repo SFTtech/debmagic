@@ -135,7 +135,12 @@ fn read_bytes(files: &FileTree, path: &Path) -> Option<Vec<u8>> {
     for _ in 0..8 {
         let entry = files.get(&path)?;
         match entry.kind() {
-            EntryKind::Directory => return None,
+            EntryKind::Directory
+            | EntryKind::Fifo
+            | EntryKind::CharDevice
+            | EntryKind::BlockDevice => {
+                return None;
+            }
             EntryKind::RegularFile | EntryKind::Hardlink => return files.read(entry).ok(),
             EntryKind::Symlink => {
                 let target = entry.link_target()?;

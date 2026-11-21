@@ -7,6 +7,8 @@ mod ln0944_bad_perm_for_file_in_etc_sudoers_d;
 mod ln0945_bad_permissions_for_ali_file;
 mod ln0946_non_standard_dir_perm;
 mod ln0947_non_standard_file_perm;
+mod ln0997_elevated_privileges;
+mod owner_exceptions;
 
 pub(crate) use ln0700_non_standard_executable_perm::NonStandardExecutablePerm;
 pub(crate) use ln0942_executable_is_not_world_readable::ExecutableIsNotWorldReadable;
@@ -15,3 +17,4 @@ pub(crate) use ln0944_bad_perm_for_file_in_etc_sudoers_d::BadPermForFileInEtcSud
 pub(crate) use ln0945_bad_permissions_for_ali_file::BadPermissionsForAliFile;
 pub(crate) use ln0946_non_standard_dir_perm::NonStandardDirPerm;
 pub(crate) use ln0947_non_standard_file_perm::NonStandardFilePerm;
+pub(crate) use ln0997_elevated_privileges::ElevatedPrivileges;

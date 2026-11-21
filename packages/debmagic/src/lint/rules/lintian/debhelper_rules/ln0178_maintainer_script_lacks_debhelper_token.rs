@@ -163,7 +163,10 @@ fn read_text(files: &FileTree, path: &Path) -> String {
             return String::new();
         };
         match entry.kind() {
-            EntryKind::Directory => return String::new(),
+            EntryKind::Directory
+            | EntryKind::Fifo
+            | EntryKind::CharDevice
+            | EntryKind::BlockDevice => return String::new(),
             EntryKind::RegularFile | EntryKind::Hardlink => {
                 let Ok(bytes) = files.read(entry) else {
                     return String::new();

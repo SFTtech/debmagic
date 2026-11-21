@@ -865,7 +865,10 @@ fn resolves_to_file(files: &FileTree, path: &str) -> bool {
         };
         match entry.kind() {
             EntryKind::RegularFile | EntryKind::Hardlink => return true,
-            EntryKind::Directory => return false,
+            EntryKind::Directory
+            | EntryKind::Fifo
+            | EntryKind::CharDevice
+            | EntryKind::BlockDevice => return false,
             EntryKind::Symlink => {
                 let Some(target) = entry.link_target() else {
                     return false;

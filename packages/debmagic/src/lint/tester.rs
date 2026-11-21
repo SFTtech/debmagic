@@ -9,7 +9,7 @@ use super::context::{
 };
 use super::diagnostic::Diagnostic;
 use super::dsc::Dsc;
-use super::file_tree::{Entry, FileTree};
+use super::file_tree::{Entry, EntryKind, FileTree, Owner};
 use super::file_type::FileType;
 use super::installation_control::InstallationControl;
 use super::rule::{BinaryPackageRule, SourceRule};
@@ -25,12 +25,15 @@ pub struct TestCase {
 /// One fixture Entry. Mirrors [`Entry`]: only the data a variant has.
 ///
 /// `mode` is `None` for the usual mode of the kind (see [`Entry::with_mode`]).
+/// `owner` is `None` for no say: a Source tree fixture then has no owner, and
+/// a Binary package fixture gets `root/root`, as `dpkg-deb` would give it.
 #[derive(Clone, Debug)]
 pub enum TestFile {
     RegularFile {
         content: Vec<u8>,
         file_type: Option<FileType>,
         mode: Option<u32>,
+        owner: Option<Owner>,
     },
     /// `target` is the linked member path, `None` when the case does not
     /// care (as on a host File tree).
@@ -38,15 +41,24 @@ pub enum TestFile {
         content: Vec<u8>,
         file_type: Option<FileType>,
         mode: Option<u32>,
+        owner: Option<Owner>,
         target: Option<PathBuf>,
     },
     Directory {
         mode: Option<u32>,
+        owner: Option<Owner>,
     },
     /// `target` is exactly as stored in the package.
     Symlink {
         target: PathBuf,
         mode: Option<u32>,
+        owner: Option<Owner>,
+    },
+    /// A named pipe, a character device or a block device.
+    Special {
+        kind: EntryKind,
+        mode: Option<u32>,
+        owner: Option<Owner>,
     },
 }
 
@@ -62,17 +74,47 @@ impl TestFile {
             content: content.into(),
             file_type: None,
             mode: None,
+            owner: None,
         }
     }
 
     pub fn directory() -> Self {
-        Self::Directory { mode: None }
+        Self::Directory {
+            mode: None,
+            owner: None,
+        }
     }
 
     pub fn symlink(target: impl Into<PathBuf>) -> Self {
         Self::Symlink {
             target: target.into(),
             mode: None,
+            owner: None,
+        }
+    }
+
+    /// A named pipe.
+    pub fn fifo() -> Self {
+        Self::special(EntryKind::Fifo)
+    }
+
+    /// A character device node.
+    #[allow(dead_code)]
+    pub fn char_device() -> Self {
+        Self::special(EntryKind::CharDevice)
+    }
+
+    /// A block device node.
+    #[allow(dead_code)]
+    pub fn block_device() -> Self {
+        Self::special(EntryKind::BlockDevice)
+    }
+
+    fn special(kind: EntryKind) -> Self {
+        Self::Special {
+            kind,
+            mode: None,
+            owner: None,
         }
     }
 
@@ -83,10 +125,12 @@ impl TestFile {
                 content,
                 file_type,
                 mode,
+                owner,
             } => Self::Hardlink {
                 content,
                 file_type,
                 mode,
+                owner,
                 target: None,
             },
             other => panic!("only a regular file can become a hardlink, not {other:?}"),
@@ -101,11 +145,13 @@ impl TestFile {
                 content,
                 file_type,
                 mode,
+                owner,
                 ..
             } => Self::Hardlink {
                 content,
                 file_type,
                 mode,
+                owner,
                 target: Some(target.into()),
             },
             _ => unreachable!("hardlink() returns a hardlink"),
@@ -128,39 +174,83 @@ impl TestFile {
         match &mut self {
             Self::RegularFile { mode, .. }
             | Self::Hardlink { mode, .. }
-            | Self::Directory { mode }
-            | Self::Symlink { mode, .. } => *mode = Some(new),
+            | Self::Directory { mode, .. }
+            | Self::Symlink { mode, .. }
+            | Self::Special { mode, .. } => *mode = Some(new),
         }
         self
     }
 
-    fn entry(&self, path: &OsStr) -> Entry {
-        let (entry, mode) = match self {
+    /// Set the owner by name, as a tar header stores it: `root` has id `0`,
+    /// any other name has id `1000`. Without this, a Binary package fixture
+    /// is owned by `root/root` and a Source tree fixture has no owner.
+    pub fn owned_by(self, user: &str, group: &str) -> Self {
+        let id = |name: &str| if name == "root" { 0 } else { 1000 };
+        self.owner(Owner::named(id(user), id(group), user, group))
+    }
+
+    /// Set the full [`Owner`].
+    pub fn owner(mut self, new: Owner) -> Self {
+        match &mut self {
+            Self::RegularFile { owner, .. }
+            | Self::Hardlink { owner, .. }
+            | Self::Directory { owner, .. }
+            | Self::Symlink { owner, .. }
+            | Self::Special { owner, .. } => *owner = Some(new),
+        }
+        self
+    }
+
+    /// The Entry at `path`. `default_owner` is given to an Entry that has no
+    /// owner set.
+    fn entry(&self, path: &OsStr, default_owner: Option<&Owner>) -> Entry {
+        let (entry, mode, owner) = match self {
             Self::RegularFile {
                 content,
                 file_type,
                 mode,
+                owner,
             } => (
                 Entry::regular_file(path, *file_type, Some(content.clone())),
                 mode,
+                owner,
             ),
             Self::Hardlink {
                 content,
                 file_type,
                 mode,
+                owner,
                 target,
             } => {
                 let entry = Entry::hardlink(path, *file_type, Some(content.clone()));
                 match target {
-                    Some(target) => (entry.with_hardlink_target(target), mode),
-                    None => (entry, mode),
+                    Some(target) => (entry.with_hardlink_target(target), mode, owner),
+                    None => (entry, mode, owner),
                 }
             }
-            Self::Directory { mode } => (Entry::directory(path), mode),
-            Self::Symlink { target, mode } => (Entry::symlink(path, target), mode),
+            Self::Directory { mode, owner } => (Entry::directory(path), mode, owner),
+            Self::Symlink {
+                target,
+                mode,
+                owner,
+            } => (Entry::symlink(path, target), mode, owner),
+            Self::Special { kind, mode, owner } => (
+                match kind {
+                    EntryKind::Fifo => Entry::fifo(path),
+                    EntryKind::CharDevice => Entry::char_device(path),
+                    EntryKind::BlockDevice => Entry::block_device(path),
+                    other => unreachable!("{other:?} is not a special file"),
+                },
+                mode,
+                owner,
+            ),
         };
-        match mode {
+        let entry = match mode {
             Some(mode) => entry.with_mode(*mode),
+            None => entry,
+        };
+        match owner.as_ref().or(default_owner) {
+            Some(owner) => entry.with_owner(owner.clone()),
             None => entry,
         }
     }
@@ -203,11 +293,22 @@ impl TestCase {
             .join(", ")
     }
 
+    /// A File tree with no owner on Entries that fixtures give none.
     fn file_tree(&self) -> FileTree {
+        self.file_tree_owned_by(None)
+    }
+
+    /// A File tree where Entries that fixtures give no owner are owned by
+    /// `root/root`, as in a Binary package built by `dpkg-deb`.
+    fn package_file_tree(&self) -> FileTree {
+        self.file_tree_owned_by(Some(&Owner::root()))
+    }
+
+    fn file_tree_owned_by(&self, default_owner: Option<&Owner>) -> FileTree {
         let entries = self
             .files
             .iter()
-            .map(|(path, file)| file.entry(path))
+            .map(|(path, file)| file.entry(path, default_owner))
             .collect();
         FileTree::from_entries(None, entries)
     }
@@ -556,9 +657,9 @@ impl BinaryPackageTester {
             }),
             case.package.clone(),
             InstallationControl::from_fields(fields),
-            case.files.file_tree(),
+            case.files.package_file_tree(),
         )
-        .with_control_files(case.control_files.file_tree());
+        .with_control_files(case.control_files.package_file_tree());
         let mut ctx = BinaryPackageContext::bind(&data, self.rule.as_ref());
         self.rule.run(&mut ctx);
         let diagnostics = ctx
@@ -780,6 +881,17 @@ fn materialize(case: &TestCase) -> tempfile::TempDir {
                 .unwrap_or_else(|error| panic!("creating {}: {error}", path.display())),
             TestFile::Symlink { target, .. } => std::os::unix::fs::symlink(target, &path)
                 .unwrap_or_else(|error| panic!("linking {}: {error}", path.display())),
+            TestFile::Special { kind, .. } => {
+                assert!(
+                    *kind == EntryKind::Fifo,
+                    "a Source tree fixture can only hold a fifo, not {kind:?}"
+                );
+                let status = std::process::Command::new("mkfifo")
+                    .arg(&path)
+                    .status()
+                    .unwrap_or_else(|error| panic!("running mkfifo: {error}"));
+                assert!(status.success(), "mkfifo {} failed", path.display());
+            }
         }
     }
     dir
@@ -816,4 +928,38 @@ fn format_test_failures(reason: &str, failures: &[TestFailure]) -> String {
         }
     }
     output
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn package_fixtures_default_to_root_and_source_fixtures_to_no_owner() {
+        let case = TestCase::source_tree([
+            ("a", TestFile::new("x")),
+            ("b", TestFile::new("x").owned_by("root", "games")),
+            ("pipe", TestFile::fifo()),
+        ]);
+        let identity = |tree: &FileTree, name: &str| {
+            tree.get(name).and_then(Entry::owner).map(Owner::identity)
+        };
+        let package = case.package_file_tree();
+        assert_eq!(identity(&package, "a").as_deref(), Some("root/root"));
+        assert_eq!(identity(&package, "b").as_deref(), Some("root/games"));
+        assert_eq!(identity(&package, "pipe").as_deref(), Some("root/root"));
+        assert_eq!(package.get("pipe").map(Entry::kind), Some(EntryKind::Fifo));
+        let source = case.file_tree();
+        assert_eq!(identity(&source, "a"), None);
+        assert_eq!(identity(&source, "b").as_deref(), Some("root/games"));
+        assert_eq!(identity(&source, "pipe"), None);
+    }
+
+    #[test]
+    fn source_tree_fixture_materializes_a_fifo() {
+        let case = TestCase::source_tree([("sub/pipe", TestFile::fifo())]);
+        let dir = materialize(&case);
+        let tree = FileTree::from_host_directory(dir.path()).expect("walk");
+        assert_eq!(tree.get("sub/pipe").map(Entry::kind), Some(EntryKind::Fifo));
+    }
 }

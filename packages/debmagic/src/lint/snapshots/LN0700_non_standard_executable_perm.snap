@@ -7,3 +7,5 @@ W: example (binary): non-standard-executable-perm (LN0700) 0751 != 0755 [usr/bin
 W: example (binary): non-standard-executable-perm (LN0700) 1755 != 0755 [usr/bin/sticky]
 W: example (binary): non-standard-executable-perm (LN0700) 0700 != 0755 [usr/bin/hard]
 W: example (udeb): non-standard-executable-perm (LN0700) 0750 != 0755 [bin/tool]
+W: example (binary): non-standard-executable-perm (LN0700) 0750 != 0755 [usr/games/tool]
+W: example (binary): non-standard-executable-perm (LN0700) 0750 != 0755 [usr/games/tool]

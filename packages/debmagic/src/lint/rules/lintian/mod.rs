@@ -419,6 +419,7 @@ pub(crate) use files_p11_kit::IncorrectNamingOfPkcs11Module;
 pub(crate) use files_pam::ConfigFileReserved;
 pub(crate) use files_permissions::BadPermForFileInEtcSudoersD;
 pub(crate) use files_permissions::BadPermissionsForAliFile;
+pub(crate) use files_permissions::ElevatedPrivileges;
 pub(crate) use files_permissions::ExecutableIsNotWorldReadable;
 pub(crate) use files_permissions::NonStandardDirPerm;
 pub(crate) use files_permissions::NonStandardExecutablePerm;

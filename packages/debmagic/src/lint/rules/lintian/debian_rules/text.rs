@@ -17,7 +17,9 @@ pub(in super::super) fn read_rules_from_tree(files: &FileTree) -> Option<String>
     let entry = files.get("debian/rules")?;
     match entry.kind() {
         EntryKind::RegularFile | EntryKind::Hardlink | EntryKind::Symlink => {}
-        EntryKind::Directory => return None,
+        EntryKind::Directory | EntryKind::Fifo | EntryKind::CharDevice | EntryKind::BlockDevice => {
+            return None;
+        }
     }
     let bytes = files.read(entry).ok()?;
     String::from_utf8(bytes).ok()

@@ -3,6 +3,8 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
+use super::owner_exceptions::is_game_executable_with_own_tag;
+
 pub struct ExecutableIsNotWorldReadable;
 
 declare_rule! {
@@ -11,9 +13,10 @@ declare_rule! {
     /// Walks Data files regular files and hardlinks with any execute bit.
     /// Reported with the octal mode as the extra when any of the read bits
     /// `0444` is missing, so `0751` or `4751` are reported. The path is the
-    /// Location. Udebs are checked too. Lintian skips a `root/games`
-    /// executable here when it reports it as `non-standard-game-executable-perm`;
-    /// Entry has no owner yet, so this Rule reports it here as well.
+    /// Location. Udebs are checked too. A `root/games` executable that is
+    /// not setgid, or lacks a bit of `0755`, is skipped: lintian reports it as
+    /// `non-standard-game-executable-perm` instead (no Rule for that Tag here,
+    /// so it gets no hint).
     ExecutableIsNotWorldReadable,
     code = "LN0942",
     tag = "executable-is-not-world-readable",
@@ -32,7 +35,9 @@ impl BinaryPackageRule for ExecutableIsNotWorldReadable {
             .entries()
             .iter()
             .filter(|entry| {
-                entry.is_executable_file() && entry.mode() & WORLD_READABLE != WORLD_READABLE
+                entry.is_executable_file()
+                    && entry.mode() & WORLD_READABLE != WORLD_READABLE
+                    && !is_game_executable_with_own_tag(entry)
             })
             .map(|entry| (entry.path().to_path_buf(), entry.mode()))
             .collect();
@@ -75,6 +80,16 @@ mod tests {
             // Setuid and setgid but readable: other Tags.
             tree(vec![("usr/bin/suid", script(0o4755))]),
             tree(vec![("usr/bin/sgid", script(0o2755))]),
+            // `root/games` executables that are not setgid with `0755`: the
+            // game Tag, which has no Rule here.
+            tree(vec![(
+                "usr/games/tool",
+                script(0o750).owned_by("root", "games"),
+            )]),
+            tree(vec![(
+                "usr/games/tool",
+                script(0o2751).owned_by("root", "games"),
+            )]),
             // Directories and symlinks are not executable files.
             tree(vec![(
                 "usr/share/doc/pkg",
@@ -95,6 +110,15 @@ mod tests {
             tree(vec![("usr/bin/suidperlfoo2", script(0o4751))]),
             tree(vec![("usr/bin/hard", script(0o700).hardlink())]),
             tree(vec![("bin/tool", script(0o750))]).udeb(),
+            // Only `root/games` has the game Tag.
+            tree(vec![(
+                "usr/games/tool",
+                script(0o700).owned_by("root", "staff"),
+            )]),
+            tree(vec![(
+                "usr/games/tool",
+                script(0o700).owned_by("games", "games"),
+            )]),
         ];
         BinaryPackageTester::new(ExecutableIsNotWorldReadable, pass, fail).test_and_snapshot();
     }

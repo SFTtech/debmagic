@@ -493,7 +493,10 @@ fn read_packaging(files: &FileTree, path: &str) -> PackagingFile {
             return PackagingFile::Missing;
         };
         match entry.kind() {
-            EntryKind::Directory => return PackagingFile::Unreadable,
+            EntryKind::Directory
+            | EntryKind::Fifo
+            | EntryKind::CharDevice
+            | EntryKind::BlockDevice => return PackagingFile::Unreadable,
             EntryKind::RegularFile | EntryKind::Hardlink => {
                 return match files.read(entry) {
                     Ok(bytes) => PackagingFile::Text(String::from_utf8_lossy(&bytes).into_owned()),

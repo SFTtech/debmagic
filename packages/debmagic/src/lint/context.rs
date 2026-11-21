@@ -821,7 +821,10 @@ fn follow_symlinks<'t>(tree: &'t FileTree, entry: &'t Entry) -> Option<&'t Entry
     for _ in 0..8 {
         match current.kind() {
             EntryKind::RegularFile | EntryKind::Hardlink => return Some(current),
-            EntryKind::Directory => return None,
+            EntryKind::Directory
+            | EntryKind::Fifo
+            | EntryKind::CharDevice
+            | EntryKind::BlockDevice => return None,
             EntryKind::Symlink => {
                 let mut resolved = current.path().parent()?.to_path_buf();
                 for component in current.link_target()?.components() {

@@ -3,8 +3,10 @@ use std::os::unix::ffi::OsStrExt;
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::file_tree::EntryKind;
+use crate::lint::file_tree::{Entry, EntryKind};
 use crate::lint::rule::BinaryPackageRule;
+
+use super::owner_exceptions::is_var_games_path;
 
 pub struct NonStandardFilePerm;
 
@@ -16,9 +18,8 @@ declare_rule! {
     /// `<mode> != 0644`; the path is the Location. These are left to other
     /// Rules, as lintian does: `etc/sudoers.d/` files (LN0944), `usr/lib/**.ali`
     /// files that are not `0444` (LN0945), `etc/backup.d/` files at `0600`,
-    /// and game data in `var/games/` or `var/lib/games/` at `0664`, which
-    /// lintian accepts for the `root/games` owner. Entry has no owner yet, so
-    /// that game data is assumed to be owned by `root/games`. Udebs are
+    /// and game data below `var/games/` or `var/lib/games/` at `0664` owned
+    /// by `root/games`. Game data with another owner is reported. Udebs are
     /// checked too.
     NonStandardFilePerm,
     code = "LN0947",
@@ -46,7 +47,7 @@ impl BinaryPackageRule for NonStandardFilePerm {
                     && !entry.is_executable_file()
                     && entry.mode() & SETUID_OR_SETGID == 0
                     && entry.mode() != STANDARD_FILE
-                    && !is_left_to_other_rules(entry.path().as_os_str().as_bytes(), entry.mode())
+                    && !is_left_to_other_rules(entry)
             })
             .map(|entry| (entry.path().to_path_buf(), entry.mode()))
             .collect();
@@ -66,14 +67,15 @@ impl BinaryPackageRule for NonStandardFilePerm {
 
 /// The paths and modes lintian's Check handles before its generic
 /// `non-standard-file-perm` report, as its early returns do.
-fn is_left_to_other_rules(path: &[u8], mode: u32) -> bool {
+fn is_left_to_other_rules(entry: &Entry) -> bool {
+    let path = entry.path().as_os_str().as_bytes();
+    let mode = entry.mode();
     let is_ali = path.starts_with(b"usr/lib/") && path.ends_with(b".ali");
     // A `.ali` file at `0444` falls through to the generic report in lintian.
     (is_ali && mode != WORLD_READABLE)
         || path.starts_with(b"etc/sudoers.d/")
         || (mode == BACKUP_NINJA_FILE && path.starts_with(b"etc/backup.d/"))
-        || (mode == GAME_DATA
-            && (path.starts_with(b"var/games/") || path.starts_with(b"var/lib/games/")))
+        || (mode == GAME_DATA && entry.has_identity("root/games") && is_var_games_path(path))
 }
 
 #[cfg(test)]
@@ -102,8 +104,14 @@ mod tests {
             tree(vec![("etc/sudoers.d/sudotest", file(0o604))]),
             tree(vec![("usr/lib/some-where/sample.ali", file(0o600))]),
             tree(vec![("etc/backup.d/job", file(0o600))]),
-            tree(vec![("var/games/pkg/score", file(0o664))]),
-            tree(vec![("var/lib/games/pkg/score", file(0o664))]),
+            tree(vec![(
+                "var/games/pkg/score",
+                file(0o664).owned_by("root", "games"),
+            )]),
+            tree(vec![(
+                "var/lib/games/pkg/score",
+                file(0o664).owned_by("root", "games"),
+            )]),
             // Directories are not files.
             tree(vec![(
                 "usr/share/doc/pkg",
@@ -115,7 +123,21 @@ mod tests {
             tree(vec![("usr/share/doc/binary/world-write", file(0o666))]),
             tree(vec![("usr/share/doc/binary/owner-only", file(0o600))]),
             tree(vec![("etc/backup.d/other", file(0o640))]),
+            // Game data owned by root/root (the fixture default) or someone else.
+            tree(vec![("var/games/pkg/score", file(0o664))]),
+            tree(vec![(
+                "var/games/pkg/score",
+                file(0o664).owned_by("root", "staff"),
+            )]),
+            tree(vec![(
+                "var/lib/games/pkg/score",
+                file(0o664).owned_by("games", "games"),
+            )]),
             // Game data outside the owner-specific paths, or other modes there.
+            tree(vec![(
+                "var/games/pkg/other",
+                file(0o640).owned_by("root", "games"),
+            )]),
             tree(vec![("var/games/pkg/other", file(0o640))]),
             tree(vec![("var/lib/pkg/score", file(0o664))]),
             // An .ali file at 0444 falls through to the generic report.

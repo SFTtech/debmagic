@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bad-perm-for-file-in-etc-sudoers.d (LN0944) 0644 != 0440 [etc/sudoers.d/sudotest]
+E: example (binary): bad-perm-for-file-in-etc-sudoers.d (LN0944) 0604 != 0440 [etc/sudoers.d/world]
+E: example (binary): bad-perm-for-file-in-etc-sudoers.d (LN0944) 0600 != 0440 [etc/sudoers.d/owner-rw]
+E: example (binary): bad-perm-for-file-in-etc-sudoers.d (LN0944) 0644 != 0440 [etc/sudoers.d/hard]
+E: example (udeb): bad-perm-for-file-in-etc-sudoers.d (LN0944) 0640 != 0440 [etc/sudoers.d/x]

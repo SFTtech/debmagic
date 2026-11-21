@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -149,6 +150,13 @@ def load_lintian_tags(data_dir: Path) -> dict[str, LintianTag]:
         if parsed is not None:
             tags[parsed.tag] = parsed
     return tags
+
+
+def pinned_lintian_data(root: Path) -> Path | None:
+    """The pinned lintian clone `scripts/lintian_tag.py` caches, when it exists."""
+    version, _commit = read_pin(root)
+    cache = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "debmagic/lintian" / version
+    return cache if (cache / "tags").is_dir() else None
 
 
 def installed_lintian_version() -> str:
@@ -683,6 +691,38 @@ def render_text(report: dict) -> str:
 # --- driver -------------------------------------------------------------------------------------
 
 
+def catalogue_version(data_dir: Path, pin_version: str) -> str:
+    if data_dir == DEFAULT_LINTIAN_DATA:
+        return installed_lintian_version()
+    if data_dir == pinned_lintian_data(importer.repo_root()):
+        return pin_version
+    return "unknown"
+
+
+def render_rules(report: dict, selectors: list[str]) -> tuple[str, bool]:
+    """The rows of the selected Rules (by Code or Tag) and whether any has an issue."""
+    rules = [rule for rule in report["rules"] if rule["code"] in selectors or rule["tag"] in selectors]
+    found = {rule["code"] for rule in rules} | {rule["tag"] for rule in rules}
+    lines = [f"no Rule {selector!r}" for selector in selectors if selector not in found]
+    bad = bool(lines)
+    for rule in rules:
+        prefix = f"{rule['code']} {rule['tag']}: "
+        issues = [issue[len(prefix) :] for issue in report["issues"] if issue.startswith(prefix)]
+        hints = rule["hint_lines"]
+        lines.append(
+            f"{rule['code']} {rule['tag']}  lintian {rule['lintian_severity']}"
+            f"  default-selected={str(rule['default_selected']).lower()}  applicability={'+'.join(rule['kinds'])}"
+        )
+        lines.append(
+            f"  oracle: {rule['all_recipes']} recipes ({rule['primary_recipes']} own), hint lines "
+            f"{hints['covered']} covered / {hints['uncovered']} uncovered {rule['uncovered_by_type'] or ''}".rstrip()
+        )
+        lines.append(f"  Parity cases: {rule['listed']}  status: {rule['status']}")
+        lines.append("  issues: " + ("; ".join(issues) if issues else "none"))
+        bad = bad or bool(issues)
+    return "\n".join(lines) + "\n", bad
+
+
 def build_report(args: argparse.Namespace) -> dict:
     root = importer.repo_root()
     suite = root / importer.SUITE_RELATIVE
@@ -709,9 +749,7 @@ def build_report(args: argparse.Namespace) -> dict:
             "pin_version": pin_version,
             "pin_commit": pin_commit,
             "lintian_data": str(args.lintian_data),
-            "catalogue_version": installed_lintian_version()
-            if args.lintian_data == DEFAULT_LINTIAN_DATA
-            else "unknown",
+            "catalogue_version": catalogue_version(args.lintian_data, pin_version),
             "recipes": len(recipes),
             "hint_lines": sum(len(r.hints) for r in recipes),
             "ln_rules": len(ln_rules),
@@ -802,7 +840,12 @@ def provenance_issues(meta: dict) -> list[str]:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--lintian-data", type=Path, default=DEFAULT_LINTIAN_DATA, help="lintian data dir with tags/")
+    parser.add_argument(
+        "--lintian-data",
+        type=Path,
+        default=None,
+        help="lintian data dir with tags/ (default: the pinned clone from `just lintian-tag`, else /usr/share/lintian)",
+    )
     parser.add_argument("--json", action="store_true", help="machine-readable output")
     parser.add_argument("--run", action="store_true", help="run `cargo test --test lintian_parity` and include results")
     parser.add_argument("--test-log", type=Path, help="include results from a saved `cargo test` log")
@@ -813,12 +856,26 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="candidates: include info/pedantic/experimental tags (default: default-selected only)",
     )
     parser.add_argument("--strict", action="store_true", help="exit 1 when the report lists any issue")
-    return parser.parse_args(argv)
+    parser.add_argument(
+        "--rule",
+        action="append",
+        default=[],
+        metavar="CODE|TAG",
+        help="print only this Rule's row and its issues (repeatable); exit 1 if it has any",
+    )
+    args = parser.parse_args(argv)
+    if args.lintian_data is None:
+        args.lintian_data = pinned_lintian_data(importer.repo_root()) or DEFAULT_LINTIAN_DATA
+    return args
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     report = build_report(args)
+    if args.rule:
+        text, bad = render_rules(report, args.rule)
+        sys.stdout.write(text)
+        return 1 if bad else 0
     sys.stdout.write(json.dumps(report, indent=2) + "\n" if args.json else render_text(report))
     return 1 if args.strict and report["issues"] else 0
 

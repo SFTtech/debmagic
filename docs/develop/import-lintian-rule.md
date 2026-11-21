@@ -21,7 +21,7 @@ Classification tags are not Rules.
 
 ## 2. Catalogue the Rule
 
-Add a unit struct named from the Tag (`RequiredField`) under `src/lint/rules/lintian/lnNNNN_<snake_tag>.rs` (or `src/lint/rules/native/dmNNNN_<snake_tag>.rs` for a DM Rule), `declare_rule!` with a new `LNxxxx` / `DMxxxx` Code, `impl` the subject trait for each kind the Rule inspects now (`SourceRule` for Source tree and Source package, `BinaryPackageRule` for Binary package), and register it in `registry.rs` (the metadata catalog and each kind list whose trait it implements). The filename is `{lowercase_code}_{snake_tag}.rs`; the module is that stem; `declare_rule!` is canonical. If lintian renames the Tag, `git mv` the file to the new snake Tag and leave the Code prefix. Lintian files may later split into further subfolders under `lintian/`.
+Add a unit struct named from the Tag (`RequiredField`) under `src/lint/rules/lintian/lnNNNN_<snake_tag>.rs` (or `src/lint/rules/native/dmNNNN_<snake_tag>.rs` for a DM Rule), `declare_rule!` with a new `LNxxxx` / `DMxxxx` Code, `impl` the subject trait for each kind the Rule inspects now (`SourceRule` for Source tree and Source package, `BinaryPackageRule` for Binary package), and register it in `registry.rs` (the metadata catalog and each kind list whose trait it implements). `just new-rule <tag>` does all of this mechanically (file, module, registry), with kinds taken from the vendored recipes; `just lintian-tag <tag>` prints everything this guide has you look up by hand (Check module, API mapping, recipes, commands). The filename is `{lowercase_code}_{snake_tag}.rs`; the module is that stem; `declare_rule!` is canonical. If lintian renames the Tag, `git mv` the file to the new snake Tag and leave the Code prefix. Lintian files may later split into further subfolders under `lintian/`.
 
 Until we generate Codes from the full Tag list, assign the next free `LN` Code when the Tag is catalogued and do not reuse it.
 
@@ -88,7 +88,6 @@ python3 scripts/import_lintian_parity.py 2.144.0 --lintian-src /path/to/lintian
 
 A refresh rewrites recipes, so wipe the suite first (`git rm -r packages/debmagic/tests/lintian-parity`) to drop recipes lintian removed, then re-add what the importer cannot reproduce:
 
-- `git add -f` the whole suite. Cruft fixtures such as `*.js` and `.pc/` are ignored by `.gitignore`.
 - Hooks that need tools missing here (`pre-build` calling `terser` in the `cruft-minified-js` and `min-js-with-sources` recipes) leave their output out. Restore those files from the previous import.
 - Hand-maintained recipes, noted in their `ORIGIN`: `checks/debian/patches/quilt/patch-systems-quilt-general` (the `debian-changes-1.0-1` patch dpkg-source auto-commits, plus its `series` line) and `odd-inputs/source/debian-symlink` (files at the top level with `debian` a symlink to `.`).
 

@@ -1,6 +1,8 @@
 //! ELF facts of an Entry: the object type as `file(1)` names it, the
-//! `PT_INTERP` interpreter, and the dynamic section's `NEEDED`, `SONAME`,
-//! `RPATH`, and `RUNPATH`.
+//! `PT_INTERP` interpreter, the dynamic section's `NEEDED`, `SONAME`,
+//! `RPATH`, and `RUNPATH`, and the hardening facts of the Program headers
+//! (`GNU_RELRO`, `GNU_STACK`) and of the dynamic section (`BIND_NOW`,
+//! `TEXTREL`).
 //!
 //! Lintian reads these from `readelf --all --wide` (`Lintian::Index::Elf`)
 //! and the object type from `file(1)`. This module parses the ELF header, the
@@ -43,6 +45,11 @@ pub struct ElfFacts {
     interpreter: Option<String>,
     pie: bool,
     debug: bool,
+    exec_type: bool,
+    relro: bool,
+    stack_flags: Option<u32>,
+    textrel: bool,
+    bind_now: bool,
     needed: Vec<String>,
     soname: Vec<String>,
     rpath: Vec<String>,
@@ -79,6 +86,16 @@ impl ElfFacts {
                 .and_then(|interp| interpreter(bytes, interp)),
             pie: false,
             debug: false,
+            exec_type: header.e_type == header::ET_EXEC,
+            relro: program_headers
+                .iter()
+                .any(|program_header| program_header.p_type == program_header::PT_GNU_RELRO),
+            stack_flags: program_headers
+                .iter()
+                .find(|program_header| program_header.p_type == program_header::PT_GNU_STACK)
+                .map(|stack| stack.p_flags),
+            textrel: false,
+            bind_now: false,
             needed: Vec::new(),
             soname: Vec::new(),
             rpath: Vec::new(),
@@ -88,11 +105,27 @@ impl ElfFacts {
         let mut is_pie = false;
         if let Ok(Some(dynamic)) = Dynamic::parse(bytes, &program_headers, ctx) {
             is_pie = dynamic.info.flags_1 & dynamic::DF_1_PIE != 0;
+            // `readelf` prints any of these as `NOW`, which lintian reads as
+            // a `FLAGS_1` flag.
+            facts.bind_now = dynamic.info.flags & dynamic::DF_BIND_NOW != 0
+                || dynamic.info.flags_1 & dynamic::DF_1_NOW != 0;
             let strings = string_table(bytes, dynamic.info.strtab, dynamic.info.strsz);
             for entry in &dynamic.dyns {
-                if entry.d_tag == dynamic::DT_DEBUG {
-                    facts.debug = true;
-                    continue;
+                match entry.d_tag {
+                    dynamic::DT_DEBUG => {
+                        facts.debug = true;
+                        continue;
+                    }
+                    // A `DT_FLAGS` `DF_TEXTREL` is not lintian's `TEXTREL`.
+                    dynamic::DT_TEXTREL => {
+                        facts.textrel = true;
+                        continue;
+                    }
+                    dynamic::DT_BIND_NOW => {
+                        facts.bind_now = true;
+                        continue;
+                    }
+                    _ => {}
                 }
                 let Some(name) = usize::try_from(entry.d_val)
                     .ok()
@@ -136,6 +169,41 @@ impl ElfFacts {
     /// The dynamic section has a `DT_DEBUG` entry (`readelf -d`: `DEBUG`).
     pub fn has_debug_entry(&self) -> bool {
         self.debug
+    }
+
+    /// `e_type` is `ET_EXEC`: `readelf` header type `EXEC`, a fixed-address
+    /// executable. A PIE is `ET_DYN`.
+    pub fn is_fixed_address_executable(&self) -> bool {
+        self.exec_type
+    }
+
+    /// There is a `PT_GNU_RELRO` program header (lintian's `PH{RELRO}`).
+    pub fn has_relro(&self) -> bool {
+        self.relro
+    }
+
+    /// Permissions of the `PT_GNU_STACK` program header as lintian writes
+    /// them (`rw-`, `rwx`), `None` without that header (lintian's
+    /// `PH{STACK}{flags}`).
+    pub fn stack_permissions(&self) -> Option<String> {
+        self.stack_flags.map(|flags| {
+            [(0b100, 'r'), (0b010, 'w'), (0b001, 'x')]
+                .map(|(bit, letter)| if flags & bit != 0 { letter } else { '-' })
+                .into_iter()
+                .collect()
+        })
+    }
+
+    /// The dynamic section has a `DT_TEXTREL` entry (lintian's `TEXTREL`).
+    pub fn has_textrel(&self) -> bool {
+        self.textrel
+    }
+
+    /// The dynamic section binds now: `DT_BIND_NOW`, `DT_FLAGS` with
+    /// `DF_BIND_NOW`, or `DT_FLAGS_1` with `DF_1_NOW` (lintian's
+    /// `FLAGS_1{NOW}`).
+    pub fn binds_now(&self) -> bool {
+        self.bind_now
     }
 
     /// `PT_INTERP` up to its first NUL. `None` without that segment, or when
@@ -250,6 +318,11 @@ pub(crate) struct TestElf {
     rpath: Option<String>,
     runpath: Option<String>,
     debug: bool,
+    relro: bool,
+    stack_flags: Option<u32>,
+    textrel: bool,
+    bind_now: bool,
+    flags_1_now: bool,
     /// Point `e_shoff` past the end of the file, as a cut-off ELF does.
     missing_section_headers: bool,
 }
@@ -266,6 +339,11 @@ impl TestElf {
             rpath: None,
             runpath: None,
             debug: false,
+            relro: false,
+            stack_flags: None,
+            textrel: false,
+            bind_now: false,
+            flags_1_now: false,
             missing_section_headers: false,
         }
     }
@@ -324,6 +402,37 @@ impl TestElf {
         self
     }
 
+    /// Adds a `PT_GNU_RELRO` program header.
+    pub fn relro(mut self) -> Self {
+        self.relro = true;
+        self
+    }
+
+    /// Adds a `PT_GNU_STACK` program header with these `p_flags` (`6` is
+    /// `RW`, `7` is `RWE`).
+    pub fn stack(mut self, flags: u32) -> Self {
+        self.stack_flags = Some(flags);
+        self
+    }
+
+    /// Adds a `DT_TEXTREL` entry.
+    pub fn textrel(mut self) -> Self {
+        self.textrel = true;
+        self
+    }
+
+    /// Adds `DT_FLAGS` with `DF_BIND_NOW`.
+    pub fn bind_now(mut self) -> Self {
+        self.bind_now = true;
+        self
+    }
+
+    /// Adds `DF_1_NOW` to `DT_FLAGS_1`, as `-z now` does.
+    pub fn flags_1_now(mut self) -> Self {
+        self.flags_1_now = true;
+        self
+    }
+
     pub fn missing_section_headers(mut self) -> Self {
         self.missing_section_headers = true;
         self
@@ -355,15 +464,31 @@ impl TestElf {
         if let Some(path) = &self.runpath {
             dyns.push((dynamic::DT_RUNPATH, add_string(path)));
         }
-        if self.pie {
-            dyns.push((dynamic::DT_FLAGS_1, dynamic::DF_1_PIE));
+        if self.pie || self.flags_1_now {
+            let pie = if self.pie { dynamic::DF_1_PIE } else { 0 };
+            let now = if self.flags_1_now {
+                dynamic::DF_1_NOW
+            } else {
+                0
+            };
+            dyns.push((dynamic::DT_FLAGS_1, pie | now));
         }
         if self.debug {
             dyns.push((dynamic::DT_DEBUG, 0));
         }
+        if self.textrel {
+            dyns.push((dynamic::DT_TEXTREL, 0));
+        }
+        if self.bind_now {
+            dyns.push((dynamic::DT_FLAGS, dynamic::DF_BIND_NOW));
+        }
         let has_dynamic = !dyns.is_empty();
 
-        let phnum = 1 + usize::from(self.interpreter.is_some()) + usize::from(has_dynamic);
+        let phnum = 1
+            + usize::from(self.interpreter.is_some())
+            + usize::from(has_dynamic)
+            + usize::from(self.relro)
+            + usize::from(self.stack_flags.is_some());
         let interp_offset = EHDR + phnum * PHDR;
         let interp = self
             .interpreter
@@ -421,6 +546,12 @@ impl TestElf {
         }
         if has_dynamic {
             program_header(program_header::PT_DYNAMIC, 6, dynamic_offset, dynamic_size);
+        }
+        if self.relro {
+            program_header(program_header::PT_GNU_RELRO, 4, 0, 0);
+        }
+        if let Some(flags) = self.stack_flags {
+            program_header(program_header::PT_GNU_STACK, flags, 0, 0);
         }
         out.extend_from_slice(&interp);
         out.extend_from_slice(&strings);
@@ -492,6 +623,53 @@ mod tests {
         assert_eq!(facts.soname(), ["libbar.so.2"]);
         assert_eq!(facts.rpath(), ["/usr/lib/foo", "$ORIGIN/../lib"]);
         assert_eq!(facts.runpath(), ["/opt/lib"]);
+    }
+
+    #[test]
+    fn hardening_facts() {
+        let plain =
+            ElfFacts::from_bytes(&TestElf::executable().needed("libc.so.6").build()).expect("ELF");
+        assert!(plain.is_fixed_address_executable());
+        assert!(!plain.has_relro());
+        assert_eq!(plain.stack_permissions(), None);
+        assert!(!plain.has_textrel());
+        assert!(!plain.binds_now());
+
+        let hardened = ElfFacts::from_bytes(
+            &TestElf::pie_executable()
+                .needed("libc.so.6")
+                .relro()
+                .stack(6)
+                .bind_now()
+                .build(),
+        )
+        .expect("ELF");
+        assert!(!hardened.is_fixed_address_executable());
+        assert!(hardened.has_relro());
+        assert_eq!(hardened.stack_permissions().as_deref(), Some("rw-"));
+        assert!(hardened.binds_now());
+
+        let executable_stack = ElfFacts::from_bytes(
+            &TestElf::shared_object()
+                .soname("libx.so.1")
+                .stack(7)
+                .textrel()
+                .build(),
+        )
+        .expect("ELF");
+        assert_eq!(executable_stack.stack_permissions().as_deref(), Some("rwx"));
+        assert!(executable_stack.has_textrel());
+    }
+
+    #[test]
+    fn bind_now_from_the_dt_flags_1_now_flag() {
+        let bytes = TestElf::shared_object().needed("libc.so.6").build();
+        assert!(!ElfFacts::from_bytes(&bytes).expect("ELF").binds_now());
+        // `-z now -pie` writes `DT_FLAGS_1` with `DF_1_NOW | DF_1_PIE`.
+        let bytes = TestElf::pie_executable().flags_1_now().build();
+        let facts = ElfFacts::from_bytes(&bytes).expect("ELF");
+        assert!(facts.binds_now());
+        assert!(facts.is_pie());
     }
 
     /// `file(1)` and `readelf` still name an ELF whose Section header table

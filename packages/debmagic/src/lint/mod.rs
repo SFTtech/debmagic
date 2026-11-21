@@ -13,6 +13,7 @@ mod elf;
 mod file_tree;
 mod file_type;
 mod gzip;
+mod hardening;
 mod installation_control;
 mod intent;
 mod interpreter;

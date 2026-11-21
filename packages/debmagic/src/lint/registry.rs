@@ -112,6 +112,7 @@ use super::rules::ExecutableInUsrShareDocbase;
 use super::rules::ExecutableIsNotWorldReadable;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
+use super::rules::ExecutableStackInSharedLibrary;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
@@ -126,6 +127,9 @@ use super::rules::GirPackageNameDoesNotMatch;
 use super::rules::GlobbingPatternsOutOfOrder;
 use super::rules::GoLibraryPackageDoesNotIncludeVersion;
 use super::rules::GzipFileIsNotMultiArchSameSafe;
+use super::rules::HardeningNoBindnow;
+use super::rules::HardeningNoPie;
+use super::rules::HardeningNoRelro;
 use super::rules::IllegalMultiArchValue;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
@@ -265,6 +269,7 @@ use super::rules::SectionIsDhMakeTemplate;
 use super::rules::SelectWithoutChoices;
 use super::rules::SharedLibraryIsExecutable;
 use super::rules::SharedLibraryIsMultiArchForeign;
+use super::rules::SharedLibraryLacksStackSection;
 use super::rules::SharedLibraryLacksVersion;
 use super::rules::SharedLibraryNotShipped;
 use super::rules::SharedLibrarySymbolsNotTracked;
@@ -274,6 +279,7 @@ use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
 use super::rules::SpecialFile;
+use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::StrippedLibrary;
 use super::rules::SurplusSharedLibrarySymbols;
 use super::rules::SyntaxErrorInDebconfTemplate;
@@ -1711,6 +1717,12 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MisplacedExtraMemberInDeb,
         &UsesNoCompressionForControlTarball,
         &UsesNoCompressionForDataTarball,
+        &HardeningNoRelro,
+        &HardeningNoBindnow,
+        &HardeningNoPie,
+        &ExecutableStackInSharedLibrary,
+        &SharedLibraryLacksStackSection,
+        &SpecificAddressInSharedLibrary,
     ]
 }
 
@@ -2734,6 +2746,12 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MisplacedExtraMemberInDeb,
         &UsesNoCompressionForControlTarball,
         &UsesNoCompressionForDataTarball,
+        &HardeningNoRelro,
+        &HardeningNoBindnow,
+        &HardeningNoPie,
+        &ExecutableStackInSharedLibrary,
+        &SharedLibraryLacksStackSection,
+        &SpecificAddressInSharedLibrary,
     ]
 }
 

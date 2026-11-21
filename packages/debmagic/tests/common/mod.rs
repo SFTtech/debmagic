@@ -878,8 +878,37 @@ fn assemble_binary_packages(recipe: &Path, work: &Path) -> Vec<PathBuf> {
     packages
 }
 
+/// The recipe's `Test-Architectures` (`eval/desc`) when none of them is the
+/// host architecture, as lintian's own test runner skips such a recipe: a
+/// `.deb` for another architecture cannot be built here.
+fn unmet_test_architectures(recipe: &Path) -> Option<String> {
+    let desc = std::fs::read_to_string(recipe.join("eval/desc")).ok()?;
+    let line = desc
+        .lines()
+        .find_map(|line| line.strip_prefix("Test-Architectures:"))?;
+    let host = Command::new("dpkg-architecture")
+        .arg("--query=DEB_HOST_ARCH")
+        .output()
+        .ok()
+        .filter(|output| output.status.success())
+        .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())?;
+    // `any-amd64` and the like are architecture wildcards; `-i` matches one
+    // against a host architecture.
+    let matches = |pattern: &str| {
+        Command::new("dpkg-architecture")
+            .args(["-a", &host, "-i", pattern])
+            .status()
+            .is_ok_and(|status| status.success())
+    };
+    (!line.split_whitespace().any(matches)).then(|| line.trim().to_string())
+}
+
 pub fn assert_binary_package_parity(recipe_rel: &str) {
     let recipe = parity_suite_root().join(recipe_rel);
+    if let Some(architectures) = unmet_test_architectures(&recipe) {
+        eprintln!("{recipe_rel}: skipped, the recipe is only built for {architectures}");
+        return;
+    }
     let catalogued = catalogued_binary_package_tags();
     let expected = catalogued_binary_package_hints(&recipe, &catalogued);
     assert!(

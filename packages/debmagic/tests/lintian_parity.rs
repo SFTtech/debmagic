@@ -365,6 +365,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/debug-symbols/legacy-binary",
     "checks/binaries/debug-symbols/legacy-debug",
     "checks/binaries/debug-symbols/legacy-libbaz",
+    "checks/binaries/hardening/binaries-hardening",
     "checks/binaries/location/binaries-development-package-ships-elf-binary-in-path",
     "checks/binaries/location/binaries-general",
     "checks/binaries/location/binaries-misplaced",
@@ -737,11 +738,14 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/libraries/shared/file-permissions/legacy-libbaz",
     "checks/libraries/shared/file-permissions/shared-libs-exec-bit",
     "checks/libraries/shared/multi-arch/shared-libs-multi-arch-foreign",
+    "checks/libraries/shared/relocation/shared-libs-non-pic-i386",
     "checks/libraries/shared/soname/binaries-doesnt-match-sonames",
     "checks/libraries/shared/soname/legacy-libbaz",
     "checks/libraries/shared/soname/missing/legacy-debug",
     "checks/libraries/shared/soname/missing/legacy-libbaz",
     "checks/libraries/shared/soname/missing/shared-libs-missing-soname",
+    "checks/libraries/shared/stack/shared-libs-exec-stack",
+    "checks/libraries/shared/stack/shared-libs-no-gnu-stack",
     "checks/libraries/static/name/underscore-s-suffix",
     "checks/linda/files-package-contains-foo",
     "checks/linda/legacy-filenames",
@@ -1563,6 +1567,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/debug-symbols/legacy-binary"; "checks_binaries_debug_symbols_legacy_binary")]
 #[test_case("checks/binaries/debug-symbols/legacy-debug"; "checks_binaries_debug_symbols_legacy_debug")]
 #[test_case("checks/binaries/debug-symbols/legacy-libbaz"; "checks_binaries_debug_symbols_legacy_libbaz")]
+#[test_case("checks/binaries/hardening/binaries-hardening"; "checks_binaries_hardening_binaries_hardening")]
 #[test_case("checks/binaries/location/binaries-development-package-ships-elf-binary-in-path"; "checks_binaries_location_binaries_development_package_ships_elf_binary_in_path")]
 #[test_case("checks/binaries/location/binaries-general"; "checks_binaries_location_binaries_general")]
 #[test_case("checks/binaries/location/binaries-misplaced"; "checks_binaries_location_binaries_misplaced")]
@@ -1935,11 +1940,14 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/libraries/shared/file-permissions/legacy-libbaz"; "checks_libraries_shared_file_permissions_legacy_libbaz")]
 #[test_case("checks/libraries/shared/file-permissions/shared-libs-exec-bit"; "checks_libraries_shared_file_permissions_shared_libs_exec_bit")]
 #[test_case("checks/libraries/shared/multi-arch/shared-libs-multi-arch-foreign"; "checks_libraries_shared_multi_arch_shared_libs_multi_arch_foreign")]
+#[test_case("checks/libraries/shared/relocation/shared-libs-non-pic-i386"; "checks_libraries_shared_relocation_shared_libs_non_pic_i386")]
 #[test_case("checks/libraries/shared/soname/binaries-doesnt-match-sonames"; "checks_libraries_shared_soname_binaries_doesnt_match_sonames")]
 #[test_case("checks/libraries/shared/soname/legacy-libbaz"; "checks_libraries_shared_soname_legacy_libbaz")]
 #[test_case("checks/libraries/shared/soname/missing/legacy-debug"; "checks_libraries_shared_soname_missing_legacy_debug")]
 #[test_case("checks/libraries/shared/soname/missing/legacy-libbaz"; "checks_libraries_shared_soname_missing_legacy_libbaz")]
 #[test_case("checks/libraries/shared/soname/missing/shared-libs-missing-soname"; "checks_libraries_shared_soname_missing_shared_libs_missing_soname")]
+#[test_case("checks/libraries/shared/stack/shared-libs-exec-stack"; "checks_libraries_shared_stack_shared_libs_exec_stack")]
+#[test_case("checks/libraries/shared/stack/shared-libs-no-gnu-stack"; "checks_libraries_shared_stack_shared_libs_no_gnu_stack")]
 #[test_case("checks/libraries/static/name/underscore-s-suffix"; "checks_libraries_static_name_underscore_s_suffix")]
 #[test_case("checks/linda/files-package-contains-foo"; "checks_linda_files_package_contains_foo")]
 #[test_case("checks/linda/legacy-filenames"; "checks_linda_legacy_filenames")]

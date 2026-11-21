@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): executable-stack-in-shared-library (LN1154) [usr/lib/libfoo.so.1]
+W: example (binary): executable-stack-in-shared-library (LN1154) [usr/lib/libfoo.so.1]
+W: example (binary): executable-stack-in-shared-library (LN1154) [usr/lib/libfoo.so.1]
+W: example (binary): executable-stack-in-shared-library (LN1154) [usr/lib/libfoo.so.1]
+W: example (binary): executable-stack-in-shared-library (LN1154) [usr/lib/libfoo.so.1]

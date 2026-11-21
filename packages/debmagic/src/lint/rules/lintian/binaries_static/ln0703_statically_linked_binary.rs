@@ -7,6 +7,7 @@ use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::elf::{ElfFacts, ElfFiles, ElfObjectType};
+use crate::lint::hardening::built_with_golang;
 use crate::lint::rule::BinaryPackageRule;
 
 pub struct StaticallyLinkedBinary;
@@ -80,27 +81,8 @@ fn excluded_path(path: &Path) -> bool {
         || name == "sbin/ldconfig"
 }
 
-/// Lintian's `built_with_golang`, without the source package's
-/// `Build-Depends-All`.
-fn built_with_golang(ctx: &BinaryPackageContext<'_>) -> bool {
-    let fields = ctx.installation_control().fields();
-    ctx.source_name().starts_with("golang-")
-        || fields.get("Section") == Some("golang")
-        || ["Built-Using", "Static-Built-Using"]
-            .into_iter()
-            .any(|field| {
-                fields
-                    .get(field)
-                    .is_some_and(|value| GOLANG.is_match(value))
-            })
-        || ctx.package_name().starts_with("golang-")
-}
-
 static KLIBC_INTERPRETER: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"/lib/klibc-\S+\.so").expect("klibc interpreter regex"));
-
-static GOLANG: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"golang-\d\.\d+").expect("golang regex"));
 
 #[cfg(test)]
 mod tests {

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): duplicate-globbing-patterns (LN0876) debian/* (lines 3 7) [debian/copyright]
+E: (source): duplicate-globbing-patterns (LN0876) debian/* (lines 3 11 15) [debian/copyright]

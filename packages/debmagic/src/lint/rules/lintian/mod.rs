@@ -7,8 +7,10 @@ mod binaries_architecture;
 mod binaries_debug_symbols_detached;
 mod binaries_hardening;
 mod binaries_location;
+mod binaries_obsolete_crypt;
 mod binaries_perl;
 mod binaries_prerequisites_php;
+mod binaries_profiling;
 mod binaries_rpath;
 mod binaries_static;
 mod build_systems_waf;
@@ -229,13 +231,17 @@ pub(crate) use binaries_architecture::ArchIndependentPackageContainsBinaryOrObje
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsDirectlyInUsrLibDebug;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsNotDetached;
 pub(crate) use binaries_hardening::HardeningNoBindnow;
+pub(crate) use binaries_hardening::HardeningNoFortifyFunctions;
 pub(crate) use binaries_hardening::HardeningNoPie;
 pub(crate) use binaries_hardening::HardeningNoRelro;
 pub(crate) use binaries_location::{
     ArchDependentFileInUsrShare, ArchDependentFileNotInArchSpecificDirectory, BinaryInEtc,
 };
+pub(crate) use binaries_obsolete_crypt::ObsoleteCryptAlias;
+pub(crate) use binaries_obsolete_crypt::ObsoleteDesEncryption;
 pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
 pub(crate) use binaries_prerequisites_php::MissingDependencyOnPhpapi;
+pub(crate) use binaries_profiling::BinaryCompiledWithProfilingEnabled;
 pub(crate) use binaries_rpath::CustomLibrarySearchPath;
 pub(crate) use binaries_rpath::RelativeLibrarySearchPath;
 pub(crate) use binaries_static::StaticallyLinkedBinary;

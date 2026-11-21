@@ -10,6 +10,7 @@ mod diagnostic;
 mod diversion;
 mod dsc;
 mod elf;
+mod elf_symbol_tables;
 mod file_tree;
 mod file_type;
 mod gzip;

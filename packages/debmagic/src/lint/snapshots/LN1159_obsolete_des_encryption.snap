@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): obsolete-des-encryption (LN1159) setkey [usr/bin/a]
+E: example (binary): obsolete-des-encryption (LN1159) encrypt [usr/bin/a]
+E: example (binary): obsolete-des-encryption (LN1159) setkey_r [usr/bin/a]
+E: example (udeb): obsolete-des-encryption (LN1159) encrypt_r [usr/bin/a]
+E: example (binary): obsolete-des-encryption (LN1159) encrypt [usr/lib/libfoo.so.1]

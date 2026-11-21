@@ -370,9 +370,11 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/location/binaries-general",
     "checks/binaries/location/binaries-misplaced",
     "checks/binaries/location/binaries-multiarch-same",
+    "checks/binaries/obsolete/crypt/binaries-obsolete-des",
     "checks/binaries/prerequisites/perl/binaries-missing-depends-on-xapi",
     "checks/binaries/prerequisites/perl/legacy-libbaz",
     "checks/binaries/prerequisites/php/binaries-missing-depends-on-xapi",
+    "checks/binaries/profiling/binaries-general",
     "checks/binaries/rpath/binaries-general",
     "checks/binaries/rpath/quoted",
     "checks/binaries/rpath/relative",
@@ -1572,9 +1574,11 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/location/binaries-general"; "checks_binaries_location_binaries_general")]
 #[test_case("checks/binaries/location/binaries-misplaced"; "checks_binaries_location_binaries_misplaced")]
 #[test_case("checks/binaries/location/binaries-multiarch-same"; "checks_binaries_location_binaries_multiarch_same")]
+#[test_case("checks/binaries/obsolete/crypt/binaries-obsolete-des"; "checks_binaries_obsolete_crypt_binaries_obsolete_des")]
 #[test_case("checks/binaries/prerequisites/perl/binaries-missing-depends-on-xapi"; "checks_binaries_prerequisites_perl_binaries_missing_depends_on_xapi")]
 #[test_case("checks/binaries/prerequisites/perl/legacy-libbaz"; "checks_binaries_prerequisites_perl_legacy_libbaz")]
 #[test_case("checks/binaries/prerequisites/php/binaries-missing-depends-on-xapi"; "checks_binaries_prerequisites_php_binaries_missing_depends_on_xapi")]
+#[test_case("checks/binaries/profiling/binaries-general"; "checks_binaries_profiling_binaries_general")]
 #[test_case("checks/binaries/rpath/binaries-general"; "checks_binaries_rpath_binaries_general")]
 #[test_case("checks/binaries/rpath/quoted"; "checks_binaries_rpath_quoted")]
 #[test_case("checks/binaries/rpath/relative"; "checks_binaries_rpath_relative")]

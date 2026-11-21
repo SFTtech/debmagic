@@ -878,6 +878,19 @@ fn assemble_binary_packages(recipe: &Path, work: &Path) -> Vec<PathBuf> {
     packages
 }
 
+/// Binary-package recipes this host's toolchain cannot build, with why. Their
+/// Rules have native tests; Parity needs a host that can build the recipe.
+const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
+    (
+        "checks/binaries/obsolete/crypt/binaries-obsolete-des",
+        "the host's libxcrypt has no `crypt.h` and no longer exports `setkey` and `encrypt`",
+    ),
+    (
+        "checks/deb-format/deb-format-udeb-compression",
+        "the recipe runs `dpkg-deb -Zlzma`, which dpkg 1.23 rejects",
+    ),
+];
+
 /// The recipe's `Test-Architectures` (`eval/desc`) when none of them is the
 /// host architecture, as lintian's own test runner skips such a recipe: a
 /// `.deb` for another architecture cannot be built here.
@@ -905,6 +918,13 @@ fn unmet_test_architectures(recipe: &Path) -> Option<String> {
 
 pub fn assert_binary_package_parity(recipe_rel: &str) {
     let recipe = parity_suite_root().join(recipe_rel);
+    if let Some((_, reason)) = RECIPES_THE_HOST_CANNOT_BUILD
+        .iter()
+        .find(|(name, _)| *name == recipe_rel)
+    {
+        eprintln!("{recipe_rel}: skipped, {reason}");
+        return;
+    }
     if let Some(architectures) = unmet_test_architectures(&recipe) {
         eprintln!("{recipe_rel}: skipped, the recipe is only built for {architectures}");
         return;

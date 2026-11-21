@@ -1,0 +1,13 @@
+# Set of C functions defined by libcrypt.so.1 that should no longer be
+# used at all, either because they imply use of the obsolete DES
+# encryption algorithm, or because they are alternative, less-portable
+# names for 'crypt'.
+#
+# The list is manually updated, please keep it sorted by name.
+
+encrypt    || obsolete-des-encryption
+encrypt_r  || obsolete-des-encryption
+setkey     || obsolete-des-encryption
+setkey_r   || obsolete-des-encryption
+
+fcrypt     || obsolete-crypt-alias

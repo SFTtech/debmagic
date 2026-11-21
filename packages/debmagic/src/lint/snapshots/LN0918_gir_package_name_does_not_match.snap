@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: gir1.2-bad-23 (binary): gir-package-name-does-not-match (LN0918) gir1.2-bad-23-dev [usr/share/gir-1.0/Bad-23.gir]
+W: libbad (binary): gir-package-name-does-not-match (LN0918) gir1.2-bad-23-dev [usr/share/gir-1.0/Bad-23.gir]
+W: libbad (binary): gir-package-name-does-not-match (LN0918) gir1.2-badextras-23-dev [usr/lib/x86_64-linux-gnu/gir-1.0/BadExtras-23.gir]

@@ -3,6 +3,7 @@
 //! Each Rule owns one Tag. GIR XML files are the direct children of
 //! `usr/share/gir-1.0` and `usr/lib/<triplet>/gir-1.0`.
 
+mod gir_paths;
 mod ln0435_gir_section_not_libdevel;
 mod ln0916_typelib_missing_gir_depends;
 mod ln0917_gir_missing_typelib_dependency;

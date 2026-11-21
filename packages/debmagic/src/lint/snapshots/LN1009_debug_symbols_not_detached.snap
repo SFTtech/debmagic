@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): debug-symbols-not-detached (LN1009) [usr/lib/debug/usr/bin/hello]
+W: example (binary): debug-symbols-not-detached (LN1009) [usr/lib/debug/lib/libhello.so.0.0]
+W: example (binary): debug-symbols-not-detached (LN1009) [usr/lib/debug/.build-id/de/adbeef.debug]
+W: example (binary): debug-symbols-not-detached (LN1009) [usr/lib/debug/opt/tool]
+W: example (binary): debug-symbols-not-detached (LN1009) [usr/lib/debug/usr/bin/hello-link]
+W: example (udeb): debug-symbols-not-detached (LN1009) [usr/lib/debug/usr/bin/hello]

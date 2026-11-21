@@ -36,9 +36,22 @@ pub(super) fn changelog_location(line: u32) -> Location {
 }
 
 /// Lintian's source `native`: explicit `3.0 (native)`, not `2.0` / quilt / git,
-/// else a 1.0-style package. A Source package with a Dsc is native when
-/// `Files` has no `{name}_{version}.diff.gz`. A Source tree has no Dsc, so a
-/// hyphen after the epoch stands in for the diff `dpkg-source` would build.
+/// else a 1.0-style package, native when the package has no `.diff.gz`.
+///
+/// A Source package with a Dsc is native when `Files` has no
+/// `{name}_{version}.diff.gz`, exactly as lintian reads it.
+///
+/// A Source tree has no Dsc, so it is modelled as the package `dpkg-source -b`
+/// would build from it, seen the way lintian sees that package: a 1.0 tree is
+/// non-native (a `.diff.gz` exists) only when `dpkg-source` finds an upstream
+/// beside the tree, an `{name}_{upstream}.orig.tar.{gz,bz2,xz,lzma}` file or an
+/// `{name}-{upstream}.orig` directory in the tree's parent directory, where
+/// `{upstream}` is the epochless Version without its last `-revision`. Without
+/// one (and always when the Version has no revision) `dpkg-source` packs the
+/// whole tree as a native tarball, with or without a hyphen in the Version, so
+/// `1.0-1` is native: `cruft-native-dash-version` expects lintian to report
+/// `1.0-1 (for native)`. The Version's hyphen alone says nothing about the
+/// diff. Source packages never use this branch.
 pub(in crate::lint::rules::lintian) fn package_is_native(ctx: &mut SourceContext<'_>) -> bool {
     let format = source_format(ctx);
     let version = ctx
@@ -58,7 +71,7 @@ pub(in crate::lint::rules::lintian) fn package_is_native(ctx: &mut SourceContext
     }
     match diff_present {
         Some(present) => !present,
-        None => !strip_epoch(&version).contains('-'),
+        None => !source_tree_has_orig(ctx, &version),
     }
 }
 
@@ -105,6 +118,30 @@ fn diff_gz_present(ctx: &SourceContext<'_>, version: &str) -> Option<bool> {
     let diffname = format!("{name}_{}.diff.gz", strip_epoch(version));
     let files = dsc.fields().get("Files").unwrap_or("");
     Some(files.split_whitespace().any(|part| part == diffname))
+}
+
+/// Whether `dpkg-source -b` would find an upstream beside a Source tree and so
+/// build a `.diff.gz`. See [`package_is_native`].
+fn source_tree_has_orig(ctx: &SourceContext<'_>, version: &str) -> bool {
+    let Some((upstream, _revision)) = strip_epoch(version).rsplit_once('-') else {
+        return false;
+    };
+    let name = ctx
+        .debian_changelog()
+        .and_then(|changelog| changelog.entries().first())
+        .map(|entry| entry.source().to_string())
+        .unwrap_or_default();
+    let Some(parent) = ctx.path().parent() else {
+        return false;
+    };
+    if name.is_empty() {
+        return false;
+    }
+    let tarball = |extension: &str| parent.join(format!("{name}_{upstream}.orig.tar.{extension}"));
+    ["gz", "bz2", "xz", "lzma"]
+        .into_iter()
+        .any(|extension| tarball(extension).is_file())
+        || parent.join(format!("{name}-{upstream}.orig")).is_dir()
 }
 
 pub(super) struct EpochDelta {
@@ -191,4 +228,75 @@ fn reuse_extra(latest: &ParsedVersion, entry: &ChangelogEntry) -> String {
         entry.version(),
         entry.date()
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use crate::lint::context::SourceTreeData;
+
+    use super::super::ln0870_malformed_debian_changelog_version::MalformedDebianChangelogVersion;
+    use super::*;
+
+    /// `<tmp>/src` with a changelog for `version` and, when `format` is given,
+    /// `debian/source/format`; returns the temp dir so siblings can be added.
+    fn tree(format: Option<&str>, version: &str) -> tempfile::TempDir {
+        let work = tempfile::tempdir().expect("temp dir");
+        let debian = work.path().join("src/debian");
+        fs::create_dir_all(debian.join("source")).expect("debian/source");
+        fs::write(
+            debian.join("changelog"),
+            format!(
+                "example ({version}) unstable; urgency=low\n\n  * x\n\n -- A <a@example.com>  Tue, 30 Dec 2008 17:34:02 +0000\n"
+            ),
+        )
+        .expect("changelog");
+        if let Some(format) = format {
+            fs::write(debian.join("source/format"), format).expect("format");
+        }
+        work
+    }
+
+    fn native(work: &tempfile::TempDir) -> bool {
+        let data = SourceTreeData::new(work.path().join("src"));
+        let mut ctx = SourceContext::bind_tree(&data, &MalformedDebianChangelogVersion);
+        package_is_native(&mut ctx)
+    }
+
+    #[test]
+    fn explicit_formats_ignore_the_orig() {
+        assert!(native(&tree(Some("3.0 (native)\n"), "1.0-1")));
+        assert!(!native(&tree(Some("3.0 (quilt)\n"), "1.0-1")));
+        assert!(!native(&tree(Some("3.0 (quilt)\n"), "1.0")));
+    }
+
+    #[test]
+    fn format_1_tree_without_orig_is_native_even_with_a_revision() {
+        assert!(native(&tree(Some("1.0\n"), "1.0-1")));
+        assert!(native(&tree(None, "2:1.0-1")));
+        assert!(native(&tree(None, "1.0")));
+    }
+
+    #[test]
+    fn format_1_tree_with_orig_beside_it_is_not_native() {
+        let work = tree(Some("1.0\n"), "1:1.0-1");
+        fs::write(work.path().join("example_1.0.orig.tar.xz"), b"").expect("orig");
+        assert!(!native(&work));
+
+        let work = tree(None, "1.0-2");
+        fs::create_dir(work.path().join("example-1.0.orig")).expect("orig dir");
+        assert!(!native(&work));
+    }
+
+    #[test]
+    fn orig_beside_the_tree_needs_a_revision_and_the_upstream_version() {
+        let work = tree(None, "1.0");
+        fs::write(work.path().join("example_1.0.orig.tar.gz"), b"").expect("orig");
+        assert!(native(&work));
+
+        let work = tree(None, "1.0-1");
+        fs::write(work.path().join("example_2.0.orig.tar.gz"), b"").expect("other orig");
+        assert!(native(&work));
+    }
 }

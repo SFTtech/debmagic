@@ -72,11 +72,13 @@ mod tests {
             vec![("README", TestFile::new("no packaging"))],
             tree("3.0 (quilt)\n", &entry("example", "1.0-1", NEW)),
             tree("3.0 (native)\n", &entry("example", "1.0", NEW)),
+            tree("1.0\n", &entry("example", "1.0", NEW)),
             tree("3.0 (native)\n", &entry("example", "2:1.0+nmu1", NEW)),
             tree("3.0 (quilt)\n", &entry("example", "2:1.0-1+deb9u1", NEW)),
         ];
         let fail = vec![
             tree("3.0 (native)\n", &entry("example", "1.0-1", NEW)),
+            tree("1.0\n", &entry("example", "1.0-1", NEW)),
             tree("3.0 (quilt)\n", &entry("example", "1.0", NEW)),
             tree("3.0 (quilt)\n", &entry("example", "1.0-", NEW)),
         ];

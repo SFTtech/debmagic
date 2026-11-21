@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: python-foo (binary): new-package-should-not-package-python2-module (LN0958) python-foo
+W: python2-foo (binary): new-package-should-not-package-python2-module (LN0958) python2-foo

@@ -313,6 +313,8 @@ use super::rules::UploaderNameMissing;
 use super::rules::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::UsesDeprecatedAdttmp;
+use super::rules::UsesNoCompressionForControlTarball;
+use super::rules::UsesNoCompressionForDataTarball;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VersionSubstvarForExternalPackage;
@@ -1707,6 +1709,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UsesDeprecatedAdttmp,
         &VimAddonWithinVimRuntimePath,
         &MisplacedExtraMemberInDeb,
+        &UsesNoCompressionForControlTarball,
+        &UsesNoCompressionForDataTarball,
     ]
 }
 
@@ -2728,6 +2732,8 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MisplacedSystemdTmpfiles,
         &VimAddonWithinVimRuntimePath,
         &MisplacedExtraMemberInDeb,
+        &UsesNoCompressionForControlTarball,
+        &UsesNoCompressionForDataTarball,
     ]
 }
 

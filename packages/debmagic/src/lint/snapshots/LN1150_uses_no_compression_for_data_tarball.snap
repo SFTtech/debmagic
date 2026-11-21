@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): uses-no-compression-for-data-tarball (LN1150)
+E: example (binary): uses-no-compression-for-data-tarball (LN1150)

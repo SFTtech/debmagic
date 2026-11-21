@@ -21,6 +21,7 @@ use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryInEtc;
 use super::rules::BinaryNmuDebianRevisionInSource;
 use super::rules::BinaryPackageDependsOnToolchainPackage;
+use super::rules::BinaryWithBadDynamicTable;
 use super::rules::BoilerplateCopyrightFormatUri;
 use super::rules::BreaksWithoutVersion;
 use super::rules::BrokenGz;
@@ -1733,6 +1734,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ObsoleteDesEncryption,
         &ObsoleteCryptAlias,
         &UdebUsesUnsupportedCompressionForDataTarball,
+        &BinaryWithBadDynamicTable,
     ]
 }
 
@@ -2767,6 +2769,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ObsoleteDesEncryption,
         &ObsoleteCryptAlias,
         &UdebUsesUnsupportedCompressionForDataTarball,
+        &BinaryWithBadDynamicTable,
     ]
 }
 

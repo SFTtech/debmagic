@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-mime-cache-file (LN0964) [usr/share/mime/types]
+E: example (binary): package-contains-mime-cache-file (LN0964) [usr/share/mime/mime.cache]
+E: example (binary): package-contains-mime-cache-file (LN0964) [usr/share/mime/types]
+E: example (udeb): package-contains-mime-cache-file (LN0964) [usr/share/mime/types]

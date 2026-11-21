@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: libapp-something-perl (binary): libapp-perl-package-name (LN1000) [usr/bin/libapp-something-perl]
+E: libapp-something-perl (binary): libapp-perl-package-name (LN1000) [bin/libapp-something-perl]
+E: libapp-something-perl (binary): libapp-perl-package-name (LN1000) [usr/sbin/tool]
+E: libapp-something-perl (binary): libapp-perl-package-name (LN1000) [usr/games/tool]
+E: libapp-something-perl (binary): libapp-perl-package-name (LN1000) [usr/bin/tool-a]
+E: libapp-something-perl (binary): libapp-perl-package-name (LN1000) [usr/bin/tool-b]
+E: libapp-something-perl (binary): libapp-perl-package-name (LN1000) [usr/sbin/tool-c]
+E: libapp-something-perl (binary): libapp-perl-package-name (LN1000) [usr/bin/tool-ÿ]

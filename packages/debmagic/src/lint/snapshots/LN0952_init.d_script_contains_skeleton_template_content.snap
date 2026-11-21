@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): init.d-script-contains-skeleton-template-content (LN0952) [etc/init.d/skeleton:2]
+E: example (binary): init.d-script-contains-skeleton-template-content (LN0952) [etc/init.d/skeleton:3]
+E: example (binary): init.d-script-contains-skeleton-template-content (LN0952) [etc/init.d/foo:2]
+E: example (binary): init.d-script-contains-skeleton-template-content (LN0952) [etc/init.d/foo:2]
+E: example (binary): init.d-script-contains-skeleton-template-content (LN0952) [etc/init.d/foo:2]
+E: example (binary): init.d-script-contains-skeleton-template-content (LN0952) [etc/init.d/foo:3]
+E: example (udeb): init.d-script-contains-skeleton-template-content (LN0952) [etc/init.d/foo:2]

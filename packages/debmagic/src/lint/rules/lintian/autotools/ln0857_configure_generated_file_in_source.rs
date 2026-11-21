@@ -19,7 +19,11 @@ declare_rule! {
     /// matches `config.(cache|log|status)` are hits, outside `debian/`. Like
     /// lintian, the `.` in the basename is any character. Quilt `.pc/` is
     /// skipped, as lintian skips it for patched files. Extra is empty; the path
-    /// is the Location. Warning severity, from the `.tag` file.
+    /// is the Location (lintian's `pointed_hint` with the item pointer, printed
+    /// `[tests/config.cache]`). The vendored `cruft-general-upstream` recipe is
+    /// a lintian `Todo` test with a stale bare `config.cache` line; Parity
+    /// rewrites our hint for that recipe only. Warning severity, from the
+    /// `.tag` file.
     ConfigureGeneratedFileInSource,
     code = "LN0857",
     tag = "configure-generated-file-in-source",

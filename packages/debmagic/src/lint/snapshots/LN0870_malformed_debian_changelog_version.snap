@@ -2,5 +2,6 @@
 source: packages/debmagic/src/lint/tester.rs
 ---
 E: example (source): malformed-debian-changelog-version (LN0870) 1.0-1 (for native) [debian/changelog:1]
+E: example (source): malformed-debian-changelog-version (LN0870) 1.0-1 (for native) [debian/changelog:1]
 E: example (source): malformed-debian-changelog-version (LN0870) 1.0 (for non-native) [debian/changelog:1]
 E: example (source): malformed-debian-changelog-version (LN0870) 1.0- (for non-native) [debian/changelog:1]

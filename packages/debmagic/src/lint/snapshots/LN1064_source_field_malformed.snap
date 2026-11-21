@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): source-field-malformed (LN1064) Malformed
+E: example (binary): source-field-malformed (LN1064) a
+E: example (binary): source-field-malformed (LN1064) -example
+E: example (binary): source-field-malformed (LN1064) example_x
+E: example (binary): source-field-malformed (LN1064) example (1.0
+E: example (binary): source-field-malformed (LN1064) ex ample
+E: example (udeb): source-field-malformed (LN1064) Example
+E: example (binary): source-field-malformed (LN1064) example (1.0) extra

@@ -296,9 +296,15 @@ pub fn parse_diagnostic_line(line: &str) -> Option<(String, ParityHint)> {
 /// `debhelper-base-compat-level-is-missing` are from the packed source, where
 /// the file is gone. The filled tree still has compat 13, so Source-tree
 /// Parity must not expect them. Source-package Parity packs with `dpkg-source`
-/// and still expects them. Kept in step with
+/// and still expects them. Hints that need an orig a Source tree lacks are
+/// dropped the same way. Kept in step with
 /// `source_tree_hint_matches_filled_tree` in `scripts/import_lintian_parity.py`.
 fn source_tree_hint_matches_filled_tree(recipe: &Path, hint: &ParityHint) -> bool {
+    // `no-debian-changes` compares Patched files with Orig files. A Source tree
+    // has no orig, so only the Source package can report it.
+    if hint.tag == "no-debian-changes" {
+        return false;
+    }
     !(matches!(
         hint.tag.as_str(),
         "package-uses-deprecated-debhelper-compat-version"
@@ -470,6 +476,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
     let work = tempfile::tempdir().expect("temp recipe workdir");
     let source = work.path().join("src");
     copy_package_tree(&recipe, &source);
+    apply_overrides_to_control(&source, &dpkg_overrides(&recipe));
 
     let (_status, stdout, stderr) = run_lint(&source, &extra_args);
     assert!(
@@ -594,6 +601,11 @@ fn unvendored_name(name: std::ffi::OsString) -> std::ffi::OsString {
         name
     }
 }
+
+/// The importer keeps the parts of a recipe's `build-spec` a filled tree cannot
+/// show under this name (`dpkg-overrides`, `pre-upstream.in`). It is not part
+/// of the tree lintian saw, so copies of a recipe leave it out.
+const VENDORED_BUILD_SPEC: &str = "build-spec";
 
 fn copy_tree(src: &Path, dst: &Path) {
     fs::create_dir_all(dst).unwrap_or_else(|error| panic!("creating {}: {error}", dst.display()));
@@ -902,7 +914,7 @@ fn copy_package_tree(src: &Path, dst: &Path) {
     {
         let entry = entry.expect("directory entry");
         let name = entry.file_name();
-        if name == "ORIGIN" || name == "eval" {
+        if name == "ORIGIN" || name == "eval" || name == VENDORED_BUILD_SPEC {
             continue;
         }
         let from = entry.path();
@@ -951,9 +963,13 @@ fn is_component_orig(name: &str) -> bool {
     name.contains(".orig-")
 }
 
-fn dpkg_source_build(work: &Path, keep_ignored: bool) -> (bool, String, String) {
+fn dpkg_source_build(
+    work: &Path,
+    keep_ignored: bool,
+    overrides: &[String],
+) -> (bool, String, String) {
     let mut command = Command::new("dpkg-source");
-    command.current_dir(work).arg("-b");
+    command.current_dir(work).args(overrides).arg("-b");
     if keep_ignored {
         // lintian's upload builder passes these so a recipe's VCS cruft is
         // packed. The default ignore would drop it before a Rule can see it.
@@ -1097,6 +1113,169 @@ fn pack_orig_without_added(tree: &Path, orig: &Path, added: &[String]) {
     );
 }
 
+/// The `-DField=value` words of the recipe's vendored `build-spec/dpkg-overrides`,
+/// split the way the shell behind lintian's Makefile splits them: on whitespace
+/// outside double quotes, with the quotes removed.
+fn dpkg_overrides(recipe: &Path) -> Vec<String> {
+    let Ok(text) = fs::read_to_string(recipe.join(VENDORED_BUILD_SPEC).join("dpkg-overrides"))
+    else {
+        return Vec::new();
+    };
+    let mut words = Vec::new();
+    let mut word = String::new();
+    let mut started = false;
+    let mut quoted = false;
+    for character in text.chars() {
+        match character {
+            '"' => {
+                quoted = !quoted;
+                started = true;
+            }
+            character if character.is_whitespace() && !quoted => {
+                if started {
+                    words.push(std::mem::take(&mut word));
+                    started = false;
+                }
+            }
+            character => {
+                word.push(character);
+                started = true;
+            }
+        }
+    }
+    if started {
+        words.push(word);
+    }
+    for word in &words {
+        assert!(
+            word.strip_prefix("-D")
+                .is_some_and(|rest| rest.contains('=')),
+            "{recipe:?}: dpkg-overrides word {word:?} is not -DField=value"
+        );
+    }
+    words
+}
+
+/// `dpkg-source -DField=value` sets a field of the `.dsc`, which a Source tree
+/// does not have. The tree's stand-in is the Source paragraph of
+/// `debian/control`, where the field is set the same way: it replaces an
+/// existing one and otherwise goes at the end of the paragraph.
+fn apply_overrides_to_control(source: &Path, overrides: &[String]) {
+    if overrides.is_empty() {
+        return;
+    }
+    let control = source.join("debian/control");
+    let mut text = fs::read_to_string(&control)
+        .unwrap_or_else(|error| panic!("reading {}: {error}", control.display()));
+    for word in overrides {
+        let (field, value) = word
+            .strip_prefix("-D")
+            .and_then(|rest| rest.split_once('='))
+            .expect("dpkg_overrides checked the form");
+        text = set_source_paragraph_field(&text, field, value);
+    }
+    fs::write(&control, text)
+        .unwrap_or_else(|error| panic!("writing {}: {error}", control.display()));
+}
+
+fn set_source_paragraph_field(control: &str, field: &str, value: &str) -> String {
+    let lines: Vec<&str> = control.lines().collect();
+    let end = lines
+        .iter()
+        .position(|line| line.trim().is_empty())
+        .unwrap_or(lines.len());
+    let prefix = format!("{}:", field.to_ascii_lowercase());
+    let mut kept: Vec<String> = Vec::new();
+    let mut skipping = false;
+    for line in &lines[..end] {
+        let continuation = line.starts_with([' ', '\t']);
+        if continuation && skipping {
+            continue;
+        }
+        skipping = !continuation && line.to_ascii_lowercase().starts_with(&prefix);
+        if !skipping {
+            kept.push((*line).to_string());
+        }
+    }
+    kept.push(format!("{field}: {value}"));
+    kept.extend(lines[end..].iter().map(|line| (*line).to_string()));
+    let mut out = kept.join("\n");
+    out.push('\n');
+    out
+}
+
+/// `build-spec/pre-upstream.in`, kept by the importer when the hook creates
+/// `debian/` in the orig. The tree cannot carry it: its `debian/` is the
+/// packaged one.
+fn vendored_pre_upstream(recipe: &Path) -> Option<PathBuf> {
+    let hook = recipe.join(VENDORED_BUILD_SPEC).join("pre-upstream.in");
+    hook.is_file().then_some(hook)
+}
+
+/// The orig lintian's upload builder tars: the tree's upstream paths (no
+/// `debian/`, no `added` root paths) with the `pre-upstream` hook run on top,
+/// under `<source>-<upstream>/` like the real tarball. The hook is a lintian
+/// template; its only variable here is `[% $source_path %]`, the tree (it holds
+/// the packaged `debian/` the hook copies).
+fn pack_orig_with_hook(tree: &Path, hook: &Path, orig: &Path, added: &[String]) {
+    let work = orig.parent().expect("orig lives in the work directory");
+    let name = orig
+        .file_name()
+        .and_then(OsStr::to_str)
+        .expect("orig name is UTF-8");
+    let top = name
+        .strip_suffix(".orig.tar.gz")
+        .expect("main orig name")
+        .replacen('_', "-", 1);
+    let stage = work.join("orig-stage");
+    let base = work.join("orig-base.tar.gz");
+    let package_dir = stage.join(&top);
+    fs::create_dir_all(&package_dir)
+        .unwrap_or_else(|error| panic!("creating {}: {error}", package_dir.display()));
+    pack_orig_without_added(tree, &base, added);
+    run_tar(&["-xzf"], &base, &package_dir, None);
+
+    let template = fs::read_to_string(hook)
+        .unwrap_or_else(|error| panic!("reading {}: {error}", hook.display()));
+    let script = work.join("pre-upstream");
+    fs::write(
+        &script,
+        template.replace("[% $source_path %]", &tree.display().to_string()),
+    )
+    .unwrap_or_else(|error| panic!("writing {}: {error}", script.display()));
+    let output = Command::new("sh")
+        .arg(&script)
+        .arg(&package_dir)
+        .output()
+        .expect("spawning pre-upstream hook");
+    assert!(
+        output.status.success(),
+        "{}: pre-upstream hook failed\nstdout:\n{}\nstderr:\n{}",
+        hook.display(),
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    run_tar(&["-czf"], orig, &stage, Some(&top));
+    fs::remove_dir_all(&stage)
+        .unwrap_or_else(|error| panic!("removing {}: {error}", stage.display()));
+    fs::remove_file(&base).unwrap_or_else(|error| panic!("removing {}: {error}", base.display()));
+}
+
+/// `tar` in `dir`: `-xzf` extracts the archive into it, `-czf` packs `member`
+/// of it into the archive.
+fn run_tar(mode: &[&str], archive: &Path, dir: &Path, member: Option<&str>) {
+    let mut command = Command::new("tar");
+    command.args(mode).arg(archive).arg("-C").arg(dir);
+    command.args(member);
+    let output = command.output().expect("spawning tar");
+    assert!(
+        output.status.success(),
+        "tar {mode:?} {} failed\nstderr:\n{}",
+        archive.display(),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
 fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     let source = work.join("src");
     copy_package_tree(recipe, &source);
@@ -1107,11 +1286,15 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
         .cloned()
         .collect();
     let keep_ignored = !pointers.is_empty();
-    if !root_adds.is_empty() {
+    let overrides = dpkg_overrides(recipe);
+    if let Some(hook) = vendored_pre_upstream(recipe) {
+        let name = main_orig_name(&source);
+        pack_orig_with_hook(&source, &hook, &work.join(&name), &root_adds);
+    } else if !root_adds.is_empty() {
         let name = main_orig_name(&source);
         pack_orig_without_added(&source, &work.join(&name), &root_adds);
     }
-    let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored);
+    let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, &overrides);
     if !ok {
         let Some(name) = missing_upstream_tarball(&stderr) else {
             panic!("{recipe:?}: dpkg-source -b failed\n{stdout}\n{stderr}");
@@ -1121,7 +1304,7 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             "{recipe:?}: component orig {name} is not synthesized"
         );
         pack_main_orig(&source, &work.join(&name));
-        let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored);
+        let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, &overrides);
         if !ok && stderr.contains("unexpected upstream changes") {
             // dpkg-source mis-reads an orig whose last member name contains a
             // quote (`data/".tif` in legacy-filenames) and reports those
@@ -1129,7 +1312,7 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             // The pad is in the tree and the orig, so it is not a diff.
             fs::write(source.join("zz-pad"), "\n").expect("writing orig pad");
             pack_main_orig(&source, &work.join(&name));
-            let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored);
+            let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, &overrides);
             assert!(
                 ok,
                 "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"

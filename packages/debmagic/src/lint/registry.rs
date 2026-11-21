@@ -304,6 +304,7 @@ use super::rules::TypelibNotInMultiarchDirectory;
 use super::rules::TypelibPackageNameDoesNotMatch;
 use super::rules::TypelibSectionNotIntrospection;
 use super::rules::UdebPostinstCallsLdconfig;
+use super::rules::UdebUsesUnsupportedCompressionForDataTarball;
 use super::rules::UnconditionalUseOfDpkgStatoverride;
 use super::rules::UnexpectedConffile;
 use super::rules::UnknownArchitecture;
@@ -1731,6 +1732,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BinaryCompiledWithProfilingEnabled,
         &ObsoleteDesEncryption,
         &ObsoleteCryptAlias,
+        &UdebUsesUnsupportedCompressionForDataTarball,
     ]
 }
 
@@ -2764,6 +2766,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BinaryCompiledWithProfilingEnabled,
         &ObsoleteDesEncryption,
         &ObsoleteCryptAlias,
+        &UdebUsesUnsupportedCompressionForDataTarball,
     ]
 }
 

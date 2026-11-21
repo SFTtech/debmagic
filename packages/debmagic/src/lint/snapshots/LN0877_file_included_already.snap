@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): file-included-already (LN0877) include-this [debian/copyright:2]
+E: (source): file-included-already (LN0877) dir/a [debian/copyright:2]
+E: (source): file-included-already (LN0877) dir/b [debian/copyright:2]

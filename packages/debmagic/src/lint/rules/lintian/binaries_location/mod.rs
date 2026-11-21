@@ -2,6 +2,8 @@
 
 mod ln0722_arch_dependent_file_not_in_arch_specific_directory;
 mod ln0737_arch_dependent_file_in_usr_share;
+mod ln0855_binary_in_etc;
 
 pub(crate) use ln0722_arch_dependent_file_not_in_arch_specific_directory::ArchDependentFileNotInArchSpecificDirectory;
 pub(crate) use ln0737_arch_dependent_file_in_usr_share::ArchDependentFileInUsrShare;
+pub(crate) use ln0855_binary_in_etc::BinaryInEtc;

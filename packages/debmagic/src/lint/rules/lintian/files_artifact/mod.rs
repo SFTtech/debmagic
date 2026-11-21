@@ -20,6 +20,7 @@ mod ln0148_debian_adds_svn_commit_file;
 mod ln0149_debian_adds_svn_conflict_file;
 mod ln0150_debian_adds_svn_control_dir;
 mod ln0151_debian_adds_quilt_control_dir;
+mod ln0926_no_debian_changes;
 #[cfg(test)]
 mod testing;
 
@@ -39,3 +40,4 @@ pub(crate) use ln0148_debian_adds_svn_commit_file::DebianAddsSvnCommitFile;
 pub(crate) use ln0149_debian_adds_svn_conflict_file::DebianAddsSvnConflictFile;
 pub(crate) use ln0150_debian_adds_svn_control_dir::DebianAddsSvnControlDir;
 pub(crate) use ln0151_debian_adds_quilt_control_dir::DebianAddsQuiltControlDir;
+pub(crate) use ln0926_no_debian_changes::NoDebianChanges;

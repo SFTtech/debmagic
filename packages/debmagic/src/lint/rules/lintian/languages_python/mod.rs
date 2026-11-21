@@ -17,6 +17,10 @@ mod ln0479_embedded_feedparser_library;
 mod ln0501_python_module_has_overly_generic_name;
 mod ln0814_script_uses_unversioned_python_in_shebang;
 mod ln0819_duplicate_p3dist_override;
+mod ln0955_package_installs_python_bytecode;
+mod ln0956_python_module_in_wrong_location;
+mod ln0957_django_package_does_not_depend_on_django;
+mod ln0958_new_package_should_not_package_python2_module;
 mod python_version;
 
 pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;
@@ -33,3 +37,7 @@ pub(crate) use ln0479_embedded_feedparser_library::EmbeddedFeedparserLibrary;
 pub(crate) use ln0501_python_module_has_overly_generic_name::PythonModuleHasOverlyGenericName;
 pub(crate) use ln0814_script_uses_unversioned_python_in_shebang::ScriptUsesUnversionedPythonInShebang;
 pub(crate) use ln0819_duplicate_p3dist_override::DuplicateP3distOverride;
+pub(crate) use ln0955_package_installs_python_bytecode::PackageInstallsPythonBytecode;
+pub(crate) use ln0956_python_module_in_wrong_location::PythonModuleInWrongLocation;
+pub(crate) use ln0957_django_package_does_not_depend_on_django::DjangoPackageDoesNotDependOnDjango;
+pub(crate) use ln0958_new_package_should_not_package_python2_module::NewPackageShouldNotPackagePython2Module;

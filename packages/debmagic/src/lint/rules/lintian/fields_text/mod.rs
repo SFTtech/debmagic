@@ -22,6 +22,7 @@ mod ln0436_homepage_for_cpan_package_contains_version;
 mod ln0437_homepage_refers_to_obsolete_debian_infrastructure;
 mod ln0667_essential_in_source_package;
 mod ln0668_explicit_default_in_package_type;
+mod ln0924_section_is_dh_make_template;
 
 pub(crate) use ln0224_redundant_bugs_field::RedundantBugsField;
 pub(crate) use ln0225_bad_homepage::BadHomepage;
@@ -40,3 +41,4 @@ pub(crate) use ln0436_homepage_for_cpan_package_contains_version::HomepageForCpa
 pub(crate) use ln0437_homepage_refers_to_obsolete_debian_infrastructure::HomepageRefersToObsoleteDebianInfrastructure;
 pub(crate) use ln0667_essential_in_source_package::EssentialInSourcePackage;
 pub(crate) use ln0668_explicit_default_in_package_type::ExplicitDefaultInPackageType;
+pub(crate) use ln0924_section_is_dh_make_template::SectionIsDhMakeTemplate;

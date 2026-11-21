@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): python-module-in-wrong-location (LN0956) usr/lib/python3.2/dist-packages/python-foo -> usr/lib/python3/dist-packages/python-foo
+W: example (binary): python-module-in-wrong-location (LN0956) usr/lib/python3.2/site-packages/python-foo -> usr/lib/python3/dist-packages/python-foo
+W: example (udeb): python-module-in-wrong-location (LN0956) usr/lib/python3.2/site-packages/foo.py -> usr/lib/python3/dist-packages/foo.py

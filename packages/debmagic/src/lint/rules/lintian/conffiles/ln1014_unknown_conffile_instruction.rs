@@ -1,12 +1,24 @@
+use std::collections::BTreeSet;
+use std::path::PathBuf;
+
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
+use super::ln1012_relative_conffile::{conffiles_text, parse};
+
+const KNOWN_INSTRUCTIONS: &[&str] = &["remove-on-upgrade"];
+
 pub struct UnknownConffileInstruction;
 
 declare_rule! {
-    /// TODO: what the Rule reports, in lintian's words, and the cases it skips.
+    /// A `conffiles` entry has an instruction other than `remove-on-upgrade`.
+    ///
+    /// Each line's words before the path are instructions. Every distinct
+    /// unknown instruction on a line is reported once, in sorted order. Extra
+    /// is the instruction. Location is `conffiles` at that line. A non-UTF-8
+    /// member is skipped. Udebs are checked too.
     UnknownConffileInstruction,
     code = "LN1014",
     tag = "unknown-conffile-instruction",
@@ -15,24 +27,54 @@ declare_rule! {
 }
 
 impl BinaryPackageRule for UnknownConffileInstruction {
-    fn run(&self, _ctx: &mut BinaryPackageContext<'_>) {
-        // TODO: port lintian's `conffiles` Check (just lintian-tag unknown-conffile-instruction).
-        // Report with `ctx.diagnostic(Diagnostic::error(extra).with_location(Location { .. }))`.
-        let _ = (Diagnostic::error(""), None::<Location>);
+    fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
+        let Some(text) = conffiles_text(ctx) else {
+            return;
+        };
+        for entry in parse(&text) {
+            let unknown: BTreeSet<&str> = entry
+                .instructions
+                .iter()
+                .map(String::as_str)
+                .filter(|instruction| !KNOWN_INSTRUCTIONS.contains(instruction))
+                .collect();
+            for instruction in unknown {
+                ctx.diagnostic(Diagnostic::error(instruction).with_location(Location {
+                    path: PathBuf::from("conffiles"),
+                    line: Some(entry.line),
+                    column: None,
+                }));
+            }
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester};
+    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
 
     use super::*;
 
+    fn conffiles(body: &str) -> BinaryPackageCase {
+        BinaryPackageCase::from(Vec::<(&str, TestFile)>::new())
+            .control_file("conffiles", TestFile::new(body))
+    }
+
     #[test]
-    fn binary() {
-        // Pass and fail cases; `.test_and_snapshot()` once there are fail cases (`just snap-accept`).
-        let pass = Vec::<BinaryPackageCase>::new();
-        let fail = Vec::<BinaryPackageCase>::new();
-        BinaryPackageTester::new(UnknownConffileInstruction, pass, fail).test();
+    fn test() {
+        let pass = vec![
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
+            conffiles(""),
+            conffiles("/etc/foo\n"),
+            conffiles("remove-on-upgrade /etc/foo\n"),
+            conffiles("remove-on-upgrade remove-on-upgrade /etc/foo\n"),
+        ];
+        let fail = vec![
+            conffiles("chicken-soup /etc/some.config\n"),
+            conffiles("/etc/foo\n\nzeta alpha remove-on-upgrade /etc/bar\n"),
+            conffiles("chicken-soup chicken-soup /etc/foo\n").udeb(),
+            conffiles("chicken-soup  /etc/foo  \n"),
+        ];
+        BinaryPackageTester::new(UnknownConffileInstruction, pass, fail).test_and_snapshot();
     }
 }

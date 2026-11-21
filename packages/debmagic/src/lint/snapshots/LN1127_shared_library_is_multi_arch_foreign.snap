@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): shared-library-is-multi-arch-foreign (LN1127) usr/lib/libfoo.so.1
+E: example (binary): shared-library-is-multi-arch-foreign (LN1127) usr/lib/x86_64-linux-gnu/libpie.so.1
+E: example (binary): shared-library-is-multi-arch-foreign (LN1127) lib/x86_64-linux-gnu/libb.so.1 usr/lib/liba.so.1
+E: example (binary): shared-library-is-multi-arch-foreign (LN1127) usr/lib/libfoo.so.1
+E: example (udeb): shared-library-is-multi-arch-foreign (LN1127) usr/lib/libfoo.so.1

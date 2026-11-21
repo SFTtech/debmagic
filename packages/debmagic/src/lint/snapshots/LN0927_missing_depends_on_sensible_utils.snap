@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): missing-depends-on-sensible-utils (LN0927) sensible-editor [usr/bin/test]
+E: example (udeb): missing-depends-on-sensible-utils (LN0927) sensible-pager [usr/bin/test]
+E: example (binary): missing-depends-on-sensible-utils (LN0927) sensible-browser [usr/bin/test]
+E: example (binary): missing-depends-on-sensible-utils (LN0927) select-editor [usr/bin/test]
+E: example (binary): missing-depends-on-sensible-utils (LN0927) sensible-editor [usr/bin/test]
+E: example (binary): missing-depends-on-sensible-utils (LN0927) sensible-pager [postinst]
+E: example (binary): missing-depends-on-sensible-utils (LN0927) select-editor [postinst]
+E: example (binary): missing-depends-on-sensible-utils (LN0927) sensible-editor [preinst]
+E: example (binary): missing-depends-on-sensible-utils (LN0927) sensible-editor [usr/bin/test]
+E: example (binary): missing-depends-on-sensible-utils (LN0927) sensible-editor [usr/bin/test]
+E: example (binary): missing-depends-on-sensible-utils (LN0927) sensible-editor [usr/bin/test]

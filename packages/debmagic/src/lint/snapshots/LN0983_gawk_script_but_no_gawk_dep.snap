@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): gawk-script-but-no-gawk-dep (LN0983) /usr/bin/gawk (does not satisfy gawk) [usr/bin/tool]
+E: example (binary): gawk-script-but-no-gawk-dep (LN0983) gawk (does not satisfy gawk) [usr/bin/tool]
+E: example (binary): gawk-script-but-no-gawk-dep (LN0983) /usr/bin/gawk (does not satisfy gawk) [usr/bin/tool]
+E: example (udeb): gawk-script-but-no-gawk-dep (LN0983) /usr/bin/gawk (does not satisfy gawk) [usr/bin/tool]
+E: example (binary): gawk-script-but-no-gawk-dep (LN0983) /usr/bin/gawk (does not satisfy gawk) [usr/bin/tool]

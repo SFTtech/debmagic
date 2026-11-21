@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): missing-file-from-potfiles-in (LN0904) some-other-file [debian/po/POTFILES.in:2]
+W: example (source): missing-file-from-potfiles-in (LN0904) missing.glade [debian/po/POTFILES.in:2]
+W: example (source): missing-file-from-potfiles-in (LN0904) debian-dir-missing [debian/po/POTFILES.in:1]

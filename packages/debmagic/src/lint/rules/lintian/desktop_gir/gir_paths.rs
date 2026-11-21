@@ -35,11 +35,6 @@ fn children<'a>(files: &'a FileTree, dir: &str) -> Vec<&'a Entry> {
         .collect()
 }
 
-/// Typelibs in the old `usr/lib/girepository-1.0` directory.
-pub(super) fn old_typelib_files(files: &FileTree) -> Vec<&Entry> {
-    children(files, "usr/lib/girepository-1.0")
-}
-
 /// Direct children of `dir` whose names end in `.gir`.
 fn girs_in<'a>(files: &'a FileTree, dir: &str) -> Vec<&'a Entry> {
     children(files, dir)
@@ -56,6 +51,21 @@ pub(super) fn gir_files<'a>(files: &'a FileTree, triplet: Option<&str>) -> Vec<&
         girs.extend(girs_in(files, &format!("usr/lib/{triplet}/gir-1.0")));
     }
     girs
+}
+
+/// Typelibs in the old `usr/lib/girepository-1.0` directory.
+pub(super) fn old_typelib_files(files: &FileTree) -> Vec<&Entry> {
+    children(files, "usr/lib/girepository-1.0")
+}
+
+/// Typelibs in the old directory, then in `usr/lib/<triplet>/girepository-1.0`.
+pub(super) fn typelib_files<'a>(files: &'a FileTree, triplet: &str) -> Vec<&'a Entry> {
+    let mut libs = old_typelib_files(files);
+    libs.extend(children(
+        files,
+        &format!("usr/lib/{triplet}/girepository-1.0"),
+    ));
+    libs
 }
 
 /// The file name of an Entry, lossily.
@@ -81,5 +91,13 @@ pub(super) fn location(entry: &Entry) -> Location {
 pub(super) fn gir_package_stem(basename: &str) -> String {
     let name = format!("gir1.2-{}", basename.to_lowercase());
     let name = name.strip_suffix(".gir").unwrap_or(&name);
+    name.replace('_', "-")
+}
+
+/// The package name a typelib expects: `gir1.2-` and the lowercased file
+/// name without `.typelib`, with `_` as `-`.
+pub(super) fn typelib_package_stem(basename: &str) -> String {
+    let name = format!("gir1.2-{}", basename.to_lowercase());
+    let name = name.strip_suffix(".typelib").unwrap_or(&name);
     name.replace('_', "-")
 }

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): select-without-choices (LN1024) debconf/no-choices [templates:1]
+E: example (binary): select-without-choices (LN1024) debconf/multi [templates:1]
+E: example (binary): select-without-choices (LN1024) debconf/unsplit [templates:1]
+E: example (binary): select-without-choices (LN1024) no-template-name [templates:1]
+E: example (binary): select-without-choices (LN1024) debconf/later [templates:2]
+E: example (udeb): select-without-choices (LN1024) debconf/udeb [templates:1]

@@ -10,6 +10,15 @@ use crate::lint::diagnostic::Location;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 use crate::lint::rules::lintian::fields_relations_more::architectures::deb_host_multiarch;
 
+/// The `$DEB_HOST_MULTIARCH` text Lintian uses when the Architecture has no
+/// triplet (`all`); the Check then looks for that literal directory name.
+pub(super) const PLACEHOLDER_TRIPLET: &str = "${DEB_HOST_MULTIARCH}";
+
+/// The `DEB_HOST_MULTIARCH` triplet of an Architecture, or the placeholder.
+pub(super) fn triplet_or_placeholder(architecture: &str) -> &'static str {
+    triplet(architecture).unwrap_or(PLACEHOLDER_TRIPLET)
+}
+
 /// The triplet of an Architecture, `None` when it has none.
 pub(super) fn triplet(architecture: &str) -> Option<&'static str> {
     deb_host_multiarch(architecture)
@@ -24,6 +33,11 @@ fn children<'a>(files: &'a FileTree, dir: &str) -> Vec<&'a Entry> {
         .filter(|entry| entry.path().parent() == Some(dir))
         .filter(|entry| entry.kind() != EntryKind::Directory)
         .collect()
+}
+
+/// Typelibs in the old `usr/lib/girepository-1.0` directory.
+pub(super) fn old_typelib_files(files: &FileTree) -> Vec<&Entry> {
+    children(files, "usr/lib/girepository-1.0")
 }
 
 /// Direct children of `dir` whose names end in `.gir`.

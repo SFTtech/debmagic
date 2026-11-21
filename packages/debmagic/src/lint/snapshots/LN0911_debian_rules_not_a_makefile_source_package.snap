@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debian-rules-not-a-makefile (LN0911) [debian/rules]

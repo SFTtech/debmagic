@@ -28,6 +28,12 @@ pub(super) struct ParsedVersion {
     pub epoch: String,
     pub no_epoch: String,
     pub upstream: String,
+    /// The Debian revision (the native version itself for a native package),
+    /// without a source NMU suffix.
+    pub maintainer_revision: String,
+    /// `.N` (`+nmuN` for a native package) of a source NMU, without the
+    /// separator; empty when the version is not an NMU.
+    pub source_nmu: String,
 }
 
 pub(super) fn parse_version(literal: &str, native: bool) -> Option<ParsedVersion> {
@@ -82,6 +88,8 @@ pub(super) fn parse_version(literal: &str, native: bool) -> Option<ParsedVersion
         epoch,
         no_epoch,
         upstream,
+        maintainer_revision,
+        source_nmu,
     })
 }
 
@@ -182,6 +190,19 @@ mod tests {
         assert_eq!(parsed.upstream, "1.0");
         assert_eq!(parsed.no_epoch, "1.0-1");
         assert_eq!(parsed.literal, "1:1.0-1");
+    }
+
+    #[test]
+    fn revision_and_source_nmu_are_split_off() {
+        let nmu = parse_version("1.0-1.2", false).expect("parses");
+        assert_eq!(nmu.maintainer_revision, "1");
+        assert_eq!(nmu.source_nmu, "2");
+        let plain = parse_version("1.0-1~exp1", false).expect("parses");
+        assert_eq!(plain.maintainer_revision, "1~exp1");
+        assert_eq!(plain.source_nmu, "");
+        let native = parse_version("2.5+nmu1", true).expect("parses");
+        assert_eq!(native.maintainer_revision, "2.5");
+        assert_eq!(native.source_nmu, "1");
     }
 
     #[test]

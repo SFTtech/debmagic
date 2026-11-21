@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): version-refers-to-distribution (LN1176) 1.0-1etch1 [debian/changelog:1]
+W: example (source): version-refers-to-distribution (LN1176) 1.0-1etch1 [debian/changelog:1]
+W: example (source): version-refers-to-distribution (LN1176) 1.0-1bookworm [debian/changelog:1]
+W: example (source): version-refers-to-distribution (LN1176) 1.0-1stable1 [debian/changelog:1]
+W: example (source): version-refers-to-distribution (LN1176) 1.0-1~Testing1 [debian/changelog:1]
+W: example (source): version-refers-to-distribution (LN1176) 1.0-1unstable [debian/changelog:1]
+W: example (source): version-refers-to-distribution (LN1176) 3:1.0-1sarge1 [debian/changelog:1]
+W: example (source): version-refers-to-distribution (LN1176) 1.0stable [debian/changelog:1]

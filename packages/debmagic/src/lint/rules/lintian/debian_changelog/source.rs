@@ -221,6 +221,130 @@ pub(super) fn reused_version(ctx: &mut SourceContext<'_>) -> Option<(u32, String
     None
 }
 
+/// The newest entry's heading line, its distribution, and its version parsed
+/// for the package's nativeness; `None` without a changelog entry or when the
+/// version does not parse (`malformed-debian-changelog-version`).
+pub(super) struct Latest {
+    pub line: u32,
+    pub distribution: String,
+    pub version: ParsedVersion,
+    pub native: bool,
+}
+
+pub(super) fn latest(ctx: &mut SourceContext<'_>) -> Option<Latest> {
+    let native = package_is_native(ctx);
+    let entry = ctx.debian_changelog()?.entries().first()?;
+    Some(Latest {
+        line: entry.line(),
+        distribution: entry.distribution().to_string(),
+        version: parse_version(entry.version(), native)?,
+        native,
+    })
+}
+
+/// `version-refers-to-unstable-distribution-with-exp-version`: the newest
+/// entry is for `unstable` and its Debian revision has `~exp`.
+pub(super) fn exp_version_in_unstable(ctx: &mut SourceContext<'_>) -> Option<(u32, String)> {
+    let latest = latest(ctx)?;
+    (latest.distribution == "unstable" && latest.version.maintainer_revision.contains("~exp"))
+        .then_some((latest.line, latest.version.literal))
+}
+
+/// Debian release series other than `sid` and `rc-buggy`, joined for a regex
+/// alternation, as lintian builds it from `Debian::DistroInfo`.
+fn release_series_pattern() -> &'static Regex {
+    static PATTERN: LazyLock<Regex> = LazyLock::new(|| {
+        let series: Vec<&str> =
+            crate::lint::data::lines(include_str!("../../../data/distro-info/debian-series"))
+                .filter(|series| *series != "sid" && *series != "rc-buggy")
+                .collect();
+        Regex::new(&series.join("|")).expect("release series regex")
+    });
+    &PATTERN
+}
+
+/// `version-refers-to-distribution`: the Debian revision of a version that is
+/// not a source NMU names `testing`, `stable` or `unstable` (any letter
+/// case), or, for an upload to `unstable` or `experimental`, a release series.
+pub(super) fn version_refers_to_distribution(ctx: &mut SourceContext<'_>) -> Option<(u32, String)> {
+    static SUITE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"(?i)testing|(?:un)?stable").expect("suite regex"));
+    let latest = latest(ctx)?;
+    let revision = &latest.version.maintainer_revision;
+    if !latest.version.source_nmu.is_empty() {
+        return None;
+    }
+    let mentions_suite = SUITE.is_match(revision)
+        || ((latest.distribution == "unstable" || latest.distribution == "experimental")
+            && release_series_pattern().is_match(revision));
+    mentions_suite.then_some((latest.line, latest.version.literal))
+}
+
+/// `rc-version-greater-than-expected-version`: the examined part of a version
+/// that is not a source NMU has a `rc`, `alpha`, `beta` or `pre*` marker that
+/// is not preceded by `~`; the extra says what to write instead.
+pub(super) fn rc_version_without_tilde(ctx: &mut SourceContext<'_>) -> Option<(u32, String)> {
+    static CANDIDATE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"(?s)[^~a-z](rc|alpha|beta|pre(?:view|release)?)([^a-z].*|\z)")
+            .expect("candidate regex")
+    });
+    static REVISION_ONE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^0(?:\.1|ubuntu1)?$").expect("first revision regex"));
+    let latest = latest(ctx)?;
+    let version = &latest.version;
+    let examine = if latest.native {
+        &version.maintainer_revision
+    } else {
+        &version.upstream
+    };
+    let captures = CANDIDATE.captures(examine)?;
+    let candidate = captures.get(1)?.as_str();
+    let increment = captures.get(2).map_or("", |m| m.as_str());
+    if !version.source_nmu.is_empty() {
+        return None;
+    }
+    let first_revision = version.maintainer_revision == "1"
+        || REVISION_ONE.is_match(&version.maintainer_revision)
+        || latest.native;
+    if !first_revision {
+        return None;
+    }
+    // Remove the marker, a separator in front of it, and everything after.
+    let remove =
+        Regex::new(&format!(r"[.+:\-]?{}.*", regex::escape(candidate))).expect("marker regex");
+    let expected = remove.replace(examine, "");
+    Some((
+        latest.line,
+        format!("{examine} > {expected} (consider using {expected}~{candidate}{increment})"),
+    ))
+}
+
+/// `possible-new-upstream-release-without-new-version`: the newest and the
+/// previous entry have the same source, epoch and upstream version, and the
+/// newest entry's changes say there is a new upstream release. Never for a
+/// native package.
+pub(super) fn new_upstream_without_new_version(ctx: &mut SourceContext<'_>) -> Option<u32> {
+    static NEW_UPSTREAM: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"(?im)^\s*\*\s+new\s+upstream\s+(?:\S+\s+)?release\b")
+            .expect("new upstream regex")
+    });
+    let native = package_is_native(ctx);
+    if native {
+        return None;
+    }
+    let changelog = ctx.debian_changelog()?;
+    let [latest, previous, ..] = changelog.entries() else {
+        return None;
+    };
+    let latest_version = parse_version(latest.version(), native)?;
+    let previous_version = parse_version(previous.version(), native)?;
+    (latest_version.epoch == previous_version.epoch
+        && latest_version.upstream == previous_version.upstream
+        && latest.source() == previous.source()
+        && NEW_UPSTREAM.is_match(latest.changes()))
+    .then(|| latest.line())
+}
+
 fn reuse_extra(latest: &ParsedVersion, entry: &ChangelogEntry) -> String {
     format!(
         "{} ~ {} (last used: {})",

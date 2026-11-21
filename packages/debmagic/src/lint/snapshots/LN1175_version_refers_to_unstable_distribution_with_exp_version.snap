@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): version-refers-to-unstable-distribution-with-exp-version (LN1175) 1.0-1~exp1 [debian/changelog:1]
+W: example (source): version-refers-to-unstable-distribution-with-exp-version (LN1175) 2:1.0-1~exp2 [debian/changelog:1]
+W: example (source): version-refers-to-unstable-distribution-with-exp-version (LN1175) 1.0~exp1 [debian/changelog:1]
+W: example (source): version-refers-to-unstable-distribution-with-exp-version (LN1175) 1.0-2~exp1 [debian/changelog:1]

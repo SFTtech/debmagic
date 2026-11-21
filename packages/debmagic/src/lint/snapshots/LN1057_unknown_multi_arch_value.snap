@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: foo (binary): unknown-multi-arch-value (LN1057) foo cheese
+E: foo (binary): unknown-multi-arch-value (LN1057) foo Same
+E: foo (udeb): unknown-multi-arch-value (LN1057) foo cheese

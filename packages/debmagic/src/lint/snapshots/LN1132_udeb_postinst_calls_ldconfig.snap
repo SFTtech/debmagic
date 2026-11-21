@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (udeb): udeb-postinst-calls-ldconfig (LN1132) [postinst]
+E: example (udeb): udeb-postinst-calls-ldconfig (LN1132) [postinst]
+E: example (udeb): udeb-postinst-calls-ldconfig (LN1132) [postinst]
+E: example (udeb): udeb-postinst-calls-ldconfig (LN1132) [postinst]
+E: example (udeb): udeb-postinst-calls-ldconfig (LN1132) [postinst]
+E: example (udeb): udeb-postinst-calls-ldconfig (LN1132) [postinst]
+E: example (udeb): udeb-postinst-calls-ldconfig (LN1132) [postinst]

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): outdated-relation-in-shlibs (LN1035) libbar (> 1) [shlibs]
+W: example (binary): outdated-relation-in-shlibs (LN1035) libbar (< 1) [shlibs]
+W: example (binary): outdated-relation-in-shlibs (LN1035) libbar ( < 2) [shlibs]
+W: example (binary): outdated-relation-in-shlibs (LN1035) libbar (> 1) [shlibs]
+W: example (binary): outdated-relation-in-shlibs (LN1035) libbar (>= 1) libbaz (> 2) [shlibs]

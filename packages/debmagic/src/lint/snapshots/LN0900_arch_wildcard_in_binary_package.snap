@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): arch-wildcard-in-binary-package (LN0900) any
+E: example (binary): arch-wildcard-in-binary-package (LN0900) any-i386
+E: example (binary): arch-wildcard-in-binary-package (LN0900) any-amd64
+E: example (binary): arch-wildcard-in-binary-package (LN0900) linux-any
+E: example (binary): arch-wildcard-in-binary-package (LN0900) any-arm64
+E: example (binary): arch-wildcard-in-binary-package (LN0900) any-any

@@ -1,0 +1,1068 @@
+#!/usr/bin/env python3
+"""Ecosystem test for `debmagic lint`: run it on real Debian archive packages and diff it against the
+lintian results the Debian infrastructure currently reports for the same package versions.
+
+PROTOTYPE. Needs network access and `psql`; it is a measurement, not a CI gate (ADR 0012 keeps the
+vendored lintian test-suite as the CI oracle; this complements it with real-world volume).
+
+Oracle
+    UDD's `lintian_results` table (public read-only mirror, udd-mirror.debian.net). It is the data
+    behind the lintian link on tracker.debian.org (https://udd.debian.org/lintian/). Every row is one
+    lintian hint for a (source, version), with the lintian version that produced it (`--report` prints it).
+    Source-level hints have an empty `package`; binary hints carry package, version and architecture.
+
+Packages
+    The default set is `samba` (always) plus Debian's key packages (UDD `key_packages`, ~6.5k sources),
+    of which a seeded sample of `--sample N` (default 25) is checked. `--all` checks the whole set
+    (about 23k Subjects and 24 GB of downloads: a long run); `--pool archive` samples from every
+    source package instead of the key ones; `--packages a b c` replaces the set.
+
+Subjects (ADR 0016, 0017: one Subject per lint run)
+    For each selected source package of the chosen release: the `.dsc` (Source package) and every
+    `.deb` of the chosen architectures (Binary package), all fetched from the archive pool and
+    checked against UDD's sha256 sums. Downloads overlap with linting; downloads and oracle
+    snapshots are cached, so reruns only re-lint.
+
+Comparison
+    Only Tags debmagic implements (a Rule on the matching Subject kind) can be judged; every other
+    oracle Tag is listed as *uncovered*, ranked by how many Subjects carry it. On covered Tags:
+
+    - match       both sides report the Tag on the Subject
+    - missed      lintian reports it, debmagic does not (false negative)
+    - extra       debmagic reports it, lintian does not (false positive)
+    - overridden  debmagic reports it and lintian reports it as `overridden`/`masked`; expected,
+                  because debmagic parses override files but does not apply them (ADR 0051)
+
+    On matched Tags the hint contexts (`[path:line]`, ...) are compared as multisets, and the
+    severity debmagic assigns is compared with lintian's tag type. Tag renames between lintian
+    releases are folded onto the current name using the installed lintian's tag catalogue.
+
+Performance (`--perf`, on by default; `--perf off` skips it)
+    Every Subject is also linted by the installed lintian, and wall time, CPU time (user+system of the
+    process tree) and peak RSS are recorded per tool with `wait4`. Two lintian variants:
+
+    - `lintian (same tags)`  `--tags-from-file` with exactly the Tags debmagic implements for that
+                             Subject kind: comparable work, the headline number
+    - `lintian (default)`    lintian's default profile, what users run today (more checks, so slower)
+
+    Everything is downloaded before it is linted, so both tools read warm page-cache files. Each run
+    starts a fresh process (cold lintian lab, no daemon). `--perf-repeat N` takes the median of N runs.
+    Timings are only meaningful for a release build, which is the default build profile.
+
+Usage
+    just lint-ecosystem                                   # samba + 25 key packages, correctness and perf
+    just lint-ecosystem --packages hello dgit --perf off
+    just lint-ecosystem --sample 100 --seed 7 --perf tags
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import io
+import json
+import os
+import re
+import shutil
+import signal
+import statistics
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+import urllib.request
+from collections import Counter, defaultdict
+from concurrent.futures import Future, ThreadPoolExecutor
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import lint_parity_report as parity
+
+ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_WORK_DIR = ROOT / "target" / "lint-ecosystem"
+PROFILE_DIRS = {"release": "release", "debug": "debug"}
+# The default package set: these are always checked, together with a sample of the key packages.
+DEFAULT_PINNED = ("samba",)
+DEFAULT_SAMPLE = 25
+QUERY_CHUNK = 100  # (source, version) pairs per UDD query; psql takes the statement as one argv entry
+TOOL_DEBMAGIC = "debmagic"
+TOOL_LINTIAN_TAGS = "lintian (same tags)"
+TOOL_LINTIAN_FULL = "lintian (default)"
+SHORT_NAMES = {TOOL_DEBMAGIC: "debmagic", TOOL_LINTIAN_TAGS: "lintian/tags", TOOL_LINTIAN_FULL: "lintian/default"}
+ARCHIVE_URL = "https://deb.debian.org/debian"
+UDD_HOST = "udd-mirror.debian.net"
+# Public, read-only credentials published at https://udd-mirror.debian.net/.
+UDD_USER = "udd-mirror"
+UDD_PASSWORD = "udd-mirror"
+
+# lintian tag types that are visible output, versus ones lintian hides on purpose.
+VISIBLE_TYPES = frozenset({"error", "warning", "information", "pedantic", "experimental"})
+SUPPRESSED_TYPES = frozenset({"overridden", "masked"})
+# `classification` hints are lintian bookkeeping, not diagnostics (ADR 0019).
+SEVERITY_LETTER = {"E": "error", "W": "warning", "I": "information", "P": "pedantic"}
+
+DIAGNOSTIC_LINE = re.compile(
+    r"^(?P<sev>[EWIP]): (?P<pkg>\S+) \((?P<kind>source|binary)\): (?P<tag>\S+) "
+    r"\((?P<code>[A-Z]{2}\d{4})\)(?: (?P<context>.*))?$"
+)
+FINISHED_LINE = re.compile(r"^Finished in ", re.MULTILINE)
+SAFE_LITERAL = re.compile(r"^[A-Za-z0-9.+:~_-]+$")
+
+
+@dataclass(frozen=True)
+class ArchiveFile:
+    name: str
+    size: int
+    sha256: str
+    url: str
+
+
+@dataclass
+class SourceEntry:
+    source: str
+    version: str
+    component: str
+    files: list[ArchiveFile]
+    binaries: list[BinaryEntry] = field(default_factory=list)
+
+    @property
+    def dsc(self) -> ArchiveFile:
+        return next(f for f in self.files if f.name.endswith(".dsc"))
+
+    @property
+    def total_size(self) -> int:
+        return sum(f.size for f in self.files)
+
+
+@dataclass
+class BinaryEntry:
+    package: str
+    version: str
+    architecture: str
+    file: ArchiveFile
+
+
+@dataclass(frozen=True)
+class OracleRow:
+    package: str  # empty for source-level hints
+    package_version: str
+    architecture: str
+    tag_type: str
+    tag: str
+    information: str
+
+
+@dataclass(frozen=True)
+class Diagnostic:
+    severity: str  # error/warning/information/pedantic
+    package: str
+    kind: str
+    tag: str
+    code: str
+    context: str
+
+
+@dataclass(frozen=True)
+class Metrics:
+    """What one tool run cost: wall seconds, CPU seconds of the whole process tree, peak RSS in MB."""
+
+    wall: float
+    cpu: float
+    rss_mb: float
+
+
+@dataclass
+class Timed:
+    returncode: int
+    output: str
+    metrics: Metrics
+    timed_out: bool = False
+
+
+@dataclass
+class RunResult:
+    diagnostics: list[Diagnostic]
+    ok: bool
+    metrics: Metrics
+    error: str = ""
+
+
+@dataclass(frozen=True)
+class SubjectKey:
+    kind: str  # source | binary
+    name: str
+    version: str
+    architecture: str = ""
+
+    def label(self) -> str:
+        arch = f":{self.architecture}" if self.architecture else ""
+        return f"{self.kind} {self.name}{arch} {self.version}"
+
+
+def sql_literal(value: str) -> str:
+    """Quote a package name, version or release for SQL. Archive identifiers only; anything else is a bug."""
+    if not SAFE_LITERAL.match(value):
+        raise ValueError(f"refusing to put {value!r} into a query")
+    return f"'{value}'"
+
+
+def udd_query(sql: str) -> list[dict[str, str]]:
+    env = {**os.environ, "PGPASSWORD": UDD_PASSWORD, "PGCONNECT_TIMEOUT": "30"}
+    try:
+        proc = subprocess.run(
+            ["psql", "-h", UDD_HOST, "-U", UDD_USER, "-d", "udd", "-X", "-q", "--csv", "-c", sql],
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=600,
+            check=False,
+        )
+    except FileNotFoundError:
+        sys.exit("psql not found: install postgresql-client (the UDD mirror is a public Postgres database)")
+    if proc.returncode != 0:
+        sys.exit(f"UDD query failed:\n{proc.stderr.strip()}\n--\n{sql}")
+    return list(csv.DictReader(io.StringIO(proc.stdout)))
+
+
+def pool_dir(component: str, source: str) -> str:
+    prefix = source[:4] if source.startswith("lib") else source[:1]
+    return f"{ARCHIVE_URL}/pool/{component}/{prefix}/{source}"
+
+
+def parse_checksums(sha256_field: str, base_url: str) -> list[ArchiveFile]:
+    files = []
+    for line in sha256_field.splitlines():
+        parts = line.split()
+        if len(parts) == 3:
+            files.append(ArchiveFile(name=parts[2], size=int(parts[1]), sha256=parts[0], url=f"{base_url}/{parts[2]}"))
+    return files
+
+
+def chunks[T](items: list[T], size: int) -> list[list[T]]:
+    return [items[i : i + size] for i in range(0, len(items), size)]
+
+
+def names_filter(names: list[str] | tuple[str, ...], negate: bool = False) -> str:
+    listed = ", ".join(sql_literal(n) for n in names)
+    return f"s.source {'not in' if negate else 'in'} ({listed})"
+
+
+def query_sources(release: str, where: list[str], order_limit: str = "") -> list[SourceEntry]:
+    """Source packages of the release that have lintian results for their current version."""
+    conditions = [
+        "s.distribution = 'debian'",
+        f"s.release = {sql_literal(release)}",
+        "exists (select 1 from lintian_results l where l.source = s.source and l.version = s.version)",
+        *where,
+    ]
+    rows = udd_query(
+        "select s.source, s.version, s.component, s.checksums_sha256 from sources s "
+        f"where {' and '.join(conditions)} {order_limit}"
+    )
+    entries = []
+    for row in rows:
+        files = parse_checksums(row["checksums_sha256"], pool_dir(row["component"], row["source"]))
+        if any(f.name.endswith(".dsc") for f in files):
+            entries.append(SourceEntry(row["source"], row["version"], row["component"], files))
+    return entries
+
+
+def drop_oversized(entries: list[SourceEntry], max_mb: int) -> list[SourceEntry]:
+    kept = []
+    for entry in entries:
+        if entry.total_size > max_mb * 1_000_000:
+            print(f"skip {entry.source}: source is {entry.total_size / 1e6:.0f} MB", file=sys.stderr)
+        else:
+            kept.append(entry)
+    return kept
+
+
+def select_sources(args: argparse.Namespace) -> list[SourceEntry]:
+    """The packages to check: `--packages`, else the pinned ones plus the (sampled) pool."""
+    if args.packages:
+        entries = query_sources(args.release, [names_filter(args.packages)])
+        for name in sorted(set(args.packages) - {e.source for e in entries}):
+            print(f"skip {name}: not in {args.release} or no lintian results for its current version", file=sys.stderr)
+        return drop_oversized(entries, args.max_source_mb)
+
+    pinned = query_sources(args.release, [names_filter(DEFAULT_PINNED)])
+    for name in sorted(set(DEFAULT_PINNED) - {e.source for e in pinned}):
+        print(f"skip {name}: not in {args.release} or no lintian results for its current version", file=sys.stderr)
+    where = [names_filter(DEFAULT_PINNED, negate=True)]
+    if args.pool == "key":
+        where.append("s.source in (select source from key_packages)")
+    # Over-fetch when sampling: oversized packages are dropped below. The order is a stable hash of the seed.
+    order_limit = "" if args.all else f"order by md5(s.source || {sql_literal(str(args.seed))}) limit {args.sample * 4}"
+    pool = drop_oversized(query_sources(args.release, where, order_limit), args.max_source_mb)
+    return drop_oversized(pinned, args.max_source_mb) + (pool if args.all else pool[: args.sample])
+
+
+def attach_binaries(entries: list[SourceEntry], args: argparse.Namespace) -> None:
+    archs = ", ".join(sql_literal(a) for a in ["all", *args.arch])
+    by_source = {(e.source, e.version): e for e in entries}
+    for batch in chunks(entries, QUERY_CHUNK):
+        pairs = ", ".join(f"({sql_literal(e.source)}, {sql_literal(e.version)})" for e in batch)
+        rows = udd_query(
+            "select source, source_version, package, version, architecture, filename, size, sha256 from packages "
+            f"where distribution = 'debian' and release = {sql_literal(args.release)} "
+            f"and (source, source_version) in ({pairs}) and architecture in ({archs}) and filename like '%.deb'"
+        )
+        for row in rows:
+            deb = ArchiveFile(
+                name=Path(row["filename"]).name,
+                size=int(row["size"]),
+                sha256=row["sha256"],
+                url=f"{ARCHIVE_URL}/{row['filename']}",
+            )
+            if deb.size > args.max_deb_mb * 1_000_000:
+                print(f"skip {row['package']}: .deb is {deb.size / 1e6:.0f} MB", file=sys.stderr)
+                continue
+            binary = BinaryEntry(row["package"], row["version"], row["architecture"], deb)
+            by_source[(row["source"], row["source_version"])].binaries.append(binary)
+
+
+def load_oracle(entries: list[SourceEntry], work_dir: Path, refresh: bool) -> dict[tuple[str, str], list[OracleRow]]:
+    """Oracle rows per (source, version), snapshotted under the work dir so a run can be redone offline."""
+    snapshot_dir = work_dir / "oracle"
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    oracle: dict[tuple[str, str], list[OracleRow]] = {}
+    missing = []
+    for entry in entries:
+        path = snapshot_dir / f"{entry.source}_{entry.version.replace(':', '%3a')}.json"
+        if path.exists() and not refresh:
+            oracle[(entry.source, entry.version)] = [OracleRow(**row) for row in json.loads(path.read_text())["rows"]]
+        else:
+            missing.append(entry)
+    for batch in chunks(missing, QUERY_CHUNK):
+        pairs = ", ".join(f"({sql_literal(e.source)}, {sql_literal(e.version)})" for e in batch)
+        rows = udd_query(
+            "select source, version, lintian_version, package, package_version, architecture, tag_type, tag, "
+            f"information from lintian_results where (source, version) in ({pairs}) and tag_type <> 'classification'"
+        )
+        grouped: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
+        for row in rows:
+            grouped[(row["source"], row["version"])].append(row)
+        for entry in batch:
+            raw = grouped.get((entry.source, entry.version), [])
+            parsed = [
+                OracleRow(
+                    r["package"], r["package_version"], r["architecture"], r["tag_type"], r["tag"], r["information"]
+                )
+                for r in raw
+            ]
+            versions = sorted({r["lintian_version"] for r in raw})
+            path = snapshot_dir / f"{entry.source}_{entry.version.replace(':', '%3a')}.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "fetched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                        "lintian": versions,
+                        "rows": [asdict(r) for r in parsed],
+                    }
+                )
+            )
+            oracle[(entry.source, entry.version)] = parsed
+    return oracle
+
+
+def oracle_lintian_versions(entries: list[SourceEntry], work_dir: Path) -> list[str]:
+    versions: set[str] = set()
+    for entry in entries:
+        path = work_dir / "oracle" / f"{entry.source}_{entry.version.replace(':', '%3a')}.json"
+        if path.exists():
+            versions.update(json.loads(path.read_text()).get("lintian", []))
+    return sorted(versions)
+
+
+def sha256_of(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def fetch(file: ArchiveFile, directory: Path) -> Path:
+    directory.mkdir(parents=True, exist_ok=True)
+    dest = directory / file.name
+    if dest.exists() and sha256_of(dest) == file.sha256:
+        return dest
+    part = dest.with_suffix(dest.suffix + ".part")
+    request = urllib.request.Request(file.url, headers={"User-Agent": "debmagic-lint-ecosystem"})
+    with urllib.request.urlopen(request, timeout=120) as response, part.open("wb") as out:
+        while chunk := response.read(1 << 20):
+            out.write(chunk)
+    if sha256_of(part) != file.sha256:
+        part.unlink()
+        raise RuntimeError(f"sha256 mismatch for {file.url}")
+    part.replace(dest)
+    return dest
+
+
+def subject_dir(work_dir: Path, entry: SourceEntry) -> Path:
+    return work_dir / "archive" / f"{entry.source}_{entry.version.replace(':', '%3a')}"
+
+
+def download_entry(entry: SourceEntry, work_dir: Path) -> dict[Path, str]:
+    """Fetch the source files and every `.deb` of one source package; returns failures by path."""
+    directory = subject_dir(work_dir, entry)
+    failures: dict[Path, str] = {}
+    for file in [*entry.files, *(b.file for b in entry.binaries)]:
+        try:
+            fetch(file, directory)
+        except Exception as error:
+            failures[directory / file.name] = str(error)
+    return failures
+
+
+def start_downloads(
+    entries: list[SourceEntry], work_dir: Path, workers: int
+) -> tuple[ThreadPoolExecutor, dict[str, Future[dict[Path, str]]]]:
+    """Download in the background, so linting the first package does not wait for the last one."""
+    pool = ThreadPoolExecutor(max_workers=workers)
+    return pool, {e.source: pool.submit(download_entry, e, work_dir) for e in entries}
+
+
+# --- running debmagic ---------------------------------------------------------------------------
+
+
+def parse_diagnostics(output: str) -> list[Diagnostic]:
+    diagnostics = []
+    for line in output.splitlines():
+        match = DIAGNOSTIC_LINE.match(line)
+        if match:
+            diagnostics.append(
+                Diagnostic(
+                    severity=SEVERITY_LETTER[match["sev"]],
+                    package=match["pkg"],
+                    kind=match["kind"],
+                    tag=match["tag"],
+                    code=match["code"],
+                    context=(match["context"] or "").strip(),
+                )
+            )
+    return diagnostics
+
+
+def timed_run(cmd: list[str], timeout: float) -> Timed:
+    """Run a command, merging stderr into stdout, and measure the whole process tree with `wait4`."""
+    with tempfile.TemporaryFile() as sink:
+        started = time.monotonic()
+        proc = subprocess.Popen(
+            cmd, stdout=sink, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True
+        )
+        timed_out = threading.Event()
+
+        def kill() -> None:
+            timed_out.set()
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+
+        # Blocking in wait4 (no polling) keeps the wall time free of sleep granularity.
+        timer = threading.Timer(timeout, kill)
+        timer.start()
+        try:
+            _, status, usage = os.wait4(proc.pid, 0)
+            wall = time.monotonic() - started
+        finally:
+            timer.cancel()
+        proc.returncode = os.waitstatus_to_exitcode(status)
+        sink.seek(0)
+        output = sink.read().decode(errors="replace")
+    metrics = Metrics(wall, usage.ru_utime + usage.ru_stime, usage.ru_maxrss / 1024)  # ru_maxrss is KiB on Linux
+    return Timed(proc.returncode, output, metrics, timed_out.is_set())
+
+
+def run_debmagic(debmagic: Path, subject: Path, lint_args: list[str], timeout: int) -> RunResult:
+    run = timed_run([str(debmagic), "lint", "--color", "never", *lint_args, str(subject)], timeout)
+    if run.timed_out:
+        return RunResult([], False, run.metrics, f"timed out after {timeout}s")
+    # Exit 1 means "found errors" as well as "crashed" (ADR 0011); only the closing summary tells them apart.
+    if not FINISHED_LINE.search(run.output):
+        return RunResult([], False, run.metrics, run.output.strip()[-600:] or f"exit {run.returncode}, no output")
+    return RunResult(parse_diagnostics(run.output), True, run.metrics)
+
+
+def lintian_command(subject: Path, tags_file: Path | None) -> list[str]:
+    # --no-cfg: ignore the user's and system's lintianrc, so every machine runs the same profile.
+    # --fail-on none: lintian exits 2 for an error-level finding by default, which is the same code as a real
+    # failure; with it off, any non-zero exit is a failure.
+    command = ["lintian", "--no-cfg", "--fail-on", "none"]
+    if tags_file is not None:
+        command += ["--tags-from-file", str(tags_file)]
+    return [*command, str(subject)]
+
+
+def run_lintian(subject: Path, tags_file: Path | None, timeout: int) -> tuple[Metrics | None, str]:
+    """Metrics of one lintian run, or (None, why). With `--fail-on none` lintian exits 0 whatever it finds."""
+    run = timed_run(lintian_command(subject, tags_file), timeout)
+    if run.timed_out:
+        return None, f"timed out after {timeout}s"
+    if run.returncode != 0:
+        return None, run.output.strip()[-300:] or f"exit {run.returncode}"
+    return run.metrics, ""
+
+
+def lintian_tag_files(covered: dict[str, dict[str, str]], lintian_data: Path, directory: Path) -> dict[str, Path]:
+    """Per Subject kind, a `--tags-from-file` file with the Tags debmagic implements and this lintian knows.
+
+    An unknown tag name is fatal to lintian, so renamed-away or removed Tags are filtered out.
+    """
+    known = set(parity.load_lintian_tags(lintian_data)) if lintian_data.is_dir() else set()
+    directory.mkdir(parents=True, exist_ok=True)
+    files = {}
+    for kind, tags in covered.items():
+        path = directory / f"tags-{kind}.txt"
+        path.write_text("".join(f"{tag}\n" for tag in sorted(tags) if tag in known))
+        files[kind] = path
+    return files
+
+
+def median_metrics(runs: list[Metrics]) -> Metrics:
+    return Metrics(
+        statistics.median(r.wall for r in runs),
+        statistics.median(r.cpu for r in runs),
+        statistics.median(r.rss_mb for r in runs),
+    )
+
+
+@dataclass
+class TagStats:
+    tag: str
+    code: str = ""
+    match: int = 0
+    missed: int = 0
+    extra: int = 0
+    overridden: int = 0
+    instances_oracle: int = 0
+    instances_debmagic: int = 0
+    instances_matched: int = 0
+    severity_mismatch: Counter[tuple[str, str]] = field(default_factory=Counter)
+    examples: dict[str, list[str]] = field(default_factory=lambda: defaultdict(list))
+
+    def note(self, bucket: str, text: str, limit: int) -> None:
+        if len(self.examples[bucket]) < limit:
+            self.examples[bucket].append(text)
+
+
+@dataclass
+class Uncovered:
+    tag: str
+    tag_type: str
+    subjects: int = 0
+    instances: int = 0
+
+
+@dataclass
+class PerfRecord:
+    """One Subject measured with every enabled tool; only complete records enter the aggregates."""
+
+    label: str
+    kind: str
+    input_mb: float
+    runs: dict[str, Metrics]
+
+
+@dataclass
+class Comparison:
+    stats: dict[str, TagStats] = field(default_factory=dict)
+    uncovered: dict[str, Uncovered] = field(default_factory=dict)
+    subjects: int = 0
+    failures: list[tuple[str, str]] = field(default_factory=list)
+    native_diagnostics: int = 0
+    seconds: float = 0.0
+    perf: list[PerfRecord] = field(default_factory=list)
+    perf_failures: list[tuple[str, str, str]] = field(default_factory=list)
+
+
+def canonical_tags(lintian_data: Path) -> dict[str, str]:
+    """Old tag name -> current name, from the installed lintian's catalogue (empty if unavailable)."""
+    if not lintian_data.is_dir():
+        return {}
+    return {old: tag.tag for tag in parity.load_lintian_tags(lintian_data).values() for old in tag.renamed_from}
+
+
+def covered_tags(root: Path, renames: dict[str, str]) -> dict[str, dict[str, str]]:
+    """Tag -> Rule code for each Subject kind, from the Rust Rule catalogue."""
+    covered: dict[str, dict[str, str]] = {"source": {}, "binary": {}}
+    for rule in parity.parse_rust_rules(root, "LN"):
+        for kind in rule.kinds:
+            covered[kind][renames.get(rule.tag, rule.tag)] = rule.code
+    return covered
+
+
+def subject_oracle(key: SubjectKey, rows: list[OracleRow]) -> list[OracleRow]:
+    if key.kind == "source":
+        return [r for r in rows if not r.package]
+    return [
+        r
+        for r in rows
+        if r.package == key.name and r.package_version == key.version and r.architecture == key.architecture
+    ]
+
+
+def compare_subject(
+    comparison: Comparison,
+    key: SubjectKey,
+    oracle_rows: list[OracleRow],
+    diagnostics: list[Diagnostic],
+    covered: dict[str, str],
+    renames: dict[str, str],
+    example_limit: int,
+) -> None:
+    visible: dict[str, Counter[str]] = defaultdict(Counter)
+    visible_types: dict[str, set[str]] = defaultdict(set)
+    suppressed: set[str] = set()
+    for row in oracle_rows:
+        tag = renames.get(row.tag, row.tag)
+        if row.tag_type in VISIBLE_TYPES:
+            visible[tag][" ".join(row.information.split())] += 1
+            visible_types[tag].add(row.tag_type)
+        elif row.tag_type in SUPPRESSED_TYPES:
+            suppressed.add(tag)
+
+    actual: dict[str, Counter[str]] = defaultdict(Counter)
+    actual_severity: dict[str, set[str]] = defaultdict(set)
+    codes: dict[str, str] = {}
+    for diag in diagnostics:
+        if diag.code.startswith("DM"):
+            comparison.native_diagnostics += 1
+            continue
+        tag = renames.get(diag.tag, diag.tag)
+        actual[tag][" ".join(diag.context.split())] += 1
+        actual_severity[tag].add(diag.severity)
+        codes[tag] = diag.code
+
+    for tag in set(visible) | set(actual) | suppressed:
+        if tag not in covered and tag not in actual:
+            if tag in visible:
+                row = comparison.uncovered.setdefault(tag, Uncovered(tag, "/".join(sorted(visible_types[tag]))))
+                row.subjects += 1
+                row.instances += sum(visible[tag].values())
+            continue
+        stats = comparison.stats.setdefault(tag, TagStats(tag, covered.get(tag, codes.get(tag, ""))))
+        label = key.label()
+        in_oracle, in_actual = tag in visible, tag in actual
+        if in_oracle and in_actual:
+            stats.match += 1
+            both = visible[tag] & actual[tag]
+            stats.instances_oracle += sum(visible[tag].values())
+            stats.instances_debmagic += sum(actual[tag].values())
+            stats.instances_matched += sum(both.values())
+            if visible[tag] != actual[tag]:
+                only_oracle = sorted((visible[tag] - actual[tag]).elements())
+                only_debmagic = sorted((actual[tag] - visible[tag]).elements())
+                stats.note(
+                    "context",
+                    f"{label}: lintian only {only_oracle[:3]}, debmagic only {only_debmagic[:3]}",
+                    example_limit,
+                )
+            if not actual_severity[tag] & visible_types[tag] and "experimental" not in visible_types[tag]:
+                stats.severity_mismatch[
+                    ("/".join(sorted(visible_types[tag])), "/".join(sorted(actual_severity[tag])))
+                ] += 1
+        elif in_oracle:
+            stats.missed += 1
+            stats.instances_oracle += sum(visible[tag].values())
+            stats.note("missed", f"{label}: {sorted(visible[tag].elements())[:3]}", example_limit)
+        elif in_actual and tag in suppressed:
+            stats.overridden += 1
+        elif in_actual:
+            stats.extra += 1
+            stats.instances_debmagic += sum(actual[tag].values())
+            stats.note("extra", f"{label}: {sorted(actual[tag].elements())[:3]}", example_limit)
+
+
+def ratio_stats(values: list[float]) -> dict[str, float]:
+    return {"median": statistics.median(values), "min": min(values), "max": max(values)}
+
+
+def perf_summary(records: list[PerfRecord]) -> dict[str, dict[str, Any]]:
+    """Aggregates per Subject kind and overall, over Subjects that every present tool measured.
+
+    `speedup` is lintian's cost divided by debmagic's: 10 means debmagic needs a tenth of lintian's time.
+    """
+    summary: dict[str, dict[str, Any]] = {}
+    for group in ("source", "binary", "all"):
+        pool = [r for r in records if group in ("all", r.kind)]
+        tools = [
+            t for t in (TOOL_DEBMAGIC, TOOL_LINTIAN_TAGS, TOOL_LINTIAN_FULL) if pool and all(t in r.runs for r in pool)
+        ]
+        if not pool or TOOL_DEBMAGIC not in tools:
+            continue
+        per_tool: dict[str, dict[str, float]] = {}
+        for tool in tools:
+            runs = [r.runs[tool] for r in pool]
+            per_tool[tool] = {
+                "wall_total": sum(m.wall for m in runs),
+                "wall_median": statistics.median(m.wall for m in runs),
+                "cpu_total": sum(m.cpu for m in runs),
+                "rss_median": statistics.median(m.rss_mb for m in runs),
+                "rss_max": max(m.rss_mb for m in runs),
+            }
+        speedups: dict[str, dict[str, object]] = {}
+        for tool in tools:
+            if tool == TOOL_DEBMAGIC:
+                continue
+            ratios = [r.runs[tool].wall / max(r.runs[TOOL_DEBMAGIC].wall, 1e-9) for r in pool]
+            speedups[tool] = {
+                "wall_total": per_tool[tool]["wall_total"] / max(per_tool[TOOL_DEBMAGIC]["wall_total"], 1e-9),
+                "cpu_total": per_tool[tool]["cpu_total"] / max(per_tool[TOOL_DEBMAGIC]["cpu_total"], 1e-9),
+                "per_subject": ratio_stats(ratios),
+            }
+        summary[group] = {"subjects": len(pool), "tools": per_tool, "speedup": speedups}
+    return summary
+
+
+def render_perf(comparison: Comparison, summary: dict[str, dict[str, Any]], worst: int) -> list[str]:
+    if not summary:
+        return []
+    lines = ["", "## Performance: debmagic vs lintian", ""]
+    for group, data in summary.items():
+        lines += [
+            f"### {group} Subjects ({data['subjects']})",
+            "",
+            "| tool | wall total | wall median | CPU total | peak RSS median / max |",
+            "| --- | ---: | ---: | ---: | ---: |",
+        ]
+        tools: dict[str, dict[str, float]] = data["tools"]
+        for tool, m in tools.items():
+            lines.append(
+                f"| {tool} | {m['wall_total']:.1f}s | {m['wall_median']:.2f}s | {m['cpu_total']:.1f}s | "
+                f"{m['rss_median']:.0f} / {m['rss_max']:.0f} MB |"
+            )
+        speedups: dict[str, dict[str, object]] = data["speedup"]
+        lines.append("")
+        for tool, sp in speedups.items():
+            per: dict[str, float] = sp["per_subject"]
+            lines.append(
+                f"- debmagic vs {tool}: {sp['wall_total']:.1f}x less wall time in total, "
+                f"{sp['cpu_total']:.1f}x less CPU; per Subject median {per['median']:.1f}x "
+                f"(range {per['min']:.1f}x to {per['max']:.1f}x)"
+            )
+        lines.append("")
+
+    # The Subjects where debmagic is relatively slowest: where a regression or a missing fast path would hide.
+    reference = TOOL_LINTIAN_TAGS if any(TOOL_LINTIAN_TAGS in r.runs for r in comparison.perf) else TOOL_LINTIAN_FULL
+    complete = [r for r in comparison.perf if TOOL_DEBMAGIC in r.runs and reference in r.runs]
+    ranked = sorted(complete, key=lambda r: r.runs[reference].wall / max(r.runs[TOOL_DEBMAGIC].wall, 1e-9))
+    if ranked:
+        lines += [
+            f"### Subjects where debmagic is relatively slowest (vs {reference})",
+            "",
+            "| Subject | input | debmagic | lintian | speedup |",
+            "| --- | ---: | ---: | ---: | ---: |",
+        ]
+        for r in ranked[:worst]:
+            d, other = r.runs[TOOL_DEBMAGIC], r.runs[reference]
+            lines.append(
+                f"| {r.label} | {r.input_mb:.1f} MB | {d.wall:.2f}s | {other.wall:.2f}s | "
+                f"{other.wall / max(d.wall, 1e-9):.1f}x |"
+            )
+    if comparison.perf_failures:
+        lines += ["", "### Perf runs excluded (tool failed)", ""]
+        lines += [f"- {label} [{tool}]: {message}" for label, tool, message in comparison.perf_failures]
+    return lines
+
+
+def pct(part: int, whole: int) -> str:
+    return "n/a" if whole == 0 else f"{100 * part / whole:.0f}%"
+
+
+def render(comparison: Comparison, meta: dict[str, object], top_uncovered: int, top_slow: int = 5) -> str:
+    lines = ["# debmagic lint ecosystem report", ""]
+    lines += [f"- {key}: {value}" for key, value in meta.items()]
+    stats = sorted(comparison.stats.values(), key=lambda s: (-(s.missed + s.extra), s.tag))
+    total = Counter()
+    for s in stats:
+        total.update(match=s.match, missed=s.missed, extra=s.extra, overridden=s.overridden)
+    lines += [
+        "",
+        f"Subjects compared: {comparison.subjects}; debmagic time {comparison.seconds:.0f}s; "
+        f"native (DM) diagnostics ignored: {comparison.native_diagnostics}",
+        f"Covered Tag x Subject hits: match {total['match']}, missed {total['missed']}, extra {total['extra']}, "
+        f"overridden-by-lintian {total['overridden']}",
+        f"Recall {pct(total['match'], total['match'] + total['missed'])}, "
+        f"precision {pct(total['match'], total['match'] + total['extra'])}",
+        "",
+        "## Covered Tags",
+        "",
+        "| Tag | Code | match | missed | extra | overridden | contexts matched |",
+        "| --- | --- | ---: | ---: | ---: | ---: | --- |",
+    ]
+    for s in stats:
+        lines.append(
+            f"| {s.tag} | {s.code} | {s.match} | {s.missed} | {s.extra} | {s.overridden} | "
+            f"{s.instances_matched}/{s.instances_oracle} (debmagic {s.instances_debmagic}) |"
+        )
+
+    disagreements = [s for s in stats if s.examples or s.severity_mismatch]
+    if disagreements:
+        lines += ["", "## Disagreements", ""]
+        for s in disagreements:
+            lines.append(f"### {s.tag} ({s.code})")
+            for bucket, items in s.examples.items():
+                lines += [f"- {bucket}:"] + [f"  - {item}" for item in items]
+            for (oracle_type, ours), count in s.severity_mismatch.items():
+                lines.append(f"- severity: lintian {oracle_type}, debmagic {ours} ({count} Subjects)")
+
+    ranked = sorted(comparison.uncovered.values(), key=lambda u: (-u.subjects, u.tag))
+    lines += [
+        "",
+        f"## Uncovered Tags (top {top_uncovered} by Subjects carrying them)",
+        "",
+        "| Tag | lintian type | Subjects | hints |",
+        "| --- | --- | ---: | ---: |",
+    ]
+    lines += [f"| {u.tag} | {u.tag_type} | {u.subjects} | {u.instances} |" for u in ranked[:top_uncovered]]
+    lines.append(f"\n{len(ranked)} distinct uncovered Tags in total.")
+
+    lines += render_perf(comparison, perf_summary(comparison.perf), top_slow)
+
+    if comparison.failures:
+        lines += ["", "## debmagic failures (excluded from the numbers above)", ""]
+        lines += [f"- {label}: {message}" for label, message in comparison.failures]
+    return "\n".join(lines) + "\n"
+
+
+def report_json(comparison: Comparison) -> dict[str, Any]:
+    return {
+        "subjects": comparison.subjects,
+        "failures": comparison.failures,
+        "tags": {
+            s.tag: {
+                "code": s.code,
+                "match": s.match,
+                "missed": s.missed,
+                "extra": s.extra,
+                "overridden": s.overridden,
+                "contexts": [s.instances_matched, s.instances_oracle, s.instances_debmagic],
+                "examples": s.examples,
+            }
+            for s in comparison.stats.values()
+        },
+        "uncovered": [asdict(u) for u in comparison.uncovered.values()],
+        "perf": {
+            "summary": perf_summary(comparison.perf),
+            "subjects": [asdict(r) for r in comparison.perf],
+            "failures": comparison.perf_failures,
+        },
+    }
+
+
+# --- driver -------------------------------------------------------------------------------------
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(__doc__ or "").split("\n\n")[0], formatter_class=argparse.RawTextHelpFormatter
+    )
+    choice = parser.add_argument_group(
+        "package selection", f"default: {', '.join(DEFAULT_PINNED)} plus a sample of {DEFAULT_SAMPLE} key packages"
+    )
+    choice.add_argument("--packages", nargs="+", metavar="SOURCE", help="check exactly these source packages")
+    choice.add_argument("--sample", type=int, metavar="N", help=f"sample size from the pool (default {DEFAULT_SAMPLE})")
+    choice.add_argument("--all", action="store_true", help="check the whole pool, not a sample (a long run)")
+    choice.add_argument(
+        "--pool", choices=["key", "archive"], default="key", help="where the sample comes from (default key packages)"
+    )
+    choice.add_argument("--seed", default="0", help="sample seed (default 0)")
+    parser.add_argument("--release", default="sid", help="archive release to take packages from (default sid)")
+    parser.add_argument(
+        "--arch", nargs="+", default=["amd64"], help="binary architectures besides `all` (default amd64)"
+    )
+    parser.add_argument("--kinds", nargs="+", choices=["source", "binary"], default=["source", "binary"])
+    parser.add_argument("--max-source-mb", type=int, default=30, help="skip sources larger than this (default 30)")
+    parser.add_argument("--max-deb-mb", type=int, default=30, help="skip .debs larger than this (default 30)")
+    parser.add_argument("--work-dir", type=Path, default=DEFAULT_WORK_DIR, help="cache and output directory")
+    parser.add_argument("--refresh-oracle", action="store_true", help="re-query UDD instead of using the snapshot")
+    parser.add_argument(
+        "--profile",
+        choices=list(PROFILE_DIRS),
+        default="release",
+        help="cargo profile to build and run (default release: debug timings are not representative)",
+    )
+    parser.add_argument("--debmagic", type=Path, help="debmagic binary (default target/<profile>/debmagic)")
+    parser.add_argument("--no-build", action="store_true", help="do not `cargo build -p debmagic` first")
+    parser.add_argument(
+        "--lint-arg",
+        action="append",
+        default=None,
+        help="extra argument for `debmagic lint`, repeatable (default: --select LN)",
+    )
+    parser.add_argument(
+        "--lintian-data", type=Path, default=parity.DEFAULT_LINTIAN_DATA, help="lintian tag catalogue, for renames"
+    )
+    perf = parser.add_argument_group("performance comparison with lintian")
+    perf.add_argument(
+        "--perf",
+        choices=["off", "tags", "all"],
+        default="all",
+        help="off: skip; tags: lintian restricted to the Tags debmagic implements; all: also lintian's default profile",
+    )
+    perf.add_argument("--perf-repeat", type=int, default=1, metavar="N", help="runs per tool and Subject (median)")
+    perf.add_argument("--lintian-timeout", type=int, default=1800, help="seconds per lintian run")
+    perf.add_argument("--top-slow", type=int, default=5, help="Subjects listed where debmagic is relatively slowest")
+    parser.add_argument("--timeout", type=int, default=300, help="seconds per debmagic run")
+    parser.add_argument("--workers", type=int, default=4, help="parallel downloads")
+    parser.add_argument("--examples", type=int, default=3, help="disagreement examples per Tag and kind")
+    parser.add_argument("--top-uncovered", type=int, default=20)
+    parser.add_argument("--fail-on-diff", action="store_true", help="exit 1 when any covered Tag is missed or extra")
+    args = parser.parse_args(argv)
+    if args.packages and (args.all or args.sample is not None):
+        parser.error("--packages replaces the default set; it cannot be combined with --all or --sample")
+    if args.all and args.sample is not None:
+        parser.error("--all and --sample are alternatives")
+    if args.sample is None:
+        args.sample = DEFAULT_SAMPLE
+    return args
+
+
+def print_plan(entries: list[SourceEntry], kinds: list[str]) -> None:
+    subjects = (len(entries) if "source" in kinds else 0) + sum(len(e.binaries) for e in entries)
+    megabytes = sum(e.total_size + sum(b.file.size for b in e.binaries) for e in entries) / 1e6
+    print(
+        f"{len(entries)} source packages, {subjects} Subjects, {megabytes:.0f} MB in the archive "
+        "(cached files are reused)",
+        file=sys.stderr,
+    )
+
+
+def measure_perf(
+    args: argparse.Namespace,
+    debmagic: Path,
+    lint_args: list[str],
+    key: SubjectKey,
+    path: Path,
+    first: RunResult,
+    tag_files: dict[str, Path],
+    input_mb: float,
+    comparison: Comparison,
+) -> str:
+    """Time lintian on the Subject (and debmagic again when repeating); returns a short progress note."""
+    label = key.label()
+    debmagic_runs = [first.metrics]
+    for _ in range(args.perf_repeat - 1):
+        again = run_debmagic(debmagic, path, lint_args, args.timeout)
+        if again.ok:
+            debmagic_runs.append(again.metrics)
+    runs = {TOOL_DEBMAGIC: median_metrics(debmagic_runs)}
+    variants: list[tuple[str, Path | None]] = [(TOOL_LINTIAN_TAGS, tag_files[key.kind])]
+    if args.perf == "all":
+        variants.append((TOOL_LINTIAN_FULL, None))
+    for tool, tags_file in variants:
+        collected: list[Metrics] = []
+        for _ in range(args.perf_repeat):
+            metrics, why = run_lintian(path, tags_file, args.lintian_timeout)
+            if metrics is None:
+                comparison.perf_failures.append((label, tool, why))
+                break
+            collected.append(metrics)
+        else:
+            runs[tool] = median_metrics(collected)
+    if len(runs) == len(variants) + 1:
+        comparison.perf.append(PerfRecord(label, key.kind, input_mb, runs))
+    return ", ".join(f"{SHORT_NAMES[tool]} {m.wall:.2f}s" for tool, m in runs.items())
+
+
+def subjects_of(entry: SourceEntry, kinds: list[str], work_dir: Path) -> list[tuple[SubjectKey, Path, float]]:
+    """The Subjects of a source package: (key, file to lint, input size in MB)."""
+    directory = subject_dir(work_dir, entry)
+    subjects: list[tuple[SubjectKey, Path, float]] = []
+    if "source" in kinds:
+        subjects.append(
+            (SubjectKey("source", entry.source, entry.version), directory / entry.dsc.name, entry.total_size / 1e6)
+        )
+    subjects += [
+        (SubjectKey("binary", b.package, b.version, b.architecture), directory / b.file.name, b.file.size / 1e6)
+        for b in entry.binaries
+    ]
+    return subjects
+
+
+def write_report(
+    args: argparse.Namespace, comparison: Comparison, entries: list[SourceEntry], debmagic: Path, lint_args: list[str]
+) -> str:
+    meta: dict[str, object] = {
+        "release": args.release,
+        "lintian (oracle)": ", ".join(oracle_lintian_versions(entries, args.work_dir)) or "unknown",
+        "oracle": f"UDD lintian_results via {UDD_HOST} (what tracker.debian.org links to)",
+        "debmagic lint args": " ".join(lint_args),
+        "debmagic binary": f"{debmagic} ({args.profile} profile)",
+        "source packages": ", ".join(e.source for e in entries) if len(entries) <= 40 else len(entries),
+    }
+    if args.perf != "off":
+        installed = subprocess.run(["lintian", "--version"], capture_output=True, text=True, check=False).stdout.strip()
+        meta["perf"] = f"{args.perf}, {args.perf_repeat} run(s) per tool, {os.cpu_count()} CPUs, {installed}"
+        if args.profile == "debug":
+            meta["perf warning"] = "debug build: debmagic timings are not representative"
+    args.work_dir.mkdir(parents=True, exist_ok=True)
+    (args.work_dir / "report.json").write_text(json.dumps(report_json(comparison), indent=2))
+    text = render(comparison, meta, args.top_uncovered, args.top_slow)
+    (args.work_dir / "report.md").write_text(text)
+    return text
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    perf_on = args.perf != "off"
+    if not args.no_build:
+        cargo = ["cargo", "build", "-q", "-p", "debmagic", *(["--release"] if args.profile == "release" else [])]
+        subprocess.run(cargo, cwd=ROOT, check=True)
+    debmagic = args.debmagic or ROOT / "target" / PROFILE_DIRS[args.profile] / "debmagic"
+    if not debmagic.exists():
+        sys.exit(f"{debmagic} not found; build it or pass --debmagic")
+    if perf_on and shutil.which("lintian") is None:
+        sys.exit("lintian not found: install it, or pass --perf off")
+    lint_args = args.lint_arg if args.lint_arg is not None else ["--select", "LN"]
+
+    entries = select_sources(args)
+    if "binary" in args.kinds:
+        attach_binaries(entries, args)
+    print_plan(entries, args.kinds)
+    oracle = load_oracle(entries, args.work_dir, args.refresh_oracle)
+    downloads, pending = start_downloads(entries, args.work_dir, args.workers)
+
+    renames = canonical_tags(args.lintian_data)
+    covered = covered_tags(ROOT, renames)
+    tag_files = lintian_tag_files(covered, args.lintian_data, args.work_dir / "perf") if perf_on else {}
+    comparison = Comparison()
+    for entry in entries:
+        failures = pending[entry.source].result()
+        rows = oracle[(entry.source, entry.version)]
+        for key, path, input_mb in subjects_of(entry, args.kinds, args.work_dir):
+            if path in failures:
+                comparison.failures.append((key.label(), f"download: {failures[path]}"))
+                continue
+            result = run_debmagic(debmagic, path, lint_args, args.timeout)
+            comparison.seconds += result.metrics.wall
+            if not result.ok:
+                comparison.failures.append((key.label(), result.error))
+                continue
+            comparison.subjects += 1
+            subject_rows = subject_oracle(key, rows)
+            compare_subject(
+                comparison, key, subject_rows, result.diagnostics, covered[key.kind], renames, args.examples
+            )
+            note = f"debmagic {result.metrics.wall:.2f}s"
+            if perf_on:
+                note = measure_perf(args, debmagic, lint_args, key, path, result, tag_files, input_mb, comparison)
+            print(f"  {key.label()}: {len(result.diagnostics)} diagnostics, {note}", file=sys.stderr)
+    downloads.shutdown()
+
+    text = write_report(args, comparison, entries, debmagic, lint_args)
+    print(text)
+    print(f"written to {args.work_dir}/report.md and report.json", file=sys.stderr)
+    differs = any(s.missed or s.extra for s in comparison.stats.values())
+    return 1 if args.fail_on_diff and differs else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

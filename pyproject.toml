@@ -54,6 +54,9 @@ pylint.max-args = 10
 [tool.ty.src]
 exclude = ["packages/debmagic/tests/"]
 
+[tool.ty.environment]
+extra-paths = ["scripts"]
+
 [tool.pytest]
 testpaths = ["tests"]
 addopts = ["--ignore=tests/integration/packages"]

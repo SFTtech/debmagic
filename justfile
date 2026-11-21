@@ -53,6 +53,10 @@ manpage:
 lint-parity *args:
     python3 scripts/lint_parity_report.py {{ args }}
 
+# Ecosystem test (prototype, needs network + psql): lint samba + key packages from the archive, diff against the lintian results UDD/tracker report, and compare speed with lintian. e.g. `--sample 100`, `--all`, `--packages hello dgit`, `--perf off`
+lint-ecosystem *args:
+    uv run scripts/lint_ecosystem.py {{ args }}
+
 # Build the debmagic snap
 snap:
     snapcraft pack

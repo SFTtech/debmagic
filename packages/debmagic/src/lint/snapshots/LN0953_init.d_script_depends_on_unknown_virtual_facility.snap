@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): init.d-script-depends-on-unknown-virtual-facility (LN0953) $something_that_doesnt_exist [etc/init.d/foo]
+E: example (binary): init.d-script-depends-on-unknown-virtual-facility (LN0953) $bogus [etc/init.d/foo]
+E: example (binary): init.d-script-depends-on-unknown-virtual-facility (LN0953) $bogus [etc/init.d/foo]
+E: example (binary): init.d-script-depends-on-unknown-virtual-facility (LN0953) $other [etc/init.d/foo]
+E: example (udeb): init.d-script-depends-on-unknown-virtual-facility (LN0953) $bogus [etc/init.d/foo]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): privacy-breach-w3c-valid-html (LN1084) (http://www.w3.org/icons/valid-xhtml10) [usr/share/example/a.html]
+E: example (binary): privacy-breach-w3c-valid-html (LN1084) (http://validator.w3.org/check?uri=referer) [usr/share/example/b.html]
+E: example (binary): privacy-breach-w3c-valid-html (LN1084) (//www.w3.org/css-validator/images/vcss) [usr/share/example/c.html]

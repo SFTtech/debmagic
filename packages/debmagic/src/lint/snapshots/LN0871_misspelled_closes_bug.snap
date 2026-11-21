@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): misspelled-closes-bug (LN0871) Close: #666666 [usr/share/doc/example/changelog.Debian.gz:1]
+W: example (binary): misspelled-closes-bug (LN0871) close:   #123456 [usr/share/doc/example/changelog:1]
+W: example (binary): misspelled-closes-bug (LN0871) CLOSE:	#7 [usr/share/doc/example/changelog.gz:1]

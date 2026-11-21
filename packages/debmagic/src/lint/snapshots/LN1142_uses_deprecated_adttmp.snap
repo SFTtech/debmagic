@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): uses-deprecated-adttmp (LN1142) [debian/tests/run-unit-test:3]
+W: example (source): uses-deprecated-adttmp (LN1142) [debian/tests/one:1]
+W: example (source): uses-deprecated-adttmp (LN1142) [debian/tests/one:2]
+W: example (source): uses-deprecated-adttmp (LN1142) [tests/three:1]
+W: example (source): uses-deprecated-adttmp (LN1142) [debian/tests/run-unit-test:1]
+W: example (source): uses-deprecated-adttmp (LN1142) [run-unit-test:1]

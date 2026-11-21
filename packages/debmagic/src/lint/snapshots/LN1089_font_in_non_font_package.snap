@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example-fonts-data (binary): font-in-non-font-package (LN1089) [usr/share/fonts/truetype/unknown.ttf]
+W: example (binary): font-in-non-font-package (LN1089) [usr/lib/R/site-library-other/unknown.ttf]
+W: example (binary): font-in-non-font-package (LN1089) [usr/share/fonts/truetype/unknown.ttf]
+W: files-fonts (binary): font-in-non-font-package (LN1089) [usr/share/fonts/truetype/unknown.otf]
+W: example (binary): font-in-non-font-package (LN1089) [usr/share/fonts/truetype/UNKNOWN.TTF]
+W: example (binary): font-in-non-font-package (LN1089) [usr/lib/example/unknown.ttf]
+W: example (binary): font-in-non-font-package (LN1089) [usr/share/fonts/truetype/unknown.ttf]
+W: example (udeb): font-in-non-font-package (LN1089) [usr/share/fonts/truetype/unknown.ttf]
+W: example (binary): font-in-non-font-package (LN1089) [usr/share/fonts/truetype/unknown.ttf.gz]
+W: example (binary): font-in-non-font-package (LN1089) [usr/share/fonts/woff/unknown.woff]

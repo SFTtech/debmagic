@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): priority-extra-is-replaced-by-priority-optional (LN1061)
+W: example (udeb): priority-extra-is-replaced-by-priority-optional (LN1061)
+W: foo-dbgsym (binary): priority-extra-is-replaced-by-priority-optional (LN1061)

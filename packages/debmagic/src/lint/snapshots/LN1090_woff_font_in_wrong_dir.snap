@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): woff-font-in-wrong-dir (LN1090) [usr/share/fonts/woff/unknown.woff]
+W: example (binary): woff-font-in-wrong-dir (LN1090) [usr/share/fonts/woff2/unknown.woff2]
+W: example (binary): woff-font-in-wrong-dir (LN1090) [usr/share/fonts-example/unknown.woff]
+W: example (binary): woff-font-in-wrong-dir (LN1090) [usr/share/fonts-example/truetype/unknown.woff2]
+W: example (binary): woff-font-in-wrong-dir (LN1090) [usr/share/fonts/woff/unknown.woff.gz]
+W: example (binary): woff-font-in-wrong-dir (LN1090) [usr/share/Fonts-example/woff/unknown.woff]
+W: example (binary): woff-font-in-wrong-dir (LN1090) [usr/lib/example/unknown.woff]
+W: example (binary): woff-font-in-wrong-dir (LN1090) [usr/share/fonts/woff/unknown.woff]

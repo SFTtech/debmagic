@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 use common::{
     ParityHint, assets_dir, build_native_dsc, missing_upstream_tarball, parse_diagnostic_line,
-    parse_universal_hint_line, run_lint, run_lint_subject, temp_artifact,
+    parse_universal_hint_line, run_lint, run_lint_subject, source_rule_counts, temp_artifact,
 };
 
 #[test]
@@ -30,7 +30,7 @@ fn lint_dummy_hit_prints_diagnostic_and_succeeds() {
         "expected ruff-style summary, stdout: {stdout}"
     );
     assert!(!stdout.contains("All checks passed!"), "stdout: {stdout}");
-    assert_finished(&stdout, 241);
+    assert_finished(&stdout, source_rule_counts().default);
 }
 
 #[test]
@@ -67,7 +67,7 @@ fn lint_dummy_miss_succeeds_without_diagnostic() {
         stdout.contains("All checks passed!"),
         "expected success summary, stdout: {stdout}"
     );
-    assert_finished(&stdout, 241);
+    assert_finished(&stdout, source_rule_counts().default);
 }
 
 #[test]
@@ -84,7 +84,7 @@ fn lint_ignore_excludes_dummy_rule() {
         stdout.contains("All checks passed!"),
         "expected success summary, stdout: {stdout}"
     );
-    assert_finished(&stdout, 240);
+    assert_finished(&stdout, source_rule_counts().default - 1);
 }
 
 #[test]
@@ -101,7 +101,7 @@ fn lint_select_prefix_excludes_dummy_rule() {
         stdout.contains("All checks passed!"),
         "expected success summary, stdout: {stdout}"
     );
-    assert_finished(&stdout, 241);
+    assert_finished(&stdout, source_rule_counts().ln);
 }
 
 #[test]
@@ -135,7 +135,7 @@ fn lint_fail_on_warning_exits_nonzero_but_prints_diagnostic() {
         stdout.contains("Found 1 warning."),
         "expected ruff-style summary, stdout: {stdout}"
     );
-    assert_finished(&stdout, 241);
+    assert_finished(&stdout, source_rule_counts().default);
 }
 
 #[test]

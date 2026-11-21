@@ -138,6 +138,47 @@ fn discover_parity_recipes(root: &Path) -> Vec<PathBuf> {
 }
 
 /// Tags of catalogued LN Rules, read from `src/lint/rules/lintian/`.
+/// How many Rules a lint of a Source tree runs, read from the Rule sources
+/// (one `declare_rule!` per file, ADR 0027) instead of a hand-kept number:
+/// `default` is every non-experimental, default-selected Rule that implements
+/// `SourceRule`; `ln` is every LN Rule that implements it (what `--select LN`
+/// runs, ADR 0014).
+pub struct SourceRuleCounts {
+    pub default: usize,
+    pub ln: usize,
+}
+
+pub fn source_rule_counts() -> SourceRuleCounts {
+    let mut counts = SourceRuleCounts { default: 0, ln: 0 };
+    let mut pending = vec![PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/lint/rules")];
+    while let Some(dir) = pending.pop() {
+        for entry in fs::read_dir(&dir).expect("rules directory").flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                pending.push(path);
+                continue;
+            }
+            let Ok(text) = fs::read_to_string(&path) else {
+                continue;
+            };
+            if !text.contains("impl SourceRule for") || !text.contains("declare_rule!") {
+                continue;
+            }
+            let has = |line: &str| text.lines().any(|candidate| candidate.trim() == line);
+            if has("default_selected = true,") && has("experimental = false,") {
+                counts.default += 1;
+            }
+            if text
+                .lines()
+                .any(|line| line.trim().starts_with("code = \"LN"))
+            {
+                counts.ln += 1;
+            }
+        }
+    }
+    counts
+}
+
 pub fn catalogued_ln_tags() -> HashSet<String> {
     let mut tags = HashSet::new();
     let rules_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/lint/rules/lintian");

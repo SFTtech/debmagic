@@ -5,6 +5,7 @@
 
 mod copyright_text;
 mod dep5;
+mod dep5_scan;
 mod installed_copyright;
 mod ln0009_no_dep5_copyright;
 mod ln0010_no_copyright_file;

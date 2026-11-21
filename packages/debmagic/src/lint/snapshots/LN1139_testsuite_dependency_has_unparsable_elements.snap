@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): testsuite-dependency-has-unparsable-elements (LN1139) "missing a comma" [debian/tests/control:2]
+W: (source): testsuite-dependency-has-unparsable-elements (LN1139) "bar baz" [debian/tests/control:2]
+W: (source): testsuite-dependency-has-unparsable-elements (LN1139) "alpha beta" [debian/tests/control:5]
+W: (source): testsuite-dependency-has-unparsable-elements (LN1139) "zed qux" [debian/tests/control:5]

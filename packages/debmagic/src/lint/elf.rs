@@ -80,6 +80,7 @@ pub struct ElfFacts {
     stack_flags: Option<u32>,
     textrel: bool,
     bind_now: bool,
+    bad_dynamic_table: bool,
     symbols: Vec<ElfSymbol>,
     needed: Vec<String>,
     soname: Vec<String>,
@@ -127,6 +128,9 @@ impl ElfFacts {
                 .map(|stack| stack.p_flags),
             textrel: false,
             bind_now: false,
+            bad_dynamic_table: program_headers.iter().any(|program_header| {
+                program_header.p_type == program_header::PT_DYNAMIC && program_header.p_filesz == 0
+            }),
             symbols: dynamic_symbols(bytes),
             needed: Vec::new(),
             soname: Vec::new(),
@@ -236,6 +240,14 @@ impl ElfFacts {
     /// `FLAGS_1{NOW}`).
     pub fn binds_now(&self) -> bool {
         self.bind_now
+    }
+
+    /// There is a `PT_DYNAMIC` program header, but no dynamic section in the
+    /// file (`p_filesz` is zero, as when the debugging data of a binary was
+    /// split off with `objcopy --only-keep-debug`): `readelf` says "There is
+    /// no dynamic section in this file" and lintian's `BAD-DYNAMIC-TABLE`.
+    pub fn has_bad_dynamic_table(&self) -> bool {
+        self.bad_dynamic_table
     }
 
     /// The dynamic symbols in table order, without the empty-named null
@@ -414,6 +426,8 @@ pub(crate) struct TestElf {
     textrel: bool,
     bind_now: bool,
     flags_1_now: bool,
+    /// `PT_DYNAMIC` with no content in the file, as in a split-off debug file.
+    no_dynamic_content: bool,
     /// Imported dynamic symbols and the version each needs.
     imports: Vec<(String, Option<String>)>,
     /// Point `e_shoff` past the end of the file, as a cut-off ELF does.
@@ -437,6 +451,7 @@ impl TestElf {
             textrel: false,
             bind_now: false,
             flags_1_now: false,
+            no_dynamic_content: false,
             imports: Vec::new(),
             missing_section_headers: false,
         }
@@ -527,6 +542,12 @@ impl TestElf {
         self
     }
 
+    /// A `PT_DYNAMIC` program header whose `p_filesz` is zero.
+    pub fn no_dynamic_content(mut self) -> Self {
+        self.no_dynamic_content = true;
+        self
+    }
+
     /// Imports `name` (an undefined dynamic symbol), needing `version` from
     /// `libc.so.6` when given. Adds a `DT_HASH`, the dynamic symbol table,
     /// and the version sections with their Section headers.
@@ -612,7 +633,7 @@ impl TestElf {
         }
         let libc_name = add_string("libc.so.6");
         let has_symbols = !self.imports.is_empty();
-        let has_dynamic = !dyns.is_empty() || has_symbols;
+        let has_dynamic = !dyns.is_empty() || has_symbols || self.no_dynamic_content;
 
         let phnum = 1
             + usize::from(self.interpreter.is_some())
@@ -703,7 +724,12 @@ impl TestElf {
             program_header(program_header::PT_INTERP, 4, interp_offset, interp.len());
         }
         if has_dynamic {
-            program_header(program_header::PT_DYNAMIC, 6, dynamic_offset, dynamic_size);
+            let size = if self.no_dynamic_content {
+                0
+            } else {
+                dynamic_size
+            };
+            program_header(program_header::PT_DYNAMIC, 6, dynamic_offset, size);
         }
         if self.relro {
             program_header(program_header::PT_GNU_RELRO, 4, 0, 0);
@@ -886,6 +912,19 @@ mod tests {
         .expect("ELF");
         assert_eq!(executable_stack.stack_permissions().as_deref(), Some("rwx"));
         assert!(executable_stack.has_textrel());
+    }
+
+    #[test]
+    fn dynamic_segment_without_content_is_a_bad_dynamic_table() {
+        let good = ElfFacts::from_bytes(&TestElf::shared_object().needed("libc.so.6").build())
+            .expect("ELF");
+        assert!(!good.has_bad_dynamic_table());
+        let none = ElfFacts::from_bytes(&TestElf::executable().build()).expect("ELF");
+        assert!(!none.has_bad_dynamic_table());
+        let split = ElfFacts::from_bytes(&TestElf::shared_object().no_dynamic_content().build())
+            .expect("ELF");
+        assert!(split.has_bad_dynamic_table());
+        assert!(split.needed().is_empty());
     }
 
     #[test]

@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): binary-with-bad-dynamic-table (LN1162) [usr/lib/libfoo.so.dbg]
+E: example (binary): binary-with-bad-dynamic-table (LN1162) [usr/bin/hello.dbg]
+E: example (binary): binary-with-bad-dynamic-table (LN1162) [usr/bin/hello]
+E: example (binary): binary-with-bad-dynamic-table (LN1162) [usr/lib/debugging/x.so]
+E: example (binary): binary-with-bad-dynamic-table (LN1162) [lib/debug/libfoo.so.1]
+E: example (binary): binary-with-bad-dynamic-table (LN1162) [usr/bin/hello.dbg]
+E: example (udeb): binary-with-bad-dynamic-table (LN1162) [usr/lib/libfoo.so.dbg]

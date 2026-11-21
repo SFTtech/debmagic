@@ -4,6 +4,7 @@ mod apt;
 mod archive_liberty;
 mod autotools;
 mod binaries_architecture;
+mod binaries_corrupted;
 mod binaries_debug_symbols_detached;
 mod binaries_hardening;
 mod binaries_location;
@@ -228,6 +229,7 @@ pub(crate) use autotools::{
     AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,
 };
 pub(crate) use binaries_architecture::ArchIndependentPackageContainsBinaryOrObject;
+pub(crate) use binaries_corrupted::BinaryWithBadDynamicTable;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsDirectlyInUsrLibDebug;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsNotDetached;
 pub(crate) use binaries_hardening::HardeningNoBindnow;

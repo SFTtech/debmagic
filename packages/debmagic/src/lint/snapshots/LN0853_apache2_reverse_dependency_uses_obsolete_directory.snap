@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): apache2-reverse-dependency-uses-obsolete-directory (LN0853) [etc/apache2/conf.d/phpmyfoo.conf]
+W: example (binary): apache2-reverse-dependency-uses-obsolete-directory (LN0853) [etc/apache2/conf.d/foo]

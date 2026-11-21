@@ -1010,7 +1010,7 @@ Rules
              Files: *\n\
              Copyright: 2024 Example\n\
              License: Expat\n\
-              Permission is hereby granted.\n",
+             \x20Permission is hereby granted.\n",
         )?;
         let selected = resolve_selected_codes(&["LN".to_string()], &[])?;
         // A Code prefix selects every Rule with that prefix, default-selected

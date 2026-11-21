@@ -6,6 +6,7 @@ use std::sync::{Arc, Mutex, OnceLock, PoisonError};
 use anyhow::anyhow;
 
 use super::binary_package_reader::BinaryPackageReader;
+use super::deb_members::DebMembers;
 use super::debhelper::DebhelperFacts;
 use super::debian_changelog::DebianChangelog;
 use super::debian_control::DebianControl;
@@ -137,6 +138,9 @@ pub(crate) struct BinaryPackageData {
     path: PathBuf,
     package_name: String,
     reader: Option<BinaryPackageReader>,
+    /// Fixture ar members, for Binary packages built without a `.deb`.
+    #[cfg(test)]
+    fixture_deb_members: Option<DebMembers>,
     installation_control: InstallationControl,
     data_files: OnceLock<Result<FileTree, String>>,
     control_files: OnceLock<Result<FileTree, String>>,
@@ -157,6 +161,8 @@ impl BinaryPackageData {
             path,
             package_name,
             reader: Some(reader),
+            #[cfg(test)]
+            fixture_deb_members: None,
             installation_control,
             data_files: OnceLock::new(),
             control_files: OnceLock::new(),
@@ -177,6 +183,8 @@ impl BinaryPackageData {
             path,
             package_name,
             reader: None,
+            #[cfg(test)]
+            fixture_deb_members: None,
             installation_control,
             data_files: cell,
             control_files: OnceLock::new(),
@@ -193,6 +201,23 @@ impl BinaryPackageData {
             control_files: cell,
             ..self
         }
+    }
+
+    /// Fixture ar members. Without them a fixture Binary package has none.
+    #[cfg(test)]
+    pub fn with_deb_members(self, deb_members: DebMembers) -> Self {
+        Self {
+            fixture_deb_members: Some(deb_members),
+            ..self
+        }
+    }
+
+    fn deb_members(&self) -> Option<&DebMembers> {
+        #[cfg(test)]
+        if let Some(members) = &self.fixture_deb_members {
+            return Some(members);
+        }
+        self.reader.as_ref().map(BinaryPackageReader::deb_members)
     }
 
     fn data_files(&self) -> Result<&FileTree, &str> {
@@ -259,6 +284,12 @@ impl<'a> BinaryPackageContext<'a> {
     /// The Binary package is a udeb (`.udeb` file name), not a deb.
     pub fn is_udeb(&self) -> bool {
         processable_type_for_binary(&self.data.path) == ProcessableType::Udeb
+    }
+
+    /// The ar members of the `.deb`, in archive order. `None` for a fixture
+    /// Binary package that has none.
+    pub fn deb_members(&self) -> Option<&DebMembers> {
+        self.data.deb_members()
     }
 
     /// Data files File tree. `None` after a global File tree failure; that

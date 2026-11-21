@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 use super::context::{
     BinaryPackageContext, BinaryPackageData, SourceContext, SourcePackageData, SourceTreeData,
 };
+use super::deb_members::DebMembers;
 use super::diagnostic::Diagnostic;
 use super::dsc::Dsc;
 use super::file_tree::{Entry, EntryKind, FileTree, Owner};
@@ -471,6 +472,7 @@ pub struct BinaryPackageCase {
     package: String,
     fields: Vec<(String, String)>,
     udeb: bool,
+    deb_members: Option<Vec<String>>,
 }
 
 impl BinaryPackageCase {
@@ -492,6 +494,13 @@ impl BinaryPackageCase {
         self
     }
 
+    /// Set the ar members of the `.deb`, in archive order. Without this a case
+    /// has the canonical `debian-binary`, `control.tar.xz`, `data.tar.xz`.
+    pub fn deb_members<S: Into<String>>(mut self, names: impl IntoIterator<Item = S>) -> Self {
+        self.deb_members = Some(names.into_iter().map(Into::into).collect());
+        self
+    }
+
     /// Make the Binary package a udeb.
     pub fn udeb(mut self) -> Self {
         self.udeb = true;
@@ -506,6 +515,9 @@ impl BinaryPackageCase {
         }
         if self.udeb {
             prefix.push_str("udeb: ");
+        }
+        if let Some(members) = &self.deb_members {
+            prefix.push_str(&format!("members {}: ", members.join(" ")));
         }
         for (name, value) in &self.fields {
             prefix.push_str(&format!("{name}={value:?}: "));
@@ -525,6 +537,7 @@ impl From<TestCase> for BinaryPackageCase {
             package: "example".to_string(),
             fields: Vec::new(),
             udeb: false,
+            deb_members: None,
         }
     }
 }
@@ -659,7 +672,11 @@ impl BinaryPackageTester {
             InstallationControl::from_fields(fields),
             case.files.package_file_tree(),
         )
-        .with_control_files(case.control_files.package_file_tree());
+        .with_control_files(case.control_files.package_file_tree())
+        .with_deb_members(match &case.deb_members {
+            Some(names) => DebMembers::from_names(names.iter().map(String::as_str)),
+            None => DebMembers::canonical(),
+        });
         let mut ctx = BinaryPackageContext::bind(&data, self.rule.as_ref());
         self.rule.run(&mut ctx);
         let diagnostics = ctx

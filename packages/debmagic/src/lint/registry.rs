@@ -162,6 +162,7 @@ use super::rules::MenuItemCreatesNewRootSection;
 use super::rules::MenuItemNeedsDwww;
 use super::rules::MenuItemUsesAppsGamesSection;
 use super::rules::MenuItemUsesIconNone;
+use super::rules::MisplacedExtraMemberInDeb;
 use super::rules::MisplacedSystemdTmpfiles;
 use super::rules::MissingBuildDependsForCleanTargetInDebianRules;
 use super::rules::MissingCallToUpdateFonts;
@@ -1705,6 +1706,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnknownTestsuite,
         &UsesDeprecatedAdttmp,
         &VimAddonWithinVimRuntimePath,
+        &MisplacedExtraMemberInDeb,
     ]
 }
 
@@ -2725,6 +2727,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageContainsMimeinfoCacheFile,
         &MisplacedSystemdTmpfiles,
         &VimAddonWithinVimRuntimePath,
+        &MisplacedExtraMemberInDeb,
     ]
 }
 

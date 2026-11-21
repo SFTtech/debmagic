@@ -394,6 +394,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/cron/files-bad-perm-owner",
     "checks/cron/files-foo-violates-expected-naming",
     "checks/cron/legacy-etcfiles",
+    "checks/deb-format/deb-format-extra-member",
+    "checks/deb-format/deb-format-extra-underscore-member-before-control",
+    "checks/deb-format/deb-format-extra-underscore-member-before-data",
     "checks/debian/changelog/changelog-file-empty-entry",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-invalid-date",
@@ -1588,6 +1591,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/cron/files-bad-perm-owner"; "checks_cron_files_bad_perm_owner")]
 #[test_case("checks/cron/files-foo-violates-expected-naming"; "checks_cron_files_foo_violates_expected_naming")]
 #[test_case("checks/cron/legacy-etcfiles"; "checks_cron_legacy_etcfiles")]
+#[test_case("checks/deb-format/deb-format-extra-member"; "checks_deb_format_deb_format_extra_member")]
+#[test_case("checks/deb-format/deb-format-extra-underscore-member-before-control"; "checks_deb_format_deb_format_extra_underscore_member_before_control")]
+#[test_case("checks/deb-format/deb-format-extra-underscore-member-before-data"; "checks_deb_format_deb_format_extra_underscore_member_before_data")]
 #[test_case("checks/debian/changelog/changelog-file-empty-entry"; "checks_debian_changelog_changelog_file_empty_entry")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-invalid-date"; "checks_debian_changelog_changelog_file_invalid_date")]

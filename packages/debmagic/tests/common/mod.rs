@@ -899,6 +899,7 @@ pub fn assert_binary_package_parity(recipe_rel: &str) {
                 .map(|(_, hint)| hint),
         );
     }
+    rewrite_font_package_list(recipe_rel, &mut actual);
     actual.sort();
 
     assert_eq!(
@@ -1376,6 +1377,29 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         actual, expected,
         "Parity mismatch for {recipe_rel} (source package)"
     );
+}
+
+/// `files-fonts`'s lintian `eval/post-test` rewrites the packages listed in
+/// `also in (…)` to `FONT_PACKAGES`, because the archive's font list differs
+/// between runs. The vendored hint keeps that token; the hook is not copied.
+fn rewrite_font_package_list(recipe_rel: &str, hints: &mut [ParityHint]) {
+    if recipe_rel != "checks/fonts/files-fonts" {
+        return;
+    }
+    for hint in hints {
+        if hint.tag != "duplicate-font-file" {
+            continue;
+        }
+        let Some(start) = hint.extra.find("also in (") else {
+            continue;
+        };
+        let Some(relative_end) = hint.extra[start..].find(')') else {
+            continue;
+        };
+        let end = start + relative_end;
+        hint.extra
+            .replace_range(start..=end, "also in (FONT_PACKAGES)");
+    }
 }
 
 /// `testsuite-general`'s lintian `pre-build` makes the named pipe

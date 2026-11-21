@@ -1,0 +1,13 @@
+# Known Testsuite fields in dsc
+
+autopkgtest
+autopkgtest-pkg-dkms
+autopkgtest-pkg-elpa
+autopkgtest-pkg-go
+autopkgtest-pkg-nodejs
+autopkgtest-pkg-octave
+autopkgtest-pkg-perl
+autopkgtest-pkg-pybuild
+autopkgtest-pkg-python
+autopkgtest-pkg-r
+autopkgtest-pkg-ruby

@@ -12,8 +12,6 @@ mod ln0904_missing_file_from_potfiles_in;
 mod ln0905_missing_potfiles_in;
 mod ln0906_missing_templates_pot;
 mod ln0908_not_using_po_debconf;
-mod ln1029_invalid_potfiles_in;
-mod ln1030_newer_debconf_templates;
 mod ln1031_unknown_encoding_in_po_file;
 
 pub(crate) use ln0381_misnamed_po_file::MisnamedPoFile;
@@ -24,6 +22,4 @@ pub(crate) use ln0904_missing_file_from_potfiles_in::MissingFileFromPotfilesIn;
 pub(crate) use ln0905_missing_potfiles_in::MissingPotfilesIn;
 pub(crate) use ln0906_missing_templates_pot::MissingTemplatesPot;
 pub(crate) use ln0908_not_using_po_debconf::NotUsingPoDebconf;
-pub(crate) use ln1029_invalid_potfiles_in::InvalidPotfilesIn;
-pub(crate) use ln1030_newer_debconf_templates::NewerDebconfTemplates;
 pub(crate) use ln1031_unknown_encoding_in_po_file::UnknownEncodingInPoFile;

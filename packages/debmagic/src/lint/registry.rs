@@ -17,19 +17,14 @@ use super::rules::BadPermissionsForEtcCronDScript;
 use super::rules::BadRelation;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
-use super::rules::BinaryFromOtherArchitecture;
 use super::rules::BinaryInEtc;
 use super::rules::BinaryNmuDebianRevisionInSource;
 use super::rules::BinaryPackageDependsOnToolchainPackage;
 use super::rules::BoilerplateCopyrightFormatUri;
 use super::rules::BreaksWithoutVersion;
-use super::rules::BrokenBz2;
 use super::rules::BrokenGz;
-use super::rules::BrokenLz;
 use super::rules::BrokenLzma;
-use super::rules::BrokenLzo;
 use super::rules::BrokenXz;
-use super::rules::BrokenZip;
 use super::rules::BuildDependsArchWithoutArchDependentBinary;
 use super::rules::BuildDependsIndepWithoutArchIndep;
 use super::rules::BuildDependsOnAnObsoleteJavaPackage;
@@ -44,7 +39,6 @@ use super::rules::ChangelogIsSymlink;
 use super::rules::ChangelogNotCompressedWithMaxCompression;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
 use super::rules::ComposerPrerequisite;
-use super::rules::ConcatenatedUpstreamSignatures;
 use super::rules::ConfigDoesNotLoadConfmodule;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::ConflictingNegationInSourceRelation;
@@ -81,7 +75,6 @@ use super::rules::DebianRulesUsesSpecialShellVariable;
 use super::rules::DebianRulesUsesUnnecessaryDhArgument;
 use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
-use super::rules::DebugFileWithNoDebugSymbols;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
 use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
@@ -101,7 +94,6 @@ use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DistantPrerequisiteInShlibs;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
 use super::rules::DocPackageDependsOnMainPackage;
-use super::rules::DoublyArmoredUpstreamSignature;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
 use super::rules::DuplicateOverrideContext;
@@ -120,7 +112,6 @@ use super::rules::ExecutableInUsrShareDocbase;
 use super::rules::ExecutableIsNotWorldReadable;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
-use super::rules::ExplicitlyArmoredUpstreamSignature;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
@@ -136,7 +127,6 @@ use super::rules::GlobbingPatternsOutOfOrder;
 use super::rules::GoLibraryPackageDoesNotIncludeVersion;
 use super::rules::GzipFileIsNotMultiArchSameSafe;
 use super::rules::IllegalMultiArchValue;
-use super::rules::InconsistentAppstreamMetadataLicense;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
@@ -146,7 +136,6 @@ use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
-use super::rules::InvalidPotfilesIn;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::IsdefaultFlagIsDeprecated;
@@ -155,7 +144,6 @@ use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
 use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
-use super::rules::LicenseProblemFontAdobeCopyrightedFragment;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
@@ -190,17 +178,13 @@ use super::rules::MisspelledClosesBug;
 use super::rules::MultiArchSamePackageCallsPycompile;
 use super::rules::MultiArchSamePackageHasArchSpecificOverrides;
 use super::rules::MultilineArchitectureField;
-use super::rules::MultilineField;
 use super::rules::NativeSourceFileWithoutUtf8Name;
 use super::rules::NeedlessDependencyOnJre;
 use super::rules::NewPackageShouldNotPackagePython2Module;
 use super::rules::NewPackageUsesDateBasedVersionNumber;
-use super::rules::NewerDebconfTemplates;
 use super::rules::NmuInChangelog;
-use super::rules::NoCodeSections;
 use super::rules::NoDebianChanges;
 use super::rules::NoShlibs;
-use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
 use super::rules::NonStandardApache2ModulePackageName;
@@ -213,14 +197,12 @@ use super::rules::ObsoleteFieldInDep5Copyright;
 use super::rules::ObsoleteRelationForm;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
-use super::rules::OcamlDanglingCmx;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
-use super::rules::PackageContainsAncientFile;
 use super::rules::PackageContainsCmakePrivateFile;
 use super::rules::PackageContainsInfoDirFile;
 use super::rules::PackageContainsMimeCacheFile;
@@ -249,7 +231,6 @@ use super::rules::PackageNameDefinedInConfigH;
 use super::rules::PackageNameDoesntMatchSonames;
 use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
-use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
@@ -274,10 +255,8 @@ use super::rules::ReadmeSourceIsDhMakeTemplate;
 use super::rules::RedundantBuildPrerequisites;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RelativeConffile;
-use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubygemHomepage;
-use super::rules::RustBoilerplate;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::ScriptUsesPerl4LibsWithoutDep;
 use super::rules::ScriptWithLanguageExtension;
@@ -293,7 +272,6 @@ use super::rules::SourceContainsPrebuiltMsHelpFile;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
-use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::StrippedLibrary;
 use super::rules::SurplusSharedLibrarySymbols;
@@ -327,7 +305,6 @@ use super::rules::UnknownParagraphInDep5Copyright;
 use super::rules::UnknownPriority;
 use super::rules::UnknownTemplateType;
 use super::rules::UnknownTestsuite;
-use super::rules::UnpackMessageForDebData;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
@@ -1608,10 +1585,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageInstallsAptKeyring,
         &PackageInstallsAptPreferences,
         &PackageInstallsAptSources,
-        &SourcePackageComponentHasLongFileName,
         &ArchIndependentPackageContainsBinaryOrObject,
-        &BinaryFromOtherArchitecture,
-        &DebugFileWithNoDebugSymbols,
         &DebugSymbolsDirectlyInUsrLibDebug,
         &DebugSymbolsNotDetached,
         &MissingDependencyOnPhpapi,
@@ -1624,7 +1598,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidProfileNameInBuildProfilesField,
         &VariesContentWithNocheck,
         &DebianControlFileIsASymlink,
-        &InconsistentAppstreamMetadataLicense,
         &SyntaxErrorInDep5Copyright,
         &TabInLicenseText,
         &UnknownParagraphInDep5Copyright,
@@ -1633,8 +1606,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianRulesDefinesDpkgBuildApi,
         &InvalidOverrideRestriction,
         &UnwantedPathTooSpecific,
-        &InvalidPotfilesIn,
-        &NewerDebconfTemplates,
         &UnknownEncodingInPoFile,
         &DistantPrerequisiteInShlibs,
         &EmptyShlibs,
@@ -1653,7 +1624,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ReadmeSourceIsDhMakeTemplate,
         &TooManyArchitectures,
         &UnknownArchitecture,
-        &NoStrongDigestsInDsc,
         &EmptyField,
         &UnknownEssentialValue,
         &UnsupportedSourceFormat,
@@ -1662,7 +1632,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &IllegalMultiArchValue,
         &MultiArchSamePackageHasArchSpecificOverrides,
         &UnknownMultiArchValue,
-        &MultilineField,
         &BadPackageName,
         &PackageNotLowercase,
         &PriorityExtraIsReplacedByPriorityOptional,
@@ -1672,16 +1641,11 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UploaderNameMissing,
         &TripletDirAndArchitectureMismatch,
         &SourceContainsPrebuiltMsHelpFile,
-        &BrokenBz2,
         &BrokenGz,
         &GzipFileIsNotMultiArchSameSafe,
         &PackageContainsTimestampedGzip,
-        &BrokenLz,
         &BrokenLzma,
-        &BrokenLzo,
         &BrokenXz,
-        &BrokenZip,
-        &PackageContainsAncientFile,
         &NonStandardFilePermissionsForEtcInitDScript,
         &PackageInstallsDeprecatedUpstartConfiguration,
         &PackageInstallsIntoEtcRcBoot,
@@ -1695,7 +1659,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DuplicateFontFile,
         &FontInNonFontPackage,
         &WoffFontInWrongDir,
-        &LicenseProblemFontAdobeCopyrightedFragment,
         &TruetypeFontWrongFilename,
         &WindowsDevelFileInPackage,
         &PackageContainsThumbnailsDir,
@@ -1710,11 +1673,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingPrerequisiteForGfortranModule,
         &GoLibraryPackageDoesNotIncludeVersion,
         &PackageInstallsJavaBytecode,
-        &OcamlDanglingCmx,
         &PackageInstallsPacklist,
         &PackageInstallsPerllocalPod,
         &PerlModuleUsesPerl4LibsWithoutDep,
-        &PackageSupersededByPerl,
         &ScriptUsesPerl4LibsWithoutDep,
         &ComposerPrerequisite,
         &PuppetModuleButNotDhPuppet,
@@ -1723,17 +1684,14 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PythonDebugInWrongLocation,
         &PypiHomepage,
         &RPackageNotArchAll,
-        &RequiresRApi,
         &RubyInterpreterIsDeprecated,
         &RubygemHomepage,
         &EmptyRustLibraryDeclaresProvides,
-        &RustBoilerplate,
         &StrippedLibrary,
         &OddPermissionsOnSharedLibrary,
         &SharedLibraryIsExecutable,
         &SharedLibraryIsMultiArchForeign,
         &PackageNameDoesntMatchSonames,
-        &NoCodeSections,
         &UnconditionalUseOfDpkgStatoverride,
         &UdebPostinstCallsLdconfig,
         &PackageContainsMimeinfoCacheFile,
@@ -1746,10 +1704,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TestsuiteRestrictionsHasDeprecatedSkipNotInstallable,
         &UnknownTestsuite,
         &UsesDeprecatedAdttmp,
-        &UnpackMessageForDebData,
-        &ConcatenatedUpstreamSignatures,
-        &DoublyArmoredUpstreamSignature,
-        &ExplicitlyArmoredUpstreamSignature,
         &VimAddonWithinVimRuntimePath,
     ]
 }
@@ -2039,28 +1993,22 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &LibmoduleBuildTinyPerlNeedsToBeInBuildDepends,
         &MissingTestsControl,
         &ObsoleteRuntimeTestsRestriction,
-        &SourcePackageComponentHasLongFileName,
         &SourceContainsWafBinary,
         &MultilineArchitectureField,
         &InvalidProfileNameInBuildProfilesField,
         &VariesContentWithNocheck,
         &DebianControlFileIsASymlink,
-        &InconsistentAppstreamMetadataLicense,
         &SyntaxErrorInDep5Copyright,
         &TabInLicenseText,
         &UnknownParagraphInDep5Copyright,
         &DebianRulesDefinesDpkgBuildApi,
         &UnwantedPathTooSpecific,
-        &InvalidPotfilesIn,
-        &NewerDebconfTemplates,
         &UnknownEncodingInPoFile,
         &PackagePlaceholderInSymbolsFile,
         &ReadmeSourceIsDhMakeTemplate,
-        &NoStrongDigestsInDsc,
         &UnsupportedSourceFormat,
         &WrongTeam,
         &MultiArchSamePackageHasArchSpecificOverrides,
-        &MultilineField,
         &UploaderNameMissing,
         &SourceContainsPrebuiltMsHelpFile,
         &SourceContainsPrebuiltSilverlightObject,
@@ -2069,7 +2017,6 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PuppetModuleButNotDhPuppet,
         &PypiHomepage,
         &RubygemHomepage,
-        &RustBoilerplate,
         &EmptyUpstreamSources,
         &PackageDependsOnHardcodedLibc,
         &DependsOnMiscPreDepends,
@@ -2078,9 +2025,6 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &TestsuiteRestrictionsHasDeprecatedSkipNotInstallable,
         &UnknownTestsuite,
         &UsesDeprecatedAdttmp,
-        &ConcatenatedUpstreamSignatures,
-        &DoublyArmoredUpstreamSignature,
-        &ExplicitlyArmoredUpstreamSignature,
     ]
 }
 
@@ -2694,8 +2638,6 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageInstallsAptPreferences,
         &PackageInstallsAptSources,
         &ArchIndependentPackageContainsBinaryOrObject,
-        &BinaryFromOtherArchitecture,
-        &DebugFileWithNoDebugSymbols,
         &DebugSymbolsDirectlyInUsrLibDebug,
         &DebugSymbolsNotDetached,
         &MissingDependencyOnPhpapi,
@@ -2733,16 +2675,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &WrongSectionForUdeb,
         &SourceFieldMalformed,
         &TripletDirAndArchitectureMismatch,
-        &BrokenBz2,
         &BrokenGz,
         &GzipFileIsNotMultiArchSameSafe,
         &PackageContainsTimestampedGzip,
-        &BrokenLz,
         &BrokenLzma,
-        &BrokenLzo,
         &BrokenXz,
-        &BrokenZip,
-        &PackageContainsAncientFile,
         &NonStandardFilePermissionsForEtcInitDScript,
         &PackageInstallsDeprecatedUpstartConfiguration,
         &PackageInstallsIntoEtcRcBoot,
@@ -2755,7 +2692,6 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DuplicateFontFile,
         &FontInNonFontPackage,
         &WoffFontInWrongDir,
-        &LicenseProblemFontAdobeCopyrightedFragment,
         &TruetypeFontWrongFilename,
         &WindowsDevelFileInPackage,
         &PackageContainsThumbnailsDir,
@@ -2769,17 +2705,14 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &GfortranModuleDoesNotDeclareVersion,
         &MissingPrerequisiteForGfortranModule,
         &PackageInstallsJavaBytecode,
-        &OcamlDanglingCmx,
         &PackageInstallsPacklist,
         &PackageInstallsPerllocalPod,
         &PerlModuleUsesPerl4LibsWithoutDep,
-        &PackageSupersededByPerl,
         &ScriptUsesPerl4LibsWithoutDep,
         &PackageInstallsPythonEgg,
         &PackageInstallsPythonPycacheDir,
         &PythonDebugInWrongLocation,
         &RPackageNotArchAll,
-        &RequiresRApi,
         &RubyInterpreterIsDeprecated,
         &EmptyRustLibraryDeclaresProvides,
         &StrippedLibrary,
@@ -2787,12 +2720,10 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SharedLibraryIsExecutable,
         &SharedLibraryIsMultiArchForeign,
         &PackageNameDoesntMatchSonames,
-        &NoCodeSections,
         &UnconditionalUseOfDpkgStatoverride,
         &UdebPostinstCallsLdconfig,
         &PackageContainsMimeinfoCacheFile,
         &MisplacedSystemdTmpfiles,
-        &UnpackMessageForDebData,
         &VimAddonWithinVimRuntimePath,
     ]
 }

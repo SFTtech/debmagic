@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bad-permissions-for-etc-cron.d-script (LN0859) 0755 != 0644 [etc/cron.d/foo]
+E: example (binary): bad-permissions-for-etc-cron.d-script (LN0859) 0600 != 0644 [etc/cron.d/foo]
+E: example (binary): bad-permissions-for-etc-cron.d-script (LN0859) 0664 != 0644 [etc/cron.d/foo]
+E: example (binary): bad-permissions-for-etc-cron.d-script (LN0859) 0755 != 0644 [etc/cron.d/foo]
+E: example (binary): bad-permissions-for-etc-cron.d-script (LN0859) 0775 != 0644 [etc/cron.d/sub]
+E: example (udeb): bad-permissions-for-etc-cron.d-script (LN0859) 0755 != 0644 [etc/cron.d/foo]

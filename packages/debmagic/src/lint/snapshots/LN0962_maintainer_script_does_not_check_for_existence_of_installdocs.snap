@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): maintainer-script-does-not-check-for-existence-of-installdocs (LN0962) [postinst:4]
+E: example (binary): maintainer-script-does-not-check-for-existence-of-installdocs (LN0962) [postinst:2]
+E: example (binary): maintainer-script-does-not-check-for-existence-of-installdocs (LN0962) [prerm:2]
+E: example (binary): maintainer-script-does-not-check-for-existence-of-installdocs (LN0962) [postrm:2]

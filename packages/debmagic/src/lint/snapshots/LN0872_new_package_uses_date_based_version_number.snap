@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): new-package-uses-date-based-version-number (LN0872) 20180219-1 (better: 0~20180219-1) [usr/share/doc/example/changelog.Debian.gz:1]
+W: example (binary): new-package-uses-date-based-version-number (LN0872) 20180219-1 (better: 0~20180219-1) [usr/share/doc/example/changelog:1]
+W: example (binary): new-package-uses-date-based-version-number (LN0872) 20180219-1 (better: 0~20180219-1) [usr/share/doc/example/changelog.gz:1]

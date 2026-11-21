@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): incorrect-path-for-interpreter (LN0984) /usr/bin/env perl != /usr/bin/perl [usr/bin/tool]
+W: example (binary): incorrect-path-for-interpreter (LN0984) /usr/bin/env perl != /usr/bin/perl [usr/bin/tool]
+W: example (binary): incorrect-path-for-interpreter (LN0984) /usr/bin/env perl != /usr/bin/perl [usr/share/foo/tool]
+W: example (udeb): incorrect-path-for-interpreter (LN0984) /usr/bin/env perl != /usr/bin/perl [usr/bin/tool]

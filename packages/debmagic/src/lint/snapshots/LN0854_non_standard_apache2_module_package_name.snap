@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libapache2-modfoo (binary): non-standard-apache2-module-package-name (LN0854) libapache2-modfoo != libapache2-mod-foo [usr/lib/apache2/modules/mod_foo.so]
+W: libapache2-mod-foo (binary): non-standard-apache2-module-package-name (LN0854) libapache2-mod-foo != libapache2-mod-foo2 [usr/lib/apache2/modules/mod_foo2.so]
+W: libapache2-mod-foo-2 (binary): non-standard-apache2-module-package-name (LN0854) libapache2-mod-foo-2 != libapache2-mod-foo [usr/lib/apache2/modules/mod_foo.so]

@@ -6,7 +6,14 @@ use crate::lint::rule::BinaryPackageRule;
 pub struct ExecutableIsNotWorldReadable;
 
 declare_rule! {
-    /// TODO: what the Rule reports, in lintian's words, and the cases it skips.
+    /// An executable file that is not readable by everyone.
+    ///
+    /// Walks Data files regular files and hardlinks with any execute bit.
+    /// Reported with the octal mode as the extra when any of the read bits
+    /// `0444` is missing, so `0751` or `4751` are reported. The path is the
+    /// Location. Udebs are checked too. Lintian skips a `root/games`
+    /// executable here when it reports it as `non-standard-game-executable-perm`;
+    /// Entry has no owner yet, so this Rule reports it here as well.
     ExecutableIsNotWorldReadable,
     code = "LN0942",
     tag = "executable-is-not-world-readable",
@@ -14,25 +21,81 @@ declare_rule! {
     experimental = false,
 }
 
+const WORLD_READABLE: u32 = 0o444;
+
 impl BinaryPackageRule for ExecutableIsNotWorldReadable {
-    fn run(&self, _ctx: &mut BinaryPackageContext<'_>) {
-        // TODO: port lintian's `files/permissions` Check (just lintian-tag executable-is-not-world-readable).
-        // Report with `ctx.diagnostic(Diagnostic::warn(extra).with_location(Location { .. }))`.
-        let _ = (Diagnostic::warn(""), None::<Location>);
+    fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
+        let Some(files) = ctx.data_files() else {
+            return;
+        };
+        let hits: Vec<_> = files
+            .entries()
+            .iter()
+            .filter(|entry| {
+                entry.is_executable_file() && entry.mode() & WORLD_READABLE != WORLD_READABLE
+            })
+            .map(|entry| (entry.path().to_path_buf(), entry.mode()))
+            .collect();
+        for (path, mode) in hits {
+            ctx.diagnostic(
+                Diagnostic::warn(format!("{mode:04o}")).with_location(Location {
+                    path,
+                    line: None,
+                    column: None,
+                }),
+            );
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester};
+    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
 
     use super::*;
 
+    fn tree(files: Vec<(&str, TestFile)>) -> BinaryPackageCase {
+        BinaryPackageCase::from(files)
+    }
+
+    fn script(mode: u32) -> TestFile {
+        TestFile::new("#!/bin/sh\n").mode(mode)
+    }
+
     #[test]
-    fn binary() {
-        // Pass and fail cases; `.test_and_snapshot()` once there are fail cases (`just snap-accept`).
-        let pass = Vec::<BinaryPackageCase>::new();
-        let fail = Vec::<BinaryPackageCase>::new();
-        BinaryPackageTester::new(ExecutableIsNotWorldReadable, pass, fail).test();
+    fn test() {
+        let pass = vec![
+            tree(vec![]),
+            // Readable by everyone.
+            tree(vec![("usr/bin/tool", script(0o755))]),
+            tree(vec![("usr/bin/tool-r", script(0o555))]),
+            // Not executable: other Tags.
+            tree(vec![("usr/share/doc/pkg/README", script(0o600))]),
+            tree(vec![("usr/share/doc/pkg/read-only", script(0o444))]),
+            // Setuid and setgid but readable: other Tags.
+            tree(vec![("usr/bin/suid", script(0o4755))]),
+            tree(vec![("usr/bin/sgid", script(0o2755))]),
+            // Directories and symlinks are not executable files.
+            tree(vec![(
+                "usr/share/doc/pkg",
+                TestFile::directory().mode(0o700),
+            )]),
+            tree(vec![(
+                "usr/bin/link",
+                TestFile::symlink("tool").mode(0o777),
+            )]),
+        ];
+        let fail = vec![
+            // Missing the read bit of group or other.
+            tree(vec![("usr/bin/script-ro", script(0o751))]),
+            tree(vec![("usr/bin/script-no-group-r", script(0o705))]),
+            tree(vec![("usr/bin/script-no-other-r", script(0o750))]),
+            tree(vec![("usr/bin/owner-only", script(0o700))]),
+            // Setuid executable that is not world-readable.
+            tree(vec![("usr/bin/suidperlfoo2", script(0o4751))]),
+            tree(vec![("usr/bin/hard", script(0o700).hardlink())]),
+            tree(vec![("bin/tool", script(0o750))]).udeb(),
+        ];
+        BinaryPackageTester::new(ExecutableIsNotWorldReadable, pass, fail).test_and_snapshot();
     }
 }

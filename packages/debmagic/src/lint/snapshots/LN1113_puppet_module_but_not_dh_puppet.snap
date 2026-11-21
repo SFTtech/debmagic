@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: puppet-module-foo (source): puppet-module-but-not-dh-puppet (LN1113)
+W: puppet-module-foo (source): puppet-module-but-not-dh-puppet (LN1113)
+W: puppet-module-foo (source): puppet-module-but-not-dh-puppet (LN1113)
+W: puppet-module-foo (source): puppet-module-but-not-dh-puppet (LN1113)

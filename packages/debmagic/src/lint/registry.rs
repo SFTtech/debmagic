@@ -85,6 +85,7 @@ use super::rules::DuplicateGlobbingPatterns;
 use super::rules::DuplicateOverrideContext;
 use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
+use super::rules::ElevatedPrivileges;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
 use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExecutableDebhelperFileWithoutBeingExecutable;
@@ -1451,6 +1452,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OmittedSystemdServiceForInitDScript,
         &MissingTestsControl,
         &ObsoleteRuntimeTestsRestriction,
+        &ElevatedPrivileges,
     ]
 }
 
@@ -2344,6 +2346,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InitScriptIsNotAFile,
         &KillModeNone,
         &OmittedSystemdServiceForInitDScript,
+        &ElevatedPrivileges,
     ]
 }
 

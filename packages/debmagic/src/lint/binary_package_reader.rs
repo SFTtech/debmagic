@@ -5,6 +5,7 @@ use std::sync::OnceLock;
 
 use anyhow::{Context, bail};
 
+use super::file_tree::Owner;
 use super::timing;
 
 /// In-process reader for a Binary package. Callers list and read Control files
@@ -23,27 +24,34 @@ struct TarballIndex {
     #[allow(dead_code)]
     members: Vec<PathBuf>,
     files: HashMap<PathBuf, TarFile>,
-    /// Directories, symlinks and hardlinks, in archive order. Symlink targets
-    /// are as stored; hardlink targets are normalized member paths.
+    /// Every member that is not a regular file (directories, symlinks,
+    /// hardlinks, fifos and devices), in archive order. Symlink targets are as
+    /// stored; hardlink targets are normalized member paths.
     links_and_dirs: Vec<(PathBuf, TarMember)>,
 }
 
-/// A regular file member: its bytes and the header's permission bits.
+/// A regular file member: its bytes, the header's permission bits and owner.
 struct TarFile {
     mode: u32,
+    owner: Owner,
     bytes: Vec<u8>,
 }
 
-/// A non-file member and the header's permission bits.
+/// A member that is not a regular file, with the header's permission bits and
+/// owner.
 struct TarMember {
     kind: MemberKind,
     mode: u32,
+    owner: Owner,
 }
 
 enum MemberKind {
     Directory,
     Symlink(PathBuf),
     Hardlink(PathBuf),
+    Fifo,
+    CharDevice,
+    BlockDevice,
 }
 
 impl BinaryPackageReader {
@@ -154,7 +162,9 @@ fn file_tree(index: &TarballIndex) -> super::file_tree::FileTree {
     for (path, file) in &index.files {
         let file_type = FileType::from_bytes(&file.bytes);
         entries.push(
-            Entry::regular_file(path, file_type, Some(file.bytes.clone())).with_mode(file.mode),
+            Entry::regular_file(path, file_type, Some(file.bytes.clone()))
+                .with_mode(file.mode)
+                .with_owner(file.owner.clone()),
         );
     }
     for (path, member) in &index.links_and_dirs {
@@ -166,8 +176,15 @@ fn file_tree(index: &TarballIndex) -> super::file_tree::FileTree {
                 let file_type = content.as_deref().and_then(FileType::from_bytes);
                 Entry::hardlink(path, file_type, content).with_hardlink_target(target)
             }
+            MemberKind::Fifo => Entry::fifo(path),
+            MemberKind::CharDevice => Entry::char_device(path),
+            MemberKind::BlockDevice => Entry::block_device(path),
         };
-        entries.push(entry.with_mode(member.mode));
+        entries.push(
+            entry
+                .with_mode(member.mode)
+                .with_owner(member.owner.clone()),
+        );
     }
     FileTree::from_entries(None, entries)
 }
@@ -222,11 +239,16 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
             .header()
             .mode()
             .with_context(|| format!("{} has no valid mode", normalized.display()))?;
-        let member = |kind| TarMember { kind, mode };
+        let owner = header_owner(entry.header());
+        let member = |kind| TarMember {
+            kind,
+            mode,
+            owner: owner.clone(),
+        };
         if entry_type.is_file() {
             let mut bytes = Vec::new();
             entry.read_to_end(&mut bytes)?;
-            files.insert(normalized, TarFile { mode, bytes });
+            files.insert(normalized, TarFile { mode, owner, bytes });
         } else if entry_type.is_dir() {
             links_and_dirs.push((normalized, member(MemberKind::Directory)));
         } else if entry_type.is_symlink() {
@@ -243,6 +265,12 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
                 continue;
             };
             links_and_dirs.push((normalized, member(MemberKind::Hardlink(target))));
+        } else if entry_type.is_fifo() {
+            links_and_dirs.push((normalized, member(MemberKind::Fifo)));
+        } else if entry_type.is_character_special() {
+            links_and_dirs.push((normalized, member(MemberKind::CharDevice)));
+        } else if entry_type.is_block_special() {
+            links_and_dirs.push((normalized, member(MemberKind::BlockDevice)));
         }
     }
     Ok(TarballIndex {
@@ -250,6 +278,18 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
         files,
         links_and_dirs,
     })
+}
+
+/// The header's numeric ids and, when it has them, user and group names. An id
+/// field that is blank or not a number reads as `0`, lintian's default.
+fn header_owner(header: &tar::Header) -> Owner {
+    let name = |bytes: Option<&[u8]>| bytes.map(|name| String::from_utf8_lossy(name).into_owned());
+    Owner::new(
+        header.uid().unwrap_or(0),
+        header.gid().unwrap_or(0),
+        name(header.username_bytes()),
+        name(header.groupname_bytes()),
+    )
 }
 
 /// Strip `./` prefixes, one leading `/`, and trailing `/` from a member path.
@@ -736,6 +776,188 @@ mod tests {
         assert_eq!(link.kind(), EntryKind::Symlink);
         assert_eq!(link.link_target(), Some(Path::new("foo")));
         Ok(())
+    }
+
+    #[test]
+    fn data_file_tree_keeps_owners_from_tar_headers() -> anyhow::Result<()> {
+        use crate::lint::file_tree::Entry;
+
+        let dir = TempDir::new()?;
+        let path = dir.path().join("owners.deb");
+        write_deb_with_data_members(
+            &path,
+            &[
+                DataMember::file("usr/games/named", 0o2755).owner(0, 60, "root", "games"),
+                DataMember::file("usr/bin/numeric", 0o644).owner_ids(1234, 5678),
+                DataMember::file("usr/bin/root-numeric", 0o644).owner_ids(0, 0),
+                DataMember::file("usr/bin/default", 0o644),
+                DataMember::typed("usr/share/dir", tar::EntryType::Directory, 0o755)
+                    .owner(0, 50, "root", "staff"),
+                DataMember::typed("usr/share/pipe", tar::EntryType::Fifo, 0o600)
+                    .owner(0, 50, "root", "staff"),
+            ],
+        )?;
+        let tree = BinaryPackageReader::from_path(&path)?.data_file_tree()?;
+        let identity = |name: &str| {
+            tree.get(name)
+                .and_then(Entry::owner)
+                .map(|owner| (owner.identity(), owner.uid(), owner.gid()))
+        };
+        assert_eq!(
+            identity("usr/games/named"),
+            Some(("root/games".to_string(), 0, 60))
+        );
+        // No names in the header: the numbers, except that 0 reads as root.
+        assert_eq!(
+            identity("usr/bin/numeric"),
+            Some(("1234/5678".to_string(), 1234, 5678))
+        );
+        assert_eq!(
+            identity("usr/bin/root-numeric"),
+            Some(("root/root".to_string(), 0, 0))
+        );
+        assert_eq!(
+            identity("usr/bin/default"),
+            Some(("root/root".to_string(), 0, 0))
+        );
+        assert_eq!(
+            identity("usr/share/dir"),
+            Some(("root/staff".to_string(), 0, 50))
+        );
+        assert_eq!(
+            identity("usr/share/pipe"),
+            Some(("root/staff".to_string(), 0, 50))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn data_file_tree_lists_fifos_and_devices() -> anyhow::Result<()> {
+        use crate::lint::file_tree::{Entry, EntryKind};
+
+        let dir = TempDir::new()?;
+        let path = dir.path().join("special.deb");
+        write_deb_with_data_members(
+            &path,
+            &[
+                DataMember::typed("etc/init.d/pipe", tar::EntryType::Fifo, 0o755),
+                DataMember::typed("dev/tty0", tar::EntryType::Char, 0o620),
+                DataMember::typed("dev/sda", tar::EntryType::Block, 0o660),
+                DataMember::file("etc/init.d/script", 0o755),
+            ],
+        )?;
+        let reader = BinaryPackageReader::from_path(&path)?;
+        let tree = reader.data_file_tree()?;
+        let kind = |name: &str| tree.get(name).map(Entry::kind);
+        assert_eq!(kind("etc/init.d/pipe"), Some(EntryKind::Fifo));
+        assert_eq!(kind("dev/tty0"), Some(EntryKind::CharDevice));
+        assert_eq!(kind("dev/sda"), Some(EntryKind::BlockDevice));
+        assert_eq!(kind("etc/init.d/script"), Some(EntryKind::RegularFile));
+        assert_eq!(tree.get("dev/tty0").map(Entry::mode), Some(0o620));
+        // Not files: nothing to read, no File type, no link target.
+        let pipe = tree.get("etc/init.d/pipe").expect("pipe");
+        assert!(tree.read(pipe).is_err());
+        assert!(!pipe.is_file());
+        assert!(pipe.file_type().is_none());
+        assert!(pipe.link_target().is_none());
+        assert!(reader.read_data_file("etc/init.d/pipe")?.is_none());
+        assert!(
+            reader
+                .list_data_files()?
+                .contains(&PathBuf::from("etc/init.d/pipe"))
+        );
+        Ok(())
+    }
+
+    /// Header ids and, optionally, names.
+    type TestOwner = (u64, u64, Option<(&'static str, &'static str)>);
+
+    /// One Data tar member for [`write_deb_with_data_members`].
+    struct DataMember {
+        path: &'static str,
+        kind: tar::EntryType,
+        mode: u32,
+        owner: Option<TestOwner>,
+    }
+
+    impl DataMember {
+        fn file(path: &'static str, mode: u32) -> Self {
+            Self::typed(path, tar::EntryType::Regular, mode)
+        }
+
+        fn typed(path: &'static str, kind: tar::EntryType, mode: u32) -> Self {
+            Self {
+                path,
+                kind,
+                mode,
+                owner: None,
+            }
+        }
+
+        fn owner(mut self, uid: u64, gid: u64, user: &'static str, group: &'static str) -> Self {
+            self.owner = Some((uid, gid, Some((user, group))));
+            self
+        }
+
+        /// Ids without names, as an archive written with `--numeric-owner`.
+        fn owner_ids(mut self, uid: u64, gid: u64) -> Self {
+            self.owner = Some((uid, gid, None));
+            self
+        }
+    }
+
+    fn write_deb_with_data_members(path: &Path, members: &[DataMember]) -> anyhow::Result<()> {
+        use std::io::Write;
+
+        use flate2::Compression;
+        use flate2::write::GzEncoder;
+
+        let gzip = |tar_bytes: &[u8]| -> anyhow::Result<Vec<u8>> {
+            let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+            encoder.write_all(tar_bytes)?;
+            Ok(encoder.finish()?)
+        };
+        let mut control_tar = Vec::new();
+        {
+            let mut builder = tar::Builder::new(&mut control_tar);
+            let mut header = tar::Header::new_gnu();
+            header.set_path("control")?;
+            header.set_size(8);
+            header.set_mode(0o644);
+            header.set_cksum();
+            builder.append(&header, &b"Package:"[..])?;
+            builder.finish()?;
+        }
+        let mut data_tar = Vec::new();
+        {
+            let mut builder = tar::Builder::new(&mut data_tar);
+            for member in members {
+                let mut header = tar::Header::new_gnu();
+                header.set_entry_type(member.kind);
+                header.set_path(member.path)?;
+                header.set_size(0);
+                header.set_mode(member.mode);
+                if let Some((uid, gid, names)) = member.owner {
+                    header.set_uid(uid);
+                    header.set_gid(gid);
+                    if let Some((user, group)) = names {
+                        header.set_username(user)?;
+                        header.set_groupname(group)?;
+                    }
+                }
+                header.set_cksum();
+                builder.append(&header, std::io::empty())?;
+            }
+            builder.finish()?;
+        }
+        write_ar_members(
+            path,
+            &[
+                ("debian-binary", b"2.0\n".as_slice()),
+                ("control.tar.gz", &gzip(&control_tar)?),
+                ("data.tar.gz", &gzip(&data_tar)?),
+            ],
+        )
     }
 
     fn gzip_empty_tar() -> anyhow::Result<Vec<u8>> {

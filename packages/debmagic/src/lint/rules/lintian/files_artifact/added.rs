@@ -208,7 +208,9 @@ fn classify(name: &str, kind: EntryKind) -> Option<Artifact> {
     match kind {
         EntryKind::Directory => classify_directory(name),
         EntryKind::RegularFile | EntryKind::Hardlink => classify_file(name),
-        EntryKind::Symlink => None,
+        EntryKind::Symlink | EntryKind::Fifo | EntryKind::CharDevice | EntryKind::BlockDevice => {
+            None
+        }
     }
 }
 

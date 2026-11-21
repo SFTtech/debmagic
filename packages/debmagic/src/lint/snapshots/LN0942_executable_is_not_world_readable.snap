@@ -8,3 +8,5 @@ W: example (binary): executable-is-not-world-readable (LN0942) 0700 [usr/bin/own
 W: example (binary): executable-is-not-world-readable (LN0942) 4751 [usr/bin/suidperlfoo2]
 W: example (binary): executable-is-not-world-readable (LN0942) 0700 [usr/bin/hard]
 W: example (udeb): executable-is-not-world-readable (LN0942) 0750 [bin/tool]
+W: example (binary): executable-is-not-world-readable (LN0942) 0700 [usr/games/tool]
+W: example (binary): executable-is-not-world-readable (LN0942) 0700 [usr/games/tool]

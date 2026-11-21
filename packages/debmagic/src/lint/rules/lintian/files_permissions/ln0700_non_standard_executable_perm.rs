@@ -3,6 +3,8 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
+use super::owner_exceptions::is_game_executable_with_own_tag;
+
 pub struct NonStandardExecutablePerm;
 
 declare_rule! {
@@ -12,9 +14,10 @@ declare_rule! {
     /// Setuid and setgid files are left to the setuid Tags. Any other mode
     /// than `0755`, the sticky bit included, is reported with the extra
     /// `<mode> != 0755`. The path is the Location. Udebs are checked too.
-    /// Lintian reports a `root/games` executable as
-    /// `non-standard-game-executable-perm` instead; Entry has no owner yet,
-    /// so this Rule reports it here.
+    /// A `root/games` executable that is not setgid, or lacks a bit of
+    /// `0755`, is skipped: lintian reports it as
+    /// `non-standard-game-executable-perm` instead (no Rule for that Tag here,
+    /// so it gets no hint).
     NonStandardExecutablePerm,
     code = "LN0700",
     tag = "non-standard-executable-perm",
@@ -37,6 +40,7 @@ impl BinaryPackageRule for NonStandardExecutablePerm {
                 entry.is_executable_file()
                     && entry.mode() & SETUID_OR_SETGID == 0
                     && entry.mode() != STANDARD_EXECUTABLE
+                    && !is_game_executable_with_own_tag(entry)
             })
             .map(|entry| (entry.path().to_path_buf(), entry.mode()))
             .collect();
@@ -80,6 +84,16 @@ mod tests {
             tree(vec![("usr/bin/suid", script(0o4755))]),
             tree(vec![("usr/bin/suid-wrong", script(0o4744))]),
             tree(vec![("usr/bin/sgid", script(0o2750))]),
+            // `root/games` executables that are not setgid with `0755`: the
+            // game Tag, which has no Rule here.
+            tree(vec![(
+                "usr/games/tool",
+                script(0o750).owned_by("root", "games"),
+            )]),
+            tree(vec![(
+                "usr/games/tool",
+                script(0o775).owned_by("root", "games"),
+            )]),
             // Directories and symlinks are not executable files.
             tree(vec![(
                 "usr/share/doc/pkg",
@@ -97,6 +111,15 @@ mod tests {
             tree(vec![("usr/bin/sticky", script(0o1755))]),
             tree(vec![("usr/bin/hard", script(0o700).hardlink())]),
             tree(vec![("bin/tool", script(0o750))]).udeb(),
+            // Only `root/games` has the game Tag.
+            tree(vec![(
+                "usr/games/tool",
+                script(0o750).owned_by("root", "staff"),
+            )]),
+            tree(vec![(
+                "usr/games/tool",
+                script(0o750).owned_by("alice", "games"),
+            )]),
         ];
         BinaryPackageTester::new(NonStandardExecutablePerm, pass, fail).test_and_snapshot();
     }

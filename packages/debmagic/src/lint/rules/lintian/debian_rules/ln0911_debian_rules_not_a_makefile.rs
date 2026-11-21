@@ -64,7 +64,10 @@ fn follow<'a>(files: &'a FileTree, path: &str) -> Option<&'a Entry> {
         let entry = files.get(&path)?;
         match entry.kind() {
             EntryKind::Symlink => path = resolve_link(&path, entry.link_target()?)?,
-            EntryKind::Directory => return None,
+            EntryKind::Directory
+            | EntryKind::Fifo
+            | EntryKind::CharDevice
+            | EntryKind::BlockDevice => return None,
             EntryKind::RegularFile | EntryKind::Hardlink => return Some(entry),
         }
     }

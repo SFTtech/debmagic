@@ -322,6 +322,7 @@ fn write_tree(files: &FileTree, root: &Path) -> std::io::Result<()> {
         let dest = root.join(entry.path());
         match entry.kind() {
             EntryKind::Directory => std::fs::create_dir_all(&dest)?,
+            EntryKind::Fifo | EntryKind::CharDevice | EntryKind::BlockDevice => {}
             EntryKind::Symlink => {
                 if let Some(parent) = dest.parent() {
                     std::fs::create_dir_all(parent)?;

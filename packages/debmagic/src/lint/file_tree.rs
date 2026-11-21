@@ -1,5 +1,5 @@
 use std::fs;
-use std::os::unix::fs::{FileExt, MetadataExt};
+use std::os::unix::fs::{FileExt, FileTypeExt, MetadataExt};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Mutex, PoisonError};
@@ -17,6 +17,89 @@ pub enum EntryKind {
     Directory,
     Symlink,
     Hardlink,
+    /// Named pipe (tar type `p`).
+    Fifo,
+    /// Character device (tar type `c`).
+    CharDevice,
+    /// Block device (tar type `b`).
+    BlockDevice,
+}
+
+/// Who owns an [`Entry`], as the tar header of a Binary package says.
+///
+/// An Entry on a File tree that has no archive header (a Source tree on disk,
+/// a fixture that does not say) has no `Owner` at all: [`Entry::owner`] is
+/// `None`, not `root/root`.
+///
+/// The names are what the header carries, which may be empty. Lintian's
+/// `owner` and `group` are the name when there is one and else the number
+/// (`tar tv` prints it so), except that id `0` is shown as `root`; so are
+/// [`Owner::user`] and [`Owner::group`]. [`Owner::identity`] is lintian's
+/// `identity`, `user/group`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Owner {
+    uid: u64,
+    gid: u64,
+    user_name: Option<String>,
+    group_name: Option<String>,
+}
+
+impl Owner {
+    /// `user_name` and `group_name` are the header's names, `None` when the
+    /// header has none (an empty name is none).
+    pub fn new(uid: u64, gid: u64, user_name: Option<String>, group_name: Option<String>) -> Self {
+        Self {
+            uid,
+            gid,
+            user_name: user_name.filter(|name| !name.is_empty()),
+            group_name: group_name.filter(|name| !name.is_empty()),
+        }
+    }
+
+    /// `root/root`, ids `0` and `0`: what `dpkg-deb` and `dh_fixperms` give.
+    pub fn root() -> Self {
+        Self::named(0, 0, "root", "root")
+    }
+
+    /// Both ids and names.
+    pub fn named(uid: u64, gid: u64, user: &str, group: &str) -> Self {
+        Self::new(uid, gid, Some(user.to_string()), Some(group.to_string()))
+    }
+
+    /// Lintian's `uid`.
+    #[allow(dead_code)]
+    pub fn uid(&self) -> u64 {
+        self.uid
+    }
+
+    /// Lintian's `gid`.
+    #[allow(dead_code)]
+    pub fn gid(&self) -> u64 {
+        self.gid
+    }
+
+    /// Lintian's `owner`: the user name, else `root` for uid `0`, else the uid.
+    pub fn user(&self) -> String {
+        display_id(self.user_name.as_deref(), self.uid)
+    }
+
+    /// Lintian's `group`: the group name, else `root` for gid `0`, else the gid.
+    pub fn group(&self) -> String {
+        display_id(self.group_name.as_deref(), self.gid)
+    }
+
+    /// Lintian's `identity`: `user/group`, for example `root/games`.
+    pub fn identity(&self) -> String {
+        format!("{}/{}", self.user(), self.group())
+    }
+}
+
+fn display_id(name: Option<&str>, id: u64) -> String {
+    match name {
+        Some(name) => name.to_string(),
+        None if id == 0 => "root".to_string(),
+        None => id.to_string(),
+    }
 }
 
 /// A path in a File tree, with the data that variant has.
@@ -27,11 +110,14 @@ pub enum EntryKind {
 /// `mode` is the permission bits (`0o7777`: setuid, setgid, sticky, and
 /// `rwx` for owner, group and other) as stored in the tar header or read from
 /// host metadata. The file-type bits are not part of it; that is the variant.
+///
+/// `owner` is `None` unless the File tree knows it (see [`Owner`]).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Entry {
     RegularFile {
         path: PathBuf,
         mode: u32,
+        owner: Option<Owner>,
         file_type: Option<FileType>,
         content: Option<Vec<u8>>,
     },
@@ -41,6 +127,7 @@ pub enum Entry {
     Hardlink {
         path: PathBuf,
         mode: u32,
+        owner: Option<Owner>,
         file_type: Option<FileType>,
         content: Option<Vec<u8>>,
         target: Option<PathBuf>,
@@ -48,12 +135,32 @@ pub enum Entry {
     Directory {
         path: PathBuf,
         mode: u32,
+        owner: Option<Owner>,
     },
     /// `target` is exactly as stored, not resolved.
     Symlink {
         path: PathBuf,
         mode: u32,
+        owner: Option<Owner>,
         target: PathBuf,
+    },
+    /// A named pipe. Has no content to read.
+    Fifo {
+        path: PathBuf,
+        mode: u32,
+        owner: Option<Owner>,
+    },
+    /// A character device node. Device numbers are not kept.
+    CharDevice {
+        path: PathBuf,
+        mode: u32,
+        owner: Option<Owner>,
+    },
+    /// A block device node. Device numbers are not kept.
+    BlockDevice {
+        path: PathBuf,
+        mode: u32,
+        owner: Option<Owner>,
     },
 }
 
@@ -72,6 +179,7 @@ impl Entry {
         Self::RegularFile {
             path: path.into(),
             mode: 0o644,
+            owner: None,
             file_type,
             content,
         }
@@ -85,6 +193,7 @@ impl Entry {
         Self::Hardlink {
             path: path.into(),
             mode: 0o644,
+            owner: None,
             file_type,
             content,
             target: None,
@@ -103,6 +212,7 @@ impl Entry {
         Self::Directory {
             path: path.into(),
             mode: 0o755,
+            owner: None,
         }
     }
 
@@ -110,21 +220,71 @@ impl Entry {
         Self::Symlink {
             path: path.into(),
             mode: 0o777,
+            owner: None,
             target: target.into(),
         }
     }
 
+    pub(crate) fn fifo(path: impl Into<PathBuf>) -> Self {
+        Self::Fifo {
+            path: path.into(),
+            mode: 0o644,
+            owner: None,
+        }
+    }
+
+    pub(crate) fn char_device(path: impl Into<PathBuf>) -> Self {
+        Self::CharDevice {
+            path: path.into(),
+            mode: 0o644,
+            owner: None,
+        }
+    }
+
+    pub(crate) fn block_device(path: impl Into<PathBuf>) -> Self {
+        Self::BlockDevice {
+            path: path.into(),
+            mode: 0o644,
+            owner: None,
+        }
+    }
+
     /// Set the permission bits; bits outside `0o7777` are dropped. Until this
-    /// is called an Entry has the usual mode for its kind: `0644` for a file
-    /// or hardlink, `0755` for a directory, `0777` for a symlink.
+    /// is called an Entry has the usual mode for its kind: `0644` for a file,
+    /// hardlink, fifo or device, `0755` for a directory, `0777` for a symlink.
     pub(crate) fn with_mode(mut self, new: u32) -> Self {
-        match &mut self {
+        *self.mode_mut() = new & PERMISSION_BITS;
+        self
+    }
+
+    /// Set the owner. Until this is called an Entry has none.
+    pub(crate) fn with_owner(mut self, new: Owner) -> Self {
+        *self.owner_mut() = Some(new);
+        self
+    }
+
+    fn mode_mut(&mut self) -> &mut u32 {
+        match self {
             Self::RegularFile { mode, .. }
             | Self::Hardlink { mode, .. }
             | Self::Directory { mode, .. }
-            | Self::Symlink { mode, .. } => *mode = new & PERMISSION_BITS,
+            | Self::Symlink { mode, .. }
+            | Self::Fifo { mode, .. }
+            | Self::CharDevice { mode, .. }
+            | Self::BlockDevice { mode, .. } => mode,
         }
-        self
+    }
+
+    fn owner_mut(&mut self) -> &mut Option<Owner> {
+        match self {
+            Self::RegularFile { owner, .. }
+            | Self::Hardlink { owner, .. }
+            | Self::Directory { owner, .. }
+            | Self::Symlink { owner, .. }
+            | Self::Fifo { owner, .. }
+            | Self::CharDevice { owner, .. }
+            | Self::BlockDevice { owner, .. } => owner,
+        }
     }
 
     pub fn path(&self) -> &Path {
@@ -132,7 +292,10 @@ impl Entry {
             Self::RegularFile { path, .. }
             | Self::Hardlink { path, .. }
             | Self::Directory { path, .. }
-            | Self::Symlink { path, .. } => path,
+            | Self::Symlink { path, .. }
+            | Self::Fifo { path, .. }
+            | Self::CharDevice { path, .. }
+            | Self::BlockDevice { path, .. } => path,
         }
     }
 
@@ -143,15 +306,69 @@ impl Entry {
             Self::RegularFile { mode, .. }
             | Self::Hardlink { mode, .. }
             | Self::Directory { mode, .. }
-            | Self::Symlink { mode, .. } => *mode,
+            | Self::Symlink { mode, .. }
+            | Self::Fifo { mode, .. }
+            | Self::CharDevice { mode, .. }
+            | Self::BlockDevice { mode, .. } => *mode,
         }
+    }
+
+    /// Owner and group, when the File tree knows them: Entries of a Binary
+    /// package (Data files and Control files) have them from the tar header.
+    /// `None` on host File trees and on fixtures that set none; a Rule that
+    /// needs an owner must decide what that means, it is not `root/root`.
+    pub fn owner(&self) -> Option<&Owner> {
+        match self {
+            Self::RegularFile { owner, .. }
+            | Self::Hardlink { owner, .. }
+            | Self::Directory { owner, .. }
+            | Self::Symlink { owner, .. }
+            | Self::Fifo { owner, .. }
+            | Self::CharDevice { owner, .. }
+            | Self::BlockDevice { owner, .. } => owner.as_ref(),
+        }
+    }
+
+    /// `true` when the owner is known and its [`Owner::identity`] is
+    /// `identity` (`root/games`). Lintian's `$item->identity eq '...'`.
+    pub fn has_identity(&self, identity: &str) -> bool {
+        self.owner()
+            .is_some_and(|owner| owner.identity() == identity)
     }
 
     /// A regular file or hardlink with any execute bit set. Lintian's
     /// `is_file && is_executable`.
     pub fn is_executable_file(&self) -> bool {
+        self.is_file() && self.mode() & EXECUTE_BITS != 0
+    }
+
+    /// A regular file or a hardlink. Lintian's `is_file`.
+    pub fn is_file(&self) -> bool {
         matches!(self, Self::RegularFile { .. } | Self::Hardlink { .. })
-            && self.mode() & EXECUTE_BITS != 0
+    }
+
+    /// A regular file, a hardlink not included. Lintian's `is_regular_file`.
+    #[allow(dead_code)]
+    pub fn is_regular_file(&self) -> bool {
+        matches!(self, Self::RegularFile { .. })
+    }
+
+    /// Lintian's `is_dir`.
+    #[allow(dead_code)]
+    pub fn is_dir(&self) -> bool {
+        matches!(self, Self::Directory { .. })
+    }
+
+    /// Lintian's `is_symlink`.
+    #[allow(dead_code)]
+    pub fn is_symlink(&self) -> bool {
+        matches!(self, Self::Symlink { .. })
+    }
+
+    /// Lintian's `is_hardlink`.
+    #[allow(dead_code)]
+    pub fn is_hardlink(&self) -> bool {
+        matches!(self, Self::Hardlink { .. })
     }
 
     pub fn kind(&self) -> EntryKind {
@@ -160,6 +377,9 @@ impl Entry {
             Self::Hardlink { .. } => EntryKind::Hardlink,
             Self::Directory { .. } => EntryKind::Directory,
             Self::Symlink { .. } => EntryKind::Symlink,
+            Self::Fifo { .. } => EntryKind::Fifo,
+            Self::CharDevice { .. } => EntryKind::CharDevice,
+            Self::BlockDevice { .. } => EntryKind::BlockDevice,
         }
     }
 
@@ -167,7 +387,11 @@ impl Entry {
     pub fn file_type(&self) -> Option<FileType> {
         match self {
             Self::RegularFile { file_type, .. } | Self::Hardlink { file_type, .. } => *file_type,
-            Self::Directory { .. } | Self::Symlink { .. } => None,
+            Self::Directory { .. }
+            | Self::Symlink { .. }
+            | Self::Fifo { .. }
+            | Self::CharDevice { .. }
+            | Self::BlockDevice { .. } => None,
         }
     }
 
@@ -492,7 +716,17 @@ fn host_entry(
         };
         return Ok(Some(entry.with_mode(metadata.mode())));
     }
-    Ok(None)
+    // Sockets cannot be in a tar archive, so they are not listed.
+    let special = if file_type.is_fifo() {
+        Entry::fifo(relative)
+    } else if file_type.is_char_device() {
+        Entry::char_device(relative)
+    } else if file_type.is_block_device() {
+        Entry::block_device(relative)
+    } else {
+        return Ok(None);
+    };
+    Ok(Some(special.with_mode(metadata.mode())))
 }
 
 /// Classify `files` with up to `threads` threads, in `files` order.
@@ -845,6 +1079,115 @@ mod tests {
                 .with_mode(0o701)
                 .is_executable_file()
         );
+    }
+
+    #[test]
+    fn owner_reads_names_then_ids_and_root_for_zero() {
+        let named = Owner::named(0, 60, "root", "games");
+        assert_eq!(named.identity(), "root/games");
+        assert_eq!(
+            (named.user().as_str(), named.group().as_str()),
+            ("root", "games")
+        );
+        assert_eq!((named.uid(), named.gid()), (0, 60));
+        // No names: the number, but 0 is root.
+        assert_eq!(Owner::new(0, 0, None, None).identity(), "root/root");
+        assert_eq!(Owner::new(1000, 50, None, None).identity(), "1000/50");
+        // An empty name is no name.
+        assert_eq!(
+            Owner::new(7, 8, Some(String::new()), Some("staff".to_string())).identity(),
+            "7/staff"
+        );
+        assert_eq!(Owner::root().identity(), "root/root");
+    }
+
+    #[test]
+    fn entries_have_no_owner_until_one_is_set() {
+        let entries = [
+            Entry::regular_file("f", None, None),
+            Entry::hardlink("h", None, None),
+            Entry::directory("d"),
+            Entry::symlink("s", "f"),
+            Entry::fifo("p"),
+            Entry::char_device("c"),
+            Entry::block_device("b"),
+        ];
+        for entry in entries {
+            assert!(entry.owner().is_none(), "{:?}", entry.path());
+            assert!(!entry.has_identity("root/root"));
+            let owned = entry.with_owner(Owner::named(0, 60, "root", "games"));
+            assert!(owned.has_identity("root/games"));
+            assert!(!owned.has_identity("root/root"));
+            assert_eq!(owned.owner().map(Owner::gid), Some(60));
+        }
+    }
+
+    #[test]
+    fn special_entries_are_not_files_and_keep_mode() {
+        let fifo = Entry::fifo("etc/init.d/pipe");
+        assert_eq!(fifo.kind(), EntryKind::Fifo);
+        assert_eq!(Entry::char_device("c").kind(), EntryKind::CharDevice);
+        assert_eq!(Entry::block_device("b").kind(), EntryKind::BlockDevice);
+        assert_eq!(fifo.mode(), 0o644);
+        assert_eq!(fifo.clone().with_mode(0o10_600).mode(), 0o600);
+        for entry in [
+            fifo,
+            Entry::char_device("c").with_mode(0o755),
+            Entry::block_device("b").with_mode(0o4755),
+        ] {
+            assert!(!entry.is_file());
+            assert!(!entry.is_regular_file());
+            assert!(!entry.is_dir());
+            assert!(!entry.is_symlink());
+            assert!(!entry.is_hardlink());
+            assert!(!entry.is_executable_file());
+            assert!(entry.file_type().is_none());
+            assert!(entry.link_target().is_none());
+            assert!(entry.hardlink_target().is_none());
+        }
+        let tree = FileTree::from_entries(None, vec![Entry::fifo("pipe")]);
+        assert!(tree.read(tree.get("pipe").expect("pipe")).is_err());
+    }
+
+    #[test]
+    fn lintian_predicates_follow_the_variant() {
+        let regular = Entry::regular_file("f", None, None);
+        let hardlink = Entry::hardlink("h", None, None);
+        assert!(regular.is_file() && regular.is_regular_file() && !regular.is_hardlink());
+        assert!(hardlink.is_file() && !hardlink.is_regular_file() && hardlink.is_hardlink());
+        assert!(Entry::directory("d").is_dir());
+        assert!(Entry::symlink("s", "f").is_symlink());
+        assert!(!Entry::symlink("s", "f").is_file());
+    }
+
+    /// Host File trees know no owner: the host's numeric ids are not a
+    /// package's names. They list fifos, which a tar archive can hold.
+    #[test]
+    fn from_host_directory_has_no_owner_and_lists_fifos() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        fs::write(dir.path().join("file"), b"x")?;
+        fs::create_dir(dir.path().join("sub"))?;
+        symlink("file", dir.path().join("link"))?;
+        let made = std::process::Command::new("mkfifo")
+            .arg(dir.path().join("pipe"))
+            .status()?;
+        assert!(made.success());
+
+        let tree = FileTree::from_host_directory(dir.path())?;
+        assert!(tree.entries().iter().all(|entry| entry.owner().is_none()));
+        assert_eq!(tree.get("pipe").map(Entry::kind), Some(EntryKind::Fifo));
+        // Not a file: no read, and not listed as one.
+        let pipe = tree.get("pipe").expect("pipe");
+        assert!(tree.read(pipe).is_err());
+        assert_eq!(
+            tree.query()
+                .kinds([EntryKind::Fifo])
+                .into_iter()
+                .map(|entry| entry.path().to_path_buf())
+                .collect::<Vec<_>>(),
+            vec![PathBuf::from("pipe")]
+        );
+        Ok(())
     }
 
     #[test]

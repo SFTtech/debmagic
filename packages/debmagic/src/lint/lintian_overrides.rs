@@ -253,7 +253,10 @@ fn first_present(files: &FileTree, candidates: &[PathBuf]) -> Option<(PathBuf, V
                 Some((path.clone(), files.read(entry).unwrap_or_default()))
             }
             EntryKind::Symlink => Some((path.clone(), Vec::new())),
-            EntryKind::Directory => None,
+            EntryKind::Directory
+            | EntryKind::Fifo
+            | EntryKind::CharDevice
+            | EntryKind::BlockDevice => None,
         }
     })
 }

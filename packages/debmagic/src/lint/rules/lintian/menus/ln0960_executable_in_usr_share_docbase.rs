@@ -60,7 +60,9 @@ fn target_is_executable(files: &FileTree, entry: &Entry) -> bool {
             .link_target()
             .and_then(|target| files.get(Path::new(DOC_BASE).join(target)))
             .is_some_and(Entry::is_executable_file),
-        EntryKind::Directory => false,
+        EntryKind::Directory | EntryKind::Fifo | EntryKind::CharDevice | EntryKind::BlockDevice => {
+            false
+        }
     }
 }
 

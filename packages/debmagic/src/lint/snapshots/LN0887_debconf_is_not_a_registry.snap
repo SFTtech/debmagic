@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): debconf-is-not-a-registry (LN0887) [usr/share/lintian/script:3]
+W: example (binary): debconf-is-not-a-registry (LN0887) [usr/bin/tool:2]
+W: example (binary): debconf-is-not-a-registry (LN0887) [usr/bin/tool:2]
+W: example (binary): debconf-is-not-a-registry (LN0887) [usr/bin/link:2]
+W: example (binary): debconf-is-not-a-registry (LN0887) [usr/bin/real:2]

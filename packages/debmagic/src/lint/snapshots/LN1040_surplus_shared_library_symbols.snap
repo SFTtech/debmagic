@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): surplus-shared-library-symbols (LN1040) libhello 0 [symbols]
+W: example (binary): surplus-shared-library-symbols (LN1040) libhello 0 [symbols]
+W: example (binary): surplus-shared-library-symbols (LN1040) libhello 0 [symbols]
+W: example (udeb): surplus-shared-library-symbols (LN1040) libhello 0 [symbols]
+W: hello (binary): surplus-shared-library-symbols (LN1040) libhello 0 [symbols]
+W: example (binary): surplus-shared-library-symbols (LN1040) libhello 0 [symbols]

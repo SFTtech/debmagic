@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-xvpics-dir (LN1095) [usr/share/doc/files-foo-in-bar/.xvpics/]
+E: example (binary): package-contains-xvpics-dir (LN1095) [usr/share/doc/files-foo-in-bar/.xvpics/]
+E: example (udeb): package-contains-xvpics-dir (LN1095) [usr/share/pkg/.xvpics/]

@@ -142,6 +142,18 @@ pub(super) fn prerequisites(text: &str) -> Vec<String> {
     prerequisites
 }
 
+/// lintian's `m/\(\s*[><](?![<>=])\s*/`: an obsolete `<` or `>` operator in
+/// a versioned dependency. `>>`, `<<`, `>=`, and `<=` are not.
+pub(super) fn has_obsolete_operator(prerequisite: &str) -> bool {
+    prerequisite.match_indices('(').any(|(index, _)| {
+        let mut rest = prerequisite[index + 1..].trim_start().chars();
+        match rest.next() {
+            Some('<' | '>') => !matches!(rest.next(), Some('<' | '>' | '=')),
+            _ => false,
+        }
+    })
+}
+
 #[cfg(test)]
 pub(super) const LIBBAZ_SHLIBS: &str = include_str!(concat!(
     env!("CARGO_MANIFEST_DIR"),

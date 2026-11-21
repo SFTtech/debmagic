@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): no-shlibs (LN1034) usr/lib/libfoo.so.1
+E: example (binary): no-shlibs (LN1034) lib/libfoo.so.1
+E: example (binary): no-shlibs (LN1034) usr/local/lib/libfoo.so.1
+E: example (binary): no-shlibs (LN1034) usr/lib/x86_64-linux-gnu/libfoo.so.1
+E: example (binary): no-shlibs (LN1034) usr/lib/libfoo-1.2.so
+E: example (binary): no-shlibs (LN1034) usr/lib/libfoo.so.1
+E: example (binary): no-shlibs (LN1034) usr/lib/libbar.so.2
+E: example (binary): no-shlibs (LN1034) usr/lib/libfoo.so.1

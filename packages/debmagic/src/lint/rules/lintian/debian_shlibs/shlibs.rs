@@ -5,10 +5,14 @@
 //! This is the file text, not an ELF SONAME.
 
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::sync::LazyLock;
+
+use regex::Regex;
 
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Location;
+use crate::lint::rules::lintian::fields_relations_more::architectures::is_ldconfig_folder;
 
 use super::lines;
 
@@ -95,6 +99,21 @@ fn has_version(soname: &str) -> bool {
         stem.match_indices('-')
             .any(|(index, _)| stem[index + 1..].starts_with(|c: char| c.is_ascii_digit()))
     })
+}
+
+/// Whether the directory of `path` is one of lintian's `ldconfig_folders`.
+pub(super) fn in_ldconfig_folder(path: &Path) -> bool {
+    path.parent()
+        .and_then(Path::to_str)
+        .is_some_and(is_ldconfig_folder)
+}
+
+static NSS_PLUGIN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(?:.*/)?libnss_[^.]+\.so\.\d+$").expect("nss plugin pattern"));
+
+/// lintian's `is_nss_plugin`: a libc NSS module, which has no shlibs entry.
+pub(super) fn is_nss_plugin(path: &Path) -> bool {
+    path.to_str().is_some_and(|path| NSS_PLUGIN.is_match(path))
 }
 
 #[cfg(test)]

@@ -1,9 +1,9 @@
-use std::path::PathBuf;
+use std::path::{Component, Path, PathBuf};
 use std::sync::LazyLock;
 
 use regex::Regex;
 
-use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 
 static WEB_SERVER: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^apache2(:?\.2)?(?:-\w+)?$").expect("valid regex"));
@@ -81,6 +81,98 @@ pub(super) fn shell_lines(files: &FileTree) -> Vec<ScriptLine> {
         }
     }
     lines
+}
+
+static MODULE_FILE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^usr/lib/apache2/modules/(.*)\.so$").expect("valid regex"));
+static MODULE_STEM: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^mod.(.*)$").expect("valid regex"));
+static WEB_APP_FILE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^etc/apache2/(?:conf|site)-available/").expect("valid regex"));
+
+/// `(path, module)` of each non-directory `usr/lib/apache2/modules/<module>.so`.
+pub(super) fn modules(files: &FileTree) -> Vec<(PathBuf, String)> {
+    files
+        .entries()
+        .iter()
+        .filter(|entry| entry.kind() != EntryKind::Directory)
+        .filter_map(|entry| {
+            let path = entry.path().to_str()?;
+            let module = MODULE_FILE.captures(path)?.get(1)?.as_str().to_string();
+            Some((entry.path().to_path_buf(), module))
+        })
+        .collect()
+}
+
+/// The load and conf file lintian looks up for `module`: `mod_foo` gives
+/// `etc/apache2/mods-available/foo.{load,conf}`. A name without the `mod`
+/// prefix is looked up unchanged.
+pub(super) fn module_files(module: &str) -> (String, String) {
+    match MODULE_STEM.captures(module).and_then(|found| found.get(1)) {
+        Some(stem) => (
+            format!("etc/apache2/mods-available/{}.load", stem.as_str()),
+            format!("etc/apache2/mods-available/{}.conf", stem.as_str()),
+        ),
+        None => (module.to_string(), module.to_string()),
+    }
+}
+
+/// The files lintian's `inspect_conf_file` reads: non-directory web application
+/// files (`conf-available`, `site-available`, `conf.d`), then the load and conf
+/// file each module's `.so` finds in the tree. Entries may be links; read them
+/// through `open_entry`.
+pub(super) fn inspected_conf_files(files: &FileTree) -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+    for entry in files.entries() {
+        if entry.kind() == EntryKind::Directory {
+            continue;
+        }
+        let Some(path) = entry.path().to_str() else {
+            continue;
+        };
+        if WEB_APP_FILE.is_match(path) || RELATED_LEGACY.is_match(path) {
+            paths.push(entry.path().to_path_buf());
+        }
+    }
+    for (_, module) in modules(files) {
+        let (load, conf) = module_files(&module);
+        for name in [load, conf] {
+            if files.get(&name).is_some() {
+                paths.push(PathBuf::from(name));
+            }
+        }
+    }
+    paths
+}
+
+/// The regular file or hardlink at `path`, following relative symlinks that
+/// stay inside the tree (lintian's `is_open_ok`). `None` for directories,
+/// missing, dangling, absolute or escaping links.
+pub(super) fn open_entry<'t>(files: &'t FileTree, path: &Path) -> Option<&'t Entry> {
+    let mut current = files.get(path)?;
+    for _ in 0..8 {
+        match current.kind() {
+            EntryKind::RegularFile | EntryKind::Hardlink => return Some(current),
+            EntryKind::Directory => return None,
+            EntryKind::Symlink => {
+                let mut resolved = current.path().parent()?.to_path_buf();
+                for component in current.link_target()?.components() {
+                    match component {
+                        Component::Normal(part) => resolved.push(part),
+                        Component::CurDir => {}
+                        Component::ParentDir => {
+                            if !resolved.pop() {
+                                return None;
+                            }
+                        }
+                        Component::RootDir | Component::Prefix(_) => return None,
+                    }
+                }
+                current = files.get(&resolved)?;
+            }
+        }
+    }
+    None
 }
 
 fn is_shell(content: &[u8]) -> bool {

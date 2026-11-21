@@ -1,12 +1,20 @@
+use std::path::Path;
+
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
-use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::SourceRule;
+
+use super::files;
 
 pub struct MissingTemplatesPot;
 
 declare_rule! {
-    /// TODO: what the Rule reports, in lintian's words, and the cases it skips.
+    /// The PO directory has no `templates.pot`, or it is not a regular file.
+    ///
+    /// Only checked when the package uses po-debconf (see LN0908). A symbolic
+    /// link to a regular file inside the tree counts as present. Extra is
+    /// empty and there is no Location.
     MissingTemplatesPot,
     code = "LN0906",
     tag = "missing-templates-pot",
@@ -15,24 +23,67 @@ declare_rule! {
 }
 
 impl SourceRule for MissingTemplatesPot {
-    fn run(&self, _ctx: &mut SourceContext<'_>) {
-        // TODO: port lintian's `debian/po-debconf` Check (just lintian-tag missing-templates-pot).
-        // Report with `ctx.diagnostic(Diagnostic::warn(extra).with_location(Location { .. }))`.
-        let _ = (Diagnostic::warn(""), None::<Location>);
+    fn run(&self, ctx: &mut SourceContext<'_>) {
+        let Some(tree) = ctx.files() else {
+            return;
+        };
+        if !files::has_translatable_template(tree) {
+            return;
+        }
+        let Some(directory) = files::po_directory(tree) else {
+            return;
+        };
+        if files::open_file(tree, &Path::new(directory).join("templates.pot")).is_none() {
+            ctx.diagnostic(Diagnostic::warn(""));
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{SourceTreeTester, TestCase};
+    use crate::lint::tester::{SourcePackageCase, SourcePackageTester, SourceTreeTester, TestFile};
 
     use super::*;
 
+    const CONTROL: &str =
+        "Source: example\n\nPackage: example\nArchitecture: all\nDescription: example\n extra\n";
+    const ASKS: &str = "Template: example/foo\nType: string\nDescription: Ask\n Question.\n";
+
+    fn tree(extra: Vec<(&str, TestFile)>) -> Vec<(String, TestFile)> {
+        let mut files = vec![
+            ("debian/control".to_string(), TestFile::from(CONTROL)),
+            ("debian/templates".to_string(), TestFile::new(ASKS)),
+            ("debian/po".to_string(), TestFile::directory()),
+            ("debian/po/POTFILES.in".to_string(), TestFile::new("")),
+        ];
+        files.extend(
+            extra
+                .into_iter()
+                .map(|(path, file)| (path.to_string(), file)),
+        );
+        files
+    }
+
     #[test]
-    fn source() {
-        // Pass and fail cases; `.test_and_snapshot()` once there are fail cases (`just snap-accept`).
-        let pass = Vec::<TestCase>::new();
-        let fail = Vec::<TestCase>::new();
-        SourceTreeTester::new(MissingTemplatesPot, pass, fail).test();
+    fn test() {
+        let pass = vec![tree(vec![(
+            "debian/po/templates.pot",
+            TestFile::new("msgid \"\"\nmsgstr \"\"\n"),
+        )])];
+        let fail = vec![
+            tree(vec![]),
+            tree(vec![("debian/po/templates.pot", TestFile::directory())]),
+        ];
+        SourceTreeTester::new(MissingTemplatesPot, pass, fail).test_and_snapshot();
+    }
+
+    #[test]
+    fn test_source_package() {
+        let pass = vec![SourcePackageCase::from(tree(vec![(
+            "debian/po/templates.pot",
+            TestFile::new("msgid \"\"\nmsgstr \"\"\n"),
+        )]))];
+        let fail = vec![SourcePackageCase::from(tree(vec![]))];
+        SourcePackageTester::new(MissingTemplatesPot, pass, fail).test_and_snapshot();
     }
 }

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): shared-library-lacks-version (LN1036) usr/lib/libbaz.so libbaz.so
+W: example (udeb): shared-library-lacks-version (LN1036) usr/lib/libbaz.so libbaz.so
+W: example (binary): shared-library-lacks-version (LN1036) usr/lib/x86_64-linux-gnu/libbaz.so libbaz.so

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): syntax-error-in-debconf-template (LN0884) Cannot parse line 2: no colon here [debian/templates]
+E: example (source): syntax-error-in-debconf-template (LN0884) Duplicate field Type (line 3). [debian/example.templates]

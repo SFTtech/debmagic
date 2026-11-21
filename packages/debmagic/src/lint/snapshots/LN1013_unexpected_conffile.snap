@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unexpected-conffile (LN1013) etc/some.config [conffiles:1]
+E: example (binary): unexpected-conffile (LN1013) etc/gone [conffiles:3]
+E: example (udeb): unexpected-conffile (LN1013) etc/gone [conffiles:1]
+E: example (binary): unexpected-conffile (LN1013) etc/gone [conffiles:1]

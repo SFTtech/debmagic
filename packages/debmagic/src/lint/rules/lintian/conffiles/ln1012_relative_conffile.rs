@@ -47,6 +47,8 @@ pub(super) struct ConffileLine {
     pub(super) path: String,
     /// True when the last word had no leading `/`.
     pub(super) relative: bool,
+    /// The words before the path, in file order.
+    pub(super) instructions: Vec<String>,
 }
 
 /// The `conffiles` member as UTF-8 text, or `None` when it is missing or not
@@ -67,7 +69,8 @@ pub(super) fn parse(text: &str) -> Vec<ConffileLine> {
             if line.is_empty() {
                 return None;
             }
-            let last = line.split_whitespace().last()?;
+            let mut words: Vec<&str> = line.split_whitespace().collect();
+            let last = words.pop()?;
             let (relative, path) = match last.strip_prefix('/') {
                 Some(path) => (false, path),
                 None => (true, last),
@@ -76,6 +79,7 @@ pub(super) fn parse(text: &str) -> Vec<ConffileLine> {
                 line: u32::try_from(index + 1).unwrap_or(u32::MAX),
                 path: path.to_string(),
                 relative,
+                instructions: words.into_iter().map(str::to_string).collect(),
             })
         })
         .collect()
@@ -96,14 +100,19 @@ mod tests {
     fn parse_keeps_line_numbers_and_absoluteness() {
         let lines: Vec<_> = parse("/etc/foo\n\n remove-on-upgrade  etc/bar \n  \nbaz")
             .into_iter()
-            .map(|entry| (entry.line, entry.path, entry.relative))
+            .map(|entry| (entry.line, entry.path, entry.relative, entry.instructions))
             .collect();
         assert_eq!(
             lines,
             vec![
-                (1, "etc/foo".to_string(), false),
-                (3, "etc/bar".to_string(), true),
-                (5, "baz".to_string(), true),
+                (1, "etc/foo".to_string(), false, vec![]),
+                (
+                    3,
+                    "etc/bar".to_string(),
+                    true,
+                    vec!["remove-on-upgrade".to_string()]
+                ),
+                (5, "baz".to_string(), true, vec![]),
             ]
         );
     }

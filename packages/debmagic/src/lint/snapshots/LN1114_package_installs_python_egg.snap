@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-installs-python-egg (LN1114) [usr/share/python-kinterbasdb/python.egg]
+E: example (binary): package-installs-python-egg (LN1114) [usr/lib/pyshared/foo.egg]
+E: example (binary): package-installs-python-egg (LN1114) [usr/lib/python3.12/site-packages/foo.egg]
+E: example (binary): package-installs-python-egg (LN1114) [usr/share/foo/link.egg]
+E: example (udeb): package-installs-python-egg (LN1114) [usr/share/foo/foo.egg]

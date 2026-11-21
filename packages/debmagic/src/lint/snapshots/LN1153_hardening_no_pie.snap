@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): hardening-no-pie (LN1153) [usr/bin/weak]
+W: example (binary): hardening-no-pie (LN1153) [usr/bin/weak-link]
+W: example (binary): hardening-no-pie (LN1153) [usr/bin/weak]

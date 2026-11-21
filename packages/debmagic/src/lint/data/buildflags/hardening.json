@@ -1,0 +1,1674 @@
+{
+   "preamble" : {
+      "cargo" : "recommended_features",
+      "title" : "Hardening Flags from Dpkg"
+   },
+   "recommended_features" : {
+      "aix-powerpc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "aix-ppc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "alpha" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro"
+      ],
+      "amd64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackclash",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "arc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "arm" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro"
+      ],
+      "arm64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackclash",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "armeb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "armel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackclash",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "armhf" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackclash",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "darwin-amd64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "darwin-arm" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "darwin-arm64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "darwin-i386" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "darwin-powerpc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "darwin-ppc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "dragonflybsd-amd64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "freebsd-amd64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "freebsd-arm" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "freebsd-arm64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "freebsd-i386" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "freebsd-powerpc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "freebsd-ppc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "hppa" : [
+         "format",
+         "fortify"
+      ],
+      "hurd-amd64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "hurd-i386" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "i386" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "ia64" : [
+         "format",
+         "fortify"
+      ],
+      "loong64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "m68k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mint-m68k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mips" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mips64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mips64el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mips64r6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mips64r6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mipsel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mipsn32" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mipsn32el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mipsn32r6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mipsn32r6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mipsr6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "mipsr6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-alpha" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro"
+      ],
+      "musl-linux-amd64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-arc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-arm" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-arm64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-armeb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-armhf" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-hppa" : [
+         "format",
+         "fortify"
+      ],
+      "musl-linux-i386" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-ia64" : [
+         "format",
+         "fortify"
+      ],
+      "musl-linux-loong64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-m68k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-mips" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-mips64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-mips64el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-mips64r6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-mips64r6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-mipsel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-mipsr6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-mipsr6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-nios2" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro"
+      ],
+      "musl-linux-or1k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-powerpc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-powerpcel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-ppc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-ppc64el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-riscv64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-s390" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-s390x" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-sh3" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-sh3eb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-sh4" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-sh4eb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-sparc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "musl-linux-sparc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-alpha" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro"
+      ],
+      "netbsd-amd64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-arc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-arm" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-arm64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-armeb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-hppa" : [
+         "format",
+         "fortify"
+      ],
+      "netbsd-i386" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-ia64" : [
+         "format",
+         "fortify"
+      ],
+      "netbsd-loong64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-m68k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-mips" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-mips64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-mips64el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-mips64r6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-mips64r6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-mipsel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-mipsr6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-mipsr6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-nios2" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro"
+      ],
+      "netbsd-or1k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-powerpc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-powerpcel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-ppc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-ppc64el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-riscv64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-s390" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-s390x" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-sh3" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-sh3eb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-sh4" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-sh4eb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-sparc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "netbsd-sparc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "nios2" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro"
+      ],
+      "openbsd-alpha" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro"
+      ],
+      "openbsd-amd64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-arc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-arm" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-arm64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-armeb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-hppa" : [
+         "format",
+         "fortify"
+      ],
+      "openbsd-i386" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-ia64" : [
+         "format",
+         "fortify"
+      ],
+      "openbsd-loong64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-m68k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-mips" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-mips64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-mips64el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-mips64r6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-mips64r6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-mipsel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-mipsr6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-mipsr6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-nios2" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro"
+      ],
+      "openbsd-or1k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-powerpc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-powerpcel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-ppc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-ppc64el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-riscv64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-s390" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-s390x" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-sh3" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-sh3eb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-sh4" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-sh4eb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-sparc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "openbsd-sparc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "or1k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "powerpc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "powerpcel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "ppc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "ppc64el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "riscv64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "s390" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "s390x" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "sh3" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "sh3eb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "sh4" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "sh4eb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "solaris-amd64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "solaris-i386" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "solaris-sparc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "solaris-sparc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "sparc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "sparc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-alpha" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro"
+      ],
+      "uclibc-linux-amd64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-arc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-arm" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-arm64" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-armeb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-armel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-hppa" : [
+         "format",
+         "fortify"
+      ],
+      "uclibc-linux-i386" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-ia64" : [
+         "format",
+         "fortify"
+      ],
+      "uclibc-linux-loong64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-m68k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-mips" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-mips64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-mips64el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-mips64r6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-mips64r6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-mipsel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-mipsr6" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-mipsr6el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-nios2" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro"
+      ],
+      "uclibc-linux-or1k" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-powerpc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-powerpcel" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-ppc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-ppc64el" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-riscv64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-s390" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-s390x" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-sh3" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-sh3eb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-sh4" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-sh4eb" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-sparc" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "uclibc-linux-sparc64" : [
+         "bindnow",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ],
+      "x32" : [
+         "bindnow",
+         "branch",
+         "format",
+         "fortify",
+         "pie",
+         "relro",
+         "stackprotector",
+         "stackprotectorstrong"
+      ]
+   }
+}

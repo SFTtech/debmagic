@@ -5,6 +5,7 @@ mod archive_liberty;
 mod autotools;
 mod binaries_architecture;
 mod binaries_debug_symbols_detached;
+mod binaries_hardening;
 mod binaries_location;
 mod binaries_perl;
 mod binaries_prerequisites_php;
@@ -129,7 +130,9 @@ mod languages_rust;
 mod libraries_debug_symbols;
 mod libraries_shared_file_permissions;
 mod libraries_shared_multi_arch;
+mod libraries_shared_relocation;
 mod libraries_shared_soname;
+mod libraries_shared_stack;
 mod libraries_static;
 mod libtool;
 mod lintian_overrides;
@@ -225,6 +228,9 @@ pub(crate) use autotools::{
 pub(crate) use binaries_architecture::ArchIndependentPackageContainsBinaryOrObject;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsDirectlyInUsrLibDebug;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsNotDetached;
+pub(crate) use binaries_hardening::HardeningNoBindnow;
+pub(crate) use binaries_hardening::HardeningNoPie;
+pub(crate) use binaries_hardening::HardeningNoRelro;
 pub(crate) use binaries_location::{
     ArchDependentFileInUsrShare, ArchDependentFileNotInArchSpecificDirectory, BinaryInEtc,
 };
@@ -319,6 +325,9 @@ pub(crate) use libraries_debug_symbols::StrippedLibrary;
 pub(crate) use libraries_shared_file_permissions::OddPermissionsOnSharedLibrary;
 pub(crate) use libraries_shared_file_permissions::SharedLibraryIsExecutable;
 pub(crate) use libraries_shared_multi_arch::SharedLibraryIsMultiArchForeign;
+pub(crate) use libraries_shared_relocation::SpecificAddressInSharedLibrary;
+pub(crate) use libraries_shared_stack::ExecutableStackInSharedLibrary;
+pub(crate) use libraries_shared_stack::SharedLibraryLacksStackSection;
 pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStatoverride;
 pub(crate) use origtar::EmptyUpstreamSources;
 pub(crate) use shell_csh::CshConsideredHarmful;

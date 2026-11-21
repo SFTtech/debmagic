@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): shared-library-lacks-stack-section (LN1155) [usr/lib/libfoo.so.1]
+E: example (binary): shared-library-lacks-stack-section (LN1155) [usr/lib/libfoo.so.1]
+E: example (binary): shared-library-lacks-stack-section (LN1155) [usr/lib/libfoo.so.1]
+E: example (binary): shared-library-lacks-stack-section (LN1155) [usr/lib/libfoo.so.1]

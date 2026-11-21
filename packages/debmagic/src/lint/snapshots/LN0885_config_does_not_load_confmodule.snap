@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): config-does-not-load-confmodule (LN0885) [config]
+W: example (binary): config-does-not-load-confmodule (LN0885) [config]
+W: example (binary): config-does-not-load-confmodule (LN0885) [config]

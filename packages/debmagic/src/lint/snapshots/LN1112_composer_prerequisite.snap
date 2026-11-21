@@ -1,0 +1,18 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): composer-prerequisite (LN1112) Build-Depends (in source paragraph) [debian/control:2]
+W: example (source): composer-prerequisite (LN1112) Build-Depends-Indep (in source paragraph) [debian/control:2]
+W: example (source): composer-prerequisite (LN1112) Build-Conflicts (in source paragraph) [debian/control:2]
+W: example (source): composer-prerequisite (LN1112) Build-Conflicts-Indep (in source paragraph) [debian/control:2]
+W: example (source): composer-prerequisite (LN1112) Depends (in section for example) [debian/control:6]
+W: example (source): composer-prerequisite (LN1112) Recommends (in section for example) [debian/control:6]
+W: example (source): composer-prerequisite (LN1112) Suggests (in section for example) [debian/control:6]
+W: example (source): composer-prerequisite (LN1112) Breaks (in section for example) [debian/control:6]
+W: example (source): composer-prerequisite (LN1112) Conflicts (in section for example) [debian/control:6]
+W: example (source): composer-prerequisite (LN1112) Provides (in section for example) [debian/control:6]
+W: example (source): composer-prerequisite (LN1112) Replaces (in section for example) [debian/control:6]
+W: example (source): composer-prerequisite (LN1112) Enhances (in section for example) [debian/control:6]
+W: example (source): composer-prerequisite (LN1112) Pre-Depends (in section for example) [debian/control:6]
+W: example (source): composer-prerequisite (LN1112) Build-Depends (in source paragraph) [debian/control:2]
+W: example (source): composer-prerequisite (LN1112) Build-Depends-Indep (in source paragraph) [debian/control:3]

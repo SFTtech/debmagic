@@ -106,6 +106,19 @@ impl PackageRelation {
         self.dependencies.iter().flatten()
     }
 
+    /// Literal text of every alternative the predicate grammar does not parse,
+    /// sorted (lintian's `unparsable_predicates`).
+    pub(crate) fn unparsable_predicates(&self) -> Vec<String> {
+        let mut literals: Vec<String> = self
+            .alternatives()
+            .map(|alternative| Predicate::parse(alternative.text()))
+            .filter(|predicate| !predicate.parsable)
+            .map(|predicate| predicate.literal)
+            .collect();
+        literals.sort();
+        literals
+    }
+
     /// AND of `self` and `other`, skipping an empty relation.
     ///
     /// lintian's `logical_and`. Comma-separated dependencies of `other` follow

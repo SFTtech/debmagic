@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): testsuite-dependency-has-unparsable-elements (LN1139) "missing a comma" [debian/tests/control:2]

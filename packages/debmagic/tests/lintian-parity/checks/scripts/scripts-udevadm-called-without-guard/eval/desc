@@ -1,0 +1,2 @@
+Testname: scripts-udevadm-called-without-guard
+Check: scripts

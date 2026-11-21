@@ -1,0 +1,12 @@
+W: lintian-display-level source: changelog-file-missing-explicit-entry 0.0.1-1 -> 1.0+dsfg-1 (missing) -> 1.0+dsfg-1.1 [debian/changelog:1]
+W: lintian-display-level source: dfsg-version-misspelled 1.0+dsfg-1.1
+W: lintian-display-level source: format-3.0-but-debian-changes-patch [debian/patches/debian-changes-1.0+dsfg-1.1]
+W: lintian-display-level source: maintainer-upload-has-incorrect-version-number 1.0+dsfg-1.1 [debian/changelog:1]
+W: lintian-display-level: no-manual-page [usr/bin/script]
+W: lintian-display-level source: obsolete-debian-watch-file-standard 3 [debian/watch]
+P: lintian-display-level source: debian-control-has-unusual-field-spacing Essential [debian/control:12]
+P: lintian-display-level: example-unusual-interpreter /usr/bin/foo [usr/share/doc/lintian-display-level/examples/example]
+P: lintian-display-level source: no-homepage-field
+P: lintian-display-level source: redundant-priority-optional-field [debian/control:2]
+P: lintian-display-level source: redundant-rules-requires-root-no-field [debian/control:7]
+X: lintian-display-level source: debian-watch-does-not-check-openpgp-signature [debian/watch]

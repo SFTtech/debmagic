@@ -1,3 +1,4 @@
+python-imports-asyncore (source): uses-deprecated-python-stdlib asyncore (deprecated in Python 3.6, removed in Python 3.12) [import.py:9]
 python-imports-asyncore (source): uses-deprecated-python-stdlib asyncore (deprecated in Python 3.6, removed in Python 3.12) [import.py:8]
 python-imports-asyncore (source): uses-deprecated-python-stdlib asyncore (deprecated in Python 3.6, removed in Python 3.12) [import.py:7]
 python-imports-asyncore (source): uses-deprecated-python-stdlib asyncore (deprecated in Python 3.6, removed in Python 3.12) [import.py:6]
@@ -5,3 +6,4 @@ python-imports-asyncore (source): uses-deprecated-python-stdlib asyncore (deprec
 python-imports-asyncore (source): uses-deprecated-python-stdlib asyncore (deprecated in Python 3.6, removed in Python 3.12) [import.py:4]
 python-imports-asyncore (source): uses-deprecated-python-stdlib asyncore (deprecated in Python 3.6, removed in Python 3.12) [import.py:3]
 python-imports-asyncore (source): uses-deprecated-python-stdlib asyncore (deprecated in Python 3.6, removed in Python 3.12) [from.py:3]
+python-imports-asyncore (source): uses-deprecated-python-stdlib asynchat (deprecated in Python 3.6, removed in Python 3.12) [import.py:9]

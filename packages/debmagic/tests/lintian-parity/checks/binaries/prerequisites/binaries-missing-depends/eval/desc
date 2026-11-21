@@ -1,0 +1,2 @@
+Testname: binaries-missing-depends
+Check: binaries/prerequisites

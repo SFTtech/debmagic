@@ -1,0 +1,2 @@
+Testname: homepage-refers-to-obsolete-debian-infrastructure
+Check: fields/homepage

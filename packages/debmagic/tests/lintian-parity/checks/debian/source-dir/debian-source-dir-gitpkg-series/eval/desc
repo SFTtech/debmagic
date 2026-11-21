@@ -1,0 +1,2 @@
+Testname: debian-source-dir-gitpkg-series
+Check: debian/source-dir

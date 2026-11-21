@@ -29,9 +29,10 @@ relations (binary): virtual-package-depends-without-real-package-depends Depends
 relations (binary): package-relation-with-self Depends: relations (<< 3)
 relations (binary): ored-depends-on-obsolete-package Recommends: gs-aladdin
 relations (binary): needlessly-depends-on-awk Pre-Depends
-relations (binary): mail-transport-agent-dependency-does-not-specify-default-mta Depends: relations (<< 3), dpkg, bash (>> 2.0), mail-transport-agent, foo (>> 2.0), foo (<< 2.2), coreutils, null (>= 0), makedev
+relations (binary): mail-transport-agent-dependency-does-not-specify-default-mta Depends: relations (<< 3), dpkg, bash (>> 2.0), mail-transport-agent, foo (>> 2.0), foo (<< 2.2), coreutils, null (>= 0), makedev, default-mysql-client
 relations (binary): depends-on-old-emacs Recommends: emacs21
 relations (binary): depends-on-obsolete-package Recommends: gs
+relations (binary): depends-on-obsolete-package Depends: default-mysql-client => mariadb-client or mariadb-client-compat | mysql-client
 relations (binary): depends-on-essential-package-without-using-version Depends: dpkg
 relations (binary): depends-on-essential-package-without-using-version Depends: coreutils
 relations (binary): depends-exclusively-on-makedev Depends

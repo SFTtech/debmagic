@@ -1,0 +1,8 @@
+Testname: phppear-pearok
+Test-Against:
+ missing-pkg-php-tools-addon
+ missing-pkg-php-tools-buildsystem
+ pear-package-but-missing-dependency
+ pear-package-not-using-substvar
+ pecl-package-requires-build-dependency
+Check: languages/php/pear

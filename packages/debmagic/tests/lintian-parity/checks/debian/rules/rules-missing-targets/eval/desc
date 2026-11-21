@@ -1,0 +1,2 @@
+Testname: rules-missing-targets
+Check: debian/rules

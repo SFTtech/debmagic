@@ -1,0 +1,4 @@
+Testname: source-copyright-missing-notice-file-for-apache-license-unrel
+Test-Against:
+ missing-notice-file-for-apache-license
+Check: debian/copyright/apache-notice

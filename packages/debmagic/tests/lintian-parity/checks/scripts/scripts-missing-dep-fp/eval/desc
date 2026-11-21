@@ -1,0 +1,4 @@
+Testname: scripts-missing-dep-fp
+Test-Against:
+ python3-script-but-no-python3-dep
+Check: scripts

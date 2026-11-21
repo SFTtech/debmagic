@@ -1,0 +1,4 @@
+Testname: debhelper-package-uses-debhelper-with-prefix-plus
+Test-Against:
+ package-does-not-use-debhelper
+Check: debhelper

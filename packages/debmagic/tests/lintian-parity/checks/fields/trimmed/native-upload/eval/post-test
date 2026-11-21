@@ -1,0 +1,2 @@
+# retain one field for illustration; many are too volatile for a test
+/[^ ]* \([^)]*\): trimmed-field Maintainer .*/!d

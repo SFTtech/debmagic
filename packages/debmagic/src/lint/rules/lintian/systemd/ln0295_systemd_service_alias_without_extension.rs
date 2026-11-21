@@ -72,10 +72,6 @@ mod tests {
                 "[Install]\nAlias=bare\nAlias=\n",
             ),
             unit(
-                "usr/lib/systemd/system/spaced.service",
-                "[Install]\nAlias = bare\n",
-            ),
-            unit(
                 "usr/lib/systemd/system/wrong.service",
                 "[Unit]\nAlias=bare\n",
             ),
@@ -93,6 +89,10 @@ mod tests {
             )]),
         ];
         let fail = vec![
+            unit(
+                "usr/lib/systemd/system/spaced.service",
+                "[Install]\nAlias = bare\n",
+            ),
             unit(
                 "usr/lib/systemd/system/bare.service",
                 "[Install]\nAlias=systemd-aliasd.service\nAlias=anothertest\n",

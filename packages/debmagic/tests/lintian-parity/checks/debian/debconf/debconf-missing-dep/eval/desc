@@ -1,0 +1,2 @@
+Testname: debconf-missing-dep
+Check: debian/debconf

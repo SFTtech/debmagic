@@ -1,0 +1,3 @@
+deb-format-lzma (binary): malformed-deb-archive third (official) member data.tar.lzma not data.tar.(gz|xz|bz2)
+deb-format-lzma (binary): data-tarball-compression-format lzma
+deb-format-lzma (binary): control-tarball-compression-format gz

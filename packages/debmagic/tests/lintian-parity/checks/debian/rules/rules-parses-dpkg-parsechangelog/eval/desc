@@ -1,0 +1,2 @@
+Testname: rules-parses-dpkg-parsechangelog
+Check: debian/rules

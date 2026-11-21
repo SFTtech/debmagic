@@ -1,0 +1,2 @@
+Testname: rules-symlink
+Check: debian/rules

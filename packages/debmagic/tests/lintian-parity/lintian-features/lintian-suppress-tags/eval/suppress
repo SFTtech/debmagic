@@ -1,0 +1,13 @@
+# This is a comment.
+
+# Suppress a tag not present in the test.
+malformed-override
+
+# Suppress two tags on the same line.
+section-is-dh_make-template,debhelper-but-no-misc-depends
+
+# Suppress pedantic tag for rrr
+redundant-rules-requires-root-no-field
+
+# Suppress tag for priority:optional
+redundant-priority-optional-field

@@ -1,0 +1,2 @@
+Testname: debconf-config-general
+Check: debian/debconf

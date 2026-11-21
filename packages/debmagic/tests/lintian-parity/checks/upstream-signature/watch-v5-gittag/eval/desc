@@ -1,0 +1,4 @@
+Testname: watch-v5-gittag
+Test-Against:
+ orig-tarball-missing-upstream-signature
+Check: upstream-signature

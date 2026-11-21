@@ -1,0 +1,4 @@
+Testname: author-or-from-is-better
+Check: debian/patches/dep3
+Test-Against:
+ dep3-format-patch-author-or-from-is-better

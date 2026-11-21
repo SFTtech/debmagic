@@ -1,4 +1,4 @@
 ---
 source: packages/debmagic/src/lint/tester.rs
 ---
-E: example (source): rules-require-build-prerequisite (LN0712) (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+E: example (source): rules-require-build-prerequisite (LN0712) (does not satisfy debhelper | debhelper-compat) [debian/rules]

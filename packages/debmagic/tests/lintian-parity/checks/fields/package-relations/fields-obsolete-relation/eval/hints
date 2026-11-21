@@ -1,0 +1,2 @@
+fields-obsolete-relation (binary): obsolete-relation-form Conflicts: libsqlite3-0 (< 3.6.12)
+fields-obsolete-relation (binary): conflicts-with-version libsqlite3-0 (< 3.6.12)

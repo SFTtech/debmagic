@@ -1,0 +1,2 @@
+Testname: legacy-etcfiles
+Check: files/hard-links

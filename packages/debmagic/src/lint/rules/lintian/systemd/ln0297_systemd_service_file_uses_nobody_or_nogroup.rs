@@ -82,10 +82,6 @@ mod tests {
                 "[Unit]\nUser=nobody\nGroup=nogroup\n",
             ),
             unit(
-                "usr/lib/systemd/system/spaced.service",
-                "[Service]\nUser = nobody\n",
-            ),
-            unit(
                 "usr/lib/systemd/system/cleared.service",
                 "[Service]\nUser=nobody\nUser=\n",
             ),
@@ -99,6 +95,10 @@ mod tests {
             )]),
         ];
         let fail = vec![
+            unit(
+                "usr/lib/systemd/system/spaced.service",
+                "[Service]\nUser = nobody\n",
+            ),
             unit(
                 "usr/lib/systemd/system/both.service",
                 "[Service]\nUser=nobody\nGroup=nogroup\n",

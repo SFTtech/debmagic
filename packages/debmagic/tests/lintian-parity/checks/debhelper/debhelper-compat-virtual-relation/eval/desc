@@ -1,0 +1,5 @@
+Testname: debhelper-compat-virtual-relation
+Test-Against:
+ package-uses-debhelper-but-lacks-build-depends
+ no-versioned-debhelper-prerequisite
+Check: debhelper

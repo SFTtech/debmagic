@@ -1,0 +1,12 @@
+Format: 1.8
+Date: Tue, 31 Mar 2026 17:46:22 +0200
+Source: changes-bad-ubuntu-distribution
+Binary: changes-bad-ubuntu-distribution
+Architecture: source all
+Version: 1.0+ubuntu2
+Distribution: wispy
+Urgency: low
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Changed-By: Debian Lintian Maintainers <lintian-maint@debian.org>
+Description:
+ changes-bad-ubuntu-distribution - Test for invalid Ubuntu distribution

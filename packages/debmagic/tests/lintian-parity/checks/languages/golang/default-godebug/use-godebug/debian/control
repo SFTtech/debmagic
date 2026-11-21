@@ -2,7 +2,7 @@ Source: use-godebug
 Section: devel
 Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
 Standards-Version: 4.7.4.1
-Build-Depends: debhelper-compat (= 14), golang-go (>= 2:1.1.1-4)
+Build-Depends: debhelper-compat (= 14), golang-go (>= 2:1.27~)
 Homepage: https://lintian.debian.org/
 
 Package: use-godebug

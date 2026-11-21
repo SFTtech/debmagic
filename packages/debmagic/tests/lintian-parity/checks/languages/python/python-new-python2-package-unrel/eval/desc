@@ -1,0 +1,4 @@
+Testname: python-new-python2-package-unrel
+Test-Against:
+ new-package-should-not-package-python2-module
+Check: languages/python

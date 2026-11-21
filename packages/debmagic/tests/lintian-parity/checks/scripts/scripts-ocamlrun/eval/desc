@@ -1,0 +1,4 @@
+Testname: scripts-ocamlrun
+Test-Against: missing-dep-for-interpreter
+See-Also: Debian Bug#495431
+Check: scripts

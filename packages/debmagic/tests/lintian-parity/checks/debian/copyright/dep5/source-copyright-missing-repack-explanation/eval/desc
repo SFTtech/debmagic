@@ -1,0 +1,2 @@
+Testname: source-copyright-missing-repack-explanation
+Check: debian/copyright/dep5

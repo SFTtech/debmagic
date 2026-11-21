@@ -1,0 +1,4 @@
+Testname: rules-missing-targets-with-includes
+Test-Against: debian-rules-missing-required-target
+See-Also: Debian Bug#607281
+Check: debian/rules

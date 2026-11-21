@@ -1,0 +1,5 @@
+Testname: rules-override-dh-foo-does-not-call-dh-foo-unrel
+Test-Against:
+ override_dh_clean-does-not-call-dh_clean
+ override_dh_fixperms-does-not-call-dh_fixperms
+Check: debian/rules

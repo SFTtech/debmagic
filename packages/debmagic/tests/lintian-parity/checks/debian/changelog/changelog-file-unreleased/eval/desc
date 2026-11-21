@@ -1,0 +1,6 @@
+Testname: changelog-file-unreleased
+Test-Against:
+ latest-debian-changelog-entry-without-new-date
+ unreleased-changelog-distribution
+See-Also: Debian Bug#560149
+Check: debian/changelog

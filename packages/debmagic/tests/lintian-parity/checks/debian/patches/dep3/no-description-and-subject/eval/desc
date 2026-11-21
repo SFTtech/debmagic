@@ -1,0 +1,4 @@
+Testname: no-description-and-subject
+Check: debian/patches/dep3
+Test-Against:
+ invalid-dep3-format-patch-no-description-and-subject

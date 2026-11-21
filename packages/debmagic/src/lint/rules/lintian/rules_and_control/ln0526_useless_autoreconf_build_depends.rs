@@ -18,7 +18,7 @@ declare_rule! {
     /// (`dh_autotools-dev_updateconfig`, `dh_autotools-dev_restoreconfig`, or
     /// the `autotools-dev` addon). Only reached after a dh command has been
     /// seen; a `Build-Driver` other than `debian-rules` is not scanned. Extra
-    /// is `(does not need to satisfy` the package and `:any)`. There is no
+    /// is `(does not need to satisfy` the package`)`. There is no
     /// Location. Applies to the Source tree and Source package.
     UselessAutoreconfBuildDepends,
     code = "LN0526",
@@ -55,7 +55,7 @@ impl SourceRule for UselessAutoreconfBuildDepends {
         }
         for package in found {
             ctx.diagnostic(Diagnostic::warn(format!(
-                "(does not need to satisfy {package}:any)"
+                "(does not need to satisfy {package})"
             )));
         }
     }

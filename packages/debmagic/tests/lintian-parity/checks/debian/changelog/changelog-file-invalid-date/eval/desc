@@ -1,0 +1,4 @@
+Testname: changelog-file-invalid-date
+Test-Against:
+ debian-changelog-has-wrong-day-of-week
+Check: debian/changelog

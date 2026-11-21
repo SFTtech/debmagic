@@ -1,0 +1,2 @@
+Testname: runtime-test-file-uses-supported-python-versions-without-test-depends
+Check: testsuite

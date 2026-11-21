@@ -1,0 +1,2 @@
+Testname: upstream-metadata-missing-repository
+Check: debian/upstream/metadata

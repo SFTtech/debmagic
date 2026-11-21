@@ -1,0 +1,5 @@
+Testname: cruft-general-upstream
+Check: cruft
+Todo: In unstable, file(1) cannot detect files byte-compiled by Python3. (Bug#950516)
+# also update the version number below when Bug#950516 was fixed
+Test-Depends: file (>= 1:5.38)

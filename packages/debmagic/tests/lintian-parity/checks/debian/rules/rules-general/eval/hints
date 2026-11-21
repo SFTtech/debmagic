@@ -1,4 +1,4 @@
-rules-general (source): missing-build-depends-for-clean-target-in-debian-rules (does not satisfy debhelper:any | debhelper-compat:any) [debian/rules]
+rules-general (source): missing-build-depends-for-clean-target-in-debian-rules (does not satisfy debhelper | debhelper-compat) [debian/rules]
 rules-general (source): debian-rules-uses-special-shell-variable [debian/rules:15]
 rules-general (source): debian-rules-uses-deb-build-opts [debian/rules:14]
 rules-general (source): debian-rules-updates-control-automatically [debian/rules:6]

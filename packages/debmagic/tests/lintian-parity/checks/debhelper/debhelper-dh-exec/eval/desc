@@ -1,0 +1,4 @@
+Testname: debhelper-dh-exec
+Options: --suppress-tags
+ no-versioned-debhelper-prerequisite
+Check: debhelper

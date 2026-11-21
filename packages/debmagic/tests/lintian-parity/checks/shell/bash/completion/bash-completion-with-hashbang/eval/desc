@@ -1,0 +1,4 @@
+Testname: bash-completion-with-hashbang
+Check: shell/bash/completion
+See-Also:
+ https://salsa.debian.org/lintian/lintian/-/merge_requests/292#note_139494

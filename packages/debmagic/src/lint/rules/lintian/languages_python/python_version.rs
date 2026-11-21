@@ -1,8 +1,8 @@
-//! Source-paragraph Python version fields from lintian 2.139.0
+//! The source-paragraph Python version field from lintian 2.144.0
 //! `Check::Languages::Python`.
 //!
-//! `X-Python-Version`, `XS-Python-Version`, and `X-Python3-Version`, in that
-//! order. Ancient thresholds are lintian 2.139.0 `data/python/versions`.
+//! Only `X-Python3-Version` is read. The ancient threshold is lintian 2.144.0
+//! `data/python/versions`.
 
 use std::sync::LazyLock;
 
@@ -10,24 +10,18 @@ use regex::Regex;
 
 use crate::lint::debian_control::DebianControl;
 
-pub(super) const FIELDS: &[&str] = &["X-Python-Version", "XS-Python-Version", "X-Python3-Version"];
+pub(super) const FIELDS: &[&str] = &["X-Python3-Version"];
 
-/// `(major, ancient version)` from `ancient-python2` / `ancient-python3`.
-static ANCIENT: LazyLock<Vec<(&'static str, &'static str)>> = LazyLock::new(|| {
-    crate::lint::data::lines(include_str!("../../../data/python/versions"))
-        .filter_map(|line| {
-            let (key, value) = crate::lint::data::assignment(line)?;
-            let major = key.strip_prefix("ancient-python")?;
-            Some((major, value))
-        })
-        .collect()
+/// The `ancient-python` version of `data/python/versions`.
+static ANCIENT: LazyLock<Option<&'static str>> = LazyLock::new(|| {
+    crate::lint::data::lines(include_str!("../../../data/python/versions")).find_map(|line| {
+        let (key, value) = crate::lint::data::assignment(line)?;
+        (key == "ancient-python").then_some(value)
+    })
 });
 
-pub(super) fn ancient_threshold(major: &str) -> Option<&'static str> {
-    ANCIENT
-        .iter()
-        .find(|(python, _)| *python == major)
-        .map(|(_, version)| *version)
+pub(super) fn ancient_threshold() -> Option<&'static str> {
+    *ANCIENT
 }
 
 static NUMBER: LazyLock<Regex> =

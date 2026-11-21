@@ -1,0 +1,2 @@
+Testname: shared-libs-ldconfig-not-symlink
+Check: libraries/shared/links

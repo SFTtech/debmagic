@@ -1,0 +1,3 @@
+changed-by-localhost (changes): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changed-by-localhost (changes): mail-contact Changed-By Someone <someone@localhost.localdomain>
+changed-by-localhost (changes): bogus-mail-host Changed-By someone@localhost.localdomain

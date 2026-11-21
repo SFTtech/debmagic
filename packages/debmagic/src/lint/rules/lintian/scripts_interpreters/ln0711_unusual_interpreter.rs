@@ -164,8 +164,8 @@ mod tests {
             // Known interpreters, including versioned names of a family.
             script("usr/bin/tool", "#!/bin/sh\n"),
             script("usr/bin/tool", "#!/usr/bin/perl\n"),
-            script("usr/bin/tool", "#!/usr/bin/pike\n"),
-            script("usr/bin/tool", "#!/usr/bin/pike7.6\n"),
+            script("usr/bin/tool", "#!/usr/bin/octave\n"),
+            script("usr/bin/tool", "#!/usr/bin/octave3.0\n"),
             script("usr/bin/tool", "#!/usr/bin/env python3\n"),
             // Interpreters that another Tag or no Tag covers.
             script("usr/bin/tool", "#!/usr/local/bin/zorg\n"),
@@ -211,6 +211,8 @@ mod tests {
             script("usr/share/tool.in", "#!<<PERL>>\n"),
         ];
         let fail = vec![
+            script("usr/bin/tool", "#!/usr/bin/pike\n"),
+            script("usr/bin/tool", "#!/usr/bin/pike7.6\n"),
             script("usr/bin/tool", "#!/usr/bin/lintian\n"),
             script("usr/bin/tool", "#!/usr/bin/env python3.7\n"),
             script("usr/bin/tool", "#!/usr/bin/env zorg\n"),

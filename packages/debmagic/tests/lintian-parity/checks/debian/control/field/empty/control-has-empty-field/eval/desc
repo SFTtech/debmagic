@@ -1,0 +1,2 @@
+Testname: control-has-empty-field
+Check: debian/control/field/empty

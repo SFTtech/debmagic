@@ -16,9 +16,8 @@ static SERVICE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"/systemd/system/.*\.service$").expect("valid regex"));
 static SECTION: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^\[([^\]]+)\]$").expect("valid regex"));
-/// First `=` splits the key. Whitespace immediately before `=` stays on the
-/// key, as in lintian 2.139.0's greedy `^(.*)\s*=\s*(.*)$`, so `After =`
-/// is not the key `After`.
+/// First `=` splits the key; whitespace around it is dropped, as in lintian
+/// 2.144.0's `^(.*?)\s*=\s*(.*)$`.
 static ASSIGNMENT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(.*?)(\s*)=\s*(.*)$").expect("valid regex"));
 
@@ -102,7 +101,7 @@ pub(in crate::lint::rules::lintian) fn service_values(
         let Some(caps) = ASSIGNMENT.captures(line) else {
             continue;
         };
-        if &caps[1] != key || !caps[2].is_empty() {
+        if &caps[1] != key {
             continue;
         }
         let value = &caps[3];
@@ -207,9 +206,12 @@ mod tests {
     }
 
     #[test]
-    fn space_before_equals_is_part_of_the_key() {
+    fn space_around_equals_is_not_part_of_the_key() {
         let lines = service_lines("[Unit]\nAfter = syslog.target\nAfter=dbus.target\n");
-        assert_eq!(service_values(&lines, "Unit", "After"), ["dbus.target"]);
+        assert_eq!(
+            service_values(&lines, "Unit", "After"),
+            ["syslog.target", "dbus.target"]
+        );
     }
 
     #[test]

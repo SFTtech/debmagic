@@ -1,0 +1,3 @@
+# The LDFLAGS parts of the hardening flags are a bit difficult to pass
+# to the linker so just drop them.
+/hardening-no-/ d

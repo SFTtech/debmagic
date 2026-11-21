@@ -23,8 +23,8 @@ declare_rule! {
     /// basename is looked up in lintian's interpreter table (`nodejs` falls
     /// back to `node`). The table's relation must be implied by `Pre-Depends`,
     /// `Depends`, `Recommends`, `Suggests`, `Provides`, and the package name.
-    /// A family name such as `pike` needs any listed version; a versioned
-    /// name such as `pike7.6` needs that version. Extra is the interpreter
+    /// A family name such as `octave` needs any listed version; a versioned
+    /// name such as `octave3.0` needs that version. Extra is the interpreter
     /// and `(does not satisfy <relation>)`; the path is the Location.
     ///
     /// Paths under `usr/share/doc/`, `usr/src/`, and
@@ -184,8 +184,8 @@ mod tests {
             script("usr/bin/tool", "#!/usr/bin/lefty\n").field("Depends", "graphviz"),
             script("usr/bin/tool", "#!/usr/bin/wish\n").field("Recommends", "tk8.4 | wish"),
             script("usr/bin/tool", "#!/usr/bin/make -f\n").field("Depends", "build-essential"),
-            script("usr/bin/tool", "#!/usr/bin/pike7.6\n").field("Suggests", "pike7.6-core"),
-            script("usr/bin/tool", "#!/usr/bin/pike\n").field("Pre-Depends", "pike7.8"),
+            script("usr/bin/tool", "#!/usr/bin/octave3.0\n").field("Suggests", "octave3.0"),
+            script("usr/bin/tool", "#!/usr/bin/octave\n").field("Pre-Depends", "octave"),
             script("usr/bin/tool", "#!/usr/bin/gnuplot\n").field("Provides", "gnuplot"),
             script("usr/bin/tool", "#!/usr/bin/gnuplot\n").package("gnuplot"),
             script("usr/bin/tool", "#!/usr/bin/run\n").field("Depends", "runit (>= 2.1.2-23)"),
@@ -223,8 +223,9 @@ mod tests {
         ];
         let fail = vec![
             script("usr/bin/lefty-foo", "#!/usr/local/bin/lefty\n").field("Depends", "test"),
-            script("usr/bin/unversioned-pike", "#!/usr/bin/pike\n"),
-            script("usr/bin/versioned-pike", "#!/usr/bin/pike7.6\n").field("Depends", "pike7.8"),
+            script("usr/bin/unversioned-octave", "#!/usr/bin/octave\n"),
+            script("usr/bin/versioned-octave", "#!/usr/bin/octave3.0\n")
+                .field("Depends", "octave3.2"),
             script("usr/bin/jruby-broken", "#!/usr/bin/jruby\n"),
             script("usr/bin/usr-bin-env-nodejs", "#!/usr/bin/env nodejs\n"),
             script("usr/bin/usr-bin-env-node", "#!/usr/bin/env node\n"),

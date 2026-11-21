@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=script
+Type=Application
+Comment=Incorrectly limited to particular environments
+Categories=Development;
+Exec=script
+OnlyShowIn=GNOME;KDE;
+Icon=foo
+Keywords=Lintian

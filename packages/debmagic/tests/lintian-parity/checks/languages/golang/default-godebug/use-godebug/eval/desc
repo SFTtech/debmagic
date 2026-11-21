@@ -1,0 +1,2 @@
+Testname: use-godebug
+Check: languages/golang/default-godebug

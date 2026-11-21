@@ -1,0 +1,4 @@
+Testname: debhelper-compat-old
+Options: --include-dir ./lintian-include-dir
+Profile: lintian-test
+Check: deb-format

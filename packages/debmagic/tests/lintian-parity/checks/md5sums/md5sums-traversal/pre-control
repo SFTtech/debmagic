@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -e
+
+builddir="$1"
+
+rm -f "$builddir/md5sums"
+ln -sf ../copyright "$builddir/md5sums"

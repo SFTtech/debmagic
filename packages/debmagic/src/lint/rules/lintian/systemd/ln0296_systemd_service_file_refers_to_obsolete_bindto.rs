@@ -70,10 +70,6 @@ mod tests {
                 "usr/lib/systemd/system/service.service",
                 "[Service]\nBindTo=foo\n",
             ),
-            unit(
-                "usr/lib/systemd/system/spaced.service",
-                "[Unit]\nBindTo = foo\n",
-            ),
             unit("usr/lib/systemd/user/user.service", "[Unit]\nBindTo=foo\n"),
             BinaryPackageCase::from(vec![(
                 "usr/lib/systemd/system/masked.service".to_string(),
@@ -81,6 +77,10 @@ mod tests {
             )]),
         ];
         let fail = vec![
+            unit(
+                "usr/lib/systemd/system/spaced.service",
+                "[Unit]\nBindTo = foo\n",
+            ),
             unit(
                 "usr/lib/systemd/system/bound.service",
                 "[Unit]\nBindTo=foo\n",

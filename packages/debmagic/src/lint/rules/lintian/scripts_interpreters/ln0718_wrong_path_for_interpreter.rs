@@ -115,16 +115,43 @@ fn maintainer_scripts(files: &FileTree) -> Vec<(PathBuf, String)> {
                 return None;
             }
             let known = interpreter::lookup(basename)?;
-            let extra = mismatch(&interpreter, known.folder, basename)?;
+            let extra = mismatch_with(&interpreter, known.folder, basename, true)?;
             Some((entry.path().to_path_buf(), extra))
         })
         .collect()
 }
 
-/// The extra when `interpreter` does not contain `folder/basename`. lintian
-/// matches that text unanchored.
+/// The extra when `interpreter` is not at the table folder. A table folder
+/// under `/usr/bin/`, `/usr/sbin/`, or `/usr/lib/` also accepts the path
+/// without `/usr`, since Debian is usr-merged (lintian skips that for perl in
+/// installed scripts). Other folders are matched as unanchored text.
 fn mismatch(interpreter: &str, folder: &str, basename: &str) -> Option<String> {
+    mismatch_with(interpreter, folder, basename, false)
+}
+
+fn mismatch_with(
+    interpreter: &str,
+    folder: &str,
+    basename: &str,
+    maintainer_script: bool,
+) -> Option<String> {
     let expected = format!("{folder}/{basename}");
+    let merged = ["/usr/bin/", "/usr/sbin/", "/usr/lib/"]
+        .iter()
+        .any(|prefix| expected.starts_with(prefix));
+    if merged && (maintainer_script || basename != "perl") {
+        let non_usr = &expected["/usr".len()..];
+        let accepted = interpreter.starts_with(non_usr) || interpreter.starts_with(&expected);
+        if accepted {
+            return None;
+        }
+        // lintian prints the regex itself for maintainer scripts.
+        return Some(if maintainer_script {
+            format!("{interpreter} != ^(?:/usr)?{non_usr}")
+        } else {
+            format!("{interpreter} != {non_usr} OR {expected}")
+        });
+    }
     (!interpreter.contains(&expected)).then(|| format!("{interpreter} != {expected}"))
 }
 
@@ -161,7 +188,8 @@ mod tests {
             script("usr/bin/tool", "#!/usr/bin/perl\n"),
             script("usr/bin/tool", "#!/bin/sh\n"),
             script("usr/bin/tool", "#!/usr/bin/sh\n"),
-            script("usr/bin/tool", "#!/usr/bin/pike7.6\n"),
+            script("usr/bin/tool", "#!/usr/bin/tclsh8.6\n"),
+            script("usr/bin/tool", "#!/bin/ruby1.8\n"),
             script("usr/bin/tool", "#!/usr/bin/ruby1.8\n"),
             script("usr/bin/tool", "#!/usr/bin/wish8.6\n"),
             script("usr/bin/tool", "#!/usr/bin/python3 -u\n"),
@@ -203,6 +231,8 @@ mod tests {
             maintainer("preinst", "#!/usr/local/bin/perl\n"),
             maintainer("preinst", "#!/usr/bin/python3\n"),
             maintainer("config", "#!/usr/bin/perl\n"),
+            maintainer("postinst", "#!/bin/perl\n"),
+            maintainer("postrm", "#!/bin/perl\n"),
             // Not a maintainer script name.
             maintainer("templates", "#!/bin/perl\n"),
             maintainer("README", "#!/bin/perl\n"),
@@ -210,9 +240,8 @@ mod tests {
         let fail = vec![
             script("usr/bin/wrong-perl", "#!/bin/perl\n"),
             script("usr/bin/usr-local-perl", "#!/usr/local/bin/perl\n"),
-            script("usr/bin/wrong-ruby", "#!/bin/ruby1.8\n"),
             script("usr/bin/lefty-foo", "#!/usr/local/bin/lefty\n"),
-            script("usr/bin/wrong-pike", "#!/bin/pike\n"),
+            script("usr/bin/wrong-ruby", "#!/opt/ruby1.8\n"),
             script("usr/bin/relative-perl", "#!perl\n"),
             // Not in bin/ but absolute, or executable.
             BinaryPackageCase::from(vec![("usr/share/foo/tool", TestFile::new("#!/bin/perl\n"))]),
@@ -234,8 +263,8 @@ mod tests {
             .udeb(),
             // Relative interpreter that is not `env`, executable.
             script("usr/bin/relative-bash", "#!bash\n"),
-            maintainer("postinst", "#!/bin/perl\n"),
-            maintainer("postrm", "#!/bin/perl\n").udeb(),
+            maintainer("postinst", "#!/opt/bin/perl\n"),
+            maintainer("postrm", "#!/opt/bin/perl\n").udeb(),
             maintainer("prerm", "#!bash\n"),
         ];
         BinaryPackageTester::new(WrongPathForInterpreter, pass, fail).test_and_snapshot();

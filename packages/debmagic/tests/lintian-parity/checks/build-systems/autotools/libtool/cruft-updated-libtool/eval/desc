@@ -1,0 +1,4 @@
+Testname: cruft-updated-libtool
+Test-Against: ancient-libtool
+See-Also: Debian Bug#534134
+Check: build-systems/autotools/libtool

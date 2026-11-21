@@ -1,0 +1,3 @@
+deb-format-malformed (binary): malformed-deb-archive third (official) member data.tar.Z not data.tar.(gz|xz|bz2)
+deb-format-malformed (binary): data-tarball-compression-format Z
+deb-format-malformed (binary): control-tarball-compression-format gz

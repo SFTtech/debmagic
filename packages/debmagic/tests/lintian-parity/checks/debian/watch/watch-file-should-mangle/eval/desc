@@ -1,0 +1,2 @@
+Testname: watch-file-should-mangle
+Check: debian/watch

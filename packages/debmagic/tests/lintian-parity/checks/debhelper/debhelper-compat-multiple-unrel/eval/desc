@@ -1,0 +1,4 @@
+Testname: debhelper-compat-multiple-unrel
+Test-Against:
+ debhelper-compat-file-contains-multiple-levels
+Check: debhelper

@@ -1,0 +1,2 @@
+Testname: shared-libs-exec-stack
+Check: debian/shlibs

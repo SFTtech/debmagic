@@ -1,0 +1,2 @@
+Testname: debconf-templates-general
+Check: debian/debconf

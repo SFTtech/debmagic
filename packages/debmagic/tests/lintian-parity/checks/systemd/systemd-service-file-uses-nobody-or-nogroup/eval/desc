@@ -1,0 +1,2 @@
+Testname: systemd-service-file-uses-nobody-or-nogroup
+Check: systemd

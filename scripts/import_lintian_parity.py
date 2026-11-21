@@ -750,7 +750,7 @@ def git_head(path: Path) -> str:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("version", nargs="?", help="lintian version tag (for example 2.139.0)")
+    parser.add_argument("version", nargs="?", help="lintian version tag (for example 2.144.0)")
     parser.add_argument("--lintian-src", type=Path, help="existing lintian source tree (skip clone)")
     parser.add_argument(
         "--output",

@@ -1,0 +1,4 @@
+Testname: rust-binary-hardening
+Test-Architectures: amd64 i386 armhf arm64
+Check: binaries/hardening
+Test-Against: hardening-no-fortify-functions

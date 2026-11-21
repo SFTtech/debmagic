@@ -10,9 +10,8 @@ pub struct MalformedPythonVersion;
 declare_rule! {
     /// A Python version field is not a version, a range, `current`, or `all`.
     ///
-    /// Reads `X-Python-Version`, `XS-Python-Version`, and `X-Python3-Version`
-    /// on the source paragraph. One or two comma-separated parts must match
-    /// the shapes lintian 2.139.0 accepts. More than two parts are accepted
+    /// Reads `X-Python3-Version` on the source paragraph. One or two
+    /// comma-separated parts must match the shapes lintian 2.144.0 accepts. More than two parts are accepted
     /// only when every part is `N.M`. Extra is the field name and its value.
     MalformedPythonVersion,
     code = "LN0103",
@@ -69,12 +68,15 @@ mod tests {
             tree(""),
             tree("X-Python3-Version: >= 3.6\n"),
             tree("X-Python3-Version: all\n"),
-            tree("X-Python-Version: 2.7, 2.6\n"),
+            tree("X-Python3-Version: 3.12, 3.13\n"),
+            // Only X-Python3-Version is read.
+            tree("X-Python-Version: 2.7, foo, 3.5\n"),
             tree("X-Python3-Version: current\n"),
         ];
         let fail = vec![
-            tree("XS-Python-Version: current 2.7\nX-Python3-Version: invalid\n"),
-            tree("X-Python-Version: 2.7, foo, 3.5\n"),
+            tree("X-Python3-Version: current 3.12\n"),
+            tree("X-Python3-Version: invalid\n"),
+            tree("X-Python3-Version: 3.12, foo, 3.13\n"),
         ];
         SourceTreeTester::new(MalformedPythonVersion, pass, fail).test_and_snapshot();
     }

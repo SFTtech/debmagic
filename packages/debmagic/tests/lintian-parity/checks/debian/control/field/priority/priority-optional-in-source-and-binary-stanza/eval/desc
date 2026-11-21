@@ -1,0 +1,2 @@
+Testname: priority-optional-in-source-and-binary-stanza
+Check: debian/control/field/priority

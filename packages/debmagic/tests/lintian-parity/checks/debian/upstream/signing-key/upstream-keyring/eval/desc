@@ -1,0 +1,4 @@
+Testname: upstream-keyring
+Check: debian/upstream/signing-key
+Test-Against:
+ public-upstream-key-unusable

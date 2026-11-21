@@ -1,0 +1,4 @@
+Testname: changelog-version-bzr
+Check: debian/changelog
+Test-Against:
+ malformed-debian-changelog-version

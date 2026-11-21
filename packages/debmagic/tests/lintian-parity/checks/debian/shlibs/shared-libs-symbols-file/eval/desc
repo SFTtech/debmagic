@@ -1,0 +1,2 @@
+Testname: shared-libs-symbols-file
+Check: debian/shlibs

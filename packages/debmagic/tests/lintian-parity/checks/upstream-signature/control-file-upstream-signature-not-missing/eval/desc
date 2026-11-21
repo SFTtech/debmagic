@@ -1,0 +1,4 @@
+Testname: control-file-upstream-signature-not-missing
+Test-Against:
+ orig-tarball-missing-upstream-signature
+Check: upstream-signature

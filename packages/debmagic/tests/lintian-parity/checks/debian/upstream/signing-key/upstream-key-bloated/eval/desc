@@ -1,0 +1,5 @@
+Testname: upstream-key-bloated
+Test-Against:
+ public-upstream-key-unusable
+ public-upstream-keys-in-multiple-locations
+Check: debian/upstream/signing-key

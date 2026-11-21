@@ -1,0 +1,4 @@
+Testname: source-copyright-source-files-excluded
+Test-Against:
+ files-excluded-without-copyright-format-1.0
+Check: debian/copyright/dep5

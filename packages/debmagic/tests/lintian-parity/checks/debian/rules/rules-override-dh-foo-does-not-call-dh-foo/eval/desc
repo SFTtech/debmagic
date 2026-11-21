@@ -1,0 +1,2 @@
+Testname: rules-override-dh-foo-does-not-call-dh-foo
+Check: debian/rules

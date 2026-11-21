@@ -1,0 +1,2 @@
+Testname: scripts-missing-call-to-dpkg-maintscript-helper
+Check: scripts

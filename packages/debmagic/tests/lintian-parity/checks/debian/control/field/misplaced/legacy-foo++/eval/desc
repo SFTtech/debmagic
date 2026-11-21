@@ -1,0 +1,2 @@
+Testname: legacy-foo++
+Check: debian/control/field/misplaced

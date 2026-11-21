@@ -1,0 +1,2 @@
+Testname: rules-uses-deprecated-systemd-override
+Check: debhelper

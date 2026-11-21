@@ -1,0 +1,4 @@
+Testname: with-fat-lto-objects
+Check: libraries/static/link-time-optimization
+See-Also:
+ Bug#963057

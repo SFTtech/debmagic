@@ -1,0 +1,9 @@
+Testname: maintainer-provided-executable
+Check: debian/manual-pages
+Test-Against:
+ maintainer-manual-page
+See-Also:
+ social contract item 2,
+ developer-reference 3.1.4,
+ policy 4.3,
+ Bug#755161

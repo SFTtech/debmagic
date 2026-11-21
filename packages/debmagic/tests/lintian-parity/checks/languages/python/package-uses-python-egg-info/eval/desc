@@ -1,0 +1,2 @@
+Testname: package-uses-python-egg-info
+Check: languages/python

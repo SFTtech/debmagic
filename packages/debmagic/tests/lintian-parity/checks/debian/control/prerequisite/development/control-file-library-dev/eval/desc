@@ -1,0 +1,2 @@
+Testname: control-file-library-dev
+Check: debian/control/prerequisite/development

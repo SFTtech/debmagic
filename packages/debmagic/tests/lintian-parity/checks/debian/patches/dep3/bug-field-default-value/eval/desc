@@ -1,0 +1,4 @@
+Testname: bug-field-default-value
+Check: debian/patches/dep3
+Test-Against:
+ invalid-dep3-format-patch-bug-field-default-value

@@ -14,13 +14,11 @@ pub struct AncientPythonVersionField;
 declare_rule! {
     /// A Python version field names a version at or below the ancient threshold.
     ///
-    /// Reads `X-Python-Version`, `XS-Python-Version`, and `X-Python3-Version`
-    /// on the source paragraph, in that order. The threshold is
-    /// `ancient-python2` / `ancient-python3` in lintian 2.139.0
-    /// `data/python/versions` (2.7 and 3.5). The version is the `N.M` at the
-    /// end of the field (`\b(([23]).\d+)$`). Extra is the field name and that
-    /// version. The same thresholds make the `old-python-version-field` branch
-    /// unreachable.
+    /// Reads `X-Python3-Version` on the source paragraph. The threshold is
+    /// `ancient-python` (3.11) in lintian 2.144.0 `data/python/versions`. The
+    /// version is the `3.N` at the end of the field (`\b(3\.\d+)$`). Extra is
+    /// the field name and that version. Versions above the ancient threshold
+    /// and up to `old-python` (3.13) are another Tag.
     AncientPythonVersionField,
     code = "LN0093",
     tag = "ancient-python-version-field",
@@ -29,7 +27,7 @@ declare_rule! {
 }
 
 static VERSION_TAIL: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\b(([23])\.\d+)$").expect("valid regex"));
+    LazyLock::new(|| Regex::new(r"\b(3\.\d+)$").expect("valid regex"));
 
 impl SourceRule for AncientPythonVersionField {
     fn run(&self, ctx: &mut SourceContext<'_>) {
@@ -41,8 +39,7 @@ impl SourceRule for AncientPythonVersionField {
             .filter_map(|(field, value)| {
                 let caps = VERSION_TAIL.captures(value)?;
                 let version = caps.get(1)?.as_str();
-                let major = caps.get(2)?.as_str();
-                let ancient = python_version::ancient_threshold(major)?;
+                let ancient = python_version::ancient_threshold()?;
                 version_lte(version, ancient).then(|| format!("{field} {version}"))
             })
             .collect();
@@ -94,23 +91,27 @@ mod tests {
     fn test() {
         let pass = vec![
             tree(""),
-            tree("X-Python3-Version: >= 3.6\n"),
-            tree("X-Python3-Version: >= 3.10\n"),
+            tree("X-Python3-Version: >= 3.12\n"),
+            tree("X-Python3-Version: 3.13\n"),
             tree("X-Python3-Version: all\n"),
-            tree("X-Python-Version: >= 2.8\n"),
             tree("X-Python3-Version: current\n"),
+            // Only X-Python3-Version is read.
+            tree("X-Python-Version: >= 2.8\n"),
+            tree("X-Python-Version: 2.6\nXS-Python-Version: >= 2.7\n"),
         ];
         let fail = vec![
-            tree("XS-Python-Version: >= 2.7\nX-Python3-Version: >= 3.4\n"),
-            tree("X-Python-Version: 2.6\n"),
+            tree("X-Python3-Version: >= 3.4\n"),
+            tree("X-Python3-Version: >= 3.6\n"),
             tree("X-Python3-Version: 3.5\n"),
+            tree("X-Python3-Version: 3.10\n"),
+            tree("X-Python3-Version: 3.11\n"),
         ];
         SourceTreeTester::new(AncientPythonVersionField, pass, fail).test_and_snapshot();
     }
 
     #[test]
     fn test_source_package() {
-        let pass = vec![SourcePackageCase::from(tree("X-Python3-Version: 3.6\n"))];
+        let pass = vec![SourcePackageCase::from(tree("X-Python3-Version: 3.12\n"))];
         let fail = vec![SourcePackageCase::from(tree("X-Python3-Version: 3.4\n"))];
         SourcePackageTester::new(AncientPythonVersionField, pass, fail).test_and_snapshot();
     }

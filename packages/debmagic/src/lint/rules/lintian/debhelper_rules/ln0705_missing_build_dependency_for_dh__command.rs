@@ -38,7 +38,7 @@ declare_rule! {
 const REQUIRES_AUTOTOOLS: u32 = 10;
 
 /// Prerequisites lintian drops from compat level 10 on.
-const BUILT_IN_FROM_LEVEL_10: &[&str] = &["autotools-dev:any", "dh-strip-nondeterminism:any"];
+const BUILT_IN_FROM_LEVEL_10: &[&str] = &["autotools-dev", "dh-strip-nondeterminism"];
 
 const BUILD_DEPENDS: &[&str] = &["Build-Depends", "Build-Depends-Indep", "Build-Depends-Arch"];
 
@@ -81,7 +81,7 @@ impl SourceRule for MissingBuildDependencyForDhCommand {
         let level = facts.level();
         let mut found = Vec::new();
         for (prerequisite, command) in by_prerequisite {
-            if prerequisite == "debhelper:any" {
+            if prerequisite == "debhelper" {
                 continue;
             }
             if level >= REQUIRES_AUTOTOOLS

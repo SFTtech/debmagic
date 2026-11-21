@@ -1,0 +1,13 @@
+dh_make 0.46 test
+=================
+
+This is the results of running dh_make 0.46 on an upstream tarball
+containing only this file.  It's a useful test for the various dh_make
+template and boilerplate tags, as well as many tags for ways of doing
+things dh_make used to promote but are now deprecated or old debhelper
+commands that are now deprecated.
+
+Please don't modify anything about the files in this package; instead, add
+new tags as needed when Lintian adds new checks.  This test case is
+intended to continue to be a test of Lintian's handling of old and
+template packages.

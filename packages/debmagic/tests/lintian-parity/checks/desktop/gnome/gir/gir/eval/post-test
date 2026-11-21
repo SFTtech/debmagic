@@ -1,0 +1,2 @@
+s, \[usr/lib/[^/${}]+/girepository-1.0, [usr/lib/MULTIARCH/girepository-1.0,
+s, \[usr/lib/[^/${}]+/gir-1.0, [usr/lib/MULTIARCH/gir-1.0,

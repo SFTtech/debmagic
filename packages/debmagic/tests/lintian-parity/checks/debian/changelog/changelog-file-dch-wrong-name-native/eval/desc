@@ -1,0 +1,2 @@
+Testname: changelog-file-dch-wrong-name-native
+Check: debian/changelog

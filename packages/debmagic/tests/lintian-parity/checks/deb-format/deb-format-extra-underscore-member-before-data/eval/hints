@@ -1,0 +1,3 @@
+deb-format-extra-underscore-member-before-data (binary): misplaced-extra-member-in-deb _extra-stuff (unexpected _member at position 2)
+deb-format-extra-underscore-member-before-data (binary): data-tarball-compression-format gz
+deb-format-extra-underscore-member-before-data (binary): control-tarball-compression-format gz

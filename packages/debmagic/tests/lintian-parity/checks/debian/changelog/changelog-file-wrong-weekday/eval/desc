@@ -1,0 +1,4 @@
+Testname: changelog-file-wrong-weekday
+Profile: lintian-test
+Options: --include-dir ./lintian-include-dir
+Check: debian/changelog

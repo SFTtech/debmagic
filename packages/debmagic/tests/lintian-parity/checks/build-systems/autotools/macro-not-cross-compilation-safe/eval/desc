@@ -1,0 +1,2 @@
+Testname: macro-not-cross-compilation-safe
+Check: build-systems/autotools

@@ -1,0 +1,2 @@
+Testname: rules-debug-symbol-migration-possibly-complete
+Check: debian/rules

@@ -1,0 +1,4 @@
+Testname: spelling-package-name
+Test-Against:
+ spelling-error-in-description
+Check: fields/description

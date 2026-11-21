@@ -1,0 +1,4 @@
+Testname: scripts-maintainer-general
+Profile: ubuntu/main
+See-Also: Debian Bug#532984
+Check: maintainer-scripts/generated

@@ -197,7 +197,7 @@ pub fn parse_universal_hint_line(line: &str) -> Option<(String, ParityHint)> {
     let processable_type = type_part.strip_suffix(')')?;
     let mut fields = rest.splitn(2, char::is_whitespace);
     let tag = fields.next().filter(|tag| !tag.is_empty())?;
-    let extra = strip_location_pointer(fields.next().unwrap_or("").trim());
+    let extra = undo_double_encoding(&strip_location_pointer(fields.next().unwrap_or("").trim()));
     Some((
         processable_type.to_string(),
         ParityHint {
@@ -205,6 +205,23 @@ pub fn parse_universal_hint_line(line: &str) -> Option<(String, ParityHint)> {
             extra,
         },
     ))
+}
+
+/// lintian 2.144 prints a pointer path that is valid non-ASCII UTF-8 with
+/// every byte read as Latin-1 (`鳥` shows as `é³¥`). Read such text back as the
+/// UTF-8 it came from; text whose bytes are not UTF-8 (a Latin-1 file name)
+/// stays as it is.
+fn undo_double_encoding(text: &str) -> String {
+    if text.is_ascii() {
+        return text.to_string();
+    }
+    let bytes: Option<Vec<u8>> = text
+        .chars()
+        .map(|character| u8::try_from(u32::from(character)).ok())
+        .collect();
+    bytes
+        .and_then(|bytes| String::from_utf8(bytes).ok())
+        .unwrap_or_else(|| text.to_string())
 }
 
 pub fn parse_diagnostic_line(line: &str) -> Option<(String, ParityHint)> {

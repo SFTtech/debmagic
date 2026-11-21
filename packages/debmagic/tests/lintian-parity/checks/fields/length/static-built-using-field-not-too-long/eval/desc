@@ -1,0 +1,4 @@
+Testname: static-built-using-field-not-too-long
+See-Also: Debian Bug#1069256
+Check: fields/length
+Test-Against: field-too-long

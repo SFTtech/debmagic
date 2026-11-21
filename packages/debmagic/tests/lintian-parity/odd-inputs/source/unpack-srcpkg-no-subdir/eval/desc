@@ -1,0 +1,2 @@
+Testname: unpack-srcpkg-no-subdir
+Default-Lintian-Options: --pedantic --display-info --display-experimental

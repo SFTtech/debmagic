@@ -1,0 +1,2 @@
+Testname: golang-package-without-version-suffix
+Check: languages/golang/module-path

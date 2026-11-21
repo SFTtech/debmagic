@@ -1,13 +1,12 @@
 //! Which build dependency provides a dh command or a dh addon.
 //!
-//! The tables are lintian 2.139.0's `data/debhelper/commands.json` and
+//! The tables are lintian 2.144.0's `data/debhelper/commands.json` and
 //! `data/debhelper/add_ons.json` (generated from the archive's Contents), and
 //! the hand-maintained overrides in `lib/Lintian/Check/Debhelper.pm`
 //! (`%DH_COMMAND_MANUAL_PREREQUISITES`, `%DH_ADDON_MANUAL_PREREQUISITES`),
 //! which win over the generated entries. A prerequisite is a Package relation
-//! condition in lintian's spelling: every installing package with `:any`,
-//! joined by ` | `, with `debhelper-compat` appended when `debhelper` is
-//! among them.
+//! condition in lintian's spelling: every installing package, joined by
+//! ` | `, with `debhelper-compat` appended when `debhelper` is among them.
 
 use std::collections::HashMap;
 use std::sync::LazyLock;
@@ -29,117 +28,84 @@ struct AddOnsFile {
     add_ons: HashMap<String, Installers>,
 }
 
-/// lintian 2.139.0 `data/debhelper/commands.json`.
+/// lintian 2.144.0 `data/debhelper/commands.json`.
 static COMMANDS: LazyLock<HashMap<String, Installers>> = LazyLock::new(|| {
     serde_json::from_str::<CommandsFile>(include_str!("../data/debhelper/commands.json"))
         .expect("vendored debhelper/commands.json")
         .commands
 });
 
-/// lintian 2.139.0 `data/debhelper/add_ons.json`.
+/// lintian 2.144.0 `data/debhelper/add_ons.json`.
 static ADD_ONS: LazyLock<HashMap<String, Installers>> = LazyLock::new(|| {
     serde_json::from_str::<AddOnsFile>(include_str!("../data/debhelper/add_ons.json"))
         .expect("vendored debhelper/add_ons.json")
         .add_ons
 });
 
-/// lintian 2.139.0 `%DH_COMMAND_MANUAL_PREREQUISITES`.
+/// lintian 2.144.0 `%DH_COMMAND_MANUAL_PREREQUISITES`.
 const COMMAND_MANUAL: &[(&str, &str)] = &[
-    ("dh_apache2", "dh-apache2:any | apache2-dev:any"),
+    ("dh_apache2", "dh-apache2 | apache2-dev"),
     (
         "dh_autoreconf_clean",
-        "dh-autoreconf:any | debhelper:any (>= 9.20160403~) | debhelper-compat:any",
+        "dh-autoreconf | debhelper (>= 9.20160403~) | debhelper-compat",
     ),
     (
         "dh_autoreconf",
-        "dh-autoreconf:any | debhelper:any (>= 9.20160403~) | debhelper-compat:any",
+        "dh-autoreconf | debhelper (>= 9.20160403~) | debhelper-compat",
     ),
-    ("dh_dkms", "dh-dkms:any | dh-sequence-dkms:any"),
-    (
-        "dh_girepository",
-        "gobject-introspection:any | dh-sequence-gir:any",
-    ),
-    ("dh_gnome", "gnome-pkg-tools:any | dh-sequence-gnome:any"),
-    (
-        "dh_gnome_clean",
-        "gnome-pkg-tools:any | dh-sequence-gnome:any",
-    ),
-    ("dh_lv2config", "lv2core:any"),
-    (
-        "dh_make_pgxs",
-        "postgresql-server-dev-all:any | postgresql-all:any",
-    ),
-    (
-        "dh_nativejava",
-        "gcj-native-helper:any | default-jdk-builddep:any",
-    ),
-    (
-        "dh_pgxs_test",
-        "postgresql-server-dev-all:any | postgresql-all:any",
-    ),
+    ("dh_dkms", "dh-dkms | dh-sequence-dkms"),
+    ("dh_girepository", "gobject-introspection | dh-sequence-gir"),
+    ("dh_gnome", "gnome-pkg-tools | dh-sequence-gnome"),
+    ("dh_gnome_clean", "gnome-pkg-tools | dh-sequence-gnome"),
+    ("dh_make_pgxs", "postgresql-server-dev-all | postgresql-all"),
+    ("dh_pgxs_test", "postgresql-server-dev-all | postgresql-all"),
     (
         "dh_python3",
-        "dh-python:any | dh-sequence-python3:any | pybuild-plugin-pyproject:any",
+        "dh-python | dh-sequence-python3 | pybuild-plugin-pyproject",
     ),
     (
         "dh_sphinxdoc",
-        "sphinx:any | python-sphinx:any | python3-sphinx:any | dh-sequence-sphinxdoc:any",
+        "sphinx | python3-sphinx | dh-sequence-sphinxdoc",
     ),
-    ("dh_xine", "libxine-dev:any | libxine2-dev:any"),
+    ("dh_xine", "libxine2-dev"),
 ];
 
-/// lintian 2.139.0 `%DH_ADDON_MANUAL_PREREQUISITES`.
+/// lintian 2.144.0 `%DH_ADDON_MANUAL_PREREQUISITES`.
 const ADD_ON_MANUAL: &[(&str, &str)] = &[
-    (
-        "ada_library",
-        "dh-ada-library:any | dh-sequence-ada-library:any",
-    ),
-    ("apache2", "dh-apache2:any | apache2-dev:any"),
+    ("ada_library", "dh-ada-library | dh-sequence-ada-library"),
+    ("apache2", "dh-apache2 | apache2-dev"),
     (
         "autoreconf",
-        "dh-autoreconf:any | debhelper:any (>= 9.20160403~) | debhelper-compat:any",
+        "dh-autoreconf | debhelper (>= 9.20160403~) | debhelper-compat",
     ),
-    ("cli", "cli-common-dev:any | dh-sequence-cli:any"),
-    (
-        "dwz",
-        "debhelper:any | debhelper-compat:any | dh-sequence-dwz:any",
-    ),
+    ("cli", "cli-common-dev | dh-sequence-cli"),
+    ("dwz", "debhelper | debhelper-compat | dh-sequence-dwz"),
     (
         "installinitramfs",
-        "debhelper:any | debhelper-compat:any | dh-sequence-installinitramfs:any",
+        "debhelper | debhelper-compat | dh-sequence-installinitramfs",
     ),
-    ("gir", "gobject-introspection:any | dh-sequence-gir:any"),
-    ("gnome", "gnome-pkg-tools:any | dh-sequence-gnome:any"),
-    ("lv2config", "lv2core:any"),
-    ("nodejs", "pkg-js-tools:any | dh-sequence-nodejs:any"),
-    ("perl_dbi", "libdbi-perl:any | dh-sequence-perl-dbi:any"),
-    (
-        "perl_imager",
-        "libimager-perl:any | dh-sequence-perl-imager:any",
-    ),
-    ("pgxs", "postgresql-server-dev-all:any | postgresql-all:any"),
-    (
-        "pgxs_loop",
-        "postgresql-server-dev-all:any | postgresql-all:any",
-    ),
-    ("pypy", "dh-python:any | dh-sequence-pypy:any"),
+    ("gir", "gobject-introspection | dh-sequence-gir"),
+    ("gnome", "gnome-pkg-tools | dh-sequence-gnome"),
+    ("nodejs", "pkg-js-tools | dh-sequence-nodejs"),
+    ("perl_dbi", "libdbi-perl | dh-sequence-perl-dbi"),
+    ("perl_imager", "libimager-perl | dh-sequence-perl-imager"),
+    ("pgxs", "postgresql-server-dev-all | postgresql-all"),
+    ("pgxs_loop", "postgresql-server-dev-all | postgresql-all"),
+    ("pypy", "dh-python | dh-sequence-pypy"),
     (
         "python3",
-        "python3:any | python3-all:any | python3-dev:any | python3-all-dev:any | dh-sequence-python3:any",
+        "python3:any | python3-all:any | python3-dev:any | python3-all-dev:any | dh-sequence-python3",
     ),
-    (
-        "scour",
-        "scour:any | python-scour:any | dh-sequence-scour:any",
-    ),
+    ("scour", "scour | dh-sequence-scour"),
     (
         "sphinxdoc",
-        "sphinx:any | python-sphinx:any | python3-sphinx:any | dh-sequence-sphinxdoc:any",
+        "sphinx | python3-sphinx | dh-sequence-sphinxdoc",
     ),
     (
         "systemd",
-        "debhelper:any (>= 9.20160709~) | debhelper-compat:any | dh-sequence-systemd:any | dh-systemd:any",
+        "debhelper (>= 9.20160709~) | debhelper-compat | dh-sequence-systemd | dh-systemd",
     ),
-    ("vim_addon", "dh-vim-addon:any | dh-sequence-vim-addon:any"),
+    ("vim_addon", "dh-vim-addon | dh-sequence-vim-addon"),
 ];
 
 /// The build prerequisite lintian records for a `dh_*` command seen in
@@ -176,7 +142,7 @@ fn lookup(
     Some(
         packages
             .iter()
-            .map(|package| format!("{package}:any"))
+            .map(|package| (*package).to_string())
             .collect::<Vec<_>>()
             .join(" | "),
     )
@@ -187,14 +153,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn generated_commands_broaden_to_any() {
-        assert_eq!(
-            command_prerequisite("dh_lisp").as_deref(),
-            Some("dh-lisp:any")
-        );
+    fn generated_commands_join_installers() {
+        assert_eq!(command_prerequisite("dh_lisp").as_deref(), Some("dh-lisp"));
         assert_eq!(
             command_prerequisite("dh_makeclilibs").as_deref(),
-            Some("cli-common-dev:any | mono-devel:any")
+            Some("cli-common-dev | mono-devel")
         );
     }
 
@@ -202,7 +165,7 @@ mod tests {
     fn debhelper_commands_add_debhelper_compat() {
         assert_eq!(
             command_prerequisite("dh_md5sums").as_deref(),
-            Some("debhelper:any | debhelper-compat:any")
+            Some("debhelper | debhelper-compat")
         );
     }
 
@@ -210,11 +173,11 @@ mod tests {
     fn manual_commands_win_over_generated_ones() {
         assert_eq!(
             command_prerequisite("dh_python3").as_deref(),
-            Some("dh-python:any | dh-sequence-python3:any | pybuild-plugin-pyproject:any")
+            Some("dh-python | dh-sequence-python3 | pybuild-plugin-pyproject")
         );
         assert_eq!(
             command_prerequisite("dh_apache2").as_deref(),
-            Some("dh-apache2:any | apache2-dev:any")
+            Some("dh-apache2 | apache2-dev")
         );
     }
 
@@ -228,19 +191,17 @@ mod tests {
     fn addons_use_their_own_tables() {
         assert_eq!(
             addon_prerequisite("phpcomposer").as_deref(),
-            Some("pkg-php-tools:any | dh-sequence-phpcomposer:any")
+            Some("pkg-php-tools | dh-sequence-phpcomposer")
         );
         // `debhelper` is listed, so `debhelper-compat` is appended again.
         assert_eq!(
             addon_prerequisite("single_binary").as_deref(),
-            Some(
-                "dh-sequence-single-binary:any | debhelper-compat:any | debhelper:any | debhelper-compat:any"
-            )
+            Some("dh-sequence-single-binary | debhelper-compat | debhelper | debhelper-compat")
         );
         assert_eq!(
             addon_prerequisite("systemd").as_deref(),
             Some(
-                "debhelper:any (>= 9.20160709~) | debhelper-compat:any | dh-sequence-systemd:any | dh-systemd:any"
+                "debhelper (>= 9.20160709~) | debhelper-compat | dh-sequence-systemd | dh-systemd"
             )
         );
         assert_eq!(addon_prerequisite("will-never-exist"), None);

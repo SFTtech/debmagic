@@ -1,0 +1,4 @@
+fields-general-BAD? (binary): bad-version-in-relation Recommends: g++ (>= s4.1)
+fields-general-BAD? (binary): bad-version-in-relation Depends: other-package (>= 1.0?)
+fields-general-BAD? (binary): bad-relation Depends: another-package (>< 1.0)
+fields-general-BAD? (binary): alternates-not-allowed Conflicts

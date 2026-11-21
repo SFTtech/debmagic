@@ -1,0 +1,4 @@
+Testname: without-fat-lto-objects
+Check: libraries/static/no-code
+See-Also:
+ Bug#977596

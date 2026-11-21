@@ -1,0 +1,2 @@
+Testname: debhelper-deb-build-options
+Check: debian/rules

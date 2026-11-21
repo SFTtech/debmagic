@@ -1,0 +1,2 @@
+s/("lintian_version" : )"[^"]*"/\1"VERSION"/
+s/("path" : )"[^"]*"/\1"PATH"/

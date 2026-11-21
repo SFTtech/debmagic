@@ -1,0 +1,5 @@
+Testname: menus-script-check-ok
+Test-Against:
+ maintainer-script-does-not-check-for-existence-of-installdocs
+ maintainer-script-does-not-check-for-existence-of-updatemenus
+Check: menus

@@ -1,0 +1,2 @@
+Testname: debconf-maintscripts-deps
+Check: debian/debconf

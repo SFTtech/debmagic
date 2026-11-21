@@ -1,0 +1,2 @@
+Testname: debhelper-internal-files
+Check: debhelper/temporary

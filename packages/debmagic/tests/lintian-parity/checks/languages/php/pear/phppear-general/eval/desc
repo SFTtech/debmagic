@@ -1,0 +1,4 @@
+Testname: phppear-general
+Test-Against:
+ missing-pkg-php-tools-buildsystem
+Check: languages/php/pear

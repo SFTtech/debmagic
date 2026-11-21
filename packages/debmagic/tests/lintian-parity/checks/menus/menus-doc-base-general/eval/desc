@@ -1,0 +1,4 @@
+Testname: menus-doc-base-general
+Test-Against: doc-base-unknown-section
+See-Also: Debian Bug#495836
+Check: menus

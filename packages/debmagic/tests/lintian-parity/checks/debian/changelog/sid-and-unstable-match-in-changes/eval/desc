@@ -1,0 +1,4 @@
+Testname: sid-and-unstable-match-in-changes
+Test-Against:
+ changelog-distribution-does-not-match-changes-file
+Check: debian/changelog

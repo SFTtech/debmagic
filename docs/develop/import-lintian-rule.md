@@ -4,7 +4,7 @@ This is the working procedure for turning a lintian Tag into an LN Rule. Native 
 
 Related: [Parity is Tag-set](../adr/0007-lintian-parity-is-tag-set.md), [oracle is the test suite](../adr/0012-parity-oracle-is-lintian-test-suite.md), [Codes when catalogued](../adr/0015-ln-codes-assigned-when-tag-is-catalogued.md), [per-Subject Rule traits](../adr/0025-per-subject-rule-traits.md), [source Rule is tree and package](../adr/0040-source-rule-is-tree-and-package.md), [Rules may read Dsc](../adr/0044-rules-may-read-dsc.md), [Rule file names](../adr/0027-rule-files-are-code-and-snake-tag.md), [Source-package Parity assembles filled trees](../adr/0039-source-package-parity-assembles-filled-trees.md), [Binary-package Parity builds filled trees](../adr/0043-binary-package-parity-builds-filled-trees.md), [recipe layout](../research/lintian-test-recipes.md).
 
-Pin lintian **2.139.0** (`575a2bf1`). Installed tags and checks are under `/usr/share/lintian/`; recipes are **not** in that package — clone git or `apt source lintian` at that version.
+Pin lintian **2.144.0** (`3e81fac9`). Installed tags and checks are under `/usr/share/lintian/`; recipes are **not** in that package — clone git or `apt source lintian` at that version.
 
 ---
 
@@ -60,7 +60,7 @@ A single `hints` file often mixes `(source)` and `(binary)` lines. Import only t
 
 ## 6. Why recipes are not a copy-paste into `SourceTreeTester`
 
-A recipe is a **spec**: skeleton templates (`t/templates/…`), `[% $source %]` fills, optional `pre-build`, then usually `dpkg-buildpackage`. `build-spec/debian/` is an overlay, not a complete Source tree (there is no `debian/debian/` in 2.139.0).
+A recipe is a **spec**: skeleton templates (`t/templates/…`), `[% $source %]` fills, optional `pre-build`, then usually `dpkg-buildpackage`. `build-spec/debian/` is an overlay, not a complete Source tree (there is no `debian/debian/` in 2.144.0).
 
 The oracle is `eval/hints` in **universal** format:
 
@@ -70,21 +70,27 @@ package (source|binary|changes|udeb): tag-name extra… [optional-pointer]
 
 not EWI (`E: pkg: tag`) and not our Diagnostic stdout.
 
-Do not submodule lintian or read `/usr/share/lintian` at test time. Native `SourceTreeTester` cases stay hand-written. Parity recipes are **filled sources** plus transcribed `eval/hints` (GPL-2+), with an `ORIGIN` pointer to `lintian 2.139.0 t/recipes/…` — not the raw `build-spec`, and not a built `.deb` / `.dsc`. They live under `packages/debmagic/tests/lintian-parity/`. Source-tree Parity lints a copy of that tree without `ORIGIN` and `eval/`. Binary-package Parity lists recipes whose `eval/hints` mention a catalogued Tag with Binary-package Applicability: `deb`-skeleton recipes assemble lintian’s Build-Product (`make` / `ar` / `tar`); filled Source trees are built with `dpkg-buildpackage -b` and each produced archive is linted ([ADR 0043](../adr/0043-binary-package-parity-builds-filled-trees.md)). Source-package Parity copies the filled tree without `ORIGIN`/`eval/`, runs `dpkg-source -b`, and on `no upstream tarball found` packs a main orig from non-`debian/` paths ([ADR 0039](../adr/0039-source-package-parity-assembles-filled-trees.md)).
+Do not submodule lintian or read `/usr/share/lintian` at test time. Native `SourceTreeTester` cases stay hand-written. Parity recipes are **filled sources** plus transcribed `eval/hints` (GPL-2+), with an `ORIGIN` pointer to `lintian 2.144.0 t/recipes/…` — not the raw `build-spec`, and not a built `.deb` / `.dsc`. They live under `packages/debmagic/tests/lintian-parity/`. Source-tree Parity lints a copy of that tree without `ORIGIN` and `eval/`. Binary-package Parity lists recipes whose `eval/hints` mention a catalogued Tag with Binary-package Applicability: `deb`-skeleton recipes assemble lintian’s Build-Product (`make` / `ar` / `tar`); filled Source trees are built with `dpkg-buildpackage -b` and each produced archive is linted ([ADR 0043](../adr/0043-binary-package-parity-builds-filled-trees.md)). Source-package Parity copies the filled tree without `ORIGIN`/`eval/`, runs `dpkg-source -b`, and on `no upstream tarball found` packs a main orig from non-`debian/` paths ([ADR 0039](../adr/0039-source-package-parity-assembles-filled-trees.md)).
 
 Recipes ship cruft on purpose (editor backups, bytecode, VCS directories), so `.gitignore` does not ignore anything under `tests/lintian-parity/`. Git cannot track a directory named `.git`, so the importer vendors those as `.git.vendored` and the Parity harness restores `.git` when it copies a recipe.
 
 Import or refresh the full Parity suite from a lintian version tag (every importable recipe: source-tree, deb, and changes):
 
 ```shell
-python3 scripts/import_lintian_parity.py 2.139.0
+python3 scripts/import_lintian_parity.py 2.144.0
 ```
 
 Reuse a local clone:
 
 ```shell
-python3 scripts/import_lintian_parity.py 2.139.0 --lintian-src /path/to/lintian
+python3 scripts/import_lintian_parity.py 2.144.0 --lintian-src /path/to/lintian
 ```
+
+A refresh rewrites recipes, so wipe the suite first (`git rm -r packages/debmagic/tests/lintian-parity`) to drop recipes lintian removed, then re-add what the importer cannot reproduce:
+
+- `git add -f` the whole suite. Cruft fixtures such as `*.js` and `.pc/` are ignored by `.gitignore`.
+- Hooks that need tools missing here (`pre-build` calling `terser` in the `cruft-minified-js` and `min-js-with-sources` recipes) leave their output out. Restore those files from the previous import.
+- Hand-maintained recipes, noted in their `ORIGIN`: `checks/debian/patches/quilt/patch-systems-quilt-general` (the `debian-changes-1.0-1` patch dpkg-source auto-commits, plus its `series` line) and `odd-inputs/source/debian-symlink` (files at the top level with `debian` a symlink to `.`).
 
 Import also rewrites `packages/debmagic/tests/lintian_parity.rs` with one test per vendored Source-tree, Binary-package, or Source-package recipe whose `eval/hints` mention a catalogued LN Tag (Source-package: `SourceRule`; Binary-package: `(binary)` / `(udeb)`). After cataloguing a Rule without re-filling recipes:
 

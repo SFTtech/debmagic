@@ -1,0 +1,2 @@
+Testname: debconf-no-templates
+Check: debian/debconf

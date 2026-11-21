@@ -1,0 +1,2 @@
+Testname: rules-dh-auto-test-does-not-check-deb-build-options-dh-12
+Check: debian/rules

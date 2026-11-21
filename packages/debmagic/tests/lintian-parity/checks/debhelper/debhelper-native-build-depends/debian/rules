@@ -1,0 +1,6 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+execute_after_dh_auto_configure:
+	-dh_sphinxdoc

@@ -1,0 +1,2 @@
+Testname: control-file-rules-requires-root-binary-targets
+Check: debian/rules

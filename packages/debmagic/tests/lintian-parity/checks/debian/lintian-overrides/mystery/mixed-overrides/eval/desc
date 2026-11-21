@@ -1,0 +1,4 @@
+Testname: mixed-overrides
+Check: debian/lintian-overrides/mystery
+Test-Against:
+ alien-tag

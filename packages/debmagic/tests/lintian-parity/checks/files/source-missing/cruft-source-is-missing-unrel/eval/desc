@@ -1,0 +1,4 @@
+Testname: cruft-source-is-missing-unrel
+Check: files/source-missing
+Test-Against:
+ source-is-missing

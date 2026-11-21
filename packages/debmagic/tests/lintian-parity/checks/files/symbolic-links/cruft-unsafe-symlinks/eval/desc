@@ -1,0 +1,2 @@
+Testname: cruft-unsafe-symlinks
+Check: files/symbolic-links

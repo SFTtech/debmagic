@@ -1,0 +1,4 @@
+Testname: debian-source-dir-gitpkg
+Test-Against:
+ git-patches-not-exported
+Check: debian/source-dir

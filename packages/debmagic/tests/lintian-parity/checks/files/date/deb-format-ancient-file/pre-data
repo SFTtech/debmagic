@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+rootdir="$1"
+name="$2"
+
+TZ=GMT touch -t 197001010000 "$rootdir/usr/share/doc/$name/changelog.gz"
+TZ=GMT touch -t 197001010000 "$rootdir/usr/share/cargo/registry/$name/.cargo_vcs_info.json"

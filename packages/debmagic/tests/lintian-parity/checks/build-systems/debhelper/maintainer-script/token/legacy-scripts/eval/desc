@@ -1,0 +1,2 @@
+Testname: legacy-scripts
+Check: build-systems/debhelper/maintainer-script/token

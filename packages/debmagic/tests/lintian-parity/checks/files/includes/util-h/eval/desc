@@ -1,0 +1,4 @@
+Testname: util-h
+Check: files/includes
+See-Also:
+ Bug#898377

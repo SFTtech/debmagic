@@ -1415,6 +1415,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NativeSourceFileWithoutUtf8Name,
         &DebianUpstreamObsoletePath,
         &ControlFileContainsDhMakeVcsComment,
+        &SuperfluousClutterInHomepage,
     ]
 }
 
@@ -2174,6 +2175,7 @@ mod tests {
                 NativeSourceFileWithoutUtf8Name::CODE,
                 DebianUpstreamObsoletePath::CODE,
                 ControlFileContainsDhMakeVcsComment::CODE,
+                SuperfluousClutterInHomepage::CODE,
             ]
         );
     }

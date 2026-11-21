@@ -1,0 +1,2 @@
+Testname: legacy-debconf
+Check: debian/copyright/dep5

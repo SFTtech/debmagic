@@ -1,0 +1,2 @@
+deb-format-record-size (binary): data-tarball-compression-format gz
+deb-format-record-size (binary): control-tarball-compression-format gz

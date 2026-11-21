@@ -1,0 +1,5 @@
+Testname: scripts-maintainer-general
+Profile: ubuntu/main
+Check: build-systems/debhelper/maintainer-script/token
+See-Also:
+ Bug#532984

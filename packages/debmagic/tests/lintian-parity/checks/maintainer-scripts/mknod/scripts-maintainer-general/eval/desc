@@ -1,0 +1,5 @@
+Testname: scripts-maintainer-general
+Profile: ubuntu/main
+Check: maintainer-scripts/mknod
+See-Also:
+ Bug#532984

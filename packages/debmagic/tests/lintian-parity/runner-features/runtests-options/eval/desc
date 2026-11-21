@@ -1,0 +1,5 @@
+Testname: runtests-options
+Check: fields/standards-version
+Match-Strategy: literal
+Output-Format: EWI
+Default-Lintian-Options: --pedantic --display-info --display-experimental

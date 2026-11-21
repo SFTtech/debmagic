@@ -1,0 +1,2 @@
+# package installs a d/rules template not a script
+missing-dep-for-interpreter /usr/bin/make *

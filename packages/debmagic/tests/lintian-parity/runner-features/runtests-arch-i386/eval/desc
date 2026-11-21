@@ -1,0 +1,5 @@
+Testname: runtests-arch-i386
+Test-Architectures: i386
+Match-Strategy: literal
+Output-Format: EWI
+Default-Lintian-Options: --pedantic --display-info --display-experimental

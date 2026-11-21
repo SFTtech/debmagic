@@ -1,0 +1,54 @@
+generic-dh-make-2008 (source): upstream-metadata-file-is-missing
+generic-dh-make-2008 (source): trailing-whitespace [debian/rules:63]
+generic-dh-make-2008 (source): trailing-whitespace [debian/rules:48]
+generic-dh-make-2008 (source): trailing-whitespace [debian/rules:43]
+generic-dh-make-2008 (source): trailing-whitespace [debian/rules:35]
+generic-dh-make-2008 (source): trailing-whitespace [debian/rules:26]
+generic-dh-make-2008 (source): superfluous-clutter-in-homepage <insert the upstream URL, if relevant>
+generic-dh-make-2008 (source): redundant-priority-optional-field [debian/control:3]
+generic-dh-make-2008 (source): package-uses-deprecated-debhelper-compat-version 7
+generic-dh-make-2008 (source): out-of-date-standards-version 3.7.3 (released 2007-12-03) (current is CURRENT)
+generic-dh-make-2008 (source): older-source-format 1.0
+generic-dh-make-2008 (source): no-dh-sequencer [debian/rules]
+generic-dh-make-2008 (source): no-dep5-copyright [debian/copyright]
+generic-dh-make-2008 (source): missing-debian-source-format
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/watch.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/prerm.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/preinst.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/postrm.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/postinst.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/menu.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/manpage.xml.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/manpage.sgml.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/manpage.1.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/init.d.lsb.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/init.d.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/generic-dh-make-2008.doc-base.EX]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/generic-dh-make-2008.default.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/emacsen-startup.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/emacsen-remove.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/emacsen-install.ex]
+generic-dh-make-2008 (source): dh-make-template-in-source [debian/cron.d.ex]
+generic-dh-make-2008 (source): dh-clean-k-is-deprecated [debian/rules]
+generic-dh-make-2008 (source): debian-watch-file-is-missing
+generic-dh-make-2008 (source): debian-rules-missing-required-target build-indep [debian/rules]
+generic-dh-make-2008 (source): debian-rules-missing-required-target build-arch [debian/rules]
+generic-dh-make-2008 (source): bad-homepage <insert the upstream URL, if relevant>
+generic-dh-make-2008 (binary): wrong-bug-number-in-closes #nnnn [usr/share/doc/generic-dh-make-2008/changelog.Debian.gz:3]
+generic-dh-make-2008 (binary): superfluous-clutter-in-homepage <insert the upstream URL, if relevant>
+generic-dh-make-2008 (binary): section-is-dh_make-template
+generic-dh-make-2008 (binary): readme-debian-contains-debmake-template [usr/share/doc/generic-dh-make-2008/README.Debian]
+generic-dh-make-2008 (binary): package-contains-no-arch-dependent-files
+generic-dh-make-2008 (binary): package-contains-empty-directory [usr/sbin/]
+generic-dh-make-2008 (binary): package-contains-empty-directory [usr/bin/]
+generic-dh-make-2008 (binary): initial-upload-closes-no-bugs [usr/share/doc/generic-dh-make-2008/changelog.Debian.gz:1]
+generic-dh-make-2008 (binary): helper-templates-in-copyright
+generic-dh-make-2008 (binary): extended-description-is-probably-too-short
+generic-dh-make-2008 (binary): empty-binary-package
+generic-dh-make-2008 (binary): description-is-dh_make-template
+generic-dh-make-2008 (binary): copyright-without-copyright-notice
+generic-dh-make-2008 (binary): copyright-with-old-dh-make-debian-copyright
+generic-dh-make-2008 (binary): copyright-has-url-from-dh_make-boilerplate
+generic-dh-make-2008 (binary): copyright-contains-dh_make-todo-boilerplate
+generic-dh-make-2008 (binary): changelog-is-dh_make-template [usr/share/doc/generic-dh-make-2008/changelog.Debian.gz:1]
+generic-dh-make-2008 (binary): bad-homepage <insert the upstream URL, if relevant>

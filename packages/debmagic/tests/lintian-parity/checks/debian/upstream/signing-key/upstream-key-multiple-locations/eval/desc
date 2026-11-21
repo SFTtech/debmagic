@@ -1,0 +1,2 @@
+Testname: upstream-key-multiple-locations
+Check: debian/upstream/signing-key

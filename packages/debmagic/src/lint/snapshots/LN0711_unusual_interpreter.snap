@@ -1,6 +1,8 @@
 ---
 source: packages/debmagic/src/lint/tester.rs
 ---
+W: example (binary): unusual-interpreter (LN0711) /usr/bin/pike [usr/bin/tool]
+W: example (binary): unusual-interpreter (LN0711) /usr/bin/pike7.6 [usr/bin/tool]
 W: example (binary): unusual-interpreter (LN0711) /usr/bin/lintian [usr/bin/tool]
 W: example (binary): unusual-interpreter (LN0711) python3.7 [usr/bin/tool]
 W: example (binary): unusual-interpreter (LN0711) zorg [usr/bin/tool]

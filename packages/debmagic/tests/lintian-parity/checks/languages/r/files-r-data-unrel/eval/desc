@@ -1,0 +1,4 @@
+Testname: files-r-data-unrel
+Test-Against:
+ r-data-without-readme-source
+Check: languages/r

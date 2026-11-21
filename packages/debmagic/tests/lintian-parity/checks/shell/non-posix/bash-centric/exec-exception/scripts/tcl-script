@@ -1,0 +1,6 @@
+#!/bin/sh
+exec "/usr/bin/pltcl" -f "$0" ${1+"$@"}
+source x00.tcl
+plinit
+x00
+plend

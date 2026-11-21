@@ -61,7 +61,6 @@ mod ln0879_files_excluded_without_copyright_format_1_0;
 mod ln0880_globbing_patterns_out_of_order;
 mod ln0881_invalid_escape_sequence_in_dep5_copyright;
 mod ln0882_obsolete_field_in_dep5_copyright;
-mod ln1020_inconsistent_appstream_metadata_license;
 mod ln1021_syntax_error_in_dep5_copyright;
 mod ln1022_tab_in_license_text;
 mod ln1023_unknown_paragraph_in_dep5_copyright;
@@ -121,7 +120,6 @@ pub(crate) use ln0879_files_excluded_without_copyright_format_1_0::FilesExcluded
 pub(crate) use ln0880_globbing_patterns_out_of_order::GlobbingPatternsOutOfOrder;
 pub(crate) use ln0881_invalid_escape_sequence_in_dep5_copyright::InvalidEscapeSequenceInDep5Copyright;
 pub(crate) use ln0882_obsolete_field_in_dep5_copyright::ObsoleteFieldInDep5Copyright;
-pub(crate) use ln1020_inconsistent_appstream_metadata_license::InconsistentAppstreamMetadataLicense;
 pub(crate) use ln1021_syntax_error_in_dep5_copyright::SyntaxErrorInDep5Copyright;
 pub(crate) use ln1022_tab_in_license_text::TabInLicenseText;
 pub(crate) use ln1023_unknown_paragraph_in_dep5_copyright::UnknownParagraphInDep5Copyright;

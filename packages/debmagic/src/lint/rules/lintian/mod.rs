@@ -1,7 +1,6 @@
 mod apache2;
 mod application_not_library;
 mod apt;
-mod archive_file_name_length;
 mod archive_liberty;
 mod autotools;
 mod binaries_architecture;
@@ -56,14 +55,12 @@ mod executable;
 mod fields_architecture;
 mod fields_bugs;
 mod fields_built_using;
-mod fields_checksums;
 mod fields_empty;
 mod fields_format;
 mod fields_installer_menu_item;
 mod fields_mail_address;
 mod fields_maintainer_team;
 mod fields_multi_arch;
-mod fields_multi_line;
 mod fields_package;
 mod fields_package_relations;
 mod fields_relations_extra;
@@ -79,15 +76,10 @@ mod files_architecture;
 mod files_artifact;
 mod files_banned_compiled_help;
 mod files_build_path;
-mod files_compressed_bz2;
 mod files_compressed_gz;
-mod files_compressed_lz;
 mod files_compressed_lzma;
-mod files_compressed_lzo;
 mod files_compressed_xz;
-mod files_compressed_zip;
 mod files_config_scripts;
-mod files_date;
 mod files_debug;
 mod files_duplicates;
 mod files_foreign;
@@ -207,8 +199,6 @@ mod template_dh_make_control;
 mod testsuite;
 mod tlds;
 mod triggers;
-mod unpack;
-mod upstream_signature;
 mod usrmerge;
 mod vcs;
 mod vim;
@@ -227,14 +217,11 @@ pub(crate) use application_not_library::LibappPerlPackageName;
 pub(crate) use apt::PackageInstallsAptKeyring;
 pub(crate) use apt::PackageInstallsAptPreferences;
 pub(crate) use apt::PackageInstallsAptSources;
-pub(crate) use archive_file_name_length::SourcePackageComponentHasLongFileName;
 pub(crate) use archive_liberty::ArchiveLibertyMismatch;
 pub(crate) use autotools::{
     AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,
 };
 pub(crate) use binaries_architecture::ArchIndependentPackageContainsBinaryOrObject;
-pub(crate) use binaries_architecture::BinaryFromOtherArchitecture;
-pub(crate) use binaries_debug_symbols_detached::DebugFileWithNoDebugSymbols;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsDirectlyInUsrLibDebug;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsNotDetached;
 pub(crate) use binaries_location::{
@@ -284,7 +271,6 @@ pub(crate) use desktop_gir::TypelibSectionNotIntrospection;
 pub(crate) use dh_make::ReadmeSourceIsDhMakeTemplate;
 pub(crate) use documentation::{ExecutableInUsrShareDoc, ZeroByteFileInDocDirectory};
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
-pub(crate) use fields_checksums::NoStrongDigestsInDsc;
 pub(crate) use fields_empty::EmptyField;
 pub(crate) use fields_format::UnsupportedSourceFormat;
 pub(crate) use fields_maintainer_team::WrongTeam;
@@ -292,22 +278,16 @@ pub(crate) use fields_multi_arch::FontPackageNotMultiArchForeign;
 pub(crate) use fields_multi_arch::IllegalMultiArchValue;
 pub(crate) use fields_multi_arch::MultiArchSamePackageHasArchSpecificOverrides;
 pub(crate) use fields_multi_arch::UnknownMultiArchValue;
-pub(crate) use fields_multi_line::MultilineField;
 pub(crate) use fields_package::BadPackageName;
 pub(crate) use fields_package::PackageNotLowercase;
 pub(crate) use fields_source::SourceFieldMalformed;
 pub(crate) use files_architecture::TripletDirAndArchitectureMismatch;
 pub(crate) use files_banned_compiled_help::SourceContainsPrebuiltMsHelpFile;
-pub(crate) use files_compressed_bz2::BrokenBz2;
 pub(crate) use files_compressed_gz::BrokenGz;
 pub(crate) use files_compressed_gz::GzipFileIsNotMultiArchSameSafe;
 pub(crate) use files_compressed_gz::PackageContainsTimestampedGzip;
-pub(crate) use files_compressed_lz::BrokenLz;
 pub(crate) use files_compressed_lzma::BrokenLzma;
-pub(crate) use files_compressed_lzo::BrokenLzo;
 pub(crate) use files_compressed_xz::BrokenXz;
-pub(crate) use files_compressed_zip::BrokenZip;
-pub(crate) use files_date::PackageContainsAncientFile;
 pub(crate) use files_duplicates::DuplicateChangelogFiles;
 pub(crate) use files_init::NonStandardFilePermissionsForEtcInitDScript;
 pub(crate) use files_init::PackageInstallsDeprecatedUpstartConfiguration;
@@ -319,7 +299,6 @@ pub(crate) use files_scripts::ScriptWithLanguageExtension;
 pub(crate) use files_special::SpecialFile;
 pub(crate) use fonts::DuplicateFontFile;
 pub(crate) use fonts::FontInNonFontPackage;
-pub(crate) use fonts::LicenseProblemFontAdobeCopyrightedFragment;
 pub(crate) use fonts::WoffFontInWrongDir;
 pub(crate) use images_thumbnails::PackageContainsThumbnailsDir;
 pub(crate) use images_thumbnails::PackageContainsXvpicsDir;
@@ -332,7 +311,6 @@ pub(crate) use languages_puppet::PuppetModuleButNotDhPuppet;
 pub(crate) use languages_ruby::RubyInterpreterIsDeprecated;
 pub(crate) use languages_ruby::RubygemHomepage;
 pub(crate) use languages_rust::EmptyRustLibraryDeclaresProvides;
-pub(crate) use languages_rust::RustBoilerplate;
 pub(crate) use libraries_debug_symbols::StrippedLibrary;
 pub(crate) use libraries_shared_file_permissions::OddPermissionsOnSharedLibrary;
 pub(crate) use libraries_shared_file_permissions::SharedLibraryIsExecutable;
@@ -343,10 +321,6 @@ pub(crate) use shell_csh::CshConsideredHarmful;
 pub(crate) use substvars_libc::PackageDependsOnHardcodedLibc;
 pub(crate) use substvars_misc_pre_depends::DependsOnMiscPreDepends;
 pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;
-pub(crate) use unpack::UnpackMessageForDebData;
-pub(crate) use upstream_signature::ConcatenatedUpstreamSignatures;
-pub(crate) use upstream_signature::DoublyArmoredUpstreamSignature;
-pub(crate) use upstream_signature::ExplicitlyArmoredUpstreamSignature;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{
@@ -384,8 +358,8 @@ pub(crate) use debian_copyright::{
     EmptyShortLicenseInDep5Copyright, FileIncludedAlready, FileWithoutCopyrightInformation,
     FilesExcludedWithoutCopyrightFormat10, GlobalFilesWildcardNotFirstParagraphInDep5Copyright,
     GlobbingPatternsOutOfOrder, HelperTemplatesInCopyright, IncompleteCreativeCommonsLicense,
-    InconsistentAppstreamMetadataLicense, InvalidEscapeSequenceInDep5Copyright,
-    InvalidShortNameInDep5Copyright, LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright,
+    InvalidEscapeSequenceInDep5Copyright, InvalidShortNameInDep5Copyright,
+    LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright,
     MissingLicenseParagraphInDep5Copyright, MissingLicenseTextInDep5Copyright,
     NamedCopyrightForSingleInstallable, NoCopyrightFile, NoDebianCopyrightInSource,
     NoDep5Copyright, ObsoleteFieldInDep5Copyright, OldFsfAddressInCopyrightFile,
@@ -625,11 +599,11 @@ pub(crate) use languages_javascript::{
     NodejsModuleInstalledInBadDirectory, NodejsModuleInstalledInUsrLib,
     PkgJsAutopkgtestFileDoesNotExist, PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
-pub(crate) use languages_ocaml::{OcamlDanglingCmx, OcamlDanglingCmxa, OcamlDanglingCmxs};
+pub(crate) use languages_ocaml::{OcamlDanglingCmxa, OcamlDanglingCmxs};
 pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PackageInstallsPacklist,
-    PackageInstallsPerllocalPod, PackageSupersededByPerl, PerlModuleInCoreDirectory,
-    PerlModuleUsesPerl4LibsWithoutDep, ScriptUsesPerl4LibsWithoutDep,
+    PackageInstallsPerllocalPod, PerlModuleInCoreDirectory, PerlModuleUsesPerl4LibsWithoutDep,
+    ScriptUsesPerl4LibsWithoutDep,
 };
 pub(crate) use languages_python::{
     AncientPythonVersionField, BogusPythonPrerequisite, DjangoPackageDoesNotDependOnDjango,
@@ -644,7 +618,6 @@ pub(crate) use languages_python::{
 };
 pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
-pub(crate) use libraries_static::NoCodeSections;
 pub(crate) use libraries_static::OddStaticLibraryName;
 pub(crate) use libtool::{IncorrectLibdirInLaFile, NonEmptyDependencyLibsInLaFile};
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;
@@ -706,7 +679,6 @@ pub(crate) use languages_php::{
 };
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;
-pub(crate) use languages_r::RequiresRApi;
 pub(crate) use lintian_overrides::{
     AlienTag, DuplicateOverrideContext, MalformedOverride, OverrideFileInWrongLocation,
     OverrideFileInWrongPackage,
@@ -793,9 +765,9 @@ pub(crate) use modprobe::{
 };
 pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};
 pub(crate) use po_debconf::{
-    DebconfTranslationUsingGeneralList, InvalidPoFile, InvalidPotfilesIn, MisnamedPoFile,
-    MissingFileFromPotfilesIn, MissingPotfilesIn, MissingTemplatesPot, NewerDebconfTemplates,
-    NotUsingPoDebconf, TranslatedDefaultField, UnknownEncodingInPoFile,
+    DebconfTranslationUsingGeneralList, InvalidPoFile, MisnamedPoFile, MissingFileFromPotfilesIn,
+    MissingPotfilesIn, MissingTemplatesPot, NotUsingPoDebconf, TranslatedDefaultField,
+    UnknownEncodingInPoFile,
 };
 pub(crate) use rules_and_control::{
     BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,

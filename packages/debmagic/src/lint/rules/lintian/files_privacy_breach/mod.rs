@@ -15,6 +15,7 @@ mod ln0647_privacy_breach_logo;
 mod ln0648_privacy_breach_statistics_website;
 mod ln0649_privacy_breach_piwik;
 mod ln0650_privacy_breach_twitter;
+mod ln1084_privacy_breach_w3c_valid_html;
 
 pub(crate) use ln0640_privacy_breach_generic::PrivacyBreachGeneric;
 pub(crate) use ln0641_privacy_breach_uses_embedded_file::PrivacyBreachUsesEmbeddedFile;
@@ -27,3 +28,4 @@ pub(crate) use ln0647_privacy_breach_logo::PrivacyBreachLogo;
 pub(crate) use ln0648_privacy_breach_statistics_website::PrivacyBreachStatisticsWebsite;
 pub(crate) use ln0649_privacy_breach_piwik::PrivacyBreachPiwik;
 pub(crate) use ln0650_privacy_breach_twitter::PrivacyBreachTwitter;
+pub(crate) use ln1084_privacy_breach_w3c_valid_html::PrivacyBreachW3cValidHtml;

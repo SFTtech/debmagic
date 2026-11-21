@@ -16,6 +16,7 @@ mod ln0214_debug_suffix_not_dbg;
 mod ln0215_package_contains_linda_override;
 mod ln0411_windows_thumbnail_database_in_package;
 mod ln0895_package_contains_info_dir_file;
+mod ln1093_windows_devel_file_in_package;
 
 pub(crate) use ln0208_package_contains_readme_for_other_platform_or_distro::PackageContainsReadmeForOtherPlatformOrDistro;
 pub(crate) use ln0209_compressed_documentation::CompressedDocumentation;
@@ -27,3 +28,4 @@ pub(crate) use ln0214_debug_suffix_not_dbg::DebugSuffixNotDbg;
 pub(crate) use ln0215_package_contains_linda_override::PackageContainsLindaOverride;
 pub(crate) use ln0411_windows_thumbnail_database_in_package::WindowsThumbnailDatabaseInPackage;
 pub(crate) use ln0895_package_contains_info_dir_file::PackageContainsInfoDirFile;
+pub(crate) use ln1093_windows_devel_file_in_package::WindowsDevelFileInPackage;

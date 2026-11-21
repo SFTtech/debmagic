@@ -93,7 +93,6 @@ pub(super) fn match_glob<'a>(wildcard: &str, names: &'a [String]) -> Vec<&'a str
 /// Names of a `Files-Excluded` or `Files-Included` field, as `Dep5.pm` reads
 /// them: a pattern with an illegal escape is skipped, and a plain directory
 /// name also covers its contents. Repeats are kept.
-#[allow(dead_code)] // The Files-Included Rule is the first caller.
 pub(super) fn matched(
     header: &CopyrightParagraph,
     field: &str,

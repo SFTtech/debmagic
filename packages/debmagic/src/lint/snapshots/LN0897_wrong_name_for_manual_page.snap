@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): wrong-name-for-manual-page (LN0897) [usr/share/man/man1/example.man.gz]
+E: example (binary): wrong-name-for-manual-page (LN0897) [usr/share/man/man6/simple.pod.gz]
+E: example (binary): wrong-name-for-manual-page (LN0897) [usr/share/man/man1/README]
+E: example (binary): wrong-name-for-manual-page (LN0897) [usr/share/man/man1/1.gz]
+E: example (binary): wrong-name-for-manual-page (LN0897) [usr/share/man/de/man1/foo.gz]
+E: example (binary): wrong-name-for-manual-page (LN0897) [usr/share/man/man1/link.man.gz]

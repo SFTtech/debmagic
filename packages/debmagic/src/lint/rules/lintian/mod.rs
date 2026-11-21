@@ -14,6 +14,7 @@ mod build_systems_waf;
 mod changelog_doc;
 mod conffiles;
 mod control_files;
+mod deb_format;
 mod debhelper_rules;
 mod debian_changelog;
 mod debian_control_field_architecture_multiline;
@@ -239,6 +240,7 @@ pub(crate) use conffiles::{
     UnexpectedConffile, UnknownConffileInstruction,
 };
 pub(crate) use control_files::ControlFileHasBadOwner;
+pub(crate) use deb_format::MisplacedExtraMemberInDeb;
 pub(crate) use debhelper_rules::{
     DebhelperBaseCompatLevelIsMissing, DebhelperButNoMiscDepends,
     MaintainerScriptLacksDebhelperToken, MissingBuildDependencyForDhAddon,

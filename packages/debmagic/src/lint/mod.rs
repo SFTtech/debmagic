@@ -1,6 +1,7 @@
 mod binary_package_reader;
 mod context;
 mod data;
+mod deb_members;
 mod debhelper;
 mod debian_changelog;
 mod debian_control;

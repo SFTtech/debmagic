@@ -5,6 +5,7 @@ use std::sync::OnceLock;
 
 use anyhow::{Context, bail};
 
+use super::deb_members::{DebMember, DebMembers};
 use super::file_tree::Owner;
 use super::timing;
 
@@ -12,6 +13,7 @@ use super::timing;
 /// and Data files; they do not hold the inner tarballs.
 pub(crate) struct BinaryPackageReader {
     path: PathBuf,
+    deb_members: DebMembers,
     control_tar_name: String,
     control_tar: Vec<u8>,
     data_tar_name: String,
@@ -65,10 +67,12 @@ impl BinaryPackageReader {
         let mut debian_binary = false;
         let mut control_tar = None;
         let mut data_tar = None;
+        let mut deb_members = Vec::new();
         while let Some(entry) = archive.next_entry() {
             let mut entry =
                 entry.with_context(|| format!("reading ar member from {}", path.display()))?;
             let name = ar_member_name(entry.header().identifier());
+            deb_members.push(DebMember::new(name.clone(), entry.header().size()));
             let mut bytes = Vec::new();
             entry
                 .read_to_end(&mut bytes)
@@ -94,6 +98,7 @@ impl BinaryPackageReader {
         };
         Ok(Self {
             path,
+            deb_members: DebMembers::new(deb_members),
             control_tar_name,
             control_tar,
             data_tar_name,
@@ -105,6 +110,11 @@ impl BinaryPackageReader {
 
     pub(crate) fn path(&self) -> &Path {
         &self.path
+    }
+
+    /// The ar members, in archive order.
+    pub(crate) fn deb_members(&self) -> &DebMembers {
+        &self.deb_members
     }
 
     #[allow(dead_code)]

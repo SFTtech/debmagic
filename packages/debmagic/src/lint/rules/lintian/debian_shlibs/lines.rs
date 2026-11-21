@@ -1,6 +1,6 @@
 //! Shared control-file text helpers for the `debian/shlibs` Check.
 
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
@@ -138,4 +138,32 @@ pub(super) fn elf_sonames(elf: &ElfFiles) -> Vec<(PathBuf, String)> {
             Some((path.to_path_buf(), soname.clone()))
         })
         .collect()
+}
+
+/// `name version` and `udeb: name version` keys of the shlibs text, as the
+/// Check's `shlibs_positions_by_pretty_soname` keys them.
+pub(super) fn shlibs_pretty_sonames(text: &str) -> BTreeSet<String> {
+    let mut keys = BTreeSet::new();
+    for line in perl_lines(text) {
+        if is_blank_or_comment(line) {
+            continue;
+        }
+        let (udeb, body) = match body_after_udeb(line) {
+            Some(body) => ("udeb: ", body),
+            None => ("", line),
+        };
+        let mut fields = body.split_whitespace();
+        let Some(name) = fields.next() else {
+            continue;
+        };
+        let version = fields.next().unwrap_or("");
+        keys.insert(format!("{udeb}{name} {version}"));
+    }
+    keys
+}
+
+fn body_after_udeb(line: &str) -> Option<&str> {
+    let rest = line.strip_prefix("udeb:")?;
+    rest.starts_with(char::is_whitespace)
+        .then(|| rest.trim_start())
 }

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): testsuite-restrictions-has-deprecated-skip-not-installable (LN1140) [debian/tests/control]

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): odd-place-for-manual-page (LN0898) [usr/share/man/zecho.1.gz]
+E: example (binary): odd-place-for-manual-page (LN0898) [usr/share/man/man-lintian/zecho.1.gz]
+E: example (binary): odd-place-for-manual-page (LN0898) [usr/share/man/man1/foo.2.gz]
+E: example (binary): odd-place-for-manual-page (LN0898) [usr/share/man/man1/foo.2]
+E: example (binary): odd-place-for-manual-page (LN0898) [usr/share/man/de/man1/foo.5.gz]
+E: example (binary): odd-place-for-manual-page (LN0898) [usr/share/man/man1/link.5.gz]

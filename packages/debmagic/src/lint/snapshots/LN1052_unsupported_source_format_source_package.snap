@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): unsupported-source-format (LN1052) 2.0
+E: example (source): unsupported-source-format (LN1052) 3.0 (git)
+E: example (source): unsupported-source-format (LN1052) 1.0 (native)
+E: example (source): unsupported-source-format (LN1052) 1.0 1.0
+E: example (source): unsupported-source-format (LN1052)

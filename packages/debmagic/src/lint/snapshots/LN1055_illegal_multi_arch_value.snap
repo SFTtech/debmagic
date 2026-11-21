@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: foo (binary): illegal-multi-arch-value (LN1055) all same
+E: foo (udeb): illegal-multi-arch-value (LN1055) all same

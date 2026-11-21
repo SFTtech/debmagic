@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): apache2-reverse-dependency-ships-file-in-not-allowed-directory (LN0852) [etc/apache2/mods-enabled/foo.conf]
+E: example (binary): apache2-reverse-dependency-ships-file-in-not-allowed-directory (LN0852) [etc/apache2/conf-enabled/foo.conf]
+E: example (binary): apache2-reverse-dependency-ships-file-in-not-allowed-directory (LN0852) [etc/apache2/sites-enabled/000-default.conf]

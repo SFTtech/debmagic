@@ -28,7 +28,6 @@ use super::rules::BuildDependsOnNonBuildPackage;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CarriageReturnLineFeed;
-use super::rules::ChangelogDistributionDoesNotMatchChangesFile;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
 use super::rules::ChangelogIsSymlink;
@@ -49,7 +48,6 @@ use super::rules::DebconfIsNotARegistry;
 use super::rules::DebconfTranslationUsingGeneralList;
 use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
-use super::rules::DebhelperCompatNotANumber;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
 use super::rules::DebianRulesNotAMakefile;
@@ -82,13 +80,11 @@ use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
-use super::rules::DocBaseFileReferencesMissingFile;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DuplicateGlobbingPatterns;
 use super::rules::DuplicateOverrideContext;
 use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
-use super::rules::ElevatedPrivileges;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
 use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExecutableDebhelperFileWithoutBeingExecutable;
@@ -104,10 +100,8 @@ use super::rules::FilesExcludedWithoutCopyrightFormat10;
 use super::rules::ForbiddenPostrmInterpreter;
 use super::rules::GawkScriptButNoGawkDep;
 use super::rules::GirInArchAllPackage;
-use super::rules::GirMissingTypelibDependency;
 use super::rules::GirPackageNameDoesNotMatch;
 use super::rules::GlobbingPatternsOutOfOrder;
-use super::rules::InconsistentAppstreamMetadataLicense;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
@@ -116,7 +110,6 @@ use super::rules::InitScriptIsNotAFile;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
-use super::rules::InvalidPotfilesIn;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::KillModeNone;
@@ -155,7 +148,6 @@ use super::rules::NativeSourceFileWithoutUtf8Name;
 use super::rules::NeedlessDependencyOnJre;
 use super::rules::NewPackageShouldNotPackagePython2Module;
 use super::rules::NewPackageUsesDateBasedVersionNumber;
-use super::rules::NewerDebconfTemplates;
 use super::rules::NmuInChangelog;
 use super::rules::NoDebianChanges;
 use super::rules::NoTemplateName;
@@ -173,7 +165,6 @@ use super::rules::OddPlaceForManualPage;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
-use super::rules::PackageContainsBrokenSymlinkWildcard;
 use super::rules::PackageContainsCmakePrivateFile;
 use super::rules::PackageContainsInfoDirFile;
 use super::rules::PackageContainsMimeCacheFile;
@@ -1333,19 +1324,16 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageContainsCmakePrivateFile,
         &BadPermissionsForEtcCronDScript,
         &PackageFileIsExecutable,
-        &DebhelperCompatNotANumber,
         &DhExecPrivateHelper,
         &ExecutableDebhelperFileWithoutBeingExecutable,
         &UsrShareDocSymlinkWithoutDependency,
         &ChangelogIsDhMakeTemplate,
         &WrongBugNumberInCloses,
-        &ChangelogDistributionDoesNotMatchChangesFile,
         &ChangelogFileMissingExplicitEntry,
         &ChangelogNotCompressedWithMaxCompression,
         &MalformedDebianChangelogVersion,
         &MisspelledClosesBug,
         &NewPackageUsesDateBasedVersionNumber,
-        &InconsistentAppstreamMetadataLicense,
         &BoilerplateCopyrightFormatUri,
         &CommaSeparatedFilesInDep5Copyright,
         &DuplicateGlobbingPatterns,
@@ -1375,11 +1363,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ArchWildcardInBinaryPackage,
         &MagicArchInArchList,
         &DebconfTranslationUsingGeneralList,
-        &InvalidPotfilesIn,
         &MissingFileFromPotfilesIn,
         &MissingPotfilesIn,
         &MissingTemplatesPot,
-        &NewerDebconfTemplates,
         &NotUsingPoDebconf,
         &DebianRulesShouldNotSetCFLAGSFromNoopt,
         &DebianRulesIsSymlink,
@@ -1389,7 +1375,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingBuildDependsForCleanTargetInDebianRules,
         &OverrideDhCleanDoesNotCallDhClean,
         &TypelibMissingGirDepends,
-        &GirMissingTypelibDependency,
         &GirPackageNameDoesNotMatch,
         &TypelibNotInMultiarchDirectory,
         &TypelibPackageNameDoesNotMatch,
@@ -1401,7 +1386,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoDebianChanges,
         &MissingDependsOnSensibleUtils,
         &LicenseProblemMd5sumNonFreeFile,
-        &PackageContainsBrokenSymlinkWildcard,
         &NodejsModuleInstalledInBadDirectory,
         &PkgJsAutopkgtestFileDoesNotExist,
         &RedundantBuildPrerequisites,
@@ -1413,7 +1397,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LibmoduleBuildTinyPerlNeedsToBeInBuildDepends,
         &NeedlessDependencyOnJre,
         &ObsoleteRelationForm,
-        &ElevatedPrivileges,
         &ExecutableIsNotWorldReadable,
         &NonStandardSetuidExecutablePerm,
         &BadPermForFileInEtcSudoersD,
@@ -1431,7 +1414,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PythonModuleInWrongLocation,
         &DjangoPackageDoesNotDependOnDjango,
         &NewPackageShouldNotPackagePython2Module,
-        &DocBaseFileReferencesMissingFile,
         &ExecutableInUsrShareDocbase,
         &ExecutableMenuFile,
         &MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,
@@ -1718,12 +1700,10 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SuperfluousClutterInHomepage,
         &ConfigureGeneratedFileInSource,
         &PackageFileIsExecutable,
-        &DebhelperCompatNotANumber,
         &DhExecPrivateHelper,
         &ExecutableDebhelperFileWithoutBeingExecutable,
         &ChangelogFileMissingExplicitEntry,
         &MalformedDebianChangelogVersion,
-        &InconsistentAppstreamMetadataLicense,
         &BoilerplateCopyrightFormatUri,
         &CommaSeparatedFilesInDep5Copyright,
         &DuplicateGlobbingPatterns,
@@ -1738,11 +1718,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &VersionSubstvarForExternalPackage,
         &MagicArchInArchList,
         &DebconfTranslationUsingGeneralList,
-        &InvalidPotfilesIn,
         &MissingFileFromPotfilesIn,
         &MissingPotfilesIn,
         &MissingTemplatesPot,
-        &NewerDebconfTemplates,
         &NotUsingPoDebconf,
         &DebianRulesShouldNotSetCFLAGSFromNoopt,
         &DebianRulesIsSymlink,
@@ -2280,7 +2258,6 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UsrShareDocSymlinkWithoutDependency,
         &ChangelogIsDhMakeTemplate,
         &WrongBugNumberInCloses,
-        &ChangelogDistributionDoesNotMatchChangesFile,
         &ChangelogNotCompressedWithMaxCompression,
         &MisspelledClosesBug,
         &NewPackageUsesDateBasedVersionNumber,
@@ -2300,7 +2277,6 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OddPlaceForManualPage,
         &ExecutableManualPage,
         &ArchWildcardInBinaryPackage,
-        &GirMissingTypelibDependency,
         &GirPackageNameDoesNotMatch,
         &TypelibNotInMultiarchDirectory,
         &TypelibPackageNameDoesNotMatch,
@@ -2310,14 +2286,12 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SectionIsDhMakeTemplate,
         &BadVersionNumber,
         &MissingDependsOnSensibleUtils,
-        &PackageContainsBrokenSymlinkWildcard,
         &NodejsModuleInstalledInBadDirectory,
         &AlternatesNotAllowed,
         &BadRelation,
         &LibRecommendsDocumentation,
         &NeedlessDependencyOnJre,
         &ObsoleteRelationForm,
-        &ElevatedPrivileges,
         &ExecutableIsNotWorldReadable,
         &NonStandardSetuidExecutablePerm,
         &BadPermForFileInEtcSudoersD,
@@ -2335,7 +2309,6 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PythonModuleInWrongLocation,
         &DjangoPackageDoesNotDependOnDjango,
         &NewPackageShouldNotPackagePython2Module,
-        &DocBaseFileReferencesMissingFile,
         &ExecutableInUsrShareDocbase,
         &ExecutableMenuFile,
         &MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): duplicate-updaterc.d-calls-in-postrm (LN0951) foo [postrm:2]
+E: example (binary): duplicate-updaterc.d-calls-in-postrm (LN0951) foo [postrm:2]
+E: example (binary): duplicate-updaterc.d-calls-in-postrm (LN0951) foo [postrm:2]
+E: example (binary): duplicate-updaterc.d-calls-in-postrm (LN0951) foo [postrm:3]
+E: example (udeb): duplicate-updaterc.d-calls-in-postrm (LN0951) foo [postrm:2]

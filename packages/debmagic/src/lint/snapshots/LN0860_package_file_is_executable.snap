@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): package-file-is-executable (LN0860) [debian/copyright]
+W: example (source): package-file-is-executable (LN0860) [debian/changelog]
+W: example (source): package-file-is-executable (LN0860) [debian/NEWS]
+W: example (source): package-file-is-executable (LN0860) [debian/example.NEWS]
+W: example (source): package-file-is-executable (LN0860) [debian/example.changelog]
+W: example (source): package-file-is-executable (LN0860) [debian/control]
+W: example (source): package-file-is-executable (LN0860) [debian/copyright]
+W: example (source): package-file-is-executable (LN0860) [debian/manpages]
+W: example (source): package-file-is-executable (LN0860) [debian/example.install]

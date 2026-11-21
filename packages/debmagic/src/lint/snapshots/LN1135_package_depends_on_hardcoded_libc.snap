@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): package-depends-on-hardcoded-libc (LN1135) (in section for example) Depends libc6 (>= 2.31) [debian/control:5]
+W: control-file-hardcoded-libc (source): package-depends-on-hardcoded-libc (LN1135) (in section for control-file-hardcoded-libc) Pre-Depends libc0.1 [debian/control:11]
+W: control-file-hardcoded-libc (source): package-depends-on-hardcoded-libc (LN1135) (in section for control-file-hardcoded-libc) Depends ${shlibs:Depends}, ${misc:Depends}, libc6 [debian/control:12]
+W: control-file-hardcoded-libc (source): package-depends-on-hardcoded-libc (LN1135) (in section for control-file-hardcoded-libc) Recommends libc6.1 [debian/control:13]
+W: control-file-hardcoded-libc (source): package-depends-on-hardcoded-libc (LN1135) (in section for control-file-hardcoded-libc) Suggests libc0.3 [debian/control:14]
+W: example (source): package-depends-on-hardcoded-libc (LN1135) (in section for example) Depends libc6 [debian/control:5]
+W: example (source): package-depends-on-hardcoded-libc (LN1135) (in section for example-udeb) Pre-Depends libc6.1 [debian/control:10]
+W: example (source): package-depends-on-hardcoded-libc (LN1135) (in section for example) Depends libc0.1 [debian/control:7]

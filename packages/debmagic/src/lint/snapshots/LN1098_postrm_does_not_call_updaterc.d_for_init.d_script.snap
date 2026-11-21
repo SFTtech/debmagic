@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): postrm-does-not-call-updaterc.d-for-init.d-script (LN1098) etc/init.d/foo [postrm]
+E: example (binary): postrm-does-not-call-updaterc.d-for-init.d-script (LN1098) etc/init.d/foo [postrm]
+E: example (binary): postrm-does-not-call-updaterc.d-for-init.d-script (LN1098) etc/init.d/foo [postrm]
+E: example (binary): postrm-does-not-call-updaterc.d-for-init.d-script (LN1098) etc/init.d/foo [postrm]
+E: example (udeb): postrm-does-not-call-updaterc.d-for-init.d-script (LN1098) etc/init.d/foo [postrm]
+E: example (binary): postrm-does-not-call-updaterc.d-for-init.d-script (LN1098) etc/init.d/foo [postrm]

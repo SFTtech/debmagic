@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libbad (binary): typelib-section-not-introspection (LN0921) misc [usr/lib/girepository-1.0/Bad-23.typelib]
+W: libbad (binary): typelib-section-not-introspection (LN0921) NONE [usr/lib/x86_64-linux-gnu/girepository-1.0/Bad-23.typelib]

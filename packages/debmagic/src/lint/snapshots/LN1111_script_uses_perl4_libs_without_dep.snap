@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) newgetopt.pl [usr/bin/tool:2]
+W: example (binary): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) getopt.pl [usr/bin/tool:3]
+W: example (binary): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) find.pl [usr/bin/tool:5]
+W: example (binary): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) newgetopt.pl [usr/bin/tool:2]
+W: example (binary): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) newgetopt.pl [usr/bin/tool:2]
+W: example (binary): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) newgetopt.pl [usr/share/doc/foo/examples/script:2]
+W: example (binary): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) newgetopt.pl [usr/bin/tool:2]
+W: example (binary): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) newgetopt.pl [usr/bin/link:2]
+W: example (binary): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) newgetopt.pl [usr/bin/tool:2]
+W: example (udeb): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) newgetopt.pl [usr/bin/tool:2]
+W: example (binary): script-uses-perl4-libs-without-dep (LN1111) (does not satisfy libperl4-corelibs-perl:any | perl:any (<< 5.12.3-7)) newgetopt.pl [usr/bin/café:2]

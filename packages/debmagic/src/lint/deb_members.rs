@@ -49,6 +49,35 @@ pub(crate) struct TarballPositions {
     pub(crate) data: Option<usize>,
 }
 
+/// The two tarballs a `.deb` must carry.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Tarball {
+    Control,
+    Data,
+}
+
+impl Tarball {
+    fn stem(self) -> &'static str {
+        match self {
+            Tarball::Control => "control.tar",
+            Tarball::Data => "data.tar",
+        }
+    }
+
+    /// File extensions lintian accepts for this tarball: the vendored
+    /// `deb-format/{control,data}-compressions` tables, for Debian (lines
+    /// that start with `@` are for other vendors).
+    fn compressions(self) -> Vec<&'static str> {
+        let table = match self {
+            Tarball::Control => include_str!("data/deb-format/control-compressions"),
+            Tarball::Data => include_str!("data/deb-format/data-compressions"),
+        };
+        data::lines(table)
+            .filter(|line| !line.starts_with('@'))
+            .collect()
+    }
+}
+
 impl DebMembers {
     pub(crate) fn new(members: Vec<DebMember>) -> Self {
         Self { members }
@@ -78,6 +107,38 @@ impl DebMembers {
     /// members, the first of them `debian-binary`.
     pub(crate) fn is_well_shaped(&self) -> bool {
         self.members.len() >= 3 && self.members[0].name == "debian-binary"
+    }
+
+    /// Name of the member `deb-format` takes as the Control or Data tarball,
+    /// in a well-shaped archive. It need not be an official name; see
+    /// [`Self::official_tarball`].
+    pub(crate) fn tarball(&self, tarball: Tarball) -> Option<&DebMember> {
+        if !self.is_well_shaped() {
+            return None;
+        }
+        let positions = self.tarball_positions();
+        let position = match tarball {
+            Tarball::Control => positions.control,
+            Tarball::Data => positions.data,
+        }?;
+        self.members.get(position)
+    }
+
+    /// The tarball's name is `control.tar` or `data.tar`, optionally followed
+    /// by one of the accepted compression extensions. `None` when there is no
+    /// such member, or its name is something else (`malformed-deb-archive`).
+    /// Otherwise the extension without its dot, empty for no compression.
+    pub(crate) fn official_tarball(&self, tarball: Tarball) -> Option<String> {
+        let name = self.tarball(tarball)?.name();
+        let rest = name.strip_prefix(tarball.stem())?;
+        if rest.is_empty() {
+            return Some(String::new());
+        }
+        let extension = rest.strip_prefix('.')?;
+        tarball
+            .compressions()
+            .contains(&extension)
+            .then(|| extension.to_string())
     }
 
     /// Positions of the Control and Data tarballs. Members whose name starts
@@ -169,6 +230,42 @@ mod tests {
         assert!(
             !DebMembers::from_names(["control.tar.xz", "debian-binary", "data.tar.xz"])
                 .is_well_shaped()
+        );
+    }
+
+    #[test]
+    fn official_tarball_names_follow_the_vendored_tables() {
+        let official = |names: &[&str], tarball| {
+            DebMembers::from_names(names.iter().copied()).official_tarball(tarball)
+        };
+        let members = |data: &'static str| ["debian-binary", "control.tar.xz", data];
+        assert_eq!(
+            official(&members("data.tar.xz"), Tarball::Data).as_deref(),
+            Some("xz")
+        );
+        assert_eq!(
+            official(&members("data.tar.bz2"), Tarball::Data).as_deref(),
+            Some("bz2")
+        );
+        assert_eq!(
+            official(&members("data.tar"), Tarball::Data).as_deref(),
+            Some("")
+        );
+        // zstd is accepted only on Ubuntu.
+        assert_eq!(official(&members("data.tar.zst"), Tarball::Data), None);
+        assert_eq!(official(&members("data.tar.lz4"), Tarball::Data), None);
+        assert_eq!(official(&members("data.tarx"), Tarball::Data), None);
+        // The Control tarball does not accept bz2.
+        assert_eq!(
+            official(
+                &["debian-binary", "control.tar.bz2", "data.tar.xz"],
+                Tarball::Control
+            ),
+            None
+        );
+        assert_eq!(
+            official(&["debian-binary", "control.tar.gz"], Tarball::Control),
+            None
         );
     }
 

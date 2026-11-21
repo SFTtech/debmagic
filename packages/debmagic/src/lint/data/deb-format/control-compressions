@@ -1,0 +1,4 @@
+# List of supported file extensions for control.tar
+gz
+xz
+@if-vendor-is ubuntu zst

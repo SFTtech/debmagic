@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): uses-no-compression-for-control-tarball (LN1149)
+E: example (binary): uses-no-compression-for-control-tarball (LN1149)
+E: example (udeb): uses-no-compression-for-control-tarball (LN1149)

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-installs-perllocal-pod (LN1108) [usr/lib/perl/perllocal.pod]
+W: example (binary): package-installs-perllocal-pod (LN1108) [usr/lib/perl-foo/perllocal.pod]
+W: example (binary): package-installs-perllocal-pod (LN1108) [usr/lib/perl-foo/perllocalxpod]
+W: example (binary): package-installs-perllocal-pod (LN1108) [usr/lib/perl-foo/perllocal.pod]
+W: example (udeb): package-installs-perllocal-pod (LN1108) [usr/lib/perl-foo/perllocal.pod]
+W: example (binary): package-installs-perllocal-pod (LN1108) [usr/lib/perl-ÿ/perllocal.pod]

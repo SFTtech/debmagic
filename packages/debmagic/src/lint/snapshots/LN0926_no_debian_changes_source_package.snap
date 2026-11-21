@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): no-debian-changes (LN0926)
+W: example (source): no-debian-changes (LN0926)
+W: example (source): no-debian-changes (LN0926)

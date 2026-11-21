@@ -1,5 +1,2 @@
-old-python2 = 2.7
-old-python3 = 3.5
-
-ancient-python2 = 2.7
-ancient-python3 = 3.5
+old-python = 3.13
+ancient-python = 3.11

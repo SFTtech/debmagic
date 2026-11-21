@@ -1,0 +1,2 @@
+Testname: systemd-general
+Check: maintainer-scripts/systemctl

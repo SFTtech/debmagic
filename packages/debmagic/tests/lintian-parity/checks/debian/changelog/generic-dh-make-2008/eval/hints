@@ -1,0 +1,3 @@
+generic-dh-make-2008 (binary): wrong-bug-number-in-closes #nnnn [usr/share/doc/generic-dh-make-2008/changelog.Debian.gz:3]
+generic-dh-make-2008 (binary): initial-upload-closes-no-bugs [usr/share/doc/generic-dh-make-2008/changelog.Debian.gz:1]
+generic-dh-make-2008 (binary): changelog-is-dh_make-template [usr/share/doc/generic-dh-make-2008/changelog.Debian.gz:1]

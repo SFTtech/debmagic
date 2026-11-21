@@ -1,0 +1,2 @@
+Testname: upstream-metadata-is-missing
+Check: debian/upstream/metadata

@@ -1,0 +1,4 @@
+Testname: changelog-file-etch
+Test-Against:
+ malformed-debian-changelog-version
+Check: debian/changelog

@@ -1,0 +1,2 @@
+Testname: control-file-pedantic
+Check: debian/control/field/adopted

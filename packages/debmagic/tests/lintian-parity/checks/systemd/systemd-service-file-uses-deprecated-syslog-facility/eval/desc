@@ -1,0 +1,2 @@
+Testname: systemd-service-file-uses-deprecated-syslog-facility
+Check: systemd

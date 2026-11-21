@@ -1,0 +1,2 @@
+Testname: control-file-deprecated-ruby-fields
+Check: debian/control/field/deprecated

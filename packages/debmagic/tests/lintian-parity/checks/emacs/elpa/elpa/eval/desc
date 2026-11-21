@@ -1,0 +1,4 @@
+Testname: elpa
+Check: emacs/elpa
+Test-Against:
+ emacsen-common-without-dh-elpa

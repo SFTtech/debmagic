@@ -1,0 +1,4 @@
+Testname: unquoted-placeholder
+Check: mailcap
+Test-Against:
+ quoted-placeholder-in-mailcap-entry

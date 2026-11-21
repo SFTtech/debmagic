@@ -1,0 +1,2 @@
+Testname: rules-sanitize-all-buildflag
+Check: debian/rules

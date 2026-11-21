@@ -1,1 +1,1 @@
-python-could-use-pyproject-setuptools (source): missing-prerequisite-for-pyproject-backend setuptools.build_meta (does not satisfy python3-setuptools:any, pybuild-plugin-pyproject:any) [pyproject.toml:3]
+python-could-use-pyproject-setuptools (source): missing-prerequisite-for-pyproject-backend setuptools.build_meta (does not satisfy python3-setuptools, pybuild-plugin-pyproject) [pyproject.toml:3]

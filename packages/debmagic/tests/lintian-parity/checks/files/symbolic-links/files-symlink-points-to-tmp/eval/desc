@@ -1,0 +1,2 @@
+Testname: files-symlink-points-to-tmp
+Check: files/symbolic-links

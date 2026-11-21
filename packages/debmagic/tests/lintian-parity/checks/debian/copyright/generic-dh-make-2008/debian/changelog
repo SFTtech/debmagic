@@ -1,0 +1,5 @@
+generic-dh-make-2008 (1.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Russ Allbery <rra@debian.org>  Mon, 29 Dec 2008 17:33:59 -0800

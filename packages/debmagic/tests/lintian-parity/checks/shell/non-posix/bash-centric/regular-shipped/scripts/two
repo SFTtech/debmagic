@@ -183,4 +183,8 @@ trap 'message;
       message;
       exit 1' HUP INT QUIT TERM
 
+# Not here-strings: literal '<<<' in quoted strings (Bug#997911).
+echo "<<<<<<<<<< $file >>>>>>>>>>"
+echo ">>> $afl_banner instance: $DIR <<<"
+
 #DEBHELPER#

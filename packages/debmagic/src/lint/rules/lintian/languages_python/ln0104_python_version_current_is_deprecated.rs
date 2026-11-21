@@ -10,8 +10,8 @@ pub struct PythonVersionCurrentIsDeprecated;
 declare_rule! {
     /// A Python version field starts with `current`.
     ///
-    /// Reads `X-Python-Version`, `XS-Python-Version`, and `X-Python3-Version`
-    /// on the source paragraph. Extra is the field name.
+    /// Reads `X-Python3-Version` on the source paragraph. Extra is the field
+    /// name.
     PythonVersionCurrentIsDeprecated,
     code = "LN0104",
     tag = "python-version-current-is-deprecated",
@@ -67,10 +67,12 @@ mod tests {
             tree(""),
             tree("X-Python3-Version: >= 3.6\n"),
             tree("X-Python3-Version: all\n"),
+            // Only X-Python3-Version is read.
+            tree("XS-Python-Version: current 2.7\n"),
         ];
         let fail = vec![
             tree("X-Python3-Version: current\n"),
-            tree("XS-Python-Version: current 2.7\n"),
+            tree("X-Python3-Version: current, >= 3.12\n"),
         ];
         SourceTreeTester::new(PythonVersionCurrentIsDeprecated, pass, fail).test_and_snapshot();
     }

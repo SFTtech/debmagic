@@ -1,0 +1,2 @@
+Testname: lowercase-sql
+Check: debian/lintian-overrides/comments

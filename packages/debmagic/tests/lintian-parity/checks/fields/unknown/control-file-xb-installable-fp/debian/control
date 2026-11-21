@@ -1,0 +1,20 @@
+Source: control-file-xb-installable-fp
+Section: net
+Priority: optional
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Rules-Requires-Root: no
+Build-Depends: debhelper-compat (= 14)
+XS-Ruby-Versions: all
+
+Package: lua-control-file-xb-installable-fp
+Architecture: all
+Depends: ${misc:Depends}
+XB-Lua-Versions: 5.1
+Description: Test to not flag unknown-field and adopted-extended-field for XB-Lua-Versions (lua library)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package contains the lua library.

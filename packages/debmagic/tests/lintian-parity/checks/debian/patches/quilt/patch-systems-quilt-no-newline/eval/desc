@@ -1,0 +1,2 @@
+Testname: patch-systems-quilt-no-newline
+Check: debian/patches/quilt

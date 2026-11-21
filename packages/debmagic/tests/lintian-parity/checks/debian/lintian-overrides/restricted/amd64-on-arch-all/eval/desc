@@ -1,0 +1,2 @@
+Testname: amd64-on-arch-all
+Check: debian/lintian-overrides/restricted

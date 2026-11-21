@@ -1,0 +1,6 @@
+Testname: package-uses-x-dh-compat
+Test-Against:
+ debhelper-compat-virtual-relation
+ debhelper-base-compat-level-is-missing
+ debhelper-but-no-misc-depends
+Check: debhelper

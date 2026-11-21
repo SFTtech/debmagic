@@ -1,0 +1,2 @@
+Testname: debian-rules-uses-supported-python-versions-without-python-all-build-depends
+Check: debian/rules

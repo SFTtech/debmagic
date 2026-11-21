@@ -1,0 +1,2 @@
+Testname: control-file-important-space
+Check: debian/control/field/architecture/multiline

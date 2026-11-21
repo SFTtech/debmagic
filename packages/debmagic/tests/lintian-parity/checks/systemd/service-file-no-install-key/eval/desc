@@ -1,0 +1,2 @@
+Testname: service-file-no-install-key
+Check: systemd

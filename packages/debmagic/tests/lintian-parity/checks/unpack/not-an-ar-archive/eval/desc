@@ -1,0 +1,5 @@
+Testname: not-an-ar-archive
+Test-Against:
+ unpack-message-for-source
+ unpack-message-for-orig
+Check: unpack

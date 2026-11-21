@@ -3,7 +3,6 @@ Priority: optional
 Section: java
 Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
 Standards-Version: 4.7.4.1
-XS-Python-Version: current 2.7
 X-Python3-Version: invalid
 Build-Depends: debhelper-compat (= 14)
 Rules-Requires-Root: no

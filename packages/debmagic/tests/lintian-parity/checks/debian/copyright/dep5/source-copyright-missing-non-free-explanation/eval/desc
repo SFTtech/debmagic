@@ -1,0 +1,2 @@
+Testname: source-copyright-missing-non-free-explanation
+Check: debian/copyright/dep5

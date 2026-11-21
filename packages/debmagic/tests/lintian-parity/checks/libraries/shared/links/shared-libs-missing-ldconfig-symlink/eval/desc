@@ -1,0 +1,2 @@
+Testname: shared-libs-missing-ldconfig-symlink
+Check: libraries/shared/links

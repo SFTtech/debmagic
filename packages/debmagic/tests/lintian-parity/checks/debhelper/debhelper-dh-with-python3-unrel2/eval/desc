@@ -1,0 +1,4 @@
+Testname: debhelper-dh-with-python3-unrel2
+Test-Against:
+ missing-build-dependency-for-dh-addon
+Check: debhelper

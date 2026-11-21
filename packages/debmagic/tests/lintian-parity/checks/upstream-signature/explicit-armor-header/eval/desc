@@ -1,0 +1,3 @@
+Testname: explicit-armor-header
+Check: upstream-signature
+See-Also: Debian #929436, https://lists.debian.org/debian-devel/2019/04/msg00459.html

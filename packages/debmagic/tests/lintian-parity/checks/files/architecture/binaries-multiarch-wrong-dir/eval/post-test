@@ -1,0 +1,4 @@
+s/i386-linux-gnu/TRIPLET/
+s/x86_64-linux-gnu/TRIPLET/
+s/is for i386 instead of amd64/INCOMPATIBILITY STATEMENT/
+s/is for amd64 instead of i386/INCOMPATIBILITY STATEMENT/

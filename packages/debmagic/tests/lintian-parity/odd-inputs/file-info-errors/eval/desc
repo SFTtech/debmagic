@@ -1,0 +1,4 @@
+Testname: file-info-errors
+Match-Strategy: literal
+Output-Format: EWI
+Default-Lintian-Options: --pedantic --display-info --display-experimental

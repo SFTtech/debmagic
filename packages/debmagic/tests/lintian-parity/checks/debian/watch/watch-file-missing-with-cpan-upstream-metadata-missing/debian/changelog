@@ -1,0 +1,6 @@
+watch-file-missing-with-cpan-upstream-metadata-missing (1.0-1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: watch-file-missing-with-cpan-upstream-metadata-missing
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

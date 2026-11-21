@@ -1,0 +1,4 @@
+Testname: maybe-bug-debian
+Check: debian/patches/dep3
+Test-Against:
+ invalid-dep3-format-patch-maybe-bug-debian

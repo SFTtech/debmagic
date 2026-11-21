@@ -1,0 +1,5 @@
+Testname: runtests-todo
+Todo: This tests the Todo feature in the runner.
+Match-Strategy: literal
+Output-Format: EWI
+Default-Lintian-Options: --pedantic --display-info --display-experimental

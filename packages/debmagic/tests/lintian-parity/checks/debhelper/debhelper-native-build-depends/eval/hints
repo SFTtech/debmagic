@@ -1,0 +1,3 @@
+debhelper-native-build-depends (source): debian-build-system dh [debian/rules]
+debhelper-native-build-depends (source): debhelper-compat-virtual-relation 14 [debian/control]
+debhelper-native-build-depends (source): debhelper-compat-level 14

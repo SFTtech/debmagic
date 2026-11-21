@@ -1,0 +1,4 @@
+Testname: control-file-source-upload-to-non-free-without-autobuild
+Check: archive/non-free/autobuild
+Test-Against:
+ source-only-upload-to-non-free-without-autobuild

@@ -1,0 +1,2 @@
+Testname: debhelper-lacks-versioned-deps
+Check: debhelper

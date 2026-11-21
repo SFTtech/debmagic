@@ -1,0 +1,2 @@
+fields-general-BAD? (binary): unknown-architecture weird
+fields-general-BAD? (binary): too-many-architectures amd64 i386 weird

@@ -1,0 +1,4 @@
+Testname: cruft-package-does-not-install-examples-symlink
+Test-Against:
+ package-does-not-install-examples
+Check: examples

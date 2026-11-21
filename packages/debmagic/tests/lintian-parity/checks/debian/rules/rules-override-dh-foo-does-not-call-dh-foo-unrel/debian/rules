@@ -3,9 +3,13 @@
 %:
 	dh $@
 
-override_dh_clean:
+override_dh_clean-indep:
 	true
-	dh_clean # This rule is a false positive
+	dh_clean
+
+override_dh_clean-arch:
+	true
+	$(DH_OVERRIDDEN_COMMAND)
 
 override_dh_fixperms:
 	true

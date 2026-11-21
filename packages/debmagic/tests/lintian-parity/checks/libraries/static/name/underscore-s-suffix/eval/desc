@@ -1,0 +1,4 @@
+Testname: underscore-s-suffix
+Check: libraries/static/name
+See-Also:
+ Debian Bug#698398

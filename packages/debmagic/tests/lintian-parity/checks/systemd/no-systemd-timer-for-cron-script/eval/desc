@@ -1,0 +1,2 @@
+Testname: no-systemd-timer-for-cron-script
+Check: systemd

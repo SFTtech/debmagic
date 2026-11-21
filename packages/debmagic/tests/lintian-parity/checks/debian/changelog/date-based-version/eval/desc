@@ -1,0 +1,4 @@
+Testname: date-based-version
+Test-Against:
+ malformed-debian-changelog-version
+Check: debian/changelog

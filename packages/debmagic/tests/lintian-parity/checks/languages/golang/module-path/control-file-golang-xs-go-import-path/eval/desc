@@ -1,0 +1,4 @@
+Testname: control-file-golang-xs-go-import-path
+Check: languages/golang/module-path
+Test-Against:
+ missing-xs-go-import-path-for-golang-package

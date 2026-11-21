@@ -1,0 +1,6 @@
+generic-dh-make-2005 (1-1) unstable; urgency=low
+
+  * Initial release Closes: #nnnn  (nnnn is the bug number of your ITP)
+
+ -- Frank Lichtenheld <djpig@debian.org>  Thu,  4 Aug 2005 23:09:00 +0200
+

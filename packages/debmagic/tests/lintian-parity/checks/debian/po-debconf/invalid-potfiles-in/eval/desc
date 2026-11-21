@@ -1,0 +1,2 @@
+Testname: invalid-potfiles-in
+Check: debian/po-debconf

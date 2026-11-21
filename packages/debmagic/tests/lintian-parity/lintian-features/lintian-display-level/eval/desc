@@ -1,0 +1,5 @@
+Testname: lintian-display-level
+Match-Strategy: literal
+Output-Format: EWI
+Lintian-Command-Line: --no-user-dirs [% $options %] --profile [% $profile %] --allow-root --no-cfg --exp-output format=[% $output_format %] --pedantic -I -E --display-level '-info' --display-level '-error'
+Default-Lintian-Options: --pedantic --display-info --display-experimental

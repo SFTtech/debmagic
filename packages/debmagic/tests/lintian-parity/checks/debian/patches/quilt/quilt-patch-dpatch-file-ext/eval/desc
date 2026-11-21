@@ -1,0 +1,2 @@
+Testname: quilt-patch-dpatch-file-ext
+Check: debian/patches/quilt

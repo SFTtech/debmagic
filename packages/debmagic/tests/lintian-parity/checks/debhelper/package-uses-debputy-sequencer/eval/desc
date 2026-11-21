@@ -1,0 +1,4 @@
+Testname: package-uses-debputy-sequencer
+Test-Against:
+ debhelper-but-no-misc-depends
+Check: debhelper

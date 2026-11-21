@@ -1,0 +1,5 @@
+Testname: overrides-shown
+Options: --show-overrides
+Check: debian/lintian-overrides/mystery
+Test-Against:
+ alien-tag

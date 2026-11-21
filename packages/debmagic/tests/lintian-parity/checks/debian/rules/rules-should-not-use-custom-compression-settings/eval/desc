@@ -1,0 +1,2 @@
+Testname: rules-should-not-use-custom-compression-settings
+Check: debian/rules

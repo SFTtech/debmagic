@@ -182,7 +182,8 @@
       },
       "golang" : {
          "installed_by" : [
-            "dh-golang"
+            "dh-golang",
+            "dh-go"
          ]
       },
       "grantlee" : {

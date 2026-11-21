@@ -1,0 +1,3 @@
+changed-by-root (changes): root-in-contact Changed-By root <someone@debian.org>
+changed-by-root (changes): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changed-by-root (changes): mail-contact Changed-By root <someone@debian.org>

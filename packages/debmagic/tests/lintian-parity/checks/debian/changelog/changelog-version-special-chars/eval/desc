@@ -1,0 +1,4 @@
+Testname: changelog-version-special-chars
+Test-Against:
+ malformed-debian-changelog-version
+Check: debian/changelog

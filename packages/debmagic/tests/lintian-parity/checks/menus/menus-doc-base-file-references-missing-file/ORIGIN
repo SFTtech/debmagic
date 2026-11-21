@@ -1,9 +1,11 @@
-lintian 2.139.0 (575a2bf1bc98500bbc1c78e82f44b40d195d17ea)
+lintian 2.144.0 (3e81fac95c3eb9201f6b45f4a7e51233d5265352)
 t/recipes/checks/menus/menus-doc-base-file-references-missing-file
+Skeleton: upload-native
 
-Filled Source tree from t/templates + t/skeletons, then build-spec overlay
-and hooks (pre-upstream, pre-build). eval/hints is transcribed verbatim.
-Source-tree Parity uses (source) lines whose extra is not a .dsc; other
-processable types wait for those Subjects.
+Filled test-package sources from t/templates + t/skeletons and the
+build-spec overlay. Does not build .deb / .dsc / .changes; tests do that.
+Source-tree Parity lints a filled tree as-is. Binary-package Parity
+assembles deb skeletons. Source-package Parity assembles a .dsc from a
+filled Source tree (ADR 0039). eval/hints is transcribed verbatim.
 
 License: GPL-2+ (same as lintian; see lintian debian/copyright).

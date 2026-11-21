@@ -1,0 +1,6 @@
+Testname: nmu-local-changelog
+Test-Against:
+ no-nmu-in-changelog
+ source-nmu-has-incorrect-version-number
+See-Also: Debian Bug#501523
+Check: nmu

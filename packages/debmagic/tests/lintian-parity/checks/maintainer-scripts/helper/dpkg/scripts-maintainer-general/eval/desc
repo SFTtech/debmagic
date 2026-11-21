@@ -1,0 +1,5 @@
+Testname: scripts-maintainer-general
+Profile: ubuntu/main
+Check: maintainer-scripts/helper/dpkg
+See-Also:
+ Bug#532984

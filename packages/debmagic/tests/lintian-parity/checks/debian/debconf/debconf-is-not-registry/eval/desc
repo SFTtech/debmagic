@@ -1,0 +1,2 @@
+Testname: debconf-is-not-registry
+Check: debian/debconf

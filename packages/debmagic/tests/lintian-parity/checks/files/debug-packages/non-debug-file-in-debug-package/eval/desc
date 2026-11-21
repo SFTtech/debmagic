@@ -1,0 +1,2 @@
+Testname: non-debug-file-in-debug-package
+Check: files/debug-packages

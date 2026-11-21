@@ -1,0 +1,2 @@
+Testname: shared-libs-ldconfig-scripts
+Check: libraries/shared/trigger/ldconfig

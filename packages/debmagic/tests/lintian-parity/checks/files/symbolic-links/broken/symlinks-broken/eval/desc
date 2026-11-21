@@ -1,0 +1,2 @@
+Testname: symlinks-broken
+Check: files/symbolic-links/broken

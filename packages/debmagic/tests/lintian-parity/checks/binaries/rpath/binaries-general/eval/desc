@@ -1,0 +1,2 @@
+Testname: binaries-general
+Check: binaries/rpath

@@ -41,8 +41,7 @@ const REQUIRES_AUTOTOOLS: u32 = 10;
 const BUILD_DEPENDS: &[&str] = &["Build-Depends", "Build-Depends-Indep", "Build-Depends-Arch"];
 
 /// lintian's special case for the `python3` addon.
-const PYTHON3_SOURCE: &str =
-    "dh-python:any | dh-sequence-python3:any | pybuild-plugin-pyproject:any";
+const PYTHON3_SOURCE: &str = "dh-python | dh-sequence-python3 | pybuild-plugin-pyproject";
 const PYTHON3_DEV: &str = "python3-dev:any | python3-all-dev:any";
 
 impl SourceRule for MissingBuildDependencyForDhAddon {

@@ -1,0 +1,2 @@
+Testname: cruft-general-native
+Check: debian/substvars

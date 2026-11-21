@@ -1,0 +1,4 @@
+Testname: generic-dh-make-2008
+Check: debian/watch
+See-Also:
+ Bug#497347

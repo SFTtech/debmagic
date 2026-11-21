@@ -1,0 +1,2 @@
+Testname: shared-libs-missing-soname
+Check: libraries/shared/soname/missing

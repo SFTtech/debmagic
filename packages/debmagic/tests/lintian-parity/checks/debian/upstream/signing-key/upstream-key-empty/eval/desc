@@ -1,0 +1,2 @@
+Testname: upstream-key-empty
+Check: debian/upstream/signing-key

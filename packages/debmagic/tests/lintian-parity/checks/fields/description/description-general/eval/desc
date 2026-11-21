@@ -1,0 +1,4 @@
+Testname: description-general
+Test-Against:
+ synopsis-is-a-sentence
+Check: fields/description

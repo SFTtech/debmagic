@@ -1,0 +1,4 @@
+Testname: cruft-general-test-suite
+Test-Against:
+ configure-generated-file-in-source
+Check: build-systems/autotools

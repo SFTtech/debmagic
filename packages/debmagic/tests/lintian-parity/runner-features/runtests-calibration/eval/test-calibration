@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -e
+
+# a previous version appended here but it breaks repeat runs
+echo "runtests-calibration (source): lintian-says-goodbye" > "$2"
+echo "runtests-calibration (source): lintian-says-goodbye" > "$3"

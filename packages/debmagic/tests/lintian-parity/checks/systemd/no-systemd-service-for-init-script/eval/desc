@@ -1,0 +1,2 @@
+Testname: no-systemd-service-for-init-script
+Check: systemd

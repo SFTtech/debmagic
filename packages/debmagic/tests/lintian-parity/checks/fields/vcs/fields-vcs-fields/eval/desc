@@ -1,0 +1,8 @@
+Testname: fields-vcs-fields
+Test-Against:
+ vcs-field-bitrotted
+ vcs-field-has-unexpected-spaces
+ vcs-field-not-canonical
+ vcs-field-uses-unknown-uri-format
+ vcs-git-uses-invalid-user-uri
+Check: fields/vcs

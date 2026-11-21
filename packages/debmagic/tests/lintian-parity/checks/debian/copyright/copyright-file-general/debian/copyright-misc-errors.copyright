@@ -9,7 +9,7 @@ Copyright 2008 Tobias
 The path /usr/share/common-licences/GPL contains a spelling error.
 
 It's wrong to reference a compressed license, like this:
-/usr/share/common-licenses/BSD.gz
+/usr/share/common-licenses/Apache-2.0.gz
 
 This path /usr/share/doc/copyright is obsolete.
 

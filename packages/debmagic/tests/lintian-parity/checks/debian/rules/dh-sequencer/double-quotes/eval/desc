@@ -1,0 +1,5 @@
+Testname: double-quotes
+Check: debian/rules/dh-sequencer
+Test-Against:
+ no-dh-sequencer
+See-Also: https://salsa.debian.org/lintian/lintian/merge_requests/288

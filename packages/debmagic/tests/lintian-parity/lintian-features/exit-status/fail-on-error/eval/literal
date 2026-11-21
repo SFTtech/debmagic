@@ -1,0 +1,2 @@
+E: fail-on-error source: quilt-series-references-non-existent-patch non-existing.patch [debian/patches/series]
+W: fail-on-error source: patch-system-but-no-source-readme

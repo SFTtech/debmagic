@@ -174,7 +174,7 @@ impl SourceRule for RulesRequireBuildPrerequisite {
             })
             .unwrap_or_default();
         for key in needed_prerequisites(&contents) {
-            let prerequisite = qualified(key);
+            let prerequisite = key.to_string();
             if build_depends.satisfies(&prerequisite) {
                 continue;
             }
@@ -258,26 +258,6 @@ fn push_unique(needed: &mut Vec<&'static str>, key: &'static str) {
     if !needed.contains(&key) {
         needed.push(key);
     }
-}
-
-/// Every alternative without an architecture qualifier gets `:any`.
-fn qualified(key: &str) -> String {
-    key.split(", ")
-        .map(|dependency| {
-            dependency
-                .split(" | ")
-                .map(|alternative| {
-                    if alternative.contains(':') {
-                        alternative.to_string()
-                    } else {
-                        format!("{alternative}:any")
-                    }
-                })
-                .collect::<Vec<_>>()
-                .join(" | ")
-        })
-        .collect::<Vec<_>>()
-        .join(", ")
 }
 
 /// A `debian/rules` word as lintian matches it against a target name: literal

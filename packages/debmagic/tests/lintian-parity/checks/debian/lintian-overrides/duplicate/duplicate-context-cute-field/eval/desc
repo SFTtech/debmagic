@@ -1,0 +1,2 @@
+Testname: duplicate-context-cute-field
+Check: debian/lintian-overrides/duplicate

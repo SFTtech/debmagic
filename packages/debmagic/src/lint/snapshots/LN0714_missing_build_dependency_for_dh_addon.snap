@@ -1,11 +1,11 @@
 ---
 source: packages/debmagic/src/lint/tester.rs
 ---
-E: example (source): missing-build-dependency-for-dh-addon (LN0714) quilt (does not satisfy quilt:any) [debian/rules]
-E: example (source): missing-build-dependency-for-dh-addon (LN0714) autotools_dev (does not satisfy autotools-dev:any) [debian/rules]
-E: example (source): missing-build-dependency-for-dh-addon (LN0714) quilt (does not satisfy quilt:any) [debian/rules]
-E: example (source): missing-build-dependency-for-dh-addon (LN0714) quilt (does not satisfy quilt:any) [debian/rules]
-E: example (source): missing-build-dependency-for-dh-addon (LN0714) autoreconf (does not satisfy dh-autoreconf:any | debhelper:any (>= 9.20160403~) | debhelper-compat:any) [debian/rules]
-E: example (source): missing-build-dependency-for-dh-addon (LN0714) python3 (does not satisfy dh-python:any | dh-sequence-python3:any | pybuild-plugin-pyproject:any) [debian/rules]
-E: example (source): missing-build-dependency-for-dh-addon (LN0714) python3 (does not satisfy python3:any | python3-all:any | python3-dev:any | python3-all-dev:any | dh-sequence-python3:any) [debian/rules]
-E: example (source): missing-build-dependency-for-dh-addon (LN0714) python3 (does not satisfy python3:any | python3-all:any | python3-dev:any | python3-all-dev:any | dh-sequence-python3:any) [debian/rules]
+E: example (source): missing-build-dependency-for-dh-addon (LN0714) quilt (does not satisfy quilt) [debian/rules]
+E: example (source): missing-build-dependency-for-dh-addon (LN0714) autotools_dev (does not satisfy autotools-dev) [debian/rules]
+E: example (source): missing-build-dependency-for-dh-addon (LN0714) quilt (does not satisfy quilt) [debian/rules]
+E: example (source): missing-build-dependency-for-dh-addon (LN0714) quilt (does not satisfy quilt) [debian/rules]
+E: example (source): missing-build-dependency-for-dh-addon (LN0714) autoreconf (does not satisfy dh-autoreconf | debhelper (>= 9.20160403~) | debhelper-compat) [debian/rules]
+E: example (source): missing-build-dependency-for-dh-addon (LN0714) python3 (does not satisfy dh-python | dh-sequence-python3 | pybuild-plugin-pyproject) [debian/rules]
+E: example (source): missing-build-dependency-for-dh-addon (LN0714) python3 (does not satisfy python3:any | python3-all:any | python3-dev:any | python3-all-dev:any | dh-sequence-python3) [debian/rules]
+E: example (source): missing-build-dependency-for-dh-addon (LN0714) python3 (does not satisfy python3:any | python3-all:any | python3-dev:any | python3-all-dev:any | dh-sequence-python3) [debian/rules]

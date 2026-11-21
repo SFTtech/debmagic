@@ -1,0 +1,2 @@
+Testname: recursive-chown-with-dot
+Check: script/deprecated/chown

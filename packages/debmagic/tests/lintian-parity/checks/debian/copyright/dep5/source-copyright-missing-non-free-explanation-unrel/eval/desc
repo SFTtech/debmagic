@@ -1,0 +1,4 @@
+Testname: source-copyright-missing-non-free-explanation-unrel
+Test-Against:
+ missing-explanation-for-contrib-or-non-free-package
+Check: debian/copyright/dep5

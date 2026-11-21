@@ -14,7 +14,7 @@ declare_rule! {
     /// `preinst`, `postinst`, `prerm`, or `postrm`) and a regular file whose
     /// shebang lintian accepts. It is a shell script, the shebang has no `e`
     /// flag, and no logical line runs `set` with an `e` flag (`set -e`,
-    /// `set -eu`, `set -- -e`). `set -o errexit` does not count. Comment-only
+    /// `set -eu`, `set -- -e`, `set -o errexit`). Comment-only
     /// and empty shell scripts are included. Extra is empty. Location is the
     /// Control file name, with no line. Applies to udebs.
     MaintainerScriptIgnoresErrors,
@@ -59,6 +59,7 @@ mod tests {
             // `set -e` aborts on failure.
             with_script("postinst", "#!/bin/sh\nset -e\n"),
             with_script("postinst", "#!/bin/sh\nset -eu\n"),
+            with_script("postinst", "#!/bin/sh\nset -o errexit\n"),
             with_script("postinst", "#!/bin/sh\nfoo; set -e\n"),
             // The shebang itself carries `-e` (`maintainer-script-without-set-e`).
             with_script("postinst", "#!/bin/sh -e\n"),
@@ -87,8 +88,6 @@ mod tests {
             // Comment-only.
             with_script("postrm", "#!/bin/sh\n# we do not set -e\n"),
             with_script("postrm", "#!/bin/bash\n#set -e\n"),
-            // `set -o errexit` is not recognized (lintian 2.139).
-            with_script("prerm", "#!/bin/sh\nset -o errexit\n"),
             with_script("postinst", "#!/bin/dash\n"),
             with_script("config", "#!/bin/sh\n# nothing\n"),
             // `env` is not a known interpreter on postinst, but postrm is always scanned.

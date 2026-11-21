@@ -1,0 +1,4 @@
+Testname: national-encoding
+Test-Against:
+ unnecessary-testsuite-autopkgtest-field
+Check: testsuite

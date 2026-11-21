@@ -12,7 +12,7 @@ copyright-misc-errors (binary): copyright-refers-to-old-directory
 copyright-misc-errors (binary): copyright-refers-to-nonexistent-license-file usr/share/common-licenses/GPL2
 copyright-misc-errors (binary): copyright-refers-to-incorrect-directory usr/share/common-licences
 copyright-misc-errors (binary): copyright-refers-to-deprecated-bsd-license-file
-copyright-misc-errors (binary): copyright-refers-to-compressed-license usr/share/common-licenses/BSD.gz
+copyright-misc-errors (binary): copyright-refers-to-compressed-license usr/share/common-licenses/Apache-2.0.gz
 copyright-misc-errors (binary): copyright-has-url-from-dh_make-boilerplate
 copyright-misc-errors (binary): copyright-contains-automatically-extracted-boilerplate
 copyright-full-lgpl (binary): copyright-not-using-common-license-for-lgpl

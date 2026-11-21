@@ -1,0 +1,4 @@
+Testname: last-update
+Check: debian/patches/dep3
+Test-Against:
+ invalid-dep3-format-patch-wrong-last-update

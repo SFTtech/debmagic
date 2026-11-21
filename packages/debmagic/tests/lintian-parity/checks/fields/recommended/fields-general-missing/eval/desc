@@ -1,0 +1,4 @@
+Testname: fields-general-missing
+Check: fields/recommended
+Test-Against:
+ recommended-field

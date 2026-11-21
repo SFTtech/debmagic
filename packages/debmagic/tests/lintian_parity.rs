@@ -131,6 +131,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/debian-rules-calls-nproc",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
+    "checks/debian/rules/generic-dh-make-2005",
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
     "checks/debian/rules/legacy-debconf",
@@ -263,8 +264,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/python/dist-overrides/duplicate-identifier",
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-malformed-py-version",
-    "checks/languages/python/python-old-python-version-field",
     "checks/languages/python/python-source-package-encodes-python-version",
+    "checks/languages/python/python-version-current-deprecated",
     "checks/languages/r/files-r-data",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
@@ -300,6 +301,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "odd-inputs/source/unpack-srcpkg-dot-dir",
     "odd-inputs/source/unpack-srcpkg-dot-subdir",
     "odd-inputs/source/unpack-srcpkg-no-subdir",
+    "tracking/generic-dh-make-2005",
+    "tracking/generic-dh-make-2008",
 ];
 
 const BINARY_PACKAGE_RECIPES: &[&str] = &[
@@ -343,6 +346,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-symlink",
     "checks/debian/changelog/changelog-file-upstream-html-only",
     "checks/debian/changelog/changelog-file-wrong-weekday",
+    "checks/debian/changelog/generic-dh-make-2008",
     "checks/debian/changelog/legacy-binary",
     "checks/debian/changelog/legacy-etcfiles",
     "checks/debian/changelog/legacy-fields",
@@ -353,6 +357,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-relations",
     "checks/debian/copyright/copyright-file-general",
     "checks/debian/copyright/copyright-file-license-symlink",
+    "checks/debian/copyright/generic-dh-make-2008",
     "checks/debian/copyright/generic-empty",
     "checks/debian/copyright/legacy-binary",
     "checks/debian/copyright/legacy-debconf",
@@ -463,6 +468,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/origin/fields-redundant",
     "checks/fields/origin/legacy-relations",
     "checks/fields/package-relations/fields-depends-general",
+    "checks/fields/package-relations/fields-general-bad",
     "checks/fields/package-relations/fields-java",
     "checks/fields/package-relations/fields-mua",
     "checks/fields/package-relations/fields-multiple-x-deps",
@@ -479,6 +485,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/section/fields-section-general",
     "checks/fields/section/legacy-fields",
     "checks/fields/static-built-using/fields-static-built-using",
+    "checks/fields/unknown/fields-general-bad",
     "checks/fields/unknown/unpack-slashes-in-field-name",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
@@ -673,6 +680,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
     "general-false-positives/basic-non-native-3.0-with-epoch",
+    "tracking/generic-dh-make-2005",
+    "tracking/generic-dh-make-2008",
 ];
 
 const SOURCE_PACKAGE_RECIPES: &[&str] = &[
@@ -800,6 +809,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/debian-rules-calls-nproc",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
+    "checks/debian/rules/generic-dh-make-2005",
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
     "checks/debian/rules/legacy-debconf",
@@ -932,8 +942,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/dist-overrides/duplicate-identifier",
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-malformed-py-version",
-    "checks/languages/python/python-old-python-version-field",
     "checks/languages/python/python-source-package-encodes-python-version",
+    "checks/languages/python/python-version-current-deprecated",
     "checks/languages/r/files-r-data",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
@@ -969,6 +979,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "odd-inputs/source/unpack-srcpkg-dot-dir",
     "odd-inputs/source/unpack-srcpkg-dot-subdir",
     "odd-inputs/source/unpack-srcpkg-no-subdir",
+    "tracking/generic-dh-make-2005",
+    "tracking/generic-dh-make-2008",
 ];
 
 #[test]
@@ -1121,6 +1133,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
+#[test_case("checks/debian/rules/generic-dh-make-2005"; "checks_debian_rules_generic_dh_make_2005")]
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
 #[test_case("checks/debian/rules/legacy-debconf"; "checks_debian_rules_legacy_debconf")]
@@ -1253,8 +1266,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
-#[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
 #[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
+#[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
@@ -1290,6 +1303,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
+#[test_case("tracking/generic-dh-make-2005"; "tracking_generic_dh_make_2005")]
+#[test_case("tracking/generic-dh-make-2008"; "tracking_generic_dh_make_2008")]
 fn lintian_parity_source_tree(recipe: &str) {
     common::assert_source_tree_parity(recipe);
 }
@@ -1334,6 +1349,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-symlink"; "checks_debian_changelog_changelog_file_symlink")]
 #[test_case("checks/debian/changelog/changelog-file-upstream-html-only"; "checks_debian_changelog_changelog_file_upstream_html_only")]
 #[test_case("checks/debian/changelog/changelog-file-wrong-weekday"; "checks_debian_changelog_changelog_file_wrong_weekday")]
+#[test_case("checks/debian/changelog/generic-dh-make-2008"; "checks_debian_changelog_generic_dh_make_2008")]
 #[test_case("checks/debian/changelog/legacy-binary"; "checks_debian_changelog_legacy_binary")]
 #[test_case("checks/debian/changelog/legacy-etcfiles"; "checks_debian_changelog_legacy_etcfiles")]
 #[test_case("checks/debian/changelog/legacy-fields"; "checks_debian_changelog_legacy_fields")]
@@ -1344,6 +1360,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/legacy-relations"; "checks_debian_changelog_legacy_relations")]
 #[test_case("checks/debian/copyright/copyright-file-general"; "checks_debian_copyright_copyright_file_general")]
 #[test_case("checks/debian/copyright/copyright-file-license-symlink"; "checks_debian_copyright_copyright_file_license_symlink")]
+#[test_case("checks/debian/copyright/generic-dh-make-2008"; "checks_debian_copyright_generic_dh_make_2008")]
 #[test_case("checks/debian/copyright/generic-empty"; "checks_debian_copyright_generic_empty")]
 #[test_case("checks/debian/copyright/legacy-binary"; "checks_debian_copyright_legacy_binary")]
 #[test_case("checks/debian/copyright/legacy-debconf"; "checks_debian_copyright_legacy_debconf")]
@@ -1454,6 +1471,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
 #[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
+#[test_case("checks/fields/package-relations/fields-general-bad"; "checks_fields_package_relations_fields_general_bad")]
 #[test_case("checks/fields/package-relations/fields-java"; "checks_fields_package_relations_fields_java")]
 #[test_case("checks/fields/package-relations/fields-mua"; "checks_fields_package_relations_fields_mua")]
 #[test_case("checks/fields/package-relations/fields-multiple-x-deps"; "checks_fields_package_relations_fields_multiple_x_deps")]
@@ -1470,6 +1488,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/section/fields-section-general"; "checks_fields_section_fields_section_general")]
 #[test_case("checks/fields/section/legacy-fields"; "checks_fields_section_legacy_fields")]
 #[test_case("checks/fields/static-built-using/fields-static-built-using"; "checks_fields_static_built_using_fields_static_built_using")]
+#[test_case("checks/fields/unknown/fields-general-bad"; "checks_fields_unknown_fields_general_bad")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
@@ -1664,6 +1683,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]
 #[test_case("general-false-positives/basic-non-native-3.0-with-epoch"; "general_false_positives_basic_non_native_3_0_with_epoch")]
+#[test_case("tracking/generic-dh-make-2005"; "tracking_generic_dh_make_2005")]
+#[test_case("tracking/generic-dh-make-2008"; "tracking_generic_dh_make_2008")]
 fn lintian_parity_binary_package(recipe: &str) {
     common::assert_binary_package_parity(recipe);
 }
@@ -1792,6 +1813,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
+#[test_case("checks/debian/rules/generic-dh-make-2005"; "checks_debian_rules_generic_dh_make_2005")]
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
 #[test_case("checks/debian/rules/legacy-debconf"; "checks_debian_rules_legacy_debconf")]
@@ -1924,8 +1946,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
-#[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
 #[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
+#[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
@@ -1961,6 +1983,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
+#[test_case("tracking/generic-dh-make-2005"; "tracking_generic_dh_make_2005")]
+#[test_case("tracking/generic-dh-make-2008"; "tracking_generic_dh_make_2008")]
 fn lintian_parity_source_package(recipe: &str) {
     common::assert_source_package_parity(recipe);
 }

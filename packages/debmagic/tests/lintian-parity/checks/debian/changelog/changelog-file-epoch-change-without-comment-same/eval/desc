@@ -1,0 +1,5 @@
+Testname: changelog-file-epoch-change-without-comment-same
+Test-Against:
+ epoch-change-without-comment
+ epoch-changed-but-upstream-version-did-not-go-backwards
+Check: debian/changelog

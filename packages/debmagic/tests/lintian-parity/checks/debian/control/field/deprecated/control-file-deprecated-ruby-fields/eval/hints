@@ -1,0 +1,2 @@
+control-file-deprecated-ruby-fields (source): deprecated-debian-control-field (in section for source) XS-Ruby-Versions [debian/control:8]
+control-file-deprecated-ruby-fields (source): deprecated-debian-control-field (in section for ruby-control-file-deprecated-ruby-fields) XB-Ruby-Versions [debian/control:25]

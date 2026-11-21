@@ -1,0 +1,4 @@
+Testname: testsuite-general
+Test-Against:
+ unnecessary-testsuite-autopkgtest-field
+Check: testsuite

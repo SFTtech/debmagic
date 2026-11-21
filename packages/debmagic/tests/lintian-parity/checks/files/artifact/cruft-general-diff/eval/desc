@@ -1,0 +1,4 @@
+Testname: cruft-general-diff
+Check: files/artifact
+See-Also:
+ Bug#598251

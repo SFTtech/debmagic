@@ -1,0 +1,2 @@
+Testname: basic-non-native-3.0-with-epoch
+Default-Lintian-Options: --pedantic --display-info --display-experimental

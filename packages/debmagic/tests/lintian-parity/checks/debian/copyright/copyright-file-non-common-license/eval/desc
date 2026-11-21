@@ -1,0 +1,8 @@
+Testname: copyright-file-non-common-license
+Test-Against:
+ copyright-not-using-common-license-for-gpl
+ copyright-not-using-common-license-for-gfdl
+ copyright-not-using-common-license-for-lgpl
+ copyright-not-using-common-license-for-apache2
+ copyright-file-lacks-pointer-to-perl-license
+Check: debian/copyright

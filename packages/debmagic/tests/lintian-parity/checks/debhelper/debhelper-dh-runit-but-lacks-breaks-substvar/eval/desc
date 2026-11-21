@@ -1,0 +1,4 @@
+Testname: debhelper-dh-runit-but-lacks-breaks-substvar
+Test-Depends:
+ dh-runit
+Check: debhelper

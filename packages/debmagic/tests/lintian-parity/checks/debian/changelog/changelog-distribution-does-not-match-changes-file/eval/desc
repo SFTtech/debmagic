@@ -1,0 +1,2 @@
+Testname: changelog-distribution-does-not-match-changes-file
+Check: debian/changelog

@@ -1,0 +1,2 @@
+Testname: scripts-unconditional-use-of-dpkg-statoverride
+Check: maintainer-scripts/dpkg-statoverride

@@ -1,0 +1,4 @@
+Testname: debhelper-executable-files-compat-9
+Options: --suppress-tags
+ no-versioned-debhelper-prerequisite
+Check: debhelper

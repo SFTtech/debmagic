@@ -1,0 +1,4 @@
+Testname: generic-dh-make-2008
+Check: fields/section
+See-Also:
+ Bug#497347

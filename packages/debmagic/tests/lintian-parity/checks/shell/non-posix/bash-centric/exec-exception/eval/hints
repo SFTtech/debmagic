@@ -1,0 +1,1 @@
+exec-exception (binary): bash-term-in-posix-shell 'source x00.tcl' [usr/bin/tcl-script-wrong:3]

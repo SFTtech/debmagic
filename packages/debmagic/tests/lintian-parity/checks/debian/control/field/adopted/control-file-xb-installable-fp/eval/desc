@@ -1,0 +1,4 @@
+Testname: control-file-xb-installable-fp
+Test-Against:
+ adopted-extended-field
+Check: debian/control/field/adopted

@@ -1,0 +1,4 @@
+Testname: clojure-package-java-maintainer
+Check: fields/maintainer/team
+See-Also:
+ https://salsa.debian.org/lintian/lintian/-/merge_requests/353

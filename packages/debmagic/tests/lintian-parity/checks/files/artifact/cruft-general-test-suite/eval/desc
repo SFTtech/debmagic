@@ -1,0 +1,16 @@
+Testname: cruft-general-test-suite
+Check: files/artifact
+Test-Against:
+ source-contains-arch-control-dir
+ source-contains-arch-inventory-file
+ source-contains-bts-control-dir
+ source-contains-bzr-control-dir
+ source-contains-cvs-conflict-copy
+ source-contains-cvs-control-dir
+ source-contains-git-control-dir
+ source-contains-hg-control-dir
+ source-contains-hg-tags-file
+ source-contains-svk-commit-file
+ source-contains-svn-commit-file
+ source-contains-svn-conflict-file
+ source-contains-svn-control-dir

@@ -1,5 +1,7 @@
 ttf-files-fonts (binary): font-outside-font-dir [usr/lib/fontpackage/font.ttf]
 ttf-files-fonts (binary): duplicate-font-file also in (FONT_PACKAGES) [usr/share/fonts/truetype/4shadow.ttf]
+fonts-woff (binary): woff-font-in-wrong-dir [usr/share/fonts/woff/font.woff]
+fonts-woff (binary): woff-font-in-wrong-dir [usr/share/fonts/woff2/font.woff2]
 files-fonts (binary): font-in-non-font-package [usr/share/fonts/truetype/font.ttf]
 files-fonts (binary): font-in-non-font-package [usr/share/fonts/truetype/font.otf]
 files-fonts (binary): duplicate-font-file also in (FONT_PACKAGES) [usr/share/fonts/truetype/4shadow.ttf]

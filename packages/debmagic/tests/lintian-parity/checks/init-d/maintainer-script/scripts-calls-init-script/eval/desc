@@ -1,0 +1,4 @@
+Testname: scripts-calls-init-script
+Check: init-d/maintainer-script
+See-Also:
+ Bug#381485

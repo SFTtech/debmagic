@@ -1,0 +1,4 @@
+Testname: upstream-key-minimal
+Check: debian/upstream/signing-key
+Test-Against:
+ public-upstream-key-not-minimal

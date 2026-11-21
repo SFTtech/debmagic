@@ -1,0 +1,2 @@
+Testname: no-section-in-source-stanza
+Check: debian/control/field/section

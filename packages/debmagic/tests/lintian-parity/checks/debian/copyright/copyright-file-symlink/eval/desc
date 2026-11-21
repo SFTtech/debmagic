@@ -1,0 +1,2 @@
+Testname: copyright-file-symlink
+Check: debian/copyright

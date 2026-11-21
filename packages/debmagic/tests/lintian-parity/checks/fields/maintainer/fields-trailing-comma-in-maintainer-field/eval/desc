@@ -1,0 +1,2 @@
+Testname: fields-trailing-comma-in-maintainer-field
+Check: fields/maintainer

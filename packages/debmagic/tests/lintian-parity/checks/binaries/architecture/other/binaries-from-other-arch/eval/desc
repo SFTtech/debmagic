@@ -1,0 +1,4 @@
+Testname: binaries-from-other-arch
+Test-Architectures: amd64 i386
+Check: binaries/architecture/other
+# since debhelper 12.5.2, objdump no longer fails silently for compat > 10, need better binary

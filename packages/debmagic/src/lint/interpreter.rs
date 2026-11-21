@@ -303,18 +303,18 @@ mod tests {
     fn unversioned_entries() {
         let lefty = lookup("lefty").expect("lefty");
         assert_eq!(lefty.folder, "/usr/bin");
-        assert_eq!(lefty.prerequisites, "graphviz:any");
+        assert_eq!(lefty.prerequisites, "graphviz");
         assert_eq!(lefty.version, InterpreterVersion::Unversioned);
         let sh = lookup("sh").expect("sh");
-        assert_eq!(sh.folder, "/bin");
+        assert_eq!(sh.folder, "/usr/bin");
         assert_eq!(sh.prerequisites, "");
         assert_eq!(
             lookup("run").expect("run").prerequisites,
-            "runit:any (>= 2.1.2-23)"
+            "runit (>= 2.1.2-23)"
         );
         assert_eq!(
             lookup("Rscript").expect("Rscript").prerequisites,
-            "r-base-core:any"
+            "r-base-core"
         );
         assert_eq!(lookup("rscript"), None);
         // An unversioned entry wins over a versioned family of the same name.
@@ -327,24 +327,24 @@ mod tests {
 
     #[test]
     fn versioned_family_by_name() {
-        let pike = lookup("pike").expect("pike");
-        assert_eq!(pike.version, InterpreterVersion::AnyVersion);
+        let tclsh = lookup("tclsh").expect("tclsh");
+        assert_eq!(tclsh.version, InterpreterVersion::AnyVersion);
         assert_eq!(
-            pike.prerequisites,
-            "pike7.6:any | pike7.6-core:any | pike7.8:any | pike7.8-core:any"
+            tclsh.prerequisites,
+            "tclsh | tcl | tcl8.3 | tcl8.4 | tcl8.5 | tcl8.6"
         );
-        assert_eq!(
-            lookup("jruby").expect("jruby").prerequisites,
-            "jruby:any | jruby1.0:any | jruby1.1:any | jruby1.2:any"
-        );
+        assert_eq!(lookup("jruby").expect("jruby").prerequisites, "jruby");
     }
 
     #[test]
     fn versioned_name() {
-        let pike = lookup("pike7.6").expect("pike7.6");
-        assert_eq!(pike.folder, "/usr/bin");
-        assert_eq!(pike.version, InterpreterVersion::Version("7.6".to_string()));
-        assert_eq!(pike.prerequisites, "pike7.6:any | pike7.6-core:any");
+        let tclsh = lookup("tclsh8.6").expect("tclsh8.6");
+        assert_eq!(tclsh.folder, "/usr/bin");
+        assert_eq!(
+            tclsh.version,
+            InterpreterVersion::Version("8.6".to_string())
+        );
+        assert_eq!(tclsh.prerequisites, "tcl8.6");
         // The version list is not consulted for a versioned name.
         assert_eq!(
             lookup("guile-9.9").expect("guile-9.9").prerequisites,

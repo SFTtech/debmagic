@@ -1,0 +1,2 @@
+Testname: cruft-crlf-eols
+Check: debian/trailing-whitespace

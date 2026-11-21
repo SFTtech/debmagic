@@ -1,0 +1,9 @@
+This is something close to the results of running dh_make on a basically
+empty upstream tarball in 2005, but with the example files removed.  It's
+a useful test for the various dh_make template and boilerplate tags, as
+well as many tags for ways of doing things dh_make used to promote but are
+now deprecated or old debhelper commands that are now deprecated.
+
+Please don't modify anything about the files in this package; instead, add
+new tags as needed when Lintian adds new checks.  This test case is
+intended to continue to be a test of Lintian's handling of old packages.

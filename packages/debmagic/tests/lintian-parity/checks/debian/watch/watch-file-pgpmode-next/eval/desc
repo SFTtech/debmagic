@@ -1,0 +1,4 @@
+Testname: watch-file-pgpmode-next
+Test-Against: debian-watch-does-not-check-openpgp-signature
+See-Also: #841000
+Check: debian/watch

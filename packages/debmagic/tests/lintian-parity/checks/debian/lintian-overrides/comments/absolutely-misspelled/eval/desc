@@ -1,0 +1,2 @@
+Testname: absolutely-misspelled
+Check: debian/lintian-overrides/comments

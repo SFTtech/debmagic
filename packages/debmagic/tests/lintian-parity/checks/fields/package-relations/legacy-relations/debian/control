@@ -17,7 +17,7 @@ Package: relations
 Architecture: all
 Section: contrib/misc
 Pre-Depends: awk|gawk
-Depends: relations(<< 3), dpkg, bash (>> 2.0 ), mail-transport-agent, gawk | awk, foo (>> 2.0), foo (<< 2.2), coreutils, ,null (>= 0), ${misc:Depends}, makedev
+Depends: relations(<< 3), dpkg, bash (>> 2.0 ), mail-transport-agent, gawk | awk, foo (>> 2.0), foo (<< 2.2), coreutils, ,null (>= 0), ${misc:Depends}, makedev, default-mysql-client
 Provides: mail-reader
 Replaces: relations
 Conflicts: foobar (<< 5+5), foo, relations,

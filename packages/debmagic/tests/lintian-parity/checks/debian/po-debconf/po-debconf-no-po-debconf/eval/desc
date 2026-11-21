@@ -1,0 +1,2 @@
+Testname: po-debconf-no-po-debconf
+Check: debian/po-debconf

@@ -1,0 +1,4 @@
+Testname: source-copyright-dep5-general
+Test-Against:
+ incomplete-creative-commons-license
+Check: debian/copyright/dep5

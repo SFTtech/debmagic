@@ -1,0 +1,18 @@
+Format: 1.8
+Date: Tue, 31 Mar 2026 17:46:22 +0200
+Source: changes-file-bad-section
+Binary: changes-file-bad-section
+Architecture: source all
+Version: 1.0
+Distribution: unstable
+Urgency: low
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Changed-By: Debian Lintian Maintainers <lintian-maint@debian.org>
+Files:
+ 8de2b87704ef0a11144b57d243db88ec 12 non-free optional __some-file__
+Checksums-Sha1:
+ c54c65218154f15c32ca252946786e0ad09aa99b 12 __some-file__
+Checksums-Sha256:
+ e6c1396639c0b79bebc94e4448cfe2700b871d45d0d38d98df6ee9da3f09d35c 12 __some-file__
+Description:
+ changes-file-bad-section - Test for bad section in changes file

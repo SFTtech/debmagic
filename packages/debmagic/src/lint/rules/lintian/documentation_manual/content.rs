@@ -47,8 +47,6 @@ static ASIAN_BREAK: LazyLock<Regex> =
 static WRAP_FAILURE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r":(\d+): warning \[.*\]: (?:can't break|cannot adjust) line").expect("valid regex")
 });
-static GROFF_CATEGORY: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r" \[-w [a-z-]+\]$").expect("valid regex"));
 static URL_LINE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?i)(?:https?|ftp|file)://.+").expect("valid regex"));
 static UE_LINE: LazyLock<Regex> =
@@ -453,9 +451,7 @@ fn clean_groff_line(line: &str) -> String {
     let stripped = stripped
         .strip_prefix("<standard input>:")
         .unwrap_or(stripped);
-    // groff >= 1.23 appends the warning category (` [-w space]`), which the
-    // groff lintian ran against did not print.
-    GROFF_CATEGORY.replace(stripped, "").into_owned()
+    stripped.to_string()
 }
 
 fn strip_colon_space(line: &str) -> &str {

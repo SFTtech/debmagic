@@ -1,0 +1,2 @@
+s/_[[:alnum:]]*.changes$/_ARCHITECTURE.changes/
+s/_[[:alnum:]]*.buildinfo$/_ARCHITECTURE.buildinfo/

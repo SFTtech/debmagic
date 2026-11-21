@@ -1,0 +1,2 @@
+Testname: rules-dh-order
+Check: debian/rules

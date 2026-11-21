@@ -1,0 +1,2 @@
+Testname: debian-source-dir-classifications
+Check: debian/source-dir

@@ -1,0 +1,2 @@
+Testname: upstream-metadata-is-not-a-file
+Check: debian/upstream/metadata

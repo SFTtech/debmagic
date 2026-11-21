@@ -136,9 +136,10 @@ impl PackageRelation {
     }
 
     /// lintian's `restriction_less` (`relation_norestriction`): every
-    /// alternative the predicate grammar parses becomes `name:any`, without
-    /// version, architecture restriction, or build profile; an alternative it
-    /// cannot parse stays as written. Empty dependencies are dropped.
+    /// alternative the predicate grammar parses keeps its name (and a `:any`
+    /// qualifier, any other qualifier is dropped), without version,
+    /// architecture restriction, or build profile; an alternative it cannot
+    /// parse stays as written. Empty dependencies are dropped.
     pub(crate) fn restriction_less(&self) -> Self {
         let dependencies = self
             .dependencies
@@ -150,7 +151,12 @@ impl PackageRelation {
                     .map(|alternative| {
                         let predicate = Predicate::parse(alternative.text());
                         if predicate.parsable {
-                            Alternative::parse(&format!("{}:any", predicate.name))
+                            let qualifier = if predicate.qualifier == "any" {
+                                ":any"
+                            } else {
+                                ""
+                            };
+                            Alternative::parse(&format!("{}{qualifier}", predicate.name))
                         } else {
                             alternative.clone()
                         }
@@ -724,15 +730,15 @@ mod tests {
         .restriction_less();
         assert_eq!(
             relation.to_lintian_string(),
-            "debhelper:any, foo:any, bar:any | baz:any, q ["
+            "debhelper, foo, bar | baz, q ["
         );
-        assert!(relation.satisfies("debhelper:any | debhelper-compat:any"));
+        assert!(relation.satisfies("debhelper | debhelper-compat"));
+        assert!(relation.satisfies("foo"));
         assert!(relation.satisfies("foo:any"));
-        assert!(!relation.satisfies("bar:any"));
-        assert!(relation.satisfies("bar:any | baz:any"));
+        assert!(!relation.satisfies("bar"));
+        assert!(relation.satisfies("bar | baz"));
         // The version is gone, so a versioned condition is no longer implied.
-        assert!(!relation.satisfies("debhelper:any (>= 9)"));
-        assert!(!relation.satisfies("debhelper"));
+        assert!(!relation.satisfies("debhelper (>= 9)"));
     }
 
     #[test]

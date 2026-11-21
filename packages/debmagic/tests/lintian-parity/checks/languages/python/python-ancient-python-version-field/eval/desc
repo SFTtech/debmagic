@@ -1,0 +1,4 @@
+Testname: python-ancient-python-version-field
+Test-Against:
+ old-python-version-field
+Check: languages/python

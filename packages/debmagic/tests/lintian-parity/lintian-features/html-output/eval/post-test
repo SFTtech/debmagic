@@ -1,0 +1,3 @@
+/Produced by Lintian version/ d
+/The run started/ d
+s/_[[:alnum:]]+\.(changes|buildinfo)/\.\1/

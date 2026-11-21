@@ -1,0 +1,5 @@
+Testname: debhelper-no-depends
+Profile: lintian-test
+Options: --include-dir ./lintian-include-dir
+Check: debhelper
+# Overrides the "data/debhelper/compat-level"

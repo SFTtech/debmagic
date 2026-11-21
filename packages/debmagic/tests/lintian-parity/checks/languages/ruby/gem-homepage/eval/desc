@@ -1,0 +1,4 @@
+Testname: gem-homepage
+Check: languages/ruby
+See-Also:
+ Bug#981935

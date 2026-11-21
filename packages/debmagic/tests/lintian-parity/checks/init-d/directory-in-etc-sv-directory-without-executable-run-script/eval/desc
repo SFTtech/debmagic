@@ -1,0 +1,2 @@
+Testname: directory-in-etc-sv-directory-without-executable-run-script
+Check: init-d

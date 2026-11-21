@@ -1,0 +1,2 @@
+Testname: upstream-key-native
+Check: debian/upstream/signing-key

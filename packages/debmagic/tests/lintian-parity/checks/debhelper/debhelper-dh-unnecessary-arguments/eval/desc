@@ -1,0 +1,2 @@
+Testname: debhelper-dh-unnecessary-arguments
+Check: debhelper

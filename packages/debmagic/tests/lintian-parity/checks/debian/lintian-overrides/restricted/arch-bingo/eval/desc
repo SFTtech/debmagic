@@ -1,0 +1,2 @@
+Testname: arch-bingo
+Check: debian/lintian-overrides/restricted

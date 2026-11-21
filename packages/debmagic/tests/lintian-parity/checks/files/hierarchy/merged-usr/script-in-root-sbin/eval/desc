@@ -1,0 +1,2 @@
+Testname: script-in-root-sbin
+Check: files/hierarchy/merged-usr

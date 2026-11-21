@@ -1,4 +1,4 @@
-lintian 2.139.0 (575a2bf1bc98500bbc1c78e82f44b40d195d17ea)
+lintian 2.144.0 (3e81fac95c3eb9201f6b45f4a7e51233d5265352)
 t/recipes/checks/debian/patches/quilt/patch-systems-quilt-general
 
 Filled Source tree from t/templates + t/skeletons, then build-spec overlay

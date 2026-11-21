@@ -1,0 +1,3 @@
+# pod2man from perl 5.14 and 5.18 add different amounts of "groff
+# boilerplate", so the line number differs.
+s/simple\.pod\.gz:[0-9][0-9]*/simple.pod.gz:LINE/

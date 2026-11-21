@@ -1,0 +1,2 @@
+Testname: watch-file-missing-with-cpan-upstream-metadata-missing
+Check: debian/watch

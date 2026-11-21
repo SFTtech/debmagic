@@ -1,0 +1,5 @@
+Testname: origin-upstream
+Check: debian/patches/dep3
+Test-Against:
+ patch-not-forwarded-upstream
+See-Also: Bug#966140

@@ -1,0 +1,4 @@
+Testname: rules-dh-unused-target
+Test-Against: binary-arch-rules-but-pkg-is-arch-indep
+See-Also: <20080806175819.GV11882@mail-vs.djpig.de>
+Check: debian/rules

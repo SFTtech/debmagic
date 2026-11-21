@@ -60,14 +60,11 @@
 
 
 guile   => /usr/bin, guile-([\d.]+), guile-$1:any, 2.2 3.0, guile:any
-jruby   => /usr/bin, jruby([\d.]+), jruby$1:any, 1.0 1.1 1.2, jruby:any
-lua     => /usr/bin, lua([\d.]+), lua$1:any, 40 50 5.1 5.2 5.3 5.4, lua:any
-octave  => /usr/bin, octave([\d.]+), octave$1:any, 3.0 3.2, octave:any
-pike    => /usr/bin, pike([\d.]+), pike$1:any | pike$1-core:any, 7.6 7.8
+lua     => /usr/bin, lua([\d.]+), lua$1:any, 40 50 5.1 5.2 5.3 5.4 5.5, lua:any
+octave  => /usr/bin, octave([\d.]+), octave$1, 3.0 3.2, octave
 python3 => /usr/bin, python3([\d.]+), python3$1:any | python3$1-minimal:any, 3.4 3.5 3.7 3.8, @SKIP_UNVERSIONED@
 ruby    => /usr/bin, ruby([\d.]+), ruby$1:any, 1.8 1.9, @SKIP_UNVERSIONED@
-runghc  => /usr/bin, runghc(\d+), ghc$1:any, 6, ghc:any
-scsh    => /usr/bin, scsh-([\d.]+), scsh-$1:any, 0.6, scsh:any
-tclsh   => /usr/bin, tclsh([\d.]+), tcl$1:any, 8.3 8.4 8.5 8.6, tclsh:any | tcl:any
-wish    => /usr/bin, wish([\d.]+), tk$1:any, 8.3 8.4 8.5 8.6, wish:any | tk:any
+runghc  => /usr/bin, runghc(\d+), ghc$1, 6, ghc
+tclsh   => /usr/bin, tclsh([\d.]+), tcl$1, 8.3 8.4 8.5 8.6, tclsh | tcl
+wish    => /usr/bin, wish([\d.]+), tk$1, 8.3 8.4 8.5 8.6, wish | tk
 

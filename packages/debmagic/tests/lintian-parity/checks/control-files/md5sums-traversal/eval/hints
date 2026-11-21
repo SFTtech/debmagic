@@ -1,0 +1,2 @@
+md5sums-traversal (binary): no-ctrl-scripts
+md5sums-traversal (binary): control-file-is-not-a-file [md5sums]

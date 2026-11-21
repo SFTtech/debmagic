@@ -1,0 +1,4 @@
+Testname: systemd-missing-services
+Test-Against:
+ omitted-systemd-service-for-init.d-script
+Check: systemd

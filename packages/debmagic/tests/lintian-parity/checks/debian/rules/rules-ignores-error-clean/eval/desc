@@ -1,0 +1,2 @@
+Testname: rules-ignores-error-clean
+Check: debian/rules

@@ -1,0 +1,5 @@
+Testname: fields-essential-yes-source
+Test-Against:
+    new-essential-package
+    essential-in-source-package
+Check: fields/essential

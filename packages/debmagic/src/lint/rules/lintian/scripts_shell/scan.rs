@@ -26,11 +26,14 @@ static SCRIPT_NAME: LazyLock<Regex> =
 static SHELL_BASENAME: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(?:[bd]?a|t?c|(?:pd|m)?k|z)?sh$").expect("valid regex"));
 
-/// Command position, lintian's `$LEADING_PATTERN` (2.139, no `errexit` extension).
+/// Command position, lintian's `$LEADING_PATTERN` (2.144).
 static LEADING: &str = r#"(?:(?:^|[`&;(|{])\s*|(?:if|then|do|while|!)\s+|env(?:\s+[[:alnum:]_]+=(?:\S+|"[^"]*"|'[^']*'))*\s+)"#;
 
 static SET_E: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(&format!(r"{LEADING}set\s*(?:\s+-(?:-.*|[^e]+))*\s-\w*e")).expect("valid regex")
+    Regex::new(&format!(
+        r"{LEADING}set\s*(?:\s+-(?:-.*|[^e]+))*\s(?:-\w*e|errexit)"
+    ))
+    .expect("valid regex")
 });
 
 static READ: LazyLock<Regex> =
@@ -74,7 +77,7 @@ pub(super) struct ScriptLine {
 pub(super) struct ScannedScript {
     pub path: PathBuf,
     pub is_shell: bool,
-    /// `set` with an `e` flag was seen. `set -o errexit` does not count (2.139).
+    /// `set` with an `e` flag, or `set -o errexit`, was seen.
     pub saw_sete: bool,
     /// Shebang names the interpreter with an `e` flag (`#!/bin/sh -e`).
     pub saw_bange: bool,
@@ -637,10 +640,11 @@ mod tests {
             "set -euo pipefail",
             "! set -e",
             "env FOO=bar set -e",
+            "set -o errexit",
         ] {
             assert!(SET_E.is_match(line), "{line}");
         }
-        for line in ["set -o errexit", "echo set -e", "SET -e", "set -E"] {
+        for line in ["echo set -e", "SET -e", "set -E"] {
             assert!(!SET_E.is_match(line), "{line}");
         }
     }

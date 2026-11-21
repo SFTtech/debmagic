@@ -1,0 +1,4 @@
+deb-format-no-compress (binary): uses-no-compression-for-data-tarball
+deb-format-no-compress (binary): uses-no-compression-for-control-tarball
+deb-format-no-compress (binary): data-tarball-compression-format (none)
+deb-format-no-compress (binary): control-tarball-compression-format (none)

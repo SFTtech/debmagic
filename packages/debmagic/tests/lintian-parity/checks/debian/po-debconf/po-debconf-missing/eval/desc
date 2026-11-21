@@ -1,0 +1,2 @@
+Testname: po-debconf-missing
+Check: debian/po-debconf

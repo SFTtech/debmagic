@@ -1,0 +1,2 @@
+Testname: binaries-missing-depends-on-libc
+Check: debian/shlibs

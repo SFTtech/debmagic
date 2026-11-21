@@ -1,0 +1,2 @@
+Testname: legacy-debug
+Check: libraries/shared/soname/missing

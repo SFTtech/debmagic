@@ -92,9 +92,9 @@ $(package): fix-perm
 
 	ar rc $(package) $(debmembers)
 
-	# pass package name to post-build script
+	# pass built package to post-build script
 	if [ -x $(post_build) ] ; then \
-		$(post_build) "$(name)" ; \
+		$(post_build) $(package) ; \
 	fi
 
 

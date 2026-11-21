@@ -1,0 +1,2 @@
+Testname: control-file-pedantic-space
+Check: debian/control/field/spacing

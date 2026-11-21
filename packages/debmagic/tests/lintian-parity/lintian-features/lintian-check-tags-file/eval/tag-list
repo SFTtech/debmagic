@@ -1,0 +1,7 @@
+# This is a comment.
+
+# Check a couple of tags that we issue
+section-is-dh_make-template, debhelper-but-no-misc-depends
+
+# Check some other tag that we don't issue
+   malformed-override

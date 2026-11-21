@@ -1,0 +1,4 @@
+Testname: fields-malformed-vcs-fields-unrel
+Test-Against:
+ vcs-field-has-unexpected-spaces
+Check: fields/vcs

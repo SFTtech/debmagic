@@ -1,0 +1,3 @@
+files-missing-intermediate-dirs (binary): missing-intermediate-directory [usr/share/doc/]
+files-missing-intermediate-dirs (binary): missing-intermediate-directory [usr/share/]
+files-missing-intermediate-dirs (binary): missing-intermediate-directory [usr/]

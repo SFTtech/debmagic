@@ -1,0 +1,2 @@
+Testname: rules-unnecessary-source-date-epoch
+Check: debian/rules

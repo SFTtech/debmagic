@@ -1,0 +1,4 @@
+Testname: rules-unnecessary-source-date-epoch-unrel
+Test-Against:
+ unnecessary-source-date-epoch-assignment
+Check: debian/rules

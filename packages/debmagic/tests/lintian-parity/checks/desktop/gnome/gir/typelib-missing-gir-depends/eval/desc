@@ -1,0 +1,2 @@
+Testname: typelib-missing-gir-depends
+Check: desktop/gnome/gir

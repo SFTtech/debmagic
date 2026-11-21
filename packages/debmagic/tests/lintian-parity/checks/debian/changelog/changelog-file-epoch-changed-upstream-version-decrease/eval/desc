@@ -1,0 +1,6 @@
+Testname: changelog-file-epoch-changed-upstream-version-decrease
+Test-Against:
+ epoch-change-without-comment
+ epoch-changed-but-upstream-version-did-not-go-backwards
+ latest-debian-changelog-entry-reuses-existing-version
+Check: debian/changelog

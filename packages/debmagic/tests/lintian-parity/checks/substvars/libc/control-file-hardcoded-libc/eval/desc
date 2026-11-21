@@ -1,0 +1,4 @@
+Testname: control-file-hardcoded-libc
+Check: substvars/libc
+See-Also:
+ Debian Bug#512196

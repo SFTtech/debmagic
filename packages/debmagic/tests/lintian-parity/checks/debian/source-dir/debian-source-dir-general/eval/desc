@@ -1,0 +1,2 @@
+Testname: debian-source-dir-general
+Check: debian/source-dir

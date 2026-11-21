@@ -1,0 +1,3 @@
+s/full text contains architecture specific dir \S+$/full text contains architecture specific dir ARCH/
+s, usr/lib/[^/]+/, usr/lib/ARCH/,
+s, usr/bin/[^/]+_-, usr/bin/TRIPLET_-,

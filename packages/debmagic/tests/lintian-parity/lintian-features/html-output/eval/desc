@@ -1,0 +1,5 @@
+Testname: html-output
+Options: --show-overrides
+Output-Format: html
+Match-Strategy: literal
+Default-Lintian-Options: --pedantic --display-info --display-experimental

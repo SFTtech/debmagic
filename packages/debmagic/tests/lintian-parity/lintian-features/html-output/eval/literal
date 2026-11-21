@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Lintian Tags</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAArUlEQVR4AWOgOhAOqf4vEFh2RkZGRpAsA7jT5/7nSJ97RlJSklwD5vznTJxCgQFpQAMSJlJoQPwEuroAMxA5U2ZSYsA8YCzMp9AFydMpjMakKZSmg8nkG8CVMe8/e9ai80AD5ICYDx0TNiBr0X/m6oOfganxJEfq7KOcSdOOciVMAuKJR0XswnsIGiAQVvOfK3vxf67M+f+5shYA6YVAeuF/3vj+l2LOcRZUz70AF5dRizrcOOQAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
+  <style type="text/css">
+
+/* lintian.css -- Style sheet for lintian.debian.org pages. */
+
+/*
+ # Table of Contents:
+ #
+ # 1. General styles (links, lists, titles, tables...)
+ # 2. Header
+ # 3. Navigation
+ # 4. Main content
+ # 5. Footer
+ # 6. Other
+ */
+
+/*
+ # Order:
+ #
+ # example {
+ #   display
+ #   position
+ #   width
+ #   height
+ #   margin
+ #   padding
+ #   background
+ #   color
+ #   font
+ #   text
+ #   line-height
+ #   border
+ # }
+ */
+
+
+/*
+ * 1. General styles
+ */
+
+* {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+
+    font-family: 'Roboto', serif;
+    color: #222;
+}
+
+h1, h2 {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 400;
+}
+
+h1 {
+    margin-top: 0;
+}
+
+article h1 {
+    font-size: 28px;
+}
+
+h2 {
+    margin-top: 25px;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #AAA;
+}
+
+h3 {
+    margin: 5px 0 5px 10px;
+    color: #444;
+    font-size: 1.0em;
+}
+
+a {
+    color: #3252B2;
+}
+
+ul {
+    margin: 0;
+}
+
+li {
+    color: #333;
+}
+
+hr {
+    display: none;
+}
+
+/*
+ * 2. Header title
+ */
+
+body > header {
+    background: #F3F3F3 url("/images/logo-small.png") no-repeat right;
+    border-bottom: 1px solid #AAA;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    color: #333;
+
+    height: 50px;
+    padding-right: 85px; /* space for logo */
+}
+
+body > header h1 {
+    font-family: 'Roboto', serif;
+    font-size: 1.2em;
+    margin: 20px 20px;
+}
+
+body > header a {
+    color: inherit;
+    text-decoration: none;
+}
+
+body > header nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+body > header nav li {
+    display: inline-block;
+}
+
+body > header nav a {
+    display: block;
+    padding: 3px 5px;
+    font-size: 0.9em;
+    border-bottom: 2px solid #f3f3f4;
+}
+
+body > header nav a:hover {
+    border-bottom: 2px solid #D70751;
+}
+
+/*
+ * 4. Main content
+ */
+
+main {
+    margin: 40px 40px 0;
+    font-size: 0.9em;
+}
+
+.showcase {
+    margin: 25px 0;
+    padding: 40px 20px;
+    background: #EFF4F8 url("/images/l.png") no-repeat left;
+    background-origin: content-box;
+    border: 1px solid #DFE4E8;
+}
+
+.showcase p {
+    margin-left: 160px;
+    font-size: 1.1em;
+}
+
+/* For smaller devices, we leave out the "icon" - it is fairly wide with
+ * little added value.
+ */
+@media (max-width: 700px) {
+
+  .showcase {
+      margin: 25px 0;
+      padding: 20px;
+      background: #EFF4F8;
+      border: 1px solid #DFE4E8;
+  }
+
+  .showcase p {
+      margin-left: 5%;
+  }
+}
+
+li span {
+    margin: 0 0px 0 0;
+    padding: 1px 0px;
+}
+
+/* E/W/I colors */
+
+span.label {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+}
+
+article#hints {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 2px solid #AAA;
+    clear: both;
+}
+
+.hint.tiny {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.9em;
+}
+
+.context.tiny {
+    font-family: 'Roboto', sans-serif;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.comment.tiny {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9em;
+}
+
+ul.minor {
+  list-style-type: none;
+}
+
+ul.see-also {
+    padding-bottom: 1em;
+}
+
+ul.taglist {
+  list-style-type: none;
+}
+
+ul.screenlist {
+  list-style-type: none;
+}
+
+ul.sourcelist {
+  list-style-type: none;
+}
+
+ul.filelist {
+    list-style-type: disc;
+    margin-left: 2em;
+}
+
+ul.hintlist {
+    list-style: none;
+    padding-left: 10px;
+}
+
+ul.commentlist {
+    list-style: none;
+    padding-left: 0px;
+}
+
+li.fileitem {
+    margin: 10px 0 5px 0;
+}
+
+span.visibility-symbol {
+    font-family: monospace;
+    font-size: 1.1em;
+}
+
+a.visibility-symbol {
+    text-decoration: none;
+}
+
+a.visibility-symbol:hover {
+    filter: invert(100%);
+}
+
+a.visibility-symbol.big {
+    padding: 1px 5px;
+    margin-right: 5px;
+    font-weight: normal;
+}
+
+a.visibility-symbol.tiny {
+    font-weight: bold;
+    padding: 1px 3px;
+}
+
+a.visibility-symbol::before {
+    border: 1px solid;
+    display: inline-block;
+    width: 1em;
+    font-family: monospace;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+a.visibility-symbol.error::before {
+    content: 'E';
+    color: #fff;
+    border-color: #fff;
+    background-color: #fc0905;
+}
+
+a.visibility-symbol.warning::before {
+    content: 'W';
+    color: #111;
+    border-color: #888;
+    background-color: #fceb02;
+}
+
+a.visibility-symbol.info::before {
+    content: 'I';
+    color: #fff;
+    border-color: #fff;
+    background-color: #465efc;
+}
+
+a.visibility-symbol.pedantic::before {
+    content: 'P';
+    color: #fff;
+    border-color: #fff;
+    background-color: #00c627;
+}
+
+a.visibility-symbol.experimental::before {
+    content: 'X';
+    color: #fff;
+    border-color: #fff;
+    background-color: #9e8040;
+}
+
+a.visibility-symbol.mask::before {
+    content: 'M';
+    color: #111;
+    border-color: #444;
+    background-color: #ddd;
+}
+
+a.visibility-symbol.override::before {
+    content: 'O';
+    color: #fff;
+    border-color: #fff;
+    background-color: #444;
+}
+
+a.visibility-symbol.classification::before {
+    content: 'C';
+    color: #fff;
+    border-color: #fff;
+    background-color: #bc55fc;
+}
+
+section.explanation {
+    padding: 8px 28px;
+    background-color: #EEE;
+    border: 1px solid #BBB;
+    float: left;
+    clear:left;
+}
+
+.explanation.error {
+    background-color: #fccac9;
+    border: 1px solid #fc0905;
+}
+
+.explanation.warning {
+    background-color: #fcf9c9;
+    border: 1px solid #fceb02;
+}
+
+.explanation.info {
+    background-color: #dee2fc;
+    border: 1px solid #465efc;
+}
+
+.explanation.pedantic {
+    background-color: #d4fcdc;
+    border: 1px solid #00c627;
+}
+
+.explanation.experimental {
+    background-color: #fcf2de;
+    border: 1px solid #9e8040;
+}
+
+.explanation.classification {
+    background-color: #f4e8fc;
+    border: 1px solid #bc55fc;
+}
+
+section.auxiliary {
+    margin: 20px 0;
+    float: left;
+}
+
+div.terminal {
+    margin-bottom: 1em;
+}
+
+p.terminal {
+    font-family: monospace;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+article.version {
+    display: flex;
+    gap: 1em;
+    align-items: flex-start;
+}
+
+article.version nav.version-selector {
+    flex: 0 auto;
+    order: 2;
+}
+
+nav.version-selector {
+    background-color: #F3F3F3;
+    border: 1px solid #AAA;
+    padding: 0.8em;
+    margin: 0 0 20px 20px;
+    display: inline-block;
+    float: right;
+}
+
+.version-selector h3 {
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    margin: 0;
+    margin-bottom: 0.5em;
+}
+
+.version-selector ul {
+    list-style: none;
+    padding: 0;
+}
+
+.version-selector li {
+    white-space: nowrap;
+}
+
+.version-selector span.highlight {
+    color: #D70751;
+}
+
+span.maintenance_links {
+    font-size: 0.6em;
+    margin-left: 1.2em;
+}
+
+.liberty.main {
+}
+
+.liberty.contrib {
+    color: red;
+}
+
+.liberty.non-free {
+    color: red;
+}
+
+span.release-list {
+    font-style: italic;
+}
+
+span.quote {
+    font-style: italic;
+}
+
+span.run-details {
+    font-style: italic;
+}
+
+a.sample {
+    font-style: italic;
+}
+
+/*
+ * 5. Footer
+ */
+
+footer {
+    display: block; /* HTML5 compat */
+    margin: 20px 20px;
+    padding: 10px 0 0 0;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 0.85em;
+    border-top: 1px solid #AAA;
+}
+
+footer p {
+    margin: 0;
+    padding: 0;
+}
+
+
+  </style>
+</head>
+
+<body>
+
+<main>
+
+<article>
+
+<h1>Lintian Hints</h1>
+
+
+
+<h2>
+  html-output 1.0+dsfg-1.1
+</h2>
+
+
+<ul class="filelist">
+
+  <li class="fileitem">html-output_1.0+dsfg-1.1.dsc</li>
+
+  <ul class="hintlist">
+
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny warning" href="https://lintian.debian.org/levels#warning"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/changelog-file-missing-explicit-entry">changelog-file-missing-explicit-entry</a></span>
+      <span class="context tiny">0.0.1-1 -&gt; 1.0+dsfg-1 (missing) -&gt; 1.0+dsfg-1.1 [debian/changelog:1]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny warning" href="https://lintian.debian.org/levels#warning"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/format-3.0-but-debian-changes-patch">format-3.0-but-debian-changes-patch</a></span>
+      <span class="context tiny">[debian/patches/debian-changes-1.0+dsfg-1.1]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny warning" href="https://lintian.debian.org/levels#warning"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/maintainer-upload-has-incorrect-version-number">maintainer-upload-has-incorrect-version-number</a></span>
+      <span class="context tiny">1.0+dsfg-1.1 [debian/changelog:1]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny warning" href="https://lintian.debian.org/levels#warning"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/obsolete-debian-watch-file-standard">obsolete-debian-watch-file-standard</a></span>
+      <span class="context tiny">3 [debian/watch]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny info" href="https://lintian.debian.org/levels#info"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/installable-field-mirrors-source">installable-field-mirrors-source</a></span>
+      <span class="context tiny">(in section for html-output) Section [debian/control:13]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny info" href="https://lintian.debian.org/levels#info"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/quilt-patch-using-template-description">quilt-patch-using-template-description</a></span>
+      <span class="context tiny">[debian/patches/debian-changes-1.0+dsfg-1.1]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny info" href="https://lintian.debian.org/levels#info"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/upstream-metadata-missing-bug-tracking">upstream-metadata-missing-bug-tracking</a></span>
+      <span class="context tiny">[debian/upstream/metadata]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny info" href="https://lintian.debian.org/levels#info"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/upstream-metadata-missing-repository">upstream-metadata-missing-repository</a></span>
+      <span class="context tiny">[debian/upstream/metadata]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny pedantic" href="https://lintian.debian.org/levels#pedantic"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/debian-control-has-unusual-field-spacing">debian-control-has-unusual-field-spacing</a></span>
+      <span class="context tiny">Essential [debian/control:12]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny pedantic" href="https://lintian.debian.org/levels#pedantic"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/no-homepage-field">no-homepage-field</a></span>
+      <span class="context tiny"></span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny pedantic" href="https://lintian.debian.org/levels#pedantic"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/redundant-priority-optional-field">redundant-priority-optional-field</a></span>
+      <span class="context tiny">[debian/control:2]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny pedantic" href="https://lintian.debian.org/levels#pedantic"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/redundant-rules-requires-root-no-field">redundant-rules-requires-root-no-field</a></span>
+      <span class="context tiny">[debian/control:7]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny experimental" href="https://lintian.debian.org/levels#experimental"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/debian-watch-does-not-check-openpgp-signature">debian-watch-does-not-check-openpgp-signature</a></span>
+      <span class="context tiny">[debian/watch]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny override" href="https://lintian.debian.org/levels#override"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/dfsg-version-misspelled">dfsg-version-misspelled</a></span>
+      <span class="context tiny">1.0+dsfg-1.1</span>
+
+    </li>
+
+  </ul>
+
+  <li class="fileitem">html-output_1.0+dsfg-1.1_all.deb</li>
+
+  <ul class="hintlist">
+
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny error" href="https://lintian.debian.org/levels#error"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/dir-in-usr-local">dir-in-usr-local</a></span>
+      <span class="context tiny">[usr/local/share/]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny error" href="https://lintian.debian.org/levels#error"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/dir-in-usr-local">dir-in-usr-local</a></span>
+      <span class="context tiny">[usr/local/share/lintian/]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny error" href="https://lintian.debian.org/levels#error"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/dir-or-file-in-var-lock">dir-or-file-in-var-lock</a></span>
+      <span class="context tiny">[var/lock/lintian/]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny error" href="https://lintian.debian.org/levels#error"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/new-essential-package">new-essential-package</a></span>
+      <span class="context tiny"></span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny warning" href="https://lintian.debian.org/levels#warning"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/no-manual-page">no-manual-page</a></span>
+      <span class="context tiny">[usr/bin/script]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny info" href="https://lintian.debian.org/levels#info"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/description-possibly-contains-homepage">description-possibly-contains-homepage</a></span>
+      <span class="context tiny">http://www.example.com/.</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny info" href="https://lintian.debian.org/levels#info"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/desktop-entry-limited-to-environments">desktop-entry-limited-to-environments</a></span>
+      <span class="context tiny">[usr/share/applications/script.desktop]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny info" href="https://lintian.debian.org/levels#info"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/package-contains-empty-directory">package-contains-empty-directory</a></span>
+      <span class="context tiny">[usr/local/share/lintian/]</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny info" href="https://lintian.debian.org/levels#info"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/synopsis-is-a-sentence">synopsis-is-a-sentence</a></span>
+      <span class="context tiny">&quot;Test Lintian&#39;s HTML output format.&quot;</span>
+
+    </li>
+    <li class="hintitem">
+
+      <ul class="commentlist">
+      </ul>
+
+      <a class="visibility-symbol tiny pedantic" href="https://lintian.debian.org/levels#pedantic"></a>
+      <span class="hint tiny"><a href="https://lintian.debian.org/tags/example-unusual-interpreter">example-unusual-interpreter</a></span>
+      <span class="context tiny">/usr/bin/foo [usr/share/doc/html-output/examples/example]</span>
+
+    </li>
+
+  </ul>
+
+  <li class="fileitem">html-output_1.0+dsfg-1.1.buildinfo</li>
+
+  <ul class="hintlist">
+
+    <p>No hints.</p>
+
+  </ul>
+
+  <li class="fileitem">html-output_1.0+dsfg-1.1.changes</li>
+
+  <ul class="hintlist">
+
+    <p>No hints.</p>
+
+  </ul>
+
+
+</ul>
+
+
+<!-- if you would like to see explanations of lintian tags in this file, pass -i on the lintian commandline.
+Otherwise, you can use the lintian-explain-tags command from the lintian package. -->
+
+</article>
+
+</main>
+
+<hr/>
+
+<footer>
+  <p>
+    Comments about this web page? Please report a bug against the
+    <a href="https://salsa.debian.org/lintian/lintian">lintian</a>
+    package and mention the <em>standalone HTML</em> output format.
+  </p>
+</footer>
+
+</body>
+</html>

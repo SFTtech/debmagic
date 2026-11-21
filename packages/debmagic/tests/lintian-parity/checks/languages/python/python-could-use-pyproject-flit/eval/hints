@@ -1,1 +1,1 @@
-python-could-use-pyproject-flit (source): missing-prerequisite-for-pyproject-backend flit_core.buildapi (does not satisfy flit:any, pybuild-plugin-pyproject:any) [pyproject.toml:3]
+python-could-use-pyproject-flit (source): missing-prerequisite-for-pyproject-backend flit_core.buildapi (does not satisfy flit | python3-flit, pybuild-plugin-pyproject) [pyproject.toml:3]

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-installs-java-bytecode (LN1105) [usr/share/java/foo/mini.class]
+W: example (binary): package-installs-java-bytecode (LN1105) [usr/share/java/foo/hard.class]
+W: example (udeb): package-installs-java-bytecode (LN1105) [usr/lib/foo/Mini.class]
+W: example (binary): package-installs-java-bytecode (LN1105) [usr/share/java/foo/ÿ.class]

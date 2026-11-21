@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): empty-shlibs (LN1033) [shlibs]
+E: example (binary): empty-shlibs (LN1033) [shlibs]
+E: example (binary): empty-shlibs (LN1033) [shlibs]
+E: example (binary): empty-shlibs (LN1033) [shlibs]
+E: example (binary): empty-shlibs (LN1033) [shlibs]

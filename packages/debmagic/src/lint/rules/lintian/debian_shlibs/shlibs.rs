@@ -5,6 +5,7 @@
 //! This is the file text, not an ELF SONAME.
 
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Location;
@@ -52,6 +53,48 @@ fn strip_udeb(line: &str) -> (&str, &str) {
     } else {
         ("", line)
     }
+}
+
+/// The `shlibs` control file as lintian's `lookup('shlibs')` sees it: `None`
+/// when it is absent or not a file (a symlink does not count). Otherwise its
+/// text, read as empty when it is not UTF-8 (`decoded_utf8`).
+pub(super) fn control_text(ctx: &mut BinaryPackageContext<'_>) -> Option<String> {
+    let files = ctx.control_files()?;
+    let entry = files.get("shlibs")?;
+    if !entry.is_file() {
+        return None;
+    }
+    let bytes = files.read(entry).unwrap_or_default();
+    Some(std::str::from_utf8(&bytes).unwrap_or_default().to_string())
+}
+
+/// Data files that are shared libraries with a versioned SONAME: lintian's
+/// `soname_by_filename` minus its unversioned ones. Path order.
+pub(super) fn versioned_libraries(ctx: &mut BinaryPackageContext<'_>) -> Vec<PathBuf> {
+    let Some(elf) = ctx.data_elf_files() else {
+        return Vec::new();
+    };
+    elf.iter()
+        .filter(|(_, facts)| {
+            facts
+                .soname()
+                .first()
+                .is_some_and(|soname| has_version(soname))
+        })
+        .map(|(path, _)| path.to_path_buf())
+        .collect()
+}
+
+/// Whether lintian's `human_soname` of a SONAME has a space: a `.so.`
+/// infix, or a `-<digit>` before a `.so` suffix.
+fn has_version(soname: &str) -> bool {
+    if soname.contains(".so.") {
+        return true;
+    }
+    soname.strip_suffix(".so").is_some_and(|stem| {
+        stem.match_indices('-')
+            .any(|(index, _)| stem[index + 1..].starts_with(|c: char| c.is_ascii_digit()))
+    })
 }
 
 #[cfg(test)]

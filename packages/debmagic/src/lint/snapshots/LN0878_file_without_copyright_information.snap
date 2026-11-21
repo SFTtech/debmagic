@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): file-without-copyright-information (LN0878) debian/copyright [debian/copyright]
+W: (source): file-without-copyright-information (LN0878) i-have-no-copyright-information [debian/copyright]

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): unknown-architecture (LN1048) weird
+W: example (binary): unknown-architecture (LN1048) source
+W: example (binary): unknown-architecture (LN1048) weird
+W: example (binary): unknown-architecture (LN1048) other
+W: example (udeb): unknown-architecture (LN1048) linux-weird

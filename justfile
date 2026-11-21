@@ -53,6 +53,28 @@ manpage:
 lint-parity *args:
     python3 scripts/lint_parity_report.py {{ args }}
 
+# Everything deterministic about porting one lintian Tag: tag file, Check, API map, recipes, commands (--run: its Parity cases, --full: whole Check)
+lintian-tag tag *args:
+    python3 scripts/lintian_tag.py {{ tag }} {{ args }}
+
+# Put a fresh agent worktree on BASE (when that cannot lose work) and seed target/ from the main checkout
+agent-prep base:
+    sh scripts/agent_prep.sh {{ base }}
+
+# Scaffold and register the LN Rule for a lintian Tag (--code LNxxxx, --kind source|binary|both, --dry-run)
+new-rule tag *args:
+    python3 scripts/new_lint_rule.py {{ tag }} {{ args }}
+
+# Rule-facing `debmagic lint` API, generated from the source (optional module filter, e.g. `just lint-api file_tree`)
+lint-api *filter:
+    python3 scripts/lint_api.py {{ filter }}
+
+# Write insta snapshots of unit tests matching FILTER (no cargo-insta needed); review `git diff` afterwards
+snap-accept filter:
+    INSTA_UPDATE=always cargo test -p debmagic --bin debmagic {{ filter }}
+    rm -f packages/debmagic/src/lint/snapshots/*.snap.new
+    sed -i '/^assertion_line: /d' packages/debmagic/src/lint/snapshots/*.snap
+
 # Ecosystem test (prototype, needs network + psql): lint samba + key packages from the archive, diff against the lintian results UDD/tracker report, and compare speed with lintian. e.g. `--sample 100`, `--all`, `--packages hello dgit`, `--perf off`
 lint-ecosystem *args:
     uv run scripts/lint_ecosystem.py {{ args }}

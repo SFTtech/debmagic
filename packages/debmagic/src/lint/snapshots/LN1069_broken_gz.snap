@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): broken-gz (LN1069) [etc/not-a.gz]
+W: example (binary): broken-gz (LN1069) [etc/UPPER.Gz]
+W: example (binary): broken-gz (LN1069) [etc/empty.gz]
+W: example (binary): broken-gz (LN1069) [etc/truncated.gz]
+W: example (binary): broken-gz (LN1069) [etc/trailing.gz]
+W: example (binary): broken-gz (LN1069) [etc/ÿ.gz]
+W: example (udeb): broken-gz (LN1069) [etc/not-a.gz]
+W: example (binary): broken-gz (LN1069) [etc/link.gz]
+W: example (binary): broken-gz (LN1069) [etc/target.gz]

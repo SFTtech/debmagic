@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo (binary): lib-recommends-documentation (LN0936) Recommends: libfoo-doc
+W: libfoo3 (binary): lib-recommends-documentation (LN0936) Recommends: libfoo-docs

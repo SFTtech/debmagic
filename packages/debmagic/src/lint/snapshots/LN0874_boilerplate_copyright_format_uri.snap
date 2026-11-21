@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): boilerplate-copyright-format-uri (LN0874) <VERSIONED_FORMAT_URL> [debian/copyright]
+W: (source): boilerplate-copyright-format-uri (LN0874) https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/rev=REVISION [debian/copyright]
+W: (source): boilerplate-copyright-format-uri (LN0874) https://example.org/copyright-format/VERSIONED_FORMAT_URL [debian/copyright]

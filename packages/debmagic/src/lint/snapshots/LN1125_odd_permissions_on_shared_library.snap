@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): odd-permissions-on-shared-library (LN1125) 0600 [usr/lib/libfoo.so.1]
+W: example (binary): odd-permissions-on-shared-library (LN1125) 0664 [usr/lib/libfoo.so.1]
+W: example (binary): odd-permissions-on-shared-library (LN1125) 0640 [usr/lib/libfoo.so.1]
+W: example (binary): odd-permissions-on-shared-library (LN1125) 0600 [usr/lib/libfoo.so.2]
+W: example (udeb): odd-permissions-on-shared-library (LN1125) 0600 [usr/lib/libfoo.so.1]

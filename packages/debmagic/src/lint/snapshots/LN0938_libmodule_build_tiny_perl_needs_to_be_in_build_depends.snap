@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): libmodule-build-tiny-perl-needs-to-be-in-build-depends (LN0938)
+E: example (source): libmodule-build-tiny-perl-needs-to-be-in-build-depends (LN0938)

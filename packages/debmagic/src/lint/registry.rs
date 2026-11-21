@@ -17,6 +17,7 @@ use super::rules::BadPermissionsForEtcCronDScript;
 use super::rules::BadRelation;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
+use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryInEtc;
 use super::rules::BinaryNmuDebianRevisionInSource;
 use super::rules::BinaryPackageDependsOnToolchainPackage;
@@ -128,6 +129,7 @@ use super::rules::GlobbingPatternsOutOfOrder;
 use super::rules::GoLibraryPackageDoesNotIncludeVersion;
 use super::rules::GzipFileIsNotMultiArchSameSafe;
 use super::rules::HardeningNoBindnow;
+use super::rules::HardeningNoFortifyFunctions;
 use super::rules::HardeningNoPie;
 use super::rules::HardeningNoRelro;
 use super::rules::IllegalMultiArchValue;
@@ -198,6 +200,8 @@ use super::rules::NonStandardFilePerm;
 use super::rules::NonStandardFilePermissionsForEtcInitDScript;
 use super::rules::NonStandardSetuidExecutablePerm;
 use super::rules::NotUsingPoDebconf;
+use super::rules::ObsoleteCryptAlias;
+use super::rules::ObsoleteDesEncryption;
 use super::rules::ObsoleteFieldInDep5Copyright;
 use super::rules::ObsoleteRelationForm;
 use super::rules::ObsoleteRelationFormInSource;
@@ -1723,6 +1727,10 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExecutableStackInSharedLibrary,
         &SharedLibraryLacksStackSection,
         &SpecificAddressInSharedLibrary,
+        &HardeningNoFortifyFunctions,
+        &BinaryCompiledWithProfilingEnabled,
+        &ObsoleteDesEncryption,
+        &ObsoleteCryptAlias,
     ]
 }
 
@@ -2752,6 +2760,10 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExecutableStackInSharedLibrary,
         &SharedLibraryLacksStackSection,
         &SpecificAddressInSharedLibrary,
+        &HardeningNoFortifyFunctions,
+        &BinaryCompiledWithProfilingEnabled,
+        &ObsoleteDesEncryption,
+        &ObsoleteCryptAlias,
     ]
 }
 

@@ -2,7 +2,7 @@
 //! `PT_INTERP` interpreter, the dynamic section's `NEEDED`, `SONAME`,
 //! `RPATH`, and `RUNPATH`, and the hardening facts of the Program headers
 //! (`GNU_RELRO`, `GNU_STACK`) and of the dynamic section (`BIND_NOW`,
-//! `TEXTREL`).
+//! `TEXTREL`), and the dynamic symbols.
 //!
 //! Lintian reads these from `readelf --all --wide` (`Lintian::Index::Elf`)
 //! and the object type from `file(1)`. This module parses the ELF header, the
@@ -18,6 +18,7 @@ use std::path::{Path, PathBuf};
 
 use goblin::container::Ctx;
 use goblin::elf::{Dynamic, Elf, ProgramHeader, dynamic, header, program_header};
+use goblin::options::ParseOptions;
 
 use super::file_tree::{Entry, EntryKind, FileTree};
 
@@ -35,6 +36,35 @@ pub enum ElfObjectType {
     Other,
 }
 
+/// One dynamic symbol (`readelf --dyn-syms`), as lintian's
+/// `Lintian::Elf::Symbol` keeps it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ElfSymbol {
+    name: String,
+    undefined: bool,
+    version: String,
+}
+
+impl ElfSymbol {
+    /// The symbol's name, without a `@VERSION` suffix.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// The symbol is undefined here (`st_shndx` is `SHN_UNDEF`, `readelf`
+    /// section `UND`): the object imports it.
+    pub fn is_undefined(&self) -> bool {
+        self.undefined
+    }
+
+    /// The version `readelf` shows for the symbol: the name of the version
+    /// it needs (`GLIBC_2.2.5`) or defines. Empty for an unversioned
+    /// undefined symbol, `Base` for an unversioned defined one.
+    pub fn version(&self) -> &str {
+        &self.version
+    }
+}
+
 /// ELF facts of one Entry.
 ///
 /// Lists keep the order of the dynamic section. A name whose string-table
@@ -50,6 +80,7 @@ pub struct ElfFacts {
     stack_flags: Option<u32>,
     textrel: bool,
     bind_now: bool,
+    symbols: Vec<ElfSymbol>,
     needed: Vec<String>,
     soname: Vec<String>,
     rpath: Vec<String>,
@@ -96,6 +127,7 @@ impl ElfFacts {
                 .map(|stack| stack.p_flags),
             textrel: false,
             bind_now: false,
+            symbols: dynamic_symbols(bytes),
             needed: Vec::new(),
             soname: Vec::new(),
             rpath: Vec::new(),
@@ -206,6 +238,15 @@ impl ElfFacts {
         self.bind_now
     }
 
+    /// The dynamic symbols in table order, without the empty-named null
+    /// symbol. Empty when `readelf --dyn-syms` would show none, and when the
+    /// section headers, which carry the symbol versions, cannot be parsed.
+    /// An archive member of a static library is not an ELF Entry, so its
+    /// symbols are not here.
+    pub fn symbols(&self) -> &[ElfSymbol] {
+        &self.symbols
+    }
+
     /// `PT_INTERP` up to its first NUL. `None` without that segment, or when
     /// it is empty or out of bounds (`readelf` then prints no "Requesting
     /// program interpreter").
@@ -232,6 +273,56 @@ impl ElfFacts {
     pub fn runpath(&self) -> &[String] {
         &self.runpath
     }
+}
+
+/// Dynamic symbols with their versions, from a permissive whole-file parse.
+fn dynamic_symbols(bytes: &[u8]) -> Vec<ElfSymbol> {
+    let Ok(elf) = Elf::parse_with_opts(bytes, &ParseOptions::permissive()) else {
+        return Vec::new();
+    };
+    let version_name = |version: u16| -> Option<String> {
+        if let Some(verneed) = &elf.verneed {
+            for need in verneed.iter() {
+                for aux in need.iter() {
+                    if aux.vna_other & 0x7fff == version {
+                        return elf.dynstrtab.get_at(aux.vna_name).map(String::from);
+                    }
+                }
+            }
+        }
+        if let Some(verdef) = &elf.verdef {
+            for definition in verdef.iter() {
+                if definition.vd_ndx & 0x7fff == version {
+                    let aux = definition.iter().next()?;
+                    return elf.dynstrtab.get_at(aux.vda_name).map(String::from);
+                }
+            }
+        }
+        None
+    };
+    elf.dynsyms
+        .iter()
+        .enumerate()
+        .filter_map(|(index, symbol)| {
+            let name = elf.dynstrtab.get_at(symbol.st_name)?;
+            if name.is_empty() {
+                return None;
+            }
+            let undefined = symbol.st_shndx == 0;
+            let version = match elf.versym.as_ref().and_then(|versym| versym.get_at(index)) {
+                None => String::new(),
+                Some(entry) if entry.is_local() || entry.is_global() => {
+                    if undefined { "" } else { "Base" }.to_string()
+                }
+                Some(entry) => version_name(entry.version()).unwrap_or_default(),
+            };
+            Some(ElfSymbol {
+                name: name.to_string(),
+                undefined,
+                version,
+            })
+        })
+        .collect()
 }
 
 fn interpreter(bytes: &[u8], interp: &ProgramHeader) -> Option<String> {
@@ -323,6 +414,8 @@ pub(crate) struct TestElf {
     textrel: bool,
     bind_now: bool,
     flags_1_now: bool,
+    /// Imported dynamic symbols and the version each needs.
+    imports: Vec<(String, Option<String>)>,
     /// Point `e_shoff` past the end of the file, as a cut-off ELF does.
     missing_section_headers: bool,
 }
@@ -344,6 +437,7 @@ impl TestElf {
             textrel: false,
             bind_now: false,
             flags_1_now: false,
+            imports: Vec::new(),
             missing_section_headers: false,
         }
     }
@@ -433,6 +527,15 @@ impl TestElf {
         self
     }
 
+    /// Imports `name` (an undefined dynamic symbol), needing `version` from
+    /// `libc.so.6` when given. Adds a `DT_HASH`, the dynamic symbol table,
+    /// and the version sections with their Section headers.
+    pub fn import(mut self, name: &str, version: Option<&str>) -> Self {
+        self.imports
+            .push((name.to_string(), version.map(String::from)));
+        self
+    }
+
     pub fn missing_section_headers(mut self) -> Self {
         self.missing_section_headers = true;
         self
@@ -443,6 +546,8 @@ impl TestElf {
     pub fn build(&self) -> Vec<u8> {
         const EHDR: usize = 64;
         const PHDR: usize = 56;
+        const SHDR: usize = 64;
+        const SYM: usize = 24;
 
         let mut strings = vec![0u8];
         let mut add_string = |text: &str| {
@@ -482,7 +587,32 @@ impl TestElf {
         if self.bind_now {
             dyns.push((dynamic::DT_FLAGS, dynamic::DF_BIND_NOW));
         }
-        let has_dynamic = !dyns.is_empty();
+
+        // Symbol names, and the distinct versions in order of first need.
+        let symbol_names: Vec<u64> = self
+            .imports
+            .iter()
+            .map(|(name, _)| add_string(name))
+            .collect();
+        let mut versions: Vec<(&str, u64)> = Vec::new();
+        let mut version_index: Vec<u16> = Vec::new();
+        for (_, version) in &self.imports {
+            let Some(version) = version else {
+                version_index.push(1);
+                continue;
+            };
+            let position = match versions.iter().position(|(known, _)| known == version) {
+                Some(position) => position,
+                None => {
+                    versions.push((version, add_string(version)));
+                    versions.len() - 1
+                }
+            };
+            version_index.push(2 + position as u16);
+        }
+        let libc_name = add_string("libc.so.6");
+        let has_symbols = !self.imports.is_empty();
+        let has_dynamic = !dyns.is_empty() || has_symbols;
 
         let phnum = 1
             + usize::from(self.interpreter.is_some())
@@ -500,14 +630,41 @@ impl TestElf {
             })
             .unwrap_or_default();
         let strtab_offset = interp_offset + interp.len();
-        let dynamic_offset = (strtab_offset + strings.len()).next_multiple_of(8);
+        let mut end = strtab_offset + strings.len();
+
+        // Tail: dynsym, hash, versym, verneed (when there are imports).
+        let nsyms = self.imports.len() + 1;
+        let dynsym_offset = end.next_multiple_of(8);
+        let hash_offset = dynsym_offset + nsyms * SYM;
+        let versym_offset = hash_offset + 4 * (3 + nsyms);
+        let verneed_offset = (versym_offset + 2 * nsyms).next_multiple_of(8);
+        let verneed_size = if versions.is_empty() {
+            0
+        } else {
+            16 + 16 * versions.len()
+        };
+        if has_symbols {
+            end = verneed_offset + verneed_size;
+        }
+        let dynamic_offset = end.next_multiple_of(8);
         if has_dynamic {
             dyns.push((dynamic::DT_STRTAB, strtab_offset as u64));
             dyns.push((dynamic::DT_STRSZ, strings.len() as u64));
+            if has_symbols {
+                dyns.push((dynamic::DT_SYMTAB, dynsym_offset as u64));
+                dyns.push((dynamic::DT_SYMENT, SYM as u64));
+                dyns.push((dynamic::DT_HASH, hash_offset as u64));
+            }
             dyns.push((dynamic::DT_NULL, 0));
         }
         let dynamic_size = dyns.len() * 16;
-        let total = dynamic_offset + dynamic_size;
+        let shdr_offset = (dynamic_offset + dynamic_size).next_multiple_of(8);
+        let shnum: usize = if has_symbols { 5 } else { 0 };
+        let total = if has_symbols {
+            shdr_offset + shnum * SHDR
+        } else {
+            dynamic_offset + dynamic_size
+        };
 
         let mut out = Vec::with_capacity(total);
         out.extend_from_slice(b"\x7fELF");
@@ -518,20 +675,21 @@ impl TestElf {
         out.extend_from_slice(&1u32.to_le_bytes());
         out.extend_from_slice(&0u64.to_le_bytes()); // e_entry
         out.extend_from_slice(&(EHDR as u64).to_le_bytes()); // e_phoff
-        let shoff: u64 = if self.missing_section_headers {
-            total as u64 + 4096
+        let (shoff, shnum, shstrndx): (u64, u16, u16) = if self.missing_section_headers {
+            (total as u64 + 4096, 8, 0)
+        } else if has_symbols {
+            (shdr_offset as u64, shnum as u16, 2)
         } else {
-            0
+            (0, 0, 0)
         };
         out.extend_from_slice(&shoff.to_le_bytes());
         out.extend_from_slice(&0u32.to_le_bytes()); // e_flags
         out.extend_from_slice(&(EHDR as u16).to_le_bytes());
         out.extend_from_slice(&(PHDR as u16).to_le_bytes());
         out.extend_from_slice(&(phnum as u16).to_le_bytes());
-        out.extend_from_slice(&64u16.to_le_bytes()); // e_shentsize
-        let shnum: u16 = if self.missing_section_headers { 8 } else { 0 };
+        out.extend_from_slice(&(SHDR as u16).to_le_bytes()); // e_shentsize
         out.extend_from_slice(&shnum.to_le_bytes());
-        out.extend_from_slice(&0u16.to_le_bytes()); // e_shstrndx
+        out.extend_from_slice(&shstrndx.to_le_bytes()); // e_shstrndx
 
         let mut program_header = |p_type: u32, flags: u32, offset: usize, size: usize| {
             out.extend_from_slice(&p_type.to_le_bytes());
@@ -555,10 +713,79 @@ impl TestElf {
         }
         out.extend_from_slice(&interp);
         out.extend_from_slice(&strings);
+        if has_symbols {
+            out.resize(dynsym_offset, 0);
+            out.extend_from_slice(&[0; SYM]); // the null symbol
+            for name in &symbol_names {
+                out.extend_from_slice(&(*name as u32).to_le_bytes()); // st_name
+                out.push(0x12); // STB_GLOBAL, STT_FUNC
+                out.push(0); // st_other
+                out.extend_from_slice(&0u16.to_le_bytes()); // SHN_UNDEF
+                out.extend_from_slice(&0u64.to_le_bytes()); // st_value
+                out.extend_from_slice(&0u64.to_le_bytes()); // st_size
+            }
+            // DT_HASH: one bucket, every symbol on the chain's end.
+            out.extend_from_slice(&1u32.to_le_bytes());
+            out.extend_from_slice(&(nsyms as u32).to_le_bytes());
+            out.extend_from_slice(&0u32.to_le_bytes());
+            out.extend_from_slice(&vec![0u8; 4 * nsyms]);
+            out.extend_from_slice(&0u16.to_le_bytes()); // versym[0]: local
+            for index in &version_index {
+                out.extend_from_slice(&index.to_le_bytes());
+            }
+            out.resize(verneed_offset, 0);
+            if !versions.is_empty() {
+                out.extend_from_slice(&1u16.to_le_bytes()); // vn_version
+                out.extend_from_slice(&(versions.len() as u16).to_le_bytes());
+                out.extend_from_slice(&(libc_name as u32).to_le_bytes());
+                out.extend_from_slice(&16u32.to_le_bytes()); // vn_aux
+                out.extend_from_slice(&0u32.to_le_bytes()); // vn_next
+                for (position, (_, name)) in versions.iter().enumerate() {
+                    out.extend_from_slice(&0u32.to_le_bytes()); // vna_hash
+                    out.extend_from_slice(&0u16.to_le_bytes()); // vna_flags
+                    out.extend_from_slice(&(2 + position as u16).to_le_bytes());
+                    out.extend_from_slice(&(*name as u32).to_le_bytes());
+                    let next = if position + 1 == versions.len() {
+                        0
+                    } else {
+                        16u32
+                    };
+                    out.extend_from_slice(&next.to_le_bytes());
+                }
+            }
+        }
         out.resize(dynamic_offset, 0);
         for (tag, value) in dyns {
             out.extend_from_slice(&tag.to_le_bytes());
             out.extend_from_slice(&value.to_le_bytes());
+        }
+        if has_symbols && !self.missing_section_headers {
+            out.resize(shdr_offset, 0);
+            let mut section =
+                |sh_type: u32, offset: usize, size: usize, link: u32, info: u32, entsize: u64| {
+                    out.extend_from_slice(&0u32.to_le_bytes()); // sh_name
+                    out.extend_from_slice(&sh_type.to_le_bytes());
+                    out.extend_from_slice(&2u64.to_le_bytes()); // SHF_ALLOC
+                    out.extend_from_slice(&(offset as u64).to_le_bytes()); // sh_addr
+                    out.extend_from_slice(&(offset as u64).to_le_bytes()); // sh_offset
+                    out.extend_from_slice(&(size as u64).to_le_bytes());
+                    out.extend_from_slice(&link.to_le_bytes());
+                    out.extend_from_slice(&info.to_le_bytes());
+                    out.extend_from_slice(&8u64.to_le_bytes()); // sh_addralign
+                    out.extend_from_slice(&entsize.to_le_bytes());
+                };
+            section(0, 0, 0, 0, 0, 0);
+            section(11, dynsym_offset, nsyms * SYM, 2, 1, SYM as u64); // SHT_DYNSYM
+            section(3, strtab_offset, strings.len(), 0, 0, 0); // SHT_STRTAB
+            section(0x6fff_ffff, versym_offset, 2 * nsyms, 1, 0, 2); // SHT_GNU_versym
+            section(
+                0x6fff_fffe,
+                verneed_offset,
+                verneed_size,
+                2,
+                versions.len() as u32,
+                0,
+            ); // SHT_GNU_verneed
         }
         out
     }
@@ -718,6 +945,62 @@ mod tests {
             }
         }
         Ok(())
+    }
+
+    /// The test binary imports libc functions, each with the version it needs.
+    #[test]
+    fn host_binary_dynamic_symbols_carry_versions() -> anyhow::Result<()> {
+        let bytes = std::fs::read(std::env::current_exe()?)?;
+        let facts = ElfFacts::from_bytes(&bytes).expect("test binary is ELF");
+        let imported: Vec<_> = facts
+            .symbols()
+            .iter()
+            .filter(|symbol| symbol.is_undefined() && symbol.version().starts_with("GLIBC_"))
+            .collect();
+        assert!(!imported.is_empty(), "{:?}", facts.symbols());
+        assert!(
+            facts
+                .symbols()
+                .iter()
+                .all(|symbol| !symbol.name().is_empty() && !symbol.name().contains('@')),
+            "{:?}",
+            facts.symbols()
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn imported_symbols_carry_the_version_they_need() {
+        let bytes = TestElf::executable()
+            .needed("libc.so.6")
+            .import("printf", Some("GLIBC_2.2.5"))
+            .import("__fentry__", Some("GLIBC_2.13"))
+            .import("weak_thing", None)
+            .import("puts", Some("GLIBC_2.2.5"))
+            .build();
+        let facts = ElfFacts::from_bytes(&bytes).expect("ELF");
+        let symbols: Vec<_> = facts
+            .symbols()
+            .iter()
+            .map(|symbol| (symbol.name(), symbol.is_undefined(), symbol.version()))
+            .collect();
+        assert_eq!(
+            symbols,
+            [
+                ("printf", true, "GLIBC_2.2.5"),
+                ("__fentry__", true, "GLIBC_2.13"),
+                ("weak_thing", true, ""),
+                ("puts", true, "GLIBC_2.2.5"),
+            ]
+        );
+        assert_eq!(facts.needed(), ["libc.so.6"]);
+    }
+
+    #[test]
+    fn symbols_are_empty_without_a_dynamic_symbol_table() {
+        let facts =
+            ElfFacts::from_bytes(&TestElf::executable().needed("libc.so.6").build()).expect("ELF");
+        assert!(facts.symbols().is_empty());
     }
 
     #[test]

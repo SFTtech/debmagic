@@ -95,6 +95,19 @@ pub(crate) fn built_with_golang(ctx: &BinaryPackageContext<'_>) -> bool {
         || ctx.package_name().starts_with("golang-")
 }
 
+/// Lintian's `built_with_rust` without the source package's
+/// `Build-Depends-All`: `Built-Using` or `Static-Built-Using` names `rustc`.
+pub(crate) fn built_with_rust(ctx: &BinaryPackageContext<'_>) -> bool {
+    let fields = ctx.installation_control().fields();
+    ["Built-Using", "Static-Built-Using"]
+        .into_iter()
+        .any(|field| {
+            fields
+                .get(field)
+                .is_some_and(|value| value.contains("rustc"))
+        })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

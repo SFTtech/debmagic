@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): binary-compiled-with-profiling-enabled (LN1158) [usr/bin/a]
+W: example (binary): binary-compiled-with-profiling-enabled (LN1158) [usr/bin/a]
+W: example (binary): binary-compiled-with-profiling-enabled (LN1158) [usr/bin/a]
+W: example (binary): binary-compiled-with-profiling-enabled (LN1158) [usr/bin/a]
+W: example (binary): binary-compiled-with-profiling-enabled (LN1158) [usr/bin/a]
+W: example (binary): binary-compiled-with-profiling-enabled (LN1158) [usr/bin/a]
+W: example (binary): binary-compiled-with-profiling-enabled (LN1158) [usr/lib/libfoo.so.1]
+W: example (udeb): binary-compiled-with-profiling-enabled (LN1158) [usr/bin/a]

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): source-contains-waf-binary (LN1011) [waf]
+E: example (source): source-contains-waf-binary (LN1011) [tools/waf]
+E: example (source): source-contains-waf-binary (LN1011) [tools-waf]
+E: example (source): source-contains-waf-binary (LN1011) [waf]
+E: example (source): source-contains-waf-binary (LN1011) [waf]
+E: example (source): source-contains-waf-binary (LN1011) [waf]

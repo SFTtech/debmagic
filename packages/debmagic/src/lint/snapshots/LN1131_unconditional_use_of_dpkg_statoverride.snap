@@ -1,0 +1,15 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postinst:2]
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postinst:3]
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postinst:2]
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postrm:2]
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postinst:2]
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postinst:3]
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postinst:3]
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postinst:2]
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postinst:3]
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postrm:2]
+W: example (udeb): unconditional-use-of-dpkg-statoverride (LN1131) [postinst:2]
+W: example (binary): unconditional-use-of-dpkg-statoverride (LN1131) [postinst:2]

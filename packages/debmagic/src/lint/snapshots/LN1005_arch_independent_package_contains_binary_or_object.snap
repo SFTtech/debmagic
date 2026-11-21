@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): arch-independent-package-contains-binary-or-object (LN1005) [usr/bin/foo]
+E: example (binary): arch-independent-package-contains-binary-or-object (LN1005) [usr/lib/libfoo.so.1]
+E: example (binary): arch-independent-package-contains-binary-or-object (LN1005) [usr/lib/libfoo.a]
+E: example (binary): arch-independent-package-contains-binary-or-object (LN1005) [usr/bin/foo-link]
+E: example (binary): arch-independent-package-contains-binary-or-object (LN1005) [etc/foo]
+E: example (udeb): arch-independent-package-contains-binary-or-object (LN1005) [usr/bin/foo]

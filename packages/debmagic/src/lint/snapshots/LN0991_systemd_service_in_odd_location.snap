@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): systemd-service-in-odd-location (LN0991) [etc/systemd/system/local.service]
+E: example (binary): systemd-service-in-odd-location (LN0991) [etc/systemd/system/masked.service]
+E: example (udeb): systemd-service-in-odd-location (LN0991) [etc/systemd/system/udeb.service]

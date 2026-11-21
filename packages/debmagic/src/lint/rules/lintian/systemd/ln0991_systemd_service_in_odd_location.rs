@@ -77,6 +77,10 @@ mod tests {
             ),
             unit("etc/systemd/system/notes.conf", "x\n"),
             BinaryPackageCase::from(vec![(
+                "usr/lib/systemd/system/fifo.service".to_string(),
+                TestFile::fifo(),
+            )]),
+            BinaryPackageCase::from(vec![(
                 "etc/systemd/system/dir.service".to_string(),
                 TestFile::directory(),
             )]),
@@ -89,6 +93,15 @@ mod tests {
             BinaryPackageCase::from(vec![(
                 "etc/systemd/system/masked.service".to_string(),
                 TestFile::symlink("/dev/null"),
+            )]),
+            // A named pipe or device node is still an entry of that name.
+            BinaryPackageCase::from(vec![(
+                "etc/systemd/system/fifo-pipe-as-init.service".to_string(),
+                TestFile::fifo(),
+            )]),
+            BinaryPackageCase::from(vec![(
+                "etc/systemd/system/device.service".to_string(),
+                TestFile::char_device(),
             )]),
             unit(
                 "etc/systemd/system/udeb.service",

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): pkg-js-autopkgtest-file-does-not-exist (LN0931) missing.txt
+E: example (source): pkg-js-autopkgtest-file-does-not-exist (LN0931) lib/*/*.json

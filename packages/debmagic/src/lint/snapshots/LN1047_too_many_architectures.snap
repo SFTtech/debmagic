@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): too-many-architectures (LN1047) amd64 i386
+E: example (binary): too-many-architectures (LN1047) amd64 amd64 i386
+E: example (binary): too-many-architectures (LN1047) all amd64
+E: example (udeb): too-many-architectures (LN1047) amd64 i386 weird

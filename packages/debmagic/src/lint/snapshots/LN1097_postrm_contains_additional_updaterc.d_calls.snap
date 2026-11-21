@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): postrm-contains-additional-updaterc.d-calls (LN1097) etc/init.d/bar [postrm]
+E: example (binary): postrm-contains-additional-updaterc.d-calls (LN1097) etc/init.d/baz [postrm]
+E: example (binary): postrm-contains-additional-updaterc.d-calls (LN1097) etc/init.d/bar [postrm]
+E: example (binary): postrm-contains-additional-updaterc.d-calls (LN1097) etc/init.d/baz [postrm]
+E: example (binary): postrm-contains-additional-updaterc.d-calls (LN1097) etc/init.d/bar [postrm]
+E: example (udeb): postrm-contains-additional-updaterc.d-calls (LN1097) etc/init.d/bar [postrm]
+E: example (binary): postrm-contains-additional-updaterc.d-calls (LN1097) etc/init.d/bar [postrm]

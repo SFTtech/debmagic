@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-installs-deprecated-upstart-configuration (LN1079) [etc/init/foo.conf]
+W: example (binary): package-installs-deprecated-upstart-configuration (LN1079) [etc/init/foo]
+W: example (binary): package-installs-deprecated-upstart-configuration (LN1079) [etc/init/foo.conf]
+W: example (binary): package-installs-deprecated-upstart-configuration (LN1079) [etc/init/foo.conf]
+W: example (udeb): package-installs-deprecated-upstart-configuration (LN1079) [etc/init/foo.conf]

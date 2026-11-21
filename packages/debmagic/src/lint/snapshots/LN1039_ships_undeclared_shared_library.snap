@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): ships-undeclared-shared-library (LN1039) libeshf 1 for usr/lib/libeshf.so.1 [shlibs]
+E: example (binary): ships-undeclared-shared-library (LN1039) libfoo 1 for usr/lib/libfoo.so.1 [shlibs]
+E: example (binary): ships-undeclared-shared-library (LN1039) libfoo 1 for usr/lib/libfoo.so.1 [shlibs]

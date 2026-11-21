@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): package-depends-on-hardcoded-libc (LN1135) (in section for example) Depends libc6 [debian/control:5]

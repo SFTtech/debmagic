@@ -29,6 +29,10 @@ mod ln0530_declares_possibly_conflicting_debhelper_compat_versions;
 mod ln0531_temporary_debhelper_file;
 mod ln0532_dh_exec_script_without_dh_exec_features;
 mod ln0533_dh_exec_install_not_allowed_here;
+mod ln0860_package_file_is_executable;
+mod ln0861_debhelper_compat_not_a_number;
+mod ln0862_dh_exec_private_helper;
+mod ln0863_executable_debhelper_file_without_being_executable;
 mod rules_text;
 
 pub(super) use control_text::{build_depends_all_names, names_package};
@@ -55,3 +59,7 @@ pub(crate) use ln0530_declares_possibly_conflicting_debhelper_compat_versions::D
 pub(crate) use ln0531_temporary_debhelper_file::TemporaryDebhelperFile;
 pub(crate) use ln0532_dh_exec_script_without_dh_exec_features::DhExecScriptWithoutDhExecFeatures;
 pub(crate) use ln0533_dh_exec_install_not_allowed_here::DhExecInstallNotAllowedHere;
+pub(crate) use ln0860_package_file_is_executable::PackageFileIsExecutable;
+pub(crate) use ln0861_debhelper_compat_not_a_number::DebhelperCompatNotANumber;
+pub(crate) use ln0862_dh_exec_private_helper::DhExecPrivateHelper;
+pub(crate) use ln0863_executable_debhelper_file_without_being_executable::ExecutableDebhelperFileWithoutBeingExecutable;

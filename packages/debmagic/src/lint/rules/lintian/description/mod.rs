@@ -18,6 +18,7 @@ mod ln0670_description_contains_invalid_control_statement;
 mod ln0671_description_contains_dh_make_perl_template;
 mod ln0672_description_is_debmake_template;
 mod ln0673_description_starts_with_leading_spaces;
+mod ln0923_description_is_dh_make_template;
 
 pub(crate) use ln0037_extended_description_is_empty::ExtendedDescriptionIsEmpty;
 pub(crate) use ln0050_description_synopsis_is_empty::DescriptionSynopsisIsEmpty;
@@ -33,3 +34,4 @@ pub(crate) use ln0670_description_contains_invalid_control_statement::Descriptio
 pub(crate) use ln0671_description_contains_dh_make_perl_template::DescriptionContainsDhMakePerlTemplate;
 pub(crate) use ln0672_description_is_debmake_template::DescriptionIsDebmakeTemplate;
 pub(crate) use ln0673_description_starts_with_leading_spaces::DescriptionStartsWithLeadingSpaces;
+pub(crate) use ln0923_description_is_dh_make_template::DescriptionIsDhMakeTemplate;

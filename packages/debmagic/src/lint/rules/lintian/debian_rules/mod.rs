@@ -24,6 +24,13 @@ mod ln0587_debian_rules_should_not_use_sanitize_all_buildflag;
 mod ln0588_debian_rules_updates_control_automatically;
 mod ln0589_debian_rules_uses_deb_build_opts;
 mod ln0712_rules_require_build_prerequisite;
+mod ln0909_debian_rules_should_not_set_cflags_from_noopt;
+mod ln0910_debian_rules_is_symlink;
+mod ln0911_debian_rules_not_a_makefile;
+mod ln0912_debian_rules_uses_special_shell_variable;
+mod ln0913_debian_rules_uses_wrong_environment_variable;
+mod ln0914_missing_build_depends_for_clean_target_in_debian_rules;
+mod ln0915_override_dh_clean_does_not_call_dh_clean;
 mod text;
 
 pub(super) use text::{complete_lines, read_rules_from_tree};
@@ -48,3 +55,10 @@ pub(crate) use ln0587_debian_rules_should_not_use_sanitize_all_buildflag::Debian
 pub(crate) use ln0588_debian_rules_updates_control_automatically::DebianRulesUpdatesControlAutomatically;
 pub(crate) use ln0589_debian_rules_uses_deb_build_opts::DebianRulesUsesDebBuildOpts;
 pub(crate) use ln0712_rules_require_build_prerequisite::RulesRequireBuildPrerequisite;
+pub(crate) use ln0909_debian_rules_should_not_set_cflags_from_noopt::DebianRulesShouldNotSetCFLAGSFromNoopt;
+pub(crate) use ln0910_debian_rules_is_symlink::DebianRulesIsSymlink;
+pub(crate) use ln0911_debian_rules_not_a_makefile::DebianRulesNotAMakefile;
+pub(crate) use ln0912_debian_rules_uses_special_shell_variable::DebianRulesUsesSpecialShellVariable;
+pub(crate) use ln0913_debian_rules_uses_wrong_environment_variable::DebianRulesUsesWrongEnvironmentVariable;
+pub(crate) use ln0914_missing_build_depends_for_clean_target_in_debian_rules::MissingBuildDependsForCleanTargetInDebianRules;
+pub(crate) use ln0915_override_dh_clean_does_not_call_dh_clean::OverrideDhCleanDoesNotCallDhClean;

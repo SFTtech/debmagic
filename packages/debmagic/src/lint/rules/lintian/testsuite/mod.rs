@@ -17,6 +17,8 @@ mod ln0685_runtime_test_file_uses_supported_python_versions_without_test_depends
 mod ln0686_declare_python_versions_for_test;
 mod ln0687_drop_python_version_declaration;
 mod ln0688_testsuite_depends_on_obsolete_package;
+mod ln0995_missing_tests_control;
+mod ln0996_obsolete_runtime_tests_restriction;
 mod python;
 mod sections;
 
@@ -33,3 +35,5 @@ pub(crate) use ln0685_runtime_test_file_uses_supported_python_versions_without_t
 pub(crate) use ln0686_declare_python_versions_for_test::DeclarePythonVersionsForTest;
 pub(crate) use ln0687_drop_python_version_declaration::DropPythonVersionDeclaration;
 pub(crate) use ln0688_testsuite_depends_on_obsolete_package::TestsuiteDependsOnObsoletePackage;
+pub(crate) use ln0995_missing_tests_control::MissingTestsControl;
+pub(crate) use ln0996_obsolete_runtime_tests_restriction::ObsoleteRuntimeTestsRestriction;

@@ -31,6 +31,15 @@ mod ln0268_build_depends_on_obsolete_bootstrap;
 mod ln0269_depends_on_obsolete_bootstrap;
 mod ln0352_build_depends_on_build_essential_package_without_using_version;
 mod ln0353_depends_on_essential_package_without_using_version;
+mod ln0932_redundant_build_prerequisites;
+mod ln0933_alternates_not_allowed;
+mod ln0934_bad_relation;
+mod ln0935_invalid_profile_name_in_source_relation;
+mod ln0936_lib_recommends_documentation;
+mod ln0937_libmodule_build_perl_needs_to_be_in_build_depends;
+mod ln0938_libmodule_build_tiny_perl_needs_to_be_in_build_depends;
+mod ln0939_needless_dependency_on_jre;
+mod ln0940_obsolete_relation_form;
 mod metapackages;
 mod overlap;
 
@@ -53,6 +62,15 @@ pub(crate) use ln0268_build_depends_on_obsolete_bootstrap::BuildDependsOnObsolet
 pub(crate) use ln0269_depends_on_obsolete_bootstrap::DependsOnObsoleteBootstrap;
 pub(crate) use ln0352_build_depends_on_build_essential_package_without_using_version::BuildDependsOnBuildEssentialPackageWithoutUsingVersion;
 pub(crate) use ln0353_depends_on_essential_package_without_using_version::DependsOnEssentialPackageWithoutUsingVersion;
+pub(crate) use ln0932_redundant_build_prerequisites::RedundantBuildPrerequisites;
+pub(crate) use ln0933_alternates_not_allowed::AlternatesNotAllowed;
+pub(crate) use ln0934_bad_relation::BadRelation;
+pub(crate) use ln0935_invalid_profile_name_in_source_relation::InvalidProfileNameInSourceRelation;
+pub(crate) use ln0936_lib_recommends_documentation::LibRecommendsDocumentation;
+pub(crate) use ln0937_libmodule_build_perl_needs_to_be_in_build_depends::LibmoduleBuildPerlNeedsToBeInBuildDepends;
+pub(crate) use ln0938_libmodule_build_tiny_perl_needs_to_be_in_build_depends::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
+pub(crate) use ln0939_needless_dependency_on_jre::NeedlessDependencyOnJre;
+pub(crate) use ln0940_obsolete_relation_form::ObsoleteRelationForm;
 
 /// Source relationship fields the Check walks, in that order.
 pub(super) const SOURCE_RELATION_FIELDS: &[&str] = &[

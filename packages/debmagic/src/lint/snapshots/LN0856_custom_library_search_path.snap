@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): custom-library-search-path (LN0856) RUNPATH /usr/share/foo [usr/bin/runpath]
+E: example (binary): custom-library-search-path (LN0856) RPATH /usr/local/lib [usr/bin/rpath]
+E: example (binary): custom-library-search-path (LN0856) RPATH /usr/lib [usr/bin/system]
+E: example (binary): custom-library-search-path (LN0856) RPATH /usr/lib [usr/bin/dot]
+E: example (binary): custom-library-search-path (LN0856) RPATH /usr/lib [usr/bin/dup]
+E: example (binary): custom-library-search-path (LN0856) RPATH /usr/lib [usr/bin/dup]
+E: example (binary): custom-library-search-path (LN0856) RPATH /usr/local/lib [usr/bin/both]
+E: example (binary): custom-library-search-path (LN0856) RUNPATH /opt/foo [usr/bin/both]
+E: example (binary): custom-library-search-path (LN0856) RPATH /usr/lib/ghc2/lib [usr/bin/ghc2]
+E: example (binary): custom-library-search-path (LN0856) RPATH /usr/local/lib [usr/bin/hardlink]
+E: example (udeb): custom-library-search-path (LN0856) RPATH /usr/local/lib [usr/bin/udeb]

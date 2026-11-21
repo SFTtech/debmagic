@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): dh-exec-private-helper (LN0862) [debian/manpages]

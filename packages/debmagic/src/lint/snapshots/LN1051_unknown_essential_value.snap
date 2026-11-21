@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unknown-essential-value (LN1051)
+E: example (binary): unknown-essential-value (LN1051)
+E: example (binary): unknown-essential-value (LN1051)
+E: example (binary): unknown-essential-value (LN1051)
+E: bash-doc (udeb): unknown-essential-value (LN1051)

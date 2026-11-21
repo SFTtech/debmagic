@@ -1,12 +1,17 @@
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
-use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::BinaryPackageRule;
 
 pub struct UnknownEssentialValue;
 
 declare_rule! {
-    /// TODO: what the Rule reports, in lintian's words, and the cases it skips.
+    /// The `Essential` field of the Binary package has a value other than
+    /// `yes` or `no`. Extra and Location are empty.
+    ///
+    /// Reads Installation control. The value is unfolded before the test and
+    /// the comparison is case-sensitive, so `Yes` is not valid. An empty value
+    /// is not valid. Udebs are checked too. Source packages are not this Tag.
     UnknownEssentialValue,
     code = "LN1051",
     tag = "unknown-essential-value",
@@ -15,24 +20,43 @@ declare_rule! {
 }
 
 impl BinaryPackageRule for UnknownEssentialValue {
-    fn run(&self, _ctx: &mut BinaryPackageContext<'_>) {
-        // TODO: port lintian's `fields/essential` Check (just lintian-tag unknown-essential-value).
-        // Report with `ctx.diagnostic(Diagnostic::error(extra).with_location(Location { .. }))`.
-        let _ = (Diagnostic::error(""), None::<Location>);
+    fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
+        let fields = ctx.installation_control().fields();
+        if !fields.declares("Essential") {
+            return;
+        }
+        let value = fields.unfolded_value("Essential").unwrap_or_default();
+        if value != "yes" && value != "no" {
+            ctx.diagnostic(Diagnostic::error(""));
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester};
+    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
 
     use super::*;
 
+    fn essential(value: &str) -> BinaryPackageCase {
+        BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()).field("Essential", value)
+    }
+
     #[test]
     fn binary() {
-        // Pass and fail cases; `.test_and_snapshot()` once there are fail cases (`just snap-accept`).
-        let pass = Vec::<BinaryPackageCase>::new();
-        let fail = Vec::<BinaryPackageCase>::new();
-        BinaryPackageTester::new(UnknownEssentialValue, pass, fail).test();
+        let pass = vec![
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
+            essential("yes"),
+            essential("no"),
+            essential("yes").udeb(),
+        ];
+        let fail = vec![
+            essential("maybe"),
+            essential("Yes"),
+            essential(""),
+            essential("true"),
+            essential("NO").package("bash-doc").udeb(),
+        ];
+        BinaryPackageTester::new(UnknownEssentialValue, pass, fail).test_and_snapshot();
     }
 }

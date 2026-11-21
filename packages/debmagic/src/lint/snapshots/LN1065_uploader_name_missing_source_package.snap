@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): uploader-name-missing (LN1065) you have used a double comma [debian/control:5]

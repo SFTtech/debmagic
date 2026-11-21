@@ -253,6 +253,7 @@ pub(crate) use conffiles::{
 };
 pub(crate) use control_files::ControlFileHasBadOwner;
 pub(crate) use deb_format::MisplacedExtraMemberInDeb;
+pub(crate) use deb_format::UdebUsesUnsupportedCompressionForDataTarball;
 pub(crate) use deb_format::UsesNoCompressionForControlTarball;
 pub(crate) use deb_format::UsesNoCompressionForDataTarball;
 pub(crate) use debhelper_rules::{

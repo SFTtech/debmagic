@@ -401,6 +401,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/deb-format/deb-format-extra-underscore-member-before-control",
     "checks/deb-format/deb-format-extra-underscore-member-before-data",
     "checks/deb-format/deb-format-no-compress",
+    "checks/deb-format/deb-format-udeb-compression",
     "checks/debian/changelog/changelog-file-empty-entry",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-invalid-date",
@@ -1605,6 +1606,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/deb-format/deb-format-extra-underscore-member-before-control"; "checks_deb_format_deb_format_extra_underscore_member_before_control")]
 #[test_case("checks/deb-format/deb-format-extra-underscore-member-before-data"; "checks_deb_format_deb_format_extra_underscore_member_before_data")]
 #[test_case("checks/deb-format/deb-format-no-compress"; "checks_deb_format_deb_format_no_compress")]
+#[test_case("checks/deb-format/deb-format-udeb-compression"; "checks_deb_format_deb_format_udeb_compression")]
 #[test_case("checks/debian/changelog/changelog-file-empty-entry"; "checks_debian_changelog_changelog_file_empty_entry")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-invalid-date"; "checks_debian_changelog_changelog_file_invalid_date")]

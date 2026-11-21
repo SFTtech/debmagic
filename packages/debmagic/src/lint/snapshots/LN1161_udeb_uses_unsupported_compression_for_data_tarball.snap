@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (udeb): udeb-uses-unsupported-compression-for-data-tarball (LN1161)
+E: example (udeb): udeb-uses-unsupported-compression-for-data-tarball (LN1161)

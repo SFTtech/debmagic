@@ -3,7 +3,9 @@
 mod ln1148_misplaced_extra_member_in_deb;
 mod ln1149_uses_no_compression_for_control_tarball;
 mod ln1150_uses_no_compression_for_data_tarball;
+mod ln1161_udeb_uses_unsupported_compression_for_data_tarball;
 
 pub(crate) use ln1148_misplaced_extra_member_in_deb::MisplacedExtraMemberInDeb;
 pub(crate) use ln1149_uses_no_compression_for_control_tarball::UsesNoCompressionForControlTarball;
 pub(crate) use ln1150_uses_no_compression_for_data_tarball::UsesNoCompressionForDataTarball;
+pub(crate) use ln1161_udeb_uses_unsupported_compression_for_data_tarball::UdebUsesUnsupportedCompressionForDataTarball;

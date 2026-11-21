@@ -58,11 +58,15 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-epoch-change-without-comment-new",
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase",
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same",
+    "checks/debian/changelog/changelog-file-etch",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-missing-explicit-entry",
+    "checks/debian/changelog/changelog-file-new-upstream",
     "checks/debian/changelog/changelog-file-reuses-existing-version",
+    "checks/debian/changelog/changelog-file-unstable-dist-with-exp-version",
     "checks/debian/changelog/changelog-version-special-chars",
     "checks/debian/changelog/cruft-native-dash-version",
+    "checks/debian/changelog/fields-version-bad-rc",
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-maintainer-scripts",
@@ -893,11 +897,15 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-epoch-change-without-comment-new",
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase",
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same",
+    "checks/debian/changelog/changelog-file-etch",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-missing-explicit-entry",
+    "checks/debian/changelog/changelog-file-new-upstream",
     "checks/debian/changelog/changelog-file-reuses-existing-version",
+    "checks/debian/changelog/changelog-file-unstable-dist-with-exp-version",
     "checks/debian/changelog/changelog-version-special-chars",
     "checks/debian/changelog/cruft-native-dash-version",
+    "checks/debian/changelog/fields-version-bad-rc",
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-maintainer-scripts",
@@ -1266,11 +1274,15 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/changelog/changelog-file-epoch-change-without-comment-new"; "checks_debian_changelog_changelog_file_epoch_change_without_comment_new")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_increase")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_same")]
+#[test_case("checks/debian/changelog/changelog-file-etch"; "checks_debian_changelog_changelog_file_etch")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-missing-explicit-entry"; "checks_debian_changelog_changelog_file_missing_explicit_entry")]
+#[test_case("checks/debian/changelog/changelog-file-new-upstream"; "checks_debian_changelog_changelog_file_new_upstream")]
 #[test_case("checks/debian/changelog/changelog-file-reuses-existing-version"; "checks_debian_changelog_changelog_file_reuses_existing_version")]
+#[test_case("checks/debian/changelog/changelog-file-unstable-dist-with-exp-version"; "checks_debian_changelog_changelog_file_unstable_dist_with_exp_version")]
 #[test_case("checks/debian/changelog/changelog-version-special-chars"; "checks_debian_changelog_changelog_version_special_chars")]
 #[test_case("checks/debian/changelog/cruft-native-dash-version"; "checks_debian_changelog_cruft_native_dash_version")]
+#[test_case("checks/debian/changelog/fields-version-bad-rc"; "checks_debian_changelog_fields_version_bad_rc")]
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
@@ -2103,11 +2115,15 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-epoch-change-without-comment-new"; "checks_debian_changelog_changelog_file_epoch_change_without_comment_new")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_increase")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_same")]
+#[test_case("checks/debian/changelog/changelog-file-etch"; "checks_debian_changelog_changelog_file_etch")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-missing-explicit-entry"; "checks_debian_changelog_changelog_file_missing_explicit_entry")]
+#[test_case("checks/debian/changelog/changelog-file-new-upstream"; "checks_debian_changelog_changelog_file_new_upstream")]
 #[test_case("checks/debian/changelog/changelog-file-reuses-existing-version"; "checks_debian_changelog_changelog_file_reuses_existing_version")]
+#[test_case("checks/debian/changelog/changelog-file-unstable-dist-with-exp-version"; "checks_debian_changelog_changelog_file_unstable_dist_with_exp_version")]
 #[test_case("checks/debian/changelog/changelog-version-special-chars"; "checks_debian_changelog_changelog_version_special_chars")]
 #[test_case("checks/debian/changelog/cruft-native-dash-version"; "checks_debian_changelog_cruft_native_dash_version")]
+#[test_case("checks/debian/changelog/fields-version-bad-rc"; "checks_debian_changelog_fields_version_bad_rc")]
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]

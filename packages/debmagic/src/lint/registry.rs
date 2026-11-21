@@ -255,6 +255,7 @@ use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
+use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PostrmContainsAdditionalUpdatercDCalls;
 use super::rules::PostrmDoesNotCallUpdatercDForInitDScript;
 use super::rules::PostrmDoesNotPurgeDebconf;
@@ -270,6 +271,7 @@ use super::rules::PythonModuleInWrongLocation;
 use super::rules::QuiltBuildDepButNoSeriesFile;
 use super::rules::RPackageNotArchAll;
 use super::rules::RasterImageInScalableDirectory;
+use super::rules::RcVersionGreaterThanExpectedVersion;
 use super::rules::ReadmeDebianContainsDebmakeTemplate;
 use super::rules::ReadmeSourceIsDhMakeTemplate;
 use super::rules::RedundantBuildPrerequisites;
@@ -340,6 +342,8 @@ use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
+use super::rules::VersionRefersToDistribution;
+use super::rules::VersionRefersToUnstableDistributionWithExpVersion;
 use super::rules::VersionSubstvarForExternalPackage;
 use super::rules::VimAddonWithinVimRuntimePath;
 use super::rules::WaywardSymbolicLinkTargetInSource;
@@ -1759,6 +1763,10 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &JarNotInUsrShare,
         &ClasspathContainsRelativePath,
         &MavenPluginInUsrShareJava,
+        &VersionRefersToUnstableDistributionWithExpVersion,
+        &VersionRefersToDistribution,
+        &RcVersionGreaterThanExpectedVersion,
+        &PossibleNewUpstreamReleaseWithoutNewVersion,
     ]
 }
 
@@ -2079,6 +2087,10 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &TestsuiteRestrictionsHasDeprecatedSkipNotInstallable,
         &UnknownTestsuite,
         &UsesDeprecatedAdttmp,
+        &VersionRefersToUnstableDistributionWithExpVersion,
+        &VersionRefersToDistribution,
+        &RcVersionGreaterThanExpectedVersion,
+        &PossibleNewUpstreamReleaseWithoutNewVersion,
     ]
 }
 

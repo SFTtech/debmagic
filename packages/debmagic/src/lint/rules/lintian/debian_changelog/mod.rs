@@ -43,6 +43,10 @@ mod ln0869_changelog_not_compressed_with_max_compression;
 mod ln0870_malformed_debian_changelog_version;
 mod ln0871_misspelled_closes_bug;
 mod ln0872_new_package_uses_date_based_version_number;
+mod ln1175_version_refers_to_unstable_distribution_with_exp_version;
+mod ln1176_version_refers_to_distribution;
+mod ln1177_rc_version_greater_than_expected_version;
+mod ln1178_possible_new_upstream_release_without_new_version;
 mod nmu;
 pub(in crate::lint::rules::lintian) mod source;
 mod version;
@@ -84,3 +88,7 @@ pub(crate) use ln0869_changelog_not_compressed_with_max_compression::ChangelogNo
 pub(crate) use ln0870_malformed_debian_changelog_version::MalformedDebianChangelogVersion;
 pub(crate) use ln0871_misspelled_closes_bug::MisspelledClosesBug;
 pub(crate) use ln0872_new_package_uses_date_based_version_number::NewPackageUsesDateBasedVersionNumber;
+pub(crate) use ln1175_version_refers_to_unstable_distribution_with_exp_version::VersionRefersToUnstableDistributionWithExpVersion;
+pub(crate) use ln1176_version_refers_to_distribution::VersionRefersToDistribution;
+pub(crate) use ln1177_rc_version_greater_than_expected_version::RcVersionGreaterThanExpectedVersion;
+pub(crate) use ln1178_possible_new_upstream_release_without_new_version::PossibleNewUpstreamReleaseWithoutNewVersion;

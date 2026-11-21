@@ -1,0 +1,24 @@
+# Debian release series, in the order of the `series` column of /usr/share/distro-info/debian.csv
+# (distro-info-data 2026.10.12-1). Lintian reads this list with Debian::DistroInfo::get_all_series.
+buzz
+rex
+bo
+hamm
+slink
+potato
+woody
+sarge
+etch
+lenny
+squeeze
+wheezy
+jessie
+stretch
+buster
+bullseye
+bookworm
+trixie
+forky
+duke
+sid
+rc-buggy

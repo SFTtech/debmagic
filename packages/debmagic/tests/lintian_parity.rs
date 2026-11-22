@@ -424,6 +424,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/ruby/gem-homepage",
     "checks/languages/rust/template-description",
     "checks/lintian/override-context-mismatch",
+    "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -1498,6 +1499,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/ruby/gem-homepage",
     "checks/languages/rust/template-description",
     "checks/lintian/override-context-mismatch",
+    "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -2003,6 +2005,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
 #[test_case("checks/languages/rust/template-description"; "checks_languages_rust_template_description")]
 #[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
+#[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]
@@ -3079,6 +3082,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
 #[test_case("checks/languages/rust/template-description"; "checks_languages_rust_template_description")]
 #[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
+#[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]

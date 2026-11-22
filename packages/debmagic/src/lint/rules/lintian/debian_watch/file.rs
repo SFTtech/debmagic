@@ -68,6 +68,7 @@ pub(super) enum WatchFileHit {
     OldUpstreamVersion(String),
     PubkeyFileIsMissing,
     CouldVerifyDownload(String),
+    DoesNotCheckOpenpgpSignature,
 }
 
 impl WatchFileHit {
@@ -81,7 +82,7 @@ impl WatchFileHit {
             | Self::WrongUpstreamVersion(extra)
             | Self::OldUpstreamVersion(extra)
             | Self::CouldVerifyDownload(extra) => extra.clone(),
-            Self::PubkeyFileIsMissing => String::new(),
+            Self::PubkeyFileIsMissing | Self::DoesNotCheckOpenpgpSignature => String::new(),
         }
     }
 }
@@ -116,7 +117,7 @@ pub(super) fn flag_watch_file(
         }
         let diagnostic = match severity {
             Severity::Error => Diagnostic::error(finding.hit.extra()),
-            _ => Diagnostic::warn(finding.hit.extra()),
+            _ => Diagnostic::warn(finding.hit.extra()).with_severity(severity),
         };
         ctx.diagnostic(diagnostic.with_location(Location {
             path: path.clone(),
@@ -382,6 +383,12 @@ pub(super) fn watch_file_findings(input: &WatchInput) -> Vec<WatchFileFinding> {
         }
     }
 
+    if !with_pgp {
+        findings.push(WatchFileFinding {
+            line: None,
+            hit: WatchFileHit::DoesNotCheckOpenpgpSignature,
+        });
+    }
     if let Some(keyfile) = &input.keyfile {
         if !with_pgp {
             findings.push(WatchFileFinding {
@@ -627,6 +634,8 @@ mod tests {
                 }
                 WatchFileHit::PubkeyFileIsMissing => "debian-watch-file-pubkey-file-is-missing",
                 WatchFileHit::CouldVerifyDownload(_) => "debian-watch-could-verify-download",
+                // Experimental: the recipes' hints leave it out.
+                WatchFileHit::DoesNotCheckOpenpgpSignature => continue,
             };
             extras.push((tag.to_string(), finding.hit.extra().trim().to_string()));
         }

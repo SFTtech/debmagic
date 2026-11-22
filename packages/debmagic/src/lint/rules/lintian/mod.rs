@@ -306,6 +306,7 @@ pub(crate) use debian_lintian_overrides_restricted::InvalidOverrideRestriction;
 pub(crate) use debian_not_installed::UnwantedPathTooSpecific;
 pub(crate) use debian_symbols::PackagePlaceholderInSymbolsFile;
 pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
+pub(crate) use debian_trailing_whitespace::TrailingWhitespace;
 pub(crate) use debian_upstream::DebianUpstreamObsoletePath;
 pub(crate) use debian_upstream::UpstreamMetadataInNativeSource;
 pub(crate) use debian_upstream::UpstreamMetadataIsNotAFile;
@@ -489,16 +490,18 @@ pub(crate) use debian_rules::{
     DebianRulesUsesAsNeededLinkerFlag, DebianRulesUsesDebBuildOpts,
     DebianRulesUsesInstalledPythonVersions, DebianRulesUsesSpecialShellVariable,
     DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends,
-    DebianRulesUsesWrongEnvironmentVariable, MissingBuildDependsForCleanTargetInDebianRules,
+    DebianRulesUsesWrongEnvironmentVariable, DebugSymbolMigrationPossiblyComplete,
+    MissingBuildDependsForCleanTargetInDebianRules, NoDhSequencer,
     OverrideDhCleanDoesNotCallDhClean, OverrideDhFixpermsDoesNotCallDhFixperms,
     RulesRequireBuildPrerequisite,
 };
 pub(crate) use debian_shlibs::{
     DistantPrerequisiteInShlibs, DuplicateEntryInSymbolsControlFile, DuplicateInShlibs,
-    EmptyShlibs, InvalidTemplateIdInSymbolsFile, NoShlibs, OutdatedRelationInShlibs,
-    SharedLibraryLacksVersion, SharedLibraryNotShipped, SharedLibrarySymbolsNotTracked,
-    ShipsUndeclaredSharedLibrary, SurplusSharedLibrarySymbols,
-    SymbolsFileContainsCurrentVersionWithDebianRevision, SymbolsFileContainsDebianRevision,
+    EmptySharedLibrarySymbols, EmptyShlibs, InvalidTemplateIdInSymbolsFile, NoShlibs,
+    OutdatedRelationInShlibs, SharedLibraryLacksVersion, SharedLibraryNotShipped,
+    SharedLibrarySymbolsNotTracked, ShipsUndeclaredSharedLibrary, SurplusSharedLibrarySymbols,
+    SymbolsDeclaresDependencyOnOtherPackage, SymbolsFileContainsCurrentVersionWithDebianRevision,
+    SymbolsFileContainsDebianRevision, SymbolsFileMissingBuildDependsPackageField,
     SymbolsForUndeclaredSharedLibrary, SyntaxErrorInSymbolsFile, UnknownMetaFieldInSymbolsFile,
 };
 pub(crate) use debian_version_substvars::{
@@ -506,12 +509,13 @@ pub(crate) use debian_version_substvars::{
     SubstvarSourceVersionIsDeprecated, VersionSubstvarForExternalPackage,
 };
 pub(crate) use debian_watch::{
-    DebianWatchCouldVerifyDownload, DebianWatchFilePubkeyFileIsMissing,
-    DebianWatchFileSpecifiesOldUpstreamVersion, DebianWatchFileSpecifiesWrongUpstreamVersion,
-    DebianWatchFileUsesDeprecatedGithubredir, DebianWatchFileUsesDeprecatedSfRedirectorMethod,
-    DebianWatchLacksSourceforgeRedirector, DebianWatchLineInvalid, DebianWatchNotManglingVersion,
-    MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
-    ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
+    DebianWatchCouldVerifyDownload, DebianWatchDoesNotCheckOpenpgpSignature,
+    DebianWatchFilePubkeyFileIsMissing, DebianWatchFileSpecifiesOldUpstreamVersion,
+    DebianWatchFileSpecifiesWrongUpstreamVersion, DebianWatchFileUsesDeprecatedGithubredir,
+    DebianWatchFileUsesDeprecatedSfRedirectorMethod, DebianWatchLacksSourceforgeRedirector,
+    DebianWatchLineInvalid, DebianWatchNotManglingVersion, MissingDebianWatchFileStandard,
+    MultipleDebianWatchFileStandards, ObsoleteDebianWatchFileStandard,
+    UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{
     DescriptionContainsDhMakePerlTemplate, DescriptionContainsInvalidControlStatement,
@@ -726,7 +730,7 @@ pub(crate) use debian_po_debconf::{
 };
 pub(crate) use debian_source_dir::{
     CustomCompressionInDebianSourceOptions, GitPatchesNotExported, MissingDebianSourceFormat,
-    UnknownFileInDebianSource,
+    OlderSourceFormat, UnknownFileInDebianSource,
 };
 pub(crate) use debian_variables::IllegalVariable;
 pub(crate) use emacs::BadPermissionsForEtcEmacsScript;

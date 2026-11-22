@@ -8,8 +8,6 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::installed::installed_changelog;
-
 pub struct WrongBugNumberInCloses;
 
 declare_rule! {
@@ -43,10 +41,10 @@ impl BinaryPackageRule for WrongBugNumberInCloses {
         if ctx.is_udeb() {
             return;
         }
-        let Some(installed) = installed_changelog(ctx) else {
+        let Some(installed) = ctx.installed_changelog() else {
             return;
         };
-        let path: PathBuf = installed.path;
+        let path: PathBuf = installed.path.clone();
         for (index, line) in installed.text.split('\n').enumerate() {
             let captures = CLOSES_NON_NUMERIC
                 .captures(line)

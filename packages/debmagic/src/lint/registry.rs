@@ -377,6 +377,7 @@ use super::rules::WeakLibraryDevDependency;
 use super::rules::WebApplicationDependsOnApache2DataPackage;
 use super::rules::WebApplicationWorksOnlyWithApache;
 use super::rules::WindowsDevelFileInPackage;
+use super::rules::WishScriptButNoWishDep;
 use super::rules::WoffFontInWrongDir;
 use super::rules::WrongBugNumberInCloses;
 use super::rules::WrongManualSection;
@@ -1825,6 +1826,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TclshScriptButNoTclshDep,
         &TrailingSlashForDpkgMaintscriptHelperSymlinkToDir,
         &UnknownControlInterpreter,
+        &WishScriptButNoWishDep,
     ]
 }
 
@@ -2905,6 +2907,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TclshScriptButNoTclshDep,
         &TrailingSlashForDpkgMaintscriptHelperSymlinkToDir,
         &UnknownControlInterpreter,
+        &WishScriptButNoWishDep,
     ]
 }
 

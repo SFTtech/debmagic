@@ -869,6 +869,7 @@ pub(crate) use scripts_text::{
     ScriptUsesDeprecatedNodejsLocation, SystemdAlternatives, TclshScriptButNoTclshDep,
     TrailingSlashForDpkgMaintscriptHelperSymlinkToDir, UdebPostinstCallsLdconfig,
     UdevadmCalledWithoutGuard, UnknownControlInterpreter, UnusualControlInterpreter,
+    WishScriptButNoWishDep,
 };
 pub(crate) use systemd::{
     InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, KillModeNone,

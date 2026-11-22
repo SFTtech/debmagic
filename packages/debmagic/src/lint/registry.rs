@@ -365,6 +365,7 @@ use super::rules::TestsuiteRestrictionsHasDeprecatedSkipNotInstallable;
 use super::rules::TooManyArchitectures;
 use super::rules::TrailingCommaInMaintainerField;
 use super::rules::TrailingSlashForDpkgMaintscriptHelperSymlinkToDir;
+use super::rules::TransitionalPackageNotOldlibsOptional;
 use super::rules::TripletDirAndArchitectureMismatch;
 use super::rules::TruetypeFontWrongFilename;
 use super::rules::TypelibMissingGirDepends;
@@ -1922,6 +1923,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MultilineField,
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
+        &TransitionalPackageNotOldlibsOptional,
     ]
 }
 
@@ -3051,6 +3053,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PossibleUnindentedListInExtendedDescription,
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
+        &TransitionalPackageNotOldlibsOptional,
     ]
 }
 

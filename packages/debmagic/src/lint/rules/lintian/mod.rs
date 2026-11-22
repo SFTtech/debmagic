@@ -550,8 +550,8 @@ pub(crate) use fields_text::{
     HomepageRefersToObsoleteDebianInfrastructure, MissingSeparatorBetweenItems,
     NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional, RecommendedField,
     RedundantBugsField, RedundantOriginField, SectionIsDhMakeTemplate,
-    SuperfluousClutterInHomepage, UnknownEssentialValue, UnknownPriority, UnknownSection,
-    WrongSectionForUdeb,
+    SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional, UnknownEssentialValue,
+    UnknownPriority, UnknownSection, WrongSectionForUdeb,
 };
 pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
 pub(crate) use fields_uploaders::UploaderNameMissing;

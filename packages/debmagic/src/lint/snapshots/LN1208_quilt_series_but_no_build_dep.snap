@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): quilt-series-but-no-build-dep (LN1208) [debian/patches/series]
+W: example (source): quilt-series-but-no-build-dep (LN1208) [debian/patches/series]
+W: example (source): quilt-series-but-no-build-dep (LN1208) [debian/patches/series]

@@ -54,6 +54,8 @@ static SCHEME_URI: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?:http|ftp):\S+").expect("valid regex"));
 static SOURCEFORGE_AFTER_SCHEME: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^//sf.net/").expect("valid regex"));
+static PRERELEASE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)(alpha|beta|rc)").expect("valid regex"));
 static WORD: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\w").expect("valid regex"));
 static COMMA: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s*,\s*").expect("valid regex"));
 static V5_LINES: LazyLock<Regex> =
@@ -74,6 +76,8 @@ pub(super) enum WatchFileHit {
     CouldVerifyDownload(String),
     DoesNotCheckOpenpgpSignature,
     InsecureUri(String),
+    DebianVersionMangledImproperly(String),
+    UpstreamVersionMangledImproperly(String),
 }
 
 impl WatchFileHit {
@@ -87,7 +91,9 @@ impl WatchFileHit {
             | Self::WrongUpstreamVersion(extra)
             | Self::OldUpstreamVersion(extra)
             | Self::CouldVerifyDownload(extra)
-            | Self::InsecureUri(extra) => extra.clone(),
+            | Self::InsecureUri(extra)
+            | Self::DebianVersionMangledImproperly(extra)
+            | Self::UpstreamVersionMangledImproperly(extra) => extra.clone(),
             Self::PubkeyFileIsMissing | Self::DoesNotCheckOpenpgpSignature => String::new(),
         }
     }
@@ -236,6 +242,10 @@ pub(super) fn watch_file_findings(input: &WatchInput) -> Vec<WatchFileFinding> {
     let mut dversions = BTreeSet::new();
     let mut continued = String::new();
     let mut persisted_lastversion: Option<String> = None;
+    // Lintian's `$prerelease`: the first prerelease word of the upstream version.
+    let prerelease = PRERELEASE
+        .captures(&input.upstream)
+        .map(|captures| captures[1].to_string());
 
     for (index, raw) in lines.iter().enumerate() {
         let position = (index + 1) as u32;
@@ -316,7 +326,10 @@ pub(super) fn watch_file_findings(input: &WatchInput) -> Vec<WatchFileFinding> {
         }
 
         let mut repack_mangle = false;
+        let mut repack_dmangle = false;
         let mut repack_dmangle_auto = false;
+        let mut prerelease_mangle = false;
+        let mut prerelease_umangle = false;
         for option in &options {
             let mut option = option.clone();
             let mut template = String::new();
@@ -331,6 +344,26 @@ pub(super) fn watch_file_findings(input: &WatchInput) -> Vec<WatchFileFinding> {
                     && (value.starts_with("auto") || value.contains(word) || cran)
                 {
                     repack_mangle = true;
+                }
+            }
+            if let Some(word) = &repack {
+                let cran = TEMPLATE.is_match(&template);
+                if let Some(value) = mangle_value(&option, true)
+                    && (value.starts_with("auto") || value.contains(word) || cran)
+                {
+                    repack_dmangle = true;
+                }
+            }
+            if let Some(pre) = &prerelease {
+                if mangle_value(&option, false).is_some_and(|value| value.contains(pre.as_str())) {
+                    prerelease_mangle = true;
+                }
+                if option
+                    .strip_prefix("uversionmangle")
+                    .and_then(|rest| rest.trim_start().strip_prefix('='))
+                    .is_some_and(|value| value.contains(pre.as_str()))
+                {
+                    prerelease_umangle = true;
                 }
             }
             if standard >= 4 && dversion_contains_auto(&option) {
@@ -370,6 +403,8 @@ pub(super) fn watch_file_findings(input: &WatchInput) -> Vec<WatchFileFinding> {
             });
         }
 
+        // Lintian's `$lastversion` of this line only, unset without a base.
+        let mut line_lastversion: Option<String> = None;
         if !remainder.is_empty() {
             let fields = split_space(&remainder, 4);
             if let Some(base) = fields.first() {
@@ -383,7 +418,9 @@ pub(super) fn watch_file_findings(input: &WatchInput) -> Vec<WatchFileFinding> {
                 if let Some(version) = &explicit {
                     dversions.insert(version.clone());
                 }
-                persisted_lastversion = Some(explicit.unwrap_or_else(|| "debian".to_string()));
+                let lastversion = explicit.unwrap_or_else(|| "debian".to_string());
+                line_lastversion = Some(lastversion.clone());
+                persisted_lastversion = Some(lastversion);
             }
         }
         let lastversion = persisted_lastversion.as_deref();
@@ -391,7 +428,23 @@ pub(super) fn watch_file_findings(input: &WatchInput) -> Vec<WatchFileFinding> {
         if needs_repack && !repack_mangle && !repack_dmangle_auto {
             findings.push(WatchFileFinding {
                 line: Some(position),
-                hit: WatchFileHit::NotManglingVersion(line),
+                hit: WatchFileHit::NotManglingVersion(line.clone()),
+            });
+        }
+        let needs_repack_here =
+            repack.is_some() && (standard >= 5 || line_lastversion.as_deref() == Some("debian"));
+        if needs_repack_here && repack_mangle && !repack_dmangle {
+            findings.push(WatchFileFinding {
+                line: Some(position),
+                hit: WatchFileHit::DebianVersionMangledImproperly(line.clone()),
+            });
+        }
+        let needs_prerelease_here =
+            prerelease.is_some() && line_lastversion.as_deref() == Some("debian");
+        if needs_prerelease_here && prerelease_mangle && !prerelease_umangle {
+            findings.push(WatchFileFinding {
+                line: Some(position),
+                hit: WatchFileHit::UpstreamVersionMangledImproperly(line),
             });
         }
     }
@@ -583,6 +636,8 @@ mod tests {
         "debian-watch-file-pubkey-file-is-missing",
         "debian-watch-could-verify-download",
         "debian-watch-uses-insecure-uri",
+        "debian-watch-mangles-debian-version-improperly",
+        "debian-watch-mangles-upstream-version-improperly",
     ];
 
     #[test]
@@ -668,6 +723,12 @@ mod tests {
                 // Experimental: the recipes' hints leave it out.
                 WatchFileHit::DoesNotCheckOpenpgpSignature => continue,
                 WatchFileHit::InsecureUri(_) => "debian-watch-uses-insecure-uri",
+                WatchFileHit::DebianVersionMangledImproperly(_) => {
+                    "debian-watch-mangles-debian-version-improperly"
+                }
+                WatchFileHit::UpstreamVersionMangledImproperly(_) => {
+                    "debian-watch-mangles-upstream-version-improperly"
+                }
             };
             extras.push((tag.to_string(), finding.hit.extra().trim().to_string()));
         }

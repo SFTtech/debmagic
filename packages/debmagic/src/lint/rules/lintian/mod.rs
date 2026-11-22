@@ -587,7 +587,8 @@ pub(crate) use debian_watch::{
     DebianWatchDoesNotCheckOpenpgpSignature, DebianWatchFilePubkeyFileIsMissing,
     DebianWatchFileSpecifiesOldUpstreamVersion, DebianWatchFileSpecifiesWrongUpstreamVersion,
     DebianWatchFileUsesDeprecatedGithubredir, DebianWatchFileUsesDeprecatedSfRedirectorMethod,
-    DebianWatchLacksSourceforgeRedirector, DebianWatchLineInvalid, DebianWatchNotManglingVersion,
+    DebianWatchLacksSourceforgeRedirector, DebianWatchLineInvalid,
+    DebianWatchManglesDebianVersionImproperly, DebianWatchNotManglingVersion,
     DebianWatchUsesInsecureUri, MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
     ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };

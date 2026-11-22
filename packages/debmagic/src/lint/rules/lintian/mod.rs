@@ -912,10 +912,10 @@ pub(crate) use systemd::{
     InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, KillModeNone,
     MisplacedSystemdTmpfiles, MissingSystemdServiceForInitDScript,
     MissingSystemdTimerForCronScript, OmittedSystemdServiceForInitDScript, ServiceFileIsNotAFile,
-    SystemdServiceAliasWithoutExtension, SystemdServiceFileRefersToObsoleteBindto,
-    SystemdServiceFileRefersToUnusualWantedbyTarget, SystemdServiceFileShutdownProblems,
-    SystemdServiceFileUsesDeprecatedSyslogFacility, SystemdServiceFileUsesNobodyOrNogroup,
-    SystemdServiceInOddLocation,
+    SystemdServiceAliasWithoutExtension, SystemdServiceFileMissingDocumentationKey,
+    SystemdServiceFileRefersToObsoleteBindto, SystemdServiceFileRefersToUnusualWantedbyTarget,
+    SystemdServiceFileShutdownProblems, SystemdServiceFileUsesDeprecatedSyslogFacility,
+    SystemdServiceFileUsesNobodyOrNogroup, SystemdServiceInOddLocation,
 };
 pub(crate) use testsuite::{
     BackgroundedTestCommand, ConflictingTestFields, DebianTestsControlAutodep8IsObsolete,

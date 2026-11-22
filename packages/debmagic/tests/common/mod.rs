@@ -882,6 +882,10 @@ fn assemble_binary_packages(recipe: &Path, work: &Path) -> Vec<PathBuf> {
 /// Rules have native tests; Parity needs a host that can build the recipe.
 const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
     (
+        "checks/debian/upstream/metadata/upstream-metadata-is-not-a-file",
+        "the recipe's pre-build makes a FIFO at `debian/upstream/metadata`, which the vendored tree cannot hold",
+    ),
+    (
         "checks/binaries/obsolete/crypt/binaries-obsolete-des",
         "the host's libxcrypt has no `crypt.h` and no longer exports `setkey` and `encrypt`",
     ),

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): homepage-salsa-url-ends-with-dot-git (LN1551) https://salsa.debian.org/foo/bar.git

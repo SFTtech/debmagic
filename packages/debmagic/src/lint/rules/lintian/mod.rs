@@ -647,11 +647,14 @@ pub(crate) use fields_text::{
     EssentialInSourcePackage, EssentialNoNotNeeded, ExcessivePriorityForLibraryPackage,
     ExplicitDefaultInPackageType, FieldTooLong, HomepageFieldUsesInsecureUri,
     HomepageForBioconductorPackageNotCanonical, HomepageForCpanPackageContainsVersion,
-    HomepageRefersToObsoleteDebianInfrastructure, MissingSeparatorBetweenItems,
-    NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional, RecommendedField,
-    RedundantBugsField, RedundantControlRelation, RedundantOriginField, SectionIsDhMakeTemplate,
-    SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional, UnknownEssentialValue,
-    UnknownPriority, UnknownSection, WrongSectionAccordingToPackageName, WrongSectionForUdeb,
+    HomepageForCranPackageNotCanonical, HomepageGithubUrlEndsWithDotGit,
+    HomepageGitlabUrlEndsWithDotGit, HomepageRefersToFilesystemListing,
+    HomepageRefersToObsoleteDebianInfrastructure, HomepageSalsaUrlEndsWithDotGit,
+    MissingSeparatorBetweenItems, NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional,
+    RecommendedField, RedundantBugsField, RedundantControlRelation, RedundantOriginField,
+    SectionIsDhMakeTemplate, SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional,
+    UnknownEssentialValue, UnknownPriority, UnknownSection, WrongSectionAccordingToPackageName,
+    WrongSectionForUdeb,
 };
 pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
 pub(crate) use fields_uploaders::UploaderNameMissing;

@@ -277,6 +277,8 @@ pub(crate) use control_files::ControlFileIsNotAFile;
 pub(crate) use control_files::NotAllowedControlFile;
 pub(crate) use control_files::UnknownControlFile;
 pub(crate) use cruft::LicenseProblemCcByNcSa;
+pub(crate) use cruft::LicenseProblemGfdlInvariants;
+pub(crate) use cruft::LicenseProblemGfdlNonOfficialText;
 pub(crate) use cruft::LicenseProblemJsonEvil;
 pub(crate) use cruft::LicenseProblemNonFreeRFC;
 pub(crate) use cruft::LicenseProblemNonFreeRFCBCP78;
@@ -402,7 +404,7 @@ pub(crate) use debian_changelog::{
     ChangelogIsDhMakeTemplate, ChangelogIsSymlink, ChangelogNewsDebianMismatch,
     ChangelogNotCompressedWithMaxCompression, ChangelogReferencesTempSecurityIdentifier,
     DebianChangelogFileContainsObsoleteUserEmacsSettings, DebianChangelogHasWrongDayOfWeek,
-    DebianChangelogLineTooLong, DebianNewsEntryHasStrangeDistribution,
+    DebianChangelogLineTooLong, DebianChangelogLineTooShort, DebianNewsEntryHasStrangeDistribution,
     DebianNewsEntryHasUnknownVersion, DebianNewsFileNotCompressed, EpochChangeWithoutComment,
     EpochChangedButUpstreamVersionDidNotGoBackwards, ExtraWhitespaceAroundNameInChangelogTrailer,
     HtmlChangelogWithoutTextVersion, ImprobableBugNumberInCloses, InitialUploadClosesNoBugs,
@@ -873,8 +875,8 @@ pub(crate) use rules_and_control::{
     DhInstallmanpagesIsObsolete, DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
     ExecutableDebhelperFileWithoutBeingExecutable, PackageFileIsExecutable,
     PackageUsesDebhelperButLacksBuildDepends, PackageUsesDhExecButLacksBuildDepends,
-    Python3DependsButNoPython3Helper, TemporaryDebhelperFile, UselessAutoreconfBuildDepends,
-    WeakDependencyOnMiscDepends,
+    PackageUsesOldDebhelperCompatVersion, Python3DependsButNoPython3Helper, TemporaryDebhelperFile,
+    UselessAutoreconfBuildDepends, WeakDependencyOnMiscDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

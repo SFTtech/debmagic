@@ -69,6 +69,7 @@ use super::rules::DebconfIsNotARegistry;
 use super::rules::DebconfTranslationUsingGeneralList;
 use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
+use super::rules::DebianChangelogLineTooShort;
 use super::rules::DebianControlFileIsASymlink;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
@@ -170,6 +171,8 @@ use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
 use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
 use super::rules::LicenseProblemCcByNcSa;
+use super::rules::LicenseProblemGfdlInvariants;
+use super::rules::LicenseProblemGfdlNonOfficialText;
 use super::rules::LicenseProblemJsonEvil;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
 use super::rules::LicenseProblemNonFreeRFC;
@@ -278,6 +281,7 @@ use super::rules::PackageNameDoesntMatchSonames;
 use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
+use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
@@ -1947,6 +1951,10 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SharedLibraryLacksPrerequisites,
         &UndeclaredElfPrerequisites,
         &MissingDependencyOnNumpyAbi,
+        &LicenseProblemGfdlInvariants,
+        &LicenseProblemGfdlNonOfficialText,
+        &PackageUsesOldDebhelperCompatVersion,
+        &DebianChangelogLineTooShort,
     ]
 }
 
@@ -2309,6 +2317,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &SourcePackageComponentHasLongFileName,
+        &LicenseProblemGfdlInvariants,
+        &LicenseProblemGfdlNonOfficialText,
+        &PackageUsesOldDebhelperCompatVersion,
     ]
 }
 
@@ -3088,6 +3099,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SharedLibraryLacksPrerequisites,
         &UndeclaredElfPrerequisites,
         &MissingDependencyOnNumpyAbi,
+        &DebianChangelogLineTooShort,
     ]
 }
 

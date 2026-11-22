@@ -311,6 +311,7 @@ use super::rules::Python3ScriptButNoPython3Dep;
 use super::rules::PythonDebugInWrongLocation;
 use super::rules::PythonModuleInWrongLocation;
 use super::rules::QuiltBuildDepButNoSeriesFile;
+use super::rules::QuiltPatchMissingDescription;
 use super::rules::QuiltPatchWithNonStandardOptions;
 use super::rules::QuiltSeriesButNoBuildDep;
 use super::rules::QuiltSeriesWithoutTrailingNewline;
@@ -1943,6 +1944,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AddComponentCopyright,
         &UnusedDebconfTemplate,
         &RenamedTag,
+        &QuiltPatchMissingDescription,
     ]
 }
 
@@ -2308,6 +2310,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianControlHasUnusualFieldSpacing,
         &InsecureCopyrightFormatUri,
         &AddComponentCopyright,
+        &QuiltPatchMissingDescription,
     ]
 }
 

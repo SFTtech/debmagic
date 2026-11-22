@@ -149,10 +149,12 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/legacy-relations",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
+    "checks/debian/patches/quilt/patch-systems-quilt-description",
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/patches/quilt/patch-systems-quilt-no-depends",
     "checks/debian/patches/quilt/patch-systems-quilt-no-newline",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
+    "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/legacy-debconf",
     "checks/debian/po-debconf/po-debconf-general",
@@ -1034,10 +1036,12 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/legacy-relations",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
+    "checks/debian/patches/quilt/patch-systems-quilt-description",
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/patches/quilt/patch-systems-quilt-no-depends",
     "checks/debian/patches/quilt/patch-systems-quilt-no-newline",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
+    "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/legacy-debconf",
     "checks/debian/po-debconf/po-debconf-general",
@@ -1437,10 +1441,12 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/legacy-relations"; "checks_debian_patches_quilt_legacy_relations")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
+#[test_case("checks/debian/patches/quilt/patch-systems-quilt-description"; "checks_debian_patches_quilt_patch_systems_quilt_description")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-depends"; "checks_debian_patches_quilt_patch_systems_quilt_no_depends")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-newline"; "checks_debian_patches_quilt_patch_systems_quilt_no_newline")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
+#[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
 #[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
@@ -2324,10 +2330,12 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/legacy-relations"; "checks_debian_patches_quilt_legacy_relations")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
+#[test_case("checks/debian/patches/quilt/patch-systems-quilt-description"; "checks_debian_patches_quilt_patch_systems_quilt_description")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-depends"; "checks_debian_patches_quilt_patch_systems_quilt_no_depends")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-newline"; "checks_debian_patches_quilt_patch_systems_quilt_no_newline")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
+#[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
 #[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]

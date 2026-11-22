@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): vcs-field-has-unexpected-spaces (LN1241) Git https://anonscm.debian.org/test/test.git --branch wrong
+W: example (source): vcs-field-has-unexpected-spaces (LN1241) Browser https://example.com/a b
+W: example (source): vcs-field-has-unexpected-spaces (LN1241) Svn https://example.com/svn/a b

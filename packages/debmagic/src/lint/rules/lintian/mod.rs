@@ -920,6 +920,7 @@ pub(crate) use menus::{
     PostinstHasUselessCallToUpdateMenus, PostrmCallsInstalldocs, PostrmDoesNotCallUpdatemenus,
     PostrmHasUselessCallToUpdateMenus, PreinstCallsInstalldocs, PreinstCallsUpdatemenus,
     PrermCallsUpdatemenus, PrermHasUselessCallToInstallDocs, SpellingErrorInDocBaseAbstractField,
+    SpellingErrorInDocBaseTitleField,
 };
 pub(crate) use mimeinfo::PackageContainsMimeCacheFile;
 pub(crate) use mimeinfo::PackageContainsMimeFileOutsidePackageDir;

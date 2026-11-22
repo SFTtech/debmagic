@@ -945,10 +945,11 @@ pub(crate) use menus::{
     DuplicateFormatInDocBase, ExecutableInUsrShareDocbase, ExecutableMenuFile,
     MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,
     MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus, MenuMethodLacksInclude,
-    PostinstDoesNotCallUpdatemenus, PostinstHasUselessCallToInstallDocs,
-    PostinstHasUselessCallToUpdateMenus, PostrmCallsInstalldocs, PostrmDoesNotCallUpdatemenus,
-    PostrmHasUselessCallToUpdateMenus, PreinstCallsInstalldocs, PreinstCallsUpdatemenus,
-    PrermCallsUpdatemenus, PrermHasUselessCallToInstallDocs, SpellingErrorInDocBaseAbstractField,
+    PossibleDocumentationButNoDocBaseRegistration, PostinstDoesNotCallUpdatemenus,
+    PostinstHasUselessCallToInstallDocs, PostinstHasUselessCallToUpdateMenus,
+    PostrmCallsInstalldocs, PostrmDoesNotCallUpdatemenus, PostrmHasUselessCallToUpdateMenus,
+    PreinstCallsInstalldocs, PreinstCallsUpdatemenus, PrermCallsUpdatemenus,
+    PrermHasUselessCallToInstallDocs, SpellingErrorInDocBaseAbstractField,
     SpellingErrorInDocBaseTitleField,
 };
 pub(crate) use mimeinfo::PackageContainsMimeCacheFile;

@@ -372,6 +372,7 @@ use super::rules::PkgJsAutopkgtestFileDoesNotExist;
 use super::rules::PkgJsAutopkgtestTestIsEmpty;
 use super::rules::PkgJsAutopkgtestTestIsMissing;
 use super::rules::PossibleBashismInMaintainerScript;
+use super::rules::PossibleDocumentationButNoDocBaseRegistration;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PossibleUnindentedListInExtendedDescription;
@@ -2175,6 +2176,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoCodeSections,
         &DesktopEntryLacksIconEntry,
         &DesktopEntryLimitedToEnvironments,
+        &PossibleDocumentationButNoDocBaseRegistration,
     ]
 }
 
@@ -3428,6 +3430,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NoCodeSections,
         &DesktopEntryLacksIconEntry,
         &DesktopEntryLimitedToEnvironments,
+        &PossibleDocumentationButNoDocBaseRegistration,
     ]
 }
 

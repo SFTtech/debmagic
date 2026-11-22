@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): trailing-slash-for-dpkg-maintscript-helper-symlink_to_dir (LN1188) "dpkg-maintscript-helper symlink_to_dir /usr/share/foo/" [postinst:2]
+E: example (binary): trailing-slash-for-dpkg-maintscript-helper-symlink_to_dir (LN1188) "dpkg-maintscript-helper symlink_to_dir               /usr/share/autoconf-archive/html/" [postinst:2]
+E: example (binary): trailing-slash-for-dpkg-maintscript-helper-symlink_to_dir (LN1188) "dpkg-maintscript-helper symlink_to_dir /usr/share/foo/" [prerm:2]

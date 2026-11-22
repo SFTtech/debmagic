@@ -329,6 +329,7 @@ use super::rules::TestLeavesPythonVersionUntested;
 use super::rules::TestsuiteDependencyHasUnparsableElements;
 use super::rules::TestsuiteRestrictionsHasDeprecatedSkipNotInstallable;
 use super::rules::TooManyArchitectures;
+use super::rules::TrailingSlashForDpkgMaintscriptHelperSymlinkToDir;
 use super::rules::TripletDirAndArchitectureMismatch;
 use super::rules::TruetypeFontWrongFilename;
 use super::rules::TypelibMissingGirDepends;
@@ -1821,6 +1822,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ScriptNotExecutable,
         &ScriptUsesDeprecatedNodejsLocation,
         &TclshScriptButNoTclshDep,
+        &TrailingSlashForDpkgMaintscriptHelperSymlinkToDir,
     ]
 }
 
@@ -2899,6 +2901,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ScriptNotExecutable,
         &ScriptUsesDeprecatedNodejsLocation,
         &TclshScriptButNoTclshDep,
+        &TrailingSlashForDpkgMaintscriptHelperSymlinkToDir,
     ]
 }
 

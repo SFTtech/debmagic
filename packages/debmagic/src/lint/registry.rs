@@ -292,6 +292,7 @@ use super::rules::NoCodeSections;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
 use super::rules::NoMd5sumsControlFile;
+use super::rules::NoPhrase;
 use super::rules::NoShlibs;
 use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoTemplateName;
@@ -2177,6 +2178,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &FileSizeMismatchInChangesFile,
         &MalformedChangesFile,
         &MultipleDistributionsInChangesFile,
+        &NoPhrase,
     ]
 }
 
@@ -3438,6 +3440,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &FileSizeMismatchInChangesFile,
         &MalformedChangesFile,
         &MultipleDistributionsInChangesFile,
+        &NoPhrase,
     ]
 }
 

@@ -377,6 +377,7 @@ pub(crate) use libraries_shared_relocation::SpecificAddressInSharedLibrary;
 pub(crate) use libraries_shared_stack::ExecutableStackInSharedLibrary;
 pub(crate) use libraries_shared_stack::SharedLibraryLacksStackSection;
 pub(crate) use libraries_shared_trigger_ldconfig::LacksLdconfigTrigger;
+pub(crate) use libraries_shared_trigger_ldconfig::PackageHasUnnecessaryActivationOfLdconfigTrigger;
 pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStatoverride;
 pub(crate) use origtar::EmptyUpstreamSources;
 pub(crate) use shell_csh::CshConsideredHarmful;

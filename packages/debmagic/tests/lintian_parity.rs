@@ -253,6 +253,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/maintainer/java-team-fp",
     "checks/fields/maintainer/team/clojure-package-java-maintainer",
     "checks/fields/multi-arch/fields-multi-arch-same-package-has-arch-specific-overrides",
+    "checks/fields/multi-line/multiple-lines-in-maintainer-field",
     "checks/fields/origin/fields-redundant",
     "checks/fields/origin/legacy-relations",
     "checks/fields/package-relations/fields-build-depends-general",
@@ -1128,6 +1129,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/maintainer/java-team-fp",
     "checks/fields/maintainer/team/clojure-package-java-maintainer",
     "checks/fields/multi-arch/fields-multi-arch-same-package-has-arch-specific-overrides",
+    "checks/fields/multi-line/multiple-lines-in-maintainer-field",
     "checks/fields/origin/fields-redundant",
     "checks/fields/origin/legacy-relations",
     "checks/fields/package-relations/fields-build-depends-general",
@@ -1525,6 +1527,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/maintainer/java-team-fp"; "checks_fields_maintainer_java_team_fp")]
 #[test_case("checks/fields/maintainer/team/clojure-package-java-maintainer"; "checks_fields_maintainer_team_clojure_package_java_maintainer")]
 #[test_case("checks/fields/multi-arch/fields-multi-arch-same-package-has-arch-specific-overrides"; "checks_fields_multi_arch_fields_multi_arch_same_package_has_arch_specific_overrides")]
+#[test_case("checks/fields/multi-line/multiple-lines-in-maintainer-field"; "checks_fields_multi_line_multiple_lines_in_maintainer_field")]
 #[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
 #[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package-relations/fields-build-depends-general"; "checks_fields_package_relations_fields_build_depends_general")]
@@ -2402,6 +2405,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/maintainer/java-team-fp"; "checks_fields_maintainer_java_team_fp")]
 #[test_case("checks/fields/maintainer/team/clojure-package-java-maintainer"; "checks_fields_maintainer_team_clojure_package_java_maintainer")]
 #[test_case("checks/fields/multi-arch/fields-multi-arch-same-package-has-arch-specific-overrides"; "checks_fields_multi_arch_fields_multi_arch_same_package_has_arch_specific_overrides")]
+#[test_case("checks/fields/multi-line/multiple-lines-in-maintainer-field"; "checks_fields_multi_line_multiple_lines_in_maintainer_field")]
 #[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
 #[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package-relations/fields-build-depends-general"; "checks_fields_package_relations_fields_build_depends_general")]

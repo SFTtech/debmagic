@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): insecure-copyright-format-uri (LN1321) http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/ [debian/copyright]
+P: (source): insecure-copyright-format-uri (LN1321) http://www.debian.org/doc/copyright-format/1.0 [debian/copyright]
+P: example (source): insecure-copyright-format-uri (LN1321) http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/ [debian/bar.copyright]

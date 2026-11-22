@@ -27,6 +27,7 @@ mod debian_changelog;
 mod debian_control_field_architecture_multiline;
 mod debian_control_field_build_profiles;
 mod debian_control_field_rules_requires_root;
+mod debian_control_field_spacing;
 mod debian_control_link;
 mod debian_copyright;
 mod debian_debconf;
@@ -298,6 +299,7 @@ pub(crate) use debian_control_field_architecture_multiline::MultilineArchitectur
 pub(crate) use debian_control_field_build_profiles::InvalidProfileNameInBuildProfilesField;
 pub(crate) use debian_control_field_build_profiles::VariesContentWithNocheck;
 pub(crate) use debian_control_field_rules_requires_root::SpellingErrorInRulesRequiresRoot;
+pub(crate) use debian_control_field_spacing::DebianControlHasUnusualFieldSpacing;
 pub(crate) use debian_control_link::DebianControlFileIsASymlink;
 pub(crate) use debian_dpkg_build_api::DebianRulesDefinesDpkgBuildApi;
 pub(crate) use debian_lintian_overrides_restricted::InvalidOverrideRestriction;
@@ -421,7 +423,7 @@ pub(crate) use debian_changelog::{
     WrongNameForDebianNewsFile, WrongNameForUpstreamChangelog,
 };
 pub(crate) use debian_copyright::{
-    AmbiguousParagraphInDep5Copyright, BadExceptionFormatInDep5Copyright,
+    AddComponentCopyright, AmbiguousParagraphInDep5Copyright, BadExceptionFormatInDep5Copyright,
     BoilerplateCopyrightFormatUri, CommaSeparatedFilesInDep5Copyright,
     CopyrightContainsAutomaticallyExtractedBoilerplate, CopyrightContainsDhMakeTodoBoilerplate,
     CopyrightDoesNotReferToCommonLicenseFile, CopyrightFileCompressed,
@@ -438,8 +440,8 @@ pub(crate) use debian_copyright::{
     EmptyShortLicenseInDep5Copyright, FileIncludedAlready, FileWithoutCopyrightInformation,
     FilesExcludedWithoutCopyrightFormat10, GlobalFilesWildcardNotFirstParagraphInDep5Copyright,
     GlobbingPatternsOutOfOrder, HelperTemplatesInCopyright, IncompleteCreativeCommonsLicense,
-    InvalidEscapeSequenceInDep5Copyright, InvalidShortNameInDep5Copyright,
-    LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright,
+    InsecureCopyrightFormatUri, InvalidEscapeSequenceInDep5Copyright,
+    InvalidShortNameInDep5Copyright, LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright,
     MissingLicenseParagraphInDep5Copyright, MissingLicenseTextInDep5Copyright,
     NamedCopyrightForSingleInstallable, NoCopyrightFile, NoDebianCopyrightInSource,
     NoDep5Copyright, ObsoleteFieldInDep5Copyright, OldFsfAddressInCopyrightFile,
@@ -465,7 +467,7 @@ pub(crate) use debian_debconf::{
     PostrmDoesNotPurgeDebconf, SelectWithBooleanChoices, SelectWithoutChoices,
     SyntaxErrorInDebconfTemplate, TemplateUsesUnsplitChoices,
     TooLongExtendedDescriptionInTemplates, TooLongShortDescriptionInTemplates,
-    UnknownDebconfPriority, UnknownFieldInTemplates, UnknownTemplateType,
+    UnknownDebconfPriority, UnknownFieldInTemplates, UnknownTemplateType, UnusedDebconfTemplate,
     UsingFirstPersonInTemplates, UsingImperativeFormInTemplates,
     UsingQuestionInExtendedDescriptionInTemplates,
 };
@@ -479,13 +481,13 @@ pub(crate) use debian_rules::{
     BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,
     DebianRulesCallsDebhelperInOddOrder, DebianRulesCallsNproc, DebianRulesCallsPwd,
     DebianRulesIgnoresMakeCleanError, DebianRulesIsDhMakeTemplate, DebianRulesIsSymlink,
-    DebianRulesMissingRequiredTarget, DebianRulesNotAMakefile,
+    DebianRulesMissingRequiredTarget, DebianRulesNotAMakefile, DebianRulesParsesDpkgParsechangelog,
     DebianRulesPassesVersionInfoToDhShlibdeps, DebianRulesSetsDebBuildOptions,
     DebianRulesSetsDhCompat, DebianRulesSetsDpkgArchitectureVariable,
     DebianRulesShouldNotSetCFLAGSFromNoopt, DebianRulesShouldNotUseDhExtraAddons,
     DebianRulesShouldNotUseSanitizeAllBuildflag, DebianRulesUpdatesControlAutomatically,
-    DebianRulesUsesDebBuildOpts, DebianRulesUsesInstalledPythonVersions,
-    DebianRulesUsesSpecialShellVariable,
+    DebianRulesUsesAsNeededLinkerFlag, DebianRulesUsesDebBuildOpts,
+    DebianRulesUsesInstalledPythonVersions, DebianRulesUsesSpecialShellVariable,
     DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends,
     DebianRulesUsesWrongEnvironmentVariable, MissingBuildDependsForCleanTargetInDebianRules,
     OverrideDhCleanDoesNotCallDhClean, OverrideDhFixpermsDoesNotCallDhFixperms,
@@ -563,7 +565,7 @@ pub(crate) use fields_text::{
     ExplicitDefaultInPackageType, FieldTooLong, HomepageForCpanPackageContainsVersion,
     HomepageRefersToObsoleteDebianInfrastructure, MissingSeparatorBetweenItems,
     NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional, RecommendedField,
-    RedundantBugsField, RedundantOriginField, SectionIsDhMakeTemplate,
+    RedundantBugsField, RedundantControlRelation, RedundantOriginField, SectionIsDhMakeTemplate,
     SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional, UnknownEssentialValue,
     UnknownPriority, UnknownSection, WrongSectionForUdeb,
 };
@@ -716,8 +718,8 @@ pub(crate) use debian_patches::{
     InvalidDep3FormatPatchBugNotContainUrl, InvalidDep3FormatPatchMaybeBugDebian,
     InvalidDep3FormatPatchOriginFieldDefaultValue, PackageUsesVendorSpecificPatchSeries,
     PatchFilePresentButNotMentionedInSeries, PatchSystemButNoSourceReadme,
-    QuiltBuildDepButNoSeriesFile, QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
-    QuiltSeriesWithoutTrailingNewline,
+    QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription, QuiltPatchWithNonStandardOptions,
+    QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,
@@ -772,7 +774,7 @@ pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;
 pub(crate) use lintian_overrides::{
     AlienTag, DuplicateOverrideContext, MalformedOverride, OverrideFileInWrongLocation,
-    OverrideFileInWrongPackage,
+    OverrideFileInWrongPackage, RenamedTag,
 };
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;

@@ -1,4 +1,5 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
+use super::rules::AddComponentCopyright;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
 use super::rules::Apache2DeprecatedAuthConfig;
@@ -71,10 +72,12 @@ use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
 use super::rules::DebianChangelogLineTooShort;
 use super::rules::DebianControlFileIsASymlink;
+use super::rules::DebianControlHasUnusualFieldSpacing;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
 use super::rules::DebianRulesNotAMakefile;
+use super::rules::DebianRulesParsesDpkgParsechangelog;
 use super::rules::DebianRulesPassesVersionInfoToDhShlibdeps;
 use super::rules::DebianRulesSetsDebBuildOptions;
 use super::rules::DebianRulesSetsDhCompat;
@@ -83,6 +86,7 @@ use super::rules::DebianRulesShouldNotSetCFLAGSFromNoopt;
 use super::rules::DebianRulesShouldNotUseDhExtraAddons;
 use super::rules::DebianRulesShouldNotUseSanitizeAllBuildflag;
 use super::rules::DebianRulesUpdatesControlAutomatically;
+use super::rules::DebianRulesUsesAsNeededLinkerFlag;
 use super::rules::DebianRulesUsesDebBuildOpts;
 use super::rules::DebianRulesUsesDeprecatedSystemdOverride;
 use super::rules::DebianRulesUsesInstalledPythonVersions;
@@ -156,6 +160,7 @@ use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
 use super::rules::InitDScriptUsesUsrInterpreter;
 use super::rules::InitScriptIsNotAFile;
+use super::rules::InsecureCopyrightFormatUri;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
@@ -317,6 +322,7 @@ use super::rules::Python3ScriptButNoPython3Dep;
 use super::rules::PythonDebugInWrongLocation;
 use super::rules::PythonModuleInWrongLocation;
 use super::rules::QuiltBuildDepButNoSeriesFile;
+use super::rules::QuiltPatchMissingDescription;
 use super::rules::QuiltPatchWithNonStandardOptions;
 use super::rules::QuiltSeriesButNoBuildDep;
 use super::rules::QuiltSeriesWithoutTrailingNewline;
@@ -326,8 +332,10 @@ use super::rules::RcVersionGreaterThanExpectedVersion;
 use super::rules::ReadmeDebianContainsDebmakeTemplate;
 use super::rules::ReadmeSourceIsDhMakeTemplate;
 use super::rules::RedundantBuildPrerequisites;
+use super::rules::RedundantControlRelation;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RelativeConffile;
+use super::rules::RenamedTag;
 use super::rules::RepeatedTriggerName;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
@@ -413,6 +421,7 @@ use super::rules::UnknownTrigger;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnparsableMenuItem;
 use super::rules::UnsupportedSourceFormat;
+use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploaderNameMissing;
@@ -1955,6 +1964,15 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LicenseProblemGfdlNonOfficialText,
         &PackageUsesOldDebhelperCompatVersion,
         &DebianChangelogLineTooShort,
+        &RedundantControlRelation,
+        &DebianControlHasUnusualFieldSpacing,
+        &InsecureCopyrightFormatUri,
+        &AddComponentCopyright,
+        &UnusedDebconfTemplate,
+        &RenamedTag,
+        &QuiltPatchMissingDescription,
+        &DebianRulesParsesDpkgParsechangelog,
+        &DebianRulesUsesAsNeededLinkerFlag,
     ]
 }
 
@@ -2320,6 +2338,13 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &LicenseProblemGfdlInvariants,
         &LicenseProblemGfdlNonOfficialText,
         &PackageUsesOldDebhelperCompatVersion,
+        &RedundantControlRelation,
+        &DebianControlHasUnusualFieldSpacing,
+        &InsecureCopyrightFormatUri,
+        &AddComponentCopyright,
+        &QuiltPatchMissingDescription,
+        &DebianRulesParsesDpkgParsechangelog,
+        &DebianRulesUsesAsNeededLinkerFlag,
     ]
 }
 
@@ -3100,6 +3125,8 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UndeclaredElfPrerequisites,
         &MissingDependencyOnNumpyAbi,
         &DebianChangelogLineTooShort,
+        &UnusedDebconfTemplate,
+        &RenamedTag,
     ]
 }
 

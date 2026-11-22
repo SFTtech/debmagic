@@ -98,6 +98,7 @@ use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
+use super::rules::DesktopEntryContainsEncodingKey;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
@@ -1937,6 +1938,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LacksLdconfigTrigger,
         &PackageHasUnnecessaryActivationOfLdconfigTrigger,
         &NoMd5sumsControlFile,
+        &DesktopEntryContainsEncodingKey,
     ]
 }
 
@@ -3073,6 +3075,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &LacksLdconfigTrigger,
         &PackageHasUnnecessaryActivationOfLdconfigTrigger,
         &NoMd5sumsControlFile,
+        &DesktopEntryContainsEncodingKey,
     ]
 }
 

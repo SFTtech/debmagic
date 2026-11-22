@@ -54,6 +54,7 @@ mod ln1205_wrong_name_for_upstream_changelog;
 mod ln1218_team_upload_has_incorrect_version_number;
 mod ln1219_unnecessary_team_upload;
 mod ln1309_debian_changelog_line_too_short;
+mod ln1310_spelling_error_in_changelog;
 mod nmu;
 pub(in crate::lint::rules::lintian) mod source;
 mod version;
@@ -106,3 +107,4 @@ pub(crate) use ln1205_wrong_name_for_upstream_changelog::WrongNameForUpstreamCha
 pub(crate) use ln1218_team_upload_has_incorrect_version_number::TeamUploadHasIncorrectVersionNumber;
 pub(crate) use ln1219_unnecessary_team_upload::UnnecessaryTeamUpload;
 pub(crate) use ln1309_debian_changelog_line_too_short::DebianChangelogLineTooShort;
+pub(crate) use ln1310_spelling_error_in_changelog::SpellingErrorInChangelog;

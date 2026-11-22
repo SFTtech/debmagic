@@ -58,6 +58,7 @@ use super::rules::ControlInterpreterWithoutPredepends;
 use super::rules::CshConsideredHarmful;
 use super::rules::CustomLibrarySearchPath;
 use super::rules::DbgPackageMissingDepends;
+use super::rules::DbusPolicyAtConsole;
 use super::rules::DebconfConfigNotExecutable;
 use super::rules::DebconfIsNotARegistry;
 use super::rules::DebconfTranslationUsingGeneralList;
@@ -1803,6 +1804,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &QuiltSeriesButNoBuildDep,
         &QuiltSeriesWithoutTrailingNewline,
         &UnknownFileInDebianSource,
+        &DbusPolicyAtConsole,
     ]
 }
 
@@ -2872,6 +2874,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &WrongNameForChangelogOfNativePackage,
         &WrongNameForDebianChangelogFile,
         &WrongNameForUpstreamChangelog,
+        &DbusPolicyAtConsole,
     ]
 }
 

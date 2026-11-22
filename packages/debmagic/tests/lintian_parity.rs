@@ -8,6 +8,7 @@ mod common;
 use test_case::test_case;
 
 const SOURCE_TREE_RECIPES: &[&str] = &[
+    "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/archive/liberty/mismatch/fields-section-general",
     "checks/archive/liberty/mismatch/legacy-relations",
     "checks/build-systems/autotools/cruft-general-test-suite",
@@ -399,6 +400,12 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/location/binaries-misplaced",
     "checks/binaries/location/binaries-multiarch-same",
     "checks/binaries/obsolete/crypt/binaries-obsolete-des",
+    "checks/binaries/prerequisites/binaries-libc-link",
+    "checks/binaries/prerequisites/binaries-missing-depends",
+    "checks/binaries/prerequisites/binaries-missing-depends-on-libc",
+    "checks/binaries/prerequisites/legacy-debug",
+    "checks/binaries/prerequisites/legacy-libbaz",
+    "checks/binaries/prerequisites/numpy/binaries-missing-depends-on-numpy-abi",
     "checks/binaries/prerequisites/perl/binaries-missing-depends-on-xapi",
     "checks/binaries/prerequisites/perl/legacy-libbaz",
     "checks/binaries/prerequisites/php/binaries-missing-depends-on-xapi",
@@ -886,6 +893,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
 ];
 
 const SOURCE_PACKAGE_RECIPES: &[&str] = &[
+    "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/archive/liberty/mismatch/fields-section-general",
     "checks/archive/liberty/mismatch/legacy-relations",
     "checks/build-systems/autotools/cruft-general-test-suite",
@@ -1287,6 +1295,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
     assert_eq!(common::catalogued_source_package_recipe_rels(), listed);
 }
 
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
 #[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]
@@ -1679,6 +1688,12 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/location/binaries-misplaced"; "checks_binaries_location_binaries_misplaced")]
 #[test_case("checks/binaries/location/binaries-multiarch-same"; "checks_binaries_location_binaries_multiarch_same")]
 #[test_case("checks/binaries/obsolete/crypt/binaries-obsolete-des"; "checks_binaries_obsolete_crypt_binaries_obsolete_des")]
+#[test_case("checks/binaries/prerequisites/binaries-libc-link"; "checks_binaries_prerequisites_binaries_libc_link")]
+#[test_case("checks/binaries/prerequisites/binaries-missing-depends"; "checks_binaries_prerequisites_binaries_missing_depends")]
+#[test_case("checks/binaries/prerequisites/binaries-missing-depends-on-libc"; "checks_binaries_prerequisites_binaries_missing_depends_on_libc")]
+#[test_case("checks/binaries/prerequisites/legacy-debug"; "checks_binaries_prerequisites_legacy_debug")]
+#[test_case("checks/binaries/prerequisites/legacy-libbaz"; "checks_binaries_prerequisites_legacy_libbaz")]
+#[test_case("checks/binaries/prerequisites/numpy/binaries-missing-depends-on-numpy-abi"; "checks_binaries_prerequisites_numpy_binaries_missing_depends_on_numpy_abi")]
 #[test_case("checks/binaries/prerequisites/perl/binaries-missing-depends-on-xapi"; "checks_binaries_prerequisites_perl_binaries_missing_depends_on_xapi")]
 #[test_case("checks/binaries/prerequisites/perl/legacy-libbaz"; "checks_binaries_prerequisites_perl_legacy_libbaz")]
 #[test_case("checks/binaries/prerequisites/php/binaries-missing-depends-on-xapi"; "checks_binaries_prerequisites_php_binaries_missing_depends_on_xapi")]
@@ -2167,6 +2182,7 @@ fn lintian_parity_binary_package(recipe: &str) {
     common::assert_binary_package_parity(recipe);
 }
 
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
 #[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]

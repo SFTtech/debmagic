@@ -1,6 +1,7 @@
 mod apache2;
 mod application_not_library;
 mod apt;
+mod archive_file_name_length;
 mod archive_liberty;
 mod autotools;
 mod binaries_architecture;
@@ -10,6 +11,7 @@ mod binaries_hardening;
 mod binaries_location;
 mod binaries_obsolete_crypt;
 mod binaries_perl;
+mod binaries_prerequisites;
 mod binaries_prerequisites_php;
 mod binaries_profiling;
 mod binaries_rpath;
@@ -231,6 +233,7 @@ pub(crate) use application_not_library::LibappPerlPackageName;
 pub(crate) use apt::PackageInstallsAptKeyring;
 pub(crate) use apt::PackageInstallsAptPreferences;
 pub(crate) use apt::PackageInstallsAptSources;
+pub(crate) use archive_file_name_length::SourcePackageComponentHasLongFileName;
 pub(crate) use archive_liberty::ArchiveLibertyMismatch;
 pub(crate) use autotools::{
     AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,
@@ -245,10 +248,17 @@ pub(crate) use binaries_hardening::HardeningNoPie;
 pub(crate) use binaries_hardening::HardeningNoRelro;
 pub(crate) use binaries_location::{
     ArchDependentFileInUsrShare, ArchDependentFileNotInArchSpecificDirectory, BinaryInEtc,
+    DevelopmentPackageShipsElfBinaryInPath,
 };
 pub(crate) use binaries_obsolete_crypt::ObsoleteCryptAlias;
 pub(crate) use binaries_obsolete_crypt::ObsoleteDesEncryption;
 pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
+pub(crate) use binaries_prerequisites::MissingDependencyOnLibc;
+pub(crate) use binaries_prerequisites::MissingDependencyOnLibstdc;
+pub(crate) use binaries_prerequisites::MissingDependencyOnNumpyAbi;
+pub(crate) use binaries_prerequisites::ProgramNotLinkedAgainstLibc;
+pub(crate) use binaries_prerequisites::SharedLibraryLacksPrerequisites;
+pub(crate) use binaries_prerequisites::UndeclaredElfPrerequisites;
 pub(crate) use binaries_prerequisites_php::MissingDependencyOnPhpapi;
 pub(crate) use binaries_profiling::BinaryCompiledWithProfilingEnabled;
 pub(crate) use binaries_rpath::CustomLibrarySearchPath;

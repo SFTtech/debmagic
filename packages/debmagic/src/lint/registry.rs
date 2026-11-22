@@ -98,6 +98,7 @@ use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
+use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
@@ -199,6 +200,9 @@ use super::rules::MissingBuildDependsForCleanTargetInDebianRules;
 use super::rules::MissingCallToUpdateFonts;
 use super::rules::MissingDebconfDependency;
 use super::rules::MissingDepOnJarwrapper;
+use super::rules::MissingDependencyOnLibc;
+use super::rules::MissingDependencyOnLibstdc;
+use super::rules::MissingDependencyOnNumpyAbi;
 use super::rules::MissingDependencyOnPhpapi;
 use super::rules::MissingDependsOnSensibleUtils;
 use super::rules::MissingFileFromPotfilesIn;
@@ -301,6 +305,7 @@ use super::rules::PrermCallsUpdatemenus;
 use super::rules::PrermCallsUpdatercD;
 use super::rules::PriorityExtraIsReplacedByPriorityOptional;
 use super::rules::PrivacyBreachW3cValidHtml;
+use super::rules::ProgramNotLinkedAgainstLibc;
 use super::rules::PuppetModuleButNotDhPuppet;
 use super::rules::PypiHomepage;
 use super::rules::Python3DependsButNoPython3Helper;
@@ -333,6 +338,7 @@ use super::rules::SelectWithoutChoices;
 use super::rules::ServiceFileIsNotAFile;
 use super::rules::SharedLibraryIsExecutable;
 use super::rules::SharedLibraryIsMultiArchForeign;
+use super::rules::SharedLibraryLacksPrerequisites;
 use super::rules::SharedLibraryLacksStackSection;
 use super::rules::SharedLibraryLacksVersion;
 use super::rules::SharedLibraryNotShipped;
@@ -344,6 +350,7 @@ use super::rules::SourceContainsPrebuiltMsHelpFile;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
+use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::SpellingErrorInRulesRequiresRoot;
@@ -382,6 +389,7 @@ use super::rules::UdevRuleMissingSubsystem;
 use super::rules::UdevRuleMissingUaccess;
 use super::rules::UdevRuleUnreadable;
 use super::rules::UnconditionalUseOfDpkgStatoverride;
+use super::rules::UndeclaredElfPrerequisites;
 use super::rules::UnexpectedConffile;
 use super::rules::UnknownArchitecture;
 use super::rules::UnknownConffileInstruction;
@@ -1931,6 +1939,14 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &SourcePackageComponentHasLongFileName,
+        &DevelopmentPackageShipsElfBinaryInPath,
+        &MissingDependencyOnLibc,
+        &MissingDependencyOnLibstdc,
+        &ProgramNotLinkedAgainstLibc,
+        &SharedLibraryLacksPrerequisites,
+        &UndeclaredElfPrerequisites,
+        &MissingDependencyOnNumpyAbi,
     ]
 }
 
@@ -2292,6 +2308,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &SourcePackageComponentHasLongFileName,
     ]
 }
 
@@ -3064,6 +3081,13 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
+        &DevelopmentPackageShipsElfBinaryInPath,
+        &MissingDependencyOnLibc,
+        &MissingDependencyOnLibstdc,
+        &ProgramNotLinkedAgainstLibc,
+        &SharedLibraryLacksPrerequisites,
+        &UndeclaredElfPrerequisites,
+        &MissingDependencyOnNumpyAbi,
     ]
 }
 

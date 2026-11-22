@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): shared-library-lacks-prerequisites (LN1298) [usr/lib/libfoo.so.1]
+W: example (binary): shared-library-lacks-prerequisites (LN1298) [usr/lib/libbar.so.1]
+W: example (binary): shared-library-lacks-prerequisites (LN1298) [usr/lib/libfoo.so.1]
+W: example (binary): shared-library-lacks-prerequisites (LN1298) [usr/lib/ld-2.31.so]
+W: example (binary): shared-library-lacks-prerequisites (LN1298) [usr/lib/libfoo.e32x]

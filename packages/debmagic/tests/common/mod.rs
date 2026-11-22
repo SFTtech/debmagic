@@ -922,14 +922,24 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "checks/deb-format/deb-format-udeb-compression",
         "the recipe runs `dpkg-deb -Zlzma`, which dpkg 1.23 rejects",
     ),
+    (
+        "checks/binaries/prerequisites/numpy/binaries-missing-depends-on-numpy-abi",
+        "the recipe's `setup.py` imports `setuptools` and `numpy`, and this host has neither for python3",
+    ),
 ];
 
 /// Recipes whose expected hints cannot show up in a Source tree, because the
 /// tree is not the built product (a patch is not applied, say).
-const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[(
-    "checks/files/names/national-encoding-in-patch",
-    "the Latin-1 file name comes from a patch that a Source tree does not apply",
-)];
+const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[
+    (
+        "checks/files/names/national-encoding-in-patch",
+        "the Latin-1 file name comes from a patch that a Source tree does not apply",
+    ),
+    (
+        "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
+        "the hints name the orig and debian tarballs of the Files field of a .dsc, which a Source tree does not have",
+    ),
+];
 
 /// The reason a recipe is skipped on this host, if it is.
 fn skipped_recipe_reason(recipe_rel: &str) -> Option<&'static str> {

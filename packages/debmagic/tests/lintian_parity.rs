@@ -237,7 +237,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/essential/fields-essential",
     "checks/fields/format/cruft-general-wig-pen",
     "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
+    "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/mail-address/fields-maintainer",
     "checks/fields/mail-address/fields-maintainer-bounces",
@@ -584,6 +587,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/essential/legacy-fields",
     "checks/fields/homepage/fields-cpan-homepage",
     "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
+    "checks/fields/homepage/fields-no-source-homepage",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
@@ -1122,7 +1127,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/essential/fields-essential",
     "checks/fields/format/cruft-general-wig-pen",
     "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
+    "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/mail-address/fields-maintainer",
     "checks/fields/mail-address/fields-maintainer-bounces",
@@ -1523,7 +1531,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/format/cruft-general-wig-pen"; "checks_fields_format_cruft_general_wig_pen")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
+#[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
 #[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]
@@ -1871,6 +1882,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/essential/legacy-fields"; "checks_fields_essential_legacy_fields")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
+#[test_case("checks/fields/homepage/fields-no-source-homepage"; "checks_fields_homepage_fields_no_source_homepage")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
@@ -2410,7 +2423,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/format/cruft-general-wig-pen"; "checks_fields_format_cruft_general_wig_pen")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
+#[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
 #[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]

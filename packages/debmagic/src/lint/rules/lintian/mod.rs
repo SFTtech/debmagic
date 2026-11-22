@@ -554,10 +554,10 @@ pub(crate) use fields_relations_more::{
 pub(crate) use fields_text::{
     BadHomepage, DescriptionContainsHomepage, DescriptionSynopsisIsDuplicated,
     EssentialInSourcePackage, EssentialNoNotNeeded, ExcessivePriorityForLibraryPackage,
-    ExplicitDefaultInPackageType, FieldTooLong, HomepageForCpanPackageContainsVersion,
-    HomepageRefersToObsoleteDebianInfrastructure, MissingSeparatorBetweenItems,
-    NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional, RecommendedField,
-    RedundantBugsField, RedundantOriginField, SectionIsDhMakeTemplate,
+    ExplicitDefaultInPackageType, FieldTooLong, HomepageFieldUsesInsecureUri,
+    HomepageForCpanPackageContainsVersion, HomepageRefersToObsoleteDebianInfrastructure,
+    MissingSeparatorBetweenItems, NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional,
+    RecommendedField, RedundantBugsField, RedundantOriginField, SectionIsDhMakeTemplate,
     SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional, UnknownEssentialValue,
     UnknownPriority, UnknownSection, WrongSectionForUdeb,
 };

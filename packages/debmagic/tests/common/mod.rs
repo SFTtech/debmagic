@@ -869,7 +869,7 @@ fn rules_use_nodejs(source: &Path) -> bool {
 // compares against, not what is built.
 
 /// Bumped when the key layout or what is stored changes.
-const BUILD_CACHE_FORMAT: &str = "1";
+const BUILD_CACHE_FORMAT: &str = "2";
 
 fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
@@ -1899,10 +1899,13 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     let keep_ignored = !pointers.is_empty() || expects_tag_prefix(recipe, "source-contains-");
     let overrides = dpkg_overrides(recipe);
     let hook = vendored_pre_upstream(recipe);
+    let non_native = recipe_is_non_native(recipe);
 
     // Everything the packing reads besides the tree: the `dpkg-source` flags,
-    // the paths left out of the orig, and the `pre-upstream` hook. The recipe's
-    // `eval/hints` reach the build only through `root_adds` and `keep_ignored`.
+    // the paths left out of the orig, whether the recipe is non-native (its
+    // orig is always packed), and the `pre-upstream` hook. The
+    // recipe's `eval/hints` reach the build only through `root_adds` and
+    // `keep_ignored`.
     let mut key = BuildKey::new("dpkg-source");
     key.tree(&source);
     key.field("keep-ignored", &[u8::from(keep_ignored)]);
@@ -1913,17 +1916,17 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     });
     key.field("pre-upstream", hook_text.as_deref().unwrap_or_default());
     key.field("has-pre-upstream", &[u8::from(hook.is_some())]);
+    key.field("non-native", &[u8::from(non_native)]);
 
     let products = build_once(key.finish(), work, || {
-        pack_source_package(
-            recipe,
-            work,
-            &source,
+        let packing = SourcePacking {
             keep_ignored,
-            &overrides,
-            &root_adds,
-            hook.as_deref(),
-        );
+            overrides: &overrides,
+            root_adds: &root_adds,
+            hook: hook.as_deref(),
+            non_native,
+        };
+        pack_source_package(recipe, work, &source, packing);
         // The `.dsc` and the tarballs it lists, next to it; not the hook script
         // (it names the temporary directory it ran in).
         let mut files: Vec<PathBuf> = fs::read_dir(work)
@@ -1940,21 +1943,35 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
         .unwrap_or_else(|| panic!("{recipe:?}: no .dsc among the products"))
 }
 
+/// What packing a source package reads besides the tree (and so what its build
+/// cache key covers).
+#[derive(Clone, Copy)]
+struct SourcePacking<'a> {
+    keep_ignored: bool,
+    overrides: &'a [String],
+    root_adds: &'a [String],
+    hook: Option<&'a Path>,
+    non_native: bool,
+}
+
 /// Pack `source` (a copy of the recipe tree in `work`) with `dpkg-source`,
 /// synthesizing the orig tarball when the format asks for one.
-fn pack_source_package(
-    recipe: &Path,
-    work: &Path,
-    source: &Path,
-    keep_ignored: bool,
-    overrides: &[String],
-    root_adds: &[String],
-    hook: Option<&Path>,
-) {
+fn pack_source_package(recipe: &Path, work: &Path, source: &Path, packing: SourcePacking<'_>) {
+    let SourcePacking {
+        keep_ignored,
+        overrides,
+        root_adds,
+        hook,
+        non_native,
+    } = packing;
     if let Some(hook) = hook {
         let name = main_orig_name(source);
         pack_orig_with_hook(source, hook, &work.join(&name), root_adds);
-    } else if !root_adds.is_empty() {
+    } else if non_native || !root_adds.is_empty() {
+        // lintian's upload builder always tars the orig of a non-native
+        // recipe, from `orig/` alone, which is empty when the recipe has no
+        // upstream files. Without it `dpkg-source` builds a 1.0 package
+        // as a native one, with no `.diff.gz`.
         let name = main_orig_name(source);
         pack_orig_without_added(source, &work.join(&name), root_adds);
     }
@@ -2279,6 +2296,16 @@ fn recipe_skeleton(recipe: &Path) -> Option<String> {
         .lines()
         .find_map(|line| line.strip_prefix("Skeleton:"))
         .map(|skeleton| skeleton.trim().to_string())
+}
+
+/// Whether lintian's skeleton for the recipe builds a non-native package
+/// (`Type: non-native`): its upload and source builders tar an orig first.
+/// The `upload-native` and `source-native` skeletons are the native ones.
+fn recipe_is_non_native(recipe: &Path) -> bool {
+    matches!(
+        recipe_skeleton(recipe).as_deref(),
+        Some("upload-non-native" | "upload-builder-only" | "source-non-native")
+    )
 }
 
 /// Recipes whose build product is a `.changes`, which lintian lints as a Group:

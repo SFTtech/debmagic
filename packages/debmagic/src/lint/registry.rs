@@ -381,6 +381,7 @@ use super::rules::TypelibMissingGirDepends;
 use super::rules::TypelibNotInMultiarchDirectory;
 use super::rules::TypelibPackageNameDoesNotMatch;
 use super::rules::TypelibSectionNotIntrospection;
+use super::rules::UdebContainsDocumentationFile;
 use super::rules::UdebPostinstCallsLdconfig;
 use super::rules::UdebUsesUnsupportedCompressionForDataTarball;
 use super::rules::UdevRuleInEtc;
@@ -1943,6 +1944,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &FileContainsFixmePlaceholder,
         &PackageContainsDocumentationOutsideUsrShareDoc,
         &PackageContainsUpstreamInstallationDocumentation,
+        &UdebContainsDocumentationFile,
     ]
 }
 
@@ -3082,6 +3084,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TypelibInArchAllPackage,
         &PackageContainsDocumentationOutsideUsrShareDoc,
         &PackageContainsUpstreamInstallationDocumentation,
+        &UdebContainsDocumentationFile,
     ]
 }
 

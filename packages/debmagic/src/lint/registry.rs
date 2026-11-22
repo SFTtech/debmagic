@@ -222,6 +222,7 @@ use super::rules::NewPackageShouldNotPackagePython2Module;
 use super::rules::NewPackageUsesDateBasedVersionNumber;
 use super::rules::NmuInChangelog;
 use super::rules::NoDebianChanges;
+use super::rules::NoMd5sumsControlFile;
 use super::rules::NoShlibs;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SubstvarSourceVersionIsDeprecated,
         &LacksLdconfigTrigger,
         &PackageHasUnnecessaryActivationOfLdconfigTrigger,
+        &NoMd5sumsControlFile,
     ]
 }
 
@@ -3070,6 +3072,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TransitionalPackageNotOldlibsOptional,
         &LacksLdconfigTrigger,
         &PackageHasUnnecessaryActivationOfLdconfigTrigger,
+        &NoMd5sumsControlFile,
     ]
 }
 

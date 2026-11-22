@@ -817,8 +817,15 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/maintainer-scripts/systemctl/systemd-general",
     "checks/maintainer-scripts/temporary-files/legacy-maintainer-scripts",
     "checks/maintainer-scripts/temporary-files/scripts-maintainer-general",
+    "checks/md5sums/legacy-binary",
     "checks/md5sums/legacy-etcfiles",
+    "checks/md5sums/legacy-filenames",
+    "checks/md5sums/legacy-foo++",
+    "checks/md5sums/legacy-libbaz",
+    "checks/md5sums/legacy-maintainer-scripts",
+    "checks/md5sums/legacy-scripts",
     "checks/md5sums/md5sums-general",
+    "checks/md5sums/md5sums-missing",
     "checks/menu-format/desktop-entry-unknown-type",
     "checks/menu-format/item-has-needs-dwww",
     "checks/menu-format/legacy-binary",
@@ -2099,8 +2106,15 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/maintainer-scripts/systemctl/systemd-general"; "checks_maintainer_scripts_systemctl_systemd_general")]
 #[test_case("checks/maintainer-scripts/temporary-files/legacy-maintainer-scripts"; "checks_maintainer_scripts_temporary_files_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/temporary-files/scripts-maintainer-general"; "checks_maintainer_scripts_temporary_files_scripts_maintainer_general")]
+#[test_case("checks/md5sums/legacy-binary"; "checks_md5sums_legacy_binary")]
 #[test_case("checks/md5sums/legacy-etcfiles"; "checks_md5sums_legacy_etcfiles")]
+#[test_case("checks/md5sums/legacy-filenames"; "checks_md5sums_legacy_filenames")]
+#[test_case("checks/md5sums/legacy-foo++"; "checks_md5sums_legacy_foo_")]
+#[test_case("checks/md5sums/legacy-libbaz"; "checks_md5sums_legacy_libbaz")]
+#[test_case("checks/md5sums/legacy-maintainer-scripts"; "checks_md5sums_legacy_maintainer_scripts")]
+#[test_case("checks/md5sums/legacy-scripts"; "checks_md5sums_legacy_scripts")]
 #[test_case("checks/md5sums/md5sums-general"; "checks_md5sums_md5sums_general")]
+#[test_case("checks/md5sums/md5sums-missing"; "checks_md5sums_md5sums_missing")]
 #[test_case("checks/menu-format/desktop-entry-unknown-type"; "checks_menu_format_desktop_entry_unknown_type")]
 #[test_case("checks/menu-format/item-has-needs-dwww"; "checks_menu_format_item_has_needs_dwww")]
 #[test_case("checks/menu-format/legacy-binary"; "checks_menu_format_legacy_binary")]

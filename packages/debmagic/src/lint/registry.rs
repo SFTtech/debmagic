@@ -242,6 +242,7 @@ use super::rules::ObsoleteFieldInDep5Copyright;
 use super::rules::ObsoleteRelationForm;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
+use super::rules::OcamlDanglingCmx;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OmittedSystemdServiceForInitDScript;
@@ -1945,6 +1946,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ImageFileHasUnexpectedName,
         &InitDScriptDoesNotImplementStatusOption,
         &ClojurePackageButNotDhClojure,
+        &OcamlDanglingCmx,
     ]
 }
 
@@ -3085,6 +3087,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ImageFileHasConflictingName,
         &ImageFileHasUnexpectedName,
         &InitDScriptDoesNotImplementStatusOption,
+        &OcamlDanglingCmx,
     ]
 }
 

@@ -681,7 +681,7 @@ pub(crate) use languages_javascript::{
     PkgJsAutopkgtestFileDoesNotExist, PkgJsAutopkgtestTestIsEmpty, PkgJsAutopkgtestTestIsMissing,
     PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
-pub(crate) use languages_ocaml::{OcamlDanglingCmxa, OcamlDanglingCmxs};
+pub(crate) use languages_ocaml::{OcamlDanglingCmx, OcamlDanglingCmxa, OcamlDanglingCmxs};
 pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PackageInstallsPacklist,
     PackageInstallsPerllocalPod, PerlModuleInCoreDirectory, PerlModuleUsesPerl4LibsWithoutDep,

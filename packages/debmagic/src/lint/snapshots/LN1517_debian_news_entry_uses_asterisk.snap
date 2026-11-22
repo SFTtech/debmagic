@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): debian-news-entry-uses-asterisk (LN1517) [usr/share/doc/example/NEWS.Debian.gz:1]
+I: example (binary): debian-news-entry-uses-asterisk (LN1517) [usr/share/doc/example/NEWS.Debian.gz:1]

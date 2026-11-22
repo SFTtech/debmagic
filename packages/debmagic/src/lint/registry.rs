@@ -93,6 +93,7 @@ use super::rules::DebianControlFileIsASymlink;
 use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
+use super::rules::DebianNewsEntryUsesAsterisk;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
@@ -2181,6 +2182,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DhExecSubstUnknownVariable,
         &DhExecUselessUsage,
         &BadIntendedDistribution,
+        &DebianNewsEntryUsesAsterisk,
     ]
 }
 
@@ -3437,6 +3439,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &BadIntendedDistribution,
+        &DebianNewsEntryUsesAsterisk,
     ]
 }
 

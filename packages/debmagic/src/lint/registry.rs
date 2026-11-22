@@ -284,6 +284,7 @@ use super::rules::PkgJsAutopkgtestTestIsEmpty;
 use super::rules::PkgJsAutopkgtestTestIsMissing;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
+use super::rules::PossibleUnindentedListInExtendedDescription;
 use super::rules::PostinstHasUselessCallToUpdateMenus;
 use super::rules::PostrmCallsInstalldocs;
 use super::rules::PostrmContainsAdditionalUpdatercDCalls;
@@ -1911,6 +1912,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SourceContainsEditorBackupFile,
         &SourceContainsPatchFailureFile,
         &PatchedFileWithoutUtf8Name,
+        &NoStrongDigestsInDsc,
+        &PossibleUnindentedListInExtendedDescription,
     ]
 }
 
@@ -3034,6 +3037,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UsrShareDocSymlinkPointsOutsideOfUsrShareDoc,
         &SymlinkTargetInBuildTree,
         &SymlinkTargetInTmp,
+        &PossibleUnindentedListInExtendedDescription,
     ]
 }
 

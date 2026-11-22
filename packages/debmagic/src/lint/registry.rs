@@ -531,6 +531,7 @@ use super::rules::UploadHasBackportsVersionNumber;
 use super::rules::UploaderNameMissing;
 use super::rules::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::UpstreamMetadataFieldUnknown;
+use super::rules::UpstreamMetadataFileIsMissing;
 use super::rules::UpstreamMetadataInNativeSource;
 use super::rules::UpstreamMetadataIsNotAFile;
 use super::rules::UpstreamMetadataMissingBugTracking;
@@ -2203,6 +2204,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UpstreamMetadataNotYamlMapping,
         &UpstreamMetadataYamlInvalid,
         &DebianWatchFileIsMissing,
+        &UpstreamMetadataFileIsMissing,
     ]
 }
 
@@ -2611,6 +2613,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UpstreamMetadataNotYamlMapping,
         &UpstreamMetadataYamlInvalid,
         &DebianWatchFileIsMissing,
+        &UpstreamMetadataFileIsMissing,
     ]
 }
 

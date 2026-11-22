@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): possible-documentation-but-no-doc-base-registration (LN1577)
+I: example (binary): possible-documentation-but-no-doc-base-registration (LN1577)
+I: example (binary): possible-documentation-but-no-doc-base-registration (LN1577)
+I: example (udeb): possible-documentation-but-no-doc-base-registration (LN1577)

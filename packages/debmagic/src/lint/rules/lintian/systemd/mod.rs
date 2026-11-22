@@ -19,6 +19,8 @@ mod ln1137_misplaced_systemd_tmpfiles;
 mod ln1229_service_file_is_not_a_file;
 mod ln1230_systemd_service_file_shutdown_problems;
 mod ln1432_systemd_service_file_missing_documentation_key;
+mod ln1584_invalid_systemd_documentation;
+mod ln1585_systemd_service_file_missing_install_key;
 mod systemd_init;
 mod targets;
 
@@ -38,3 +40,5 @@ pub(crate) use ln1137_misplaced_systemd_tmpfiles::MisplacedSystemdTmpfiles;
 pub(crate) use ln1229_service_file_is_not_a_file::ServiceFileIsNotAFile;
 pub(crate) use ln1230_systemd_service_file_shutdown_problems::SystemdServiceFileShutdownProblems;
 pub(crate) use ln1432_systemd_service_file_missing_documentation_key::SystemdServiceFileMissingDocumentationKey;
+pub(crate) use ln1584_invalid_systemd_documentation::InvalidSystemdDocumentation;
+pub(crate) use ln1585_systemd_service_file_missing_install_key::SystemdServiceFileMissingInstallKey;

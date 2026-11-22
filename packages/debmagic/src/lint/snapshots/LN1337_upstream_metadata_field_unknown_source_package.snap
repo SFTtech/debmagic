@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): upstream-metadata-field-unknown (LN1337) Bogus [debian/upstream/metadata]

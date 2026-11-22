@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): systemd-service-file-missing-install-key (LN1585) [usr/lib/systemd/system/foo.service]
+I: example (binary): systemd-service-file-missing-install-key (LN1585) [lib/systemd/system/foo.service]
+I: example (binary): systemd-service-file-missing-install-key (LN1585) [usr/lib/systemd/system/foo.service]
+I: example (udeb): systemd-service-file-missing-install-key (LN1585) [usr/lib/systemd/system/foo.service]

@@ -869,7 +869,7 @@ fn rules_use_nodejs(source: &Path) -> bool {
 // compares against, not what is built.
 
 /// Bumped when the key layout or what is stored changes.
-const BUILD_CACHE_FORMAT: &str = "1";
+const BUILD_CACHE_FORMAT: &str = "2";
 
 fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
@@ -1373,12 +1373,12 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "the recipe's `setup.py` imports `setuptools` and `numpy`, and this host has neither for python3",
     ),
     (
-        "checks/debian/copyright/dep5/components/control-file-upstream-signature-missing",
-        "the harness does not synthesize the `signed`, `noext` and `component` orig tarballs, so dpkg-source builds a .dsc without them and no component is known",
-    ),
-    (
         "checks/fields/checksums/no-sha256-checksum",
         "the recipe's `build-spec/post-build.sh` strips `Checksums-Sha256` from the `.dsc`, and the harness does not run post-build scripts",
+    ),
+    (
+        "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
+        "the recipe builds with `dh --with runit` and `dh_runit` (the `dh-runit` package), which the host lacks",
     ),
 ];
 
@@ -1823,6 +1823,33 @@ fn vendored_pre_upstream(recipe: &Path) -> Option<PathBuf> {
     hook.is_file().then_some(hook)
 }
 
+/// `build-spec/pre-build`, kept by the importer when the hook works on the
+/// orig tarballs next to the source directory (it makes the `signed`, `noext`
+/// and `component` origs and their signatures). The tree already shows what
+/// the hook did to the sources, so only these hooks are vendored.
+fn vendored_pre_build_for_orig(recipe: &Path) -> Option<PathBuf> {
+    let hook = recipe.join(VENDORED_BUILD_SPEC).join("pre-build");
+    hook.is_file().then_some(hook)
+}
+
+/// Runs the vendored `pre-build` hook on the package directory, after the
+/// main orig is packed and before `dpkg-source -b`, as lintian's upload
+/// builder does. The hook reaches the orig tarballs through `$1/../`.
+fn run_pre_build_for_orig(hook: &Path, source: &Path) {
+    let output = Command::new("sh")
+        .arg(hook)
+        .arg(source)
+        .output()
+        .expect("spawning pre-build hook");
+    assert!(
+        output.status.success(),
+        "{}: pre-build hook failed\nstdout:\n{}\nstderr:\n{}",
+        hook.display(),
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
 /// The orig lintian's upload builder tars: the tree's upstream paths (no
 /// `debian/`, no `added` root paths) with the `pre-upstream` hook run on top,
 /// under `<source>-<upstream>/` like the real tarball. The hook is a lintian
@@ -1899,10 +1926,14 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     let keep_ignored = !pointers.is_empty() || expects_tag_prefix(recipe, "source-contains-");
     let overrides = dpkg_overrides(recipe);
     let hook = vendored_pre_upstream(recipe);
+    let pre_build = vendored_pre_build_for_orig(recipe);
+    let non_native = recipe_is_non_native(recipe);
 
     // Everything the packing reads besides the tree: the `dpkg-source` flags,
-    // the paths left out of the orig, and the `pre-upstream` hook. The recipe's
-    // `eval/hints` reach the build only through `root_adds` and `keep_ignored`.
+    // the paths left out of the orig, whether the recipe is non-native (its
+    // orig is always packed), and the `pre-upstream` and `pre-build` hooks. The
+    // recipe's `eval/hints` reach the build only through `root_adds` and
+    // `keep_ignored`.
     let mut key = BuildKey::new("dpkg-source");
     key.tree(&source);
     key.field("keep-ignored", &[u8::from(keep_ignored)]);
@@ -1913,17 +1944,23 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     });
     key.field("pre-upstream", hook_text.as_deref().unwrap_or_default());
     key.field("has-pre-upstream", &[u8::from(hook.is_some())]);
+    key.field("non-native", &[u8::from(non_native)]);
+    let pre_build_text = pre_build.as_ref().map(|hook| {
+        fs::read(hook).unwrap_or_else(|error| panic!("reading {}: {error}", hook.display()))
+    });
+    key.field("pre-build", pre_build_text.as_deref().unwrap_or_default());
+    key.field("has-pre-build", &[u8::from(pre_build.is_some())]);
 
     let products = build_once(key.finish(), work, || {
-        pack_source_package(
-            recipe,
-            work,
-            &source,
+        let packing = SourcePacking {
             keep_ignored,
-            &overrides,
-            &root_adds,
-            hook.as_deref(),
-        );
+            overrides: &overrides,
+            root_adds: &root_adds,
+            hook: hook.as_deref(),
+            pre_build: pre_build.as_deref(),
+            non_native,
+        };
+        pack_source_package(recipe, work, &source, packing);
         // The `.dsc` and the tarballs it lists, next to it; not the hook script
         // (it names the temporary directory it ran in).
         let mut files: Vec<PathBuf> = fs::read_dir(work)
@@ -1940,54 +1977,69 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
         .unwrap_or_else(|| panic!("{recipe:?}: no .dsc among the products"))
 }
 
+/// What packing a source package reads besides the tree (and so what its build
+/// cache key covers).
+#[derive(Clone, Copy)]
+struct SourcePacking<'a> {
+    keep_ignored: bool,
+    overrides: &'a [String],
+    root_adds: &'a [String],
+    hook: Option<&'a Path>,
+    pre_build: Option<&'a Path>,
+    non_native: bool,
+}
+
 /// Pack `source` (a copy of the recipe tree in `work`) with `dpkg-source`,
 /// synthesizing the orig tarball when the format asks for one.
-fn pack_source_package(
-    recipe: &Path,
-    work: &Path,
-    source: &Path,
-    keep_ignored: bool,
-    overrides: &[String],
-    root_adds: &[String],
-    hook: Option<&Path>,
-) {
+fn pack_source_package(recipe: &Path, work: &Path, source: &Path, packing: SourcePacking<'_>) {
+    let SourcePacking {
+        keep_ignored,
+        overrides,
+        root_adds,
+        hook,
+        pre_build,
+        non_native,
+    } = packing;
     if let Some(hook) = hook {
         let name = main_orig_name(source);
         pack_orig_with_hook(source, hook, &work.join(&name), root_adds);
-    } else if !root_adds.is_empty() {
+    } else if non_native || !root_adds.is_empty() {
+        // lintian's upload builder always tars the orig of a non-native
+        // recipe, from `orig/` alone, which is empty when the recipe has no
+        // upstream files. Without it `dpkg-source` builds a 1.0 package
+        // as a native one, with no `.diff.gz`.
         let name = main_orig_name(source);
         pack_orig_without_added(source, &work.join(&name), root_adds);
     }
-    let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
-    if !ok {
-        let Some(name) = missing_upstream_tarball(&stderr) else {
-            panic!("{recipe:?}: dpkg-source -b failed\n{stdout}\n{stderr}");
-        };
+    if let Some(pre_build) = pre_build {
+        run_pre_build_for_orig(pre_build, source);
+    }
+    let (mut ok, mut stdout, mut stderr) = dpkg_source_build(work, keep_ignored, overrides);
+    let mut orig_name = None;
+    if !ok && let Some(name) = missing_upstream_tarball(&stderr) {
         assert!(
             !is_component_orig(&name),
             "{recipe:?}: component orig {name} is not synthesized"
         );
         pack_main_orig(source, &work.join(&name));
-        let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
-        if !ok && stderr.contains("unexpected upstream changes") {
-            // dpkg-source mis-reads an orig whose last member name contains a
-            // quote (`data/".tif` in legacy-filenames) and reports those
-            // files as new. A later member lets it see the archive correctly.
-            // The pad is in the tree and the orig, so it is not a diff.
-            fs::write(source.join("zz-pad"), "\n").expect("writing orig pad");
-            pack_main_orig(source, &work.join(&name));
-            let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
-            assert!(
-                ok,
-                "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"
-            );
-        } else {
-            assert!(
-                ok,
-                "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"
-            );
-        }
+        (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
+        orig_name = Some(name);
+    } else if hook.is_none() && (non_native || !root_adds.is_empty()) {
+        orig_name = Some(main_orig_name(source));
     }
+    if !ok
+        && stderr.contains("unexpected upstream changes")
+        && let Some(name) = &orig_name
+    {
+        // dpkg-source mis-reads an orig whose last member name contains a
+        // quote (`data/".tif` in legacy-filenames) and reports those files as
+        // new. A later member lets it see the archive correctly. The pad is in
+        // the tree and the orig, so it is not a diff.
+        fs::write(source.join("zz-pad"), "\n").expect("writing orig pad");
+        pack_orig_without_added(source, &work.join(name), root_adds);
+        (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
+    }
+    assert!(ok, "{recipe:?}: dpkg-source -b failed\n{stdout}\n{stderr}");
     find_dsc(work);
 }
 
@@ -2058,6 +2110,32 @@ fn rewrite_incompatibility_statement(recipe_rel: &str, hints: &mut [ParityHint])
         if hint.tag == "triplet-dir-and-architecture-mismatch" && hint.extra.starts_with("is for ")
         {
             hint.extra = "INCOMPATIBILITY STATEMENT".to_string();
+        }
+    }
+}
+
+/// `filename-length-really-really-really-really-long-package-name`'s lintian
+/// `eval/post-test` rewrites the architecture at the end of the `.changes` and
+/// `.buildinfo` names to `ARCHITECTURE`; the host builds for its own
+/// architecture, so the same rewrite is applied to the lint output.
+fn rewrite_architecture_in_group_names(recipe_rel: &str, hints: &mut [(String, ParityHint)]) {
+    if recipe_rel
+        != "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"
+    {
+        return;
+    }
+    for (processable_type, hint) in hints {
+        if !matches!(processable_type.as_str(), "changes" | "buildinfo") {
+            continue;
+        }
+        let suffix = format!(".{processable_type}");
+        let Some(stem) = hint.extra.strip_suffix(&suffix) else {
+            continue;
+        };
+        if let Some((head, arch)) = stem.rsplit_once('_')
+            && arch.chars().all(|c| c.is_ascii_alphanumeric())
+        {
+            hint.extra = format!("{head}_ARCHITECTURE{suffix}");
         }
     }
 }
@@ -2138,6 +2216,33 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
     });
 }
 
+/// The Tags lintian 2.144's `files/source-missing` Check emits only as
+/// `pointed_hint(tag, $item->pointer)`: an empty extra and the path as the
+/// pointer, printed `tag [path]`. Their recipes under `checks/files/source-missing/`
+/// carry that form. `checks/cruft/cruft-general-upstream` and
+/// `checks/cruft/cruft-python` carry the bare `tag path`, expectations from an
+/// older lintian that 2.144.0's code can no longer produce. The pointer form is
+/// the truth, so a bare path extra of exactly these three Tags is compared as
+/// an empty extra with the path as Location (`[path]`, as [`strip_location_pointer`]
+/// leaves a lone pointer). Other Tags, which may carry bare paths for real, are
+/// not touched; the vendored hint files stay as lintian shipped them.
+const POINTER_ONLY_SOURCE_MISSING_TAGS: [&str; 3] = [
+    "source-is-missing",
+    "source-contains-prebuilt-javascript-object",
+    "source-contains-prebuilt-python-object",
+];
+
+fn point_bare_source_missing_hints(hints: &mut [ParityHint]) {
+    for hint in hints {
+        if POINTER_ONLY_SOURCE_MISSING_TAGS.contains(&hint.tag.as_str())
+            && !hint.extra.is_empty()
+            && !hint.extra.starts_with('[')
+        {
+            hint.extra = format!("[{}]", hint.extra);
+        }
+    }
+}
+
 /// Two vendored recipes carry `eval/hints` lines from before lintian printed
 /// pointers and the full extra, which lintian 2.144's Perl no longer emits.
 /// The expected hints are brought to what that Perl prints; the Rules follow
@@ -2146,7 +2251,8 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
 ///
 /// - `cruft-general-upstream` (a lintian `Todo` test): the bare
 ///   `configure-generated-file-in-source config.cache` is `[config.cache]`
-///   (`pointed_hint` with a pointer and no note).
+///   (`pointed_hint` with a pointer and no note), and `source-is-missing` is
+///   also reported for the `.opt-1.pyc`.
 /// - `version-substvars-obsolete`: the Perl's `version-substvar-for-external-package`
 ///   extra is `<field> <substvar> <installable> -> <pkg>`, and its regex only
 ///   accepts `${source:…}` / `${binary:…}`, so `foreign-pkg:any (= ${Source-Version})`
@@ -2154,11 +2260,27 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
 ///   other-foreign-pkg` remains. `substvar-source-version-is-deprecated` is
 ///   `program-data Depends` (the Perl prints installable and field).
 fn correct_stale_expected_hints(recipe: &Path, hints: &mut Vec<ParityHint>) {
+    point_bare_source_missing_hints(hints);
     if recipe.ends_with("checks/cruft/cruft-general-upstream") {
         for hint in hints.iter_mut() {
             if hint.tag == "configure-generated-file-in-source" && hint.extra == "config.cache" {
                 hint.extra = "[config.cache]".to_string();
             }
+        }
+        // The Check looks for `__pycache__/fake.cpython-38.opt-1.py` as the
+        // source of `fake.cpython-38.opt-1.pyc` (its pattern cuts only
+        // `.cpython-38` before `.pyc`, not `.opt-1`) and finds none, so it
+        // reports the missing source of that file as well; the vendored hints
+        // list only the plain `.pyc`.
+        let opt1 = ParityHint {
+            tag: "source-contains-prebuilt-python-object".to_string(),
+            extra: "[__pycache__/fake.cpython-38.opt-1.pyc]".to_string(),
+        };
+        if hints.contains(&opt1) {
+            hints.push(ParityHint {
+                tag: "source-is-missing".to_string(),
+                ..opt1
+            });
         }
     } else if recipe.ends_with("checks/debian/version-substvars/version-substvars-obsolete") {
         let tag = "version-substvar-for-external-package";
@@ -2261,13 +2383,14 @@ pub fn catalogued_group_tags() -> GroupTags {
 
 /// A hint a Group lint shows, per processable type: `changes` and `buildinfo`
 /// hints come from the Changes-file and Buildinfo-file Rules; a Group Rule's
-/// Diagnostics attach to the Source package, so its hints are `source`. Kept
-/// in step with `applies_to_group` in `scripts/import_lintian_parity.py`.
+/// Diagnostics attach to the Source package (`source`) or to an installable
+/// (`binary`, `udeb`). Kept in step with `applies_to_group` in
+/// `scripts/import_lintian_parity.py`.
 fn applies_to_group(processable_type: &str, tag: &str, tags: &GroupTags) -> bool {
     match processable_type {
         "changes" => tags.changes.contains(tag),
         "buildinfo" => tags.buildinfo.contains(tag),
-        "source" => tags.group.contains(tag),
+        "source" | "binary" | "udeb" => tags.group.contains(tag),
         _ => false,
     }
 }
@@ -2279,6 +2402,16 @@ fn recipe_skeleton(recipe: &Path) -> Option<String> {
         .lines()
         .find_map(|line| line.strip_prefix("Skeleton:"))
         .map(|skeleton| skeleton.trim().to_string())
+}
+
+/// Whether lintian's skeleton for the recipe builds a non-native package
+/// (`Type: non-native`): its upload and source builders tar an orig first.
+/// The `upload-native` and `source-native` skeletons are the native ones.
+fn recipe_is_non_native(recipe: &Path) -> bool {
+    matches!(
+        recipe_skeleton(recipe).as_deref(),
+        Some("upload-non-native" | "upload-builder-only" | "source-non-native")
+    )
 }
 
 /// Recipes whose build product is a `.changes`, which lintian lints as a Group:
@@ -2295,6 +2428,10 @@ fn catalogued_group_hints(recipe: &Path, tags: &GroupTags) -> Vec<(String, Parit
     let mut expected: Vec<(String, ParityHint)> = load_hints(&recipe.join("eval/hints"))
         .into_iter()
         .filter(|(processable_type, hint)| applies_to_group(processable_type, &hint.tag, tags))
+        .map(|(processable_type, mut hint)| {
+            hint.extra = expand_host_placeholders(&hint.extra);
+            (processable_type, hint)
+        })
         .collect();
     expected.sort();
     expected
@@ -2447,6 +2584,7 @@ pub fn assert_group_parity(recipe_rel: &str) {
         .filter_map(parse_diagnostic_line)
         .filter(|(processable_type, hint)| applies_to_group(processable_type, &hint.tag, &tags))
         .collect();
+    rewrite_architecture_in_group_names(recipe_rel, &mut actual);
     actual.sort();
 
     assert_eq!(actual, expected, "Parity mismatch for {recipe_rel} (group)");

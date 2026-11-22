@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): dbus-session-service-wrong-name (LN1539) better: com.example.Foo.service [usr/share/dbus-1/services/foo.service]
+I: example (binary): dbus-session-service-wrong-name (LN1539) better: com.example.Foo.service [usr/share/dbus-1/services/foo.service]
+I: example (binary): dbus-session-service-wrong-name (LN1539) better: com.example.Bar.service [usr/share/dbus-1/services/foo.service]

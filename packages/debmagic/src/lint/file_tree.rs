@@ -1,13 +1,16 @@
 use std::fs;
+use std::io::Read;
 use std::os::unix::fs::{FileExt, FileTypeExt, MetadataExt};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{Mutex, PoisonError};
+use std::sync::{Mutex, OnceLock, PoisonError};
 
 use anyhow::{Context, bail};
 use globset::{Glob, GlobMatcher};
 use regex::Regex;
 
+use super::digest::{DigestAlgorithm, hex_digest};
+use super::elf::entry_bytes;
 use super::file_type::FileType;
 
 /// Which variant an [`Entry`] is, without its data. For filtering and matching.
@@ -474,12 +477,42 @@ pub struct FileTree {
     #[allow(dead_code)]
     root: Option<PathBuf>,
     entries: Vec<Entry>,
+    /// The MD5 of each Entry, by index in `entries`, computed on first ask.
+    #[allow(dead_code)]
+    md5sums: Vec<OnceLock<Option<String>>>,
 }
 
 impl FileTree {
     pub fn from_entries(root: Option<PathBuf>, mut entries: Vec<Entry>) -> Self {
         entries.sort_by(|left, right| left.path().cmp(right.path()));
-        Self { root, entries }
+        let md5sums = entries.iter().map(|_| OnceLock::new()).collect();
+        Self {
+            root,
+            entries,
+            md5sums,
+        }
+    }
+
+    /// Lintian's `$item->md5sum`: the lowercase hex MD5 of a regular file's or
+    /// hardlink's bytes. An Entry of this tree is digested once and the digest
+    /// is shared by every Rule that asks. `None` for other kinds of Entry and
+    /// for bytes that cannot be read.
+    #[allow(dead_code)]
+    pub(crate) fn md5sum(&self, entry: &Entry) -> Option<String> {
+        if !entry.is_file() {
+            return None;
+        }
+        let shared = self
+            .entries
+            .binary_search_by(|candidate| candidate.path().cmp(entry.path()))
+            .ok()
+            .filter(|&index| std::ptr::eq(&self.entries[index], entry));
+        match shared {
+            Some(index) => self.md5sums[index]
+                .get_or_init(|| digest_md5(self, entry))
+                .clone(),
+            None => digest_md5(self, entry),
+        }
     }
 
     /// Walk a directory on the host. The walk and the file classification both
@@ -535,6 +568,30 @@ impl FileTree {
         };
         fs::read(root.join(entry.path()))
             .with_context(|| format!("reading {}", entry.path().display()))
+    }
+
+    /// The first `len` bytes of a file (fewer when it is shorter): what a magic
+    /// number sniff needs, without reading a large file whole.
+    pub fn read_prefix(&self, entry: &Entry, len: usize) -> anyhow::Result<Vec<u8>> {
+        let (Entry::RegularFile { content, .. } | Entry::Hardlink { content, .. }) = entry else {
+            bail!("Entry {} is not a file", entry.path().display());
+        };
+        if let Some(bytes) = content {
+            return Ok(bytes[..bytes.len().min(len)].to_vec());
+        }
+        let Some(root) = &self.root else {
+            bail!(
+                "Entry {} has no content and File tree has no directory root",
+                entry.path().display()
+            );
+        };
+        let path = root.join(entry.path());
+        let file = fs::File::open(&path).with_context(|| format!("reading {}", path.display()))?;
+        let mut prefix = Vec::with_capacity(len);
+        file.take(len as u64)
+            .read_to_end(&mut prefix)
+            .with_context(|| format!("reading {}", path.display()))?;
+        Ok(prefix)
     }
 }
 
@@ -841,6 +898,11 @@ fn classify_files(files: &[PendingFile], threads: usize) -> anyhow::Result<Vec<O
     Ok(classified)
 }
 
+#[allow(dead_code)]
+fn digest_md5(files: &FileTree, entry: &Entry) -> Option<String> {
+    entry_bytes(files, entry).map(|bytes| hex_digest(DigestAlgorithm::Md5, &bytes))
+}
+
 fn set_file_type(entry: &mut Entry, classified: Option<FileType>) {
     if let Entry::RegularFile { file_type, .. } | Entry::Hardlink { file_type, .. } = entry {
         *file_type = classified;
@@ -983,6 +1045,27 @@ mod tests {
 
     /// The walk lists everything: hidden files, VCS directories, and paths a
     /// `.gitignore` or `.ignore` names. Symlinks to directories are not followed.
+    #[test]
+    fn read_prefix_reads_at_most_len_bytes_from_disk_or_memory() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        fs::write(dir.path().join("long"), b"0123456789")?;
+        fs::write(dir.path().join("short"), b"ab")?;
+        fs::create_dir(dir.path().join("dir"))?;
+        let tree = FileTree::from_host_directory(dir.path())?;
+        let entry = |path: &str| tree.get(path).expect("entry");
+
+        assert_eq!(tree.read_prefix(entry("long"), 4)?, b"0123");
+        assert_eq!(tree.read_prefix(entry("short"), 4)?, b"ab");
+        assert!(tree.read_prefix(entry("dir"), 4).is_err());
+
+        let memory = FileTree::from_entries(
+            None,
+            vec![Entry::regular_file("f", None, Some(b"abcdef".to_vec()))],
+        );
+        assert_eq!(memory.read_prefix(memory.get("f").expect("f"), 3)?, b"abc");
+        Ok(())
+    }
+
     #[test]
     fn from_host_directory_does_not_filter_or_follow_links() -> anyhow::Result<()> {
         let dir = TempDir::new()?;
@@ -1289,5 +1372,67 @@ mod tests {
         let directory = tree.get("debian").expect("debian");
         assert!(tree.read(directory).is_err());
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod md5_tests {
+    use super::*;
+    use crate::lint::digest::{DigestAlgorithm, hex_digest};
+
+    #[test]
+    fn md5sum_of_entries_is_digest_of_their_bytes() {
+        let tree = FileTree::from_entries(
+            None,
+            vec![
+                Entry::regular_file("a.bin", None, Some(b"same".to_vec())),
+                Entry::hardlink("b.bin", None, Some(b"same".to_vec())),
+                Entry::directory("dir"),
+                Entry::symlink("link", "a.bin"),
+            ],
+        );
+        let expected = hex_digest(DigestAlgorithm::Md5, b"same");
+        assert_eq!(
+            tree.md5sum(tree.get("a.bin").expect("a")),
+            Some(expected.clone())
+        );
+        assert_eq!(tree.md5sum(tree.get("b.bin").expect("b")), Some(expected));
+        assert_eq!(tree.md5sum(tree.get("dir").expect("dir")), None);
+        assert_eq!(tree.md5sum(tree.get("link").expect("link")), None);
+    }
+
+    #[test]
+    fn md5sum_is_shared_by_repeated_asks() {
+        let tree = FileTree::from_entries(
+            None,
+            vec![Entry::regular_file("a.bin", None, Some(b"x".to_vec()))],
+        );
+        let entry = tree.get("a.bin").expect("a");
+        let first = tree.md5sum(entry);
+        assert!(
+            tree.md5sums[0].get().is_some(),
+            "digest cached after first ask"
+        );
+        assert_eq!(tree.md5sum(entry), first);
+    }
+
+    #[test]
+    fn md5sum_of_an_entry_outside_the_tree_is_computed_without_caching() {
+        let tree = FileTree::from_entries(
+            None,
+            vec![Entry::regular_file("a.bin", None, Some(b"x".to_vec()))],
+        );
+        let foreign = Entry::regular_file("a.bin", None, Some(b"x".to_vec()));
+        assert_eq!(
+            tree.md5sum(&foreign),
+            Some(hex_digest(DigestAlgorithm::Md5, b"x"))
+        );
+        assert!(tree.md5sums[0].get().is_none());
+    }
+
+    #[test]
+    fn host_file_without_root_has_no_md5() {
+        let tree = FileTree::from_entries(None, vec![Entry::regular_file("a.bin", None, None)]);
+        assert_eq!(tree.md5sum(tree.get("a.bin").expect("a")), None);
     }
 }

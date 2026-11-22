@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): bad-urgency-in-changes-file (LN1485) unknown
+E: example (changes): bad-urgency-in-changes-file (LN1485) urgent
+E: example (changes): bad-urgency-in-changes-file (LN1485) very high
+E: example (changes): bad-urgency-in-changes-file (LN1485)

@@ -3,6 +3,7 @@ mod ar;
 mod binary_package_reader;
 mod buildinfo;
 mod changes;
+mod content_type;
 mod context;
 mod data;
 mod deb_members;
@@ -11,6 +12,7 @@ mod debian_changelog;
 mod debian_control;
 mod debian_copyright;
 mod diagnostic;
+mod digest;
 mod diversion;
 mod dsc;
 mod elf;
@@ -49,6 +51,7 @@ pub(crate) mod tester;
 #[cfg(test)]
 mod tester_group;
 mod timing;
+mod upstream_metadata;
 mod xml;
 mod zip;
 

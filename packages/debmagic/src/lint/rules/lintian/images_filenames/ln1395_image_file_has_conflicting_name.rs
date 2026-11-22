@@ -5,6 +5,7 @@ use std::sync::LazyLock;
 use regex::bytes::Regex;
 
 use crate::declare_rule;
+use crate::lint::content_type::ContentType;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::FileTree;
@@ -103,47 +104,23 @@ static GOOD_SVG: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\.(?:svg|SVG)$").expect("valid regex"));
 
 /// The image format of `bytes` by its leading bytes, as `file(1)` names it.
+/// Sniffed by [`ContentType`]; the non-image types have no format here.
 pub(crate) fn image_format(bytes: &[u8]) -> Option<ImageFormat> {
-    if bytes.starts_with(b"\x89PNG\r\n\x1a\n") {
-        return Some(ImageFormat::Png);
-    }
-    if bytes.starts_with(b"\xff\xd8\xff") {
-        return Some(ImageFormat::Jpeg);
-    }
-    if bytes.starts_with(b"GIF87a") || bytes.starts_with(b"GIF89a") {
-        return Some(ImageFormat::Gif);
-    }
-    if bytes.starts_with(b"II*\0") || bytes.starts_with(b"MM\0*") {
-        return Some(ImageFormat::Tiff);
-    }
-    if bytes.starts_with(b"/* XPM */") {
-        return Some(ImageFormat::Xpm);
-    }
-    // A Netpbm magic `P1` to `P7` followed by white space.
-    if bytes.len() > 2
-        && bytes[0] == b'P'
-        && (b'1'..=b'7').contains(&bytes[1])
-        && bytes[2].is_ascii_whitespace()
-    {
-        return Some(ImageFormat::Netpbm);
-    }
-    if is_svg(bytes) {
-        return Some(ImageFormat::Svg);
-    }
-    None
-}
-
-fn is_svg(bytes: &[u8]) -> bool {
-    let body = bytes.strip_prefix(b"\xef\xbb\xbf").unwrap_or(bytes);
-    let trimmed = body
-        .iter()
-        .position(|byte| !byte.is_ascii_whitespace())
-        .map_or(&body[body.len()..], |start| &body[start..]);
-    let xml_or_svg = trimmed.starts_with(b"<?xml")
-        || trimmed.starts_with(b"<svg")
-        || trimmed.starts_with(b"<!DOCTYPE svg");
-    let head = &body[..body.len().min(8192)];
-    xml_or_svg && head.windows(4).any(|window| window == b"<svg")
+    Some(match ContentType::sniff(bytes)? {
+        ContentType::Png => ImageFormat::Png,
+        ContentType::Jpeg => ImageFormat::Jpeg,
+        ContentType::Gif => ImageFormat::Gif,
+        ContentType::Tiff => ImageFormat::Tiff,
+        ContentType::Xpm => ImageFormat::Xpm,
+        ContentType::Netpbm => ImageFormat::Netpbm,
+        ContentType::Svg => ImageFormat::Svg,
+        ContentType::Bmp
+        | ContentType::Pdf
+        | ContentType::PostScript
+        | ContentType::Matlab { .. } => {
+            return None;
+        }
+    })
 }
 
 fn conflicting_paths(files: &FileTree) -> Vec<(PathBuf, ImageFormat)> {

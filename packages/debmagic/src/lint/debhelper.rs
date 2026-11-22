@@ -81,6 +81,8 @@ static WITH_ADDONS: LazyLock<Regex> =
 static MAKE_CONDITIONAL: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^ifn?(?:eq|def)\s").expect("regex"));
 static MAKE_ENDIF: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^endif\s").expect("regex"));
+/// A make variable in a `dh` line, which may hold any add-on.
+static DYNAMIC_DH: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\$[({]\w").expect("regex"));
 static INDIRECT_DH: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"^include\s+/usr/share/(?:dh-php/pkg-pecl\.mk|blends-dev/rules)").expect("regex")
 });
@@ -143,6 +145,9 @@ pub(crate) struct DebhelperFacts {
     /// read as `_` (lintian's `$addon`). Not limited to make conditionals.
     /// Empty when [`Self::uses_debhelper`] is false.
     addons: Vec<String>,
+    /// lintian's `$seen_dh_dynamic`: a `dh` line has a make variable, so any
+    /// add-on may be in use.
+    dynamic_addons: bool,
 }
 
 enum PackagingFile {
@@ -194,6 +199,7 @@ impl DebhelperFacts {
             compat_file_open,
             commands: walk.commands,
             addons: walk.addons,
+            dynamic_addons: walk.dynamic_addons,
         }
     }
 
@@ -206,6 +212,7 @@ impl DebhelperFacts {
             compat_file_open: false,
             commands: Vec::new(),
             addons: Vec::new(),
+            dynamic_addons: false,
         }
     }
 
@@ -256,6 +263,14 @@ impl DebhelperFacts {
     /// read as `_`. Empty when debhelper is not used.
     pub(crate) fn addons(&self) -> &[String] {
         &self.addons
+    }
+
+    /// A `dh` line of `debian/rules` has a make variable (`$(...)`, `${...}`),
+    /// so lintian assumes every add-on is in use. False when debhelper is
+    /// not used.
+    #[allow(dead_code)]
+    pub(crate) fn has_dynamic_addons(&self) -> bool {
+        self.dynamic_addons
     }
 }
 
@@ -433,6 +448,7 @@ struct RulesWalk {
     seen_any_dh_command: bool,
     commands: Vec<DhCommand>,
     addons: Vec<String>,
+    dynamic_addons: bool,
 }
 
 /// Walk `debian/rules` as lintian's `debhelper` Check reads it: a line ends
@@ -445,6 +461,7 @@ fn walk_rules(text: &str) -> RulesWalk {
         seen_any_dh_command: false,
         commands: Vec::new(),
         addons: Vec::new(),
+        dynamic_addons: false,
     };
     let mut maybe_skipping = 0i64;
     let mut index = 0;
@@ -476,6 +493,7 @@ fn walk_rules(text: &str) -> RulesWalk {
         } else if DH_SEQUENCER.is_match(&line) {
             walk.seen_any_dh_command = true;
             walk.addons.extend(with_addons(&line));
+            walk.dynamic_addons |= DYNAMIC_DH.is_match(&line);
         } else if INDIRECT_DH.is_match(&line) {
             walk.seen_any_dh_command = true;
         }
@@ -575,6 +593,17 @@ Description: example\n extra\n";
         assert!(facts.uses_debhelper());
         assert_eq!(facts.level(), 9);
         assert_eq!(facts.compat_source(), Some(&CompatSource::DebianCompat));
+    }
+
+    #[test]
+    fn make_variable_in_a_dh_line_is_a_dynamic_addon_list() {
+        let facts = with_rules("\tdh $@ --with $(ADDONS)\n", PackagingFile::Missing);
+        assert!(facts.has_dynamic_addons());
+        let facts = with_rules("\tdh $@ --with foo\n", PackagingFile::Missing);
+        assert!(!facts.has_dynamic_addons());
+        // A variable on a `dh_*` line is not looked at.
+        let facts = with_rules("\tdh_foo ${X}\n\tdh $@\n", PackagingFile::Missing);
+        assert!(!facts.has_dynamic_addons());
     }
 
     #[test]

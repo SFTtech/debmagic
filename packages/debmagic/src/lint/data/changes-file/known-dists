@@ -1,0 +1,40 @@
+# A list of Debian distributions, both code names and their aliases
+# - Note that common "extensions"[1] are stripped before checking for the
+#   distribution name (except for "sid", "unstable" and "experimental").
+#
+# [1] -backports, -security, -proposed-updates etc.  See checks/changes-file
+# for the complete list.
+#
+# Vendored from lintian 2.144.0 data/changes-file/known-dists. The
+# `@include-distro-info-series debian` line is expanded to the codenames in
+# distro-info/debian-series.
+#
+buzz
+rex
+bo
+hamm
+slink
+potato
+woody
+sarge
+etch
+lenny
+squeeze
+wheezy
+jessie
+stretch
+buster
+bullseye
+bookworm
+trixie
+forky
+duke
+sid
+rc-buggy
+# Aliases
+oldstable
+stable
+testing
+unstable
+experimental
+unreleased

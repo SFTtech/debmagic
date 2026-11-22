@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): upstream-metadata-not-yaml-mapping (LN1341) [debian/upstream/metadata]
+W: example (source): upstream-metadata-not-yaml-mapping (LN1341) [debian/upstream/metadata]
+W: example (source): upstream-metadata-not-yaml-mapping (LN1341) [debian/upstream/metadata]

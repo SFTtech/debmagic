@@ -70,6 +70,7 @@ use super::rules::DebconfTranslationUsingGeneralList;
 use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
 use super::rules::DebianControlFileIsASymlink;
+use super::rules::DebianControlHasUnusualFieldSpacing;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &RedundantControlRelation,
+        &DebianControlHasUnusualFieldSpacing,
     ]
 }
 
@@ -2295,6 +2297,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &RedundantControlRelation,
+        &DebianControlHasUnusualFieldSpacing,
     ]
 }
 

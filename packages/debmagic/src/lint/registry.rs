@@ -213,6 +213,7 @@ use super::rules::NonStandardDirPerm;
 use super::rules::NonStandardFilePerm;
 use super::rules::NonStandardFilePermissionsForEtcInitDScript;
 use super::rules::NonStandardSetuidExecutablePerm;
+use super::rules::NotAllowedControlFile;
 use super::rules::NotUsingPoDebconf;
 use super::rules::ObsoleteCryptAlias;
 use super::rules::ObsoleteDesEncryption;
@@ -1781,6 +1782,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ControlFileHasBadPermissions,
         &ControlFileIsEmpty,
         &ControlFileIsNotAFile,
+        &NotAllowedControlFile,
     ]
 }
 
@@ -2839,6 +2841,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ControlFileHasBadPermissions,
         &ControlFileIsEmpty,
         &ControlFileIsNotAFile,
+        &NotAllowedControlFile,
     ]
 }
 

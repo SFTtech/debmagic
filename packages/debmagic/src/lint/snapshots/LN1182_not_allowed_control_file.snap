@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): not-allowed-control-file (LN1182) [isinstallable]
+E: example (binary): not-allowed-control-file (LN1182) [isinstallable]
+E: example (udeb): not-allowed-control-file (LN1182) [md5sums]

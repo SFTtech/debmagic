@@ -661,8 +661,8 @@ pub(crate) use init_scripts::{
 pub(crate) use languages_javascript::{
     EmbeddedJavascriptLibrary, NodePackageInstallInNodejsRootdir, NodejsLockFile,
     NodejsModuleInstalledInBadDirectory, NodejsModuleInstalledInUsrLib,
-    PkgJsAutopkgtestFileDoesNotExist, PkgJsAutopkgtestTestIsEmpty, PkgJsToolsTestIsEmpty,
-    PkgJsToolsTestIsMissing,
+    PkgJsAutopkgtestFileDoesNotExist, PkgJsAutopkgtestTestIsEmpty, PkgJsAutopkgtestTestIsMissing,
+    PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
 pub(crate) use languages_ocaml::{OcamlDanglingCmxa, OcamlDanglingCmxs};
 pub(crate) use languages_perl::{

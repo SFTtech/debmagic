@@ -274,6 +274,7 @@ use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
 use super::rules::PkgJsAutopkgtestTestIsEmpty;
+use super::rules::PkgJsAutopkgtestTestIsMissing;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PostinstHasUselessCallToUpdateMenus;
@@ -1883,6 +1884,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LicenseProblemNvidiaIntellectual,
         &LicenseProblemOldUnicode,
         &PkgJsAutopkgtestTestIsEmpty,
+        &PkgJsAutopkgtestTestIsMissing,
     ]
 }
 
@@ -2224,6 +2226,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &LicenseProblemNvidiaIntellectual,
         &LicenseProblemOldUnicode,
         &PkgJsAutopkgtestTestIsEmpty,
+        &PkgJsAutopkgtestTestIsMissing,
     ]
 }
 

@@ -305,6 +305,11 @@ fn source_tree_hint_matches_filled_tree(recipe: &Path, hint: &ParityHint) -> boo
     if hint.tag == "no-debian-changes" {
         return false;
     }
+    // `add-component-copyright` reads the orig tarball names of the `.dsc`. A
+    // Source tree has none, so only the Source package can report it.
+    if hint.tag == "add-component-copyright" {
+        return false;
+    }
     !(matches!(
         hint.tag.as_str(),
         "package-uses-deprecated-debhelper-compat-version"
@@ -921,6 +926,10 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
     (
         "checks/deb-format/deb-format-udeb-compression",
         "the recipe runs `dpkg-deb -Zlzma`, which dpkg 1.23 rejects",
+    ),
+    (
+        "checks/debian/copyright/dep5/components/control-file-upstream-signature-missing",
+        "the harness does not synthesize the `signed`, `noext` and `component` orig tarballs, so dpkg-source builds a .dsc without them and no component is known",
     ),
 ];
 

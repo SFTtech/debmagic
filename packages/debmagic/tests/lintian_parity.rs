@@ -977,6 +977,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/prerequisite/development/legacy-libbaz",
     "checks/debian/control/prerequisite/redundant/control-file-general",
     "checks/debian/control/prerequisite/redundant/legacy-relations",
+    "checks/debian/copyright/dep5/components/control-file-upstream-signature-missing",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
     "checks/debian/copyright/dep5/excluded-files-in-native",
@@ -2264,6 +2265,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/prerequisite/development/legacy-libbaz"; "checks_debian_control_prerequisite_development_legacy_libbaz")]
 #[test_case("checks/debian/control/prerequisite/redundant/control-file-general"; "checks_debian_control_prerequisite_redundant_control_file_general")]
 #[test_case("checks/debian/control/prerequisite/redundant/legacy-relations"; "checks_debian_control_prerequisite_redundant_legacy_relations")]
+#[test_case("checks/debian/copyright/dep5/components/control-file-upstream-signature-missing"; "checks_debian_copyright_dep5_components_control_file_upstream_signature_missing")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/dep5/excluded-files-in-native"; "checks_debian_copyright_dep5_excluded_files_in_native")]

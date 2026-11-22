@@ -1,4 +1,5 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
+use super::rules::AddComponentCopyright;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
 use super::rules::Apache2DeprecatedAuthConfig;
@@ -1937,6 +1938,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RedundantControlRelation,
         &DebianControlHasUnusualFieldSpacing,
         &InsecureCopyrightFormatUri,
+        &AddComponentCopyright,
     ]
 }
 
@@ -2301,6 +2303,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RedundantControlRelation,
         &DebianControlHasUnusualFieldSpacing,
         &InsecureCopyrightFormatUri,
+        &AddComponentCopyright,
     ]
 }
 

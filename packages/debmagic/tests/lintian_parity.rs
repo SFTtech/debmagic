@@ -1552,6 +1552,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/fields/distribution/changelog-file-backport",
     "checks/fields/distribution/changes-bad-ubuntu-distribution",
     "checks/fields/distribution/changes-distribution-mismatch",
+    "checks/fields/distribution/changes-experimental-mismatch",
     "checks/fields/distribution/distribution-multiple-bad",
     "checks/fields/urgency/generic-empty",
     "checks/fields/version/fields-version-bad",
@@ -3140,6 +3141,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/fields/distribution/changelog-file-backport"; "checks_fields_distribution_changelog_file_backport")]
 #[test_case("checks/fields/distribution/changes-bad-ubuntu-distribution"; "checks_fields_distribution_changes_bad_ubuntu_distribution")]
 #[test_case("checks/fields/distribution/changes-distribution-mismatch"; "checks_fields_distribution_changes_distribution_mismatch")]
+#[test_case("checks/fields/distribution/changes-experimental-mismatch"; "checks_fields_distribution_changes_experimental_mismatch")]
 #[test_case("checks/fields/distribution/distribution-multiple-bad"; "checks_fields_distribution_distribution_multiple_bad")]
 #[test_case("checks/fields/urgency/generic-empty"; "checks_fields_urgency_generic_empty")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]

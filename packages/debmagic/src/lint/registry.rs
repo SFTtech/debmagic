@@ -144,6 +144,7 @@ use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DistantPrerequisiteInShlibs;
 use super::rules::DistributionAndChangesMismatch;
+use super::rules::DistributionAndExperimentalMismatch;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DuplicateFontFile;
@@ -2183,6 +2184,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageHasLongFileName,
         &BadUrgencyInChangesFile,
         &DistributionAndChangesMismatch,
+        &DistributionAndExperimentalMismatch,
     ]
 }
 
@@ -3449,6 +3451,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &PackageHasLongFileName,
         &BadUrgencyInChangesFile,
         &DistributionAndChangesMismatch,
+        &DistributionAndExperimentalMismatch,
     ]
 }
 

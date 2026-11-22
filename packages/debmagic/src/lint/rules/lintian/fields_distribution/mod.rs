@@ -10,11 +10,13 @@ mod ln1480_bad_distribution_in_changes_file;
 mod ln1481_backports_changes_missing;
 mod ln1482_backports_upload_has_incorrect_version_number;
 mod ln1487_distribution_and_changes_mismatch;
+mod ln1488_distribution_and_experimental_mismatch;
 
 pub(crate) use ln1480_bad_distribution_in_changes_file::BadDistributionInChangesFile;
 pub(crate) use ln1481_backports_changes_missing::BackportsChangesMissing;
 pub(crate) use ln1482_backports_upload_has_incorrect_version_number::BackportsUploadHasIncorrectVersionNumber;
 pub(crate) use ln1487_distribution_and_changes_mismatch::DistributionAndChangesMismatch;
+pub(crate) use ln1488_distribution_and_experimental_mismatch::DistributionAndExperimentalMismatch;
 
 /// The distribution with the common extensions stripped (`stable-security`
 /// reads as `stable`; `sid` and `experimental` are left alone). Lintian's

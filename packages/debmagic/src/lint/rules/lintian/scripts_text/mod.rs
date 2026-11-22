@@ -41,6 +41,7 @@ mod ln0988_mawk_script_but_no_mawk_dep;
 mod ln1132_udeb_postinst_calls_ldconfig;
 mod ln1184_ruby_script_but_no_ruby_dep;
 mod ln1185_script_not_executable;
+mod ln1186_script_uses_deprecated_nodejs_location;
 mod scan;
 
 pub(crate) use ln0186_maintainer_script_calls_install_sgmlcatalog::MaintainerScriptCallsInstallSgmlcatalog;
@@ -81,3 +82,4 @@ pub(crate) use ln0988_mawk_script_but_no_mawk_dep::MawkScriptButNoMawkDep;
 pub(crate) use ln1132_udeb_postinst_calls_ldconfig::UdebPostinstCallsLdconfig;
 pub(crate) use ln1184_ruby_script_but_no_ruby_dep::RubyScriptButNoRubyDep;
 pub(crate) use ln1185_script_not_executable::ScriptNotExecutable;
+pub(crate) use ln1186_script_uses_deprecated_nodejs_location::ScriptUsesDeprecatedNodejsLocation;

@@ -1021,8 +1021,8 @@ pub(crate) use scripts_text::{
     UnusualControlInterpreter, WishScriptButNoWishDep,
 };
 pub(crate) use systemd::{
-    InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, KillModeNone,
-    MisplacedSystemdTmpfiles, MissingSystemdServiceForInitDScript,
+    InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, InvalidSystemdDocumentation,
+    KillModeNone, MisplacedSystemdTmpfiles, MissingSystemdServiceForInitDScript,
     MissingSystemdTimerForCronScript, OmittedSystemdServiceForInitDScript, ServiceFileIsNotAFile,
     SystemdServiceAliasWithoutExtension, SystemdServiceFileMissingDocumentationKey,
     SystemdServiceFileRefersToObsoleteBindto, SystemdServiceFileRefersToUnusualWantedbyTarget,

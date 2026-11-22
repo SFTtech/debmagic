@@ -217,6 +217,7 @@ use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
+use super::rules::InvalidSystemdDocumentation;
 use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
@@ -2189,6 +2190,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExampleScriptUsesBinEnv,
         &ExampleScriptWithoutInterpreter,
         &ExampleWrongPathForInterpreter,
+        &InvalidSystemdDocumentation,
     ]
 }
 
@@ -3449,6 +3451,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExampleScriptUsesBinEnv,
         &ExampleScriptWithoutInterpreter,
         &ExampleWrongPathForInterpreter,
+        &InvalidSystemdDocumentation,
     ]
 }
 

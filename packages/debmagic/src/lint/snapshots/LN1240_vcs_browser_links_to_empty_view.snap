@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): vcs-browser-links-to-empty-view (LN1240) https://anonscm.debian.org/viewvc/foobar/trunk?rev=0&sc=0
+W: example (source): vcs-browser-links-to-empty-view (LN1240) https://example.com/foo?rev=0&sc=0&x=1

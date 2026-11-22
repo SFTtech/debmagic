@@ -553,7 +553,7 @@ pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
 pub(crate) use fields_uploaders::UploaderNameMissing;
 pub(crate) use fields_vcs::{
     OrphanedPackageMaintainedInPrivateSpace, OrphanedPackageNotMaintainedInDebianInfrastructure,
-    VcsFieldBitrotted, VcsFieldMismatch,
+    VcsBrowserLinksToEmptyView, VcsFieldBitrotted, VcsFieldMismatch,
 };
 pub(crate) use files_artifact::{
     DebianAddsArchControlDir, DebianAddsArchInventoryFile, DebianAddsBtsControlDir,

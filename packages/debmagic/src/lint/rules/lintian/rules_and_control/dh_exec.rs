@@ -40,7 +40,14 @@ const FILENAME_CONFIGS: &[&str] = &[
 static SCRIPT_NAME: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(?:.*\.)?(?:post|pre)(?:inst|rm)$").expect("valid regex"));
 static SUBSTITUTION: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\$\{[^}]+\}").expect("valid regex"));
+    LazyLock::new(|| Regex::new(r"\$\{([^}]+)\}").expect("valid regex"));
+/// The variables dh-exec substitutes without the package exporting them.
+static KNOWN_SUBSTITUTION: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r"^DEB_(?:BUILD|HOST)_(?:ARCH(?:_OS|_CPU|_BITS|_ENDIAN)?|GNU_(?:CPU|SYSTEM|TYPE)|MULTIARCH)$",
+    )
+    .expect("valid regex")
+});
 static INSTALL_ARROW: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"[ \t]=>[ \t]").expect("valid regex"));
 static BRACKET_FILTER: LazyLock<Regex> =
@@ -54,6 +61,9 @@ pub(super) struct DhExecScript {
     /// Text after the last dot of the name, or the whole name.
     pub(super) category: String,
     pub(super) substitution: bool,
+    /// The first `${...}` of each line that is not a `DEB_BUILD_*` or
+    /// `DEB_HOST_*` variable dh-exec knows: the 1-based line and the name.
+    pub(super) unknown_variables: Vec<(u32, String)>,
     pub(super) install: bool,
     pub(super) filter: bool,
 }
@@ -103,12 +113,19 @@ pub(super) fn dh_exec_scripts(ctx: &mut SourceContext<'_>) -> Vec<DhExecScript> 
             path: path.to_path_buf(),
             category: category.to_string(),
             substitution: false,
+            unknown_variables: Vec::new(),
             install: false,
             filter: false,
         };
-        for line in text.split('\n') {
-            if SUBSTITUTION.is_match(line) {
+        for (index, line) in text.split('\n').enumerate() {
+            if let Some(captures) = SUBSTITUTION.captures(line) {
                 script.substitution = level < DEBHELPER_DEB_SUBST_LEVEL;
+                let name = &captures[1];
+                if !KNOWN_SUBSTITUTION.is_match(name) {
+                    script
+                        .unknown_variables
+                        .push((index as u32 + 1, name.to_string()));
+                }
             }
             if INSTALL_ARROW.is_match(line) {
                 script.install = true;

@@ -135,6 +135,7 @@ use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
 use super::rules::DhExecScriptWithoutDhExecFeatures;
+use super::rules::DhExecSubstUnknownVariable;
 use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhMakeTemplateInSource;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
@@ -2175,6 +2176,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoCodeSections,
         &DeprecatedConfigureFilename,
         &LicenseProblemGfdlInvariantsEmpty,
+        &DhExecSubstUnknownVariable,
     ]
 }
 
@@ -2576,6 +2578,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InconsistentAppstreamMetadataLicense,
         &DeprecatedConfigureFilename,
         &LicenseProblemGfdlInvariantsEmpty,
+        &DhExecSubstUnknownVariable,
     ]
 }
 

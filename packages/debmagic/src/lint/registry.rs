@@ -1,4 +1,5 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
+use super::rules::AcuteAccentInManualPage;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
 use super::rules::Apache2DeprecatedAuthConfig;
@@ -1949,6 +1950,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UdebContainsDocumentationFile,
         &SourceContainsPrebuiltDoxygenDocumentation,
         &FSSTNDDirInManualPage,
+        &AcuteAccentInManualPage,
     ]
 }
 
@@ -3091,6 +3093,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageContainsUpstreamInstallationDocumentation,
         &UdebContainsDocumentationFile,
         &FSSTNDDirInManualPage,
+        &AcuteAccentInManualPage,
     ]
 }
 

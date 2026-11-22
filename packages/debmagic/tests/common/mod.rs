@@ -45,6 +45,22 @@ pub fn run_lint_subject(subject: &Path, extra_args: &[&str]) -> (ExitStatus, Str
     )
 }
 
+/// `debmagic lint` of several artifacts at once.
+pub fn run_lint_subjects(subjects: &[&Path], extra_args: &[&str]) -> (ExitStatus, String, String) {
+    let output = Command::new(env!("CARGO_BIN_EXE_debmagic"))
+        .arg("lint")
+        .args(subjects)
+        .args(extra_args)
+        .output()
+        .expect("failed to spawn debmagic");
+
+    (
+        output.status,
+        String::from_utf8_lossy(&output.stdout).into_owned(),
+        String::from_utf8_lossy(&output.stderr).into_owned(),
+    )
+}
+
 pub fn build_native_dsc(work: &Path, name: &str, extra_files: &[(&str, &[u8])]) -> PathBuf {
     let tree = work.join("src");
     fs::create_dir_all(tree.join("debian/source")).expect("debian/source");
@@ -179,39 +195,11 @@ pub fn source_rule_counts() -> SourceRuleCounts {
     counts
 }
 
+/// Tags of the LN Rules a Source-tree lint can show: Rules of the Source and
+/// Binary-package kinds. A Rule that inspects only the artifacts of a Group
+/// (a Changes file, a Buildinfo file, a whole Group) is not one of them.
 pub fn catalogued_ln_tags() -> HashSet<String> {
-    let mut tags = HashSet::new();
-    let rules_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/lint/rules/lintian");
-    fn walk(dir: &Path, tags: &mut HashSet<String>) {
-        let Ok(entries) = fs::read_dir(dir) else {
-            return;
-        };
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.is_dir() {
-                walk(&path, tags);
-                continue;
-            }
-            if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
-                continue;
-            }
-            let Ok(text) = fs::read_to_string(&path) else {
-                continue;
-            };
-            for line in text.lines() {
-                let line = line.trim();
-                let Some(rest) = line.strip_prefix("tag = \"") else {
-                    continue;
-                };
-                let Some(tag) = rest.strip_suffix("\",") else {
-                    continue;
-                };
-                tags.insert(tag.to_string());
-            }
-        }
-    }
-    walk(&rules_dir, &mut tags);
-    tags
+    catalogued_tags_with_impl(&["impl SourceRule for", "impl BinaryPackageRule for"])
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -330,25 +318,25 @@ fn applies_to_binary_package(processable_type: &str) -> bool {
 
 /// Tags of LN Rules that implement `BinaryPackageRule`.
 pub fn catalogued_binary_package_tags() -> HashSet<String> {
-    catalogued_tags_with_impl("impl BinaryPackageRule for")
+    catalogued_tags_with_impl(&["impl BinaryPackageRule for"])
 }
 
 /// Tags of LN Rules that implement `SourceRule`.
 pub fn catalogued_source_package_tags() -> HashSet<String> {
-    catalogued_tags_with_impl("impl SourceRule for")
+    catalogued_tags_with_impl(&["impl SourceRule for"])
 }
 
-fn catalogued_tags_with_impl(needle: &str) -> HashSet<String> {
+fn catalogued_tags_with_impl(needles: &[&str]) -> HashSet<String> {
     let mut tags = HashSet::new();
     let rules_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/lint/rules/lintian");
-    fn walk(dir: &Path, needle: &str, tags: &mut HashSet<String>) {
+    fn walk(dir: &Path, needles: &[&str], tags: &mut HashSet<String>) {
         let Ok(entries) = fs::read_dir(dir) else {
             return;
         };
         for entry in entries.flatten() {
             let path = entry.path();
             if path.is_dir() {
-                walk(&path, needle, tags);
+                walk(&path, needles, tags);
                 continue;
             }
             if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
@@ -357,7 +345,7 @@ fn catalogued_tags_with_impl(needle: &str) -> HashSet<String> {
             let Ok(text) = fs::read_to_string(&path) else {
                 continue;
             };
-            if !text.contains(needle) {
+            if !needles.iter().any(|needle| text.contains(needle)) {
                 continue;
             }
             for line in text.lines() {
@@ -372,7 +360,7 @@ fn catalogued_tags_with_impl(needle: &str) -> HashSet<String> {
             }
         }
     }
-    walk(&rules_dir, needle, &mut tags);
+    walk(&rules_dir, needles, &mut tags);
     tags
 }
 
@@ -802,8 +790,11 @@ fn rules_use_nodejs(source: &Path) -> bool {
         || control.contains("dh-sequence-nodejs")
 }
 
-fn dpkg_build_binary(source: &Path) {
-    ensure_rules_executable(source);
+/// `dpkg-buildpackage` in `source`, with the host fixes recipes need: a
+/// `dpkg-deb` that passes `--nocheck`, a stub for `dh --with nodejs` when
+/// `pkg-js-tools` is missing, and umask 022 (lintian's recipes are built
+/// under it). The caller adds the arguments and runs it.
+fn dpkg_buildpackage_command(source: &Path, build_options: &str) -> Command {
     let stub = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/dh_sequence_nodejs");
     let use_nodejs_stub = rules_use_nodejs(source) && nodejs_sequence_missing();
     let mut path = dpkg_deb_nocheck_path(source).into_os_string();
@@ -816,8 +807,7 @@ fn dpkg_build_binary(source: &Path) {
     let mut command = Command::new("dpkg-buildpackage");
     command
         .current_dir(source)
-        .args(["-b", "-us", "-uc", "-d"])
-        .env("DEB_BUILD_OPTIONS", "nocheck noautodbgsym")
+        .env("DEB_BUILD_OPTIONS", build_options)
         .env("PATH", &path)
         .stdin(Stdio::null());
     if use_nodejs_stub {
@@ -841,6 +831,13 @@ fn dpkg_build_binary(source: &Path) {
             });
         }
     }
+    command
+}
+
+fn dpkg_build_binary(source: &Path) {
+    ensure_rules_executable(source);
+    let mut command = dpkg_buildpackage_command(source, "nocheck noautodbgsym");
+    command.args(["-b", "-us", "-uc", "-d"]);
     let output = command.output().expect("spawning dpkg-buildpackage -b");
     assert!(
         output.status.success(),
@@ -1696,4 +1693,214 @@ fn rewrite_changelog_last_used(recipe_rel: &str, hints: &mut [ParityHint]) {
         hint.extra
             .replace_range(start..=end, "(last used: CURRENT)");
     }
+}
+
+// --- Group Parity (ADR 0055) -------------------------------------------------------------------
+
+/// Tags of the Rules that inspect the artifacts of a Group, by Rule kind.
+pub struct GroupTags {
+    changes: HashSet<String>,
+    buildinfo: HashSet<String>,
+    group: HashSet<String>,
+}
+
+pub fn catalogued_group_tags() -> GroupTags {
+    GroupTags {
+        changes: catalogued_tags_with_impl(&["impl ChangesRule for"]),
+        buildinfo: catalogued_tags_with_impl(&["impl BuildinfoRule for"]),
+        group: catalogued_tags_with_impl(&["impl GroupRule for"]),
+    }
+}
+
+/// A hint a Group lint shows, per processable type: `changes` and `buildinfo`
+/// hints come from the Changes-file and Buildinfo-file Rules; a Group Rule's
+/// Diagnostics attach to the Source package, so its hints are `source`. Kept
+/// in step with `applies_to_group` in `scripts/import_lintian_parity.py`.
+fn applies_to_group(processable_type: &str, tag: &str, tags: &GroupTags) -> bool {
+    match processable_type {
+        "changes" => tags.changes.contains(tag),
+        "buildinfo" => tags.buildinfo.contains(tag),
+        "source" => tags.group.contains(tag),
+        _ => false,
+    }
+}
+
+/// The skeleton a recipe was filled from (`ORIGIN`).
+fn recipe_skeleton(recipe: &Path) -> Option<String> {
+    let origin = fs::read_to_string(recipe.join("ORIGIN")).ok()?;
+    origin
+        .lines()
+        .find_map(|line| line.strip_prefix("Skeleton:"))
+        .map(|skeleton| skeleton.trim().to_string())
+}
+
+/// Recipes whose build product is a `.changes`, which lintian lints as a Group:
+/// the `upload-*` skeletons build one with `dpkg-buildpackage`, the `changes`
+/// skeleton ships a filled one.
+fn recipe_product_is_changes(recipe: &Path) -> bool {
+    matches!(
+        recipe_skeleton(recipe).as_deref(),
+        Some("upload-native" | "upload-non-native" | "upload-builder-only" | "changes")
+    )
+}
+
+fn catalogued_group_hints(recipe: &Path, tags: &GroupTags) -> Vec<(String, ParityHint)> {
+    let mut expected: Vec<(String, ParityHint)> = load_hints(&recipe.join("eval/hints"))
+        .into_iter()
+        .filter(|(processable_type, hint)| applies_to_group(processable_type, &hint.tag, tags))
+        .collect();
+    expected.sort();
+    expected
+}
+
+/// Vendored recipes whose product is a `.changes` and whose hints mention a
+/// catalogued Tag with Changes-file, Buildinfo-file or Group Applicability.
+pub fn catalogued_group_recipe_rels() -> Vec<String> {
+    let root = parity_suite_root();
+    let tags = catalogued_group_tags();
+    let mut rels = Vec::new();
+    for recipe in discover_parity_recipes(&root) {
+        if !recipe_product_is_changes(&recipe) {
+            continue;
+        }
+        if catalogued_group_hints(&recipe, &tags).is_empty() {
+            continue;
+        }
+        rels.push(recipe_rel(&root, &recipe));
+    }
+    rels
+}
+
+fn find_changes(dir: &Path) -> PathBuf {
+    let mut found: Vec<PathBuf> = fs::read_dir(dir)
+        .unwrap_or_else(|error| panic!("reading {}: {error}", dir.display()))
+        .map(|entry| entry.expect("directory entry").path())
+        .filter(|path| {
+            path.is_file() && path.extension().and_then(OsStr::to_str) == Some("changes")
+        })
+        .collect();
+    found.sort();
+    assert_eq!(
+        found.len(),
+        1,
+        "expected one .changes in {}, found {found:?}",
+        dir.display()
+    );
+    found.remove(0)
+}
+
+/// `dpkg-buildpackage` as lintian's upload builder runs it: source and binary
+/// packages, unsigned, VCS cruft kept. Returns the success flag and the output
+/// of both streams, where `dpkg-source` reports a missing orig tarball.
+fn dpkg_build_upload(source: &Path) -> (bool, String) {
+    ensure_rules_executable(source);
+    let mut command = dpkg_buildpackage_command(source, "nocheck");
+    command
+        .args(["-us", "-uc", "-d"])
+        .args(["-iNEVER_MATCH_ANYTHING", "-INEVER_MATCH_ANYTHING"])
+        .arg("--source-option=--auto-commit");
+    let output = command.output().expect("spawning dpkg-buildpackage");
+    let mut text = String::from_utf8_lossy(&output.stdout).into_owned();
+    text.push_str(&String::from_utf8_lossy(&output.stderr));
+    (output.status.success(), text)
+}
+
+/// Build the product of a Group recipe in `work` and return its `.changes`:
+/// a filled `changes` skeleton is put together by its own Makefile (it copies
+/// the referenced files next to `test.changes`); an `upload-*` recipe is built
+/// with `dpkg-buildpackage`, packing a main orig tarball when it asks for one
+/// (as the Source-package harness does).
+fn assemble_group(recipe: &Path, work: &Path) -> PathBuf {
+    if recipe_skeleton(recipe).as_deref() == Some("changes") {
+        let source = work.join("src");
+        let build = work.join("build");
+        copy_tree(recipe, &source);
+        fs::create_dir_all(&build).expect("creating build dir");
+        let output = Command::new("make")
+            .arg("-C")
+            .arg(&build)
+            .arg("-f")
+            .arg(source.join("Makefile"))
+            .output()
+            .expect("spawning make");
+        assert!(
+            output.status.success(),
+            "{}: make failed\nstdout:\n{}\nstderr:\n{}",
+            recipe.display(),
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        return find_changes(&build);
+    }
+
+    let source = work.join("src");
+    copy_package_tree(recipe, &source);
+    let (ok, text) = dpkg_build_upload(&source);
+    if !ok {
+        let Some(name) = missing_upstream_tarball(&text) else {
+            panic!("{recipe:?}: dpkg-buildpackage failed\n{text}");
+        };
+        assert!(
+            !is_component_orig(&name),
+            "{recipe:?}: component orig {name} is not synthesized"
+        );
+        pack_main_orig(&source, &work.join(&name));
+        let (ok, text) = dpkg_build_upload(&source);
+        assert!(
+            ok,
+            "{recipe:?}: dpkg-buildpackage failed after orig {name}\n{text}"
+        );
+    }
+    find_changes(work)
+}
+
+/// Build the recipe's Group, lint its `.changes` as lintian's runner does, and
+/// compare the hints per processable type.
+pub fn assert_group_parity(recipe_rel: &str) {
+    if let Some(reason) = skipped_recipe_reason(recipe_rel) {
+        eprintln!("{recipe_rel}: skipped, {reason}");
+        return;
+    }
+    let recipe = parity_suite_root().join(recipe_rel);
+    if let Some(architectures) = unmet_test_architectures(&recipe) {
+        eprintln!("{recipe_rel}: skipped, the recipe is only built for {architectures}");
+        return;
+    }
+    let tags = catalogued_group_tags();
+    let expected = catalogued_group_hints(&recipe, &tags);
+    assert!(
+        !expected.is_empty(),
+        "{recipe_rel}: listed Parity recipe has no catalogued Group hints"
+    );
+
+    let work = tempfile::tempdir().expect("temp recipe workdir");
+    let changes = assemble_group(&recipe, work.path());
+
+    let mut selected: Vec<String> = expected
+        .iter()
+        .map(|(_, hint)| hint.tag.clone())
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect();
+    selected.sort();
+    let mut extra_args = Vec::new();
+    for tag in &selected {
+        extra_args.push("--select");
+        extra_args.push(tag.as_str());
+    }
+
+    let (_status, stdout, stderr) = run_lint_subject(&changes, &extra_args);
+    assert!(
+        stderr.is_empty() || !stdout.is_empty(),
+        "{recipe_rel}: lint failed with empty stdout\n{stderr}"
+    );
+
+    let mut actual: Vec<(String, ParityHint)> = stdout
+        .lines()
+        .filter_map(parse_diagnostic_line)
+        .filter(|(processable_type, hint)| applies_to_group(processable_type, &hint.tag, &tags))
+        .collect();
+    actual.sort();
+
+    assert_eq!(actual, expected, "Parity mismatch for {recipe_rel} (group)");
 }

@@ -82,6 +82,7 @@ use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
 use super::rules::DebianChangelogLineTooShort;
 use super::rules::DebianControlFileIsASymlink;
+use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
@@ -2125,6 +2126,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
         &AdoptedExtendedField,
+        &DebianControlHasEmptyField,
     ]
 }
 
@@ -2520,6 +2522,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UsesDeprecatedPythonStdlib,
         &RustBoilerplate,
         &AdoptedExtendedField,
+        &DebianControlHasEmptyField,
     ]
 }
 

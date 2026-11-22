@@ -91,6 +91,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/field/architecture/multiline/control-file-important-space",
     "checks/debian/control/field/build-profiles/fields-build-profiles-general",
     "checks/debian/control/field/doubled-up/control-file-general",
+    "checks/debian/control/field/empty/control-has-empty-field",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/relation/control-file-duplicate",
@@ -1139,6 +1140,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/field/architecture/multiline/control-file-important-space",
     "checks/debian/control/field/build-profiles/fields-build-profiles-general",
     "checks/debian/control/field/doubled-up/control-file-general",
+    "checks/debian/control/field/empty/control-has-empty-field",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/relation/control-file-duplicate",
@@ -1638,6 +1640,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/field/architecture/multiline/control-file-important-space"; "checks_debian_control_field_architecture_multiline_control_file_important_space")]
 #[test_case("checks/debian/control/field/build-profiles/fields-build-profiles-general"; "checks_debian_control_field_build_profiles_fields_build_profiles_general")]
 #[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
+#[test_case("checks/debian/control/field/empty/control-has-empty-field"; "checks_debian_control_field_empty_control_has_empty_field")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
@@ -2688,6 +2691,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/field/architecture/multiline/control-file-important-space"; "checks_debian_control_field_architecture_multiline_control_file_important_space")]
 #[test_case("checks/debian/control/field/build-profiles/fields-build-profiles-general"; "checks_debian_control_field_build_profiles_fields_build_profiles_general")]
 #[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
+#[test_case("checks/debian/control/field/empty/control-has-empty-field"; "checks_debian_control_field_empty_control_has_empty_field")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]

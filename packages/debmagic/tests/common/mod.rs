@@ -1008,45 +1008,177 @@ fn build_environment_fingerprint() -> &'static str {
 }
 
 /// The build products of one key: file name and bytes.
-type BuiltFiles = Vec<(std::ffi::OsString, Vec<u8>)>;
+type BuiltFiles = Vec<(String, Vec<u8>)>;
 
 type BuildSlot = std::sync::Arc<std::sync::Mutex<Option<std::sync::Arc<BuiltFiles>>>>;
 
-/// The files `build` produces in `dest`, built once per key in this process.
+/// `DEBMAGIC_PARITY_NO_CACHE=1` turns the build cache off, in memory and on
+/// disk: every recipe builds its own tree.
+fn build_cache_bypassed() -> bool {
+    static BYPASSED: OnceLock<bool> = OnceLock::new();
+    *BYPASSED.get_or_init(|| {
+        std::env::var_os("DEBMAGIC_PARITY_NO_CACHE")
+            .is_some_and(|value| !value.is_empty() && value != "0")
+    })
+}
+
+/// `<target dir>/lint-parity-cache`, next to the `debmagic` binary the tests
+/// run (`target/debug/debmagic`), so `cargo clean` clears it.
+fn build_cache_dir() -> Option<&'static Path> {
+    static DIR: OnceLock<Option<PathBuf>> = OnceLock::new();
+    DIR.get_or_init(|| {
+        let target = Path::new(env!("CARGO_BIN_EXE_debmagic"))
+            .ancestors()
+            .nth(2)?;
+        let dir = target.join("lint-parity-cache");
+        fs::create_dir_all(&dir).ok()?;
+        // A killed run can leave its half-written entry behind under a
+        // `.tmp-` name; it is never read, only removed once it is old.
+        let stale = std::time::Duration::from_secs(3600);
+        for entry in fs::read_dir(&dir).ok()?.flatten() {
+            let leftover = entry.file_name().to_string_lossy().starts_with(".tmp-")
+                && entry
+                    .metadata()
+                    .and_then(|metadata| metadata.modified())
+                    .ok()
+                    .and_then(|modified| modified.elapsed().ok())
+                    .is_some_and(|age| age > stale);
+            if leftover {
+                let _ = fs::remove_dir_all(entry.path());
+            }
+        }
+        Some(dir)
+    })
+    .as_deref()
+}
+
+const BUILD_CACHE_MANIFEST: &str = "manifest";
+
+fn digest_hex(bytes: &[u8]) -> String {
+    use sha2::Digest;
+    hex(&sha2::Sha256::digest(bytes))
+}
+
+/// The products stored under `key`, or `None` when there is no entry or it is
+/// damaged (a missing or altered file, a manifest of another key). A damaged
+/// entry is removed so the rebuild can take its place.
+fn read_cache_entry(cache: &Path, key: &str) -> Option<BuiltFiles> {
+    let entry = cache.join(key);
+    if !entry.exists() {
+        return None;
+    }
+    let read = || -> Option<BuiltFiles> {
+        let manifest = fs::read_to_string(entry.join(BUILD_CACHE_MANIFEST)).ok()?;
+        let mut lines = manifest.lines();
+        let header = lines.next()?;
+        (header == format!("debmagic-parity-cache {BUILD_CACHE_FORMAT} {key}")).then_some(())?;
+        let mut files = Vec::new();
+        for line in lines {
+            let mut fields = line.splitn(3, '\t');
+            let (digest, size, name) = (fields.next()?, fields.next()?, fields.next()?);
+            let bytes = fs::read(entry.join(name)).ok()?;
+            (bytes.len().to_string() == size && digest_hex(&bytes) == digest).then_some(())?;
+            files.push((name.to_string(), bytes));
+        }
+        Some(files)
+    };
+    let files = read();
+    if files.is_none() {
+        // Move it away first: a rename is atomic, so a process that is
+        // reading the same entry sees it whole or not at all.
+        let trash = cache.join(format!(
+            ".tmp-bad-{}-{}",
+            std::process::id(),
+            uuid::Uuid::new_v4()
+        ));
+        if fs::rename(&entry, &trash).is_ok() {
+            let _ = fs::remove_dir_all(&trash);
+        }
+    }
+    files
+}
+
+/// Store `files` under `key`: written in full under a temporary name, then
+/// renamed into place, so a reader (or a run killed halfway) never meets a
+/// partial entry. Returns whether the entry exists afterwards; losing the
+/// rename to another process that stored the same key counts as success.
+fn write_cache_entry(cache: &Path, key: &str, files: &BuiltFiles) -> bool {
+    let tmp = cache.join(format!(
+        ".tmp-{}-{}",
+        std::process::id(),
+        uuid::Uuid::new_v4()
+    ));
+    let store = || -> std::io::Result<()> {
+        fs::create_dir(&tmp)?;
+        let mut manifest = format!("debmagic-parity-cache {BUILD_CACHE_FORMAT} {key}\n");
+        for (name, bytes) in files {
+            fs::write(tmp.join(name), bytes)?;
+            manifest.push_str(&format!("{}\t{}\t{name}\n", digest_hex(bytes), bytes.len()));
+        }
+        fs::write(tmp.join(BUILD_CACHE_MANIFEST), manifest)?;
+        fs::rename(&tmp, cache.join(key))
+    };
+    let stored = store().is_ok() || cache.join(key).join(BUILD_CACHE_MANIFEST).is_file();
+    let _ = fs::remove_dir_all(&tmp);
+    stored
+}
+
+/// Put `files` into `dest`, each written under a temporary name and renamed.
+fn write_products(dest: &Path, files: &BuiltFiles) -> Vec<PathBuf> {
+    fs::create_dir_all(dest).unwrap_or_else(|error| panic!("creating {}: {error}", dest.display()));
+    files
+        .iter()
+        .map(|(name, bytes)| {
+            let path = dest.join(name);
+            let tmp = dest.join(format!(".{name}.tmp"));
+            fs::write(&tmp, bytes)
+                .and_then(|()| fs::rename(&tmp, &path))
+                .unwrap_or_else(|error| panic!("writing {}: {error}", path.display()));
+            path
+        })
+        .collect()
+}
+
+/// The files `build` produces in `dest`, built once per key.
 ///
-/// A test whose key has been built writes the stored files into its own
-/// `dest` and does not run `build`. A test that needs a key somebody else is
-/// building waits for that build (one lock per key). A build that panics
-/// stores nothing: the panic is the failure of the recipe that ran it, and
-/// the next recipe with the same tree builds it itself, so one recipe's
-/// failure (or a flaky one) never fails the recipes that share its tree.
-/// `build` returns the paths of the products, all directly in `dest`.
+/// The products are stored under `target/lint-parity-cache/<key>/` (build
+/// products only, never lint results), so a later run of the suite builds
+/// nothing it built before. Within a run, a test that needs a key somebody
+/// else is building waits for that build (one lock per key). A test that finds
+/// the key stored writes the stored files into its own `dest` and does not run
+/// `build`; a missing or damaged entry is a rebuild.
+///
+/// A build that panics stores nothing: the panic is the failure of the recipe
+/// that ran it, and the next recipe with the same tree builds it itself, so
+/// one recipe's failure (or a flaky one) never fails the recipes that share
+/// its tree, and a failure is never cached on disk.
+///
+/// `build` returns the paths of the products, all directly in `dest`. With
+/// `DEBMAGIC_PARITY_NO_CACHE=1` it always runs.
 fn build_once(key: String, dest: &Path, build: impl FnOnce() -> Vec<PathBuf>) -> Vec<PathBuf> {
     use std::{
         collections::HashMap,
         sync::{Arc, Mutex, PoisonError},
     };
+    if build_cache_bypassed() {
+        return build();
+    }
     static SLOTS: OnceLock<Mutex<HashMap<String, BuildSlot>>> = OnceLock::new();
     let slot = SLOTS
         .get_or_init(Default::default)
         .lock()
         .unwrap_or_else(PoisonError::into_inner)
-        .entry(key)
+        .entry(key.clone())
         .or_default()
         .clone();
     // A poisoned lock holds `None`: the build that panicked stored nothing.
-    let mut stored = slot.lock().unwrap_or_else(PoisonError::into_inner);
-    if let Some(files) = stored.as_ref() {
-        fs::create_dir_all(dest).expect("creating build product dir");
-        return files
-            .iter()
-            .map(|(name, bytes)| {
-                let path = dest.join(name);
-                fs::write(&path, bytes)
-                    .unwrap_or_else(|error| panic!("writing {}: {error}", path.display()));
-                path
-            })
-            .collect();
+    let mut in_memory = slot.lock().unwrap_or_else(PoisonError::into_inner);
+    if let Some(files) = in_memory.as_ref() {
+        return write_products(dest, files);
+    }
+    let cache = build_cache_dir();
+    if let Some(files) = cache.and_then(|cache| read_cache_entry(cache, &key)) {
+        return write_products(dest, &files);
     }
     let paths = build();
     let files: BuiltFiles = paths
@@ -1061,10 +1193,17 @@ fn build_once(key: String, dest: &Path, build: impl FnOnce() -> Vec<PathBuf>) ->
             );
             let bytes = fs::read(path)
                 .unwrap_or_else(|error| panic!("reading {}: {error}", path.display()));
-            (path.file_name().expect("product name").to_owned(), bytes)
+            let name = path
+                .file_name()
+                .and_then(OsStr::to_str)
+                .expect("product name is UTF-8");
+            (name.to_string(), bytes)
         })
         .collect();
-    *stored = Some(Arc::new(files));
+    // Without a usable cache directory the products stay in memory.
+    if !cache.is_some_and(|cache| write_cache_entry(cache, &key, &files)) {
+        *in_memory = Some(Arc::new(files));
+    }
     paths
 }
 
@@ -1781,11 +1920,12 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             &root_adds,
             hook.as_deref(),
         );
-        // The `.dsc` and the tarballs it lists, next to it.
+        // The `.dsc` and the tarballs it lists, next to it; not the hook script
+        // (it names the temporary directory it ran in).
         let mut files: Vec<PathBuf> = fs::read_dir(work)
             .unwrap_or_else(|error| panic!("reading {}: {error}", work.display()))
             .map(|entry| entry.expect("directory entry").path())
-            .filter(|path| path.is_file())
+            .filter(|path| path.is_file() && path.file_name() != Some(OsStr::new("pre-upstream")))
             .collect();
         files.sort();
         files

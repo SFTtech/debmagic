@@ -273,6 +273,7 @@ use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
+use super::rules::PkgJsAutopkgtestTestIsEmpty;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PostinstHasUselessCallToUpdateMenus;
@@ -1881,6 +1882,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LicenseProblemNonFreeRFC,
         &LicenseProblemNvidiaIntellectual,
         &LicenseProblemOldUnicode,
+        &PkgJsAutopkgtestTestIsEmpty,
     ]
 }
 
@@ -2221,6 +2223,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &LicenseProblemNonFreeRFC,
         &LicenseProblemNvidiaIntellectual,
         &LicenseProblemOldUnicode,
+        &PkgJsAutopkgtestTestIsEmpty,
     ]
 }
 

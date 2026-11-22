@@ -205,6 +205,7 @@ use super::rules::InstallableFieldMirrorsSource;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::IntraSourcePackageCircularDependency;
+use super::rules::InvalidDep3FormatPatchWrongBugDebianUrl;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidProfileNameInBuildProfilesField;
@@ -2171,6 +2172,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &InvalidDep3FormatPatchWrongBugDebianUrl,
     ]
 }
 
@@ -2570,6 +2572,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RedundantPriorityOptionalField,
         &InstallableFieldMirrorsSource,
         &InconsistentAppstreamMetadataLicense,
+        &InvalidDep3FormatPatchWrongBugDebianUrl,
     ]
 }
 

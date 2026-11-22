@@ -61,6 +61,7 @@ use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
 use super::rules::ComposerPrerequisite;
+use super::rules::CompressedDuplicate;
 use super::rules::ConfigDoesNotLoadConfmodule;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::ConflictingNegationInSourceRelation;
@@ -2173,6 +2174,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &DfsgVersionWithTilde,
+        &CompressedDuplicate,
     ]
 }
 
@@ -3425,6 +3427,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &CompressedDuplicate,
     ]
 }
 

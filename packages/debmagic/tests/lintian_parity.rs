@@ -786,9 +786,11 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/bugs/files-package-contains-foo",
     "checks/files/bugs/legacy-filenames",
     "checks/files/build-path/files-foo-in-bar",
+    "checks/files/compressed/files-general",
     "checks/files/compressed/gz/files-gzip-ma-same",
     "checks/files/compressed/gz/not-a-gz",
     "checks/files/compressed/gz/timestamp-in-gzip",
+    "checks/files/compressed/legacy-filenames",
     "checks/files/compressed/lzma/not-an-lzma",
     "checks/files/compressed/xz/not-an-xz",
     "checks/files/compressed/zip/not-a-zip",
@@ -2367,9 +2369,11 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/bugs/files-package-contains-foo"; "checks_files_bugs_files_package_contains_foo")]
 #[test_case("checks/files/bugs/legacy-filenames"; "checks_files_bugs_legacy_filenames")]
 #[test_case("checks/files/build-path/files-foo-in-bar"; "checks_files_build_path_files_foo_in_bar")]
+#[test_case("checks/files/compressed/files-general"; "checks_files_compressed_files_general")]
 #[test_case("checks/files/compressed/gz/files-gzip-ma-same"; "checks_files_compressed_gz_files_gzip_ma_same")]
 #[test_case("checks/files/compressed/gz/not-a-gz"; "checks_files_compressed_gz_not_a_gz")]
 #[test_case("checks/files/compressed/gz/timestamp-in-gzip"; "checks_files_compressed_gz_timestamp_in_gzip")]
+#[test_case("checks/files/compressed/legacy-filenames"; "checks_files_compressed_legacy_filenames")]
 #[test_case("checks/files/compressed/lzma/not-an-lzma"; "checks_files_compressed_lzma_not_an_lzma")]
 #[test_case("checks/files/compressed/xz/not-an-xz"; "checks_files_compressed_xz_not_an_xz")]
 #[test_case("checks/files/compressed/zip/not-a-zip"; "checks_files_compressed_zip_not_a_zip")]

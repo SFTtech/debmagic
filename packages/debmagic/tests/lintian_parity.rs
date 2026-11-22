@@ -1559,6 +1559,8 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/group-checks/legacy-binary",
     "checks/libraries/shared/links/legacy-libbaz",
     "checks/libraries/shared/links/shared-libs-dev-symlink",
+    "checks/menus/legacy-binary",
+    "checks/menus/menus-doc-base-file-references-missing-file",
 ];
 
 #[test]
@@ -3148,6 +3150,8 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/group-checks/legacy-binary"; "checks_group_checks_legacy_binary")]
 #[test_case("checks/libraries/shared/links/legacy-libbaz"; "checks_libraries_shared_links_legacy_libbaz")]
 #[test_case("checks/libraries/shared/links/shared-libs-dev-symlink"; "checks_libraries_shared_links_shared_libs_dev_symlink")]
+#[test_case("checks/menus/legacy-binary"; "checks_menus_legacy_binary")]
+#[test_case("checks/menus/menus-doc-base-file-references-missing-file"; "checks_menus_menus_doc_base_file_references_missing_file")]
 fn lintian_parity_group(recipe: &str) {
     common::assert_group_parity(recipe);
 }

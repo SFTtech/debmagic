@@ -78,6 +78,7 @@ pub(super) struct Report {
     pub menu_icon_not_in_xpm_format: Vec<Finding>,
     pub menu_icon_too_big: Vec<Finding>,
     pub menu_icon_cannot_be_parsed: Vec<Finding>,
+    pub unparsable_menu_item: Vec<Finding>,
 }
 
 pub(super) fn take(
@@ -147,6 +148,7 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
         menu_icon_not_in_xpm_format: Vec::new(),
         menu_icon_too_big: Vec::new(),
         menu_icon_cannot_be_parsed: Vec::new(),
+        unparsable_menu_item: Vec::new(),
     };
     let mut desktop_cmds = HashSet::new();
     for entry in desktop_files(files) {
@@ -304,6 +306,9 @@ fn verify_menu_line(
             Some(line),
             pkg_test,
         );
+    }
+    if !lintian_parses(rest) {
+        warn_at(&mut report.unparsable_menu_item, path, Some(line), "");
     }
     let (pairs, parsed) = parse_pairs(rest);
     let mut seen_tags = HashSet::new();
@@ -1192,6 +1197,21 @@ fn parse_pairs(line: &str) -> (Vec<(String, String, bool)>, bool) {
         pairs.push((tag, decode_value(&raw), quoted));
     }
     (pairs, true)
+}
+
+/// Whether lintian's `verify_line` loop consumes the whole item. Lintian scans
+/// with an unanchored `/gc` match, so a bare token before a later `tag=value`
+/// is skipped; only non-blank text after the last pair makes the item
+/// unparsable. (`parse_pairs` stops at such a token and serves the other Rules.)
+fn lintian_parses(rest: &str) -> bool {
+    static PAIR: std::sync::LazyLock<Regex> = std::sync::LazyLock::new(|| {
+        Regex::new(r#"\s*?([^"\s=]*)=("(?:\\.|[^"])*"|[^"\s]*)"#).expect("valid regex")
+    });
+    let mut pos = 0;
+    while let Some(found) = PAIR.find_at(rest, pos) {
+        pos = found.end();
+    }
+    trim_start_ws(&rest[pos..]).is_empty()
 }
 
 fn take_quoted(chars: &[char], start: usize) -> Option<(usize, String)> {

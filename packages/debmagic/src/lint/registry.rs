@@ -363,6 +363,7 @@ use super::rules::UnknownTemplateType;
 use super::rules::UnknownTestsuite;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnknownTrigger;
+use super::rules::UnparsableMenuItem;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
@@ -1843,6 +1844,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SystemdServiceFileShutdownProblems,
         &RepeatedTriggerName,
         &UnknownTrigger,
+        &UnparsableMenuItem,
     ]
 }
 
@@ -2932,6 +2934,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SystemdServiceFileShutdownProblems,
         &RepeatedTriggerName,
         &UnknownTrigger,
+        &UnparsableMenuItem,
     ]
 }
 

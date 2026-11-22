@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unknown-trigger (LN1232) random-trigger [triggers:1]
+E: example (binary): unknown-trigger (LN1232) random-trigger [triggers:4]
+E: example (udeb): unknown-trigger (LN1232) random-trigger [triggers:1]

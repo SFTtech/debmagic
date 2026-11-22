@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): prerm-calls-updatemenus (LN1199) [prerm:2]
+E: example (binary): prerm-calls-updatemenus (LN1199) [prerm:5]
+E: example (binary): prerm-calls-updatemenus (LN1199) [prerm:4]
+E: example (udeb): prerm-calls-updatemenus (LN1199) [prerm:1]
+E: example (binary): prerm-calls-updatemenus (LN1199) [prerm:2]

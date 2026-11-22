@@ -239,6 +239,7 @@ use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
+use super::rules::OldStyleConfigScript;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
@@ -1937,6 +1938,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &VcsFieldUsesInsecureUri,
         &VcsFieldsUseMoreThanOneVcs,
         &PackageContainsNoArchDependentFiles,
+        &OldStyleConfigScript,
     ]
 }
 
@@ -3073,6 +3075,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
         &PackageContainsNoArchDependentFiles,
+        &OldStyleConfigScript,
     ]
 }
 

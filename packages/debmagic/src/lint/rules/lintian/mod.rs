@@ -575,7 +575,8 @@ pub(crate) use files_artifact::{
 };
 pub(crate) use files_build_path::DirOrFileInBuildTree;
 pub(crate) use files_config_scripts::{
-    OldStyleConfigScriptMultiarchPath, OldStyleConfigScriptMultiarchPathArchAll,
+    OldStyleConfigScript, OldStyleConfigScriptMultiarchPath,
+    OldStyleConfigScriptMultiarchPathArchAll,
 };
 pub(crate) use files_debug::NonDebugFileInDebugPackage;
 pub(crate) use files_foreign::{

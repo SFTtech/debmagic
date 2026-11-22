@@ -193,6 +193,11 @@ use super::rules::HardeningNoPie;
 use super::rules::HardeningNoRelro;
 use super::rules::HomepageFieldUsesInsecureUri;
 use super::rules::HomepageForBioconductorPackageNotCanonical;
+use super::rules::HomepageForCranPackageNotCanonical;
+use super::rules::HomepageGithubUrlEndsWithDotGit;
+use super::rules::HomepageGitlabUrlEndsWithDotGit;
+use super::rules::HomepageRefersToFilesystemListing;
+use super::rules::HomepageSalsaUrlEndsWithDotGit;
 use super::rules::IllegalMultiArchValue;
 use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
@@ -2179,6 +2184,11 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DotBeforeRepackCount,
         &DfsgVersionWithPeriod,
         &HomepageForBioconductorPackageNotCanonical,
+        &HomepageForCranPackageNotCanonical,
+        &HomepageGithubUrlEndsWithDotGit,
+        &HomepageGitlabUrlEndsWithDotGit,
+        &HomepageSalsaUrlEndsWithDotGit,
+        &HomepageRefersToFilesystemListing,
     ]
 }
 
@@ -2582,6 +2592,11 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DotBeforeRepackCount,
         &DfsgVersionWithPeriod,
         &HomepageForBioconductorPackageNotCanonical,
+        &HomepageForCranPackageNotCanonical,
+        &HomepageGithubUrlEndsWithDotGit,
+        &HomepageGitlabUrlEndsWithDotGit,
+        &HomepageSalsaUrlEndsWithDotGit,
+        &HomepageRefersToFilesystemListing,
     ]
 }
 
@@ -3435,6 +3450,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &HomepageForBioconductorPackageNotCanonical,
+        &HomepageForCranPackageNotCanonical,
+        &HomepageGithubUrlEndsWithDotGit,
+        &HomepageGitlabUrlEndsWithDotGit,
+        &HomepageSalsaUrlEndsWithDotGit,
+        &HomepageRefersToFilesystemListing,
     ]
 }
 

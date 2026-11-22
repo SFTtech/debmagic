@@ -287,8 +287,13 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/format/cruft-general-wig-pen",
     "checks/fields/homepage/fields-bioconductor-homepage",
     "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/fields-cran-homepage",
     "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-github-homepage",
+    "checks/fields/homepage/fields-gitlab-homepage",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
+    "checks/fields/homepage/fields-salsa-homepage",
+    "checks/fields/homepage/homepage-refers-to-filesystem-listing",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
@@ -724,9 +729,14 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/essential/legacy-fields",
     "checks/fields/homepage/fields-bioconductor-homepage",
     "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/fields-cran-homepage",
     "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-github-homepage",
+    "checks/fields/homepage/fields-gitlab-homepage",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
     "checks/fields/homepage/fields-no-source-homepage",
+    "checks/fields/homepage/fields-salsa-homepage",
+    "checks/fields/homepage/homepage-refers-to-filesystem-listing",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
@@ -1364,8 +1374,13 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/format/cruft-general-wig-pen",
     "checks/fields/homepage/fields-bioconductor-homepage",
     "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/fields-cran-homepage",
     "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-github-homepage",
+    "checks/fields/homepage/fields-gitlab-homepage",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
+    "checks/fields/homepage/fields-salsa-homepage",
+    "checks/fields/homepage/homepage-refers-to-filesystem-listing",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
@@ -1874,8 +1889,13 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/format/cruft-general-wig-pen"; "checks_fields_format_cruft_general_wig_pen")]
 #[test_case("checks/fields/homepage/fields-bioconductor-homepage"; "checks_fields_homepage_fields_bioconductor_homepage")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/fields-cran-homepage"; "checks_fields_homepage_fields_cran_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-github-homepage"; "checks_fields_homepage_fields_github_homepage")]
+#[test_case("checks/fields/homepage/fields-gitlab-homepage"; "checks_fields_homepage_fields_gitlab_homepage")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
+#[test_case("checks/fields/homepage/fields-salsa-homepage"; "checks_fields_homepage_fields_salsa_homepage")]
+#[test_case("checks/fields/homepage/homepage-refers-to-filesystem-listing"; "checks_fields_homepage_homepage_refers_to_filesystem_listing")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
@@ -2312,9 +2332,14 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/essential/legacy-fields"; "checks_fields_essential_legacy_fields")]
 #[test_case("checks/fields/homepage/fields-bioconductor-homepage"; "checks_fields_homepage_fields_bioconductor_homepage")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/fields-cran-homepage"; "checks_fields_homepage_fields_cran_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-github-homepage"; "checks_fields_homepage_fields_github_homepage")]
+#[test_case("checks/fields/homepage/fields-gitlab-homepage"; "checks_fields_homepage_fields_gitlab_homepage")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
 #[test_case("checks/fields/homepage/fields-no-source-homepage"; "checks_fields_homepage_fields_no_source_homepage")]
+#[test_case("checks/fields/homepage/fields-salsa-homepage"; "checks_fields_homepage_fields_salsa_homepage")]
+#[test_case("checks/fields/homepage/homepage-refers-to-filesystem-listing"; "checks_fields_homepage_homepage_refers_to_filesystem_listing")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
@@ -2953,8 +2978,13 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/format/cruft-general-wig-pen"; "checks_fields_format_cruft_general_wig_pen")]
 #[test_case("checks/fields/homepage/fields-bioconductor-homepage"; "checks_fields_homepage_fields_bioconductor_homepage")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/fields-cran-homepage"; "checks_fields_homepage_fields_cran_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-github-homepage"; "checks_fields_homepage_fields_github_homepage")]
+#[test_case("checks/fields/homepage/fields-gitlab-homepage"; "checks_fields_homepage_fields_gitlab_homepage")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
+#[test_case("checks/fields/homepage/fields-salsa-homepage"; "checks_fields_homepage_fields_salsa_homepage")]
+#[test_case("checks/fields/homepage/homepage-refers-to-filesystem-listing"; "checks_fields_homepage_homepage_refers_to_filesystem_listing")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]

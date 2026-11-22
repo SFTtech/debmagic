@@ -39,6 +39,11 @@ mod ln1316_redundant_control_relation;
 mod ln1365_homepage_field_uses_insecure_uri;
 mod ln1368_wrong_section_according_to_package_name;
 mod ln1545_homepage_for_bioconductor_package_not_canonical;
+mod ln1546_homepage_for_cran_package_not_canonical;
+mod ln1547_homepage_github_url_ends_with_dot_git;
+mod ln1548_homepage_gitlab_url_ends_with_dot_git;
+mod ln1550_homepage_refers_to_filesystem_listing;
+mod ln1551_homepage_salsa_url_ends_with_dot_git;
 
 pub(crate) use ln0224_redundant_bugs_field::RedundantBugsField;
 pub(crate) use ln0225_bad_homepage::BadHomepage;
@@ -67,6 +72,11 @@ pub(crate) use ln1316_redundant_control_relation::RedundantControlRelation;
 pub(crate) use ln1365_homepage_field_uses_insecure_uri::HomepageFieldUsesInsecureUri;
 pub(crate) use ln1368_wrong_section_according_to_package_name::WrongSectionAccordingToPackageName;
 pub(crate) use ln1545_homepage_for_bioconductor_package_not_canonical::HomepageForBioconductorPackageNotCanonical;
+pub(crate) use ln1546_homepage_for_cran_package_not_canonical::HomepageForCranPackageNotCanonical;
+pub(crate) use ln1547_homepage_github_url_ends_with_dot_git::HomepageGithubUrlEndsWithDotGit;
+pub(crate) use ln1548_homepage_gitlab_url_ends_with_dot_git::HomepageGitlabUrlEndsWithDotGit;
+pub(crate) use ln1550_homepage_refers_to_filesystem_listing::HomepageRefersToFilesystemListing;
+pub(crate) use ln1551_homepage_salsa_url_ends_with_dot_git::HomepageSalsaUrlEndsWithDotGit;
 
 /// The value as written of the Homepage, once for every vendored
 /// `fields/bad-homepages` expression of `tag` that matches it. The optional

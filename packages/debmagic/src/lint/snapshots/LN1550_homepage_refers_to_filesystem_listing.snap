@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): homepage-refers-to-filesystem-listing (LN1550) http://ftp.gnu.org/gnu/aspell/dict/ar/
+I: example (binary): homepage-refers-to-filesystem-listing (LN1550) <https://ftp.gnu.org/gnu/aspell/>
+I: example (udeb): homepage-refers-to-filesystem-listing (LN1550) http://ftp.gnu.org/gnu/aspell/dict/ar/

@@ -251,6 +251,7 @@ use super::rules::PackageContainsMultipleDpiFonts;
 use super::rules::PackageContainsThumbnailsDir;
 use super::rules::PackageContainsTimestampedGzip;
 use super::rules::PackageContainsXvpicsDir;
+use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
 use super::rules::PackageFileIsExecutable;
 use super::rules::PackageInstallsAptKeyring;
@@ -1918,6 +1919,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PossibleUnindentedListInExtendedDescription,
         &TrailingCommaInMaintainerField,
         &MultilineField,
+        &PackageDependsOnAnXFontPackage,
     ]
 }
 
@@ -3045,6 +3047,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SymlinkTargetInBuildTree,
         &SymlinkTargetInTmp,
         &PossibleUnindentedListInExtendedDescription,
+        &PackageDependsOnAnXFontPackage,
     ]
 }
 

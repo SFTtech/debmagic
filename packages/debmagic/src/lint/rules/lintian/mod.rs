@@ -537,10 +537,10 @@ pub(crate) use fields_relations_more::{
     LibRecommendsDocumentation, LibmoduleBuildPerlNeedsToBeInBuildDepends,
     LibmoduleBuildTinyPerlNeedsToBeInBuildDepends,
     MailTransportAgentDependencyDoesNotSpecifyDefaultMta, NeedlessDependencyOnJre,
-    NeedlesslyDependsOnAwk, ObsoleteRelationForm, PackageDependsOnMultipleLibpngVersions,
-    PackageDependsOnMultipleLibstdcVersions, PackageDependsOnMultipleTclVersions,
-    PackageDependsOnMultipleTkVersions, PackageRelationWithPerlModules,
-    RedundantBuildPrerequisites,
+    NeedlesslyDependsOnAwk, ObsoleteRelationForm, PackageDependsOnAnXFontPackage,
+    PackageDependsOnMultipleLibpngVersions, PackageDependsOnMultipleLibstdcVersions,
+    PackageDependsOnMultipleTclVersions, PackageDependsOnMultipleTkVersions,
+    PackageRelationWithPerlModules, RedundantBuildPrerequisites,
 };
 pub(crate) use fields_text::{
     BadHomepage, DescriptionContainsHomepage, DescriptionSynopsisIsDuplicated,

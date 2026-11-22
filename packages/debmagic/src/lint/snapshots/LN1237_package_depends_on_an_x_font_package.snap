@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-depends-on-an-x-font-package (LN1237) Depends: xfont-a
+E: example (binary): package-depends-on-an-x-font-package (LN1237) Depends: xfonts-base (>= 1:1.0)
+E: example (binary): package-depends-on-an-x-font-package (LN1237) Pre-Depends: xfonts-75dpi
+E: example (udeb): package-depends-on-an-x-font-package (LN1237) Depends: xfont-a

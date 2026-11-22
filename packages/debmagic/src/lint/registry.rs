@@ -21,6 +21,7 @@ use super::rules::AppstreamMetadataMissingModaliasProvide;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::BackportsChangesMissing;
+use super::rules::BackportsUploadHasIncorrectVersionNumber;
 use super::rules::BadDistributionInChangesFile;
 use super::rules::BadJarName;
 use super::rules::BadPackageName;
@@ -2175,6 +2176,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoCodeSections,
         &BadDistributionInChangesFile,
         &BackportsChangesMissing,
+        &BackportsUploadHasIncorrectVersionNumber,
     ]
 }
 
@@ -3435,6 +3437,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &DebianRevisionNotWellFormed,
         &BadDistributionInChangesFile,
         &BackportsChangesMissing,
+        &BackportsUploadHasIncorrectVersionNumber,
     ]
 }
 

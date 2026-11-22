@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): backports-upload-has-incorrect-version-number (LN1482) 1.0-1 bookworm-backports
+E: example (changes): backports-upload-has-incorrect-version-number (LN1482) 1.0~bpo7+1 squeeze-backports
+E: example (changes): backports-upload-has-incorrect-version-number (LN1482) 1.0~bpo8+1 squeeze-backports
+E: example (changes): backports-upload-has-incorrect-version-number (LN1482) 1.0~bpo12+1 wheezy-backports
+E: example (changes): backports-upload-has-incorrect-version-number (LN1482) 1.0~bpo8+1 wheezy-backports-sloppy
+E: example (changes): backports-upload-has-incorrect-version-number (LN1482) 1.0~bpo9+1 jessie-backports
+E: example (changes): backports-upload-has-incorrect-version-number (LN1482) 1.0~bpo12+1 squeeze-backports
+E: example (changes): backports-upload-has-incorrect-version-number (LN1482) 1.0~bpo12+1 wheezy-backports-sloppy

@@ -222,6 +222,7 @@ mod scripts_interpreters;
 mod scripts_shell;
 mod scripts_text;
 mod shell_csh;
+mod shell_non_posix_bash_centric;
 mod substvars_libc;
 mod substvars_misc_pre_depends;
 mod systemd;
@@ -433,6 +434,8 @@ pub(crate) use libraries_shared_trigger_ldconfig::PackageHasUnnecessaryActivatio
 pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStatoverride;
 pub(crate) use origtar::EmptyUpstreamSources;
 pub(crate) use shell_csh::CshConsideredHarmful;
+pub(crate) use shell_non_posix_bash_centric::BashTermInPosixShell;
+pub(crate) use shell_non_posix_bash_centric::PossibleBashismInMaintainerScript;
 pub(crate) use substvars_libc::PackageDependsOnHardcodedLibc;
 pub(crate) use substvars_misc_pre_depends::DependsOnMiscPreDepends;
 pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;
@@ -956,7 +959,8 @@ pub(crate) use scripts_interpreters::{
 };
 pub(crate) use scripts_shell::{
     CommandWithPathInMaintainerScript, MaintainerScriptIgnoresErrors,
-    MaintainerScriptRemovesDeviceFiles, ReadInMaintainerScript, RecursivePrivilegeChange,
+    MaintainerScriptRemovesDeviceFiles, MaintainerScriptWithoutSetE, ReadInMaintainerScript,
+    RecursivePrivilegeChange,
 };
 pub(crate) use scripts_text::{
     ControlInterpreterInUsrLocal, ControlInterpreterWithoutDepends,
@@ -978,15 +982,29 @@ pub(crate) use scripts_text::{
     TrailingSlashForDpkgMaintscriptHelperSymlinkToDir, UdebPostinstCallsLdconfig,
     UdevadmCalledWithoutGuard, UnknownControlInterpreter, UnusualControlInterpreter,
     WishScriptButNoWishDep,
+    MaintainerScriptCallsInstallSgmlcatalog, MaintainerScriptChangesLdSoConf,
+    MaintainerScriptChangesNetbase, MaintainerScriptHasInvalidUpdateInetdOptions,
+    MaintainerScriptHasUnexpandedDebhelperToken, MaintainerScriptHidesInitFailure,
+    MaintainerScriptModifiesInetdConf, MaintainerScriptSetsAlternativeImproperly,
+    MaintainerScriptShouldNotUseDpkgMaintscriptHelper,
+    MaintainerScriptShouldNotUsePiupartsVariable, MaintainerScriptSwitchesDirToSymlinkUnsafely,
+    MaintainerScriptUpdatesFontconfigCacheImproperly, MaintscriptCallsLdconfig,
+    MawkScriptButNoMawkDep, MissingCallToDpkgMaintscriptHelper, MultiArchSamePackageCallsPycompile,
+    PhpScriptWithUnusualInterpreter, PossiblyInsecureHandlingOfTmpFilesInMaintainerScript,
+    PostrmRemovesAlternative, Python3ScriptButNoPython3Dep, RubyScriptButNoRubyDep,
+    ScriptNotExecutable, ScriptUsesBinEnv, ScriptUsesDeprecatedNodejsLocation, SystemdAlternatives,
+    TclshScriptButNoTclshDep, TrailingSlashForDpkgMaintscriptHelperSymlinkToDir,
+    UdebPostinstCallsLdconfig, UdevadmCalledWithoutGuard, UnknownControlInterpreter,
+    UnusualControlInterpreter, WishScriptButNoWishDep,
 };
 pub(crate) use systemd::{
     InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, KillModeNone,
     MisplacedSystemdTmpfiles, MissingSystemdServiceForInitDScript,
     MissingSystemdTimerForCronScript, OmittedSystemdServiceForInitDScript, ServiceFileIsNotAFile,
-    SystemdServiceAliasWithoutExtension, SystemdServiceFileRefersToObsoleteBindto,
-    SystemdServiceFileRefersToUnusualWantedbyTarget, SystemdServiceFileShutdownProblems,
-    SystemdServiceFileUsesDeprecatedSyslogFacility, SystemdServiceFileUsesNobodyOrNogroup,
-    SystemdServiceInOddLocation,
+    SystemdServiceAliasWithoutExtension, SystemdServiceFileMissingDocumentationKey,
+    SystemdServiceFileRefersToObsoleteBindto, SystemdServiceFileRefersToUnusualWantedbyTarget,
+    SystemdServiceFileShutdownProblems, SystemdServiceFileUsesDeprecatedSyslogFacility,
+    SystemdServiceFileUsesNobodyOrNogroup, SystemdServiceInOddLocation,
 };
 pub(crate) use testsuite::{
     BackgroundedTestCommand, ConflictingTestFields, DebianTestsControlAutodep8IsObsolete,

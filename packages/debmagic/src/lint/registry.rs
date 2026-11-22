@@ -336,6 +336,7 @@ use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploaderNameMissing;
 use super::rules::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;
+use super::rules::UpstreamMetadataInNativeSource;
 use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::UsesDeprecatedAdttmp;
 use super::rules::UsesNoCompressionForControlTarball;
@@ -1767,6 +1768,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &VersionRefersToDistribution,
         &RcVersionGreaterThanExpectedVersion,
         &PossibleNewUpstreamReleaseWithoutNewVersion,
+        &UpstreamMetadataInNativeSource,
     ]
 }
 
@@ -2091,6 +2093,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &VersionRefersToDistribution,
         &RcVersionGreaterThanExpectedVersion,
         &PossibleNewUpstreamReleaseWithoutNewVersion,
+        &UpstreamMetadataInNativeSource,
     ]
 }
 

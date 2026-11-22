@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): wish-script-but-no-wish-dep (LN1190) /usr/bin/wish (does not satisfy wish | tk | tk8.3 | tk8.4 | tk8.5 | tk8.6) [usr/bin/tool]
+E: example (binary): wish-script-but-no-wish-dep (LN1190) wish (does not satisfy wish | tk | tk8.3 | tk8.4 | tk8.5 | tk8.6) [usr/bin/tool]
+E: example (binary): wish-script-but-no-wish-dep (LN1190) /usr/bin/wish (does not satisfy wish | tk | tk8.3 | tk8.4 | tk8.5 | tk8.6) [usr/bin/tool]
+E: example (udeb): wish-script-but-no-wish-dep (LN1190) /usr/bin/wish (does not satisfy wish | tk | tk8.3 | tk8.4 | tk8.5 | tk8.6) [usr/bin/tool]
+E: example (binary): wish-script-but-no-wish-dep (LN1190) /usr/bin/wish (does not satisfy wish | tk | tk8.3 | tk8.4 | tk8.5 | tk8.6) [usr/bin/tool]

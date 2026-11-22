@@ -455,7 +455,7 @@ pub(crate) use debian_debconf::{
     PostrmDoesNotPurgeDebconf, SelectWithBooleanChoices, SelectWithoutChoices,
     SyntaxErrorInDebconfTemplate, TemplateUsesUnsplitChoices,
     TooLongExtendedDescriptionInTemplates, TooLongShortDescriptionInTemplates,
-    UnknownDebconfPriority, UnknownFieldInTemplates, UnknownTemplateType,
+    UnknownDebconfPriority, UnknownFieldInTemplates, UnknownTemplateType, UnusedDebconfTemplate,
     UsingFirstPersonInTemplates, UsingImperativeFormInTemplates,
     UsingQuestionInExtendedDescriptionInTemplates,
 };

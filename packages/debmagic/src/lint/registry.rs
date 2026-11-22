@@ -49,6 +49,7 @@ use super::rules::ComposerPrerequisite;
 use super::rules::ConfigDoesNotLoadConfmodule;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::ConflictingNegationInSourceRelation;
+use super::rules::ConflictsWithVersion;
 use super::rules::ControlFileContainsDhMakeVcsComment;
 use super::rules::ControlFileHasBadOwner;
 use super::rules::ControlFileHasBadPermissions;
@@ -1947,6 +1948,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SynopsisIsASentence,
         &UsingFirstPersonInDescription,
         &HomepageFieldUsesInsecureUri,
+        &ConflictsWithVersion,
     ]
 }
 
@@ -3089,6 +3091,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SynopsisIsASentence,
         &UsingFirstPersonInDescription,
         &HomepageFieldUsesInsecureUri,
+        &ConflictsWithVersion,
     ]
 }
 

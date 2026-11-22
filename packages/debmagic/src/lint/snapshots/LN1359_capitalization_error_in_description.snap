@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): capitalization-error-in-description (LN1359) debian Debian
+I: example (binary): capitalization-error-in-description (LN1359) meta package metapackage
+I: example (binary): capitalization-error-in-description (LN1359) debian Debian
+I: example (udeb): capitalization-error-in-description (LN1359) debian Debian

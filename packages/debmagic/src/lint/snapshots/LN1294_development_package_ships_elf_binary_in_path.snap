@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): development-package-ships-elf-binary-in-path (LN1294) [usr/bin/foo]
+I: example (binary): development-package-ships-elf-binary-in-path (LN1294) [bin/foo]
+I: example (binary): development-package-ships-elf-binary-in-path (LN1294) [sbin/foo]
+I: example (binary): development-package-ships-elf-binary-in-path (LN1294) [usr/sbin/foo]
+I: example (binary): development-package-ships-elf-binary-in-path (LN1294) [usr/games/foo]
+I: example (binary): development-package-ships-elf-binary-in-path (LN1294) [usr/bin/foo]
+I: example (binary): development-package-ships-elf-binary-in-path (LN1294) [usr/bin/foo]
+I: example (udeb): development-package-ships-elf-binary-in-path (LN1294) [usr/bin/foo]

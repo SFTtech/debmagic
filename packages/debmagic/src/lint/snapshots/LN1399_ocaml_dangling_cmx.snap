@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): ocaml-dangling-cmx (LN1399) [usr/lib/ocaml/symbol.cmx]
+E: example (binary): ocaml-dangling-cmx (LN1399) [usr/lib/ocaml/symbol.cmx]
+E: example (binary): ocaml-dangling-cmx (LN1399) [usr/lib/ocaml/symbol.cmx]
+E: example (binary): ocaml-dangling-cmx (LN1399) [usr/lib/ocaml/symbol.cmx]

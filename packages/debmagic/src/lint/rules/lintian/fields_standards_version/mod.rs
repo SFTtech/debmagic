@@ -12,10 +12,12 @@ use crate::lint::context::SourceContext;
 mod ln0725_timewarp_standards_version;
 mod ln0774_invalid_standards_version;
 mod ln0775_newer_standards_version;
+mod ln1369_out_of_date_standards_version;
 
 pub(crate) use ln0725_timewarp_standards_version::TimewarpStandardsVersion;
 pub(crate) use ln0774_invalid_standards_version::InvalidStandardsVersion;
 pub(crate) use ln0775_newer_standards_version::NewerStandardsVersion;
+pub(crate) use ln1369_out_of_date_standards_version::OutOfDateStandardsVersion;
 
 /// Policy releases and their epochs, from lintian 2.139.0's
 /// `debian-policy/releases.json`.

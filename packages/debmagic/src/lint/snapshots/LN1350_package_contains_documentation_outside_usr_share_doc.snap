@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): package-contains-documentation-outside-usr-share-doc (LN1350) [usr/share/example/NOTES.txt]
+I: example (binary): package-contains-documentation-outside-usr-share-doc (LN1350) [usr/share/example/README]
+I: example (binary): package-contains-documentation-outside-usr-share-doc (LN1350) [usr/share/man/man1/example.1.md]
+I: example (udeb): package-contains-documentation-outside-usr-share-doc (LN1350) [usr/share/example/NOTES.txt]

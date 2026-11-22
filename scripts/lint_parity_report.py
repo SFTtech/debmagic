@@ -6,7 +6,8 @@ Reads three things, all offline:
 - the lintian tag catalogue (`<lintian-data>/tags/**/*.tag`, default `/usr/share/lintian`):
   the denominator of "which Rules could exist";
 - the Rust Rule catalogue (`packages/debmagic/src/lint/rules/`): which Tags are LN Rules,
-  with which Applicability (`SourceRule` / `BinaryPackageRule`) and default Severity;
+  with which Applicability (`SourceRule` / `BinaryPackageRule` / `ChangesRule` / `BuildinfoRule` /
+  `GroupRule`) and default Severity;
 - the vendored Parity oracle (`packages/debmagic/tests/lintian-parity/**/eval/hints` plus the
   generated `tests/lintian_parity.rs`): which expected hint lines exist and which recipes are
   wired into tests.
@@ -51,7 +52,14 @@ DECLARE_RULE = re.compile(
     r"experimental\s*=\s*(?P<experimental>true|false),",
     re.DOTALL,
 )
-IMPL_TRAIT = re.compile(r"impl\s+(SourceRule|BinaryPackageRule)\s+for\s+(\w+)")
+IMPL_TRAIT = re.compile(r"impl\s+(SourceRule|BinaryPackageRule|ChangesRule|BuildinfoRule|GroupRule)\s+for\s+(\w+)")
+TRAIT_TO_KIND = {
+    "SourceRule": "source",
+    "BinaryPackageRule": "binary",
+    "ChangesRule": "changes",
+    "BuildinfoRule": "buildinfo",
+    "GroupRule": "group",
+}
 SEVERITY_CONSTRUCTOR = re.compile(r"Diagnostic::(error|warn)\(|Severity::(Error|Warning|Info|Pedantic)")
 SEVERITY_NAMES = {"error": "error", "warn": "warning", "Error": "error", "Warning": "warning"}
 TEST_CASE = re.compile(r'#\[test_case\("(?P<rel>[^"]+)";\s*"(?P<name>[^"]+)"\)\]')
@@ -59,12 +67,32 @@ TEST_FN = re.compile(r"fn\s+(?P<fn>\w+)\(")
 TEST_RESULT = re.compile(r"^test (?P<module>\w+)::(?P<name>\w+) \.\.\. (?P<status>ok|FAILED|ignored)")
 
 # Processable type on a hint line -> the Rule trait that would have to produce it.
-PTYPE_TO_KIND = {"source": "source", "binary": "binary", "udeb": "binary"}
+PTYPE_TO_KIND = {
+    "source": "source",
+    "binary": "binary",
+    "udeb": "binary",
+    "changes": "changes",
+    "buildinfo": "buildinfo",
+}
 KIND_TO_TEST = {
     "source_tree": "lintian_parity_source_tree",
     "binary_package": "lintian_parity_binary_package",
     "source_package": "lintian_parity_source_package",
+    "group": "lintian_parity_group",
 }
+
+
+def hint_kind(rule_kinds: set[str], ptype: str) -> str | None:
+    """The Applicability of a Rule that produces a hint of this processable type, if the Rule has it.
+
+    A Group Rule's Diagnostics attach to the Source package, so its hints are `source` (ADR 0055).
+    """
+    kind = PTYPE_TO_KIND.get(ptype)
+    if kind in rule_kinds:
+        return kind
+    if ptype == "source" and "group" in rule_kinds:
+        return "group"
+    return None
 
 
 @dataclass
@@ -200,7 +228,7 @@ def parse_rust_rules(root: Path, prefix: str) -> list[RustRule]:
         )
         for trait, struct in IMPL_TRAIT.findall(text):
             if struct == rule.struct:
-                rule.kinds.add("source" if trait == "SourceRule" else "binary")
+                rule.kinds.add(TRAIT_TO_KIND[trait])
         # Severity lives on the Diagnostic constructor, not in `declare_rule!`; scan non-test code.
         production = text.split("#[cfg(test)]", maxsplit=1)[0]
         for constructor, severity in SEVERITY_CONSTRUCTOR.findall(production):
@@ -271,8 +299,14 @@ def parse_listed_tests(tests_rs: Path) -> dict[str, dict[str, str]]:
 
 def expected_listed_tests(suite: Path, rules_dir: Path) -> dict[str, list[str]]:
     """What `import_lintian_parity.py --write-tests` would list right now."""
-    tags = importer.catalogued_ln_tags(rules_dir)
+    tags = importer.catalogued_source_tree_tags(rules_dir)
     return {
+        "group": importer.catalogued_group_recipe_rels(
+            suite,
+            importer.catalogued_changes_tags(rules_dir),
+            importer.catalogued_buildinfo_tags(rules_dir),
+            importer.catalogued_group_tags(rules_dir),
+        ),
         "source_tree": importer.catalogued_source_tree_recipe_rels(suite, tags),
         "binary_package": importer.catalogued_binary_package_recipe_rels(
             suite, importer.catalogued_binary_package_tags(rules_dir)
@@ -402,17 +436,24 @@ def tag_cases(
             recipe = by_rel.get(rel)
             if recipe is None:
                 continue
-            for tag in {hint.tag for hint in recipe.hints if hint.tag in ln_rules and _hint_in_kind(hint, kind)}:
+            for tag in {
+                hint.tag
+                for hint in recipe.hints
+                if hint.tag in ln_rules and _hint_in_kind(hint, kind, ln_rules[hint.tag].kinds)
+            }:
                 cases[tag].append(case_key(KIND_TO_TEST[kind], name))
     return cases
 
 
-def _hint_in_kind(hint: Hint, kind: str) -> bool:
+def _hint_in_kind(hint: Hint, kind: str, rule_kinds: set[str]) -> bool:
+    """The generated test of `kind` compares this hint, for a Rule with these Applicabilities."""
     if kind == "binary_package":
-        return hint.ptype in {"binary", "udeb"}
+        return hint.ptype in {"binary", "udeb"} and "binary" in rule_kinds
     if kind == "source_tree":
-        return importer.applies_to_source_tree(hint.ptype, hint.extra)
-    return hint.ptype == "source"
+        return importer.applies_to_source_tree(hint.ptype, hint.extra) and "source" in rule_kinds
+    if kind == "group":
+        return hint_kind(rule_kinds, hint.ptype) in {"changes", "buildinfo", "group"}
+    return hint.ptype == "source" and "source" in rule_kinds
 
 
 def analyse_rules(
@@ -432,8 +473,8 @@ def analyse_rules(
         by_kind: dict[str, int] = defaultdict(int)
         unsupported: dict[str, int] = defaultdict(int)
         for hint in hints:
-            kind = PTYPE_TO_KIND.get(hint.ptype)
-            if kind in rule.kinds:
+            kind = hint_kind(rule.kinds, hint.ptype)
+            if kind is not None:
                 by_kind[kind] += 1
             else:
                 unsupported[hint.ptype] += 1
@@ -527,13 +568,13 @@ def oracle_totals(recipes: list[Recipe], tags: dict[str, LintianTag], ln_rules: 
             if lintian.default_selected:
                 totals["default_selected_lines"] += 1
             rule = by_tag.get(hint.tag)
-            if rule is not None and PTYPE_TO_KIND.get(hint.ptype) in rule.kinds:
+            if rule is not None and hint_kind(rule.kinds, hint.ptype) is not None:
                 totals["covered_lines"] += 1
     totals["recipes_with_covered"] = sum(
         1
         for recipe in recipes
         if any(
-            (rule := by_tag.get(h.tag)) is not None and PTYPE_TO_KIND.get(h.ptype) in rule.kinds for h in recipe.hints
+            (rule := by_tag.get(h.tag)) is not None and hint_kind(rule.kinds, h.ptype) is not None for h in recipe.hints
         )
     )
     return totals

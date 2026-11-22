@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): license-problem-gfdl-invariants (LN1302) invariant part is: with the invariant sections being gnu manifesto, with the front-cover texts being (a) and with the back-cover texts being (b) [doc/manual.txt]

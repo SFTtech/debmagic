@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): maintainer-script-switches-dir-to-symlink-unsafely (LN1428) "ln -sf ../share/doc/maintainer-scripts /usr/doc" [postinst:2]
+E: example (binary): maintainer-script-switches-dir-to-symlink-unsafely (LN1428) "ln -s tworld-data /usr/share/doc" [postinst:2]
+E: example (binary): maintainer-script-switches-dir-to-symlink-unsafely (LN1428) "ln -s a /usr/doc" [postinst:2]
+E: example (binary): maintainer-script-switches-dir-to-symlink-unsafely (LN1428) "ln -s a /usr/doc" [postinst:3]
+E: example (binary): maintainer-script-switches-dir-to-symlink-unsafely (LN1428) "ln -s a /usr/doc" [postinst:3]

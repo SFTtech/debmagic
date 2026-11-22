@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): debian-watch-uses-insecure-uri (LN1345) http://example.org/foo/ [debian/watch:2]

@@ -13,12 +13,17 @@ The first column is matched against Check sources by `scripts/lintian_tag.py`. K
 | `sub binary` | `impl BinaryPackageRule`, return early when `ctx.is_udeb()` | |
 | `sub udeb` | `impl BinaryPackageRule`, only when `ctx.is_udeb()` | |
 | `sub always` | implement both traits | |
-| `sub changes` | no Subject (ADR 0016) | `.changes` hint lines cannot have Parity. |
+| `sub changes` | `impl ChangesRule` → `run(&self, ctx: &mut ChangesContext)` | The `.changes` of a Group (ADR 0055). `ctx.changes()` is the parsed file, `ctx.changes().files()` its `Files` and `Checksums-*` entries (lintian's `files` hash); `ctx.sibling(name)` is a file next to it. Hints get processable type `changes`. |
+| `sub buildinfo` | `impl BuildinfoRule` → `run(&self, ctx: &mut BuildinfoContext)` | The `.buildinfo` of a Group; `ctx.buildinfo()`. Hints get processable type `buildinfo`. |
 | `visit_installed_files` | iterate `ctx.data_files()?.entries()` or `.query()` | Entries are sorted by path, like `sorted_list`. |
 | `visit_control_files` | iterate `ctx.control_files()?` | Maintainer scripts and `control`, `md5sums`, … (ADR 0045). |
 | `visit_patched_files` | iterate `ctx.files()?`, **skip paths under `.pc/`** | lintian drops `.pc/` in `visit_files`; `files()` does not. |
 | `visit_orig_files` | iterate `ctx.orig_files()?` | `None` on a Source tree; empty when Native. |
-| `$self->group` | none | One Subject per lint run (ADR 0017); group Checks cannot be ported. |
+| `$self->group` | `impl GroupRule` → `run(&self, ctx: &mut GroupContext)` | Runs once per Group that has a `.dsc`, as lintian runs a Check's `source` hook on the Group's source processable; hints attach to the Source package (ADR 0055). `ctx.changes()`, `ctx.dsc()`, `ctx.buildinfo()`, `ctx.installables()`. |
+| `$group->get_installables` | `ctx.installables()` | `GroupInstallable`: `name()`, `version()`, `architecture()`, `multi_arch()`, `provides()`, `is_udeb()`, `fields()`, `relation(field)`, `strong_relation()`. Debs and ddebs before udebs. |
+| `$group->direct_dependencies` | `ctx.direct_dependencies(&installable)` | Strong dependencies (Pre-Depends, Depends) on sibling installables; self-dependencies are left out. |
+| `$installable->installed` (of a sibling) | `ctx.data_files(&installable)?` | The sibling's Data files File tree, shared with Binary-package Rules; `ctx.control_files(&installable)` for its Control files. |
+| `$group->source` (its control and files) | `ctx.debian_control()`, `ctx.patched_files()`, `ctx.orig_files()` | From one `dpkg-source` extract shared with Source-package Rules. `None` when the Group has no `.dsc`. |
 
 ## Hints
 

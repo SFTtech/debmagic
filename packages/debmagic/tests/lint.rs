@@ -7,7 +7,8 @@ use std::path::PathBuf;
 
 use common::{
     ParityHint, assets_dir, build_native_dsc, missing_upstream_tarball, parse_diagnostic_line,
-    parse_universal_hint_line, run_lint, run_lint_subject, source_rule_counts, temp_artifact,
+    parse_universal_hint_line, run_lint, run_lint_subject, run_lint_subjects, source_rule_counts,
+    temp_artifact,
 };
 
 #[test]
@@ -236,6 +237,153 @@ fn lint_source_package_select_required_field_applies() {
         !stdout.contains("required-field"),
         "complete debian/control should not emit required-field, stdout: {stdout}"
     );
+}
+
+/// A `.changes` for the native `example_1.0` Source package in `dir`, naming
+/// the files in `files` as `(section, name)`.
+fn write_changes(
+    dir: &std::path::Path,
+    name: &str,
+    source: &str,
+    files: &[(&str, &str)],
+) -> PathBuf {
+    let mut text = format!("Source: {source}\nVersion: 1.0\nFiles:\n");
+    for (section, file) in files {
+        text.push_str(&format!(
+            " d41d8cd98f00b204e9800998ecf8427e 0 {section} optional {file}\n"
+        ));
+    }
+    let path = dir.join(name);
+    fs::write(&path, text).expect("writing a changes file");
+    path
+}
+
+#[test]
+fn lint_changes_pulls_in_its_dsc_and_reports_the_bad_section() {
+    let work = tempfile::tempdir().expect("workdir");
+    let dsc = build_native_dsc(work.path(), "example", &[]);
+    assert!(dsc.is_file());
+    let changes = write_changes(
+        work.path(),
+        "example_1.0_source.changes",
+        "example",
+        &[
+            ("non-free", "example_1.0.dsc"),
+            ("utils", "example_1.0.tar.xz"),
+        ],
+    );
+    let (status, stdout, stderr) = run_lint_subject(
+        &changes,
+        &["--select", "bad-section-in-changes-file,required-field"],
+    );
+
+    assert_eq!(status.code(), Some(1), "stdout: {stdout}\nstderr: {stderr}");
+    assert!(
+        stdout.contains(
+            "E: example (changes): bad-section-in-changes-file (LN1440) example_1.0.dsc non-free"
+        ),
+        "stdout: {stdout}"
+    );
+    assert!(stdout.contains("Found 1 error."), "stdout: {stdout}");
+    // The Changes Rule and the Source-package Rule both ran: the `.dsc` the
+    // `.changes` names is part of the Group.
+    assert_finished(&stdout, 2);
+}
+
+#[test]
+fn lint_merges_arguments_of_one_source_package_into_a_group() {
+    let work = tempfile::tempdir().expect("workdir");
+    let dsc = build_native_dsc(work.path(), "example", &[]);
+    let changes = write_changes(
+        work.path(),
+        "example_1.0_source.changes",
+        "example",
+        &[
+            ("non-free", "example_1.0.dsc"),
+            ("utils", "example_1.0.tar.xz"),
+        ],
+    );
+    // The `.dsc` and the `.changes` that names it are one Group: one report of
+    // each Rule, not one per argument.
+    let (status, stdout, stderr) = run_lint_subjects(
+        &[&changes, &dsc],
+        &["--select", "bad-section-in-changes-file,required-field"],
+    );
+    assert_eq!(status.code(), Some(1), "stdout: {stdout}\nstderr: {stderr}");
+    assert_eq!(
+        stdout
+            .matches("bad-section-in-changes-file (LN1440)")
+            .count(),
+        1,
+        "stdout: {stdout}"
+    );
+    assert_finished(&stdout, 2);
+}
+
+#[test]
+fn lint_changes_naming_a_missing_file_fails() {
+    let work = tempfile::tempdir().expect("workdir");
+    let changes = write_changes(
+        work.path(),
+        "example_1.0_source.changes",
+        "example",
+        &[("utils", "gone_1.0_all.deb")],
+    );
+    let (status, _stdout, stderr) = run_lint_subject(&changes, &[]);
+    assert_eq!(status.code(), Some(1));
+    assert!(
+        stderr.contains("gone_1.0_all.deb does not exist"),
+        "stderr: {stderr}"
+    );
+}
+
+#[test]
+fn lint_two_changes_files_make_two_groups() {
+    let first = tempfile::tempdir().expect("workdir");
+    let second = tempfile::tempdir().expect("workdir");
+    let one = write_changes(
+        first.path(),
+        "one_1.0_source.changes",
+        "one",
+        &[("non-free", "a_1.0.tar.xz")],
+    );
+    let two = write_changes(
+        second.path(),
+        "two_1.0_source.changes",
+        "two",
+        &[("contrib", "b_1.0.tar.xz")],
+    );
+    fs::write(first.path().join("a_1.0.tar.xz"), b"").expect("tarball");
+    fs::write(second.path().join("b_1.0.tar.xz"), b"").expect("tarball");
+    let (status, stdout, stderr) =
+        run_lint_subjects(&[&one, &two], &["--select", "bad-section-in-changes-file"]);
+    assert_eq!(status.code(), Some(1), "stderr: {stderr}");
+    assert!(
+        stdout.contains(
+            "E: one (changes): bad-section-in-changes-file (LN1440) a_1.0.tar.xz non-free"
+        ),
+        "stdout: {stdout}"
+    );
+    assert!(
+        stdout.contains(
+            "E: two (changes): bad-section-in-changes-file (LN1440) b_1.0.tar.xz contrib"
+        ),
+        "stdout: {stdout}"
+    );
+    assert!(stdout.contains("Found 2 errors."), "stdout: {stdout}");
+}
+
+#[test]
+fn lint_source_tree_cannot_be_mixed_with_artifacts() {
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_debmagic"))
+        .arg("lint")
+        .arg(assets_dir().join("check_dummy_hit"))
+        .arg("some_1.0_all.changes")
+        .output()
+        .expect("spawning debmagic");
+    assert_eq!(output.status.code(), Some(1));
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(stderr.contains("Source tree"), "stderr: {stderr}");
 }
 
 fn assert_finished(stdout: &str, rules: usize) {

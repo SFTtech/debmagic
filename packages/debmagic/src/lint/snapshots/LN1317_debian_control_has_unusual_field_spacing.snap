@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): debian-control-has-unusual-field-spacing (LN1317) Source [debian/control:1]
+P: example (source): debian-control-has-unusual-field-spacing (LN1317) Source [debian/control:1]
+P: (source): debian-control-has-unusual-field-spacing (LN1317) Priority [debian/control:2]
+P: example (source): debian-control-has-unusual-field-spacing (LN1317) Maintainer [debian/control:2]
+P: example (source): debian-control-has-unusual-field-spacing (LN1317) Section [debian/control:2]
+P: value (source): debian-control-has-unusual-field-spacing (LN1317) Source [debian/control:1]

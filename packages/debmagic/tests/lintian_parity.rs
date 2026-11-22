@@ -549,6 +549,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-libbaz",
     "checks/debian/changelog/legacy-maintainer-scripts",
     "checks/debian/changelog/legacy-relations",
+    "checks/debian/changelog/spelling-general",
     "checks/debian/copyright/copyright-file-general",
     "checks/debian/copyright/copyright-file-license-symlink",
     "checks/debian/copyright/copyright-file-symlink",
@@ -2088,6 +2089,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/legacy-libbaz"; "checks_debian_changelog_legacy_libbaz")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
 #[test_case("checks/debian/changelog/legacy-relations"; "checks_debian_changelog_legacy_relations")]
+#[test_case("checks/debian/changelog/spelling-general"; "checks_debian_changelog_spelling_general")]
 #[test_case("checks/debian/copyright/copyright-file-general"; "checks_debian_copyright_copyright_file_general")]
 #[test_case("checks/debian/copyright/copyright-file-license-symlink"; "checks_debian_copyright_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]

@@ -128,6 +128,7 @@ use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DeprecatedConfigureFilename;
+use super::rules::DeprecatedDebianControlField;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
 use super::rules::DesktopEntryContainsEncodingKey;
@@ -2183,6 +2184,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DhExecUselessUsage,
         &BadIntendedDistribution,
         &DebianNewsEntryUsesAsterisk,
+        &DeprecatedDebianControlField,
     ]
 }
 
@@ -2586,6 +2588,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &LicenseProblemGfdlInvariantsEmpty,
         &DhExecSubstUnknownVariable,
         &DhExecUselessUsage,
+        &DeprecatedDebianControlField,
     ]
 }
 

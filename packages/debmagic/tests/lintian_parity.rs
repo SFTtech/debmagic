@@ -684,6 +684,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/init/files-bad-perm-owner",
     "checks/files/init/files-foo-in-bar",
     "checks/files/ld-so/files-general",
+    "checks/files/licenses/files-extra-license",
+    "checks/files/licenses/legacy-filenames",
     "checks/files/missing/files-missing-intermediate-dirs",
     "checks/files/multi-arch/files-multiarch-foreign-files",
     "checks/files/multi-arch/files-pkgconfig",
@@ -1975,6 +1977,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/init/files-bad-perm-owner"; "checks_files_init_files_bad_perm_owner")]
 #[test_case("checks/files/init/files-foo-in-bar"; "checks_files_init_files_foo_in_bar")]
 #[test_case("checks/files/ld-so/files-general"; "checks_files_ld_so_files_general")]
+#[test_case("checks/files/licenses/files-extra-license"; "checks_files_licenses_files_extra_license")]
+#[test_case("checks/files/licenses/legacy-filenames"; "checks_files_licenses_legacy_filenames")]
 #[test_case("checks/files/missing/files-missing-intermediate-dirs"; "checks_files_missing_files_missing_intermediate_dirs")]
 #[test_case("checks/files/multi-arch/files-multiarch-foreign-files"; "checks_files_multi_arch_files_multiarch_foreign_files")]
 #[test_case("checks/files/multi-arch/files-pkgconfig"; "checks_files_multi_arch_files_pkgconfig")]

@@ -129,6 +129,7 @@ use super::rules::ExecutableJarWithoutMainClass;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
+use super::rules::ExtraLicenseFile;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
@@ -1941,6 +1942,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageContainsNoArchDependentFiles,
         &OldStyleConfigScript,
         &PackageContainsEmptyDirectory,
+        &ExtraLicenseFile,
     ]
 }
 
@@ -3079,6 +3081,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageContainsNoArchDependentFiles,
         &OldStyleConfigScript,
         &PackageContainsEmptyDirectory,
+        &ExtraLicenseFile,
     ]
 }
 

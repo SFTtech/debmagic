@@ -691,6 +691,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/symbolic-links/broken/legacy-filenames",
     "checks/files/symbolic-links/broken/symlinks-unsafe",
     "checks/files/symbolic-links/files-general",
+    "checks/files/symbolic-links/files-symlink-points-to-tmp",
     "checks/files/symbolic-links/files-symlinks",
     "checks/files/symbolic-links/legacy-binary",
     "checks/files/symbolic-links/legacy-filenames",
@@ -1935,6 +1936,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/symbolic-links/broken/legacy-filenames"; "checks_files_symbolic_links_broken_legacy_filenames")]
 #[test_case("checks/files/symbolic-links/broken/symlinks-unsafe"; "checks_files_symbolic_links_broken_symlinks_unsafe")]
 #[test_case("checks/files/symbolic-links/files-general"; "checks_files_symbolic_links_files_general")]
+#[test_case("checks/files/symbolic-links/files-symlink-points-to-tmp"; "checks_files_symbolic_links_files_symlink_points_to_tmp")]
 #[test_case("checks/files/symbolic-links/files-symlinks"; "checks_files_symbolic_links_files_symlinks")]
 #[test_case("checks/files/symbolic-links/legacy-binary"; "checks_files_symbolic_links_legacy_binary")]
 #[test_case("checks/files/symbolic-links/legacy-filenames"; "checks_files_symbolic_links_legacy_filenames")]

@@ -282,6 +282,7 @@ use super::rules::MultiArchSamePackageCallsPycompile;
 use super::rules::MultiArchSamePackageHasArchSpecificOverrides;
 use super::rules::MultilineArchitectureField;
 use super::rules::MultilineField;
+use super::rules::MultipleDistributionsInChangesFile;
 use super::rules::NativeSourceFileWithoutUtf8Name;
 use super::rules::NeedlessDependencyOnJre;
 use super::rules::NewPackageShouldNotPackagePython2Module;
@@ -2175,6 +2176,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoCodeSections,
         &FileSizeMismatchInChangesFile,
         &MalformedChangesFile,
+        &MultipleDistributionsInChangesFile,
     ]
 }
 
@@ -3435,6 +3437,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &DebianRevisionNotWellFormed,
         &FileSizeMismatchInChangesFile,
         &MalformedChangesFile,
+        &MultipleDistributionsInChangesFile,
     ]
 }
 

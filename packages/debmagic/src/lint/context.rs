@@ -738,7 +738,6 @@ impl<'a> SourceContext<'a> {
     /// `debian/upstream/metadata` of the packaging tree, read and parsed once
     /// per Subject. `None` after a global File tree failure (returned from
     /// [`Self::finish`]). See [`UpstreamMetadata`] for the states.
-    #[allow(dead_code)]
     pub fn upstream_metadata(&mut self) -> Option<Arc<UpstreamMetadata>> {
         self.files()?;
         Some(self.shared_once(|ctx| {
@@ -896,31 +895,33 @@ fn is_quilt_series_path(path: &Path) -> bool {
 /// that stay inside the tree (lintian's `is_open_ok`). `None` for directories,
 /// dangling, absolute, or escaping links, and loops.
 pub(crate) fn follow_symlinks<'t>(tree: &'t FileTree, entry: &'t Entry) -> Option<&'t Entry> {
+    let target = resolve_symlinks(tree, entry)?;
+    matches!(target.kind(), EntryKind::RegularFile | EntryKind::Hardlink).then_some(target)
+}
+
+/// The entry `entry` names once its symlinks are followed, whatever its kind
+/// (lintian's `resolve_path`). `None` when a link dangles, is absolute or
+/// escapes the tree, or loops.
+pub(crate) fn resolve_symlinks<'t>(tree: &'t FileTree, entry: &'t Entry) -> Option<&'t Entry> {
     let mut current = entry;
     for _ in 0..8 {
-        match current.kind() {
-            EntryKind::RegularFile | EntryKind::Hardlink => return Some(current),
-            EntryKind::Directory
-            | EntryKind::Fifo
-            | EntryKind::CharDevice
-            | EntryKind::BlockDevice => return None,
-            EntryKind::Symlink => {
-                let mut resolved = current.path().parent()?.to_path_buf();
-                for component in current.link_target()?.components() {
-                    match component {
-                        Component::Normal(part) => resolved.push(part),
-                        Component::CurDir => {}
-                        Component::ParentDir => {
-                            if !resolved.pop() {
-                                return None;
-                            }
-                        }
-                        Component::RootDir | Component::Prefix(_) => return None,
+        if current.kind() != EntryKind::Symlink {
+            return Some(current);
+        }
+        let mut resolved = current.path().parent()?.to_path_buf();
+        for component in current.link_target()?.components() {
+            match component {
+                Component::Normal(part) => resolved.push(part),
+                Component::CurDir => {}
+                Component::ParentDir => {
+                    if !resolved.pop() {
+                        return None;
                     }
                 }
-                current = tree.get(&resolved)?;
+                Component::RootDir | Component::Prefix(_) => return None,
             }
         }
+        current = tree.get(&resolved)?;
     }
     None
 }

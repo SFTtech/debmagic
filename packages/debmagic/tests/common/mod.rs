@@ -753,23 +753,9 @@ fn ensure_rules_executable(source: &Path) {
     }
 }
 
-/// Prepend a `dpkg-deb` that passes `--nocheck`.
-///
-/// Lintian recipes build packages current `dpkg-deb` rejects, such as a
-/// `config` script mode `0644`. `--nocheck` refuses a directory target, so a
-/// directory destination is rewritten to the `.deb` path `dpkg-deb` would
-/// have chosen (epoch omitted from the filename). Archive bytes of a package
-/// that already passed the checks stay the same.
-fn dpkg_deb_nocheck_path(source: &Path) -> PathBuf {
-    let bin = source
-        .parent()
-        .expect("recipe source lives in a work directory")
-        .join("bin");
-    fs::create_dir_all(&bin).expect("creating dpkg-deb wrapper dir");
-    let wrapper = bin.join("dpkg-deb");
-    fs::write(
-        &wrapper,
-        r#"#!/usr/bin/python3
+/// The `dpkg-deb` wrapper [`dpkg_deb_nocheck_path`] writes. Part of the build
+/// cache key: a changed wrapper can change a built package.
+const DPKG_DEB_NOCHECK_WRAPPER: &str = r#"#!/usr/bin/python3
 import os, sys
 
 real = "/usr/bin/dpkg-deb"
@@ -826,9 +812,23 @@ command.extend(args[: idx + 1])
 command.extend(positionals)
 command.extend(tail_opts)
 os.execv(real, command)
-"#,
-    )
-    .expect("writing dpkg-deb wrapper");
+"#;
+
+/// Prepend a `dpkg-deb` that passes `--nocheck`.
+///
+/// Lintian recipes build packages current `dpkg-deb` rejects, such as a
+/// `config` script mode `0644`. `--nocheck` refuses a directory target, so a
+/// directory destination is rewritten to the `.deb` path `dpkg-deb` would
+/// have chosen (epoch omitted from the filename). Archive bytes of a package
+/// that already passed the checks stay the same.
+fn dpkg_deb_nocheck_path(source: &Path) -> PathBuf {
+    let bin = source
+        .parent()
+        .expect("recipe source lives in a work directory")
+        .join("bin");
+    fs::create_dir_all(&bin).expect("creating dpkg-deb wrapper dir");
+    let wrapper = bin.join("dpkg-deb");
+    fs::write(&wrapper, DPKG_DEB_NOCHECK_WRAPPER).expect("writing dpkg-deb wrapper");
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
@@ -858,6 +858,214 @@ fn rules_use_nodejs(source: &Path) -> bool {
     rules.contains("--with nodejs")
         || rules.contains("dh-sequence-nodejs")
         || control.contains("dh-sequence-nodejs")
+}
+
+// --- Build cache ---------------------------------------------------------------------------------
+//
+// Recipes whose copied trees are identical build the same product, so a tree is
+// built once per test process. The key is a SHA-256 over the copied tree and
+// everything else that changes the product (see `BuildKey`); a recipe's
+// `eval/hints` and `eval/desc` are not in it, because they are what the test
+// compares against, not what is built.
+
+/// Bumped when the key layout or what is stored changes.
+const BUILD_CACHE_FORMAT: &str = "1";
+
+fn hex(bytes: &[u8]) -> String {
+    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+}
+
+/// Builds the key of one build: every input is added as a named,
+/// length-prefixed field, so two different inputs never hash alike.
+struct BuildKey(sha2::Sha256);
+
+impl BuildKey {
+    fn new(kind: &str) -> Self {
+        let mut key = Self(sha2::Sha256::default());
+        key.field("format", BUILD_CACHE_FORMAT.as_bytes());
+        key.field("kind", kind.as_bytes());
+        key.field("environment", build_environment_fingerprint().as_bytes());
+        key
+    }
+
+    fn field(&mut self, name: &str, value: &[u8]) {
+        use sha2::Digest;
+        for part in [name.as_bytes(), value] {
+            self.0.update((part.len() as u64).to_le_bytes());
+            self.0.update(part);
+        }
+    }
+
+    /// The content of a copied tree: names, kinds, modes, file contents and
+    /// link targets, in name order. Not modification times: the copy gets new
+    /// ones, and packages clamp them to `SOURCE_DATE_EPOCH`.
+    fn tree(&mut self, dir: &Path) {
+        use std::os::unix::fs::PermissionsExt;
+        let mut entries: Vec<_> = fs::read_dir(dir)
+            .unwrap_or_else(|error| panic!("reading {}: {error}", dir.display()))
+            .map(|entry| entry.expect("directory entry"))
+            .collect();
+        entries.sort_by_key(|entry| entry.file_name());
+        self.field("entries", &(entries.len() as u64).to_le_bytes());
+        for entry in entries {
+            let path = entry.path();
+            let file_type = entry.file_type().expect("file type");
+            self.field("name", entry.file_name().as_encoded_bytes());
+            let mode = fs::symlink_metadata(&path)
+                .unwrap_or_else(|error| panic!("stat {}: {error}", path.display()))
+                .permissions()
+                .mode()
+                & 0o7777;
+            if file_type.is_dir() {
+                self.field("dir", &mode.to_le_bytes());
+                self.tree(&path);
+            } else if file_type.is_symlink() {
+                let target = fs::read_link(&path)
+                    .unwrap_or_else(|error| panic!("reading link {}: {error}", path.display()));
+                self.field("link", target.as_os_str().as_encoded_bytes());
+            } else {
+                let bytes = fs::read(&path)
+                    .unwrap_or_else(|error| panic!("reading {}: {error}", path.display()));
+                self.field("file", &mode.to_le_bytes());
+                self.field("content", &bytes);
+            }
+        }
+    }
+
+    /// Whether `dpkg_buildpackage_command` puts the `dh --with nodejs` stub on
+    /// the path for this tree, and then what the stub is.
+    fn nodejs_stub(&mut self, source: &Path) {
+        let use_stub = rules_use_nodejs(source) && nodejs_sequence_missing();
+        self.field("nodejs-stub", &[u8::from(use_stub)]);
+        if use_stub {
+            self.tree(&PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/dh_sequence_nodejs"));
+        }
+    }
+
+    fn finish(self) -> String {
+        use sha2::Digest;
+        hex(&self.0.finalize())
+    }
+}
+
+/// What the host contributes to every build, hashed once per process: the host
+/// architecture, the user (a `dpkg-deb` without fakeroot packs the owner and
+/// group of the builder), the environment variables the build tools read, and
+/// the installed packages (`/var/lib/dpkg/status` stands for the toolchain:
+/// dpkg, debhelper, compilers). `PATH` and the directory the tests run in are
+/// left out on purpose: they differ between shells and do not change a
+/// package.
+fn build_environment_fingerprint() -> &'static str {
+    static FINGERPRINT: OnceLock<String> = OnceLock::new();
+    FINGERPRINT.get_or_init(|| {
+        use sha2::Digest;
+        let mut hasher = sha2::Sha256::default();
+        let mut field = |name: &str, value: &[u8]| {
+            for part in [name.as_bytes(), value] {
+                hasher.update((part.len() as u64).to_le_bytes());
+                hasher.update(part);
+            }
+        };
+        field("host-arch", host_architecture().unwrap_or("?").as_bytes());
+        // SAFETY: `getuid` and `getgid` take no arguments and cannot fail.
+        let (uid, gid) = unsafe { (libc::getuid(), libc::getgid()) };
+        field("uid", &uid.to_le_bytes());
+        field("gid", &gid.to_le_bytes());
+        let mut variables: Vec<(String, std::ffi::OsString)> = std::env::vars_os()
+            .filter_map(|(name, value)| Some((name.into_string().ok()?, value)))
+            .filter(|(name, _)| {
+                ["DEB_", "DH_", "DPKG_", "LC_"]
+                    .iter()
+                    .any(|prefix| name.starts_with(prefix))
+                    || matches!(
+                        name.as_str(),
+                        "LANG"
+                            | "LANGUAGE"
+                            | "TZ"
+                            | "CC"
+                            | "CXX"
+                            | "CPP"
+                            | "CFLAGS"
+                            | "CPPFLAGS"
+                            | "CXXFLAGS"
+                            | "LDFLAGS"
+                            | "FFLAGS"
+                            | "MAKEFLAGS"
+                            | "MFLAGS"
+                            | "SOURCE_DATE_EPOCH"
+                            | "PERL5LIB"
+                    )
+            })
+            .collect();
+        variables.sort();
+        for (name, value) in &variables {
+            field(&format!("env:{name}"), value.as_encoded_bytes());
+        }
+        let status = fs::read("/var/lib/dpkg/status").unwrap_or_default();
+        field("dpkg-status", sha2::Sha256::digest(&status).as_slice());
+        hex(&hasher.finalize())
+    })
+}
+
+/// The build products of one key: file name and bytes.
+type BuiltFiles = Vec<(std::ffi::OsString, Vec<u8>)>;
+
+type BuildSlot = std::sync::Arc<std::sync::Mutex<Option<std::sync::Arc<BuiltFiles>>>>;
+
+/// The files `build` produces in `dest`, built once per key in this process.
+///
+/// A test whose key has been built writes the stored files into its own
+/// `dest` and does not run `build`. A test that needs a key somebody else is
+/// building waits for that build (one lock per key). A build that panics
+/// stores nothing: the panic is the failure of the recipe that ran it, and
+/// the next recipe with the same tree builds it itself, so one recipe's
+/// failure (or a flaky one) never fails the recipes that share its tree.
+/// `build` returns the paths of the products, all directly in `dest`.
+fn build_once(key: String, dest: &Path, build: impl FnOnce() -> Vec<PathBuf>) -> Vec<PathBuf> {
+    use std::{
+        collections::HashMap,
+        sync::{Arc, Mutex, PoisonError},
+    };
+    static SLOTS: OnceLock<Mutex<HashMap<String, BuildSlot>>> = OnceLock::new();
+    let slot = SLOTS
+        .get_or_init(Default::default)
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .entry(key)
+        .or_default()
+        .clone();
+    // A poisoned lock holds `None`: the build that panicked stored nothing.
+    let mut stored = slot.lock().unwrap_or_else(PoisonError::into_inner);
+    if let Some(files) = stored.as_ref() {
+        fs::create_dir_all(dest).expect("creating build product dir");
+        return files
+            .iter()
+            .map(|(name, bytes)| {
+                let path = dest.join(name);
+                fs::write(&path, bytes)
+                    .unwrap_or_else(|error| panic!("writing {}: {error}", path.display()));
+                path
+            })
+            .collect();
+    }
+    let paths = build();
+    let files: BuiltFiles = paths
+        .iter()
+        .map(|path| {
+            assert_eq!(
+                path.parent(),
+                Some(dest),
+                "{} is not in {}",
+                path.display(),
+                dest.display()
+            );
+            let bytes = fs::read(path)
+                .unwrap_or_else(|error| panic!("reading {}: {error}", path.display()));
+            (path.file_name().expect("product name").to_owned(), bytes)
+        })
+        .collect();
+    *stored = Some(Arc::new(files));
+    paths
 }
 
 /// `dpkg-buildpackage` in `source`, with the host fixes recipes need: a
@@ -904,10 +1112,15 @@ fn dpkg_buildpackage_command(source: &Path, build_options: &str) -> Command {
     command
 }
 
+/// `DEB_BUILD_OPTIONS` and arguments of the Binary-package build. Part of the
+/// build cache key.
+const BINARY_BUILD_OPTIONS: &str = "nocheck noautodbgsym";
+const BINARY_BUILD_ARGS: &[&str] = &["-b", "-us", "-uc", "-d"];
+
 fn dpkg_build_binary(source: &Path) {
     ensure_rules_executable(source);
-    let mut command = dpkg_buildpackage_command(source, "nocheck noautodbgsym");
-    command.args(["-b", "-us", "-uc", "-d"]);
+    let mut command = dpkg_buildpackage_command(source, BINARY_BUILD_OPTIONS);
+    command.args(BINARY_BUILD_ARGS);
     let output = command.output().expect("spawning dpkg-buildpackage -b");
     assert!(
         output.status.success(),
@@ -924,34 +1137,49 @@ fn assemble_binary_packages(recipe: &Path, work: &Path) -> Vec<PathBuf> {
         let build = work.join("build");
         copy_tree(recipe, &source);
         fs::create_dir_all(&build).expect("creating build dir");
-        let output = Command::new("make")
-            .arg("-C")
-            .arg(&build)
-            .arg("-f")
-            .arg(source.join("Makefile"))
-            .output()
-            .expect("spawning make");
-        assert!(
-            output.status.success(),
-            "{}: make failed\nstdout:\n{}\nstderr:\n{}",
-            recipe.display(),
-            String::from_utf8_lossy(&output.stdout),
-            String::from_utf8_lossy(&output.stderr)
-        );
-        return vec![find_binary_package(&build)];
+        // The whole copy is hashed, `ORIGIN` and `eval/` included: the Makefile
+        // runs in it and may read any of it.
+        let mut key = BuildKey::new("deb-skeleton");
+        key.tree(&source);
+        return build_once(key.finish(), &build, || {
+            let output = Command::new("make")
+                .arg("-C")
+                .arg(&build)
+                .arg("-f")
+                .arg(source.join("Makefile"))
+                .output()
+                .expect("spawning make");
+            assert!(
+                output.status.success(),
+                "{}: make failed\nstdout:\n{}\nstderr:\n{}",
+                recipe.display(),
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            vec![find_binary_package(&build)]
+        });
     }
 
     let source = work.join("src");
     copy_package_tree(recipe, &source);
-    dpkg_build_binary(&source);
-    let packages = find_binary_packages(work);
-    assert!(
-        !packages.is_empty(),
-        "{}: dpkg-buildpackage produced no Binary package in {}",
-        recipe.display(),
-        work.display()
-    );
-    packages
+    ensure_rules_executable(&source);
+    let mut key = BuildKey::new("dpkg-buildpackage-binary");
+    key.tree(&source);
+    key.field("build-options", BINARY_BUILD_OPTIONS.as_bytes());
+    key.field("build-args", BINARY_BUILD_ARGS.join(" ").as_bytes());
+    key.field("dpkg-deb-wrapper", DPKG_DEB_NOCHECK_WRAPPER.as_bytes());
+    key.nodejs_stub(&source);
+    build_once(key.finish(), work, || {
+        dpkg_build_binary(&source);
+        let packages = find_binary_packages(work);
+        assert!(
+            !packages.is_empty(),
+            "{}: dpkg-buildpackage produced no Binary package in {}",
+            recipe.display(),
+            work.display()
+        );
+        packages
+    })
 }
 
 /// Binary-package recipes this host's toolchain cannot build, with why. Their
@@ -1527,14 +1755,66 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
         .collect();
     let keep_ignored = !pointers.is_empty() || expects_tag_prefix(recipe, "source-contains-");
     let overrides = dpkg_overrides(recipe);
-    if let Some(hook) = vendored_pre_upstream(recipe) {
-        let name = main_orig_name(&source);
-        pack_orig_with_hook(&source, &hook, &work.join(&name), &root_adds);
+    let hook = vendored_pre_upstream(recipe);
+
+    // Everything the packing reads besides the tree: the `dpkg-source` flags,
+    // the paths left out of the orig, and the `pre-upstream` hook. The recipe's
+    // `eval/hints` reach the build only through `root_adds` and `keep_ignored`.
+    let mut key = BuildKey::new("dpkg-source");
+    key.tree(&source);
+    key.field("keep-ignored", &[u8::from(keep_ignored)]);
+    key.field("overrides", overrides.join("\0").as_bytes());
+    key.field("root-adds", root_adds.join("\0").as_bytes());
+    let hook_text = hook.as_ref().map(|hook| {
+        fs::read(hook).unwrap_or_else(|error| panic!("reading {}: {error}", hook.display()))
+    });
+    key.field("pre-upstream", hook_text.as_deref().unwrap_or_default());
+    key.field("has-pre-upstream", &[u8::from(hook.is_some())]);
+
+    let products = build_once(key.finish(), work, || {
+        pack_source_package(
+            recipe,
+            work,
+            &source,
+            keep_ignored,
+            &overrides,
+            &root_adds,
+            hook.as_deref(),
+        );
+        // The `.dsc` and the tarballs it lists, next to it.
+        let mut files: Vec<PathBuf> = fs::read_dir(work)
+            .unwrap_or_else(|error| panic!("reading {}: {error}", work.display()))
+            .map(|entry| entry.expect("directory entry").path())
+            .filter(|path| path.is_file())
+            .collect();
+        files.sort();
+        files
+    });
+    products
+        .into_iter()
+        .find(|path| path.extension().and_then(OsStr::to_str) == Some("dsc"))
+        .unwrap_or_else(|| panic!("{recipe:?}: no .dsc among the products"))
+}
+
+/// Pack `source` (a copy of the recipe tree in `work`) with `dpkg-source`,
+/// synthesizing the orig tarball when the format asks for one.
+fn pack_source_package(
+    recipe: &Path,
+    work: &Path,
+    source: &Path,
+    keep_ignored: bool,
+    overrides: &[String],
+    root_adds: &[String],
+    hook: Option<&Path>,
+) {
+    if let Some(hook) = hook {
+        let name = main_orig_name(source);
+        pack_orig_with_hook(source, hook, &work.join(&name), root_adds);
     } else if !root_adds.is_empty() {
-        let name = main_orig_name(&source);
-        pack_orig_without_added(&source, &work.join(&name), &root_adds);
+        let name = main_orig_name(source);
+        pack_orig_without_added(source, &work.join(&name), root_adds);
     }
-    let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, &overrides);
+    let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
     if !ok {
         let Some(name) = missing_upstream_tarball(&stderr) else {
             panic!("{recipe:?}: dpkg-source -b failed\n{stdout}\n{stderr}");
@@ -1543,16 +1823,16 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             !is_component_orig(&name),
             "{recipe:?}: component orig {name} is not synthesized"
         );
-        pack_main_orig(&source, &work.join(&name));
-        let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, &overrides);
+        pack_main_orig(source, &work.join(&name));
+        let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
         if !ok && stderr.contains("unexpected upstream changes") {
             // dpkg-source mis-reads an orig whose last member name contains a
             // quote (`data/".tif` in legacy-filenames) and reports those
             // files as new. A later member lets it see the archive correctly.
             // The pad is in the tree and the orig, so it is not a diff.
             fs::write(source.join("zz-pad"), "\n").expect("writing orig pad");
-            pack_main_orig(&source, &work.join(&name));
-            let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, &overrides);
+            pack_main_orig(source, &work.join(&name));
+            let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
             assert!(
                 ok,
                 "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"
@@ -1564,7 +1844,7 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             );
         }
     }
-    find_dsc(work)
+    find_dsc(work);
 }
 
 pub fn assert_source_package_parity(recipe_rel: &str) {

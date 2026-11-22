@@ -43,6 +43,7 @@ use super::rules::ChangelogIsDhMakeTemplate;
 use super::rules::ChangelogIsSymlink;
 use super::rules::ChangelogNotCompressedWithMaxCompression;
 use super::rules::ClasspathContainsRelativePath;
+use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
 use super::rules::ComposerPrerequisite;
@@ -144,6 +145,7 @@ use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
 use super::rules::FontInNonFontPackage;
+use super::rules::FontOutsideFontDir;
 use super::rules::FontPackageNotMultiArchForeign;
 use super::rules::ForbiddenPostrmInterpreter;
 use super::rules::GawkScriptButNoGawkDep;
@@ -158,10 +160,13 @@ use super::rules::HardeningNoFortifyFunctions;
 use super::rules::HardeningNoPie;
 use super::rules::HardeningNoRelro;
 use super::rules::IllegalMultiArchValue;
+use super::rules::ImageFileHasConflictingName;
+use super::rules::ImageFileHasUnexpectedName;
 use super::rules::IncompatibleJavaBytecodeFormat;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
+use super::rules::InitDScriptDoesNotImplementStatusOption;
 use super::rules::InitDScriptUsesUsrInterpreter;
 use super::rules::InitScriptIsNotAFile;
 use super::rules::InsecureCopyrightFormatUri;
@@ -254,6 +259,7 @@ use super::rules::ObsoleteFieldInDep5Copyright;
 use super::rules::ObsoleteRelationForm;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
+use super::rules::OcamlDanglingCmx;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OlderSourceFormat;
@@ -367,6 +373,7 @@ use super::rules::SharedLibrarySymbolsNotTracked;
 use super::rules::ShipsUndeclaredSharedLibrary;
 use super::rules::SourceContainsEditorBackupFile;
 use super::rules::SourceContainsPatchFailureFile;
+use super::rules::SourceContainsPrebuiltBinary;
 use super::rules::SourceContainsPrebuiltMsHelpFile;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
@@ -423,6 +430,7 @@ use super::rules::UnknownEncodingInPoFile;
 use super::rules::UnknownEssentialValue;
 use super::rules::UnknownFileInDebianSource;
 use super::rules::UnknownJavaClassVersion;
+use super::rules::UnknownLocaleCode;
 use super::rules::UnknownMetaFieldInSymbolsFile;
 use super::rules::UnknownMultiArchValue;
 use super::rules::UnknownParagraphInDep5Copyright;
@@ -2003,6 +2011,14 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageContainsEmptyDirectory,
         &ExtraLicenseFile,
         &VeryLongLineLengthInSourceFile,
+        &UnknownLocaleCode,
+        &SourceContainsPrebuiltBinary,
+        &FontOutsideFontDir,
+        &ImageFileHasConflictingName,
+        &ImageFileHasUnexpectedName,
+        &InitDScriptDoesNotImplementStatusOption,
+        &ClojurePackageButNotDhClojure,
+        &OcamlDanglingCmx,
     ]
 }
 
@@ -2383,6 +2399,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &VcsFieldUsesInsecureUri,
         &VcsFieldsUseMoreThanOneVcs,
         &VeryLongLineLengthInSourceFile,
+        &SourceContainsPrebuiltBinary,
+        &ClojurePackageButNotDhClojure,
     ]
 }
 
@@ -3172,6 +3190,12 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OldStyleConfigScript,
         &PackageContainsEmptyDirectory,
         &ExtraLicenseFile,
+        &UnknownLocaleCode,
+        &FontOutsideFontDir,
+        &ImageFileHasConflictingName,
+        &ImageFileHasUnexpectedName,
+        &InitDScriptDoesNotImplementStatusOption,
+        &OcamlDanglingCmx,
     ]
 }
 

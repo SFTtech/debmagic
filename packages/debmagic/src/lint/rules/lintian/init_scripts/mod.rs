@@ -42,6 +42,7 @@ mod ln1098_postrm_does_not_call_updaterc_d_for_init_d_script;
 mod ln1099_preinst_calls_updaterc_d;
 mod ln1100_prerm_calls_updaterc_d;
 mod ln1101_upstart_job_in_etc_init_d_not_registered_via_update_rc_d;
+mod ln1397_init_d_script_does_not_implement_status_option;
 pub(in crate::lint::rules::lintian) mod systemd_unit;
 
 pub(crate) use ln0230_init_d_script_does_not_implement_required_option::InitDScriptDoesNotImplementRequiredOption;
@@ -82,3 +83,4 @@ pub(crate) use ln1098_postrm_does_not_call_updaterc_d_for_init_d_script::PostrmD
 pub(crate) use ln1099_preinst_calls_updaterc_d::PreinstCallsUpdatercD;
 pub(crate) use ln1100_prerm_calls_updaterc_d::PrermCallsUpdatercD;
 pub(crate) use ln1101_upstart_job_in_etc_init_d_not_registered_via_update_rc_d::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;
+pub(crate) use ln1397_init_d_script_does_not_implement_status_option::InitDScriptDoesNotImplementStatusOption;

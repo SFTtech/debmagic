@@ -155,6 +155,7 @@ use super::rules::IncompatibleJavaBytecodeFormat;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
+use super::rules::InitDScriptDoesNotImplementStatusOption;
 use super::rules::InitDScriptUsesUsrInterpreter;
 use super::rules::InitScriptIsNotAFile;
 use super::rules::InterpreterInUsrLocal;
@@ -1941,6 +1942,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &FontOutsideFontDir,
         &ImageFileHasConflictingName,
         &ImageFileHasUnexpectedName,
+        &InitDScriptDoesNotImplementStatusOption,
     ]
 }
 
@@ -3079,6 +3081,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &FontOutsideFontDir,
         &ImageFileHasConflictingName,
         &ImageFileHasUnexpectedName,
+        &InitDScriptDoesNotImplementStatusOption,
     ]
 }
 

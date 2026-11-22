@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): malformed-changes-file (LN1492)
+E: example (changes): malformed-changes-file (LN1492)
+E: example (changes): malformed-changes-file (LN1492)

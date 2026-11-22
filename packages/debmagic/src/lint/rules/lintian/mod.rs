@@ -379,6 +379,7 @@ pub(crate) use documentation::{
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use fields_checksums::NoStrongDigestsInDsc;
 pub(crate) use fields_empty::EmptyField;
+pub(crate) use fields_format::MalformedChangesFile;
 pub(crate) use fields_format::UnsupportedSourceFormat;
 pub(crate) use fields_maintainer_team::WrongTeam;
 pub(crate) use fields_multi_arch::FontPackageNotMultiArchForeign;

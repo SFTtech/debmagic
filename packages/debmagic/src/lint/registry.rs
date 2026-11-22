@@ -128,6 +128,7 @@ use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
 use super::rules::DesktopEntryContainsEncodingKey;
+use super::rules::DesktopEntryLacksIconEntry;
 use super::rules::DesktopEntryLacksKeywordsEntry;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DhCleanKIsDeprecated;
@@ -2171,6 +2172,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &DesktopEntryLacksIconEntry,
     ]
 }
 
@@ -3422,6 +3424,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &DesktopEntryLacksIconEntry,
     ]
 }
 

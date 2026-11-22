@@ -68,6 +68,8 @@ pub(super) struct Report {
     pub desktop_entry_contains_deprecated_key: Vec<Finding>,
     pub desktop_entry_contains_encoding_key: Vec<Finding>,
     pub desktop_entry_lacks_keywords_entry: Vec<Finding>,
+    pub desktop_entry_lacks_icon_entry: Vec<Finding>,
+    pub desktop_entry_limited_to_environments: Vec<Finding>,
     pub duplicate_key_in_desktop: Vec<Finding>,
     pub desktop_entry_unknown_type: Vec<Finding>,
     pub desktop_entry_missing_required_key: Vec<Finding>,
@@ -150,6 +152,8 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
         desktop_entry_contains_deprecated_key: Vec::new(),
         desktop_entry_contains_encoding_key: Vec::new(),
         desktop_entry_lacks_keywords_entry: Vec::new(),
+        desktop_entry_lacks_icon_entry: Vec::new(),
+        desktop_entry_limited_to_environments: Vec::new(),
         duplicate_key_in_desktop: Vec::new(),
         desktop_entry_unknown_type: Vec::new(),
         desktop_entry_missing_required_key: Vec::new(),
@@ -627,6 +631,9 @@ fn parse_desktop(
             );
         }
     }
+    if !vals.contains_key("NoDisplay") && !vals.contains_key("Icon") {
+        warn_at(&mut report.desktop_entry_lacks_icon_entry, &path, None, "");
+    }
     if !vals.contains_key("NoDisplay")
         && !vals.contains_key("Keywords")
         && kind.as_str() == "Application"
@@ -667,6 +674,7 @@ fn parse_desktop(
         }
     }
     let only_show_in = perl_true(vals.get("OnlyShowIn").map(String::as_str));
+    let mut in_reserved = false;
     if let Some(categories) = vals.get("Categories") {
         let mut saw_main = false;
         for category in split_semicolons(categories) {
@@ -675,6 +683,7 @@ fn parse_desktop(
             }
             if data::contains(data::RESERVED_CATEGORIES, category) {
                 saw_main = true;
+                in_reserved = true;
                 if !only_show_in {
                     warn_at(
                         &mut report.desktop_entry_uses_reserved_category,
@@ -704,6 +713,17 @@ fn parse_desktop(
                 "",
             );
         }
+    }
+    if let Some(only) = vals.get("OnlyShowIn")
+        && !in_reserved
+        && split_semicolons(only).len() > 1
+    {
+        warn_at(
+            &mut report.desktop_entry_limited_to_environments,
+            &path,
+            None,
+            "",
+        );
     }
     if in_applications
         && vals.contains_key("MimeType")

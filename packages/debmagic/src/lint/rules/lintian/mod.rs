@@ -462,10 +462,11 @@ pub(crate) use debian_changelog::{
     NmuInChangelog, NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
     PossibleMissingColonInCloses, PossibleNewUpstreamReleaseWithoutNewVersion,
     QaUploadHasIncorrectVersionNumber, RcVersionGreaterThanExpectedVersion,
-    SourceNmuHasIncorrectVersionNumber, SpellingErrorInChangelog, SyntaxErrorInDebianNewsFile,
-    TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload, UploadersInOrphan,
-    VersionRefersToDistribution, VersionRefersToUnstableDistributionWithExpVersion,
-    WrongBugNumberInCloses, WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
+    SourceNmuHasIncorrectVersionNumber, SpellingErrorInChangelog, SpellingErrorInNewsDebian,
+    SyntaxErrorInDebianNewsFile, TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload,
+    UploadersInOrphan, VersionRefersToDistribution,
+    VersionRefersToUnstableDistributionWithExpVersion, WrongBugNumberInCloses,
+    WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
     WrongNameForDebianNewsFile, WrongNameForUpstreamChangelog,
 };
 pub(crate) use debian_copyright::{

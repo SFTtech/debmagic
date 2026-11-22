@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): spelling-error-in-news-debian (LN1311) speling spelling [usr/share/doc/example/NEWS.Debian.gz]
+P: example (udeb): spelling-error-in-news-debian (LN1311) usefull useful [usr/share/doc/example/NEWS.Debian.gz]
+P: example (udeb): spelling-error-in-news-debian (LN1311) speling spelling [usr/share/doc/example/NEWS.Debian.gz]

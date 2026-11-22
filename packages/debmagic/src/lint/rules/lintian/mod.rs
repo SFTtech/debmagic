@@ -881,7 +881,7 @@ pub(crate) use systemd::{
     MisplacedSystemdTmpfiles, MissingSystemdServiceForInitDScript,
     MissingSystemdTimerForCronScript, OmittedSystemdServiceForInitDScript, ServiceFileIsNotAFile,
     SystemdServiceAliasWithoutExtension, SystemdServiceFileRefersToObsoleteBindto,
-    SystemdServiceFileRefersToUnusualWantedbyTarget,
+    SystemdServiceFileRefersToUnusualWantedbyTarget, SystemdServiceFileShutdownProblems,
     SystemdServiceFileUsesDeprecatedSyslogFacility, SystemdServiceFileUsesNobodyOrNogroup,
     SystemdServiceInOddLocation,
 };

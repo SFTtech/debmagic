@@ -473,6 +473,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/debug-symbols/legacy-debug",
     "checks/binaries/debug-symbols/legacy-libbaz",
     "checks/binaries/hardening/binaries-hardening",
+    "checks/binaries/legacy-binary",
+    "checks/binaries/legacy-libbaz",
     "checks/binaries/location/binaries-development-package-ships-elf-binary-in-path",
     "checks/binaries/location/binaries-general",
     "checks/binaries/location/binaries-misplaced",
@@ -2011,6 +2013,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/debug-symbols/legacy-debug"; "checks_binaries_debug_symbols_legacy_debug")]
 #[test_case("checks/binaries/debug-symbols/legacy-libbaz"; "checks_binaries_debug_symbols_legacy_libbaz")]
 #[test_case("checks/binaries/hardening/binaries-hardening"; "checks_binaries_hardening_binaries_hardening")]
+#[test_case("checks/binaries/legacy-binary"; "checks_binaries_legacy_binary")]
+#[test_case("checks/binaries/legacy-libbaz"; "checks_binaries_legacy_libbaz")]
 #[test_case("checks/binaries/location/binaries-development-package-ships-elf-binary-in-path"; "checks_binaries_location_binaries_development_package_ships_elf_binary_in_path")]
 #[test_case("checks/binaries/location/binaries-general"; "checks_binaries_location_binaries_general")]
 #[test_case("checks/binaries/location/binaries-misplaced"; "checks_binaries_location_binaries_misplaced")]

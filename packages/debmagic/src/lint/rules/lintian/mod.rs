@@ -4,6 +4,7 @@ mod apt;
 mod archive_file_name_length;
 mod archive_liberty;
 mod autotools;
+mod binaries;
 mod binaries_architecture;
 mod binaries_corrupted;
 mod binaries_debug_symbols_detached;
@@ -254,6 +255,7 @@ pub(crate) use archive_liberty::ArchiveLibertyMismatch;
 pub(crate) use autotools::{
     AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,
 };
+pub(crate) use binaries::BinaryHasUnneededSection;
 pub(crate) use binaries_architecture::ArchIndependentPackageContainsBinaryOrObject;
 pub(crate) use binaries_corrupted::BinaryWithBadDynamicTable;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsDirectlyInUsrLibDebug;

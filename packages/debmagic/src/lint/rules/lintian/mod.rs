@@ -527,7 +527,7 @@ pub(crate) use debian_copyright::{
 pub(crate) use fields_version::{
     AnticipatedRepackCount, BadVersionNumber, BinaryNmuDebianRevisionInSource,
     DebianRevisionIsZero, DebianRevisionNotWellFormed, DfsgVersionInNativePackage,
-    DfsgVersionMisspelled,
+    DfsgVersionMisspelled, DotBeforeRepackCount,
 };
 
 pub(crate) use debian_debconf::{

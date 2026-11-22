@@ -291,6 +291,7 @@ use super::rules::ReadmeSourceIsDhMakeTemplate;
 use super::rules::RedundantBuildPrerequisites;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RelativeConffile;
+use super::rules::RepeatedTriggerName;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
@@ -1839,6 +1840,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UdevRuleUnreadable,
         &ServiceFileIsNotAFile,
         &SystemdServiceFileShutdownProblems,
+        &RepeatedTriggerName,
     ]
 }
 
@@ -2926,6 +2928,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UdevRuleUnreadable,
         &ServiceFileIsNotAFile,
         &SystemdServiceFileShutdownProblems,
+        &RepeatedTriggerName,
     ]
 }
 

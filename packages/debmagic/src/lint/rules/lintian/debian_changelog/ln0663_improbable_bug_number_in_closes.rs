@@ -7,8 +7,6 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::installed::installed_changelog;
-
 pub struct ImprobableBugNumberInCloses;
 
 declare_rule! {
@@ -52,7 +50,7 @@ impl BinaryPackageRule for ImprobableBugNumberInCloses {
         if ctx.is_udeb() {
             return;
         }
-        let Some(installed) = installed_changelog(ctx) else {
+        let Some(installed) = ctx.installed_changelog() else {
             return;
         };
         let Some(latest) = installed.parsed.entries().first() else {

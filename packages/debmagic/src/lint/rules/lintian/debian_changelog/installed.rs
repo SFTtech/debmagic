@@ -5,7 +5,7 @@
 //! under `usr/share/doc/<pkg>` that is a file or a symlink, then parses the
 //! resolved file (`gunzip` when the resolved name ends in `.gz`).
 
-use std::path::{Component, Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use chrono::{DateTime, FixedOffset};
@@ -13,16 +13,8 @@ use regex::Regex;
 
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::debian_changelog::DebianChangelog;
-use crate::lint::file_tree::{Entry, EntryKind, FileTree};
-
-const CANDIDATES: &[&str] = &[
-    "changelog.Debian.gz",
-    "changelog.Debian",
-    "changelog.debian.gz",
-    "changelog.debian",
-    "changelog.gz",
-    "changelog",
-];
+use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::installed_changelog::{InstalledChangelog, changelog_text};
 
 const MAXIMUM_WIDTH: usize = 82;
 
@@ -54,23 +46,6 @@ static SHORT_LINE: LazyLock<Regex> =
 static CLOSES: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)closes:\s*(?:bug)?\#?\s?\d+(?:,\s*(?:bug)?\#?\s?\d+)*").expect("valid regex")
 });
-
-pub(super) struct InstalledChangelog {
-    pub path: PathBuf,
-    pub text: String,
-    pub parsed: DebianChangelog,
-}
-
-pub(super) fn installed_changelog(
-    ctx: &mut BinaryPackageContext<'_>,
-) -> Option<InstalledChangelog> {
-    let package = ctx.package_name().to_string();
-    let files = ctx.data_files()?;
-    let (path, entry) = candidate(files, &package)?;
-    let text = changelog_text(files, entry)?;
-    let parsed = DebianChangelog::parse(&text);
-    Some(InstalledChangelog { path, text, parsed })
-}
 
 /// Installed `NEWS.Debian.gz` (that exact name), gunzipped when the resolved
 /// file name ends in `.gz`.
@@ -118,78 +93,6 @@ pub(super) fn wrong_debian_news_paths(files: &FileTree, package: &str) -> Vec<Pa
             }
         })
         .collect()
-}
-
-fn candidate<'a>(files: &'a FileTree, package: &str) -> Option<(PathBuf, &'a Entry)> {
-    let dir = format!("usr/share/doc/{package}");
-    for name in CANDIDATES {
-        let path = PathBuf::from(format!("{dir}/{name}"));
-        let Some(entry) = files.get(&path) else {
-            continue;
-        };
-        if matches!(
-            entry.kind(),
-            EntryKind::RegularFile | EntryKind::Hardlink | EntryKind::Symlink
-        ) {
-            return Some((path, entry));
-        }
-    }
-    None
-}
-
-fn changelog_text(files: &FileTree, entry: &Entry) -> Option<String> {
-    let resolved = resolve(files, entry)?;
-    if !matches!(
-        resolved.kind(),
-        EntryKind::RegularFile | EntryKind::Hardlink
-    ) {
-        return None;
-    }
-    let bytes = files.read(resolved).ok()?;
-    let plain = if resolved
-        .path()
-        .file_name()
-        .and_then(|name| name.to_str())
-        .is_some_and(|name| name.ends_with(".gz"))
-    {
-        crate::lint::gzip::gunzip(&bytes)?
-    } else {
-        bytes
-    };
-    String::from_utf8(plain).ok()
-}
-
-fn resolve<'a>(files: &'a FileTree, entry: &'a Entry) -> Option<&'a Entry> {
-    let mut current = entry;
-    for _ in 0..8 {
-        if current.kind() != EntryKind::Symlink {
-            return Some(current);
-        }
-        let target = current.link_target()?;
-        let next = resolve_link(current.path(), target)?;
-        current = files.get(&next)?;
-    }
-    None
-}
-
-fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
-    if target.is_absolute() {
-        return None;
-    }
-    let mut resolved = from.parent().unwrap_or(Path::new("")).to_path_buf();
-    for component in target.components() {
-        match component {
-            Component::Normal(part) => resolved.push(part),
-            Component::CurDir => {}
-            Component::ParentDir => {
-                if !resolved.pop() {
-                    return None;
-                }
-            }
-            Component::RootDir | Component::Prefix(_) => return None,
-        }
-    }
-    Some(resolved)
 }
 
 /// `check_dch`: count lines until the first `^\s+\S`, inclusive.

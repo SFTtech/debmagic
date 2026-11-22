@@ -268,6 +268,7 @@ use super::rules::PkgJsAutopkgtestFileDoesNotExist;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PostinstHasUselessCallToUpdateMenus;
+use super::rules::PostrmCallsInstalldocs;
 use super::rules::PostrmContainsAdditionalUpdatercDCalls;
 use super::rules::PostrmDoesNotCallUpdatercDForInitDScript;
 use super::rules::PostrmDoesNotPurgeDebconf;
@@ -1849,6 +1850,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnparsableMenuItem,
         &WhitespaceAfterContinuationCharacter,
         &PostinstHasUselessCallToUpdateMenus,
+        &PostrmCallsInstalldocs,
     ]
 }
 
@@ -2941,6 +2943,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UnparsableMenuItem,
         &WhitespaceAfterContinuationCharacter,
         &PostinstHasUselessCallToUpdateMenus,
+        &PostrmCallsInstalldocs,
     ]
 }
 

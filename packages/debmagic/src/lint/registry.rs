@@ -138,6 +138,7 @@ use super::rules::ExecutableJarWithoutMainClass;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
+use super::rules::ExtraLicenseFile;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
@@ -256,15 +257,18 @@ use super::rules::ObsoleteRuntimeTestsRestriction;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OlderSourceFormat;
+use super::rules::OldStyleConfigScript;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
 use super::rules::PackageContainsCmakePrivateFile;
+use super::rules::PackageContainsEmptyDirectory;
 use super::rules::PackageContainsInfoDirFile;
 use super::rules::PackageContainsMimeCacheFile;
 use super::rules::PackageContainsMimeinfoCacheFile;
 use super::rules::PackageContainsMultipleDpiFonts;
+use super::rules::PackageContainsNoArchDependentFiles;
 use super::rules::PackageContainsThumbnailsDir;
 use super::rules::PackageContainsTimestampedGzip;
 use super::rules::PackageContainsXvpicsDir;
@@ -445,11 +449,14 @@ use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VcsBrowserLinksToEmptyView;
 use super::rules::VcsFieldHasUnexpectedSpaces;
+use super::rules::VcsFieldUsesInsecureUri;
 use super::rules::VcsFieldUsesUnknownUriFormat;
+use super::rules::VcsFieldsUseMoreThanOneVcs;
 use super::rules::VcsGitUsesInvalidUserUri;
 use super::rules::VersionRefersToDistribution;
 use super::rules::VersionRefersToUnstableDistributionWithExpVersion;
 use super::rules::VersionSubstvarForExternalPackage;
+use super::rules::VeryLongLineLengthInSourceFile;
 use super::rules::VimAddonWithinVimRuntimePath;
 use super::rules::WaywardSymbolicLinkTargetInSource;
 use super::rules::WeakDependencyOnMiscDepends;
@@ -1989,6 +1996,13 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OlderSourceFormat,
         &TrailingWhitespace,
         &DebianWatchDoesNotCheckOpenpgpSignature,
+        &VcsFieldUsesInsecureUri,
+        &VcsFieldsUseMoreThanOneVcs,
+        &PackageContainsNoArchDependentFiles,
+        &OldStyleConfigScript,
+        &PackageContainsEmptyDirectory,
+        &ExtraLicenseFile,
+        &VeryLongLineLengthInSourceFile,
     ]
 }
 
@@ -2366,6 +2380,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &OlderSourceFormat,
         &TrailingWhitespace,
         &DebianWatchDoesNotCheckOpenpgpSignature,
+        &VcsFieldUsesInsecureUri,
+        &VcsFieldsUseMoreThanOneVcs,
+        &VeryLongLineLengthInSourceFile,
     ]
 }
 
@@ -3151,6 +3168,10 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &EmptySharedLibrarySymbols,
         &SymbolsDeclaresDependencyOnOtherPackage,
         &SymbolsFileMissingBuildDependsPackageField,
+        &PackageContainsNoArchDependentFiles,
+        &OldStyleConfigScript,
+        &PackageContainsEmptyDirectory,
+        &ExtraLicenseFile,
     ]
 }
 

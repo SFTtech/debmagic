@@ -92,8 +92,10 @@ mod files_compressed_lzma;
 mod files_compressed_xz;
 mod files_compressed_zip;
 mod files_config_scripts;
+mod files_contents_line_length;
 mod files_debug;
 mod files_duplicates;
+mod files_empty_directories;
 mod files_foreign;
 mod files_hard_links;
 mod files_hierarchy;
@@ -102,6 +104,7 @@ mod files_includes;
 mod files_init;
 mod files_installed;
 mod files_ld_so;
+mod files_licenses;
 mod files_missing;
 mod files_multi_arch;
 mod files_names;
@@ -340,6 +343,7 @@ pub(crate) use fields_multi_line::MultilineField;
 pub(crate) use fields_package::BadPackageName;
 pub(crate) use fields_package::PackageNotLowercase;
 pub(crate) use fields_source::SourceFieldMalformed;
+pub(crate) use files_architecture::PackageContainsNoArchDependentFiles;
 pub(crate) use files_architecture::TripletDirAndArchitectureMismatch;
 pub(crate) use files_banned_compiled_help::SourceContainsPrebuiltMsHelpFile;
 pub(crate) use files_compressed_gz::BrokenGz;
@@ -348,12 +352,15 @@ pub(crate) use files_compressed_gz::PackageContainsTimestampedGzip;
 pub(crate) use files_compressed_lzma::BrokenLzma;
 pub(crate) use files_compressed_xz::BrokenXz;
 pub(crate) use files_compressed_zip::BrokenZip;
+pub(crate) use files_contents_line_length::VeryLongLineLengthInSourceFile;
 pub(crate) use files_duplicates::DuplicateChangelogFiles;
+pub(crate) use files_empty_directories::PackageContainsEmptyDirectory;
 pub(crate) use files_init::NonStandardFilePermissionsForEtcInitDScript;
 pub(crate) use files_init::PackageInstallsDeprecatedUpstartConfiguration;
 pub(crate) use files_init::PackageInstallsIntoEtcRcBoot;
 pub(crate) use files_init::PackageInstallsIntoEtcRcD;
 pub(crate) use files_ld_so::PackageModifiesLdSoSearchPath;
+pub(crate) use files_licenses::ExtraLicenseFile;
 pub(crate) use files_missing::MissingIntermediateDirectory;
 pub(crate) use files_scripts::ScriptWithLanguageExtension;
 pub(crate) use files_special::SpecialFile;
@@ -578,7 +585,8 @@ pub(crate) use fields_uploaders::UploaderNameMissing;
 pub(crate) use fields_vcs::{
     OrphanedPackageMaintainedInPrivateSpace, OrphanedPackageNotMaintainedInDebianInfrastructure,
     VcsBrowserLinksToEmptyView, VcsFieldBitrotted, VcsFieldHasUnexpectedSpaces, VcsFieldMismatch,
-    VcsFieldUsesUnknownUriFormat, VcsGitUsesInvalidUserUri,
+    VcsFieldUsesInsecureUri, VcsFieldUsesUnknownUriFormat, VcsFieldsUseMoreThanOneVcs,
+    VcsGitUsesInvalidUserUri,
 };
 pub(crate) use files_artifact::{
     DebianAddsArchControlDir, DebianAddsArchInventoryFile, DebianAddsBtsControlDir,
@@ -591,7 +599,8 @@ pub(crate) use files_artifact::{
 };
 pub(crate) use files_build_path::DirOrFileInBuildTree;
 pub(crate) use files_config_scripts::{
-    OldStyleConfigScriptMultiarchPath, OldStyleConfigScriptMultiarchPathArchAll,
+    OldStyleConfigScript, OldStyleConfigScriptMultiarchPath,
+    OldStyleConfigScriptMultiarchPathArchAll,
 };
 pub(crate) use files_debug::NonDebugFileInDebugPackage;
 pub(crate) use files_foreign::{

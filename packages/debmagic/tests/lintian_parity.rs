@@ -571,10 +571,12 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/description/description-general",
     "checks/fields/description/description-mentions-planned-features",
     "checks/fields/description/description-synopsis-might-not-be-phrased-properly",
+    "checks/fields/description/description-wording",
     "checks/fields/description/generic-dh-make-2008",
     "checks/fields/description/legacy-binary",
     "checks/fields/description/legacy-debconf",
     "checks/fields/description/legacy-etcfiles",
+    "checks/fields/description/legacy-filenames",
     "checks/fields/description/legacy-relations",
     "checks/fields/description/spelling-multiword",
     "checks/fields/empty/empty-section",
@@ -1856,10 +1858,12 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/description/description-general"; "checks_fields_description_description_general")]
 #[test_case("checks/fields/description/description-mentions-planned-features"; "checks_fields_description_description_mentions_planned_features")]
 #[test_case("checks/fields/description/description-synopsis-might-not-be-phrased-properly"; "checks_fields_description_description_synopsis_might_not_be_phrased_properly")]
+#[test_case("checks/fields/description/description-wording"; "checks_fields_description_description_wording")]
 #[test_case("checks/fields/description/generic-dh-make-2008"; "checks_fields_description_generic_dh_make_2008")]
 #[test_case("checks/fields/description/legacy-binary"; "checks_fields_description_legacy_binary")]
 #[test_case("checks/fields/description/legacy-debconf"; "checks_fields_description_legacy_debconf")]
 #[test_case("checks/fields/description/legacy-etcfiles"; "checks_fields_description_legacy_etcfiles")]
+#[test_case("checks/fields/description/legacy-filenames"; "checks_fields_description_legacy_filenames")]
 #[test_case("checks/fields/description/legacy-relations"; "checks_fields_description_legacy_relations")]
 #[test_case("checks/fields/description/spelling-multiword"; "checks_fields_description_spelling_multiword")]
 #[test_case("checks/fields/empty/empty-section"; "checks_fields_empty_empty_section")]

@@ -417,6 +417,7 @@ use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::UsesDeprecatedAdttmp;
 use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
+use super::rules::UsingFirstPersonInDescription;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
@@ -1943,6 +1944,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExtendedDescriptionIsProbablyTooShort,
         &SpellingErrorInDescription,
         &SynopsisIsASentence,
+        &UsingFirstPersonInDescription,
     ]
 }
 
@@ -3082,6 +3084,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExtendedDescriptionIsProbablyTooShort,
         &SpellingErrorInDescription,
         &SynopsisIsASentence,
+        &UsingFirstPersonInDescription,
     ]
 }
 

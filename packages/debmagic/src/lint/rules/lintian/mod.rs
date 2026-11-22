@@ -511,7 +511,7 @@ pub(crate) use description::{
     ExtendedDescriptionContainsEmptyParagraph, ExtendedDescriptionIsEmpty,
     ExtendedDescriptionIsProbablyTooShort, ExtendedDescriptionLineTooLong,
     PossibleUnindentedListInExtendedDescription, SpellingErrorInDescription, SynopsisIsASentence,
-    SynopsisTooLong,
+    SynopsisTooLong, UsingFirstPersonInDescription,
 };
 pub(crate) use documentation_examples::NestedExamplesDirectory;
 pub(crate) use documentation_manual::{

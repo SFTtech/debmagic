@@ -25,6 +25,7 @@ mod ln1360_description_mentions_planned_features;
 mod ln1361_extended_description_is_probably_too_short;
 mod ln1362_spelling_error_in_description;
 mod ln1363_synopsis_is_a_sentence;
+mod ln1364_using_first_person_in_description;
 mod spelling;
 
 pub(crate) use ln0037_extended_description_is_empty::ExtendedDescriptionIsEmpty;
@@ -48,3 +49,4 @@ pub(crate) use ln1360_description_mentions_planned_features::DescriptionMentions
 pub(crate) use ln1361_extended_description_is_probably_too_short::ExtendedDescriptionIsProbablyTooShort;
 pub(crate) use ln1362_spelling_error_in_description::SpellingErrorInDescription;
 pub(crate) use ln1363_synopsis_is_a_sentence::SynopsisIsASentence;
+pub(crate) use ln1364_using_first_person_in_description::UsingFirstPersonInDescription;

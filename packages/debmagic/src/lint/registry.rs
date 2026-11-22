@@ -18,6 +18,7 @@ use super::rules::BadPermissionsForEtcCronDScript;
 use super::rules::BadRelation;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
+use super::rules::BashTermInPosixShell;
 use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryInEtc;
 use super::rules::BinaryNmuDebianRevisionInSource;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SubstvarSourceVersionIsDeprecated,
         &MaintainerScriptSwitchesDirToSymlinkUnsafely,
         &MaintainerScriptWithoutSetE,
+        &BashTermInPosixShell,
     ]
 }
 
@@ -3070,6 +3072,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TransitionalPackageNotOldlibsOptional,
         &MaintainerScriptSwitchesDirToSymlinkUnsafely,
         &MaintainerScriptWithoutSetE,
+        &BashTermInPosixShell,
     ]
 }
 

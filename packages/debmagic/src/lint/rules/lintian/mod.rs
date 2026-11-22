@@ -267,6 +267,7 @@ pub(crate) use cruft::LicenseProblemCcByNcSa;
 pub(crate) use cruft::LicenseProblemJsonEvil;
 pub(crate) use cruft::LicenseProblemNonFreeRFC;
 pub(crate) use cruft::LicenseProblemNonFreeRFCBCP78;
+pub(crate) use cruft::LicenseProblemNvidiaIntellectual;
 pub(crate) use deb_format::MisplacedExtraMemberInDeb;
 pub(crate) use deb_format::UdebUsesUnsupportedCompressionForDataTarball;
 pub(crate) use deb_format::UsesNoCompressionForControlTarball;

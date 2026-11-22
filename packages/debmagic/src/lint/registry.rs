@@ -49,6 +49,7 @@ use super::rules::BuildDependsIndepWithoutArchIndep;
 use super::rules::BuildDependsOnAnObsoleteJavaPackage;
 use super::rules::BuildDependsOnDhSysuser;
 use super::rules::BuildDependsOnNonBuildPackage;
+use super::rules::BuildDependsOnPythonDevWithNoArchAny;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CapitalizationErrorInDescription;
@@ -324,6 +325,7 @@ use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
 use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
+use super::rules::OredBuildDependsOnObsoletePackage;
 use super::rules::OredDependsOnObsoletePackage;
 use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
@@ -2193,6 +2195,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &HomepageRefersToFilesystemListing,
         &HomepageInBinaryPackage,
         &DescriptionPossiblyContainsHomepage,
+        &BuildDependsOnPythonDevWithNoArchAny,
+        &OredBuildDependsOnObsoletePackage,
     ]
 }
 
@@ -2602,6 +2606,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &HomepageSalsaUrlEndsWithDotGit,
         &HomepageRefersToFilesystemListing,
         &HomepageInBinaryPackage,
+        &BuildDependsOnPythonDevWithNoArchAny,
+        &OredBuildDependsOnObsoletePackage,
     ]
 }
 

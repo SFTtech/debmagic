@@ -44,6 +44,8 @@ mod ln1237_package_depends_on_an_x_font_package;
 mod ln1238_package_depends_on_multiple_tclx_versions;
 mod ln1366_conflicts_with_version;
 mod ln1367_ored_depends_on_obsolete_package;
+mod ln1552_build_depends_on_python_dev_with_no_arch_any;
+mod ln1553_ored_build_depends_on_obsolete_package;
 mod metapackages;
 mod overlap;
 
@@ -79,6 +81,8 @@ pub(crate) use ln1237_package_depends_on_an_x_font_package::PackageDependsOnAnXF
 pub(crate) use ln1238_package_depends_on_multiple_tclx_versions::PackageDependsOnMultipleTclxVersions;
 pub(crate) use ln1366_conflicts_with_version::ConflictsWithVersion;
 pub(crate) use ln1367_ored_depends_on_obsolete_package::OredDependsOnObsoletePackage;
+pub(crate) use ln1552_build_depends_on_python_dev_with_no_arch_any::BuildDependsOnPythonDevWithNoArchAny;
+pub(crate) use ln1553_ored_build_depends_on_obsolete_package::OredBuildDependsOnObsoletePackage;
 
 /// Source relationship fields the Check walks, in that order.
 pub(super) const SOURCE_RELATION_FIELDS: &[&str] = &[

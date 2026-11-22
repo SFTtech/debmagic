@@ -465,6 +465,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/application-not-library/application-not-library",
     "checks/apt/files-foo-in-bar",
     "checks/binaries/architecture/binaries-misplaced",
+    "checks/binaries/architecture/other/binaries-from-other-arch",
     "checks/binaries/corrupted/binaries-from-other-arch",
     "checks/binaries/corrupted/legacy-debug",
     "checks/binaries/debug-symbols/binaries-general",
@@ -2006,6 +2007,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/application-not-library/application-not-library"; "checks_application_not_library_application_not_library")]
 #[test_case("checks/apt/files-foo-in-bar"; "checks_apt_files_foo_in_bar")]
 #[test_case("checks/binaries/architecture/binaries-misplaced"; "checks_binaries_architecture_binaries_misplaced")]
+#[test_case("checks/binaries/architecture/other/binaries-from-other-arch"; "checks_binaries_architecture_other_binaries_from_other_arch")]
 #[test_case("checks/binaries/corrupted/binaries-from-other-arch"; "checks_binaries_corrupted_binaries_from_other_arch")]
 #[test_case("checks/binaries/corrupted/legacy-debug"; "checks_binaries_corrupted_legacy_debug")]
 #[test_case("checks/binaries/debug-symbols/binaries-general"; "checks_binaries_debug_symbols_binaries_general")]

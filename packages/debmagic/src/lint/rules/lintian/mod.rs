@@ -257,6 +257,7 @@ pub(crate) use autotools::{
 };
 pub(crate) use binaries::BinaryHasUnneededSection;
 pub(crate) use binaries_architecture::ArchIndependentPackageContainsBinaryOrObject;
+pub(crate) use binaries_architecture::BinaryFromOtherArchitecture;
 pub(crate) use binaries_corrupted::BinaryWithBadDynamicTable;
 pub(crate) use binaries_corrupted::ElfError;
 pub(crate) use binaries_debug_symbols_detached::DebugFileWithNoDebugSymbols;

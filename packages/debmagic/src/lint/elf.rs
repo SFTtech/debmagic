@@ -555,6 +555,35 @@ pub(crate) fn entry_bytes<'a>(files: &FileTree, entry: &'a Entry) -> Option<Cow<
     }
 }
 
+/// An ELF header of `class` and byte order for `machine` with no program
+/// or section headers: enough for the class, byte order and machine facts.
+#[cfg(test)]
+pub(crate) fn header_only(class: ElfClass, endianness: ElfEndianness, machine: u16) -> Vec<u8> {
+    let (len, bits) = match class {
+        ElfClass::Elf32 => (52, 1u8),
+        ElfClass::Elf64 => (64, 2u8),
+    };
+    let little = endianness == ElfEndianness::Little;
+    let mut out = vec![0u8; len];
+    out[..4].copy_from_slice(b"\x7fELF");
+    out[4] = bits;
+    out[5] = if little { 1 } else { 2 };
+    out[6] = 1;
+    let put16 = |out: &mut Vec<u8>, at: usize, value: u16| {
+        let bytes = if little {
+            value.to_le_bytes()
+        } else {
+            value.to_be_bytes()
+        };
+        out[at..at + 2].copy_from_slice(&bytes);
+    };
+    put16(&mut out, 16, header::ET_EXEC);
+    put16(&mut out, 18, machine);
+    let ehsize = if class == ElfClass::Elf32 { 40 } else { 52 };
+    put16(&mut out, ehsize, len as u16);
+    out
+}
+
 /// Builds small, well-formed 64-bit little-endian ELF files for tests.
 #[cfg(test)]
 #[derive(Debug, Clone)]
@@ -1139,17 +1168,8 @@ mod tests {
 
     #[test]
     fn class_endianness_and_machine_come_from_the_header() {
-        // Header only: a 32-bit big-endian object for EM_MIPS (8).
-        let mut header = vec![0u8; 52];
-        header[..4].copy_from_slice(b"\x7fELF");
-        header[4] = 1; // ELFCLASS32
-        header[5] = 2; // ELFDATA2MSB
-        header[6] = 1;
-        header[16..18].copy_from_slice(&2u16.to_be_bytes()); // ET_EXEC
-        header[18..20].copy_from_slice(&8u16.to_be_bytes()); // EM_MIPS
-        header[20..24].copy_from_slice(&1u32.to_be_bytes());
-        header[40..42].copy_from_slice(&52u16.to_be_bytes()); // e_ehsize
-        let facts = ElfFacts::from_bytes(&header).expect("ELF");
+        let facts = ElfFacts::from_bytes(&header_only(ElfClass::Elf32, ElfEndianness::Big, 8))
+            .expect("ELF");
         assert_eq!(facts.class(), ElfClass::Elf32);
         assert_eq!(facts.endianness(), ElfEndianness::Big);
         assert_eq!(facts.machine(), 8);

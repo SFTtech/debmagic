@@ -402,6 +402,7 @@ use super::rules::UsesNoCompressionForDataTarball;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
+use super::rules::VcsBrowserLinksToEmptyView;
 use super::rules::VersionRefersToDistribution;
 use super::rules::VersionRefersToUnstableDistributionWithExpVersion;
 use super::rules::VersionSubstvarForExternalPackage;
@@ -1897,6 +1898,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PearPackageButMissingDependency,
         &PearPackageWithoutPkgPhpToolsBuilddep,
         &PeclPackageRequiresBuildDependency,
+        &VcsBrowserLinksToEmptyView,
     ]
 }
 
@@ -2245,6 +2247,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PearPackageButMissingDependency,
         &PearPackageWithoutPkgPhpToolsBuilddep,
         &PeclPackageRequiresBuildDependency,
+        &VcsBrowserLinksToEmptyView,
     ]
 }
 

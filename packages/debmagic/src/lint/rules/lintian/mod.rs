@@ -1025,9 +1025,10 @@ pub(crate) use systemd::{
     KillModeNone, MisplacedSystemdTmpfiles, MissingSystemdServiceForInitDScript,
     MissingSystemdTimerForCronScript, OmittedSystemdServiceForInitDScript, ServiceFileIsNotAFile,
     SystemdServiceAliasWithoutExtension, SystemdServiceFileMissingDocumentationKey,
-    SystemdServiceFileRefersToObsoleteBindto, SystemdServiceFileRefersToUnusualWantedbyTarget,
-    SystemdServiceFileShutdownProblems, SystemdServiceFileUsesDeprecatedSyslogFacility,
-    SystemdServiceFileUsesNobodyOrNogroup, SystemdServiceInOddLocation,
+    SystemdServiceFileMissingInstallKey, SystemdServiceFileRefersToObsoleteBindto,
+    SystemdServiceFileRefersToUnusualWantedbyTarget, SystemdServiceFileShutdownProblems,
+    SystemdServiceFileUsesDeprecatedSyslogFacility, SystemdServiceFileUsesNobodyOrNogroup,
+    SystemdServiceInOddLocation,
 };
 pub(crate) use testsuite::{
     BackgroundedTestCommand, ConflictingTestFields, DebianTestsControlAutodep8IsObsolete,

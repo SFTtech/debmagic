@@ -472,6 +472,7 @@ use super::rules::SynopsisIsASentence;
 use super::rules::SyntaxErrorInDebconfTemplate;
 use super::rules::SyntaxErrorInDep5Copyright;
 use super::rules::SystemdServiceFileMissingDocumentationKey;
+use super::rules::SystemdServiceFileMissingInstallKey;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
 use super::rules::SystemdServiceFileShutdownProblems;
 use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
@@ -2191,6 +2192,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExampleScriptWithoutInterpreter,
         &ExampleWrongPathForInterpreter,
         &InvalidSystemdDocumentation,
+        &SystemdServiceFileMissingInstallKey,
     ]
 }
 
@@ -3452,6 +3454,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExampleScriptWithoutInterpreter,
         &ExampleWrongPathForInterpreter,
         &InvalidSystemdDocumentation,
+        &SystemdServiceFileMissingInstallKey,
     ]
 }
 

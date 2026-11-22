@@ -1054,6 +1054,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/systemd/legacy-scripts",
     "checks/systemd/no-systemd-service-for-init-script",
     "checks/systemd/no-systemd-timer-for-cron-script",
+    "checks/systemd/service-file-no-install-key",
     "checks/systemd/systemd-complex-service-file",
     "checks/systemd/systemd-general",
     "checks/systemd/systemd-missing-services",
@@ -2636,6 +2637,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/systemd/legacy-scripts"; "checks_systemd_legacy_scripts")]
 #[test_case("checks/systemd/no-systemd-service-for-init-script"; "checks_systemd_no_systemd_service_for_init_script")]
 #[test_case("checks/systemd/no-systemd-timer-for-cron-script"; "checks_systemd_no_systemd_timer_for_cron_script")]
+#[test_case("checks/systemd/service-file-no-install-key"; "checks_systemd_service_file_no_install_key")]
 #[test_case("checks/systemd/systemd-complex-service-file"; "checks_systemd_systemd_complex_service_file")]
 #[test_case("checks/systemd/systemd-general"; "checks_systemd_systemd_general")]
 #[test_case("checks/systemd/systemd-missing-services"; "checks_systemd_systemd_missing_services")]

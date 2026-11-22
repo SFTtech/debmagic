@@ -380,6 +380,7 @@ pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStato
 pub(crate) use origtar::EmptyUpstreamSources;
 pub(crate) use shell_csh::CshConsideredHarmful;
 pub(crate) use shell_non_posix_bash_centric::BashTermInPosixShell;
+pub(crate) use shell_non_posix_bash_centric::PossibleBashismInMaintainerScript;
 pub(crate) use substvars_libc::PackageDependsOnHardcodedLibc;
 pub(crate) use substvars_misc_pre_depends::DependsOnMiscPreDepends;
 pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;

@@ -288,6 +288,7 @@ use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
 use super::rules::PkgJsAutopkgtestTestIsEmpty;
 use super::rules::PkgJsAutopkgtestTestIsMissing;
+use super::rules::PossibleBashismInMaintainerScript;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PossibleUnindentedListInExtendedDescription;
@@ -1937,6 +1938,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MaintainerScriptSwitchesDirToSymlinkUnsafely,
         &MaintainerScriptWithoutSetE,
         &BashTermInPosixShell,
+        &PossibleBashismInMaintainerScript,
     ]
 }
 
@@ -3073,6 +3075,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MaintainerScriptSwitchesDirToSymlinkUnsafely,
         &MaintainerScriptWithoutSetE,
         &BashTermInPosixShell,
+        &PossibleBashismInMaintainerScript,
     ]
 }
 

@@ -4,7 +4,7 @@ use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::{BinaryPackageRule, Severity};
 
 use super::description_field::description;
-use super::spelling::check_spelling;
+use crate::lint::spelling::{Exceptions, check_spelling};
 
 pub struct SpellingErrorInDescription;
 
@@ -23,8 +23,7 @@ declare_rule! {
     /// each, with extra `"<phrase>" "<correction>"`. Location is empty.
     /// Udebs are checked too.
     /// Difference from lintian: the spelling exceptions of the lintian group
-    /// are not applied, and the phrase `these package` with its lookahead
-    /// is not checked (see `description/spelling.rs`). The synopsis is
+    /// are not applied, as a Description has no group. The synopsis is
     /// `spelling-error-in-description-synopsis`, not checked here.
     SpellingErrorInDescription,
     code = "LN1362",
@@ -39,7 +38,7 @@ impl BinaryPackageRule for SpellingErrorInDescription {
             return;
         };
         let extended = description.lines.join("\n");
-        for (found, correction) in check_spelling(&extended) {
+        for (found, correction) in check_spelling(&extended, &Exceptions::new(), true) {
             ctx.diagnostic(
                 Diagnostic::warn(format!("{found} {correction}")).with_severity(Severity::Info),
             );

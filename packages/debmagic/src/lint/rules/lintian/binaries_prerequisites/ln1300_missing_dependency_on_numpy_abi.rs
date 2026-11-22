@@ -8,6 +8,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::package_relation::PackageRelation;
 use crate::lint::rule::BinaryPackageRule;
+use crate::lint::strings::printable_strings;
 
 use super::shared::{objects, strong};
 
@@ -102,27 +103,6 @@ fn uses_numpy_c_abi(ctx: &mut BinaryPackageContext<'_>) -> bool {
         let strings = printable_strings(&bytes).join("\n");
         strings.contains("numpy") && NUMPY_MESSAGE.is_match(&strings)
     })
-}
-
-/// The printable runs of at least four characters, as `strings(1)` prints
-/// them: ASCII graphic characters and tabs.
-fn printable_strings(bytes: &[u8]) -> Vec<String> {
-    let mut strings = Vec::new();
-    let mut run = String::new();
-    for &byte in bytes {
-        if byte == b'\t' || (0x20..0x7f).contains(&byte) {
-            run.push(char::from(byte));
-        } else {
-            if run.len() >= 4 {
-                strings.push(std::mem::take(&mut run));
-            }
-            run.clear();
-        }
-    }
-    if run.len() >= 4 {
-        strings.push(run);
-    }
-    strings
 }
 
 /// lintian's `matches` with `VISIT_OR_CLAUSE_FULL`: a clause with one

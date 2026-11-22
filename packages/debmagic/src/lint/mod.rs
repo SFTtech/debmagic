@@ -38,6 +38,8 @@ mod run;
 mod selection;
 mod sfnt;
 mod source_package;
+mod spelling;
+mod strings;
 mod subject;
 #[cfg(test)]
 pub(crate) mod tester;

@@ -25,8 +25,12 @@ mod cruft;
 mod deb_format;
 mod debhelper_rules;
 mod debian_changelog;
+mod debian_control_field_adopted;
 mod debian_control_field_architecture_multiline;
 mod debian_control_field_build_profiles;
+mod debian_control_field_empty;
+mod debian_control_field_priority;
+mod debian_control_field_redundant;
 mod debian_control_field_rules_requires_root;
 mod debian_control_field_spacing;
 mod debian_control_link;
@@ -311,9 +315,13 @@ pub(crate) use debhelper_rules::{
     MissingBuildDependencyForDhCommand, NoVersionedDebhelperPrerequisite,
     TypoInDebhelperOverrideTarget,
 };
+pub(crate) use debian_control_field_adopted::AdoptedExtendedField;
 pub(crate) use debian_control_field_architecture_multiline::MultilineArchitectureField;
 pub(crate) use debian_control_field_build_profiles::InvalidProfileNameInBuildProfilesField;
 pub(crate) use debian_control_field_build_profiles::VariesContentWithNocheck;
+pub(crate) use debian_control_field_empty::DebianControlHasEmptyField;
+pub(crate) use debian_control_field_priority::RedundantPriorityOptionalField;
+pub(crate) use debian_control_field_redundant::InstallableFieldMirrorsSource;
 pub(crate) use debian_control_field_rules_requires_root::SpellingErrorInRulesRequiresRoot;
 pub(crate) use debian_control_field_spacing::DebianControlHasUnusualFieldSpacing;
 pub(crate) use debian_control_link::DebianControlFileIsASymlink;

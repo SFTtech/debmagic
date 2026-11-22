@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): adopted-extended-field (LN1312) (in section for source) XS-Vcs-Svn [debian/control:4]

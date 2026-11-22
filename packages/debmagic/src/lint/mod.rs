@@ -1,3 +1,4 @@
+mod ar;
 mod binary_package_reader;
 mod buildinfo;
 mod changes;

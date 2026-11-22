@@ -275,6 +275,7 @@ use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
 use super::rules::PearPackageButMissingDependency;
 use super::rules::PearPackageWithoutPkgPhpToolsBuilddep;
+use super::rules::PeclPackageRequiresBuildDependency;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
@@ -1895,6 +1896,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PearChannelWithoutPkgPhpToolsBuilddep,
         &PearPackageButMissingDependency,
         &PearPackageWithoutPkgPhpToolsBuilddep,
+        &PeclPackageRequiresBuildDependency,
     ]
 }
 
@@ -2242,6 +2244,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PearChannelWithoutPkgPhpToolsBuilddep,
         &PearPackageButMissingDependency,
         &PearPackageWithoutPkgPhpToolsBuilddep,
+        &PeclPackageRequiresBuildDependency,
     ]
 }
 

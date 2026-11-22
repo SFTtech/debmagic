@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: foo (source): pecl-package-requires-build-dependency (LN1287) php-dev [package.xml]
+W: foo (source): pecl-package-requires-build-dependency (LN1287) dh-php [package.xml]
+W: foo (source): pecl-package-requires-build-dependency (LN1287) php-dev [package.xml]
+W: foo (source): pecl-package-requires-build-dependency (LN1287) dh-php [package.xml]

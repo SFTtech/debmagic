@@ -919,6 +919,10 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "the recipe needs `javahelper` and a JDK (`javac`, `jar`), which this host lacks",
     ),
     (
+        "checks/debhelper/debhelper-compat-old",
+        "the recipe's `--include-dir` vendor overrides `debhelper/compat-level` to deprecated=1 and recommended=100 for the lintian-test vendor; the harness applies only the Debian tables, so the expected level-8 hint cannot come out",
+    ),
+    (
         "checks/deb-format/deb-format-udeb-compression",
         "the recipe runs `dpkg-deb -Zlzma`, which dpkg 1.23 rejects",
     ),

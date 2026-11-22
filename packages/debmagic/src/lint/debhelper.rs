@@ -58,6 +58,12 @@ pub(crate) fn experimental_compat_level() -> u64 {
     compat_level("experimental")
 }
 
+/// Level below which lintian 2.144.0 emits `package-uses-old-debhelper-compat-version`
+/// (`data/debhelper/compat-level`, `recommended`).
+pub(crate) fn recommended_compat_level() -> u32 {
+    u32::try_from(compat_level("recommended")).expect("recommended compat level fits u32")
+}
+
 /// `debian/compat` at 14 or above makes `dh_assistant` abort: 15+ is rejected
 /// outright, and 14 is rejected once `HIGHEST_STABLE_COMPAT_LEVEL` is above 13
 /// (debhelper's constant is 14).

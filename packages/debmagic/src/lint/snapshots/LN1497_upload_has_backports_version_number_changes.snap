@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): upload-has-backports-version-number (LN1497) 1.0~bpo1+1 unstable
+E: example (changes): upload-has-backports-version-number (LN1497) 1.0~bpo12+3+salsaci+2 sid
+E: example (changes): upload-has-backports-version-number (LN1497) 1.0~bpo1+1 unstable
+E: example (changes): upload-has-backports-version-number (LN1497) 1.0~bpo1+1 experimental
+E: example (changes): upload-has-backports-version-number (LN1497) 1.0~bpo1+1 unstable

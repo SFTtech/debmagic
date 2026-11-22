@@ -523,6 +523,7 @@ use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
+use super::rules::UploadHasBackportsVersionNumber;
 use super::rules::UploaderNameMissing;
 use super::rules::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::UpstreamMetadataInNativeSource;
@@ -2183,6 +2184,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoPhrase,
         &PackageBuildsDbgAndDbgsymVariants,
         &UnreleasedChanges,
+        &UploadHasBackportsVersionNumber,
     ]
 }
 
@@ -3447,6 +3449,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &NoPhrase,
         &PackageBuildsDbgAndDbgsymVariants,
         &UnreleasedChanges,
+        &UploadHasBackportsVersionNumber,
     ]
 }
 

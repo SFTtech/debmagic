@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): image-file-has-conflicting-name (LN1395) (is JPEG) [usr/share/example/a.png]
+I: example (binary): image-file-has-conflicting-name (LN1395) (is GIF) [usr/share/example/a.jpeg]
+I: example (binary): image-file-has-conflicting-name (LN1395) (is TIFF) [usr/share/example/a.gif]
+I: example (binary): image-file-has-conflicting-name (LN1395) (is Netpbm) [usr/share/example/a.tif]
+I: example (binary): image-file-has-conflicting-name (LN1395) (is SVG) [usr/share/example/a.xpm]
+I: example (binary): image-file-has-conflicting-name (LN1395) (is XPM) [usr/share/example/a.svg]
+I: example (binary): image-file-has-conflicting-name (LN1395) (is PNG) [usr/share/example/a.pnm]
+I: example (binary): image-file-has-conflicting-name (LN1395) (is PNG) [usr/share/example/a.jpg]
+I: example (binary): image-file-has-conflicting-name (LN1395) (is PNG) [usr/share/example/a.jpg]

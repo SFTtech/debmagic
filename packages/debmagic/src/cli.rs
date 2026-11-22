@@ -678,8 +678,11 @@ pub struct TestSubcommandArgs {
 
 #[derive(Args, Debug)]
 pub struct LintSubcommandArgs {
-    /// Subject to lint: a source tree directory, a `.deb` / `.udeb` / `.ddeb`, or a `.dsc`
-    pub subject: Option<PathBuf>,
+    /// What to lint: a source tree directory, or any number of artifacts (`.deb`, `.udeb`,
+    /// `.ddeb`, `.dsc`, `.changes`, `.buildinfo`). Artifacts of the same source package and
+    /// version are linted together as a group; a `.changes`, `.dsc` or `.buildinfo` also pulls in
+    /// the files it names from its directory. Without a path, lints the current directory.
+    pub subjects: Vec<PathBuf>,
 
     #[command(flatten)]
     pub common: CommonCli,

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): vcs-field-not-canonical (LN1371) Svn svn://svn.debian.org/svn/foobar/trunk svn://anonscm.debian.org/foobar/trunk
+I: example (source): vcs-field-not-canonical (LN1371) Git https://salsa.debian.org/foo/bar https://salsa.debian.org/foo/bar.git

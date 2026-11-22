@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): unused-debconf-template (LN1323) example/unused [templates:6]
+I: example (binary): unused-debconf-template (LN1323) example/unused [templates:6]
+I: example (binary): unused-debconf-template (LN1323) example/used [templates:1]

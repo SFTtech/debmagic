@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): spelling-error-in-description (LN1362) mroe more
+I: example (binary): spelling-error-in-description (LN1362) these these (duplicate word) these
+I: example (binary): spelling-error-in-description (LN1362) "Permits to" "Permits one to"
+I: example (binary): spelling-error-in-description (LN1362) "This packages" "These packages"
+I: example (udeb): spelling-error-in-description (LN1362) Mroe More

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): missing-prerequisite-for-pyproject-backend (LN1403) setuptools.build_meta (does not satisfy python3-setuptools, pybuild-plugin-pyproject) [pyproject.toml:2]
+I: example (source): missing-prerequisite-for-pyproject-backend (LN1403) setuptools.build_meta (does not satisfy python3-setuptools, pybuild-plugin-pyproject) [pyproject.toml:2]
+I: example (source): missing-prerequisite-for-pyproject-backend (LN1403) hatchling.build (does not satisfy python3-hatchling, pybuild-plugin-pyproject) [pyproject.toml:3]
+I: example (source): missing-prerequisite-for-pyproject-backend (LN1403) flit_core.buildapi (does not satisfy flit | python3-flit, pybuild-plugin-pyproject) [pyproject.toml:1]

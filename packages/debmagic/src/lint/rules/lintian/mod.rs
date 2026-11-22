@@ -681,13 +681,14 @@ pub(crate) use languages_perl::{
 pub(crate) use languages_python::{
     AncientPythonVersionField, BogusPythonPrerequisite, DjangoPackageDoesNotDependOnDjango,
     DuplicateP3distOverride, EmbeddedFeedparserLibrary, FileInUsrLibSitePython,
-    MalformedPythonVersion, NewPackageShouldNotPackagePython2Module,
-    PackageInstallsDeprecatedPython2Path, PackageInstallsPythonBytecode, PackageInstallsPythonEgg,
-    PackageInstallsPythonPycacheDir, PypiHomepage, PythonDebugInWrongLocation,
-    PythonModuleHasOverlyGenericName, PythonModuleInWrongLocation,
-    PythonPackageMissingDependsOnPython, PythonVersionCurrentIsDeprecated,
-    ScriptUsesUnversionedPythonInShebang, SourcePackageEncodesPythonVersion,
-    ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory,
+    MalformedPythonVersion, MissingPrerequisiteForPyprojectBackend,
+    NewPackageShouldNotPackagePython2Module, PackageInstallsDeprecatedPython2Path,
+    PackageInstallsPythonBytecode, PackageInstallsPythonEgg, PackageInstallsPythonPycacheDir,
+    PypiHomepage, PythonDebugInWrongLocation, PythonModuleHasOverlyGenericName,
+    PythonModuleInWrongLocation, PythonPackageMissingDependsOnPython,
+    PythonVersionCurrentIsDeprecated, ScriptUsesUnversionedPythonInShebang,
+    SourcePackageEncodesPythonVersion, ThirdPartyPackageInPythonDir,
+    UnknownFileInPythonModuleDirectory,
 };
 pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;

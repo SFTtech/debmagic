@@ -273,13 +273,30 @@ fn read_text(files: &FileTree, entry: &Entry) -> Option<String> {
 }
 
 fn missing_commands(text: &str) -> Vec<&'static str> {
-    let mut saw = [false; 4];
+    let saw = saw_commands(text);
+    REQUIRED
+        .into_iter()
+        .enumerate()
+        .filter(|(index, _)| !saw[*index])
+        .map(|(_, command)| command)
+        .collect()
+}
+
+/// Whether the script implements `status`, as lintian's `saw_command{status}` says.
+pub(super) fn has_status_command(text: &str) -> bool {
+    saw_commands(text)[STATUS]
+}
+
+/// Which of `start`, `stop`, `restart`, `force-reload` and `status` the script
+/// mentions as a command, in that order; `STATUS` is the last index.
+fn saw_commands(text: &str) -> [bool; 5] {
+    let mut saw = [false; 5];
     if init_d_script_interpreter(text) {
-        saw = [true; 4];
+        saw = [true; 5];
     }
     for line in text.lines() {
         if SOURCES_INIT_D_SCRIPT.is_match(line) {
-            saw = [true; 4];
+            saw = [true; 5];
         }
         let mut rest = line;
         loop {
@@ -297,20 +314,18 @@ fn missing_commands(text: &str) -> Vec<&'static str> {
             rest = &rest[end..];
         }
     }
-    REQUIRED
-        .into_iter()
-        .enumerate()
-        .filter(|(index, _)| !saw[*index])
-        .map(|(_, command)| command)
-        .collect()
+    saw
 }
 
-fn mark(saw: &mut [bool; 4], token: &str) {
+const STATUS: usize = 4;
+
+fn mark(saw: &mut [bool; 5], token: &str) {
     let index = match token {
         "start" => 0,
         "stop" => 1,
         "restart" => 2,
         "force-reload" => 3,
+        "status" => STATUS,
         _ => return,
     };
     saw[index] = true;

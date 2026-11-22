@@ -1373,10 +1373,6 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "the recipe's `setup.py` imports `setuptools` and `numpy`, and this host has neither for python3",
     ),
     (
-        "checks/debian/copyright/dep5/components/control-file-upstream-signature-missing",
-        "the harness does not synthesize the `signed`, `noext` and `component` orig tarballs, so dpkg-source builds a .dsc without them and no component is known",
-    ),
-    (
         "checks/fields/checksums/no-sha256-checksum",
         "the recipe's `build-spec/post-build.sh` strips `Checksums-Sha256` from the `.dsc`, and the harness does not run post-build scripts",
     ),
@@ -1823,6 +1819,33 @@ fn vendored_pre_upstream(recipe: &Path) -> Option<PathBuf> {
     hook.is_file().then_some(hook)
 }
 
+/// `build-spec/pre-build`, kept by the importer when the hook works on the
+/// orig tarballs next to the source directory (it makes the `signed`, `noext`
+/// and `component` origs and their signatures). The tree already shows what
+/// the hook did to the sources, so only these hooks are vendored.
+fn vendored_pre_build_for_orig(recipe: &Path) -> Option<PathBuf> {
+    let hook = recipe.join(VENDORED_BUILD_SPEC).join("pre-build");
+    hook.is_file().then_some(hook)
+}
+
+/// Runs the vendored `pre-build` hook on the package directory, after the
+/// main orig is packed and before `dpkg-source -b`, as lintian's upload
+/// builder does. The hook reaches the orig tarballs through `$1/../`.
+fn run_pre_build_for_orig(hook: &Path, source: &Path) {
+    let output = Command::new("sh")
+        .arg(hook)
+        .arg(source)
+        .output()
+        .expect("spawning pre-build hook");
+    assert!(
+        output.status.success(),
+        "{}: pre-build hook failed\nstdout:\n{}\nstderr:\n{}",
+        hook.display(),
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
 /// The orig lintian's upload builder tars: the tree's upstream paths (no
 /// `debian/`, no `added` root paths) with the `pre-upstream` hook run on top,
 /// under `<source>-<upstream>/` like the real tarball. The hook is a lintian
@@ -1899,11 +1922,12 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     let keep_ignored = !pointers.is_empty() || expects_tag_prefix(recipe, "source-contains-");
     let overrides = dpkg_overrides(recipe);
     let hook = vendored_pre_upstream(recipe);
+    let pre_build = vendored_pre_build_for_orig(recipe);
     let non_native = recipe_is_non_native(recipe);
 
     // Everything the packing reads besides the tree: the `dpkg-source` flags,
     // the paths left out of the orig, whether the recipe is non-native (its
-    // orig is always packed), and the `pre-upstream` hook. The
+    // orig is always packed), and the `pre-upstream` and `pre-build` hooks. The
     // recipe's `eval/hints` reach the build only through `root_adds` and
     // `keep_ignored`.
     let mut key = BuildKey::new("dpkg-source");
@@ -1917,6 +1941,11 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     key.field("pre-upstream", hook_text.as_deref().unwrap_or_default());
     key.field("has-pre-upstream", &[u8::from(hook.is_some())]);
     key.field("non-native", &[u8::from(non_native)]);
+    let pre_build_text = pre_build.as_ref().map(|hook| {
+        fs::read(hook).unwrap_or_else(|error| panic!("reading {}: {error}", hook.display()))
+    });
+    key.field("pre-build", pre_build_text.as_deref().unwrap_or_default());
+    key.field("has-pre-build", &[u8::from(pre_build.is_some())]);
 
     let products = build_once(key.finish(), work, || {
         let packing = SourcePacking {
@@ -1924,6 +1953,7 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             overrides: &overrides,
             root_adds: &root_adds,
             hook: hook.as_deref(),
+            pre_build: pre_build.as_deref(),
             non_native,
         };
         pack_source_package(recipe, work, &source, packing);
@@ -1951,6 +1981,7 @@ struct SourcePacking<'a> {
     overrides: &'a [String],
     root_adds: &'a [String],
     hook: Option<&'a Path>,
+    pre_build: Option<&'a Path>,
     non_native: bool,
 }
 
@@ -1962,6 +1993,7 @@ fn pack_source_package(recipe: &Path, work: &Path, source: &Path, packing: Sourc
         overrides,
         root_adds,
         hook,
+        pre_build,
         non_native,
     } = packing;
     if let Some(hook) = hook {
@@ -1974,6 +2006,9 @@ fn pack_source_package(recipe: &Path, work: &Path, source: &Path, packing: Sourc
         // as a native one, with no `.diff.gz`.
         let name = main_orig_name(source);
         pack_orig_without_added(source, &work.join(&name), root_adds);
+    }
+    if let Some(pre_build) = pre_build {
+        run_pre_build_for_orig(pre_build, source);
     }
     let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
     if !ok {

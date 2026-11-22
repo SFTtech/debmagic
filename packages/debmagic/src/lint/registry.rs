@@ -535,6 +535,7 @@ use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
 use super::rules::UsingFirstPersonInDescription;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
+use super::rules::UsrShareDocSymlinkToForeignPackage;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VcsBrowserLinksToEmptyView;
@@ -2185,6 +2186,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LacksUnversionedLinkToSharedLibrary,
         &PackageContainsBrokenSymlinkWildcard,
         &DebugPackageForMultiArchSamePkgNotCoinstallable,
+        &UsrShareDocSymlinkToForeignPackage,
     ]
 }
 
@@ -3457,6 +3459,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &LacksUnversionedLinkToSharedLibrary,
         &PackageContainsBrokenSymlinkWildcard,
         &DebugPackageForMultiArchSamePkgNotCoinstallable,
+        &UsrShareDocSymlinkToForeignPackage,
     ]
 }
 

@@ -1549,6 +1549,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/changes-file/changes-file-bad-section",
     "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
     "checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license",
+    "checks/debian/copyright/copyright-file-symlink",
     "checks/desktop/gnome/gir/gir",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
@@ -3137,6 +3138,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/changes-file/changes-file-bad-section"; "checks_changes_file_changes_file_bad_section")]
 #[test_case("checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar"; "checks_debhelper_debhelper_dh_runit_but_lacks_breaks_substvar")]
 #[test_case("checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license"; "checks_debian_copyright_apache_notice_source_copyright_missing_notice_file_for_apache_license")]
+#[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]

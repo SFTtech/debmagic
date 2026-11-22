@@ -122,6 +122,7 @@ use super::rules::DebugSymbolsNotDetached;
 use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
 use super::rules::DefaultMtaDependencyDoesNotSpecifyMailTransportAgent;
 use super::rules::DefaultMtaDependencyNotListedFirst;
+use super::rules::DependencyIsNotMultiArchified;
 use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
@@ -2175,6 +2176,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoCodeSections,
         &GirMissingTypelibDependency,
         &PackageUsesDhRunitButLacksBreaksSubstvar,
+        &DependencyIsNotMultiArchified,
     ]
 }
 
@@ -3442,6 +3444,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &IntraSourcePackageCircularDependency,
         &GirMissingTypelibDependency,
         &PackageUsesDhRunitButLacksBreaksSubstvar,
+        &DependencyIsNotMultiArchified,
     ]
 }
 

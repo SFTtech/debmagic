@@ -560,7 +560,7 @@ pub(crate) use fields_uploaders::UploaderNameMissing;
 pub(crate) use fields_vcs::{
     OrphanedPackageMaintainedInPrivateSpace, OrphanedPackageNotMaintainedInDebianInfrastructure,
     VcsBrowserLinksToEmptyView, VcsFieldBitrotted, VcsFieldHasUnexpectedSpaces, VcsFieldMismatch,
-    VcsFieldUsesUnknownUriFormat, VcsGitUsesInvalidUserUri,
+    VcsFieldUsesInsecureUri, VcsFieldUsesUnknownUriFormat, VcsGitUsesInvalidUserUri,
 };
 pub(crate) use files_artifact::{
     DebianAddsArchControlDir, DebianAddsArchInventoryFile, DebianAddsBtsControlDir,

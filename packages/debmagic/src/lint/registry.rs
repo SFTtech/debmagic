@@ -427,6 +427,7 @@ use super::rules::VcsGitUsesInvalidUserUri;
 use super::rules::VersionRefersToDistribution;
 use super::rules::VersionRefersToUnstableDistributionWithExpVersion;
 use super::rules::VersionSubstvarForExternalPackage;
+use super::rules::VeryLongLineLengthInSourceFile;
 use super::rules::VimAddonWithinVimRuntimePath;
 use super::rules::WaywardSymbolicLinkTargetInSource;
 use super::rules::WeakDependencyOnMiscDepends;
@@ -1943,6 +1944,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldStyleConfigScript,
         &PackageContainsEmptyDirectory,
         &ExtraLicenseFile,
+        &VeryLongLineLengthInSourceFile,
     ]
 }
 
@@ -2306,6 +2308,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SubstvarSourceVersionIsDeprecated,
         &VcsFieldUsesInsecureUri,
         &VcsFieldsUseMoreThanOneVcs,
+        &VeryLongLineLengthInSourceFile,
     ]
 }
 

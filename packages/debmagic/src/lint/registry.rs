@@ -413,6 +413,7 @@ use super::rules::UpstreamMetadataInNativeSource;
 use super::rules::UpstreamMetadataIsNotAFile;
 use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::UsesDeprecatedAdttmp;
+use super::rules::UsesDeprecatedPythonStdlib;
 use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
@@ -1939,6 +1940,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageSupersededByPerl,
         &MissingPrerequisiteForPyprojectBackend,
         &PackageInstallsLegacyPythonEggInfo,
+        &UsesDeprecatedPythonStdlib,
     ]
 }
 
@@ -2301,6 +2303,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &MissingPrerequisiteForPyprojectBackend,
+        &UsesDeprecatedPythonStdlib,
     ]
 }
 

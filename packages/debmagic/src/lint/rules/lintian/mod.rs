@@ -251,6 +251,7 @@ pub(crate) use appstream_metadata::AppstreamMetadataInLegacyLocation;
 pub(crate) use appstream_metadata::AppstreamMetadataInvalid;
 pub(crate) use appstream_metadata::AppstreamMetadataLegacyFormat;
 pub(crate) use appstream_metadata::AppstreamMetadataMalformedModaliasProvide;
+pub(crate) use appstream_metadata::AppstreamMetadataMissingModaliasProvide;
 pub(crate) use apt::PackageInstallsAptKeyring;
 pub(crate) use apt::PackageInstallsAptPreferences;
 pub(crate) use apt::PackageInstallsAptSources;

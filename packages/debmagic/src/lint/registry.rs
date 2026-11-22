@@ -16,6 +16,7 @@ use super::rules::AppstreamMetadataInLegacyLocation;
 use super::rules::AppstreamMetadataInvalid;
 use super::rules::AppstreamMetadataLegacyFormat;
 use super::rules::AppstreamMetadataMalformedModaliasProvide;
+use super::rules::AppstreamMetadataMissingModaliasProvide;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::BadJarName;
@@ -2131,6 +2132,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AppstreamMetadataInvalid,
         &AppstreamMetadataLegacyFormat,
         &AppstreamMetadataMalformedModaliasProvide,
+        &AppstreamMetadataMissingModaliasProvide,
     ]
 }
 
@@ -3362,6 +3364,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &AppstreamMetadataInvalid,
         &AppstreamMetadataLegacyFormat,
         &AppstreamMetadataMalformedModaliasProvide,
+        &AppstreamMetadataMissingModaliasProvide,
     ]
 }
 

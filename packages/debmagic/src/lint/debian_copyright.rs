@@ -136,7 +136,7 @@ static FRAGMENT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^([^#\s]+)#").expect("valid regex"));
 
 /// The Format URI of the first paragraph, as lintian extracts it.
-fn format_uri(text: &str) -> Option<String> {
+pub(crate) fn format_uri(text: &str) -> Option<String> {
     let mut first = COMMENT_LINE.replace_all(text, "").into_owned();
     first = TRAILING_BLANKS.replace_all(&first, "").into_owned();
     first = first.trim_start_matches('\n').to_string();

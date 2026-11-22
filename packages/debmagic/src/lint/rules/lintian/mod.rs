@@ -417,6 +417,7 @@ pub(crate) use fonts::DuplicateFontFile;
 pub(crate) use fonts::FontInNonFontPackage;
 pub(crate) use fonts::FontOutsideFontDir;
 pub(crate) use fonts::WoffFontInWrongDir;
+pub(crate) use group_checks::BinariesHaveFileConflict;
 pub(crate) use group_checks::DebugPackageForMultiArchSamePkgNotCoinstallable;
 pub(crate) use group_checks::DependencyIsNotMultiArchified;
 pub(crate) use group_checks::IntraSourcePackageCircularDependency;

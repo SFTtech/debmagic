@@ -1555,8 +1555,10 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/fields/version/legacy-fields",
     "checks/files/symbolic-links/broken/symlinks-broken",
     "checks/group-checks/group-checks-circular-deps",
+    "checks/group-checks/group-checks-file-conflict",
     "checks/group-checks/group-checks-multi-arch",
     "checks/group-checks/legacy-binary",
+    "checks/group-checks/legacy-libbaz",
     "checks/libraries/shared/links/legacy-libbaz",
     "checks/libraries/shared/links/shared-libs-dev-symlink",
     "checks/menus/legacy-binary",
@@ -3146,8 +3148,10 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
 #[test_case("checks/files/symbolic-links/broken/symlinks-broken"; "checks_files_symbolic_links_broken_symlinks_broken")]
 #[test_case("checks/group-checks/group-checks-circular-deps"; "checks_group_checks_group_checks_circular_deps")]
+#[test_case("checks/group-checks/group-checks-file-conflict"; "checks_group_checks_group_checks_file_conflict")]
 #[test_case("checks/group-checks/group-checks-multi-arch"; "checks_group_checks_group_checks_multi_arch")]
 #[test_case("checks/group-checks/legacy-binary"; "checks_group_checks_legacy_binary")]
+#[test_case("checks/group-checks/legacy-libbaz"; "checks_group_checks_legacy_libbaz")]
 #[test_case("checks/libraries/shared/links/legacy-libbaz"; "checks_libraries_shared_links_legacy_libbaz")]
 #[test_case("checks/libraries/shared/links/shared-libs-dev-symlink"; "checks_libraries_shared_links_shared_libs_dev_symlink")]
 #[test_case("checks/menus/legacy-binary"; "checks_menus_legacy_binary")]

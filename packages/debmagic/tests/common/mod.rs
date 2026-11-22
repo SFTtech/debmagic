@@ -2300,6 +2300,10 @@ fn catalogued_group_hints(recipe: &Path, tags: &GroupTags) -> Vec<(String, Parit
     let mut expected: Vec<(String, ParityHint)> = load_hints(&recipe.join("eval/hints"))
         .into_iter()
         .filter(|(processable_type, hint)| applies_to_group(processable_type, &hint.tag, tags))
+        .map(|(processable_type, mut hint)| {
+            hint.extra = expand_host_placeholders(&hint.extra);
+            (processable_type, hint)
+        })
         .collect();
     expected.sort();
     expected

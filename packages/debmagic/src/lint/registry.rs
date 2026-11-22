@@ -36,6 +36,7 @@ use super::rules::BuildDependsOnDhSysuser;
 use super::rules::BuildDependsOnNonBuildPackage;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
+use super::rules::CapitalizationErrorInDescription;
 use super::rules::CarriageReturnLineFeed;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &NoStrongDigestsInDsc,
+        &CapitalizationErrorInDescription,
     ]
 }
 
@@ -3067,6 +3069,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
+        &CapitalizationErrorInDescription,
     ]
 }
 

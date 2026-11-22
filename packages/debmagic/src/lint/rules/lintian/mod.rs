@@ -502,9 +502,10 @@ pub(crate) use debian_watch::{
     ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{
-    DescriptionContainsDhMakePerlTemplate, DescriptionContainsInvalidControlStatement,
-    DescriptionContainsTabs, DescriptionIsDebmakeTemplate, DescriptionIsDhMakeTemplate,
-    DescriptionIsPkgName, DescriptionStartsWithLeadingSpaces, DescriptionStartsWithPackageName,
+    CapitalizationErrorInDescription, DescriptionContainsDhMakePerlTemplate,
+    DescriptionContainsInvalidControlStatement, DescriptionContainsTabs,
+    DescriptionIsDebmakeTemplate, DescriptionIsDhMakeTemplate, DescriptionIsPkgName,
+    DescriptionStartsWithLeadingSpaces, DescriptionStartsWithPackageName,
     DescriptionSynopsisIsEmpty, DescriptionSynopsisStartsWithArticle, DescriptionTooShort,
     ExtendedDescriptionContainsEmptyParagraph, ExtendedDescriptionIsEmpty,
     ExtendedDescriptionLineTooLong, PossibleUnindentedListInExtendedDescription, SynopsisTooLong,

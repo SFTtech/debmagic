@@ -67,6 +67,7 @@ pub(super) struct Report {
     pub desktop_contains_deprecated_key: Vec<Finding>,
     pub desktop_entry_contains_deprecated_key: Vec<Finding>,
     pub desktop_entry_contains_encoding_key: Vec<Finding>,
+    pub desktop_entry_lacks_keywords_entry: Vec<Finding>,
     pub duplicate_key_in_desktop: Vec<Finding>,
     pub desktop_entry_unknown_type: Vec<Finding>,
     pub desktop_entry_missing_required_key: Vec<Finding>,
@@ -148,6 +149,7 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
         desktop_contains_deprecated_key: Vec::new(),
         desktop_entry_contains_deprecated_key: Vec::new(),
         desktop_entry_contains_encoding_key: Vec::new(),
+        desktop_entry_lacks_keywords_entry: Vec::new(),
         duplicate_key_in_desktop: Vec::new(),
         desktop_entry_unknown_type: Vec::new(),
         desktop_entry_missing_required_key: Vec::new(),
@@ -624,6 +626,17 @@ fn parse_desktop(
                 key,
             );
         }
+    }
+    if !vals.contains_key("NoDisplay")
+        && !vals.contains_key("Keywords")
+        && kind.as_str() == "Application"
+    {
+        warn_at(
+            &mut report.desktop_entry_lacks_keywords_entry,
+            &path,
+            None,
+            "",
+        );
     }
     let in_applications = path
         .to_str()

@@ -28,6 +28,7 @@ mod ln1061_priority_extra_is_replaced_by_priority_optional;
 mod ln1062_unknown_priority;
 mod ln1063_wrong_section_for_udeb;
 mod ln1239_transitional_package_not_oldlibs_optional;
+mod ln1316_redundant_control_relation;
 
 pub(crate) use ln0224_redundant_bugs_field::RedundantBugsField;
 pub(crate) use ln0225_bad_homepage::BadHomepage;
@@ -52,3 +53,4 @@ pub(crate) use ln1061_priority_extra_is_replaced_by_priority_optional::PriorityE
 pub(crate) use ln1062_unknown_priority::UnknownPriority;
 pub(crate) use ln1063_wrong_section_for_udeb::WrongSectionForUdeb;
 pub(crate) use ln1239_transitional_package_not_oldlibs_optional::TransitionalPackageNotOldlibsOptional;
+pub(crate) use ln1316_redundant_control_relation::RedundantControlRelation;

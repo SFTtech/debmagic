@@ -83,25 +83,31 @@ def read_text(path: Path) -> tuple[str, str]:
 
 
 def read_deb822(path: Path) -> dict[str, str]:
+    """Fields of a one-paragraph Deb822 file, as lintian's `Section->value` reads them.
+
+    A continuation line keeps its leading whitespace and joins the value with a
+    newline, so a wrapped field (a multi-line `Description`) stays wrapped when the
+    value is filled into a template. Trailing whitespace of each line goes, and
+    leading and trailing whitespace of the whole value. Comment lines (`#` in
+    column 0) and blank lines are skipped.
+    """
     fields: dict[str, str] = {}
     current: str | None = None
     text, _encoding = read_text(path)
     for raw_line in text.splitlines():
-        stripped = raw_line.strip()
-        if not stripped or stripped.startswith("#"):
+        if not raw_line.strip() or raw_line.startswith("#"):
             continue
         if raw_line[0] in " \t":
             if current is None:
                 raise ValueError(f"{path}: continuation without a field")
-            extra = raw_line.strip()
-            fields[current] = f"{fields[current]} {extra}".strip()
+            fields[current] = f"{fields[current]}\n{raw_line.rstrip()}"
             continue
         name, sep, value = raw_line.partition(":")
         if not sep:
             raise ValueError(f"{path}: not a Deb822 field: {raw_line!r}")
         current = name
         fields[current] = value.strip()
-    return fields
+    return {name: value.strip() for name, value in fields.items()}
 
 
 def merge_fields(base: dict[str, str], overlay: dict[str, str]) -> dict[str, str]:

@@ -32,6 +32,7 @@ mod ln0533_dh_exec_install_not_allowed_here;
 mod ln0860_package_file_is_executable;
 mod ln0862_dh_exec_private_helper;
 mod ln0863_executable_debhelper_file_without_being_executable;
+mod ln1256_python3_depends_but_no_python3_helper;
 mod rules_text;
 
 pub(super) use control_text::{build_depends_all_names, names_package};
@@ -61,3 +62,4 @@ pub(crate) use ln0533_dh_exec_install_not_allowed_here::DhExecInstallNotAllowedH
 pub(crate) use ln0860_package_file_is_executable::PackageFileIsExecutable;
 pub(crate) use ln0862_dh_exec_private_helper::DhExecPrivateHelper;
 pub(crate) use ln0863_executable_debhelper_file_without_being_executable::ExecutableDebhelperFileWithoutBeingExecutable;
+pub(crate) use ln1256_python3_depends_but_no_python3_helper::Python3DependsButNoPython3Helper;

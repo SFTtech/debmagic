@@ -171,6 +171,7 @@ use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
 use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemJsonEvil;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
+use super::rules::LicenseProblemNonFreeRFC;
 use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
@@ -1875,6 +1876,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LicenseProblemCcByNcSa,
         &LicenseProblemJsonEvil,
         &LicenseProblemNonFreeRFCBCP78,
+        &LicenseProblemNonFreeRFC,
     ]
 }
 
@@ -2212,6 +2214,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &LicenseProblemCcByNcSa,
         &LicenseProblemJsonEvil,
         &LicenseProblemNonFreeRFCBCP78,
+        &LicenseProblemNonFreeRFC,
     ]
 }
 

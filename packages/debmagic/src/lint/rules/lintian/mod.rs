@@ -603,7 +603,7 @@ pub(crate) use files_names::{
     PackageContainsPythonDoctreeFile, PackageContainsPythonDotDirectory,
     PackageContainsPythonHeaderInIncorrectDirectory, PackageContainsPythonHypothesisExample,
     PackageContainsPythonTestsInGlobalNamespace, PackageContainsSassCacheDirectory,
-    ShippedFileWithoutUtf8Name, StarFile, ZeroByteExecutableInPath,
+    PatchedFileWithoutUtf8Name, ShippedFileWithoutUtf8Name, StarFile, ZeroByteExecutableInPath,
 };
 pub(crate) use files_obsolete_paths::PackageInstallsIntoObsoleteDir;
 pub(crate) use files_p11_kit::IncorrectNamingOfPkcs11Module;

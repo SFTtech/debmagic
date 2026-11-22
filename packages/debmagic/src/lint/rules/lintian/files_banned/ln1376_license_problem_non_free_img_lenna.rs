@@ -33,7 +33,7 @@ declare_rule! {
     /// recipes and the Lenna test images use; a format `file(1)` recognises and
     /// the sniffer does not is not checked.
     LicenseProblemNonFreeImgLenna,
-    code = "LN1499",
+    code = "LN1376",
     tag = "license-problem-non-free-img-lenna",
     default_selected = true,
     experimental = false,

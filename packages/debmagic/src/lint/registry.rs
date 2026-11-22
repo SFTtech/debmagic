@@ -372,6 +372,7 @@ use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
 use super::rules::PearPackageButMissingDependency;
+use super::rules::PearPackageNotUsingSubstvar;
 use super::rules::PearPackageWithoutPkgPhpToolsBuilddep;
 use super::rules::PeclPackageRequiresBuildDependency;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
@@ -2191,6 +2192,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptMissingLsbShortDescription,
         &MissingXsGoImportPathForGolangPackage,
         &ComposerPackageWithoutPkgPhpToolsBuilddep,
+        &PearPackageNotUsingSubstvar,
     ]
 }
 
@@ -2593,6 +2595,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DfsgVersionWithTilde,
         &MissingXsGoImportPathForGolangPackage,
         &ComposerPackageWithoutPkgPhpToolsBuilddep,
+        &PearPackageNotUsingSubstvar,
     ]
 }
 

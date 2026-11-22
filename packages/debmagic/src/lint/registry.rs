@@ -338,6 +338,7 @@ use super::rules::TypelibPackageNameDoesNotMatch;
 use super::rules::TypelibSectionNotIntrospection;
 use super::rules::UdebPostinstCallsLdconfig;
 use super::rules::UdebUsesUnsupportedCompressionForDataTarball;
+use super::rules::UdevRuleInEtc;
 use super::rules::UnconditionalUseOfDpkgStatoverride;
 use super::rules::UnexpectedConffile;
 use super::rules::UnknownArchitecture;
@@ -1827,6 +1828,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TrailingSlashForDpkgMaintscriptHelperSymlinkToDir,
         &UnknownControlInterpreter,
         &WishScriptButNoWishDep,
+        &UdevRuleInEtc,
     ]
 }
 
@@ -2908,6 +2910,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TrailingSlashForDpkgMaintscriptHelperSymlinkToDir,
         &UnknownControlInterpreter,
         &WishScriptButNoWishDep,
+        &UdevRuleInEtc,
     ]
 }
 

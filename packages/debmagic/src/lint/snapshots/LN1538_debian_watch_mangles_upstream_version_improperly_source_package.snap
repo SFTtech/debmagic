@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): debian-watch-mangles-upstream-version-improperly (LN1538) opts=dversionmangle=s/~rc/-rc/ https://example.com/dist/ foo\.([\d.]+)\.tar\.gz [debian/watch:2]

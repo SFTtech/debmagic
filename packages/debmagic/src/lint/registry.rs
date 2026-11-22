@@ -117,6 +117,7 @@ use super::rules::DebianUpstreamObsoletePath;
 use super::rules::DebianWatchContainsDhMakeTemplate;
 use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
 use super::rules::DebianWatchManglesDebianVersionImproperly;
+use super::rules::DebianWatchManglesUpstreamVersionImproperly;
 use super::rules::DebianWatchUsesInsecureUri;
 use super::rules::DebugFileWithNoDebugSymbols;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
@@ -2189,6 +2190,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnnecessarySourceDateEpochAssignment,
         &DebianWatchContainsDhMakeTemplate,
         &DebianWatchManglesDebianVersionImproperly,
+        &DebianWatchManglesUpstreamVersionImproperly,
     ]
 }
 
@@ -2597,6 +2599,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UnnecessarySourceDateEpochAssignment,
         &DebianWatchContainsDhMakeTemplate,
         &DebianWatchManglesDebianVersionImproperly,
+        &DebianWatchManglesUpstreamVersionImproperly,
     ]
 }
 

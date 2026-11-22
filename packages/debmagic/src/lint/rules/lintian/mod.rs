@@ -588,9 +588,10 @@ pub(crate) use debian_watch::{
     DebianWatchFileSpecifiesOldUpstreamVersion, DebianWatchFileSpecifiesWrongUpstreamVersion,
     DebianWatchFileUsesDeprecatedGithubredir, DebianWatchFileUsesDeprecatedSfRedirectorMethod,
     DebianWatchLacksSourceforgeRedirector, DebianWatchLineInvalid,
-    DebianWatchManglesDebianVersionImproperly, DebianWatchNotManglingVersion,
-    DebianWatchUsesInsecureUri, MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
-    ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
+    DebianWatchManglesDebianVersionImproperly, DebianWatchManglesUpstreamVersionImproperly,
+    DebianWatchNotManglingVersion, DebianWatchUsesInsecureUri, MissingDebianWatchFileStandard,
+    MultipleDebianWatchFileStandards, ObsoleteDebianWatchFileStandard,
+    UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{
     CapitalizationErrorInDescription, DescriptionContainsDhMakePerlTemplate,

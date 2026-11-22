@@ -1665,14 +1665,12 @@ fn rewrite_current_policy_release_date(recipe_rel: &str, hints: &mut [ParityHint
     }
 }
 
-/// The Standards-Version recipes' lintian `eval/post-test` rewrites the newest
+/// The Standards-Version recipes (and the tracking recipe that carries the same
+/// hint) have lintian `eval/post-test` rewrite the newest
 /// Policy release in `(current is …)` to `CURRENT`, for the newer and the
 /// out-of-date Tags. The vendored hints keep that token; the hook is not
 /// copied into the tree.
-fn rewrite_current_policy_version(recipe_rel: &str, hints: &mut [ParityHint]) {
-    if !recipe_rel.starts_with("checks/fields/standards-version/") {
-        return;
-    }
+fn rewrite_current_policy_version(_recipe_rel: &str, hints: &mut [ParityHint]) {
     for hint in hints {
         if hint.tag != "newer-standards-version" && hint.tag != "out-of-date-standards-version" {
             continue;

@@ -13,6 +13,7 @@ use crate::lint::package_relation::PackageRelation;
 /// entries in dynamic-section order.
 pub(super) struct Object {
     pub(super) path: PathBuf,
+    pub(super) shared: bool,
     pub(super) needed: Vec<String>,
 }
 
@@ -33,14 +34,14 @@ pub(super) fn objects(ctx: &mut BinaryPackageContext<'_>) -> Vec<Object> {
         .into_iter()
         .filter_map(|entry| {
             let facts = elf_files.get(entry.path())?;
-            if !matches!(
-                facts.object_type(),
-                ElfObjectType::Executable | ElfObjectType::SharedObject
-            ) {
-                return None;
-            }
+            let shared = match facts.object_type() {
+                ElfObjectType::Executable => false,
+                ElfObjectType::SharedObject => true,
+                ElfObjectType::Relocatable | ElfObjectType::Other => return None,
+            };
             Some(Object {
                 path: entry.path().to_path_buf(),
+                shared,
                 needed: facts.needed().to_vec(),
             })
         })

@@ -304,6 +304,7 @@ use super::rules::PrermCallsUpdatemenus;
 use super::rules::PrermCallsUpdatercD;
 use super::rules::PriorityExtraIsReplacedByPriorityOptional;
 use super::rules::PrivacyBreachW3cValidHtml;
+use super::rules::ProgramNotLinkedAgainstLibc;
 use super::rules::PuppetModuleButNotDhPuppet;
 use super::rules::PypiHomepage;
 use super::rules::Python3DependsButNoPython3Helper;
@@ -1939,6 +1940,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DevelopmentPackageShipsElfBinaryInPath,
         &MissingDependencyOnLibc,
         &MissingDependencyOnLibstdc,
+        &ProgramNotLinkedAgainstLibc,
     ]
 }
 
@@ -3076,6 +3078,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DevelopmentPackageShipsElfBinaryInPath,
         &MissingDependencyOnLibc,
         &MissingDependencyOnLibstdc,
+        &ProgramNotLinkedAgainstLibc,
     ]
 }
 

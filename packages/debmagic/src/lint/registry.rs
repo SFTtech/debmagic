@@ -20,6 +20,7 @@ use super::rules::AppstreamMetadataMalformedModaliasProvide;
 use super::rules::AppstreamMetadataMissingModaliasProvide;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
+use super::rules::BadDistributionInChangesFile;
 use super::rules::BadJarName;
 use super::rules::BadPackageName;
 use super::rules::BadPermForFileInEtcSudoersD;
@@ -2171,6 +2172,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &BadDistributionInChangesFile,
     ]
 }
 
@@ -3426,7 +3428,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
 }
 
 pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
-    &[&BadSectionInChangesFile, &DebianRevisionNotWellFormed]
+    &[
+        &BadSectionInChangesFile,
+        &DebianRevisionNotWellFormed,
+        &BadDistributionInChangesFile,
+    ]
 }
 
 pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {

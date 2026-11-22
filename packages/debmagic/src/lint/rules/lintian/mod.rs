@@ -75,6 +75,7 @@ mod fields_architecture;
 mod fields_bugs;
 mod fields_built_using;
 mod fields_checksums;
+mod fields_distribution;
 mod fields_empty;
 mod fields_format;
 mod fields_installer_menu_item;
@@ -377,6 +378,7 @@ pub(crate) use documentation::{
 };
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use fields_checksums::NoStrongDigestsInDsc;
+pub(crate) use fields_distribution::BadDistributionInChangesFile;
 pub(crate) use fields_empty::EmptyField;
 pub(crate) use fields_format::UnsupportedSourceFormat;
 pub(crate) use fields_maintainer_team::WrongTeam;

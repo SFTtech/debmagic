@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): udev-rule-missing-uaccess (LN1227) user accessible device missing TAG+="uaccess" [usr/lib/udev/rules.d/60-foo.rules:1]
+W: example (binary): udev-rule-missing-uaccess (LN1227) user accessible device missing TAG+="uaccess" [usr/lib/udev/rules.d/60-foo.rules:1]
+W: example (binary): udev-rule-missing-uaccess (LN1227) user accessible device missing TAG+="uaccess" [usr/lib/udev/rules.d/60-foo.rules:4]
+W: example (binary): udev-rule-missing-uaccess (LN1227) user accessible device missing TAG+="uaccess" [lib/udev/rules.d/60-foo.rules:1]
+W: example (udeb): udev-rule-missing-uaccess (LN1227) user accessible device missing TAG+="uaccess" [usr/lib/udev/rules.d/60-foo.rules:1]

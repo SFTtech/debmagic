@@ -368,6 +368,7 @@ pub(crate) use substvars_misc_pre_depends::DependsOnMiscPreDepends;
 pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;
 pub(crate) use udev::UdevRuleInEtc;
 pub(crate) use udev::UdevRuleMissingSubsystem;
+pub(crate) use udev::UdevRuleMissingUaccess;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): source-contains-editor-backup-file (LN1244) [foo~]
+W: example (source): source-contains-editor-backup-file (LN1244) [debian/foo~]
+W: example (source): source-contains-editor-backup-file (LN1244) [dir/a.swp]
+W: example (source): source-contains-editor-backup-file (LN1244) [notes~]

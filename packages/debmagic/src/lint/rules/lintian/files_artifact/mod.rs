@@ -21,6 +21,7 @@ mod ln0149_debian_adds_svn_conflict_file;
 mod ln0150_debian_adds_svn_control_dir;
 mod ln0151_debian_adds_quilt_control_dir;
 mod ln0926_no_debian_changes;
+mod ln1244_source_contains_editor_backup_file;
 #[cfg(test)]
 mod testing;
 
@@ -41,3 +42,4 @@ pub(crate) use ln0149_debian_adds_svn_conflict_file::DebianAddsSvnConflictFile;
 pub(crate) use ln0150_debian_adds_svn_control_dir::DebianAddsSvnControlDir;
 pub(crate) use ln0151_debian_adds_quilt_control_dir::DebianAddsQuiltControlDir;
 pub(crate) use ln0926_no_debian_changes::NoDebianChanges;
+pub(crate) use ln1244_source_contains_editor_backup_file::SourceContainsEditorBackupFile;

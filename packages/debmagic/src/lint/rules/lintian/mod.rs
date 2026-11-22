@@ -562,7 +562,7 @@ pub(crate) use files_artifact::{
     DebianAddsEditorBackupFile, DebianAddsGitControlDir, DebianAddsHgControlDir,
     DebianAddsHgTagsFile, DebianAddsPatchFailureFile, DebianAddsQuiltControlDir,
     DebianAddsSvkCommitFile, DebianAddsSvnCommitFile, DebianAddsSvnConflictFile,
-    DebianAddsSvnControlDir, NoDebianChanges,
+    DebianAddsSvnControlDir, NoDebianChanges, SourceContainsEditorBackupFile,
 };
 pub(crate) use files_build_path::DirOrFileInBuildTree;
 pub(crate) use files_config_scripts::{

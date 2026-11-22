@@ -87,6 +87,36 @@ pub(super) fn flag_added(ctx: &mut SourceContext<'_>, want: Artifact) {
     }
 }
 
+/// Native packages only (lintian's `source-contains-` prefix): every
+/// classified path in `files()`, with no orig subtraction and no quilt filter.
+/// Nothing is reported for a non-native package.
+pub(super) fn flag_native(ctx: &mut SourceContext<'_>, want: Artifact) {
+    if !super::super::fields_version::is_native(ctx) {
+        return;
+    }
+    let mut found: Vec<PathBuf> = match ctx.files() {
+        None => Vec::new(),
+        Some(patched) => patched
+            .entries()
+            .iter()
+            .filter(|entry| is_checked_kind(entry.kind()))
+            .filter_map(|entry| {
+                let name = entry.path().to_str()?;
+                let kind = entry.kind();
+                (classify(name, kind) == Some(want)).then(|| reported_path(name, kind))
+            })
+            .collect(),
+    };
+    found.sort();
+    for path in found {
+        ctx.diagnostic(Diagnostic::warn("").with_location(Location {
+            path,
+            line: None,
+            column: None,
+        }));
+    }
+}
+
 fn index_paths_debian_added(ctx: &mut SourceContext<'_>) -> AddedIndex {
     let empty_orig = match ctx.orig_files() {
         None => false,

@@ -8,6 +8,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
     process::{Command, ExitStatus, Stdio},
+    sync::OnceLock,
 };
 
 pub fn assets_dir() -> PathBuf {
@@ -331,52 +332,113 @@ pub fn catalogued_source_package_tags() -> HashSet<String> {
     catalogued_tags_with_impl(&["impl SourceRule for"])
 }
 
-fn catalogued_tags_with_impl(needles: &[&str]) -> HashSet<String> {
-    let mut tags = HashSet::new();
-    let rules_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/lint/rules/lintian");
-    fn walk(dir: &Path, needles: &[&str], tags: &mut HashSet<String>) {
-        let Ok(entries) = fs::read_dir(dir) else {
-            return;
-        };
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.is_dir() {
-                walk(&path, needles, tags);
-                continue;
-            }
-            if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
-                continue;
-            }
-            let Ok(text) = fs::read_to_string(&path) else {
-                continue;
+/// The Rule kinds `catalogued_tags_with_impl` can filter on.
+const RULE_IMPL_NEEDLES: &[&str] = &[
+    "impl SourceRule for",
+    "impl BinaryPackageRule for",
+    "impl ChangesRule for",
+    "impl BuildinfoRule for",
+    "impl GroupRule for",
+];
+
+/// One Rule source file of `src/lint/rules/lintian/`: which Rule kinds it
+/// implements and the Tags it declares.
+struct CataloguedRuleFile {
+    impls: Vec<&'static str>,
+    tags: Vec<String>,
+}
+
+/// The catalogue scan, done once per test process: it reads every Rule file
+/// under `src/lint/rules/lintian/`, and each test needs several views of it.
+fn catalogue_scan() -> &'static [CataloguedRuleFile] {
+    static SCAN: OnceLock<Vec<CataloguedRuleFile>> = OnceLock::new();
+    SCAN.get_or_init(|| {
+        fn walk(dir: &Path, files: &mut Vec<CataloguedRuleFile>) {
+            let Ok(entries) = fs::read_dir(dir) else {
+                return;
             };
-            if !needles.iter().any(|needle| text.contains(needle)) {
-                continue;
-            }
-            for line in text.lines() {
-                let line = line.trim();
-                let Some(rest) = line.strip_prefix("tag = \"") else {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    walk(&path, files);
+                    continue;
+                }
+                if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
+                    continue;
+                }
+                let Ok(text) = fs::read_to_string(&path) else {
                     continue;
                 };
-                let Some(tag) = rest.strip_suffix("\",") else {
+                let impls: Vec<&'static str> = RULE_IMPL_NEEDLES
+                    .iter()
+                    .copied()
+                    .filter(|needle| text.contains(needle))
+                    .collect();
+                if impls.is_empty() {
                     continue;
-                };
-                tags.insert(tag.to_string());
+                }
+                let tags = text
+                    .lines()
+                    .filter_map(|line| {
+                        line.trim()
+                            .strip_prefix("tag = \"")?
+                            .strip_suffix("\",")
+                            .map(str::to_string)
+                    })
+                    .collect();
+                files.push(CataloguedRuleFile { impls, tags });
             }
         }
+        let mut files = Vec::new();
+        walk(
+            &PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/lint/rules/lintian"),
+            &mut files,
+        );
+        files
+    })
+}
+
+fn catalogued_tags_with_impl(needles: &[&str]) -> HashSet<String> {
+    debug_assert!(
+        needles
+            .iter()
+            .all(|needle| RULE_IMPL_NEEDLES.contains(needle))
+    );
+    catalogue_scan()
+        .iter()
+        .filter(|file| file.impls.iter().any(|kind| needles.contains(kind)))
+        .flat_map(|file| file.tags.iter().cloned())
+        .collect()
+}
+
+/// A recipe's `eval/hints` or `eval/desc`, lossily decoded. A test reads the
+/// same file several times (expected hints, `debian-adds-` pointers, Tag
+/// prefixes), so the text is kept for the rest of the process.
+fn recipe_eval_text(path: &Path) -> Option<std::sync::Arc<str>> {
+    use std::{
+        collections::HashMap,
+        sync::{Arc, Mutex},
+    };
+    static TEXTS: OnceLock<Mutex<HashMap<PathBuf, Option<Arc<str>>>>> = OnceLock::new();
+    let texts = TEXTS.get_or_init(Default::default);
+    if let Some(text) = texts.lock().expect("eval text cache").get(path) {
+        return text.clone();
     }
-    walk(&rules_dir, needles, &mut tags);
-    tags
+    let text = fs::read(path)
+        .ok()
+        .map(|bytes| Arc::<str>::from(String::from_utf8_lossy(&bytes).as_ref()));
+    texts
+        .lock()
+        .expect("eval text cache")
+        .insert(path.to_path_buf(), text.clone());
+    text
 }
 
 fn load_hints(path: &Path) -> Vec<(String, ParityHint)> {
-    let Ok(bytes) = fs::read(path) else {
+    let Some(text) = recipe_eval_text(path) else {
         return Vec::new();
     };
-    String::from_utf8_lossy(&bytes)
-        .lines()
-        .filter_map(parse_universal_hint_line)
-        .collect()
+    text.lines().filter_map(parse_universal_hint_line).collect()
 }
 
 fn recipe_is_source_tree(recipe: &Path) -> bool {
@@ -563,12 +625,15 @@ fn expand_host_placeholders(extra: &str) -> String {
     if !extra.contains(PLACEHOLDER) {
         return extra.to_string();
     }
-    let output = Command::new("perl")
-        .args(["-MConfig", "-wE", "say substr($Config{vendorarch},1)"])
-        .output()
-        .expect("run perl to find the vendor architecture directory");
-    let vendorarch = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    extra.replace(PLACEHOLDER, &vendorarch)
+    static VENDORARCH: OnceLock<String> = OnceLock::new();
+    let vendorarch = VENDORARCH.get_or_init(|| {
+        let output = Command::new("perl")
+            .args(["-MConfig", "-wE", "say substr($Config{vendorarch},1)"])
+            .output()
+            .expect("run perl to find the vendor architecture directory");
+        String::from_utf8_lossy(&output.stdout).trim().to_string()
+    });
+    extra.replace(PLACEHOLDER, vendorarch)
 }
 
 /// Vendored recipes whose hints mention a catalogued Tag with Binary-package Applicability.
@@ -971,25 +1036,34 @@ fn skipped_recipe_reason(recipe_rel: &str) -> Option<&'static str> {
         .map(|(_, reason)| *reason)
 }
 
+/// `dpkg-architecture --query=DEB_HOST_ARCH`, asked once per test process.
+fn host_architecture() -> Option<&'static str> {
+    static HOST: OnceLock<Option<String>> = OnceLock::new();
+    HOST.get_or_init(|| {
+        Command::new("dpkg-architecture")
+            .arg("--query=DEB_HOST_ARCH")
+            .output()
+            .ok()
+            .filter(|output| output.status.success())
+            .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
+    })
+    .as_deref()
+}
+
 /// The recipe's `Test-Architectures` (`eval/desc`) when none of them is the
 /// host architecture, as lintian's own test runner skips such a recipe: a
 /// `.deb` for another architecture cannot be built here.
 fn unmet_test_architectures(recipe: &Path) -> Option<String> {
-    let desc = std::fs::read_to_string(recipe.join("eval/desc")).ok()?;
+    let desc = recipe_eval_text(&recipe.join("eval/desc"))?;
     let line = desc
         .lines()
         .find_map(|line| line.strip_prefix("Test-Architectures:"))?;
-    let host = Command::new("dpkg-architecture")
-        .arg("--query=DEB_HOST_ARCH")
-        .output()
-        .ok()
-        .filter(|output| output.status.success())
-        .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())?;
+    let host = host_architecture()?;
     // `any-amd64` and the like are architecture wildcards; `-i` matches one
     // against a host architecture.
     let matches = |pattern: &str| {
         Command::new("dpkg-architecture")
-            .args(["-a", &host, "-i", pattern])
+            .args(["-a", host, "-i", pattern])
             .status()
             .is_ok_and(|status| status.success())
     };
@@ -1178,7 +1252,7 @@ fn find_dsc(dir: &Path) -> PathBuf {
 /// Pointers from `debian-adds-*` hint lines. The location is still in the
 /// file; [`load_hints`] strips it.
 fn debian_adds_pointers(recipe: &Path) -> Vec<String> {
-    let Ok(text) = fs::read_to_string(recipe.join("eval/hints")) else {
+    let Some(text) = recipe_eval_text(&recipe.join("eval/hints")) else {
         return Vec::new();
     };
     let mut pointers = Vec::new();
@@ -1205,7 +1279,7 @@ fn debian_adds_pointers(recipe: &Path) -> Vec<String> {
 
 /// Whether the recipe's `eval/hints` expect a Tag starting with `prefix`.
 fn expects_tag_prefix(recipe: &Path, prefix: &str) -> bool {
-    let Ok(text) = fs::read_to_string(recipe.join("eval/hints")) else {
+    let Some(text) = recipe_eval_text(&recipe.join("eval/hints")) else {
         return false;
     };
     text.lines()

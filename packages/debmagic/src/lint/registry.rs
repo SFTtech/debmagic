@@ -517,6 +517,7 @@ use super::rules::UnknownPriority;
 use super::rules::UnknownTemplateType;
 use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
+use super::rules::UnnecessarySourceDateEpochAssignment;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnparsableMenuItem;
 use super::rules::UnsupportedSourceFormat;
@@ -2183,6 +2184,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &QuiltPatchUsesDpatchPlaceholder,
         &QuiltPatchUsingTemplateDescription,
         &DebianRulesContainsUnnecessaryGetOrigSourceTarget,
+        &UnnecessarySourceDateEpochAssignment,
     ]
 }
 
@@ -2588,6 +2590,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &QuiltPatchUsesDpatchPlaceholder,
         &QuiltPatchUsingTemplateDescription,
         &DebianRulesContainsUnnecessaryGetOrigSourceTarget,
+        &UnnecessarySourceDateEpochAssignment,
     ]
 }
 

@@ -567,7 +567,7 @@ pub(crate) use debian_rules::{
     DebianRulesUsesWrongEnvironmentVariable, DebugSymbolMigrationPossiblyComplete,
     MissingBuildDependsForCleanTargetInDebianRules, NoDhSequencer,
     OverrideDhCleanDoesNotCallDhClean, OverrideDhFixpermsDoesNotCallDhFixperms,
-    RulesRequireBuildPrerequisite,
+    RulesRequireBuildPrerequisite, UnnecessarySourceDateEpochAssignment,
 };
 pub(crate) use debian_shlibs::{
     DistantPrerequisiteInShlibs, DuplicateEntryInSymbolsControlFile, DuplicateInShlibs,

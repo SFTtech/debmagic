@@ -518,6 +518,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/deb-format/deb-format-extra-member",
     "checks/deb-format/deb-format-extra-underscore-member-before-control",
     "checks/deb-format/deb-format-extra-underscore-member-before-data",
+    "checks/deb-format/deb-format-lzma",
+    "checks/deb-format/deb-format-malformed",
     "checks/deb-format/deb-format-no-compress",
     "checks/deb-format/deb-format-udeb-compression",
     "checks/debian/changelog/changelog-file-dch-wrong-name",
@@ -2056,6 +2058,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/deb-format/deb-format-extra-member"; "checks_deb_format_deb_format_extra_member")]
 #[test_case("checks/deb-format/deb-format-extra-underscore-member-before-control"; "checks_deb_format_deb_format_extra_underscore_member_before_control")]
 #[test_case("checks/deb-format/deb-format-extra-underscore-member-before-data"; "checks_deb_format_deb_format_extra_underscore_member_before_data")]
+#[test_case("checks/deb-format/deb-format-lzma"; "checks_deb_format_deb_format_lzma")]
+#[test_case("checks/deb-format/deb-format-malformed"; "checks_deb_format_deb_format_malformed")]
 #[test_case("checks/deb-format/deb-format-no-compress"; "checks_deb_format_deb_format_no_compress")]
 #[test_case("checks/deb-format/deb-format-udeb-compression"; "checks_deb_format_deb_format_udeb_compression")]
 #[test_case("checks/debian/changelog/changelog-file-dch-wrong-name"; "checks_debian_changelog_changelog_file_dch_wrong_name")]

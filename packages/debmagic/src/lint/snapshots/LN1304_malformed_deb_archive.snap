@@ -1,0 +1,17 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): malformed-deb-archive (LN1304) found only 2 members instead of 3
+E: example (binary): malformed-deb-archive (LN1304) Missing control.tar member
+E: example (binary): malformed-deb-archive (LN1304) Missing data.tar member
+E: example (binary): malformed-deb-archive (LN1304) found only 2 members instead of 3
+E: example (binary): malformed-deb-archive (LN1304) Missing control.tar member
+E: example (binary): malformed-deb-archive (LN1304) Missing data.tar member
+E: example (binary): malformed-deb-archive (LN1304) first member control.tar.xz not debian-binary
+E: example (binary): malformed-deb-archive (LN1304) Missing control.tar member
+E: example (binary): malformed-deb-archive (LN1304) Missing data.tar member
+E: example (binary): malformed-deb-archive (LN1304) third (official) member data.tar.lzma not data.tar.(gz|xz|bz2)
+E: example (binary): malformed-deb-archive (LN1304) second (official) member control.tar.zst not control.tar.(gz|xz)
+E: example (binary): malformed-deb-archive (LN1304) second (official) member control.tar.bz2 not control.tar.(gz|xz)
+E: example (binary): malformed-deb-archive (LN1304) third (official) member data.tar.Z not data.tar.(gz|xz|bz2)
+E: example (binary): malformed-deb-archive (LN1304) Missing data.tar member

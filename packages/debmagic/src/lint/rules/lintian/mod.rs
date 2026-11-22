@@ -559,7 +559,7 @@ pub(crate) use fields_text::{
     MissingSeparatorBetweenItems, NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional,
     RecommendedField, RedundantBugsField, RedundantOriginField, SectionIsDhMakeTemplate,
     SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional, UnknownEssentialValue,
-    UnknownPriority, UnknownSection, WrongSectionForUdeb,
+    UnknownPriority, UnknownSection, WrongSectionAccordingToPackageName, WrongSectionForUdeb,
 };
 pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
 pub(crate) use fields_uploaders::UploaderNameMissing;

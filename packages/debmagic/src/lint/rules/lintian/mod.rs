@@ -527,6 +527,7 @@ pub(crate) use debian_copyright::{
 pub(crate) use fields_version::{
     BadVersionNumber, BinaryNmuDebianRevisionInSource, DebianRevisionIsZero,
     DebianRevisionNotWellFormed, DfsgVersionInNativePackage, DfsgVersionMisspelled,
+    DfsgVersionWithTilde,
 };
 
 pub(crate) use debian_debconf::{

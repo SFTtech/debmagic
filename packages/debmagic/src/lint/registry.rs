@@ -428,6 +428,7 @@ use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VcsBrowserLinksToEmptyView;
 use super::rules::VcsFieldHasUnexpectedSpaces;
+use super::rules::VcsFieldNotCanonical;
 use super::rules::VcsFieldUsesUnknownUriFormat;
 use super::rules::VcsGitUsesInvalidUserUri;
 use super::rules::VersionRefersToDistribution;
@@ -1957,6 +1958,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WrongSectionAccordingToPackageName,
         &OutOfDateStandardsVersion,
         &CuteField,
+        &VcsFieldNotCanonical,
     ]
 }
 
@@ -2322,6 +2324,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &HomepageFieldUsesInsecureUri,
         &OutOfDateStandardsVersion,
         &CuteField,
+        &VcsFieldNotCanonical,
     ]
 }
 

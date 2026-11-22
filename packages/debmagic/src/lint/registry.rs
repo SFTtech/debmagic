@@ -114,6 +114,7 @@ use super::rules::DebianRulesUsesSpecialShellVariable;
 use super::rules::DebianRulesUsesUnnecessaryDhArgument;
 use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
+use super::rules::DebianWatchContainsDhMakeTemplate;
 use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
 use super::rules::DebianWatchUsesInsecureUri;
 use super::rules::DebugFileWithNoDebugSymbols;
@@ -2185,6 +2186,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &QuiltPatchUsingTemplateDescription,
         &DebianRulesContainsUnnecessaryGetOrigSourceTarget,
         &UnnecessarySourceDateEpochAssignment,
+        &DebianWatchContainsDhMakeTemplate,
     ]
 }
 
@@ -2591,6 +2593,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &QuiltPatchUsingTemplateDescription,
         &DebianRulesContainsUnnecessaryGetOrigSourceTarget,
         &UnnecessarySourceDateEpochAssignment,
+        &DebianWatchContainsDhMakeTemplate,
     ]
 }
 

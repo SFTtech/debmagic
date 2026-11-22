@@ -1,8 +1,8 @@
 ---
 source: packages/debmagic/src/lint/tester.rs
 ---
-W: example (binary): binary-has-unneeded-section (LN1290) .comment [usr/bin/hello]
-W: example (binary): binary-has-unneeded-section (LN1290) .note [usr/lib/libhello.so.0]
-W: example (binary): binary-has-unneeded-section (LN1290) .comment [usr/lib/libhello.so.0]
-W: example (binary): binary-has-unneeded-section (LN1290) .comment [usr/bin/hello-link]
-W: example (udeb): binary-has-unneeded-section (LN1290) .comment [usr/bin/hello]
+I: example (binary): binary-has-unneeded-section (LN1290) .comment [usr/bin/hello]
+I: example (binary): binary-has-unneeded-section (LN1290) .note [usr/lib/libhello.so.0]
+I: example (binary): binary-has-unneeded-section (LN1290) .comment [usr/lib/libhello.so.0]
+I: example (binary): binary-has-unneeded-section (LN1290) .comment [usr/bin/hello-link]
+I: example (udeb): binary-has-unneeded-section (LN1290) .comment [usr/bin/hello]

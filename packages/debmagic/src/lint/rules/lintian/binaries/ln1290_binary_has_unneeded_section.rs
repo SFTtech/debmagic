@@ -4,7 +4,7 @@ use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::elf::ElfFiles;
-use crate::lint::rule::BinaryPackageRule;
+use crate::lint::rule::{BinaryPackageRule, Severity};
 
 pub struct BinaryHasUnneededSection;
 
@@ -36,11 +36,15 @@ impl BinaryPackageRule for BinaryHasUnneededSection {
             return;
         };
         for (path, extra) in unneeded_sections(&elf_files) {
-            ctx.diagnostic(Diagnostic::warn(extra).with_location(Location {
-                path,
-                line: None,
-                column: None,
-            }));
+            ctx.diagnostic(
+                Diagnostic::warn(extra)
+                    .with_severity(Severity::Info)
+                    .with_location(Location {
+                        path,
+                        line: None,
+                        column: None,
+                    }),
+            );
         }
     }
 }

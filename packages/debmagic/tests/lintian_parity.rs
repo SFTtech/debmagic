@@ -302,6 +302,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-malformed-vcs-fields",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
+    "checks/fields/vcs/fields-uncanonical-salsa-vcs-fields",
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
     "checks/fields/vcs/fields-vcs-field-mismatch",
     "checks/fields/vcs/fields-vcs-fields",
@@ -1208,6 +1209,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-malformed-vcs-fields",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
+    "checks/fields/vcs/fields-uncanonical-salsa-vcs-fields",
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
     "checks/fields/vcs/fields-vcs-field-mismatch",
     "checks/fields/vcs/fields-vcs-fields",
@@ -1625,6 +1627,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
+#[test_case("checks/fields/vcs/fields-uncanonical-salsa-vcs-fields"; "checks_fields_vcs_fields_uncanonical_salsa_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-field-mismatch"; "checks_fields_vcs_fields_vcs_field_mismatch")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
@@ -2533,6 +2536,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
+#[test_case("checks/fields/vcs/fields-uncanonical-salsa-vcs-fields"; "checks_fields_vcs_fields_uncanonical_salsa_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-field-mismatch"; "checks_fields_vcs_fields_vcs_field_mismatch")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]

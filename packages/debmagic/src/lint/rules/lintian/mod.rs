@@ -308,6 +308,7 @@ pub(crate) use desktop::{
 pub(crate) use desktop_gir::GirInArchAllPackage;
 pub(crate) use desktop_gir::GirPackageNameDoesNotMatch;
 pub(crate) use desktop_gir::GirSectionNotLibdevel;
+pub(crate) use desktop_gir::TypelibInArchAllPackage;
 pub(crate) use desktop_gir::TypelibMissingGirDepends;
 pub(crate) use desktop_gir::TypelibNotInMultiarchDirectory;
 pub(crate) use desktop_gir::TypelibPackageNameDoesNotMatch;

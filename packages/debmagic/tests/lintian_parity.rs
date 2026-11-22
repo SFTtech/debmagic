@@ -225,6 +225,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-template",
     "checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants",
     "checks/debug/automatic/control-file-general",
+    "checks/debug/obsolete/changes-files-package-builds-dbg-and-dbgsym-variants",
+    "checks/debug/obsolete/control-file-general",
+    "checks/debug/obsolete/fields-general",
+    "checks/debug/obsolete/legacy-libbaz",
     "checks/desktop/gnome/gir/gir",
     "checks/desktop/gnome/gir/typelib-missing-gir-depends",
     "checks/dh-make/cruft-readme-source",
@@ -1105,6 +1109,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-template",
     "checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants",
     "checks/debug/automatic/control-file-general",
+    "checks/debug/obsolete/changes-files-package-builds-dbg-and-dbgsym-variants",
+    "checks/debug/obsolete/control-file-general",
+    "checks/debug/obsolete/fields-general",
+    "checks/debug/obsolete/legacy-libbaz",
     "checks/desktop/gnome/gir/gir",
     "checks/desktop/gnome/gir/typelib-missing-gir-depends",
     "checks/dh-make/cruft-readme-source",
@@ -1506,6 +1514,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/watch/watch-file-template"; "checks_debian_watch_watch_file_template")]
 #[test_case("checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_automatic_changes_files_package_builds_dbg_and_dbgsym_variants")]
 #[test_case("checks/debug/automatic/control-file-general"; "checks_debug_automatic_control_file_general")]
+#[test_case("checks/debug/obsolete/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_obsolete_changes_files_package_builds_dbg_and_dbgsym_variants")]
+#[test_case("checks/debug/obsolete/control-file-general"; "checks_debug_obsolete_control_file_general")]
+#[test_case("checks/debug/obsolete/fields-general"; "checks_debug_obsolete_fields_general")]
+#[test_case("checks/debug/obsolete/legacy-libbaz"; "checks_debug_obsolete_legacy_libbaz")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/desktop/gnome/gir/typelib-missing-gir-depends"; "checks_desktop_gnome_gir_typelib_missing_gir_depends")]
 #[test_case("checks/dh-make/cruft-readme-source"; "checks_dh_make_cruft_readme_source")]
@@ -2388,6 +2400,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/watch/watch-file-template"; "checks_debian_watch_watch_file_template")]
 #[test_case("checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_automatic_changes_files_package_builds_dbg_and_dbgsym_variants")]
 #[test_case("checks/debug/automatic/control-file-general"; "checks_debug_automatic_control_file_general")]
+#[test_case("checks/debug/obsolete/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_obsolete_changes_files_package_builds_dbg_and_dbgsym_variants")]
+#[test_case("checks/debug/obsolete/control-file-general"; "checks_debug_obsolete_control_file_general")]
+#[test_case("checks/debug/obsolete/fields-general"; "checks_debug_obsolete_fields_general")]
+#[test_case("checks/debug/obsolete/legacy-libbaz"; "checks_debug_obsolete_legacy_libbaz")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/desktop/gnome/gir/typelib-missing-gir-depends"; "checks_desktop_gnome_gir_typelib_missing_gir_depends")]
 #[test_case("checks/dh-make/cruft-readme-source"; "checks_dh_make_cruft_readme_source")]

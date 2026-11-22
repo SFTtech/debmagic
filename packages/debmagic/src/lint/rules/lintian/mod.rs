@@ -46,6 +46,7 @@ mod debian_upstream;
 mod debian_variables;
 mod debian_version_substvars;
 mod debian_watch;
+mod debug_obsolete;
 mod description;
 mod desktop;
 mod desktop_gir;
@@ -295,6 +296,7 @@ pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
 pub(crate) use debian_upstream::DebianUpstreamObsoletePath;
 pub(crate) use debian_upstream::UpstreamMetadataInNativeSource;
 pub(crate) use debian_upstream::UpstreamMetadataIsNotAFile;
+pub(crate) use debug_obsolete::DebianControlHasObsoleteDbgPackage;
 pub(crate) use desktop::{
     DbusPolicyAtConsole, DbusPolicyExcessivelyBroad, DbusPolicyInEtc,
     DbusPolicyWithoutSendDestination, DbusSystemServiceWrongName, DesktopFileInWrongDir,

@@ -862,6 +862,7 @@ pub(crate) use rules_and_control::{
     ExecutableDebhelperFileWithoutBeingExecutable, PackageFileIsExecutable,
     PackageUsesDebhelperButLacksBuildDepends, PackageUsesDhExecButLacksBuildDepends,
     Python3DependsButNoPython3Helper, TemporaryDebhelperFile, UselessAutoreconfBuildDepends,
+    WeakDependencyOnMiscDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

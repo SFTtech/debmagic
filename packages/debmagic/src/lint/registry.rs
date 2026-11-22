@@ -421,6 +421,7 @@ use super::rules::VersionRefersToUnstableDistributionWithExpVersion;
 use super::rules::VersionSubstvarForExternalPackage;
 use super::rules::VimAddonWithinVimRuntimePath;
 use super::rules::WaywardSymbolicLinkTargetInSource;
+use super::rules::WeakDependencyOnMiscDepends;
 use super::rules::WeakLibraryDevDependency;
 use super::rules::WebApplicationDependsOnApache2DataPackage;
 use super::rules::WebApplicationWorksOnlyWithApache;
@@ -1925,6 +1926,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
         &Python3DependsButNoPython3Helper,
+        &WeakDependencyOnMiscDepends,
     ]
 }
 
@@ -2283,6 +2285,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &TrailingCommaInMaintainerField,
         &MultilineField,
         &Python3DependsButNoPython3Helper,
+        &WeakDependencyOnMiscDepends,
     ]
 }
 

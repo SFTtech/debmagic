@@ -20,6 +20,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/build-systems/cmake/cruft-general-quilt",
     "checks/build-systems/cmake/cruft-general-wig-pen",
     "checks/build-systems/waf/cruft-contains-waf",
+    "checks/cruft/cruft-cc-by-nc-sa",
     "checks/cruft/cruft-general-upstream",
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
@@ -881,6 +882,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/build-systems/cmake/cruft-general-quilt",
     "checks/build-systems/cmake/cruft-general-wig-pen",
     "checks/build-systems/waf/cruft-contains-waf",
+    "checks/cruft/cruft-cc-by-nc-sa",
     "checks/cruft/cruft-general-upstream",
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
@@ -1266,6 +1268,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/build-systems/cmake/cruft-general-quilt"; "checks_build_systems_cmake_cruft_general_quilt")]
 #[test_case("checks/build-systems/cmake/cruft-general-wig-pen"; "checks_build_systems_cmake_cruft_general_wig_pen")]
 #[test_case("checks/build-systems/waf/cruft-contains-waf"; "checks_build_systems_waf_cruft_contains_waf")]
+#[test_case("checks/cruft/cruft-cc-by-nc-sa"; "checks_cruft_cruft_cc_by_nc_sa")]
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
@@ -2129,6 +2132,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/build-systems/cmake/cruft-general-quilt"; "checks_build_systems_cmake_cruft_general_quilt")]
 #[test_case("checks/build-systems/cmake/cruft-general-wig-pen"; "checks_build_systems_cmake_cruft_general_wig_pen")]
 #[test_case("checks/build-systems/waf/cruft-contains-waf"; "checks_build_systems_waf_cruft_contains_waf")]
+#[test_case("checks/cruft/cruft-cc-by-nc-sa"; "checks_cruft_cruft_cc_by_nc_sa")]
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]

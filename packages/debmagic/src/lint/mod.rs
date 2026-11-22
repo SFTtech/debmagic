@@ -19,6 +19,7 @@ mod installation_control;
 mod intent;
 mod interpreter;
 mod jar;
+mod license_text;
 mod lintian_overrides;
 mod lintian_tags;
 mod maintainer_script;

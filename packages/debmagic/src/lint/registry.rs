@@ -215,6 +215,7 @@ use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::IntraSourcePackageCircularDependency;
 use super::rules::InvalidDep3FormatPatchNoDescriptionAndSubject;
+use super::rules::InvalidDep3FormatPatchNoOrigin;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidProfileNameInBuildProfilesField;
@@ -2193,6 +2194,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DuplicateShortDescription,
         &Dep3FormatPatchAuthorOrFromIsBetter,
         &InvalidDep3FormatPatchNoDescriptionAndSubject,
+        &InvalidDep3FormatPatchNoOrigin,
     ]
 }
 
@@ -2601,6 +2603,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DuplicateShortDescription,
         &Dep3FormatPatchAuthorOrFromIsBetter,
         &InvalidDep3FormatPatchNoDescriptionAndSubject,
+        &InvalidDep3FormatPatchNoOrigin,
     ]
 }
 

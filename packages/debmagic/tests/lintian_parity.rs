@@ -169,6 +169,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/dep3/bug-not-contain-url",
     "checks/debian/patches/dep3/maybe-bug-debian",
     "checks/debian/patches/dep3/no-description-and-subject",
+    "checks/debian/patches/dep3/no-origin",
     "checks/debian/patches/dep3/origin-field-default-value",
     "checks/debian/patches/legacy-relations",
     "checks/debian/patches/patch-systems-no-readme-source",
@@ -1246,6 +1247,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/dep3/bug-not-contain-url",
     "checks/debian/patches/dep3/maybe-bug-debian",
     "checks/debian/patches/dep3/no-description-and-subject",
+    "checks/debian/patches/dep3/no-origin",
     "checks/debian/patches/dep3/origin-field-default-value",
     "checks/debian/patches/legacy-relations",
     "checks/debian/patches/patch-systems-no-readme-source",
@@ -1757,6 +1759,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
 #[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
 #[test_case("checks/debian/patches/dep3/no-description-and-subject"; "checks_debian_patches_dep3_no_description_and_subject")]
+#[test_case("checks/debian/patches/dep3/no-origin"; "checks_debian_patches_dep3_no_origin")]
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
@@ -2836,6 +2839,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
 #[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
 #[test_case("checks/debian/patches/dep3/no-description-and-subject"; "checks_debian_patches_dep3_no_description_and_subject")]
+#[test_case("checks/debian/patches/dep3/no-origin"; "checks_debian_patches_dep3_no_origin")]
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]

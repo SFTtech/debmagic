@@ -136,6 +136,7 @@ use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
 use super::rules::DhExecScriptWithoutDhExecFeatures;
 use super::rules::DhExecSubstUnknownVariable;
+use super::rules::DhExecUselessUsage;
 use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhMakeTemplateInSource;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
@@ -2177,6 +2178,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DeprecatedConfigureFilename,
         &LicenseProblemGfdlInvariantsEmpty,
         &DhExecSubstUnknownVariable,
+        &DhExecUselessUsage,
     ]
 }
 
@@ -2579,6 +2581,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DeprecatedConfigureFilename,
         &LicenseProblemGfdlInvariantsEmpty,
         &DhExecSubstUnknownVariable,
+        &DhExecUselessUsage,
     ]
 }
 

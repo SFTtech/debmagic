@@ -41,6 +41,13 @@ static SCRIPT_NAME: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(?:.*\.)?(?:post|pre)(?:inst|rm)$").expect("valid regex"));
 static SUBSTITUTION: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\$\{([^}]+)\}").expect("valid regex"));
+static USR_LIB_ONE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^usr/lib/\$\{([^}]+)\}/?$").expect("valid regex"));
+static USR_LIB_TWO: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^usr/lib/\$\{([^}]+)\}/?\s+/usr/lib/\$\{([^}]+)\}/?$").expect("valid regex")
+});
+static USR_LIB_OTHER: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^usr/lib/\$\{([^}]+)\}\S+$").expect("valid regex"));
 /// The variables dh-exec substitutes without the package exporting them.
 static KNOWN_SUBSTITUTION: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
@@ -66,6 +73,10 @@ pub(super) struct DhExecScript {
     pub(super) unknown_variables: Vec<(u32, String)>,
     pub(super) install: bool,
     pub(super) filter: bool,
+    /// lintian's `$dhe_needed` after the last line: the script uses a
+    /// dh-exec feature (a rename, a filter, or a `usr/lib` variable that is
+    /// not a plain wildcard).
+    pub(super) needed: bool,
 }
 
 /// Every dh-exec script, in path order. Empty when `debian/rules` shows no dh
@@ -116,8 +127,11 @@ pub(super) fn dh_exec_scripts(ctx: &mut SourceContext<'_>) -> Vec<DhExecScript> 
             unknown_variables: Vec::new(),
             install: false,
             filter: false,
+            needed: false,
         };
-        for (index, line) in text.split('\n').enumerate() {
+        // Perl's `<$fd>` reads no empty line after the final newline.
+        let body = text.strip_suffix('\n').unwrap_or(&text);
+        for (index, line) in body.split('\n').enumerate() {
             if let Some(captures) = SUBSTITUTION.captures(line) {
                 script.substitution = level < DEBHELPER_DEB_SUBST_LEVEL;
                 let name = &captures[1];
@@ -133,10 +147,37 @@ pub(super) fn dh_exec_scripts(ctx: &mut SourceContext<'_>) -> Vec<DhExecScript> 
             if BRACKET_FILTER.is_match(line) || ANGLE_FILTER.is_match(line) {
                 script.filter = true;
             }
+            // lintian's `$dhe_needed`: reset on every line to the features seen
+            // so far, then set again by a `usr/lib/${...}` line that is not a
+            // plain wildcard (compat below 13 only).
+            script.needed = script.install || script.filter;
+            if level < DEBHELPER_DEB_SUBST_LEVEL
+                && let Some((sv, dv)) = usr_lib_substitution(line)
+                && KNOWN_SUBSTITUTION.is_match(sv)
+            {
+                script.needed |= !dv.is_none_or(|dv| sv == dv);
+            }
         }
         scripts.push(script);
     }
     scripts
+}
+
+/// The variables of a `usr/lib/${sv}` line (first variable, and the second
+/// one of `usr/lib/${sv} /usr/lib/${dv}` when there is one), as lintian's
+/// useless-usage check reads them.
+fn usr_lib_substitution(line: &str) -> Option<(&str, Option<&str>)> {
+    if let Some(captures) = USR_LIB_ONE.captures(line) {
+        return Some((captures.get(1)?.as_str(), None));
+    }
+    if let Some(captures) = USR_LIB_TWO.captures(line) {
+        return Some((
+            captures.get(1)?.as_str(),
+            captures.get(2).map(|dv| dv.as_str()),
+        ));
+    }
+    let captures = USR_LIB_OTHER.captures(line)?;
+    Some((captures.get(1)?.as_str(), None))
 }
 
 /// Perl `s/^.+\.//`: the text after the last dot when something precedes it.

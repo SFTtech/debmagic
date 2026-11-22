@@ -171,6 +171,7 @@ use super::rules::FSSTNDDirInManualPage;
 use super::rules::FileContainsFixmePlaceholder;
 use super::rules::FileInEtcModprobeD;
 use super::rules::FileIncludedAlready;
+use super::rules::FileSizeMismatchInChangesFile;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
 use super::rules::FontInNonFontPackage;
@@ -240,6 +241,7 @@ use super::rules::MaintainerScriptSupportsAncientPackageVersion;
 use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
 use super::rules::MaintainerScriptWithoutSetE;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
+use super::rules::MalformedChangesFile;
 use super::rules::MalformedDebArchive;
 use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
@@ -280,6 +282,7 @@ use super::rules::MultiArchSamePackageCallsPycompile;
 use super::rules::MultiArchSamePackageHasArchSpecificOverrides;
 use super::rules::MultilineArchitectureField;
 use super::rules::MultilineField;
+use super::rules::MultipleDistributionsInChangesFile;
 use super::rules::NativeSourceFileWithoutUtf8Name;
 use super::rules::NeedlessDependencyOnJre;
 use super::rules::NewPackageShouldNotPackagePython2Module;
@@ -289,6 +292,7 @@ use super::rules::NoCodeSections;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
 use super::rules::NoMd5sumsControlFile;
+use super::rules::NoPhrase;
 use super::rules::NoShlibs;
 use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoTemplateName;
@@ -318,6 +322,7 @@ use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
+use super::rules::PackageBuildsDbgAndDbgsymVariants;
 use super::rules::PackageContainsAncientFile;
 use super::rules::PackageContainsCmakePrivateFile;
 use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
@@ -513,10 +518,12 @@ use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnparsableMenuItem;
+use super::rules::UnreleasedChanges;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
+use super::rules::UploadHasBackportsVersionNumber;
 use super::rules::UploaderNameMissing;
 use super::rules::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::UpstreamMetadataInNativeSource;
@@ -2171,6 +2178,13 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &FileSizeMismatchInChangesFile,
+        &MalformedChangesFile,
+        &MultipleDistributionsInChangesFile,
+        &NoPhrase,
+        &PackageBuildsDbgAndDbgsymVariants,
+        &UnreleasedChanges,
+        &UploadHasBackportsVersionNumber,
     ]
 }
 
@@ -3426,7 +3440,17 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
 }
 
 pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
-    &[&BadSectionInChangesFile, &DebianRevisionNotWellFormed]
+    &[
+        &BadSectionInChangesFile,
+        &DebianRevisionNotWellFormed,
+        &FileSizeMismatchInChangesFile,
+        &MalformedChangesFile,
+        &MultipleDistributionsInChangesFile,
+        &NoPhrase,
+        &PackageBuildsDbgAndDbgsymVariants,
+        &UnreleasedChanges,
+        &UploadHasBackportsVersionNumber,
+    ]
 }
 
 pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {

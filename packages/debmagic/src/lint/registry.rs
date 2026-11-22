@@ -186,6 +186,7 @@ use super::rules::IllegalMultiArchValue;
 use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
 use super::rules::IncompatibleJavaBytecodeFormat;
+use super::rules::InconsistentAppstreamMetadataLicense;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
@@ -2133,6 +2134,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AppstreamMetadataLegacyFormat,
         &AppstreamMetadataMalformedModaliasProvide,
         &AppstreamMetadataMissingModaliasProvide,
+        &InconsistentAppstreamMetadataLicense,
     ]
 }
 
@@ -2527,6 +2529,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MissingPrerequisiteForPyprojectBackend,
         &UsesDeprecatedPythonStdlib,
         &RustBoilerplate,
+        &InconsistentAppstreamMetadataLicense,
     ]
 }
 

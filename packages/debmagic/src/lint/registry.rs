@@ -3,6 +3,7 @@ use super::rule::{
 };
 use super::rules::AcuteAccentInManualPage;
 use super::rules::AddComponentCopyright;
+use super::rules::AdoptedExtendedField;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
 use super::rules::Apache2DeprecatedAuthConfig;
@@ -81,6 +82,7 @@ use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
 use super::rules::DebianChangelogLineTooShort;
 use super::rules::DebianControlFileIsASymlink;
+use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
@@ -188,6 +190,7 @@ use super::rules::InitDScriptDoesNotImplementStatusOption;
 use super::rules::InitDScriptUsesUsrInterpreter;
 use super::rules::InitScriptIsNotAFile;
 use super::rules::InsecureCopyrightFormatUri;
+use super::rules::InstallableFieldMirrorsSource;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::IntraSourcePackageCircularDependency;
@@ -389,6 +392,7 @@ use super::rules::ReadmeSourceIsDhMakeTemplate;
 use super::rules::RedundantBuildPrerequisites;
 use super::rules::RedundantControlRelation;
 use super::rules::RedundantInstallationPrerequisite;
+use super::rules::RedundantPriorityOptionalField;
 use super::rules::RelativeConffile;
 use super::rules::RenamedTag;
 use super::rules::RepeatedTriggerName;
@@ -2123,6 +2127,10 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &AdoptedExtendedField,
+        &DebianControlHasEmptyField,
+        &RedundantPriorityOptionalField,
+        &InstallableFieldMirrorsSource,
     ]
 }
 
@@ -2517,6 +2525,10 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MissingPrerequisiteForPyprojectBackend,
         &UsesDeprecatedPythonStdlib,
         &RustBoilerplate,
+        &AdoptedExtendedField,
+        &DebianControlHasEmptyField,
+        &RedundantPriorityOptionalField,
+        &InstallableFieldMirrorsSource,
     ]
 }
 

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): redundant-priority-optional-field (LN1314) [debian/control:4]

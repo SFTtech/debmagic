@@ -2,6 +2,7 @@ use std::path::Path;
 
 use std::sync::LazyLock;
 
+use deb822_lossless::Entry;
 use debian_control::lossless::Control;
 use regex::Regex;
 
@@ -42,6 +43,9 @@ pub struct ControlParagraph {
     /// Values as lintian's `untrimmed_value` reads them (continuation lines
     /// keep their indentation). Empty for paragraphs built from plain values.
     untrimmed: Vec<(String, String)>,
+    /// 1-based line of each field name in the file, parallel to `fields`.
+    /// `None` for paragraphs built from plain values.
+    lines: Vec<Option<u32>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -84,20 +88,14 @@ impl DebianControl {
         let source = paragraphs
             .next()
             .map(|paragraph| {
-                ControlParagraph::from_entries(
-                    paragraph
-                        .entries()
-                        .filter_map(|entry| Some((entry.key()?, entry.value(), entry.to_string()))),
-                )
+                ControlParagraph::from_entries(paragraph.entries().filter_map(located_entry))
             })
             .unwrap_or_default();
 
         let installables = paragraphs
             .filter_map(|paragraph| {
                 let fields =
-                    ControlParagraph::from_entries(paragraph.entries().filter_map(|entry| {
-                        Some((entry.key()?, entry.value(), entry.to_string()))
-                    }));
+                    ControlParagraph::from_entries(paragraph.entries().filter_map(located_entry));
                 let name = fields.get("Package")?;
                 if !is_installable_package_name(name) {
                     return None;
@@ -129,24 +127,45 @@ impl DebianControl {
 impl ControlParagraph {
     #[cfg(test)]
     pub(crate) fn from_items(items: impl IntoIterator<Item = (String, String)>) -> Self {
+        let fields: Vec<(String, String)> = items.into_iter().collect();
+        let lines = vec![None; fields.len()];
         Self {
-            fields: items.into_iter().collect(),
+            fields,
             untrimmed: Vec::new(),
+            lines,
         }
     }
 
-    /// From `(name, value, entry text)`; the entry text is the field as
+    /// From `(name, value, entry text, line)`; the entry text is the field as
     /// written, which is where the indentation of continuation lines lives.
+    /// `line` is the 1-based line of the field name in the file.
     pub(crate) fn from_entries(
-        entries: impl IntoIterator<Item = (String, String, String)>,
+        entries: impl IntoIterator<Item = (String, String, String, Option<u32>)>,
     ) -> Self {
         let mut fields = Vec::new();
         let mut untrimmed = Vec::new();
-        for (name, value, text) in entries {
+        let mut lines = Vec::new();
+        for (name, value, text, line) in entries {
             untrimmed.push((name.clone(), untrimmed_from_text(&text)));
             fields.push((name, value));
+            lines.push(line);
         }
-        Self { fields, untrimmed }
+        Self {
+            fields,
+            untrimmed,
+            lines,
+        }
+    }
+
+    /// The 1-based line in `debian/control` where the field's name is written
+    /// (the first one when a name repeats). `None` for paragraphs built from
+    /// plain values.
+    pub fn position(&self, name: &str) -> Option<u32> {
+        let index = self
+            .fields
+            .iter()
+            .position(|(key, _)| key.eq_ignore_ascii_case(name))?;
+        self.lines.get(index).copied().flatten()
     }
 
     /// The first Deb822 paragraph of a file that may carry a PGP signature
@@ -162,9 +181,9 @@ impl ControlParagraph {
         let Some(first) = control.as_deb822().paragraphs().next() else {
             anyhow::bail!("{what} has no Deb822 paragraph");
         };
-        Ok(Self::from_entries(first.entries().filter_map(|entry| {
-            Some((entry.key()?, entry.value(), entry.to_string()))
-        })))
+        Ok(Self::from_entries(
+            first.entries().filter_map(located_entry),
+        ))
     }
 
     /// The value with continuation lines as written (a leading space and all),
@@ -246,6 +265,12 @@ impl Installable {
     pub fn fields(&self) -> &ControlParagraph {
         &self.fields
     }
+}
+
+/// `(name, value, entry text, line)` for [`ControlParagraph::from_entries`].
+pub(crate) fn located_entry(entry: Entry) -> Option<(String, String, String, Option<u32>)> {
+    let line = u32::try_from(entry.line()).ok()?.checked_add(1);
+    Some((entry.key()?, entry.value(), entry.to_string(), line))
 }
 
 fn installable_package_type(fields: &ControlParagraph) -> InstallablePackageType {
@@ -364,5 +389,33 @@ mod tests {
         let parsed = DebianControl::parse(text).expect("parse");
         assert_eq!(parsed.source().get("Source"), Some("example"));
         assert_eq!(parsed.installables().len(), 1);
+    }
+
+    #[test]
+    fn position_is_the_line_of_each_field_name() {
+        let text = "Source: example\n\
+             Maintainer: Example <ex@example.com>\n\
+             Vcs-Git: https://example.org/repo.git\n\
+             \n\
+             # comment before the stanza\n\
+             Package: example\n\
+             Architecture: all\n\
+             Description: example\n extra\n\
+             Priority: optional\n";
+        let parsed = DebianControl::parse(text).expect("parse");
+        assert_eq!(parsed.source().position("Source"), Some(1));
+        assert_eq!(parsed.source().position("vcs-git"), Some(3));
+        assert_eq!(parsed.source().position("Missing"), None);
+        let installable = &parsed.installables()[0];
+        assert_eq!(installable.fields().position("Package"), Some(6));
+        assert_eq!(installable.fields().position("Description"), Some(8));
+        assert_eq!(installable.fields().position("Priority"), Some(10));
+    }
+
+    #[test]
+    fn position_is_none_for_plain_values() {
+        let paragraph = ControlParagraph::from_fields([("Source", "example")]);
+        assert_eq!(paragraph.position("Source"), None);
+        assert_eq!(paragraph.get("Source"), Some("example"));
     }
 }

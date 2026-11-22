@@ -83,11 +83,21 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-maintainer-scripts",
+    "checks/debian/control/field/adopted/control-file-general",
+    "checks/debian/control/field/adopted/control-file-pedantic",
+    "checks/debian/control/field/adopted/legacy-binary",
+    "checks/debian/control/field/adopted/legacy-foo++",
+    "checks/debian/control/field/adopted/testsuite-unknown-suite",
     "checks/debian/control/field/architecture/multiline/control-file-important-space",
     "checks/debian/control/field/build-profiles/fields-build-profiles-general",
     "checks/debian/control/field/doubled-up/control-file-general",
+    "checks/debian/control/field/empty/control-has-empty-field",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
+    "checks/debian/control/field/priority/priority-optional-in-source-and-binary-stanza",
+    "checks/debian/control/field/redundant/control-file-general",
+    "checks/debian/control/field/redundant/legacy-binary",
+    "checks/debian/control/field/redundant/legacy-libbaz",
     "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
@@ -1126,11 +1136,21 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-maintainer-scripts",
+    "checks/debian/control/field/adopted/control-file-general",
+    "checks/debian/control/field/adopted/control-file-pedantic",
+    "checks/debian/control/field/adopted/legacy-binary",
+    "checks/debian/control/field/adopted/legacy-foo++",
+    "checks/debian/control/field/adopted/testsuite-unknown-suite",
     "checks/debian/control/field/architecture/multiline/control-file-important-space",
     "checks/debian/control/field/build-profiles/fields-build-profiles-general",
     "checks/debian/control/field/doubled-up/control-file-general",
+    "checks/debian/control/field/empty/control-has-empty-field",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
+    "checks/debian/control/field/priority/priority-optional-in-source-and-binary-stanza",
+    "checks/debian/control/field/redundant/control-file-general",
+    "checks/debian/control/field/redundant/legacy-binary",
+    "checks/debian/control/field/redundant/legacy-libbaz",
     "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
@@ -1620,11 +1640,21 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
+#[test_case("checks/debian/control/field/adopted/control-file-general"; "checks_debian_control_field_adopted_control_file_general")]
+#[test_case("checks/debian/control/field/adopted/control-file-pedantic"; "checks_debian_control_field_adopted_control_file_pedantic")]
+#[test_case("checks/debian/control/field/adopted/legacy-binary"; "checks_debian_control_field_adopted_legacy_binary")]
+#[test_case("checks/debian/control/field/adopted/legacy-foo++"; "checks_debian_control_field_adopted_legacy_foo_")]
+#[test_case("checks/debian/control/field/adopted/testsuite-unknown-suite"; "checks_debian_control_field_adopted_testsuite_unknown_suite")]
 #[test_case("checks/debian/control/field/architecture/multiline/control-file-important-space"; "checks_debian_control_field_architecture_multiline_control_file_important_space")]
 #[test_case("checks/debian/control/field/build-profiles/fields-build-profiles-general"; "checks_debian_control_field_build_profiles_fields_build_profiles_general")]
 #[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
+#[test_case("checks/debian/control/field/empty/control-has-empty-field"; "checks_debian_control_field_empty_control_has_empty_field")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
+#[test_case("checks/debian/control/field/priority/priority-optional-in-source-and-binary-stanza"; "checks_debian_control_field_priority_priority_optional_in_source_and_binary_stanza")]
+#[test_case("checks/debian/control/field/redundant/control-file-general"; "checks_debian_control_field_redundant_control_file_general")]
+#[test_case("checks/debian/control/field/redundant/legacy-binary"; "checks_debian_control_field_redundant_legacy_binary")]
+#[test_case("checks/debian/control/field/redundant/legacy-libbaz"; "checks_debian_control_field_redundant_legacy_libbaz")]
 #[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
@@ -2665,11 +2695,21 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
+#[test_case("checks/debian/control/field/adopted/control-file-general"; "checks_debian_control_field_adopted_control_file_general")]
+#[test_case("checks/debian/control/field/adopted/control-file-pedantic"; "checks_debian_control_field_adopted_control_file_pedantic")]
+#[test_case("checks/debian/control/field/adopted/legacy-binary"; "checks_debian_control_field_adopted_legacy_binary")]
+#[test_case("checks/debian/control/field/adopted/legacy-foo++"; "checks_debian_control_field_adopted_legacy_foo_")]
+#[test_case("checks/debian/control/field/adopted/testsuite-unknown-suite"; "checks_debian_control_field_adopted_testsuite_unknown_suite")]
 #[test_case("checks/debian/control/field/architecture/multiline/control-file-important-space"; "checks_debian_control_field_architecture_multiline_control_file_important_space")]
 #[test_case("checks/debian/control/field/build-profiles/fields-build-profiles-general"; "checks_debian_control_field_build_profiles_fields_build_profiles_general")]
 #[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
+#[test_case("checks/debian/control/field/empty/control-has-empty-field"; "checks_debian_control_field_empty_control_has_empty_field")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
+#[test_case("checks/debian/control/field/priority/priority-optional-in-source-and-binary-stanza"; "checks_debian_control_field_priority_priority_optional_in_source_and_binary_stanza")]
+#[test_case("checks/debian/control/field/redundant/control-file-general"; "checks_debian_control_field_redundant_control_file_general")]
+#[test_case("checks/debian/control/field/redundant/legacy-binary"; "checks_debian_control_field_redundant_legacy_binary")]
+#[test_case("checks/debian/control/field/redundant/legacy-libbaz"; "checks_debian_control_field_redundant_legacy_libbaz")]
 #[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]

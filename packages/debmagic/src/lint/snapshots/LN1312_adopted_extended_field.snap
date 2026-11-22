@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): adopted-extended-field (LN1312) (in section for source) XS-Vcs-Svn [debian/control:4]
+I: example (source): adopted-extended-field (LN1312) (in section for source) XS-Vcs-Svn [debian/control:4]
+I: example (source): adopted-extended-field (LN1312) (in section for source) XS-Testsuite [debian/control:5]
+I: example (source): adopted-extended-field (LN1312) (in section for source) xs-vcs-svn [debian/control:4]
+I: example (source): adopted-extended-field (LN1312) (in section for example) XC-Package-Type [debian/control:9]

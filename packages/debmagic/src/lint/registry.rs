@@ -275,6 +275,7 @@ use super::rules::Python3ScriptButNoPython3Dep;
 use super::rules::PythonDebugInWrongLocation;
 use super::rules::PythonModuleInWrongLocation;
 use super::rules::QuiltBuildDepButNoSeriesFile;
+use super::rules::QuiltPatchWithNonStandardOptions;
 use super::rules::RPackageNotArchAll;
 use super::rules::RasterImageInScalableDirectory;
 use super::rules::RcVersionGreaterThanExpectedVersion;
@@ -1795,6 +1796,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WrongNameForDebianChangelogFile,
         &WrongNameForUpstreamChangelog,
         &PackageUsesVendorSpecificPatchSeries,
+        &QuiltPatchWithNonStandardOptions,
     ]
 }
 
@@ -2124,6 +2126,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &TeamUploadHasIncorrectVersionNumber,
         &UnnecessaryTeamUpload,
         &PackageUsesVendorSpecificPatchSeries,
+        &QuiltPatchWithNonStandardOptions,
     ]
 }
 

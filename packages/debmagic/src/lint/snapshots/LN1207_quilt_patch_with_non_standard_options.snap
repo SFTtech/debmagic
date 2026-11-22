@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): quilt-patch-with-non-standard-options (LN1207) some-other-file -p0 [debian/patches/series:2]
+W: example (source): quilt-patch-with-non-standard-options (LN1207) a.patch -p1 -R [debian/patches/series:1]
+W: example (source): quilt-patch-with-non-standard-options (LN1207) a.patch -p0 [debian/patches/series:1]

@@ -10,6 +10,7 @@ mod ln0763_invalid_dep3_format_patch_maybe_bug_debian;
 mod ln0764_invalid_dep3_format_patch_origin_field_default_value;
 mod ln0892_quilt_build_dep_but_no_series_file;
 mod ln1206_package_uses_vendor_specific_patch_series;
+mod ln1207_quilt_patch_with_non_standard_options;
 
 pub(crate) use ln0396_format_3_0_but_debian_changes_patch::Format30ButDebianChangesPatch;
 pub(crate) use ln0706_patch_file_present_but_not_mentioned_in_series::PatchFilePresentButNotMentionedInSeries;
@@ -20,3 +21,4 @@ pub(crate) use ln0763_invalid_dep3_format_patch_maybe_bug_debian::InvalidDep3For
 pub(crate) use ln0764_invalid_dep3_format_patch_origin_field_default_value::InvalidDep3FormatPatchOriginFieldDefaultValue;
 pub(crate) use ln0892_quilt_build_dep_but_no_series_file::QuiltBuildDepButNoSeriesFile;
 pub(crate) use ln1206_package_uses_vendor_specific_patch_series::PackageUsesVendorSpecificPatchSeries;
+pub(crate) use ln1207_quilt_patch_with_non_standard_options::QuiltPatchWithNonStandardOptions;

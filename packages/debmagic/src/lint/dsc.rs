@@ -1,7 +1,6 @@
 use std::path::Path;
 
-use anyhow::{Context, bail};
-use debian_control::lossless::Control;
+use anyhow::Context;
 
 use super::debian_control::ControlParagraph;
 
@@ -22,19 +21,8 @@ impl Dsc {
 
     /// `Err` on PGP/Deb822 failure or a missing paragraph.
     pub fn parse(text: &str) -> anyhow::Result<Self> {
-        let (payload, _) =
-            debian_control::pgp::strip_pgp_signature(text).context("Dsc is not readable Deb822")?;
-        let control: Control = payload.parse().context("Dsc is not valid Deb822")?;
-        let mut paragraphs = control.as_deb822().paragraphs();
-        let Some(first) = paragraphs.next() else {
-            bail!("Dsc has no Deb822 paragraph");
-        };
         Ok(Self {
-            fields: ControlParagraph::from_entries(
-                first
-                    .entries()
-                    .filter_map(|entry| Some((entry.key()?, entry.value(), entry.to_string()))),
-            ),
+            fields: ControlParagraph::parse_first_signed(text, "Dsc")?,
         })
     }
 

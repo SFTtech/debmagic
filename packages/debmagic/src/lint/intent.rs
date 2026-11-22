@@ -6,14 +6,16 @@ use crate::config::Config;
 use super::rule::Code;
 use super::rule::Severity;
 use super::selection::resolve_selected_codes;
-use super::subject::{Subject, resolve_subject};
+use super::subject::{LintTarget, resolve_target};
 
 /// Clap-free inputs for resolving a [`LintIntent`].
 #[derive(Debug, Clone)]
 pub struct LintIntentInput {
-    /// Directory used when `subject` is unset (typically cwd).
+    /// Directory used when `subjects` is empty (typically cwd).
     pub fallback_dir: PathBuf,
-    pub subject: Option<PathBuf>,
+    /// Paths to lint: one Source tree, or any number of artifacts (`.deb`,
+    /// `.udeb`, `.ddeb`, `.dsc`, `.changes`, `.buildinfo`).
+    pub subjects: Vec<PathBuf>,
     pub config_file: Option<PathBuf>,
     pub select: Vec<String>,
     pub ignore: Vec<String>,
@@ -27,7 +29,7 @@ pub struct LintIntentInput {
 /// Fully resolved description of *how* a lint runs.
 #[derive(Debug, Clone)]
 pub struct LintIntent {
-    pub subject: Subject,
+    pub target: LintTarget,
     pub selected: Vec<Code>,
     pub fail_on: HashSet<Severity>,
     pub severity_remaps: HashMap<Code, Severity>,
@@ -46,17 +48,21 @@ fn resolve_fail_on(fail_on: &[Severity]) -> HashSet<Severity> {
 }
 
 pub fn resolve_lint_intent(input: LintIntentInput) -> anyhow::Result<LintIntent> {
-    let subject_path = input.subject.unwrap_or(input.fallback_dir);
-    let subject = resolve_subject(subject_path)?;
+    let subjects = if input.subjects.is_empty() {
+        vec![input.fallback_dir]
+    } else {
+        input.subjects
+    };
+    let target = resolve_target(subjects)?;
 
-    let config_source_dir = match &subject {
-        Subject::SourceTree(path) => Some(path.as_path()),
-        Subject::BinaryPackage(_) | Subject::SourcePackage(_) => None,
+    let config_source_dir = match &target {
+        LintTarget::SourceTree(path) => Some(path.as_path()),
+        LintTarget::Artifacts(_) => None,
     };
     let _config = Config::load(config_source_dir, input.config_file.as_deref())?;
 
     Ok(LintIntent {
-        subject,
+        target,
         selected: resolve_selected_codes(&input.select, &input.ignore)?,
         fail_on: resolve_fail_on(&input.fail_on),
         severity_remaps: HashMap::new(),
@@ -82,7 +88,7 @@ mod tests {
     fn base_input(fallback: PathBuf) -> LintIntentInput {
         LintIntentInput {
             fallback_dir: fallback,
-            subject: None,
+            subjects: Vec::new(),
             config_file: Some(asset_config()),
             select: vec![],
             ignore: vec![],
@@ -96,9 +102,23 @@ mod tests {
     fn resolve_absolutizes_source_tree_subject() -> anyhow::Result<()> {
         let dir = std::env::temp_dir();
         let intent = resolve_lint_intent(base_input(dir.clone()))?;
-        assert_eq!(intent.subject.kind(), SubjectKind::SourceTree);
-        assert!(intent.subject.path().is_absolute());
-        assert_eq!(intent.subject.path(), std::path::absolute(&dir)?);
+        assert_eq!(intent.target.single_kind(), Some(SubjectKind::SourceTree));
+        assert_eq!(
+            intent.target,
+            LintTarget::SourceTree(std::path::absolute(&dir)?)
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn resolve_keeps_every_artifact_path() -> anyhow::Result<()> {
+        let mut input = base_input(std::env::temp_dir());
+        input.subjects = vec![PathBuf::from("a_1.0_amd64.changes"), PathBuf::from("a.deb")];
+        let intent = resolve_lint_intent(input)?;
+        let LintTarget::Artifacts(subjects) = intent.target else {
+            panic!("expected artifacts");
+        };
+        assert_eq!(subjects.len(), 2);
         Ok(())
     }
 

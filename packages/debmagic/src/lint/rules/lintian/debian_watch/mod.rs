@@ -15,6 +15,7 @@ mod ln0100_debian_watch_file_specifies_old_upstream_version;
 mod ln0101_debian_watch_file_pubkey_file_is_missing;
 mod ln0102_debian_watch_could_verify_download;
 mod ln1343_debian_watch_does_not_check_openpgp_signature;
+mod ln1344_debian_watch_file_is_missing;
 mod ln1345_debian_watch_uses_insecure_uri;
 mod standard;
 
@@ -32,4 +33,5 @@ pub(crate) use ln0100_debian_watch_file_specifies_old_upstream_version::DebianWa
 pub(crate) use ln0101_debian_watch_file_pubkey_file_is_missing::DebianWatchFilePubkeyFileIsMissing;
 pub(crate) use ln0102_debian_watch_could_verify_download::DebianWatchCouldVerifyDownload;
 pub(crate) use ln1343_debian_watch_does_not_check_openpgp_signature::DebianWatchDoesNotCheckOpenpgpSignature;
+pub(crate) use ln1344_debian_watch_file_is_missing::DebianWatchFileIsMissing;
 pub(crate) use ln1345_debian_watch_uses_insecure_uri::DebianWatchUsesInsecureUri;

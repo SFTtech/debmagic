@@ -105,6 +105,7 @@ use super::rules::DebianRulesUsesUnnecessaryDhArgument;
 use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
 use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
+use super::rules::DebianWatchFileIsMissing;
 use super::rules::DebianWatchUsesInsecureUri;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
@@ -2133,6 +2134,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UpstreamMetadataMissingRepository,
         &UpstreamMetadataNotYamlMapping,
         &UpstreamMetadataYamlInvalid,
+        &DebianWatchFileIsMissing,
     ]
 }
 
@@ -2532,6 +2534,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UpstreamMetadataMissingRepository,
         &UpstreamMetadataNotYamlMapping,
         &UpstreamMetadataYamlInvalid,
+        &DebianWatchFileIsMissing,
     ]
 }
 

@@ -797,7 +797,7 @@ pub(crate) use menu_format::{
     MenuItemUsesAppsGamesSection, MenuItemUsesAppsSection, MenuItemUsesIconNone,
     MenuItemUsesWindowmanagersSection, NonWmInWindowmanagerMenuSection,
     NonWmModuleInWmModulesMenuSection, PkgNotInPackageTest, SuToRootWithUsrSbin,
-    SuWrapperNotSuToRoot, SuWrapperWithoutC, UnquotedStringInMenuItem,
+    SuWrapperNotSuToRoot, SuWrapperWithoutC, UnparsableMenuItem, UnquotedStringInMenuItem,
 };
 pub(crate) use menus::{
     DocBaseAbstractFieldIsTemplate, DocBaseAbstractFieldSeparatorExtraWhitespace,

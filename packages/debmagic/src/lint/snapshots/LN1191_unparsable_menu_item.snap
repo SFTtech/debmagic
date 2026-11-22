@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unparsable-menu-item (LN1191) [usr/share/menu/example:2]
+E: example (binary): unparsable-menu-item (LN1191) [usr/share/menu/example:1]
+E: example (binary): unparsable-menu-item (LN1191) [usr/share/menu/example:2]
+E: example (binary): unparsable-menu-item (LN1191) [usr/lib/menu/example:1]
+E: example (udeb): unparsable-menu-item (LN1191) [usr/share/menu/example:1]

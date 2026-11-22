@@ -432,6 +432,7 @@ pub(crate) use languages_clojure_dh_clojure::ClojurePackageButNotDhClojure;
 pub(crate) use languages_fortran_gfortran::GfortranModuleDoesNotDeclareVersion;
 pub(crate) use languages_fortran_gfortran::MissingPrerequisiteForGfortranModule;
 pub(crate) use languages_golang_module_path::GoLibraryPackageDoesNotIncludeVersion;
+pub(crate) use languages_golang_module_path::MissingXsGoImportPathForGolangPackage;
 pub(crate) use languages_java::BadJarName;
 pub(crate) use languages_java::ClasspathContainsRelativePath;
 pub(crate) use languages_java::CodelessJar;

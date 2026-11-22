@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): missing-xs-go-import-path-for-golang-package (LN1568)
+I: example (source): missing-xs-go-import-path-for-golang-package (LN1568)

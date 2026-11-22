@@ -283,6 +283,7 @@ use super::rules::MissingPrerequisiteForGfortranModule;
 use super::rules::MissingPrerequisiteForPyprojectBackend;
 use super::rules::MissingTemplatesPot;
 use super::rules::MissingTestsControl;
+use super::rules::MissingXsGoImportPathForGolangPackage;
 use super::rules::MisspelledClosesBug;
 use super::rules::MultiArchSamePackageCallsPycompile;
 use super::rules::MultiArchSamePackageHasArchSpecificOverrides;
@@ -2187,6 +2188,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ArchDepPackageHasBigUsrShare,
         &InitDScriptDoesNotProvideItself,
         &InitDScriptMissingLsbShortDescription,
+        &MissingXsGoImportPathForGolangPackage,
     ]
 }
 
@@ -2587,6 +2589,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InstallableFieldMirrorsSource,
         &InconsistentAppstreamMetadataLicense,
         &DfsgVersionWithTilde,
+        &MissingXsGoImportPathForGolangPackage,
     ]
 }
 

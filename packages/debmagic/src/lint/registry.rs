@@ -226,6 +226,7 @@ use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemGfdlInvariants;
 use super::rules::LicenseProblemGfdlNonOfficialText;
 use super::rules::LicenseProblemJsonEvil;
+use super::rules::LicenseProblemMd5sumNonDistributableFile;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
 use super::rules::LicenseProblemNonFreeRFC;
 use super::rules::LicenseProblemNonFreeRFCBCP78;
@@ -2185,6 +2186,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageBuildsDbgAndDbgsymVariants,
         &UnreleasedChanges,
         &UploadHasBackportsVersionNumber,
+        &LicenseProblemMd5sumNonDistributableFile,
     ]
 }
 
@@ -2584,6 +2586,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RedundantPriorityOptionalField,
         &InstallableFieldMirrorsSource,
         &InconsistentAppstreamMetadataLicense,
+        &LicenseProblemMd5sumNonDistributableFile,
     ]
 }
 

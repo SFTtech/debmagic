@@ -314,6 +314,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/php/composer/depends-composer",
+    "checks/languages/php/pear/phppear-general",
     "checks/languages/php/pear/phppear-pear",
     "checks/languages/puppet/puppet-module-but-not-dh-puppet",
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
@@ -1185,6 +1186,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/php/composer/depends-composer",
+    "checks/languages/php/pear/phppear-general",
     "checks/languages/php/pear/phppear-pear",
     "checks/languages/puppet/puppet-module-but-not-dh-puppet",
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
@@ -1576,6 +1578,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/php/composer/depends-composer"; "checks_languages_php_composer_depends_composer")]
+#[test_case("checks/languages/php/pear/phppear-general"; "checks_languages_php_pear_phppear_general")]
 #[test_case("checks/languages/php/pear/phppear-pear"; "checks_languages_php_pear_phppear_pear")]
 #[test_case("checks/languages/puppet/puppet-module-but-not-dh-puppet"; "checks_languages_puppet_puppet_module_but_not_dh_puppet")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
@@ -2449,6 +2452,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/php/composer/depends-composer"; "checks_languages_php_composer_depends_composer")]
+#[test_case("checks/languages/php/pear/phppear-general"; "checks_languages_php_pear_phppear_general")]
 #[test_case("checks/languages/php/pear/phppear-pear"; "checks_languages_php_pear_phppear_pear")]
 #[test_case("checks/languages/puppet/puppet-module-but-not-dh-puppet"; "checks_languages_puppet_puppet_module_but_not_dh_puppet")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]

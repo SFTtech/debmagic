@@ -545,11 +545,11 @@ pub(crate) use fields_relations_more::{
     LibRecommendsDocumentation, LibmoduleBuildPerlNeedsToBeInBuildDepends,
     LibmoduleBuildTinyPerlNeedsToBeInBuildDepends,
     MailTransportAgentDependencyDoesNotSpecifyDefaultMta, NeedlessDependencyOnJre,
-    NeedlesslyDependsOnAwk, ObsoleteRelationForm, PackageDependsOnAnXFontPackage,
-    PackageDependsOnMultipleLibpngVersions, PackageDependsOnMultipleLibstdcVersions,
-    PackageDependsOnMultipleTclVersions, PackageDependsOnMultipleTclxVersions,
-    PackageDependsOnMultipleTkVersions, PackageRelationWithPerlModules,
-    RedundantBuildPrerequisites,
+    NeedlesslyDependsOnAwk, ObsoleteRelationForm, OredDependsOnObsoletePackage,
+    PackageDependsOnAnXFontPackage, PackageDependsOnMultipleLibpngVersions,
+    PackageDependsOnMultipleLibstdcVersions, PackageDependsOnMultipleTclVersions,
+    PackageDependsOnMultipleTclxVersions, PackageDependsOnMultipleTkVersions,
+    PackageRelationWithPerlModules, RedundantBuildPrerequisites,
 };
 pub(crate) use fields_text::{
     BadHomepage, DescriptionContainsHomepage, DescriptionSynopsisIsDuplicated,

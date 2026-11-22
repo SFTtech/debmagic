@@ -246,6 +246,7 @@ use super::rules::ObsoleteRuntimeTestsRestriction;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OmittedSystemdServiceForInitDScript;
+use super::rules::OredDependsOnObsoletePackage;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
@@ -1949,6 +1950,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UsingFirstPersonInDescription,
         &HomepageFieldUsesInsecureUri,
         &ConflictsWithVersion,
+        &OredDependsOnObsoletePackage,
     ]
 }
 
@@ -3092,6 +3094,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UsingFirstPersonInDescription,
         &HomepageFieldUsesInsecureUri,
         &ConflictsWithVersion,
+        &OredDependsOnObsoletePackage,
     ]
 }
 

@@ -947,6 +947,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/libraries/shared/trigger/ldconfig/legacy-libbaz",
     "checks/libraries/shared/trigger/ldconfig/shared-libs-ldconfig-scripts",
     "checks/libraries/static/name/underscore-s-suffix",
+    "checks/libraries/static/no-code/without-fat-lto-objects",
     "checks/linda/files-package-contains-foo",
     "checks/linda/legacy-filenames",
     "checks/mailcap/placeholder-in-quoted-string",
@@ -2489,6 +2490,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/libraries/shared/trigger/ldconfig/legacy-libbaz"; "checks_libraries_shared_trigger_ldconfig_legacy_libbaz")]
 #[test_case("checks/libraries/shared/trigger/ldconfig/shared-libs-ldconfig-scripts"; "checks_libraries_shared_trigger_ldconfig_shared_libs_ldconfig_scripts")]
 #[test_case("checks/libraries/static/name/underscore-s-suffix"; "checks_libraries_static_name_underscore_s_suffix")]
+#[test_case("checks/libraries/static/no-code/without-fat-lto-objects"; "checks_libraries_static_no_code_without_fat_lto_objects")]
 #[test_case("checks/linda/files-package-contains-foo"; "checks_linda_files_package_contains_foo")]
 #[test_case("checks/linda/legacy-filenames"; "checks_linda_legacy_filenames")]
 #[test_case("checks/mailcap/placeholder-in-quoted-string"; "checks_mailcap_placeholder_in_quoted_string")]

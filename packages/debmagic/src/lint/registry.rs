@@ -273,6 +273,7 @@ use super::rules::NeedlessDependencyOnJre;
 use super::rules::NewPackageShouldNotPackagePython2Module;
 use super::rules::NewPackageUsesDateBasedVersionNumber;
 use super::rules::NmuInChangelog;
+use super::rules::NoCodeSections;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
 use super::rules::NoMd5sumsControlFile;
@@ -2131,6 +2132,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BinaryFromOtherArchitecture,
         &ElfError,
         &DebugFileWithNoDebugSymbols,
+        &NoCodeSections,
     ]
 }
 
@@ -3362,6 +3364,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BinaryFromOtherArchitecture,
         &ElfError,
         &DebugFileWithNoDebugSymbols,
+        &NoCodeSections,
     ]
 }
 

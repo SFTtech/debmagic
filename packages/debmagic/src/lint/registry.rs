@@ -273,6 +273,7 @@ use super::rules::PackagePlaceholderInSymbolsFile;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
+use super::rules::PearPackageButMissingDependency;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
@@ -1891,6 +1892,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingPkgPhpToolsAddon,
         &MissingPkgPhpToolsBuildsystem,
         &PearChannelWithoutPkgPhpToolsBuilddep,
+        &PearPackageButMissingDependency,
     ]
 }
 
@@ -2236,6 +2238,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MissingPkgPhpToolsAddon,
         &MissingPkgPhpToolsBuildsystem,
         &PearChannelWithoutPkgPhpToolsBuilddep,
+        &PearPackageButMissingDependency,
     ]
 }
 

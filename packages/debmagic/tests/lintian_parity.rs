@@ -405,6 +405,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/prerequisites/binaries-missing-depends-on-libc",
     "checks/binaries/prerequisites/legacy-debug",
     "checks/binaries/prerequisites/legacy-libbaz",
+    "checks/binaries/prerequisites/numpy/binaries-missing-depends-on-numpy-abi",
     "checks/binaries/prerequisites/perl/binaries-missing-depends-on-xapi",
     "checks/binaries/prerequisites/perl/legacy-libbaz",
     "checks/binaries/prerequisites/php/binaries-missing-depends-on-xapi",
@@ -1692,6 +1693,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/prerequisites/binaries-missing-depends-on-libc"; "checks_binaries_prerequisites_binaries_missing_depends_on_libc")]
 #[test_case("checks/binaries/prerequisites/legacy-debug"; "checks_binaries_prerequisites_legacy_debug")]
 #[test_case("checks/binaries/prerequisites/legacy-libbaz"; "checks_binaries_prerequisites_legacy_libbaz")]
+#[test_case("checks/binaries/prerequisites/numpy/binaries-missing-depends-on-numpy-abi"; "checks_binaries_prerequisites_numpy_binaries_missing_depends_on_numpy_abi")]
 #[test_case("checks/binaries/prerequisites/perl/binaries-missing-depends-on-xapi"; "checks_binaries_prerequisites_perl_binaries_missing_depends_on_xapi")]
 #[test_case("checks/binaries/prerequisites/perl/legacy-libbaz"; "checks_binaries_prerequisites_perl_legacy_libbaz")]
 #[test_case("checks/binaries/prerequisites/php/binaries-missing-depends-on-xapi"; "checks_binaries_prerequisites_php_binaries_missing_depends_on_xapi")]

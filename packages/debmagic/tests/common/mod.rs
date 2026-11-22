@@ -922,6 +922,10 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "checks/deb-format/deb-format-udeb-compression",
         "the recipe runs `dpkg-deb -Zlzma`, which dpkg 1.23 rejects",
     ),
+    (
+        "checks/binaries/prerequisites/numpy/binaries-missing-depends-on-numpy-abi",
+        "the recipe's `setup.py` imports `setuptools` and `numpy`, and this host has neither for python3",
+    ),
 ];
 
 /// Recipes whose expected hints cannot show up in a Source tree, because the

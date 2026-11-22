@@ -373,6 +373,7 @@ use super::rules::TrailingSlashForDpkgMaintscriptHelperSymlinkToDir;
 use super::rules::TransitionalPackageNotOldlibsOptional;
 use super::rules::TripletDirAndArchitectureMismatch;
 use super::rules::TruetypeFontWrongFilename;
+use super::rules::TypelibInArchAllPackage;
 use super::rules::TypelibMissingGirDepends;
 use super::rules::TypelibNotInMultiarchDirectory;
 use super::rules::TypelibPackageNameDoesNotMatch;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SubstvarSourceVersionIsDeprecated,
         &DebianWatchUsesInsecureUri,
         &DebianControlHasObsoleteDbgPackage,
+        &TypelibInArchAllPackage,
     ]
 }
 
@@ -3070,6 +3072,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
+        &TypelibInArchAllPackage,
     ]
 }
 

@@ -343,6 +343,7 @@ pub(crate) use debian_control_field_build_profiles::InvalidProfileNameInBuildPro
 pub(crate) use debian_control_field_build_profiles::VariesContentWithNocheck;
 pub(crate) use debian_control_field_deprecated::DeprecatedDebianControlField;
 pub(crate) use debian_control_field_description_duplicate::DuplicateLongDescription;
+pub(crate) use debian_control_field_description_duplicate::DuplicateShortDescription;
 pub(crate) use debian_control_field_empty::DebianControlHasEmptyField;
 pub(crate) use debian_control_field_priority::RedundantPriorityOptionalField;
 pub(crate) use debian_control_field_redundant::InstallableFieldMirrorsSource;

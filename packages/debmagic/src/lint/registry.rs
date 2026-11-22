@@ -23,6 +23,7 @@ use super::rules::BadRelation;
 use super::rules::BadSectionInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
+use super::rules::BashTermInPosixShell;
 use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryInEtc;
 use super::rules::BinaryNmuDebianRevisionInSource;
@@ -221,6 +222,8 @@ use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
 use super::rules::MaintainerScriptSetsAlternativeImproperly;
+use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
+use super::rules::MaintainerScriptWithoutSetE;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
 use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
@@ -348,6 +351,7 @@ use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
 use super::rules::PkgJsAutopkgtestTestIsEmpty;
 use super::rules::PkgJsAutopkgtestTestIsMissing;
+use super::rules::PossibleBashismInMaintainerScript;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PossibleUnindentedListInExtendedDescription;
@@ -433,6 +437,7 @@ use super::rules::SymlinkTargetInTmp;
 use super::rules::SynopsisIsASentence;
 use super::rules::SyntaxErrorInDebconfTemplate;
 use super::rules::SyntaxErrorInDep5Copyright;
+use super::rules::SystemdServiceFileMissingDocumentationKey;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
 use super::rules::SystemdServiceFileShutdownProblems;
 use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
@@ -2113,6 +2118,11 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LdconfigSymlinkIsNotASymlink,
         &LdconfigSymlinkReferencingWrongFile,
         &LinkToSharedLibraryInWrongPackage,
+        &MaintainerScriptSwitchesDirToSymlinkUnsafely,
+        &MaintainerScriptWithoutSetE,
+        &BashTermInPosixShell,
+        &PossibleBashismInMaintainerScript,
+        &SystemdServiceFileMissingDocumentationKey,
     ]
 }
 
@@ -3335,6 +3345,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &LdconfigSymlinkIsNotASymlink,
         &LdconfigSymlinkReferencingWrongFile,
         &LinkToSharedLibraryInWrongPackage,
+        &MaintainerScriptSwitchesDirToSymlinkUnsafely,
+        &MaintainerScriptWithoutSetE,
+        &BashTermInPosixShell,
+        &PossibleBashismInMaintainerScript,
+        &SystemdServiceFileMissingDocumentationKey,
     ]
 }
 

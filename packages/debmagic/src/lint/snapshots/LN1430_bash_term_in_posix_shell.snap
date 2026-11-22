@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): bash-term-in-posix-shell (LN1430) 'echo -e' [usr/bin/example:2]
+I: example (binary): bash-term-in-posix-shell (LN1430) 'source ./foo' [usr/bin/example:2]
+I: example (binary): bash-term-in-posix-shell (LN1430) 'function foo' [usr/bin/example:2]
+I: example (binary): bash-term-in-posix-shell (LN1430) '[ "$a" ==' [usr/bin/example:2]
+I: example (binary): bash-term-in-posix-shell (LN1430) '$RANDOM' [usr/bin/example:2]
+I: example (binary): bash-term-in-posix-shell (LN1430) 'read' [usr/bin/example:2]
+I: example (binary): bash-term-in-posix-shell (LN1430) '$RANDOM' [usr/bin/example:4]
+I: example (binary): bash-term-in-posix-shell (LN1430) 'source $FOO' [usr/bin/example:2]
+I: example (binary): bash-term-in-posix-shell (LN1430) '<<<' [usr/bin/example:2]

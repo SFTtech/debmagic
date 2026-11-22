@@ -996,6 +996,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/modprobe/files-general",
     "checks/modprobe/obsolete-commands-in-modprobe",
+    "checks/scripts/legacy-binary",
+    "checks/scripts/legacy-libbaz",
     "checks/scripts/legacy-maintainer-scripts",
     "checks/scripts/legacy-scripts",
     "checks/scripts/scripts-bashisms",
@@ -1006,12 +1008,17 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/scripts/scripts-interpreters-nodejs",
     "checks/scripts/scripts-maintainer-general",
     "checks/scripts/scripts-maintainer-script-invalid-update-inetd-options",
+    "checks/scripts/scripts-maintainer-script-set-e",
     "checks/scripts/scripts-missing-call-to-dpkg-maintscript-helper",
     "checks/scripts/scripts-missing-dep",
     "checks/scripts/scripts-missing-dep-fp",
     "checks/scripts/scripts-multi-arch-same-calls-pycompile",
     "checks/scripts/scripts-udevadm-called-without-guard",
     "checks/shell/csh/scripts-interpreters",
+    "checks/shell/non-posix/bash-centric/exec-exception",
+    "checks/shell/non-posix/bash-centric/legacy-maintainer-scripts",
+    "checks/shell/non-posix/bash-centric/regular-shipped",
+    "checks/shell/non-posix/bash-centric/scripts-bashisms",
     "checks/systemd/init.d-general",
     "checks/systemd/kill-mode-none",
     "checks/systemd/legacy-scripts",
@@ -2527,6 +2534,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/modprobe/files-general"; "checks_modprobe_files_general")]
 #[test_case("checks/modprobe/obsolete-commands-in-modprobe"; "checks_modprobe_obsolete_commands_in_modprobe")]
+#[test_case("checks/scripts/legacy-binary"; "checks_scripts_legacy_binary")]
+#[test_case("checks/scripts/legacy-libbaz"; "checks_scripts_legacy_libbaz")]
 #[test_case("checks/scripts/legacy-maintainer-scripts"; "checks_scripts_legacy_maintainer_scripts")]
 #[test_case("checks/scripts/legacy-scripts"; "checks_scripts_legacy_scripts")]
 #[test_case("checks/scripts/scripts-bashisms"; "checks_scripts_scripts_bashisms")]
@@ -2537,12 +2546,17 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/scripts/scripts-interpreters-nodejs"; "checks_scripts_scripts_interpreters_nodejs")]
 #[test_case("checks/scripts/scripts-maintainer-general"; "checks_scripts_scripts_maintainer_general")]
 #[test_case("checks/scripts/scripts-maintainer-script-invalid-update-inetd-options"; "checks_scripts_scripts_maintainer_script_invalid_update_inetd_options")]
+#[test_case("checks/scripts/scripts-maintainer-script-set-e"; "checks_scripts_scripts_maintainer_script_set_e")]
 #[test_case("checks/scripts/scripts-missing-call-to-dpkg-maintscript-helper"; "checks_scripts_scripts_missing_call_to_dpkg_maintscript_helper")]
 #[test_case("checks/scripts/scripts-missing-dep"; "checks_scripts_scripts_missing_dep")]
 #[test_case("checks/scripts/scripts-missing-dep-fp"; "checks_scripts_scripts_missing_dep_fp")]
 #[test_case("checks/scripts/scripts-multi-arch-same-calls-pycompile"; "checks_scripts_scripts_multi_arch_same_calls_pycompile")]
 #[test_case("checks/scripts/scripts-udevadm-called-without-guard"; "checks_scripts_scripts_udevadm_called_without_guard")]
 #[test_case("checks/shell/csh/scripts-interpreters"; "checks_shell_csh_scripts_interpreters")]
+#[test_case("checks/shell/non-posix/bash-centric/exec-exception"; "checks_shell_non_posix_bash_centric_exec_exception")]
+#[test_case("checks/shell/non-posix/bash-centric/legacy-maintainer-scripts"; "checks_shell_non_posix_bash_centric_legacy_maintainer_scripts")]
+#[test_case("checks/shell/non-posix/bash-centric/regular-shipped"; "checks_shell_non_posix_bash_centric_regular_shipped")]
+#[test_case("checks/shell/non-posix/bash-centric/scripts-bashisms"; "checks_shell_non_posix_bash_centric_scripts_bashisms")]
 #[test_case("checks/systemd/init.d-general"; "checks_systemd_init_d_general")]
 #[test_case("checks/systemd/kill-mode-none"; "checks_systemd_kill_mode_none")]
 #[test_case("checks/systemd/legacy-scripts"; "checks_systemd_legacy_scripts")]

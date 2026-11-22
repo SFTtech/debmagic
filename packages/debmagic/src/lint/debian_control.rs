@@ -160,7 +160,6 @@ impl ControlParagraph {
     /// The 1-based line in `debian/control` where the field's name is written
     /// (the first one when a name repeats). `None` for paragraphs built from
     /// plain values.
-    #[allow(dead_code)]
     pub fn position(&self, name: &str) -> Option<u32> {
         let index = self
             .fields

@@ -50,6 +50,10 @@ static SOURCEFORGE_FILES: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"https?://(?:www\.)?(?:sourceforge|sf)\.net/projects/.+/files")
         .expect("valid regex")
 });
+static SCHEME_URI: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?:http|ftp):\S+").expect("valid regex"));
+static SOURCEFORGE_AFTER_SCHEME: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^//sf.net/").expect("valid regex"));
 static WORD: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\w").expect("valid regex"));
 static COMMA: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s*,\s*").expect("valid regex"));
 static V5_LINES: LazyLock<Regex> =
@@ -68,6 +72,7 @@ pub(super) enum WatchFileHit {
     OldUpstreamVersion(String),
     PubkeyFileIsMissing,
     CouldVerifyDownload(String),
+    InsecureUri(String),
 }
 
 impl WatchFileHit {
@@ -80,7 +85,8 @@ impl WatchFileHit {
             | Self::NotManglingVersion(extra)
             | Self::WrongUpstreamVersion(extra)
             | Self::OldUpstreamVersion(extra)
-            | Self::CouldVerifyDownload(extra) => extra.clone(),
+            | Self::CouldVerifyDownload(extra)
+            | Self::InsecureUri(extra) => extra.clone(),
             Self::PubkeyFileIsMissing => String::new(),
         }
     }
@@ -116,6 +122,7 @@ pub(super) fn flag_watch_file(
         }
         let diagnostic = match severity {
             Severity::Error => Diagnostic::error(finding.hit.extra()),
+            Severity::Info => Diagnostic::warn(finding.hit.extra()).with_severity(Severity::Info),
             _ => Diagnostic::warn(finding.hit.extra()),
         };
         ctx.diagnostic(diagnostic.with_location(Location {
@@ -356,6 +363,13 @@ pub(super) fn watch_file_findings(input: &WatchInput) -> Vec<WatchFileFinding> {
             });
         }
 
+        if let Some(uri) = insecure_uri(&remainder) {
+            findings.push(WatchFileFinding {
+                line: Some(position),
+                hit: WatchFileHit::InsecureUri(uri),
+            });
+        }
+
         if !remainder.is_empty() {
             let fields = split_space(&remainder, 4);
             if let Some(base) = fields.first() {
@@ -426,6 +440,23 @@ pub(super) fn watch_file_findings(input: &WatchInput) -> Vec<WatchFileFinding> {
         }
     }
     findings
+}
+
+/// First `http:` or `ftp:` URI in `remainder` that does not start with
+/// `//sf.net/`. Lintian's `(?:http|ftp):(?!//sf.net/)\S+`, whose lookahead the
+/// regex crate cannot express, so a rejected start is retried one byte later.
+fn insecure_uri(remainder: &str) -> Option<String> {
+    let mut start = 0;
+    while let Some(found) = SCHEME_URI.find_at(remainder, start) {
+        let uri = found.as_str();
+        let after_scheme = &uri[uri.find(':')? + 1..];
+        if SOURCEFORGE_AFTER_SCHEME.is_match(after_scheme) {
+            start = found.start() + 1;
+            continue;
+        }
+        return Some(uri.to_string());
+    }
+    None
 }
 
 fn strip_final_backslash(contents: &str) -> String {
@@ -545,6 +576,7 @@ mod tests {
         "debian-watch-file-specifies-old-upstream-version",
         "debian-watch-file-pubkey-file-is-missing",
         "debian-watch-could-verify-download",
+        "debian-watch-uses-insecure-uri",
     ];
 
     #[test]
@@ -627,6 +659,7 @@ mod tests {
                 }
                 WatchFileHit::PubkeyFileIsMissing => "debian-watch-file-pubkey-file-is-missing",
                 WatchFileHit::CouldVerifyDownload(_) => "debian-watch-could-verify-download",
+                WatchFileHit::InsecureUri(_) => "debian-watch-uses-insecure-uri",
             };
             extras.push((tag.to_string(), finding.hit.extra().trim().to_string()));
         }

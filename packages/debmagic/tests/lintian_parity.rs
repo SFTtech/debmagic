@@ -575,6 +575,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/description/legacy-debconf",
     "checks/fields/description/legacy-etcfiles",
     "checks/fields/description/legacy-relations",
+    "checks/fields/description/spelling-multiword",
     "checks/fields/empty/empty-section",
     "checks/fields/essential/fields-essential",
     "checks/fields/essential/legacy-fields",
@@ -1858,6 +1859,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/description/legacy-debconf"; "checks_fields_description_legacy_debconf")]
 #[test_case("checks/fields/description/legacy-etcfiles"; "checks_fields_description_legacy_etcfiles")]
 #[test_case("checks/fields/description/legacy-relations"; "checks_fields_description_legacy_relations")]
+#[test_case("checks/fields/description/spelling-multiword"; "checks_fields_description_spelling_multiword")]
 #[test_case("checks/fields/empty/empty-section"; "checks_fields_empty_empty_section")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/essential/legacy-fields"; "checks_fields_essential_legacy_fields")]

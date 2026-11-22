@@ -42,6 +42,7 @@ use super::rules::ChangelogIsDhMakeTemplate;
 use super::rules::ChangelogIsSymlink;
 use super::rules::ChangelogNotCompressedWithMaxCompression;
 use super::rules::ClasspathContainsRelativePath;
+use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
 use super::rules::ComposerPrerequisite;
@@ -1943,6 +1944,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ImageFileHasConflictingName,
         &ImageFileHasUnexpectedName,
         &InitDScriptDoesNotImplementStatusOption,
+        &ClojurePackageButNotDhClojure,
     ]
 }
 
@@ -2305,6 +2307,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &SourceContainsPrebuiltBinary,
+        &ClojurePackageButNotDhClojure,
     ]
 }
 

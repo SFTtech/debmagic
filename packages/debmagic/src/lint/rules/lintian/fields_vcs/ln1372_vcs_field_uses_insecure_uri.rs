@@ -4,11 +4,11 @@ use regex::Regex;
 
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
-use crate::lint::debian_control::{ControlParagraph, unfold};
+use crate::lint::debian_control::ControlParagraph;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::{Severity, SourceRule};
 
-use super::super::vcs::PLATFORMS;
+use super::super::vcs::{PLATFORMS, vcs_field_value};
 
 pub struct VcsFieldUsesInsecureUri;
 
@@ -17,7 +17,9 @@ declare_rule! {
     /// `nosmart+http://`, `svn://`, or Bazaar's `lp:` and CVS's `:pserver:`.
     ///
     /// Reads the same fields as `vcs-field-uses-not-recommended-uri-format`,
-    /// from the Dsc or the source paragraph of `debian/control`. The URI is
+    /// from the Dsc or the source paragraph of `debian/control`. On a Source
+    /// tree an `XS-` style field such as `XS-Vcs-Browser` counts as the plain
+    /// `Vcs-Browser`, as `dpkg-source` would copy it. The URI is
     /// split with lintian's `%VCS_EXTRACT` pattern for the platform (Cvs,
     /// Hg, Git and Mtn drop their trailing options) and the head is tested.
     /// Extra is the platform and the unfolded field. Location is empty.
@@ -45,10 +47,10 @@ static MTN: LazyLock<Regex> =
 impl SourceRule for VcsFieldUsesInsecureUri {
     fn run(&self, ctx: &mut SourceContext<'_>) {
         let messages = match ctx.dsc() {
-            Some(dsc) => messages(dsc.fields()),
+            Some(dsc) => messages(dsc.fields(), false),
             None => ctx
                 .debian_control()
-                .map(|control| messages(control.source()))
+                .map(|control| messages(control.source(), true))
                 .unwrap_or_default(),
         };
         for message in messages {
@@ -57,11 +59,11 @@ impl SourceRule for VcsFieldUsesInsecureUri {
     }
 }
 
-fn messages(fields: &ControlParagraph) -> Vec<String> {
+fn messages(fields: &ControlParagraph, source_tree: bool) -> Vec<String> {
     let mut found = Vec::new();
     for platform in PLATFORMS {
         let name = format!("Vcs-{platform}");
-        let Some(uri) = fields.get(&name).map(unfold) else {
+        let Some(uri) = vcs_field_value(fields, &name, source_tree) else {
             continue;
         };
         if uri.is_empty() {

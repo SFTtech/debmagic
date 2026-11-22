@@ -174,6 +174,7 @@ use super::rules::LicenseProblemMd5sumNonFreeFile;
 use super::rules::LicenseProblemNonFreeRFC;
 use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::LicenseProblemNvidiaIntellectual;
+use super::rules::LicenseProblemOldUnicode;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
@@ -1879,6 +1880,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LicenseProblemNonFreeRFCBCP78,
         &LicenseProblemNonFreeRFC,
         &LicenseProblemNvidiaIntellectual,
+        &LicenseProblemOldUnicode,
     ]
 }
 
@@ -2218,6 +2220,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &LicenseProblemNonFreeRFCBCP78,
         &LicenseProblemNonFreeRFC,
         &LicenseProblemNvidiaIntellectual,
+        &LicenseProblemOldUnicode,
     ]
 }
 

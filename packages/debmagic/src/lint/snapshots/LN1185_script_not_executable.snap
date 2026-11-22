@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): script-not-executable (LN1185) [usr/bin/tool]
+W: example (binary): script-not-executable (LN1185) [usr/bin/tool]
+W: example (binary): script-not-executable (LN1185) [usr/share/doc/pkg/examples/tool]
+W: example (binary): script-not-executable (LN1185) [usr/bin/tool]
+W: example (binary): script-not-executable (LN1185) [usr/share/pkg/tool.pl]
+W: example (udeb): script-not-executable (LN1185) [usr/bin/tool]
+W: example (binary): script-not-executable (LN1185) [usr/bin/tool]

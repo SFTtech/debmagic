@@ -287,9 +287,11 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
+    "checks/fields/vcs/fields-vcs-field-insecure-uri",
     "checks/fields/vcs/fields-vcs-field-mismatch",
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
+    "checks/fields/vcs/legacy-binary",
     "checks/fields/vcs/orphaned-package-in-private-salsa-space",
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
@@ -631,6 +633,10 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/appimage-check/package-installs-appimage-file",
     "checks/files/appimage-check/package-installs-appimage-magic",
     "checks/files/architecture/binaries-multiarch-wrong-dir",
+    "checks/files/architecture/cruft-source-is-missing-unrel",
+    "checks/files/architecture/empty-files-arch-any",
+    "checks/files/architecture/files-arch-indep-not-marked-all",
+    "checks/files/architecture/very-short-files-arch-any",
     "checks/files/bugs/files-package-contains-foo",
     "checks/files/bugs/legacy-filenames",
     "checks/files/build-path/files-foo-in-bar",
@@ -1166,9 +1172,11 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
+    "checks/fields/vcs/fields-vcs-field-insecure-uri",
     "checks/fields/vcs/fields-vcs-field-mismatch",
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
+    "checks/fields/vcs/legacy-binary",
     "checks/fields/vcs/orphaned-package-in-private-salsa-space",
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
@@ -1566,9 +1574,11 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
+#[test_case("checks/fields/vcs/fields-vcs-field-insecure-uri"; "checks_fields_vcs_fields_vcs_field_insecure_uri")]
 #[test_case("checks/fields/vcs/fields-vcs-field-mismatch"; "checks_fields_vcs_fields_vcs_field_mismatch")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
+#[test_case("checks/fields/vcs/legacy-binary"; "checks_fields_vcs_legacy_binary")]
 #[test_case("checks/fields/vcs/orphaned-package-in-private-salsa-space"; "checks_fields_vcs_orphaned_package_in_private_salsa_space")]
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
@@ -1911,6 +1921,10 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/appimage-check/package-installs-appimage-file"; "checks_files_appimage_check_package_installs_appimage_file")]
 #[test_case("checks/files/appimage-check/package-installs-appimage-magic"; "checks_files_appimage_check_package_installs_appimage_magic")]
 #[test_case("checks/files/architecture/binaries-multiarch-wrong-dir"; "checks_files_architecture_binaries_multiarch_wrong_dir")]
+#[test_case("checks/files/architecture/cruft-source-is-missing-unrel"; "checks_files_architecture_cruft_source_is_missing_unrel")]
+#[test_case("checks/files/architecture/empty-files-arch-any"; "checks_files_architecture_empty_files_arch_any")]
+#[test_case("checks/files/architecture/files-arch-indep-not-marked-all"; "checks_files_architecture_files_arch_indep_not_marked_all")]
+#[test_case("checks/files/architecture/very-short-files-arch-any"; "checks_files_architecture_very_short_files_arch_any")]
 #[test_case("checks/files/bugs/files-package-contains-foo"; "checks_files_bugs_files_package_contains_foo")]
 #[test_case("checks/files/bugs/legacy-filenames"; "checks_files_bugs_legacy_filenames")]
 #[test_case("checks/files/build-path/files-foo-in-bar"; "checks_files_build_path_files_foo_in_bar")]
@@ -2447,9 +2461,11 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
+#[test_case("checks/fields/vcs/fields-vcs-field-insecure-uri"; "checks_fields_vcs_fields_vcs_field_insecure_uri")]
 #[test_case("checks/fields/vcs/fields-vcs-field-mismatch"; "checks_fields_vcs_fields_vcs_field_mismatch")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
+#[test_case("checks/fields/vcs/legacy-binary"; "checks_fields_vcs_legacy_binary")]
 #[test_case("checks/fields/vcs/orphaned-package-in-private-salsa-space"; "checks_fields_vcs_orphaned_package_in_private_salsa_space")]
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]

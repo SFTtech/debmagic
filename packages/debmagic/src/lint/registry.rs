@@ -270,6 +270,7 @@ use super::rules::MissingDependsOnSensibleUtils;
 use super::rules::MissingFileFromPotfilesIn;
 use super::rules::MissingIntermediateDirectory;
 use super::rules::MissingManifest;
+use super::rules::MissingNoticeFileForApacheLicense;
 use super::rules::MissingPkgPhpToolsAddon;
 use super::rules::MissingPkgPhpToolsBuildsystem;
 use super::rules::MissingPotfilesIn;
@@ -2177,6 +2178,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &GirMissingTypelibDependency,
         &PackageUsesDhRunitButLacksBreaksSubstvar,
         &DependencyIsNotMultiArchified,
+        &MissingNoticeFileForApacheLicense,
     ]
 }
 
@@ -3445,6 +3447,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &GirMissingTypelibDependency,
         &PackageUsesDhRunitButLacksBreaksSubstvar,
         &DependencyIsNotMultiArchified,
+        &MissingNoticeFileForApacheLicense,
     ]
 }
 

@@ -734,6 +734,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/games/files-general",
     "checks/games/legacy-filenames",
     "checks/images/filenames/conflicting-image-names",
+    "checks/images/filenames/unrelated-image-names",
     "checks/images/thumbnails/files-foo-in-bar",
     "checks/includes/config-h/package-name-srtp",
     "checks/init-d/directory-in-etc-sv-directory-without-executable-run-script",
@@ -2023,6 +2024,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/games/files-general"; "checks_games_files_general")]
 #[test_case("checks/games/legacy-filenames"; "checks_games_legacy_filenames")]
 #[test_case("checks/images/filenames/conflicting-image-names"; "checks_images_filenames_conflicting_image_names")]
+#[test_case("checks/images/filenames/unrelated-image-names"; "checks_images_filenames_unrelated_image_names")]
 #[test_case("checks/images/thumbnails/files-foo-in-bar"; "checks_images_thumbnails_files_foo_in_bar")]
 #[test_case("checks/includes/config-h/package-name-srtp"; "checks_includes_config_h_package_name_srtp")]
 #[test_case("checks/init-d/directory-in-etc-sv-directory-without-executable-run-script"; "checks_init_d_directory_in_etc_sv_directory_without_executable_run_script")]

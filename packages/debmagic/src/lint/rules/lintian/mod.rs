@@ -351,6 +351,7 @@ pub(crate) use fonts::FontInNonFontPackage;
 pub(crate) use fonts::FontOutsideFontDir;
 pub(crate) use fonts::WoffFontInWrongDir;
 pub(crate) use images_filenames::ImageFileHasConflictingName;
+pub(crate) use images_filenames::ImageFileHasUnexpectedName;
 pub(crate) use images_thumbnails::PackageContainsThumbnailsDir;
 pub(crate) use images_thumbnails::PackageContainsXvpicsDir;
 pub(crate) use includes_config_h::PackageNameDefinedInConfigH;

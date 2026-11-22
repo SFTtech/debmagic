@@ -891,6 +891,10 @@ fn assemble_binary_packages(recipe: &Path, work: &Path) -> Vec<PathBuf> {
 /// Rules have native tests; Parity needs a host that can build the recipe.
 const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
     (
+        "checks/languages/r/site-library/lacks-depends-on-r-api",
+        "the recipe builds with `--buildsystem=R`, and the host has no `Debian::Debhelper::Buildsystem::R` (the `dh-r` package)",
+    ),
+    (
         "checks/fields/multi-line/multiple-lines-in-maintainer-field",
         "the recipe's `build-spec/post-build.sh` rewrites the built product, and the harness does not run post-build scripts",
     ),

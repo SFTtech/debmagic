@@ -794,6 +794,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/python-package-missing-depends-on-python",
     "checks/languages/python/scripts/python-script-uses-unversioned-python-in-shebang",
     "checks/languages/r/architecture/fields-r-package-not-arch-all",
+    "checks/languages/r/site-library/lacks-depends-on-r-api",
     "checks/languages/ruby/depends-on-ruby-interpreter",
     "checks/languages/rust/empty-rust-library-declares-provides",
     "checks/libraries/debug-symbols/binaries-general",
@@ -2102,6 +2103,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/python/python-package-missing-depends-on-python"; "checks_languages_python_python_package_missing_depends_on_python")]
 #[test_case("checks/languages/python/scripts/python-script-uses-unversioned-python-in-shebang"; "checks_languages_python_scripts_python_script_uses_unversioned_python_in_shebang")]
 #[test_case("checks/languages/r/architecture/fields-r-package-not-arch-all"; "checks_languages_r_architecture_fields_r_package_not_arch_all")]
+#[test_case("checks/languages/r/site-library/lacks-depends-on-r-api"; "checks_languages_r_site_library_lacks_depends_on_r_api")]
 #[test_case("checks/languages/ruby/depends-on-ruby-interpreter"; "checks_languages_ruby_depends_on_ruby_interpreter")]
 #[test_case("checks/languages/rust/empty-rust-library-declares-provides"; "checks_languages_rust_empty_rust_library_declares_provides")]
 #[test_case("checks/libraries/debug-symbols/binaries-general"; "checks_libraries_debug_symbols_binaries_general")]

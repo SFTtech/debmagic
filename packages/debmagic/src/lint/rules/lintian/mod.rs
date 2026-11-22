@@ -505,8 +505,9 @@ pub(crate) use description::{
     CapitalizationErrorInDescription, DescriptionContainsDhMakePerlTemplate,
     DescriptionContainsInvalidControlStatement, DescriptionContainsTabs,
     DescriptionIsDebmakeTemplate, DescriptionIsDhMakeTemplate, DescriptionIsPkgName,
-    DescriptionStartsWithLeadingSpaces, DescriptionStartsWithPackageName,
-    DescriptionSynopsisIsEmpty, DescriptionSynopsisStartsWithArticle, DescriptionTooShort,
+    DescriptionMentionsPlannedFeatures, DescriptionStartsWithLeadingSpaces,
+    DescriptionStartsWithPackageName, DescriptionSynopsisIsEmpty,
+    DescriptionSynopsisStartsWithArticle, DescriptionTooShort,
     ExtendedDescriptionContainsEmptyParagraph, ExtendedDescriptionIsEmpty,
     ExtendedDescriptionLineTooLong, PossibleUnindentedListInExtendedDescription, SynopsisTooLong,
 };

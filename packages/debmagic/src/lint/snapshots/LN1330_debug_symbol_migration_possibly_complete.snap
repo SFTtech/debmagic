@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): debug-symbol-migration-possibly-complete (LN1330) --ddeb-migration=foo [debian/rules:7]
+P: example (source): debug-symbol-migration-possibly-complete (LN1330) --dbgsym-migration=foo [debian/rules:7]
+P: example (source): debug-symbol-migration-possibly-complete (LN1330) --dbgsym-migration='apostrophe' [debian/rules:7]
+P: example (source): debug-symbol-migration-possibly-complete (LN1330) --dbgsym-migration='apostrophe << 1' [debian/rules:7]
+P: example (source): debug-symbol-migration-possibly-complete (LN1330) --ddeb-migration=foo [debian/rules:8]

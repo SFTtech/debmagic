@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-upstream-installation-documentation (LN1351) [usr/share/doc/example/INSTALL]
+W: example (binary): package-contains-upstream-installation-documentation (LN1351) [usr/share/doc/example/INSTALL.txt]
+W: example (binary): package-contains-upstream-installation-documentation (LN1351) [usr/share/doc/example/INSTALL.gz]

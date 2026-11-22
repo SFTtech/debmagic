@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): possible-bashism-in-maintainer-script (LN1431) 'echo -e' [postinst:2]
+W: example (binary): possible-bashism-in-maintainer-script (LN1431) 'source ./foo' [postrm:2]
+W: example (binary): possible-bashism-in-maintainer-script (LN1431) 'function foo' [preinst:2]
+W: example (binary): possible-bashism-in-maintainer-script (LN1431) '$RANDOM' [postinst:2]
+W: example (binary): possible-bashism-in-maintainer-script (LN1431) '$RANDOM' [triggers:2]
+W: example (binary): possible-bashism-in-maintainer-script (LN1431) '<<<' [postinst:2]

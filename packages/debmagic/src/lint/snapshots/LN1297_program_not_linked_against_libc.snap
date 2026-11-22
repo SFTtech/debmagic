@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): program-not-linked-against-libc (LN1297) [usr/bin/foo]
+E: example (binary): program-not-linked-against-libc (LN1297) [usr/bin/pie]

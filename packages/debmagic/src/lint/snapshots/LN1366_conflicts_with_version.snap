@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): conflicts-with-version (LN1366) foo (<< 1.0)
+I: example (binary): conflicts-with-version (LN1366) bar (>= 2)
+I: example (binary): conflicts-with-version (LN1366) baz (= 3)
+I: example (udeb): conflicts-with-version (LN1366) foo (<< 1.0)

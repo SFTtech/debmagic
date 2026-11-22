@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): lacks-ldconfig-trigger (LN1414) usr/lib/libfoo.so.1
+E: example (binary): lacks-ldconfig-trigger (LN1414) usr/lib/tls/libfoo.so.1
+E: example (binary): lacks-ldconfig-trigger (LN1414) usr/lib/libfoo.so.1.0.1
+E: example (binary): lacks-ldconfig-trigger (LN1414) usr/lib/libfoo.so.1.0.1
+E: example (binary): lacks-ldconfig-trigger (LN1414) usr/lib/libfoo.so.1
+E: example (binary): lacks-ldconfig-trigger (LN1414) usr/lib/x86_64-linux-gnu/libfoo.so.1

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-prebuilt-doxygen-documentation (LN1353) [src/doc/latex/]
+P: example (source): source-contains-prebuilt-doxygen-documentation (LN1353) [src/doc/html/index.html]
+P: example (source): source-contains-prebuilt-doxygen-documentation (LN1353) [src/doc/html/index.xhtml]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): link-to-shared-library-in-wrong-package (LN1413) usr/lib/libfoo.so.1.0.1 [usr/lib/libfoo.so]
+W: example (udeb): link-to-shared-library-in-wrong-package (LN1413) usr/lib/libfoo.so.1.0.1 [usr/lib/libfoo.so]

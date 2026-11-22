@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): vcs-field-uses-insecure-uri (LN1372) Git git://salsa.debian.org/users/toddy/foobar.git
+I: example (source): vcs-field-uses-insecure-uri (LN1372) Browser http://salsa.debian.org/toddy/foobar
+I: example (source): vcs-field-uses-insecure-uri (LN1372) Svn svn://anonscm.debian.org/foobar/trunk
+I: example (source): vcs-field-uses-insecure-uri (LN1372) Cvs :pserver:anonymous@cvs.example.org:/cvsroot/foobar module
+I: example (source): vcs-field-uses-insecure-uri (LN1372) Bzr lp:foobar
+I: example (source): vcs-field-uses-insecure-uri (LN1372) Hg nosmart+http://hg.example.org/foobar

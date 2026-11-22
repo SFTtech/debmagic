@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): cute-field (LN1370) Xs-Python-Version vs XS-Python-Version [debian/control]

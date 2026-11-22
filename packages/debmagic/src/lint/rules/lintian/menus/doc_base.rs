@@ -3,10 +3,12 @@
 //! One pass per file collects every hit the `menus` Check raises from the
 //! parse itself, the spelling of the title and abstract included. Each Rule
 //! reports the hits of one [`Kind`]. `doc-base-file-references-missing-file`
-//! (which needs the files of strongly related installables) is not covered.
+//! needs the files of strongly related installables, so it is not one of
+//! them: [`missing_references`] walks a package's doc-base files with the
+//! [`ReferenceTargets`] of the Group Rule that asks.
 //! The Tags with their own walk in `scan.rs` are not repeated here.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
@@ -58,6 +60,7 @@ pub(super) enum Kind {
     NoFormat,
     NoIndex,
     ReferencesWrongPath,
+    ReferencesMissingFile,
     FileSeparatorExtraWhitespace,
     SyntaxError,
     UnknownFormat,
@@ -170,6 +173,11 @@ struct OpenField {
 struct Walk<'a> {
     package: &'a str,
     exceptions: &'a Exceptions,
+    /// The files the doc-base entries may name; `None` leaves
+    /// `ReferencesMissingFile` out.
+    targets: Option<&'a ReferenceTargets>,
+    /// Check the spelling of the title and abstract.
+    spelling: bool,
     hits: Vec<Hit>,
     saw_fields: HashSet<String>,
     saw_formats: HashSet<String>,
@@ -181,6 +189,8 @@ impl<'a> Walk<'a> {
         Self {
             package,
             exceptions,
+            targets: None,
+            spelling: true,
             hits: Vec::new(),
             saw_fields: HashSet::new(),
             saw_formats: HashSet::new(),
@@ -262,11 +272,19 @@ impl<'a> Walk<'a> {
         if open.name == "Index" && files.len() > 1 {
             self.hit(Kind::IndexReferencesMultipleFiles, open.line, "");
         }
-        for file in files {
+        for file in &files {
             if file.starts_with("/usr/share/doc/") || file.starts_with("/usr/share/info/") {
                 continue;
             }
-            self.hit(Kind::ReferencesWrongPath, open.line, file);
+            self.hit(Kind::ReferencesWrongPath, open.line, *file);
+        }
+        if let Some(targets) = self.targets {
+            let is_index = open.name == "Index";
+            for file in &files {
+                if !targets.contains(file, is_index) {
+                    self.hit(Kind::ReferencesMissingFile, open.line, *file);
+                }
+            }
         }
     }
 
@@ -359,6 +377,9 @@ impl<'a> Walk<'a> {
     /// `check_spelling` and `check_spelling_picky` over the field's values
     /// joined by spaces, each finding a hit of `kind` on the field's line.
     fn check_spelling_of(&mut self, open: &OpenField, kind: Kind) {
+        if !self.spelling {
+            return;
+        }
         let text = open.vals.join(" ");
         let findings = check_spelling(&text, self.exceptions, true)
             .into_iter()
@@ -381,6 +402,163 @@ impl<'a> Walk<'a> {
         {
             self.hit(Kind::NoIndex, line, "");
         }
+    }
+}
+
+/// The doc-base files of one package, each with the hits of kind
+/// `ReferencesMissingFile`: path, line and the entry that is not in `targets`.
+/// Like lintian, an executable file is not read (another Tag reports it).
+pub(super) fn missing_references(
+    files: &FileTree,
+    targets: &ReferenceTargets,
+) -> Vec<(PathBuf, u32, String)> {
+    let mut entries: Vec<_> = files
+        .entries()
+        .iter()
+        .filter(|entry| {
+            matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink)
+                && !entry.is_executable_file()
+                && is_doc_base_child(entry.path())
+        })
+        .collect();
+    entries.sort_by(|left, right| left.path().cmp(right.path()));
+    let none = Exceptions::new();
+    let mut found = Vec::new();
+    for entry in entries {
+        let Ok(bytes) = files.read(entry) else {
+            continue;
+        };
+        let Ok(text) = std::str::from_utf8(&bytes) else {
+            continue;
+        };
+        let mut walk = Walk::new("", &none);
+        walk.targets = Some(targets);
+        walk.spelling = false;
+        for hit in walk.run(text) {
+            if hit.kind == Kind::ReferencesMissingFile {
+                found.push((entry.path().to_path_buf(), hit.line, hit.extra));
+            }
+        }
+    }
+    found
+}
+
+/// lintian's `$all_files` and `$all_links` of a package and the installables
+/// it depends on: every path as an absolute name (a directory with a trailing
+/// `/`), and where each symlink or hardlink leads.
+#[derive(Default)]
+pub(super) struct ReferenceTargets {
+    files: HashSet<String>,
+    links: HashMap<String, String>,
+}
+
+static DUPLICATE_SLASHES: LazyLock<Regex> = LazyLock::new(|| Regex::new("/+").expect("regex"));
+static DOT_SEGMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"/+\./+").expect("regex"));
+static LEADING_DOTDOT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^/+\.\./+").expect("regex"));
+static LAST_COMPONENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"/[^/]*$").expect("regex"));
+static FIRST_COMPONENT: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(/[^/]*)").expect("regex"));
+
+impl ReferenceTargets {
+    /// Add every Entry of a package's Data files (lintian's
+    /// `add_file_link_info`).
+    pub(super) fn add_tree(&mut self, tree: &FileTree) {
+        for entry in tree.entries() {
+            let mut file = format!("/{}", entry.path().to_string_lossy());
+            if entry.kind() == EntryKind::Directory {
+                file.push('/');
+            }
+            let file = DUPLICATE_SLASHES.replace_all(&file, "/").into_owned();
+            self.files.insert(file.clone());
+            let (link, is_hardlink) = match entry.kind() {
+                EntryKind::Symlink => (entry.link_target(), false),
+                EntryKind::Hardlink => (entry.hardlink_target(), true),
+                _ => (None, false),
+            };
+            let Some(link) = link.map(|link| link.to_string_lossy().into_owned()) else {
+                continue;
+            };
+            if link.is_empty() {
+                continue;
+            }
+            let link = if link.starts_with('/') {
+                link
+            } else if is_hardlink {
+                format!("/{link}")
+            } else {
+                let link = DOT_SEGMENT
+                    .replace_all(&format!("/./{link}"), "/")
+                    .into_owned();
+                let mut link = link;
+                let mut up = 1;
+                while let Some(found) = LEADING_DOTDOT.find(&link) {
+                    link = format!("/{}", &link[found.end()..]);
+                    up += 1;
+                }
+                let mut base = file.clone();
+                for _ in 0..up {
+                    base = LAST_COMPONENT.replace(&base, "").into_owned();
+                }
+                format!("{base}{link}")
+            };
+            if link != file {
+                self.links.insert(file, link);
+            }
+        }
+    }
+
+    /// lintian's `delink`: the name with every symlink on the way replaced.
+    fn delink(&self, file: &str) -> String {
+        let file = DUPLICATE_SLASHES.replace_all(file, "/").into_owned();
+        if self.links.is_empty() {
+            return file;
+        }
+        let mut first = String::new();
+        let mut rest = file;
+        // lintian's own loop detection never triggers; stop after many hops.
+        for _ in 0..10_000 {
+            let Some(captures) = FIRST_COMPONENT.captures(&rest) else {
+                break;
+            };
+            let component = captures[1].to_string();
+            rest = rest[component.len()..].to_string();
+            first.push_str(&component);
+            if let Some(target) = self.links.get(&first) {
+                rest = format!("{target}{rest}");
+                first.clear();
+            }
+        }
+        if first.is_empty() { rest } else { first }
+    }
+
+    /// The entry of a doc-base `Index` or `Files` field is in the package or
+    /// its dependencies. A wildcard in `Files` is a pattern over a file name;
+    /// one with a character class is not checked. In `Index` a wildcard is
+    /// taken literally.
+    fn contains(&self, file: &str, is_index: bool) -> bool {
+        let real = self.delink(file);
+        if real.contains(['*', '?']) {
+            if is_index {
+                return self.files.contains(&real);
+            }
+            if real.contains('[') {
+                return true;
+            }
+            let mut pattern = String::from("^");
+            for ch in real.chars() {
+                match ch {
+                    '*' => pattern.push_str("[^/]*"),
+                    '?' => pattern.push_str("[^/]"),
+                    other => pattern.push_str(&regex::escape(&other.to_string())),
+                }
+            }
+            pattern.push_str("/?$");
+            let Ok(pattern) = Regex::new(&pattern) else {
+                return true;
+            };
+            return self.files.iter().any(|name| pattern.is_match(name));
+        }
+        self.files.contains(&real) || self.files.contains(&format!("{real}/"))
     }
 }
 

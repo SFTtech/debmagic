@@ -314,6 +314,7 @@ use super::rules::Python3DependsButNoPython3Helper;
 use super::rules::Python3ScriptButNoPython3Dep;
 use super::rules::PythonDebugInWrongLocation;
 use super::rules::PythonModuleInWrongLocation;
+use super::rules::PythonTracebackInManpage;
 use super::rules::QuiltBuildDepButNoSeriesFile;
 use super::rules::QuiltPatchWithNonStandardOptions;
 use super::rules::QuiltSeriesButNoBuildDep;
@@ -1951,6 +1952,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SourceContainsPrebuiltDoxygenDocumentation,
         &FSSTNDDirInManualPage,
         &AcuteAccentInManualPage,
+        &PythonTracebackInManpage,
     ]
 }
 
@@ -3094,6 +3096,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UdebContainsDocumentationFile,
         &FSSTNDDirInManualPage,
         &AcuteAccentInManualPage,
+        &PythonTracebackInManpage,
     ]
 }
 

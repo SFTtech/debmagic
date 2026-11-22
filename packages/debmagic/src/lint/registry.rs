@@ -328,6 +328,7 @@ use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
+use super::rules::RustBoilerplate;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::ScriptNotExecutable;
 use super::rules::ScriptUsesDeprecatedNodejsLocation;
@@ -1943,6 +1944,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageInstallsLegacyPythonEggInfo,
         &UsesDeprecatedPythonStdlib,
         &RequiresRApi,
+        &RustBoilerplate,
     ]
 }
 
@@ -2306,6 +2308,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SubstvarSourceVersionIsDeprecated,
         &MissingPrerequisiteForPyprojectBackend,
         &UsesDeprecatedPythonStdlib,
+        &RustBoilerplate,
     ]
 }
 

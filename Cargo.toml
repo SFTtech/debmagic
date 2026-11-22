@@ -27,6 +27,7 @@ toml_edit = ">=0.22"
 uuid = { version = ">=1.10.0", features = ["v4", "v5"] }
 chrono = { version = ">=0.4.42" }
 regex = { version = ">=1.12.2" }
+fancy-regex = { version = ">=0.14" }
 reqwest = { version = ">=0.13", default-features = false, features = ["rustls", "stream"] }
 futures-util = "0.3"
 tokio = { version = ">=1.43", features = ["macros", "rt-multi-thread", "sync", "time"] }

@@ -26,7 +26,6 @@ mod ln1361_extended_description_is_probably_too_short;
 mod ln1362_spelling_error_in_description;
 mod ln1363_synopsis_is_a_sentence;
 mod ln1364_using_first_person_in_description;
-mod spelling;
 
 pub(crate) use ln0037_extended_description_is_empty::ExtendedDescriptionIsEmpty;
 pub(crate) use ln0050_description_synopsis_is_empty::DescriptionSynopsisIsEmpty;

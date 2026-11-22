@@ -23,6 +23,7 @@ use super::lintian_overrides::LintianOverrides;
 use super::quilt_series::QuiltSeries;
 use super::rule::{Code, RuleAccess, Tag};
 use super::source_package::SourcePackageExtract;
+use super::strings::FileStrings;
 use super::subject::SubjectKind;
 use super::timing;
 
@@ -337,6 +338,19 @@ impl<'a> BinaryPackageContext<'a> {
         Some(self.shared_once(|ctx| {
             ctx.data_files()
                 .map(ElfFiles::from_tree)
+                .unwrap_or_default()
+        }))
+    }
+
+    /// `strings` of the ELF Data files (lintian's `$item->strings`), computed
+    /// once per Subject and shared by every Rule. `None` after a global File
+    /// tree failure, as for [`Self::data_files`].
+    #[allow(dead_code)] // seam API; no Rule reads it yet
+    pub fn data_strings(&mut self) -> Option<Arc<FileStrings>> {
+        self.data_files()?;
+        Some(self.shared_once(|ctx| {
+            ctx.data_files()
+                .map(FileStrings::from_tree)
                 .unwrap_or_default()
         }))
     }

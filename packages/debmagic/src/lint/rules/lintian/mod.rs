@@ -16,6 +16,7 @@ mod binaries_prerequisites;
 mod binaries_prerequisites_php;
 mod binaries_profiling;
 mod binaries_rpath;
+mod binaries_spelling;
 mod binaries_static;
 mod build_systems_waf;
 mod changelog_doc;
@@ -155,6 +156,7 @@ mod languages_r;
 mod languages_ruby;
 mod languages_rust;
 mod libraries_debug_symbols;
+mod libraries_embedded;
 mod libraries_shared_file_permissions;
 mod libraries_shared_links;
 mod libraries_shared_multi_arch;
@@ -289,6 +291,7 @@ pub(crate) use binaries_prerequisites_php::MissingDependencyOnPhpapi;
 pub(crate) use binaries_profiling::BinaryCompiledWithProfilingEnabled;
 pub(crate) use binaries_rpath::CustomLibrarySearchPath;
 pub(crate) use binaries_rpath::RelativeLibrarySearchPath;
+pub(crate) use binaries_spelling::SpellingErrorInBinary;
 pub(crate) use binaries_static::StaticallyLinkedBinary;
 pub(crate) use build_systems_waf::SourceContainsWafBinary;
 pub(crate) use changes_file::BadSectionInChangesFile;
@@ -433,6 +436,7 @@ pub(crate) use languages_ruby::RubygemHomepage;
 pub(crate) use languages_rust::EmptyRustLibraryDeclaresProvides;
 pub(crate) use languages_rust::RustBoilerplate;
 pub(crate) use libraries_debug_symbols::StrippedLibrary;
+pub(crate) use libraries_embedded::EmbeddedLibrary;
 pub(crate) use libraries_shared_file_permissions::OddPermissionsOnSharedLibrary;
 pub(crate) use libraries_shared_file_permissions::SharedLibraryIsExecutable;
 pub(crate) use libraries_shared_links::LacksVersionedLinkToSharedLibrary;
@@ -474,10 +478,11 @@ pub(crate) use debian_changelog::{
     NmuInChangelog, NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
     PossibleMissingColonInCloses, PossibleNewUpstreamReleaseWithoutNewVersion,
     QaUploadHasIncorrectVersionNumber, RcVersionGreaterThanExpectedVersion,
-    SourceNmuHasIncorrectVersionNumber, SyntaxErrorInDebianNewsFile,
-    TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload, UploadersInOrphan,
-    VersionRefersToDistribution, VersionRefersToUnstableDistributionWithExpVersion,
-    WrongBugNumberInCloses, WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
+    SourceNmuHasIncorrectVersionNumber, SpellingErrorInChangelog, SpellingErrorInNewsDebian,
+    SyntaxErrorInDebianNewsFile, TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload,
+    UploadersInOrphan, VersionRefersToDistribution,
+    VersionRefersToUnstableDistributionWithExpVersion, WrongBugNumberInCloses,
+    WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
     WrongNameForDebianNewsFile, WrongNameForUpstreamChangelog,
 };
 pub(crate) use debian_copyright::{
@@ -931,7 +936,8 @@ pub(crate) use menus::{
     PostinstDoesNotCallUpdatemenus, PostinstHasUselessCallToInstallDocs,
     PostinstHasUselessCallToUpdateMenus, PostrmCallsInstalldocs, PostrmDoesNotCallUpdatemenus,
     PostrmHasUselessCallToUpdateMenus, PreinstCallsInstalldocs, PreinstCallsUpdatemenus,
-    PrermCallsUpdatemenus, PrermHasUselessCallToInstallDocs,
+    PrermCallsUpdatemenus, PrermHasUselessCallToInstallDocs, SpellingErrorInDocBaseAbstractField,
+    SpellingErrorInDocBaseTitleField,
 };
 pub(crate) use mimeinfo::PackageContainsMimeCacheFile;
 pub(crate) use mimeinfo::PackageContainsMimeFileOutsidePackageDir;

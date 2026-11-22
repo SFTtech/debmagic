@@ -505,6 +505,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/rpath/binaries-general",
     "checks/binaries/rpath/quoted",
     "checks/binaries/rpath/relative",
+    "checks/binaries/spelling/binaries-spelling",
     "checks/binaries/static/binaries-from-other-arch",
     "checks/binaries/static/binaries-general",
     "checks/binaries/static/legacy-binary",
@@ -562,6 +563,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-libbaz",
     "checks/debian/changelog/legacy-maintainer-scripts",
     "checks/debian/changelog/legacy-relations",
+    "checks/debian/changelog/spelling-general",
     "checks/debian/copyright/copyright-file-general",
     "checks/debian/copyright/copyright-file-license-symlink",
     "checks/debian/copyright/copyright-file-symlink",
@@ -938,6 +940,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/ruby/depends-on-ruby-interpreter",
     "checks/languages/rust/empty-rust-library-declares-provides",
     "checks/libraries/debug-symbols/binaries-general",
+    "checks/libraries/embedded/binaries-embedded-libs",
     "checks/libraries/shared/file-permissions/legacy-libbaz",
     "checks/libraries/shared/file-permissions/shared-libs-exec-bit",
     "checks/libraries/shared/links/legacy-libbaz",
@@ -1004,6 +1007,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/menus/menus-foo-calls-bar",
     "checks/menus/menus-script-check-ok",
     "checks/menus/national-encoding",
+    "checks/menus/spelling-general",
     "checks/mimeinfo/files-foo-in-bar",
     "checks/mimeinfo/files-general",
     "checks/modprobe/directory-in-usr-lib-modprobe",
@@ -2070,6 +2074,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/rpath/binaries-general"; "checks_binaries_rpath_binaries_general")]
 #[test_case("checks/binaries/rpath/quoted"; "checks_binaries_rpath_quoted")]
 #[test_case("checks/binaries/rpath/relative"; "checks_binaries_rpath_relative")]
+#[test_case("checks/binaries/spelling/binaries-spelling"; "checks_binaries_spelling_binaries_spelling")]
 #[test_case("checks/binaries/static/binaries-from-other-arch"; "checks_binaries_static_binaries_from_other_arch")]
 #[test_case("checks/binaries/static/binaries-general"; "checks_binaries_static_binaries_general")]
 #[test_case("checks/binaries/static/legacy-binary"; "checks_binaries_static_legacy_binary")]
@@ -2127,6 +2132,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/legacy-libbaz"; "checks_debian_changelog_legacy_libbaz")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
 #[test_case("checks/debian/changelog/legacy-relations"; "checks_debian_changelog_legacy_relations")]
+#[test_case("checks/debian/changelog/spelling-general"; "checks_debian_changelog_spelling_general")]
 #[test_case("checks/debian/copyright/copyright-file-general"; "checks_debian_copyright_copyright_file_general")]
 #[test_case("checks/debian/copyright/copyright-file-license-symlink"; "checks_debian_copyright_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]
@@ -2503,6 +2509,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/ruby/depends-on-ruby-interpreter"; "checks_languages_ruby_depends_on_ruby_interpreter")]
 #[test_case("checks/languages/rust/empty-rust-library-declares-provides"; "checks_languages_rust_empty_rust_library_declares_provides")]
 #[test_case("checks/libraries/debug-symbols/binaries-general"; "checks_libraries_debug_symbols_binaries_general")]
+#[test_case("checks/libraries/embedded/binaries-embedded-libs"; "checks_libraries_embedded_binaries_embedded_libs")]
 #[test_case("checks/libraries/shared/file-permissions/legacy-libbaz"; "checks_libraries_shared_file_permissions_legacy_libbaz")]
 #[test_case("checks/libraries/shared/file-permissions/shared-libs-exec-bit"; "checks_libraries_shared_file_permissions_shared_libs_exec_bit")]
 #[test_case("checks/libraries/shared/links/legacy-libbaz"; "checks_libraries_shared_links_legacy_libbaz")]
@@ -2569,6 +2576,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/menus/menus-foo-calls-bar"; "checks_menus_menus_foo_calls_bar")]
 #[test_case("checks/menus/menus-script-check-ok"; "checks_menus_menus_script_check_ok")]
 #[test_case("checks/menus/national-encoding"; "checks_menus_national_encoding")]
+#[test_case("checks/menus/spelling-general"; "checks_menus_spelling_general")]
 #[test_case("checks/mimeinfo/files-foo-in-bar"; "checks_mimeinfo_files_foo_in_bar")]
 #[test_case("checks/mimeinfo/files-general"; "checks_mimeinfo_files_general")]
 #[test_case("checks/modprobe/directory-in-usr-lib-modprobe"; "checks_modprobe_directory_in_usr_lib_modprobe")]

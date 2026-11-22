@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): spelling-error-in-doc-base-abstract-field (LN1423) speling spelling [usr/share/doc-base/example:4]
+P: example (binary): spelling-error-in-doc-base-abstract-field (LN1423) repeated repeated (duplicate word) repeated [usr/share/doc-base/example:4]
+P: example (udeb): spelling-error-in-doc-base-abstract-field (LN1423) debian Debian [usr/share/doc-base/example:4]

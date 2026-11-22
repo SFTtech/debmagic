@@ -309,6 +309,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
     "checks/languages/javascript/nodejs/pkg-js-autopkgtest-file-does-not-exist",
+    "checks/languages/javascript/nodejs/pkg-js-autopkgtest-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/php/composer/depends-composer",
@@ -1177,6 +1178,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
     "checks/languages/javascript/nodejs/pkg-js-autopkgtest-file-does-not-exist",
+    "checks/languages/javascript/nodejs/pkg-js-autopkgtest-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/php/composer/depends-composer",
@@ -1565,6 +1567,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-autopkgtest-file-does-not-exist"; "checks_languages_javascript_nodejs_pkg_js_autopkgtest_file_does_not_exist")]
+#[test_case("checks/languages/javascript/nodejs/pkg-js-autopkgtest-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_autopkgtest_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/php/composer/depends-composer"; "checks_languages_php_composer_depends_composer")]
@@ -2435,6 +2438,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-autopkgtest-file-does-not-exist"; "checks_languages_javascript_nodejs_pkg_js_autopkgtest_file_does_not_exist")]
+#[test_case("checks/languages/javascript/nodejs/pkg-js-autopkgtest-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_autopkgtest_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/php/composer/depends-composer"; "checks_languages_php_composer_depends_composer")]

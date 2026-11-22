@@ -219,6 +219,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/rules/rules-special-variables",
     "checks/debian/rules/rules-symlink",
+    "checks/debian/rules/rules-unnecessary-get-orig-source",
     "checks/debian/rules/rules-unnecessary-source-date-epoch",
     "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
@@ -1296,6 +1297,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/rules/rules-special-variables",
     "checks/debian/rules/rules-symlink",
+    "checks/debian/rules/rules-unnecessary-get-orig-source",
     "checks/debian/rules/rules-unnecessary-source-date-epoch",
     "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
@@ -1807,6 +1809,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/rules/rules-special-variables"; "checks_debian_rules_rules_special_variables")]
 #[test_case("checks/debian/rules/rules-symlink"; "checks_debian_rules_rules_symlink")]
+#[test_case("checks/debian/rules/rules-unnecessary-get-orig-source"; "checks_debian_rules_rules_unnecessary_get_orig_source")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
@@ -2886,6 +2889,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/rules/rules-special-variables"; "checks_debian_rules_rules_special_variables")]
 #[test_case("checks/debian/rules/rules-symlink"; "checks_debian_rules_rules_symlink")]
+#[test_case("checks/debian/rules/rules-unnecessary-get-orig-source"; "checks_debian_rules_rules_unnecessary_get_orig_source")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]

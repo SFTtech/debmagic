@@ -487,6 +487,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/shlibs/shared-libs-symbols-file",
     "checks/debian/shlibs/shared-libs-unversioned",
     "checks/desktop/dbus/dbus-policy",
+    "checks/desktop/dbus/dbus-services",
     "checks/desktop/gnome/files-foo-in-bar",
     "checks/desktop/gnome/gir/gir",
     "checks/desktop/gnome/legacy-filenames",
@@ -1725,6 +1726,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/shlibs/shared-libs-symbols-file"; "checks_debian_shlibs_shared_libs_symbols_file")]
 #[test_case("checks/debian/shlibs/shared-libs-unversioned"; "checks_debian_shlibs_shared_libs_unversioned")]
 #[test_case("checks/desktop/dbus/dbus-policy"; "checks_desktop_dbus_dbus_policy")]
+#[test_case("checks/desktop/dbus/dbus-services"; "checks_desktop_dbus_dbus_services")]
 #[test_case("checks/desktop/gnome/files-foo-in-bar"; "checks_desktop_gnome_files_foo_in_bar")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/desktop/gnome/legacy-filenames"; "checks_desktop_gnome_legacy_filenames")]

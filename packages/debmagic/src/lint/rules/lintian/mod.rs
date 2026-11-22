@@ -678,6 +678,7 @@ pub(crate) use debian_patches::{
     InvalidDep3FormatPatchOriginFieldDefaultValue, PackageUsesVendorSpecificPatchSeries,
     PatchFilePresentButNotMentionedInSeries, PatchSystemButNoSourceReadme,
     QuiltBuildDepButNoSeriesFile, QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
+    QuiltSeriesWithoutTrailingNewline,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,

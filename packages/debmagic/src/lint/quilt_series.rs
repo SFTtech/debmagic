@@ -36,6 +36,7 @@ static MENTION: LazyLock<Regex> = LazyLock::new(|| {
 pub(crate) struct QuiltSeries {
     patches: Vec<QuiltPatch>,
     mentions: Vec<String>,
+    unterminated: bool,
 }
 
 /// One patch line of a series file, in series order.
@@ -54,6 +55,9 @@ impl QuiltSeries {
         for (index, raw) in text.split_inclusive('\n').enumerate() {
             let line = u32::try_from(index + 1).unwrap_or(u32::MAX);
             let content = raw.strip_suffix('\n').unwrap_or(raw);
+            if !raw.ends_with('\n') {
+                series.unterminated = true;
+            }
             if let Some(mention) = MENTION.captures(content) {
                 series.mentions.push(mention[1].to_string());
             }
@@ -79,6 +83,12 @@ impl QuiltSeries {
     #[allow(dead_code)] // read by the other `debian/patches/quilt` Tags
     pub fn patches(&self) -> &[QuiltPatch] {
         &self.patches
+    }
+
+    /// Whether the last line has no `\n`. Lintian's `rindex($line, "\n") < 0`
+    /// test; a comment or blank last line counts too. An empty file is not.
+    pub fn has_unterminated_line(&self) -> bool {
+        self.unterminated
     }
 
     /// The first word of each line, after an optional run of `#`, in file
@@ -193,5 +203,13 @@ mod tests {
             series.mentions().collect::<Vec<_>>(),
             ["a.patch", "b.patch"]
         );
+    }
+
+    #[test]
+    fn unterminated_last_line() {
+        assert!(!QuiltSeries::parse("").has_unterminated_line());
+        assert!(!QuiltSeries::parse("a.patch\n").has_unterminated_line());
+        assert!(QuiltSeries::parse("a.patch").has_unterminated_line());
+        assert!(QuiltSeries::parse("a.patch\n# end").has_unterminated_line());
     }
 }

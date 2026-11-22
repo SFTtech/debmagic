@@ -323,6 +323,7 @@ use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
 use super::rules::SystemdServiceInOddLocation;
 use super::rules::TabInLicenseText;
 use super::rules::TeamUploadHasIncorrectVersionNumber;
+use super::rules::TclshScriptButNoTclshDep;
 use super::rules::TemporaryDebhelperFile;
 use super::rules::TestLeavesPythonVersionUntested;
 use super::rules::TestsuiteDependencyHasUnparsableElements;
@@ -1819,6 +1820,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RubyScriptButNoRubyDep,
         &ScriptNotExecutable,
         &ScriptUsesDeprecatedNodejsLocation,
+        &TclshScriptButNoTclshDep,
     ]
 }
 
@@ -2896,6 +2898,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &RubyScriptButNoRubyDep,
         &ScriptNotExecutable,
         &ScriptUsesDeprecatedNodejsLocation,
+        &TclshScriptButNoTclshDep,
     ]
 }
 

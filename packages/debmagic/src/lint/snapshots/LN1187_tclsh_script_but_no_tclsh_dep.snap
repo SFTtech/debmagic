@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): tclsh-script-but-no-tclsh-dep (LN1187) /usr/bin/tclsh (does not satisfy tclsh | tcl | tcl8.3 | tcl8.4 | tcl8.5 | tcl8.6) [usr/bin/tool]
+E: example (binary): tclsh-script-but-no-tclsh-dep (LN1187) tclsh (does not satisfy tclsh | tcl | tcl8.3 | tcl8.4 | tcl8.5 | tcl8.6) [usr/bin/tool]
+E: example (binary): tclsh-script-but-no-tclsh-dep (LN1187) /usr/bin/tclsh (does not satisfy tclsh | tcl | tcl8.3 | tcl8.4 | tcl8.5 | tcl8.6) [usr/bin/tool]
+E: example (udeb): tclsh-script-but-no-tclsh-dep (LN1187) /usr/bin/tclsh (does not satisfy tclsh | tcl | tcl8.3 | tcl8.4 | tcl8.5 | tcl8.6) [usr/bin/tool]
+E: example (binary): tclsh-script-but-no-tclsh-dep (LN1187) /usr/bin/tclsh (does not satisfy tclsh | tcl | tcl8.3 | tcl8.4 | tcl8.5 | tcl8.6) [usr/bin/tool]

@@ -866,8 +866,8 @@ pub(crate) use scripts_text::{
     MultiArchSamePackageCallsPycompile, PhpScriptWithUnusualInterpreter,
     PossiblyInsecureHandlingOfTmpFilesInMaintainerScript, PostrmRemovesAlternative,
     Python3ScriptButNoPython3Dep, RubyScriptButNoRubyDep, ScriptNotExecutable, ScriptUsesBinEnv,
-    ScriptUsesDeprecatedNodejsLocation, SystemdAlternatives, UdebPostinstCallsLdconfig,
-    UdevadmCalledWithoutGuard, UnusualControlInterpreter,
+    ScriptUsesDeprecatedNodejsLocation, SystemdAlternatives, TclshScriptButNoTclshDep,
+    UdebPostinstCallsLdconfig, UdevadmCalledWithoutGuard, UnusualControlInterpreter,
 };
 pub(crate) use systemd::{
     InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, KillModeNone,

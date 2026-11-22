@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): license-problem-old-unicode (LN1273) [src/bad.c]

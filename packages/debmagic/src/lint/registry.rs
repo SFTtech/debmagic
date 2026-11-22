@@ -385,6 +385,7 @@ use super::rules::WaywardSymbolicLinkTargetInSource;
 use super::rules::WeakLibraryDevDependency;
 use super::rules::WebApplicationDependsOnApache2DataPackage;
 use super::rules::WebApplicationWorksOnlyWithApache;
+use super::rules::WhitespaceAfterContinuationCharacter;
 use super::rules::WindowsDevelFileInPackage;
 use super::rules::WishScriptButNoWishDep;
 use super::rules::WoffFontInWrongDir;
@@ -1845,6 +1846,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RepeatedTriggerName,
         &UnknownTrigger,
         &UnparsableMenuItem,
+        &WhitespaceAfterContinuationCharacter,
     ]
 }
 
@@ -2935,6 +2937,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &RepeatedTriggerName,
         &UnknownTrigger,
         &UnparsableMenuItem,
+        &WhitespaceAfterContinuationCharacter,
     ]
 }
 

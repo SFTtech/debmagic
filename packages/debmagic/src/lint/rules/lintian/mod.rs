@@ -798,6 +798,7 @@ pub(crate) use menu_format::{
     MenuItemUsesWindowmanagersSection, NonWmInWindowmanagerMenuSection,
     NonWmModuleInWmModulesMenuSection, PkgNotInPackageTest, SuToRootWithUsrSbin,
     SuWrapperNotSuToRoot, SuWrapperWithoutC, UnparsableMenuItem, UnquotedStringInMenuItem,
+    WhitespaceAfterContinuationCharacter,
 };
 pub(crate) use menus::{
     DocBaseAbstractFieldIsTemplate, DocBaseAbstractFieldSeparatorExtraWhitespace,

@@ -90,6 +90,7 @@ pub struct ElfFacts {
     class: ElfClass,
     endianness: ElfEndianness,
     section_names: Vec<String>,
+    section_sizes: Vec<u64>,
     errors: Vec<String>,
 }
 
@@ -148,6 +149,7 @@ impl ElfFacts {
             errors.push("In program headers: Unable to find program interpreter name".to_string());
         }
 
+        let (section_names, section_sizes) = sections(whole.as_ref());
         let mut facts = Self {
             object_type: ElfObjectType::Other,
             interpreter: program_headers
@@ -184,7 +186,8 @@ impl ElfFacts {
             } else {
                 ElfEndianness::Big
             },
-            section_names: section_names(whole.as_ref()),
+            section_names,
+            section_sizes,
             errors,
         };
 
@@ -344,6 +347,17 @@ impl ElfFacts {
         &self.section_names
     }
 
+    /// Names of the Section headers whose size (`sh_size`, `readelf -S`:
+    /// `Size`) is not zero, in table order. A `.text` or `.data` section
+    /// with no bytes is not code.
+    pub fn sized_section_names(&self) -> impl Iterator<Item = &str> + '_ {
+        self.section_names
+            .iter()
+            .zip(&self.section_sizes)
+            .filter(|(_, size)| **size > 0)
+            .map(|(name, _)| name.as_str())
+    }
+
     /// `e_machine`, the processor the object is for (an `EM_*` value, such
     /// as 62 for `EM_X86_64`).
     #[allow(dead_code)] // seam API; no Rule reads it yet
@@ -417,20 +431,23 @@ fn interpreter_is_unreadable(bytes: &[u8], interp: &ProgramHeader) -> bool {
     !in_file
 }
 
-/// Section names, in table order, from a permissive whole-file parse.
-fn section_names(elf: Option<&Elf>) -> Vec<String> {
+/// Section names and sizes, in table order, from a permissive whole-file
+/// parse.
+fn sections(elf: Option<&Elf>) -> (Vec<String>, Vec<u64>) {
     let Some(elf) = elf else {
-        return Vec::new();
+        return (Vec::new(), Vec::new());
     };
     elf.section_headers
         .iter()
         .map(|section| {
-            elf.shdr_strtab
+            let name = elf
+                .shdr_strtab
                 .get_at(section.sh_name)
                 .unwrap_or_default()
-                .to_string()
+                .to_string();
+            (name, section.sh_size)
         })
-        .collect()
+        .unzip()
 }
 
 /// Dynamic symbols with their versions, from a permissive whole-file parse.
@@ -607,8 +624,8 @@ pub(crate) struct TestElf {
     imports: Vec<(String, Option<String>)>,
     /// Point `e_shoff` past the end of the file, as a cut-off ELF does.
     missing_section_headers: bool,
-    /// Extra empty sections with these names (`.note`, `.comment`, ...).
-    sections: Vec<String>,
+    /// Extra sections with these names and sizes (`.note`, `.comment`, ...).
+    sections: Vec<(String, u64)>,
 }
 
 #[cfg(test)]
@@ -742,9 +759,15 @@ impl TestElf {
 
     /// Adds an empty section named `name`, after the dynamic symbol sections
     /// and before `.shstrtab`. Sections are written in the order added.
-    #[allow(dead_code)] // used by the seam tests below and the Rules that follow
     pub fn section(mut self, name: &str) -> Self {
-        self.sections.push(name.to_string());
+        self.sections.push((name.to_string(), 0));
+        self
+    }
+
+    /// Adds a section named `name` that `readelf` shows with a size of one
+    /// byte (its contents are not in the file).
+    pub fn sized_section(mut self, name: &str) -> Self {
+        self.sections.push((name.to_string(), 1));
         self
     }
 
@@ -829,7 +852,7 @@ impl TestElf {
             section_names
                 .extend([".dynsym", ".dynstr", ".gnu.version", ".gnu.version_r"].map(String::from));
         }
-        section_names.extend(self.sections.iter().cloned());
+        section_names.extend(self.sections.iter().map(|(name, _)| name.clone()));
         section_names.push(".shstrtab".to_string());
         let mut shstrtab = vec![0u8];
         let name_offsets: Vec<u32> = section_names
@@ -1018,8 +1041,8 @@ impl TestElf {
                     0,
                 ));
             }
-            for _ in &self.sections {
-                headers.push((1, 0, 0, 0, 0, 0)); // SHT_PROGBITS, empty
+            for (_, size) in &self.sections {
+                headers.push((1, 0, *size as usize, 0, 0, 0)); // SHT_PROGBITS
             }
             headers.push((3, shstr_offset, shstrtab.len(), 0, 0, 0)); // SHT_STRTAB
             for (name, (sh_type, offset, size, link, info, entsize)) in

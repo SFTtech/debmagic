@@ -770,6 +770,7 @@ pub(crate) use languages_python::{
 };
 pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
+pub(crate) use libraries_static::NoCodeSections;
 pub(crate) use libraries_static::OddStaticLibraryName;
 pub(crate) use libtool::{IncorrectLibdirInLaFile, NonEmptyDependencyLibsInLaFile};
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;

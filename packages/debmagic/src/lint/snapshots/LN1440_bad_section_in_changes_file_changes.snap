@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): bad-section-in-changes-file (LN1440) a_1.0_all.deb non-free
+E: example (changes): bad-section-in-changes-file (LN1440) a_1.0_all.deb contrib
+E: example (changes): bad-section-in-changes-file (LN1440) b_1.0_all.deb non-free
+E: example (changes): bad-section-in-changes-file (LN1440) c_1.0_all.deb contrib

@@ -18,6 +18,7 @@ use super::rules::BadPermForFileInEtcSudoersD;
 use super::rules::BadPermissionsForAliFile;
 use super::rules::BadPermissionsForEtcCronDScript;
 use super::rules::BadRelation;
+use super::rules::BadSectionInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BinaryCompiledWithProfilingEnabled;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &BadSectionInChangesFile,
     ]
 }
 
@@ -3070,7 +3072,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
 }
 
 pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
-    &[]
+    &[&BadSectionInChangesFile]
 }
 
 pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {

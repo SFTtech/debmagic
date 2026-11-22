@@ -1260,7 +1260,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "tracking/generic-dh-make-2008",
 ];
 
-const GROUP_RECIPES: &[&str] = &[];
+const GROUP_RECIPES: &[&str] = &["checks/changes-file/changes-file-bad-section"];
 
 #[test]
 fn listed_source_tree_recipes_match_vendored_catalogued() {
@@ -2549,4 +2549,9 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("tracking/generic-dh-make-2008"; "tracking_generic_dh_make_2008")]
 fn lintian_parity_source_package(recipe: &str) {
     common::assert_source_package_parity(recipe);
+}
+
+#[test_case("checks/changes-file/changes-file-bad-section"; "checks_changes_file_changes_file_bad_section")]
+fn lintian_parity_group(recipe: &str) {
+    common::assert_group_parity(recipe);
 }

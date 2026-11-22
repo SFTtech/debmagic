@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): homepage-field-uses-insecure-uri (LN1365) http://github.com/insecure/uri

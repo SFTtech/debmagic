@@ -150,6 +150,7 @@ use super::rules::HardeningNoBindnow;
 use super::rules::HardeningNoFortifyFunctions;
 use super::rules::HardeningNoPie;
 use super::rules::HardeningNoRelro;
+use super::rules::HomepageFieldUsesInsecureUri;
 use super::rules::IllegalMultiArchValue;
 use super::rules::IncompatibleJavaBytecodeFormat;
 use super::rules::IncorrectPathForInterpreter;
@@ -1945,6 +1946,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInDescription,
         &SynopsisIsASentence,
         &UsingFirstPersonInDescription,
+        &HomepageFieldUsesInsecureUri,
     ]
 }
 
@@ -2307,6 +2309,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &NoStrongDigestsInDsc,
+        &HomepageFieldUsesInsecureUri,
     ]
 }
 
@@ -3085,6 +3088,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SpellingErrorInDescription,
         &SynopsisIsASentence,
         &UsingFirstPersonInDescription,
+        &HomepageFieldUsesInsecureUri,
     ]
 }
 

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): dh-make-template-in-source (LN1278) [debian/postinst.ex]
+W: example (source): dh-make-template-in-source (LN1278) [debian/ex.postinst]
+W: example (source): dh-make-template-in-source (LN1278) [debian/Manpage.1.EX]
+W: example (source): dh-make-template-in-source (LN1278) [debian/init.d.ex]
+W: example (source): dh-make-template-in-source (LN1278) [debian/watch.ex]

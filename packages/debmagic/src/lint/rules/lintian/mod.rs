@@ -299,6 +299,7 @@ pub(crate) use desktop_gir::TypelibMissingGirDepends;
 pub(crate) use desktop_gir::TypelibNotInMultiarchDirectory;
 pub(crate) use desktop_gir::TypelibPackageNameDoesNotMatch;
 pub(crate) use desktop_gir::TypelibSectionNotIntrospection;
+pub(crate) use dh_make::DhMakeTemplateInSource;
 pub(crate) use dh_make::ReadmeSourceIsDhMakeTemplate;
 pub(crate) use documentation::{ExecutableInUsrShareDoc, ZeroByteFileInDocDirectory};
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;

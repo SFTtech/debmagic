@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::{Context, bail};
 use debian_control::lossless::Control;
 
-use super::debian_control::ControlParagraph;
+use super::debian_control::{ControlParagraph, located_entry};
 
 /// Parsed single Deb822 paragraph of a Source package's `.dsc` (Policy 5.4).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -30,11 +30,7 @@ impl Dsc {
             bail!("Dsc has no Deb822 paragraph");
         };
         Ok(Self {
-            fields: ControlParagraph::from_entries(
-                first
-                    .entries()
-                    .filter_map(|entry| Some((entry.key()?, entry.value(), entry.to_string()))),
-            ),
+            fields: ControlParagraph::from_entries(first.entries().filter_map(located_entry)),
         })
     }
 

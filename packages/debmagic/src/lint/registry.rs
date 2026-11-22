@@ -164,6 +164,7 @@ use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
+use super::rules::LacksVersionedLinkToSharedLibrary;
 use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
@@ -1945,6 +1946,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UsesDeprecatedPythonStdlib,
         &RequiresRApi,
         &RustBoilerplate,
+        &LacksVersionedLinkToSharedLibrary,
     ]
 }
 
@@ -3085,6 +3087,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageSupersededByPerl,
         &PackageInstallsLegacyPythonEggInfo,
         &RequiresRApi,
+        &LacksVersionedLinkToSharedLibrary,
     ]
 }
 

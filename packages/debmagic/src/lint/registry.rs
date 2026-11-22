@@ -424,6 +424,7 @@ use super::rules::SourceFieldMalformed;
 use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
+use super::rules::SpellingErrorInBinary;
 use super::rules::SpellingErrorInDescription;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::StrayFolderInManual;
@@ -2123,6 +2124,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &SpellingErrorInBinary,
     ]
 }
 
@@ -3350,6 +3352,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &SpellingErrorInBinary,
     ]
 }
 

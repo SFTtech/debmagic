@@ -1,11 +1,12 @@
-use std::path::PathBuf;
+use std::sync::OnceLock;
 
 use regex::Regex;
 
-use super::dbus_policy::{policy_files, policy_rules, policy_text};
+use super::dbus_policy::{Hit, policy_hits};
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::file_tree::FileTree;
 use crate::lint::rule::BinaryPackageRule;
 
 pub struct DbusPolicyAtConsole;
@@ -40,33 +41,11 @@ impl BinaryPackageRule for DbusPolicyAtConsole {
     }
 }
 
-struct Hit {
-    path: PathBuf,
-    position: usize,
-    rule: String,
-}
-
-fn inspect(files: &crate::lint::file_tree::FileTree) -> Vec<Hit> {
-    static AT_CONSOLE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+fn inspect(files: &FileTree) -> Vec<Hit> {
+    static AT_CONSOLE: OnceLock<Regex> = OnceLock::new();
     let at_console = AT_CONSOLE
         .get_or_init(|| Regex::new(r#"at_console=['"]true"#).expect("valid at_console regex"));
-
-    let mut hits = Vec::new();
-    for entry in policy_files(files) {
-        let Some(xml) = policy_text(files, entry) else {
-            continue;
-        };
-        for (position, rule) in policy_rules(&xml) {
-            if at_console.is_match(&rule) {
-                hits.push(Hit {
-                    path: entry.path().to_path_buf(),
-                    position,
-                    rule,
-                });
-            }
-        }
-    }
-    hits
+    policy_hits(files, |rule| at_console.is_match(rule))
 }
 
 #[cfg(test)]

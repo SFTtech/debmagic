@@ -337,6 +337,7 @@ use super::rules::SelectWithoutChoices;
 use super::rules::ServiceFileIsNotAFile;
 use super::rules::SharedLibraryIsExecutable;
 use super::rules::SharedLibraryIsMultiArchForeign;
+use super::rules::SharedLibraryLacksPrerequisites;
 use super::rules::SharedLibraryLacksStackSection;
 use super::rules::SharedLibraryLacksVersion;
 use super::rules::SharedLibraryNotShipped;
@@ -1941,6 +1942,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingDependencyOnLibc,
         &MissingDependencyOnLibstdc,
         &ProgramNotLinkedAgainstLibc,
+        &SharedLibraryLacksPrerequisites,
     ]
 }
 
@@ -3079,6 +3081,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MissingDependencyOnLibc,
         &MissingDependencyOnLibstdc,
         &ProgramNotLinkedAgainstLibc,
+        &SharedLibraryLacksPrerequisites,
     ]
 }
 

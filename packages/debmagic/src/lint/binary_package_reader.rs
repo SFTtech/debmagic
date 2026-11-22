@@ -36,6 +36,7 @@ struct TarballIndex {
 struct TarFile {
     mode: u32,
     owner: Owner,
+    mtime: Option<i64>,
     bytes: Vec<u8>,
 }
 
@@ -45,6 +46,7 @@ struct TarMember {
     kind: MemberKind,
     mode: u32,
     owner: Owner,
+    mtime: Option<i64>,
 }
 
 enum MemberKind {
@@ -178,7 +180,8 @@ fn file_tree(index: &TarballIndex) -> super::file_tree::FileTree {
         entries.push(
             Entry::regular_file(path, file_type, Some(file.bytes.clone()))
                 .with_mode(file.mode)
-                .with_owner(file.owner.clone()),
+                .with_owner(file.owner.clone())
+                .with_mtime(file.mtime),
         );
     }
     for (path, member) in &index.links_and_dirs {
@@ -197,7 +200,8 @@ fn file_tree(index: &TarballIndex) -> super::file_tree::FileTree {
         entries.push(
             entry
                 .with_mode(member.mode)
-                .with_owner(member.owner.clone()),
+                .with_owner(member.owner.clone())
+                .with_mtime(member.mtime),
         );
     }
     FileTree::from_entries(None, entries)
@@ -254,15 +258,25 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
             .mode()
             .with_context(|| format!("{} has no valid mode", normalized.display()))?;
         let owner = header_owner(entry.header());
+        let mtime = header_mtime(entry.header());
         let member = |kind| TarMember {
             kind,
             mode,
             owner: owner.clone(),
+            mtime,
         };
         if entry_type.is_file() {
             let mut bytes = Vec::new();
             entry.read_to_end(&mut bytes)?;
-            files.insert(normalized, TarFile { mode, owner, bytes });
+            files.insert(
+                normalized,
+                TarFile {
+                    mode,
+                    owner,
+                    mtime,
+                    bytes,
+                },
+            );
         } else if entry_type.is_dir() {
             links_and_dirs.push((normalized, member(MemberKind::Directory)));
         } else if entry_type.is_symlink() {
@@ -304,6 +318,15 @@ fn header_owner(header: &tar::Header) -> Owner {
         name(header.username_bytes()),
         name(header.groupname_bytes()),
     )
+}
+
+/// The header's modification time, seconds since the epoch. `None` when it is
+/// unreadable or does not fit in an `i64`.
+fn header_mtime(header: &tar::Header) -> Option<i64> {
+    header
+        .mtime()
+        .ok()
+        .and_then(|mtime| i64::try_from(mtime).ok())
 }
 
 /// Strip `./` prefixes, one leading `/`, and trailing `/` from a member path.
@@ -485,6 +508,23 @@ mod tests {
         assert!(reader.control_file_tree().is_err());
         let control = crate::lint::installation_control::InstallationControl::from_reader(&reader)?;
         assert!(control.fields().get("Package").is_none());
+        Ok(())
+    }
+
+    #[test]
+    fn data_entries_carry_the_header_mtime() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("example.deb");
+        // `write_test_deb_with_files` leaves the tar header's mtime at 0.
+        write_test_deb_with_files(
+            &path,
+            &[("control", b"Package: example\n")],
+            &[("usr/bin/foo", b"x")],
+        )?;
+        let tree = BinaryPackageReader::from_path(&path)?.data_file_tree()?;
+        let foo = tree.get("usr/bin/foo").expect("foo");
+        assert_eq!(foo.mtime(), Some(0));
+        assert_eq!(foo.mtime_date().as_deref(), Some("1970-01-01"));
         Ok(())
     }
 

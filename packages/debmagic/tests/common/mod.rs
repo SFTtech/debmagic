@@ -2010,36 +2010,32 @@ fn pack_source_package(recipe: &Path, work: &Path, source: &Path, packing: Sourc
     if let Some(pre_build) = pre_build {
         run_pre_build_for_orig(pre_build, source);
     }
-    let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
-    if !ok {
-        let Some(name) = missing_upstream_tarball(&stderr) else {
-            panic!("{recipe:?}: dpkg-source -b failed\n{stdout}\n{stderr}");
-        };
+    let (mut ok, mut stdout, mut stderr) = dpkg_source_build(work, keep_ignored, overrides);
+    let mut orig_name = None;
+    if !ok && let Some(name) = missing_upstream_tarball(&stderr) {
         assert!(
             !is_component_orig(&name),
             "{recipe:?}: component orig {name} is not synthesized"
         );
         pack_main_orig(source, &work.join(&name));
-        let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
-        if !ok && stderr.contains("unexpected upstream changes") {
-            // dpkg-source mis-reads an orig whose last member name contains a
-            // quote (`data/".tif` in legacy-filenames) and reports those
-            // files as new. A later member lets it see the archive correctly.
-            // The pad is in the tree and the orig, so it is not a diff.
-            fs::write(source.join("zz-pad"), "\n").expect("writing orig pad");
-            pack_main_orig(source, &work.join(&name));
-            let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
-            assert!(
-                ok,
-                "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"
-            );
-        } else {
-            assert!(
-                ok,
-                "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"
-            );
-        }
+        (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
+        orig_name = Some(name);
+    } else if hook.is_none() && (non_native || !root_adds.is_empty()) {
+        orig_name = Some(main_orig_name(source));
     }
+    if !ok
+        && stderr.contains("unexpected upstream changes")
+        && let Some(name) = &orig_name
+    {
+        // dpkg-source mis-reads an orig whose last member name contains a
+        // quote (`data/".tif` in legacy-filenames) and reports those files as
+        // new. A later member lets it see the archive correctly. The pad is in
+        // the tree and the orig, so it is not a diff.
+        fs::write(source.join("zz-pad"), "\n").expect("writing orig pad");
+        pack_orig_without_added(source, &work.join(name), root_adds);
+        (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
+    }
+    assert!(ok, "{recipe:?}: dpkg-source -b failed\n{stdout}\n{stderr}");
     find_dsc(work);
 }
 

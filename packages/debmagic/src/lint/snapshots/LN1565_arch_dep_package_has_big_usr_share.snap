@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): arch-dep-package-has-big-usr-share (LN1565) 4097kB 100%
+I: example (binary): arch-dep-package-has-big-usr-share (LN1565) 8193kB 48%

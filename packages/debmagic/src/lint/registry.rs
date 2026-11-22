@@ -465,6 +465,7 @@ use super::rules::SharedLibraryLacksStackSection;
 use super::rules::SharedLibraryLacksVersion;
 use super::rules::SharedLibraryNotShipped;
 use super::rules::SharedLibrarySymbolsNotTracked;
+use super::rules::ShellScriptFailsSyntaxCheck;
 use super::rules::ShipsUndeclaredSharedLibrary;
 use super::rules::SourceContainsEditorBackupFile;
 use super::rules::SourceContainsPatchFailureFile;
@@ -2265,6 +2266,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
         &MaintainerShellScriptFailsSyntaxCheck,
+        &ShellScriptFailsSyntaxCheck,
     ]
 }
 
@@ -3551,6 +3553,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
         &MaintainerShellScriptFailsSyntaxCheck,
+        &ShellScriptFailsSyntaxCheck,
     ]
 }
 

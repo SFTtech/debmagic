@@ -858,6 +858,10 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/scripts/scripts-multi-arch-same-calls-pycompile",
     "checks/scripts/scripts-udevadm-called-without-guard",
     "checks/shell/csh/scripts-interpreters",
+    "checks/shell/non-posix/bash-centric/exec-exception",
+    "checks/shell/non-posix/bash-centric/legacy-maintainer-scripts",
+    "checks/shell/non-posix/bash-centric/regular-shipped",
+    "checks/shell/non-posix/bash-centric/scripts-bashisms",
     "checks/systemd/init.d-general",
     "checks/systemd/kill-mode-none",
     "checks/systemd/legacy-scripts",
@@ -2141,6 +2145,10 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/scripts/scripts-multi-arch-same-calls-pycompile"; "checks_scripts_scripts_multi_arch_same_calls_pycompile")]
 #[test_case("checks/scripts/scripts-udevadm-called-without-guard"; "checks_scripts_scripts_udevadm_called_without_guard")]
 #[test_case("checks/shell/csh/scripts-interpreters"; "checks_shell_csh_scripts_interpreters")]
+#[test_case("checks/shell/non-posix/bash-centric/exec-exception"; "checks_shell_non_posix_bash_centric_exec_exception")]
+#[test_case("checks/shell/non-posix/bash-centric/legacy-maintainer-scripts"; "checks_shell_non_posix_bash_centric_legacy_maintainer_scripts")]
+#[test_case("checks/shell/non-posix/bash-centric/regular-shipped"; "checks_shell_non_posix_bash_centric_regular_shipped")]
+#[test_case("checks/shell/non-posix/bash-centric/scripts-bashisms"; "checks_shell_non_posix_bash_centric_scripts_bashisms")]
 #[test_case("checks/systemd/init.d-general"; "checks_systemd_init_d_general")]
 #[test_case("checks/systemd/kill-mode-none"; "checks_systemd_kill_mode_none")]
 #[test_case("checks/systemd/legacy-scripts"; "checks_systemd_legacy_scripts")]

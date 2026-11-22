@@ -49,6 +49,7 @@ mod debian_upstream;
 mod debian_variables;
 mod debian_version_substvars;
 mod debian_watch;
+mod debug_obsolete;
 mod description;
 mod desktop;
 mod desktop_gir;
@@ -317,6 +318,7 @@ pub(crate) use debian_trailing_whitespace::TrailingWhitespace;
 pub(crate) use debian_upstream::DebianUpstreamObsoletePath;
 pub(crate) use debian_upstream::UpstreamMetadataInNativeSource;
 pub(crate) use debian_upstream::UpstreamMetadataIsNotAFile;
+pub(crate) use debug_obsolete::DebianControlHasObsoleteDbgPackage;
 pub(crate) use desktop::{
     DbusPolicyAtConsole, DbusPolicyExcessivelyBroad, DbusPolicyInEtc,
     DbusPolicyWithoutSendDestination, DbusSystemServiceWrongName, DesktopFileInWrongDir,
@@ -328,13 +330,18 @@ pub(crate) use desktop::{
 pub(crate) use desktop_gir::GirInArchAllPackage;
 pub(crate) use desktop_gir::GirPackageNameDoesNotMatch;
 pub(crate) use desktop_gir::GirSectionNotLibdevel;
+pub(crate) use desktop_gir::TypelibInArchAllPackage;
 pub(crate) use desktop_gir::TypelibMissingGirDepends;
 pub(crate) use desktop_gir::TypelibNotInMultiarchDirectory;
 pub(crate) use desktop_gir::TypelibPackageNameDoesNotMatch;
 pub(crate) use desktop_gir::TypelibSectionNotIntrospection;
 pub(crate) use dh_make::DhMakeTemplateInSource;
+pub(crate) use dh_make::FileContainsFixmePlaceholder;
 pub(crate) use dh_make::ReadmeSourceIsDhMakeTemplate;
-pub(crate) use documentation::{ExecutableInUsrShareDoc, ZeroByteFileInDocDirectory};
+pub(crate) use documentation::{
+    ExecutableInUsrShareDoc, PackageContainsUpstreamInstallationDocumentation,
+    SourceContainsPrebuiltDoxygenDocumentation, ZeroByteFileInDocDirectory,
+};
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use fields_empty::EmptyField;
 pub(crate) use fields_format::UnsupportedSourceFormat;
@@ -529,9 +536,9 @@ pub(crate) use debian_watch::{
     DebianWatchFilePubkeyFileIsMissing, DebianWatchFileSpecifiesOldUpstreamVersion,
     DebianWatchFileSpecifiesWrongUpstreamVersion, DebianWatchFileUsesDeprecatedGithubredir,
     DebianWatchFileUsesDeprecatedSfRedirectorMethod, DebianWatchLacksSourceforgeRedirector,
-    DebianWatchLineInvalid, DebianWatchNotManglingVersion, MissingDebianWatchFileStandard,
-    MultipleDebianWatchFileStandards, ObsoleteDebianWatchFileStandard,
-    UnknownDebianWatchFileStandard,
+    DebianWatchLineInvalid, DebianWatchNotManglingVersion, DebianWatchUsesInsecureUri,
+    MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
+    ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{
     DescriptionContainsDhMakePerlTemplate, DescriptionContainsInvalidControlStatement,
@@ -543,12 +550,13 @@ pub(crate) use description::{
 };
 pub(crate) use documentation_examples::NestedExamplesDirectory;
 pub(crate) use documentation_manual::{
-    BadSoLinkWithinManualPage, BadWhatisEntry, BrokenLinkToUndocumented, BuildPathInManual,
-    CountryInManual, EmptyManualPage, ExecutableManualPage, GroffMessage, ManualPageFromTemplate,
-    ManualPageWithGenericName, NoEnglishManualPage, NoManualPage, OddPlaceForManualPage,
-    PodConversionMessage, PoorCompressionInManualPage, UncompressedManualPage,
-    UndocumentedManualPage, UselessWhatisEntry, WrongCompressionInManualPage, WrongManualSection,
-    WrongNameForManualPage,
+    AcuteAccentInManualPage, BadSoLinkWithinManualPage, BadWhatisEntry, BrokenLinkToUndocumented,
+    BuildPathInManual, CountryInManual, EmptyManualPage, ExecutableManualPage,
+    FSSTNDDirInManualPage, GroffMessage, ManualPageFromTemplate, ManualPageWithGenericName,
+    NoEnglishManualPage, NoManualPage, OddPlaceForManualPage, PodConversionMessage,
+    PoorCompressionInManualPage, PythonTracebackInManpage, StrayFolderInManual,
+    UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
+    WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
 };
 pub(crate) use documentation_texinfo::{
     InfoDocumentHasWrongExtension, InfoDocumentMissingDirEntry, InfoDocumentMissingDirSection,
@@ -614,9 +622,11 @@ pub(crate) use files_config_scripts::{
 pub(crate) use files_debug::NonDebugFileInDebugPackage;
 pub(crate) use files_foreign::{
     CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,
-    MacosDsStoreFileInPackage, MacosResourceForkFileInPackage, PackageContainsInfoDirFile,
+    MacosDsStoreFileInPackage, MacosResourceForkFileInPackage,
+    PackageContainsDocumentationOutsideUsrShareDoc, PackageContainsInfoDirFile,
     PackageContainsLindaOverride, PackageContainsReadmeForOtherPlatformOrDistro,
-    PackageInstallsAppimage, WindowsDevelFileInPackage, WindowsThumbnailDatabaseInPackage,
+    PackageInstallsAppimage, UdebContainsDocumentationFile, WindowsDevelFileInPackage,
+    WindowsThumbnailDatabaseInPackage,
 };
 pub(crate) use files_hard_links::PackageContainsHardlink;
 pub(crate) use files_hierarchy::{

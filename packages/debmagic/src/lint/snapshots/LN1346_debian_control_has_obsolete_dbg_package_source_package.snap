@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): debian-control-has-obsolete-dbg-package (LN1346) (in section for example-dbg) Package [debian/control:9]

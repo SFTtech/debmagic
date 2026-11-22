@@ -253,10 +253,17 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-uses-cran-template",
     "checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants",
     "checks/debug/automatic/control-file-general",
+    "checks/debug/obsolete/changes-files-package-builds-dbg-and-dbgsym-variants",
+    "checks/debug/obsolete/control-file-general",
+    "checks/debug/obsolete/fields-general",
+    "checks/debug/obsolete/legacy-libbaz",
     "checks/desktop/gnome/gir/gir",
     "checks/desktop/gnome/gir/typelib-missing-gir-depends",
+    "checks/dh-make/cruft-fixme-placeholders",
     "checks/dh-make/cruft-readme-source",
     "checks/dh-make/template/generic-dh-make-2008",
+    "checks/documentation/doxygen/cruft-doxygen-documentation",
+    "checks/documentation/doxygen/files-doxygen-documentation",
     "checks/fields/architecture/magic-architecture-srcpkg-wrong",
     "checks/fields/dm-upload-allowed/fields-dmua",
     "checks/fields/dm-upload-allowed/legacy-binary",
@@ -591,14 +598,18 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/files-general",
     "checks/documentation/files-package-contains-foo",
     "checks/documentation/files-python-general",
+    "checks/documentation/files-uses-dpkg-database-directly",
     "checks/documentation/files-zero-byte-doc",
+    "checks/documentation/legacy-binary",
     "checks/documentation/legacy-filenames",
     "checks/documentation/legacy-libbaz",
+    "checks/documentation/manual/acute-accent",
     "checks/documentation/manual/bad-link-to-undocumented-manpage",
     "checks/documentation/manual/bad-so-link-in-manpage",
     "checks/documentation/manual/executable-without-english-manpage",
     "checks/documentation/manual/executable-without-manpage",
     "checks/documentation/manual/files-general",
+    "checks/documentation/manual/fsstnd-dir-in-manual-page",
     "checks/documentation/manual/legacy-binary",
     "checks/documentation/manual/legacy-filenames",
     "checks/documentation/manual/legacy-scripts",
@@ -614,6 +625,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/manual/manpage-not-compressed",
     "checks/documentation/manual/manpage-not-compressed-with-gzip",
     "checks/documentation/manual/manpage-not-max-compression",
+    "checks/documentation/manual/manpage-python-traceback",
     "checks/documentation/manual/manpage-section-mismatch",
     "checks/documentation/manual/manpage-useless-whatis",
     "checks/documentation/manual/manpage-wrong-extension",
@@ -621,6 +633,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/manual/manpages-wrong-dir",
     "checks/documentation/manual/scripts-ocamlrun",
     "checks/documentation/texinfo/infofiles-general",
+    "checks/documentation/udeb-with-doc",
     "checks/emacs/elpa/emacsen-common",
     "checks/emacs/files-bad-perm-owner",
     "checks/executable/files-zero-byte-executable-in-path",
@@ -1217,10 +1230,17 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-uses-cran-template",
     "checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants",
     "checks/debug/automatic/control-file-general",
+    "checks/debug/obsolete/changes-files-package-builds-dbg-and-dbgsym-variants",
+    "checks/debug/obsolete/control-file-general",
+    "checks/debug/obsolete/fields-general",
+    "checks/debug/obsolete/legacy-libbaz",
     "checks/desktop/gnome/gir/gir",
     "checks/desktop/gnome/gir/typelib-missing-gir-depends",
+    "checks/dh-make/cruft-fixme-placeholders",
     "checks/dh-make/cruft-readme-source",
     "checks/dh-make/template/generic-dh-make-2008",
+    "checks/documentation/doxygen/cruft-doxygen-documentation",
+    "checks/documentation/doxygen/files-doxygen-documentation",
     "checks/fields/architecture/magic-architecture-srcpkg-wrong",
     "checks/fields/dm-upload-allowed/fields-dmua",
     "checks/fields/dm-upload-allowed/legacy-binary",
@@ -1657,10 +1677,17 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/watch/watch-file-uses-cran-template"; "checks_debian_watch_watch_file_uses_cran_template")]
 #[test_case("checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_automatic_changes_files_package_builds_dbg_and_dbgsym_variants")]
 #[test_case("checks/debug/automatic/control-file-general"; "checks_debug_automatic_control_file_general")]
+#[test_case("checks/debug/obsolete/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_obsolete_changes_files_package_builds_dbg_and_dbgsym_variants")]
+#[test_case("checks/debug/obsolete/control-file-general"; "checks_debug_obsolete_control_file_general")]
+#[test_case("checks/debug/obsolete/fields-general"; "checks_debug_obsolete_fields_general")]
+#[test_case("checks/debug/obsolete/legacy-libbaz"; "checks_debug_obsolete_legacy_libbaz")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/desktop/gnome/gir/typelib-missing-gir-depends"; "checks_desktop_gnome_gir_typelib_missing_gir_depends")]
+#[test_case("checks/dh-make/cruft-fixme-placeholders"; "checks_dh_make_cruft_fixme_placeholders")]
 #[test_case("checks/dh-make/cruft-readme-source"; "checks_dh_make_cruft_readme_source")]
 #[test_case("checks/dh-make/template/generic-dh-make-2008"; "checks_dh_make_template_generic_dh_make_2008")]
+#[test_case("checks/documentation/doxygen/cruft-doxygen-documentation"; "checks_documentation_doxygen_cruft_doxygen_documentation")]
+#[test_case("checks/documentation/doxygen/files-doxygen-documentation"; "checks_documentation_doxygen_files_doxygen_documentation")]
 #[test_case("checks/fields/architecture/magic-architecture-srcpkg-wrong"; "checks_fields_architecture_magic_architecture_srcpkg_wrong")]
 #[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
@@ -1996,14 +2023,18 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/files-general"; "checks_documentation_files_general")]
 #[test_case("checks/documentation/files-package-contains-foo"; "checks_documentation_files_package_contains_foo")]
 #[test_case("checks/documentation/files-python-general"; "checks_documentation_files_python_general")]
+#[test_case("checks/documentation/files-uses-dpkg-database-directly"; "checks_documentation_files_uses_dpkg_database_directly")]
 #[test_case("checks/documentation/files-zero-byte-doc"; "checks_documentation_files_zero_byte_doc")]
+#[test_case("checks/documentation/legacy-binary"; "checks_documentation_legacy_binary")]
 #[test_case("checks/documentation/legacy-filenames"; "checks_documentation_legacy_filenames")]
 #[test_case("checks/documentation/legacy-libbaz"; "checks_documentation_legacy_libbaz")]
+#[test_case("checks/documentation/manual/acute-accent"; "checks_documentation_manual_acute_accent")]
 #[test_case("checks/documentation/manual/bad-link-to-undocumented-manpage"; "checks_documentation_manual_bad_link_to_undocumented_manpage")]
 #[test_case("checks/documentation/manual/bad-so-link-in-manpage"; "checks_documentation_manual_bad_so_link_in_manpage")]
 #[test_case("checks/documentation/manual/executable-without-english-manpage"; "checks_documentation_manual_executable_without_english_manpage")]
 #[test_case("checks/documentation/manual/executable-without-manpage"; "checks_documentation_manual_executable_without_manpage")]
 #[test_case("checks/documentation/manual/files-general"; "checks_documentation_manual_files_general")]
+#[test_case("checks/documentation/manual/fsstnd-dir-in-manual-page"; "checks_documentation_manual_fsstnd_dir_in_manual_page")]
 #[test_case("checks/documentation/manual/legacy-binary"; "checks_documentation_manual_legacy_binary")]
 #[test_case("checks/documentation/manual/legacy-filenames"; "checks_documentation_manual_legacy_filenames")]
 #[test_case("checks/documentation/manual/legacy-scripts"; "checks_documentation_manual_legacy_scripts")]
@@ -2019,6 +2050,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/manual/manpage-not-compressed"; "checks_documentation_manual_manpage_not_compressed")]
 #[test_case("checks/documentation/manual/manpage-not-compressed-with-gzip"; "checks_documentation_manual_manpage_not_compressed_with_gzip")]
 #[test_case("checks/documentation/manual/manpage-not-max-compression"; "checks_documentation_manual_manpage_not_max_compression")]
+#[test_case("checks/documentation/manual/manpage-python-traceback"; "checks_documentation_manual_manpage_python_traceback")]
 #[test_case("checks/documentation/manual/manpage-section-mismatch"; "checks_documentation_manual_manpage_section_mismatch")]
 #[test_case("checks/documentation/manual/manpage-useless-whatis"; "checks_documentation_manual_manpage_useless_whatis")]
 #[test_case("checks/documentation/manual/manpage-wrong-extension"; "checks_documentation_manual_manpage_wrong_extension")]
@@ -2026,6 +2058,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/manual/manpages-wrong-dir"; "checks_documentation_manual_manpages_wrong_dir")]
 #[test_case("checks/documentation/manual/scripts-ocamlrun"; "checks_documentation_manual_scripts_ocamlrun")]
 #[test_case("checks/documentation/texinfo/infofiles-general"; "checks_documentation_texinfo_infofiles_general")]
+#[test_case("checks/documentation/udeb-with-doc"; "checks_documentation_udeb_with_doc")]
 #[test_case("checks/emacs/elpa/emacsen-common"; "checks_emacs_elpa_emacsen_common")]
 #[test_case("checks/emacs/files-bad-perm-owner"; "checks_emacs_files_bad_perm_owner")]
 #[test_case("checks/executable/files-zero-byte-executable-in-path"; "checks_executable_files_zero_byte_executable_in_path")]
@@ -2623,10 +2656,17 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/watch/watch-file-uses-cran-template"; "checks_debian_watch_watch_file_uses_cran_template")]
 #[test_case("checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_automatic_changes_files_package_builds_dbg_and_dbgsym_variants")]
 #[test_case("checks/debug/automatic/control-file-general"; "checks_debug_automatic_control_file_general")]
+#[test_case("checks/debug/obsolete/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_obsolete_changes_files_package_builds_dbg_and_dbgsym_variants")]
+#[test_case("checks/debug/obsolete/control-file-general"; "checks_debug_obsolete_control_file_general")]
+#[test_case("checks/debug/obsolete/fields-general"; "checks_debug_obsolete_fields_general")]
+#[test_case("checks/debug/obsolete/legacy-libbaz"; "checks_debug_obsolete_legacy_libbaz")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/desktop/gnome/gir/typelib-missing-gir-depends"; "checks_desktop_gnome_gir_typelib_missing_gir_depends")]
+#[test_case("checks/dh-make/cruft-fixme-placeholders"; "checks_dh_make_cruft_fixme_placeholders")]
 #[test_case("checks/dh-make/cruft-readme-source"; "checks_dh_make_cruft_readme_source")]
 #[test_case("checks/dh-make/template/generic-dh-make-2008"; "checks_dh_make_template_generic_dh_make_2008")]
+#[test_case("checks/documentation/doxygen/cruft-doxygen-documentation"; "checks_documentation_doxygen_cruft_doxygen_documentation")]
+#[test_case("checks/documentation/doxygen/files-doxygen-documentation"; "checks_documentation_doxygen_files_doxygen_documentation")]
 #[test_case("checks/fields/architecture/magic-architecture-srcpkg-wrong"; "checks_fields_architecture_magic_architecture_srcpkg_wrong")]
 #[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]

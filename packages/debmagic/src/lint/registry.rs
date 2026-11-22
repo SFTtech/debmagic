@@ -1,4 +1,5 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
+use super::rules::AcuteAccentInManualPage;
 use super::rules::AddComponentCopyright;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
@@ -73,6 +74,7 @@ use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
 use super::rules::DebianChangelogLineTooShort;
 use super::rules::DebianControlFileIsASymlink;
+use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
@@ -96,6 +98,7 @@ use super::rules::DebianRulesUsesUnnecessaryDhArgument;
 use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
 use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
+use super::rules::DebianWatchUsesInsecureUri;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
@@ -141,6 +144,8 @@ use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
 use super::rules::ExtraLicenseFile;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
+use super::rules::FSSTNDDirInManualPage;
+use super::rules::FileContainsFixmePlaceholder;
 use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
@@ -269,6 +274,7 @@ use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
 use super::rules::PackageContainsCmakePrivateFile;
+use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
 use super::rules::PackageContainsEmptyDirectory;
 use super::rules::PackageContainsInfoDirFile;
 use super::rules::PackageContainsMimeCacheFile;
@@ -277,6 +283,7 @@ use super::rules::PackageContainsMultipleDpiFonts;
 use super::rules::PackageContainsNoArchDependentFiles;
 use super::rules::PackageContainsThumbnailsDir;
 use super::rules::PackageContainsTimestampedGzip;
+use super::rules::PackageContainsUpstreamInstallationDocumentation;
 use super::rules::PackageContainsXvpicsDir;
 use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
@@ -336,6 +343,7 @@ use super::rules::Python3DependsButNoPython3Helper;
 use super::rules::Python3ScriptButNoPython3Dep;
 use super::rules::PythonDebugInWrongLocation;
 use super::rules::PythonModuleInWrongLocation;
+use super::rules::PythonTracebackInManpage;
 use super::rules::QuiltBuildDepButNoSeriesFile;
 use super::rules::QuiltPatchMissingDescription;
 use super::rules::QuiltPatchWithNonStandardOptions;
@@ -374,6 +382,7 @@ use super::rules::ShipsUndeclaredSharedLibrary;
 use super::rules::SourceContainsEditorBackupFile;
 use super::rules::SourceContainsPatchFailureFile;
 use super::rules::SourceContainsPrebuiltBinary;
+use super::rules::SourceContainsPrebuiltDoxygenDocumentation;
 use super::rules::SourceContainsPrebuiltMsHelpFile;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
@@ -382,6 +391,7 @@ use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::SpellingErrorInRulesRequiresRoot;
+use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
 use super::rules::SurplusSharedLibrarySymbols;
@@ -409,10 +419,12 @@ use super::rules::TrailingWhitespace;
 use super::rules::TransitionalPackageNotOldlibsOptional;
 use super::rules::TripletDirAndArchitectureMismatch;
 use super::rules::TruetypeFontWrongFilename;
+use super::rules::TypelibInArchAllPackage;
 use super::rules::TypelibMissingGirDepends;
 use super::rules::TypelibNotInMultiarchDirectory;
 use super::rules::TypelibPackageNameDoesNotMatch;
 use super::rules::TypelibSectionNotIntrospection;
+use super::rules::UdebContainsDocumentationFile;
 use super::rules::UdebPostinstCallsLdconfig;
 use super::rules::UdebUsesUnsupportedCompressionForDataTarball;
 use super::rules::UdevRuleInEtc;
@@ -2019,6 +2031,18 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptDoesNotImplementStatusOption,
         &ClojurePackageButNotDhClojure,
         &OcamlDanglingCmx,
+        &DebianWatchUsesInsecureUri,
+        &DebianControlHasObsoleteDbgPackage,
+        &TypelibInArchAllPackage,
+        &FileContainsFixmePlaceholder,
+        &PackageContainsDocumentationOutsideUsrShareDoc,
+        &PackageContainsUpstreamInstallationDocumentation,
+        &UdebContainsDocumentationFile,
+        &SourceContainsPrebuiltDoxygenDocumentation,
+        &FSSTNDDirInManualPage,
+        &AcuteAccentInManualPage,
+        &PythonTracebackInManpage,
+        &StrayFolderInManual,
     ]
 }
 
@@ -2401,6 +2425,10 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &VeryLongLineLengthInSourceFile,
         &SourceContainsPrebuiltBinary,
         &ClojurePackageButNotDhClojure,
+        &DebianWatchUsesInsecureUri,
+        &DebianControlHasObsoleteDbgPackage,
+        &FileContainsFixmePlaceholder,
+        &SourceContainsPrebuiltDoxygenDocumentation,
     ]
 }
 
@@ -3196,6 +3224,14 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ImageFileHasUnexpectedName,
         &InitDScriptDoesNotImplementStatusOption,
         &OcamlDanglingCmx,
+        &TypelibInArchAllPackage,
+        &PackageContainsDocumentationOutsideUsrShareDoc,
+        &PackageContainsUpstreamInstallationDocumentation,
+        &UdebContainsDocumentationFile,
+        &FSSTNDDirInManualPage,
+        &AcuteAccentInManualPage,
+        &PythonTracebackInManpage,
+        &StrayFolderInManual,
     ]
 }
 

@@ -30,6 +30,7 @@ use super::rules::BadPermissionsForAliFile;
 use super::rules::BadPermissionsForEtcCronDScript;
 use super::rules::BadRelation;
 use super::rules::BadSectionInChangesFile;
+use super::rules::BadUrgencyInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
@@ -2179,6 +2180,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BackportsChangesMissing,
         &BackportsUploadHasIncorrectVersionNumber,
         &PackageHasLongFileName,
+        &BadUrgencyInChangesFile,
     ]
 }
 
@@ -3443,6 +3445,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &BackportsChangesMissing,
         &BackportsUploadHasIncorrectVersionNumber,
         &PackageHasLongFileName,
+        &BadUrgencyInChangesFile,
     ]
 }
 

@@ -699,6 +699,7 @@ pub(crate) use libtool::{IncorrectLibdirInLaFile, NonEmptyDependencyLibsInLaFile
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;
 pub(crate) use md5sums::{
     FileMissingInMd5sums, MalformedMd5sumsControlFile, Md5sumMismatch, Md5sumsListsNonexistentFile,
+    NoMd5sumsControlFile,
 };
 
 pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;

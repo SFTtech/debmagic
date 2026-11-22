@@ -1,6 +1,9 @@
 use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
 use super::rules::AcuteAccentInManualPage;
 use super::rules::AddComponentCopyright;
+use super::rule::{
+    BinaryPackageRule, BuildinfoRule, ChangesRule, GroupRule, RuleAccess, SourceRule,
+};
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
 use super::rules::Apache2DeprecatedAuthConfig;
@@ -18,6 +21,7 @@ use super::rules::BadPermForFileInEtcSudoersD;
 use super::rules::BadPermissionsForAliFile;
 use super::rules::BadPermissionsForEtcCronDScript;
 use super::rules::BadRelation;
+use super::rules::BadSectionInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BinaryCompiledWithProfilingEnabled;
@@ -186,6 +190,7 @@ use super::rules::InitScriptIsNotAFile;
 use super::rules::InsecureCopyrightFormatUri;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
+use super::rules::IntraSourcePackageCircularDependency;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidProfileNameInBuildProfilesField;
@@ -2085,6 +2090,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DesktopEntryLacksKeywordsEntry,
         &FileInEtcModprobeD,
         &MaintainerScriptCallsService,
+        &BadSectionInChangesFile,
+        &IntraSourcePackageCircularDependency,
     ]
 }
 
@@ -3299,6 +3306,18 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
     ]
 }
 
+pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
+    &[&BadSectionInChangesFile, &DebianRevisionNotWellFormed]
+}
+
+pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
+    &[&DebianRevisionNotWellFormed]
+}
+
+pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
+    &[&IntraSourcePackageCircularDependency]
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::BTreeSet;
@@ -3357,10 +3376,36 @@ mod tests {
     }
 
     #[test]
+    fn changes_rules_cover_catalogued_changes_tags() {
+        let codes = registered(changes_rules().iter().map(|rule| rule.code()));
+        assert_eq!(codes, implemented_codes("ChangesRule"));
+    }
+
+    #[test]
+    fn buildinfo_rules_cover_catalogued_buildinfo_tags() {
+        let codes = registered(buildinfo_rules().iter().map(|rule| rule.code()));
+        assert_eq!(codes, implemented_codes("BuildinfoRule"));
+    }
+
+    #[test]
+    fn group_rules_cover_catalogued_group_tags() {
+        let codes = registered(group_rules().iter().map(|rule| rule.code()));
+        assert_eq!(codes, implemented_codes("GroupRule"));
+    }
+
+    #[test]
     fn all_rules_is_every_rule_once() {
         let all = registered(all_rules().iter().map(|rule| rule.code()));
-        let mut by_trait = implemented_codes("SourceRule");
-        by_trait.extend(implemented_codes("BinaryPackageRule"));
+        let mut by_trait = BTreeSet::new();
+        for trait_name in [
+            "SourceRule",
+            "BinaryPackageRule",
+            "ChangesRule",
+            "BuildinfoRule",
+            "GroupRule",
+        ] {
+            by_trait.extend(implemented_codes(trait_name));
+        }
         assert_eq!(all, by_trait);
     }
 }

@@ -190,11 +190,11 @@ def lintian_recipes_with_tag(lintian: Path, tag: str) -> list[str]:
 
 
 SUBJECTS = {
-    "source": "SourceRule (Source tree + Source package)",
+    "source": "SourceRule (Source tree + Source package), or GroupRule if the Check emits it via $self->group",
     "binary": "BinaryPackageRule",
     "udeb": "BinaryPackageRule (udeb)",
-    "changes": "none: .changes is not a Subject (ADR 0016)",
-    "buildinfo": "none: .buildinfo is not a Subject",
+    "changes": "ChangesRule (the Group's .changes; just new-rule --kind changes)",
+    "buildinfo": "BuildinfoRule (the Group's .buildinfo; just new-rule --kind buildinfo)",
 }
 
 

@@ -6,7 +6,10 @@ writes test-package *sources* plus eval/hints + ORIGIN under
 packages/debmagic/tests/lintian-parity, and regenerates
 packages/debmagic/tests/lintian_parity.rs with one test per Source-tree,
 Binary-package, or Source-package recipe whose hints mention a catalogued
-LN Tag (Source-package: `SourceRule`).
+LN Tag (Source-package: `SourceRule`), and one test per Group recipe: a recipe whose product
+is a `.changes` (an `upload-*` or `changes` skeleton) and whose `eval/hints` mention a catalogued
+Tag with Changes-file, Buildinfo-file or Group Applicability (`ChangesRule`, `BuildinfoRule`,
+`GroupRule`).
 
 - upload-* / source-* / upload-builder-only: filled Source tree (orig overlay + debian/)
 - deb: filled DEBIAN/, root/, doc/, and builder scripts
@@ -48,6 +51,8 @@ SOURCE_TREE_SKELETONS = frozenset(
 DEB_SKELETON = "deb"
 CHANGES_SKELETON = "changes"
 IMPORTABLE_SKELETONS = SOURCE_TREE_SKELETONS | {DEB_SKELETON, CHANGES_SKELETON}
+# Skeletons whose build product is a `.changes`, which lintian lints as a Group.
+GROUP_SKELETONS = frozenset({"upload-native", "upload-non-native", "upload-builder-only", CHANGES_SKELETON})
 HINT_LINE = re.compile(r"^\S+\s+\((?P<ptype>[^)]+)\):\s+(?P<tag>\S+)(?:\s+(?P<extra>.*))?$")
 TAG_ASSIGNMENT = re.compile(r'^tag = "([^"]+)",\s*$')
 TEMPLATE_VAR = re.compile(r"\[%\s*\$([A-Za-z_][A-Za-z0-9_]*)\s*%\]")
@@ -505,12 +510,16 @@ def applies_to_binary_package(processable_type: str) -> bool:
     return processable_type in {"binary", "udeb"}
 
 
-def catalogued_ln_tags(rules_dir: Path) -> set[str]:
+def catalogued_tags_with_impl(rules_dir: Path, *needles: str) -> set[str]:
+    """Tags of the Rule files that contain any of the `impl <Trait> for` needles."""
     tags: set[str] = set()
     if not rules_dir.is_dir():
         return tags
     for path in rules_dir.rglob("*.rs"):
-        for line in path.read_text(encoding="utf-8").splitlines():
+        text = path.read_text(encoding="utf-8")
+        if not any(needle in text for needle in needles):
+            continue
+        for line in text.splitlines():
             match = TAG_ASSIGNMENT.match(line.strip())
             if match:
                 tags.add(match.group(1))
@@ -518,33 +527,28 @@ def catalogued_ln_tags(rules_dir: Path) -> set[str]:
 
 
 def catalogued_source_package_tags(rules_dir: Path) -> set[str]:
-    tags: set[str] = set()
-    if not rules_dir.is_dir():
-        return tags
-    for path in rules_dir.rglob("*.rs"):
-        text = path.read_text(encoding="utf-8")
-        if "impl SourceRule for" not in text:
-            continue
-        for line in text.splitlines():
-            match = TAG_ASSIGNMENT.match(line.strip())
-            if match:
-                tags.add(match.group(1))
-    return tags
+    return catalogued_tags_with_impl(rules_dir, "impl SourceRule for")
 
 
 def catalogued_binary_package_tags(rules_dir: Path) -> set[str]:
-    tags: set[str] = set()
-    if not rules_dir.is_dir():
-        return tags
-    for path in rules_dir.rglob("*.rs"):
-        text = path.read_text(encoding="utf-8")
-        if "impl BinaryPackageRule for" not in text:
-            continue
-        for line in text.splitlines():
-            match = TAG_ASSIGNMENT.match(line.strip())
-            if match:
-                tags.add(match.group(1))
-    return tags
+    return catalogued_tags_with_impl(rules_dir, "impl BinaryPackageRule for")
+
+
+def catalogued_source_tree_tags(rules_dir: Path) -> set[str]:
+    """Tags a Source-tree lint can show: Rules of the Source and Binary kinds (not Group artifacts)."""
+    return catalogued_tags_with_impl(rules_dir, "impl SourceRule for", "impl BinaryPackageRule for")
+
+
+def catalogued_changes_tags(rules_dir: Path) -> set[str]:
+    return catalogued_tags_with_impl(rules_dir, "impl ChangesRule for")
+
+
+def catalogued_buildinfo_tags(rules_dir: Path) -> set[str]:
+    return catalogued_tags_with_impl(rules_dir, "impl BuildinfoRule for")
+
+
+def catalogued_group_tags(rules_dir: Path) -> set[str]:
+    return catalogued_tags_with_impl(rules_dir, "impl GroupRule for")
 
 
 def recipe_is_source_tree(recipe: Path) -> bool:
@@ -682,6 +686,64 @@ def catalogued_source_package_recipe_rels(dest_root: Path, tags: set[str]) -> li
     return rels
 
 
+def recipe_skeleton(recipe: Path) -> str:
+    origin = recipe / "ORIGIN"
+    if not origin.is_file():
+        return ""
+    text, _encoding = read_text(origin)
+    for line in text.splitlines():
+        if line.startswith("Skeleton:"):
+            return line.partition(":")[2].strip()
+    return ""
+
+
+def applies_to_group(
+    processable_type: str, tag: str, changes_tags: set[str], buildinfo_tags: set[str], group_tags: set[str]
+) -> bool:
+    """A hint a Group lint shows: per processable type, a Tag of the Rule kind that produces it.
+
+    Changes and Buildinfo Rules produce `changes` and `buildinfo` hints; a Group Rule produces `source`
+    hints (its Diagnostics attach to the Source package, ADR 0055). See `applies_to_group` in
+    `tests/common/mod.rs`.
+    """
+    return (
+        (processable_type == "changes" and tag in changes_tags)
+        or (processable_type == "buildinfo" and tag in buildinfo_tags)
+        or (processable_type == "source" and tag in group_tags)
+    )
+
+
+def has_catalogued_group_hints(
+    recipe: Path, changes_tags: set[str], buildinfo_tags: set[str], group_tags: set[str]
+) -> bool:
+    hints = recipe / "eval" / "hints"
+    if not hints.is_file():
+        return False
+    text, _encoding = read_text(hints)
+    for line in text.splitlines():
+        parsed = parse_universal_hint_line(line)
+        if parsed is None:
+            continue
+        processable_type, tag, _extra = parsed
+        if applies_to_group(processable_type, tag, changes_tags, buildinfo_tags, group_tags):
+            return True
+    return False
+
+
+def catalogued_group_recipe_rels(
+    dest_root: Path, changes_tags: set[str], buildinfo_tags: set[str], group_tags: set[str]
+) -> list[str]:
+    rels: list[str] = []
+    for recipe in discover_vendored_recipe_dirs(dest_root):
+        if recipe_skeleton(recipe) not in GROUP_SKELETONS:
+            continue
+        if not has_catalogued_group_hints(recipe, changes_tags, buildinfo_tags, group_tags):
+            continue
+        rels.append(recipe.relative_to(dest_root).as_posix())
+    rels.sort(key=recipe_path_order)
+    return rels
+
+
 def recipe_test_name(rel: str) -> str:
     # test_case turns every run of non-identifier characters into one `_`
     # (`foo++` -> `foo_`, `1.0` -> `1_0`); match it so the report finds results.
@@ -711,10 +773,11 @@ def render_parity_tests(
     source_tree: list[str],
     binary_package: list[str],
     source_package: list[str],
+    group: list[str],
 ) -> str:
     return f"""//! Generated by `scripts/import_lintian_parity.py`. Do not edit.
 //!
-//! Source-tree, Binary-package, and Source-package Parity recipes whose
+//! Source-tree, Binary-package, Source-package, and Group Parity recipes whose
 //! `eval/hints` mention a catalogued LN Tag.
 
 mod common;
@@ -726,6 +789,8 @@ use test_case::test_case;
 {_const_slice("BINARY_PACKAGE_RECIPES", binary_package)}
 
 {_const_slice("SOURCE_PACKAGE_RECIPES", source_package)}
+
+{_const_slice("GROUP_RECIPES", group)}
 
 #[test]
 fn listed_source_tree_recipes_match_vendored_catalogued() {{
@@ -744,7 +809,13 @@ fn listed_source_package_recipes_match_vendored_catalogued() {{
     let listed: Vec<String> = SOURCE_PACKAGE_RECIPES.iter().map(|rel| (*rel).to_string()).collect();
     assert_eq!(common::catalogued_source_package_recipe_rels(), listed);
 }}
-{_test_cases(source_tree, "lintian_parity_source_tree", "assert_source_tree_parity")}{_test_cases(binary_package, "lintian_parity_binary_package", "assert_binary_package_parity")}{_test_cases(source_package, "lintian_parity_source_package", "assert_source_package_parity")}
+
+#[test]
+fn listed_group_recipes_match_vendored_catalogued() {{
+    let listed: Vec<String> = GROUP_RECIPES.iter().map(|rel| (*rel).to_string()).collect();
+    assert_eq!(common::catalogued_group_recipe_rels(), listed);
+}}
+{_test_cases(source_tree, "lintian_parity_source_tree", "assert_source_tree_parity")}{_test_cases(binary_package, "lintian_parity_binary_package", "assert_binary_package_parity")}{_test_cases(source_package, "lintian_parity_source_package", "assert_source_package_parity")}{_test_cases(group, "lintian_parity_group", "assert_group_parity")}
 """  # noqa: E501
 
 
@@ -754,12 +825,18 @@ def generated_tests_path() -> Path:
 
 def write_parity_tests(dest_root: Path) -> Path:
     rules_dir = repo_root() / RULES_RELATIVE
-    tags = catalogued_ln_tags(rules_dir)
+    tags = catalogued_source_tree_tags(rules_dir)
     source_tree = catalogued_source_tree_recipe_rels(dest_root, tags)
     binary_package = catalogued_binary_package_recipe_rels(dest_root, catalogued_binary_package_tags(rules_dir))
     source_package = catalogued_source_package_recipe_rels(dest_root, catalogued_source_package_tags(rules_dir))
+    group = catalogued_group_recipe_rels(
+        dest_root,
+        catalogued_changes_tags(rules_dir),
+        catalogued_buildinfo_tags(rules_dir),
+        catalogued_group_tags(rules_dir),
+    )
     path = generated_tests_path()
-    path.write_text(render_parity_tests(source_tree, binary_package, source_package), encoding="utf-8")
+    path.write_text(render_parity_tests(source_tree, binary_package, source_package, group), encoding="utf-8")
     subprocess.run(["rustfmt", "--edition", "2024", str(path)], check=False)
     return path
 

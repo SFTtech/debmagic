@@ -190,16 +190,17 @@ async fn run() -> anyhow::Result<ExitCode> {
             });
         }
         Commands::Lint(args) => {
-            if args.subject.is_some() && args.common.source_dir.is_some() {
+            if !args.subjects.is_empty() && args.common.source_dir.is_some() {
                 anyhow::bail!("cannot specify both a subject path and --source-dir");
             }
-            let subject = args
-                .subject
-                .clone()
-                .or_else(|| args.common.source_dir.clone());
+            let subjects = if args.subjects.is_empty() {
+                args.common.source_dir.clone().into_iter().collect()
+            } else {
+                args.subjects.clone()
+            };
             let intent = lint::resolve_lint_intent(lint::LintIntentInput {
                 fallback_dir: current_dir.clone(),
-                subject,
+                subjects,
                 config_file: cli.config.clone(),
                 select: args.select.clone(),
                 ignore: args.ignore.clone(),

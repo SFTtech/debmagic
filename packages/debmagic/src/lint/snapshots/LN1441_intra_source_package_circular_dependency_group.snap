@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+W: example (source): intra-source-package-circular-dependency (LN1441) a b
+W: example (source): intra-source-package-circular-dependency (LN1441) a b c
+W: example (source): intra-source-package-circular-dependency (LN1441) c1-a c1-b c1-c
+W: example (source): intra-source-package-circular-dependency (LN1441) c2-a c2-b c2-c
+W: example (source): intra-source-package-circular-dependency (LN1441) a b

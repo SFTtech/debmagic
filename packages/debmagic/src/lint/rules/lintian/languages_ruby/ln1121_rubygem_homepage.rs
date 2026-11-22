@@ -41,7 +41,7 @@ impl SourceRule for RubygemHomepage {
             SubjectKind::SourcePackage => ctx
                 .dsc()
                 .and_then(|dsc| dsc.fields().unfolded_value("Homepage")),
-            SubjectKind::BinaryPackage => None,
+            SubjectKind::BinaryPackage | SubjectKind::Changes | SubjectKind::Buildinfo => None,
         };
         if let Some(homepage) = homepage.filter(|homepage| RUBYGEMS.is_match(homepage)) {
             ctx.diagnostic(Diagnostic::warn(homepage));

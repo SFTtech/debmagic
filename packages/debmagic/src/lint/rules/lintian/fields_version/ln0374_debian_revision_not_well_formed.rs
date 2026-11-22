@@ -5,7 +5,8 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::{BinaryPackageContext, SourceContext};
 use crate::lint::diagnostic::Diagnostic;
-use crate::lint::rule::{BinaryPackageRule, SourceRule};
+use crate::lint::group_context::{BuildinfoContext, ChangesContext};
+use crate::lint::rule::{BinaryPackageRule, BuildinfoRule, ChangesRule, SourceRule};
 
 use super::source_version;
 
@@ -19,8 +20,9 @@ declare_rule! {
     /// parts. A revision with a further dotted part is not, unless it is an
     /// Ubuntu revision (`...ubuntuN` followed by one to three `.N` parts) that
     /// the extra part follows. Reads the Dsc when there is one, otherwise the
-    /// newest changelog heading on a Source tree, and Installation control on a
-    /// Binary package. Extra is the Version.
+    /// newest changelog heading on a Source tree, Installation control on a
+    /// Binary package, and the `Version` field of the Changes file and of the
+    /// Buildinfo file of a Group. Extra is the Version.
     DebianRevisionNotWellFormed,
     code = "LN0374",
     tag = "debian-revision-not-well-formed",
@@ -62,6 +64,28 @@ impl BinaryPackageRule for DebianRevisionNotWellFormed {
     }
 }
 
+impl ChangesRule for DebianRevisionNotWellFormed {
+    fn run(&self, ctx: &mut ChangesContext<'_>) {
+        let Some(version) = ctx.changes().fields().unfolded_value("Version") else {
+            return;
+        };
+        if !revision_well_formed(&version_revision(&version)) {
+            ctx.diagnostic(Diagnostic::warn(version));
+        }
+    }
+}
+
+impl BuildinfoRule for DebianRevisionNotWellFormed {
+    fn run(&self, ctx: &mut BuildinfoContext<'_>) {
+        let Some(version) = ctx.buildinfo().fields().unfolded_value("Version") else {
+            return;
+        };
+        if !revision_well_formed(&version_revision(&version)) {
+            ctx.diagnostic(Diagnostic::warn(version));
+        }
+    }
+}
+
 /// The text after the last hyphen, or `0` when the version has none.
 fn version_revision(version: &str) -> String {
     match version.rfind('-') {
@@ -84,7 +108,10 @@ fn revision_well_formed(revision: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, SourceTreeTester, TestFile};
+    use crate::lint::tester::{
+        BinaryPackageCase, BinaryPackageTester, BuildinfoTester, ChangesTester, SourceTreeTester,
+        TestFile,
+    };
 
     use super::*;
 
@@ -129,5 +156,31 @@ mod tests {
         let fail = vec![version("1.5-.3"), version("1.0-1.2.3.4")];
         BinaryPackageTester::new(DebianRevisionNotWellFormed, pass, fail)
             .test_and_snapshot_with_suffix("binary");
+    }
+
+    fn version_field(value: &str) -> String {
+        format!("Source: example\nVersion: {value}\n")
+    }
+
+    #[test]
+    fn changes_file() {
+        let pass = vec![
+            "Source: example\n".to_string(),
+            version_field("1.0-1"),
+            version_field("1.0-1ubuntu1.2"),
+        ];
+        let fail = vec![version_field("0-.3"), version_field("1.0-1.2.3.4")];
+        ChangesTester::new(DebianRevisionNotWellFormed, pass, fail).test_and_snapshot();
+    }
+
+    #[test]
+    fn buildinfo_file() {
+        let pass = vec![
+            "Source: example\n".to_string(),
+            version_field("1.0-1"),
+            version_field("1.0-1ubuntu1.2"),
+        ];
+        let fail = vec![version_field("1.5-.3"), version_field("1.0-1.2.3.4")];
+        BuildinfoTester::new(DebianRevisionNotWellFormed, pass, fail).test_and_snapshot();
     }
 }

@@ -18,6 +18,7 @@ mod binaries_rpath;
 mod binaries_static;
 mod build_systems_waf;
 mod changelog_doc;
+mod changes_file;
 mod conffiles;
 mod control_files;
 mod cruft;
@@ -129,6 +130,7 @@ mod fonts_opentype;
 mod fonts_truetype;
 mod games;
 mod images_filenames;
+mod group_checks;
 mod images_thumbnails;
 mod includes_config_h;
 mod init_scripts;
@@ -277,6 +279,7 @@ pub(crate) use binaries_rpath::CustomLibrarySearchPath;
 pub(crate) use binaries_rpath::RelativeLibrarySearchPath;
 pub(crate) use binaries_static::StaticallyLinkedBinary;
 pub(crate) use build_systems_waf::SourceContainsWafBinary;
+pub(crate) use changes_file::BadSectionInChangesFile;
 pub(crate) use conffiles::{
     ConffileHasBadFileType, DuplicateConffile, FileInEtcRcDMarkedAsConffile,
     FileInUsrMarkedAsConffile, MissingConffile, NonEtcFileMarkedAsConffile, RelativeConffile,
@@ -387,6 +390,7 @@ pub(crate) use fonts::FontOutsideFontDir;
 pub(crate) use fonts::WoffFontInWrongDir;
 pub(crate) use images_filenames::ImageFileHasConflictingName;
 pub(crate) use images_filenames::ImageFileHasUnexpectedName;
+pub(crate) use group_checks::IntraSourcePackageCircularDependency;
 pub(crate) use images_thumbnails::PackageContainsThumbnailsDir;
 pub(crate) use images_thumbnails::PackageContainsXvpicsDir;
 pub(crate) use includes_config_h::PackageNameDefinedInConfigH;

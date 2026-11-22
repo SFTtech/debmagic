@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+W: example (source): dependency-is-not-multi-archified (LN1501) a depends on b (multi-arch: no)
+W: example (source): dependency-is-not-multi-archified (LN1501) a depends on b (multi-arch: allowed)
+W: example (source): dependency-is-not-multi-archified (LN1501) a depends on b (multi-arch: no)
+W: example (source): dependency-is-not-multi-archified (LN1501) a depends on d (multi-arch: no)

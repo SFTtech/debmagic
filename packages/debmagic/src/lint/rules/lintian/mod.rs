@@ -867,8 +867,8 @@ pub(crate) use files_privacy_breach::{
     PrivacyBreachW3cValidHtml,
 };
 pub(crate) use languages_php::{
-    ComposerPrerequisite, EmbeddedPhpLibrary, MissingPkgPhpToolsAddon,
-    MissingPkgPhpToolsBuildsystem, ObsoleteCommentsStyleInPhpIni,
+    ComposerPackageWithoutPkgPhpToolsBuilddep, ComposerPrerequisite, EmbeddedPhpLibrary,
+    MissingPkgPhpToolsAddon, MissingPkgPhpToolsBuildsystem, ObsoleteCommentsStyleInPhpIni,
     PearChannelWithoutPkgPhpToolsBuilddep, PearPackageButMissingDependency,
     PearPackageWithoutPkgPhpToolsBuilddep, PeclPackageRequiresBuildDependency,
 };

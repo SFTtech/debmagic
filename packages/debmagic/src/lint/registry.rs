@@ -63,6 +63,7 @@ use super::rules::ClasspathContainsRelativePath;
 use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
+use super::rules::ComposerPackageWithoutPkgPhpToolsBuilddep;
 use super::rules::ComposerPrerequisite;
 use super::rules::CompressedDuplicate;
 use super::rules::ConfigDoesNotLoadConfmodule;
@@ -2189,6 +2190,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InitDScriptDoesNotProvideItself,
         &InitDScriptMissingLsbShortDescription,
         &MissingXsGoImportPathForGolangPackage,
+        &ComposerPackageWithoutPkgPhpToolsBuilddep,
     ]
 }
 
@@ -2590,6 +2592,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InconsistentAppstreamMetadataLicense,
         &DfsgVersionWithTilde,
         &MissingXsGoImportPathForGolangPackage,
+        &ComposerPackageWithoutPkgPhpToolsBuilddep,
     ]
 }
 

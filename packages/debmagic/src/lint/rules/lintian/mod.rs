@@ -276,6 +276,7 @@ pub(crate) use debian_symbols::PackagePlaceholderInSymbolsFile;
 pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
 pub(crate) use debian_upstream::DebianUpstreamObsoletePath;
 pub(crate) use debian_upstream::UpstreamMetadataInNativeSource;
+pub(crate) use debian_upstream::UpstreamMetadataIsNotAFile;
 pub(crate) use desktop::{
     DesktopFileInWrongDir, FileInDiscouragedX11FontDirectory, FileInUnknownX11FontDirectory,
     IconSizeAndDirectoryNameMismatch, MissingCallToUpdateFonts, PackageContainsCompiledFontFile,

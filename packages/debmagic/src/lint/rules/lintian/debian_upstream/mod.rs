@@ -4,6 +4,8 @@
 
 mod ln0845_debian_upstream_obsolete_path;
 mod ln1214_upstream_metadata_in_native_source;
+mod ln1215_upstream_metadata_is_not_a_file;
 
 pub(crate) use ln0845_debian_upstream_obsolete_path::DebianUpstreamObsoletePath;
 pub(crate) use ln1214_upstream_metadata_in_native_source::UpstreamMetadataInNativeSource;
+pub(crate) use ln1215_upstream_metadata_is_not_a_file::UpstreamMetadataIsNotAFile;

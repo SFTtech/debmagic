@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): appstream-metadata-legacy-format (LN1464) [usr/share/appdata/foo.xml]
+E: example (binary): appstream-metadata-legacy-format (LN1464) [usr/share/metainfo/foo.metainfo.xml]

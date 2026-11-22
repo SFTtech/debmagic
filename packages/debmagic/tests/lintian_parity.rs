@@ -1559,10 +1559,22 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
 
 const GROUP_RECIPES: &[&str] = &[
     "checks/changes-file/changes-file-bad-section",
+    "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
+    "checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license",
+    "checks/debian/copyright/copyright-file-symlink",
+    "checks/desktop/gnome/gir/gir",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
+    "checks/files/symbolic-links/broken/symlinks-broken",
     "checks/group-checks/group-checks-circular-deps",
+    "checks/group-checks/group-checks-file-conflict",
+    "checks/group-checks/group-checks-multi-arch",
     "checks/group-checks/legacy-binary",
+    "checks/group-checks/legacy-libbaz",
+    "checks/libraries/shared/links/legacy-libbaz",
+    "checks/libraries/shared/links/shared-libs-dev-symlink",
+    "checks/menus/legacy-binary",
+    "checks/menus/menus-doc-base-file-references-missing-file",
 ];
 
 #[test]
@@ -3152,10 +3164,22 @@ fn lintian_parity_source_package(recipe: &str) {
 }
 
 #[test_case("checks/changes-file/changes-file-bad-section"; "checks_changes_file_changes_file_bad_section")]
+#[test_case("checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar"; "checks_debhelper_debhelper_dh_runit_but_lacks_breaks_substvar")]
+#[test_case("checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license"; "checks_debian_copyright_apache_notice_source_copyright_missing_notice_file_for_apache_license")]
+#[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]
+#[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
+#[test_case("checks/files/symbolic-links/broken/symlinks-broken"; "checks_files_symbolic_links_broken_symlinks_broken")]
 #[test_case("checks/group-checks/group-checks-circular-deps"; "checks_group_checks_group_checks_circular_deps")]
+#[test_case("checks/group-checks/group-checks-file-conflict"; "checks_group_checks_group_checks_file_conflict")]
+#[test_case("checks/group-checks/group-checks-multi-arch"; "checks_group_checks_group_checks_multi_arch")]
 #[test_case("checks/group-checks/legacy-binary"; "checks_group_checks_legacy_binary")]
+#[test_case("checks/group-checks/legacy-libbaz"; "checks_group_checks_legacy_libbaz")]
+#[test_case("checks/libraries/shared/links/legacy-libbaz"; "checks_libraries_shared_links_legacy_libbaz")]
+#[test_case("checks/libraries/shared/links/shared-libs-dev-symlink"; "checks_libraries_shared_links_shared_libs_dev_symlink")]
+#[test_case("checks/menus/legacy-binary"; "checks_menus_legacy_binary")]
+#[test_case("checks/menus/menus-doc-base-file-references-missing-file"; "checks_menus_menus_doc_base_file_references_missing_file")]
 fn lintian_parity_group(recipe: &str) {
     common::assert_group_parity(recipe);
 }

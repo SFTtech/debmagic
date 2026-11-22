@@ -31,6 +31,7 @@ use super::rules::BadSectionInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
+use super::rules::BinariesHaveFileConflict;
 use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryFromOtherArchitecture;
 use super::rules::BinaryHasUnneededSection;
@@ -118,6 +119,7 @@ use super::rules::DebianUpstreamObsoletePath;
 use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
 use super::rules::DebianWatchUsesInsecureUri;
 use super::rules::DebugFileWithNoDebugSymbols;
+use super::rules::DebugPackageForMultiArchSamePkgNotCoinstallable;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
@@ -125,6 +127,7 @@ use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
 use super::rules::DefaultMtaDependencyDoesNotSpecifyMailTransportAgent;
 use super::rules::DefaultMtaDependencyNotListedFirst;
 use super::rules::Dep3FormatPatchAuthorOrFromIsBetter;
+use super::rules::DependencyIsNotMultiArchified;
 use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
@@ -147,6 +150,7 @@ use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DistantPrerequisiteInShlibs;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
+use super::rules::DocBaseFileReferencesMissingFile;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
@@ -189,6 +193,7 @@ use super::rules::ForbiddenPostrmInterpreter;
 use super::rules::GawkScriptButNoGawkDep;
 use super::rules::GfortranModuleDoesNotDeclareVersion;
 use super::rules::GirInArchAllPackage;
+use super::rules::GirMissingTypelibDependency;
 use super::rules::GirPackageNameDoesNotMatch;
 use super::rules::GlobbingPatternsOutOfOrder;
 use super::rules::GoLibraryPackageDoesNotIncludeVersion;
@@ -225,6 +230,7 @@ use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
 use super::rules::LacksLdconfigTrigger;
+use super::rules::LacksUnversionedLinkToSharedLibrary;
 use super::rules::LacksVersionedLinkToSharedLibrary;
 use super::rules::LdconfigSymlinkIsNotASymlink;
 use super::rules::LdconfigSymlinkReferencingWrongFile;
@@ -280,6 +286,7 @@ use super::rules::MissingDependsOnSensibleUtils;
 use super::rules::MissingFileFromPotfilesIn;
 use super::rules::MissingIntermediateDirectory;
 use super::rules::MissingManifest;
+use super::rules::MissingNoticeFileForApacheLicense;
 use super::rules::MissingPkgPhpToolsAddon;
 use super::rules::MissingPkgPhpToolsBuildsystem;
 use super::rules::MissingPotfilesIn;
@@ -331,6 +338,7 @@ use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
 use super::rules::PackageContainsAncientFile;
+use super::rules::PackageContainsBrokenSymlinkWildcard;
 use super::rules::PackageContainsCmakePrivateFile;
 use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
 use super::rules::PackageContainsEmptyDirectory;
@@ -369,6 +377,7 @@ use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
 use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
+use super::rules::PackageUsesDhRunitButLacksBreaksSubstvar;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PatchedFileWithoutUtf8Name;
@@ -540,6 +549,7 @@ use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
 use super::rules::UsingFirstPersonInDescription;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
+use super::rules::UsrShareDocSymlinkToForeignPackage;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VcsBrowserLinksToEmptyView;
@@ -2195,6 +2205,16 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &Dep3FormatPatchAuthorOrFromIsBetter,
         &InvalidDep3FormatPatchNoDescriptionAndSubject,
         &InvalidDep3FormatPatchNoOrigin,
+        &GirMissingTypelibDependency,
+        &PackageUsesDhRunitButLacksBreaksSubstvar,
+        &DependencyIsNotMultiArchified,
+        &MissingNoticeFileForApacheLicense,
+        &LacksUnversionedLinkToSharedLibrary,
+        &PackageContainsBrokenSymlinkWildcard,
+        &DebugPackageForMultiArchSamePkgNotCoinstallable,
+        &UsrShareDocSymlinkToForeignPackage,
+        &DocBaseFileReferencesMissingFile,
+        &BinariesHaveFileConflict,
     ]
 }
 
@@ -3470,7 +3490,19 @@ pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
 }
 
 pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
-    &[&IntraSourcePackageCircularDependency]
+    &[
+        &IntraSourcePackageCircularDependency,
+        &GirMissingTypelibDependency,
+        &PackageUsesDhRunitButLacksBreaksSubstvar,
+        &DependencyIsNotMultiArchified,
+        &MissingNoticeFileForApacheLicense,
+        &LacksUnversionedLinkToSharedLibrary,
+        &PackageContainsBrokenSymlinkWildcard,
+        &DebugPackageForMultiArchSamePkgNotCoinstallable,
+        &UsrShareDocSymlinkToForeignPackage,
+        &DocBaseFileReferencesMissingFile,
+        &BinariesHaveFileConflict,
+    ]
 }
 
 #[cfg(test)]

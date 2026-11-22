@@ -30,6 +30,7 @@ use super::rules::BadSectionInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
+use super::rules::BinSbinMismatch;
 use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryFromOtherArchitecture;
 use super::rules::BinaryHasUnneededSection;
@@ -2175,6 +2176,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoCodeSections,
         &DfsgVersionWithTilde,
         &CompressedDuplicate,
+        &BinSbinMismatch,
     ]
 }
 
@@ -3428,6 +3430,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &CompressedDuplicate,
+        &BinSbinMismatch,
     ]
 }
 

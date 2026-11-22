@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): installable-field-mirrors-source (LN1315) (in section for example) Section [debian/control:10]
+I: example (source): installable-field-mirrors-source (LN1315) (in section for example) Maintainer [debian/control:10]
+I: example (source): installable-field-mirrors-source (LN1315) (in section for example) Section [debian/control:11]

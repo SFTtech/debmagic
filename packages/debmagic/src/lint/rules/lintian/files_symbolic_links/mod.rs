@@ -19,6 +19,7 @@ mod ln0071_symlink_has_too_many_up_segments;
 mod ln0075_compressed_symlink_with_wrong_ext;
 mod ln0733_absolute_symbolic_link_target_in_source;
 mod ln0842_wayward_symbolic_link_target_in_source;
+mod ln1265_symlink_target_in_build_tree;
 
 pub(crate) use ln0006_package_contains_unsafe_symlink::PackageContainsUnsafeSymlink;
 pub(crate) use ln0029_symlink_contains_spurious_segments::SymlinkContainsSpuriousSegments;
@@ -32,3 +33,4 @@ pub(crate) use ln0071_symlink_has_too_many_up_segments::SymlinkHasTooManyUpSegme
 pub(crate) use ln0075_compressed_symlink_with_wrong_ext::CompressedSymlinkWithWrongExt;
 pub(crate) use ln0733_absolute_symbolic_link_target_in_source::AbsoluteSymbolicLinkTargetInSource;
 pub(crate) use ln0842_wayward_symbolic_link_target_in_source::WaywardSymbolicLinkTargetInSource;
+pub(crate) use ln1265_symlink_target_in_build_tree::SymlinkTargetInBuildTree;

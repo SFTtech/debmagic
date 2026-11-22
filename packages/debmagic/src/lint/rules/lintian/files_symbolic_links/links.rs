@@ -187,6 +187,18 @@ pub(super) fn symlinks_with_issue(
     found
 }
 
+/// The link text of an absolute symlink as lintian's Check normalises it
+/// before judging the target (`//+` to `/`, then one trailing `/` dropped),
+/// and that text without its leading `/`. `None` for relative targets.
+pub(super) fn normalised_absolute_target(link: &str) -> Option<(String, String)> {
+    let mut normalised = DOUBLE_SLASH.replace_all(link, "/").into_owned();
+    if normalised.len() >= 2 && normalised.ends_with('/') {
+        normalised.pop();
+    }
+    let rest = normalised.strip_prefix('/')?.to_string();
+    Some((normalised, rest))
+}
+
 pub(super) fn emit_issue(
     ctx: &mut BinaryPackageContext<'_>,
     issue: SymlinkIssue,

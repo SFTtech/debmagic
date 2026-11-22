@@ -325,6 +325,7 @@ use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::StrippedLibrary;
 use super::rules::SurplusSharedLibrarySymbols;
+use super::rules::SymlinkTargetInBuildTree;
 use super::rules::SyntaxErrorInDebconfTemplate;
 use super::rules::SyntaxErrorInDep5Copyright;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
@@ -1863,6 +1864,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PrermCallsUpdatemenus,
         &BrokenZip,
         &UsrShareDocSymlinkPointsOutsideOfUsrShareDoc,
+        &SymlinkTargetInBuildTree,
     ]
 }
 
@@ -2962,6 +2964,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PrermCallsUpdatemenus,
         &BrokenZip,
         &UsrShareDocSymlinkPointsOutsideOfUsrShareDoc,
+        &SymlinkTargetInBuildTree,
     ]
 }
 

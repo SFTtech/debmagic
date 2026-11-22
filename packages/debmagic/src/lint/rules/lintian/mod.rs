@@ -377,6 +377,7 @@ pub(crate) use desktop::{
     RasterImageInScalableDirectory,
 };
 pub(crate) use desktop_gir::GirInArchAllPackage;
+pub(crate) use desktop_gir::GirMissingTypelibDependency;
 pub(crate) use desktop_gir::GirPackageNameDoesNotMatch;
 pub(crate) use desktop_gir::GirSectionNotLibdevel;
 pub(crate) use desktop_gir::TypelibInArchAllPackage;
@@ -444,6 +445,9 @@ pub(crate) use fonts::DuplicateFontFile;
 pub(crate) use fonts::FontInNonFontPackage;
 pub(crate) use fonts::FontOutsideFontDir;
 pub(crate) use fonts::WoffFontInWrongDir;
+pub(crate) use group_checks::BinariesHaveFileConflict;
+pub(crate) use group_checks::DebugPackageForMultiArchSamePkgNotCoinstallable;
+pub(crate) use group_checks::DependencyIsNotMultiArchified;
 pub(crate) use group_checks::IntraSourcePackageCircularDependency;
 pub(crate) use images_filenames::ImageFileHasConflictingName;
 pub(crate) use images_filenames::ImageFileHasUnexpectedName;
@@ -476,6 +480,7 @@ pub(crate) use libraries_debug_symbols::StrippedLibrary;
 pub(crate) use libraries_embedded::EmbeddedLibrary;
 pub(crate) use libraries_shared_file_permissions::OddPermissionsOnSharedLibrary;
 pub(crate) use libraries_shared_file_permissions::SharedLibraryIsExecutable;
+pub(crate) use libraries_shared_links::LacksUnversionedLinkToSharedLibrary;
 pub(crate) use libraries_shared_links::LacksVersionedLinkToSharedLibrary;
 pub(crate) use libraries_shared_links::LdconfigSymlinkIsNotASymlink;
 pub(crate) use libraries_shared_links::LdconfigSymlinkReferencingWrongFile;
@@ -545,12 +550,13 @@ pub(crate) use debian_copyright::{
     InvalidEscapeSequenceInDep5Copyright, InvalidShortNameInDep5Copyright,
     LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright,
     MissingLicenseParagraphInDep5Copyright, MissingLicenseTextInDep5Copyright,
-    NamedCopyrightForSingleInstallable, NoCopyrightFile, NoDebianCopyrightInSource,
-    NoDep5Copyright, ObsoleteFieldInDep5Copyright, OldFsfAddressInCopyrightFile,
-    PipeSymbolUsedAsLicenseDisjunction, SourceShipsExcludedFile,
+    MissingNoticeFileForApacheLicense, NamedCopyrightForSingleInstallable, NoCopyrightFile,
+    NoDebianCopyrightInSource, NoDep5Copyright, ObsoleteFieldInDep5Copyright,
+    OldFsfAddressInCopyrightFile, PipeSymbolUsedAsLicenseDisjunction, SourceShipsExcludedFile,
     SpaceInStdShortnameInDep5Copyright, SyntaxErrorInDep5Copyright, TabInLicenseText,
     UnknownParagraphInDep5Copyright, UnusedLicenseParagraphInDep5Copyright,
-    UsrShareDocSymlinkPointsOutsideOfUsrShareDoc, UsrShareDocSymlinkWithoutDependency,
+    UsrShareDocSymlinkPointsOutsideOfUsrShareDoc, UsrShareDocSymlinkToForeignPackage,
+    UsrShareDocSymlinkWithoutDependency,
 };
 pub(crate) use fields_version::{
     BadVersionNumber, BinaryNmuDebianRevisionInSource, DebianRevisionIsZero,
@@ -759,10 +765,11 @@ pub(crate) use files_pkgconfig::{
 };
 pub(crate) use files_symbolic_links::{
     AbsoluteSymbolicLinkTargetInSource, AbsoluteSymlinkInTopLevelFolder,
-    CompressedSymlinkWithWrongExt, LengthySymlink, PackageContainsUnsafeSymlink, RelativeSymlink,
-    SymlinkContainsSpuriousSegments, SymlinkEndsWithSlash, SymlinkHasDoubleSlash,
-    SymlinkHasTooManyUpSegments, SymlinkIsSelfRecursive, SymlinkTargetInBuildTree,
-    SymlinkTargetInTmp, WaywardSymbolicLinkTargetInSource,
+    CompressedSymlinkWithWrongExt, LengthySymlink, PackageContainsBrokenSymlinkWildcard,
+    PackageContainsUnsafeSymlink, RelativeSymlink, SymlinkContainsSpuriousSegments,
+    SymlinkEndsWithSlash, SymlinkHasDoubleSlash, SymlinkHasTooManyUpSegments,
+    SymlinkIsSelfRecursive, SymlinkTargetInBuildTree, SymlinkTargetInTmp,
+    WaywardSymbolicLinkTargetInSource,
 };
 pub(crate) use files_unwanted::{BackupFileInPackage, NfsTemporaryFileInPackage};
 pub(crate) use files_vcs::{
@@ -974,12 +981,12 @@ pub(crate) use menus::{
     DocBaseAbstractFieldIsTemplate, DocBaseAbstractFieldSeparatorExtraWhitespace,
     DocBaseAbstractMightContainExtraLeadingWhitespace, DocBaseDocumentFieldEndsInWhitespace,
     DocBaseDocumentFieldNotInFirstLine, DocBaseFileLacksRequiredField, DocBaseFileNoFormat,
-    DocBaseFileNoFormatSection, DocBaseFileNoIndex, DocBaseFileReferencesWrongPath,
-    DocBaseFileSeparatorExtraWhitespace, DocBaseFileSyntaxError, DocBaseFileUnknownField,
-    DocBaseFileUnknownFormat, DocBaseIndexReferencesMultipleFiles, DocBaseInvalidDocumentField,
-    DocBaseUnknownSection, DocBaseUsesApplicationsSection, DuplicateFieldInDocBase,
-    DuplicateFormatInDocBase, ExecutableInUsrShareDocbase, ExecutableMenuFile,
-    MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,
+    DocBaseFileNoFormatSection, DocBaseFileNoIndex, DocBaseFileReferencesMissingFile,
+    DocBaseFileReferencesWrongPath, DocBaseFileSeparatorExtraWhitespace, DocBaseFileSyntaxError,
+    DocBaseFileUnknownField, DocBaseFileUnknownFormat, DocBaseIndexReferencesMultipleFiles,
+    DocBaseInvalidDocumentField, DocBaseUnknownSection, DocBaseUsesApplicationsSection,
+    DuplicateFieldInDocBase, DuplicateFormatInDocBase, ExecutableInUsrShareDocbase,
+    ExecutableMenuFile, MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,
     MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus, MenuMethodLacksInclude,
     PossibleDocumentationButNoDocBaseRegistration, PostinstDoesNotCallUpdatemenus,
     PostinstHasUselessCallToInstallDocs, PostinstHasUselessCallToUpdateMenus,
@@ -1012,8 +1019,9 @@ pub(crate) use rules_and_control::{
     DhInstallmanpagesIsObsolete, DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
     ExecutableDebhelperFileWithoutBeingExecutable, PackageFileIsExecutable,
     PackageUsesDebhelperButLacksBuildDepends, PackageUsesDhExecButLacksBuildDepends,
-    PackageUsesOldDebhelperCompatVersion, Python3DependsButNoPython3Helper, TemporaryDebhelperFile,
-    UselessAutoreconfBuildDepends, WeakDependencyOnMiscDepends,
+    PackageUsesDhRunitButLacksBreaksSubstvar, PackageUsesOldDebhelperCompatVersion,
+    Python3DependsButNoPython3Helper, TemporaryDebhelperFile, UselessAutoreconfBuildDepends,
+    WeakDependencyOnMiscDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

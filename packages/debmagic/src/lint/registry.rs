@@ -498,6 +498,7 @@ use super::rules::TypelibMissingGirDepends;
 use super::rules::TypelibNotInMultiarchDirectory;
 use super::rules::TypelibPackageNameDoesNotMatch;
 use super::rules::TypelibSectionNotIntrospection;
+use super::rules::TypoInManualPage;
 use super::rules::UdebContainsDocumentationFile;
 use super::rules::UdebPostinstCallsLdconfig;
 use super::rules::UdebUsesUnsupportedCompressionForDataTarball;
@@ -2197,6 +2198,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DescriptionPossiblyContainsHomepage,
         &BuildDependsOnPythonDevWithNoArchAny,
         &OredBuildDependsOnObsoletePackage,
+        &TypoInManualPage,
     ]
 }
 
@@ -3467,6 +3469,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &HomepageSalsaUrlEndsWithDotGit,
         &HomepageRefersToFilesystemListing,
         &DescriptionPossiblyContainsHomepage,
+        &TypoInManualPage,
     ]
 }
 

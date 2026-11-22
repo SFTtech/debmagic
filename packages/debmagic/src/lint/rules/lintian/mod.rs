@@ -609,7 +609,7 @@ pub(crate) use documentation_manual::{
     BuildPathInManual, CountryInManual, EmptyManualPage, ExecutableManualPage,
     FSSTNDDirInManualPage, GroffMessage, ManualPageFromTemplate, ManualPageWithGenericName,
     NoEnglishManualPage, NoManualPage, OddPlaceForManualPage, PodConversionMessage,
-    PoorCompressionInManualPage, PythonTracebackInManpage, StrayFolderInManual,
+    PoorCompressionInManualPage, PythonTracebackInManpage, StrayFolderInManual, TypoInManualPage,
     UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
     WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
 };

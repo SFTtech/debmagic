@@ -225,6 +225,7 @@ use super::rules::MaintainerScriptSetsAlternativeImproperly;
 use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
 use super::rules::MaintainerScriptWithoutSetE;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
+use super::rules::MalformedDebArchive;
 use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
 use super::rules::MalformedTemplateName;
@@ -2123,6 +2124,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &MalformedDebArchive,
     ]
 }
 
@@ -3350,6 +3352,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &MalformedDebArchive,
     ]
 }
 

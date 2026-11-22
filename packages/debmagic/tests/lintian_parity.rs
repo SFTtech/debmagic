@@ -848,6 +848,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/systemd/tmpfiles/declared-in-etc",
     "checks/triggers/legacy-maintainer-scripts",
     "checks/triggers/triggers-general",
+    "checks/udev/files-foo-in-bar",
     "checks/usrmerge/usrmerge-bin",
     "checks/usrmerge/usrmerge-lib",
     "checks/vim/files-foo-in-bar",
@@ -2088,6 +2089,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/systemd/tmpfiles/declared-in-etc"; "checks_systemd_tmpfiles_declared_in_etc")]
 #[test_case("checks/triggers/legacy-maintainer-scripts"; "checks_triggers_legacy_maintainer_scripts")]
 #[test_case("checks/triggers/triggers-general"; "checks_triggers_triggers_general")]
+#[test_case("checks/udev/files-foo-in-bar"; "checks_udev_files_foo_in_bar")]
 #[test_case("checks/usrmerge/usrmerge-bin"; "checks_usrmerge_usrmerge_bin")]
 #[test_case("checks/usrmerge/usrmerge-lib"; "checks_usrmerge_usrmerge_lib")]
 #[test_case("checks/vim/files-foo-in-bar"; "checks_vim_files_foo_in_bar")]

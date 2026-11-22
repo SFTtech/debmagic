@@ -207,6 +207,7 @@ mod template_dh_make_control;
 mod testsuite;
 mod tlds;
 mod triggers;
+mod udev;
 mod usrmerge;
 mod vcs;
 mod vim;
@@ -365,6 +366,7 @@ pub(crate) use shell_csh::CshConsideredHarmful;
 pub(crate) use substvars_libc::PackageDependsOnHardcodedLibc;
 pub(crate) use substvars_misc_pre_depends::DependsOnMiscPreDepends;
 pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;
+pub(crate) use udev::UdevRuleInEtc;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{

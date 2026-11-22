@@ -405,6 +405,7 @@ use super::rules::VariesContentWithNocheck;
 use super::rules::VcsBrowserLinksToEmptyView;
 use super::rules::VcsFieldHasUnexpectedSpaces;
 use super::rules::VcsFieldUsesUnknownUriFormat;
+use super::rules::VcsGitUsesInvalidUserUri;
 use super::rules::VersionRefersToDistribution;
 use super::rules::VersionRefersToUnstableDistributionWithExpVersion;
 use super::rules::VersionSubstvarForExternalPackage;
@@ -1903,6 +1904,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &VcsBrowserLinksToEmptyView,
         &VcsFieldHasUnexpectedSpaces,
         &VcsFieldUsesUnknownUriFormat,
+        &VcsGitUsesInvalidUserUri,
     ]
 }
 
@@ -2254,6 +2256,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &VcsBrowserLinksToEmptyView,
         &VcsFieldHasUnexpectedSpaces,
         &VcsFieldUsesUnknownUriFormat,
+        &VcsGitUsesInvalidUserUri,
     ]
 }
 

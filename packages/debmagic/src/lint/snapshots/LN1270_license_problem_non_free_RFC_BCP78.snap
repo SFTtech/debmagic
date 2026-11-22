@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): license-problem-non-free-RFC-BCP78 (LN1270) [doc/bcp78.txt]

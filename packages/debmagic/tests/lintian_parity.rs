@@ -23,6 +23,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-cc-by-nc-sa",
     "checks/cruft/cruft-evil-json",
     "checks/cruft/cruft-general-upstream",
+    "checks/cruft/cruft-non-free-rfc",
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
@@ -886,6 +887,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-cc-by-nc-sa",
     "checks/cruft/cruft-evil-json",
     "checks/cruft/cruft-general-upstream",
+    "checks/cruft/cruft-non-free-rfc",
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
@@ -1273,6 +1275,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/cruft/cruft-cc-by-nc-sa"; "checks_cruft_cruft_cc_by_nc_sa")]
 #[test_case("checks/cruft/cruft-evil-json"; "checks_cruft_cruft_evil_json")]
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
+#[test_case("checks/cruft/cruft-non-free-rfc"; "checks_cruft_cruft_non_free_rfc")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
@@ -2138,6 +2141,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/cruft/cruft-cc-by-nc-sa"; "checks_cruft_cruft_cc_by_nc_sa")]
 #[test_case("checks/cruft/cruft-evil-json"; "checks_cruft_cruft_evil_json")]
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
+#[test_case("checks/cruft/cruft-non-free-rfc"; "checks_cruft_cruft_non_free_rfc")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]

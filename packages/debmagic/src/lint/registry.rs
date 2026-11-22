@@ -200,6 +200,7 @@ use super::rules::MissingBuildDependsForCleanTargetInDebianRules;
 use super::rules::MissingCallToUpdateFonts;
 use super::rules::MissingDebconfDependency;
 use super::rules::MissingDepOnJarwrapper;
+use super::rules::MissingDependencyOnLibc;
 use super::rules::MissingDependencyOnPhpapi;
 use super::rules::MissingDependsOnSensibleUtils;
 use super::rules::MissingFileFromPotfilesIn;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SubstvarSourceVersionIsDeprecated,
         &SourcePackageComponentHasLongFileName,
         &DevelopmentPackageShipsElfBinaryInPath,
+        &MissingDependencyOnLibc,
     ]
 }
 
@@ -3070,6 +3072,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
         &DevelopmentPackageShipsElfBinaryInPath,
+        &MissingDependencyOnLibc,
     ]
 }
 

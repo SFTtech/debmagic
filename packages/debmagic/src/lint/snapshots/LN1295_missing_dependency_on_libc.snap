@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): missing-dependency-on-libc (LN1295) needed by usr/bin/foo
+E: example (binary): missing-dependency-on-libc (LN1295) needed by usr/bin/b and 2 others
+E: example (binary): missing-dependency-on-libc (LN1295) needed by usr/bin/foo

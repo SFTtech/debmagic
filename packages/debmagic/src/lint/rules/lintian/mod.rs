@@ -11,6 +11,7 @@ mod binaries_hardening;
 mod binaries_location;
 mod binaries_obsolete_crypt;
 mod binaries_perl;
+mod binaries_prerequisites;
 mod binaries_prerequisites_php;
 mod binaries_profiling;
 mod binaries_rpath;
@@ -252,6 +253,7 @@ pub(crate) use binaries_location::{
 pub(crate) use binaries_obsolete_crypt::ObsoleteCryptAlias;
 pub(crate) use binaries_obsolete_crypt::ObsoleteDesEncryption;
 pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
+pub(crate) use binaries_prerequisites::MissingDependencyOnLibc;
 pub(crate) use binaries_prerequisites_php::MissingDependencyOnPhpapi;
 pub(crate) use binaries_profiling::BinaryCompiledWithProfilingEnabled;
 pub(crate) use binaries_rpath::CustomLibrarySearchPath;

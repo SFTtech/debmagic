@@ -149,6 +149,7 @@ use super::rules::DjangoPackageDoesNotDependOnDjango;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
+use super::rules::DuplicateLongDescription;
 use super::rules::DuplicateOverrideContext;
 use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
@@ -2185,6 +2186,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BadIntendedDistribution,
         &DebianNewsEntryUsesAsterisk,
         &DeprecatedDebianControlField,
+        &DuplicateLongDescription,
     ]
 }
 
@@ -2589,6 +2591,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DhExecSubstUnknownVariable,
         &DhExecUselessUsage,
         &DeprecatedDebianControlField,
+        &DuplicateLongDescription,
     ]
 }
 

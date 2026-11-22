@@ -155,6 +155,7 @@ use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
 use super::rules::InitDScriptUsesUsrInterpreter;
 use super::rules::InitScriptIsNotAFile;
+use super::rules::InsecureCopyrightFormatUri;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SubstvarSourceVersionIsDeprecated,
         &RedundantControlRelation,
         &DebianControlHasUnusualFieldSpacing,
+        &InsecureCopyrightFormatUri,
     ]
 }
 
@@ -2298,6 +2300,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SubstvarSourceVersionIsDeprecated,
         &RedundantControlRelation,
         &DebianControlHasUnusualFieldSpacing,
+        &InsecureCopyrightFormatUri,
     ]
 }
 

@@ -1,6 +1,8 @@
 //! Rules for lintian's `libraries/shared/links` Check.
 
 mod ln1410_lacks_versioned_link_to_shared_library;
+mod ln1411_ldconfig_symlink_is_not_a_symlink;
 mod shared;
 
 pub(crate) use ln1410_lacks_versioned_link_to_shared_library::LacksVersionedLinkToSharedLibrary;
+pub(crate) use ln1411_ldconfig_symlink_is_not_a_symlink::LdconfigSymlinkIsNotASymlink;

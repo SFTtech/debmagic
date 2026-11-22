@@ -165,6 +165,7 @@ use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
 use super::rules::LacksVersionedLinkToSharedLibrary;
+use super::rules::LdconfigSymlinkIsNotASymlink;
 use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
@@ -1947,6 +1948,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RequiresRApi,
         &RustBoilerplate,
         &LacksVersionedLinkToSharedLibrary,
+        &LdconfigSymlinkIsNotASymlink,
     ]
 }
 
@@ -3088,6 +3090,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageInstallsLegacyPythonEggInfo,
         &RequiresRApi,
         &LacksVersionedLinkToSharedLibrary,
+        &LdconfigSymlinkIsNotASymlink,
     ]
 }
 

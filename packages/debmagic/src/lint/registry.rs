@@ -103,6 +103,7 @@ use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
 use super::rules::DhExecScriptWithoutDhExecFeatures;
 use super::rules::DhInstallmanpagesIsObsolete;
+use super::rules::DhMakeTemplateInSource;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DistantPrerequisiteInShlibs;
@@ -1867,6 +1868,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UsrShareDocSymlinkPointsOutsideOfUsrShareDoc,
         &SymlinkTargetInBuildTree,
         &SymlinkTargetInTmp,
+        &DhMakeTemplateInSource,
     ]
 }
 
@@ -2200,6 +2202,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &QuiltSeriesButNoBuildDep,
         &QuiltSeriesWithoutTrailingNewline,
         &UnknownFileInDebianSource,
+        &DhMakeTemplateInSource,
     ]
 }
 

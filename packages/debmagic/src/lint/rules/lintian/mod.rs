@@ -476,8 +476,9 @@ pub(crate) use debian_rules::{
     DebianRulesUsesSpecialShellVariable,
     DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends,
     DebianRulesUsesWrongEnvironmentVariable, DebugSymbolMigrationPossiblyComplete,
-    MissingBuildDependsForCleanTargetInDebianRules, OverrideDhCleanDoesNotCallDhClean,
-    OverrideDhFixpermsDoesNotCallDhFixperms, RulesRequireBuildPrerequisite,
+    MissingBuildDependsForCleanTargetInDebianRules, NoDhSequencer,
+    OverrideDhCleanDoesNotCallDhClean, OverrideDhFixpermsDoesNotCallDhFixperms,
+    RulesRequireBuildPrerequisite,
 };
 pub(crate) use debian_shlibs::{
     DistantPrerequisiteInShlibs, DuplicateEntryInSymbolsControlFile, DuplicateInShlibs,

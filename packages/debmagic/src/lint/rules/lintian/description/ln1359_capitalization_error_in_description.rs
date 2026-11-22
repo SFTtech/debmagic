@@ -4,7 +4,7 @@ use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::{BinaryPackageRule, Severity};
 
 use super::description_field::description;
-use super::spelling::picky_capitalization;
+use crate::lint::spelling::check_spelling_picky;
 
 pub struct CapitalizationErrorInDescription;
 
@@ -33,7 +33,7 @@ impl BinaryPackageRule for CapitalizationErrorInDescription {
             return;
         };
         let extended = description.lines.join("\n");
-        for (word, correction) in picky_capitalization(&extended) {
+        for (word, correction) in check_spelling_picky(&extended) {
             ctx.diagnostic(
                 Diagnostic::warn(format!("{word} {correction}")).with_severity(Severity::Info),
             );

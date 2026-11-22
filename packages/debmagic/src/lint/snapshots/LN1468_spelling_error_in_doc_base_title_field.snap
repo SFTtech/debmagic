@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): spelling-error-in-doc-base-title-field (LN1468) debian Debian [usr/share/doc-base/example:2]
+P: example (udeb): spelling-error-in-doc-base-title-field (LN1468) speling spelling [usr/share/doc-base/example:2]
+P: example (binary): spelling-error-in-doc-base-title-field (LN1468) the the (duplicate word) the [usr/share/doc-base/example:2]

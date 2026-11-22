@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): spelling-error-in-binary (LN1301) exprimental experimental [usr/bin/a]
+P: example (binary): spelling-error-in-binary (LN1301) speling spelling [usr/bin/a]
+P: example (udeb): spelling-error-in-binary (LN1301) teh the [usr/bin/a]

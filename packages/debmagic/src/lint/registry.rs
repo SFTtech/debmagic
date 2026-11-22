@@ -144,6 +144,7 @@ use super::rules::DuplicateOverrideContext;
 use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
+use super::rules::EmbeddedLibrary;
 use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
 use super::rules::EmptySharedLibrarySymbols;
@@ -434,7 +435,12 @@ use super::rules::SourceFieldMalformed;
 use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
+use super::rules::SpellingErrorInBinary;
+use super::rules::SpellingErrorInChangelog;
 use super::rules::SpellingErrorInDescription;
+use super::rules::SpellingErrorInDocBaseAbstractField;
+use super::rules::SpellingErrorInDocBaseTitleField;
+use super::rules::SpellingErrorInNewsDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
@@ -2143,6 +2149,12 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AppstreamMetadataMalformedModaliasProvide,
         &AppstreamMetadataMissingModaliasProvide,
         &InconsistentAppstreamMetadataLicense,
+        &SpellingErrorInBinary,
+        &SpellingErrorInChangelog,
+        &SpellingErrorInNewsDebian,
+        &SpellingErrorInDocBaseAbstractField,
+        &SpellingErrorInDocBaseTitleField,
+        &EmbeddedLibrary,
     ]
 }
 
@@ -3380,6 +3392,12 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &AppstreamMetadataLegacyFormat,
         &AppstreamMetadataMalformedModaliasProvide,
         &AppstreamMetadataMissingModaliasProvide,
+        &SpellingErrorInBinary,
+        &SpellingErrorInChangelog,
+        &SpellingErrorInNewsDebian,
+        &SpellingErrorInDocBaseAbstractField,
+        &SpellingErrorInDocBaseTitleField,
+        &EmbeddedLibrary,
     ]
 }
 

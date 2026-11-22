@@ -17,6 +17,7 @@ mod ln1325_quilt_patch_missing_description;
 mod ln1526_invalid_dep3_format_patch_wrong_bug_debian_url;
 mod ln1527_invalid_dep3_format_patch_wrong_last_update;
 mod ln1528_patch_not_forwarded_upstream;
+mod ln1529_quilt_patch_uses_dpatch_placeholder;
 
 pub(crate) use ln0396_format_3_0_but_debian_changes_patch::Format30ButDebianChangesPatch;
 pub(crate) use ln0706_patch_file_present_but_not_mentioned_in_series::PatchFilePresentButNotMentionedInSeries;
@@ -34,3 +35,4 @@ pub(crate) use ln1325_quilt_patch_missing_description::QuiltPatchMissingDescript
 pub(crate) use ln1526_invalid_dep3_format_patch_wrong_bug_debian_url::InvalidDep3FormatPatchWrongBugDebianUrl;
 pub(crate) use ln1527_invalid_dep3_format_patch_wrong_last_update::InvalidDep3FormatPatchWrongLastUpdate;
 pub(crate) use ln1528_patch_not_forwarded_upstream::PatchNotForwardedUpstream;
+pub(crate) use ln1529_quilt_patch_uses_dpatch_placeholder::QuiltPatchUsesDpatchPlaceholder;

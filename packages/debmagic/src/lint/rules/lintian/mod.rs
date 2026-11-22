@@ -183,6 +183,7 @@ mod ln0858_package_contains_cmake_private_file;
 mod ln0927_missing_depends_on_sensible_utils;
 mod ln1086_source_contains_prebuilt_silverlight_object;
 mod ln1235_trailing_comma_in_maintainer_field;
+mod ln1387_source_contains_prebuilt_binary;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_adduser;
@@ -802,6 +803,7 @@ pub(crate) use ln0858_package_contains_cmake_private_file::PackageContainsCmakeP
 pub(crate) use ln0927_missing_depends_on_sensible_utils::MissingDependsOnSensibleUtils;
 pub(crate) use ln1086_source_contains_prebuilt_silverlight_object::SourceContainsPrebuiltSilverlightObject;
 pub(crate) use ln1235_trailing_comma_in_maintainer_field::TrailingCommaInMaintainerField;
+pub(crate) use ln1387_source_contains_prebuilt_binary::SourceContainsPrebuiltBinary;
 pub(crate) use maintainer_scripts_adduser::AdduserWithHomeVarRun;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,

@@ -340,6 +340,7 @@ use super::rules::SharedLibrarySymbolsNotTracked;
 use super::rules::ShipsUndeclaredSharedLibrary;
 use super::rules::SourceContainsEditorBackupFile;
 use super::rules::SourceContainsPatchFailureFile;
+use super::rules::SourceContainsPrebuiltBinary;
 use super::rules::SourceContainsPrebuiltMsHelpFile;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &UnknownLocaleCode,
+        &SourceContainsPrebuiltBinary,
     ]
 }
 
@@ -2294,6 +2296,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &SourceContainsPrebuiltBinary,
     ]
 }
 

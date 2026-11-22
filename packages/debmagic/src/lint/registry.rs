@@ -81,6 +81,7 @@ use super::rules::DbusPolicyAtConsole;
 use super::rules::DbusPolicyExcessivelyBroad;
 use super::rules::DbusPolicyInEtc;
 use super::rules::DbusPolicyWithoutSendDestination;
+use super::rules::DbusSessionServiceWrongName;
 use super::rules::DbusSystemServiceWrongName;
 use super::rules::DebconfConfigNotExecutable;
 use super::rules::DebconfIsNotARegistry;
@@ -2191,6 +2192,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianWatchContainsDhMakeTemplate,
         &DebianWatchManglesDebianVersionImproperly,
         &DebianWatchManglesUpstreamVersionImproperly,
+        &DbusSessionServiceWrongName,
     ]
 }
 
@@ -3452,6 +3454,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &DbusSessionServiceWrongName,
     ]
 }
 

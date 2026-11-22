@@ -354,8 +354,8 @@ pub(crate) use debian_upstream::UpstreamMetadataIsNotAFile;
 pub(crate) use debug_obsolete::DebianControlHasObsoleteDbgPackage;
 pub(crate) use desktop::{
     DbusPolicyAtConsole, DbusPolicyExcessivelyBroad, DbusPolicyInEtc,
-    DbusPolicyWithoutSendDestination, DbusSystemServiceWrongName, DesktopFileInWrongDir,
-    FileInDiscouragedX11FontDirectory, FileInUnknownX11FontDirectory,
+    DbusPolicyWithoutSendDestination, DbusSessionServiceWrongName, DbusSystemServiceWrongName,
+    DesktopFileInWrongDir, FileInDiscouragedX11FontDirectory, FileInUnknownX11FontDirectory,
     IconSizeAndDirectoryNameMismatch, MissingCallToUpdateFonts, PackageContainsCompiledFontFile,
     PackageContainsMultipleDpiFonts, PackageInstallsFileToUsrX11r6, PackageMixesMiscAndDpiFonts,
     RasterImageInScalableDirectory,

@@ -992,6 +992,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/menus/menus-foo-calls-bar",
     "checks/menus/menus-script-check-ok",
     "checks/menus/national-encoding",
+    "checks/menus/spelling-general",
     "checks/mimeinfo/files-foo-in-bar",
     "checks/mimeinfo/files-general",
     "checks/modprobe/directory-in-usr-lib-modprobe",
@@ -2532,6 +2533,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/menus/menus-foo-calls-bar"; "checks_menus_menus_foo_calls_bar")]
 #[test_case("checks/menus/menus-script-check-ok"; "checks_menus_menus_script_check_ok")]
 #[test_case("checks/menus/national-encoding"; "checks_menus_national_encoding")]
+#[test_case("checks/menus/spelling-general"; "checks_menus_spelling_general")]
 #[test_case("checks/mimeinfo/files-foo-in-bar"; "checks_mimeinfo_files_foo_in_bar")]
 #[test_case("checks/mimeinfo/files-general"; "checks_mimeinfo_files_general")]
 #[test_case("checks/modprobe/directory-in-usr-lib-modprobe"; "checks_modprobe_directory_in_usr_lib_modprobe")]

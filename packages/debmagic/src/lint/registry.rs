@@ -427,6 +427,7 @@ use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::SpellingErrorInBinary;
 use super::rules::SpellingErrorInChangelog;
 use super::rules::SpellingErrorInDescription;
+use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInNewsDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::StrayFolderInManual;
@@ -2129,6 +2130,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInBinary,
         &SpellingErrorInChangelog,
         &SpellingErrorInNewsDebian,
+        &SpellingErrorInDocBaseAbstractField,
     ]
 }
 
@@ -3359,6 +3361,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SpellingErrorInBinary,
         &SpellingErrorInChangelog,
         &SpellingErrorInNewsDebian,
+        &SpellingErrorInDocBaseAbstractField,
     ]
 }
 

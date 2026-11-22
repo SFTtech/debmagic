@@ -323,6 +323,7 @@ use super::rules::RedundantBuildPrerequisites;
 use super::rules::RedundantControlRelation;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RelativeConffile;
+use super::rules::RenamedTag;
 use super::rules::RepeatedTriggerName;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
@@ -1941,6 +1942,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InsecureCopyrightFormatUri,
         &AddComponentCopyright,
         &UnusedDebconfTemplate,
+        &RenamedTag,
     ]
 }
 
@@ -3079,6 +3081,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
         &UnusedDebconfTemplate,
+        &RenamedTag,
     ]
 }
 

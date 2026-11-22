@@ -493,6 +493,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/lintian-overrides/files-override-misplaced",
     "checks/debian/lintian-overrides/mystery/fields-multi-arch-same-package-has-arch-specific-overrides",
     "checks/debian/lintian-overrides/mystery/lintian-overrides",
+    "checks/debian/lintian-overrides/mystery/mixed-overrides",
+    "checks/debian/lintian-overrides/mystery/overrides-shown",
     "checks/debian/lintian-overrides/restricted/amd64-on-arch-all",
     "checks/debian/lintian-overrides/restricted/arch-bingo",
     "checks/debian/readme/bad-email-format",
@@ -1780,6 +1782,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/lintian-overrides/files-override-misplaced"; "checks_debian_lintian_overrides_files_override_misplaced")]
 #[test_case("checks/debian/lintian-overrides/mystery/fields-multi-arch-same-package-has-arch-specific-overrides"; "checks_debian_lintian_overrides_mystery_fields_multi_arch_same_package_has_arch_specific_overrides")]
 #[test_case("checks/debian/lintian-overrides/mystery/lintian-overrides"; "checks_debian_lintian_overrides_mystery_lintian_overrides")]
+#[test_case("checks/debian/lintian-overrides/mystery/mixed-overrides"; "checks_debian_lintian_overrides_mystery_mixed_overrides")]
+#[test_case("checks/debian/lintian-overrides/mystery/overrides-shown"; "checks_debian_lintian_overrides_mystery_overrides_shown")]
 #[test_case("checks/debian/lintian-overrides/restricted/amd64-on-arch-all"; "checks_debian_lintian_overrides_restricted_amd64_on_arch_all")]
 #[test_case("checks/debian/lintian-overrides/restricted/arch-bingo"; "checks_debian_lintian_overrides_restricted_arch_bingo")]
 #[test_case("checks/debian/readme/bad-email-format"; "checks_debian_readme_bad_email_format")]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): renamed-tag (LN1324) package-install-apt-sources => package-installs-apt-sources [usr/share/lintian/overrides/example:1]
+P: example (binary): renamed-tag (LN1324) manpage-has-bad-whatis-entry => bad-whatis-entry [usr/share/lintian/overrides/example:3]

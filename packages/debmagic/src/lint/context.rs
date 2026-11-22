@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex, OnceLock, PoisonError};
 
 use anyhow::anyhow;
 
+use super::appstream::AppstreamFiles;
 use super::binary_package_reader::BinaryPackageReader;
 use super::deb_members::DebMembers;
 use super::debhelper::DebhelperFacts;
@@ -384,6 +385,19 @@ impl<'a> BinaryPackageContext<'a> {
         Some(self.shared_once(|ctx| {
             ctx.control_files()
                 .map(Diversions::from_control_files)
+                .unwrap_or_default()
+        }))
+    }
+
+    /// AppStream metadata files of the Data files (`usr/share/metainfo`,
+    /// `usr/share/appdata`), shared by every Rule on the Binary package. `None`
+    /// after a global File tree failure, as for [`Self::data_files`].
+    #[allow(dead_code)]
+    pub fn appstream_files(&mut self) -> Option<Arc<AppstreamFiles>> {
+        self.data_files()?;
+        Some(self.shared_once(|ctx| {
+            ctx.data_files()
+                .map(AppstreamFiles::from_tree)
                 .unwrap_or_default()
         }))
     }

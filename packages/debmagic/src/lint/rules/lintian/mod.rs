@@ -1,5 +1,6 @@
 mod apache2;
 mod application_not_library;
+mod appstream_metadata;
 mod apt;
 mod archive_file_name_length;
 mod archive_liberty;
@@ -250,6 +251,11 @@ pub(crate) use apache2::{
     WebApplicationWorksOnlyWithApache,
 };
 pub(crate) use application_not_library::LibappPerlPackageName;
+pub(crate) use appstream_metadata::AppstreamMetadataInLegacyLocation;
+pub(crate) use appstream_metadata::AppstreamMetadataInvalid;
+pub(crate) use appstream_metadata::AppstreamMetadataLegacyFormat;
+pub(crate) use appstream_metadata::AppstreamMetadataMalformedModaliasProvide;
+pub(crate) use appstream_metadata::AppstreamMetadataMissingModaliasProvide;
 pub(crate) use apt::PackageInstallsAptKeyring;
 pub(crate) use apt::PackageInstallsAptPreferences;
 pub(crate) use apt::PackageInstallsAptSources;
@@ -492,8 +498,9 @@ pub(crate) use debian_copyright::{
     EmptyShortLicenseInDep5Copyright, FileIncludedAlready, FileWithoutCopyrightInformation,
     FilesExcludedWithoutCopyrightFormat10, GlobalFilesWildcardNotFirstParagraphInDep5Copyright,
     GlobbingPatternsOutOfOrder, HelperTemplatesInCopyright, IncompleteCreativeCommonsLicense,
-    InsecureCopyrightFormatUri, InvalidEscapeSequenceInDep5Copyright,
-    InvalidShortNameInDep5Copyright, LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright,
+    InconsistentAppstreamMetadataLicense, InsecureCopyrightFormatUri,
+    InvalidEscapeSequenceInDep5Copyright, InvalidShortNameInDep5Copyright,
+    LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright,
     MissingLicenseParagraphInDep5Copyright, MissingLicenseTextInDep5Copyright,
     NamedCopyrightForSingleInstallable, NoCopyrightFile, NoDebianCopyrightInSource,
     NoDep5Copyright, ObsoleteFieldInDep5Copyright, OldFsfAddressInCopyrightFile,

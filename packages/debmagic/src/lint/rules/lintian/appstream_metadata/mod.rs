@@ -1,0 +1,13 @@
+//! Rules for lintian's `appstream-metadata` Check.
+
+mod ln1462_appstream_metadata_in_legacy_location;
+mod ln1463_appstream_metadata_invalid;
+mod ln1464_appstream_metadata_legacy_format;
+mod ln1465_appstream_metadata_malformed_modalias_provide;
+mod ln1466_appstream_metadata_missing_modalias_provide;
+
+pub(crate) use ln1462_appstream_metadata_in_legacy_location::AppstreamMetadataInLegacyLocation;
+pub(crate) use ln1463_appstream_metadata_invalid::AppstreamMetadataInvalid;
+pub(crate) use ln1464_appstream_metadata_legacy_format::AppstreamMetadataLegacyFormat;
+pub(crate) use ln1465_appstream_metadata_malformed_modalias_provide::AppstreamMetadataMalformedModaliasProvide;
+pub(crate) use ln1466_appstream_metadata_missing_modalias_provide::AppstreamMetadataMissingModaliasProvide;

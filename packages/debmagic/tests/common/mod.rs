@@ -2186,6 +2186,33 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
     });
 }
 
+/// The Tags lintian 2.144's `files/source-missing` Check emits only as
+/// `pointed_hint(tag, $item->pointer)`: an empty extra and the path as the
+/// pointer, printed `tag [path]`. Their recipes under `checks/files/source-missing/`
+/// carry that form. `checks/cruft/cruft-general-upstream` and
+/// `checks/cruft/cruft-python` carry the bare `tag path`, expectations from an
+/// older lintian that 2.144.0's code can no longer produce. The pointer form is
+/// the truth, so a bare path extra of exactly these three Tags is compared as
+/// an empty extra with the path as Location (`[path]`, as [`strip_location_pointer`]
+/// leaves a lone pointer). Other Tags, which may carry bare paths for real, are
+/// not touched; the vendored hint files stay as lintian shipped them.
+const POINTER_ONLY_SOURCE_MISSING_TAGS: [&str; 3] = [
+    "source-is-missing",
+    "source-contains-prebuilt-javascript-object",
+    "source-contains-prebuilt-python-object",
+];
+
+fn point_bare_source_missing_hints(hints: &mut [ParityHint]) {
+    for hint in hints {
+        if POINTER_ONLY_SOURCE_MISSING_TAGS.contains(&hint.tag.as_str())
+            && !hint.extra.is_empty()
+            && !hint.extra.starts_with('[')
+        {
+            hint.extra = format!("[{}]", hint.extra);
+        }
+    }
+}
+
 /// Two vendored recipes carry `eval/hints` lines from before lintian printed
 /// pointers and the full extra, which lintian 2.144's Perl no longer emits.
 /// The expected hints are brought to what that Perl prints; the Rules follow
@@ -2202,6 +2229,7 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
 ///   other-foreign-pkg` remains. `substvar-source-version-is-deprecated` is
 ///   `program-data Depends` (the Perl prints installable and field).
 fn correct_stale_expected_hints(recipe: &Path, hints: &mut Vec<ParityHint>) {
+    point_bare_source_missing_hints(hints);
     if recipe.ends_with("checks/cruft/cruft-general-upstream") {
         for hint in hints.iter_mut() {
             if hint.tag == "configure-generated-file-in-source" && hint.extra == "config.cache" {

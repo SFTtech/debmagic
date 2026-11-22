@@ -520,9 +520,9 @@ pub(crate) use documentation_manual::{
     BuildPathInManual, CountryInManual, EmptyManualPage, ExecutableManualPage,
     FSSTNDDirInManualPage, GroffMessage, ManualPageFromTemplate, ManualPageWithGenericName,
     NoEnglishManualPage, NoManualPage, OddPlaceForManualPage, PodConversionMessage,
-    PoorCompressionInManualPage, PythonTracebackInManpage, UncompressedManualPage,
-    UndocumentedManualPage, UselessWhatisEntry, WrongCompressionInManualPage, WrongManualSection,
-    WrongNameForManualPage,
+    PoorCompressionInManualPage, PythonTracebackInManpage, StrayFolderInManual,
+    UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
+    WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
 };
 pub(crate) use documentation_texinfo::{
     InfoDocumentHasWrongExtension, InfoDocumentMissingDirEntry, InfoDocumentMissingDirSection,

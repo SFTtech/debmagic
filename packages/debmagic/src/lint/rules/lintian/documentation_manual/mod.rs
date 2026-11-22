@@ -31,6 +31,7 @@ mod ln0899_executable_manual_page;
 mod ln1354_fsstnd_dir_in_manual_page;
 mod ln1355_acute_accent_in_manual_page;
 mod ln1356_python_traceback_in_manpage;
+mod ln1357_stray_folder_in_manual;
 mod manual;
 
 pub(crate) use ln0152_no_manual_page::NoManualPage;
@@ -57,3 +58,4 @@ pub(crate) use ln0899_executable_manual_page::ExecutableManualPage;
 pub(crate) use ln1354_fsstnd_dir_in_manual_page::FSSTNDDirInManualPage;
 pub(crate) use ln1355_acute_accent_in_manual_page::AcuteAccentInManualPage;
 pub(crate) use ln1356_python_traceback_in_manpage::PythonTracebackInManpage;
+pub(crate) use ln1357_stray_folder_in_manual::StrayFolderInManual;

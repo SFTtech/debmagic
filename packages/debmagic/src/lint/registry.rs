@@ -356,6 +356,7 @@ use super::rules::SourceFieldMalformed;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::SpellingErrorInRulesRequiresRoot;
+use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
 use super::rules::SurplusSharedLibrarySymbols;
@@ -1953,6 +1954,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &FSSTNDDirInManualPage,
         &AcuteAccentInManualPage,
         &PythonTracebackInManpage,
+        &StrayFolderInManual,
     ]
 }
 
@@ -3097,6 +3099,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &FSSTNDDirInManualPage,
         &AcuteAccentInManualPage,
         &PythonTracebackInManpage,
+        &StrayFolderInManual,
     ]
 }
 

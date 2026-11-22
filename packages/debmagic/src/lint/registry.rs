@@ -247,6 +247,7 @@ use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
 use super::rules::PackageContainsCmakePrivateFile;
+use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
 use super::rules::PackageContainsInfoDirFile;
 use super::rules::PackageContainsMimeCacheFile;
 use super::rules::PackageContainsMimeinfoCacheFile;
@@ -1939,6 +1940,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianControlHasObsoleteDbgPackage,
         &TypelibInArchAllPackage,
         &FileContainsFixmePlaceholder,
+        &PackageContainsDocumentationOutsideUsrShareDoc,
     ]
 }
 
@@ -3076,6 +3078,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
         &TypelibInArchAllPackage,
+        &PackageContainsDocumentationOutsideUsrShareDoc,
     ]
 }
 

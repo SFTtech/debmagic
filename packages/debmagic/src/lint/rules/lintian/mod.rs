@@ -582,7 +582,8 @@ pub(crate) use files_config_scripts::{
 pub(crate) use files_debug::NonDebugFileInDebugPackage;
 pub(crate) use files_foreign::{
     CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,
-    MacosDsStoreFileInPackage, MacosResourceForkFileInPackage, PackageContainsInfoDirFile,
+    MacosDsStoreFileInPackage, MacosResourceForkFileInPackage,
+    PackageContainsDocumentationOutsideUsrShareDoc, PackageContainsInfoDirFile,
     PackageContainsLindaOverride, PackageContainsReadmeForOtherPlatformOrDistro,
     PackageInstallsAppimage, WindowsDevelFileInPackage, WindowsThumbnailDatabaseInPackage,
 };

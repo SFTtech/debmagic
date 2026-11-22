@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): no-phrase (LN1494) Changed-By someone@example.com
+E: example (changes): no-phrase (LN1494) Maintainer someone@example.com
+E: example (changes): no-phrase (LN1494) Uploaders bob@example.org
+E: example (changes): no-phrase (LN1494) Uploaders bob@example.org

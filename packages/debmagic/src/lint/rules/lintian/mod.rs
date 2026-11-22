@@ -836,7 +836,7 @@ pub(crate) use fields_built_using::InvalidValueInBuiltUsingField;
 pub(crate) use fields_installer_menu_item::BadMenuItem;
 pub(crate) use fields_mail_address::{
     DuplicateContact, FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase,
-    MailAddressLoopsOrBounces, RootInContact,
+    MailAddressLoopsOrBounces, NoPhrase, RootInContact,
 };
 pub(crate) use fields_relations_extra::{
     BadVersionInRelation, BinaryPackageDependsOnToolchainPackage, BreaksWithoutVersion,

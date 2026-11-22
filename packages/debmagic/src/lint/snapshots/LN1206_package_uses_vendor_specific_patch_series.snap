@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): package-uses-vendor-specific-patch-series (LN1206) [debian/patches/vendor.series]
+E: (source): package-uses-vendor-specific-patch-series (LN1206) [debian/patches/vendor.series]
+E: (source): package-uses-vendor-specific-patch-series (LN1206) [debian/patches/ubuntu.series]

@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo1 (binary): symbols-declares-dependency-on-other-package (LN1333) libbar (libfoo.so.1) [symbols]
+W: libfoo1 (binary): symbols-declares-dependency-on-other-package (LN1333) libbar (>= 1) (libfoo.so.1) [symbols]
+W: libfoo1 (binary): symbols-declares-dependency-on-other-package (LN1333) libbar (>= 1) (libfoo.so.1) [symbols]
+W: libfoo1 (binary): symbols-declares-dependency-on-other-package (LN1333) libbar (libfoo.so.1) [symbols]
+W: libfoo1 (binary): symbols-declares-dependency-on-other-package (LN1333) libbar (libfoo.so.2) [symbols]
+W: libfoo1 (binary): symbols-declares-dependency-on-other-package (LN1333) libfoo1 (= 2-1) (libfoo.so.1) [symbols]
+W: libfoo1 (binary): symbols-declares-dependency-on-other-package (LN1333) libbar (libfoo.so.1) [symbols]

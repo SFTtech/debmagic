@@ -485,8 +485,9 @@ pub(crate) use debian_shlibs::{
     EmptySharedLibrarySymbols, EmptyShlibs, InvalidTemplateIdInSymbolsFile, NoShlibs,
     OutdatedRelationInShlibs, SharedLibraryLacksVersion, SharedLibraryNotShipped,
     SharedLibrarySymbolsNotTracked, ShipsUndeclaredSharedLibrary, SurplusSharedLibrarySymbols,
-    SymbolsFileContainsCurrentVersionWithDebianRevision, SymbolsFileContainsDebianRevision,
-    SymbolsForUndeclaredSharedLibrary, SyntaxErrorInSymbolsFile, UnknownMetaFieldInSymbolsFile,
+    SymbolsDeclaresDependencyOnOtherPackage, SymbolsFileContainsCurrentVersionWithDebianRevision,
+    SymbolsFileContainsDebianRevision, SymbolsForUndeclaredSharedLibrary, SyntaxErrorInSymbolsFile,
+    UnknownMetaFieldInSymbolsFile,
 };
 pub(crate) use debian_version_substvars::{
     NotBinnmuableAllDependsAny, NotBinnmuableAnyDependsAll, NotBinnmuableAnyDependsAny,

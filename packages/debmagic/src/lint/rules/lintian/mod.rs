@@ -868,7 +868,7 @@ pub(crate) use scripts_text::{
     Python3ScriptButNoPython3Dep, RubyScriptButNoRubyDep, ScriptNotExecutable, ScriptUsesBinEnv,
     ScriptUsesDeprecatedNodejsLocation, SystemdAlternatives, TclshScriptButNoTclshDep,
     TrailingSlashForDpkgMaintscriptHelperSymlinkToDir, UdebPostinstCallsLdconfig,
-    UdevadmCalledWithoutGuard, UnusualControlInterpreter,
+    UdevadmCalledWithoutGuard, UnknownControlInterpreter, UnusualControlInterpreter,
 };
 pub(crate) use systemd::{
     InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, KillModeNone,

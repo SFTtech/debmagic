@@ -326,6 +326,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/nmu/nmu-space-around-maintainer",
     "checks/nmu/nmu-team-upload",
     "checks/nmu/nmu-ubuntu-native",
+    "checks/nmu/nmu-unnecessary-team-upload",
     "checks/obsolete-sites/fields-cpan-homepage",
     "checks/obsolete-sites/obsolete-sites",
     "checks/origtar/empty-orig-tarball",
@@ -1169,6 +1170,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/nmu/nmu-space-around-maintainer",
     "checks/nmu/nmu-team-upload",
     "checks/nmu/nmu-ubuntu-native",
+    "checks/nmu/nmu-unnecessary-team-upload",
     "checks/obsolete-sites/fields-cpan-homepage",
     "checks/obsolete-sites/obsolete-sites",
     "checks/origtar/empty-orig-tarball",
@@ -1548,6 +1550,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/nmu/nmu-space-around-maintainer"; "checks_nmu_nmu_space_around_maintainer")]
 #[test_case("checks/nmu/nmu-team-upload"; "checks_nmu_nmu_team_upload")]
 #[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
+#[test_case("checks/nmu/nmu-unnecessary-team-upload"; "checks_nmu_nmu_unnecessary_team_upload")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
 #[test_case("checks/obsolete-sites/obsolete-sites"; "checks_obsolete_sites_obsolete_sites")]
 #[test_case("checks/origtar/empty-orig-tarball"; "checks_origtar_empty_orig_tarball")]
@@ -2393,6 +2396,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/nmu/nmu-space-around-maintainer"; "checks_nmu_nmu_space_around_maintainer")]
 #[test_case("checks/nmu/nmu-team-upload"; "checks_nmu_nmu_team_upload")]
 #[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
+#[test_case("checks/nmu/nmu-unnecessary-team-upload"; "checks_nmu_nmu_unnecessary_team_upload")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
 #[test_case("checks/obsolete-sites/obsolete-sites"; "checks_obsolete_sites_obsolete_sites")]
 #[test_case("checks/origtar/empty-orig-tarball"; "checks_origtar_empty_orig_tarball")]

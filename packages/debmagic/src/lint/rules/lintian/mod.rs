@@ -375,9 +375,10 @@ pub(crate) use debian_changelog::{
     NmuInChangelog, NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
     PossibleNewUpstreamReleaseWithoutNewVersion, QaUploadHasIncorrectVersionNumber,
     RcVersionGreaterThanExpectedVersion, SourceNmuHasIncorrectVersionNumber,
-    SyntaxErrorInDebianNewsFile, TeamUploadHasIncorrectVersionNumber, UploadersInOrphan,
-    VersionRefersToDistribution, VersionRefersToUnstableDistributionWithExpVersion,
-    WrongBugNumberInCloses, WrongNameForDebianNewsFile,
+    SyntaxErrorInDebianNewsFile, TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload,
+    UploadersInOrphan, VersionRefersToDistribution,
+    VersionRefersToUnstableDistributionWithExpVersion, WrongBugNumberInCloses,
+    WrongNameForDebianNewsFile,
 };
 pub(crate) use debian_copyright::{
     AmbiguousParagraphInDep5Copyright, BadExceptionFormatInDep5Copyright,

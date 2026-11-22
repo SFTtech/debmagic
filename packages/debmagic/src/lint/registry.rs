@@ -332,6 +332,7 @@ use super::rules::UnknownParagraphInDep5Copyright;
 use super::rules::UnknownPriority;
 use super::rules::UnknownTemplateType;
 use super::rules::UnknownTestsuite;
+use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
@@ -1773,6 +1774,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UpstreamMetadataInNativeSource,
         &UpstreamMetadataIsNotAFile,
         &TeamUploadHasIncorrectVersionNumber,
+        &UnnecessaryTeamUpload,
     ]
 }
 
@@ -2100,6 +2102,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UpstreamMetadataInNativeSource,
         &UpstreamMetadataIsNotAFile,
         &TeamUploadHasIncorrectVersionNumber,
+        &UnnecessaryTeamUpload,
     ]
 }
 

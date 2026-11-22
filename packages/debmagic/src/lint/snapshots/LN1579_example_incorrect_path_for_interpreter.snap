@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): example-incorrect-path-for-interpreter (LN1579) /usr/bin/env perl != /usr/bin/perl [usr/share/doc/example/examples/run.pl]
+I: example (binary): example-incorrect-path-for-interpreter (LN1579) /usr/bin/env perl != /usr/bin/perl [usr/share/doc/example/examples/run.pl]
+I: example (udeb): example-incorrect-path-for-interpreter (LN1579) /usr/bin/env perl != /usr/bin/perl [usr/share/doc/example/examples/run.pl]

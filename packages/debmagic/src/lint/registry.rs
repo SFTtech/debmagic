@@ -138,12 +138,15 @@ use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
 use super::rules::DesktopEntryContainsEncodingKey;
+use super::rules::DesktopEntryLacksIconEntry;
 use super::rules::DesktopEntryLacksKeywordsEntry;
+use super::rules::DesktopEntryLimitedToEnvironments;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
 use super::rules::DhExecScriptWithoutDhExecFeatures;
+use super::rules::DhInstallInsteadOfDhInstallmodules;
 use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhMakeTemplateInSource;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
@@ -166,7 +169,12 @@ use super::rules::EmptyRustLibraryDeclaresProvides;
 use super::rules::EmptySharedLibrarySymbols;
 use super::rules::EmptyShlibs;
 use super::rules::EmptyUpstreamSources;
+use super::rules::ExampleIncorrectPathForInterpreter;
+use super::rules::ExampleInterpreterNotAbsolute;
+use super::rules::ExampleScriptUsesBinEnv;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
+use super::rules::ExampleScriptWithoutInterpreter;
+use super::rules::ExampleWrongPathForInterpreter;
 use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExecutableDebhelperFileWithoutBeingExecutable;
 use super::rules::ExecutableDesktopFile;
@@ -224,6 +232,7 @@ use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
+use super::rules::InvalidSystemdDocumentation;
 use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
@@ -391,6 +400,7 @@ use super::rules::PkgJsAutopkgtestFileDoesNotExist;
 use super::rules::PkgJsAutopkgtestTestIsEmpty;
 use super::rules::PkgJsAutopkgtestTestIsMissing;
 use super::rules::PossibleBashismInMaintainerScript;
+use super::rules::PossibleDocumentationButNoDocBaseRegistration;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PossibleUnindentedListInExtendedDescription;
@@ -488,6 +498,7 @@ use super::rules::SynopsisIsASentence;
 use super::rules::SyntaxErrorInDebconfTemplate;
 use super::rules::SyntaxErrorInDep5Copyright;
 use super::rules::SystemdServiceFileMissingDocumentationKey;
+use super::rules::SystemdServiceFileMissingInstallKey;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
 use super::rules::SystemdServiceFileShutdownProblems;
 use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
@@ -2241,6 +2252,17 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianWatchManglesDebianVersionImproperly,
         &DebianWatchManglesUpstreamVersionImproperly,
         &DbusSessionServiceWrongName,
+        &DesktopEntryLacksIconEntry,
+        &DesktopEntryLimitedToEnvironments,
+        &PossibleDocumentationButNoDocBaseRegistration,
+        &DhInstallInsteadOfDhInstallmodules,
+        &ExampleIncorrectPathForInterpreter,
+        &ExampleInterpreterNotAbsolute,
+        &ExampleScriptUsesBinEnv,
+        &ExampleScriptWithoutInterpreter,
+        &ExampleWrongPathForInterpreter,
+        &InvalidSystemdDocumentation,
+        &SystemdServiceFileMissingInstallKey,
     ]
 }
 
@@ -2661,6 +2683,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianWatchContainsDhMakeTemplate,
         &DebianWatchManglesDebianVersionImproperly,
         &DebianWatchManglesUpstreamVersionImproperly,
+        &DhInstallInsteadOfDhInstallmodules,
     ]
 }
 
@@ -3515,6 +3538,16 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &DbusSessionServiceWrongName,
+        &DesktopEntryLacksIconEntry,
+        &DesktopEntryLimitedToEnvironments,
+        &PossibleDocumentationButNoDocBaseRegistration,
+        &ExampleIncorrectPathForInterpreter,
+        &ExampleInterpreterNotAbsolute,
+        &ExampleScriptUsesBinEnv,
+        &ExampleScriptWithoutInterpreter,
+        &ExampleWrongPathForInterpreter,
+        &InvalidSystemdDocumentation,
+        &SystemdServiceFileMissingInstallKey,
     ]
 }
 

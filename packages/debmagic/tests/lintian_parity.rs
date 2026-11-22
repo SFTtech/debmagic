@@ -445,6 +445,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/ruby/gem-homepage",
     "checks/languages/rust/template-description",
     "checks/lintian/override-context-mismatch",
+    "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -1037,6 +1038,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/menus/legacy-filenames",
     "checks/menus/menus-doc-base-file-references-missing-file",
     "checks/menus/menus-doc-base-general",
+    "checks/menus/menus-doc-base-registration",
     "checks/menus/menus-foo-calls-bar",
     "checks/menus/menus-script-check-ok",
     "checks/menus/national-encoding",
@@ -1075,6 +1077,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/systemd/legacy-scripts",
     "checks/systemd/no-systemd-service-for-init-script",
     "checks/systemd/no-systemd-timer-for-cron-script",
+    "checks/systemd/service-file-no-install-key",
     "checks/systemd/systemd-complex-service-file",
     "checks/systemd/systemd-general",
     "checks/systemd/systemd-missing-services",
@@ -1541,6 +1544,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/ruby/gem-homepage",
     "checks/languages/rust/template-description",
     "checks/lintian/override-context-mismatch",
+    "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -2081,6 +2085,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
 #[test_case("checks/languages/rust/template-description"; "checks_languages_rust_template_description")]
 #[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
+#[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]
@@ -2674,6 +2679,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/menus/legacy-filenames"; "checks_menus_legacy_filenames")]
 #[test_case("checks/menus/menus-doc-base-file-references-missing-file"; "checks_menus_menus_doc_base_file_references_missing_file")]
 #[test_case("checks/menus/menus-doc-base-general"; "checks_menus_menus_doc_base_general")]
+#[test_case("checks/menus/menus-doc-base-registration"; "checks_menus_menus_doc_base_registration")]
 #[test_case("checks/menus/menus-foo-calls-bar"; "checks_menus_menus_foo_calls_bar")]
 #[test_case("checks/menus/menus-script-check-ok"; "checks_menus_menus_script_check_ok")]
 #[test_case("checks/menus/national-encoding"; "checks_menus_national_encoding")]
@@ -2712,6 +2718,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/systemd/legacy-scripts"; "checks_systemd_legacy_scripts")]
 #[test_case("checks/systemd/no-systemd-service-for-init-script"; "checks_systemd_no_systemd_service_for_init_script")]
 #[test_case("checks/systemd/no-systemd-timer-for-cron-script"; "checks_systemd_no_systemd_timer_for_cron_script")]
+#[test_case("checks/systemd/service-file-no-install-key"; "checks_systemd_service_file_no_install_key")]
 #[test_case("checks/systemd/systemd-complex-service-file"; "checks_systemd_systemd_complex_service_file")]
 #[test_case("checks/systemd/systemd-general"; "checks_systemd_systemd_general")]
 #[test_case("checks/systemd/systemd-missing-services"; "checks_systemd_systemd_missing_services")]
@@ -3179,6 +3186,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
 #[test_case("checks/languages/rust/template-description"; "checks_languages_rust_template_description")]
 #[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
+#[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]

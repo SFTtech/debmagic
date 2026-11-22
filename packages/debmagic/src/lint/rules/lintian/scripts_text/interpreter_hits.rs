@@ -147,6 +147,101 @@ fn installed_entry(entry: &Entry, bytes: &[u8], all: &PackageRelation) -> Vec<Hi
     hits
 }
 
+/// Hits for installed scripts under `usr/share/doc/<package>/examples/`: the
+/// example variants of the `scripts` Check's interpreter Tags. The Check
+/// emits its example Tags only for these paths, in the same order as the
+/// non-example ones. Each Hit names its Tag, and each Rule keeps its own.
+pub(super) fn examples(files: &FileTree) -> Vec<Hit> {
+    files
+        .query()
+        .kinds([EntryKind::RegularFile, EntryKind::Hardlink])
+        .into_iter()
+        .flat_map(|entry| match files.read(entry) {
+            Ok(bytes) => example_entry(entry, &bytes),
+            Err(_) => Vec::new(),
+        })
+        .collect()
+}
+
+fn example_entry(entry: &Entry, bytes: &[u8]) -> Vec<Hit> {
+    let Some(name) = entry.path().to_str() else {
+        return Vec::new();
+    };
+    if !is_examples(name) {
+        return Vec::new();
+    }
+    let Some(hashbang) = Hashbang::read(bytes) else {
+        return Vec::new();
+    };
+    let interpreter = hashbang.interpreter();
+    if name.ends_with(".in") && is_placeholder(&interpreter) {
+        return Vec::new();
+    }
+    let absolute = interpreter.starts_with('/') || hashbang.calls_env();
+    let path = entry.path().to_path_buf();
+    let hit = |tag: &'static str, extra: String| Hit {
+        tag,
+        path: path.clone(),
+        line: None,
+        extra,
+    };
+    let mut hits = Vec::new();
+    if hashbang.calls_env() && interpreter == "perl" {
+        hits.push(hit(
+            "example-incorrect-path-for-interpreter",
+            "/usr/bin/env perl != /usr/bin/perl".to_string(),
+        ));
+    }
+    // Example Perl modules and editor hints that are not executable and
+    // not absolute are not scripts.
+    if name.ends_with(".pm") && !entry.is_executable_file() && !absolute {
+        return hits;
+    }
+    if interpreter.is_empty() {
+        hits.push(hit("example-script-without-interpreter", String::new()));
+        return hits;
+    }
+    if !absolute {
+        hits.push(hit("example-interpreter-not-absolute", interpreter.clone()));
+    }
+    let base = basename(&interpreter);
+    match lookup(base) {
+        Some(known) => {
+            if !hashbang.calls_env()
+                && let Some(extra) = example_mismatch(&interpreter, known.folder, base)
+            {
+                hits.push(hit("example-wrong-path-for-interpreter", extra));
+            }
+        }
+        None => {
+            // `/usr/local/` interpreters are another Tag's example; only
+            // `/bin/env` is reported here.
+            if interpreter == "/bin/env" {
+                hits.push(hit("example-script-uses-bin-env", interpreter.clone()));
+            }
+        }
+    }
+    hits
+}
+
+/// The extra when an example's interpreter is not at the table folder, as
+/// the `scripts` Check's `$expected` test. A table folder under `/usr/bin/`,
+/// `/usr/sbin/`, or `/usr/lib/` also accepts the path without `/usr` (not
+/// for perl). `/usr/bin/env perl` as the expected path is reported by the
+/// incorrect-path branch instead, and no table folder is `/usr/bin/env`.
+fn example_mismatch(interpreter: &str, folder: &str, basename: &str) -> Option<String> {
+    let expected = format!("{folder}/{basename}");
+    let merged = ["/usr/bin/", "/usr/sbin/", "/usr/lib/"]
+        .iter()
+        .any(|prefix| expected.starts_with(prefix));
+    if merged && basename != "perl" {
+        let non_usr = &expected["/usr".len()..];
+        let accepted = interpreter.starts_with(non_usr) || interpreter.starts_with(&expected);
+        return (!accepted).then(|| format!("{interpreter} != {non_usr} OR {expected}"));
+    }
+    (!interpreter.contains(&expected)).then(|| format!("{interpreter} != {expected}"))
+}
+
 /// Hits for Control files (maintainer scripts): the interpreter checks and,
 /// for shell scripts that the Check reads, the pycompile line check.
 pub(super) fn control(files: &FileTree, facts: &ControlFacts) -> Vec<Hit> {

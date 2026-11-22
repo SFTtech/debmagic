@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): ored-depends-on-obsolete-package (LN1367) Depends: xbase-clients (>= 0.1)
+I: example (udeb): ored-depends-on-obsolete-package (LN1367) Depends: xbase-clients (>= 0.1)

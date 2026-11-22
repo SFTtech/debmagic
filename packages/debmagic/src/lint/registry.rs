@@ -256,6 +256,7 @@ use super::rules::PackageNameDoesntMatchSonames;
 use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
+use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
@@ -1793,6 +1794,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WrongNameForChangelogOfNativePackage,
         &WrongNameForDebianChangelogFile,
         &WrongNameForUpstreamChangelog,
+        &PackageUsesVendorSpecificPatchSeries,
     ]
 }
 
@@ -2121,6 +2123,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UpstreamMetadataIsNotAFile,
         &TeamUploadHasIncorrectVersionNumber,
         &UnnecessaryTeamUpload,
+        &PackageUsesVendorSpecificPatchSeries,
     ]
 }
 

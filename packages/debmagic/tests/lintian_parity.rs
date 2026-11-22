@@ -527,6 +527,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/files-general",
     "checks/documentation/files-package-contains-foo",
     "checks/documentation/files-python-general",
+    "checks/documentation/files-uses-dpkg-database-directly",
     "checks/documentation/files-zero-byte-doc",
     "checks/documentation/legacy-filenames",
     "checks/documentation/legacy-libbaz",
@@ -1819,6 +1820,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/files-general"; "checks_documentation_files_general")]
 #[test_case("checks/documentation/files-package-contains-foo"; "checks_documentation_files_package_contains_foo")]
 #[test_case("checks/documentation/files-python-general"; "checks_documentation_files_python_general")]
+#[test_case("checks/documentation/files-uses-dpkg-database-directly"; "checks_documentation_files_uses_dpkg_database_directly")]
 #[test_case("checks/documentation/files-zero-byte-doc"; "checks_documentation_files_zero_byte_doc")]
 #[test_case("checks/documentation/legacy-filenames"; "checks_documentation_legacy_filenames")]
 #[test_case("checks/documentation/legacy-libbaz"; "checks_documentation_legacy_libbaz")]

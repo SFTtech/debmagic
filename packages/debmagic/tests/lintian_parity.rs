@@ -1552,6 +1552,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/desktop/gnome/gir/gir",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
+    "checks/files/symbolic-links/broken/symlinks-broken",
     "checks/group-checks/group-checks-circular-deps",
     "checks/group-checks/group-checks-multi-arch",
     "checks/group-checks/legacy-binary",
@@ -3139,6 +3140,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
+#[test_case("checks/files/symbolic-links/broken/symlinks-broken"; "checks_files_symbolic_links_broken_symlinks_broken")]
 #[test_case("checks/group-checks/group-checks-circular-deps"; "checks_group_checks_group_checks_circular_deps")]
 #[test_case("checks/group-checks/group-checks-multi-arch"; "checks_group_checks_group_checks_multi_arch")]
 #[test_case("checks/group-checks/legacy-binary"; "checks_group_checks_legacy_binary")]

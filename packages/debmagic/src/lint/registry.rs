@@ -418,6 +418,7 @@ use super::rules::VcsBrowserLinksToEmptyView;
 use super::rules::VcsFieldHasUnexpectedSpaces;
 use super::rules::VcsFieldUsesInsecureUri;
 use super::rules::VcsFieldUsesUnknownUriFormat;
+use super::rules::VcsFieldsUseMoreThanOneVcs;
 use super::rules::VcsGitUsesInvalidUserUri;
 use super::rules::VersionRefersToDistribution;
 use super::rules::VersionRefersToUnstableDistributionWithExpVersion;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &VcsFieldUsesInsecureUri,
+        &VcsFieldsUseMoreThanOneVcs,
     ]
 }
 
@@ -2295,6 +2297,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &VcsFieldUsesInsecureUri,
+        &VcsFieldsUseMoreThanOneVcs,
     ]
 }
 

@@ -57,6 +57,7 @@ mod ln1309_debian_changelog_line_too_short;
 mod ln1310_spelling_error_in_changelog;
 mod ln1311_spelling_error_in_news_debian;
 mod ln1515_bad_intended_distribution;
+mod ln1517_debian_news_entry_uses_asterisk;
 mod nmu;
 pub(in crate::lint::rules::lintian) mod source;
 mod version;
@@ -112,3 +113,4 @@ pub(crate) use ln1309_debian_changelog_line_too_short::DebianChangelogLineTooSho
 pub(crate) use ln1310_spelling_error_in_changelog::SpellingErrorInChangelog;
 pub(crate) use ln1311_spelling_error_in_news_debian::SpellingErrorInNewsDebian;
 pub(crate) use ln1515_bad_intended_distribution::BadIntendedDistribution;
+pub(crate) use ln1517_debian_news_entry_uses_asterisk::DebianNewsEntryUsesAsterisk;

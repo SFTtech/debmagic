@@ -5,6 +5,7 @@ mod apt;
 mod archive_file_name_length;
 mod archive_liberty;
 mod autotools;
+mod binaries;
 mod binaries_architecture;
 mod binaries_corrupted;
 mod binaries_debug_symbols_detached;
@@ -268,8 +269,12 @@ pub(crate) use archive_liberty::ArchiveLibertyMismatch;
 pub(crate) use autotools::{
     AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,
 };
+pub(crate) use binaries::BinaryHasUnneededSection;
 pub(crate) use binaries_architecture::ArchIndependentPackageContainsBinaryOrObject;
+pub(crate) use binaries_architecture::BinaryFromOtherArchitecture;
 pub(crate) use binaries_corrupted::BinaryWithBadDynamicTable;
+pub(crate) use binaries_corrupted::ElfError;
+pub(crate) use binaries_debug_symbols_detached::DebugFileWithNoDebugSymbols;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsDirectlyInUsrLibDebug;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsNotDetached;
 pub(crate) use binaries_hardening::HardeningNoBindnow;
@@ -790,6 +795,7 @@ pub(crate) use languages_python::{
 };
 pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
+pub(crate) use libraries_static::NoCodeSections;
 pub(crate) use libraries_static::OddStaticLibraryName;
 pub(crate) use libtool::{IncorrectLibdirInLaFile, NonEmptyDependencyLibsInLaFile};
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;

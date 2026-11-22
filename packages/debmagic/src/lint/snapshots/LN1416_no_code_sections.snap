@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): no-code-sections (LN1416) [usr/lib/libcodeless.a]
+E: example (binary): no-code-sections (LN1416) [usr/lib/libcodeless.a]
+E: example (binary): no-code-sections (LN1416) [usr/lib/empty.a]
+E: example (binary): no-code-sections (LN1416) [usr/lib/text.a]
+E: example (binary): no-code-sections (LN1416) [usr/lib/libcodeless-link.a]
+E: example (udeb): no-code-sections (LN1416) [usr/lib/libcodeless.a]

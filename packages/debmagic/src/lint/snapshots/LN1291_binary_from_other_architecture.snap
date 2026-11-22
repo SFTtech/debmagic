@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): binary-from-other-architecture (LN1291) [usr/bin/foo]
+E: example (binary): binary-from-other-architecture (LN1291) [usr/bin/foo]
+E: example (binary): binary-from-other-architecture (LN1291) [usr/bin/foo]
+E: example (binary): binary-from-other-architecture (LN1291) [usr/bin/foo]
+E: example (binary): binary-from-other-architecture (LN1291) [usr/lib32/libfoo.so]
+E: example (binary): binary-from-other-architecture (LN1291) [usr/bin/foo-link]
+E: example (binary): binary-from-other-architecture (LN1291) [usr/bin/foo]
+E: example (udeb): binary-from-other-architecture (LN1291) [usr/bin/foo]

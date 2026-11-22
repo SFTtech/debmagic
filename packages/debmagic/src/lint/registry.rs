@@ -518,6 +518,7 @@ use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnparsableMenuItem;
+use super::rules::UnreleasedChanges;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
@@ -2181,6 +2182,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MultipleDistributionsInChangesFile,
         &NoPhrase,
         &PackageBuildsDbgAndDbgsymVariants,
+        &UnreleasedChanges,
     ]
 }
 
@@ -3444,6 +3446,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &MultipleDistributionsInChangesFile,
         &NoPhrase,
         &PackageBuildsDbgAndDbgsymVariants,
+        &UnreleasedChanges,
     ]
 }
 

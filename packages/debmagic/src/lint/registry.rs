@@ -302,6 +302,7 @@ use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
+use super::rules::PackageContainsAncientFile;
 use super::rules::PackageContainsCmakePrivateFile;
 use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
 use super::rules::PackageContainsEmptyDirectory;
@@ -2125,6 +2126,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
         &MalformedDebArchive,
+        &PackageContainsAncientFile,
     ]
 }
 
@@ -3353,6 +3355,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
         &MalformedDebArchive,
+        &PackageContainsAncientFile,
     ]
 }
 

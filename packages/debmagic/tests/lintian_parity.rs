@@ -776,6 +776,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/contents/files-uses-dpkg-database-directly",
     "checks/files/contents/legacy-maintainer-scripts",
     "checks/files/contents/scripts-maintainer-general",
+    "checks/files/date/deb-format-ancient-file",
+    "checks/files/date/legacy-filenames",
     "checks/files/debug/binaries-general",
     "checks/files/debug/files-foo-in-bar",
     "checks/files/debug-packages/non-debug-file-in-debug-package",
@@ -2316,6 +2318,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/contents/files-uses-dpkg-database-directly"; "checks_files_contents_files_uses_dpkg_database_directly")]
 #[test_case("checks/files/contents/legacy-maintainer-scripts"; "checks_files_contents_legacy_maintainer_scripts")]
 #[test_case("checks/files/contents/scripts-maintainer-general"; "checks_files_contents_scripts_maintainer_general")]
+#[test_case("checks/files/date/deb-format-ancient-file"; "checks_files_date_deb_format_ancient_file")]
+#[test_case("checks/files/date/legacy-filenames"; "checks_files_date_legacy_filenames")]
 #[test_case("checks/files/debug/binaries-general"; "checks_files_debug_binaries_general")]
 #[test_case("checks/files/debug/files-foo-in-bar"; "checks_files_debug_files_foo_in_bar")]
 #[test_case("checks/files/debug-packages/non-debug-file-in-debug-package"; "checks_files_debug_packages_non_debug_file_in_debug_package")]

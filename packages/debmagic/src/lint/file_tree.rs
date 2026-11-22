@@ -366,7 +366,6 @@ impl Entry {
 
     /// Modification time from the tar header, seconds since the epoch. `None`
     /// on host File trees and on fixtures that set none.
-    #[allow(dead_code)]
     pub fn mtime(&self) -> Option<i64> {
         match self {
             Self::RegularFile { mtime, .. }
@@ -381,7 +380,6 @@ impl Entry {
 
     /// The modification date as `YYYY-MM-DD` in UTC, lintian's `date`.
     /// `None` when [`Self::mtime`] is.
-    #[allow(dead_code)]
     pub fn mtime_date(&self) -> Option<String> {
         let date = chrono::DateTime::from_timestamp(self.mtime()?, 0)?;
         Some(date.format("%Y-%m-%d").to_string())

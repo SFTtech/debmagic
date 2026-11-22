@@ -356,8 +356,13 @@ pub(crate) use debian_symbols::PackagePlaceholderInSymbolsFile;
 pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
 pub(crate) use debian_trailing_whitespace::TrailingWhitespace;
 pub(crate) use debian_upstream::DebianUpstreamObsoletePath;
+pub(crate) use debian_upstream::UpstreamMetadataFieldUnknown;
 pub(crate) use debian_upstream::UpstreamMetadataInNativeSource;
 pub(crate) use debian_upstream::UpstreamMetadataIsNotAFile;
+pub(crate) use debian_upstream::UpstreamMetadataMissingBugTracking;
+pub(crate) use debian_upstream::UpstreamMetadataMissingRepository;
+pub(crate) use debian_upstream::UpstreamMetadataNotYamlMapping;
+pub(crate) use debian_upstream::UpstreamMetadataYamlInvalid;
 pub(crate) use debug_obsolete::DebianControlHasObsoleteDbgPackage;
 pub(crate) use desktop::{
     DbusPolicyAtConsole, DbusPolicyExcessivelyBroad, DbusPolicyInEtc,
@@ -594,11 +599,11 @@ pub(crate) use debian_version_substvars::{
 };
 pub(crate) use debian_watch::{
     DebianWatchCouldVerifyDownload, DebianWatchDoesNotCheckOpenpgpSignature,
-    DebianWatchFilePubkeyFileIsMissing, DebianWatchFileSpecifiesOldUpstreamVersion,
-    DebianWatchFileSpecifiesWrongUpstreamVersion, DebianWatchFileUsesDeprecatedGithubredir,
-    DebianWatchFileUsesDeprecatedSfRedirectorMethod, DebianWatchLacksSourceforgeRedirector,
-    DebianWatchLineInvalid, DebianWatchNotManglingVersion, DebianWatchUsesInsecureUri,
-    MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
+    DebianWatchFileIsMissing, DebianWatchFilePubkeyFileIsMissing,
+    DebianWatchFileSpecifiesOldUpstreamVersion, DebianWatchFileSpecifiesWrongUpstreamVersion,
+    DebianWatchFileUsesDeprecatedGithubredir, DebianWatchFileUsesDeprecatedSfRedirectorMethod,
+    DebianWatchLacksSourceforgeRedirector, DebianWatchLineInvalid, DebianWatchNotManglingVersion,
+    DebianWatchUsesInsecureUri, MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
     ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{

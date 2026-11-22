@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): upstream-metadata-missing-bug-tracking (LN1339) [debian/upstream/metadata]
+I: example (source): upstream-metadata-missing-bug-tracking (LN1339) [debian/upstream/metadata]

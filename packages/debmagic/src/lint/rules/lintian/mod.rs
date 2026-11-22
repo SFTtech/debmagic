@@ -551,7 +551,7 @@ pub(crate) use fields_text::{
     ExplicitDefaultInPackageType, FieldTooLong, HomepageForCpanPackageContainsVersion,
     HomepageRefersToObsoleteDebianInfrastructure, MissingSeparatorBetweenItems,
     NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional, RecommendedField,
-    RedundantBugsField, RedundantOriginField, SectionIsDhMakeTemplate,
+    RedundantBugsField, RedundantControlRelation, RedundantOriginField, SectionIsDhMakeTemplate,
     SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional, UnknownEssentialValue,
     UnknownPriority, UnknownSection, WrongSectionForUdeb,
 };

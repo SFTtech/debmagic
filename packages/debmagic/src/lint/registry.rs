@@ -317,6 +317,7 @@ use super::rules::RcVersionGreaterThanExpectedVersion;
 use super::rules::ReadmeDebianContainsDebmakeTemplate;
 use super::rules::ReadmeSourceIsDhMakeTemplate;
 use super::rules::RedundantBuildPrerequisites;
+use super::rules::RedundantControlRelation;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RelativeConffile;
 use super::rules::RepeatedTriggerName;
@@ -1931,6 +1932,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &RedundantControlRelation,
     ]
 }
 
@@ -2292,6 +2294,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &RedundantControlRelation,
     ]
 }
 

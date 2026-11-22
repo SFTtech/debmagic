@@ -81,6 +81,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/field/doubled-up/control-file-general",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
+    "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
     "checks/debian/control/field/rules-requires-root/fields-unknown-fields",
@@ -960,6 +961,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/field/doubled-up/control-file-general",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
+    "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
     "checks/debian/control/field/rules-requires-root/fields-unknown-fields",
@@ -1360,6 +1362,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
+#[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
 #[test_case("checks/debian/control/field/rules-requires-root/fields-unknown-fields"; "checks_debian_control_field_rules_requires_root_fields_unknown_fields")]
@@ -2241,6 +2244,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
+#[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
 #[test_case("checks/debian/control/field/rules-requires-root/fields-unknown-fields"; "checks_debian_control_field_rules_requires_root_fields_unknown_fields")]

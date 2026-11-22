@@ -168,6 +168,7 @@ use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
 use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
+use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
@@ -1869,6 +1870,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SymlinkTargetInBuildTree,
         &SymlinkTargetInTmp,
         &DhMakeTemplateInSource,
+        &LicenseProblemCcByNcSa,
     ]
 }
 
@@ -2203,6 +2205,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &QuiltSeriesWithoutTrailingNewline,
         &UnknownFileInDebianSource,
         &DhMakeTemplateInSource,
+        &LicenseProblemCcByNcSa,
     ]
 }
 

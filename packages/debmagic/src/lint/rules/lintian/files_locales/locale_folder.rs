@@ -80,7 +80,6 @@ impl<'a> LocaleFolder<'a> {
 
     /// The folder name with lintian's confusing language or country corrected, if
     /// the folder is one of them.
-    #[allow(dead_code)] // Used by incorrect-locale-code (LN1385), added next.
     pub(super) fn confusing_fix(&self) -> Option<Vec<u8>> {
         if let Some((_, fix)) = CONFUSING_LANGUAGES
             .iter()
@@ -95,7 +94,7 @@ impl<'a> LocaleFolder<'a> {
     }
 }
 
-fn replace_prefix(name: &[u8], prefix: &[u8], replacement: &[u8]) -> Vec<u8> {
+pub(super) fn replace_prefix(name: &[u8], prefix: &[u8], replacement: &[u8]) -> Vec<u8> {
     let mut fixed = replacement.to_vec();
     fixed.extend_from_slice(&name[prefix.len()..]);
     fixed
@@ -124,7 +123,6 @@ impl IsoCodes {
     }
 
     /// The two-letter code lintian prefers for a three-letter `code`, if it has one.
-    #[allow(dead_code)] // Used by incorrect-locale-code (LN1385), added next.
     pub(super) fn preferred_code(&self, code: &[u8]) -> Option<&'static str> {
         let code = std::str::from_utf8(code).ok()?;
         self.preferred.get(code).copied()

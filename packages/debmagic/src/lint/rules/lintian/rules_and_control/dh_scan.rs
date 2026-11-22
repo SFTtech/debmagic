@@ -68,6 +68,8 @@ pub(super) struct DhScan {
     pub(super) uses_autotools_dev_dh: bool,
     /// Perl's `$uses_debhelper`: a dh command, the sequencer, or an override.
     pub(super) uses_debhelper: bool,
+    /// A `dh` sequencer line was seen (Perl's `$seen_dh_sequencer`).
+    pub(super) sequencer: bool,
 }
 
 /// Debhelper facts and the `debian/rules` walk, for a tree where lintian
@@ -105,6 +107,7 @@ pub(super) fn scan(contents: &str) -> DhScan {
             scan.uses_debhelper = true;
         } else if DH_SEQUENCER.is_match(&line) {
             scan.uses_debhelper = true;
+            scan.sequencer = true;
             if line.contains("--parallel") {
                 scan.parallel_position = position;
             }

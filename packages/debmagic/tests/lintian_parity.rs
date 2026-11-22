@@ -39,6 +39,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-dh-compat",
     "checks/debhelper/debhelper-dh-exec",
     "checks/debhelper/debhelper-dh-exec-useless",
+    "checks/debhelper/debhelper-dh-python-helpers",
     "checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format",
     "checks/debhelper/debhelper-dh-unnecessary-arguments",
     "checks/debhelper/debhelper-dh-with-python3",
@@ -916,6 +917,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-dh-compat",
     "checks/debhelper/debhelper-dh-exec",
     "checks/debhelper/debhelper-dh-exec-useless",
+    "checks/debhelper/debhelper-dh-python-helpers",
     "checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format",
     "checks/debhelper/debhelper-dh-unnecessary-arguments",
     "checks/debhelper/debhelper-dh-with-python3",
@@ -1314,6 +1316,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/debhelper-dh-compat"; "checks_debhelper_debhelper_dh_compat")]
 #[test_case("checks/debhelper/debhelper-dh-exec"; "checks_debhelper_debhelper_dh_exec")]
 #[test_case("checks/debhelper/debhelper-dh-exec-useless"; "checks_debhelper_debhelper_dh_exec_useless")]
+#[test_case("checks/debhelper/debhelper-dh-python-helpers"; "checks_debhelper_debhelper_dh_python_helpers")]
 #[test_case("checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format"; "checks_debhelper_debhelper_dh_quilt_addon_but_quilt_source_format")]
 #[test_case("checks/debhelper/debhelper-dh-unnecessary-arguments"; "checks_debhelper_debhelper_dh_unnecessary_arguments")]
 #[test_case("checks/debhelper/debhelper-dh-with-python3"; "checks_debhelper_debhelper_dh_with_python3")]
@@ -2193,6 +2196,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/debhelper-dh-compat"; "checks_debhelper_debhelper_dh_compat")]
 #[test_case("checks/debhelper/debhelper-dh-exec"; "checks_debhelper_debhelper_dh_exec")]
 #[test_case("checks/debhelper/debhelper-dh-exec-useless"; "checks_debhelper_debhelper_dh_exec_useless")]
+#[test_case("checks/debhelper/debhelper-dh-python-helpers"; "checks_debhelper_debhelper_dh_python_helpers")]
 #[test_case("checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format"; "checks_debhelper_debhelper_dh_quilt_addon_but_quilt_source_format")]
 #[test_case("checks/debhelper/debhelper-dh-unnecessary-arguments"; "checks_debhelper_debhelper_dh_unnecessary_arguments")]
 #[test_case("checks/debhelper/debhelper-dh-with-python3"; "checks_debhelper_debhelper_dh_with_python3")]

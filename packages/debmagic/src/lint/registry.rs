@@ -303,6 +303,7 @@ use super::rules::PriorityExtraIsReplacedByPriorityOptional;
 use super::rules::PrivacyBreachW3cValidHtml;
 use super::rules::PuppetModuleButNotDhPuppet;
 use super::rules::PypiHomepage;
+use super::rules::Python3DependsButNoPython3Helper;
 use super::rules::Python3ScriptButNoPython3Dep;
 use super::rules::PythonDebugInWrongLocation;
 use super::rules::PythonModuleInWrongLocation;
@@ -1923,6 +1924,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
+        &Python3DependsButNoPython3Helper,
     ]
 }
 
@@ -2280,6 +2282,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PatchedFileWithoutUtf8Name,
         &TrailingCommaInMaintainerField,
         &MultilineField,
+        &Python3DependsButNoPython3Helper,
     ]
 }
 

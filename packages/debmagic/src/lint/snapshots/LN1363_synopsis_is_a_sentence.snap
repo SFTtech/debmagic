@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): synopsis-is-a-sentence (LN1363) "This starts a sentence. Then another."
+I: example (binary): synopsis-is-a-sentence (LN1363) "This ends with a full-stop."
+I: example (binary): synopsis-is-a-sentence (LN1363) "This ends with a full-stop."
+I: example (binary): synopsis-is-a-sentence (LN1363) "This contains a 2-ellipsis .. and other words"
+I: example (udeb): synopsis-is-a-sentence (LN1363) "Tools."

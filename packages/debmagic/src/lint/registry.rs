@@ -357,6 +357,7 @@ use super::rules::SubstvarSourceVersionIsDeprecated;
 use super::rules::SurplusSharedLibrarySymbols;
 use super::rules::SymlinkTargetInBuildTree;
 use super::rules::SymlinkTargetInTmp;
+use super::rules::SynopsisIsASentence;
 use super::rules::SyntaxErrorInDebconfTemplate;
 use super::rules::SyntaxErrorInDep5Copyright;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
@@ -1941,6 +1942,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DescriptionMentionsPlannedFeatures,
         &ExtendedDescriptionIsProbablyTooShort,
         &SpellingErrorInDescription,
+        &SynopsisIsASentence,
     ]
 }
 
@@ -3079,6 +3081,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DescriptionMentionsPlannedFeatures,
         &ExtendedDescriptionIsProbablyTooShort,
         &SpellingErrorInDescription,
+        &SynopsisIsASentence,
     ]
 }
 

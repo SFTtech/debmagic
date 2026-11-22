@@ -25,6 +25,7 @@ use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
 use super::rules::BinaryCompiledWithProfilingEnabled;
+use super::rules::BinaryFromOtherArchitecture;
 use super::rules::BinaryHasUnneededSection;
 use super::rules::BinaryInEtc;
 use super::rules::BinaryNmuDebianRevisionInSource;
@@ -2127,6 +2128,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
         &BinaryHasUnneededSection,
+        &BinaryFromOtherArchitecture,
         &ElfError,
         &DebugFileWithNoDebugSymbols,
     ]
@@ -3357,6 +3359,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
         &BinaryHasUnneededSection,
+        &BinaryFromOtherArchitecture,
         &ElfError,
         &DebugFileWithNoDebugSymbols,
     ]

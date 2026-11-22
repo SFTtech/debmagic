@@ -42,14 +42,12 @@ pub(super) fn udeb_known(name: &str) -> bool {
 /// Lintian's `resembles` on the source-field table: a case-insensitive match
 /// against the raw entries, prefixes kept (`XS-Autobuild` matches only that
 /// spelling, not the sanitised `Autobuild`).
-#[allow(dead_code)]
 pub(super) fn source_resembles(name: &str) -> bool {
     known(&SOURCE_RAW, name)
 }
 
 /// Lintian's `resembles` on the binary-field table; raw entries as for
 /// [`source_resembles`].
-#[allow(dead_code)]
 pub(super) fn binary_resembles(name: &str) -> bool {
     known(&BINARY_RAW, name)
 }

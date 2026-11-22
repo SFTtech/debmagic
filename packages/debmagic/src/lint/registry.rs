@@ -3,6 +3,7 @@ use super::rule::{
 };
 use super::rules::AcuteAccentInManualPage;
 use super::rules::AddComponentCopyright;
+use super::rules::AdoptedExtendedField;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
 use super::rules::Apache2DeprecatedAuthConfig;
@@ -2123,6 +2124,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &AdoptedExtendedField,
     ]
 }
 
@@ -2517,6 +2519,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MissingPrerequisiteForPyprojectBackend,
         &UsesDeprecatedPythonStdlib,
         &RustBoilerplate,
+        &AdoptedExtendedField,
     ]
 }
 

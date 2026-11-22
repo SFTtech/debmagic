@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): add-component-copyright (LN1322) signed [debian/copyright]
+I: example (source): add-component-copyright (LN1322) noext [debian/copyright]
+I: example (source): add-component-copyright (LN1322) signed [debian/copyright]

@@ -482,6 +482,10 @@ def source_tree_hint_matches_filled_tree(recipe: Path, tag: str) -> bool:
     """See `source_tree_hint_matches_filled_tree` in `tests/common/mod.rs`."""
     if tag == "no-debian-changes":
         return False
+    # `add-component-copyright` reads the orig tarball names of the `.dsc`; a
+    # Source tree has none, so only the Source package can report it.
+    if tag == "add-component-copyright":
+        return False
     if tag not in {
         "package-uses-deprecated-debhelper-compat-version",
         "debhelper-base-compat-level-is-missing",

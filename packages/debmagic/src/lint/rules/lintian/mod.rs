@@ -411,7 +411,7 @@ pub(crate) use debian_changelog::{
     WrongNameForDebianNewsFile, WrongNameForUpstreamChangelog,
 };
 pub(crate) use debian_copyright::{
-    AmbiguousParagraphInDep5Copyright, BadExceptionFormatInDep5Copyright,
+    AddComponentCopyright, AmbiguousParagraphInDep5Copyright, BadExceptionFormatInDep5Copyright,
     BoilerplateCopyrightFormatUri, CommaSeparatedFilesInDep5Copyright,
     CopyrightContainsAutomaticallyExtractedBoilerplate, CopyrightContainsDhMakeTodoBoilerplate,
     CopyrightDoesNotReferToCommonLicenseFile, CopyrightFileCompressed,

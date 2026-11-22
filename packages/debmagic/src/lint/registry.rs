@@ -222,6 +222,7 @@ use super::rules::NewPackageShouldNotPackagePython2Module;
 use super::rules::NewPackageUsesDateBasedVersionNumber;
 use super::rules::NmuInChangelog;
 use super::rules::NoDebianChanges;
+use super::rules::NoDhSequencer;
 use super::rules::NoShlibs;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &DebugSymbolMigrationPossiblyComplete,
+        &NoDhSequencer,
     ]
 }
 
@@ -2295,6 +2297,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &DebugSymbolMigrationPossiblyComplete,
+        &NoDhSequencer,
     ]
 }
 

@@ -32,6 +32,7 @@ mod ln0913_debian_rules_uses_wrong_environment_variable;
 mod ln0914_missing_build_depends_for_clean_target_in_debian_rules;
 mod ln0915_override_dh_clean_does_not_call_dh_clean;
 mod ln1330_debug_symbol_migration_possibly_complete;
+mod ln1331_no_dh_sequencer;
 mod text;
 
 pub(super) use text::{complete_lines, read_rules_from_tree};
@@ -64,3 +65,4 @@ pub(crate) use ln0913_debian_rules_uses_wrong_environment_variable::DebianRulesU
 pub(crate) use ln0914_missing_build_depends_for_clean_target_in_debian_rules::MissingBuildDependsForCleanTargetInDebianRules;
 pub(crate) use ln0915_override_dh_clean_does_not_call_dh_clean::OverrideDhCleanDoesNotCallDhClean;
 pub(crate) use ln1330_debug_symbol_migration_possibly_complete::DebugSymbolMigrationPossiblyComplete;
+pub(crate) use ln1331_no_dh_sequencer::NoDhSequencer;

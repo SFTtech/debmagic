@@ -164,6 +164,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/debian-rules-calls-nproc",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
+    "checks/debian/rules/dh-sequencer/no-dh-sequencer",
     "checks/debian/rules/generic-dh-make-2005",
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
@@ -1044,6 +1045,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/debian-rules-calls-nproc",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
+    "checks/debian/rules/dh-sequencer/no-dh-sequencer",
     "checks/debian/rules/generic-dh-make-2005",
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
@@ -1445,6 +1447,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
+#[test_case("checks/debian/rules/dh-sequencer/no-dh-sequencer"; "checks_debian_rules_dh_sequencer_no_dh_sequencer")]
 #[test_case("checks/debian/rules/generic-dh-make-2005"; "checks_debian_rules_generic_dh_make_2005")]
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
@@ -2327,6 +2330,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
+#[test_case("checks/debian/rules/dh-sequencer/no-dh-sequencer"; "checks_debian_rules_dh_sequencer_no_dh_sequencer")]
 #[test_case("checks/debian/rules/generic-dh-make-2005"; "checks_debian_rules_generic_dh_make_2005")]
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]

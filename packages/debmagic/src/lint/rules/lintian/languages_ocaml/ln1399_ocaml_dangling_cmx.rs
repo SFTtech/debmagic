@@ -3,6 +3,7 @@ use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
 use crate::declare_rule;
+use crate::lint::ar;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::FileTree;
@@ -82,76 +83,16 @@ fn provided_objects(files: &FileTree) -> HashSet<PathBuf> {
             continue;
         };
         let dir = entry.path().parent().unwrap_or(Path::new(""));
-        for member in ar_members(&bytes) {
-            provided.insert(dir.join(member));
+        for member in ar::members(&bytes) {
+            provided.insert(dir.join(member.name));
         }
     }
     provided
 }
 
-/// The member names of an `ar` archive, as `ar t` prints them. Empty when
-/// the bytes are not an archive; a truncated header ends the list.
-fn ar_members(bytes: &[u8]) -> Vec<String> {
-    const MAGIC: &[u8] = b"!<arch>\n";
-    let mut members = Vec::new();
-    if !bytes.starts_with(MAGIC) {
-        return members;
-    }
-    let mut long_names: &[u8] = b"";
-    let mut position = MAGIC.len();
-    while position + 60 <= bytes.len() {
-        let header = &bytes[position..position + 60];
-        let raw_name = &header[..16];
-        let size: usize = match std::str::from_utf8(&header[48..58])
-            .ok()
-            .and_then(|text| text.trim().parse().ok())
-        {
-            Some(size) => size,
-            None => break,
-        };
-        let data_start = position + 60;
-        let data_end = data_start.saturating_add(size).min(bytes.len());
-        let data = &bytes[data_start..data_end];
-
-        if raw_name.starts_with(b"//") {
-            // The long-name table.
-            long_names = data;
-        } else if raw_name.starts_with(b"/") && raw_name[1..].iter().all(u8::is_ascii_digit) {
-            // A GNU long name: an offset into the table, ended by `/\n`.
-            let offset: usize = std::str::from_utf8(&raw_name[1..])
-                .ok()
-                .and_then(|text| text.trim().parse().ok())
-                .unwrap_or(usize::MAX);
-            let table = long_names.get(offset..).unwrap_or(&[]);
-            let end = table
-                .windows(2)
-                .position(|pair| pair == b"/\n")
-                .unwrap_or(table.len());
-            members.push(String::from_utf8_lossy(&table[..end]).into_owned());
-        } else if raw_name.starts_with(b"#1/") {
-            // A BSD long name: the first bytes of the data.
-            let length: usize = std::str::from_utf8(&raw_name[3..])
-                .ok()
-                .and_then(|text| text.trim().parse().ok())
-                .unwrap_or(0);
-            let name = &data[..length.min(data.len())];
-            members.push(String::from_utf8_lossy(name).into_owned());
-        } else if raw_name.starts_with(b"/ ") {
-            // The archive symbol table, which `ar t` does not list.
-        } else {
-            let name = raw_name
-                .split(|&byte| byte == b'/')
-                .next()
-                .unwrap_or_default();
-            members.push(String::from_utf8_lossy(name).trim_end().to_string());
-        }
-        position = data_start + size + (size % 2);
-    }
-    members
-}
-
 #[cfg(test)]
 mod tests {
+    use crate::lint::ar;
     use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
 
     use super::*;
@@ -187,8 +128,10 @@ mod tests {
 
     #[test]
     fn archive_members() {
-        assert_eq!(ar_members(&archive_bytes(&["a.o", "b.o"])), ["a.o", "b.o"]);
-        assert!(ar_members(b"not an archive").is_empty());
+        let bytes = archive_bytes(&["a.o", "b.o"]);
+        let names: Vec<String> = ar::members(&bytes).into_iter().map(|m| m.name).collect();
+        assert_eq!(names, ["a.o", "b.o"]);
+        assert!(ar::members(b"not an archive").is_empty());
     }
 
     #[test]

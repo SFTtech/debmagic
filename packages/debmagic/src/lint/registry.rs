@@ -322,6 +322,7 @@ use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
+use super::rules::PackageBuildsDbgAndDbgsymVariants;
 use super::rules::PackageContainsAncientFile;
 use super::rules::PackageContainsCmakePrivateFile;
 use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
@@ -2179,6 +2180,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MalformedChangesFile,
         &MultipleDistributionsInChangesFile,
         &NoPhrase,
+        &PackageBuildsDbgAndDbgsymVariants,
     ]
 }
 
@@ -3441,6 +3443,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &MalformedChangesFile,
         &MultipleDistributionsInChangesFile,
         &NoPhrase,
+        &PackageBuildsDbgAndDbgsymVariants,
     ]
 }
 

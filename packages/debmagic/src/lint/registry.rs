@@ -242,6 +242,7 @@ use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
+use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
@@ -1941,6 +1942,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &EmptySharedLibrarySymbols,
         &SymbolsDeclaresDependencyOnOtherPackage,
         &SymbolsFileMissingBuildDependsPackageField,
+        &OlderSourceFormat,
     ]
 }
 
@@ -2304,6 +2306,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SubstvarSourceVersionIsDeprecated,
         &DebugSymbolMigrationPossiblyComplete,
         &NoDhSequencer,
+        &OlderSourceFormat,
     ]
 }
 

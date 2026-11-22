@@ -190,6 +190,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
+    "checks/debian/source-dir/source-format-1.0",
     "checks/debian/substvars/cruft-general-diff",
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
@@ -370,6 +371,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/testsuite/testsuite-unknown-suite",
     "checks/testsuite/testsuite-with-adttmp",
     "checks/testsuite/unnecessary-testsuite-autopkgtest-field",
+    "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
@@ -1091,6 +1093,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
+    "checks/debian/source-dir/source-format-1.0",
     "checks/debian/substvars/cruft-general-diff",
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
@@ -1272,6 +1275,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/testsuite/testsuite-unknown-suite",
     "checks/testsuite/testsuite-with-adttmp",
     "checks/testsuite/unnecessary-testsuite-autopkgtest-field",
+    "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
@@ -1493,6 +1497,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]
+#[test_case("checks/debian/source-dir/source-format-1.0"; "checks_debian_source_dir_source_format_1_0")]
 #[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
@@ -1673,6 +1678,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/testsuite/testsuite-unknown-suite"; "checks_testsuite_testsuite_unknown_suite")]
 #[test_case("checks/testsuite/testsuite-with-adttmp"; "checks_testsuite_testsuite_with_adttmp")]
 #[test_case("checks/testsuite/unnecessary-testsuite-autopkgtest-field"; "checks_testsuite_unnecessary_testsuite_autopkgtest_field")]
+#[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]
@@ -2396,6 +2402,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]
+#[test_case("checks/debian/source-dir/source-format-1.0"; "checks_debian_source_dir_source_format_1_0")]
 #[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
@@ -2577,6 +2584,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/testsuite/testsuite-unknown-suite"; "checks_testsuite_testsuite_unknown_suite")]
 #[test_case("checks/testsuite/testsuite-with-adttmp"; "checks_testsuite_testsuite_with_adttmp")]
 #[test_case("checks/testsuite/unnecessary-testsuite-autopkgtest-field"; "checks_testsuite_unnecessary_testsuite_autopkgtest_field")]
+#[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]

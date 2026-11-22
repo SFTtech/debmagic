@@ -405,6 +405,7 @@ use super::rules::UnknownTrigger;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnparsableMenuItem;
 use super::rules::UnsupportedSourceFormat;
+use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploaderNameMissing;
@@ -1939,6 +1940,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianControlHasUnusualFieldSpacing,
         &InsecureCopyrightFormatUri,
         &AddComponentCopyright,
+        &UnusedDebconfTemplate,
     ]
 }
 
@@ -3076,6 +3078,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
+        &UnusedDebconfTemplate,
     ]
 }
 

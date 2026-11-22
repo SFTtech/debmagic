@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: foo (source): pear-channel-without-pkg-php-tools-builddep (LN1284) [channel.xml]
+W: foo (source): pear-channel-without-pkg-php-tools-builddep (LN1284) [channel.xml]

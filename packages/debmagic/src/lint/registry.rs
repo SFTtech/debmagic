@@ -94,6 +94,8 @@ use super::rules::DebianRulesUsesSpecialShellVariable;
 use super::rules::DebianRulesUsesUnnecessaryDhArgument;
 use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
+use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
+use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
 use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
@@ -123,6 +125,7 @@ use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
 use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
+use super::rules::EmptySharedLibrarySymbols;
 use super::rules::EmptyShlibs;
 use super::rules::EmptyUpstreamSources;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
@@ -233,6 +236,7 @@ use super::rules::NewPackageShouldNotPackagePython2Module;
 use super::rules::NewPackageUsesDateBasedVersionNumber;
 use super::rules::NmuInChangelog;
 use super::rules::NoDebianChanges;
+use super::rules::NoDhSequencer;
 use super::rules::NoShlibs;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
@@ -251,6 +255,7 @@ use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
+use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
@@ -369,6 +374,8 @@ use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
 use super::rules::SurplusSharedLibrarySymbols;
+use super::rules::SymbolsDeclaresDependencyOnOtherPackage;
+use super::rules::SymbolsFileMissingBuildDependsPackageField;
 use super::rules::SymlinkTargetInBuildTree;
 use super::rules::SymlinkTargetInTmp;
 use super::rules::SyntaxErrorInDebconfTemplate;
@@ -387,6 +394,7 @@ use super::rules::TestsuiteRestrictionsHasDeprecatedSkipNotInstallable;
 use super::rules::TooManyArchitectures;
 use super::rules::TrailingCommaInMaintainerField;
 use super::rules::TrailingSlashForDpkgMaintscriptHelperSymlinkToDir;
+use super::rules::TrailingWhitespace;
 use super::rules::TransitionalPackageNotOldlibsOptional;
 use super::rules::TripletDirAndArchitectureMismatch;
 use super::rules::TruetypeFontWrongFilename;
@@ -1973,6 +1981,14 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &QuiltPatchMissingDescription,
         &DebianRulesParsesDpkgParsechangelog,
         &DebianRulesUsesAsNeededLinkerFlag,
+        &DebugSymbolMigrationPossiblyComplete,
+        &NoDhSequencer,
+        &EmptySharedLibrarySymbols,
+        &SymbolsDeclaresDependencyOnOtherPackage,
+        &SymbolsFileMissingBuildDependsPackageField,
+        &OlderSourceFormat,
+        &TrailingWhitespace,
+        &DebianWatchDoesNotCheckOpenpgpSignature,
     ]
 }
 
@@ -2345,6 +2361,11 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &QuiltPatchMissingDescription,
         &DebianRulesParsesDpkgParsechangelog,
         &DebianRulesUsesAsNeededLinkerFlag,
+        &DebugSymbolMigrationPossiblyComplete,
+        &NoDhSequencer,
+        &OlderSourceFormat,
+        &TrailingWhitespace,
+        &DebianWatchDoesNotCheckOpenpgpSignature,
     ]
 }
 
@@ -3127,6 +3148,9 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DebianChangelogLineTooShort,
         &UnusedDebconfTemplate,
         &RenamedTag,
+        &EmptySharedLibrarySymbols,
+        &SymbolsDeclaresDependencyOnOtherPackage,
+        &SymbolsFileMissingBuildDependsPackageField,
     ]
 }
 

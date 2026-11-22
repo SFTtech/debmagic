@@ -177,6 +177,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/debian-rules-uses-as-needed-linker-flag",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
+    "checks/debian/rules/dh-sequencer/no-dh-sequencer",
     "checks/debian/rules/generic-dh-make-2005",
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
@@ -185,6 +186,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/legacy-fields",
     "checks/debian/rules/legacy-scripts",
     "checks/debian/rules/rules-build-dep-pattern",
+    "checks/debian/rules/rules-debug-symbol-migration-possibly-complete",
     "checks/debian/rules/rules-dh-order",
     "checks/debian/rules/rules-dh-unused-target-nonempty",
     "checks/debian/rules/rules-general",
@@ -204,11 +206,14 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
+    "checks/debian/source-dir/source-format-1.0",
     "checks/debian/substvars/cruft-general-diff",
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
     "checks/debian/symbols/package-placeholder",
+    "checks/debian/trailing-whitespace/cruft-crlf-eols",
+    "checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace",
     "checks/debian/trailing-whitespace/rules-without-newline-at-end",
     "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/upstream/metadata/in-native-source",
@@ -221,9 +226,11 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/version-substvars/version-substvars-general",
     "checks/debian/version-substvars/version-substvars-obsolete",
     "checks/debian/watch/changes-upstream-signature-missing",
+    "checks/debian/watch/filenamemangle",
     "checks/debian/watch/legacy-foo++",
     "checks/debian/watch/legacy-maintainer-scripts",
     "checks/debian/watch/legacy-scripts",
+    "checks/debian/watch/repack-indicator-in-debian-revision",
     "checks/debian/watch/standard/legacy-foo++",
     "checks/debian/watch/standard/legacy-scripts",
     "checks/debian/watch/standard/no-version",
@@ -232,12 +239,18 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/watch/standard/version-3",
     "checks/debian/watch/standard/version-6",
     "checks/debian/watch/standard/watch-file-general",
+    "checks/debian/watch/two-upstream-components",
     "checks/debian/watch/watch-file-bug-765995",
     "checks/debian/watch/watch-file-general",
     "checks/debian/watch/watch-file-malformed-version",
     "checks/debian/watch/watch-file-old-upstream-version",
+    "checks/debian/watch/watch-file-pgpmode-none",
+    "checks/debian/watch/watch-file-prerelease",
     "checks/debian/watch/watch-file-pubkey-missing",
     "checks/debian/watch/watch-file-should-mangle",
+    "checks/debian/watch/watch-file-should-mangle-unrel",
+    "checks/debian/watch/watch-file-template",
+    "checks/debian/watch/watch-file-uses-cran-template",
     "checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants",
     "checks/debug/automatic/control-file-general",
     "checks/desktop/gnome/gir/gir",
@@ -384,6 +397,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/testsuite/testsuite-unknown-suite",
     "checks/testsuite/testsuite-with-adttmp",
     "checks/testsuite/unnecessary-testsuite-autopkgtest-field",
+    "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
@@ -523,10 +537,30 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/readme/generic-dh-make-2008",
     "checks/debian/readme/legacy-etcfiles",
     "checks/debian/readme/legacy-foo++",
+    "checks/debian/shlibs/binaries-doesnt-match-sonames",
+    "checks/debian/shlibs/binaries-missing-depends",
+    "checks/debian/shlibs/binaries-missing-depends-on-libc",
+    "checks/debian/shlibs/binaries-multiarch",
+    "checks/debian/shlibs/binaries-multiarch-same",
+    "checks/debian/shlibs/files-wrong-ma-foreign",
     "checks/debian/shlibs/legacy-debug",
     "checks/debian/shlibs/legacy-libbaz",
     "checks/debian/shlibs/shared-libs-control-file",
+    "checks/debian/shlibs/shared-libs-dev-symlink",
+    "checks/debian/shlibs/shared-libs-dev-symlink-fp",
+    "checks/debian/shlibs/shared-libs-exec-bit",
+    "checks/debian/shlibs/shared-libs-exec-stack",
+    "checks/debian/shlibs/shared-libs-exit",
+    "checks/debian/shlibs/shared-libs-exit-fork",
+    "checks/debian/shlibs/shared-libs-ldconfig-not-symlink",
+    "checks/debian/shlibs/shared-libs-ldconfig-scripts",
+    "checks/debian/shlibs/shared-libs-ldconfig-wrong-file",
+    "checks/debian/shlibs/shared-libs-missing-ldconfig-symlink",
+    "checks/debian/shlibs/shared-libs-multi-arch-foreign",
+    "checks/debian/shlibs/shared-libs-no-gnu-stack",
     "checks/debian/shlibs/shared-libs-no-shared-lib",
+    "checks/debian/shlibs/shared-libs-non-dev-symlink",
+    "checks/debian/shlibs/shared-libs-non-pic-i386",
     "checks/debian/shlibs/shared-libs-symbols-file",
     "checks/debian/shlibs/shared-libs-unversioned",
     "checks/desktop/dbus/dbus-policy",
@@ -1083,6 +1117,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/debian-rules-uses-as-needed-linker-flag",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
+    "checks/debian/rules/dh-sequencer/no-dh-sequencer",
     "checks/debian/rules/generic-dh-make-2005",
     "checks/debian/rules/generic-empty",
     "checks/debian/rules/legacy-binary",
@@ -1091,6 +1126,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/legacy-fields",
     "checks/debian/rules/legacy-scripts",
     "checks/debian/rules/rules-build-dep-pattern",
+    "checks/debian/rules/rules-debug-symbol-migration-possibly-complete",
     "checks/debian/rules/rules-dh-order",
     "checks/debian/rules/rules-dh-unused-target-nonempty",
     "checks/debian/rules/rules-general",
@@ -1110,11 +1146,14 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
+    "checks/debian/source-dir/source-format-1.0",
     "checks/debian/substvars/cruft-general-diff",
     "checks/debian/substvars/cruft-general-native",
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
     "checks/debian/symbols/package-placeholder",
+    "checks/debian/trailing-whitespace/cruft-crlf-eols",
+    "checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace",
     "checks/debian/trailing-whitespace/rules-without-newline-at-end",
     "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/upstream/metadata/in-native-source",
@@ -1127,9 +1166,11 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/version-substvars/version-substvars-general",
     "checks/debian/version-substvars/version-substvars-obsolete",
     "checks/debian/watch/changes-upstream-signature-missing",
+    "checks/debian/watch/filenamemangle",
     "checks/debian/watch/legacy-foo++",
     "checks/debian/watch/legacy-maintainer-scripts",
     "checks/debian/watch/legacy-scripts",
+    "checks/debian/watch/repack-indicator-in-debian-revision",
     "checks/debian/watch/standard/legacy-foo++",
     "checks/debian/watch/standard/legacy-scripts",
     "checks/debian/watch/standard/no-version",
@@ -1138,12 +1179,18 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/watch/standard/version-3",
     "checks/debian/watch/standard/version-6",
     "checks/debian/watch/standard/watch-file-general",
+    "checks/debian/watch/two-upstream-components",
     "checks/debian/watch/watch-file-bug-765995",
     "checks/debian/watch/watch-file-general",
     "checks/debian/watch/watch-file-malformed-version",
     "checks/debian/watch/watch-file-old-upstream-version",
+    "checks/debian/watch/watch-file-pgpmode-none",
+    "checks/debian/watch/watch-file-prerelease",
     "checks/debian/watch/watch-file-pubkey-missing",
     "checks/debian/watch/watch-file-should-mangle",
+    "checks/debian/watch/watch-file-should-mangle-unrel",
+    "checks/debian/watch/watch-file-template",
+    "checks/debian/watch/watch-file-uses-cran-template",
     "checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants",
     "checks/debug/automatic/control-file-general",
     "checks/desktop/gnome/gir/gir",
@@ -1291,6 +1338,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/testsuite/testsuite-unknown-suite",
     "checks/testsuite/testsuite-with-adttmp",
     "checks/testsuite/unnecessary-testsuite-autopkgtest-field",
+    "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
     "general-false-positives/basic-non-native-3.0-purge-debian",
@@ -1499,6 +1547,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/debian-rules-uses-as-needed-linker-flag"; "checks_debian_rules_debian_rules_uses_as_needed_linker_flag")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
+#[test_case("checks/debian/rules/dh-sequencer/no-dh-sequencer"; "checks_debian_rules_dh_sequencer_no_dh_sequencer")]
 #[test_case("checks/debian/rules/generic-dh-make-2005"; "checks_debian_rules_generic_dh_make_2005")]
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
@@ -1507,6 +1556,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/legacy-fields"; "checks_debian_rules_legacy_fields")]
 #[test_case("checks/debian/rules/legacy-scripts"; "checks_debian_rules_legacy_scripts")]
 #[test_case("checks/debian/rules/rules-build-dep-pattern"; "checks_debian_rules_rules_build_dep_pattern")]
+#[test_case("checks/debian/rules/rules-debug-symbol-migration-possibly-complete"; "checks_debian_rules_rules_debug_symbol_migration_possibly_complete")]
 #[test_case("checks/debian/rules/rules-dh-order"; "checks_debian_rules_rules_dh_order")]
 #[test_case("checks/debian/rules/rules-dh-unused-target-nonempty"; "checks_debian_rules_rules_dh_unused_target_nonempty")]
 #[test_case("checks/debian/rules/rules-general"; "checks_debian_rules_rules_general")]
@@ -1526,11 +1576,14 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]
+#[test_case("checks/debian/source-dir/source-format-1.0"; "checks_debian_source_dir_source_format_1_0")]
 #[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
 #[test_case("checks/debian/symbols/package-placeholder"; "checks_debian_symbols_package_placeholder")]
+#[test_case("checks/debian/trailing-whitespace/cruft-crlf-eols"; "checks_debian_trailing_whitespace_cruft_crlf_eols")]
+#[test_case("checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace"; "checks_debian_trailing_whitespace_cruft_file_contains_trailing_whitespace")]
 #[test_case("checks/debian/trailing-whitespace/rules-without-newline-at-end"; "checks_debian_trailing_whitespace_rules_without_newline_at_end")]
 #[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/upstream/metadata/in-native-source"; "checks_debian_upstream_metadata_in_native_source")]
@@ -1543,9 +1596,11 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/version-substvars/version-substvars-general"; "checks_debian_version_substvars_version_substvars_general")]
 #[test_case("checks/debian/version-substvars/version-substvars-obsolete"; "checks_debian_version_substvars_version_substvars_obsolete")]
 #[test_case("checks/debian/watch/changes-upstream-signature-missing"; "checks_debian_watch_changes_upstream_signature_missing")]
+#[test_case("checks/debian/watch/filenamemangle"; "checks_debian_watch_filenamemangle")]
 #[test_case("checks/debian/watch/legacy-foo++"; "checks_debian_watch_legacy_foo_")]
 #[test_case("checks/debian/watch/legacy-maintainer-scripts"; "checks_debian_watch_legacy_maintainer_scripts")]
 #[test_case("checks/debian/watch/legacy-scripts"; "checks_debian_watch_legacy_scripts")]
+#[test_case("checks/debian/watch/repack-indicator-in-debian-revision"; "checks_debian_watch_repack_indicator_in_debian_revision")]
 #[test_case("checks/debian/watch/standard/legacy-foo++"; "checks_debian_watch_standard_legacy_foo_")]
 #[test_case("checks/debian/watch/standard/legacy-scripts"; "checks_debian_watch_standard_legacy_scripts")]
 #[test_case("checks/debian/watch/standard/no-version"; "checks_debian_watch_standard_no_version")]
@@ -1554,12 +1609,18 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/watch/standard/version-3"; "checks_debian_watch_standard_version_3")]
 #[test_case("checks/debian/watch/standard/version-6"; "checks_debian_watch_standard_version_6")]
 #[test_case("checks/debian/watch/standard/watch-file-general"; "checks_debian_watch_standard_watch_file_general")]
+#[test_case("checks/debian/watch/two-upstream-components"; "checks_debian_watch_two_upstream_components")]
 #[test_case("checks/debian/watch/watch-file-bug-765995"; "checks_debian_watch_watch_file_bug_765995")]
 #[test_case("checks/debian/watch/watch-file-general"; "checks_debian_watch_watch_file_general")]
 #[test_case("checks/debian/watch/watch-file-malformed-version"; "checks_debian_watch_watch_file_malformed_version")]
 #[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
+#[test_case("checks/debian/watch/watch-file-pgpmode-none"; "checks_debian_watch_watch_file_pgpmode_none")]
+#[test_case("checks/debian/watch/watch-file-prerelease"; "checks_debian_watch_watch_file_prerelease")]
 #[test_case("checks/debian/watch/watch-file-pubkey-missing"; "checks_debian_watch_watch_file_pubkey_missing")]
 #[test_case("checks/debian/watch/watch-file-should-mangle"; "checks_debian_watch_watch_file_should_mangle")]
+#[test_case("checks/debian/watch/watch-file-should-mangle-unrel"; "checks_debian_watch_watch_file_should_mangle_unrel")]
+#[test_case("checks/debian/watch/watch-file-template"; "checks_debian_watch_watch_file_template")]
+#[test_case("checks/debian/watch/watch-file-uses-cran-template"; "checks_debian_watch_watch_file_uses_cran_template")]
 #[test_case("checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_automatic_changes_files_package_builds_dbg_and_dbgsym_variants")]
 #[test_case("checks/debug/automatic/control-file-general"; "checks_debug_automatic_control_file_general")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
@@ -1706,6 +1767,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/testsuite/testsuite-unknown-suite"; "checks_testsuite_testsuite_unknown_suite")]
 #[test_case("checks/testsuite/testsuite-with-adttmp"; "checks_testsuite_testsuite_with_adttmp")]
 #[test_case("checks/testsuite/unnecessary-testsuite-autopkgtest-field"; "checks_testsuite_unnecessary_testsuite_autopkgtest_field")]
+#[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]
@@ -1846,10 +1908,30 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/readme/generic-dh-make-2008"; "checks_debian_readme_generic_dh_make_2008")]
 #[test_case("checks/debian/readme/legacy-etcfiles"; "checks_debian_readme_legacy_etcfiles")]
 #[test_case("checks/debian/readme/legacy-foo++"; "checks_debian_readme_legacy_foo_")]
+#[test_case("checks/debian/shlibs/binaries-doesnt-match-sonames"; "checks_debian_shlibs_binaries_doesnt_match_sonames")]
+#[test_case("checks/debian/shlibs/binaries-missing-depends"; "checks_debian_shlibs_binaries_missing_depends")]
+#[test_case("checks/debian/shlibs/binaries-missing-depends-on-libc"; "checks_debian_shlibs_binaries_missing_depends_on_libc")]
+#[test_case("checks/debian/shlibs/binaries-multiarch"; "checks_debian_shlibs_binaries_multiarch")]
+#[test_case("checks/debian/shlibs/binaries-multiarch-same"; "checks_debian_shlibs_binaries_multiarch_same")]
+#[test_case("checks/debian/shlibs/files-wrong-ma-foreign"; "checks_debian_shlibs_files_wrong_ma_foreign")]
 #[test_case("checks/debian/shlibs/legacy-debug"; "checks_debian_shlibs_legacy_debug")]
 #[test_case("checks/debian/shlibs/legacy-libbaz"; "checks_debian_shlibs_legacy_libbaz")]
 #[test_case("checks/debian/shlibs/shared-libs-control-file"; "checks_debian_shlibs_shared_libs_control_file")]
+#[test_case("checks/debian/shlibs/shared-libs-dev-symlink"; "checks_debian_shlibs_shared_libs_dev_symlink")]
+#[test_case("checks/debian/shlibs/shared-libs-dev-symlink-fp"; "checks_debian_shlibs_shared_libs_dev_symlink_fp")]
+#[test_case("checks/debian/shlibs/shared-libs-exec-bit"; "checks_debian_shlibs_shared_libs_exec_bit")]
+#[test_case("checks/debian/shlibs/shared-libs-exec-stack"; "checks_debian_shlibs_shared_libs_exec_stack")]
+#[test_case("checks/debian/shlibs/shared-libs-exit"; "checks_debian_shlibs_shared_libs_exit")]
+#[test_case("checks/debian/shlibs/shared-libs-exit-fork"; "checks_debian_shlibs_shared_libs_exit_fork")]
+#[test_case("checks/debian/shlibs/shared-libs-ldconfig-not-symlink"; "checks_debian_shlibs_shared_libs_ldconfig_not_symlink")]
+#[test_case("checks/debian/shlibs/shared-libs-ldconfig-scripts"; "checks_debian_shlibs_shared_libs_ldconfig_scripts")]
+#[test_case("checks/debian/shlibs/shared-libs-ldconfig-wrong-file"; "checks_debian_shlibs_shared_libs_ldconfig_wrong_file")]
+#[test_case("checks/debian/shlibs/shared-libs-missing-ldconfig-symlink"; "checks_debian_shlibs_shared_libs_missing_ldconfig_symlink")]
+#[test_case("checks/debian/shlibs/shared-libs-multi-arch-foreign"; "checks_debian_shlibs_shared_libs_multi_arch_foreign")]
+#[test_case("checks/debian/shlibs/shared-libs-no-gnu-stack"; "checks_debian_shlibs_shared_libs_no_gnu_stack")]
 #[test_case("checks/debian/shlibs/shared-libs-no-shared-lib"; "checks_debian_shlibs_shared_libs_no_shared_lib")]
+#[test_case("checks/debian/shlibs/shared-libs-non-dev-symlink"; "checks_debian_shlibs_shared_libs_non_dev_symlink")]
+#[test_case("checks/debian/shlibs/shared-libs-non-pic-i386"; "checks_debian_shlibs_shared_libs_non_pic_i386")]
 #[test_case("checks/debian/shlibs/shared-libs-symbols-file"; "checks_debian_shlibs_shared_libs_symbols_file")]
 #[test_case("checks/debian/shlibs/shared-libs-unversioned"; "checks_debian_shlibs_shared_libs_unversioned")]
 #[test_case("checks/desktop/dbus/dbus-policy"; "checks_desktop_dbus_dbus_policy")]
@@ -2407,6 +2489,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/debian-rules-uses-as-needed-linker-flag"; "checks_debian_rules_debian_rules_uses_as_needed_linker_flag")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
+#[test_case("checks/debian/rules/dh-sequencer/no-dh-sequencer"; "checks_debian_rules_dh_sequencer_no_dh_sequencer")]
 #[test_case("checks/debian/rules/generic-dh-make-2005"; "checks_debian_rules_generic_dh_make_2005")]
 #[test_case("checks/debian/rules/generic-empty"; "checks_debian_rules_generic_empty")]
 #[test_case("checks/debian/rules/legacy-binary"; "checks_debian_rules_legacy_binary")]
@@ -2415,6 +2498,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/legacy-fields"; "checks_debian_rules_legacy_fields")]
 #[test_case("checks/debian/rules/legacy-scripts"; "checks_debian_rules_legacy_scripts")]
 #[test_case("checks/debian/rules/rules-build-dep-pattern"; "checks_debian_rules_rules_build_dep_pattern")]
+#[test_case("checks/debian/rules/rules-debug-symbol-migration-possibly-complete"; "checks_debian_rules_rules_debug_symbol_migration_possibly_complete")]
 #[test_case("checks/debian/rules/rules-dh-order"; "checks_debian_rules_rules_dh_order")]
 #[test_case("checks/debian/rules/rules-dh-unused-target-nonempty"; "checks_debian_rules_rules_dh_unused_target_nonempty")]
 #[test_case("checks/debian/rules/rules-general"; "checks_debian_rules_rules_general")]
@@ -2434,11 +2518,14 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]
+#[test_case("checks/debian/source-dir/source-format-1.0"; "checks_debian_source_dir_source_format_1_0")]
 #[test_case("checks/debian/substvars/cruft-general-diff"; "checks_debian_substvars_cruft_general_diff")]
 #[test_case("checks/debian/substvars/cruft-general-native"; "checks_debian_substvars_cruft_general_native")]
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
 #[test_case("checks/debian/symbols/package-placeholder"; "checks_debian_symbols_package_placeholder")]
+#[test_case("checks/debian/trailing-whitespace/cruft-crlf-eols"; "checks_debian_trailing_whitespace_cruft_crlf_eols")]
+#[test_case("checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace"; "checks_debian_trailing_whitespace_cruft_file_contains_trailing_whitespace")]
 #[test_case("checks/debian/trailing-whitespace/rules-without-newline-at-end"; "checks_debian_trailing_whitespace_rules_without_newline_at_end")]
 #[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/upstream/metadata/in-native-source"; "checks_debian_upstream_metadata_in_native_source")]
@@ -2451,9 +2538,11 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/version-substvars/version-substvars-general"; "checks_debian_version_substvars_version_substvars_general")]
 #[test_case("checks/debian/version-substvars/version-substvars-obsolete"; "checks_debian_version_substvars_version_substvars_obsolete")]
 #[test_case("checks/debian/watch/changes-upstream-signature-missing"; "checks_debian_watch_changes_upstream_signature_missing")]
+#[test_case("checks/debian/watch/filenamemangle"; "checks_debian_watch_filenamemangle")]
 #[test_case("checks/debian/watch/legacy-foo++"; "checks_debian_watch_legacy_foo_")]
 #[test_case("checks/debian/watch/legacy-maintainer-scripts"; "checks_debian_watch_legacy_maintainer_scripts")]
 #[test_case("checks/debian/watch/legacy-scripts"; "checks_debian_watch_legacy_scripts")]
+#[test_case("checks/debian/watch/repack-indicator-in-debian-revision"; "checks_debian_watch_repack_indicator_in_debian_revision")]
 #[test_case("checks/debian/watch/standard/legacy-foo++"; "checks_debian_watch_standard_legacy_foo_")]
 #[test_case("checks/debian/watch/standard/legacy-scripts"; "checks_debian_watch_standard_legacy_scripts")]
 #[test_case("checks/debian/watch/standard/no-version"; "checks_debian_watch_standard_no_version")]
@@ -2462,12 +2551,18 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/watch/standard/version-3"; "checks_debian_watch_standard_version_3")]
 #[test_case("checks/debian/watch/standard/version-6"; "checks_debian_watch_standard_version_6")]
 #[test_case("checks/debian/watch/standard/watch-file-general"; "checks_debian_watch_standard_watch_file_general")]
+#[test_case("checks/debian/watch/two-upstream-components"; "checks_debian_watch_two_upstream_components")]
 #[test_case("checks/debian/watch/watch-file-bug-765995"; "checks_debian_watch_watch_file_bug_765995")]
 #[test_case("checks/debian/watch/watch-file-general"; "checks_debian_watch_watch_file_general")]
 #[test_case("checks/debian/watch/watch-file-malformed-version"; "checks_debian_watch_watch_file_malformed_version")]
 #[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
+#[test_case("checks/debian/watch/watch-file-pgpmode-none"; "checks_debian_watch_watch_file_pgpmode_none")]
+#[test_case("checks/debian/watch/watch-file-prerelease"; "checks_debian_watch_watch_file_prerelease")]
 #[test_case("checks/debian/watch/watch-file-pubkey-missing"; "checks_debian_watch_watch_file_pubkey_missing")]
 #[test_case("checks/debian/watch/watch-file-should-mangle"; "checks_debian_watch_watch_file_should_mangle")]
+#[test_case("checks/debian/watch/watch-file-should-mangle-unrel"; "checks_debian_watch_watch_file_should_mangle_unrel")]
+#[test_case("checks/debian/watch/watch-file-template"; "checks_debian_watch_watch_file_template")]
+#[test_case("checks/debian/watch/watch-file-uses-cran-template"; "checks_debian_watch_watch_file_uses_cran_template")]
 #[test_case("checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_automatic_changes_files_package_builds_dbg_and_dbgsym_variants")]
 #[test_case("checks/debug/automatic/control-file-general"; "checks_debug_automatic_control_file_general")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
@@ -2615,6 +2710,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/testsuite/testsuite-unknown-suite"; "checks_testsuite_testsuite_unknown_suite")]
 #[test_case("checks/testsuite/testsuite-with-adttmp"; "checks_testsuite_testsuite_with_adttmp")]
 #[test_case("checks/testsuite/unnecessary-testsuite-autopkgtest-field"; "checks_testsuite_unnecessary_testsuite_autopkgtest_field")]
+#[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
 #[test_case("general-false-positives/basic-non-native-3.0-purge-debian"; "general_false_positives_basic_non_native_3_0_purge_debian")]

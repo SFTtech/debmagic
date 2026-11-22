@@ -33,6 +33,8 @@ mod ln0914_missing_build_depends_for_clean_target_in_debian_rules;
 mod ln0915_override_dh_clean_does_not_call_dh_clean;
 mod ln1328_debian_rules_parses_dpkg_parsechangelog;
 mod ln1329_debian_rules_uses_as_needed_linker_flag;
+mod ln1330_debug_symbol_migration_possibly_complete;
+mod ln1331_no_dh_sequencer;
 mod text;
 
 pub(super) use text::{complete_lines, read_rules_from_tree};
@@ -66,3 +68,5 @@ pub(crate) use ln0914_missing_build_depends_for_clean_target_in_debian_rules::Mi
 pub(crate) use ln0915_override_dh_clean_does_not_call_dh_clean::OverrideDhCleanDoesNotCallDhClean;
 pub(crate) use ln1328_debian_rules_parses_dpkg_parsechangelog::DebianRulesParsesDpkgParsechangelog;
 pub(crate) use ln1329_debian_rules_uses_as_needed_linker_flag::DebianRulesUsesAsNeededLinkerFlag;
+pub(crate) use ln1330_debug_symbol_migration_possibly_complete::DebugSymbolMigrationPossiblyComplete;
+pub(crate) use ln1331_no_dh_sequencer::NoDhSequencer;

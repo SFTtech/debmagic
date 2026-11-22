@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): substvar-source-version-is-deprecated (LN1259) example Depends [debian/control]
+W: example (source): substvar-source-version-is-deprecated (LN1259) example Recommends [debian/control]
+W: example (source): substvar-source-version-is-deprecated (LN1259) example Conflicts [debian/control]
+W: example (source): substvar-source-version-is-deprecated (LN1259) example Suggests [debian/control]

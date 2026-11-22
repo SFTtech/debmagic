@@ -1606,7 +1606,8 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
 ///   extra is `<field> <substvar> <installable> -> <pkg>`, and its regex only
 ///   accepts `${source:…}` / `${binary:…}`, so `foreign-pkg:any (= ${Source-Version})`
 ///   yields no hint. Only `Replaces ${binary:Version} program-data ->
-///   other-foreign-pkg` remains.
+///   other-foreign-pkg` remains. `substvar-source-version-is-deprecated` is
+///   `program-data Depends` (the Perl prints installable and field).
 fn correct_stale_expected_hints(recipe: &Path, hints: &mut Vec<ParityHint>) {
     if recipe.ends_with("checks/cruft/cruft-general-upstream") {
         for hint in hints.iter_mut() {
@@ -1622,6 +1623,12 @@ fn correct_stale_expected_hints(recipe: &Path, hints: &mut Vec<ParityHint>) {
                 tag: tag.to_string(),
                 extra: "Replaces ${binary:Version} program-data -> other-foreign-pkg".to_string(),
             });
+        }
+        // The Perl's `substvar-source-version-is-deprecated` is `$installable, $field`.
+        for hint in hints.iter_mut() {
+            if hint.tag == "substvar-source-version-is-deprecated" && hint.extra == "program-data" {
+                hint.extra = "program-data Depends".to_string();
+            }
         }
     }
 }

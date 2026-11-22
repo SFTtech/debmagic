@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): substvar-source-version-is-deprecated (LN1259) example Depends [debian/control]

@@ -348,6 +348,7 @@ use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::StrippedLibrary;
+use super::rules::SubstvarSourceVersionIsDeprecated;
 use super::rules::SurplusSharedLibrarySymbols;
 use super::rules::SymlinkTargetInBuildTree;
 use super::rules::SymlinkTargetInTmp;
@@ -1929,6 +1930,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &Python3DependsButNoPython3Helper,
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
+        &SubstvarSourceVersionIsDeprecated,
     ]
 }
 
@@ -2289,6 +2291,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &Python3DependsButNoPython3Helper,
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
+        &SubstvarSourceVersionIsDeprecated,
     ]
 }
 

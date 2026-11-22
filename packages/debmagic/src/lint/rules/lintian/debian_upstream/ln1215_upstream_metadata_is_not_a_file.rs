@@ -1,10 +1,11 @@
 use std::path::Path;
 
 use crate::declare_rule;
-use crate::lint::context::{SourceContext, follow_symlinks};
+use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 use crate::lint::rules::lintian::fields_version::is_native;
+use crate::lint::upstream_metadata::UpstreamMetadata;
 
 pub struct UpstreamMetadataIsNotAFile;
 
@@ -12,13 +13,14 @@ declare_rule! {
     /// `debian/upstream/metadata` is not a readable regular file.
     ///
     /// Only for non-native packages (native ones get LN1214 instead). Fires
-    /// when the entry exists in the packaging File tree (Source tree, or
-    /// Source package Patched files) but is not an open-able file: a fifo,
-    /// device, directory, dangling symlink, or a symlink escaping the tree.
-    /// A regular file, a hardlink, or a symlink to one inside the tree is
-    /// fine. A missing entry is not reported here (see the missing Tag).
-    /// Extra is empty; the path is the Location.
-    UpstreamMetadataIsNotAFile,
+    /// when `debian/upstream/metadata` resolves in the packaging File tree
+    /// (Source tree, or Source package Patched files) to something that is not
+    /// an open-able file: a fifo, device or directory. A regular file, a
+    /// hardlink, or a symlink to one inside the tree is fine. A missing entry,
+    /// or a dangling or escaping symlink, resolves to nothing and is not
+    /// reported here (see the missing Tag). Extra is empty; the path is the
+    /// Location.
+        UpstreamMetadataIsNotAFile,
     code = "LN1215",
     tag = "upstream-metadata-is-not-a-file",
     default_selected = true,
@@ -31,11 +33,9 @@ impl SourceRule for UpstreamMetadataIsNotAFile {
             return;
         }
         let path = Path::new("debian/upstream/metadata");
-        let not_a_file = ctx.files().is_some_and(|files| {
-            files
-                .get(path)
-                .is_some_and(|entry| follow_symlinks(files, entry).is_none())
-        });
+        let not_a_file = ctx
+            .upstream_metadata()
+            .is_some_and(|metadata| *metadata == UpstreamMetadata::NotAFile);
         if not_a_file {
             ctx.diagnostic(Diagnostic::warn("").with_location(Location {
                 path: path.to_path_buf(),
@@ -126,6 +126,17 @@ mod tests {
                     ("debian/other", TestFile::new("Name: x\n")),
                 ],
             ),
+            // Dangling or escaping: resolves to nothing, the missing Tag's.
+            tree(
+                "1.0-1",
+                Some("3.0 (quilt)"),
+                &[("debian/upstream/metadata", TestFile::symlink("missing"))],
+            ),
+            tree(
+                "1.0-1",
+                Some("3.0 (quilt)"),
+                &[("debian/upstream/metadata", TestFile::symlink("/etc/passwd"))],
+            ),
             // Native: LN1214 reports this, not this Rule.
             tree(
                 "1.0",
@@ -147,12 +158,18 @@ mod tests {
             tree(
                 "1.0-1",
                 Some("3.0 (quilt)"),
-                &[("debian/upstream/metadata", TestFile::symlink("missing"))],
+                &[
+                    ("debian/upstream/metadata", TestFile::symlink("dir")),
+                    ("debian/upstream/dir", TestFile::directory()),
+                ],
             ),
             tree(
                 "1.0-1",
                 Some("3.0 (quilt)"),
-                &[("debian/upstream/metadata", TestFile::symlink("/etc/passwd"))],
+                &[
+                    ("debian/upstream/metadata", TestFile::symlink("fifo")),
+                    ("debian/upstream/fifo", TestFile::fifo()),
+                ],
             ),
         ];
         SourceTreeTester::new(UpstreamMetadataIsNotAFile, pass, fail).test_and_snapshot();

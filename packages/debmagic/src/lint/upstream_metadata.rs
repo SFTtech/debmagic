@@ -8,10 +8,10 @@
 //! document number, line and column on the object, so the YAML Rules can
 //! format them the way lintian does.
 
-// The first Rules that read it land after this seam; the allow goes then.
-#![allow(dead_code)]
-
 use std::path::Path;
+
+use crate::lint::context::resolve_symlinks;
+use crate::lint::file_tree::{EntryKind, FileTree};
 
 use std::str::Chars;
 
@@ -24,11 +24,11 @@ pub(crate) const UPSTREAM_METADATA_PATH: &str = "debian/upstream/metadata";
 /// What `debian/upstream/metadata` is, as the Check sees it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum UpstreamMetadata {
-    /// No entry at the path.
+    /// No entry at the path, or a symlink that does not resolve (dangling,
+    /// escaping the tree, or looping).
     Missing,
-    /// An entry exists but is not an open-able file: a directory, a fifo or
-    /// device, a dangling or escaping symlink, or a loop. Same test as
-    /// lintian's `is_open_ok`.
+    /// The entry resolves to something that is not an open-able file: a
+    /// directory, a fifo or a device. Lintian's `is_open_ok`.
     NotAFile,
     /// An open-able file that holds no YAML document, or only a null one.
     /// Lintian dies on this with a Perl message, which is not reproduced.
@@ -119,12 +119,6 @@ impl UpstreamMetadata {
             Some(Root::NotMapping) => Self::NotMapping,
             Some(Root::Mapping(fields)) => Self::Mapping(Mapping { fields }),
         }
-    }
-
-    /// Whether the entry exists but is not an open-able file.
-    #[allow(dead_code)]
-    pub(crate) fn is_not_a_file(&self) -> bool {
-        matches!(self, Self::NotAFile)
     }
 }
 
@@ -285,7 +279,6 @@ impl Mapping {
     }
 
     /// The value of `key`, if the key is present.
-    #[allow(dead_code)]
     pub(crate) fn get(&self, key: &str) -> Option<&FieldValue> {
         self.fields
             .iter()
@@ -326,16 +319,20 @@ fn position(bytes: &[u8], offset: usize) -> (usize, usize) {
 }
 
 /// Read `debian/upstream/metadata` from a packaging File tree and parse it.
-pub(crate) fn read(files: &crate::lint::file_tree::FileTree) -> UpstreamMetadata {
-    use crate::lint::context::follow_symlinks;
-
+///
+/// Lintian's `resolve_path` first: a dangling, escaping or looping symlink
+/// resolves to nothing, so it counts as missing. Then `is_open_ok`.
+pub(crate) fn read(files: &FileTree) -> UpstreamMetadata {
     let path = Path::new(UPSTREAM_METADATA_PATH);
     let Some(entry) = files.get(path) else {
         return UpstreamMetadata::Missing;
     };
-    let Some(target) = follow_symlinks(files, entry) else {
-        return UpstreamMetadata::NotAFile;
+    let Some(target) = resolve_symlinks(files, entry) else {
+        return UpstreamMetadata::Missing;
     };
+    if !matches!(target.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
+        return UpstreamMetadata::NotAFile;
+    }
     match files.read(target) {
         Ok(bytes) => UpstreamMetadata::parse(&bytes),
         Err(_) => UpstreamMetadata::NotAFile,

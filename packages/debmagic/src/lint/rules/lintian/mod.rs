@@ -675,8 +675,8 @@ pub(crate) use languages_javascript::{
 pub(crate) use languages_ocaml::{OcamlDanglingCmi, OcamlDanglingCmxa, OcamlDanglingCmxs};
 pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PackageInstallsPacklist,
-    PackageInstallsPerllocalPod, PerlModuleInCoreDirectory, PerlModuleUsesPerl4LibsWithoutDep,
-    ScriptUsesPerl4LibsWithoutDep,
+    PackageInstallsPerllocalPod, PackageSupersededByPerl, PerlModuleInCoreDirectory,
+    PerlModuleUsesPerl4LibsWithoutDep, ScriptUsesPerl4LibsWithoutDep,
 };
 pub(crate) use languages_python::{
     AncientPythonVersionField, BogusPythonPrerequisite, DjangoPackageDoesNotDependOnDjango,

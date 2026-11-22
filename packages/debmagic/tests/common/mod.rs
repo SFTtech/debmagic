@@ -1021,6 +1021,7 @@ pub fn assert_binary_package_parity(recipe_rel: &str) {
     rewrite_font_package_list(recipe_rel, &mut actual);
     rewrite_incompatibility_statement(recipe_rel, &mut actual);
     rewrite_control_file_group(recipe_rel, &mut actual);
+    rewrite_perl_core_version(recipe_rel, &mut actual);
     actual.sort();
 
     assert_eq!(
@@ -1550,6 +1551,20 @@ fn rewrite_control_file_group(recipe_rel: &str, hints: &mut [ParityHint]) {
             continue;
         };
         hint.extra = format!("nobody/root != {tail}");
+    }
+}
+
+/// `fields-perl-provides`'s lintian `eval/post-test` rewrites the version in
+/// `with <version>` to `VERSION`, because the Perl core version differs between
+/// archives. The vendored hint keeps that token; the hook is not copied.
+fn rewrite_perl_core_version(recipe_rel: &str, hints: &mut [ParityHint]) {
+    if recipe_rel != "checks/languages/perl/core/provides/fields-perl-provides" {
+        return;
+    }
+    for hint in hints {
+        if hint.tag == "package-superseded-by-perl" && hint.extra.starts_with("with ") {
+            hint.extra = "with VERSION".to_string();
+        }
     }
 }
 

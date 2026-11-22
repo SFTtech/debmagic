@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libsocket-perl (binary): package-superseded-by-perl (LN1402) with 2.038
+W: libsocket-perl (binary): package-superseded-by-perl (LN1402) with 2.038
+W: libsocket-perl (binary): package-superseded-by-perl (LN1402) with 2.038
+W: libsocket-perl (binary): package-superseded-by-perl (LN1402) with 2.038
+W: libversion-perl (binary): package-superseded-by-perl (LN1402) with 1:0.9930
+W: libversion-perl (binary): package-superseded-by-perl (LN1402) with 1:0.9930

@@ -128,6 +128,7 @@ use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
+use super::rules::DescriptionPossiblyContainsHomepage;
 use super::rules::DesktopEntryContainsEncodingKey;
 use super::rules::DesktopEntryLacksKeywordsEntry;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
@@ -2191,6 +2192,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &HomepageSalsaUrlEndsWithDotGit,
         &HomepageRefersToFilesystemListing,
         &HomepageInBinaryPackage,
+        &DescriptionPossiblyContainsHomepage,
     ]
 }
 
@@ -3458,6 +3460,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &HomepageGitlabUrlEndsWithDotGit,
         &HomepageSalsaUrlEndsWithDotGit,
         &HomepageRefersToFilesystemListing,
+        &DescriptionPossiblyContainsHomepage,
     ]
 }
 

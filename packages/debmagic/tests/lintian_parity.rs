@@ -1547,6 +1547,13 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
 
 const GROUP_RECIPES: &[&str] = &[
     "checks/changes-file/changes-file-bad-section",
+    "checks/changes-file/changes-file-size-checksum-mismatch",
+    "checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants",
+    "checks/fields/distribution/changes-unreleased",
+    "checks/fields/distribution/changes-upload-has-backports-version-number",
+    "checks/fields/distribution/distribution-multiple-bad",
+    "checks/fields/format/changes-missing-format",
+    "checks/fields/mail-address/changed-by-no-name",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
     "checks/group-checks/group-checks-circular-deps",
@@ -3128,6 +3135,13 @@ fn lintian_parity_source_package(recipe: &str) {
 }
 
 #[test_case("checks/changes-file/changes-file-bad-section"; "checks_changes_file_changes_file_bad_section")]
+#[test_case("checks/changes-file/changes-file-size-checksum-mismatch"; "checks_changes_file_changes_file_size_checksum_mismatch")]
+#[test_case("checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_changes_file_changes_files_package_builds_dbg_and_dbgsym_variants")]
+#[test_case("checks/fields/distribution/changes-unreleased"; "checks_fields_distribution_changes_unreleased")]
+#[test_case("checks/fields/distribution/changes-upload-has-backports-version-number"; "checks_fields_distribution_changes_upload_has_backports_version_number")]
+#[test_case("checks/fields/distribution/distribution-multiple-bad"; "checks_fields_distribution_distribution_multiple_bad")]
+#[test_case("checks/fields/format/changes-missing-format"; "checks_fields_format_changes_missing_format")]
+#[test_case("checks/fields/mail-address/changed-by-no-name"; "checks_fields_mail_address_changed_by_no_name")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
 #[test_case("checks/group-checks/group-checks-circular-deps"; "checks_group_checks_group_checks_circular_deps")]

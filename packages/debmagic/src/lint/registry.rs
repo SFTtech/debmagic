@@ -358,6 +358,7 @@ use super::rules::SymlinkTargetInBuildTree;
 use super::rules::SymlinkTargetInTmp;
 use super::rules::SyntaxErrorInDebconfTemplate;
 use super::rules::SyntaxErrorInDep5Copyright;
+use super::rules::SystemdServiceFileMissingDocumentationKey;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
 use super::rules::SystemdServiceFileShutdownProblems;
 use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
@@ -1939,6 +1940,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MaintainerScriptWithoutSetE,
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
+        &SystemdServiceFileMissingDocumentationKey,
     ]
 }
 
@@ -3076,6 +3078,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MaintainerScriptWithoutSetE,
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
+        &SystemdServiceFileMissingDocumentationKey,
     ]
 }
 

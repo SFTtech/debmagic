@@ -25,6 +25,7 @@ use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
 use super::rules::BinaryCompiledWithProfilingEnabled;
+use super::rules::BinaryHasUnneededSection;
 use super::rules::BinaryInEtc;
 use super::rules::BinaryNmuDebianRevisionInSource;
 use super::rules::BinaryPackageDependsOnToolchainPackage;
@@ -2123,6 +2124,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &BinaryHasUnneededSection,
     ]
 }
 
@@ -3350,6 +3352,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &BinaryHasUnneededSection,
     ]
 }
 

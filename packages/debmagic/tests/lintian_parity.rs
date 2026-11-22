@@ -310,6 +310,9 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/names/national-encoding-in-native",
     "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
+    "checks/files/source-missing/cruft-general-test-suite",
+    "checks/files/source-missing/cruft-source-is-missing-unrel",
+    "checks/files/source-missing/cruft-upstream-binaries",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
@@ -1191,6 +1194,9 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/names/national-encoding-in-native",
     "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
+    "checks/files/source-missing/cruft-general-test-suite",
+    "checks/files/source-missing/cruft-source-is-missing-unrel",
+    "checks/files/source-missing/cruft-upstream-binaries",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
@@ -1590,6 +1596,9 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/names/national-encoding-in-native"; "checks_files_names_national_encoding_in_native")]
 #[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
+#[test_case("checks/files/source-missing/cruft-general-test-suite"; "checks_files_source_missing_cruft_general_test_suite")]
+#[test_case("checks/files/source-missing/cruft-source-is-missing-unrel"; "checks_files_source_missing_cruft_source_is_missing_unrel")]
+#[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
@@ -2473,6 +2482,9 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/names/national-encoding-in-native"; "checks_files_names_national_encoding_in_native")]
 #[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
+#[test_case("checks/files/source-missing/cruft-general-test-suite"; "checks_files_source_missing_cruft_general_test_suite")]
+#[test_case("checks/files/source-missing/cruft-source-is-missing-unrel"; "checks_files_source_missing_cruft_source_is_missing_unrel")]
+#[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]

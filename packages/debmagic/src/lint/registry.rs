@@ -151,6 +151,7 @@ use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
 use super::rules::DuplicateLongDescription;
 use super::rules::DuplicateOverrideContext;
+use super::rules::DuplicateShortDescription;
 use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
@@ -2187,6 +2188,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianNewsEntryUsesAsterisk,
         &DeprecatedDebianControlField,
         &DuplicateLongDescription,
+        &DuplicateShortDescription,
     ]
 }
 
@@ -2592,6 +2594,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DhExecUselessUsage,
         &DeprecatedDebianControlField,
         &DuplicateLongDescription,
+        &DuplicateShortDescription,
     ]
 }
 

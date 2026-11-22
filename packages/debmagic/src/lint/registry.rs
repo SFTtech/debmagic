@@ -222,6 +222,7 @@ use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
 use super::rules::MaintainerScriptSetsAlternativeImproperly;
+use super::rules::MaintainerScriptSupportsAncientPackageVersion;
 use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
 use super::rules::MaintainerScriptWithoutSetE;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
@@ -2127,6 +2128,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SystemdServiceFileMissingDocumentationKey,
         &MalformedDebArchive,
         &PackageContainsAncientFile,
+        &MaintainerScriptSupportsAncientPackageVersion,
     ]
 }
 
@@ -3356,6 +3358,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SystemdServiceFileMissingDocumentationKey,
         &MalformedDebArchive,
         &PackageContainsAncientFile,
+        &MaintainerScriptSupportsAncientPackageVersion,
     ]
 }
 

@@ -952,6 +952,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/mailcap/placeholder-in-quoted-string",
     "checks/mailcap/single-quoted-placeholder",
     "checks/maintainer-scripts/adduser/home-in-var-run",
+    "checks/maintainer-scripts/ancient-version/scripts-supports-ancient-package-version",
     "checks/maintainer-scripts/diversion/scripts-diversions",
     "checks/maintainer-scripts/diversion/scripts-diversions-variables",
     "checks/maintainer-scripts/dpkg-statoverride/scripts-unconditional-use-of-dpkg-statoverride",
@@ -2494,6 +2495,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/mailcap/placeholder-in-quoted-string"; "checks_mailcap_placeholder_in_quoted_string")]
 #[test_case("checks/mailcap/single-quoted-placeholder"; "checks_mailcap_single_quoted_placeholder")]
 #[test_case("checks/maintainer-scripts/adduser/home-in-var-run"; "checks_maintainer_scripts_adduser_home_in_var_run")]
+#[test_case("checks/maintainer-scripts/ancient-version/scripts-supports-ancient-package-version"; "checks_maintainer_scripts_ancient_version_scripts_supports_ancient_package_version")]
 #[test_case("checks/maintainer-scripts/diversion/scripts-diversions"; "checks_maintainer_scripts_diversion_scripts_diversions")]
 #[test_case("checks/maintainer-scripts/diversion/scripts-diversions-variables"; "checks_maintainer_scripts_diversion_scripts_diversions_variables")]
 #[test_case("checks/maintainer-scripts/dpkg-statoverride/scripts-unconditional-use-of-dpkg-statoverride"; "checks_maintainer_scripts_dpkg_statoverride_scripts_unconditional_use_of_dpkg_statoverride")]

@@ -46,7 +46,6 @@ pub(super) struct NmuFacts {
     pub nmu_in_changelog: bool,
     pub maintainer_incorrect_version: bool,
     pub team_incorrect_version: bool,
-    #[allow(dead_code)] // read by unnecessary-team-upload (LN1219)
     pub unnecessary_team_upload: bool,
     pub trailer_padded: bool,
 }

@@ -48,6 +48,7 @@ mod ln1176_version_refers_to_distribution;
 mod ln1177_rc_version_greater_than_expected_version;
 mod ln1178_possible_new_upstream_release_without_new_version;
 mod ln1218_team_upload_has_incorrect_version_number;
+mod ln1219_unnecessary_team_upload;
 mod nmu;
 pub(in crate::lint::rules::lintian) mod source;
 mod version;
@@ -94,3 +95,4 @@ pub(crate) use ln1176_version_refers_to_distribution::VersionRefersToDistributio
 pub(crate) use ln1177_rc_version_greater_than_expected_version::RcVersionGreaterThanExpectedVersion;
 pub(crate) use ln1178_possible_new_upstream_release_without_new_version::PossibleNewUpstreamReleaseWithoutNewVersion;
 pub(crate) use ln1218_team_upload_has_incorrect_version_number::TeamUploadHasIncorrectVersionNumber;
+pub(crate) use ln1219_unnecessary_team_upload::UnnecessaryTeamUpload;

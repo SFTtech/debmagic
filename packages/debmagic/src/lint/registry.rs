@@ -339,6 +339,7 @@ use super::rules::TypelibSectionNotIntrospection;
 use super::rules::UdebPostinstCallsLdconfig;
 use super::rules::UdebUsesUnsupportedCompressionForDataTarball;
 use super::rules::UdevRuleInEtc;
+use super::rules::UdevRuleMissingSubsystem;
 use super::rules::UnconditionalUseOfDpkgStatoverride;
 use super::rules::UnexpectedConffile;
 use super::rules::UnknownArchitecture;
@@ -1829,6 +1830,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnknownControlInterpreter,
         &WishScriptButNoWishDep,
         &UdevRuleInEtc,
+        &UdevRuleMissingSubsystem,
     ]
 }
 
@@ -2911,6 +2913,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UnknownControlInterpreter,
         &WishScriptButNoWishDep,
         &UdevRuleInEtc,
+        &UdevRuleMissingSubsystem,
     ]
 }
 

@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): udev-rule-missing-subsystem (LN1226) vendor/product matching missing SUBSYSTEM specifier [usr/lib/udev/rules.d/60-foo.rules:1]
+W: example (binary): udev-rule-missing-subsystem (LN1226) vendor/product matching missing SUBSYSTEM specifier [usr/lib/udev/rules.d/60-foo.rules:4]
+W: example (binary): udev-rule-missing-subsystem (LN1226) vendor/product matching missing SUBSYSTEM specifier [usr/lib/udev/rules.d/60-foo.rules:1]
+W: example (binary): udev-rule-missing-subsystem (LN1226) vendor/product matching missing SUBSYSTEM specifier [lib/udev/rules.d/60-foo.rules:1]
+W: example (binary): udev-rule-missing-subsystem (LN1226) vendor/product matching missing SUBSYSTEM specifier [usr/lib/udev/rules.d/60-foo.rules:1]
+W: example (binary): udev-rule-missing-subsystem (LN1226) vendor/product matching missing SUBSYSTEM specifier [usr/lib/udev/rules.d/60-real.rules:1]
+W: example (udeb): udev-rule-missing-subsystem (LN1226) vendor/product matching missing SUBSYSTEM specifier [usr/lib/udev/rules.d/60-foo.rules:1]

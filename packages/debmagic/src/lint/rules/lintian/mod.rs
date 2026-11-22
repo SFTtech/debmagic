@@ -482,9 +482,9 @@ pub(crate) use debian_rules::{
 };
 pub(crate) use debian_shlibs::{
     DistantPrerequisiteInShlibs, DuplicateEntryInSymbolsControlFile, DuplicateInShlibs,
-    EmptyShlibs, InvalidTemplateIdInSymbolsFile, NoShlibs, OutdatedRelationInShlibs,
-    SharedLibraryLacksVersion, SharedLibraryNotShipped, SharedLibrarySymbolsNotTracked,
-    ShipsUndeclaredSharedLibrary, SurplusSharedLibrarySymbols,
+    EmptySharedLibrarySymbols, EmptyShlibs, InvalidTemplateIdInSymbolsFile, NoShlibs,
+    OutdatedRelationInShlibs, SharedLibraryLacksVersion, SharedLibraryNotShipped,
+    SharedLibrarySymbolsNotTracked, ShipsUndeclaredSharedLibrary, SurplusSharedLibrarySymbols,
     SymbolsFileContainsCurrentVersionWithDebianRevision, SymbolsFileContainsDebianRevision,
     SymbolsForUndeclaredSharedLibrary, SyntaxErrorInSymbolsFile, UnknownMetaFieldInSymbolsFile,
 };

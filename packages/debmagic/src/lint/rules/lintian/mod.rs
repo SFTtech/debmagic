@@ -746,6 +746,7 @@ pub(crate) use languages_php::{
     ComposerPrerequisite, EmbeddedPhpLibrary, MissingPkgPhpToolsAddon,
     MissingPkgPhpToolsBuildsystem, ObsoleteCommentsStyleInPhpIni,
     PearChannelWithoutPkgPhpToolsBuilddep, PearPackageButMissingDependency,
+    PearPackageWithoutPkgPhpToolsBuilddep,
 };
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;

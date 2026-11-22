@@ -1,4 +1,6 @@
 mod binary_package_reader;
+mod buildinfo;
+mod changes;
 mod context;
 mod data;
 mod deb_members;
@@ -11,6 +13,7 @@ mod diversion;
 mod dsc;
 mod elf;
 mod elf_symbol_tables;
+mod file_list;
 mod file_tree;
 mod file_type;
 mod gzip;

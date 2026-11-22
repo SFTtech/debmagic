@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): unnecessary-source-date-epoch-assignment (LN1533) [debian/rules:1]

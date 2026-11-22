@@ -499,10 +499,30 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/readme/generic-dh-make-2008",
     "checks/debian/readme/legacy-etcfiles",
     "checks/debian/readme/legacy-foo++",
+    "checks/debian/shlibs/binaries-doesnt-match-sonames",
+    "checks/debian/shlibs/binaries-missing-depends",
+    "checks/debian/shlibs/binaries-missing-depends-on-libc",
+    "checks/debian/shlibs/binaries-multiarch",
+    "checks/debian/shlibs/binaries-multiarch-same",
+    "checks/debian/shlibs/files-wrong-ma-foreign",
     "checks/debian/shlibs/legacy-debug",
     "checks/debian/shlibs/legacy-libbaz",
     "checks/debian/shlibs/shared-libs-control-file",
+    "checks/debian/shlibs/shared-libs-dev-symlink",
+    "checks/debian/shlibs/shared-libs-dev-symlink-fp",
+    "checks/debian/shlibs/shared-libs-exec-bit",
+    "checks/debian/shlibs/shared-libs-exec-stack",
+    "checks/debian/shlibs/shared-libs-exit",
+    "checks/debian/shlibs/shared-libs-exit-fork",
+    "checks/debian/shlibs/shared-libs-ldconfig-not-symlink",
+    "checks/debian/shlibs/shared-libs-ldconfig-scripts",
+    "checks/debian/shlibs/shared-libs-ldconfig-wrong-file",
+    "checks/debian/shlibs/shared-libs-missing-ldconfig-symlink",
+    "checks/debian/shlibs/shared-libs-multi-arch-foreign",
+    "checks/debian/shlibs/shared-libs-no-gnu-stack",
     "checks/debian/shlibs/shared-libs-no-shared-lib",
+    "checks/debian/shlibs/shared-libs-non-dev-symlink",
+    "checks/debian/shlibs/shared-libs-non-pic-i386",
     "checks/debian/shlibs/shared-libs-symbols-file",
     "checks/debian/shlibs/shared-libs-unversioned",
     "checks/desktop/dbus/dbus-policy",
@@ -1783,10 +1803,30 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/readme/generic-dh-make-2008"; "checks_debian_readme_generic_dh_make_2008")]
 #[test_case("checks/debian/readme/legacy-etcfiles"; "checks_debian_readme_legacy_etcfiles")]
 #[test_case("checks/debian/readme/legacy-foo++"; "checks_debian_readme_legacy_foo_")]
+#[test_case("checks/debian/shlibs/binaries-doesnt-match-sonames"; "checks_debian_shlibs_binaries_doesnt_match_sonames")]
+#[test_case("checks/debian/shlibs/binaries-missing-depends"; "checks_debian_shlibs_binaries_missing_depends")]
+#[test_case("checks/debian/shlibs/binaries-missing-depends-on-libc"; "checks_debian_shlibs_binaries_missing_depends_on_libc")]
+#[test_case("checks/debian/shlibs/binaries-multiarch"; "checks_debian_shlibs_binaries_multiarch")]
+#[test_case("checks/debian/shlibs/binaries-multiarch-same"; "checks_debian_shlibs_binaries_multiarch_same")]
+#[test_case("checks/debian/shlibs/files-wrong-ma-foreign"; "checks_debian_shlibs_files_wrong_ma_foreign")]
 #[test_case("checks/debian/shlibs/legacy-debug"; "checks_debian_shlibs_legacy_debug")]
 #[test_case("checks/debian/shlibs/legacy-libbaz"; "checks_debian_shlibs_legacy_libbaz")]
 #[test_case("checks/debian/shlibs/shared-libs-control-file"; "checks_debian_shlibs_shared_libs_control_file")]
+#[test_case("checks/debian/shlibs/shared-libs-dev-symlink"; "checks_debian_shlibs_shared_libs_dev_symlink")]
+#[test_case("checks/debian/shlibs/shared-libs-dev-symlink-fp"; "checks_debian_shlibs_shared_libs_dev_symlink_fp")]
+#[test_case("checks/debian/shlibs/shared-libs-exec-bit"; "checks_debian_shlibs_shared_libs_exec_bit")]
+#[test_case("checks/debian/shlibs/shared-libs-exec-stack"; "checks_debian_shlibs_shared_libs_exec_stack")]
+#[test_case("checks/debian/shlibs/shared-libs-exit"; "checks_debian_shlibs_shared_libs_exit")]
+#[test_case("checks/debian/shlibs/shared-libs-exit-fork"; "checks_debian_shlibs_shared_libs_exit_fork")]
+#[test_case("checks/debian/shlibs/shared-libs-ldconfig-not-symlink"; "checks_debian_shlibs_shared_libs_ldconfig_not_symlink")]
+#[test_case("checks/debian/shlibs/shared-libs-ldconfig-scripts"; "checks_debian_shlibs_shared_libs_ldconfig_scripts")]
+#[test_case("checks/debian/shlibs/shared-libs-ldconfig-wrong-file"; "checks_debian_shlibs_shared_libs_ldconfig_wrong_file")]
+#[test_case("checks/debian/shlibs/shared-libs-missing-ldconfig-symlink"; "checks_debian_shlibs_shared_libs_missing_ldconfig_symlink")]
+#[test_case("checks/debian/shlibs/shared-libs-multi-arch-foreign"; "checks_debian_shlibs_shared_libs_multi_arch_foreign")]
+#[test_case("checks/debian/shlibs/shared-libs-no-gnu-stack"; "checks_debian_shlibs_shared_libs_no_gnu_stack")]
 #[test_case("checks/debian/shlibs/shared-libs-no-shared-lib"; "checks_debian_shlibs_shared_libs_no_shared_lib")]
+#[test_case("checks/debian/shlibs/shared-libs-non-dev-symlink"; "checks_debian_shlibs_shared_libs_non_dev_symlink")]
+#[test_case("checks/debian/shlibs/shared-libs-non-pic-i386"; "checks_debian_shlibs_shared_libs_non_pic_i386")]
 #[test_case("checks/debian/shlibs/shared-libs-symbols-file"; "checks_debian_shlibs_shared_libs_symbols_file")]
 #[test_case("checks/debian/shlibs/shared-libs-unversioned"; "checks_debian_shlibs_shared_libs_unversioned")]
 #[test_case("checks/desktop/dbus/dbus-policy"; "checks_desktop_dbus_dbus_policy")]

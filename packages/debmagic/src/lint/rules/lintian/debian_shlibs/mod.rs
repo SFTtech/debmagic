@@ -23,6 +23,7 @@ mod ln1040_surplus_shared_library_symbols;
 mod ln1041_unknown_meta_field_in_symbols_file;
 mod ln1332_empty_shared_library_symbols;
 mod ln1333_symbols_declares_dependency_on_other_package;
+mod ln1334_symbols_file_missing_build_depends_package_field;
 mod shlibs;
 mod symbols;
 
@@ -45,3 +46,4 @@ pub(crate) use ln1040_surplus_shared_library_symbols::SurplusSharedLibrarySymbol
 pub(crate) use ln1041_unknown_meta_field_in_symbols_file::UnknownMetaFieldInSymbolsFile;
 pub(crate) use ln1332_empty_shared_library_symbols::EmptySharedLibrarySymbols;
 pub(crate) use ln1333_symbols_declares_dependency_on_other_package::SymbolsDeclaresDependencyOnOtherPackage;
+pub(crate) use ln1334_symbols_file_missing_build_depends_package_field::SymbolsFileMissingBuildDependsPackageField;

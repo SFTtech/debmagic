@@ -14,10 +14,10 @@ use super::timing;
 pub(crate) struct BinaryPackageReader {
     path: PathBuf,
     deb_members: DebMembers,
-    control_tar_name: String,
-    control_tar: Vec<u8>,
-    data_tar_name: String,
-    data_tar: Vec<u8>,
+    /// Name and bytes of the Control and Data tarballs, `None` when the archive
+    /// has no such member. Their contents are indexed lazily.
+    control_tar: Option<(String, Vec<u8>)>,
+    data_tar: Option<(String, Vec<u8>)>,
     control_index: OnceLock<Result<TarballIndex, String>>,
     data_index: OnceLock<Result<TarballIndex, String>>,
 }
@@ -57,51 +57,53 @@ enum MemberKind {
 }
 
 impl BinaryPackageReader {
-    /// Open a Binary package. `debian-binary`, a Control tarball, and a Data
-    /// tarball must all be present (deb(5)); their contents are indexed later.
+    /// Open a Binary package. Any ar archive opens, whatever its members, so
+    /// that `deb-format` can report a malformed one (`malformed-deb-archive`).
+    /// A file without the ar magic is not a Binary package. A missing Control
+    /// or Data tarball fails only when its contents are asked for.
     pub(crate) fn from_path(path: impl Into<PathBuf>) -> anyhow::Result<Self> {
+        use std::io::{Seek, SeekFrom};
+
         let path = path.into();
-        let file = std::fs::File::open(&path)
+        let mut file = std::fs::File::open(&path)
             .with_context(|| format!("opening {} failed", path.display()))?;
+        let mut magic = [0u8; 8];
+        if file.read_exact(&mut magic).is_err() || &magic != b"!<arch>\n" {
+            bail!("{} is not an ar archive", path.display());
+        }
+        file.seek(SeekFrom::Start(0))
+            .with_context(|| format!("rewinding {} failed", path.display()))?;
         let mut archive = ar::Archive::new(file);
-        let mut debian_binary = false;
         let mut control_tar = None;
         let mut data_tar = None;
-        let mut deb_members = Vec::new();
+        let mut deb_members: Vec<DebMember> = Vec::new();
         while let Some(entry) = archive.next_entry() {
             let mut entry =
                 entry.with_context(|| format!("reading ar member from {}", path.display()))?;
             let name = ar_member_name(entry.header().identifier());
-            deb_members.push(DebMember::new(name.clone(), entry.header().size()));
+            let size = entry.header().size();
             let mut bytes = Vec::new();
             entry
                 .read_to_end(&mut bytes)
                 .with_context(|| format!("reading {name} from {}", path.display()))?;
-            if name == "debian-binary" {
-                debian_binary = true;
+            let first_debian_binary =
+                name == "debian-binary" && !deb_members.iter().any(|m| m.name() == name);
+            let mut member = DebMember::new(name.clone(), size);
+            if first_debian_binary {
+                member = member.with_contents(bytes.clone());
             } else if name.starts_with("control.tar") {
                 if control_tar.is_none() {
-                    control_tar = Some((name, bytes));
+                    control_tar = Some((name.clone(), bytes));
                 }
             } else if name.starts_with("data.tar") && data_tar.is_none() {
-                data_tar = Some((name, bytes));
+                data_tar = Some((name.clone(), bytes));
             }
+            deb_members.push(member);
         }
-        if !debian_binary {
-            bail!("{} has no debian-binary member", path.display());
-        }
-        let Some((control_tar_name, control_tar)) = control_tar else {
-            bail!("{} has no control.tar member", path.display());
-        };
-        let Some((data_tar_name, data_tar)) = data_tar else {
-            bail!("{} has no data.tar member", path.display());
-        };
         Ok(Self {
             path,
             deb_members: DebMembers::new(deb_members),
-            control_tar_name,
             control_tar,
-            data_tar_name,
             data_tar,
             control_index: OnceLock::new(),
             data_index: OnceLock::new(),
@@ -115,6 +117,12 @@ impl BinaryPackageReader {
     /// The ar members, in archive order.
     pub(crate) fn deb_members(&self) -> &DebMembers {
         &self.deb_members
+    }
+
+    /// Whether the archive has a member named `control.tar*`. Without one there
+    /// are no Control files and no Installation control.
+    pub(crate) fn has_control_tarball(&self) -> bool {
+        self.control_tar.is_some()
     }
 
     #[allow(dead_code)]
@@ -146,21 +154,17 @@ impl BinaryPackageReader {
     }
 
     fn control_index(&self) -> anyhow::Result<&TarballIndex> {
-        init_index(
-            &self.control_index,
-            &self.control_tar_name,
-            &self.control_tar,
-            self.path.as_path(),
-        )
+        let Some((name, bytes)) = &self.control_tar else {
+            bail!("{} has no control.tar member", self.path.display());
+        };
+        init_index(&self.control_index, name, bytes, self.path.as_path())
     }
 
     fn data_index(&self) -> anyhow::Result<&TarballIndex> {
-        init_index(
-            &self.data_index,
-            &self.data_tar_name,
-            &self.data_tar,
-            self.path.as_path(),
-        )
+        let Some((name, bytes)) = &self.data_tar else {
+            bail!("{} has no data.tar member", self.path.display());
+        };
+        init_index(&self.data_index, name, bytes, self.path.as_path())
     }
 }
 
@@ -453,7 +457,7 @@ mod tests {
     }
 
     #[test]
-    fn missing_data_tarball_is_an_error() -> anyhow::Result<()> {
+    fn missing_data_tarball_opens_and_fails_only_for_data_files() -> anyhow::Result<()> {
         let dir = TempDir::new()?;
         let path = dir.path().join("control-only.deb");
         write_ar_members(
@@ -463,10 +467,49 @@ mod tests {
                 ("control.tar.gz", &gzip_empty_tar()?),
             ],
         )?;
-        let error = BinaryPackageReader::from_path(&path)
-            .err()
-            .expect("control-only archive");
+        let reader = BinaryPackageReader::from_path(&path)?;
+        assert!(reader.has_control_tarball());
+        assert_eq!(reader.deb_members().iter().count(), 2);
+        let error = reader.data_file_tree().err().expect("no data.tar");
         assert!(error.to_string().contains("data.tar"), "{error}");
+        Ok(())
+    }
+
+    #[test]
+    fn archive_without_control_tarball_opens_with_no_control_files() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("bare.deb");
+        write_ar_members(&path, &[("debian-binary", b"3.0\n".as_slice())])?;
+        let reader = BinaryPackageReader::from_path(&path)?;
+        assert!(!reader.has_control_tarball());
+        assert!(reader.control_file_tree().is_err());
+        let control = crate::lint::installation_control::InstallationControl::from_reader(&reader)?;
+        assert!(control.fields().get("Package").is_none());
+        Ok(())
+    }
+
+    #[test]
+    fn debian_binary_contents_are_kept_for_the_format_version() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("example.deb");
+        write_test_deb(&path, "Package: example\n")?;
+        let reader = BinaryPackageReader::from_path(&path)?;
+        let member = reader.deb_members().debian_binary().expect("debian-binary");
+        assert_eq!(member.contents(), Some(b"2.0\n".as_slice()));
+        assert_eq!(member.size(), 4);
+        // Other members keep no contents.
+        let other = reader.deb_members().iter().nth(1).expect("control");
+        assert_eq!(other.contents(), None);
+        Ok(())
+    }
+
+    #[test]
+    fn a_file_without_the_ar_magic_is_not_a_binary_package() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("text.deb");
+        std::fs::write(&path, b"not an archive at all")?;
+        let error = BinaryPackageReader::from_path(&path).err().expect("not ar");
+        assert!(error.to_string().contains("not an ar archive"), "{error}");
         Ok(())
     }
 

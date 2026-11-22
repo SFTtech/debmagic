@@ -37,6 +37,7 @@ Then dive into the pages below — start with [Getting started](usage/getting-st
 usage/getting-started.md
 usage/build.md
 usage/test.md
+usage/lint.md
 usage/env.md
 usage/source.md
 usage/upload.md

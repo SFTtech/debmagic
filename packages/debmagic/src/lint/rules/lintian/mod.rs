@@ -1,6 +1,7 @@
 mod apache2;
 mod application_not_library;
 mod apt;
+mod archive_file_name_length;
 mod archive_liberty;
 mod autotools;
 mod binaries_architecture;
@@ -231,6 +232,7 @@ pub(crate) use application_not_library::LibappPerlPackageName;
 pub(crate) use apt::PackageInstallsAptKeyring;
 pub(crate) use apt::PackageInstallsAptPreferences;
 pub(crate) use apt::PackageInstallsAptSources;
+pub(crate) use archive_file_name_length::SourcePackageComponentHasLongFileName;
 pub(crate) use archive_liberty::ArchiveLibertyMismatch;
 pub(crate) use autotools::{
     AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,

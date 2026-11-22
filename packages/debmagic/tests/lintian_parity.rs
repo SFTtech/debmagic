@@ -8,6 +8,7 @@ mod common;
 use test_case::test_case;
 
 const SOURCE_TREE_RECIPES: &[&str] = &[
+    "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/archive/liberty/mismatch/fields-section-general",
     "checks/archive/liberty/mismatch/legacy-relations",
     "checks/build-systems/autotools/cruft-general-test-suite",
@@ -886,6 +887,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
 ];
 
 const SOURCE_PACKAGE_RECIPES: &[&str] = &[
+    "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/archive/liberty/mismatch/fields-section-general",
     "checks/archive/liberty/mismatch/legacy-relations",
     "checks/build-systems/autotools/cruft-general-test-suite",
@@ -1287,6 +1289,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
     assert_eq!(common::catalogued_source_package_recipe_rels(), listed);
 }
 
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
 #[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]
@@ -2167,6 +2170,7 @@ fn lintian_parity_binary_package(recipe: &str) {
     common::assert_binary_package_parity(recipe);
 }
 
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
 #[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]

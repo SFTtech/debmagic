@@ -276,6 +276,7 @@ use super::rules::PackageNameDoesntMatchSonames;
 use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
+use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SubstvarSourceVersionIsDeprecated,
         &LicenseProblemGfdlInvariants,
         &LicenseProblemGfdlNonOfficialText,
+        &PackageUsesOldDebhelperCompatVersion,
     ]
 }
 
@@ -2298,6 +2300,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SubstvarSourceVersionIsDeprecated,
         &LicenseProblemGfdlInvariants,
         &LicenseProblemGfdlNonOfficialText,
+        &PackageUsesOldDebhelperCompatVersion,
     ]
 }
 

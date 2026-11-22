@@ -34,6 +34,9 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-compat-experimental",
     "checks/debhelper/debhelper-compat-multiple",
     "checks/debhelper/debhelper-compat-multiple-unrel",
+    "checks/debhelper/debhelper-compat-old",
+    "checks/debhelper/debhelper-compat-virtual-relation",
+    "checks/debhelper/debhelper-compat-virtual-relation-both",
     "checks/debhelper/debhelper-compat-whitespace",
     "checks/debhelper/debhelper-deprecated",
     "checks/debhelper/debhelper-dh-clean-k-deprecated",
@@ -42,6 +45,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-dh-exec-useless",
     "checks/debhelper/debhelper-dh-python-helpers",
     "checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format",
+    "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
     "checks/debhelper/debhelper-dh-unnecessary-arguments",
     "checks/debhelper/debhelper-dh-with-python3",
     "checks/debhelper/debhelper-dh-with-quilt",
@@ -49,6 +53,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-executable-files",
     "checks/debhelper/debhelper-executable-files-compat-9",
     "checks/debhelper/debhelper-lacks-versioned-deps",
+    "checks/debhelper/debhelper-misc-depends-fp",
     "checks/debhelper/debhelper-no-depends",
     "checks/debhelper/debhelper-override-typos",
     "checks/debhelper/debhelper-script-token",
@@ -914,6 +919,9 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-compat-missing",
     "checks/debhelper/debhelper-compat-multiple",
     "checks/debhelper/debhelper-compat-multiple-unrel",
+    "checks/debhelper/debhelper-compat-old",
+    "checks/debhelper/debhelper-compat-virtual-relation",
+    "checks/debhelper/debhelper-compat-virtual-relation-both",
     "checks/debhelper/debhelper-compat-whitespace",
     "checks/debhelper/debhelper-deprecated",
     "checks/debhelper/debhelper-dh-clean-k-deprecated",
@@ -922,6 +930,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-dh-exec-useless",
     "checks/debhelper/debhelper-dh-python-helpers",
     "checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format",
+    "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
     "checks/debhelper/debhelper-dh-unnecessary-arguments",
     "checks/debhelper/debhelper-dh-with-python3",
     "checks/debhelper/debhelper-dh-with-quilt",
@@ -929,6 +938,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-executable-files",
     "checks/debhelper/debhelper-executable-files-compat-9",
     "checks/debhelper/debhelper-lacks-versioned-deps",
+    "checks/debhelper/debhelper-misc-depends-fp",
     "checks/debhelper/debhelper-no-depends",
     "checks/debhelper/debhelper-override-typos",
     "checks/debhelper/debhelper-script-token",
@@ -1315,6 +1325,9 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/debhelper-compat-experimental"; "checks_debhelper_debhelper_compat_experimental")]
 #[test_case("checks/debhelper/debhelper-compat-multiple"; "checks_debhelper_debhelper_compat_multiple")]
 #[test_case("checks/debhelper/debhelper-compat-multiple-unrel"; "checks_debhelper_debhelper_compat_multiple_unrel")]
+#[test_case("checks/debhelper/debhelper-compat-old"; "checks_debhelper_debhelper_compat_old")]
+#[test_case("checks/debhelper/debhelper-compat-virtual-relation"; "checks_debhelper_debhelper_compat_virtual_relation")]
+#[test_case("checks/debhelper/debhelper-compat-virtual-relation-both"; "checks_debhelper_debhelper_compat_virtual_relation_both")]
 #[test_case("checks/debhelper/debhelper-compat-whitespace"; "checks_debhelper_debhelper_compat_whitespace")]
 #[test_case("checks/debhelper/debhelper-deprecated"; "checks_debhelper_debhelper_deprecated")]
 #[test_case("checks/debhelper/debhelper-dh-clean-k-deprecated"; "checks_debhelper_debhelper_dh_clean_k_deprecated")]
@@ -1323,6 +1336,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/debhelper-dh-exec-useless"; "checks_debhelper_debhelper_dh_exec_useless")]
 #[test_case("checks/debhelper/debhelper-dh-python-helpers"; "checks_debhelper_debhelper_dh_python_helpers")]
 #[test_case("checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format"; "checks_debhelper_debhelper_dh_quilt_addon_but_quilt_source_format")]
+#[test_case("checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar"; "checks_debhelper_debhelper_dh_runit_but_lacks_breaks_substvar")]
 #[test_case("checks/debhelper/debhelper-dh-unnecessary-arguments"; "checks_debhelper_debhelper_dh_unnecessary_arguments")]
 #[test_case("checks/debhelper/debhelper-dh-with-python3"; "checks_debhelper_debhelper_dh_with_python3")]
 #[test_case("checks/debhelper/debhelper-dh-with-quilt"; "checks_debhelper_debhelper_dh_with_quilt")]
@@ -1330,6 +1344,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/debhelper-executable-files"; "checks_debhelper_debhelper_executable_files")]
 #[test_case("checks/debhelper/debhelper-executable-files-compat-9"; "checks_debhelper_debhelper_executable_files_compat_9")]
 #[test_case("checks/debhelper/debhelper-lacks-versioned-deps"; "checks_debhelper_debhelper_lacks_versioned_deps")]
+#[test_case("checks/debhelper/debhelper-misc-depends-fp"; "checks_debhelper_debhelper_misc_depends_fp")]
 #[test_case("checks/debhelper/debhelper-no-depends"; "checks_debhelper_debhelper_no_depends")]
 #[test_case("checks/debhelper/debhelper-override-typos"; "checks_debhelper_debhelper_override_typos")]
 #[test_case("checks/debhelper/debhelper-script-token"; "checks_debhelper_debhelper_script_token")]
@@ -2197,6 +2212,9 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/debhelper-compat-missing"; "checks_debhelper_debhelper_compat_missing")]
 #[test_case("checks/debhelper/debhelper-compat-multiple"; "checks_debhelper_debhelper_compat_multiple")]
 #[test_case("checks/debhelper/debhelper-compat-multiple-unrel"; "checks_debhelper_debhelper_compat_multiple_unrel")]
+#[test_case("checks/debhelper/debhelper-compat-old"; "checks_debhelper_debhelper_compat_old")]
+#[test_case("checks/debhelper/debhelper-compat-virtual-relation"; "checks_debhelper_debhelper_compat_virtual_relation")]
+#[test_case("checks/debhelper/debhelper-compat-virtual-relation-both"; "checks_debhelper_debhelper_compat_virtual_relation_both")]
 #[test_case("checks/debhelper/debhelper-compat-whitespace"; "checks_debhelper_debhelper_compat_whitespace")]
 #[test_case("checks/debhelper/debhelper-deprecated"; "checks_debhelper_debhelper_deprecated")]
 #[test_case("checks/debhelper/debhelper-dh-clean-k-deprecated"; "checks_debhelper_debhelper_dh_clean_k_deprecated")]
@@ -2205,6 +2223,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/debhelper-dh-exec-useless"; "checks_debhelper_debhelper_dh_exec_useless")]
 #[test_case("checks/debhelper/debhelper-dh-python-helpers"; "checks_debhelper_debhelper_dh_python_helpers")]
 #[test_case("checks/debhelper/debhelper-dh-quilt-addon-but-quilt-source-format"; "checks_debhelper_debhelper_dh_quilt_addon_but_quilt_source_format")]
+#[test_case("checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar"; "checks_debhelper_debhelper_dh_runit_but_lacks_breaks_substvar")]
 #[test_case("checks/debhelper/debhelper-dh-unnecessary-arguments"; "checks_debhelper_debhelper_dh_unnecessary_arguments")]
 #[test_case("checks/debhelper/debhelper-dh-with-python3"; "checks_debhelper_debhelper_dh_with_python3")]
 #[test_case("checks/debhelper/debhelper-dh-with-quilt"; "checks_debhelper_debhelper_dh_with_quilt")]
@@ -2212,6 +2231,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/debhelper-executable-files"; "checks_debhelper_debhelper_executable_files")]
 #[test_case("checks/debhelper/debhelper-executable-files-compat-9"; "checks_debhelper_debhelper_executable_files_compat_9")]
 #[test_case("checks/debhelper/debhelper-lacks-versioned-deps"; "checks_debhelper_debhelper_lacks_versioned_deps")]
+#[test_case("checks/debhelper/debhelper-misc-depends-fp"; "checks_debhelper_debhelper_misc_depends_fp")]
 #[test_case("checks/debhelper/debhelper-no-depends"; "checks_debhelper_debhelper_no_depends")]
 #[test_case("checks/debhelper/debhelper-override-typos"; "checks_debhelper_debhelper_override_typos")]
 #[test_case("checks/debhelper/debhelper-script-token"; "checks_debhelper_debhelper_script_token")]

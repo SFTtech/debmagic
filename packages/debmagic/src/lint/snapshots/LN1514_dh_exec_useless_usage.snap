@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): dh-exec-useless-usage (LN1514) [debian/install]
+I: example (source): dh-exec-useless-usage (LN1514) [debian/pkg.manpages]
+I: example (source): dh-exec-useless-usage (LN1514) [debian/install]

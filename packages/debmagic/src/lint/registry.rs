@@ -92,6 +92,7 @@ use super::rules::DebianControlFileIsASymlink;
 use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
+use super::rules::DebianRulesContainsUnnecessaryGetOrigSourceTarget;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
@@ -2181,6 +2182,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PatchNotForwardedUpstream,
         &QuiltPatchUsesDpatchPlaceholder,
         &QuiltPatchUsingTemplateDescription,
+        &DebianRulesContainsUnnecessaryGetOrigSourceTarget,
     ]
 }
 
@@ -2585,6 +2587,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PatchNotForwardedUpstream,
         &QuiltPatchUsesDpatchPlaceholder,
         &QuiltPatchUsingTemplateDescription,
+        &DebianRulesContainsUnnecessaryGetOrigSourceTarget,
     ]
 }
 

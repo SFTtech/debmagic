@@ -378,12 +378,12 @@ pub(crate) use debian_changelog::{
     LatestDebianChangelogEntryReusesExistingVersion, MaintainerUploadHasIncorrectVersionNumber,
     MalformedDebianChangelogVersion, MisspelledClosesBug, NewPackageUsesDateBasedVersionNumber,
     NmuInChangelog, NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
-    PossibleNewUpstreamReleaseWithoutNewVersion, QaUploadHasIncorrectVersionNumber,
-    RcVersionGreaterThanExpectedVersion, SourceNmuHasIncorrectVersionNumber,
-    SyntaxErrorInDebianNewsFile, TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload,
-    UploadersInOrphan, VersionRefersToDistribution,
-    VersionRefersToUnstableDistributionWithExpVersion, WrongBugNumberInCloses,
-    WrongNameForDebianNewsFile,
+    PossibleMissingColonInCloses, PossibleNewUpstreamReleaseWithoutNewVersion,
+    QaUploadHasIncorrectVersionNumber, RcVersionGreaterThanExpectedVersion,
+    SourceNmuHasIncorrectVersionNumber, SyntaxErrorInDebianNewsFile,
+    TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload, UploadersInOrphan,
+    VersionRefersToDistribution, VersionRefersToUnstableDistributionWithExpVersion,
+    WrongBugNumberInCloses, WrongNameForDebianNewsFile,
 };
 pub(crate) use debian_copyright::{
     AmbiguousParagraphInDep5Copyright, BadExceptionFormatInDep5Copyright,

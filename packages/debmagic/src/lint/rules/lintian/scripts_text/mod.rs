@@ -46,6 +46,7 @@ mod ln1187_tclsh_script_but_no_tclsh_dep;
 mod ln1188_trailing_slash_for_dpkg_maintscript_helper_symlink_to_dir;
 mod ln1189_unknown_control_interpreter;
 mod ln1190_wish_script_but_no_wish_dep;
+mod ln1428_maintainer_script_switches_dir_to_symlink_unsafely;
 mod scan;
 
 pub(crate) use ln0186_maintainer_script_calls_install_sgmlcatalog::MaintainerScriptCallsInstallSgmlcatalog;
@@ -91,3 +92,4 @@ pub(crate) use ln1187_tclsh_script_but_no_tclsh_dep::TclshScriptButNoTclshDep;
 pub(crate) use ln1188_trailing_slash_for_dpkg_maintscript_helper_symlink_to_dir::TrailingSlashForDpkgMaintscriptHelperSymlinkToDir;
 pub(crate) use ln1189_unknown_control_interpreter::UnknownControlInterpreter;
 pub(crate) use ln1190_wish_script_but_no_wish_dep::WishScriptButNoWishDep;
+pub(crate) use ln1428_maintainer_script_switches_dir_to_symlink_unsafely::MaintainerScriptSwitchesDirToSymlinkUnsafely;

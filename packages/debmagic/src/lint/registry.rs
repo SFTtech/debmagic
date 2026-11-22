@@ -166,6 +166,7 @@ use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
 use super::rules::LacksVersionedLinkToSharedLibrary;
 use super::rules::LdconfigSymlinkIsNotASymlink;
+use super::rules::LdconfigSymlinkReferencingWrongFile;
 use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
@@ -1949,6 +1950,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RustBoilerplate,
         &LacksVersionedLinkToSharedLibrary,
         &LdconfigSymlinkIsNotASymlink,
+        &LdconfigSymlinkReferencingWrongFile,
     ]
 }
 
@@ -3091,6 +3093,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &RequiresRApi,
         &LacksVersionedLinkToSharedLibrary,
         &LdconfigSymlinkIsNotASymlink,
+        &LdconfigSymlinkReferencingWrongFile,
     ]
 }
 

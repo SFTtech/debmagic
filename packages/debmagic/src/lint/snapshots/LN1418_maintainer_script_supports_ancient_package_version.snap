@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): maintainer-script-supports-ancient-package-version (LN1418) 0.5 (2009-02-07 < 2023-06-10) [postinst:2]
+I: example (binary): maintainer-script-supports-ancient-package-version (LN1418) 0.5 (2009-02-07 < 2023-06-10) [postinst:2]
+I: example (binary): maintainer-script-supports-ancient-package-version (LN1418) 0.5 (2009-02-07 < 2023-06-10) [postinst:4]

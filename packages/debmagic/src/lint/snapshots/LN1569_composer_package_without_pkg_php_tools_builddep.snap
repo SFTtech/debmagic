@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: foo (source): composer-package-without-pkg-php-tools-builddep (LN1569) [composer.json]
+I: foo (source): composer-package-without-pkg-php-tools-builddep (LN1569) [composer.json]
+I: foo (source): composer-package-without-pkg-php-tools-builddep (LN1569) [composer.json]

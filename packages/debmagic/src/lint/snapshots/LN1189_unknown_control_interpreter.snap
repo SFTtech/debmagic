@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unknown-control-interpreter (LN1189) /usr/bin/unknown [postinst]
+E: example (binary): unknown-control-interpreter (LN1189) /usr/bin/unknown [prerm]
+E: example (binary): unknown-control-interpreter (LN1189) /usr/bin/env [preinst]
+E: example (udeb): unknown-control-interpreter (LN1189) /usr/bin/unknown [postinst]

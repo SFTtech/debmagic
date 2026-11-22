@@ -343,6 +343,7 @@ use super::rules::UnexpectedConffile;
 use super::rules::UnknownArchitecture;
 use super::rules::UnknownConffileInstruction;
 use super::rules::UnknownControlFile;
+use super::rules::UnknownControlInterpreter;
 use super::rules::UnknownEncodingInPoFile;
 use super::rules::UnknownEssentialValue;
 use super::rules::UnknownFileInDebianSource;
@@ -1823,6 +1824,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ScriptUsesDeprecatedNodejsLocation,
         &TclshScriptButNoTclshDep,
         &TrailingSlashForDpkgMaintscriptHelperSymlinkToDir,
+        &UnknownControlInterpreter,
     ]
 }
 
@@ -2902,6 +2904,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ScriptUsesDeprecatedNodejsLocation,
         &TclshScriptButNoTclshDep,
         &TrailingSlashForDpkgMaintscriptHelperSymlinkToDir,
+        &UnknownControlInterpreter,
     ]
 }
 

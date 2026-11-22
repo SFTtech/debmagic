@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+W: a (binary): package-contains-broken-symlink-wildcard (LN1504) etc/some-*.conf [etc/x.conf]
+W: b (binary): package-contains-broken-symlink-wildcard (LN1504) ../x/*.so [usr/lib/y/libz.so]
+W: a (binary): package-contains-broken-symlink-wildcard (LN1504) etc/some-*.conf [etc/x.conf]
+W: a (binary): package-contains-broken-symlink-wildcard (LN1504) etc/some-*.conf [etc/x.conf]
+W: c-udeb (udeb): package-contains-broken-symlink-wildcard (LN1504) other-* [etc/y.conf]

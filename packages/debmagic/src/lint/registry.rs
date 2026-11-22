@@ -323,6 +323,7 @@ use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
 use super::rules::PackageContainsAncientFile;
+use super::rules::PackageContainsBrokenSymlinkWildcard;
 use super::rules::PackageContainsCmakePrivateFile;
 use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
 use super::rules::PackageContainsEmptyDirectory;
@@ -2181,6 +2182,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DependencyIsNotMultiArchified,
         &MissingNoticeFileForApacheLicense,
         &LacksUnversionedLinkToSharedLibrary,
+        &PackageContainsBrokenSymlinkWildcard,
     ]
 }
 
@@ -3451,6 +3453,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &DependencyIsNotMultiArchified,
         &MissingNoticeFileForApacheLicense,
         &LacksUnversionedLinkToSharedLibrary,
+        &PackageContainsBrokenSymlinkWildcard,
     ]
 }
 

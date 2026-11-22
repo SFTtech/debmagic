@@ -132,6 +132,7 @@ use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
+use super::rules::FileContainsFixmePlaceholder;
 use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
@@ -1937,6 +1938,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianWatchUsesInsecureUri,
         &DebianControlHasObsoleteDbgPackage,
         &TypelibInArchAllPackage,
+        &FileContainsFixmePlaceholder,
     ]
 }
 
@@ -2300,6 +2302,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SubstvarSourceVersionIsDeprecated,
         &DebianWatchUsesInsecureUri,
         &DebianControlHasObsoleteDbgPackage,
+        &FileContainsFixmePlaceholder,
     ]
 }
 

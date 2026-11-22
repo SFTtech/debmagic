@@ -539,6 +539,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/manual/executable-without-english-manpage",
     "checks/documentation/manual/executable-without-manpage",
     "checks/documentation/manual/files-general",
+    "checks/documentation/manual/fsstnd-dir-in-manual-page",
     "checks/documentation/manual/legacy-binary",
     "checks/documentation/manual/legacy-filenames",
     "checks/documentation/manual/legacy-scripts",
@@ -1838,6 +1839,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/manual/executable-without-english-manpage"; "checks_documentation_manual_executable_without_english_manpage")]
 #[test_case("checks/documentation/manual/executable-without-manpage"; "checks_documentation_manual_executable_without_manpage")]
 #[test_case("checks/documentation/manual/files-general"; "checks_documentation_manual_files_general")]
+#[test_case("checks/documentation/manual/fsstnd-dir-in-manual-page"; "checks_documentation_manual_fsstnd_dir_in_manual_page")]
 #[test_case("checks/documentation/manual/legacy-binary"; "checks_documentation_manual_legacy_binary")]
 #[test_case("checks/documentation/manual/legacy-filenames"; "checks_documentation_manual_legacy_filenames")]
 #[test_case("checks/documentation/manual/legacy-scripts"; "checks_documentation_manual_legacy_scripts")]

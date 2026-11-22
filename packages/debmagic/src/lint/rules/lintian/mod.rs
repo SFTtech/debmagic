@@ -368,6 +368,7 @@ pub(crate) use languages_puppet::PuppetModuleButNotDhPuppet;
 pub(crate) use languages_ruby::RubyInterpreterIsDeprecated;
 pub(crate) use languages_ruby::RubygemHomepage;
 pub(crate) use languages_rust::EmptyRustLibraryDeclaresProvides;
+pub(crate) use languages_rust::RustBoilerplate;
 pub(crate) use libraries_debug_symbols::StrippedLibrary;
 pub(crate) use libraries_shared_file_permissions::OddPermissionsOnSharedLibrary;
 pub(crate) use libraries_shared_file_permissions::SharedLibraryIsExecutable;

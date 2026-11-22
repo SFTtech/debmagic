@@ -231,6 +231,7 @@ mod nodejs;
 mod origtar;
 mod po_debconf;
 mod rules_and_control;
+mod script_syntax;
 mod scripts_calls;
 mod scripts_depends;
 mod scripts_interpreters;
@@ -486,6 +487,7 @@ pub(crate) use libraries_shared_trigger_ldconfig::PackageHasUnnecessaryActivatio
 pub(crate) use maintainer_scripts_ancient_version::MaintainerScriptSupportsAncientPackageVersion;
 pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStatoverride;
 pub(crate) use origtar::EmptyUpstreamSources;
+pub(crate) use script_syntax::MaintainerShellScriptFailsSyntaxCheck;
 pub(crate) use shell_csh::CshConsideredHarmful;
 pub(crate) use shell_non_posix_bash_centric::BashTermInPosixShell;
 pub(crate) use shell_non_posix_bash_centric::PossibleBashismInMaintainerScript;

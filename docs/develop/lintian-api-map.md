@@ -119,3 +119,17 @@ Extras keep lintian's words and order. Recipes are the oracle.
 | `Lintian::Deb822` | `ControlParagraph`, `DebianControl::parse`, `Dsc::parse` | |
 | `quilt` | `ctx.quilt_series()` | `patches()` and `mentions()` (ADR 0050). |
 | `Font::TTF` | `sfnt::Sfnt`, `sfnt::SfntMagic` | ADR 0052. |
+
+## Vendored iso-codes tables
+
+`files/locales` reads lintian's `/usr/share/iso-codes` data at run time. debmagic vendors the derived tables under `packages/debmagic/src/lint/data/files/` instead, so results do not depend on the host:
+
+| File | Content | lintian |
+| --- | --- | --- |
+| `locale-codes` | alpha_2 and alpha_3 of every ISO 639-3 entry, except reserved and special (`S`) types | `LOCALE_CODES` keys |
+| `locale-group-codes` | alpha_3 of every ISO 639-5 entry | `LOCALE_GROUP_CODES` keys |
+| `locale-preferred-codes` | `alpha_3 alpha_2` for each code with a two-letter code | `LOCALE_CODES` values (`incorrect-locale-code` fix) |
+
+The confusing language and country pairs (`al`→`sq`, `en_UK`→`en_GB`, ...) are lintian constants, kept in `rules/lintian/files_locales/locale_folder.rs`.
+
+Regenerate with `scripts/vendor_iso_codes.py` (stdlib only). It reads `iso_639-3.json` and `iso_639-5.json` from `--json-dir` (default `/usr/share/iso-codes/json`) and writes the three files to `--out-dir`. `--version` is recorded in each table header; by default it is the upstream part of the installed `iso-codes` package (epoch and Debian revision removed). The vendored tables are pinned to iso-codes **4.20.1**, so regenerate with `--version 4.20.1` on a host with another version only if the pin is moved on purpose; the result must then be reviewed as a data change. Run `uv run pytest tests/test_vendor_iso_codes.py` after changing the script.

@@ -1,8 +1,8 @@
 use std::os::unix::ffi::OsStrExt;
 
+use super::locale_folder::{LocaleFolder, iso_codes};
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
-use crate::lint::data;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
@@ -30,66 +30,29 @@ declare_rule! {
     experimental = false,
 }
 
-/// lintian's `%CONFUSING_LANGUAGES` keys: codes that are not the ISO 639 code.
-const CONFUSING_LANGUAGES: [&[u8]; 6] = [b"al", b"cn", b"cz", b"dk", b"gr", b"in"];
-
-/// lintian's `%CONFUSING_COUNTRIES` keys.
-const CONFUSING_COUNTRIES: [&[u8]; 1] = [b"en_UK"];
-
-const LOCALE_CODES: &str = include_str!("../../../data/files/locale-codes");
-const LOCALE_GROUP_CODES: &str = include_str!("../../../data/files/locale-group-codes");
-
-/// The folder name's directory part under `usr/share/locale/`, if the entry is one.
-fn locale_folder(path: &[u8]) -> Option<&[u8]> {
-    let folder = path.strip_prefix(b"usr/share/locale/")?;
-    (!folder.is_empty() && !folder.contains(&b'/')).then_some(folder)
-}
-
-fn is_known_code(code: &[u8]) -> bool {
-    let known = |line: &str| line.as_bytes() == code;
-    data::lines(LOCALE_CODES).any(known) || data::lines(LOCALE_GROUP_CODES).any(known)
-}
-
 impl BinaryPackageRule for UnknownLocaleCode {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
         let Some(files) = ctx.data_files() else {
             return;
         };
+        let tables = iso_codes();
         let mut reports = Vec::new();
         for entry in files.entries() {
             if !entry.is_dir() {
                 continue;
             }
-            let Some(folder) = locale_folder(entry.path().as_os_str().as_bytes()) else {
+            let Some(folder) = LocaleFolder::parse(entry.path().as_os_str().as_bytes()) else {
                 continue;
             };
-            // Without encoding or modifier.
-            let without_encoding = folder
-                .split(|&byte| byte == b'.' || byte == b'@')
-                .next()
-                .unwrap_or_default();
-            if without_encoding == b"l10n" {
-                continue;
-            }
-            // Without country.
-            let language = without_encoding
-                .split(|&byte| byte == b'_')
-                .next()
-                .unwrap_or_default();
-            if language.is_empty() {
-                continue;
-            }
-            if CONFUSING_LANGUAGES.contains(&language)
-                || CONFUSING_COUNTRIES.contains(&without_encoding)
+            if folder.is_confusing()
+                || tables.is_locale_code(folder.language)
+                || tables.is_group_code(folder.language)
             {
-                continue;
-            }
-            if is_known_code(language) {
                 continue;
             }
             reports.push((
                 entry.path().to_path_buf(),
-                String::from_utf8_lossy(folder).into_owned(),
+                String::from_utf8_lossy(folder.name).into_owned(),
             ));
         }
         for (path, folder) in reports {

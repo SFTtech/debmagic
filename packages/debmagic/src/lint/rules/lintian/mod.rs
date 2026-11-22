@@ -317,6 +317,7 @@ pub(crate) use control_files::NotAllowedControlFile;
 pub(crate) use control_files::UnknownControlFile;
 pub(crate) use cruft::LicenseProblemCcByNcSa;
 pub(crate) use cruft::LicenseProblemGfdlInvariants;
+pub(crate) use cruft::LicenseProblemGfdlInvariantsEmpty;
 pub(crate) use cruft::LicenseProblemGfdlNonOfficialText;
 pub(crate) use cruft::LicenseProblemJsonEvil;
 pub(crate) use cruft::LicenseProblemNonFreeRFC;

@@ -224,6 +224,7 @@ use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
 use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
 use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemGfdlInvariants;
+use super::rules::LicenseProblemGfdlInvariantsEmpty;
 use super::rules::LicenseProblemGfdlNonOfficialText;
 use super::rules::LicenseProblemJsonEvil;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
@@ -2173,6 +2174,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &DeprecatedConfigureFilename,
+        &LicenseProblemGfdlInvariantsEmpty,
     ]
 }
 
@@ -2573,6 +2575,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InstallableFieldMirrorsSource,
         &InconsistentAppstreamMetadataLicense,
         &DeprecatedConfigureFilename,
+        &LicenseProblemGfdlInvariantsEmpty,
     ]
 }
 

@@ -8,6 +8,7 @@ mod ln1272_license_problem_nvidia_intellectual;
 mod ln1273_license_problem_old_unicode;
 mod ln1302_license_problem_gfdl_invariants;
 mod ln1303_license_problem_gfdl_non_official_text;
+mod ln1512_license_problem_gfdl_invariants_empty;
 
 pub(crate) use ln1267_license_problem_cc_by_nc_sa::LicenseProblemCcByNcSa;
 pub(crate) use ln1269_license_problem_json_evil::LicenseProblemJsonEvil;
@@ -17,3 +18,4 @@ pub(crate) use ln1272_license_problem_nvidia_intellectual::LicenseProblemNvidiaI
 pub(crate) use ln1273_license_problem_old_unicode::LicenseProblemOldUnicode;
 pub(crate) use ln1302_license_problem_gfdl_invariants::LicenseProblemGfdlInvariants;
 pub(crate) use ln1303_license_problem_gfdl_non_official_text::LicenseProblemGfdlNonOfficialText;
+pub(crate) use ln1512_license_problem_gfdl_invariants_empty::LicenseProblemGfdlInvariantsEmpty;

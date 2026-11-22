@@ -469,7 +469,7 @@ pub(crate) use debian_rules::{
     BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,
     DebianRulesCallsDebhelperInOddOrder, DebianRulesCallsNproc, DebianRulesCallsPwd,
     DebianRulesIgnoresMakeCleanError, DebianRulesIsDhMakeTemplate, DebianRulesIsSymlink,
-    DebianRulesMissingRequiredTarget, DebianRulesNotAMakefile,
+    DebianRulesMissingRequiredTarget, DebianRulesNotAMakefile, DebianRulesParsesDpkgParsechangelog,
     DebianRulesPassesVersionInfoToDhShlibdeps, DebianRulesSetsDebBuildOptions,
     DebianRulesSetsDhCompat, DebianRulesSetsDpkgArchitectureVariable,
     DebianRulesShouldNotSetCFLAGSFromNoopt, DebianRulesShouldNotUseDhExtraAddons,

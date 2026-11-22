@@ -869,7 +869,7 @@ fn rules_use_nodejs(source: &Path) -> bool {
 // compares against, not what is built.
 
 /// Bumped when the key layout or what is stored changes.
-const BUILD_CACHE_FORMAT: &str = "2";
+const BUILD_CACHE_FORMAT: &str = "3";
 
 fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
@@ -1333,10 +1333,6 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "the recipe builds with `--buildsystem=R`, and the host has no `Debian::Debhelper::Buildsystem::R` (the `dh-r` package)",
     ),
     (
-        "checks/fields/multi-line/multiple-lines-in-maintainer-field",
-        "the recipe's `build-spec/post-build.sh` rewrites the built product, and the harness does not run post-build scripts",
-    ),
-    (
         "checks/debian/debconf/debconf-config-not-executable",
         "the recipe's `control-file-has-bad-permissions config 0644 != 0755` hint names the file, which lintian 2.144.0's ControlFiles.pm does not emit (the control-files-bad recipe agrees with the code)",
     ),
@@ -1372,10 +1368,6 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "checks/binaries/prerequisites/numpy/binaries-missing-depends-on-numpy-abi",
         "the recipe's `setup.py` imports `setuptools` and `numpy`, and this host has neither for python3",
     ),
-    (
-        "checks/fields/checksums/no-sha256-checksum",
-        "the recipe's `build-spec/post-build.sh` strips `Checksums-Sha256` from the `.dsc`, and the harness does not run post-build scripts",
-    ),
 ];
 
 /// Recipes whose expected hints cannot show up in a Source tree, because the
@@ -1392,6 +1384,10 @@ const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[
     (
         "checks/fields/checksums/no-sha256-checksum",
         "the hint is about the built `.dsc`'s `Checksums-Sha256`, and a Source tree has no `.dsc`",
+    ),
+    (
+        "checks/fields/multi-line/multiple-lines-in-maintainer-field",
+        "the recipe's `post-build` hook breaks the `Maintainer` line of the built `.dsc`, and a Source tree has no `.dsc`",
     ),
 ];
 
@@ -1828,6 +1824,43 @@ fn vendored_pre_build_for_orig(recipe: &Path) -> Option<PathBuf> {
     hook.is_file().then_some(hook)
 }
 
+/// `build-spec/post-build`, the filled hook lintian's Makefile runs on the
+/// built product (`$(post_build) $(product)`) after `dpkg-source` or
+/// `dpkg-buildpackage`. The importer keeps it for every recipe that has one;
+/// the product name is its first argument.
+fn vendored_post_build(recipe: &Path) -> Option<PathBuf> {
+    let hook = recipe.join(VENDORED_BUILD_SPEC).join("post-build");
+    hook.is_file().then_some(hook)
+}
+
+/// Runs the vendored `post-build` hook on `product` as lintian's Makefile does:
+/// in the build directory (the product's), with the product's name as the
+/// argument. `LINTIAN_SOURCE_PATH` is where the files the hook reads from the
+/// recipe (a signing key) are kept.
+fn run_post_build(hook: &Path, product: &Path) {
+    let dir = product
+        .parent()
+        .expect("product lives in the build directory");
+    let name = product.file_name().expect("product has a name");
+    let output = Command::new("sh")
+        .arg(hook)
+        .arg(name)
+        .current_dir(dir)
+        .env(
+            "LINTIAN_SOURCE_PATH",
+            hook.parent().expect("hook lives in build-spec"),
+        )
+        .output()
+        .expect("spawning post-build hook");
+    assert!(
+        output.status.success(),
+        "{}: post-build hook failed\nstdout:\n{}\nstderr:\n{}",
+        hook.display(),
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
 /// Runs the vendored `pre-build` hook on the package directory, after the
 /// main orig is packed and before `dpkg-source -b`, as lintian's upload
 /// builder does. The hook reaches the orig tarballs through `$1/../`.
@@ -1946,6 +1979,16 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     });
     key.field("pre-build", pre_build_text.as_deref().unwrap_or_default());
     key.field("has-pre-build", &[u8::from(pre_build.is_some())]);
+    // The `post-build` hook of a `source-*` skeleton rewrites the `.dsc`; an
+    // `upload-*` one rewrites the `.changes`, which this build does not make.
+    let post_build = vendored_post_build(recipe).filter(|_| {
+        recipe_skeleton(recipe).is_some_and(|skeleton| skeleton.starts_with("source-"))
+    });
+    let post_build_text = post_build.as_ref().map(|hook| {
+        fs::read(hook).unwrap_or_else(|error| panic!("reading {}: {error}", hook.display()))
+    });
+    key.field("post-build", post_build_text.as_deref().unwrap_or_default());
+    key.field("has-post-build", &[u8::from(post_build.is_some())]);
 
     let products = build_once(key.finish(), work, || {
         let packing = SourcePacking {
@@ -1954,6 +1997,7 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             root_adds: &root_adds,
             hook: hook.as_deref(),
             pre_build: pre_build.as_deref(),
+            post_build: post_build.as_deref(),
             non_native,
         };
         pack_source_package(recipe, work, &source, packing);
@@ -1982,6 +2026,7 @@ struct SourcePacking<'a> {
     root_adds: &'a [String],
     hook: Option<&'a Path>,
     pre_build: Option<&'a Path>,
+    post_build: Option<&'a Path>,
     non_native: bool,
 }
 
@@ -1994,6 +2039,7 @@ fn pack_source_package(recipe: &Path, work: &Path, source: &Path, packing: Sourc
         root_adds,
         hook,
         pre_build,
+        post_build,
         non_native,
     } = packing;
     if let Some(hook) = hook {
@@ -2036,7 +2082,10 @@ fn pack_source_package(recipe: &Path, work: &Path, source: &Path, packing: Sourc
         (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
     }
     assert!(ok, "{recipe:?}: dpkg-source -b failed\n{stdout}\n{stderr}");
-    find_dsc(work);
+    let dsc = find_dsc(work);
+    if let Some(post_build) = post_build {
+        run_post_build(post_build, &dsc);
+    }
 }
 
 pub fn assert_source_package_parity(recipe_rel: &str) {
@@ -2484,7 +2533,8 @@ fn dpkg_build_upload(source: &Path) -> (bool, String) {
 /// a filled `changes` skeleton is put together by its own Makefile (it copies
 /// the referenced files next to `test.changes`); an `upload-*` recipe is built
 /// with `dpkg-buildpackage`, packing a main orig tarball when it asks for one
-/// (as the Source-package harness does).
+/// (as the Source-package harness does), and the recipe's `post-build` hook
+/// then rewrites the `.changes`.
 fn assemble_group(recipe: &Path, work: &Path) -> PathBuf {
     if recipe_skeleton(recipe).as_deref() == Some("changes") {
         let source = work.join("src");
@@ -2526,7 +2576,11 @@ fn assemble_group(recipe: &Path, work: &Path) -> PathBuf {
             "{recipe:?}: dpkg-buildpackage failed after orig {name}\n{text}"
         );
     }
-    find_changes(work)
+    let changes = find_changes(work);
+    if let Some(post_build) = vendored_post_build(recipe) {
+        run_post_build(&post_build, &changes);
+    }
+    changes
 }
 
 /// Build the recipe's Group, lint its `.changes` as lintian's runner does, and

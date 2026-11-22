@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu  # why not set -USA ?
+
+# Words "privet" and "konnichi wa" are written in EUC-JP encoding.
+DESTDIR=$(perl -e 'print "bonjour/\xA7\xE1\xA7\xE2\xA7\xDA\xA7\xD3\xA7\xD6\xA7\xE4/\xBA\xA3\xC6\xFC\xA4\xCF"')
+
+mkdir -p "${DESTDIR}"
+mv non-ascii-path_1.0.orig.tar.[gx]z "${DESTDIR}/"
+mv $1 "${DESTDIR}/"
+rm non-ascii-path_1.0-1.debian.tar.xz
+
+ln -s "${DESTDIR}/$1" .

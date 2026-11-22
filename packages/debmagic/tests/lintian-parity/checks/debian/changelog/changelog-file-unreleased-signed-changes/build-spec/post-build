@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+# create a temporary directory
+TEMPDIR=`mktemp -d`
+
+# import public key
+gpg --homedir "$TEMPDIR" --import "${LINTIAN_SOURCE_PATH}/public.key"
+
+# import private key
+gpg --homedir "$TEMPDIR" --allow-secret-key-import --import "${LINTIAN_SOURCE_PATH}/private.key"
+
+# sign changes file
+gpg --homedir "$TEMPDIR" --clearsign "$1"
+
+# save unsigned changes file elsewhere
+mv "$1" "$1.unsigned"
+
+# move signed changes file to expected location
+mv "$1.asc" "$1"
+
+# remove the temporary directory
+rm -rf "$TEMPDIR"

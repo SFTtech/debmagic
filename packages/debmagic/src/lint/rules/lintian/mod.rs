@@ -105,6 +105,7 @@ mod files_init;
 mod files_installed;
 mod files_ld_so;
 mod files_licenses;
+mod files_locales;
 mod files_missing;
 mod files_multi_arch;
 mod files_names;
@@ -124,10 +125,12 @@ mod fonts;
 mod fonts_opentype;
 mod fonts_truetype;
 mod games;
+mod images_filenames;
 mod images_thumbnails;
 mod includes_config_h;
 mod init_scripts;
 mod known_fields;
+mod languages_clojure_dh_clojure;
 mod languages_fortran_gfortran;
 mod languages_golang_module_path;
 mod languages_java;
@@ -188,6 +191,7 @@ mod ln0858_package_contains_cmake_private_file;
 mod ln0927_missing_depends_on_sensible_utils;
 mod ln1086_source_contains_prebuilt_silverlight_object;
 mod ln1235_trailing_comma_in_maintainer_field;
+mod ln1387_source_contains_prebuilt_binary;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_adduser;
@@ -361,15 +365,20 @@ pub(crate) use files_init::PackageInstallsIntoEtcRcBoot;
 pub(crate) use files_init::PackageInstallsIntoEtcRcD;
 pub(crate) use files_ld_so::PackageModifiesLdSoSearchPath;
 pub(crate) use files_licenses::ExtraLicenseFile;
+pub(crate) use files_locales::UnknownLocaleCode;
 pub(crate) use files_missing::MissingIntermediateDirectory;
 pub(crate) use files_scripts::ScriptWithLanguageExtension;
 pub(crate) use files_special::SpecialFile;
 pub(crate) use fonts::DuplicateFontFile;
 pub(crate) use fonts::FontInNonFontPackage;
+pub(crate) use fonts::FontOutsideFontDir;
 pub(crate) use fonts::WoffFontInWrongDir;
+pub(crate) use images_filenames::ImageFileHasConflictingName;
+pub(crate) use images_filenames::ImageFileHasUnexpectedName;
 pub(crate) use images_thumbnails::PackageContainsThumbnailsDir;
 pub(crate) use images_thumbnails::PackageContainsXvpicsDir;
 pub(crate) use includes_config_h::PackageNameDefinedInConfigH;
+pub(crate) use languages_clojure_dh_clojure::ClojurePackageButNotDhClojure;
 pub(crate) use languages_fortran_gfortran::GfortranModuleDoesNotDeclareVersion;
 pub(crate) use languages_fortran_gfortran::MissingPrerequisiteForGfortranModule;
 pub(crate) use languages_golang_module_path::GoLibraryPackageDoesNotIncludeVersion;
@@ -677,8 +686,8 @@ pub(crate) use init_scripts::{
     DirectoryInEtcSvDirectoryWithoutExecutableRunScript, DuplicateUpdatercDCallsInPostinst,
     DuplicateUpdatercDCallsInPostrm, InitDScriptContainsSkeletonTemplateContent,
     InitDScriptDependsOnAllVirtualFacility, InitDScriptDependsOnUnknownVirtualFacility,
-    InitDScriptDoesNotImplementRequiredOption, InitDScriptHasBadLsbLine,
-    InitDScriptHasBadStartRunlevel, InitDScriptHasBadStopRunlevel,
+    InitDScriptDoesNotImplementRequiredOption, InitDScriptDoesNotImplementStatusOption,
+    InitDScriptHasBadLsbLine, InitDScriptHasBadStartRunlevel, InitDScriptHasBadStopRunlevel,
     InitDScriptHasConflictingStartStop, InitDScriptHasDuplicateLsbKeyword,
     InitDScriptHasDuplicateLsbSection, InitDScriptHasUnknownLsbKeyword,
     InitDScriptHasUnterminatedLsbSection, InitDScriptMissingDependencyOnLocalFs,
@@ -699,7 +708,7 @@ pub(crate) use languages_javascript::{
     PkgJsAutopkgtestFileDoesNotExist, PkgJsAutopkgtestTestIsEmpty, PkgJsAutopkgtestTestIsMissing,
     PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
-pub(crate) use languages_ocaml::{OcamlDanglingCmxa, OcamlDanglingCmxs};
+pub(crate) use languages_ocaml::{OcamlDanglingCmx, OcamlDanglingCmxa, OcamlDanglingCmxs};
 pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PackageInstallsPacklist,
     PackageInstallsPerllocalPod, PerlModuleInCoreDirectory, PerlModuleUsesPerl4LibsWithoutDep,
@@ -827,6 +836,7 @@ pub(crate) use ln0858_package_contains_cmake_private_file::PackageContainsCmakeP
 pub(crate) use ln0927_missing_depends_on_sensible_utils::MissingDependsOnSensibleUtils;
 pub(crate) use ln1086_source_contains_prebuilt_silverlight_object::SourceContainsPrebuiltSilverlightObject;
 pub(crate) use ln1235_trailing_comma_in_maintainer_field::TrailingCommaInMaintainerField;
+pub(crate) use ln1387_source_contains_prebuilt_binary::SourceContainsPrebuiltBinary;
 pub(crate) use maintainer_scripts_adduser::AdduserWithHomeVarRun;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,

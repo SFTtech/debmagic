@@ -345,7 +345,11 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/names/national-encoding-in-native",
     "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
+    "checks/files/source-missing/cruft-general-test-suite",
+    "checks/files/source-missing/cruft-source-is-missing-unrel",
+    "checks/files/source-missing/cruft-upstream-binaries",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
+    "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
@@ -750,6 +754,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/ld-so/files-general",
     "checks/files/licenses/files-extra-license",
     "checks/files/licenses/legacy-filenames",
+    "checks/files/locales/files-locales",
     "checks/files/missing/files-missing-intermediate-dirs",
     "checks/files/multi-arch/files-multiarch-foreign-files",
     "checks/files/multi-arch/files-pkgconfig",
@@ -792,6 +797,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/unwanted/files-general",
     "checks/files/vcs/files-package-contains-foo",
     "checks/files/vcs/legacy-filenames",
+    "checks/fonts/files-adobe-font",
     "checks/fonts/files-fonts",
     "checks/fonts/opentype/use-restricted",
     "checks/fonts/opentype/wrong-filename",
@@ -803,6 +809,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/games/files-games-section",
     "checks/games/files-general",
     "checks/games/legacy-filenames",
+    "checks/images/filenames/conflicting-image-names",
+    "checks/images/filenames/unrelated-image-names",
     "checks/images/thumbnails/files-foo-in-bar",
     "checks/includes/config-h/package-name-srtp",
     "checks/init-d/directory-in-etc-sv-directory-without-executable-run-script",
@@ -832,6 +840,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/nodejs-module-not-declared",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
+    "checks/languages/ocaml/byte-code/compiled/ocaml-general",
     "checks/languages/ocaml/byte-code/library/ocaml-general",
     "checks/languages/ocaml/byte-code/plugin/ocaml-general",
     "checks/languages/perl/files-foo-in-bar",
@@ -1301,7 +1310,11 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/names/national-encoding-in-native",
     "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
+    "checks/files/source-missing/cruft-general-test-suite",
+    "checks/files/source-missing/cruft-source-is-missing-unrel",
+    "checks/files/source-missing/cruft-upstream-binaries",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
+    "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
@@ -1736,7 +1749,11 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/names/national-encoding-in-native"; "checks_files_names_national_encoding_in_native")]
 #[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
+#[test_case("checks/files/source-missing/cruft-general-test-suite"; "checks_files_source_missing_cruft_general_test_suite")]
+#[test_case("checks/files/source-missing/cruft-source-is-missing-unrel"; "checks_files_source_missing_cruft_source_is_missing_unrel")]
+#[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
+#[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
@@ -2142,6 +2159,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/ld-so/files-general"; "checks_files_ld_so_files_general")]
 #[test_case("checks/files/licenses/files-extra-license"; "checks_files_licenses_files_extra_license")]
 #[test_case("checks/files/licenses/legacy-filenames"; "checks_files_licenses_legacy_filenames")]
+#[test_case("checks/files/locales/files-locales"; "checks_files_locales_files_locales")]
 #[test_case("checks/files/missing/files-missing-intermediate-dirs"; "checks_files_missing_files_missing_intermediate_dirs")]
 #[test_case("checks/files/multi-arch/files-multiarch-foreign-files"; "checks_files_multi_arch_files_multiarch_foreign_files")]
 #[test_case("checks/files/multi-arch/files-pkgconfig"; "checks_files_multi_arch_files_pkgconfig")]
@@ -2184,6 +2202,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/unwanted/files-general"; "checks_files_unwanted_files_general")]
 #[test_case("checks/files/vcs/files-package-contains-foo"; "checks_files_vcs_files_package_contains_foo")]
 #[test_case("checks/files/vcs/legacy-filenames"; "checks_files_vcs_legacy_filenames")]
+#[test_case("checks/fonts/files-adobe-font"; "checks_fonts_files_adobe_font")]
 #[test_case("checks/fonts/files-fonts"; "checks_fonts_files_fonts")]
 #[test_case("checks/fonts/opentype/use-restricted"; "checks_fonts_opentype_use_restricted")]
 #[test_case("checks/fonts/opentype/wrong-filename"; "checks_fonts_opentype_wrong_filename")]
@@ -2195,6 +2214,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/games/files-games-section"; "checks_games_files_games_section")]
 #[test_case("checks/games/files-general"; "checks_games_files_general")]
 #[test_case("checks/games/legacy-filenames"; "checks_games_legacy_filenames")]
+#[test_case("checks/images/filenames/conflicting-image-names"; "checks_images_filenames_conflicting_image_names")]
+#[test_case("checks/images/filenames/unrelated-image-names"; "checks_images_filenames_unrelated_image_names")]
 #[test_case("checks/images/thumbnails/files-foo-in-bar"; "checks_images_thumbnails_files_foo_in_bar")]
 #[test_case("checks/includes/config-h/package-name-srtp"; "checks_includes_config_h_package_name_srtp")]
 #[test_case("checks/init-d/directory-in-etc-sv-directory-without-executable-run-script"; "checks_init_d_directory_in_etc_sv_directory_without_executable_run_script")]
@@ -2224,6 +2245,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/nodejs-module-not-declared"; "checks_languages_javascript_nodejs_nodejs_module_not_declared")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
+#[test_case("checks/languages/ocaml/byte-code/compiled/ocaml-general"; "checks_languages_ocaml_byte_code_compiled_ocaml_general")]
 #[test_case("checks/languages/ocaml/byte-code/library/ocaml-general"; "checks_languages_ocaml_byte_code_library_ocaml_general")]
 #[test_case("checks/languages/ocaml/byte-code/plugin/ocaml-general"; "checks_languages_ocaml_byte_code_plugin_ocaml_general")]
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
@@ -2694,7 +2716,11 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/names/national-encoding-in-native"; "checks_files_names_national_encoding_in_native")]
 #[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
+#[test_case("checks/files/source-missing/cruft-general-test-suite"; "checks_files_source_missing_cruft_general_test_suite")]
+#[test_case("checks/files/source-missing/cruft-source-is-missing-unrel"; "checks_files_source_missing_cruft_source_is_missing_unrel")]
+#[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
+#[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]

@@ -204,6 +204,7 @@ use super::rules::MissingDependsOnSensibleUtils;
 use super::rules::MissingFileFromPotfilesIn;
 use super::rules::MissingIntermediateDirectory;
 use super::rules::MissingManifest;
+use super::rules::MissingPkgPhpToolsAddon;
 use super::rules::MissingPotfilesIn;
 use super::rules::MissingPrerequisiteForGfortranModule;
 use super::rules::MissingTemplatesPot;
@@ -1885,6 +1886,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LicenseProblemOldUnicode,
         &PkgJsAutopkgtestTestIsEmpty,
         &PkgJsAutopkgtestTestIsMissing,
+        &MissingPkgPhpToolsAddon,
     ]
 }
 
@@ -2227,6 +2229,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &LicenseProblemOldUnicode,
         &PkgJsAutopkgtestTestIsEmpty,
         &PkgJsAutopkgtestTestIsMissing,
+        &MissingPkgPhpToolsAddon,
     ]
 }
 

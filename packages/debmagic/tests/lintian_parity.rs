@@ -219,6 +219,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/upstream/metadata/in-native-source",
     "checks/debian/upstream/metadata/upstream-metadata-is-not-a-file",
+    "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
@@ -456,6 +457,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "odd-inputs/source/unpack-srcpkg-dot-dir",
     "odd-inputs/source/unpack-srcpkg-dot-subdir",
     "odd-inputs/source/unpack-srcpkg-no-subdir",
+    "odd-inputs/source/unpack-srcpkg-xz",
     "tracking/generic-dh-make-2005",
     "tracking/generic-dh-make-2008",
 ];
@@ -1264,6 +1266,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/upstream/metadata/in-native-source",
     "checks/debian/upstream/metadata/upstream-metadata-is-not-a-file",
+    "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
@@ -1502,6 +1505,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "odd-inputs/source/unpack-srcpkg-dot-dir",
     "odd-inputs/source/unpack-srcpkg-dot-subdir",
     "odd-inputs/source/unpack-srcpkg-no-subdir",
+    "odd-inputs/source/unpack-srcpkg-xz",
     "tracking/generic-dh-make-2005",
     "tracking/generic-dh-make-2008",
 ];
@@ -1758,6 +1762,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/upstream/metadata/in-native-source"; "checks_debian_upstream_metadata_in_native_source")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-is-not-a-file"; "checks_debian_upstream_metadata_upstream_metadata_is_not_a_file")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
@@ -1995,6 +2000,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
+#[test_case("odd-inputs/source/unpack-srcpkg-xz"; "odd_inputs_source_unpack_srcpkg_xz")]
 #[test_case("tracking/generic-dh-make-2005"; "tracking_generic_dh_make_2005")]
 #[test_case("tracking/generic-dh-make-2008"; "tracking_generic_dh_make_2008")]
 fn lintian_parity_source_tree(recipe: &str) {
@@ -2805,6 +2811,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/upstream/metadata/in-native-source"; "checks_debian_upstream_metadata_in_native_source")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-is-not-a-file"; "checks_debian_upstream_metadata_upstream_metadata_is_not_a_file")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
@@ -3043,6 +3050,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
+#[test_case("odd-inputs/source/unpack-srcpkg-xz"; "odd_inputs_source_unpack_srcpkg_xz")]
 #[test_case("tracking/generic-dh-make-2005"; "tracking_generic_dh_make_2005")]
 #[test_case("tracking/generic-dh-make-2008"; "tracking_generic_dh_make_2008")]
 fn lintian_parity_source_package(recipe: &str) {

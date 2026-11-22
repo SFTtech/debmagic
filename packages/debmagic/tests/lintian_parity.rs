@@ -324,6 +324,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/nmu/nmu-not-a-nmu",
     "checks/nmu/nmu-qa-upload",
     "checks/nmu/nmu-space-around-maintainer",
+    "checks/nmu/nmu-team-upload",
     "checks/nmu/nmu-ubuntu-native",
     "checks/obsolete-sites/fields-cpan-homepage",
     "checks/obsolete-sites/obsolete-sites",
@@ -1166,6 +1167,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/nmu/nmu-not-a-nmu",
     "checks/nmu/nmu-qa-upload",
     "checks/nmu/nmu-space-around-maintainer",
+    "checks/nmu/nmu-team-upload",
     "checks/nmu/nmu-ubuntu-native",
     "checks/obsolete-sites/fields-cpan-homepage",
     "checks/obsolete-sites/obsolete-sites",
@@ -1544,6 +1546,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/nmu/nmu-not-a-nmu"; "checks_nmu_nmu_not_a_nmu")]
 #[test_case("checks/nmu/nmu-qa-upload"; "checks_nmu_nmu_qa_upload")]
 #[test_case("checks/nmu/nmu-space-around-maintainer"; "checks_nmu_nmu_space_around_maintainer")]
+#[test_case("checks/nmu/nmu-team-upload"; "checks_nmu_nmu_team_upload")]
 #[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
 #[test_case("checks/obsolete-sites/obsolete-sites"; "checks_obsolete_sites_obsolete_sites")]
@@ -2388,6 +2391,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/nmu/nmu-not-a-nmu"; "checks_nmu_nmu_not_a_nmu")]
 #[test_case("checks/nmu/nmu-qa-upload"; "checks_nmu_nmu_qa_upload")]
 #[test_case("checks/nmu/nmu-space-around-maintainer"; "checks_nmu_nmu_space_around_maintainer")]
+#[test_case("checks/nmu/nmu-team-upload"; "checks_nmu_nmu_team_upload")]
 #[test_case("checks/nmu/nmu-ubuntu-native"; "checks_nmu_nmu_ubuntu_native")]
 #[test_case("checks/obsolete-sites/fields-cpan-homepage"; "checks_obsolete_sites_fields_cpan_homepage")]
 #[test_case("checks/obsolete-sites/obsolete-sites"; "checks_obsolete_sites_obsolete_sites")]

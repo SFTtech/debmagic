@@ -156,6 +156,7 @@ use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
 use super::rules::EmptySharedLibrarySymbols;
 use super::rules::EmptyShlibs;
+use super::rules::EmptyUdebPackage;
 use super::rules::EmptyUpstreamSources;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
 use super::rules::ExcessiveDebhelperOverrides;
@@ -2177,6 +2178,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DfsgVersionWithTilde,
         &CompressedDuplicate,
         &BinSbinMismatch,
+        &EmptyUdebPackage,
     ]
 }
 
@@ -3431,6 +3433,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NoCodeSections,
         &CompressedDuplicate,
         &BinSbinMismatch,
+        &EmptyUdebPackage,
     ]
 }
 

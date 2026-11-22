@@ -210,6 +210,7 @@ mod ln1086_source_contains_prebuilt_silverlight_object;
 mod ln1235_trailing_comma_in_maintainer_field;
 mod ln1387_source_contains_prebuilt_binary;
 mod ln1560_bin_sbin_mismatch;
+mod ln1562_empty_udeb_package;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_adduser;
@@ -914,6 +915,7 @@ pub(crate) use ln1086_source_contains_prebuilt_silverlight_object::SourceContain
 pub(crate) use ln1235_trailing_comma_in_maintainer_field::TrailingCommaInMaintainerField;
 pub(crate) use ln1387_source_contains_prebuilt_binary::SourceContainsPrebuiltBinary;
 pub(crate) use ln1560_bin_sbin_mismatch::BinSbinMismatch;
+pub(crate) use ln1562_empty_udeb_package::EmptyUdebPackage;
 pub(crate) use maintainer_scripts_adduser::AdduserWithHomeVarRun;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,

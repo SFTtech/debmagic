@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): deprecated-configure-filename (LN1511) [configure.in]
+I: (source): deprecated-configure-filename (LN1511) [configure.in]

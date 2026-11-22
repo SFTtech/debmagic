@@ -19,6 +19,7 @@ mod binaries_profiling;
 mod binaries_rpath;
 mod binaries_spelling;
 mod binaries_static;
+mod build_systems_automake;
 mod build_systems_waf;
 mod changelog_doc;
 mod changes_file;
@@ -300,6 +301,7 @@ pub(crate) use binaries_rpath::CustomLibrarySearchPath;
 pub(crate) use binaries_rpath::RelativeLibrarySearchPath;
 pub(crate) use binaries_spelling::SpellingErrorInBinary;
 pub(crate) use binaries_static::StaticallyLinkedBinary;
+pub(crate) use build_systems_automake::DeprecatedConfigureFilename;
 pub(crate) use build_systems_waf::SourceContainsWafBinary;
 pub(crate) use changes_file::BadSectionInChangesFile;
 pub(crate) use conffiles::{

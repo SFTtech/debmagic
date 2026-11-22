@@ -11,6 +11,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/archive/liberty/mismatch/fields-section-general",
     "checks/archive/liberty/mismatch/legacy-relations",
+    "checks/build-systems/automake/automake-general",
     "checks/build-systems/autotools/cruft-general-test-suite",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool-2",
@@ -1081,6 +1082,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/archive/liberty/mismatch/fields-section-general",
     "checks/archive/liberty/mismatch/legacy-relations",
+    "checks/build-systems/automake/automake-general",
     "checks/build-systems/autotools/cruft-general-test-suite",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool-2",
@@ -1589,6 +1591,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
+#[test_case("checks/build-systems/automake/automake-general"; "checks_build_systems_automake_automake_general")]
 #[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool-2"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool_2")]
@@ -2661,6 +2664,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
+#[test_case("checks/build-systems/automake/automake-general"; "checks_build_systems_automake_automake_general")]
 #[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool-2"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool_2")]

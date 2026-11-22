@@ -125,6 +125,7 @@ use super::rules::DefaultMtaDependencyNotListedFirst;
 use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
+use super::rules::DeprecatedConfigureFilename;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
 use super::rules::DesktopEntryContainsEncodingKey;
@@ -2171,6 +2172,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &DeprecatedConfigureFilename,
     ]
 }
 
@@ -2570,6 +2572,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RedundantPriorityOptionalField,
         &InstallableFieldMirrorsSource,
         &InconsistentAppstreamMetadataLicense,
+        &DeprecatedConfigureFilename,
     ]
 }
 

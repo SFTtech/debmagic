@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): unknown-control-file (LN1183) [special-file]
+W: example (binary): unknown-control-file (LN1183) [unknown]
+W: example (udeb): unknown-control-file (LN1183) [unknown]

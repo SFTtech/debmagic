@@ -327,6 +327,7 @@ use super::rules::UnconditionalUseOfDpkgStatoverride;
 use super::rules::UnexpectedConffile;
 use super::rules::UnknownArchitecture;
 use super::rules::UnknownConffileInstruction;
+use super::rules::UnknownControlFile;
 use super::rules::UnknownEncodingInPoFile;
 use super::rules::UnknownEssentialValue;
 use super::rules::UnknownJavaClassVersion;
@@ -1783,6 +1784,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ControlFileIsEmpty,
         &ControlFileIsNotAFile,
         &NotAllowedControlFile,
+        &UnknownControlFile,
     ]
 }
 
@@ -2842,6 +2844,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ControlFileIsEmpty,
         &ControlFileIsNotAFile,
         &NotAllowedControlFile,
+        &UnknownControlFile,
     ]
 }
 

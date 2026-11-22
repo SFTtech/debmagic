@@ -149,6 +149,7 @@ use super::rules::HardeningNoFortifyFunctions;
 use super::rules::HardeningNoPie;
 use super::rules::HardeningNoRelro;
 use super::rules::IllegalMultiArchValue;
+use super::rules::ImageFileHasConflictingName;
 use super::rules::IncompatibleJavaBytecodeFormat;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
@@ -1937,6 +1938,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnknownLocaleCode,
         &SourceContainsPrebuiltBinary,
         &FontOutsideFontDir,
+        &ImageFileHasConflictingName,
     ]
 }
 
@@ -3073,6 +3075,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TransitionalPackageNotOldlibsOptional,
         &UnknownLocaleCode,
         &FontOutsideFontDir,
+        &ImageFileHasConflictingName,
     ]
 }
 

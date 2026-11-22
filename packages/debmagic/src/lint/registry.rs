@@ -124,6 +124,7 @@ use super::rules::DebugSymbolsNotDetached;
 use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
 use super::rules::DefaultMtaDependencyDoesNotSpecifyMailTransportAgent;
 use super::rules::DefaultMtaDependencyNotListedFirst;
+use super::rules::Dep3FormatPatchAuthorOrFromIsBetter;
 use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
@@ -2189,6 +2190,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DeprecatedDebianControlField,
         &DuplicateLongDescription,
         &DuplicateShortDescription,
+        &Dep3FormatPatchAuthorOrFromIsBetter,
     ]
 }
 
@@ -2595,6 +2597,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DeprecatedDebianControlField,
         &DuplicateLongDescription,
         &DuplicateShortDescription,
+        &Dep3FormatPatchAuthorOrFromIsBetter,
     ]
 }
 

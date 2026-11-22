@@ -31,6 +31,11 @@ pub(super) enum BugProblem {
 }
 
 impl Dep3Header {
+    /// The last `Origin` value, trimmed; empty when there is none.
+    pub(super) fn origin(&self) -> &str {
+        &self.origin
+    }
+
     /// Origin still holds one of the template values.
     pub(super) fn origin_is_template(&self) -> bool {
         ORIGIN_TEMPLATES.contains(&self.origin.as_str())

@@ -1,10 +1,10 @@
 //! Lintian's doc-base file walk (`check_doc_base_file` and friends).
 //!
 //! One pass per file collects every hit the `menus` Check raises from the
-//! parse itself. Each Rule reports the hits of one [`Kind`]. Spelling of the
-//! title and abstract, and `doc-base-file-references-missing-file` (which
-//! needs the files of strongly related installables), are not covered. The
-//! Tags with their own walk in `scan.rs` are not repeated here.
+//! parse itself, the spelling of the title and abstract included. Each Rule
+//! reports the hits of one [`Kind`]. `doc-base-file-references-missing-file`
+//! (which needs the files of strongly related installables) is not covered.
+//! The Tags with their own walk in `scan.rs` are not repeated here.
 
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -15,6 +15,8 @@ use regex::Regex;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::rule::Severity;
+use crate::lint::spelling::{Exceptions, check_spelling, check_spelling_picky, group_exceptions};
 
 static FIELD: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(\S+)\s*:\s*(.*)$").expect("valid regex"));
@@ -65,6 +67,8 @@ pub(super) enum Kind {
     UsesApplicationsSection,
     DuplicateField,
     DuplicateFormat,
+    SpellingTitle,
+    SpellingAbstract,
 }
 
 pub(super) struct Hit {
@@ -75,23 +79,37 @@ pub(super) struct Hit {
 
 /// Report every hit of `kind` from the doc-base files in the data files.
 pub(super) fn report(ctx: &mut BinaryPackageContext<'_>, kind: Kind, warning: bool) {
+    emit(ctx, kind, |extra| {
+        if warning {
+            Diagnostic::warn(extra)
+        } else {
+            Diagnostic::error(extra)
+        }
+    });
+}
+
+/// Report every spelling hit of `kind` (`SpellingTitle` or `SpellingAbstract`)
+/// as a pedantic warning, with the file as Location and the field's line.
+pub(super) fn report_spelling(ctx: &mut BinaryPackageContext<'_>, kind: Kind) {
+    emit(ctx, kind, |extra| {
+        Diagnostic::warn(extra).with_severity(Severity::Pedantic)
+    });
+}
+
+fn emit(ctx: &mut BinaryPackageContext<'_>, kind: Kind, diagnostic: impl Fn(String) -> Diagnostic) {
     let package = ctx.package_name().to_string();
+    let exceptions = group_exceptions(ctx);
     let found = {
         let Some(files) = ctx.data_files() else {
             return;
         };
-        hits(files, &package)
+        hits(files, &package, &exceptions)
     };
     for (path, hit) in found {
         if hit.kind != kind {
             continue;
         }
-        let diagnostic = if warning {
-            Diagnostic::warn(hit.extra)
-        } else {
-            Diagnostic::error(hit.extra)
-        };
-        ctx.diagnostic(diagnostic.with_location(Location {
+        ctx.diagnostic(diagnostic(hit.extra).with_location(Location {
             path,
             line: Some(hit.line),
             column: None,
@@ -99,7 +117,7 @@ pub(super) fn report(ctx: &mut BinaryPackageContext<'_>, kind: Kind, warning: bo
     }
 }
 
-fn hits(files: &FileTree, package: &str) -> Vec<(PathBuf, Hit)> {
+fn hits(files: &FileTree, package: &str, exceptions: &Exceptions) -> Vec<(PathBuf, Hit)> {
     let mut entries: Vec<_> = files
         .entries()
         .iter()
@@ -117,7 +135,7 @@ fn hits(files: &FileTree, package: &str) -> Vec<(PathBuf, Hit)> {
         let Ok(text) = std::str::from_utf8(&bytes) else {
             continue;
         };
-        for hit in Walk::new(package).run(text) {
+        for hit in Walk::new(package, exceptions).run(text) {
             all.push((entry.path().to_path_buf(), hit));
         }
     }
@@ -151,6 +169,7 @@ struct OpenField {
 
 struct Walk<'a> {
     package: &'a str,
+    exceptions: &'a Exceptions,
     hits: Vec<Hit>,
     saw_fields: HashSet<String>,
     saw_formats: HashSet<String>,
@@ -158,9 +177,10 @@ struct Walk<'a> {
 }
 
 impl<'a> Walk<'a> {
-    fn new(package: &'a str) -> Self {
+    fn new(package: &'a str, exceptions: &'a Exceptions) -> Self {
         Self {
             package,
+            exceptions,
             hits: Vec::new(),
             saw_fields: HashSet::new(),
             saw_formats: HashSet::new(),
@@ -227,6 +247,7 @@ impl<'a> Walk<'a> {
             "Format" => self.check_format(open),
             "Document" => self.check_document(open),
             "Section" => self.check_section_field(open),
+            "Title" => self.check_spelling_of(open, Kind::SpellingTitle),
             "Abstract" => self.check_abstract(open),
             _ => {}
         }
@@ -331,6 +352,19 @@ impl<'a> Walk<'a> {
         }
         if !leadsp_ok {
             self.hit(Kind::AbstractExtraLeadingWhitespace, open.line, "");
+        }
+        self.check_spelling_of(open, Kind::SpellingAbstract);
+    }
+
+    /// `check_spelling` and `check_spelling_picky` over the field's values
+    /// joined by spaces, each finding a hit of `kind` on the field's line.
+    fn check_spelling_of(&mut self, open: &OpenField, kind: Kind) {
+        let text = open.vals.join(" ");
+        let findings = check_spelling(&text, self.exceptions, true)
+            .into_iter()
+            .chain(check_spelling_picky(&text));
+        for (found, correction) in findings {
+            self.hit(kind, open.line, format!("{found} {correction}"));
         }
     }
 

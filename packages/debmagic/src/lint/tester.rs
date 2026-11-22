@@ -299,13 +299,13 @@ impl TestCase {
     }
 
     /// A File tree with no owner on Entries that fixtures give none.
-    fn file_tree(&self) -> FileTree {
+    pub(super) fn file_tree(&self) -> FileTree {
         self.file_tree_owned_by(None)
     }
 
     /// A File tree where Entries that fixtures give no owner are owned by
     /// `root/root`, as in a Binary package built by `dpkg-deb`.
-    fn package_file_tree(&self) -> FileTree {
+    pub(super) fn package_file_tree(&self) -> FileTree {
         self.file_tree_owned_by(Some(&Owner::root()))
     }
 

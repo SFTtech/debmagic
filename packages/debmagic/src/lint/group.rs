@@ -19,11 +19,12 @@ use regex::Regex;
 use super::binary_package_reader::guess_package_name;
 use super::buildinfo::Buildinfo;
 use super::changes::Changes;
-use super::context::{BinaryPackageData, processable_type_for_binary};
+use super::context::{BinaryPackageData, SourcePackageData, processable_type_for_binary};
 use super::diagnostic::ProcessableType;
 use super::dsc::Dsc;
 use super::file_list::FileList;
 use super::subject::Subject;
+use super::timing;
 
 /// `Source: name (version)` of a binary package whose version differs from its
 /// source's.
@@ -47,11 +48,47 @@ pub(crate) struct BuildinfoData {
     pub buildinfo: Buildinfo,
 }
 
-/// The `.dsc` of a Group: the parsed paragraph only. Extracting the Source
-/// package happens when a Rule of the Source package kind runs.
+/// The `.dsc` of a Group: the parsed paragraph, and the Source package once a
+/// Rule asks for it. Extracting the Source package (`dpkg-source`) is shared
+/// by the Rules of the Source package kind and the Group Rules that read the
+/// source's Debian control or files.
 pub(crate) struct DscData {
     pub path: PathBuf,
     pub dsc: Dsc,
+    package: OnceLock<Result<SourcePackageData, String>>,
+}
+
+impl DscData {
+    pub fn new(path: PathBuf, dsc: Dsc) -> Self {
+        Self {
+            path,
+            dsc,
+            package: OnceLock::new(),
+        }
+    }
+
+    /// A `.dsc` whose Source package is already there, for fixtures.
+    #[cfg(test)]
+    pub fn with_package(path: PathBuf, dsc: Dsc, package: SourcePackageData) -> Self {
+        let cell = OnceLock::new();
+        let _ = cell.set(Ok(package));
+        Self {
+            path,
+            dsc,
+            package: cell,
+        }
+    }
+
+    /// The extracted Source package: Orig files, Patched files and Debian
+    /// control. An extract failure is the same for every caller.
+    pub fn package(&self) -> Result<&SourcePackageData, &str> {
+        match timing::init_once(&self.package, || {
+            SourcePackageData::new(self.path.clone()).map_err(|error| format!("{error:#}"))
+        }) {
+            Ok(package) => Ok(package),
+            Err(message) => Err(message.as_str()),
+        }
+    }
 }
 
 pub(crate) struct Group {
@@ -67,7 +104,7 @@ pub(crate) struct Group {
 
 enum Member {
     Changes(ChangesData),
-    Source(DscData),
+    Source(Box<DscData>),
     Buildinfo(BuildinfoData),
     Binary(Box<BinaryPackageData>),
 }
@@ -192,7 +229,7 @@ impl Group {
                 if self.source.is_some() {
                     bail!("cannot add another source package");
                 }
-                self.source = Some(source);
+                self.source = Some(*source);
             }
             Member::Buildinfo(buildinfo) => {
                 if self.buildinfo.is_some() {
@@ -369,10 +406,7 @@ fn open_member(path: &Path, subject: &Subject) -> anyhow::Result<(Member, Identi
                 files: Some(FileList::parse(dsc.fields(), false)),
             };
             Ok((
-                Member::Source(DscData {
-                    path: path.to_path_buf(),
-                    dsc,
-                }),
+                Member::Source(Box::new(DscData::new(path.to_path_buf(), dsc))),
                 identity,
             ))
         }

@@ -242,7 +242,7 @@ impl BinaryPackageData {
         self.reader.as_ref().map(BinaryPackageReader::deb_members)
     }
 
-    fn data_files(&self) -> Result<&FileTree, &str> {
+    pub(super) fn data_files(&self) -> Result<&FileTree, &str> {
         match timing::init_once(&self.data_files, || match &self.reader {
             Some(reader) => reader.data_file_tree().map_err(|error| error.to_string()),
             None => Err("Binary package Data files are missing".to_string()),
@@ -252,7 +252,7 @@ impl BinaryPackageData {
         }
     }
 
-    fn control_files(&self) -> Result<&FileTree, &str> {
+    pub(super) fn control_files(&self) -> Result<&FileTree, &str> {
         match timing::init_once(&self.control_files, || match &self.reader {
             Some(reader) => reader
                 .control_file_tree()
@@ -472,7 +472,7 @@ impl SourcePackageData {
         }
     }
 
-    fn debian_control(&self) -> Option<&DebianControl> {
+    pub(super) fn debian_control(&self) -> Option<&DebianControl> {
         timing::init_once(&self.debian_control, || match &self._extract {
             Some(extract) => DebianControl::load(&extract.patched_root().join("debian/control")),
             None => {
@@ -494,11 +494,11 @@ impl SourcePackageData {
         .as_ref()
     }
 
-    fn orig_files(&self) -> Result<&FileTree, &str> {
+    pub(super) fn orig_files(&self) -> Result<&FileTree, &str> {
         self.tree(&self.orig, |extract| extract.orig_files())
     }
 
-    fn patched_files(&self) -> Result<&FileTree, &str> {
+    pub(super) fn patched_files(&self) -> Result<&FileTree, &str> {
         self.tree(&self.patched, |extract| extract.patched_files())
     }
 

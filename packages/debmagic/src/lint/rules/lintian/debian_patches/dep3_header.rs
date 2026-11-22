@@ -23,6 +23,8 @@ pub(super) struct Dep3Header {
     bug: String,
     bug_debian: String,
     last_update: String,
+    forwarded: String,
+    applied_upstream: String,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -50,6 +52,19 @@ impl Dep3Header {
         } else {
             BugProblem::NotUrl
         })
+    }
+
+    /// Origin is not `upstream` or `backport`, and Forwarded is `no`, or none of
+    /// Applied-Upstream, Bug and Forwarded is set.
+    pub(super) fn not_forwarded_upstream(&self) -> bool {
+        let category = self.origin.split(',').next().unwrap_or_default().trim();
+        if matches!(category, "upstream" | "backport") {
+            return false;
+        }
+        self.forwarded == "no"
+            || [&self.applied_upstream, &self.bug, &self.forwarded]
+                .iter()
+                .all(|field| field.is_empty())
     }
 
     /// Set but not a `YYYY-MM-DD` date that exists and is not before 1900.
@@ -135,6 +150,8 @@ fn parse_header(bytes: &[u8]) -> Option<Dep3Header> {
         bug: value("bug").to_string(),
         bug_debian: value("bug-debian").to_string(),
         last_update: value("last-update").to_string(),
+        forwarded: value("forwarded").to_string(),
+        applied_upstream: value("applied-upstream").to_string(),
     })
 }
 

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): patch-not-forwarded-upstream (LN1528) [debian/patches/fix.patch]

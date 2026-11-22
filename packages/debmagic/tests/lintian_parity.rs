@@ -291,6 +291,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/standards-version/standards-version-newer",
     "checks/fields/standards-version/standards-version-old",
     "checks/fields/standards-version/standards-version-timewarp",
+    "checks/fields/style/all-caps",
+    "checks/fields/style/lower-case-component",
+    "checks/fields/style/shy-prefix",
+    "checks/fields/style/style-x-dh-compat",
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
@@ -345,6 +349,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/python/python-version-current-deprecated",
     "checks/languages/r/files-r-data",
     "checks/languages/ruby/gem-homepage",
+    "checks/lintian/override-context-mismatch",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -1192,6 +1197,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/standards-version/standards-version-newer",
     "checks/fields/standards-version/standards-version-old",
     "checks/fields/standards-version/standards-version-timewarp",
+    "checks/fields/style/all-caps",
+    "checks/fields/style/lower-case-component",
+    "checks/fields/style/shy-prefix",
+    "checks/fields/style/style-x-dh-compat",
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
@@ -1247,6 +1256,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/python-version-current-deprecated",
     "checks/languages/r/files-r-data",
     "checks/languages/ruby/gem-homepage",
+    "checks/lintian/override-context-mismatch",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -1604,6 +1614,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/standards-version/standards-version-newer"; "checks_fields_standards_version_standards_version_newer")]
 #[test_case("checks/fields/standards-version/standards-version-old"; "checks_fields_standards_version_standards_version_old")]
 #[test_case("checks/fields/standards-version/standards-version-timewarp"; "checks_fields_standards_version_standards_version_timewarp")]
+#[test_case("checks/fields/style/all-caps"; "checks_fields_style_all_caps")]
+#[test_case("checks/fields/style/lower-case-component"; "checks_fields_style_lower_case_component")]
+#[test_case("checks/fields/style/shy-prefix"; "checks_fields_style_shy_prefix")]
+#[test_case("checks/fields/style/style-x-dh-compat"; "checks_fields_style_style_x_dh_compat")]
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
@@ -1658,6 +1672,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
+#[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]
@@ -2507,6 +2522,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/standards-version/standards-version-newer"; "checks_fields_standards_version_standards_version_newer")]
 #[test_case("checks/fields/standards-version/standards-version-old"; "checks_fields_standards_version_standards_version_old")]
 #[test_case("checks/fields/standards-version/standards-version-timewarp"; "checks_fields_standards_version_standards_version_timewarp")]
+#[test_case("checks/fields/style/all-caps"; "checks_fields_style_all_caps")]
+#[test_case("checks/fields/style/lower-case-component"; "checks_fields_style_lower_case_component")]
+#[test_case("checks/fields/style/shy-prefix"; "checks_fields_style_shy_prefix")]
+#[test_case("checks/fields/style/style-x-dh-compat"; "checks_fields_style_style_x_dh_compat")]
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
@@ -2562,6 +2581,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
+#[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]

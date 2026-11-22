@@ -60,6 +60,7 @@ use super::rules::ControlInterpreterWithoutDepends;
 use super::rules::ControlInterpreterWithoutPredepends;
 use super::rules::CshConsideredHarmful;
 use super::rules::CustomLibrarySearchPath;
+use super::rules::CuteField;
 use super::rules::DbgPackageMissingDepends;
 use super::rules::DbusPolicyAtConsole;
 use super::rules::DbusPolicyExcessivelyBroad;
@@ -1955,6 +1956,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OredDependsOnObsoletePackage,
         &WrongSectionAccordingToPackageName,
         &OutOfDateStandardsVersion,
+        &CuteField,
     ]
 }
 
@@ -2319,6 +2321,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NoStrongDigestsInDsc,
         &HomepageFieldUsesInsecureUri,
         &OutOfDateStandardsVersion,
+        &CuteField,
     ]
 }
 

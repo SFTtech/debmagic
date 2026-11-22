@@ -30,6 +30,7 @@ use super::rules::BadSectionInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
+use super::rules::BinariesHaveFileConflict;
 use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryFromOtherArchitecture;
 use super::rules::BinaryHasUnneededSection;
@@ -2189,6 +2190,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebugPackageForMultiArchSamePkgNotCoinstallable,
         &UsrShareDocSymlinkToForeignPackage,
         &DocBaseFileReferencesMissingFile,
+        &BinariesHaveFileConflict,
     ]
 }
 
@@ -3463,6 +3465,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &DebugPackageForMultiArchSamePkgNotCoinstallable,
         &UsrShareDocSymlinkToForeignPackage,
         &DocBaseFileReferencesMissingFile,
+        &BinariesHaveFileConflict,
     ]
 }
 

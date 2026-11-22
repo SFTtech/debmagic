@@ -142,6 +142,7 @@ use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DistantPrerequisiteInShlibs;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
+use super::rules::DocBaseFileReferencesMissingFile;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
@@ -2187,6 +2188,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageContainsBrokenSymlinkWildcard,
         &DebugPackageForMultiArchSamePkgNotCoinstallable,
         &UsrShareDocSymlinkToForeignPackage,
+        &DocBaseFileReferencesMissingFile,
     ]
 }
 
@@ -3460,6 +3462,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &PackageContainsBrokenSymlinkWildcard,
         &DebugPackageForMultiArchSamePkgNotCoinstallable,
         &UsrShareDocSymlinkToForeignPackage,
+        &DocBaseFileReferencesMissingFile,
     ]
 }
 

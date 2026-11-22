@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): architecture-escape (LN1563) usr/lib/a.so [usr/lib/x86_64-linux-gnu/liba.so]
+I: example (binary): architecture-escape (LN1563) usr/lib/a.so [usr/lib/x86_64-linux-gnu/liba.so]
+I: example (binary): architecture-escape (LN1563) lib/liba.so [lib/aarch64-linux-gnu/liba.so]
+I: example (binary): architecture-escape (LN1563) usr/local/lib/a.so [usr/lib/aarch64-linux-gnu/liba.so]
+I: example (binary): architecture-escape (LN1563) usr/lib/a.so [usr/lib/x86_64-linux-gnu/liba.so]

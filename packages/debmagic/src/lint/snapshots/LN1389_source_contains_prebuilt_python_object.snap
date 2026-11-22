@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-prebuilt-python-object (LN1389) [__pycache__/fake.cpython-38.pyc]
+P: example (source): source-contains-prebuilt-python-object (LN1389) [fake.pyc]
+P: example (source): source-contains-prebuilt-python-object (LN1389) [fake.pyo]
+P: example (source): source-contains-prebuilt-python-object (LN1389) [module]
+P: example (source): source-contains-prebuilt-python-object (LN1389) [fake.pyc]

@@ -231,6 +231,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debug/obsolete/legacy-libbaz",
     "checks/desktop/gnome/gir/gir",
     "checks/desktop/gnome/gir/typelib-missing-gir-depends",
+    "checks/dh-make/cruft-fixme-placeholders",
     "checks/dh-make/cruft-readme-source",
     "checks/dh-make/template/generic-dh-make-2008",
     "checks/fields/architecture/magic-architecture-srcpkg-wrong",
@@ -1115,6 +1116,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debug/obsolete/legacy-libbaz",
     "checks/desktop/gnome/gir/gir",
     "checks/desktop/gnome/gir/typelib-missing-gir-depends",
+    "checks/dh-make/cruft-fixme-placeholders",
     "checks/dh-make/cruft-readme-source",
     "checks/dh-make/template/generic-dh-make-2008",
     "checks/fields/architecture/magic-architecture-srcpkg-wrong",
@@ -1520,6 +1522,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debug/obsolete/legacy-libbaz"; "checks_debug_obsolete_legacy_libbaz")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/desktop/gnome/gir/typelib-missing-gir-depends"; "checks_desktop_gnome_gir_typelib_missing_gir_depends")]
+#[test_case("checks/dh-make/cruft-fixme-placeholders"; "checks_dh_make_cruft_fixme_placeholders")]
 #[test_case("checks/dh-make/cruft-readme-source"; "checks_dh_make_cruft_readme_source")]
 #[test_case("checks/dh-make/template/generic-dh-make-2008"; "checks_dh_make_template_generic_dh_make_2008")]
 #[test_case("checks/fields/architecture/magic-architecture-srcpkg-wrong"; "checks_fields_architecture_magic_architecture_srcpkg_wrong")]
@@ -2406,6 +2409,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debug/obsolete/legacy-libbaz"; "checks_debug_obsolete_legacy_libbaz")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/desktop/gnome/gir/typelib-missing-gir-depends"; "checks_desktop_gnome_gir_typelib_missing_gir_depends")]
+#[test_case("checks/dh-make/cruft-fixme-placeholders"; "checks_dh_make_cruft_fixme_placeholders")]
 #[test_case("checks/dh-make/cruft-readme-source"; "checks_dh_make_cruft_readme_source")]
 #[test_case("checks/dh-make/template/generic-dh-make-2008"; "checks_dh_make_template_generic_dh_make_2008")]
 #[test_case("checks/fields/architecture/magic-architecture-srcpkg-wrong"; "checks_fields_architecture_magic_architecture_srcpkg_wrong")]

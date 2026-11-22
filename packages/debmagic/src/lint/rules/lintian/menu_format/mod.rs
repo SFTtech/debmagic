@@ -51,6 +51,7 @@ mod ln1192_whitespace_after_continuation_character;
 mod ln1420_desktop_entry_contains_encoding_key;
 mod ln1421_desktop_entry_lacks_keywords_entry;
 mod ln1575_desktop_entry_lacks_icon_entry;
+mod ln1576_desktop_entry_limited_to_environments;
 mod scan;
 
 pub(crate) use ln0248_menu_command_not_in_package::MenuCommandNotInPackage;
@@ -97,3 +98,4 @@ pub(crate) use ln1192_whitespace_after_continuation_character::WhitespaceAfterCo
 pub(crate) use ln1420_desktop_entry_contains_encoding_key::DesktopEntryContainsEncodingKey;
 pub(crate) use ln1421_desktop_entry_lacks_keywords_entry::DesktopEntryLacksKeywordsEntry;
 pub(crate) use ln1575_desktop_entry_lacks_icon_entry::DesktopEntryLacksIconEntry;
+pub(crate) use ln1576_desktop_entry_limited_to_environments::DesktopEntryLimitedToEnvironments;

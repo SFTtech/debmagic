@@ -361,6 +361,7 @@ pub(crate) use desktop::{
     RasterImageInScalableDirectory,
 };
 pub(crate) use desktop_gir::GirInArchAllPackage;
+pub(crate) use desktop_gir::GirMissingTypelibDependency;
 pub(crate) use desktop_gir::GirPackageNameDoesNotMatch;
 pub(crate) use desktop_gir::GirSectionNotLibdevel;
 pub(crate) use desktop_gir::TypelibInArchAllPackage;

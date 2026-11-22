@@ -180,6 +180,7 @@ use super::rules::ForbiddenPostrmInterpreter;
 use super::rules::GawkScriptButNoGawkDep;
 use super::rules::GfortranModuleDoesNotDeclareVersion;
 use super::rules::GirInArchAllPackage;
+use super::rules::GirMissingTypelibDependency;
 use super::rules::GirPackageNameDoesNotMatch;
 use super::rules::GlobbingPatternsOutOfOrder;
 use super::rules::GoLibraryPackageDoesNotIncludeVersion;
@@ -2171,6 +2172,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &GirMissingTypelibDependency,
     ]
 }
 
@@ -3434,7 +3436,10 @@ pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
 }
 
 pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
-    &[&IntraSourcePackageCircularDependency]
+    &[
+        &IntraSourcePackageCircularDependency,
+        &GirMissingTypelibDependency,
+    ]
 }
 
 #[cfg(test)]

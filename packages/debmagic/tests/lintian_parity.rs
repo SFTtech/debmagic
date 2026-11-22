@@ -28,6 +28,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-non-free-rfc",
     "checks/cruft/cruft-nvidia-intellectual",
     "checks/cruft/cruft-old-unicode",
+    "checks/cruft/cruft-python",
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
@@ -383,8 +384,11 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
     "checks/files/source-missing/cruft-general-test-suite",
+    "checks/files/source-missing/cruft-gfdl-invariants",
+    "checks/files/source-missing/cruft-minified-js",
     "checks/files/source-missing/cruft-source-is-missing-unrel",
     "checks/files/source-missing/cruft-upstream-binaries",
+    "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
@@ -1098,6 +1102,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-non-free-rfc",
     "checks/cruft/cruft-nvidia-intellectual",
     "checks/cruft/cruft-old-unicode",
+    "checks/cruft/cruft-python",
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
@@ -1456,8 +1461,11 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
     "checks/files/source-missing/cruft-general-test-suite",
+    "checks/files/source-missing/cruft-gfdl-invariants",
+    "checks/files/source-missing/cruft-minified-js",
     "checks/files/source-missing/cruft-source-is-missing-unrel",
     "checks/files/source-missing/cruft-upstream-binaries",
+    "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
@@ -1606,6 +1614,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/cruft/cruft-non-free-rfc"; "checks_cruft_cruft_non_free_rfc")]
 #[test_case("checks/cruft/cruft-nvidia-intellectual"; "checks_cruft_cruft_nvidia_intellectual")]
 #[test_case("checks/cruft/cruft-old-unicode"; "checks_cruft_cruft_old_unicode")]
+#[test_case("checks/cruft/cruft-python"; "checks_cruft_cruft_python")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
@@ -1961,8 +1970,11 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
 #[test_case("checks/files/source-missing/cruft-general-test-suite"; "checks_files_source_missing_cruft_general_test_suite")]
+#[test_case("checks/files/source-missing/cruft-gfdl-invariants"; "checks_files_source_missing_cruft_gfdl_invariants")]
+#[test_case("checks/files/source-missing/cruft-minified-js"; "checks_files_source_missing_cruft_minified_js")]
 #[test_case("checks/files/source-missing/cruft-source-is-missing-unrel"; "checks_files_source_missing_cruft_source_is_missing_unrel")]
 #[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
+#[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
@@ -2678,6 +2690,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/cruft/cruft-non-free-rfc"; "checks_cruft_cruft_non_free_rfc")]
 #[test_case("checks/cruft/cruft-nvidia-intellectual"; "checks_cruft_cruft_nvidia_intellectual")]
 #[test_case("checks/cruft/cruft-old-unicode"; "checks_cruft_cruft_old_unicode")]
+#[test_case("checks/cruft/cruft-python"; "checks_cruft_cruft_python")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
@@ -3036,8 +3049,11 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
 #[test_case("checks/files/source-missing/cruft-general-test-suite"; "checks_files_source_missing_cruft_general_test_suite")]
+#[test_case("checks/files/source-missing/cruft-gfdl-invariants"; "checks_files_source_missing_cruft_gfdl_invariants")]
+#[test_case("checks/files/source-missing/cruft-minified-js"; "checks_files_source_missing_cruft_minified_js")]
 #[test_case("checks/files/source-missing/cruft-source-is-missing-unrel"; "checks_files_source_missing_cruft_source_is_missing_unrel")]
 #[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
+#[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]

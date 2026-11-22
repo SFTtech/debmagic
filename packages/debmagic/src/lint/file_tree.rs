@@ -1,4 +1,5 @@
 use std::fs;
+use std::io::Read;
 use std::os::unix::fs::{FileExt, FileTypeExt, MetadataExt};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -536,6 +537,30 @@ impl FileTree {
         fs::read(root.join(entry.path()))
             .with_context(|| format!("reading {}", entry.path().display()))
     }
+
+    /// The first `len` bytes of a file (fewer when it is shorter): what a magic
+    /// number sniff needs, without reading a large file whole.
+    pub fn read_prefix(&self, entry: &Entry, len: usize) -> anyhow::Result<Vec<u8>> {
+        let (Entry::RegularFile { content, .. } | Entry::Hardlink { content, .. }) = entry else {
+            bail!("Entry {} is not a file", entry.path().display());
+        };
+        if let Some(bytes) = content {
+            return Ok(bytes[..bytes.len().min(len)].to_vec());
+        }
+        let Some(root) = &self.root else {
+            bail!(
+                "Entry {} has no content and File tree has no directory root",
+                entry.path().display()
+            );
+        };
+        let path = root.join(entry.path());
+        let file = fs::File::open(&path).with_context(|| format!("reading {}", path.display()))?;
+        let mut prefix = Vec::with_capacity(len);
+        file.take(len as u64)
+            .read_to_end(&mut prefix)
+            .with_context(|| format!("reading {}", path.display()))?;
+        Ok(prefix)
+    }
 }
 
 /// Filter over a File tree: Entry kind, path glob, and a path regex.
@@ -983,6 +1008,27 @@ mod tests {
 
     /// The walk lists everything: hidden files, VCS directories, and paths a
     /// `.gitignore` or `.ignore` names. Symlinks to directories are not followed.
+    #[test]
+    fn read_prefix_reads_at_most_len_bytes_from_disk_or_memory() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        fs::write(dir.path().join("long"), b"0123456789")?;
+        fs::write(dir.path().join("short"), b"ab")?;
+        fs::create_dir(dir.path().join("dir"))?;
+        let tree = FileTree::from_host_directory(dir.path())?;
+        let entry = |path: &str| tree.get(path).expect("entry");
+
+        assert_eq!(tree.read_prefix(entry("long"), 4)?, b"0123");
+        assert_eq!(tree.read_prefix(entry("short"), 4)?, b"ab");
+        assert!(tree.read_prefix(entry("dir"), 4).is_err());
+
+        let memory = FileTree::from_entries(
+            None,
+            vec![Entry::regular_file("f", None, Some(b"abcdef".to_vec()))],
+        );
+        assert_eq!(memory.read_prefix(memory.get("f").expect("f"), 3)?, b"abc");
+        Ok(())
+    }
+
     #[test]
     fn from_host_directory_does_not_filter_or_follow_links() -> anyhow::Result<()> {
         let dir = TempDir::new()?;

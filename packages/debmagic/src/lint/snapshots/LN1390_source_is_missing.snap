@@ -1,0 +1,20 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): source-is-missing (LN1390) [tool]
+E: example (source): source-is-missing (LN1390) [bin/tool.o]
+E: example (source): source-is-missing (LN1390) [tool]
+E: example (source): source-is-missing (LN1390) [fake2.pyc]
+E: example (source): source-is-missing (LN1390) [__pycache__/fake.cpython-38.pyc]
+E: example (source): source-is-missing (LN1390) [fake.min.js]
+E: example (source): source-is-missing (LN1390) [usr/share/javascript/jswithoutminextwithoutsource/jsonnotsourced.js]
+E: example (source): source-is-missing (LN1390) [usr/share/javascript/minwithoutsource/notsourced.min.js]
+E: example (source): source-is-missing (LN1390) [a/test.min.js]
+E: example (source): source-is-missing (LN1390) [fakeflash.swf]
+E: example (source): source-is-missing (LN1390) [fakefla.fla]
+E: example (source): source-is-missing (LN1390) [movie.flv]
+E: example (source): source-is-missing (LN1390) [deployJava/deployJava.js]
+E: example (source): source-is-missing (LN1390) [src/js/foo.html]
+E: example (source): source-is-missing (LN1390) [oldfalsepositives/longlicensetext.js]
+E: example (source): source-is-missing (LN1390) [tool]
+E: example (source): source-is-missing (LN1390) [tool]

@@ -208,6 +208,9 @@ mod ln0927_missing_depends_on_sensible_utils;
 mod ln1086_source_contains_prebuilt_silverlight_object;
 mod ln1235_trailing_comma_in_maintainer_field;
 mod ln1387_source_contains_prebuilt_binary;
+mod ln1388_source_contains_prebuilt_javascript_object;
+mod ln1389_source_contains_prebuilt_python_object;
+mod ln1390_source_is_missing;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_adduser;
@@ -233,6 +236,7 @@ mod scripts_shell;
 mod scripts_text;
 mod shell_csh;
 mod shell_non_posix_bash_centric;
+mod source_missing;
 mod substvars_libc;
 mod substvars_misc_pre_depends;
 mod systemd;
@@ -909,6 +913,9 @@ pub(crate) use ln0927_missing_depends_on_sensible_utils::MissingDependsOnSensibl
 pub(crate) use ln1086_source_contains_prebuilt_silverlight_object::SourceContainsPrebuiltSilverlightObject;
 pub(crate) use ln1235_trailing_comma_in_maintainer_field::TrailingCommaInMaintainerField;
 pub(crate) use ln1387_source_contains_prebuilt_binary::SourceContainsPrebuiltBinary;
+pub(crate) use ln1388_source_contains_prebuilt_javascript_object::SourceContainsPrebuiltJavascriptObject;
+pub(crate) use ln1389_source_contains_prebuilt_python_object::SourceContainsPrebuiltPythonObject;
+pub(crate) use ln1390_source_is_missing::SourceIsMissing;
 pub(crate) use maintainer_scripts_adduser::AdduserWithHomeVarRun;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,

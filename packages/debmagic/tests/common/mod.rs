@@ -2221,7 +2221,8 @@ fn point_bare_source_missing_hints(hints: &mut [ParityHint]) {
 ///
 /// - `cruft-general-upstream` (a lintian `Todo` test): the bare
 ///   `configure-generated-file-in-source config.cache` is `[config.cache]`
-///   (`pointed_hint` with a pointer and no note).
+///   (`pointed_hint` with a pointer and no note), and `source-is-missing` is
+///   also reported for the `.opt-1.pyc`.
 /// - `version-substvars-obsolete`: the Perl's `version-substvar-for-external-package`
 ///   extra is `<field> <substvar> <installable> -> <pkg>`, and its regex only
 ///   accepts `${source:…}` / `${binary:…}`, so `foreign-pkg:any (= ${Source-Version})`
@@ -2235,6 +2236,21 @@ fn correct_stale_expected_hints(recipe: &Path, hints: &mut Vec<ParityHint>) {
             if hint.tag == "configure-generated-file-in-source" && hint.extra == "config.cache" {
                 hint.extra = "[config.cache]".to_string();
             }
+        }
+        // The Check looks for `__pycache__/fake.cpython-38.opt-1.py` as the
+        // source of `fake.cpython-38.opt-1.pyc` (its pattern cuts only
+        // `.cpython-38` before `.pyc`, not `.opt-1`) and finds none, so it
+        // reports the missing source of that file as well; the vendored hints
+        // list only the plain `.pyc`.
+        let opt1 = ParityHint {
+            tag: "source-contains-prebuilt-python-object".to_string(),
+            extra: "[__pycache__/fake.cpython-38.opt-1.pyc]".to_string(),
+        };
+        if hints.contains(&opt1) {
+            hints.push(ParityHint {
+                tag: "source-is-missing".to_string(),
+                ..opt1
+            });
         }
     } else if recipe.ends_with("checks/debian/version-substvars/version-substvars-obsolete") {
         let tag = "version-substvar-for-external-package";

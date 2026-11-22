@@ -1,4 +1,8 @@
-use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
+use super::rule::{
+    BinaryPackageRule, BuildinfoRule, ChangesRule, GroupRule, RuleAccess, SourceRule,
+};
+use super::rules::AcuteAccentInManualPage;
+use super::rules::AddComponentCopyright;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
 use super::rules::Apache2DeprecatedAuthConfig;
@@ -16,8 +20,10 @@ use super::rules::BadPermForFileInEtcSudoersD;
 use super::rules::BadPermissionsForAliFile;
 use super::rules::BadPermissionsForEtcCronDScript;
 use super::rules::BadRelation;
+use super::rules::BadSectionInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
+use super::rules::BashTermInPosixShell;
 use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryInEtc;
 use super::rules::BinaryNmuDebianRevisionInSource;
@@ -36,18 +42,21 @@ use super::rules::BuildDependsOnDhSysuser;
 use super::rules::BuildDependsOnNonBuildPackage;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
+use super::rules::CapitalizationErrorInDescription;
 use super::rules::CarriageReturnLineFeed;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
 use super::rules::ChangelogIsSymlink;
 use super::rules::ChangelogNotCompressedWithMaxCompression;
 use super::rules::ClasspathContainsRelativePath;
+use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
 use super::rules::ComposerPrerequisite;
 use super::rules::ConfigDoesNotLoadConfmodule;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::ConflictingNegationInSourceRelation;
+use super::rules::ConflictsWithVersion;
 use super::rules::ControlFileContainsDhMakeVcsComment;
 use super::rules::ControlFileHasBadOwner;
 use super::rules::ControlFileHasBadPermissions;
@@ -58,6 +67,7 @@ use super::rules::ControlInterpreterWithoutDepends;
 use super::rules::ControlInterpreterWithoutPredepends;
 use super::rules::CshConsideredHarmful;
 use super::rules::CustomLibrarySearchPath;
+use super::rules::CuteField;
 use super::rules::DbgPackageMissingDepends;
 use super::rules::DbusPolicyAtConsole;
 use super::rules::DbusPolicyExcessivelyBroad;
@@ -69,11 +79,15 @@ use super::rules::DebconfIsNotARegistry;
 use super::rules::DebconfTranslationUsingGeneralList;
 use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
+use super::rules::DebianChangelogLineTooShort;
 use super::rules::DebianControlFileIsASymlink;
+use super::rules::DebianControlHasObsoleteDbgPackage;
+use super::rules::DebianControlHasUnusualFieldSpacing;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
 use super::rules::DebianRulesNotAMakefile;
+use super::rules::DebianRulesParsesDpkgParsechangelog;
 use super::rules::DebianRulesPassesVersionInfoToDhShlibdeps;
 use super::rules::DebianRulesSetsDebBuildOptions;
 use super::rules::DebianRulesSetsDhCompat;
@@ -82,6 +96,7 @@ use super::rules::DebianRulesShouldNotSetCFLAGSFromNoopt;
 use super::rules::DebianRulesShouldNotUseDhExtraAddons;
 use super::rules::DebianRulesShouldNotUseSanitizeAllBuildflag;
 use super::rules::DebianRulesUpdatesControlAutomatically;
+use super::rules::DebianRulesUsesAsNeededLinkerFlag;
 use super::rules::DebianRulesUsesDebBuildOpts;
 use super::rules::DebianRulesUsesDeprecatedSystemdOverride;
 use super::rules::DebianRulesUsesInstalledPythonVersions;
@@ -89,6 +104,9 @@ use super::rules::DebianRulesUsesSpecialShellVariable;
 use super::rules::DebianRulesUsesUnnecessaryDhArgument;
 use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
+use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
+use super::rules::DebianWatchUsesInsecureUri;
+use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
 use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
@@ -98,6 +116,10 @@ use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
+use super::rules::DescriptionMentionsPlannedFeatures;
+use super::rules::DesktopEntryContainsEncodingKey;
+use super::rules::DesktopEntryLacksKeywordsEntry;
+use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
@@ -117,6 +139,7 @@ use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
 use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
+use super::rules::EmptySharedLibrarySymbols;
 use super::rules::EmptyShlibs;
 use super::rules::EmptyUpstreamSources;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
@@ -129,11 +152,17 @@ use super::rules::ExecutableJarWithoutMainClass;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
+use super::rules::ExtendedDescriptionIsProbablyTooShort;
+use super::rules::ExtraLicenseFile;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
+use super::rules::FSSTNDDirInManualPage;
+use super::rules::FileContainsFixmePlaceholder;
+use super::rules::FileInEtcModprobeD;
 use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
 use super::rules::FontInNonFontPackage;
+use super::rules::FontOutsideFontDir;
 use super::rules::FontPackageNotMultiArchForeign;
 use super::rules::ForbiddenPostrmInterpreter;
 use super::rules::GawkScriptButNoGawkDep;
@@ -147,15 +176,21 @@ use super::rules::HardeningNoBindnow;
 use super::rules::HardeningNoFortifyFunctions;
 use super::rules::HardeningNoPie;
 use super::rules::HardeningNoRelro;
+use super::rules::HomepageFieldUsesInsecureUri;
 use super::rules::IllegalMultiArchValue;
+use super::rules::ImageFileHasConflictingName;
+use super::rules::ImageFileHasUnexpectedName;
 use super::rules::IncompatibleJavaBytecodeFormat;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
+use super::rules::InitDScriptDoesNotImplementStatusOption;
 use super::rules::InitDScriptUsesUsrInterpreter;
 use super::rules::InitScriptIsNotAFile;
+use super::rules::InsecureCopyrightFormatUri;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
+use super::rules::IntraSourcePackageCircularDependency;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidProfileNameInBuildProfilesField;
@@ -164,21 +199,31 @@ use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
+use super::rules::LacksLdconfigTrigger;
+use super::rules::LacksVersionedLinkToSharedLibrary;
+use super::rules::LdconfigSymlinkIsNotASymlink;
+use super::rules::LdconfigSymlinkReferencingWrongFile;
 use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
 use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
 use super::rules::LicenseProblemCcByNcSa;
+use super::rules::LicenseProblemGfdlInvariants;
+use super::rules::LicenseProblemGfdlNonOfficialText;
 use super::rules::LicenseProblemJsonEvil;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
 use super::rules::LicenseProblemNonFreeRFC;
 use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::LicenseProblemNvidiaIntellectual;
 use super::rules::LicenseProblemOldUnicode;
+use super::rules::LinkToSharedLibraryInWrongPackage;
 use super::rules::MagicArchInArchList;
+use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
 use super::rules::MaintainerScriptSetsAlternativeImproperly;
+use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
+use super::rules::MaintainerScriptWithoutSetE;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
 use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
@@ -199,6 +244,9 @@ use super::rules::MissingBuildDependsForCleanTargetInDebianRules;
 use super::rules::MissingCallToUpdateFonts;
 use super::rules::MissingDebconfDependency;
 use super::rules::MissingDepOnJarwrapper;
+use super::rules::MissingDependencyOnLibc;
+use super::rules::MissingDependencyOnLibstdc;
+use super::rules::MissingDependencyOnNumpyAbi;
 use super::rules::MissingDependencyOnPhpapi;
 use super::rules::MissingDependsOnSensibleUtils;
 use super::rules::MissingFileFromPotfilesIn;
@@ -208,6 +256,7 @@ use super::rules::MissingPkgPhpToolsAddon;
 use super::rules::MissingPkgPhpToolsBuildsystem;
 use super::rules::MissingPotfilesIn;
 use super::rules::MissingPrerequisiteForGfortranModule;
+use super::rules::MissingPrerequisiteForPyprojectBackend;
 use super::rules::MissingTemplatesPot;
 use super::rules::MissingTestsControl;
 use super::rules::MisspelledClosesBug;
@@ -221,7 +270,10 @@ use super::rules::NewPackageShouldNotPackagePython2Module;
 use super::rules::NewPackageUsesDateBasedVersionNumber;
 use super::rules::NmuInChangelog;
 use super::rules::NoDebianChanges;
+use super::rules::NoDhSequencer;
+use super::rules::NoMd5sumsControlFile;
 use super::rules::NoShlibs;
+use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
 use super::rules::NonStandardApache2ModulePackageName;
@@ -237,24 +289,35 @@ use super::rules::ObsoleteFieldInDep5Copyright;
 use super::rules::ObsoleteRelationForm;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
+use super::rules::OcamlDanglingCmi;
+use super::rules::OcamlDanglingCmx;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
+use super::rules::OldStyleConfigScript;
+use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
+use super::rules::OredDependsOnObsoletePackage;
+use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
 use super::rules::PackageContainsCmakePrivateFile;
+use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
+use super::rules::PackageContainsEmptyDirectory;
 use super::rules::PackageContainsInfoDirFile;
 use super::rules::PackageContainsMimeCacheFile;
 use super::rules::PackageContainsMimeinfoCacheFile;
 use super::rules::PackageContainsMultipleDpiFonts;
+use super::rules::PackageContainsNoArchDependentFiles;
 use super::rules::PackageContainsThumbnailsDir;
 use super::rules::PackageContainsTimestampedGzip;
+use super::rules::PackageContainsUpstreamInstallationDocumentation;
 use super::rules::PackageContainsXvpicsDir;
 use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
 use super::rules::PackageDependsOnMultipleTclxVersions;
 use super::rules::PackageFileIsExecutable;
+use super::rules::PackageHasUnnecessaryActivationOfLdconfigTrigger;
 use super::rules::PackageInstallsAptKeyring;
 use super::rules::PackageInstallsAptPreferences;
 use super::rules::PackageInstallsAptSources;
@@ -262,6 +325,7 @@ use super::rules::PackageInstallsDeprecatedUpstartConfiguration;
 use super::rules::PackageInstallsIntoEtcRcBoot;
 use super::rules::PackageInstallsIntoEtcRcD;
 use super::rules::PackageInstallsJavaBytecode;
+use super::rules::PackageInstallsLegacyPythonEggInfo;
 use super::rules::PackageInstallsPacklist;
 use super::rules::PackageInstallsPerllocalPod;
 use super::rules::PackageInstallsPythonBytecode;
@@ -273,7 +337,9 @@ use super::rules::PackageNameDefinedInConfigH;
 use super::rules::PackageNameDoesntMatchSonames;
 use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
+use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
+use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
@@ -285,6 +351,7 @@ use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
 use super::rules::PkgJsAutopkgtestTestIsEmpty;
 use super::rules::PkgJsAutopkgtestTestIsMissing;
+use super::rules::PossibleBashismInMaintainerScript;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PossibleUnindentedListInExtendedDescription;
@@ -301,13 +368,16 @@ use super::rules::PrermCallsUpdatemenus;
 use super::rules::PrermCallsUpdatercD;
 use super::rules::PriorityExtraIsReplacedByPriorityOptional;
 use super::rules::PrivacyBreachW3cValidHtml;
+use super::rules::ProgramNotLinkedAgainstLibc;
 use super::rules::PuppetModuleButNotDhPuppet;
 use super::rules::PypiHomepage;
 use super::rules::Python3DependsButNoPython3Helper;
 use super::rules::Python3ScriptButNoPython3Dep;
 use super::rules::PythonDebugInWrongLocation;
 use super::rules::PythonModuleInWrongLocation;
+use super::rules::PythonTracebackInManpage;
 use super::rules::QuiltBuildDepButNoSeriesFile;
+use super::rules::QuiltPatchMissingDescription;
 use super::rules::QuiltPatchWithNonStandardOptions;
 use super::rules::QuiltSeriesButNoBuildDep;
 use super::rules::QuiltSeriesWithoutTrailingNewline;
@@ -317,12 +387,16 @@ use super::rules::RcVersionGreaterThanExpectedVersion;
 use super::rules::ReadmeDebianContainsDebmakeTemplate;
 use super::rules::ReadmeSourceIsDhMakeTemplate;
 use super::rules::RedundantBuildPrerequisites;
+use super::rules::RedundantControlRelation;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RelativeConffile;
+use super::rules::RenamedTag;
 use super::rules::RepeatedTriggerName;
+use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
+use super::rules::RustBoilerplate;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::ScriptNotExecutable;
 use super::rules::ScriptUsesDeprecatedNodejsLocation;
@@ -333,6 +407,7 @@ use super::rules::SelectWithoutChoices;
 use super::rules::ServiceFileIsNotAFile;
 use super::rules::SharedLibraryIsExecutable;
 use super::rules::SharedLibraryIsMultiArchForeign;
+use super::rules::SharedLibraryLacksPrerequisites;
 use super::rules::SharedLibraryLacksStackSection;
 use super::rules::SharedLibraryLacksVersion;
 use super::rules::SharedLibraryNotShipped;
@@ -340,20 +415,29 @@ use super::rules::SharedLibrarySymbolsNotTracked;
 use super::rules::ShipsUndeclaredSharedLibrary;
 use super::rules::SourceContainsEditorBackupFile;
 use super::rules::SourceContainsPatchFailureFile;
+use super::rules::SourceContainsPrebuiltBinary;
+use super::rules::SourceContainsPrebuiltDoxygenDocumentation;
 use super::rules::SourceContainsPrebuiltMsHelpFile;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
+use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
+use super::rules::SpellingErrorInDescription;
 use super::rules::SpellingErrorInRulesRequiresRoot;
+use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
 use super::rules::SurplusSharedLibrarySymbols;
+use super::rules::SymbolsDeclaresDependencyOnOtherPackage;
+use super::rules::SymbolsFileMissingBuildDependsPackageField;
 use super::rules::SymlinkTargetInBuildTree;
 use super::rules::SymlinkTargetInTmp;
+use super::rules::SynopsisIsASentence;
 use super::rules::SyntaxErrorInDebconfTemplate;
 use super::rules::SyntaxErrorInDep5Copyright;
+use super::rules::SystemdServiceFileMissingDocumentationKey;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
 use super::rules::SystemdServiceFileShutdownProblems;
 use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
@@ -368,13 +452,16 @@ use super::rules::TestsuiteRestrictionsHasDeprecatedSkipNotInstallable;
 use super::rules::TooManyArchitectures;
 use super::rules::TrailingCommaInMaintainerField;
 use super::rules::TrailingSlashForDpkgMaintscriptHelperSymlinkToDir;
+use super::rules::TrailingWhitespace;
 use super::rules::TransitionalPackageNotOldlibsOptional;
 use super::rules::TripletDirAndArchitectureMismatch;
 use super::rules::TruetypeFontWrongFilename;
+use super::rules::TypelibInArchAllPackage;
 use super::rules::TypelibMissingGirDepends;
 use super::rules::TypelibNotInMultiarchDirectory;
 use super::rules::TypelibPackageNameDoesNotMatch;
 use super::rules::TypelibSectionNotIntrospection;
+use super::rules::UdebContainsDocumentationFile;
 use super::rules::UdebPostinstCallsLdconfig;
 use super::rules::UdebUsesUnsupportedCompressionForDataTarball;
 use super::rules::UdevRuleInEtc;
@@ -382,6 +469,7 @@ use super::rules::UdevRuleMissingSubsystem;
 use super::rules::UdevRuleMissingUaccess;
 use super::rules::UdevRuleUnreadable;
 use super::rules::UnconditionalUseOfDpkgStatoverride;
+use super::rules::UndeclaredElfPrerequisites;
 use super::rules::UnexpectedConffile;
 use super::rules::UnknownArchitecture;
 use super::rules::UnknownConffileInstruction;
@@ -391,6 +479,7 @@ use super::rules::UnknownEncodingInPoFile;
 use super::rules::UnknownEssentialValue;
 use super::rules::UnknownFileInDebianSource;
 use super::rules::UnknownJavaClassVersion;
+use super::rules::UnknownLocaleCode;
 use super::rules::UnknownMetaFieldInSymbolsFile;
 use super::rules::UnknownMultiArchValue;
 use super::rules::UnknownParagraphInDep5Copyright;
@@ -401,6 +490,7 @@ use super::rules::UnknownTrigger;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnparsableMenuItem;
 use super::rules::UnsupportedSourceFormat;
+use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploaderNameMissing;
@@ -409,18 +499,24 @@ use super::rules::UpstreamMetadataInNativeSource;
 use super::rules::UpstreamMetadataIsNotAFile;
 use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::UsesDeprecatedAdttmp;
+use super::rules::UsesDeprecatedPythonStdlib;
 use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
+use super::rules::UsingFirstPersonInDescription;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VcsBrowserLinksToEmptyView;
 use super::rules::VcsFieldHasUnexpectedSpaces;
+use super::rules::VcsFieldNotCanonical;
+use super::rules::VcsFieldUsesInsecureUri;
 use super::rules::VcsFieldUsesUnknownUriFormat;
+use super::rules::VcsFieldsUseMoreThanOneVcs;
 use super::rules::VcsGitUsesInvalidUserUri;
 use super::rules::VersionRefersToDistribution;
 use super::rules::VersionRefersToUnstableDistributionWithExpVersion;
 use super::rules::VersionSubstvarForExternalPackage;
+use super::rules::VeryLongLineLengthInSourceFile;
 use super::rules::VimAddonWithinVimRuntimePath;
 use super::rules::WaywardSymbolicLinkTargetInSource;
 use super::rules::WeakDependencyOnMiscDepends;
@@ -437,6 +533,7 @@ use super::rules::WrongNameForChangelogOfNativePackage;
 use super::rules::WrongNameForDebianChangelogFile;
 use super::rules::WrongNameForManualPage;
 use super::rules::WrongNameForUpstreamChangelog;
+use super::rules::WrongSectionAccordingToPackageName;
 use super::rules::WrongSectionForUdeb;
 use super::rules::WrongTeam;
 use super::rules::ZipParseError;
@@ -1931,6 +2028,101 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &SourcePackageComponentHasLongFileName,
+        &DevelopmentPackageShipsElfBinaryInPath,
+        &MissingDependencyOnLibc,
+        &MissingDependencyOnLibstdc,
+        &ProgramNotLinkedAgainstLibc,
+        &SharedLibraryLacksPrerequisites,
+        &UndeclaredElfPrerequisites,
+        &MissingDependencyOnNumpyAbi,
+        &LicenseProblemGfdlInvariants,
+        &LicenseProblemGfdlNonOfficialText,
+        &PackageUsesOldDebhelperCompatVersion,
+        &DebianChangelogLineTooShort,
+        &RedundantControlRelation,
+        &DebianControlHasUnusualFieldSpacing,
+        &InsecureCopyrightFormatUri,
+        &AddComponentCopyright,
+        &UnusedDebconfTemplate,
+        &RenamedTag,
+        &QuiltPatchMissingDescription,
+        &DebianRulesParsesDpkgParsechangelog,
+        &DebianRulesUsesAsNeededLinkerFlag,
+        &DebugSymbolMigrationPossiblyComplete,
+        &NoDhSequencer,
+        &EmptySharedLibrarySymbols,
+        &SymbolsDeclaresDependencyOnOtherPackage,
+        &SymbolsFileMissingBuildDependsPackageField,
+        &OlderSourceFormat,
+        &TrailingWhitespace,
+        &DebianWatchDoesNotCheckOpenpgpSignature,
+        &VcsFieldUsesInsecureUri,
+        &VcsFieldsUseMoreThanOneVcs,
+        &PackageContainsNoArchDependentFiles,
+        &OldStyleConfigScript,
+        &PackageContainsEmptyDirectory,
+        &ExtraLicenseFile,
+        &VeryLongLineLengthInSourceFile,
+        &UnknownLocaleCode,
+        &SourceContainsPrebuiltBinary,
+        &FontOutsideFontDir,
+        &ImageFileHasConflictingName,
+        &ImageFileHasUnexpectedName,
+        &InitDScriptDoesNotImplementStatusOption,
+        &ClojurePackageButNotDhClojure,
+        &OcamlDanglingCmx,
+        &DebianWatchUsesInsecureUri,
+        &DebianControlHasObsoleteDbgPackage,
+        &TypelibInArchAllPackage,
+        &FileContainsFixmePlaceholder,
+        &PackageContainsDocumentationOutsideUsrShareDoc,
+        &PackageContainsUpstreamInstallationDocumentation,
+        &UdebContainsDocumentationFile,
+        &SourceContainsPrebuiltDoxygenDocumentation,
+        &FSSTNDDirInManualPage,
+        &AcuteAccentInManualPage,
+        &PythonTracebackInManpage,
+        &StrayFolderInManual,
+        &NoStrongDigestsInDsc,
+        &CapitalizationErrorInDescription,
+        &DescriptionMentionsPlannedFeatures,
+        &ExtendedDescriptionIsProbablyTooShort,
+        &SpellingErrorInDescription,
+        &SynopsisIsASentence,
+        &UsingFirstPersonInDescription,
+        &HomepageFieldUsesInsecureUri,
+        &ConflictsWithVersion,
+        &OredDependsOnObsoletePackage,
+        &WrongSectionAccordingToPackageName,
+        &OutOfDateStandardsVersion,
+        &CuteField,
+        &VcsFieldNotCanonical,
+        &LacksLdconfigTrigger,
+        &PackageHasUnnecessaryActivationOfLdconfigTrigger,
+        &NoMd5sumsControlFile,
+        &DesktopEntryContainsEncodingKey,
+        &DesktopEntryLacksKeywordsEntry,
+        &FileInEtcModprobeD,
+        &MaintainerScriptCallsService,
+        &BadSectionInChangesFile,
+        &IntraSourcePackageCircularDependency,
+        &OcamlDanglingCmi,
+        &PackageSupersededByPerl,
+        &MissingPrerequisiteForPyprojectBackend,
+        &PackageInstallsLegacyPythonEggInfo,
+        &UsesDeprecatedPythonStdlib,
+        &RequiresRApi,
+        &RustBoilerplate,
+        &LacksVersionedLinkToSharedLibrary,
+        &LdconfigSymlinkIsNotASymlink,
+        &LdconfigSymlinkReferencingWrongFile,
+        &LinkToSharedLibraryInWrongPackage,
+        &MaintainerScriptSwitchesDirToSymlinkUnsafely,
+        &MaintainerScriptWithoutSetE,
+        &BashTermInPosixShell,
+        &PossibleBashismInMaintainerScript,
+        &SystemdServiceFileMissingDocumentationKey,
     ]
 }
 
@@ -2292,6 +2484,39 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &SourcePackageComponentHasLongFileName,
+        &LicenseProblemGfdlInvariants,
+        &LicenseProblemGfdlNonOfficialText,
+        &PackageUsesOldDebhelperCompatVersion,
+        &RedundantControlRelation,
+        &DebianControlHasUnusualFieldSpacing,
+        &InsecureCopyrightFormatUri,
+        &AddComponentCopyright,
+        &QuiltPatchMissingDescription,
+        &DebianRulesParsesDpkgParsechangelog,
+        &DebianRulesUsesAsNeededLinkerFlag,
+        &DebugSymbolMigrationPossiblyComplete,
+        &NoDhSequencer,
+        &OlderSourceFormat,
+        &TrailingWhitespace,
+        &DebianWatchDoesNotCheckOpenpgpSignature,
+        &VcsFieldUsesInsecureUri,
+        &VcsFieldsUseMoreThanOneVcs,
+        &VeryLongLineLengthInSourceFile,
+        &SourceContainsPrebuiltBinary,
+        &ClojurePackageButNotDhClojure,
+        &DebianWatchUsesInsecureUri,
+        &DebianControlHasObsoleteDbgPackage,
+        &FileContainsFixmePlaceholder,
+        &SourceContainsPrebuiltDoxygenDocumentation,
+        &NoStrongDigestsInDsc,
+        &HomepageFieldUsesInsecureUri,
+        &OutOfDateStandardsVersion,
+        &CuteField,
+        &VcsFieldNotCanonical,
+        &MissingPrerequisiteForPyprojectBackend,
+        &UsesDeprecatedPythonStdlib,
+        &RustBoilerplate,
     ]
 }
 
@@ -3064,7 +3289,80 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
+        &DevelopmentPackageShipsElfBinaryInPath,
+        &MissingDependencyOnLibc,
+        &MissingDependencyOnLibstdc,
+        &ProgramNotLinkedAgainstLibc,
+        &SharedLibraryLacksPrerequisites,
+        &UndeclaredElfPrerequisites,
+        &MissingDependencyOnNumpyAbi,
+        &DebianChangelogLineTooShort,
+        &UnusedDebconfTemplate,
+        &RenamedTag,
+        &EmptySharedLibrarySymbols,
+        &SymbolsDeclaresDependencyOnOtherPackage,
+        &SymbolsFileMissingBuildDependsPackageField,
+        &PackageContainsNoArchDependentFiles,
+        &OldStyleConfigScript,
+        &PackageContainsEmptyDirectory,
+        &ExtraLicenseFile,
+        &UnknownLocaleCode,
+        &FontOutsideFontDir,
+        &ImageFileHasConflictingName,
+        &ImageFileHasUnexpectedName,
+        &InitDScriptDoesNotImplementStatusOption,
+        &OcamlDanglingCmx,
+        &TypelibInArchAllPackage,
+        &PackageContainsDocumentationOutsideUsrShareDoc,
+        &PackageContainsUpstreamInstallationDocumentation,
+        &UdebContainsDocumentationFile,
+        &FSSTNDDirInManualPage,
+        &AcuteAccentInManualPage,
+        &PythonTracebackInManpage,
+        &StrayFolderInManual,
+        &CapitalizationErrorInDescription,
+        &DescriptionMentionsPlannedFeatures,
+        &ExtendedDescriptionIsProbablyTooShort,
+        &SpellingErrorInDescription,
+        &SynopsisIsASentence,
+        &UsingFirstPersonInDescription,
+        &HomepageFieldUsesInsecureUri,
+        &ConflictsWithVersion,
+        &OredDependsOnObsoletePackage,
+        &WrongSectionAccordingToPackageName,
+        &LacksLdconfigTrigger,
+        &PackageHasUnnecessaryActivationOfLdconfigTrigger,
+        &NoMd5sumsControlFile,
+        &DesktopEntryContainsEncodingKey,
+        &DesktopEntryLacksKeywordsEntry,
+        &FileInEtcModprobeD,
+        &MaintainerScriptCallsService,
+        &OcamlDanglingCmi,
+        &PackageSupersededByPerl,
+        &PackageInstallsLegacyPythonEggInfo,
+        &RequiresRApi,
+        &LacksVersionedLinkToSharedLibrary,
+        &LdconfigSymlinkIsNotASymlink,
+        &LdconfigSymlinkReferencingWrongFile,
+        &LinkToSharedLibraryInWrongPackage,
+        &MaintainerScriptSwitchesDirToSymlinkUnsafely,
+        &MaintainerScriptWithoutSetE,
+        &BashTermInPosixShell,
+        &PossibleBashismInMaintainerScript,
+        &SystemdServiceFileMissingDocumentationKey,
     ]
+}
+
+pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
+    &[&BadSectionInChangesFile, &DebianRevisionNotWellFormed]
+}
+
+pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
+    &[&DebianRevisionNotWellFormed]
+}
+
+pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
+    &[&IntraSourcePackageCircularDependency]
 }
 
 #[cfg(test)]
@@ -3125,10 +3423,36 @@ mod tests {
     }
 
     #[test]
+    fn changes_rules_cover_catalogued_changes_tags() {
+        let codes = registered(changes_rules().iter().map(|rule| rule.code()));
+        assert_eq!(codes, implemented_codes("ChangesRule"));
+    }
+
+    #[test]
+    fn buildinfo_rules_cover_catalogued_buildinfo_tags() {
+        let codes = registered(buildinfo_rules().iter().map(|rule| rule.code()));
+        assert_eq!(codes, implemented_codes("BuildinfoRule"));
+    }
+
+    #[test]
+    fn group_rules_cover_catalogued_group_tags() {
+        let codes = registered(group_rules().iter().map(|rule| rule.code()));
+        assert_eq!(codes, implemented_codes("GroupRule"));
+    }
+
+    #[test]
     fn all_rules_is_every_rule_once() {
         let all = registered(all_rules().iter().map(|rule| rule.code()));
-        let mut by_trait = implemented_codes("SourceRule");
-        by_trait.extend(implemented_codes("BinaryPackageRule"));
+        let mut by_trait = BTreeSet::new();
+        for trait_name in [
+            "SourceRule",
+            "BinaryPackageRule",
+            "ChangesRule",
+            "BuildinfoRule",
+            "GroupRule",
+        ] {
+            by_trait.extend(implemented_codes(trait_name));
+        }
         assert_eq!(all, by_trait);
     }
 }

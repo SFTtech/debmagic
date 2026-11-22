@@ -1,0 +1,23 @@
+# Checked in order, any must match.
+# List of bad Homepage fields in debian/control
+# Format is:
+#
+#   tag ~~ regex (\x\s)
+#
+# Please sort by alphabetic sort of tags
+
+homepage-field-uses-insecure-uri                       ~~ ^ftp://
+homepage-field-uses-insecure-uri                       ~~ ^http://(?:[^\.]+\.)?bioconductor\.org
+homepage-field-uses-insecure-uri                       ~~ ^http://(?:[^\.]+\.)?cran\.r-project\.org
+homepage-field-uses-insecure-uri                       ~~ ^http://(?:[^\.]+\.)?debian\.org
+homepage-field-uses-insecure-uri                       ~~ ^http://(?:[^\.]+\.)?github\.com
+homepage-field-uses-insecure-uri                       ~~ ^http://(?:[^\.]+\.)?metacpan\.org
+homepage-field-uses-insecure-uri                       ~~ ^http://(www\.)?gnu\.org
+homepage-for-bioconductor-package-not-canonical        ~~ bioconductor\.org/packages/.*/bioc/html/.*\.html*$
+homepage-for-cpan-package-contains-version             ~~ (?:search\.cpan\.org|metacpan\.org)/.*-[0-9._]+/*
+homepage-for-cran-package-not-canonical                ~~ cran\.r-project\.org/web/packages/.+
+homepage-refers-to-filesystem-listing                  ~~ (https?|ftp)://ftp\.gnu\.org/gnu/(.*)
+homepage-refers-to-obsolete-debian-infrastructure      ~~ alioth\.debian\.org
+homepage-github-url-ends-with-dot-git                  ~~ ^https?://github\.com/.*\.git$
+homepage-gitlab-url-ends-with-dot-git                  ~~ ^https?://gitlab\.com/.*\.git$
+homepage-salsa-url-ends-with-dot-git                   ~~ ^https?://salsa.debian.org/.*\.git$

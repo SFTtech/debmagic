@@ -17,6 +17,8 @@ pub enum ProcessableType {
     Source,
     Binary,
     Udeb,
+    Changes,
+    Buildinfo,
 }
 
 impl ProcessableType {
@@ -25,6 +27,8 @@ impl ProcessableType {
             Self::Source => "source",
             Self::Binary => "binary",
             Self::Udeb => "udeb",
+            Self::Changes => "changes",
+            Self::Buildinfo => "buildinfo",
         }
     }
 }
@@ -157,5 +161,7 @@ mod tests {
         assert_eq!(ProcessableType::Source.to_string(), "source");
         assert_eq!(ProcessableType::Binary.to_string(), "binary");
         assert_eq!(ProcessableType::Udeb.to_string(), "udeb");
+        assert_eq!(ProcessableType::Changes.to_string(), "changes");
+        assert_eq!(ProcessableType::Buildinfo.to_string(), "buildinfo");
     }
 }

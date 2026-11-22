@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): package-contains-empty-directory (LN1383) [usr/bin//]
+I: example (binary): package-contains-empty-directory (LN1383) [usr/share/foo//]

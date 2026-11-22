@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): lacks-versioned-link-to-shared-library (LN1410) usr/lib/libfoo.so.1 [usr/lib/libfoo.so.1.0.1]
+E: example (udeb): lacks-versioned-link-to-shared-library (LN1410) usr/lib/x86_64-linux-gnu/libfoo.so.1 [usr/lib/x86_64-linux-gnu/libfoo.so.1.0.1]

@@ -175,6 +175,22 @@ pub trait BinaryPackageRule: RuleAccess {
     fn run(&self, ctx: &mut super::context::BinaryPackageContext<'_>);
 }
 
+/// Applicability to the Changes file of a Group (ADR 0055).
+pub trait ChangesRule: RuleAccess {
+    fn run(&self, ctx: &mut super::group_context::ChangesContext<'_>);
+}
+
+/// Applicability to the Buildinfo file of a Group (ADR 0055).
+pub trait BuildinfoRule: RuleAccess {
+    fn run(&self, ctx: &mut super::group_context::BuildinfoContext<'_>);
+}
+
+/// Applicability to a whole Group: runs once per Group that has a `.dsc`, and
+/// its Diagnostics attach to the Source package (ADR 0055).
+pub trait GroupRule: RuleAccess {
+    fn run(&self, ctx: &mut super::group_context::GroupContext<'_>);
+}
+
 #[macro_export]
 macro_rules! declare_rule {
     (

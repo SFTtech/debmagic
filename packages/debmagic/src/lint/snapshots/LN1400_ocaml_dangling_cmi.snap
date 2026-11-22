@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): ocaml-dangling-cmi (LN1400) [usr/lib/ocaml/foo.cmi]
+I: example (binary): ocaml-dangling-cmi (LN1400) [usr/lib/ocaml/foo.cmi]
+I: example (binary): ocaml-dangling-cmi (LN1400) [usr/lib/ocaml/.cmi]

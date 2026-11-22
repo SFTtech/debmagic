@@ -169,6 +169,24 @@ impl ControlParagraph {
         self.lines.get(index).copied().flatten()
     }
 
+    /// The first Deb822 paragraph of a file that may carry a PGP signature
+    /// (a `.dsc`, `.changes` or `.buildinfo`). `what` names the file kind in
+    /// the error. Not readable, not valid, or without a paragraph is an `Err`.
+    pub(crate) fn parse_first_signed(text: &str, what: &str) -> anyhow::Result<Self> {
+        use anyhow::Context as _;
+        let (payload, _) = debian_control::pgp::strip_pgp_signature(text)
+            .with_context(|| format!("{what} is not readable Deb822"))?;
+        let control: Control = payload
+            .parse()
+            .with_context(|| format!("{what} is not valid Deb822"))?;
+        let Some(first) = control.as_deb822().paragraphs().next() else {
+            anyhow::bail!("{what} has no Deb822 paragraph");
+        };
+        Ok(Self::from_entries(
+            first.entries().filter_map(located_entry),
+        ))
+    }
+
     /// The value with continuation lines as written (a leading space and all),
     /// comment lines dropped: lintian's `untrimmed_value`. Falls back to
     /// [`Self::get`] when the paragraph was built from plain values.

@@ -75,6 +75,7 @@ mod fields_architecture;
 mod fields_bugs;
 mod fields_built_using;
 mod fields_checksums;
+mod fields_distribution;
 mod fields_empty;
 mod fields_format;
 mod fields_installer_menu_item;
@@ -306,6 +307,8 @@ pub(crate) use binaries_spelling::SpellingErrorInBinary;
 pub(crate) use binaries_static::StaticallyLinkedBinary;
 pub(crate) use build_systems_waf::SourceContainsWafBinary;
 pub(crate) use changes_file::BadSectionInChangesFile;
+pub(crate) use changes_file::FileSizeMismatchInChangesFile;
+pub(crate) use changes_file::PackageBuildsDbgAndDbgsymVariants;
 pub(crate) use conffiles::{
     ConffileHasBadFileType, DuplicateConffile, FileInEtcRcDMarkedAsConffile,
     FileInUsrMarkedAsConffile, MissingConffile, NonEtcFileMarkedAsConffile, RelativeConffile,
@@ -381,7 +384,11 @@ pub(crate) use documentation::{
 };
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use fields_checksums::NoStrongDigestsInDsc;
+pub(crate) use fields_distribution::MultipleDistributionsInChangesFile;
+pub(crate) use fields_distribution::UnreleasedChanges;
+pub(crate) use fields_distribution::UploadHasBackportsVersionNumber;
 pub(crate) use fields_empty::EmptyField;
+pub(crate) use fields_format::MalformedChangesFile;
 pub(crate) use fields_format::UnsupportedSourceFormat;
 pub(crate) use fields_maintainer_team::WrongTeam;
 pub(crate) use fields_multi_arch::FontPackageNotMultiArchForeign;
@@ -836,7 +843,7 @@ pub(crate) use fields_built_using::InvalidValueInBuiltUsingField;
 pub(crate) use fields_installer_menu_item::BadMenuItem;
 pub(crate) use fields_mail_address::{
     DuplicateContact, FaultyDebianQaGroupAddress, FaultyDebianQaGroupPhrase,
-    MailAddressLoopsOrBounces, RootInContact,
+    MailAddressLoopsOrBounces, NoPhrase, RootInContact,
 };
 pub(crate) use fields_relations_extra::{
     BadVersionInRelation, BinaryPackageDependsOnToolchainPackage, BreaksWithoutVersion,

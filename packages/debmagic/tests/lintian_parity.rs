@@ -141,6 +141,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/patches/quilt/patch-systems-quilt-no-depends",
+    "checks/debian/patches/quilt/patch-systems-quilt-no-newline",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/legacy-debconf",
@@ -993,6 +994,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/patches/quilt/patch-systems-quilt-no-depends",
+    "checks/debian/patches/quilt/patch-systems-quilt-no-newline",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/legacy-debconf",
@@ -1375,6 +1377,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-depends"; "checks_debian_patches_quilt_patch_systems_quilt_no_depends")]
+#[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-newline"; "checks_debian_patches_quilt_patch_systems_quilt_no_newline")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
@@ -2229,6 +2232,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-depends"; "checks_debian_patches_quilt_patch_systems_quilt_no_depends")]
+#[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-newline"; "checks_debian_patches_quilt_patch_systems_quilt_no_newline")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]

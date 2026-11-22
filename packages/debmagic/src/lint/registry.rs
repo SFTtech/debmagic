@@ -277,6 +277,7 @@ use super::rules::PythonModuleInWrongLocation;
 use super::rules::QuiltBuildDepButNoSeriesFile;
 use super::rules::QuiltPatchWithNonStandardOptions;
 use super::rules::QuiltSeriesButNoBuildDep;
+use super::rules::QuiltSeriesWithoutTrailingNewline;
 use super::rules::RPackageNotArchAll;
 use super::rules::RasterImageInScalableDirectory;
 use super::rules::RcVersionGreaterThanExpectedVersion;
@@ -1799,6 +1800,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageUsesVendorSpecificPatchSeries,
         &QuiltPatchWithNonStandardOptions,
         &QuiltSeriesButNoBuildDep,
+        &QuiltSeriesWithoutTrailingNewline,
     ]
 }
 
@@ -2130,6 +2132,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PackageUsesVendorSpecificPatchSeries,
         &QuiltPatchWithNonStandardOptions,
         &QuiltSeriesButNoBuildDep,
+        &QuiltSeriesWithoutTrailingNewline,
     ]
 }
 

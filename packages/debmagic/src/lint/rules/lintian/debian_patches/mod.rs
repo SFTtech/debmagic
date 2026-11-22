@@ -12,6 +12,7 @@ mod ln0892_quilt_build_dep_but_no_series_file;
 mod ln1206_package_uses_vendor_specific_patch_series;
 mod ln1207_quilt_patch_with_non_standard_options;
 mod ln1208_quilt_series_but_no_build_dep;
+mod ln1209_quilt_series_without_trailing_newline;
 
 pub(crate) use ln0396_format_3_0_but_debian_changes_patch::Format30ButDebianChangesPatch;
 pub(crate) use ln0706_patch_file_present_but_not_mentioned_in_series::PatchFilePresentButNotMentionedInSeries;
@@ -24,3 +25,4 @@ pub(crate) use ln0892_quilt_build_dep_but_no_series_file::QuiltBuildDepButNoSeri
 pub(crate) use ln1206_package_uses_vendor_specific_patch_series::PackageUsesVendorSpecificPatchSeries;
 pub(crate) use ln1207_quilt_patch_with_non_standard_options::QuiltPatchWithNonStandardOptions;
 pub(crate) use ln1208_quilt_series_but_no_build_dep::QuiltSeriesButNoBuildDep;
+pub(crate) use ln1209_quilt_series_without_trailing_newline::QuiltSeriesWithoutTrailingNewline;

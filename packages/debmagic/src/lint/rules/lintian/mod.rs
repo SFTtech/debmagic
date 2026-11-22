@@ -248,6 +248,7 @@ pub(crate) use apache2::{
 };
 pub(crate) use application_not_library::LibappPerlPackageName;
 pub(crate) use appstream_metadata::AppstreamMetadataInLegacyLocation;
+pub(crate) use appstream_metadata::AppstreamMetadataInvalid;
 pub(crate) use apt::PackageInstallsAptKeyring;
 pub(crate) use apt::PackageInstallsAptPreferences;
 pub(crate) use apt::PackageInstallsAptSources;

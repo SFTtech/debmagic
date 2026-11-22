@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): script-uses-deprecated-nodejs-location (LN1186) nodejs [usr/bin/tool]
+W: example (binary): script-uses-deprecated-nodejs-location (LN1186) nodejs [usr/bin/tool]
+W: example (udeb): script-uses-deprecated-nodejs-location (LN1186) nodejs [usr/bin/tool]
+W: example (binary): script-uses-deprecated-nodejs-location (LN1186) nodejs [usr/bin/tool]
+W: example (binary): script-uses-deprecated-nodejs-location (LN1186) nodejs [usr/bin/tool]

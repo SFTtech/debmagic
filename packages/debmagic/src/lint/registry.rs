@@ -296,6 +296,7 @@ use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::ScriptNotExecutable;
+use super::rules::ScriptUsesDeprecatedNodejsLocation;
 use super::rules::ScriptUsesPerl4LibsWithoutDep;
 use super::rules::ScriptWithLanguageExtension;
 use super::rules::SectionIsDhMakeTemplate;
@@ -1817,6 +1818,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DbusSystemServiceWrongName,
         &RubyScriptButNoRubyDep,
         &ScriptNotExecutable,
+        &ScriptUsesDeprecatedNodejsLocation,
     ]
 }
 
@@ -2893,6 +2895,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DbusSystemServiceWrongName,
         &RubyScriptButNoRubyDep,
         &ScriptNotExecutable,
+        &ScriptUsesDeprecatedNodejsLocation,
     ]
 }
 

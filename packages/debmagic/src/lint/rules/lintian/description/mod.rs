@@ -22,6 +22,7 @@ mod ln0923_description_is_dh_make_template;
 mod ln1234_possible_unindented_list_in_extended_description;
 mod ln1359_capitalization_error_in_description;
 mod ln1360_description_mentions_planned_features;
+mod ln1361_extended_description_is_probably_too_short;
 mod spelling;
 
 pub(crate) use ln0037_extended_description_is_empty::ExtendedDescriptionIsEmpty;
@@ -42,3 +43,4 @@ pub(crate) use ln0923_description_is_dh_make_template::DescriptionIsDhMakeTempla
 pub(crate) use ln1234_possible_unindented_list_in_extended_description::PossibleUnindentedListInExtendedDescription;
 pub(crate) use ln1359_capitalization_error_in_description::CapitalizationErrorInDescription;
 pub(crate) use ln1360_description_mentions_planned_features::DescriptionMentionsPlannedFeatures;
+pub(crate) use ln1361_extended_description_is_probably_too_short::ExtendedDescriptionIsProbablyTooShort;

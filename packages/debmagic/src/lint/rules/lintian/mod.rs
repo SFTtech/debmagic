@@ -509,7 +509,8 @@ pub(crate) use description::{
     DescriptionStartsWithPackageName, DescriptionSynopsisIsEmpty,
     DescriptionSynopsisStartsWithArticle, DescriptionTooShort,
     ExtendedDescriptionContainsEmptyParagraph, ExtendedDescriptionIsEmpty,
-    ExtendedDescriptionLineTooLong, PossibleUnindentedListInExtendedDescription, SynopsisTooLong,
+    ExtendedDescriptionIsProbablyTooShort, ExtendedDescriptionLineTooLong,
+    PossibleUnindentedListInExtendedDescription, SynopsisTooLong,
 };
 pub(crate) use documentation_examples::NestedExamplesDirectory;
 pub(crate) use documentation_manual::{

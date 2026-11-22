@@ -267,6 +267,7 @@ use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
+use super::rules::PostinstHasUselessCallToUpdateMenus;
 use super::rules::PostrmContainsAdditionalUpdatercDCalls;
 use super::rules::PostrmDoesNotCallUpdatercDForInitDScript;
 use super::rules::PostrmDoesNotPurgeDebconf;
@@ -1847,6 +1848,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnknownTrigger,
         &UnparsableMenuItem,
         &WhitespaceAfterContinuationCharacter,
+        &PostinstHasUselessCallToUpdateMenus,
     ]
 }
 
@@ -2938,6 +2940,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UnknownTrigger,
         &UnparsableMenuItem,
         &WhitespaceAfterContinuationCharacter,
+        &PostinstHasUselessCallToUpdateMenus,
     ]
 }
 

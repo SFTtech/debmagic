@@ -812,7 +812,8 @@ pub(crate) use menus::{
     MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,
     MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus, MenuMethodLacksInclude,
     PostinstDoesNotCallUpdatemenus, PostinstHasUselessCallToInstallDocs,
-    PostrmDoesNotCallUpdatemenus, PrermHasUselessCallToInstallDocs,
+    PostinstHasUselessCallToUpdateMenus, PostrmDoesNotCallUpdatemenus,
+    PrermHasUselessCallToInstallDocs,
 };
 pub(crate) use mimeinfo::PackageContainsMimeCacheFile;
 pub(crate) use mimeinfo::PackageContainsMimeFileOutsidePackageDir;

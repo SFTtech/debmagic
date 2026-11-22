@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): debug-file-with-no-debug-symbols (LN1293) [usr/lib/debug/usr/share/foo/basic]
+W: example (binary): debug-file-with-no-debug-symbols (LN1293) [usr/lib/debug/usr/lib/libhello.so.0.0]
+W: example (binary): debug-file-with-no-debug-symbols (LN1293) [usr/lib/debug/lib/libhello.so.0.0]
+W: example (binary): debug-file-with-no-debug-symbols (LN1293) [usr/lib/debug/usr/bin/hello-link]
+W: example (udeb): debug-file-with-no-debug-symbols (LN1293) [usr/lib/debug/usr/bin/hello]

@@ -107,6 +107,7 @@ use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
 use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
 use super::rules::DebianWatchUsesInsecureUri;
+use super::rules::DebugFileWithNoDebugSymbols;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
@@ -2125,6 +2126,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
         &BinaryHasUnneededSection,
+        &DebugFileWithNoDebugSymbols,
     ]
 }
 
@@ -3353,6 +3355,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
         &BinaryHasUnneededSection,
+        &DebugFileWithNoDebugSymbols,
     ]
 }
 

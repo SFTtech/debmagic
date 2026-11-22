@@ -354,6 +354,7 @@ use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
 use super::rules::SurplusSharedLibrarySymbols;
 use super::rules::SymbolsDeclaresDependencyOnOtherPackage;
+use super::rules::SymbolsFileMissingBuildDependsPackageField;
 use super::rules::SymlinkTargetInBuildTree;
 use super::rules::SymlinkTargetInTmp;
 use super::rules::SyntaxErrorInDebconfTemplate;
@@ -1939,6 +1940,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoDhSequencer,
         &EmptySharedLibrarySymbols,
         &SymbolsDeclaresDependencyOnOtherPackage,
+        &SymbolsFileMissingBuildDependsPackageField,
     ]
 }
 
@@ -3076,6 +3078,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TransitionalPackageNotOldlibsOptional,
         &EmptySharedLibrarySymbols,
         &SymbolsDeclaresDependencyOnOtherPackage,
+        &SymbolsFileMissingBuildDependsPackageField,
     ]
 }
 

@@ -302,6 +302,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/artifact/cruft-general-native",
     "checks/files/artifact/cruft-general-quilt",
     "checks/files/artifact/cruft-general-wig-pen",
+    "checks/files/contents/line-length/cruft-gfdl-fp-sliding-win",
+    "checks/files/contents/line-length/cruft-gfdl-invariants",
+    "checks/files/contents/line-length/cruft-minified-js",
+    "checks/files/contents/line-length/min-js-with-sources",
     "checks/files/encoding/changelog-in-western-encoding",
     "checks/files/encoding/copyright-in-western-encoding",
     "checks/files/encoding/debconf-in-western-encoding",
@@ -1193,6 +1197,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/artifact/cruft-general-native",
     "checks/files/artifact/cruft-general-quilt",
     "checks/files/artifact/cruft-general-wig-pen",
+    "checks/files/contents/line-length/cruft-gfdl-fp-sliding-win",
+    "checks/files/contents/line-length/cruft-gfdl-invariants",
+    "checks/files/contents/line-length/cruft-minified-js",
+    "checks/files/contents/line-length/min-js-with-sources",
     "checks/files/encoding/changelog-in-western-encoding",
     "checks/files/encoding/copyright-in-western-encoding",
     "checks/files/encoding/debconf-in-western-encoding",
@@ -1594,6 +1602,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
 #[test_case("checks/files/artifact/cruft-general-wig-pen"; "checks_files_artifact_cruft_general_wig_pen")]
+#[test_case("checks/files/contents/line-length/cruft-gfdl-fp-sliding-win"; "checks_files_contents_line_length_cruft_gfdl_fp_sliding_win")]
+#[test_case("checks/files/contents/line-length/cruft-gfdl-invariants"; "checks_files_contents_line_length_cruft_gfdl_invariants")]
+#[test_case("checks/files/contents/line-length/cruft-minified-js"; "checks_files_contents_line_length_cruft_minified_js")]
+#[test_case("checks/files/contents/line-length/min-js-with-sources"; "checks_files_contents_line_length_min_js_with_sources")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
 #[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
 #[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]
@@ -2487,6 +2499,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
 #[test_case("checks/files/artifact/cruft-general-wig-pen"; "checks_files_artifact_cruft_general_wig_pen")]
+#[test_case("checks/files/contents/line-length/cruft-gfdl-fp-sliding-win"; "checks_files_contents_line_length_cruft_gfdl_fp_sliding_win")]
+#[test_case("checks/files/contents/line-length/cruft-gfdl-invariants"; "checks_files_contents_line_length_cruft_gfdl_invariants")]
+#[test_case("checks/files/contents/line-length/cruft-minified-js"; "checks_files_contents_line_length_cruft_minified_js")]
+#[test_case("checks/files/contents/line-length/min-js-with-sources"; "checks_files_contents_line_length_min_js_with_sources")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
 #[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
 #[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]

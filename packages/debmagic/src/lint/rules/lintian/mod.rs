@@ -812,7 +812,8 @@ pub(crate) use debian_patches::{
     InvalidDep3FormatPatchWrongLastUpdate, PackageUsesVendorSpecificPatchSeries,
     PatchFilePresentButNotMentionedInSeries, PatchNotForwardedUpstream,
     PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription,
-    QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
+    QuiltPatchUsesDpatchPlaceholder, QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
+    QuiltSeriesWithoutTrailingNewline,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,

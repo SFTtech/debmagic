@@ -44,6 +44,7 @@ pub(crate) mod tester;
 #[cfg(test)]
 mod tester_group;
 mod timing;
+mod upstream_metadata;
 mod zip;
 
 pub use diagnostic::{Diagnostic, DiagnosticInner, Location, ProcessableType};

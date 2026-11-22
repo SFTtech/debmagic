@@ -24,6 +24,7 @@ use super::rule::{Code, RuleAccess, Tag};
 use super::source_package::SourcePackageExtract;
 use super::subject::SubjectKind;
 use super::timing;
+use super::upstream_metadata::{self, UpstreamMetadata};
 
 pub(super) struct DiagnosticSink {
     code: Code,
@@ -732,6 +733,19 @@ impl<'a> SourceContext<'a> {
                 Some((entry.path().to_path_buf(), QuiltSeries::parse(&text)))
             })
             .collect()
+    }
+
+    /// `debian/upstream/metadata` of the packaging tree, read and parsed once
+    /// per Subject. `None` after a global File tree failure (returned from
+    /// [`Self::finish`]). See [`UpstreamMetadata`] for the states.
+    #[allow(dead_code)]
+    pub fn upstream_metadata(&mut self) -> Option<Arc<UpstreamMetadata>> {
+        self.files()?;
+        Some(self.shared_once(|ctx| {
+            ctx.files()
+                .map(upstream_metadata::read)
+                .unwrap_or(UpstreamMetadata::Missing)
+        }))
     }
 
     /// Whether [`Self::shipped_files`] would list at least one file.

@@ -329,8 +329,8 @@ impl GroupCase {
     }
 
     /// A deb of the Group. `fields` is more Installation control, as Deb822
-    /// lines (`Depends: other\n`); `Package`, `Version` and `Architecture` are
-    /// set.
+    /// lines (`Depends: other\n`); `Package`, `Version` and `Architecture`
+    /// (`all`) are set; a field in `fields` replaces the default of its name.
     pub fn installable(mut self, name: impl Into<String>, fields: impl Into<String>) -> Self {
         self.push_installable(name.into(), fields.into(), false);
         self
@@ -435,7 +435,10 @@ impl GroupCase {
                     let (key, value) = line
                         .split_once(':')
                         .expect("fields are `Name: value` lines");
-                    entries.push((key.trim().to_string(), value.trim().to_string()));
+                    let (key, value) = (key.trim().to_string(), value.trim().to_string());
+                    // A field given in `fields` replaces the default.
+                    entries.retain(|(name, _)| !name.eq_ignore_ascii_case(&key));
+                    entries.push((key, value));
                 }
                 let extension = if *udeb { "udeb" } else { "deb" };
                 BinaryPackageData::with_data_files(

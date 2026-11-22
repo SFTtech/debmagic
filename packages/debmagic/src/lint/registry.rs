@@ -208,6 +208,7 @@ use super::rules::MissingPkgPhpToolsAddon;
 use super::rules::MissingPkgPhpToolsBuildsystem;
 use super::rules::MissingPotfilesIn;
 use super::rules::MissingPrerequisiteForGfortranModule;
+use super::rules::MissingPrerequisiteForPyprojectBackend;
 use super::rules::MissingTemplatesPot;
 use super::rules::MissingTestsControl;
 use super::rules::MisspelledClosesBug;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SubstvarSourceVersionIsDeprecated,
         &OcamlDanglingCmi,
         &PackageSupersededByPerl,
+        &MissingPrerequisiteForPyprojectBackend,
     ]
 }
 
@@ -2296,6 +2298,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &MissingPrerequisiteForPyprojectBackend,
     ]
 }
 

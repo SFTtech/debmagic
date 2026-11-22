@@ -8,6 +8,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
     process::{Command, ExitStatus, Stdio},
+    sync::OnceLock,
 };
 
 pub fn assets_dir() -> PathBuf {
@@ -331,52 +332,113 @@ pub fn catalogued_source_package_tags() -> HashSet<String> {
     catalogued_tags_with_impl(&["impl SourceRule for"])
 }
 
-fn catalogued_tags_with_impl(needles: &[&str]) -> HashSet<String> {
-    let mut tags = HashSet::new();
-    let rules_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/lint/rules/lintian");
-    fn walk(dir: &Path, needles: &[&str], tags: &mut HashSet<String>) {
-        let Ok(entries) = fs::read_dir(dir) else {
-            return;
-        };
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.is_dir() {
-                walk(&path, needles, tags);
-                continue;
-            }
-            if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
-                continue;
-            }
-            let Ok(text) = fs::read_to_string(&path) else {
-                continue;
+/// The Rule kinds `catalogued_tags_with_impl` can filter on.
+const RULE_IMPL_NEEDLES: &[&str] = &[
+    "impl SourceRule for",
+    "impl BinaryPackageRule for",
+    "impl ChangesRule for",
+    "impl BuildinfoRule for",
+    "impl GroupRule for",
+];
+
+/// One Rule source file of `src/lint/rules/lintian/`: which Rule kinds it
+/// implements and the Tags it declares.
+struct CataloguedRuleFile {
+    impls: Vec<&'static str>,
+    tags: Vec<String>,
+}
+
+/// The catalogue scan, done once per test process: it reads every Rule file
+/// under `src/lint/rules/lintian/`, and each test needs several views of it.
+fn catalogue_scan() -> &'static [CataloguedRuleFile] {
+    static SCAN: OnceLock<Vec<CataloguedRuleFile>> = OnceLock::new();
+    SCAN.get_or_init(|| {
+        fn walk(dir: &Path, files: &mut Vec<CataloguedRuleFile>) {
+            let Ok(entries) = fs::read_dir(dir) else {
+                return;
             };
-            if !needles.iter().any(|needle| text.contains(needle)) {
-                continue;
-            }
-            for line in text.lines() {
-                let line = line.trim();
-                let Some(rest) = line.strip_prefix("tag = \"") else {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    walk(&path, files);
+                    continue;
+                }
+                if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
+                    continue;
+                }
+                let Ok(text) = fs::read_to_string(&path) else {
                     continue;
                 };
-                let Some(tag) = rest.strip_suffix("\",") else {
+                let impls: Vec<&'static str> = RULE_IMPL_NEEDLES
+                    .iter()
+                    .copied()
+                    .filter(|needle| text.contains(needle))
+                    .collect();
+                if impls.is_empty() {
                     continue;
-                };
-                tags.insert(tag.to_string());
+                }
+                let tags = text
+                    .lines()
+                    .filter_map(|line| {
+                        line.trim()
+                            .strip_prefix("tag = \"")?
+                            .strip_suffix("\",")
+                            .map(str::to_string)
+                    })
+                    .collect();
+                files.push(CataloguedRuleFile { impls, tags });
             }
         }
+        let mut files = Vec::new();
+        walk(
+            &PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/lint/rules/lintian"),
+            &mut files,
+        );
+        files
+    })
+}
+
+fn catalogued_tags_with_impl(needles: &[&str]) -> HashSet<String> {
+    debug_assert!(
+        needles
+            .iter()
+            .all(|needle| RULE_IMPL_NEEDLES.contains(needle))
+    );
+    catalogue_scan()
+        .iter()
+        .filter(|file| file.impls.iter().any(|kind| needles.contains(kind)))
+        .flat_map(|file| file.tags.iter().cloned())
+        .collect()
+}
+
+/// A recipe's `eval/hints` or `eval/desc`, lossily decoded. A test reads the
+/// same file several times (expected hints, `debian-adds-` pointers, Tag
+/// prefixes), so the text is kept for the rest of the process.
+fn recipe_eval_text(path: &Path) -> Option<std::sync::Arc<str>> {
+    use std::{
+        collections::HashMap,
+        sync::{Arc, Mutex},
+    };
+    static TEXTS: OnceLock<Mutex<HashMap<PathBuf, Option<Arc<str>>>>> = OnceLock::new();
+    let texts = TEXTS.get_or_init(Default::default);
+    if let Some(text) = texts.lock().expect("eval text cache").get(path) {
+        return text.clone();
     }
-    walk(&rules_dir, needles, &mut tags);
-    tags
+    let text = fs::read(path)
+        .ok()
+        .map(|bytes| Arc::<str>::from(String::from_utf8_lossy(&bytes).as_ref()));
+    texts
+        .lock()
+        .expect("eval text cache")
+        .insert(path.to_path_buf(), text.clone());
+    text
 }
 
 fn load_hints(path: &Path) -> Vec<(String, ParityHint)> {
-    let Ok(bytes) = fs::read(path) else {
+    let Some(text) = recipe_eval_text(path) else {
         return Vec::new();
     };
-    String::from_utf8_lossy(&bytes)
-        .lines()
-        .filter_map(parse_universal_hint_line)
-        .collect()
+    text.lines().filter_map(parse_universal_hint_line).collect()
 }
 
 fn recipe_is_source_tree(recipe: &Path) -> bool {
@@ -563,12 +625,15 @@ fn expand_host_placeholders(extra: &str) -> String {
     if !extra.contains(PLACEHOLDER) {
         return extra.to_string();
     }
-    let output = Command::new("perl")
-        .args(["-MConfig", "-wE", "say substr($Config{vendorarch},1)"])
-        .output()
-        .expect("run perl to find the vendor architecture directory");
-    let vendorarch = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    extra.replace(PLACEHOLDER, &vendorarch)
+    static VENDORARCH: OnceLock<String> = OnceLock::new();
+    let vendorarch = VENDORARCH.get_or_init(|| {
+        let output = Command::new("perl")
+            .args(["-MConfig", "-wE", "say substr($Config{vendorarch},1)"])
+            .output()
+            .expect("run perl to find the vendor architecture directory");
+        String::from_utf8_lossy(&output.stdout).trim().to_string()
+    });
+    extra.replace(PLACEHOLDER, vendorarch)
 }
 
 /// Vendored recipes whose hints mention a catalogued Tag with Binary-package Applicability.
@@ -688,23 +753,9 @@ fn ensure_rules_executable(source: &Path) {
     }
 }
 
-/// Prepend a `dpkg-deb` that passes `--nocheck`.
-///
-/// Lintian recipes build packages current `dpkg-deb` rejects, such as a
-/// `config` script mode `0644`. `--nocheck` refuses a directory target, so a
-/// directory destination is rewritten to the `.deb` path `dpkg-deb` would
-/// have chosen (epoch omitted from the filename). Archive bytes of a package
-/// that already passed the checks stay the same.
-fn dpkg_deb_nocheck_path(source: &Path) -> PathBuf {
-    let bin = source
-        .parent()
-        .expect("recipe source lives in a work directory")
-        .join("bin");
-    fs::create_dir_all(&bin).expect("creating dpkg-deb wrapper dir");
-    let wrapper = bin.join("dpkg-deb");
-    fs::write(
-        &wrapper,
-        r#"#!/usr/bin/python3
+/// The `dpkg-deb` wrapper [`dpkg_deb_nocheck_path`] writes. Part of the build
+/// cache key: a changed wrapper can change a built package.
+const DPKG_DEB_NOCHECK_WRAPPER: &str = r#"#!/usr/bin/python3
 import os, sys
 
 real = "/usr/bin/dpkg-deb"
@@ -761,9 +812,23 @@ command.extend(args[: idx + 1])
 command.extend(positionals)
 command.extend(tail_opts)
 os.execv(real, command)
-"#,
-    )
-    .expect("writing dpkg-deb wrapper");
+"#;
+
+/// Prepend a `dpkg-deb` that passes `--nocheck`.
+///
+/// Lintian recipes build packages current `dpkg-deb` rejects, such as a
+/// `config` script mode `0644`. `--nocheck` refuses a directory target, so a
+/// directory destination is rewritten to the `.deb` path `dpkg-deb` would
+/// have chosen (epoch omitted from the filename). Archive bytes of a package
+/// that already passed the checks stay the same.
+fn dpkg_deb_nocheck_path(source: &Path) -> PathBuf {
+    let bin = source
+        .parent()
+        .expect("recipe source lives in a work directory")
+        .join("bin");
+    fs::create_dir_all(&bin).expect("creating dpkg-deb wrapper dir");
+    let wrapper = bin.join("dpkg-deb");
+    fs::write(&wrapper, DPKG_DEB_NOCHECK_WRAPPER).expect("writing dpkg-deb wrapper");
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
@@ -793,6 +858,353 @@ fn rules_use_nodejs(source: &Path) -> bool {
     rules.contains("--with nodejs")
         || rules.contains("dh-sequence-nodejs")
         || control.contains("dh-sequence-nodejs")
+}
+
+// --- Build cache ---------------------------------------------------------------------------------
+//
+// Recipes whose copied trees are identical build the same product, so a tree is
+// built once per test process. The key is a SHA-256 over the copied tree and
+// everything else that changes the product (see `BuildKey`); a recipe's
+// `eval/hints` and `eval/desc` are not in it, because they are what the test
+// compares against, not what is built.
+
+/// Bumped when the key layout or what is stored changes.
+const BUILD_CACHE_FORMAT: &str = "1";
+
+fn hex(bytes: &[u8]) -> String {
+    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+}
+
+/// Builds the key of one build: every input is added as a named,
+/// length-prefixed field, so two different inputs never hash alike.
+struct BuildKey(sha2::Sha256);
+
+impl BuildKey {
+    fn new(kind: &str) -> Self {
+        let mut key = Self(sha2::Sha256::default());
+        key.field("format", BUILD_CACHE_FORMAT.as_bytes());
+        key.field("kind", kind.as_bytes());
+        key.field("environment", build_environment_fingerprint().as_bytes());
+        key
+    }
+
+    fn field(&mut self, name: &str, value: &[u8]) {
+        use sha2::Digest;
+        for part in [name.as_bytes(), value] {
+            self.0.update((part.len() as u64).to_le_bytes());
+            self.0.update(part);
+        }
+    }
+
+    /// The content of a copied tree: names, kinds, modes, file contents and
+    /// link targets, in name order. Not modification times: the copy gets new
+    /// ones, and packages clamp them to `SOURCE_DATE_EPOCH`.
+    fn tree(&mut self, dir: &Path) {
+        use std::os::unix::fs::PermissionsExt;
+        let mut entries: Vec<_> = fs::read_dir(dir)
+            .unwrap_or_else(|error| panic!("reading {}: {error}", dir.display()))
+            .map(|entry| entry.expect("directory entry"))
+            .collect();
+        entries.sort_by_key(|entry| entry.file_name());
+        self.field("entries", &(entries.len() as u64).to_le_bytes());
+        for entry in entries {
+            let path = entry.path();
+            let file_type = entry.file_type().expect("file type");
+            self.field("name", entry.file_name().as_encoded_bytes());
+            let mode = fs::symlink_metadata(&path)
+                .unwrap_or_else(|error| panic!("stat {}: {error}", path.display()))
+                .permissions()
+                .mode()
+                & 0o7777;
+            if file_type.is_dir() {
+                self.field("dir", &mode.to_le_bytes());
+                self.tree(&path);
+            } else if file_type.is_symlink() {
+                let target = fs::read_link(&path)
+                    .unwrap_or_else(|error| panic!("reading link {}: {error}", path.display()));
+                self.field("link", target.as_os_str().as_encoded_bytes());
+            } else {
+                let bytes = fs::read(&path)
+                    .unwrap_or_else(|error| panic!("reading {}: {error}", path.display()));
+                self.field("file", &mode.to_le_bytes());
+                self.field("content", &bytes);
+            }
+        }
+    }
+
+    /// Whether `dpkg_buildpackage_command` puts the `dh --with nodejs` stub on
+    /// the path for this tree, and then what the stub is.
+    fn nodejs_stub(&mut self, source: &Path) {
+        let use_stub = rules_use_nodejs(source) && nodejs_sequence_missing();
+        self.field("nodejs-stub", &[u8::from(use_stub)]);
+        if use_stub {
+            self.tree(&PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/dh_sequence_nodejs"));
+        }
+    }
+
+    fn finish(self) -> String {
+        use sha2::Digest;
+        hex(&self.0.finalize())
+    }
+}
+
+/// What the host contributes to every build, hashed once per process: the host
+/// architecture, the user (a `dpkg-deb` without fakeroot packs the owner and
+/// group of the builder), the environment variables the build tools read, and
+/// the installed packages (`/var/lib/dpkg/status` stands for the toolchain:
+/// dpkg, debhelper, compilers). `PATH` and the directory the tests run in are
+/// left out on purpose: they differ between shells and do not change a
+/// package.
+fn build_environment_fingerprint() -> &'static str {
+    static FINGERPRINT: OnceLock<String> = OnceLock::new();
+    FINGERPRINT.get_or_init(|| {
+        use sha2::Digest;
+        let mut hasher = sha2::Sha256::default();
+        let mut field = |name: &str, value: &[u8]| {
+            for part in [name.as_bytes(), value] {
+                hasher.update((part.len() as u64).to_le_bytes());
+                hasher.update(part);
+            }
+        };
+        field("host-arch", host_architecture().unwrap_or("?").as_bytes());
+        // SAFETY: `getuid` and `getgid` take no arguments and cannot fail.
+        let (uid, gid) = unsafe { (libc::getuid(), libc::getgid()) };
+        field("uid", &uid.to_le_bytes());
+        field("gid", &gid.to_le_bytes());
+        let mut variables: Vec<(String, std::ffi::OsString)> = std::env::vars_os()
+            .filter_map(|(name, value)| Some((name.into_string().ok()?, value)))
+            .filter(|(name, _)| {
+                ["DEB_", "DH_", "DPKG_", "LC_"]
+                    .iter()
+                    .any(|prefix| name.starts_with(prefix))
+                    || matches!(
+                        name.as_str(),
+                        "LANG"
+                            | "LANGUAGE"
+                            | "TZ"
+                            | "CC"
+                            | "CXX"
+                            | "CPP"
+                            | "CFLAGS"
+                            | "CPPFLAGS"
+                            | "CXXFLAGS"
+                            | "LDFLAGS"
+                            | "FFLAGS"
+                            | "MAKEFLAGS"
+                            | "MFLAGS"
+                            | "SOURCE_DATE_EPOCH"
+                            | "PERL5LIB"
+                    )
+            })
+            .collect();
+        variables.sort();
+        for (name, value) in &variables {
+            field(&format!("env:{name}"), value.as_encoded_bytes());
+        }
+        let status = fs::read("/var/lib/dpkg/status").unwrap_or_default();
+        field("dpkg-status", sha2::Sha256::digest(&status).as_slice());
+        hex(&hasher.finalize())
+    })
+}
+
+/// The build products of one key: file name and bytes.
+type BuiltFiles = Vec<(String, Vec<u8>)>;
+
+type BuildSlot = std::sync::Arc<std::sync::Mutex<Option<std::sync::Arc<BuiltFiles>>>>;
+
+/// `DEBMAGIC_PARITY_NO_CACHE=1` turns the build cache off, in memory and on
+/// disk: every recipe builds its own tree.
+fn build_cache_bypassed() -> bool {
+    static BYPASSED: OnceLock<bool> = OnceLock::new();
+    *BYPASSED.get_or_init(|| {
+        std::env::var_os("DEBMAGIC_PARITY_NO_CACHE")
+            .is_some_and(|value| !value.is_empty() && value != "0")
+    })
+}
+
+/// `<target dir>/lint-parity-cache`, next to the `debmagic` binary the tests
+/// run (`target/debug/debmagic`), so `cargo clean` clears it.
+fn build_cache_dir() -> Option<&'static Path> {
+    static DIR: OnceLock<Option<PathBuf>> = OnceLock::new();
+    DIR.get_or_init(|| {
+        let target = Path::new(env!("CARGO_BIN_EXE_debmagic"))
+            .ancestors()
+            .nth(2)?;
+        let dir = target.join("lint-parity-cache");
+        fs::create_dir_all(&dir).ok()?;
+        // A killed run can leave its half-written entry behind under a
+        // `.tmp-` name; it is never read, only removed once it is old.
+        let stale = std::time::Duration::from_secs(3600);
+        for entry in fs::read_dir(&dir).ok()?.flatten() {
+            let leftover = entry.file_name().to_string_lossy().starts_with(".tmp-")
+                && entry
+                    .metadata()
+                    .and_then(|metadata| metadata.modified())
+                    .ok()
+                    .and_then(|modified| modified.elapsed().ok())
+                    .is_some_and(|age| age > stale);
+            if leftover {
+                let _ = fs::remove_dir_all(entry.path());
+            }
+        }
+        Some(dir)
+    })
+    .as_deref()
+}
+
+const BUILD_CACHE_MANIFEST: &str = "manifest";
+
+fn digest_hex(bytes: &[u8]) -> String {
+    use sha2::Digest;
+    hex(&sha2::Sha256::digest(bytes))
+}
+
+/// The products stored under `key`, or `None` when there is no entry or it is
+/// damaged (a missing or altered file, a manifest of another key). A damaged
+/// entry is removed so the rebuild can take its place.
+fn read_cache_entry(cache: &Path, key: &str) -> Option<BuiltFiles> {
+    let entry = cache.join(key);
+    if !entry.exists() {
+        return None;
+    }
+    let read = || -> Option<BuiltFiles> {
+        let manifest = fs::read_to_string(entry.join(BUILD_CACHE_MANIFEST)).ok()?;
+        let mut lines = manifest.lines();
+        let header = lines.next()?;
+        (header == format!("debmagic-parity-cache {BUILD_CACHE_FORMAT} {key}")).then_some(())?;
+        let mut files = Vec::new();
+        for line in lines {
+            let mut fields = line.splitn(3, '\t');
+            let (digest, size, name) = (fields.next()?, fields.next()?, fields.next()?);
+            let bytes = fs::read(entry.join(name)).ok()?;
+            (bytes.len().to_string() == size && digest_hex(&bytes) == digest).then_some(())?;
+            files.push((name.to_string(), bytes));
+        }
+        Some(files)
+    };
+    let files = read();
+    if files.is_none() {
+        // Move it away first: a rename is atomic, so a process that is
+        // reading the same entry sees it whole or not at all.
+        let trash = cache.join(format!(
+            ".tmp-bad-{}-{}",
+            std::process::id(),
+            uuid::Uuid::new_v4()
+        ));
+        if fs::rename(&entry, &trash).is_ok() {
+            let _ = fs::remove_dir_all(&trash);
+        }
+    }
+    files
+}
+
+/// Store `files` under `key`: written in full under a temporary name, then
+/// renamed into place, so a reader (or a run killed halfway) never meets a
+/// partial entry. Returns whether the entry exists afterwards; losing the
+/// rename to another process that stored the same key counts as success.
+fn write_cache_entry(cache: &Path, key: &str, files: &BuiltFiles) -> bool {
+    let tmp = cache.join(format!(
+        ".tmp-{}-{}",
+        std::process::id(),
+        uuid::Uuid::new_v4()
+    ));
+    let store = || -> std::io::Result<()> {
+        fs::create_dir(&tmp)?;
+        let mut manifest = format!("debmagic-parity-cache {BUILD_CACHE_FORMAT} {key}\n");
+        for (name, bytes) in files {
+            fs::write(tmp.join(name), bytes)?;
+            manifest.push_str(&format!("{}\t{}\t{name}\n", digest_hex(bytes), bytes.len()));
+        }
+        fs::write(tmp.join(BUILD_CACHE_MANIFEST), manifest)?;
+        fs::rename(&tmp, cache.join(key))
+    };
+    let stored = store().is_ok() || cache.join(key).join(BUILD_CACHE_MANIFEST).is_file();
+    let _ = fs::remove_dir_all(&tmp);
+    stored
+}
+
+/// Put `files` into `dest`, each written under a temporary name and renamed.
+fn write_products(dest: &Path, files: &BuiltFiles) -> Vec<PathBuf> {
+    fs::create_dir_all(dest).unwrap_or_else(|error| panic!("creating {}: {error}", dest.display()));
+    files
+        .iter()
+        .map(|(name, bytes)| {
+            let path = dest.join(name);
+            let tmp = dest.join(format!(".{name}.tmp"));
+            fs::write(&tmp, bytes)
+                .and_then(|()| fs::rename(&tmp, &path))
+                .unwrap_or_else(|error| panic!("writing {}: {error}", path.display()));
+            path
+        })
+        .collect()
+}
+
+/// The files `build` produces in `dest`, built once per key.
+///
+/// The products are stored under `target/lint-parity-cache/<key>/` (build
+/// products only, never lint results), so a later run of the suite builds
+/// nothing it built before. Within a run, a test that needs a key somebody
+/// else is building waits for that build (one lock per key). A test that finds
+/// the key stored writes the stored files into its own `dest` and does not run
+/// `build`; a missing or damaged entry is a rebuild.
+///
+/// A build that panics stores nothing: the panic is the failure of the recipe
+/// that ran it, and the next recipe with the same tree builds it itself, so
+/// one recipe's failure (or a flaky one) never fails the recipes that share
+/// its tree, and a failure is never cached on disk.
+///
+/// `build` returns the paths of the products, all directly in `dest`. With
+/// `DEBMAGIC_PARITY_NO_CACHE=1` it always runs.
+fn build_once(key: String, dest: &Path, build: impl FnOnce() -> Vec<PathBuf>) -> Vec<PathBuf> {
+    use std::{
+        collections::HashMap,
+        sync::{Arc, Mutex, PoisonError},
+    };
+    if build_cache_bypassed() {
+        return build();
+    }
+    static SLOTS: OnceLock<Mutex<HashMap<String, BuildSlot>>> = OnceLock::new();
+    let slot = SLOTS
+        .get_or_init(Default::default)
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .entry(key.clone())
+        .or_default()
+        .clone();
+    // A poisoned lock holds `None`: the build that panicked stored nothing.
+    let mut in_memory = slot.lock().unwrap_or_else(PoisonError::into_inner);
+    if let Some(files) = in_memory.as_ref() {
+        return write_products(dest, files);
+    }
+    let cache = build_cache_dir();
+    if let Some(files) = cache.and_then(|cache| read_cache_entry(cache, &key)) {
+        return write_products(dest, &files);
+    }
+    let paths = build();
+    let files: BuiltFiles = paths
+        .iter()
+        .map(|path| {
+            assert_eq!(
+                path.parent(),
+                Some(dest),
+                "{} is not in {}",
+                path.display(),
+                dest.display()
+            );
+            let bytes = fs::read(path)
+                .unwrap_or_else(|error| panic!("reading {}: {error}", path.display()));
+            let name = path
+                .file_name()
+                .and_then(OsStr::to_str)
+                .expect("product name is UTF-8");
+            (name.to_string(), bytes)
+        })
+        .collect();
+    // Without a usable cache directory the products stay in memory.
+    if !cache.is_some_and(|cache| write_cache_entry(cache, &key, &files)) {
+        *in_memory = Some(Arc::new(files));
+    }
+    paths
 }
 
 /// `dpkg-buildpackage` in `source`, with the host fixes recipes need: a
@@ -839,10 +1251,15 @@ fn dpkg_buildpackage_command(source: &Path, build_options: &str) -> Command {
     command
 }
 
+/// `DEB_BUILD_OPTIONS` and arguments of the Binary-package build. Part of the
+/// build cache key.
+const BINARY_BUILD_OPTIONS: &str = "nocheck noautodbgsym";
+const BINARY_BUILD_ARGS: &[&str] = &["-b", "-us", "-uc", "-d"];
+
 fn dpkg_build_binary(source: &Path) {
     ensure_rules_executable(source);
-    let mut command = dpkg_buildpackage_command(source, "nocheck noautodbgsym");
-    command.args(["-b", "-us", "-uc", "-d"]);
+    let mut command = dpkg_buildpackage_command(source, BINARY_BUILD_OPTIONS);
+    command.args(BINARY_BUILD_ARGS);
     let output = command.output().expect("spawning dpkg-buildpackage -b");
     assert!(
         output.status.success(),
@@ -859,34 +1276,49 @@ fn assemble_binary_packages(recipe: &Path, work: &Path) -> Vec<PathBuf> {
         let build = work.join("build");
         copy_tree(recipe, &source);
         fs::create_dir_all(&build).expect("creating build dir");
-        let output = Command::new("make")
-            .arg("-C")
-            .arg(&build)
-            .arg("-f")
-            .arg(source.join("Makefile"))
-            .output()
-            .expect("spawning make");
-        assert!(
-            output.status.success(),
-            "{}: make failed\nstdout:\n{}\nstderr:\n{}",
-            recipe.display(),
-            String::from_utf8_lossy(&output.stdout),
-            String::from_utf8_lossy(&output.stderr)
-        );
-        return vec![find_binary_package(&build)];
+        // The whole copy is hashed, `ORIGIN` and `eval/` included: the Makefile
+        // runs in it and may read any of it.
+        let mut key = BuildKey::new("deb-skeleton");
+        key.tree(&source);
+        return build_once(key.finish(), &build, || {
+            let output = Command::new("make")
+                .arg("-C")
+                .arg(&build)
+                .arg("-f")
+                .arg(source.join("Makefile"))
+                .output()
+                .expect("spawning make");
+            assert!(
+                output.status.success(),
+                "{}: make failed\nstdout:\n{}\nstderr:\n{}",
+                recipe.display(),
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            vec![find_binary_package(&build)]
+        });
     }
 
     let source = work.join("src");
     copy_package_tree(recipe, &source);
-    dpkg_build_binary(&source);
-    let packages = find_binary_packages(work);
-    assert!(
-        !packages.is_empty(),
-        "{}: dpkg-buildpackage produced no Binary package in {}",
-        recipe.display(),
-        work.display()
-    );
-    packages
+    ensure_rules_executable(&source);
+    let mut key = BuildKey::new("dpkg-buildpackage-binary");
+    key.tree(&source);
+    key.field("build-options", BINARY_BUILD_OPTIONS.as_bytes());
+    key.field("build-args", BINARY_BUILD_ARGS.join(" ").as_bytes());
+    key.field("dpkg-deb-wrapper", DPKG_DEB_NOCHECK_WRAPPER.as_bytes());
+    key.nodejs_stub(&source);
+    build_once(key.finish(), work, || {
+        dpkg_build_binary(&source);
+        let packages = find_binary_packages(work);
+        assert!(
+            !packages.is_empty(),
+            "{}: dpkg-buildpackage produced no Binary package in {}",
+            recipe.display(),
+            work.display()
+        );
+        packages
+    })
 }
 
 /// Binary-package recipes this host's toolchain cannot build, with why. Their
@@ -975,25 +1407,34 @@ fn skipped_recipe_reason(recipe_rel: &str) -> Option<&'static str> {
         .map(|(_, reason)| *reason)
 }
 
+/// `dpkg-architecture --query=DEB_HOST_ARCH`, asked once per test process.
+fn host_architecture() -> Option<&'static str> {
+    static HOST: OnceLock<Option<String>> = OnceLock::new();
+    HOST.get_or_init(|| {
+        Command::new("dpkg-architecture")
+            .arg("--query=DEB_HOST_ARCH")
+            .output()
+            .ok()
+            .filter(|output| output.status.success())
+            .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
+    })
+    .as_deref()
+}
+
 /// The recipe's `Test-Architectures` (`eval/desc`) when none of them is the
 /// host architecture, as lintian's own test runner skips such a recipe: a
 /// `.deb` for another architecture cannot be built here.
 fn unmet_test_architectures(recipe: &Path) -> Option<String> {
-    let desc = std::fs::read_to_string(recipe.join("eval/desc")).ok()?;
+    let desc = recipe_eval_text(&recipe.join("eval/desc"))?;
     let line = desc
         .lines()
         .find_map(|line| line.strip_prefix("Test-Architectures:"))?;
-    let host = Command::new("dpkg-architecture")
-        .arg("--query=DEB_HOST_ARCH")
-        .output()
-        .ok()
-        .filter(|output| output.status.success())
-        .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())?;
+    let host = host_architecture()?;
     // `any-amd64` and the like are architecture wildcards; `-i` matches one
     // against a host architecture.
     let matches = |pattern: &str| {
         Command::new("dpkg-architecture")
-            .args(["-a", &host, "-i", pattern])
+            .args(["-a", host, "-i", pattern])
             .status()
             .is_ok_and(|status| status.success())
     };
@@ -1182,7 +1623,7 @@ fn find_dsc(dir: &Path) -> PathBuf {
 /// Pointers from `debian-adds-*` hint lines. The location is still in the
 /// file; [`load_hints`] strips it.
 fn debian_adds_pointers(recipe: &Path) -> Vec<String> {
-    let Ok(text) = fs::read_to_string(recipe.join("eval/hints")) else {
+    let Some(text) = recipe_eval_text(&recipe.join("eval/hints")) else {
         return Vec::new();
     };
     let mut pointers = Vec::new();
@@ -1209,7 +1650,7 @@ fn debian_adds_pointers(recipe: &Path) -> Vec<String> {
 
 /// Whether the recipe's `eval/hints` expect a Tag starting with `prefix`.
 fn expects_tag_prefix(recipe: &Path, prefix: &str) -> bool {
-    let Ok(text) = fs::read_to_string(recipe.join("eval/hints")) else {
+    let Some(text) = recipe_eval_text(&recipe.join("eval/hints")) else {
         return false;
     };
     text.lines()
@@ -1457,14 +1898,67 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
         .collect();
     let keep_ignored = !pointers.is_empty() || expects_tag_prefix(recipe, "source-contains-");
     let overrides = dpkg_overrides(recipe);
-    if let Some(hook) = vendored_pre_upstream(recipe) {
-        let name = main_orig_name(&source);
-        pack_orig_with_hook(&source, &hook, &work.join(&name), &root_adds);
+    let hook = vendored_pre_upstream(recipe);
+
+    // Everything the packing reads besides the tree: the `dpkg-source` flags,
+    // the paths left out of the orig, and the `pre-upstream` hook. The recipe's
+    // `eval/hints` reach the build only through `root_adds` and `keep_ignored`.
+    let mut key = BuildKey::new("dpkg-source");
+    key.tree(&source);
+    key.field("keep-ignored", &[u8::from(keep_ignored)]);
+    key.field("overrides", overrides.join("\0").as_bytes());
+    key.field("root-adds", root_adds.join("\0").as_bytes());
+    let hook_text = hook.as_ref().map(|hook| {
+        fs::read(hook).unwrap_or_else(|error| panic!("reading {}: {error}", hook.display()))
+    });
+    key.field("pre-upstream", hook_text.as_deref().unwrap_or_default());
+    key.field("has-pre-upstream", &[u8::from(hook.is_some())]);
+
+    let products = build_once(key.finish(), work, || {
+        pack_source_package(
+            recipe,
+            work,
+            &source,
+            keep_ignored,
+            &overrides,
+            &root_adds,
+            hook.as_deref(),
+        );
+        // The `.dsc` and the tarballs it lists, next to it; not the hook script
+        // (it names the temporary directory it ran in).
+        let mut files: Vec<PathBuf> = fs::read_dir(work)
+            .unwrap_or_else(|error| panic!("reading {}: {error}", work.display()))
+            .map(|entry| entry.expect("directory entry").path())
+            .filter(|path| path.is_file() && path.file_name() != Some(OsStr::new("pre-upstream")))
+            .collect();
+        files.sort();
+        files
+    });
+    products
+        .into_iter()
+        .find(|path| path.extension().and_then(OsStr::to_str) == Some("dsc"))
+        .unwrap_or_else(|| panic!("{recipe:?}: no .dsc among the products"))
+}
+
+/// Pack `source` (a copy of the recipe tree in `work`) with `dpkg-source`,
+/// synthesizing the orig tarball when the format asks for one.
+fn pack_source_package(
+    recipe: &Path,
+    work: &Path,
+    source: &Path,
+    keep_ignored: bool,
+    overrides: &[String],
+    root_adds: &[String],
+    hook: Option<&Path>,
+) {
+    if let Some(hook) = hook {
+        let name = main_orig_name(source);
+        pack_orig_with_hook(source, hook, &work.join(&name), root_adds);
     } else if !root_adds.is_empty() {
-        let name = main_orig_name(&source);
-        pack_orig_without_added(&source, &work.join(&name), &root_adds);
+        let name = main_orig_name(source);
+        pack_orig_without_added(source, &work.join(&name), root_adds);
     }
-    let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, &overrides);
+    let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
     if !ok {
         let Some(name) = missing_upstream_tarball(&stderr) else {
             panic!("{recipe:?}: dpkg-source -b failed\n{stdout}\n{stderr}");
@@ -1473,16 +1967,16 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             !is_component_orig(&name),
             "{recipe:?}: component orig {name} is not synthesized"
         );
-        pack_main_orig(&source, &work.join(&name));
-        let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, &overrides);
+        pack_main_orig(source, &work.join(&name));
+        let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
         if !ok && stderr.contains("unexpected upstream changes") {
             // dpkg-source mis-reads an orig whose last member name contains a
             // quote (`data/".tif` in legacy-filenames) and reports those
             // files as new. A later member lets it see the archive correctly.
             // The pad is in the tree and the orig, so it is not a diff.
             fs::write(source.join("zz-pad"), "\n").expect("writing orig pad");
-            pack_main_orig(&source, &work.join(&name));
-            let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, &overrides);
+            pack_main_orig(source, &work.join(&name));
+            let (ok, stdout, stderr) = dpkg_source_build(work, keep_ignored, overrides);
             assert!(
                 ok,
                 "{recipe:?}: dpkg-source -b failed after orig {name}\n{stdout}\n{stderr}"
@@ -1494,7 +1988,7 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             );
         }
     }
-    find_dsc(work)
+    find_dsc(work);
 }
 
 pub fn assert_source_package_parity(recipe_rel: &str) {

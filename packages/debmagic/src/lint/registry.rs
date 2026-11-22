@@ -263,6 +263,7 @@ use super::rules::MaintainerScriptSetsAlternativeImproperly;
 use super::rules::MaintainerScriptSupportsAncientPackageVersion;
 use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
 use super::rules::MaintainerScriptWithoutSetE;
+use super::rules::MaintainerShellScriptFailsSyntaxCheck;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
 use super::rules::MalformedChangesFile;
 use super::rules::MalformedDebArchive;
@@ -2263,6 +2264,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExampleWrongPathForInterpreter,
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
+        &MaintainerShellScriptFailsSyntaxCheck,
     ]
 }
 
@@ -3548,6 +3550,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExampleWrongPathForInterpreter,
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
+        &MaintainerShellScriptFailsSyntaxCheck,
     ]
 }
 

@@ -20,6 +20,13 @@ mod ln0672_description_is_debmake_template;
 mod ln0673_description_starts_with_leading_spaces;
 mod ln0923_description_is_dh_make_template;
 mod ln1234_possible_unindented_list_in_extended_description;
+mod ln1359_capitalization_error_in_description;
+mod ln1360_description_mentions_planned_features;
+mod ln1361_extended_description_is_probably_too_short;
+mod ln1362_spelling_error_in_description;
+mod ln1363_synopsis_is_a_sentence;
+mod ln1364_using_first_person_in_description;
+mod spelling;
 
 pub(crate) use ln0037_extended_description_is_empty::ExtendedDescriptionIsEmpty;
 pub(crate) use ln0050_description_synopsis_is_empty::DescriptionSynopsisIsEmpty;
@@ -37,3 +44,9 @@ pub(crate) use ln0672_description_is_debmake_template::DescriptionIsDebmakeTempl
 pub(crate) use ln0673_description_starts_with_leading_spaces::DescriptionStartsWithLeadingSpaces;
 pub(crate) use ln0923_description_is_dh_make_template::DescriptionIsDhMakeTemplate;
 pub(crate) use ln1234_possible_unindented_list_in_extended_description::PossibleUnindentedListInExtendedDescription;
+pub(crate) use ln1359_capitalization_error_in_description::CapitalizationErrorInDescription;
+pub(crate) use ln1360_description_mentions_planned_features::DescriptionMentionsPlannedFeatures;
+pub(crate) use ln1361_extended_description_is_probably_too_short::ExtendedDescriptionIsProbablyTooShort;
+pub(crate) use ln1362_spelling_error_in_description::SpellingErrorInDescription;
+pub(crate) use ln1363_synopsis_is_a_sentence::SynopsisIsASentence;
+pub(crate) use ln1364_using_first_person_in_description::UsingFirstPersonInDescription;

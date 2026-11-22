@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): trailing-whitespace (LN1336) [debian/changelog:1]

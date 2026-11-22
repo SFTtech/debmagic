@@ -1,0 +1,32 @@
+# virtual packages provided by the Perl core packages that also have a
+# separate binary package available
+#
+# the listed version is the one included in the Perl core
+#
+# regenerate by running
+#   debian/rules refresh-perl-provides
+# in the lintian source tree
+#
+# last updated for PERL_VERSION=5.040001
+libsocket-perl 2.038
+libio-socket-ip-perl 0.42
+libversion-perl 1:0.9930
+libunicode-collate-perl 1.31
+libtest-simple-perl 1.302199
+libtest-harness-perl 3.48
+libterm-table-perl 0.018
+libpod-simple-perl 3.45
+libmodule-metadata-perl 1.000038
+libmodule-load-conditional-perl 0.74
+libmodule-corelist-perl 5.20250118.40
+libmath-bigint-perl 2.003002
+libjson-pp-perl 4.16000
+libio-compress-perl 2.212
+libhttp-tiny-perl 0.088
+libexperimental-perl 0.032
+libencode-perl 3.21
+libdigest-sha-perl 6.04
+libcpan-meta-yaml-perl 0.018
+libcpan-meta-requirements-perl 2.143
+libcompress-raw-zlib-perl 2.212
+libcompress-raw-bzip2-perl 2.212

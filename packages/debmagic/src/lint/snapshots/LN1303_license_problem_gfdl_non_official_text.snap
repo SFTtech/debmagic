@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): license-problem-gfdl-non-official-text (LN1303) invariant part is: with no invariant sections, with no front-cover texts, and with no back-cover texts [doc/manual.txt]

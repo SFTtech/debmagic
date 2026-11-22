@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: a (source): trailing-whitespace (LN1336) [debian/changelog:1]
+P: a	 (source): trailing-whitespace (LN1336) [debian/control:1]
+P: a (source): trailing-whitespace (LN1336) [debian/rules:1]
+P: a (source): trailing-whitespace (LN1336) [debian/changelog:1]
+P: a (source): trailing-whitespace (LN1336) [debian/control:1]
+P: a (source): trailing-whitespace (LN1336) [debian/changelog:2]
+P: a (source): trailing-whitespace (LN1336) [debian/changelog:3]
+P: a (source): trailing-whitespace (LN1336) [debian/changelog:2]

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): package-contains-no-arch-dependent-files (LN1374)
+I: example (binary): package-contains-no-arch-dependent-files (LN1374)
+I: example (binary): package-contains-no-arch-dependent-files (LN1374)
+I: example (binary): package-contains-no-arch-dependent-files (LN1374)

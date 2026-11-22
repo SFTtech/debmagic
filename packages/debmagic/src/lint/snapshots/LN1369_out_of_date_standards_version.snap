@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): out-of-date-standards-version (LN1369) 3.9.6 (released 2014-09-17) (current is 4.7.4)

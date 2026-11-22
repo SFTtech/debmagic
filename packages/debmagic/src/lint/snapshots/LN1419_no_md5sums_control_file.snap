@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): no-md5sums-control-file (LN1419)
+I: example (binary): no-md5sums-control-file (LN1419)

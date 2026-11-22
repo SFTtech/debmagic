@@ -48,6 +48,8 @@ mod ln0972_menu_item_uses_apps_games_section;
 mod ln0973_menu_item_uses_icon_none;
 mod ln1191_unparsable_menu_item;
 mod ln1192_whitespace_after_continuation_character;
+mod ln1420_desktop_entry_contains_encoding_key;
+mod ln1421_desktop_entry_lacks_keywords_entry;
 mod scan;
 
 pub(crate) use ln0248_menu_command_not_in_package::MenuCommandNotInPackage;
@@ -91,3 +93,5 @@ pub(crate) use ln0972_menu_item_uses_apps_games_section::MenuItemUsesAppsGamesSe
 pub(crate) use ln0973_menu_item_uses_icon_none::MenuItemUsesIconNone;
 pub(crate) use ln1191_unparsable_menu_item::UnparsableMenuItem;
 pub(crate) use ln1192_whitespace_after_continuation_character::WhitespaceAfterContinuationCharacter;
+pub(crate) use ln1420_desktop_entry_contains_encoding_key::DesktopEntryContainsEncodingKey;
+pub(crate) use ln1421_desktop_entry_lacks_keywords_entry::DesktopEntryLacksKeywordsEntry;

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): desktop-entry-contains-encoding-key (LN1420) Encoding [usr/share/applications/example.desktop:3]
+I: example (binary): desktop-entry-contains-encoding-key (LN1420) Encoding[de] [usr/share/applications/example.desktop:4]
+I: example (udeb): desktop-entry-contains-encoding-key (LN1420) Encoding [usr/share/applications/example.desktop:3]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): homepage-field-uses-insecure-uri (LN1365) http://github.com/insecure/uri
+P: example (binary): homepage-field-uses-insecure-uri (LN1365) <http://lintian.debian.org/>
+P: example (udeb): homepage-field-uses-insecure-uri (LN1365) http://debian.org/

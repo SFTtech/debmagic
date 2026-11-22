@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): very-long-line-length-in-source-file (LN1381) 601 > 512 [src/long.c:2]
+P: example (source): very-long-line-length-in-source-file (LN1381) 601 > 512 [src/long.js:1]
+P: example (source): very-long-line-length-in-source-file (LN1381) 601 > 512 [db/schema.sql:1]

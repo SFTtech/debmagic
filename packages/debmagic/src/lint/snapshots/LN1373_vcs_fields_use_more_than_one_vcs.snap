@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): vcs-fields-use-more-than-one-vcs (LN1373) git svn
+I: example (source): vcs-fields-use-more-than-one-vcs (LN1373) bzr git hg

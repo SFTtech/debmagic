@@ -45,6 +45,22 @@ pub fn run_lint_subject(subject: &Path, extra_args: &[&str]) -> (ExitStatus, Str
     )
 }
 
+/// `debmagic lint` of several artifacts at once.
+pub fn run_lint_subjects(subjects: &[&Path], extra_args: &[&str]) -> (ExitStatus, String, String) {
+    let output = Command::new(env!("CARGO_BIN_EXE_debmagic"))
+        .arg("lint")
+        .args(subjects)
+        .args(extra_args)
+        .output()
+        .expect("failed to spawn debmagic");
+
+    (
+        output.status,
+        String::from_utf8_lossy(&output.stdout).into_owned(),
+        String::from_utf8_lossy(&output.stderr).into_owned(),
+    )
+}
+
 pub fn build_native_dsc(work: &Path, name: &str, extra_files: &[(&str, &[u8])]) -> PathBuf {
     let tree = work.join("src");
     fs::create_dir_all(tree.join("debian/source")).expect("debian/source");
@@ -179,39 +195,11 @@ pub fn source_rule_counts() -> SourceRuleCounts {
     counts
 }
 
+/// Tags of the LN Rules a Source-tree lint can show: Rules of the Source and
+/// Binary-package kinds. A Rule that inspects only the artifacts of a Group
+/// (a Changes file, a Buildinfo file, a whole Group) is not one of them.
 pub fn catalogued_ln_tags() -> HashSet<String> {
-    let mut tags = HashSet::new();
-    let rules_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/lint/rules/lintian");
-    fn walk(dir: &Path, tags: &mut HashSet<String>) {
-        let Ok(entries) = fs::read_dir(dir) else {
-            return;
-        };
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.is_dir() {
-                walk(&path, tags);
-                continue;
-            }
-            if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
-                continue;
-            }
-            let Ok(text) = fs::read_to_string(&path) else {
-                continue;
-            };
-            for line in text.lines() {
-                let line = line.trim();
-                let Some(rest) = line.strip_prefix("tag = \"") else {
-                    continue;
-                };
-                let Some(tag) = rest.strip_suffix("\",") else {
-                    continue;
-                };
-                tags.insert(tag.to_string());
-            }
-        }
-    }
-    walk(&rules_dir, &mut tags);
-    tags
+    catalogued_tags_with_impl(&["impl SourceRule for", "impl BinaryPackageRule for"])
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -305,6 +293,11 @@ fn source_tree_hint_matches_filled_tree(recipe: &Path, hint: &ParityHint) -> boo
     if hint.tag == "no-debian-changes" {
         return false;
     }
+    // `add-component-copyright` reads the orig tarball names of the `.dsc`. A
+    // Source tree has none, so only the Source package can report it.
+    if hint.tag == "add-component-copyright" {
+        return false;
+    }
     !(matches!(
         hint.tag.as_str(),
         "package-uses-deprecated-debhelper-compat-version"
@@ -330,25 +323,25 @@ fn applies_to_binary_package(processable_type: &str) -> bool {
 
 /// Tags of LN Rules that implement `BinaryPackageRule`.
 pub fn catalogued_binary_package_tags() -> HashSet<String> {
-    catalogued_tags_with_impl("impl BinaryPackageRule for")
+    catalogued_tags_with_impl(&["impl BinaryPackageRule for"])
 }
 
 /// Tags of LN Rules that implement `SourceRule`.
 pub fn catalogued_source_package_tags() -> HashSet<String> {
-    catalogued_tags_with_impl("impl SourceRule for")
+    catalogued_tags_with_impl(&["impl SourceRule for"])
 }
 
-fn catalogued_tags_with_impl(needle: &str) -> HashSet<String> {
+fn catalogued_tags_with_impl(needles: &[&str]) -> HashSet<String> {
     let mut tags = HashSet::new();
     let rules_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/lint/rules/lintian");
-    fn walk(dir: &Path, needle: &str, tags: &mut HashSet<String>) {
+    fn walk(dir: &Path, needles: &[&str], tags: &mut HashSet<String>) {
         let Ok(entries) = fs::read_dir(dir) else {
             return;
         };
         for entry in entries.flatten() {
             let path = entry.path();
             if path.is_dir() {
-                walk(&path, needle, tags);
+                walk(&path, needles, tags);
                 continue;
             }
             if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
@@ -357,7 +350,7 @@ fn catalogued_tags_with_impl(needle: &str) -> HashSet<String> {
             let Ok(text) = fs::read_to_string(&path) else {
                 continue;
             };
-            if !text.contains(needle) {
+            if !needles.iter().any(|needle| text.contains(needle)) {
                 continue;
             }
             for line in text.lines() {
@@ -372,7 +365,7 @@ fn catalogued_tags_with_impl(needle: &str) -> HashSet<String> {
             }
         }
     }
-    walk(&rules_dir, needle, &mut tags);
+    walk(&rules_dir, needles, &mut tags);
     tags
 }
 
@@ -802,8 +795,11 @@ fn rules_use_nodejs(source: &Path) -> bool {
         || control.contains("dh-sequence-nodejs")
 }
 
-fn dpkg_build_binary(source: &Path) {
-    ensure_rules_executable(source);
+/// `dpkg-buildpackage` in `source`, with the host fixes recipes need: a
+/// `dpkg-deb` that passes `--nocheck`, a stub for `dh --with nodejs` when
+/// `pkg-js-tools` is missing, and umask 022 (lintian's recipes are built
+/// under it). The caller adds the arguments and runs it.
+fn dpkg_buildpackage_command(source: &Path, build_options: &str) -> Command {
     let stub = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/dh_sequence_nodejs");
     let use_nodejs_stub = rules_use_nodejs(source) && nodejs_sequence_missing();
     let mut path = dpkg_deb_nocheck_path(source).into_os_string();
@@ -816,8 +812,7 @@ fn dpkg_build_binary(source: &Path) {
     let mut command = Command::new("dpkg-buildpackage");
     command
         .current_dir(source)
-        .args(["-b", "-us", "-uc", "-d"])
-        .env("DEB_BUILD_OPTIONS", "nocheck noautodbgsym")
+        .env("DEB_BUILD_OPTIONS", build_options)
         .env("PATH", &path)
         .stdin(Stdio::null());
     if use_nodejs_stub {
@@ -841,6 +836,13 @@ fn dpkg_build_binary(source: &Path) {
             });
         }
     }
+    command
+}
+
+fn dpkg_build_binary(source: &Path) {
+    ensure_rules_executable(source);
+    let mut command = dpkg_buildpackage_command(source, "nocheck noautodbgsym");
+    command.args(["-b", "-us", "-uc", "-d"]);
     let output = command.output().expect("spawning dpkg-buildpackage -b");
     assert!(
         output.status.success(),
@@ -891,6 +893,10 @@ fn assemble_binary_packages(recipe: &Path, work: &Path) -> Vec<PathBuf> {
 /// Rules have native tests; Parity needs a host that can build the recipe.
 const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
     (
+        "checks/languages/r/site-library/lacks-depends-on-r-api",
+        "the recipe builds with `--buildsystem=R`, and the host has no `Debian::Debhelper::Buildsystem::R` (the `dh-r` package)",
+    ),
+    (
         "checks/fields/multi-line/multiple-lines-in-maintainer-field",
         "the recipe's `build-spec/post-build.sh` rewrites the built product, and the harness does not run post-build scripts",
     ),
@@ -919,17 +925,43 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "the recipe needs `javahelper` and a JDK (`javac`, `jar`), which this host lacks",
     ),
     (
+        "checks/debhelper/debhelper-compat-old",
+        "the recipe's `--include-dir` vendor overrides `debhelper/compat-level` to deprecated=1 and recommended=100 for the lintian-test vendor; the harness applies only the Debian tables, so the expected level-8 hint cannot come out",
+    ),
+    (
         "checks/deb-format/deb-format-udeb-compression",
         "the recipe runs `dpkg-deb -Zlzma`, which dpkg 1.23 rejects",
+    ),
+    (
+        "checks/binaries/prerequisites/numpy/binaries-missing-depends-on-numpy-abi",
+        "the recipe's `setup.py` imports `setuptools` and `numpy`, and this host has neither for python3",
+    ),
+    (
+        "checks/debian/copyright/dep5/components/control-file-upstream-signature-missing",
+        "the harness does not synthesize the `signed`, `noext` and `component` orig tarballs, so dpkg-source builds a .dsc without them and no component is known",
+    ),
+    (
+        "checks/fields/checksums/no-sha256-checksum",
+        "the recipe's `build-spec/post-build.sh` strips `Checksums-Sha256` from the `.dsc`, and the harness does not run post-build scripts",
     ),
 ];
 
 /// Recipes whose expected hints cannot show up in a Source tree, because the
 /// tree is not the built product (a patch is not applied, say).
-const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[(
-    "checks/files/names/national-encoding-in-patch",
-    "the Latin-1 file name comes from a patch that a Source tree does not apply",
-)];
+const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[
+    (
+        "checks/files/names/national-encoding-in-patch",
+        "the Latin-1 file name comes from a patch that a Source tree does not apply",
+    ),
+    (
+        "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
+        "the hints name the orig and debian tarballs of the Files field of a .dsc, which a Source tree does not have",
+    ),
+    (
+        "checks/fields/checksums/no-sha256-checksum",
+        "the hint is about the built `.dsc`'s `Checksums-Sha256`, and a Source tree has no `.dsc`",
+    ),
+];
 
 /// The reason a recipe is skipped on this host, if it is.
 fn skipped_recipe_reason(recipe_rel: &str) -> Option<&'static str> {
@@ -1021,6 +1053,7 @@ pub fn assert_binary_package_parity(recipe_rel: &str) {
     rewrite_font_package_list(recipe_rel, &mut actual);
     rewrite_incompatibility_statement(recipe_rel, &mut actual);
     rewrite_control_file_group(recipe_rel, &mut actual);
+    rewrite_perl_core_version(recipe_rel, &mut actual);
     actual.sort();
 
     assert_eq!(
@@ -1553,6 +1586,20 @@ fn rewrite_control_file_group(recipe_rel: &str, hints: &mut [ParityHint]) {
     }
 }
 
+/// `fields-perl-provides`'s lintian `eval/post-test` rewrites the version in
+/// `with <version>` to `VERSION`, because the Perl core version differs between
+/// archives. The vendored hint keeps that token; the hook is not copied.
+fn rewrite_perl_core_version(recipe_rel: &str, hints: &mut [ParityHint]) {
+    if recipe_rel != "checks/languages/perl/core/provides/fields-perl-provides" {
+        return;
+    }
+    for hint in hints {
+        if hint.tag == "package-superseded-by-perl" && hint.extra.starts_with("with ") {
+            hint.extra = "with VERSION".to_string();
+        }
+    }
+}
+
 /// `files-fonts`'s lintian `eval/post-test` rewrites the packages listed in
 /// `also in (…)` to `FONT_PACKAGES`, because the archive's font list differs
 /// between runs. The vendored hint keeps that token; the hook is not copied.
@@ -1655,15 +1702,14 @@ fn rewrite_current_policy_release_date(recipe_rel: &str, hints: &mut [ParityHint
     }
 }
 
-/// `standards-version-newer`'s lintian `eval/post-test` rewrites the newest
-/// Policy release in `(current is …)` to `CURRENT`. The vendored hint keeps
-/// that token; the hook is not copied into the tree.
-fn rewrite_current_policy_version(recipe_rel: &str, hints: &mut [ParityHint]) {
-    if recipe_rel != "checks/fields/standards-version/standards-version-newer" {
-        return;
-    }
+/// The Standards-Version recipes (and the tracking recipe that carries the same
+/// hint) have lintian `eval/post-test` rewrite the newest
+/// Policy release in `(current is …)` to `CURRENT`, for the newer and the
+/// out-of-date Tags. The vendored hints keep that token; the hook is not
+/// copied into the tree.
+fn rewrite_current_policy_version(_recipe_rel: &str, hints: &mut [ParityHint]) {
     for hint in hints {
-        if hint.tag != "newer-standards-version" {
+        if hint.tag != "newer-standards-version" && hint.tag != "out-of-date-standards-version" {
             continue;
         }
         let Some(start) = hint.extra.find("(current is ") else {
@@ -1696,4 +1742,214 @@ fn rewrite_changelog_last_used(recipe_rel: &str, hints: &mut [ParityHint]) {
         hint.extra
             .replace_range(start..=end, "(last used: CURRENT)");
     }
+}
+
+// --- Group Parity (ADR 0055) -------------------------------------------------------------------
+
+/// Tags of the Rules that inspect the artifacts of a Group, by Rule kind.
+pub struct GroupTags {
+    changes: HashSet<String>,
+    buildinfo: HashSet<String>,
+    group: HashSet<String>,
+}
+
+pub fn catalogued_group_tags() -> GroupTags {
+    GroupTags {
+        changes: catalogued_tags_with_impl(&["impl ChangesRule for"]),
+        buildinfo: catalogued_tags_with_impl(&["impl BuildinfoRule for"]),
+        group: catalogued_tags_with_impl(&["impl GroupRule for"]),
+    }
+}
+
+/// A hint a Group lint shows, per processable type: `changes` and `buildinfo`
+/// hints come from the Changes-file and Buildinfo-file Rules; a Group Rule's
+/// Diagnostics attach to the Source package, so its hints are `source`. Kept
+/// in step with `applies_to_group` in `scripts/import_lintian_parity.py`.
+fn applies_to_group(processable_type: &str, tag: &str, tags: &GroupTags) -> bool {
+    match processable_type {
+        "changes" => tags.changes.contains(tag),
+        "buildinfo" => tags.buildinfo.contains(tag),
+        "source" => tags.group.contains(tag),
+        _ => false,
+    }
+}
+
+/// The skeleton a recipe was filled from (`ORIGIN`).
+fn recipe_skeleton(recipe: &Path) -> Option<String> {
+    let origin = fs::read_to_string(recipe.join("ORIGIN")).ok()?;
+    origin
+        .lines()
+        .find_map(|line| line.strip_prefix("Skeleton:"))
+        .map(|skeleton| skeleton.trim().to_string())
+}
+
+/// Recipes whose build product is a `.changes`, which lintian lints as a Group:
+/// the `upload-*` skeletons build one with `dpkg-buildpackage`, the `changes`
+/// skeleton ships a filled one.
+fn recipe_product_is_changes(recipe: &Path) -> bool {
+    matches!(
+        recipe_skeleton(recipe).as_deref(),
+        Some("upload-native" | "upload-non-native" | "upload-builder-only" | "changes")
+    )
+}
+
+fn catalogued_group_hints(recipe: &Path, tags: &GroupTags) -> Vec<(String, ParityHint)> {
+    let mut expected: Vec<(String, ParityHint)> = load_hints(&recipe.join("eval/hints"))
+        .into_iter()
+        .filter(|(processable_type, hint)| applies_to_group(processable_type, &hint.tag, tags))
+        .collect();
+    expected.sort();
+    expected
+}
+
+/// Vendored recipes whose product is a `.changes` and whose hints mention a
+/// catalogued Tag with Changes-file, Buildinfo-file or Group Applicability.
+pub fn catalogued_group_recipe_rels() -> Vec<String> {
+    let root = parity_suite_root();
+    let tags = catalogued_group_tags();
+    let mut rels = Vec::new();
+    for recipe in discover_parity_recipes(&root) {
+        if !recipe_product_is_changes(&recipe) {
+            continue;
+        }
+        if catalogued_group_hints(&recipe, &tags).is_empty() {
+            continue;
+        }
+        rels.push(recipe_rel(&root, &recipe));
+    }
+    rels
+}
+
+fn find_changes(dir: &Path) -> PathBuf {
+    let mut found: Vec<PathBuf> = fs::read_dir(dir)
+        .unwrap_or_else(|error| panic!("reading {}: {error}", dir.display()))
+        .map(|entry| entry.expect("directory entry").path())
+        .filter(|path| {
+            path.is_file() && path.extension().and_then(OsStr::to_str) == Some("changes")
+        })
+        .collect();
+    found.sort();
+    assert_eq!(
+        found.len(),
+        1,
+        "expected one .changes in {}, found {found:?}",
+        dir.display()
+    );
+    found.remove(0)
+}
+
+/// `dpkg-buildpackage` as lintian's upload builder runs it: source and binary
+/// packages, unsigned, VCS cruft kept. Returns the success flag and the output
+/// of both streams, where `dpkg-source` reports a missing orig tarball.
+fn dpkg_build_upload(source: &Path) -> (bool, String) {
+    ensure_rules_executable(source);
+    let mut command = dpkg_buildpackage_command(source, "nocheck");
+    command
+        .args(["-us", "-uc", "-d"])
+        .args(["-iNEVER_MATCH_ANYTHING", "-INEVER_MATCH_ANYTHING"])
+        .arg("--source-option=--auto-commit");
+    let output = command.output().expect("spawning dpkg-buildpackage");
+    let mut text = String::from_utf8_lossy(&output.stdout).into_owned();
+    text.push_str(&String::from_utf8_lossy(&output.stderr));
+    (output.status.success(), text)
+}
+
+/// Build the product of a Group recipe in `work` and return its `.changes`:
+/// a filled `changes` skeleton is put together by its own Makefile (it copies
+/// the referenced files next to `test.changes`); an `upload-*` recipe is built
+/// with `dpkg-buildpackage`, packing a main orig tarball when it asks for one
+/// (as the Source-package harness does).
+fn assemble_group(recipe: &Path, work: &Path) -> PathBuf {
+    if recipe_skeleton(recipe).as_deref() == Some("changes") {
+        let source = work.join("src");
+        let build = work.join("build");
+        copy_tree(recipe, &source);
+        fs::create_dir_all(&build).expect("creating build dir");
+        let output = Command::new("make")
+            .arg("-C")
+            .arg(&build)
+            .arg("-f")
+            .arg(source.join("Makefile"))
+            .output()
+            .expect("spawning make");
+        assert!(
+            output.status.success(),
+            "{}: make failed\nstdout:\n{}\nstderr:\n{}",
+            recipe.display(),
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        return find_changes(&build);
+    }
+
+    let source = work.join("src");
+    copy_package_tree(recipe, &source);
+    let (ok, text) = dpkg_build_upload(&source);
+    if !ok {
+        let Some(name) = missing_upstream_tarball(&text) else {
+            panic!("{recipe:?}: dpkg-buildpackage failed\n{text}");
+        };
+        assert!(
+            !is_component_orig(&name),
+            "{recipe:?}: component orig {name} is not synthesized"
+        );
+        pack_main_orig(&source, &work.join(&name));
+        let (ok, text) = dpkg_build_upload(&source);
+        assert!(
+            ok,
+            "{recipe:?}: dpkg-buildpackage failed after orig {name}\n{text}"
+        );
+    }
+    find_changes(work)
+}
+
+/// Build the recipe's Group, lint its `.changes` as lintian's runner does, and
+/// compare the hints per processable type.
+pub fn assert_group_parity(recipe_rel: &str) {
+    if let Some(reason) = skipped_recipe_reason(recipe_rel) {
+        eprintln!("{recipe_rel}: skipped, {reason}");
+        return;
+    }
+    let recipe = parity_suite_root().join(recipe_rel);
+    if let Some(architectures) = unmet_test_architectures(&recipe) {
+        eprintln!("{recipe_rel}: skipped, the recipe is only built for {architectures}");
+        return;
+    }
+    let tags = catalogued_group_tags();
+    let expected = catalogued_group_hints(&recipe, &tags);
+    assert!(
+        !expected.is_empty(),
+        "{recipe_rel}: listed Parity recipe has no catalogued Group hints"
+    );
+
+    let work = tempfile::tempdir().expect("temp recipe workdir");
+    let changes = assemble_group(&recipe, work.path());
+
+    let mut selected: Vec<String> = expected
+        .iter()
+        .map(|(_, hint)| hint.tag.clone())
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect();
+    selected.sort();
+    let mut extra_args = Vec::new();
+    for tag in &selected {
+        extra_args.push("--select");
+        extra_args.push(tag.as_str());
+    }
+
+    let (_status, stdout, stderr) = run_lint_subject(&changes, &extra_args);
+    assert!(
+        stderr.is_empty() || !stdout.is_empty(),
+        "{recipe_rel}: lint failed with empty stdout\n{stderr}"
+    );
+
+    let mut actual: Vec<(String, ParityHint)> = stdout
+        .lines()
+        .filter_map(parse_diagnostic_line)
+        .filter(|(processable_type, hint)| applies_to_group(processable_type, &hint.tag, &tags))
+        .collect();
+    actual.sort();
+
+    assert_eq!(actual, expected, "Parity mismatch for {recipe_rel} (group)");
 }

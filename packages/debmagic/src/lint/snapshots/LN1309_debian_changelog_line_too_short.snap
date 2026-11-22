@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): debian-changelog-line-too-short (LN1309) dh 11 [usr/share/doc/example/changelog.Debian.gz:3]
+P: example (binary): debian-changelog-line-too-short (LN1309) R³ [usr/share/doc/example/changelog.Debian.gz:4]
+P: example (binary): debian-changelog-line-too-short (LN1309) 12345 [usr/share/doc/example/changelog.Debian.gz:5]

@@ -27,7 +27,7 @@ Until we generate Codes from the full Tag list, assign the next free `LN` Code w
 
 ## 3. See what the check inspects
 
-Read the Check module. Map I/O to the Subject’s context (Debian control, changelog, file index, …). Implement only the subject traits for kinds you inspect; a kind without a trait impl is not Applicability. `SourceRule` covers both Source tree and Source package.
+Read the Check module. Map I/O to the Subject’s context (Debian control, changelog, file index, …). Implement only the subject traits for kinds you inspect; a kind without a trait impl is not Applicability. `SourceRule` covers both Source tree and Source package. `(changes)` and `(buildinfo)` hints are `ChangesRule` and `BuildinfoRule`; a Check that reads `$self->group` is a `GroupRule` (`just new-rule <tag> --kind group`: the recipe hints of a group Tag are `(source)`, so it cannot be guessed). The Rule kinds a Tag has are the processable types of its hints; a Check's `always` hook is one `impl` per kind.
 
 ## 4. Native tests first
 
@@ -51,10 +51,10 @@ Classify each recipe by skeleton (`build-spec/fill-values` → `Skeleton:`):
 
 | Skeleton | Artifact | Debmagic Subject today |
 | --- | --- | --- |
-| `upload-native` / `upload-non-native` | `.changes` via `dpkg-buildpackage` | Source tree *before* the build; Source package / Binary package after ([ADR 0043](../adr/0043-binary-package-parity-builds-filled-trees.md)) |
+| `upload-native` / `upload-non-native` | `.changes` via `dpkg-buildpackage` | Source tree *before* the build; Source package / Binary package after ([ADR 0043](../adr/0043-binary-package-parity-builds-filled-trees.md)); Group (the `.changes`, `.dsc`, `.deb`s and `.buildinfo`) for `(changes)`, `(buildinfo)` and group-Check hints ([ADR 0055](../adr/0055-group-rule-and-changes-buildinfo-subjects.md)) |
 | `source-native` / `source-non-native` | `.dsc` | Source package; Source tree after fill |
 | `deb` | hand-built `.deb` | Binary package |
-| `changes` | `.changes` | none yet |
+| `changes` | `.changes` | Group (a `.changes` and the files next to it) |
 
 A single `hints` file often mixes `(source)` and `(binary)` lines. Import only the lines that match the Subject you are implementing. Source-tree Parity drops `(source)` extras that name a `.dsc`. Source-package Parity includes those extras when a catalogued Tag inspects Dsc. Source-package Parity lists a filled Source tree when a catalogued `(source)` Tag has Source-package Applicability (`SourceRule`).
 
@@ -93,7 +93,7 @@ A refresh rewrites recipes, so wipe the suite first (`git rm -r packages/debmagi
 - Hooks that need tools missing here (`pre-build` calling `terser` in the `cruft-minified-js` and `min-js-with-sources` recipes) leave their output out. Restore those files from the previous import.
 - Hand-maintained recipes, noted in their `ORIGIN`: `checks/debian/patches/quilt/patch-systems-quilt-general` (the `debian-changes-1.0-1` patch dpkg-source auto-commits, plus its `series` line) and `odd-inputs/source/debian-symlink` (files at the top level with `debian` a symlink to `.`).
 
-Import also rewrites `packages/debmagic/tests/lintian_parity.rs` with one test per vendored Source-tree, Binary-package, or Source-package recipe whose `eval/hints` mention a catalogued LN Tag (Source-package: `SourceRule`; Binary-package: `(binary)` / `(udeb)`). After cataloguing a Rule without re-filling recipes:
+Import also rewrites `packages/debmagic/tests/lintian_parity.rs` with one test per vendored Source-tree, Binary-package, Source-package, or Group recipe whose `eval/hints` mention a catalogued LN Tag (Source-tree: Tags of Source and Binary-package Rules; Source-package: `SourceRule`; Binary-package: `(binary)` / `(udeb)`; Group: a recipe whose product is a `.changes` (`upload-*`, `changes`) with `(changes)` hints of `ChangesRule` Tags, `(buildinfo)` hints of `BuildinfoRule` Tags, and `(source)` hints of `GroupRule` Tags). Group Parity builds the recipe, lints its `.changes` as lintian's runner does, and compares the hints per processable type. After cataloguing a Rule without re-filling recipes:
 
 ```shell
 python3 scripts/import_lintian_parity.py --write-tests
@@ -116,6 +116,6 @@ Check: `lib/Lintian/Check/Fields/Required.pm`. Tag file: `tags/r/required-field.
 
 - **`generic-empty`** — `upload-native`; `control.in` omits `Standards-Version` and `Description`; `pre-build` deletes `debian/compat` and `debian/copyright`. Source extras: `(in section for source) Standards-Version` and `(in section for generic-empty) Description`. Also `.dsc` and `.deb` lines — `.deb` is Binary-package (`fields-general-missing`); `.dsc` is Source-package Dsc (`generic-empty_1.0.dsc Standards-Version`).
 - **`fields-general-missing`** — `deb`; Binary package Parity (assemble the Build-Product, lint the `.deb`).
-- **`changes-missing-fields`** — `changes`; no Subject yet.
+- **`changes-missing-fields`** — `changes`; a Changes file (`ChangesRule`).
 
 `LN0001` Source-tree Parity is `generic-empty` under `tests/lintian-parity/` (two `debian/control` hint lines). Binary-package Parity is `fields-general-missing` and the built `generic-empty` `.deb`. Source-package Parity of `generic-empty` includes the Dsc extra. Source-package Parity’s first File-tree case remains `cruft-general-upstream` / LN0004.

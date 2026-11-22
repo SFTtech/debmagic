@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): desktop-entry-lacks-keywords-entry (LN1421) [usr/share/applications/example.desktop]
+I: example (binary): desktop-entry-lacks-keywords-entry (LN1421) [usr/share/applications/example.desktop]
+I: example (udeb): desktop-entry-lacks-keywords-entry (LN1421) [usr/share/applications/example.desktop]

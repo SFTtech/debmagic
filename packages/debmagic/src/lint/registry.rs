@@ -159,6 +159,7 @@ use super::rules::InitDScriptUsesUsrInterpreter;
 use super::rules::InitScriptIsNotAFile;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
+use super::rules::IntraSourcePackageCircularDependency;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidProfileNameInBuildProfilesField;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &BadSectionInChangesFile,
+        &IntraSourcePackageCircularDependency,
     ]
 }
 
@@ -3080,7 +3082,7 @@ pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
 }
 
 pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
-    &[]
+    &[&IntraSourcePackageCircularDependency]
 }
 
 #[cfg(test)]

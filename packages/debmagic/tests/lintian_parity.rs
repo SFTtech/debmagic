@@ -229,9 +229,14 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/trailing-whitespace/cruft-crlf-eols",
     "checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace",
     "checks/debian/trailing-whitespace/rules-without-newline-at-end",
+    "checks/debian/upstream/metadata/bogus-field",
     "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/upstream/metadata/in-native-source",
+    "checks/debian/upstream/metadata/upstream-metadata-invalid-yml",
     "checks/debian/upstream/metadata/upstream-metadata-is-not-a-file",
+    "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
+    "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
+    "checks/debian/upstream/metadata/yaml-sequence",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
@@ -241,6 +246,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/version-substvars/version-substvars-obsolete",
     "checks/debian/watch/changes-upstream-signature-missing",
     "checks/debian/watch/filenamemangle",
+    "checks/debian/watch/generic-dh-make-2008",
     "checks/debian/watch/legacy-foo++",
     "checks/debian/watch/legacy-maintainer-scripts",
     "checks/debian/watch/legacy-scripts",
@@ -257,6 +263,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-bug-765995",
     "checks/debian/watch/watch-file-general",
     "checks/debian/watch/watch-file-malformed-version",
+    "checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata",
     "checks/debian/watch/watch-file-old-upstream-version",
     "checks/debian/watch/watch-file-pgpmode-none",
     "checks/debian/watch/watch-file-prerelease",
@@ -472,6 +482,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "odd-inputs/source/unpack-srcpkg-dot-dir",
     "odd-inputs/source/unpack-srcpkg-dot-subdir",
     "odd-inputs/source/unpack-srcpkg-no-subdir",
+    "odd-inputs/source/unpack-srcpkg-xz",
     "tracking/generic-dh-make-2005",
     "tracking/generic-dh-make-2008",
 ];
@@ -1305,9 +1316,14 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/trailing-whitespace/cruft-crlf-eols",
     "checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace",
     "checks/debian/trailing-whitespace/rules-without-newline-at-end",
+    "checks/debian/upstream/metadata/bogus-field",
     "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/upstream/metadata/in-native-source",
+    "checks/debian/upstream/metadata/upstream-metadata-invalid-yml",
     "checks/debian/upstream/metadata/upstream-metadata-is-not-a-file",
+    "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
+    "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
+    "checks/debian/upstream/metadata/yaml-sequence",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
@@ -1317,6 +1333,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/version-substvars/version-substvars-obsolete",
     "checks/debian/watch/changes-upstream-signature-missing",
     "checks/debian/watch/filenamemangle",
+    "checks/debian/watch/generic-dh-make-2008",
     "checks/debian/watch/legacy-foo++",
     "checks/debian/watch/legacy-maintainer-scripts",
     "checks/debian/watch/legacy-scripts",
@@ -1333,6 +1350,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-bug-765995",
     "checks/debian/watch/watch-file-general",
     "checks/debian/watch/watch-file-malformed-version",
+    "checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata",
     "checks/debian/watch/watch-file-old-upstream-version",
     "checks/debian/watch/watch-file-pgpmode-none",
     "checks/debian/watch/watch-file-prerelease",
@@ -1549,6 +1570,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "odd-inputs/source/unpack-srcpkg-dot-dir",
     "odd-inputs/source/unpack-srcpkg-dot-subdir",
     "odd-inputs/source/unpack-srcpkg-no-subdir",
+    "odd-inputs/source/unpack-srcpkg-xz",
     "tracking/generic-dh-make-2005",
     "tracking/generic-dh-make-2008",
 ];
@@ -1822,9 +1844,14 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/trailing-whitespace/cruft-crlf-eols"; "checks_debian_trailing_whitespace_cruft_crlf_eols")]
 #[test_case("checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace"; "checks_debian_trailing_whitespace_cruft_file_contains_trailing_whitespace")]
 #[test_case("checks/debian/trailing-whitespace/rules-without-newline-at-end"; "checks_debian_trailing_whitespace_rules_without_newline_at_end")]
+#[test_case("checks/debian/upstream/metadata/bogus-field"; "checks_debian_upstream_metadata_bogus_field")]
 #[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/upstream/metadata/in-native-source"; "checks_debian_upstream_metadata_in_native_source")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-invalid-yml"; "checks_debian_upstream_metadata_upstream_metadata_invalid_yml")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-is-not-a-file"; "checks_debian_upstream_metadata_upstream_metadata_is_not_a_file")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
+#[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
@@ -1834,6 +1861,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/version-substvars/version-substvars-obsolete"; "checks_debian_version_substvars_version_substvars_obsolete")]
 #[test_case("checks/debian/watch/changes-upstream-signature-missing"; "checks_debian_watch_changes_upstream_signature_missing")]
 #[test_case("checks/debian/watch/filenamemangle"; "checks_debian_watch_filenamemangle")]
+#[test_case("checks/debian/watch/generic-dh-make-2008"; "checks_debian_watch_generic_dh_make_2008")]
 #[test_case("checks/debian/watch/legacy-foo++"; "checks_debian_watch_legacy_foo_")]
 #[test_case("checks/debian/watch/legacy-maintainer-scripts"; "checks_debian_watch_legacy_maintainer_scripts")]
 #[test_case("checks/debian/watch/legacy-scripts"; "checks_debian_watch_legacy_scripts")]
@@ -1850,6 +1878,10 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/watch/watch-file-bug-765995"; "checks_debian_watch_watch_file_bug_765995")]
 #[test_case("checks/debian/watch/watch-file-general"; "checks_debian_watch_watch_file_general")]
 #[test_case("checks/debian/watch/watch-file-malformed-version"; "checks_debian_watch_watch_file_malformed_version")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cpan_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cran_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_github_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata"; "checks_debian_watch_watch_file_missing_with_unknown_upstream_metadata")]
 #[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
 #[test_case("checks/debian/watch/watch-file-pgpmode-none"; "checks_debian_watch_watch_file_pgpmode_none")]
 #[test_case("checks/debian/watch/watch-file-prerelease"; "checks_debian_watch_watch_file_prerelease")]
@@ -2065,6 +2097,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
+#[test_case("odd-inputs/source/unpack-srcpkg-xz"; "odd_inputs_source_unpack_srcpkg_xz")]
 #[test_case("tracking/generic-dh-make-2005"; "tracking_generic_dh_make_2005")]
 #[test_case("tracking/generic-dh-make-2008"; "tracking_generic_dh_make_2008")]
 fn lintian_parity_source_tree(recipe: &str) {
@@ -2900,9 +2933,14 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/trailing-whitespace/cruft-crlf-eols"; "checks_debian_trailing_whitespace_cruft_crlf_eols")]
 #[test_case("checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace"; "checks_debian_trailing_whitespace_cruft_file_contains_trailing_whitespace")]
 #[test_case("checks/debian/trailing-whitespace/rules-without-newline-at-end"; "checks_debian_trailing_whitespace_rules_without_newline_at_end")]
+#[test_case("checks/debian/upstream/metadata/bogus-field"; "checks_debian_upstream_metadata_bogus_field")]
 #[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/upstream/metadata/in-native-source"; "checks_debian_upstream_metadata_in_native_source")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-invalid-yml"; "checks_debian_upstream_metadata_upstream_metadata_invalid_yml")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-is-not-a-file"; "checks_debian_upstream_metadata_upstream_metadata_is_not_a_file")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
+#[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
@@ -2912,6 +2950,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/version-substvars/version-substvars-obsolete"; "checks_debian_version_substvars_version_substvars_obsolete")]
 #[test_case("checks/debian/watch/changes-upstream-signature-missing"; "checks_debian_watch_changes_upstream_signature_missing")]
 #[test_case("checks/debian/watch/filenamemangle"; "checks_debian_watch_filenamemangle")]
+#[test_case("checks/debian/watch/generic-dh-make-2008"; "checks_debian_watch_generic_dh_make_2008")]
 #[test_case("checks/debian/watch/legacy-foo++"; "checks_debian_watch_legacy_foo_")]
 #[test_case("checks/debian/watch/legacy-maintainer-scripts"; "checks_debian_watch_legacy_maintainer_scripts")]
 #[test_case("checks/debian/watch/legacy-scripts"; "checks_debian_watch_legacy_scripts")]
@@ -2928,6 +2967,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/watch/watch-file-bug-765995"; "checks_debian_watch_watch_file_bug_765995")]
 #[test_case("checks/debian/watch/watch-file-general"; "checks_debian_watch_watch_file_general")]
 #[test_case("checks/debian/watch/watch-file-malformed-version"; "checks_debian_watch_watch_file_malformed_version")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cpan_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cran_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_github_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata"; "checks_debian_watch_watch_file_missing_with_unknown_upstream_metadata")]
 #[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
 #[test_case("checks/debian/watch/watch-file-pgpmode-none"; "checks_debian_watch_watch_file_pgpmode_none")]
 #[test_case("checks/debian/watch/watch-file-prerelease"; "checks_debian_watch_watch_file_prerelease")]
@@ -3144,6 +3187,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
+#[test_case("odd-inputs/source/unpack-srcpkg-xz"; "odd_inputs_source_unpack_srcpkg_xz")]
 #[test_case("tracking/generic-dh-make-2005"; "tracking_generic_dh_make_2005")]
 #[test_case("tracking/generic-dh-make-2008"; "tracking_generic_dh_make_2008")]
 fn lintian_parity_source_package(recipe: &str) {

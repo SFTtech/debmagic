@@ -5,6 +5,7 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 use crate::lint::rules::lintian::fields_version::is_native;
+use crate::lint::upstream_metadata::UpstreamMetadata;
 
 pub struct UpstreamMetadataInNativeSource;
 
@@ -12,10 +13,12 @@ declare_rule! {
     /// A Debian-native source package has `debian/upstream/metadata`.
     ///
     /// Native is lintian's `native` (see `fields_version::is_native`). Fires
-    /// when `debian/upstream/metadata` is present in the packaging File tree
-    /// (Source tree, or Source package Patched files) as any kind of entry,
-    /// including a symlink or a directory. Extra is empty; the path is the
-    /// Location. Non-native packages are never reported here.
+    /// when `debian/upstream/metadata` resolves in the packaging File tree
+    /// (Source tree, or Source package Patched files) to any kind of entry: a
+    /// file, a directory, a fifo, or a symlink that resolves. A dangling or
+    /// escaping symlink does not count, as lintian's `resolve_path` gives
+    /// nothing for it. Extra is empty; the path is the Location. Non-native
+    /// packages are never reported here.
     UpstreamMetadataInNativeSource,
     code = "LN1214",
     tag = "upstream-metadata-in-native-source",
@@ -29,7 +32,9 @@ impl SourceRule for UpstreamMetadataInNativeSource {
             return;
         }
         let path = Path::new("debian/upstream/metadata");
-        let present = ctx.files().is_some_and(|files| files.get(path).is_some());
+        let present = ctx
+            .upstream_metadata()
+            .is_some_and(|metadata| *metadata != UpstreamMetadata::Missing);
         if present {
             ctx.diagnostic(Diagnostic::warn("").with_location(Location {
                 path: path.to_path_buf(),
@@ -118,13 +123,23 @@ mod tests {
                 &[("debian/upstream.yaml", TestFile::new("x"))],
             ),
         ];
+        // A dangling symlink resolves to nothing: lintian's missing Tag, not this.
+        let dangling = tree(
+            "1.0",
+            Some("3.0 (native)"),
+            &[("debian/upstream/metadata", TestFile::symlink("nowhere"))],
+        );
+        let pass = [pass, vec![dangling]].concat();
         let fail = vec![
             tree("1.0", Some("3.0 (native)"), std::slice::from_ref(&metadata)),
             tree("1.0", None, std::slice::from_ref(&metadata)),
             tree(
                 "1.0",
                 Some("3.0 (native)"),
-                &[("debian/upstream/metadata", TestFile::symlink("other"))],
+                &[
+                    ("debian/upstream/metadata", TestFile::symlink("other")),
+                    ("debian/upstream/other", TestFile::new("Name: x\n")),
+                ],
             ),
             tree(
                 "1.0",

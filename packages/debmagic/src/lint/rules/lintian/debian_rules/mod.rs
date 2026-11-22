@@ -35,6 +35,8 @@ mod ln1328_debian_rules_parses_dpkg_parsechangelog;
 mod ln1329_debian_rules_uses_as_needed_linker_flag;
 mod ln1330_debug_symbol_migration_possibly_complete;
 mod ln1331_no_dh_sequencer;
+mod ln1532_debian_rules_contains_unnecessary_get_orig_source_target;
+mod ln1533_unnecessary_source_date_epoch_assignment;
 mod text;
 
 pub(super) use text::{complete_lines, read_rules_from_tree};
@@ -70,3 +72,5 @@ pub(crate) use ln1328_debian_rules_parses_dpkg_parsechangelog::DebianRulesParses
 pub(crate) use ln1329_debian_rules_uses_as_needed_linker_flag::DebianRulesUsesAsNeededLinkerFlag;
 pub(crate) use ln1330_debug_symbol_migration_possibly_complete::DebugSymbolMigrationPossiblyComplete;
 pub(crate) use ln1331_no_dh_sequencer::NoDhSequencer;
+pub(crate) use ln1532_debian_rules_contains_unnecessary_get_orig_source_target::DebianRulesContainsUnnecessaryGetOrigSourceTarget;
+pub(crate) use ln1533_unnecessary_source_date_epoch_assignment::UnnecessarySourceDateEpochAssignment;

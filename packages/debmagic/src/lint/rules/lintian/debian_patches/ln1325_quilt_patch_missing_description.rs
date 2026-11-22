@@ -90,7 +90,7 @@ impl SourceRule for QuiltPatchMissingDescription {
 
 /// The bytes of a patch the series names as a file, following symlinks that
 /// stay in the tree. `None` when it is not a file.
-fn readable(files: &FileTree, path: &PathBuf) -> Option<Vec<u8>> {
+pub(super) fn readable(files: &FileTree, path: &PathBuf) -> Option<Vec<u8>> {
     let entry = files.get(path)?;
     let target = follow_symlinks(files, entry)?;
     if !matches!(

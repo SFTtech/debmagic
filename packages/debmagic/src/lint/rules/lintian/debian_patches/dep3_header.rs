@@ -21,6 +21,10 @@ const BUG_TEMPLATE: &str = "<url in upstream bugtracker>";
 pub(super) struct Dep3Header {
     origin: String,
     bug: String,
+    bug_debian: String,
+    last_update: String,
+    forwarded: String,
+    applied_upstream: String,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -48,6 +52,29 @@ impl Dep3Header {
         } else {
             BugProblem::NotUrl
         })
+    }
+
+    /// Origin is not `upstream` or `backport`, and Forwarded is `no`, or none of
+    /// Applied-Upstream, Bug and Forwarded is set.
+    pub(super) fn not_forwarded_upstream(&self) -> bool {
+        let category = self.origin.split(',').next().unwrap_or_default().trim();
+        if matches!(category, "upstream" | "backport") {
+            return false;
+        }
+        self.forwarded == "no"
+            || [&self.applied_upstream, &self.bug, &self.forwarded]
+                .iter()
+                .all(|field| field.is_empty())
+    }
+
+    /// Set but not a `YYYY-MM-DD` date that exists and is not before 1900.
+    pub(super) fn last_update_is_wrong(&self) -> bool {
+        !self.last_update.is_empty() && !is_rfc3339_date(&self.last_update)
+    }
+
+    /// Set but not a Debian BTS or salsa.debian.org http or https URL.
+    pub(super) fn bug_debian_is_wrong(&self) -> bool {
+        !self.bug_debian.is_empty() && !is_debian_url(&self.bug_debian)
     }
 }
 
@@ -121,6 +148,10 @@ fn parse_header(bytes: &[u8]) -> Option<Dep3Header> {
     Some(Dep3Header {
         origin: value("origin").to_string(),
         bug: value("bug").to_string(),
+        bug_debian: value("bug-debian").to_string(),
+        last_update: value("last-update").to_string(),
+        forwarded: value("forwarded").to_string(),
+        applied_upstream: value("applied-upstream").to_string(),
     })
 }
 
@@ -129,6 +160,61 @@ fn is_http_url(value: &str) -> bool {
     value.split_once(':').is_some_and(|(scheme, _)| {
         scheme.eq_ignore_ascii_case("http") || scheme.eq_ignore_ascii_case("https")
     })
+}
+
+/// Lintian's `not_debian_url` negated: an http or https URL whose host is
+/// `bugs.debian.org` or `salsa.debian.org`, compared case-insensitively. The
+/// authority is cut by hand (userinfo and port dropped), not by a URI parser.
+fn is_debian_url(value: &str) -> bool {
+    let Some((scheme, rest)) = value.split_once(':') else {
+        return false;
+    };
+    if !(scheme.eq_ignore_ascii_case("http") || scheme.eq_ignore_ascii_case("https")) {
+        return false;
+    }
+    let Some(after_slashes) = rest.strip_prefix("//") else {
+        return false;
+    };
+    let authority = after_slashes
+        .split(['/', '?', '#'])
+        .next()
+        .unwrap_or_default();
+    let host_port = authority
+        .rsplit_once('@')
+        .map_or(authority, |(_, host_port)| host_port);
+    let host = host_port
+        .rsplit_once(':')
+        .map_or(host_port, |(host, _)| host);
+    host.eq_ignore_ascii_case("bugs.debian.org") || host.eq_ignore_ascii_case("salsa.debian.org")
+}
+
+/// Lintian's `check_wrong_rfc3339_date` negated. Lintian converts the date with
+/// `Time::Local` and compares the round trip in the local zone, so a midnight
+/// that does not exist there (a DST gap) would fail in lintian and passes here.
+fn is_rfc3339_date(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    if bytes.len() != 10 || bytes[4] != b'-' || bytes[7] != b'-' {
+        return false;
+    }
+    let digits = |range: std::ops::Range<usize>| -> Option<u32> {
+        let part = &bytes[range];
+        if !part.iter().all(u8::is_ascii_digit) {
+            return None;
+        }
+        std::str::from_utf8(part).ok()?.parse().ok()
+    };
+    let (Some(year), Some(month), Some(day)) = (digits(0..4), digits(5..7), digits(8..10)) else {
+        return false;
+    };
+    let leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+    let days_in_month = match month {
+        2 if leap => 29,
+        2 => 28,
+        4 | 6 | 9 | 11 => 30,
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        _ => return false,
+    };
+    year >= 1900 && (1..=days_in_month).contains(&day)
 }
 
 fn is_debian_number(value: &str) -> bool {

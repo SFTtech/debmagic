@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): patch-not-forwarded-upstream (LN1528) [debian/patches/fix.patch]
+I: (source): patch-not-forwarded-upstream (LN1528) [debian/patches/fix.patch]
+I: (source): patch-not-forwarded-upstream (LN1528) [debian/patches/fix.patch]
+I: (source): patch-not-forwarded-upstream (LN1528) [debian/patches/fix.patch]
+I: (source): patch-not-forwarded-upstream (LN1528) [debian/patches/fix.patch]
+I: (source): patch-not-forwarded-upstream (LN1528) [debian/patches/one.patch]
+I: (source): patch-not-forwarded-upstream (LN1528) [debian/patches/two.patch]

@@ -85,6 +85,7 @@ use super::rules::DbusPolicyAtConsole;
 use super::rules::DbusPolicyExcessivelyBroad;
 use super::rules::DbusPolicyInEtc;
 use super::rules::DbusPolicyWithoutSendDestination;
+use super::rules::DbusSessionServiceWrongName;
 use super::rules::DbusSystemServiceWrongName;
 use super::rules::DebconfConfigNotExecutable;
 use super::rules::DebconfIsNotARegistry;
@@ -96,6 +97,7 @@ use super::rules::DebianControlFileIsASymlink;
 use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
+use super::rules::DebianRulesContainsUnnecessaryGetOrigSourceTarget;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
@@ -117,8 +119,11 @@ use super::rules::DebianRulesUsesSpecialShellVariable;
 use super::rules::DebianRulesUsesUnnecessaryDhArgument;
 use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
+use super::rules::DebianWatchContainsDhMakeTemplate;
 use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
 use super::rules::DebianWatchFileIsMissing;
+use super::rules::DebianWatchManglesDebianVersionImproperly;
+use super::rules::DebianWatchManglesUpstreamVersionImproperly;
 use super::rules::DebianWatchUsesInsecureUri;
 use super::rules::DebugFileWithNoDebugSymbols;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
@@ -213,6 +218,8 @@ use super::rules::InstallableFieldMirrorsSource;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::IntraSourcePackageCircularDependency;
+use super::rules::InvalidDep3FormatPatchWrongBugDebianUrl;
+use super::rules::InvalidDep3FormatPatchWrongLastUpdate;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidProfileNameInBuildProfilesField;
@@ -372,6 +379,7 @@ use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
+use super::rules::PatchNotForwardedUpstream;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
 use super::rules::PearPackageButMissingDependency;
@@ -409,6 +417,8 @@ use super::rules::PythonModuleInWrongLocation;
 use super::rules::PythonTracebackInManpage;
 use super::rules::QuiltBuildDepButNoSeriesFile;
 use super::rules::QuiltPatchMissingDescription;
+use super::rules::QuiltPatchUsesDpatchPlaceholder;
+use super::rules::QuiltPatchUsingTemplateDescription;
 use super::rules::QuiltPatchWithNonStandardOptions;
 use super::rules::QuiltSeriesButNoBuildDep;
 use super::rules::QuiltSeriesWithoutTrailingNewline;
@@ -527,6 +537,7 @@ use super::rules::UnknownPriority;
 use super::rules::UnknownTemplateType;
 use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
+use super::rules::UnnecessarySourceDateEpochAssignment;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnparsableMenuItem;
 use super::rules::UnreleasedChanges;
@@ -2219,6 +2230,17 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BadUrgencyInChangesFile,
         &DistributionAndChangesMismatch,
         &DistributionAndExperimentalMismatch,
+        &InvalidDep3FormatPatchWrongBugDebianUrl,
+        &InvalidDep3FormatPatchWrongLastUpdate,
+        &PatchNotForwardedUpstream,
+        &QuiltPatchUsesDpatchPlaceholder,
+        &QuiltPatchUsingTemplateDescription,
+        &DebianRulesContainsUnnecessaryGetOrigSourceTarget,
+        &UnnecessarySourceDateEpochAssignment,
+        &DebianWatchContainsDhMakeTemplate,
+        &DebianWatchManglesDebianVersionImproperly,
+        &DebianWatchManglesUpstreamVersionImproperly,
+        &DbusSessionServiceWrongName,
     ]
 }
 
@@ -2629,6 +2651,16 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UpstreamMetadataYamlInvalid,
         &DebianWatchFileIsMissing,
         &UpstreamMetadataFileIsMissing,
+        &InvalidDep3FormatPatchWrongBugDebianUrl,
+        &InvalidDep3FormatPatchWrongLastUpdate,
+        &PatchNotForwardedUpstream,
+        &QuiltPatchUsesDpatchPlaceholder,
+        &QuiltPatchUsingTemplateDescription,
+        &DebianRulesContainsUnnecessaryGetOrigSourceTarget,
+        &UnnecessarySourceDateEpochAssignment,
+        &DebianWatchContainsDhMakeTemplate,
+        &DebianWatchManglesDebianVersionImproperly,
+        &DebianWatchManglesUpstreamVersionImproperly,
     ]
 }
 
@@ -3482,6 +3514,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &DbusSessionServiceWrongName,
     ]
 }
 

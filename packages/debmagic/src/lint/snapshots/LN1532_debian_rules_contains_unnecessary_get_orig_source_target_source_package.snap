@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): debian-rules-contains-unnecessary-get-orig-source-target (LN1532) [debian/rules]

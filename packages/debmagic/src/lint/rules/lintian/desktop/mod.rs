@@ -18,6 +18,7 @@ mod ln1221_dbus_policy_excessively_broad;
 mod ln1222_dbus_policy_in_etc;
 mod ln1223_dbus_policy_without_send_destination;
 mod ln1224_dbus_system_service_wrong_name;
+mod ln1539_dbus_session_service_wrong_name;
 
 pub(crate) use ln0415_package_contains_compiled_font_file::PackageContainsCompiledFontFile;
 pub(crate) use ln0421_icon_size_and_directory_name_mismatch::IconSizeAndDirectoryNameMismatch;
@@ -34,3 +35,4 @@ pub(crate) use ln1221_dbus_policy_excessively_broad::DbusPolicyExcessivelyBroad;
 pub(crate) use ln1222_dbus_policy_in_etc::DbusPolicyInEtc;
 pub(crate) use ln1223_dbus_policy_without_send_destination::DbusPolicyWithoutSendDestination;
 pub(crate) use ln1224_dbus_system_service_wrong_name::DbusSystemServiceWrongName;
+pub(crate) use ln1539_dbus_session_service_wrong_name::DbusSessionServiceWrongName;

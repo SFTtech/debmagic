@@ -116,6 +116,7 @@ use super::rules::DebianUpstreamObsoletePath;
 use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
 use super::rules::DebianWatchUsesInsecureUri;
 use super::rules::DebugFileWithNoDebugSymbols;
+use super::rules::DebugPackageForMultiArchSamePkgNotCoinstallable;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
@@ -2183,6 +2184,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingNoticeFileForApacheLicense,
         &LacksUnversionedLinkToSharedLibrary,
         &PackageContainsBrokenSymlinkWildcard,
+        &DebugPackageForMultiArchSamePkgNotCoinstallable,
     ]
 }
 
@@ -3454,6 +3456,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &MissingNoticeFileForApacheLicense,
         &LacksUnversionedLinkToSharedLibrary,
         &PackageContainsBrokenSymlinkWildcard,
+        &DebugPackageForMultiArchSamePkgNotCoinstallable,
     ]
 }
 

@@ -450,7 +450,12 @@ pub fn catalogued_source_tree_recipe_rels() -> Vec<String> {
 }
 
 pub fn assert_source_tree_parity(recipe_rel: &str) {
-    if let Some(reason) = skipped_recipe_reason(recipe_rel) {
+    if let Some(reason) = skipped_recipe_reason(recipe_rel).or_else(|| {
+        RECIPES_SKIPPED_FOR_SOURCE_TREE
+            .iter()
+            .find(|(name, _)| *name == recipe_rel)
+            .map(|(_, reason)| *reason)
+    }) {
         eprintln!("{recipe_rel}: skipped, {reason}");
         return;
     }
@@ -886,6 +891,10 @@ fn assemble_binary_packages(recipe: &Path, work: &Path) -> Vec<PathBuf> {
 /// Rules have native tests; Parity needs a host that can build the recipe.
 const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
     (
+        "checks/fields/multi-line/multiple-lines-in-maintainer-field",
+        "the recipe's `build-spec/post-build.sh` rewrites the built product, and the harness does not run post-build scripts",
+    ),
+    (
         "checks/debian/debconf/debconf-config-not-executable",
         "the recipe's `control-file-has-bad-permissions config 0644 != 0755` hint names the file, which lintian 2.144.0's ControlFiles.pm does not emit (the control-files-bad recipe agrees with the code)",
     ),
@@ -914,6 +923,13 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "the recipe runs `dpkg-deb -Zlzma`, which dpkg 1.23 rejects",
     ),
 ];
+
+/// Recipes whose expected hints cannot show up in a Source tree, because the
+/// tree is not the built product (a patch is not applied, say).
+const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[(
+    "checks/files/names/national-encoding-in-patch",
+    "the Latin-1 file name comes from a patch that a Source tree does not apply",
+)];
 
 /// The reason a recipe is skipped on this host, if it is.
 fn skipped_recipe_reason(recipe_rel: &str) -> Option<&'static str> {
@@ -1154,6 +1170,17 @@ fn debian_adds_pointers(recipe: &Path) -> Vec<String> {
     pointers
 }
 
+/// Whether the recipe's `eval/hints` expect a Tag starting with `prefix`.
+fn expects_tag_prefix(recipe: &Path, prefix: &str) -> bool {
+    let Ok(text) = fs::read_to_string(recipe.join("eval/hints")) else {
+        return false;
+    };
+    text.lines()
+        .filter_map(|line| line.split_once("): "))
+        .filter_map(|(_, rest)| rest.split_whitespace().next())
+        .any(|tag| tag.starts_with(prefix))
+}
+
 fn outside_debian(pointer: &str) -> bool {
     let pointer = pointer.trim_start_matches("./");
     pointer != "debian" && !pointer.starts_with("debian/")
@@ -1391,7 +1418,7 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
         .filter(|pointer| outside_debian(pointer))
         .cloned()
         .collect();
-    let keep_ignored = !pointers.is_empty();
+    let keep_ignored = !pointers.is_empty() || expects_tag_prefix(recipe, "source-contains-");
     let overrides = dpkg_overrides(recipe);
     if let Some(hook) = vendored_pre_upstream(recipe) {
         let name = main_orig_name(&source);

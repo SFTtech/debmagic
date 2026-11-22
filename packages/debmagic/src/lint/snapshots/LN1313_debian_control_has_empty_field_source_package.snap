@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): debian-control-has-empty-field (LN1313) (in source paragraph) Vcs-Git [debian/control:4]

@@ -256,6 +256,7 @@ use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
 use super::rules::PackageDependsOnMultipleTclxVersions;
 use super::rules::PackageFileIsExecutable;
+use super::rules::PackageHasUnnecessaryActivationOfLdconfigTrigger;
 use super::rules::PackageInstallsAptKeyring;
 use super::rules::PackageInstallsAptPreferences;
 use super::rules::PackageInstallsAptSources;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &LacksLdconfigTrigger,
+        &PackageHasUnnecessaryActivationOfLdconfigTrigger,
     ]
 }
 
@@ -3067,6 +3069,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
         &LacksLdconfigTrigger,
+        &PackageHasUnnecessaryActivationOfLdconfigTrigger,
     ]
 }
 

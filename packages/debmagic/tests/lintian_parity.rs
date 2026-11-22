@@ -234,6 +234,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/dh-make/cruft-fixme-placeholders",
     "checks/dh-make/cruft-readme-source",
     "checks/dh-make/template/generic-dh-make-2008",
+    "checks/documentation/doxygen/cruft-doxygen-documentation",
+    "checks/documentation/doxygen/files-doxygen-documentation",
     "checks/fields/architecture/magic-architecture-srcpkg-wrong",
     "checks/fields/dm-upload-allowed/fields-dmua",
     "checks/fields/dm-upload-allowed/legacy-binary",
@@ -1122,6 +1124,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/dh-make/cruft-fixme-placeholders",
     "checks/dh-make/cruft-readme-source",
     "checks/dh-make/template/generic-dh-make-2008",
+    "checks/documentation/doxygen/cruft-doxygen-documentation",
+    "checks/documentation/doxygen/files-doxygen-documentation",
     "checks/fields/architecture/magic-architecture-srcpkg-wrong",
     "checks/fields/dm-upload-allowed/fields-dmua",
     "checks/fields/dm-upload-allowed/legacy-binary",
@@ -1528,6 +1532,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/dh-make/cruft-fixme-placeholders"; "checks_dh_make_cruft_fixme_placeholders")]
 #[test_case("checks/dh-make/cruft-readme-source"; "checks_dh_make_cruft_readme_source")]
 #[test_case("checks/dh-make/template/generic-dh-make-2008"; "checks_dh_make_template_generic_dh_make_2008")]
+#[test_case("checks/documentation/doxygen/cruft-doxygen-documentation"; "checks_documentation_doxygen_cruft_doxygen_documentation")]
+#[test_case("checks/documentation/doxygen/files-doxygen-documentation"; "checks_documentation_doxygen_files_doxygen_documentation")]
 #[test_case("checks/fields/architecture/magic-architecture-srcpkg-wrong"; "checks_fields_architecture_magic_architecture_srcpkg_wrong")]
 #[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
@@ -2418,6 +2424,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/dh-make/cruft-fixme-placeholders"; "checks_dh_make_cruft_fixme_placeholders")]
 #[test_case("checks/dh-make/cruft-readme-source"; "checks_dh_make_cruft_readme_source")]
 #[test_case("checks/dh-make/template/generic-dh-make-2008"; "checks_dh_make_template_generic_dh_make_2008")]
+#[test_case("checks/documentation/doxygen/cruft-doxygen-documentation"; "checks_documentation_doxygen_cruft_doxygen_documentation")]
+#[test_case("checks/documentation/doxygen/files-doxygen-documentation"; "checks_documentation_doxygen_files_doxygen_documentation")]
 #[test_case("checks/fields/architecture/magic-architecture-srcpkg-wrong"; "checks_fields_architecture_magic_architecture_srcpkg_wrong")]
 #[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]

@@ -318,7 +318,7 @@ pub(crate) use dh_make::FileContainsFixmePlaceholder;
 pub(crate) use dh_make::ReadmeSourceIsDhMakeTemplate;
 pub(crate) use documentation::{
     ExecutableInUsrShareDoc, PackageContainsUpstreamInstallationDocumentation,
-    ZeroByteFileInDocDirectory,
+    SourceContainsPrebuiltDoxygenDocumentation, ZeroByteFileInDocDirectory,
 };
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use fields_empty::EmptyField;

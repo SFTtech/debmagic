@@ -939,6 +939,10 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "checks/debian/copyright/dep5/components/control-file-upstream-signature-missing",
         "the harness does not synthesize the `signed`, `noext` and `component` orig tarballs, so dpkg-source builds a .dsc without them and no component is known",
     ),
+    (
+        "checks/fields/checksums/no-sha256-checksum",
+        "the recipe's `build-spec/post-build.sh` strips `Checksums-Sha256` from the `.dsc`, and the harness does not run post-build scripts",
+    ),
 ];
 
 /// Recipes whose expected hints cannot show up in a Source tree, because the
@@ -951,6 +955,10 @@ const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[
     (
         "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
         "the hints name the orig and debian tarballs of the Files field of a .dsc, which a Source tree does not have",
+    ),
+    (
+        "checks/fields/checksums/no-sha256-checksum",
+        "the hint is about the built `.dsc`'s `Checksums-Sha256`, and a Source tree has no `.dsc`",
     ),
 ];
 
@@ -1678,15 +1686,14 @@ fn rewrite_current_policy_release_date(recipe_rel: &str, hints: &mut [ParityHint
     }
 }
 
-/// `standards-version-newer`'s lintian `eval/post-test` rewrites the newest
-/// Policy release in `(current is …)` to `CURRENT`. The vendored hint keeps
-/// that token; the hook is not copied into the tree.
-fn rewrite_current_policy_version(recipe_rel: &str, hints: &mut [ParityHint]) {
-    if recipe_rel != "checks/fields/standards-version/standards-version-newer" {
-        return;
-    }
+/// The Standards-Version recipes (and the tracking recipe that carries the same
+/// hint) have lintian `eval/post-test` rewrite the newest
+/// Policy release in `(current is …)` to `CURRENT`, for the newer and the
+/// out-of-date Tags. The vendored hints keep that token; the hook is not
+/// copied into the tree.
+fn rewrite_current_policy_version(_recipe_rel: &str, hints: &mut [ParityHint]) {
     for hint in hints {
-        if hint.tag != "newer-standards-version" {
+        if hint.tag != "newer-standards-version" && hint.tag != "out-of-date-standards-version" {
             continue;
         }
         let Some(start) = hint.extra.find("(current is ") else {

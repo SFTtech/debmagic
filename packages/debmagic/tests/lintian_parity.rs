@@ -265,6 +265,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/documentation/doxygen/cruft-doxygen-documentation",
     "checks/documentation/doxygen/files-doxygen-documentation",
     "checks/fields/architecture/magic-architecture-srcpkg-wrong",
+    "checks/fields/checksums/no-sha256-checksum",
     "checks/fields/dm-upload-allowed/fields-dmua",
     "checks/fields/dm-upload-allowed/legacy-binary",
     "checks/fields/dm-upload-allowed/legacy-foo++",
@@ -272,7 +273,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/essential/fields-essential",
     "checks/fields/format/cruft-general-wig-pen",
     "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
+    "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/mail-address/fields-maintainer",
     "checks/fields/mail-address/fields-maintainer-bounces",
@@ -311,10 +315,22 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/recommended/control-file-general",
     "checks/fields/recommended/generic-empty",
     "checks/fields/required/generic-empty",
+    "checks/fields/standards-version/legacy-binary",
+    "checks/fields/standards-version/legacy-etcfiles",
+    "checks/fields/standards-version/legacy-filenames",
+    "checks/fields/standards-version/legacy-foo++",
+    "checks/fields/standards-version/legacy-libbaz",
+    "checks/fields/standards-version/legacy-maintainer-scripts",
     "checks/fields/standards-version/legacy-relations",
+    "checks/fields/standards-version/legacy-scripts",
     "checks/fields/standards-version/standards-version-invalid",
     "checks/fields/standards-version/standards-version-newer",
+    "checks/fields/standards-version/standards-version-old",
     "checks/fields/standards-version/standards-version-timewarp",
+    "checks/fields/style/all-caps",
+    "checks/fields/style/lower-case-component",
+    "checks/fields/style/shy-prefix",
+    "checks/fields/style/style-x-dh-compat",
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
@@ -322,6 +338,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-malformed-vcs-fields",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
+    "checks/fields/vcs/fields-uncanonical-salsa-vcs-fields",
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
     "checks/fields/vcs/fields-vcs-field-insecure-uri",
     "checks/fields/vcs/fields-vcs-field-mismatch",
@@ -379,6 +396,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/python/python-version-current-deprecated",
     "checks/languages/r/files-r-data",
     "checks/languages/ruby/gem-homepage",
+    "checks/lintian/override-context-mismatch",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -651,16 +669,23 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/built-using/fields-built-using",
     "checks/fields/description/description-empty-paragraph",
     "checks/fields/description/description-general",
+    "checks/fields/description/description-mentions-planned-features",
+    "checks/fields/description/description-synopsis-might-not-be-phrased-properly",
+    "checks/fields/description/description-wording",
     "checks/fields/description/generic-dh-make-2008",
     "checks/fields/description/legacy-binary",
     "checks/fields/description/legacy-debconf",
     "checks/fields/description/legacy-etcfiles",
+    "checks/fields/description/legacy-filenames",
     "checks/fields/description/legacy-relations",
+    "checks/fields/description/spelling-multiword",
     "checks/fields/empty/empty-section",
     "checks/fields/essential/fields-essential",
     "checks/fields/essential/legacy-fields",
     "checks/fields/homepage/fields-cpan-homepage",
     "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
+    "checks/fields/homepage/fields-no-source-homepage",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
@@ -698,11 +723,14 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/priority/priority-extra",
     "checks/fields/required/fields-general-missing",
     "checks/fields/required/generic-empty",
+    "checks/fields/section/fields-general",
     "checks/fields/section/fields-section-general",
     "checks/fields/section/fields-transitional",
     "checks/fields/section/fields-udeb",
+    "checks/fields/section/fields-wrong-section",
     "checks/fields/section/generic-dh-make-2008",
     "checks/fields/section/legacy-fields",
+    "checks/fields/section/legacy-libbaz",
     "checks/fields/source/fields-general-bad",
     "checks/fields/source/fields-malformed-source",
     "checks/fields/static-built-using/fields-static-built-using",
@@ -1242,6 +1270,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/doxygen/cruft-doxygen-documentation",
     "checks/documentation/doxygen/files-doxygen-documentation",
     "checks/fields/architecture/magic-architecture-srcpkg-wrong",
+    "checks/fields/checksums/no-sha256-checksum",
     "checks/fields/dm-upload-allowed/fields-dmua",
     "checks/fields/dm-upload-allowed/legacy-binary",
     "checks/fields/dm-upload-allowed/legacy-foo++",
@@ -1249,7 +1278,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/essential/fields-essential",
     "checks/fields/format/cruft-general-wig-pen",
     "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
+    "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
     "checks/fields/mail-address/fields-maintainer",
     "checks/fields/mail-address/fields-maintainer-bounces",
@@ -1288,10 +1320,22 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/recommended/control-file-general",
     "checks/fields/recommended/generic-empty",
     "checks/fields/required/generic-empty",
+    "checks/fields/standards-version/legacy-binary",
+    "checks/fields/standards-version/legacy-etcfiles",
+    "checks/fields/standards-version/legacy-filenames",
+    "checks/fields/standards-version/legacy-foo++",
+    "checks/fields/standards-version/legacy-libbaz",
+    "checks/fields/standards-version/legacy-maintainer-scripts",
     "checks/fields/standards-version/legacy-relations",
+    "checks/fields/standards-version/legacy-scripts",
     "checks/fields/standards-version/standards-version-invalid",
     "checks/fields/standards-version/standards-version-newer",
+    "checks/fields/standards-version/standards-version-old",
     "checks/fields/standards-version/standards-version-timewarp",
+    "checks/fields/style/all-caps",
+    "checks/fields/style/lower-case-component",
+    "checks/fields/style/shy-prefix",
+    "checks/fields/style/style-x-dh-compat",
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
@@ -1299,6 +1343,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-malformed-vcs-fields",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
+    "checks/fields/vcs/fields-uncanonical-salsa-vcs-fields",
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
     "checks/fields/vcs/fields-vcs-field-insecure-uri",
     "checks/fields/vcs/fields-vcs-field-mismatch",
@@ -1357,6 +1402,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/python-version-current-deprecated",
     "checks/languages/r/files-r-data",
     "checks/languages/ruby/gem-homepage",
+    "checks/lintian/override-context-mismatch",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -1689,6 +1735,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/documentation/doxygen/cruft-doxygen-documentation"; "checks_documentation_doxygen_cruft_doxygen_documentation")]
 #[test_case("checks/documentation/doxygen/files-doxygen-documentation"; "checks_documentation_doxygen_files_doxygen_documentation")]
 #[test_case("checks/fields/architecture/magic-architecture-srcpkg-wrong"; "checks_fields_architecture_magic_architecture_srcpkg_wrong")]
+#[test_case("checks/fields/checksums/no-sha256-checksum"; "checks_fields_checksums_no_sha256_checksum")]
 #[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
@@ -1696,7 +1743,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/format/cruft-general-wig-pen"; "checks_fields_format_cruft_general_wig_pen")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
+#[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
 #[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]
@@ -1735,10 +1785,22 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/recommended/control-file-general"; "checks_fields_recommended_control_file_general")]
 #[test_case("checks/fields/recommended/generic-empty"; "checks_fields_recommended_generic_empty")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/fields/standards-version/legacy-binary"; "checks_fields_standards_version_legacy_binary")]
+#[test_case("checks/fields/standards-version/legacy-etcfiles"; "checks_fields_standards_version_legacy_etcfiles")]
+#[test_case("checks/fields/standards-version/legacy-filenames"; "checks_fields_standards_version_legacy_filenames")]
+#[test_case("checks/fields/standards-version/legacy-foo++"; "checks_fields_standards_version_legacy_foo_")]
+#[test_case("checks/fields/standards-version/legacy-libbaz"; "checks_fields_standards_version_legacy_libbaz")]
+#[test_case("checks/fields/standards-version/legacy-maintainer-scripts"; "checks_fields_standards_version_legacy_maintainer_scripts")]
 #[test_case("checks/fields/standards-version/legacy-relations"; "checks_fields_standards_version_legacy_relations")]
+#[test_case("checks/fields/standards-version/legacy-scripts"; "checks_fields_standards_version_legacy_scripts")]
 #[test_case("checks/fields/standards-version/standards-version-invalid"; "checks_fields_standards_version_standards_version_invalid")]
 #[test_case("checks/fields/standards-version/standards-version-newer"; "checks_fields_standards_version_standards_version_newer")]
+#[test_case("checks/fields/standards-version/standards-version-old"; "checks_fields_standards_version_standards_version_old")]
 #[test_case("checks/fields/standards-version/standards-version-timewarp"; "checks_fields_standards_version_standards_version_timewarp")]
+#[test_case("checks/fields/style/all-caps"; "checks_fields_style_all_caps")]
+#[test_case("checks/fields/style/lower-case-component"; "checks_fields_style_lower_case_component")]
+#[test_case("checks/fields/style/shy-prefix"; "checks_fields_style_shy_prefix")]
+#[test_case("checks/fields/style/style-x-dh-compat"; "checks_fields_style_style_x_dh_compat")]
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
@@ -1746,6 +1808,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
+#[test_case("checks/fields/vcs/fields-uncanonical-salsa-vcs-fields"; "checks_fields_vcs_fields_uncanonical_salsa_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-field-insecure-uri"; "checks_fields_vcs_fields_vcs_field_insecure_uri")]
 #[test_case("checks/fields/vcs/fields-vcs-field-mismatch"; "checks_fields_vcs_fields_vcs_field_mismatch")]
@@ -1803,6 +1866,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
+#[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]
@@ -2076,16 +2140,23 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/built-using/fields-built-using"; "checks_fields_built_using_fields_built_using")]
 #[test_case("checks/fields/description/description-empty-paragraph"; "checks_fields_description_description_empty_paragraph")]
 #[test_case("checks/fields/description/description-general"; "checks_fields_description_description_general")]
+#[test_case("checks/fields/description/description-mentions-planned-features"; "checks_fields_description_description_mentions_planned_features")]
+#[test_case("checks/fields/description/description-synopsis-might-not-be-phrased-properly"; "checks_fields_description_description_synopsis_might_not_be_phrased_properly")]
+#[test_case("checks/fields/description/description-wording"; "checks_fields_description_description_wording")]
 #[test_case("checks/fields/description/generic-dh-make-2008"; "checks_fields_description_generic_dh_make_2008")]
 #[test_case("checks/fields/description/legacy-binary"; "checks_fields_description_legacy_binary")]
 #[test_case("checks/fields/description/legacy-debconf"; "checks_fields_description_legacy_debconf")]
 #[test_case("checks/fields/description/legacy-etcfiles"; "checks_fields_description_legacy_etcfiles")]
+#[test_case("checks/fields/description/legacy-filenames"; "checks_fields_description_legacy_filenames")]
 #[test_case("checks/fields/description/legacy-relations"; "checks_fields_description_legacy_relations")]
+#[test_case("checks/fields/description/spelling-multiword"; "checks_fields_description_spelling_multiword")]
 #[test_case("checks/fields/empty/empty-section"; "checks_fields_empty_empty_section")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/essential/legacy-fields"; "checks_fields_essential_legacy_fields")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
+#[test_case("checks/fields/homepage/fields-no-source-homepage"; "checks_fields_homepage_fields_no_source_homepage")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
@@ -2123,11 +2194,14 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/priority/priority-extra"; "checks_fields_priority_priority_extra")]
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/fields/section/fields-general"; "checks_fields_section_fields_general")]
 #[test_case("checks/fields/section/fields-section-general"; "checks_fields_section_fields_section_general")]
 #[test_case("checks/fields/section/fields-transitional"; "checks_fields_section_fields_transitional")]
 #[test_case("checks/fields/section/fields-udeb"; "checks_fields_section_fields_udeb")]
+#[test_case("checks/fields/section/fields-wrong-section"; "checks_fields_section_fields_wrong_section")]
 #[test_case("checks/fields/section/generic-dh-make-2008"; "checks_fields_section_generic_dh_make_2008")]
 #[test_case("checks/fields/section/legacy-fields"; "checks_fields_section_legacy_fields")]
+#[test_case("checks/fields/section/legacy-libbaz"; "checks_fields_section_legacy_libbaz")]
 #[test_case("checks/fields/source/fields-general-bad"; "checks_fields_source_fields_general_bad")]
 #[test_case("checks/fields/source/fields-malformed-source"; "checks_fields_source_fields_malformed_source")]
 #[test_case("checks/fields/static-built-using/fields-static-built-using"; "checks_fields_static_built_using_fields_static_built_using")]
@@ -2668,6 +2742,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/documentation/doxygen/cruft-doxygen-documentation"; "checks_documentation_doxygen_cruft_doxygen_documentation")]
 #[test_case("checks/documentation/doxygen/files-doxygen-documentation"; "checks_documentation_doxygen_files_doxygen_documentation")]
 #[test_case("checks/fields/architecture/magic-architecture-srcpkg-wrong"; "checks_fields_architecture_magic_architecture_srcpkg_wrong")]
+#[test_case("checks/fields/checksums/no-sha256-checksum"; "checks_fields_checksums_no_sha256_checksum")]
 #[test_case("checks/fields/dm-upload-allowed/fields-dmua"; "checks_fields_dm_upload_allowed_fields_dmua")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-binary"; "checks_fields_dm_upload_allowed_legacy_binary")]
 #[test_case("checks/fields/dm-upload-allowed/legacy-foo++"; "checks_fields_dm_upload_allowed_legacy_foo_")]
@@ -2675,7 +2750,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/format/cruft-general-wig-pen"; "checks_fields_format_cruft_general_wig_pen")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
+#[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
 #[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
 #[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]
@@ -2714,10 +2792,22 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/recommended/control-file-general"; "checks_fields_recommended_control_file_general")]
 #[test_case("checks/fields/recommended/generic-empty"; "checks_fields_recommended_generic_empty")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/fields/standards-version/legacy-binary"; "checks_fields_standards_version_legacy_binary")]
+#[test_case("checks/fields/standards-version/legacy-etcfiles"; "checks_fields_standards_version_legacy_etcfiles")]
+#[test_case("checks/fields/standards-version/legacy-filenames"; "checks_fields_standards_version_legacy_filenames")]
+#[test_case("checks/fields/standards-version/legacy-foo++"; "checks_fields_standards_version_legacy_foo_")]
+#[test_case("checks/fields/standards-version/legacy-libbaz"; "checks_fields_standards_version_legacy_libbaz")]
+#[test_case("checks/fields/standards-version/legacy-maintainer-scripts"; "checks_fields_standards_version_legacy_maintainer_scripts")]
 #[test_case("checks/fields/standards-version/legacy-relations"; "checks_fields_standards_version_legacy_relations")]
+#[test_case("checks/fields/standards-version/legacy-scripts"; "checks_fields_standards_version_legacy_scripts")]
 #[test_case("checks/fields/standards-version/standards-version-invalid"; "checks_fields_standards_version_standards_version_invalid")]
 #[test_case("checks/fields/standards-version/standards-version-newer"; "checks_fields_standards_version_standards_version_newer")]
+#[test_case("checks/fields/standards-version/standards-version-old"; "checks_fields_standards_version_standards_version_old")]
 #[test_case("checks/fields/standards-version/standards-version-timewarp"; "checks_fields_standards_version_standards_version_timewarp")]
+#[test_case("checks/fields/style/all-caps"; "checks_fields_style_all_caps")]
+#[test_case("checks/fields/style/lower-case-component"; "checks_fields_style_lower_case_component")]
+#[test_case("checks/fields/style/shy-prefix"; "checks_fields_style_shy_prefix")]
+#[test_case("checks/fields/style/style-x-dh-compat"; "checks_fields_style_style_x_dh_compat")]
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
@@ -2725,6 +2815,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
+#[test_case("checks/fields/vcs/fields-uncanonical-salsa-vcs-fields"; "checks_fields_vcs_fields_uncanonical_salsa_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-field-insecure-uri"; "checks_fields_vcs_fields_vcs_field_insecure_uri")]
 #[test_case("checks/fields/vcs/fields-vcs-field-mismatch"; "checks_fields_vcs_fields_vcs_field_mismatch")]
@@ -2783,6 +2874,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
+#[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]

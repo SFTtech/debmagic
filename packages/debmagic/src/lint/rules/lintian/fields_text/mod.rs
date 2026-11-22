@@ -29,6 +29,8 @@ mod ln1062_unknown_priority;
 mod ln1063_wrong_section_for_udeb;
 mod ln1239_transitional_package_not_oldlibs_optional;
 mod ln1316_redundant_control_relation;
+mod ln1365_homepage_field_uses_insecure_uri;
+mod ln1368_wrong_section_according_to_package_name;
 
 pub(crate) use ln0224_redundant_bugs_field::RedundantBugsField;
 pub(crate) use ln0225_bad_homepage::BadHomepage;
@@ -54,3 +56,5 @@ pub(crate) use ln1062_unknown_priority::UnknownPriority;
 pub(crate) use ln1063_wrong_section_for_udeb::WrongSectionForUdeb;
 pub(crate) use ln1239_transitional_package_not_oldlibs_optional::TransitionalPackageNotOldlibsOptional;
 pub(crate) use ln1316_redundant_control_relation::RedundantControlRelation;
+pub(crate) use ln1365_homepage_field_uses_insecure_uri::HomepageFieldUsesInsecureUri;
+pub(crate) use ln1368_wrong_section_according_to_package_name::WrongSectionAccordingToPackageName;

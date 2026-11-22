@@ -360,6 +360,7 @@ use super::rules::TestLeavesPythonVersionUntested;
 use super::rules::TestsuiteDependencyHasUnparsableElements;
 use super::rules::TestsuiteRestrictionsHasDeprecatedSkipNotInstallable;
 use super::rules::TooManyArchitectures;
+use super::rules::TrailingCommaInMaintainerField;
 use super::rules::TrailingSlashForDpkgMaintscriptHelperSymlinkToDir;
 use super::rules::TripletDirAndArchitectureMismatch;
 use super::rules::TruetypeFontWrongFilename;
@@ -1914,6 +1915,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PatchedFileWithoutUtf8Name,
         &NoStrongDigestsInDsc,
         &PossibleUnindentedListInExtendedDescription,
+        &TrailingCommaInMaintainerField,
     ]
 }
 
@@ -2269,6 +2271,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsEditorBackupFile,
         &SourceContainsPatchFailureFile,
         &PatchedFileWithoutUtf8Name,
+        &NoStrongDigestsInDsc,
+        &TrailingCommaInMaintainerField,
     ]
 }
 

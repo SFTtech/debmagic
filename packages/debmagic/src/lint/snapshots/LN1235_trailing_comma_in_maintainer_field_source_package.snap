@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): trailing-comma-in-maintainer-field (LN1235) Ex <ex@example.com>,
+E: example (source): trailing-comma-in-maintainer-field (LN1235) Ex <ex@example.com> [debian/control]

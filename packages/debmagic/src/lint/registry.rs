@@ -361,6 +361,7 @@ use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
+use super::rules::PatchNotForwardedUpstream;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
 use super::rules::PearPackageButMissingDependency;
@@ -2175,6 +2176,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoCodeSections,
         &InvalidDep3FormatPatchWrongBugDebianUrl,
         &InvalidDep3FormatPatchWrongLastUpdate,
+        &PatchNotForwardedUpstream,
     ]
 }
 
@@ -2576,6 +2578,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InconsistentAppstreamMetadataLicense,
         &InvalidDep3FormatPatchWrongBugDebianUrl,
         &InvalidDep3FormatPatchWrongLastUpdate,
+        &PatchNotForwardedUpstream,
     ]
 }
 

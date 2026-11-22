@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: foo (source): missing-pkg-php-tools-buildsystem (LN1283) phppear [debian/rules]
+W: foo (source): missing-pkg-php-tools-buildsystem (LN1283) phppear [debian/rules]
+W: foo (source): missing-pkg-php-tools-buildsystem (LN1283) phppear [debian/rules]

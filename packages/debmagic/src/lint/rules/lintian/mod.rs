@@ -744,7 +744,7 @@ pub(crate) use files_privacy_breach::{
 };
 pub(crate) use languages_php::{
     ComposerPrerequisite, EmbeddedPhpLibrary, MissingPkgPhpToolsAddon,
-    ObsoleteCommentsStyleInPhpIni,
+    MissingPkgPhpToolsBuildsystem, ObsoleteCommentsStyleInPhpIni,
 };
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;

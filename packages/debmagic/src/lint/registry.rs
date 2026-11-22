@@ -400,6 +400,7 @@ use super::rules::PythonTracebackInManpage;
 use super::rules::QuiltBuildDepButNoSeriesFile;
 use super::rules::QuiltPatchMissingDescription;
 use super::rules::QuiltPatchUsesDpatchPlaceholder;
+use super::rules::QuiltPatchUsingTemplateDescription;
 use super::rules::QuiltPatchWithNonStandardOptions;
 use super::rules::QuiltSeriesButNoBuildDep;
 use super::rules::QuiltSeriesWithoutTrailingNewline;
@@ -2179,6 +2180,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidDep3FormatPatchWrongLastUpdate,
         &PatchNotForwardedUpstream,
         &QuiltPatchUsesDpatchPlaceholder,
+        &QuiltPatchUsingTemplateDescription,
     ]
 }
 
@@ -2582,6 +2584,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InvalidDep3FormatPatchWrongLastUpdate,
         &PatchNotForwardedUpstream,
         &QuiltPatchUsesDpatchPlaceholder,
+        &QuiltPatchUsingTemplateDescription,
     ]
 }
 

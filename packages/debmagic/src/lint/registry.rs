@@ -256,6 +256,7 @@ use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::LicenseProblemNvidiaIntellectual;
 use super::rules::LicenseProblemOldUnicode;
 use super::rules::LinkToSharedLibraryInWrongPackage;
+use super::rules::LocaleUsesLanguageGroupCode;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
@@ -2265,6 +2266,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
         &IncorrectLocaleCode,
+        &LocaleUsesLanguageGroupCode,
     ]
 }
 
@@ -3551,6 +3553,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
         &IncorrectLocaleCode,
+        &LocaleUsesLanguageGroupCode,
     ]
 }
 

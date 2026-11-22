@@ -999,10 +999,12 @@ pub(crate) use scripts_shell::{
 };
 pub(crate) use scripts_text::{
     ControlInterpreterInUsrLocal, ControlInterpreterWithoutDepends,
-    ControlInterpreterWithoutPredepends, ExampleScriptUsesDeprecatedNodejsLocation,
-    ForbiddenConfigInterpreter, ForbiddenPostrmInterpreter, GawkScriptButNoGawkDep,
-    IncorrectPathForInterpreter, InstallInfoUsedInMaintainerScript, InterpreterInUsrLocal,
-    InterpreterNotAbsolute, MaintainerScriptCallsChownImproperly,
+    ControlInterpreterWithoutPredepends, ExampleIncorrectPathForInterpreter,
+    ExampleInterpreterNotAbsolute, ExampleScriptUsesBinEnv,
+    ExampleScriptUsesDeprecatedNodejsLocation, ExampleScriptWithoutInterpreter,
+    ExampleWrongPathForInterpreter, ForbiddenConfigInterpreter, ForbiddenPostrmInterpreter,
+    GawkScriptButNoGawkDep, IncorrectPathForInterpreter, InstallInfoUsedInMaintainerScript,
+    InterpreterInUsrLocal, InterpreterNotAbsolute, MaintainerScriptCallsChownImproperly,
     MaintainerScriptCallsInstallSgmlcatalog, MaintainerScriptCallsService,
     MaintainerScriptChangesLdSoConf, MaintainerScriptChangesNetbase,
     MaintainerScriptHasInvalidUpdateInetdOptions, MaintainerScriptHasUnexpandedDebhelperToken,

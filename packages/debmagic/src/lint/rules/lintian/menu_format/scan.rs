@@ -79,6 +79,7 @@ pub(super) struct Report {
     pub menu_icon_too_big: Vec<Finding>,
     pub menu_icon_cannot_be_parsed: Vec<Finding>,
     pub unparsable_menu_item: Vec<Finding>,
+    pub whitespace_after_continuation_character: Vec<Finding>,
 }
 
 pub(super) fn take(
@@ -149,6 +150,7 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
         menu_icon_too_big: Vec::new(),
         menu_icon_cannot_be_parsed: Vec::new(),
         unparsable_menu_item: Vec::new(),
+        whitespace_after_continuation_character: Vec::new(),
     };
     let mut desktop_cmds = HashSet::new();
     for entry in desktop_files(files) {
@@ -290,6 +292,14 @@ fn verify_menu_line(
     desktop_cmds: &HashSet<String>,
     report: &mut Report,
 ) {
+    if whitespace_after_continuation(joined) {
+        warn_at(
+            &mut report.whitespace_after_continuation_character,
+            path,
+            Some(line),
+            "",
+        );
+    }
     let line_text = normalize_menu_line(joined);
     if is_blank(&line_text) || is_comment(&line_text) {
         return;
@@ -1362,6 +1372,15 @@ fn physical_lines(text: &str) -> Vec<PhysLine> {
         });
     }
     lines
+}
+
+/// Lintian's `s/\\\s+\n/ /` after its plain `\`-newline join: a backslash,
+/// whitespace, then a newline inside one item. The trailing newline is chomped first.
+fn whitespace_after_continuation(joined: &str) -> bool {
+    static STRAY: std::sync::LazyLock<Regex> =
+        std::sync::LazyLock::new(|| Regex::new(r"\\\s+\n").expect("valid regex"));
+    let text = joined.strip_suffix('\n').unwrap_or(joined);
+    STRAY.is_match(&text.replace("\\\n", " "))
 }
 
 fn normalize_menu_line(joined: &str) -> String {

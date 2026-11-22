@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): whitespace-after-continuation-character (LN1192) [usr/share/menu/example:2]
+E: example (binary): whitespace-after-continuation-character (LN1192) [usr/share/menu/example:3]
+E: example (binary): whitespace-after-continuation-character (LN1192) [usr/share/menu/example:2]
+E: example (udeb): whitespace-after-continuation-character (LN1192) [usr/share/menu/example:2]

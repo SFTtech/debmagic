@@ -860,7 +860,7 @@ fn is_quilt_series_path(path: &Path) -> bool {
 /// The regular file or hardlink `entry` names, following relative symlinks
 /// that stay inside the tree (lintian's `is_open_ok`). `None` for directories,
 /// dangling, absolute, or escaping links, and loops.
-fn follow_symlinks<'t>(tree: &'t FileTree, entry: &'t Entry) -> Option<&'t Entry> {
+pub(crate) fn follow_symlinks<'t>(tree: &'t FileTree, entry: &'t Entry) -> Option<&'t Entry> {
     let mut current = entry;
     for _ in 0..8 {
         match current.kind() {

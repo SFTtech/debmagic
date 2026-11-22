@@ -159,7 +159,13 @@ impl<'a> GroupInstallable<'a> {
 
     /// The installable is a udeb (`.udeb` file name), not a deb or ddeb.
     pub fn is_udeb(&self) -> bool {
-        processable_type_for_binary(self.path()) == ProcessableType::Udeb
+        self.processable_type() == ProcessableType::Udeb
+    }
+
+    /// The processable type lintian files the installable under: `udeb` for a
+    /// `.udeb`, else `binary`.
+    pub fn processable_type(&self) -> ProcessableType {
+        processable_type_for_binary(self.path())
     }
 
     /// The fields of its Installation control.
@@ -344,6 +350,22 @@ impl<'a> GroupContext<'a> {
         let group = self.group;
         self.sink
             .report(diagnostic, || group.source_name().to_string());
+    }
+
+    /// Report a finding on an installable of the Group instead of on the
+    /// Source package: the Diagnostic gets the installable's name and its
+    /// processable type (`binary` or `udeb`). For the Tags lintian emits on a
+    /// Binary package from a Check that needs its siblings.
+    pub fn installable_diagnostic(
+        &mut self,
+        installable: &GroupInstallable<'a>,
+        diagnostic: Diagnostic,
+    ) {
+        self.diagnostic(
+            diagnostic
+                .with_package(installable.name())
+                .with_processable_type(installable.processable_type()),
+        );
     }
 
     pub fn finish(self) -> anyhow::Result<Vec<Diagnostic>> {

@@ -703,13 +703,14 @@ def applies_to_group(
     """A hint a Group lint shows: per processable type, a Tag of the Rule kind that produces it.
 
     Changes and Buildinfo Rules produce `changes` and `buildinfo` hints; a Group Rule produces `source`
-    hints (its Diagnostics attach to the Source package, ADR 0055). See `applies_to_group` in
+    hints (its Diagnostics attach to the Source package, ADR 0055) or `binary`/`udeb` hints (it reports on
+    an installable). See `applies_to_group` in
     `tests/common/mod.rs`.
     """
     return (
         (processable_type == "changes" and tag in changes_tags)
         or (processable_type == "buildinfo" and tag in buildinfo_tags)
-        or (processable_type == "source" and tag in group_tags)
+        or (processable_type in ("source", "binary", "udeb") and tag in group_tags)
     )
 
 

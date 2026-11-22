@@ -170,6 +170,7 @@ use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
 use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
 use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemGfdlInvariants;
+use super::rules::LicenseProblemGfdlNonOfficialText;
 use super::rules::LicenseProblemJsonEvil;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
 use super::rules::LicenseProblemNonFreeRFC;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &LicenseProblemGfdlInvariants,
+        &LicenseProblemGfdlNonOfficialText,
     ]
 }
 
@@ -2295,6 +2297,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &LicenseProblemGfdlInvariants,
+        &LicenseProblemGfdlNonOfficialText,
     ]
 }
 

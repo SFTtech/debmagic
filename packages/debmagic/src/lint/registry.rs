@@ -388,6 +388,7 @@ use super::rules::UdevRuleMissingSubsystem;
 use super::rules::UdevRuleMissingUaccess;
 use super::rules::UdevRuleUnreadable;
 use super::rules::UnconditionalUseOfDpkgStatoverride;
+use super::rules::UndeclaredElfPrerequisites;
 use super::rules::UnexpectedConffile;
 use super::rules::UnknownArchitecture;
 use super::rules::UnknownConffileInstruction;
@@ -1943,6 +1944,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingDependencyOnLibstdc,
         &ProgramNotLinkedAgainstLibc,
         &SharedLibraryLacksPrerequisites,
+        &UndeclaredElfPrerequisites,
     ]
 }
 
@@ -3082,6 +3084,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MissingDependencyOnLibstdc,
         &ProgramNotLinkedAgainstLibc,
         &SharedLibraryLacksPrerequisites,
+        &UndeclaredElfPrerequisites,
     ]
 }
 

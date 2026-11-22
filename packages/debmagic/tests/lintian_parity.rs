@@ -401,6 +401,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/location/binaries-multiarch-same",
     "checks/binaries/obsolete/crypt/binaries-obsolete-des",
     "checks/binaries/prerequisites/binaries-libc-link",
+    "checks/binaries/prerequisites/binaries-missing-depends",
     "checks/binaries/prerequisites/binaries-missing-depends-on-libc",
     "checks/binaries/prerequisites/legacy-debug",
     "checks/binaries/prerequisites/legacy-libbaz",
@@ -1687,6 +1688,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/location/binaries-multiarch-same"; "checks_binaries_location_binaries_multiarch_same")]
 #[test_case("checks/binaries/obsolete/crypt/binaries-obsolete-des"; "checks_binaries_obsolete_crypt_binaries_obsolete_des")]
 #[test_case("checks/binaries/prerequisites/binaries-libc-link"; "checks_binaries_prerequisites_binaries_libc_link")]
+#[test_case("checks/binaries/prerequisites/binaries-missing-depends"; "checks_binaries_prerequisites_binaries_missing_depends")]
 #[test_case("checks/binaries/prerequisites/binaries-missing-depends-on-libc"; "checks_binaries_prerequisites_binaries_missing_depends_on_libc")]
 #[test_case("checks/binaries/prerequisites/legacy-debug"; "checks_binaries_prerequisites_legacy_debug")]
 #[test_case("checks/binaries/prerequisites/legacy-libbaz"; "checks_binaries_prerequisites_legacy_libbaz")]

@@ -257,6 +257,7 @@ pub(crate) use binaries_prerequisites::MissingDependencyOnLibc;
 pub(crate) use binaries_prerequisites::MissingDependencyOnLibstdc;
 pub(crate) use binaries_prerequisites::ProgramNotLinkedAgainstLibc;
 pub(crate) use binaries_prerequisites::SharedLibraryLacksPrerequisites;
+pub(crate) use binaries_prerequisites::UndeclaredElfPrerequisites;
 pub(crate) use binaries_prerequisites_php::MissingDependencyOnPhpapi;
 pub(crate) use binaries_profiling::BinaryCompiledWithProfilingEnabled;
 pub(crate) use binaries_rpath::CustomLibrarySearchPath;

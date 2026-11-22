@@ -12,8 +12,12 @@ pub struct InstallationControl {
 
 impl InstallationControl {
     /// Load from a Binary package reader. Not one Deb822 paragraph is a
-    /// runtime failure, not a missing Debian control.
+    /// runtime failure, not a missing Debian control. An archive without a
+    /// Control tarball has no fields at all (`malformed-deb-archive`).
     pub fn from_reader(reader: &BinaryPackageReader) -> anyhow::Result<Self> {
+        if !reader.has_control_tarball() {
+            return Ok(Self::default());
+        }
         let path = reader.path();
         let Some(bytes) = reader.read_control_file("control")? else {
             bail!("installation control in {} is missing", path.display());

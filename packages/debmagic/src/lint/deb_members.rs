@@ -13,6 +13,9 @@ pub(crate) struct DebMember {
     name: String,
     #[allow(dead_code)]
     size: u64,
+    /// The member's content, kept only for the first `debian-binary` (the
+    /// format version, read by `ar p`). `None` for other members and fixtures.
+    contents: Option<Vec<u8>>,
 }
 
 impl DebMember {
@@ -20,7 +23,15 @@ impl DebMember {
         Self {
             name: name.into(),
             size,
+            contents: None,
         }
+    }
+
+    /// Keep the member's content. Only the reader does this, for
+    /// `debian-binary`.
+    pub(crate) fn with_contents(mut self, contents: Vec<u8>) -> Self {
+        self.contents = Some(contents);
+        self
     }
 
     pub(crate) fn name(&self) -> &str {
@@ -31,6 +42,12 @@ impl DebMember {
     #[allow(dead_code)]
     pub(crate) fn size(&self) -> u64 {
         self.size
+    }
+
+    /// The member's content when it was kept (see [`Self::with_contents`]).
+    #[allow(dead_code)]
+    pub(crate) fn contents(&self) -> Option<&[u8]> {
+        self.contents.as_deref()
     }
 }
 
@@ -67,7 +84,7 @@ impl Tarball {
     /// File extensions lintian accepts for this tarball: the vendored
     /// `deb-format/{control,data}-compressions` tables, for Debian (lines
     /// that start with `@` are for other vendors).
-    fn compressions(self) -> Vec<&'static str> {
+    pub(crate) fn compressions(self) -> Vec<&'static str> {
         let table = match self {
             Tarball::Control => include_str!("data/deb-format/control-compressions"),
             Tarball::Data => include_str!("data/deb-format/data-compressions"),
@@ -130,15 +147,16 @@ impl DebMembers {
     /// Otherwise the extension without its dot, empty for no compression.
     pub(crate) fn official_tarball(&self, tarball: Tarball) -> Option<String> {
         let name = self.tarball(tarball)?.name();
-        let rest = name.strip_prefix(tarball.stem())?;
-        if rest.is_empty() {
-            return Some(String::new());
-        }
-        let extension = rest.strip_prefix('.')?;
-        tarball
-            .compressions()
-            .contains(&extension)
-            .then(|| extension.to_string())
+        official_extension(tarball, name)
+    }
+
+    /// The `debian-binary` member, the first one. Its [`DebMember::contents`]
+    /// are the format version when the reader kept them.
+    #[allow(dead_code)]
+    pub(crate) fn debian_binary(&self) -> Option<&DebMember> {
+        self.members
+            .iter()
+            .find(|member| member.name == "debian-binary")
     }
 
     /// Positions of the Control and Data tarballs. Members whose name starts
@@ -150,6 +168,22 @@ impl DebMembers {
         });
         TarballPositions { control, data }
     }
+}
+
+/// The extension of a member name that is an official `tarball` name: `control.tar`
+/// or `data.tar` with an extension from the vendored compressions table. The
+/// extension without its dot, empty for no compression. `None` for any other
+/// name (`malformed-deb-archive`).
+pub(crate) fn official_extension(tarball: Tarball, name: &str) -> Option<String> {
+    let rest = name.strip_prefix(tarball.stem())?;
+    if rest.is_empty() {
+        return Some(String::new());
+    }
+    let extension = rest.strip_prefix('.')?;
+    tarball
+        .compressions()
+        .contains(&extension)
+        .then(|| extension.to_string())
 }
 
 /// Where a member that is neither `debian-binary` nor a tarball may appear:

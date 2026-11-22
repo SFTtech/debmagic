@@ -404,6 +404,7 @@ use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VcsBrowserLinksToEmptyView;
 use super::rules::VcsFieldHasUnexpectedSpaces;
+use super::rules::VcsFieldUsesUnknownUriFormat;
 use super::rules::VersionRefersToDistribution;
 use super::rules::VersionRefersToUnstableDistributionWithExpVersion;
 use super::rules::VersionSubstvarForExternalPackage;
@@ -1901,6 +1902,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PeclPackageRequiresBuildDependency,
         &VcsBrowserLinksToEmptyView,
         &VcsFieldHasUnexpectedSpaces,
+        &VcsFieldUsesUnknownUriFormat,
     ]
 }
 
@@ -2251,6 +2253,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PeclPackageRequiresBuildDependency,
         &VcsBrowserLinksToEmptyView,
         &VcsFieldHasUnexpectedSpaces,
+        &VcsFieldUsesUnknownUriFormat,
     ]
 }
 

@@ -204,6 +204,7 @@ use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
 use super::rules::InitDScriptDoesNotImplementStatusOption;
+use super::rules::InitDScriptDoesNotProvideItself;
 use super::rules::InitDScriptUsesUsrInterpreter;
 use super::rules::InitScriptIsNotAFile;
 use super::rules::InsecureCopyrightFormatUri;
@@ -2183,6 +2184,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &EmptyUdebPackage,
         &ArchitectureEscape,
         &ArchDepPackageHasBigUsrShare,
+        &InitDScriptDoesNotProvideItself,
     ]
 }
 
@@ -3440,6 +3442,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &EmptyUdebPackage,
         &ArchitectureEscape,
         &ArchDepPackageHasBigUsrShare,
+        &InitDScriptDoesNotProvideItself,
     ]
 }
 

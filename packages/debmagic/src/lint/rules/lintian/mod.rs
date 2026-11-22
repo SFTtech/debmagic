@@ -450,6 +450,7 @@ pub(crate) use libraries_debug_symbols::StrippedLibrary;
 pub(crate) use libraries_embedded::EmbeddedLibrary;
 pub(crate) use libraries_shared_file_permissions::OddPermissionsOnSharedLibrary;
 pub(crate) use libraries_shared_file_permissions::SharedLibraryIsExecutable;
+pub(crate) use libraries_shared_links::LacksUnversionedLinkToSharedLibrary;
 pub(crate) use libraries_shared_links::LacksVersionedLinkToSharedLibrary;
 pub(crate) use libraries_shared_links::LdconfigSymlinkIsNotASymlink;
 pub(crate) use libraries_shared_links::LdconfigSymlinkReferencingWrongFile;

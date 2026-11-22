@@ -216,6 +216,7 @@ use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
 use super::rules::LacksLdconfigTrigger;
+use super::rules::LacksUnversionedLinkToSharedLibrary;
 use super::rules::LacksVersionedLinkToSharedLibrary;
 use super::rules::LdconfigSymlinkIsNotASymlink;
 use super::rules::LdconfigSymlinkReferencingWrongFile;
@@ -2179,6 +2180,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageUsesDhRunitButLacksBreaksSubstvar,
         &DependencyIsNotMultiArchified,
         &MissingNoticeFileForApacheLicense,
+        &LacksUnversionedLinkToSharedLibrary,
     ]
 }
 
@@ -3448,6 +3450,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &PackageUsesDhRunitButLacksBreaksSubstvar,
         &DependencyIsNotMultiArchified,
         &MissingNoticeFileForApacheLicense,
+        &LacksUnversionedLinkToSharedLibrary,
     ]
 }
 

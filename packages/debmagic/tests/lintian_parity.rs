@@ -1555,6 +1555,8 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/group-checks/group-checks-circular-deps",
     "checks/group-checks/group-checks-multi-arch",
     "checks/group-checks/legacy-binary",
+    "checks/libraries/shared/links/legacy-libbaz",
+    "checks/libraries/shared/links/shared-libs-dev-symlink",
 ];
 
 #[test]
@@ -3140,6 +3142,8 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/group-checks/group-checks-circular-deps"; "checks_group_checks_group_checks_circular_deps")]
 #[test_case("checks/group-checks/group-checks-multi-arch"; "checks_group_checks_group_checks_multi_arch")]
 #[test_case("checks/group-checks/legacy-binary"; "checks_group_checks_legacy_binary")]
+#[test_case("checks/libraries/shared/links/legacy-libbaz"; "checks_libraries_shared_links_legacy_libbaz")]
+#[test_case("checks/libraries/shared/links/shared-libs-dev-symlink"; "checks_libraries_shared_links_shared_libs_dev_symlink")]
 fn lintian_parity_group(recipe: &str) {
     common::assert_group_parity(recipe);
 }

@@ -316,7 +316,10 @@ pub(crate) use desktop_gir::TypelibSectionNotIntrospection;
 pub(crate) use dh_make::DhMakeTemplateInSource;
 pub(crate) use dh_make::FileContainsFixmePlaceholder;
 pub(crate) use dh_make::ReadmeSourceIsDhMakeTemplate;
-pub(crate) use documentation::{ExecutableInUsrShareDoc, ZeroByteFileInDocDirectory};
+pub(crate) use documentation::{
+    ExecutableInUsrShareDoc, PackageContainsUpstreamInstallationDocumentation,
+    ZeroByteFileInDocDirectory,
+};
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use fields_empty::EmptyField;
 pub(crate) use fields_format::UnsupportedSourceFormat;

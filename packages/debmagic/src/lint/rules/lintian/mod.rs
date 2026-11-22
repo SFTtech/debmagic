@@ -33,6 +33,7 @@ mod debian_control_field_adopted;
 mod debian_control_field_architecture_multiline;
 mod debian_control_field_build_profiles;
 mod debian_control_field_deprecated;
+mod debian_control_field_description_duplicate;
 mod debian_control_field_empty;
 mod debian_control_field_priority;
 mod debian_control_field_redundant;
@@ -341,6 +342,7 @@ pub(crate) use debian_control_field_architecture_multiline::MultilineArchitectur
 pub(crate) use debian_control_field_build_profiles::InvalidProfileNameInBuildProfilesField;
 pub(crate) use debian_control_field_build_profiles::VariesContentWithNocheck;
 pub(crate) use debian_control_field_deprecated::DeprecatedDebianControlField;
+pub(crate) use debian_control_field_description_duplicate::DuplicateLongDescription;
 pub(crate) use debian_control_field_empty::DebianControlHasEmptyField;
 pub(crate) use debian_control_field_priority::RedundantPriorityOptionalField;
 pub(crate) use debian_control_field_redundant::InstallableFieldMirrorsSource;

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): appstream-metadata-in-legacy-location (LN1462) [usr/share/appdata/foo.metadata.xml]
+W: example (binary): appstream-metadata-in-legacy-location (LN1462) [usr/share/appdata/sub/foo.metadata.xml]

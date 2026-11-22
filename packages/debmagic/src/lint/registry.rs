@@ -12,6 +12,7 @@ use super::rules::Apache2ReverseDependencyCallsInvokeRcD;
 use super::rules::Apache2ReverseDependencyShipsFileInNotAllowedDirectory;
 use super::rules::Apache2ReverseDependencyUsesObsoleteDirectory;
 use super::rules::Apache2UnsupportedDependency;
+use super::rules::AppstreamMetadataInLegacyLocation;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::BadJarName;
@@ -2123,6 +2124,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &AppstreamMetadataInLegacyLocation,
     ]
 }
 
@@ -3350,6 +3352,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &AppstreamMetadataInLegacyLocation,
     ]
 }
 

@@ -21,6 +21,7 @@ const BUG_TEMPLATE: &str = "<url in upstream bugtracker>";
 pub(super) struct Dep3Header {
     origin: String,
     bug: String,
+    bug_debian: String,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -48,6 +49,11 @@ impl Dep3Header {
         } else {
             BugProblem::NotUrl
         })
+    }
+
+    /// Set but not a Debian BTS or salsa.debian.org http or https URL.
+    pub(super) fn bug_debian_is_wrong(&self) -> bool {
+        !self.bug_debian.is_empty() && !is_debian_url(&self.bug_debian)
     }
 }
 
@@ -121,6 +127,7 @@ fn parse_header(bytes: &[u8]) -> Option<Dep3Header> {
     Some(Dep3Header {
         origin: value("origin").to_string(),
         bug: value("bug").to_string(),
+        bug_debian: value("bug-debian").to_string(),
     })
 }
 
@@ -129,6 +136,32 @@ fn is_http_url(value: &str) -> bool {
     value.split_once(':').is_some_and(|(scheme, _)| {
         scheme.eq_ignore_ascii_case("http") || scheme.eq_ignore_ascii_case("https")
     })
+}
+
+/// Lintian's `not_debian_url` negated: an http or https URL whose host is
+/// `bugs.debian.org` or `salsa.debian.org`, compared case-insensitively. The
+/// authority is cut by hand (userinfo and port dropped), not by a URI parser.
+fn is_debian_url(value: &str) -> bool {
+    let Some((scheme, rest)) = value.split_once(':') else {
+        return false;
+    };
+    if !(scheme.eq_ignore_ascii_case("http") || scheme.eq_ignore_ascii_case("https")) {
+        return false;
+    }
+    let Some(after_slashes) = rest.strip_prefix("//") else {
+        return false;
+    };
+    let authority = after_slashes
+        .split(['/', '?', '#'])
+        .next()
+        .unwrap_or_default();
+    let host_port = authority
+        .rsplit_once('@')
+        .map_or(authority, |(_, host_port)| host_port);
+    let host = host_port
+        .rsplit_once(':')
+        .map_or(host_port, |(host, _)| host);
+    host.eq_ignore_ascii_case("bugs.debian.org") || host.eq_ignore_ascii_case("salsa.debian.org")
 }
 
 fn is_debian_number(value: &str) -> bool {

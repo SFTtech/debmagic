@@ -248,6 +248,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/maintainer/alioth-list",
     "checks/fields/maintainer/fields-no-human-maintainer",
     "checks/fields/maintainer/fields-qa-maint-address",
+    "checks/fields/maintainer/fields-trailing-comma-in-maintainer-field",
     "checks/fields/maintainer/fields-wrong-package-email-alias",
     "checks/fields/maintainer/java-team-fp",
     "checks/fields/maintainer/team/clojure-package-java-maintainer",
@@ -1122,6 +1123,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/maintainer/alioth-list",
     "checks/fields/maintainer/fields-no-human-maintainer",
     "checks/fields/maintainer/fields-qa-maint-address",
+    "checks/fields/maintainer/fields-trailing-comma-in-maintainer-field",
     "checks/fields/maintainer/fields-wrong-package-email-alias",
     "checks/fields/maintainer/java-team-fp",
     "checks/fields/maintainer/team/clojure-package-java-maintainer",
@@ -1518,6 +1520,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/maintainer/alioth-list"; "checks_fields_maintainer_alioth_list")]
 #[test_case("checks/fields/maintainer/fields-no-human-maintainer"; "checks_fields_maintainer_fields_no_human_maintainer")]
 #[test_case("checks/fields/maintainer/fields-qa-maint-address"; "checks_fields_maintainer_fields_qa_maint_address")]
+#[test_case("checks/fields/maintainer/fields-trailing-comma-in-maintainer-field"; "checks_fields_maintainer_fields_trailing_comma_in_maintainer_field")]
 #[test_case("checks/fields/maintainer/fields-wrong-package-email-alias"; "checks_fields_maintainer_fields_wrong_package_email_alias")]
 #[test_case("checks/fields/maintainer/java-team-fp"; "checks_fields_maintainer_java_team_fp")]
 #[test_case("checks/fields/maintainer/team/clojure-package-java-maintainer"; "checks_fields_maintainer_team_clojure_package_java_maintainer")]
@@ -2394,6 +2397,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/maintainer/alioth-list"; "checks_fields_maintainer_alioth_list")]
 #[test_case("checks/fields/maintainer/fields-no-human-maintainer"; "checks_fields_maintainer_fields_no_human_maintainer")]
 #[test_case("checks/fields/maintainer/fields-qa-maint-address"; "checks_fields_maintainer_fields_qa_maint_address")]
+#[test_case("checks/fields/maintainer/fields-trailing-comma-in-maintainer-field"; "checks_fields_maintainer_fields_trailing_comma_in_maintainer_field")]
 #[test_case("checks/fields/maintainer/fields-wrong-package-email-alias"; "checks_fields_maintainer_fields_wrong_package_email_alias")]
 #[test_case("checks/fields/maintainer/java-team-fp"; "checks_fields_maintainer_java_team_fp")]
 #[test_case("checks/fields/maintainer/team/clojure-package-java-maintainer"; "checks_fields_maintainer_team_clojure_package_java_maintainer")]

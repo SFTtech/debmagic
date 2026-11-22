@@ -70,10 +70,15 @@ impl PearSource {
         self.package_xml || self.package2_xml
     }
 
-    /// Build-Depends satisfies `pkg-php-tools` (lintian's `pkg-php-tools`
-    /// builddep test; `dh-sequence-phppear` only counts for PEAR packages).
+    /// Build-Depends satisfies `pkg-php-tools`.
     pub(super) fn has_pkg_php_tools(&self) -> bool {
         self.build_depends.satisfies("pkg-php-tools")
+    }
+
+    /// Build-Depends satisfies `pkg-php-tools` or `dh-sequence-phppear`: the
+    /// PEAR packaging is set up, as lintian's PEAR branch tests it.
+    pub(super) fn has_pear_builddep(&self) -> bool {
+        self.has_pkg_php_tools() || self.build_depends.satisfies("dh-sequence-phppear")
     }
 }
 

@@ -35,6 +35,7 @@ mod ln0961_executable_menu_file;
 mod ln0962_maintainer_script_does_not_check_for_existence_of_installdocs;
 mod ln0963_maintainer_script_does_not_check_for_existence_of_updatemenus;
 mod ln1194_postinst_has_useless_call_to_update_menus;
+mod ln1195_postrm_calls_installdocs;
 mod scan;
 
 pub(crate) use ln0326_postinst_does_not_call_updatemenus::PostinstDoesNotCallUpdatemenus;
@@ -67,3 +68,4 @@ pub(crate) use ln0961_executable_menu_file::ExecutableMenuFile;
 pub(crate) use ln0962_maintainer_script_does_not_check_for_existence_of_installdocs::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 pub(crate) use ln0963_maintainer_script_does_not_check_for_existence_of_updatemenus::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
 pub(crate) use ln1194_postinst_has_useless_call_to_update_menus::PostinstHasUselessCallToUpdateMenus;
+pub(crate) use ln1195_postrm_calls_installdocs::PostrmCallsInstalldocs;

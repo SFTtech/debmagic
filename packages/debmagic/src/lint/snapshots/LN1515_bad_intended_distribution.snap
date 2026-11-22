@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): bad-intended-distribution (LN1515) intended for experimental but uploaded to unstable [usr/share/doc/example/changelog:1]
+I: example (binary): bad-intended-distribution (LN1515) intended for unstable but uploaded to experimental [usr/share/doc/example/changelog:1]
+I: example (binary): bad-intended-distribution (LN1515) intended for testing but uploaded to unreleased [usr/share/doc/example/changelog:1]

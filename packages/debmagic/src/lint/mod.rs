@@ -1,3 +1,4 @@
+mod appstream;
 mod binary_package_reader;
 mod context;
 mod data;
@@ -36,6 +37,7 @@ mod subject;
 #[cfg(test)]
 pub(crate) mod tester;
 mod timing;
+mod xml;
 mod zip;
 
 pub use diagnostic::{Diagnostic, DiagnosticInner, Location, ProcessableType};

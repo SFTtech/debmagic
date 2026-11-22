@@ -626,11 +626,14 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/priority/priority-extra",
     "checks/fields/required/fields-general-missing",
     "checks/fields/required/generic-empty",
+    "checks/fields/section/fields-general",
     "checks/fields/section/fields-section-general",
     "checks/fields/section/fields-transitional",
     "checks/fields/section/fields-udeb",
+    "checks/fields/section/fields-wrong-section",
     "checks/fields/section/generic-dh-make-2008",
     "checks/fields/section/legacy-fields",
+    "checks/fields/section/legacy-libbaz",
     "checks/fields/source/fields-general-bad",
     "checks/fields/source/fields-malformed-source",
     "checks/fields/static-built-using/fields-static-built-using",
@@ -1921,11 +1924,14 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/priority/priority-extra"; "checks_fields_priority_priority_extra")]
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/fields/section/fields-general"; "checks_fields_section_fields_general")]
 #[test_case("checks/fields/section/fields-section-general"; "checks_fields_section_fields_section_general")]
 #[test_case("checks/fields/section/fields-transitional"; "checks_fields_section_fields_transitional")]
 #[test_case("checks/fields/section/fields-udeb"; "checks_fields_section_fields_udeb")]
+#[test_case("checks/fields/section/fields-wrong-section"; "checks_fields_section_fields_wrong_section")]
 #[test_case("checks/fields/section/generic-dh-make-2008"; "checks_fields_section_generic_dh_make_2008")]
 #[test_case("checks/fields/section/legacy-fields"; "checks_fields_section_legacy_fields")]
+#[test_case("checks/fields/section/legacy-libbaz"; "checks_fields_section_legacy_libbaz")]
 #[test_case("checks/fields/source/fields-general-bad"; "checks_fields_source_fields_general_bad")]
 #[test_case("checks/fields/source/fields-malformed-source"; "checks_fields_source_fields_malformed_source")]
 #[test_case("checks/fields/static-built-using/fields-static-built-using"; "checks_fields_static_built_using_fields_static_built_using")]

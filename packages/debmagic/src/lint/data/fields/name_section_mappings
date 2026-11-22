@@ -1,0 +1,56 @@
+# map between regex (x) of package => section
+#
+# This list is tried from top to bottom
+
+# Generic
+-docs?$                                 => doc
+-dbg(?:sym)?$                           => debug
+
+# Application or framework specific
+^lib(?:apache2|nginx)-mod-              => httpd
+^lighttpd-mod                           => httpd
+\.(?:framework|tool|app)(?:-common)?$   => gnustep
+^gnustep-                               => gnustep
+^moblin-                                => embedded
+
+# Language-specific
+^node-                                  => javascript
+^(?:python-)?zope                       => zope
+^python3?-                              => python
+^r-(?:cran|bioc|other)-                 => gnu-r
+^elpa-                                  => editors
+^cl-                                    => lisp
+-elisp(?:-.*)$                          => lisp
+^lib.*-guile$                           => lisp
+^guile-                                 => lisp
+^golang-                                => golang
+^lib.*-perl$                            => perl
+lib.*-cil(?:-dev)?$                     => cli-mono
+^lib.*-(?:java|gcj|jni)$                => java
+^(?:lib)?php(?:\d(?:\.\d)?)?-           => php
+^lib-.*-php$                            => php
+^haskell-                               => haskell
+^lib(?:hugs|ghc6?)-                     => haskell
+^lib.*-ruby(?:1\.\d)?$                  => ruby
+^ruby-                                  => ruby
+^librust-.*-dev$                        => rust
+^rust-                                  => rust
+^lib.*-(?:ocaml|camlp4)-dev$            => ocaml
+^libjs-                                 => javascript
+^lib.*-(tcl|lua|gst)$                   => interpreters
+
+# Data files
+^gir\d+\.\d+-.*-\d+\.\d+$               => introspection
+^xfonts-                                => fonts
+^(?:fonts|ttf)-                         => fonts
+^lib(?:nss|pam)-                        => admin
+^(?:aspell|hunspell|myspell|mythes)-    => localization
+^hyphen-[a-z]{2}(?:-[a-z]{2})?$         => localization
+^dict-freedict-                         => localization
+^gcompris-sound-                        => localization
+-l10n(?:-.*)?$                          => localization
+-(dkms|firmware)$                       => kernel
+
+# Catch remaining
+^lib.*-(dev|headers)$                   => libdevel
+^lib.*\d[ad]?$                          => libs

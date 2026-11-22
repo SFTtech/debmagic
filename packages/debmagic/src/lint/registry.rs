@@ -447,6 +447,7 @@ use super::rules::WrongNameForChangelogOfNativePackage;
 use super::rules::WrongNameForDebianChangelogFile;
 use super::rules::WrongNameForManualPage;
 use super::rules::WrongNameForUpstreamChangelog;
+use super::rules::WrongSectionAccordingToPackageName;
 use super::rules::WrongSectionForUdeb;
 use super::rules::WrongTeam;
 use super::rules::ZipParseError;
@@ -1951,6 +1952,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &HomepageFieldUsesInsecureUri,
         &ConflictsWithVersion,
         &OredDependsOnObsoletePackage,
+        &WrongSectionAccordingToPackageName,
     ]
 }
 
@@ -3095,6 +3097,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &HomepageFieldUsesInsecureUri,
         &ConflictsWithVersion,
         &OredDependsOnObsoletePackage,
+        &WrongSectionAccordingToPackageName,
     ]
 }
 

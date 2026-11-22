@@ -639,6 +639,7 @@ dependencies = [
  "toml_edit",
  "uuid",
  "xz2",
+ "yaml-rust2",
  "zstd",
 ]
 

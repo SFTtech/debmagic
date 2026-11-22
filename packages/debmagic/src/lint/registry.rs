@@ -320,6 +320,7 @@ use super::rules::SurplusSharedLibrarySymbols;
 use super::rules::SyntaxErrorInDebconfTemplate;
 use super::rules::SyntaxErrorInDep5Copyright;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
+use super::rules::SystemdServiceFileShutdownProblems;
 use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
 use super::rules::SystemdServiceInOddLocation;
 use super::rules::TabInLicenseText;
@@ -1837,6 +1838,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UdevRuleMissingUaccess,
         &UdevRuleUnreadable,
         &ServiceFileIsNotAFile,
+        &SystemdServiceFileShutdownProblems,
     ]
 }
 
@@ -2923,6 +2925,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UdevRuleMissingUaccess,
         &UdevRuleUnreadable,
         &ServiceFileIsNotAFile,
+        &SystemdServiceFileShutdownProblems,
     ]
 }
 

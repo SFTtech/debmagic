@@ -843,6 +843,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/systemd/systemd-complex-service-file",
     "checks/systemd/systemd-general",
     "checks/systemd/systemd-missing-services",
+    "checks/systemd/systemd-service-file-shutdown-problems",
     "checks/systemd/systemd-service-file-uses-deprecated-syslog-facility",
     "checks/systemd/systemd-service-file-uses-nobody-or-nogroup",
     "checks/systemd/tmpfiles/declared-in-etc",
@@ -2085,6 +2086,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/systemd/systemd-complex-service-file"; "checks_systemd_systemd_complex_service_file")]
 #[test_case("checks/systemd/systemd-general"; "checks_systemd_systemd_general")]
 #[test_case("checks/systemd/systemd-missing-services"; "checks_systemd_systemd_missing_services")]
+#[test_case("checks/systemd/systemd-service-file-shutdown-problems"; "checks_systemd_systemd_service_file_shutdown_problems")]
 #[test_case("checks/systemd/systemd-service-file-uses-deprecated-syslog-facility"; "checks_systemd_systemd_service_file_uses_deprecated_syslog_facility")]
 #[test_case("checks/systemd/systemd-service-file-uses-nobody-or-nogroup"; "checks_systemd_systemd_service_file_uses_nobody_or_nogroup")]
 #[test_case("checks/systemd/tmpfiles/declared-in-etc"; "checks_systemd_tmpfiles_declared_in_etc")]

@@ -151,6 +151,7 @@ mod languages_ruby;
 mod languages_rust;
 mod libraries_debug_symbols;
 mod libraries_shared_file_permissions;
+mod libraries_shared_links;
 mod libraries_shared_multi_arch;
 mod libraries_shared_relocation;
 mod libraries_shared_soname;
@@ -415,9 +416,14 @@ pub(crate) use languages_puppet::PuppetModuleButNotDhPuppet;
 pub(crate) use languages_ruby::RubyInterpreterIsDeprecated;
 pub(crate) use languages_ruby::RubygemHomepage;
 pub(crate) use languages_rust::EmptyRustLibraryDeclaresProvides;
+pub(crate) use languages_rust::RustBoilerplate;
 pub(crate) use libraries_debug_symbols::StrippedLibrary;
 pub(crate) use libraries_shared_file_permissions::OddPermissionsOnSharedLibrary;
 pub(crate) use libraries_shared_file_permissions::SharedLibraryIsExecutable;
+pub(crate) use libraries_shared_links::LacksVersionedLinkToSharedLibrary;
+pub(crate) use libraries_shared_links::LdconfigSymlinkIsNotASymlink;
+pub(crate) use libraries_shared_links::LdconfigSymlinkReferencingWrongFile;
+pub(crate) use libraries_shared_links::LinkToSharedLibraryInWrongPackage;
 pub(crate) use libraries_shared_multi_arch::SharedLibraryIsMultiArchForeign;
 pub(crate) use libraries_shared_relocation::SpecificAddressInSharedLibrary;
 pub(crate) use libraries_shared_stack::ExecutableStackInSharedLibrary;
@@ -735,21 +741,23 @@ pub(crate) use languages_javascript::{
     PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
 pub(crate) use languages_ocaml::{OcamlDanglingCmx, OcamlDanglingCmxa, OcamlDanglingCmxs};
+pub(crate) use languages_ocaml::{OcamlDanglingCmi, OcamlDanglingCmxa, OcamlDanglingCmxs};
 pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PackageInstallsPacklist,
-    PackageInstallsPerllocalPod, PerlModuleInCoreDirectory, PerlModuleUsesPerl4LibsWithoutDep,
-    ScriptUsesPerl4LibsWithoutDep,
+    PackageInstallsPerllocalPod, PackageSupersededByPerl, PerlModuleInCoreDirectory,
+    PerlModuleUsesPerl4LibsWithoutDep, ScriptUsesPerl4LibsWithoutDep,
 };
 pub(crate) use languages_python::{
     AncientPythonVersionField, BogusPythonPrerequisite, DjangoPackageDoesNotDependOnDjango,
     DuplicateP3distOverride, EmbeddedFeedparserLibrary, FileInUsrLibSitePython,
-    MalformedPythonVersion, NewPackageShouldNotPackagePython2Module,
-    PackageInstallsDeprecatedPython2Path, PackageInstallsPythonBytecode, PackageInstallsPythonEgg,
+    MalformedPythonVersion, MissingPrerequisiteForPyprojectBackend,
+    NewPackageShouldNotPackagePython2Module, PackageInstallsDeprecatedPython2Path,
+    PackageInstallsLegacyPythonEggInfo, PackageInstallsPythonBytecode, PackageInstallsPythonEgg,
     PackageInstallsPythonPycacheDir, PypiHomepage, PythonDebugInWrongLocation,
     PythonModuleHasOverlyGenericName, PythonModuleInWrongLocation,
     PythonPackageMissingDependsOnPython, PythonVersionCurrentIsDeprecated,
     ScriptUsesUnversionedPythonInShebang, SourcePackageEncodesPythonVersion,
-    ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory,
+    ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory, UsesDeprecatedPythonStdlib,
 };
 pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
@@ -822,6 +830,7 @@ pub(crate) use languages_php::{
 };
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;
+pub(crate) use languages_r::RequiresRApi;
 pub(crate) use lintian_overrides::{
     AlienTag, DuplicateOverrideContext, MalformedOverride, OverrideFileInWrongLocation,
     OverrideFileInWrongPackage, RenamedTag,

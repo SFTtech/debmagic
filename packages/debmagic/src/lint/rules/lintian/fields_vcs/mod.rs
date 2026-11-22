@@ -8,9 +8,11 @@ mod ln0798_vcs_field_mismatch;
 mod ln0799_orphaned_package_maintained_in_private_space;
 mod ln0800_orphaned_package_not_maintained_in_debian_infrastructure;
 mod ln1240_vcs_browser_links_to_empty_view;
+mod ln1241_vcs_field_has_unexpected_spaces;
 
 pub(crate) use ln0797_vcs_field_bitrotted::VcsFieldBitrotted;
 pub(crate) use ln0798_vcs_field_mismatch::VcsFieldMismatch;
 pub(crate) use ln0799_orphaned_package_maintained_in_private_space::OrphanedPackageMaintainedInPrivateSpace;
 pub(crate) use ln0800_orphaned_package_not_maintained_in_debian_infrastructure::OrphanedPackageNotMaintainedInDebianInfrastructure;
 pub(crate) use ln1240_vcs_browser_links_to_empty_view::VcsBrowserLinksToEmptyView;
+pub(crate) use ln1241_vcs_field_has_unexpected_spaces::VcsFieldHasUnexpectedSpaces;

@@ -285,6 +285,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/dm-upload-allowed/legacy-maintainer-scripts",
     "checks/fields/essential/fields-essential",
     "checks/fields/format/cruft-general-wig-pen",
+    "checks/fields/homepage/fields-bioconductor-homepage",
     "checks/fields/homepage/fields-cpan-homepage",
     "checks/fields/homepage/fields-general",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
@@ -721,6 +722,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/empty/empty-section",
     "checks/fields/essential/fields-essential",
     "checks/fields/essential/legacy-fields",
+    "checks/fields/homepage/fields-bioconductor-homepage",
     "checks/fields/homepage/fields-cpan-homepage",
     "checks/fields/homepage/fields-general",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
@@ -1360,6 +1362,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/dm-upload-allowed/legacy-maintainer-scripts",
     "checks/fields/essential/fields-essential",
     "checks/fields/format/cruft-general-wig-pen",
+    "checks/fields/homepage/fields-bioconductor-homepage",
     "checks/fields/homepage/fields-cpan-homepage",
     "checks/fields/homepage/fields-general",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
@@ -1869,6 +1872,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/dm-upload-allowed/legacy-maintainer-scripts"; "checks_fields_dm_upload_allowed_legacy_maintainer_scripts")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/format/cruft-general-wig-pen"; "checks_fields_format_cruft_general_wig_pen")]
+#[test_case("checks/fields/homepage/fields-bioconductor-homepage"; "checks_fields_homepage_fields_bioconductor_homepage")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
@@ -2306,6 +2310,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/empty/empty-section"; "checks_fields_empty_empty_section")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/essential/legacy-fields"; "checks_fields_essential_legacy_fields")]
+#[test_case("checks/fields/homepage/fields-bioconductor-homepage"; "checks_fields_homepage_fields_bioconductor_homepage")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
@@ -2946,6 +2951,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/dm-upload-allowed/legacy-maintainer-scripts"; "checks_fields_dm_upload_allowed_legacy_maintainer_scripts")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/format/cruft-general-wig-pen"; "checks_fields_format_cruft_general_wig_pen")]
+#[test_case("checks/fields/homepage/fields-bioconductor-homepage"; "checks_fields_homepage_fields_bioconductor_homepage")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]

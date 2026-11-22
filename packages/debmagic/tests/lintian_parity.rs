@@ -293,6 +293,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/version/repack/native/fields-version-dfsg-native",
     "checks/fields/version/repack/typo/fields-version-dsfg",
     "checks/files/artifact/cruft-general-diff",
+    "checks/files/artifact/cruft-general-native",
     "checks/files/artifact/cruft-general-quilt",
     "checks/files/artifact/cruft-general-wig-pen",
     "checks/files/encoding/changelog-in-western-encoding",
@@ -1166,6 +1167,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/version/repack/typo/fields-version-dsfg",
     "checks/files/artifact/cruft-empty-diff",
     "checks/files/artifact/cruft-general-diff",
+    "checks/files/artifact/cruft-general-native",
     "checks/files/artifact/cruft-general-quilt",
     "checks/files/artifact/cruft-general-wig-pen",
     "checks/files/encoding/changelog-in-western-encoding",
@@ -1559,6 +1561,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/version/repack/native/fields-version-dfsg-native"; "checks_fields_version_repack_native_fields_version_dfsg_native")]
 #[test_case("checks/fields/version/repack/typo/fields-version-dsfg"; "checks_fields_version_repack_typo_fields_version_dsfg")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
+#[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
 #[test_case("checks/files/artifact/cruft-general-wig-pen"; "checks_files_artifact_cruft_general_wig_pen")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
@@ -2434,6 +2437,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/version/repack/typo/fields-version-dsfg"; "checks_fields_version_repack_typo_fields_version_dsfg")]
 #[test_case("checks/files/artifact/cruft-empty-diff"; "checks_files_artifact_cruft_empty_diff")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
+#[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
 #[test_case("checks/files/artifact/cruft-general-wig-pen"; "checks_files_artifact_cruft_general_wig_pen")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]

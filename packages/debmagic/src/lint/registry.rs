@@ -332,6 +332,7 @@ use super::rules::SharedLibraryLacksVersion;
 use super::rules::SharedLibraryNotShipped;
 use super::rules::SharedLibrarySymbolsNotTracked;
 use super::rules::ShipsUndeclaredSharedLibrary;
+use super::rules::SourceContainsEditorBackupFile;
 use super::rules::SourceContainsPrebuiltMsHelpFile;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
@@ -1905,6 +1906,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &VcsFieldHasUnexpectedSpaces,
         &VcsFieldUsesUnknownUriFormat,
         &VcsGitUsesInvalidUserUri,
+        &SourceContainsEditorBackupFile,
     ]
 }
 
@@ -2257,6 +2259,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &VcsFieldHasUnexpectedSpaces,
         &VcsFieldUsesUnknownUriFormat,
         &VcsGitUsesInvalidUserUri,
+        &SourceContainsEditorBackupFile,
     ]
 }
 

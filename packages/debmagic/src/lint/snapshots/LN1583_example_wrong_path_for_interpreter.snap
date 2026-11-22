@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): example-wrong-path-for-interpreter (LN1583) /usr/local/bin/python3 != /bin/python3 OR /usr/bin/python3 [usr/share/doc/example/examples/run.py]
+I: example (binary): example-wrong-path-for-interpreter (LN1583) /opt/bin/bash != /bin/bash OR /usr/bin/bash [usr/share/doc/example/examples/run]
+I: example (udeb): example-wrong-path-for-interpreter (LN1583) /usr/local/bin/python3 != /bin/python3 OR /usr/bin/python3 [usr/share/doc/example/examples/run.py]

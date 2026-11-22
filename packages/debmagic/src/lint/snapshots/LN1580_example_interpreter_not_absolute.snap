@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): example-interpreter-not-absolute (LN1580) perl [usr/share/doc/example/examples/run]
+I: example (binary): example-interpreter-not-absolute (LN1580) perl [usr/share/doc/example/examples/run]
+I: example (udeb): example-interpreter-not-absolute (LN1580) env [usr/share/doc/example/examples/run]

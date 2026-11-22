@@ -954,7 +954,8 @@ pub(crate) use menu_format::{
     BadTestInMenuItem, CommandInMenuFileAndDesktopFile, DesktopCommandNotInPackage,
     DesktopContainsDeprecatedKey, DesktopEntryContainsDeprecatedKey,
     DesktopEntryContainsEncodingKey, DesktopEntryContainsUnknownKey, DesktopEntryFileHasCrs,
-    DesktopEntryInvalidCategory, DesktopEntryLacksKeywordsEntry, DesktopEntryLacksMainCategory,
+    DesktopEntryInvalidCategory, DesktopEntryLacksIconEntry, DesktopEntryLacksKeywordsEntry,
+    DesktopEntryLacksMainCategory, DesktopEntryLimitedToEnvironments,
     DesktopEntryMissingRequiredKey, DesktopEntryUnknownType, DesktopEntryUsesReservedCategory,
     DesktopMimeButNoExecCode, DuplicateKeyInDesktop, DuplicateTagInMenu, ExecutableDesktopFile,
     MenuCommandNotInPackage, MenuIconCannotBeParsed, MenuIconMissing, MenuIconNotInXpmFormat,
@@ -977,18 +978,19 @@ pub(crate) use menus::{
     DuplicateFormatInDocBase, ExecutableInUsrShareDocbase, ExecutableMenuFile,
     MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,
     MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus, MenuMethodLacksInclude,
-    PostinstDoesNotCallUpdatemenus, PostinstHasUselessCallToInstallDocs,
-    PostinstHasUselessCallToUpdateMenus, PostrmCallsInstalldocs, PostrmDoesNotCallUpdatemenus,
-    PostrmHasUselessCallToUpdateMenus, PreinstCallsInstalldocs, PreinstCallsUpdatemenus,
-    PrermCallsUpdatemenus, PrermHasUselessCallToInstallDocs, SpellingErrorInDocBaseAbstractField,
+    PossibleDocumentationButNoDocBaseRegistration, PostinstDoesNotCallUpdatemenus,
+    PostinstHasUselessCallToInstallDocs, PostinstHasUselessCallToUpdateMenus,
+    PostrmCallsInstalldocs, PostrmDoesNotCallUpdatemenus, PostrmHasUselessCallToUpdateMenus,
+    PreinstCallsInstalldocs, PreinstCallsUpdatemenus, PrermCallsUpdatemenus,
+    PrermHasUselessCallToInstallDocs, SpellingErrorInDocBaseAbstractField,
     SpellingErrorInDocBaseTitleField,
 };
 pub(crate) use mimeinfo::PackageContainsMimeCacheFile;
 pub(crate) use mimeinfo::PackageContainsMimeFileOutsidePackageDir;
 pub(crate) use mimeinfo::PackageContainsMimeinfoCacheFile;
 pub(crate) use modprobe::{
-    DirectoryInModprobeD, FileInEtcModprobeD, NonConfFileInModprobeD,
-    ObsoleteCommandInModprobeDFile,
+    DhInstallInsteadOfDhInstallmodules, DirectoryInModprobeD, FileInEtcModprobeD,
+    NonConfFileInModprobeD, ObsoleteCommandInModprobeDFile,
 };
 pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};
 pub(crate) use po_debconf::{
@@ -1030,10 +1032,12 @@ pub(crate) use scripts_shell::{
 };
 pub(crate) use scripts_text::{
     ControlInterpreterInUsrLocal, ControlInterpreterWithoutDepends,
-    ControlInterpreterWithoutPredepends, ExampleScriptUsesDeprecatedNodejsLocation,
-    ForbiddenConfigInterpreter, ForbiddenPostrmInterpreter, GawkScriptButNoGawkDep,
-    IncorrectPathForInterpreter, InstallInfoUsedInMaintainerScript, InterpreterInUsrLocal,
-    InterpreterNotAbsolute, MaintainerScriptCallsChownImproperly,
+    ControlInterpreterWithoutPredepends, ExampleIncorrectPathForInterpreter,
+    ExampleInterpreterNotAbsolute, ExampleScriptUsesBinEnv,
+    ExampleScriptUsesDeprecatedNodejsLocation, ExampleScriptWithoutInterpreter,
+    ExampleWrongPathForInterpreter, ForbiddenConfigInterpreter, ForbiddenPostrmInterpreter,
+    GawkScriptButNoGawkDep, IncorrectPathForInterpreter, InstallInfoUsedInMaintainerScript,
+    InterpreterInUsrLocal, InterpreterNotAbsolute, MaintainerScriptCallsChownImproperly,
     MaintainerScriptCallsInstallSgmlcatalog, MaintainerScriptCallsService,
     MaintainerScriptChangesLdSoConf, MaintainerScriptChangesNetbase,
     MaintainerScriptHasInvalidUpdateInetdOptions, MaintainerScriptHasUnexpandedDebhelperToken,
@@ -1050,13 +1054,14 @@ pub(crate) use scripts_text::{
     UnusualControlInterpreter, WishScriptButNoWishDep,
 };
 pub(crate) use systemd::{
-    InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, KillModeNone,
-    MisplacedSystemdTmpfiles, MissingSystemdServiceForInitDScript,
+    InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, InvalidSystemdDocumentation,
+    KillModeNone, MisplacedSystemdTmpfiles, MissingSystemdServiceForInitDScript,
     MissingSystemdTimerForCronScript, OmittedSystemdServiceForInitDScript, ServiceFileIsNotAFile,
     SystemdServiceAliasWithoutExtension, SystemdServiceFileMissingDocumentationKey,
-    SystemdServiceFileRefersToObsoleteBindto, SystemdServiceFileRefersToUnusualWantedbyTarget,
-    SystemdServiceFileShutdownProblems, SystemdServiceFileUsesDeprecatedSyslogFacility,
-    SystemdServiceFileUsesNobodyOrNogroup, SystemdServiceInOddLocation,
+    SystemdServiceFileMissingInstallKey, SystemdServiceFileRefersToObsoleteBindto,
+    SystemdServiceFileRefersToUnusualWantedbyTarget, SystemdServiceFileShutdownProblems,
+    SystemdServiceFileUsesDeprecatedSyslogFacility, SystemdServiceFileUsesNobodyOrNogroup,
+    SystemdServiceInOddLocation,
 };
 pub(crate) use testsuite::{
     BackgroundedTestCommand, ConflictingTestFields, DebianTestsControlAutodep8IsObsolete,

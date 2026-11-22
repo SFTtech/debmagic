@@ -3,7 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::{BinaryPackageRule, Severity};
 
-use super::installed::{installed_changelog, short_lines};
+use super::installed::short_lines;
 
 pub struct DebianChangelogLineTooShort;
 
@@ -25,7 +25,7 @@ impl BinaryPackageRule for DebianChangelogLineTooShort {
         if ctx.is_udeb() {
             return;
         }
-        let Some(installed) = installed_changelog(ctx) else {
+        let Some(installed) = ctx.installed_changelog() else {
             return;
         };
         let Some(latest) = installed.parsed.entries().first() else {

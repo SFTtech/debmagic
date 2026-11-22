@@ -22,6 +22,7 @@ mod group_context;
 mod gzip;
 mod hardening;
 mod installation_control;
+mod installed_changelog;
 mod intent;
 mod interpreter;
 mod jar;

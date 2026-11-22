@@ -8,8 +8,6 @@ use crate::lint::debian_changelog::DebianChangelog;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::installed::installed_changelog;
-
 pub struct InvalidDateInDebianChangelog;
 
 declare_rule! {
@@ -54,7 +52,7 @@ impl BinaryPackageRule for InvalidDateInDebianChangelog {
         if ctx.is_udeb() {
             return;
         }
-        let Some(installed) = installed_changelog(ctx) else {
+        let Some(installed) = ctx.installed_changelog() else {
             return;
         };
         let Some(latest) = installed.parsed.entries().first() else {

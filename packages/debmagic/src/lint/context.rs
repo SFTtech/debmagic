@@ -18,6 +18,7 @@ use super::dsc::Dsc;
 use super::elf::ElfFiles;
 use super::file_tree::{Entry, EntryKind, FileTree};
 use super::installation_control::InstallationControl;
+use super::installed_changelog::{InstalledChangelog, read_installed_changelog};
 use super::jar::JarFiles;
 use super::lintian_overrides::LintianOverrides;
 use super::quilt_series::QuiltSeries;
@@ -154,6 +155,8 @@ pub(crate) struct BinaryPackageData {
     installation_control: InstallationControl,
     data_files: OnceLock<Result<FileTree, String>>,
     control_files: OnceLock<Result<FileTree, String>>,
+    /// The installed Debian changelog, read on first use (see [`Self::installed_changelog`]).
+    installed_changelog_cache: OnceLock<Option<InstalledChangelog>>,
     shared: SharedSlots,
 }
 
@@ -176,6 +179,7 @@ impl BinaryPackageData {
             installation_control,
             data_files: OnceLock::new(),
             control_files: OnceLock::new(),
+            installed_changelog_cache: OnceLock::new(),
             shared: SharedSlots::default(),
         })
     }
@@ -198,6 +202,7 @@ impl BinaryPackageData {
             installation_control,
             data_files: cell,
             control_files: OnceLock::new(),
+            installed_changelog_cache: OnceLock::new(),
             shared: SharedSlots::default(),
         }
     }
@@ -242,6 +247,16 @@ impl BinaryPackageData {
             return Some(members);
         }
         self.reader.as_ref().map(BinaryPackageReader::deb_members)
+    }
+
+    /// The installed Debian changelog, read once from the Data files. `Err`
+    /// when the Data files failed to load.
+    pub(super) fn installed_changelog(&self) -> Result<Option<&InstalledChangelog>, &str> {
+        let files = self.data_files()?;
+        Ok(self
+            .installed_changelog_cache
+            .get_or_init(|| read_installed_changelog(files, &self.package_name))
+            .as_ref())
     }
 
     pub(super) fn data_files(&self) -> Result<&FileTree, &str> {
@@ -314,6 +329,22 @@ impl<'a> BinaryPackageContext<'a> {
     /// Binary package that has none.
     pub fn deb_members(&self) -> Option<&DebMembers> {
         self.data.deb_members()
+    }
+
+    /// The installed Debian changelog of this Binary package (lintian's
+    /// `changelog`), read once for all Rules. `None` when there is none. A Data
+    /// files failure is a runtime failure, as for [`Self::data_files`].
+    pub fn installed_changelog(&mut self) -> Option<&'a InstalledChangelog> {
+        let data: &'a BinaryPackageData = self.data;
+        match data.installed_changelog() {
+            Ok(changelog) => changelog,
+            Err(message) => {
+                if self.runtime_error.is_none() {
+                    self.runtime_error = Some(anyhow!("{message}"));
+                }
+                None
+            }
+        }
     }
 
     /// Data files File tree. `None` after a global File tree failure; that

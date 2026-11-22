@@ -232,9 +232,11 @@ use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
 use super::rules::MaintainerScriptSetsAlternativeImproperly;
+use super::rules::MaintainerScriptSupportsAncientPackageVersion;
 use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
 use super::rules::MaintainerScriptWithoutSetE;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
+use super::rules::MalformedDebArchive;
 use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
 use super::rules::MalformedTemplateName;
@@ -311,6 +313,7 @@ use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
+use super::rules::PackageContainsAncientFile;
 use super::rules::PackageContainsCmakePrivateFile;
 use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
 use super::rules::PackageContainsEmptyDirectory;
@@ -2155,6 +2158,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInDocBaseAbstractField,
         &SpellingErrorInDocBaseTitleField,
         &EmbeddedLibrary,
+        &MalformedDebArchive,
+        &PackageContainsAncientFile,
+        &MaintainerScriptSupportsAncientPackageVersion,
     ]
 }
 
@@ -3398,6 +3404,9 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SpellingErrorInDocBaseAbstractField,
         &SpellingErrorInDocBaseTitleField,
         &EmbeddedLibrary,
+        &MalformedDebArchive,
+        &PackageContainsAncientFile,
+        &MaintainerScriptSupportsAncientPackageVersion,
     ]
 }
 

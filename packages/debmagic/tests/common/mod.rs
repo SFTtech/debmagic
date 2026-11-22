@@ -893,6 +893,10 @@ fn assemble_binary_packages(recipe: &Path, work: &Path) -> Vec<PathBuf> {
 /// Rules have native tests; Parity needs a host that can build the recipe.
 const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
     (
+        "checks/deb-format/deb-format-malformed",
+        "the recipe's `tar-data` script runs `tar -Z`, which needs the `compress` tool, and the host does not have it",
+    ),
+    (
         "checks/languages/r/site-library/lacks-depends-on-r-api",
         "the recipe builds with `--buildsystem=R`, and the host has no `Debian::Debhelper::Buildsystem::R` (the `dh-r` package)",
     ),

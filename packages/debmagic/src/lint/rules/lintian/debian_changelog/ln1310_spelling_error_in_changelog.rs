@@ -4,8 +4,6 @@ use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 use crate::lint::spelling::{check_spelling, group_exceptions};
 
-use super::installed::installed_changelog;
-
 pub struct SpellingErrorInChangelog;
 
 declare_rule! {
@@ -28,7 +26,7 @@ declare_rule! {
 
 impl BinaryPackageRule for SpellingErrorInChangelog {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        let Some(installed) = installed_changelog(ctx) else {
+        let Some(installed) = ctx.installed_changelog() else {
             return;
         };
         let Some(latest) = installed.parsed.entries().first() else {

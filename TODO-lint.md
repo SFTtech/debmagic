@@ -2,6 +2,7 @@
 
 **Status**: slices 1 (Dsc) and 3 (Control files) done. See [ADR 0044](docs/adr/0044-rules-may-read-dsc.md) and [ADR 0045](docs/adr/0045-binary-package-control-files-is-a-file-tree.md).
 **Measure**: `just lint-parity` (`--run` for Parity results, `--candidates N` for ranked next Rules).
+**Open seams and the Tags they block**: [TODO-lint-seams.md](TODO-lint-seams.md) (the running ledger).
 **Related**: [What lintian rules need to inspect](docs/research/lintian-rule-information-access.md), [import a lintian Rule](docs/develop/import-lintian-rule.md), leftover in [TODO-source-package-parity.md](TODO-source-package-parity.md).
 
 ## Goal

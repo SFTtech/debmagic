@@ -12,15 +12,15 @@ use std::path::PathBuf;
 use super::buildinfo::Buildinfo;
 use super::changes::Changes;
 use super::context::BinaryPackageData;
+use super::context::SourcePackageData;
 use super::diagnostic::Diagnostic;
 use super::dsc::Dsc;
-use super::file_tree::FileTree;
 use super::group::{BuildinfoData, ChangesData, DscData, Group};
 use super::group_context::{BuildinfoContext, ChangesContext, GroupContext};
 use super::installation_control::InstallationControl;
 use super::rule::{BuildinfoRule, ChangesRule, GroupRule, RuleAccess};
 use super::run::format_diagnostic;
-use super::tester::{TestFailure, format_test_failures};
+use super::tester::{TestCase, TestFailure, format_test_failures};
 
 /// Runs one case of a Rule and returns its Diagnostics.
 type RunCase<C> = Box<dyn Fn(&C) -> Vec<Diagnostic>>;
@@ -274,7 +274,17 @@ pub struct GroupCase {
     changes: Option<String>,
     dsc: Option<String>,
     buildinfo: Option<String>,
-    installables: Vec<(String, String, bool)>,
+    installables: Vec<InstallableCase>,
+    source_files: TestCase,
+}
+
+/// One installable of a [`GroupCase`].
+#[derive(Clone, Debug)]
+struct InstallableCase {
+    name: String,
+    fields: String,
+    udeb: bool,
+    files: TestCase,
 }
 
 impl Default for GroupCase {
@@ -286,6 +296,7 @@ impl Default for GroupCase {
             dsc: None,
             buildinfo: None,
             installables: Vec::new(),
+            source_files: TestCase::default(),
         }
     }
 }
@@ -321,13 +332,39 @@ impl GroupCase {
     /// lines (`Depends: other\n`); `Package`, `Version` and `Architecture` are
     /// set.
     pub fn installable(mut self, name: impl Into<String>, fields: impl Into<String>) -> Self {
-        self.installables.push((name.into(), fields.into(), false));
+        self.push_installable(name.into(), fields.into(), false);
         self
     }
 
     /// A udeb of the Group.
     pub fn udeb(mut self, name: impl Into<String>, fields: impl Into<String>) -> Self {
-        self.installables.push((name.into(), fields.into(), true));
+        self.push_installable(name.into(), fields.into(), true);
+        self
+    }
+
+    fn push_installable(&mut self, name: String, fields: String, udeb: bool) {
+        self.installables.push(InstallableCase {
+            name,
+            fields,
+            udeb,
+            files: TestCase::default(),
+        });
+    }
+
+    /// The Data files of the installable added last, as path and content (a
+    /// [`TestCase`], as for [`super::tester::BinaryPackageTester`]).
+    pub fn files(mut self, files: impl Into<TestCase>) -> Self {
+        self.installables
+            .last_mut()
+            .expect("files() follows installable() or udeb()")
+            .files = files.into();
+        self
+    }
+
+    /// The Patched files of the source, with its `debian/control` among them
+    /// (a [`TestCase`], as for [`super::tester::SourcePackageTester`]).
+    pub fn source_files(mut self, files: impl Into<TestCase>) -> Self {
+        self.source_files = files.into();
         self
     }
 
@@ -335,11 +372,12 @@ impl GroupCase {
         let installables: Vec<String> = self
             .installables
             .iter()
-            .map(|(name, fields, udeb)| {
+            .map(|installable| {
                 format!(
-                    "{}{name} [{}]",
-                    if *udeb { "udeb " } else { "" },
-                    fields.trim().replace('\n', "; ")
+                    "{}{} [{}]",
+                    if installable.udeb { "udeb " } else { "" },
+                    installable.name,
+                    installable.fields.trim().replace('\n', "; ")
                 )
             })
             .collect();
@@ -360,9 +398,17 @@ impl GroupCase {
                 changes,
             }
         });
-        let source = self.dsc.as_ref().map(|text| DscData {
-            path: PathBuf::from("example.dsc"),
-            dsc: Dsc::parse(text).expect("GroupCase dsc is Deb822"),
+        let source = self.dsc.as_ref().map(|text| {
+            let dsc = Dsc::parse(text).expect("GroupCase dsc is Deb822");
+            let path = PathBuf::from("example.dsc");
+            let package = SourcePackageData::with_file_trees(
+                path.clone(),
+                self.source.clone(),
+                TestCase::default().file_tree(),
+                self.source_files.file_tree(),
+                Some(dsc.clone()),
+            );
+            DscData::with_package(path, dsc, package)
         });
         let buildinfo = self.buildinfo.as_ref().map(|text| BuildinfoData {
             path: PathBuf::from("test.buildinfo"),
@@ -372,7 +418,13 @@ impl GroupCase {
         let mut binaries: Vec<BinaryPackageData> = self
             .installables
             .iter()
-            .map(|(name, fields, udeb)| {
+            .map(|installable| {
+                let InstallableCase {
+                    name,
+                    fields,
+                    udeb,
+                    files,
+                } = installable;
                 let mut entries = vec![
                     ("Package".to_string(), name.clone()),
                     ("Version".to_string(), self.version.clone()),
@@ -390,7 +442,7 @@ impl GroupCase {
                     PathBuf::from(format!("{name}_{}_all.{extension}", self.version)),
                     name.clone(),
                     InstallationControl::from_fields(entries),
-                    FileTree::from_entries(None, Vec::new()),
+                    files.package_file_tree(),
                 )
             })
             .collect();
@@ -436,6 +488,7 @@ impl GroupTester {
                 let mut ctx = GroupContext::bind(&group, probe.as_ref());
                 GroupRule::run(probe.as_ref(), &mut ctx);
                 ctx.finish()
+                    .expect("GroupTester fixture trees do not fail File type classification")
             }),
             GroupCase::describe,
             expect_pass.into_iter().map(Into::into).collect(),
@@ -449,5 +502,102 @@ impl GroupTester {
 
     pub fn test_and_snapshot(&mut self) {
         self.0.test_and_snapshot();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::declare_rule;
+    use crate::lint::diagnostic::Diagnostic;
+
+    use super::*;
+
+    /// A Rule that reports what a Group Rule can see of the Group.
+    struct Probe;
+
+    declare_rule! {
+        /// Reports the siblings, their files and relations, and the source's control.
+        Probe,
+        code = "DM9999",
+        tag = "group-probe",
+        default_selected = false,
+        experimental = true,
+    }
+
+    impl GroupRule for Probe {
+        fn run(&self, ctx: &mut GroupContext<'_>) {
+            let mut lines = Vec::new();
+            for installable in ctx.installables() {
+                let files: Vec<String> = ctx
+                    .data_files(&installable)
+                    .map(|tree| {
+                        tree.entries()
+                            .iter()
+                            .map(|entry| entry.path().display().to_string())
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                let depends: Vec<String> = ctx
+                    .direct_dependencies(&installable)
+                    .iter()
+                    .map(|dependency| dependency.name().to_string())
+                    .collect();
+                lines.push(format!(
+                    "{} {} {} provides={:?} multi-arch={:?} files={files:?} depends={depends:?} conflicts={}",
+                    installable.name(),
+                    installable.version(),
+                    installable.architecture(),
+                    installable.provides(),
+                    installable.multi_arch(),
+                    installable.relation("Conflicts").to_lintian_string(),
+                ));
+            }
+            let build_depends = ctx
+                .debian_control()
+                .and_then(|control| control.source().unfolded_value("Build-Depends"));
+            lines.push(format!("build-depends={build_depends:?}"));
+            lines.push(format!(
+                "patched={}",
+                ctx.patched_files().map_or(0, |tree| tree.entries().len())
+            ));
+            for line in lines {
+                ctx.diagnostic(Diagnostic::warn(line));
+            }
+        }
+    }
+
+    #[test]
+    fn group_rule_sees_sibling_files_relations_and_the_source_control() {
+        let case = GroupCase::new("Source: example\nVersion: 1.0\n")
+            .source_files([(
+                "debian/control",
+                "Source: example\nBuild-Depends: debhelper\n",
+            )])
+            .installable(
+                "a",
+                "Provides: x, y\nMulti-Arch: same\nDepends: b\nConflicts: c\n",
+            )
+            .files([("usr/bin/a", "")])
+            .udeb("a-udeb", "")
+            .installable("b", "");
+        let group = case.group();
+        let mut ctx = GroupContext::bind(&group, &Probe);
+        GroupRule::run(&Probe, &mut ctx);
+        let lines: Vec<String> = ctx
+            .finish()
+            .expect("fixture trees do not fail")
+            .iter()
+            .map(|diagnostic| diagnostic.message.clone())
+            .collect();
+        assert_eq!(
+            lines,
+            [
+                "a 1.0 all provides=[\"x\", \"y\"] multi-arch=\"same\" files=[\"usr/bin/a\"] depends=[\"b\"] conflicts=c",
+                "b 1.0 all provides=[] multi-arch=\"\" files=[] depends=[] conflicts=",
+                "a-udeb 1.0 all provides=[] multi-arch=\"\" files=[] depends=[] conflicts=",
+                "build-depends=Some(\"debhelper\")",
+                "patched=1",
+            ]
+        );
     }
 }

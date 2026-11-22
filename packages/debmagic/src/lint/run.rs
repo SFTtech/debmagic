@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 use anyhow::{Context as _, bail};
 use rayon::prelude::*;
 
-use super::context::{BinaryPackageContext, SourceContext, SourcePackageData, SourceTreeData};
+use super::context::{BinaryPackageContext, SourceContext, SourceTreeData};
 use super::diagnostic::Diagnostic;
 use super::group::Group;
 use super::group_context::{BuildinfoContext, ChangesContext, GroupContext};
@@ -106,13 +106,15 @@ fn run_artifact_lint(
         }
         if let Some(source) = &group.source {
             if any_selected(registry::source_rules(), &selected) {
-                let data = SourcePackageData::new(source.path.clone())?;
+                let data = source
+                    .package()
+                    .map_err(|message| anyhow::anyhow!("{message}"))?;
                 stages.push(run_stage(
                     intent,
                     registry::source_rules(),
                     started,
                     |rule| {
-                        let mut ctx = SourceContext::bind_package(&data, rule);
+                        let mut ctx = SourceContext::bind_package(data, rule);
                         rule.run(&mut ctx);
                         ctx.finish()
                     },
@@ -126,7 +128,7 @@ fn run_artifact_lint(
                     |rule| {
                         let mut ctx = GroupContext::bind(group, rule);
                         rule.run(&mut ctx);
-                        Ok(ctx.finish())
+                        ctx.finish()
                     },
                 )?);
             }
@@ -518,7 +520,7 @@ mod tests {
     use anyhow::Context;
 
     use super::*;
-    use crate::lint::context::BinaryPackageData;
+    use crate::lint::context::{BinaryPackageData, SourcePackageData};
     use crate::lint::diagnostic::{Location, ProcessableType};
     use crate::lint::intent::{LintIntentInput, resolve_lint_intent};
     use crate::lint::rule::{RuleMeta, Severity};

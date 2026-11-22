@@ -89,6 +89,7 @@ use super::rules::DebianRulesUsesSpecialShellVariable;
 use super::rules::DebianRulesUsesUnnecessaryDhArgument;
 use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
+use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
@@ -1945,6 +1946,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SymbolsFileMissingBuildDependsPackageField,
         &OlderSourceFormat,
         &TrailingWhitespace,
+        &DebianWatchDoesNotCheckOpenpgpSignature,
     ]
 }
 
@@ -2310,6 +2312,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NoDhSequencer,
         &OlderSourceFormat,
         &TrailingWhitespace,
+        &DebianWatchDoesNotCheckOpenpgpSignature,
     ]
 }
 

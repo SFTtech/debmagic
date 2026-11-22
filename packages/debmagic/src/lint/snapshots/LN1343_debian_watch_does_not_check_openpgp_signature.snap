@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): debian-watch-does-not-check-openpgp-signature (LN1343) [debian/watch]
+P: example (source): debian-watch-does-not-check-openpgp-signature (LN1343) [debian/watch]

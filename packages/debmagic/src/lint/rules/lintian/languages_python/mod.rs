@@ -26,6 +26,7 @@ mod ln1115_package_installs_python_pycache_dir;
 mod ln1116_python_debug_in_wrong_location;
 mod ln1117_pypi_homepage;
 mod ln1403_missing_prerequisite_for_pyproject_backend;
+mod ln1404_package_installs_legacy_python_egg_info;
 mod python_version;
 
 pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;
@@ -51,3 +52,4 @@ pub(crate) use ln1115_package_installs_python_pycache_dir::PackageInstallsPython
 pub(crate) use ln1116_python_debug_in_wrong_location::PythonDebugInWrongLocation;
 pub(crate) use ln1117_pypi_homepage::PypiHomepage;
 pub(crate) use ln1403_missing_prerequisite_for_pyproject_backend::MissingPrerequisiteForPyprojectBackend;
+pub(crate) use ln1404_package_installs_legacy_python_egg_info::PackageInstallsLegacyPythonEggInfo;

@@ -264,6 +264,7 @@ use super::rules::PackageInstallsDeprecatedUpstartConfiguration;
 use super::rules::PackageInstallsIntoEtcRcBoot;
 use super::rules::PackageInstallsIntoEtcRcD;
 use super::rules::PackageInstallsJavaBytecode;
+use super::rules::PackageInstallsLegacyPythonEggInfo;
 use super::rules::PackageInstallsPacklist;
 use super::rules::PackageInstallsPerllocalPod;
 use super::rules::PackageInstallsPythonBytecode;
@@ -1937,6 +1938,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OcamlDanglingCmi,
         &PackageSupersededByPerl,
         &MissingPrerequisiteForPyprojectBackend,
+        &PackageInstallsLegacyPythonEggInfo,
     ]
 }
 
@@ -3073,6 +3075,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TransitionalPackageNotOldlibsOptional,
         &OcamlDanglingCmi,
         &PackageSupersededByPerl,
+        &PackageInstallsLegacyPythonEggInfo,
     ]
 }
 

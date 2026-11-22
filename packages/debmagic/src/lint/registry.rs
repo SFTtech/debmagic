@@ -139,6 +139,7 @@ use super::rules::DuplicateOverrideContext;
 use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
+use super::rules::ElfError;
 use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
 use super::rules::EmptySharedLibrarySymbols;
@@ -2126,6 +2127,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
         &BinaryHasUnneededSection,
+        &ElfError,
         &DebugFileWithNoDebugSymbols,
     ]
 }
@@ -3355,6 +3357,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
         &BinaryHasUnneededSection,
+        &ElfError,
         &DebugFileWithNoDebugSymbols,
     ]
 }

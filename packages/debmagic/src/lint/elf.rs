@@ -368,7 +368,7 @@ impl ElfFacts {
     /// (`In ELF header: `, `In program headers: `), in the order `readelf`
     /// prints them. Only the conditions this module can see are reported:
     /// a Section header table that runs past the end of the file, and a
-    /// `PT_INTERP` segment that is not in the file. `readelf` warnings
+    /// `PT_INTERP` segment that is empty or not in the file. `readelf` warnings
     /// (lintian's `WARNINGS`) are not modelled.
     #[allow(dead_code)] // seam API; no Rule reads it yet
     pub fn errors(&self) -> &[String] {
@@ -399,11 +399,15 @@ fn section_table_error(
     (!fits).then(|| format!("Reading {size} bytes extends past end of file for section headers"))
 }
 
-/// A `PT_INTERP` segment whose bytes are not in the file, so `readelf` cannot
-/// name the interpreter.
+/// A `PT_INTERP` segment that `readelf` cannot name the interpreter of: its
+/// `p_filesz` is zero (a split-off debug file keeps the header with no
+/// contents), or its bytes are not in the file.
 fn interpreter_is_unreadable(bytes: &[u8], interp: &ProgramHeader) -> bool {
     if interp.p_type != program_header::PT_INTERP {
         return false;
+    }
+    if interp.p_filesz == 0 {
+        return true;
     }
     let in_file = usize::try_from(interp.p_offset)
         .ok()
@@ -1111,6 +1115,21 @@ mod tests {
         // p_filesz past the end of the file, as a stripped debug file with
         // no contents at that offset has it.
         elf[64 + 56 + 32..64 + 56 + 40].copy_from_slice(&0x1000u64.to_le_bytes());
+        let facts = ElfFacts::from_bytes(&elf).expect("ELF");
+        assert_eq!(
+            facts.errors(),
+            ["In program headers: Unable to find program interpreter name".to_string()]
+        );
+    }
+
+    #[test]
+    fn empty_interpreter_segment_is_a_readelf_error() {
+        let mut elf = TestElf::executable()
+            .interpreter("/lib64/ld-linux-x86-64.so.2")
+            .build();
+        // PT_INTERP's p_filesz is zero, as in `objcopy --only-keep-debug`
+        // output; its p_memsz is left alone.
+        elf[64 + 56 + 32..64 + 56 + 40].copy_from_slice(&0u64.to_le_bytes());
         let facts = ElfFacts::from_bytes(&elf).expect("ELF");
         assert_eq!(
             facts.errors(),

@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): elf-error (LN1292) In ELF header: Reading 512 bytes extends past end of file for section headers [usr/bin/elfobject]
+W: example (binary): elf-error (LN1292) In ELF header: Section headers are not available! [usr/bin/elfobject]
+W: example (binary): elf-error (LN1292) In ELF header: Reading 512 bytes extends past end of file for section headers [usr/lib/foo/fake-guile-object.go]
+W: example (binary): elf-error (LN1292) In ELF header: Section headers are not available! [usr/lib/foo/fake-guile-object.go]
+W: example (binary): elf-error (LN1292) In program headers: Unable to find program interpreter name [usr/bin/hello.dbg]
+W: example (binary): elf-error (LN1292) In ELF header: Reading 512 bytes extends past end of file for section headers [usr/bin/elfobject-link]
+W: example (binary): elf-error (LN1292) In ELF header: Section headers are not available! [usr/bin/elfobject-link]
+W: example (udeb): elf-error (LN1292) In ELF header: Reading 512 bytes extends past end of file for section headers [usr/bin/elfobject]
+W: example (udeb): elf-error (LN1292) In ELF header: Section headers are not available! [usr/bin/elfobject]

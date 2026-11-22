@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): desktop-entry-limited-to-environments (LN1576) [usr/share/applications/example.desktop]
+I: example (binary): desktop-entry-limited-to-environments (LN1576) [usr/share/applications/example.desktop]
+I: example (udeb): desktop-entry-limited-to-environments (LN1576) [usr/share/applications/example.desktop]

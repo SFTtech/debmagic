@@ -130,6 +130,7 @@ use super::rules::DescriptionMentionsPlannedFeatures;
 use super::rules::DesktopEntryContainsEncodingKey;
 use super::rules::DesktopEntryLacksIconEntry;
 use super::rules::DesktopEntryLacksKeywordsEntry;
+use super::rules::DesktopEntryLimitedToEnvironments;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
@@ -2173,6 +2174,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &DesktopEntryLacksIconEntry,
+        &DesktopEntryLimitedToEnvironments,
     ]
 }
 
@@ -3425,6 +3427,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &DesktopEntryLacksIconEntry,
+        &DesktopEntryLimitedToEnvironments,
     ]
 }
 

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): patched-file-without-utf8-name (LN1247) bokmål
+E: example (source): patched-file-without-utf8-name (LN1247) bokm\ål
+E: example (source): patched-file-without-utf8-name (LN1247) dir/bokmål
+E: example (source): patched-file-without-utf8-name (LN1247) bad-dirå/
+E: example (source): patched-file-without-utf8-name (LN1247) xÿþ

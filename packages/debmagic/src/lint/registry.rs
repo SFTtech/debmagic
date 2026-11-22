@@ -276,6 +276,7 @@ use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
 use super::rules::PearPackageButMissingDependency;
 use super::rules::PearPackageWithoutPkgPhpToolsBuilddep;
 use super::rules::PeclPackageRequiresBuildDependency;
+use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
@@ -1909,6 +1910,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &VcsGitUsesInvalidUserUri,
         &SourceContainsEditorBackupFile,
         &SourceContainsPatchFailureFile,
+        &PatchedFileWithoutUtf8Name,
     ]
 }
 
@@ -2263,6 +2265,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &VcsGitUsesInvalidUserUri,
         &SourceContainsEditorBackupFile,
         &SourceContainsPatchFailureFile,
+        &PatchedFileWithoutUtf8Name,
     ]
 }
 

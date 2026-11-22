@@ -304,6 +304,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/encoding/news-in-western-encoding",
     "checks/files/encoding/testsuite-in-western-encoding",
     "checks/files/names/national-encoding-in-native",
+    "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
@@ -1178,6 +1179,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/encoding/news-in-western-encoding",
     "checks/files/encoding/testsuite-in-western-encoding",
     "checks/files/names/national-encoding-in-native",
+    "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
@@ -1572,6 +1574,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/encoding/news-in-western-encoding"; "checks_files_encoding_news_in_western_encoding")]
 #[test_case("checks/files/encoding/testsuite-in-western-encoding"; "checks_files_encoding_testsuite_in_western_encoding")]
 #[test_case("checks/files/names/national-encoding-in-native"; "checks_files_names_national_encoding_in_native")]
+#[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
@@ -2448,6 +2451,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/encoding/news-in-western-encoding"; "checks_files_encoding_news_in_western_encoding")]
 #[test_case("checks/files/encoding/testsuite-in-western-encoding"; "checks_files_encoding_testsuite_in_western_encoding")]
 #[test_case("checks/files/names/national-encoding-in-native"; "checks_files_names_national_encoding_in_native")]
+#[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]

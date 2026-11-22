@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): symlink-target-in-tmp (LN1266) /tmp/does-not-exist [usr/lib/x/link]
+E: example (binary): symlink-target-in-tmp (LN1266) /var/tmp/x [usr/lib/x/link]
+E: example (binary): symlink-target-in-tmp (LN1266) /usr/tmp/x [usr/lib/x/link]
+E: example (binary): symlink-target-in-tmp (LN1266) /dev/shm/x [usr/lib/x/link]
+E: example (binary): symlink-target-in-tmp (LN1266) /tmp/x [usr/lib/x/link]

@@ -341,6 +341,7 @@ use super::rules::UdebUsesUnsupportedCompressionForDataTarball;
 use super::rules::UdevRuleInEtc;
 use super::rules::UdevRuleMissingSubsystem;
 use super::rules::UdevRuleMissingUaccess;
+use super::rules::UdevRuleUnreadable;
 use super::rules::UnconditionalUseOfDpkgStatoverride;
 use super::rules::UnexpectedConffile;
 use super::rules::UnknownArchitecture;
@@ -1833,6 +1834,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UdevRuleInEtc,
         &UdevRuleMissingSubsystem,
         &UdevRuleMissingUaccess,
+        &UdevRuleUnreadable,
     ]
 }
 
@@ -2917,6 +2919,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UdevRuleInEtc,
         &UdevRuleMissingSubsystem,
         &UdevRuleMissingUaccess,
+        &UdevRuleUnreadable,
     ]
 }
 

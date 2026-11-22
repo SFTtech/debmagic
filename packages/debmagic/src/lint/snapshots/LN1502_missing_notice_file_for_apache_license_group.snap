@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (source): missing-notice-file-for-apache-license (LN1502) [NOTICE]
+E: example (source): missing-notice-file-for-apache-license (LN1502) [NOTICE]
+E: example (source): missing-notice-file-for-apache-license (LN1502) [NOTICE.txt]
+E: example (source): missing-notice-file-for-apache-license (LN1502) [subdir/NOTICE]
+E: example (source): missing-notice-file-for-apache-license (LN1502) [NOTICE]
+E: example (source): missing-notice-file-for-apache-license (LN1502) [sub/NOTICE]
+E: example (source): missing-notice-file-for-apache-license (LN1502) [NOTICE]
+E: example (source): missing-notice-file-for-apache-license (LN1502) [NOTICE]

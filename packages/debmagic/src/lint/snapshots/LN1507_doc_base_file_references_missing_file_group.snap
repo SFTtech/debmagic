@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (binary): doc-base-file-references-missing-file (LN1507) /usr/share/doc/example/a.txt [usr/share/doc-base/example:6]
+E: example (binary): doc-base-file-references-missing-file (LN1507) /usr/share/doc/other/a.txt [usr/share/doc-base/example:6]
+E: example (binary): doc-base-file-references-missing-file (LN1507) /usr/share/doc/example/in*.html [usr/share/doc-base/example:4]
+E: example (binary): doc-base-file-references-missing-file (LN1507) /usr/share/doc/example/a.txt [usr/share/doc-base/example:6]
+E: example (binary): doc-base-file-references-missing-file (LN1507) /usr/share/doc/example/*.html [usr/share/doc-base/example:6]
+E: example (binary): doc-base-file-references-missing-file (LN1507) /missing [usr/share/doc-base/example:6]
+E: example (binary): doc-base-file-references-missing-file (LN1507) /usr/share/doc/example/[ab].html [usr/share/doc-base/example:6]
+E: example-udeb (udeb): doc-base-file-references-missing-file (LN1507) /usr/share/doc/example/a.txt [usr/share/doc-base/example:6]

@@ -533,6 +533,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/deb-format/deb-format-extra-member",
     "checks/deb-format/deb-format-extra-underscore-member-before-control",
     "checks/deb-format/deb-format-extra-underscore-member-before-data",
+    "checks/deb-format/deb-format-lzma",
+    "checks/deb-format/deb-format-malformed",
     "checks/deb-format/deb-format-no-compress",
     "checks/deb-format/deb-format-udeb-compression",
     "checks/debian/changelog/changelog-file-dch-wrong-name",
@@ -790,6 +792,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/contents/files-uses-dpkg-database-directly",
     "checks/files/contents/legacy-maintainer-scripts",
     "checks/files/contents/scripts-maintainer-general",
+    "checks/files/date/deb-format-ancient-file",
+    "checks/files/date/legacy-filenames",
     "checks/files/debug/binaries-general",
     "checks/files/debug/files-foo-in-bar",
     "checks/files/debug-packages/non-debug-file-in-debug-package",
@@ -965,6 +969,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/mailcap/placeholder-in-quoted-string",
     "checks/mailcap/single-quoted-placeholder",
     "checks/maintainer-scripts/adduser/home-in-var-run",
+    "checks/maintainer-scripts/ancient-version/scripts-supports-ancient-package-version",
     "checks/maintainer-scripts/diversion/scripts-diversions",
     "checks/maintainer-scripts/diversion/scripts-diversions-variables",
     "checks/maintainer-scripts/dpkg-statoverride/scripts-unconditional-use-of-dpkg-statoverride",
@@ -2102,6 +2107,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/deb-format/deb-format-extra-member"; "checks_deb_format_deb_format_extra_member")]
 #[test_case("checks/deb-format/deb-format-extra-underscore-member-before-control"; "checks_deb_format_deb_format_extra_underscore_member_before_control")]
 #[test_case("checks/deb-format/deb-format-extra-underscore-member-before-data"; "checks_deb_format_deb_format_extra_underscore_member_before_data")]
+#[test_case("checks/deb-format/deb-format-lzma"; "checks_deb_format_deb_format_lzma")]
+#[test_case("checks/deb-format/deb-format-malformed"; "checks_deb_format_deb_format_malformed")]
 #[test_case("checks/deb-format/deb-format-no-compress"; "checks_deb_format_deb_format_no_compress")]
 #[test_case("checks/deb-format/deb-format-udeb-compression"; "checks_deb_format_deb_format_udeb_compression")]
 #[test_case("checks/debian/changelog/changelog-file-dch-wrong-name"; "checks_debian_changelog_changelog_file_dch_wrong_name")]
@@ -2359,6 +2366,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/contents/files-uses-dpkg-database-directly"; "checks_files_contents_files_uses_dpkg_database_directly")]
 #[test_case("checks/files/contents/legacy-maintainer-scripts"; "checks_files_contents_legacy_maintainer_scripts")]
 #[test_case("checks/files/contents/scripts-maintainer-general"; "checks_files_contents_scripts_maintainer_general")]
+#[test_case("checks/files/date/deb-format-ancient-file"; "checks_files_date_deb_format_ancient_file")]
+#[test_case("checks/files/date/legacy-filenames"; "checks_files_date_legacy_filenames")]
 #[test_case("checks/files/debug/binaries-general"; "checks_files_debug_binaries_general")]
 #[test_case("checks/files/debug/files-foo-in-bar"; "checks_files_debug_files_foo_in_bar")]
 #[test_case("checks/files/debug-packages/non-debug-file-in-debug-package"; "checks_files_debug_packages_non_debug_file_in_debug_package")]
@@ -2534,6 +2543,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/mailcap/placeholder-in-quoted-string"; "checks_mailcap_placeholder_in_quoted_string")]
 #[test_case("checks/mailcap/single-quoted-placeholder"; "checks_mailcap_single_quoted_placeholder")]
 #[test_case("checks/maintainer-scripts/adduser/home-in-var-run"; "checks_maintainer_scripts_adduser_home_in_var_run")]
+#[test_case("checks/maintainer-scripts/ancient-version/scripts-supports-ancient-package-version"; "checks_maintainer_scripts_ancient_version_scripts_supports_ancient_package_version")]
 #[test_case("checks/maintainer-scripts/diversion/scripts-diversions"; "checks_maintainer_scripts_diversion_scripts_diversions")]
 #[test_case("checks/maintainer-scripts/diversion/scripts-diversions-variables"; "checks_maintainer_scripts_diversion_scripts_diversions_variables")]
 #[test_case("checks/maintainer-scripts/dpkg-statoverride/scripts-unconditional-use-of-dpkg-statoverride"; "checks_maintainer_scripts_dpkg_statoverride_scripts_unconditional_use_of_dpkg_statoverride")]

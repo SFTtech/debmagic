@@ -5,8 +5,6 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::installed::installed_changelog;
-
 pub struct DebianChangelogFileContainsObsoleteUserEmacsSettings;
 
 declare_rule! {
@@ -60,7 +58,7 @@ impl BinaryPackageRule for DebianChangelogFileContainsObsoleteUserEmacsSettings 
         if ctx.is_udeb() {
             return;
         }
-        let Some(installed) = installed_changelog(ctx) else {
+        let Some(installed) = ctx.installed_changelog() else {
             return;
         };
         for line in obsolete_setting_lines(&installed.text) {

@@ -3,7 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::installed::{closes_any, installed_changelog};
+use super::installed::closes_any;
 
 pub struct InitialUploadClosesNoBugs;
 
@@ -26,7 +26,7 @@ impl BinaryPackageRule for InitialUploadClosesNoBugs {
         if ctx.is_udeb() {
             return;
         }
-        let Some(installed) = installed_changelog(ctx) else {
+        let Some(installed) = ctx.installed_changelog() else {
             return;
         };
         let entries = installed.parsed.entries();
@@ -38,7 +38,7 @@ impl BinaryPackageRule for InitialUploadClosesNoBugs {
         }
         let line = latest.line();
         ctx.diagnostic(Diagnostic::warn("").with_location(Location {
-            path: installed.path,
+            path: installed.path.clone(),
             line: Some(line),
             column: None,
         }));

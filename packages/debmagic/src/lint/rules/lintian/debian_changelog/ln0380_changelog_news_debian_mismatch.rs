@@ -8,7 +8,8 @@ use crate::lint::debian_changelog::ChangelogEntry;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::installed::{self, InstalledChangelog};
+use super::installed;
+use crate::lint::installed_changelog::InstalledChangelog;
 
 pub struct ChangelogNewsDebianMismatch;
 
@@ -39,7 +40,7 @@ impl BinaryPackageRule for ChangelogNewsDebianMismatch {
         if ctx.is_udeb() {
             return;
         }
-        let Some(changelog) = installed::installed_changelog(ctx) else {
+        let Some(changelog) = ctx.installed_changelog() else {
             return;
         };
         let Some(news) = installed::installed_news(ctx) else {
@@ -56,7 +57,7 @@ impl BinaryPackageRule for ChangelogNewsDebianMismatch {
         }
         let mut messages = Vec::new();
         for field in ["Distribution", "Urgency"] {
-            let from = field_value(&changelog, latest, field);
+            let from = field_value(changelog, latest, field);
             let to = field_value(&news, news_entry, field);
             if from != to {
                 messages.push(format!("{field} {from} != {to}"));

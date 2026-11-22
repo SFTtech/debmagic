@@ -4,7 +4,6 @@ use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
 use super::super::domain::is_domain_ignoring_tld;
-use super::installed::installed_changelog;
 
 pub struct BogusMailHostInDebianChangelog;
 
@@ -30,7 +29,7 @@ impl BinaryPackageRule for BogusMailHostInDebianChangelog {
         if ctx.is_udeb() {
             return;
         }
-        let Some(installed) = installed_changelog(ctx) else {
+        let Some(installed) = ctx.installed_changelog() else {
             return;
         };
         let path = installed.path.clone();

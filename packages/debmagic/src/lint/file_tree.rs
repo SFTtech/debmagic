@@ -111,13 +111,16 @@ fn display_id(name: Option<&str>, id: u64) -> String {
 /// `rwx` for owner, group and other) as stored in the tar header or read from
 /// host metadata. The file-type bits are not part of it; that is the variant.
 ///
-/// `owner` is `None` unless the File tree knows it (see [`Owner`]).
+/// `owner` is `None` unless the File tree knows it (see [`Owner`]). `mtime` is
+/// seconds since the epoch from the tar header; `None` unless the File tree
+/// knows it (see [`Entry::mtime`]).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Entry {
     RegularFile {
         path: PathBuf,
         mode: u32,
         owner: Option<Owner>,
+        mtime: Option<i64>,
         file_type: Option<FileType>,
         content: Option<Vec<u8>>,
     },
@@ -128,6 +131,7 @@ pub enum Entry {
         path: PathBuf,
         mode: u32,
         owner: Option<Owner>,
+        mtime: Option<i64>,
         file_type: Option<FileType>,
         content: Option<Vec<u8>>,
         target: Option<PathBuf>,
@@ -136,12 +140,14 @@ pub enum Entry {
         path: PathBuf,
         mode: u32,
         owner: Option<Owner>,
+        mtime: Option<i64>,
     },
     /// `target` is exactly as stored, not resolved.
     Symlink {
         path: PathBuf,
         mode: u32,
         owner: Option<Owner>,
+        mtime: Option<i64>,
         target: PathBuf,
     },
     /// A named pipe. Has no content to read.
@@ -149,18 +155,21 @@ pub enum Entry {
         path: PathBuf,
         mode: u32,
         owner: Option<Owner>,
+        mtime: Option<i64>,
     },
     /// A character device node. Device numbers are not kept.
     CharDevice {
         path: PathBuf,
         mode: u32,
         owner: Option<Owner>,
+        mtime: Option<i64>,
     },
     /// A block device node. Device numbers are not kept.
     BlockDevice {
         path: PathBuf,
         mode: u32,
         owner: Option<Owner>,
+        mtime: Option<i64>,
     },
 }
 
@@ -180,6 +189,7 @@ impl Entry {
             path: path.into(),
             mode: 0o644,
             owner: None,
+            mtime: None,
             file_type,
             content,
         }
@@ -194,6 +204,7 @@ impl Entry {
             path: path.into(),
             mode: 0o644,
             owner: None,
+            mtime: None,
             file_type,
             content,
             target: None,
@@ -213,6 +224,7 @@ impl Entry {
             path: path.into(),
             mode: 0o755,
             owner: None,
+            mtime: None,
         }
     }
 
@@ -221,6 +233,7 @@ impl Entry {
             path: path.into(),
             mode: 0o777,
             owner: None,
+            mtime: None,
             target: target.into(),
         }
     }
@@ -230,6 +243,7 @@ impl Entry {
             path: path.into(),
             mode: 0o644,
             owner: None,
+            mtime: None,
         }
     }
 
@@ -238,6 +252,7 @@ impl Entry {
             path: path.into(),
             mode: 0o644,
             owner: None,
+            mtime: None,
         }
     }
 
@@ -246,6 +261,7 @@ impl Entry {
             path: path.into(),
             mode: 0o644,
             owner: None,
+            mtime: None,
         }
     }
 
@@ -261,6 +277,25 @@ impl Entry {
     pub(crate) fn with_owner(mut self, new: Owner) -> Self {
         *self.owner_mut() = Some(new);
         self
+    }
+
+    /// Set the modification time, seconds since the epoch; `None` leaves it
+    /// unknown. Until this is called an Entry has none.
+    pub(crate) fn with_mtime(mut self, new: Option<i64>) -> Self {
+        *self.mtime_mut() = new;
+        self
+    }
+
+    fn mtime_mut(&mut self) -> &mut Option<i64> {
+        match self {
+            Self::RegularFile { mtime, .. }
+            | Self::Hardlink { mtime, .. }
+            | Self::Directory { mtime, .. }
+            | Self::Symlink { mtime, .. }
+            | Self::Fifo { mtime, .. }
+            | Self::CharDevice { mtime, .. }
+            | Self::BlockDevice { mtime, .. } => mtime,
+        }
     }
 
     fn mode_mut(&mut self) -> &mut u32 {
@@ -327,6 +362,27 @@ impl Entry {
             | Self::CharDevice { owner, .. }
             | Self::BlockDevice { owner, .. } => owner.as_ref(),
         }
+    }
+
+    /// Modification time from the tar header, seconds since the epoch. `None`
+    /// on host File trees and on fixtures that set none.
+    pub fn mtime(&self) -> Option<i64> {
+        match self {
+            Self::RegularFile { mtime, .. }
+            | Self::Hardlink { mtime, .. }
+            | Self::Directory { mtime, .. }
+            | Self::Symlink { mtime, .. }
+            | Self::Fifo { mtime, .. }
+            | Self::CharDevice { mtime, .. }
+            | Self::BlockDevice { mtime, .. } => *mtime,
+        }
+    }
+
+    /// The modification date as `YYYY-MM-DD` in UTC, lintian's `date`.
+    /// `None` when [`Self::mtime`] is.
+    pub fn mtime_date(&self) -> Option<String> {
+        let date = chrono::DateTime::from_timestamp(self.mtime()?, 0)?;
+        Some(date.format("%Y-%m-%d").to_string())
     }
 
     /// `true` when the owner is known and its [`Owner::identity`] is
@@ -1099,6 +1155,19 @@ mod tests {
             "7/staff"
         );
         assert_eq!(Owner::root().identity(), "root/root");
+    }
+
+    #[test]
+    fn mtime_is_unknown_until_set_and_dates_in_utc() {
+        let entry = Entry::regular_file("usr/bin/foo", None, None);
+        assert_eq!(entry.mtime(), None);
+        assert_eq!(entry.mtime_date(), None);
+        let epoch = entry.clone().with_mtime(Some(0));
+        assert_eq!(epoch.mtime(), Some(0));
+        assert_eq!(epoch.mtime_date().as_deref(), Some("1970-01-01"));
+        let dated = Entry::directory("usr").with_mtime(Some(1_000_000_000));
+        assert_eq!(dated.mtime_date().as_deref(), Some("2001-09-09"));
+        assert_eq!(dated.with_mtime(None).mtime(), None);
     }
 
     #[test]

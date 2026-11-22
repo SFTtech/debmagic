@@ -3,7 +3,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::installed::{installed_changelog, installed_news};
+use super::installed::installed_news;
 
 pub struct DebianNewsEntryHasUnknownVersion;
 
@@ -28,7 +28,7 @@ impl BinaryPackageRule for DebianNewsEntryHasUnknownVersion {
         if ctx.is_udeb() {
             return;
         }
-        let Some(changelog) = installed_changelog(ctx) else {
+        let Some(changelog) = ctx.installed_changelog() else {
             return;
         };
         if changelog.parsed.entries().is_empty() {

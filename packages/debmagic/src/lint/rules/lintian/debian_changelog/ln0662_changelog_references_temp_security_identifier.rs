@@ -7,8 +7,6 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::installed::installed_changelog;
-
 pub struct ChangelogReferencesTempSecurityIdentifier;
 
 declare_rule! {
@@ -34,7 +32,7 @@ impl BinaryPackageRule for ChangelogReferencesTempSecurityIdentifier {
         if ctx.is_udeb() {
             return;
         }
-        let Some(installed) = installed_changelog(ctx) else {
+        let Some(installed) = ctx.installed_changelog() else {
             return;
         };
         let Some(latest) = installed.parsed.entries().first() else {
@@ -46,7 +44,7 @@ impl BinaryPackageRule for ChangelogReferencesTempSecurityIdentifier {
         let identifier = found.as_str().to_string();
         let line = latest.line();
         ctx.diagnostic(Diagnostic::warn(identifier).with_location(Location {
-            path: installed.path,
+            path: installed.path.clone(),
             line: Some(line),
             column: None,
         }));

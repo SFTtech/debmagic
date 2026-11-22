@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): incorrect-locale-code (LN1385) ind -> id [usr/share/locale/ind]
+W: example (binary): incorrect-locale-code (LN1385) deu_DE -> de_DE [usr/share/locale/deu_DE]
+W: example (binary): incorrect-locale-code (LN1385) eng@latin -> en@latin [usr/share/locale/eng@latin]
+W: example (binary): incorrect-locale-code (LN1385) cz_CZ -> cs_CZ [usr/share/locale/cz_CZ]
+W: example (binary): incorrect-locale-code (LN1385) en_UK -> en_GB [usr/share/locale/en_UK]
+W: example (binary): incorrect-locale-code (LN1385) en_UK.UTF-8 -> en_GB.UTF-8 [usr/share/locale/en_UK.UTF-8]
+W: example (binary): incorrect-locale-code (LN1385) gr -> el [usr/share/locale/gr]

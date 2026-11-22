@@ -517,11 +517,11 @@ pub(crate) use description::{
 pub(crate) use documentation_examples::NestedExamplesDirectory;
 pub(crate) use documentation_manual::{
     BadSoLinkWithinManualPage, BadWhatisEntry, BrokenLinkToUndocumented, BuildPathInManual,
-    CountryInManual, EmptyManualPage, ExecutableManualPage, GroffMessage, ManualPageFromTemplate,
-    ManualPageWithGenericName, NoEnglishManualPage, NoManualPage, OddPlaceForManualPage,
-    PodConversionMessage, PoorCompressionInManualPage, UncompressedManualPage,
-    UndocumentedManualPage, UselessWhatisEntry, WrongCompressionInManualPage, WrongManualSection,
-    WrongNameForManualPage,
+    CountryInManual, EmptyManualPage, ExecutableManualPage, FSSTNDDirInManualPage, GroffMessage,
+    ManualPageFromTemplate, ManualPageWithGenericName, NoEnglishManualPage, NoManualPage,
+    OddPlaceForManualPage, PodConversionMessage, PoorCompressionInManualPage,
+    UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
+    WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
 };
 pub(crate) use documentation_texinfo::{
     InfoDocumentHasWrongExtension, InfoDocumentMissingDirEntry, InfoDocumentMissingDirSection,

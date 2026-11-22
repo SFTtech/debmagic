@@ -621,6 +621,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/compressed/gz/timestamp-in-gzip",
     "checks/files/compressed/lzma/not-an-lzma",
     "checks/files/compressed/xz/not-an-xz",
+    "checks/files/compressed/zip/not-a-zip",
     "checks/files/config-scripts/files-old-config-script",
     "checks/files/contents/files-missing-depends-on-sensible-utils",
     "checks/files/contents/files-uses-dpkg-database-directly",
@@ -1864,6 +1865,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/compressed/gz/timestamp-in-gzip"; "checks_files_compressed_gz_timestamp_in_gzip")]
 #[test_case("checks/files/compressed/lzma/not-an-lzma"; "checks_files_compressed_lzma_not_an_lzma")]
 #[test_case("checks/files/compressed/xz/not-an-xz"; "checks_files_compressed_xz_not_an_xz")]
+#[test_case("checks/files/compressed/zip/not-a-zip"; "checks_files_compressed_zip_not_a_zip")]
 #[test_case("checks/files/config-scripts/files-old-config-script"; "checks_files_config_scripts_files_old_config_script")]
 #[test_case("checks/files/contents/files-missing-depends-on-sensible-utils"; "checks_files_contents_files_missing_depends_on_sensible_utils")]
 #[test_case("checks/files/contents/files-uses-dpkg-database-directly"; "checks_files_contents_files_uses_dpkg_database_directly")]

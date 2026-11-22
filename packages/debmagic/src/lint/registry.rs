@@ -1,9 +1,8 @@
-use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
-use super::rules::AcuteAccentInManualPage;
-use super::rules::AddComponentCopyright;
 use super::rule::{
     BinaryPackageRule, BuildinfoRule, ChangesRule, GroupRule, RuleAccess, SourceRule,
 };
+use super::rules::AcuteAccentInManualPage;
+use super::rules::AddComponentCopyright;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
 use super::rules::Apache2DeprecatedAuthConfig;
@@ -117,9 +116,9 @@ use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
-use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DesktopEntryContainsEncodingKey;
 use super::rules::DesktopEntryLacksKeywordsEntry;
+use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;

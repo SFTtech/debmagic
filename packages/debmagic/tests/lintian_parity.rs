@@ -1496,13 +1496,13 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
     assert_eq!(common::catalogued_source_package_recipe_rels(), listed);
 }
 
-#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test]
 fn listed_group_recipes_match_vendored_catalogued() {
     let listed: Vec<String> = GROUP_RECIPES.iter().map(|rel| (*rel).to_string()).collect();
     assert_eq!(common::catalogued_group_recipe_rels(), listed);
 }
 
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
 #[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]

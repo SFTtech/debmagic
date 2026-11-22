@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): debug-symbol-migration-possibly-complete (LN1330) --dbgsym-migration=foo [debian/rules:7]

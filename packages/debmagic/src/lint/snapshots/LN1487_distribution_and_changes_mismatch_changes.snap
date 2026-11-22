@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+W: example (changes): distribution-and-changes-mismatch (LN1487) stable unstable
+W: example (changes): distribution-and-changes-mismatch (LN1487) unstable stable
+W: example (changes): distribution-and-changes-mismatch (LN1487) stable
+W: example (changes): distribution-and-changes-mismatch (LN1487) bookworm trixie

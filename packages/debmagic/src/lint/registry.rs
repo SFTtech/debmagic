@@ -143,6 +143,7 @@ use super::rules::DhMakeTemplateInSource;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DistantPrerequisiteInShlibs;
+use super::rules::DistributionAndChangesMismatch;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DuplicateFontFile;
@@ -2181,6 +2182,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BackportsUploadHasIncorrectVersionNumber,
         &PackageHasLongFileName,
         &BadUrgencyInChangesFile,
+        &DistributionAndChangesMismatch,
     ]
 }
 
@@ -3446,6 +3448,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &BackportsUploadHasIncorrectVersionNumber,
         &PackageHasLongFileName,
         &BadUrgencyInChangesFile,
+        &DistributionAndChangesMismatch,
     ]
 }
 

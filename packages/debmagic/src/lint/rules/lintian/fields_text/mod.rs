@@ -42,6 +42,7 @@ mod ln1545_homepage_for_bioconductor_package_not_canonical;
 mod ln1546_homepage_for_cran_package_not_canonical;
 mod ln1547_homepage_github_url_ends_with_dot_git;
 mod ln1548_homepage_gitlab_url_ends_with_dot_git;
+mod ln1549_homepage_in_binary_package;
 mod ln1550_homepage_refers_to_filesystem_listing;
 mod ln1551_homepage_salsa_url_ends_with_dot_git;
 
@@ -75,6 +76,7 @@ pub(crate) use ln1545_homepage_for_bioconductor_package_not_canonical::HomepageF
 pub(crate) use ln1546_homepage_for_cran_package_not_canonical::HomepageForCranPackageNotCanonical;
 pub(crate) use ln1547_homepage_github_url_ends_with_dot_git::HomepageGithubUrlEndsWithDotGit;
 pub(crate) use ln1548_homepage_gitlab_url_ends_with_dot_git::HomepageGitlabUrlEndsWithDotGit;
+pub(crate) use ln1549_homepage_in_binary_package::HomepageInBinaryPackage;
 pub(crate) use ln1550_homepage_refers_to_filesystem_listing::HomepageRefersToFilesystemListing;
 pub(crate) use ln1551_homepage_salsa_url_ends_with_dot_git::HomepageSalsaUrlEndsWithDotGit;
 

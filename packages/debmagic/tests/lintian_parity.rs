@@ -403,6 +403,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/conffiles/legacy-etcfiles",
     "checks/conffiles/legacy-filenames",
     "checks/control-files/control-files-bad",
+    "checks/control-files/control-files-weird-files",
+    "checks/control-files/legacy-libbaz",
+    "checks/control-files/legacy-scripts",
     "checks/cron/files-bad-perm-owner",
     "checks/cron/files-foo-violates-expected-naming",
     "checks/cron/legacy-etcfiles",
@@ -1628,6 +1631,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/conffiles/legacy-etcfiles"; "checks_conffiles_legacy_etcfiles")]
 #[test_case("checks/conffiles/legacy-filenames"; "checks_conffiles_legacy_filenames")]
 #[test_case("checks/control-files/control-files-bad"; "checks_control_files_control_files_bad")]
+#[test_case("checks/control-files/control-files-weird-files"; "checks_control_files_control_files_weird_files")]
+#[test_case("checks/control-files/legacy-libbaz"; "checks_control_files_legacy_libbaz")]
+#[test_case("checks/control-files/legacy-scripts"; "checks_control_files_legacy_scripts")]
 #[test_case("checks/cron/files-bad-perm-owner"; "checks_cron_files_bad_perm_owner")]
 #[test_case("checks/cron/files-foo-violates-expected-naming"; "checks_cron_files_foo_violates_expected_naming")]
 #[test_case("checks/cron/legacy-etcfiles"; "checks_cron_legacy_etcfiles")]

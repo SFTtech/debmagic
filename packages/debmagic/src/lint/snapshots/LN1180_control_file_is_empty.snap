@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): control-file-is-empty (LN1180) [postinst]
+W: example (binary): control-file-is-empty (LN1180) [triggers]
+W: example (binary): control-file-is-empty (LN1180) [control]
+W: example (udeb): control-file-is-empty (LN1180) [config]

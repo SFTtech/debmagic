@@ -53,6 +53,7 @@ use super::rules::BuildDependsOnPythonDevWithNoArchAny;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CapitalizationErrorInDescription;
+use super::rules::CapitalizationErrorInDescriptionSynopsis;
 use super::rules::CarriageReturnLineFeed;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
@@ -2199,6 +2200,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BuildDependsOnPythonDevWithNoArchAny,
         &OredBuildDependsOnObsoletePackage,
         &TypoInManualPage,
+        &CapitalizationErrorInDescriptionSynopsis,
     ]
 }
 
@@ -3470,6 +3472,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &HomepageRefersToFilesystemListing,
         &DescriptionPossiblyContainsHomepage,
         &TypoInManualPage,
+        &CapitalizationErrorInDescriptionSynopsis,
     ]
 }
 

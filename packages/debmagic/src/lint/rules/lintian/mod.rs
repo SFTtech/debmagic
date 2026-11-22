@@ -743,8 +743,9 @@ pub(crate) use languages_javascript::{
     PkgJsAutopkgtestFileDoesNotExist, PkgJsAutopkgtestTestIsEmpty, PkgJsAutopkgtestTestIsMissing,
     PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
-pub(crate) use languages_ocaml::{OcamlDanglingCmx, OcamlDanglingCmxa, OcamlDanglingCmxs};
-pub(crate) use languages_ocaml::{OcamlDanglingCmi, OcamlDanglingCmxa, OcamlDanglingCmxs};
+pub(crate) use languages_ocaml::{
+    OcamlDanglingCmi, OcamlDanglingCmx, OcamlDanglingCmxa, OcamlDanglingCmxs,
+};
 pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PackageInstallsPacklist,
     PackageInstallsPerllocalPod, PackageSupersededByPerl, PerlModuleInCoreDirectory,
@@ -973,20 +974,6 @@ pub(crate) use scripts_text::{
     MaintainerScriptHasInvalidUpdateInetdOptions, MaintainerScriptHasUnexpandedDebhelperToken,
     MaintainerScriptHidesInitFailure, MaintainerScriptModifiesInetdConf,
     MaintainerScriptSetsAlternativeImproperly, MaintainerScriptShouldNotUseDpkgMaintscriptHelper,
-    MaintainerScriptShouldNotUsePiupartsVariable, MaintainerScriptUpdatesFontconfigCacheImproperly,
-    MaintscriptCallsLdconfig, MawkScriptButNoMawkDep, MissingCallToDpkgMaintscriptHelper,
-    MultiArchSamePackageCallsPycompile, PhpScriptWithUnusualInterpreter,
-    PossiblyInsecureHandlingOfTmpFilesInMaintainerScript, PostrmRemovesAlternative,
-    Python3ScriptButNoPython3Dep, RubyScriptButNoRubyDep, ScriptNotExecutable, ScriptUsesBinEnv,
-    ScriptUsesDeprecatedNodejsLocation, SystemdAlternatives, TclshScriptButNoTclshDep,
-    TrailingSlashForDpkgMaintscriptHelperSymlinkToDir, UdebPostinstCallsLdconfig,
-    UdevadmCalledWithoutGuard, UnknownControlInterpreter, UnusualControlInterpreter,
-    WishScriptButNoWishDep,
-    MaintainerScriptCallsInstallSgmlcatalog, MaintainerScriptChangesLdSoConf,
-    MaintainerScriptChangesNetbase, MaintainerScriptHasInvalidUpdateInetdOptions,
-    MaintainerScriptHasUnexpandedDebhelperToken, MaintainerScriptHidesInitFailure,
-    MaintainerScriptModifiesInetdConf, MaintainerScriptSetsAlternativeImproperly,
-    MaintainerScriptShouldNotUseDpkgMaintscriptHelper,
     MaintainerScriptShouldNotUsePiupartsVariable, MaintainerScriptSwitchesDirToSymlinkUnsafely,
     MaintainerScriptUpdatesFontconfigCacheImproperly, MaintscriptCallsLdconfig,
     MawkScriptButNoMawkDep, MissingCallToDpkgMaintscriptHelper, MultiArchSamePackageCallsPycompile,

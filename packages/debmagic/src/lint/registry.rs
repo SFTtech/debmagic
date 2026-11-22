@@ -274,6 +274,7 @@ use super::rules::PostrmDoesNotCallUpdatercDForInitDScript;
 use super::rules::PostrmDoesNotPurgeDebconf;
 use super::rules::PostrmHasUselessCallToUpdateMenus;
 use super::rules::PreinstCallsInstalldocs;
+use super::rules::PreinstCallsUpdatemenus;
 use super::rules::PreinstCallsUpdatercD;
 use super::rules::PrermCallsUpdatercD;
 use super::rules::PriorityExtraIsReplacedByPriorityOptional;
@@ -1855,6 +1856,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PostrmCallsInstalldocs,
         &PostrmHasUselessCallToUpdateMenus,
         &PreinstCallsInstalldocs,
+        &PreinstCallsUpdatemenus,
     ]
 }
 
@@ -2950,6 +2952,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PostrmCallsInstalldocs,
         &PostrmHasUselessCallToUpdateMenus,
         &PreinstCallsInstalldocs,
+        &PreinstCallsUpdatemenus,
     ]
 }
 

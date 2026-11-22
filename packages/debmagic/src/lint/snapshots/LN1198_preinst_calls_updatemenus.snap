@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): preinst-calls-updatemenus (LN1198) [preinst:2]
+E: example (binary): preinst-calls-updatemenus (LN1198) [preinst:5]
+E: example (binary): preinst-calls-updatemenus (LN1198) [preinst:4]
+E: example (udeb): preinst-calls-updatemenus (LN1198) [preinst:1]
+E: example (binary): preinst-calls-updatemenus (LN1198) [preinst:2]

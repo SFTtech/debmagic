@@ -247,6 +247,7 @@ use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OredDependsOnObsoletePackage;
+use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
@@ -1953,6 +1954,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ConflictsWithVersion,
         &OredDependsOnObsoletePackage,
         &WrongSectionAccordingToPackageName,
+        &OutOfDateStandardsVersion,
     ]
 }
 
@@ -2316,6 +2318,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SubstvarSourceVersionIsDeprecated,
         &NoStrongDigestsInDsc,
         &HomepageFieldUsesInsecureUri,
+        &OutOfDateStandardsVersion,
     ]
 }
 

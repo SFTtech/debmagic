@@ -279,9 +279,17 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/recommended/control-file-general",
     "checks/fields/recommended/generic-empty",
     "checks/fields/required/generic-empty",
+    "checks/fields/standards-version/legacy-binary",
+    "checks/fields/standards-version/legacy-etcfiles",
+    "checks/fields/standards-version/legacy-filenames",
+    "checks/fields/standards-version/legacy-foo++",
+    "checks/fields/standards-version/legacy-libbaz",
+    "checks/fields/standards-version/legacy-maintainer-scripts",
     "checks/fields/standards-version/legacy-relations",
+    "checks/fields/standards-version/legacy-scripts",
     "checks/fields/standards-version/standards-version-invalid",
     "checks/fields/standards-version/standards-version-newer",
+    "checks/fields/standards-version/standards-version-old",
     "checks/fields/standards-version/standards-version-timewarp",
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
@@ -1172,9 +1180,17 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/recommended/control-file-general",
     "checks/fields/recommended/generic-empty",
     "checks/fields/required/generic-empty",
+    "checks/fields/standards-version/legacy-binary",
+    "checks/fields/standards-version/legacy-etcfiles",
+    "checks/fields/standards-version/legacy-filenames",
+    "checks/fields/standards-version/legacy-foo++",
+    "checks/fields/standards-version/legacy-libbaz",
+    "checks/fields/standards-version/legacy-maintainer-scripts",
     "checks/fields/standards-version/legacy-relations",
+    "checks/fields/standards-version/legacy-scripts",
     "checks/fields/standards-version/standards-version-invalid",
     "checks/fields/standards-version/standards-version-newer",
+    "checks/fields/standards-version/standards-version-old",
     "checks/fields/standards-version/standards-version-timewarp",
     "checks/fields/unknown/fields-essential",
     "checks/fields/unknown/fields-unknown-fields",
@@ -1576,9 +1592,17 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/recommended/control-file-general"; "checks_fields_recommended_control_file_general")]
 #[test_case("checks/fields/recommended/generic-empty"; "checks_fields_recommended_generic_empty")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/fields/standards-version/legacy-binary"; "checks_fields_standards_version_legacy_binary")]
+#[test_case("checks/fields/standards-version/legacy-etcfiles"; "checks_fields_standards_version_legacy_etcfiles")]
+#[test_case("checks/fields/standards-version/legacy-filenames"; "checks_fields_standards_version_legacy_filenames")]
+#[test_case("checks/fields/standards-version/legacy-foo++"; "checks_fields_standards_version_legacy_foo_")]
+#[test_case("checks/fields/standards-version/legacy-libbaz"; "checks_fields_standards_version_legacy_libbaz")]
+#[test_case("checks/fields/standards-version/legacy-maintainer-scripts"; "checks_fields_standards_version_legacy_maintainer_scripts")]
 #[test_case("checks/fields/standards-version/legacy-relations"; "checks_fields_standards_version_legacy_relations")]
+#[test_case("checks/fields/standards-version/legacy-scripts"; "checks_fields_standards_version_legacy_scripts")]
 #[test_case("checks/fields/standards-version/standards-version-invalid"; "checks_fields_standards_version_standards_version_invalid")]
 #[test_case("checks/fields/standards-version/standards-version-newer"; "checks_fields_standards_version_standards_version_newer")]
+#[test_case("checks/fields/standards-version/standards-version-old"; "checks_fields_standards_version_standards_version_old")]
 #[test_case("checks/fields/standards-version/standards-version-timewarp"; "checks_fields_standards_version_standards_version_timewarp")]
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
@@ -2471,9 +2495,17 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/recommended/control-file-general"; "checks_fields_recommended_control_file_general")]
 #[test_case("checks/fields/recommended/generic-empty"; "checks_fields_recommended_generic_empty")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
+#[test_case("checks/fields/standards-version/legacy-binary"; "checks_fields_standards_version_legacy_binary")]
+#[test_case("checks/fields/standards-version/legacy-etcfiles"; "checks_fields_standards_version_legacy_etcfiles")]
+#[test_case("checks/fields/standards-version/legacy-filenames"; "checks_fields_standards_version_legacy_filenames")]
+#[test_case("checks/fields/standards-version/legacy-foo++"; "checks_fields_standards_version_legacy_foo_")]
+#[test_case("checks/fields/standards-version/legacy-libbaz"; "checks_fields_standards_version_legacy_libbaz")]
+#[test_case("checks/fields/standards-version/legacy-maintainer-scripts"; "checks_fields_standards_version_legacy_maintainer_scripts")]
 #[test_case("checks/fields/standards-version/legacy-relations"; "checks_fields_standards_version_legacy_relations")]
+#[test_case("checks/fields/standards-version/legacy-scripts"; "checks_fields_standards_version_legacy_scripts")]
 #[test_case("checks/fields/standards-version/standards-version-invalid"; "checks_fields_standards_version_standards_version_invalid")]
 #[test_case("checks/fields/standards-version/standards-version-newer"; "checks_fields_standards_version_standards_version_newer")]
+#[test_case("checks/fields/standards-version/standards-version-old"; "checks_fields_standards_version_standards_version_old")]
 #[test_case("checks/fields/standards-version/standards-version-timewarp"; "checks_fields_standards_version_standards_version_timewarp")]
 #[test_case("checks/fields/unknown/fields-essential"; "checks_fields_unknown_fields_essential")]
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]

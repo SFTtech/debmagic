@@ -745,7 +745,8 @@ pub(crate) use fields_relations_extra::{
     ObsoleteRelationFormInSource, RedundantInstallationPrerequisite, WeakLibraryDevDependency,
 };
 pub(crate) use fields_standards_version::{
-    InvalidStandardsVersion, NewerStandardsVersion, TimewarpStandardsVersion,
+    InvalidStandardsVersion, NewerStandardsVersion, OutOfDateStandardsVersion,
+    TimewarpStandardsVersion,
 };
 pub(crate) use fields_static_built_using::InvalidValueInStaticBuiltUsingField;
 pub(crate) use files_non_free::LicenseProblemMd5sumNonFreeFile;

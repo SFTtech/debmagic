@@ -2,7 +2,7 @@ use anyhow::{Context, bail};
 use debian_control::lossless::Control;
 
 use super::binary_package_reader::BinaryPackageReader;
-use super::debian_control::ControlParagraph;
+use super::debian_control::{ControlParagraph, located_entry};
 
 /// Parsed Installation control: the single Deb822 paragraph in a Binary package.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -40,11 +40,7 @@ impl InstallationControl {
             );
         }
         Ok(Self {
-            fields: ControlParagraph::from_entries(
-                first
-                    .entries()
-                    .filter_map(|entry| Some((entry.key()?, entry.value(), entry.to_string()))),
-            ),
+            fields: ControlParagraph::from_entries(first.entries().filter_map(located_entry)),
         })
     }
 

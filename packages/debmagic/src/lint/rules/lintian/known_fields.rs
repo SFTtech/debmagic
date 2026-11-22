@@ -19,6 +19,13 @@ static BINARY: LazyLock<Vec<String>> = LazyLock::new(|| {
 });
 static UDEB: LazyLock<Vec<String>> =
     LazyLock::new(|| entries(include_str!("../../data/fields/udeb-fields")));
+/// Raw names as lintian's `common/source-fields` stores them: `X…` entries keep
+/// their prefix. Used by `resembles`, which does not sanitise.
+static SOURCE_RAW: LazyLock<Vec<String>> =
+    LazyLock::new(|| entries(include_str!("../../data/common/source-fields")));
+/// Raw names of `fields/binary-fields`, prefixes kept.
+static BINARY_RAW: LazyLock<Vec<String>> =
+    LazyLock::new(|| entries(include_str!("../../data/fields/binary-fields")));
 
 pub(super) fn source_known(name: &str) -> bool {
     known(&SOURCE, name)
@@ -30,6 +37,21 @@ pub(super) fn binary_known(name: &str) -> bool {
 
 pub(super) fn udeb_known(name: &str) -> bool {
     known(&UDEB, name)
+}
+
+/// Lintian's `resembles` on the source-field table: a case-insensitive match
+/// against the raw entries, prefixes kept (`XS-Autobuild` matches only that
+/// spelling, not the sanitised `Autobuild`).
+#[allow(dead_code)]
+pub(super) fn source_resembles(name: &str) -> bool {
+    known(&SOURCE_RAW, name)
+}
+
+/// Lintian's `resembles` on the binary-field table; raw entries as for
+/// [`source_resembles`].
+#[allow(dead_code)]
+pub(super) fn binary_resembles(name: &str) -> bool {
+    known(&BINARY_RAW, name)
 }
 
 fn known(list: &[String], name: &str) -> bool {
@@ -89,4 +111,25 @@ fn custom_prefix(name: &str) -> Option<(&str, &str)> {
     dest.chars()
         .all(|character| matches!(character, 'S' | 'B' | 'C' | 's' | 'b' | 'c'))
         .then_some((dest, bare))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn resembles_keeps_prefixed_entries_raw() {
+        // `XS-Autobuild` is stored bare by the sanitised list, but the raw
+        // table keeps it prefixed, so only the raw lookup can see it.
+        assert!(source_known("Autobuild"));
+        assert!(!source_resembles("Autobuild"));
+        assert!(source_resembles("xs-autobuild"));
+    }
+
+    #[test]
+    fn resembles_is_case_insensitive_on_plain_names() {
+        assert!(source_resembles("vcs-svn"));
+        assert!(binary_resembles("Section"));
+        assert!(!binary_resembles("Nonexistent-Field"));
+    }
 }

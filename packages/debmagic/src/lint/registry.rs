@@ -241,6 +241,7 @@ use super::rules::MaintainerScriptSupportsAncientPackageVersion;
 use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
 use super::rules::MaintainerScriptWithoutSetE;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
+use super::rules::MalformedChangesFile;
 use super::rules::MalformedDebArchive;
 use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
@@ -2173,6 +2174,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &FileSizeMismatchInChangesFile,
+        &MalformedChangesFile,
     ]
 }
 
@@ -3432,6 +3434,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &BadSectionInChangesFile,
         &DebianRevisionNotWellFormed,
         &FileSizeMismatchInChangesFile,
+        &MalformedChangesFile,
     ]
 }
 

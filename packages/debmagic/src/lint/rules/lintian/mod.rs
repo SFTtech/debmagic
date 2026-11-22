@@ -895,5 +895,6 @@ pub(crate) use testsuite::{
     TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownTestsuite,
     UnnecessaryTestsuiteAutopkgtestField, UsesDeprecatedAdttmp,
 };
+pub(crate) use triggers::RepeatedTriggerName;
 pub(crate) use triggers::UsesImplicitAwaitTrigger;
 pub(crate) use vim::VimAddonWithinVimRuntimePath;

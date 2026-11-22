@@ -51,6 +51,8 @@ mod ln1201_possible_missing_colon_in_closes;
 mod ln1203_wrong_name_for_changelog_of_native_package;
 mod ln1204_wrong_name_for_debian_changelog_file;
 mod ln1205_wrong_name_for_upstream_changelog;
+mod ln1218_team_upload_has_incorrect_version_number;
+mod ln1219_unnecessary_team_upload;
 mod nmu;
 pub(in crate::lint::rules::lintian) mod source;
 mod version;
@@ -100,3 +102,5 @@ pub(crate) use ln1201_possible_missing_colon_in_closes::PossibleMissingColonInCl
 pub(crate) use ln1203_wrong_name_for_changelog_of_native_package::WrongNameForChangelogOfNativePackage;
 pub(crate) use ln1204_wrong_name_for_debian_changelog_file::WrongNameForDebianChangelogFile;
 pub(crate) use ln1205_wrong_name_for_upstream_changelog::WrongNameForUpstreamChangelog;
+pub(crate) use ln1218_team_upload_has_incorrect_version_number::TeamUploadHasIncorrectVersionNumber;
+pub(crate) use ln1219_unnecessary_team_upload::UnnecessaryTeamUpload;

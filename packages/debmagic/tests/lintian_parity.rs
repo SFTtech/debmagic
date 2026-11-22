@@ -494,6 +494,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/application-not-library/application-not-library",
     "checks/appstream-metadata/appstream-metadata",
     "checks/apt/files-foo-in-bar",
+    "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/binaries/architecture/binaries-misplaced",
     "checks/binaries/architecture/other/binaries-from-other-arch",
     "checks/binaries/corrupted/binaries-from-other-arch",
@@ -1578,6 +1579,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
 ];
 
 const GROUP_RECIPES: &[&str] = &[
+    "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/changes-file/changes-file-bad-section",
     "checks/changes-file/changes-file-size-checksum-mismatch",
     "checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants",
@@ -1586,6 +1588,12 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/fields/distribution/distribution-multiple-bad",
     "checks/fields/format/changes-missing-format",
     "checks/fields/mail-address/changed-by-no-name",
+    "checks/fields/distribution/changelog-file-backport",
+    "checks/fields/distribution/changes-bad-ubuntu-distribution",
+    "checks/fields/distribution/changes-distribution-mismatch",
+    "checks/fields/distribution/changes-experimental-mismatch",
+    "checks/fields/distribution/distribution-multiple-bad",
+    "checks/fields/urgency/generic-empty",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
     "checks/group-checks/group-checks-circular-deps",
@@ -2112,6 +2120,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/application-not-library/application-not-library"; "checks_application_not_library_application_not_library")]
 #[test_case("checks/appstream-metadata/appstream-metadata"; "checks_appstream_metadata_appstream_metadata")]
 #[test_case("checks/apt/files-foo-in-bar"; "checks_apt_files_foo_in_bar")]
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/binaries/architecture/binaries-misplaced"; "checks_binaries_architecture_binaries_misplaced")]
 #[test_case("checks/binaries/architecture/other/binaries-from-other-arch"; "checks_binaries_architecture_other_binaries_from_other_arch")]
 #[test_case("checks/binaries/corrupted/binaries-from-other-arch"; "checks_binaries_corrupted_binaries_from_other_arch")]
@@ -3198,6 +3207,7 @@ fn lintian_parity_source_package(recipe: &str) {
     common::assert_source_package_parity(recipe);
 }
 
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/changes-file/changes-file-bad-section"; "checks_changes_file_changes_file_bad_section")]
 #[test_case("checks/changes-file/changes-file-size-checksum-mismatch"; "checks_changes_file_changes_file_size_checksum_mismatch")]
 #[test_case("checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_changes_file_changes_files_package_builds_dbg_and_dbgsym_variants")]
@@ -3206,6 +3216,12 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/fields/distribution/distribution-multiple-bad"; "checks_fields_distribution_distribution_multiple_bad")]
 #[test_case("checks/fields/format/changes-missing-format"; "checks_fields_format_changes_missing_format")]
 #[test_case("checks/fields/mail-address/changed-by-no-name"; "checks_fields_mail_address_changed_by_no_name")]
+#[test_case("checks/fields/distribution/changelog-file-backport"; "checks_fields_distribution_changelog_file_backport")]
+#[test_case("checks/fields/distribution/changes-bad-ubuntu-distribution"; "checks_fields_distribution_changes_bad_ubuntu_distribution")]
+#[test_case("checks/fields/distribution/changes-distribution-mismatch"; "checks_fields_distribution_changes_distribution_mismatch")]
+#[test_case("checks/fields/distribution/changes-experimental-mismatch"; "checks_fields_distribution_changes_experimental_mismatch")]
+#[test_case("checks/fields/distribution/distribution-multiple-bad"; "checks_fields_distribution_distribution_multiple_bad")]
+#[test_case("checks/fields/urgency/generic-empty"; "checks_fields_urgency_generic_empty")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
 #[test_case("checks/group-checks/group-checks-circular-deps"; "checks_group_checks_group_checks_circular_deps")]

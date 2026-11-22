@@ -16,6 +16,7 @@ mod ln0992_init_script_is_not_a_file;
 mod ln0993_kill_mode_none;
 mod ln0994_omitted_systemd_service_for_init_d_script;
 mod ln1137_misplaced_systemd_tmpfiles;
+mod ln1229_service_file_is_not_a_file;
 mod systemd_init;
 mod targets;
 
@@ -32,3 +33,4 @@ pub(crate) use ln0992_init_script_is_not_a_file::InitScriptIsNotAFile;
 pub(crate) use ln0993_kill_mode_none::KillModeNone;
 pub(crate) use ln0994_omitted_systemd_service_for_init_d_script::OmittedSystemdServiceForInitDScript;
 pub(crate) use ln1137_misplaced_systemd_tmpfiles::MisplacedSystemdTmpfiles;
+pub(crate) use ln1229_service_file_is_not_a_file::ServiceFileIsNotAFile;

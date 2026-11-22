@@ -879,7 +879,7 @@ pub(crate) use scripts_text::{
 pub(crate) use systemd::{
     InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, KillModeNone,
     MisplacedSystemdTmpfiles, MissingSystemdServiceForInitDScript,
-    MissingSystemdTimerForCronScript, OmittedSystemdServiceForInitDScript,
+    MissingSystemdTimerForCronScript, OmittedSystemdServiceForInitDScript, ServiceFileIsNotAFile,
     SystemdServiceAliasWithoutExtension, SystemdServiceFileRefersToObsoleteBindto,
     SystemdServiceFileRefersToUnusualWantedbyTarget,
     SystemdServiceFileUsesDeprecatedSyslogFacility, SystemdServiceFileUsesNobodyOrNogroup,

@@ -301,6 +301,7 @@ use super::rules::ScriptUsesPerl4LibsWithoutDep;
 use super::rules::ScriptWithLanguageExtension;
 use super::rules::SectionIsDhMakeTemplate;
 use super::rules::SelectWithoutChoices;
+use super::rules::ServiceFileIsNotAFile;
 use super::rules::SharedLibraryIsExecutable;
 use super::rules::SharedLibraryIsMultiArchForeign;
 use super::rules::SharedLibraryLacksStackSection;
@@ -1835,6 +1836,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UdevRuleMissingSubsystem,
         &UdevRuleMissingUaccess,
         &UdevRuleUnreadable,
+        &ServiceFileIsNotAFile,
     ]
 }
 
@@ -2920,6 +2922,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UdevRuleMissingSubsystem,
         &UdevRuleMissingUaccess,
         &UdevRuleUnreadable,
+        &ServiceFileIsNotAFile,
     ]
 }
 

@@ -42,8 +42,8 @@ mod ln1198_preinst_calls_updatemenus;
 mod ln1199_prerm_calls_updatemenus;
 mod ln1423_spelling_error_in_doc_base_abstract_field;
 mod ln1468_spelling_error_in_doc_base_title_field;
-mod ln1577_possible_documentation_but_no_doc_base_registration;
 mod ln1507_doc_base_file_references_missing_file;
+mod ln1577_possible_documentation_but_no_doc_base_registration;
 mod scan;
 
 pub(crate) use ln0326_postinst_does_not_call_updatemenus::PostinstDoesNotCallUpdatemenus;
@@ -83,5 +83,5 @@ pub(crate) use ln1198_preinst_calls_updatemenus::PreinstCallsUpdatemenus;
 pub(crate) use ln1199_prerm_calls_updatemenus::PrermCallsUpdatemenus;
 pub(crate) use ln1423_spelling_error_in_doc_base_abstract_field::SpellingErrorInDocBaseAbstractField;
 pub(crate) use ln1468_spelling_error_in_doc_base_title_field::SpellingErrorInDocBaseTitleField;
-pub(crate) use ln1577_possible_documentation_but_no_doc_base_registration::PossibleDocumentationButNoDocBaseRegistration;
 pub(crate) use ln1507_doc_base_file_references_missing_file::DocBaseFileReferencesMissingFile;
+pub(crate) use ln1577_possible_documentation_but_no_doc_base_registration::PossibleDocumentationButNoDocBaseRegistration;

@@ -24,7 +24,7 @@ declare_rule! {
     /// with the other Rules (see `FileTree::md5sum`), and the table is read here
     /// with the same field split as lintian's `md5sum-based` loader.
     LicenseProblemMd5sumNonDistributableFile,
-    code = "LN1498",
+    code = "LN1375",
     tag = "license-problem-md5sum-non-distributable-file",
     default_selected = true,
     experimental = false,

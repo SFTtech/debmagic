@@ -196,6 +196,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
     "checks/debian/symbols/package-placeholder",
+    "checks/debian/trailing-whitespace/cruft-crlf-eols",
+    "checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace",
     "checks/debian/trailing-whitespace/rules-without-newline-at-end",
     "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/upstream/metadata/in-native-source",
@@ -1099,6 +1101,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/substvars/cruft-general-quilt",
     "checks/debian/substvars/cruft-general-wig-pen",
     "checks/debian/symbols/package-placeholder",
+    "checks/debian/trailing-whitespace/cruft-crlf-eols",
+    "checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace",
     "checks/debian/trailing-whitespace/rules-without-newline-at-end",
     "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/upstream/metadata/in-native-source",
@@ -1503,6 +1507,8 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
 #[test_case("checks/debian/symbols/package-placeholder"; "checks_debian_symbols_package_placeholder")]
+#[test_case("checks/debian/trailing-whitespace/cruft-crlf-eols"; "checks_debian_trailing_whitespace_cruft_crlf_eols")]
+#[test_case("checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace"; "checks_debian_trailing_whitespace_cruft_file_contains_trailing_whitespace")]
 #[test_case("checks/debian/trailing-whitespace/rules-without-newline-at-end"; "checks_debian_trailing_whitespace_rules_without_newline_at_end")]
 #[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/upstream/metadata/in-native-source"; "checks_debian_upstream_metadata_in_native_source")]
@@ -2408,6 +2414,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/substvars/cruft-general-quilt"; "checks_debian_substvars_cruft_general_quilt")]
 #[test_case("checks/debian/substvars/cruft-general-wig-pen"; "checks_debian_substvars_cruft_general_wig_pen")]
 #[test_case("checks/debian/symbols/package-placeholder"; "checks_debian_symbols_package_placeholder")]
+#[test_case("checks/debian/trailing-whitespace/cruft-crlf-eols"; "checks_debian_trailing_whitespace_cruft_crlf_eols")]
+#[test_case("checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace"; "checks_debian_trailing_whitespace_cruft_file_contains_trailing_whitespace")]
 #[test_case("checks/debian/trailing-whitespace/rules-without-newline-at-end"; "checks_debian_trailing_whitespace_rules_without_newline_at_end")]
 #[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/upstream/metadata/in-native-source"; "checks_debian_upstream_metadata_in_native_source")]

@@ -324,6 +324,7 @@ use super::rules::RedundantBuildPrerequisites;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RelativeConffile;
 use super::rules::RepeatedTriggerName;
+use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
@@ -1941,6 +1942,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingPrerequisiteForPyprojectBackend,
         &PackageInstallsLegacyPythonEggInfo,
         &UsesDeprecatedPythonStdlib,
+        &RequiresRApi,
     ]
 }
 
@@ -3079,6 +3081,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OcamlDanglingCmi,
         &PackageSupersededByPerl,
         &PackageInstallsLegacyPythonEggInfo,
+        &RequiresRApi,
     ]
 }
 

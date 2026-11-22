@@ -759,6 +759,7 @@ pub(crate) use languages_php::{
 };
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;
+pub(crate) use languages_r::RequiresRApi;
 pub(crate) use lintian_overrides::{
     AlienTag, DuplicateOverrideContext, MalformedOverride, OverrideFileInWrongLocation,
     OverrideFileInWrongPackage,

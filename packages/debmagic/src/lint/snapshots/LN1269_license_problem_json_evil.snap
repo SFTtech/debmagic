@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): license-problem-json-evil (LN1269) [src/main.c]

@@ -526,7 +526,8 @@ pub(crate) use debian_copyright::{
     OldFsfAddressInCopyrightFile, PipeSymbolUsedAsLicenseDisjunction, SourceShipsExcludedFile,
     SpaceInStdShortnameInDep5Copyright, SyntaxErrorInDep5Copyright, TabInLicenseText,
     UnknownParagraphInDep5Copyright, UnusedLicenseParagraphInDep5Copyright,
-    UsrShareDocSymlinkPointsOutsideOfUsrShareDoc, UsrShareDocSymlinkWithoutDependency,
+    UsrShareDocSymlinkPointsOutsideOfUsrShareDoc, UsrShareDocSymlinkToForeignPackage,
+    UsrShareDocSymlinkWithoutDependency,
 };
 pub(crate) use fields_version::{
     BadVersionNumber, BinaryNmuDebianRevisionInSource, DebianRevisionIsZero,

@@ -80,7 +80,7 @@ impl BinaryPackageRule for UsrShareDocSymlinkWithoutDependency {
 
 /// lintian's `depends_on`: an essential package, or a strong relation that
 /// implies the name (or its `:<arch>` form when the Architecture is not `all`).
-fn depends_on(strong: &PackageRelation, architecture: &str, package: &str) -> bool {
+pub(super) fn depends_on(strong: &PackageRelation, architecture: &str, package: &str) -> bool {
     if ESSENTIAL.contains(&package) {
         return true;
     }

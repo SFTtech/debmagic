@@ -570,6 +570,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/description/description-empty-paragraph",
     "checks/fields/description/description-general",
     "checks/fields/description/description-mentions-planned-features",
+    "checks/fields/description/description-synopsis-might-not-be-phrased-properly",
     "checks/fields/description/generic-dh-make-2008",
     "checks/fields/description/legacy-binary",
     "checks/fields/description/legacy-debconf",
@@ -1854,6 +1855,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/description/description-empty-paragraph"; "checks_fields_description_description_empty_paragraph")]
 #[test_case("checks/fields/description/description-general"; "checks_fields_description_description_general")]
 #[test_case("checks/fields/description/description-mentions-planned-features"; "checks_fields_description_description_mentions_planned_features")]
+#[test_case("checks/fields/description/description-synopsis-might-not-be-phrased-properly"; "checks_fields_description_description_synopsis_might_not_be_phrased_properly")]
 #[test_case("checks/fields/description/generic-dh-make-2008"; "checks_fields_description_generic_dh_make_2008")]
 #[test_case("checks/fields/description/legacy-binary"; "checks_fields_description_legacy_binary")]
 #[test_case("checks/fields/description/legacy-debconf"; "checks_fields_description_legacy_debconf")]

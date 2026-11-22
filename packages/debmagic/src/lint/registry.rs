@@ -132,6 +132,7 @@ use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
+use super::rules::FileInEtcModprobeD;
 use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
@@ -1941,6 +1942,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoMd5sumsControlFile,
         &DesktopEntryContainsEncodingKey,
         &DesktopEntryLacksKeywordsEntry,
+        &FileInEtcModprobeD,
     ]
 }
 
@@ -3079,6 +3081,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NoMd5sumsControlFile,
         &DesktopEntryContainsEncodingKey,
         &DesktopEntryLacksKeywordsEntry,
+        &FileInEtcModprobeD,
     ]
 }
 

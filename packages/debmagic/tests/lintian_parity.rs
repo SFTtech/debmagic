@@ -95,6 +95,9 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/priority/priority-optional-in-source-and-binary-stanza",
+    "checks/debian/control/field/redundant/control-file-general",
+    "checks/debian/control/field/redundant/legacy-binary",
+    "checks/debian/control/field/redundant/legacy-libbaz",
     "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
@@ -1145,6 +1148,9 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/priority/priority-optional-in-source-and-binary-stanza",
+    "checks/debian/control/field/redundant/control-file-general",
+    "checks/debian/control/field/redundant/legacy-binary",
+    "checks/debian/control/field/redundant/legacy-libbaz",
     "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
@@ -1646,6 +1652,9 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/priority/priority-optional-in-source-and-binary-stanza"; "checks_debian_control_field_priority_priority_optional_in_source_and_binary_stanza")]
+#[test_case("checks/debian/control/field/redundant/control-file-general"; "checks_debian_control_field_redundant_control_file_general")]
+#[test_case("checks/debian/control/field/redundant/legacy-binary"; "checks_debian_control_field_redundant_legacy_binary")]
+#[test_case("checks/debian/control/field/redundant/legacy-libbaz"; "checks_debian_control_field_redundant_legacy_libbaz")]
 #[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
@@ -2698,6 +2707,9 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/priority/priority-optional-in-source-and-binary-stanza"; "checks_debian_control_field_priority_priority_optional_in_source_and_binary_stanza")]
+#[test_case("checks/debian/control/field/redundant/control-file-general"; "checks_debian_control_field_redundant_control_file_general")]
+#[test_case("checks/debian/control/field/redundant/legacy-binary"; "checks_debian_control_field_redundant_legacy_binary")]
+#[test_case("checks/debian/control/field/redundant/legacy-libbaz"; "checks_debian_control_field_redundant_legacy_libbaz")]
 #[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]

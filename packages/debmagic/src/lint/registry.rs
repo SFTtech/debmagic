@@ -190,6 +190,7 @@ use super::rules::InitDScriptDoesNotImplementStatusOption;
 use super::rules::InitDScriptUsesUsrInterpreter;
 use super::rules::InitScriptIsNotAFile;
 use super::rules::InsecureCopyrightFormatUri;
+use super::rules::InstallableFieldMirrorsSource;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::IntraSourcePackageCircularDependency;
@@ -2129,6 +2130,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AdoptedExtendedField,
         &DebianControlHasEmptyField,
         &RedundantPriorityOptionalField,
+        &InstallableFieldMirrorsSource,
     ]
 }
 
@@ -2526,6 +2528,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &AdoptedExtendedField,
         &DebianControlHasEmptyField,
         &RedundantPriorityOptionalField,
+        &InstallableFieldMirrorsSource,
     ]
 }
 

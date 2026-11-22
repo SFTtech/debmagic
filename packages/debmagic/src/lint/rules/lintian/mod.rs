@@ -400,6 +400,7 @@ pub(crate) use fields_style::CuteField;
 pub(crate) use files_architecture::PackageContainsNoArchDependentFiles;
 pub(crate) use files_architecture::TripletDirAndArchitectureMismatch;
 pub(crate) use files_banned::LicenseProblemMd5sumNonDistributableFile;
+pub(crate) use files_banned::LicenseProblemNonFreeImgLenna;
 pub(crate) use files_banned_compiled_help::SourceContainsPrebuiltMsHelpFile;
 pub(crate) use files_compressed_gz::BrokenGz;
 pub(crate) use files_compressed_gz::GzipFileIsNotMultiArchSameSafe;

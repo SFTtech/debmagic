@@ -292,6 +292,7 @@ pub(crate) use debian_lintian_overrides_restricted::InvalidOverrideRestriction;
 pub(crate) use debian_not_installed::UnwantedPathTooSpecific;
 pub(crate) use debian_symbols::PackagePlaceholderInSymbolsFile;
 pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
+pub(crate) use debian_trailing_whitespace::TrailingWhitespace;
 pub(crate) use debian_upstream::DebianUpstreamObsoletePath;
 pub(crate) use debian_upstream::UpstreamMetadataInNativeSource;
 pub(crate) use debian_upstream::UpstreamMetadataIsNotAFile;

@@ -374,6 +374,7 @@ use super::rules::TestsuiteRestrictionsHasDeprecatedSkipNotInstallable;
 use super::rules::TooManyArchitectures;
 use super::rules::TrailingCommaInMaintainerField;
 use super::rules::TrailingSlashForDpkgMaintscriptHelperSymlinkToDir;
+use super::rules::TrailingWhitespace;
 use super::rules::TransitionalPackageNotOldlibsOptional;
 use super::rules::TripletDirAndArchitectureMismatch;
 use super::rules::TruetypeFontWrongFilename;
@@ -1943,6 +1944,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SymbolsDeclaresDependencyOnOtherPackage,
         &SymbolsFileMissingBuildDependsPackageField,
         &OlderSourceFormat,
+        &TrailingWhitespace,
     ]
 }
 
@@ -2307,6 +2309,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebugSymbolMigrationPossiblyComplete,
         &NoDhSequencer,
         &OlderSourceFormat,
+        &TrailingWhitespace,
     ]
 }
 

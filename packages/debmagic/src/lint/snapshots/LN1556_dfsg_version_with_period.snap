@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): dfsg-version-with-period (LN1556) 1.0.dfsg1-1
+I: example (source): dfsg-version-with-period (LN1556) 1.0.dfsg1
+I: example (source): dfsg-version-with-period (LN1556) 1:1.0.dfsg1-1

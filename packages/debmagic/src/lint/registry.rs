@@ -6,6 +6,7 @@ use super::rules::AddComponentCopyright;
 use super::rules::AdoptedExtendedField;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
+use super::rules::AnticipatedRepackCount;
 use super::rules::Apache2DeprecatedAuthConfig;
 use super::rules::Apache2ModuleDoesNotDependOnApache2Api;
 use super::rules::Apache2ModuleDoesNotShipLoadFile;
@@ -53,9 +54,11 @@ use super::rules::BuildDependsIndepWithoutArchIndep;
 use super::rules::BuildDependsOnAnObsoleteJavaPackage;
 use super::rules::BuildDependsOnDhSysuser;
 use super::rules::BuildDependsOnNonBuildPackage;
+use super::rules::BuildDependsOnPythonDevWithNoArchAny;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CapitalizationErrorInDescription;
+use super::rules::CapitalizationErrorInDescriptionSynopsis;
 use super::rules::CarriageReturnLineFeed;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
@@ -140,11 +143,13 @@ use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
+use super::rules::DescriptionPossiblyContainsHomepage;
 use super::rules::DesktopEntryContainsEncodingKey;
 use super::rules::DesktopEntryLacksIconEntry;
 use super::rules::DesktopEntryLacksKeywordsEntry;
 use super::rules::DesktopEntryLimitedToEnvironments;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
+use super::rules::DfsgVersionWithPeriod;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
@@ -160,6 +165,7 @@ use super::rules::DistributionAndExperimentalMismatch;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
 use super::rules::DocBaseFileReferencesMissingFile;
 use super::rules::DocPackageDependsOnMainPackage;
+use super::rules::DotBeforeRepackCount;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
 use super::rules::DuplicateOverrideContext;
@@ -215,6 +221,13 @@ use super::rules::HardeningNoFortifyFunctions;
 use super::rules::HardeningNoPie;
 use super::rules::HardeningNoRelro;
 use super::rules::HomepageFieldUsesInsecureUri;
+use super::rules::HomepageForBioconductorPackageNotCanonical;
+use super::rules::HomepageForCranPackageNotCanonical;
+use super::rules::HomepageGithubUrlEndsWithDotGit;
+use super::rules::HomepageGitlabUrlEndsWithDotGit;
+use super::rules::HomepageInBinaryPackage;
+use super::rules::HomepageRefersToFilesystemListing;
+use super::rules::HomepageSalsaUrlEndsWithDotGit;
 use super::rules::IllegalMultiArchValue;
 use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
@@ -349,6 +362,7 @@ use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
 use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
+use super::rules::OredBuildDependsOnObsoletePackage;
 use super::rules::OredDependsOnObsoletePackage;
 use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
@@ -533,6 +547,7 @@ use super::rules::TypelibMissingGirDepends;
 use super::rules::TypelibNotInMultiarchDirectory;
 use super::rules::TypelibPackageNameDoesNotMatch;
 use super::rules::TypelibSectionNotIntrospection;
+use super::rules::TypoInManualPage;
 use super::rules::UdebContainsDocumentationFile;
 use super::rules::UdebPostinstCallsLdconfig;
 use super::rules::UdebUsesUnsupportedCompressionForDataTarball;
@@ -2287,6 +2302,21 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UsrShareDocSymlinkToForeignPackage,
         &DocBaseFileReferencesMissingFile,
         &BinariesHaveFileConflict,
+        &AnticipatedRepackCount,
+        &DotBeforeRepackCount,
+        &DfsgVersionWithPeriod,
+        &HomepageForBioconductorPackageNotCanonical,
+        &HomepageForCranPackageNotCanonical,
+        &HomepageGithubUrlEndsWithDotGit,
+        &HomepageGitlabUrlEndsWithDotGit,
+        &HomepageSalsaUrlEndsWithDotGit,
+        &HomepageRefersToFilesystemListing,
+        &HomepageInBinaryPackage,
+        &DescriptionPossiblyContainsHomepage,
+        &BuildDependsOnPythonDevWithNoArchAny,
+        &OredBuildDependsOnObsoletePackage,
+        &TypoInManualPage,
+        &CapitalizationErrorInDescriptionSynopsis,
     ]
 }
 
@@ -2710,6 +2740,18 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DhInstallInsteadOfDhInstallmodules,
         &LicenseProblemMd5sumNonDistributableFile,
         &LicenseProblemNonFreeImgLenna,
+        &AnticipatedRepackCount,
+        &DotBeforeRepackCount,
+        &DfsgVersionWithPeriod,
+        &HomepageForBioconductorPackageNotCanonical,
+        &HomepageForCranPackageNotCanonical,
+        &HomepageGithubUrlEndsWithDotGit,
+        &HomepageGitlabUrlEndsWithDotGit,
+        &HomepageSalsaUrlEndsWithDotGit,
+        &HomepageRefersToFilesystemListing,
+        &HomepageInBinaryPackage,
+        &BuildDependsOnPythonDevWithNoArchAny,
+        &OredBuildDependsOnObsoletePackage,
     ]
 }
 
@@ -3574,6 +3616,15 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExampleWrongPathForInterpreter,
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
+        &HomepageForBioconductorPackageNotCanonical,
+        &HomepageForCranPackageNotCanonical,
+        &HomepageGithubUrlEndsWithDotGit,
+        &HomepageGitlabUrlEndsWithDotGit,
+        &HomepageSalsaUrlEndsWithDotGit,
+        &HomepageRefersToFilesystemListing,
+        &DescriptionPossiblyContainsHomepage,
+        &TypoInManualPage,
+        &CapitalizationErrorInDescriptionSynopsis,
     ]
 }
 

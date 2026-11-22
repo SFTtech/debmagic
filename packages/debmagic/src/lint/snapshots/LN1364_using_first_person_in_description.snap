@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): using-first-person-in-description (LN1364) line 1: I
+I: example (binary): using-first-person-in-description (LN1364) line 2: We
+I: example (udeb): using-first-person-in-description (LN1364) line 1: myself
+I: example (udeb): using-first-person-in-description (LN1364) line 1: my

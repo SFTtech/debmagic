@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: python3-example (binary): missing-dependency-on-numpy-abi (LN1300)
+E: python3-example (binary): missing-dependency-on-numpy-abi (LN1300)
+E: python3-example (binary): missing-dependency-on-numpy-abi (LN1300)

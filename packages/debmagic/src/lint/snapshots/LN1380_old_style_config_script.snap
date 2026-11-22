@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): old-style-config-script (LN1380) [usr/bin/foo-config]
+P: example (binary): old-style-config-script (LN1380) [usr/bin/foo-config]
+P: example (binary): old-style-config-script (LN1380) [usr/bin/foo-config]

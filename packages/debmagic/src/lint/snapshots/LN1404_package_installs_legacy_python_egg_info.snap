@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): package-installs-legacy-python-egg-info (LN1404) [usr/lib/python3/dist-packages/foo.egg-info]
+I: example (binary): package-installs-legacy-python-egg-info (LN1404) [usr/lib/pyshared/foo.egg-info/]
+I: example (binary): package-installs-legacy-python-egg-info (LN1404) [usr/share/foo/bar.egg-info/PKG-INFO]

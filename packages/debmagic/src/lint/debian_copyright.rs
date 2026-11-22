@@ -136,7 +136,7 @@ static FRAGMENT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^([^#\s]+)#").expect("valid regex"));
 
 /// The Format URI of the first paragraph, as lintian extracts it.
-fn format_uri(text: &str) -> Option<String> {
+pub(crate) fn format_uri(text: &str) -> Option<String> {
     let mut first = COMMENT_LINE.replace_all(text, "").into_owned();
     first = TRAILING_BLANKS.replace_all(&first, "").into_owned();
     first = first.trim_start_matches('\n').to_string();
@@ -227,7 +227,7 @@ static CONTINUATION_LINE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^[ \t].*\S.*$").expect("valid regex"));
 
 /// Lintian's `visit_dpkg_paragraph_string` with no flags, minus PGP handling.
-fn parse_paragraphs(text: &str) -> Result<Vec<CopyrightParagraph>, String> {
+pub(crate) fn parse_paragraphs(text: &str) -> Result<Vec<CopyrightParagraph>, String> {
     let mut paragraphs = Vec::new();
     let mut open: Option<CopyrightParagraph> = None;
     for (index, line) in text.split('\n').enumerate() {

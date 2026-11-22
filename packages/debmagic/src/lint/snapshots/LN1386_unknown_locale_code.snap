@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): unknown-locale-code (LN1386) zz [usr/share/locale/zz]
+W: example (binary): unknown-locale-code (LN1386) zz_ZZ [usr/share/locale/zz_ZZ]
+W: example (binary): unknown-locale-code (LN1386) xx.UTF-8 [usr/share/locale/xx.UTF-8]
+W: example (binary): unknown-locale-code (LN1386) zz@euro [usr/share/locale/zz@euro]

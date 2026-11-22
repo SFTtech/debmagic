@@ -15,7 +15,7 @@ The Rule body is a stub (it reports nothing); the tests do not exercise it yet. 
 
     just new-rule <tag>                  # next free Code, kinds from the vendored recipes
     just new-rule <tag> --code LN0850    # a pre-assigned Code (batch runs)
-    just new-rule <tag> --kind source    # or binary, both
+    just new-rule <tag> --kind source    # or binary, both, changes, buildinfo, group (or a comma list)
     just new-rule <tag> --dry-run        # print the plan only
 """
 
@@ -36,8 +36,42 @@ LINT = ROOT / "packages/debmagic/src/lint"
 REGISTRY = LINT / "registry.rs"
 RULES_MOD = LINT / "rules/lintian/mod.rs"
 
-KIND_TRAIT = {"source": "SourceRule", "binary": "BinaryPackageRule"}
-KIND_CONTEXT = {"source": "SourceContext", "binary": "BinaryPackageContext"}
+KIND_TRAIT = {
+    "source": "SourceRule",
+    "binary": "BinaryPackageRule",
+    "changes": "ChangesRule",
+    "buildinfo": "BuildinfoRule",
+    "group": "GroupRule",
+}
+KIND_CONTEXT = {
+    "source": "SourceContext",
+    "binary": "BinaryPackageContext",
+    "changes": "ChangesContext",
+    "buildinfo": "BuildinfoContext",
+    "group": "GroupContext",
+}
+# The Context types of Group artifacts live in `group_context`, the others in `context`.
+KIND_CONTEXT_MODULE = {
+    "source": "context",
+    "binary": "context",
+    "changes": "group_context",
+    "buildinfo": "group_context",
+    "group": "group_context",
+}
+KIND_REGISTRY_LIST = {
+    "source": "source_rules",
+    "binary": "binary_package_rules",
+    "changes": "changes_rules",
+    "buildinfo": "buildinfo_rules",
+    "group": "group_rules",
+}
+KIND_TESTER = {
+    "source": ("SourceTreeTester", "TestCase"),
+    "binary": ("BinaryPackageTester", "BinaryPackageCase"),
+    "changes": ("ChangesTester", "ChangesCase"),
+    "buildinfo": ("BuildinfoTester", "BuildinfoCase"),
+    "group": ("GroupTester", "GroupCase"),
+}
 
 
 def kinds_from_recipes(tag: str) -> list[str]:
@@ -50,10 +84,16 @@ def kinds_from_recipes(tag: str) -> list[str]:
     return sorted(kinds) or ["binary"]
 
 
+def mentions_group(lintian: Path, check: str) -> bool:
+    """The Check reads the Group (`$self->group`): its Tags may need `--kind group`."""
+    module = tagtool.check_module(lintian, check)
+    return module is not None and "$self->group" in module.read_text(encoding="utf-8", errors="replace")
+
+
 def render_rule(tag: report.LintianTag, struct: str, code: str, kinds: list[str]) -> str:
     imports = ["use crate::declare_rule;"]
     for kind in kinds:
-        imports.append(f"use crate::lint::context::{KIND_CONTEXT[kind]};")
+        imports.append(f"use crate::lint::{KIND_CONTEXT_MODULE[kind]}::{KIND_CONTEXT[kind]};")
     imports.append("use crate::lint::diagnostic::{Diagnostic, Location};")
     traits = ", ".join(sorted(KIND_TRAIT[kind] for kind in kinds))
     imports.append(f"use crate::lint::rule::{{{traits}}};" if len(kinds) > 1 else f"use crate::lint::rule::{traits};")
@@ -71,8 +111,7 @@ def render_rule(tag: report.LintianTag, struct: str, code: str, kinds: list[str]
     )
     tests = []
     for kind in kinds:
-        tester = {"source": "SourceTreeTester", "binary": "BinaryPackageTester"}[kind]
-        case = {"source": "TestCase", "binary": "BinaryPackageCase"}[kind]
+        tester, case = KIND_TESTER[kind]
         tests.append(
             f"""    #[test]
     fn {kind}() {{
@@ -83,15 +122,7 @@ def render_rule(tag: report.LintianTag, struct: str, code: str, kinds: list[str]
     }}
 """
         )
-    tester_imports = ", ".join(
-        sorted(
-            {
-                "source": "SourceTreeTester, TestCase",
-                "binary": "BinaryPackageCase, BinaryPackageTester",
-            }[kind]
-            for kind in kinds
-        )
-    )
+    tester_imports = ", ".join(sorted(name for kind in kinds for name in (KIND_TESTER[kind][1], KIND_TESTER[kind][0])))
     return f"""{chr(10).join(imports)}
 
 pub struct {struct};
@@ -128,13 +159,16 @@ def insert_before(text: str, anchor: str, line: str, occurrence: int = 0) -> str
 def register_in_registry(struct: str, kinds: list[str]) -> None:
     text = REGISTRY.read_text(encoding="utf-8")
     text = text.replace("\nuse super::rules::", f"\nuse super::rules::{struct};\nuse super::rules::", 1)
-    for function in ["all_rules", *[{"source": "source_rules", "binary": "binary_package_rules"}[k] for k in kinds]]:
-        pattern = rf"pub\(crate\) fn {function}\(\)[^{{]*\{{\n\s*&\[\n(?P<body>.*?)\n    \]\n\}}"
-        match = re.search(pattern, text, re.DOTALL)
-        if match is None:
+    for function in ["all_rules", *[KIND_REGISTRY_LIST[k] for k in kinds]]:
+        # The list is the first `&[ ... ]` of the function (`cargo fmt` keeps a short one on a single line,
+        # and the lists of the Group kinds start empty: `&[]`). A Rule line is `&Name,`: no `]` inside.
+        function_at = re.search(rf"pub\(crate\) fn {function}\(\)[^{{]*\{{\n", text)
+        if function_at is None:
             raise SystemExit(f"registry.rs: list {function} not found")
-        end = match.end("body")
-        text = text[:end] + f"\n        &{struct}," + text[end:]
+        close = text.index("]", text.index("&[", function_at.end()))
+        before = text[:close].rstrip()
+        comma = "" if before.endswith(("[", ",")) else ","
+        text = f"{before}{comma}\n        &{struct},\n    {text[close:]}"
     REGISTRY.write_text(text, encoding="utf-8")
 
 
@@ -187,7 +221,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("tag", help="lintian Tag name")
     parser.add_argument("--code", help="LN Code to use (default: the next free one)")
-    parser.add_argument("--kind", choices=["source", "binary", "both"], help="Subject kinds (default: from recipes)")
+    parser.add_argument(
+        "--kind",
+        help="Applicability: source, binary, both (source+binary), changes, buildinfo, group; a comma list "
+        "(default: from recipes; a Group Rule must be asked for)",
+    )
     parser.add_argument("--lintian-src", type=Path, help="lintian source tree at the PIN version")
     parser.add_argument("--dry-run", action="store_true", help="print the plan, change nothing")
     args = parser.parse_args(argv)
@@ -204,7 +242,17 @@ def main(argv: list[str] | None = None) -> int:
     code = args.code or tagtool.next_code(rules)
     if not re.fullmatch(r"LN\d{4}", code) or any(rule.code == code for rule in rules):
         raise SystemExit(f"{code!r} is not a free LN Code")
-    kinds = ["source", "binary"] if args.kind == "both" else [args.kind] if args.kind else kinds_from_recipes(tag.tag)
+    if args.kind:
+        kinds = sorted(
+            {k for part in args.kind.split(",") for k in (["source", "binary"] if part == "both" else [part])}
+        )
+        unknown = [k for k in kinds if k not in KIND_TRAIT]
+        if unknown:
+            raise SystemExit(f"unknown --kind {unknown[0]!r}; expected one of {', '.join(KIND_TRAIT)}, both")
+    else:
+        kinds = kinds_from_recipes(tag.tag)
+        if mentions_group(tagtool.lintian_source(args.lintian_src), tag.check):
+            print(f"note: the {tag.check} Check reads `$self->group`; pass --kind group if {tag.tag} is a Group Rule")
 
     struct = tagtool.camel(tag.tag)
     stem = f"{code.lower()}_{tagtool.snake(tag.tag)}"

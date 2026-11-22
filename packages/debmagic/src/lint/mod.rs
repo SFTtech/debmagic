@@ -1,5 +1,7 @@
 mod appstream;
 mod binary_package_reader;
+mod buildinfo;
+mod changes;
 mod context;
 mod data;
 mod deb_members;
@@ -12,14 +14,18 @@ mod diversion;
 mod dsc;
 mod elf;
 mod elf_symbol_tables;
+mod file_list;
 mod file_tree;
 mod file_type;
+mod group;
+mod group_context;
 mod gzip;
 mod hardening;
 mod installation_control;
 mod intent;
 mod interpreter;
 mod jar;
+mod license_gfdl;
 mod license_text;
 mod lintian_overrides;
 mod lintian_tags;
@@ -36,6 +42,8 @@ mod source_package;
 mod subject;
 #[cfg(test)]
 pub(crate) mod tester;
+#[cfg(test)]
+mod tester_group;
 mod timing;
 mod xml;
 mod zip;
@@ -47,4 +55,4 @@ pub use run::{
     LintOutcome, LintResult, format_diagnostic, format_finished, format_summary, format_timings,
     run_lint,
 };
-pub use subject::{Subject, SubjectKind};
+pub use subject::{LintTarget, Subject, SubjectKind};

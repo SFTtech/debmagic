@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): missing-dependency-on-libstdc++ (LN1296) needed by usr/bin/foo
+E: example (binary): missing-dependency-on-libstdc++ (LN1296) needed by usr/bin/a and 1 others

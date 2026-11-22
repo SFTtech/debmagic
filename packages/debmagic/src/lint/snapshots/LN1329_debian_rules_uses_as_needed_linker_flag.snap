@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): debian-rules-uses-as-needed-linker-flag (LN1329) [debian/rules:3]
+P: (source): debian-rules-uses-as-needed-linker-flag (LN1329) [debian/rules:5]

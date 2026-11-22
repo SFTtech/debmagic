@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): maintainer-script-calls-service (LN1427) "service" [postinst:2]
+E: example (binary): maintainer-script-calls-service (LN1427) "if service" [prerm:2]
+E: example (binary): maintainer-script-calls-service (LN1427) "service" [config:2]

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): image-file-has-unexpected-name (LN1396) (is PNG) [usr/share/example/a.dat]
+P: example (binary): image-file-has-unexpected-name (LN1396) (is GIF) [usr/share/example/image]
+P: example (binary): image-file-has-unexpected-name (LN1396) (is PNG) [usr/share/example/a.pnm.bak]
+P: example (udeb): image-file-has-unexpected-name (LN1396) (is PNG) [usr/share/example/image]

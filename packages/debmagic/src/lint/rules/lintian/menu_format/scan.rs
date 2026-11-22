@@ -13,6 +13,7 @@ use std::path::{Component, Path, PathBuf};
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
+use crate::lint::rule::Severity;
 use regex::Regex;
 
 use super::data;
@@ -65,6 +66,8 @@ pub(super) struct Report {
     pub duplicate_tag_in_menu: Vec<Finding>,
     pub desktop_contains_deprecated_key: Vec<Finding>,
     pub desktop_entry_contains_deprecated_key: Vec<Finding>,
+    pub desktop_entry_contains_encoding_key: Vec<Finding>,
+    pub desktop_entry_lacks_keywords_entry: Vec<Finding>,
     pub duplicate_key_in_desktop: Vec<Finding>,
     pub desktop_entry_unknown_type: Vec<Finding>,
     pub desktop_entry_missing_required_key: Vec<Finding>,
@@ -99,6 +102,15 @@ pub(super) fn warn(ctx: &mut BinaryPackageContext<'_>, finding: &Finding) {
 
 pub(super) fn error(ctx: &mut BinaryPackageContext<'_>, finding: &Finding) {
     ctx.diagnostic(Diagnostic::error(finding.message.clone()).with_location(location(finding)));
+}
+
+/// Reports `finding` as an info hint (`Diagnostic::warn` with Info severity).
+pub(super) fn info(ctx: &mut BinaryPackageContext<'_>, finding: &Finding) {
+    ctx.diagnostic(
+        Diagnostic::warn(finding.message.clone())
+            .with_severity(Severity::Info)
+            .with_location(location(finding)),
+    );
 }
 
 fn location(finding: &Finding) -> Location {
@@ -136,6 +148,8 @@ pub(super) fn report(files: &FileTree, package: &str) -> Report {
         duplicate_tag_in_menu: Vec::new(),
         desktop_contains_deprecated_key: Vec::new(),
         desktop_entry_contains_deprecated_key: Vec::new(),
+        desktop_entry_contains_encoding_key: Vec::new(),
+        desktop_entry_lacks_keywords_entry: Vec::new(),
         duplicate_key_in_desktop: Vec::new(),
         desktop_entry_unknown_type: Vec::new(),
         desktop_entry_missing_required_key: Vec::new(),
@@ -503,6 +517,7 @@ fn parse_desktop(
     let mut vals: HashMap<String, String> = HashMap::new();
     let mut unknown: Vec<(u32, String)> = Vec::new();
     let mut deprecated: Vec<(u32, String)> = Vec::new();
+    let mut encoding: Vec<(u32, String)> = Vec::new();
     for (position, phys) in physical_lines(text).into_iter().enumerate() {
         let line_no = u32::try_from(position + 1).unwrap_or(u32::MAX);
         let mut line = phys.body;
@@ -552,7 +567,9 @@ fn parse_desktop(
         } else {
             let base = base_tag(&tag);
             if data::contains(data::DEPRECATED_DESKTOP_KEYS, base) {
-                if base != "Encoding" {
+                if base == "Encoding" {
+                    encoding.push((line_no, tag.clone()));
+                } else {
                     deprecated.push((line_no, tag.clone()));
                 }
             } else if !data::contains(data::KNOWN_DESKTOP_KEYS, base)
@@ -584,6 +601,14 @@ fn parse_desktop(
             tag,
         );
     }
+    for (line_no, tag) in encoding {
+        warn_at(
+            &mut report.desktop_entry_contains_encoding_key,
+            &path,
+            Some(line_no),
+            tag,
+        );
+    }
     for (line_no, tag) in unknown {
         warn_at(
             &mut report.desktop_entry_contains_unknown_key,
@@ -601,6 +626,17 @@ fn parse_desktop(
                 key,
             );
         }
+    }
+    if !vals.contains_key("NoDisplay")
+        && !vals.contains_key("Keywords")
+        && kind.as_str() == "Application"
+    {
+        warn_at(
+            &mut report.desktop_entry_lacks_keywords_entry,
+            &path,
+            None,
+            "",
+        );
     }
     let in_applications = path
         .to_str()

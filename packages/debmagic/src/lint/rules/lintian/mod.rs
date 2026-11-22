@@ -255,6 +255,7 @@ pub(crate) use binaries_obsolete_crypt::ObsoleteDesEncryption;
 pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
 pub(crate) use binaries_prerequisites::MissingDependencyOnLibc;
 pub(crate) use binaries_prerequisites::MissingDependencyOnLibstdc;
+pub(crate) use binaries_prerequisites::MissingDependencyOnNumpyAbi;
 pub(crate) use binaries_prerequisites::ProgramNotLinkedAgainstLibc;
 pub(crate) use binaries_prerequisites::SharedLibraryLacksPrerequisites;
 pub(crate) use binaries_prerequisites::UndeclaredElfPrerequisites;

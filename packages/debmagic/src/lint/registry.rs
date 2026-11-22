@@ -3074,11 +3074,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
 }
 
 pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
-    &[&BadSectionInChangesFile]
+    &[&BadSectionInChangesFile, &DebianRevisionNotWellFormed]
 }
 
 pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
-    &[]
+    &[&DebianRevisionNotWellFormed]
 }
 
 pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {

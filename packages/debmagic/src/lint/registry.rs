@@ -382,6 +382,7 @@ use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::UsesDeprecatedAdttmp;
 use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
+use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VersionRefersToDistribution;
@@ -1861,6 +1862,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PreinstCallsUpdatemenus,
         &PrermCallsUpdatemenus,
         &BrokenZip,
+        &UsrShareDocSymlinkPointsOutsideOfUsrShareDoc,
     ]
 }
 
@@ -2959,6 +2961,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PreinstCallsUpdatemenus,
         &PrermCallsUpdatemenus,
         &BrokenZip,
+        &UsrShareDocSymlinkPointsOutsideOfUsrShareDoc,
     ]
 }
 

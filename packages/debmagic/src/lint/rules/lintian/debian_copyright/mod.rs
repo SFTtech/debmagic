@@ -64,6 +64,7 @@ mod ln0882_obsolete_field_in_dep5_copyright;
 mod ln1021_syntax_error_in_dep5_copyright;
 mod ln1022_tab_in_license_text;
 mod ln1023_unknown_paragraph_in_dep5_copyright;
+mod ln1262_usr_share_doc_symlink_points_outside_of_usr_share_doc;
 mod source_copyright;
 
 pub(crate) use ln0009_no_dep5_copyright::NoDep5Copyright;
@@ -123,3 +124,4 @@ pub(crate) use ln0882_obsolete_field_in_dep5_copyright::ObsoleteFieldInDep5Copyr
 pub(crate) use ln1021_syntax_error_in_dep5_copyright::SyntaxErrorInDep5Copyright;
 pub(crate) use ln1022_tab_in_license_text::TabInLicenseText;
 pub(crate) use ln1023_unknown_paragraph_in_dep5_copyright::UnknownParagraphInDep5Copyright;
+pub(crate) use ln1262_usr_share_doc_symlink_points_outside_of_usr_share_doc::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;

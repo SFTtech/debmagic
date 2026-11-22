@@ -350,6 +350,7 @@ use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
+use super::rules::SpellingErrorInDescription;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
@@ -1939,6 +1940,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CapitalizationErrorInDescription,
         &DescriptionMentionsPlannedFeatures,
         &ExtendedDescriptionIsProbablyTooShort,
+        &SpellingErrorInDescription,
     ]
 }
 
@@ -3076,6 +3078,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &CapitalizationErrorInDescription,
         &DescriptionMentionsPlannedFeatures,
         &ExtendedDescriptionIsProbablyTooShort,
+        &SpellingErrorInDescription,
     ]
 }
 

@@ -249,7 +249,9 @@ use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemGfdlInvariants;
 use super::rules::LicenseProblemGfdlNonOfficialText;
 use super::rules::LicenseProblemJsonEvil;
+use super::rules::LicenseProblemMd5sumNonDistributableFile;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
+use super::rules::LicenseProblemNonFreeImgLenna;
 use super::rules::LicenseProblemNonFreeRFC;
 use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::LicenseProblemNvidiaIntellectual;
@@ -2263,6 +2265,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExampleWrongPathForInterpreter,
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
+        &LicenseProblemMd5sumNonDistributableFile,
+        &LicenseProblemNonFreeImgLenna,
     ]
 }
 
@@ -2684,6 +2688,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianWatchManglesDebianVersionImproperly,
         &DebianWatchManglesUpstreamVersionImproperly,
         &DhInstallInsteadOfDhInstallmodules,
+        &LicenseProblemMd5sumNonDistributableFile,
+        &LicenseProblemNonFreeImgLenna,
     ]
 }
 

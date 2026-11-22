@@ -809,9 +809,10 @@ pub(crate) use debian_patches::{
     Format30ButDebianChangesPatch, InvalidDep3FormatPatchBugFieldDefaultValue,
     InvalidDep3FormatPatchBugNotContainUrl, InvalidDep3FormatPatchMaybeBugDebian,
     InvalidDep3FormatPatchOriginFieldDefaultValue, InvalidDep3FormatPatchWrongBugDebianUrl,
-    PackageUsesVendorSpecificPatchSeries, PatchFilePresentButNotMentionedInSeries,
-    PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription,
-    QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
+    InvalidDep3FormatPatchWrongLastUpdate, PackageUsesVendorSpecificPatchSeries,
+    PatchFilePresentButNotMentionedInSeries, PatchSystemButNoSourceReadme,
+    QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription, QuiltPatchWithNonStandardOptions,
+    QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,

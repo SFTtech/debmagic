@@ -163,6 +163,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/not-installed/triplet-in-library-path",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
+    "checks/debian/patches/dep3/last-update",
     "checks/debian/patches/dep3/maybe-bug-debian",
     "checks/debian/patches/dep3/origin-field-default-value",
     "checks/debian/patches/dep3/wrong-bug-debian-url",
@@ -1236,6 +1237,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/not-installed/triplet-in-library-path",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
+    "checks/debian/patches/dep3/last-update",
     "checks/debian/patches/dep3/maybe-bug-debian",
     "checks/debian/patches/dep3/origin-field-default-value",
     "checks/debian/patches/dep3/wrong-bug-debian-url",
@@ -1743,6 +1745,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
+#[test_case("checks/debian/patches/dep3/last-update"; "checks_debian_patches_dep3_last_update")]
 #[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
 #[test_case("checks/debian/patches/dep3/wrong-bug-debian-url"; "checks_debian_patches_dep3_wrong_bug_debian_url")]
@@ -2818,6 +2821,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
+#[test_case("checks/debian/patches/dep3/last-update"; "checks_debian_patches_dep3_last_update")]
 #[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
 #[test_case("checks/debian/patches/dep3/wrong-bug-debian-url"; "checks_debian_patches_dep3_wrong_bug_debian_url")]

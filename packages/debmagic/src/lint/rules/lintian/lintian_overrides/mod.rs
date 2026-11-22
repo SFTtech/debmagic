@@ -6,9 +6,11 @@ mod ln0707_alien_tag;
 mod ln0839_malformed_override;
 mod ln0840_duplicate_override_context;
 mod ln0841_override_file_in_wrong_package;
+mod ln1324_renamed_tag;
 
 pub(crate) use ln0427_override_file_in_wrong_location::OverrideFileInWrongLocation;
 pub(crate) use ln0707_alien_tag::AlienTag;
 pub(crate) use ln0839_malformed_override::MalformedOverride;
 pub(crate) use ln0840_duplicate_override_context::DuplicateOverrideContext;
 pub(crate) use ln0841_override_file_in_wrong_package::OverrideFileInWrongPackage;
+pub(crate) use ln1324_renamed_tag::RenamedTag;

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): quilt-patch-missing-description (LN1325) [debian/patches/01-fix.patch]
+I: example (source): quilt-patch-missing-description (LN1325) [debian/patches/01-fix.patch]

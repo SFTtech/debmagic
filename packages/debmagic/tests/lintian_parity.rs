@@ -88,9 +88,11 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/field/doubled-up/control-file-general",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
+    "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
     "checks/debian/control/field/rules-requires-root/fields-unknown-fields",
+    "checks/debian/control/field/spacing/control-file-pedantic-space",
     "checks/debian/control/link/control-file-symlink",
     "checks/debian/control/prerequisite/circular/control-file-general",
     "checks/debian/control/prerequisite/circular/control-file-suggests-itself",
@@ -121,6 +123,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons",
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b",
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel",
+    "checks/debian/copyright/dep5/source-copyright-insecure-uri",
     "checks/debian/copyright/dep5/source-copyright-nodep5",
     "checks/debian/copyright/dep5/source-copyright-pipe-as-or",
     "checks/debian/copyright/dep5/source-copyright-source-files-excluded",
@@ -153,10 +156,12 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/legacy-relations",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
+    "checks/debian/patches/quilt/patch-systems-quilt-description",
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/patches/quilt/patch-systems-quilt-no-depends",
     "checks/debian/patches/quilt/patch-systems-quilt-no-newline",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
+    "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/legacy-debconf",
     "checks/debian/po-debconf/po-debconf-general",
@@ -169,6 +174,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/debhelper-dh-compat",
     "checks/debian/rules/debhelper-no-depends",
     "checks/debian/rules/debian-rules-calls-nproc",
+    "checks/debian/rules/debian-rules-uses-as-needed-linker-flag",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
     "checks/debian/rules/generic-dh-make-2005",
@@ -187,11 +193,14 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-missing-targets-with-known-includes",
     "checks/debian/rules/rules-not-makefile",
     "checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo",
+    "checks/debian/rules/rules-parses-dpkg-parsechangelog",
     "checks/debian/rules/rules-sanitize-all-buildflag",
     "checks/debian/rules/rules-sets-dpkg-architecture-variable",
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/rules/rules-special-variables",
     "checks/debian/rules/rules-symlink",
+    "checks/debian/rules/rules-unnecessary-source-date-epoch",
+    "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
@@ -505,6 +514,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/lintian-overrides/files-override-misplaced",
     "checks/debian/lintian-overrides/mystery/fields-multi-arch-same-package-has-arch-specific-overrides",
     "checks/debian/lintian-overrides/mystery/lintian-overrides",
+    "checks/debian/lintian-overrides/mystery/mixed-overrides",
+    "checks/debian/lintian-overrides/mystery/overrides-shown",
     "checks/debian/lintian-overrides/restricted/amd64-on-arch-all",
     "checks/debian/lintian-overrides/restricted/arch-bingo",
     "checks/debian/readme/bad-email-format",
@@ -982,9 +993,11 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/field/doubled-up/control-file-general",
     "checks/debian/control/field/misplaced/control-file-general",
     "checks/debian/control/field/misplaced/legacy-foo++",
+    "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
     "checks/debian/control/field/rules-requires-root/fields-unknown-fields",
+    "checks/debian/control/field/spacing/control-file-pedantic-space",
     "checks/debian/control/link/control-file-symlink",
     "checks/debian/control/prerequisite/circular/control-file-general",
     "checks/debian/control/prerequisite/circular/control-file-suggests-itself",
@@ -994,6 +1007,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/prerequisite/development/legacy-libbaz",
     "checks/debian/control/prerequisite/redundant/control-file-general",
     "checks/debian/control/prerequisite/redundant/legacy-relations",
+    "checks/debian/copyright/dep5/components/control-file-upstream-signature-missing",
     "checks/debian/copyright/dep5/copyright-file-general",
     "checks/debian/copyright/dep5/copyright-file-license-symlink",
     "checks/debian/copyright/dep5/excluded-files-in-native",
@@ -1015,6 +1029,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons",
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b",
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel",
+    "checks/debian/copyright/dep5/source-copyright-insecure-uri",
     "checks/debian/copyright/dep5/source-copyright-nodep5",
     "checks/debian/copyright/dep5/source-copyright-pipe-as-or",
     "checks/debian/copyright/dep5/source-copyright-source-files-excluded",
@@ -1047,10 +1062,12 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/legacy-relations",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
+    "checks/debian/patches/quilt/patch-systems-quilt-description",
     "checks/debian/patches/quilt/patch-systems-quilt-general",
     "checks/debian/patches/quilt/patch-systems-quilt-no-depends",
     "checks/debian/patches/quilt/patch-systems-quilt-no-newline",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
+    "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/legacy-debconf",
     "checks/debian/po-debconf/po-debconf-general",
@@ -1063,6 +1080,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/debhelper-dh-compat",
     "checks/debian/rules/debhelper-no-depends",
     "checks/debian/rules/debian-rules-calls-nproc",
+    "checks/debian/rules/debian-rules-uses-as-needed-linker-flag",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
     "checks/debian/rules/generic-dh-make-2005",
@@ -1081,11 +1099,14 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-missing-targets-with-known-includes",
     "checks/debian/rules/rules-not-makefile",
     "checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo",
+    "checks/debian/rules/rules-parses-dpkg-parsechangelog",
     "checks/debian/rules/rules-sanitize-all-buildflag",
     "checks/debian/rules/rules-sets-dpkg-architecture-variable",
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/rules/rules-special-variables",
     "checks/debian/rules/rules-symlink",
+    "checks/debian/rules/rules-unnecessary-source-date-epoch",
+    "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
@@ -1389,9 +1410,11 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
+#[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
 #[test_case("checks/debian/control/field/rules-requires-root/fields-unknown-fields"; "checks_debian_control_field_rules_requires_root_fields_unknown_fields")]
+#[test_case("checks/debian/control/field/spacing/control-file-pedantic-space"; "checks_debian_control_field_spacing_control_file_pedantic_space")]
 #[test_case("checks/debian/control/link/control-file-symlink"; "checks_debian_control_link_control_file_symlink")]
 #[test_case("checks/debian/control/prerequisite/circular/control-file-general"; "checks_debian_control_prerequisite_circular_control_file_general")]
 #[test_case("checks/debian/control/prerequisite/circular/control-file-suggests-itself"; "checks_debian_control_prerequisite_circular_control_file_suggests_itself")]
@@ -1422,6 +1445,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_b")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_unrel")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-insecure-uri"; "checks_debian_copyright_dep5_source_copyright_insecure_uri")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-nodep5"; "checks_debian_copyright_dep5_source_copyright_nodep5")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-pipe-as-or"; "checks_debian_copyright_dep5_source_copyright_pipe_as_or")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-source-files-excluded"; "checks_debian_copyright_dep5_source_copyright_source_files_excluded")]
@@ -1454,10 +1478,12 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/legacy-relations"; "checks_debian_patches_quilt_legacy_relations")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
+#[test_case("checks/debian/patches/quilt/patch-systems-quilt-description"; "checks_debian_patches_quilt_patch_systems_quilt_description")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-depends"; "checks_debian_patches_quilt_patch_systems_quilt_no_depends")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-newline"; "checks_debian_patches_quilt_patch_systems_quilt_no_newline")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
+#[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
 #[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
@@ -1470,6 +1496,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/debhelper-dh-compat"; "checks_debian_rules_debhelper_dh_compat")]
 #[test_case("checks/debian/rules/debhelper-no-depends"; "checks_debian_rules_debhelper_no_depends")]
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
+#[test_case("checks/debian/rules/debian-rules-uses-as-needed-linker-flag"; "checks_debian_rules_debian_rules_uses_as_needed_linker_flag")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
 #[test_case("checks/debian/rules/generic-dh-make-2005"; "checks_debian_rules_generic_dh_make_2005")]
@@ -1488,11 +1515,14 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
 #[test_case("checks/debian/rules/rules-not-makefile"; "checks_debian_rules_rules_not_makefile")]
 #[test_case("checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo"; "checks_debian_rules_rules_override_dh_foo_does_not_call_dh_foo")]
+#[test_case("checks/debian/rules/rules-parses-dpkg-parsechangelog"; "checks_debian_rules_rules_parses_dpkg_parsechangelog")]
 #[test_case("checks/debian/rules/rules-sanitize-all-buildflag"; "checks_debian_rules_rules_sanitize_all_buildflag")]
 #[test_case("checks/debian/rules/rules-sets-dpkg-architecture-variable"; "checks_debian_rules_rules_sets_dpkg_architecture_variable")]
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/rules/rules-special-variables"; "checks_debian_rules_rules_special_variables")]
 #[test_case("checks/debian/rules/rules-symlink"; "checks_debian_rules_rules_symlink")]
+#[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
+#[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]
@@ -1807,6 +1837,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/lintian-overrides/files-override-misplaced"; "checks_debian_lintian_overrides_files_override_misplaced")]
 #[test_case("checks/debian/lintian-overrides/mystery/fields-multi-arch-same-package-has-arch-specific-overrides"; "checks_debian_lintian_overrides_mystery_fields_multi_arch_same_package_has_arch_specific_overrides")]
 #[test_case("checks/debian/lintian-overrides/mystery/lintian-overrides"; "checks_debian_lintian_overrides_mystery_lintian_overrides")]
+#[test_case("checks/debian/lintian-overrides/mystery/mixed-overrides"; "checks_debian_lintian_overrides_mystery_mixed_overrides")]
+#[test_case("checks/debian/lintian-overrides/mystery/overrides-shown"; "checks_debian_lintian_overrides_mystery_overrides_shown")]
 #[test_case("checks/debian/lintian-overrides/restricted/amd64-on-arch-all"; "checks_debian_lintian_overrides_restricted_amd64_on_arch_all")]
 #[test_case("checks/debian/lintian-overrides/restricted/arch-bingo"; "checks_debian_lintian_overrides_restricted_arch_bingo")]
 #[test_case("checks/debian/readme/bad-email-format"; "checks_debian_readme_bad_email_format")]
@@ -2285,9 +2317,11 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
+#[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
 #[test_case("checks/debian/control/field/rules-requires-root/fields-unknown-fields"; "checks_debian_control_field_rules_requires_root_fields_unknown_fields")]
+#[test_case("checks/debian/control/field/spacing/control-file-pedantic-space"; "checks_debian_control_field_spacing_control_file_pedantic_space")]
 #[test_case("checks/debian/control/link/control-file-symlink"; "checks_debian_control_link_control_file_symlink")]
 #[test_case("checks/debian/control/prerequisite/circular/control-file-general"; "checks_debian_control_prerequisite_circular_control_file_general")]
 #[test_case("checks/debian/control/prerequisite/circular/control-file-suggests-itself"; "checks_debian_control_prerequisite_circular_control_file_suggests_itself")]
@@ -2297,6 +2331,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/prerequisite/development/legacy-libbaz"; "checks_debian_control_prerequisite_development_legacy_libbaz")]
 #[test_case("checks/debian/control/prerequisite/redundant/control-file-general"; "checks_debian_control_prerequisite_redundant_control_file_general")]
 #[test_case("checks/debian/control/prerequisite/redundant/legacy-relations"; "checks_debian_control_prerequisite_redundant_legacy_relations")]
+#[test_case("checks/debian/copyright/dep5/components/control-file-upstream-signature-missing"; "checks_debian_copyright_dep5_components_control_file_upstream_signature_missing")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-general"; "checks_debian_copyright_dep5_copyright_file_general")]
 #[test_case("checks/debian/copyright/dep5/copyright-file-license-symlink"; "checks_debian_copyright_dep5_copyright_file_license_symlink")]
 #[test_case("checks/debian/copyright/dep5/excluded-files-in-native"; "checks_debian_copyright_dep5_excluded_files_in_native")]
@@ -2318,6 +2353,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-b"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_b")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_unrel")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-insecure-uri"; "checks_debian_copyright_dep5_source_copyright_insecure_uri")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-nodep5"; "checks_debian_copyright_dep5_source_copyright_nodep5")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-pipe-as-or"; "checks_debian_copyright_dep5_source_copyright_pipe_as_or")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-source-files-excluded"; "checks_debian_copyright_dep5_source_copyright_source_files_excluded")]
@@ -2350,10 +2386,12 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/legacy-relations"; "checks_debian_patches_quilt_legacy_relations")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
+#[test_case("checks/debian/patches/quilt/patch-systems-quilt-description"; "checks_debian_patches_quilt_patch_systems_quilt_description")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-general"; "checks_debian_patches_quilt_patch_systems_quilt_general")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-depends"; "checks_debian_patches_quilt_patch_systems_quilt_no_depends")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-newline"; "checks_debian_patches_quilt_patch_systems_quilt_no_newline")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
+#[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
 #[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
@@ -2366,6 +2404,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/debhelper-dh-compat"; "checks_debian_rules_debhelper_dh_compat")]
 #[test_case("checks/debian/rules/debhelper-no-depends"; "checks_debian_rules_debhelper_no_depends")]
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
+#[test_case("checks/debian/rules/debian-rules-uses-as-needed-linker-flag"; "checks_debian_rules_debian_rules_uses_as_needed_linker_flag")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
 #[test_case("checks/debian/rules/generic-dh-make-2005"; "checks_debian_rules_generic_dh_make_2005")]
@@ -2384,11 +2423,14 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
 #[test_case("checks/debian/rules/rules-not-makefile"; "checks_debian_rules_rules_not_makefile")]
 #[test_case("checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo"; "checks_debian_rules_rules_override_dh_foo_does_not_call_dh_foo")]
+#[test_case("checks/debian/rules/rules-parses-dpkg-parsechangelog"; "checks_debian_rules_rules_parses_dpkg_parsechangelog")]
 #[test_case("checks/debian/rules/rules-sanitize-all-buildflag"; "checks_debian_rules_rules_sanitize_all_buildflag")]
 #[test_case("checks/debian/rules/rules-sets-dpkg-architecture-variable"; "checks_debian_rules_rules_sets_dpkg_architecture_variable")]
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/rules/rules-special-variables"; "checks_debian_rules_rules_special_variables")]
 #[test_case("checks/debian/rules/rules-symlink"; "checks_debian_rules_rules_symlink")]
+#[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
+#[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]

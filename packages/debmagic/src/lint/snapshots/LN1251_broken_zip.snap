@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): broken-zip (LN1251) [etc/not-a.zip]
+W: example (binary): broken-zip (LN1251) [etc/empty.zip]
+W: example (binary): broken-zip (LN1251) [etc/truncated.zip]
+W: example (binary): broken-zip (LN1251) [etc/TRUNCATED.ZIP]
+W: example (binary): broken-zip (LN1251) [etc/PK.zip]
+W: example (binary): broken-zip (LN1251) [etc/hard.zip]

@@ -28,6 +28,7 @@ use super::rules::BreaksWithoutVersion;
 use super::rules::BrokenGz;
 use super::rules::BrokenLzma;
 use super::rules::BrokenXz;
+use super::rules::BrokenZip;
 use super::rules::BuildDependsArchWithoutArchDependentBinary;
 use super::rules::BuildDependsIndepWithoutArchIndep;
 use super::rules::BuildDependsOnAnObsoleteJavaPackage;
@@ -1859,6 +1860,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PreinstCallsInstalldocs,
         &PreinstCallsUpdatemenus,
         &PrermCallsUpdatemenus,
+        &BrokenZip,
     ]
 }
 
@@ -2956,6 +2958,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PreinstCallsInstalldocs,
         &PreinstCallsUpdatemenus,
         &PrermCallsUpdatemenus,
+        &BrokenZip,
     ]
 }
 

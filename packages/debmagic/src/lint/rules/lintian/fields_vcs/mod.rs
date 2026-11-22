@@ -12,6 +12,7 @@ mod ln1241_vcs_field_has_unexpected_spaces;
 mod ln1242_vcs_field_uses_unknown_uri_format;
 mod ln1243_vcs_git_uses_invalid_user_uri;
 mod ln1372_vcs_field_uses_insecure_uri;
+mod ln1373_vcs_fields_use_more_than_one_vcs;
 
 pub(crate) use ln0797_vcs_field_bitrotted::VcsFieldBitrotted;
 pub(crate) use ln0798_vcs_field_mismatch::VcsFieldMismatch;
@@ -22,3 +23,4 @@ pub(crate) use ln1241_vcs_field_has_unexpected_spaces::VcsFieldHasUnexpectedSpac
 pub(crate) use ln1242_vcs_field_uses_unknown_uri_format::VcsFieldUsesUnknownUriFormat;
 pub(crate) use ln1243_vcs_git_uses_invalid_user_uri::VcsGitUsesInvalidUserUri;
 pub(crate) use ln1372_vcs_field_uses_insecure_uri::VcsFieldUsesInsecureUri;
+pub(crate) use ln1373_vcs_fields_use_more_than_one_vcs::VcsFieldsUseMoreThanOneVcs;

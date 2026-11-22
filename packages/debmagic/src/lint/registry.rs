@@ -13,6 +13,11 @@ use super::rules::Apache2ReverseDependencyCallsInvokeRcD;
 use super::rules::Apache2ReverseDependencyShipsFileInNotAllowedDirectory;
 use super::rules::Apache2ReverseDependencyUsesObsoleteDirectory;
 use super::rules::Apache2UnsupportedDependency;
+use super::rules::AppstreamMetadataInLegacyLocation;
+use super::rules::AppstreamMetadataInvalid;
+use super::rules::AppstreamMetadataLegacyFormat;
+use super::rules::AppstreamMetadataMalformedModaliasProvide;
+use super::rules::AppstreamMetadataMissingModaliasProvide;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::BadJarName;
@@ -183,6 +188,7 @@ use super::rules::IllegalMultiArchValue;
 use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
 use super::rules::IncompatibleJavaBytecodeFormat;
+use super::rules::InconsistentAppstreamMetadataLicense;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
@@ -2131,6 +2137,12 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianControlHasEmptyField,
         &RedundantPriorityOptionalField,
         &InstallableFieldMirrorsSource,
+        &AppstreamMetadataInLegacyLocation,
+        &AppstreamMetadataInvalid,
+        &AppstreamMetadataLegacyFormat,
+        &AppstreamMetadataMalformedModaliasProvide,
+        &AppstreamMetadataMissingModaliasProvide,
+        &InconsistentAppstreamMetadataLicense,
     ]
 }
 
@@ -2529,6 +2541,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianControlHasEmptyField,
         &RedundantPriorityOptionalField,
         &InstallableFieldMirrorsSource,
+        &InconsistentAppstreamMetadataLicense,
     ]
 }
 
@@ -3362,6 +3375,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &AppstreamMetadataInLegacyLocation,
+        &AppstreamMetadataInvalid,
+        &AppstreamMetadataLegacyFormat,
+        &AppstreamMetadataMalformedModaliasProvide,
+        &AppstreamMetadataMissingModaliasProvide,
     ]
 }
 

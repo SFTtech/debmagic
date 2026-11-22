@@ -45,6 +45,7 @@ zstd = { workspace = true }
 goblin = { workspace = true }
 rayon = { workspace = true }
 tempfile = { workspace = true }
+roxmltree = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }

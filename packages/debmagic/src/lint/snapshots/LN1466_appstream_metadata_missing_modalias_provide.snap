@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): appstream-metadata-missing-modalias-provide (LN1466) match rule usb:v0000p0001d* [usr/lib/udev/rules.d/60-foo.rules:0]
+W: example (binary): appstream-metadata-missing-modalias-provide (LN1466) usr/lib/udev/rules.d/60-foo.rules
+W: example (binary): appstream-metadata-missing-modalias-provide (LN1466) match rule usb:v0000p0001d* [usr/lib/udev/rules.d/60-foo.rules:0]
+W: example (binary): appstream-metadata-missing-modalias-provide (LN1466) usr/lib/udev/rules.d/60-foo.rules
+W: example (binary): appstream-metadata-missing-modalias-provide (LN1466) match rule usb:v000Ap0001d* [usr/lib/udev/rules.d/60-foo.rules:0]

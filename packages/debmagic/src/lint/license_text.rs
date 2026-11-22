@@ -191,7 +191,6 @@ impl BadLicense {
     }
 }
 
-#[allow(dead_code)] // Used by the RFC Rules, not yet implemented.
 static RFC_WHITELIST: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     lines(include_str!("data/cruft/rfc-whitelist"))
         .map(|pattern| Regex::new(&pattern.replace(r"\Z", r"\z")).expect("valid regex"))
@@ -200,7 +199,6 @@ static RFC_WHITELIST: LazyLock<Vec<Regex>> = LazyLock::new(|| {
 
 /// lintian's `rfc_whitelist_filename`: `debian/copyright` is never flagged,
 /// and neither is a file whose lower-cased basename matches `cruft/rfc-whitelist`.
-#[allow(dead_code)] // Used by the RFC Rules, not yet implemented.
 pub(crate) fn rfc_is_exempt(path: &Path) -> bool {
     if path == Path::new("debian/copyright") {
         return true;

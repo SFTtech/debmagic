@@ -171,6 +171,7 @@ use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
 use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemJsonEvil;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
+use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
@@ -1873,6 +1874,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DhMakeTemplateInSource,
         &LicenseProblemCcByNcSa,
         &LicenseProblemJsonEvil,
+        &LicenseProblemNonFreeRFCBCP78,
     ]
 }
 
@@ -2209,6 +2211,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DhMakeTemplateInSource,
         &LicenseProblemCcByNcSa,
         &LicenseProblemJsonEvil,
+        &LicenseProblemNonFreeRFCBCP78,
     ]
 }
 

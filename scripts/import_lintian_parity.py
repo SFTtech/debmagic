@@ -83,25 +83,31 @@ def read_text(path: Path) -> tuple[str, str]:
 
 
 def read_deb822(path: Path) -> dict[str, str]:
+    """Fields of a one-paragraph Deb822 file, as lintian's `Section->value` reads them.
+
+    A continuation line keeps its leading whitespace and joins the value with a
+    newline, so a wrapped field (a multi-line `Description`) stays wrapped when the
+    value is filled into a template. Trailing whitespace of each line goes, and
+    leading and trailing whitespace of the whole value. Comment lines (`#` in
+    column 0) and blank lines are skipped.
+    """
     fields: dict[str, str] = {}
     current: str | None = None
     text, _encoding = read_text(path)
     for raw_line in text.splitlines():
-        stripped = raw_line.strip()
-        if not stripped or stripped.startswith("#"):
+        if not raw_line.strip() or raw_line.startswith("#"):
             continue
         if raw_line[0] in " \t":
             if current is None:
                 raise ValueError(f"{path}: continuation without a field")
-            extra = raw_line.strip()
-            fields[current] = f"{fields[current]} {extra}".strip()
+            fields[current] = f"{fields[current]}\n{raw_line.rstrip()}"
             continue
         name, sep, value = raw_line.partition(":")
         if not sep:
             raise ValueError(f"{path}: not a Deb822 field: {raw_line!r}")
         current = name
         fields[current] = value.strip()
-    return fields
+    return {name: value.strip() for name, value in fields.items()}
 
 
 def merge_fields(base: dict[str, str], overlay: dict[str, str]) -> dict[str, str]:
@@ -337,23 +343,34 @@ def assemble_source_tree(work: Path, dest: Path, values: dict[str, str]) -> bool
     return orig_has_debian
 
 
-def vendor_build_spec(spec: Path, dest: Path, orig_has_debian: bool) -> None:
+# A `pre-build` hook that works on the orig tarballs next to the source
+# directory (`${DIR}/../<source>_<version>.orig-component.tar.gz` and the like).
+ORIG_TARBALL_HOOK = re.compile(r"\.orig(?:-[\w-]+)?\.tar")
+
+
+def vendor_build_spec(spec: Path, dest: Path, orig_has_debian: bool, work: Path | None = None) -> None:
     """Keep the build-spec pieces a filled tree cannot show, under `dest/build-spec/`.
 
     `dpkg-overrides` (`-DField=value` words lintian passes to `dpkg-source`) changes
     the `.dsc`. `pre-upstream.in` is kept, unfilled, only when it creates `debian/`
-    in the orig. The harness reads both (`tests/common/mod.rs`, ADR 0039).
+    in the orig. `pre-build` (the filled one from `work`) is kept only when it makes
+    orig tarballs next to the source directory, which the `.dsc` lists as components
+    and signatures; what it does to the sources is in the tree already. The harness
+    reads all three (`tests/common/mod.rs`, ADR 0039).
     """
-    kept = []
+    kept: list[tuple[str, Path]] = []
     if (spec / "dpkg-overrides").is_file():
-        kept.append("dpkg-overrides")
+        kept.append(("dpkg-overrides", spec / "dpkg-overrides"))
     if orig_has_debian and (spec / "pre-upstream.in").is_file():
-        kept.append("pre-upstream.in")
+        kept.append(("pre-upstream.in", spec / "pre-upstream.in"))
+    pre_build = work / "pre-build" if work is not None else None
+    if pre_build is not None and pre_build.is_file() and ORIG_TARBALL_HOOK.search(read_text(pre_build)[0]):
+        kept.append(("pre-build", pre_build))
     if not kept:
         return
     (dest / "build-spec").mkdir()
-    for name in kept:
-        shutil.copy2(spec / name, dest / "build-spec" / name)
+    for name, source in kept:
+        shutil.copy2(source, dest / "build-spec" / name)
 
 
 def copy_filled_work(work: Path, dest: Path) -> None:
@@ -425,7 +442,7 @@ def import_recipe(
         values = prepare_work(lintian_root, spec, work)
         if skeleton in SOURCE_TREE_SKELETONS:
             orig_has_debian = assemble_source_tree(work, dest, values)
-            vendor_build_spec(spec, dest, orig_has_debian)
+            vendor_build_spec(spec, dest, orig_has_debian, work)
         else:
             copy_filled_work(work, dest)
 

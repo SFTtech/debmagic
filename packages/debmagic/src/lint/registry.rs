@@ -441,10 +441,13 @@ use super::rules::SourceContainsEditorBackupFile;
 use super::rules::SourceContainsPatchFailureFile;
 use super::rules::SourceContainsPrebuiltBinary;
 use super::rules::SourceContainsPrebuiltDoxygenDocumentation;
+use super::rules::SourceContainsPrebuiltJavascriptObject;
 use super::rules::SourceContainsPrebuiltMsHelpFile;
+use super::rules::SourceContainsPrebuiltPythonObject;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
+use super::rules::SourceIsMissing;
 use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
@@ -2178,6 +2181,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &SourceContainsPrebuiltJavascriptObject,
+        &SourceContainsPrebuiltPythonObject,
+        &SourceIsMissing,
         &FileSizeMismatchInChangesFile,
         &MalformedChangesFile,
         &MultipleDistributionsInChangesFile,
@@ -2584,6 +2590,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RedundantPriorityOptionalField,
         &InstallableFieldMirrorsSource,
         &InconsistentAppstreamMetadataLicense,
+        &SourceContainsPrebuiltJavascriptObject,
+        &SourceContainsPrebuiltPythonObject,
+        &SourceIsMissing,
     ]
 }
 

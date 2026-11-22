@@ -391,6 +391,7 @@ use super::rules::UnknownEncodingInPoFile;
 use super::rules::UnknownEssentialValue;
 use super::rules::UnknownFileInDebianSource;
 use super::rules::UnknownJavaClassVersion;
+use super::rules::UnknownLocaleCode;
 use super::rules::UnknownMetaFieldInSymbolsFile;
 use super::rules::UnknownMultiArchValue;
 use super::rules::UnknownParagraphInDep5Copyright;
@@ -1931,6 +1932,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &UnknownLocaleCode,
     ]
 }
 
@@ -3064,6 +3066,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
+        &UnknownLocaleCode,
     ]
 }
 

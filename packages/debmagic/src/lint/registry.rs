@@ -134,6 +134,7 @@ use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
 use super::rules::FontInNonFontPackage;
+use super::rules::FontOutsideFontDir;
 use super::rules::FontPackageNotMultiArchForeign;
 use super::rules::ForbiddenPostrmInterpreter;
 use super::rules::GawkScriptButNoGawkDep;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SubstvarSourceVersionIsDeprecated,
         &UnknownLocaleCode,
         &SourceContainsPrebuiltBinary,
+        &FontOutsideFontDir,
     ]
 }
 
@@ -3070,6 +3072,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
         &UnknownLocaleCode,
+        &FontOutsideFontDir,
     ]
 }
 

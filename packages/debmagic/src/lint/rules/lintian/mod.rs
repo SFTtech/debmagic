@@ -347,6 +347,7 @@ pub(crate) use files_scripts::ScriptWithLanguageExtension;
 pub(crate) use files_special::SpecialFile;
 pub(crate) use fonts::DuplicateFontFile;
 pub(crate) use fonts::FontInNonFontPackage;
+pub(crate) use fonts::FontOutsideFontDir;
 pub(crate) use fonts::WoffFontInWrongDir;
 pub(crate) use images_thumbnails::PackageContainsThumbnailsDir;
 pub(crate) use images_thumbnails::PackageContainsXvpicsDir;

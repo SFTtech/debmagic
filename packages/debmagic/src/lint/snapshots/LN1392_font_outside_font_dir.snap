@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): font-outside-font-dir (LN1392) [usr/share/example/unknown.ttf]
+I: example (binary): font-outside-font-dir (LN1392) [usr/lib/example/unknown.otf]
+I: example (binary): font-outside-font-dir (LN1392) [usr/lib/example/unknown.pfb]
+I: example (binary): font-outside-font-dir (LN1392) [usr/lib/example/unknown.eot]
+I: example (binary): font-outside-font-dir (LN1392) [usr/share/fontsextra/unknown.ttf]
+I: example (binary): font-outside-font-dir (LN1392) [usr/share/example/UNKNOWN.TTF.GZ]
+I: example (binary): font-outside-font-dir (LN1392) [usr/lib/example/unknown.ttf]
+I: example (udeb): font-outside-font-dir (LN1392) [usr/lib/example/unknown.ttf]

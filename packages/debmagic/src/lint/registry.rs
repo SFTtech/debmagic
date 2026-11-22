@@ -338,6 +338,7 @@ use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
 use super::rules::PackageDependsOnMultipleTclxVersions;
 use super::rules::PackageFileIsExecutable;
+use super::rules::PackageHasLongFileName;
 use super::rules::PackageHasUnnecessaryActivationOfLdconfigTrigger;
 use super::rules::PackageInstallsAptKeyring;
 use super::rules::PackageInstallsAptPreferences;
@@ -2177,11 +2178,13 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BadDistributionInChangesFile,
         &BackportsChangesMissing,
         &BackportsUploadHasIncorrectVersionNumber,
+        &PackageHasLongFileName,
     ]
 }
 
 pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
     &[
+        &PackageHasLongFileName,
         &DebmagicDummyTrigger,
         &RequiredField,
         &SyntaxErrorInDebianChangelog,
@@ -2581,6 +2584,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
 
 pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule] {
     &[
+        &PackageHasLongFileName,
         &RequiredField,
         &UnstrippedBinaryOrObject,
         &PackageContainsUnsafeSymlink,
@@ -3438,11 +3442,12 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &BadDistributionInChangesFile,
         &BackportsChangesMissing,
         &BackportsUploadHasIncorrectVersionNumber,
+        &PackageHasLongFileName,
     ]
 }
 
 pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
-    &[&DebianRevisionNotWellFormed]
+    &[&DebianRevisionNotWellFormed, &PackageHasLongFileName]
 }
 
 pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {

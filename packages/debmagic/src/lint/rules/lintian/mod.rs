@@ -265,6 +265,7 @@ pub(crate) use appstream_metadata::AppstreamMetadataMissingModaliasProvide;
 pub(crate) use apt::PackageInstallsAptKeyring;
 pub(crate) use apt::PackageInstallsAptPreferences;
 pub(crate) use apt::PackageInstallsAptSources;
+pub(crate) use archive_file_name_length::PackageHasLongFileName;
 pub(crate) use archive_file_name_length::SourcePackageComponentHasLongFileName;
 pub(crate) use archive_liberty::ArchiveLibertyMismatch;
 pub(crate) use autotools::{

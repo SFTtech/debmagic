@@ -478,6 +478,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/application-not-library/application-not-library",
     "checks/appstream-metadata/appstream-metadata",
     "checks/apt/files-foo-in-bar",
+    "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/binaries/architecture/binaries-misplaced",
     "checks/binaries/architecture/other/binaries-from-other-arch",
     "checks/binaries/corrupted/binaries-from-other-arch",
@@ -1546,6 +1547,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
 ];
 
 const GROUP_RECIPES: &[&str] = &[
+    "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/changes-file/changes-file-bad-section",
     "checks/fields/distribution/changelog-file-backport",
     "checks/fields/distribution/changes-bad-ubuntu-distribution",
@@ -2060,6 +2062,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/application-not-library/application-not-library"; "checks_application_not_library_application_not_library")]
 #[test_case("checks/appstream-metadata/appstream-metadata"; "checks_appstream_metadata_appstream_metadata")]
 #[test_case("checks/apt/files-foo-in-bar"; "checks_apt_files_foo_in_bar")]
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/binaries/architecture/binaries-misplaced"; "checks_binaries_architecture_binaries_misplaced")]
 #[test_case("checks/binaries/architecture/other/binaries-from-other-arch"; "checks_binaries_architecture_other_binaries_from_other_arch")]
 #[test_case("checks/binaries/corrupted/binaries-from-other-arch"; "checks_binaries_corrupted_binaries_from_other_arch")]
@@ -3130,6 +3133,7 @@ fn lintian_parity_source_package(recipe: &str) {
     common::assert_source_package_parity(recipe);
 }
 
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/changes-file/changes-file-bad-section"; "checks_changes_file_changes_file_bad_section")]
 #[test_case("checks/fields/distribution/changelog-file-backport"; "checks_fields_distribution_changelog_file_backport")]
 #[test_case("checks/fields/distribution/changes-bad-ubuntu-distribution"; "checks_fields_distribution_changes_bad_ubuntu_distribution")]

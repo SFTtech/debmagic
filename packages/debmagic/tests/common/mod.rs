@@ -2062,6 +2062,32 @@ fn rewrite_incompatibility_statement(recipe_rel: &str, hints: &mut [ParityHint])
     }
 }
 
+/// `filename-length-really-really-really-really-long-package-name`'s lintian
+/// `eval/post-test` rewrites the architecture at the end of the `.changes` and
+/// `.buildinfo` names to `ARCHITECTURE`; the host builds for its own
+/// architecture, so the same rewrite is applied to the lint output.
+fn rewrite_architecture_in_group_names(recipe_rel: &str, hints: &mut [(String, ParityHint)]) {
+    if recipe_rel
+        != "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"
+    {
+        return;
+    }
+    for (processable_type, hint) in hints {
+        if !matches!(processable_type.as_str(), "changes" | "buildinfo") {
+            continue;
+        }
+        let suffix = format!(".{processable_type}");
+        let Some(stem) = hint.extra.strip_suffix(&suffix) else {
+            continue;
+        };
+        if let Some((head, arch)) = stem.rsplit_once('_')
+            && arch.chars().all(|c| c.is_ascii_alphanumeric())
+        {
+            hint.extra = format!("{head}_ARCHITECTURE{suffix}");
+        }
+    }
+}
+
 /// `control-files-bad`'s `tar-control` hook packs the control members with
 /// `--owner=nobody` and no `--group`, so the group is the primary group of
 /// whoever runs the test (lintian's own runs are root). The vendored hint
@@ -2447,6 +2473,7 @@ pub fn assert_group_parity(recipe_rel: &str) {
         .filter_map(parse_diagnostic_line)
         .filter(|(processable_type, hint)| applies_to_group(processable_type, &hint.tag, &tags))
         .collect();
+    rewrite_architecture_in_group_names(recipe_rel, &mut actual);
     actual.sort();
 
     assert_eq!(actual, expected, "Parity mismatch for {recipe_rel} (group)");

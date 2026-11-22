@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): dbus-policy-without-send-destination (LN1223) <policy context="default"><deny send_type="method_call"/> [usr/share/dbus-1/system.d/foo.conf:1]
+W: example (binary): dbus-policy-without-send-destination (LN1223) <policy context="default"><allow send_interface="com.example.Iface"/> [etc/dbus-1/session.d/foo.conf:1]
+W: example (binary): dbus-policy-without-send-destination (LN1223) <policy user="nobody"><allow send_type="signal"/> [usr/share/dbus-1/session.d/foo.conf:2]

@@ -61,6 +61,7 @@ use super::rules::DbgPackageMissingDepends;
 use super::rules::DbusPolicyAtConsole;
 use super::rules::DbusPolicyExcessivelyBroad;
 use super::rules::DbusPolicyInEtc;
+use super::rules::DbusPolicyWithoutSendDestination;
 use super::rules::DebconfConfigNotExecutable;
 use super::rules::DebconfIsNotARegistry;
 use super::rules::DebconfTranslationUsingGeneralList;
@@ -1809,6 +1810,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DbusPolicyAtConsole,
         &DbusPolicyExcessivelyBroad,
         &DbusPolicyInEtc,
+        &DbusPolicyWithoutSendDestination,
     ]
 }
 
@@ -2881,6 +2883,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DbusPolicyAtConsole,
         &DbusPolicyExcessivelyBroad,
         &DbusPolicyInEtc,
+        &DbusPolicyWithoutSendDestination,
     ]
 }
 

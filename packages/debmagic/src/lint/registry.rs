@@ -171,6 +171,7 @@ use super::rules::FSSTNDDirInManualPage;
 use super::rules::FileContainsFixmePlaceholder;
 use super::rules::FileInEtcModprobeD;
 use super::rules::FileIncludedAlready;
+use super::rules::FileSizeMismatchInChangesFile;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
 use super::rules::FontInNonFontPackage;
@@ -2171,6 +2172,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &FileSizeMismatchInChangesFile,
     ]
 }
 
@@ -3426,7 +3428,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
 }
 
 pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
-    &[&BadSectionInChangesFile, &DebianRevisionNotWellFormed]
+    &[
+        &BadSectionInChangesFile,
+        &DebianRevisionNotWellFormed,
+        &FileSizeMismatchInChangesFile,
+    ]
 }
 
 pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {

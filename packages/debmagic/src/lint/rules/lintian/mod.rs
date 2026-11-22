@@ -330,6 +330,7 @@ pub(crate) use debian_upstream::UpstreamMetadataIsNotAFile;
 pub(crate) use debian_upstream::UpstreamMetadataMissingBugTracking;
 pub(crate) use debian_upstream::UpstreamMetadataMissingRepository;
 pub(crate) use debian_upstream::UpstreamMetadataNotYamlMapping;
+pub(crate) use debian_upstream::UpstreamMetadataYamlInvalid;
 pub(crate) use debug_obsolete::DebianControlHasObsoleteDbgPackage;
 pub(crate) use desktop::{
     DbusPolicyAtConsole, DbusPolicyExcessivelyBroad, DbusPolicyInEtc,

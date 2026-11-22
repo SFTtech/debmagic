@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): upstream-metadata-yaml-invalid (LN1342) did not find expected <document start> (at document 2, line 2, column 1) [debian/upstream/metadata]
+W: example (source): upstream-metadata-yaml-invalid (LN1342) while parsing a flow sequence, expected ',' or ']' (at document 1, line 3, column 1) [debian/upstream/metadata]
+W: example (source): upstream-metadata-yaml-invalid (LN1342) document is empty [debian/upstream/metadata]
+W: example (source): upstream-metadata-yaml-invalid (LN1342) document is empty [debian/upstream/metadata]

@@ -496,7 +496,7 @@ pub(crate) use debian_watch::{
     DebianWatchFileSpecifiesOldUpstreamVersion, DebianWatchFileSpecifiesWrongUpstreamVersion,
     DebianWatchFileUsesDeprecatedGithubredir, DebianWatchFileUsesDeprecatedSfRedirectorMethod,
     DebianWatchLacksSourceforgeRedirector, DebianWatchLineInvalid, DebianWatchNotManglingVersion,
-    MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
+    DebianWatchUsesInsecureUri, MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
     ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{

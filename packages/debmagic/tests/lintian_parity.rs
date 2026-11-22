@@ -222,6 +222,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-old-upstream-version",
     "checks/debian/watch/watch-file-pubkey-missing",
     "checks/debian/watch/watch-file-should-mangle",
+    "checks/debian/watch/watch-file-template",
     "checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants",
     "checks/debug/automatic/control-file-general",
     "checks/desktop/gnome/gir/gir",
@@ -1101,6 +1102,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-old-upstream-version",
     "checks/debian/watch/watch-file-pubkey-missing",
     "checks/debian/watch/watch-file-should-mangle",
+    "checks/debian/watch/watch-file-template",
     "checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants",
     "checks/debug/automatic/control-file-general",
     "checks/desktop/gnome/gir/gir",
@@ -1501,6 +1503,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
 #[test_case("checks/debian/watch/watch-file-pubkey-missing"; "checks_debian_watch_watch_file_pubkey_missing")]
 #[test_case("checks/debian/watch/watch-file-should-mangle"; "checks_debian_watch_watch_file_should_mangle")]
+#[test_case("checks/debian/watch/watch-file-template"; "checks_debian_watch_watch_file_template")]
 #[test_case("checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_automatic_changes_files_package_builds_dbg_and_dbgsym_variants")]
 #[test_case("checks/debug/automatic/control-file-general"; "checks_debug_automatic_control_file_general")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
@@ -2382,6 +2385,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
 #[test_case("checks/debian/watch/watch-file-pubkey-missing"; "checks_debian_watch_watch_file_pubkey_missing")]
 #[test_case("checks/debian/watch/watch-file-should-mangle"; "checks_debian_watch_watch_file_should_mangle")]
+#[test_case("checks/debian/watch/watch-file-template"; "checks_debian_watch_watch_file_template")]
 #[test_case("checks/debug/automatic/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_debug_automatic_changes_files_package_builds_dbg_and_dbgsym_variants")]
 #[test_case("checks/debug/automatic/control-file-general"; "checks_debug_automatic_control_file_general")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]

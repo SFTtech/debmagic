@@ -558,11 +558,11 @@ pub(crate) use debian_version_substvars::{
 };
 pub(crate) use debian_watch::{
     DebianWatchCouldVerifyDownload, DebianWatchDoesNotCheckOpenpgpSignature,
-    DebianWatchFilePubkeyFileIsMissing, DebianWatchFileSpecifiesOldUpstreamVersion,
-    DebianWatchFileSpecifiesWrongUpstreamVersion, DebianWatchFileUsesDeprecatedGithubredir,
-    DebianWatchFileUsesDeprecatedSfRedirectorMethod, DebianWatchLacksSourceforgeRedirector,
-    DebianWatchLineInvalid, DebianWatchNotManglingVersion, DebianWatchUsesInsecureUri,
-    MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
+    DebianWatchFileIsMissing, DebianWatchFilePubkeyFileIsMissing,
+    DebianWatchFileSpecifiesOldUpstreamVersion, DebianWatchFileSpecifiesWrongUpstreamVersion,
+    DebianWatchFileUsesDeprecatedGithubredir, DebianWatchFileUsesDeprecatedSfRedirectorMethod,
+    DebianWatchLacksSourceforgeRedirector, DebianWatchLineInvalid, DebianWatchNotManglingVersion,
+    DebianWatchUsesInsecureUri, MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
     ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{

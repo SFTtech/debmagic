@@ -232,6 +232,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/version-substvars/version-substvars-obsolete",
     "checks/debian/watch/changes-upstream-signature-missing",
     "checks/debian/watch/filenamemangle",
+    "checks/debian/watch/generic-dh-make-2008",
     "checks/debian/watch/legacy-foo++",
     "checks/debian/watch/legacy-maintainer-scripts",
     "checks/debian/watch/legacy-scripts",
@@ -248,6 +249,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-bug-765995",
     "checks/debian/watch/watch-file-general",
     "checks/debian/watch/watch-file-malformed-version",
+    "checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata",
     "checks/debian/watch/watch-file-old-upstream-version",
     "checks/debian/watch/watch-file-pgpmode-none",
     "checks/debian/watch/watch-file-prerelease",
@@ -1282,6 +1287,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/version-substvars/version-substvars-obsolete",
     "checks/debian/watch/changes-upstream-signature-missing",
     "checks/debian/watch/filenamemangle",
+    "checks/debian/watch/generic-dh-make-2008",
     "checks/debian/watch/legacy-foo++",
     "checks/debian/watch/legacy-maintainer-scripts",
     "checks/debian/watch/legacy-scripts",
@@ -1298,6 +1304,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-bug-765995",
     "checks/debian/watch/watch-file-general",
     "checks/debian/watch/watch-file-malformed-version",
+    "checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata",
     "checks/debian/watch/watch-file-old-upstream-version",
     "checks/debian/watch/watch-file-pgpmode-none",
     "checks/debian/watch/watch-file-prerelease",
@@ -1781,6 +1791,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/version-substvars/version-substvars-obsolete"; "checks_debian_version_substvars_version_substvars_obsolete")]
 #[test_case("checks/debian/watch/changes-upstream-signature-missing"; "checks_debian_watch_changes_upstream_signature_missing")]
 #[test_case("checks/debian/watch/filenamemangle"; "checks_debian_watch_filenamemangle")]
+#[test_case("checks/debian/watch/generic-dh-make-2008"; "checks_debian_watch_generic_dh_make_2008")]
 #[test_case("checks/debian/watch/legacy-foo++"; "checks_debian_watch_legacy_foo_")]
 #[test_case("checks/debian/watch/legacy-maintainer-scripts"; "checks_debian_watch_legacy_maintainer_scripts")]
 #[test_case("checks/debian/watch/legacy-scripts"; "checks_debian_watch_legacy_scripts")]
@@ -1797,6 +1808,10 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/watch/watch-file-bug-765995"; "checks_debian_watch_watch_file_bug_765995")]
 #[test_case("checks/debian/watch/watch-file-general"; "checks_debian_watch_watch_file_general")]
 #[test_case("checks/debian/watch/watch-file-malformed-version"; "checks_debian_watch_watch_file_malformed_version")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cpan_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cran_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_github_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata"; "checks_debian_watch_watch_file_missing_with_unknown_upstream_metadata")]
 #[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
 #[test_case("checks/debian/watch/watch-file-pgpmode-none"; "checks_debian_watch_watch_file_pgpmode_none")]
 #[test_case("checks/debian/watch/watch-file-prerelease"; "checks_debian_watch_watch_file_prerelease")]
@@ -2833,6 +2848,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/version-substvars/version-substvars-obsolete"; "checks_debian_version_substvars_version_substvars_obsolete")]
 #[test_case("checks/debian/watch/changes-upstream-signature-missing"; "checks_debian_watch_changes_upstream_signature_missing")]
 #[test_case("checks/debian/watch/filenamemangle"; "checks_debian_watch_filenamemangle")]
+#[test_case("checks/debian/watch/generic-dh-make-2008"; "checks_debian_watch_generic_dh_make_2008")]
 #[test_case("checks/debian/watch/legacy-foo++"; "checks_debian_watch_legacy_foo_")]
 #[test_case("checks/debian/watch/legacy-maintainer-scripts"; "checks_debian_watch_legacy_maintainer_scripts")]
 #[test_case("checks/debian/watch/legacy-scripts"; "checks_debian_watch_legacy_scripts")]
@@ -2849,6 +2865,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/watch/watch-file-bug-765995"; "checks_debian_watch_watch_file_bug_765995")]
 #[test_case("checks/debian/watch/watch-file-general"; "checks_debian_watch_watch_file_general")]
 #[test_case("checks/debian/watch/watch-file-malformed-version"; "checks_debian_watch_watch_file_malformed_version")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cpan_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cran_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_github_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata"; "checks_debian_watch_watch_file_missing_with_unknown_upstream_metadata")]
 #[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
 #[test_case("checks/debian/watch/watch-file-pgpmode-none"; "checks_debian_watch_watch_file_pgpmode_none")]
 #[test_case("checks/debian/watch/watch-file-prerelease"; "checks_debian_watch_watch_file_prerelease")]

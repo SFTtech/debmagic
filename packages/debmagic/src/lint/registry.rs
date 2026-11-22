@@ -157,7 +157,12 @@ use super::rules::EmptyRustLibraryDeclaresProvides;
 use super::rules::EmptySharedLibrarySymbols;
 use super::rules::EmptyShlibs;
 use super::rules::EmptyUpstreamSources;
+use super::rules::ExampleIncorrectPathForInterpreter;
+use super::rules::ExampleInterpreterNotAbsolute;
+use super::rules::ExampleScriptUsesBinEnv;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
+use super::rules::ExampleScriptWithoutInterpreter;
+use super::rules::ExampleWrongPathForInterpreter;
 use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExecutableDebhelperFileWithoutBeingExecutable;
 use super::rules::ExecutableDesktopFile;
@@ -2179,6 +2184,11 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DesktopEntryLimitedToEnvironments,
         &PossibleDocumentationButNoDocBaseRegistration,
         &DhInstallInsteadOfDhInstallmodules,
+        &ExampleIncorrectPathForInterpreter,
+        &ExampleInterpreterNotAbsolute,
+        &ExampleScriptUsesBinEnv,
+        &ExampleScriptWithoutInterpreter,
+        &ExampleWrongPathForInterpreter,
     ]
 }
 
@@ -3434,6 +3444,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DesktopEntryLacksIconEntry,
         &DesktopEntryLimitedToEnvironments,
         &PossibleDocumentationButNoDocBaseRegistration,
+        &ExampleIncorrectPathForInterpreter,
+        &ExampleInterpreterNotAbsolute,
+        &ExampleScriptUsesBinEnv,
+        &ExampleScriptWithoutInterpreter,
+        &ExampleWrongPathForInterpreter,
     ]
 }
 

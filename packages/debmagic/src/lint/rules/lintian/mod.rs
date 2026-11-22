@@ -283,11 +283,11 @@ pub(crate) use debian_upstream::DebianUpstreamObsoletePath;
 pub(crate) use debian_upstream::UpstreamMetadataInNativeSource;
 pub(crate) use debian_upstream::UpstreamMetadataIsNotAFile;
 pub(crate) use desktop::{
-    DbusPolicyAtConsole, DbusPolicyExcessivelyBroad, DbusPolicyInEtc, DesktopFileInWrongDir,
-    FileInDiscouragedX11FontDirectory, FileInUnknownX11FontDirectory,
-    IconSizeAndDirectoryNameMismatch, MissingCallToUpdateFonts, PackageContainsCompiledFontFile,
-    PackageContainsMultipleDpiFonts, PackageInstallsFileToUsrX11r6, PackageMixesMiscAndDpiFonts,
-    RasterImageInScalableDirectory,
+    DbusPolicyAtConsole, DbusPolicyExcessivelyBroad, DbusPolicyInEtc,
+    DbusPolicyWithoutSendDestination, DesktopFileInWrongDir, FileInDiscouragedX11FontDirectory,
+    FileInUnknownX11FontDirectory, IconSizeAndDirectoryNameMismatch, MissingCallToUpdateFonts,
+    PackageContainsCompiledFontFile, PackageContainsMultipleDpiFonts,
+    PackageInstallsFileToUsrX11r6, PackageMixesMiscAndDpiFonts, RasterImageInScalableDirectory,
 };
 pub(crate) use desktop_gir::GirInArchAllPackage;
 pub(crate) use desktop_gir::GirPackageNameDoesNotMatch;

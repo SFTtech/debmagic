@@ -20,6 +20,9 @@ use super::rules::AppstreamMetadataMalformedModaliasProvide;
 use super::rules::AppstreamMetadataMissingModaliasProvide;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
+use super::rules::BackportsChangesMissing;
+use super::rules::BackportsUploadHasIncorrectVersionNumber;
+use super::rules::BadDistributionInChangesFile;
 use super::rules::BadJarName;
 use super::rules::BadPackageName;
 use super::rules::BadPermForFileInEtcSudoersD;
@@ -27,6 +30,7 @@ use super::rules::BadPermissionsForAliFile;
 use super::rules::BadPermissionsForEtcCronDScript;
 use super::rules::BadRelation;
 use super::rules::BadSectionInChangesFile;
+use super::rules::BadUrgencyInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
@@ -140,6 +144,8 @@ use super::rules::DhMakeTemplateInSource;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DistantPrerequisiteInShlibs;
+use super::rules::DistributionAndChangesMismatch;
+use super::rules::DistributionAndExperimentalMismatch;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DuplicateFontFile;
@@ -341,6 +347,7 @@ use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
 use super::rules::PackageDependsOnMultipleTclxVersions;
 use super::rules::PackageFileIsExecutable;
+use super::rules::PackageHasLongFileName;
 use super::rules::PackageHasUnnecessaryActivationOfLdconfigTrigger;
 use super::rules::PackageInstallsAptKeyring;
 use super::rules::PackageInstallsAptPreferences;
@@ -2205,11 +2212,19 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UpstreamMetadataYamlInvalid,
         &DebianWatchFileIsMissing,
         &UpstreamMetadataFileIsMissing,
+        &BadDistributionInChangesFile,
+        &BackportsChangesMissing,
+        &BackportsUploadHasIncorrectVersionNumber,
+        &PackageHasLongFileName,
+        &BadUrgencyInChangesFile,
+        &DistributionAndChangesMismatch,
+        &DistributionAndExperimentalMismatch,
     ]
 }
 
 pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
     &[
+        &PackageHasLongFileName,
         &DebmagicDummyTrigger,
         &RequiredField,
         &SyntaxErrorInDebianChangelog,
@@ -2619,6 +2634,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
 
 pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule] {
     &[
+        &PackageHasLongFileName,
         &RequiredField,
         &UnstrippedBinaryOrObject,
         &PackageContainsUnsafeSymlink,
@@ -3480,11 +3496,18 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &PackageBuildsDbgAndDbgsymVariants,
         &UnreleasedChanges,
         &UploadHasBackportsVersionNumber,
+        &BadDistributionInChangesFile,
+        &BackportsChangesMissing,
+        &BackportsUploadHasIncorrectVersionNumber,
+        &PackageHasLongFileName,
+        &BadUrgencyInChangesFile,
+        &DistributionAndChangesMismatch,
+        &DistributionAndExperimentalMismatch,
     ]
 }
 
 pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
-    &[&DebianRevisionNotWellFormed]
+    &[&DebianRevisionNotWellFormed, &PackageHasLongFileName]
 }
 
 pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {

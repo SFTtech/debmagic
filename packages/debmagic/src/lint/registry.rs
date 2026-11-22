@@ -137,6 +137,7 @@ use super::rules::DuplicateOverrideContext;
 use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
+use super::rules::EmbeddedLibrary;
 use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
 use super::rules::EmptySharedLibrarySymbols;
@@ -2133,6 +2134,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInNewsDebian,
         &SpellingErrorInDocBaseAbstractField,
         &SpellingErrorInDocBaseTitleField,
+        &EmbeddedLibrary,
     ]
 }
 
@@ -3365,6 +3367,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SpellingErrorInNewsDebian,
         &SpellingErrorInDocBaseAbstractField,
         &SpellingErrorInDocBaseTitleField,
+        &EmbeddedLibrary,
     ]
 }
 

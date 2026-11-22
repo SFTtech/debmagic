@@ -926,6 +926,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/ruby/depends-on-ruby-interpreter",
     "checks/languages/rust/empty-rust-library-declares-provides",
     "checks/libraries/debug-symbols/binaries-general",
+    "checks/libraries/embedded/binaries-embedded-libs",
     "checks/libraries/shared/file-permissions/legacy-libbaz",
     "checks/libraries/shared/file-permissions/shared-libs-exec-bit",
     "checks/libraries/shared/links/legacy-libbaz",
@@ -2467,6 +2468,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/ruby/depends-on-ruby-interpreter"; "checks_languages_ruby_depends_on_ruby_interpreter")]
 #[test_case("checks/languages/rust/empty-rust-library-declares-provides"; "checks_languages_rust_empty_rust_library_declares_provides")]
 #[test_case("checks/libraries/debug-symbols/binaries-general"; "checks_libraries_debug_symbols_binaries_general")]
+#[test_case("checks/libraries/embedded/binaries-embedded-libs"; "checks_libraries_embedded_binaries_embedded_libs")]
 #[test_case("checks/libraries/shared/file-permissions/legacy-libbaz"; "checks_libraries_shared_file_permissions_legacy_libbaz")]
 #[test_case("checks/libraries/shared/file-permissions/shared-libs-exec-bit"; "checks_libraries_shared_file_permissions_shared_libs_exec_bit")]
 #[test_case("checks/libraries/shared/links/legacy-libbaz"; "checks_libraries_shared_links_legacy_libbaz")]

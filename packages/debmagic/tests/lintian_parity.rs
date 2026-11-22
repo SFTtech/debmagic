@@ -23,6 +23,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-cc-by-nc-sa",
     "checks/cruft/cruft-evil-json",
     "checks/cruft/cruft-general-upstream",
+    "checks/cruft/cruft-gfdl-invariants",
     "checks/cruft/cruft-non-free-rfc",
     "checks/cruft/cruft-nvidia-intellectual",
     "checks/cruft/cruft-old-unicode",
@@ -901,6 +902,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-cc-by-nc-sa",
     "checks/cruft/cruft-evil-json",
     "checks/cruft/cruft-general-upstream",
+    "checks/cruft/cruft-gfdl-invariants",
     "checks/cruft/cruft-non-free-rfc",
     "checks/cruft/cruft-nvidia-intellectual",
     "checks/cruft/cruft-old-unicode",
@@ -1302,6 +1304,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/cruft/cruft-cc-by-nc-sa"; "checks_cruft_cruft_cc_by_nc_sa")]
 #[test_case("checks/cruft/cruft-evil-json"; "checks_cruft_cruft_evil_json")]
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
+#[test_case("checks/cruft/cruft-gfdl-invariants"; "checks_cruft_cruft_gfdl_invariants")]
 #[test_case("checks/cruft/cruft-non-free-rfc"; "checks_cruft_cruft_non_free_rfc")]
 #[test_case("checks/cruft/cruft-nvidia-intellectual"; "checks_cruft_cruft_nvidia_intellectual")]
 #[test_case("checks/cruft/cruft-old-unicode"; "checks_cruft_cruft_old_unicode")]
@@ -2182,6 +2185,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/cruft/cruft-cc-by-nc-sa"; "checks_cruft_cruft_cc_by_nc_sa")]
 #[test_case("checks/cruft/cruft-evil-json"; "checks_cruft_cruft_evil_json")]
 #[test_case("checks/cruft/cruft-general-upstream"; "checks_cruft_cruft_general_upstream")]
+#[test_case("checks/cruft/cruft-gfdl-invariants"; "checks_cruft_cruft_gfdl_invariants")]
 #[test_case("checks/cruft/cruft-non-free-rfc"; "checks_cruft_cruft_non_free_rfc")]
 #[test_case("checks/cruft/cruft-nvidia-intellectual"; "checks_cruft_cruft_nvidia_intellectual")]
 #[test_case("checks/cruft/cruft-old-unicode"; "checks_cruft_cruft_old_unicode")]

@@ -222,6 +222,7 @@ use super::rules::NewPackageUsesDateBasedVersionNumber;
 use super::rules::NmuInChangelog;
 use super::rules::NoDebianChanges;
 use super::rules::NoShlibs;
+use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
 use super::rules::NonStandardApache2ModulePackageName;
@@ -1931,6 +1932,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &NoStrongDigestsInDsc,
     ]
 }
 
@@ -2292,6 +2294,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &WeakDependencyOnMiscDepends,
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
+        &NoStrongDigestsInDsc,
     ]
 }
 

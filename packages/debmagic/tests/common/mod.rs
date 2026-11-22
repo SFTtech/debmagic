@@ -922,14 +922,24 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "checks/deb-format/deb-format-udeb-compression",
         "the recipe runs `dpkg-deb -Zlzma`, which dpkg 1.23 rejects",
     ),
+    (
+        "checks/fields/checksums/no-sha256-checksum",
+        "the recipe's `build-spec/post-build.sh` strips `Checksums-Sha256` from the `.dsc`, and the harness does not run post-build scripts",
+    ),
 ];
 
 /// Recipes whose expected hints cannot show up in a Source tree, because the
 /// tree is not the built product (a patch is not applied, say).
-const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[(
-    "checks/files/names/national-encoding-in-patch",
-    "the Latin-1 file name comes from a patch that a Source tree does not apply",
-)];
+const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[
+    (
+        "checks/files/names/national-encoding-in-patch",
+        "the Latin-1 file name comes from a patch that a Source tree does not apply",
+    ),
+    (
+        "checks/fields/checksums/no-sha256-checksum",
+        "the hint is about the built `.dsc`'s `Checksums-Sha256`, and a Source tree has no `.dsc`",
+    ),
+];
 
 /// The reason a recipe is skipped on this host, if it is.
 fn skipped_recipe_reason(recipe_rel: &str) -> Option<&'static str> {

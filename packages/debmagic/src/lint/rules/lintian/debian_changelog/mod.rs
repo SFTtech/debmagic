@@ -50,6 +50,7 @@ mod ln1178_possible_new_upstream_release_without_new_version;
 mod ln1201_possible_missing_colon_in_closes;
 mod ln1203_wrong_name_for_changelog_of_native_package;
 mod ln1204_wrong_name_for_debian_changelog_file;
+mod ln1205_wrong_name_for_upstream_changelog;
 mod nmu;
 pub(in crate::lint::rules::lintian) mod source;
 mod version;
@@ -98,3 +99,4 @@ pub(crate) use ln1178_possible_new_upstream_release_without_new_version::Possibl
 pub(crate) use ln1201_possible_missing_colon_in_closes::PossibleMissingColonInCloses;
 pub(crate) use ln1203_wrong_name_for_changelog_of_native_package::WrongNameForChangelogOfNativePackage;
 pub(crate) use ln1204_wrong_name_for_debian_changelog_file::WrongNameForDebianChangelogFile;
+pub(crate) use ln1205_wrong_name_for_upstream_changelog::WrongNameForUpstreamChangelog;

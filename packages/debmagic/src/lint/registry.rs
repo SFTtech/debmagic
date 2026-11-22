@@ -367,6 +367,7 @@ use super::rules::WrongManualSection;
 use super::rules::WrongNameForChangelogOfNativePackage;
 use super::rules::WrongNameForDebianChangelogFile;
 use super::rules::WrongNameForManualPage;
+use super::rules::WrongNameForUpstreamChangelog;
 use super::rules::WrongSectionForUdeb;
 use super::rules::WrongTeam;
 use super::rules::ZipParseError;
@@ -1791,6 +1792,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PossibleMissingColonInCloses,
         &WrongNameForChangelogOfNativePackage,
         &WrongNameForDebianChangelogFile,
+        &WrongNameForUpstreamChangelog,
     ]
 }
 
@@ -2854,6 +2856,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PossibleMissingColonInCloses,
         &WrongNameForChangelogOfNativePackage,
         &WrongNameForDebianChangelogFile,
+        &WrongNameForUpstreamChangelog,
     ]
 }
 

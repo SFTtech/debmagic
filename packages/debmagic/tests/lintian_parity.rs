@@ -430,6 +430,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-no-dch-native",
     "checks/debian/changelog/changelog-file-symlink",
     "checks/debian/changelog/changelog-file-upstream-html-only",
+    "checks/debian/changelog/changelog-file-wrong-name-upstream",
     "checks/debian/changelog/changelog-file-wrong-weekday",
     "checks/debian/changelog/date-based-version",
     "checks/debian/changelog/generic-dh-make-2008",
@@ -1662,6 +1663,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-no-dch-native"; "checks_debian_changelog_changelog_file_no_dch_native")]
 #[test_case("checks/debian/changelog/changelog-file-symlink"; "checks_debian_changelog_changelog_file_symlink")]
 #[test_case("checks/debian/changelog/changelog-file-upstream-html-only"; "checks_debian_changelog_changelog_file_upstream_html_only")]
+#[test_case("checks/debian/changelog/changelog-file-wrong-name-upstream"; "checks_debian_changelog_changelog_file_wrong_name_upstream")]
 #[test_case("checks/debian/changelog/changelog-file-wrong-weekday"; "checks_debian_changelog_changelog_file_wrong_weekday")]
 #[test_case("checks/debian/changelog/date-based-version"; "checks_debian_changelog_date_based_version")]
 #[test_case("checks/debian/changelog/generic-dh-make-2008"; "checks_debian_changelog_generic_dh_make_2008")]

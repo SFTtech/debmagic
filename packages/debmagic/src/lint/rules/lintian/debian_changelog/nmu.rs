@@ -45,6 +45,9 @@ pub(super) struct NmuFacts {
     pub qa_incorrect_version: bool,
     pub nmu_in_changelog: bool,
     pub maintainer_incorrect_version: bool,
+    pub team_incorrect_version: bool,
+    #[allow(dead_code)] // read by unnecessary-team-upload (LN1219)
+    pub unnecessary_team_upload: bool,
     pub trailer_padded: bool,
 }
 
@@ -92,12 +95,17 @@ pub(super) fn nmu_facts(ctx: &SourceContext<'_>) -> Option<NmuFacts> {
         qa_incorrect_version: false,
         nmu_in_changelog: false,
         maintainer_incorrect_version: false,
+        team_incorrect_version: false,
+        unnecessary_team_upload: false,
         trailer_padded,
     };
     if maintainer.contains("packages@qa.debian.org") {
         facts.no_qa = !mentions_qa;
         facts.qa_incorrect_version = nmuness == 1;
-    } else if !mentions_team {
+    } else if mentions_team {
+        facts.team_incorrect_version = nmuness == 1;
+        facts.unnecessary_team_upload = !upload_is_nmu;
+    } else {
         facts.nmu_in_changelog = mentions_nmu && !upload_is_nmu;
         facts.maintainer_incorrect_version = !upload_is_nmu && nmuness != 0;
         if !mentions_local && !version_local {

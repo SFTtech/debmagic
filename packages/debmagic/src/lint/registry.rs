@@ -305,6 +305,7 @@ use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
 use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
 use super::rules::SystemdServiceInOddLocation;
 use super::rules::TabInLicenseText;
+use super::rules::TeamUploadHasIncorrectVersionNumber;
 use super::rules::TemporaryDebhelperFile;
 use super::rules::TestLeavesPythonVersionUntested;
 use super::rules::TestsuiteDependencyHasUnparsableElements;
@@ -1771,6 +1772,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PossibleNewUpstreamReleaseWithoutNewVersion,
         &UpstreamMetadataInNativeSource,
         &UpstreamMetadataIsNotAFile,
+        &TeamUploadHasIncorrectVersionNumber,
     ]
 }
 
@@ -2097,6 +2099,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PossibleNewUpstreamReleaseWithoutNewVersion,
         &UpstreamMetadataInNativeSource,
         &UpstreamMetadataIsNotAFile,
+        &TeamUploadHasIncorrectVersionNumber,
     ]
 }
 

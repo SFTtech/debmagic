@@ -254,6 +254,7 @@ pub(crate) use binaries_obsolete_crypt::ObsoleteCryptAlias;
 pub(crate) use binaries_obsolete_crypt::ObsoleteDesEncryption;
 pub(crate) use binaries_perl::MissingDependencyOnPerlapi;
 pub(crate) use binaries_prerequisites::MissingDependencyOnLibc;
+pub(crate) use binaries_prerequisites::MissingDependencyOnLibstdc;
 pub(crate) use binaries_prerequisites_php::MissingDependencyOnPhpapi;
 pub(crate) use binaries_profiling::BinaryCompiledWithProfilingEnabled;
 pub(crate) use binaries_rpath::CustomLibrarySearchPath;

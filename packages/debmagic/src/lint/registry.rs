@@ -136,6 +136,7 @@ use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
 use super::rules::DhExecScriptWithoutDhExecFeatures;
+use super::rules::DhInstallInsteadOfDhInstallmodules;
 use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhMakeTemplateInSource;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
@@ -2177,6 +2178,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DesktopEntryLacksIconEntry,
         &DesktopEntryLimitedToEnvironments,
         &PossibleDocumentationButNoDocBaseRegistration,
+        &DhInstallInsteadOfDhInstallmodules,
     ]
 }
 
@@ -2576,6 +2578,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RedundantPriorityOptionalField,
         &InstallableFieldMirrorsSource,
         &InconsistentAppstreamMetadataLicense,
+        &DhInstallInsteadOfDhInstallmodules,
     ]
 }
 

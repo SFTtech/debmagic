@@ -956,8 +956,8 @@ pub(crate) use mimeinfo::PackageContainsMimeCacheFile;
 pub(crate) use mimeinfo::PackageContainsMimeFileOutsidePackageDir;
 pub(crate) use mimeinfo::PackageContainsMimeinfoCacheFile;
 pub(crate) use modprobe::{
-    DirectoryInModprobeD, FileInEtcModprobeD, NonConfFileInModprobeD,
-    ObsoleteCommandInModprobeDFile,
+    DhInstallInsteadOfDhInstallmodules, DirectoryInModprobeD, FileInEtcModprobeD,
+    NonConfFileInModprobeD, ObsoleteCommandInModprobeDFile,
 };
 pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};
 pub(crate) use po_debconf::{

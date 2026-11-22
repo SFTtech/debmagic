@@ -463,6 +463,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/apache2/apache2-modules-general",
     "checks/apache2/apache2-webapplications-general",
     "checks/application-not-library/application-not-library",
+    "checks/appstream-metadata/appstream-metadata",
     "checks/apt/files-foo-in-bar",
     "checks/binaries/architecture/binaries-misplaced",
     "checks/binaries/corrupted/legacy-debug",
@@ -2001,6 +2002,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/apache2/apache2-modules-general"; "checks_apache2_apache2_modules_general")]
 #[test_case("checks/apache2/apache2-webapplications-general"; "checks_apache2_apache2_webapplications_general")]
 #[test_case("checks/application-not-library/application-not-library"; "checks_application_not_library_application_not_library")]
+#[test_case("checks/appstream-metadata/appstream-metadata"; "checks_appstream_metadata_appstream_metadata")]
 #[test_case("checks/apt/files-foo-in-bar"; "checks_apt_files_foo_in_bar")]
 #[test_case("checks/binaries/architecture/binaries-misplaced"; "checks_binaries_architecture_binaries_misplaced")]
 #[test_case("checks/binaries/corrupted/legacy-debug"; "checks_binaries_corrupted_legacy_debug")]

@@ -4,6 +4,8 @@
 
 mod ln0355_uses_implicit_await_trigger;
 mod ln1231_repeated_trigger_name;
+mod ln1232_unknown_trigger;
 
 pub(crate) use ln0355_uses_implicit_await_trigger::UsesImplicitAwaitTrigger;
 pub(crate) use ln1231_repeated_trigger_name::RepeatedTriggerName;
+pub(crate) use ln1232_unknown_trigger::UnknownTrigger;

@@ -254,6 +254,7 @@ use super::rules::PackageContainsMimeinfoCacheFile;
 use super::rules::PackageContainsMultipleDpiFonts;
 use super::rules::PackageContainsThumbnailsDir;
 use super::rules::PackageContainsTimestampedGzip;
+use super::rules::PackageContainsUpstreamInstallationDocumentation;
 use super::rules::PackageContainsXvpicsDir;
 use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
@@ -1941,6 +1942,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TypelibInArchAllPackage,
         &FileContainsFixmePlaceholder,
         &PackageContainsDocumentationOutsideUsrShareDoc,
+        &PackageContainsUpstreamInstallationDocumentation,
     ]
 }
 
@@ -3079,6 +3081,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TransitionalPackageNotOldlibsOptional,
         &TypelibInArchAllPackage,
         &PackageContainsDocumentationOutsideUsrShareDoc,
+        &PackageContainsUpstreamInstallationDocumentation,
     ]
 }
 

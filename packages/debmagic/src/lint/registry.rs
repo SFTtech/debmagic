@@ -500,6 +500,7 @@ use super::rules::UpstreamMetadataInNativeSource;
 use super::rules::UpstreamMetadataIsNotAFile;
 use super::rules::UpstreamMetadataMissingBugTracking;
 use super::rules::UpstreamMetadataMissingRepository;
+use super::rules::UpstreamMetadataNotYamlMapping;
 use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::UsesDeprecatedAdttmp;
 use super::rules::UsesDeprecatedPythonStdlib;
@@ -2129,6 +2130,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UpstreamMetadataFieldUnknown,
         &UpstreamMetadataMissingBugTracking,
         &UpstreamMetadataMissingRepository,
+        &UpstreamMetadataNotYamlMapping,
     ]
 }
 
@@ -2526,6 +2528,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UpstreamMetadataFieldUnknown,
         &UpstreamMetadataMissingBugTracking,
         &UpstreamMetadataMissingRepository,
+        &UpstreamMetadataNotYamlMapping,
     ]
 }
 

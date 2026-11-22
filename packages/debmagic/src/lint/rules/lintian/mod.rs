@@ -421,7 +421,7 @@ pub(crate) use debian_copyright::{
     PipeSymbolUsedAsLicenseDisjunction, SourceShipsExcludedFile,
     SpaceInStdShortnameInDep5Copyright, SyntaxErrorInDep5Copyright, TabInLicenseText,
     UnknownParagraphInDep5Copyright, UnusedLicenseParagraphInDep5Copyright,
-    UsrShareDocSymlinkWithoutDependency,
+    UsrShareDocSymlinkPointsOutsideOfUsrShareDoc, UsrShareDocSymlinkWithoutDependency,
 };
 pub(crate) use fields_version::{
     BadVersionNumber, BinaryNmuDebianRevisionInSource, DebianRevisionIsZero,

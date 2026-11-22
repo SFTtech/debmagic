@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): symlink-target-in-build-tree (LN1265) /var/lib/sbuild/1024 [etc/some.conf]
+E: example (binary): symlink-target-in-build-tree (LN1265) /build/tool [usr/lib/x/link]
+E: example (binary): symlink-target-in-build-tree (LN1265) /var/cache/pbuilder/build/x [usr/lib/x/link]
+E: example (binary): symlink-target-in-build-tree (LN1265) /tmp/buildd/x [usr/lib/x/link]

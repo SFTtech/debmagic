@@ -353,6 +353,7 @@ use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
 use super::rules::SurplusSharedLibrarySymbols;
+use super::rules::SymbolsDeclaresDependencyOnOtherPackage;
 use super::rules::SymlinkTargetInBuildTree;
 use super::rules::SymlinkTargetInTmp;
 use super::rules::SyntaxErrorInDebconfTemplate;
@@ -1937,6 +1938,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebugSymbolMigrationPossiblyComplete,
         &NoDhSequencer,
         &EmptySharedLibrarySymbols,
+        &SymbolsDeclaresDependencyOnOtherPackage,
     ]
 }
 
@@ -3073,6 +3075,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
         &EmptySharedLibrarySymbols,
+        &SymbolsDeclaresDependencyOnOtherPackage,
     ]
 }
 

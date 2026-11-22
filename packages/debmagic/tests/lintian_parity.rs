@@ -292,6 +292,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/homepage/fields-github-homepage",
     "checks/fields/homepage/fields-gitlab-homepage",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
+    "checks/fields/homepage/fields-no-source-homepage",
     "checks/fields/homepage/fields-salsa-homepage",
     "checks/fields/homepage/homepage-refers-to-filesystem-listing",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
@@ -1379,6 +1380,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/homepage/fields-github-homepage",
     "checks/fields/homepage/fields-gitlab-homepage",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
+    "checks/fields/homepage/fields-no-source-homepage",
     "checks/fields/homepage/fields-salsa-homepage",
     "checks/fields/homepage/homepage-refers-to-filesystem-listing",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
@@ -1894,6 +1896,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/homepage/fields-github-homepage"; "checks_fields_homepage_fields_github_homepage")]
 #[test_case("checks/fields/homepage/fields-gitlab-homepage"; "checks_fields_homepage_fields_gitlab_homepage")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
+#[test_case("checks/fields/homepage/fields-no-source-homepage"; "checks_fields_homepage_fields_no_source_homepage")]
 #[test_case("checks/fields/homepage/fields-salsa-homepage"; "checks_fields_homepage_fields_salsa_homepage")]
 #[test_case("checks/fields/homepage/homepage-refers-to-filesystem-listing"; "checks_fields_homepage_homepage_refers_to_filesystem_listing")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
@@ -2983,6 +2986,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/homepage/fields-github-homepage"; "checks_fields_homepage_fields_github_homepage")]
 #[test_case("checks/fields/homepage/fields-gitlab-homepage"; "checks_fields_homepage_fields_gitlab_homepage")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
+#[test_case("checks/fields/homepage/fields-no-source-homepage"; "checks_fields_homepage_fields_no_source_homepage")]
 #[test_case("checks/fields/homepage/fields-salsa-homepage"; "checks_fields_homepage_fields_salsa_homepage")]
 #[test_case("checks/fields/homepage/homepage-refers-to-filesystem-listing"; "checks_fields_homepage_homepage_refers_to_filesystem_listing")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]

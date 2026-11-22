@@ -648,7 +648,7 @@ pub(crate) use fields_text::{
     ExplicitDefaultInPackageType, FieldTooLong, HomepageFieldUsesInsecureUri,
     HomepageForBioconductorPackageNotCanonical, HomepageForCpanPackageContainsVersion,
     HomepageForCranPackageNotCanonical, HomepageGithubUrlEndsWithDotGit,
-    HomepageGitlabUrlEndsWithDotGit, HomepageRefersToFilesystemListing,
+    HomepageGitlabUrlEndsWithDotGit, HomepageInBinaryPackage, HomepageRefersToFilesystemListing,
     HomepageRefersToObsoleteDebianInfrastructure, HomepageSalsaUrlEndsWithDotGit,
     MissingSeparatorBetweenItems, NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional,
     RecommendedField, RedundantBugsField, RedundantControlRelation, RedundantOriginField,

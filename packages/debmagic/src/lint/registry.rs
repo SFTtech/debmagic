@@ -196,6 +196,7 @@ use super::rules::HomepageForBioconductorPackageNotCanonical;
 use super::rules::HomepageForCranPackageNotCanonical;
 use super::rules::HomepageGithubUrlEndsWithDotGit;
 use super::rules::HomepageGitlabUrlEndsWithDotGit;
+use super::rules::HomepageInBinaryPackage;
 use super::rules::HomepageRefersToFilesystemListing;
 use super::rules::HomepageSalsaUrlEndsWithDotGit;
 use super::rules::IllegalMultiArchValue;
@@ -2189,6 +2190,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &HomepageGitlabUrlEndsWithDotGit,
         &HomepageSalsaUrlEndsWithDotGit,
         &HomepageRefersToFilesystemListing,
+        &HomepageInBinaryPackage,
     ]
 }
 
@@ -2597,6 +2599,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &HomepageGitlabUrlEndsWithDotGit,
         &HomepageSalsaUrlEndsWithDotGit,
         &HomepageRefersToFilesystemListing,
+        &HomepageInBinaryPackage,
     ]
 }
 

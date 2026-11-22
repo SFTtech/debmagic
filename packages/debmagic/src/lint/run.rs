@@ -995,7 +995,7 @@ Rules
             "Source: example\n\
              Section: devel\n\
              Maintainer: Example <ex@example.com>\n\
-             Standards-Version: 4.7.2\n\
+             Standards-Version: 4.7.4\n\
              \n\
              Package: example\n\
              Architecture: all\n\

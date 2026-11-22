@@ -66,6 +66,7 @@ mod executable;
 mod fields_architecture;
 mod fields_bugs;
 mod fields_built_using;
+mod fields_checksums;
 mod fields_empty;
 mod fields_format;
 mod fields_installer_menu_item;
@@ -80,6 +81,7 @@ mod fields_relations_more;
 mod fields_source;
 mod fields_standards_version;
 mod fields_static_built_using;
+mod fields_style;
 mod fields_text;
 mod fields_uploaders;
 mod fields_vcs;
@@ -343,6 +345,7 @@ pub(crate) use documentation::{
     SourceContainsPrebuiltDoxygenDocumentation, ZeroByteFileInDocDirectory,
 };
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
+pub(crate) use fields_checksums::NoStrongDigestsInDsc;
 pub(crate) use fields_empty::EmptyField;
 pub(crate) use fields_format::UnsupportedSourceFormat;
 pub(crate) use fields_maintainer_team::WrongTeam;
@@ -354,6 +357,7 @@ pub(crate) use fields_multi_line::MultilineField;
 pub(crate) use fields_package::BadPackageName;
 pub(crate) use fields_package::PackageNotLowercase;
 pub(crate) use fields_source::SourceFieldMalformed;
+pub(crate) use fields_style::CuteField;
 pub(crate) use files_architecture::PackageContainsNoArchDependentFiles;
 pub(crate) use files_architecture::TripletDirAndArchitectureMismatch;
 pub(crate) use files_banned_compiled_help::SourceContainsPrebuiltMsHelpFile;
@@ -541,12 +545,16 @@ pub(crate) use debian_watch::{
     ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{
-    DescriptionContainsDhMakePerlTemplate, DescriptionContainsInvalidControlStatement,
-    DescriptionContainsTabs, DescriptionIsDebmakeTemplate, DescriptionIsDhMakeTemplate,
-    DescriptionIsPkgName, DescriptionStartsWithLeadingSpaces, DescriptionStartsWithPackageName,
-    DescriptionSynopsisIsEmpty, DescriptionSynopsisStartsWithArticle, DescriptionTooShort,
+    CapitalizationErrorInDescription, DescriptionContainsDhMakePerlTemplate,
+    DescriptionContainsInvalidControlStatement, DescriptionContainsTabs,
+    DescriptionIsDebmakeTemplate, DescriptionIsDhMakeTemplate, DescriptionIsPkgName,
+    DescriptionMentionsPlannedFeatures, DescriptionStartsWithLeadingSpaces,
+    DescriptionStartsWithPackageName, DescriptionSynopsisIsEmpty,
+    DescriptionSynopsisStartsWithArticle, DescriptionTooShort,
     ExtendedDescriptionContainsEmptyParagraph, ExtendedDescriptionIsEmpty,
-    ExtendedDescriptionLineTooLong, PossibleUnindentedListInExtendedDescription, SynopsisTooLong,
+    ExtendedDescriptionIsProbablyTooShort, ExtendedDescriptionLineTooLong,
+    PossibleUnindentedListInExtendedDescription, SpellingErrorInDescription, SynopsisIsASentence,
+    SynopsisTooLong, UsingFirstPersonInDescription,
 };
 pub(crate) use documentation_examples::NestedExamplesDirectory;
 pub(crate) use documentation_manual::{
@@ -575,35 +583,36 @@ pub(crate) use fields_relations_more::{
     AlternatesNotAllowed, BadProvidedPackageName, BadRelation, BuildConflictsWithBuildDependency,
     BuildDependsOnBuildEssentialPackageWithoutUsingVersion,
     BuildDependsOnEssentialPackageWithoutUsingVersion, BuildDependsOnObsoleteBootstrap,
-    ConflictsWithDependency, DependsOnEssentialPackageWithoutUsingVersion, DependsOnMetapackage,
-    DependsOnObsoleteBootstrap, DependsOnPackagingDev, DependsOnPythonMinimal,
-    InvalidArchStringInSourceRelation, InvalidProfileNameInSourceRelation,
+    ConflictsWithDependency, ConflictsWithVersion, DependsOnEssentialPackageWithoutUsingVersion,
+    DependsOnMetapackage, DependsOnObsoleteBootstrap, DependsOnPackagingDev,
+    DependsOnPythonMinimal, InvalidArchStringInSourceRelation, InvalidProfileNameInSourceRelation,
     LibRecommendsDocumentation, LibmoduleBuildPerlNeedsToBeInBuildDepends,
     LibmoduleBuildTinyPerlNeedsToBeInBuildDepends,
     MailTransportAgentDependencyDoesNotSpecifyDefaultMta, NeedlessDependencyOnJre,
-    NeedlesslyDependsOnAwk, ObsoleteRelationForm, PackageDependsOnAnXFontPackage,
-    PackageDependsOnMultipleLibpngVersions, PackageDependsOnMultipleLibstdcVersions,
-    PackageDependsOnMultipleTclVersions, PackageDependsOnMultipleTclxVersions,
-    PackageDependsOnMultipleTkVersions, PackageRelationWithPerlModules,
-    RedundantBuildPrerequisites,
+    NeedlesslyDependsOnAwk, ObsoleteRelationForm, OredDependsOnObsoletePackage,
+    PackageDependsOnAnXFontPackage, PackageDependsOnMultipleLibpngVersions,
+    PackageDependsOnMultipleLibstdcVersions, PackageDependsOnMultipleTclVersions,
+    PackageDependsOnMultipleTclxVersions, PackageDependsOnMultipleTkVersions,
+    PackageRelationWithPerlModules, RedundantBuildPrerequisites,
 };
 pub(crate) use fields_text::{
     BadHomepage, DescriptionContainsHomepage, DescriptionSynopsisIsDuplicated,
     EssentialInSourcePackage, EssentialNoNotNeeded, ExcessivePriorityForLibraryPackage,
-    ExplicitDefaultInPackageType, FieldTooLong, HomepageForCpanPackageContainsVersion,
-    HomepageRefersToObsoleteDebianInfrastructure, MissingSeparatorBetweenItems,
-    NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional, RecommendedField,
-    RedundantBugsField, RedundantControlRelation, RedundantOriginField, SectionIsDhMakeTemplate,
-    SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional, UnknownEssentialValue,
-    UnknownPriority, UnknownSection, WrongSectionForUdeb,
+    ExplicitDefaultInPackageType, FieldTooLong, HomepageFieldUsesInsecureUri,
+    HomepageForCpanPackageContainsVersion, HomepageRefersToObsoleteDebianInfrastructure,
+    MissingSeparatorBetweenItems, NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional,
+    RecommendedField, RedundantBugsField, RedundantControlRelation, RedundantOriginField,
+    SectionIsDhMakeTemplate, SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional,
+    UnknownEssentialValue, UnknownPriority, UnknownSection, WrongSectionAccordingToPackageName,
+    WrongSectionForUdeb,
 };
 pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
 pub(crate) use fields_uploaders::UploaderNameMissing;
 pub(crate) use fields_vcs::{
     OrphanedPackageMaintainedInPrivateSpace, OrphanedPackageNotMaintainedInDebianInfrastructure,
     VcsBrowserLinksToEmptyView, VcsFieldBitrotted, VcsFieldHasUnexpectedSpaces, VcsFieldMismatch,
-    VcsFieldUsesInsecureUri, VcsFieldUsesUnknownUriFormat, VcsFieldsUseMoreThanOneVcs,
-    VcsGitUsesInvalidUserUri,
+    VcsFieldNotCanonical, VcsFieldUsesInsecureUri, VcsFieldUsesUnknownUriFormat,
+    VcsFieldsUseMoreThanOneVcs, VcsGitUsesInvalidUserUri,
 };
 pub(crate) use files_artifact::{
     DebianAddsArchControlDir, DebianAddsArchInventoryFile, DebianAddsBtsControlDir,
@@ -785,7 +794,8 @@ pub(crate) use fields_relations_extra::{
     ObsoleteRelationFormInSource, RedundantInstallationPrerequisite, WeakLibraryDevDependency,
 };
 pub(crate) use fields_standards_version::{
-    InvalidStandardsVersion, NewerStandardsVersion, TimewarpStandardsVersion,
+    InvalidStandardsVersion, NewerStandardsVersion, OutOfDateStandardsVersion,
+    TimewarpStandardsVersion,
 };
 pub(crate) use fields_static_built_using::InvalidValueInStaticBuiltUsingField;
 pub(crate) use files_non_free::LicenseProblemMd5sumNonFreeFile;

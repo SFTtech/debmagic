@@ -38,6 +38,7 @@ use super::rules::BuildDependsOnDhSysuser;
 use super::rules::BuildDependsOnNonBuildPackage;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
+use super::rules::CapitalizationErrorInDescription;
 use super::rules::CarriageReturnLineFeed;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
@@ -51,6 +52,7 @@ use super::rules::ComposerPrerequisite;
 use super::rules::ConfigDoesNotLoadConfmodule;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::ConflictingNegationInSourceRelation;
+use super::rules::ConflictsWithVersion;
 use super::rules::ControlFileContainsDhMakeVcsComment;
 use super::rules::ControlFileHasBadOwner;
 use super::rules::ControlFileHasBadPermissions;
@@ -61,6 +63,7 @@ use super::rules::ControlInterpreterWithoutDepends;
 use super::rules::ControlInterpreterWithoutPredepends;
 use super::rules::CshConsideredHarmful;
 use super::rules::CustomLibrarySearchPath;
+use super::rules::CuteField;
 use super::rules::DbgPackageMissingDepends;
 use super::rules::DbusPolicyAtConsole;
 use super::rules::DbusPolicyExcessivelyBroad;
@@ -109,6 +112,7 @@ use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
+use super::rules::DescriptionMentionsPlannedFeatures;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
@@ -142,6 +146,7 @@ use super::rules::ExecutableJarWithoutMainClass;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
+use super::rules::ExtendedDescriptionIsProbablyTooShort;
 use super::rules::ExtraLicenseFile;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::FSSTNDDirInManualPage;
@@ -164,6 +169,7 @@ use super::rules::HardeningNoBindnow;
 use super::rules::HardeningNoFortifyFunctions;
 use super::rules::HardeningNoPie;
 use super::rules::HardeningNoRelro;
+use super::rules::HomepageFieldUsesInsecureUri;
 use super::rules::IllegalMultiArchValue;
 use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
@@ -249,6 +255,7 @@ use super::rules::NmuInChangelog;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
 use super::rules::NoShlibs;
+use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
 use super::rules::NonStandardApache2ModulePackageName;
@@ -270,6 +277,8 @@ use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
 use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
+use super::rules::OredDependsOnObsoletePackage;
+use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
@@ -390,6 +399,7 @@ use super::rules::SourceFieldMalformed;
 use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
+use super::rules::SpellingErrorInDescription;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
@@ -399,6 +409,7 @@ use super::rules::SymbolsDeclaresDependencyOnOtherPackage;
 use super::rules::SymbolsFileMissingBuildDependsPackageField;
 use super::rules::SymlinkTargetInBuildTree;
 use super::rules::SymlinkTargetInTmp;
+use super::rules::SynopsisIsASentence;
 use super::rules::SyntaxErrorInDebconfTemplate;
 use super::rules::SyntaxErrorInDep5Copyright;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
@@ -464,11 +475,13 @@ use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::UsesDeprecatedAdttmp;
 use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
+use super::rules::UsingFirstPersonInDescription;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VcsBrowserLinksToEmptyView;
 use super::rules::VcsFieldHasUnexpectedSpaces;
+use super::rules::VcsFieldNotCanonical;
 use super::rules::VcsFieldUsesInsecureUri;
 use super::rules::VcsFieldUsesUnknownUriFormat;
 use super::rules::VcsFieldsUseMoreThanOneVcs;
@@ -493,6 +506,7 @@ use super::rules::WrongNameForChangelogOfNativePackage;
 use super::rules::WrongNameForDebianChangelogFile;
 use super::rules::WrongNameForManualPage;
 use super::rules::WrongNameForUpstreamChangelog;
+use super::rules::WrongSectionAccordingToPackageName;
 use super::rules::WrongSectionForUdeb;
 use super::rules::WrongTeam;
 use super::rules::ZipParseError;
@@ -2043,6 +2057,20 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AcuteAccentInManualPage,
         &PythonTracebackInManpage,
         &StrayFolderInManual,
+        &NoStrongDigestsInDsc,
+        &CapitalizationErrorInDescription,
+        &DescriptionMentionsPlannedFeatures,
+        &ExtendedDescriptionIsProbablyTooShort,
+        &SpellingErrorInDescription,
+        &SynopsisIsASentence,
+        &UsingFirstPersonInDescription,
+        &HomepageFieldUsesInsecureUri,
+        &ConflictsWithVersion,
+        &OredDependsOnObsoletePackage,
+        &WrongSectionAccordingToPackageName,
+        &OutOfDateStandardsVersion,
+        &CuteField,
+        &VcsFieldNotCanonical,
     ]
 }
 
@@ -2429,6 +2457,11 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianControlHasObsoleteDbgPackage,
         &FileContainsFixmePlaceholder,
         &SourceContainsPrebuiltDoxygenDocumentation,
+        &NoStrongDigestsInDsc,
+        &HomepageFieldUsesInsecureUri,
+        &OutOfDateStandardsVersion,
+        &CuteField,
+        &VcsFieldNotCanonical,
     ]
 }
 
@@ -3232,6 +3265,16 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &AcuteAccentInManualPage,
         &PythonTracebackInManpage,
         &StrayFolderInManual,
+        &CapitalizationErrorInDescription,
+        &DescriptionMentionsPlannedFeatures,
+        &ExtendedDescriptionIsProbablyTooShort,
+        &SpellingErrorInDescription,
+        &SynopsisIsASentence,
+        &UsingFirstPersonInDescription,
+        &HomepageFieldUsesInsecureUri,
+        &ConflictsWithVersion,
+        &OredDependsOnObsoletePackage,
+        &WrongSectionAccordingToPackageName,
     ]
 }
 

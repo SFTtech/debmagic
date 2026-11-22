@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): cute-field (LN1370) HOMEPAGE vs Homepage [debian/control]
+P: example (source): cute-field (LN1370) Rules-requires-root vs Rules-Requires-Root [debian/control]
+P: example (source): cute-field (LN1370) X-Dh-Compat vs X-DH-Compat [debian/control]

@@ -805,6 +805,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/libraries/shared/links/shared-libs-ldconfig-not-symlink",
     "checks/libraries/shared/links/shared-libs-ldconfig-wrong-file",
     "checks/libraries/shared/links/shared-libs-missing-ldconfig-symlink",
+    "checks/libraries/shared/links/shared-libs-non-dev-symlink",
     "checks/libraries/shared/multi-arch/shared-libs-multi-arch-foreign",
     "checks/libraries/shared/relocation/shared-libs-non-pic-i386",
     "checks/libraries/shared/soname/binaries-doesnt-match-sonames",
@@ -2120,6 +2121,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/libraries/shared/links/shared-libs-ldconfig-not-symlink"; "checks_libraries_shared_links_shared_libs_ldconfig_not_symlink")]
 #[test_case("checks/libraries/shared/links/shared-libs-ldconfig-wrong-file"; "checks_libraries_shared_links_shared_libs_ldconfig_wrong_file")]
 #[test_case("checks/libraries/shared/links/shared-libs-missing-ldconfig-symlink"; "checks_libraries_shared_links_shared_libs_missing_ldconfig_symlink")]
+#[test_case("checks/libraries/shared/links/shared-libs-non-dev-symlink"; "checks_libraries_shared_links_shared_libs_non_dev_symlink")]
 #[test_case("checks/libraries/shared/multi-arch/shared-libs-multi-arch-foreign"; "checks_libraries_shared_multi_arch_shared_libs_multi_arch_foreign")]
 #[test_case("checks/libraries/shared/relocation/shared-libs-non-pic-i386"; "checks_libraries_shared_relocation_shared_libs_non_pic_i386")]
 #[test_case("checks/libraries/shared/soname/binaries-doesnt-match-sonames"; "checks_libraries_shared_soname_binaries_doesnt_match_sonames")]

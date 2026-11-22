@@ -376,6 +376,7 @@ pub(crate) use libraries_shared_file_permissions::SharedLibraryIsExecutable;
 pub(crate) use libraries_shared_links::LacksVersionedLinkToSharedLibrary;
 pub(crate) use libraries_shared_links::LdconfigSymlinkIsNotASymlink;
 pub(crate) use libraries_shared_links::LdconfigSymlinkReferencingWrongFile;
+pub(crate) use libraries_shared_links::LinkToSharedLibraryInWrongPackage;
 pub(crate) use libraries_shared_multi_arch::SharedLibraryIsMultiArchForeign;
 pub(crate) use libraries_shared_relocation::SpecificAddressInSharedLibrary;
 pub(crate) use libraries_shared_stack::ExecutableStackInSharedLibrary;

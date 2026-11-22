@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): spelling-error-in-rules-requires-root (LN1258) Rules-Require-Root [debian/control]
+W: example (source): spelling-error-in-rules-requires-root (LN1258) Rules-Require-Roots [debian/control]
+W: example (source): spelling-error-in-rules-requires-root (LN1258) rules-requires-root [debian/control]

@@ -346,6 +346,7 @@ use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
+use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::StrippedLibrary;
 use super::rules::SurplusSharedLibrarySymbols;
 use super::rules::SymlinkTargetInBuildTree;
@@ -1927,6 +1928,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TransitionalPackageNotOldlibsOptional,
         &Python3DependsButNoPython3Helper,
         &WeakDependencyOnMiscDepends,
+        &SpellingErrorInRulesRequiresRoot,
     ]
 }
 
@@ -2286,6 +2288,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MultilineField,
         &Python3DependsButNoPython3Helper,
         &WeakDependencyOnMiscDepends,
+        &SpellingErrorInRulesRequiresRoot,
     ]
 }
 

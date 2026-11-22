@@ -83,6 +83,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
+    "checks/debian/control/field/rules-requires-root/fields-unknown-fields",
     "checks/debian/control/link/control-file-symlink",
     "checks/debian/control/prerequisite/circular/control-file-general",
     "checks/debian/control/prerequisite/circular/control-file-suggests-itself",
@@ -961,6 +962,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/field/misplaced/legacy-foo++",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
+    "checks/debian/control/field/rules-requires-root/fields-unknown-fields",
     "checks/debian/control/link/control-file-symlink",
     "checks/debian/control/prerequisite/circular/control-file-general",
     "checks/debian/control/prerequisite/circular/control-file-suggests-itself",
@@ -1360,6 +1362,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
+#[test_case("checks/debian/control/field/rules-requires-root/fields-unknown-fields"; "checks_debian_control_field_rules_requires_root_fields_unknown_fields")]
 #[test_case("checks/debian/control/link/control-file-symlink"; "checks_debian_control_link_control_file_symlink")]
 #[test_case("checks/debian/control/prerequisite/circular/control-file-general"; "checks_debian_control_prerequisite_circular_control_file_general")]
 #[test_case("checks/debian/control/prerequisite/circular/control-file-suggests-itself"; "checks_debian_control_prerequisite_circular_control_file_suggests_itself")]
@@ -2240,6 +2243,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/field/misplaced/legacy-foo++"; "checks_debian_control_field_misplaced_legacy_foo_")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
+#[test_case("checks/debian/control/field/rules-requires-root/fields-unknown-fields"; "checks_debian_control_field_rules_requires_root_fields_unknown_fields")]
 #[test_case("checks/debian/control/link/control-file-symlink"; "checks_debian_control_link_control_file_symlink")]
 #[test_case("checks/debian/control/prerequisite/circular/control-file-general"; "checks_debian_control_prerequisite_circular_control_file_general")]
 #[test_case("checks/debian/control/prerequisite/circular/control-file-suggests-itself"; "checks_debian_control_prerequisite_circular_control_file_suggests_itself")]

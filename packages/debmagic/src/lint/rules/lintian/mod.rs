@@ -369,8 +369,8 @@ pub(crate) use debian_upstream::UpstreamMetadataYamlInvalid;
 pub(crate) use debug_obsolete::DebianControlHasObsoleteDbgPackage;
 pub(crate) use desktop::{
     DbusPolicyAtConsole, DbusPolicyExcessivelyBroad, DbusPolicyInEtc,
-    DbusPolicyWithoutSendDestination, DbusSystemServiceWrongName, DesktopFileInWrongDir,
-    FileInDiscouragedX11FontDirectory, FileInUnknownX11FontDirectory,
+    DbusPolicyWithoutSendDestination, DbusSessionServiceWrongName, DbusSystemServiceWrongName,
+    DesktopFileInWrongDir, FileInDiscouragedX11FontDirectory, FileInUnknownX11FontDirectory,
     IconSizeAndDirectoryNameMismatch, MissingCallToUpdateFonts, PackageContainsCompiledFontFile,
     PackageContainsMultipleDpiFonts, PackageInstallsFileToUsrX11r6, PackageMixesMiscAndDpiFonts,
     RasterImageInScalableDirectory,
@@ -579,8 +579,9 @@ pub(crate) use debian_readme::{
 pub(crate) use debian_rules::{
     BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,
     DebianRulesCallsDebhelperInOddOrder, DebianRulesCallsNproc, DebianRulesCallsPwd,
-    DebianRulesIgnoresMakeCleanError, DebianRulesIsDhMakeTemplate, DebianRulesIsSymlink,
-    DebianRulesMissingRequiredTarget, DebianRulesNotAMakefile, DebianRulesParsesDpkgParsechangelog,
+    DebianRulesContainsUnnecessaryGetOrigSourceTarget, DebianRulesIgnoresMakeCleanError,
+    DebianRulesIsDhMakeTemplate, DebianRulesIsSymlink, DebianRulesMissingRequiredTarget,
+    DebianRulesNotAMakefile, DebianRulesParsesDpkgParsechangelog,
     DebianRulesPassesVersionInfoToDhShlibdeps, DebianRulesSetsDebBuildOptions,
     DebianRulesSetsDhCompat, DebianRulesSetsDpkgArchitectureVariable,
     DebianRulesShouldNotSetCFLAGSFromNoopt, DebianRulesShouldNotUseDhExtraAddons,
@@ -591,7 +592,7 @@ pub(crate) use debian_rules::{
     DebianRulesUsesWrongEnvironmentVariable, DebugSymbolMigrationPossiblyComplete,
     MissingBuildDependsForCleanTargetInDebianRules, NoDhSequencer,
     OverrideDhCleanDoesNotCallDhClean, OverrideDhFixpermsDoesNotCallDhFixperms,
-    RulesRequireBuildPrerequisite,
+    RulesRequireBuildPrerequisite, UnnecessarySourceDateEpochAssignment,
 };
 pub(crate) use debian_shlibs::{
     DistantPrerequisiteInShlibs, DuplicateEntryInSymbolsControlFile, DuplicateInShlibs,
@@ -614,6 +615,15 @@ pub(crate) use debian_watch::{
     DebianWatchLacksSourceforgeRedirector, DebianWatchLineInvalid, DebianWatchNotManglingVersion,
     DebianWatchUsesInsecureUri, MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
     ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
+    DebianWatchContainsDhMakeTemplate, DebianWatchCouldVerifyDownload,
+    DebianWatchDoesNotCheckOpenpgpSignature, DebianWatchFilePubkeyFileIsMissing,
+    DebianWatchFileSpecifiesOldUpstreamVersion, DebianWatchFileSpecifiesWrongUpstreamVersion,
+    DebianWatchFileUsesDeprecatedGithubredir, DebianWatchFileUsesDeprecatedSfRedirectorMethod,
+    DebianWatchLacksSourceforgeRedirector, DebianWatchLineInvalid,
+    DebianWatchManglesDebianVersionImproperly, DebianWatchManglesUpstreamVersionImproperly,
+    DebianWatchNotManglingVersion, DebianWatchUsesInsecureUri, MissingDebianWatchFileStandard,
+    MultipleDebianWatchFileStandards, ObsoleteDebianWatchFileStandard,
+    UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{
     CapitalizationErrorInDescription, DescriptionContainsDhMakePerlTemplate,
@@ -833,10 +843,12 @@ pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;
 pub(crate) use debian_patches::{
     Format30ButDebianChangesPatch, InvalidDep3FormatPatchBugFieldDefaultValue,
     InvalidDep3FormatPatchBugNotContainUrl, InvalidDep3FormatPatchMaybeBugDebian,
-    InvalidDep3FormatPatchOriginFieldDefaultValue, PackageUsesVendorSpecificPatchSeries,
-    PatchFilePresentButNotMentionedInSeries, PatchSystemButNoSourceReadme,
-    QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription, QuiltPatchWithNonStandardOptions,
-    QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
+    InvalidDep3FormatPatchOriginFieldDefaultValue, InvalidDep3FormatPatchWrongBugDebianUrl,
+    InvalidDep3FormatPatchWrongLastUpdate, PackageUsesVendorSpecificPatchSeries,
+    PatchFilePresentButNotMentionedInSeries, PatchNotForwardedUpstream,
+    PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription,
+    QuiltPatchUsesDpatchPlaceholder, QuiltPatchUsingTemplateDescription,
+    QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,

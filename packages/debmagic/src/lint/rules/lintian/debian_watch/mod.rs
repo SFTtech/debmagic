@@ -17,6 +17,9 @@ mod ln0102_debian_watch_could_verify_download;
 mod ln1343_debian_watch_does_not_check_openpgp_signature;
 mod ln1344_debian_watch_file_is_missing;
 mod ln1345_debian_watch_uses_insecure_uri;
+mod ln1536_debian_watch_contains_dh_make_template;
+mod ln1537_debian_watch_mangles_debian_version_improperly;
+mod ln1538_debian_watch_mangles_upstream_version_improperly;
 mod standard;
 
 pub(crate) use ln0089_missing_debian_watch_file_standard::MissingDebianWatchFileStandard;
@@ -35,3 +38,6 @@ pub(crate) use ln0102_debian_watch_could_verify_download::DebianWatchCouldVerify
 pub(crate) use ln1343_debian_watch_does_not_check_openpgp_signature::DebianWatchDoesNotCheckOpenpgpSignature;
 pub(crate) use ln1344_debian_watch_file_is_missing::DebianWatchFileIsMissing;
 pub(crate) use ln1345_debian_watch_uses_insecure_uri::DebianWatchUsesInsecureUri;
+pub(crate) use ln1536_debian_watch_contains_dh_make_template::DebianWatchContainsDhMakeTemplate;
+pub(crate) use ln1537_debian_watch_mangles_debian_version_improperly::DebianWatchManglesDebianVersionImproperly;
+pub(crate) use ln1538_debian_watch_mangles_upstream_version_improperly::DebianWatchManglesUpstreamVersionImproperly;

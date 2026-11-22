@@ -164,8 +164,12 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/not-installed/triplet-in-library-path",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
+    "checks/debian/patches/dep3/empty-forwarded-no-bug",
+    "checks/debian/patches/dep3/forwarded-no",
+    "checks/debian/patches/dep3/last-update",
     "checks/debian/patches/dep3/maybe-bug-debian",
     "checks/debian/patches/dep3/origin-field-default-value",
+    "checks/debian/patches/dep3/wrong-bug-debian-url",
     "checks/debian/patches/legacy-relations",
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/legacy-relations",
@@ -175,6 +179,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/patch-systems-quilt-no-depends",
     "checks/debian/patches/quilt/patch-systems-quilt-no-newline",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
+    "checks/debian/patches/quilt/quilt-patch-dpatch-desc",
     "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/legacy-debconf",
@@ -215,6 +220,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/rules/rules-special-variables",
     "checks/debian/rules/rules-symlink",
+    "checks/debian/rules/rules-unnecessary-get-orig-source",
     "checks/debian/rules/rules-unnecessary-source-date-epoch",
     "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
@@ -1253,8 +1259,12 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/not-installed/triplet-in-library-path",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
+    "checks/debian/patches/dep3/empty-forwarded-no-bug",
+    "checks/debian/patches/dep3/forwarded-no",
+    "checks/debian/patches/dep3/last-update",
     "checks/debian/patches/dep3/maybe-bug-debian",
     "checks/debian/patches/dep3/origin-field-default-value",
+    "checks/debian/patches/dep3/wrong-bug-debian-url",
     "checks/debian/patches/legacy-relations",
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/legacy-relations",
@@ -1264,6 +1274,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/patch-systems-quilt-no-depends",
     "checks/debian/patches/quilt/patch-systems-quilt-no-newline",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
+    "checks/debian/patches/quilt/quilt-patch-dpatch-desc",
     "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/legacy-debconf",
@@ -1304,6 +1315,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/rules/rules-special-variables",
     "checks/debian/rules/rules-symlink",
+    "checks/debian/rules/rules-unnecessary-get-orig-source",
     "checks/debian/rules/rules-unnecessary-source-date-epoch",
     "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
@@ -1788,8 +1800,12 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
+#[test_case("checks/debian/patches/dep3/empty-forwarded-no-bug"; "checks_debian_patches_dep3_empty_forwarded_no_bug")]
+#[test_case("checks/debian/patches/dep3/forwarded-no"; "checks_debian_patches_dep3_forwarded_no")]
+#[test_case("checks/debian/patches/dep3/last-update"; "checks_debian_patches_dep3_last_update")]
 #[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
+#[test_case("checks/debian/patches/dep3/wrong-bug-debian-url"; "checks_debian_patches_dep3_wrong_bug_debian_url")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/legacy-relations"; "checks_debian_patches_quilt_legacy_relations")]
@@ -1799,6 +1815,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-depends"; "checks_debian_patches_quilt_patch_systems_quilt_no_depends")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-newline"; "checks_debian_patches_quilt_patch_systems_quilt_no_newline")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
+#[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-desc"; "checks_debian_patches_quilt_quilt_patch_dpatch_desc")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
@@ -1839,6 +1856,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/rules/rules-special-variables"; "checks_debian_rules_rules_special_variables")]
 #[test_case("checks/debian/rules/rules-symlink"; "checks_debian_rules_rules_symlink")]
+#[test_case("checks/debian/rules/rules-unnecessary-get-orig-source"; "checks_debian_rules_rules_unnecessary_get_orig_source")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
@@ -2879,8 +2897,12 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
+#[test_case("checks/debian/patches/dep3/empty-forwarded-no-bug"; "checks_debian_patches_dep3_empty_forwarded_no_bug")]
+#[test_case("checks/debian/patches/dep3/forwarded-no"; "checks_debian_patches_dep3_forwarded_no")]
+#[test_case("checks/debian/patches/dep3/last-update"; "checks_debian_patches_dep3_last_update")]
 #[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
+#[test_case("checks/debian/patches/dep3/wrong-bug-debian-url"; "checks_debian_patches_dep3_wrong_bug_debian_url")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/legacy-relations"; "checks_debian_patches_quilt_legacy_relations")]
@@ -2890,6 +2912,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-depends"; "checks_debian_patches_quilt_patch_systems_quilt_no_depends")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-newline"; "checks_debian_patches_quilt_patch_systems_quilt_no_newline")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
+#[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-desc"; "checks_debian_patches_quilt_quilt_patch_dpatch_desc")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
@@ -2930,6 +2953,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/rules/rules-special-variables"; "checks_debian_rules_rules_special_variables")]
 #[test_case("checks/debian/rules/rules-symlink"; "checks_debian_rules_rules_symlink")]
+#[test_case("checks/debian/rules/rules-unnecessary-get-orig-source"; "checks_debian_rules_rules_unnecessary_get_orig_source")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]

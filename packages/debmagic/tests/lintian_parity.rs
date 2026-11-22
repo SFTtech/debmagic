@@ -316,9 +316,11 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
+    "checks/fields/vcs/fields-vcs-field-insecure-uri",
     "checks/fields/vcs/fields-vcs-field-mismatch",
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
+    "checks/fields/vcs/legacy-binary",
     "checks/fields/vcs/orphaned-package-in-private-salsa-space",
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
@@ -329,6 +331,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/artifact/cruft-general-native",
     "checks/files/artifact/cruft-general-quilt",
     "checks/files/artifact/cruft-general-wig-pen",
+    "checks/files/contents/line-length/cruft-gfdl-fp-sliding-win",
+    "checks/files/contents/line-length/cruft-gfdl-invariants",
+    "checks/files/contents/line-length/cruft-minified-js",
+    "checks/files/contents/line-length/min-js-with-sources",
     "checks/files/encoding/changelog-in-western-encoding",
     "checks/files/encoding/copyright-in-western-encoding",
     "checks/files/encoding/debconf-in-western-encoding",
@@ -691,6 +697,10 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/appimage-check/package-installs-appimage-file",
     "checks/files/appimage-check/package-installs-appimage-magic",
     "checks/files/architecture/binaries-multiarch-wrong-dir",
+    "checks/files/architecture/cruft-source-is-missing-unrel",
+    "checks/files/architecture/empty-files-arch-any",
+    "checks/files/architecture/files-arch-indep-not-marked-all",
+    "checks/files/architecture/very-short-files-arch-any",
     "checks/files/bugs/files-package-contains-foo",
     "checks/files/bugs/legacy-filenames",
     "checks/files/build-path/files-foo-in-bar",
@@ -710,6 +720,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/debug-packages/non-debug-file-in-debug-package",
     "checks/files/desktop/legacy-filenames",
     "checks/files/duplicates/duplicate-files",
+    "checks/files/empty-directories/files-general",
+    "checks/files/empty-directories/legacy-filenames",
+    "checks/files/empty-directories/legacy-libbaz",
     "checks/files/empty-package/cruft-source-is-missing-unrel",
     "checks/files/empty-package/files-empty",
     "checks/files/empty-package/legacy-binary",
@@ -735,6 +748,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/init/files-bad-perm-owner",
     "checks/files/init/files-foo-in-bar",
     "checks/files/ld-so/files-general",
+    "checks/files/licenses/files-extra-license",
+    "checks/files/licenses/legacy-filenames",
     "checks/files/missing/files-missing-intermediate-dirs",
     "checks/files/multi-arch/files-multiarch-foreign-files",
     "checks/files/multi-arch/files-pkgconfig",
@@ -1256,9 +1271,11 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
     "checks/fields/vcs/fields-uncanonical-vcs-fields",
+    "checks/fields/vcs/fields-vcs-field-insecure-uri",
     "checks/fields/vcs/fields-vcs-field-mismatch",
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
+    "checks/fields/vcs/legacy-binary",
     "checks/fields/vcs/orphaned-package-in-private-salsa-space",
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
@@ -1270,6 +1287,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/artifact/cruft-general-native",
     "checks/files/artifact/cruft-general-quilt",
     "checks/files/artifact/cruft-general-wig-pen",
+    "checks/files/contents/line-length/cruft-gfdl-fp-sliding-win",
+    "checks/files/contents/line-length/cruft-gfdl-invariants",
+    "checks/files/contents/line-length/cruft-minified-js",
+    "checks/files/contents/line-length/min-js-with-sources",
     "checks/files/encoding/changelog-in-western-encoding",
     "checks/files/encoding/copyright-in-western-encoding",
     "checks/files/encoding/debconf-in-western-encoding",
@@ -1686,9 +1707,11 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
+#[test_case("checks/fields/vcs/fields-vcs-field-insecure-uri"; "checks_fields_vcs_fields_vcs_field_insecure_uri")]
 #[test_case("checks/fields/vcs/fields-vcs-field-mismatch"; "checks_fields_vcs_fields_vcs_field_mismatch")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
+#[test_case("checks/fields/vcs/legacy-binary"; "checks_fields_vcs_legacy_binary")]
 #[test_case("checks/fields/vcs/orphaned-package-in-private-salsa-space"; "checks_fields_vcs_orphaned_package_in_private_salsa_space")]
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
@@ -1699,6 +1722,10 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
 #[test_case("checks/files/artifact/cruft-general-wig-pen"; "checks_files_artifact_cruft_general_wig_pen")]
+#[test_case("checks/files/contents/line-length/cruft-gfdl-fp-sliding-win"; "checks_files_contents_line_length_cruft_gfdl_fp_sliding_win")]
+#[test_case("checks/files/contents/line-length/cruft-gfdl-invariants"; "checks_files_contents_line_length_cruft_gfdl_invariants")]
+#[test_case("checks/files/contents/line-length/cruft-minified-js"; "checks_files_contents_line_length_cruft_minified_js")]
+#[test_case("checks/files/contents/line-length/min-js-with-sources"; "checks_files_contents_line_length_min_js_with_sources")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
 #[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
 #[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]
@@ -2062,6 +2089,10 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/appimage-check/package-installs-appimage-file"; "checks_files_appimage_check_package_installs_appimage_file")]
 #[test_case("checks/files/appimage-check/package-installs-appimage-magic"; "checks_files_appimage_check_package_installs_appimage_magic")]
 #[test_case("checks/files/architecture/binaries-multiarch-wrong-dir"; "checks_files_architecture_binaries_multiarch_wrong_dir")]
+#[test_case("checks/files/architecture/cruft-source-is-missing-unrel"; "checks_files_architecture_cruft_source_is_missing_unrel")]
+#[test_case("checks/files/architecture/empty-files-arch-any"; "checks_files_architecture_empty_files_arch_any")]
+#[test_case("checks/files/architecture/files-arch-indep-not-marked-all"; "checks_files_architecture_files_arch_indep_not_marked_all")]
+#[test_case("checks/files/architecture/very-short-files-arch-any"; "checks_files_architecture_very_short_files_arch_any")]
 #[test_case("checks/files/bugs/files-package-contains-foo"; "checks_files_bugs_files_package_contains_foo")]
 #[test_case("checks/files/bugs/legacy-filenames"; "checks_files_bugs_legacy_filenames")]
 #[test_case("checks/files/build-path/files-foo-in-bar"; "checks_files_build_path_files_foo_in_bar")]
@@ -2081,6 +2112,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/debug-packages/non-debug-file-in-debug-package"; "checks_files_debug_packages_non_debug_file_in_debug_package")]
 #[test_case("checks/files/desktop/legacy-filenames"; "checks_files_desktop_legacy_filenames")]
 #[test_case("checks/files/duplicates/duplicate-files"; "checks_files_duplicates_duplicate_files")]
+#[test_case("checks/files/empty-directories/files-general"; "checks_files_empty_directories_files_general")]
+#[test_case("checks/files/empty-directories/legacy-filenames"; "checks_files_empty_directories_legacy_filenames")]
+#[test_case("checks/files/empty-directories/legacy-libbaz"; "checks_files_empty_directories_legacy_libbaz")]
 #[test_case("checks/files/empty-package/cruft-source-is-missing-unrel"; "checks_files_empty_package_cruft_source_is_missing_unrel")]
 #[test_case("checks/files/empty-package/files-empty"; "checks_files_empty_package_files_empty")]
 #[test_case("checks/files/empty-package/legacy-binary"; "checks_files_empty_package_legacy_binary")]
@@ -2106,6 +2140,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/init/files-bad-perm-owner"; "checks_files_init_files_bad_perm_owner")]
 #[test_case("checks/files/init/files-foo-in-bar"; "checks_files_init_files_foo_in_bar")]
 #[test_case("checks/files/ld-so/files-general"; "checks_files_ld_so_files_general")]
+#[test_case("checks/files/licenses/files-extra-license"; "checks_files_licenses_files_extra_license")]
+#[test_case("checks/files/licenses/legacy-filenames"; "checks_files_licenses_legacy_filenames")]
 #[test_case("checks/files/missing/files-missing-intermediate-dirs"; "checks_files_missing_files_missing_intermediate_dirs")]
 #[test_case("checks/files/multi-arch/files-multiarch-foreign-files"; "checks_files_multi_arch_files_multiarch_foreign_files")]
 #[test_case("checks/files/multi-arch/files-pkgconfig"; "checks_files_multi_arch_files_pkgconfig")]
@@ -2628,9 +2664,11 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/fields-uncanonical-vcs-fields"; "checks_fields_vcs_fields_uncanonical_vcs_fields")]
+#[test_case("checks/fields/vcs/fields-vcs-field-insecure-uri"; "checks_fields_vcs_fields_vcs_field_insecure_uri")]
 #[test_case("checks/fields/vcs/fields-vcs-field-mismatch"; "checks_fields_vcs_fields_vcs_field_mismatch")]
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
+#[test_case("checks/fields/vcs/legacy-binary"; "checks_fields_vcs_legacy_binary")]
 #[test_case("checks/fields/vcs/orphaned-package-in-private-salsa-space"; "checks_fields_vcs_orphaned_package_in_private_salsa_space")]
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
@@ -2642,6 +2680,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
 #[test_case("checks/files/artifact/cruft-general-wig-pen"; "checks_files_artifact_cruft_general_wig_pen")]
+#[test_case("checks/files/contents/line-length/cruft-gfdl-fp-sliding-win"; "checks_files_contents_line_length_cruft_gfdl_fp_sliding_win")]
+#[test_case("checks/files/contents/line-length/cruft-gfdl-invariants"; "checks_files_contents_line_length_cruft_gfdl_invariants")]
+#[test_case("checks/files/contents/line-length/cruft-minified-js"; "checks_files_contents_line_length_cruft_minified_js")]
+#[test_case("checks/files/contents/line-length/min-js-with-sources"; "checks_files_contents_line_length_min_js_with_sources")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
 #[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
 #[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]

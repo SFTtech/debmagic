@@ -167,6 +167,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/debhelper-dh-compat",
     "checks/debian/rules/debhelper-no-depends",
     "checks/debian/rules/debian-rules-calls-nproc",
+    "checks/debian/rules/debian-rules-uses-as-needed-linker-flag",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
     "checks/debian/rules/generic-dh-make-2005",
@@ -1057,6 +1058,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/debhelper-dh-compat",
     "checks/debian/rules/debhelper-no-depends",
     "checks/debian/rules/debian-rules-calls-nproc",
+    "checks/debian/rules/debian-rules-uses-as-needed-linker-flag",
     "checks/debian/rules/debian-rules-uses-installed-python-versions",
     "checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends",
     "checks/debian/rules/generic-dh-make-2005",
@@ -1465,6 +1467,7 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/debhelper-dh-compat"; "checks_debian_rules_debhelper_dh_compat")]
 #[test_case("checks/debian/rules/debhelper-no-depends"; "checks_debian_rules_debhelper_no_depends")]
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
+#[test_case("checks/debian/rules/debian-rules-uses-as-needed-linker-flag"; "checks_debian_rules_debian_rules_uses_as_needed_linker_flag")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
 #[test_case("checks/debian/rules/generic-dh-make-2005"; "checks_debian_rules_generic_dh_make_2005")]
@@ -2357,6 +2360,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/debhelper-dh-compat"; "checks_debian_rules_debhelper_dh_compat")]
 #[test_case("checks/debian/rules/debhelper-no-depends"; "checks_debian_rules_debhelper_no_depends")]
 #[test_case("checks/debian/rules/debian-rules-calls-nproc"; "checks_debian_rules_debian_rules_calls_nproc")]
+#[test_case("checks/debian/rules/debian-rules-uses-as-needed-linker-flag"; "checks_debian_rules_debian_rules_uses_as_needed_linker_flag")]
 #[test_case("checks/debian/rules/debian-rules-uses-installed-python-versions"; "checks_debian_rules_debian_rules_uses_installed_python_versions")]
 #[test_case("checks/debian/rules/debian-rules-uses-supported-python-versions-without-python-all-build-depends"; "checks_debian_rules_debian_rules_uses_supported_python_versions_without_python_all_build_depends")]
 #[test_case("checks/debian/rules/generic-dh-make-2005"; "checks_debian_rules_generic_dh_make_2005")]

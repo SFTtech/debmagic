@@ -85,6 +85,7 @@ use super::rules::DebianRulesShouldNotSetCFLAGSFromNoopt;
 use super::rules::DebianRulesShouldNotUseDhExtraAddons;
 use super::rules::DebianRulesShouldNotUseSanitizeAllBuildflag;
 use super::rules::DebianRulesUpdatesControlAutomatically;
+use super::rules::DebianRulesUsesAsNeededLinkerFlag;
 use super::rules::DebianRulesUsesDebBuildOpts;
 use super::rules::DebianRulesUsesDeprecatedSystemdOverride;
 use super::rules::DebianRulesUsesInstalledPythonVersions;
@@ -1947,6 +1948,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RenamedTag,
         &QuiltPatchMissingDescription,
         &DebianRulesParsesDpkgParsechangelog,
+        &DebianRulesUsesAsNeededLinkerFlag,
     ]
 }
 
@@ -2314,6 +2316,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &AddComponentCopyright,
         &QuiltPatchMissingDescription,
         &DebianRulesParsesDpkgParsechangelog,
+        &DebianRulesUsesAsNeededLinkerFlag,
     ]
 }
 

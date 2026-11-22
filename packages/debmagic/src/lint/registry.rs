@@ -427,6 +427,7 @@ use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::SpellingErrorInBinary;
 use super::rules::SpellingErrorInChangelog;
 use super::rules::SpellingErrorInDescription;
+use super::rules::SpellingErrorInNewsDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
@@ -2127,6 +2128,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SystemdServiceFileMissingDocumentationKey,
         &SpellingErrorInBinary,
         &SpellingErrorInChangelog,
+        &SpellingErrorInNewsDebian,
     ]
 }
 
@@ -3356,6 +3358,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SystemdServiceFileMissingDocumentationKey,
         &SpellingErrorInBinary,
         &SpellingErrorInChangelog,
+        &SpellingErrorInNewsDebian,
     ]
 }
 

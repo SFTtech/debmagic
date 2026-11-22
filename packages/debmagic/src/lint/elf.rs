@@ -16,7 +16,7 @@ use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
-use goblin::container::Ctx;
+use goblin::container::{Container, Ctx};
 use goblin::elf::{Dynamic, Elf, ProgramHeader, dynamic, header, program_header};
 use goblin::options::ParseOptions;
 
@@ -86,6 +86,30 @@ pub struct ElfFacts {
     soname: Vec<String>,
     rpath: Vec<String>,
     runpath: Vec<String>,
+    machine: u16,
+    class: ElfClass,
+    endianness: ElfEndianness,
+    section_names: Vec<String>,
+    section_sizes: Vec<u64>,
+    errors: Vec<String>,
+}
+
+/// `EI_CLASS` of an ELF file.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ElfClass {
+    /// `ELFCLASS32`.
+    Elf32,
+    /// `ELFCLASS64`.
+    Elf64,
+}
+
+/// `EI_DATA` of an ELF file.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ElfEndianness {
+    /// `ELFDATA2LSB`.
+    Little,
+    /// `ELFDATA2MSB`.
+    Big,
 }
 
 impl ElfFacts {
@@ -101,7 +125,9 @@ impl ElfFacts {
             return None;
         }
         let header = Elf::parse_header(bytes).ok()?;
-        let ctx = Ctx::new(header.container().ok()?, header.endianness().ok()?);
+        let container = header.container().ok()?;
+        let endian = header.endianness().ok()?;
+        let ctx = Ctx::new(container, endian);
 
         let program_headers = usize::try_from(header.e_phoff)
             .ok()
@@ -110,6 +136,20 @@ impl ElfFacts {
             })
             .unwrap_or_default();
 
+        let whole = Elf::parse_with_opts(bytes, &ParseOptions::permissive()).ok();
+        let mut errors = Vec::new();
+        if let Some(message) = section_table_error(bytes, &header, container) {
+            errors.push(format!("In ELF header: {message}"));
+            errors.push("In ELF header: Section headers are not available!".to_string());
+        }
+        if program_headers
+            .iter()
+            .any(|program_header| interpreter_is_unreadable(bytes, program_header))
+        {
+            errors.push("In program headers: Unable to find program interpreter name".to_string());
+        }
+
+        let (section_names, section_sizes) = sections(whole.as_ref());
         let mut facts = Self {
             object_type: ElfObjectType::Other,
             interpreter: program_headers
@@ -131,11 +171,24 @@ impl ElfFacts {
             bad_dynamic_table: program_headers.iter().any(|program_header| {
                 program_header.p_type == program_header::PT_DYNAMIC && program_header.p_filesz == 0
             }),
-            symbols: dynamic_symbols(bytes),
+            symbols: dynamic_symbols(whole.as_ref()),
             needed: Vec::new(),
             soname: Vec::new(),
             rpath: Vec::new(),
             runpath: Vec::new(),
+            machine: header.e_machine,
+            class: match container {
+                Container::Little => ElfClass::Elf32,
+                Container::Big => ElfClass::Elf64,
+            },
+            endianness: if endian.is_little() {
+                ElfEndianness::Little
+            } else {
+                ElfEndianness::Big
+            },
+            section_names,
+            section_sizes,
+            errors,
         };
 
         let mut is_pie = false;
@@ -285,11 +338,121 @@ impl ElfFacts {
     pub fn runpath(&self) -> &[String] {
         &self.runpath
     }
+
+    /// Names of the Section headers in table order, the null section's empty
+    /// name included (`readelf -S`: `Name`). Empty when the Section header
+    /// table cannot be read; see [`ElfFacts::errors`].
+    #[allow(dead_code)] // seam API; not every Rule reads it yet
+    pub fn section_names(&self) -> &[String] {
+        &self.section_names
+    }
+
+    /// Names of the Section headers whose size (`sh_size`, `readelf -S`:
+    /// `Size`) is not zero, in table order. A `.text` or `.data` section
+    /// with no bytes is not code.
+    pub fn sized_section_names(&self) -> impl Iterator<Item = &str> + '_ {
+        self.section_names
+            .iter()
+            .zip(&self.section_sizes)
+            .filter(|(_, size)| **size > 0)
+            .map(|(name, _)| name.as_str())
+    }
+
+    /// `e_machine`, the processor the object is for (an `EM_*` value, such
+    /// as 62 for `EM_X86_64`).
+    #[allow(dead_code)] // seam API; no Rule reads it yet
+    pub fn machine(&self) -> u16 {
+        self.machine
+    }
+
+    /// `EI_CLASS`: 32-bit or 64-bit objects.
+    #[allow(dead_code)] // seam API; no Rule reads it yet
+    pub fn class(&self) -> ElfClass {
+        self.class
+    }
+
+    /// `EI_DATA`: the byte order of the object.
+    #[allow(dead_code)] // seam API; no Rule reads it yet
+    pub fn endianness(&self) -> ElfEndianness {
+        self.endianness
+    }
+
+    /// The error lines lintian's ELF parser keeps from `readelf` (its
+    /// `ERRORS`), each prefixed with the `readelf` paragraph it came from
+    /// (`In ELF header: `, `In program headers: `), in the order `readelf`
+    /// prints them. Only the conditions this module can see are reported:
+    /// a Section header table that runs past the end of the file, and a
+    /// `PT_INTERP` segment that is empty or not in the file. `readelf` warnings
+    /// (lintian's `WARNINGS`) are not modelled.
+    #[allow(dead_code)] // seam API; no Rule reads it yet
+    pub fn errors(&self) -> &[String] {
+        &self.errors
+    }
+}
+
+/// The `readelf` message for a Section header table that runs past the end
+/// of the file, `None` when the table is absent or fits. The size is
+/// `e_shnum` times the size of one Section header of the class.
+fn section_table_error(
+    bytes: &[u8],
+    header: &header::Header,
+    container: Container,
+) -> Option<String> {
+    if header.e_shoff == 0 || header.e_shnum == 0 {
+        return None;
+    }
+    let entry_size: usize = match container {
+        Container::Little => 40,
+        Container::Big => 64,
+    };
+    let size = usize::from(header.e_shnum) * entry_size;
+    let fits = usize::try_from(header.e_shoff)
+        .ok()
+        .and_then(|offset| offset.checked_add(size))
+        .is_some_and(|end| end <= bytes.len());
+    (!fits).then(|| format!("Reading {size} bytes extends past end of file for section headers"))
+}
+
+/// A `PT_INTERP` segment that `readelf` cannot name the interpreter of: its
+/// `p_filesz` is zero (a split-off debug file keeps the header with no
+/// contents), or its bytes are not in the file.
+fn interpreter_is_unreadable(bytes: &[u8], interp: &ProgramHeader) -> bool {
+    if interp.p_type != program_header::PT_INTERP {
+        return false;
+    }
+    if interp.p_filesz == 0 {
+        return true;
+    }
+    let in_file = usize::try_from(interp.p_offset)
+        .ok()
+        .zip(usize::try_from(interp.p_filesz).ok())
+        .and_then(|(offset, size)| offset.checked_add(size))
+        .is_some_and(|end| end <= bytes.len());
+    !in_file
+}
+
+/// Section names and sizes, in table order, from a permissive whole-file
+/// parse.
+fn sections(elf: Option<&Elf>) -> (Vec<String>, Vec<u64>) {
+    let Some(elf) = elf else {
+        return (Vec::new(), Vec::new());
+    };
+    elf.section_headers
+        .iter()
+        .map(|section| {
+            let name = elf
+                .shdr_strtab
+                .get_at(section.sh_name)
+                .unwrap_or_default()
+                .to_string();
+            (name, section.sh_size)
+        })
+        .unzip()
 }
 
 /// Dynamic symbols with their versions, from a permissive whole-file parse.
-fn dynamic_symbols(bytes: &[u8]) -> Vec<ElfSymbol> {
-    let Ok(elf) = Elf::parse_with_opts(bytes, &ParseOptions::permissive()) else {
+fn dynamic_symbols(elf: Option<&Elf>) -> Vec<ElfSymbol> {
+    let Some(elf) = elf else {
         return Vec::new();
     };
     let version_name = |version: u16| -> Option<String> {
@@ -409,6 +572,35 @@ pub(crate) fn entry_bytes<'a>(files: &FileTree, entry: &'a Entry) -> Option<Cow<
     }
 }
 
+/// An ELF header of `class` and byte order for `machine` with no program
+/// or section headers: enough for the class, byte order and machine facts.
+#[cfg(test)]
+pub(crate) fn header_only(class: ElfClass, endianness: ElfEndianness, machine: u16) -> Vec<u8> {
+    let (len, bits) = match class {
+        ElfClass::Elf32 => (52, 1u8),
+        ElfClass::Elf64 => (64, 2u8),
+    };
+    let little = endianness == ElfEndianness::Little;
+    let mut out = vec![0u8; len];
+    out[..4].copy_from_slice(b"\x7fELF");
+    out[4] = bits;
+    out[5] = if little { 1 } else { 2 };
+    out[6] = 1;
+    let put16 = |out: &mut Vec<u8>, at: usize, value: u16| {
+        let bytes = if little {
+            value.to_le_bytes()
+        } else {
+            value.to_be_bytes()
+        };
+        out[at..at + 2].copy_from_slice(&bytes);
+    };
+    put16(&mut out, 16, header::ET_EXEC);
+    put16(&mut out, 18, machine);
+    let ehsize = if class == ElfClass::Elf32 { 40 } else { 52 };
+    put16(&mut out, ehsize, len as u16);
+    out
+}
+
 /// Builds small, well-formed 64-bit little-endian ELF files for tests.
 #[cfg(test)]
 #[derive(Debug, Clone)]
@@ -432,6 +624,8 @@ pub(crate) struct TestElf {
     imports: Vec<(String, Option<String>)>,
     /// Point `e_shoff` past the end of the file, as a cut-off ELF does.
     missing_section_headers: bool,
+    /// Extra sections with these names and sizes (`.note`, `.comment`, ...).
+    sections: Vec<(String, u64)>,
 }
 
 #[cfg(test)]
@@ -454,6 +648,7 @@ impl TestElf {
             no_dynamic_content: false,
             imports: Vec::new(),
             missing_section_headers: false,
+            sections: Vec::new(),
         }
     }
 
@@ -562,6 +757,20 @@ impl TestElf {
         self
     }
 
+    /// Adds an empty section named `name`, after the dynamic symbol sections
+    /// and before `.shstrtab`. Sections are written in the order added.
+    pub fn section(mut self, name: &str) -> Self {
+        self.sections.push((name.to_string(), 0));
+        self
+    }
+
+    /// Adds a section named `name` that `readelf` shows with a size of one
+    /// byte (its contents are not in the file).
+    pub fn sized_section(mut self, name: &str) -> Self {
+        self.sections.push((name.to_string(), 1));
+        self
+    }
+
     /// One `PT_LOAD` maps the whole file at address 0, so addresses in the
     /// dynamic section equal file offsets.
     pub fn build(&self) -> Vec<u8> {
@@ -634,6 +843,30 @@ impl TestElf {
         let libc_name = add_string("libc.so.6");
         let has_symbols = !self.imports.is_empty();
         let has_dynamic = !dyns.is_empty() || has_symbols || self.no_dynamic_content;
+        let has_section_headers = has_symbols || !self.sections.is_empty();
+
+        // Section names: the null section, the dynamic symbol sections, the
+        // extra sections, and `.shstrtab` last.
+        let mut section_names = vec![String::new()];
+        if has_symbols {
+            section_names
+                .extend([".dynsym", ".dynstr", ".gnu.version", ".gnu.version_r"].map(String::from));
+        }
+        section_names.extend(self.sections.iter().map(|(name, _)| name.clone()));
+        section_names.push(".shstrtab".to_string());
+        let mut shstrtab = vec![0u8];
+        let name_offsets: Vec<u32> = section_names
+            .iter()
+            .map(|name| {
+                if name.is_empty() {
+                    return 0;
+                }
+                let offset = shstrtab.len() as u32;
+                shstrtab.extend_from_slice(name.as_bytes());
+                shstrtab.push(0);
+                offset
+            })
+            .collect();
 
         let phnum = 1
             + usize::from(self.interpreter.is_some())
@@ -679,9 +912,14 @@ impl TestElf {
             dyns.push((dynamic::DT_NULL, 0));
         }
         let dynamic_size = dyns.len() * 16;
-        let shdr_offset = (dynamic_offset + dynamic_size).next_multiple_of(8);
-        let shnum: usize = if has_symbols { 5 } else { 0 };
-        let total = if has_symbols {
+        let shstr_offset = dynamic_offset + dynamic_size;
+        let shdr_offset = (shstr_offset + shstrtab.len()).next_multiple_of(8);
+        let shnum: usize = if has_section_headers {
+            section_names.len()
+        } else {
+            0
+        };
+        let total = if has_section_headers {
             shdr_offset + shnum * SHDR
         } else {
             dynamic_offset + dynamic_size
@@ -698,8 +936,8 @@ impl TestElf {
         out.extend_from_slice(&(EHDR as u64).to_le_bytes()); // e_phoff
         let (shoff, shnum, shstrndx): (u64, u16, u16) = if self.missing_section_headers {
             (total as u64 + 4096, 8, 0)
-        } else if has_symbols {
-            (shdr_offset as u64, shnum as u16, 2)
+        } else if has_section_headers {
+            (shdr_offset as u64, shnum as u16, (shnum - 1) as u16)
         } else {
             (0, 0, 0)
         };
@@ -785,33 +1023,42 @@ impl TestElf {
             out.extend_from_slice(&tag.to_le_bytes());
             out.extend_from_slice(&value.to_le_bytes());
         }
-        if has_symbols && !self.missing_section_headers {
+        if has_section_headers && !self.missing_section_headers {
+            out.extend_from_slice(&shstrtab);
             out.resize(shdr_offset, 0);
-            let mut section =
-                |sh_type: u32, offset: usize, size: usize, link: u32, info: u32, entsize: u64| {
-                    out.extend_from_slice(&0u32.to_le_bytes()); // sh_name
-                    out.extend_from_slice(&sh_type.to_le_bytes());
-                    out.extend_from_slice(&2u64.to_le_bytes()); // SHF_ALLOC
-                    out.extend_from_slice(&(offset as u64).to_le_bytes()); // sh_addr
-                    out.extend_from_slice(&(offset as u64).to_le_bytes()); // sh_offset
-                    out.extend_from_slice(&(size as u64).to_le_bytes());
-                    out.extend_from_slice(&link.to_le_bytes());
-                    out.extend_from_slice(&info.to_le_bytes());
-                    out.extend_from_slice(&8u64.to_le_bytes()); // sh_addralign
-                    out.extend_from_slice(&entsize.to_le_bytes());
-                };
-            section(0, 0, 0, 0, 0, 0);
-            section(11, dynsym_offset, nsyms * SYM, 2, 1, SYM as u64); // SHT_DYNSYM
-            section(3, strtab_offset, strings.len(), 0, 0, 0); // SHT_STRTAB
-            section(0x6fff_ffff, versym_offset, 2 * nsyms, 1, 0, 2); // SHT_GNU_versym
-            section(
-                0x6fff_fffe,
-                verneed_offset,
-                verneed_size,
-                2,
-                versions.len() as u32,
-                0,
-            ); // SHT_GNU_verneed
+            // (type, offset, size, link, info, entsize) per section, in order.
+            let mut headers: Vec<(u32, usize, usize, u32, u32, u64)> = vec![(0, 0, 0, 0, 0, 0)];
+            if has_symbols {
+                headers.push((11, dynsym_offset, nsyms * SYM, 2, 1, SYM as u64)); // SHT_DYNSYM
+                headers.push((3, strtab_offset, strings.len(), 0, 0, 0)); // SHT_STRTAB
+                headers.push((0x6fff_ffff, versym_offset, 2 * nsyms, 1, 0, 2)); // SHT_GNU_versym
+                headers.push((
+                    0x6fff_fffe, // SHT_GNU_verneed
+                    verneed_offset,
+                    verneed_size,
+                    2,
+                    versions.len() as u32,
+                    0,
+                ));
+            }
+            for (_, size) in &self.sections {
+                headers.push((1, 0, *size as usize, 0, 0, 0)); // SHT_PROGBITS
+            }
+            headers.push((3, shstr_offset, shstrtab.len(), 0, 0, 0)); // SHT_STRTAB
+            for (name, (sh_type, offset, size, link, info, entsize)) in
+                name_offsets.iter().zip(headers)
+            {
+                out.extend_from_slice(&name.to_le_bytes()); // sh_name
+                out.extend_from_slice(&sh_type.to_le_bytes());
+                out.extend_from_slice(&2u64.to_le_bytes()); // SHF_ALLOC
+                out.extend_from_slice(&(offset as u64).to_le_bytes()); // sh_addr
+                out.extend_from_slice(&(offset as u64).to_le_bytes()); // sh_offset
+                out.extend_from_slice(&(size as u64).to_le_bytes());
+                out.extend_from_slice(&link.to_le_bytes());
+                out.extend_from_slice(&info.to_le_bytes());
+                out.extend_from_slice(&8u64.to_le_bytes()); // sh_addralign
+                out.extend_from_slice(&entsize.to_le_bytes());
+            }
         }
         out
     }
@@ -857,6 +1104,103 @@ mod tests {
             let facts = ElfFacts::from_bytes(&elf.build()).expect("ELF");
             assert_eq!(facts.object_type(), expected, "{elf:?}");
         }
+    }
+
+    #[test]
+    fn section_names_follow_the_table_with_the_null_section_first() {
+        let facts = ElfFacts::from_bytes(
+            &TestElf::shared_object()
+                .import("puts", Some("GLIBC_2.2.5"))
+                .section(".note")
+                .section(".comment")
+                .build(),
+        )
+        .expect("ELF");
+        assert_eq!(
+            facts.section_names(),
+            [
+                "",
+                ".dynsym",
+                ".dynstr",
+                ".gnu.version",
+                ".gnu.version_r",
+                ".note",
+                ".comment",
+                ".shstrtab",
+            ]
+        );
+    }
+
+    #[test]
+    fn section_names_are_empty_without_a_section_table() {
+        let facts = ElfFacts::from_bytes(&TestElf::executable().build()).expect("ELF");
+        assert!(facts.section_names().is_empty());
+        assert!(facts.errors().is_empty());
+    }
+
+    #[test]
+    fn section_table_past_end_of_file_is_a_readelf_error() {
+        let facts = ElfFacts::from_bytes(
+            &TestElf::shared_object()
+                .import("puts", None)
+                .missing_section_headers()
+                .build(),
+        )
+        .expect("ELF");
+        assert!(facts.section_names().is_empty());
+        assert_eq!(
+            facts.errors(),
+            [
+                "In ELF header: Reading 512 bytes extends past end of file for section headers"
+                    .to_string(),
+                "In ELF header: Section headers are not available!".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn interpreter_outside_the_file_is_a_readelf_error() {
+        let mut elf = TestElf::executable()
+            .interpreter("/lib64/ld-linux-x86-64.so.2")
+            .build();
+        // PT_INTERP is the second program header (offset 64 + 56); set its
+        // p_filesz past the end of the file, as a stripped debug file with
+        // no contents at that offset has it.
+        elf[64 + 56 + 32..64 + 56 + 40].copy_from_slice(&0x1000u64.to_le_bytes());
+        let facts = ElfFacts::from_bytes(&elf).expect("ELF");
+        assert_eq!(
+            facts.errors(),
+            ["In program headers: Unable to find program interpreter name".to_string()]
+        );
+    }
+
+    #[test]
+    fn empty_interpreter_segment_is_a_readelf_error() {
+        let mut elf = TestElf::executable()
+            .interpreter("/lib64/ld-linux-x86-64.so.2")
+            .build();
+        // PT_INTERP's p_filesz is zero, as in `objcopy --only-keep-debug`
+        // output; its p_memsz is left alone.
+        elf[64 + 56 + 32..64 + 56 + 40].copy_from_slice(&0u64.to_le_bytes());
+        let facts = ElfFacts::from_bytes(&elf).expect("ELF");
+        assert_eq!(
+            facts.errors(),
+            ["In program headers: Unable to find program interpreter name".to_string()]
+        );
+    }
+
+    #[test]
+    fn class_endianness_and_machine_come_from_the_header() {
+        let facts = ElfFacts::from_bytes(&header_only(ElfClass::Elf32, ElfEndianness::Big, 8))
+            .expect("ELF");
+        assert_eq!(facts.class(), ElfClass::Elf32);
+        assert_eq!(facts.endianness(), ElfEndianness::Big);
+        assert_eq!(facts.machine(), 8);
+
+        let x86 = ElfFacts::from_bytes(&TestElf::executable().build()).expect("ELF");
+        assert_eq!(x86.class(), ElfClass::Elf64);
+        assert_eq!(x86.endianness(), ElfEndianness::Little);
+        assert_eq!(x86.machine(), 62);
     }
 
     #[test]

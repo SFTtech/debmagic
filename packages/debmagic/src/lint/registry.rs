@@ -31,6 +31,8 @@ use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
 use super::rules::BinaryCompiledWithProfilingEnabled;
+use super::rules::BinaryFromOtherArchitecture;
+use super::rules::BinaryHasUnneededSection;
 use super::rules::BinaryInEtc;
 use super::rules::BinaryNmuDebianRevisionInSource;
 use super::rules::BinaryPackageDependsOnToolchainPackage;
@@ -113,6 +115,7 @@ use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
 use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
 use super::rules::DebianWatchUsesInsecureUri;
+use super::rules::DebugFileWithNoDebugSymbols;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
@@ -144,6 +147,7 @@ use super::rules::DuplicateOverrideContext;
 use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
+use super::rules::ElfError;
 use super::rules::EmbeddedLibrary;
 use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
@@ -281,6 +285,7 @@ use super::rules::NeedlessDependencyOnJre;
 use super::rules::NewPackageShouldNotPackagePython2Module;
 use super::rules::NewPackageUsesDateBasedVersionNumber;
 use super::rules::NmuInChangelog;
+use super::rules::NoCodeSections;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
 use super::rules::NoMd5sumsControlFile;
@@ -2161,6 +2166,11 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MalformedDebArchive,
         &PackageContainsAncientFile,
         &MaintainerScriptSupportsAncientPackageVersion,
+        &BinaryHasUnneededSection,
+        &BinaryFromOtherArchitecture,
+        &ElfError,
+        &DebugFileWithNoDebugSymbols,
+        &NoCodeSections,
     ]
 }
 
@@ -3407,6 +3417,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MalformedDebArchive,
         &PackageContainsAncientFile,
         &MaintainerScriptSupportsAncientPackageVersion,
+        &BinaryHasUnneededSection,
+        &BinaryFromOtherArchitecture,
+        &ElfError,
+        &DebugFileWithNoDebugSymbols,
+        &NoCodeSections,
     ]
 }
 

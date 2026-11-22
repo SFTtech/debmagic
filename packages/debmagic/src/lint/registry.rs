@@ -335,6 +335,7 @@ use super::rules::UnknownConffileInstruction;
 use super::rules::UnknownControlFile;
 use super::rules::UnknownEncodingInPoFile;
 use super::rules::UnknownEssentialValue;
+use super::rules::UnknownFileInDebianSource;
 use super::rules::UnknownJavaClassVersion;
 use super::rules::UnknownMetaFieldInSymbolsFile;
 use super::rules::UnknownMultiArchValue;
@@ -1801,6 +1802,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &QuiltPatchWithNonStandardOptions,
         &QuiltSeriesButNoBuildDep,
         &QuiltSeriesWithoutTrailingNewline,
+        &UnknownFileInDebianSource,
     ]
 }
 
@@ -2133,6 +2135,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &QuiltPatchWithNonStandardOptions,
         &QuiltSeriesButNoBuildDep,
         &QuiltSeriesWithoutTrailingNewline,
+        &UnknownFileInDebianSource,
     ]
 }
 

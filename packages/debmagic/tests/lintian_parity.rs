@@ -614,6 +614,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/required/fields-general-missing",
     "checks/fields/required/generic-empty",
     "checks/fields/section/fields-section-general",
+    "checks/fields/section/fields-transitional",
     "checks/fields/section/fields-udeb",
     "checks/fields/section/generic-dh-make-2008",
     "checks/fields/section/legacy-fields",
@@ -1889,6 +1890,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/required/fields-general-missing"; "checks_fields_required_fields_general_missing")]
 #[test_case("checks/fields/required/generic-empty"; "checks_fields_required_generic_empty")]
 #[test_case("checks/fields/section/fields-section-general"; "checks_fields_section_fields_section_general")]
+#[test_case("checks/fields/section/fields-transitional"; "checks_fields_section_fields_transitional")]
 #[test_case("checks/fields/section/fields-udeb"; "checks_fields_section_fields_udeb")]
 #[test_case("checks/fields/section/generic-dh-make-2008"; "checks_fields_section_generic_dh_make_2008")]
 #[test_case("checks/fields/section/legacy-fields"; "checks_fields_section_legacy_fields")]

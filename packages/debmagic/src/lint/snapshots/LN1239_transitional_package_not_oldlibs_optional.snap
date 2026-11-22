@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): transitional-package-not-oldlibs-optional (LN1239) devel/standard
+W: example (binary): transitional-package-not-oldlibs-optional (LN1239) oldlibs/standard
+W: example (binary): transitional-package-not-oldlibs-optional (LN1239) oldlibs/extra
+W: example (binary): transitional-package-not-oldlibs-optional (LN1239) oldlibs/

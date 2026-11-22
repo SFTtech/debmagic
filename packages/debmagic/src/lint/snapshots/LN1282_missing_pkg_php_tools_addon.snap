@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: foo (source): missing-pkg-php-tools-addon (LN1282) phppear [debian/rules]
+W: foo (source): missing-pkg-php-tools-addon (LN1282) php [debian/rules]
+W: foo (source): missing-pkg-php-tools-addon (LN1282) phpcomposer [debian/rules]
+W: foo (source): missing-pkg-php-tools-addon (LN1282) phppear [debian/rules]

@@ -893,6 +893,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/games/files-games-section",
     "checks/games/files-general",
     "checks/games/legacy-filenames",
+    "checks/huge-usr-share/huge-usr-share-percent",
     "checks/images/filenames/conflicting-image-names",
     "checks/images/filenames/unrelated-image-names",
     "checks/images/thumbnails/files-foo-in-bar",
@@ -2478,6 +2479,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/games/files-games-section"; "checks_games_files_games_section")]
 #[test_case("checks/games/files-general"; "checks_games_files_general")]
 #[test_case("checks/games/legacy-filenames"; "checks_games_legacy_filenames")]
+#[test_case("checks/huge-usr-share/huge-usr-share-percent"; "checks_huge_usr_share_huge_usr_share_percent")]
 #[test_case("checks/images/filenames/conflicting-image-names"; "checks_images_filenames_conflicting_image_names")]
 #[test_case("checks/images/filenames/unrelated-image-names"; "checks_images_filenames_unrelated_image_names")]
 #[test_case("checks/images/thumbnails/files-foo-in-bar"; "checks_images_thumbnails_files_foo_in_bar")]

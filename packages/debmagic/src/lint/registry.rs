@@ -18,6 +18,7 @@ use super::rules::AppstreamMetadataInvalid;
 use super::rules::AppstreamMetadataLegacyFormat;
 use super::rules::AppstreamMetadataMalformedModaliasProvide;
 use super::rules::AppstreamMetadataMissingModaliasProvide;
+use super::rules::ArchDepPackageHasBigUsrShare;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::ArchitectureEscape;
@@ -2181,6 +2182,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BinSbinMismatch,
         &EmptyUdebPackage,
         &ArchitectureEscape,
+        &ArchDepPackageHasBigUsrShare,
     ]
 }
 
@@ -3437,6 +3439,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BinSbinMismatch,
         &EmptyUdebPackage,
         &ArchitectureEscape,
+        &ArchDepPackageHasBigUsrShare,
     ]
 }
 

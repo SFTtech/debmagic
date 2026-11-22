@@ -274,6 +274,7 @@ use super::rules::PackageNameDefinedInConfigH;
 use super::rules::PackageNameDoesntMatchSonames;
 use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
+use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PatchedFileWithoutUtf8Name;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &OcamlDanglingCmi,
+        &PackageSupersededByPerl,
     ]
 }
 
@@ -3067,6 +3069,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
         &OcamlDanglingCmi,
+        &PackageSupersededByPerl,
     ]
 }
 

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): dbus-policy-excessively-broad (LN1221) <policy context="default"><allow send_type="method_call"/> [usr/share/dbus-1/system.d/foo.conf:1]
+E: example (binary): dbus-policy-excessively-broad (LN1221) <policy context="default"><allow send_interface="org.freedesktop.DBus.Properties"/> [etc/dbus-1/session.d/foo.conf:1]
+E: example (binary): dbus-policy-excessively-broad (LN1221) <policy user="nobody"><allow send_type="signal"/> [usr/share/dbus-1/system.d/foo.conf:1]

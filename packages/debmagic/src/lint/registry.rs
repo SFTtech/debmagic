@@ -259,6 +259,7 @@ use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
+use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PostrmContainsAdditionalUpdatercDCalls;
 use super::rules::PostrmDoesNotCallUpdatercDForInitDScript;
@@ -1785,6 +1786,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ControlFileIsNotAFile,
         &NotAllowedControlFile,
         &UnknownControlFile,
+        &PossibleMissingColonInCloses,
     ]
 }
 
@@ -2845,6 +2847,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ControlFileIsNotAFile,
         &NotAllowedControlFile,
         &UnknownControlFile,
+        &PossibleMissingColonInCloses,
     ]
 }
 

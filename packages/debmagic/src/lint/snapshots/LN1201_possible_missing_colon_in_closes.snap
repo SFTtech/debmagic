@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): possible-missing-colon-in-closes (LN1201) Closes #555555 [usr/share/doc/example/changelog.Debian.gz:1]
+E: example (binary): possible-missing-colon-in-closes (LN1201) closes bug#555555 [usr/share/doc/example/changelog:1]
+E: example (binary): possible-missing-colon-in-closes (LN1201) closes 666666 [usr/share/doc/example/changelog:1]

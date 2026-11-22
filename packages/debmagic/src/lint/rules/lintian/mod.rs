@@ -378,6 +378,7 @@ pub(crate) use documentation::{
 };
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use fields_checksums::NoStrongDigestsInDsc;
+pub(crate) use fields_distribution::BackportsChangesMissing;
 pub(crate) use fields_distribution::BadDistributionInChangesFile;
 pub(crate) use fields_empty::EmptyField;
 pub(crate) use fields_format::UnsupportedSourceFormat;

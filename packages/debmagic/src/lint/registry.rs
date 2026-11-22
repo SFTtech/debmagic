@@ -6,6 +6,7 @@ use super::rules::AddComponentCopyright;
 use super::rules::AdoptedExtendedField;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
+use super::rules::AnticipatedRepackCount;
 use super::rules::Apache2DeprecatedAuthConfig;
 use super::rules::Apache2ModuleDoesNotDependOnApache2Api;
 use super::rules::Apache2ModuleDoesNotShipLoadFile;
@@ -2171,6 +2172,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &AnticipatedRepackCount,
     ]
 }
 
@@ -2570,6 +2572,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RedundantPriorityOptionalField,
         &InstallableFieldMirrorsSource,
         &InconsistentAppstreamMetadataLicense,
+        &AnticipatedRepackCount,
     ]
 }
 

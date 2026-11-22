@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+W: example (source): binaries-have-file-conflict (LN1508) pkga pkgb usr/share/data
+W: example (source): binaries-have-file-conflict (LN1508) pkga pkgb usr/share/data
+W: example (source): binaries-have-file-conflict (LN1508) pkga pkgb usr/share/data
+W: example (source): binaries-have-file-conflict (LN1508) pkga pkgb usr/share/d
+W: example (source): binaries-have-file-conflict (LN1508) pkga pkgb usr/share/e
+W: example (source): binaries-have-file-conflict (LN1508) pkgb pkgc usr/share/e
+W: example (source): binaries-have-file-conflict (LN1508) pkga pkgc usr/share/e

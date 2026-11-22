@@ -14,6 +14,11 @@ mod ln1207_quilt_patch_with_non_standard_options;
 mod ln1208_quilt_series_but_no_build_dep;
 mod ln1209_quilt_series_without_trailing_newline;
 mod ln1325_quilt_patch_missing_description;
+mod ln1526_invalid_dep3_format_patch_wrong_bug_debian_url;
+mod ln1527_invalid_dep3_format_patch_wrong_last_update;
+mod ln1528_patch_not_forwarded_upstream;
+mod ln1529_quilt_patch_uses_dpatch_placeholder;
+mod ln1530_quilt_patch_using_template_description;
 
 pub(crate) use ln0396_format_3_0_but_debian_changes_patch::Format30ButDebianChangesPatch;
 pub(crate) use ln0706_patch_file_present_but_not_mentioned_in_series::PatchFilePresentButNotMentionedInSeries;
@@ -28,3 +33,8 @@ pub(crate) use ln1207_quilt_patch_with_non_standard_options::QuiltPatchWithNonSt
 pub(crate) use ln1208_quilt_series_but_no_build_dep::QuiltSeriesButNoBuildDep;
 pub(crate) use ln1209_quilt_series_without_trailing_newline::QuiltSeriesWithoutTrailingNewline;
 pub(crate) use ln1325_quilt_patch_missing_description::QuiltPatchMissingDescription;
+pub(crate) use ln1526_invalid_dep3_format_patch_wrong_bug_debian_url::InvalidDep3FormatPatchWrongBugDebianUrl;
+pub(crate) use ln1527_invalid_dep3_format_patch_wrong_last_update::InvalidDep3FormatPatchWrongLastUpdate;
+pub(crate) use ln1528_patch_not_forwarded_upstream::PatchNotForwardedUpstream;
+pub(crate) use ln1529_quilt_patch_uses_dpatch_placeholder::QuiltPatchUsesDpatchPlaceholder;
+pub(crate) use ln1530_quilt_patch_using_template_description::QuiltPatchUsingTemplateDescription;

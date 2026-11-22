@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-prebuilt-javascript-object (LN1388) [js/app.min.js]

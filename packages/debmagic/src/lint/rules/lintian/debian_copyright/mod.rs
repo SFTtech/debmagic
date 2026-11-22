@@ -68,6 +68,8 @@ mod ln1262_usr_share_doc_symlink_points_outside_of_usr_share_doc;
 mod ln1320_inconsistent_appstream_metadata_license;
 mod ln1321_insecure_copyright_format_uri;
 mod ln1322_add_component_copyright;
+mod ln1502_missing_notice_file_for_apache_license;
+mod ln1506_usr_share_doc_symlink_to_foreign_package;
 mod source_copyright;
 
 pub(crate) use ln0009_no_dep5_copyright::NoDep5Copyright;
@@ -131,3 +133,5 @@ pub(crate) use ln1262_usr_share_doc_symlink_points_outside_of_usr_share_doc::Usr
 pub(crate) use ln1320_inconsistent_appstream_metadata_license::InconsistentAppstreamMetadataLicense;
 pub(crate) use ln1321_insecure_copyright_format_uri::InsecureCopyrightFormatUri;
 pub(crate) use ln1322_add_component_copyright::AddComponentCopyright;
+pub(crate) use ln1502_missing_notice_file_for_apache_license::MissingNoticeFileForApacheLicense;
+pub(crate) use ln1506_usr_share_doc_symlink_to_foreign_package::UsrShareDocSymlinkToForeignPackage;

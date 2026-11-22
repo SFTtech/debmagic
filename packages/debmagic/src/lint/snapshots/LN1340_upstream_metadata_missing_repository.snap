@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): upstream-metadata-missing-repository (LN1340) [debian/upstream/metadata]
+I: example (source): upstream-metadata-missing-repository (LN1340) [debian/upstream/metadata]

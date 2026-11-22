@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+W: libbad-dev (binary): gir-missing-typelib-dependency (LN1499) gir1.2-bad-23 [usr/share/gir-1.0/Bad-23.gir]
+W: libbad-dev (binary): gir-missing-typelib-dependency (LN1499) gir1.2-bad-23 [usr/share/gir-1.0/Bad-23.gir]
+W: libbad-dev (binary): gir-missing-typelib-dependency (LN1499) gir1.2-bad-23 [usr/share/gir-1.0/Bad-23.gir]
+W: libbad-dev (binary): gir-missing-typelib-dependency (LN1499) gir1.2-bad-23 [usr/share/gir-1.0/Bad-23.gir]
+W: libbad-dev (binary): gir-missing-typelib-dependency (LN1499) gir1.2-badextras-23 [usr/lib/x86_64-linux-gnu/gir-1.0/BadExtras-23.gir]
+W: gir1.2-bad (binary): gir-missing-typelib-dependency (LN1499) gir1.2-bad-23 [usr/share/gir-1.0/Bad-23.gir]
+W: libgood-dev (binary): gir-missing-typelib-dependency (LN1499) gir1.2-goodextras-42 [usr/share/gir-1.0/GoodExtras-42.gir]
+W: libgood-dev (binary): gir-missing-typelib-dependency (LN1499) gir1.2-goodextras-42 [usr/share/gir-1.0/GoodExtras-42.gir]
+W: libgood-dev (binary): gir-missing-typelib-dependency (LN1499) gir1.2-goodextras-42 [usr/share/gir-1.0/GoodExtras-42.gir]

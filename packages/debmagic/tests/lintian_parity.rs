@@ -28,6 +28,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-non-free-rfc",
     "checks/cruft/cruft-nvidia-intellectual",
     "checks/cruft/cruft-old-unicode",
+    "checks/cruft/cruft-python",
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
@@ -163,8 +164,12 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/not-installed/triplet-in-library-path",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
+    "checks/debian/patches/dep3/empty-forwarded-no-bug",
+    "checks/debian/patches/dep3/forwarded-no",
+    "checks/debian/patches/dep3/last-update",
     "checks/debian/patches/dep3/maybe-bug-debian",
     "checks/debian/patches/dep3/origin-field-default-value",
+    "checks/debian/patches/dep3/wrong-bug-debian-url",
     "checks/debian/patches/legacy-relations",
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/legacy-relations",
@@ -174,6 +179,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/patch-systems-quilt-no-depends",
     "checks/debian/patches/quilt/patch-systems-quilt-no-newline",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
+    "checks/debian/patches/quilt/quilt-patch-dpatch-desc",
     "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/legacy-debconf",
@@ -214,6 +220,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/rules/rules-special-variables",
     "checks/debian/rules/rules-symlink",
+    "checks/debian/rules/rules-unnecessary-get-orig-source",
     "checks/debian/rules/rules-unnecessary-source-date-epoch",
     "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
@@ -228,9 +235,15 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/trailing-whitespace/cruft-crlf-eols",
     "checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace",
     "checks/debian/trailing-whitespace/rules-without-newline-at-end",
+    "checks/debian/upstream/metadata/bogus-field",
     "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/upstream/metadata/in-native-source",
+    "checks/debian/upstream/metadata/upstream-metadata-invalid-yml",
+    "checks/debian/upstream/metadata/upstream-metadata-is-missing",
     "checks/debian/upstream/metadata/upstream-metadata-is-not-a-file",
+    "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
+    "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
+    "checks/debian/upstream/metadata/yaml-sequence",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
@@ -240,6 +253,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/version-substvars/version-substvars-obsolete",
     "checks/debian/watch/changes-upstream-signature-missing",
     "checks/debian/watch/filenamemangle",
+    "checks/debian/watch/generic-dh-make-2008",
     "checks/debian/watch/legacy-foo++",
     "checks/debian/watch/legacy-maintainer-scripts",
     "checks/debian/watch/legacy-scripts",
@@ -256,6 +270,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-bug-765995",
     "checks/debian/watch/watch-file-general",
     "checks/debian/watch/watch-file-malformed-version",
+    "checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata",
     "checks/debian/watch/watch-file-old-upstream-version",
     "checks/debian/watch/watch-file-pgpmode-none",
     "checks/debian/watch/watch-file-prerelease",
@@ -369,6 +387,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/artifact/cruft-general-native",
     "checks/files/artifact/cruft-general-quilt",
     "checks/files/artifact/cruft-general-wig-pen",
+    "checks/files/banned/fake-banned-file",
+    "checks/files/banned/lenna/cruft-non-free-img",
     "checks/files/contents/line-length/cruft-gfdl-fp-sliding-win",
     "checks/files/contents/line-length/cruft-gfdl-invariants",
     "checks/files/contents/line-length/cruft-minified-js",
@@ -384,8 +404,11 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
     "checks/files/source-missing/cruft-general-test-suite",
+    "checks/files/source-missing/cruft-gfdl-invariants",
+    "checks/files/source-missing/cruft-minified-js",
     "checks/files/source-missing/cruft-source-is-missing-unrel",
     "checks/files/source-missing/cruft-upstream-binaries",
+    "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
     "checks/languages/golang/module-path/binaries-golang",
@@ -429,6 +452,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/ruby/gem-homepage",
     "checks/languages/rust/template-description",
     "checks/lintian/override-context-mismatch",
+    "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -473,6 +497,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "odd-inputs/source/unpack-srcpkg-dot-dir",
     "odd-inputs/source/unpack-srcpkg-dot-subdir",
     "odd-inputs/source/unpack-srcpkg-no-subdir",
+    "odd-inputs/source/unpack-srcpkg-xz",
     "tracking/generic-dh-make-2005",
     "tracking/generic-dh-make-2008",
 ];
@@ -483,6 +508,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/application-not-library/application-not-library",
     "checks/appstream-metadata/appstream-metadata",
     "checks/apt/files-foo-in-bar",
+    "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/binaries/architecture/binaries-misplaced",
     "checks/binaries/architecture/other/binaries-from-other-arch",
     "checks/binaries/corrupted/binaries-from-other-arch",
@@ -1024,6 +1050,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/menus/legacy-filenames",
     "checks/menus/menus-doc-base-file-references-missing-file",
     "checks/menus/menus-doc-base-general",
+    "checks/menus/menus-doc-base-registration",
     "checks/menus/menus-foo-calls-bar",
     "checks/menus/menus-script-check-ok",
     "checks/menus/national-encoding",
@@ -1062,6 +1089,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/systemd/legacy-scripts",
     "checks/systemd/no-systemd-service-for-init-script",
     "checks/systemd/no-systemd-timer-for-cron-script",
+    "checks/systemd/service-file-no-install-key",
     "checks/systemd/systemd-complex-service-file",
     "checks/systemd/systemd-general",
     "checks/systemd/systemd-missing-services",
@@ -1108,6 +1136,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/cruft/cruft-non-free-rfc",
     "checks/cruft/cruft-nvidia-intellectual",
     "checks/cruft/cruft-old-unicode",
+    "checks/cruft/cruft-python",
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
@@ -1245,8 +1274,12 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/not-installed/triplet-in-library-path",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
+    "checks/debian/patches/dep3/empty-forwarded-no-bug",
+    "checks/debian/patches/dep3/forwarded-no",
+    "checks/debian/patches/dep3/last-update",
     "checks/debian/patches/dep3/maybe-bug-debian",
     "checks/debian/patches/dep3/origin-field-default-value",
+    "checks/debian/patches/dep3/wrong-bug-debian-url",
     "checks/debian/patches/legacy-relations",
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/legacy-relations",
@@ -1256,6 +1289,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/patch-systems-quilt-no-depends",
     "checks/debian/patches/quilt/patch-systems-quilt-no-newline",
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
+    "checks/debian/patches/quilt/quilt-patch-dpatch-desc",
     "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/legacy-debconf",
@@ -1296,6 +1330,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/rules/rules-special-variables",
     "checks/debian/rules/rules-symlink",
+    "checks/debian/rules/rules-unnecessary-get-orig-source",
     "checks/debian/rules/rules-unnecessary-source-date-epoch",
     "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
@@ -1310,9 +1345,15 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/trailing-whitespace/cruft-crlf-eols",
     "checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace",
     "checks/debian/trailing-whitespace/rules-without-newline-at-end",
+    "checks/debian/upstream/metadata/bogus-field",
     "checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata",
     "checks/debian/upstream/metadata/in-native-source",
+    "checks/debian/upstream/metadata/upstream-metadata-invalid-yml",
+    "checks/debian/upstream/metadata/upstream-metadata-is-missing",
     "checks/debian/upstream/metadata/upstream-metadata-is-not-a-file",
+    "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
+    "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
+    "checks/debian/upstream/metadata/yaml-sequence",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
@@ -1322,6 +1363,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/version-substvars/version-substvars-obsolete",
     "checks/debian/watch/changes-upstream-signature-missing",
     "checks/debian/watch/filenamemangle",
+    "checks/debian/watch/generic-dh-make-2008",
     "checks/debian/watch/legacy-foo++",
     "checks/debian/watch/legacy-maintainer-scripts",
     "checks/debian/watch/legacy-scripts",
@@ -1338,6 +1380,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/watch/watch-file-bug-765995",
     "checks/debian/watch/watch-file-general",
     "checks/debian/watch/watch-file-malformed-version",
+    "checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing",
+    "checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata",
     "checks/debian/watch/watch-file-old-upstream-version",
     "checks/debian/watch/watch-file-pgpmode-none",
     "checks/debian/watch/watch-file-prerelease",
@@ -1452,6 +1498,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/artifact/cruft-general-native",
     "checks/files/artifact/cruft-general-quilt",
     "checks/files/artifact/cruft-general-wig-pen",
+    "checks/files/banned/fake-banned-file",
+    "checks/files/banned/lenna/cruft-non-free-img",
     "checks/files/contents/line-length/cruft-gfdl-fp-sliding-win",
     "checks/files/contents/line-length/cruft-gfdl-invariants",
     "checks/files/contents/line-length/cruft-minified-js",
@@ -1467,8 +1515,11 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
     "checks/files/source-missing/cruft-general-test-suite",
+    "checks/files/source-missing/cruft-gfdl-invariants",
+    "checks/files/source-missing/cruft-minified-js",
     "checks/files/source-missing/cruft-source-is-missing-unrel",
     "checks/files/source-missing/cruft-upstream-binaries",
+    "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
     "checks/languages/golang/module-path/binaries-golang",
@@ -1512,6 +1563,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/ruby/gem-homepage",
     "checks/languages/rust/template-description",
     "checks/lintian/override-context-mismatch",
+    "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -1556,16 +1608,42 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "odd-inputs/source/unpack-srcpkg-dot-dir",
     "odd-inputs/source/unpack-srcpkg-dot-subdir",
     "odd-inputs/source/unpack-srcpkg-no-subdir",
+    "odd-inputs/source/unpack-srcpkg-xz",
     "tracking/generic-dh-make-2005",
     "tracking/generic-dh-make-2008",
 ];
 
 const GROUP_RECIPES: &[&str] = &[
+    "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/changes-file/changes-file-bad-section",
+    "checks/changes-file/changes-file-size-checksum-mismatch",
+    "checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants",
+    "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
+    "checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license",
+    "checks/debian/copyright/copyright-file-symlink",
+    "checks/desktop/gnome/gir/gir",
+    "checks/fields/distribution/changelog-file-backport",
+    "checks/fields/distribution/changes-bad-ubuntu-distribution",
+    "checks/fields/distribution/changes-distribution-mismatch",
+    "checks/fields/distribution/changes-experimental-mismatch",
+    "checks/fields/distribution/changes-unreleased",
+    "checks/fields/distribution/changes-upload-has-backports-version-number",
+    "checks/fields/distribution/distribution-multiple-bad",
+    "checks/fields/format/changes-missing-format",
+    "checks/fields/mail-address/changed-by-no-name",
+    "checks/fields/urgency/generic-empty",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
+    "checks/files/symbolic-links/broken/symlinks-broken",
     "checks/group-checks/group-checks-circular-deps",
+    "checks/group-checks/group-checks-file-conflict",
+    "checks/group-checks/group-checks-multi-arch",
     "checks/group-checks/legacy-binary",
+    "checks/group-checks/legacy-libbaz",
+    "checks/libraries/shared/links/legacy-libbaz",
+    "checks/libraries/shared/links/shared-libs-dev-symlink",
+    "checks/menus/legacy-binary",
+    "checks/menus/menus-doc-base-file-references-missing-file",
 ];
 
 #[test]
@@ -1621,6 +1699,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/cruft/cruft-non-free-rfc"; "checks_cruft_cruft_non_free_rfc")]
 #[test_case("checks/cruft/cruft-nvidia-intellectual"; "checks_cruft_cruft_nvidia_intellectual")]
 #[test_case("checks/cruft/cruft-old-unicode"; "checks_cruft_cruft_old_unicode")]
+#[test_case("checks/cruft/cruft-python"; "checks_cruft_cruft_python")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
@@ -1756,8 +1835,12 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
+#[test_case("checks/debian/patches/dep3/empty-forwarded-no-bug"; "checks_debian_patches_dep3_empty_forwarded_no_bug")]
+#[test_case("checks/debian/patches/dep3/forwarded-no"; "checks_debian_patches_dep3_forwarded_no")]
+#[test_case("checks/debian/patches/dep3/last-update"; "checks_debian_patches_dep3_last_update")]
 #[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
+#[test_case("checks/debian/patches/dep3/wrong-bug-debian-url"; "checks_debian_patches_dep3_wrong_bug_debian_url")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/legacy-relations"; "checks_debian_patches_quilt_legacy_relations")]
@@ -1767,6 +1850,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-depends"; "checks_debian_patches_quilt_patch_systems_quilt_no_depends")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-newline"; "checks_debian_patches_quilt_patch_systems_quilt_no_newline")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
+#[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-desc"; "checks_debian_patches_quilt_quilt_patch_dpatch_desc")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
@@ -1807,6 +1891,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/rules/rules-special-variables"; "checks_debian_rules_rules_special_variables")]
 #[test_case("checks/debian/rules/rules-symlink"; "checks_debian_rules_rules_symlink")]
+#[test_case("checks/debian/rules/rules-unnecessary-get-orig-source"; "checks_debian_rules_rules_unnecessary_get_orig_source")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
@@ -1821,9 +1906,15 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/trailing-whitespace/cruft-crlf-eols"; "checks_debian_trailing_whitespace_cruft_crlf_eols")]
 #[test_case("checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace"; "checks_debian_trailing_whitespace_cruft_file_contains_trailing_whitespace")]
 #[test_case("checks/debian/trailing-whitespace/rules-without-newline-at-end"; "checks_debian_trailing_whitespace_rules_without_newline_at_end")]
+#[test_case("checks/debian/upstream/metadata/bogus-field"; "checks_debian_upstream_metadata_bogus_field")]
 #[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/upstream/metadata/in-native-source"; "checks_debian_upstream_metadata_in_native_source")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-invalid-yml"; "checks_debian_upstream_metadata_upstream_metadata_invalid_yml")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-is-missing"; "checks_debian_upstream_metadata_upstream_metadata_is_missing")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-is-not-a-file"; "checks_debian_upstream_metadata_upstream_metadata_is_not_a_file")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
+#[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
@@ -1833,6 +1924,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/version-substvars/version-substvars-obsolete"; "checks_debian_version_substvars_version_substvars_obsolete")]
 #[test_case("checks/debian/watch/changes-upstream-signature-missing"; "checks_debian_watch_changes_upstream_signature_missing")]
 #[test_case("checks/debian/watch/filenamemangle"; "checks_debian_watch_filenamemangle")]
+#[test_case("checks/debian/watch/generic-dh-make-2008"; "checks_debian_watch_generic_dh_make_2008")]
 #[test_case("checks/debian/watch/legacy-foo++"; "checks_debian_watch_legacy_foo_")]
 #[test_case("checks/debian/watch/legacy-maintainer-scripts"; "checks_debian_watch_legacy_maintainer_scripts")]
 #[test_case("checks/debian/watch/legacy-scripts"; "checks_debian_watch_legacy_scripts")]
@@ -1849,6 +1941,10 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/watch/watch-file-bug-765995"; "checks_debian_watch_watch_file_bug_765995")]
 #[test_case("checks/debian/watch/watch-file-general"; "checks_debian_watch_watch_file_general")]
 #[test_case("checks/debian/watch/watch-file-malformed-version"; "checks_debian_watch_watch_file_malformed_version")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cpan_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cran_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_github_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata"; "checks_debian_watch_watch_file_missing_with_unknown_upstream_metadata")]
 #[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
 #[test_case("checks/debian/watch/watch-file-pgpmode-none"; "checks_debian_watch_watch_file_pgpmode_none")]
 #[test_case("checks/debian/watch/watch-file-prerelease"; "checks_debian_watch_watch_file_prerelease")]
@@ -1962,6 +2058,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
 #[test_case("checks/files/artifact/cruft-general-wig-pen"; "checks_files_artifact_cruft_general_wig_pen")]
+#[test_case("checks/files/banned/fake-banned-file"; "checks_files_banned_fake_banned_file")]
+#[test_case("checks/files/banned/lenna/cruft-non-free-img"; "checks_files_banned_lenna_cruft_non_free_img")]
 #[test_case("checks/files/contents/line-length/cruft-gfdl-fp-sliding-win"; "checks_files_contents_line_length_cruft_gfdl_fp_sliding_win")]
 #[test_case("checks/files/contents/line-length/cruft-gfdl-invariants"; "checks_files_contents_line_length_cruft_gfdl_invariants")]
 #[test_case("checks/files/contents/line-length/cruft-minified-js"; "checks_files_contents_line_length_cruft_minified_js")]
@@ -1977,8 +2075,11 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
 #[test_case("checks/files/source-missing/cruft-general-test-suite"; "checks_files_source_missing_cruft_general_test_suite")]
+#[test_case("checks/files/source-missing/cruft-gfdl-invariants"; "checks_files_source_missing_cruft_gfdl_invariants")]
+#[test_case("checks/files/source-missing/cruft-minified-js"; "checks_files_source_missing_cruft_minified_js")]
 #[test_case("checks/files/source-missing/cruft-source-is-missing-unrel"; "checks_files_source_missing_cruft_source_is_missing_unrel")]
 #[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
+#[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
 #[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
@@ -2022,6 +2123,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
 #[test_case("checks/languages/rust/template-description"; "checks_languages_rust_template_description")]
 #[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
+#[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]
@@ -2066,6 +2168,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
+#[test_case("odd-inputs/source/unpack-srcpkg-xz"; "odd_inputs_source_unpack_srcpkg_xz")]
 #[test_case("tracking/generic-dh-make-2005"; "tracking_generic_dh_make_2005")]
 #[test_case("tracking/generic-dh-make-2008"; "tracking_generic_dh_make_2008")]
 fn lintian_parity_source_tree(recipe: &str) {
@@ -2077,6 +2180,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/application-not-library/application-not-library"; "checks_application_not_library_application_not_library")]
 #[test_case("checks/appstream-metadata/appstream-metadata"; "checks_appstream_metadata_appstream_metadata")]
 #[test_case("checks/apt/files-foo-in-bar"; "checks_apt_files_foo_in_bar")]
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/binaries/architecture/binaries-misplaced"; "checks_binaries_architecture_binaries_misplaced")]
 #[test_case("checks/binaries/architecture/other/binaries-from-other-arch"; "checks_binaries_architecture_other_binaries_from_other_arch")]
 #[test_case("checks/binaries/corrupted/binaries-from-other-arch"; "checks_binaries_corrupted_binaries_from_other_arch")]
@@ -2618,6 +2722,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/menus/legacy-filenames"; "checks_menus_legacy_filenames")]
 #[test_case("checks/menus/menus-doc-base-file-references-missing-file"; "checks_menus_menus_doc_base_file_references_missing_file")]
 #[test_case("checks/menus/menus-doc-base-general"; "checks_menus_menus_doc_base_general")]
+#[test_case("checks/menus/menus-doc-base-registration"; "checks_menus_menus_doc_base_registration")]
 #[test_case("checks/menus/menus-foo-calls-bar"; "checks_menus_menus_foo_calls_bar")]
 #[test_case("checks/menus/menus-script-check-ok"; "checks_menus_menus_script_check_ok")]
 #[test_case("checks/menus/national-encoding"; "checks_menus_national_encoding")]
@@ -2656,6 +2761,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/systemd/legacy-scripts"; "checks_systemd_legacy_scripts")]
 #[test_case("checks/systemd/no-systemd-service-for-init-script"; "checks_systemd_no_systemd_service_for_init_script")]
 #[test_case("checks/systemd/no-systemd-timer-for-cron-script"; "checks_systemd_no_systemd_timer_for_cron_script")]
+#[test_case("checks/systemd/service-file-no-install-key"; "checks_systemd_service_file_no_install_key")]
 #[test_case("checks/systemd/systemd-complex-service-file"; "checks_systemd_systemd_complex_service_file")]
 #[test_case("checks/systemd/systemd-general"; "checks_systemd_systemd_general")]
 #[test_case("checks/systemd/systemd-missing-services"; "checks_systemd_systemd_missing_services")]
@@ -2703,6 +2809,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/cruft/cruft-non-free-rfc"; "checks_cruft_cruft_non_free_rfc")]
 #[test_case("checks/cruft/cruft-nvidia-intellectual"; "checks_cruft_cruft_nvidia_intellectual")]
 #[test_case("checks/cruft/cruft-old-unicode"; "checks_cruft_cruft_old_unicode")]
+#[test_case("checks/cruft/cruft-python"; "checks_cruft_cruft_python")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
@@ -2840,8 +2947,12 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
+#[test_case("checks/debian/patches/dep3/empty-forwarded-no-bug"; "checks_debian_patches_dep3_empty_forwarded_no_bug")]
+#[test_case("checks/debian/patches/dep3/forwarded-no"; "checks_debian_patches_dep3_forwarded_no")]
+#[test_case("checks/debian/patches/dep3/last-update"; "checks_debian_patches_dep3_last_update")]
 #[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
+#[test_case("checks/debian/patches/dep3/wrong-bug-debian-url"; "checks_debian_patches_dep3_wrong_bug_debian_url")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/legacy-relations"; "checks_debian_patches_quilt_legacy_relations")]
@@ -2851,6 +2962,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-depends"; "checks_debian_patches_quilt_patch_systems_quilt_no_depends")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-newline"; "checks_debian_patches_quilt_patch_systems_quilt_no_newline")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
+#[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-desc"; "checks_debian_patches_quilt_quilt_patch_dpatch_desc")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
@@ -2891,6 +3003,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/rules/rules-special-variables"; "checks_debian_rules_rules_special_variables")]
 #[test_case("checks/debian/rules/rules-symlink"; "checks_debian_rules_rules_symlink")]
+#[test_case("checks/debian/rules/rules-unnecessary-get-orig-source"; "checks_debian_rules_rules_unnecessary_get_orig_source")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
@@ -2905,9 +3018,15 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/trailing-whitespace/cruft-crlf-eols"; "checks_debian_trailing_whitespace_cruft_crlf_eols")]
 #[test_case("checks/debian/trailing-whitespace/cruft-file-contains-trailing-whitespace"; "checks_debian_trailing_whitespace_cruft_file_contains_trailing_whitespace")]
 #[test_case("checks/debian/trailing-whitespace/rules-without-newline-at-end"; "checks_debian_trailing_whitespace_rules_without_newline_at_end")]
+#[test_case("checks/debian/upstream/metadata/bogus-field"; "checks_debian_upstream_metadata_bogus_field")]
 #[test_case("checks/debian/upstream/metadata/cruft-obsolete-upstream-metadata"; "checks_debian_upstream_metadata_cruft_obsolete_upstream_metadata")]
 #[test_case("checks/debian/upstream/metadata/in-native-source"; "checks_debian_upstream_metadata_in_native_source")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-invalid-yml"; "checks_debian_upstream_metadata_upstream_metadata_invalid_yml")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-is-missing"; "checks_debian_upstream_metadata_upstream_metadata_is_missing")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-is-not-a-file"; "checks_debian_upstream_metadata_upstream_metadata_is_not_a_file")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
+#[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
+#[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
@@ -2917,6 +3036,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/version-substvars/version-substvars-obsolete"; "checks_debian_version_substvars_version_substvars_obsolete")]
 #[test_case("checks/debian/watch/changes-upstream-signature-missing"; "checks_debian_watch_changes_upstream_signature_missing")]
 #[test_case("checks/debian/watch/filenamemangle"; "checks_debian_watch_filenamemangle")]
+#[test_case("checks/debian/watch/generic-dh-make-2008"; "checks_debian_watch_generic_dh_make_2008")]
 #[test_case("checks/debian/watch/legacy-foo++"; "checks_debian_watch_legacy_foo_")]
 #[test_case("checks/debian/watch/legacy-maintainer-scripts"; "checks_debian_watch_legacy_maintainer_scripts")]
 #[test_case("checks/debian/watch/legacy-scripts"; "checks_debian_watch_legacy_scripts")]
@@ -2933,6 +3053,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/watch/watch-file-bug-765995"; "checks_debian_watch_watch_file_bug_765995")]
 #[test_case("checks/debian/watch/watch-file-general"; "checks_debian_watch_watch_file_general")]
 #[test_case("checks/debian/watch/watch-file-malformed-version"; "checks_debian_watch_watch_file_malformed_version")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cpan-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cpan_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-cran-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_cran_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-github-upstream-metadata-missing"; "checks_debian_watch_watch_file_missing_with_github_upstream_metadata_missing")]
+#[test_case("checks/debian/watch/watch-file-missing-with-unknown-upstream-metadata"; "checks_debian_watch_watch_file_missing_with_unknown_upstream_metadata")]
 #[test_case("checks/debian/watch/watch-file-old-upstream-version"; "checks_debian_watch_watch_file_old_upstream_version")]
 #[test_case("checks/debian/watch/watch-file-pgpmode-none"; "checks_debian_watch_watch_file_pgpmode_none")]
 #[test_case("checks/debian/watch/watch-file-prerelease"; "checks_debian_watch_watch_file_prerelease")]
@@ -3047,6 +3171,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
 #[test_case("checks/files/artifact/cruft-general-quilt"; "checks_files_artifact_cruft_general_quilt")]
 #[test_case("checks/files/artifact/cruft-general-wig-pen"; "checks_files_artifact_cruft_general_wig_pen")]
+#[test_case("checks/files/banned/fake-banned-file"; "checks_files_banned_fake_banned_file")]
+#[test_case("checks/files/banned/lenna/cruft-non-free-img"; "checks_files_banned_lenna_cruft_non_free_img")]
 #[test_case("checks/files/contents/line-length/cruft-gfdl-fp-sliding-win"; "checks_files_contents_line_length_cruft_gfdl_fp_sliding_win")]
 #[test_case("checks/files/contents/line-length/cruft-gfdl-invariants"; "checks_files_contents_line_length_cruft_gfdl_invariants")]
 #[test_case("checks/files/contents/line-length/cruft-minified-js"; "checks_files_contents_line_length_cruft_minified_js")]
@@ -3062,8 +3188,11 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
 #[test_case("checks/files/source-missing/cruft-general-test-suite"; "checks_files_source_missing_cruft_general_test_suite")]
+#[test_case("checks/files/source-missing/cruft-gfdl-invariants"; "checks_files_source_missing_cruft_gfdl_invariants")]
+#[test_case("checks/files/source-missing/cruft-minified-js"; "checks_files_source_missing_cruft_minified_js")]
 #[test_case("checks/files/source-missing/cruft-source-is-missing-unrel"; "checks_files_source_missing_cruft_source_is_missing_unrel")]
 #[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
+#[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
 #[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
@@ -3107,6 +3236,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
 #[test_case("checks/languages/rust/template-description"; "checks_languages_rust_template_description")]
 #[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
+#[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]
@@ -3151,17 +3281,43 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-dir"; "odd_inputs_source_unpack_srcpkg_dot_dir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-dot-subdir"; "odd_inputs_source_unpack_srcpkg_dot_subdir")]
 #[test_case("odd-inputs/source/unpack-srcpkg-no-subdir"; "odd_inputs_source_unpack_srcpkg_no_subdir")]
+#[test_case("odd-inputs/source/unpack-srcpkg-xz"; "odd_inputs_source_unpack_srcpkg_xz")]
 #[test_case("tracking/generic-dh-make-2005"; "tracking_generic_dh_make_2005")]
 #[test_case("tracking/generic-dh-make-2008"; "tracking_generic_dh_make_2008")]
 fn lintian_parity_source_package(recipe: &str) {
     common::assert_source_package_parity(recipe);
 }
 
+#[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/changes-file/changes-file-bad-section"; "checks_changes_file_changes_file_bad_section")]
+#[test_case("checks/changes-file/changes-file-size-checksum-mismatch"; "checks_changes_file_changes_file_size_checksum_mismatch")]
+#[test_case("checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_changes_file_changes_files_package_builds_dbg_and_dbgsym_variants")]
+#[test_case("checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar"; "checks_debhelper_debhelper_dh_runit_but_lacks_breaks_substvar")]
+#[test_case("checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license"; "checks_debian_copyright_apache_notice_source_copyright_missing_notice_file_for_apache_license")]
+#[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]
+#[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
+#[test_case("checks/fields/distribution/changelog-file-backport"; "checks_fields_distribution_changelog_file_backport")]
+#[test_case("checks/fields/distribution/changes-bad-ubuntu-distribution"; "checks_fields_distribution_changes_bad_ubuntu_distribution")]
+#[test_case("checks/fields/distribution/changes-distribution-mismatch"; "checks_fields_distribution_changes_distribution_mismatch")]
+#[test_case("checks/fields/distribution/changes-experimental-mismatch"; "checks_fields_distribution_changes_experimental_mismatch")]
+#[test_case("checks/fields/distribution/changes-unreleased"; "checks_fields_distribution_changes_unreleased")]
+#[test_case("checks/fields/distribution/changes-upload-has-backports-version-number"; "checks_fields_distribution_changes_upload_has_backports_version_number")]
+#[test_case("checks/fields/distribution/distribution-multiple-bad"; "checks_fields_distribution_distribution_multiple_bad")]
+#[test_case("checks/fields/format/changes-missing-format"; "checks_fields_format_changes_missing_format")]
+#[test_case("checks/fields/mail-address/changed-by-no-name"; "checks_fields_mail_address_changed_by_no_name")]
+#[test_case("checks/fields/urgency/generic-empty"; "checks_fields_urgency_generic_empty")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
+#[test_case("checks/files/symbolic-links/broken/symlinks-broken"; "checks_files_symbolic_links_broken_symlinks_broken")]
 #[test_case("checks/group-checks/group-checks-circular-deps"; "checks_group_checks_group_checks_circular_deps")]
+#[test_case("checks/group-checks/group-checks-file-conflict"; "checks_group_checks_group_checks_file_conflict")]
+#[test_case("checks/group-checks/group-checks-multi-arch"; "checks_group_checks_group_checks_multi_arch")]
 #[test_case("checks/group-checks/legacy-binary"; "checks_group_checks_legacy_binary")]
+#[test_case("checks/group-checks/legacy-libbaz"; "checks_group_checks_legacy_libbaz")]
+#[test_case("checks/libraries/shared/links/legacy-libbaz"; "checks_libraries_shared_links_legacy_libbaz")]
+#[test_case("checks/libraries/shared/links/shared-libs-dev-symlink"; "checks_libraries_shared_links_shared_libs_dev_symlink")]
+#[test_case("checks/menus/legacy-binary"; "checks_menus_legacy_binary")]
+#[test_case("checks/menus/menus-doc-base-file-references-missing-file"; "checks_menus_menus_doc_base_file_references_missing_file")]
 fn lintian_parity_group(recipe: &str) {
     common::assert_group_parity(recipe);
 }

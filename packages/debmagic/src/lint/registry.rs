@@ -22,6 +22,9 @@ use super::rules::ArchDepPackageHasBigUsrShare;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::ArchitectureEscape;
+use super::rules::BackportsChangesMissing;
+use super::rules::BackportsUploadHasIncorrectVersionNumber;
+use super::rules::BadDistributionInChangesFile;
 use super::rules::BadJarName;
 use super::rules::BadPackageName;
 use super::rules::BadPermForFileInEtcSudoersD;
@@ -29,10 +32,12 @@ use super::rules::BadPermissionsForAliFile;
 use super::rules::BadPermissionsForEtcCronDScript;
 use super::rules::BadRelation;
 use super::rules::BadSectionInChangesFile;
+use super::rules::BadUrgencyInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
 use super::rules::BinSbinMismatch;
+use super::rules::BinariesHaveFileConflict;
 use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryFromOtherArchitecture;
 use super::rules::BinaryHasUnneededSection;
@@ -86,6 +91,7 @@ use super::rules::DbusPolicyAtConsole;
 use super::rules::DbusPolicyExcessivelyBroad;
 use super::rules::DbusPolicyInEtc;
 use super::rules::DbusPolicyWithoutSendDestination;
+use super::rules::DbusSessionServiceWrongName;
 use super::rules::DbusSystemServiceWrongName;
 use super::rules::DebconfConfigNotExecutable;
 use super::rules::DebconfIsNotARegistry;
@@ -97,6 +103,7 @@ use super::rules::DebianControlFileIsASymlink;
 use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
+use super::rules::DebianRulesContainsUnnecessaryGetOrigSourceTarget;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
@@ -118,34 +125,46 @@ use super::rules::DebianRulesUsesSpecialShellVariable;
 use super::rules::DebianRulesUsesUnnecessaryDhArgument;
 use super::rules::DebianRulesUsesWrongEnvironmentVariable;
 use super::rules::DebianUpstreamObsoletePath;
+use super::rules::DebianWatchContainsDhMakeTemplate;
 use super::rules::DebianWatchDoesNotCheckOpenpgpSignature;
+use super::rules::DebianWatchFileIsMissing;
+use super::rules::DebianWatchManglesDebianVersionImproperly;
+use super::rules::DebianWatchManglesUpstreamVersionImproperly;
 use super::rules::DebianWatchUsesInsecureUri;
 use super::rules::DebugFileWithNoDebugSymbols;
+use super::rules::DebugPackageForMultiArchSamePkgNotCoinstallable;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
 use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
 use super::rules::DefaultMtaDependencyDoesNotSpecifyMailTransportAgent;
 use super::rules::DefaultMtaDependencyNotListedFirst;
+use super::rules::DependencyIsNotMultiArchified;
 use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
 use super::rules::DesktopEntryContainsEncodingKey;
+use super::rules::DesktopEntryLacksIconEntry;
 use super::rules::DesktopEntryLacksKeywordsEntry;
+use super::rules::DesktopEntryLimitedToEnvironments;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DfsgVersionWithTilde;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
 use super::rules::DhExecScriptWithoutDhExecFeatures;
+use super::rules::DhInstallInsteadOfDhInstallmodules;
 use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhMakeTemplateInSource;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
 use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DistantPrerequisiteInShlibs;
+use super::rules::DistributionAndChangesMismatch;
+use super::rules::DistributionAndExperimentalMismatch;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
+use super::rules::DocBaseFileReferencesMissingFile;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
@@ -161,7 +180,12 @@ use super::rules::EmptySharedLibrarySymbols;
 use super::rules::EmptyShlibs;
 use super::rules::EmptyUdebPackage;
 use super::rules::EmptyUpstreamSources;
+use super::rules::ExampleIncorrectPathForInterpreter;
+use super::rules::ExampleInterpreterNotAbsolute;
+use super::rules::ExampleScriptUsesBinEnv;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
+use super::rules::ExampleScriptWithoutInterpreter;
+use super::rules::ExampleWrongPathForInterpreter;
 use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExecutableDebhelperFileWithoutBeingExecutable;
 use super::rules::ExecutableDesktopFile;
@@ -178,6 +202,7 @@ use super::rules::FSSTNDDirInManualPage;
 use super::rules::FileContainsFixmePlaceholder;
 use super::rules::FileInEtcModprobeD;
 use super::rules::FileIncludedAlready;
+use super::rules::FileSizeMismatchInChangesFile;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
 use super::rules::FontInNonFontPackage;
@@ -187,6 +212,7 @@ use super::rules::ForbiddenPostrmInterpreter;
 use super::rules::GawkScriptButNoGawkDep;
 use super::rules::GfortranModuleDoesNotDeclareVersion;
 use super::rules::GirInArchAllPackage;
+use super::rules::GirMissingTypelibDependency;
 use super::rules::GirPackageNameDoesNotMatch;
 use super::rules::GlobbingPatternsOutOfOrder;
 use super::rules::GoLibraryPackageDoesNotIncludeVersion;
@@ -214,15 +240,19 @@ use super::rules::InstallableFieldMirrorsSource;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::IntraSourcePackageCircularDependency;
+use super::rules::InvalidDep3FormatPatchWrongBugDebianUrl;
+use super::rules::InvalidDep3FormatPatchWrongLastUpdate;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
+use super::rules::InvalidSystemdDocumentation;
 use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
 use super::rules::LacksLdconfigTrigger;
+use super::rules::LacksUnversionedLinkToSharedLibrary;
 use super::rules::LacksVersionedLinkToSharedLibrary;
 use super::rules::LdconfigSymlinkIsNotASymlink;
 use super::rules::LdconfigSymlinkReferencingWrongFile;
@@ -234,7 +264,9 @@ use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemGfdlInvariants;
 use super::rules::LicenseProblemGfdlNonOfficialText;
 use super::rules::LicenseProblemJsonEvil;
+use super::rules::LicenseProblemMd5sumNonDistributableFile;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
+use super::rules::LicenseProblemNonFreeImgLenna;
 use super::rules::LicenseProblemNonFreeRFC;
 use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::LicenseProblemNvidiaIntellectual;
@@ -249,6 +281,7 @@ use super::rules::MaintainerScriptSupportsAncientPackageVersion;
 use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
 use super::rules::MaintainerScriptWithoutSetE;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
+use super::rules::MalformedChangesFile;
 use super::rules::MalformedDebArchive;
 use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
@@ -277,6 +310,7 @@ use super::rules::MissingDependsOnSensibleUtils;
 use super::rules::MissingFileFromPotfilesIn;
 use super::rules::MissingIntermediateDirectory;
 use super::rules::MissingManifest;
+use super::rules::MissingNoticeFileForApacheLicense;
 use super::rules::MissingPkgPhpToolsAddon;
 use super::rules::MissingPkgPhpToolsBuildsystem;
 use super::rules::MissingPotfilesIn;
@@ -290,6 +324,7 @@ use super::rules::MultiArchSamePackageCallsPycompile;
 use super::rules::MultiArchSamePackageHasArchSpecificOverrides;
 use super::rules::MultilineArchitectureField;
 use super::rules::MultilineField;
+use super::rules::MultipleDistributionsInChangesFile;
 use super::rules::NativeSourceFileWithoutUtf8Name;
 use super::rules::NeedlessDependencyOnJre;
 use super::rules::NewPackageShouldNotPackagePython2Module;
@@ -299,6 +334,7 @@ use super::rules::NoCodeSections;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
 use super::rules::NoMd5sumsControlFile;
+use super::rules::NoPhrase;
 use super::rules::NoShlibs;
 use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoTemplateName;
@@ -328,7 +364,9 @@ use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
+use super::rules::PackageBuildsDbgAndDbgsymVariants;
 use super::rules::PackageContainsAncientFile;
+use super::rules::PackageContainsBrokenSymlinkWildcard;
 use super::rules::PackageContainsCmakePrivateFile;
 use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
 use super::rules::PackageContainsEmptyDirectory;
@@ -345,6 +383,7 @@ use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
 use super::rules::PackageDependsOnMultipleTclxVersions;
 use super::rules::PackageFileIsExecutable;
+use super::rules::PackageHasLongFileName;
 use super::rules::PackageHasUnnecessaryActivationOfLdconfigTrigger;
 use super::rules::PackageInstallsAptKeyring;
 use super::rules::PackageInstallsAptPreferences;
@@ -367,8 +406,10 @@ use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
 use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
+use super::rules::PackageUsesDhRunitButLacksBreaksSubstvar;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
+use super::rules::PatchNotForwardedUpstream;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
 use super::rules::PearPackageButMissingDependency;
@@ -381,6 +422,7 @@ use super::rules::PkgJsAutopkgtestFileDoesNotExist;
 use super::rules::PkgJsAutopkgtestTestIsEmpty;
 use super::rules::PkgJsAutopkgtestTestIsMissing;
 use super::rules::PossibleBashismInMaintainerScript;
+use super::rules::PossibleDocumentationButNoDocBaseRegistration;
 use super::rules::PossibleMissingColonInCloses;
 use super::rules::PossibleNewUpstreamReleaseWithoutNewVersion;
 use super::rules::PossibleUnindentedListInExtendedDescription;
@@ -407,6 +449,8 @@ use super::rules::PythonModuleInWrongLocation;
 use super::rules::PythonTracebackInManpage;
 use super::rules::QuiltBuildDepButNoSeriesFile;
 use super::rules::QuiltPatchMissingDescription;
+use super::rules::QuiltPatchUsesDpatchPlaceholder;
+use super::rules::QuiltPatchUsingTemplateDescription;
 use super::rules::QuiltPatchWithNonStandardOptions;
 use super::rules::QuiltSeriesButNoBuildDep;
 use super::rules::QuiltSeriesWithoutTrailingNewline;
@@ -447,10 +491,13 @@ use super::rules::SourceContainsEditorBackupFile;
 use super::rules::SourceContainsPatchFailureFile;
 use super::rules::SourceContainsPrebuiltBinary;
 use super::rules::SourceContainsPrebuiltDoxygenDocumentation;
+use super::rules::SourceContainsPrebuiltJavascriptObject;
 use super::rules::SourceContainsPrebuiltMsHelpFile;
+use super::rules::SourceContainsPrebuiltPythonObject;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
+use super::rules::SourceIsMissing;
 use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
@@ -473,6 +520,7 @@ use super::rules::SynopsisIsASentence;
 use super::rules::SyntaxErrorInDebconfTemplate;
 use super::rules::SyntaxErrorInDep5Copyright;
 use super::rules::SystemdServiceFileMissingDocumentationKey;
+use super::rules::SystemdServiceFileMissingInstallKey;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
 use super::rules::SystemdServiceFileShutdownProblems;
 use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
@@ -522,16 +570,25 @@ use super::rules::UnknownPriority;
 use super::rules::UnknownTemplateType;
 use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
+use super::rules::UnnecessarySourceDateEpochAssignment;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnparsableMenuItem;
+use super::rules::UnreleasedChanges;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
+use super::rules::UploadHasBackportsVersionNumber;
 use super::rules::UploaderNameMissing;
 use super::rules::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;
+use super::rules::UpstreamMetadataFieldUnknown;
+use super::rules::UpstreamMetadataFileIsMissing;
 use super::rules::UpstreamMetadataInNativeSource;
 use super::rules::UpstreamMetadataIsNotAFile;
+use super::rules::UpstreamMetadataMissingBugTracking;
+use super::rules::UpstreamMetadataMissingRepository;
+use super::rules::UpstreamMetadataNotYamlMapping;
+use super::rules::UpstreamMetadataYamlInvalid;
 use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::UsesDeprecatedAdttmp;
 use super::rules::UsesDeprecatedPythonStdlib;
@@ -539,6 +596,7 @@ use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
 use super::rules::UsingFirstPersonInDescription;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
+use super::rules::UsrShareDocSymlinkToForeignPackage;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VcsBrowserLinksToEmptyView;
@@ -2193,11 +2251,70 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingXsGoImportPathForGolangPackage,
         &ComposerPackageWithoutPkgPhpToolsBuilddep,
         &PearPackageNotUsingSubstvar,
+        &SourceContainsPrebuiltJavascriptObject,
+        &SourceContainsPrebuiltPythonObject,
+        &SourceIsMissing,
+        &FileSizeMismatchInChangesFile,
+        &MalformedChangesFile,
+        &MultipleDistributionsInChangesFile,
+        &NoPhrase,
+        &PackageBuildsDbgAndDbgsymVariants,
+        &UnreleasedChanges,
+        &UploadHasBackportsVersionNumber,
+        &UpstreamMetadataFieldUnknown,
+        &UpstreamMetadataMissingBugTracking,
+        &UpstreamMetadataMissingRepository,
+        &UpstreamMetadataNotYamlMapping,
+        &UpstreamMetadataYamlInvalid,
+        &DebianWatchFileIsMissing,
+        &UpstreamMetadataFileIsMissing,
+        &BadDistributionInChangesFile,
+        &BackportsChangesMissing,
+        &BackportsUploadHasIncorrectVersionNumber,
+        &PackageHasLongFileName,
+        &BadUrgencyInChangesFile,
+        &DistributionAndChangesMismatch,
+        &DistributionAndExperimentalMismatch,
+        &InvalidDep3FormatPatchWrongBugDebianUrl,
+        &InvalidDep3FormatPatchWrongLastUpdate,
+        &PatchNotForwardedUpstream,
+        &QuiltPatchUsesDpatchPlaceholder,
+        &QuiltPatchUsingTemplateDescription,
+        &DebianRulesContainsUnnecessaryGetOrigSourceTarget,
+        &UnnecessarySourceDateEpochAssignment,
+        &DebianWatchContainsDhMakeTemplate,
+        &DebianWatchManglesDebianVersionImproperly,
+        &DebianWatchManglesUpstreamVersionImproperly,
+        &DbusSessionServiceWrongName,
+        &DesktopEntryLacksIconEntry,
+        &DesktopEntryLimitedToEnvironments,
+        &PossibleDocumentationButNoDocBaseRegistration,
+        &DhInstallInsteadOfDhInstallmodules,
+        &ExampleIncorrectPathForInterpreter,
+        &ExampleInterpreterNotAbsolute,
+        &ExampleScriptUsesBinEnv,
+        &ExampleScriptWithoutInterpreter,
+        &ExampleWrongPathForInterpreter,
+        &InvalidSystemdDocumentation,
+        &SystemdServiceFileMissingInstallKey,
+        &LicenseProblemMd5sumNonDistributableFile,
+        &LicenseProblemNonFreeImgLenna,
+        &GirMissingTypelibDependency,
+        &PackageUsesDhRunitButLacksBreaksSubstvar,
+        &DependencyIsNotMultiArchified,
+        &MissingNoticeFileForApacheLicense,
+        &LacksUnversionedLinkToSharedLibrary,
+        &PackageContainsBrokenSymlinkWildcard,
+        &DebugPackageForMultiArchSamePkgNotCoinstallable,
+        &UsrShareDocSymlinkToForeignPackage,
+        &DocBaseFileReferencesMissingFile,
+        &BinariesHaveFileConflict,
     ]
 }
 
 pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
     &[
+        &PackageHasLongFileName,
         &DebmagicDummyTrigger,
         &RequiredField,
         &SyntaxErrorInDebianChangelog,
@@ -2596,11 +2713,35 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MissingXsGoImportPathForGolangPackage,
         &ComposerPackageWithoutPkgPhpToolsBuilddep,
         &PearPackageNotUsingSubstvar,
+        &SourceContainsPrebuiltJavascriptObject,
+        &SourceContainsPrebuiltPythonObject,
+        &SourceIsMissing,
+        &UpstreamMetadataFieldUnknown,
+        &UpstreamMetadataMissingBugTracking,
+        &UpstreamMetadataMissingRepository,
+        &UpstreamMetadataNotYamlMapping,
+        &UpstreamMetadataYamlInvalid,
+        &DebianWatchFileIsMissing,
+        &UpstreamMetadataFileIsMissing,
+        &InvalidDep3FormatPatchWrongBugDebianUrl,
+        &InvalidDep3FormatPatchWrongLastUpdate,
+        &PatchNotForwardedUpstream,
+        &QuiltPatchUsesDpatchPlaceholder,
+        &QuiltPatchUsingTemplateDescription,
+        &DebianRulesContainsUnnecessaryGetOrigSourceTarget,
+        &UnnecessarySourceDateEpochAssignment,
+        &DebianWatchContainsDhMakeTemplate,
+        &DebianWatchManglesDebianVersionImproperly,
+        &DebianWatchManglesUpstreamVersionImproperly,
+        &DhInstallInsteadOfDhInstallmodules,
+        &LicenseProblemMd5sumNonDistributableFile,
+        &LicenseProblemNonFreeImgLenna,
     ]
 }
 
 pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule] {
     &[
+        &PackageHasLongFileName,
         &RequiredField,
         &UnstrippedBinaryOrObject,
         &PackageContainsUnsafeSymlink,
@@ -3455,19 +3596,59 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ArchDepPackageHasBigUsrShare,
         &InitDScriptDoesNotProvideItself,
         &InitDScriptMissingLsbShortDescription,
+        &DbusSessionServiceWrongName,
+        &DesktopEntryLacksIconEntry,
+        &DesktopEntryLimitedToEnvironments,
+        &PossibleDocumentationButNoDocBaseRegistration,
+        &ExampleIncorrectPathForInterpreter,
+        &ExampleInterpreterNotAbsolute,
+        &ExampleScriptUsesBinEnv,
+        &ExampleScriptWithoutInterpreter,
+        &ExampleWrongPathForInterpreter,
+        &InvalidSystemdDocumentation,
+        &SystemdServiceFileMissingInstallKey,
     ]
 }
 
 pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
-    &[&BadSectionInChangesFile, &DebianRevisionNotWellFormed]
+    &[
+        &BadSectionInChangesFile,
+        &DebianRevisionNotWellFormed,
+        &FileSizeMismatchInChangesFile,
+        &MalformedChangesFile,
+        &MultipleDistributionsInChangesFile,
+        &NoPhrase,
+        &PackageBuildsDbgAndDbgsymVariants,
+        &UnreleasedChanges,
+        &UploadHasBackportsVersionNumber,
+        &BadDistributionInChangesFile,
+        &BackportsChangesMissing,
+        &BackportsUploadHasIncorrectVersionNumber,
+        &PackageHasLongFileName,
+        &BadUrgencyInChangesFile,
+        &DistributionAndChangesMismatch,
+        &DistributionAndExperimentalMismatch,
+    ]
 }
 
 pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
-    &[&DebianRevisionNotWellFormed]
+    &[&DebianRevisionNotWellFormed, &PackageHasLongFileName]
 }
 
 pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
-    &[&IntraSourcePackageCircularDependency]
+    &[
+        &IntraSourcePackageCircularDependency,
+        &GirMissingTypelibDependency,
+        &PackageUsesDhRunitButLacksBreaksSubstvar,
+        &DependencyIsNotMultiArchified,
+        &MissingNoticeFileForApacheLicense,
+        &LacksUnversionedLinkToSharedLibrary,
+        &PackageContainsBrokenSymlinkWildcard,
+        &DebugPackageForMultiArchSamePkgNotCoinstallable,
+        &UsrShareDocSymlinkToForeignPackage,
+        &DocBaseFileReferencesMissingFile,
+        &BinariesHaveFileConflict,
+    ]
 }
 
 #[cfg(test)]

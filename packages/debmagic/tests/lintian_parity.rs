@@ -1051,7 +1051,9 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/modprobe/obsolete-commands-in-modprobe",
     "checks/script/syntax/legacy-libbaz",
     "checks/script/syntax/legacy-maintainer-scripts",
+    "checks/script/syntax/legacy-scripts",
     "checks/script/syntax/scripts-bashisms",
+    "checks/script/syntax/scripts-interpreters",
     "checks/script/syntax/scripts-maintainer-general",
     "checks/scripts/legacy-binary",
     "checks/scripts/legacy-libbaz",
@@ -2696,7 +2698,9 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/modprobe/obsolete-commands-in-modprobe"; "checks_modprobe_obsolete_commands_in_modprobe")]
 #[test_case("checks/script/syntax/legacy-libbaz"; "checks_script_syntax_legacy_libbaz")]
 #[test_case("checks/script/syntax/legacy-maintainer-scripts"; "checks_script_syntax_legacy_maintainer_scripts")]
+#[test_case("checks/script/syntax/legacy-scripts"; "checks_script_syntax_legacy_scripts")]
 #[test_case("checks/script/syntax/scripts-bashisms"; "checks_script_syntax_scripts_bashisms")]
+#[test_case("checks/script/syntax/scripts-interpreters"; "checks_script_syntax_scripts_interpreters")]
 #[test_case("checks/script/syntax/scripts-maintainer-general"; "checks_script_syntax_scripts_maintainer_general")]
 #[test_case("checks/scripts/legacy-binary"; "checks_scripts_legacy_binary")]
 #[test_case("checks/scripts/legacy-libbaz"; "checks_scripts_legacy_libbaz")]

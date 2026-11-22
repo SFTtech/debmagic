@@ -131,6 +131,7 @@ use super::rules::DescriptionMentionsPlannedFeatures;
 use super::rules::DesktopEntryContainsEncodingKey;
 use super::rules::DesktopEntryLacksKeywordsEntry;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
+use super::rules::DfsgVersionWithPeriod;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
@@ -2175,6 +2176,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoCodeSections,
         &AnticipatedRepackCount,
         &DotBeforeRepackCount,
+        &DfsgVersionWithPeriod,
     ]
 }
 
@@ -2576,6 +2578,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InconsistentAppstreamMetadataLicense,
         &AnticipatedRepackCount,
         &DotBeforeRepackCount,
+        &DfsgVersionWithPeriod,
     ]
 }
 

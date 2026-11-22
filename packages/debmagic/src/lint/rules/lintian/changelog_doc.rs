@@ -2,12 +2,48 @@
 //! `debian/changelog` Check judges them (`no-changelog`,
 //! `debian-changelog-file-missing-or-wrong-name`).
 
+use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use regex::Regex;
 
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::file_tree::{EntryKind, FileTree};
+
+/// lintian's `@doc_files`: the direct files of the Binary package's doc
+/// directory, as (basename, path) in tree order. `None` for udebs, a symlinked
+/// doc directory, and without Data files.
+pub(super) fn doc_files(ctx: &mut BinaryPackageContext<'_>) -> Option<Vec<(String, PathBuf)>> {
+    if ctx.is_udeb() {
+        return None;
+    }
+    let doc_dir = format!("usr/share/doc/{}", ctx.package_name());
+    let prefix = format!("{doc_dir}/");
+    let files = ctx.data_files()?;
+    if files
+        .get(&doc_dir)
+        .is_some_and(|entry| entry.kind() == EntryKind::Symlink)
+    {
+        return None;
+    }
+    Some(
+        files
+            .entries()
+            .iter()
+            .filter(|entry| entry.kind() != EntryKind::Directory)
+            .filter_map(|entry| {
+                let name = entry.path().to_str()?.strip_prefix(&prefix)?;
+                (!name.contains('/')).then(|| (name.to_string(), entry.path().to_path_buf()))
+            })
+            .collect(),
+    )
+}
+
+/// Whether lintian's `$native_pkg` holds for the Binary package.
+pub(super) fn native_package(ctx: &mut BinaryPackageContext<'_>) -> bool {
+    let fields = ctx.installation_control().fields();
+    is_native(fields.get("Source"), fields.get("Version"))
+}
 
 /// Which changelog a package lacks, when lintian says it lacks one.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

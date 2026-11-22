@@ -383,7 +383,8 @@ pub(crate) use debian_changelog::{
     SourceNmuHasIncorrectVersionNumber, SyntaxErrorInDebianNewsFile,
     TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload, UploadersInOrphan,
     VersionRefersToDistribution, VersionRefersToUnstableDistributionWithExpVersion,
-    WrongBugNumberInCloses, WrongNameForChangelogOfNativePackage, WrongNameForDebianNewsFile,
+    WrongBugNumberInCloses, WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
+    WrongNameForDebianNewsFile,
 };
 pub(crate) use debian_copyright::{
     AmbiguousParagraphInDep5Copyright, BadExceptionFormatInDep5Copyright,

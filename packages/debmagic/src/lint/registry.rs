@@ -173,6 +173,7 @@ use super::rules::LicenseProblemJsonEvil;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
 use super::rules::LicenseProblemNonFreeRFC;
 use super::rules::LicenseProblemNonFreeRFCBCP78;
+use super::rules::LicenseProblemNvidiaIntellectual;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
@@ -1877,6 +1878,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LicenseProblemJsonEvil,
         &LicenseProblemNonFreeRFCBCP78,
         &LicenseProblemNonFreeRFC,
+        &LicenseProblemNvidiaIntellectual,
     ]
 }
 
@@ -2215,6 +2217,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &LicenseProblemJsonEvil,
         &LicenseProblemNonFreeRFCBCP78,
         &LicenseProblemNonFreeRFC,
+        &LicenseProblemNvidiaIntellectual,
     ]
 }
 

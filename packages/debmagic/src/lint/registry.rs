@@ -276,6 +276,7 @@ use super::rules::PostrmHasUselessCallToUpdateMenus;
 use super::rules::PreinstCallsInstalldocs;
 use super::rules::PreinstCallsUpdatemenus;
 use super::rules::PreinstCallsUpdatercD;
+use super::rules::PrermCallsUpdatemenus;
 use super::rules::PrermCallsUpdatercD;
 use super::rules::PriorityExtraIsReplacedByPriorityOptional;
 use super::rules::PrivacyBreachW3cValidHtml;
@@ -1857,6 +1858,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PostrmHasUselessCallToUpdateMenus,
         &PreinstCallsInstalldocs,
         &PreinstCallsUpdatemenus,
+        &PrermCallsUpdatemenus,
     ]
 }
 
@@ -2953,6 +2955,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PostrmHasUselessCallToUpdateMenus,
         &PreinstCallsInstalldocs,
         &PreinstCallsUpdatemenus,
+        &PrermCallsUpdatemenus,
     ]
 }
 

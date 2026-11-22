@@ -39,6 +39,7 @@ mod ln1195_postrm_calls_installdocs;
 mod ln1196_postrm_has_useless_call_to_update_menus;
 mod ln1197_preinst_calls_installdocs;
 mod ln1198_preinst_calls_updatemenus;
+mod ln1199_prerm_calls_updatemenus;
 mod scan;
 
 pub(crate) use ln0326_postinst_does_not_call_updatemenus::PostinstDoesNotCallUpdatemenus;
@@ -75,3 +76,4 @@ pub(crate) use ln1195_postrm_calls_installdocs::PostrmCallsInstalldocs;
 pub(crate) use ln1196_postrm_has_useless_call_to_update_menus::PostrmHasUselessCallToUpdateMenus;
 pub(crate) use ln1197_preinst_calls_installdocs::PreinstCallsInstalldocs;
 pub(crate) use ln1198_preinst_calls_updatemenus::PreinstCallsUpdatemenus;
+pub(crate) use ln1199_prerm_calls_updatemenus::PrermCallsUpdatemenus;

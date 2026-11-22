@@ -3,7 +3,9 @@
 mod ln0713_zero_byte_file_in_doc_directory;
 mod ln0825_executable_in_usr_share_doc;
 mod ln1351_package_contains_upstream_installation_documentation;
+mod ln1353_source_contains_prebuilt_doxygen_documentation;
 
 pub(crate) use ln0713_zero_byte_file_in_doc_directory::ZeroByteFileInDocDirectory;
 pub(crate) use ln0825_executable_in_usr_share_doc::ExecutableInUsrShareDoc;
 pub(crate) use ln1351_package_contains_upstream_installation_documentation::PackageContainsUpstreamInstallationDocumentation;
+pub(crate) use ln1353_source_contains_prebuilt_doxygen_documentation::SourceContainsPrebuiltDoxygenDocumentation;

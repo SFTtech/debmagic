@@ -444,8 +444,10 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-dch-wrong-name",
     "checks/debian/changelog/changelog-file-dch-wrong-name-native",
     "checks/debian/changelog/changelog-file-empty-entry",
+    "checks/debian/changelog/changelog-file-empty-entry-unrel",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-invalid-date",
+    "checks/debian/changelog/changelog-file-line-too-short",
     "checks/debian/changelog/changelog-file-missing",
     "checks/debian/changelog/changelog-file-news-and-changelog-not-compressed",
     "checks/debian/changelog/changelog-file-news-general",
@@ -1736,8 +1738,10 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-dch-wrong-name"; "checks_debian_changelog_changelog_file_dch_wrong_name")]
 #[test_case("checks/debian/changelog/changelog-file-dch-wrong-name-native"; "checks_debian_changelog_changelog_file_dch_wrong_name_native")]
 #[test_case("checks/debian/changelog/changelog-file-empty-entry"; "checks_debian_changelog_changelog_file_empty_entry")]
+#[test_case("checks/debian/changelog/changelog-file-empty-entry-unrel"; "checks_debian_changelog_changelog_file_empty_entry_unrel")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-invalid-date"; "checks_debian_changelog_changelog_file_invalid_date")]
+#[test_case("checks/debian/changelog/changelog-file-line-too-short"; "checks_debian_changelog_changelog_file_line_too_short")]
 #[test_case("checks/debian/changelog/changelog-file-missing"; "checks_debian_changelog_changelog_file_missing")]
 #[test_case("checks/debian/changelog/changelog-file-news-and-changelog-not-compressed"; "checks_debian_changelog_changelog_file_news_and_changelog_not_compressed")]
 #[test_case("checks/debian/changelog/changelog-file-news-general"; "checks_debian_changelog_changelog_file_news_general")]

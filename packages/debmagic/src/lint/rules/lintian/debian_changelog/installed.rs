@@ -49,6 +49,8 @@ const INVALID_DATES: &[&str] = &[
 
 static LONG_LINE_OK: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^[\s.o*+-]*(?:[Ss]ee:?\s+)?\S+$").expect("valid regex"));
+static SHORT_LINE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^   [*]\s(.{1,5})$").expect("valid regex"));
 static CLOSES: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)closes:\s*(?:bug)?\#?\s?\d+(?:,\s*(?:bug)?\#?\s?\d+)*").expect("valid regex")
 });
@@ -226,6 +228,23 @@ pub(super) fn long_lines(text: &str, changes: &str) -> Vec<u32> {
     for (position, line) in (real_start(text)..).zip(content_lines(changes)) {
         if line.chars().count() >= MAXIMUM_WIDTH && !LONG_LINE_OK.is_match(line) {
             hits.push(position);
+        }
+    }
+    hits
+}
+
+/// `debian-changelog-line-too-short` hits: the change lines that are a bullet
+/// and at most five characters of text, with the line number and that text.
+/// A text ending in `:` is exempt.
+pub(super) fn short_lines(text: &str, changes: &str) -> Vec<(u32, String)> {
+    let mut hits = Vec::new();
+    for (position, line) in (real_start(text)..).zip(content_lines(changes)) {
+        let Some(captures) = SHORT_LINE.captures(line) else {
+            continue;
+        };
+        let excerpt = captures[1].to_string();
+        if !excerpt.ends_with(':') {
+            hits.push((position, excerpt));
         }
     }
     hits

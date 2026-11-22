@@ -394,7 +394,7 @@ pub(crate) use debian_changelog::{
     ChangelogIsDhMakeTemplate, ChangelogIsSymlink, ChangelogNewsDebianMismatch,
     ChangelogNotCompressedWithMaxCompression, ChangelogReferencesTempSecurityIdentifier,
     DebianChangelogFileContainsObsoleteUserEmacsSettings, DebianChangelogHasWrongDayOfWeek,
-    DebianChangelogLineTooLong, DebianNewsEntryHasStrangeDistribution,
+    DebianChangelogLineTooLong, DebianChangelogLineTooShort, DebianNewsEntryHasStrangeDistribution,
     DebianNewsEntryHasUnknownVersion, DebianNewsFileNotCompressed, EpochChangeWithoutComment,
     EpochChangedButUpstreamVersionDidNotGoBackwards, ExtraWhitespaceAroundNameInChangelogTrailer,
     HtmlChangelogWithoutTextVersion, ImprobableBugNumberInCloses, InitialUploadClosesNoBugs,

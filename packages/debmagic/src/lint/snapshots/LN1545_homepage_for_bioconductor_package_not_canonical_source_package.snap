@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): homepage-for-bioconductor-package-not-canonical (LN1545) https://www.bioconductor.org/packages/release/bioc/html/foo.html

@@ -303,9 +303,16 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/dm-upload-allowed/legacy-maintainer-scripts",
     "checks/fields/essential/fields-essential",
     "checks/fields/format/cruft-general-wig-pen",
+    "checks/fields/homepage/fields-bioconductor-homepage",
     "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/fields-cran-homepage",
     "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-github-homepage",
+    "checks/fields/homepage/fields-gitlab-homepage",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
+    "checks/fields/homepage/fields-no-source-homepage",
+    "checks/fields/homepage/fields-salsa-homepage",
+    "checks/fields/homepage/homepage-refers-to-filesystem-listing",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
@@ -380,7 +387,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
+    "checks/fields/version/repack/count/dfsg1",
+    "checks/fields/version/repack/count/extra-dot",
     "checks/fields/version/repack/native/fields-version-dfsg-native",
+    "checks/fields/version/repack/period/fields-version-dot-dfsg",
     "checks/fields/version/repack/typo/fields-version-dsfg",
     "checks/files/artifact/cruft-general-diff",
     "checks/files/artifact/cruft-general-native",
@@ -712,6 +722,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/manual/manpages-general",
     "checks/documentation/manual/manpages-wrong-dir",
     "checks/documentation/manual/scripts-ocamlrun",
+    "checks/documentation/manual/spelling-error-in-manpage",
     "checks/documentation/texinfo/infofiles-general",
     "checks/documentation/udeb-with-doc",
     "checks/emacs/elpa/emacsen-common",
@@ -731,6 +742,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/built-using/fields-built-using",
     "checks/fields/description/description-empty-paragraph",
     "checks/fields/description/description-general",
+    "checks/fields/description/description-homepage",
     "checks/fields/description/description-mentions-planned-features",
     "checks/fields/description/description-synopsis-might-not-be-phrased-properly",
     "checks/fields/description/description-wording",
@@ -744,10 +756,16 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/empty/empty-section",
     "checks/fields/essential/fields-essential",
     "checks/fields/essential/legacy-fields",
+    "checks/fields/homepage/fields-bioconductor-homepage",
     "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/fields-cran-homepage",
     "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-github-homepage",
+    "checks/fields/homepage/fields-gitlab-homepage",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
     "checks/fields/homepage/fields-no-source-homepage",
+    "checks/fields/homepage/fields-salsa-homepage",
+    "checks/fields/homepage/homepage-refers-to-filesystem-listing",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
@@ -1403,9 +1421,16 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/dm-upload-allowed/legacy-maintainer-scripts",
     "checks/fields/essential/fields-essential",
     "checks/fields/format/cruft-general-wig-pen",
+    "checks/fields/homepage/fields-bioconductor-homepage",
     "checks/fields/homepage/fields-cpan-homepage",
+    "checks/fields/homepage/fields-cran-homepage",
     "checks/fields/homepage/fields-general",
+    "checks/fields/homepage/fields-github-homepage",
+    "checks/fields/homepage/fields-gitlab-homepage",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
+    "checks/fields/homepage/fields-no-source-homepage",
+    "checks/fields/homepage/fields-salsa-homepage",
+    "checks/fields/homepage/homepage-refers-to-filesystem-listing",
     "checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure",
     "checks/fields/homepage/legacy-binary",
     "checks/fields/homepage/legacy-relations",
@@ -1480,7 +1505,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
+    "checks/fields/version/repack/count/dfsg1",
+    "checks/fields/version/repack/count/extra-dot",
     "checks/fields/version/repack/native/fields-version-dfsg-native",
+    "checks/fields/version/repack/period/fields-version-dot-dfsg",
     "checks/fields/version/repack/typo/fields-version-dsfg",
     "checks/files/artifact/cruft-empty-diff",
     "checks/files/artifact/cruft-general-diff",
@@ -1959,9 +1987,16 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/dm-upload-allowed/legacy-maintainer-scripts"; "checks_fields_dm_upload_allowed_legacy_maintainer_scripts")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/format/cruft-general-wig-pen"; "checks_fields_format_cruft_general_wig_pen")]
+#[test_case("checks/fields/homepage/fields-bioconductor-homepage"; "checks_fields_homepage_fields_bioconductor_homepage")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/fields-cran-homepage"; "checks_fields_homepage_fields_cran_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-github-homepage"; "checks_fields_homepage_fields_github_homepage")]
+#[test_case("checks/fields/homepage/fields-gitlab-homepage"; "checks_fields_homepage_fields_gitlab_homepage")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
+#[test_case("checks/fields/homepage/fields-no-source-homepage"; "checks_fields_homepage_fields_no_source_homepage")]
+#[test_case("checks/fields/homepage/fields-salsa-homepage"; "checks_fields_homepage_fields_salsa_homepage")]
+#[test_case("checks/fields/homepage/homepage-refers-to-filesystem-listing"; "checks_fields_homepage_homepage_refers_to_filesystem_listing")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
@@ -2036,7 +2071,10 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
+#[test_case("checks/fields/version/repack/count/dfsg1"; "checks_fields_version_repack_count_dfsg1")]
+#[test_case("checks/fields/version/repack/count/extra-dot"; "checks_fields_version_repack_count_extra_dot")]
 #[test_case("checks/fields/version/repack/native/fields-version-dfsg-native"; "checks_fields_version_repack_native_fields_version_dfsg_native")]
+#[test_case("checks/fields/version/repack/period/fields-version-dot-dfsg"; "checks_fields_version_repack_period_fields_version_dot_dfsg")]
 #[test_case("checks/fields/version/repack/typo/fields-version-dsfg"; "checks_fields_version_repack_typo_fields_version_dsfg")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
 #[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
@@ -2369,6 +2407,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/manual/manpages-general"; "checks_documentation_manual_manpages_general")]
 #[test_case("checks/documentation/manual/manpages-wrong-dir"; "checks_documentation_manual_manpages_wrong_dir")]
 #[test_case("checks/documentation/manual/scripts-ocamlrun"; "checks_documentation_manual_scripts_ocamlrun")]
+#[test_case("checks/documentation/manual/spelling-error-in-manpage"; "checks_documentation_manual_spelling_error_in_manpage")]
 #[test_case("checks/documentation/texinfo/infofiles-general"; "checks_documentation_texinfo_infofiles_general")]
 #[test_case("checks/documentation/udeb-with-doc"; "checks_documentation_udeb_with_doc")]
 #[test_case("checks/emacs/elpa/emacsen-common"; "checks_emacs_elpa_emacsen_common")]
@@ -2388,6 +2427,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/built-using/fields-built-using"; "checks_fields_built_using_fields_built_using")]
 #[test_case("checks/fields/description/description-empty-paragraph"; "checks_fields_description_description_empty_paragraph")]
 #[test_case("checks/fields/description/description-general"; "checks_fields_description_description_general")]
+#[test_case("checks/fields/description/description-homepage"; "checks_fields_description_description_homepage")]
 #[test_case("checks/fields/description/description-mentions-planned-features"; "checks_fields_description_description_mentions_planned_features")]
 #[test_case("checks/fields/description/description-synopsis-might-not-be-phrased-properly"; "checks_fields_description_description_synopsis_might_not_be_phrased_properly")]
 #[test_case("checks/fields/description/description-wording"; "checks_fields_description_description_wording")]
@@ -2401,10 +2441,16 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/empty/empty-section"; "checks_fields_empty_empty_section")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/essential/legacy-fields"; "checks_fields_essential_legacy_fields")]
+#[test_case("checks/fields/homepage/fields-bioconductor-homepage"; "checks_fields_homepage_fields_bioconductor_homepage")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/fields-cran-homepage"; "checks_fields_homepage_fields_cran_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-github-homepage"; "checks_fields_homepage_fields_github_homepage")]
+#[test_case("checks/fields/homepage/fields-gitlab-homepage"; "checks_fields_homepage_fields_gitlab_homepage")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
 #[test_case("checks/fields/homepage/fields-no-source-homepage"; "checks_fields_homepage_fields_no_source_homepage")]
+#[test_case("checks/fields/homepage/fields-salsa-homepage"; "checks_fields_homepage_fields_salsa_homepage")]
+#[test_case("checks/fields/homepage/homepage-refers-to-filesystem-listing"; "checks_fields_homepage_homepage_refers_to_filesystem_listing")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
@@ -3061,9 +3107,16 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/dm-upload-allowed/legacy-maintainer-scripts"; "checks_fields_dm_upload_allowed_legacy_maintainer_scripts")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/format/cruft-general-wig-pen"; "checks_fields_format_cruft_general_wig_pen")]
+#[test_case("checks/fields/homepage/fields-bioconductor-homepage"; "checks_fields_homepage_fields_bioconductor_homepage")]
 #[test_case("checks/fields/homepage/fields-cpan-homepage"; "checks_fields_homepage_fields_cpan_homepage")]
+#[test_case("checks/fields/homepage/fields-cran-homepage"; "checks_fields_homepage_fields_cran_homepage")]
 #[test_case("checks/fields/homepage/fields-general"; "checks_fields_homepage_fields_general")]
+#[test_case("checks/fields/homepage/fields-github-homepage"; "checks_fields_homepage_fields_github_homepage")]
+#[test_case("checks/fields/homepage/fields-gitlab-homepage"; "checks_fields_homepage_fields_gitlab_homepage")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
+#[test_case("checks/fields/homepage/fields-no-source-homepage"; "checks_fields_homepage_fields_no_source_homepage")]
+#[test_case("checks/fields/homepage/fields-salsa-homepage"; "checks_fields_homepage_fields_salsa_homepage")]
+#[test_case("checks/fields/homepage/homepage-refers-to-filesystem-listing"; "checks_fields_homepage_homepage_refers_to_filesystem_listing")]
 #[test_case("checks/fields/homepage/homepage-refers-to-obsolete-debian-infrastructure"; "checks_fields_homepage_homepage_refers_to_obsolete_debian_infrastructure")]
 #[test_case("checks/fields/homepage/legacy-binary"; "checks_fields_homepage_legacy_binary")]
 #[test_case("checks/fields/homepage/legacy-relations"; "checks_fields_homepage_legacy_relations")]
@@ -3138,7 +3191,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
+#[test_case("checks/fields/version/repack/count/dfsg1"; "checks_fields_version_repack_count_dfsg1")]
+#[test_case("checks/fields/version/repack/count/extra-dot"; "checks_fields_version_repack_count_extra_dot")]
 #[test_case("checks/fields/version/repack/native/fields-version-dfsg-native"; "checks_fields_version_repack_native_fields_version_dfsg_native")]
+#[test_case("checks/fields/version/repack/period/fields-version-dot-dfsg"; "checks_fields_version_repack_period_fields_version_dot_dfsg")]
 #[test_case("checks/fields/version/repack/typo/fields-version-dsfg"; "checks_fields_version_repack_typo_fields_version_dsfg")]
 #[test_case("checks/files/artifact/cruft-empty-diff"; "checks_files_artifact_cruft_empty_diff")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]

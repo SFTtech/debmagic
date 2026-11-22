@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): file-in-etc-modprobe.d (LN1424) [etc/modprobe.d/test.conf]
+W: example (binary): file-in-etc-modprobe.d (LN1424) [etc/modules-load.d/test.conf]
+W: example (udeb): file-in-etc-modprobe.d (LN1424) [etc/modprobe.d/test.conf]

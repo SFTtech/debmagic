@@ -76,6 +76,7 @@ use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
 use super::rules::DebianRulesNotAMakefile;
+use super::rules::DebianRulesParsesDpkgParsechangelog;
 use super::rules::DebianRulesPassesVersionInfoToDhShlibdeps;
 use super::rules::DebianRulesSetsDebBuildOptions;
 use super::rules::DebianRulesSetsDhCompat;
@@ -1945,6 +1946,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnusedDebconfTemplate,
         &RenamedTag,
         &QuiltPatchMissingDescription,
+        &DebianRulesParsesDpkgParsechangelog,
     ]
 }
 
@@ -2311,6 +2313,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InsecureCopyrightFormatUri,
         &AddComponentCopyright,
         &QuiltPatchMissingDescription,
+        &DebianRulesParsesDpkgParsechangelog,
     ]
 }
 

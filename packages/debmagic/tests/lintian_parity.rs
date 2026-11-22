@@ -185,11 +185,14 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-missing-targets-with-known-includes",
     "checks/debian/rules/rules-not-makefile",
     "checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo",
+    "checks/debian/rules/rules-parses-dpkg-parsechangelog",
     "checks/debian/rules/rules-sanitize-all-buildflag",
     "checks/debian/rules/rules-sets-dpkg-architecture-variable",
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/rules/rules-special-variables",
     "checks/debian/rules/rules-symlink",
+    "checks/debian/rules/rules-unnecessary-source-date-epoch",
+    "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
@@ -1072,11 +1075,14 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-missing-targets-with-known-includes",
     "checks/debian/rules/rules-not-makefile",
     "checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo",
+    "checks/debian/rules/rules-parses-dpkg-parsechangelog",
     "checks/debian/rules/rules-sanitize-all-buildflag",
     "checks/debian/rules/rules-sets-dpkg-architecture-variable",
     "checks/debian/rules/rules-should-not-use-custom-compression-settings",
     "checks/debian/rules/rules-special-variables",
     "checks/debian/rules/rules-symlink",
+    "checks/debian/rules/rules-unnecessary-source-date-epoch",
+    "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
@@ -1477,11 +1483,14 @@ fn listed_source_package_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
 #[test_case("checks/debian/rules/rules-not-makefile"; "checks_debian_rules_rules_not_makefile")]
 #[test_case("checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo"; "checks_debian_rules_rules_override_dh_foo_does_not_call_dh_foo")]
+#[test_case("checks/debian/rules/rules-parses-dpkg-parsechangelog"; "checks_debian_rules_rules_parses_dpkg_parsechangelog")]
 #[test_case("checks/debian/rules/rules-sanitize-all-buildflag"; "checks_debian_rules_rules_sanitize_all_buildflag")]
 #[test_case("checks/debian/rules/rules-sets-dpkg-architecture-variable"; "checks_debian_rules_rules_sets_dpkg_architecture_variable")]
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/rules/rules-special-variables"; "checks_debian_rules_rules_special_variables")]
 #[test_case("checks/debian/rules/rules-symlink"; "checks_debian_rules_rules_symlink")]
+#[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
+#[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]
@@ -2366,11 +2375,14 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/rules-missing-targets-with-known-includes"; "checks_debian_rules_rules_missing_targets_with_known_includes")]
 #[test_case("checks/debian/rules/rules-not-makefile"; "checks_debian_rules_rules_not_makefile")]
 #[test_case("checks/debian/rules/rules-override-dh-foo-does-not-call-dh-foo"; "checks_debian_rules_rules_override_dh_foo_does_not_call_dh_foo")]
+#[test_case("checks/debian/rules/rules-parses-dpkg-parsechangelog"; "checks_debian_rules_rules_parses_dpkg_parsechangelog")]
 #[test_case("checks/debian/rules/rules-sanitize-all-buildflag"; "checks_debian_rules_rules_sanitize_all_buildflag")]
 #[test_case("checks/debian/rules/rules-sets-dpkg-architecture-variable"; "checks_debian_rules_rules_sets_dpkg_architecture_variable")]
 #[test_case("checks/debian/rules/rules-should-not-use-custom-compression-settings"; "checks_debian_rules_rules_should_not_use_custom_compression_settings")]
 #[test_case("checks/debian/rules/rules-special-variables"; "checks_debian_rules_rules_special_variables")]
 #[test_case("checks/debian/rules/rules-symlink"; "checks_debian_rules_rules_symlink")]
+#[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
+#[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]

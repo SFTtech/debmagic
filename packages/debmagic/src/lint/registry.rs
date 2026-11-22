@@ -292,6 +292,7 @@ use super::rules::RedundantBuildPrerequisites;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RelativeConffile;
 use super::rules::RubyInterpreterIsDeprecated;
+use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::ScriptUsesPerl4LibsWithoutDep;
@@ -1813,6 +1814,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DbusPolicyInEtc,
         &DbusPolicyWithoutSendDestination,
         &DbusSystemServiceWrongName,
+        &RubyScriptButNoRubyDep,
     ]
 }
 
@@ -2887,6 +2889,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DbusPolicyInEtc,
         &DbusPolicyWithoutSendDestination,
         &DbusSystemServiceWrongName,
+        &RubyScriptButNoRubyDep,
     ]
 }
 

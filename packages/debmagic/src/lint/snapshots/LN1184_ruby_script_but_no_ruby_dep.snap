@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): ruby-script-but-no-ruby-dep (LN1184) /usr/bin/ruby (does not satisfy ruby:any) [usr/bin/tool]
+E: example (binary): ruby-script-but-no-ruby-dep (LN1184) ruby (does not satisfy ruby:any) [usr/bin/tool]
+E: example (binary): ruby-script-but-no-ruby-dep (LN1184) /usr/bin/ruby (does not satisfy ruby:any) [usr/bin/tool]
+E: example (udeb): ruby-script-but-no-ruby-dep (LN1184) /usr/bin/ruby (does not satisfy ruby:any) [usr/bin/tool]
+E: example (binary): ruby-script-but-no-ruby-dep (LN1184) /usr/bin/ruby (does not satisfy ruby:any) [usr/bin/tool]

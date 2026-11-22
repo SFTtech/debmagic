@@ -384,7 +384,7 @@ pub(crate) use debian_changelog::{
     TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload, UploadersInOrphan,
     VersionRefersToDistribution, VersionRefersToUnstableDistributionWithExpVersion,
     WrongBugNumberInCloses, WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
-    WrongNameForDebianNewsFile,
+    WrongNameForDebianNewsFile, WrongNameForUpstreamChangelog,
 };
 pub(crate) use debian_copyright::{
     AmbiguousParagraphInDep5Copyright, BadExceptionFormatInDep5Copyright,

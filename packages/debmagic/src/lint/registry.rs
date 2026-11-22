@@ -253,6 +253,7 @@ use super::rules::PackageContainsTimestampedGzip;
 use super::rules::PackageContainsXvpicsDir;
 use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
+use super::rules::PackageDependsOnMultipleTclxVersions;
 use super::rules::PackageFileIsExecutable;
 use super::rules::PackageInstallsAptKeyring;
 use super::rules::PackageInstallsAptPreferences;
@@ -1920,6 +1921,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TrailingCommaInMaintainerField,
         &MultilineField,
         &PackageDependsOnAnXFontPackage,
+        &PackageDependsOnMultipleTclxVersions,
     ]
 }
 
@@ -3048,6 +3050,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SymlinkTargetInTmp,
         &PossibleUnindentedListInExtendedDescription,
         &PackageDependsOnAnXFontPackage,
+        &PackageDependsOnMultipleTclxVersions,
     ]
 }
 

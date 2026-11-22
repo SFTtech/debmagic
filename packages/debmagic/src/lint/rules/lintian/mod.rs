@@ -539,8 +539,9 @@ pub(crate) use fields_relations_more::{
     MailTransportAgentDependencyDoesNotSpecifyDefaultMta, NeedlessDependencyOnJre,
     NeedlesslyDependsOnAwk, ObsoleteRelationForm, PackageDependsOnAnXFontPackage,
     PackageDependsOnMultipleLibpngVersions, PackageDependsOnMultipleLibstdcVersions,
-    PackageDependsOnMultipleTclVersions, PackageDependsOnMultipleTkVersions,
-    PackageRelationWithPerlModules, RedundantBuildPrerequisites,
+    PackageDependsOnMultipleTclVersions, PackageDependsOnMultipleTclxVersions,
+    PackageDependsOnMultipleTkVersions, PackageRelationWithPerlModules,
+    RedundantBuildPrerequisites,
 };
 pub(crate) use fields_text::{
     BadHomepage, DescriptionContainsHomepage, DescriptionSynopsisIsDuplicated,

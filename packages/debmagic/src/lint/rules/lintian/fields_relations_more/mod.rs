@@ -41,6 +41,7 @@ mod ln0938_libmodule_build_tiny_perl_needs_to_be_in_build_depends;
 mod ln0939_needless_dependency_on_jre;
 mod ln0940_obsolete_relation_form;
 mod ln1237_package_depends_on_an_x_font_package;
+mod ln1238_package_depends_on_multiple_tclx_versions;
 mod metapackages;
 mod overlap;
 
@@ -73,6 +74,7 @@ pub(crate) use ln0938_libmodule_build_tiny_perl_needs_to_be_in_build_depends::Li
 pub(crate) use ln0939_needless_dependency_on_jre::NeedlessDependencyOnJre;
 pub(crate) use ln0940_obsolete_relation_form::ObsoleteRelationForm;
 pub(crate) use ln1237_package_depends_on_an_x_font_package::PackageDependsOnAnXFontPackage;
+pub(crate) use ln1238_package_depends_on_multiple_tclx_versions::PackageDependsOnMultipleTclxVersions;
 
 /// Source relationship fields the Check walks, in that order.
 pub(super) const SOURCE_RELATION_FIELDS: &[&str] = &[

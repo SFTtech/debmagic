@@ -21,6 +21,7 @@ mod ln1038_shared_library_symbols_not_tracked;
 mod ln1039_ships_undeclared_shared_library;
 mod ln1040_surplus_shared_library_symbols;
 mod ln1041_unknown_meta_field_in_symbols_file;
+mod ln1332_empty_shared_library_symbols;
 mod shlibs;
 mod symbols;
 
@@ -41,3 +42,4 @@ pub(crate) use ln1038_shared_library_symbols_not_tracked::SharedLibrarySymbolsNo
 pub(crate) use ln1039_ships_undeclared_shared_library::ShipsUndeclaredSharedLibrary;
 pub(crate) use ln1040_surplus_shared_library_symbols::SurplusSharedLibrarySymbols;
 pub(crate) use ln1041_unknown_meta_field_in_symbols_file::UnknownMetaFieldInSymbolsFile;
+pub(crate) use ln1332_empty_shared_library_symbols::EmptySharedLibrarySymbols;

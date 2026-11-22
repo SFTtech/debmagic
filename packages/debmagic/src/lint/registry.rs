@@ -118,6 +118,7 @@ use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
 use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
+use super::rules::EmptySharedLibrarySymbols;
 use super::rules::EmptyShlibs;
 use super::rules::EmptyUpstreamSources;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SubstvarSourceVersionIsDeprecated,
         &DebugSymbolMigrationPossiblyComplete,
         &NoDhSequencer,
+        &EmptySharedLibrarySymbols,
     ]
 }
 
@@ -3070,6 +3072,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
+        &EmptySharedLibrarySymbols,
     ]
 }
 

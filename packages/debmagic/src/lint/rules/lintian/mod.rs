@@ -309,6 +309,7 @@ pub(crate) use binaries_spelling::SpellingErrorInBinary;
 pub(crate) use binaries_static::StaticallyLinkedBinary;
 pub(crate) use build_systems_waf::SourceContainsWafBinary;
 pub(crate) use changes_file::BadSectionInChangesFile;
+pub(crate) use changes_file::ChecksumCountMismatchInChangesFile;
 pub(crate) use changes_file::FileSizeMismatchInChangesFile;
 pub(crate) use changes_file::PackageBuildsDbgAndDbgsymVariants;
 pub(crate) use conffiles::{

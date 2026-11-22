@@ -60,6 +60,7 @@ use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
 use super::rules::ChangelogIsSymlink;
 use super::rules::ChangelogNotCompressedWithMaxCompression;
+use super::rules::ChecksumCountMismatchInChangesFile;
 use super::rules::ClasspathContainsRelativePath;
 use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
@@ -2263,6 +2264,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExampleWrongPathForInterpreter,
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
+        &ChecksumCountMismatchInChangesFile,
     ]
 }
 
@@ -3569,6 +3571,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &BadUrgencyInChangesFile,
         &DistributionAndChangesMismatch,
         &DistributionAndExperimentalMismatch,
+        &ChecksumCountMismatchInChangesFile,
     ]
 }
 

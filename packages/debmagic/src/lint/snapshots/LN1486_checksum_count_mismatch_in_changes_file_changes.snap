@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): checksum-count-mismatch-in-changes-file (LN1486) 1 Checksum-Sha256 checksums != 2 files
+E: example (changes): checksum-count-mismatch-in-changes-file (LN1486) 1 Checksum-Md5 checksums != 2 files
+E: example (changes): checksum-count-mismatch-in-changes-file (LN1486) 1 Checksum-Sha1 checksums != 2 files

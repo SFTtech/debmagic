@@ -1599,6 +1599,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/changes-file/changes-file-bad-section",
     "checks/changes-file/changes-file-size-checksum-mismatch",
     "checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants",
+    "checks/changes-file/checksum-count-mismatch",
     "checks/fields/distribution/changelog-file-backport",
     "checks/fields/distribution/changes-bad-ubuntu-distribution",
     "checks/fields/distribution/changes-distribution-mismatch",
@@ -3242,6 +3243,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/changes-file/changes-file-bad-section"; "checks_changes_file_changes_file_bad_section")]
 #[test_case("checks/changes-file/changes-file-size-checksum-mismatch"; "checks_changes_file_changes_file_size_checksum_mismatch")]
 #[test_case("checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_changes_file_changes_files_package_builds_dbg_and_dbgsym_variants")]
+#[test_case("checks/changes-file/checksum-count-mismatch"; "checks_changes_file_checksum_count_mismatch")]
 #[test_case("checks/fields/distribution/changelog-file-backport"; "checks_fields_distribution_changelog_file_backport")]
 #[test_case("checks/fields/distribution/changes-bad-ubuntu-distribution"; "checks_fields_distribution_changes_bad_ubuntu_distribution")]
 #[test_case("checks/fields/distribution/changes-distribution-mismatch"; "checks_fields_distribution_changes_distribution_mismatch")]

@@ -49,6 +49,7 @@ use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::ConflictingNegationInSourceRelation;
 use super::rules::ControlFileContainsDhMakeVcsComment;
 use super::rules::ControlFileHasBadOwner;
+use super::rules::ControlFileHasBadPermissions;
 use super::rules::ControlInterpreterInUsrLocal;
 use super::rules::ControlInterpreterWithoutDepends;
 use super::rules::ControlInterpreterWithoutPredepends;
@@ -1775,6 +1776,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UpstreamMetadataIsNotAFile,
         &TeamUploadHasIncorrectVersionNumber,
         &UnnecessaryTeamUpload,
+        &ControlFileHasBadPermissions,
     ]
 }
 
@@ -2830,6 +2832,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &JarNotInUsrShare,
         &ClasspathContainsRelativePath,
         &MavenPluginInUsrShareJava,
+        &ControlFileHasBadPermissions,
     ]
 }
 

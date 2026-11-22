@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): control-file-has-bad-permissions (LN1179) 0644 != 0755 [config]
+E: example (binary): control-file-has-bad-permissions (LN1179) 0755 != 0644 [md5sums]
+E: example (binary): control-file-has-bad-permissions (LN1179) 0644 != 0755 [postinst]
+E: example (binary): control-file-has-bad-permissions (LN1179) 0755 != 0644 [conffiles]
+E: example (udeb): control-file-has-bad-permissions (LN1179) 0644 != 0755 [config]

@@ -255,6 +255,7 @@ pub(crate) use conffiles::{
     UnexpectedConffile, UnknownConffileInstruction,
 };
 pub(crate) use control_files::ControlFileHasBadOwner;
+pub(crate) use control_files::ControlFileHasBadPermissions;
 pub(crate) use deb_format::MisplacedExtraMemberInDeb;
 pub(crate) use deb_format::UdebUsesUnsupportedCompressionForDataTarball;
 pub(crate) use deb_format::UsesNoCompressionForControlTarball;

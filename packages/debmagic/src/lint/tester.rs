@@ -15,6 +15,10 @@ use super::file_type::FileType;
 use super::installation_control::InstallationControl;
 use super::rule::{BinaryPackageRule, SourceRule};
 use super::run::format_diagnostic;
+#[allow(unused_imports)]
+pub use super::tester_group::{
+    BuildinfoCase, BuildinfoTester, ChangesCase, ChangesTester, GroupCase, GroupTester,
+};
 
 /// One Source tree described as a map of relative paths to file contents.
 #[derive(Clone, Debug, Default)]
@@ -876,7 +880,7 @@ impl SourcePackageTester {
     }
 }
 
-enum TestFailure {
+pub(super) enum TestFailure {
     ExpectedToPass { case: String, diagnostic: String },
     ExpectedToFail { case: String },
 }
@@ -920,7 +924,7 @@ fn relativize_location(diagnostic: &mut Diagnostic, root: &Path) {
     }
 }
 
-fn format_test_failures(reason: &str, failures: &[TestFailure]) -> String {
+pub(super) fn format_test_failures(reason: &str, failures: &[TestFailure]) -> String {
     let count = failures.len();
     let mut output = String::new();
     writeln!(

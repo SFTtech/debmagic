@@ -25,7 +25,7 @@ use super::source_package::SourcePackageExtract;
 use super::subject::SubjectKind;
 use super::timing;
 
-struct DiagnosticSink {
+pub(super) struct DiagnosticSink {
     code: Code,
     tag: Tag,
     processable_type: ProcessableType,
@@ -34,7 +34,10 @@ struct DiagnosticSink {
 }
 
 impl DiagnosticSink {
-    fn new(rule: &(impl RuleAccess + ?Sized), processable_type: ProcessableType) -> Self {
+    pub(super) fn new(
+        rule: &(impl RuleAccess + ?Sized),
+        processable_type: ProcessableType,
+    ) -> Self {
         Self {
             code: rule.code(),
             tag: rule.tag(),
@@ -44,7 +47,11 @@ impl DiagnosticSink {
         }
     }
 
-    fn report(&mut self, mut diagnostic: Diagnostic, resolve_package: impl FnOnce() -> String) {
+    pub(super) fn report(
+        &mut self,
+        mut diagnostic: Diagnostic,
+        resolve_package: impl FnOnce() -> String,
+    ) {
         diagnostic.code = self.code;
         diagnostic.tag = self.tag;
         if diagnostic.package.is_empty() {
@@ -63,7 +70,7 @@ impl DiagnosticSink {
         self.diagnostics.push(diagnostic);
     }
 
-    fn into_diagnostics(self) -> Vec<Diagnostic> {
+    pub(super) fn into_diagnostics(self) -> Vec<Diagnostic> {
         self.diagnostics
     }
 }
@@ -211,6 +218,20 @@ impl BinaryPackageData {
             fixture_deb_members: Some(deb_members),
             ..self
         }
+    }
+
+    /// The `.deb` (`.udeb`, `.ddeb`) path.
+    pub(super) fn path(&self) -> &Path {
+        &self.path
+    }
+
+    /// `Package`, or the name guessed from the file name.
+    pub(super) fn package_name(&self) -> &str {
+        &self.package_name
+    }
+
+    pub(super) fn installation_control(&self) -> &InstallationControl {
+        &self.installation_control
     }
 
     fn deb_members(&self) -> Option<&DebMembers> {
@@ -931,7 +952,7 @@ fn debian_changelog_from_tree(tree: Option<&FileTree>) -> Option<DebianChangelog
     Some(DebianChangelog::parse(text))
 }
 
-fn processable_type_for_binary(path: &Path) -> ProcessableType {
+pub(super) fn processable_type_for_binary(path: &Path) -> ProcessableType {
     if path.extension().and_then(|ext| ext.to_str()) == Some("udeb") {
         ProcessableType::Udeb
     } else {

@@ -1,4 +1,6 @@
-use super::rule::{BinaryPackageRule, RuleAccess, SourceRule};
+use super::rule::{
+    BinaryPackageRule, BuildinfoRule, ChangesRule, GroupRule, RuleAccess, SourceRule,
+};
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
 use super::rules::Apache2DeprecatedAuthConfig;
@@ -3067,6 +3069,18 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
     ]
 }
 
+pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
+    &[]
+}
+
+pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
+    &[]
+}
+
+pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
+    &[]
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::BTreeSet;
@@ -3125,10 +3139,36 @@ mod tests {
     }
 
     #[test]
+    fn changes_rules_cover_catalogued_changes_tags() {
+        let codes = registered(changes_rules().iter().map(|rule| rule.code()));
+        assert_eq!(codes, implemented_codes("ChangesRule"));
+    }
+
+    #[test]
+    fn buildinfo_rules_cover_catalogued_buildinfo_tags() {
+        let codes = registered(buildinfo_rules().iter().map(|rule| rule.code()));
+        assert_eq!(codes, implemented_codes("BuildinfoRule"));
+    }
+
+    #[test]
+    fn group_rules_cover_catalogued_group_tags() {
+        let codes = registered(group_rules().iter().map(|rule| rule.code()));
+        assert_eq!(codes, implemented_codes("GroupRule"));
+    }
+
+    #[test]
     fn all_rules_is_every_rule_once() {
         let all = registered(all_rules().iter().map(|rule| rule.code()));
-        let mut by_trait = implemented_codes("SourceRule");
-        by_trait.extend(implemented_codes("BinaryPackageRule"));
+        let mut by_trait = BTreeSet::new();
+        for trait_name in [
+            "SourceRule",
+            "BinaryPackageRule",
+            "ChangesRule",
+            "BuildinfoRule",
+            "GroupRule",
+        ] {
+            by_trait.extend(implemented_codes(trait_name));
+        }
         assert_eq!(all, by_trait);
     }
 }

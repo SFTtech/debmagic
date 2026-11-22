@@ -358,6 +358,7 @@ use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
 use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
+use super::rules::PackageUsesDhRunitButLacksBreaksSubstvar;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PatchedFileWithoutUtf8Name;
@@ -2173,6 +2174,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &GirMissingTypelibDependency,
+        &PackageUsesDhRunitButLacksBreaksSubstvar,
     ]
 }
 
@@ -3439,6 +3441,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
     &[
         &IntraSourcePackageCircularDependency,
         &GirMissingTypelibDependency,
+        &PackageUsesDhRunitButLacksBreaksSubstvar,
     ]
 }
 

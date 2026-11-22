@@ -489,7 +489,7 @@ pub(crate) use debian_shlibs::{
 };
 pub(crate) use debian_version_substvars::{
     NotBinnmuableAllDependsAny, NotBinnmuableAnyDependsAll, NotBinnmuableAnyDependsAny,
-    VersionSubstvarForExternalPackage,
+    SubstvarSourceVersionIsDeprecated, VersionSubstvarForExternalPackage,
 };
 pub(crate) use debian_watch::{
     DebianWatchCouldVerifyDownload, DebianWatchFilePubkeyFileIsMissing,

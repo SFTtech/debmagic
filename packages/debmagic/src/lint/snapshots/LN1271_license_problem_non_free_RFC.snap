@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): license-problem-non-free-RFC (LN1271) [doc/rfc.txt]

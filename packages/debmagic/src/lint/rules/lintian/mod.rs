@@ -881,7 +881,8 @@ pub(crate) use scripts_interpreters::{
 };
 pub(crate) use scripts_shell::{
     CommandWithPathInMaintainerScript, MaintainerScriptIgnoresErrors,
-    MaintainerScriptRemovesDeviceFiles, ReadInMaintainerScript, RecursivePrivilegeChange,
+    MaintainerScriptRemovesDeviceFiles, MaintainerScriptWithoutSetE, ReadInMaintainerScript,
+    RecursivePrivilegeChange,
 };
 pub(crate) use scripts_text::{
     ControlInterpreterInUsrLocal, ControlInterpreterWithoutDepends,

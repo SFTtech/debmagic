@@ -839,6 +839,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/modprobe/directory-in-usr-lib-modprobe",
     "checks/modprobe/files-general",
     "checks/modprobe/obsolete-commands-in-modprobe",
+    "checks/scripts/legacy-binary",
     "checks/scripts/legacy-libbaz",
     "checks/scripts/legacy-maintainer-scripts",
     "checks/scripts/legacy-scripts",
@@ -850,6 +851,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/scripts/scripts-interpreters-nodejs",
     "checks/scripts/scripts-maintainer-general",
     "checks/scripts/scripts-maintainer-script-invalid-update-inetd-options",
+    "checks/scripts/scripts-maintainer-script-set-e",
     "checks/scripts/scripts-missing-call-to-dpkg-maintscript-helper",
     "checks/scripts/scripts-missing-dep",
     "checks/scripts/scripts-missing-dep-fp",
@@ -2120,6 +2122,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/modprobe/directory-in-usr-lib-modprobe"; "checks_modprobe_directory_in_usr_lib_modprobe")]
 #[test_case("checks/modprobe/files-general"; "checks_modprobe_files_general")]
 #[test_case("checks/modprobe/obsolete-commands-in-modprobe"; "checks_modprobe_obsolete_commands_in_modprobe")]
+#[test_case("checks/scripts/legacy-binary"; "checks_scripts_legacy_binary")]
 #[test_case("checks/scripts/legacy-libbaz"; "checks_scripts_legacy_libbaz")]
 #[test_case("checks/scripts/legacy-maintainer-scripts"; "checks_scripts_legacy_maintainer_scripts")]
 #[test_case("checks/scripts/legacy-scripts"; "checks_scripts_legacy_scripts")]
@@ -2131,6 +2134,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/scripts/scripts-interpreters-nodejs"; "checks_scripts_scripts_interpreters_nodejs")]
 #[test_case("checks/scripts/scripts-maintainer-general"; "checks_scripts_scripts_maintainer_general")]
 #[test_case("checks/scripts/scripts-maintainer-script-invalid-update-inetd-options"; "checks_scripts_scripts_maintainer_script_invalid_update_inetd_options")]
+#[test_case("checks/scripts/scripts-maintainer-script-set-e"; "checks_scripts_scripts_maintainer_script_set_e")]
 #[test_case("checks/scripts/scripts-missing-call-to-dpkg-maintscript-helper"; "checks_scripts_scripts_missing_call_to_dpkg_maintscript_helper")]
 #[test_case("checks/scripts/scripts-missing-dep"; "checks_scripts_scripts_missing_dep")]
 #[test_case("checks/scripts/scripts-missing-dep-fp"; "checks_scripts_scripts_missing_dep_fp")]

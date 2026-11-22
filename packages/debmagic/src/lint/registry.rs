@@ -201,6 +201,7 @@ use super::rules::MissingCallToUpdateFonts;
 use super::rules::MissingDebconfDependency;
 use super::rules::MissingDepOnJarwrapper;
 use super::rules::MissingDependencyOnLibc;
+use super::rules::MissingDependencyOnLibstdc;
 use super::rules::MissingDependencyOnPhpapi;
 use super::rules::MissingDependsOnSensibleUtils;
 use super::rules::MissingFileFromPotfilesIn;
@@ -1937,6 +1938,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SourcePackageComponentHasLongFileName,
         &DevelopmentPackageShipsElfBinaryInPath,
         &MissingDependencyOnLibc,
+        &MissingDependencyOnLibstdc,
     ]
 }
 
@@ -3073,6 +3075,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TransitionalPackageNotOldlibsOptional,
         &DevelopmentPackageShipsElfBinaryInPath,
         &MissingDependencyOnLibc,
+        &MissingDependencyOnLibstdc,
     ]
 }
 

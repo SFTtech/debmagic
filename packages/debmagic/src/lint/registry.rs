@@ -1917,7 +1917,6 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SourceContainsEditorBackupFile,
         &SourceContainsPatchFailureFile,
         &PatchedFileWithoutUtf8Name,
-        &NoStrongDigestsInDsc,
         &PossibleUnindentedListInExtendedDescription,
         &TrailingCommaInMaintainerField,
         &MultilineField,
@@ -2279,7 +2278,6 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsEditorBackupFile,
         &SourceContainsPatchFailureFile,
         &PatchedFileWithoutUtf8Name,
-        &NoStrongDigestsInDsc,
         &TrailingCommaInMaintainerField,
         &MultilineField,
     ]

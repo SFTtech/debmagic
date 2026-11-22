@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+W: example (source): package-uses-dh-runit-but-lacks-breaks-substvar (LN1500) pkg-a [debian/rules]
+W: example (source): package-uses-dh-runit-but-lacks-breaks-substvar (LN1500) pkg-a [debian/rules]
+W: example (source): package-uses-dh-runit-but-lacks-breaks-substvar (LN1500) pkg-a [debian/rules]
+W: example (source): package-uses-dh-runit-but-lacks-breaks-substvar (LN1500) pkg-a [debian/rules]
+W: example (source): package-uses-dh-runit-but-lacks-breaks-substvar (LN1500) pkg-a [debian/rules]
+W: example (source): package-uses-dh-runit-but-lacks-breaks-substvar (LN1500) pkg-c [debian/rules]

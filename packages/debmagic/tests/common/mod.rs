@@ -1380,6 +1380,10 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "checks/fields/checksums/no-sha256-checksum",
         "the recipe's `build-spec/post-build.sh` strips `Checksums-Sha256` from the `.dsc`, and the harness does not run post-build scripts",
     ),
+    (
+        "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
+        "the recipe builds with `dh --with runit` and `dh_runit` (the `dh-runit` package), which the host lacks",
+    ),
 ];
 
 /// Recipes whose expected hints cannot show up in a Source tree, because the

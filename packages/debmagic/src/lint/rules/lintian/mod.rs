@@ -975,8 +975,9 @@ pub(crate) use rules_and_control::{
     DhInstallmanpagesIsObsolete, DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
     ExecutableDebhelperFileWithoutBeingExecutable, PackageFileIsExecutable,
     PackageUsesDebhelperButLacksBuildDepends, PackageUsesDhExecButLacksBuildDepends,
-    PackageUsesOldDebhelperCompatVersion, Python3DependsButNoPython3Helper, TemporaryDebhelperFile,
-    UselessAutoreconfBuildDepends, WeakDependencyOnMiscDepends,
+    PackageUsesDhRunitButLacksBreaksSubstvar, PackageUsesOldDebhelperCompatVersion,
+    Python3DependsButNoPython3Helper, TemporaryDebhelperFile, UselessAutoreconfBuildDepends,
+    WeakDependencyOnMiscDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

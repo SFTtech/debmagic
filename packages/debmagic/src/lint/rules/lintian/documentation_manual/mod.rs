@@ -29,6 +29,7 @@ mod ln0897_wrong_name_for_manual_page;
 mod ln0898_odd_place_for_manual_page;
 mod ln0899_executable_manual_page;
 mod ln1354_fsstnd_dir_in_manual_page;
+mod ln1355_acute_accent_in_manual_page;
 mod manual;
 
 pub(crate) use ln0152_no_manual_page::NoManualPage;
@@ -53,3 +54,4 @@ pub(crate) use ln0897_wrong_name_for_manual_page::WrongNameForManualPage;
 pub(crate) use ln0898_odd_place_for_manual_page::OddPlaceForManualPage;
 pub(crate) use ln0899_executable_manual_page::ExecutableManualPage;
 pub(crate) use ln1354_fsstnd_dir_in_manual_page::FSSTNDDirInManualPage;
+pub(crate) use ln1355_acute_accent_in_manual_page::AcuteAccentInManualPage;

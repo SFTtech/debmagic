@@ -295,6 +295,7 @@ use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
+use super::rules::ScriptNotExecutable;
 use super::rules::ScriptUsesPerl4LibsWithoutDep;
 use super::rules::ScriptWithLanguageExtension;
 use super::rules::SectionIsDhMakeTemplate;
@@ -1815,6 +1816,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DbusPolicyWithoutSendDestination,
         &DbusSystemServiceWrongName,
         &RubyScriptButNoRubyDep,
+        &ScriptNotExecutable,
     ]
 }
 
@@ -2890,6 +2892,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DbusPolicyWithoutSendDestination,
         &DbusSystemServiceWrongName,
         &RubyScriptButNoRubyDep,
+        &ScriptNotExecutable,
     ]
 }
 

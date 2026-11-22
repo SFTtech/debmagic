@@ -865,8 +865,8 @@ pub(crate) use scripts_text::{
     MaintscriptCallsLdconfig, MawkScriptButNoMawkDep, MissingCallToDpkgMaintscriptHelper,
     MultiArchSamePackageCallsPycompile, PhpScriptWithUnusualInterpreter,
     PossiblyInsecureHandlingOfTmpFilesInMaintainerScript, PostrmRemovesAlternative,
-    Python3ScriptButNoPython3Dep, ScriptUsesBinEnv, SystemdAlternatives, UdebPostinstCallsLdconfig,
-    UdevadmCalledWithoutGuard, UnusualControlInterpreter,
+    Python3ScriptButNoPython3Dep, RubyScriptButNoRubyDep, ScriptUsesBinEnv, SystemdAlternatives,
+    UdebPostinstCallsLdconfig, UdevadmCalledWithoutGuard, UnusualControlInterpreter,
 };
 pub(crate) use systemd::{
     InitDScriptDoesNotSourceInitFunctions, InitScriptIsNotAFile, KillModeNone,

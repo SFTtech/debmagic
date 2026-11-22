@@ -15,6 +15,7 @@ mod ln1208_quilt_series_but_no_build_dep;
 mod ln1209_quilt_series_without_trailing_newline;
 mod ln1325_quilt_patch_missing_description;
 mod ln1522_dep3_format_patch_author_or_from_is_better;
+mod ln1523_invalid_dep3_format_patch_no_description_and_subject;
 
 pub(crate) use ln0396_format_3_0_but_debian_changes_patch::Format30ButDebianChangesPatch;
 pub(crate) use ln0706_patch_file_present_but_not_mentioned_in_series::PatchFilePresentButNotMentionedInSeries;
@@ -30,3 +31,4 @@ pub(crate) use ln1208_quilt_series_but_no_build_dep::QuiltSeriesButNoBuildDep;
 pub(crate) use ln1209_quilt_series_without_trailing_newline::QuiltSeriesWithoutTrailingNewline;
 pub(crate) use ln1325_quilt_patch_missing_description::QuiltPatchMissingDescription;
 pub(crate) use ln1522_dep3_format_patch_author_or_from_is_better::Dep3FormatPatchAuthorOrFromIsBetter;
+pub(crate) use ln1523_invalid_dep3_format_patch_no_description_and_subject::InvalidDep3FormatPatchNoDescriptionAndSubject;

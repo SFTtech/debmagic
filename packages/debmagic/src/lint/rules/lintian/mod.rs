@@ -817,10 +817,11 @@ pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;
 pub(crate) use debian_patches::{
     Dep3FormatPatchAuthorOrFromIsBetter, Format30ButDebianChangesPatch,
     InvalidDep3FormatPatchBugFieldDefaultValue, InvalidDep3FormatPatchBugNotContainUrl,
-    InvalidDep3FormatPatchMaybeBugDebian, InvalidDep3FormatPatchOriginFieldDefaultValue,
-    PackageUsesVendorSpecificPatchSeries, PatchFilePresentButNotMentionedInSeries,
-    PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription,
-    QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
+    InvalidDep3FormatPatchMaybeBugDebian, InvalidDep3FormatPatchNoDescriptionAndSubject,
+    InvalidDep3FormatPatchOriginFieldDefaultValue, PackageUsesVendorSpecificPatchSeries,
+    PatchFilePresentButNotMentionedInSeries, PatchSystemButNoSourceReadme,
+    QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription, QuiltPatchWithNonStandardOptions,
+    QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,

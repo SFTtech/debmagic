@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): invalid-dep3-format-patch-no-description-and-subject (LN1523) [debian/patches/fix.patch]
+I: (source): invalid-dep3-format-patch-no-description-and-subject (LN1523) [debian/patches/fix.patch]
+I: (source): invalid-dep3-format-patch-no-description-and-subject (LN1523) [debian/patches/fix.patch]

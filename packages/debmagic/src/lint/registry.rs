@@ -178,6 +178,7 @@ use super::rules::LicenseProblemNonFreeRFC;
 use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::LicenseProblemNvidiaIntellectual;
 use super::rules::LicenseProblemOldUnicode;
+use super::rules::LinkToSharedLibraryInWrongPackage;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
@@ -1951,6 +1952,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LacksVersionedLinkToSharedLibrary,
         &LdconfigSymlinkIsNotASymlink,
         &LdconfigSymlinkReferencingWrongFile,
+        &LinkToSharedLibraryInWrongPackage,
     ]
 }
 
@@ -3094,6 +3096,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &LacksVersionedLinkToSharedLibrary,
         &LdconfigSymlinkIsNotASymlink,
         &LdconfigSymlinkReferencingWrongFile,
+        &LinkToSharedLibraryInWrongPackage,
     ]
 }
 

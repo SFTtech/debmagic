@@ -20,6 +20,7 @@ use super::rules::AppstreamMetadataMalformedModaliasProvide;
 use super::rules::AppstreamMetadataMissingModaliasProvide;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
+use super::rules::BadIntendedDistribution;
 use super::rules::BadJarName;
 use super::rules::BadPackageName;
 use super::rules::BadPermForFileInEtcSudoersD;
@@ -2179,6 +2180,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LicenseProblemGfdlInvariantsEmpty,
         &DhExecSubstUnknownVariable,
         &DhExecUselessUsage,
+        &BadIntendedDistribution,
     ]
 }
 
@@ -3434,6 +3436,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &BadIntendedDistribution,
     ]
 }
 

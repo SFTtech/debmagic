@@ -495,6 +495,7 @@ use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploaderNameMissing;
 use super::rules::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;
+use super::rules::UpstreamMetadataFieldUnknown;
 use super::rules::UpstreamMetadataInNativeSource;
 use super::rules::UpstreamMetadataIsNotAFile;
 use super::rules::UselessAutoreconfBuildDepends;
@@ -2123,6 +2124,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BashTermInPosixShell,
         &PossibleBashismInMaintainerScript,
         &SystemdServiceFileMissingDocumentationKey,
+        &UpstreamMetadataFieldUnknown,
     ]
 }
 
@@ -2517,6 +2519,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MissingPrerequisiteForPyprojectBackend,
         &UsesDeprecatedPythonStdlib,
         &RustBoilerplate,
+        &UpstreamMetadataFieldUnknown,
     ]
 }
 

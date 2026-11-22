@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): maintainer-script-without-set-e (LN1429) [postinst]
+P: example (binary): maintainer-script-without-set-e (LN1429) [postrm]
+P: example (binary): maintainer-script-without-set-e (LN1429) [postinst]
+P: example (binary): maintainer-script-without-set-e (LN1429) [preinst]
+P: example (udeb): maintainer-script-without-set-e (LN1429) [postinst]

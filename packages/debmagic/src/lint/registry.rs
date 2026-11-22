@@ -180,6 +180,7 @@ use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
 use super::rules::MaintainerScriptSetsAlternativeImproperly;
 use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
+use super::rules::MaintainerScriptWithoutSetE;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
 use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &MaintainerScriptSwitchesDirToSymlinkUnsafely,
+        &MaintainerScriptWithoutSetE,
     ]
 }
 
@@ -3067,6 +3069,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
         &MaintainerScriptSwitchesDirToSymlinkUnsafely,
+        &MaintainerScriptWithoutSetE,
     ]
 }
 

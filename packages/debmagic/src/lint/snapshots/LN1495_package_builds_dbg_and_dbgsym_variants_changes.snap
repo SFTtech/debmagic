@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+W: example (changes): package-builds-dbg-and-dbgsym-variants (LN1495) example-dbg example-dbgsym
+W: example (changes): package-builds-dbg-and-dbgsym-variants (LN1495) example-dbg example-dbgsym
+W: example (changes): package-builds-dbg-and-dbgsym-variants (LN1495) a-dbg a-dbgsym
+W: example (changes): package-builds-dbg-and-dbgsym-variants (LN1495) b-dbg b-dbgsym

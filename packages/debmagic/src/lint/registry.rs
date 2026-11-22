@@ -142,6 +142,7 @@ use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DistantPrerequisiteInShlibs;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
 use super::rules::DocPackageDependsOnMainPackage;
+use super::rules::DotBeforeRepackCount;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
 use super::rules::DuplicateOverrideContext;
@@ -2173,6 +2174,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
         &AnticipatedRepackCount,
+        &DotBeforeRepackCount,
     ]
 }
 
@@ -2573,6 +2575,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InstallableFieldMirrorsSource,
         &InconsistentAppstreamMetadataLicense,
         &AnticipatedRepackCount,
+        &DotBeforeRepackCount,
     ]
 }
 

@@ -98,6 +98,7 @@ use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
+use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
@@ -1933,6 +1934,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInRulesRequiresRoot,
         &SubstvarSourceVersionIsDeprecated,
         &SourcePackageComponentHasLongFileName,
+        &DevelopmentPackageShipsElfBinaryInPath,
     ]
 }
 
@@ -3067,6 +3069,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
+        &DevelopmentPackageShipsElfBinaryInPath,
     ]
 }
 

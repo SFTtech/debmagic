@@ -247,6 +247,7 @@ pub(crate) use binaries_hardening::HardeningNoPie;
 pub(crate) use binaries_hardening::HardeningNoRelro;
 pub(crate) use binaries_location::{
     ArchDependentFileInUsrShare, ArchDependentFileNotInArchSpecificDirectory, BinaryInEtc,
+    DevelopmentPackageShipsElfBinaryInPath,
 };
 pub(crate) use binaries_obsolete_crypt::ObsoleteCryptAlias;
 pub(crate) use binaries_obsolete_crypt::ObsoleteDesEncryption;

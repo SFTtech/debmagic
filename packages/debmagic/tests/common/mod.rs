@@ -926,10 +926,16 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
 
 /// Recipes whose expected hints cannot show up in a Source tree, because the
 /// tree is not the built product (a patch is not applied, say).
-const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[(
-    "checks/files/names/national-encoding-in-patch",
-    "the Latin-1 file name comes from a patch that a Source tree does not apply",
-)];
+const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[
+    (
+        "checks/files/names/national-encoding-in-patch",
+        "the Latin-1 file name comes from a patch that a Source tree does not apply",
+    ),
+    (
+        "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
+        "the hints name the orig and debian tarballs of the Files field of a .dsc, which a Source tree does not have",
+    ),
+];
 
 /// The reason a recipe is skipped on this host, if it is.
 fn skipped_recipe_reason(recipe_rel: &str) -> Option<&'static str> {

@@ -364,6 +364,7 @@ use super::rules::WindowsDevelFileInPackage;
 use super::rules::WoffFontInWrongDir;
 use super::rules::WrongBugNumberInCloses;
 use super::rules::WrongManualSection;
+use super::rules::WrongNameForChangelogOfNativePackage;
 use super::rules::WrongNameForManualPage;
 use super::rules::WrongSectionForUdeb;
 use super::rules::WrongTeam;
@@ -1787,6 +1788,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NotAllowedControlFile,
         &UnknownControlFile,
         &PossibleMissingColonInCloses,
+        &WrongNameForChangelogOfNativePackage,
     ]
 }
 
@@ -2848,6 +2850,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NotAllowedControlFile,
         &UnknownControlFile,
         &PossibleMissingColonInCloses,
+        &WrongNameForChangelogOfNativePackage,
     ]
 }
 

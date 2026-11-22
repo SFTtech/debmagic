@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): wrong-name-for-changelog-of-native-package (LN1203) [usr/share/doc/example/changelog.debian.gz]
+W: example (binary): wrong-name-for-changelog-of-native-package (LN1203) [usr/share/doc/example/Changelog.Debian.gz]

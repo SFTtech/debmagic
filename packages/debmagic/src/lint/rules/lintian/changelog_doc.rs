@@ -50,7 +50,7 @@ pub(super) fn missing_changelog(ctx: &mut BinaryPackageContext<'_>) -> Option<Mi
 
 /// lintian: the version in `Source (version)`, else `Version`, has no hyphen.
 /// Unknown counts as non-native.
-fn is_native(source: Option<&str>, version: Option<&str>) -> bool {
+pub(super) fn is_native(source: Option<&str>, version: Option<&str>) -> bool {
     let source_version = source
         .and_then(|source| SOURCE_VERSION.captures(source))
         .and_then(|captures| captures.get(1))

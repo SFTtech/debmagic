@@ -556,6 +556,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/manual/manpage-not-compressed",
     "checks/documentation/manual/manpage-not-compressed-with-gzip",
     "checks/documentation/manual/manpage-not-max-compression",
+    "checks/documentation/manual/manpage-python-traceback",
     "checks/documentation/manual/manpage-section-mismatch",
     "checks/documentation/manual/manpage-useless-whatis",
     "checks/documentation/manual/manpage-wrong-extension",
@@ -1857,6 +1858,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/manual/manpage-not-compressed"; "checks_documentation_manual_manpage_not_compressed")]
 #[test_case("checks/documentation/manual/manpage-not-compressed-with-gzip"; "checks_documentation_manual_manpage_not_compressed_with_gzip")]
 #[test_case("checks/documentation/manual/manpage-not-max-compression"; "checks_documentation_manual_manpage_not_max_compression")]
+#[test_case("checks/documentation/manual/manpage-python-traceback"; "checks_documentation_manual_manpage_python_traceback")]
 #[test_case("checks/documentation/manual/manpage-section-mismatch"; "checks_documentation_manual_manpage_section_mismatch")]
 #[test_case("checks/documentation/manual/manpage-useless-whatis"; "checks_documentation_manual_manpage_useless_whatis")]
 #[test_case("checks/documentation/manual/manpage-wrong-extension"; "checks_documentation_manual_manpage_wrong_extension")]

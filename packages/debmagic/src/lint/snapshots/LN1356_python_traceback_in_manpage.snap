@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): python-traceback-in-manpage (LN1356) [usr/share/man/man1/example.1]
+E: example (binary): python-traceback-in-manpage (LN1356) [usr/share/man/man1/example.1]

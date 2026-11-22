@@ -248,6 +248,7 @@ use super::rules::PackageContainsInfoDirFile;
 use super::rules::PackageContainsMimeCacheFile;
 use super::rules::PackageContainsMimeinfoCacheFile;
 use super::rules::PackageContainsMultipleDpiFonts;
+use super::rules::PackageContainsNoArchDependentFiles;
 use super::rules::PackageContainsThumbnailsDir;
 use super::rules::PackageContainsTimestampedGzip;
 use super::rules::PackageContainsXvpicsDir;
@@ -1935,6 +1936,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SubstvarSourceVersionIsDeprecated,
         &VcsFieldUsesInsecureUri,
         &VcsFieldsUseMoreThanOneVcs,
+        &PackageContainsNoArchDependentFiles,
     ]
 }
 
@@ -3070,6 +3072,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PackageDependsOnAnXFontPackage,
         &PackageDependsOnMultipleTclxVersions,
         &TransitionalPackageNotOldlibsOptional,
+        &PackageContainsNoArchDependentFiles,
     ]
 }
 

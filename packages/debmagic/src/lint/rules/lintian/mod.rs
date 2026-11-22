@@ -325,6 +325,7 @@ pub(crate) use fields_multi_line::MultilineField;
 pub(crate) use fields_package::BadPackageName;
 pub(crate) use fields_package::PackageNotLowercase;
 pub(crate) use fields_source::SourceFieldMalformed;
+pub(crate) use files_architecture::PackageContainsNoArchDependentFiles;
 pub(crate) use files_architecture::TripletDirAndArchitectureMismatch;
 pub(crate) use files_banned_compiled_help::SourceContainsPrebuiltMsHelpFile;
 pub(crate) use files_compressed_gz::BrokenGz;

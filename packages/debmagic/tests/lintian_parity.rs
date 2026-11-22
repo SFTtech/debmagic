@@ -491,6 +491,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/binaries/rpath/binaries-general",
     "checks/binaries/rpath/quoted",
     "checks/binaries/rpath/relative",
+    "checks/binaries/spelling/binaries-spelling",
     "checks/binaries/static/binaries-from-other-arch",
     "checks/binaries/static/binaries-general",
     "checks/binaries/static/legacy-binary",
@@ -2029,6 +2030,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/binaries/rpath/binaries-general"; "checks_binaries_rpath_binaries_general")]
 #[test_case("checks/binaries/rpath/quoted"; "checks_binaries_rpath_quoted")]
 #[test_case("checks/binaries/rpath/relative"; "checks_binaries_rpath_relative")]
+#[test_case("checks/binaries/spelling/binaries-spelling"; "checks_binaries_spelling_binaries_spelling")]
 #[test_case("checks/binaries/static/binaries-from-other-arch"; "checks_binaries_static_binaries_from_other_arch")]
 #[test_case("checks/binaries/static/binaries-general"; "checks_binaries_static_binaries_general")]
 #[test_case("checks/binaries/static/legacy-binary"; "checks_binaries_static_legacy_binary")]

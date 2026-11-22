@@ -199,6 +199,9 @@ use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
 use super::rules::LacksLdconfigTrigger;
+use super::rules::LacksVersionedLinkToSharedLibrary;
+use super::rules::LdconfigSymlinkIsNotASymlink;
+use super::rules::LdconfigSymlinkReferencingWrongFile;
 use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
@@ -212,6 +215,7 @@ use super::rules::LicenseProblemNonFreeRFC;
 use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::LicenseProblemNvidiaIntellectual;
 use super::rules::LicenseProblemOldUnicode;
+use super::rules::LinkToSharedLibraryInWrongPackage;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
@@ -249,6 +253,7 @@ use super::rules::MissingPkgPhpToolsAddon;
 use super::rules::MissingPkgPhpToolsBuildsystem;
 use super::rules::MissingPotfilesIn;
 use super::rules::MissingPrerequisiteForGfortranModule;
+use super::rules::MissingPrerequisiteForPyprojectBackend;
 use super::rules::MissingTemplatesPot;
 use super::rules::MissingTestsControl;
 use super::rules::MisspelledClosesBug;
@@ -282,6 +287,7 @@ use super::rules::ObsoleteRelationForm;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
 use super::rules::OcamlDanglingCmx;
+use super::rules::OcamlDanglingCmi;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
@@ -316,6 +322,7 @@ use super::rules::PackageInstallsDeprecatedUpstartConfiguration;
 use super::rules::PackageInstallsIntoEtcRcBoot;
 use super::rules::PackageInstallsIntoEtcRcD;
 use super::rules::PackageInstallsJavaBytecode;
+use super::rules::PackageInstallsLegacyPythonEggInfo;
 use super::rules::PackageInstallsPacklist;
 use super::rules::PackageInstallsPerllocalPod;
 use super::rules::PackageInstallsPythonBytecode;
@@ -327,6 +334,7 @@ use super::rules::PackageNameDefinedInConfigH;
 use super::rules::PackageNameDoesntMatchSonames;
 use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
+use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
@@ -380,9 +388,11 @@ use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RelativeConffile;
 use super::rules::RenamedTag;
 use super::rules::RepeatedTriggerName;
+use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
+use super::rules::RustBoilerplate;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::ScriptNotExecutable;
 use super::rules::ScriptUsesDeprecatedNodejsLocation;
@@ -484,6 +494,7 @@ use super::rules::UpstreamMetadataInNativeSource;
 use super::rules::UpstreamMetadataIsNotAFile;
 use super::rules::UselessAutoreconfBuildDepends;
 use super::rules::UsesDeprecatedAdttmp;
+use super::rules::UsesDeprecatedPythonStdlib;
 use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
 use super::rules::UsingFirstPersonInDescription;
@@ -2091,6 +2102,17 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MaintainerScriptCallsService,
         &BadSectionInChangesFile,
         &IntraSourcePackageCircularDependency,
+        &OcamlDanglingCmi,
+        &PackageSupersededByPerl,
+        &MissingPrerequisiteForPyprojectBackend,
+        &PackageInstallsLegacyPythonEggInfo,
+        &UsesDeprecatedPythonStdlib,
+        &RequiresRApi,
+        &RustBoilerplate,
+        &LacksVersionedLinkToSharedLibrary,
+        &LdconfigSymlinkIsNotASymlink,
+        &LdconfigSymlinkReferencingWrongFile,
+        &LinkToSharedLibraryInWrongPackage,
     ]
 }
 
@@ -2482,6 +2504,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &OutOfDateStandardsVersion,
         &CuteField,
         &VcsFieldNotCanonical,
+        &MissingPrerequisiteForPyprojectBackend,
+        &UsesDeprecatedPythonStdlib,
+        &RustBoilerplate,
     ]
 }
 
@@ -3302,6 +3327,14 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DesktopEntryLacksKeywordsEntry,
         &FileInEtcModprobeD,
         &MaintainerScriptCallsService,
+        &OcamlDanglingCmi,
+        &PackageSupersededByPerl,
+        &PackageInstallsLegacyPythonEggInfo,
+        &RequiresRApi,
+        &LacksVersionedLinkToSharedLibrary,
+        &LdconfigSymlinkIsNotASymlink,
+        &LdconfigSymlinkReferencingWrongFile,
+        &LinkToSharedLibraryInWrongPackage,
     ]
 }
 

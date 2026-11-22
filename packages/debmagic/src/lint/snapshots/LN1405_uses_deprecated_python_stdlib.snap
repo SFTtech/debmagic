@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): uses-deprecated-python-stdlib (LN1405) asyncore (deprecated in Python 3.6, removed in Python 3.12) [example.py:1]
+I: example (source): uses-deprecated-python-stdlib (LN1405) asyncore (deprecated in Python 3.6, removed in Python 3.12) [example.py:1]
+I: example (source): uses-deprecated-python-stdlib (LN1405) distutils (deprecated in Python 3.10, removed in Python 3.12) [example.py:1]
+I: example (source): uses-deprecated-python-stdlib (LN1405) asynchat (deprecated in Python 3.6, removed in Python 3.12) [example.py:2]
+I: example (source): uses-deprecated-python-stdlib (LN1405) pipes (deprecated in Python 3.11, removed in Python 3.13) [sub/example.py:1]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): ldconfig-symlink-is-not-a-symlink (LN1411) should point to usr/lib/libfoo.so.1.0.1 [usr/lib/libfoo.so.1]
+E: example (udeb): ldconfig-symlink-is-not-a-symlink (LN1411) should point to usr/lib/libfoo.so.1.0.1 [usr/lib/libfoo.so.1]

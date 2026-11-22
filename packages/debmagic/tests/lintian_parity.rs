@@ -391,12 +391,26 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/python/dist-overrides/duplicate-identifier",
     "checks/languages/python/homepage/pypi",
     "checks/languages/python/python-ancient-python-version-field",
+    "checks/languages/python/python-could-use-pyproject-flit",
+    "checks/languages/python/python-could-use-pyproject-hatchling",
+    "checks/languages/python/python-could-use-pyproject-mesonpy",
+    "checks/languages/python/python-could-use-pyproject-pdm-backend",
+    "checks/languages/python/python-could-use-pyproject-poetry",
+    "checks/languages/python/python-could-use-pyproject-setuptools",
+    "checks/languages/python/python-could-use-pyproject-sipbuild",
+    "checks/languages/python/python-could-use-pyproject-whey",
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-source-package-encodes-python-version",
+    "checks/languages/python/python-valid-pdm",
+    "checks/languages/python/python-valid-poetry",
     "checks/languages/python/python-version-current-deprecated",
+    "checks/languages/python/python-wrong-pdm",
+    "checks/languages/python/stdlib-deprecation/python-imports-asyncore",
+    "checks/languages/python/stdlib-deprecation/python-imports-distutils",
     "checks/languages/r/files-r-data",
     "checks/languages/ruby/gem-homepage",
     "checks/lintian/override-context-mismatch",
+    "checks/languages/rust/template-description",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -882,8 +896,10 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/ocaml/byte-code/compiled/ocaml-general",
+    "checks/languages/ocaml/byte-code/interface/ocaml-general",
     "checks/languages/ocaml/byte-code/library/ocaml-general",
     "checks/languages/ocaml/byte-code/plugin/ocaml-general",
+    "checks/languages/perl/core/provides/fields-perl-provides",
     "checks/languages/perl/files-foo-in-bar",
     "checks/languages/perl/files-uses-perl4-libs-without-dep",
     "checks/languages/perl/legacy-filenames",
@@ -904,11 +920,17 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/python-package-missing-depends-on-python",
     "checks/languages/python/scripts/python-script-uses-unversioned-python-in-shebang",
     "checks/languages/r/architecture/fields-r-package-not-arch-all",
+    "checks/languages/r/site-library/lacks-depends-on-r-api",
     "checks/languages/ruby/depends-on-ruby-interpreter",
     "checks/languages/rust/empty-rust-library-declares-provides",
     "checks/libraries/debug-symbols/binaries-general",
     "checks/libraries/shared/file-permissions/legacy-libbaz",
     "checks/libraries/shared/file-permissions/shared-libs-exec-bit",
+    "checks/libraries/shared/links/legacy-libbaz",
+    "checks/libraries/shared/links/shared-libs-ldconfig-not-symlink",
+    "checks/libraries/shared/links/shared-libs-ldconfig-wrong-file",
+    "checks/libraries/shared/links/shared-libs-missing-ldconfig-symlink",
+    "checks/libraries/shared/links/shared-libs-non-dev-symlink",
     "checks/libraries/shared/multi-arch/shared-libs-multi-arch-foreign",
     "checks/libraries/shared/relocation/shared-libs-non-pic-i386",
     "checks/libraries/shared/soname/binaries-doesnt-match-sonames",
@@ -1407,12 +1429,26 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/dist-overrides/duplicate-identifier",
     "checks/languages/python/homepage/pypi",
     "checks/languages/python/python-ancient-python-version-field",
+    "checks/languages/python/python-could-use-pyproject-flit",
+    "checks/languages/python/python-could-use-pyproject-hatchling",
+    "checks/languages/python/python-could-use-pyproject-mesonpy",
+    "checks/languages/python/python-could-use-pyproject-pdm-backend",
+    "checks/languages/python/python-could-use-pyproject-poetry",
+    "checks/languages/python/python-could-use-pyproject-setuptools",
+    "checks/languages/python/python-could-use-pyproject-sipbuild",
+    "checks/languages/python/python-could-use-pyproject-whey",
     "checks/languages/python/python-malformed-py-version",
     "checks/languages/python/python-source-package-encodes-python-version",
+    "checks/languages/python/python-valid-pdm",
+    "checks/languages/python/python-valid-poetry",
     "checks/languages/python/python-version-current-deprecated",
+    "checks/languages/python/python-wrong-pdm",
+    "checks/languages/python/stdlib-deprecation/python-imports-asyncore",
+    "checks/languages/python/stdlib-deprecation/python-imports-distutils",
     "checks/languages/r/files-r-data",
     "checks/languages/ruby/gem-homepage",
     "checks/lintian/override-context-mismatch",
+    "checks/languages/rust/template-description",
     "checks/nmu/changelog-file-symlink",
     "checks/nmu/generic-empty",
     "checks/nmu/legacy-binary",
@@ -1885,12 +1921,26 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
 #[test_case("checks/languages/python/homepage/pypi"; "checks_languages_python_homepage_pypi")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
+#[test_case("checks/languages/python/python-could-use-pyproject-flit"; "checks_languages_python_python_could_use_pyproject_flit")]
+#[test_case("checks/languages/python/python-could-use-pyproject-hatchling"; "checks_languages_python_python_could_use_pyproject_hatchling")]
+#[test_case("checks/languages/python/python-could-use-pyproject-mesonpy"; "checks_languages_python_python_could_use_pyproject_mesonpy")]
+#[test_case("checks/languages/python/python-could-use-pyproject-pdm-backend"; "checks_languages_python_python_could_use_pyproject_pdm_backend")]
+#[test_case("checks/languages/python/python-could-use-pyproject-poetry"; "checks_languages_python_python_could_use_pyproject_poetry")]
+#[test_case("checks/languages/python/python-could-use-pyproject-setuptools"; "checks_languages_python_python_could_use_pyproject_setuptools")]
+#[test_case("checks/languages/python/python-could-use-pyproject-sipbuild"; "checks_languages_python_python_could_use_pyproject_sipbuild")]
+#[test_case("checks/languages/python/python-could-use-pyproject-whey"; "checks_languages_python_python_could_use_pyproject_whey")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
+#[test_case("checks/languages/python/python-valid-pdm"; "checks_languages_python_python_valid_pdm")]
+#[test_case("checks/languages/python/python-valid-poetry"; "checks_languages_python_python_valid_poetry")]
 #[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
+#[test_case("checks/languages/python/python-wrong-pdm"; "checks_languages_python_python_wrong_pdm")]
+#[test_case("checks/languages/python/stdlib-deprecation/python-imports-asyncore"; "checks_languages_python_stdlib_deprecation_python_imports_asyncore")]
+#[test_case("checks/languages/python/stdlib-deprecation/python-imports-distutils"; "checks_languages_python_stdlib_deprecation_python_imports_distutils")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
 #[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
+#[test_case("checks/languages/rust/template-description"; "checks_languages_rust_template_description")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]
@@ -2377,8 +2427,10 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/ocaml/byte-code/compiled/ocaml-general"; "checks_languages_ocaml_byte_code_compiled_ocaml_general")]
+#[test_case("checks/languages/ocaml/byte-code/interface/ocaml-general"; "checks_languages_ocaml_byte_code_interface_ocaml_general")]
 #[test_case("checks/languages/ocaml/byte-code/library/ocaml-general"; "checks_languages_ocaml_byte_code_library_ocaml_general")]
 #[test_case("checks/languages/ocaml/byte-code/plugin/ocaml-general"; "checks_languages_ocaml_byte_code_plugin_ocaml_general")]
+#[test_case("checks/languages/perl/core/provides/fields-perl-provides"; "checks_languages_perl_core_provides_fields_perl_provides")]
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
 #[test_case("checks/languages/perl/files-uses-perl4-libs-without-dep"; "checks_languages_perl_files_uses_perl4_libs_without_dep")]
 #[test_case("checks/languages/perl/legacy-filenames"; "checks_languages_perl_legacy_filenames")]
@@ -2399,11 +2451,17 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/python/python-package-missing-depends-on-python"; "checks_languages_python_python_package_missing_depends_on_python")]
 #[test_case("checks/languages/python/scripts/python-script-uses-unversioned-python-in-shebang"; "checks_languages_python_scripts_python_script_uses_unversioned_python_in_shebang")]
 #[test_case("checks/languages/r/architecture/fields-r-package-not-arch-all"; "checks_languages_r_architecture_fields_r_package_not_arch_all")]
+#[test_case("checks/languages/r/site-library/lacks-depends-on-r-api"; "checks_languages_r_site_library_lacks_depends_on_r_api")]
 #[test_case("checks/languages/ruby/depends-on-ruby-interpreter"; "checks_languages_ruby_depends_on_ruby_interpreter")]
 #[test_case("checks/languages/rust/empty-rust-library-declares-provides"; "checks_languages_rust_empty_rust_library_declares_provides")]
 #[test_case("checks/libraries/debug-symbols/binaries-general"; "checks_libraries_debug_symbols_binaries_general")]
 #[test_case("checks/libraries/shared/file-permissions/legacy-libbaz"; "checks_libraries_shared_file_permissions_legacy_libbaz")]
 #[test_case("checks/libraries/shared/file-permissions/shared-libs-exec-bit"; "checks_libraries_shared_file_permissions_shared_libs_exec_bit")]
+#[test_case("checks/libraries/shared/links/legacy-libbaz"; "checks_libraries_shared_links_legacy_libbaz")]
+#[test_case("checks/libraries/shared/links/shared-libs-ldconfig-not-symlink"; "checks_libraries_shared_links_shared_libs_ldconfig_not_symlink")]
+#[test_case("checks/libraries/shared/links/shared-libs-ldconfig-wrong-file"; "checks_libraries_shared_links_shared_libs_ldconfig_wrong_file")]
+#[test_case("checks/libraries/shared/links/shared-libs-missing-ldconfig-symlink"; "checks_libraries_shared_links_shared_libs_missing_ldconfig_symlink")]
+#[test_case("checks/libraries/shared/links/shared-libs-non-dev-symlink"; "checks_libraries_shared_links_shared_libs_non_dev_symlink")]
 #[test_case("checks/libraries/shared/multi-arch/shared-libs-multi-arch-foreign"; "checks_libraries_shared_multi_arch_shared_libs_multi_arch_foreign")]
 #[test_case("checks/libraries/shared/relocation/shared-libs-non-pic-i386"; "checks_libraries_shared_relocation_shared_libs_non_pic_i386")]
 #[test_case("checks/libraries/shared/soname/binaries-doesnt-match-sonames"; "checks_libraries_shared_soname_binaries_doesnt_match_sonames")]
@@ -2903,12 +2961,26 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
 #[test_case("checks/languages/python/homepage/pypi"; "checks_languages_python_homepage_pypi")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
+#[test_case("checks/languages/python/python-could-use-pyproject-flit"; "checks_languages_python_python_could_use_pyproject_flit")]
+#[test_case("checks/languages/python/python-could-use-pyproject-hatchling"; "checks_languages_python_python_could_use_pyproject_hatchling")]
+#[test_case("checks/languages/python/python-could-use-pyproject-mesonpy"; "checks_languages_python_python_could_use_pyproject_mesonpy")]
+#[test_case("checks/languages/python/python-could-use-pyproject-pdm-backend"; "checks_languages_python_python_could_use_pyproject_pdm_backend")]
+#[test_case("checks/languages/python/python-could-use-pyproject-poetry"; "checks_languages_python_python_could_use_pyproject_poetry")]
+#[test_case("checks/languages/python/python-could-use-pyproject-setuptools"; "checks_languages_python_python_could_use_pyproject_setuptools")]
+#[test_case("checks/languages/python/python-could-use-pyproject-sipbuild"; "checks_languages_python_python_could_use_pyproject_sipbuild")]
+#[test_case("checks/languages/python/python-could-use-pyproject-whey"; "checks_languages_python_python_could_use_pyproject_whey")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
 #[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
+#[test_case("checks/languages/python/python-valid-pdm"; "checks_languages_python_python_valid_pdm")]
+#[test_case("checks/languages/python/python-valid-poetry"; "checks_languages_python_python_valid_poetry")]
 #[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
+#[test_case("checks/languages/python/python-wrong-pdm"; "checks_languages_python_python_wrong_pdm")]
+#[test_case("checks/languages/python/stdlib-deprecation/python-imports-asyncore"; "checks_languages_python_stdlib_deprecation_python_imports_asyncore")]
+#[test_case("checks/languages/python/stdlib-deprecation/python-imports-distutils"; "checks_languages_python_stdlib_deprecation_python_imports_distutils")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
 #[test_case("checks/languages/ruby/gem-homepage"; "checks_languages_ruby_gem_homepage")]
 #[test_case("checks/lintian/override-context-mismatch"; "checks_lintian_override_context_mismatch")]
+#[test_case("checks/languages/rust/template-description"; "checks_languages_rust_template_description")]
 #[test_case("checks/nmu/changelog-file-symlink"; "checks_nmu_changelog_file_symlink")]
 #[test_case("checks/nmu/generic-empty"; "checks_nmu_generic_empty")]
 #[test_case("checks/nmu/legacy-binary"; "checks_nmu_legacy_binary")]

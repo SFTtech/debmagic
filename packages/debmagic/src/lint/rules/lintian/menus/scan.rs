@@ -95,12 +95,19 @@ pub(super) fn lacks_menu_h(files: &FileTree, path: &Path) -> bool {
 }
 
 pub(super) fn calls_update_menus(files: &FileTree, name: &str) -> bool {
-    let Some(text) = control_text(files, name) else {
-        return false;
-    };
+    update_menus_line(files, name).is_some()
+}
+
+/// Last line of a maintainer script that calls `update-menus`: lintian keeps
+/// only the last call it sees, so that is where it points.
+pub(super) fn update_menus_line(files: &FileTree, name: &str) -> Option<u32> {
+    let text = control_text(files, name)?;
     physical_lines(&text)
         .into_iter()
-        .any(|line| UPDATE_MENUS.is_match(strip_hash_comment(line)))
+        .enumerate()
+        .filter(|(_, line)| UPDATE_MENUS.is_match(strip_hash_comment(line)))
+        .map(|(index, _)| u32::try_from(index + 1).unwrap_or(u32::MAX))
+        .next_back()
 }
 
 pub(super) fn install_docs_calls(files: &FileTree, name: &str) -> InstallDocsCalls {

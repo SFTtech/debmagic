@@ -14,6 +14,7 @@ use super::rules::Apache2ReverseDependencyUsesObsoleteDirectory;
 use super::rules::Apache2UnsupportedDependency;
 use super::rules::AppstreamMetadataInLegacyLocation;
 use super::rules::AppstreamMetadataInvalid;
+use super::rules::AppstreamMetadataLegacyFormat;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::BadJarName;
@@ -2127,6 +2128,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SystemdServiceFileMissingDocumentationKey,
         &AppstreamMetadataInLegacyLocation,
         &AppstreamMetadataInvalid,
+        &AppstreamMetadataLegacyFormat,
     ]
 }
 
@@ -3356,6 +3358,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SystemdServiceFileMissingDocumentationKey,
         &AppstreamMetadataInLegacyLocation,
         &AppstreamMetadataInvalid,
+        &AppstreamMetadataLegacyFormat,
     ]
 }
 

@@ -45,7 +45,6 @@ impl DebMember {
     }
 
     /// The member's content when it was kept (see [`Self::with_contents`]).
-    #[allow(dead_code)]
     pub(crate) fn contents(&self) -> Option<&[u8]> {
         self.contents.as_deref()
     }
@@ -152,7 +151,6 @@ impl DebMembers {
 
     /// The `debian-binary` member, the first one. Its [`DebMember::contents`]
     /// are the format version when the reader kept them.
-    #[allow(dead_code)]
     pub(crate) fn debian_binary(&self) -> Option<&DebMember> {
         self.members
             .iter()

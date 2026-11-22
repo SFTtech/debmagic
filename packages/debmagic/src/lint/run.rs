@@ -6,14 +6,14 @@ use std::time::{Duration, Instant};
 use anyhow::{Context as _, bail};
 use rayon::prelude::*;
 
-use super::context::{
-    BinaryPackageContext, BinaryPackageData, SourceContext, SourcePackageData, SourceTreeData,
-};
+use super::context::{BinaryPackageContext, SourceContext, SourcePackageData, SourceTreeData};
 use super::diagnostic::Diagnostic;
+use super::group::Group;
+use super::group_context::{BuildinfoContext, ChangesContext, GroupContext};
 use super::intent::LintIntent;
 use super::registry;
 use super::rule::{Code, RuleAccess, Severity, Tag};
-use super::subject::Subject;
+use super::subject::{LintTarget, Subject};
 use super::timing::{self, TimingSession};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -69,40 +69,98 @@ pub fn run_lint(intent: &LintIntent) -> anyhow::Result<LintResult> {
         .thread_name(|index| format!("debmagic-lint-{index}"))
         .build()
         .context("starting the lint thread pool failed")?;
-    let mut result = pool.install(|| match &intent.subject {
-        Subject::SourcePackage(path) => run_source_package_lint(intent, path, started),
-        Subject::BinaryPackage(path) => run_binary_package_lint(intent, path, started),
-        Subject::SourceTree(path) => run_source_tree_lint(intent, path, started),
+    let mut result = pool.install(|| match &intent.target {
+        LintTarget::SourceTree(path) => run_source_tree_lint(intent, path, started),
+        LintTarget::Artifacts(subjects) => run_artifact_lint(intent, subjects, started),
     })?;
     result.elapsed = started.elapsed();
     result.threads = threads;
     Ok(result)
 }
 
-fn run_source_package_lint(
+/// Lint the Groups the artifacts make up (ADR 0054, 0055). Each artifact of a
+/// Group is a Subject of its own kind, opened only when a selected Rule
+/// applies to it; the Group as a whole is the Subject of the Group Rules.
+fn run_artifact_lint(
     intent: &LintIntent,
-    path: &Path,
+    subjects: &[Subject],
     started: Instant,
 ) -> anyhow::Result<LintResult> {
-    let data = SourcePackageData::new(path.to_path_buf())?;
-    execute_rules(intent, registry::source_rules(), started, |rule| {
-        let mut ctx = SourceContext::bind_package(&data, rule);
-        rule.run(&mut ctx);
-        ctx.finish()
-    })
-}
-
-fn run_binary_package_lint(
-    intent: &LintIntent,
-    path: &Path,
-    started: Instant,
-) -> anyhow::Result<LintResult> {
-    let data = BinaryPackageData::new(path.to_path_buf())?;
-    execute_rules(intent, registry::binary_package_rules(), started, |rule| {
-        let mut ctx = BinaryPackageContext::bind(&data, rule);
-        rule.run(&mut ctx);
-        ctx.finish()
-    })
+    let groups = Group::assemble(subjects)?;
+    let selected: HashSet<Code> = intent.selected.iter().copied().collect();
+    let mut stages = Vec::new();
+    for group in &groups {
+        if let Some(changes) = &group.changes
+            && any_selected(registry::changes_rules(), &selected)
+        {
+            stages.push(run_stage(
+                intent,
+                registry::changes_rules(),
+                started,
+                |rule| {
+                    let mut ctx = ChangesContext::bind(changes, rule);
+                    rule.run(&mut ctx);
+                    Ok(ctx.finish())
+                },
+            )?);
+        }
+        if let Some(source) = &group.source {
+            if any_selected(registry::source_rules(), &selected) {
+                let data = SourcePackageData::new(source.path.clone())?;
+                stages.push(run_stage(
+                    intent,
+                    registry::source_rules(),
+                    started,
+                    |rule| {
+                        let mut ctx = SourceContext::bind_package(&data, rule);
+                        rule.run(&mut ctx);
+                        ctx.finish()
+                    },
+                )?);
+            }
+            if any_selected(registry::group_rules(), &selected) {
+                stages.push(run_stage(
+                    intent,
+                    registry::group_rules(),
+                    started,
+                    |rule| {
+                        let mut ctx = GroupContext::bind(group, rule);
+                        rule.run(&mut ctx);
+                        Ok(ctx.finish())
+                    },
+                )?);
+            }
+        }
+        if let Some(buildinfo) = &group.buildinfo
+            && any_selected(registry::buildinfo_rules(), &selected)
+        {
+            stages.push(run_stage(
+                intent,
+                registry::buildinfo_rules(),
+                started,
+                |rule| {
+                    let mut ctx = BuildinfoContext::bind(buildinfo, rule);
+                    rule.run(&mut ctx);
+                    Ok(ctx.finish())
+                },
+            )?);
+        }
+        if any_selected(registry::binary_package_rules(), &selected) {
+            for binary in &group.binaries {
+                stages.push(run_stage(
+                    intent,
+                    registry::binary_package_rules(),
+                    started,
+                    |rule| {
+                        let mut ctx = BinaryPackageContext::bind(binary, rule);
+                        rule.run(&mut ctx);
+                        ctx.finish()
+                    },
+                )?);
+            }
+        }
+    }
+    finish_run(intent, stages, started)
 }
 
 fn run_source_tree_lint(
@@ -119,11 +177,12 @@ fn run_source_tree_lint(
     }
 
     let data = SourceTreeData::new(source_tree.to_path_buf());
-    execute_rules(intent, registry::source_rules(), started, |rule| {
+    let stage = run_stage(intent, registry::source_rules(), started, |rule| {
         let mut ctx = SourceContext::bind_tree(&data, rule);
         rule.run(&mut ctx);
         ctx.finish()
-    })
+    })?;
+    finish_run(intent, vec![stage], started)
 }
 
 /// Worker threads for a run: the requested count (0 counts as unset), or the
@@ -140,20 +199,32 @@ struct RuleProduct {
     timing: RuleTiming,
 }
 
-/// Run every selected Rule on the current rayon pool. Rules are independent, so
-/// they run in parallel;
-/// diagnostics are collected in Rule order, so output does not depend on the
-/// thread count. If several Rules fail, the first in Rule order is reported.
+/// What running the selected Rules of one kind on one Subject produced.
+struct Stage {
+    diagnostics: Vec<Diagnostic>,
+    rules: Vec<RuleTiming>,
+    bringup: Duration,
+    shared: Duration,
+}
+
+fn any_selected<R: RuleAccess + ?Sized>(rules: &[&R], selected: &HashSet<Code>) -> bool {
+    rules.iter().any(|rule| selected.contains(&rule.code()))
+}
+
+/// Run every selected Rule of `rules` on the current rayon pool. Rules are
+/// independent, so they run in parallel; diagnostics are collected in Rule
+/// order, so output does not depend on the thread count. If several Rules
+/// fail, the first in Rule order is reported.
 ///
 /// `started` is the beginning of the lint run. Time up to the moment Rules
 /// launch is bringup. Shared initialization that happens inside a Rule is
 /// subtracted from that Rule and reported once.
-fn execute_rules<R: RuleAccess + ?Sized>(
+fn run_stage<R: RuleAccess + ?Sized>(
     intent: &LintIntent,
     rules: &[&R],
     started: Instant,
     run_rule: impl Fn(&R) -> anyhow::Result<Vec<Diagnostic>> + Sync,
-) -> anyhow::Result<LintResult> {
+) -> anyhow::Result<Stage> {
     let selected = intent.selected.iter().copied().collect::<HashSet<_>>();
     let execution: Vec<_> = rules
         .iter()
@@ -161,11 +232,6 @@ fn execute_rules<R: RuleAccess + ?Sized>(
         .filter(|rule| selected.contains(&rule.code()))
         .collect();
 
-    if !selected.is_empty() && execution.is_empty() {
-        bail!("none of the selected Rules apply to this Subject");
-    }
-
-    let rules_run = execution.len();
     // Installed before bringup is sampled so pool broadcast is bringup, and
     // before Rules run so their shared initialization is visible on every worker.
     let session = intent.timings.then(TimingSession::install_on_current_pool);
@@ -201,12 +267,51 @@ fn execute_rules<R: RuleAccess + ?Sized>(
         diagnostics.extend(product.diagnostics);
         rule_timings.push(product.timing);
     }
+    Ok(Stage {
+        diagnostics,
+        rules: rule_timings,
+        bringup,
+        shared,
+    })
+}
+
+/// Put the stages of a run together: diagnostics in stage order, one timing
+/// per Rule (the time it took on every Subject it ran on), and the Rules that
+/// ran at least once. If Selection is non-empty and no Rule ran anywhere, the
+/// selected Rules do not apply to what was named (ADR 0018).
+fn finish_run(
+    intent: &LintIntent,
+    stages: Vec<Stage>,
+    started: Instant,
+) -> anyhow::Result<LintResult> {
+    let mut diagnostics = Vec::new();
+    let mut rule_timings: Vec<RuleTiming> = Vec::new();
+    let mut shared = Duration::ZERO;
+    let bringup = stages
+        .first()
+        .map_or_else(|| started.elapsed(), |stage| stage.bringup);
+    for stage in stages {
+        diagnostics.extend(stage.diagnostics);
+        shared += stage.shared;
+        for timing in stage.rules {
+            match rule_timings
+                .iter_mut()
+                .find(|known| known.code == timing.code)
+            {
+                Some(known) => known.elapsed += timing.elapsed,
+                None => rule_timings.push(timing),
+            }
+        }
+    }
+    if !intent.selected.is_empty() && rule_timings.is_empty() {
+        bail!("none of the selected Rules apply to this Subject");
+    }
 
     let outcome = outcome_for(&diagnostics, &intent.fail_on);
     Ok(LintResult {
         diagnostics,
         outcome,
-        rules: rules_run,
+        rules: rule_timings.len(),
         elapsed: Duration::ZERO,
         threads: 0,
         timings: intent.timings.then_some(LintTimings {
@@ -413,6 +518,7 @@ mod tests {
     use anyhow::Context;
 
     use super::*;
+    use crate::lint::context::BinaryPackageData;
     use crate::lint::diagnostic::{Location, ProcessableType};
     use crate::lint::intent::{LintIntentInput, resolve_lint_intent};
     use crate::lint::rule::{RuleMeta, Severity};
@@ -422,7 +528,7 @@ mod tests {
     fn base_intent(subject: PathBuf) -> LintIntent {
         resolve_lint_intent(LintIntentInput {
             fallback_dir: subject.clone(),
-            subject: Some(subject),
+            subjects: vec![subject],
             config_file: None,
             select: vec![],
             ignore: vec![],
@@ -500,7 +606,7 @@ mod tests {
              Description: example\n extra\n",
         )?;
         let intent = LintIntent {
-            subject: Subject::SourceTree(temp_dir),
+            target: LintTarget::SourceTree(temp_dir),
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
@@ -622,7 +728,7 @@ Rules
             fs::write(temp_dir.join(format!("f{index}")), b"x")?;
         }
         let intent = LintIntent {
-            subject: Subject::SourceTree(temp_dir),
+            target: LintTarget::SourceTree(temp_dir),
             selected: vec![DebmagicDummyTrigger::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
@@ -667,7 +773,7 @@ Rules
              Description: example\n extra\n",
         )?;
         let intent = LintIntent {
-            subject: Subject::SourceTree(temp_dir),
+            target: LintTarget::SourceTree(temp_dir),
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
@@ -717,7 +823,7 @@ Rules
         let selected = resolve_selected_codes(&["LN".to_string()], &[])?;
         let lint_with = |threads: Option<usize>| -> anyhow::Result<Vec<String>> {
             let intent = LintIntent {
-                subject: Subject::SourceTree(temp_dir.clone()),
+                target: LintTarget::SourceTree(temp_dir.clone()),
                 selected: selected.clone(),
                 fail_on: HashSet::from([Severity::Error]),
                 severity_remaps: HashMap::new(),
@@ -779,7 +885,9 @@ Rules
             "Section: devel\nPriority: optional\nDescription: missing fields\n extra\n",
         )?;
         let intent = LintIntent {
-            subject: Subject::BinaryPackage(std::path::absolute(&path)?),
+            target: LintTarget::Artifacts(vec![Subject::BinaryPackage(std::path::absolute(
+                &path,
+            )?)]),
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
@@ -826,7 +934,9 @@ Rules
             &[("usr/bin/app", elf.as_slice())],
         )?;
         let intent = LintIntent {
-            subject: Subject::BinaryPackage(std::path::absolute(&path)?),
+            target: LintTarget::Artifacts(vec![Subject::BinaryPackage(std::path::absolute(
+                &path,
+            )?)]),
             selected: vec![crate::lint::rules::UnstrippedBinaryOrObject::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
@@ -863,7 +973,9 @@ Rules
              Description: example\n extra\n",
         )?;
         let intent = LintIntent {
-            subject: Subject::BinaryPackage(std::path::absolute(&path)?),
+            target: LintTarget::Artifacts(vec![Subject::BinaryPackage(std::path::absolute(
+                &path,
+            )?)]),
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
@@ -893,7 +1005,9 @@ Rules
              Description: example\n extra\n",
         )?;
         let intent = LintIntent {
-            subject: Subject::BinaryPackage(std::path::absolute(&path)?),
+            target: LintTarget::Artifacts(vec![Subject::BinaryPackage(std::path::absolute(
+                &path,
+            )?)]),
             selected: vec![crate::lint::rules::SyntaxErrorInDebianChangelog::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
@@ -940,7 +1054,7 @@ Rules
             &[("bin/app.exe", exe.as_slice())],
         )?;
         let intent = LintIntent {
-            subject: Subject::SourcePackage(std::path::absolute(&dsc)?),
+            target: LintTarget::Artifacts(vec![Subject::SourcePackage(std::path::absolute(&dsc)?)]),
             selected: vec![crate::lint::rules::SourceContainsPrebuiltWindowsBinary::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
@@ -969,7 +1083,7 @@ Rules
         let dir = tempfile::TempDir::new()?;
         let dsc = crate::lint::source_package::write_test_native_dsc(dir.path(), "example", &[])?;
         let intent = LintIntent {
-            subject: Subject::SourcePackage(std::path::absolute(&dsc)?),
+            target: LintTarget::Artifacts(vec![Subject::SourcePackage(std::path::absolute(&dsc)?)]),
             selected: vec![RequiredField::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
@@ -1024,7 +1138,7 @@ Rules
         assert_eq!(selected, expected);
         assert!(selected.contains(&crate::lint::rules::RequiredField::CODE));
         let intent = LintIntent {
-            subject: Subject::SourceTree(temp_dir),
+            target: LintTarget::SourceTree(temp_dir),
             selected,
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),

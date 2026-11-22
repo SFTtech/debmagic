@@ -18,18 +18,26 @@ const POLICY_DIRS: [&str; 4] = [
     "usr/share/dbus-1/system.d",
 ];
 
-/// Regular files directly inside the policy folders, in tree order.
-pub(super) fn policy_files(files: &FileTree) -> Vec<&Entry> {
+/// Every entry directly inside the policy folders, of any kind, in tree order.
+/// This is lintian's `children` of the folders.
+pub(super) fn policy_children(files: &FileTree) -> Vec<&Entry> {
     files
         .entries()
         .iter()
         .filter(|entry| {
-            matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink)
-                && entry
-                    .path()
-                    .parent()
-                    .is_some_and(|parent| POLICY_DIRS.iter().any(|dir| parent == *dir))
+            entry
+                .path()
+                .parent()
+                .is_some_and(|parent| POLICY_DIRS.iter().any(|dir| parent == *dir))
         })
+        .collect()
+}
+
+/// Regular files directly inside the policy folders, in tree order.
+pub(super) fn policy_files(files: &FileTree) -> Vec<&Entry> {
+    policy_children(files)
+        .into_iter()
+        .filter(|entry| matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink))
         .collect()
 }
 

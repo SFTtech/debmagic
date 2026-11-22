@@ -918,6 +918,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/libraries/shared/soname/missing/shared-libs-missing-soname",
     "checks/libraries/shared/stack/shared-libs-exec-stack",
     "checks/libraries/shared/stack/shared-libs-no-gnu-stack",
+    "checks/libraries/shared/trigger/ldconfig/legacy-libbaz",
+    "checks/libraries/shared/trigger/ldconfig/shared-libs-ldconfig-scripts",
     "checks/libraries/static/name/underscore-s-suffix",
     "checks/linda/files-package-contains-foo",
     "checks/linda/legacy-filenames",
@@ -940,8 +942,15 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/maintainer-scripts/systemctl/systemd-general",
     "checks/maintainer-scripts/temporary-files/legacy-maintainer-scripts",
     "checks/maintainer-scripts/temporary-files/scripts-maintainer-general",
+    "checks/md5sums/legacy-binary",
     "checks/md5sums/legacy-etcfiles",
+    "checks/md5sums/legacy-filenames",
+    "checks/md5sums/legacy-foo++",
+    "checks/md5sums/legacy-libbaz",
+    "checks/md5sums/legacy-maintainer-scripts",
+    "checks/md5sums/legacy-scripts",
     "checks/md5sums/md5sums-general",
+    "checks/md5sums/md5sums-missing",
     "checks/menu-format/desktop-entry-unknown-type",
     "checks/menu-format/item-has-needs-dwww",
     "checks/menu-format/legacy-binary",
@@ -962,6 +971,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/mimeinfo/files-foo-in-bar",
     "checks/mimeinfo/files-general",
     "checks/modprobe/directory-in-usr-lib-modprobe",
+    "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/modprobe/files-general",
     "checks/modprobe/obsolete-commands-in-modprobe",
     "checks/scripts/legacy-maintainer-scripts",
@@ -2389,6 +2399,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/libraries/shared/soname/missing/shared-libs-missing-soname"; "checks_libraries_shared_soname_missing_shared_libs_missing_soname")]
 #[test_case("checks/libraries/shared/stack/shared-libs-exec-stack"; "checks_libraries_shared_stack_shared_libs_exec_stack")]
 #[test_case("checks/libraries/shared/stack/shared-libs-no-gnu-stack"; "checks_libraries_shared_stack_shared_libs_no_gnu_stack")]
+#[test_case("checks/libraries/shared/trigger/ldconfig/legacy-libbaz"; "checks_libraries_shared_trigger_ldconfig_legacy_libbaz")]
+#[test_case("checks/libraries/shared/trigger/ldconfig/shared-libs-ldconfig-scripts"; "checks_libraries_shared_trigger_ldconfig_shared_libs_ldconfig_scripts")]
 #[test_case("checks/libraries/static/name/underscore-s-suffix"; "checks_libraries_static_name_underscore_s_suffix")]
 #[test_case("checks/linda/files-package-contains-foo"; "checks_linda_files_package_contains_foo")]
 #[test_case("checks/linda/legacy-filenames"; "checks_linda_legacy_filenames")]
@@ -2411,8 +2423,15 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/maintainer-scripts/systemctl/systemd-general"; "checks_maintainer_scripts_systemctl_systemd_general")]
 #[test_case("checks/maintainer-scripts/temporary-files/legacy-maintainer-scripts"; "checks_maintainer_scripts_temporary_files_legacy_maintainer_scripts")]
 #[test_case("checks/maintainer-scripts/temporary-files/scripts-maintainer-general"; "checks_maintainer_scripts_temporary_files_scripts_maintainer_general")]
+#[test_case("checks/md5sums/legacy-binary"; "checks_md5sums_legacy_binary")]
 #[test_case("checks/md5sums/legacy-etcfiles"; "checks_md5sums_legacy_etcfiles")]
+#[test_case("checks/md5sums/legacy-filenames"; "checks_md5sums_legacy_filenames")]
+#[test_case("checks/md5sums/legacy-foo++"; "checks_md5sums_legacy_foo_")]
+#[test_case("checks/md5sums/legacy-libbaz"; "checks_md5sums_legacy_libbaz")]
+#[test_case("checks/md5sums/legacy-maintainer-scripts"; "checks_md5sums_legacy_maintainer_scripts")]
+#[test_case("checks/md5sums/legacy-scripts"; "checks_md5sums_legacy_scripts")]
 #[test_case("checks/md5sums/md5sums-general"; "checks_md5sums_md5sums_general")]
+#[test_case("checks/md5sums/md5sums-missing"; "checks_md5sums_md5sums_missing")]
 #[test_case("checks/menu-format/desktop-entry-unknown-type"; "checks_menu_format_desktop_entry_unknown_type")]
 #[test_case("checks/menu-format/item-has-needs-dwww"; "checks_menu_format_item_has_needs_dwww")]
 #[test_case("checks/menu-format/legacy-binary"; "checks_menu_format_legacy_binary")]
@@ -2433,6 +2452,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/mimeinfo/files-foo-in-bar"; "checks_mimeinfo_files_foo_in_bar")]
 #[test_case("checks/mimeinfo/files-general"; "checks_mimeinfo_files_general")]
 #[test_case("checks/modprobe/directory-in-usr-lib-modprobe"; "checks_modprobe_directory_in_usr_lib_modprobe")]
+#[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/modprobe/files-general"; "checks_modprobe_files_general")]
 #[test_case("checks/modprobe/obsolete-commands-in-modprobe"; "checks_modprobe_obsolete_commands_in_modprobe")]
 #[test_case("checks/scripts/legacy-maintainer-scripts"; "checks_scripts_legacy_maintainer_scripts")]

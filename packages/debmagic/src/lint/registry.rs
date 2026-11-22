@@ -114,6 +114,8 @@ use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
+use super::rules::DesktopEntryContainsEncodingKey;
+use super::rules::DesktopEntryLacksKeywordsEntry;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
@@ -151,6 +153,7 @@ use super::rules::ExtraLicenseFile;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
 use super::rules::FSSTNDDirInManualPage;
 use super::rules::FileContainsFixmePlaceholder;
+use super::rules::FileInEtcModprobeD;
 use super::rules::FileIncludedAlready;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
@@ -191,6 +194,7 @@ use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
+use super::rules::LacksLdconfigTrigger;
 use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
@@ -205,6 +209,7 @@ use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::LicenseProblemNvidiaIntellectual;
 use super::rules::LicenseProblemOldUnicode;
 use super::rules::MagicArchInArchList;
+use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
 use super::rules::MaintainerScriptSetsAlternativeImproperly;
@@ -254,6 +259,7 @@ use super::rules::NewPackageUsesDateBasedVersionNumber;
 use super::rules::NmuInChangelog;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
+use super::rules::NoMd5sumsControlFile;
 use super::rules::NoShlibs;
 use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoTemplateName;
@@ -298,6 +304,7 @@ use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
 use super::rules::PackageDependsOnMultipleTclxVersions;
 use super::rules::PackageFileIsExecutable;
+use super::rules::PackageHasUnnecessaryActivationOfLdconfigTrigger;
 use super::rules::PackageInstallsAptKeyring;
 use super::rules::PackageInstallsAptPreferences;
 use super::rules::PackageInstallsAptSources;
@@ -2071,6 +2078,13 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OutOfDateStandardsVersion,
         &CuteField,
         &VcsFieldNotCanonical,
+        &LacksLdconfigTrigger,
+        &PackageHasUnnecessaryActivationOfLdconfigTrigger,
+        &NoMd5sumsControlFile,
+        &DesktopEntryContainsEncodingKey,
+        &DesktopEntryLacksKeywordsEntry,
+        &FileInEtcModprobeD,
+        &MaintainerScriptCallsService,
     ]
 }
 
@@ -3275,6 +3289,13 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ConflictsWithVersion,
         &OredDependsOnObsoletePackage,
         &WrongSectionAccordingToPackageName,
+        &LacksLdconfigTrigger,
+        &PackageHasUnnecessaryActivationOfLdconfigTrigger,
+        &NoMd5sumsControlFile,
+        &DesktopEntryContainsEncodingKey,
+        &DesktopEntryLacksKeywordsEntry,
+        &FileInEtcModprobeD,
+        &MaintainerScriptCallsService,
     ]
 }
 

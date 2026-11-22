@@ -153,6 +153,7 @@ mod libraries_shared_multi_arch;
 mod libraries_shared_relocation;
 mod libraries_shared_soname;
 mod libraries_shared_stack;
+mod libraries_shared_trigger_ldconfig;
 mod libraries_static;
 mod libtool;
 mod lintian_overrides;
@@ -417,6 +418,8 @@ pub(crate) use libraries_shared_multi_arch::SharedLibraryIsMultiArchForeign;
 pub(crate) use libraries_shared_relocation::SpecificAddressInSharedLibrary;
 pub(crate) use libraries_shared_stack::ExecutableStackInSharedLibrary;
 pub(crate) use libraries_shared_stack::SharedLibraryLacksStackSection;
+pub(crate) use libraries_shared_trigger_ldconfig::LacksLdconfigTrigger;
+pub(crate) use libraries_shared_trigger_ldconfig::PackageHasUnnecessaryActivationOfLdconfigTrigger;
 pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStatoverride;
 pub(crate) use origtar::EmptyUpstreamSources;
 pub(crate) use shell_csh::CshConsideredHarmful;
@@ -751,6 +754,7 @@ pub(crate) use libtool::{IncorrectLibdirInLaFile, NonEmptyDependencyLibsInLaFile
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;
 pub(crate) use md5sums::{
     FileMissingInMd5sums, MalformedMd5sumsControlFile, Md5sumMismatch, Md5sumsListsNonexistentFile,
+    NoMd5sumsControlFile,
 };
 
 pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;
@@ -868,18 +872,18 @@ pub(crate) use maintainer_scripts_systemctl::MaintainerScriptCallsSystemctl;
 pub(crate) use menu_format::{
     BadTestInMenuItem, CommandInMenuFileAndDesktopFile, DesktopCommandNotInPackage,
     DesktopContainsDeprecatedKey, DesktopEntryContainsDeprecatedKey,
-    DesktopEntryContainsUnknownKey, DesktopEntryFileHasCrs, DesktopEntryInvalidCategory,
-    DesktopEntryLacksMainCategory, DesktopEntryMissingRequiredKey, DesktopEntryUnknownType,
-    DesktopEntryUsesReservedCategory, DesktopMimeButNoExecCode, DuplicateKeyInDesktop,
-    DuplicateTagInMenu, ExecutableDesktopFile, MenuCommandNotInPackage, MenuIconCannotBeParsed,
-    MenuIconMissing, MenuIconNotInXpmFormat, MenuIconTooBig, MenuIconUsesRelativePath,
-    MenuItemContainsUnknownTag, MenuItemCreatesNewRootSection, MenuItemCreatesNewSection,
-    MenuItemMissingRequiredTag, MenuItemNeedsDwww, MenuItemNeedsTagHasUnknownValue,
-    MenuItemUsesAppsGamesSection, MenuItemUsesAppsSection, MenuItemUsesIconNone,
-    MenuItemUsesWindowmanagersSection, NonWmInWindowmanagerMenuSection,
-    NonWmModuleInWmModulesMenuSection, PkgNotInPackageTest, SuToRootWithUsrSbin,
-    SuWrapperNotSuToRoot, SuWrapperWithoutC, UnparsableMenuItem, UnquotedStringInMenuItem,
-    WhitespaceAfterContinuationCharacter,
+    DesktopEntryContainsEncodingKey, DesktopEntryContainsUnknownKey, DesktopEntryFileHasCrs,
+    DesktopEntryInvalidCategory, DesktopEntryLacksKeywordsEntry, DesktopEntryLacksMainCategory,
+    DesktopEntryMissingRequiredKey, DesktopEntryUnknownType, DesktopEntryUsesReservedCategory,
+    DesktopMimeButNoExecCode, DuplicateKeyInDesktop, DuplicateTagInMenu, ExecutableDesktopFile,
+    MenuCommandNotInPackage, MenuIconCannotBeParsed, MenuIconMissing, MenuIconNotInXpmFormat,
+    MenuIconTooBig, MenuIconUsesRelativePath, MenuItemContainsUnknownTag,
+    MenuItemCreatesNewRootSection, MenuItemCreatesNewSection, MenuItemMissingRequiredTag,
+    MenuItemNeedsDwww, MenuItemNeedsTagHasUnknownValue, MenuItemUsesAppsGamesSection,
+    MenuItemUsesAppsSection, MenuItemUsesIconNone, MenuItemUsesWindowmanagersSection,
+    NonWmInWindowmanagerMenuSection, NonWmModuleInWmModulesMenuSection, PkgNotInPackageTest,
+    SuToRootWithUsrSbin, SuWrapperNotSuToRoot, SuWrapperWithoutC, UnparsableMenuItem,
+    UnquotedStringInMenuItem, WhitespaceAfterContinuationCharacter,
 };
 pub(crate) use menus::{
     DocBaseAbstractFieldIsTemplate, DocBaseAbstractFieldSeparatorExtraWhitespace,
@@ -901,7 +905,8 @@ pub(crate) use mimeinfo::PackageContainsMimeCacheFile;
 pub(crate) use mimeinfo::PackageContainsMimeFileOutsidePackageDir;
 pub(crate) use mimeinfo::PackageContainsMimeinfoCacheFile;
 pub(crate) use modprobe::{
-    DirectoryInModprobeD, NonConfFileInModprobeD, ObsoleteCommandInModprobeDFile,
+    DirectoryInModprobeD, FileInEtcModprobeD, NonConfFileInModprobeD,
+    ObsoleteCommandInModprobeDFile,
 };
 pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};
 pub(crate) use po_debconf::{
@@ -946,11 +951,11 @@ pub(crate) use scripts_text::{
     ForbiddenConfigInterpreter, ForbiddenPostrmInterpreter, GawkScriptButNoGawkDep,
     IncorrectPathForInterpreter, InstallInfoUsedInMaintainerScript, InterpreterInUsrLocal,
     InterpreterNotAbsolute, MaintainerScriptCallsChownImproperly,
-    MaintainerScriptCallsInstallSgmlcatalog, MaintainerScriptChangesLdSoConf,
-    MaintainerScriptChangesNetbase, MaintainerScriptHasInvalidUpdateInetdOptions,
-    MaintainerScriptHasUnexpandedDebhelperToken, MaintainerScriptHidesInitFailure,
-    MaintainerScriptModifiesInetdConf, MaintainerScriptSetsAlternativeImproperly,
-    MaintainerScriptShouldNotUseDpkgMaintscriptHelper,
+    MaintainerScriptCallsInstallSgmlcatalog, MaintainerScriptCallsService,
+    MaintainerScriptChangesLdSoConf, MaintainerScriptChangesNetbase,
+    MaintainerScriptHasInvalidUpdateInetdOptions, MaintainerScriptHasUnexpandedDebhelperToken,
+    MaintainerScriptHidesInitFailure, MaintainerScriptModifiesInetdConf,
+    MaintainerScriptSetsAlternativeImproperly, MaintainerScriptShouldNotUseDpkgMaintscriptHelper,
     MaintainerScriptShouldNotUsePiupartsVariable, MaintainerScriptUpdatesFontconfigCacheImproperly,
     MaintscriptCallsLdconfig, MawkScriptButNoMawkDep, MissingCallToDpkgMaintscriptHelper,
     MultiArchSamePackageCallsPycompile, PhpScriptWithUnusualInterpreter,

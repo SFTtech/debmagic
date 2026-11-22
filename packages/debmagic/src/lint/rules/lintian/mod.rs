@@ -525,8 +525,9 @@ pub(crate) use debian_copyright::{
     UsrShareDocSymlinkPointsOutsideOfUsrShareDoc, UsrShareDocSymlinkWithoutDependency,
 };
 pub(crate) use fields_version::{
-    BadVersionNumber, BinaryNmuDebianRevisionInSource, DebianRevisionIsZero,
-    DebianRevisionNotWellFormed, DfsgVersionInNativePackage, DfsgVersionMisspelled,
+    AnticipatedRepackCount, BadVersionNumber, BinaryNmuDebianRevisionInSource,
+    DebianRevisionIsZero, DebianRevisionNotWellFormed, DfsgVersionInNativePackage,
+    DfsgVersionMisspelled,
 };
 
 pub(crate) use debian_debconf::{

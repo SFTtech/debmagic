@@ -502,6 +502,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/substvars/libc/control-file-hardcoded-libc",
     "checks/substvars/misc/pre-depends/depends-on-misc-pre-depends",
     "checks/template/dh-make/control/vcs/control-file-general",
+    "checks/testsuite/all-superficial",
     "checks/testsuite/command-with-ampersand",
     "checks/testsuite/depends-on-obsolete-package",
     "checks/testsuite/deprecated-skip-not-installable",
@@ -1667,6 +1668,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/substvars/libc/control-file-hardcoded-libc",
     "checks/substvars/misc/pre-depends/depends-on-misc-pre-depends",
     "checks/template/dh-make/control/vcs/control-file-general",
+    "checks/testsuite/all-superficial",
     "checks/testsuite/command-with-ampersand",
     "checks/testsuite/depends-on-obsolete-package",
     "checks/testsuite/deprecated-skip-not-installable",
@@ -2266,6 +2268,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/substvars/libc/control-file-hardcoded-libc"; "checks_substvars_libc_control_file_hardcoded_libc")]
 #[test_case("checks/substvars/misc/pre-depends/depends-on-misc-pre-depends"; "checks_substvars_misc_pre_depends_depends_on_misc_pre_depends")]
 #[test_case("checks/template/dh-make/control/vcs/control-file-general"; "checks_template_dh_make_control_vcs_control_file_general")]
+#[test_case("checks/testsuite/all-superficial"; "checks_testsuite_all_superficial")]
 #[test_case("checks/testsuite/command-with-ampersand"; "checks_testsuite_command_with_ampersand")]
 #[test_case("checks/testsuite/depends-on-obsolete-package"; "checks_testsuite_depends_on_obsolete_package")]
 #[test_case("checks/testsuite/deprecated-skip-not-installable"; "checks_testsuite_deprecated_skip_not_installable")]
@@ -3433,6 +3436,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/substvars/libc/control-file-hardcoded-libc"; "checks_substvars_libc_control_file_hardcoded_libc")]
 #[test_case("checks/substvars/misc/pre-depends/depends-on-misc-pre-depends"; "checks_substvars_misc_pre_depends_depends_on_misc_pre_depends")]
 #[test_case("checks/template/dh-make/control/vcs/control-file-general"; "checks_template_dh_make_control_vcs_control_file_general")]
+#[test_case("checks/testsuite/all-superficial"; "checks_testsuite_all_superficial")]
 #[test_case("checks/testsuite/command-with-ampersand"; "checks_testsuite_command_with_ampersand")]
 #[test_case("checks/testsuite/depends-on-obsolete-package"; "checks_testsuite_depends_on_obsolete_package")]
 #[test_case("checks/testsuite/deprecated-skip-not-installable"; "checks_testsuite_deprecated_skip_not_installable")]

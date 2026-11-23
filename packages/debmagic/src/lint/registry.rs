@@ -574,6 +574,7 @@ use super::rules::StaticLinkTimeOptimization;
 use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
+use super::rules::SuperficialTests;
 use super::rules::SurplusSharedLibrarySymbols;
 use super::rules::SymbolsDeclaresDependencyOnOtherPackage;
 use super::rules::SymbolsFileMissingBuildDependsPackageField;
@@ -594,6 +595,7 @@ use super::rules::TeamUploadHasIncorrectVersionNumber;
 use super::rules::TemporaryDebhelperFile;
 use super::rules::TestLeavesPythonVersionUntested;
 use super::rules::TestsuiteDependencyHasUnparsableElements;
+use super::rules::TestsuiteOredDependsOnObsoletePackage;
 use super::rules::TestsuiteRestrictionsHasDeprecatedSkipNotInstallable;
 use super::rules::TooManyArchitectures;
 use super::rules::TrailingCommaInMaintainerField;
@@ -2449,6 +2451,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BinaryContainsInsecureDefaultgodebugSettings,
         &OverrideDhAutoTestDoesNotCheckDEBBUILDOPTIONS,
         &PackageDoesNotUseDebhelper,
+        &SuperficialTests,
+        &TestsuiteOredDependsOnObsoletePackage,
     ]
 }
 
@@ -2920,6 +2924,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &XsGoImportPathDiffersFromModulePath,
         &OverrideDhAutoTestDoesNotCheckDEBBUILDOPTIONS,
         &PackageDoesNotUseDebhelper,
+        &SuperficialTests,
+        &TestsuiteOredDependsOnObsoletePackage,
     ]
 }
 

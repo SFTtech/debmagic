@@ -1150,8 +1150,9 @@ pub(crate) use testsuite::{
     IllegalRuntimeTestName, MissingRuntimeTestFile, MissingTestsControl, NoOpTestsuite,
     ObsoleteRuntimeTestsRestriction, RuntimeTestFileIsNotARegularFile,
     RuntimeTestFileUsesInstalledPythonVersions,
-    RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends, TestLeavesPythonVersionUntested,
-    TestsuiteDependencyHasUnparsableElements, TestsuiteDependsOnObsoletePackage,
+    RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends, SuperficialTests,
+    TestLeavesPythonVersionUntested, TestsuiteDependencyHasUnparsableElements,
+    TestsuiteDependsOnObsoletePackage, TestsuiteOredDependsOnObsoletePackage,
     TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownTestsuite,
     UnnecessaryTestsuiteAutopkgtestField, UsesDeprecatedAdttmp,
 };

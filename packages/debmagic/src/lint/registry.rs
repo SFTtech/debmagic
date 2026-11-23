@@ -72,6 +72,7 @@ use super::rules::CapitalizationErrorInDescription;
 use super::rules::CapitalizationErrorInDescriptionSynopsis;
 use super::rules::CapitalizationInOverrideComment;
 use super::rules::CarriageReturnLineFeed;
+use super::rules::ChangedByInvalidForDerivative;
 use super::rules::ChangelogDistributionDoesNotMatchChangesFile;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
@@ -2659,6 +2660,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
+        &ChangedByInvalidForDerivative,
     ]
 }
 
@@ -4152,6 +4154,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &DistributionAndExperimentalMismatch,
         &ChecksumCountMismatchInChangesFile,
         &ChecksumMismatchInChangesFile,
+        &ChangedByInvalidForDerivative,
     ]
 }
 

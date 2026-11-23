@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): debian-files-list-in-source (LN1773) [debian/files]

@@ -46,6 +46,7 @@ mod debian_debconf;
 mod debian_desktop_entries;
 mod debian_dpkg_build_api;
 mod debian_filenames;
+mod debian_files;
 mod debian_line_separators;
 mod debian_lintian_overrides_comments;
 mod debian_lintian_overrides_restricted;
@@ -397,11 +398,13 @@ pub(crate) use debian_control_field_empty::DebianControlHasEmptyField;
 pub(crate) use debian_control_field_priority::RedundantPriorityOptionalField;
 pub(crate) use debian_control_field_redundant::InstallableFieldMirrorsSource;
 pub(crate) use debian_control_field_rules_requires_root::RedundantRulesRequiresRootNoField;
+pub(crate) use debian_control_field_rules_requires_root::RulesSilentlyRequireRoot;
 pub(crate) use debian_control_field_rules_requires_root::SpellingErrorInRulesRequiresRoot;
 pub(crate) use debian_control_field_spacing::DebianControlHasUnusualFieldSpacing;
 pub(crate) use debian_control_link::DebianControlFileIsASymlink;
 pub(crate) use debian_desktop_entries::MaintainerDesktopEntry;
 pub(crate) use debian_dpkg_build_api::DebianRulesDefinesDpkgBuildApi;
+pub(crate) use debian_files::DebianFilesListInSource;
 pub(crate) use debian_lintian_overrides_comments::CapitalizationInOverrideComment;
 pub(crate) use debian_lintian_overrides_comments::SpellingInOverrideComment;
 pub(crate) use debian_lintian_overrides_restricted::InvalidOverrideRestriction;
@@ -1157,8 +1160,9 @@ pub(crate) use rules_and_control::{
     ExecutableDebhelperFileWithoutBeingExecutable, PackageDoesNotUseDebhelper,
     PackageFileIsExecutable, PackageUsesDebhelperButLacksBuildDepends,
     PackageUsesDhExecButLacksBuildDepends, PackageUsesDhRunitButLacksBreaksSubstvar,
-    PackageUsesOldDebhelperCompatVersion, Python3DependsButNoPython3Helper, TemporaryDebhelperFile,
-    UselessAutoreconfBuildDepends, WeakDependencyOnMiscDepends,
+    PackageUsesOldDebhelperCompatVersion, Python3DependsButNoPython3Helper,
+    SphinxdocButNoSphinxdocDepends, TemporaryDebhelperFile, UselessAutoreconfBuildDepends,
+    WeakDependencyOnMiscDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

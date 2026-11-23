@@ -592,6 +592,7 @@ use super::rules::SystemdServiceFileRefersToVarRun;
 use super::rules::SystemdServiceFileShutdownProblems;
 use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
 use super::rules::SystemdServiceInOddLocation;
+use super::rules::SystemdTmpfileInVarRun;
 use super::rules::TabInLicenseText;
 use super::rules::TclshScriptButNoTclshDep;
 use super::rules::TeamUploadHasIncorrectVersionNumber;
@@ -2449,6 +2450,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RepeatedPathSegment,
         &ScriptInUsrShareDoc,
         &SystemdServiceFileRefersToVarRun,
+        &SystemdTmpfileInVarRun,
     ]
 }
 
@@ -3817,6 +3819,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &RepeatedPathSegment,
         &ScriptInUsrShareDoc,
         &SystemdServiceFileRefersToVarRun,
+        &SystemdTmpfileInVarRun,
     ]
 }
 

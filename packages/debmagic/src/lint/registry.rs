@@ -415,6 +415,7 @@ use super::rules::OredDependsOnObsoletePackage;
 use super::rules::OrigTarballMissingUpstreamSignature;
 use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
+use super::rules::OutputOfUpdatercDNotRedirectedToDevNull;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
 use super::rules::PackageBuildsDbgAndDbgsymVariants;
@@ -2435,6 +2436,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExampleUnusualInterpreter,
         &ExampleInterpreterInUsrLocal,
         &ExampleShellScriptFailsSyntaxCheck,
+        &OutputOfUpdatercDNotRedirectedToDevNull,
     ]
 }
 
@@ -3796,6 +3798,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExampleUnusualInterpreter,
         &ExampleInterpreterInUsrLocal,
         &ExampleShellScriptFailsSyntaxCheck,
+        &OutputOfUpdatercDNotRedirectedToDevNull,
     ]
 }
 

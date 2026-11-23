@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+I: example (source): rules-silently-require-root (LN1775) example (user:user) usr/bin/example [debian/control]
+I: example (source): rules-silently-require-root (LN1775) example (user:user) usr/bin/example [debian/control:4]
+I: example (source): rules-silently-require-root (LN1775) example (root:games) usr/bin/example [debian/control]
+I: example (source): rules-silently-require-root (LN1775) example (1000:1000) usr/bin/example [debian/control]
+I: example (source): rules-silently-require-root (LN1775) example (user:user) usr/bin/example [debian/control]
+I: example (source): rules-silently-require-root (LN1775) example (user:user) usr/share/example/ [debian/control]
+I: example (source): rules-silently-require-root (LN1775) example (user:user) usr/bin/example [debian/control]
+I: example (source): rules-silently-require-root (LN1775) example-udeb (user:user) usr/lib/example.so [debian/control]

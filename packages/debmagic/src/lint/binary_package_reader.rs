@@ -5,7 +5,7 @@ use std::sync::OnceLock;
 
 use anyhow::{Context, bail};
 
-use super::deb_members::{DebMember, DebMembers};
+use super::deb_members::{DebMember, DebMembers, Tarball};
 use super::file_tree::Owner;
 use super::timing;
 
@@ -30,7 +30,14 @@ struct TarballIndex {
     /// hardlinks, fifos and devices), in archive order. Symlink targets are as
     /// stored; hardlink targets are normalized member paths.
     links_and_dirs: Vec<(PathBuf, TarMember)>,
+    /// What GNU tar prints while unpacking the tarball (lintian's
+    /// `unpack-messages`), in archive order, each message once.
+    unpack_messages: Vec<String>,
 }
+
+/// GNU tar's warning for member names with a leading `/`: it strips the slash
+/// and says so once per archive.
+const LEADING_SLASH_WARNING: &str = "tar: Removing leading `/' from member names";
 
 /// A regular file member: its bytes, the header's permission bits and owner.
 struct TarFile {
@@ -146,6 +153,20 @@ impl BinaryPackageReader {
         Ok(lookup_file(self.data_index()?, path))
     }
 
+    /// The messages tar printed while unpacking `tarball`, in order. Empty when
+    /// the tarball is missing or cannot be read: its failure is reported by the
+    /// Files trees, not here.
+    #[allow(dead_code)] // seam API; no Rule reads it yet
+    pub(crate) fn unpack_messages(&self, tarball: Tarball) -> Vec<String> {
+        let index = match tarball {
+            Tarball::Data => self.data_index(),
+            Tarball::Control => self.control_index(),
+        };
+        index
+            .map(|index| index.unpack_messages.clone())
+            .unwrap_or_default()
+    }
+
     pub(crate) fn data_file_tree(&self) -> anyhow::Result<super::file_tree::FileTree> {
         Ok(file_tree(self.data_index()?))
     }
@@ -243,9 +264,17 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
     let mut seen = HashSet::new();
     let mut files = HashMap::new();
     let mut links_and_dirs = Vec::new();
+    let mut unpack_messages = Vec::new();
     for entry in archive.entries()? {
         let mut entry = entry?;
         let path = entry.path()?;
+        if path.as_os_str().as_encoded_bytes().starts_with(b"/")
+            && !unpack_messages
+                .iter()
+                .any(|message| message == LEADING_SLASH_WARNING)
+        {
+            unpack_messages.push(LEADING_SLASH_WARNING.to_string());
+        }
         let Some(normalized) = normalize_member_path(path.as_ref()) else {
             continue;
         };
@@ -305,6 +334,7 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
         members,
         files,
         links_and_dirs,
+        unpack_messages,
     })
 }
 
@@ -1134,5 +1164,103 @@ mod tests {
                 ("data.tar.gz", &data_tar_gz),
             ],
         )
+    }
+}
+
+#[cfg(test)]
+mod unpack_message_tests {
+    use super::*;
+    use std::io::Write;
+    use tempfile::TempDir;
+
+    fn leading_slash() -> Vec<String> {
+        vec![LEADING_SLASH_WARNING.to_string()]
+    }
+
+    /// A gzipped tar whose names are written as given. `tar::Header::set_path`
+    /// refuses absolute names, so the name bytes go into the header directly.
+    fn gzip_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
+        let mut tar_bytes = Vec::new();
+        {
+            let mut builder = tar::Builder::new(&mut tar_bytes);
+            for (name, contents) in members {
+                let mut header = tar::Header::new_gnu();
+                let name = name.as_bytes();
+                header.as_old_mut().name[..name.len()].copy_from_slice(name);
+                header.set_size(contents.len() as u64);
+                header.set_mode(0o644);
+                header.set_cksum();
+                builder.append(&header, *contents)?;
+            }
+            builder.finish()?;
+        }
+        let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
+        encoder.write_all(&tar_bytes)?;
+        Ok(encoder.finish()?)
+    }
+
+    fn write_deb(
+        path: &Path,
+        control: &[(&str, &[u8])],
+        data: &[(&str, &[u8])],
+    ) -> anyhow::Result<()> {
+        let mut builder = ar::Builder::new(std::fs::File::create(path)?);
+        let members: [(&[u8], Vec<u8>); 3] = [
+            (b"debian-binary", b"2.0\n".to_vec()),
+            (b"control.tar.gz", gzip_tar(control)?),
+            (b"data.tar.gz", gzip_tar(data)?),
+        ];
+        for (name, bytes) in &members {
+            let header = ar::Header::new(name.to_vec(), bytes.len() as u64);
+            builder.append(&header, &mut Cursor::new(bytes))?;
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn leading_slash_members_warn_once_per_tarball() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("pkg.deb");
+        write_deb(
+            &path,
+            &[("control", b"Package: pkg\n"), ("/control-abs", b"x")],
+            &[
+                ("/usr/bin/a", b"a"),
+                ("/usr/bin/b", b"b"),
+                ("./usr/share/c", b"c"),
+            ],
+        )?;
+        let reader = BinaryPackageReader::from_path(&path)?;
+        assert_eq!(reader.unpack_messages(Tarball::Data), leading_slash());
+        assert_eq!(reader.unpack_messages(Tarball::Control), leading_slash());
+        Ok(())
+    }
+
+    #[test]
+    fn relative_and_dot_members_report_nothing() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("pkg.deb");
+        write_deb(
+            &path,
+            &[("control", b"Package: pkg\n")],
+            &[("./usr/bin/a", b"a"), ("usr/bin/b", b"b")],
+        )?;
+        let reader = BinaryPackageReader::from_path(&path)?;
+        assert!(reader.unpack_messages(Tarball::Data).is_empty());
+        assert!(reader.unpack_messages(Tarball::Control).is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn a_missing_tarball_has_no_messages() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("pkg.deb");
+        let mut builder = ar::Builder::new(std::fs::File::create(&path)?);
+        let header = ar::Header::new(b"debian-binary".to_vec(), 4);
+        builder.append(&header, &mut Cursor::new(&b"2.0\n"[..]))?;
+        let reader = BinaryPackageReader::from_path(&path)?;
+        assert!(reader.unpack_messages(Tarball::Data).is_empty());
+        assert!(reader.unpack_messages(Tarball::Control).is_empty());
+        Ok(())
     }
 }

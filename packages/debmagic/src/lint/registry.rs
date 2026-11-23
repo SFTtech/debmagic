@@ -24,6 +24,7 @@ use super::rules::ArchDepPackageHasBigUsrShare;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::ArchitectureEscape;
+use super::rules::AutopkgtestNeedsUseName;
 use super::rules::BackportsChangesMissing;
 use super::rules::BackportsUploadHasIncorrectVersionNumber;
 use super::rules::BadDistributionInChangesFile;
@@ -423,6 +424,8 @@ use super::rules::NoSymbolsControlFile;
 use super::rules::NoTeamTests;
 use super::rules::NoTeamUrl;
 use super::rules::NoTemplateName;
+use super::rules::NoTests;
+use super::rules::NoTestsuiteHeader;
 use super::rules::NodejsModuleInstalledInBadDirectory;
 use super::rules::NonConsecutiveDebianRevision;
 use super::rules::NonStandardApache2ModulePackageName;
@@ -2669,6 +2672,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoGit,
         &NoTeamUrl,
         &NoTeamTests,
+        &NoTests,
+        &NoTestsuiteHeader,
+        &AutopkgtestNeedsUseName,
     ]
 }
 
@@ -3205,6 +3211,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NoGit,
         &NoTeamUrl,
         &NoTeamTests,
+        &NoTests,
+        &NoTestsuiteHeader,
+        &AutopkgtestNeedsUseName,
     ]
 }
 

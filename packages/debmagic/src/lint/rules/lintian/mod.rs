@@ -277,6 +277,7 @@ mod systemd;
 mod team_pkg_perl;
 mod team_pkg_perl_testsuite;
 mod team_pkg_perl_vcs;
+mod team_pkg_perl_testsuite;
 mod template_dh_make_control;
 mod testsuite;
 mod tlds;
@@ -592,6 +593,8 @@ pub(crate) use substvars_misc_pre_depends::DependsOnMiscPreDepends;
 pub(crate) use team_pkg_perl_testsuite::NoTeamTests;
 pub(crate) use team_pkg_perl_vcs::NoGit;
 pub(crate) use team_pkg_perl_vcs::NoTeamUrl;
+pub(crate) use team_pkg_perl_testsuite::AutopkgtestNeedsUseName;
+pub(crate) use team_pkg_perl_testsuite::NoTestsuiteHeader;
 pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;
 pub(crate) use udev::UdevRuleInEtc;
 pub(crate) use udev::UdevRuleMissingSubsystem;
@@ -1228,7 +1231,7 @@ pub(crate) use systemd::{
 pub(crate) use testsuite::{
     BackgroundedTestCommand, ConflictingTestFields, DebianTestsControlAutodep8IsObsolete,
     DeclarePythonVersionsForTest, DropPythonVersionDeclaration, EmptyDebianTestsControl,
-    IllegalRuntimeTestName, MissingRuntimeTestFile, MissingTestsControl, NoOpTestsuite,
+    IllegalRuntimeTestName, MissingRuntimeTestFile, MissingTestsControl, NoOpTestsuite, NoTests,
     ObsoleteRuntimeTestsRestriction, RuntimeTestFileIsNotARegularFile,
     RuntimeTestFileUsesInstalledPythonVersions,
     RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends, SuperficialTests,

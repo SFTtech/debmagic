@@ -30,6 +30,7 @@ mod ln1692_testsuite_ored_depends_on_obsolete_package;
 mod ln1700_unknown_runtime_tests_feature;
 mod ln1701_unknown_runtime_tests_field;
 mod ln1702_unknown_runtime_tests_restriction;
+mod ln1781_no_tests;
 mod python;
 mod sections;
 
@@ -59,3 +60,4 @@ pub(crate) use ln1692_testsuite_ored_depends_on_obsolete_package::TestsuiteOredD
 pub(crate) use ln1700_unknown_runtime_tests_feature::UnknownRuntimeTestsFeature;
 pub(crate) use ln1701_unknown_runtime_tests_field::UnknownRuntimeTestsField;
 pub(crate) use ln1702_unknown_runtime_tests_restriction::UnknownRuntimeTestsRestriction;
+pub(crate) use ln1781_no_tests::NoTests;

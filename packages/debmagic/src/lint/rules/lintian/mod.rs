@@ -908,7 +908,7 @@ pub(crate) use debian_patches::{
     InvalidDep3FormatPatchWrongBugDebianUrl, InvalidDep3FormatPatchWrongLastUpdate,
     PackageUsesVendorSpecificPatchSeries, PatchFilePresentButNotMentionedInSeries,
     PatchNotForwardedUpstream, PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile,
-    QuiltPatchMissingDescription, QuiltPatchUsesDpatchPlaceholder,
+    QuiltPatchMissingDescription, QuiltPatchUsesDpatchExtension, QuiltPatchUsesDpatchPlaceholder,
     QuiltPatchUsingTemplateDescription, QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
     QuiltSeriesWithoutTrailingNewline,
 };

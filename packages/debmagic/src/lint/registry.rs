@@ -500,6 +500,7 @@ use super::rules::PythonModuleInWrongLocation;
 use super::rules::PythonTracebackInManpage;
 use super::rules::QuiltBuildDepButNoSeriesFile;
 use super::rules::QuiltPatchMissingDescription;
+use super::rules::QuiltPatchUsesDpatchExtension;
 use super::rules::QuiltPatchUsesDpatchPlaceholder;
 use super::rules::QuiltPatchUsingTemplateDescription;
 use super::rules::QuiltPatchWithNonStandardOptions;
@@ -2437,6 +2438,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnknownRuntimeTestsField,
         &UnknownRuntimeTestsRestriction,
         &UnusedEntryInDebianSourceIncludeBinaries,
+        &QuiltPatchUsesDpatchExtension,
     ]
 }
 
@@ -2903,6 +2905,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UnknownRuntimeTestsField,
         &UnknownRuntimeTestsRestriction,
         &UnusedEntryInDebianSourceIncludeBinaries,
+        &QuiltPatchUsesDpatchExtension,
     ]
 }
 

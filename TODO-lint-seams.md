@@ -2,7 +2,7 @@
 
 A *seam* is a Rule-facing inspectable, parser, or harness capability that a Tag needs and we do not have yet. This file is the ledger: every open seam with the Tags it blocks, plus a short record of what landed. It is updated whenever an agent reports a new seam, a seam changes status, or a seam lands. The per-inspectable narrative stays in [TODO-lint.md](TODO-lint.md).
 
-**Last updated**: 2026-11-23 morning, milo tip `42888952`, 1303 LN Rules (1097 at the start of the batch work), Parity suite 1656 tests green.
+**Last updated**: 2026-11-23, milo tip `2065cfe2`, 1345 LN Rules (1097 at the start of the batch work), Parity suite 1705 tests green (also with the build cache bypassed).
 **Measure**: `just lint-parity` (`--candidates N` for ranked next Rules).
 
 **Status words**: *In progress* (an agent is on it), *Approved* (the user agreed to the design, not started), *Proposed* (written up, waiting for a go), *Needs decision* (a design or policy question for the user), *Deferred* (decided not to do now), *Landed* (in milo).
@@ -18,13 +18,9 @@ A *seam* is a Rule-facing inspectable, parser, or harness capability that a Tag 
 
 | Seam | Branch | Blocked Tags (reserved Codes) |
 | --- | --- | --- |
-| Parity harness round 2: `post-build` hooks; `Upload-Type: source` builds (`dpkg-buildpackage -S`); Group Rules attributed to the `changes` processable type; FIFO hints dropped from the expected side; buildinfo `ARCHITECTURE` rewrite; `build-spec/pre-orig` | `lint-harness2` | `checksum-count-mismatch-in-changes-file` (LN1486), `changelog-distribution-does-not-match-changes-file` (LN1516; needs the post-build hook), `source-only-upload-to-non-free-without-autobuild` (LN1510; needs `-S`), `inconsistent-maintainer` (LN1491), `runtime-test-file-is-not-a-regular-file` (LN1586), `upstream-file-without-utf8-name` (LN1564), buildinfo case of `package-has-long-file-name` |
-| External tool runner (materialise a File-tree subset, run a host tool with a timeout), then compressed-stream integrity | `lint-seam-tools` | `maintainer-shell-script-fails-syntax-check` (LN1425), `shell-script-fails-syntax-check` (LN1426), `invalid-potfiles-in` (LN1326), `newer-debconf-templates` (LN1327), `no-complete-debconf-translation` (LN1531), `appstream-metadata-validation-failed` (LN1467; recipe fixture reports "Passed" on appstreamcli 1.2.3, so a host skip is likely), `broken-bz2` (LN1377), `broken-lz` (LN1378), `broken-lzo` (LN1379) |
-| Sibling files of a `.dsc` (names plus lazy bytes of its directory), then tar unpack messages | `lint-seam-siblings` | `concatenated-upstream-signatures` (LN1434), `doubly-armored-upstream-signature` (LN1435), `explicitly-armored-upstream-signature` (LN1436), `orig-tarball-missing-upstream-signature` (LN1437), `spurious-fields-in-upstream-signature` (LN1590), `unpack-message-for-deb-data` (LN1433), `unpack-message-for-deb-control` (LN1591) |
-| Type 1 font parser (eexec decryption, no external tool) | `lint-seam-type1` | `license-problem-font-adobe-copyrighted-fragment` (LN1393), `license-problem-font-adobe-copyrighted-fragment-no-credit` (LN1394) |
-| ELF follow-ups: symbol-table fact, ELF facts of `ar` members, per-symbol section names | `lint-seam-elf2` | `ocaml-custom-executable` (LN1401), `static-link-time-optimization` (LN1574), `no-symbols-control-file` (LN1534) |
-| Follow-ups on landed seams: `.changes` checksums with the digest helper, `GroupContext::direct_reliants`, native OpenPGP packet reader | `lint-seam-followups` | `checksum-mismatch-in-changes-file` (LN1484), `spare-manual-page` (LN1540), `public-upstream-key-unusable` (LN1535) |
-| Batch follow-up: Group Rule for the buildinfo `Build-Path`; pointer-form normalisation extended to the two Python Tags | `lint-n100-misc-3` | `file-references-package-build-path` (LN1561), `debian-pycompat-is-obsolete` (LN1571), `debian-pyversions-is-obsolete` (LN1572) |
+| Harness: honour the recipe's `Build-Command` / build options (`buildinfo=+path`) on upload-group builds | none yet | `file-references-package-build-path` (LN1561; GroupRule implemented and reverted, the `.buildinfo` has no `Build-Path`); may change other Group recipes, needs its own check |
+
+The rule-only batch `lint-n150-*` (nine agents, Codes LN1600-LN1779) is running; seams its agents find are added here.
 
 ## Open seams, proposed (not started)
 
@@ -55,13 +51,24 @@ A *seam* is a Rule-facing inspectable, parser, or harness capability that a Tag 
 | MD5 digests (`digest.rs`, `FileTree::md5sum`) and content-type sniffing (`content_type.rs`) | LN1375, LN1376 |
 | Upstream metadata YAML (`ctx.upstream_metadata()`, `yaml-rust2`) | LN1337, LN1338, LN1339–LN1342, LN1344 |
 | Pinned, regenerable iso-codes tables (`scripts/vendor_iso_codes.py`, iso-codes 4.20.1) | LN1385, LN1386, LN1589 |
-| Parity harness: build cache (cold about 70–110 s, warm about 10 s), non-native orig packing, importer keeps continuation lines, pointer-form normalisation for three cruft Tags, `FileTree::read_prefix` | LN1388–LN1390 |
+| Parity harness: build cache (cold about 70–110 s, warm about 10 s), non-native orig packing, importer keeps continuation lines, pointer-form normalisation for three cruft Tags (and the two Python obsolete Tags), `FileTree::read_prefix` | LN1388–LN1390, LN1571, LN1572 |
+| Parity harness round 2: `post-build` and `pre-orig` hooks, `Upload-Type: source` (`-S`) builds, Group Rules reporting `changes` hints (`GroupContext::changes_diagnostic`), FIFO hint drop, orig signing for upstream-signature recipes | LN1486, LN1510, LN1516, LN1491, LN1586, LN1564 |
+| External tool runner (`external_tool.rs`: sandboxed host tool with timeout; shared `script_syntax`, po-debconf pot comparison) | LN1425, LN1426, LN1326, LN1327, LN1531, LN1467, LN1377–LN1379 |
+| Type 1 font parser (`type1.rs`, eexec decryption) | LN1393, LN1394 |
+| Sibling files of a `.dsc` (names from the `Files` / `Checksums-*` fields, bytes from the directory) and tar unpack messages | LN1434–LN1437, LN1590, LN1433 |
+| ELF symbol sections, symbol-table flag, ELF facts of `ar` members | LN1401, LN1574, LN1534 |
+| `.changes` checksums, `GroupContext::direct_reliants`, native OpenPGP packet reader (`openpgp.rs`), `signing_key_files()` | LN1484, LN1540, LN1535 |
 
 ## Cleanups noticed along the way (not seams)
 
 - LN0928 `license-problem-md5sum-non-free-file` has its own MD5 and table parsing; it could use `FileTree::md5sum` and `digest::hex_digest`.
 - The Vcs Rules other than LN1372/LN1373 (LN0135, LN1240–1243, LN0023, LN0797–LN0800) probably miss the `XS-Vcs-*` alias on a Source tree (a shared helper exists in `rules/lintian/vcs.rs`).
 - `scripts/new_lint_rule.py` sometimes adds a bogus `pub(crate) use lintian::<Struct>;` line for root-level source rules; agents remove it by hand.
+- `unpack-message-for-deb-control` (LN1591) has no vendored recipe; a one-line Rule on `Tarball::Control` once a recipe exists.
+- `non-ascii-path-failure/success` recipes have a vendored `post-build` hook (moves the product into a Latin-1-named directory), not tried yet.
+- A tool that is missing or times out gives no verdict in the external tool runner (lintian would emit a hint); the sandbox does not isolate the network.
+- LN0383 `invalid-po-file` still calls msgfmt directly instead of the tool runner.
+- Pytest `tests/integration/test_packages.py::test_build_package[htop]` fails when the whole `tests/` directory runs (not part of `just test`); not investigated.
 - Doc comment of `binary-with-bad-dynamic-table` (LN1162) still says `elf-error` is not implemented (it is LN1292).
 - The three `source_missing` Rules (LN1388–LN1390) sit in a top-level file like LN1387; moving them with LN0004, LN1086 and LN1387 into a `files_source_missing/` module is optional.
 - Upstream-signature recipes not yet re-imported with their `pre-build` hooks: repeated-signature, explicit-armor-header, doubly-armored-signature, control-file-upstream-signature-missing, and a dfsg variant (the siblings seam re-imports what it needs).

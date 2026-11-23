@@ -517,6 +517,7 @@ use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
 use super::rules::SourceIsMissing;
 use super::rules::SourcePackageComponentHasLongFileName;
+use super::rules::SpareManualPage;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::SpellingErrorInBinary;
@@ -2347,6 +2348,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &IncorrectLocaleCode,
         &LocaleUsesLanguageGroupCode,
         &ChecksumMismatchInChangesFile,
+        &SpareManualPage,
     ]
 }
 
@@ -3711,6 +3713,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &UsrShareDocSymlinkToForeignPackage,
         &DocBaseFileReferencesMissingFile,
         &BinariesHaveFileConflict,
+        &SpareManualPage,
     ]
 }
 

@@ -235,6 +235,7 @@ use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
 use super::rules::IncompatibleJavaBytecodeFormat;
 use super::rules::InconsistentAppstreamMetadataLicense;
+use super::rules::InconsistentMaintainer;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
@@ -2323,6 +2324,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TypoInManualPage,
         &CapitalizationErrorInDescriptionSynopsis,
         &ChangelogDistributionDoesNotMatchChangesFile,
+        &InconsistentMaintainer,
     ]
 }
 
@@ -3675,6 +3677,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &DocBaseFileReferencesMissingFile,
         &BinariesHaveFileConflict,
         &ChangelogDistributionDoesNotMatchChangesFile,
+        &InconsistentMaintainer,
     ]
 }
 

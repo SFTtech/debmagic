@@ -1647,6 +1647,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/fields/distribution/distribution-multiple-bad",
     "checks/fields/format/changes-missing-format",
     "checks/fields/mail-address/changed-by-no-name",
+    "checks/fields/maintainer/mismatch-between-changes-and-source",
     "checks/fields/urgency/generic-empty",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
@@ -3337,6 +3338,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/fields/distribution/distribution-multiple-bad"; "checks_fields_distribution_distribution_multiple_bad")]
 #[test_case("checks/fields/format/changes-missing-format"; "checks_fields_format_changes_missing_format")]
 #[test_case("checks/fields/mail-address/changed-by-no-name"; "checks_fields_mail_address_changed_by_no_name")]
+#[test_case("checks/fields/maintainer/mismatch-between-changes-and-source"; "checks_fields_maintainer_mismatch_between_changes_and_source")]
 #[test_case("checks/fields/urgency/generic-empty"; "checks_fields_urgency_generic_empty")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]

@@ -7,9 +7,11 @@ mod ln0816_ocaml_dangling_cmxa;
 mod ln0817_ocaml_dangling_cmxs;
 mod ln1399_ocaml_dangling_cmx;
 mod ln1400_ocaml_dangling_cmi;
+mod ln1401_ocaml_custom_executable;
 mod sibling;
 
 pub(crate) use ln0816_ocaml_dangling_cmxa::OcamlDanglingCmxa;
 pub(crate) use ln0817_ocaml_dangling_cmxs::OcamlDanglingCmxs;
 pub(crate) use ln1399_ocaml_dangling_cmx::OcamlDanglingCmx;
 pub(crate) use ln1400_ocaml_dangling_cmi::OcamlDanglingCmi;
+pub(crate) use ln1401_ocaml_custom_executable::OcamlCustomExecutable;

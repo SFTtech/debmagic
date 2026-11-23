@@ -230,6 +230,9 @@ def parse_rust_rules(root: Path, prefix: str) -> list[RustRule]:
         for trait, struct in IMPL_TRAIT.findall(text):
             if struct == rule.struct:
                 rule.kinds.add(TRAIT_TO_KIND[trait])
+        # A Group Rule that runs on a lone `.deb` (ADR 0056) also reports on binary packages.
+        if "group" in rule.kinds and "fn runs_without_dsc" in text:
+            rule.kinds.add("binary")
         # Severity lives on the Diagnostic constructor, not in `declare_rule!`; scan non-test code.
         production = text.split("#[cfg(test)]", maxsplit=1)[0]
         for constructor, severity in SEVERITY_CONSTRUCTOR.findall(production):

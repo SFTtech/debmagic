@@ -32,7 +32,32 @@ just lint-ecosystem --sample 200 --pool archive --seed 7 --perf off
 
 # Exactly the packages you care about
 just lint-ecosystem --packages samba hello dgit --perf off
+
+# The pinned 400-package set (samba plus a sample of 400 key packages, seed 20261123)
+just lint-ecosystem --package-list tests/ecosystem/packages-400-seed20261123.txt --perf off
 ```
+
+## Reproducible sets
+
+A `--sample N --seed S` run is reproducible only while UDD's tables do not change: new uploads change
+versions, key packages come and go, and oversized packages are dropped by their current size. So a
+set to rerun later is pinned in a file, one `source version` pair per line:
+
+```shell
+just lint-ecosystem --sample 400 --seed 20261123 --list-only \
+    --write-package-list tests/ecosystem/packages-400-seed20261123.txt
+just lint-ecosystem --package-list tests/ecosystem/packages-400-seed20261123.txt --perf off
+```
+
+`--list-only` stops after the selection (no downloads, no lint). The file's header records the
+selection, the UDD release and date, and the oracle's lintian version. A pinned version that sid no
+longer lists is reported and skipped, so regenerate the file when a pinned version has been replaced. A bare name, without a version, takes every version
+sid lists for it: the Sources index can hold two (as for `gcc-16`), and both are linted.
+The committed `tests/ecosystem/packages-400-seed20261123.txt` pins 401 packages: `samba` plus the
+400 sampled ones, selected on 2026-11-23.
+
+The lint options default to `--select LN --show-overrides`, so overridden hints come back as `O:`
+lines for the comparison. Set `--lint-arg` (repeatable) to replace them.
 
 `--perf off` is the right default for a correctness run: the perf comparison re-lints every Subject
 with lintian and can triple the wall time. Downloads and oracle snapshots are cached under
@@ -110,11 +135,16 @@ line and confirm the Subject dropped out.
 
 ## Reading the comparison
 
-- **missed** — lintian reports the Tag, debmagic does not (false negative).
+- **missed** — lintian reports the Tag, debmagic does not (false negative). This includes a hint
+  debmagic hid with an override that lintian does not apply.
 - **extra** — debmagic reports it, lintian does not (false positive).
+- **unapplied** — an extra where lintian hides the Tag on this Subject by an override and debmagic
+  shows it as a normal hint: the override pass did not apply the override (ADR 0057).
+- **overridden (both)** — both sides hide the Tag by an override: the override pass agrees.
 - **context** — both report it, but the hint contexts (`[path:line]`, ...) differ as multisets.
-- **overridden** — debmagic reports it and lintian hides it via an override; expected, because
-  debmagic parses override files but does not apply them yet.
+
+`mismatched-override` and `unused-override` (LN1779, LN1780) come from the override pass itself and
+are judged like any other covered Tag once they are in the Rule catalogue.
 
 Only Tags with an LN Rule are judged; other oracle Tags are listed as **uncovered** and ranked by
 weight, which is the input for choosing the next Rule to port.

@@ -87,4 +87,78 @@ mod tests {
         ];
         SourceTreeTester::new(SyntaxErrorInDep5Copyright, pass, fail).test_and_snapshot();
     }
+
+    /// Lintian's Deb822 reader (`new empty field?` branch) stores an empty
+    /// field without the duplicate check, so repeating an empty field is not
+    /// a syntax error, and its continuation lines still form the value.
+    #[test]
+    fn repeated_empty_field_is_not_a_duplicate() {
+        let pass = vec![vec![(
+            "debian/copyright",
+            copyright(
+                "
+Files: *
+Copyright:
+Copyright:
+ 2024 Someone
+License: MIT
+",
+            ),
+        )]];
+        SourceTreeTester::new(SyntaxErrorInDep5Copyright, pass, vec![]).test();
+    }
+
+    /// Lintian's `exists` check on the valued field branch dies on a repeat
+    /// of a field that already has a value.
+    #[test]
+    fn repeat_of_valued_field_is_a_duplicate() {
+        let fail = vec![vec![(
+            "debian/copyright",
+            copyright(
+                "
+Files: *
+Copyright: 2023 Someone
+Copyright: 2024 Someone
+License: MIT
+",
+            ),
+        )]];
+        SourceTreeTester::new(SyntaxErrorInDep5Copyright, vec![], fail).test();
+    }
+
+    /// A valued repeat after an empty field is still a duplicate: the empty
+    /// field is in the paragraph, so `exists` is true.
+    #[test]
+    fn valued_repeat_of_empty_field_is_a_duplicate() {
+        let fail = vec![vec![(
+            "debian/copyright",
+            copyright(
+                "
+Files: *
+Copyright:
+Copyright: 2024 Someone
+License: MIT
+",
+            ),
+        )]];
+        SourceTreeTester::new(SyntaxErrorInDep5Copyright, vec![], fail).test();
+    }
+
+    /// An empty repeat after a valued field overwrites it without a
+    /// duplicate error (lintian's empty-field branch).
+    #[test]
+    fn empty_repeat_of_valued_field_is_not_a_duplicate() {
+        let pass = vec![vec![(
+            "debian/copyright",
+            copyright(
+                "
+Files: *
+Copyright: 2024 Someone
+Copyright:
+License: MIT
+",
+            ),
+        )]];
+        SourceTreeTester::new(SyntaxErrorInDep5Copyright, pass, vec![]).test();
+    }
 }

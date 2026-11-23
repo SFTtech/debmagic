@@ -854,10 +854,10 @@ pub(crate) use init_scripts::{
     InitDScriptShouldAlwaysStartService, InitDScriptSourcingWithoutTest,
     InitDScriptStartsInStopRunlevel, InitDScriptStopsInSRunlevel, InitDScriptUsesUsrInterpreter,
     MissingSystemdServiceForInitDRcSScript, NonVirtualFacilityInInitdScript,
-    PostrmContainsAdditionalUpdatercDCalls, PostrmDoesNotCallUpdatercDForInitDScript,
-    PreinstCallsUpdatercD, PrermCallsUpdatercD, ScriptInEtcInitDNotRegisteredViaUpdateRcD,
-    SystemdServiceFileRefersToObsoleteTarget, SystemdServiceFileWrapsInitScript,
-    UpstartJobInEtcInitDNotRegisteredViaUpdateRcD,
+    OutputOfUpdatercDNotRedirectedToDevNull, PostrmContainsAdditionalUpdatercDCalls,
+    PostrmDoesNotCallUpdatercDForInitDScript, PreinstCallsUpdatercD, PrermCallsUpdatercD,
+    ScriptInEtcInitDNotRegisteredViaUpdateRcD, SystemdServiceFileRefersToObsoleteTarget,
+    SystemdServiceFileWrapsInitScript, UpstartJobInEtcInitDNotRegisteredViaUpdateRcD,
 };
 pub(crate) use languages_javascript::{
     EmbeddedJavascriptLibrary, NodePackageInstallInNodejsRootdir, NodejsLockFile,

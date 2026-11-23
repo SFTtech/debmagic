@@ -45,6 +45,7 @@ mod ln1101_upstart_job_in_etc_init_d_not_registered_via_update_rc_d;
 mod ln1397_init_d_script_does_not_implement_status_option;
 mod ln1566_init_d_script_does_not_provide_itself;
 mod ln1567_init_d_script_missing_lsb_short_description;
+mod ln1743_output_of_updaterc_d_not_redirected_to_dev_null;
 pub(in crate::lint::rules::lintian) mod systemd_unit;
 
 pub(crate) use ln0230_init_d_script_does_not_implement_required_option::InitDScriptDoesNotImplementRequiredOption;
@@ -88,3 +89,4 @@ pub(crate) use ln1101_upstart_job_in_etc_init_d_not_registered_via_update_rc_d::
 pub(crate) use ln1397_init_d_script_does_not_implement_status_option::InitDScriptDoesNotImplementStatusOption;
 pub(crate) use ln1566_init_d_script_does_not_provide_itself::InitDScriptDoesNotProvideItself;
 pub(crate) use ln1567_init_d_script_missing_lsb_short_description::InitDScriptMissingLsbShortDescription;
+pub(crate) use ln1743_output_of_updaterc_d_not_redirected_to_dev_null::OutputOfUpdatercDNotRedirectedToDevNull;

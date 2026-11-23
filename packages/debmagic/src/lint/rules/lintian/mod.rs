@@ -1087,11 +1087,11 @@ pub(crate) use rules_and_control::{
     DhExecInstallNotAllowedHere, DhExecPrivateHelper, DhExecScriptWithoutDhExecFeatures,
     DhExecSubstUnknownVariable, DhExecUselessUsage, DhInstallmanpagesIsObsolete,
     DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
-    ExecutableDebhelperFileWithoutBeingExecutable, PackageFileIsExecutable,
-    PackageUsesDebhelperButLacksBuildDepends, PackageUsesDhExecButLacksBuildDepends,
-    PackageUsesDhRunitButLacksBreaksSubstvar, PackageUsesOldDebhelperCompatVersion,
-    Python3DependsButNoPython3Helper, TemporaryDebhelperFile, UselessAutoreconfBuildDepends,
-    WeakDependencyOnMiscDepends,
+    ExecutableDebhelperFileWithoutBeingExecutable, PackageDoesNotUseDebhelper,
+    PackageFileIsExecutable, PackageUsesDebhelperButLacksBuildDepends,
+    PackageUsesDhExecButLacksBuildDepends, PackageUsesDhRunitButLacksBreaksSubstvar,
+    PackageUsesOldDebhelperCompatVersion, Python3DependsButNoPython3Helper, TemporaryDebhelperFile,
+    UselessAutoreconfBuildDepends, WeakDependencyOnMiscDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

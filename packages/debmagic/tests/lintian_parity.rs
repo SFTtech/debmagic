@@ -66,6 +66,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-maintainer-scripts",
     "checks/debhelper/legacy-scripts",
     "checks/debhelper/oeverride-typo",
+    "checks/debhelper/package-does-not-use-debhelper",
+    "checks/debhelper/package-uses-debputy-build-driver",
     "checks/debhelper/rules-uses-deprecated-systemd-override",
     "checks/debhelper/temporary/debhelper-internal-files",
     "checks/debian/changelog/changelog-file-become-native",
@@ -1226,6 +1228,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-maintainer-scripts",
     "checks/debhelper/legacy-scripts",
     "checks/debhelper/oeverride-typo",
+    "checks/debhelper/package-does-not-use-debhelper",
+    "checks/debhelper/package-uses-debputy-build-driver",
     "checks/debhelper/rules-uses-deprecated-systemd-override",
     "checks/debhelper/temporary/debhelper-internal-files",
     "checks/debian/changelog/changelog-file-become-native",
@@ -1826,6 +1830,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/legacy-maintainer-scripts"; "checks_debhelper_legacy_maintainer_scripts")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debhelper/oeverride-typo"; "checks_debhelper_oeverride_typo")]
+#[test_case("checks/debhelper/package-does-not-use-debhelper"; "checks_debhelper_package_does_not_use_debhelper")]
+#[test_case("checks/debhelper/package-uses-debputy-build-driver"; "checks_debhelper_package_uses_debputy_build_driver")]
 #[test_case("checks/debhelper/rules-uses-deprecated-systemd-override"; "checks_debhelper_rules_uses_deprecated_systemd_override")]
 #[test_case("checks/debhelper/temporary/debhelper-internal-files"; "checks_debhelper_temporary_debhelper_internal_files")]
 #[test_case("checks/debian/changelog/changelog-file-become-native"; "checks_debian_changelog_changelog_file_become_native")]
@@ -2988,6 +2994,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/legacy-maintainer-scripts"; "checks_debhelper_legacy_maintainer_scripts")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debhelper/oeverride-typo"; "checks_debhelper_oeverride_typo")]
+#[test_case("checks/debhelper/package-does-not-use-debhelper"; "checks_debhelper_package_does_not_use_debhelper")]
+#[test_case("checks/debhelper/package-uses-debputy-build-driver"; "checks_debhelper_package_uses_debputy_build_driver")]
 #[test_case("checks/debhelper/rules-uses-deprecated-systemd-override"; "checks_debhelper_rules_uses_deprecated_systemd_override")]
 #[test_case("checks/debhelper/temporary/debhelper-internal-files"; "checks_debhelper_temporary_debhelper_internal_files")]
 #[test_case("checks/debian/changelog/changelog-file-become-native"; "checks_debian_changelog_changelog_file_become_native")]

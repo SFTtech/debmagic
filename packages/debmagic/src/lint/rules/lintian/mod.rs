@@ -736,11 +736,11 @@ pub(crate) use fields_text::{
     HomepageForCranPackageNotCanonical, HomepageGithubUrlEndsWithDotGit,
     HomepageGitlabUrlEndsWithDotGit, HomepageInBinaryPackage, HomepageRefersToFilesystemListing,
     HomepageRefersToObsoleteDebianInfrastructure, HomepageSalsaUrlEndsWithDotGit,
-    MissingSeparatorBetweenItems, NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional,
-    RecommendedField, RedundantBugsField, RedundantControlRelation, RedundantOriginField,
-    SectionIsDhMakeTemplate, SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional,
-    UnknownEssentialValue, UnknownPriority, UnknownSection, WrongSectionAccordingToPackageName,
-    WrongSectionForUdeb,
+    MissingSeparatorBetweenItems, NewEssentialPackage, NoHomepageField,
+    PriorityExtraIsReplacedByPriorityOptional, RecommendedField, RedundantBugsField,
+    RedundantControlRelation, RedundantOriginField, SectionIsDhMakeTemplate,
+    SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional, UnknownEssentialValue,
+    UnknownPriority, UnknownSection, WrongSectionAccordingToPackageName, WrongSectionForUdeb,
 };
 pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
 pub(crate) use fields_uploaders::UploaderNameMissing;

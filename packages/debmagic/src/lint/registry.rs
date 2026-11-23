@@ -421,6 +421,7 @@ use super::rules::NoShlibs;
 use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoSymbolsControlFile;
 use super::rules::NoTemplateName;
+use super::rules::NodejsBadBufferUsage;
 use super::rules::NodejsModuleInstalledInBadDirectory;
 use super::rules::NonConsecutiveDebianRevision;
 use super::rules::NonStandardApache2ModulePackageName;
@@ -2663,6 +2664,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &AnsiEscape,
         &InvalidYaml,
+        &NodejsBadBufferUsage,
     ]
 }
 
@@ -4136,6 +4138,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &AnsiEscape,
+        &NodejsBadBufferUsage,
     ]
 }
 

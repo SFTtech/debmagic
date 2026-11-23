@@ -2,7 +2,7 @@
 
 A *seam* is a Rule-facing inspectable, parser, or harness capability that a Tag needs and we do not have yet. This file is the ledger: every open seam with the Tags it blocks, plus a short record of what landed. It is updated whenever an agent reports a new seam, a seam changes status, or a seam lands. The per-inspectable narrative stays in [TODO-lint.md](TODO-lint.md).
 
-**Last updated**: 2026-11-23, milo tip `2065cfe2`, 1345 LN Rules (1097 at the start of the batch work), Parity suite 1705 tests green (also with the build cache bypassed).
+**Last updated**: 2026-11-23, milo tip `91efeff4`, 1448 LN Rules (1097 at the start of the batch work), Parity suite 1818 tests green (also with the build cache bypassed). Every Tag that has an oracle recipe and needs no new seam is implemented; what remains with recipes is listed below.
 **Measure**: `just lint-parity` (`--candidates N` for ranked next Rules).
 
 **Status words**: *In progress* (an agent is on it), *Approved* (the user agreed to the design, not started), *Proposed* (written up, waiting for a go), *Needs decision* (a design or policy question for the user), *Deferred* (decided not to do now), *Landed* (in milo).
@@ -16,17 +16,20 @@ A *seam* is a Rule-facing inspectable, parser, or harness capability that a Tag 
 
 ## Open seams, in progress
 
-| Seam | Branch | Blocked Tags (reserved Codes) |
-| --- | --- | --- |
-| Harness: honour the recipe's `Build-Command` / build options (`buildinfo=+path`) on upload-group builds | none yet | `file-references-package-build-path` (LN1561; GroupRule implemented and reverted, the `.buildinfo` has no `Build-Path`); may change other Group recipes, needs its own check |
-
-The rule-only batch `lint-n150-*` (nine agents, Codes LN1600-LN1779) is running; seams its agents find are added here.
+None running. The seams below are proposed and each blocks exactly the Tags named.
 
 ## Open seams, proposed (not started)
 
 | Seam | Blocked Tags | Notes |
 | --- | --- | --- |
+| Harness: honour the recipe's `Build-Command` / build options (`buildinfo=+path`) on upload-group builds | `file-references-package-build-path` (LN1561; GroupRule written and reverted: the `.buildinfo` has no `Build-Path`) | May change other Group recipes; needs its own check |
+| Harness: recipes with `--include-dir` data overrides (`eval/lintian-include-dir`, e.g. `experimental=10` in `data/debhelper/compat-level`) | `package-uses-experimental-debhelper-compat-version` (LN1681 reserved) | Rule is trivial once the override can be modelled (a test-only threshold) |
+| Raw or signed `.changes` (`GroupContext::changes_path()` or `Changes::is_signed()`) | `unreleased-changelog-distribution` (LN1664 reserved) | Small accessor |
+| Diffstat of the Debian diff (`SourceContext::diffstat()` from `<name>_<version>.diff.gz` via sibling files) | `direct-changes-in-diff-but-no-patch-system`, `patch-system-but-direct-changes-in-diff` (LN1706 reserved) | Medium: a unified-diff file-list parser matching diffstat |
+| Source extraction messages (tar warnings of the patched and orig trees, `ctx.unpack_messages()`) | `unpack-message-for-source` (LN1711 reserved), `unpack-message-for-orig` (no recipe) | Small to medium |
 | Orig-file mtimes (host trees from filesystem metadata, or read orig tarball headers) | `orig-tarball-contains-ancient-file` (LN1461) | `Entry::mtime()` exists for Binary packages |
+| Group Rules without a `.dsc` (decision above) | `cannot-check-whether-usr-share-doc-symlink-points-to-foreign-package` (LN1521) | |
+| Override application pass (decision above) | `mismatched-override`, `unused-override` | |
 | Group behaviour: a bad argument skips and continues (lintian) instead of aborting the run | none (behaviour only) | From the group seam, ADR 0054; recommendation: follow lintian |
 | Group Parity for `source-*` recipes (the product is a `.dsc` only) | group hints of those recipes are not covered | From the group seam |
 | Policy-release table refresh to the 2.144.0 pin | accuracy of `out-of-date-standards-version` | The table is from lintian 2.139.0; `lint/data/mod.rs` has a stale comment |
@@ -61,6 +64,11 @@ The rule-only batch `lint-n150-*` (nine agents, Codes LN1600-LN1779) is running;
 
 ## Cleanups noticed along the way (not seams)
 
+- `fields_version::source_format` reads `debian/source/format` for a Source tree with no `.dsc`; lintian's `Format.pm` defaults to `1.0` for those and treats `1.0` without a diff as native regardless of the revision. The `native` helper (used by the `debian-adds-*` and `source-contains-*` Rules) therefore differs for a `1.0-1` tree. Needs a decision.
+- The recipe `checks/cruft/cruft-general-upstream` expects `source-contains-*` for a non-native package that lintian 2.144.0 cannot emit: its expected hints for the 13 Tags are dropped (`drop_expected_hints_for_non_native_upstream`, documented in `docs/develop/import-lintian-rule.md`).
+- LN1764/LN1765 name a symlinked signing key by its target path; lintian names the link.
+- LN1720 `manual-page-for-system-command` cannot see manual pages from direct dependencies; LN1723 lacks the emacsen/elpa and CGI exemptions; LN1729 does not follow symlinked units.
+- LN0005 test fix: the run test patches `Caml1999X` out of the copied test binary so it no longer depends on rodata layout (`6ed8f0c3`).
 - LN0928 `license-problem-md5sum-non-free-file` has its own MD5 and table parsing; it could use `FileTree::md5sum` and `digest::hex_digest`.
 - The Vcs Rules other than LN1372/LN1373 (LN0135, LN1240–1243, LN0023, LN0797–LN0800) probably miss the `XS-Vcs-*` alias on a Source tree (a shared helper exists in `rules/lintian/vcs.rs`).
 - `scripts/new_lint_rule.py` sometimes adds a bogus `pub(crate) use lintian::<Struct>;` line for root-level source rules; agents remove it by hand.

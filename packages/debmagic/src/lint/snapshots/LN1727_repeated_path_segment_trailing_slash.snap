@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): repeated-path-segment (LN1727) lib [usr/lib/lib/]

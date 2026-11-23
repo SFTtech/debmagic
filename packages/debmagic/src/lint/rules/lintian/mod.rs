@@ -587,6 +587,7 @@ pub(crate) use shell_non_posix_bash_centric::PossibleBashismInMaintainerScript;
 pub(crate) use substvars_libc::PackageDependsOnHardcodedLibc;
 pub(crate) use substvars_misc_pre_depends::DependsOnMiscPreDepends;
 pub(crate) use team_pkg_perl_vcs::NoGit;
+pub(crate) use team_pkg_perl_vcs::NoTeamUrl;
 pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;
 pub(crate) use udev::UdevRuleInEtc;
 pub(crate) use udev::UdevRuleMissingSubsystem;

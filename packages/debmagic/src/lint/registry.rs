@@ -257,6 +257,7 @@ use super::rules::HomepageGitlabUrlEndsWithDotGit;
 use super::rules::HomepageInBinaryPackage;
 use super::rules::HomepageRefersToFilesystemListing;
 use super::rules::HomepageSalsaUrlEndsWithDotGit;
+use super::rules::HyphenInUpstreamPartOfDebianChangelogVersion;
 use super::rules::IllegalMultiArchValue;
 use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
@@ -2431,6 +2432,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
         &CoMaintainedPackageWithNoVcsFields,
+        &HyphenInUpstreamPartOfDebianChangelogVersion,
     ]
 }
 
@@ -2894,6 +2896,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &CoMaintainedPackageWithNoVcsFields,
+        &HyphenInUpstreamPartOfDebianChangelogVersion,
     ]
 }
 

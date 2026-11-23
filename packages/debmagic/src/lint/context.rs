@@ -629,7 +629,6 @@ impl SourcePackageData {
     }
 
     /// What tar printed extracting the Orig tarballs. Empty without an extract.
-    #[allow(dead_code)]
     pub(super) fn orig_unpack_messages(&self) -> &[String] {
         self._extract
             .as_ref()
@@ -766,7 +765,6 @@ impl<'a> SourceContext<'a> {
     /// What tar printed while extracting the Orig tarballs (lintian's
     /// `orig->unpack_messages`), each as `<tarball> . <message>`, in order.
     /// Empty on a Source tree and for a Native package.
-    #[allow(dead_code)]
     pub fn orig_unpack_messages(&self) -> &[String] {
         match self.inner {
             SourceInner::Tree(_) => &[],

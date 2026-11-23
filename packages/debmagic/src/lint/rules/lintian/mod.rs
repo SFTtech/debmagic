@@ -165,6 +165,8 @@ mod init_scripts;
 mod known_fields;
 mod languages_clojure_dh_clojure;
 mod languages_fortran_gfortran;
+mod languages_golang_built_using;
+mod languages_golang_default_godebug;
 mod languages_golang_module_path;
 mod languages_java;
 mod languages_java_bytecode;
@@ -524,8 +526,11 @@ pub(crate) use includes_config_h::PackageNameDefinedInConfigH;
 pub(crate) use languages_clojure_dh_clojure::ClojurePackageButNotDhClojure;
 pub(crate) use languages_fortran_gfortran::GfortranModuleDoesNotDeclareVersion;
 pub(crate) use languages_fortran_gfortran::MissingPrerequisiteForGfortranModule;
+pub(crate) use languages_golang_built_using::MissingStaticBuiltUsingFieldForGolangPackage;
+pub(crate) use languages_golang_default_godebug::BinaryContainsInsecureDefaultgodebugSettings;
 pub(crate) use languages_golang_module_path::GoLibraryPackageDoesNotIncludeVersion;
 pub(crate) use languages_golang_module_path::MissingXsGoImportPathForGolangPackage;
+pub(crate) use languages_golang_module_path::XsGoImportPathDiffersFromModulePath;
 pub(crate) use languages_java::BadJarName;
 pub(crate) use languages_java::ClasspathContainsRelativePath;
 pub(crate) use languages_java::CodelessJar;
@@ -689,8 +694,9 @@ pub(crate) use debian_rules::{
     DebianRulesUsesSupportedPythonVersionsWithoutPythonAllBuildDepends,
     DebianRulesUsesWrongEnvironmentVariable, DebugSymbolMigrationPossiblyComplete,
     MissingBuildDependsForCleanTargetInDebianRules, NoDhSequencer,
-    OverrideDhCleanDoesNotCallDhClean, OverrideDhFixpermsDoesNotCallDhFixperms,
-    RulesRequireBuildPrerequisite, UnnecessarySourceDateEpochAssignment,
+    OverrideDhAutoTestDoesNotCheckDEBBUILDOPTIONS, OverrideDhCleanDoesNotCallDhClean,
+    OverrideDhFixpermsDoesNotCallDhFixperms, RulesRequireBuildPrerequisite,
+    UnnecessarySourceDateEpochAssignment,
 };
 pub(crate) use debian_shlibs::{
     DistantPrerequisiteInShlibs, DuplicateEntryInSymbolsControlFile, DuplicateInShlibs,
@@ -930,13 +936,14 @@ pub(crate) use languages_python::{
     DebianPyversionsIsObsolete, DjangoPackageDoesNotDependOnDjango, DuplicateP3distOverride,
     EmbeddedFeedparserLibrary, FileInUsrLibSitePython, MalformedPythonVersion,
     MissingPrerequisiteForPyprojectBackend, NewPackageShouldNotPackagePython2Module,
-    PackageInstallsDeprecatedPython2Path, PackageInstallsLegacyPythonEggInfo,
-    PackageInstallsPythonBytecode, PackageInstallsPythonEgg, PackageInstallsPythonPycacheDir,
-    PypiHomepage, PythonDebugInWrongLocation, PythonModuleHasOverlyGenericName,
-    PythonModuleInWrongLocation, PythonPackageMissingDependsOnPython,
-    PythonVersionCurrentIsDeprecated, ScriptUsesUnversionedPythonInShebang,
-    SourcePackageEncodesPythonVersion, ThirdPartyPackageInPythonDir,
-    UnknownFileInPythonModuleDirectory, UsesDeprecatedPythonStdlib,
+    OldPythonVersionField, PackageInstallsDeprecatedPython2Path,
+    PackageInstallsLegacyPythonEggInfo, PackageInstallsPythonBytecode, PackageInstallsPythonEgg,
+    PackageInstallsPythonPycacheDir, PackageUsesOldPythonDependsSubstvar, PypiHomepage,
+    PythonDebugInWrongLocation, PythonModuleHasOverlyGenericName, PythonModuleInWrongLocation,
+    PythonPackageMissingDependsOnPython, PythonVersionCurrentIsDeprecated,
+    ScriptUsesUnversionedPythonInShebang, SourcePackageEncodesPythonVersion,
+    ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory, UselessPydistOverridesFile,
+    UsesDeprecatedPythonStdlib, UsesPdmCli, UsesPoetryCli,
 };
 pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
@@ -1136,11 +1143,11 @@ pub(crate) use rules_and_control::{
     DhExecInstallNotAllowedHere, DhExecPrivateHelper, DhExecScriptWithoutDhExecFeatures,
     DhExecSubstUnknownVariable, DhExecUselessUsage, DhInstallmanpagesIsObsolete,
     DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
-    ExecutableDebhelperFileWithoutBeingExecutable, PackageFileIsExecutable,
-    PackageUsesDebhelperButLacksBuildDepends, PackageUsesDhExecButLacksBuildDepends,
-    PackageUsesDhRunitButLacksBreaksSubstvar, PackageUsesOldDebhelperCompatVersion,
-    Python3DependsButNoPython3Helper, TemporaryDebhelperFile, UselessAutoreconfBuildDepends,
-    WeakDependencyOnMiscDepends,
+    ExecutableDebhelperFileWithoutBeingExecutable, PackageDoesNotUseDebhelper,
+    PackageFileIsExecutable, PackageUsesDebhelperButLacksBuildDepends,
+    PackageUsesDhExecButLacksBuildDepends, PackageUsesDhRunitButLacksBreaksSubstvar,
+    PackageUsesOldDebhelperCompatVersion, Python3DependsButNoPython3Helper, TemporaryDebhelperFile,
+    UselessAutoreconfBuildDepends, WeakDependencyOnMiscDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,
@@ -1203,6 +1210,10 @@ pub(crate) use testsuite::{
     TestsuiteDependencyHasUnparsableElements, TestsuiteDependsOnObsoletePackage,
     TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownRuntimeTestsFeature,
     UnknownRuntimeTestsField, UnknownRuntimeTestsRestriction, UnknownTestsuite,
+    RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends, SuperficialTests,
+    TestLeavesPythonVersionUntested, TestsuiteDependencyHasUnparsableElements,
+    TestsuiteDependsOnObsoletePackage, TestsuiteOredDependsOnObsoletePackage,
+    TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownTestsuite,
     UnnecessaryTestsuiteAutopkgtestField, UsesDeprecatedAdttmp,
 };
 pub(crate) use triggers::RepeatedTriggerName;

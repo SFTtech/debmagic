@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): uses-poetry-cli (LN1686) [pyproject.toml:3]

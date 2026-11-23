@@ -38,6 +38,7 @@ mod ln1307_package_uses_old_debhelper_compat_version;
 mod ln1500_package_uses_dh_runit_but_lacks_breaks_substvar;
 mod ln1513_dh_exec_subst_unknown_variable;
 mod ln1514_dh_exec_useless_usage;
+mod ln1680_package_does_not_use_debhelper;
 mod rules_text;
 
 pub(super) use control_text::{build_depends_all_names, names_package};
@@ -73,3 +74,4 @@ pub(crate) use ln1307_package_uses_old_debhelper_compat_version::PackageUsesOldD
 pub(crate) use ln1500_package_uses_dh_runit_but_lacks_breaks_substvar::PackageUsesDhRunitButLacksBreaksSubstvar;
 pub(crate) use ln1513_dh_exec_subst_unknown_variable::DhExecSubstUnknownVariable;
 pub(crate) use ln1514_dh_exec_useless_usage::DhExecUselessUsage;
+pub(crate) use ln1680_package_does_not_use_debhelper::PackageDoesNotUseDebhelper;

@@ -16,8 +16,11 @@ declare_rule! {
     /// A standalone service unit has no `[Install]` key that enables it.
     ///
     /// Reported as an info hint with no Extra; the unit path is the Location.
-    /// The unit must be a regular file or hardlink at `lib/systemd/<dir>/<name>.service`
-    /// (optionally under `usr/`), and not a template (`@.service`). It is
+    /// The unit must be a regular file or hardlink at
+    /// `lib/systemd/system/<name>.service` (optionally under `usr/`), and not a
+    /// template (`@.service`). Units in other folders, such as
+    /// `lib/systemd/user/`, are not checked: lintian only visits
+    /// `/systemd/system/` service files. It is
     /// skipped when it has `WantedBy=`, when its `[Service]` `Type` is
     /// `oneshot`, or when a `<name>.path` or `<name>.timer` unit exists beside
     /// it in `lib/systemd/system/` (only that folder counts for the sibling
@@ -32,7 +35,7 @@ declare_rule! {
 }
 
 static UNIT_PATH: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"^(?:usr/)?lib/systemd/[^/]+/[^/]+\.service$").expect("valid regex")
+    Regex::new(r"^(?:usr/)?lib/systemd/system/[^/]+\.service$").expect("valid regex")
 });
 
 static SYSTEM_UNIT: LazyLock<Regex> = LazyLock::new(|| {
@@ -117,8 +120,12 @@ mod tests {
         BinaryPackageCase::from(vec![(path, TestFile::new(body))])
     }
 
+    /// lintian's `Check/Systemd.pm` `visit_installed_files` routes only names
+    /// matching `/systemd/system/.*\.service$` to the service check, so units in
+    /// other folders (user units) never get this hint; the hint itself follows
+    /// the `[Install]` and `Type=oneshot` rules.
     #[test]
-    fn binary() {
+    fn only_system_unit_folder_is_checked() {
         let pass = vec![
             BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
             unit(
@@ -156,6 +163,11 @@ mod tests {
             // A subfolder deeper than the system folder is not matched.
             unit(
                 "usr/lib/systemd/system/sub/foo.service",
+                "[Service]\nExecStart=/bin/true\n",
+            ),
+            // A user unit is outside `lib/systemd/system/`, which lintian visits.
+            unit(
+                "usr/lib/systemd/user/foo.service",
                 "[Service]\nExecStart=/bin/true\n",
             ),
             // A masked unit is not a regular file.

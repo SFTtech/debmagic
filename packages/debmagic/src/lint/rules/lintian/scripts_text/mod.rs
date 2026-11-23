@@ -53,6 +53,7 @@ mod ln1580_example_interpreter_not_absolute;
 mod ln1581_example_script_uses_bin_env;
 mod ln1582_example_script_without_interpreter;
 mod ln1583_example_wrong_path_for_interpreter;
+mod ln1740_example_unusual_interpreter;
 mod scan;
 
 pub(crate) use ln0186_maintainer_script_calls_install_sgmlcatalog::MaintainerScriptCallsInstallSgmlcatalog;
@@ -105,3 +106,4 @@ pub(crate) use ln1580_example_interpreter_not_absolute::ExampleInterpreterNotAbs
 pub(crate) use ln1581_example_script_uses_bin_env::ExampleScriptUsesBinEnv;
 pub(crate) use ln1582_example_script_without_interpreter::ExampleScriptWithoutInterpreter;
 pub(crate) use ln1583_example_wrong_path_for_interpreter::ExampleWrongPathForInterpreter;
+pub(crate) use ln1740_example_unusual_interpreter::ExampleUnusualInterpreter;

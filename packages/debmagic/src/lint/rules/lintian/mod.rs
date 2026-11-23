@@ -869,7 +869,9 @@ pub(crate) use languages_javascript::{
     PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
 pub(crate) use languages_ocaml::{
-    OcamlCustomExecutable, OcamlDanglingCmi, OcamlDanglingCmx, OcamlDanglingCmxa, OcamlDanglingCmxs,
+    OcamlCustomExecutable, OcamlDanglingCmi, OcamlDanglingCmx, OcamlDanglingCmxa,
+    OcamlDanglingCmxs, OcamlDevFileInNondevPackage, OcamlDevFileNotInUsrLibOcaml,
+    OcamlMetaWithoutSuggestingFindlib, OcamlStrayCmo,
 };
 pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PackageInstallsPacklist,

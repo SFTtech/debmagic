@@ -7,8 +7,8 @@ use std::path::PathBuf;
 
 use common::{
     ParityHint, assets_dir, build_native_dsc, missing_upstream_tarball, parse_diagnostic_line,
-    parse_universal_hint_line, run_lint, run_lint_subject, run_lint_subjects, source_rule_counts,
-    temp_artifact,
+    parse_overridden_line, parse_universal_hint_line, run_lint, run_lint_subject,
+    run_lint_subjects, source_rule_counts, temp_artifact,
 };
 
 #[test]
@@ -32,6 +32,38 @@ fn lint_dummy_hit_prints_diagnostic_and_succeeds() {
     );
     assert!(!stdout.contains("All checks passed!"), "stdout: {stdout}");
     assert_finished(&stdout, source_rule_counts().default);
+}
+
+#[test]
+fn lint_override_flags_are_accepted_and_change_nothing_yet() {
+    let source_dir = assets_dir().join("check_dummy_hit");
+    let without_finished = |stdout: &str| -> Vec<String> {
+        stdout
+            .lines()
+            .filter(|line| !line.starts_with("Finished in "))
+            .map(str::to_string)
+            .collect()
+    };
+    let (status, plain, stderr) = run_lint(&source_dir, &[]);
+    assert!(status.success(), "stderr: {stderr}");
+    for flag in ["--show-overrides", "--no-override"] {
+        let (status, stdout, stderr) = run_lint(&source_dir, &[flag]);
+        assert!(status.success(), "{flag}: stderr: {stderr}");
+        assert_eq!(
+            without_finished(&stdout),
+            without_finished(&plain),
+            "{flag}"
+        );
+    }
+}
+
+#[test]
+fn lint_override_flags_conflict() {
+    let source_dir = assets_dir().join("check_dummy_hit");
+    let (status, stdout, stderr) = run_lint(&source_dir, &["--show-overrides", "--no-override"]);
+    assert_eq!(status.code(), Some(2), "stdout: {stdout}");
+    assert!(stdout.is_empty(), "stdout: {stdout}");
+    assert!(stderr.contains("cannot be used with"), "stderr: {stderr}");
 }
 
 #[test]
@@ -441,6 +473,24 @@ fn parse_parity_hint_and_diagnostic_lines() {
             }
         ))
     );
+}
+
+#[test]
+fn parse_overridden_line_is_separate_from_diagnostic_lines() {
+    let line = "O: generic-empty (source): required-field (LN0001) (in section for source) Standards-Version [debian/control]";
+    let expected = Some((
+        "source".to_string(),
+        ParityHint {
+            tag: "required-field".to_string(),
+            extra: "(in section for source) Standards-Version".to_string(),
+        },
+    ));
+    assert_eq!(parse_overridden_line(line), expected);
+    assert_eq!(parse_diagnostic_line(line), None);
+    let plain = line.replacen("O:", "W:", 1);
+    assert_eq!(parse_diagnostic_line(&plain), expected);
+    assert_eq!(parse_overridden_line(&plain), None);
+    assert_eq!(parse_overridden_line("N: some justification"), None);
 }
 
 #[test]

@@ -254,12 +254,23 @@ fn undo_double_encoding(text: &str) -> String {
         .unwrap_or_else(|| text.to_string())
 }
 
+/// A Diagnostic line of `debmagic lint` that is not overridden (`E:`, `W:`, `I:`, `P:`).
 pub fn parse_diagnostic_line(line: &str) -> Option<(String, ParityHint)> {
+    parse_hint_line(line, &["E:", "W:", "I:", "P:"])
+}
+
+/// An overridden Diagnostic line, printed by `--show-overrides` as `O:`. Kept apart
+/// from [`parse_diagnostic_line`] so the compared hints do not change.
+pub fn parse_overridden_line(line: &str) -> Option<(String, ParityHint)> {
+    parse_hint_line(line, &["O:"])
+}
+
+fn parse_hint_line(line: &str, prefixes: &[&str]) -> Option<(String, ParityHint)> {
     let line = line.trim();
     if line.is_empty() || line.starts_with("All checks") || line.starts_with("Found ") {
         return None;
     }
-    let rest = ["E:", "W:", "I:", "P:"]
+    let rest = prefixes
         .iter()
         .find_map(|prefix| line.strip_prefix(prefix))?;
     let rest = rest.trim();
@@ -552,7 +563,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         .into_iter()
         .collect();
     selected.sort();
-    let mut extra_args = Vec::new();
+    let mut extra_args = vec!["--show-overrides"];
     for tag in &selected {
         extra_args.push("--select");
         extra_args.push(tag.as_str());
@@ -1491,7 +1502,7 @@ pub fn assert_binary_package_parity(recipe_rel: &str) {
         .into_iter()
         .collect();
     selected.sort();
-    let mut extra_args = Vec::new();
+    let mut extra_args = vec!["--show-overrides"];
     for tag in &selected {
         extra_args.push("--select");
         extra_args.push(tag.as_str());
@@ -2247,7 +2258,7 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         .into_iter()
         .collect();
     selected.sort();
-    let mut extra_args = Vec::new();
+    let mut extra_args = vec!["--show-overrides"];
     for tag in &selected {
         extra_args.push("--select");
         extra_args.push(tag.as_str());
@@ -2863,7 +2874,7 @@ pub fn assert_group_parity(recipe_rel: &str) {
         .into_iter()
         .collect();
     selected.sort();
-    let mut extra_args = Vec::new();
+    let mut extra_args = vec!["--show-overrides"];
     for tag in &selected {
         extra_args.push("--select");
         extra_args.push(tag.as_str());

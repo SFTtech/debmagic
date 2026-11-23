@@ -196,6 +196,7 @@ use super::rules::ExecutableJarWithoutMainClass;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
+use super::rules::ExplicitlyArmoredUpstreamSignature;
 use super::rules::ExtendedDescriptionIsProbablyTooShort;
 use super::rules::ExtraLicenseFile;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
@@ -2321,6 +2322,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CapitalizationErrorInDescriptionSynopsis,
         &ConcatenatedUpstreamSignatures,
         &DoublyArmoredUpstreamSignature,
+        &ExplicitlyArmoredUpstreamSignature,
     ]
 }
 
@@ -2758,6 +2760,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &OredBuildDependsOnObsoletePackage,
         &ConcatenatedUpstreamSignatures,
         &DoublyArmoredUpstreamSignature,
+        &ExplicitlyArmoredUpstreamSignature,
     ]
 }
 

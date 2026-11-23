@@ -615,6 +615,7 @@ use super::rules::UdevRuleUnreadable;
 use super::rules::UnconditionalUseOfDpkgStatoverride;
 use super::rules::UndeclaredElfPrerequisites;
 use super::rules::UnexpectedConffile;
+use super::rules::UnicodeTrojan;
 use super::rules::UnknownArchitecture;
 use super::rules::UnknownConffileInstruction;
 use super::rules::UnknownControlFile;
@@ -2435,12 +2436,14 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInReadmeDebian,
         &SpellingInOverrideComment,
         &CapitalizationInOverrideComment,
+        &UnicodeTrojan,
     ]
 }
 
 pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
     &[
         &PackageHasLongFileName,
+        &UnicodeTrojan,
         &DebmagicDummyTrigger,
         &RequiredField,
         &SyntaxErrorInDebianChangelog,

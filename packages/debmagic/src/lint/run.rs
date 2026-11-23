@@ -1717,6 +1717,24 @@ mod override_application_tests {
         Ok(())
     }
 
+    /// lintian `Group.pm` tries the patterns of a Tag with `sort_by { length }`
+    /// (List::UtilsBy compares the lengths as strings), so `10` comes before `9`:
+    /// of two matching patterns the longer one suppresses the Diagnostic.
+    #[test]
+    fn matching_patterns_are_tried_in_string_order_of_their_length() -> anyhow::Result<()> {
+        let (_dir, data) = tree_with_overrides("cute-field *control]\ncute-field */control]\n")?;
+        let mut stages = vec![stage(Owner::Source, "cute-field", vec![cute("x")])];
+        apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::new(),
+            &[Processable::Tree(&data)],
+            &mut stages,
+        )?;
+        let line = stages[0].diagnostics[0].overridden.as_ref().map(|o| o.line);
+        assert_eq!(line, Some(2));
+        Ok(())
+    }
+
     #[test]
     fn off_mode_never_reads_or_flags() -> anyhow::Result<()> {
         let (_dir, data) = tree_with_overrides("cute-field\n")?;

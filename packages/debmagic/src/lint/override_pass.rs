@@ -88,7 +88,8 @@ struct Kept {
 /// architecture list keeps it; a Show-Always Tag is then ignored. A later line
 /// with the same Tag and pattern replaces the earlier one. A Diagnostic is
 /// matched by the first override of its Tag that is empty (which wins) or whose
-/// pattern globs its [`Diagnostic::override_context`], shortest pattern first,
+/// pattern globs its [`Diagnostic::override_context`], patterns ordered by the
+/// decimal string of their length (lintian's `sort_by { length }`),
 /// file order on ties.
 pub(crate) fn apply(
     overrides: &LintianOverrides,
@@ -123,13 +124,15 @@ pub(crate) fn apply(
 
     // Per Tag, the kept overrides in matching order. The empty pattern has length
     // zero, so it sorts first and wins; the sort is stable, so ties keep file order.
+    // Lintian sorts by `sort_by { length }`, which compares the lengths as decimal
+    // strings (`10` before `9`), so the key is the string of the length.
     let globs: Vec<Vec<Token>> = kept.iter().map(|entry| compile(&entry.pattern)).collect();
     let mut by_tag: HashMap<&'static str, Vec<usize>> = HashMap::new();
     for (index, entry) in kept.iter().enumerate() {
         by_tag.entry(entry.tag).or_default().push(index);
     }
     for indices in by_tag.values_mut() {
-        indices.sort_by_key(|&index| kept[index].pattern.chars().count());
+        indices.sort_by_key(|&index| kept[index].pattern.chars().count().to_string());
     }
 
     let produced: HashSet<&'static str> = diagnostics.iter().map(|d| d.tag.0).collect();

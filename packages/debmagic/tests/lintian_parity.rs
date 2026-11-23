@@ -188,6 +188,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/quilt-patch-dpatch-desc",
     "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
+    "checks/debian/po-debconf/invalid-potfiles-in",
     "checks/debian/po-debconf/legacy-debconf",
     "checks/debian/po-debconf/po-debconf-general",
     "checks/debian/po-debconf/po-debconf-missing",
@@ -847,7 +848,13 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/compressed/gz/not-a-gz",
     "checks/files/compressed/gz/timestamp-in-gzip",
     "checks/files/compressed/legacy-filenames",
+    "checks/files/compressed/bz2/not-a-bz2",
+    "checks/files/compressed/gz/files-gzip-ma-same",
+    "checks/files/compressed/gz/not-a-gz",
+    "checks/files/compressed/gz/timestamp-in-gzip",
+    "checks/files/compressed/lz/not-an-lz",
     "checks/files/compressed/lzma/not-an-lzma",
+    "checks/files/compressed/lzo/not-an-lzo",
     "checks/files/compressed/xz/not-an-xz",
     "checks/files/compressed/zip/not-a-zip",
     "checks/files/config-scripts/files-old-config-script",
@@ -1088,6 +1095,12 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/modprobe/files-general",
     "checks/modprobe/obsolete-commands-in-modprobe",
+    "checks/script/syntax/legacy-libbaz",
+    "checks/script/syntax/legacy-maintainer-scripts",
+    "checks/script/syntax/legacy-scripts",
+    "checks/script/syntax/scripts-bashisms",
+    "checks/script/syntax/scripts-interpreters",
+    "checks/script/syntax/scripts-maintainer-general",
     "checks/scripts/legacy-binary",
     "checks/scripts/legacy-libbaz",
     "checks/scripts/legacy-maintainer-scripts",
@@ -1325,6 +1338,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/quilt-patch-dpatch-desc",
     "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
+    "checks/debian/po-debconf/invalid-potfiles-in",
     "checks/debian/po-debconf/legacy-debconf",
     "checks/debian/po-debconf/po-debconf-general",
     "checks/debian/po-debconf/po-debconf-missing",
@@ -1904,6 +1918,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-desc"; "checks_debian_patches_quilt_quilt_patch_dpatch_desc")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
+#[test_case("checks/debian/po-debconf/invalid-potfiles-in"; "checks_debian_po_debconf_invalid_potfiles_in")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
 #[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
 #[test_case("checks/debian/po-debconf/po-debconf-missing"; "checks_debian_po_debconf_po_debconf_missing")]
@@ -2564,7 +2579,13 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/compressed/gz/not-a-gz"; "checks_files_compressed_gz_not_a_gz")]
 #[test_case("checks/files/compressed/gz/timestamp-in-gzip"; "checks_files_compressed_gz_timestamp_in_gzip")]
 #[test_case("checks/files/compressed/legacy-filenames"; "checks_files_compressed_legacy_filenames")]
+#[test_case("checks/files/compressed/bz2/not-a-bz2"; "checks_files_compressed_bz2_not_a_bz2")]
+#[test_case("checks/files/compressed/gz/files-gzip-ma-same"; "checks_files_compressed_gz_files_gzip_ma_same")]
+#[test_case("checks/files/compressed/gz/not-a-gz"; "checks_files_compressed_gz_not_a_gz")]
+#[test_case("checks/files/compressed/gz/timestamp-in-gzip"; "checks_files_compressed_gz_timestamp_in_gzip")]
+#[test_case("checks/files/compressed/lz/not-an-lz"; "checks_files_compressed_lz_not_an_lz")]
 #[test_case("checks/files/compressed/lzma/not-an-lzma"; "checks_files_compressed_lzma_not_an_lzma")]
+#[test_case("checks/files/compressed/lzo/not-an-lzo"; "checks_files_compressed_lzo_not_an_lzo")]
 #[test_case("checks/files/compressed/xz/not-an-xz"; "checks_files_compressed_xz_not_an_xz")]
 #[test_case("checks/files/compressed/zip/not-a-zip"; "checks_files_compressed_zip_not_a_zip")]
 #[test_case("checks/files/config-scripts/files-old-config-script"; "checks_files_config_scripts_files_old_config_script")]
@@ -2805,6 +2826,12 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/modprobe/files-general"; "checks_modprobe_files_general")]
 #[test_case("checks/modprobe/obsolete-commands-in-modprobe"; "checks_modprobe_obsolete_commands_in_modprobe")]
+#[test_case("checks/script/syntax/legacy-libbaz"; "checks_script_syntax_legacy_libbaz")]
+#[test_case("checks/script/syntax/legacy-maintainer-scripts"; "checks_script_syntax_legacy_maintainer_scripts")]
+#[test_case("checks/script/syntax/legacy-scripts"; "checks_script_syntax_legacy_scripts")]
+#[test_case("checks/script/syntax/scripts-bashisms"; "checks_script_syntax_scripts_bashisms")]
+#[test_case("checks/script/syntax/scripts-interpreters"; "checks_script_syntax_scripts_interpreters")]
+#[test_case("checks/script/syntax/scripts-maintainer-general"; "checks_script_syntax_scripts_maintainer_general")]
 #[test_case("checks/scripts/legacy-binary"; "checks_scripts_legacy_binary")]
 #[test_case("checks/scripts/legacy-libbaz"; "checks_scripts_legacy_libbaz")]
 #[test_case("checks/scripts/legacy-maintainer-scripts"; "checks_scripts_legacy_maintainer_scripts")]
@@ -3043,6 +3070,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-desc"; "checks_debian_patches_quilt_quilt_patch_dpatch_desc")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
+#[test_case("checks/debian/po-debconf/invalid-potfiles-in"; "checks_debian_po_debconf_invalid_potfiles_in")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
 #[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
 #[test_case("checks/debian/po-debconf/po-debconf-missing"; "checks_debian_po_debconf_po_debconf_missing")]

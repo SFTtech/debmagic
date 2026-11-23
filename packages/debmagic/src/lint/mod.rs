@@ -17,6 +17,7 @@ mod diversion;
 mod dsc;
 mod elf;
 mod elf_symbol_tables;
+mod external_tool;
 mod file_list;
 mod file_tree;
 mod file_type;

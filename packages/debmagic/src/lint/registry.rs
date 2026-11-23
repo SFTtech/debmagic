@@ -20,6 +20,7 @@ use super::rules::AppstreamMetadataLegacyFormat;
 use super::rules::AppstreamMetadataMalformedModaliasProvide;
 use super::rules::AppstreamMetadataMissingModaliasProvide;
 use super::rules::ArchDepPackageHasBigUsrShare;
+use super::rules::AppstreamMetadataValidationFailed;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::ArchitectureEscape;
@@ -49,8 +50,11 @@ use super::rules::BinaryPackageDependsOnToolchainPackage;
 use super::rules::BinaryWithBadDynamicTable;
 use super::rules::BoilerplateCopyrightFormatUri;
 use super::rules::BreaksWithoutVersion;
+use super::rules::BrokenBz2;
 use super::rules::BrokenGz;
+use super::rules::BrokenLz;
 use super::rules::BrokenLzma;
+use super::rules::BrokenLzo;
 use super::rules::BrokenXz;
 use super::rules::BrokenZip;
 use super::rules::BuildDependsArchWithoutArchDependentBinary;
@@ -271,6 +275,7 @@ use super::rules::InvalidDep3FormatPatchWrongBugDebianUrl;
 use super::rules::InvalidDep3FormatPatchWrongLastUpdate;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
+use super::rules::InvalidPotfilesIn;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::InvalidSystemdDocumentation;
@@ -311,6 +316,7 @@ use super::rules::MaintainerScriptSetsAlternativeImproperly;
 use super::rules::MaintainerScriptSupportsAncientPackageVersion;
 use super::rules::MaintainerScriptSwitchesDirToSymlinkUnsafely;
 use super::rules::MaintainerScriptWithoutSetE;
+use super::rules::MaintainerShellScriptFailsSyntaxCheck;
 use super::rules::MaintainerUploadHasIncorrectVersionNumber;
 use super::rules::MalformedChangesFile;
 use super::rules::MalformedDebArchive;
@@ -360,8 +366,10 @@ use super::rules::NativeSourceFileWithoutUtf8Name;
 use super::rules::NeedlessDependencyOnJre;
 use super::rules::NewPackageShouldNotPackagePython2Module;
 use super::rules::NewPackageUsesDateBasedVersionNumber;
+use super::rules::NewerDebconfTemplates;
 use super::rules::NmuInChangelog;
 use super::rules::NoCodeSections;
+use super::rules::NoCompleteDebconfTranslation;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
 use super::rules::NoMd5sumsControlFile;
@@ -518,6 +526,7 @@ use super::rules::SharedLibraryLacksStackSection;
 use super::rules::SharedLibraryLacksVersion;
 use super::rules::SharedLibraryNotShipped;
 use super::rules::SharedLibrarySymbolsNotTracked;
+use super::rules::ShellScriptFailsSyntaxCheck;
 use super::rules::ShipsUndeclaredSharedLibrary;
 use super::rules::SourceContainsEditorBackupFile;
 use super::rules::SourceContainsPatchFailureFile;
@@ -2375,6 +2384,15 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianPyversionsIsObsolete,
         &LicenseProblemFontAdobeCopyrightedFragment,
         &LicenseProblemFontAdobeCopyrightedFragmentNoCredit,
+        &MaintainerShellScriptFailsSyntaxCheck,
+        &ShellScriptFailsSyntaxCheck,
+        &InvalidPotfilesIn,
+        &NewerDebconfTemplates,
+        &NoCompleteDebconfTranslation,
+        &AppstreamMetadataValidationFailed,
+        &BrokenBz2,
+        &BrokenLz,
+        &BrokenLzo,
     ]
 }
 
@@ -2826,6 +2844,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InvalidDep3FormatPatchNoOrigin,
         &DebianPycompatIsObsolete,
         &DebianPyversionsIsObsolete,
+        &InvalidPotfilesIn,
+        &NewerDebconfTemplates,
+        &NoCompleteDebconfTranslation,
     ]
 }
 
@@ -3712,6 +3733,12 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &LocaleUsesLanguageGroupCode,
         &LicenseProblemFontAdobeCopyrightedFragment,
         &LicenseProblemFontAdobeCopyrightedFragmentNoCredit,
+        &MaintainerShellScriptFailsSyntaxCheck,
+        &ShellScriptFailsSyntaxCheck,
+        &AppstreamMetadataValidationFailed,
+        &BrokenBz2,
+        &BrokenLz,
+        &BrokenLzo,
     ]
 }
 

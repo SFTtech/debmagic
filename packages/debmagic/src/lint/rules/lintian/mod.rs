@@ -237,6 +237,7 @@ mod ln1389_source_contains_prebuilt_python_object;
 mod ln1390_source_is_missing;
 mod ln1491_inconsistent_maintainer;
 mod ln1560_bin_sbin_mismatch;
+mod ln1561_file_references_package_build_path;
 mod ln1562_empty_udeb_package;
 mod ln1624_source_contains_prebuilt_flash_project;
 mod ln1625_source_contains_prebuilt_flash_object;
@@ -1088,6 +1089,7 @@ pub(crate) use ln1389_source_contains_prebuilt_python_object::SourceContainsPreb
 pub(crate) use ln1390_source_is_missing::SourceIsMissing;
 pub(crate) use ln1491_inconsistent_maintainer::InconsistentMaintainer;
 pub(crate) use ln1560_bin_sbin_mismatch::BinSbinMismatch;
+pub(crate) use ln1561_file_references_package_build_path::FileReferencesPackageBuildPath;
 pub(crate) use ln1562_empty_udeb_package::EmptyUdebPackage;
 pub(crate) use ln1624_source_contains_prebuilt_flash_project::SourceContainsPrebuiltFlashProject;
 pub(crate) use ln1625_source_contains_prebuilt_flash_object::SourceContainsPrebuiltFlashObject;

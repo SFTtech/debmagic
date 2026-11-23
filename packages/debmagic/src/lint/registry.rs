@@ -247,6 +247,7 @@ use super::rules::FSSTNDDirInManualPage;
 use super::rules::FileContainsFixmePlaceholder;
 use super::rules::FileInEtcModprobeD;
 use super::rules::FileIncludedAlready;
+use super::rules::FileReferencesPackageBuildPath;
 use super::rules::FileSizeMismatchInChangesFile;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
@@ -2663,6 +2664,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &UnreleasedChangelogDistribution,
         &PackageUsesExperimentalDebhelperCompatVersion,
+        &FileReferencesPackageBuildPath,
     ]
 }
 
@@ -4185,6 +4187,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &RulesSilentlyRequireRoot,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &UnreleasedChangelogDistribution,
+        &FileReferencesPackageBuildPath,
     ]
 }
 

@@ -131,6 +131,13 @@ impl Section {
             .find(|field| field.name.eq_ignore_ascii_case(name))
     }
 
+    /// Every field name as written, with its line, in file order.
+    pub(super) fn field_names(&self) -> impl Iterator<Item = (&str, u32)> {
+        self.fields
+            .iter()
+            .map(|field| (field.name.as_str(), field.line))
+    }
+
     /// Line of the named field.
     pub(super) fn line(&self, name: &str) -> Option<u32> {
         self.find(name).map(|field| field.line)

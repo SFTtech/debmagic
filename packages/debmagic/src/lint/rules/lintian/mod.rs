@@ -782,8 +782,8 @@ pub(crate) use files_hierarchy::{
     AliasedLocation, ArchitectureEscape, DirInUsrLocal, DirOrFileInEtcOpt, DirOrFileInHome,
     DirOrFileInMnt, DirOrFileInOpt, DirOrFileInRun, DirOrFileInSrv, DirOrFileInTmp,
     DirOrFileInVarLock, DirOrFileInVarRun, DirOrFileInVarWww, FileDirectlyInUsrShare,
-    FileInUsrLocal, FsstndDirInUsr, FsstndDirInVar, NonMultiArchLibDir, NonStandardDirInUsr,
-    NonStandardDirInVar, SubdirInUsrBin, UseOfCompatSymlink,
+    FileInUsrLocal, FsstndDirInUsr, FsstndDirInVar, LdconfigEscape, NonMultiArchLibDir,
+    NonStandardDirInUsr, NonStandardDirInVar, SubdirInUsrBin, UseOfCompatSymlink,
 };
 pub(crate) use files_ieee::PackageInstallsIeeeData;
 pub(crate) use files_includes::HeaderHasOverlyGenericName;

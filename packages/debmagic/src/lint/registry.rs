@@ -297,6 +297,7 @@ use super::rules::KillModeNone;
 use super::rules::LacksLdconfigTrigger;
 use super::rules::LacksUnversionedLinkToSharedLibrary;
 use super::rules::LacksVersionedLinkToSharedLibrary;
+use super::rules::LdconfigEscape;
 use super::rules::LdconfigSymlinkIsNotASymlink;
 use super::rules::LdconfigSymlinkReferencingWrongFile;
 use super::rules::LibRecommendsDocumentation;
@@ -2439,6 +2440,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ChownWithDot,
         &ExecutableInUsrLib,
         &ImageFileInUsrLib,
+        &LdconfigEscape,
     ]
 }
 
@@ -3802,6 +3804,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ChownWithDot,
         &ExecutableInUsrLib,
         &ImageFileInUsrLib,
+        &LdconfigEscape,
     ]
 }
 

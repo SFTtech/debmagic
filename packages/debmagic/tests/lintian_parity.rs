@@ -924,6 +924,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fonts/files-fonts",
     "checks/fonts/opentype/use-restricted",
     "checks/fonts/opentype/wrong-filename",
+    "checks/fonts/postscript/type1/files-adobe-font",
     "checks/fonts/truetype/use-restricted",
     "checks/fonts/truetype/wrong-filename",
     "checks/foreign-operating-systems/files-general",
@@ -2609,6 +2610,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fonts/files-fonts"; "checks_fonts_files_fonts")]
 #[test_case("checks/fonts/opentype/use-restricted"; "checks_fonts_opentype_use_restricted")]
 #[test_case("checks/fonts/opentype/wrong-filename"; "checks_fonts_opentype_wrong_filename")]
+#[test_case("checks/fonts/postscript/type1/files-adobe-font"; "checks_fonts_postscript_type1_files_adobe_font")]
 #[test_case("checks/fonts/truetype/use-restricted"; "checks_fonts_truetype_use_restricted")]
 #[test_case("checks/fonts/truetype/wrong-filename"; "checks_fonts_truetype_wrong_filename")]
 #[test_case("checks/foreign-operating-systems/files-general"; "checks_foreign_operating_systems_files_general")]

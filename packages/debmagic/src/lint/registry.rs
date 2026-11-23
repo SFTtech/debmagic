@@ -18,6 +18,7 @@ use super::rules::AppstreamMetadataInvalid;
 use super::rules::AppstreamMetadataLegacyFormat;
 use super::rules::AppstreamMetadataMalformedModaliasProvide;
 use super::rules::AppstreamMetadataMissingModaliasProvide;
+use super::rules::AppstreamMetadataValidationFailed;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::BackportsChangesMissing;
@@ -2273,6 +2274,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidPotfilesIn,
         &NewerDebconfTemplates,
         &NoCompleteDebconfTranslation,
+        &AppstreamMetadataValidationFailed,
     ]
 }
 
@@ -3563,6 +3565,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &SystemdServiceFileMissingInstallKey,
         &MaintainerShellScriptFailsSyntaxCheck,
         &ShellScriptFailsSyntaxCheck,
+        &AppstreamMetadataValidationFailed,
     ]
 }
 

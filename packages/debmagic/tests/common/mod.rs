@@ -2409,14 +2409,18 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
 /// carry that form. `checks/cruft/cruft-general-upstream` and
 /// `checks/cruft/cruft-python` carry the bare `tag path`, expectations from an
 /// older lintian that 2.144.0's code can no longer produce. The pointer form is
-/// the truth, so a bare path extra of exactly these three Tags is compared as
+/// the truth, so a bare path extra of exactly these Tags is compared as
 /// an empty extra with the path as Location (`[path]`, as [`strip_location_pointer`]
 /// leaves a lone pointer). Other Tags, which may carry bare paths for real, are
 /// not touched; the vendored hint files stay as lintian shipped them.
-const POINTER_ONLY_SOURCE_MISSING_TAGS: [&str; 3] = [
+/// The two flash Tags are `files/source-missing` `pointed_hint`s too, and their
+/// `cruft-general-upstream` expectations are bare.
+const POINTER_ONLY_SOURCE_MISSING_TAGS: [&str; 5] = [
     "source-is-missing",
     "source-contains-prebuilt-javascript-object",
     "source-contains-prebuilt-python-object",
+    "source-contains-prebuilt-flash-object",
+    "source-contains-prebuilt-flash-project",
 ];
 
 /// The two Tags of lintian 2.144's `languages/python/obsolete` Check, which

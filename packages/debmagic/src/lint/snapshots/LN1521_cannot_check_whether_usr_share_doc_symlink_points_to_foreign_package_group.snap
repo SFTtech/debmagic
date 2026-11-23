@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+I: example (binary): cannot-check-whether-usr-share-doc-symlink-points-to-foreign-package (LN1521)
+I: example (binary): cannot-check-whether-usr-share-doc-symlink-points-to-foreign-package (LN1521)
+I: example (binary): cannot-check-whether-usr-share-doc-symlink-points-to-foreign-package (LN1521)
+I: example (binary): cannot-check-whether-usr-share-doc-symlink-points-to-foreign-package (LN1521)

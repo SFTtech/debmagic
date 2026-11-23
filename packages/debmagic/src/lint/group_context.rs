@@ -200,9 +200,9 @@ impl<'a> GroupInstallable<'a> {
 /// What a Rule of the Group kind sees: the Changes file, the Dsc, the
 /// Buildinfo file and the installables of one source package and version,
 /// each when the Group has it; the files of every installable; and the
-/// source's own Debian control and files. Diagnostics attach to the Source
-/// package: package is the Group's source name and processable type is
-/// `source`.
+/// source's own Debian control and files (all `None` without a Dsc). Diagnostics
+/// attach to the Source package: package is the Group's source name and
+/// processable type is `source`, unless a Rule reports on an installable.
 pub(crate) struct GroupContext<'a> {
     group: &'a Group,
     sink: DiagnosticSink,
@@ -228,7 +228,9 @@ impl<'a> GroupContext<'a> {
         self.group.changes.as_ref().map(|data| &data.changes)
     }
 
-    /// The Dsc of the Group's `.dsc`.
+    /// The Dsc of the Group's `.dsc`. `None` when the Group has no `.dsc`: a
+    /// Rule that runs for such a Group (see `GroupRule::runs_without_dsc`)
+    /// must not read that as "no source".
     pub fn dsc(&self) -> Option<&'a Dsc> {
         self.group.source.as_ref().map(|data| &data.dsc)
     }

@@ -197,6 +197,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/dep3/origin-field-default-value",
     "checks/debian/patches/dep3/wrong-bug-debian-url",
     "checks/debian/patches/legacy-relations",
+    "checks/debian/patches/patch-systems-no-patch-system",
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/legacy-relations",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
@@ -1420,6 +1421,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/dep3/origin-field-default-value",
     "checks/debian/patches/dep3/wrong-bug-debian-url",
     "checks/debian/patches/legacy-relations",
+    "checks/debian/patches/patch-systems-no-patch-system",
     "checks/debian/patches/patch-systems-no-readme-source",
     "checks/debian/patches/quilt/legacy-relations",
     "checks/debian/patches/quilt/patch-systems-quilt-debian-changes",
@@ -2056,6 +2058,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
 #[test_case("checks/debian/patches/dep3/wrong-bug-debian-url"; "checks_debian_patches_dep3_wrong_bug_debian_url")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
+#[test_case("checks/debian/patches/patch-systems-no-patch-system"; "checks_debian_patches_patch_systems_no_patch_system")]
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/legacy-relations"; "checks_debian_patches_quilt_legacy_relations")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]
@@ -3281,6 +3284,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
 #[test_case("checks/debian/patches/dep3/wrong-bug-debian-url"; "checks_debian_patches_dep3_wrong_bug_debian_url")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
+#[test_case("checks/debian/patches/patch-systems-no-patch-system"; "checks_debian_patches_patch_systems_no_patch_system")]
 #[test_case("checks/debian/patches/patch-systems-no-readme-source"; "checks_debian_patches_patch_systems_no_readme_source")]
 #[test_case("checks/debian/patches/quilt/legacy-relations"; "checks_debian_patches_quilt_legacy_relations")]
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-debian-changes"; "checks_debian_patches_quilt_patch_systems_quilt_debian_changes")]

@@ -295,7 +295,6 @@ pub(crate) struct UnpackMessages {
 
 impl UnpackMessages {
     /// The messages of one tarball. Empty when it is missing or unreadable.
-    #[allow(dead_code)] // seam API; no Rule reads it yet
     pub fn get(&self, tarball: Tarball) -> &[String] {
         match tarball {
             Tarball::Data => &self.data,
@@ -387,7 +386,6 @@ impl<'a> BinaryPackageContext<'a> {
     /// `unpack-messages`), read once per Subject and shared by every Rule. Ask
     /// for one tarball with [`UnpackMessages::get`]. Not a File tree: a broken
     /// tarball gives no messages here, and its failure shows in the Files trees.
-    #[allow(dead_code)] // seam API; no Rule reads it yet
     pub fn unpack_messages(&mut self) -> Arc<UnpackMessages> {
         self.shared_once(|ctx| match ctx.data.reader.as_ref() {
             Some(reader) => UnpackMessages {

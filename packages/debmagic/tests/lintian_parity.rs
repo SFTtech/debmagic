@@ -1109,6 +1109,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/triggers/triggers-general",
     "checks/udev/files-foo-in-bar",
     "checks/udev/udev-rules",
+    "checks/unpack/tar-removing-leading-slash",
     "checks/usrmerge/usrmerge-bin",
     "checks/usrmerge/usrmerge-lib",
     "checks/vim/files-foo-in-bar",
@@ -2798,6 +2799,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/triggers/triggers-general"; "checks_triggers_triggers_general")]
 #[test_case("checks/udev/files-foo-in-bar"; "checks_udev_files_foo_in_bar")]
 #[test_case("checks/udev/udev-rules"; "checks_udev_udev_rules")]
+#[test_case("checks/unpack/tar-removing-leading-slash"; "checks_unpack_tar_removing_leading_slash")]
 #[test_case("checks/usrmerge/usrmerge-bin"; "checks_usrmerge_usrmerge_bin")]
 #[test_case("checks/usrmerge/usrmerge-lib"; "checks_usrmerge_usrmerge_lib")]
 #[test_case("checks/vim/files-foo-in-bar"; "checks_vim_files_foo_in_bar")]

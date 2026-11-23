@@ -581,6 +581,7 @@ use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
 use super::rules::UnnecessarySourceDateEpochAssignment;
 use super::rules::UnnecessaryTeamUpload;
+use super::rules::UnpackMessageForDebData;
 use super::rules::UnparsableMenuItem;
 use super::rules::UnreleasedChanges;
 use super::rules::UnsupportedSourceFormat;
@@ -2327,6 +2328,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExplicitlyArmoredUpstreamSignature,
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
+        &UnpackMessageForDebData,
     ]
 }
 
@@ -3640,6 +3642,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DescriptionPossiblyContainsHomepage,
         &TypoInManualPage,
         &CapitalizationErrorInDescriptionSynopsis,
+        &UnpackMessageForDebData,
     ]
 }
 

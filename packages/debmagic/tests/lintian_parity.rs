@@ -1634,6 +1634,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants",
     "checks/changes-file/checksum-count-mismatch",
     "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
+    "checks/debian/changelog/changelog-distribution-does-not-match-changes-file",
     "checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license",
     "checks/debian/copyright/copyright-file-symlink",
     "checks/desktop/gnome/gir/gir",
@@ -3323,6 +3324,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_changes_file_changes_files_package_builds_dbg_and_dbgsym_variants")]
 #[test_case("checks/changes-file/checksum-count-mismatch"; "checks_changes_file_checksum_count_mismatch")]
 #[test_case("checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar"; "checks_debhelper_debhelper_dh_runit_but_lacks_breaks_substvar")]
+#[test_case("checks/debian/changelog/changelog-distribution-does-not-match-changes-file"; "checks_debian_changelog_changelog_distribution_does_not_match_changes_file")]
 #[test_case("checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license"; "checks_debian_copyright_apache_notice_source_copyright_missing_notice_file_for_apache_license")]
 #[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]

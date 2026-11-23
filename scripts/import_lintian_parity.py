@@ -386,7 +386,9 @@ def vendor_build_spec(
 
     `dpkg-overrides` (`-DField=value` words lintian passes to `dpkg-source`) changes
     the `.dsc`. `pre-upstream.in` is kept, unfilled, only when it creates `debian/`
-    in the orig. `pre-build` (the filled one from `work`) is kept only when it makes
+    in the orig. `pre-orig` (the filled one from `work`) is kept for every recipe that
+    has one: it makes files in the orig that the tree cannot hold (non-UTF-8 names,
+    old time stamps). `pre-build` (the filled one from `work`) is kept only when it makes
     orig tarballs next to the source directory, which the `.dsc` lists as components
     and signatures; what it does to the sources is in the tree already. The harness
     reads all three (`tests/common/mod.rs`, ADR 0039). `post-build` (filled, see
@@ -401,6 +403,9 @@ def vendor_build_spec(
     pre_build = work / "pre-build" if work is not None else None
     if pre_build is not None and pre_build.is_file() and ORIG_TARBALL_HOOK.search(read_text(pre_build)[0]):
         kept.append(("pre-build", pre_build))
+    pre_orig = work / "pre-orig" if work is not None else None
+    if pre_orig is not None and pre_orig.is_file():
+        kept.append(("pre-orig", pre_orig))
     post_build_work = work if work is not None and (work / "post-build").is_file() else None
     source_only = (values or {}).get("upload_type") == "source"
     if not kept and post_build_work is None and not source_only:
@@ -549,6 +554,10 @@ def source_tree_hint_matches_filled_tree(recipe: Path, tag: str) -> bool:
     # `add-component-copyright` reads the orig tarball names of the `.dsc`; a
     # Source tree has none, so only the Source package can report it.
     if tag == "add-component-copyright":
+        return False
+    # `upstream-file-without-utf8-name` walks the Orig files, which a Source tree
+    # does not have, and the files a `pre-orig` hook makes are not in the tree.
+    if tag == "upstream-file-without-utf8-name":
         return False
     if tag not in {
         "package-uses-deprecated-debhelper-compat-version",

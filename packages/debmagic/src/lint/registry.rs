@@ -590,6 +590,7 @@ use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploadHasBackportsVersionNumber;
 use super::rules::UploaderNameMissing;
 use super::rules::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;
+use super::rules::UpstreamFileWithoutUtf8Name;
 use super::rules::UpstreamMetadataFieldUnknown;
 use super::rules::UpstreamMetadataFileIsMissing;
 use super::rules::UpstreamMetadataInNativeSource;
@@ -2327,6 +2328,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ChangelogDistributionDoesNotMatchChangesFile,
         &InconsistentMaintainer,
         &RuntimeTestFileIsNotARegularFile,
+        &UpstreamFileWithoutUtf8Name,
     ]
 }
 
@@ -2763,6 +2765,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &BuildDependsOnPythonDevWithNoArchAny,
         &OredBuildDependsOnObsoletePackage,
         &RuntimeTestFileIsNotARegularFile,
+        &UpstreamFileWithoutUtf8Name,
     ]
 }
 

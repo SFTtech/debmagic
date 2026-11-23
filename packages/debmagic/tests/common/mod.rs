@@ -299,6 +299,12 @@ fn source_tree_hint_matches_filled_tree(recipe: &Path, hint: &ParityHint) -> boo
     if hint.tag == "add-component-copyright" {
         return false;
     }
+    // `upstream-file-without-utf8-name` walks the Orig files, which a Source
+    // tree does not have, and the files a `pre-orig` hook makes are not in the
+    // tree.
+    if hint.tag == "upstream-file-without-utf8-name" {
+        return false;
+    }
     !(matches!(
         hint.tag.as_str(),
         "package-uses-deprecated-debhelper-compat-version"
@@ -870,7 +876,7 @@ fn rules_use_nodejs(source: &Path) -> bool {
 // compares against, not what is built.
 
 /// Bumped when the key layout or what is stored changes.
-const BUILD_CACHE_FORMAT: &str = "3";
+const BUILD_CACHE_FORMAT: &str = "4";
 
 fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
@@ -1838,6 +1844,33 @@ fn vendored_post_build(recipe: &Path) -> Option<PathBuf> {
     hook.is_file().then_some(hook)
 }
 
+/// `build-spec/pre-orig`, the filled hook lintian's source builder runs on the
+/// package directory before it tars the orig. It makes files a vendored tree
+/// cannot hold (names that are not UTF-8, ancient time stamps).
+fn vendored_pre_orig(recipe: &Path) -> Option<PathBuf> {
+    let hook = recipe.join(VENDORED_BUILD_SPEC).join("pre-orig");
+    hook.is_file().then_some(hook)
+}
+
+/// Runs the vendored `pre-orig` hook on the package directory `source`. The
+/// builder runs it on the copy of `orig/` and tars that into the orig, and
+/// `dpkg-source` then packs a directory that has the same files; here the tree
+/// is that directory, so the hook runs on it before the orig is packed from it.
+fn run_pre_orig(hook: &Path, source: &Path) {
+    let output = Command::new("sh")
+        .arg(hook)
+        .arg(source)
+        .output()
+        .expect("spawning pre-orig hook");
+    assert!(
+        output.status.success(),
+        "{}: pre-orig hook failed\nstdout:\n{}\nstderr:\n{}",
+        hook.display(),
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
 /// Runs the vendored `post-build` hook on `product` as lintian's Makefile does:
 /// in the build directory (the product's), with the product's name as the
 /// argument. `LINTIAN_SOURCE_PATH` is where the files the hook reads from the
@@ -1986,6 +2019,12 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     key.field("has-pre-build", &[u8::from(pre_build.is_some())]);
     // The `post-build` hook of a `source-*` skeleton rewrites the `.dsc`; an
     // `upload-*` one rewrites the `.changes`, which this build does not make.
+    let pre_orig = vendored_pre_orig(recipe);
+    let pre_orig_text = pre_orig.as_ref().map(|hook| {
+        fs::read(hook).unwrap_or_else(|error| panic!("reading {}: {error}", hook.display()))
+    });
+    key.field("pre-orig", pre_orig_text.as_deref().unwrap_or_default());
+    key.field("has-pre-orig", &[u8::from(pre_orig.is_some())]);
     let post_build = vendored_post_build(recipe).filter(|_| {
         recipe_skeleton(recipe).is_some_and(|skeleton| skeleton.starts_with("source-"))
     });
@@ -2002,6 +2041,7 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
             root_adds: &root_adds,
             hook: hook.as_deref(),
             pre_build: pre_build.as_deref(),
+            pre_orig: pre_orig.as_deref(),
             post_build: post_build.as_deref(),
             non_native,
         };
@@ -2031,6 +2071,7 @@ struct SourcePacking<'a> {
     root_adds: &'a [String],
     hook: Option<&'a Path>,
     pre_build: Option<&'a Path>,
+    pre_orig: Option<&'a Path>,
     post_build: Option<&'a Path>,
     non_native: bool,
 }
@@ -2044,9 +2085,13 @@ fn pack_source_package(recipe: &Path, work: &Path, source: &Path, packing: Sourc
         root_adds,
         hook,
         pre_build,
+        pre_orig,
         post_build,
         non_native,
     } = packing;
+    if let Some(pre_orig) = pre_orig {
+        run_pre_orig(pre_orig, source);
+    }
     if let Some(hook) = hook {
         let name = main_orig_name(source);
         pack_orig_with_hook(source, hook, &work.join(&name), root_adds);

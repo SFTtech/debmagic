@@ -23,7 +23,6 @@ static DURABLE: LazyLock<HashSet<&'static str>> =
 
 /// Whether lintian declares the Tag `Show-Always: yes` (by current name). An
 /// override cannot suppress such a Tag (ADR 0057).
-#[allow(dead_code)]
 pub(crate) fn is_durable(current_name: &str) -> bool {
     DURABLE.contains(current_name)
 }

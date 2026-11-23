@@ -41,6 +41,11 @@ impl Hashbang {
         })
     }
 
+    /// lintian's `hashbang`: the trimmed text after `#!`, as stored.
+    pub(crate) fn line(&self) -> &[u8] {
+        &self.line
+    }
+
     /// lintian's `calls_env`: the hashbang starts with `/usr/bin/env` and
     /// whitespace.
     pub(crate) fn calls_env(&self) -> bool {

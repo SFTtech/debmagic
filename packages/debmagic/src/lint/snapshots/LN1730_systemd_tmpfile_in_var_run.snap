@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): systemd-tmpfile-in-var-run (LN1730) [usr/lib/tmpfiles.d/test.conf]
+I: example (binary): systemd-tmpfile-in-var-run (LN1730) [usr/lib/tmpfiles.d/test.conf]
+I: example (udeb): systemd-tmpfile-in-var-run (LN1730) [usr/lib/tmpfiles.d/test.conf]

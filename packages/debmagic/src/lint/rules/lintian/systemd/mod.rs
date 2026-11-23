@@ -21,6 +21,8 @@ mod ln1230_systemd_service_file_shutdown_problems;
 mod ln1432_systemd_service_file_missing_documentation_key;
 mod ln1584_invalid_systemd_documentation;
 mod ln1585_systemd_service_file_missing_install_key;
+mod ln1729_systemd_service_file_refers_to_var_run;
+mod ln1730_systemd_tmpfile_in_var_run;
 mod systemd_init;
 mod targets;
 
@@ -42,3 +44,5 @@ pub(crate) use ln1230_systemd_service_file_shutdown_problems::SystemdServiceFile
 pub(crate) use ln1432_systemd_service_file_missing_documentation_key::SystemdServiceFileMissingDocumentationKey;
 pub(crate) use ln1584_invalid_systemd_documentation::InvalidSystemdDocumentation;
 pub(crate) use ln1585_systemd_service_file_missing_install_key::SystemdServiceFileMissingInstallKey;
+pub(crate) use ln1729_systemd_service_file_refers_to_var_run::SystemdServiceFileRefersToVarRun;
+pub(crate) use ln1730_systemd_tmpfile_in_var_run::SystemdTmpfileInVarRun;

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): package-does-not-use-debhelper (LN1680) [debian/rules]
+P: example (source): package-does-not-use-debhelper (LN1680) [debian/rules]
+P: example (source): package-does-not-use-debhelper (LN1680) [debian/control:4]

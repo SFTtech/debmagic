@@ -436,6 +436,7 @@ use super::rules::PackageContainsXvpicsDir;
 use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
 use super::rules::PackageDependsOnMultipleTclxVersions;
+use super::rules::PackageDoesNotUseDebhelper;
 use super::rules::PackageFileIsExecutable;
 use super::rules::PackageHasLongFileName;
 use super::rules::PackageHasUnnecessaryActivationOfLdconfigTrigger;
@@ -2447,6 +2448,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &XsGoImportPathDiffersFromModulePath,
         &BinaryContainsInsecureDefaultgodebugSettings,
         &OverrideDhAutoTestDoesNotCheckDEBBUILDOPTIONS,
+        &PackageDoesNotUseDebhelper,
     ]
 }
 
@@ -2917,6 +2919,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MissingStaticBuiltUsingFieldForGolangPackage,
         &XsGoImportPathDiffersFromModulePath,
         &OverrideDhAutoTestDoesNotCheckDEBBUILDOPTIONS,
+        &PackageDoesNotUseDebhelper,
     ]
 }
 

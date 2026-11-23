@@ -667,6 +667,7 @@ pub(crate) use fields_version::{
     AnticipatedRepackCount, BadVersionNumber, BinaryNmuDebianRevisionInSource,
     DebianRevisionIsZero, DebianRevisionNotWellFormed, DfsgVersionInNativePackage,
     DfsgVersionMisspelled, DfsgVersionWithPeriod, DfsgVersionWithTilde, DotBeforeRepackCount,
+    InvalidVersionNumberForDerivative,
 };
 
 pub(crate) use debian_debconf::{

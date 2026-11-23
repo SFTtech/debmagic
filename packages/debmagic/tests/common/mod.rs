@@ -158,8 +158,8 @@ fn discover_parity_recipes(root: &Path) -> Vec<PathBuf> {
 /// How many Rules a lint of a Source tree runs, read from the Rule sources
 /// (one `declare_rule!` per file, ADR 0027) instead of a hand-kept number:
 /// `default` is every non-experimental, default-selected Rule that implements
-/// `SourceRule`; `ln` is every LN Rule that implements it (what `--select LN`
-/// runs, ADR 0014).
+/// `SourceRule` or `OverrideRule` (a Source tree runs both); `ln` is every LN Rule
+/// that implements one (what `--select LN` runs, ADR 0014).
 pub struct SourceRuleCounts {
     pub default: usize,
     pub ln: usize,
@@ -178,7 +178,9 @@ pub fn source_rule_counts() -> SourceRuleCounts {
             let Ok(text) = fs::read_to_string(&path) else {
                 continue;
             };
-            if !text.contains("impl SourceRule for") || !text.contains("declare_rule!") {
+            let source_tree_rule =
+                text.contains("impl SourceRule for") || text.contains("impl OverrideRule for");
+            if !source_tree_rule || !text.contains("declare_rule!") {
                 continue;
             }
             let has = |line: &str| text.lines().any(|candidate| candidate.trim() == line);
@@ -377,6 +379,7 @@ const RULE_IMPL_NEEDLES: &[&str] = &[
     "impl ChangesRule for",
     "impl BuildinfoRule for",
     "impl GroupRule for",
+    "impl OverrideRule for",
     "fn runs_without_dsc",
 ];
 

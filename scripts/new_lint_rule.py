@@ -42,6 +42,7 @@ KIND_TRAIT = {
     "changes": "ChangesRule",
     "buildinfo": "BuildinfoRule",
     "group": "GroupRule",
+    "override": "OverrideRule",
 }
 KIND_CONTEXT = {
     "source": "SourceContext",
@@ -49,6 +50,7 @@ KIND_CONTEXT = {
     "changes": "ChangesContext",
     "buildinfo": "BuildinfoContext",
     "group": "GroupContext",
+    "override": "OverrideContext",
 }
 # The Context types of Group artifacts live in `group_context`, the others in `context`.
 KIND_CONTEXT_MODULE = {
@@ -57,6 +59,7 @@ KIND_CONTEXT_MODULE = {
     "changes": "group_context",
     "buildinfo": "group_context",
     "group": "group_context",
+    "override": "override_pass",
 }
 KIND_REGISTRY_LIST = {
     "source": "source_rules",
@@ -64,6 +67,7 @@ KIND_REGISTRY_LIST = {
     "changes": "changes_rules",
     "buildinfo": "buildinfo_rules",
     "group": "group_rules",
+    "override": "override_rules",
 }
 KIND_TESTER = {
     "source": ("SourceTreeTester", "TestCase"),
@@ -71,10 +75,13 @@ KIND_TESTER = {
     "changes": ("ChangesTester", "ChangesCase"),
     "buildinfo": ("BuildinfoTester", "BuildinfoCase"),
     "group": ("GroupTester", "GroupCase"),
+    "override": ("OverrideTester", "OverrideCase"),
 }
 
 
 def kinds_from_recipes(tag: str) -> list[str]:
+    if tag in report.OVERRIDE_PASS_TAGS:
+        return ["override"]
     kinds: set[str] = set()
     for recipe in report.load_recipes(tagtool.SUITE):
         for hint in recipe.hints:
@@ -114,7 +121,7 @@ def render_rule(tag: report.LintianTag, struct: str, code: str, kinds: list[str]
         tester, case = KIND_TESTER[kind]
         tests.append(
             f"""    #[test]
-    fn {kind}() {{
+    fn {kind if kind != "override" else "override_pass"}() {{
         // Pass and fail cases; `.test_and_snapshot()` once there are fail cases (`just snap-accept`).
         let pass = Vec::<{case}>::new();
         let fail = Vec::<{case}>::new();
@@ -223,7 +230,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--code", help="LN Code to use (default: the next free one)")
     parser.add_argument(
         "--kind",
-        help="Applicability: source, binary, both (source+binary), changes, buildinfo, group; a comma list "
+        help="Applicability: source, binary, both (source+binary), changes, buildinfo, group, override "
+        "(the override pass, for unused-override and mismatched-override); a comma list "
         "(default: from recipes; a Group Rule must be asked for)",
     )
     parser.add_argument("--lintian-src", type=Path, help="lintian source tree at the PIN version")

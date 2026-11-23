@@ -640,6 +640,11 @@ def catalogued_group_tags(rules_dir: Path) -> set[str]:
     return catalogued_tags_with_impl(rules_dir, "impl GroupRule for")
 
 
+def catalogued_override_tags(rules_dir: Path) -> set[str]:
+    """Tags of the OverrideRule files (the override pass reports, ADR 0057). Not a Subject of a recipe."""
+    return catalogued_tags_with_impl(rules_dir, "impl OverrideRule for")
+
+
 def recipe_is_source_tree(recipe: Path) -> bool:
     return (recipe / "debian").is_dir()
 

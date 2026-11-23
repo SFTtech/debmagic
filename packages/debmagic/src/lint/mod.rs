@@ -55,6 +55,8 @@ mod subject;
 pub(crate) mod tester;
 #[cfg(test)]
 mod tester_group;
+#[cfg(test)]
+mod tester_override;
 mod timing;
 mod type1;
 mod upstream_metadata;

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+package=explicit-armor-header
+upstream_version=1.0
+origtargz=${package}_${upstream_version}.orig.tar.gz
+
+SIGNATURE="${origtargz}.asc"
+
+# create a temporary file
+TEMPFILE=`mktemp`
+
+# make a copy of signature
+gpg --dearmor "$SIGNATURE" > "$TEMPFILE"
+
+# append it again to the existing signature
+cat "$TEMPFILE" | gpg --enarmor > "$SIGNATURE"
+
+# remove temporary file
+rm -f "$TEMPFILE"

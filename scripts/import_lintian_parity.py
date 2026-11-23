@@ -366,11 +366,18 @@ def vendor_build_spec(spec: Path, dest: Path, orig_has_debian: bool, work: Path 
     pre_build = work / "pre-build" if work is not None else None
     if pre_build is not None and pre_build.is_file() and ORIG_TARBALL_HOOK.search(read_text(pre_build)[0]):
         kept.append(("pre-build", pre_build))
+        # lintian's upload builder signs the orig with `upstream/private-key.asc`
+        # before `pre-build` runs; a hook that signs or re-signs the orig needs it.
+        key = spec / "upstream" / "private-key.asc"
+        if key.is_file():
+            kept.append(("upstream/private-key.asc", key))
     if not kept:
         return
     (dest / "build-spec").mkdir()
     for name, source in kept:
-        shutil.copy2(source, dest / "build-spec" / name)
+        target = dest / "build-spec" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
 
 
 def copy_filled_work(work: Path, dest: Path) -> None:
@@ -500,6 +507,15 @@ def parse_universal_hint_line(line: str) -> tuple[str, str, str] | None:
     return match.group("ptype"), match.group("tag"), extra
 
 
+UPSTREAM_SIGNATURE_TAGS = {
+    "concatenated-upstream-signatures",
+    "doubly-armored-upstream-signature",
+    "explicitly-armored-upstream-signature",
+    "orig-tarball-missing-upstream-signature",
+    "spurious-fields-in-upstream-signature",
+}
+
+
 def source_tree_hint_matches_filled_tree(recipe: Path, tag: str) -> bool:
     """See `source_tree_hint_matches_filled_tree` in `tests/common/mod.rs`."""
     if tag == "no-debian-changes":
@@ -507,6 +523,10 @@ def source_tree_hint_matches_filled_tree(recipe: Path, tag: str) -> bool:
     # `add-component-copyright` reads the orig tarball names of the `.dsc`; a
     # Source tree has none, so only the Source package can report it.
     if tag == "add-component-copyright":
+        return False
+    # The `upstream-signature` Tags read the signature files next to the `.dsc`;
+    # a Source tree has none, so only the Source package can report them.
+    if tag in UPSTREAM_SIGNATURE_TAGS:
         return False
     if tag not in {
         "package-uses-deprecated-debhelper-compat-version",

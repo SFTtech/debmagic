@@ -712,6 +712,8 @@ pub struct SourcePackageTester {
 pub struct SourcePackageCase {
     orig: TestCase,
     patched: TestCase,
+    /// Files next to the `.dsc` (its directory): signatures, component tarballs.
+    siblings: TestCase,
     package: String,
     dsc: Option<Dsc>,
 }
@@ -719,6 +721,13 @@ pub struct SourcePackageCase {
 impl SourcePackageCase {
     pub fn orig(mut self, files: impl Into<TestCase>) -> Self {
         self.orig = files.into();
+        self
+    }
+
+    /// Regular files in the directory of the `.dsc`, beside the orig and
+    /// Patched files (see `SourceContext::sibling_files`).
+    pub fn siblings(mut self, files: impl Into<TestCase>) -> Self {
+        self.siblings = files.into();
         self
     }
 
@@ -749,6 +758,7 @@ impl From<TestCase> for SourcePackageCase {
         Self {
             orig: TestCase::default(),
             patched,
+            siblings: TestCase::default(),
             package: "example".to_string(),
             dsc: None,
         }
@@ -855,8 +865,9 @@ impl SourcePackageTester {
     }
 
     fn run(&mut self, case: &SourcePackageCase) -> TestResult {
+        let siblings = materialize(&case.siblings);
         let data = SourcePackageData::with_file_trees(
-            PathBuf::from("example.dsc"),
+            siblings.path().join("example.dsc"),
             case.package.clone(),
             case.orig.file_tree(),
             case.patched.file_tree(),

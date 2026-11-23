@@ -350,14 +350,14 @@ fn filenames_from_checksums_field(value: &str) -> Vec<String> {
     names
 }
 
-fn strip_epoch(version: &str) -> &str {
+pub(crate) fn strip_epoch(version: &str) -> &str {
     match version.split_once(':') {
         Some((_, rest)) => rest,
         None => version,
     }
 }
 
-fn strip_debian_revision(version: &str) -> &str {
+pub(crate) fn strip_debian_revision(version: &str) -> &str {
     match version.rsplit_once('-') {
         Some((upstream, _)) => upstream,
         None => version,

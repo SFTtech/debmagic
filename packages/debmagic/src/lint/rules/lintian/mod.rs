@@ -248,6 +248,7 @@ mod testsuite;
 mod tlds;
 mod triggers;
 mod udev;
+mod upstream_signature;
 mod usrmerge;
 mod vcs;
 mod vim;
@@ -504,6 +505,7 @@ pub(crate) use udev::UdevRuleInEtc;
 pub(crate) use udev::UdevRuleMissingSubsystem;
 pub(crate) use udev::UdevRuleMissingUaccess;
 pub(crate) use udev::UdevRuleUnreadable;
+pub(crate) use upstream_signature::ConcatenatedUpstreamSignatures;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{

@@ -435,6 +435,7 @@ use super::rules::PackageContainsXvpicsDir;
 use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
 use super::rules::PackageDependsOnMultipleTclxVersions;
+use super::rules::PackageDoesNotInstallExamples;
 use super::rules::PackageFileIsExecutable;
 use super::rules::PackageHasLongFileName;
 use super::rules::PackageHasUnnecessaryActivationOfLdconfigTrigger;
@@ -2447,6 +2448,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OlderDebianWatchFileStandard,
         &MaintainerDesktopEntry,
         &MaintainerManualPage,
+        &PackageDoesNotInstallExamples,
     ]
 }
 
@@ -3861,6 +3863,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &ChangelogDistributionDoesNotMatchChangesFile,
         &InconsistentMaintainer,
         &SpareManualPage,
+        &PackageDoesNotInstallExamples,
     ]
 }
 

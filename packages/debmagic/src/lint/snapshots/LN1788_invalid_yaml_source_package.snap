@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): invalid-yaml (LN1788) [debian/salsa-ci.yml]
+W: example (source): invalid-yaml (LN1788) [debian/gitlab-ci.yml]

@@ -308,6 +308,7 @@ use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::InvalidSystemdDocumentation;
 use super::rules::InvalidVersionedProvides;
+use super::rules::InvalidYaml;
 use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
@@ -2661,6 +2662,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &AnsiEscape,
+        &InvalidYaml,
     ]
 }
 
@@ -3195,6 +3197,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
         &AnsiEscape,
+        &InvalidYaml,
     ]
 }
 

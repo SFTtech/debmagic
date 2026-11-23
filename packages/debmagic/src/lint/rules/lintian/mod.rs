@@ -972,7 +972,6 @@ pub(crate) use md5sums::{
 };
 
 pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;
-pub(crate) use debian_patches::DirectChangesInDiffButNoPatchSystem;
 pub(crate) use debian_patches::{
     Dep3FormatPatchAuthorOrFromIsBetter, Format30ButDebianChangesPatch,
     InvalidDep3FormatPatchBugFieldDefaultValue, InvalidDep3FormatPatchBugNotContainUrl,
@@ -986,6 +985,9 @@ pub(crate) use debian_patches::{
     QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
     QuiltSeriesReferencesNonExistentPatch, QuiltSeriesWithoutTrailingNewline,
     SpellingErrorInPatchDescription,
+};
+pub(crate) use debian_patches::{
+    DirectChangesInDiffButNoPatchSystem, PatchSystemButDirectChangesInDiff,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,

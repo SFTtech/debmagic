@@ -1,6 +1,7 @@
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::Diagnostic;
+use crate::lint::diffstat::Diffstat;
 use crate::lint::rule::{Severity, SourceRule};
 
 use super::ln0396_format_3_0_but_debian_changes_patch::{is_quilt_format, source_format};
@@ -31,23 +32,31 @@ declare_rule! {
 impl SourceRule for DirectChangesInDiffButNoPatchSystem {
     fn run(&self, ctx: &mut SourceContext<'_>) {
         let diffstat = ctx.diffstat();
-        let direct: Vec<&String> = diffstat
-            .files()
-            .iter()
-            .filter(|path| !path.starts_with("debian/"))
-            .collect();
-        let Some(first) = direct.first() else {
+        let Some(extra) = direct_changes_extra(&diffstat) else {
             return;
         };
         if uses_patch_system(ctx) {
             return;
         }
-        let extra = match direct.len() {
-            1 => first.to_string(),
-            count => format!("{first} and {} more", count - 1),
-        };
         ctx.diagnostic(Diagnostic::warn(extra).with_severity(Severity::Pedantic));
     }
+}
+
+/// The Extra of the Debian diff's direct changes, shared with
+/// `patch-system-but-direct-changes-in-diff`: the first file outside `debian/`
+/// in sorted order, with ` and N more` when there are more. `None` when the
+/// diff changes no file outside `debian/`.
+pub(crate) fn direct_changes_extra(diffstat: &Diffstat) -> Option<String> {
+    let direct: Vec<&String> = diffstat
+        .files()
+        .iter()
+        .filter(|path| !path.starts_with("debian/"))
+        .collect();
+    let first = direct.first()?;
+    Some(match direct.len() {
+        1 => first.to_string(),
+        count => format!("{first} and {} more", count - 1),
+    })
 }
 
 /// Whether lintian's `patch-system` Tag fires: the Format matches
@@ -66,7 +75,7 @@ pub(crate) fn uses_patch_system(ctx: &mut SourceContext<'_>) -> bool {
 }
 
 #[cfg(test)]
-mod tests {
+pub(super) mod tests {
     use std::io::Write;
 
     use flate2::Compression;
@@ -79,7 +88,7 @@ mod tests {
 
     use super::*;
 
-    const CONTROL: &str = "\
+    pub(in super::super) const CONTROL: &str = "\
 Source: example
 Maintainer: Maintainer <m@example.com>
 
@@ -89,7 +98,7 @@ Description: example
  extra
 ";
 
-    const CONTROL_QUILT: &str = "\
+    pub(in super::super) const CONTROL_QUILT: &str = "\
 Source: example
 Maintainer: Maintainer <m@example.com>
 Build-Depends: debhelper-compat (= 13), quilt
@@ -102,7 +111,7 @@ Description: example
 
     /// The `.dsc` of version 1.0-1 in `format`. Its Files list the diff when
     /// `listed`, and never an orig tarball (the Rule does not read it).
-    fn dsc(format: &str, listed: bool) -> Dsc {
+    pub(in super::super) fn dsc(format: &str, listed: bool) -> Dsc {
         let mut text = format!(
             "Source: example\nVersion: 1.0-1\nFormat: {format}\nFiles:\n 00000000000000000000000000000000 0 example_1.0.orig.tar.gz\n"
         );
@@ -113,7 +122,7 @@ Description: example
     }
 
     /// A gzipped unified diff that changes each path in `paths`.
-    fn diff_gz(paths: &[&str]) -> TestFile {
+    pub(in super::super) fn diff_gz(paths: &[&str]) -> TestFile {
         let mut text = String::new();
         for path in paths {
             text.push_str(&format!(
@@ -127,7 +136,7 @@ Description: example
 
     /// A Source package case: patched `debian/control` (`control`), the `.dsc`
     /// in `format`, and the diff beside it under `diff_name`.
-    fn case(
+    pub(in super::super) fn case(
         control: &str,
         format: &str,
         diff_name: &str,

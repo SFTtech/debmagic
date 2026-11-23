@@ -4,17 +4,20 @@
 //!
 //! The pass is pure. It takes the parsed file, the facts about the processable
 //! and its Diagnostics; it sets [`Diagnostic::overridden`] on the Diagnostics an
-//! override suppressed and reports the overrides nothing matched. It is not
-//! called yet: `run.rs` wires it in a later task.
+//! override suppressed and reports the overrides nothing matched. `run.rs` calls
+//! it once per processable after its Rules ran, then runs the `OverrideRule`s on
+//! an [`OverrideContext`].
 #![allow(dead_code)]
 
 use std::collections::{HashMap, HashSet};
+use std::path::Path;
 
 use super::architecture::restriction_list_keeps;
-use super::diagnostic::{Diagnostic, Overridden};
+use super::context::DiagnosticSink;
+use super::diagnostic::{Diagnostic, Location, Overridden, ProcessableType};
 use super::lintian_overrides::LintianOverrides;
 use super::lintian_tags::{current_tag_name, is_durable};
-use super::rule::Tag;
+use super::rule::{RuleAccess, Tag};
 
 /// What the pass must know about the processable besides its Diagnostics.
 #[derive(Debug, Clone, Copy)]
@@ -171,6 +174,66 @@ pub(crate) fn apply(
         }
     }
     outcome
+}
+
+/// What an [`OverrideRule`](super::rule::OverrideRule) sees: the overrides the
+/// pass left unmatched, split as lintian's two reports, and the processable's
+/// override file. Its Diagnostics take the processable's package and processable
+/// type, and are never overridden.
+pub(crate) struct OverrideContext<'a> {
+    unused: Vec<UnmatchedOverride>,
+    mismatched: Vec<UnmatchedOverride>,
+    path: &'a Path,
+    package: &'a str,
+    sink: DiagnosticSink,
+}
+
+impl<'a> OverrideContext<'a> {
+    pub(crate) fn bind(
+        rule: &(impl RuleAccess + ?Sized),
+        outcome: PassOutcome,
+        path: &'a Path,
+        package: &'a str,
+        processable_type: ProcessableType,
+    ) -> Self {
+        Self {
+            unused: outcome.unused,
+            mismatched: outcome.mismatched,
+            path,
+            package,
+            sink: DiagnosticSink::new(rule, processable_type),
+        }
+    }
+
+    /// Overrides whose Tag produced no Diagnostic on the processable.
+    pub fn unused(&self) -> &[UnmatchedOverride] {
+        &self.unused
+    }
+
+    /// Overrides whose Tag produced Diagnostics, none matching.
+    pub fn mismatched(&self) -> &[UnmatchedOverride] {
+        &self.mismatched
+    }
+
+    /// The Location of an override: the override file and the override's line.
+    pub fn location(&self, unmatched: &UnmatchedOverride) -> Location {
+        Location {
+            path: self.path.to_path_buf(),
+            line: Some(unmatched.line),
+            column: None,
+        }
+    }
+
+    /// Report a Diagnostic. Package and processable type default to the
+    /// processable's, as for the other contexts.
+    pub fn diagnostic(&mut self, diagnostic: Diagnostic) {
+        let package = self.package;
+        self.sink.report(diagnostic, || package.to_string());
+    }
+
+    pub(crate) fn finish(self) -> Vec<Diagnostic> {
+        self.sink.into_diagnostics()
+    }
 }
 
 /// One token of an override pattern, as lintian's `match_glob` reads it:

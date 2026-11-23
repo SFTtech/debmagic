@@ -213,10 +213,13 @@ async fn run() -> anyhow::Result<ExitCode> {
                 overrides: args.override_mode(),
             })?;
             let result = lint::run_lint(&intent).context("linting the package failed")?;
-            for diagnostic in &result.diagnostics {
-                println!("{}", lint::format_diagnostic(diagnostic));
+            for line in lint::format_diagnostic_lines(&result.diagnostics, intent.overrides) {
+                println!("{line}");
             }
             println!("{}", lint::format_summary(&result.diagnostics));
+            for line in lint::format_override_notes(&result, intent.overrides) {
+                println!("{line}");
+            }
             if let Some(timings) = &result.timings {
                 println!("{}", lint::format_timings(timings));
             }

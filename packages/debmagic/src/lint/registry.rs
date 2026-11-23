@@ -1,5 +1,5 @@
 use super::rule::{
-    BinaryPackageRule, BuildinfoRule, ChangesRule, GroupRule, RuleAccess, SourceRule,
+    BinaryPackageRule, BuildinfoRule, ChangesRule, GroupRule, OverrideRule, RuleAccess, SourceRule,
 };
 use super::rules::AcuteAccentInManualPage;
 use super::rules::AddComponentCopyright;
@@ -1184,6 +1184,7 @@ use super::rules::InvalidValueInStaticBuiltUsingField;
 use super::rules::KillallIsDangerous;
 use super::rules::LibraryInRootAndUsr;
 use super::rules::MaintainerScriptCallsSystemctl;
+use super::rules::MismatchedOverride;
 use super::rules::MissingDebianSourceFormat;
 use super::rules::MknodInMaintainerScript;
 use super::rules::MultiarchForeignCmakeFile;
@@ -1210,6 +1211,7 @@ use super::rules::RemoveOfUnknownDiversion;
 use super::rules::ScriptUsesUnversionedPythonInShebang;
 use super::rules::SharedobjectInLibraryDirectoryMissingSoname;
 use super::rules::SystemdDiversion;
+use super::rules::UnusedOverride;
 use super::rules::VcsFieldBitrotted;
 use super::rules::VcsFieldMismatch;
 use super::rules::ZeroByteExecutableInPath;
@@ -2677,6 +2679,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ManualPageInUdeb,
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
+        &UnusedOverride,
+        &MismatchedOverride,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &BadOwnerForDocFile,
         &WrongFileOwnerUidOrGid,
@@ -4215,6 +4219,10 @@ pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
     &[&DebianRevisionNotWellFormed, &PackageHasLongFileName]
 }
 
+pub(crate) fn override_rules() -> &'static [&'static dyn OverrideRule] {
+    &[&UnusedOverride, &MismatchedOverride]
+}
+
 pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
     &[
         &IntraSourcePackageCircularDependency,
@@ -4310,6 +4318,12 @@ mod tests {
     }
 
     #[test]
+    fn override_rules_cover_catalogued_override_tags() {
+        let codes = registered(override_rules().iter().map(|rule| rule.code()));
+        assert_eq!(codes, implemented_codes("OverrideRule"));
+    }
+
+    #[test]
     fn group_rules_cover_catalogued_group_tags() {
         let codes = registered(group_rules().iter().map(|rule| rule.code()));
         assert_eq!(codes, implemented_codes("GroupRule"));
@@ -4325,6 +4339,7 @@ mod tests {
             "ChangesRule",
             "BuildinfoRule",
             "GroupRule",
+            "OverrideRule",
         ] {
             by_trait.extend(implemented_codes(trait_name));
         }

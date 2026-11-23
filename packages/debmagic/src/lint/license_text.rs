@@ -191,6 +191,157 @@ impl BadLicense {
     }
 }
 
+static SCRIPT_WITH_SRC: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"\A<script\s+[^>]*?src="[^"]+?"[^>]*?>"#).expect("valid regex"));
+static INLINE_SCRIPT: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?s)<script[^>]*?>(.*?)</script>").expect("valid regex"));
+
+/// The contents of the inline `<script>` blocks of a lower-cased HTML page,
+/// in order, as lintian's `cruft` Check walks them: a script with a `src`
+/// attribute is skipped, and the walk stops at the first `<script` that has no
+/// closing `</script>`.
+pub(crate) fn inline_scripts(lowercase: &str) -> Vec<&str> {
+    let mut rest = lowercase;
+    let mut scripts = Vec::new();
+    while let Some(at) = rest.find("<script") {
+        rest = &rest[at..];
+        if let Some(sourced) = SCRIPT_WITH_SRC.find(rest) {
+            rest = &rest[sourced.end()..];
+        } else if let Some(inline) = INLINE_SCRIPT.captures(rest) {
+            let whole = inline.get(0).expect("whole match");
+            scripts.push(inline.get(1).map_or("", |body| body.as_str()));
+            rest = &rest[whole.end()..];
+        } else {
+            break;
+        }
+    }
+    scripts
+}
+
+/// lintian's `_strip_c_comments`: `/* */` and `//` comments removed, string
+/// and character literals kept. A `//` comment runs to the first newline that
+/// no backslash escapes; one with no such newline after it is kept.
+pub(crate) fn strip_c_comments(text: &str) -> String {
+    let bytes = text.as_bytes();
+    let mut out = Vec::with_capacity(bytes.len());
+    let mut i = 0;
+    while i < bytes.len() {
+        match bytes[i] {
+            b'/' if bytes.get(i + 1) == Some(&b'*') => match find_bytes(bytes, i + 2, b"*/") {
+                Some(end) => i = end + 2,
+                None => {
+                    out.push(b'/');
+                    i += 1;
+                }
+            },
+            b'/' if bytes.get(i + 1) == Some(&b'/') => match unescaped_newline(bytes, i + 2) {
+                Some(newline) => i = newline,
+                None => {
+                    out.push(b'/');
+                    i += 1;
+                }
+            },
+            quote @ (b'"' | b'\'') => match literal_end(bytes, i, quote) {
+                Some(end) => {
+                    out.extend_from_slice(&bytes[i..end]);
+                    i = end;
+                }
+                None => {
+                    out.push(quote);
+                    i += 1;
+                }
+            },
+            byte => {
+                out.push(byte);
+                i += 1;
+            }
+        }
+    }
+    String::from_utf8_lossy(&out).into_owned()
+}
+
+fn find_bytes(bytes: &[u8], from: usize, pattern: &[u8]) -> Option<usize> {
+    bytes
+        .get(from..)?
+        .windows(pattern.len())
+        .position(|window| window == pattern)
+        .map(|offset| from + offset)
+}
+
+/// The first newline at or after `from` that the byte before does not escape.
+fn unescaped_newline(bytes: &[u8], from: usize) -> Option<usize> {
+    (from..bytes.len()).find(|&at| bytes[at] == b'\n' && bytes[at - 1] != b'\\')
+}
+
+/// The index just past the literal that opens at `start`, or `None` when it is
+/// not closed. A backslash keeps the byte after it.
+fn literal_end(bytes: &[u8], start: usize, quote: u8) -> Option<usize> {
+    let mut at = start + 1;
+    while at < bytes.len() {
+        match bytes[at] {
+            b'\\' => at += 2,
+            byte if byte == quote => return Some(at + 1),
+            _ => at += 1,
+        }
+    }
+    None
+}
+
+static JSLINT_BLOCK_LINE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?m)^\s*/\*[^\n]*\*/\s*$").expect("valid regex"));
+static JSLINT_LINE_COMMENT: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?m)^\s*//[^\n]*$").expect("valid regex"));
+static LEADING_SPACE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?m)^\s+").expect("valid regex"));
+static BLANK_LINE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?m)^\s*\n").expect("valid regex"));
+
+/// lintian's `$contiguous`: a script or a JavaScript file with its JSLint
+/// banner lines, comments, indentation and blank lines removed, and its lines
+/// joined with spaces. Browserify patterns are matched against this.
+pub(crate) fn contiguous_code(lowercase: &str) -> String {
+    let text = JSLINT_BLOCK_LINE.replace_all(lowercase, "");
+    let text = JSLINT_LINE_COMMENT.replace_all(&text, "");
+    let text = LEADING_SPACE.replace_all(&text, "");
+    let text = strip_c_comments(&text);
+    let text = BLANK_LINE.replace_all(&text, "");
+    // `s/\n\Z//m`: one newline at the end goes, and the second-last one when
+    // the text ends in two.
+    let mut text = text.into_owned();
+    if text.ends_with("\n\n") {
+        text.remove(text.len() - 2);
+    } else if text.ends_with('\n') {
+        text.pop();
+    }
+    text.replace('\n', " ")
+}
+
+/// lintian's `cruft/browserify-regex` table, in file order: each pattern is
+/// matched case-sensitively under `/msx`, and its first group is the code
+/// fragment the hint names.
+static BROWSERIFY: LazyLock<Vec<Regex>> = LazyLock::new(|| {
+    lines(include_str!("data/cruft/browserify-regex"))
+        .filter_map(|line| line.split_once("~~"))
+        .map(|(_, pattern)| {
+            Regex::new(&format!("(?msx){}", pattern.trim())).expect("valid browserify regex")
+        })
+        .collect()
+});
+
+/// The extra of `source-contains-browserified-javascript` for `contiguous`
+/// (see [`contiguous_code`]): `code fragment:` and the first group of the
+/// first pattern that matches, or an empty extra when that group is absent.
+/// `None` when no pattern matches.
+pub(crate) fn browserify_extra(contiguous: &str) -> Option<String> {
+    BROWSERIFY.iter().find_map(|pattern| {
+        pattern.captures(contiguous).map(|captures| {
+            captures.get(1).map_or_else(String::new, |fragment| {
+                format!("code fragment:{}", fragment.as_str())
+            })
+        })
+    })
+}
+
 static RFC_WHITELIST: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     lines(include_str!("data/cruft/rfc-whitelist"))
         .map(|pattern| Regex::new(&pattern.replace(r"\Z", r"\z")).expect("valid regex"))

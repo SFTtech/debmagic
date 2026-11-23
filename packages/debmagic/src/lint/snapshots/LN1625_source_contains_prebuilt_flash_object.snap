@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-prebuilt-flash-object (LN1625) [fakeflash.swf]
+P: example (source): source-contains-prebuilt-flash-object (LN1625) [src/compressed.swf]
+P: example (source): source-contains-prebuilt-flash-object (LN1625) [src/video.flv]
+P: example (source): source-contains-prebuilt-flash-object (LN1625) [fakeflash.swf]

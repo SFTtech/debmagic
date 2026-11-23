@@ -577,6 +577,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         .map(|(_, hint)| hint)
         .collect();
     rewrite_changelog_last_used(recipe_rel, &mut actual);
+    rewrite_minified_js_post_test(recipe_rel, &mut actual);
     rewrite_current_policy_release_date(recipe_rel, &mut actual);
     rewrite_current_policy_version(recipe_rel, &mut actual);
     drop_hints_for_unvendorable_files(recipe_rel, &mut actual);
@@ -2264,6 +2265,7 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         .map(|(_, hint)| hint)
         .collect();
     rewrite_changelog_last_used(recipe_rel, &mut actual);
+    rewrite_minified_js_post_test(recipe_rel, &mut actual);
     rewrite_current_policy_release_date(recipe_rel, &mut actual);
     rewrite_current_policy_version(recipe_rel, &mut actual);
     drop_hints_for_unvendorable_files(recipe_rel, &mut actual);
@@ -2446,14 +2448,18 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
 /// carry that form. `checks/cruft/cruft-general-upstream` and
 /// `checks/cruft/cruft-python` carry the bare `tag path`, expectations from an
 /// older lintian that 2.144.0's code can no longer produce. The pointer form is
-/// the truth, so a bare path extra of exactly these three Tags is compared as
+/// the truth, so a bare path extra of exactly these Tags is compared as
 /// an empty extra with the path as Location (`[path]`, as [`strip_location_pointer`]
 /// leaves a lone pointer). Other Tags, which may carry bare paths for real, are
 /// not touched; the vendored hint files stay as lintian shipped them.
-const POINTER_ONLY_SOURCE_MISSING_TAGS: [&str; 3] = [
+/// The two flash Tags are `files/source-missing` `pointed_hint`s too, and their
+/// `cruft-general-upstream` expectations are bare.
+const POINTER_ONLY_SOURCE_MISSING_TAGS: [&str; 5] = [
     "source-is-missing",
     "source-contains-prebuilt-javascript-object",
     "source-contains-prebuilt-python-object",
+    "source-contains-prebuilt-flash-object",
+    "source-contains-prebuilt-flash-project",
 ];
 
 /// The two Tags of lintian 2.144's `languages/python/obsolete` Check, which
@@ -2609,6 +2615,27 @@ fn rewrite_changelog_last_used(recipe_rel: &str, hints: &mut [ParityHint]) {
         let end = start + relative_end;
         hint.extra
             .replace_range(start..=end, "(last used: CURRENT)");
+    }
+}
+
+/// The `eval/post-test` of `cruft-minified-js`: lintian's test runner rewrites
+/// the variable part of two extras to placeholders before it compares them
+/// (`code fragment:.*` to `code fragment:CODE`, `extract of copyright
+/// statement:.*` to `... COPYRIGHT`). The hints file holds the placeholders.
+fn rewrite_minified_js_post_test(recipe_rel: &str, hints: &mut [ParityHint]) {
+    if recipe_rel != "checks/cruft/cruft-minified-js" {
+        return;
+    }
+    for hint in hints {
+        if hint.tag == "source-contains-browserified-javascript"
+            && hint.extra.starts_with("code fragment:")
+        {
+            hint.extra = "code fragment:CODE".to_string();
+        } else if hint.tag == "embedded-script-includes-copyright-statement"
+            && hint.extra.starts_with("extract of copyright statement:")
+        {
+            hint.extra = "extract of copyright statement: COPYRIGHT".to_string();
+        }
     }
 }
 

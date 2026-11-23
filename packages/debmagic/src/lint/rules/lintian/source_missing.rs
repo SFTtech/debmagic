@@ -85,7 +85,7 @@ pub(super) fn is_python_byte_code(prefix: &[u8]) -> bool {
 
 /// lintian's `file_type =~ m{^Macromedia \s Flash}x`: a Flash movie (`FWS`,
 /// compressed `CWS` and `ZWS`) or a Flash video (`FLV\x01`).
-fn is_macromedia_flash(prefix: &[u8]) -> bool {
+pub(super) fn is_macromedia_flash(prefix: &[u8]) -> bool {
     prefix.starts_with(b"FWS")
         || prefix.starts_with(b"CWS")
         || prefix.starts_with(b"ZWS")
@@ -94,11 +94,11 @@ fn is_macromedia_flash(prefix: &[u8]) -> bool {
 
 /// lintian's `file_type =~ m{^Composite \s Document \s File}x`: an OLE2
 /// container, the format of a Flash project.
-fn is_composite_document(prefix: &[u8]) -> bool {
+pub(super) fn is_composite_document(prefix: &[u8]) -> bool {
     prefix.starts_with(b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1")
 }
 
-fn prefix(files: &FileTree, entry: &Entry) -> Vec<u8> {
+pub(super) fn prefix(files: &FileTree, entry: &Entry) -> Vec<u8> {
     files.read_prefix(entry, MAGIC_LEN).unwrap_or_default()
 }
 

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-prebuilt-pandoc-documentation (LN1627) [oldfalsepositives/pandoc/]
+P: example (source): source-contains-prebuilt-pandoc-documentation (LN1627) [./]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): spelling-error-in-description-synopsis (LN1670) developement development
+I: example (udeb): spelling-error-in-description-synopsis (LN1670) developement development

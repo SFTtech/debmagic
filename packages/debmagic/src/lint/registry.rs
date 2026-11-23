@@ -568,6 +568,7 @@ use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::SpellingErrorInBinary;
 use super::rules::SpellingErrorInChangelog;
 use super::rules::SpellingErrorInDescription;
+use super::rules::SpellingErrorInDescriptionSynopsis;
 use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
@@ -2447,6 +2448,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &RedundantRulesRequiresRootNoField,
         &OddMarkInDescription,
         &PerlModuleNameNotMentionedInDescription,
+        &SpellingErrorInDescriptionSynopsis,
     ]
 }
 
@@ -3814,6 +3816,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExperimentalToUnstableWithoutComment,
         &OddMarkInDescription,
         &PerlModuleNameNotMentionedInDescription,
+        &SpellingErrorInDescriptionSynopsis,
     ]
 }
 

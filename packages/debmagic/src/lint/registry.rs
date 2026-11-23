@@ -123,6 +123,7 @@ use super::rules::DebianControlFileIsASymlink;
 use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
+use super::rules::DebianFilesListInSource;
 use super::rules::DebianNewsEntryUsesAsterisk;
 use super::rules::DebianPycompatIsObsolete;
 use super::rules::DebianPyversionsIsObsolete;
@@ -2635,6 +2636,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OcamlStrayCmo,
         &StaticLibraryHasUnneededSections,
         &UnstrippedStaticLibrary,
+        &DebianFilesListInSource,
     ]
 }
 
@@ -3161,6 +3163,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PackageDoesNotUseDebhelper,
         &SuperficialTests,
         &TestsuiteOredDependsOnObsoletePackage,
+        &DebianFilesListInSource,
     ]
 }
 

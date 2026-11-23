@@ -20,6 +20,7 @@ mod ln1345_debian_watch_uses_insecure_uri;
 mod ln1536_debian_watch_contains_dh_make_template;
 mod ln1537_debian_watch_mangles_debian_version_improperly;
 mod ln1538_debian_watch_mangles_upstream_version_improperly;
+mod ln1707_older_debian_watch_file_standard;
 mod standard;
 
 pub(crate) use ln0089_missing_debian_watch_file_standard::MissingDebianWatchFileStandard;
@@ -41,3 +42,4 @@ pub(crate) use ln1345_debian_watch_uses_insecure_uri::DebianWatchUsesInsecureUri
 pub(crate) use ln1536_debian_watch_contains_dh_make_template::DebianWatchContainsDhMakeTemplate;
 pub(crate) use ln1537_debian_watch_mangles_debian_version_improperly::DebianWatchManglesDebianVersionImproperly;
 pub(crate) use ln1538_debian_watch_mangles_upstream_version_improperly::DebianWatchManglesUpstreamVersionImproperly;
+pub(crate) use ln1707_older_debian_watch_file_standard::OlderDebianWatchFileStandard;

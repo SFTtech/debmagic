@@ -405,6 +405,7 @@ use super::rules::OcamlDanglingCmx;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
+use super::rules::OlderDebianWatchFileStandard;
 use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OredBuildDependsOnObsoletePackage;
@@ -2441,6 +2442,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnusedEntryInDebianSourceIncludeBinaries,
         &QuiltPatchUsesDpatchExtension,
         &SpellingErrorInPatchDescription,
+        &OlderDebianWatchFileStandard,
     ]
 }
 
@@ -2909,6 +2911,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UnusedEntryInDebianSourceIncludeBinaries,
         &QuiltPatchUsesDpatchExtension,
         &SpellingErrorInPatchDescription,
+        &OlderDebianWatchFileStandard,
     ]
 }
 

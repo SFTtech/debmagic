@@ -12,6 +12,7 @@ use regex::Regex;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::EntryKind;
+use crate::lint::rule::Severity;
 
 const KNOWN: &[&str] = &["2", "3", "4", "5"];
 
@@ -28,6 +29,8 @@ pub(super) enum WatchHit {
     Multiple(String),
     Unknown(String),
     Obsolete(String),
+    /// The highest known standard is 4, which is newly superseded.
+    Older(String),
 }
 
 pub(super) fn watch_hits(text: &str) -> Vec<WatchHit> {
@@ -68,15 +71,27 @@ pub(super) fn watch_hits(text: &str) -> Vec<WatchHit> {
         .iter()
         .copied()
         .max_by_key(|version| version.parse::<u32>().unwrap_or(0))
-        && highest.parse::<u32>().unwrap_or(0) < 4
     {
-        hits.push(WatchHit::Obsolete(highest.to_string()));
+        match highest.parse::<u32>().unwrap_or(0) {
+            0..4 => hits.push(WatchHit::Obsolete(highest.to_string())),
+            4 => hits.push(WatchHit::Older(highest.to_string())),
+            _ => {}
+        }
     }
     hits
 }
 
 pub(super) fn flag_watch(
     ctx: &mut SourceContext<'_>,
+    accept: impl Fn(&WatchHit) -> Option<String>,
+) {
+    flag_watch_at(ctx, Severity::Warning, accept);
+}
+
+/// `flag_watch` at the given severity.
+pub(super) fn flag_watch_at(
+    ctx: &mut SourceContext<'_>,
+    severity: Severity,
     accept: impl Fn(&WatchHit) -> Option<String>,
 ) {
     let prepared = {
@@ -97,11 +112,15 @@ pub(super) fn flag_watch(
         (path, watch_hits(&text))
     };
     for message in prepared.1.iter().filter_map(accept) {
-        ctx.diagnostic(Diagnostic::warn(message).with_location(Location {
-            path: prepared.0.clone(),
-            line: None,
-            column: None,
-        }));
+        ctx.diagnostic(
+            Diagnostic::warn(message)
+                .with_severity(severity)
+                .with_location(Location {
+                    path: prepared.0.clone(),
+                    line: None,
+                    column: None,
+                }),
+        );
     }
 }
 
@@ -150,8 +169,11 @@ version=42
     }
 
     #[test]
-    fn version_four_is_not_obsolete() {
-        assert!(watch_hits("version=4\nhttp://example.com\n").is_empty());
+    fn version_four_is_older() {
+        assert_eq!(
+            watch_hits("version=4\nhttp://example.com\n"),
+            vec![WatchHit::Older("4".to_string())]
+        );
         assert_eq!(
             watch_hits("version=2\n"),
             vec![WatchHit::Obsolete("2".to_string())]

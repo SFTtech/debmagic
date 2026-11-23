@@ -275,6 +275,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/watch/standard/version-1",
     "checks/debian/watch/standard/version-2",
     "checks/debian/watch/standard/version-3",
+    "checks/debian/watch/standard/version-4",
     "checks/debian/watch/standard/version-6",
     "checks/debian/watch/standard/watch-file-general",
     "checks/debian/watch/two-upstream-components",
@@ -1430,6 +1431,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/watch/standard/version-1",
     "checks/debian/watch/standard/version-2",
     "checks/debian/watch/standard/version-3",
+    "checks/debian/watch/standard/version-4",
     "checks/debian/watch/standard/version-6",
     "checks/debian/watch/standard/watch-file-general",
     "checks/debian/watch/two-upstream-components",
@@ -2024,6 +2026,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/watch/standard/version-1"; "checks_debian_watch_standard_version_1")]
 #[test_case("checks/debian/watch/standard/version-2"; "checks_debian_watch_standard_version_2")]
 #[test_case("checks/debian/watch/standard/version-3"; "checks_debian_watch_standard_version_3")]
+#[test_case("checks/debian/watch/standard/version-4"; "checks_debian_watch_standard_version_4")]
 #[test_case("checks/debian/watch/standard/version-6"; "checks_debian_watch_standard_version_6")]
 #[test_case("checks/debian/watch/standard/watch-file-general"; "checks_debian_watch_standard_watch_file_general")]
 #[test_case("checks/debian/watch/two-upstream-components"; "checks_debian_watch_two_upstream_components")]
@@ -3181,6 +3184,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/watch/standard/version-1"; "checks_debian_watch_standard_version_1")]
 #[test_case("checks/debian/watch/standard/version-2"; "checks_debian_watch_standard_version_2")]
 #[test_case("checks/debian/watch/standard/version-3"; "checks_debian_watch_standard_version_3")]
+#[test_case("checks/debian/watch/standard/version-4"; "checks_debian_watch_standard_version_4")]
 #[test_case("checks/debian/watch/standard/version-6"; "checks_debian_watch_standard_version_6")]
 #[test_case("checks/debian/watch/standard/watch-file-general"; "checks_debian_watch_standard_watch_file_general")]
 #[test_case("checks/debian/watch/two-upstream-components"; "checks_debian_watch_two_upstream_components")]

@@ -674,7 +674,7 @@ pub(crate) use debian_watch::{
     DebianWatchLineInvalid, DebianWatchManglesDebianVersionImproperly,
     DebianWatchManglesUpstreamVersionImproperly, DebianWatchNotManglingVersion,
     DebianWatchUsesInsecureUri, MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
-    ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
+    ObsoleteDebianWatchFileStandard, OlderDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{
     CapitalizationErrorInDescription, CapitalizationErrorInDescriptionSynopsis,

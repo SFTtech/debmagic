@@ -262,6 +262,7 @@ use super::rules::HomepageSalsaUrlEndsWithDotGit;
 use super::rules::IllegalMultiArchValue;
 use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
+use super::rules::ImageFileInUsrLib;
 use super::rules::IncompatibleJavaBytecodeFormat;
 use super::rules::InconsistentAppstreamMetadataLicense;
 use super::rules::InconsistentMaintainer;
@@ -2437,6 +2438,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BashCompletionWithHashbang,
         &ChownWithDot,
         &ExecutableInUsrLib,
+        &ImageFileInUsrLib,
     ]
 }
 
@@ -3799,6 +3801,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BashCompletionWithHashbang,
         &ChownWithDot,
         &ExecutableInUsrLib,
+        &ImageFileInUsrLib,
     ]
 }
 

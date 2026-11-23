@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): image-file-in-usr-lib (LN1724) [usr/lib/files-foo-in-bar/bar.png]
+P: example (binary): image-file-in-usr-lib (LN1724) [usr/lib/a/a.bmp]
+P: example (binary): image-file-in-usr-lib (LN1724) [usr/lib/a/a.gif]
+P: example (binary): image-file-in-usr-lib (LN1724) [usr/lib/a/a.jpeg]
+P: example (binary): image-file-in-usr-lib (LN1724) [usr/lib/a/a.jpg]
+P: example (binary): image-file-in-usr-lib (LN1724) [usr/lib/a/a.tiff]
+P: example (binary): image-file-in-usr-lib (LN1724) [usr/lib/a/a.xbm]
+P: example (binary): image-file-in-usr-lib (LN1724) [usr/lib/a/a.xpm]
+P: example (binary): image-file-in-usr-lib (LN1724) [usr/lib/icons.png]
+P: example (udeb): image-file-in-usr-lib (LN1724) [usr/lib/a/a.png]

@@ -268,7 +268,6 @@ impl DebhelperFacts {
     /// A `dh` line of `debian/rules` has a make variable (`$(...)`, `${...}`),
     /// so lintian assumes every add-on is in use. False when debhelper is
     /// not used.
-    #[allow(dead_code)]
     pub(crate) fn has_dynamic_addons(&self) -> bool {
         self.dynamic_addons
     }

@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): sphinxdoc-but-no-sphinxdoc-depends (LN1774) [debian/rules]
+W: example (source): sphinxdoc-but-no-sphinxdoc-depends (LN1774) [debian/rules]
+W: example (source): sphinxdoc-but-no-sphinxdoc-depends (LN1774) [debian/rules]
+W: example (source): sphinxdoc-but-no-sphinxdoc-depends (LN1774) [debian/rules]
+W: example (source): sphinxdoc-but-no-sphinxdoc-depends (LN1774) [debian/rules]
+W: example (source): sphinxdoc-but-no-sphinxdoc-depends (LN1774) [debian/rules]
+W: example (source): sphinxdoc-but-no-sphinxdoc-depends (LN1774) [debian/rules]
+W: example (source): sphinxdoc-but-no-sphinxdoc-depends (LN1774) [debian/rules]

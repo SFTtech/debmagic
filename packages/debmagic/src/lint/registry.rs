@@ -493,6 +493,7 @@ use super::rules::PrivacyBreachW3cValidHtml;
 use super::rules::ProgramNotLinkedAgainstLibc;
 use super::rules::PublicUpstreamKeyInNativePackage;
 use super::rules::PublicUpstreamKeyUnusable;
+use super::rules::PublicUpstreamKeysInMultipleLocations;
 use super::rules::PuppetModuleButNotDhPuppet;
 use super::rules::PypiHomepage;
 use super::rules::Python3DependsButNoPython3Helper;
@@ -2439,6 +2440,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CapitalizationInOverrideComment,
         &UnicodeTrojan,
         &PublicUpstreamKeyInNativePackage,
+        &PublicUpstreamKeysInMultipleLocations,
     ]
 }
 
@@ -2447,6 +2449,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PackageHasLongFileName,
         &UnicodeTrojan,
         &PublicUpstreamKeyInNativePackage,
+        &PublicUpstreamKeysInMultipleLocations,
         &DebmagicDummyTrigger,
         &RequiredField,
         &SyntaxErrorInDebianChangelog,

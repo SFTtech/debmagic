@@ -646,6 +646,7 @@ use super::rules::UnreleasedChanges;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
+use super::rules::UnusualDocumentationPackageName;
 use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploadHasBackportsVersionNumber;
 use super::rules::UploaderNameMissing;
@@ -2449,6 +2450,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OddMarkInDescription,
         &PerlModuleNameNotMentionedInDescription,
         &SpellingErrorInDescriptionSynopsis,
+        &UnusualDocumentationPackageName,
     ]
 }
 
@@ -3817,6 +3819,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OddMarkInDescription,
         &PerlModuleNameNotMentionedInDescription,
         &SpellingErrorInDescriptionSynopsis,
+        &UnusualDocumentationPackageName,
     ]
 }
 

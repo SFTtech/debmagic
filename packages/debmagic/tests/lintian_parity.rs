@@ -812,6 +812,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/origin/fields-redundant",
     "checks/fields/origin/legacy-relations",
     "checks/fields/package/fields-general-bad",
+    "checks/fields/package/fields-unusual-doc-package-name",
     "checks/fields/package-relations/fields-depends-general",
     "checks/fields/package-relations/fields-general-bad",
     "checks/fields/package-relations/fields-java",
@@ -2577,6 +2578,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
 #[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package/fields-general-bad"; "checks_fields_package_fields_general_bad")]
+#[test_case("checks/fields/package/fields-unusual-doc-package-name"; "checks_fields_package_fields_unusual_doc_package_name")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
 #[test_case("checks/fields/package-relations/fields-general-bad"; "checks_fields_package_relations_fields_general_bad")]
 #[test_case("checks/fields/package-relations/fields-java"; "checks_fields_package_relations_fields_java")]

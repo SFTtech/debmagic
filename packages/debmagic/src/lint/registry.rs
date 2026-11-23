@@ -212,6 +212,7 @@ use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
 use super::rules::ElfError;
 use super::rules::EmbeddedLibrary;
+use super::rules::EmbeddedPearModule;
 use super::rules::EmbeddedScriptIncludesCopyrightStatement;
 use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
@@ -2659,6 +2660,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
+        &EmbeddedPearModule,
     ]
 }
 
@@ -4129,6 +4131,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ManualPageInUdeb,
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
+        &EmbeddedPearModule,
     ]
 }
 

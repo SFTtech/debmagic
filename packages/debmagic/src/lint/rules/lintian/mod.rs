@@ -1031,11 +1031,11 @@ pub(crate) use files_privacy_breach::{
     PrivacyBreachW3cValidHtml,
 };
 pub(crate) use languages_php::{
-    ComposerPackageWithoutPkgPhpToolsBuilddep, ComposerPrerequisite, EmbeddedPhpLibrary,
-    MissingPkgPhpToolsAddon, MissingPkgPhpToolsBuildsystem, ObsoleteCommentsStyleInPhpIni,
-    PearChannelWithoutPkgPhpToolsBuilddep, PearPackageButMissingDependency,
-    PearPackageNotUsingSubstvar, PearPackageWithoutPkgPhpToolsBuilddep,
-    PeclPackageRequiresBuildDependency,
+    ComposerPackageWithoutPkgPhpToolsBuilddep, ComposerPrerequisite, EmbeddedPearModule,
+    EmbeddedPhpLibrary, MissingPkgPhpToolsAddon, MissingPkgPhpToolsBuildsystem,
+    ObsoleteCommentsStyleInPhpIni, PearChannelWithoutPkgPhpToolsBuilddep,
+    PearPackageButMissingDependency, PearPackageNotUsingSubstvar,
+    PearPackageWithoutPkgPhpToolsBuilddep, PeclPackageRequiresBuildDependency,
 };
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;

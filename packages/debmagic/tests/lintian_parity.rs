@@ -1149,6 +1149,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/systemd/systemd-service-file-uses-deprecated-syslog-facility",
     "checks/systemd/systemd-service-file-uses-nobody-or-nogroup",
     "checks/systemd/tmpfiles/declared-in-etc",
+    "checks/systemd/tmpfiles/tmpfile-in-var-run",
     "checks/triggers/legacy-maintainer-scripts",
     "checks/triggers/triggers-general",
     "checks/udev/files-foo-in-bar",
@@ -2905,6 +2906,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/systemd/systemd-service-file-uses-deprecated-syslog-facility"; "checks_systemd_systemd_service_file_uses_deprecated_syslog_facility")]
 #[test_case("checks/systemd/systemd-service-file-uses-nobody-or-nogroup"; "checks_systemd_systemd_service_file_uses_nobody_or_nogroup")]
 #[test_case("checks/systemd/tmpfiles/declared-in-etc"; "checks_systemd_tmpfiles_declared_in_etc")]
+#[test_case("checks/systemd/tmpfiles/tmpfile-in-var-run"; "checks_systemd_tmpfiles_tmpfile_in_var_run")]
 #[test_case("checks/triggers/legacy-maintainer-scripts"; "checks_triggers_legacy_maintainer_scripts")]
 #[test_case("checks/triggers/triggers-general"; "checks_triggers_triggers_general")]
 #[test_case("checks/udev/files-foo-in-bar"; "checks_udev_files_foo_in_bar")]

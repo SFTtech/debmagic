@@ -1145,7 +1145,7 @@ pub(crate) use systemd::{
     SystemdServiceFileMissingInstallKey, SystemdServiceFileRefersToObsoleteBindto,
     SystemdServiceFileRefersToUnusualWantedbyTarget, SystemdServiceFileRefersToVarRun,
     SystemdServiceFileShutdownProblems, SystemdServiceFileUsesDeprecatedSyslogFacility,
-    SystemdServiceFileUsesNobodyOrNogroup, SystemdServiceInOddLocation,
+    SystemdServiceFileUsesNobodyOrNogroup, SystemdServiceInOddLocation, SystemdTmpfileInVarRun,
 };
 pub(crate) use testsuite::{
     BackgroundedTestCommand, ConflictingTestFields, DebianTestsControlAutodep8IsObsolete,

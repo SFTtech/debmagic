@@ -585,6 +585,7 @@ pub(crate) use shell_non_posix_bash_centric::BashTermInPosixShell;
 pub(crate) use shell_non_posix_bash_centric::PossibleBashismInMaintainerScript;
 pub(crate) use substvars_libc::PackageDependsOnHardcodedLibc;
 pub(crate) use substvars_misc_pre_depends::DependsOnMiscPreDepends;
+pub(crate) use team_pkg_perl_testsuite::AutopkgtestNeedsUseName;
 pub(crate) use team_pkg_perl_testsuite::NoTestsuiteHeader;
 pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;
 pub(crate) use udev::UdevRuleInEtc;

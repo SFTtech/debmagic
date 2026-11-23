@@ -330,6 +330,7 @@ use super::rules::MalformedDebArchive;
 use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
 use super::rules::MalformedTemplateName;
+use super::rules::ManualPageForSystemCommand;
 use super::rules::MavenPluginInUsrShareJava;
 use super::rules::MawkScriptButNoMawkDep;
 use super::rules::MenuIconCannotBeParsed;
@@ -2429,6 +2430,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
+        &ManualPageForSystemCommand,
     ]
 }
 
@@ -3787,6 +3789,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &StaticLinkTimeOptimization,
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
+        &ManualPageForSystemCommand,
     ]
 }
 

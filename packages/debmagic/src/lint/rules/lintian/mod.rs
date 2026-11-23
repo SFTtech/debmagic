@@ -1145,7 +1145,8 @@ pub(crate) use testsuite::{
     RuntimeTestFileUsesInstalledPythonVersions,
     RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends, TestLeavesPythonVersionUntested,
     TestsuiteDependencyHasUnparsableElements, TestsuiteDependsOnObsoletePackage,
-    TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownTestsuite,
+    TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownRuntimeTestsFeature,
+    UnknownRuntimeTestsField, UnknownRuntimeTestsRestriction, UnknownTestsuite,
     UnnecessaryTestsuiteAutopkgtestField, UsesDeprecatedAdttmp,
 };
 pub(crate) use triggers::RepeatedTriggerName;

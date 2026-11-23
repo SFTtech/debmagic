@@ -1,0 +1,18 @@
+# Known Restrictions in debian/tests/control
+
+allow-stderr
+breaks-testbed
+build-needed
+flaky
+hint-testsuite-triggers
+isolation-container
+isolation-machine
+needs-internet
+needs-reboot
+needs-recommends
+needs-root
+needs-sudo
+rw-build-tree
+skip-not-installable
+skippable
+superficial

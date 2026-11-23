@@ -625,6 +625,9 @@ use super::rules::UnknownMetaFieldInSymbolsFile;
 use super::rules::UnknownMultiArchValue;
 use super::rules::UnknownParagraphInDep5Copyright;
 use super::rules::UnknownPriority;
+use super::rules::UnknownRuntimeTestsFeature;
+use super::rules::UnknownRuntimeTestsField;
+use super::rules::UnknownRuntimeTestsRestriction;
 use super::rules::UnknownTemplateType;
 use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
@@ -2429,6 +2432,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
+        &UnknownRuntimeTestsFeature,
+        &UnknownRuntimeTestsField,
+        &UnknownRuntimeTestsRestriction,
     ]
 }
 
@@ -2891,6 +2897,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &ExplicitlyArmoredUpstreamSignature,
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
+        &UnknownRuntimeTestsFeature,
+        &UnknownRuntimeTestsField,
+        &UnknownRuntimeTestsRestriction,
     ]
 }
 

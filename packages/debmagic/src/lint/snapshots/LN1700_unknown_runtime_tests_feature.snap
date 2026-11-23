@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): unknown-runtime-tests-feature (LN1700) unknown [debian/tests/control:2]
+P: (source): unknown-runtime-tests-feature (LN1700) test-name= [debian/tests/control:2]
+P: (source): unknown-runtime-tests-feature (LN1700) test-name [debian/tests/control:2]
+P: (source): unknown-runtime-tests-feature (LN1700) bogus [debian/tests/control:2]
+P: (source): unknown-runtime-tests-feature (LN1700) x [debian/tests/control:6]
+P: (source): unknown-runtime-tests-feature (LN1700) y [debian/tests/control:6]

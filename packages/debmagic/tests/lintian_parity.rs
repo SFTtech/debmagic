@@ -1144,6 +1144,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/systemd/systemd-complex-service-file",
     "checks/systemd/systemd-general",
     "checks/systemd/systemd-missing-services",
+    "checks/systemd/systemd-service-file-refers-to-var-run",
     "checks/systemd/systemd-service-file-shutdown-problems",
     "checks/systemd/systemd-service-file-uses-deprecated-syslog-facility",
     "checks/systemd/systemd-service-file-uses-nobody-or-nogroup",
@@ -2899,6 +2900,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/systemd/systemd-complex-service-file"; "checks_systemd_systemd_complex_service_file")]
 #[test_case("checks/systemd/systemd-general"; "checks_systemd_systemd_general")]
 #[test_case("checks/systemd/systemd-missing-services"; "checks_systemd_systemd_missing_services")]
+#[test_case("checks/systemd/systemd-service-file-refers-to-var-run"; "checks_systemd_systemd_service_file_refers_to_var_run")]
 #[test_case("checks/systemd/systemd-service-file-shutdown-problems"; "checks_systemd_systemd_service_file_shutdown_problems")]
 #[test_case("checks/systemd/systemd-service-file-uses-deprecated-syslog-facility"; "checks_systemd_systemd_service_file_uses_deprecated_syslog_facility")]
 #[test_case("checks/systemd/systemd-service-file-uses-nobody-or-nogroup"; "checks_systemd_systemd_service_file_uses_nobody_or_nogroup")]

@@ -137,6 +137,7 @@ use super::rules::DebianRulesContainsUnnecessaryGetOrigSourceTarget;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
+use super::rules::DebianRulesMissingRecommendedTarget;
 use super::rules::DebianRulesNotAMakefile;
 use super::rules::DebianRulesNotExecutable;
 use super::rules::DebianRulesParsesDpkgParsechangelog;
@@ -2717,6 +2718,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LegacyVendorarchDirectory,
         &NonStandardGameExecutablePerm,
         &DebhelperCompatNotANumber,
+        &DebianRulesMissingRecommendedTarget,
     ]
 }
 
@@ -3267,6 +3269,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UnpackMessageForOrig,
         &OrigTarballContainsAncientFile,
         &DebhelperCompatNotANumber,
+        &DebianRulesMissingRecommendedTarget,
     ]
 }
 

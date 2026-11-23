@@ -40,6 +40,7 @@ mod ln1533_unnecessary_source_date_epoch_assignment;
 mod ln1690_override_dh_auto_test_does_not_check_deb_build_options;
 mod ln1767_debian_rules_not_executable;
 mod ln1768_debian_rules_uses_deprecated_makefile;
+mod ln1769_debian_rules_missing_recommended_target;
 mod text;
 
 pub(super) use text::{complete_lines, read_rules_from_tree};
@@ -80,3 +81,4 @@ pub(crate) use ln1533_unnecessary_source_date_epoch_assignment::UnnecessarySourc
 pub(crate) use ln1690_override_dh_auto_test_does_not_check_deb_build_options::OverrideDhAutoTestDoesNotCheckDEBBUILDOPTIONS;
 pub(crate) use ln1767_debian_rules_not_executable::DebianRulesNotExecutable;
 pub(crate) use ln1768_debian_rules_uses_deprecated_makefile::DebianRulesUsesDeprecatedMakefile;
+pub(crate) use ln1769_debian_rules_missing_recommended_target::DebianRulesMissingRecommendedTarget;

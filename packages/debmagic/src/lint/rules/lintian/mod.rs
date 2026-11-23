@@ -717,6 +717,7 @@ pub(crate) use debian_readme::{
     ReadmeDebianContainsDebmakeTemplate, ReadmeDebianContainsInvalidEmailAddress,
     ReadmeDebianMentionsUsrDoc, SpellingErrorInReadmeDebian,
 };
+pub(crate) use debian_rules::DebianRulesMissingRecommendedTarget;
 pub(crate) use debian_rules::{
     BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,
     DebianRulesCallsDebhelperInOddOrder, DebianRulesCallsNproc, DebianRulesCallsPwd,

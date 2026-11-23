@@ -6,7 +6,8 @@ use crate::declare_rule;
 use crate::lint::context::{BinaryPackageContext, SourceContext};
 use crate::lint::debian_control::ControlParagraph;
 use crate::lint::diagnostic::Diagnostic;
-use crate::lint::rule::{BinaryPackageRule, SourceRule};
+use crate::lint::group_context::ChangesContext;
+use crate::lint::rule::{BinaryPackageRule, ChangesRule, SourceRule};
 
 use super::mailbox::{Mailbox, complete_mailboxes};
 
@@ -30,6 +31,7 @@ declare_rule! {
 }
 
 const ROLES: &[&str] = &["Maintainer", "Uploaders"];
+const CHANGES_ROLES: &[&str] = &["Maintainer", "Changed-By", "Uploaders"];
 const QA_GROUP_ADDRESS: &str = "packages@qa.debian.org";
 const QA_LIST_ADDRESS: &str = "debian-qa@lists.debian.org";
 
@@ -39,10 +41,10 @@ static DEBIAN_QA_PHRASE: LazyLock<Regex> =
 impl SourceRule for FaultyDebianQaGroupAddress {
     fn run(&self, ctx: &mut SourceContext<'_>) {
         let messages = match ctx.dsc() {
-            Some(dsc) => messages(dsc.fields()),
+            Some(dsc) => messages(dsc.fields(), ROLES),
             None => ctx
                 .debian_control()
-                .map(|control| messages(control.source()))
+                .map(|control| messages(control.source(), ROLES))
                 .unwrap_or_default(),
         };
         for message in messages {
@@ -53,16 +55,25 @@ impl SourceRule for FaultyDebianQaGroupAddress {
 
 impl BinaryPackageRule for FaultyDebianQaGroupAddress {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        let messages = messages(ctx.installation_control().fields());
+        let messages = messages(ctx.installation_control().fields(), ROLES);
         for message in messages {
             ctx.diagnostic(Diagnostic::error(message));
         }
     }
 }
 
-fn messages(fields: &ControlParagraph) -> Vec<String> {
+impl ChangesRule for FaultyDebianQaGroupAddress {
+    fn run(&self, ctx: &mut ChangesContext<'_>) {
+        let messages = messages(ctx.changes().fields(), CHANGES_ROLES);
+        for message in messages {
+            ctx.diagnostic(Diagnostic::error(message));
+        }
+    }
+}
+
+fn messages(fields: &ControlParagraph, roles: &[&str]) -> Vec<String> {
     let mut found = Vec::new();
-    for role in ROLES {
+    for role in roles {
         for mailbox in complete_mailboxes(fields, role) {
             if faulty(&mailbox) {
                 found.push(format!("{role} {} -> {QA_GROUP_ADDRESS}", mailbox.address));
@@ -82,7 +93,10 @@ fn faulty(mailbox: &Mailbox) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, SourceTreeTester, TestFile};
+    use crate::lint::tester::{
+        BinaryPackageCase, BinaryPackageTester, ChangesCase, ChangesTester, SourceTreeTester,
+        TestFile,
+    };
 
     use super::*;
 
@@ -114,6 +128,25 @@ mod tests {
             tree("Maintainer: A <a@example.com>\nUploaders: Debian  qa team <qa@example.com>\n"),
         ];
         SourceTreeTester::new(FaultyDebianQaGroupAddress, pass, fail).test_and_snapshot();
+    }
+
+    #[test]
+    fn changes_file() {
+        let changes =
+            |fields: &str| ChangesCase::from(format!("Source: example\nVersion: 1.0\n{fields}"));
+        let pass = vec![
+            changes("Changed-By: Debian QA Group <packages@qa.debian.org>\n"),
+            changes("Changed-By: Jane <jane@example.com>\n"),
+            changes("Maintainer: Debian QA Group <packages@qa.debian.org>\n"),
+        ];
+        let fail = vec![
+            changes("Changed-By: Debian QA Group <debian-qa@lists.debian.org>\n"),
+            changes("Changed-By: Debian QA <a@example.com>\n"),
+            changes(
+                "Maintainer: Jane <jane@example.com>\nUploaders: Debian  qa team <qa@example.com>\n",
+            ),
+        ];
+        ChangesTester::new(FaultyDebianQaGroupAddress, pass, fail).test_and_snapshot();
     }
 
     #[test]

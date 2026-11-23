@@ -373,6 +373,7 @@ pub(crate) use debian_control_field_description_duplicate::DuplicateShortDescrip
 pub(crate) use debian_control_field_empty::DebianControlHasEmptyField;
 pub(crate) use debian_control_field_priority::RedundantPriorityOptionalField;
 pub(crate) use debian_control_field_redundant::InstallableFieldMirrorsSource;
+pub(crate) use debian_control_field_rules_requires_root::RedundantRulesRequiresRootNoField;
 pub(crate) use debian_control_field_rules_requires_root::SpellingErrorInRulesRequiresRoot;
 pub(crate) use debian_control_field_spacing::DebianControlHasUnusualFieldSpacing;
 pub(crate) use debian_control_link::DebianControlFileIsASymlink;
@@ -438,6 +439,7 @@ pub(crate) use fields_multi_arch::UnknownMultiArchValue;
 pub(crate) use fields_multi_line::MultilineField;
 pub(crate) use fields_package::BadPackageName;
 pub(crate) use fields_package::PackageNotLowercase;
+pub(crate) use fields_package::UnusualDocumentationPackageName;
 pub(crate) use fields_source::SourceFieldMalformed;
 pub(crate) use fields_style::CuteField;
 pub(crate) use fields_urgency::BadUrgencyInChangesFile;
@@ -559,18 +561,20 @@ pub(crate) use debian_changelog::{
     DebianChangelogLineTooLong, DebianChangelogLineTooShort, DebianNewsEntryHasStrangeDistribution,
     DebianNewsEntryHasUnknownVersion, DebianNewsEntryUsesAsterisk, DebianNewsFileNotCompressed,
     EpochChangeWithoutComment, EpochChangedButUpstreamVersionDidNotGoBackwards,
-    ExtraWhitespaceAroundNameInChangelogTrailer, HtmlChangelogWithoutTextVersion,
+    ExperimentalToUnstableWithoutComment, ExtraWhitespaceAroundNameInChangelogTrailer,
+    HtmlChangelogWithoutTextVersion, HyphenInUpstreamPartOfDebianChangelogVersion,
     ImprobableBugNumberInCloses, InitialUploadClosesNoBugs, InvalidDateInDebianChangelog,
     LatestChangelogEntryWithoutNewDate, LatestDebianChangelogEntryReusesExistingVersion,
     MaintainerUploadHasIncorrectVersionNumber, MalformedDebianChangelogVersion,
     MisspelledClosesBug, NewPackageUsesDateBasedVersionNumber, NmuInChangelog, NoNmuInChangelog,
-    NoQaInChangelog, OddHistoricalDebianChangelogVersion, PossibleMissingColonInCloses,
-    PossibleNewUpstreamReleaseWithoutNewVersion, QaUploadHasIncorrectVersionNumber,
-    RcVersionGreaterThanExpectedVersion, SourceNmuHasIncorrectVersionNumber,
-    SpellingErrorInChangelog, SpellingErrorInNewsDebian, SyntaxErrorInDebianNewsFile,
-    TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload, UploadersInOrphan,
-    VersionRefersToDistribution, VersionRefersToUnstableDistributionWithExpVersion,
-    WrongBugNumberInCloses, WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
+    NoQaInChangelog, NonConsecutiveDebianRevision, OddHistoricalDebianChangelogVersion,
+    PossibleMissingColonInCloses, PossibleNewUpstreamReleaseWithoutNewVersion,
+    QaUploadHasIncorrectVersionNumber, RcVersionGreaterThanExpectedVersion,
+    SourceNmuHasIncorrectVersionNumber, SpellingErrorInChangelog, SpellingErrorInNewsDebian,
+    SyntaxErrorInDebianNewsFile, TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload,
+    UploadersInOrphan, VersionRefersToDistribution,
+    VersionRefersToUnstableDistributionWithExpVersion, WrongBugNumberInCloses,
+    WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
     WrongNameForDebianNewsFile, WrongNameForUpstreamChangelog,
 };
 pub(crate) use debian_copyright::{
@@ -687,8 +691,9 @@ pub(crate) use description::{
     DescriptionStartsWithLeadingSpaces, DescriptionStartsWithPackageName,
     DescriptionSynopsisIsEmpty, DescriptionSynopsisStartsWithArticle, DescriptionTooShort,
     ExtendedDescriptionContainsEmptyParagraph, ExtendedDescriptionIsEmpty,
-    ExtendedDescriptionIsProbablyTooShort, ExtendedDescriptionLineTooLong,
-    PossibleUnindentedListInExtendedDescription, SpellingErrorInDescription, SynopsisIsASentence,
+    ExtendedDescriptionIsProbablyTooShort, ExtendedDescriptionLineTooLong, OddMarkInDescription,
+    PerlModuleNameNotMentionedInDescription, PossibleUnindentedListInExtendedDescription,
+    SpellingErrorInDescription, SpellingErrorInDescriptionSynopsis, SynopsisIsASentence,
     SynopsisTooLong, UsingFirstPersonInDescription,
 };
 pub(crate) use documentation_examples::NestedExamplesDirectory;
@@ -739,15 +744,16 @@ pub(crate) use fields_text::{
     HomepageForCranPackageNotCanonical, HomepageGithubUrlEndsWithDotGit,
     HomepageGitlabUrlEndsWithDotGit, HomepageInBinaryPackage, HomepageRefersToFilesystemListing,
     HomepageRefersToObsoleteDebianInfrastructure, HomepageSalsaUrlEndsWithDotGit,
-    MissingSeparatorBetweenItems, NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional,
-    RecommendedField, RedundantBugsField, RedundantControlRelation, RedundantOriginField,
-    SectionIsDhMakeTemplate, SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional,
-    UnknownEssentialValue, UnknownPriority, UnknownSection, WrongSectionAccordingToPackageName,
-    WrongSectionForUdeb,
+    MissingSeparatorBetweenItems, NewEssentialPackage, NoHomepageField,
+    PriorityExtraIsReplacedByPriorityOptional, RecommendedField, RedundantBugsField,
+    RedundantControlRelation, RedundantOriginField, SectionIsDhMakeTemplate,
+    SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional, UnknownEssentialValue,
+    UnknownPriority, UnknownSection, WrongSectionAccordingToPackageName, WrongSectionForUdeb,
 };
 pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
 pub(crate) use fields_uploaders::UploaderNameMissing;
 pub(crate) use fields_vcs::{
+    CoMaintainedPackageWithNoVcsFields, MissingVcsBrowserField,
     OrphanedPackageMaintainedInPrivateSpace, OrphanedPackageNotMaintainedInDebianInfrastructure,
     VcsBrowserLinksToEmptyView, VcsFieldBitrotted, VcsFieldHasUnexpectedSpaces, VcsFieldMismatch,
     VcsFieldNotCanonical, VcsFieldUsesInsecureUri, VcsFieldUsesUnknownUriFormat,

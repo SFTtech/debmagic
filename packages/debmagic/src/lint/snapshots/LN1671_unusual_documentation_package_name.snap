@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example-docs (binary): unusual-documentation-package-name (LN1671)
+I: example-docs (udeb): unusual-documentation-package-name (LN1671)

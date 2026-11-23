@@ -45,6 +45,7 @@ mod ln1548_homepage_gitlab_url_ends_with_dot_git;
 mod ln1549_homepage_in_binary_package;
 mod ln1550_homepage_refers_to_filesystem_listing;
 mod ln1551_homepage_salsa_url_ends_with_dot_git;
+mod ln1666_no_homepage_field;
 
 pub(crate) use ln0224_redundant_bugs_field::RedundantBugsField;
 pub(crate) use ln0225_bad_homepage::BadHomepage;
@@ -79,6 +80,7 @@ pub(crate) use ln1548_homepage_gitlab_url_ends_with_dot_git::HomepageGitlabUrlEn
 pub(crate) use ln1549_homepage_in_binary_package::HomepageInBinaryPackage;
 pub(crate) use ln1550_homepage_refers_to_filesystem_listing::HomepageRefersToFilesystemListing;
 pub(crate) use ln1551_homepage_salsa_url_ends_with_dot_git::HomepageSalsaUrlEndsWithDotGit;
+pub(crate) use ln1666_no_homepage_field::NoHomepageField;
 
 /// The value as written of the Homepage, once for every vendored
 /// `fields/bad-homepages` expression of `tag` that matches it. The optional

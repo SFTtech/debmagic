@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): hyphen-in-upstream-part-of-debian-changelog-version (LN1661) 4.6.2-1 [debian/changelog:1]
+P: example (source): hyphen-in-upstream-part-of-debian-changelog-version (LN1661) 1.5+important~personal1-stable [debian/changelog:1]

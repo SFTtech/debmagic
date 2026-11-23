@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): odd-mark-in-description (LN1668) comma not followed by whitespace (synopsis)
+P: example (binary): odd-mark-in-description (LN1668) comma not followed by whitespace (synopsis)
+P: example (udeb): odd-mark-in-description (LN1668) comma not followed by whitespace (synopsis)

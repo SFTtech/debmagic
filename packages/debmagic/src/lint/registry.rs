@@ -413,12 +413,15 @@ use super::rules::NoCodeSections;
 use super::rules::NoCompleteDebconfTranslation;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
+use super::rules::NoGit;
 use super::rules::NoHomepageField;
 use super::rules::NoMd5sumsControlFile;
 use super::rules::NoPhrase;
 use super::rules::NoShlibs;
 use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoSymbolsControlFile;
+use super::rules::NoTeamTests;
+use super::rules::NoTeamUrl;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
 use super::rules::NonConsecutiveDebianRevision;
@@ -2663,6 +2666,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &BadOwnerForDocFile,
         &WrongFileOwnerUidOrGid,
+        &NoGit,
+        &NoTeamUrl,
+        &NoTeamTests,
     ]
 }
 
@@ -3196,6 +3202,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsQuiltControlDir,
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
+        &NoGit,
+        &NoTeamUrl,
+        &NoTeamTests,
     ]
 }
 

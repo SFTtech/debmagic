@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo-perl (source): no-team-url (LN1785) Vcs-Git https://salsa.debian.org/foo/libfoo-perl.git
+W: libfoo-perl (source): no-team-url (LN1785) Vcs-Browser https://salsa.debian.org/foo/libfoo-perl
+W: libfoo-perl (source): no-team-url (LN1785) Vcs-Svn svn://example.com/trunk
+W: libfoo-perl (source): no-team-url (LN1785) Vcs-Git https://salsa.debian.org.evil.example/perl-team/modules/packages/x.git
+W: libfoo-perl (source): no-team-url (LN1785) Vcs-Git 
+W: libfoo-perl (source): no-team-url (LN1785) Vcs-Git https://example.com/g
+W: libfoo-perl (source): no-team-url (LN1785) Vcs-Browser https://example.com/b
+W: libfoo-perl (source): no-team-url (LN1785) Vcs-Git https://example.com/x.git

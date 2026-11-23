@@ -122,7 +122,6 @@ pub(crate) struct SourcePackageExtract {
     patched_messages: Vec<String>,
     /// What tar printed while extracting each Orig tarball, as
     /// `<tarball> . <message>` (lintian's `orig->unpack_messages`).
-    #[allow(dead_code)]
     orig_messages: Vec<String>,
     _workspace: TempDir,
 }
@@ -176,7 +175,6 @@ impl SourcePackageExtract {
         &self.patched_messages
     }
 
-    #[allow(dead_code)]
     pub fn orig_messages(&self) -> &[String] {
         &self.orig_messages
     }
@@ -497,7 +495,6 @@ pub(crate) fn build_test_native_dsc(work: &Path, name: &str) -> anyhow::Result<P
 /// debian tarball. Built by hand, not by `dpkg-source -b`, so a member name can
 /// be one tar would warn about. `dpkg-source --no-check` extracts it.
 #[cfg(test)]
-#[allow(dead_code)]
 pub(crate) fn write_test_quilt_dsc(
     work: &Path,
     name: &str,
@@ -533,7 +530,6 @@ pub(crate) fn write_test_quilt_dsc(
 
 /// A gzipped tar of `members` (name, contents, header mtime).
 #[cfg(test)]
-#[allow(dead_code)]
 fn tar_gz_with_mtimes(members: &[(&str, &[u8], u64)]) -> anyhow::Result<Vec<u8>> {
     use flate2::Compression;
     use flate2::write::GzEncoder;

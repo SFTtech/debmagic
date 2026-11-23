@@ -769,6 +769,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/description/description-general",
     "checks/fields/description/description-homepage",
     "checks/fields/description/description-mentions-planned-features",
+    "checks/fields/description/description-perl",
     "checks/fields/description/description-synopsis-might-not-be-phrased-properly",
     "checks/fields/description/description-wording",
     "checks/fields/description/generic-dh-make-2008",
@@ -2533,6 +2534,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/description/description-general"; "checks_fields_description_description_general")]
 #[test_case("checks/fields/description/description-homepage"; "checks_fields_description_description_homepage")]
 #[test_case("checks/fields/description/description-mentions-planned-features"; "checks_fields_description_description_mentions_planned_features")]
+#[test_case("checks/fields/description/description-perl"; "checks_fields_description_description_perl")]
 #[test_case("checks/fields/description/description-synopsis-might-not-be-phrased-properly"; "checks_fields_description_description_synopsis_might_not_be_phrased_properly")]
 #[test_case("checks/fields/description/description-wording"; "checks_fields_description_description_wording")]
 #[test_case("checks/fields/description/generic-dh-make-2008"; "checks_fields_description_generic_dh_make_2008")]

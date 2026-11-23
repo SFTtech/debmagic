@@ -473,6 +473,7 @@ use super::rules::PearPackageButMissingDependency;
 use super::rules::PearPackageNotUsingSubstvar;
 use super::rules::PearPackageWithoutPkgPhpToolsBuilddep;
 use super::rules::PeclPackageRequiresBuildDependency;
+use super::rules::PerlModuleNameNotMentionedInDescription;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
@@ -2445,6 +2446,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NoHomepageField,
         &RedundantRulesRequiresRootNoField,
         &OddMarkInDescription,
+        &PerlModuleNameNotMentionedInDescription,
     ]
 }
 
@@ -3811,6 +3813,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UnpackMessageForDebData,
         &ExperimentalToUnstableWithoutComment,
         &OddMarkInDescription,
+        &PerlModuleNameNotMentionedInDescription,
     ]
 }
 

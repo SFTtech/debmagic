@@ -114,6 +114,12 @@ just lint-parity --json --strict      # machine-readable; exit 1 on any listed i
 
 It reads the lintian tag catalogue (`--lintian-data`, default `/usr/share/lintian`), `declare_rule!` / `impl SourceRule` / `impl BinaryPackageRule` in `src/lint/rules/`, the vendored `eval/hints`, and the generated `tests/lintian_parity.rs`. Flags worth acting on: `applicability-gap` (the oracle expects the Tag from a processable type the Rule does not implement), `severity` / `default-selected` mismatches against lintian, `no Parity case` (a Rule whose oracle never exercises the Subjects it implements), and a stale generated test file. The tag catalogue is whatever lintian is installed unless pointed elsewhere; it can drift from the pinned oracle.
 
+### Real-world check: the ecosystem run
+
+Parity is the vendored oracle. To see the Rule on real Debian archive packages, and to get a
+self-contained fix packet per disagreeing Rule, run the ecosystem suite — see
+[Ecosystem run](lint-ecosystem.md). It writes `target/lint-ecosystem/rules/<CODE>_<tag>.md`.
+
 ### The Parity build cache
 
 Most of the time in `cargo test -p debmagic --test lintian_parity` is spent building the recipes (`dpkg-buildpackage` for Binary packages, `dpkg-source` for Source packages), not linting them. The harness (`tests/common/mod.rs`) therefore builds each distinct recipe tree once and keeps the built products, never lint results, under `target/lint-parity-cache/<key>/` (a `cargo clean` clears it, and two checkouts cannot share or poison each other). Linting always runs, so changing a Rule is seen by the next run: the cache holds what was built, not what the Rules said about it.

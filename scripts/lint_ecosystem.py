@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Ecosystem test for `debmagic lint`: run it on real Debian archive packages and diff it against the
 lintian results the Debian infrastructure currently reports for the same package versions.
 
@@ -37,6 +36,13 @@ Comparison
     severity debmagic assigns is compared with lintian's tag type. Tag renames between lintian
     releases are folded onto the current name using the installed lintian's tag catalogue.
 
+Agent work packets
+    Besides the aggregate `report.md` / `report.json`, every Tag with a disagreement gets its own
+    Markdown packet under `<work-dir>/rules/`: the Rule file, the counts, every affected Subject
+    (not a truncated sample) with the artifact path, the differing hint lines and a copy-paste
+    `debmagic lint --select <code>` command. `rules/index.md` ranks the packets by how many
+    Subjects they affect, so a large run can be split across agents one packet per Rule.
+
 Performance (`--perf`, on by default; `--perf off` skips it)
     Every Subject is also linted by the installed lintian, and wall time, CPU time (user+system of the
     process tree) and peak RSS are recorded per tool with `wait4`. Two lintian variants:
@@ -49,10 +55,15 @@ Performance (`--perf`, on by default; `--perf off` skips it)
     starts a fresh process (cold lintian lab, no daemon). `--perf-repeat N` takes the median of N runs.
     Timings are only meaningful for a release build, which is the default build profile.
 
+Progress
+    Each stage logs a line, and downloads and linting show a tqdm bar on stderr (`--progress off`
+    for plain logs; a non-TTY disables the bars automatically). `-v` keeps a line per Subject.
+
 Usage
     just lint-ecosystem                                   # samba + 25 key packages, correctness and perf
     just lint-ecosystem --packages hello dgit --perf off
     just lint-ecosystem --sample 100 --seed 7 --perf tags
+    just lint-ecosystem --all --perf off                    # whole key-package pool, work packets for agents
 """
 
 from __future__ import annotations
@@ -77,7 +88,9 @@ from collections import Counter, defaultdict
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
+
+from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -112,6 +125,55 @@ DIAGNOSTIC_LINE = re.compile(
 )
 FINISHED_LINE = re.compile(r"^Finished in ", re.MULTILINE)
 SAFE_LITERAL = re.compile(r"^[A-Za-z0-9.+:~_-]+$")
+
+
+@dataclass
+class Progress:
+    """How this run renders progress: bars (unless `disable`) and a line per Subject (`verbose`).
+
+    `disable=None` leaves the decision to tqdm (bars only when stderr is a TTY); `main` replaces it
+    with a bool from `--progress`.
+    """
+
+    disable: bool | None = None
+    verbose: bool = False
+
+    def line(self, text: str) -> None:
+        """A line above the bars, or a plain line when no bars are drawn."""
+        if self.verbose or self.disable is not False:
+            tqdm.write(text, file=sys.stderr)
+
+
+PROGRESS = Progress()
+
+
+def log(stage: str, message: str) -> None:
+    """One progress line per stage, with a wall-clock stamp so a long run is readable after the fact."""
+    print(f"[{time.strftime('%H:%M:%S')}] {stage}: {message}", file=sys.stderr, flush=True)
+
+
+def bar(total: int | None, desc: str, unit: str = "it", **kwargs: Any) -> tqdm:
+    """A progress bar on stderr over `total` units, disabled by `--progress off` or a non-TTY under `auto`."""
+    return tqdm(
+        total=total,
+        desc=desc,
+        unit=unit,
+        file=sys.stderr,
+        dynamic_ncols=True,
+        **{"disable": PROGRESS.disable, **kwargs},
+    )
+
+
+def iter_bar[T](items: list[T], desc: str, unit: str = "it", **kwargs: Any) -> Iterator[T]:
+    """Walk `items` behind a progress bar with the same enablement rules as `bar`."""
+    yield from tqdm(
+        items,
+        desc=desc,
+        unit=unit,
+        file=sys.stderr,
+        dynamic_ncols=True,
+        **{"disable": PROGRESS.disable, **kwargs},
+    )
 
 
 @dataclass(frozen=True)
@@ -285,11 +347,13 @@ def drop_oversized(entries: list[SourceEntry], max_mb: int) -> list[SourceEntry]
 def select_sources(args: argparse.Namespace) -> list[SourceEntry]:
     """The packages to check: `--packages`, else the pinned ones plus the (sampled) pool."""
     if args.packages:
+        log("select", f"resolving {len(args.packages)} named source package(s) in {args.release} via UDD")
         entries = query_sources(args.release, [names_filter(args.packages)])
         for name in sorted(set(args.packages) - {e.source for e in entries}):
             print(f"skip {name}: not in {args.release} or no lintian results for its current version", file=sys.stderr)
         return drop_oversized(entries, args.max_source_mb)
 
+    log("select", f"resolving pinned source package(s) {', '.join(DEFAULT_PINNED)} in {args.release} via UDD")
     pinned = query_sources(args.release, [names_filter(DEFAULT_PINNED)])
     for name in sorted(set(DEFAULT_PINNED) - {e.source for e in pinned}):
         print(f"skip {name}: not in {args.release} or no lintian results for its current version", file=sys.stderr)
@@ -298,14 +362,23 @@ def select_sources(args: argparse.Namespace) -> list[SourceEntry]:
         where.append("s.source in (select source from key_packages)")
     # Over-fetch when sampling: oversized packages are dropped below. The order is a stable hash of the seed.
     order_limit = "" if args.all else f"order by md5(s.source || {sql_literal(str(args.seed))}) limit {args.sample * 4}"
+    scope = (
+        "the whole key-package pool" if args.all else f"a sample of {args.sample} ({args.pool} pool, seed {args.seed})"
+    )
+    log("select", f"querying {scope} in {args.release} via UDD")
     pool = drop_oversized(query_sources(args.release, where, order_limit), args.max_source_mb)
-    return drop_oversized(pinned, args.max_source_mb) + (pool if args.all else pool[: args.sample])
+    selected = drop_oversized(pinned, args.max_source_mb) + (pool if args.all else pool[: args.sample])
+    log("select", f"{len(selected)} source package(s) selected")
+    return selected
 
 
 def attach_binaries(entries: list[SourceEntry], args: argparse.Namespace) -> None:
     archs = ", ".join(sql_literal(a) for a in ["all", *args.arch])
     by_source = {(e.source, e.version): e for e in entries}
-    for batch in chunks(entries, QUERY_CHUNK):
+    arch_label = ", ".join(["all", *args.arch])
+    log("binaries", f"querying .debs of {len(entries)} source package(s) for architecture(s) {arch_label}")
+    batches = chunks(entries, QUERY_CHUNK)
+    for batch in iter_bar(batches, "binary metadata", unit="batch"):
         pairs = ", ".join(f"({sql_literal(e.source)}, {sql_literal(e.version)})" for e in batch)
         rows = udd_query(
             "select source, source_version, package, version, architecture, filename, size, sha256 from packages "
@@ -338,7 +411,15 @@ def load_oracle(entries: list[SourceEntry], work_dir: Path, refresh: bool) -> di
             oracle[(entry.source, entry.version)] = [OracleRow(**row) for row in json.loads(path.read_text())["rows"]]
         else:
             missing.append(entry)
-    for batch in chunks(missing, QUERY_CHUNK):
+    cached = len(entries) - len(missing)
+    log(
+        "oracle",
+        f"{cached} of {len(entries)} snapshot(s) cached"
+        + (f", querying {len(missing)} via UDD" if missing else "")
+        + (", --refresh-oracle forces a re-query" if refresh else ""),
+    )
+    batches = chunks(missing, QUERY_CHUNK)
+    for batch in iter_bar(batches, "oracle snapshots", unit="batch") if missing else batches:
         pairs = ", ".join(f"({sql_literal(e.source)}, {sql_literal(e.version)})" for e in batch)
         rows = udd_query(
             "select source, version, lintian_version, package, package_version, architecture, tag_type, tag, "
@@ -408,8 +489,11 @@ def subject_dir(work_dir: Path, entry: SourceEntry) -> Path:
     return work_dir / "archive" / f"{entry.source}_{entry.version.replace(':', '%3a')}"
 
 
-def download_entry(entry: SourceEntry, work_dir: Path) -> dict[Path, str]:
-    """Fetch the source files and every `.deb` of one source package; returns failures by path."""
+def download_entry(entry: SourceEntry, work_dir: Path, progress: tqdm | None = None) -> dict[Path, str]:
+    """Fetch the source files and every `.deb` of one source package; returns failures by path.
+
+    `progress` is advanced once per file, whether it came from the cache or the network.
+    """
     directory = subject_dir(work_dir, entry)
     failures: dict[Path, str] = {}
     for file in [*entry.files, *(b.file for b in entry.binaries)]:
@@ -417,18 +501,21 @@ def download_entry(entry: SourceEntry, work_dir: Path) -> dict[Path, str]:
             fetch(file, directory)
         except Exception as error:
             failures[directory / file.name] = str(error)
+        finally:
+            if progress is not None:
+                progress.update(1)
+                progress.set_postfix_str(entry.source)
     return failures
 
 
 def start_downloads(
     entries: list[SourceEntry], work_dir: Path, workers: int
-) -> tuple[ThreadPoolExecutor, dict[str, Future[dict[Path, str]]]]:
+) -> tuple[ThreadPoolExecutor, dict[str, Future[dict[Path, str]]], tqdm]:
     """Download in the background, so linting the first package does not wait for the last one."""
+    total = sum(len(e.files) + len(e.binaries) for e in entries)
+    progress = bar(total, "downloads", unit="file", position=0)
     pool = ThreadPoolExecutor(max_workers=workers)
-    return pool, {e.source: pool.submit(download_entry, e, work_dir) for e in entries}
-
-
-# --- running debmagic ---------------------------------------------------------------------------
+    return pool, {e.source: pool.submit(download_entry, e, work_dir, progress) for e in entries}, progress
 
 
 def parse_diagnostics(output: str) -> list[Diagnostic]:
@@ -560,6 +647,25 @@ class Uncovered:
     instances: int = 0
 
 
+@dataclass(frozen=True)
+class Disagreement:
+    """One Tag's disagreement on one Subject, kept in full so a packet can be handed to an agent.
+
+    `examples` on `TagStats` stays a truncated, human-readable sample for `report.md`; this is the
+    complete record, with the artifact path needed to reproduce the run.
+    """
+
+    tag: str
+    code: str
+    bucket: str  # missed | extra | context | severity
+    subject: str  # SubjectKey.label()
+    kind: str
+    path: str
+    lintian: tuple[str, ...] = ()
+    debmagic: tuple[str, ...] = ()
+    note: str = ""
+
+
 @dataclass
 class PerfRecord:
     """One Subject measured with every enabled tool; only complete records enter the aggregates."""
@@ -580,6 +686,10 @@ class Comparison:
     seconds: float = 0.0
     perf: list[PerfRecord] = field(default_factory=list)
     perf_failures: list[tuple[str, str, str]] = field(default_factory=list)
+    disagreements: list[Disagreement] = field(default_factory=list)
+
+    def note_disagreement(self, record: Disagreement) -> None:
+        self.disagreements.append(record)
 
 
 def canonical_tags(lintian_data: Path) -> dict[str, str]:
@@ -590,12 +700,16 @@ def canonical_tags(lintian_data: Path) -> dict[str, str]:
 
 
 def covered_tags(root: Path, renames: dict[str, str]) -> dict[str, dict[str, str]]:
-    """Tag -> Rule code for each Subject kind, from the Rust Rule catalogue."""
-    covered: dict[str, dict[str, str]] = {"source": {}, "binary": {}}
+    """Tag -> Rule code for each Subject kind, from the Rust Rule catalogue.
+
+    Every Applicability is kept, not only the `source` / `binary` Subjects this suite lints: the
+    `changes`, `buildinfo` and `group` Rules share Tags with them and must not break the catalogue.
+    """
+    covered: dict[str, dict[str, str]] = defaultdict(dict)
     for rule in parity.parse_rust_rules(root, "LN"):
         for kind in rule.kinds:
             covered[kind][renames.get(rule.tag, rule.tag)] = rule.code
-    return covered
+    return dict(covered)
 
 
 def subject_oracle(key: SubjectKey, rows: list[OracleRow]) -> list[OracleRow]:
@@ -616,6 +730,7 @@ def compare_subject(
     covered: dict[str, str],
     renames: dict[str, str],
     example_limit: int,
+    path: Path | None = None,
 ) -> None:
     visible: dict[str, Counter[str]] = defaultdict(Counter)
     visible_types: dict[str, set[str]] = defaultdict(set)
@@ -640,6 +755,39 @@ def compare_subject(
         actual_severity[tag].add(diag.severity)
         codes[tag] = diag.code
 
+    judge_tags(
+        comparison,
+        key,
+        str(path) if path is not None else "",
+        Tags(visible, visible_types, suppressed, actual, actual_severity, codes),
+        covered,
+        example_limit,
+    )
+
+
+@dataclass(frozen=True)
+class Tags:
+    """One Subject's Tag views: what lintian says, what debmagic said, and their types and codes."""
+
+    visible: dict[str, Counter[str]]
+    visible_types: dict[str, set[str]]
+    suppressed: set[str]
+    actual: dict[str, Counter[str]]
+    actual_severity: dict[str, set[str]]
+    codes: dict[str, str]
+
+
+def judge_tags(
+    comparison: Comparison,
+    key: SubjectKey,
+    artifact: str,
+    tags: Tags,
+    covered: dict[str, str],
+    example_limit: int,
+) -> None:
+    """Bucket one Subject's Tags and keep every disagreement in full for the agent packets."""
+    visible, visible_types, suppressed = tags.visible, tags.visible_types, tags.suppressed
+    actual, actual_severity, codes = tags.actual, tags.actual_severity, tags.codes
     for tag in set(visible) | set(actual) | suppressed:
         if tag not in covered and tag not in actual:
             if tag in visible:
@@ -664,20 +812,58 @@ def compare_subject(
                     f"{label}: lintian only {only_oracle[:3]}, debmagic only {only_debmagic[:3]}",
                     example_limit,
                 )
+                comparison.note_disagreement(
+                    Disagreement(
+                        tag, stats.code, "context", label, key.kind, artifact, tuple(only_oracle), tuple(only_debmagic)
+                    )
+                )
             if not actual_severity[tag] & visible_types[tag] and "experimental" not in visible_types[tag]:
-                stats.severity_mismatch[
-                    ("/".join(sorted(visible_types[tag])), "/".join(sorted(actual_severity[tag])))
-                ] += 1
+                lintian_type = "/".join(sorted(visible_types[tag]))
+                ours = "/".join(sorted(actual_severity[tag]))
+                stats.severity_mismatch[(lintian_type, ours)] += 1
+                comparison.note_disagreement(
+                    Disagreement(
+                        tag,
+                        stats.code,
+                        "severity",
+                        label,
+                        key.kind,
+                        artifact,
+                        note=f"lintian {lintian_type}, debmagic {ours}",
+                    )
+                )
         elif in_oracle:
             stats.missed += 1
             stats.instances_oracle += sum(visible[tag].values())
             stats.note("missed", f"{label}: {sorted(visible[tag].elements())[:3]}", example_limit)
+            comparison.note_disagreement(
+                Disagreement(
+                    tag,
+                    stats.code,
+                    "missed",
+                    label,
+                    key.kind,
+                    artifact,
+                    lintian=tuple(sorted(visible[tag].elements())),
+                )
+            )
         elif in_actual and tag in suppressed:
             stats.overridden += 1
         elif in_actual:
             stats.extra += 1
             stats.instances_debmagic += sum(actual[tag].values())
             stats.note("extra", f"{label}: {sorted(actual[tag].elements())[:3]}", example_limit)
+            comparison.note_disagreement(
+                Disagreement(
+                    tag,
+                    stats.code,
+                    "extra",
+                    label,
+                    key.kind,
+                    artifact,
+                    debmagic=tuple(sorted(actual[tag].elements())),
+                )
+            )
 
 
 def ratio_stats(values: list[float]) -> dict[str, float]:
@@ -849,15 +1035,13 @@ def report_json(comparison: Comparison) -> dict[str, Any]:
             for s in comparison.stats.values()
         },
         "uncovered": [asdict(u) for u in comparison.uncovered.values()],
+        "disagreements": [asdict(d) for d in comparison.disagreements],
         "perf": {
             "summary": perf_summary(comparison.perf),
             "subjects": [asdict(r) for r in comparison.perf],
             "failures": comparison.perf_failures,
         },
     }
-
-
-# --- driver -------------------------------------------------------------------------------------
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -914,6 +1098,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--workers", type=int, default=4, help="parallel downloads")
     parser.add_argument("--examples", type=int, default=3, help="disagreement examples per Tag and kind")
     parser.add_argument("--top-uncovered", type=int, default=20)
+    parser.add_argument(
+        "--progress",
+        choices=["auto", "off", "on"],
+        default="auto",
+        help="tqdm progress bars on stderr: auto draws them only on a TTY (default), off plain logs, on always",
+    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="also log a line per Subject")
     parser.add_argument("--fail-on-diff", action="store_true", help="exit 1 when any covered Tag is missed or extra")
     args = parser.parse_args(argv)
     if args.packages and (args.all or args.sample is not None):
@@ -987,8 +1178,116 @@ def subjects_of(entry: SourceEntry, kinds: list[str], work_dir: Path) -> list[tu
     return subjects
 
 
+def rule_paths(root: Path, renames: dict[str, str]) -> dict[str, str]:
+    """Tag -> Rule source path, from the Rust Rule catalogue (empty when lintian does not know the Tag)."""
+    return {renames.get(rule.tag, rule.tag): rule.path for rule in parity.parse_rust_rules(root, "LN")}
+
+
+def disagreement_packets(comparison: Comparison, root: Path, renames: dict[str, str]) -> dict[str, str]:
+    """One Markdown packet per Tag with a disagreement, plus an `index.md` ranking them.
+
+    A packet is self-contained: what the Rule is, how much it disagrees, and every affected Subject
+    with the artifact path and hint lines, so an agent needs no other file to reproduce and fix it.
+    """
+    paths = rule_paths(root, renames)
+    by_tag: dict[str, list[Disagreement]] = defaultdict(list)
+    for record in comparison.disagreements:
+        by_tag[record.tag].append(record)
+    ordered = sorted(
+        by_tag.items(),
+        key=lambda item: (-len({(r.subject, r.bucket) for r in item[1]}), item[0]),
+    )
+    packets: dict[str, str] = {}
+    index = [
+        "# Ecosystem work packets",
+        "",
+        "One packet per Rule with a disagreement against the UDD lintian oracle. Fix the Rule,",
+        "rerun its Subject with the command in the packet, then re-run the ecosystem suite.",
+        "",
+        "| Tag | Code | Rule | Subjects | missed | extra | context | severity |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for tag, records in ordered:
+        code = next((r.code for r in records if r.code), "")
+        subjects = {r.subject for r in records}
+        buckets = Counter(r.bucket for r in records)
+        name = f"{code or 'no-code'}_{tag}.md"
+        rel = f"rules/{name}"
+        packets[name] = render_packet(tag, code, records, paths.get(tag, ""), rel)
+        index.append(
+            f"| {tag} | {code or '?'} | {f'`{paths[tag]}`' if tag in paths else '?'} | {len(subjects)} | "
+            f"{buckets['missed']} | {buckets['extra']} | {buckets['context']} | {buckets['severity']} |"
+        )
+    if packets:
+        packets["index.md"] = "\n".join(index) + "\n"
+    return packets
+
+
+def source_of(path: str) -> str:
+    """The source package of an archive Subject path (`<work-dir>/archive/<source>_<version>/<file>`)."""
+    return Path(path).parent.name.split("_", 1)[0] if path else ""
+
+
+def render_packet(tag: str, code: str, records: list[Disagreement], rule_path: str, rel: str) -> str:
+    subjects = {r.subject for r in records}
+    buckets = Counter(r.bucket for r in records)
+    sources = sorted({source for r in records if (source := source_of(r.path))})
+    lines = [
+        f"# {tag} ({code or 'no code'})",
+        "",
+        f"- Rule: {f'`{rule_path}`' if rule_path else 'not in the Rule catalogue'}",
+        f"- Disagreements: {len(subjects)} Subjects; missed {buckets['missed']}, extra {buckets['extra']}, "
+        f"context {buckets['context']}, severity {buckets['severity']}",
+        "- Oracle: UDD `lintian_results` (what tracker.debian.org reports); see the parent `report.md`",
+        f"- Packet: `{rel}`",
+        "- Closure: the Rule's native tests cover the new behaviour, `just lint-parity` is unchanged, "
+        "and the Subject below no longer disagrees",
+        "",
+        "## Reproduce",
+        "",
+    ]
+    for subject, path in sorted({(r.subject, r.path) for r in records if r.path}):
+        lines.append(f"- `{subject}`: `debmagic lint --select {code or 'LN'} {path}`")
+    if sources:
+        lines += [
+            "",
+            "Re-run the comparison after the fix (its cache is warm):",
+            "",
+            "```shell",
+            f"just lint-ecosystem --packages {' '.join(sources)} --perf off",
+            "```",
+        ]
+    lines += ["", "## Subjects", ""]
+    grouped: dict[str, list[Disagreement]] = defaultdict(list)
+    for record in records:
+        grouped[record.subject].append(record)
+    for subject in sorted(grouped):
+        lines += [f"### {subject}", ""]
+        for record in grouped[subject]:
+            if record.path:
+                lines.append(f"- artifact: `{record.path}`")
+            if record.bucket == "severity":
+                lines.append(f"- severity: {record.note}")
+                continue
+            if record.lintian:
+                label = "lintian only" if record.bucket == "context" else "lintian"
+                lines.append(f"- {label}:")
+                lines += [f"  - {hint}" for hint in record.lintian]
+            if record.debmagic:
+                label = "debmagic only" if record.bucket == "context" else "debmagic"
+                lines.append(f"- {label}:")
+                lines += [f"  - {hint}" for hint in record.debmagic]
+        lines.append("")
+    return "\n".join(lines) + "\n"
+
+
 def write_report(
-    args: argparse.Namespace, comparison: Comparison, entries: list[SourceEntry], debmagic: Path, lint_args: list[str]
+    args: argparse.Namespace,
+    comparison: Comparison,
+    entries: list[SourceEntry],
+    debmagic: Path,
+    lint_args: list[str],
+    renames: dict[str, str],
 ) -> str:
     meta: dict[str, object] = {
         "release": args.release,
@@ -1003,24 +1302,120 @@ def write_report(
         meta["perf"] = f"{args.perf}, {args.perf_repeat} run(s) per tool, {os.cpu_count()} CPUs, {installed}"
         if args.profile == "debug":
             meta["perf warning"] = "debug build: debmagic timings are not representative"
+    packets = disagreement_packets(comparison, ROOT, renames)
+    if packets:
+        meta["work packets (agents)"] = f"{len(packets) - 1} Rules, see rules/index.md"
     args.work_dir.mkdir(parents=True, exist_ok=True)
     (args.work_dir / "report.json").write_text(json.dumps(report_json(comparison), indent=2))
     text = render(comparison, meta, args.top_uncovered, args.top_slow)
     (args.work_dir / "report.md").write_text(text)
+    packet_dir = args.work_dir / "rules"
+    if packet_dir.is_dir():
+        shutil.rmtree(packet_dir)  # stale packets from an earlier run would look like current failures
+    for name, body in packets.items():
+        destination = packet_dir / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(body)
     return text
 
 
-def main(argv: list[str] | None = None) -> int:
-    args = parse_args(argv)
-    perf_on = args.perf != "off"
+@dataclass
+class Run:
+    """What every Subject of this run needs: the tool, its arguments, and the Rule catalogue views."""
+
+    args: argparse.Namespace
+    debmagic: Path
+    lint_args: list[str]
+    renames: dict[str, str]
+    covered: dict[str, dict[str, str]]
+    tag_files: dict[str, Path]
+    perf_on: bool
+
+
+def build_debmagic(args: argparse.Namespace) -> Path:
+    """Build (unless `--no-build`) and locate the debmagic binary; fail early on a missing tool."""
     if not args.no_build:
+        log("build", f"cargo build -p debmagic ({args.profile})")
         cargo = ["cargo", "build", "-q", "-p", "debmagic", *(["--release"] if args.profile == "release" else [])]
         subprocess.run(cargo, cwd=ROOT, check=True)
+        log("build", "done")
     debmagic = args.debmagic or ROOT / "target" / PROFILE_DIRS[args.profile] / "debmagic"
     if not debmagic.exists():
         sys.exit(f"{debmagic} not found; build it or pass --debmagic")
-    if perf_on and shutil.which("lintian") is None:
+    if args.perf != "off" and shutil.which("lintian") is None:
         sys.exit("lintian not found: install it, or pass --perf off")
+    return debmagic
+
+
+def lint_subjects(
+    run: Run,
+    entries: list[SourceEntry],
+    oracle: dict[tuple[str, str], list[OracleRow]],
+    pending: dict[str, Future[dict[Path, str]]],
+) -> Comparison:
+    """Lint every Subject, compare it with its oracle rows, and report progress as it goes."""
+    args = run.args
+    subjects = (len(entries) if "source" in args.kinds else 0) + sum(len(e.binaries) for e in entries)
+    perf_note = " and lintian (perf)" if run.perf_on else ""
+    log("lint", f"linting {subjects} Subject(s) with {' '.join(run.lint_args)}{perf_note}")
+    comparison = Comparison()
+    lint_bar = bar(subjects, "lint", unit="subject", position=1)
+    for entry in entries:
+        failures = pending[entry.source].result()
+        rows = oracle[(entry.source, entry.version)]
+        for key, path, input_mb in subjects_of(entry, args.kinds, args.work_dir):
+            lint_bar.set_postfix_str(key.label()[:60])
+            try:
+                if path in failures:
+                    comparison.failures.append((key.label(), f"download: {failures[path]}"))
+                    PROGRESS.line(f"skip {key.label()}: download failed")
+                    continue
+                result = run_debmagic(run.debmagic, path, run.lint_args, args.timeout)
+                comparison.seconds += result.metrics.wall
+                if not result.ok:
+                    comparison.failures.append((key.label(), result.error))
+                    PROGRESS.line(f"FAILED {key.label()}: {result.error.splitlines()[0][:120]}")
+                    continue
+                comparison.subjects += 1
+                compare_subject(
+                    comparison,
+                    key,
+                    subject_oracle(key, rows),
+                    result.diagnostics,
+                    run.covered[key.kind],
+                    run.renames,
+                    args.examples,
+                    path,
+                )
+                note = f"debmagic {result.metrics.wall:.2f}s"
+                if run.perf_on:
+                    note = measure_perf(
+                        args, run.debmagic, run.lint_args, key, path, result, run.tag_files, input_mb, comparison
+                    )
+                summary = f"{key.label()}: {len(result.diagnostics)} diagnostics, {note}"
+                if PROGRESS.verbose or PROGRESS.disable is not False:
+                    PROGRESS.line(summary)
+                else:
+                    lint_bar.set_postfix_str(summary[:80])
+            finally:
+                lint_bar.update(1)
+    lint_bar.close()
+    log(
+        "lint",
+        f"done: {comparison.subjects} Subject(s) compared, {len(comparison.failures)} failure(s), "
+        f"debmagic {comparison.seconds:.0f}s, {len(comparison.disagreements)} disagreement(s) across "
+        f"{len({d.tag for d in comparison.disagreements})} Tag(s)",
+    )
+    return comparison
+
+
+def main(argv: list[str] | None = None) -> int:
+    started = time.monotonic()
+    args = parse_args(argv)
+    PROGRESS.disable = args.progress == "off" or (args.progress == "auto" and not sys.stderr.isatty())
+    PROGRESS.verbose = args.verbose
+    log("start", f"lint ecosystem run into {args.work_dir} (progress: {args.progress})")
+    debmagic = build_debmagic(args)
     lint_args = args.lint_arg if args.lint_arg is not None else ["--select", "LN"]
 
     entries = select_sources(args)
@@ -1028,38 +1423,26 @@ def main(argv: list[str] | None = None) -> int:
         attach_binaries(entries, args)
     print_plan(entries, args.kinds)
     oracle = load_oracle(entries, args.work_dir, args.refresh_oracle)
-    downloads, pending = start_downloads(entries, args.work_dir, args.workers)
+    downloads, pending, download_bar = start_downloads(entries, args.work_dir, args.workers)
+    log("downloads", f"{download_bar.total} file(s) queued with {args.workers} worker(s)")
 
     renames = canonical_tags(args.lintian_data)
     covered = covered_tags(ROOT, renames)
-    tag_files = lintian_tag_files(covered, args.lintian_data, args.work_dir / "perf") if perf_on else {}
-    comparison = Comparison()
-    for entry in entries:
-        failures = pending[entry.source].result()
-        rows = oracle[(entry.source, entry.version)]
-        for key, path, input_mb in subjects_of(entry, args.kinds, args.work_dir):
-            if path in failures:
-                comparison.failures.append((key.label(), f"download: {failures[path]}"))
-                continue
-            result = run_debmagic(debmagic, path, lint_args, args.timeout)
-            comparison.seconds += result.metrics.wall
-            if not result.ok:
-                comparison.failures.append((key.label(), result.error))
-                continue
-            comparison.subjects += 1
-            subject_rows = subject_oracle(key, rows)
-            compare_subject(
-                comparison, key, subject_rows, result.diagnostics, covered[key.kind], renames, args.examples
-            )
-            note = f"debmagic {result.metrics.wall:.2f}s"
-            if perf_on:
-                note = measure_perf(args, debmagic, lint_args, key, path, result, tag_files, input_mb, comparison)
-            print(f"  {key.label()}: {len(result.diagnostics)} diagnostics, {note}", file=sys.stderr)
-    downloads.shutdown()
+    tag_files = lintian_tag_files(covered, args.lintian_data, args.work_dir / "perf") if args.perf != "off" else {}
+    run = Run(args, debmagic, lint_args, renames, covered, tag_files, args.perf != "off")
+    try:
+        comparison = lint_subjects(run, entries, oracle, pending)
+    finally:
+        downloads.shutdown()
+        download_bar.close()
 
-    text = write_report(args, comparison, entries, debmagic, lint_args)
+    log("report", "writing report.md, report.json and the agent work packets")
+    text = write_report(args, comparison, entries, debmagic, lint_args, renames)
     print(text)
-    print(f"written to {args.work_dir}/report.md and report.json", file=sys.stderr)
+    log("report", f"wrote {args.work_dir}/report.md and report.json")
+    if (args.work_dir / "rules" / "index.md").exists():
+        log("report", f"work packets for agents: {args.work_dir}/rules/index.md")
+    log("done", f"finished in {time.monotonic() - started:.0f}s")
     differs = any(s.missed or s.extra for s in comparison.stats.values())
     return 1 if args.fail_on_diff and differs else 0
 

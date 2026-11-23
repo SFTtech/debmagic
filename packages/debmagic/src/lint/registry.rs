@@ -562,6 +562,7 @@ use super::rules::SpellingErrorInDescription;
 use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
+use super::rules::SpellingErrorInReadmeDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::SpuriousFieldsInUpstreamSignature;
 use super::rules::StaticLinkTimeOptimization;
@@ -2429,6 +2430,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
+        &SpellingErrorInReadmeDebian,
     ]
 }
 
@@ -3787,6 +3789,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &StaticLinkTimeOptimization,
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
+        &SpellingErrorInReadmeDebian,
     ]
 }
 

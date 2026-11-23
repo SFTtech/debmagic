@@ -22,8 +22,8 @@ declare_rule! {
     /// definition of the same target updates that line and keeps the earlier
     /// recipe. A recipe line (indented, not a comment) counts as the call when
     /// it starts with a tab, optional whitespace, an optional `-`, then
-    /// `dh_fixperms` with the same suffix, `$(overridden_command)`, or
-    /// `$(DH_OVERRIDDEN_COMMAND)`. `define` ends the current target.
+    /// `dh_fixperms` (with any suffix, as lintian matches the bare command),
+    /// `$(overridden_command)`, or `$(DH_OVERRIDDEN_COMMAND)`. `define` ends the current target.
     /// `override_dh_clean` is a different Tag. Extra is empty. Applies to the
     /// Source tree and Source package. A missing, unreadable, or non-UTF-8
     /// `debian/rules` is not scanned.
@@ -83,10 +83,11 @@ fn missing_calls(contents: &str) -> Vec<(u32, &'static str)> {
         } else if line.starts_with("define ") {
             current.clear();
         } else if is_recipe(&line) {
-            for target in &current {
-                if let Some(index) = suffix_index(target) {
-                    let command = format!("dh_fixperms{}", SUFFIXES[index]);
-                    if recipe_calls(&line, &command) {
+            // lintian matches the bare `dh_fixperms` word for every suffix, so
+            // `override_dh_fixperms-arch` may call plain `dh_fixperms`.
+            if recipe_calls(&line, "dh_fixperms") {
+                for target in &current {
+                    if let Some(index) = suffix_index(target) {
                         tracked[index].calls = true;
                     }
                 }
@@ -156,8 +157,11 @@ Description: example\n extra\n";
         ]
     }
 
+    /// lintian's `Check/Debian/Rules.pm` (the `dh_fixperms` loop) matches the
+    /// bare `dh_fixperms\b` word in the body of every `override_dh_fixperms`
+    /// suffix, and any target definition of the same name keeps its body.
     #[test]
-    fn test() {
+    fn override_body_must_call_dh_fixperms() {
         let pass = vec![
             vec![("README", TestFile::new("no rules"))],
             package(""),
@@ -167,6 +171,11 @@ Description: example\n extra\n";
             package("override_dh_fixperms-indep:\n\t$(DH_OVERRIDDEN_COMMAND)\n"),
             package("override_dh_fixperms-arch:\n\tdh_fixperms-arch\n"),
             package("override_dh_fixperms-indep:\n\tdh_fixperms-indep --foo\n"),
+            // lintian matches the bare command for every suffix (gcr4 shape).
+            package("override_dh_fixperms-arch:\n\tdh_fixperms -X tests\n"),
+            package("override_dh_fixperms:\n\tdh_fixperms-arch\n"),
+            // A shared recipe calls dh_fixperms for every target it names.
+            package("override_dh_fixperms override_dh_fixperms-arch:\n\tdh_fixperms\n"),
             // A different override.
             package("override_dh_clean:\n"),
             package("override_dh_clean:\n\ttrue\n"),
@@ -183,21 +192,22 @@ Description: example\n extra\n";
             ),
             package("override_dh_fixperms:\n\ttrue\n"),
             package("override_dh_fixperms:\n\techo dh_fixperms\n"),
+            // `\b` needs a word end: `dh_fixperms_x` is another command.
+            package("override_dh_fixperms-arch:\n\tdh_fixperms_x\n"),
             // Spaces are not a recipe tab.
             package("override_dh_fixperms:\n    dh_fixperms\n"),
             package("override_dh_fixperms:\n\t# dh_fixperms\n"),
             // `define` ends the target, so the later call belongs to nobody.
             package("override_dh_fixperms:\ndefine something\n\tdh_fixperms\n"),
-            // Shared recipe: the suffix that was not called is reported.
-            package("override_dh_fixperms override_dh_fixperms-arch:\n\tdh_fixperms\n"),
             package("override_dh_fixperms:\n\ttrue\noverride_dh_fixperms:\n\ttrue\n"),
         ];
         SourceTreeTester::new(OverrideDhFixpermsDoesNotCallDhFixperms, pass, fail)
             .test_and_snapshot();
     }
 
+    /// The same call rule holds for a source package (its `.dsc` plus tree).
     #[test]
-    fn test_source_package() {
+    fn source_package_matches_the_tree_rule() {
         let pass = vec![SourcePackageCase::from(package(
             "override_dh_fixperms:\n\tdh_fixperms\n",
         ))];

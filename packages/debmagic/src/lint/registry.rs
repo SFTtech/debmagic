@@ -107,6 +107,7 @@ use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
 use super::rules::DebianPycompatIsObsolete;
+use super::rules::DebianPyversionsIsObsolete;
 use super::rules::DebianRulesContainsUnnecessaryGetOrigSourceTarget;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
@@ -2341,6 +2342,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TypoInManualPage,
         &CapitalizationErrorInDescriptionSynopsis,
         &DebianPycompatIsObsolete,
+        &DebianPyversionsIsObsolete,
     ]
 }
 
@@ -2781,6 +2783,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &BuildDependsOnPythonDevWithNoArchAny,
         &OredBuildDependsOnObsoletePackage,
         &DebianPycompatIsObsolete,
+        &DebianPyversionsIsObsolete,
     ]
 }
 

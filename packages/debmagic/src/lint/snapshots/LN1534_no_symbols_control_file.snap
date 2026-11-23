@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): no-symbols-control-file (LN1534) usr/lib/libfoo.so.1
+I: example (binary): no-symbols-control-file (LN1534) usr/lib/libfoo.so.1
+I: example (binary): no-symbols-control-file (LN1534) usr/lib/libfoo.so.1

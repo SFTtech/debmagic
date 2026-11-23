@@ -644,11 +644,12 @@ pub(crate) use debian_rules::{
 pub(crate) use debian_shlibs::{
     DistantPrerequisiteInShlibs, DuplicateEntryInSymbolsControlFile, DuplicateInShlibs,
     EmptySharedLibrarySymbols, EmptyShlibs, InvalidTemplateIdInSymbolsFile, NoShlibs,
-    OutdatedRelationInShlibs, SharedLibraryLacksVersion, SharedLibraryNotShipped,
-    SharedLibrarySymbolsNotTracked, ShipsUndeclaredSharedLibrary, SurplusSharedLibrarySymbols,
-    SymbolsDeclaresDependencyOnOtherPackage, SymbolsFileContainsCurrentVersionWithDebianRevision,
-    SymbolsFileContainsDebianRevision, SymbolsFileMissingBuildDependsPackageField,
-    SymbolsForUndeclaredSharedLibrary, SyntaxErrorInSymbolsFile, UnknownMetaFieldInSymbolsFile,
+    NoSymbolsControlFile, OutdatedRelationInShlibs, SharedLibraryLacksVersion,
+    SharedLibraryNotShipped, SharedLibrarySymbolsNotTracked, ShipsUndeclaredSharedLibrary,
+    SurplusSharedLibrarySymbols, SymbolsDeclaresDependencyOnOtherPackage,
+    SymbolsFileContainsCurrentVersionWithDebianRevision, SymbolsFileContainsDebianRevision,
+    SymbolsFileMissingBuildDependsPackageField, SymbolsForUndeclaredSharedLibrary,
+    SyntaxErrorInSymbolsFile, UnknownMetaFieldInSymbolsFile,
 };
 pub(crate) use debian_version_substvars::{
     NotBinnmuableAllDependsAny, NotBinnmuableAnyDependsAll, NotBinnmuableAnyDependsAny,
@@ -856,7 +857,7 @@ pub(crate) use languages_javascript::{
     PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
 pub(crate) use languages_ocaml::{
-    OcamlDanglingCmi, OcamlDanglingCmx, OcamlDanglingCmxa, OcamlDanglingCmxs,
+    OcamlCustomExecutable, OcamlDanglingCmi, OcamlDanglingCmx, OcamlDanglingCmxa, OcamlDanglingCmxs,
 };
 pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PackageInstallsPacklist,
@@ -880,6 +881,7 @@ pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
 pub(crate) use libraries_static::NoCodeSections;
 pub(crate) use libraries_static::OddStaticLibraryName;
+pub(crate) use libraries_static::StaticLinkTimeOptimization;
 pub(crate) use libtool::{IncorrectLibdirInLaFile, NonEmptyDependencyLibsInLaFile};
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;
 pub(crate) use md5sums::{

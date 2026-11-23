@@ -992,6 +992,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/ocaml/byte-code/interface/ocaml-general",
     "checks/languages/ocaml/byte-code/library/ocaml-general",
     "checks/languages/ocaml/byte-code/plugin/ocaml-general",
+    "checks/languages/ocaml/custom-executable/binaries-general",
     "checks/languages/perl/core/provides/fields-perl-provides",
     "checks/languages/perl/files-foo-in-bar",
     "checks/languages/perl/files-uses-perl4-libs-without-dep",
@@ -1036,6 +1037,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/libraries/shared/stack/shared-libs-no-gnu-stack",
     "checks/libraries/shared/trigger/ldconfig/legacy-libbaz",
     "checks/libraries/shared/trigger/ldconfig/shared-libs-ldconfig-scripts",
+    "checks/libraries/static/link-time-optimization/with-fat-lto-objects",
+    "checks/libraries/static/link-time-optimization/without-fat-lto-objects",
     "checks/libraries/static/name/underscore-s-suffix",
     "checks/libraries/static/no-code/without-fat-lto-objects",
     "checks/linda/files-package-contains-foo",
@@ -2730,6 +2733,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/ocaml/byte-code/interface/ocaml-general"; "checks_languages_ocaml_byte_code_interface_ocaml_general")]
 #[test_case("checks/languages/ocaml/byte-code/library/ocaml-general"; "checks_languages_ocaml_byte_code_library_ocaml_general")]
 #[test_case("checks/languages/ocaml/byte-code/plugin/ocaml-general"; "checks_languages_ocaml_byte_code_plugin_ocaml_general")]
+#[test_case("checks/languages/ocaml/custom-executable/binaries-general"; "checks_languages_ocaml_custom_executable_binaries_general")]
 #[test_case("checks/languages/perl/core/provides/fields-perl-provides"; "checks_languages_perl_core_provides_fields_perl_provides")]
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
 #[test_case("checks/languages/perl/files-uses-perl4-libs-without-dep"; "checks_languages_perl_files_uses_perl4_libs_without_dep")]
@@ -2774,6 +2778,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/libraries/shared/stack/shared-libs-no-gnu-stack"; "checks_libraries_shared_stack_shared_libs_no_gnu_stack")]
 #[test_case("checks/libraries/shared/trigger/ldconfig/legacy-libbaz"; "checks_libraries_shared_trigger_ldconfig_legacy_libbaz")]
 #[test_case("checks/libraries/shared/trigger/ldconfig/shared-libs-ldconfig-scripts"; "checks_libraries_shared_trigger_ldconfig_shared_libs_ldconfig_scripts")]
+#[test_case("checks/libraries/static/link-time-optimization/with-fat-lto-objects"; "checks_libraries_static_link_time_optimization_with_fat_lto_objects")]
+#[test_case("checks/libraries/static/link-time-optimization/without-fat-lto-objects"; "checks_libraries_static_link_time_optimization_without_fat_lto_objects")]
 #[test_case("checks/libraries/static/name/underscore-s-suffix"; "checks_libraries_static_name_underscore_s_suffix")]
 #[test_case("checks/libraries/static/no-code/without-fat-lto-objects"; "checks_libraries_static_no_code_without_fat_lto_objects")]
 #[test_case("checks/linda/files-package-contains-foo"; "checks_linda_files_package_contains_foo")]

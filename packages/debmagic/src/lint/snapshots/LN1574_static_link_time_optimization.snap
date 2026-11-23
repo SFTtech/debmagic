@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): static-link-time-optimization (LN1574) code.o [usr/lib/libcodeless.a]
+I: example (binary): static-link-time-optimization (LN1574) lto.o [usr/lib/libfoo.a]
+I: example (binary): static-link-time-optimization (LN1574) code.o [usr/lib/libfoo-link.a]

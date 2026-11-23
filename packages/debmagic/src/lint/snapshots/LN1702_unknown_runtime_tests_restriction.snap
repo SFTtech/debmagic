@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): unknown-runtime-tests-restriction (LN1702) unknownrestriction [debian/tests/control:2]
+P: (source): unknown-runtime-tests-restriction (LN1702) Allow-Stderr [debian/tests/control:2]
+P: (source): unknown-runtime-tests-restriction (LN1702) bogus [debian/tests/control:5]

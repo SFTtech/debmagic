@@ -324,6 +324,8 @@ use super::rules::LicenseProblemOldUnicode;
 use super::rules::LinkToSharedLibraryInWrongPackage;
 use super::rules::LocaleUsesLanguageGroupCode;
 use super::rules::MagicArchInArchList;
+use super::rules::MaintainerDesktopEntry;
+use super::rules::MaintainerManualPage;
 use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
@@ -419,6 +421,7 @@ use super::rules::OddMarkInDescription;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
+use super::rules::OlderDebianWatchFileStandard;
 use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OredBuildDependsOnObsoletePackage;
@@ -447,6 +450,7 @@ use super::rules::PackageContainsXvpicsDir;
 use super::rules::PackageDependsOnAnXFontPackage;
 use super::rules::PackageDependsOnHardcodedLibc;
 use super::rules::PackageDependsOnMultipleTclxVersions;
+use super::rules::PackageDoesNotInstallExamples;
 use super::rules::PackageFileIsExecutable;
 use super::rules::PackageHasLongFileName;
 use super::rules::PackageHasUnnecessaryActivationOfLdconfigTrigger;
@@ -519,6 +523,7 @@ use super::rules::PythonModuleInWrongLocation;
 use super::rules::PythonTracebackInManpage;
 use super::rules::QuiltBuildDepButNoSeriesFile;
 use super::rules::QuiltPatchMissingDescription;
+use super::rules::QuiltPatchUsesDpatchExtension;
 use super::rules::QuiltPatchUsesDpatchPlaceholder;
 use super::rules::QuiltPatchUsingTemplateDescription;
 use super::rules::QuiltPatchWithNonStandardOptions;
@@ -600,6 +605,7 @@ use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
 use super::rules::SpellingErrorInReadmeDebian;
+use super::rules::SpellingErrorInPatchDescription;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::SpellingInOverrideComment;
 use super::rules::SpuriousFieldsInUpstreamSignature;
@@ -666,6 +672,9 @@ use super::rules::UnknownMetaFieldInSymbolsFile;
 use super::rules::UnknownMultiArchValue;
 use super::rules::UnknownParagraphInDep5Copyright;
 use super::rules::UnknownPriority;
+use super::rules::UnknownRuntimeTestsFeature;
+use super::rules::UnknownRuntimeTestsField;
+use super::rules::UnknownRuntimeTestsRestriction;
 use super::rules::UnknownTemplateType;
 use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
@@ -676,6 +685,7 @@ use super::rules::UnparsableMenuItem;
 use super::rules::UnreleasedChanges;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusedDebconfTemplate;
+use super::rules::UnusedEntryInDebianSourceIncludeBinaries;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnusualDocumentationPackageName;
 use super::rules::UnversionedCopyrightFormatUri;
@@ -2517,6 +2527,16 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PublicUpstreamKeyInNativePackage,
         &PublicUpstreamKeysInMultipleLocations,
         &PublicUpstreamKeyNotMinimal,
+        &UnknownRuntimeTestsFeature,
+        &UnknownRuntimeTestsField,
+        &UnknownRuntimeTestsRestriction,
+        &UnusedEntryInDebianSourceIncludeBinaries,
+        &QuiltPatchUsesDpatchExtension,
+        &SpellingErrorInPatchDescription,
+        &OlderDebianWatchFileStandard,
+        &MaintainerDesktopEntry,
+        &MaintainerManualPage,
+        &PackageDoesNotInstallExamples,
     ]
 }
 
@@ -3011,6 +3031,15 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &MissingVcsBrowserField,
         &NoHomepageField,
         &RedundantRulesRequiresRootNoField,
+        &UnknownRuntimeTestsFeature,
+        &UnknownRuntimeTestsField,
+        &UnknownRuntimeTestsRestriction,
+        &UnusedEntryInDebianSourceIncludeBinaries,
+        &QuiltPatchUsesDpatchExtension,
+        &SpellingErrorInPatchDescription,
+        &OlderDebianWatchFileStandard,
+        &MaintainerDesktopEntry,
+        &MaintainerManualPage,
     ]
 }
 
@@ -3966,6 +3995,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &ChangelogDistributionDoesNotMatchChangesFile,
         &InconsistentMaintainer,
         &SpareManualPage,
+        &PackageDoesNotInstallExamples,
     ]
 }
 

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): quilt-patch-uses-dpatch-extension (LN1704) a.dpatch
+I: example (source): quilt-patch-uses-dpatch-extension (LN1704) a.dpatch
+I: example (source): quilt-patch-uses-dpatch-extension (LN1704) c.dpatch

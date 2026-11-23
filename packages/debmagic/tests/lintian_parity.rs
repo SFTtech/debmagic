@@ -170,6 +170,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/debconf/debconf-syntax-error",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
+    "checks/debian/desktop-entries/desktop-file",
     "checks/debian/dpkg-build-api/rules-variable",
     "checks/debian/filenames/duplicate-news-files",
     "checks/debian/filenames/news-has-debian-extension",
@@ -177,6 +178,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/lintian-overrides/duplicate/duplicate-context-cute-field",
     "checks/debian/lintian-overrides/malformed/missing-colon",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
+    "checks/debian/manual-pages/manpage-in-1",
     "checks/debian/not-installed/triplet-in-library-path",
     "checks/debian/patches/dep3/author-or-from-is-better",
     "checks/debian/patches/dep3/bug-field-default-value",
@@ -200,6 +202,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
     "checks/debian/patches/quilt/quilt-patch-dpatch-desc",
     "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
+    "checks/debian/patches/quilt/spelling-general",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/invalid-potfiles-in",
     "checks/debian/po-debconf/legacy-debconf",
@@ -243,6 +246,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-unnecessary-get-orig-source",
     "checks/debian/rules/rules-unnecessary-source-date-epoch",
     "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
+    "checks/debian/source/include-binaries/non-existing-file",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
@@ -289,6 +293,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/watch/standard/version-1",
     "checks/debian/watch/standard/version-2",
     "checks/debian/watch/standard/version-3",
+    "checks/debian/watch/standard/version-4",
     "checks/debian/watch/standard/version-6",
     "checks/debian/watch/standard/watch-file-general",
     "checks/debian/watch/two-upstream-components",
@@ -1353,6 +1358,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/debconf/debconf-syntax-error",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
+    "checks/debian/desktop-entries/desktop-file",
     "checks/debian/dpkg-build-api/rules-variable",
     "checks/debian/filenames/duplicate-news-files",
     "checks/debian/filenames/news-has-debian-extension",
@@ -1360,6 +1366,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/lintian-overrides/duplicate/duplicate-context-cute-field",
     "checks/debian/lintian-overrides/malformed/missing-colon",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
+    "checks/debian/manual-pages/manpage-in-1",
     "checks/debian/not-installed/triplet-in-library-path",
     "checks/debian/patches/dep3/author-or-from-is-better",
     "checks/debian/patches/dep3/bug-field-default-value",
@@ -1383,6 +1390,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/patch-systems-quilt-no-series",
     "checks/debian/patches/quilt/quilt-patch-dpatch-desc",
     "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
+    "checks/debian/patches/quilt/spelling-general",
     "checks/debian/po-debconf/debconf-templates-general",
     "checks/debian/po-debconf/invalid-potfiles-in",
     "checks/debian/po-debconf/legacy-debconf",
@@ -1426,6 +1434,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-unnecessary-get-orig-source",
     "checks/debian/rules/rules-unnecessary-source-date-epoch",
     "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
+    "checks/debian/source/include-binaries/non-existing-file",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
@@ -1472,6 +1481,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/watch/standard/version-1",
     "checks/debian/watch/standard/version-2",
     "checks/debian/watch/standard/version-3",
+    "checks/debian/watch/standard/version-4",
     "checks/debian/watch/standard/version-6",
     "checks/debian/watch/standard/watch-file-general",
     "checks/debian/watch/two-upstream-components",
@@ -1747,6 +1757,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/debian/copyright/copyright-file-symlink",
     "checks/desktop/gnome/gir/gir",
     "checks/documentation/manual/surplus-manpage",
+    "checks/examples/cruft-package-does-not-install-examples",
     "checks/fields/distribution/changelog-file-backport",
     "checks/fields/distribution/changes-bad-ubuntu-distribution",
     "checks/fields/distribution/changes-distribution-mismatch",
@@ -1967,6 +1978,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/debconf/debconf-syntax-error"; "checks_debian_debconf_debconf_syntax_error")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
+#[test_case("checks/debian/desktop-entries/desktop-file"; "checks_debian_desktop_entries_desktop_file")]
 #[test_case("checks/debian/dpkg-build-api/rules-variable"; "checks_debian_dpkg_build_api_rules_variable")]
 #[test_case("checks/debian/filenames/duplicate-news-files"; "checks_debian_filenames_duplicate_news_files")]
 #[test_case("checks/debian/filenames/news-has-debian-extension"; "checks_debian_filenames_news_has_debian_extension")]
@@ -1974,6 +1986,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/lintian-overrides/duplicate/duplicate-context-cute-field"; "checks_debian_lintian_overrides_duplicate_duplicate_context_cute_field")]
 #[test_case("checks/debian/lintian-overrides/malformed/missing-colon"; "checks_debian_lintian_overrides_malformed_missing_colon")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
+#[test_case("checks/debian/manual-pages/manpage-in-1"; "checks_debian_manual_pages_manpage_in_1")]
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
 #[test_case("checks/debian/patches/dep3/author-or-from-is-better"; "checks_debian_patches_dep3_author_or_from_is_better")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
@@ -1997,6 +2010,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-desc"; "checks_debian_patches_quilt_quilt_patch_dpatch_desc")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
+#[test_case("checks/debian/patches/quilt/spelling-general"; "checks_debian_patches_quilt_spelling_general")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/invalid-potfiles-in"; "checks_debian_po_debconf_invalid_potfiles_in")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
@@ -2040,6 +2054,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/rules-unnecessary-get-orig-source"; "checks_debian_rules_rules_unnecessary_get_orig_source")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
+#[test_case("checks/debian/source/include-binaries/non-existing-file"; "checks_debian_source_include_binaries_non_existing_file")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]
@@ -2086,6 +2101,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/watch/standard/version-1"; "checks_debian_watch_standard_version_1")]
 #[test_case("checks/debian/watch/standard/version-2"; "checks_debian_watch_standard_version_2")]
 #[test_case("checks/debian/watch/standard/version-3"; "checks_debian_watch_standard_version_3")]
+#[test_case("checks/debian/watch/standard/version-4"; "checks_debian_watch_standard_version_4")]
 #[test_case("checks/debian/watch/standard/version-6"; "checks_debian_watch_standard_version_6")]
 #[test_case("checks/debian/watch/standard/watch-file-general"; "checks_debian_watch_standard_watch_file_general")]
 #[test_case("checks/debian/watch/two-upstream-components"; "checks_debian_watch_two_upstream_components")]
@@ -3152,6 +3168,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/debconf/debconf-syntax-error"; "checks_debian_debconf_debconf_syntax_error")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
+#[test_case("checks/debian/desktop-entries/desktop-file"; "checks_debian_desktop_entries_desktop_file")]
 #[test_case("checks/debian/dpkg-build-api/rules-variable"; "checks_debian_dpkg_build_api_rules_variable")]
 #[test_case("checks/debian/filenames/duplicate-news-files"; "checks_debian_filenames_duplicate_news_files")]
 #[test_case("checks/debian/filenames/news-has-debian-extension"; "checks_debian_filenames_news_has_debian_extension")]
@@ -3159,6 +3176,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/lintian-overrides/duplicate/duplicate-context-cute-field"; "checks_debian_lintian_overrides_duplicate_duplicate_context_cute_field")]
 #[test_case("checks/debian/lintian-overrides/malformed/missing-colon"; "checks_debian_lintian_overrides_malformed_missing_colon")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
+#[test_case("checks/debian/manual-pages/manpage-in-1"; "checks_debian_manual_pages_manpage_in_1")]
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
 #[test_case("checks/debian/patches/dep3/author-or-from-is-better"; "checks_debian_patches_dep3_author_or_from_is_better")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
@@ -3182,6 +3200,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/quilt/patch-systems-quilt-no-series"; "checks_debian_patches_quilt_patch_systems_quilt_no_series")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-desc"; "checks_debian_patches_quilt_quilt_patch_dpatch_desc")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
+#[test_case("checks/debian/patches/quilt/spelling-general"; "checks_debian_patches_quilt_spelling_general")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
 #[test_case("checks/debian/po-debconf/invalid-potfiles-in"; "checks_debian_po_debconf_invalid_potfiles_in")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
@@ -3225,6 +3244,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/rules-unnecessary-get-orig-source"; "checks_debian_rules_rules_unnecessary_get_orig_source")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
+#[test_case("checks/debian/source/include-binaries/non-existing-file"; "checks_debian_source_include_binaries_non_existing_file")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]
@@ -3271,6 +3291,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/watch/standard/version-1"; "checks_debian_watch_standard_version_1")]
 #[test_case("checks/debian/watch/standard/version-2"; "checks_debian_watch_standard_version_2")]
 #[test_case("checks/debian/watch/standard/version-3"; "checks_debian_watch_standard_version_3")]
+#[test_case("checks/debian/watch/standard/version-4"; "checks_debian_watch_standard_version_4")]
 #[test_case("checks/debian/watch/standard/version-6"; "checks_debian_watch_standard_version_6")]
 #[test_case("checks/debian/watch/standard/watch-file-general"; "checks_debian_watch_standard_watch_file_general")]
 #[test_case("checks/debian/watch/two-upstream-components"; "checks_debian_watch_two_upstream_components")]
@@ -3547,6 +3568,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/documentation/manual/surplus-manpage"; "checks_documentation_manual_surplus_manpage")]
+#[test_case("checks/examples/cruft-package-does-not-install-examples"; "checks_examples_cruft_package_does_not_install_examples")]
 #[test_case("checks/fields/distribution/changelog-file-backport"; "checks_fields_distribution_changelog_file_backport")]
 #[test_case("checks/fields/distribution/changes-bad-ubuntu-distribution"; "checks_fields_distribution_changes_bad_ubuntu_distribution")]
 #[test_case("checks/fields/distribution/changes-distribution-mismatch"; "checks_fields_distribution_changes_distribution_mismatch")]

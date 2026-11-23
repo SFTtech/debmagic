@@ -657,6 +657,7 @@ use super::rules::UsesDeprecatedAdttmp;
 use super::rules::UsesDeprecatedPythonStdlib;
 use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
+use super::rules::UsesPdmCli;
 use super::rules::UsingFirstPersonInDescription;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
 use super::rules::UsrShareDocSymlinkToForeignPackage;
@@ -2435,6 +2436,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldPythonVersionField,
         &PackageUsesOldPythonDependsSubstvar,
         &UselessPydistOverridesFile,
+        &UsesPdmCli,
     ]
 }
 
@@ -2900,6 +2902,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &OldPythonVersionField,
         &PackageUsesOldPythonDependsSubstvar,
         &UselessPydistOverridesFile,
+        &UsesPdmCli,
     ]
 }
 

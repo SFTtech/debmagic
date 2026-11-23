@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): uses-pdm-cli (LN1685) [pyproject.toml:3]
+I: example (source): uses-pdm-cli (LN1685) [pyproject.toml:3]
+I: example (source): uses-pdm-cli (LN1685) [pyproject.toml:2]

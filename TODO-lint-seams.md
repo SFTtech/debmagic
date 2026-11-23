@@ -12,7 +12,7 @@ A *seam* is a Rule-facing inspectable, parser, or harness capability that a Tag 
 | Question | Why | Recommendation |
 | --- | --- | --- |
 | Run Group Rules that report on an installable for every Group, including one with no `.dsc` (a lone `.deb`, or `.deb` plus `.changes`)? Today a Group Rule runs only when the Group has a `.dsc` (ADR 0055) | Lintian runs these per-binary checks with optional access to the group's source. `cannot-check-whether-usr-share-doc-symlink-points-to-foreign-package` (LN1521) is exactly the no-source case; `gir-missing-typelib-dependency` (LN1499) and `usr-share-doc-symlink-to-foreign-package` (LN1506) do not run on a lone `.deb` either | Yes: make `ctx.dsc()` optional for Group Rules that report on installables, amend ADR 0055, and let the harness build a lone-`.deb` Group for the recipe `copyright-file-foreign-package`. Existing Group Rules return early without a `.dsc` |
-| Override application pass (suppress Diagnostics with parsed overrides)? | Blocks `mismatched-override` and `unused-override`; ADR 0051 says overrides are parsed, not applied | Defer until wanted |
+| ~~Override application pass~~ | Decided 2026-11-23: build it. Design in ADR 0057 (`docs/adr/0057-override-application-pass.md`, draft): `--show-overrides` / `--no-override`, hidden by default, new `OverrideRule` trait, `mismatched-override` default-selected, unused overrides of info and pedantic Tags are reported as lintian does | Implement in the task order of the ADR |
 
 ## Open seams, in progress
 
@@ -67,7 +67,7 @@ None running. The seams below are proposed and each blocks exactly the Tags name
 
 ## Cleanups noticed along the way (not seams)
 
-- `fields_version::source_format` reads `debian/source/format` for a Source tree with no `.dsc`; lintian's `Format.pm` defaults to `1.0` for those and treats `1.0` without a diff as native regardless of the revision. The `native` helper (used by the `debian-adds-*` and `source-contains-*` Rules) therefore differs for a `1.0-1` tree. Needs a decision.
+- `fields_version::source_format` / `is_native` for a Source tree with no `.dsc`: lintian's `Format.pm` treats `1.0` without a diff as native whatever the revision, but the Parity recipes (`general-false-positives/basic-non-native-1.0`, `tracking/generic-dh-make-2005/2008`, and the watch/upstream-metadata cases) are built from a real `.dsc` and expect non-native hints for `1.0-1` trees with and without `debian/source/format`. Following the Perl regressed 8 Parity cases and 15 unit fixtures and gained none, so the current `!contains('-')` rule stays (decided 2026-11-23 on that evidence). Revisit only if those recipes are re-derived from a `.dsc`-less build.
 - The recipe `checks/cruft/cruft-general-upstream` expects `source-contains-*` for a non-native package that lintian 2.144.0 cannot emit: its expected hints for the 13 Tags are dropped (`drop_expected_hints_for_non_native_upstream`, documented in `docs/develop/import-lintian-rule.md`).
 - LN1764/LN1765 name a symlinked signing key by its target path; lintian names the link.
 - LN1720 `manual-page-for-system-command` cannot see manual pages from direct dependencies; LN1723 lacks the emacsen/elpa and CGI exemptions; LN1729 does not follow symlinked units.

@@ -923,6 +923,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/names/sass-cache-directory",
     "checks/files/non-free/files-flash-non-free",
     "checks/files/obsolete-paths/files-foo-in-bar",
+    "checks/files/openpgp/file-has-implementation-specific-extension",
     "checks/files/p11-kit/files-foo-violates-expected-naming",
     "checks/files/pam/files-general",
     "checks/files/permissions/files-bad-perm-owner",
@@ -2675,6 +2676,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/names/sass-cache-directory"; "checks_files_names_sass_cache_directory")]
 #[test_case("checks/files/non-free/files-flash-non-free"; "checks_files_non_free_files_flash_non_free")]
 #[test_case("checks/files/obsolete-paths/files-foo-in-bar"; "checks_files_obsolete_paths_files_foo_in_bar")]
+#[test_case("checks/files/openpgp/file-has-implementation-specific-extension"; "checks_files_openpgp_file_has_implementation_specific_extension")]
 #[test_case("checks/files/p11-kit/files-foo-violates-expected-naming"; "checks_files_p11_kit_files_foo_violates_expected_naming")]
 #[test_case("checks/files/pam/files-general"; "checks_files_pam_files_general")]
 #[test_case("checks/files/permissions/files-bad-perm-owner"; "checks_files_permissions_files_bad_perm_owner")]

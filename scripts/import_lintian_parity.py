@@ -390,7 +390,8 @@ def vendor_build_spec(
     orig tarballs next to the source directory, which the `.dsc` lists as components
     and signatures; what it does to the sources is in the tree already. The harness
     reads all three (`tests/common/mod.rs`, ADR 0039). `post-build` (filled, see
-    `vendor_post_build`) is kept for every recipe that has one.
+    `vendor_post_build`) is kept for every recipe that has one, and `upload-type`
+    for a source-only upload.
     """
     kept: list[tuple[str, Path]] = []
     if (spec / "dpkg-overrides").is_file():
@@ -401,9 +402,13 @@ def vendor_build_spec(
     if pre_build is not None and pre_build.is_file() and ORIG_TARBALL_HOOK.search(read_text(pre_build)[0]):
         kept.append(("pre-build", pre_build))
     post_build_work = work if work is not None and (work / "post-build").is_file() else None
-    if not kept and post_build_work is None:
+    source_only = (values or {}).get("upload_type") == "source"
+    if not kept and post_build_work is None and not source_only:
         return
     (dest / "build-spec").mkdir(exist_ok=True)
+    if source_only:
+        # `Upload-Type: source` makes lintian's upload builder run `dpkg-buildpackage -S`.
+        (dest / "build-spec" / "upload-type").write_text("source\n", encoding="utf-8")
     for name, source in kept:
         shutil.copy2(source, dest / "build-spec" / name)
     if post_build_work is not None:

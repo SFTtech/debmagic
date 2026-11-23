@@ -979,6 +979,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/init-d/maintainer-script/scripts-calls-init-script",
     "checks/languages/fortran/gfortran/missing-prerequisite-for-module",
     "checks/languages/fortran/gfortran/no-module-version",
+    "checks/languages/golang/default-godebug/use-godebug",
     "checks/languages/java/bytecode/files-java-classfiles",
     "checks/languages/java/java-class-format",
     "checks/languages/java/java-classpath",
@@ -2737,6 +2738,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/init-d/maintainer-script/scripts-calls-init-script"; "checks_init_d_maintainer_script_scripts_calls_init_script")]
 #[test_case("checks/languages/fortran/gfortran/missing-prerequisite-for-module"; "checks_languages_fortran_gfortran_missing_prerequisite_for_module")]
 #[test_case("checks/languages/fortran/gfortran/no-module-version"; "checks_languages_fortran_gfortran_no_module_version")]
+#[test_case("checks/languages/golang/default-godebug/use-godebug"; "checks_languages_golang_default_godebug_use_godebug")]
 #[test_case("checks/languages/java/bytecode/files-java-classfiles"; "checks_languages_java_bytecode_files_java_classfiles")]
 #[test_case("checks/languages/java/java-class-format"; "checks_languages_java_java_class_format")]
 #[test_case("checks/languages/java/java-classpath"; "checks_languages_java_java_classpath")]

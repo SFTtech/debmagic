@@ -282,10 +282,17 @@ fn v4_key_id(body: &[u8]) -> Option<[u8; 8]> {
     fingerprint[12..20].try_into().ok()
 }
 
-/// The binary data of the file. Armor is removed when the text starts with a
-/// `BEGIN PGP` line; each armor block's checksum must match its data.
+/// The binary data of the file. Armor is removed when an armor header starts
+/// a line anywhere in the file, as gpg finds it after leading prose; each
+/// armor block's checksum must match its data. Text outside the blocks is
+/// skipped.
 fn dearmor(bytes: &[u8]) -> Result<Vec<u8>, String> {
-    if !bytes.starts_with(b"-----BEGIN PGP") {
+    let header = b"-----BEGIN PGP";
+    let armored = bytes.starts_with(header)
+        || bytes
+            .windows(header.len() + 1)
+            .any(|window| window[0] == b'\n' && &window[1..] == header);
+    if !armored {
         return Ok(bytes.to_vec());
     }
     let text = std::str::from_utf8(bytes).map_err(|_| "armor is not text".to_string())?;

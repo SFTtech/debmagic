@@ -195,4 +195,49 @@ mod tests {
         let fail = vec![package("3.0 (quilt)", "1.0-1", &[(KEY, TestFile::new(""))])];
         SourcePackageTester::new(PublicUpstreamKeyUnusable, pass, fail).test_and_snapshot();
     }
+
+    /// gpg finds an armor block after leading prose lines (a KEYS-style file
+    /// that starts with a description), so the key in it is usable.
+    #[test]
+    fn armor_after_text_prelude_is_read() {
+        let prelude = format!(
+            "Keys of some developers, one block each.
+
+{TINY_KEY}"
+        );
+        let pass = vec![tree(
+            "3.0 (quilt)",
+            "1.0-1",
+            &[(KEY, TestFile::new(prelude))],
+        )];
+        SourceTreeTester::new(PublicUpstreamKeyUnusable, pass, vec![]).test();
+    }
+
+    /// Several armor blocks with prose between them are all read; a text that
+    /// has no armor header at all is still not OpenPGP data.
+    #[test]
+    fn armor_blocks_separated_by_text_are_read_and_plain_text_is_not() {
+        let blocks = format!(
+            "{TINY_KEY}
+Second block, same key.
+{TINY_KEY}"
+        );
+        let pass = vec![tree(
+            "3.0 (quilt)",
+            "1.0-1",
+            &[(KEY, TestFile::new(blocks))],
+        )];
+        let fail = vec![tree(
+            "3.0 (quilt)",
+            "1.0-1",
+            &[(
+                KEY,
+                TestFile::new(
+                    "Keys of some developers.
+",
+                ),
+            )],
+        )];
+        SourceTreeTester::new(PublicUpstreamKeyUnusable, pass, fail).test();
+    }
 }

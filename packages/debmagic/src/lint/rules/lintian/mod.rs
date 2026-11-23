@@ -745,11 +745,11 @@ pub(crate) use fields_text::{
 pub(crate) use fields_uploaders::MaintainerAlsoInUploaders;
 pub(crate) use fields_uploaders::UploaderNameMissing;
 pub(crate) use fields_vcs::{
-    CoMaintainedPackageWithNoVcsFields, OrphanedPackageMaintainedInPrivateSpace,
-    OrphanedPackageNotMaintainedInDebianInfrastructure, VcsBrowserLinksToEmptyView,
-    VcsFieldBitrotted, VcsFieldHasUnexpectedSpaces, VcsFieldMismatch, VcsFieldNotCanonical,
-    VcsFieldUsesInsecureUri, VcsFieldUsesUnknownUriFormat, VcsFieldsUseMoreThanOneVcs,
-    VcsGitUsesInvalidUserUri,
+    CoMaintainedPackageWithNoVcsFields, MissingVcsBrowserField,
+    OrphanedPackageMaintainedInPrivateSpace, OrphanedPackageNotMaintainedInDebianInfrastructure,
+    VcsBrowserLinksToEmptyView, VcsFieldBitrotted, VcsFieldHasUnexpectedSpaces, VcsFieldMismatch,
+    VcsFieldNotCanonical, VcsFieldUsesInsecureUri, VcsFieldUsesUnknownUriFormat,
+    VcsFieldsUseMoreThanOneVcs, VcsGitUsesInvalidUserUri,
 };
 pub(crate) use files_artifact::{
     DebianAddsArchControlDir, DebianAddsArchInventoryFile, DebianAddsBtsControlDir,

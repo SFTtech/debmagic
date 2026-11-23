@@ -365,6 +365,7 @@ use super::rules::MissingPrerequisiteForGfortranModule;
 use super::rules::MissingPrerequisiteForPyprojectBackend;
 use super::rules::MissingTemplatesPot;
 use super::rules::MissingTestsControl;
+use super::rules::MissingVcsBrowserField;
 use super::rules::MissingXsGoImportPathForGolangPackage;
 use super::rules::MisspelledClosesBug;
 use super::rules::MultiArchSamePackageCallsPycompile;
@@ -2437,6 +2438,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &HyphenInUpstreamPartOfDebianChangelogVersion,
         &NonConsecutiveDebianRevision,
         &ExperimentalToUnstableWithoutComment,
+        &MissingVcsBrowserField,
     ]
 }
 
@@ -2902,6 +2904,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &CoMaintainedPackageWithNoVcsFields,
         &HyphenInUpstreamPartOfDebianChangelogVersion,
         &NonConsecutiveDebianRevision,
+        &MissingVcsBrowserField,
     ]
 }
 

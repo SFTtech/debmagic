@@ -387,6 +387,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/uploaders/fields-maintainer-general",
     "checks/fields/vcs/control-has-empty-field",
     "checks/fields/vcs/fields-malformed-vcs-fields",
+    "checks/fields/vcs/fields-missing-vcs-browser",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
     "checks/fields/vcs/fields-uncanonical-salsa-vcs-fields",
@@ -1546,6 +1547,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/uploaders/fields-maintainer-general",
     "checks/fields/vcs/control-has-empty-field",
     "checks/fields/vcs/fields-malformed-vcs-fields",
+    "checks/fields/vcs/fields-missing-vcs-browser",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
     "checks/fields/vcs/fields-uncanonical-salsa-vcs-fields",
@@ -2143,6 +2145,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/uploaders/fields-maintainer-general"; "checks_fields_uploaders_fields_maintainer_general")]
 #[test_case("checks/fields/vcs/control-has-empty-field"; "checks_fields_vcs_control_has_empty_field")]
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
+#[test_case("checks/fields/vcs/fields-missing-vcs-browser"; "checks_fields_vcs_fields_missing_vcs_browser")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/fields-uncanonical-salsa-vcs-fields"; "checks_fields_vcs_fields_uncanonical_salsa_vcs_fields")]
@@ -3304,6 +3307,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/uploaders/fields-maintainer-general"; "checks_fields_uploaders_fields_maintainer_general")]
 #[test_case("checks/fields/vcs/control-has-empty-field"; "checks_fields_vcs_control_has_empty_field")]
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
+#[test_case("checks/fields/vcs/fields-missing-vcs-browser"; "checks_fields_vcs_fields_missing_vcs_browser")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/fields-uncanonical-salsa-vcs-fields"; "checks_fields_vcs_fields_uncanonical_salsa_vcs_fields")]

@@ -346,6 +346,9 @@ def assemble_source_tree(work: Path, dest: Path, values: dict[str, str]) -> bool
 # A `pre-build` hook that works on the orig tarballs next to the source
 # directory (`${DIR}/../<source>_<version>.orig-component.tar.gz` and the like).
 ORIG_TARBALL_HOOK = re.compile(r"\.orig(?:-[\w-]+)?\.tar")
+# `DEB_BUILD_OPTIONS='buildinfo=+path'` in a recipe's Build-Command: lintian's
+# make passes it to dpkg-buildpackage as an environment variable.
+BUILD_COMMAND_OPTIONS = re.compile(r"DEB_BUILD_OPTIONS='([^']*)'")
 
 
 def vendor_post_build(spec: Path, work: Path, dest: Path, values: dict[str, str]) -> None:
@@ -413,12 +416,16 @@ def vendor_build_spec(
         kept.append(("pre-orig", pre_orig))
     post_build_work = work if work is not None and (work / "post-build").is_file() else None
     source_only = (values or {}).get("upload_type") == "source"
-    if not kept and post_build_work is None and not source_only:
+    build_options = BUILD_COMMAND_OPTIONS.search((values or {}).get("build_command", ""))
+    if not kept and post_build_work is None and not source_only and build_options is None:
         return
     (dest / "build-spec").mkdir(exist_ok=True)
     if source_only:
         # `Upload-Type: source` makes lintian's upload builder run `dpkg-buildpackage -S`.
         (dest / "build-spec" / "upload-type").write_text("source\n", encoding="utf-8")
+    if build_options is not None:
+        # The `DEB_BUILD_OPTIONS` of the Build-Command, for the upload's dpkg-buildpackage.
+        (dest / "build-spec" / "build-options").write_text(build_options.group(1) + "\n", encoding="utf-8")
     for name, source in kept:
         target = dest / "build-spec" / name
         target.parent.mkdir(parents=True, exist_ok=True)

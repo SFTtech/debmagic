@@ -445,6 +445,8 @@ pub(crate) use files_init::PackageInstallsIntoEtcRcBoot;
 pub(crate) use files_init::PackageInstallsIntoEtcRcD;
 pub(crate) use files_ld_so::PackageModifiesLdSoSearchPath;
 pub(crate) use files_licenses::ExtraLicenseFile;
+pub(crate) use files_locales::IncorrectLocaleCode;
+pub(crate) use files_locales::LocaleUsesLanguageGroupCode;
 pub(crate) use files_locales::UnknownLocaleCode;
 pub(crate) use files_missing::MissingIntermediateDirectory;
 pub(crate) use files_scripts::ScriptWithLanguageExtension;

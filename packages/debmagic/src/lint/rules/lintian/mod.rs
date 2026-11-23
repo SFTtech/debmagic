@@ -226,6 +226,8 @@ mod ln1390_source_is_missing;
 mod ln1491_inconsistent_maintainer;
 mod ln1560_bin_sbin_mismatch;
 mod ln1562_empty_udeb_package;
+mod ln1624_source_contains_prebuilt_flash_project;
+mod ln1625_source_contains_prebuilt_flash_object;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_adduser;
@@ -1017,6 +1019,8 @@ pub(crate) use ln1390_source_is_missing::SourceIsMissing;
 pub(crate) use ln1491_inconsistent_maintainer::InconsistentMaintainer;
 pub(crate) use ln1560_bin_sbin_mismatch::BinSbinMismatch;
 pub(crate) use ln1562_empty_udeb_package::EmptyUdebPackage;
+pub(crate) use ln1624_source_contains_prebuilt_flash_project::SourceContainsPrebuiltFlashProject;
+pub(crate) use ln1625_source_contains_prebuilt_flash_object::SourceContainsPrebuiltFlashObject;
 pub(crate) use maintainer_scripts_adduser::AdduserWithHomeVarRun;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,

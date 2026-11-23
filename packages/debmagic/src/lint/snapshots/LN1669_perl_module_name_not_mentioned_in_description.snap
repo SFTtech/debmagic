@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: libdeb-long-description-perl (binary): perl-module-name-not-mentioned-in-description (LN1669) Deb::Long::Description
+P: libdeb-long-description-perl (binary): perl-module-name-not-mentioned-in-description (LN1669) Deb::Long::Description
+P: libdeb-long-description-perl (binary): perl-module-name-not-mentioned-in-description (LN1669) Deb::Long::Description

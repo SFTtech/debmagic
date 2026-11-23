@@ -29,6 +29,7 @@ mod ln1364_using_first_person_in_description;
 mod ln1543_capitalization_error_in_description_synopsis;
 mod ln1544_description_possibly_contains_homepage;
 mod ln1668_odd_mark_in_description;
+mod ln1669_perl_module_name_not_mentioned_in_description;
 
 pub(crate) use ln0037_extended_description_is_empty::ExtendedDescriptionIsEmpty;
 pub(crate) use ln0050_description_synopsis_is_empty::DescriptionSynopsisIsEmpty;
@@ -55,3 +56,4 @@ pub(crate) use ln1364_using_first_person_in_description::UsingFirstPersonInDescr
 pub(crate) use ln1543_capitalization_error_in_description_synopsis::CapitalizationErrorInDescriptionSynopsis;
 pub(crate) use ln1544_description_possibly_contains_homepage::DescriptionPossiblyContainsHomepage;
 pub(crate) use ln1668_odd_mark_in_description::OddMarkInDescription;
+pub(crate) use ln1669_perl_module_name_not_mentioned_in_description::PerlModuleNameNotMentionedInDescription;

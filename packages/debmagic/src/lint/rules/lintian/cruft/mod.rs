@@ -16,6 +16,7 @@ mod ln1622_source_contains_browserified_javascript;
 mod ln1623_source_contains_data_from_ieee_data_oui_db;
 mod ln1627_source_contains_prebuilt_pandoc_documentation;
 mod ln1628_source_contains_prebuilt_sphinx_documentation;
+mod ln1631_embedded_script_includes_copyright_statement;
 
 pub(crate) use ln1267_license_problem_cc_by_nc_sa::LicenseProblemCcByNcSa;
 pub(crate) use ln1269_license_problem_json_evil::LicenseProblemJsonEvil;
@@ -32,3 +33,4 @@ pub(crate) use ln1622_source_contains_browserified_javascript::SourceContainsBro
 pub(crate) use ln1623_source_contains_data_from_ieee_data_oui_db::SourceContainsDataFromIeeeDataOuiDb;
 pub(crate) use ln1627_source_contains_prebuilt_pandoc_documentation::SourceContainsPrebuiltPandocDocumentation;
 pub(crate) use ln1628_source_contains_prebuilt_sphinx_documentation::SourceContainsPrebuiltSphinxDocumentation;
+pub(crate) use ln1631_embedded_script_includes_copyright_statement::EmbeddedScriptIncludesCopyrightStatement;

@@ -200,6 +200,7 @@ use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
 use super::rules::ElfError;
 use super::rules::EmbeddedLibrary;
+use super::rules::EmbeddedScriptIncludesCopyrightStatement;
 use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
 use super::rules::EmptySharedLibrarySymbols;
@@ -2451,6 +2452,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SourceContainsPrebuiltSphinxDocumentation,
         &SourceContainsPrebuiltWasmBinary,
         &SourceContainsPrebuiltYappParser,
+        &EmbeddedScriptIncludesCopyrightStatement,
     ]
 }
 
@@ -2924,6 +2926,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsPrebuiltSphinxDocumentation,
         &SourceContainsPrebuiltWasmBinary,
         &SourceContainsPrebuiltYappParser,
+        &EmbeddedScriptIncludesCopyrightStatement,
     ]
 }
 

@@ -12,11 +12,12 @@ pub struct SourceContainsPrebuiltWindowsBinary;
 declare_rule! {
     /// The Source tree or Source package contains a prebuilt Microsoft Windows binary.
     ///
-    /// Regular files and hardlinks whose File type is PE32, PE64, or DOS MZ,
-    /// or whose path ends in `.com`, are reported. Walks the packaging File
-    /// tree (Source tree, or Source package Patched files). Quilt `.pc/` is
-    /// filtered out; `debian/missing-sources/` is skipped. Extra is the
-    /// Entry path. COM is a path heuristic, not File type.
+    /// Regular files and hardlinks whose File type is PE32, PE64, or DOS MZ
+    /// are reported, as lintian's `(?:PE(?:32|64)|MS-DOS)` file type match.
+    /// Walks the packaging File tree (Source tree, or Source package Patched
+    /// files). Quilt `.pc/` is filtered out; `debian/missing-sources/` is
+    /// skipped. Extra is the Entry path. No path heuristic: a `.com` text
+    /// file (VMS command procedure, domain welcomelist) is not a binary.
     SourceContainsPrebuiltWindowsBinary,
     code = "LN0004",
     tag = "source-contains-prebuilt-windows-binary",
@@ -56,13 +57,6 @@ fn windows_binary_paths(files: &FileTree) -> Vec<PathBuf> {
 }
 
 fn is_windows_binary(entry: &Entry) -> bool {
-    if entry
-        .path()
-        .extension()
-        .is_some_and(|ext| ext.eq_ignore_ascii_case("com"))
-    {
-        return true;
-    }
     entry.file_type().is_some_and(FileType::is_windows_binary)
 }
 
@@ -107,6 +101,20 @@ mod tests {
                 ("debian/control", TestFile::from(CONTROL)),
                 ("bin/app.exe", TestFile::symlink("app.exe")),
             ],
+            // A `.com` text file is not a Windows binary: lintian matches
+            // only the File type, and VMS command procedures and welcomelist
+            // domains are common in real packages.
+            vec![
+                ("debian/control", TestFile::from(CONTROL)),
+                ("tools/makevms.com", TestFile::new("$ set verify\n")),
+            ],
+            vec![
+                ("debian/control", TestFile::from(CONTROL)),
+                (
+                    "t/data/welcomelists/example.com",
+                    TestFile::new("example.com\n"),
+                ),
+            ],
         ];
         let fail = vec![
             vec![
@@ -126,7 +134,10 @@ mod tests {
             ],
             vec![
                 ("debian/control", TestFile::from(CONTROL)),
-                ("tools/legacy.com", TestFile::new("com")),
+                (
+                    "tools/legacy.com",
+                    TestFile::new("com").file_type(FileType::DosMz),
+                ),
             ],
             vec![
                 ("debian/control", TestFile::from(CONTROL)),

@@ -15,7 +15,7 @@ use super::debian_copyright::DebianCopyright;
 use super::diagnostic::{Diagnostic, ProcessableType};
 use super::diversion::Diversions;
 use super::dsc::Dsc;
-use super::elf::ElfFiles;
+use super::elf::{ElfArchiveMembers, ElfFiles};
 use super::file_tree::{Entry, EntryKind, FileTree};
 use super::installation_control::InstallationControl;
 use super::installed_changelog::{InstalledChangelog, read_installed_changelog};
@@ -370,6 +370,19 @@ impl<'a> BinaryPackageContext<'a> {
         Some(self.shared_once(|ctx| {
             ctx.data_files()
                 .map(ElfFiles::from_tree)
+                .unwrap_or_default()
+        }))
+    }
+
+    /// ELF members of the `ar` archives among the Data files (lintian's
+    /// `elf_by_member`), parsed once per Subject and shared by every Rule. Look
+    /// an archive up with [`ElfArchiveMembers::get`]. `None` after a global
+    /// File tree failure, as for [`Self::data_files`].
+    pub fn data_elf_members(&mut self) -> Option<Arc<ElfArchiveMembers>> {
+        self.data_files()?;
+        Some(self.shared_once(|ctx| {
+            ctx.data_files()
+                .map(ElfArchiveMembers::from_tree)
                 .unwrap_or_default()
         }))
     }

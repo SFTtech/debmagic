@@ -20,6 +20,7 @@ use goblin::container::{Container, Ctx};
 use goblin::elf::{Dynamic, Elf, ProgramHeader, dynamic, header, program_header};
 use goblin::options::ParseOptions;
 
+use super::ar;
 use super::file_tree::{Entry, EntryKind, FileTree};
 
 /// What `file(1)` calls an ELF object.
@@ -42,6 +43,7 @@ pub enum ElfObjectType {
 pub struct ElfSymbol {
     name: String,
     undefined: bool,
+    section: String,
     version: String,
 }
 
@@ -55,6 +57,14 @@ impl ElfSymbol {
     /// section `UND`): the object imports it.
     pub fn is_undefined(&self) -> bool {
         self.undefined
+    }
+
+    /// The name of the Section header the symbol is defined in (`readelf`
+    /// `Ndx`: `.text`), `UND` for an undefined symbol, `ABS` or `COM` for the
+    /// absolute and common indices. Empty when the index is out of the
+    /// Section header table.
+    pub fn section(&self) -> &str {
+        &self.section
     }
 
     /// The version `readelf` shows for the symbol: the name of the version
@@ -358,6 +368,13 @@ impl ElfFacts {
             .map(|(name, _)| name.as_str())
     }
 
+    /// A Section header named `.symtab` exists, so `file(1)` does not say
+    /// "stripped" (the static symbol table is there). Names only: a file
+    /// whose Section header table cannot be read has none.
+    pub fn has_symbol_table(&self) -> bool {
+        self.section_names.iter().any(|name| name == ".symtab")
+    }
+
     /// `e_machine`, the processor the object is for (an `EM_*` value, such
     /// as 62 for `EM_X86_64`).
     #[allow(dead_code)] // seam API; no Rule reads it yet
@@ -491,13 +508,33 @@ fn dynamic_symbols(elf: Option<&Elf>) -> Vec<ElfSymbol> {
                 }
                 Some(entry) => version_name(entry.version()).unwrap_or_default(),
             };
+            let section = if undefined {
+                "UND".to_string()
+            } else {
+                section_name_at(elf, symbol.st_shndx)
+            };
             Some(ElfSymbol {
                 name: name.to_string(),
                 undefined,
+                section,
                 version,
             })
         })
         .collect()
+}
+
+/// The name `readelf` shows in the `Ndx` column for section index `index`.
+fn section_name_at(elf: &Elf, index: usize) -> String {
+    match index {
+        0xfff1 => "ABS".to_string(),
+        0xfff2 => "COM".to_string(),
+        _ => elf
+            .section_headers
+            .get(index)
+            .and_then(|section| elf.shdr_strtab.get_at(section.sh_name))
+            .unwrap_or_default()
+            .to_string(),
+    }
 }
 
 fn interpreter(bytes: &[u8], interp: &ProgramHeader) -> Option<String> {
@@ -553,6 +590,79 @@ impl ElfFiles {
         self.facts
             .iter()
             .map(|(path, facts)| (path.as_path(), facts))
+    }
+}
+
+/// One ELF member of a static library (`ar` archive): its name as `ar t`
+/// prints it, and its ELF facts.
+#[derive(Debug, Clone)]
+pub struct ElfArchiveMember {
+    name: String,
+    facts: ElfFacts,
+}
+
+impl ElfArchiveMember {
+    /// The member's name as `ar t` prints it (`code.o`).
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn facts(&self) -> &ElfFacts {
+        &self.facts
+    }
+}
+
+/// The ELF members of every `ar` archive among the regular files and
+/// hardlinks of a File tree, by archive path (lintian's `elf_by_member`).
+/// Members that are not ELF are left out. A name that occurs twice keeps
+/// the last member's facts, as lintian's hash does, at the first position.
+#[derive(Debug, Default)]
+pub struct ElfArchiveMembers {
+    archives: BTreeMap<PathBuf, Vec<ElfArchiveMember>>,
+}
+
+#[allow(dead_code)] // seam API; no Rule reads it yet
+impl ElfArchiveMembers {
+    pub fn from_tree(files: &FileTree) -> Self {
+        let archives = files
+            .query()
+            .kinds([EntryKind::RegularFile, EntryKind::Hardlink])
+            .into_iter()
+            .filter_map(|entry| {
+                let bytes = entry_bytes(files, entry)?;
+                if !ar::is_archive(&bytes) {
+                    return None;
+                }
+                let mut members: Vec<ElfArchiveMember> = Vec::new();
+                for member in ar::members(&bytes) {
+                    let Some(facts) = ElfFacts::from_bytes(member.data) else {
+                        continue;
+                    };
+                    match members.iter_mut().find(|known| known.name == member.name) {
+                        Some(known) => known.facts = facts,
+                        None => members.push(ElfArchiveMember {
+                            name: member.name,
+                            facts,
+                        }),
+                    }
+                }
+                Some((entry.path().to_path_buf(), members))
+            })
+            .collect();
+        Self { archives }
+    }
+
+    /// The ELF members of the archive at `path`, in archive order. `None`
+    /// when there is no archive there; empty when it has no ELF member.
+    pub fn get(&self, path: impl AsRef<Path>) -> Option<&[ElfArchiveMember]> {
+        self.archives.get(path.as_ref()).map(Vec::as_slice)
+    }
+
+    /// Archive paths in path order, with their ELF members.
+    pub fn iter(&self) -> impl Iterator<Item = (&Path, &[ElfArchiveMember])> {
+        self.archives
+            .iter()
+            .map(|(path, members)| (path.as_path(), members.as_slice()))
     }
 }
 
@@ -622,6 +732,8 @@ pub(crate) struct TestElf {
     no_dynamic_content: bool,
     /// Imported dynamic symbols and the version each needs.
     imports: Vec<(String, Option<String>)>,
+    /// Defined dynamic symbols and the section (of `sections`) each is in.
+    defined: Vec<(String, String)>,
     /// Point `e_shoff` past the end of the file, as a cut-off ELF does.
     missing_section_headers: bool,
     /// Extra sections with these names and sizes (`.note`, `.comment`, ...).
@@ -647,6 +759,7 @@ impl TestElf {
             flags_1_now: false,
             no_dynamic_content: false,
             imports: Vec::new(),
+            defined: Vec::new(),
             missing_section_headers: false,
             sections: Vec::new(),
         }
@@ -752,6 +865,13 @@ impl TestElf {
         self
     }
 
+    /// Defines the dynamic symbol `name` in the section `section`, which must
+    /// have been added with [`Self::section`] or [`Self::sized_section`].
+    pub fn defined(mut self, name: &str, section: &str) -> Self {
+        self.defined.push((name.to_string(), section.to_string()));
+        self
+    }
+
     pub fn missing_section_headers(mut self) -> Self {
         self.missing_section_headers = true;
         self
@@ -818,12 +938,23 @@ impl TestElf {
             dyns.push((dynamic::DT_FLAGS, dynamic::DF_BIND_NOW));
         }
 
-        // Symbol names, and the distinct versions in order of first need.
-        let symbol_names: Vec<u64> = self
+        // Symbol names with their st_shndx: imports, then defined symbols.
+        // A defined symbol's section is the extra section of that name, at
+        // index 5 after the null section and the four dynamic symbol sections.
+        let mut symbols: Vec<(u64, u16)> = self
             .imports
             .iter()
-            .map(|(name, _)| add_string(name))
+            .map(|(name, _)| (add_string(name), 0))
             .collect();
+        for (name, section) in &self.defined {
+            let position = self
+                .sections
+                .iter()
+                .position(|(known, _)| known == section)
+                .expect("a defined symbol names a section added with section()");
+            symbols.push((add_string(name), 5 + position as u16));
+        }
+        // The distinct versions in order of first need.
         let mut versions: Vec<(&str, u64)> = Vec::new();
         let mut version_index: Vec<u16> = Vec::new();
         for (_, version) in &self.imports {
@@ -840,8 +971,9 @@ impl TestElf {
             };
             version_index.push(2 + position as u16);
         }
+        version_index.extend(self.defined.iter().map(|_| 1));
         let libc_name = add_string("libc.so.6");
-        let has_symbols = !self.imports.is_empty();
+        let has_symbols = !symbols.is_empty();
         let has_dynamic = !dyns.is_empty() || has_symbols || self.no_dynamic_content;
         let has_section_headers = has_symbols || !self.sections.is_empty();
 
@@ -887,7 +1019,7 @@ impl TestElf {
         let mut end = strtab_offset + strings.len();
 
         // Tail: dynsym, hash, versym, verneed (when there are imports).
-        let nsyms = self.imports.len() + 1;
+        let nsyms = symbols.len() + 1;
         let dynsym_offset = end.next_multiple_of(8);
         let hash_offset = dynsym_offset + nsyms * SYM;
         let versym_offset = hash_offset + 4 * (3 + nsyms);
@@ -980,11 +1112,11 @@ impl TestElf {
         if has_symbols {
             out.resize(dynsym_offset, 0);
             out.extend_from_slice(&[0; SYM]); // the null symbol
-            for name in &symbol_names {
+            for (name, shndx) in &symbols {
                 out.extend_from_slice(&(*name as u32).to_le_bytes()); // st_name
                 out.push(0x12); // STB_GLOBAL, STT_FUNC
                 out.push(0); // st_other
-                out.extend_from_slice(&0u16.to_le_bytes()); // SHN_UNDEF
+                out.extend_from_slice(&shndx.to_le_bytes()); // st_shndx: SHN_UNDEF for imports
                 out.extend_from_slice(&0u64.to_le_bytes()); // st_value
                 out.extend_from_slice(&0u64.to_le_bytes()); // st_size
             }
@@ -1408,5 +1540,86 @@ mod tests {
             ]
         );
         assert!(files.get("usr/share/doc/README").is_none());
+    }
+
+    #[test]
+    fn defined_symbols_name_their_section_and_imports_are_undefined() {
+        let bytes = TestElf::executable()
+            .sized_section(".text")
+            .import("printf", None)
+            .defined("main", ".text")
+            .build();
+        let facts = ElfFacts::from_bytes(&bytes).expect("ELF");
+        let symbols: Vec<_> = facts
+            .symbols()
+            .iter()
+            .map(|symbol| (symbol.name(), symbol.section(), symbol.version()))
+            .collect();
+        assert_eq!(symbols, [("printf", "UND", ""), ("main", ".text", "Base")]);
+    }
+
+    #[test]
+    fn symbol_table_section_marks_an_unstripped_object() {
+        let with =
+            ElfFacts::from_bytes(&TestElf::executable().section(".symtab").build()).expect("ELF");
+        assert!(with.has_symbol_table());
+        let without =
+            ElfFacts::from_bytes(&TestElf::executable().section(".text").build()).expect("ELF");
+        assert!(!without.has_symbol_table());
+    }
+
+    /// An `ar` archive whose members are `(name, data)`, as GNU `ar` writes it.
+    fn archive_bytes(members: &[(&str, Vec<u8>)]) -> Vec<u8> {
+        let mut bytes = b"!<arch>\n".to_vec();
+        for (name, data) in members {
+            bytes.extend(
+                format!(
+                    "{:<16}{:<12}{:<6}{:<6}{:<8}{:<10}`\n",
+                    format!("{name}/"),
+                    0,
+                    0,
+                    0,
+                    644,
+                    data.len()
+                )
+                .into_bytes(),
+            );
+            bytes.extend_from_slice(data);
+            if data.len() % 2 == 1 {
+                bytes.push(b'\n');
+            }
+        }
+        bytes
+    }
+
+    #[test]
+    fn archive_members_keep_their_elf_facts_by_archive_path() {
+        let text = TestElf::executable().sized_section(".text").build();
+        let data = TestElf::executable().sized_section(".data").build();
+        let archive = archive_bytes(&[
+            ("foo.o", text.clone()),
+            ("README", b"text\n".to_vec()),
+            ("bar.o", data.clone()),
+            ("foo.o", data),
+        ]);
+        let tree = FileTree::from_entries(
+            None,
+            vec![
+                Entry::regular_file("usr/lib/libfoo.a", None, Some(archive)),
+                Entry::regular_file("usr/lib/libbar.so", None, Some(text)),
+            ],
+        );
+        let members = ElfArchiveMembers::from_tree(&tree);
+        let foo = members.get("usr/lib/libfoo.a").expect("an archive");
+        let names: Vec<_> = foo.iter().map(ElfArchiveMember::name).collect();
+        assert_eq!(names, ["foo.o", "bar.o"]);
+        // The second foo.o replaced the first one, at its position.
+        assert!(
+            foo[0]
+                .facts()
+                .sized_section_names()
+                .any(|name| name == ".data")
+        );
+        assert!(members.get("usr/lib/libbar.so").is_none());
     }
 }

@@ -433,6 +433,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/golang/built-using/binaries-golang",
     "checks/languages/golang/module-path/binaries-golang",
     "checks/languages/golang/module-path/control-file-golang-built-using",
+    "checks/languages/golang/module-path/differing-golang-xs-go-import-path",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
@@ -1593,6 +1594,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/golang/built-using/binaries-golang",
     "checks/languages/golang/module-path/binaries-golang",
     "checks/languages/golang/module-path/control-file-golang-built-using",
+    "checks/languages/golang/module-path/differing-golang-xs-go-import-path",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
@@ -2188,6 +2190,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/golang/built-using/binaries-golang"; "checks_languages_golang_built_using_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/control-file-golang-built-using"; "checks_languages_golang_module_path_control_file_golang_built_using")]
+#[test_case("checks/languages/golang/module-path/differing-golang-xs-go-import-path"; "checks_languages_golang_module_path_differing_golang_xs_go_import_path")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
@@ -3350,6 +3353,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/golang/built-using/binaries-golang"; "checks_languages_golang_built_using_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/control-file-golang-built-using"; "checks_languages_golang_module_path_control_file_golang_built_using")]
+#[test_case("checks/languages/golang/module-path/differing-golang-xs-go-import-path"; "checks_languages_golang_module_path_differing_golang_xs_go_import_path")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]

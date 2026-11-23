@@ -695,6 +695,7 @@ use super::rules::WrongNameForUpstreamChangelog;
 use super::rules::WrongSectionAccordingToPackageName;
 use super::rules::WrongSectionForUdeb;
 use super::rules::WrongTeam;
+use super::rules::XsGoImportPathDiffersFromModulePath;
 use super::rules::ZipParseError;
 use super::rules::{
     AbsoluteSymlinkInTopLevelFolder, AliasedLocation, AncientLibtool, AncientPythonVersionField,
@@ -2441,6 +2442,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UsesPdmCli,
         &UsesPoetryCli,
         &MissingStaticBuiltUsingFieldForGolangPackage,
+        &XsGoImportPathDiffersFromModulePath,
     ]
 }
 
@@ -2909,6 +2911,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UsesPdmCli,
         &UsesPoetryCli,
         &MissingStaticBuiltUsingFieldForGolangPackage,
+        &XsGoImportPathDiffersFromModulePath,
     ]
 }
 

@@ -495,6 +495,7 @@ pub(crate) use languages_fortran_gfortran::MissingPrerequisiteForGfortranModule;
 pub(crate) use languages_golang_built_using::MissingStaticBuiltUsingFieldForGolangPackage;
 pub(crate) use languages_golang_module_path::GoLibraryPackageDoesNotIncludeVersion;
 pub(crate) use languages_golang_module_path::MissingXsGoImportPathForGolangPackage;
+pub(crate) use languages_golang_module_path::XsGoImportPathDiffersFromModulePath;
 pub(crate) use languages_java::BadJarName;
 pub(crate) use languages_java::ClasspathContainsRelativePath;
 pub(crate) use languages_java::CodelessJar;

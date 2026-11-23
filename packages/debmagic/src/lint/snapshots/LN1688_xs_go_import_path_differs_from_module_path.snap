@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): xs-go-import-path-differs-from-module-path (LN1688) github.com/x/y vs github.com/x/z
+I: example (source): xs-go-import-path-differs-from-module-path (LN1688) github.com/x/y vs 
+I: example (source): xs-go-import-path-differs-from-module-path (LN1688) github.com/x/y vs github.com/x/y"

@@ -526,6 +526,7 @@ use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
+use super::rules::StaticLinkTimeOptimization;
 use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
@@ -2347,6 +2348,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &IncorrectLocaleCode,
         &LocaleUsesLanguageGroupCode,
         &OcamlCustomExecutable,
+        &StaticLinkTimeOptimization,
     ]
 }
 
@@ -3670,6 +3672,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &IncorrectLocaleCode,
         &LocaleUsesLanguageGroupCode,
         &OcamlCustomExecutable,
+        &StaticLinkTimeOptimization,
     ]
 }
 

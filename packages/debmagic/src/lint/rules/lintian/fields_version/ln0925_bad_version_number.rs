@@ -38,7 +38,7 @@ impl BinaryPackageRule for BadVersionNumber {
 }
 
 /// Dpkg's syntax check for a version string.
-fn is_valid_version(version: &str) -> bool {
+pub(super) fn is_valid_version(version: &str) -> bool {
     let rest = match version.split_once(':') {
         Some((epoch, rest)) => {
             if epoch.is_empty() || !epoch.bytes().all(|byte| byte.is_ascii_digit()) {

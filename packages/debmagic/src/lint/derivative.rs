@@ -61,7 +61,6 @@ pub(crate) fn fields() -> &'static [FieldPattern] {
 }
 
 /// Lintian's `data/fields/derivative-versions`, in file order.
-#[allow(dead_code)] // until the version Rule calls `versions()`
 pub(crate) fn versions() -> &'static [Pattern] {
     static TABLE: LazyLock<Vec<Pattern>> = LazyLock::new(|| {
         data::lines(include_str!("data/fields/derivative-versions"))

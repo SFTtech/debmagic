@@ -308,6 +308,7 @@ use super::rules::InvalidPotfilesIn;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::InvalidSystemdDocumentation;
+use super::rules::InvalidVersionNumberForDerivative;
 use super::rules::InvalidVersionedProvides;
 use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
@@ -2663,6 +2664,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &ChangedByInvalidForDerivative,
         &InvalidFieldForDerivative,
+        &InvalidVersionNumberForDerivative,
     ]
 }
 
@@ -3197,6 +3199,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
         &InvalidFieldForDerivative,
+        &InvalidVersionNumberForDerivative,
     ]
 }
 

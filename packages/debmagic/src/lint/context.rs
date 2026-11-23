@@ -8,7 +8,7 @@ use anyhow::anyhow;
 use super::appstream::AppstreamFiles;
 use super::binary_package_reader::BinaryPackageReader;
 use super::data;
-use super::deb_members::DebMembers;
+use super::deb_members::{DebMembers, Tarball};
 use super::debhelper::DebhelperFacts;
 use super::debian_changelog::DebianChangelog;
 use super::debian_control::DebianControl;
@@ -25,6 +25,7 @@ use super::lintian_overrides::LintianOverrides;
 use super::openpgp::OpenPgpFile;
 use super::quilt_series::QuiltSeries;
 use super::rule::{Code, RuleAccess, Tag};
+use super::sibling_files::SiblingFiles;
 use super::source_package::SourcePackageExtract;
 use super::strings::FileStrings;
 use super::subject::SubjectKind;
@@ -286,6 +287,25 @@ impl BinaryPackageData {
     }
 }
 
+/// What tar printed while unpacking one Binary package's Data and Control
+/// tarballs (lintian's `unpack-messages`), in archive order. Read once per
+/// Subject through [`BinaryPackageContext::unpack_messages`].
+#[derive(Debug, Default)]
+pub(crate) struct UnpackMessages {
+    data: Vec<String>,
+    control: Vec<String>,
+}
+
+impl UnpackMessages {
+    /// The messages of one tarball. Empty when it is missing or unreadable.
+    pub fn get(&self, tarball: Tarball) -> &[String] {
+        match tarball {
+            Tarball::Data => &self.data,
+            Tarball::Control => &self.control,
+        }
+    }
+}
+
 pub(crate) struct BinaryPackageContext<'a> {
     data: &'a BinaryPackageData,
     sink: DiagnosticSink,
@@ -363,6 +383,20 @@ impl<'a> BinaryPackageContext<'a> {
                 None
             }
         }
+    }
+
+    /// What tar printed while unpacking the Data and Control tarballs (lintian's
+    /// `unpack-messages`), read once per Subject and shared by every Rule. Ask
+    /// for one tarball with [`UnpackMessages::get`]. Not a File tree: a broken
+    /// tarball gives no messages here, and its failure shows in the Files trees.
+    pub fn unpack_messages(&mut self) -> Arc<UnpackMessages> {
+        self.shared_once(|ctx| match ctx.data.reader.as_ref() {
+            Some(reader) => UnpackMessages {
+                data: reader.unpack_messages(Tarball::Data),
+                control: reader.unpack_messages(Tarball::Control),
+            },
+            None => UnpackMessages::default(),
+        })
     }
 
     /// ELF facts of the Data files ELF Entries (regular files and hardlinks),
@@ -925,6 +959,19 @@ impl<'a> SourceContext<'a> {
         match self.inner {
             SourceInner::Tree(_) => None,
             SourceInner::Package(data) => data.dsc.as_ref(),
+        }
+    }
+
+    /// Sibling files of the `.dsc`: the files its `Files` and checksum fields
+    /// list (lintian's `processable->files`), by basename, with bytes read from
+    /// the directory beside the `.dsc` on request. `None` on a Source tree,
+    /// which has no `.dsc`.
+    pub fn sibling_files(&mut self) -> Option<Arc<SiblingFiles>> {
+        match self.inner {
+            SourceInner::Tree(_) => None,
+            SourceInner::Package(data) => {
+                Some(self.shared_once(|_| SiblingFiles::from_dsc(&data.path, data.dsc.as_ref())))
+            }
         }
     }
 

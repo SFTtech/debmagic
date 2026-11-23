@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): concatenated-upstream-signatures (LN1434) example_1.0.orig.tar.gz.asc
+W: example (source): concatenated-upstream-signatures (LN1434) example_1.0.orig.tar.asc

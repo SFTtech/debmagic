@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): spurious-fields-in-upstream-signature (LN1590) example_1.0.orig.tar.gz.asc Comment Version

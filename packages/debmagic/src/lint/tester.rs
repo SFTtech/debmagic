@@ -274,6 +274,14 @@ impl From<String> for TestFile {
 }
 
 impl TestCase {
+    /// The names of the top-level files of the case, as UTF-8 text.
+    fn file_names(&self) -> Vec<String> {
+        self.files
+            .keys()
+            .filter_map(|name| name.to_str().map(str::to_string))
+            .collect()
+    }
+
     pub fn source_tree<P, C>(files: impl IntoIterator<Item = (P, C)>) -> Self
     where
         P: Into<OsString>,
@@ -712,6 +720,8 @@ pub struct SourcePackageTester {
 pub struct SourcePackageCase {
     orig: TestCase,
     patched: TestCase,
+    /// Files next to the `.dsc` (its directory): signatures, component tarballs.
+    siblings: TestCase,
     package: String,
     dsc: Option<Dsc>,
 }
@@ -719,6 +729,14 @@ pub struct SourcePackageCase {
 impl SourcePackageCase {
     pub fn orig(mut self, files: impl Into<TestCase>) -> Self {
         self.orig = files.into();
+        self
+    }
+
+    /// Files beside the `.dsc`, beside the orig and Patched files: the `.dsc`
+    /// lists them in its `Files` field (see `SourceContext::sibling_files`).
+    /// Without a `.dsc` case, they are all listed.
+    pub fn siblings(mut self, files: impl Into<TestCase>) -> Self {
+        self.siblings = files.into();
         self
     }
 
@@ -749,6 +767,7 @@ impl From<TestCase> for SourcePackageCase {
         Self {
             orig: TestCase::default(),
             patched,
+            siblings: TestCase::default(),
             package: "example".to_string(),
             dsc: None,
         }
@@ -855,12 +874,21 @@ impl SourcePackageTester {
     }
 
     fn run(&mut self, case: &SourcePackageCase) -> TestResult {
+        let siblings = materialize(&case.siblings);
+        // A case with siblings but no `.dsc` lists them all in its `Files`.
+        let dsc = match &case.dsc {
+            Some(dsc) => Some(dsc.clone()),
+            None if !case.siblings.files.is_empty() => {
+                Some(listing_dsc(&case.package, &case.siblings.file_names()))
+            }
+            None => None,
+        };
         let data = SourcePackageData::with_file_trees(
-            PathBuf::from("example.dsc"),
+            siblings.path().join("example.dsc"),
             case.package.clone(),
             case.orig.file_tree(),
             case.patched.file_tree(),
-            case.dsc.clone(),
+            dsc,
         );
         let mut ctx = SourceContext::bind_package(&data, self.rule.as_ref());
         self.rule.run(&mut ctx);
@@ -878,6 +906,16 @@ impl SourcePackageTester {
         }
         TestResult::Failed
     }
+}
+
+/// A `.dsc` of version 1.0 whose `Files` field lists `names`, for a Source
+/// package case that gives siblings and no `.dsc`.
+fn listing_dsc(package: &str, names: &[String]) -> Dsc {
+    let mut text = format!("Source: {package}\nVersion: 1.0\nFiles:\n");
+    for name in names {
+        text.push_str(&format!(" 00000000000000000000000000000000 0 {name}\n"));
+    }
+    Dsc::parse(&text).expect("generated .dsc paragraph")
 }
 
 pub(super) enum TestFailure {

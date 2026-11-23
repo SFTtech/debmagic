@@ -509,6 +509,7 @@ pub(crate) use upstream_signature::ConcatenatedUpstreamSignatures;
 pub(crate) use upstream_signature::DoublyArmoredUpstreamSignature;
 pub(crate) use upstream_signature::ExplicitlyArmoredUpstreamSignature;
 pub(crate) use upstream_signature::OrigTarballMissingUpstreamSignature;
+pub(crate) use upstream_signature::SpuriousFieldsInUpstreamSignature;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{

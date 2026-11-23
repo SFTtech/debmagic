@@ -270,6 +270,25 @@ impl<'a> GroupContext<'a> {
             .unwrap_or_default()
     }
 
+    /// The installables of the Group whose Pre-Depends and Depends name
+    /// `installable` (lintian's `Group::direct_reliants`): the inverse of
+    /// [`Self::direct_dependencies`], with the same exclusions.
+    pub fn direct_reliants(&self, installable: &GroupInstallable<'a>) -> Vec<GroupInstallable<'a>> {
+        self.group
+            .direct_reliants()
+            .get(installable.name())
+            .map(|indexes| {
+                indexes
+                    .iter()
+                    .map(|&index| GroupInstallable {
+                        group: self.group,
+                        index,
+                    })
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
+
     /// Data files of an installable: the files as they would land on disk, a
     /// File tree like the one a Binary-package Rule walks, read once and
     /// shared with it. `None` after a global File tree failure; that failure

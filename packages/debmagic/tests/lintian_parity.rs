@@ -430,6 +430,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/source-missing/cruft-minified-js",
     "checks/files/source-missing/cruft-source-is-missing-unrel",
     "checks/files/source-missing/cruft-upstream-binaries",
+    "checks/files/source-missing/cruft-wasm",
     "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
@@ -1589,6 +1590,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/source-missing/cruft-minified-js",
     "checks/files/source-missing/cruft-source-is-missing-unrel",
     "checks/files/source-missing/cruft-upstream-binaries",
+    "checks/files/source-missing/cruft-wasm",
     "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
@@ -2183,6 +2185,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/source-missing/cruft-minified-js"; "checks_files_source_missing_cruft_minified_js")]
 #[test_case("checks/files/source-missing/cruft-source-is-missing-unrel"; "checks_files_source_missing_cruft_source_is_missing_unrel")]
 #[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
+#[test_case("checks/files/source-missing/cruft-wasm"; "checks_files_source_missing_cruft_wasm")]
 #[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
@@ -3344,6 +3347,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/source-missing/cruft-minified-js"; "checks_files_source_missing_cruft_minified_js")]
 #[test_case("checks/files/source-missing/cruft-source-is-missing-unrel"; "checks_files_source_missing_cruft_source_is_missing_unrel")]
 #[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
+#[test_case("checks/files/source-missing/cruft-wasm"; "checks_files_source_missing_cruft_wasm")]
 #[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]

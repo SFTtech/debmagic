@@ -2,7 +2,7 @@
 
 A *seam* is a Rule-facing inspectable, parser, or harness capability that a Tag needs and we do not have yet. This file is the ledger: every open seam with the Tags it blocks, plus a short record of what landed. It is updated whenever an agent reports a new seam, a seam changes status, or a seam lands. The per-inspectable narrative stays in [TODO-lint.md](TODO-lint.md).
 
-**Last updated**: 2026-11-23, milo tip `91efeff4`, 1448 LN Rules (1097 at the start of the batch work), Parity suite 1818 tests green (also with the build cache bypassed). Every Tag that has an oracle recipe and needs no new seam is implemented; what remains with recipes is listed below.
+**Last updated**: 2026-11-23, milo tip `f929f1c8`, 1459 LN Rules (LN1767–LN1778 added by the no-oracle batch), Parity suite 1818 tests green. Every Tag that has an oracle recipe and needs no new seam is implemented; what remains with recipes is listed below. The no-oracle Tags LN1767, LN1768, LN1770–LN1778 have native tests only.
 **Measure**: `just lint-parity` (`--candidates N` for ranked next Rules).
 
 **Status words**: *In progress* (an agent is on it), *Approved* (the user agreed to the design, not started), *Proposed* (written up, waiting for a go), *Needs decision* (a design or policy question for the user), *Deferred* (decided not to do now), *Landed* (in milo).
@@ -39,6 +39,9 @@ None running. The seams below are proposed and each blocks exactly the Tags name
 
 - `debhelper-compat-not-a-number` (LN1305): lintian 2.144.0 never emits it; the recipe cannot be matched natively. Dropped.
 - `elf-warning` (LN1460): no vendored recipe.
+- `debian-rules-missing-recommended-target`: no lintian Check emits it (the Tag's own text says there are no recommended targets). No Rule.
+- `manual-page-in-udeb` (LN1776) and `debian-rules-uses-deprecated-makefile` (LN1768) are *dead* in lintian 2.144.0 (unreachable hint, empty `deprecated-makefiles` table). Both Rules are implemented to report nothing; LN1776 needs a decision whether to report the stated intent instead.
+- LN1770 `patch-modifying-debian-files`: one hint per patch name (lintian's greedy regex may merge them); only unified diffs are read; a symlinked `debian/patches` is not followed.
 
 ## Landed in milo
 

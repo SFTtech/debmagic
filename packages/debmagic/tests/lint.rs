@@ -274,14 +274,20 @@ fn lint_source_package_select_required_field_applies() {
 }
 
 /// A `.changes` for the native `example_1.0` Source package in `dir`, naming
-/// the files in `files` as `(section, name)`.
+/// the files in `files` as `(section, name)`. Every Policy 5.5 field is
+/// declared, so `required-field` only reports what a test sets up.
 fn write_changes(
     dir: &std::path::Path,
     name: &str,
     source: &str,
     files: &[(&str, &str)],
 ) -> PathBuf {
-    let mut text = format!("Source: {source}\nVersion: 1.0\nFiles:\n");
+    let mut text = format!(
+        "Format: 1.8\nDate: Mon, 1 Jan 2024 00:00:00 +0000\nSource: {source}\n\
+         Architecture: source\nVersion: 1.0\nDistribution: unstable\n\
+         Maintainer: Example <ex@example.com>\nChanges: example\n\
+         Checksums-Sha1: x\nChecksums-Sha256: x\nFiles:\n"
+    );
     for (section, file) in files {
         text.push_str(&format!(
             " d41d8cd98f00b204e9800998ecf8427e 0 {section} optional {file}\n"

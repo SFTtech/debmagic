@@ -1476,7 +1476,7 @@ Rules
             target: LintTarget::Artifacts(vec![Subject::BinaryPackage(std::path::absolute(
                 &path,
             )?)]),
-            selected: vec![crate::lint::rules::SyntaxErrorInDebianChangelog::CODE],
+            selected: vec![crate::lint::rules::NoDep5Copyright::CODE],
             fail_on: HashSet::from([Severity::Error]),
             severity_remaps: HashMap::new(),
             threads: None,

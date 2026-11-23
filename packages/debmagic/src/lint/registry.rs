@@ -540,7 +540,16 @@ use super::rules::SharedLibraryNotShipped;
 use super::rules::SharedLibrarySymbolsNotTracked;
 use super::rules::ShellScriptFailsSyntaxCheck;
 use super::rules::ShipsUndeclaredSharedLibrary;
+use super::rules::SourceContainsArchControlDir;
+use super::rules::SourceContainsArchInventoryFile;
+use super::rules::SourceContainsBtsControlDir;
+use super::rules::SourceContainsBzrControlDir;
+use super::rules::SourceContainsCvsConflictCopy;
+use super::rules::SourceContainsCvsControlDir;
 use super::rules::SourceContainsEditorBackupFile;
+use super::rules::SourceContainsGitControlDir;
+use super::rules::SourceContainsHgControlDir;
+use super::rules::SourceContainsHgTagsFile;
 use super::rules::SourceContainsPatchFailureFile;
 use super::rules::SourceContainsPrebuiltBinary;
 use super::rules::SourceContainsPrebuiltDoxygenDocumentation;
@@ -548,6 +557,10 @@ use super::rules::SourceContainsPrebuiltJavascriptObject;
 use super::rules::SourceContainsPrebuiltMsHelpFile;
 use super::rules::SourceContainsPrebuiltPythonObject;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
+use super::rules::SourceContainsSvkCommitFile;
+use super::rules::SourceContainsSvnCommitFile;
+use super::rules::SourceContainsSvnConflictFile;
+use super::rules::SourceContainsSvnControlDir;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
 use super::rules::SourceIsMissing;
@@ -2429,6 +2442,19 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
+        &SourceContainsArchControlDir,
+        &SourceContainsArchInventoryFile,
+        &SourceContainsBtsControlDir,
+        &SourceContainsBzrControlDir,
+        &SourceContainsCvsConflictCopy,
+        &SourceContainsCvsControlDir,
+        &SourceContainsGitControlDir,
+        &SourceContainsHgControlDir,
+        &SourceContainsHgTagsFile,
+        &SourceContainsSvkCommitFile,
+        &SourceContainsSvnCommitFile,
+        &SourceContainsSvnConflictFile,
+        &SourceContainsSvnControlDir,
     ]
 }
 
@@ -2891,6 +2917,19 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &ExplicitlyArmoredUpstreamSignature,
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
+        &SourceContainsArchControlDir,
+        &SourceContainsArchInventoryFile,
+        &SourceContainsBtsControlDir,
+        &SourceContainsBzrControlDir,
+        &SourceContainsCvsConflictCopy,
+        &SourceContainsCvsControlDir,
+        &SourceContainsGitControlDir,
+        &SourceContainsHgControlDir,
+        &SourceContainsHgTagsFile,
+        &SourceContainsSvkCommitFile,
+        &SourceContainsSvnCommitFile,
+        &SourceContainsSvnConflictFile,
+        &SourceContainsSvnControlDir,
     ]
 }
 

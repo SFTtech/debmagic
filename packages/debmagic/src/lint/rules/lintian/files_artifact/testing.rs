@@ -16,6 +16,24 @@ pub(super) fn control() -> (String, TestFile) {
     )
 }
 
+/// A changelog with a Version that has no revision, so the package is native.
+pub(super) fn changelog() -> (String, TestFile) {
+    (
+        "debian/changelog".to_string(),
+        TestFile::new(
+            "example (1.0) unstable; urgency=medium\n\n  * Initial.\n\n \
+             -- Jane <jane@example.com>  Mon, 01 Jan 2024 00:00:00 +0000\n",
+        ),
+    )
+}
+
+/// A native Source tree: `debian/control`, the changelog, then `extra`.
+pub(super) fn native_tree(extra: Vec<(String, TestFile)>) -> Vec<(String, TestFile)> {
+    let mut tree = vec![control(), changelog()];
+    tree.extend(extra);
+    tree
+}
+
 pub(super) fn file(path: &str) -> (String, TestFile) {
     (path.to_string(), TestFile::new("x"))
 }

@@ -125,6 +125,10 @@ Most of the time in `cargo test -p debmagic --test lintian_parity` is spent buil
 - `DEBMAGIC_PARITY_NO_CACHE=1 cargo test -p debmagic --test lintian_parity` bypasses the cache completely (nothing read, nothing written, no sharing between recipes): every recipe builds its own tree. Use it to rule the cache out when a result looks wrong, or after changing a tool the key does not see (`PATH`, a tool in `/usr/local`).
 - To drop the cache by hand: `rm -r target/lint-parity-cache`.
 
+### Oracle conflicts: expected-side drops
+
+Parity compares a Rule with lintian's `eval/hints`, and sometimes the oracle expects a hint lintian 2.144.0 cannot emit for that recipe. Such a conflict is recorded as an explicit, commented drop on the **expected side only**, scoped to one recipe, never a skip. The thirteen `source-contains-*` Tags of `files/artifact` are the first: `checks/cruft/cruft-general-upstream` lists them, but its vendored build is non-native (`debian/source/format` is `3.0 (quilt)`), so lintian emits `debian-adds-*` there. `drop_expected_hints_for_non_native_upstream` in `packages/debmagic/tests/common/mod.rs` drops exactly those Tags from that recipe, and the native oracle `checks/files/artifact/cruft-general-native` still compares them. The importer (`scripts/import_lintian_parity.py`) transcribes `eval/hints` verbatim and does not apply drops, so a new drop goes into the harness only. Add a drop only when lintian 2.144.0's own Check cannot produce the hint, and say why in the comment.
+
 ## 7. Worked sketch: `required-field`
 
 Check: `lib/Lintian/Check/Fields/Required.pm`. Tag file: `tags/r/required-field.tag`. Three recipes:

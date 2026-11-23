@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): quilt-series-references-non-existent-patch (LN1771) gone.patch [debian/patches/series]
+E: example (source): quilt-series-references-non-existent-patch (LN1771) sub [debian/patches/series]
+E: example (source): quilt-series-references-non-existent-patch (LN1771) dangling.patch [debian/patches/series]
+E: example (source): quilt-series-references-non-existent-patch (LN1771) escape.patch [debian/patches/series]
+E: example (source): quilt-series-references-non-existent-patch (LN1771) dir-link.patch [debian/patches/series]
+E: example (source): quilt-series-references-non-existent-patch (LN1771) gone.patch [debian/patches/series]
+E: example (source): quilt-series-references-non-existent-patch (LN1771) gone.patch [debian/patches/series]
+E: example (source): quilt-series-references-non-existent-patch (LN1771) ../../../gone.patch [debian/patches/series]
+E: example (source): quilt-series-references-non-existent-patch (LN1771) gone.patch [debian/patches/series]
+E: example (source): quilt-series-references-non-existent-patch (LN1771) gone.patch [debian/patches/series]

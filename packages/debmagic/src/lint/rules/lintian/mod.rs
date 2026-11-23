@@ -228,6 +228,7 @@ mod ln1560_bin_sbin_mismatch;
 mod ln1562_empty_udeb_package;
 mod ln1624_source_contains_prebuilt_flash_project;
 mod ln1625_source_contains_prebuilt_flash_object;
+mod ln1629_source_contains_prebuilt_wasm_binary;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_adduser;
@@ -1024,6 +1025,7 @@ pub(crate) use ln1560_bin_sbin_mismatch::BinSbinMismatch;
 pub(crate) use ln1562_empty_udeb_package::EmptyUdebPackage;
 pub(crate) use ln1624_source_contains_prebuilt_flash_project::SourceContainsPrebuiltFlashProject;
 pub(crate) use ln1625_source_contains_prebuilt_flash_object::SourceContainsPrebuiltFlashObject;
+pub(crate) use ln1629_source_contains_prebuilt_wasm_binary::SourceContainsPrebuiltWasmBinary;
 pub(crate) use maintainer_scripts_adduser::AdduserWithHomeVarRun;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,

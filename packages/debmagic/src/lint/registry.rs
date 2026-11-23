@@ -67,6 +67,7 @@ use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CapitalizationErrorInDescription;
 use super::rules::CapitalizationErrorInDescriptionSynopsis;
+use super::rules::CapitalizationInOverrideComment;
 use super::rules::CarriageReturnLineFeed;
 use super::rules::ChangelogDistributionDoesNotMatchChangesFile;
 use super::rules::ChangelogFileMissingExplicitEntry;
@@ -505,7 +506,10 @@ use super::rules::PrermCallsUpdatercD;
 use super::rules::PriorityExtraIsReplacedByPriorityOptional;
 use super::rules::PrivacyBreachW3cValidHtml;
 use super::rules::ProgramNotLinkedAgainstLibc;
+use super::rules::PublicUpstreamKeyInNativePackage;
+use super::rules::PublicUpstreamKeyNotMinimal;
 use super::rules::PublicUpstreamKeyUnusable;
+use super::rules::PublicUpstreamKeysInMultipleLocations;
 use super::rules::PuppetModuleButNotDhPuppet;
 use super::rules::PypiHomepage;
 use super::rules::Python3DependsButNoPython3Helper;
@@ -595,7 +599,9 @@ use super::rules::SpellingErrorInDescriptionSynopsis;
 use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
+use super::rules::SpellingErrorInReadmeDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
+use super::rules::SpellingInOverrideComment;
 use super::rules::SpuriousFieldsInUpstreamSignature;
 use super::rules::StaticLinkTimeOptimization;
 use super::rules::StrayFolderInManual;
@@ -645,6 +651,7 @@ use super::rules::UdevRuleUnreadable;
 use super::rules::UnconditionalUseOfDpkgStatoverride;
 use super::rules::UndeclaredElfPrerequisites;
 use super::rules::UnexpectedConffile;
+use super::rules::UnicodeTrojan;
 use super::rules::UnknownArchitecture;
 use super::rules::UnknownConffileInstruction;
 use super::rules::UnknownControlFile;
@@ -2503,12 +2510,23 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PerlModuleNameNotMentionedInDescription,
         &SpellingErrorInDescriptionSynopsis,
         &UnusualDocumentationPackageName,
+        &SpellingErrorInReadmeDebian,
+        &SpellingInOverrideComment,
+        &CapitalizationInOverrideComment,
+        &UnicodeTrojan,
+        &PublicUpstreamKeyInNativePackage,
+        &PublicUpstreamKeysInMultipleLocations,
+        &PublicUpstreamKeyNotMinimal,
     ]
 }
 
 pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
     &[
         &PackageHasLongFileName,
+        &UnicodeTrojan,
+        &PublicUpstreamKeyInNativePackage,
+        &PublicUpstreamKeysInMultipleLocations,
+        &PublicUpstreamKeyNotMinimal,
         &DebmagicDummyTrigger,
         &RequiredField,
         &SyntaxErrorInDebianChangelog,
@@ -3898,6 +3916,9 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &PerlModuleNameNotMentionedInDescription,
         &SpellingErrorInDescriptionSynopsis,
         &UnusualDocumentationPackageName,
+        &SpellingErrorInReadmeDebian,
+        &SpellingInOverrideComment,
+        &CapitalizationInOverrideComment,
     ]
 }
 

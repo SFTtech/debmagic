@@ -46,6 +46,7 @@ mod debian_debconf;
 mod debian_dpkg_build_api;
 mod debian_filenames;
 mod debian_line_separators;
+mod debian_lintian_overrides_comments;
 mod debian_lintian_overrides_restricted;
 mod debian_maintscript;
 mod debian_not_installed;
@@ -142,6 +143,7 @@ mod files_privacy_breach;
 mod files_scripts;
 mod files_special;
 mod files_symbolic_links;
+mod files_unicode_trojan;
 mod files_unwanted;
 mod files_vcs;
 mod fonts;
@@ -378,13 +380,18 @@ pub(crate) use debian_control_field_rules_requires_root::SpellingErrorInRulesReq
 pub(crate) use debian_control_field_spacing::DebianControlHasUnusualFieldSpacing;
 pub(crate) use debian_control_link::DebianControlFileIsASymlink;
 pub(crate) use debian_dpkg_build_api::DebianRulesDefinesDpkgBuildApi;
+pub(crate) use debian_lintian_overrides_comments::CapitalizationInOverrideComment;
+pub(crate) use debian_lintian_overrides_comments::SpellingInOverrideComment;
 pub(crate) use debian_lintian_overrides_restricted::InvalidOverrideRestriction;
 pub(crate) use debian_not_installed::UnwantedPathTooSpecific;
 pub(crate) use debian_symbols::PackagePlaceholderInSymbolsFile;
 pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
 pub(crate) use debian_trailing_whitespace::TrailingWhitespace;
 pub(crate) use debian_upstream::DebianUpstreamObsoletePath;
+pub(crate) use debian_upstream::PublicUpstreamKeyInNativePackage;
+pub(crate) use debian_upstream::PublicUpstreamKeyNotMinimal;
 pub(crate) use debian_upstream::PublicUpstreamKeyUnusable;
+pub(crate) use debian_upstream::PublicUpstreamKeysInMultipleLocations;
 pub(crate) use debian_upstream::UpstreamMetadataFieldUnknown;
 pub(crate) use debian_upstream::UpstreamMetadataFileIsMissing;
 pub(crate) use debian_upstream::UpstreamMetadataInNativeSource;
@@ -638,7 +645,7 @@ pub(crate) use debian_filenames::{DuplicatePackagingFile, IncorrectPackagingFile
 pub(crate) use debian_line_separators::CarriageReturnLineFeed;
 pub(crate) use debian_readme::{
     ReadmeDebianContainsDebmakeTemplate, ReadmeDebianContainsInvalidEmailAddress,
-    ReadmeDebianMentionsUsrDoc,
+    ReadmeDebianMentionsUsrDoc, SpellingErrorInReadmeDebian,
 };
 pub(crate) use debian_rules::{
     BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,
@@ -838,6 +845,7 @@ pub(crate) use files_symbolic_links::{
     SymlinkIsSelfRecursive, SymlinkTargetInBuildTree, SymlinkTargetInTmp,
     WaywardSymbolicLinkTargetInSource,
 };
+pub(crate) use files_unicode_trojan::UnicodeTrojan;
 pub(crate) use files_unwanted::{BackupFileInPackage, NfsTemporaryFileInPackage};
 pub(crate) use files_vcs::{
     PackageContainsVcsControlDir, PackageContainsVcsControlFile, SvkCommitFileInPackage,

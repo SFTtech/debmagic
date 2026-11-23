@@ -513,6 +513,7 @@ use super::rules::PackageUsesOldPythonDependsSubstvar;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PatchModifyingDebianFiles;
 use super::rules::PatchNotForwardedUpstream;
+use super::rules::PatchSystemButDirectChangesInDiff;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
 use super::rules::PearPackageButMissingDependency;
@@ -2661,6 +2662,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &DirectChangesInDiffButNoPatchSystem,
+        &PatchSystemButDirectChangesInDiff,
     ]
 }
 
@@ -3195,6 +3197,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
         &DirectChangesInDiffButNoPatchSystem,
+        &PatchSystemButDirectChangesInDiff,
     ]
 }
 

@@ -252,6 +252,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
     "checks/debian/upstream/metadata/yaml-sequence",
     "checks/debian/upstream/signing-key/upstream-key-empty",
+    "checks/debian/upstream/signing-key/upstream-key-native",
     "checks/debian/upstream/signing-key/upstream-key-nonsense",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
@@ -1409,6 +1410,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
     "checks/debian/upstream/metadata/yaml-sequence",
     "checks/debian/upstream/signing-key/upstream-key-empty",
+    "checks/debian/upstream/signing-key/upstream-key-native",
     "checks/debian/upstream/signing-key/upstream-key-nonsense",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
@@ -2003,6 +2005,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
 #[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-empty"; "checks_debian_upstream_signing_key_upstream_key_empty")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-native"; "checks_debian_upstream_signing_key_upstream_key_native")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-nonsense"; "checks_debian_upstream_signing_key_upstream_key_nonsense")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
@@ -3162,6 +3165,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
 #[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-empty"; "checks_debian_upstream_signing_key_upstream_key_empty")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-native"; "checks_debian_upstream_signing_key_upstream_key_native")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-nonsense"; "checks_debian_upstream_signing_key_upstream_key_nonsense")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): public-upstream-key-in-native-package (LN1764) [debian/upstream/signing-key.asc]
+I: example (source): public-upstream-key-in-native-package (LN1764) [debian/upstream/signing-key.asc]
+I: example (source): public-upstream-key-in-native-package (LN1764) [debian/upstream/other]

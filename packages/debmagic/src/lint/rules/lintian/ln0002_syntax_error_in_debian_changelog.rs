@@ -1,18 +1,23 @@
 use std::path::PathBuf;
 
 use crate::declare_rule;
-use crate::lint::context::SourceContext;
+use crate::lint::context::{BinaryPackageContext, SourceContext};
+use crate::lint::debian_changelog::DebianChangelog;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::rule::SourceRule;
+use crate::lint::rule::{BinaryPackageRule, SourceRule};
 
 pub struct SyntaxErrorInDebianChangelog;
 
 declare_rule! {
-    /// Debian changelog grammar errors from parsing `debian/changelog`.
+    /// Debian changelog grammar errors from parsing the changelog.
     ///
     /// Each parser error is one Diagnostic. Extra is the quoted condition
-    /// lintian puts on `syntax-error-in-debian-changelog`. Inspects
-    /// `debian/changelog` on the packaging tree.
+    /// lintian puts on `syntax-error-in-debian-changelog`. A Source tree or
+    /// Source package inspects `debian/changelog` on the packaging tree. A
+    /// Binary package inspects its installed changelog (see `no-changelog` for
+    /// the file names tried), which is where lintian reports this Tag; a Binary
+    /// package is skipped when `usr/share/doc/<package>` is a symlink, as
+    /// lintian does. Location is the changelog file.
     SyntaxErrorInDebianChangelog,
     code = "LN0002",
     tag = "syntax-error-in-debian-changelog",
@@ -25,29 +30,96 @@ impl SourceRule for SyntaxErrorInDebianChangelog {
         let Some(changelog) = ctx.debian_changelog() else {
             return;
         };
-        let reports: Vec<(u32, String)> = changelog
-            .errors()
-            .iter()
-            .map(|error| (error.line(), error.message().to_string()))
-            .collect();
-
-        for (line, message) in reports {
-            ctx.diagnostic(
-                Diagnostic::warn(format!("\"{message}\"")).with_location(Location {
-                    path: PathBuf::from("debian/changelog"),
-                    line: Some(line),
-                    column: None,
-                }),
-            );
+        for (line, message) in reports(changelog) {
+            ctx.diagnostic(Diagnostic::warn(message).with_location(Location {
+                path: PathBuf::from("debian/changelog"),
+                line: Some(line),
+                column: None,
+            }));
         }
     }
 }
 
+impl BinaryPackageRule for SyntaxErrorInDebianChangelog {
+    fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
+        let doc_dir = format!("usr/share/doc/{}", ctx.package_name());
+        if let Some(files) = ctx.data_files()
+            && files.get(&doc_dir).is_some_and(|entry| entry.is_symlink())
+        {
+            return;
+        }
+        let Some(installed) = ctx.installed_changelog() else {
+            return;
+        };
+        for (line, message) in reports(&installed.parsed) {
+            ctx.diagnostic(Diagnostic::warn(message).with_location(Location {
+                path: installed.path.clone(),
+                line: Some(line),
+                column: None,
+            }));
+        }
+    }
+}
+
+/// One `(line, extra)` per parser error; the extra is the quoted condition.
+fn reports(changelog: &DebianChangelog) -> Vec<(u32, String)> {
+    changelog
+        .errors()
+        .iter()
+        .map(|error| (error.line(), format!("\"{}\"", error.message())))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::SourceTreeTester;
+    use std::io::Write;
+
+    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, SourceTreeTester, TestFile};
 
     use super::*;
+
+    fn gzip(text: &str) -> TestFile {
+        let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
+        encoder.write_all(text.as_bytes()).expect("gzip");
+        TestFile::from_bytes(encoder.finish().expect("gzip"))
+    }
+
+    #[test]
+    fn binary_package() {
+        let valid = "example (1.0-1) unstable; urgency=low\n\n  * test\n\n -- A Uthor <a@example.com>  Tue, 30 Dec 2008 17:34:02 -0800\n";
+        let pass = vec![
+            BinaryPackageCase::from(Vec::<(String, TestFile)>::new()),
+            BinaryPackageCase::from(vec![(
+                "usr/share/doc/example/changelog.Debian.gz".to_string(),
+                gzip(valid),
+            )]),
+            // A symlinked doc directory is skipped, whatever it holds.
+            BinaryPackageCase::from(vec![
+                (
+                    "usr/share/doc/example".to_string(),
+                    TestFile::symlink("elsewhere"),
+                ),
+                (
+                    "usr/share/doc/example/changelog.Debian.gz".to_string(),
+                    gzip("not a Debian changelog\n"),
+                ),
+            ]),
+        ];
+        let fail = vec![
+            BinaryPackageCase::from(vec![(
+                "usr/share/doc/example/changelog.Debian.gz".to_string(),
+                gzip("not a Debian changelog\n"),
+            )]),
+            BinaryPackageCase::from(vec![(
+                "usr/share/doc/example/changelog".to_string(),
+                TestFile::new(
+                    "example (1.0-1) unstable; urgency=low\n\n  * test\n\n -- A Uthor <a@example.com> Tue, 30 Dec 2008 17:34:02 -0800\n",
+                ),
+            )]),
+        ];
+        BinaryPackageTester::new(SyntaxErrorInDebianChangelog, pass, fail)
+            .test_and_snapshot_with_suffix("binary");
+    }
 
     const CONTROL: &str = "Source: example\n\
          Maintainer: Example <ex@example.com>\n\

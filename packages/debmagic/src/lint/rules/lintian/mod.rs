@@ -329,6 +329,7 @@ pub(crate) use binaries_architecture::ArchIndependentPackageContainsBinaryOrObje
 pub(crate) use binaries_architecture::BinaryFromOtherArchitecture;
 pub(crate) use binaries_corrupted::BinaryWithBadDynamicTable;
 pub(crate) use binaries_corrupted::ElfError;
+pub(crate) use binaries_corrupted::ElfWarning;
 pub(crate) use binaries_debug_symbols_detached::DebugFileWithNoDebugSymbols;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsDirectlyInUsrLibDebug;
 pub(crate) use binaries_debug_symbols_detached::DebugSymbolsNotDetached;
@@ -717,6 +718,7 @@ pub(crate) use debian_readme::{
     ReadmeDebianContainsDebmakeTemplate, ReadmeDebianContainsInvalidEmailAddress,
     ReadmeDebianMentionsUsrDoc, SpellingErrorInReadmeDebian,
 };
+pub(crate) use debian_rules::DebianRulesMissingRecommendedTarget;
 pub(crate) use debian_rules::{
     BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,
     DebianRulesCallsDebhelperInOddOrder, DebianRulesCallsNproc, DebianRulesCallsPwd,
@@ -1185,6 +1187,7 @@ pub(crate) use po_debconf::{
     NoCompleteDebconfTranslation, NotUsingPoDebconf, TranslatedDefaultField,
     UnknownEncodingInPoFile,
 };
+pub(crate) use rules_and_control::DebhelperCompatNotANumber;
 pub(crate) use rules_and_control::{
     BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,
     CircularInstallationPrerequisite, DebhelperCompatFileContainsMultipleLevels,

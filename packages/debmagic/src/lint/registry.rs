@@ -123,6 +123,7 @@ use super::rules::DebconfIsNotARegistry;
 use super::rules::DebconfTranslationUsingGeneralList;
 use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
+use super::rules::DebhelperCompatNotANumber;
 use super::rules::DebianChangelogLineTooShort;
 use super::rules::DebianControlFileIsASymlink;
 use super::rules::DebianControlHasEmptyField;
@@ -136,6 +137,7 @@ use super::rules::DebianRulesContainsUnnecessaryGetOrigSourceTarget;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
+use super::rules::DebianRulesMissingRecommendedTarget;
 use super::rules::DebianRulesNotAMakefile;
 use super::rules::DebianRulesNotExecutable;
 use super::rules::DebianRulesParsesDpkgParsechangelog;
@@ -216,6 +218,7 @@ use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
 use super::rules::ElfError;
+use super::rules::ElfWarning;
 use super::rules::EmbeddedLibrary;
 use super::rules::EmbeddedPearModule;
 use super::rules::EmbeddedScriptIncludesCopyrightStatement;
@@ -2715,6 +2718,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &EmbeddedPearModule,
         &LegacyVendorarchDirectory,
         &NonStandardGameExecutablePerm,
+        &DebhelperCompatNotANumber,
+        &DebianRulesMissingRecommendedTarget,
+        &ElfWarning,
     ]
 }
 
@@ -3264,6 +3270,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UnpackMessageForSource,
         &UnpackMessageForOrig,
         &OrigTarballContainsAncientFile,
+        &DebhelperCompatNotANumber,
+        &DebianRulesMissingRecommendedTarget,
     ]
 }
 
@@ -4210,6 +4218,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &EmbeddedPearModule,
         &LegacyVendorarchDirectory,
         &NonStandardGameExecutablePerm,
+        &ElfWarning,
     ]
 }
 

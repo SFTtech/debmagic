@@ -1515,6 +1515,10 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "the recipe needs `javahelper` and a JDK (`javac`, `jar`), which this host lacks",
     ),
     (
+        "checks/debhelper/debhelper-compat",
+        "the recipe's `debhelper-compat-not-a-number [9-` hint, which lintian 2.144.0 never emits: no code path builds the Tag (the compat level comes from `dh_assistant`'s numeric `declared-compat-level`), so the catalogued LN1305 Rule reports nothing; that is the recipe's only expected hint",
+    ),
+    (
         "checks/debhelper/debhelper-compat-old",
         "the recipe's `--include-dir` vendor overrides `debhelper/compat-level` to deprecated=1 and recommended=100 for the lintian-test vendor; the harness applies only the Debian tables, so the expected level-8 hint cannot come out",
     ),

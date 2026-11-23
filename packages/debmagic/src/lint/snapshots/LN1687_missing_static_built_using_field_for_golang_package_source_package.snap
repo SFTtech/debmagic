@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): missing-static-built-using-field-for-golang-package (LN1687) (in section for example) [debian/control:6]

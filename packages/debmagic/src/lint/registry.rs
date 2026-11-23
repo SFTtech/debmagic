@@ -360,6 +360,7 @@ use super::rules::MissingPkgPhpToolsBuildsystem;
 use super::rules::MissingPotfilesIn;
 use super::rules::MissingPrerequisiteForGfortranModule;
 use super::rules::MissingPrerequisiteForPyprojectBackend;
+use super::rules::MissingStaticBuiltUsingFieldForGolangPackage;
 use super::rules::MissingTemplatesPot;
 use super::rules::MissingTestsControl;
 use super::rules::MissingXsGoImportPathForGolangPackage;
@@ -2439,6 +2440,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UselessPydistOverridesFile,
         &UsesPdmCli,
         &UsesPoetryCli,
+        &MissingStaticBuiltUsingFieldForGolangPackage,
     ]
 }
 
@@ -2906,6 +2908,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UselessPydistOverridesFile,
         &UsesPdmCli,
         &UsesPoetryCli,
+        &MissingStaticBuiltUsingFieldForGolangPackage,
     ]
 }
 

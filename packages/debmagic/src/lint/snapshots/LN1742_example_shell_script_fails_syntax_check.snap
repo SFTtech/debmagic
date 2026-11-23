@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): example-shell-script-fails-syntax-check (LN1742) [usr/share/doc/pkg/examples/syntax]
+P: example (binary): example-shell-script-fails-syntax-check (LN1742) [usr/share/doc/pkg/examples/tool]
+P: example (udeb): example-shell-script-fails-syntax-check (LN1742) [usr/share/doc/pkg/examples/tool]

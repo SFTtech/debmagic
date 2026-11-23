@@ -157,13 +157,13 @@ pub(super) fn examples(files: &FileTree) -> Vec<Hit> {
         .kinds([EntryKind::RegularFile, EntryKind::Hardlink])
         .into_iter()
         .flat_map(|entry| match files.read(entry) {
-            Ok(bytes) => example_entry(entry, &bytes),
+            Ok(bytes) => example_entry(files, entry, &bytes),
             Err(_) => Vec::new(),
         })
         .collect()
 }
 
-fn example_entry(entry: &Entry, bytes: &[u8]) -> Vec<Hit> {
+fn example_entry(files: &FileTree, entry: &Entry, bytes: &[u8]) -> Vec<Hit> {
     let Some(name) = entry.path().to_str() else {
         return Vec::new();
     };
@@ -214,14 +214,42 @@ fn example_entry(entry: &Entry, bytes: &[u8]) -> Vec<Hit> {
             }
         }
         None => {
-            // `/usr/local/` interpreters are another Tag's example; only
-            // `/bin/env` is reported here.
-            if interpreter == "/bin/env" {
+            // The unknown-interpreter branches of the Check, in its order.
+            // The `nodejs` and `php` branches are other Tags' examples.
+            if interpreter.starts_with("/usr/local/") {
+                hits.push(hit("example-interpreter-in-usr-local", interpreter.clone()));
+            } else if interpreter == "/bin/env" {
                 hits.push(hit("example-script-uses-bin-env", interpreter.clone()));
+            } else if interpreter != "nodejs"
+                && !base.starts_with("php")
+                && !shipped_executable(files, &interpreter, hashbang.calls_env())
+            {
+                hits.push(hit("example-unusual-interpreter", interpreter.clone()));
             }
         }
     }
     hits
+}
+
+/// Whether the package ships an executable file for `interpreter`, as the
+/// `scripts` Check's private-interpreter lookup: the path without its leading
+/// slash, or `bin/<name>` and `usr/bin/<name>` after `/usr/bin/env`.
+fn shipped_executable(files: &FileTree, interpreter: &str, calls_env: bool) -> bool {
+    let candidates: Vec<String> = if let Some(path) = interpreter.strip_prefix('/') {
+        vec![path.to_string()]
+    } else if calls_env {
+        vec![
+            format!("bin/{interpreter}"),
+            format!("usr/bin/{interpreter}"),
+        ]
+    } else {
+        Vec::new()
+    };
+    candidates.iter().any(|path| {
+        files
+            .get(path)
+            .is_some_and(|entry| entry.is_file() && entry.is_executable_file())
+    })
 }
 
 /// The extra when an example's interpreter is not at the table folder, as

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): example-unusual-interpreter (LN1740) /usr/bin/zorg [usr/share/doc/example/examples/run]
+P: example (binary): example-unusual-interpreter (LN1740) zorg [usr/share/doc/example/examples/run]
+P: example (binary): example-unusual-interpreter (LN1740) /usr/bin/zorg [usr/share/doc/example/examples/run]
+P: example (udeb): example-unusual-interpreter (LN1740) /usr/bin/zorg [usr/share/doc/example/examples/run]

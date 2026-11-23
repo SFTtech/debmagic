@@ -317,6 +317,7 @@ use super::rules::LinkToSharedLibraryInWrongPackage;
 use super::rules::LocaleUsesLanguageGroupCode;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerDesktopEntry;
+use super::rules::MaintainerManualPage;
 use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
@@ -2445,6 +2446,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingErrorInPatchDescription,
         &OlderDebianWatchFileStandard,
         &MaintainerDesktopEntry,
+        &MaintainerManualPage,
     ]
 }
 
@@ -2915,6 +2917,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpellingErrorInPatchDescription,
         &OlderDebianWatchFileStandard,
         &MaintainerDesktopEntry,
+        &MaintainerManualPage,
     ]
 }
 

@@ -242,6 +242,7 @@ use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
 use super::rules::IncompatibleJavaBytecodeFormat;
 use super::rules::InconsistentAppstreamMetadataLicense;
+use super::rules::IncorrectLocaleCode;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
@@ -288,6 +289,7 @@ use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::LicenseProblemNvidiaIntellectual;
 use super::rules::LicenseProblemOldUnicode;
 use super::rules::LinkToSharedLibraryInWrongPackage;
+use super::rules::LocaleUsesLanguageGroupCode;
 use super::rules::MagicArchInArchList;
 use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
@@ -2341,6 +2343,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OredBuildDependsOnObsoletePackage,
         &TypoInManualPage,
         &CapitalizationErrorInDescriptionSynopsis,
+        &IncorrectLocaleCode,
+        &LocaleUsesLanguageGroupCode,
     ]
 }
 
@@ -3661,6 +3665,8 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &CapitalizationErrorInDescriptionSynopsis,
         &BadIntendedDistribution,
         &DebianNewsEntryUsesAsterisk,
+        &IncorrectLocaleCode,
+        &LocaleUsesLanguageGroupCode,
     ]
 }
 

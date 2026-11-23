@@ -550,6 +550,7 @@ use super::rules::SourceContainsPrebuiltBinary;
 use super::rules::SourceContainsPrebuiltDoxygenDocumentation;
 use super::rules::SourceContainsPrebuiltFlashObject;
 use super::rules::SourceContainsPrebuiltFlashProject;
+use super::rules::SourceContainsPrebuiltJavaObject;
 use super::rules::SourceContainsPrebuiltJavascriptObject;
 use super::rules::SourceContainsPrebuiltMsHelpFile;
 use super::rules::SourceContainsPrebuiltPythonObject;
@@ -2441,6 +2442,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SourceContainsBrowserifiedJavascript,
         &SourceContainsPrebuiltFlashProject,
         &SourceContainsPrebuiltFlashObject,
+        &SourceContainsPrebuiltJavaObject,
     ]
 }
 
@@ -2909,6 +2911,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsBrowserifiedJavascript,
         &SourceContainsPrebuiltFlashProject,
         &SourceContainsPrebuiltFlashObject,
+        &SourceContainsPrebuiltJavaObject,
     ]
 }
 

@@ -412,6 +412,7 @@ use super::rules::NoCodeSections;
 use super::rules::NoCompleteDebconfTranslation;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
+use super::rules::NoGit;
 use super::rules::NoHomepageField;
 use super::rules::NoMd5sumsControlFile;
 use super::rules::NoPhrase;
@@ -2659,6 +2660,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
+        &NoGit,
     ]
 }
 
@@ -3192,6 +3194,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsQuiltControlDir,
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
+        &NoGit,
     ]
 }
 

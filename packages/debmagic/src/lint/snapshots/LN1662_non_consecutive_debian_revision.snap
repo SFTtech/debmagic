@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): non-consecutive-debian-revision (LN1662) 1.0-1 -> 1.0-3 [debian/changelog:1]
+P: example (source): non-consecutive-debian-revision (LN1662) 1.0-1.1 -> 1.0-1.3 [debian/changelog:1]
+P: example (source): non-consecutive-debian-revision (LN1662) 1.0-1 -> 1.0-1.2 [debian/changelog:1]

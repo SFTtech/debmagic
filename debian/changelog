@@ -1,3 +1,13 @@
+debmagic (0.0.1~alpha9) forky; urgency=medium
+
+  * `debmagic switch <version>` upstream source fetching and orig tarballs handling with `debmagic upstream` (and caching them)
+  * dynamic interval for running `apt update` configured by `--apt-update-age` / `apt.update_age`
+  * apt settings move from `[driver]` to `[apt]`: `driver.apt_mirror` is now `apt.mirror`, `driver.proposed` is `apt.proposed`
+  * `debmagic env list`, `debmagic env clean`, and `debmagic env shell` for a machine-wide view of environments
+  * the `test` build stage is skipped when `DEB_BUILD_OPTIONS` contains `nocheck`
+
+ -- Debmagic Maintainers <debmagic@sft.lol>  Sat, 14 Nov 2026 12:34:46 +0100
+
 debmagic (0.0.1~alpha8) forky; urgency=medium
 
   * publish the Rust crates to crates.io on tagged releases

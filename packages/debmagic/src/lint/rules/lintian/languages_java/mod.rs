@@ -12,6 +12,7 @@ mod ln1171_missing_dep_on_jarwrapper;
 mod ln1172_jar_not_in_usr_share;
 mod ln1173_classpath_contains_relative_path;
 mod ln1174_maven_plugin_in_usr_share_java;
+mod ln1744_javalib_but_no_public_jars;
 
 pub(crate) use ln1163_zip_parse_error::ZipParseError;
 pub(crate) use ln1164_bad_jar_name::BadJarName;
@@ -25,3 +26,4 @@ pub(crate) use ln1171_missing_dep_on_jarwrapper::MissingDepOnJarwrapper;
 pub(crate) use ln1172_jar_not_in_usr_share::JarNotInUsrShare;
 pub(crate) use ln1173_classpath_contains_relative_path::ClasspathContainsRelativePath;
 pub(crate) use ln1174_maven_plugin_in_usr_share_java::MavenPluginInUsrShareJava;
+pub(crate) use ln1744_javalib_but_no_public_jars::JavalibButNoPublicJars;

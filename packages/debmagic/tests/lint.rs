@@ -729,3 +729,105 @@ fn lint_binary_override_for_another_architecture_does_not_apply() {
     );
     assert!(!stdout.contains("overridden"), "stdout: {stdout}");
 }
+
+/// A Source tree whose `debian/control` has no `HOMEPAGE` field, so `cute-field`
+/// makes no Diagnostic, with `overrides` as its override file.
+fn cute_field_free_tree(work: &Path, overrides: Option<&str>) -> PathBuf {
+    let tree = work.join("src");
+    fs::create_dir_all(tree.join("debian/source")).expect("debian/source");
+    fs::write(
+        tree.join("debian/control"),
+        "Source: example\nMaintainer: Example <ex@example.com>\nHomepage: https://example.org/\n\nPackage: example\nArchitecture: all\nDescription: example\n extra\n",
+    )
+    .expect("control");
+    if let Some(text) = overrides {
+        fs::write(tree.join("debian/source/lintian-overrides"), text).expect("overrides");
+    }
+    tree
+}
+
+#[test]
+fn lint_mismatched_override_is_reported_by_default() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(work.path(), Some("cute-field nope\n"));
+    // `--select` replaces the default set, so the default-selected Tag is named.
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field,mismatched-override"]);
+
+    // A warning: printed, and not a policy failure under the default FailOn.
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(
+        stdout.contains(
+            "W: example (source): mismatched-override (LN1780) cute-field nope [debian/source/lintian-overrides:1]"
+        ),
+        "stdout: {stdout}"
+    );
+    assert_eq!(printed_cute_field(&stdout).len(), 1, "stdout: {stdout}");
+    assert!(stdout.contains("N: 1 unused override"), "stdout: {stdout}");
+}
+
+#[test]
+fn lint_unused_override_needs_its_selection() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_free_tree(work.path(), Some("cute-field\n"));
+
+    // Not selected by default: lintian's info Tags are not shown unless enabled.
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field"]);
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(!stdout.contains("unused-override"), "stdout: {stdout}");
+    assert!(!stdout.contains("N:"), "stdout: {stdout}");
+
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field,unused-override"]);
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(
+        stdout.contains(
+            "I: example (source): unused-override (LN1779) cute-field  [debian/source/lintian-overrides:1]"
+        ),
+        "stdout: {stdout}"
+    );
+    assert!(stdout.contains("N: 1 unused override"), "stdout: {stdout}");
+}
+
+#[test]
+fn lint_override_rules_respect_no_override_and_show_overrides() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(work.path(), Some("cute-field nope\n"));
+    let (_status, stdout, stderr) = run_lint(
+        &tree,
+        &[
+            "--select",
+            "cute-field,mismatched-override",
+            "--no-override",
+        ],
+    );
+    assert!(
+        !stdout.contains("mismatched-override"),
+        "stdout: {stdout}\nstderr: {stderr}"
+    );
+
+    // Under --show-overrides the note on what was overridden is left out; the
+    // reports themselves are not overridden and still print.
+    let (_status, stdout, _stderr) = run_lint(
+        &tree,
+        &[
+            "--select",
+            "cute-field,mismatched-override",
+            "--show-overrides",
+        ],
+    );
+    assert!(
+        stdout.contains("mismatched-override (LN1780)"),
+        "stdout: {stdout}"
+    );
+    assert!(!stdout.contains("unused override"), "stdout: {stdout}");
+}
+
+#[test]
+fn lint_selected_unused_override_without_an_override_file_runs_and_reports_nothing() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_free_tree(work.path(), None);
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field,unused-override"]);
+    // The Rule applies to the Source tree; with no file it has nothing to report.
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(!stdout.contains("unused-override"), "stdout: {stdout}");
+    assert!(stdout.contains("All checks passed!"), "stdout: {stdout}");
+}

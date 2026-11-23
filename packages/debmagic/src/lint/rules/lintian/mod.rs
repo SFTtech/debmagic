@@ -192,6 +192,8 @@ mod libraries_shared_stack;
 mod libraries_shared_trigger_ldconfig;
 mod libraries_static;
 mod libtool;
+#[allow(clippy::module_inception)] // the module of lintian's `lintian` Check
+mod lintian;
 mod lintian_overrides;
 mod ln0001_required_field;
 mod ln0002_syntax_error_in_debian_changelog;
@@ -1040,6 +1042,7 @@ pub(crate) use languages_php::{
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;
 pub(crate) use languages_r::RequiresRApi;
+pub(crate) use lintian::{MismatchedOverride, UnusedOverride};
 pub(crate) use lintian_overrides::{
     AlienTag, DuplicateOverrideContext, MalformedOverride, OldSourceOverrideLocation,
     OverrideFileInWrongLocation, OverrideFileInWrongPackage, RenamedTag,

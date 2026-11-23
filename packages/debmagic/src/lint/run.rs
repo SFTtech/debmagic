@@ -16,9 +16,9 @@ use super::group::{DscData, Group};
 use super::group_context::{BuildinfoContext, ChangesContext, GroupContext};
 use super::intent::{LintIntent, OverrideMode};
 use super::lintian_overrides::LintianOverrides;
-use super::override_pass::{self, ProcessableFacts};
+use super::override_pass::{self, OverrideContext, ProcessableFacts};
 use super::registry;
-use super::rule::{Code, GroupRule, RuleAccess, Severity, Tag};
+use super::rule::{Code, GroupRule, OverrideRule, RuleAccess, Severity, Tag};
 use super::subject::{LintTarget, Subject};
 use super::timing::{self, TimingSession};
 
@@ -181,7 +181,7 @@ fn run_artifact_lint(
         }
         let mut processables = Vec::new();
         if let Some(source) = &group.source {
-            processables.push(Processable::Source(source));
+            processables.push(Processable::Source(source, group.source_name()));
         }
         processables.extend(
             group
@@ -190,7 +190,12 @@ fn run_artifact_lint(
                 .enumerate()
                 .map(|(index, binary)| Processable::Binary(index, binary)),
         );
-        ignored_overrides += apply_overrides(intent.overrides, &processables, &mut group_stages)?;
+        ignored_overrides += apply_overrides(
+            intent.overrides,
+            &selected,
+            &processables,
+            &mut group_stages,
+        )?;
         stages.extend(group_stages);
     }
     finish_run(intent, stages, ignored_overrides, started)
@@ -221,8 +226,13 @@ fn run_source_tree_lint(
             ctx.finish()
         },
     )?];
-    let ignored_overrides =
-        apply_overrides(intent.overrides, &[Processable::Tree(&data)], &mut stages)?;
+    let selected: HashSet<Code> = intent.selected.iter().copied().collect();
+    let ignored_overrides = apply_overrides(
+        intent.overrides,
+        &selected,
+        &[Processable::Tree(&data)],
+        &mut stages,
+    )?;
     finish_run(intent, stages, ignored_overrides, started)
 }
 
@@ -250,6 +260,9 @@ enum Owner {
     Buildinfo,
     /// The installable at this index of the Group.
     Binary(usize),
+    /// The `OverrideRule`s of one processable: their Diagnostics belong to no
+    /// processable's override pass (ADR 0057).
+    Override,
 }
 
 /// What running the selected Rules of one kind on one Subject produced.
@@ -265,19 +278,37 @@ struct Stage {
 /// of a Group, or one installable of a Group (ADR 0057).
 enum Processable<'g> {
     Tree(&'g SourceTreeData),
-    Source(&'g DscData),
+    /// The Source package of the Group, with the Group's source name.
+    Source(&'g DscData, &'g str),
     Binary(usize, &'g BinaryPackageData),
 }
 
 impl Processable<'_> {
+    /// The package name Diagnostics of this processable carry.
+    fn package_name(&self) -> String {
+        match self {
+            Self::Tree(data) => data.package_name(),
+            Self::Source(_, name) => (*name).to_string(),
+            Self::Binary(_, binary) => binary.package_name().to_string(),
+        }
+    }
+
+    /// Lintian's processable type: `source`, or `binary` / `udeb` by file name.
+    fn processable_type(&self) -> ProcessableType {
+        match self {
+            Self::Tree(_) | Self::Source(..) => ProcessableType::Source,
+            Self::Binary(_, binary) => processable_type_for_binary(binary.path()),
+        }
+    }
+
     /// Whether a Diagnostic of a stage with `owner` belongs to this processable.
     /// A Group Rule's Diagnostic belongs to the source or to the installable it
     /// names (its package and processable type, as `installable_diagnostic` sets
     /// them); two installables of one name share such Diagnostics.
     fn owns(&self, owner: Owner, diagnostic: &Diagnostic) -> bool {
         match (self, owner) {
-            (Self::Tree(_), Owner::Source) | (Self::Source(_), Owner::Source) => true,
-            (Self::Source(_), Owner::Group) => {
+            (Self::Tree(_), Owner::Source) | (Self::Source(..), Owner::Source) => true,
+            (Self::Source(..), Owner::Group) => {
                 diagnostic.processable_type == Some(ProcessableType::Source)
             }
             (Self::Binary(index, _), Owner::Binary(other)) => *index == other,
@@ -294,7 +325,7 @@ impl Processable<'_> {
     /// installables (ADR 0056).
     fn ran_here(&self, owner: Owner, tag: Tag) -> bool {
         match (self, owner) {
-            (Self::Tree(_) | Self::Source(_), Owner::Source | Owner::Group) => true,
+            (Self::Tree(_) | Self::Source(..), Owner::Source | Owner::Group) => true,
             (Self::Binary(index, _), Owner::Binary(other)) => *index == other,
             (Self::Binary(..), Owner::Group) => registry::group_rules()
                 .iter()
@@ -307,7 +338,7 @@ impl Processable<'_> {
     /// Source package, the control `Architecture` of an installable.
     fn architecture(&self) -> &str {
         match self {
-            Self::Tree(_) | Self::Source(_) => "source",
+            Self::Tree(_) | Self::Source(..) => "source",
             Self::Binary(_, binary) => binary
                 .installation_control()
                 .fields()
@@ -332,7 +363,7 @@ impl Processable<'_> {
                 let _ = ctx.finish();
                 Ok(overrides)
             }
-            Self::Source(dsc) => {
+            Self::Source(dsc, _) => {
                 let package = dsc
                     .package()
                     .map_err(|message| anyhow::anyhow!("{message}"))?;
@@ -354,16 +385,24 @@ impl Processable<'_> {
 /// Applies the override pass to each processable of a Group or Source tree,
 /// after all its Rules ran (ADR 0057). Sets `overridden` on the Diagnostics
 /// that a line of the processable's override file suppressed, in place. The
-/// override file is read only for a processable with Diagnostics. Returns how
-/// many overrides of Show-Always Tags were ignored.
+/// override file is read only for a processable with Diagnostics or when an
+/// `OverrideRule` is selected. The selected `OverrideRule`s then run on the
+/// pass's outcome, in a stage of their own. Returns how many overrides of
+/// Show-Always Tags were ignored.
 fn apply_overrides(
     mode: OverrideMode,
+    selected: &HashSet<Code>,
     processables: &[Processable<'_>],
-    stages: &mut [Stage],
+    stages: &mut Vec<Stage>,
 ) -> anyhow::Result<usize> {
     if mode == OverrideMode::Off {
         return Ok(0);
     }
+    let override_rules: Vec<&dyn OverrideRule> = registry::override_rules()
+        .iter()
+        .copied()
+        .filter(|rule| selected.contains(&rule.code()))
+        .collect();
     let mut ignored = 0;
     for processable in processables {
         let mut members = Vec::new();
@@ -374,10 +413,20 @@ fn apply_overrides(
                 }
             }
         }
-        if members.is_empty() {
+        if members.is_empty() && override_rules.is_empty() {
             continue;
         }
-        let Some(overrides) = processable.load_overrides()? else {
+        let overrides = processable.load_overrides()?;
+        if overrides.is_none() && !override_rules.is_empty() {
+            // No override file: the selected OverrideRules still ran, and found nothing.
+            stages.push(run_override_rules(
+                &override_rules,
+                processable,
+                Path::new(""),
+                &override_pass::PassOutcome::default(),
+            ));
+        }
+        let Some(overrides) = overrides else {
             continue;
         };
         let ran_tags: Vec<Tag> = stages
@@ -404,8 +453,50 @@ fn apply_overrides(
         for (&(stage_index, index), updated) in members.iter().zip(subset) {
             stages[stage_index].diagnostics[index].overridden = updated.overridden.clone();
         }
+        if !override_rules.is_empty() {
+            stages.push(run_override_rules(
+                &override_rules,
+                processable,
+                overrides.path(),
+                &outcome,
+            ));
+        }
     }
     Ok(ignored)
+}
+
+/// Runs the selected `OverrideRule`s on one processable's pass outcome (ADR
+/// 0057). Their Diagnostics form a stage that no processable claims, so they
+/// are never overridden.
+fn run_override_rules(
+    rules: &[&dyn OverrideRule],
+    processable: &Processable<'_>,
+    path: &Path,
+    outcome: &override_pass::PassOutcome,
+) -> Stage {
+    let package = processable.package_name();
+    let processable_type = processable.processable_type();
+    let mut diagnostics = Vec::new();
+    let mut timings = Vec::with_capacity(rules.len());
+    for rule in rules {
+        let start = Instant::now();
+        let mut ctx =
+            OverrideContext::bind(*rule, outcome.clone(), path, &package, processable_type);
+        rule.run(&mut ctx);
+        diagnostics.extend(ctx.finish());
+        timings.push(RuleTiming {
+            code: rule.code(),
+            tag: rule.tag(),
+            elapsed: start.elapsed(),
+        });
+    }
+    Stage {
+        owner: Owner::Override,
+        diagnostics,
+        rules: timings,
+        bringup: Duration::ZERO,
+        shared: Duration::ZERO,
+    }
 }
 
 fn any_selected<R: RuleAccess + ?Sized>(rules: &[&R], selected: &HashSet<Code>) -> bool {
@@ -1610,8 +1701,12 @@ mod override_application_tests {
                 cute("X-Dh-Compat vs X-DH-Compat"),
             ],
         )];
-        let ignored =
-            apply_overrides(OverrideMode::Hide, &[Processable::Tree(&data)], &mut stages)?;
+        let ignored = apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::new(),
+            &[Processable::Tree(&data)],
+            &mut stages,
+        )?;
         assert_eq!(ignored, 0);
         let flags: Vec<bool> = stages[0]
             .diagnostics
@@ -1626,7 +1721,12 @@ mod override_application_tests {
     fn off_mode_never_reads_or_flags() -> anyhow::Result<()> {
         let (_dir, data) = tree_with_overrides("cute-field\n")?;
         let mut stages = vec![stage(Owner::Source, "cute-field", vec![cute("x")])];
-        apply_overrides(OverrideMode::Off, &[Processable::Tree(&data)], &mut stages)?;
+        apply_overrides(
+            OverrideMode::Off,
+            &HashSet::new(),
+            &[Processable::Tree(&data)],
+            &mut stages,
+        )?;
         assert!(!stages[0].diagnostics[0].is_overridden());
         Ok(())
     }
@@ -1640,8 +1740,12 @@ mod override_application_tests {
             [0xff, 0xfe],
         )?;
         let mut stages = vec![stage(Owner::Source, "cute-field", vec![])];
-        let ignored =
-            apply_overrides(OverrideMode::Hide, &[Processable::Tree(&data)], &mut stages)?;
+        let ignored = apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::new(),
+            &[Processable::Tree(&data)],
+            &mut stages,
+        )?;
         assert_eq!(ignored, 0);
         Ok(())
     }
@@ -1656,8 +1760,12 @@ mod override_application_tests {
             tag: Tag("malformed-override"),
             elapsed: Duration::ZERO,
         });
-        let ignored =
-            apply_overrides(OverrideMode::Hide, &[Processable::Tree(&data)], &mut stages)?;
+        let ignored = apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::new(),
+            &[Processable::Tree(&data)],
+            &mut stages,
+        )?;
         assert_eq!(ignored, 1);
         assert!(stages[0].diagnostics[0].is_overridden());
         Ok(())

@@ -141,7 +141,7 @@ impl SourceTreeData {
         .as_ref()
     }
 
-    fn package_name(&self) -> String {
+    pub(super) fn package_name(&self) -> String {
         if let Some(name) = self
             .debian_control()
             .and_then(|control| control.source().get("Source"))

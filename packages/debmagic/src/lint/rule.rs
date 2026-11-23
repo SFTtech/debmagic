@@ -175,6 +175,14 @@ pub trait BinaryPackageRule: RuleAccess {
     fn run(&self, ctx: &mut super::context::BinaryPackageContext<'_>);
 }
 
+/// Applicability to a processable's Lintian override file: a Source tree, a
+/// Source package and a Binary package. The override pass runs these after the
+/// other Rules and the matching, because they need what the pass left unmatched
+/// (ADR 0057). Their Diagnostics cannot be overridden.
+pub trait OverrideRule: RuleAccess {
+    fn run(&self, ctx: &mut super::override_pass::OverrideContext<'_>);
+}
+
 /// Applicability to the Changes file of a Group (ADR 0055).
 pub trait ChangesRule: RuleAccess {
     fn run(&self, ctx: &mut super::group_context::ChangesContext<'_>);

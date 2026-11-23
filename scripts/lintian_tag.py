@@ -194,6 +194,7 @@ SUBJECTS = {
     "udeb": "BinaryPackageRule (udeb)",
     "changes": "ChangesRule (the Group's .changes; just new-rule --kind changes)",
     "buildinfo": "BuildinfoRule (the Group's .buildinfo; just new-rule --kind buildinfo)",
+    "override": "OverrideRule (the override pass; just new-rule --kind override)",
 }
 
 
@@ -290,7 +291,9 @@ def print_recipes(lintian: Path, tag: report.LintianTag, recipes: list[report.Re
         print("not vendored (import needed for Parity):")
         for rel in missing:
             print(f"- {rel} [{skeleton_of(lintian / 't/recipes' / rel)}]")
-    if ptypes:
+    if tag.tag in report.OVERRIDE_PASS_TAGS:
+        print("\n=> implement: " + SUBJECTS["override"])
+    elif ptypes:
         print("\n=> implement: " + "; ".join(f"{SUBJECTS.get(p, p)} ({n} lines)" for p, n in sorted(ptypes.items())))
     return vendored
 

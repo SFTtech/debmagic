@@ -477,6 +477,7 @@ use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
 use super::rules::SourceIsMissing;
+use super::rules::SourceOnlyUploadToNonFreeWithoutAutobuild;
 use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
@@ -2265,6 +2266,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
         &ChecksumCountMismatchInChangesFile,
+        &SourceOnlyUploadToNonFreeWithoutAutobuild,
     ]
 }
 
@@ -3580,7 +3582,10 @@ pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
 }
 
 pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
-    &[&IntraSourcePackageCircularDependency]
+    &[
+        &IntraSourcePackageCircularDependency,
+        &SourceOnlyUploadToNonFreeWithoutAutobuild,
+    ]
 }
 
 #[cfg(test)]

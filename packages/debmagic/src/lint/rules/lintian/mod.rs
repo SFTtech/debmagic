@@ -4,6 +4,7 @@ mod appstream_metadata;
 mod apt;
 mod archive_file_name_length;
 mod archive_liberty;
+mod archive_non_free_autobuild;
 mod autotools;
 mod binaries;
 mod binaries_architecture;
@@ -273,6 +274,7 @@ pub(crate) use apt::PackageInstallsAptSources;
 pub(crate) use archive_file_name_length::PackageHasLongFileName;
 pub(crate) use archive_file_name_length::SourcePackageComponentHasLongFileName;
 pub(crate) use archive_liberty::ArchiveLibertyMismatch;
+pub(crate) use archive_non_free_autobuild::SourceOnlyUploadToNonFreeWithoutAutobuild;
 pub(crate) use autotools::{
     AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,
 };

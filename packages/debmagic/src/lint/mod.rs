@@ -1,5 +1,6 @@
 mod appstream;
 mod ar;
+mod architecture;
 mod binary_package_reader;
 mod buildinfo;
 mod changes;
@@ -36,6 +37,7 @@ mod lintian_overrides;
 mod lintian_tags;
 mod maintainer_script;
 mod openpgp;
+mod override_pass;
 mod package_relation;
 mod quilt_series;
 mod registry;

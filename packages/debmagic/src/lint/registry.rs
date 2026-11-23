@@ -523,6 +523,7 @@ use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RedundantPriorityOptionalField;
 use super::rules::RelativeConffile;
 use super::rules::RenamedTag;
+use super::rules::RepeatedPathSegment;
 use super::rules::RepeatedTriggerName;
 use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
@@ -2443,6 +2444,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ImageFileInUsrLib,
         &LdconfigEscape,
         &OpenpgpFileHasImplementationSpecificExtension,
+        &RepeatedPathSegment,
     ]
 }
 
@@ -3808,6 +3810,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ImageFileInUsrLib,
         &LdconfigEscape,
         &OpenpgpFileHasImplementationSpecificExtension,
+        &RepeatedPathSegment,
     ]
 }
 

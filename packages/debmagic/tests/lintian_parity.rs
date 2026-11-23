@@ -888,6 +888,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/hard-links/legacy-etcfiles",
     "checks/files/hierarchy/links/leaving-architecture",
     "checks/files/hierarchy/links/usr-lib-to-opt",
+    "checks/files/hierarchy/path-segments/share-doc-share",
     "checks/files/hierarchy/standard/copyright-file-general",
     "checks/files/hierarchy/standard/files-foo-in-bar",
     "checks/files/hierarchy/standard/files-general",
@@ -2641,6 +2642,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/hard-links/legacy-etcfiles"; "checks_files_hard_links_legacy_etcfiles")]
 #[test_case("checks/files/hierarchy/links/leaving-architecture"; "checks_files_hierarchy_links_leaving_architecture")]
 #[test_case("checks/files/hierarchy/links/usr-lib-to-opt"; "checks_files_hierarchy_links_usr_lib_to_opt")]
+#[test_case("checks/files/hierarchy/path-segments/share-doc-share"; "checks_files_hierarchy_path_segments_share_doc_share")]
 #[test_case("checks/files/hierarchy/standard/copyright-file-general"; "checks_files_hierarchy_standard_copyright_file_general")]
 #[test_case("checks/files/hierarchy/standard/files-foo-in-bar"; "checks_files_hierarchy_standard_files_foo_in_bar")]
 #[test_case("checks/files/hierarchy/standard/files-general"; "checks_files_hierarchy_standard_files_general")]

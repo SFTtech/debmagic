@@ -34,6 +34,7 @@ mod ln0127_non_multi_arch_lib_dir;
 
 mod ln1563_architecture_escape;
 mod ln1725_ldconfig_escape;
+mod ln1727_repeated_path_segment;
 #[cfg(test)]
 mod tree;
 
@@ -60,3 +61,4 @@ pub(crate) use ln0063_use_of_compat_symlink::UseOfCompatSymlink;
 pub(crate) use ln0127_non_multi_arch_lib_dir::NonMultiArchLibDir;
 pub(crate) use ln1563_architecture_escape::ArchitectureEscape;
 pub(crate) use ln1725_ldconfig_escape::LdconfigEscape;
+pub(crate) use ln1727_repeated_path_segment::RepeatedPathSegment;

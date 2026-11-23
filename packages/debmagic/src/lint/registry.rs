@@ -123,6 +123,7 @@ use super::rules::DebconfIsNotARegistry;
 use super::rules::DebconfTranslationUsingGeneralList;
 use super::rules::DebhelperCompatFileContainsMultipleLevels;
 use super::rules::DebhelperCompatFileIsEmpty;
+use super::rules::DebhelperCompatNotANumber;
 use super::rules::DebianChangelogLineTooShort;
 use super::rules::DebianControlFileIsASymlink;
 use super::rules::DebianControlHasEmptyField;
@@ -2715,6 +2716,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &EmbeddedPearModule,
         &LegacyVendorarchDirectory,
         &NonStandardGameExecutablePerm,
+        &DebhelperCompatNotANumber,
     ]
 }
 
@@ -3264,6 +3266,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UnpackMessageForSource,
         &UnpackMessageForOrig,
         &OrigTarballContainsAncientFile,
+        &DebhelperCompatNotANumber,
     ]
 }
 

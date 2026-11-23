@@ -685,7 +685,7 @@ pub(crate) use description::{
     DescriptionStartsWithLeadingSpaces, DescriptionStartsWithPackageName,
     DescriptionSynopsisIsEmpty, DescriptionSynopsisStartsWithArticle, DescriptionTooShort,
     ExtendedDescriptionContainsEmptyParagraph, ExtendedDescriptionIsEmpty,
-    ExtendedDescriptionIsProbablyTooShort, ExtendedDescriptionLineTooLong,
+    ExtendedDescriptionIsProbablyTooShort, ExtendedDescriptionLineTooLong, OddMarkInDescription,
     PossibleUnindentedListInExtendedDescription, SpellingErrorInDescription, SynopsisIsASentence,
     SynopsisTooLong, UsingFirstPersonInDescription,
 };

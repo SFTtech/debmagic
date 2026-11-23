@@ -408,6 +408,7 @@ use super::rules::ObsoleteRuntimeTestsRestriction;
 use super::rules::OcamlCustomExecutable;
 use super::rules::OcamlDanglingCmi;
 use super::rules::OcamlDanglingCmx;
+use super::rules::OddMarkInDescription;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
@@ -2443,6 +2444,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingVcsBrowserField,
         &NoHomepageField,
         &RedundantRulesRequiresRootNoField,
+        &OddMarkInDescription,
     ]
 }
 
@@ -3808,6 +3810,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
         &ExperimentalToUnstableWithoutComment,
+        &OddMarkInDescription,
     ]
 }
 

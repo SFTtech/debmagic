@@ -1,0 +1,73 @@
+use crate::declare_rule;
+use crate::lint::context::SourceContext;
+use crate::lint::diagnostic::Diagnostic;
+use crate::lint::rule::{Severity, SourceRule};
+
+use super::ln0688_testsuite_depends_on_obsolete_package::obsolete_messages;
+use super::sections::{control_location, tests_control_sections};
+
+pub struct TestsuiteOredDependsOnObsoletePackage;
+
+declare_rule! {
+    /// A test `Depends` in `debian/tests/control` has an obsolete package
+    /// among ORed alternatives that include a current package, and that
+    /// obsolete alternative is not the first one. Reported at info severity
+    /// with extra `Depends: <alternative>` and ` => <replacement>` when the
+    /// data file names one, and the `debian/tests/control` Location.
+    ///
+    /// The split and the rule are those of LN0688, which reports the other
+    /// case (an obsolete first alternative, or one where every alternative is
+    /// obsolete) as `testsuite-depends-on-obsolete-package`.
+    TestsuiteOredDependsOnObsoletePackage,
+    code = "LN1692",
+    tag = "testsuite-ored-depends-on-obsolete-package",
+    default_selected = false,
+    experimental = false,
+}
+
+impl SourceRule for TestsuiteOredDependsOnObsoletePackage {
+    fn run(&self, ctx: &mut SourceContext<'_>) {
+        let Some(files) = ctx.files() else {
+            return;
+        };
+        let Some(sections) = tests_control_sections(files) else {
+            return;
+        };
+        for message in obsolete_messages(&sections, true) {
+            ctx.diagnostic(
+                Diagnostic::warn(message)
+                    .with_severity(Severity::Info)
+                    .with_location(control_location(None)),
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::lint::tester::{SourceTreeTester, TestFile};
+
+    use super::*;
+
+    fn tree(body: &str) -> Vec<(&'static str, TestFile)> {
+        vec![("debian/tests/control", TestFile::new(body))]
+    }
+
+    #[test]
+    fn test() {
+        let pass = vec![
+            vec![("README", TestFile::new("no tests"))],
+            // The obsolete alternative is first, or every alternative is obsolete.
+            tree("Test-Command: true\nDepends: gaim | xbase-clients\n"),
+            tree("Test-Command: true\nDepends: gaim\n"),
+            tree("Test-Command: true\nDepends: new-package | libc6\n"),
+        ];
+        let fail = vec![
+            tree("Test-Command: true\nDepends: current | gaim\n"),
+            tree("Test-Command: true\nDepends: new-package | xbase-clients\n"),
+            tree("Test-Command: true\nDepends: @, libc6, current | xbase-clients (>= 0.1)\n"),
+        ];
+        SourceTreeTester::new(TestsuiteOredDependsOnObsoletePackage, pass, fail)
+            .test_and_snapshot();
+    }
+}

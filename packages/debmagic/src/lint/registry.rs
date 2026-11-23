@@ -44,8 +44,11 @@ use super::rules::BinaryPackageDependsOnToolchainPackage;
 use super::rules::BinaryWithBadDynamicTable;
 use super::rules::BoilerplateCopyrightFormatUri;
 use super::rules::BreaksWithoutVersion;
+use super::rules::BrokenBz2;
 use super::rules::BrokenGz;
+use super::rules::BrokenLz;
 use super::rules::BrokenLzma;
+use super::rules::BrokenLzo;
 use super::rules::BrokenXz;
 use super::rules::BrokenZip;
 use super::rules::BuildDependsArchWithoutArchDependentBinary;
@@ -2275,6 +2278,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NewerDebconfTemplates,
         &NoCompleteDebconfTranslation,
         &AppstreamMetadataValidationFailed,
+        &BrokenBz2,
+        &BrokenLz,
+        &BrokenLzo,
     ]
 }
 
@@ -3566,6 +3572,9 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &MaintainerShellScriptFailsSyntaxCheck,
         &ShellScriptFailsSyntaxCheck,
         &AppstreamMetadataValidationFailed,
+        &BrokenBz2,
+        &BrokenLz,
+        &BrokenLzo,
     ]
 }
 

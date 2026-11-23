@@ -16,8 +16,8 @@ declare_rule! {
     /// `<mode> != 0755`. The path is the Location. Udebs are checked too.
     /// A `root/games` executable that is not setgid, or lacks a bit of
     /// `0755`, is skipped: lintian reports it as
-    /// `non-standard-game-executable-perm` instead (no Rule for that Tag here,
-    /// so it gets no hint).
+    /// `non-standard-game-executable-perm` instead (LN1792 reports it, so this
+    /// Rule gets no hint).
     NonStandardExecutablePerm,
     code = "LN0700",
     tag = "non-standard-executable-perm",
@@ -85,7 +85,7 @@ mod tests {
             tree(vec![("usr/bin/suid-wrong", script(0o4744))]),
             tree(vec![("usr/bin/sgid", script(0o2750))]),
             // `root/games` executables that are not setgid with `0755`: the
-            // game Tag, which has no Rule here.
+            // game Tag, LN1792.
             tree(vec![(
                 "usr/games/tool",
                 script(0o750).owned_by("root", "games"),

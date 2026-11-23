@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): non-standard-game-executable-perm (LN1792) 0755 != 2755 [usr/games/tool]
+W: example (binary): non-standard-game-executable-perm (LN1792) 0775 != 2755 [usr/games/tool]
+W: example (binary): non-standard-game-executable-perm (LN1792) 2750 != 2755 [usr/games/tool]
+W: example (binary): non-standard-game-executable-perm (LN1792) 0750 != 2755 [usr/games/tool]
+W: example (binary): non-standard-game-executable-perm (LN1792) 0750 != 2755 [usr/games/tool]
+W: example (udeb): non-standard-game-executable-perm (LN1792) 0750 != 2755 [usr/games/tool]
+W: example (binary): non-standard-game-executable-perm (LN1792) 0750 != 2755 [usr/games/toolÿ]

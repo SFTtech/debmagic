@@ -880,6 +880,7 @@ pub(crate) use files_permissions::ExecutableIsNotWorldReadable;
 pub(crate) use files_permissions::NonStandardDirPerm;
 pub(crate) use files_permissions::NonStandardExecutablePerm;
 pub(crate) use files_permissions::NonStandardFilePerm;
+pub(crate) use files_permissions::NonStandardGameExecutablePerm;
 pub(crate) use files_permissions::NonStandardSetuidExecutablePerm;
 pub(crate) use files_pkgconfig::{
     PkgConfigBadDirective, PkgConfigMultiArchWrongDir, PkgConfigUnavailableForCrossCompilation,

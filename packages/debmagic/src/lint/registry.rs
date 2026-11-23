@@ -427,6 +427,7 @@ use super::rules::NonStandardApache2ModulePackageName;
 use super::rules::NonStandardDirPerm;
 use super::rules::NonStandardFilePerm;
 use super::rules::NonStandardFilePermissionsForEtcInitDScript;
+use super::rules::NonStandardGameExecutablePerm;
 use super::rules::NonStandardSetuidExecutablePerm;
 use super::rules::NotAllowedControlFile;
 use super::rules::NotUsingPoDebconf;
@@ -2663,6 +2664,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &EmbeddedPearModule,
         &LegacyVendorarchDirectory,
+        &NonStandardGameExecutablePerm,
     ]
 }
 
@@ -4135,6 +4137,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OldSourceOverrideLocation,
         &EmbeddedPearModule,
         &LegacyVendorarchDirectory,
+        &NonStandardGameExecutablePerm,
     ]
 }
 

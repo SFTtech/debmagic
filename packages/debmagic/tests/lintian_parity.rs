@@ -470,6 +470,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/python/python-valid-poetry",
     "checks/languages/python/python-version-current-deprecated",
     "checks/languages/python/python-wrong-pdm",
+    "checks/languages/python/python-wrong-poetry",
     "checks/languages/python/stdlib-deprecation/python-imports-asyncore",
     "checks/languages/python/stdlib-deprecation/python-imports-distutils",
     "checks/languages/r/files-r-data",
@@ -1628,6 +1629,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/python-valid-poetry",
     "checks/languages/python/python-version-current-deprecated",
     "checks/languages/python/python-wrong-pdm",
+    "checks/languages/python/python-wrong-poetry",
     "checks/languages/python/stdlib-deprecation/python-imports-asyncore",
     "checks/languages/python/stdlib-deprecation/python-imports-distutils",
     "checks/languages/r/files-r-data",
@@ -2221,6 +2223,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/python/python-valid-poetry"; "checks_languages_python_python_valid_poetry")]
 #[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
 #[test_case("checks/languages/python/python-wrong-pdm"; "checks_languages_python_python_wrong_pdm")]
+#[test_case("checks/languages/python/python-wrong-poetry"; "checks_languages_python_python_wrong_poetry")]
 #[test_case("checks/languages/python/stdlib-deprecation/python-imports-asyncore"; "checks_languages_python_stdlib_deprecation_python_imports_asyncore")]
 #[test_case("checks/languages/python/stdlib-deprecation/python-imports-distutils"; "checks_languages_python_stdlib_deprecation_python_imports_distutils")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
@@ -3381,6 +3384,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/python/python-valid-poetry"; "checks_languages_python_python_valid_poetry")]
 #[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
 #[test_case("checks/languages/python/python-wrong-pdm"; "checks_languages_python_python_wrong_pdm")]
+#[test_case("checks/languages/python/python-wrong-poetry"; "checks_languages_python_python_wrong_poetry")]
 #[test_case("checks/languages/python/stdlib-deprecation/python-imports-asyncore"; "checks_languages_python_stdlib_deprecation_python_imports_asyncore")]
 #[test_case("checks/languages/python/stdlib-deprecation/python-imports-distutils"; "checks_languages_python_stdlib_deprecation_python_imports_distutils")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]

@@ -34,6 +34,7 @@ mod ln1682_old_python_version_field;
 mod ln1683_package_uses_old_python_depends_substvar;
 mod ln1684_useless_pydist_overrides_file;
 mod ln1685_uses_pdm_cli;
+mod ln1686_uses_poetry_cli;
 mod obsolete;
 mod python_version;
 
@@ -68,3 +69,4 @@ pub(crate) use ln1682_old_python_version_field::OldPythonVersionField;
 pub(crate) use ln1683_package_uses_old_python_depends_substvar::PackageUsesOldPythonDependsSubstvar;
 pub(crate) use ln1684_useless_pydist_overrides_file::UselessPydistOverridesFile;
 pub(crate) use ln1685_uses_pdm_cli::UsesPdmCli;
+pub(crate) use ln1686_uses_poetry_cli::UsesPoetryCli;

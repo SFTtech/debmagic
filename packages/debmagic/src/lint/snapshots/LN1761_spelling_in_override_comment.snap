@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): spelling-in-override-comment (LN1761) cute-field absolutly absolutely [usr/share/lintian/overrides/example:1]
+P: example (udeb): spelling-in-override-comment (LN1761) cute-field speling spelling [usr/share/lintian/overrides/example:1]
+P: example (binary): spelling-in-override-comment (LN1761) cute-field word word (duplicate word) word [usr/share/lintian/overrides/example:1]

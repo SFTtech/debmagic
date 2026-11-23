@@ -264,7 +264,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
     "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
     "checks/debian/upstream/metadata/yaml-sequence",
+    "checks/debian/upstream/signing-key/upstream-key-bloated",
     "checks/debian/upstream/signing-key/upstream-key-empty",
+    "checks/debian/upstream/signing-key/upstream-key-multiple-locations",
+    "checks/debian/upstream/signing-key/upstream-key-native",
     "checks/debian/upstream/signing-key/upstream-key-nonsense",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
@@ -446,6 +449,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/source-missing/cruft-upstream-binaries",
     "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
+    "checks/files/unicode/trojan/exe-vs-gif-in-patched-filename",
+    "checks/files/unicode/trojan/rte-in-contents",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
     "checks/languages/golang/module-path/binaries-golang",
     "checks/languages/golang/module-path/control-file-golang-built-using",
@@ -668,6 +673,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/debconf/legacy-debconf",
     "checks/debian/debconf/national-encoding",
     "checks/debian/debconf/po-debconf-general",
+    "checks/debian/lintian-overrides/comments/absolutely-misspelled",
+    "checks/debian/lintian-overrides/comments/lowercase-sql",
     "checks/debian/lintian-overrides/files-override-misplaced",
     "checks/debian/lintian-overrides/mystery/fields-multi-arch-same-package-has-arch-specific-overrides",
     "checks/debian/lintian-overrides/mystery/lintian-overrides",
@@ -1440,7 +1447,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
     "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
     "checks/debian/upstream/metadata/yaml-sequence",
+    "checks/debian/upstream/signing-key/upstream-key-bloated",
     "checks/debian/upstream/signing-key/upstream-key-empty",
+    "checks/debian/upstream/signing-key/upstream-key-multiple-locations",
+    "checks/debian/upstream/signing-key/upstream-key-native",
     "checks/debian/upstream/signing-key/upstream-key-nonsense",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
@@ -1624,6 +1634,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/source-missing/cruft-upstream-binaries",
     "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
+    "checks/files/unicode/trojan/exe-vs-gif-in-patched-filename",
+    "checks/files/unicode/trojan/rte-in-contents",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
     "checks/languages/golang/module-path/binaries-golang",
     "checks/languages/golang/module-path/control-file-golang-built-using",
@@ -2049,7 +2061,10 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
 #[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-bloated"; "checks_debian_upstream_signing_key_upstream_key_bloated")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-empty"; "checks_debian_upstream_signing_key_upstream_key_empty")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-multiple-locations"; "checks_debian_upstream_signing_key_upstream_key_multiple_locations")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-native"; "checks_debian_upstream_signing_key_upstream_key_native")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-nonsense"; "checks_debian_upstream_signing_key_upstream_key_nonsense")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
@@ -2231,6 +2246,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
 #[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
+#[test_case("checks/files/unicode/trojan/exe-vs-gif-in-patched-filename"; "checks_files_unicode_trojan_exe_vs_gif_in_patched_filename")]
+#[test_case("checks/files/unicode/trojan/rte-in-contents"; "checks_files_unicode_trojan_rte_in_contents")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
 #[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/control-file-golang-built-using"; "checks_languages_golang_module_path_control_file_golang_built_using")]
@@ -2454,6 +2471,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
 #[test_case("checks/debian/debconf/national-encoding"; "checks_debian_debconf_national_encoding")]
 #[test_case("checks/debian/debconf/po-debconf-general"; "checks_debian_debconf_po_debconf_general")]
+#[test_case("checks/debian/lintian-overrides/comments/absolutely-misspelled"; "checks_debian_lintian_overrides_comments_absolutely_misspelled")]
+#[test_case("checks/debian/lintian-overrides/comments/lowercase-sql"; "checks_debian_lintian_overrides_comments_lowercase_sql")]
 #[test_case("checks/debian/lintian-overrides/files-override-misplaced"; "checks_debian_lintian_overrides_files_override_misplaced")]
 #[test_case("checks/debian/lintian-overrides/mystery/fields-multi-arch-same-package-has-arch-specific-overrides"; "checks_debian_lintian_overrides_mystery_fields_multi_arch_same_package_has_arch_specific_overrides")]
 #[test_case("checks/debian/lintian-overrides/mystery/lintian-overrides"; "checks_debian_lintian_overrides_mystery_lintian_overrides")]
@@ -3227,7 +3246,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
 #[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-bloated"; "checks_debian_upstream_signing_key_upstream_key_bloated")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-empty"; "checks_debian_upstream_signing_key_upstream_key_empty")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-multiple-locations"; "checks_debian_upstream_signing_key_upstream_key_multiple_locations")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-native"; "checks_debian_upstream_signing_key_upstream_key_native")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-nonsense"; "checks_debian_upstream_signing_key_upstream_key_nonsense")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
@@ -3411,6 +3433,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
 #[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
+#[test_case("checks/files/unicode/trojan/exe-vs-gif-in-patched-filename"; "checks_files_unicode_trojan_exe_vs_gif_in_patched_filename")]
+#[test_case("checks/files/unicode/trojan/rte-in-contents"; "checks_files_unicode_trojan_rte_in_contents")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
 #[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/control-file-golang-built-using"; "checks_languages_golang_module_path_control_file_golang_built_using")]

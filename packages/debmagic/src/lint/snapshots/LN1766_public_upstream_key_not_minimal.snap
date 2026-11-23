@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): public-upstream-key-not-minimal (LN1766) has 1 extra signature(s) for keyid 284F789FF0DF40BF [debian/upstream/signing-key.asc]
+I: example (source): public-upstream-key-not-minimal (LN1766) has 2 extra signature(s) for keyid 284F789FF0DF40BF [debian/upstream/signing-key.asc]

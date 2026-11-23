@@ -182,6 +182,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/quilt-patch-dpatch-desc",
     "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
+    "checks/debian/po-debconf/invalid-potfiles-in",
     "checks/debian/po-debconf/legacy-debconf",
     "checks/debian/po-debconf/po-debconf-general",
     "checks/debian/po-debconf/po-debconf-missing",
@@ -1286,6 +1287,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/patches/quilt/quilt-patch-dpatch-desc",
     "checks/debian/patches/quilt/quilt-patch-dpatch-file-ext",
     "checks/debian/po-debconf/debconf-templates-general",
+    "checks/debian/po-debconf/invalid-potfiles-in",
     "checks/debian/po-debconf/legacy-debconf",
     "checks/debian/po-debconf/po-debconf-general",
     "checks/debian/po-debconf/po-debconf-missing",
@@ -1828,6 +1830,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-desc"; "checks_debian_patches_quilt_quilt_patch_dpatch_desc")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
+#[test_case("checks/debian/po-debconf/invalid-potfiles-in"; "checks_debian_po_debconf_invalid_potfiles_in")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
 #[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
 #[test_case("checks/debian/po-debconf/po-debconf-missing"; "checks_debian_po_debconf_po_debconf_missing")]
@@ -2934,6 +2937,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-desc"; "checks_debian_patches_quilt_quilt_patch_dpatch_desc")]
 #[test_case("checks/debian/patches/quilt/quilt-patch-dpatch-file-ext"; "checks_debian_patches_quilt_quilt_patch_dpatch_file_ext")]
 #[test_case("checks/debian/po-debconf/debconf-templates-general"; "checks_debian_po_debconf_debconf_templates_general")]
+#[test_case("checks/debian/po-debconf/invalid-potfiles-in"; "checks_debian_po_debconf_invalid_potfiles_in")]
 #[test_case("checks/debian/po-debconf/legacy-debconf"; "checks_debian_po_debconf_legacy_debconf")]
 #[test_case("checks/debian/po-debconf/po-debconf-general"; "checks_debian_po_debconf_po_debconf_general")]
 #[test_case("checks/debian/po-debconf/po-debconf-missing"; "checks_debian_po_debconf_po_debconf_missing")]

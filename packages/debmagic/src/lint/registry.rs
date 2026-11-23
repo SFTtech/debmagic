@@ -658,6 +658,7 @@ use super::rules::UsesDeprecatedPythonStdlib;
 use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
 use super::rules::UsesPdmCli;
+use super::rules::UsesPoetryCli;
 use super::rules::UsingFirstPersonInDescription;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
 use super::rules::UsrShareDocSymlinkToForeignPackage;
@@ -2437,6 +2438,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PackageUsesOldPythonDependsSubstvar,
         &UselessPydistOverridesFile,
         &UsesPdmCli,
+        &UsesPoetryCli,
     ]
 }
 
@@ -2903,6 +2905,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PackageUsesOldPythonDependsSubstvar,
         &UselessPydistOverridesFile,
         &UsesPdmCli,
+        &UsesPoetryCli,
     ]
 }
 

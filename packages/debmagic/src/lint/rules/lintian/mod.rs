@@ -884,7 +884,7 @@ pub(crate) use languages_python::{
     PythonPackageMissingDependsOnPython, PythonVersionCurrentIsDeprecated,
     ScriptUsesUnversionedPythonInShebang, SourcePackageEncodesPythonVersion,
     ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory, UselessPydistOverridesFile,
-    UsesDeprecatedPythonStdlib, UsesPdmCli,
+    UsesDeprecatedPythonStdlib, UsesPdmCli, UsesPoetryCli,
 };
 pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;

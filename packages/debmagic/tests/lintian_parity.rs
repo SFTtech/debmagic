@@ -1596,6 +1596,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
 
 const GROUP_RECIPES: &[&str] = &[
     "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
+    "checks/archive/non-free/autobuild/source-only-upload-to-non-free-without-autobuild",
     "checks/changes-file/changes-file-bad-section",
     "checks/changes-file/changes-file-size-checksum-mismatch",
     "checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants",
@@ -3240,6 +3241,7 @@ fn lintian_parity_source_package(recipe: &str) {
 }
 
 #[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
+#[test_case("checks/archive/non-free/autobuild/source-only-upload-to-non-free-without-autobuild"; "checks_archive_non_free_autobuild_source_only_upload_to_non_free_without_autobuild")]
 #[test_case("checks/changes-file/changes-file-bad-section"; "checks_changes_file_changes_file_bad_section")]
 #[test_case("checks/changes-file/changes-file-size-checksum-mismatch"; "checks_changes_file_changes_file_size_checksum_mismatch")]
 #[test_case("checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_changes_file_changes_files_package_builds_dbg_and_dbgsym_variants")]

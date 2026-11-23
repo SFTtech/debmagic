@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (source): source-only-upload-to-non-free-without-autobuild (LN1510) (in the source paragraph) XS-Autobuild [debian/control]
+E: example (source): source-only-upload-to-non-free-without-autobuild (LN1510) (in the source paragraph) XS-Autobuild [debian/control]
+E: example (source): source-only-upload-to-non-free-without-autobuild (LN1510) (in the source paragraph) XS-Autobuild [debian/control]
+E: example (source): source-only-upload-to-non-free-without-autobuild (LN1510) (in the source paragraph) XS-Autobuild [debian/control]
+E: example (source): source-only-upload-to-non-free-without-autobuild (LN1510) (in the source paragraph) XS-Autobuild [debian/control:3]

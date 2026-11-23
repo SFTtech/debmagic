@@ -76,6 +76,7 @@ use super::rules::ChangelogIsSymlink;
 use super::rules::ChangelogNotCompressedWithMaxCompression;
 use super::rules::ChecksumCountMismatchInChangesFile;
 use super::rules::ChecksumMismatchInChangesFile;
+use super::rules::ChownWithDot;
 use super::rules::ClasspathContainsRelativePath;
 use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
@@ -2433,6 +2434,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnpackMessageForDebData,
         &ManualPageForSystemCommand,
         &BashCompletionWithHashbang,
+        &ChownWithDot,
     ]
 }
 
@@ -3793,6 +3795,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UnpackMessageForDebData,
         &ManualPageForSystemCommand,
         &BashCompletionWithHashbang,
+        &ChownWithDot,
     ]
 }
 

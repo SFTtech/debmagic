@@ -1098,6 +1098,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/modprobe/files-general",
     "checks/modprobe/obsolete-commands-in-modprobe",
+    "checks/script/deprecated/chown/recursive-chown-with-dot",
     "checks/script/syntax/legacy-libbaz",
     "checks/script/syntax/legacy-maintainer-scripts",
     "checks/script/syntax/legacy-scripts",
@@ -2846,6 +2847,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/modprobe/files-general"; "checks_modprobe_files_general")]
 #[test_case("checks/modprobe/obsolete-commands-in-modprobe"; "checks_modprobe_obsolete_commands_in_modprobe")]
+#[test_case("checks/script/deprecated/chown/recursive-chown-with-dot"; "checks_script_deprecated_chown_recursive_chown_with_dot")]
 #[test_case("checks/script/syntax/legacy-libbaz"; "checks_script_syntax_legacy_libbaz")]
 #[test_case("checks/script/syntax/legacy-maintainer-scripts"; "checks_script_syntax_legacy_maintainer_scripts")]
 #[test_case("checks/script/syntax/legacy-scripts"; "checks_script_syntax_legacy_scripts")]

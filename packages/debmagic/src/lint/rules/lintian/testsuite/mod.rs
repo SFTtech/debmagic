@@ -25,11 +25,11 @@ mod ln1140_testsuite_restrictions_has_deprecated_skip_not_installable;
 mod ln1141_unknown_testsuite;
 mod ln1142_uses_deprecated_adttmp;
 mod ln1586_runtime_test_file_is_not_a_regular_file;
+mod ln1691_superficial_tests;
+mod ln1692_testsuite_ored_depends_on_obsolete_package;
 mod ln1700_unknown_runtime_tests_feature;
 mod ln1701_unknown_runtime_tests_field;
 mod ln1702_unknown_runtime_tests_restriction;
-mod ln1691_superficial_tests;
-mod ln1692_testsuite_ored_depends_on_obsolete_package;
 mod python;
 mod sections;
 
@@ -54,8 +54,8 @@ pub(crate) use ln1140_testsuite_restrictions_has_deprecated_skip_not_installable
 pub(crate) use ln1141_unknown_testsuite::UnknownTestsuite;
 pub(crate) use ln1142_uses_deprecated_adttmp::UsesDeprecatedAdttmp;
 pub(crate) use ln1586_runtime_test_file_is_not_a_regular_file::RuntimeTestFileIsNotARegularFile;
+pub(crate) use ln1691_superficial_tests::SuperficialTests;
+pub(crate) use ln1692_testsuite_ored_depends_on_obsolete_package::TestsuiteOredDependsOnObsoletePackage;
 pub(crate) use ln1700_unknown_runtime_tests_feature::UnknownRuntimeTestsFeature;
 pub(crate) use ln1701_unknown_runtime_tests_field::UnknownRuntimeTestsField;
 pub(crate) use ln1702_unknown_runtime_tests_restriction::UnknownRuntimeTestsRestriction;
-pub(crate) use ln1691_superficial_tests::SuperficialTests;
-pub(crate) use ln1692_testsuite_ored_depends_on_obsolete_package::TestsuiteOredDependsOnObsoletePackage;

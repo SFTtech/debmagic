@@ -1206,14 +1206,11 @@ pub(crate) use testsuite::{
     IllegalRuntimeTestName, MissingRuntimeTestFile, MissingTestsControl, NoOpTestsuite,
     ObsoleteRuntimeTestsRestriction, RuntimeTestFileIsNotARegularFile,
     RuntimeTestFileUsesInstalledPythonVersions,
-    RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends, TestLeavesPythonVersionUntested,
-    TestsuiteDependencyHasUnparsableElements, TestsuiteDependsOnObsoletePackage,
-    TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownRuntimeTestsFeature,
-    UnknownRuntimeTestsField, UnknownRuntimeTestsRestriction, UnknownTestsuite,
     RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends, SuperficialTests,
     TestLeavesPythonVersionUntested, TestsuiteDependencyHasUnparsableElements,
     TestsuiteDependsOnObsoletePackage, TestsuiteOredDependsOnObsoletePackage,
-    TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownTestsuite,
+    TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownRuntimeTestsFeature,
+    UnknownRuntimeTestsField, UnknownRuntimeTestsRestriction, UnknownTestsuite,
     UnnecessaryTestsuiteAutopkgtestField, UsesDeprecatedAdttmp,
 };
 pub(crate) use triggers::RepeatedTriggerName;

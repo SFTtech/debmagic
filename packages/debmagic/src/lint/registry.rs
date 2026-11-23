@@ -123,6 +123,7 @@ use super::rules::DebianControlFileIsASymlink;
 use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
+use super::rules::DebianFilesListInSource;
 use super::rules::DebianNewsEntryUsesAsterisk;
 use super::rules::DebianPycompatIsObsolete;
 use super::rules::DebianPyversionsIsObsolete;
@@ -578,6 +579,7 @@ use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
+use super::rules::RulesSilentlyRequireRoot;
 use super::rules::RuntimeTestFileIsNotARegularFile;
 use super::rules::RustBoilerplate;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
@@ -651,6 +653,7 @@ use super::rules::SpellingErrorInPatchDescription;
 use super::rules::SpellingErrorInReadmeDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::SpellingInOverrideComment;
+use super::rules::SphinxdocButNoSphinxdocDepends;
 use super::rules::SpuriousFieldsInUpstreamSignature;
 use super::rules::StaticLibraryHasUnneededSections;
 use super::rules::StaticLinkTimeOptimization;
@@ -2645,6 +2648,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &PatchModifyingDebianFiles,
         &QuiltSeriesReferencesNonExistentPatch,
         &SourceContainsQuiltControlDir,
+        &DebianFilesListInSource,
+        &SphinxdocButNoSphinxdocDepends,
+        &RulesSilentlyRequireRoot,
     ]
 }
 
@@ -3176,6 +3182,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PatchModifyingDebianFiles,
         &QuiltSeriesReferencesNonExistentPatch,
         &SourceContainsQuiltControlDir,
+        &DebianFilesListInSource,
+        &SphinxdocButNoSphinxdocDepends,
     ]
 }
 
@@ -4158,6 +4166,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &InconsistentMaintainer,
         &SpareManualPage,
         &PackageDoesNotInstallExamples,
+        &RulesSilentlyRequireRoot,
     ]
 }
 

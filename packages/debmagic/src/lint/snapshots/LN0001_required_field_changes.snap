@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): required-field (LN0001) test.changes Date
+E: example (changes): required-field (LN0001) test.changes Files

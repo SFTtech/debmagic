@@ -2,7 +2,7 @@ use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::debian_copyright::DebianCopyright;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::rule::SourceRule;
+use crate::lint::rule::{Severity, SourceRule};
 
 pub struct NoDep5Copyright;
 
@@ -17,7 +17,7 @@ declare_rule! {
     NoDep5Copyright,
     code = "LN0009",
     tag = "no-dep5-copyright",
-    default_selected = true,
+    default_selected = false,
     experimental = false,
 }
 
@@ -25,11 +25,15 @@ impl SourceRule for NoDep5Copyright {
     fn run(&self, ctx: &mut SourceContext<'_>) {
         for (path, copyright) in ctx.debian_copyrights() {
             if copyright == DebianCopyright::NotMachineReadable {
-                ctx.diagnostic(Diagnostic::warn("").with_location(Location {
-                    path,
-                    line: None,
-                    column: None,
-                }));
+                ctx.diagnostic(
+                    Diagnostic::warn("")
+                        .with_severity(Severity::Info)
+                        .with_location(Location {
+                            path,
+                            line: None,
+                            column: None,
+                        }),
+                );
             }
         }
     }

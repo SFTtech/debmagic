@@ -654,6 +654,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-news-wrong-name",
     "checks/debian/changelog/changelog-file-no-dch",
     "checks/debian/changelog/changelog-file-no-dch-native",
+    "checks/debian/changelog/changelog-file-strange-date",
     "checks/debian/changelog/changelog-file-symlink",
     "checks/debian/changelog/changelog-file-upstream-html-only",
     "checks/debian/changelog/changelog-file-wrong-name-upstream",
@@ -1824,8 +1825,21 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/fields/distribution/changes-upload-has-backports-version-number",
     "checks/fields/distribution/distribution-multiple-bad",
     "checks/fields/format/changes-missing-format",
+    "checks/fields/mail-address/changed-by-localhost",
     "checks/fields/mail-address/changed-by-no-name",
+    "checks/fields/mail-address/changed-by-root",
+    "checks/fields/mail-address/changed-by-root-email",
+    "checks/fields/mail-address/fields-maintainer",
+    "checks/fields/mail-address/fields-maintainer-bounces",
+    "checks/fields/mail-address/fields-qa-maint-address",
+    "checks/fields/mail-address/fields-qa-maint-name",
+    "checks/fields/mail-address/fields-root-maint-address",
+    "checks/fields/mail-address/legacy-foo++",
+    "checks/fields/mail-address/legacy-maintainer-scripts",
+    "checks/fields/mail-address/mismatch-between-changes-and-source",
     "checks/fields/maintainer/mismatch-between-changes-and-source",
+    "checks/fields/recommended/changes-missing-fields",
+    "checks/fields/required/changes-missing-fields",
     "checks/fields/urgency/generic-empty",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
@@ -2522,6 +2536,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-news-wrong-name"; "checks_debian_changelog_changelog_file_news_wrong_name")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch"; "checks_debian_changelog_changelog_file_no_dch")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch-native"; "checks_debian_changelog_changelog_file_no_dch_native")]
+#[test_case("checks/debian/changelog/changelog-file-strange-date"; "checks_debian_changelog_changelog_file_strange_date")]
 #[test_case("checks/debian/changelog/changelog-file-symlink"; "checks_debian_changelog_changelog_file_symlink")]
 #[test_case("checks/debian/changelog/changelog-file-upstream-html-only"; "checks_debian_changelog_changelog_file_upstream_html_only")]
 #[test_case("checks/debian/changelog/changelog-file-wrong-name-upstream"; "checks_debian_changelog_changelog_file_wrong_name_upstream")]
@@ -3694,8 +3709,21 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/fields/distribution/changes-upload-has-backports-version-number"; "checks_fields_distribution_changes_upload_has_backports_version_number")]
 #[test_case("checks/fields/distribution/distribution-multiple-bad"; "checks_fields_distribution_distribution_multiple_bad")]
 #[test_case("checks/fields/format/changes-missing-format"; "checks_fields_format_changes_missing_format")]
+#[test_case("checks/fields/mail-address/changed-by-localhost"; "checks_fields_mail_address_changed_by_localhost")]
 #[test_case("checks/fields/mail-address/changed-by-no-name"; "checks_fields_mail_address_changed_by_no_name")]
+#[test_case("checks/fields/mail-address/changed-by-root"; "checks_fields_mail_address_changed_by_root")]
+#[test_case("checks/fields/mail-address/changed-by-root-email"; "checks_fields_mail_address_changed_by_root_email")]
+#[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
+#[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]
+#[test_case("checks/fields/mail-address/fields-qa-maint-address"; "checks_fields_mail_address_fields_qa_maint_address")]
+#[test_case("checks/fields/mail-address/fields-qa-maint-name"; "checks_fields_mail_address_fields_qa_maint_name")]
+#[test_case("checks/fields/mail-address/fields-root-maint-address"; "checks_fields_mail_address_fields_root_maint_address")]
+#[test_case("checks/fields/mail-address/legacy-foo++"; "checks_fields_mail_address_legacy_foo_")]
+#[test_case("checks/fields/mail-address/legacy-maintainer-scripts"; "checks_fields_mail_address_legacy_maintainer_scripts")]
+#[test_case("checks/fields/mail-address/mismatch-between-changes-and-source"; "checks_fields_mail_address_mismatch_between_changes_and_source")]
 #[test_case("checks/fields/maintainer/mismatch-between-changes-and-source"; "checks_fields_maintainer_mismatch_between_changes_and_source")]
+#[test_case("checks/fields/recommended/changes-missing-fields"; "checks_fields_recommended_changes_missing_fields")]
+#[test_case("checks/fields/required/changes-missing-fields"; "checks_fields_required_changes_missing_fields")]
 #[test_case("checks/fields/urgency/generic-empty"; "checks_fields_urgency_generic_empty")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]

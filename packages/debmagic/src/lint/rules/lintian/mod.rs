@@ -690,11 +690,11 @@ pub(crate) use documentation_examples::NestedExamplesDirectory;
 pub(crate) use documentation_manual::{
     AcuteAccentInManualPage, BadSoLinkWithinManualPage, BadWhatisEntry, BrokenLinkToUndocumented,
     BuildPathInManual, CountryInManual, EmptyManualPage, ExecutableManualPage,
-    FSSTNDDirInManualPage, GroffMessage, ManualPageFromTemplate, ManualPageWithGenericName,
-    NoEnglishManualPage, NoManualPage, OddPlaceForManualPage, PodConversionMessage,
-    PoorCompressionInManualPage, PythonTracebackInManpage, SpareManualPage, StrayFolderInManual,
-    TypoInManualPage, UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
-    WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
+    FSSTNDDirInManualPage, GroffMessage, ManualPageForSystemCommand, ManualPageFromTemplate,
+    ManualPageWithGenericName, NoEnglishManualPage, NoManualPage, OddPlaceForManualPage,
+    PodConversionMessage, PoorCompressionInManualPage, PythonTracebackInManpage, SpareManualPage,
+    StrayFolderInManual, TypoInManualPage, UncompressedManualPage, UndocumentedManualPage,
+    UselessWhatisEntry, WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
 };
 pub(crate) use documentation_texinfo::{
     InfoDocumentHasWrongExtension, InfoDocumentMissingDirEntry, InfoDocumentMissingDirSection,

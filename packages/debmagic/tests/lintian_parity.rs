@@ -712,6 +712,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/manual/acute-accent",
     "checks/documentation/manual/bad-link-to-undocumented-manpage",
     "checks/documentation/manual/bad-so-link-in-manpage",
+    "checks/documentation/manual/command-in-sbin-has-manpage-in-incorrect-section",
     "checks/documentation/manual/executable-without-english-manpage",
     "checks/documentation/manual/executable-without-manpage",
     "checks/documentation/manual/files-general",
@@ -2458,6 +2459,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/manual/acute-accent"; "checks_documentation_manual_acute_accent")]
 #[test_case("checks/documentation/manual/bad-link-to-undocumented-manpage"; "checks_documentation_manual_bad_link_to_undocumented_manpage")]
 #[test_case("checks/documentation/manual/bad-so-link-in-manpage"; "checks_documentation_manual_bad_so_link_in_manpage")]
+#[test_case("checks/documentation/manual/command-in-sbin-has-manpage-in-incorrect-section"; "checks_documentation_manual_command_in_sbin_has_manpage_in_incorrect_section")]
 #[test_case("checks/documentation/manual/executable-without-english-manpage"; "checks_documentation_manual_executable_without_english_manpage")]
 #[test_case("checks/documentation/manual/executable-without-manpage"; "checks_documentation_manual_executable_without_manpage")]
 #[test_case("checks/documentation/manual/files-general"; "checks_documentation_manual_files_general")]

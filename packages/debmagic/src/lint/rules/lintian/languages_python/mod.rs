@@ -30,6 +30,7 @@ mod ln1404_package_installs_legacy_python_egg_info;
 mod ln1405_uses_deprecated_python_stdlib;
 mod ln1571_debian_pycompat_is_obsolete;
 mod ln1572_debian_pyversions_is_obsolete;
+mod ln1682_old_python_version_field;
 mod obsolete;
 mod python_version;
 
@@ -60,3 +61,4 @@ pub(crate) use ln1404_package_installs_legacy_python_egg_info::PackageInstallsLe
 pub(crate) use ln1405_uses_deprecated_python_stdlib::UsesDeprecatedPythonStdlib;
 pub(crate) use ln1571_debian_pycompat_is_obsolete::DebianPycompatIsObsolete;
 pub(crate) use ln1572_debian_pyversions_is_obsolete::DebianPyversionsIsObsolete;
+pub(crate) use ln1682_old_python_version_field::OldPythonVersionField;

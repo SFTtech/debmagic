@@ -404,6 +404,7 @@ use super::rules::OcamlDanglingCmi;
 use super::rules::OcamlDanglingCmx;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
+use super::rules::OldPythonVersionField;
 use super::rules::OldStyleConfigScript;
 use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
@@ -2429,6 +2430,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
+        &OldPythonVersionField,
     ]
 }
 
@@ -2891,6 +2893,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &ExplicitlyArmoredUpstreamSignature,
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
+        &OldPythonVersionField,
     ]
 }
 

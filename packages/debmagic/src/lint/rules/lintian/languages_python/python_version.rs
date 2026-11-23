@@ -24,6 +24,18 @@ pub(super) fn ancient_threshold() -> Option<&'static str> {
     *ANCIENT
 }
 
+/// The `old-python` version of `data/python/versions`.
+static OLD: LazyLock<Option<&'static str>> = LazyLock::new(|| {
+    crate::lint::data::lines(include_str!("../../../data/python/versions")).find_map(|line| {
+        let (key, value) = crate::lint::data::assignment(line)?;
+        (key == "old-python").then_some(value)
+    })
+});
+
+pub(super) fn old_threshold() -> Option<&'static str> {
+    *OLD
+}
+
 static NUMBER: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^[0-9]+\.[0-9]+$").expect("valid regex"));
 static GE: LazyLock<Regex> =

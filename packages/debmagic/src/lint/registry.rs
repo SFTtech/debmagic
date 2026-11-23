@@ -459,6 +459,7 @@ use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PackageUsesDhRunitButLacksBreaksSubstvar;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
+use super::rules::PackageUsesOldPythonDependsSubstvar;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PatchNotForwardedUpstream;
 use super::rules::PatchedFileWithoutUtf8Name;
@@ -2431,6 +2432,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
         &OldPythonVersionField,
+        &PackageUsesOldPythonDependsSubstvar,
     ]
 }
 
@@ -2894,6 +2896,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &OldPythonVersionField,
+        &PackageUsesOldPythonDependsSubstvar,
     ]
 }
 

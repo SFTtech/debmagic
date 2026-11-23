@@ -11,6 +11,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/archive/liberty/mismatch/fields-section-general",
     "checks/archive/liberty/mismatch/legacy-relations",
+    "checks/build-systems/automake/automake-general",
     "checks/build-systems/autotools/cruft-general-test-suite",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool-2",
@@ -91,6 +92,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/field/adopted/testsuite-unknown-suite",
     "checks/debian/control/field/architecture/multiline/control-file-important-space",
     "checks/debian/control/field/build-profiles/fields-build-profiles-general",
+    "checks/debian/control/field/deprecated/control-file-deprecated-ruby-fields",
+    "checks/debian/control/field/description/duplicate/control-file-general",
     "checks/debian/control/field/doubled-up/control-file-general",
     "checks/debian/control/field/empty/control-has-empty-field",
     "checks/debian/control/field/misplaced/control-file-general",
@@ -162,12 +165,15 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/lintian-overrides/malformed/missing-colon",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
     "checks/debian/not-installed/triplet-in-library-path",
+    "checks/debian/patches/dep3/author-or-from-is-better",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
     "checks/debian/patches/dep3/empty-forwarded-no-bug",
     "checks/debian/patches/dep3/forwarded-no",
     "checks/debian/patches/dep3/last-update",
     "checks/debian/patches/dep3/maybe-bug-debian",
+    "checks/debian/patches/dep3/no-description-and-subject",
+    "checks/debian/patches/dep3/no-origin",
     "checks/debian/patches/dep3/origin-field-default-value",
     "checks/debian/patches/dep3/wrong-bug-debian-url",
     "checks/debian/patches/legacy-relations",
@@ -1127,6 +1133,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
     "checks/archive/liberty/mismatch/fields-section-general",
     "checks/archive/liberty/mismatch/legacy-relations",
+    "checks/build-systems/automake/automake-general",
     "checks/build-systems/autotools/cruft-general-test-suite",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool",
     "checks/build-systems/autotools/libtool/cruft-ancient-libtool-2",
@@ -1208,6 +1215,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/field/adopted/testsuite-unknown-suite",
     "checks/debian/control/field/architecture/multiline/control-file-important-space",
     "checks/debian/control/field/build-profiles/fields-build-profiles-general",
+    "checks/debian/control/field/deprecated/control-file-deprecated-ruby-fields",
+    "checks/debian/control/field/description/duplicate/control-file-general",
     "checks/debian/control/field/doubled-up/control-file-general",
     "checks/debian/control/field/empty/control-has-empty-field",
     "checks/debian/control/field/misplaced/control-file-general",
@@ -1280,12 +1289,15 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/lintian-overrides/malformed/missing-colon",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
     "checks/debian/not-installed/triplet-in-library-path",
+    "checks/debian/patches/dep3/author-or-from-is-better",
     "checks/debian/patches/dep3/bug-field-default-value",
     "checks/debian/patches/dep3/bug-not-contain-url",
     "checks/debian/patches/dep3/empty-forwarded-no-bug",
     "checks/debian/patches/dep3/forwarded-no",
     "checks/debian/patches/dep3/last-update",
     "checks/debian/patches/dep3/maybe-bug-debian",
+    "checks/debian/patches/dep3/no-description-and-subject",
+    "checks/debian/patches/dep3/no-origin",
     "checks/debian/patches/dep3/origin-field-default-value",
     "checks/debian/patches/dep3/wrong-bug-debian-url",
     "checks/debian/patches/legacy-relations",
@@ -1695,6 +1707,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
+#[test_case("checks/build-systems/automake/automake-general"; "checks_build_systems_automake_automake_general")]
 #[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool-2"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool_2")]
@@ -1775,6 +1788,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/field/adopted/testsuite-unknown-suite"; "checks_debian_control_field_adopted_testsuite_unknown_suite")]
 #[test_case("checks/debian/control/field/architecture/multiline/control-file-important-space"; "checks_debian_control_field_architecture_multiline_control_file_important_space")]
 #[test_case("checks/debian/control/field/build-profiles/fields-build-profiles-general"; "checks_debian_control_field_build_profiles_fields_build_profiles_general")]
+#[test_case("checks/debian/control/field/deprecated/control-file-deprecated-ruby-fields"; "checks_debian_control_field_deprecated_control_file_deprecated_ruby_fields")]
+#[test_case("checks/debian/control/field/description/duplicate/control-file-general"; "checks_debian_control_field_description_duplicate_control_file_general")]
 #[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
 #[test_case("checks/debian/control/field/empty/control-has-empty-field"; "checks_debian_control_field_empty_control_has_empty_field")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
@@ -1846,12 +1861,15 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/lintian-overrides/malformed/missing-colon"; "checks_debian_lintian_overrides_malformed_missing_colon")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
+#[test_case("checks/debian/patches/dep3/author-or-from-is-better"; "checks_debian_patches_dep3_author_or_from_is_better")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
 #[test_case("checks/debian/patches/dep3/empty-forwarded-no-bug"; "checks_debian_patches_dep3_empty_forwarded_no_bug")]
 #[test_case("checks/debian/patches/dep3/forwarded-no"; "checks_debian_patches_dep3_forwarded_no")]
 #[test_case("checks/debian/patches/dep3/last-update"; "checks_debian_patches_dep3_last_update")]
 #[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
+#[test_case("checks/debian/patches/dep3/no-description-and-subject"; "checks_debian_patches_dep3_no_description_and_subject")]
+#[test_case("checks/debian/patches/dep3/no-origin"; "checks_debian_patches_dep3_no_origin")]
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
 #[test_case("checks/debian/patches/dep3/wrong-bug-debian-url"; "checks_debian_patches_dep3_wrong_bug_debian_url")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]
@@ -2813,6 +2831,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
 #[test_case("checks/archive/liberty/mismatch/fields-section-general"; "checks_archive_liberty_mismatch_fields_section_general")]
 #[test_case("checks/archive/liberty/mismatch/legacy-relations"; "checks_archive_liberty_mismatch_legacy_relations")]
+#[test_case("checks/build-systems/automake/automake-general"; "checks_build_systems_automake_automake_general")]
 #[test_case("checks/build-systems/autotools/cruft-general-test-suite"; "checks_build_systems_autotools_cruft_general_test_suite")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool")]
 #[test_case("checks/build-systems/autotools/libtool/cruft-ancient-libtool-2"; "checks_build_systems_autotools_libtool_cruft_ancient_libtool_2")]
@@ -2894,6 +2913,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/field/adopted/testsuite-unknown-suite"; "checks_debian_control_field_adopted_testsuite_unknown_suite")]
 #[test_case("checks/debian/control/field/architecture/multiline/control-file-important-space"; "checks_debian_control_field_architecture_multiline_control_file_important_space")]
 #[test_case("checks/debian/control/field/build-profiles/fields-build-profiles-general"; "checks_debian_control_field_build_profiles_fields_build_profiles_general")]
+#[test_case("checks/debian/control/field/deprecated/control-file-deprecated-ruby-fields"; "checks_debian_control_field_deprecated_control_file_deprecated_ruby_fields")]
+#[test_case("checks/debian/control/field/description/duplicate/control-file-general"; "checks_debian_control_field_description_duplicate_control_file_general")]
 #[test_case("checks/debian/control/field/doubled-up/control-file-general"; "checks_debian_control_field_doubled_up_control_file_general")]
 #[test_case("checks/debian/control/field/empty/control-has-empty-field"; "checks_debian_control_field_empty_control_has_empty_field")]
 #[test_case("checks/debian/control/field/misplaced/control-file-general"; "checks_debian_control_field_misplaced_control_file_general")]
@@ -2966,12 +2987,15 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/lintian-overrides/malformed/missing-colon"; "checks_debian_lintian_overrides_malformed_missing_colon")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
+#[test_case("checks/debian/patches/dep3/author-or-from-is-better"; "checks_debian_patches_dep3_author_or_from_is_better")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
 #[test_case("checks/debian/patches/dep3/bug-not-contain-url"; "checks_debian_patches_dep3_bug_not_contain_url")]
 #[test_case("checks/debian/patches/dep3/empty-forwarded-no-bug"; "checks_debian_patches_dep3_empty_forwarded_no_bug")]
 #[test_case("checks/debian/patches/dep3/forwarded-no"; "checks_debian_patches_dep3_forwarded_no")]
 #[test_case("checks/debian/patches/dep3/last-update"; "checks_debian_patches_dep3_last_update")]
 #[test_case("checks/debian/patches/dep3/maybe-bug-debian"; "checks_debian_patches_dep3_maybe_bug_debian")]
+#[test_case("checks/debian/patches/dep3/no-description-and-subject"; "checks_debian_patches_dep3_no_description_and_subject")]
+#[test_case("checks/debian/patches/dep3/no-origin"; "checks_debian_patches_dep3_no_origin")]
 #[test_case("checks/debian/patches/dep3/origin-field-default-value"; "checks_debian_patches_dep3_origin_field_default_value")]
 #[test_case("checks/debian/patches/dep3/wrong-bug-debian-url"; "checks_debian_patches_dep3_wrong_bug_debian_url")]
 #[test_case("checks/debian/patches/legacy-relations"; "checks_debian_patches_legacy_relations")]

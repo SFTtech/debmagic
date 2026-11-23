@@ -19,6 +19,7 @@ mod binaries_profiling;
 mod binaries_rpath;
 mod binaries_spelling;
 mod binaries_static;
+mod build_systems_automake;
 mod build_systems_waf;
 mod changelog_doc;
 mod changes_file;
@@ -31,6 +32,8 @@ mod debian_changelog;
 mod debian_control_field_adopted;
 mod debian_control_field_architecture_multiline;
 mod debian_control_field_build_profiles;
+mod debian_control_field_deprecated;
+mod debian_control_field_description_duplicate;
 mod debian_control_field_empty;
 mod debian_control_field_priority;
 mod debian_control_field_redundant;
@@ -308,6 +311,7 @@ pub(crate) use binaries_rpath::CustomLibrarySearchPath;
 pub(crate) use binaries_rpath::RelativeLibrarySearchPath;
 pub(crate) use binaries_spelling::SpellingErrorInBinary;
 pub(crate) use binaries_static::StaticallyLinkedBinary;
+pub(crate) use build_systems_automake::DeprecatedConfigureFilename;
 pub(crate) use build_systems_waf::SourceContainsWafBinary;
 pub(crate) use changes_file::BadSectionInChangesFile;
 pub(crate) use changes_file::FileSizeMismatchInChangesFile;
@@ -325,6 +329,7 @@ pub(crate) use control_files::NotAllowedControlFile;
 pub(crate) use control_files::UnknownControlFile;
 pub(crate) use cruft::LicenseProblemCcByNcSa;
 pub(crate) use cruft::LicenseProblemGfdlInvariants;
+pub(crate) use cruft::LicenseProblemGfdlInvariantsEmpty;
 pub(crate) use cruft::LicenseProblemGfdlNonOfficialText;
 pub(crate) use cruft::LicenseProblemJsonEvil;
 pub(crate) use cruft::LicenseProblemNonFreeRFC;
@@ -346,6 +351,9 @@ pub(crate) use debian_control_field_adopted::AdoptedExtendedField;
 pub(crate) use debian_control_field_architecture_multiline::MultilineArchitectureField;
 pub(crate) use debian_control_field_build_profiles::InvalidProfileNameInBuildProfilesField;
 pub(crate) use debian_control_field_build_profiles::VariesContentWithNocheck;
+pub(crate) use debian_control_field_deprecated::DeprecatedDebianControlField;
+pub(crate) use debian_control_field_description_duplicate::DuplicateLongDescription;
+pub(crate) use debian_control_field_description_duplicate::DuplicateShortDescription;
 pub(crate) use debian_control_field_empty::DebianControlHasEmptyField;
 pub(crate) use debian_control_field_priority::RedundantPriorityOptionalField;
 pub(crate) use debian_control_field_redundant::InstallableFieldMirrorsSource;
@@ -507,25 +515,26 @@ pub(crate) use udev::UdevRuleUnreadable;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{
-    BogusMailHostInDebianChangelog, ChangelogEmptyEntry, ChangelogFileMissingExplicitEntry,
-    ChangelogIsDhMakeTemplate, ChangelogIsSymlink, ChangelogNewsDebianMismatch,
-    ChangelogNotCompressedWithMaxCompression, ChangelogReferencesTempSecurityIdentifier,
+    BadIntendedDistribution, BogusMailHostInDebianChangelog, ChangelogEmptyEntry,
+    ChangelogFileMissingExplicitEntry, ChangelogIsDhMakeTemplate, ChangelogIsSymlink,
+    ChangelogNewsDebianMismatch, ChangelogNotCompressedWithMaxCompression,
+    ChangelogReferencesTempSecurityIdentifier,
     DebianChangelogFileContainsObsoleteUserEmacsSettings, DebianChangelogHasWrongDayOfWeek,
     DebianChangelogLineTooLong, DebianChangelogLineTooShort, DebianNewsEntryHasStrangeDistribution,
-    DebianNewsEntryHasUnknownVersion, DebianNewsFileNotCompressed, EpochChangeWithoutComment,
-    EpochChangedButUpstreamVersionDidNotGoBackwards, ExtraWhitespaceAroundNameInChangelogTrailer,
-    HtmlChangelogWithoutTextVersion, ImprobableBugNumberInCloses, InitialUploadClosesNoBugs,
-    InvalidDateInDebianChangelog, LatestChangelogEntryWithoutNewDate,
-    LatestDebianChangelogEntryReusesExistingVersion, MaintainerUploadHasIncorrectVersionNumber,
-    MalformedDebianChangelogVersion, MisspelledClosesBug, NewPackageUsesDateBasedVersionNumber,
-    NmuInChangelog, NoNmuInChangelog, NoQaInChangelog, OddHistoricalDebianChangelogVersion,
-    PossibleMissingColonInCloses, PossibleNewUpstreamReleaseWithoutNewVersion,
-    QaUploadHasIncorrectVersionNumber, RcVersionGreaterThanExpectedVersion,
-    SourceNmuHasIncorrectVersionNumber, SpellingErrorInChangelog, SpellingErrorInNewsDebian,
-    SyntaxErrorInDebianNewsFile, TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload,
-    UploadersInOrphan, VersionRefersToDistribution,
-    VersionRefersToUnstableDistributionWithExpVersion, WrongBugNumberInCloses,
-    WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
+    DebianNewsEntryHasUnknownVersion, DebianNewsEntryUsesAsterisk, DebianNewsFileNotCompressed,
+    EpochChangeWithoutComment, EpochChangedButUpstreamVersionDidNotGoBackwards,
+    ExtraWhitespaceAroundNameInChangelogTrailer, HtmlChangelogWithoutTextVersion,
+    ImprobableBugNumberInCloses, InitialUploadClosesNoBugs, InvalidDateInDebianChangelog,
+    LatestChangelogEntryWithoutNewDate, LatestDebianChangelogEntryReusesExistingVersion,
+    MaintainerUploadHasIncorrectVersionNumber, MalformedDebianChangelogVersion,
+    MisspelledClosesBug, NewPackageUsesDateBasedVersionNumber, NmuInChangelog, NoNmuInChangelog,
+    NoQaInChangelog, OddHistoricalDebianChangelogVersion, PossibleMissingColonInCloses,
+    PossibleNewUpstreamReleaseWithoutNewVersion, QaUploadHasIncorrectVersionNumber,
+    RcVersionGreaterThanExpectedVersion, SourceNmuHasIncorrectVersionNumber,
+    SpellingErrorInChangelog, SpellingErrorInNewsDebian, SyntaxErrorInDebianNewsFile,
+    TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload, UploadersInOrphan,
+    VersionRefersToDistribution, VersionRefersToUnstableDistributionWithExpVersion,
+    WrongBugNumberInCloses, WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
     WrongNameForDebianNewsFile, WrongNameForUpstreamChangelog,
 };
 pub(crate) use debian_copyright::{
@@ -849,14 +858,16 @@ pub(crate) use md5sums::{
 
 pub(crate) use debian_maintscript::MaintscriptIncludesMaintScriptParameters;
 pub(crate) use debian_patches::{
-    Format30ButDebianChangesPatch, InvalidDep3FormatPatchBugFieldDefaultValue,
-    InvalidDep3FormatPatchBugNotContainUrl, InvalidDep3FormatPatchMaybeBugDebian,
-    InvalidDep3FormatPatchOriginFieldDefaultValue, InvalidDep3FormatPatchWrongBugDebianUrl,
-    InvalidDep3FormatPatchWrongLastUpdate, PackageUsesVendorSpecificPatchSeries,
-    PatchFilePresentButNotMentionedInSeries, PatchNotForwardedUpstream,
-    PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription,
-    QuiltPatchUsesDpatchPlaceholder, QuiltPatchUsingTemplateDescription,
-    QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
+    Dep3FormatPatchAuthorOrFromIsBetter, Format30ButDebianChangesPatch,
+    InvalidDep3FormatPatchBugFieldDefaultValue, InvalidDep3FormatPatchBugNotContainUrl,
+    InvalidDep3FormatPatchMaybeBugDebian, InvalidDep3FormatPatchNoDescriptionAndSubject,
+    InvalidDep3FormatPatchNoOrigin, InvalidDep3FormatPatchOriginFieldDefaultValue,
+    InvalidDep3FormatPatchWrongBugDebianUrl, InvalidDep3FormatPatchWrongLastUpdate,
+    PackageUsesVendorSpecificPatchSeries, PatchFilePresentButNotMentionedInSeries,
+    PatchNotForwardedUpstream, PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile,
+    QuiltPatchMissingDescription, QuiltPatchUsesDpatchPlaceholder,
+    QuiltPatchUsingTemplateDescription, QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
+    QuiltSeriesWithoutTrailingNewline,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,
@@ -1021,7 +1032,8 @@ pub(crate) use rules_and_control::{
     DebianRulesUsesDeprecatedSystemdOverride, DebianRulesUsesUnnecessaryDhArgument,
     DeclaresPossiblyConflictingDebhelperCompatVersions, DhCleanKIsDeprecated,
     DhExecInstallNotAllowedHere, DhExecPrivateHelper, DhExecScriptWithoutDhExecFeatures,
-    DhInstallmanpagesIsObsolete, DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
+    DhExecSubstUnknownVariable, DhExecUselessUsage, DhInstallmanpagesIsObsolete,
+    DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
     ExecutableDebhelperFileWithoutBeingExecutable, PackageFileIsExecutable,
     PackageUsesDebhelperButLacksBuildDepends, PackageUsesDhExecButLacksBuildDepends,
     PackageUsesDhRunitButLacksBreaksSubstvar, PackageUsesOldDebhelperCompatVersion,

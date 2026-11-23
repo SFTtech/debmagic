@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): deprecated-debian-control-field (LN1518) (in section for source) xs-ruby-versions [debian/control:3]
+I: example (source): deprecated-debian-control-field (LN1518) (in section for source) X-Python-Version [debian/control:3]
+I: example (source): deprecated-debian-control-field (LN1518) (in section for example) XB-Ruby-Versions [debian/control:7]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): license-problem-gfdl-invariants-empty (LN1512) [doc/manual.texi]
+I: (source): license-problem-gfdl-invariants-empty (LN1512) [doc/manual.txt]

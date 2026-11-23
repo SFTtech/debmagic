@@ -1,0 +1,7 @@
+# Manually maintained list of known source fields
+#  - please keep it sorted
+
+X-Python-Version
+XB-Ruby-Versions
+XS-Python-Version
+XS-Ruby-Versions

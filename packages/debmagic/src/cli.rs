@@ -726,6 +726,14 @@ pub struct LintSubcommandArgs {
     pub timings: bool,
 
     #[arg(
+        long = "include-dir",
+        value_name = "DIR",
+        hide = true,
+        help = "Lintian-style directory whose vendors/*/*/data files replace the vendored data tables they name (test harness only)"
+    )]
+    pub include_dir: Option<PathBuf>,
+
+    #[arg(
         long = "show-overrides",
         action = clap::ArgAction::SetTrue,
         conflicts_with = "no_override",

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+I: example (source): unreleased-changelog-distribution (LN1664) [debian/changelog:1]

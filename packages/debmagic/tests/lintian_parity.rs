@@ -1806,6 +1806,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/changes-file/checksum-count-mismatch",
     "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
     "checks/debian/changelog/changelog-distribution-does-not-match-changes-file",
+    "checks/debian/changelog/changelog-file-unreleased-signed-changes",
     "checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license",
     "checks/debian/copyright/copyright-file-symlink",
     "checks/desktop/gnome/gir/gir",
@@ -1824,6 +1825,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/fields/urgency/generic-empty",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
+    "checks/files/contents/contains-build-path",
     "checks/files/symbolic-links/broken/symlinks-broken",
     "checks/group-checks/group-checks-circular-deps",
     "checks/group-checks/group-checks-file-conflict",
@@ -3670,6 +3672,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/changes-file/checksum-count-mismatch"; "checks_changes_file_checksum_count_mismatch")]
 #[test_case("checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar"; "checks_debhelper_debhelper_dh_runit_but_lacks_breaks_substvar")]
 #[test_case("checks/debian/changelog/changelog-distribution-does-not-match-changes-file"; "checks_debian_changelog_changelog_distribution_does_not_match_changes_file")]
+#[test_case("checks/debian/changelog/changelog-file-unreleased-signed-changes"; "checks_debian_changelog_changelog_file_unreleased_signed_changes")]
 #[test_case("checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license"; "checks_debian_copyright_apache_notice_source_copyright_missing_notice_file_for_apache_license")]
 #[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
@@ -3688,6 +3691,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/fields/urgency/generic-empty"; "checks_fields_urgency_generic_empty")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]
+#[test_case("checks/files/contents/contains-build-path"; "checks_files_contents_contains_build_path")]
 #[test_case("checks/files/symbolic-links/broken/symlinks-broken"; "checks_files_symbolic_links_broken_symlinks_broken")]
 #[test_case("checks/group-checks/group-checks-circular-deps"; "checks_group_checks_group_checks_circular_deps")]
 #[test_case("checks/group-checks/group-checks-file-conflict"; "checks_group_checks_group_checks_file_conflict")]

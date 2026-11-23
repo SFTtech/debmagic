@@ -252,6 +252,7 @@ use super::rules::FSSTNDDirInManualPage;
 use super::rules::FileContainsFixmePlaceholder;
 use super::rules::FileInEtcModprobeD;
 use super::rules::FileIncludedAlready;
+use super::rules::FileReferencesPackageBuildPath;
 use super::rules::FileSizeMismatchInChangesFile;
 use super::rules::FileWithoutCopyrightInformation;
 use super::rules::FilesExcludedWithoutCopyrightFormat10;
@@ -521,6 +522,7 @@ use super::rules::PackagePlaceholderInSymbolsFile;
 use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PackageUsesDhRunitButLacksBreaksSubstvar;
+use super::rules::PackageUsesExperimentalDebhelperCompatVersion;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesOldPythonDependsSubstvar;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
@@ -752,6 +754,7 @@ use super::rules::UnnecessarySourceDateEpochAssignment;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnpackMessageForDebData;
 use super::rules::UnparsableMenuItem;
+use super::rules::UnreleasedChangelogDistribution;
 use super::rules::UnreleasedChanges;
 use super::rules::UnstrippedStaticLibrary;
 use super::rules::UnsupportedSourceFormat;
@@ -2691,6 +2694,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ChangedByInvalidForDerivative,
         &InvalidFieldForDerivative,
         &InvalidVersionNumberForDerivative,
+        &UnreleasedChangelogDistribution,
+        &PackageUsesExperimentalDebhelperCompatVersion,
+        &FileReferencesPackageBuildPath,
     ]
 }
 
@@ -3236,6 +3242,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InvalidYaml,
         &InvalidFieldForDerivative,
         &InvalidVersionNumberForDerivative,
+        &PackageUsesExperimentalDebhelperCompatVersion,
     ]
 }
 
@@ -4228,6 +4235,8 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &PackageDoesNotInstallExamples,
         &RulesSilentlyRequireRoot,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
+        &UnreleasedChangelogDistribution,
+        &FileReferencesPackageBuildPath,
     ]
 }
 

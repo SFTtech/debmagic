@@ -35,13 +35,11 @@ impl SiblingFiles {
     }
 
     /// Names of the sibling files, sorted, relative to the directory.
-    #[allow(dead_code)]
     pub fn names(&self) -> &[String] {
         &self.names
     }
 
     /// Whether a sibling file has this name.
-    #[allow(dead_code)]
     pub fn contains(&self, name: &str) -> bool {
         self.names
             .binary_search_by(|candidate| candidate.as_str().cmp(name))
@@ -50,7 +48,6 @@ impl SiblingFiles {
 
     /// The bytes of the sibling file `name`, read now. `None` when there is no
     /// such sibling or it cannot be read.
-    #[allow(dead_code)]
     pub fn read(&self, name: &str) -> Option<Vec<u8>> {
         if !self.contains(name) {
             return None;

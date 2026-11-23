@@ -1612,6 +1612,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/testsuite/testsuite-unknown-suite",
     "checks/testsuite/testsuite-with-adttmp",
     "checks/testsuite/unnecessary-testsuite-autopkgtest-field",
+    "checks/upstream-signature/repeated-signature",
     "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
@@ -3298,6 +3299,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/testsuite/testsuite-unknown-suite"; "checks_testsuite_testsuite_unknown_suite")]
 #[test_case("checks/testsuite/testsuite-with-adttmp"; "checks_testsuite_testsuite_with_adttmp")]
 #[test_case("checks/testsuite/unnecessary-testsuite-autopkgtest-field"; "checks_testsuite_unnecessary_testsuite_autopkgtest_field")]
+#[test_case("checks/upstream-signature/repeated-signature"; "checks_upstream_signature_repeated_signature")]
 #[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]

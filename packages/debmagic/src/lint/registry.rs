@@ -69,6 +69,7 @@ use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
 use super::rules::ComposerPrerequisite;
+use super::rules::ConcatenatedUpstreamSignatures;
 use super::rules::ConfigDoesNotLoadConfmodule;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::ConflictingNegationInSourceRelation;
@@ -2317,6 +2318,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OredBuildDependsOnObsoletePackage,
         &TypoInManualPage,
         &CapitalizationErrorInDescriptionSynopsis,
+        &ConcatenatedUpstreamSignatures,
     ]
 }
 
@@ -2752,6 +2754,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &HomepageInBinaryPackage,
         &BuildDependsOnPythonDevWithNoArchAny,
         &OredBuildDependsOnObsoletePackage,
+        &ConcatenatedUpstreamSignatures,
     ]
 }
 

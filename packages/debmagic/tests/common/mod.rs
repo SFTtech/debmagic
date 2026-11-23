@@ -299,6 +299,18 @@ fn source_tree_hint_matches_filled_tree(recipe: &Path, hint: &ParityHint) -> boo
     if hint.tag == "add-component-copyright" {
         return false;
     }
+    // The `upstream-signature` Tags read the signature files next to the
+    // `.dsc`. A Source tree has none, so only the Source package can report them.
+    if matches!(
+        hint.tag.as_str(),
+        "concatenated-upstream-signatures"
+            | "doubly-armored-upstream-signature"
+            | "explicitly-armored-upstream-signature"
+            | "orig-tarball-missing-upstream-signature"
+            | "spurious-fields-in-upstream-signature"
+    ) {
+        return false;
+    }
     !(matches!(
         hint.tag.as_str(),
         "package-uses-deprecated-debhelper-compat-version"
@@ -1832,11 +1844,71 @@ fn vendored_pre_build_for_orig(recipe: &Path) -> Option<PathBuf> {
     hook.is_file().then_some(hook)
 }
 
+/// The upstream key the vendored build spec keeps for signing the orig
+/// tarball (`build-spec/upstream/private-key.asc`), when the recipe has one.
+fn vendored_signing_key(recipe: &Path) -> Option<PathBuf> {
+    let key = recipe
+        .join(VENDORED_BUILD_SPEC)
+        .join("upstream")
+        .join("private-key.asc");
+    key.is_file().then_some(key)
+}
+
+/// Signs the packed orig tarball `work/<orig_name>` with the recipe's
+/// upstream key into `work/<orig_name>.asc`, as lintian's upload builder does
+/// before `pre-build` runs: the hook then re-signs or re-armors that file. Its
+/// own GnuPG home, so the host keyring is not touched.
+fn sign_orig_with_vendored_key(recipe: &Path, work: &Path, orig_name: &str) {
+    let Some(key) = vendored_signing_key(recipe) else {
+        return;
+    };
+    let orig = work.join(orig_name);
+    if !orig.is_file() {
+        return;
+    }
+    let home = tempfile::tempdir().expect("GnuPG home for the upstream key");
+    let import = Command::new("gpg")
+        .arg("--homedir")
+        .arg(home.path())
+        .args(["--batch", "--import"])
+        .arg(&key)
+        .output()
+        .expect("spawning gpg --import");
+    assert!(
+        import.status.success(),
+        "{}: gpg --import failed\n{}",
+        key.display(),
+        String::from_utf8_lossy(&import.stderr)
+    );
+    let sign = Command::new("gpg")
+        .arg("--homedir")
+        .arg(home.path())
+        .args(["--batch", "--yes", "--armor", "--detach-sign", "--output"])
+        .arg(work.join(format!("{orig_name}.asc")))
+        .arg(&orig)
+        .output()
+        .expect("spawning gpg --detach-sign");
+    assert!(
+        sign.status.success(),
+        "{}: gpg --detach-sign failed\n{}",
+        orig.display(),
+        String::from_utf8_lossy(&sign.stderr)
+    );
+    let _ = Command::new("gpg-connect-agent")
+        .arg("--homedir")
+        .arg(home.path())
+        .args(["KILLAGENT", "/bye"])
+        .output();
+}
+
 /// Runs the vendored `pre-build` hook on the package directory, after the
 /// main orig is packed and before `dpkg-source -b`, as lintian's upload
-/// builder does. The hook reaches the orig tarballs through `$1/../`.
-fn run_pre_build_for_orig(hook: &Path, source: &Path) {
+/// builder does. The hook reaches the orig tarballs through `$1/../`, and
+/// names them relative to its working directory, which is the build root
+/// holding them (`work`).
+fn run_pre_build_for_orig(hook: &Path, work: &Path, source: &Path) {
     let output = Command::new("sh")
+        .current_dir(work)
         .arg(hook)
         .arg(source)
         .output()
@@ -1950,6 +2022,10 @@ fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     });
     key.field("pre-build", pre_build_text.as_deref().unwrap_or_default());
     key.field("has-pre-build", &[u8::from(pre_build.is_some())]);
+    let signing_key = vendored_signing_key(recipe).map(|key| {
+        fs::read(&key).unwrap_or_else(|error| panic!("reading {}: {error}", key.display()))
+    });
+    key.field("signing-key", signing_key.as_deref().unwrap_or_default());
 
     let products = build_once(key.finish(), work, || {
         let packing = SourcePacking {
@@ -2011,8 +2087,11 @@ fn pack_source_package(recipe: &Path, work: &Path, source: &Path, packing: Sourc
         let name = main_orig_name(source);
         pack_orig_without_added(source, &work.join(&name), root_adds);
     }
+    if non_native || hook.is_some() || !root_adds.is_empty() {
+        sign_orig_with_vendored_key(recipe, work, &main_orig_name(source));
+    }
     if let Some(pre_build) = pre_build {
-        run_pre_build_for_orig(pre_build, source);
+        run_pre_build_for_orig(pre_build, work, source);
     }
     let (mut ok, mut stdout, mut stderr) = dpkg_source_build(work, keep_ignored, overrides);
     let mut orig_name = None;

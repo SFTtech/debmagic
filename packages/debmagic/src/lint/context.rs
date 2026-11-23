@@ -871,7 +871,6 @@ impl<'a> SourceContext<'a> {
     /// listed once per Subject and bytes read on request. A superset of the
     /// `.dsc` `Files` list (signatures and component tarballs it does not
     /// name). `None` on a Source tree, which has no `.dsc`.
-    #[allow(dead_code)]
     pub fn sibling_files(&mut self) -> Option<Arc<SiblingFiles>> {
         match self.inner {
             SourceInner::Tree(_) => None,

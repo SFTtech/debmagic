@@ -21,6 +21,7 @@ mod ln1554_anticipated_repack_count;
 mod ln1555_dot_before_repack_count;
 mod ln1556_dfsg_version_with_period;
 mod ln1558_dfsg_version_with_tilde;
+mod ln1797_invalid_version_number_for_derivative;
 
 pub(crate) use ln0373_debian_revision_is_zero::DebianRevisionIsZero;
 pub(crate) use ln0374_debian_revision_not_well_formed::DebianRevisionNotWellFormed;
@@ -32,6 +33,7 @@ pub(crate) use ln1554_anticipated_repack_count::AnticipatedRepackCount;
 pub(crate) use ln1555_dot_before_repack_count::DotBeforeRepackCount;
 pub(crate) use ln1556_dfsg_version_with_period::DfsgVersionWithPeriod;
 pub(crate) use ln1558_dfsg_version_with_tilde::DfsgVersionWithTilde;
+pub(crate) use ln1797_invalid_version_number_for_derivative::InvalidVersionNumberForDerivative;
 
 static NON_NATIVE_FORMAT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(?:2\.0|3\.0\s+\((?:quilt|git)\))$").expect("valid regex"));

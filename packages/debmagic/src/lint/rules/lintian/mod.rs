@@ -85,7 +85,9 @@ mod executable;
 mod fields_architecture;
 mod fields_bugs;
 mod fields_built_using;
+mod fields_changed_by;
 mod fields_checksums;
+mod fields_derivatives;
 mod fields_distribution;
 mod fields_empty;
 mod fields_format;
@@ -462,7 +464,9 @@ pub(crate) use documentation::{
 };
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
 pub(crate) use examples::PackageDoesNotInstallExamples;
+pub(crate) use fields_changed_by::ChangedByInvalidForDerivative;
 pub(crate) use fields_checksums::NoStrongDigestsInDsc;
+pub(crate) use fields_derivatives::InvalidFieldForDerivative;
 pub(crate) use fields_distribution::BackportsChangesMissing;
 pub(crate) use fields_distribution::BackportsUploadHasIncorrectVersionNumber;
 pub(crate) use fields_distribution::BadDistributionInChangesFile;
@@ -679,6 +683,7 @@ pub(crate) use fields_version::{
     AnticipatedRepackCount, BadVersionNumber, BinaryNmuDebianRevisionInSource,
     DebianRevisionIsZero, DebianRevisionNotWellFormed, DfsgVersionInNativePackage,
     DfsgVersionMisspelled, DfsgVersionWithPeriod, DfsgVersionWithTilde, DotBeforeRepackCount,
+    InvalidVersionNumberForDerivative,
 };
 
 pub(crate) use debian_debconf::{

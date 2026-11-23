@@ -75,6 +75,7 @@ use super::rules::CapitalizationErrorInDescription;
 use super::rules::CapitalizationErrorInDescriptionSynopsis;
 use super::rules::CapitalizationInOverrideComment;
 use super::rules::CarriageReturnLineFeed;
+use super::rules::ChangedByInvalidForDerivative;
 use super::rules::ChangelogDistributionDoesNotMatchChangesFile;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
@@ -305,11 +306,13 @@ use super::rules::InvalidDep3FormatPatchNoOrigin;
 use super::rules::InvalidDep3FormatPatchWrongBugDebianUrl;
 use super::rules::InvalidDep3FormatPatchWrongLastUpdate;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
+use super::rules::InvalidFieldForDerivative;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidPotfilesIn;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::InvalidSystemdDocumentation;
+use super::rules::InvalidVersionNumberForDerivative;
 use super::rules::InvalidVersionedProvides;
 use super::rules::InvalidYaml;
 use super::rules::IsdefaultFlagIsDeprecated;
@@ -2685,6 +2688,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AnsiEscape,
         &InvalidYaml,
         &NodejsBadBufferUsage,
+        &ChangedByInvalidForDerivative,
+        &InvalidFieldForDerivative,
+        &InvalidVersionNumberForDerivative,
     ]
 }
 
@@ -3228,6 +3234,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PatchSystemButDirectChangesInDiff,
         &AnsiEscape,
         &InvalidYaml,
+        &InvalidFieldForDerivative,
+        &InvalidVersionNumberForDerivative,
     ]
 }
 
@@ -4192,6 +4200,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &DistributionAndExperimentalMismatch,
         &ChecksumCountMismatchInChangesFile,
         &ChecksumMismatchInChangesFile,
+        &ChangedByInvalidForDerivative,
     ]
 }
 

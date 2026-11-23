@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): changed-by-invalid-for-derivative (LN1795)  (always matches)

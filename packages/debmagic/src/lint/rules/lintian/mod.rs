@@ -973,10 +973,11 @@ pub(crate) use debian_patches::{
     InvalidDep3FormatPatchNoOrigin, InvalidDep3FormatPatchOriginFieldDefaultValue,
     InvalidDep3FormatPatchWrongBugDebianUrl, InvalidDep3FormatPatchWrongLastUpdate,
     PackageUsesVendorSpecificPatchSeries, PatchFilePresentButNotMentionedInSeries,
-    PatchNotForwardedUpstream, PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile,
-    QuiltPatchMissingDescription, QuiltPatchUsesDpatchExtension, QuiltPatchUsesDpatchPlaceholder,
-    QuiltPatchUsingTemplateDescription, QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
-    QuiltSeriesWithoutTrailingNewline, SpellingErrorInPatchDescription,
+    PatchModifyingDebianFiles, PatchNotForwardedUpstream, PatchSystemButNoSourceReadme,
+    QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription, QuiltPatchUsesDpatchExtension,
+    QuiltPatchUsesDpatchPlaceholder, QuiltPatchUsingTemplateDescription,
+    QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
+    SpellingErrorInPatchDescription,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,

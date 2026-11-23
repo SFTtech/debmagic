@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): public-upstream-key-unusable (LN1535) cannot be processed [debian/upstream/signing-key.asc]
+I: example (source): public-upstream-key-unusable (LN1535) cannot be processed [debian/upstream/signing-key.asc]
+I: example (source): public-upstream-key-unusable (LN1535) cannot be processed [debian/upstream/signing-key.asc]
+I: example (source): public-upstream-key-unusable (LN1535) contains no keys [debian/upstream/signing-key.asc]
+I: example (source): public-upstream-key-unusable (LN1535) cannot be processed [debian/upstream/other]
+I: example (source): public-upstream-key-unusable (LN1535) cannot be processed [debian/upstream/signing-key.asc]
+I: example (source): public-upstream-key-unusable (LN1535) cannot be processed [debian/upstream-signing-key.pgp]

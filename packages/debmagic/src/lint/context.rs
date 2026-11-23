@@ -7,6 +7,7 @@ use anyhow::anyhow;
 
 use super::appstream::AppstreamFiles;
 use super::binary_package_reader::BinaryPackageReader;
+use super::data;
 use super::deb_members::DebMembers;
 use super::debhelper::DebhelperFacts;
 use super::debian_changelog::DebianChangelog;
@@ -21,6 +22,7 @@ use super::installation_control::InstallationControl;
 use super::installed_changelog::{InstalledChangelog, read_installed_changelog};
 use super::jar::JarFiles;
 use super::lintian_overrides::LintianOverrides;
+use super::openpgp::OpenPgpFile;
 use super::quilt_series::QuiltSeries;
 use super::rule::{Code, RuleAccess, Tag};
 use super::source_package::SourcePackageExtract;
@@ -820,6 +822,40 @@ impl<'a> SourceContext<'a> {
         }))
     }
 
+    /// The signing key files of the packaging tree: the names of lintian's
+    /// `common/signing-key-filenames` under `debian/` that resolve to a file
+    /// (following symlinks), each read and parsed once per Subject, sorted by
+    /// path. `None` after a global File tree failure (returned from
+    /// [`Self::finish`]).
+    pub fn signing_key_files(&mut self) -> Option<Arc<Vec<SigningKeyFile>>> {
+        self.files()?;
+        Some(self.shared_once(|ctx| ctx.read_signing_key_files()))
+    }
+
+    fn read_signing_key_files(&mut self) -> Vec<SigningKeyFile> {
+        let Some(files) = self.files() else {
+            return Vec::new();
+        };
+        let mut found = Vec::new();
+        for name in data::lines(SIGNING_KEY_FILENAMES) {
+            let Some(entry) = files.get(format!("debian/{name}")) else {
+                continue;
+            };
+            let Some(target) = follow_symlinks(files, entry) else {
+                continue;
+            };
+            let Ok(bytes) = files.read(target) else {
+                continue;
+            };
+            found.push(SigningKeyFile {
+                path: target.path().to_path_buf(),
+                key: OpenPgpFile::parse(&bytes),
+            });
+        }
+        found.sort_by(|left, right| left.path.cmp(&right.path));
+        found
+    }
+
     /// Whether [`Self::shipped_files`] would list at least one file.
     ///
     /// Stops at the first shipped file, so a Rule that only needs to know the
@@ -967,6 +1003,16 @@ fn is_quilt_series_path(path: &Path) -> bool {
 /// The regular file or hardlink `entry` names, following relative symlinks
 /// that stay inside the tree (lintian's `is_open_ok`). `None` for directories,
 /// dangling, absolute, or escaping links, and loops.
+/// A signing key file of the packaging tree: the path it is found at (the
+/// target's, when it is a symlink) and its parsed contents.
+pub(crate) struct SigningKeyFile {
+    pub path: PathBuf,
+    pub key: OpenPgpFile,
+}
+
+/// Lintian's `common/signing-key-filenames`, relative to `debian/`.
+const SIGNING_KEY_FILENAMES: &str = include_str!("data/common/signing-key-filenames");
+
 pub(crate) fn follow_symlinks<'t>(tree: &'t FileTree, entry: &'t Entry) -> Option<&'t Entry> {
     let target = resolve_symlinks(tree, entry)?;
     matches!(target.kind(), EntryKind::RegularFile | EntryKind::Hardlink).then_some(target)

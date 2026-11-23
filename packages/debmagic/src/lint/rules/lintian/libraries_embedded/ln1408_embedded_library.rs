@@ -1,6 +1,6 @@
 use std::sync::LazyLock;
 
-use fancy_regex::Regex;
+use fancy_regex::{Regex, RegexBuilder};
 
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
@@ -73,8 +73,20 @@ fn parse_line(line: &'static str) -> Option<Embedded> {
         libname: libname.unwrap_or(label),
         source: source.unwrap_or(label),
         source_regex,
-        pattern: Regex::new(pattern).ok()?,
+        pattern: string_pattern(pattern)?,
     })
+}
+
+/// The table's pattern over the whole `strings` text of a file, which can be
+/// megabytes long. The default backtrack limit of `fancy-regex` is exceeded
+/// on such a text, and `is_match` then fails silently, so the library is not
+/// reported at all (lintian's Perl regex has no such limit). The limit is
+/// lifted here.
+fn string_pattern(pattern: &str) -> Option<Regex> {
+    RegexBuilder::new(pattern)
+        .backtrack_limit(usize::MAX)
+        .build()
+        .ok()
 }
 
 impl BinaryPackageRule for EmbeddedLibrary {
@@ -153,5 +165,31 @@ mod tests {
             case("usr/bin/a", "inflate 1.2.11 Copyright"),
         ];
         BinaryPackageTester::new(EmbeddedLibrary, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian `Libraries/Embedded.pm` matches each table pattern against the whole
+    /// strings text of an ELF file (`$item->strings =~ $match`), which has no
+    /// backtrack limit, so a banner late in a large file is found.
+    #[test]
+    fn pattern_found_late_in_a_large_strings_text() {
+        let mut text = String::new();
+        for index in 0..200_000 {
+            text.push_str(&format!("symbol_name_{index} some printable text here\n"));
+        }
+        text.push_str("inflate 1.3.1 Copyright 1995-2024 Mark Adler ");
+        let case = BinaryPackageCase::from(vec![("usr/lib/libexample.so.1", elf_with(&text))]);
+        BinaryPackageTester::new(EmbeddedLibrary, vec![], vec![case]).test();
+    }
+
+    /// The same large strings text without any table pattern is not reported
+    /// (the boundary of the test above).
+    #[test]
+    fn large_strings_text_without_a_pattern_is_not_reported() {
+        let mut text = String::new();
+        for index in 0..200_000 {
+            text.push_str(&format!("symbol_name_{index} some printable text here\n"));
+        }
+        let case = BinaryPackageCase::from(vec![("usr/lib/libexample.so.1", elf_with(&text))]);
+        BinaryPackageTester::new(EmbeddedLibrary, vec![case], vec![]).test();
     }
 }

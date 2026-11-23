@@ -38,6 +38,7 @@ use super::rules::BadSectionInChangesFile;
 use super::rules::BadUrgencyInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
+use super::rules::BashCompletionWithHashbang;
 use super::rules::BashTermInPosixShell;
 use super::rules::BinSbinMismatch;
 use super::rules::BinariesHaveFileConflict;
@@ -2431,6 +2432,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
         &ManualPageForSystemCommand,
+        &BashCompletionWithHashbang,
     ]
 }
 
@@ -3790,6 +3792,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
         &ManualPageForSystemCommand,
+        &BashCompletionWithHashbang,
     ]
 }
 

@@ -1122,6 +1122,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/scripts/scripts-missing-dep-fp",
     "checks/scripts/scripts-multi-arch-same-calls-pycompile",
     "checks/scripts/scripts-udevadm-called-without-guard",
+    "checks/shell/bash/completion/bash-completion-with-hashbang",
     "checks/shell/csh/scripts-interpreters",
     "checks/shell/non-posix/bash-centric/exec-exception",
     "checks/shell/non-posix/bash-centric/legacy-maintainer-scripts",
@@ -2869,6 +2870,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/scripts/scripts-missing-dep-fp"; "checks_scripts_scripts_missing_dep_fp")]
 #[test_case("checks/scripts/scripts-multi-arch-same-calls-pycompile"; "checks_scripts_scripts_multi_arch_same_calls_pycompile")]
 #[test_case("checks/scripts/scripts-udevadm-called-without-guard"; "checks_scripts_scripts_udevadm_called_without_guard")]
+#[test_case("checks/shell/bash/completion/bash-completion-with-hashbang"; "checks_shell_bash_completion_bash_completion_with_hashbang")]
 #[test_case("checks/shell/csh/scripts-interpreters"; "checks_shell_csh_scripts_interpreters")]
 #[test_case("checks/shell/non-posix/bash-centric/exec-exception"; "checks_shell_non_posix_bash_centric_exec_exception")]
 #[test_case("checks/shell/non-posix/bash-centric/legacy-maintainer-scripts"; "checks_shell_non_posix_bash_centric_legacy_maintainer_scripts")]

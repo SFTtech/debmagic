@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): faulty-debian-qa-group-phrase (LN0372) Changed-By Debian QA -> Debian QA Group
+E: example (changes): faulty-debian-qa-group-phrase (LN0372) Uploaders QA Team -> Debian QA Group

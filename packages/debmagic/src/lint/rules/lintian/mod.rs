@@ -373,6 +373,7 @@ pub(crate) use debian_control_field_description_duplicate::DuplicateShortDescrip
 pub(crate) use debian_control_field_empty::DebianControlHasEmptyField;
 pub(crate) use debian_control_field_priority::RedundantPriorityOptionalField;
 pub(crate) use debian_control_field_redundant::InstallableFieldMirrorsSource;
+pub(crate) use debian_control_field_rules_requires_root::RedundantRulesRequiresRootNoField;
 pub(crate) use debian_control_field_rules_requires_root::SpellingErrorInRulesRequiresRoot;
 pub(crate) use debian_control_field_spacing::DebianControlHasUnusualFieldSpacing;
 pub(crate) use debian_control_link::DebianControlFileIsASymlink;

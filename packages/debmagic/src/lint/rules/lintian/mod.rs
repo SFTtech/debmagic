@@ -895,7 +895,9 @@ pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
 pub(crate) use libraries_static::NoCodeSections;
 pub(crate) use libraries_static::OddStaticLibraryName;
+pub(crate) use libraries_static::StaticLibraryHasUnneededSections;
 pub(crate) use libraries_static::StaticLinkTimeOptimization;
+pub(crate) use libraries_static::UnstrippedStaticLibrary;
 pub(crate) use libtool::{IncorrectLibdirInLaFile, NonEmptyDependencyLibsInLaFile};
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;
 pub(crate) use md5sums::{

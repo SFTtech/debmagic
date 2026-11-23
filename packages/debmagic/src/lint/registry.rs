@@ -575,6 +575,7 @@ use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::SpuriousFieldsInUpstreamSignature;
+use super::rules::StaticLibraryHasUnneededSections;
 use super::rules::StaticLinkTimeOptimization;
 use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
@@ -644,6 +645,7 @@ use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnpackMessageForDebData;
 use super::rules::UnparsableMenuItem;
 use super::rules::UnreleasedChanges;
+use super::rules::UnstrippedStaticLibrary;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
@@ -2451,6 +2453,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OcamlDevFileNotInUsrLibOcaml,
         &OcamlMetaWithoutSuggestingFindlib,
         &OcamlStrayCmo,
+        &StaticLibraryHasUnneededSections,
+        &UnstrippedStaticLibrary,
     ]
 }
 
@@ -3820,6 +3824,8 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OcamlDevFileNotInUsrLibOcaml,
         &OcamlMetaWithoutSuggestingFindlib,
         &OcamlStrayCmo,
+        &StaticLibraryHasUnneededSections,
+        &UnstrippedStaticLibrary,
     ]
 }
 

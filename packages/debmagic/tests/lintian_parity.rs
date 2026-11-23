@@ -1041,6 +1041,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/libraries/shared/stack/shared-libs-no-gnu-stack",
     "checks/libraries/shared/trigger/ldconfig/legacy-libbaz",
     "checks/libraries/shared/trigger/ldconfig/shared-libs-ldconfig-scripts",
+    "checks/libraries/static/binaries-static-lib",
     "checks/libraries/static/link-time-optimization/with-fat-lto-objects",
     "checks/libraries/static/link-time-optimization/without-fat-lto-objects",
     "checks/libraries/static/name/underscore-s-suffix",
@@ -2792,6 +2793,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/libraries/shared/stack/shared-libs-no-gnu-stack"; "checks_libraries_shared_stack_shared_libs_no_gnu_stack")]
 #[test_case("checks/libraries/shared/trigger/ldconfig/legacy-libbaz"; "checks_libraries_shared_trigger_ldconfig_legacy_libbaz")]
 #[test_case("checks/libraries/shared/trigger/ldconfig/shared-libs-ldconfig-scripts"; "checks_libraries_shared_trigger_ldconfig_shared_libs_ldconfig_scripts")]
+#[test_case("checks/libraries/static/binaries-static-lib"; "checks_libraries_static_binaries_static_lib")]
 #[test_case("checks/libraries/static/link-time-optimization/with-fat-lto-objects"; "checks_libraries_static_link_time_optimization_with_fat_lto_objects")]
 #[test_case("checks/libraries/static/link-time-optimization/without-fat-lto-objects"; "checks_libraries_static_link_time_optimization_without_fat_lto_objects")]
 #[test_case("checks/libraries/static/name/underscore-s-suffix"; "checks_libraries_static_name_underscore_s_suffix")]

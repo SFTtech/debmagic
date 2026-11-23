@@ -260,8 +260,45 @@ pub(crate) fn group_exceptions(ctx: &BinaryPackageContext<'_>) -> Exceptions {
     names.into_iter().collect()
 }
 
+/// The spelling exceptions of a Source package's group, as far as its
+/// `debian/control` tells: the source and binary names with their `-` pieces,
+/// and the phrases of `Maintainer` and `Uploaders` with their words. lintian
+/// also reads `Changed-By` and the people fields of the group's binary
+/// packages, which a Source package Subject does not have, so those are not
+/// exempt here.
+pub(crate) fn source_exceptions(
+    control: &crate::lint::debian_control::DebianControl,
+) -> Exceptions {
+    let source = control.source();
+    let mut names: Vec<String> = Vec::new();
+    if let Some(name) = source
+        .get("Source")
+        .and_then(|value| value.split_whitespace().next())
+    {
+        names.push(name.to_string());
+    }
+    names.extend(
+        control
+            .installables()
+            .iter()
+            .map(|installable| installable.name().to_string()),
+    );
+    for name in names.clone() {
+        names.extend(name.split('-').map(str::to_string));
+    }
+    let mut people = Vec::new();
+    for field in ["Maintainer", "Uploaders"] {
+        let value = source.unfolded_value(field).unwrap_or_default();
+        people.extend(person_names(&value));
+    }
+    for person in people.clone() {
+        names.extend(person.split_whitespace().map(str::to_string));
+    }
+    names.extend(people);
+    names.into_iter().collect()
+}
+
 /// The `phrase` of each `Name <address>` in a list of addresses.
-#[allow(dead_code)] // seam API; no Rule reads it yet
 fn person_names(value: &str) -> Vec<String> {
     value
         .split(',')
@@ -369,6 +406,31 @@ mod tests {
             person_names("\"Ann Lee\" <a@x>, <b@x>, Cy <c@x>"),
             ["Ann Lee", "Cy"]
         );
+    }
+
+    #[test]
+    fn source_exceptions_from_control() {
+        let control = crate::lint::debian_control::DebianControl::parse(
+            "Source: alot-tools\nMaintainer: Ann Lee <a@x>, Cy <c@x>\nUploaders: Dee <d@x>\n\n\
+             Package: alot-tools-doc\nArchitecture: all\nDescription: x\n",
+        )
+        .expect("parses");
+        let words = source_exceptions(&control);
+        for word in [
+            "alot-tools",
+            "alot",
+            "tools",
+            "alot-tools-doc",
+            "doc",
+            "Ann Lee",
+            "Ann",
+            "Lee",
+            "Cy",
+            "Dee",
+        ] {
+            assert!(words.contains(word), "{word} is exempt");
+        }
+        assert!(!words.contains("speling"));
     }
 
     #[test]

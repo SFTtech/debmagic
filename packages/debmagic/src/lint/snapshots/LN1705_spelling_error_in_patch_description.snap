@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): spelling-error-in-patch-description (LN1705) speling spelling [debian/patches/a.patch]
+P: example (source): spelling-error-in-patch-description (LN1705) speling spelling [debian/patches/a.patch]

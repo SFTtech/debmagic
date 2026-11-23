@@ -43,12 +43,14 @@ mod debian_control_field_spacing;
 mod debian_control_link;
 mod debian_copyright;
 mod debian_debconf;
+mod debian_desktop_entries;
 mod debian_dpkg_build_api;
 mod debian_filenames;
 mod debian_line_separators;
 mod debian_lintian_overrides_comments;
 mod debian_lintian_overrides_restricted;
 mod debian_maintscript;
+mod debian_manual_pages;
 mod debian_not_installed;
 mod debian_patches;
 mod debian_po_debconf;
@@ -56,6 +58,7 @@ mod debian_readme;
 mod debian_rules;
 mod debian_shlibs;
 mod debian_source_dir;
+mod debian_source_include_binaries;
 mod debian_symbols;
 mod debian_trailing_whitespace;
 mod debian_upstream;
@@ -75,6 +78,7 @@ mod documentation_texinfo;
 mod domain;
 mod emacs;
 mod emacs_elpa;
+mod examples;
 mod executable;
 mod fields_architecture;
 mod fields_bugs;
@@ -379,11 +383,14 @@ pub(crate) use debian_control_field_rules_requires_root::RedundantRulesRequiresR
 pub(crate) use debian_control_field_rules_requires_root::SpellingErrorInRulesRequiresRoot;
 pub(crate) use debian_control_field_spacing::DebianControlHasUnusualFieldSpacing;
 pub(crate) use debian_control_link::DebianControlFileIsASymlink;
+pub(crate) use debian_desktop_entries::MaintainerDesktopEntry;
 pub(crate) use debian_dpkg_build_api::DebianRulesDefinesDpkgBuildApi;
 pub(crate) use debian_lintian_overrides_comments::CapitalizationInOverrideComment;
 pub(crate) use debian_lintian_overrides_comments::SpellingInOverrideComment;
 pub(crate) use debian_lintian_overrides_restricted::InvalidOverrideRestriction;
+pub(crate) use debian_manual_pages::MaintainerManualPage;
 pub(crate) use debian_not_installed::UnwantedPathTooSpecific;
+pub(crate) use debian_source_include_binaries::UnusedEntryInDebianSourceIncludeBinaries;
 pub(crate) use debian_symbols::PackagePlaceholderInSymbolsFile;
 pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
 pub(crate) use debian_trailing_whitespace::TrailingWhitespace;
@@ -426,6 +433,7 @@ pub(crate) use documentation::{
     SourceContainsPrebuiltDoxygenDocumentation, ZeroByteFileInDocDirectory,
 };
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
+pub(crate) use examples::PackageDoesNotInstallExamples;
 pub(crate) use fields_checksums::NoStrongDigestsInDsc;
 pub(crate) use fields_distribution::BackportsChangesMissing;
 pub(crate) use fields_distribution::BackportsUploadHasIncorrectVersionNumber;
@@ -688,7 +696,7 @@ pub(crate) use debian_watch::{
     DebianWatchLineInvalid, DebianWatchManglesDebianVersionImproperly,
     DebianWatchManglesUpstreamVersionImproperly, DebianWatchNotManglingVersion,
     DebianWatchUsesInsecureUri, MissingDebianWatchFileStandard, MultipleDebianWatchFileStandards,
-    ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
+    ObsoleteDebianWatchFileStandard, OlderDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{
     CapitalizationErrorInDescription, CapitalizationErrorInDescriptionSynopsis,
@@ -929,9 +937,9 @@ pub(crate) use debian_patches::{
     InvalidDep3FormatPatchWrongBugDebianUrl, InvalidDep3FormatPatchWrongLastUpdate,
     PackageUsesVendorSpecificPatchSeries, PatchFilePresentButNotMentionedInSeries,
     PatchNotForwardedUpstream, PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile,
-    QuiltPatchMissingDescription, QuiltPatchUsesDpatchPlaceholder,
+    QuiltPatchMissingDescription, QuiltPatchUsesDpatchExtension, QuiltPatchUsesDpatchPlaceholder,
     QuiltPatchUsingTemplateDescription, QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
-    QuiltSeriesWithoutTrailingNewline,
+    QuiltSeriesWithoutTrailingNewline, SpellingErrorInPatchDescription,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,
@@ -1168,7 +1176,8 @@ pub(crate) use testsuite::{
     RuntimeTestFileUsesInstalledPythonVersions,
     RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends, TestLeavesPythonVersionUntested,
     TestsuiteDependencyHasUnparsableElements, TestsuiteDependsOnObsoletePackage,
-    TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownTestsuite,
+    TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownRuntimeTestsFeature,
+    UnknownRuntimeTestsField, UnknownRuntimeTestsRestriction, UnknownTestsuite,
     UnnecessaryTestsuiteAutopkgtestField, UsesDeprecatedAdttmp,
 };
 pub(crate) use triggers::RepeatedTriggerName;

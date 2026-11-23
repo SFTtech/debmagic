@@ -564,6 +564,7 @@ use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
 use super::rules::SpellingErrorInReadmeDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
+use super::rules::SpellingInOverrideComment;
 use super::rules::SpuriousFieldsInUpstreamSignature;
 use super::rules::StaticLinkTimeOptimization;
 use super::rules::StrayFolderInManual;
@@ -2431,6 +2432,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
         &SpellingErrorInReadmeDebian,
+        &SpellingInOverrideComment,
     ]
 }
 
@@ -3790,6 +3792,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
         &SpellingErrorInReadmeDebian,
+        &SpellingInOverrideComment,
     ]
 }
 

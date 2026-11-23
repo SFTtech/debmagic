@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-prebuilt-sphinx-documentation (LN1628) [src/sphinx-1.22/_build/html/]
+P: example (source): source-contains-prebuilt-sphinx-documentation (LN1628) [./]

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-browserified-javascript (LN1622) code fragment:(function(modules, cache, entry) { return modules; })({}); [src/app.js]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): capitalization-in-override-comment (LN1762) cute-field postgresql PostgreSQL [usr/share/lintian/overrides/example:1]
+P: example (udeb): capitalization-in-override-comment (LN1762) cute-field postgresql PostgreSQL [usr/share/lintian/overrides/example:1]
+P: example (binary): capitalization-in-override-comment (LN1762) cute-field meta package metapackage [usr/share/lintian/overrides/example:1]

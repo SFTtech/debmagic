@@ -378,6 +378,7 @@ pub(crate) use debian_control_field_rules_requires_root::SpellingErrorInRulesReq
 pub(crate) use debian_control_field_spacing::DebianControlHasUnusualFieldSpacing;
 pub(crate) use debian_control_link::DebianControlFileIsASymlink;
 pub(crate) use debian_dpkg_build_api::DebianRulesDefinesDpkgBuildApi;
+pub(crate) use debian_lintian_overrides_comments::CapitalizationInOverrideComment;
 pub(crate) use debian_lintian_overrides_comments::SpellingInOverrideComment;
 pub(crate) use debian_lintian_overrides_restricted::InvalidOverrideRestriction;
 pub(crate) use debian_not_installed::UnwantedPathTooSpecific;

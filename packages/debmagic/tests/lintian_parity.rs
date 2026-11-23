@@ -649,6 +649,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/debconf/national-encoding",
     "checks/debian/debconf/po-debconf-general",
     "checks/debian/lintian-overrides/comments/absolutely-misspelled",
+    "checks/debian/lintian-overrides/comments/lowercase-sql",
     "checks/debian/lintian-overrides/files-override-misplaced",
     "checks/debian/lintian-overrides/mystery/fields-multi-arch-same-package-has-arch-specific-overrides",
     "checks/debian/lintian-overrides/mystery/lintian-overrides",
@@ -2396,6 +2397,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/debconf/national-encoding"; "checks_debian_debconf_national_encoding")]
 #[test_case("checks/debian/debconf/po-debconf-general"; "checks_debian_debconf_po_debconf_general")]
 #[test_case("checks/debian/lintian-overrides/comments/absolutely-misspelled"; "checks_debian_lintian_overrides_comments_absolutely_misspelled")]
+#[test_case("checks/debian/lintian-overrides/comments/lowercase-sql"; "checks_debian_lintian_overrides_comments_lowercase_sql")]
 #[test_case("checks/debian/lintian-overrides/files-override-misplaced"; "checks_debian_lintian_overrides_files_override_misplaced")]
 #[test_case("checks/debian/lintian-overrides/mystery/fields-multi-arch-same-package-has-arch-specific-overrides"; "checks_debian_lintian_overrides_mystery_fields_multi_arch_same_package_has_arch_specific_overrides")]
 #[test_case("checks/debian/lintian-overrides/mystery/lintian-overrides"; "checks_debian_lintian_overrides_mystery_lintian_overrides")]

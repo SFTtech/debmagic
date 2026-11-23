@@ -67,6 +67,7 @@ use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CapitalizationErrorInDescription;
 use super::rules::CapitalizationErrorInDescriptionSynopsis;
+use super::rules::CapitalizationInOverrideComment;
 use super::rules::CarriageReturnLineFeed;
 use super::rules::ChangelogDistributionDoesNotMatchChangesFile;
 use super::rules::ChangelogFileMissingExplicitEntry;
@@ -2433,6 +2434,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnpackMessageForDebData,
         &SpellingErrorInReadmeDebian,
         &SpellingInOverrideComment,
+        &CapitalizationInOverrideComment,
     ]
 }
 
@@ -3793,6 +3795,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UnpackMessageForDebData,
         &SpellingErrorInReadmeDebian,
         &SpellingInOverrideComment,
+        &CapitalizationInOverrideComment,
     ]
 }
 

@@ -6,6 +6,7 @@ use super::rules::AddComponentCopyright;
 use super::rules::AdoptedExtendedField;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
+use super::rules::AnsiEscape;
 use super::rules::AnticipatedRepackCount;
 use super::rules::Apache2DeprecatedAuthConfig;
 use super::rules::Apache2ModuleDoesNotDependOnApache2Api;
@@ -2659,6 +2660,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
+        &AnsiEscape,
     ]
 }
 
@@ -3192,6 +3194,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsQuiltControlDir,
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
+        &AnsiEscape,
     ]
 }
 
@@ -4129,6 +4132,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ManualPageInUdeb,
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
+        &AnsiEscape,
     ]
 }
 

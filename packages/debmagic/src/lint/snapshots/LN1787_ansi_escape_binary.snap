@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): ansi-escape (LN1787) Description red [31mtext[0m
+W: example (binary): ansi-escape (LN1787) Section [1mtool
+W: example (binary): ansi-escape (LN1787) Description [0m
+W: example (binary): ansi-escape (LN1787) Homepage https://example.com/

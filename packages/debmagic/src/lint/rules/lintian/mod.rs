@@ -976,7 +976,8 @@ pub(crate) use debian_patches::{
     PatchModifyingDebianFiles, PatchNotForwardedUpstream, PatchSystemButNoSourceReadme,
     QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription, QuiltPatchUsesDpatchExtension,
     QuiltPatchUsesDpatchPlaceholder, QuiltPatchUsingTemplateDescription,
-    QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep, QuiltSeriesWithoutTrailingNewline,
+    QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
+    QuiltSeriesReferencesNonExistentPatch, QuiltSeriesWithoutTrailingNewline,
     SpellingErrorInPatchDescription,
 };
 pub(crate) use debian_po_debconf::{

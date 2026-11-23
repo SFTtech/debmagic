@@ -354,6 +354,7 @@ use super::rules::NoMd5sumsControlFile;
 use super::rules::NoPhrase;
 use super::rules::NoShlibs;
 use super::rules::NoStrongDigestsInDsc;
+use super::rules::NoSymbolsControlFile;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
 use super::rules::NonStandardApache2ModulePackageName;
@@ -2349,6 +2350,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LocaleUsesLanguageGroupCode,
         &OcamlCustomExecutable,
         &StaticLinkTimeOptimization,
+        &NoSymbolsControlFile,
     ]
 }
 
@@ -3673,6 +3675,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &LocaleUsesLanguageGroupCode,
         &OcamlCustomExecutable,
         &StaticLinkTimeOptimization,
+        &NoSymbolsControlFile,
     ]
 }
 

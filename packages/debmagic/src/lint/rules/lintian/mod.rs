@@ -618,11 +618,12 @@ pub(crate) use debian_rules::{
 pub(crate) use debian_shlibs::{
     DistantPrerequisiteInShlibs, DuplicateEntryInSymbolsControlFile, DuplicateInShlibs,
     EmptySharedLibrarySymbols, EmptyShlibs, InvalidTemplateIdInSymbolsFile, NoShlibs,
-    OutdatedRelationInShlibs, SharedLibraryLacksVersion, SharedLibraryNotShipped,
-    SharedLibrarySymbolsNotTracked, ShipsUndeclaredSharedLibrary, SurplusSharedLibrarySymbols,
-    SymbolsDeclaresDependencyOnOtherPackage, SymbolsFileContainsCurrentVersionWithDebianRevision,
-    SymbolsFileContainsDebianRevision, SymbolsFileMissingBuildDependsPackageField,
-    SymbolsForUndeclaredSharedLibrary, SyntaxErrorInSymbolsFile, UnknownMetaFieldInSymbolsFile,
+    NoSymbolsControlFile, OutdatedRelationInShlibs, SharedLibraryLacksVersion,
+    SharedLibraryNotShipped, SharedLibrarySymbolsNotTracked, ShipsUndeclaredSharedLibrary,
+    SurplusSharedLibrarySymbols, SymbolsDeclaresDependencyOnOtherPackage,
+    SymbolsFileContainsCurrentVersionWithDebianRevision, SymbolsFileContainsDebianRevision,
+    SymbolsFileMissingBuildDependsPackageField, SymbolsForUndeclaredSharedLibrary,
+    SyntaxErrorInSymbolsFile, UnknownMetaFieldInSymbolsFile,
 };
 pub(crate) use debian_version_substvars::{
     NotBinnmuableAllDependsAny, NotBinnmuableAnyDependsAll, NotBinnmuableAnyDependsAny,

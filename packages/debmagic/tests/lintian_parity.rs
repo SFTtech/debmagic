@@ -213,6 +213,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/legacy-scripts",
     "checks/debian/rules/rules-build-dep-pattern",
     "checks/debian/rules/rules-debug-symbol-migration-possibly-complete",
+    "checks/debian/rules/rules-dh-auto-test-does-not-check-deb-build-options-dh-12",
     "checks/debian/rules/rules-dh-order",
     "checks/debian/rules/rules-dh-unused-target-nonempty",
     "checks/debian/rules/rules-general",
@@ -1373,6 +1374,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/legacy-scripts",
     "checks/debian/rules/rules-build-dep-pattern",
     "checks/debian/rules/rules-debug-symbol-migration-possibly-complete",
+    "checks/debian/rules/rules-dh-auto-test-does-not-check-deb-build-options-dh-12",
     "checks/debian/rules/rules-dh-order",
     "checks/debian/rules/rules-dh-unused-target-nonempty",
     "checks/debian/rules/rules-general",
@@ -1971,6 +1973,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/legacy-scripts"; "checks_debian_rules_legacy_scripts")]
 #[test_case("checks/debian/rules/rules-build-dep-pattern"; "checks_debian_rules_rules_build_dep_pattern")]
 #[test_case("checks/debian/rules/rules-debug-symbol-migration-possibly-complete"; "checks_debian_rules_rules_debug_symbol_migration_possibly_complete")]
+#[test_case("checks/debian/rules/rules-dh-auto-test-does-not-check-deb-build-options-dh-12"; "checks_debian_rules_rules_dh_auto_test_does_not_check_deb_build_options_dh_12")]
 #[test_case("checks/debian/rules/rules-dh-order"; "checks_debian_rules_rules_dh_order")]
 #[test_case("checks/debian/rules/rules-dh-unused-target-nonempty"; "checks_debian_rules_rules_dh_unused_target_nonempty")]
 #[test_case("checks/debian/rules/rules-general"; "checks_debian_rules_rules_general")]
@@ -3133,6 +3136,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/legacy-scripts"; "checks_debian_rules_legacy_scripts")]
 #[test_case("checks/debian/rules/rules-build-dep-pattern"; "checks_debian_rules_rules_build_dep_pattern")]
 #[test_case("checks/debian/rules/rules-debug-symbol-migration-possibly-complete"; "checks_debian_rules_rules_debug_symbol_migration_possibly_complete")]
+#[test_case("checks/debian/rules/rules-dh-auto-test-does-not-check-deb-build-options-dh-12"; "checks_debian_rules_rules_dh_auto_test_does_not_check_deb_build_options_dh_12")]
 #[test_case("checks/debian/rules/rules-dh-order"; "checks_debian_rules_rules_dh_order")]
 #[test_case("checks/debian/rules/rules-dh-unused-target-nonempty"; "checks_debian_rules_rules_dh_unused_target_nonempty")]
 #[test_case("checks/debian/rules/rules-general"; "checks_debian_rules_rules_general")]

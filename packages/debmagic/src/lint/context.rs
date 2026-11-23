@@ -390,7 +390,6 @@ impl<'a> BinaryPackageContext<'a> {
     /// `strings` of the ELF Data files (lintian's `$item->strings`), computed
     /// once per Subject and shared by every Rule. `None` after a global File
     /// tree failure, as for [`Self::data_files`].
-    #[allow(dead_code)] // seam API; no Rule reads it yet
     pub fn data_strings(&mut self) -> Option<Arc<FileStrings>> {
         self.data_files()?;
         Some(self.shared_once(|ctx| {

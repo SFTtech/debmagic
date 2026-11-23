@@ -369,6 +369,7 @@ use super::rules::ObsoleteFieldInDep5Copyright;
 use super::rules::ObsoleteRelationForm;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
+use super::rules::OcamlCustomExecutable;
 use super::rules::OcamlDanglingCmi;
 use super::rules::OcamlDanglingCmx;
 use super::rules::OddPermissionsOnSharedLibrary;
@@ -2345,6 +2346,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CapitalizationErrorInDescriptionSynopsis,
         &IncorrectLocaleCode,
         &LocaleUsesLanguageGroupCode,
+        &OcamlCustomExecutable,
     ]
 }
 
@@ -3667,6 +3669,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DebianNewsEntryUsesAsterisk,
         &IncorrectLocaleCode,
         &LocaleUsesLanguageGroupCode,
+        &OcamlCustomExecutable,
     ]
 }
 

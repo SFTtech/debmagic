@@ -79,6 +79,18 @@ impl ContentType {
     }
 }
 
+/// Whether `bytes` start like a Type 1 font program: a PFA with a
+/// `%!PS-AdobeFont` or `%!FontType1` header, or a PFB whose first segment is
+/// ASCII text starting `%!`. [`ContentType::sniff`] reports these as
+/// [`ContentType::PostScript`]; the Type 1 font seam is the only reader that
+/// needs the font form.
+pub(crate) fn is_type1_font(bytes: &[u8]) -> bool {
+    if bytes.starts_with(b"%!PS-AdobeFont") || bytes.starts_with(b"%!FontType1") {
+        return true;
+    }
+    bytes.len() > 6 && bytes[0] == 0x80 && bytes[1] == 1 && bytes[6..].starts_with(b"%!")
+}
+
 /// An XML or SVG document with `<svg` within its first 8 KiB, after an optional
 /// UTF-8 byte order mark. Looser than `file(1)`; see LN1395.
 fn is_svg(bytes: &[u8]) -> bool {
@@ -186,6 +198,18 @@ mod tests {
             Some(ContentType::Matlab { major: 7 })
         );
         assert_eq!(ContentType::sniff(b"MATLAB script text"), None);
+    }
+
+    #[test]
+    fn type_1_font_headers_and_pfb_segments() {
+        assert!(is_type1_font(b"%!PS-AdobeFont-1.0: X\n"));
+        assert!(is_type1_font(b"%!FontType1-1.0\n"));
+        assert!(!is_type1_font(b"%!PS-Adobe-3.0 EPSF-3.0\n"));
+        assert!(is_type1_font(&[
+            0x80, 0x01, 2, 0, 0, 0, b'%', b'!', b'P', b'S'
+        ]));
+        assert!(!is_type1_font(&[0x80, 0x01, 2, 0, 0, 0, b'h', b'i']));
+        assert!(!is_type1_font(&[0x80, 0x01]));
     }
 
     #[test]

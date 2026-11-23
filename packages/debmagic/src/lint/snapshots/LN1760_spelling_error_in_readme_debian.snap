@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): spelling-error-in-readme-debian (LN1760) speling spelling [usr/share/doc/example/README.Debian]
+P: example (binary): spelling-error-in-readme-debian (LN1760) word word (duplicate word) word [usr/share/doc/example/README.Debian]
+P: example (binary): spelling-error-in-readme-debian (LN1760) speling spelling [usr/share/doc/example/README.Debian.gz]
+P: example (udeb): spelling-error-in-readme-debian (LN1760) speling spelling [usr/share/doc/example/README.Debian]

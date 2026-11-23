@@ -629,7 +629,7 @@ pub(crate) use debian_filenames::{DuplicatePackagingFile, IncorrectPackagingFile
 pub(crate) use debian_line_separators::CarriageReturnLineFeed;
 pub(crate) use debian_readme::{
     ReadmeDebianContainsDebmakeTemplate, ReadmeDebianContainsInvalidEmailAddress,
-    ReadmeDebianMentionsUsrDoc,
+    ReadmeDebianMentionsUsrDoc, SpellingErrorInReadmeDebian,
 };
 pub(crate) use debian_rules::{
     BinaryArchRulesButPkgIsArchIndep, CustomCompressionInDebianRules,

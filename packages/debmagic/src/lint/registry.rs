@@ -82,6 +82,7 @@ use super::rules::CommaSeparatedFilesInDep5Copyright;
 use super::rules::ComposerPackageWithoutPkgPhpToolsBuilddep;
 use super::rules::ComposerPrerequisite;
 use super::rules::CompressedDuplicate;
+use super::rules::ConcatenatedUpstreamSignatures;
 use super::rules::ConfigDoesNotLoadConfmodule;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::ConflictingNegationInSourceRelation;
@@ -188,6 +189,7 @@ use super::rules::DjangoPackageDoesNotDependOnDjango;
 use super::rules::DocBaseFileReferencesMissingFile;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DotBeforeRepackCount;
+use super::rules::DoublyArmoredUpstreamSignature;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
 use super::rules::DuplicateLongDescription;
@@ -219,6 +221,7 @@ use super::rules::ExecutableJarWithoutMainClass;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
+use super::rules::ExplicitlyArmoredUpstreamSignature;
 use super::rules::ExtendedDescriptionIsProbablyTooShort;
 use super::rules::ExtraLicenseFile;
 use super::rules::ExtraWhitespaceAroundNameInChangelogTrailer;
@@ -406,6 +409,7 @@ use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OredBuildDependsOnObsoletePackage;
 use super::rules::OredDependsOnObsoletePackage;
+use super::rules::OrigTarballMissingUpstreamSignature;
 use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
@@ -559,6 +563,7 @@ use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
+use super::rules::SpuriousFieldsInUpstreamSignature;
 use super::rules::StaticLinkTimeOptimization;
 use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
@@ -625,6 +630,7 @@ use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
 use super::rules::UnnecessarySourceDateEpochAssignment;
 use super::rules::UnnecessaryTeamUpload;
+use super::rules::UnpackMessageForDebData;
 use super::rules::UnparsableMenuItem;
 use super::rules::UnreleasedChanges;
 use super::rules::UnsupportedSourceFormat;
@@ -2417,6 +2423,12 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OcamlCustomExecutable,
         &StaticLinkTimeOptimization,
         &NoSymbolsControlFile,
+        &ConcatenatedUpstreamSignatures,
+        &DoublyArmoredUpstreamSignature,
+        &ExplicitlyArmoredUpstreamSignature,
+        &OrigTarballMissingUpstreamSignature,
+        &SpuriousFieldsInUpstreamSignature,
+        &UnpackMessageForDebData,
     ]
 }
 
@@ -2874,6 +2886,11 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RuntimeTestFileIsNotARegularFile,
         &UpstreamFileWithoutUtf8Name,
         &PublicUpstreamKeyUnusable,
+        &ConcatenatedUpstreamSignatures,
+        &DoublyArmoredUpstreamSignature,
+        &ExplicitlyArmoredUpstreamSignature,
+        &OrigTarballMissingUpstreamSignature,
+        &SpuriousFieldsInUpstreamSignature,
     ]
 }
 
@@ -3769,6 +3786,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OcamlCustomExecutable,
         &StaticLinkTimeOptimization,
         &NoSymbolsControlFile,
+        &UnpackMessageForDebData,
     ]
 }
 

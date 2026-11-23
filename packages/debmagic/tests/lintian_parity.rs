@@ -1143,6 +1143,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/triggers/triggers-general",
     "checks/udev/files-foo-in-bar",
     "checks/udev/udev-rules",
+    "checks/unpack/tar-removing-leading-slash",
     "checks/usrmerge/usrmerge-bin",
     "checks/usrmerge/usrmerge-lib",
     "checks/vim/files-foo-in-bar",
@@ -1663,6 +1664,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/testsuite/testsuite-unknown-suite",
     "checks/testsuite/testsuite-with-adttmp",
     "checks/testsuite/unnecessary-testsuite-autopkgtest-field",
+    "checks/upstream-signature/control-file-upstream-signature-missing",
+    "checks/upstream-signature/doubly-armored-signature",
+    "checks/upstream-signature/explicit-armor-header",
+    "checks/upstream-signature/repeated-signature",
     "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
@@ -2884,6 +2889,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/triggers/triggers-general"; "checks_triggers_triggers_general")]
 #[test_case("checks/udev/files-foo-in-bar"; "checks_udev_files_foo_in_bar")]
 #[test_case("checks/udev/udev-rules"; "checks_udev_udev_rules")]
+#[test_case("checks/unpack/tar-removing-leading-slash"; "checks_unpack_tar_removing_leading_slash")]
 #[test_case("checks/usrmerge/usrmerge-bin"; "checks_usrmerge_usrmerge_bin")]
 #[test_case("checks/usrmerge/usrmerge-lib"; "checks_usrmerge_usrmerge_lib")]
 #[test_case("checks/vim/files-foo-in-bar"; "checks_vim_files_foo_in_bar")]
@@ -3405,6 +3411,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/testsuite/testsuite-unknown-suite"; "checks_testsuite_testsuite_unknown_suite")]
 #[test_case("checks/testsuite/testsuite-with-adttmp"; "checks_testsuite_testsuite_with_adttmp")]
 #[test_case("checks/testsuite/unnecessary-testsuite-autopkgtest-field"; "checks_testsuite_unnecessary_testsuite_autopkgtest_field")]
+#[test_case("checks/upstream-signature/control-file-upstream-signature-missing"; "checks_upstream_signature_control_file_upstream_signature_missing")]
+#[test_case("checks/upstream-signature/doubly-armored-signature"; "checks_upstream_signature_doubly_armored_signature")]
+#[test_case("checks/upstream-signature/explicit-armor-header"; "checks_upstream_signature_explicit_armor_header")]
+#[test_case("checks/upstream-signature/repeated-signature"; "checks_upstream_signature_repeated_signature")]
 #[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]

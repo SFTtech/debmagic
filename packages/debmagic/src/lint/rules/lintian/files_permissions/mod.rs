@@ -8,6 +8,7 @@ mod ln0945_bad_permissions_for_ali_file;
 mod ln0946_non_standard_dir_perm;
 mod ln0947_non_standard_file_perm;
 mod ln0997_elevated_privileges;
+mod ln1723_executable_in_usr_lib;
 mod owner_exceptions;
 
 pub(crate) use ln0700_non_standard_executable_perm::NonStandardExecutablePerm;
@@ -18,3 +19,4 @@ pub(crate) use ln0945_bad_permissions_for_ali_file::BadPermissionsForAliFile;
 pub(crate) use ln0946_non_standard_dir_perm::NonStandardDirPerm;
 pub(crate) use ln0947_non_standard_file_perm::NonStandardFilePerm;
 pub(crate) use ln0997_elevated_privileges::ElevatedPrivileges;
+pub(crate) use ln1723_executable_in_usr_lib::ExecutableInUsrLib;

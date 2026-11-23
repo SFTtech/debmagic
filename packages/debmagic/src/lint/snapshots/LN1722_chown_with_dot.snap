@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): chown-with-dot (LN1722) someuser.theirgroup [usr/bin/foo:2]
+P: example (binary): chown-with-dot (LN1722) someuser.theirgroup [usr/bin/foo:2]
+P: example (binary): chown-with-dot (LN1722) a.b [usr/bin/foo:2]
+P: example (binary): chown-with-dot (LN1722) d.e [usr/bin/foo:3]
+P: example (binary): chown-with-dot (LN1722) user.group [postinst:2]
+P: example (udeb): chown-with-dot (LN1722) user.group [usr/bin/foo:2]

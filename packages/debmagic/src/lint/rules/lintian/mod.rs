@@ -244,6 +244,7 @@ mod nodejs;
 mod origtar;
 mod po_debconf;
 mod rules_and_control;
+mod script_deprecated_chown;
 mod script_syntax;
 mod scripts_calls;
 mod scripts_depends;
@@ -530,6 +531,7 @@ pub(crate) use libraries_shared_trigger_ldconfig::PackageHasUnnecessaryActivatio
 pub(crate) use maintainer_scripts_ancient_version::MaintainerScriptSupportsAncientPackageVersion;
 pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStatoverride;
 pub(crate) use origtar::EmptyUpstreamSources;
+pub(crate) use script_deprecated_chown::ChownWithDot;
 pub(crate) use script_syntax::MaintainerShellScriptFailsSyntaxCheck;
 pub(crate) use script_syntax::ShellScriptFailsSyntaxCheck;
 pub(crate) use shell_bash_completion::BashCompletionWithHashbang;

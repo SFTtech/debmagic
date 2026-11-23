@@ -223,9 +223,9 @@ mod ln1387_source_contains_prebuilt_binary;
 mod ln1388_source_contains_prebuilt_javascript_object;
 mod ln1389_source_contains_prebuilt_python_object;
 mod ln1390_source_is_missing;
+mod ln1491_inconsistent_maintainer;
 mod ln1560_bin_sbin_mismatch;
 mod ln1562_empty_udeb_package;
-mod ln1491_inconsistent_maintainer;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_adduser;
@@ -540,12 +540,10 @@ pub(crate) use udev::UdevRuleUnreadable;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{
-    BadIntendedDistribution, BogusMailHostInDebianChangelog, ChangelogEmptyEntry,
+    BadIntendedDistribution, BogusMailHostInDebianChangelog,
+    ChangelogDistributionDoesNotMatchChangesFile, ChangelogEmptyEntry,
     ChangelogFileMissingExplicitEntry, ChangelogIsDhMakeTemplate, ChangelogIsSymlink,
     ChangelogNewsDebianMismatch, ChangelogNotCompressedWithMaxCompression,
-    BogusMailHostInDebianChangelog, ChangelogDistributionDoesNotMatchChangesFile,
-    ChangelogEmptyEntry, ChangelogFileMissingExplicitEntry, ChangelogIsDhMakeTemplate,
-    ChangelogIsSymlink, ChangelogNewsDebianMismatch, ChangelogNotCompressedWithMaxCompression,
     ChangelogReferencesTempSecurityIdentifier,
     DebianChangelogFileContainsObsoleteUserEmacsSettings, DebianChangelogHasWrongDayOfWeek,
     DebianChangelogLineTooLong, DebianChangelogLineTooShort, DebianNewsEntryHasStrangeDistribution,
@@ -1000,9 +998,9 @@ pub(crate) use ln1387_source_contains_prebuilt_binary::SourceContainsPrebuiltBin
 pub(crate) use ln1388_source_contains_prebuilt_javascript_object::SourceContainsPrebuiltJavascriptObject;
 pub(crate) use ln1389_source_contains_prebuilt_python_object::SourceContainsPrebuiltPythonObject;
 pub(crate) use ln1390_source_is_missing::SourceIsMissing;
+pub(crate) use ln1491_inconsistent_maintainer::InconsistentMaintainer;
 pub(crate) use ln1560_bin_sbin_mismatch::BinSbinMismatch;
 pub(crate) use ln1562_empty_udeb_package::EmptyUdebPackage;
-pub(crate) use ln1491_inconsistent_maintainer::InconsistentMaintainer;
 pub(crate) use maintainer_scripts_adduser::AdduserWithHomeVarRun;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,

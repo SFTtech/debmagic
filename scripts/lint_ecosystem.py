@@ -16,6 +16,13 @@ Packages
     (about 23k Subjects and 24 GB of downloads: a long run); `--pool archive` samples from every
     source package instead of the key ones; `--packages a b c` replaces the set.
 
+    A sample is reproducible only while UDD's tables stay the same (new uploads change versions, key
+    packages come and go), so a set to rerun later is pinned: `--write-package-list FILE` writes the
+    selection (`--list-only` stops after it, with no downloads or lint), and `--package-list FILE`
+    runs exactly that file. Lines are `source version` (a bare `source` takes whatever sid has now);
+    the header records the UDD release, the date and the oracle's lintian version.
+    `tests/ecosystem/packages-400-seed20261123.txt` is the committed 400-package sample.
+
 Subjects (ADR 0016, 0017: one Subject per lint run)
     For each selected source package of the chosen release: the `.dsc` (Source package) and every
     `.deb` of the chosen architectures (Binary package), all fetched from the archive pool and
@@ -27,10 +34,17 @@ Comparison
     oracle Tag is listed as *uncovered*, ranked by how many Subjects carry it. On covered Tags:
 
     - match       both sides report the Tag on the Subject
-    - missed      lintian reports it, debmagic does not (false negative)
+    - missed      lintian reports it, debmagic does not (false negative); includes a hint debmagic
+                  suppressed with an override that lintian does not suppress
     - extra       debmagic reports it, lintian does not (false positive)
-    - overridden  debmagic reports it and lintian reports it as `overridden`/`masked`; expected,
-                  because debmagic parses override files but does not apply them (ADR 0051)
+    - unapplied   an extra where lintian suppresses the Tag by an override and debmagic reports it as
+                  a normal hint: "override not applied", a real finding of the override pass (ADR 0057)
+    - overridden  both sides suppress the Tag by an override (debmagic's `O:` line, lintian's
+                  `overridden`/`masked` row)
+
+    debmagic runs with `--show-overrides` (see `--lint-arg`), so its overridden Diagnostics arrive as
+    `O:` lines. `mismatched-override` and `unused-override` (LN1779, LN1780) come from the override pass;
+    they are judged like any covered Tag once the Rust catalogue lists them (until then, uncovered).
 
     On matched Tags the hint contexts (`[path:line]`, ...) are compared as multisets, and the
     severity debmagic assigns is compared with lintian's tag type. Tag renames between lintian
@@ -64,6 +78,8 @@ Usage
     just lint-ecosystem --packages hello dgit --perf off
     just lint-ecosystem --sample 100 --seed 7 --perf tags
     just lint-ecosystem --all --perf off                    # whole key-package pool, work packets for agents
+    just lint-ecosystem --package-list tests/ecosystem/packages-400-seed20261123.txt --perf off
+    just lint-ecosystem --sample 400 --seed 20261123 --list-only --write-package-list FILE
 """
 
 from __future__ import annotations
@@ -117,10 +133,12 @@ UDD_PASSWORD = "udd-mirror"
 VISIBLE_TYPES = frozenset({"error", "warning", "information", "pedantic", "experimental"})
 SUPPRESSED_TYPES = frozenset({"overridden", "masked"})
 # `classification` hints are lintian bookkeeping, not diagnostics (ADR 0019).
-SEVERITY_LETTER = {"E": "error", "W": "warning", "I": "information", "P": "pedantic"}
+# `O` is an overridden Diagnostic, printed by `debmagic lint --show-overrides` (ADR 0057).
+OVERRIDDEN_SEVERITY = "overridden"
+SEVERITY_LETTER = {"E": "error", "W": "warning", "I": "information", "P": "pedantic", "O": OVERRIDDEN_SEVERITY}
 
 DIAGNOSTIC_LINE = re.compile(
-    r"^(?P<sev>[EWIP]): (?P<pkg>\S+) \((?P<kind>source|binary)\): (?P<tag>\S+) "
+    r"^(?P<sev>[EWIPO]): (?P<pkg>\S+) \((?P<kind>source|binary)\): (?P<tag>\S+) "
     r"\((?P<code>[A-Z]{2}\d{4})\)(?: (?P<context>.*))?$"
 )
 FINISHED_LINE = re.compile(r"^Finished in ", re.MULTILINE)
@@ -344,8 +362,63 @@ def drop_oversized(entries: list[SourceEntry], max_mb: int) -> list[SourceEntry]
     return kept
 
 
+Pin = tuple[str, str]  # (source, version); an empty version pins whatever sid has for the name
+
+
+def read_package_list(path: Path) -> list[Pin]:
+    """A package list file: `source [version]` per line, `#` starts a comment, blank lines are skipped."""
+    pins: dict[Pin, None] = {}
+    for number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        fields = raw.split("#", 1)[0].split()
+        if not fields:
+            continue
+        if len(fields) > 2:
+            sys.exit(f"{path}:{number}: expected `source [version]`, got {raw.strip()!r}")
+        pin = (fields[0], fields[1] if len(fields) == 2 else "")
+        for value in pin:
+            if value and not SAFE_LITERAL.match(value):
+                sys.exit(f"{path}:{number}: refusing package or version {value!r}")
+        pins[pin] = None
+    if not pins:
+        sys.exit(f"{path}: no packages listed")
+    return list(pins)
+
+
+def pin_matches(pin: Pin, entry: SourceEntry) -> bool:
+    return pin[0] == entry.source and pin[1] in ("", entry.version)
+
+
+def pins_filter(pins: list[Pin]) -> str:
+    """SQL for source packages named by a list: by name, and by (name, version) where the list gives one."""
+    clauses = []
+    named = [source for source, version in pins if not version]
+    if named:
+        clauses.append(names_filter(named))
+    pairs = [(source, version) for source, version in pins if version]
+    if pairs:
+        listed = ", ".join(f"({sql_literal(source)}, {sql_literal(version)})" for source, version in pairs)
+        clauses.append(f"(s.source, s.version) in ({listed})")
+    return f"({' or '.join(clauses)})"
+
+
+def select_pinned(args: argparse.Namespace) -> list[SourceEntry]:
+    """The packages of `--package-list`, in file order. A pinned version no longer in sid is reported and skipped."""
+    pins = read_package_list(args.package_list)
+    log("select", f"resolving {len(pins)} listed source package(s) from {args.package_list} in {args.release} via UDD")
+    found = query_sources(args.release, [pins_filter(pins)])
+    for pin in pins:
+        if not any(pin_matches(pin, entry) for entry in found):
+            label = f"{pin[0]} {pin[1]}".strip()
+            print(f"skip {label}: not in {args.release} or no lintian results for that version", file=sys.stderr)
+    order = {pin: index for index, pin in enumerate(pins)}
+    found.sort(key=lambda e: min(order[pin] for pin in pins if pin_matches(pin, e)))
+    return drop_oversized(found, args.max_source_mb)
+
+
 def select_sources(args: argparse.Namespace) -> list[SourceEntry]:
-    """The packages to check: `--packages`, else the pinned ones plus the (sampled) pool."""
+    """The packages to check: `--package-list`, `--packages`, else the pinned ones plus the (sampled) pool."""
+    if args.package_list:
+        return select_pinned(args)
     if args.packages:
         log("select", f"resolving {len(args.packages)} named source package(s) in {args.release} via UDD")
         entries = query_sources(args.release, [names_filter(args.packages)])
@@ -361,7 +434,11 @@ def select_sources(args: argparse.Namespace) -> list[SourceEntry]:
     if args.pool == "key":
         where.append("s.source in (select source from key_packages)")
     # Over-fetch when sampling: oversized packages are dropped below. The order is a stable hash of the seed.
-    order_limit = "" if args.all else f"order by md5(s.source || {sql_literal(str(args.seed))}) limit {args.sample * 4}"
+    order_limit = (
+        ""
+        if args.all
+        else f"order by md5(s.source || {sql_literal(str(args.seed))}), s.source, s.version limit {args.sample * 4}"
+    )
     scope = (
         "the whole key-package pool" if args.all else f"a sample of {args.sample} ({args.pool} pool, seed {args.seed})"
     )
@@ -370,6 +447,36 @@ def select_sources(args: argparse.Namespace) -> list[SourceEntry]:
     selected = drop_oversized(pinned, args.max_source_mb) + (pool if args.all else pool[: args.sample])
     log("select", f"{len(selected)} source package(s) selected")
     return selected
+
+
+def describe_selection(args: argparse.Namespace) -> str:
+    if args.package_list:
+        return f"read from the list {args.package_list.name}"
+    if args.packages:
+        return f"--packages {' '.join(args.packages)}"
+    if args.all:
+        return f"--all (the whole {args.pool} pool)"
+    return f"--sample {args.sample} --seed {args.seed} --pool {args.pool}"
+
+
+def write_package_list(args: argparse.Namespace, entries: list[SourceEntry]) -> None:
+    """Pin the selection as `source version` lines, with the snapshot it was made from in a header."""
+    lintian = ", ".join(oracle_lintian_versions(entries, args.work_dir)) or "unknown"
+    header = [
+        "# debmagic lint ecosystem package list: one `source version` per line, `#` starts a comment.",
+        f"# Selection: {describe_selection(args)}; release {args.release}; "
+        f"sources over {args.max_source_mb} MB dropped.",
+        f"# UDD snapshot: {time.strftime('%Y-%m-%d', time.gmtime())} (udd-mirror.debian.net, "
+        f"release {args.release}); oracle lintian {lintian}.",
+        "# Rerun: just lint-ecosystem --package-list <this file>",
+        "# Regenerate: just lint-ecosystem --sample N --seed S --list-only --write-package-list <this file>",
+        "# A pinned version sid no longer lists is skipped with a message. A bare name takes every version",
+        "# sid lists for it (the Sources index can hold two, as for gcc-16).",
+    ]
+    body = [f"{e.source} {e.version}" for e in sorted(entries, key=lambda e: (e.source, e.version))]
+    args.write_package_list.parent.mkdir(parents=True, exist_ok=True)
+    args.write_package_list.write_text("\n".join([*header, *body]) + "\n", encoding="utf-8")
+    log("select", f"wrote {len(body)} package(s) to {args.write_package_list}")
 
 
 def attach_binaries(entries: list[SourceEntry], args: argparse.Namespace) -> None:
@@ -627,7 +734,8 @@ class TagStats:
     match: int = 0
     missed: int = 0
     extra: int = 0
-    overridden: int = 0
+    unapplied: int = 0  # the `extra` ones where lintian suppresses the Tag by an override
+    overridden: int = 0  # both sides suppress the Tag by an override
     instances_oracle: int = 0
     instances_debmagic: int = 0
     instances_matched: int = 0
@@ -744,6 +852,7 @@ def compare_subject(
             suppressed.add(tag)
 
     actual: dict[str, Counter[str]] = defaultdict(Counter)
+    overridden: dict[str, Counter[str]] = defaultdict(Counter)
     actual_severity: dict[str, set[str]] = defaultdict(set)
     codes: dict[str, str] = {}
     for diag in diagnostics:
@@ -751,15 +860,19 @@ def compare_subject(
             comparison.native_diagnostics += 1
             continue
         tag = renames.get(diag.tag, diag.tag)
-        actual[tag][" ".join(diag.context.split())] += 1
-        actual_severity[tag].add(diag.severity)
         codes[tag] = diag.code
+        text = " ".join(diag.context.split())
+        if diag.severity == OVERRIDDEN_SEVERITY:
+            overridden[tag][text] += 1
+        else:
+            actual[tag][text] += 1
+            actual_severity[tag].add(diag.severity)
 
     judge_tags(
         comparison,
         key,
         str(path) if path is not None else "",
-        Tags(visible, visible_types, suppressed, actual, actual_severity, codes),
+        Tags(visible, visible_types, suppressed, actual, overridden, actual_severity, codes),
         covered,
         example_limit,
     )
@@ -767,12 +880,14 @@ def compare_subject(
 
 @dataclass(frozen=True)
 class Tags:
-    """One Subject's Tag views: what lintian says, what debmagic said, and their types and codes."""
+    """One Subject's Tag views: what lintian says (visible and suppressed), what debmagic said (plain and
+    overridden), their types and the Rule codes."""
 
     visible: dict[str, Counter[str]]
     visible_types: dict[str, set[str]]
     suppressed: set[str]
     actual: dict[str, Counter[str]]
+    overridden: dict[str, Counter[str]]
     actual_severity: dict[str, set[str]]
     codes: dict[str, str]
 
@@ -785,11 +900,15 @@ def judge_tags(
     covered: dict[str, str],
     example_limit: int,
 ) -> None:
-    """Bucket one Subject's Tags and keep every disagreement in full for the agent packets."""
+    """Bucket one Subject's Tags and keep every disagreement in full for the agent packets.
+
+    Each Tag is judged on two questions: does lintian show it, and does debmagic show it (plain) or hide
+    it (overridden). Lintian's suppressed hints are the ones an override silenced there.
+    """
     visible, visible_types, suppressed = tags.visible, tags.visible_types, tags.suppressed
-    actual, actual_severity, codes = tags.actual, tags.actual_severity, tags.codes
-    for tag in set(visible) | set(actual) | suppressed:
-        if tag not in covered and tag not in actual:
+    actual, overridden, codes = tags.actual, tags.overridden, tags.codes
+    for tag in set(visible) | set(actual) | set(overridden) | suppressed:
+        if tag not in covered and tag not in actual and tag not in overridden:
             if tag in visible:
                 row = comparison.uncovered.setdefault(tag, Uncovered(tag, "/".join(sorted(visible_types[tag]))))
                 row.subjects += 1
@@ -798,44 +917,14 @@ def judge_tags(
         stats = comparison.stats.setdefault(tag, TagStats(tag, covered.get(tag, codes.get(tag, ""))))
         label = key.label()
         in_oracle, in_actual = tag in visible, tag in actual
+        hidden_here = tag in overridden
         if in_oracle and in_actual:
-            stats.match += 1
-            both = visible[tag] & actual[tag]
-            stats.instances_oracle += sum(visible[tag].values())
-            stats.instances_debmagic += sum(actual[tag].values())
-            stats.instances_matched += sum(both.values())
-            if visible[tag] != actual[tag]:
-                only_oracle = sorted((visible[tag] - actual[tag]).elements())
-                only_debmagic = sorted((actual[tag] - visible[tag]).elements())
-                stats.note(
-                    "context",
-                    f"{label}: lintian only {only_oracle[:3]}, debmagic only {only_debmagic[:3]}",
-                    example_limit,
-                )
-                comparison.note_disagreement(
-                    Disagreement(
-                        tag, stats.code, "context", label, key.kind, artifact, tuple(only_oracle), tuple(only_debmagic)
-                    )
-                )
-            if not actual_severity[tag] & visible_types[tag] and "experimental" not in visible_types[tag]:
-                lintian_type = "/".join(sorted(visible_types[tag]))
-                ours = "/".join(sorted(actual_severity[tag]))
-                stats.severity_mismatch[(lintian_type, ours)] += 1
-                comparison.note_disagreement(
-                    Disagreement(
-                        tag,
-                        stats.code,
-                        "severity",
-                        label,
-                        key.kind,
-                        artifact,
-                        note=f"lintian {lintian_type}, debmagic {ours}",
-                    )
-                )
+            judge_match(comparison, stats, key, artifact, label, tags, tag, example_limit)
         elif in_oracle:
             stats.missed += 1
             stats.instances_oracle += sum(visible[tag].values())
-            stats.note("missed", f"{label}: {sorted(visible[tag].elements())[:3]}", example_limit)
+            why = " (debmagic suppressed it with an override)" if hidden_here else ""
+            stats.note("missed", f"{label}: {sorted(visible[tag].elements())[:3]}{why}", example_limit)
             comparison.note_disagreement(
                 Disagreement(
                     tag,
@@ -845,14 +934,21 @@ def judge_tags(
                     key.kind,
                     artifact,
                     lintian=tuple(sorted(visible[tag].elements())),
+                    note="debmagic suppressed it with an override" if hidden_here else "",
                 )
             )
-        elif in_actual and tag in suppressed:
-            stats.overridden += 1
         elif in_actual:
             stats.extra += 1
             stats.instances_debmagic += sum(actual[tag].values())
-            stats.note("extra", f"{label}: {sorted(actual[tag].elements())[:3]}", example_limit)
+            unapplied = tag in suppressed
+            if unapplied:
+                stats.unapplied += 1
+            note = "override not applied: lintian suppresses this Tag here" if unapplied else ""
+            stats.note(
+                "extra",
+                f"{label}: {sorted(actual[tag].elements())[:3]}" + (f" ({note})" if note else ""),
+                example_limit,
+            )
             comparison.note_disagreement(
                 Disagreement(
                     tag,
@@ -862,8 +958,77 @@ def judge_tags(
                     key.kind,
                     artifact,
                     debmagic=tuple(sorted(actual[tag].elements())),
+                    note=note,
                 )
             )
+        elif tag in suppressed and hidden_here:
+            stats.overridden += 1
+        elif hidden_here:
+            # Hidden by an override in debmagic, with no hint from lintian at all: a false positive that the
+            # override hides from the user, so it still counts against the Rule.
+            stats.extra += 1
+            stats.instances_debmagic += sum(overridden[tag].values())
+            hidden = sorted(overridden[tag].elements())[:3]
+            stats.note("extra", f"{label}: {hidden} (hidden by an override)", example_limit)
+            comparison.note_disagreement(
+                Disagreement(
+                    tag,
+                    stats.code,
+                    "extra",
+                    label,
+                    key.kind,
+                    artifact,
+                    debmagic=tuple(sorted(overridden[tag].elements())),
+                    note="hidden by an override; lintian has no hint",
+                )
+            )
+
+
+def judge_match(
+    comparison: Comparison,
+    stats: TagStats,
+    key: SubjectKey,
+    artifact: str,
+    label: str,
+    tags: Tags,
+    tag: str,
+    example_limit: int,
+) -> None:
+    """A Tag both sides show: compare the contexts and the severity."""
+    visible, actual = tags.visible, tags.actual
+    stats.match += 1
+    both = visible[tag] & actual[tag]
+    stats.instances_oracle += sum(visible[tag].values())
+    stats.instances_debmagic += sum(actual[tag].values())
+    stats.instances_matched += sum(both.values())
+    if visible[tag] != actual[tag]:
+        only_oracle = sorted((visible[tag] - actual[tag]).elements())
+        only_debmagic = sorted((actual[tag] - visible[tag]).elements())
+        stats.note(
+            "context",
+            f"{label}: lintian only {only_oracle[:3]}, debmagic only {only_debmagic[:3]}",
+            example_limit,
+        )
+        comparison.note_disagreement(
+            Disagreement(
+                tag, stats.code, "context", label, key.kind, artifact, tuple(only_oracle), tuple(only_debmagic)
+            )
+        )
+    if not tags.actual_severity[tag] & tags.visible_types[tag] and "experimental" not in tags.visible_types[tag]:
+        lintian_type = "/".join(sorted(tags.visible_types[tag]))
+        ours = "/".join(sorted(tags.actual_severity[tag]))
+        stats.severity_mismatch[(lintian_type, ours)] += 1
+        comparison.note_disagreement(
+            Disagreement(
+                tag,
+                stats.code,
+                "severity",
+                label,
+                key.kind,
+                artifact,
+                note=f"lintian {lintian_type}, debmagic {ours}",
+            )
+        )
 
 
 def ratio_stats(values: list[float]) -> dict[str, float]:
@@ -968,24 +1133,24 @@ def render(comparison: Comparison, meta: dict[str, object], top_uncovered: int, 
     stats = sorted(comparison.stats.values(), key=lambda s: (-(s.missed + s.extra), s.tag))
     total = Counter()
     for s in stats:
-        total.update(match=s.match, missed=s.missed, extra=s.extra, overridden=s.overridden)
+        total.update(match=s.match, missed=s.missed, extra=s.extra, unapplied=s.unapplied, overridden=s.overridden)
     lines += [
         "",
         f"Subjects compared: {comparison.subjects}; debmagic time {comparison.seconds:.0f}s; "
         f"native (DM) diagnostics ignored: {comparison.native_diagnostics}",
-        f"Covered Tag x Subject hits: match {total['match']}, missed {total['missed']}, extra {total['extra']}, "
-        f"overridden-by-lintian {total['overridden']}",
+        f"Covered Tag x Subject hits: match {total['match']}, missed {total['missed']}, extra {total['extra']} "
+        f"(override not applied {total['unapplied']}), overridden on both sides {total['overridden']}",
         f"Recall {pct(total['match'], total['match'] + total['missed'])}, "
         f"precision {pct(total['match'], total['match'] + total['extra'])}",
         "",
         "## Covered Tags",
         "",
-        "| Tag | Code | match | missed | extra | overridden | contexts matched |",
-        "| --- | --- | ---: | ---: | ---: | ---: | --- |",
+        "| Tag | Code | match | missed | extra | unapplied | overridden (both) | contexts matched |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for s in stats:
         lines.append(
-            f"| {s.tag} | {s.code} | {s.match} | {s.missed} | {s.extra} | {s.overridden} | "
+            f"| {s.tag} | {s.code} | {s.match} | {s.missed} | {s.extra} | {s.unapplied} | {s.overridden} | "
             f"{s.instances_matched}/{s.instances_oracle} (debmagic {s.instances_debmagic}) |"
         )
 
@@ -1028,6 +1193,7 @@ def report_json(comparison: Comparison) -> dict[str, Any]:
                 "match": s.match,
                 "missed": s.missed,
                 "extra": s.extra,
+                "unapplied": s.unapplied,
                 "overridden": s.overridden,
                 "contexts": [s.instances_matched, s.instances_oracle, s.instances_debmagic],
                 "examples": s.examples,
@@ -1058,6 +1224,23 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--pool", choices=["key", "archive"], default="key", help="where the sample comes from (default key packages)"
     )
     choice.add_argument("--seed", default="0", help="sample seed (default 0)")
+    choice.add_argument(
+        "--package-list",
+        type=Path,
+        metavar="FILE",
+        help="check exactly the `source [version]` lines of FILE (a pinned set, see --write-package-list)",
+    )
+    choice.add_argument(
+        "--write-package-list",
+        type=Path,
+        metavar="FILE",
+        help="write the selected packages to FILE as a pinned `source version` list",
+    )
+    choice.add_argument(
+        "--list-only",
+        action="store_true",
+        help="select (and write --write-package-list) without downloading or linting",
+    )
     parser.add_argument("--release", default="sid", help="archive release to take packages from (default sid)")
     parser.add_argument(
         "--arch", nargs="+", default=["amd64"], help="binary architectures besides `all` (default amd64)"
@@ -1079,7 +1262,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--lint-arg",
         action="append",
         default=None,
-        help="extra argument for `debmagic lint`, repeatable (default: --select LN)",
+        help="extra argument for `debmagic lint`, repeatable (default: --select LN --show-overrides)",
     )
     parser.add_argument(
         "--lintian-data", type=Path, default=parity.DEFAULT_LINTIAN_DATA, help="lintian tag catalogue, for renames"
@@ -1109,6 +1292,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     args = parser.parse_args(argv)
     if args.packages and (args.all or args.sample is not None):
         parser.error("--packages replaces the default set; it cannot be combined with --all or --sample")
+    if args.package_list and (args.packages or args.all or args.sample is not None):
+        parser.error("--package-list replaces the default set; it cannot be combined with the other selections")
     if args.all and args.sample is not None:
         parser.error("--all and --sample are alternatives")
     if args.sample is None:
@@ -1236,12 +1421,14 @@ def render_packet(tag: str, code: str, records: list[Disagreement], rule_path: s
         f"# {tag} ({code or 'no code'})",
         "",
         f"- Rule: {f'`{rule_path}`' if rule_path else 'not in the Rule catalogue'}",
-        f"- Disagreements: {len(subjects)} Subjects; missed {buckets['missed']}, extra {buckets['extra']}, "
+        f"- Disagreements: {len(subjects)} Subjects; missed {buckets['missed']}, extra {buckets['extra']} "
+        f"(override not applied {sum(r.note.startswith('override not applied') for r in records)}), "
         f"context {buckets['context']}, severity {buckets['severity']}",
         "- Oracle: UDD `lintian_results` (what tracker.debian.org reports); see the parent `report.md`",
         f"- Packet: `{rel}`",
         "- Closure: the Rule's native tests cover the new behaviour, `just lint-parity` is unchanged, "
-        "and the Subject below no longer disagrees",
+        "and the Subject below no longer disagrees (an `override not applied` extra is the override pass, "
+        "ADR 0057, not the Rule)",
         "",
         "## Reproduce",
         "",
@@ -1269,6 +1456,8 @@ def render_packet(tag: str, code: str, records: list[Disagreement], rule_path: s
             if record.bucket == "severity":
                 lines.append(f"- severity: {record.note}")
                 continue
+            if record.note and record.bucket != "severity":
+                lines.append(f"- note: {record.note}")
             if record.lintian:
                 label = "lintian only" if record.bucket == "context" else "lintian"
                 lines.append(f"- {label}:")
@@ -1416,13 +1605,17 @@ def main(argv: list[str] | None = None) -> int:
     PROGRESS.verbose = args.verbose
     log("start", f"lint ecosystem run into {args.work_dir} (progress: {args.progress})")
     debmagic = build_debmagic(args)
-    lint_args = args.lint_arg if args.lint_arg is not None else ["--select", "LN"]
+    lint_args = args.lint_arg if args.lint_arg is not None else ["--select", "LN", "--show-overrides"]
 
     entries = select_sources(args)
     if "binary" in args.kinds:
         attach_binaries(entries, args)
     print_plan(entries, args.kinds)
     oracle = load_oracle(entries, args.work_dir, args.refresh_oracle)
+    if args.write_package_list:
+        write_package_list(args, entries)
+    if args.list_only:
+        return 0
     downloads, pending, download_bar = start_downloads(entries, args.work_dir, args.workers)
     log("downloads", f"{download_bar.total} file(s) queued with {args.workers} worker(s)")
 

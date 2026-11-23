@@ -157,6 +157,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/debconf/debconf-syntax-error",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
+    "checks/debian/desktop-entries/desktop-file",
     "checks/debian/dpkg-build-api/rules-variable",
     "checks/debian/filenames/duplicate-news-files",
     "checks/debian/filenames/news-has-debian-extension",
@@ -1313,6 +1314,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/debconf/debconf-syntax-error",
     "checks/debian/debconf/debconf-templates-general",
     "checks/debian/debconf/legacy-debconf",
+    "checks/debian/desktop-entries/desktop-file",
     "checks/debian/dpkg-build-api/rules-variable",
     "checks/debian/filenames/duplicate-news-files",
     "checks/debian/filenames/news-has-debian-extension",
@@ -1908,6 +1910,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/debconf/debconf-syntax-error"; "checks_debian_debconf_debconf_syntax_error")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
+#[test_case("checks/debian/desktop-entries/desktop-file"; "checks_debian_desktop_entries_desktop_file")]
 #[test_case("checks/debian/dpkg-build-api/rules-variable"; "checks_debian_dpkg_build_api_rules_variable")]
 #[test_case("checks/debian/filenames/duplicate-news-files"; "checks_debian_filenames_duplicate_news_files")]
 #[test_case("checks/debian/filenames/news-has-debian-extension"; "checks_debian_filenames_news_has_debian_extension")]
@@ -3066,6 +3069,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/debconf/debconf-syntax-error"; "checks_debian_debconf_debconf_syntax_error")]
 #[test_case("checks/debian/debconf/debconf-templates-general"; "checks_debian_debconf_debconf_templates_general")]
 #[test_case("checks/debian/debconf/legacy-debconf"; "checks_debian_debconf_legacy_debconf")]
+#[test_case("checks/debian/desktop-entries/desktop-file"; "checks_debian_desktop_entries_desktop_file")]
 #[test_case("checks/debian/dpkg-build-api/rules-variable"; "checks_debian_dpkg_build_api_rules_variable")]
 #[test_case("checks/debian/filenames/duplicate-news-files"; "checks_debian_filenames_duplicate_news_files")]
 #[test_case("checks/debian/filenames/news-has-debian-extension"; "checks_debian_filenames_news_has_debian_extension")]

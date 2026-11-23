@@ -84,7 +84,7 @@ impl BinaryPackageRule for ArchitectureEscape {
 
 /// `normalize_link_target`: the link against `dir` (or taken as is when
 /// absolute), with `.` dropped and `..` popped. `None` when it leaves the root.
-fn normalize(dir: &str, link: &str) -> Option<String> {
+pub(super) fn normalize(dir: &str, link: &str) -> Option<String> {
     let joined = if link.starts_with('/') {
         link.to_string()
     } else {

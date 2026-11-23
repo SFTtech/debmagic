@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): ldconfig-escape (LN1725) opt/myapp/a-module.so [usr/lib/myapp-module.so]
+I: example (binary): ldconfig-escape (LN1725) usr/lib/myapp/liba.so.1 [usr/lib/liba.so]
+I: example (binary): ldconfig-escape (LN1725) aarch64-linux-gnu/a.so [lib/x86_64-linux-gnu/liba.so]
+I: example (binary): ldconfig-escape (LN1725) liba.so.1 [usr/lib/liba.so]
+I: example (binary): ldconfig-escape (LN1725) opt/a.so [usr/lib/liba.so]
+I: example (udeb): ldconfig-escape (LN1725) opt/myapp/a-module.so [usr/lib/liba.so]

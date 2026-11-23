@@ -658,8 +658,8 @@ pub(crate) use documentation_manual::{
     BuildPathInManual, CountryInManual, EmptyManualPage, ExecutableManualPage,
     FSSTNDDirInManualPage, GroffMessage, ManualPageFromTemplate, ManualPageWithGenericName,
     NoEnglishManualPage, NoManualPage, OddPlaceForManualPage, PodConversionMessage,
-    PoorCompressionInManualPage, PythonTracebackInManpage, StrayFolderInManual, TypoInManualPage,
-    UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
+    PoorCompressionInManualPage, PythonTracebackInManpage, SpareManualPage, StrayFolderInManual,
+    TypoInManualPage, UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
     WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
 };
 pub(crate) use documentation_texinfo::{

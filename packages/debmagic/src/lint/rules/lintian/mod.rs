@@ -250,6 +250,7 @@ mod scripts_depends;
 mod scripts_interpreters;
 mod scripts_shell;
 mod scripts_text;
+mod shell_bash_completion;
 mod shell_csh;
 mod shell_non_posix_bash_centric;
 mod source_missing;
@@ -531,6 +532,7 @@ pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStato
 pub(crate) use origtar::EmptyUpstreamSources;
 pub(crate) use script_syntax::MaintainerShellScriptFailsSyntaxCheck;
 pub(crate) use script_syntax::ShellScriptFailsSyntaxCheck;
+pub(crate) use shell_bash_completion::BashCompletionWithHashbang;
 pub(crate) use shell_csh::CshConsideredHarmful;
 pub(crate) use shell_non_posix_bash_centric::BashTermInPosixShell;
 pub(crate) use shell_non_posix_bash_centric::PossibleBashismInMaintainerScript;

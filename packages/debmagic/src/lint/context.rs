@@ -27,7 +27,7 @@ use super::openpgp::OpenPgpFile;
 use super::quilt_series::QuiltSeries;
 use super::rule::{Code, RuleAccess, Tag};
 use super::sibling_files::SiblingFiles;
-use super::source_package::{SourcePackageExtract, strip_epoch};
+use super::source_package::{self, OrigEntry, SourcePackageExtract, strip_epoch};
 use super::strings::FileStrings;
 use super::subject::SubjectKind;
 use super::timing;
@@ -573,6 +573,7 @@ pub(crate) struct SourcePackageData {
     debian_changelog: OnceLock<Option<DebianChangelog>>,
     orig: OnceLock<Result<FileTree, String>>,
     patched: OnceLock<Result<FileTree, String>>,
+    orig_entries: OnceLock<Result<Vec<OrigEntry>, String>>,
     shared: SharedSlots,
     _extract: Option<SourcePackageExtract>,
 }
@@ -588,6 +589,7 @@ impl SourcePackageData {
             debian_changelog: OnceLock::new(),
             orig: OnceLock::new(),
             patched: OnceLock::new(),
+            orig_entries: OnceLock::new(),
             shared: SharedSlots::default(),
             _extract: Some(extract),
         })
@@ -613,6 +615,7 @@ impl SourcePackageData {
             debian_changelog: OnceLock::new(),
             orig: orig_cell,
             patched: patched_cell,
+            orig_entries: OnceLock::new(),
             shared: SharedSlots::default(),
             _extract: None,
         }
@@ -642,6 +645,35 @@ impl SourcePackageData {
 
     pub(super) fn orig_files(&self) -> Result<&FileTree, &str> {
         self.tree(&self.orig, |extract| extract.orig_files())
+    }
+
+    /// What dpkg-source printed extracting the Patched files. Empty without an
+    /// extract (a test's file trees).
+    pub(super) fn patched_unpack_messages(&self) -> &[String] {
+        self._extract
+            .as_ref()
+            .map_or(&[], SourcePackageExtract::patched_messages)
+    }
+
+    /// What tar printed extracting the Orig tarballs. Empty without an extract.
+    pub(super) fn orig_unpack_messages(&self) -> &[String] {
+        self._extract
+            .as_ref()
+            .map_or(&[], SourcePackageExtract::orig_messages)
+    }
+
+    /// The Orig tarballs' entries, read from their headers once. A `.dsc` is
+    /// needed for the tarball names; without one there are none.
+    pub(super) fn orig_entries(&self) -> Result<&[OrigEntry], &str> {
+        match timing::init_once(&self.orig_entries, || match &self.dsc {
+            Some(dsc) => {
+                source_package::orig_entries(&self.path, dsc).map_err(|error| format!("{error:#}"))
+            }
+            None => Ok(Vec::new()),
+        }) {
+            Ok(entries) => Ok(entries.as_slice()),
+            Err(message) => Err(message.as_str()),
+        }
     }
 
     pub(super) fn patched_files(&self) -> Result<&FileTree, &str> {
@@ -770,6 +802,44 @@ impl<'a> SourceContext<'a> {
             },
             SourceInner::Package(data) => match data.patched_files() {
                 Ok(tree) => Some(tree),
+                Err(message) => {
+                    if self.runtime_error.is_none() {
+                        self.runtime_error = Some(anyhow!("{message}"));
+                    }
+                    None
+                }
+            },
+        }
+    }
+
+    /// What dpkg-source printed while extracting the Patched files (lintian's
+    /// `patched->unpack_messages`), in order. Empty on a Source tree.
+    pub fn patched_unpack_messages(&self) -> &[String] {
+        match self.inner {
+            SourceInner::Tree(_) => &[],
+            SourceInner::Package(data) => data.patched_unpack_messages(),
+        }
+    }
+
+    /// What tar printed while extracting the Orig tarballs (lintian's
+    /// `orig->unpack_messages`), each as `<tarball> . <message>`, in order.
+    /// Empty on a Source tree and for a Native package.
+    pub fn orig_unpack_messages(&self) -> &[String] {
+        match self.inner {
+            SourceInner::Tree(_) => &[],
+            SourceInner::Package(data) => data.orig_unpack_messages(),
+        }
+    }
+
+    /// The entries of the Orig tarballs, as lintian's orig index names them:
+    /// the path in the Orig files and the tar header's modification time, read
+    /// from the tarballs beside the `.dsc`. `None` on a Source tree, and after
+    /// a global failure (returned from [`Self::finish`]). Empty when Native.
+    pub fn orig_entries(&mut self) -> Option<&[OrigEntry]> {
+        match self.inner {
+            SourceInner::Tree(_) => None,
+            SourceInner::Package(data) => match data.orig_entries() {
+                Ok(entries) => Some(entries),
                 Err(message) => {
                     if self.runtime_error.is_none() {
                         self.runtime_error = Some(anyhow!("{message}"));

@@ -21,6 +21,7 @@ pub fn run_lint(source_dir: &Path, extra_args: &[&str]) -> (ExitStatus, String, 
         .arg("--source-dir")
         .arg(source_dir)
         .args(extra_args)
+        .env("TZ", "UTC")
         .output()
         .expect("failed to spawn debmagic");
 
@@ -36,6 +37,7 @@ pub fn run_lint_subject(subject: &Path, extra_args: &[&str]) -> (ExitStatus, Str
         .arg("lint")
         .arg(subject)
         .args(extra_args)
+        .env("TZ", "UTC")
         .output()
         .expect("failed to spawn debmagic");
 
@@ -1440,6 +1442,14 @@ const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[
         "the hints name the orig and debian tarballs of the Files field of a .dsc, which a Source tree does not have",
     ),
     (
+        "checks/unpack/ancient-source",
+        "the hint is tar's message from unpacking the orig tarball, which a Source tree does not do",
+    ),
+    (
+        "checks/files/date/orig-tarball-ancient-file",
+        "the hint is about an entry of the orig tarball, which a Source tree does not have",
+    ),
+    (
         "checks/fields/checksums/no-sha256-checksum",
         "the hint is about the built `.dsc`'s `Checksums-Sha256`, and a Source tree has no `.dsc`",
     ),
@@ -1765,6 +1775,15 @@ fn changelog_field(changelog: &Path, field: &str) -> String {
     String::from_utf8_lossy(&output.stdout).trim().to_string()
 }
 
+/// The top directory of the main orig `<source>_<upstream>.orig.tar.gz`, which
+/// is `<source>-<upstream>`. `None` for another archive (a component, or the
+/// base a hook unpacks).
+fn orig_top_directory(orig: &Path) -> Option<String> {
+    let name = orig.file_name()?.to_str()?;
+    let stem = name.strip_suffix(".orig.tar.gz")?;
+    Some(stem.replacen('_', "-", 1))
+}
+
 /// Orig without `debian/` and without root paths the hints call `debian-adds-`.
 /// Those paths were created by the recipe `pre-build` after lintian packed
 /// orig, so they belong in the diff.
@@ -1773,6 +1792,11 @@ fn pack_orig_without_added(tree: &Path, orig: &Path, added: &[String]) {
     command
         .current_dir(tree)
         .args(["--exclude=./debian", "--exclude=debian"]);
+    // lintian's upload builder puts the upstream files under `<source>-<upstream>/`,
+    // and tar's messages name members by that path (`tar: <top>/README: ...`).
+    if let Some(top) = orig_top_directory(orig) {
+        command.arg(format!("--transform=s,^\\.,{top},"));
+    }
     for pointer in added {
         let trimmed = pointer.trim_end_matches('/');
         command.arg(format!("--exclude=./{trimmed}"));

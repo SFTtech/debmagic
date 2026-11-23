@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+use std::ffi::OsStr;
 use std::fs;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
@@ -7,7 +9,7 @@ use anyhow::{Context, bail};
 use regex::Regex;
 use tempfile::TempDir;
 
-use super::binary_package_reader::guess_package_name;
+use super::binary_package_reader::{guess_package_name, header_mtime, normalize_member_path};
 use super::debian_control::ControlParagraph;
 use super::dsc::Dsc;
 use super::file_tree::FileTree;
@@ -118,6 +120,11 @@ pub(crate) struct SourcePackageExtract {
     pub dsc: Dsc,
     orig_root: Option<PathBuf>,
     patched_root: PathBuf,
+    /// What dpkg-source printed while extracting the Patched files.
+    patched_messages: Vec<String>,
+    /// What tar printed while extracting each Orig tarball, as
+    /// `<tarball> . <message>` (lintian's `orig->unpack_messages`).
+    orig_messages: Vec<String>,
     _workspace: TempDir,
 }
 
@@ -127,17 +134,17 @@ impl SourcePackageExtract {
         ensure_named_files_exist(&identity)?;
         let workspace = TempDir::new().context("creating Source package extract directory")?;
         let patched_root = workspace.path().join("patched");
-        extract_patched(&identity.path, &patched_root)?;
+        let patched_messages = extract_patched(&identity.path, &patched_root)?;
         restore_debian_pc(&identity, workspace.path(), &patched_root)?;
 
-        let orig_root = if identity.is_native() {
-            None
+        let (orig_root, orig_messages) = if identity.is_native() {
+            (None, Vec::new())
         } else {
             let orig_root = workspace.path().join("orig");
             fs::create_dir_all(&orig_root)
                 .with_context(|| format!("creating {}", orig_root.display()))?;
-            extract_orig(&identity, &orig_root)?;
-            Some(orig_root)
+            let messages = extract_orig(&identity, &orig_root)?;
+            (Some(orig_root), messages)
         };
 
         Ok(Self {
@@ -145,6 +152,8 @@ impl SourcePackageExtract {
             dsc: identity.dsc,
             orig_root,
             patched_root,
+            patched_messages,
+            orig_messages,
             _workspace: workspace,
         })
     }
@@ -163,6 +172,24 @@ impl SourcePackageExtract {
     pub fn patched_root(&self) -> &Path {
         &self.patched_root
     }
+
+    pub fn patched_messages(&self) -> &[String] {
+        &self.patched_messages
+    }
+
+    pub fn orig_messages(&self) -> &[String] {
+        &self.orig_messages
+    }
+}
+
+/// The stderr lines lintian keeps as unpack messages: all but its
+/// `tar: Ignoring ` ones.
+fn unpack_message_lines(stderr: &[u8]) -> Vec<String> {
+    String::from_utf8_lossy(stderr)
+        .lines()
+        .filter(|line| !line.starts_with("tar: Ignoring "))
+        .map(str::to_string)
+        .collect()
 }
 
 fn ensure_named_files_exist(identity: &DscIdentity) -> anyhow::Result<()> {
@@ -180,7 +207,7 @@ fn ensure_named_files_exist(identity: &DscIdentity) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn extract_patched(dsc: &Path, dest: &Path) -> anyhow::Result<()> {
+fn extract_patched(dsc: &Path, dest: &Path) -> anyhow::Result<Vec<String>> {
     let output = Command::new("dpkg-source")
         .args(["-q", "--no-check", "--extract"])
         .arg(dsc)
@@ -206,7 +233,7 @@ fn extract_patched(dsc: &Path, dest: &Path) -> anyhow::Result<()> {
             }
         );
     }
-    Ok(())
+    Ok(unpack_message_lines(&output.stderr))
 }
 
 /// `dpkg-source --extract` skips `*/.pc` so a hostile tarball cannot plant
@@ -239,15 +266,26 @@ fn restore_debian_pc(
     Ok(())
 }
 
-fn extract_orig(identity: &DscIdentity, orig_root: &Path) -> anyhow::Result<()> {
+fn extract_orig(identity: &DscIdentity, orig_root: &Path) -> anyhow::Result<Vec<String>> {
     let dir = identity.directory();
+    let mut messages = Vec::new();
     for (index, (filename, component)) in identity.orig_components()?.into_iter().enumerate() {
         let tarball = dir.join(&filename);
         let stage = orig_root
             .parent()
             .unwrap_or(orig_root)
             .join(format!("orig-stage-{index}"));
-        extract_tarball(&tarball, &stage)?;
+        let mut tarball_messages = Vec::<String>::new();
+        for line in unpack_message_lines(&extract_tarball(&tarball, &stage)?) {
+            if !tarball_messages.contains(&line) {
+                tarball_messages.push(line);
+            }
+        }
+        messages.extend(
+            tarball_messages
+                .into_iter()
+                .map(|line| format!("{filename} . {line}")),
+        );
         let stripped = apply_common_prefix(&stage)?;
         let dest = if component.is_empty() {
             orig_root.to_path_buf()
@@ -256,15 +294,18 @@ fn extract_orig(identity: &DscIdentity, orig_root: &Path) -> anyhow::Result<()> 
         };
         merge_tree(&stripped, &dest)?;
     }
-    Ok(())
+    Ok(messages)
 }
 
-fn extract_tarball(tarball: &Path, dest: &Path) -> anyhow::Result<()> {
+/// Extracts `tarball` into `dest` and returns the stderr lines tar printed.
+/// `--touch` keeps the header time stamps off the extracted files, as
+/// lintian's extraction does, so tar does not warn about ancient ones.
+fn extract_tarball(tarball: &Path, dest: &Path) -> anyhow::Result<Vec<u8>> {
     fs::create_dir_all(dest).with_context(|| format!("creating {}", dest.display()))?;
     let output = Command::new("tar")
         .arg("-C")
         .arg(dest)
-        .args(["--no-same-owner", "-xf"])
+        .args(["--no-same-owner", "--touch", "-xf"])
         .arg(tarball)
         .stdin(Stdio::null())
         .output()
@@ -287,7 +328,7 @@ fn extract_tarball(tarball: &Path, dest: &Path) -> anyhow::Result<()> {
             }
         );
     }
-    Ok(())
+    Ok(output.stderr)
 }
 
 fn apply_common_prefix(extract_dir: &Path) -> anyhow::Result<PathBuf> {
@@ -323,6 +364,132 @@ fn merge_tree(src: &Path, dest: &Path) -> anyhow::Result<()> {
             .with_context(|| format!("moving {} to {}", entry.path().display(), to.display()))?;
     }
     Ok(())
+}
+
+/// One entry of an Orig tarball as lintian's orig index names it: its path in
+/// the Orig files, and the modification time in its tar header.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct OrigEntry {
+    pub path: PathBuf,
+    pub mtime: Option<i64>,
+}
+
+/// The entries of the Orig tarballs of the `.dsc` at `dsc_path`, read from
+/// their tar headers beside it (each tarball is decompressed as a stream, not
+/// extracted). Empty for a Native package.
+pub(crate) fn orig_entries(dsc_path: &Path, dsc: &Dsc) -> anyhow::Result<Vec<OrigEntry>> {
+    let identity = DscIdentity {
+        path: dsc_path.to_path_buf(),
+        dsc: dsc.clone(),
+        files: named_files(dsc.fields()),
+    };
+    if identity.is_native() {
+        return Ok(Vec::new());
+    }
+    let mut entries = Vec::new();
+    for (filename, component) in identity.orig_components()? {
+        let members = tarball_members(&identity.directory().join(&filename))?;
+        for (path, mtime) in drop_common_top_directory(members, &component) {
+            let path = if component.is_empty() {
+                path
+            } else {
+                Path::new(&component).join(path)
+            };
+            entries.push(OrigEntry { path, mtime });
+        }
+    }
+    Ok(entries)
+}
+
+/// A member of an Orig tarball, as its header describes it.
+struct TarMember {
+    path: PathBuf,
+    is_dir: bool,
+    mtime: Option<i64>,
+}
+
+/// The members of the tarball at `path`, in archive order.
+fn tarball_members(path: &Path) -> anyhow::Result<Vec<TarMember>> {
+    let mut archive = tar::Archive::new(open_tarball(path)?);
+    let mut members = Vec::new();
+    for entry in archive
+        .entries()
+        .with_context(|| format!("reading {}", path.display()))?
+    {
+        let entry = entry.with_context(|| format!("reading {}", path.display()))?;
+        let name = entry
+            .path()
+            .with_context(|| format!("reading {}", path.display()))?;
+        let Some(normalized) = normalize_member_path(&name) else {
+            continue;
+        };
+        members.push(TarMember {
+            path: normalized,
+            is_dir: entry.header().entry_type().is_dir(),
+            mtime: header_mtime(entry.header()),
+        });
+    }
+    Ok(members)
+}
+
+/// The tarball at `path`, decompressed as a stream. bzip2 is not read.
+fn open_tarball(path: &Path) -> anyhow::Result<Box<dyn std::io::Read>> {
+    let file = fs::File::open(path).with_context(|| format!("opening {}", path.display()))?;
+    let name = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or_default();
+    if name.ends_with(".gz") {
+        Ok(Box::new(flate2::read::GzDecoder::new(file)))
+    } else if name.ends_with(".xz") {
+        Ok(Box::new(xz2::read::XzDecoder::new(file)))
+    } else if name.ends_with(".zst") {
+        Ok(Box::new(zstd::stream::read::Decoder::new(file)?))
+    } else if name.ends_with(".tar") {
+        Ok(Box::new(file))
+    } else {
+        bail!(
+            "{} is compressed in a format debmagic does not read",
+            path.display()
+        )
+    }
+}
+
+/// lintian's orig index names: the Orig files of one tarball lose the one
+/// top directory that every member shares, as the extraction does, unless a
+/// file of that name exists. The component directory is kept (the caller adds
+/// it). Entries left with no name are dropped.
+fn drop_common_top_directory(
+    members: Vec<TarMember>,
+    component: &str,
+) -> Vec<(PathBuf, Option<i64>)> {
+    let common: PathBuf = {
+        let tops: BTreeSet<&OsStr> = members
+            .iter()
+            .filter_map(|member| member.path.iter().next())
+            .collect();
+        match tops.iter().next() {
+            Some(top) if tops.len() == 1 => PathBuf::from(top),
+            _ => PathBuf::new(),
+        }
+    };
+    let conflict = members
+        .iter()
+        .any(|member| !member.is_dir && member.path == common);
+    let strip = !common.as_os_str().is_empty()
+        && !conflict
+        && (common.as_os_str() != OsStr::new(component) || !component.is_empty());
+    members
+        .into_iter()
+        .filter_map(|member| {
+            let path = if strip {
+                member.path.strip_prefix(&common).ok()?.to_path_buf()
+            } else {
+                member.path
+            };
+            (!path.as_os_str().is_empty()).then_some((path, member.mtime))
+        })
+        .collect()
 }
 
 fn named_files(fields: &ControlParagraph) -> Vec<String> {
@@ -376,6 +543,18 @@ pub(crate) fn write_test_native_dsc(
     name: &str,
     extra_files: &[(&str, &[u8])],
 ) -> anyhow::Result<PathBuf> {
+    write_test_native_tree(work, name, extra_files)?;
+    build_test_native_dsc(work, name)
+}
+
+/// The `src` tree of a native package in `work`: `debian/` and `extra_files`,
+/// not yet built. A test may age its files before [`build_test_native_dsc`].
+#[cfg(test)]
+pub(crate) fn write_test_native_tree(
+    work: &Path,
+    name: &str,
+    extra_files: &[(&str, &[u8])],
+) -> anyhow::Result<PathBuf> {
     let tree = work.join("src");
     fs::create_dir_all(tree.join("debian/source"))?;
     fs::write(
@@ -413,6 +592,13 @@ pub(crate) fn write_test_native_dsc(
         }
         fs::write(path, contents)?;
     }
+    Ok(tree)
+}
+
+/// Builds the `src` tree of [`write_test_native_tree`] into `<name>_1.0.dsc`
+/// in `work`, and returns that `.dsc`.
+#[cfg(test)]
+pub(crate) fn build_test_native_dsc(work: &Path, name: &str) -> anyhow::Result<PathBuf> {
     let output = Command::new("dpkg-source")
         .current_dir(work)
         .args(["-b", "src"])
@@ -430,6 +616,73 @@ pub(crate) fn write_test_native_dsc(
         bail!("dpkg-source -b did not produce {}", dsc.display());
     }
     Ok(dsc)
+}
+
+/// Writes a `3.0 (quilt)` package `<name>_1.0-1.dsc` into `work`, with an orig
+/// tarball of `orig` members (name, contents, header mtime) and a gzipped
+/// debian tarball. Built by hand, not by `dpkg-source -b`, so a member name can
+/// be one tar would warn about. `dpkg-source --no-check` extracts it.
+#[cfg(test)]
+pub(crate) fn write_test_quilt_dsc(
+    work: &Path,
+    name: &str,
+    orig: &[(&str, &[u8], u64)],
+) -> anyhow::Result<PathBuf> {
+    let orig_name = format!("{name}_1.0.orig.tar.gz");
+    let debian_name = format!("{name}_1.0-1.debian.tar.gz");
+    let orig_bytes = tar_gz_with_mtimes(orig)?;
+    let debian_bytes = tar_gz_with_mtimes(&[
+        ("debian/source/format", b"3.0 (quilt)\n", 0),
+        ("debian/rules", b"#!/usr/bin/make -f\n", 0),
+    ])?;
+    fs::write(work.join(&orig_name), &orig_bytes)?;
+    fs::write(work.join(&debian_name), &debian_bytes)?;
+    let checksum = "0".repeat(32);
+    let dsc = format!(
+        "Format: 3.0 (quilt)\n\
+         Source: {name}\n\
+         Binary: {name}\n\
+         Architecture: all\n\
+         Version: 1.0-1\n\
+         Maintainer: Example <ex@example.com>\n\
+         Files:\n \
+         {checksum} {} {orig_name}\n \
+         {checksum} {} {debian_name}\n",
+        orig_bytes.len(),
+        debian_bytes.len(),
+    );
+    let path = work.join(format!("{name}_1.0-1.dsc"));
+    fs::write(&path, dsc)?;
+    Ok(path)
+}
+
+/// A gzipped tar of `members` (name, contents, header mtime).
+#[cfg(test)]
+fn tar_gz_with_mtimes(members: &[(&str, &[u8], u64)]) -> anyhow::Result<Vec<u8>> {
+    use flate2::Compression;
+    use flate2::write::GzEncoder;
+    use std::io::Write;
+
+    let mut tar_bytes = Vec::new();
+    {
+        let mut builder = tar::Builder::new(&mut tar_bytes);
+        for (member, contents, mtime) in members {
+            let mut header = tar::Header::new_gnu();
+            // Raw name bytes: `set_path` refuses an absolute member name, which
+            // a test of tar's leading-slash warning needs.
+            let name = member.as_bytes();
+            header.as_old_mut().name[..name.len()].copy_from_slice(name);
+            header.set_size(contents.len() as u64);
+            header.set_mode(0o644);
+            header.set_mtime(*mtime);
+            header.set_cksum();
+            builder.append(&header, *contents)?;
+        }
+        builder.finish()?;
+    }
+    let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+    encoder.write_all(&tar_bytes)?;
+    Ok(encoder.finish()?)
 }
 
 #[cfg(test)]

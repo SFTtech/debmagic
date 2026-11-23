@@ -444,6 +444,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/contents/line-length/cruft-gfdl-invariants",
     "checks/files/contents/line-length/cruft-minified-js",
     "checks/files/contents/line-length/min-js-with-sources",
+    "checks/files/date/orig-tarball-ancient-file",
     "checks/files/encoding/changelog-in-western-encoding",
     "checks/files/encoding/copyright-in-western-encoding",
     "checks/files/encoding/debconf-in-western-encoding",
@@ -553,6 +554,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/testsuite/testsuite-unknown-suite",
     "checks/testsuite/testsuite-with-adttmp",
     "checks/testsuite/unnecessary-testsuite-autopkgtest-field",
+    "checks/unpack/ancient-source",
     "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-non-native-1.0",
     "general-false-positives/basic-non-native-3.0",
@@ -1669,6 +1671,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/contents/line-length/cruft-gfdl-invariants",
     "checks/files/contents/line-length/cruft-minified-js",
     "checks/files/contents/line-length/min-js-with-sources",
+    "checks/files/date/orig-tarball-ancient-file",
     "checks/files/encoding/changelog-in-western-encoding",
     "checks/files/encoding/copyright-in-western-encoding",
     "checks/files/encoding/debconf-in-western-encoding",
@@ -1779,6 +1782,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/testsuite/testsuite-unknown-suite",
     "checks/testsuite/testsuite-with-adttmp",
     "checks/testsuite/unnecessary-testsuite-autopkgtest-field",
+    "checks/unpack/ancient-source",
     "checks/upstream-signature/control-file-upstream-signature-missing",
     "checks/upstream-signature/doubly-armored-signature",
     "checks/upstream-signature/explicit-armor-header",
@@ -2307,6 +2311,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/contents/line-length/cruft-gfdl-invariants"; "checks_files_contents_line_length_cruft_gfdl_invariants")]
 #[test_case("checks/files/contents/line-length/cruft-minified-js"; "checks_files_contents_line_length_cruft_minified_js")]
 #[test_case("checks/files/contents/line-length/min-js-with-sources"; "checks_files_contents_line_length_min_js_with_sources")]
+#[test_case("checks/files/date/orig-tarball-ancient-file"; "checks_files_date_orig_tarball_ancient_file")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
 #[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
 #[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]
@@ -2416,6 +2421,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/testsuite/testsuite-unknown-suite"; "checks_testsuite_testsuite_unknown_suite")]
 #[test_case("checks/testsuite/testsuite-with-adttmp"; "checks_testsuite_testsuite_with_adttmp")]
 #[test_case("checks/testsuite/unnecessary-testsuite-autopkgtest-field"; "checks_testsuite_unnecessary_testsuite_autopkgtest_field")]
+#[test_case("checks/unpack/ancient-source"; "checks_unpack_ancient_source")]
 #[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-1.0"; "general_false_positives_basic_non_native_1_0")]
 #[test_case("general-false-positives/basic-non-native-3.0"; "general_false_positives_basic_non_native_3_0")]
@@ -3534,6 +3540,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/contents/line-length/cruft-gfdl-invariants"; "checks_files_contents_line_length_cruft_gfdl_invariants")]
 #[test_case("checks/files/contents/line-length/cruft-minified-js"; "checks_files_contents_line_length_cruft_minified_js")]
 #[test_case("checks/files/contents/line-length/min-js-with-sources"; "checks_files_contents_line_length_min_js_with_sources")]
+#[test_case("checks/files/date/orig-tarball-ancient-file"; "checks_files_date_orig_tarball_ancient_file")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
 #[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
 #[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]
@@ -3644,6 +3651,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/testsuite/testsuite-unknown-suite"; "checks_testsuite_testsuite_unknown_suite")]
 #[test_case("checks/testsuite/testsuite-with-adttmp"; "checks_testsuite_testsuite_with_adttmp")]
 #[test_case("checks/testsuite/unnecessary-testsuite-autopkgtest-field"; "checks_testsuite_unnecessary_testsuite_autopkgtest_field")]
+#[test_case("checks/unpack/ancient-source"; "checks_unpack_ancient_source")]
 #[test_case("checks/upstream-signature/control-file-upstream-signature-missing"; "checks_upstream_signature_control_file_upstream_signature_missing")]
 #[test_case("checks/upstream-signature/doubly-armored-signature"; "checks_upstream_signature_doubly_armored_signature")]
 #[test_case("checks/upstream-signature/explicit-armor-header"; "checks_upstream_signature_explicit_armor_header")]

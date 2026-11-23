@@ -101,20 +101,6 @@ mod tests {
                 ("debian/control", TestFile::from(CONTROL)),
                 ("bin/app.exe", TestFile::symlink("app.exe")),
             ],
-            // A `.com` text file is not a Windows binary: lintian matches
-            // only the File type, and VMS command procedures and welcomelist
-            // domains are common in real packages.
-            vec![
-                ("debian/control", TestFile::from(CONTROL)),
-                ("tools/makevms.com", TestFile::new("$ set verify\n")),
-            ],
-            vec![
-                ("debian/control", TestFile::from(CONTROL)),
-                (
-                    "t/data/welcomelists/example.com",
-                    TestFile::new("example.com\n"),
-                ),
-            ],
         ];
         let fail = vec![
             vec![
@@ -177,5 +163,41 @@ mod tests {
         ];
         SourcePackageTester::new(SourceContainsPrebuiltWindowsBinary, pass, fail)
             .test_and_snapshot();
+    }
+
+    /// Lintian's `visit_patched_files` reports only on the File type regex
+    /// (`PE(32|64)` or `MS-DOS|COM executable`), never on the path, so a
+    /// text file with a Windows-looking extension is not reported.
+    #[test]
+    fn extension_alone_is_not_reported() {
+        let pass = vec![
+            vec![
+                ("debian/control", TestFile::from(CONTROL)),
+                ("tools/build.com", TestFile::new("$ set verify\n")),
+            ],
+            vec![
+                ("debian/control", TestFile::from(CONTROL)),
+                ("data/hosts/example.com", TestFile::new("example.com\n")),
+            ],
+            vec![
+                ("debian/control", TestFile::from(CONTROL)),
+                ("tools/setup.exe", TestFile::new("not a program\n")),
+            ],
+        ];
+        let fail = vec![];
+        SourceTreeTester::new(SourceContainsPrebuiltWindowsBinary, pass, fail).test();
+    }
+
+    /// The File type decides regardless of the name: a PE or DOS MZ file
+    /// without a Windows extension is reported.
+    #[test]
+    fn file_type_is_reported_without_extension() {
+        let pass = vec![];
+        let fail = vec![vec![
+            ("debian/control", TestFile::from(CONTROL)),
+            ("bin/app", TestFile::new("pe").file_type(FileType::Pe32)),
+            ("bin/tool", TestFile::new("mz").file_type(FileType::DosMz)),
+        ]];
+        SourceTreeTester::new(SourceContainsPrebuiltWindowsBinary, pass, fail).test();
     }
 }

@@ -16,10 +16,12 @@ use crate::lint::source_package::{strip_debian_revision, strip_epoch};
 mod ln1434_concatenated_upstream_signatures;
 mod ln1435_doubly_armored_upstream_signature;
 mod ln1436_explicitly_armored_upstream_signature;
+mod ln1437_orig_tarball_missing_upstream_signature;
 
 pub(crate) use ln1434_concatenated_upstream_signatures::ConcatenatedUpstreamSignatures;
 pub(crate) use ln1435_doubly_armored_upstream_signature::DoublyArmoredUpstreamSignature;
 pub(crate) use ln1436_explicitly_armored_upstream_signature::ExplicitlyArmoredUpstreamSignature;
+pub(crate) use ln1437_orig_tarball_missing_upstream_signature::OrigTarballMissingUpstreamSignature;
 
 const SIGNING_KEY_FILENAMES: &str = include_str!("../../../data/common/signing-key-filenames");
 

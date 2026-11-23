@@ -367,6 +367,7 @@ use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OredBuildDependsOnObsoletePackage;
 use super::rules::OredDependsOnObsoletePackage;
+use super::rules::OrigTarballMissingUpstreamSignature;
 use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
@@ -2323,6 +2324,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ConcatenatedUpstreamSignatures,
         &DoublyArmoredUpstreamSignature,
         &ExplicitlyArmoredUpstreamSignature,
+        &OrigTarballMissingUpstreamSignature,
     ]
 }
 
@@ -2761,6 +2763,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &ConcatenatedUpstreamSignatures,
         &DoublyArmoredUpstreamSignature,
         &ExplicitlyArmoredUpstreamSignature,
+        &OrigTarballMissingUpstreamSignature,
     ]
 }
 

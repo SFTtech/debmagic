@@ -230,6 +230,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-unnecessary-get-orig-source",
     "checks/debian/rules/rules-unnecessary-source-date-epoch",
     "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
+    "checks/debian/source/include-binaries/non-existing-file",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
@@ -1383,6 +1384,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/rules-unnecessary-get-orig-source",
     "checks/debian/rules/rules-unnecessary-source-date-epoch",
     "checks/debian/rules/rules-unnecessary-source-date-epoch-unrel",
+    "checks/debian/source/include-binaries/non-existing-file",
     "checks/debian/source-dir/debian-source-dir-custom-compression-settings",
     "checks/debian/source-dir/debian-source-dir-general",
     "checks/debian/source-dir/debian-source-dir-gitpkg-series",
@@ -1975,6 +1977,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/rules-unnecessary-get-orig-source"; "checks_debian_rules_rules_unnecessary_get_orig_source")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
+#[test_case("checks/debian/source/include-binaries/non-existing-file"; "checks_debian_source_include_binaries_non_existing_file")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]
@@ -3130,6 +3133,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/rules-unnecessary-get-orig-source"; "checks_debian_rules_rules_unnecessary_get_orig_source")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch"; "checks_debian_rules_rules_unnecessary_source_date_epoch")]
 #[test_case("checks/debian/rules/rules-unnecessary-source-date-epoch-unrel"; "checks_debian_rules_rules_unnecessary_source_date_epoch_unrel")]
+#[test_case("checks/debian/source/include-binaries/non-existing-file"; "checks_debian_source_include_binaries_non_existing_file")]
 #[test_case("checks/debian/source-dir/debian-source-dir-custom-compression-settings"; "checks_debian_source_dir_debian_source_dir_custom_compression_settings")]
 #[test_case("checks/debian/source-dir/debian-source-dir-general"; "checks_debian_source_dir_debian_source_dir_general")]
 #[test_case("checks/debian/source-dir/debian-source-dir-gitpkg-series"; "checks_debian_source_dir_debian_source_dir_gitpkg_series")]

@@ -380,6 +380,7 @@ use super::rules::NoMd5sumsControlFile;
 use super::rules::NoPhrase;
 use super::rules::NoShlibs;
 use super::rules::NoStrongDigestsInDsc;
+use super::rules::NoSymbolsControlFile;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
 use super::rules::NonStandardApache2ModulePackageName;
@@ -395,6 +396,7 @@ use super::rules::ObsoleteFieldInDep5Copyright;
 use super::rules::ObsoleteRelationForm;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
+use super::rules::OcamlCustomExecutable;
 use super::rules::OcamlDanglingCmi;
 use super::rules::OcamlDanglingCmx;
 use super::rules::OddPermissionsOnSharedLibrary;
@@ -557,6 +559,7 @@ use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
+use super::rules::StaticLinkTimeOptimization;
 use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
@@ -2411,6 +2414,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ChecksumMismatchInChangesFile,
         &SpareManualPage,
         &PublicUpstreamKeyUnusable,
+        &OcamlCustomExecutable,
+        &StaticLinkTimeOptimization,
+        &NoSymbolsControlFile,
     ]
 }
 
@@ -3760,6 +3766,9 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &BrokenBz2,
         &BrokenLz,
         &BrokenLzo,
+        &OcamlCustomExecutable,
+        &StaticLinkTimeOptimization,
+        &NoSymbolsControlFile,
     ]
 }
 

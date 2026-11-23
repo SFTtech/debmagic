@@ -51,7 +51,6 @@ pub(crate) struct FileStrings {
 }
 
 impl FileStrings {
-    #[allow(dead_code)] // seam API; no Rule reads it yet
     pub(crate) fn from_tree(files: &FileTree) -> Self {
         let texts = files
             .query()
@@ -70,7 +69,6 @@ impl FileStrings {
     }
 
     /// The strings of the ELF file at `path`, one per line.
-    #[allow(dead_code)] // seam API; no Rule reads it yet
     pub(crate) fn get(&self, path: impl AsRef<Path>) -> Option<&str> {
         self.texts.get(path.as_ref()).map(String::as_str)
     }

@@ -724,6 +724,35 @@ pub struct LintSubcommandArgs {
         help = "Print bringup time, initialization shared across Rules, and time spent on each Rule"
     )]
     pub timings: bool,
+
+    #[arg(
+        long = "show-overrides",
+        action = clap::ArgAction::SetTrue,
+        conflicts_with = "no_override",
+        help = "Also print Diagnostics suppressed by a Lintian override file, as 'O:' lines after their 'N:' justification"
+    )]
+    pub show_overrides: bool,
+
+    #[arg(
+        long = "no-override",
+        action = clap::ArgAction::SetTrue,
+        conflicts_with = "show_overrides",
+        help = "Do not apply Lintian override files, so no Diagnostic is suppressed and unused-override is not reported"
+    )]
+    pub no_override: bool,
+}
+
+impl LintSubcommandArgs {
+    /// How the Lintian override files are applied, from `--show-overrides` and `--no-override`.
+    pub fn override_mode(&self) -> crate::lint::OverrideMode {
+        if self.no_override {
+            crate::lint::OverrideMode::Off
+        } else if self.show_overrides {
+            crate::lint::OverrideMode::Show
+        } else {
+            crate::lint::OverrideMode::Hide
+        }
+    }
 }
 
 #[derive(Args, Debug)]
@@ -993,6 +1022,38 @@ mod tests {
         assert!(Cli::try_parse_from(["debmagic", "env", "exec"]).is_err());
         assert!(Cli::try_parse_from(["debmagic", "env", "exec", "echo", "hi"]).is_err());
         assert!(Cli::try_parse_from(["debmagic", "env", "shell", "--", "echo", "hi"]).is_err());
+    }
+
+    fn parse_lint(args: &[&str]) -> Result<LintSubcommandArgs, clap::Error> {
+        Cli::try_parse_from([&["debmagic", "lint"], args].concat()).map(|cli| match cli.command {
+            Commands::Lint(args) => args,
+            other => panic!("unexpected command {other:?}"),
+        })
+    }
+
+    #[test]
+    fn lint_override_mode_defaults_to_hide() {
+        let args = parse_lint(&[]).unwrap();
+        assert!(!args.show_overrides && !args.no_override);
+        assert_eq!(args.override_mode(), crate::lint::OverrideMode::Hide);
+    }
+
+    #[test]
+    fn lint_show_overrides_selects_show() {
+        let args = parse_lint(&["--show-overrides"]).unwrap();
+        assert_eq!(args.override_mode(), crate::lint::OverrideMode::Show);
+    }
+
+    #[test]
+    fn lint_no_override_selects_off() {
+        let args = parse_lint(&["--no-override"]).unwrap();
+        assert_eq!(args.override_mode(), crate::lint::OverrideMode::Off);
+    }
+
+    #[test]
+    fn lint_override_flags_conflict() {
+        let error = parse_lint(&["--show-overrides", "--no-override"]).unwrap_err();
+        assert_eq!(error.kind(), clap::error::ErrorKind::ArgumentConflict);
     }
 
     #[test]

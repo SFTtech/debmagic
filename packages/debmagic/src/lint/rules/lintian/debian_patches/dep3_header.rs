@@ -5,7 +5,7 @@
 //! Description nor Subject, or with none of Origin, Author and From, yields
 //! nothing. Field names are case-insensitive and the last mention wins.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 use crate::lint::context::SourceContext;
@@ -145,29 +145,7 @@ fn parse_header(bytes: &[u8]) -> Option<Dep3Header> {
         end += line.len();
     }
     let header = std::str::from_utf8(&bytes[..end]).ok()?;
-
-    let mut fields: HashMap<String, String> = HashMap::new();
-    let mut current: Option<String> = None;
-    for line in header.lines() {
-        if line.trim().is_empty() {
-            current = None;
-        } else if line.starts_with([' ', '\t']) {
-            if let Some(key) = &current {
-                let value = fields.entry(key.clone()).or_default();
-                value.push('\n');
-                value.push_str(line.trim());
-            }
-        } else {
-            match line.split_once(':') {
-                Some((key, value)) if !key.is_empty() && !key.contains(char::is_whitespace) => {
-                    let key = key.to_ascii_lowercase();
-                    fields.insert(key.clone(), value.trim().to_string());
-                    current = Some(key);
-                }
-                _ => current = None,
-            }
-        }
-    }
+    let fields = parse_fields(header)?;
 
     let value = |name: &str| fields.get(name).map(|v| v.trim()).unwrap_or_default();
     Some(Dep3Header {
@@ -183,6 +161,60 @@ fn parse_header(bytes: &[u8]) -> Option<Dep3Header> {
             && value("author").is_empty()
             && value("from").is_empty()),
     })
+}
+
+/// Lintian's Deb822 reader as its Check runs it on a DEP-3 header. `#` lines
+/// are skipped, a blank line ends a paragraph, a field value may continue on
+/// lines that start with a space or tab, and a field name may appear once per
+/// paragraph. The result maps lowercase field names to their last value.
+///
+/// Returns `None` where the reader dies, and the Check then returns without a
+/// hint: a line that is no field and no continuation, a field name with a
+/// space or tab, a continuation outside a paragraph, a repeated field in one
+/// paragraph, a PGP armour line (signed headers are not modelled). Also `None`
+/// when the header has no field at all, as lintian then has no paragraph.
+fn parse_fields(header: &str) -> Option<HashMap<String, String>> {
+    let mut fields: HashMap<String, String> = HashMap::new();
+    let mut paragraph: HashSet<&str> = HashSet::new();
+    let mut open = false;
+    let mut last_tag: Option<String> = None;
+
+    for line in header.lines() {
+        if line.starts_with('#') {
+            continue;
+        }
+        if line.trim().is_empty() {
+            open = false;
+            paragraph.clear();
+        } else if let Some((name, value)) = field_line(line) {
+            if !paragraph.insert(name) {
+                return None;
+            }
+            open = true;
+            let key = name.to_ascii_lowercase();
+            fields.insert(key.clone(), value.trim_end().to_string());
+            last_tag = Some(key);
+        } else if line.starts_with([' ', '\t']) && open {
+            let key = last_tag.as_ref()?;
+            let value = fields.entry(key.clone()).or_default();
+            value.push('\n');
+            value.push_str(line.trim_end());
+        } else {
+            return None;
+        }
+    }
+
+    last_tag.as_ref()?;
+    Some(fields)
+}
+
+/// A `Name: value` line as Deb822 reads it: the name has no space or tab.
+fn field_line(line: &str) -> Option<(&str, &str)> {
+    let (name, rest) = line.split_once(':')?;
+    if name.is_empty() || name.contains([' ', '\t']) {
+        return None;
+    }
+    Some((name, rest.trim_start()))
 }
 
 /// Lintian accepts any URI whose scheme is http or https.

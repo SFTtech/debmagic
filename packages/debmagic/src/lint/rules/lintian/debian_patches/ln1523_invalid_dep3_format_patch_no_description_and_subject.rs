@@ -75,4 +75,67 @@ mod tests {
         SourceTreeTester::new(InvalidDep3FormatPatchNoDescriptionAndSubject, pass, fail)
             .test_and_snapshot();
     }
+
+    /// lintian's Deb822 reader skips `#` lines and then finds no paragraph, so
+    /// `Dep3.pm` returns without a hint (`return unless @sections`).
+    #[test]
+    fn comment_only_header_has_no_paragraph() {
+        SourceTreeTester::new(
+            InvalidDep3FormatPatchNoDescriptionAndSubject,
+            vec![patch("## fix.diff by A\n##\n## Fix the build.\n\n")],
+            vec![patch(
+                "# a comment\nOrigin: upstream, https://example.org/1\n",
+            )],
+        )
+        .test();
+    }
+
+    /// A header line that is neither a field nor a continuation makes the Deb822
+    /// reader die ("Cannot parse line"), and `Dep3.pm` returns without a hint.
+    #[test]
+    fn unparseable_header_line_stops_the_check() {
+        SourceTreeTester::new(
+            InvalidDep3FormatPatchNoDescriptionAndSubject,
+            vec![
+                patch("Origin: upstream, https://example.org/1\n\nSome prose.\n"),
+                patch("Replace legacy plugins\n\n"),
+            ],
+            vec![
+                patch("Origin: upstream, https://example.org/1\n"),
+                patch("Origin: upstream, https://example.org/1\n# prose is a comment\n"),
+            ],
+        )
+        .test();
+    }
+
+    /// A continuation line after a blank line has no open field, which the
+    /// Deb822 reader rejects ("Continuation line not in paragraph").
+    #[test]
+    fn continuation_after_blank_line_stops_the_check() {
+        SourceTreeTester::new(
+            InvalidDep3FormatPatchNoDescriptionAndSubject,
+            vec![patch(
+                "Origin: upstream, https://example.org/1\n\n Subject: fix\n",
+            )],
+            vec![patch("Origin: upstream,\n https://example.org/1\n")],
+        )
+        .test();
+    }
+
+    /// A field name repeated in one paragraph is a Deb822 syntax error ("Duplicate
+    /// field"), but a repeat in another paragraph is a valid last mention.
+    #[test]
+    fn repeated_field_in_one_paragraph_stops_the_check() {
+        SourceTreeTester::new(
+            InvalidDep3FormatPatchNoDescriptionAndSubject,
+            vec![patch(
+                "Origin: upstream, https://example.org/1\nOrigin: other\n",
+            )],
+            vec![
+                patch("Origin: upstream, https://example.org/1\n\nOrigin: other\n"),
+                patch("Origin: upstream, https://example.org/1\n\nAuthor: A <a@example.org>\n"),
+            ],
+        )
+        .test();
+    }
 }

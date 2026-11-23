@@ -79,9 +79,9 @@ mod tests {
             )),
             // Without Description and Subject the patch is skipped.
             patch("Origin: vendor, https://example.org/1\n"),
-            // The last mention counts.
+            // The last mention counts, here in a later paragraph.
             patch(&format!(
-                "{GATE}Origin: vendor, x\nForwarded: no\nForwarded: yes\n"
+                "{GATE}Origin: vendor, x\nForwarded: no\n\nForwarded: yes\n"
             )),
             // Field names are case-insensitive, and the Origin category is trimmed.
             patch("description: fix\nORIGIN: upstream , commit:0123abcd\n"),
@@ -115,6 +115,36 @@ mod tests {
             ],
         ];
         SourceTreeTester::new(PatchNotForwardedUpstream, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian's Deb822 reader dies on a prose line in the header ("Cannot parse
+    /// line"), and `Dep3.pm` returns before the forwarded check.
+    #[test]
+    fn unparseable_header_line_skips_forwarded_check() {
+        SourceTreeTester::new(
+            PatchNotForwardedUpstream,
+            vec![patch(&format!(
+                "{GATE}Origin: vendor, x\n\nSome prose in the commit message.\n"
+            ))],
+            vec![patch(&format!("{GATE}Origin: vendor, x\n# a note\n"))],
+        )
+        .test();
+    }
+
+    /// lintian's Deb822 reader dies on a field name repeated in one paragraph
+    /// ("Duplicate field"); the same name in a later paragraph is a valid mention.
+    #[test]
+    fn repeated_field_in_one_paragraph_skips_forwarded_check() {
+        SourceTreeTester::new(
+            PatchNotForwardedUpstream,
+            vec![patch(&format!(
+                "{GATE}Origin: vendor, x\nForwarded: yes\nForwarded: no\n"
+            ))],
+            vec![patch(&format!(
+                "{GATE}Origin: vendor, x\nForwarded: yes\n\nForwarded: no\n"
+            ))],
+        )
+        .test();
     }
 
     #[test]

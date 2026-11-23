@@ -737,6 +737,7 @@ use super::rules::UnnecessarySourceDateEpochAssignment;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnpackMessageForDebData;
 use super::rules::UnparsableMenuItem;
+use super::rules::UnreleasedChangelogDistribution;
 use super::rules::UnreleasedChanges;
 use super::rules::UnstrippedStaticLibrary;
 use super::rules::UnsupportedSourceFormat;
@@ -2659,6 +2660,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
+        &UnreleasedChangelogDistribution,
     ]
 }
 
@@ -4179,6 +4181,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &PackageDoesNotInstallExamples,
         &RulesSilentlyRequireRoot,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
+        &UnreleasedChangelogDistribution,
     ]
 }
 

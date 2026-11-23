@@ -23,6 +23,7 @@ use super::jar::JarFiles;
 use super::lintian_overrides::LintianOverrides;
 use super::quilt_series::QuiltSeries;
 use super::rule::{Code, RuleAccess, Tag};
+use super::sibling_files::SiblingFiles;
 use super::source_package::SourcePackageExtract;
 use super::strings::FileStrings;
 use super::subject::SubjectKind;
@@ -863,6 +864,20 @@ impl<'a> SourceContext<'a> {
         match self.inner {
             SourceInner::Tree(_) => None,
             SourceInner::Package(data) => data.dsc.as_ref(),
+        }
+    }
+
+    /// Sibling files of the `.dsc`: the regular files in its directory, names
+    /// listed once per Subject and bytes read on request. A superset of the
+    /// `.dsc` `Files` list (signatures and component tarballs it does not
+    /// name). `None` on a Source tree, which has no `.dsc`.
+    #[allow(dead_code)]
+    pub fn sibling_files(&mut self) -> Option<Arc<SiblingFiles>> {
+        match self.inner {
+            SourceInner::Tree(_) => None,
+            SourceInner::Package(data) => {
+                Some(self.shared_once(|_| SiblingFiles::load(&data.path)))
+            }
         }
     }
 

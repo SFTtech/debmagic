@@ -927,6 +927,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/permissions/files-bad-perm-owner",
     "checks/files/permissions/files-general",
     "checks/files/permissions/legacy-scripts",
+    "checks/files/permissions/usr-lib/executable-installed-here",
     "checks/files/pkgconfig/files-pkgconfig",
     "checks/files/privacy-breach/files-privacybreach",
     "checks/files/scripts/legacy-scripts",
@@ -2676,6 +2677,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/permissions/files-bad-perm-owner"; "checks_files_permissions_files_bad_perm_owner")]
 #[test_case("checks/files/permissions/files-general"; "checks_files_permissions_files_general")]
 #[test_case("checks/files/permissions/legacy-scripts"; "checks_files_permissions_legacy_scripts")]
+#[test_case("checks/files/permissions/usr-lib/executable-installed-here"; "checks_files_permissions_usr_lib_executable_installed_here")]
 #[test_case("checks/files/pkgconfig/files-pkgconfig"; "checks_files_pkgconfig_files_pkgconfig")]
 #[test_case("checks/files/privacy-breach/files-privacybreach"; "checks_files_privacy_breach_files_privacybreach")]
 #[test_case("checks/files/scripts/legacy-scripts"; "checks_files_scripts_legacy_scripts")]

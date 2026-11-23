@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): executable-in-usr-lib (LN1723) [usr/lib/some-executable]
+P: example (binary): executable-in-usr-lib (LN1723) [usr/lib/bar]
+P: example (binary): executable-in-usr-lib (LN1723) [usr/lib/foo]
+P: example (binary): executable-in-usr-lib (LN1723) [usr/lib/foo/bar/baz]

@@ -217,6 +217,7 @@ use super::rules::ExampleWrongPathForInterpreter;
 use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExecutableDebhelperFileWithoutBeingExecutable;
 use super::rules::ExecutableDesktopFile;
+use super::rules::ExecutableInUsrLib;
 use super::rules::ExecutableInUsrShareDocbase;
 use super::rules::ExecutableIsNotWorldReadable;
 use super::rules::ExecutableJarWithoutMainClass;
@@ -2435,6 +2436,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ManualPageForSystemCommand,
         &BashCompletionWithHashbang,
         &ChownWithDot,
+        &ExecutableInUsrLib,
     ]
 }
 
@@ -3796,6 +3798,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ManualPageForSystemCommand,
         &BashCompletionWithHashbang,
         &ChownWithDot,
+        &ExecutableInUsrLib,
     ]
 }
 

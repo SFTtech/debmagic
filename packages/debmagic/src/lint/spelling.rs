@@ -33,11 +33,16 @@ static CORRECTIONS: LazyLock<Pairs> =
 static CORRECTIONS_CASE: LazyLock<Pairs> =
     LazyLock::new(|| pairs(include_str!("data/spelling/corrections-case")));
 
+/// lintian's Perl regexes have no step limit. `fancy-regex` defaults to one
+/// and then fails on long texts, so the limit is lifted to match lintian.
 static MULTIWORD: LazyLock<Vec<(FancyRegex, &'static str)>> = LazyLock::new(|| {
     data::lines(include_str!("data/spelling/corrections-multiword"))
         .filter_map(|line| {
             let (pattern, correction) = line.split_once("||")?;
-            let regex = FancyRegex::new(&format!(r"\b({pattern})\b")).ok()?;
+            let regex = fancy_regex::RegexBuilder::new(&format!(r"\b({pattern})\b"))
+                .backtrack_limit(usize::MAX)
+                .build()
+                .ok()?;
             Some((regex, correction))
         })
         .collect()
@@ -436,5 +441,40 @@ mod tests {
     #[test]
     fn binary_exceptions_are_first_fields() {
         assert!(binary_exception_words().any(|word| word == "teH"));
+    }
+
+    /// lintian matches each multi-word pattern against the whole text with
+    /// no step limit (`check_spelling`, `$text =~ $oregex`), so a phrase late
+    /// in a long binary's strings is still reported.
+    #[test]
+    fn multiword_phrase_late_in_long_text_is_reported() {
+        let mut text = "filler word here ".repeat(60_000);
+        text.push_str(" The tool does allow to run.");
+        let found = found(&text);
+        assert!(
+            found.contains(&("\"allow to\"".to_string(), "\"allow one to\"".to_string())),
+            "{found:?}"
+        );
+    }
+
+    /// lintian runs every multi-word pattern on its own, so `allows to` and
+    /// `allow to` are each reported at their first match (`check_spelling`).
+    #[test]
+    fn multiword_patterns_each_report_their_first_match() {
+        let text = "GtkX allows to show. They allow to select.";
+        assert_eq!(
+            found(text),
+            [
+                ("\"allows to\"".to_string(), "\"allows one to\"".to_string()),
+                ("\"allow to\"".to_string(), "\"allow one to\"".to_string()),
+            ]
+        );
+    }
+
+    /// Boundary: a phrase is only reported on word boundaries, so `allow tomorrow`
+    /// and `disallow to` are not reported (`\b...\b` in `check_spelling`).
+    #[test]
+    fn multiword_phrase_needs_word_boundaries() {
+        assert!(found("We will allow tomorrow and disallow to stop.").is_empty());
     }
 }

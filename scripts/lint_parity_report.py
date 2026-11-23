@@ -86,12 +86,12 @@ def hint_kind(rule_kinds: set[str], ptype: str) -> str | None:
     """The Applicability of a Rule that produces a hint of this processable type, if the Rule has it.
 
     A Group Rule's Diagnostics attach to the Source package (`source` hints, ADR 0055) or to an
-    installable (`binary`, `udeb`).
+    installable (`binary`, `udeb`) or to the `.changes` (`changes`, when it needs the `.dsc` to judge it).
     """
     kind = PTYPE_TO_KIND.get(ptype)
     if kind in rule_kinds:
         return kind
-    if ptype in ("source", "binary", "udeb") and "group" in rule_kinds:
+    if ptype in ("source", "binary", "udeb", "changes") and "group" in rule_kinds:
         return "group"
     return None
 

@@ -4,6 +4,7 @@ mod appstream_metadata;
 mod apt;
 mod archive_file_name_length;
 mod archive_liberty;
+mod archive_non_free_autobuild;
 mod autotools;
 mod binaries;
 mod binaries_architecture;
@@ -224,6 +225,7 @@ mod ln1389_source_contains_prebuilt_python_object;
 mod ln1390_source_is_missing;
 mod ln1560_bin_sbin_mismatch;
 mod ln1562_empty_udeb_package;
+mod ln1491_inconsistent_maintainer;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_adduser;
@@ -286,6 +288,7 @@ pub(crate) use apt::PackageInstallsAptSources;
 pub(crate) use archive_file_name_length::PackageHasLongFileName;
 pub(crate) use archive_file_name_length::SourcePackageComponentHasLongFileName;
 pub(crate) use archive_liberty::ArchiveLibertyMismatch;
+pub(crate) use archive_non_free_autobuild::SourceOnlyUploadToNonFreeWithoutAutobuild;
 pub(crate) use autotools::{
     AncientLibtool, AutotoolsPkgConfigMacroNotCrossCompilationSafe, ConfigureGeneratedFileInSource,
 };
@@ -323,6 +326,7 @@ pub(crate) use binaries_static::StaticallyLinkedBinary;
 pub(crate) use build_systems_automake::DeprecatedConfigureFilename;
 pub(crate) use build_systems_waf::SourceContainsWafBinary;
 pub(crate) use changes_file::BadSectionInChangesFile;
+pub(crate) use changes_file::ChecksumCountMismatchInChangesFile;
 pub(crate) use changes_file::FileSizeMismatchInChangesFile;
 pub(crate) use changes_file::PackageBuildsDbgAndDbgsymVariants;
 pub(crate) use conffiles::{
@@ -539,6 +543,9 @@ pub(crate) use debian_changelog::{
     BadIntendedDistribution, BogusMailHostInDebianChangelog, ChangelogEmptyEntry,
     ChangelogFileMissingExplicitEntry, ChangelogIsDhMakeTemplate, ChangelogIsSymlink,
     ChangelogNewsDebianMismatch, ChangelogNotCompressedWithMaxCompression,
+    BogusMailHostInDebianChangelog, ChangelogDistributionDoesNotMatchChangesFile,
+    ChangelogEmptyEntry, ChangelogFileMissingExplicitEntry, ChangelogIsDhMakeTemplate,
+    ChangelogIsSymlink, ChangelogNewsDebianMismatch, ChangelogNotCompressedWithMaxCompression,
     ChangelogReferencesTempSecurityIdentifier,
     DebianChangelogFileContainsObsoleteUserEmacsSettings, DebianChangelogHasWrongDayOfWeek,
     DebianChangelogLineTooLong, DebianChangelogLineTooShort, DebianNewsEntryHasStrangeDistribution,
@@ -773,6 +780,7 @@ pub(crate) use files_multi_arch::{
     MultiarchForeignCmakeFile, MultiarchForeignPkgconfig, MultiarchForeignSharedLibrary,
     MultiarchForeignStaticLibrary,
 };
+pub(crate) use files_names::UpstreamFileWithoutUtf8Name;
 pub(crate) use files_names::{
     FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,
     HyphenFile, NativeSourceFileWithoutUtf8Name, PackageContainsCompiledGlibSchema,
@@ -994,6 +1002,7 @@ pub(crate) use ln1389_source_contains_prebuilt_python_object::SourceContainsPreb
 pub(crate) use ln1390_source_is_missing::SourceIsMissing;
 pub(crate) use ln1560_bin_sbin_mismatch::BinSbinMismatch;
 pub(crate) use ln1562_empty_udeb_package::EmptyUdebPackage;
+pub(crate) use ln1491_inconsistent_maintainer::InconsistentMaintainer;
 pub(crate) use maintainer_scripts_adduser::AdduserWithHomeVarRun;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,
@@ -1122,7 +1131,8 @@ pub(crate) use testsuite::{
     BackgroundedTestCommand, ConflictingTestFields, DebianTestsControlAutodep8IsObsolete,
     DeclarePythonVersionsForTest, DropPythonVersionDeclaration, EmptyDebianTestsControl,
     IllegalRuntimeTestName, MissingRuntimeTestFile, MissingTestsControl, NoOpTestsuite,
-    ObsoleteRuntimeTestsRestriction, RuntimeTestFileUsesInstalledPythonVersions,
+    ObsoleteRuntimeTestsRestriction, RuntimeTestFileIsNotARegularFile,
+    RuntimeTestFileUsesInstalledPythonVersions,
     RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends, TestLeavesPythonVersionUntested,
     TestsuiteDependencyHasUnparsableElements, TestsuiteDependsOnObsoletePackage,
     TestsuiteRestrictionsHasDeprecatedSkipNotInstallable, UnknownTestsuite,

@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e -u
+
+PRODUCT=$(basename "$1")
+DESTDIR=$(dirname "$1")
+
+mkdir -p "${DESTDIR}"
+dcmd mv "${PRODUCT}" "${DESTDIR}/"

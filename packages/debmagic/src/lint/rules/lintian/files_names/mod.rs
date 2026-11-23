@@ -26,6 +26,7 @@ mod ln0702_shipped_file_without_utf8_name;
 mod ln0726_zero_byte_executable_in_path;
 mod ln0843_native_source_file_without_utf8_name;
 mod ln1247_patched_file_without_utf8_name;
+mod ln1564_upstream_file_without_utf8_name;
 mod names;
 
 pub(crate) use ln0065_file_name_ends_in_whitespace::FileNameEndsInWhitespace;
@@ -50,3 +51,4 @@ pub(crate) use ln0702_shipped_file_without_utf8_name::ShippedFileWithoutUtf8Name
 pub(crate) use ln0726_zero_byte_executable_in_path::ZeroByteExecutableInPath;
 pub(crate) use ln0843_native_source_file_without_utf8_name::NativeSourceFileWithoutUtf8Name;
 pub(crate) use ln1247_patched_file_without_utf8_name::PatchedFileWithoutUtf8Name;
+pub(crate) use ln1564_upstream_file_without_utf8_name::UpstreamFileWithoutUtf8Name;

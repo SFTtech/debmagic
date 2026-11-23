@@ -14,8 +14,10 @@ use crate::lint::data;
 use crate::lint::source_package::{strip_debian_revision, strip_epoch};
 
 mod ln1434_concatenated_upstream_signatures;
+mod ln1435_doubly_armored_upstream_signature;
 
 pub(crate) use ln1434_concatenated_upstream_signatures::ConcatenatedUpstreamSignatures;
+pub(crate) use ln1435_doubly_armored_upstream_signature::DoublyArmoredUpstreamSignature;
 
 const SIGNING_KEY_FILENAMES: &str = include_str!("../../../data/common/signing-key-filenames");
 

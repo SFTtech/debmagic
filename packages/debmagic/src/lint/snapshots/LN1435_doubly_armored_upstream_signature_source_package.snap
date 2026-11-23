@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): doubly-armored-upstream-signature (LN1435) example_1.0.orig.tar.gz.asc

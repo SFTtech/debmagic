@@ -506,6 +506,7 @@ pub(crate) use udev::UdevRuleMissingSubsystem;
 pub(crate) use udev::UdevRuleMissingUaccess;
 pub(crate) use udev::UdevRuleUnreadable;
 pub(crate) use upstream_signature::ConcatenatedUpstreamSignatures;
+pub(crate) use upstream_signature::DoublyArmoredUpstreamSignature;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{

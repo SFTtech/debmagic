@@ -507,6 +507,7 @@ use super::rules::PackagePlaceholderInSymbolsFile;
 use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
 use super::rules::PackageUsesDhRunitButLacksBreaksSubstvar;
+use super::rules::PackageUsesExperimentalDebhelperCompatVersion;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesOldPythonDependsSubstvar;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
@@ -2661,6 +2662,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &UnreleasedChangelogDistribution,
+        &PackageUsesExperimentalDebhelperCompatVersion,
     ]
 }
 
@@ -3194,6 +3196,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsQuiltControlDir,
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
+        &PackageUsesExperimentalDebhelperCompatVersion,
     ]
 }
 

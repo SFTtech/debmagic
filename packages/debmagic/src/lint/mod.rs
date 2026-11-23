@@ -6,7 +6,7 @@ mod buildinfo;
 mod changes;
 mod content_type;
 mod context;
-mod data;
+pub(crate) mod data;
 mod deb_members;
 mod debhelper;
 mod debian_changelog;

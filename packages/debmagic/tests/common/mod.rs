@@ -563,10 +563,15 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         .into_iter()
         .collect();
     selected.sort();
+    let include_dir = recipe_include_dir(&recipe);
     let mut extra_args = vec!["--show-overrides"];
     for tag in &selected {
         extra_args.push("--select");
         extra_args.push(tag.as_str());
+    }
+    if let Some(dir) = &include_dir {
+        extra_args.push("--include-dir");
+        extra_args.push(dir.as_str());
     }
 
     // The recipe directory also holds ORIGIN and eval/, which are not part of
@@ -1438,6 +1443,25 @@ fn skipped_recipe_reason(recipe_rel: &str) -> Option<&'static str> {
         .map(|(_, reason)| *reason)
 }
 
+/// The `--include-dir` of a recipe's `eval/desc` (`Options: --include-dir
+/// ./NAME`), when the vendored recipe carries that directory as `eval/NAME`.
+/// A recipe whose directory is not vendored runs with the vendored data.
+fn recipe_include_dir(recipe: &Path) -> Option<String> {
+    let desc = fs::read_to_string(recipe.join("eval/desc")).ok()?;
+    let options = desc
+        .lines()
+        .find_map(|line| line.strip_prefix("Options:"))?;
+    let mut words = options.split_whitespace();
+    while let Some(word) = words.next() {
+        if word == "--include-dir" {
+            let name = words.next()?.trim_start_matches("./");
+            let dir = recipe.join("eval").join(name);
+            return dir.is_dir().then(|| dir.display().to_string());
+        }
+    }
+    None
+}
+
 /// `dpkg-architecture --query=DEB_HOST_ARCH`, asked once per test process.
 fn host_architecture() -> Option<&'static str> {
     static HOST: OnceLock<Option<String>> = OnceLock::new();
@@ -2258,10 +2282,15 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         .into_iter()
         .collect();
     selected.sort();
+    let include_dir = recipe_include_dir(&recipe);
     let mut extra_args = vec!["--show-overrides"];
     for tag in &selected {
         extra_args.push("--select");
         extra_args.push(tag.as_str());
+    }
+    if let Some(dir) = &include_dir {
+        extra_args.push("--include-dir");
+        extra_args.push(dir.as_str());
     }
 
     let (_status, stdout, stderr) = run_lint_subject(&subject, &extra_args);

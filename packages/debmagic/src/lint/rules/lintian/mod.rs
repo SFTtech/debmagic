@@ -1162,9 +1162,9 @@ pub(crate) use rules_and_control::{
     ExecutableDebhelperFileWithoutBeingExecutable, PackageDoesNotUseDebhelper,
     PackageFileIsExecutable, PackageUsesDebhelperButLacksBuildDepends,
     PackageUsesDhExecButLacksBuildDepends, PackageUsesDhRunitButLacksBreaksSubstvar,
-    PackageUsesOldDebhelperCompatVersion, Python3DependsButNoPython3Helper,
-    SphinxdocButNoSphinxdocDepends, TemporaryDebhelperFile, UselessAutoreconfBuildDepends,
-    WeakDependencyOnMiscDepends,
+    PackageUsesExperimentalDebhelperCompatVersion, PackageUsesOldDebhelperCompatVersion,
+    Python3DependsButNoPython3Helper, SphinxdocButNoSphinxdocDepends, TemporaryDebhelperFile,
+    UselessAutoreconfBuildDepends, WeakDependencyOnMiscDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

@@ -28,20 +28,27 @@ pub(crate) mod prerequisites;
 /// First level that can be declared with `debhelper-compat` (11.1.5~alpha1).
 pub(crate) const VERSIONED_PREREQUISITE_AVAILABLE: u64 = 11;
 
-/// lintian 2.139.0 `data/debhelper/compat-level`.
-static COMPAT_LEVELS: LazyLock<Vec<(&'static str, u64)>> = LazyLock::new(|| {
-    crate::lint::data::lines(include_str!("data/debhelper/compat-level"))
+/// lintian 2.139.0 `data/debhelper/compat-level`, or the `--include-dir`
+/// override of it.
+static COMPAT_LEVELS: LazyLock<Vec<(String, u64)>> = LazyLock::new(|| {
+    let text = crate::lint::data::table(
+        "debhelper/compat-level",
+        include_str!("data/debhelper/compat-level"),
+    );
+    crate::lint::data::lines(&text)
         .filter_map(|line| {
             let (key, value) = crate::lint::data::assignment(line)?;
-            Some((key, value.parse().ok()?))
+            Some((key.to_string(), value.parse().ok()?))
         })
         .collect()
 });
 
 fn compat_level(key: &str) -> u64 {
+    // The last line of a key wins, so an override's line follows the vendored one.
     COMPAT_LEVELS
         .iter()
-        .find(|(name, _)| *name == key)
+        .rev()
+        .find(|(name, _)| name.as_str() == key)
         .map(|(_, level)| *level)
         .unwrap_or_else(|| panic!("data/debhelper/compat-level missing {key}"))
 }

@@ -24,6 +24,7 @@ mod ln1139_testsuite_dependency_has_unparsable_elements;
 mod ln1140_testsuite_restrictions_has_deprecated_skip_not_installable;
 mod ln1141_unknown_testsuite;
 mod ln1142_uses_deprecated_adttmp;
+mod ln1586_runtime_test_file_is_not_a_regular_file;
 mod python;
 mod sections;
 
@@ -47,3 +48,4 @@ pub(crate) use ln1139_testsuite_dependency_has_unparsable_elements::TestsuiteDep
 pub(crate) use ln1140_testsuite_restrictions_has_deprecated_skip_not_installable::TestsuiteRestrictionsHasDeprecatedSkipNotInstallable;
 pub(crate) use ln1141_unknown_testsuite::UnknownTestsuite;
 pub(crate) use ln1142_uses_deprecated_adttmp::UsesDeprecatedAdttmp;
+pub(crate) use ln1586_runtime_test_file_is_not_a_regular_file::RuntimeTestFileIsNotARegularFile;

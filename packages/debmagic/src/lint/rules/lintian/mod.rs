@@ -687,8 +687,8 @@ pub(crate) use description::{
     ExtendedDescriptionContainsEmptyParagraph, ExtendedDescriptionIsEmpty,
     ExtendedDescriptionIsProbablyTooShort, ExtendedDescriptionLineTooLong, OddMarkInDescription,
     PerlModuleNameNotMentionedInDescription, PossibleUnindentedListInExtendedDescription,
-    SpellingErrorInDescription, SynopsisIsASentence, SynopsisTooLong,
-    UsingFirstPersonInDescription,
+    SpellingErrorInDescription, SpellingErrorInDescriptionSynopsis, SynopsisIsASentence,
+    SynopsisTooLong, UsingFirstPersonInDescription,
 };
 pub(crate) use documentation_examples::NestedExamplesDirectory;
 pub(crate) use documentation_manual::{

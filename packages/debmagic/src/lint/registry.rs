@@ -588,6 +588,7 @@ use super::rules::SyntaxErrorInDep5Copyright;
 use super::rules::SystemdServiceFileMissingDocumentationKey;
 use super::rules::SystemdServiceFileMissingInstallKey;
 use super::rules::SystemdServiceFileRefersToUnusualWantedbyTarget;
+use super::rules::SystemdServiceFileRefersToVarRun;
 use super::rules::SystemdServiceFileShutdownProblems;
 use super::rules::SystemdServiceFileUsesDeprecatedSyslogFacility;
 use super::rules::SystemdServiceInOddLocation;
@@ -2447,6 +2448,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OpenpgpFileHasImplementationSpecificExtension,
         &RepeatedPathSegment,
         &ScriptInUsrShareDoc,
+        &SystemdServiceFileRefersToVarRun,
     ]
 }
 
@@ -3814,6 +3816,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OpenpgpFileHasImplementationSpecificExtension,
         &RepeatedPathSegment,
         &ScriptInUsrShareDoc,
+        &SystemdServiceFileRefersToVarRun,
     ]
 }
 

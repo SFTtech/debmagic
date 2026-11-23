@@ -16,8 +16,10 @@ declare_rule! {
     /// `Build-Depends-Indep`, and with `Build-Depends-Arch`. Within each
     /// combination, dependencies that imply one another (each satisfies the
     /// other, as `satisfies` decides) form one set. Extra is the members of a
-    /// set, sorted and joined with `, `. Applies to source trees and source
-    /// packages.
+    /// set, sorted and joined with `, `. The fields are the `.dsc` paragraph of
+    /// a source package (lintian reads the relations there) and the source
+    /// paragraph of `debian/control` on a source tree. Applies to source trees
+    /// and source packages.
     RedundantBuildPrerequisites,
     code = "LN0932",
     tag = "redundant-build-prerequisites",
@@ -27,10 +29,7 @@ declare_rule! {
 
 impl SourceRule for RedundantBuildPrerequisites {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let messages = ctx
-            .debian_control()
-            .map(|control| messages(control.source()))
-            .unwrap_or_default();
+        let messages = ctx.relation_fields().map(messages).unwrap_or_default();
         for message in messages {
             ctx.diagnostic(Diagnostic::warn(message));
         }
@@ -111,7 +110,8 @@ fn redundant_sets(relation: &PackageRelation) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{SourceTreeTester, TestFile};
+    use crate::lint::dsc::Dsc;
+    use crate::lint::tester::{SourcePackageCase, SourcePackageTester, SourceTreeTester, TestFile};
 
     use super::*;
 
@@ -127,8 +127,11 @@ mod tests {
         vec![("debian/control", TestFile::new(body))]
     }
 
+    /// lintian's `Check/Fields/PackageRelations.pm` `source` sub runs
+    /// `redundancies` on the AND of Build-Depends alone, with Build-Depends-Indep,
+    /// and with Build-Depends-Arch, and each returned set becomes one hint.
     #[test]
-    fn source() {
+    fn redundant_sets_per_field_combination() {
         let pass = vec![
             control(&[]),
             control(&[("Build-Depends", "debhelper-compat (= 14), foo")]),
@@ -164,5 +167,24 @@ mod tests {
             ]),
         ];
         SourceTreeTester::new(RedundantBuildPrerequisites, pass, fail).test_and_snapshot();
+    }
+
+    fn dsc(fields: &str) -> Dsc {
+        Dsc::parse(&format!("Source: example\nVersion: 1.0\n{fields}"))
+            .expect("generated .dsc paragraph")
+    }
+
+    /// lintian's `Relation::redundancies` runs on the `.dsc` relations of a
+    /// source package (`Processable::Source`), not on `debian/control`.
+    #[test]
+    fn source_package_relations_come_from_the_dsc() {
+        let pass = vec![
+            SourcePackageCase::from(control(&[("Build-Depends", "foo, foo (>= 1)")]))
+                .dsc(dsc("Build-Depends: foo\n")),
+        ];
+        let fail = vec![
+            SourcePackageCase::from(control(&[])).dsc(dsc("Build-Depends: foo, foo (>= 1)\n")),
+        ];
+        SourcePackageTester::new(RedundantBuildPrerequisites, pass, fail).test_and_snapshot();
     }
 }

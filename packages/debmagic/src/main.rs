@@ -193,6 +193,9 @@ async fn run() -> anyhow::Result<ExitCode> {
             if !args.subjects.is_empty() && args.common.source_dir.is_some() {
                 anyhow::bail!("cannot specify both a subject path and --source-dir");
             }
+            if let Some(dir) = &args.include_dir {
+                lint::data::set_include_dir(dir.clone());
+            }
             let subjects = if args.subjects.is_empty() {
                 args.common.source_dir.clone().into_iter().collect()
             } else {

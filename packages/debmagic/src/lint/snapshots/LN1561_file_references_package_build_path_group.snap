@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+I: example (binary): file-references-package-build-path (LN1561) [usr/share/doc/example/build-path]
+I: example (binary): file-references-package-build-path (LN1561) [usr/bin/example]
+I: example-udeb (udeb): file-references-package-build-path (LN1561) [usr/lib/example/build-path]

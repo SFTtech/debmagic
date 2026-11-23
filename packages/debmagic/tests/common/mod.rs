@@ -563,10 +563,15 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         .into_iter()
         .collect();
     selected.sort();
+    let include_dir = recipe_include_dir(&recipe);
     let mut extra_args = vec!["--show-overrides"];
     for tag in &selected {
         extra_args.push("--select");
         extra_args.push(tag.as_str());
+    }
+    if let Some(dir) = &include_dir {
+        extra_args.push("--include-dir");
+        extra_args.push(dir.as_str());
     }
 
     // The recipe directory also holds ORIGIN and eval/, which are not part of
@@ -1442,6 +1447,25 @@ fn skipped_recipe_reason(recipe_rel: &str) -> Option<&'static str> {
         .map(|(_, reason)| *reason)
 }
 
+/// The `--include-dir` of a recipe's `eval/desc` (`Options: --include-dir
+/// ./NAME`), when the vendored recipe carries that directory as `eval/NAME`.
+/// A recipe whose directory is not vendored runs with the vendored data.
+fn recipe_include_dir(recipe: &Path) -> Option<String> {
+    let desc = fs::read_to_string(recipe.join("eval/desc")).ok()?;
+    let options = desc
+        .lines()
+        .find_map(|line| line.strip_prefix("Options:"))?;
+    let mut words = options.split_whitespace();
+    while let Some(word) = words.next() {
+        if word == "--include-dir" {
+            let name = words.next()?.trim_start_matches("./");
+            let dir = recipe.join("eval").join(name);
+            return dir.is_dir().then(|| dir.display().to_string());
+        }
+    }
+    None
+}
+
 /// `dpkg-architecture --query=DEB_HOST_ARCH`, asked once per test process.
 fn host_architecture() -> Option<&'static str> {
     static HOST: OnceLock<Option<String>> = OnceLock::new();
@@ -2286,10 +2310,15 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         .into_iter()
         .collect();
     selected.sort();
+    let include_dir = recipe_include_dir(&recipe);
     let mut extra_args = vec!["--show-overrides"];
     for tag in &selected {
         extra_args.push("--select");
         extra_args.push(tag.as_str());
+    }
+    if let Some(dir) = &include_dir {
+        extra_args.push("--include-dir");
+        extra_args.push(dir.as_str());
     }
 
     let (_status, stdout, stderr) = run_lint_subject(&subject, &extra_args);
@@ -2798,13 +2827,24 @@ fn recipe_is_source_only_upload(recipe: &Path) -> bool {
         .is_ok_and(|text| text.trim() == "source")
 }
 
+/// The `DEB_BUILD_OPTIONS` of a recipe's Build-Command that the importer kept
+/// as `build-spec/build-options` (for example `buildinfo=+path`, which adds
+/// `Build-Path` to the `.buildinfo`), or nothing.
+fn recipe_build_options(recipe: &Path) -> Option<String> {
+    fs::read_to_string(recipe.join(VENDORED_BUILD_SPEC).join("build-options"))
+        .ok()
+        .map(|text| text.trim().to_string())
+        .filter(|text| !text.is_empty())
+}
+
 /// `dpkg-buildpackage` as lintian's upload builder runs it: source and binary
 /// packages (the source only with `-S`, for `Upload-Type: source`), unsigned,
-/// VCS cruft kept. Returns the success flag and the output of both streams,
-/// where `dpkg-source` reports a missing orig tarball.
-fn dpkg_build_upload(source: &Path, source_only: bool) -> (bool, String) {
+/// VCS cruft kept, with the recipe's build options added to `nocheck`.
+/// Returns the success flag and the output of both streams, where
+/// `dpkg-source` reports a missing orig tarball.
+fn dpkg_build_upload(source: &Path, source_only: bool, build_options: &str) -> (bool, String) {
     ensure_rules_executable(source);
-    let mut command = dpkg_buildpackage_command(source, "nocheck");
+    let mut command = dpkg_buildpackage_command(source, build_options);
     if source_only {
         command.arg("-S");
     }
@@ -2850,7 +2890,11 @@ fn assemble_group(recipe: &Path, work: &Path) -> PathBuf {
     let source = work.join("src");
     copy_package_tree(recipe, &source);
     let source_only = recipe_is_source_only_upload(recipe);
-    let (ok, text) = dpkg_build_upload(&source, source_only);
+    let build_options = recipe_build_options(recipe).map_or_else(
+        || "nocheck".to_string(),
+        |options| format!("nocheck {options}"),
+    );
+    let (ok, text) = dpkg_build_upload(&source, source_only, &build_options);
     if !ok {
         let Some(name) = missing_upstream_tarball(&text) else {
             panic!("{recipe:?}: dpkg-buildpackage failed\n{text}");
@@ -2860,7 +2904,7 @@ fn assemble_group(recipe: &Path, work: &Path) -> PathBuf {
             "{recipe:?}: component orig {name} is not synthesized"
         );
         pack_main_orig(&source, &work.join(&name));
-        let (ok, text) = dpkg_build_upload(&source, source_only);
+        let (ok, text) = dpkg_build_upload(&source, source_only, &build_options);
         assert!(
             ok,
             "{recipe:?}: dpkg-buildpackage failed after orig {name}\n{text}"

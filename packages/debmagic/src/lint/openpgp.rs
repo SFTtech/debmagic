@@ -28,7 +28,6 @@ pub(crate) struct PublicKey {
     key_id: Option<[u8; 8]>,
 }
 
-#[allow(dead_code)]
 impl OpenPgpFile {
     /// The file's bytes, armored or binary. Never fails: an error is kept.
     pub(crate) fn parse(bytes: &[u8]) -> Self {
@@ -291,22 +290,14 @@ fn crc24(bytes: &[u8]) -> u32 {
     crc & 0x00ff_ffff
 }
 
+/// A throwaway ed25519 key (one user ID, one self-signature), armored as
+/// `gpg --armor --export` writes it. Shared with the Rule tests.
+#[cfg(test)]
+pub(crate) const TINY_KEY: &str = "-----BEGIN PGP PUBLIC KEY BLOCK-----\n\nmDMEawPkthYJKwYBBAHaRw8BAQdA2ySxbMJVLIUjgqLec5y9Q2J4BGh6Q4xyNyNa\nNkVZ/sq0H1Rlc3QgS2V5IDx0ZXN0QGV4YW1wbGUuaW52YWxpZD6IkAQTFgoAOBYh\nBPRtFFCzVZNPAmGLUbR4vIAGBWu/BQJrA+S2AhsDBQsJCAcCBhUKCQgLAgQWAgMB\nAh4BAheAAAoJELR4vIAGBWu/yAkA/1UOVH5XQRZKCfVWbFDguEtcfyYjjVK4tSWc\nMJVXSFZOAQDbfsRVJYjPeRltN3QSfRQ6GLV7AyJYQxNanebj0fuNBA==\n=11jc\n-----END PGP PUBLIC KEY BLOCK-----\n";
+
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    /// A throwaway ed25519 key (one user ID, one self-signature), armored as
-    /// `gpg --armor --export` writes it.
-    const TINY_KEY: &str = "-----BEGIN PGP PUBLIC KEY BLOCK-----
-
-mDMEawPkthYJKwYBBAHaRw8BAQdA2ySxbMJVLIUjgqLec5y9Q2J4BGh6Q4xyNyNa
-NkVZ/sq0H1Rlc3QgS2V5IDx0ZXN0QGV4YW1wbGUuaW52YWxpZD6IkAQTFgoAOBYh
-BPRtFFCzVZNPAmGLUbR4vIAGBWu/BQJrA+S2AhsDBQsJCAcCBhUKCQgLAgQWAgMB
-Ah4BAheAAAoJELR4vIAGBWu/yAkA/1UOVH5XQRZKCfVWbFDguEtcfyYjjVK4tSWc
-MJVXSFZOAQDbfsRVJYjPeRltN3QSfRQ6GLV7AyJYQxNanebj0fuNBA==
-=11jc
------END PGP PUBLIC KEY BLOCK-----
-";
 
     const KEY_ID: [u8; 8] = [0xb4, 0x78, 0xbc, 0x80, 0x06, 0x05, 0x6b, 0xbf];
 

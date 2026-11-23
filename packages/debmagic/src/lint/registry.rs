@@ -458,6 +458,7 @@ use super::rules::PrermCallsUpdatercD;
 use super::rules::PriorityExtraIsReplacedByPriorityOptional;
 use super::rules::PrivacyBreachW3cValidHtml;
 use super::rules::ProgramNotLinkedAgainstLibc;
+use super::rules::PublicUpstreamKeyUnusable;
 use super::rules::PuppetModuleButNotDhPuppet;
 use super::rules::PypiHomepage;
 use super::rules::Python3DependsButNoPython3Helper;
@@ -2349,6 +2350,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LocaleUsesLanguageGroupCode,
         &ChecksumMismatchInChangesFile,
         &SpareManualPage,
+        &PublicUpstreamKeyUnusable,
     ]
 }
 
@@ -2794,6 +2796,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &Dep3FormatPatchAuthorOrFromIsBetter,
         &InvalidDep3FormatPatchNoDescriptionAndSubject,
         &InvalidDep3FormatPatchNoOrigin,
+        &PublicUpstreamKeyUnusable,
     ]
 }
 

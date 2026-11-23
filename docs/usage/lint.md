@@ -39,8 +39,25 @@ A source tree cannot be mixed with artifacts, and nothing is discovered for you:
 | `--fail-on` | Severities that make lint exit non-zero: `error`, `warning`, `info`, `pedantic` |
 | `-j`, `--threads` | Worker threads (default: available parallelism) |
 | `--timings` | Print how long each Rule took |
+| `--show-overrides` | Also print the Diagnostics a Lintian override file suppressed, as `O:` lines (see [Lintian override files](#lintian-override-files)). Conflicts with `--no-override` |
+| `--no-override` | Do not apply Lintian override files: nothing is suppressed and `unused-override` and `mismatched-override` have nothing to report |
 
 `debmagic lint --help` lists the rest.
+
+## Lintian override files
+
+A processable's Lintian override file is applied after the Rules that ran on it: each source tree or source package reads `debian/source/lintian-overrides` (or `debian/source.lintian-overrides`), and each binary package reads `usr/share/lintian/overrides/<package>` (or its `.gz`) from the `.deb` or `.udeb`. The file is read only when the processable has a Diagnostic or an override Rule is selected.
+
+An override suppresses a Diagnostic when its Tag matches and its context pattern, if it has one, matches the Diagnostic's message followed by `[pointer]` for a Diagnostic with a path. A pattern uses `*` (any run of characters) and `?` (one character). A `#` comment above a line is its justification.
+
+- A suppressed Diagnostic is not printed and does not count towards `--fail-on` or the summary. A run whose only Diagnostics are suppressed prints `All checks passed!`.
+- `--show-overrides` prints each suppressed Diagnostic as an `O:` line, after an `N:` line with its justification when there is one.
+- Unless `--show-overrides` or `--no-override` is given, a line after the summary counts what was suppressed and what is unused, for example `N: 3 hints overridden; 1 unused override`.
+- `unused-override` (`LN1779`, info) reports an override that matched no Diagnostic, and `mismatched-override` (`LN1780`, warning) one whose Tag produced a Diagnostic that the pattern did not match. Both only cover Rules that ran: an override of a Tag that is not selected is not reported, so select the Tag (`--select cute-field`) to check its overrides.
+- An override of a durable Tag is ignored, because lintian declares these Tags `Show-Always` and they cannot be suppressed: `alien-tag`, `duplicate-override-context`, `invalid-override-restriction`, `malformed-override`, `mismatched-override`, `renamed-tag` and `unused-override`. The run then prints `N: Some overrides were ignored.`
+- An override with an `[architecture]` list applies only to a processable of one of those architectures, as in lintian.
+
+Overrides are checked per processable: a source override never suppresses a binary package's Diagnostic, and the other way round.
 
 ## Lintian Tags we skip
 
@@ -52,7 +69,6 @@ These are the deliberate skips.
 | Classification Tags (`C:`, for example `control-tarball-compression-format`) | They are metadata, not findings. They get no Code and cannot be selected ([ADR 0019](../adr/0019-classification-tags-are-not-rules.md)) |
 | Tags whose Check runs an external program: shell syntax (`*-shell-script-fails-syntax-check`), AppStream validation (`appstream-metadata-*`), integrity of `.bz2`/`.lz`/`.lzo`/`.zip` files (`broken-*`), po-debconf and PostScript font Tags | Lint has no host-tool dependencies and no environment ([ADR 0013](../adr/0013-lint-has-no-environment.md); `file(1)` was dropped for the same reason, [ADR 0041](../adr/0041-file-type-is-goblin-classification.md)) |
 | `elf-error`, `elf-warning` | Their extra is `readelf`'s message text; the ELF parser's errors read differently, so a port could never match |
-| `mismatched-override` | Lintian override files are parsed, not applied ([ADR 0051](../adr/0051-lintian-overrides-are-parsed-not-applied.md)); `--select`/`--ignore` are not overrides ([ADR 0009](../adr/0009-selection-is-not-override.md)) |
 
 ### Not yet implemented
 

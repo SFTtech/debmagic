@@ -81,9 +81,10 @@ mod tests {
         ];
         let fail = vec![
             patch("Description: fix\nOrigin: Foo <foo@example.org>\n"),
-            // The last mention counts.
+            // The last mention counts across paragraphs; a repeated field in
+            // one paragraph is a syntax error that stops the Check.
             patch(
-                "Description: fix\nOrigin: vendor, https://example.org/1\nOrigin: Foo <foo@example.org>\n",
+                "Description: fix\nOrigin: vendor, https://example.org/1\n\nOrigin: Foo <foo@example.org>\n",
             ),
         ];
         SourceTreeTester::new(Dep3FormatPatchAuthorOrFromIsBetter, pass, fail).test_and_snapshot();

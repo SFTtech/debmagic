@@ -251,6 +251,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
     "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
     "checks/debian/upstream/metadata/yaml-sequence",
+    "checks/debian/upstream/signing-key/upstream-key-bloated",
     "checks/debian/upstream/signing-key/upstream-key-empty",
     "checks/debian/upstream/signing-key/upstream-key-multiple-locations",
     "checks/debian/upstream/signing-key/upstream-key-native",
@@ -1410,6 +1411,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
     "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
     "checks/debian/upstream/metadata/yaml-sequence",
+    "checks/debian/upstream/signing-key/upstream-key-bloated",
     "checks/debian/upstream/signing-key/upstream-key-empty",
     "checks/debian/upstream/signing-key/upstream-key-multiple-locations",
     "checks/debian/upstream/signing-key/upstream-key-native",
@@ -2006,6 +2008,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
 #[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-bloated"; "checks_debian_upstream_signing_key_upstream_key_bloated")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-empty"; "checks_debian_upstream_signing_key_upstream_key_empty")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-multiple-locations"; "checks_debian_upstream_signing_key_upstream_key_multiple_locations")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-native"; "checks_debian_upstream_signing_key_upstream_key_native")]
@@ -3167,6 +3170,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
 #[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-bloated"; "checks_debian_upstream_signing_key_upstream_key_bloated")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-empty"; "checks_debian_upstream_signing_key_upstream_key_empty")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-multiple-locations"; "checks_debian_upstream_signing_key_upstream_key_multiple_locations")]
 #[test_case("checks/debian/upstream/signing-key/upstream-key-native"; "checks_debian_upstream_signing_key_upstream_key_native")]

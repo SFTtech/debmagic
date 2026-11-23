@@ -8,8 +8,9 @@
 //! end of the data ends the stream without an error, as gpg does.
 //!
 //! Only tag 6 (public key) packets become [`PublicKey`]s. Subkeys, secret
-//! keys, signatures and user IDs are read past. Whether a key can verify
-//! anything is not decided here.
+//! keys and user IDs are read past. Signature packets are read only for the
+//! key id of their issuer, which is kept on the public key they follow. Whether
+//! a key can verify anything is not decided here.
 
 use sha1::{Digest, Sha1};
 
@@ -26,6 +27,7 @@ pub(crate) struct OpenPgpFile {
 pub(crate) struct PublicKey {
     version: u8,
     key_id: Option<[u8; 8]>,
+    signers: Vec<Option<[u8; 8]>>,
 }
 
 impl OpenPgpFile {
@@ -33,11 +35,7 @@ impl OpenPgpFile {
     pub(crate) fn parse(bytes: &[u8]) -> Self {
         match read(bytes) {
             Ok(packets) => Self {
-                public_keys: packets
-                    .iter()
-                    .filter(|packet| packet.tag == PUBLIC_KEY_TAG)
-                    .map(|packet| PublicKey::from_body(&packet.body))
-                    .collect(),
+                public_keys: public_keys(&packets),
                 error: None,
             },
             Err(error) => Self {
@@ -63,7 +61,11 @@ impl PublicKey {
     fn from_body(body: &[u8]) -> Self {
         let version = body.first().copied().unwrap_or(0);
         let key_id = if version == 4 { v4_key_id(body) } else { None };
-        Self { version, key_id }
+        Self {
+            version,
+            key_id,
+            signers: Vec::new(),
+        }
     }
 
     /// The key packet's version number.
@@ -76,9 +78,92 @@ impl PublicKey {
     pub(crate) fn key_id(&self) -> Option<[u8; 8]> {
         self.key_id
     }
+
+    /// The issuer key ids of the signature packets after this key and before
+    /// the next public key packet, in file order. `None` for a signature that
+    /// names no issuer.
+    pub(crate) fn signature_key_ids(&self) -> &[Option<[u8; 8]>] {
+        &self.signers
+    }
 }
 
 const PUBLIC_KEY_TAG: u8 = 6;
+const SIGNATURE_TAG: u8 = 2;
+
+/// The public key packets, each with the signatures that follow it. Signatures
+/// before the first key belong to no key and are dropped.
+fn public_keys(packets: &[Packet]) -> Vec<PublicKey> {
+    let mut keys: Vec<PublicKey> = Vec::new();
+    for packet in packets {
+        match packet.tag {
+            PUBLIC_KEY_TAG => keys.push(PublicKey::from_body(&packet.body)),
+            SIGNATURE_TAG => {
+                if let Some(key) = keys.last_mut() {
+                    key.signers.push(issuer_key_id(&packet.body));
+                }
+            }
+            _ => {}
+        }
+    }
+    keys
+}
+
+/// The key id of the issuer of a signature packet body (RFC 4880 section
+/// 5.2): the version 3 key id field, or the Issuer subpacket of a version 4
+/// signature, else the key id of its Issuer Fingerprint subpacket.
+fn issuer_key_id(body: &[u8]) -> Option<[u8; 8]> {
+    match *body.first()? {
+        3 => <[u8; 8]>::try_from(body.get(7..15)?).ok(),
+        4 => {
+            let hashed = subpacket_area(body, 4)?;
+            let unhashed = subpacket_area(body, 6 + hashed.len())?;
+            issuer_subpacket(hashed).or_else(|| issuer_subpacket(unhashed))
+        }
+        _ => None,
+    }
+}
+
+/// The subpacket area whose two-byte length is at `position`.
+fn subpacket_area(body: &[u8], position: usize) -> Option<&[u8]> {
+    let length = body.get(position..position + 2)?;
+    let length = usize::from(u16::from_be_bytes([length[0], length[1]]));
+    body.get(position + 2..position + 2 + length)
+}
+
+/// The key id named by the first Issuer (16) or Issuer Fingerprint (33)
+/// subpacket of `area`. A version 4 fingerprint's key id is its last eight
+/// bytes.
+fn issuer_subpacket(mut area: &[u8]) -> Option<[u8; 8]> {
+    let mut fingerprint = None;
+    while let Some(&first) = area.first() {
+        let (length, header): (usize, usize) = match first {
+            0..=191 => (usize::from(first), 1),
+            192..=254 => (
+                (usize::from(first) - 192) * 256 + usize::from(*area.get(1)?) + 192,
+                2,
+            ),
+            255 => {
+                let four = area.get(1..5)?;
+                let length = u32::from_be_bytes([four[0], four[1], four[2], four[3]]);
+                (usize::try_from(length).unwrap_or(usize::MAX), 5)
+            }
+        };
+        let subpacket = area.get(header..header.checked_add(length)?)?;
+        match subpacket.split_first() {
+            Some((&16, data)) => {
+                if let Ok(key_id) = <[u8; 8]>::try_from(data) {
+                    return Some(key_id);
+                }
+            }
+            Some((&33, data)) if fingerprint.is_none() && data.len() == 21 && data[0] == 4 => {
+                fingerprint = <[u8; 8]>::try_from(&data[13..21]).ok();
+            }
+            _ => {}
+        }
+        area = &area[header + length..];
+    }
+    fingerprint
+}
 
 /// The packets of the file, after the armor is removed. A packet cut short by
 /// the end of the data ends the list.
@@ -372,6 +457,56 @@ mod tests {
         let file = OpenPgpFile::parse(b"\xb4\x09Test");
         assert_eq!(file.error(), None);
         assert!(file.public_keys().is_empty());
+    }
+
+    /// A version 4 signature packet (old format) whose hashed area names
+    /// `issuer` in an Issuer subpacket.
+    fn signature_by(issuer: [u8; 8]) -> Vec<u8> {
+        let mut body = vec![4, 0x10, 1, 8, 0, 10, 9, 16];
+        body.extend_from_slice(&issuer);
+        body.extend_from_slice(&[0, 0, 0, 0, 0, 0]);
+        let mut packet = vec![0x88, u8::try_from(body.len()).unwrap_or(0)];
+        packet.extend(body);
+        packet
+    }
+
+    #[test]
+    fn signatures_after_a_key_give_their_issuers() -> Result<(), String> {
+        let binary = dearmor(TINY_KEY.as_bytes())?;
+        let other = [1, 2, 3, 4, 5, 6, 7, 8];
+        let mut data = binary[..53].to_vec();
+        data.extend(signature_by(KEY_ID));
+        data.extend(signature_by(other));
+        let file = OpenPgpFile::parse(&data);
+        assert_eq!(file.error(), None);
+        assert_eq!(
+            file.public_keys()[0].signature_key_ids(),
+            &[Some(KEY_ID), Some(other)]
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn a_signature_before_any_key_belongs_to_no_key() -> Result<(), String> {
+        let binary = dearmor(TINY_KEY.as_bytes())?;
+        let mut data = signature_by([1; 8]);
+        data.extend_from_slice(&binary[..53]);
+        let file = OpenPgpFile::parse(&data);
+        assert_eq!(file.public_keys().len(), 1);
+        assert!(file.public_keys()[0].signature_key_ids().is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn a_signature_without_an_issuer_has_none() -> Result<(), String> {
+        // Version 4 with empty hashed and unhashed areas: no Issuer subpacket.
+        let binary = dearmor(TINY_KEY.as_bytes())?;
+        let mut data = binary[..53].to_vec();
+        data.extend([0x88, 0x0a, 4, 0x10, 1, 8, 0, 0, 0, 0, 0, 0]);
+        let file = OpenPgpFile::parse(&data);
+        assert_eq!(file.error(), None);
+        assert_eq!(file.public_keys()[0].signature_key_ids(), &[None]);
+        Ok(())
     }
 
     #[test]

@@ -6,6 +6,10 @@ use regex::Regex;
 /// stops looking at anything older (`$LAST_DEP5_OVERHAUL`).
 const LAST_DEP5_OVERHAUL_REVISION: u64 = 148;
 
+/// Last `0+svn~N` revision before the last significant DEP-5 change
+/// (`$LAST_SIGNIFICANT_DEP5_CHANGE`); older revisions are out-of-date.
+const LAST_SIGNIFICANT_DEP5_CHANGE_REVISION: u64 = 166;
+
 /// Parsed `debian/copyright` (or `debian/<installable>.copyright`).
 ///
 /// Mirrors the part of `Lintian::Check::Debian::Copyright::Dep5` that decides
@@ -150,7 +154,7 @@ pub(crate) fn format_uri(text: &str) -> Option<String> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Dep5Version {
+pub(crate) enum Dep5Version {
     /// `0~wiki[~rev]`
     Wiki,
     /// `0+svn[~rev]`
@@ -166,6 +170,15 @@ impl Dep5Version {
             Self::Svn(Some(revision)) => revision < LAST_DEP5_OVERHAUL_REVISION,
             Self::Svn(None) | Self::Release => false,
         }
+    }
+
+    /// `versions_compare($version, '<<', $LAST_SIGNIFICANT_DEP5_CHANGE)` for a
+    /// revisioned `0+svn~N`. Wiki versions are handled before this test.
+    pub(crate) fn is_before_significant_change(self) -> bool {
+        matches!(
+            self,
+            Self::Svn(Some(revision)) if revision < LAST_SIGNIFICANT_DEP5_CHANGE_REVISION
+        )
     }
 }
 
@@ -197,7 +210,7 @@ static RELEASE_URI: LazyLock<Regex> = LazyLock::new(|| {
 });
 
 /// Lintian's `find_dep5_version`; `None` where it returns `undef`.
-fn find_dep5_version(uri: &str) -> Option<Dep5Version> {
+pub(crate) fn find_dep5_version(uri: &str) -> Option<Dep5Version> {
     if BOILERPLATE_URI.is_match(uri) {
         return None;
     }

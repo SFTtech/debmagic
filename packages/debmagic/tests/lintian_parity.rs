@@ -126,7 +126,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/legacy-debconf",
     "checks/debian/copyright/dep5/legacy-foo++",
     "checks/debian/copyright/dep5/legacy-scripts",
+    "checks/debian/copyright/dep5/license-file-listed-in-debian-copyright",
     "checks/debian/copyright/dep5/lone-files-included",
+    "checks/debian/copyright/dep5/redundant-wildcard",
+    "checks/debian/copyright/dep5/repackaged-upstream-sources-not-advertised",
     "checks/debian/copyright/dep5/reused-wildcard",
     "checks/debian/copyright/dep5/source-copyright-bad-short-name",
     "checks/debian/copyright/dep5/source-copyright-boilerplate-uri",
@@ -140,11 +143,17 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel",
     "checks/debian/copyright/dep5/source-copyright-inconsistent-appstream-metadata-license",
     "checks/debian/copyright/dep5/source-copyright-insecure-uri",
+    "checks/debian/copyright/dep5/source-copyright-missing-non-free-explanation",
+    "checks/debian/copyright/dep5/source-copyright-missing-repack-explanation",
     "checks/debian/copyright/dep5/source-copyright-nodep5",
+    "checks/debian/copyright/dep5/source-copyright-ood-uri",
     "checks/debian/copyright/dep5/source-copyright-pipe-as-or",
     "checks/debian/copyright/dep5/source-copyright-source-files-excluded",
     "checks/debian/copyright/dep5/source-copyright-undefined",
     "checks/debian/copyright/dep5/source-copyright-unique",
+    "checks/debian/copyright/dep5/source-copyright-unknown-uri",
+    "checks/debian/copyright/dep5/source-copyright-unversioned-uri",
+    "checks/debian/copyright/dep5/source-copyright-wiki-uri",
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
     "checks/debian/copyright/dep5/tab-in-license-text",
@@ -637,6 +646,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/legacy-relations",
     "checks/debian/copyright/legacy-scripts",
     "checks/debian/copyright/source-copyright-missing",
+    "checks/debian/copyright/source-copyright-undefined",
+    "checks/debian/copyright/spelling-general",
     "checks/debian/debconf/debconf-config-general",
     "checks/debian/debconf/debconf-config-not-executable",
     "checks/debian/debconf/debconf-is-not-registry",
@@ -1279,7 +1290,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/legacy-debconf",
     "checks/debian/copyright/dep5/legacy-foo++",
     "checks/debian/copyright/dep5/legacy-scripts",
+    "checks/debian/copyright/dep5/license-file-listed-in-debian-copyright",
     "checks/debian/copyright/dep5/lone-files-included",
+    "checks/debian/copyright/dep5/redundant-wildcard",
+    "checks/debian/copyright/dep5/repackaged-upstream-sources-not-advertised",
     "checks/debian/copyright/dep5/reused-wildcard",
     "checks/debian/copyright/dep5/source-copyright-bad-short-name",
     "checks/debian/copyright/dep5/source-copyright-boilerplate-uri",
@@ -1293,11 +1307,17 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel",
     "checks/debian/copyright/dep5/source-copyright-inconsistent-appstream-metadata-license",
     "checks/debian/copyright/dep5/source-copyright-insecure-uri",
+    "checks/debian/copyright/dep5/source-copyright-missing-non-free-explanation",
+    "checks/debian/copyright/dep5/source-copyright-missing-repack-explanation",
     "checks/debian/copyright/dep5/source-copyright-nodep5",
+    "checks/debian/copyright/dep5/source-copyright-ood-uri",
     "checks/debian/copyright/dep5/source-copyright-pipe-as-or",
     "checks/debian/copyright/dep5/source-copyright-source-files-excluded",
     "checks/debian/copyright/dep5/source-copyright-undefined",
     "checks/debian/copyright/dep5/source-copyright-unique",
+    "checks/debian/copyright/dep5/source-copyright-unknown-uri",
+    "checks/debian/copyright/dep5/source-copyright-unversioned-uri",
+    "checks/debian/copyright/dep5/source-copyright-wiki-uri",
     "checks/debian/copyright/dep5/source-copyright-wildcard-matching",
     "checks/debian/copyright/dep5/spelling-general",
     "checks/debian/copyright/dep5/tab-in-license-text",
@@ -1871,7 +1891,10 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/dep5/legacy-debconf"; "checks_debian_copyright_dep5_legacy_debconf")]
 #[test_case("checks/debian/copyright/dep5/legacy-foo++"; "checks_debian_copyright_dep5_legacy_foo_")]
 #[test_case("checks/debian/copyright/dep5/legacy-scripts"; "checks_debian_copyright_dep5_legacy_scripts")]
+#[test_case("checks/debian/copyright/dep5/license-file-listed-in-debian-copyright"; "checks_debian_copyright_dep5_license_file_listed_in_debian_copyright")]
 #[test_case("checks/debian/copyright/dep5/lone-files-included"; "checks_debian_copyright_dep5_lone_files_included")]
+#[test_case("checks/debian/copyright/dep5/redundant-wildcard"; "checks_debian_copyright_dep5_redundant_wildcard")]
+#[test_case("checks/debian/copyright/dep5/repackaged-upstream-sources-not-advertised"; "checks_debian_copyright_dep5_repackaged_upstream_sources_not_advertised")]
 #[test_case("checks/debian/copyright/dep5/reused-wildcard"; "checks_debian_copyright_dep5_reused_wildcard")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-bad-short-name"; "checks_debian_copyright_dep5_source_copyright_bad_short_name")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-boilerplate-uri"; "checks_debian_copyright_dep5_source_copyright_boilerplate_uri")]
@@ -1885,11 +1908,17 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_unrel")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-inconsistent-appstream-metadata-license"; "checks_debian_copyright_dep5_source_copyright_inconsistent_appstream_metadata_license")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-insecure-uri"; "checks_debian_copyright_dep5_source_copyright_insecure_uri")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-missing-non-free-explanation"; "checks_debian_copyright_dep5_source_copyright_missing_non_free_explanation")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-missing-repack-explanation"; "checks_debian_copyright_dep5_source_copyright_missing_repack_explanation")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-nodep5"; "checks_debian_copyright_dep5_source_copyright_nodep5")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-ood-uri"; "checks_debian_copyright_dep5_source_copyright_ood_uri")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-pipe-as-or"; "checks_debian_copyright_dep5_source_copyright_pipe_as_or")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-source-files-excluded"; "checks_debian_copyright_dep5_source_copyright_source_files_excluded")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-undefined"; "checks_debian_copyright_dep5_source_copyright_undefined")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-unique"; "checks_debian_copyright_dep5_source_copyright_unique")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-unknown-uri"; "checks_debian_copyright_dep5_source_copyright_unknown_uri")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-unversioned-uri"; "checks_debian_copyright_dep5_source_copyright_unversioned_uri")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-wiki-uri"; "checks_debian_copyright_dep5_source_copyright_wiki_uri")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
 #[test_case("checks/debian/copyright/dep5/tab-in-license-text"; "checks_debian_copyright_dep5_tab_in_license_text")]
@@ -2383,6 +2412,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/copyright/legacy-relations"; "checks_debian_copyright_legacy_relations")]
 #[test_case("checks/debian/copyright/legacy-scripts"; "checks_debian_copyright_legacy_scripts")]
 #[test_case("checks/debian/copyright/source-copyright-missing"; "checks_debian_copyright_source_copyright_missing")]
+#[test_case("checks/debian/copyright/source-copyright-undefined"; "checks_debian_copyright_source_copyright_undefined")]
+#[test_case("checks/debian/copyright/spelling-general"; "checks_debian_copyright_spelling_general")]
 #[test_case("checks/debian/debconf/debconf-config-general"; "checks_debian_debconf_debconf_config_general")]
 #[test_case("checks/debian/debconf/debconf-config-not-executable"; "checks_debian_debconf_debconf_config_not_executable")]
 #[test_case("checks/debian/debconf/debconf-is-not-registry"; "checks_debian_debconf_debconf_is_not_registry")]
@@ -3026,7 +3057,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/dep5/legacy-debconf"; "checks_debian_copyright_dep5_legacy_debconf")]
 #[test_case("checks/debian/copyright/dep5/legacy-foo++"; "checks_debian_copyright_dep5_legacy_foo_")]
 #[test_case("checks/debian/copyright/dep5/legacy-scripts"; "checks_debian_copyright_dep5_legacy_scripts")]
+#[test_case("checks/debian/copyright/dep5/license-file-listed-in-debian-copyright"; "checks_debian_copyright_dep5_license_file_listed_in_debian_copyright")]
 #[test_case("checks/debian/copyright/dep5/lone-files-included"; "checks_debian_copyright_dep5_lone_files_included")]
+#[test_case("checks/debian/copyright/dep5/redundant-wildcard"; "checks_debian_copyright_dep5_redundant_wildcard")]
+#[test_case("checks/debian/copyright/dep5/repackaged-upstream-sources-not-advertised"; "checks_debian_copyright_dep5_repackaged_upstream_sources_not_advertised")]
 #[test_case("checks/debian/copyright/dep5/reused-wildcard"; "checks_debian_copyright_dep5_reused_wildcard")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-bad-short-name"; "checks_debian_copyright_dep5_source_copyright_bad_short_name")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-boilerplate-uri"; "checks_debian_copyright_dep5_source_copyright_boilerplate_uri")]
@@ -3040,11 +3074,17 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/copyright/dep5/source-copyright-incomplete-creative-commons-unrel"; "checks_debian_copyright_dep5_source_copyright_incomplete_creative_commons_unrel")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-inconsistent-appstream-metadata-license"; "checks_debian_copyright_dep5_source_copyright_inconsistent_appstream_metadata_license")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-insecure-uri"; "checks_debian_copyright_dep5_source_copyright_insecure_uri")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-missing-non-free-explanation"; "checks_debian_copyright_dep5_source_copyright_missing_non_free_explanation")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-missing-repack-explanation"; "checks_debian_copyright_dep5_source_copyright_missing_repack_explanation")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-nodep5"; "checks_debian_copyright_dep5_source_copyright_nodep5")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-ood-uri"; "checks_debian_copyright_dep5_source_copyright_ood_uri")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-pipe-as-or"; "checks_debian_copyright_dep5_source_copyright_pipe_as_or")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-source-files-excluded"; "checks_debian_copyright_dep5_source_copyright_source_files_excluded")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-undefined"; "checks_debian_copyright_dep5_source_copyright_undefined")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-unique"; "checks_debian_copyright_dep5_source_copyright_unique")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-unknown-uri"; "checks_debian_copyright_dep5_source_copyright_unknown_uri")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-unversioned-uri"; "checks_debian_copyright_dep5_source_copyright_unversioned_uri")]
+#[test_case("checks/debian/copyright/dep5/source-copyright-wiki-uri"; "checks_debian_copyright_dep5_source_copyright_wiki_uri")]
 #[test_case("checks/debian/copyright/dep5/source-copyright-wildcard-matching"; "checks_debian_copyright_dep5_source_copyright_wildcard_matching")]
 #[test_case("checks/debian/copyright/dep5/spelling-general"; "checks_debian_copyright_dep5_spelling_general")]
 #[test_case("checks/debian/copyright/dep5/tab-in-license-text"; "checks_debian_copyright_dep5_tab_in_license_text")]

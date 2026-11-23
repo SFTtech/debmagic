@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): spelling-error-in-copyright (LN1643) unknow unknown
+P: example (binary): spelling-error-in-copyright (LN1643) deafult default

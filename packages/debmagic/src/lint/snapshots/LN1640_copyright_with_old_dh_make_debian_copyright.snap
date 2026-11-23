@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): copyright-with-old-dh-make-debian-copyright (LN1640)
+P: example (binary): copyright-with-old-dh-make-debian-copyright (LN1640)

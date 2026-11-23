@@ -52,11 +52,17 @@ impl BinaryPackageRule for OcamlCustomExecutable {
 /// `^ Caml1999X0 [0-9] [0-9] $` matches it on one line.
 fn has_caml_magic(strings: &str) -> bool {
     strings.lines().any(|line| {
-        line.strip_prefix("Caml1999X0").is_some_and(|digits| {
-            digits.len() == 2 && digits.bytes().all(|byte| byte.is_ascii_digit())
-        })
+        line.as_bytes()
+            .strip_prefix(&CAML_MAGIC_HEAD)
+            .is_some_and(|digits| digits.len() == 2 && digits.iter().all(u8::is_ascii_digit))
     })
 }
+
+/// `Caml1999X0` as bytes, not a string literal: this test binary is itself
+/// linted by other tests, and the linker may place a literal next to a literal
+/// of digits, which would look like bytecode.
+#[allow(clippy::byte_char_slices)]
+const CAML_MAGIC_HEAD: [u8; 10] = [b'C', b'a', b'm', b'l', b'1', b'9', b'9', b'9', b'X', b'0'];
 
 #[cfg(test)]
 mod tests {
@@ -71,10 +77,13 @@ mod tests {
         ocaml_text(elf, format!("\0{}\0", caml_magic("08")).as_bytes())
     }
 
-    /// The OCaml magic with `digits`. Built at run time: the test binary is
-    /// itself linted by other tests, and a literal would look like bytecode.
+    /// The OCaml magic with `digits`. Built at run time from bytes: the test
+    /// binary is itself linted by other tests, and a literal would look like
+    /// bytecode.
     fn caml_magic(digits: &str) -> String {
-        ["Caml1999X0", digits].concat()
+        let mut magic = String::from_utf8(CAML_MAGIC_HEAD.to_vec()).expect("ASCII");
+        magic.push_str(digits);
+        magic
     }
 
     /// An ELF with `tail` appended to its bytes.

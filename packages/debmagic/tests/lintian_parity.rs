@@ -85,6 +85,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-maintainer-scripts",
+    "checks/debian/changelog/two-dashes-in-non-native-version",
     "checks/debian/control/field/adopted/control-file-general",
     "checks/debian/control/field/adopted/control-file-pedantic",
     "checks/debian/control/field/adopted/legacy-binary",
@@ -1239,6 +1240,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-maintainer-scripts",
+    "checks/debian/changelog/two-dashes-in-non-native-version",
     "checks/debian/control/field/adopted/control-file-general",
     "checks/debian/control/field/adopted/control-file-pedantic",
     "checks/debian/control/field/adopted/legacy-binary",
@@ -1834,6 +1836,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
+#[test_case("checks/debian/changelog/two-dashes-in-non-native-version"; "checks_debian_changelog_two_dashes_in_non_native_version")]
 #[test_case("checks/debian/control/field/adopted/control-file-general"; "checks_debian_control_field_adopted_control_file_general")]
 #[test_case("checks/debian/control/field/adopted/control-file-pedantic"; "checks_debian_control_field_adopted_control_file_pedantic")]
 #[test_case("checks/debian/control/field/adopted/legacy-binary"; "checks_debian_control_field_adopted_legacy_binary")]
@@ -2990,6 +2993,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
+#[test_case("checks/debian/changelog/two-dashes-in-non-native-version"; "checks_debian_changelog_two_dashes_in_non_native_version")]
 #[test_case("checks/debian/control/field/adopted/control-file-general"; "checks_debian_control_field_adopted_control_file_general")]
 #[test_case("checks/debian/control/field/adopted/control-file-pedantic"; "checks_debian_control_field_adopted_control_file_pedantic")]
 #[test_case("checks/debian/control/field/adopted/legacy-binary"; "checks_debian_control_field_adopted_legacy_binary")]

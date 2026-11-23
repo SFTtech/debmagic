@@ -576,6 +576,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         .map(|(_, hint)| hint)
         .collect();
     rewrite_changelog_last_used(recipe_rel, &mut actual);
+    rewrite_minified_js_post_test(recipe_rel, &mut actual);
     rewrite_current_policy_release_date(recipe_rel, &mut actual);
     rewrite_current_policy_version(recipe_rel, &mut actual);
     drop_hints_for_unvendorable_files(recipe_rel, &mut actual);
@@ -2262,6 +2263,7 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
         .map(|(_, hint)| hint)
         .collect();
     rewrite_changelog_last_used(recipe_rel, &mut actual);
+    rewrite_minified_js_post_test(recipe_rel, &mut actual);
     rewrite_current_policy_release_date(recipe_rel, &mut actual);
     rewrite_current_policy_version(recipe_rel, &mut actual);
     drop_hints_for_unvendorable_files(recipe_rel, &mut actual);
@@ -2570,6 +2572,27 @@ fn rewrite_changelog_last_used(recipe_rel: &str, hints: &mut [ParityHint]) {
         let end = start + relative_end;
         hint.extra
             .replace_range(start..=end, "(last used: CURRENT)");
+    }
+}
+
+/// The `eval/post-test` of `cruft-minified-js`: lintian's test runner rewrites
+/// the variable part of two extras to placeholders before it compares them
+/// (`code fragment:.*` to `code fragment:CODE`, `extract of copyright
+/// statement:.*` to `... COPYRIGHT`). The hints file holds the placeholders.
+fn rewrite_minified_js_post_test(recipe_rel: &str, hints: &mut [ParityHint]) {
+    if recipe_rel != "checks/cruft/cruft-minified-js" {
+        return;
+    }
+    for hint in hints {
+        if hint.tag == "source-contains-browserified-javascript"
+            && hint.extra.starts_with("code fragment:")
+        {
+            hint.extra = "code fragment:CODE".to_string();
+        } else if hint.tag == "embedded-script-includes-copyright-statement"
+            && hint.extra.starts_with("extract of copyright statement:")
+        {
+            hint.extra = "extract of copyright statement: COPYRIGHT".to_string();
+        }
     }
 }
 

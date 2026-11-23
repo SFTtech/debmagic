@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): binary-contains-insecure-defaultgodebug-settings (LN1689) rsa1024min=0,tlssha1=1 [usr/bin/example]
+P: example (udeb): binary-contains-insecure-defaultgodebug-settings (LN1689) tlssha1=1 [usr/bin/example]

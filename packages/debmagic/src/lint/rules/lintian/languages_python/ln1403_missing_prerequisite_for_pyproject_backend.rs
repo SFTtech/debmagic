@@ -94,7 +94,7 @@ impl SourceRule for MissingPrerequisiteForPyprojectBackend {
 /// The backend named by a `build-backend = "..."` or `'...'` line. The
 /// single-quoted form may not hold a double quote, as the Check's second
 /// pattern requires.
-fn build_backend(line: &str) -> Option<&str> {
+pub(super) fn build_backend(line: &str) -> Option<&str> {
     let rest = line.trim_start().strip_prefix("build-backend")?;
     let rest = rest.trim_start().strip_prefix('=')?.trim_start();
     let (quote, rest) = match rest.strip_prefix('"') {

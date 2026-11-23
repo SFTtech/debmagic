@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): package-uses-old-python-depends-substvar (LN1683) example

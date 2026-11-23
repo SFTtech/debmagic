@@ -7,7 +7,7 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::SourceRule;
 
-use super::sections::{control_location, tests_control_sections};
+use super::sections::{Section, control_location, tests_control_sections};
 
 pub struct TestsuiteDependsOnObsoletePackage;
 
@@ -69,37 +69,46 @@ impl SourceRule for TestsuiteDependsOnObsoletePackage {
         let Some(sections) = tests_control_sections(files) else {
             return;
         };
-        let mut messages = Vec::new();
-        for section in &sections {
-            if !section.declares("Depends") {
-                continue;
-            }
-            let depends = section.unfolded_value("Depends");
-            for dependency in COMMA.split(depends.trim()) {
-                let alternatives: Vec<&str> = PIPE.split(dependency).collect();
-                let obsolete: Vec<&str> = alternatives
-                    .iter()
-                    .copied()
-                    .filter(|alternative| replacement(package_name(alternative)).is_some())
-                    .collect();
-                let first = alternatives.first().map_or("", |first| package_name(first));
-                for alternative in &obsolete {
-                    let package = package_name(alternative);
-                    if package != first && obsolete.len() != alternatives.len() {
-                        continue;
-                    }
-                    let suffix = replacement(package)
-                        .filter(|value| !value.is_empty())
-                        .map(|value| format!(" => {value}"))
-                        .unwrap_or_default();
-                    messages.push(format!("Depends: {alternative}{suffix}"));
-                }
-            }
-        }
-        for message in messages {
+        for message in obsolete_messages(&sections, false) {
             ctx.diagnostic(Diagnostic::warn(message).with_location(control_location(None)));
         }
     }
+}
+
+/// The `Depends` messages of `sections`. With `ored` false these are the
+/// alternatives lintian reports as `testsuite-depends-on-obsolete-package`;
+/// with `ored` true, the obsolete alternatives beside a current one, which
+/// lintian reports as `testsuite-ored-depends-on-obsolete-package`.
+pub(super) fn obsolete_messages(sections: &[Section], ored: bool) -> Vec<String> {
+    let mut messages = Vec::new();
+    for section in sections {
+        if !section.declares("Depends") {
+            continue;
+        }
+        let depends = section.unfolded_value("Depends");
+        for dependency in COMMA.split(depends.trim()) {
+            let alternatives: Vec<&str> = PIPE.split(dependency).collect();
+            let obsolete: Vec<&str> = alternatives
+                .iter()
+                .copied()
+                .filter(|alternative| replacement(package_name(alternative)).is_some())
+                .collect();
+            let first = alternatives.first().map_or("", |first| package_name(first));
+            for alternative in &obsolete {
+                let package = package_name(alternative);
+                let beside_current = package != first && obsolete.len() != alternatives.len();
+                if beside_current != ored {
+                    continue;
+                }
+                let suffix = replacement(package)
+                    .filter(|value| !value.is_empty())
+                    .map(|value| format!(" => {value}"))
+                    .unwrap_or_default();
+                messages.push(format!("Depends: {alternative}{suffix}"));
+            }
+        }
+    }
+    messages
 }
 
 #[cfg(test)]

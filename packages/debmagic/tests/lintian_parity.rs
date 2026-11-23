@@ -69,6 +69,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-maintainer-scripts",
     "checks/debhelper/legacy-scripts",
     "checks/debhelper/oeverride-typo",
+    "checks/debhelper/package-does-not-use-debhelper",
+    "checks/debhelper/package-uses-debputy-build-driver",
     "checks/debhelper/rules-uses-deprecated-systemd-override",
     "checks/debhelper/temporary/debhelper-internal-files",
     "checks/debian/changelog/changelog-file-become-native",
@@ -232,6 +234,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/rules/legacy-scripts",
     "checks/debian/rules/rules-build-dep-pattern",
     "checks/debian/rules/rules-debug-symbol-migration-possibly-complete",
+    "checks/debian/rules/rules-dh-auto-test-does-not-check-deb-build-options-dh-12",
     "checks/debian/rules/rules-dh-order",
     "checks/debian/rules/rules-dh-unused-target-nonempty",
     "checks/debian/rules/rules-general",
@@ -461,8 +464,10 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/unicode/trojan/exe-vs-gif-in-patched-filename",
     "checks/files/unicode/trojan/rte-in-contents",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
+    "checks/languages/golang/built-using/binaries-golang",
     "checks/languages/golang/module-path/binaries-golang",
     "checks/languages/golang/module-path/control-file-golang-built-using",
+    "checks/languages/golang/module-path/differing-golang-xs-go-import-path",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
     "checks/languages/java/prebuilt-java-object",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
@@ -482,6 +487,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/puppet/puppet-module-but-not-dh-puppet",
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
     "checks/languages/python/dist-overrides/duplicate-identifier",
+    "checks/languages/python/dist-overrides/pydist-overrides-file",
     "checks/languages/python/homepage/pypi",
     "checks/languages/python/obsolete/cruft-python",
     "checks/languages/python/obsolete/legacy-debconf",
@@ -495,11 +501,14 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/python/python-could-use-pyproject-sipbuild",
     "checks/languages/python/python-could-use-pyproject-whey",
     "checks/languages/python/python-malformed-py-version",
+    "checks/languages/python/python-old-python-depends",
+    "checks/languages/python/python-old-python-version-field",
     "checks/languages/python/python-source-package-encodes-python-version",
     "checks/languages/python/python-valid-pdm",
     "checks/languages/python/python-valid-poetry",
     "checks/languages/python/python-version-current-deprecated",
     "checks/languages/python/python-wrong-pdm",
+    "checks/languages/python/python-wrong-poetry",
     "checks/languages/python/stdlib-deprecation/python-imports-asyncore",
     "checks/languages/python/stdlib-deprecation/python-imports-distutils",
     "checks/languages/r/files-r-data",
@@ -526,6 +535,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/substvars/libc/control-file-hardcoded-libc",
     "checks/substvars/misc/pre-depends/depends-on-misc-pre-depends",
     "checks/template/dh-make/control/vcs/control-file-general",
+    "checks/testsuite/all-superficial",
     "checks/testsuite/command-with-ampersand",
     "checks/testsuite/depends-on-obsolete-package",
     "checks/testsuite/deprecated-skip-not-installable",
@@ -1021,6 +1031,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/init-d/maintainer-script/scripts-calls-init-script",
     "checks/languages/fortran/gfortran/missing-prerequisite-for-module",
     "checks/languages/fortran/gfortran/no-module-version",
+    "checks/languages/golang/default-godebug/use-godebug",
     "checks/languages/java/bytecode/files-java-classfiles",
     "checks/languages/java/java-class-format",
     "checks/languages/java/java-classpath",
@@ -1273,6 +1284,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/legacy-maintainer-scripts",
     "checks/debhelper/legacy-scripts",
     "checks/debhelper/oeverride-typo",
+    "checks/debhelper/package-does-not-use-debhelper",
+    "checks/debhelper/package-uses-debputy-build-driver",
     "checks/debhelper/rules-uses-deprecated-systemd-override",
     "checks/debhelper/temporary/debhelper-internal-files",
     "checks/debian/changelog/changelog-file-become-native",
@@ -1437,6 +1450,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/rules/legacy-scripts",
     "checks/debian/rules/rules-build-dep-pattern",
     "checks/debian/rules/rules-debug-symbol-migration-possibly-complete",
+    "checks/debian/rules/rules-dh-auto-test-does-not-check-deb-build-options-dh-12",
     "checks/debian/rules/rules-dh-order",
     "checks/debian/rules/rules-dh-unused-target-nonempty",
     "checks/debian/rules/rules-general",
@@ -1668,8 +1682,10 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/unicode/trojan/exe-vs-gif-in-patched-filename",
     "checks/files/unicode/trojan/rte-in-contents",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
+    "checks/languages/golang/built-using/binaries-golang",
     "checks/languages/golang/module-path/binaries-golang",
     "checks/languages/golang/module-path/control-file-golang-built-using",
+    "checks/languages/golang/module-path/differing-golang-xs-go-import-path",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
     "checks/languages/java/prebuilt-java-object",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
@@ -1689,6 +1705,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/puppet/puppet-module-but-not-dh-puppet",
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
     "checks/languages/python/dist-overrides/duplicate-identifier",
+    "checks/languages/python/dist-overrides/pydist-overrides-file",
     "checks/languages/python/homepage/pypi",
     "checks/languages/python/obsolete/cruft-python",
     "checks/languages/python/obsolete/legacy-debconf",
@@ -1702,11 +1719,14 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/python-could-use-pyproject-sipbuild",
     "checks/languages/python/python-could-use-pyproject-whey",
     "checks/languages/python/python-malformed-py-version",
+    "checks/languages/python/python-old-python-depends",
+    "checks/languages/python/python-old-python-version-field",
     "checks/languages/python/python-source-package-encodes-python-version",
     "checks/languages/python/python-valid-pdm",
     "checks/languages/python/python-valid-poetry",
     "checks/languages/python/python-version-current-deprecated",
     "checks/languages/python/python-wrong-pdm",
+    "checks/languages/python/python-wrong-poetry",
     "checks/languages/python/stdlib-deprecation/python-imports-asyncore",
     "checks/languages/python/stdlib-deprecation/python-imports-distutils",
     "checks/languages/r/files-r-data",
@@ -1733,6 +1753,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/substvars/libc/control-file-hardcoded-libc",
     "checks/substvars/misc/pre-depends/depends-on-misc-pre-depends",
     "checks/template/dh-make/control/vcs/control-file-general",
+    "checks/testsuite/all-superficial",
     "checks/testsuite/command-with-ampersand",
     "checks/testsuite/depends-on-obsolete-package",
     "checks/testsuite/deprecated-skip-not-installable",
@@ -1900,6 +1921,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/legacy-maintainer-scripts"; "checks_debhelper_legacy_maintainer_scripts")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debhelper/oeverride-typo"; "checks_debhelper_oeverride_typo")]
+#[test_case("checks/debhelper/package-does-not-use-debhelper"; "checks_debhelper_package_does_not_use_debhelper")]
+#[test_case("checks/debhelper/package-uses-debputy-build-driver"; "checks_debhelper_package_uses_debputy_build_driver")]
 #[test_case("checks/debhelper/rules-uses-deprecated-systemd-override"; "checks_debhelper_rules_uses_deprecated_systemd_override")]
 #[test_case("checks/debhelper/temporary/debhelper-internal-files"; "checks_debhelper_temporary_debhelper_internal_files")]
 #[test_case("checks/debian/changelog/changelog-file-become-native"; "checks_debian_changelog_changelog_file_become_native")]
@@ -2063,6 +2086,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/rules/legacy-scripts"; "checks_debian_rules_legacy_scripts")]
 #[test_case("checks/debian/rules/rules-build-dep-pattern"; "checks_debian_rules_rules_build_dep_pattern")]
 #[test_case("checks/debian/rules/rules-debug-symbol-migration-possibly-complete"; "checks_debian_rules_rules_debug_symbol_migration_possibly_complete")]
+#[test_case("checks/debian/rules/rules-dh-auto-test-does-not-check-deb-build-options-dh-12"; "checks_debian_rules_rules_dh_auto_test_does_not_check_deb_build_options_dh_12")]
 #[test_case("checks/debian/rules/rules-dh-order"; "checks_debian_rules_rules_dh_order")]
 #[test_case("checks/debian/rules/rules-dh-unused-target-nonempty"; "checks_debian_rules_rules_dh_unused_target_nonempty")]
 #[test_case("checks/debian/rules/rules-general"; "checks_debian_rules_rules_general")]
@@ -2292,8 +2316,10 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/unicode/trojan/exe-vs-gif-in-patched-filename"; "checks_files_unicode_trojan_exe_vs_gif_in_patched_filename")]
 #[test_case("checks/files/unicode/trojan/rte-in-contents"; "checks_files_unicode_trojan_rte_in_contents")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
+#[test_case("checks/languages/golang/built-using/binaries-golang"; "checks_languages_golang_built_using_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/control-file-golang-built-using"; "checks_languages_golang_module_path_control_file_golang_built_using")]
+#[test_case("checks/languages/golang/module-path/differing-golang-xs-go-import-path"; "checks_languages_golang_module_path_differing_golang_xs_go_import_path")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
 #[test_case("checks/languages/java/prebuilt-java-object"; "checks_languages_java_prebuilt_java_object")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
@@ -2313,6 +2339,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/puppet/puppet-module-but-not-dh-puppet"; "checks_languages_puppet_puppet_module_but_not_dh_puppet")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
+#[test_case("checks/languages/python/dist-overrides/pydist-overrides-file"; "checks_languages_python_dist_overrides_pydist_overrides_file")]
 #[test_case("checks/languages/python/homepage/pypi"; "checks_languages_python_homepage_pypi")]
 #[test_case("checks/languages/python/obsolete/cruft-python"; "checks_languages_python_obsolete_cruft_python")]
 #[test_case("checks/languages/python/obsolete/legacy-debconf"; "checks_languages_python_obsolete_legacy_debconf")]
@@ -2326,11 +2353,14 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/python/python-could-use-pyproject-sipbuild"; "checks_languages_python_python_could_use_pyproject_sipbuild")]
 #[test_case("checks/languages/python/python-could-use-pyproject-whey"; "checks_languages_python_python_could_use_pyproject_whey")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
+#[test_case("checks/languages/python/python-old-python-depends"; "checks_languages_python_python_old_python_depends")]
+#[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
 #[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
 #[test_case("checks/languages/python/python-valid-pdm"; "checks_languages_python_python_valid_pdm")]
 #[test_case("checks/languages/python/python-valid-poetry"; "checks_languages_python_python_valid_poetry")]
 #[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
 #[test_case("checks/languages/python/python-wrong-pdm"; "checks_languages_python_python_wrong_pdm")]
+#[test_case("checks/languages/python/python-wrong-poetry"; "checks_languages_python_python_wrong_poetry")]
 #[test_case("checks/languages/python/stdlib-deprecation/python-imports-asyncore"; "checks_languages_python_stdlib_deprecation_python_imports_asyncore")]
 #[test_case("checks/languages/python/stdlib-deprecation/python-imports-distutils"; "checks_languages_python_stdlib_deprecation_python_imports_distutils")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
@@ -2357,6 +2387,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/substvars/libc/control-file-hardcoded-libc"; "checks_substvars_libc_control_file_hardcoded_libc")]
 #[test_case("checks/substvars/misc/pre-depends/depends-on-misc-pre-depends"; "checks_substvars_misc_pre_depends_depends_on_misc_pre_depends")]
 #[test_case("checks/template/dh-make/control/vcs/control-file-general"; "checks_template_dh_make_control_vcs_control_file_general")]
+#[test_case("checks/testsuite/all-superficial"; "checks_testsuite_all_superficial")]
 #[test_case("checks/testsuite/command-with-ampersand"; "checks_testsuite_command_with_ampersand")]
 #[test_case("checks/testsuite/depends-on-obsolete-package"; "checks_testsuite_depends_on_obsolete_package")]
 #[test_case("checks/testsuite/deprecated-skip-not-installable"; "checks_testsuite_deprecated_skip_not_installable")]
@@ -2853,6 +2884,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/init-d/maintainer-script/scripts-calls-init-script"; "checks_init_d_maintainer_script_scripts_calls_init_script")]
 #[test_case("checks/languages/fortran/gfortran/missing-prerequisite-for-module"; "checks_languages_fortran_gfortran_missing_prerequisite_for_module")]
 #[test_case("checks/languages/fortran/gfortran/no-module-version"; "checks_languages_fortran_gfortran_no_module_version")]
+#[test_case("checks/languages/golang/default-godebug/use-godebug"; "checks_languages_golang_default_godebug_use_godebug")]
 #[test_case("checks/languages/java/bytecode/files-java-classfiles"; "checks_languages_java_bytecode_files_java_classfiles")]
 #[test_case("checks/languages/java/java-class-format"; "checks_languages_java_java_class_format")]
 #[test_case("checks/languages/java/java-classpath"; "checks_languages_java_java_classpath")]
@@ -3106,6 +3138,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/legacy-maintainer-scripts"; "checks_debhelper_legacy_maintainer_scripts")]
 #[test_case("checks/debhelper/legacy-scripts"; "checks_debhelper_legacy_scripts")]
 #[test_case("checks/debhelper/oeverride-typo"; "checks_debhelper_oeverride_typo")]
+#[test_case("checks/debhelper/package-does-not-use-debhelper"; "checks_debhelper_package_does_not_use_debhelper")]
+#[test_case("checks/debhelper/package-uses-debputy-build-driver"; "checks_debhelper_package_uses_debputy_build_driver")]
 #[test_case("checks/debhelper/rules-uses-deprecated-systemd-override"; "checks_debhelper_rules_uses_deprecated_systemd_override")]
 #[test_case("checks/debhelper/temporary/debhelper-internal-files"; "checks_debhelper_temporary_debhelper_internal_files")]
 #[test_case("checks/debian/changelog/changelog-file-become-native"; "checks_debian_changelog_changelog_file_become_native")]
@@ -3270,6 +3304,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/rules/legacy-scripts"; "checks_debian_rules_legacy_scripts")]
 #[test_case("checks/debian/rules/rules-build-dep-pattern"; "checks_debian_rules_rules_build_dep_pattern")]
 #[test_case("checks/debian/rules/rules-debug-symbol-migration-possibly-complete"; "checks_debian_rules_rules_debug_symbol_migration_possibly_complete")]
+#[test_case("checks/debian/rules/rules-dh-auto-test-does-not-check-deb-build-options-dh-12"; "checks_debian_rules_rules_dh_auto_test_does_not_check_deb_build_options_dh_12")]
 #[test_case("checks/debian/rules/rules-dh-order"; "checks_debian_rules_rules_dh_order")]
 #[test_case("checks/debian/rules/rules-dh-unused-target-nonempty"; "checks_debian_rules_rules_dh_unused_target_nonempty")]
 #[test_case("checks/debian/rules/rules-general"; "checks_debian_rules_rules_general")]
@@ -3501,8 +3536,10 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/unicode/trojan/exe-vs-gif-in-patched-filename"; "checks_files_unicode_trojan_exe_vs_gif_in_patched_filename")]
 #[test_case("checks/files/unicode/trojan/rte-in-contents"; "checks_files_unicode_trojan_rte_in_contents")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
+#[test_case("checks/languages/golang/built-using/binaries-golang"; "checks_languages_golang_built_using_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/control-file-golang-built-using"; "checks_languages_golang_module_path_control_file_golang_built_using")]
+#[test_case("checks/languages/golang/module-path/differing-golang-xs-go-import-path"; "checks_languages_golang_module_path_differing_golang_xs_go_import_path")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
 #[test_case("checks/languages/java/prebuilt-java-object"; "checks_languages_java_prebuilt_java_object")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
@@ -3522,6 +3559,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/puppet/puppet-module-but-not-dh-puppet"; "checks_languages_puppet_puppet_module_but_not_dh_puppet")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
+#[test_case("checks/languages/python/dist-overrides/pydist-overrides-file"; "checks_languages_python_dist_overrides_pydist_overrides_file")]
 #[test_case("checks/languages/python/homepage/pypi"; "checks_languages_python_homepage_pypi")]
 #[test_case("checks/languages/python/obsolete/cruft-python"; "checks_languages_python_obsolete_cruft_python")]
 #[test_case("checks/languages/python/obsolete/legacy-debconf"; "checks_languages_python_obsolete_legacy_debconf")]
@@ -3535,11 +3573,14 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/python/python-could-use-pyproject-sipbuild"; "checks_languages_python_python_could_use_pyproject_sipbuild")]
 #[test_case("checks/languages/python/python-could-use-pyproject-whey"; "checks_languages_python_python_could_use_pyproject_whey")]
 #[test_case("checks/languages/python/python-malformed-py-version"; "checks_languages_python_python_malformed_py_version")]
+#[test_case("checks/languages/python/python-old-python-depends"; "checks_languages_python_python_old_python_depends")]
+#[test_case("checks/languages/python/python-old-python-version-field"; "checks_languages_python_python_old_python_version_field")]
 #[test_case("checks/languages/python/python-source-package-encodes-python-version"; "checks_languages_python_python_source_package_encodes_python_version")]
 #[test_case("checks/languages/python/python-valid-pdm"; "checks_languages_python_python_valid_pdm")]
 #[test_case("checks/languages/python/python-valid-poetry"; "checks_languages_python_python_valid_poetry")]
 #[test_case("checks/languages/python/python-version-current-deprecated"; "checks_languages_python_python_version_current_deprecated")]
 #[test_case("checks/languages/python/python-wrong-pdm"; "checks_languages_python_python_wrong_pdm")]
+#[test_case("checks/languages/python/python-wrong-poetry"; "checks_languages_python_python_wrong_poetry")]
 #[test_case("checks/languages/python/stdlib-deprecation/python-imports-asyncore"; "checks_languages_python_stdlib_deprecation_python_imports_asyncore")]
 #[test_case("checks/languages/python/stdlib-deprecation/python-imports-distutils"; "checks_languages_python_stdlib_deprecation_python_imports_distutils")]
 #[test_case("checks/languages/r/files-r-data"; "checks_languages_r_files_r_data")]
@@ -3566,6 +3607,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/substvars/libc/control-file-hardcoded-libc"; "checks_substvars_libc_control_file_hardcoded_libc")]
 #[test_case("checks/substvars/misc/pre-depends/depends-on-misc-pre-depends"; "checks_substvars_misc_pre_depends_depends_on_misc_pre_depends")]
 #[test_case("checks/template/dh-make/control/vcs/control-file-general"; "checks_template_dh_make_control_vcs_control_file_general")]
+#[test_case("checks/testsuite/all-superficial"; "checks_testsuite_all_superficial")]
 #[test_case("checks/testsuite/command-with-ampersand"; "checks_testsuite_command_with_ampersand")]
 #[test_case("checks/testsuite/depends-on-obsolete-package"; "checks_testsuite_depends_on_obsolete_package")]
 #[test_case("checks/testsuite/deprecated-skip-not-installable"; "checks_testsuite_deprecated_skip_not_installable")]

@@ -419,6 +419,7 @@ use super::rules::NoPhrase;
 use super::rules::NoShlibs;
 use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoSymbolsControlFile;
+use super::rules::NoTeamTests;
 use super::rules::NoTeamUrl;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
@@ -2663,6 +2664,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &NoGit,
         &NoTeamUrl,
+        &NoTeamTests,
     ]
 }
 
@@ -3198,6 +3200,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SphinxdocButNoSphinxdocDepends,
         &NoGit,
         &NoTeamUrl,
+        &NoTeamTests,
     ]
 }
 

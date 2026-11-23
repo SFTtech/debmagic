@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo-perl (source): no-team-tests (LN1786)
+W: libfoo-perl (source): no-team-tests (LN1786)
+W: libfoo-perl (source): no-team-tests (LN1786)

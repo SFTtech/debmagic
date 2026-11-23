@@ -135,6 +135,20 @@ def test_pins_filter_mixes_names_and_pairs() -> None:
     assert sql == "(s.source in ('hello') or (s.source, s.version) in (('samba', '2:4.25.1+dfsg-1')))"
 
 
+def test_udd_lookups_pin_the_oracle_lintian_version(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # Without the lintian_version predicate the (source, version) probes cannot use lintian_results_idx.
+    sent: list[str] = []
+    monkeypatch.setattr(eco, "udd_query", lambda sql: sent.append(sql) or [])
+    eco.query_sources("sid", [eco.pins_filter([("samba", "2:4.25.1+dfsg-1")])])
+    assert "l.lintian_version = (select max(lintian_version) from lintian_results) and l.source = s.source" in sent[0]
+    assert "and ((s.source, s.version) in (('samba', '2:4.25.1+dfsg-1')))" in sent[0]
+
+    entries = [eco.SourceEntry("samba", "2:4.25.1+dfsg-1", "main", [])]
+    eco.load_oracle(entries, tmp_path, refresh=True)
+    assert "from lintian_results where lintian_version = (select max(lintian_version) from lintian_results)" in sent[1]
+    assert "(source, version) in (('samba', '2:4.25.1+dfsg-1'))" in sent[1]
+
+
 def test_pin_matches_by_version_or_any_version() -> None:
     entry = eco.SourceEntry("samba", "2:4.25.1+dfsg-1", "main", [])
     assert eco.pin_matches(("samba", ""), entry)

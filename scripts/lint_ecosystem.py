@@ -332,12 +332,21 @@ def names_filter(names: list[str] | tuple[str, ...], negate: bool = False) -> st
     return f"s.source {'not in' if negate else 'in'} ({listed})"
 
 
+# The oracle's lintian version, read in the same query. `lintian_results_idx` is (lintian_version, source,
+# version): without a lintian_version predicate the (source, version) lookups below cannot use it and
+# plan as a sequential scan of the 8.7M-row table per package (about 400 full scans). The mirror holds one
+# lintian version today; the comparison is against that version only, and rows of other lintian versions
+# are deliberately not compared. `max` is an index-only backward probe of one row.
+ORACLE_LINTIAN_VERSION = "(select max(lintian_version) from lintian_results)"
+
+
 def query_sources(release: str, where: list[str], order_limit: str = "") -> list[SourceEntry]:
     """Source packages of the release that have lintian results for their current version."""
     conditions = [
         "s.distribution = 'debian'",
         f"s.release = {sql_literal(release)}",
-        "exists (select 1 from lintian_results l where l.source = s.source and l.version = s.version)",
+        "exists (select 1 from lintian_results l where l.lintian_version = "
+        f"{ORACLE_LINTIAN_VERSION} and l.source = s.source and l.version = s.version)",
         *where,
     ]
     rows = udd_query(
@@ -530,7 +539,8 @@ def load_oracle(entries: list[SourceEntry], work_dir: Path, refresh: bool) -> di
         pairs = ", ".join(f"({sql_literal(e.source)}, {sql_literal(e.version)})" for e in batch)
         rows = udd_query(
             "select source, version, lintian_version, package, package_version, architecture, tag_type, tag, "
-            f"information from lintian_results where (source, version) in ({pairs}) and tag_type <> 'classification'"
+            f"information from lintian_results where lintian_version = {ORACLE_LINTIAN_VERSION} "
+            f"and (source, version) in ({pairs}) and tag_type <> 'classification'"
         )
         grouped: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
         for row in rows:

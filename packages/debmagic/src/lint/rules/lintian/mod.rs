@@ -1034,8 +1034,8 @@ pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;
 pub(crate) use languages_r::RequiresRApi;
 pub(crate) use lintian_overrides::{
-    AlienTag, DuplicateOverrideContext, MalformedOverride, OverrideFileInWrongLocation,
-    OverrideFileInWrongPackage, RenamedTag,
+    AlienTag, DuplicateOverrideContext, MalformedOverride, OldSourceOverrideLocation,
+    OverrideFileInWrongLocation, OverrideFileInWrongPackage, RenamedTag,
 };
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;

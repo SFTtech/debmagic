@@ -442,6 +442,7 @@ use super::rules::OddMarkInDescription;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OldPythonVersionField;
+use super::rules::OldSourceOverrideLocation;
 use super::rules::OldStyleConfigScript;
 use super::rules::OlderDebianWatchFileStandard;
 use super::rules::OlderSourceFormat;
@@ -2639,6 +2640,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnstrippedStaticLibrary,
         &ManualPageInUdeb,
         &InvalidVersionedProvides,
+        &OldSourceOverrideLocation,
     ]
 }
 
@@ -4101,6 +4103,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UnstrippedStaticLibrary,
         &ManualPageInUdeb,
         &InvalidVersionedProvides,
+        &OldSourceOverrideLocation,
     ]
 }
 

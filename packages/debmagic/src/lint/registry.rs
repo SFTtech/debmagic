@@ -230,6 +230,7 @@ use super::rules::InvalidDep3FormatPatchWrongBugDebianUrl;
 use super::rules::InvalidDep3FormatPatchWrongLastUpdate;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
 use super::rules::InvalidOverrideRestriction;
+use super::rules::InvalidPotfilesIn;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::InvalidSystemdDocumentation;
@@ -311,8 +312,10 @@ use super::rules::NativeSourceFileWithoutUtf8Name;
 use super::rules::NeedlessDependencyOnJre;
 use super::rules::NewPackageShouldNotPackagePython2Module;
 use super::rules::NewPackageUsesDateBasedVersionNumber;
+use super::rules::NewerDebconfTemplates;
 use super::rules::NmuInChangelog;
 use super::rules::NoCodeSections;
+use super::rules::NoCompleteDebconfTranslation;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
 use super::rules::NoMd5sumsControlFile;
@@ -2267,6 +2270,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SystemdServiceFileMissingInstallKey,
         &MaintainerShellScriptFailsSyntaxCheck,
         &ShellScriptFailsSyntaxCheck,
+        &InvalidPotfilesIn,
+        &NewerDebconfTemplates,
+        &NoCompleteDebconfTranslation,
     ]
 }
 
@@ -2688,6 +2694,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianWatchManglesDebianVersionImproperly,
         &DebianWatchManglesUpstreamVersionImproperly,
         &DhInstallInsteadOfDhInstallmodules,
+        &InvalidPotfilesIn,
+        &NewerDebconfTemplates,
+        &NoCompleteDebconfTranslation,
     ]
 }
 

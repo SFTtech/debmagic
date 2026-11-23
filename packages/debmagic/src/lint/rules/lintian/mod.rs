@@ -997,8 +997,9 @@ pub(crate) use modprobe::{
 };
 pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};
 pub(crate) use po_debconf::{
-    DebconfTranslationUsingGeneralList, InvalidPoFile, MisnamedPoFile, MissingFileFromPotfilesIn,
-    MissingPotfilesIn, MissingTemplatesPot, NotUsingPoDebconf, TranslatedDefaultField,
+    DebconfTranslationUsingGeneralList, InvalidPoFile, InvalidPotfilesIn, MisnamedPoFile,
+    MissingFileFromPotfilesIn, MissingPotfilesIn, MissingTemplatesPot, NewerDebconfTemplates,
+    NoCompleteDebconfTranslation, NotUsingPoDebconf, TranslatedDefaultField,
     UnknownEncodingInPoFile,
 };
 pub(crate) use rules_and_control::{

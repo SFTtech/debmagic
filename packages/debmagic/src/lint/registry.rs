@@ -469,6 +469,7 @@ use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OpenpgpFileHasImplementationSpecificExtension;
 use super::rules::OredBuildDependsOnObsoletePackage;
 use super::rules::OredDependsOnObsoletePackage;
+use super::rules::OrigTarballContainsAncientFile;
 use super::rules::OrigTarballMissingUpstreamSignature;
 use super::rules::OutOfDateCopyrightFormatUri;
 use super::rules::OutOfDateStandardsVersion;
@@ -752,7 +753,10 @@ use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
 use super::rules::UnnecessarySourceDateEpochAssignment;
 use super::rules::UnnecessaryTeamUpload;
+use super::rules::UnpackMessageForDebControl;
 use super::rules::UnpackMessageForDebData;
+use super::rules::UnpackMessageForOrig;
+use super::rules::UnpackMessageForSource;
 use super::rules::UnparsableMenuItem;
 use super::rules::UnreleasedChangelogDistribution;
 use super::rules::UnreleasedChanges;
@@ -2567,6 +2571,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
+        &UnpackMessageForDebControl,
         &SourceContainsArchControlDir,
         &SourceContainsArchInventoryFile,
         &SourceContainsBtsControlDir,
@@ -2701,6 +2706,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnreleasedChangelogDistribution,
         &PackageUsesExperimentalDebhelperCompatVersion,
         &FileReferencesPackageBuildPath,
+        &UnpackMessageForSource,
+        &UnpackMessageForOrig,
+        &OrigTarballContainsAncientFile,
     ]
 }
 
@@ -3247,6 +3255,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InvalidFieldForDerivative,
         &InvalidVersionNumberForDerivative,
         &PackageUsesExperimentalDebhelperCompatVersion,
+        &UnpackMessageForSource,
+        &UnpackMessageForOrig,
+        &OrigTarballContainsAncientFile,
     ]
 }
 
@@ -4143,6 +4154,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &StaticLinkTimeOptimization,
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
+        &UnpackMessageForDebControl,
         &CopyrightWithOldDhMakeDebianCopyright,
         &CopyrightHasCrs,
         &CopyrightRefersToSymlinkLicense,

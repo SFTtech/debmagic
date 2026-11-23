@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Create an upstream tarball containing a file with old timestamp
+# (lintian's build-spec/pre-upstream, replayed before the orig is packed: the
+# vendored tree loses the time stamp).
+
+set -e
+
+dir="$1"
+
+TZ=GMT touch -t 197501010000 "$dir/foobar"

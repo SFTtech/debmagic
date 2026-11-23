@@ -211,6 +211,7 @@ use super::rules::ExampleInterpreterNotAbsolute;
 use super::rules::ExampleScriptUsesBinEnv;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
 use super::rules::ExampleScriptWithoutInterpreter;
+use super::rules::ExampleUnusualInterpreter;
 use super::rules::ExampleWrongPathForInterpreter;
 use super::rules::ExcessiveDebhelperOverrides;
 use super::rules::ExecutableDebhelperFileWithoutBeingExecutable;
@@ -2429,6 +2430,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
+        &ExampleUnusualInterpreter,
     ]
 }
 
@@ -3787,6 +3789,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &StaticLinkTimeOptimization,
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
+        &ExampleUnusualInterpreter,
     ]
 }
 

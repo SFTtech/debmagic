@@ -12,7 +12,7 @@ use super::group::Group;
 use super::group_context::{BuildinfoContext, ChangesContext, GroupContext};
 use super::intent::LintIntent;
 use super::registry;
-use super::rule::{Code, RuleAccess, Severity, Tag};
+use super::rule::{Code, GroupRule, RuleAccess, Severity, Tag};
 use super::subject::{LintTarget, Subject};
 use super::timing::{self, TimingSession};
 
@@ -104,34 +104,30 @@ fn run_artifact_lint(
                 },
             )?);
         }
-        if let Some(source) = &group.source {
-            if any_selected(registry::source_rules(), &selected) {
-                let data = source
-                    .package()
-                    .map_err(|message| anyhow::anyhow!("{message}"))?;
-                stages.push(run_stage(
-                    intent,
-                    registry::source_rules(),
-                    started,
-                    |rule| {
-                        let mut ctx = SourceContext::bind_package(data, rule);
-                        rule.run(&mut ctx);
-                        ctx.finish()
-                    },
-                )?);
-            }
-            if any_selected(registry::group_rules(), &selected) {
-                stages.push(run_stage(
-                    intent,
-                    registry::group_rules(),
-                    started,
-                    |rule| {
-                        let mut ctx = GroupContext::bind(group, rule);
-                        rule.run(&mut ctx);
-                        ctx.finish()
-                    },
-                )?);
-            }
+        if let Some(source) = &group.source
+            && any_selected(registry::source_rules(), &selected)
+        {
+            let data = source
+                .package()
+                .map_err(|message| anyhow::anyhow!("{message}"))?;
+            stages.push(run_stage(
+                intent,
+                registry::source_rules(),
+                started,
+                |rule| {
+                    let mut ctx = SourceContext::bind_package(data, rule);
+                    rule.run(&mut ctx);
+                    ctx.finish()
+                },
+            )?);
+        }
+        let group_rules = applicable_group_rules(registry::group_rules(), group);
+        if any_selected(&group_rules, &selected) {
+            stages.push(run_stage(intent, &group_rules, started, |rule| {
+                let mut ctx = GroupContext::bind(group, rule);
+                rule.run(&mut ctx);
+                ctx.finish()
+            })?);
         }
         if let Some(buildinfo) = &group.buildinfo
             && any_selected(registry::buildinfo_rules(), &selected)
@@ -211,6 +207,20 @@ struct Stage {
 
 fn any_selected<R: RuleAccess + ?Sized>(rules: &[&R], selected: &HashSet<Code>) -> bool {
     rules.iter().any(|rule| selected.contains(&rule.code()))
+}
+
+/// The Group Rules that run on `group`: all of them for a Group with a `.dsc`;
+/// for a Group without one (a lone `.deb`, or `.deb`s and a `.changes`), only
+/// the Rules that report on an installable (ADR 0056).
+fn applicable_group_rules<'r>(
+    rules: &[&'r dyn GroupRule],
+    group: &Group,
+) -> Vec<&'r dyn GroupRule> {
+    rules
+        .iter()
+        .copied()
+        .filter(|rule| group.source.is_some() || rule.runs_without_dsc())
+        .collect()
 }
 
 /// Run every selected Rule of `rules` on the current rayon pool. Rules are
@@ -526,6 +536,61 @@ mod tests {
     use crate::lint::rule::{RuleMeta, Severity};
     use crate::lint::rules::{DebmagicDummyTrigger, RequiredField};
     use crate::lint::selection::resolve_selected_codes;
+    use crate::lint::tester_group::GroupCase;
+
+    /// A Group Rule that reports on the source package only.
+    struct OnSourceRule;
+
+    crate::declare_rule! {
+        /// Reports on the source package.
+        OnSourceRule,
+        code = "DM9997",
+        tag = "group-on-source-only",
+        default_selected = false,
+        experimental = true,
+    }
+
+    impl GroupRule for OnSourceRule {
+        fn run(&self, _ctx: &mut GroupContext<'_>) {}
+    }
+
+    /// A Group Rule that reports on an installable, so it runs without a `.dsc`.
+    struct OnInstallableRule;
+
+    crate::declare_rule! {
+        /// Reports on an installable.
+        OnInstallableRule,
+        code = "DM9996",
+        tag = "group-on-installable-only",
+        default_selected = false,
+        experimental = true,
+    }
+
+    impl GroupRule for OnInstallableRule {
+        fn run(&self, _ctx: &mut GroupContext<'_>) {}
+
+        fn runs_without_dsc(&self) -> bool {
+            true
+        }
+    }
+
+    #[test]
+    fn group_without_dsc_runs_only_installable_group_rules() {
+        let rules: [&dyn GroupRule; 2] = [&OnSourceRule, &OnInstallableRule];
+        let with_dsc = GroupCase::new("Source: example\nVersion: 1.0\n").group();
+        let lone_deb = GroupCase::without_dsc().installable("example", "").group();
+        let codes = |group: &Group| -> Vec<Code> {
+            applicable_group_rules(&rules, group)
+                .iter()
+                .map(|rule| rule.code())
+                .collect()
+        };
+        assert_eq!(
+            codes(&with_dsc),
+            [OnSourceRule::CODE, OnInstallableRule::CODE]
+        );
+        assert_eq!(codes(&lone_deb), [OnInstallableRule::CODE]);
+    }
 
     fn base_intent(subject: PathBuf) -> LintIntent {
         resolve_lint_intent(LintIntentInput {

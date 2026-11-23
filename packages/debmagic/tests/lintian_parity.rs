@@ -165,6 +165,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/lintian-overrides/duplicate/duplicate-context-cute-field",
     "checks/debian/lintian-overrides/malformed/missing-colon",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
+    "checks/debian/manual-pages/manpage-in-1",
     "checks/debian/not-installed/triplet-in-library-path",
     "checks/debian/patches/dep3/author-or-from-is-better",
     "checks/debian/patches/dep3/bug-field-default-value",
@@ -1322,6 +1323,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/lintian-overrides/duplicate/duplicate-context-cute-field",
     "checks/debian/lintian-overrides/malformed/missing-colon",
     "checks/debian/maintscript/maintscript-includes-maint-script-parameters",
+    "checks/debian/manual-pages/manpage-in-1",
     "checks/debian/not-installed/triplet-in-library-path",
     "checks/debian/patches/dep3/author-or-from-is-better",
     "checks/debian/patches/dep3/bug-field-default-value",
@@ -1918,6 +1920,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/lintian-overrides/duplicate/duplicate-context-cute-field"; "checks_debian_lintian_overrides_duplicate_duplicate_context_cute_field")]
 #[test_case("checks/debian/lintian-overrides/malformed/missing-colon"; "checks_debian_lintian_overrides_malformed_missing_colon")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
+#[test_case("checks/debian/manual-pages/manpage-in-1"; "checks_debian_manual_pages_manpage_in_1")]
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
 #[test_case("checks/debian/patches/dep3/author-or-from-is-better"; "checks_debian_patches_dep3_author_or_from_is_better")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]
@@ -3077,6 +3080,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/lintian-overrides/duplicate/duplicate-context-cute-field"; "checks_debian_lintian_overrides_duplicate_duplicate_context_cute_field")]
 #[test_case("checks/debian/lintian-overrides/malformed/missing-colon"; "checks_debian_lintian_overrides_malformed_missing_colon")]
 #[test_case("checks/debian/maintscript/maintscript-includes-maint-script-parameters"; "checks_debian_maintscript_maintscript_includes_maint_script_parameters")]
+#[test_case("checks/debian/manual-pages/manpage-in-1"; "checks_debian_manual_pages_manpage_in_1")]
 #[test_case("checks/debian/not-installed/triplet-in-library-path"; "checks_debian_not_installed_triplet_in_library_path")]
 #[test_case("checks/debian/patches/dep3/author-or-from-is-better"; "checks_debian_patches_dep3_author_or_from_is_better")]
 #[test_case("checks/debian/patches/dep3/bug-field-default-value"; "checks_debian_patches_dep3_bug_field_default_value")]

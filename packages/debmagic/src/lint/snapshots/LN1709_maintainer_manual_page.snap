@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): maintainer-manual-page (LN1709) [debian/not-forwarded.1]
+P: (source): maintainer-manual-page (LN1709) [debian/tool.8]

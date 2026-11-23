@@ -319,6 +319,7 @@ use super::rules::LacksVersionedLinkToSharedLibrary;
 use super::rules::LdconfigEscape;
 use super::rules::LdconfigSymlinkIsNotASymlink;
 use super::rules::LdconfigSymlinkReferencingWrongFile;
+use super::rules::LegacyVendorarchDirectory;
 use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
@@ -2661,6 +2662,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &EmbeddedPearModule,
+        &LegacyVendorarchDirectory,
     ]
 }
 
@@ -4132,6 +4134,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &EmbeddedPearModule,
+        &LegacyVendorarchDirectory,
     ]
 }
 

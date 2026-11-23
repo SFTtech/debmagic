@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (binary): usr-share-doc-symlink-to-foreign-package (LN1506) foreign-package
+E: example (binary): usr-share-doc-symlink-to-foreign-package (LN1506) foreign-package
+E: example (binary): usr-share-doc-symlink-to-foreign-package (LN1506) base-files
+E: example (binary): usr-share-doc-symlink-to-foreign-package (LN1506) a
+E: sibling (binary): usr-share-doc-symlink-to-foreign-package (LN1506) b

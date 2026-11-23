@@ -329,8 +329,8 @@ impl GroupCase {
     }
 
     /// A deb of the Group. `fields` is more Installation control, as Deb822
-    /// lines (`Depends: other\n`); `Package`, `Version` and `Architecture` are
-    /// set.
+    /// lines (`Depends: other\n`); `Package`, `Version` and `Architecture`
+    /// (`all`) are set; a field in `fields` replaces the default of its name.
     pub fn installable(mut self, name: impl Into<String>, fields: impl Into<String>) -> Self {
         self.push_installable(name.into(), fields.into(), false);
         self
@@ -435,7 +435,10 @@ impl GroupCase {
                     let (key, value) = line
                         .split_once(':')
                         .expect("fields are `Name: value` lines");
-                    entries.push((key.trim().to_string(), value.trim().to_string()));
+                    let (key, value) = (key.trim().to_string(), value.trim().to_string());
+                    // A field given in `fields` replaces the default.
+                    entries.retain(|(name, _)| !name.eq_ignore_ascii_case(&key));
+                    entries.push((key, value));
                 }
                 let extension = if *udeb { "udeb" } else { "deb" };
                 BinaryPackageData::with_data_files(
@@ -597,6 +600,51 @@ mod tests {
                 "a-udeb 1.0 all provides=[] multi-arch=\"\" files=[] depends=[] conflicts=",
                 "build-depends=Some(\"debhelper\")",
                 "patched=1",
+            ]
+        );
+    }
+
+    /// A Rule that reports on an installable, and on the source.
+    struct OnInstallable;
+
+    declare_rule! {
+        /// Reports on each installable, and once on the Source package.
+        OnInstallable,
+        code = "DM9998",
+        tag = "group-on-installable",
+        default_selected = false,
+        experimental = true,
+    }
+
+    impl GroupRule for OnInstallable {
+        fn run(&self, ctx: &mut GroupContext<'_>) {
+            for installable in ctx.installables() {
+                ctx.installable_diagnostic(&installable, Diagnostic::warn("on installable"));
+            }
+            ctx.diagnostic(Diagnostic::warn("on source"));
+        }
+    }
+
+    #[test]
+    fn group_rule_reports_on_an_installable() {
+        let case = GroupCase::new("Source: example\nVersion: 1.0\n")
+            .installable("a", "")
+            .udeb("a-udeb", "");
+        let group = case.group();
+        let mut ctx = GroupContext::bind(&group, &OnInstallable);
+        GroupRule::run(&OnInstallable, &mut ctx);
+        let lines: Vec<String> = ctx
+            .finish()
+            .expect("fixture trees do not fail")
+            .iter()
+            .map(format_diagnostic)
+            .collect();
+        assert_eq!(
+            lines,
+            [
+                "W: a (binary): group-on-installable (DM9998) on installable",
+                "W: a-udeb (udeb): group-on-installable (DM9998) on installable",
+                "W: example (source): group-on-installable (DM9998) on source",
             ]
         );
     }

@@ -6,6 +6,7 @@ use super::rules::AddComponentCopyright;
 use super::rules::AdoptedExtendedField;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
+use super::rules::AnticipatedRepackCount;
 use super::rules::Apache2DeprecatedAuthConfig;
 use super::rules::Apache2ModuleDoesNotDependOnApache2Api;
 use super::rules::Apache2ModuleDoesNotShipLoadFile;
@@ -34,6 +35,7 @@ use super::rules::BadUrgencyInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
+use super::rules::BinariesHaveFileConflict;
 use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryFromOtherArchitecture;
 use super::rules::BinaryHasUnneededSection;
@@ -52,9 +54,11 @@ use super::rules::BuildDependsIndepWithoutArchIndep;
 use super::rules::BuildDependsOnAnObsoleteJavaPackage;
 use super::rules::BuildDependsOnDhSysuser;
 use super::rules::BuildDependsOnNonBuildPackage;
+use super::rules::BuildDependsOnPythonDevWithNoArchAny;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CapitalizationErrorInDescription;
+use super::rules::CapitalizationErrorInDescriptionSynopsis;
 use super::rules::CarriageReturnLineFeed;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
@@ -127,22 +131,26 @@ use super::rules::DebianWatchManglesDebianVersionImproperly;
 use super::rules::DebianWatchManglesUpstreamVersionImproperly;
 use super::rules::DebianWatchUsesInsecureUri;
 use super::rules::DebugFileWithNoDebugSymbols;
+use super::rules::DebugPackageForMultiArchSamePkgNotCoinstallable;
 use super::rules::DebugSymbolMigrationPossiblyComplete;
 use super::rules::DebugSymbolsDirectlyInUsrLibDebug;
 use super::rules::DebugSymbolsNotDetached;
 use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
 use super::rules::DefaultMtaDependencyDoesNotSpecifyMailTransportAgent;
 use super::rules::DefaultMtaDependencyNotListedFirst;
+use super::rules::DependencyIsNotMultiArchified;
 use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
+use super::rules::DescriptionPossiblyContainsHomepage;
 use super::rules::DesktopEntryContainsEncodingKey;
 use super::rules::DesktopEntryLacksIconEntry;
 use super::rules::DesktopEntryLacksKeywordsEntry;
 use super::rules::DesktopEntryLimitedToEnvironments;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
+use super::rules::DfsgVersionWithPeriod;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
@@ -156,7 +164,9 @@ use super::rules::DistantPrerequisiteInShlibs;
 use super::rules::DistributionAndChangesMismatch;
 use super::rules::DistributionAndExperimentalMismatch;
 use super::rules::DjangoPackageDoesNotDependOnDjango;
+use super::rules::DocBaseFileReferencesMissingFile;
 use super::rules::DocPackageDependsOnMainPackage;
+use super::rules::DotBeforeRepackCount;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
 use super::rules::DuplicateOverrideContext;
@@ -202,6 +212,7 @@ use super::rules::ForbiddenPostrmInterpreter;
 use super::rules::GawkScriptButNoGawkDep;
 use super::rules::GfortranModuleDoesNotDeclareVersion;
 use super::rules::GirInArchAllPackage;
+use super::rules::GirMissingTypelibDependency;
 use super::rules::GirPackageNameDoesNotMatch;
 use super::rules::GlobbingPatternsOutOfOrder;
 use super::rules::GoLibraryPackageDoesNotIncludeVersion;
@@ -211,6 +222,13 @@ use super::rules::HardeningNoFortifyFunctions;
 use super::rules::HardeningNoPie;
 use super::rules::HardeningNoRelro;
 use super::rules::HomepageFieldUsesInsecureUri;
+use super::rules::HomepageForBioconductorPackageNotCanonical;
+use super::rules::HomepageForCranPackageNotCanonical;
+use super::rules::HomepageGithubUrlEndsWithDotGit;
+use super::rules::HomepageGitlabUrlEndsWithDotGit;
+use super::rules::HomepageInBinaryPackage;
+use super::rules::HomepageRefersToFilesystemListing;
+use super::rules::HomepageSalsaUrlEndsWithDotGit;
 use super::rules::IllegalMultiArchValue;
 use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
@@ -239,6 +257,7 @@ use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
 use super::rules::KillModeNone;
 use super::rules::LacksLdconfigTrigger;
+use super::rules::LacksUnversionedLinkToSharedLibrary;
 use super::rules::LacksVersionedLinkToSharedLibrary;
 use super::rules::LdconfigSymlinkIsNotASymlink;
 use super::rules::LdconfigSymlinkReferencingWrongFile;
@@ -250,7 +269,9 @@ use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemGfdlInvariants;
 use super::rules::LicenseProblemGfdlNonOfficialText;
 use super::rules::LicenseProblemJsonEvil;
+use super::rules::LicenseProblemMd5sumNonDistributableFile;
 use super::rules::LicenseProblemMd5sumNonFreeFile;
+use super::rules::LicenseProblemNonFreeImgLenna;
 use super::rules::LicenseProblemNonFreeRFC;
 use super::rules::LicenseProblemNonFreeRFCBCP78;
 use super::rules::LicenseProblemNvidiaIntellectual;
@@ -294,6 +315,7 @@ use super::rules::MissingDependsOnSensibleUtils;
 use super::rules::MissingFileFromPotfilesIn;
 use super::rules::MissingIntermediateDirectory;
 use super::rules::MissingManifest;
+use super::rules::MissingNoticeFileForApacheLicense;
 use super::rules::MissingPkgPhpToolsAddon;
 use super::rules::MissingPkgPhpToolsBuildsystem;
 use super::rules::MissingPotfilesIn;
@@ -341,6 +363,7 @@ use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
 use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
+use super::rules::OredBuildDependsOnObsoletePackage;
 use super::rules::OredDependsOnObsoletePackage;
 use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
@@ -348,6 +371,7 @@ use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
 use super::rules::PackageBuildsDbgAndDbgsymVariants;
 use super::rules::PackageContainsAncientFile;
+use super::rules::PackageContainsBrokenSymlinkWildcard;
 use super::rules::PackageContainsCmakePrivateFile;
 use super::rules::PackageContainsDocumentationOutsideUsrShareDoc;
 use super::rules::PackageContainsEmptyDirectory;
@@ -387,6 +411,7 @@ use super::rules::PackageNotLowercase;
 use super::rules::PackagePlaceholderInSymbolsFile;
 use super::rules::PackageSupersededByPerl;
 use super::rules::PackageUsesDebhelperButLacksBuildDepends;
+use super::rules::PackageUsesDhRunitButLacksBreaksSubstvar;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
 use super::rules::PatchNotForwardedUpstream;
@@ -524,6 +549,7 @@ use super::rules::TypelibMissingGirDepends;
 use super::rules::TypelibNotInMultiarchDirectory;
 use super::rules::TypelibPackageNameDoesNotMatch;
 use super::rules::TypelibSectionNotIntrospection;
+use super::rules::TypoInManualPage;
 use super::rules::UdebContainsDocumentationFile;
 use super::rules::UdebPostinstCallsLdconfig;
 use super::rules::UdebUsesUnsupportedCompressionForDataTarball;
@@ -576,6 +602,7 @@ use super::rules::UsesNoCompressionForControlTarball;
 use super::rules::UsesNoCompressionForDataTarball;
 use super::rules::UsingFirstPersonInDescription;
 use super::rules::UsrShareDocSymlinkPointsOutsideOfUsrShareDoc;
+use super::rules::UsrShareDocSymlinkToForeignPackage;
 use super::rules::UsrShareDocSymlinkWithoutDependency;
 use super::rules::VariesContentWithNocheck;
 use super::rules::VcsBrowserLinksToEmptyView;
@@ -2267,6 +2294,33 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SystemdServiceFileMissingInstallKey,
         &ChecksumCountMismatchInChangesFile,
         &SourceOnlyUploadToNonFreeWithoutAutobuild,
+        &LicenseProblemMd5sumNonDistributableFile,
+        &LicenseProblemNonFreeImgLenna,
+        &GirMissingTypelibDependency,
+        &PackageUsesDhRunitButLacksBreaksSubstvar,
+        &DependencyIsNotMultiArchified,
+        &MissingNoticeFileForApacheLicense,
+        &LacksUnversionedLinkToSharedLibrary,
+        &PackageContainsBrokenSymlinkWildcard,
+        &DebugPackageForMultiArchSamePkgNotCoinstallable,
+        &UsrShareDocSymlinkToForeignPackage,
+        &DocBaseFileReferencesMissingFile,
+        &BinariesHaveFileConflict,
+        &AnticipatedRepackCount,
+        &DotBeforeRepackCount,
+        &DfsgVersionWithPeriod,
+        &HomepageForBioconductorPackageNotCanonical,
+        &HomepageForCranPackageNotCanonical,
+        &HomepageGithubUrlEndsWithDotGit,
+        &HomepageGitlabUrlEndsWithDotGit,
+        &HomepageSalsaUrlEndsWithDotGit,
+        &HomepageRefersToFilesystemListing,
+        &HomepageInBinaryPackage,
+        &DescriptionPossiblyContainsHomepage,
+        &BuildDependsOnPythonDevWithNoArchAny,
+        &OredBuildDependsOnObsoletePackage,
+        &TypoInManualPage,
+        &CapitalizationErrorInDescriptionSynopsis,
     ]
 }
 
@@ -2688,6 +2742,20 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianWatchManglesDebianVersionImproperly,
         &DebianWatchManglesUpstreamVersionImproperly,
         &DhInstallInsteadOfDhInstallmodules,
+        &LicenseProblemMd5sumNonDistributableFile,
+        &LicenseProblemNonFreeImgLenna,
+        &AnticipatedRepackCount,
+        &DotBeforeRepackCount,
+        &DfsgVersionWithPeriod,
+        &HomepageForBioconductorPackageNotCanonical,
+        &HomepageForCranPackageNotCanonical,
+        &HomepageGithubUrlEndsWithDotGit,
+        &HomepageGitlabUrlEndsWithDotGit,
+        &HomepageSalsaUrlEndsWithDotGit,
+        &HomepageRefersToFilesystemListing,
+        &HomepageInBinaryPackage,
+        &BuildDependsOnPythonDevWithNoArchAny,
+        &OredBuildDependsOnObsoletePackage,
     ]
 }
 
@@ -3552,6 +3620,15 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExampleWrongPathForInterpreter,
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
+        &HomepageForBioconductorPackageNotCanonical,
+        &HomepageForCranPackageNotCanonical,
+        &HomepageGithubUrlEndsWithDotGit,
+        &HomepageGitlabUrlEndsWithDotGit,
+        &HomepageSalsaUrlEndsWithDotGit,
+        &HomepageRefersToFilesystemListing,
+        &DescriptionPossiblyContainsHomepage,
+        &TypoInManualPage,
+        &CapitalizationErrorInDescriptionSynopsis,
     ]
 }
 
@@ -3585,6 +3662,16 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
     &[
         &IntraSourcePackageCircularDependency,
         &SourceOnlyUploadToNonFreeWithoutAutobuild,
+        &GirMissingTypelibDependency,
+        &PackageUsesDhRunitButLacksBreaksSubstvar,
+        &DependencyIsNotMultiArchified,
+        &MissingNoticeFileForApacheLicense,
+        &LacksUnversionedLinkToSharedLibrary,
+        &PackageContainsBrokenSymlinkWildcard,
+        &DebugPackageForMultiArchSamePkgNotCoinstallable,
+        &UsrShareDocSymlinkToForeignPackage,
+        &DocBaseFileReferencesMissingFile,
+        &BinariesHaveFileConflict,
     ]
 }
 

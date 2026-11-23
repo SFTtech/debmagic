@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): faulty-debian-qa-group-address (LN0371) Changed-By debian-qa@lists.debian.org -> packages@qa.debian.org
+E: example (changes): faulty-debian-qa-group-address (LN0371) Changed-By a@example.com -> packages@qa.debian.org
+E: example (changes): faulty-debian-qa-group-address (LN0371) Uploaders qa@example.com -> packages@qa.debian.org

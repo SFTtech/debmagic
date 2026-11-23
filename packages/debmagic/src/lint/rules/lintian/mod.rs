@@ -285,6 +285,7 @@ mod team_pkg_js_deprecated;
 mod team_pkg_perl;
 mod team_pkg_perl_testsuite;
 mod team_pkg_perl_vcs;
+mod team_pkg_perl_xs_abi;
 mod template_dh_make_control;
 mod testsuite;
 mod tlds;
@@ -608,6 +609,7 @@ pub(crate) use team_pkg_perl_testsuite::NoTeamTests;
 pub(crate) use team_pkg_perl_testsuite::NoTestsuiteHeader;
 pub(crate) use team_pkg_perl_vcs::NoGit;
 pub(crate) use team_pkg_perl_vcs::NoTeamUrl;
+pub(crate) use team_pkg_perl_xs_abi::LegacyVendorarchDirectory;
 pub(crate) use template_dh_make_control::ControlFileContainsDhMakeVcsComment;
 pub(crate) use udev::UdevRuleInEtc;
 pub(crate) use udev::UdevRuleMissingSubsystem;
@@ -906,6 +908,7 @@ pub(crate) use files_permissions::ExecutableIsNotWorldReadable;
 pub(crate) use files_permissions::NonStandardDirPerm;
 pub(crate) use files_permissions::NonStandardExecutablePerm;
 pub(crate) use files_permissions::NonStandardFilePerm;
+pub(crate) use files_permissions::NonStandardGameExecutablePerm;
 pub(crate) use files_permissions::NonStandardSetuidExecutablePerm;
 pub(crate) use files_pkgconfig::{
     PkgConfigBadDirective, PkgConfigMultiArchWrongDir, PkgConfigUnavailableForCrossCompilation,
@@ -1062,11 +1065,11 @@ pub(crate) use files_privacy_breach::{
     PrivacyBreachW3cValidHtml,
 };
 pub(crate) use languages_php::{
-    ComposerPackageWithoutPkgPhpToolsBuilddep, ComposerPrerequisite, EmbeddedPhpLibrary,
-    MissingPkgPhpToolsAddon, MissingPkgPhpToolsBuildsystem, ObsoleteCommentsStyleInPhpIni,
-    PearChannelWithoutPkgPhpToolsBuilddep, PearPackageButMissingDependency,
-    PearPackageNotUsingSubstvar, PearPackageWithoutPkgPhpToolsBuilddep,
-    PeclPackageRequiresBuildDependency,
+    ComposerPackageWithoutPkgPhpToolsBuilddep, ComposerPrerequisite, EmbeddedPearModule,
+    EmbeddedPhpLibrary, MissingPkgPhpToolsAddon, MissingPkgPhpToolsBuildsystem,
+    ObsoleteCommentsStyleInPhpIni, PearChannelWithoutPkgPhpToolsBuilddep,
+    PearPackageButMissingDependency, PearPackageNotUsingSubstvar,
+    PearPackageWithoutPkgPhpToolsBuilddep, PeclPackageRequiresBuildDependency,
 };
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;

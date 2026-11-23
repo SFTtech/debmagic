@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): legacy-vendorarch-directory (LN1791) [usr/lib/perl5/Foo.pm]
+E: example (binary): legacy-vendorarch-directory (LN1791) [usr/lib/perl5/Foo.pm]
+E: example (binary): legacy-vendorarch-directory (LN1791) [usr/lib/perl5/Foo.pm]
+E: example (binary): legacy-vendorarch-directory (LN1791) [usr/lib/perl5/Foo.pm]
+E: example (binary): legacy-vendorarch-directory (LN1791) [usr/lib/perl5/Foo.pm]
+E: example (binary): legacy-vendorarch-directory (LN1791) [usr/lib/perl5/auto/Foo/Foo.so]
+E: example (binary): legacy-vendorarch-directory (LN1791) [usr/lib/perl5/Foo.pm]
+E: example (udeb): legacy-vendorarch-directory (LN1791) [usr/lib/perl5/Foo.pm]
+E: example (binary): legacy-vendorarch-directory (LN1791) [usr/lib/perl5/Fooÿ.pm]

@@ -4,7 +4,8 @@ use crate::declare_rule;
 use crate::lint::context::{BinaryPackageContext, SourceContext};
 use crate::lint::debian_control::{DebianControl, InstallablePackageType};
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::rule::{BinaryPackageRule, SourceRule};
+use crate::lint::group_context::ChangesContext;
+use crate::lint::rule::{BinaryPackageRule, ChangesRule, SourceRule};
 
 const SOURCE_FIELDS: &[&str] = &["Source", "Maintainer", "Standards-Version"];
 const INSTALLABLE_FIELDS: &[&str] = &["Package", "Architecture", "Description"];
@@ -14,6 +15,19 @@ const INSTALLATION_FIELDS: &[&str] = &[
     "Architecture",
     "Maintainer",
     "Description",
+];
+const CHANGES_FIELDS: &[&str] = &[
+    "Format",
+    "Date",
+    "Source",
+    "Architecture",
+    "Version",
+    "Distribution",
+    "Maintainer",
+    "Changes",
+    "Checksums-Sha1",
+    "Checksums-Sha256",
+    "Files",
 ];
 const DSC_FIELDS: &[&str] = &[
     "Format",
@@ -39,7 +53,10 @@ declare_rule! {
     /// Checksums-Sha256, and Files (Policy 5.4); extra is the `.dsc` basename then
     /// the field. Dsc is absent on a Source tree.
     /// Binary-package Installation control requires Package, Version, Architecture,
-    /// Maintainer, and Description.
+    /// Maintainer, and Description. A `.changes` requires Format, Date, Source,
+    /// Architecture, Version, Distribution, Maintainer, Changes, Checksums-Sha1,
+    /// Checksums-Sha256, and Files (Policy 5.5); extra is the `.changes` basename
+    /// then the field.
     RequiredField,
     code = "LN0001",
     tag = "required-field",
@@ -111,6 +128,27 @@ impl SourceRule for RequiredField {
     }
 }
 
+impl ChangesRule for RequiredField {
+    fn run(&self, ctx: &mut ChangesContext<'_>) {
+        let reports = {
+            let fields = ctx.changes().fields();
+            let basename = ctx
+                .path()
+                .file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or_default();
+            CHANGES_FIELDS
+                .iter()
+                .filter(|field| !fields.declares(field))
+                .map(|field| format!("{basename} {field}"))
+                .collect::<Vec<_>>()
+        };
+        for message in reports {
+            ctx.diagnostic(Diagnostic::error(message));
+        }
+    }
+}
+
 fn all_udeb_installables(control: &DebianControl) -> bool {
     control
         .installables()
@@ -142,7 +180,9 @@ impl BinaryPackageRule for RequiredField {
 #[cfg(test)]
 mod tests {
     use crate::lint::dsc::Dsc;
-    use crate::lint::tester::{SourcePackageCase, SourcePackageTester, SourceTreeTester};
+    use crate::lint::tester::{
+        ChangesCase, ChangesTester, SourcePackageCase, SourcePackageTester, SourceTreeTester,
+    };
 
     use super::*;
 
@@ -168,6 +208,30 @@ mod tests {
 
     fn dsc(text: &str) -> Dsc {
         Dsc::parse(text).expect("Dsc fixture")
+    }
+
+    const COMPLETE_CHANGES: &str = "Format: 1.8\n\
+         Date: Mon, 1 Jan 2024 00:00:00 +0000\n\
+         Source: example\n\
+         Architecture: source\n\
+         Version: 1.0\n\
+         Distribution: unstable\n\
+         Maintainer: Example <ex@example.com>\n\
+         Changes: example\n\
+         Checksums-Sha1: x\n\
+         Checksums-Sha256: x\n\
+         Files: x\n";
+
+    #[test]
+    fn changes_file() {
+        let pass = vec![ChangesCase::from(COMPLETE_CHANGES)];
+        let fail = vec![
+            ChangesCase::from(
+                COMPLETE_CHANGES.replace("Date: Mon, 1 Jan 2024 00:00:00 +0000\n", ""),
+            ),
+            ChangesCase::from(COMPLETE_CHANGES.replace("Files: x\n", "")),
+        ];
+        ChangesTester::new(RequiredField, pass, fail).test_and_snapshot();
     }
 
     #[test]

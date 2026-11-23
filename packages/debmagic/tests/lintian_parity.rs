@@ -1837,6 +1837,8 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/fields/mail-address/legacy-maintainer-scripts",
     "checks/fields/mail-address/mismatch-between-changes-and-source",
     "checks/fields/maintainer/mismatch-between-changes-and-source",
+    "checks/fields/recommended/changes-missing-fields",
+    "checks/fields/required/changes-missing-fields",
     "checks/fields/urgency/generic-empty",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
@@ -3718,6 +3720,8 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/fields/mail-address/legacy-maintainer-scripts"; "checks_fields_mail_address_legacy_maintainer_scripts")]
 #[test_case("checks/fields/mail-address/mismatch-between-changes-and-source"; "checks_fields_mail_address_mismatch_between_changes_and_source")]
 #[test_case("checks/fields/maintainer/mismatch-between-changes-and-source"; "checks_fields_maintainer_mismatch_between_changes_and_source")]
+#[test_case("checks/fields/recommended/changes-missing-fields"; "checks_fields_recommended_changes_missing_fields")]
+#[test_case("checks/fields/required/changes-missing-fields"; "checks_fields_required_changes_missing_fields")]
 #[test_case("checks/fields/urgency/generic-empty"; "checks_fields_urgency_generic_empty")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]

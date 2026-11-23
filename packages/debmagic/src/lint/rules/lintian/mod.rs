@@ -509,6 +509,7 @@ pub(crate) use languages_java::JarNotInUsrShare;
 pub(crate) use languages_java::MavenPluginInUsrShareJava;
 pub(crate) use languages_java::MissingDepOnJarwrapper;
 pub(crate) use languages_java::MissingManifest;
+pub(crate) use languages_java::SourceContainsPrebuiltJavaObject;
 pub(crate) use languages_java::UnknownJavaClassVersion;
 pub(crate) use languages_java::ZipParseError;
 pub(crate) use languages_java_bytecode::PackageInstallsJavaBytecode;

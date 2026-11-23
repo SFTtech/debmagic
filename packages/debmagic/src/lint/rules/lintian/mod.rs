@@ -688,7 +688,7 @@ pub(crate) use debian_rules::{
     DebianRulesCallsDebhelperInOddOrder, DebianRulesCallsNproc, DebianRulesCallsPwd,
     DebianRulesContainsUnnecessaryGetOrigSourceTarget, DebianRulesIgnoresMakeCleanError,
     DebianRulesIsDhMakeTemplate, DebianRulesIsSymlink, DebianRulesMissingRequiredTarget,
-    DebianRulesNotAMakefile, DebianRulesParsesDpkgParsechangelog,
+    DebianRulesNotAMakefile, DebianRulesNotExecutable, DebianRulesParsesDpkgParsechangelog,
     DebianRulesPassesVersionInfoToDhShlibdeps, DebianRulesSetsDebBuildOptions,
     DebianRulesSetsDhCompat, DebianRulesSetsDpkgArchitectureVariable,
     DebianRulesShouldNotSetCFLAGSFromNoopt, DebianRulesShouldNotUseDhExtraAddons,

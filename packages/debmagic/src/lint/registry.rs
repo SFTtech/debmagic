@@ -413,6 +413,7 @@ use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
 use super::rules::OlderSourceFormat;
 use super::rules::OmittedSystemdServiceForInitDScript;
+use super::rules::OpenpgpFileHasImplementationSpecificExtension;
 use super::rules::OredBuildDependsOnObsoletePackage;
 use super::rules::OredDependsOnObsoletePackage;
 use super::rules::OrigTarballMissingUpstreamSignature;
@@ -2441,6 +2442,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExecutableInUsrLib,
         &ImageFileInUsrLib,
         &LdconfigEscape,
+        &OpenpgpFileHasImplementationSpecificExtension,
     ]
 }
 
@@ -3805,6 +3807,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExecutableInUsrLib,
         &ImageFileInUsrLib,
         &LdconfigEscape,
+        &OpenpgpFileHasImplementationSpecificExtension,
     ]
 }
 

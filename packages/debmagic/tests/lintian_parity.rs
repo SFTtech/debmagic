@@ -449,6 +449,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/puppet/puppet-module-but-not-dh-puppet",
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
     "checks/languages/python/dist-overrides/duplicate-identifier",
+    "checks/languages/python/dist-overrides/pydist-overrides-file",
     "checks/languages/python/homepage/pypi",
     "checks/languages/python/obsolete/cruft-python",
     "checks/languages/python/obsolete/legacy-debconf",
@@ -1606,6 +1607,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/puppet/puppet-module-but-not-dh-puppet",
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
     "checks/languages/python/dist-overrides/duplicate-identifier",
+    "checks/languages/python/dist-overrides/pydist-overrides-file",
     "checks/languages/python/homepage/pypi",
     "checks/languages/python/obsolete/cruft-python",
     "checks/languages/python/obsolete/legacy-debconf",
@@ -2198,6 +2200,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/puppet/puppet-module-but-not-dh-puppet"; "checks_languages_puppet_puppet_module_but_not_dh_puppet")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
+#[test_case("checks/languages/python/dist-overrides/pydist-overrides-file"; "checks_languages_python_dist_overrides_pydist_overrides_file")]
 #[test_case("checks/languages/python/homepage/pypi"; "checks_languages_python_homepage_pypi")]
 #[test_case("checks/languages/python/obsolete/cruft-python"; "checks_languages_python_obsolete_cruft_python")]
 #[test_case("checks/languages/python/obsolete/legacy-debconf"; "checks_languages_python_obsolete_legacy_debconf")]
@@ -3357,6 +3360,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/puppet/puppet-module-but-not-dh-puppet"; "checks_languages_puppet_puppet_module_but_not_dh_puppet")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
+#[test_case("checks/languages/python/dist-overrides/pydist-overrides-file"; "checks_languages_python_dist_overrides_pydist_overrides_file")]
 #[test_case("checks/languages/python/homepage/pypi"; "checks_languages_python_homepage_pypi")]
 #[test_case("checks/languages/python/obsolete/cruft-python"; "checks_languages_python_obsolete_cruft_python")]
 #[test_case("checks/languages/python/obsolete/legacy-debconf"; "checks_languages_python_obsolete_legacy_debconf")]

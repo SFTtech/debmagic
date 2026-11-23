@@ -709,6 +709,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/legacy-binary",
     "checks/documentation/legacy-filenames",
     "checks/documentation/legacy-libbaz",
+    "checks/documentation/legacy-scripts",
     "checks/documentation/manual/acute-accent",
     "checks/documentation/manual/bad-link-to-undocumented-manpage",
     "checks/documentation/manual/bad-so-link-in-manpage",
@@ -2463,6 +2464,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/legacy-binary"; "checks_documentation_legacy_binary")]
 #[test_case("checks/documentation/legacy-filenames"; "checks_documentation_legacy_filenames")]
 #[test_case("checks/documentation/legacy-libbaz"; "checks_documentation_legacy_libbaz")]
+#[test_case("checks/documentation/legacy-scripts"; "checks_documentation_legacy_scripts")]
 #[test_case("checks/documentation/manual/acute-accent"; "checks_documentation_manual_acute_accent")]
 #[test_case("checks/documentation/manual/bad-link-to-undocumented-manpage"; "checks_documentation_manual_bad_link_to_undocumented_manpage")]
 #[test_case("checks/documentation/manual/bad-so-link-in-manpage"; "checks_documentation_manual_bad_so_link_in_manpage")]

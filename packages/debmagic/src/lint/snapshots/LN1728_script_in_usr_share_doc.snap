@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): script-in-usr-share-doc (LN1728) [usr/share/doc/foo/run]
+I: example (binary): script-in-usr-share-doc (LN1728) [usr/share/doc/foo/bar/run]
+I: example (udeb): script-in-usr-share-doc (LN1728) [usr/share/doc/foo/run]

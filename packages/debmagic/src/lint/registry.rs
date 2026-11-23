@@ -532,6 +532,7 @@ use super::rules::RubygemHomepage;
 use super::rules::RuntimeTestFileIsNotARegularFile;
 use super::rules::RustBoilerplate;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
+use super::rules::ScriptInUsrShareDoc;
 use super::rules::ScriptNotExecutable;
 use super::rules::ScriptUsesDeprecatedNodejsLocation;
 use super::rules::ScriptUsesPerl4LibsWithoutDep;
@@ -2445,6 +2446,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LdconfigEscape,
         &OpenpgpFileHasImplementationSpecificExtension,
         &RepeatedPathSegment,
+        &ScriptInUsrShareDoc,
     ]
 }
 
@@ -3811,6 +3813,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &LdconfigEscape,
         &OpenpgpFileHasImplementationSpecificExtension,
         &RepeatedPathSegment,
+        &ScriptInUsrShareDoc,
     ]
 }
 

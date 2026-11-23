@@ -187,8 +187,20 @@ pub trait BuildinfoRule: RuleAccess {
 
 /// Applicability to a whole Group: runs once per Group that has a `.dsc`, and
 /// its Diagnostics attach to the Source package (ADR 0055).
+///
+/// A Rule that reports on an installable (lintian's per-binary checks, which
+/// get the Group's source as an optional field) overrides
+/// [`Self::runs_without_dsc`] and runs for every Group (ADR 0056). It must
+/// then treat a missing `.dsc` (`ctx.dsc()`, `ctx.debian_control()`) as
+/// "not known", not as "no source".
 pub trait GroupRule: RuleAccess {
     fn run(&self, ctx: &mut super::group_context::GroupContext<'_>);
+
+    /// Whether the Rule also runs for a Group without a `.dsc` (a lone `.deb`,
+    /// or `.deb`s and a `.changes`). Source-reporting Rules keep the default.
+    fn runs_without_dsc(&self) -> bool {
+        false
+    }
 }
 
 #[macro_export]

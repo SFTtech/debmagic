@@ -303,13 +303,18 @@ impl Default for GroupCase {
 
 #[allow(dead_code)]
 impl GroupCase {
-    /// A Group with a `.dsc` (Group Rules run only on a Group that has one).
-    /// `dsc` is the Deb822 text of the paragraph.
+    /// A Group with a `.dsc`. `dsc` is the Deb822 text of the paragraph.
     pub fn new(dsc: impl Into<String>) -> Self {
         Self {
             dsc: Some(dsc.into()),
             ..Self::default()
         }
+    }
+
+    /// A Group without a `.dsc`: a lone `.deb`, or `.deb`s and a `.changes`
+    /// (add installables with [`Self::installable`]).
+    pub fn without_dsc() -> Self {
+        Self::default()
     }
 
     /// The source package name Diagnostics carry.
@@ -389,7 +394,7 @@ impl GroupCase {
         )
     }
 
-    fn group(&self) -> Group {
+    pub(crate) fn group(&self) -> Group {
         let changes = self.changes.as_ref().map(|text| {
             let changes = Changes::parse(text).expect("GroupCase changes is Deb822");
             ChangesData {
@@ -623,6 +628,34 @@ mod tests {
             }
             ctx.diagnostic(Diagnostic::warn("on source"));
         }
+    }
+
+    #[test]
+    fn group_without_dsc_has_no_source_and_reports_on_installables() {
+        let group = GroupCase::without_dsc()
+            .installable("a", "")
+            .udeb("a-udeb", "")
+            .group();
+        let mut ctx = GroupContext::bind(&group, &OnInstallable);
+        assert!(ctx.dsc().is_none());
+        assert!(ctx.changes().is_none());
+        assert!(ctx.debian_control().is_none());
+        assert!(ctx.patched_files().is_none());
+        GroupRule::run(&OnInstallable, &mut ctx);
+        let lines: Vec<String> = ctx
+            .finish()
+            .expect("a Group without a .dsc is not a failure")
+            .iter()
+            .map(format_diagnostic)
+            .collect();
+        assert_eq!(
+            lines,
+            [
+                "W: a (binary): group-on-installable (DM9998) on installable",
+                "W: a-udeb (udeb): group-on-installable (DM9998) on installable",
+                "W: example (source): group-on-installable (DM9998) on source",
+            ]
+        );
     }
 
     #[test]

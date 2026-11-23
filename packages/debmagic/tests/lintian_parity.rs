@@ -108,6 +108,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
+    "checks/debian/control/field/rules-requires-root/control-file-rules-requires-root-no",
     "checks/debian/control/field/rules-requires-root/fields-unknown-fields",
     "checks/debian/control/field/spacing/control-file-pedantic-space",
     "checks/debian/control/link/control-file-symlink",
@@ -1268,6 +1269,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
+    "checks/debian/control/field/rules-requires-root/control-file-rules-requires-root-no",
     "checks/debian/control/field/rules-requires-root/fields-unknown-fields",
     "checks/debian/control/field/spacing/control-file-pedantic-space",
     "checks/debian/control/link/control-file-symlink",
@@ -1868,6 +1870,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
+#[test_case("checks/debian/control/field/rules-requires-root/control-file-rules-requires-root-no"; "checks_debian_control_field_rules_requires_root_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/control/field/rules-requires-root/fields-unknown-fields"; "checks_debian_control_field_rules_requires_root_fields_unknown_fields")]
 #[test_case("checks/debian/control/field/spacing/control-file-pedantic-space"; "checks_debian_control_field_spacing_control_file_pedantic_space")]
 #[test_case("checks/debian/control/link/control-file-symlink"; "checks_debian_control_link_control_file_symlink")]
@@ -3030,6 +3033,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
+#[test_case("checks/debian/control/field/rules-requires-root/control-file-rules-requires-root-no"; "checks_debian_control_field_rules_requires_root_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/control/field/rules-requires-root/fields-unknown-fields"; "checks_debian_control_field_rules_requires_root_fields_unknown_fields")]
 #[test_case("checks/debian/control/field/spacing/control-file-pedantic-space"; "checks_debian_control_field_spacing_control_file_pedantic_space")]
 #[test_case("checks/debian/control/link/control-file-symlink"; "checks_debian_control_link_control_file_symlink")]

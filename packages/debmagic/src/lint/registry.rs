@@ -505,6 +505,7 @@ use super::rules::PackageUsesDhRunitButLacksBreaksSubstvar;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesOldPythonDependsSubstvar;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
+use super::rules::PatchModifyingDebianFiles;
 use super::rules::PatchNotForwardedUpstream;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
@@ -555,6 +556,7 @@ use super::rules::QuiltPatchUsesDpatchPlaceholder;
 use super::rules::QuiltPatchUsingTemplateDescription;
 use super::rules::QuiltPatchWithNonStandardOptions;
 use super::rules::QuiltSeriesButNoBuildDep;
+use super::rules::QuiltSeriesReferencesNonExistentPatch;
 use super::rules::QuiltSeriesWithoutTrailingNewline;
 use super::rules::RPackageNotArchAll;
 use super::rules::RasterImageInScalableDirectory;
@@ -624,6 +626,7 @@ use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsPrebuiltSphinxDocumentation;
 use super::rules::SourceContainsPrebuiltWasmBinary;
 use super::rules::SourceContainsPrebuiltYappParser;
+use super::rules::SourceContainsQuiltControlDir;
 use super::rules::SourceContainsSvkCommitFile;
 use super::rules::SourceContainsSvnCommitFile;
 use super::rules::SourceContainsSvnConflictFile;
@@ -2639,6 +2642,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OcamlStrayCmo,
         &StaticLibraryHasUnneededSections,
         &UnstrippedStaticLibrary,
+        &PatchModifyingDebianFiles,
+        &QuiltSeriesReferencesNonExistentPatch,
+        &SourceContainsQuiltControlDir,
     ]
 }
 
@@ -3167,6 +3173,9 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PackageDoesNotUseDebhelper,
         &SuperficialTests,
         &TestsuiteOredDependsOnObsoletePackage,
+        &PatchModifyingDebianFiles,
+        &QuiltSeriesReferencesNonExistentPatch,
+        &SourceContainsQuiltControlDir,
     ]
 }
 

@@ -36,6 +36,7 @@ mod ln1609_source_contains_svk_commit_file;
 mod ln1610_source_contains_svn_commit_file;
 mod ln1611_source_contains_svn_conflict_file;
 mod ln1612_source_contains_svn_control_dir;
+mod ln1772_source_contains_quilt_control_dir;
 #[cfg(test)]
 mod testing;
 
@@ -71,3 +72,4 @@ pub(crate) use ln1609_source_contains_svk_commit_file::SourceContainsSvkCommitFi
 pub(crate) use ln1610_source_contains_svn_commit_file::SourceContainsSvnCommitFile;
 pub(crate) use ln1611_source_contains_svn_conflict_file::SourceContainsSvnConflictFile;
 pub(crate) use ln1612_source_contains_svn_control_dir::SourceContainsSvnControlDir;
+pub(crate) use ln1772_source_contains_quilt_control_dir::SourceContainsQuiltControlDir;

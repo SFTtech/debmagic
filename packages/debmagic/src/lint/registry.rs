@@ -77,6 +77,7 @@ use super::rules::ChecksumCountMismatchInChangesFile;
 use super::rules::ChecksumMismatchInChangesFile;
 use super::rules::ClasspathContainsRelativePath;
 use super::rules::ClojurePackageButNotDhClojure;
+use super::rules::CoMaintainedPackageWithNoVcsFields;
 use super::rules::CodelessJar;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
 use super::rules::ComposerPackageWithoutPkgPhpToolsBuilddep;
@@ -2429,6 +2430,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
+        &CoMaintainedPackageWithNoVcsFields,
     ]
 }
 
@@ -2891,6 +2893,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &ExplicitlyArmoredUpstreamSignature,
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
+        &CoMaintainedPackageWithNoVcsFields,
     ]
 }
 

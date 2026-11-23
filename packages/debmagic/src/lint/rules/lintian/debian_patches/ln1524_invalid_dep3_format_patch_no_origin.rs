@@ -78,4 +78,16 @@ mod tests {
         ];
         SourceTreeTester::new(InvalidDep3FormatPatchNoOrigin, pass, fail).test_and_snapshot();
     }
+
+    /// A prose line in the header makes lintian's Deb822 reader die ("Cannot parse
+    /// line"), and `Dep3.pm` returns before the Origin gate; a `#` line is skipped.
+    #[test]
+    fn unparseable_header_line_stops_the_check() {
+        SourceTreeTester::new(
+            InvalidDep3FormatPatchNoOrigin,
+            vec![patch("Description: fix\n\nThe header text is in prose.\n")],
+            vec![patch("Description: fix\n# a note\n")],
+        )
+        .test();
+    }
 }

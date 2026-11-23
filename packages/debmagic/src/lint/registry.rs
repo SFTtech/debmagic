@@ -404,6 +404,7 @@ use super::rules::ObsoleteFieldInDep5Copyright;
 use super::rules::ObsoleteRelationForm;
 use super::rules::ObsoleteRelationFormInSource;
 use super::rules::ObsoleteRuntimeTestsRestriction;
+use super::rules::ObsoleteVimAddonManager;
 use super::rules::OcamlCustomExecutable;
 use super::rules::OcamlDanglingCmi;
 use super::rules::OcamlDanglingCmx;
@@ -2441,6 +2442,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OutputOfUpdatercDNotRedirectedToDevNull,
         &JavalibButNoPublicJars,
         &LinkedWithObsoleteLibrary,
+        &ObsoleteVimAddonManager,
     ]
 }
 
@@ -3805,6 +3807,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OutputOfUpdatercDNotRedirectedToDevNull,
         &JavalibButNoPublicJars,
         &LinkedWithObsoleteLibrary,
+        &ObsoleteVimAddonManager,
     ]
 }
 

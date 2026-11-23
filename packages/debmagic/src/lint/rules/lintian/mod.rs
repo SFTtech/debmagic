@@ -618,7 +618,7 @@ pub(crate) use debian_changelog::{
     QaUploadHasIncorrectVersionNumber, RcVersionGreaterThanExpectedVersion,
     SourceNmuHasIncorrectVersionNumber, SpellingErrorInChangelog, SpellingErrorInNewsDebian,
     SyntaxErrorInDebianNewsFile, TeamUploadHasIncorrectVersionNumber, UnnecessaryTeamUpload,
-    UploadersInOrphan, VersionRefersToDistribution,
+    UnreleasedChangelogDistribution, UploadersInOrphan, VersionRefersToDistribution,
     VersionRefersToUnstableDistributionWithExpVersion, WrongBugNumberInCloses,
     WrongNameForChangelogOfNativePackage, WrongNameForDebianChangelogFile,
     WrongNameForDebianNewsFile, WrongNameForUpstreamChangelog,

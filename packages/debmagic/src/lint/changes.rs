@@ -13,6 +13,7 @@ use super::file_list::FileList;
 pub struct Changes {
     fields: ControlParagraph,
     files: FileList,
+    signed: bool,
 }
 
 // The Changes file is an inspectable of its own; Rules for the Tags that read
@@ -33,7 +34,17 @@ impl Changes {
     pub fn parse(text: &str) -> anyhow::Result<Self> {
         let fields = ControlParagraph::parse_first_signed(text, "Changes")?;
         let files = FileList::parse(&fields, true);
-        Ok(Self { fields, files })
+        Ok(Self {
+            fields,
+            files,
+            signed: has_signature_block(text),
+        })
+    }
+
+    /// Whether the file as read carries a PGP signature block: lintian's
+    /// `BEGIN PGP SIGNATURE.*END PGP SIGNATURE` over the raw contents.
+    pub fn is_signed(&self) -> bool {
+        self.signed
     }
 
     #[cfg(test)]
@@ -42,7 +53,11 @@ impl Changes {
     ) -> Self {
         let fields = ControlParagraph::from_fields(fields);
         let files = FileList::parse(&fields, true);
-        Self { fields, files }
+        Self {
+            fields,
+            files,
+            signed: false,
+        }
     }
 
     pub fn fields(&self) -> &ControlParagraph {
@@ -109,6 +124,14 @@ impl Changes {
     }
 }
 
+/// Whether `text` has a `BEGIN PGP SIGNATURE` line followed later by an
+/// `END PGP SIGNATURE` (the first `BEGIN` decides: a later one has no
+/// earlier `END` that the first does not).
+fn has_signature_block(text: &str) -> bool {
+    text.find("BEGIN PGP SIGNATURE")
+        .is_some_and(|start| text[start..].contains("END PGP SIGNATURE"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -142,6 +165,29 @@ mod tests {
         assert_eq!(file.size(), Some(0));
         assert_eq!(file.checksums().len(), 2);
         Ok(())
+    }
+
+    #[test]
+    fn is_signed_needs_a_signature_block() -> anyhow::Result<()> {
+        assert!(!Changes::parse(SAMPLE)?.is_signed());
+        let signed = format!(
+            "-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\n{SAMPLE}-----BEGIN PGP SIGNATURE-----\n\nfake\n-----END PGP SIGNATURE-----\n"
+        );
+        assert!(Changes::parse(&signed)?.is_signed());
+        Ok(())
+    }
+
+    #[test]
+    fn signature_block_needs_its_end_line() {
+        assert!(!has_signature_block(
+            "-----BEGIN PGP SIGNATURE-----\nfake\n"
+        ));
+        assert!(!has_signature_block(
+            "-----END PGP SIGNATURE-----\n-----BEGIN PGP SIGNATURE-----\n"
+        ));
+        assert!(has_signature_block(
+            "-----BEGIN PGP SIGNATURE-----\n-----END PGP SIGNATURE-----\n"
+        ));
     }
 
     #[test]

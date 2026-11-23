@@ -89,4 +89,31 @@ mod tests {
         ];
         BinaryPackageTester::new(OddMarkInDescription, pass, fail).test_and_snapshot();
     }
+
+    /// lintian's `fields/description` Check runs `/,[^\s\d]/` on every extended
+    /// line and reports `comma not followed by whitespace (line N)`, where N
+    /// counts blank ` .` separators too (Description.pm).
+    #[test]
+    fn extended_line_comma_reports_position() {
+        let pass = vec![synopsis("tools\n A tool.\n .\n Done, ok.")];
+        let fail = vec![
+            synopsis("tools\n A tool,that is.").udeb(),
+            synopsis("tools\n A tool.\n .\n Uses {heap,stack} memory."),
+        ];
+        BinaryPackageTester::new(OddMarkInDescription, pass, fail)
+            .test_and_snapshot_with_suffix("extended_line_comma_reports_position");
+    }
+
+    /// Boundary for the extended-line check: a comma followed by whitespace, a
+    /// digit or the end of the line is not reported (Description.pm).
+    #[test]
+    fn extended_line_comma_boundaries() {
+        let pass = vec![
+            synopsis("tools\n A tool, and 300,000 items,\n Trailing comma,"),
+            synopsis("tools\n A tool.\n .\n Lists: a, b, c."),
+        ];
+        let fail = vec![synopsis("tools\n A tool, and 300,x items.")];
+        BinaryPackageTester::new(OddMarkInDescription, pass, fail)
+            .test_and_snapshot_with_suffix("extended_line_comma_boundaries");
+    }
 }

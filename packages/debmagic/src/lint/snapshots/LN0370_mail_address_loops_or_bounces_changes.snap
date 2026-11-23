@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): mail-address-loops-or-bounces (LN0370) Changed-By ubuntu-devel-discuss@lists.ubuntu.com
+E: example (changes): mail-address-loops-or-bounces (LN0370) Uploaders ubuntu-devel-discuss@lists.ubuntu.com

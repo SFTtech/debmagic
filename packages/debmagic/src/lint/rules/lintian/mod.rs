@@ -814,8 +814,8 @@ pub(crate) use files_artifact::{
     SourceContainsArchInventoryFile, SourceContainsBtsControlDir, SourceContainsBzrControlDir,
     SourceContainsCvsConflictCopy, SourceContainsCvsControlDir, SourceContainsEditorBackupFile,
     SourceContainsGitControlDir, SourceContainsHgControlDir, SourceContainsHgTagsFile,
-    SourceContainsPatchFailureFile, SourceContainsSvkCommitFile, SourceContainsSvnCommitFile,
-    SourceContainsSvnConflictFile, SourceContainsSvnControlDir,
+    SourceContainsPatchFailureFile, SourceContainsQuiltControlDir, SourceContainsSvkCommitFile,
+    SourceContainsSvnCommitFile, SourceContainsSvnConflictFile, SourceContainsSvnControlDir,
 };
 pub(crate) use files_build_path::DirOrFileInBuildTree;
 pub(crate) use files_config_scripts::{
@@ -974,10 +974,12 @@ pub(crate) use debian_patches::{
     InvalidDep3FormatPatchNoOrigin, InvalidDep3FormatPatchOriginFieldDefaultValue,
     InvalidDep3FormatPatchWrongBugDebianUrl, InvalidDep3FormatPatchWrongLastUpdate,
     PackageUsesVendorSpecificPatchSeries, PatchFilePresentButNotMentionedInSeries,
-    PatchNotForwardedUpstream, PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile,
-    QuiltPatchMissingDescription, QuiltPatchUsesDpatchExtension, QuiltPatchUsesDpatchPlaceholder,
-    QuiltPatchUsingTemplateDescription, QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
-    QuiltSeriesWithoutTrailingNewline, SpellingErrorInPatchDescription,
+    PatchModifyingDebianFiles, PatchNotForwardedUpstream, PatchSystemButNoSourceReadme,
+    QuiltBuildDepButNoSeriesFile, QuiltPatchMissingDescription, QuiltPatchUsesDpatchExtension,
+    QuiltPatchUsesDpatchPlaceholder, QuiltPatchUsingTemplateDescription,
+    QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
+    QuiltSeriesReferencesNonExistentPatch, QuiltSeriesWithoutTrailingNewline,
+    SpellingErrorInPatchDescription,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,

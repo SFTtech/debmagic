@@ -80,7 +80,6 @@ impl QuiltSeries {
     }
 
     /// Patches in series order, comments and blank lines left out.
-    #[allow(dead_code)] // read by the other `debian/patches/quilt` Tags
     pub fn patches(&self) -> &[QuiltPatch] {
         &self.patches
     }

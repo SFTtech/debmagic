@@ -1612,6 +1612,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/testsuite/testsuite-unknown-suite",
     "checks/testsuite/testsuite-with-adttmp",
     "checks/testsuite/unnecessary-testsuite-autopkgtest-field",
+    "checks/upstream-signature/control-file-upstream-signature-missing",
     "checks/upstream-signature/doubly-armored-signature",
     "checks/upstream-signature/explicit-armor-header",
     "checks/upstream-signature/repeated-signature",
@@ -3301,6 +3302,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/testsuite/testsuite-unknown-suite"; "checks_testsuite_testsuite_unknown_suite")]
 #[test_case("checks/testsuite/testsuite-with-adttmp"; "checks_testsuite_testsuite_with_adttmp")]
 #[test_case("checks/testsuite/unnecessary-testsuite-autopkgtest-field"; "checks_testsuite_unnecessary_testsuite_autopkgtest_field")]
+#[test_case("checks/upstream-signature/control-file-upstream-signature-missing"; "checks_upstream_signature_control_file_upstream_signature_missing")]
 #[test_case("checks/upstream-signature/doubly-armored-signature"; "checks_upstream_signature_doubly_armored_signature")]
 #[test_case("checks/upstream-signature/explicit-armor-header"; "checks_upstream_signature_explicit_armor_header")]
 #[test_case("checks/upstream-signature/repeated-signature"; "checks_upstream_signature_repeated_signature")]

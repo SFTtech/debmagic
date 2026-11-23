@@ -553,8 +553,10 @@ use super::rules::SourceContainsPrebuiltFlashProject;
 use super::rules::SourceContainsPrebuiltJavaObject;
 use super::rules::SourceContainsPrebuiltJavascriptObject;
 use super::rules::SourceContainsPrebuiltMsHelpFile;
+use super::rules::SourceContainsPrebuiltPandocDocumentation;
 use super::rules::SourceContainsPrebuiltPythonObject;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
+use super::rules::SourceContainsPrebuiltSphinxDocumentation;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
 use super::rules::SourceIsMissing;
@@ -2443,6 +2445,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SourceContainsPrebuiltFlashProject,
         &SourceContainsPrebuiltFlashObject,
         &SourceContainsPrebuiltJavaObject,
+        &SourceContainsPrebuiltPandocDocumentation,
+        &SourceContainsPrebuiltSphinxDocumentation,
     ]
 }
 
@@ -2912,6 +2916,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsPrebuiltFlashProject,
         &SourceContainsPrebuiltFlashObject,
         &SourceContainsPrebuiltJavaObject,
+        &SourceContainsPrebuiltPandocDocumentation,
+        &SourceContainsPrebuiltSphinxDocumentation,
     ]
 }
 

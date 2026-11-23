@@ -1,4 +1,4 @@
-use std::path::{Component, Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use regex::Regex;
@@ -6,9 +6,10 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 use crate::lint::interpreter::Hashbang;
 use crate::lint::rule::SourceRule;
+
+use super::text::follow_rules;
 
 pub struct DebianRulesNotAMakefile;
 
@@ -38,7 +39,7 @@ impl SourceRule for DebianRulesNotAMakefile {
         let Some(files) = ctx.files() else {
             return;
         };
-        let Some(entry) = follow(files, "debian/rules") else {
+        let Some((_, entry)) = follow_rules(files) else {
             return;
         };
         let Ok(bytes) = files.read(entry) else {
@@ -53,46 +54,6 @@ impl SourceRule for DebianRulesNotAMakefile {
             column: None,
         }));
     }
-}
-
-/// The entry at `path` after following symbolic links, or `None` when the
-/// chain ends at a directory, an absolute or missing link, or more than eight
-/// hops.
-fn follow<'a>(files: &'a FileTree, path: &str) -> Option<&'a Entry> {
-    let mut path = PathBuf::from(path);
-    for _ in 0..8 {
-        let entry = files.get(&path)?;
-        match entry.kind() {
-            EntryKind::Symlink => path = resolve_link(&path, entry.link_target()?)?,
-            EntryKind::Directory
-            | EntryKind::Fifo
-            | EntryKind::CharDevice
-            | EntryKind::BlockDevice => return None,
-            EntryKind::RegularFile | EntryKind::Hardlink => return Some(entry),
-        }
-    }
-    None
-}
-
-/// A relative link resolved against the directory of `from`.
-fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
-    if target.is_absolute() {
-        return None;
-    }
-    let mut resolved = from.parent().unwrap_or(Path::new("")).to_path_buf();
-    for component in target.components() {
-        match component {
-            Component::Normal(part) => resolved.push(part),
-            Component::CurDir => {}
-            Component::ParentDir => {
-                if !resolved.pop() {
-                    return None;
-                }
-            }
-            Component::RootDir | Component::Prefix(_) => return None,
-        }
-    }
-    Some(resolved)
 }
 
 /// Lintian's `hashbang`: the text after `#!` on the first line, trimmed, or

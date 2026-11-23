@@ -44,9 +44,20 @@ mod tests {
 
     const KEY: &str = "-----BEGIN PGP PUBLIC KEY BLOCK-----\n";
 
+    /// A `.dsc` of `version` whose `Files` field lists `files`.
+    fn dsc(version: &str, files: &[&str]) -> Dsc {
+        let mut text = format!("Source: example\nVersion: {version}\nFiles:\n");
+        for file in files {
+            text.push_str(&format!(" 00000000000000000000000000000000 0 {file}\n"));
+        }
+        Dsc::parse(&text).expect("dsc paragraph")
+    }
+
     fn signed_package(version: &str) -> SourcePackageCase {
-        let dsc =
-            Dsc::parse(&format!("Source: example\nVersion: {version}\n")).expect("dsc paragraph");
+        let dsc = dsc(
+            version,
+            &["example_1.0.orig.tar.gz", "example_1.0.orig.tar.gz.asc"],
+        );
         SourcePackageCase::from(vec![("debian/upstream/signing-key.asc", KEY)])
             .siblings(vec![
                 ("example_1.0.orig.tar.gz", "tarball"),
@@ -72,7 +83,7 @@ mod tests {
         // A repacked upstream is exempt.
         let repacked = SourcePackageCase::from(vec![("debian/upstream/signing-key.asc", KEY)])
             .siblings(vec![("example_1.0.orig.tar.gz", "tarball")])
-            .dsc(Dsc::parse("Source: example\nVersion: 1.0+dfsg-1\n").expect("dsc paragraph"));
+            .dsc(dsc("1.0+dfsg-1", &["example_1.0.orig.tar.gz"]));
         // uscan's gittag mode never matches a signature.
         let gittag = SourcePackageCase::from(vec![
             ("debian/upstream/signing-key.asc", KEY),

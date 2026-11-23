@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): invalid-versioned-provides (LN1777) foo (>= 1.0)
+E: example (binary): invalid-versioned-provides (LN1777) foo (<< 1.0)
+E: example (binary): invalid-versioned-provides (LN1777) foo (<= 1.0)
+E: example (binary): invalid-versioned-provides (LN1777) foo (>> 1.0)
+E: example (binary): invalid-versioned-provides (LN1777) foo (< 1.0)
+E: example (binary): invalid-versioned-provides (LN1777) foo (> 1.0)
+E: example (binary): invalid-versioned-provides (LN1777) bad (>= 2.0)
+E: example (binary): invalid-versioned-provides (LN1777) arch-specific (>= 1.0) [i386]
+E: example (udeb): invalid-versioned-provides (LN1777) foo (>= 1.0)

@@ -305,6 +305,7 @@ use super::rules::InvalidPotfilesIn;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::InvalidSystemdDocumentation;
+use super::rules::InvalidVersionedProvides;
 use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
@@ -356,6 +357,7 @@ use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
 use super::rules::MalformedTemplateName;
 use super::rules::ManualPageForSystemCommand;
+use super::rules::ManualPageInUdeb;
 use super::rules::MavenPluginInUsrShareJava;
 use super::rules::MawkScriptButNoMawkDep;
 use super::rules::MenuIconCannotBeParsed;
@@ -443,6 +445,7 @@ use super::rules::OddMarkInDescription;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OldPythonVersionField;
+use super::rules::OldSourceOverrideLocation;
 use super::rules::OldStyleConfigScript;
 use super::rules::OlderDebianWatchFileStandard;
 use super::rules::OlderSourceFormat;
@@ -2651,6 +2654,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
         &RulesSilentlyRequireRoot,
+        &ManualPageInUdeb,
+        &InvalidVersionedProvides,
+        &OldSourceOverrideLocation,
     ]
 }
 
@@ -4118,6 +4124,9 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OcamlStrayCmo,
         &StaticLibraryHasUnneededSections,
         &UnstrippedStaticLibrary,
+        &ManualPageInUdeb,
+        &InvalidVersionedProvides,
+        &OldSourceOverrideLocation,
     ]
 }
 

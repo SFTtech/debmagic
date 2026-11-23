@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): old-source-override-location (LN1778) [debian/source.lintian-overrides]
+P: example (udeb): old-source-override-location (LN1778) [debian/source.lintian-overrides]

@@ -749,10 +749,11 @@ pub(crate) use documentation_manual::{
     AcuteAccentInManualPage, BadSoLinkWithinManualPage, BadWhatisEntry, BrokenLinkToUndocumented,
     BuildPathInManual, CountryInManual, EmptyManualPage, ExecutableManualPage,
     FSSTNDDirInManualPage, GroffMessage, ManualPageForSystemCommand, ManualPageFromTemplate,
-    ManualPageWithGenericName, NoEnglishManualPage, NoManualPage, OddPlaceForManualPage,
-    PodConversionMessage, PoorCompressionInManualPage, PythonTracebackInManpage, SpareManualPage,
-    StrayFolderInManual, TypoInManualPage, UncompressedManualPage, UndocumentedManualPage,
-    UselessWhatisEntry, WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
+    ManualPageInUdeb, ManualPageWithGenericName, NoEnglishManualPage, NoManualPage,
+    OddPlaceForManualPage, PodConversionMessage, PoorCompressionInManualPage,
+    PythonTracebackInManpage, SpareManualPage, StrayFolderInManual, TypoInManualPage,
+    UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
+    WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
 };
 pub(crate) use documentation_texinfo::{
     InfoDocumentHasWrongExtension, InfoDocumentMissingDirEntry, InfoDocumentMissingDirSection,
@@ -774,7 +775,7 @@ pub(crate) use fields_relations_more::{
     BuildDependsOnPythonDevWithNoArchAny, ConflictsWithDependency, ConflictsWithVersion,
     DependsOnEssentialPackageWithoutUsingVersion, DependsOnMetapackage, DependsOnObsoleteBootstrap,
     DependsOnPackagingDev, DependsOnPythonMinimal, InvalidArchStringInSourceRelation,
-    InvalidProfileNameInSourceRelation, LibRecommendsDocumentation,
+    InvalidProfileNameInSourceRelation, InvalidVersionedProvides, LibRecommendsDocumentation,
     LibmoduleBuildPerlNeedsToBeInBuildDepends, LibmoduleBuildTinyPerlNeedsToBeInBuildDepends,
     MailTransportAgentDependencyDoesNotSpecifyDefaultMta, NeedlessDependencyOnJre,
     NeedlesslyDependsOnAwk, ObsoleteRelationForm, OredBuildDependsOnObsoletePackage,
@@ -1039,8 +1040,8 @@ pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;
 pub(crate) use languages_r::RequiresRApi;
 pub(crate) use lintian_overrides::{
-    AlienTag, DuplicateOverrideContext, MalformedOverride, OverrideFileInWrongLocation,
-    OverrideFileInWrongPackage, RenamedTag,
+    AlienTag, DuplicateOverrideContext, MalformedOverride, OldSourceOverrideLocation,
+    OverrideFileInWrongLocation, OverrideFileInWrongPackage, RenamedTag,
 };
 pub(crate) use ln0001_required_field::RequiredField;
 pub(crate) use ln0002_syntax_error_in_debian_changelog::SyntaxErrorInDebianChangelog;

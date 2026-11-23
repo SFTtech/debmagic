@@ -382,6 +382,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
     "checks/fields/uploaders/fields-maintainer-general",
+    "checks/fields/vcs/control-has-empty-field",
     "checks/fields/vcs/fields-malformed-vcs-fields",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
@@ -392,6 +393,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
     "checks/fields/vcs/legacy-binary",
+    "checks/fields/vcs/nmu-qa-upload",
     "checks/fields/vcs/orphaned-package-in-private-salsa-space",
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
@@ -1535,6 +1537,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
     "checks/fields/uploaders/fields-maintainer-general",
+    "checks/fields/vcs/control-has-empty-field",
     "checks/fields/vcs/fields-malformed-vcs-fields",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
@@ -1545,6 +1548,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
     "checks/fields/vcs/legacy-binary",
+    "checks/fields/vcs/nmu-qa-upload",
     "checks/fields/vcs/orphaned-package-in-private-salsa-space",
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
@@ -2127,6 +2131,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
 #[test_case("checks/fields/uploaders/fields-maintainer-general"; "checks_fields_uploaders_fields_maintainer_general")]
+#[test_case("checks/fields/vcs/control-has-empty-field"; "checks_fields_vcs_control_has_empty_field")]
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
@@ -2137,6 +2142,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/legacy-binary"; "checks_fields_vcs_legacy_binary")]
+#[test_case("checks/fields/vcs/nmu-qa-upload"; "checks_fields_vcs_nmu_qa_upload")]
 #[test_case("checks/fields/vcs/orphaned-package-in-private-salsa-space"; "checks_fields_vcs_orphaned_package_in_private_salsa_space")]
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
@@ -3282,6 +3288,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
 #[test_case("checks/fields/uploaders/fields-maintainer-general"; "checks_fields_uploaders_fields_maintainer_general")]
+#[test_case("checks/fields/vcs/control-has-empty-field"; "checks_fields_vcs_control_has_empty_field")]
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
@@ -3292,6 +3299,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/legacy-binary"; "checks_fields_vcs_legacy_binary")]
+#[test_case("checks/fields/vcs/nmu-qa-upload"; "checks_fields_vcs_nmu_qa_upload")]
 #[test_case("checks/fields/vcs/orphaned-package-in-private-salsa-space"; "checks_fields_vcs_orphaned_package_in_private_salsa_space")]
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]

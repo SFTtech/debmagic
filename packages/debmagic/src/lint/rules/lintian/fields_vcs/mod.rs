@@ -14,6 +14,7 @@ mod ln1243_vcs_git_uses_invalid_user_uri;
 mod ln1371_vcs_field_not_canonical;
 mod ln1372_vcs_field_uses_insecure_uri;
 mod ln1373_vcs_fields_use_more_than_one_vcs;
+mod ln1660_co_maintained_package_with_no_vcs_fields;
 
 pub(crate) use ln0797_vcs_field_bitrotted::VcsFieldBitrotted;
 pub(crate) use ln0798_vcs_field_mismatch::VcsFieldMismatch;
@@ -26,3 +27,4 @@ pub(crate) use ln1243_vcs_git_uses_invalid_user_uri::VcsGitUsesInvalidUserUri;
 pub(crate) use ln1371_vcs_field_not_canonical::VcsFieldNotCanonical;
 pub(crate) use ln1372_vcs_field_uses_insecure_uri::VcsFieldUsesInsecureUri;
 pub(crate) use ln1373_vcs_fields_use_more_than_one_vcs::VcsFieldsUseMoreThanOneVcs;
+pub(crate) use ln1660_co_maintained_package_with_no_vcs_fields::CoMaintainedPackageWithNoVcsFields;

@@ -218,6 +218,7 @@ use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
 use super::rules::ElfError;
+use super::rules::ElfWarning;
 use super::rules::EmbeddedLibrary;
 use super::rules::EmbeddedPearModule;
 use super::rules::EmbeddedScriptIncludesCopyrightStatement;
@@ -2719,6 +2720,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &NonStandardGameExecutablePerm,
         &DebhelperCompatNotANumber,
         &DebianRulesMissingRecommendedTarget,
+        &ElfWarning,
     ]
 }
 
@@ -4216,6 +4218,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &EmbeddedPearModule,
         &LegacyVendorarchDirectory,
         &NonStandardGameExecutablePerm,
+        &ElfWarning,
     ]
 }
 

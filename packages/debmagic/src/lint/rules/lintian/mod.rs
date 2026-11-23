@@ -104,6 +104,7 @@ mod files_artifact;
 mod files_banned;
 mod files_banned_compiled_help;
 mod files_build_path;
+mod files_compressed;
 mod files_compressed_gz;
 mod files_compressed_lzma;
 mod files_compressed_xz;
@@ -144,6 +145,7 @@ mod fonts_opentype;
 mod fonts_truetype;
 mod games;
 mod group_checks;
+mod huge_usr_share;
 mod images_filenames;
 mod images_thumbnails;
 mod includes_config_h;
@@ -217,6 +219,8 @@ mod ln1387_source_contains_prebuilt_binary;
 mod ln1388_source_contains_prebuilt_javascript_object;
 mod ln1389_source_contains_prebuilt_python_object;
 mod ln1390_source_is_missing;
+mod ln1560_bin_sbin_mismatch;
+mod ln1562_empty_udeb_package;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_adduser;
@@ -429,6 +433,7 @@ pub(crate) use files_architecture::TripletDirAndArchitectureMismatch;
 pub(crate) use files_banned::LicenseProblemMd5sumNonDistributableFile;
 pub(crate) use files_banned::LicenseProblemNonFreeImgLenna;
 pub(crate) use files_banned_compiled_help::SourceContainsPrebuiltMsHelpFile;
+pub(crate) use files_compressed::CompressedDuplicate;
 pub(crate) use files_compressed_gz::BrokenGz;
 pub(crate) use files_compressed_gz::GzipFileIsNotMultiArchSameSafe;
 pub(crate) use files_compressed_gz::PackageContainsTimestampedGzip;
@@ -459,6 +464,7 @@ pub(crate) use group_checks::BinariesHaveFileConflict;
 pub(crate) use group_checks::DebugPackageForMultiArchSamePkgNotCoinstallable;
 pub(crate) use group_checks::DependencyIsNotMultiArchified;
 pub(crate) use group_checks::IntraSourcePackageCircularDependency;
+pub(crate) use huge_usr_share::ArchDepPackageHasBigUsrShare;
 pub(crate) use images_filenames::ImageFileHasConflictingName;
 pub(crate) use images_filenames::ImageFileHasUnexpectedName;
 pub(crate) use images_thumbnails::PackageContainsThumbnailsDir;
@@ -468,6 +474,7 @@ pub(crate) use languages_clojure_dh_clojure::ClojurePackageButNotDhClojure;
 pub(crate) use languages_fortran_gfortran::GfortranModuleDoesNotDeclareVersion;
 pub(crate) use languages_fortran_gfortran::MissingPrerequisiteForGfortranModule;
 pub(crate) use languages_golang_module_path::GoLibraryPackageDoesNotIncludeVersion;
+pub(crate) use languages_golang_module_path::MissingXsGoImportPathForGolangPackage;
 pub(crate) use languages_java::BadJarName;
 pub(crate) use languages_java::ClasspathContainsRelativePath;
 pub(crate) use languages_java::CodelessJar;
@@ -572,7 +579,7 @@ pub(crate) use debian_copyright::{
 pub(crate) use fields_version::{
     AnticipatedRepackCount, BadVersionNumber, BinaryNmuDebianRevisionInSource,
     DebianRevisionIsZero, DebianRevisionNotWellFormed, DfsgVersionInNativePackage,
-    DfsgVersionMisspelled, DfsgVersionWithPeriod, DotBeforeRepackCount,
+    DfsgVersionMisspelled, DfsgVersionWithPeriod, DfsgVersionWithTilde, DotBeforeRepackCount,
 };
 
 pub(crate) use debian_debconf::{
@@ -738,11 +745,11 @@ pub(crate) use files_foreign::{
 };
 pub(crate) use files_hard_links::PackageContainsHardlink;
 pub(crate) use files_hierarchy::{
-    AliasedLocation, DirInUsrLocal, DirOrFileInEtcOpt, DirOrFileInHome, DirOrFileInMnt,
-    DirOrFileInOpt, DirOrFileInRun, DirOrFileInSrv, DirOrFileInTmp, DirOrFileInVarLock,
-    DirOrFileInVarRun, DirOrFileInVarWww, FileDirectlyInUsrShare, FileInUsrLocal, FsstndDirInUsr,
-    FsstndDirInVar, NonMultiArchLibDir, NonStandardDirInUsr, NonStandardDirInVar, SubdirInUsrBin,
-    UseOfCompatSymlink,
+    AliasedLocation, ArchitectureEscape, DirInUsrLocal, DirOrFileInEtcOpt, DirOrFileInHome,
+    DirOrFileInMnt, DirOrFileInOpt, DirOrFileInRun, DirOrFileInSrv, DirOrFileInTmp,
+    DirOrFileInVarLock, DirOrFileInVarRun, DirOrFileInVarWww, FileDirectlyInUsrShare,
+    FileInUsrLocal, FsstndDirInUsr, FsstndDirInVar, NonMultiArchLibDir, NonStandardDirInUsr,
+    NonStandardDirInVar, SubdirInUsrBin, UseOfCompatSymlink,
 };
 pub(crate) use files_ieee::PackageInstallsIeeeData;
 pub(crate) use files_includes::HeaderHasOverlyGenericName;
@@ -806,11 +813,12 @@ pub(crate) use init_scripts::{
     DuplicateUpdatercDCallsInPostrm, InitDScriptContainsSkeletonTemplateContent,
     InitDScriptDependsOnAllVirtualFacility, InitDScriptDependsOnUnknownVirtualFacility,
     InitDScriptDoesNotImplementRequiredOption, InitDScriptDoesNotImplementStatusOption,
-    InitDScriptHasBadLsbLine, InitDScriptHasBadStartRunlevel, InitDScriptHasBadStopRunlevel,
-    InitDScriptHasConflictingStartStop, InitDScriptHasDuplicateLsbKeyword,
-    InitDScriptHasDuplicateLsbSection, InitDScriptHasUnknownLsbKeyword,
-    InitDScriptHasUnterminatedLsbSection, InitDScriptMissingDependencyOnLocalFs,
-    InitDScriptMissingLsbKeyword, InitDScriptMissingLsbSection, InitDScriptMissingStart,
+    InitDScriptDoesNotProvideItself, InitDScriptHasBadLsbLine, InitDScriptHasBadStartRunlevel,
+    InitDScriptHasBadStopRunlevel, InitDScriptHasConflictingStartStop,
+    InitDScriptHasDuplicateLsbKeyword, InitDScriptHasDuplicateLsbSection,
+    InitDScriptHasUnknownLsbKeyword, InitDScriptHasUnterminatedLsbSection,
+    InitDScriptMissingDependencyOnLocalFs, InitDScriptMissingLsbKeyword,
+    InitDScriptMissingLsbSection, InitDScriptMissingLsbShortDescription, InitDScriptMissingStart,
     InitDScriptNotIncludedInPackage, InitDScriptNotMarkedAsConffile,
     InitDScriptPossibleMissingStop, InitDScriptProvidesVirtualFacility,
     InitDScriptShouldAlwaysStartService, InitDScriptSourcingWithoutTest,
@@ -836,16 +844,17 @@ pub(crate) use languages_perl::{
     PerlModuleUsesPerl4LibsWithoutDep, ScriptUsesPerl4LibsWithoutDep,
 };
 pub(crate) use languages_python::{
-    AncientPythonVersionField, BogusPythonPrerequisite, DjangoPackageDoesNotDependOnDjango,
-    DuplicateP3distOverride, EmbeddedFeedparserLibrary, FileInUsrLibSitePython,
-    MalformedPythonVersion, MissingPrerequisiteForPyprojectBackend,
-    NewPackageShouldNotPackagePython2Module, PackageInstallsDeprecatedPython2Path,
-    PackageInstallsLegacyPythonEggInfo, PackageInstallsPythonBytecode, PackageInstallsPythonEgg,
-    PackageInstallsPythonPycacheDir, PypiHomepage, PythonDebugInWrongLocation,
-    PythonModuleHasOverlyGenericName, PythonModuleInWrongLocation,
-    PythonPackageMissingDependsOnPython, PythonVersionCurrentIsDeprecated,
-    ScriptUsesUnversionedPythonInShebang, SourcePackageEncodesPythonVersion,
-    ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory, UsesDeprecatedPythonStdlib,
+    AncientPythonVersionField, BogusPythonPrerequisite, DebianPycompatIsObsolete,
+    DebianPyversionsIsObsolete, DjangoPackageDoesNotDependOnDjango, DuplicateP3distOverride,
+    EmbeddedFeedparserLibrary, FileInUsrLibSitePython, MalformedPythonVersion,
+    MissingPrerequisiteForPyprojectBackend, NewPackageShouldNotPackagePython2Module,
+    PackageInstallsDeprecatedPython2Path, PackageInstallsLegacyPythonEggInfo,
+    PackageInstallsPythonBytecode, PackageInstallsPythonEgg, PackageInstallsPythonPycacheDir,
+    PypiHomepage, PythonDebugInWrongLocation, PythonModuleHasOverlyGenericName,
+    PythonModuleInWrongLocation, PythonPackageMissingDependsOnPython,
+    PythonVersionCurrentIsDeprecated, ScriptUsesUnversionedPythonInShebang,
+    SourcePackageEncodesPythonVersion, ThirdPartyPackageInPythonDir,
+    UnknownFileInPythonModuleDirectory, UsesDeprecatedPythonStdlib,
 };
 pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
@@ -916,10 +925,11 @@ pub(crate) use files_privacy_breach::{
     PrivacyBreachW3cValidHtml,
 };
 pub(crate) use languages_php::{
-    ComposerPrerequisite, EmbeddedPhpLibrary, MissingPkgPhpToolsAddon,
-    MissingPkgPhpToolsBuildsystem, ObsoleteCommentsStyleInPhpIni,
+    ComposerPackageWithoutPkgPhpToolsBuilddep, ComposerPrerequisite, EmbeddedPhpLibrary,
+    MissingPkgPhpToolsAddon, MissingPkgPhpToolsBuildsystem, ObsoleteCommentsStyleInPhpIni,
     PearChannelWithoutPkgPhpToolsBuilddep, PearPackageButMissingDependency,
-    PearPackageWithoutPkgPhpToolsBuilddep, PeclPackageRequiresBuildDependency,
+    PearPackageNotUsingSubstvar, PearPackageWithoutPkgPhpToolsBuilddep,
+    PeclPackageRequiresBuildDependency,
 };
 pub(crate) use languages_r::RDataWithoutReadmeSource;
 pub(crate) use languages_r::RPackageNotArchAll;
@@ -970,6 +980,8 @@ pub(crate) use ln1387_source_contains_prebuilt_binary::SourceContainsPrebuiltBin
 pub(crate) use ln1388_source_contains_prebuilt_javascript_object::SourceContainsPrebuiltJavascriptObject;
 pub(crate) use ln1389_source_contains_prebuilt_python_object::SourceContainsPrebuiltPythonObject;
 pub(crate) use ln1390_source_is_missing::SourceIsMissing;
+pub(crate) use ln1560_bin_sbin_mismatch::BinSbinMismatch;
+pub(crate) use ln1562_empty_udeb_package::EmptyUdebPackage;
 pub(crate) use maintainer_scripts_adduser::AdduserWithHomeVarRun;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,

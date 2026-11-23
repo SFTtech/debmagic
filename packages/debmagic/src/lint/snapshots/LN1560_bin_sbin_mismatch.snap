@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): bin-sbin-mismatch (LN1560) usr/sbin/cmd -> usr/bin/cmd [usr/bin/caller]
+I: example (binary): bin-sbin-mismatch (LN1560) bin/cmd -> usr/sbin/cmd [usr/bin/caller]
+I: example (binary): bin-sbin-mismatch (LN1560) bin/cmd -> usr/sbin/cmd [usr/sbin/caller]
+I: example (binary): bin-sbin-mismatch (LN1560) usr/bin/cmd -> usr/sbin/cmd [usr/sbin/caller]
+I: example (binary): bin-sbin-mismatch (LN1560) usr/sbin/cmd -> usr/bin/cmd [usr/bin/caller]
+I: example (binary): bin-sbin-mismatch (LN1560) usr/sbin/cmd -> usr/bin/cmd [usr/bin/caller]
+I: example (binary): bin-sbin-mismatch (LN1560) usr/sbin/cmd -> usr/bin/cmd [postinst]
+I: example (binary): bin-sbin-mismatch (LN1560) sbin/cmd -> usr/bin/cmd [usr/bin/caller]

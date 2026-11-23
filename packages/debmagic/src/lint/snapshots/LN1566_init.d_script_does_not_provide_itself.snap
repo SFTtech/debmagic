@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): init.d-script-does-not-provide-itself (LN1566) [etc/init.d/foo]
+I: example (binary): init.d-script-does-not-provide-itself (LN1566) [etc/init.d/foo]
+I: example (binary): init.d-script-does-not-provide-itself (LN1566) [etc/init.d/foo]
+I: example (binary): init.d-script-does-not-provide-itself (LN1566) [etc/init.d/foo]
+I: example (binary): init.d-script-does-not-provide-itself (LN1566) [etc/init.d/foosh]
+I: example (binary): init.d-script-does-not-provide-itself (LN1566) [etc/init.d/foo]
+I: example (udeb): init.d-script-does-not-provide-itself (LN1566) [etc/init.d/foo]
+I: example (binary): init.d-script-does-not-provide-itself (LN1566) [etc/init.d/foo]

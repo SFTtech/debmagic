@@ -627,7 +627,8 @@ def catalogued_tags_with_impl(rules_dir: Path, *needles: str) -> set[str]:
 
 
 def catalogued_source_package_tags(rules_dir: Path) -> set[str]:
-    return catalogued_tags_with_impl(rules_dir, "impl SourceRule for")
+    """Source Rules, and OverrideRules (the override pass runs on the Source package, ADR 0057)."""
+    return catalogued_tags_with_impl(rules_dir, "impl SourceRule for", "impl OverrideRule for")
 
 
 def catalogued_binary_package_tags(rules_dir: Path) -> set[str]:
@@ -637,7 +638,9 @@ def catalogued_binary_package_tags(rules_dir: Path) -> set[str]:
 
 def catalogued_source_tree_tags(rules_dir: Path) -> set[str]:
     """Tags a Source-tree lint can show: Rules of the Source and Binary kinds (not Group artifacts)."""
-    return catalogued_tags_with_impl(rules_dir, "impl SourceRule for", "impl BinaryPackageRule for")
+    return catalogued_tags_with_impl(
+        rules_dir, "impl SourceRule for", "impl BinaryPackageRule for", "impl OverrideRule for"
+    )
 
 
 def catalogued_changes_tags(rules_dir: Path) -> set[str]:

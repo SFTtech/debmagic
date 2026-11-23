@@ -3,7 +3,7 @@
 #![allow(dead_code)]
 
 use std::{
-    collections::HashSet,
+    collections::{BTreeSet, HashSet},
     ffi::OsStr,
     fs,
     path::{Path, PathBuf},
@@ -204,7 +204,11 @@ pub fn source_rule_counts() -> SourceRuleCounts {
 /// Binary-package kinds. A Rule that inspects only the artifacts of a Group
 /// (a Changes file, a Buildinfo file, a whole Group) is not one of them.
 pub fn catalogued_ln_tags() -> HashSet<String> {
-    catalogued_tags_with_impl(&["impl SourceRule for", "impl BinaryPackageRule for"])
+    catalogued_tags_with_impl(&[
+        "impl SourceRule for",
+        "impl BinaryPackageRule for",
+        "impl OverrideRule for",
+    ])
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -369,9 +373,10 @@ pub fn catalogued_binary_package_tags() -> HashSet<String> {
     catalogued_tags_with_impl(&["impl BinaryPackageRule for", "fn runs_without_dsc"])
 }
 
-/// Tags of LN Rules that implement `SourceRule`.
+/// Tags of LN Rules that implement `SourceRule` or `OverrideRule` (the override
+/// pass runs on the Source package too, ADR 0057).
 pub fn catalogued_source_package_tags() -> HashSet<String> {
-    catalogued_tags_with_impl(&["impl SourceRule for"])
+    catalogued_tags_with_impl(&["impl SourceRule for", "impl OverrideRule for"])
 }
 
 /// The Rule kinds `catalogued_tags_with_impl` can filter on.
@@ -516,6 +521,103 @@ fn recipe_rel(root: &Path, recipe: &Path) -> String {
         .replace('\\', "/")
 }
 
+/// The override Tags of ADR 0057: the two Parity cases that compare the
+/// override pass's own Diagnostics.
+const OVERRIDE_TAGS: &[&str] = &["unused-override", "mismatched-override"];
+
+/// The first two words of each line of the recipe's Source override file that
+/// are not `[arch]` or `(type)` lists: the Tag, or a package and then the Tag
+/// (`lintian-overrides(5)`). Callers keep the words that are Tags with Rules.
+fn source_override_file_words(recipe: &Path) -> Vec<String> {
+    let Ok(text) = fs::read_to_string(recipe.join("debian/source/lintian-overrides")) else {
+        return Vec::new();
+    };
+    text.lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+        .flat_map(|line| {
+            line.split_whitespace()
+                .filter(|word| !word.starts_with('[') && !word.starts_with('('))
+                .take(2)
+                .map(str::to_string)
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
+/// The `--select` Tags of a recipe: the Tags of its expected hints. When one of
+/// them is an override Tag, also the current Tags its Source override file names
+/// that have Rules, as `checks/lintian/override-not-used` needs: lintian had
+/// `cute-field` enabled there and it emits nothing, so only a selected Rule
+/// makes the override unused (ADR 0057).
+fn selected_tags(
+    recipe: &Path,
+    expected: &[ParityHint],
+    rule_tags: &HashSet<String>,
+) -> Vec<String> {
+    let mut selected: HashSet<String> = expected.iter().map(|hint| hint.tag.clone()).collect();
+    if expected
+        .iter()
+        .any(|hint| OVERRIDE_TAGS.contains(&hint.tag.as_str()))
+    {
+        selected.extend(
+            source_override_file_words(recipe)
+                .into_iter()
+                .filter(|word| rule_tags.contains(word)),
+        );
+    }
+    let mut selected: Vec<String> = selected.into_iter().collect();
+    selected.sort();
+    selected
+}
+
+/// A recipe that carries a Source override file (ADR 0057): the run without
+/// `--show-overrides` prints a subset of the hints of the run with it, and no
+/// overridden (`O:`) hint of the shown run is printed by the hidden one. `keep`
+/// is the filter the hints are compared with.
+fn assert_hidden_overrides_subset(
+    recipe_rel: &str,
+    recipe: &Path,
+    shown_stdout: &str,
+    extra_args: &[&str],
+    run_hidden: impl Fn(&[&str]) -> String,
+    keep: impl Fn(&str, &ParityHint) -> bool,
+) {
+    if !recipe.join("debian/source/lintian-overrides").is_file() {
+        return;
+    }
+    let hidden_args: Vec<&str> = extra_args
+        .iter()
+        .copied()
+        .filter(|arg| *arg != "--show-overrides")
+        .collect();
+    let hidden_stdout = run_hidden(&hidden_args);
+    let hints = |text: &str, parse: fn(&str) -> Option<(String, ParityHint)>| {
+        text.lines()
+            .filter_map(parse)
+            .filter(|(processable_type, hint)| keep(processable_type, hint))
+            .map(|(_, hint)| hint)
+            .collect::<BTreeSet<ParityHint>>()
+    };
+    let shown_plain = hints(shown_stdout, parse_diagnostic_line);
+    let shown_overridden = hints(shown_stdout, parse_overridden_line);
+    let hidden = hints(&hidden_stdout, parse_diagnostic_line);
+
+    let shown_all: BTreeSet<ParityHint> = shown_plain.union(&shown_overridden).cloned().collect();
+    let not_shown: Vec<&ParityHint> = hidden.difference(&shown_all).collect();
+    assert!(
+        not_shown.is_empty(),
+        "{recipe_rel}: the run without --show-overrides prints hints the run with it does not: {not_shown:?}"
+    );
+    let only_overridden: BTreeSet<ParityHint> =
+        shown_overridden.difference(&shown_plain).cloned().collect();
+    let leaked: Vec<&ParityHint> = hidden.intersection(&only_overridden).collect();
+    assert!(
+        leaked.is_empty(),
+        "{recipe_rel}: the run without --show-overrides prints overridden hints: {leaked:?}"
+    );
+}
+
 fn catalogued_source_tree_hints(recipe: &Path, catalogued: &HashSet<String>) -> Vec<ParityHint> {
     let mut expected: Vec<ParityHint> = load_hints(&recipe.join("eval/hints"))
         .into_iter()
@@ -568,13 +670,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
         "{recipe_rel}: listed Parity recipe has no catalogued Source-tree hints"
     );
 
-    let mut selected: Vec<String> = expected
-        .iter()
-        .map(|hint| hint.tag.clone())
-        .collect::<HashSet<_>>()
-        .into_iter()
-        .collect();
-    selected.sort();
+    let selected = selected_tags(&recipe, &expected, &catalogued);
     let include_dir = recipe_include_dir(&recipe);
     let mut extra_args = vec!["--show-overrides"];
     for tag in &selected {
@@ -597,6 +693,16 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
     assert!(
         stderr.is_empty() || !stdout.is_empty(),
         "{recipe_rel}: lint failed with empty stdout\n{stderr}"
+    );
+    assert_hidden_overrides_subset(
+        recipe_rel,
+        &recipe,
+        &stdout,
+        &extra_args,
+        |args| run_lint(&source, args).1,
+        |processable_type, hint| {
+            catalogued.contains(&hint.tag) && applies_to_source_tree(processable_type, &hint.extra)
+        },
     );
 
     let mut actual: Vec<ParityHint> = stdout
@@ -2337,13 +2443,7 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
     let work = tempfile::tempdir().expect("temp recipe workdir");
     let subject = assemble_source_package(&recipe, work.path());
 
-    let mut selected: Vec<String> = expected
-        .iter()
-        .map(|hint| hint.tag.clone())
-        .collect::<HashSet<_>>()
-        .into_iter()
-        .collect();
-    selected.sort();
+    let selected = selected_tags(&recipe, &expected, &tags);
     let include_dir = recipe_include_dir(&recipe);
     let mut extra_args = vec!["--show-overrides"];
     for tag in &selected {
@@ -2359,6 +2459,14 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
     assert!(
         stderr.is_empty() || !stdout.is_empty(),
         "{recipe_rel}: lint failed with empty stdout\n{stderr}"
+    );
+    assert_hidden_overrides_subset(
+        recipe_rel,
+        &recipe,
+        &stdout,
+        &extra_args,
+        |args| run_lint_subject(&subject, args).1,
+        |processable_type, hint| applies_to_source_package(processable_type, &hint.tag, &tags),
     );
 
     let mut actual: Vec<ParityHint> = stdout

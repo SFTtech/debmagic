@@ -131,6 +131,7 @@ use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
 use super::rules::DebianRulesIsSymlink;
 use super::rules::DebianRulesNotAMakefile;
+use super::rules::DebianRulesNotExecutable;
 use super::rules::DebianRulesParsesDpkgParsechangelog;
 use super::rules::DebianRulesPassesVersionInfoToDhShlibdeps;
 use super::rules::DebianRulesSetsDebBuildOptions;
@@ -142,6 +143,7 @@ use super::rules::DebianRulesShouldNotUseSanitizeAllBuildflag;
 use super::rules::DebianRulesUpdatesControlAutomatically;
 use super::rules::DebianRulesUsesAsNeededLinkerFlag;
 use super::rules::DebianRulesUsesDebBuildOpts;
+use super::rules::DebianRulesUsesDeprecatedMakefile;
 use super::rules::DebianRulesUsesDeprecatedSystemdOverride;
 use super::rules::DebianRulesUsesInstalledPythonVersions;
 use super::rules::DebianRulesUsesSpecialShellVariable;
@@ -1963,6 +1965,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianRulesShouldNotSetCFLAGSFromNoopt,
         &DebianRulesIsSymlink,
         &DebianRulesNotAMakefile,
+        &DebianRulesNotExecutable,
+        &DebianRulesUsesDeprecatedMakefile,
         &DebianRulesUsesSpecialShellVariable,
         &DebianRulesUsesWrongEnvironmentVariable,
         &MissingBuildDependsForCleanTargetInDebianRules,
@@ -2914,6 +2918,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianRulesShouldNotSetCFLAGSFromNoopt,
         &DebianRulesIsSymlink,
         &DebianRulesNotAMakefile,
+        &DebianRulesNotExecutable,
+        &DebianRulesUsesDeprecatedMakefile,
         &DebianRulesUsesSpecialShellVariable,
         &DebianRulesUsesWrongEnvironmentVariable,
         &MissingBuildDependsForCleanTargetInDebianRules,

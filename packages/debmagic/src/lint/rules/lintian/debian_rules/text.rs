@@ -1,14 +1,56 @@
 //! `debian/rules` as lintian's `debian/rules` Check reads it.
 
-use std::path::PathBuf;
+use std::path::{Component, Path, PathBuf};
 use std::sync::LazyLock;
 
 use regex::Regex;
 
 use crate::lint::diagnostic::Location;
-use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 
 static COMMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^\s*#").expect("regex"));
+
+/// `debian/rules` after following symbolic links, as lintian's `follow` does:
+/// the path the chain resolves to and its entry. `None` when the chain ends
+/// at a directory or special file, at an absolute, missing, or unresolvable
+/// link, or after eight hops. Lintian judges the followed item, so the
+/// Location of a hint on a link is the target.
+pub(in super::super) fn follow_rules(files: &FileTree) -> Option<(PathBuf, &Entry)> {
+    let mut path = PathBuf::from("debian/rules");
+    for _ in 0..8 {
+        let entry = files.get(&path)?;
+        match entry.kind() {
+            EntryKind::Symlink => path = resolve_link(&path, entry.link_target()?)?,
+            EntryKind::Directory
+            | EntryKind::Fifo
+            | EntryKind::CharDevice
+            | EntryKind::BlockDevice => return None,
+            EntryKind::RegularFile | EntryKind::Hardlink => return Some((path, entry)),
+        }
+    }
+    None
+}
+
+/// A relative link resolved against the directory of `from`.
+fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
+    if target.is_absolute() {
+        return None;
+    }
+    let mut resolved = from.parent().unwrap_or(Path::new("")).to_path_buf();
+    for component in target.components() {
+        match component {
+            Component::Normal(part) => resolved.push(part),
+            Component::CurDir => {}
+            Component::ParentDir => {
+                if !resolved.pop() {
+                    return None;
+                }
+            }
+            Component::RootDir | Component::Prefix(_) => return None,
+        }
+    }
+    Some(resolved)
+}
 
 /// `debian/rules` contents from the packaging File tree, following a
 /// symlink. Missing files, directories, unreadable files, and non-UTF-8

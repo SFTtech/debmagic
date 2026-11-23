@@ -36,6 +36,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
+    "checks/debhelper/debhelper-compat",
     "checks/debhelper/debhelper-compat-empty",
     "checks/debhelper/debhelper-compat-experimental",
     "checks/debhelper/debhelper-compat-multiple",
@@ -1262,6 +1263,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debhelper/debhelper-autoreconf-build-depends",
     "checks/debhelper/debhelper-autoreconf-build-depends-unrel",
     "checks/debhelper/debhelper-brace-expansion",
+    "checks/debhelper/debhelper-compat",
     "checks/debhelper/debhelper-compat-empty",
     "checks/debhelper/debhelper-compat-experimental",
     "checks/debhelper/debhelper-compat-missing",
@@ -1919,6 +1921,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
+#[test_case("checks/debhelper/debhelper-compat"; "checks_debhelper_debhelper_compat")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
 #[test_case("checks/debhelper/debhelper-compat-experimental"; "checks_debhelper_debhelper_compat_experimental")]
 #[test_case("checks/debhelper/debhelper-compat-multiple"; "checks_debhelper_debhelper_compat_multiple")]
@@ -3147,6 +3150,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends"; "checks_debhelper_debhelper_autoreconf_build_depends")]
 #[test_case("checks/debhelper/debhelper-autoreconf-build-depends-unrel"; "checks_debhelper_debhelper_autoreconf_build_depends_unrel")]
 #[test_case("checks/debhelper/debhelper-brace-expansion"; "checks_debhelper_debhelper_brace_expansion")]
+#[test_case("checks/debhelper/debhelper-compat"; "checks_debhelper_debhelper_compat")]
 #[test_case("checks/debhelper/debhelper-compat-empty"; "checks_debhelper_debhelper_compat_empty")]
 #[test_case("checks/debhelper/debhelper-compat-experimental"; "checks_debhelper_debhelper_compat_experimental")]
 #[test_case("checks/debhelper/debhelper-compat-missing"; "checks_debhelper_debhelper_compat_missing")]

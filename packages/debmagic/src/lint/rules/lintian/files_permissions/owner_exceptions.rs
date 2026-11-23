@@ -14,7 +14,7 @@ const STANDARD_EXECUTABLE: u32 = 0o755;
 /// `non-standard-game-executable-perm` and then skips for every other
 /// permission Tag: it is not setgid, or lacks a bit of `0755`.
 ///
-/// That Tag has no Rule here, so these executables get no hint at all.
+/// LN1792 reports these, so the other permission Rules leave them alone.
 pub(super) fn is_game_executable_with_own_tag(entry: &Entry) -> bool {
     entry.is_executable_file()
         && entry.has_identity("root/games")

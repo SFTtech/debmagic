@@ -143,6 +143,7 @@ mod files_privacy_breach;
 mod files_scripts;
 mod files_special;
 mod files_symbolic_links;
+mod files_unicode_trojan;
 mod files_unwanted;
 mod files_vcs;
 mod fonts;
@@ -826,6 +827,7 @@ pub(crate) use files_symbolic_links::{
     SymlinkIsSelfRecursive, SymlinkTargetInBuildTree, SymlinkTargetInTmp,
     WaywardSymbolicLinkTargetInSource,
 };
+pub(crate) use files_unicode_trojan::UnicodeTrojan;
 pub(crate) use files_unwanted::{BackupFileInPackage, NfsTemporaryFileInPackage};
 pub(crate) use files_vcs::{
     PackageContainsVcsControlDir, PackageContainsVcsControlFile, SvkCommitFileInPackage,

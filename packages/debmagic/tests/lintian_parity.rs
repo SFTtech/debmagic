@@ -429,6 +429,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/source-missing/cruft-upstream-binaries",
     "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
+    "checks/files/unicode/trojan/exe-vs-gif-in-patched-filename",
+    "checks/files/unicode/trojan/rte-in-contents",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
     "checks/languages/golang/module-path/binaries-golang",
     "checks/languages/golang/module-path/control-file-golang-built-using",
@@ -1586,6 +1588,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/source-missing/cruft-upstream-binaries",
     "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
+    "checks/files/unicode/trojan/exe-vs-gif-in-patched-filename",
+    "checks/files/unicode/trojan/rte-in-contents",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
     "checks/languages/golang/module-path/binaries-golang",
     "checks/languages/golang/module-path/control-file-golang-built-using",
@@ -2176,6 +2180,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
 #[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
+#[test_case("checks/files/unicode/trojan/exe-vs-gif-in-patched-filename"; "checks_files_unicode_trojan_exe_vs_gif_in_patched_filename")]
+#[test_case("checks/files/unicode/trojan/rte-in-contents"; "checks_files_unicode_trojan_rte_in_contents")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
 #[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/control-file-golang-built-using"; "checks_languages_golang_module_path_control_file_golang_built_using")]
@@ -3335,6 +3341,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/source-missing/cruft-upstream-binaries"; "checks_files_source_missing_cruft_upstream_binaries")]
 #[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
+#[test_case("checks/files/unicode/trojan/exe-vs-gif-in-patched-filename"; "checks_files_unicode_trojan_exe_vs_gif_in_patched_filename")]
+#[test_case("checks/files/unicode/trojan/rte-in-contents"; "checks_files_unicode_trojan_rte_in_contents")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
 #[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
 #[test_case("checks/languages/golang/module-path/control-file-golang-built-using"; "checks_languages_golang_module_path_control_file_golang_built_using")]

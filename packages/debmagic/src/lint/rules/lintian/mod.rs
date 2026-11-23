@@ -910,7 +910,7 @@ pub(crate) use debian_patches::{
     PatchNotForwardedUpstream, PatchSystemButNoSourceReadme, QuiltBuildDepButNoSeriesFile,
     QuiltPatchMissingDescription, QuiltPatchUsesDpatchExtension, QuiltPatchUsesDpatchPlaceholder,
     QuiltPatchUsingTemplateDescription, QuiltPatchWithNonStandardOptions, QuiltSeriesButNoBuildDep,
-    QuiltSeriesWithoutTrailingNewline,
+    QuiltSeriesWithoutTrailingNewline, SpellingErrorInPatchDescription,
 };
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,

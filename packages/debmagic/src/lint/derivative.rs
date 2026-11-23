@@ -18,7 +18,9 @@ use std::sync::LazyLock;
 
 use regex::Regex;
 
+use super::context::SourceContext;
 use super::data;
+use super::debian_control::ControlParagraph;
 
 /// A `regex ~~ explanation` entry: lintian's `qr/regex/` and its explanation.
 pub(crate) struct Pattern {
@@ -27,7 +29,6 @@ pub(crate) struct Pattern {
 }
 
 /// A `field ~~ regex ~~ explanation` entry of the field table.
-#[allow(dead_code)] // until the fields Rule calls `fields()`
 pub(crate) struct FieldPattern {
     pub(crate) field: String,
     pub(crate) pattern: Pattern,
@@ -44,7 +45,6 @@ pub(crate) fn changed_by() -> &'static [Pattern] {
 }
 
 /// Lintian's `data/fields/derivative-fields`, in file order.
-#[allow(dead_code)] // until the fields Rule calls `fields()`
 pub(crate) fn fields() -> &'static [FieldPattern] {
     static TABLE: LazyLock<Vec<FieldPattern>> = LazyLock::new(|| {
         data::lines(include_str!("data/fields/derivative-fields"))
@@ -69,6 +69,15 @@ pub(crate) fn versions() -> &'static [Pattern] {
             .collect()
     });
     &TABLE
+}
+
+/// The paragraph lintian's `processable->fields` is for a Source subject: the
+/// Dsc's fields, or on a Source tree the source paragraph of `debian/control`.
+pub(crate) fn source_fields<'a>(ctx: &'a SourceContext<'_>) -> Option<&'a ControlParagraph> {
+    match ctx.dsc() {
+        Some(dsc) => Some(dsc.fields()),
+        None => ctx.debian_control().map(|control| control.source()),
+    }
 }
 
 /// `regex ~~ explanation`. Lintian splits at the first `~~` only.

@@ -302,6 +302,7 @@ use super::rules::InvalidDep3FormatPatchNoOrigin;
 use super::rules::InvalidDep3FormatPatchWrongBugDebianUrl;
 use super::rules::InvalidDep3FormatPatchWrongLastUpdate;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
+use super::rules::InvalidFieldForDerivative;
 use super::rules::InvalidOverrideRestriction;
 use super::rules::InvalidPotfilesIn;
 use super::rules::InvalidProfileNameInBuildProfilesField;
@@ -2661,6 +2662,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &ChangedByInvalidForDerivative,
+        &InvalidFieldForDerivative,
     ]
 }
 
@@ -3194,6 +3196,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsQuiltControlDir,
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
+        &InvalidFieldForDerivative,
     ]
 }
 

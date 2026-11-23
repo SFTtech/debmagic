@@ -900,15 +900,15 @@ impl<'a> SourceContext<'a> {
         }
     }
 
-    /// Sibling files of the `.dsc`: the regular files in its directory, names
-    /// listed once per Subject and bytes read on request. A superset of the
-    /// `.dsc` `Files` list (signatures and component tarballs it does not
-    /// name). `None` on a Source tree, which has no `.dsc`.
+    /// Sibling files of the `.dsc`: the files its `Files` and checksum fields
+    /// list (lintian's `processable->files`), by basename, with bytes read from
+    /// the directory beside the `.dsc` on request. `None` on a Source tree,
+    /// which has no `.dsc`.
     pub fn sibling_files(&mut self) -> Option<Arc<SiblingFiles>> {
         match self.inner {
             SourceInner::Tree(_) => None,
             SourceInner::Package(data) => {
-                Some(self.shared_once(|_| SiblingFiles::load(&data.path)))
+                Some(self.shared_once(|_| SiblingFiles::from_dsc(&data.path, data.dsc.as_ref())))
             }
         }
     }

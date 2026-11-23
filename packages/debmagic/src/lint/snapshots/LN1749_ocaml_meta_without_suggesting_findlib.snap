@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): ocaml-meta-without-suggesting-findlib (LN1749)
+P: example (binary): ocaml-meta-without-suggesting-findlib (LN1749)
+P: example (binary): ocaml-meta-without-suggesting-findlib (LN1749)
+P: example (udeb): ocaml-meta-without-suggesting-findlib (LN1749)

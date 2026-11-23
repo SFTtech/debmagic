@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): ocaml-dev-file-not-in-usr-lib-ocaml (LN1748) 1 file in usr/lib
+P: example (binary): ocaml-dev-file-not-in-usr-lib-ocaml (LN1748) 1 file in usr/lib/ocaml/foo
+P: example (binary): ocaml-dev-file-not-in-usr-lib-ocaml (LN1748) 1 file in usr/lib/x86_64-linux-gnu/ocaml
+P: example (binary): ocaml-dev-file-not-in-usr-lib-ocaml (LN1748) 2 files in usr/lib
+P: example (udeb): ocaml-dev-file-not-in-usr-lib-ocaml (LN1748) 1 file in usr/lib

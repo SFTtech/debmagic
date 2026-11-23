@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): static-library-has-unneeded-sections (LN1751) (pstripped.o) .comment [usr/lib/libfoo.a]
+I: example (binary): static-library-has-unneeded-sections (LN1751) (both.o) .comment .note [usr/lib/libfoo.a]
+I: example (udeb): static-library-has-unneeded-sections (LN1751) (pstripped.o) .comment [usr/lib/libfoo.a]

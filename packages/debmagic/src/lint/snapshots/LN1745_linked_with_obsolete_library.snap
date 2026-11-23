@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): linked-with-obsolete-library (LN1745) libcblas.so.1 [usr/bin/consumer]
+I: example (binary): linked-with-obsolete-library (LN1745) libcblas.so.3 [usr/lib/libfoo.so.1]
+I: example (udeb): linked-with-obsolete-library (LN1745) libcblas.so.1 [usr/bin/consumer]

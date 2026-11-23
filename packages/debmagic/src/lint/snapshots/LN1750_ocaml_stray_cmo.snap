@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): ocaml-stray-cmo (LN1750) [usr/lib/ocaml/bleh.cma]
+I: example (binary): ocaml-stray-cmo (LN1750) [usr/lib/ocaml/foo/foo.cma]
+I: example (udeb): ocaml-stray-cmo (LN1750) [usr/lib/ocaml/bleh.cma]

@@ -184,6 +184,7 @@ mod libraries_embedded;
 mod libraries_shared_file_permissions;
 mod libraries_shared_links;
 mod libraries_shared_multi_arch;
+mod libraries_shared_obsolete;
 mod libraries_shared_relocation;
 mod libraries_shared_soname;
 mod libraries_shared_stack;
@@ -538,6 +539,7 @@ pub(crate) use languages_java::ExecutableJarWithoutMainClass;
 pub(crate) use languages_java::IncompatibleJavaBytecodeFormat;
 pub(crate) use languages_java::JarContainsSource;
 pub(crate) use languages_java::JarNotInUsrShare;
+pub(crate) use languages_java::JavalibButNoPublicJars;
 pub(crate) use languages_java::MavenPluginInUsrShareJava;
 pub(crate) use languages_java::MissingDepOnJarwrapper;
 pub(crate) use languages_java::MissingManifest;
@@ -560,6 +562,7 @@ pub(crate) use libraries_shared_links::LdconfigSymlinkIsNotASymlink;
 pub(crate) use libraries_shared_links::LdconfigSymlinkReferencingWrongFile;
 pub(crate) use libraries_shared_links::LinkToSharedLibraryInWrongPackage;
 pub(crate) use libraries_shared_multi_arch::SharedLibraryIsMultiArchForeign;
+pub(crate) use libraries_shared_obsolete::LinkedWithObsoleteLibrary;
 pub(crate) use libraries_shared_relocation::SpecificAddressInSharedLibrary;
 pub(crate) use libraries_shared_stack::ExecutableStackInSharedLibrary;
 pub(crate) use libraries_shared_stack::SharedLibraryLacksStackSection;
@@ -569,6 +572,7 @@ pub(crate) use maintainer_scripts_ancient_version::MaintainerScriptSupportsAncie
 pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStatoverride;
 pub(crate) use origtar::EmptyUpstreamSources;
 pub(crate) use script_deprecated_chown::ChownWithDot;
+pub(crate) use script_syntax::ExampleShellScriptFailsSyntaxCheck;
 pub(crate) use script_syntax::MaintainerShellScriptFailsSyntaxCheck;
 pub(crate) use script_syntax::ShellScriptFailsSyntaxCheck;
 pub(crate) use shell_bash_completion::BashCompletionWithHashbang;
@@ -911,10 +915,10 @@ pub(crate) use init_scripts::{
     InitDScriptShouldAlwaysStartService, InitDScriptSourcingWithoutTest,
     InitDScriptStartsInStopRunlevel, InitDScriptStopsInSRunlevel, InitDScriptUsesUsrInterpreter,
     MissingSystemdServiceForInitDRcSScript, NonVirtualFacilityInInitdScript,
-    PostrmContainsAdditionalUpdatercDCalls, PostrmDoesNotCallUpdatercDForInitDScript,
-    PreinstCallsUpdatercD, PrermCallsUpdatercD, ScriptInEtcInitDNotRegisteredViaUpdateRcD,
-    SystemdServiceFileRefersToObsoleteTarget, SystemdServiceFileWrapsInitScript,
-    UpstartJobInEtcInitDNotRegisteredViaUpdateRcD,
+    OutputOfUpdatercDNotRedirectedToDevNull, PostrmContainsAdditionalUpdatercDCalls,
+    PostrmDoesNotCallUpdatercDForInitDScript, PreinstCallsUpdatercD, PrermCallsUpdatercD,
+    ScriptInEtcInitDNotRegisteredViaUpdateRcD, SystemdServiceFileRefersToObsoleteTarget,
+    SystemdServiceFileWrapsInitScript, UpstartJobInEtcInitDNotRegisteredViaUpdateRcD,
 };
 pub(crate) use languages_javascript::{
     EmbeddedJavascriptLibrary, NodePackageInstallInNodejsRootdir, NodejsLockFile,
@@ -923,7 +927,9 @@ pub(crate) use languages_javascript::{
     PkgJsToolsTestIsEmpty, PkgJsToolsTestIsMissing,
 };
 pub(crate) use languages_ocaml::{
-    OcamlCustomExecutable, OcamlDanglingCmi, OcamlDanglingCmx, OcamlDanglingCmxa, OcamlDanglingCmxs,
+    OcamlCustomExecutable, OcamlDanglingCmi, OcamlDanglingCmx, OcamlDanglingCmxa,
+    OcamlDanglingCmxs, OcamlDevFileInNondevPackage, OcamlDevFileNotInUsrLibOcaml,
+    OcamlMetaWithoutSuggestingFindlib, OcamlStrayCmo,
 };
 pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PackageInstallsPacklist,
@@ -949,7 +955,9 @@ pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;
 pub(crate) use libraries_static::NoCodeSections;
 pub(crate) use libraries_static::OddStaticLibraryName;
+pub(crate) use libraries_static::StaticLibraryHasUnneededSections;
 pub(crate) use libraries_static::StaticLinkTimeOptimization;
+pub(crate) use libraries_static::UnstrippedStaticLibrary;
 pub(crate) use libtool::{IncorrectLibdirInLaFile, NonEmptyDependencyLibsInLaFile};
 pub(crate) use mailcap::QuotedPlaceholderInMailcapEntry;
 pub(crate) use md5sums::{
@@ -1170,13 +1178,13 @@ pub(crate) use scripts_shell::{
 pub(crate) use scripts_text::{
     ControlInterpreterInUsrLocal, ControlInterpreterWithoutDepends,
     ControlInterpreterWithoutPredepends, ExampleIncorrectPathForInterpreter,
-    ExampleInterpreterNotAbsolute, ExampleScriptUsesBinEnv,
+    ExampleInterpreterInUsrLocal, ExampleInterpreterNotAbsolute, ExampleScriptUsesBinEnv,
     ExampleScriptUsesDeprecatedNodejsLocation, ExampleScriptWithoutInterpreter,
-    ExampleWrongPathForInterpreter, ForbiddenConfigInterpreter, ForbiddenPostrmInterpreter,
-    GawkScriptButNoGawkDep, IncorrectPathForInterpreter, InstallInfoUsedInMaintainerScript,
-    InterpreterInUsrLocal, InterpreterNotAbsolute, MaintainerScriptCallsChownImproperly,
-    MaintainerScriptCallsInstallSgmlcatalog, MaintainerScriptCallsService,
-    MaintainerScriptChangesLdSoConf, MaintainerScriptChangesNetbase,
+    ExampleUnusualInterpreter, ExampleWrongPathForInterpreter, ForbiddenConfigInterpreter,
+    ForbiddenPostrmInterpreter, GawkScriptButNoGawkDep, IncorrectPathForInterpreter,
+    InstallInfoUsedInMaintainerScript, InterpreterInUsrLocal, InterpreterNotAbsolute,
+    MaintainerScriptCallsChownImproperly, MaintainerScriptCallsInstallSgmlcatalog,
+    MaintainerScriptCallsService, MaintainerScriptChangesLdSoConf, MaintainerScriptChangesNetbase,
     MaintainerScriptHasInvalidUpdateInetdOptions, MaintainerScriptHasUnexpandedDebhelperToken,
     MaintainerScriptHidesInitFailure, MaintainerScriptModifiesInetdConf,
     MaintainerScriptSetsAlternativeImproperly, MaintainerScriptShouldNotUseDpkgMaintscriptHelper,
@@ -1216,4 +1224,5 @@ pub(crate) use testsuite::{
 pub(crate) use triggers::RepeatedTriggerName;
 pub(crate) use triggers::UnknownTrigger;
 pub(crate) use triggers::UsesImplicitAwaitTrigger;
+pub(crate) use vim::ObsoleteVimAddonManager;
 pub(crate) use vim::VimAddonWithinVimRuntimePath;

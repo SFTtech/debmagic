@@ -748,6 +748,7 @@ pub(crate) use files_multi_arch::{
     MultiarchForeignCmakeFile, MultiarchForeignPkgconfig, MultiarchForeignSharedLibrary,
     MultiarchForeignStaticLibrary,
 };
+pub(crate) use files_names::UpstreamFileWithoutUtf8Name;
 pub(crate) use files_names::{
     FileNameContainsWildcardCharacter, FileNameEndsInWhitespace, FileNameInPathIsNotAscii,
     HyphenFile, NativeSourceFileWithoutUtf8Name, PackageContainsCompiledGlibSchema,

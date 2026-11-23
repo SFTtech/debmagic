@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+packagedir="$1"
+
+echo "SOME CONTENT" > "$packagedir/bokmÃ¥l"
+echo "SOME CONTENT" > "$packagedir/bokm\\Ã¥l"
+echo "SOME CONTENT" > "$packagedir/bokmål"
+echo "SOME CONTENT" > "$packagedir/bokm\\ål"

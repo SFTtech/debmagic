@@ -1529,6 +1529,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/encoding/news-in-western-encoding",
     "checks/files/encoding/testsuite-in-western-encoding",
     "checks/files/names/national-encoding-in-native",
+    "checks/files/names/national-encoding-in-orig",
     "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
     "checks/files/source-missing/cruft-general-test-suite",
@@ -3219,6 +3220,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/encoding/news-in-western-encoding"; "checks_files_encoding_news_in_western_encoding")]
 #[test_case("checks/files/encoding/testsuite-in-western-encoding"; "checks_files_encoding_testsuite_in_western_encoding")]
 #[test_case("checks/files/names/national-encoding-in-native"; "checks_files_names_national_encoding_in_native")]
+#[test_case("checks/files/names/national-encoding-in-orig"; "checks_files_names_national_encoding_in_orig")]
 #[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
 #[test_case("checks/files/source-missing/cruft-general-test-suite"; "checks_files_source_missing_cruft_general_test_suite")]

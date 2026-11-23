@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): dh-exec-subst-unknown-variable (LN1513) FOO [debian/install:2]
+I: example (source): dh-exec-subst-unknown-variable (LN1513) DEB_HOST_ARCH_FOO [debian/links:3]
+I: example (source): dh-exec-subst-unknown-variable (LN1513) DISTRO [debian/pkg.install:2]
+I: example (source): dh-exec-subst-unknown-variable (LN1513) OTHER [debian/pkg.install:4]

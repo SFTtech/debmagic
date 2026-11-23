@@ -24,6 +24,7 @@ use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::BackportsChangesMissing;
 use super::rules::BackportsUploadHasIncorrectVersionNumber;
 use super::rules::BadDistributionInChangesFile;
+use super::rules::BadIntendedDistribution;
 use super::rules::BadJarName;
 use super::rules::BadPackageName;
 use super::rules::BadPermForFileInEtcSudoersD;
@@ -101,6 +102,7 @@ use super::rules::DebianControlFileIsASymlink;
 use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
+use super::rules::DebianNewsEntryUsesAsterisk;
 use super::rules::DebianRulesContainsUnnecessaryGetOrigSourceTarget;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
@@ -137,10 +139,13 @@ use super::rules::DebugSymbolsNotDetached;
 use super::rules::DeclaresPossiblyConflictingDebhelperCompatVersions;
 use super::rules::DefaultMtaDependencyDoesNotSpecifyMailTransportAgent;
 use super::rules::DefaultMtaDependencyNotListedFirst;
+use super::rules::Dep3FormatPatchAuthorOrFromIsBetter;
 use super::rules::DependencyIsNotMultiArchified;
 use super::rules::DependsOnLibdb1Compat;
 use super::rules::DependsOnMiscPreDepends;
 use super::rules::DependsOnSpecificJavaDocPackage;
+use super::rules::DeprecatedConfigureFilename;
+use super::rules::DeprecatedDebianControlField;
 use super::rules::DescriptionIsDhMakeTemplate;
 use super::rules::DescriptionMentionsPlannedFeatures;
 use super::rules::DescriptionPossiblyContainsHomepage;
@@ -154,6 +159,8 @@ use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
 use super::rules::DhExecScriptWithoutDhExecFeatures;
+use super::rules::DhExecSubstUnknownVariable;
+use super::rules::DhExecUselessUsage;
 use super::rules::DhInstallInsteadOfDhInstallmodules;
 use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhMakeTemplateInSource;
@@ -168,7 +175,9 @@ use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DotBeforeRepackCount;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
+use super::rules::DuplicateLongDescription;
 use super::rules::DuplicateOverrideContext;
+use super::rules::DuplicateShortDescription;
 use super::rules::DuplicateUpdatercDCallsInPostinst;
 use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
@@ -244,6 +253,8 @@ use super::rules::InstallableFieldMirrorsSource;
 use super::rules::InterpreterInUsrLocal;
 use super::rules::InterpreterNotAbsolute;
 use super::rules::IntraSourcePackageCircularDependency;
+use super::rules::InvalidDep3FormatPatchNoDescriptionAndSubject;
+use super::rules::InvalidDep3FormatPatchNoOrigin;
 use super::rules::InvalidDep3FormatPatchWrongBugDebianUrl;
 use super::rules::InvalidDep3FormatPatchWrongLastUpdate;
 use super::rules::InvalidEscapeSequenceInDep5Copyright;
@@ -266,6 +277,7 @@ use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
 use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
 use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemGfdlInvariants;
+use super::rules::LicenseProblemGfdlInvariantsEmpty;
 use super::rules::LicenseProblemGfdlNonOfficialText;
 use super::rules::LicenseProblemJsonEvil;
 use super::rules::LicenseProblemMd5sumNonDistributableFile;
@@ -2292,6 +2304,18 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SystemdServiceFileMissingInstallKey,
         &LicenseProblemMd5sumNonDistributableFile,
         &LicenseProblemNonFreeImgLenna,
+        &DeprecatedConfigureFilename,
+        &LicenseProblemGfdlInvariantsEmpty,
+        &DhExecSubstUnknownVariable,
+        &DhExecUselessUsage,
+        &BadIntendedDistribution,
+        &DebianNewsEntryUsesAsterisk,
+        &DeprecatedDebianControlField,
+        &DuplicateLongDescription,
+        &DuplicateShortDescription,
+        &Dep3FormatPatchAuthorOrFromIsBetter,
+        &InvalidDep3FormatPatchNoDescriptionAndSubject,
+        &InvalidDep3FormatPatchNoOrigin,
         &GirMissingTypelibDependency,
         &PackageUsesDhRunitButLacksBreaksSubstvar,
         &DependencyIsNotMultiArchified,
@@ -2752,6 +2776,16 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &HomepageInBinaryPackage,
         &BuildDependsOnPythonDevWithNoArchAny,
         &OredBuildDependsOnObsoletePackage,
+        &DeprecatedConfigureFilename,
+        &LicenseProblemGfdlInvariantsEmpty,
+        &DhExecSubstUnknownVariable,
+        &DhExecUselessUsage,
+        &DeprecatedDebianControlField,
+        &DuplicateLongDescription,
+        &DuplicateShortDescription,
+        &Dep3FormatPatchAuthorOrFromIsBetter,
+        &InvalidDep3FormatPatchNoDescriptionAndSubject,
+        &InvalidDep3FormatPatchNoOrigin,
     ]
 }
 
@@ -3625,6 +3659,8 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DescriptionPossiblyContainsHomepage,
         &TypoInManualPage,
         &CapitalizationErrorInDescriptionSynopsis,
+        &BadIntendedDistribution,
+        &DebianNewsEntryUsesAsterisk,
     ]
 }
 

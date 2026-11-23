@@ -25,6 +25,10 @@ pub(super) struct Dep3Header {
     last_update: String,
     forwarded: String,
     applied_upstream: String,
+    /// `Description` or `Subject` has a value.
+    has_description_or_subject: bool,
+    /// `Origin`, `Author` or `From` has a value.
+    has_origin_author_or_from: bool,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -35,6 +39,21 @@ pub(super) enum BugProblem {
 }
 
 impl Dep3Header {
+    /// `Description` or `Subject` has a value (lintian's first gate).
+    pub(super) fn has_description_or_subject(&self) -> bool {
+        self.has_description_or_subject
+    }
+
+    /// `Origin`, `Author` or `From` has a value (lintian's second gate).
+    pub(super) fn has_origin_author_or_from(&self) -> bool {
+        self.has_origin_author_or_from
+    }
+
+    /// The last `Origin` value, trimmed; empty when there is none.
+    pub(super) fn origin(&self) -> &str {
+        &self.origin
+    }
+
     /// Origin still holds one of the template values.
     pub(super) fn origin_is_template(&self) -> bool {
         ORIGIN_TEMPLATES.contains(&self.origin.as_str())
@@ -78,8 +97,20 @@ impl Dep3Header {
     }
 }
 
-/// Parsed headers of the patches that lintian's Check reads, with their paths.
+/// Parsed headers of the patches that lintian's Check reads past its two
+/// gates, with their paths.
 pub(super) fn dep3_headers(ctx: &mut SourceContext<'_>) -> Vec<(PathBuf, Dep3Header)> {
+    dep3_parsed(ctx)
+        .into_iter()
+        .filter(|(_, header)| {
+            header.has_description_or_subject() && header.has_origin_author_or_from()
+        })
+        .collect()
+}
+
+/// Parsed headers of every patch that lintian's Check parses, gates or not,
+/// with their paths; see [`Dep3Header::has_description_or_subject`].
+pub(super) fn dep3_parsed(ctx: &mut SourceContext<'_>) -> Vec<(PathBuf, Dep3Header)> {
     let Some(files) = ctx.files() else {
         return Vec::new();
     };
@@ -139,12 +170,6 @@ fn parse_header(bytes: &[u8]) -> Option<Dep3Header> {
     }
 
     let value = |name: &str| fields.get(name).map(|v| v.trim()).unwrap_or_default();
-    if value("description").is_empty() && value("subject").is_empty() {
-        return None;
-    }
-    if value("origin").is_empty() && value("author").is_empty() && value("from").is_empty() {
-        return None;
-    }
     Some(Dep3Header {
         origin: value("origin").to_string(),
         bug: value("bug").to_string(),
@@ -152,6 +177,11 @@ fn parse_header(bytes: &[u8]) -> Option<Dep3Header> {
         last_update: value("last-update").to_string(),
         forwarded: value("forwarded").to_string(),
         applied_upstream: value("applied-upstream").to_string(),
+        has_description_or_subject: !(value("description").is_empty()
+            && value("subject").is_empty()),
+        has_origin_author_or_from: !(value("origin").is_empty()
+            && value("author").is_empty()
+            && value("from").is_empty()),
     })
 }
 

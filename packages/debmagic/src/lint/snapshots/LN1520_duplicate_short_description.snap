@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): duplicate-short-description (LN1520) pkg-a pkg-b [debian/control]
+I: example (source): duplicate-short-description (LN1520) pkg-a pkg-b pkg-c [debian/control]

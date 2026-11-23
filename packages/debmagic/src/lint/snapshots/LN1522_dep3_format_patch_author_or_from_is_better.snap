@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): dep3-format-patch-author-or-from-is-better (LN1522) [debian/patches/fix.patch]
+I: (source): dep3-format-patch-author-or-from-is-better (LN1522) [debian/patches/fix.patch]

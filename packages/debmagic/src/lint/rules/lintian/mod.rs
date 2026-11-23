@@ -776,8 +776,8 @@ pub(crate) use files_foreign::{
     MacosDsStoreFileInPackage, MacosResourceForkFileInPackage,
     PackageContainsDocumentationOutsideUsrShareDoc, PackageContainsInfoDirFile,
     PackageContainsLindaOverride, PackageContainsReadmeForOtherPlatformOrDistro,
-    PackageInstallsAppimage, UdebContainsDocumentationFile, WindowsDevelFileInPackage,
-    WindowsThumbnailDatabaseInPackage,
+    PackageInstallsAppimage, ScriptInUsrShareDoc, UdebContainsDocumentationFile,
+    WindowsDevelFileInPackage, WindowsThumbnailDatabaseInPackage,
 };
 pub(crate) use files_hard_links::PackageContainsHardlink;
 pub(crate) use files_hierarchy::{

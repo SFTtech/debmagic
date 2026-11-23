@@ -100,6 +100,7 @@ pub(crate) struct Group {
     /// Installables: debs and ddebs first, then udebs, each by path.
     pub binaries: Vec<BinaryPackageData>,
     direct_dependencies: OnceLock<HashMap<String, Vec<usize>>>,
+    direct_reliants: OnceLock<HashMap<String, Vec<usize>>>,
 }
 
 enum Member {
@@ -126,6 +127,7 @@ impl Group {
             buildinfo: None,
             binaries: Vec::new(),
             direct_dependencies: OnceLock::new(),
+            direct_reliants: OnceLock::new(),
         }
     }
 
@@ -277,6 +279,40 @@ impl Group {
             dependencies
         })
     }
+
+    /// Lintian's `Group::direct_reliants`, for every installable: the
+    /// installables of this Group whose strong relations (Pre-Depends and
+    /// Depends) satisfy it, by position in [`Self::binaries`], keyed by
+    /// package name. The inverse of [`Self::direct_dependencies`]. Self-
+    /// dependencies are left out. Installables with the same name share the
+    /// entry of the last of them, as in lintian.
+    pub fn direct_reliants(&self) -> &HashMap<String, Vec<usize>> {
+        self.direct_reliants.get_or_init(|| {
+            let strong: Vec<_> = self
+                .binaries
+                .iter()
+                .map(|binary| {
+                    binary
+                        .installation_control()
+                        .fields()
+                        .relations_and(&["Pre-Depends", "Depends"])
+                })
+                .collect();
+            let mut reliants = HashMap::new();
+            for that in &self.binaries {
+                let specific = self
+                    .binaries
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, this)| this.package_name() != that.package_name())
+                    .filter(|(index, _)| strong[*index].satisfies(that.package_name()))
+                    .map(|(index, _)| index)
+                    .collect();
+                reliants.insert(that.package_name().to_string(), specific);
+            }
+            reliants
+        })
+    }
 }
 
 trait Pool {
@@ -312,6 +348,7 @@ impl Pool for Vec<Group> {
             }
         }
         old.direct_dependencies = OnceLock::new();
+        old.direct_reliants = OnceLock::new();
     }
 }
 
@@ -665,6 +702,32 @@ mod tests {
         assert_eq!(dependencies["a"], [1]);
         assert_eq!(dependencies["b"], [2]);
         assert!(dependencies["c"].is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn direct_reliants_are_strong_and_exclude_self() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let mut paths = Vec::new();
+        for (name, extra) in [
+            ("a", "Depends: b (>= 1), a\n"),
+            ("b", "Pre-Depends: c\nRecommends: a\n"),
+            ("c", ""),
+        ] {
+            let text = format!("{}{extra}", control(name, "src", "1.0", "all"));
+            paths.push(subject(&deb(
+                dir.path(),
+                &format!("{name}_1.0_all.deb"),
+                &text,
+            )));
+        }
+        let groups = Group::assemble(&paths)?;
+        let reliants = groups[0].direct_reliants();
+        // Only `a` depends strongly on `b`; `b`'s Recommends does not count,
+        // and `a`'s self-dependency is left out.
+        assert_eq!(reliants["b"], [0]);
+        assert_eq!(reliants["c"], [1]);
+        assert!(reliants["a"].is_empty());
         Ok(())
     }
 

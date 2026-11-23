@@ -105,8 +105,11 @@ mod files_banned;
 mod files_banned_compiled_help;
 mod files_build_path;
 mod files_compressed;
+mod files_compressed_bz2;
 mod files_compressed_gz;
+mod files_compressed_lz;
 mod files_compressed_lzma;
+mod files_compressed_lzo;
 mod files_compressed_xz;
 mod files_compressed_zip;
 mod files_config_scripts;
@@ -239,6 +242,7 @@ mod nodejs;
 mod origtar;
 mod po_debconf;
 mod rules_and_control;
+mod script_syntax;
 mod scripts_calls;
 mod scripts_depends;
 mod scripts_interpreters;
@@ -275,6 +279,7 @@ pub(crate) use appstream_metadata::AppstreamMetadataInvalid;
 pub(crate) use appstream_metadata::AppstreamMetadataLegacyFormat;
 pub(crate) use appstream_metadata::AppstreamMetadataMalformedModaliasProvide;
 pub(crate) use appstream_metadata::AppstreamMetadataMissingModaliasProvide;
+pub(crate) use appstream_metadata::AppstreamMetadataValidationFailed;
 pub(crate) use apt::PackageInstallsAptKeyring;
 pub(crate) use apt::PackageInstallsAptPreferences;
 pub(crate) use apt::PackageInstallsAptSources;
@@ -434,10 +439,13 @@ pub(crate) use files_banned::LicenseProblemMd5sumNonDistributableFile;
 pub(crate) use files_banned::LicenseProblemNonFreeImgLenna;
 pub(crate) use files_banned_compiled_help::SourceContainsPrebuiltMsHelpFile;
 pub(crate) use files_compressed::CompressedDuplicate;
+pub(crate) use files_compressed_bz2::BrokenBz2;
 pub(crate) use files_compressed_gz::BrokenGz;
 pub(crate) use files_compressed_gz::GzipFileIsNotMultiArchSameSafe;
 pub(crate) use files_compressed_gz::PackageContainsTimestampedGzip;
+pub(crate) use files_compressed_lz::BrokenLz;
 pub(crate) use files_compressed_lzma::BrokenLzma;
+pub(crate) use files_compressed_lzo::BrokenLzo;
 pub(crate) use files_compressed_xz::BrokenXz;
 pub(crate) use files_compressed_zip::BrokenZip;
 pub(crate) use files_contents_line_length::VeryLongLineLengthInSourceFile;
@@ -513,6 +521,8 @@ pub(crate) use libraries_shared_trigger_ldconfig::PackageHasUnnecessaryActivatio
 pub(crate) use maintainer_scripts_ancient_version::MaintainerScriptSupportsAncientPackageVersion;
 pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStatoverride;
 pub(crate) use origtar::EmptyUpstreamSources;
+pub(crate) use script_syntax::MaintainerShellScriptFailsSyntaxCheck;
+pub(crate) use script_syntax::ShellScriptFailsSyntaxCheck;
 pub(crate) use shell_csh::CshConsideredHarmful;
 pub(crate) use shell_non_posix_bash_centric::BashTermInPosixShell;
 pub(crate) use shell_non_posix_bash_centric::PossibleBashismInMaintainerScript;
@@ -1036,8 +1046,9 @@ pub(crate) use modprobe::{
 };
 pub(crate) use nodejs::{NodejsMissingVersionOverride, NodejsModuleNotDeclared};
 pub(crate) use po_debconf::{
-    DebconfTranslationUsingGeneralList, InvalidPoFile, MisnamedPoFile, MissingFileFromPotfilesIn,
-    MissingPotfilesIn, MissingTemplatesPot, NotUsingPoDebconf, TranslatedDefaultField,
+    DebconfTranslationUsingGeneralList, InvalidPoFile, InvalidPotfilesIn, MisnamedPoFile,
+    MissingFileFromPotfilesIn, MissingPotfilesIn, MissingTemplatesPot, NewerDebconfTemplates,
+    NoCompleteDebconfTranslation, NotUsingPoDebconf, TranslatedDefaultField,
     UnknownEncodingInPoFile,
 };
 pub(crate) use rules_and_control::{

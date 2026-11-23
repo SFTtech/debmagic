@@ -26,6 +26,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 use anyhow::{Context, Result, anyhow, bail};
+use tempfile::TempDir;
 
 use super::file_tree::{Entry, FileTree};
 
@@ -100,57 +101,79 @@ pub(crate) fn materialise(files: &FileTree, entries: &[&Entry], root: &Path) -> 
     Ok(())
 }
 
-/// Runs `program` with `args` in a directory holding `entries` of `files`,
-/// at their tree paths, so an argument may name an Entry by its path.
+/// A private directory holding a File-tree subset, for running host tools in.
 ///
-/// Errors when the directory cannot be prepared, the program cannot start, or
-/// it runs longer than `timeout` (then it is killed). A non-zero exit is not
-/// an error; read [`Captured::success`].
-pub(crate) fn run_in_tree(
-    files: &FileTree,
-    entries: &[&Entry],
-    program: &Path,
-    args: &[&OsStr],
-    timeout: Duration,
-) -> Result<Captured> {
-    let scratch = tempfile::Builder::new()
-        .prefix("debmagic-tool-")
-        .tempdir()
-        .context("creating a scratch directory")?;
-    materialise(files, entries, scratch.path())?;
+/// Built once with the Entries a run needs, then used for any number of
+/// [`Sandbox::run`] calls, so a sequence of tools can share the files they
+/// write. The directory is removed when the Sandbox is dropped.
+pub(crate) struct Sandbox {
+    dir: TempDir,
+}
 
-    let mut stdout = tempfile::tempfile().context("creating stdout capture")?;
-    let mut stderr = tempfile::tempfile().context("creating stderr capture")?;
-    let mut child = Command::new(program)
-        .args(args)
-        .current_dir(scratch.path())
-        .env_clear()
-        .env("LC_ALL", "C")
-        .env("PATH", TOOL_PATH)
-        .stdin(Stdio::null())
-        .stdout(Stdio::from(stdout.try_clone()?))
-        .stderr(Stdio::from(stderr.try_clone()?))
-        .spawn()
-        .with_context(|| format!("starting {}", program.display()))?;
+impl Sandbox {
+    /// A Sandbox with `entries` of `files` written at their tree paths.
+    pub(crate) fn new(files: &FileTree, entries: &[&Entry]) -> Result<Self> {
+        let dir = tempfile::Builder::new()
+            .prefix("debmagic-tool-")
+            .tempdir()
+            .context("creating a scratch directory")?;
+        materialise(files, entries, dir.path())?;
+        Ok(Self { dir })
+    }
 
-    let started = Instant::now();
-    let status = loop {
-        if let Some(status) = child.try_wait()? {
-            break status;
-        }
-        if started.elapsed() >= timeout {
-            let _ = child.kill();
-            let _ = child.wait();
-            bail!("{} ran longer than {timeout:?}", program.display());
-        }
-        thread::sleep(Duration::from_millis(5));
-    };
+    /// The directory on the host. Tree paths are relative to it.
+    pub(crate) fn root(&self) -> &Path {
+        self.dir.path()
+    }
 
-    Ok(Captured {
-        code: status.code(),
-        stdout: read_back(&mut stdout)?,
-        stderr: read_back(&mut stderr)?,
-    })
+    /// Runs `program` with `args` from `cwd` (a tree path, `""` for the root).
+    /// `env` is added to the cleared environment.
+    ///
+    /// Errors when the program cannot start or runs longer than `timeout`
+    /// (then it is killed). A non-zero exit is not an error; read
+    /// [`Captured::success`].
+    pub(crate) fn run(
+        &self,
+        program: &Path,
+        args: &[&OsStr],
+        cwd: &Path,
+        env: &[(&str, &OsStr)],
+        timeout: Duration,
+    ) -> Result<Captured> {
+        let mut stdout = tempfile::tempfile().context("creating stdout capture")?;
+        let mut stderr = tempfile::tempfile().context("creating stderr capture")?;
+        let mut child = Command::new(program)
+            .args(args)
+            .current_dir(self.root().join(cwd))
+            .env_clear()
+            .env("LC_ALL", "C")
+            .env("PATH", TOOL_PATH)
+            .envs(env.iter().copied())
+            .stdin(Stdio::null())
+            .stdout(Stdio::from(stdout.try_clone()?))
+            .stderr(Stdio::from(stderr.try_clone()?))
+            .spawn()
+            .with_context(|| format!("starting {}", program.display()))?;
+
+        let started = Instant::now();
+        let status = loop {
+            if let Some(status) = child.try_wait()? {
+                break status;
+            }
+            if started.elapsed() >= timeout {
+                let _ = child.kill();
+                let _ = child.wait();
+                bail!("{} ran longer than {timeout:?}", program.display());
+            }
+            thread::sleep(Duration::from_millis(5));
+        };
+
+        Ok(Captured {
+            code: status.code(),
+            stdout: read_back(&mut stdout)?,
+            stderr: read_back(&mut stderr)?,
+        })
+    }
 }
 
 fn read_back(capture: &mut File) -> Result<Vec<u8>> {
@@ -211,47 +234,66 @@ mod tests {
     fn run_sees_only_the_materialised_entries() {
         let files = tree(vec![file("a/b", b"hello\n", 0o644)]);
         let entries: Vec<&Entry> = files.entries().iter().collect();
-        let captured = run_in_tree(
-            &files,
-            &entries,
-            Path::new("/bin/cat"),
-            &[OsStr::new("a/b")],
-            DEFAULT_TIMEOUT,
-        )
-        .expect("run");
-        assert!(captured.success());
-        assert_eq!(captured.stdout, b"hello\n");
-        assert!(captured.stderr.is_empty());
+        let sandbox = Sandbox::new(&files, &entries).expect("sandbox");
+        let run = |arg: &str| {
+            sandbox
+                .run(
+                    Path::new("/bin/cat"),
+                    &[OsStr::new(arg)],
+                    Path::new(""),
+                    &[],
+                    DEFAULT_TIMEOUT,
+                )
+                .expect("run")
+        };
 
-        let missing = run_in_tree(
-            &files,
-            &entries,
-            Path::new("/bin/cat"),
-            &[OsStr::new("a/missing")],
-            DEFAULT_TIMEOUT,
-        )
-        .expect("run");
+        let found = run("a/b");
+        assert!(found.success());
+        assert_eq!(found.stdout, b"hello\n");
+        assert!(found.stderr.is_empty());
+
+        let missing = run("a/missing");
         assert!(!missing.success());
         assert!(!missing.stderr.is_empty());
     }
 
     #[test]
-    fn run_reports_exit_status_without_error() {
+    fn run_reports_exit_status_and_env() {
         let files = tree(vec![]);
-        let captured =
-            run_in_tree(&files, &[], Path::new("/bin/false"), &[], DEFAULT_TIMEOUT).expect("run");
-        assert_eq!(captured.code, Some(1));
-        assert!(!captured.success());
+        let sandbox = Sandbox::new(&files, &[]).expect("sandbox");
+        let status = sandbox
+            .run(
+                Path::new("/bin/false"),
+                &[],
+                Path::new(""),
+                &[],
+                DEFAULT_TIMEOUT,
+            )
+            .expect("run");
+        assert_eq!(status.code, Some(1));
+        assert!(!status.success());
+
+        let env = sandbox
+            .run(
+                Path::new("/bin/sh"),
+                &[OsStr::new("-c"), OsStr::new("printf %s \"$GREETING\"")],
+                Path::new(""),
+                &[("GREETING", OsStr::new("hi"))],
+                DEFAULT_TIMEOUT,
+            )
+            .expect("run");
+        assert_eq!(env.stdout, b"hi");
     }
 
     #[test]
     fn run_is_killed_after_the_timeout() {
         let files = tree(vec![]);
-        let result = run_in_tree(
-            &files,
-            &[],
+        let sandbox = Sandbox::new(&files, &[]).expect("sandbox");
+        let result = sandbox.run(
             Path::new("/bin/sleep"),
             &[OsStr::new("30")],
+            Path::new(""),
+            &[],
             Duration::from_millis(200),
         );
         assert!(result.is_err());

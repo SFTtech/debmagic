@@ -5,6 +5,7 @@
 //! `/bin/bash -n`; zsh is left out as lintian leaves it out). A file that
 //! looks like a re-exec wrapper rather than a script is not checked.
 
+use std::ffi::OsStr;
 use std::path::{Component, Path, PathBuf};
 use std::sync::LazyLock;
 
@@ -72,15 +73,18 @@ pub(super) fn fails_syntax_check(files: &FileTree, entry: &Entry, checkers: &[Ch
     if looks_dangerous(&bytes) {
         return false;
     }
-    let args = [std::ffi::OsStr::new("-n"), target.path().as_os_str()];
-    external_tool::run_in_tree(
-        files,
-        &[target],
-        &checker.program,
-        &args,
-        external_tool::DEFAULT_TIMEOUT,
-    )
-    .is_ok_and(|captured| !captured.success())
+    let args = [OsStr::new("-n"), target.path().as_os_str()];
+    external_tool::Sandbox::new(files, &[target])
+        .and_then(|sandbox| {
+            sandbox.run(
+                &checker.program,
+                &args,
+                Path::new(""),
+                &[],
+                external_tool::DEFAULT_TIMEOUT,
+            )
+        })
+        .is_ok_and(|captured| !captured.success())
 }
 
 /// lintian's `is_open_ok`: the Entry itself when it is a regular file or a

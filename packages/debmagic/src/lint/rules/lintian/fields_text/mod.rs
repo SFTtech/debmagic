@@ -4,6 +4,13 @@
 //! `description_field` splits `Description` the same way as
 //! `description/description_field`. Each Rule owns one Tag.
 
+use std::sync::LazyLock;
+
+use regex::Regex;
+
+use crate::lint::data;
+use crate::lint::debian_control::ControlParagraph;
+
 mod description_field;
 mod ln0224_redundant_bugs_field;
 mod ln0225_bad_homepage;
@@ -31,6 +38,13 @@ mod ln1239_transitional_package_not_oldlibs_optional;
 mod ln1316_redundant_control_relation;
 mod ln1365_homepage_field_uses_insecure_uri;
 mod ln1368_wrong_section_according_to_package_name;
+mod ln1545_homepage_for_bioconductor_package_not_canonical;
+mod ln1546_homepage_for_cran_package_not_canonical;
+mod ln1547_homepage_github_url_ends_with_dot_git;
+mod ln1548_homepage_gitlab_url_ends_with_dot_git;
+mod ln1549_homepage_in_binary_package;
+mod ln1550_homepage_refers_to_filesystem_listing;
+mod ln1551_homepage_salsa_url_ends_with_dot_git;
 
 pub(crate) use ln0224_redundant_bugs_field::RedundantBugsField;
 pub(crate) use ln0225_bad_homepage::BadHomepage;
@@ -58,3 +72,48 @@ pub(crate) use ln1239_transitional_package_not_oldlibs_optional::TransitionalPac
 pub(crate) use ln1316_redundant_control_relation::RedundantControlRelation;
 pub(crate) use ln1365_homepage_field_uses_insecure_uri::HomepageFieldUsesInsecureUri;
 pub(crate) use ln1368_wrong_section_according_to_package_name::WrongSectionAccordingToPackageName;
+pub(crate) use ln1545_homepage_for_bioconductor_package_not_canonical::HomepageForBioconductorPackageNotCanonical;
+pub(crate) use ln1546_homepage_for_cran_package_not_canonical::HomepageForCranPackageNotCanonical;
+pub(crate) use ln1547_homepage_github_url_ends_with_dot_git::HomepageGithubUrlEndsWithDotGit;
+pub(crate) use ln1548_homepage_gitlab_url_ends_with_dot_git::HomepageGitlabUrlEndsWithDotGit;
+pub(crate) use ln1549_homepage_in_binary_package::HomepageInBinaryPackage;
+pub(crate) use ln1550_homepage_refers_to_filesystem_listing::HomepageRefersToFilesystemListing;
+pub(crate) use ln1551_homepage_salsa_url_ends_with_dot_git::HomepageSalsaUrlEndsWithDotGit;
+
+/// The value as written of the Homepage, once for every vendored
+/// `fields/bad-homepages` expression of `tag` that matches it. The optional
+/// `<URL:...>` wrapper is stripped before the match.
+pub(super) fn bad_homepage_matches(tag: &str, fields: &ControlParagraph) -> Vec<String> {
+    static CLUTTER: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"(?i)^<(?:UR[LI]:)?.*>$").expect("valid regex"));
+    static EXPRESSIONS: LazyLock<Vec<(String, Regex)>> = LazyLock::new(|| {
+        data::lines(include_str!("../../../data/fields/bad-homepages"))
+            .filter_map(|line| line.split_once("~~"))
+            .filter_map(|(tag, pattern)| {
+                let regex = Regex::new(pattern.trim()).ok()?;
+                Some((tag.trim().to_string(), regex))
+            })
+            .collect()
+    });
+
+    if !fields.declares("Homepage") {
+        return Vec::new();
+    }
+    let original = fields
+        .untrimmed_value("Homepage")
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    let mut homepage = fields.unfolded_value("Homepage").unwrap_or_default();
+    if CLUTTER.is_match(&homepage) {
+        let mut chars = homepage.chars();
+        chars.next();
+        chars.next_back();
+        homepage = chars.as_str().to_string();
+    }
+    EXPRESSIONS
+        .iter()
+        .filter(|(name, regex)| name == tag && regex.is_match(&homepage))
+        .map(|_| original.clone())
+        .collect()
+}

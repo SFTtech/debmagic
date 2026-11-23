@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): capitalization-error-in-description-synopsis (LN1543) debian Debian
+I: example (binary): capitalization-error-in-description-synopsis (LN1543) meta package metapackage
+I: example (binary): capitalization-error-in-description-synopsis (LN1543) debian Debian
+I: example (udeb): capitalization-error-in-description-synopsis (LN1543) debian Debian
+I: example (binary): capitalization-error-in-description-synopsis (LN1543) dbus D-Bus

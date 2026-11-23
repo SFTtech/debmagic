@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): dot-before-repack-count (LN1555) 1.0+dfsg.2-1
+I: example (source): dot-before-repack-count (LN1555) 1.0+dfsg.2-1

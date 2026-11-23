@@ -99,6 +99,7 @@ mod fields_vcs;
 mod fields_version;
 mod files_architecture;
 mod files_artifact;
+mod files_banned;
 mod files_banned_compiled_help;
 mod files_build_path;
 mod files_compressed_gz;
@@ -379,6 +380,7 @@ pub(crate) use desktop::{
     RasterImageInScalableDirectory,
 };
 pub(crate) use desktop_gir::GirInArchAllPackage;
+pub(crate) use desktop_gir::GirMissingTypelibDependency;
 pub(crate) use desktop_gir::GirPackageNameDoesNotMatch;
 pub(crate) use desktop_gir::GirSectionNotLibdevel;
 pub(crate) use desktop_gir::TypelibInArchAllPackage;
@@ -419,6 +421,8 @@ pub(crate) use fields_style::CuteField;
 pub(crate) use fields_urgency::BadUrgencyInChangesFile;
 pub(crate) use files_architecture::PackageContainsNoArchDependentFiles;
 pub(crate) use files_architecture::TripletDirAndArchitectureMismatch;
+pub(crate) use files_banned::LicenseProblemMd5sumNonDistributableFile;
+pub(crate) use files_banned::LicenseProblemNonFreeImgLenna;
 pub(crate) use files_banned_compiled_help::SourceContainsPrebuiltMsHelpFile;
 pub(crate) use files_compressed_gz::BrokenGz;
 pub(crate) use files_compressed_gz::GzipFileIsNotMultiArchSameSafe;
@@ -444,6 +448,9 @@ pub(crate) use fonts::DuplicateFontFile;
 pub(crate) use fonts::FontInNonFontPackage;
 pub(crate) use fonts::FontOutsideFontDir;
 pub(crate) use fonts::WoffFontInWrongDir;
+pub(crate) use group_checks::BinariesHaveFileConflict;
+pub(crate) use group_checks::DebugPackageForMultiArchSamePkgNotCoinstallable;
+pub(crate) use group_checks::DependencyIsNotMultiArchified;
 pub(crate) use group_checks::IntraSourcePackageCircularDependency;
 pub(crate) use images_filenames::ImageFileHasConflictingName;
 pub(crate) use images_filenames::ImageFileHasUnexpectedName;
@@ -476,6 +483,7 @@ pub(crate) use libraries_debug_symbols::StrippedLibrary;
 pub(crate) use libraries_embedded::EmbeddedLibrary;
 pub(crate) use libraries_shared_file_permissions::OddPermissionsOnSharedLibrary;
 pub(crate) use libraries_shared_file_permissions::SharedLibraryIsExecutable;
+pub(crate) use libraries_shared_links::LacksUnversionedLinkToSharedLibrary;
 pub(crate) use libraries_shared_links::LacksVersionedLinkToSharedLibrary;
 pub(crate) use libraries_shared_links::LdconfigSymlinkIsNotASymlink;
 pub(crate) use libraries_shared_links::LdconfigSymlinkReferencingWrongFile;
@@ -545,16 +553,18 @@ pub(crate) use debian_copyright::{
     InvalidEscapeSequenceInDep5Copyright, InvalidShortNameInDep5Copyright,
     LicenseProblemUndefinedLicense, MissingFieldInDep5Copyright,
     MissingLicenseParagraphInDep5Copyright, MissingLicenseTextInDep5Copyright,
-    NamedCopyrightForSingleInstallable, NoCopyrightFile, NoDebianCopyrightInSource,
-    NoDep5Copyright, ObsoleteFieldInDep5Copyright, OldFsfAddressInCopyrightFile,
-    PipeSymbolUsedAsLicenseDisjunction, SourceShipsExcludedFile,
+    MissingNoticeFileForApacheLicense, NamedCopyrightForSingleInstallable, NoCopyrightFile,
+    NoDebianCopyrightInSource, NoDep5Copyright, ObsoleteFieldInDep5Copyright,
+    OldFsfAddressInCopyrightFile, PipeSymbolUsedAsLicenseDisjunction, SourceShipsExcludedFile,
     SpaceInStdShortnameInDep5Copyright, SyntaxErrorInDep5Copyright, TabInLicenseText,
     UnknownParagraphInDep5Copyright, UnusedLicenseParagraphInDep5Copyright,
-    UsrShareDocSymlinkPointsOutsideOfUsrShareDoc, UsrShareDocSymlinkWithoutDependency,
+    UsrShareDocSymlinkPointsOutsideOfUsrShareDoc, UsrShareDocSymlinkToForeignPackage,
+    UsrShareDocSymlinkWithoutDependency,
 };
 pub(crate) use fields_version::{
-    BadVersionNumber, BinaryNmuDebianRevisionInSource, DebianRevisionIsZero,
-    DebianRevisionNotWellFormed, DfsgVersionInNativePackage, DfsgVersionMisspelled,
+    AnticipatedRepackCount, BadVersionNumber, BinaryNmuDebianRevisionInSource,
+    DebianRevisionIsZero, DebianRevisionNotWellFormed, DfsgVersionInNativePackage,
+    DfsgVersionMisspelled, DfsgVersionWithPeriod, DotBeforeRepackCount,
 };
 
 pub(crate) use debian_debconf::{
@@ -622,12 +632,12 @@ pub(crate) use debian_watch::{
     ObsoleteDebianWatchFileStandard, UnknownDebianWatchFileStandard,
 };
 pub(crate) use description::{
-    CapitalizationErrorInDescription, DescriptionContainsDhMakePerlTemplate,
-    DescriptionContainsInvalidControlStatement, DescriptionContainsTabs,
-    DescriptionIsDebmakeTemplate, DescriptionIsDhMakeTemplate, DescriptionIsPkgName,
-    DescriptionMentionsPlannedFeatures, DescriptionStartsWithLeadingSpaces,
-    DescriptionStartsWithPackageName, DescriptionSynopsisIsEmpty,
-    DescriptionSynopsisStartsWithArticle, DescriptionTooShort,
+    CapitalizationErrorInDescription, CapitalizationErrorInDescriptionSynopsis,
+    DescriptionContainsDhMakePerlTemplate, DescriptionContainsInvalidControlStatement,
+    DescriptionContainsTabs, DescriptionIsDebmakeTemplate, DescriptionIsDhMakeTemplate,
+    DescriptionIsPkgName, DescriptionMentionsPlannedFeatures, DescriptionPossiblyContainsHomepage,
+    DescriptionStartsWithLeadingSpaces, DescriptionStartsWithPackageName,
+    DescriptionSynopsisIsEmpty, DescriptionSynopsisStartsWithArticle, DescriptionTooShort,
     ExtendedDescriptionContainsEmptyParagraph, ExtendedDescriptionIsEmpty,
     ExtendedDescriptionIsProbablyTooShort, ExtendedDescriptionLineTooLong,
     PossibleUnindentedListInExtendedDescription, SpellingErrorInDescription, SynopsisIsASentence,
@@ -639,7 +649,7 @@ pub(crate) use documentation_manual::{
     BuildPathInManual, CountryInManual, EmptyManualPage, ExecutableManualPage,
     FSSTNDDirInManualPage, GroffMessage, ManualPageFromTemplate, ManualPageWithGenericName,
     NoEnglishManualPage, NoManualPage, OddPlaceForManualPage, PodConversionMessage,
-    PoorCompressionInManualPage, PythonTracebackInManpage, StrayFolderInManual,
+    PoorCompressionInManualPage, PythonTracebackInManpage, StrayFolderInManual, TypoInManualPage,
     UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
     WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
 };
@@ -660,23 +670,27 @@ pub(crate) use fields_relations_more::{
     AlternatesNotAllowed, BadProvidedPackageName, BadRelation, BuildConflictsWithBuildDependency,
     BuildDependsOnBuildEssentialPackageWithoutUsingVersion,
     BuildDependsOnEssentialPackageWithoutUsingVersion, BuildDependsOnObsoleteBootstrap,
-    ConflictsWithDependency, ConflictsWithVersion, DependsOnEssentialPackageWithoutUsingVersion,
-    DependsOnMetapackage, DependsOnObsoleteBootstrap, DependsOnPackagingDev,
-    DependsOnPythonMinimal, InvalidArchStringInSourceRelation, InvalidProfileNameInSourceRelation,
-    LibRecommendsDocumentation, LibmoduleBuildPerlNeedsToBeInBuildDepends,
-    LibmoduleBuildTinyPerlNeedsToBeInBuildDepends,
+    BuildDependsOnPythonDevWithNoArchAny, ConflictsWithDependency, ConflictsWithVersion,
+    DependsOnEssentialPackageWithoutUsingVersion, DependsOnMetapackage, DependsOnObsoleteBootstrap,
+    DependsOnPackagingDev, DependsOnPythonMinimal, InvalidArchStringInSourceRelation,
+    InvalidProfileNameInSourceRelation, LibRecommendsDocumentation,
+    LibmoduleBuildPerlNeedsToBeInBuildDepends, LibmoduleBuildTinyPerlNeedsToBeInBuildDepends,
     MailTransportAgentDependencyDoesNotSpecifyDefaultMta, NeedlessDependencyOnJre,
-    NeedlesslyDependsOnAwk, ObsoleteRelationForm, OredDependsOnObsoletePackage,
-    PackageDependsOnAnXFontPackage, PackageDependsOnMultipleLibpngVersions,
-    PackageDependsOnMultipleLibstdcVersions, PackageDependsOnMultipleTclVersions,
-    PackageDependsOnMultipleTclxVersions, PackageDependsOnMultipleTkVersions,
-    PackageRelationWithPerlModules, RedundantBuildPrerequisites,
+    NeedlesslyDependsOnAwk, ObsoleteRelationForm, OredBuildDependsOnObsoletePackage,
+    OredDependsOnObsoletePackage, PackageDependsOnAnXFontPackage,
+    PackageDependsOnMultipleLibpngVersions, PackageDependsOnMultipleLibstdcVersions,
+    PackageDependsOnMultipleTclVersions, PackageDependsOnMultipleTclxVersions,
+    PackageDependsOnMultipleTkVersions, PackageRelationWithPerlModules,
+    RedundantBuildPrerequisites,
 };
 pub(crate) use fields_text::{
     BadHomepage, DescriptionContainsHomepage, DescriptionSynopsisIsDuplicated,
     EssentialInSourcePackage, EssentialNoNotNeeded, ExcessivePriorityForLibraryPackage,
     ExplicitDefaultInPackageType, FieldTooLong, HomepageFieldUsesInsecureUri,
-    HomepageForCpanPackageContainsVersion, HomepageRefersToObsoleteDebianInfrastructure,
+    HomepageForBioconductorPackageNotCanonical, HomepageForCpanPackageContainsVersion,
+    HomepageForCranPackageNotCanonical, HomepageGithubUrlEndsWithDotGit,
+    HomepageGitlabUrlEndsWithDotGit, HomepageInBinaryPackage, HomepageRefersToFilesystemListing,
+    HomepageRefersToObsoleteDebianInfrastructure, HomepageSalsaUrlEndsWithDotGit,
     MissingSeparatorBetweenItems, NewEssentialPackage, PriorityExtraIsReplacedByPriorityOptional,
     RecommendedField, RedundantBugsField, RedundantControlRelation, RedundantOriginField,
     SectionIsDhMakeTemplate, SuperfluousClutterInHomepage, TransitionalPackageNotOldlibsOptional,
@@ -759,10 +773,11 @@ pub(crate) use files_pkgconfig::{
 };
 pub(crate) use files_symbolic_links::{
     AbsoluteSymbolicLinkTargetInSource, AbsoluteSymlinkInTopLevelFolder,
-    CompressedSymlinkWithWrongExt, LengthySymlink, PackageContainsUnsafeSymlink, RelativeSymlink,
-    SymlinkContainsSpuriousSegments, SymlinkEndsWithSlash, SymlinkHasDoubleSlash,
-    SymlinkHasTooManyUpSegments, SymlinkIsSelfRecursive, SymlinkTargetInBuildTree,
-    SymlinkTargetInTmp, WaywardSymbolicLinkTargetInSource,
+    CompressedSymlinkWithWrongExt, LengthySymlink, PackageContainsBrokenSymlinkWildcard,
+    PackageContainsUnsafeSymlink, RelativeSymlink, SymlinkContainsSpuriousSegments,
+    SymlinkEndsWithSlash, SymlinkHasDoubleSlash, SymlinkHasTooManyUpSegments,
+    SymlinkIsSelfRecursive, SymlinkTargetInBuildTree, SymlinkTargetInTmp,
+    WaywardSymbolicLinkTargetInSource,
 };
 pub(crate) use files_unwanted::{BackupFileInPackage, NfsTemporaryFileInPackage};
 pub(crate) use files_vcs::{
@@ -974,12 +989,12 @@ pub(crate) use menus::{
     DocBaseAbstractFieldIsTemplate, DocBaseAbstractFieldSeparatorExtraWhitespace,
     DocBaseAbstractMightContainExtraLeadingWhitespace, DocBaseDocumentFieldEndsInWhitespace,
     DocBaseDocumentFieldNotInFirstLine, DocBaseFileLacksRequiredField, DocBaseFileNoFormat,
-    DocBaseFileNoFormatSection, DocBaseFileNoIndex, DocBaseFileReferencesWrongPath,
-    DocBaseFileSeparatorExtraWhitespace, DocBaseFileSyntaxError, DocBaseFileUnknownField,
-    DocBaseFileUnknownFormat, DocBaseIndexReferencesMultipleFiles, DocBaseInvalidDocumentField,
-    DocBaseUnknownSection, DocBaseUsesApplicationsSection, DuplicateFieldInDocBase,
-    DuplicateFormatInDocBase, ExecutableInUsrShareDocbase, ExecutableMenuFile,
-    MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,
+    DocBaseFileNoFormatSection, DocBaseFileNoIndex, DocBaseFileReferencesMissingFile,
+    DocBaseFileReferencesWrongPath, DocBaseFileSeparatorExtraWhitespace, DocBaseFileSyntaxError,
+    DocBaseFileUnknownField, DocBaseFileUnknownFormat, DocBaseIndexReferencesMultipleFiles,
+    DocBaseInvalidDocumentField, DocBaseUnknownSection, DocBaseUsesApplicationsSection,
+    DuplicateFieldInDocBase, DuplicateFormatInDocBase, ExecutableInUsrShareDocbase,
+    ExecutableMenuFile, MaintainerScriptDoesNotCheckForExistenceOfInstalldocs,
     MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus, MenuMethodLacksInclude,
     PossibleDocumentationButNoDocBaseRegistration, PostinstDoesNotCallUpdatemenus,
     PostinstHasUselessCallToInstallDocs, PostinstHasUselessCallToUpdateMenus,
@@ -1012,8 +1027,9 @@ pub(crate) use rules_and_control::{
     DhInstallmanpagesIsObsolete, DhQuiltAddonButQuiltSourceFormat, ExcessiveDebhelperOverrides,
     ExecutableDebhelperFileWithoutBeingExecutable, PackageFileIsExecutable,
     PackageUsesDebhelperButLacksBuildDepends, PackageUsesDhExecButLacksBuildDepends,
-    PackageUsesOldDebhelperCompatVersion, Python3DependsButNoPython3Helper, TemporaryDebhelperFile,
-    UselessAutoreconfBuildDepends, WeakDependencyOnMiscDepends,
+    PackageUsesDhRunitButLacksBreaksSubstvar, PackageUsesOldDebhelperCompatVersion,
+    Python3DependsButNoPython3Helper, TemporaryDebhelperFile, UselessAutoreconfBuildDepends,
+    WeakDependencyOnMiscDepends,
 };
 pub(crate) use scripts_calls::{
     MaintainerScriptCallsGconftool, MaintainerScriptCallsStartStopDaemon,

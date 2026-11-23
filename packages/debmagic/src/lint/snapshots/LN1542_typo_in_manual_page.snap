@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): typo-in-manual-page (LN1542) recieve receive [usr/share/man/man1/example.1:3]
+I: example (binary): typo-in-manual-page (LN1542) recieve receive [usr/share/man/man1/example.1:4]

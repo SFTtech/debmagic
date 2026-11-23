@@ -1368,6 +1368,10 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
         "checks/binaries/prerequisites/numpy/binaries-missing-depends-on-numpy-abi",
         "the recipe's `setup.py` imports `setuptools` and `numpy`, and this host has neither for python3",
     ),
+    (
+        "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
+        "the recipe builds with `dh --with runit` and `dh_runit` (the `dh-runit` package), which the host lacks",
+    ),
 ];
 
 /// Recipes whose expected hints cannot show up in a Source tree, because the
@@ -2428,13 +2432,14 @@ pub fn catalogued_group_tags() -> GroupTags {
 
 /// A hint a Group lint shows, per processable type: `changes` and `buildinfo`
 /// hints come from the Changes-file and Buildinfo-file Rules; a Group Rule's
-/// Diagnostics attach to the Source package, so its hints are `source`. Kept
-/// in step with `applies_to_group` in `scripts/import_lintian_parity.py`.
+/// Diagnostics attach to the Source package (`source`) or to an installable
+/// (`binary`, `udeb`). Kept in step with `applies_to_group` in
+/// `scripts/import_lintian_parity.py`.
 fn applies_to_group(processable_type: &str, tag: &str, tags: &GroupTags) -> bool {
     match processable_type {
         "changes" => tags.changes.contains(tag),
         "buildinfo" => tags.buildinfo.contains(tag),
-        "source" => tags.group.contains(tag),
+        "source" | "binary" | "udeb" => tags.group.contains(tag),
         _ => false,
     }
 }
@@ -2472,6 +2477,10 @@ fn catalogued_group_hints(recipe: &Path, tags: &GroupTags) -> Vec<(String, Parit
     let mut expected: Vec<(String, ParityHint)> = load_hints(&recipe.join("eval/hints"))
         .into_iter()
         .filter(|(processable_type, hint)| applies_to_group(processable_type, &hint.tag, tags))
+        .map(|(processable_type, mut hint)| {
+            hint.extra = expand_host_placeholders(&hint.extra);
+            (processable_type, hint)
+        })
         .collect();
     expected.sort();
     expected

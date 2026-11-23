@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+I: example (source): debug-package-for-multi-arch-same-pkg-not-coinstallable (LN1505) pkg-dbg => pkg
+I: example (source): debug-package-for-multi-arch-same-pkg-not-coinstallable (LN1505) pkg-dbg => pkg
+I: example (source): debug-package-for-multi-arch-same-pkg-not-coinstallable (LN1505) x-dbg => one
+I: example (source): debug-package-for-multi-arch-same-pkg-not-coinstallable (LN1505) x-dbg => two

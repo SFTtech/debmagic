@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+W: libfoo1 (binary): lacks-unversioned-link-to-shared-library (LN1503) example: usr/lib/libfoo.so [usr/lib/libfoo.so.1.0.1]
+W: libfoo1 (binary): lacks-unversioned-link-to-shared-library (LN1503) example: usr/lib/libfoo.so [usr/lib/libfoo.so.1.0.1]
+W: libfoo1 (binary): lacks-unversioned-link-to-shared-library (LN1503) example: usr/lib/libfoo.so [usr/lib/libfoo.so.1.0.1]
+W: libfoo1 (binary): lacks-unversioned-link-to-shared-library (LN1503) example: usr/lib/libfoo.so [usr/lib/libfoo.so.1.0.1]
+W: libfoo1 (binary): lacks-unversioned-link-to-shared-library (LN1503) example: usr/lib/libfoo.so [usr/lib/libfoo.so.1.0.1]
+W: libfoo1 (binary): lacks-unversioned-link-to-shared-library (LN1503) example: usr/lib/libfoo.so [lib/libfoo.so.1.0.1]
+W: libfoo1 (binary): lacks-unversioned-link-to-shared-library (LN1503) example: usr/lib/libbaz.so [usr/lib/libbaz.so]
+W: libfoo1-udeb (udeb): lacks-unversioned-link-to-shared-library (LN1503) example: usr/lib/libfoo.so [usr/lib/libfoo.so.1.0.1]

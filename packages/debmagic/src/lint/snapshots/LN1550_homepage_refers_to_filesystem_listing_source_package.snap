@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): homepage-refers-to-filesystem-listing (LN1550) http://ftp.gnu.org/gnu/aspell/dict/ar/

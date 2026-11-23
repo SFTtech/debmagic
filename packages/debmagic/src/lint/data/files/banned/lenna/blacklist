@@ -1,0 +1,23 @@
+# format is
+# md5sum ~~ sha1 ~~ sha256 ~~ common name ~~ reference
+#
+# current name is the usual name of the file
+# reference is a link to the license/official source
+
+36ad1cdb7c7855fcc253062c767c5748 ~~ 13bb28a3b6a8f07783636e7611c25db20d36e6ba ~~ 67f03c78826e88f8fbefc01195803497c6c4ff452a4585a8a1c8a8eeb538e1e4 ~~ lena.jpg ~~ https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758442
+
+3752999d8a4142d93eed4c8c97f0997c ~~ 4a8b9c9207de05db6b26604083202f05419e9afc ~~ 1f24a4dd0b5dbddf247f935b10b50665191943c813ff81f4b808fcffdbe422f1 ~~ lena.tif ~~ https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758442
+
+49d8d697422232eeb28b71846e993ef5 ~~ d712504a0fdf2425ab08debe01c6b2737c4da553 ~~ 0e8c262873c283681ebf7594295603b78cd505f8cafbde4af0bdc6289f6bdb01 ~~ lena.jpg ~~  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758442
+
+9393259555eaaf91b58fe24a687fb60a ~~ 95beced0503c13c08beb6a8b157704382afa2f5f ~~ f9be71887ece95fb34c60d3910e4af5ae072b5f2d3c4863f0ec4afcf7bbf32b7 ~~ lena.png ~~ https://bugs.debian.org/827941
+
+bb431a4c0c3280c7ca62f43e9882174c ~~ 73ed70526b5f4ad49c5f43d5849087a4a8dd00cc ~~ 6054bdfd37d3a147cd99920f1921d8278879399aabdedbf118f0960f592766ee ~~ lena.jpg ~~  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758442
+
+bcb76439e9848b22830ee44973664084 ~~ 658b1ca8c82055e2f8d57773b7dbcdead0af6c14 ~~ d4268e35d21def2ba215607d202fc52501c91fda5f7a67c5bd0e2942f9afbcb6 ~~ lena.mat ~~ https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758442
+
+ec2daed3fa3835749a7d0423d36c652a ~~ 69e4bd806b20e51b5caa062f6d510ed796e1d067 ~~ 8974279a1c6d4711bea6d7db49e4fde2458615ccc80265ef1b4bc5ba16b84cad ~~ lenna.pgm ~~ Lenna test image ~~ https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758442
+
+ef70b3083e06b236bd804215c0382d09 ~~ bbbe2215e4bc6f38e3829bbe78ac6ca8008249f5 ~~ 1b33c59bcd9ced166f4b6f726ce05bd3c182ac049444178837ddede2a4b4550b ~~ lena.jpg ~~ https://bugs.debian.org/827941
+
+dc0f99bbc6d31e7ce4000cc7c1117dbb ~~ 3712585117d7f181f76a67cbbdca9c558cb39110 ~~ 8640b22549789d5aeabebb487b0b6cda05119c3bff8f67699850a0f8177532d7 ~~ lena_std.jpg ~~ https://bugs.debian.org/996093

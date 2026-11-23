@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bad-owner-for-doc-file (LN1793) user/user != root/root (or 0/0) [usr/share/doc/pkg/README]
+E: example (binary): bad-owner-for-doc-file (LN1793) root/games != root/root (or 0/0) [usr/share/doc/pkg/README]
+E: example (binary): bad-owner-for-doc-file (LN1793) 1000/root != root/root (or 0/0) [usr/share/doc/pkg/README]
+E: example (binary): bad-owner-for-doc-file (LN1793) user/user != root/root (or 0/0) [usr/share/doc/pkg]
+E: example (binary): bad-owner-for-doc-file (LN1793) user/user != root/root (or 0/0) [usr/share/doc/pkg/link]
+E: example (binary): bad-owner-for-doc-file (LN1793) user/user != root/root (or 0/0) [usr/share/doc/pkg/hard]
+E: example (udeb): bad-owner-for-doc-file (LN1793) user/user != root/root (or 0/0) [usr/share/doc/pkg/README]

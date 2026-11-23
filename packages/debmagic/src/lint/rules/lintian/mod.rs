@@ -141,6 +141,7 @@ mod files_names;
 mod files_non_free;
 mod files_obsolete_paths;
 mod files_openpgp;
+mod files_ownership;
 mod files_p11_kit;
 mod files_pam;
 mod files_permissions;
@@ -508,6 +509,7 @@ pub(crate) use files_locales::LocaleUsesLanguageGroupCode;
 pub(crate) use files_locales::UnknownLocaleCode;
 pub(crate) use files_missing::MissingIntermediateDirectory;
 pub(crate) use files_openpgp::OpenpgpFileHasImplementationSpecificExtension;
+pub(crate) use files_ownership::WrongFileOwnerUidOrGid;
 pub(crate) use files_scripts::ScriptWithLanguageExtension;
 pub(crate) use files_special::SpecialFile;
 pub(crate) use fonts::DuplicateFontFile;
@@ -829,7 +831,7 @@ pub(crate) use files_config_scripts::{
 };
 pub(crate) use files_debug::NonDebugFileInDebugPackage;
 pub(crate) use files_foreign::{
-    CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,
+    BadOwnerForDocFile, CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,
     MacosDsStoreFileInPackage, MacosResourceForkFileInPackage,
     PackageContainsDocumentationOutsideUsrShareDoc, PackageContainsInfoDirFile,
     PackageContainsLindaOverride, PackageContainsReadmeForOtherPlatformOrDistro,

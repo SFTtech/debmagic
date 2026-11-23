@@ -74,6 +74,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase",
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same",
     "checks/debian/changelog/changelog-file-etch",
+    "checks/debian/changelog/changelog-file-experimental",
+    "checks/debian/changelog/changelog-file-experimental-false-positive",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-missing-explicit-entry",
     "checks/debian/changelog/changelog-file-new-upstream",
@@ -600,6 +602,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-dch-wrong-name-native",
     "checks/debian/changelog/changelog-file-empty-entry",
     "checks/debian/changelog/changelog-file-empty-entry-unrel",
+    "checks/debian/changelog/changelog-file-experimental",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-invalid-date",
     "checks/debian/changelog/changelog-file-line-too-short",
@@ -1229,6 +1232,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase",
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same",
     "checks/debian/changelog/changelog-file-etch",
+    "checks/debian/changelog/changelog-file-experimental",
+    "checks/debian/changelog/changelog-file-experimental-false-positive",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-missing-explicit-entry",
     "checks/debian/changelog/changelog-file-new-upstream",
@@ -1825,6 +1830,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_increase")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_same")]
 #[test_case("checks/debian/changelog/changelog-file-etch"; "checks_debian_changelog_changelog_file_etch")]
+#[test_case("checks/debian/changelog/changelog-file-experimental"; "checks_debian_changelog_changelog_file_experimental")]
+#[test_case("checks/debian/changelog/changelog-file-experimental-false-positive"; "checks_debian_changelog_changelog_file_experimental_false_positive")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-missing-explicit-entry"; "checks_debian_changelog_changelog_file_missing_explicit_entry")]
 #[test_case("checks/debian/changelog/changelog-file-new-upstream"; "checks_debian_changelog_changelog_file_new_upstream")]
@@ -2352,6 +2359,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-dch-wrong-name-native"; "checks_debian_changelog_changelog_file_dch_wrong_name_native")]
 #[test_case("checks/debian/changelog/changelog-file-empty-entry"; "checks_debian_changelog_changelog_file_empty_entry")]
 #[test_case("checks/debian/changelog/changelog-file-empty-entry-unrel"; "checks_debian_changelog_changelog_file_empty_entry_unrel")]
+#[test_case("checks/debian/changelog/changelog-file-experimental"; "checks_debian_changelog_changelog_file_experimental")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-invalid-date"; "checks_debian_changelog_changelog_file_invalid_date")]
 #[test_case("checks/debian/changelog/changelog-file-line-too-short"; "checks_debian_changelog_changelog_file_line_too_short")]
@@ -2982,6 +2990,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_increase")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_same")]
 #[test_case("checks/debian/changelog/changelog-file-etch"; "checks_debian_changelog_changelog_file_etch")]
+#[test_case("checks/debian/changelog/changelog-file-experimental"; "checks_debian_changelog_changelog_file_experimental")]
+#[test_case("checks/debian/changelog/changelog-file-experimental-false-positive"; "checks_debian_changelog_changelog_file_experimental_false_positive")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-missing-explicit-entry"; "checks_debian_changelog_changelog_file_missing_explicit_entry")]
 #[test_case("checks/debian/changelog/changelog-file-new-upstream"; "checks_debian_changelog_changelog_file_new_upstream")]

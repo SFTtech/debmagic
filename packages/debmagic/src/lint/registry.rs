@@ -388,6 +388,7 @@ use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoSymbolsControlFile;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
+use super::rules::NonConsecutiveDebianRevision;
 use super::rules::NonStandardApache2ModulePackageName;
 use super::rules::NonStandardDirPerm;
 use super::rules::NonStandardFilePerm;
@@ -2433,6 +2434,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnpackMessageForDebData,
         &CoMaintainedPackageWithNoVcsFields,
         &HyphenInUpstreamPartOfDebianChangelogVersion,
+        &NonConsecutiveDebianRevision,
     ]
 }
 
@@ -2897,6 +2899,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpuriousFieldsInUpstreamSignature,
         &CoMaintainedPackageWithNoVcsFields,
         &HyphenInUpstreamPartOfDebianChangelogVersion,
+        &NonConsecutiveDebianRevision,
     ]
 }
 

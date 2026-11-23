@@ -13,7 +13,9 @@ declare_rule! {
     /// previous entry's.
     ///
     /// Compares the newest and the second entry, both parsed for the package's
-    /// nativeness; the Tag is quiet when either does not parse. Reported when
+    /// nativeness; the Tag is quiet when either does not parse. It is also quiet
+    /// for a native package, and when the two entries differ in source name,
+    /// epoch or upstream version, as in lintian. Reported when
     /// the Debian revision is numeric and not one more than the previous one,
     /// when a source NMU number is not one more than the previous NMU number
     /// under the same revision, or when a first source NMU is not `1`. Extra is
@@ -33,15 +35,25 @@ impl SourceRule for NonConsecutiveDebianRevision {
         let Some(latest) = latest(ctx) else {
             return;
         };
-        let Some(previous_entry) = ctx
-            .debian_changelog()
-            .and_then(|changelog| changelog.entries().get(1))
-        else {
+        let Some(changelog) = ctx.debian_changelog() else {
+            return;
+        };
+        let [latest_entry, previous_entry, ..] = changelog.entries() else {
             return;
         };
         let Some(previous) = parse_version(previous_entry.version(), latest.native) else {
             return;
         };
+        // Lintian compares only a non-native package's entries of one source
+        // with the same epoch and upstream version; the Debian revision rules
+        // apply within that line.
+        if latest.native
+            || latest.version.epoch != previous.epoch
+            || latest.version.upstream != previous.upstream
+            || latest_entry.source() != previous_entry.source()
+        {
+            return;
+        }
         if !non_consecutive(&latest.version, &previous) {
             return;
         }
@@ -85,10 +97,14 @@ mod tests {
 
     use super::*;
 
-    fn entry(version: &str) -> String {
+    fn named_entry(source: &str, version: &str) -> String {
         format!(
-            "example ({version}) unstable; urgency=low\n\n  * Change.\n\n -- A Uthor <a@example.com>  Tue, 30 Dec 2008 17:34:02 +0000\n"
+            "{source} ({version}) unstable; urgency=low\n\n  * Change.\n\n -- A Uthor <a@example.com>  Tue, 30 Dec 2008 17:34:02 +0000\n"
         )
+    }
+
+    fn entry(version: &str) -> String {
+        named_entry("example", version)
     }
 
     fn tree(changelog: &str) -> Vec<(&'static str, TestFile)> {
@@ -100,6 +116,13 @@ mod tests {
 
     #[test]
     fn test() {
+        let native = vec![
+            ("debian/source/format", TestFile::new("3.0 (native)\n")),
+            (
+                "debian/changelog",
+                TestFile::new(format!("{}{}", entry("3"), entry("1"))),
+            ),
+        ];
         let pass = vec![
             vec![("README", TestFile::new("no packaging"))],
             tree(&format!("{}{}", entry("1.0-2"), entry("1.0-1"))),
@@ -109,11 +132,24 @@ mod tests {
             tree(&format!("{}{}", entry("1.0-1"), entry("1.0"))),
             tree(&format!("{}{}", entry("1.0-1"), entry("1.0-x"))),
             tree(&entry("1.0-1")),
+            // A new upstream version starts its own revision sequence.
+            tree(&format!("{}{}", entry("2.0-3"), entry("1.0-1"))),
+            // A changed epoch starts its own revision sequence too.
+            tree(&format!("{}{}", entry("2:1.0-3"), entry("1.0-1"))),
+            // The entries name different source packages.
+            tree(&format!(
+                "{}{}",
+                named_entry("other", "1.0-3"),
+                entry("1.0-1")
+            )),
+            // A native package has no Debian revision to number.
+            native,
         ];
         let fail = vec![
             tree(&format!("{}{}", entry("1.0-3"), entry("1.0-1"))),
             tree(&format!("{}{}", entry("1.0-1.3"), entry("1.0-1.1"))),
             tree(&format!("{}{}", entry("1.0-1.2"), entry("1.0-1"))),
+            tree(&format!("{}{}", entry("1:1.0-3"), entry("1:1.0-1"))),
         ];
         SourceTreeTester::new(NonConsecutiveDebianRevision, pass, fail).test_and_snapshot();
     }

@@ -441,6 +441,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
     "checks/languages/python/dist-overrides/duplicate-identifier",
     "checks/languages/python/homepage/pypi",
+    "checks/languages/python/obsolete/cruft-python",
+    "checks/languages/python/obsolete/legacy-debconf",
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-could-use-pyproject-flit",
     "checks/languages/python/python-could-use-pyproject-hatchling",
@@ -1570,6 +1572,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
     "checks/languages/python/dist-overrides/duplicate-identifier",
     "checks/languages/python/homepage/pypi",
+    "checks/languages/python/obsolete/cruft-python",
+    "checks/languages/python/obsolete/legacy-debconf",
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-could-use-pyproject-flit",
     "checks/languages/python/python-could-use-pyproject-hatchling",
@@ -2140,6 +2144,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
 #[test_case("checks/languages/python/homepage/pypi"; "checks_languages_python_homepage_pypi")]
+#[test_case("checks/languages/python/obsolete/cruft-python"; "checks_languages_python_obsolete_cruft_python")]
+#[test_case("checks/languages/python/obsolete/legacy-debconf"; "checks_languages_python_obsolete_legacy_debconf")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-could-use-pyproject-flit"; "checks_languages_python_python_could_use_pyproject_flit")]
 #[test_case("checks/languages/python/python-could-use-pyproject-hatchling"; "checks_languages_python_python_could_use_pyproject_hatchling")]
@@ -3271,6 +3277,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
 #[test_case("checks/languages/python/homepage/pypi"; "checks_languages_python_homepage_pypi")]
+#[test_case("checks/languages/python/obsolete/cruft-python"; "checks_languages_python_obsolete_cruft_python")]
+#[test_case("checks/languages/python/obsolete/legacy-debconf"; "checks_languages_python_obsolete_legacy_debconf")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-could-use-pyproject-flit"; "checks_languages_python_python_could_use_pyproject_flit")]
 #[test_case("checks/languages/python/python-could-use-pyproject-hatchling"; "checks_languages_python_python_could_use_pyproject_hatchling")]

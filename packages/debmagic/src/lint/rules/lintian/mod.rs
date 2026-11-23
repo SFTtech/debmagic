@@ -833,9 +833,9 @@ pub(crate) use languages_perl::{
     PerlModuleUsesPerl4LibsWithoutDep, ScriptUsesPerl4LibsWithoutDep,
 };
 pub(crate) use languages_python::{
-    AncientPythonVersionField, BogusPythonPrerequisite, DjangoPackageDoesNotDependOnDjango,
-    DuplicateP3distOverride, EmbeddedFeedparserLibrary, FileInUsrLibSitePython,
-    MalformedPythonVersion, MissingPrerequisiteForPyprojectBackend,
+    AncientPythonVersionField, BogusPythonPrerequisite, DebianPycompatIsObsolete,
+    DjangoPackageDoesNotDependOnDjango, DuplicateP3distOverride, EmbeddedFeedparserLibrary,
+    FileInUsrLibSitePython, MalformedPythonVersion, MissingPrerequisiteForPyprojectBackend,
     NewPackageShouldNotPackagePython2Module, PackageInstallsDeprecatedPython2Path,
     PackageInstallsLegacyPythonEggInfo, PackageInstallsPythonBytecode, PackageInstallsPythonEgg,
     PackageInstallsPythonPycacheDir, PypiHomepage, PythonDebugInWrongLocation,

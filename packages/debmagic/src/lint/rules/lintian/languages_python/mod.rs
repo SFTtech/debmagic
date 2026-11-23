@@ -28,6 +28,8 @@ mod ln1117_pypi_homepage;
 mod ln1403_missing_prerequisite_for_pyproject_backend;
 mod ln1404_package_installs_legacy_python_egg_info;
 mod ln1405_uses_deprecated_python_stdlib;
+mod ln1571_debian_pycompat_is_obsolete;
+mod obsolete;
 mod python_version;
 
 pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;
@@ -55,3 +57,4 @@ pub(crate) use ln1117_pypi_homepage::PypiHomepage;
 pub(crate) use ln1403_missing_prerequisite_for_pyproject_backend::MissingPrerequisiteForPyprojectBackend;
 pub(crate) use ln1404_package_installs_legacy_python_egg_info::PackageInstallsLegacyPythonEggInfo;
 pub(crate) use ln1405_uses_deprecated_python_stdlib::UsesDeprecatedPythonStdlib;
+pub(crate) use ln1571_debian_pycompat_is_obsolete::DebianPycompatIsObsolete;

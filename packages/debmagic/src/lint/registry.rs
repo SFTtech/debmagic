@@ -302,6 +302,7 @@ use super::rules::InvalidPotfilesIn;
 use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::InvalidSystemdDocumentation;
+use super::rules::InvalidVersionedProvides;
 use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
@@ -2637,6 +2638,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &StaticLibraryHasUnneededSections,
         &UnstrippedStaticLibrary,
         &ManualPageInUdeb,
+        &InvalidVersionedProvides,
     ]
 }
 
@@ -4098,6 +4100,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &StaticLibraryHasUnneededSections,
         &UnstrippedStaticLibrary,
         &ManualPageInUdeb,
+        &InvalidVersionedProvides,
     ]
 }
 

@@ -503,6 +503,7 @@ use super::rules::PackageUsesDhRunitButLacksBreaksSubstvar;
 use super::rules::PackageUsesOldDebhelperCompatVersion;
 use super::rules::PackageUsesOldPythonDependsSubstvar;
 use super::rules::PackageUsesVendorSpecificPatchSeries;
+use super::rules::PatchModifyingDebianFiles;
 use super::rules::PatchNotForwardedUpstream;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
@@ -2635,6 +2636,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OcamlStrayCmo,
         &StaticLibraryHasUnneededSections,
         &UnstrippedStaticLibrary,
+        &PatchModifyingDebianFiles,
     ]
 }
 
@@ -3161,6 +3163,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PackageDoesNotUseDebhelper,
         &SuperficialTests,
         &TestsuiteOredDependsOnObsoletePackage,
+        &PatchModifyingDebianFiles,
     ]
 }
 

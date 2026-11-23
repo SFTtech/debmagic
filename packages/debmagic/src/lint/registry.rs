@@ -796,6 +796,7 @@ use super::rules::WindowsDevelFileInPackage;
 use super::rules::WishScriptButNoWishDep;
 use super::rules::WoffFontInWrongDir;
 use super::rules::WrongBugNumberInCloses;
+use super::rules::WrongFileOwnerUidOrGid;
 use super::rules::WrongManualSection;
 use super::rules::WrongNameForChangelogOfNativePackage;
 use super::rules::WrongNameForDebianChangelogFile;
@@ -2661,6 +2662,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &BadOwnerForDocFile,
+        &WrongFileOwnerUidOrGid,
     ]
 }
 
@@ -4132,6 +4134,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &BadOwnerForDocFile,
+        &WrongFileOwnerUidOrGid,
     ]
 }
 

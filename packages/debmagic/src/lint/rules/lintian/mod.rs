@@ -77,6 +77,7 @@ mod documentation_texinfo;
 mod domain;
 mod emacs;
 mod emacs_elpa;
+mod examples;
 mod executable;
 mod fields_architecture;
 mod fields_bugs;
@@ -424,6 +425,7 @@ pub(crate) use documentation::{
     SourceContainsPrebuiltDoxygenDocumentation, ZeroByteFileInDocDirectory,
 };
 pub(crate) use documentation_devhelp_standard::OldDevhelpStandard;
+pub(crate) use examples::PackageDoesNotInstallExamples;
 pub(crate) use fields_checksums::NoStrongDigestsInDsc;
 pub(crate) use fields_distribution::BackportsChangesMissing;
 pub(crate) use fields_distribution::BackportsUploadHasIncorrectVersionNumber;

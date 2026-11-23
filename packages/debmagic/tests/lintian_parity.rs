@@ -1705,6 +1705,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/debian/copyright/copyright-file-symlink",
     "checks/desktop/gnome/gir/gir",
     "checks/documentation/manual/surplus-manpage",
+    "checks/examples/cruft-package-does-not-install-examples",
     "checks/fields/distribution/changelog-file-backport",
     "checks/fields/distribution/changes-bad-ubuntu-distribution",
     "checks/fields/distribution/changes-distribution-mismatch",
@@ -3463,6 +3464,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
 #[test_case("checks/documentation/manual/surplus-manpage"; "checks_documentation_manual_surplus_manpage")]
+#[test_case("checks/examples/cruft-package-does-not-install-examples"; "checks_examples_cruft_package_does_not_install_examples")]
 #[test_case("checks/fields/distribution/changelog-file-backport"; "checks_fields_distribution_changelog_file_backport")]
 #[test_case("checks/fields/distribution/changes-bad-ubuntu-distribution"; "checks_fields_distribution_changes_bad_ubuntu_distribution")]
 #[test_case("checks/fields/distribution/changes-distribution-mismatch"; "checks_fields_distribution_changes_distribution_mismatch")]

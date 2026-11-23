@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: libfoo-perl (source): no-git (LN1784) Vcs-Svn
+E: libfoo-perl (source): no-git (LN1784) Vcs-Svn
+E: libfoo-perl (source): no-git (LN1784) Vcs-Arch
+E: libfoo-perl (source): no-git (LN1784) Vcs-Hg
+E: libfoo-perl (source): no-git (LN1784) Vcs-Svn
+E: libfoo-perl (source): no-git (LN1784) Vcs-Cvs
+E: libfoo-perl (source): no-git (LN1784) Vcs-Bzr

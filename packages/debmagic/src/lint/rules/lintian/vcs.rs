@@ -28,7 +28,7 @@ pub(super) fn vcs_field_value(
 
 /// The name without `X`, one or more of `S`, `B`, `C` with `S` among them,
 /// and the `-` of a source-only extension field such as `XS-` or `XSBC-`.
-fn strip_source_prefix(key: &str) -> Option<&str> {
+pub(super) fn strip_source_prefix(key: &str) -> Option<&str> {
     let (prefix, rest) = key.split_once('-')?;
     let letters = prefix.strip_prefix(['X', 'x'])?;
     let upper = letters.to_ascii_uppercase();

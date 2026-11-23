@@ -1155,4 +1155,5 @@ pub(crate) use testsuite::{
 pub(crate) use triggers::RepeatedTriggerName;
 pub(crate) use triggers::UnknownTrigger;
 pub(crate) use triggers::UsesImplicitAwaitTrigger;
+pub(crate) use vim::ObsoleteVimAddonManager;
 pub(crate) use vim::VimAddonWithinVimRuntimePath;

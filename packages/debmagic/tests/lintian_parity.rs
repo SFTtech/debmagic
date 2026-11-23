@@ -1147,6 +1147,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/unpack/tar-removing-leading-slash",
     "checks/usrmerge/usrmerge-bin",
     "checks/usrmerge/usrmerge-lib",
+    "checks/vim/addons/depends-on-vim-addon-manager",
     "checks/vim/files-foo-in-bar",
     "general-false-positives/basic-native-1.0",
     "general-false-positives/basic-native-3.0",
@@ -2894,6 +2895,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/unpack/tar-removing-leading-slash"; "checks_unpack_tar_removing_leading_slash")]
 #[test_case("checks/usrmerge/usrmerge-bin"; "checks_usrmerge_usrmerge_bin")]
 #[test_case("checks/usrmerge/usrmerge-lib"; "checks_usrmerge_usrmerge_lib")]
+#[test_case("checks/vim/addons/depends-on-vim-addon-manager"; "checks_vim_addons_depends_on_vim_addon_manager")]
 #[test_case("checks/vim/files-foo-in-bar"; "checks_vim_files_foo_in_bar")]
 #[test_case("general-false-positives/basic-native-1.0"; "general_false_positives_basic_native_1_0")]
 #[test_case("general-false-positives/basic-native-3.0"; "general_false_positives_basic_native_3_0")]

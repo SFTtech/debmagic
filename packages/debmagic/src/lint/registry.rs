@@ -6,6 +6,7 @@ use super::rules::AddComponentCopyright;
 use super::rules::AdoptedExtendedField;
 use super::rules::AlienTag;
 use super::rules::AlternatesNotAllowed;
+use super::rules::AnsiEscape;
 use super::rules::AnticipatedRepackCount;
 use super::rules::Apache2DeprecatedAuthConfig;
 use super::rules::Apache2ModuleDoesNotDependOnApache2Api;
@@ -310,6 +311,7 @@ use super::rules::InvalidProfileNameInBuildProfilesField;
 use super::rules::InvalidProfileNameInSourceRelation;
 use super::rules::InvalidSystemdDocumentation;
 use super::rules::InvalidVersionedProvides;
+use super::rules::InvalidYaml;
 use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
@@ -427,6 +429,7 @@ use super::rules::NoTeamUrl;
 use super::rules::NoTemplateName;
 use super::rules::NoTests;
 use super::rules::NoTestsuiteHeader;
+use super::rules::NodejsBadBufferUsage;
 use super::rules::NodejsModuleInstalledInBadDirectory;
 use super::rules::NonConsecutiveDebianRevision;
 use super::rules::NonStandardApache2ModulePackageName;
@@ -2679,6 +2682,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &AutopkgtestNeedsUseName,
         &DirectChangesInDiffButNoPatchSystem,
         &PatchSystemButDirectChangesInDiff,
+        &AnsiEscape,
+        &InvalidYaml,
+        &NodejsBadBufferUsage,
     ]
 }
 
@@ -3220,6 +3226,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &AutopkgtestNeedsUseName,
         &DirectChangesInDiffButNoPatchSystem,
         &PatchSystemButDirectChangesInDiff,
+        &AnsiEscape,
+        &InvalidYaml,
     ]
 }
 
@@ -4159,6 +4167,8 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OldSourceOverrideLocation,
         &BadOwnerForDocFile,
         &WrongFileOwnerUidOrGid,
+        &AnsiEscape,
+        &NodejsBadBufferUsage,
     ]
 }
 

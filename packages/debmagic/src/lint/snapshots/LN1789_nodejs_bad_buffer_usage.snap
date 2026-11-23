@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): nodejs-bad-buffer-usage (LN1789) [usr/share/nodejs/example/index.js]
+W: example (binary): nodejs-bad-buffer-usage (LN1789) [usr/share/nodejs/example/index.js]
+W: example (binary): nodejs-bad-buffer-usage (LN1789) [usr/share/nodejs/example/hard.js]
+W: example (binary): nodejs-bad-buffer-usage (LN1789) [usr/share/nodejs/example/link.js]
+W: example (binary): nodejs-bad-buffer-usage (LN1789) [usr/share/nodejs/example/real.js]
+W: example (binary): nodejs-bad-buffer-usage (LN1789) [usr/share/nodejs/example/bytes.js]

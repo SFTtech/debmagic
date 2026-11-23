@@ -42,6 +42,7 @@ use super::rules::BashTermInPosixShell;
 use super::rules::BinSbinMismatch;
 use super::rules::BinariesHaveFileConflict;
 use super::rules::BinaryCompiledWithProfilingEnabled;
+use super::rules::BinaryContainsInsecureDefaultgodebugSettings;
 use super::rules::BinaryFromOtherArchitecture;
 use super::rules::BinaryHasUnneededSection;
 use super::rules::BinaryInEtc;
@@ -2443,6 +2444,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UsesPoetryCli,
         &MissingStaticBuiltUsingFieldForGolangPackage,
         &XsGoImportPathDiffersFromModulePath,
+        &BinaryContainsInsecureDefaultgodebugSettings,
     ]
 }
 
@@ -3808,6 +3810,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &StaticLinkTimeOptimization,
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
+        &BinaryContainsInsecureDefaultgodebugSettings,
     ]
 }
 

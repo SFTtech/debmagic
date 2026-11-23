@@ -348,15 +348,52 @@ def assemble_source_tree(work: Path, dest: Path, values: dict[str, str]) -> bool
 ORIG_TARBALL_HOOK = re.compile(r"\.orig(?:-[\w-]+)?\.tar")
 
 
-def vendor_build_spec(spec: Path, dest: Path, orig_has_debian: bool, work: Path | None = None) -> None:
+def vendor_post_build(spec: Path, work: Path, dest: Path, values: dict[str, str]) -> None:
+    """Write the filled `post-build` hook as `dest/build-spec/post-build`.
+
+    lintian's Makefile runs it on the built product (`$(post_build) $(product)`,
+    in the build directory) after `dpkg-source` or `dpkg-buildpackage`. The filled
+    hook names the product as the import host built it (its architecture is in
+    an upload's name), so the name becomes the hook's first argument, as for the
+    hooks that already read `$1`; `[% $source_path %]` becomes the environment
+    variable `LINTIAN_SOURCE_PATH`, which the harness sets to `build-spec/`, where
+    the files the hook reads from there (a signing key) are kept.
+    """
+    hook = work / "post-build"
+    text, _ = read_text(hook)
+    product = values.get("build_product", "")
+    if product:
+        text = text.replace(product, "$1")
+    source_path = values.get("source_path", "")
+    if source_path:
+        text = text.replace(source_path, "${LINTIAN_SOURCE_PATH}")
+    target = dest / "build-spec" / "post-build"
+    target.parent.mkdir(exist_ok=True)
+    target.write_text(text, encoding="utf-8")
+    target.chmod(0o755)
+    for name in re.findall(r"\$\{LINTIAN_SOURCE_PATH\}/([\w.-]+)", text):
+        shutil.copy2(spec / name, target.parent / name)
+
+
+def vendor_build_spec(
+    spec: Path,
+    dest: Path,
+    orig_has_debian: bool,
+    work: Path | None = None,
+    values: dict[str, str] | None = None,
+) -> None:
     """Keep the build-spec pieces a filled tree cannot show, under `dest/build-spec/`.
 
     `dpkg-overrides` (`-DField=value` words lintian passes to `dpkg-source`) changes
     the `.dsc`. `pre-upstream.in` is kept, unfilled, only when it creates `debian/`
-    in the orig. `pre-build` (the filled one from `work`) is kept only when it makes
+    in the orig. `pre-orig` (the filled one from `work`) is kept for every recipe that
+    has one: it makes files in the orig that the tree cannot hold (non-UTF-8 names,
+    old time stamps). `pre-build` (the filled one from `work`) is kept only when it makes
     orig tarballs next to the source directory, which the `.dsc` lists as components
     and signatures; what it does to the sources is in the tree already. The harness
-    reads all three (`tests/common/mod.rs`, ADR 0039).
+    reads all three (`tests/common/mod.rs`, ADR 0039). `post-build` (filled, see
+    `vendor_post_build`) is kept for every recipe that has one, and `upload-type`
+    for a source-only upload.
     """
     kept: list[tuple[str, Path]] = []
     if (spec / "dpkg-overrides").is_file():
@@ -366,11 +403,21 @@ def vendor_build_spec(spec: Path, dest: Path, orig_has_debian: bool, work: Path 
     pre_build = work / "pre-build" if work is not None else None
     if pre_build is not None and pre_build.is_file() and ORIG_TARBALL_HOOK.search(read_text(pre_build)[0]):
         kept.append(("pre-build", pre_build))
-    if not kept:
+    pre_orig = work / "pre-orig" if work is not None else None
+    if pre_orig is not None and pre_orig.is_file():
+        kept.append(("pre-orig", pre_orig))
+    post_build_work = work if work is not None and (work / "post-build").is_file() else None
+    source_only = (values or {}).get("upload_type") == "source"
+    if not kept and post_build_work is None and not source_only:
         return
-    (dest / "build-spec").mkdir()
+    (dest / "build-spec").mkdir(exist_ok=True)
+    if source_only:
+        # `Upload-Type: source` makes lintian's upload builder run `dpkg-buildpackage -S`.
+        (dest / "build-spec" / "upload-type").write_text("source\n", encoding="utf-8")
     for name, source in kept:
         shutil.copy2(source, dest / "build-spec" / name)
+    if post_build_work is not None:
+        vendor_post_build(spec, post_build_work, dest, values or {})
 
 
 def copy_filled_work(work: Path, dest: Path) -> None:
@@ -442,7 +489,7 @@ def import_recipe(
         values = prepare_work(lintian_root, spec, work)
         if skeleton in SOURCE_TREE_SKELETONS:
             orig_has_debian = assemble_source_tree(work, dest, values)
-            vendor_build_spec(spec, dest, orig_has_debian, work)
+            vendor_build_spec(spec, dest, orig_has_debian, work, values)
         else:
             copy_filled_work(work, dest)
 
@@ -507,6 +554,10 @@ def source_tree_hint_matches_filled_tree(recipe: Path, tag: str) -> bool:
     # `add-component-copyright` reads the orig tarball names of the `.dsc`; a
     # Source tree has none, so only the Source package can report it.
     if tag == "add-component-copyright":
+        return False
+    # `upstream-file-without-utf8-name` walks the Orig files, which a Source tree
+    # does not have, and the files a `pre-orig` hook makes are not in the tree.
+    if tag == "upstream-file-without-utf8-name":
         return False
     if tag not in {
         "package-uses-deprecated-debhelper-compat-version",
@@ -721,11 +772,11 @@ def applies_to_group(
 
     Changes and Buildinfo Rules produce `changes` and `buildinfo` hints; a Group Rule produces `source`
     hints (its Diagnostics attach to the Source package, ADR 0055) or `binary`/`udeb` hints (it reports on
-    an installable). See `applies_to_group` in
+    an installable) or `changes` hints (it needs the `.dsc` to judge the `.changes`). See `applies_to_group` in
     `tests/common/mod.rs`.
     """
     return (
-        (processable_type == "changes" and tag in changes_tags)
+        (processable_type == "changes" and (tag in changes_tags or tag in group_tags))
         or (processable_type == "buildinfo" and tag in buildinfo_tags)
         or (processable_type in ("source", "binary", "udeb") and tag in group_tags)
     )

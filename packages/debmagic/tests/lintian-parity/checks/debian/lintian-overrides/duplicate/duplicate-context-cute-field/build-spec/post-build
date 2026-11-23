@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -e
+
+product="$1"
+
+perl -pi -e 's/^(Architecture:)/\L$1\E/' "$product"

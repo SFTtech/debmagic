@@ -1,0 +1,3 @@
+#!/bin/sh
+
+perl -pi -e 's/^(Distribution:)\s+\S+/$1 unstable/' $1

@@ -68,10 +68,12 @@ use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CapitalizationErrorInDescription;
 use super::rules::CapitalizationErrorInDescriptionSynopsis;
 use super::rules::CarriageReturnLineFeed;
+use super::rules::ChangelogDistributionDoesNotMatchChangesFile;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
 use super::rules::ChangelogIsSymlink;
 use super::rules::ChangelogNotCompressedWithMaxCompression;
+use super::rules::ChecksumCountMismatchInChangesFile;
 use super::rules::ClasspathContainsRelativePath;
 use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
@@ -256,6 +258,7 @@ use super::rules::ImageFileHasUnexpectedName;
 use super::rules::IncompatibleJavaBytecodeFormat;
 use super::rules::InconsistentAppstreamMetadataLicense;
 use super::rules::IncorrectLocaleCode;
+use super::rules::InconsistentMaintainer;
 use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
@@ -510,6 +513,7 @@ use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
+use super::rules::RuntimeTestFileIsNotARegularFile;
 use super::rules::RustBoilerplate;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::ScriptNotExecutable;
@@ -539,6 +543,7 @@ use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
 use super::rules::SourceIsMissing;
+use super::rules::SourceOnlyUploadToNonFreeWithoutAutobuild;
 use super::rules::SourcePackageComponentHasLongFileName;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
@@ -623,6 +628,7 @@ use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploadHasBackportsVersionNumber;
 use super::rules::UploaderNameMissing;
 use super::rules::UpstartJobInEtcInitDNotRegisteredViaUpdateRcD;
+use super::rules::UpstreamFileWithoutUtf8Name;
 use super::rules::UpstreamMetadataFieldUnknown;
 use super::rules::UpstreamMetadataFileIsMissing;
 use super::rules::UpstreamMetadataInNativeSource;
@@ -2339,6 +2345,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExampleWrongPathForInterpreter,
         &InvalidSystemdDocumentation,
         &SystemdServiceFileMissingInstallKey,
+        &ChecksumCountMismatchInChangesFile,
+        &SourceOnlyUploadToNonFreeWithoutAutobuild,
         &LicenseProblemMd5sumNonDistributableFile,
         &LicenseProblemNonFreeImgLenna,
         &DeprecatedConfigureFilename,
@@ -2393,6 +2401,10 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &BrokenBz2,
         &BrokenLz,
         &BrokenLzo,
+        &ChangelogDistributionDoesNotMatchChangesFile,
+        &InconsistentMaintainer,
+        &RuntimeTestFileIsNotARegularFile,
+        &UpstreamFileWithoutUtf8Name,
     ]
 }
 
@@ -2847,6 +2859,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &InvalidPotfilesIn,
         &NewerDebconfTemplates,
         &NoCompleteDebconfTranslation,
+        &RuntimeTestFileIsNotARegularFile,
+        &UpstreamFileWithoutUtf8Name,
     ]
 }
 
@@ -3760,6 +3774,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &BadUrgencyInChangesFile,
         &DistributionAndChangesMismatch,
         &DistributionAndExperimentalMismatch,
+        &ChecksumCountMismatchInChangesFile,
     ]
 }
 
@@ -3770,6 +3785,7 @@ pub(crate) fn buildinfo_rules() -> &'static [&'static dyn BuildinfoRule] {
 pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
     &[
         &IntraSourcePackageCircularDependency,
+        &SourceOnlyUploadToNonFreeWithoutAutobuild,
         &GirMissingTypelibDependency,
         &PackageUsesDhRunitButLacksBreaksSubstvar,
         &DependencyIsNotMultiArchified,
@@ -3780,6 +3796,8 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &UsrShareDocSymlinkToForeignPackage,
         &DocBaseFileReferencesMissingFile,
         &BinariesHaveFileConflict,
+        &ChangelogDistributionDoesNotMatchChangesFile,
+        &InconsistentMaintainer,
     ]
 }
 

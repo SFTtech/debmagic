@@ -1566,6 +1566,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/encoding/news-in-western-encoding",
     "checks/files/encoding/testsuite-in-western-encoding",
     "checks/files/names/national-encoding-in-native",
+    "checks/files/names/national-encoding-in-orig",
     "checks/files/names/national-encoding-in-patch",
     "checks/files/non-free/cruft-non-free-md5sums",
     "checks/files/source-missing/cruft-general-test-suite",
@@ -1671,10 +1672,13 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
 
 const GROUP_RECIPES: &[&str] = &[
     "checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name",
+    "checks/archive/non-free/autobuild/source-only-upload-to-non-free-without-autobuild",
     "checks/changes-file/changes-file-bad-section",
     "checks/changes-file/changes-file-size-checksum-mismatch",
     "checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants",
+    "checks/changes-file/checksum-count-mismatch",
     "checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar",
+    "checks/debian/changelog/changelog-distribution-does-not-match-changes-file",
     "checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license",
     "checks/debian/copyright/copyright-file-symlink",
     "checks/desktop/gnome/gir/gir",
@@ -1687,6 +1691,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/fields/distribution/distribution-multiple-bad",
     "checks/fields/format/changes-missing-format",
     "checks/fields/mail-address/changed-by-no-name",
+    "checks/fields/maintainer/mismatch-between-changes-and-source",
     "checks/fields/urgency/generic-empty",
     "checks/fields/version/fields-version-bad",
     "checks/fields/version/legacy-fields",
@@ -3295,6 +3300,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/encoding/news-in-western-encoding"; "checks_files_encoding_news_in_western_encoding")]
 #[test_case("checks/files/encoding/testsuite-in-western-encoding"; "checks_files_encoding_testsuite_in_western_encoding")]
 #[test_case("checks/files/names/national-encoding-in-native"; "checks_files_names_national_encoding_in_native")]
+#[test_case("checks/files/names/national-encoding-in-orig"; "checks_files_names_national_encoding_in_orig")]
 #[test_case("checks/files/names/national-encoding-in-patch"; "checks_files_names_national_encoding_in_patch")]
 #[test_case("checks/files/non-free/cruft-non-free-md5sums"; "checks_files_non_free_cruft_non_free_md5sums")]
 #[test_case("checks/files/source-missing/cruft-general-test-suite"; "checks_files_source_missing_cruft_general_test_suite")]
@@ -3401,10 +3407,13 @@ fn lintian_parity_source_package(recipe: &str) {
 }
 
 #[test_case("checks/archive/file/name/length/filename-length-really-really-really-really-long-package-name"; "checks_archive_file_name_length_filename_length_really_really_really_really_long_package_name")]
+#[test_case("checks/archive/non-free/autobuild/source-only-upload-to-non-free-without-autobuild"; "checks_archive_non_free_autobuild_source_only_upload_to_non_free_without_autobuild")]
 #[test_case("checks/changes-file/changes-file-bad-section"; "checks_changes_file_changes_file_bad_section")]
 #[test_case("checks/changes-file/changes-file-size-checksum-mismatch"; "checks_changes_file_changes_file_size_checksum_mismatch")]
 #[test_case("checks/changes-file/changes-files-package-builds-dbg-and-dbgsym-variants"; "checks_changes_file_changes_files_package_builds_dbg_and_dbgsym_variants")]
+#[test_case("checks/changes-file/checksum-count-mismatch"; "checks_changes_file_checksum_count_mismatch")]
 #[test_case("checks/debhelper/debhelper-dh-runit-but-lacks-breaks-substvar"; "checks_debhelper_debhelper_dh_runit_but_lacks_breaks_substvar")]
+#[test_case("checks/debian/changelog/changelog-distribution-does-not-match-changes-file"; "checks_debian_changelog_changelog_distribution_does_not_match_changes_file")]
 #[test_case("checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license"; "checks_debian_copyright_apache_notice_source_copyright_missing_notice_file_for_apache_license")]
 #[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
@@ -3417,6 +3426,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/fields/distribution/distribution-multiple-bad"; "checks_fields_distribution_distribution_multiple_bad")]
 #[test_case("checks/fields/format/changes-missing-format"; "checks_fields_format_changes_missing_format")]
 #[test_case("checks/fields/mail-address/changed-by-no-name"; "checks_fields_mail_address_changed_by_no_name")]
+#[test_case("checks/fields/maintainer/mismatch-between-changes-and-source"; "checks_fields_maintainer_mismatch_between_changes_and_source")]
 #[test_case("checks/fields/urgency/generic-empty"; "checks_fields_urgency_generic_empty")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
 #[test_case("checks/fields/version/legacy-fields"; "checks_fields_version_legacy_fields")]

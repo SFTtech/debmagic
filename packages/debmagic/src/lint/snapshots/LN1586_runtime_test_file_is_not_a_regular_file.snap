@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): runtime-test-file-is-not-a-regular-file (LN1586) debian/tests/pipe [debian/tests/control:1]
+I: (source): runtime-test-file-is-not-a-regular-file (LN1586) debian/tests/link [debian/tests/control:1]
+I: (source): runtime-test-file-is-not-a-regular-file (LN1586) debian/tests/sub [debian/tests/control:1]
+I: (source): runtime-test-file-is-not-a-regular-file (LN1586) debian/tests/pipe [debian/tests/control:1]
+I: (source): runtime-test-file-is-not-a-regular-file (LN1586) debian/tests/other [debian/tests/control:1]
+I: (source): runtime-test-file-is-not-a-regular-file (LN1586) debian/tests/pipe [debian/tests/control:3]

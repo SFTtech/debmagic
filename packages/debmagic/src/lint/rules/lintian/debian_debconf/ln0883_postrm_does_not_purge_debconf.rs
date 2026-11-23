@@ -46,18 +46,32 @@ impl BinaryPackageRule for PostrmDoesNotPurgeDebconf {
             let Some(tree) = ctx.control_files() else {
                 return;
             };
+            // The Check returns before every installable Tag unless the package
+            // has `config`, `templates`, or a debconf-using `preinst`.
+            if !files::gate(tree).open() {
+                return;
+            }
             match tree.get("postrm") {
-                Some(entry) if is_regular(entry) => scripts::scan(tree)
-                    .into_iter()
-                    .find(|script| script.path.file_name().is_some_and(|name| name == "postrm"))
-                    .filter(|script| {
-                        !exempt
-                            && !script
-                                .lines
-                                .iter()
-                                .any(|line| line.text.contains("db_purge"))
-                    })
-                    .map(|script| Hit::Script(script.path)),
+                Some(entry) if is_regular(entry) => {
+                    // The Check keeps one `db_purge` flag across all scripts, so a
+                    // `db_purge` in `config` or `prerm` (scanned before `postrm`)
+                    // also satisfies this Tag.
+                    let mut db_purge = false;
+                    let mut hit = None;
+                    for script in scripts::scan(tree) {
+                        db_purge |= script
+                            .lines
+                            .iter()
+                            .any(|line| line.text.contains("db_purge"));
+                        if script.path.file_name().is_some_and(|name| name == "postrm")
+                            && !exempt
+                            && !db_purge
+                        {
+                            hit = Some(Hit::Script(script.path));
+                        }
+                    }
+                    hit
+                }
                 _ => (!udeb && !exempt).then_some(Hit::Missing),
             }
         };
@@ -94,9 +108,14 @@ mod tests {
 
     use super::*;
 
-    fn postrm(body: &str) -> BinaryPackageCase {
+    /// A package the Check examines: it ships a `config` file.
+    fn debconf_package() -> BinaryPackageCase {
         BinaryPackageCase::from(Vec::<(&str, TestFile)>::new())
-            .control_file("postrm", TestFile::new(body))
+            .control_file("config", TestFile::new("#!/bin/sh\n"))
+    }
+
+    fn postrm(body: &str) -> BinaryPackageCase {
+        debconf_package().control_file("postrm", TestFile::new(body))
     }
 
     #[test]
@@ -105,20 +124,41 @@ mod tests {
             postrm("#!/bin/sh\nset -e\n. /usr/share/debconf/confmodule\ndb_purge\n"),
             postrm("#!/bin/sh\ndb_purge\n"),
             postrm("echo no shebang\n"),
-            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()).udeb(),
-            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new())
-                .field("Provides", "debconf-2.0"),
-            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()).package("debconf"),
+            debconf_package().udeb(),
+            debconf_package().field("Provides", "debconf-2.0"),
+            debconf_package().package("debconf"),
             postrm("#!/bin/sh\necho\n").field("Provides", "cdebconf"),
+            // The Check's `db_purge` flag is shared across scripts, so one in
+            // `config` or `prerm` satisfies the postrm check.
+            debconf_package()
+                .control_file("config", TestFile::new("#!/bin/sh\ndb_purge\n"))
+                .control_file("postrm", TestFile::new("#!/bin/sh\necho\n")),
+            debconf_package()
+                .control_file("prerm", TestFile::new("#!/bin/sh\ndb_purge\n"))
+                .control_file("postrm", TestFile::new("#!/bin/sh\necho\n")),
+            // Not a debconf package: lintian returns before the maintainer
+            // scripts, so neither a script nor a missing postrm is reported.
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new())
+                .control_file("postrm", TestFile::new("#!/bin/sh\necho\n")),
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
         ];
         let fail = vec![
             postrm("#!/bin/sh\nset -e\n"),
             postrm("#!/bin/sh\n# db_purge\n"),
             postrm("#!/bin/sh\necho\n").field("Depends", "debconf"),
-            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
-            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new())
-                .control_file("postrm", TestFile::symlink("missing")),
+            debconf_package(),
+            debconf_package().control_file("postrm", TestFile::symlink("missing")),
             postrm("#!/bin/sh\necho\n").udeb(),
+            // `templates` alone opens the gate.
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new())
+                .control_file("templates", TestFile::new("Template: a/b\nType: note\n")),
+            // A `preinst` that loads the confmodule opens the gate.
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new())
+                .control_file(
+                    "preinst",
+                    TestFile::new("#!/bin/sh\n. /usr/share/debconf/confmodule\n"),
+                )
+                .control_file("postrm", TestFile::new("#!/bin/sh\necho\n")),
         ];
         BinaryPackageTester::new(PostrmDoesNotPurgeDebconf, pass, fail).test_and_snapshot();
     }

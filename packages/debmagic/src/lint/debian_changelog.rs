@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::sync::LazyLock;
 
-use chrono::DateTime;
+use chrono::NaiveDateTime;
 use regex::Regex;
 
 /// One parser error from `Lintian::Changelog`, as `[line, message]`.
@@ -469,11 +469,33 @@ fn parse_changelog_timestamp(date: &str) -> Option<i64> {
         }
         None => date,
     };
-    const FORMATS: &[&str] = &["%d %b %Y %H:%M:%S %z", "%e %b %Y %H:%M:%S %z"];
+    // Date::Parse reads the zone as `[-+]HHMM` with no range check, so `-5000`
+    // is a valid zone (50 hours west). chrono's `%z` rejects it, so the zone is
+    // split off and applied by hand.
+    let (clock, zone) = date.rsplit_once(' ')?;
+    let offset = zone_offset_seconds(zone)?;
+    const FORMATS: &[&str] = &["%d %b %Y %H:%M:%S", "%e %b %Y %H:%M:%S"];
     FORMATS
         .iter()
-        .find_map(|format| DateTime::parse_from_str(date, format).ok())
-        .map(|parsed| parsed.timestamp())
+        .find_map(|format| NaiveDateTime::parse_from_str(clock, format).ok())
+        .map(|local| local.and_utc().timestamp() - offset)
+}
+
+/// Seconds east of UTC for a `[-+]HHMM` zone; hours and minutes are not range
+/// checked.
+fn zone_offset_seconds(zone: &str) -> Option<i64> {
+    let digits = zone.get(1..)?;
+    if digits.len() != 4 || !digits.bytes().all(|byte| byte.is_ascii_digit()) {
+        return None;
+    }
+    let hours: i64 = digits[..2].parse().ok()?;
+    let minutes: i64 = digits[2..].parse().ok()?;
+    let seconds = hours * 3600 + minutes * 60;
+    match zone.as_bytes()[0] {
+        b'+' => Some(seconds),
+        b'-' => Some(-seconds),
+        _ => None,
+    }
 }
 
 #[cfg(test)]
@@ -545,6 +567,30 @@ example (1.0-1) unstable; urgency=low
             changelog.entries()[0].date(),
             "The, 15 Apr 2004 23:33:51 +0200"
         );
+    }
+
+    /// Lintian's trailer branch (lib/Lintian/Changelog.pm) parses the date with
+    /// `str2time`, which takes any `[-+]HHMM` zone, so an hour past 23 is no error.
+    #[test]
+    fn trailer_zone_beyond_chrono_offset_range_is_a_valid_date() {
+        // `-5000` is 50 hours west: UTC is local time plus 180000 seconds.
+        let changelog = DebianChangelog::parse(
+            "example (1.0) unstable; urgency=low\n\n  * x\n\n -- A <a@example.com>  Wed, 14 Jan 2004 00:00:00 -5000\n",
+        );
+        assert!(changelog.errors().is_empty());
+        assert_eq!(changelog.entries()[0].timestamp(), Some(1074218400));
+    }
+
+    /// Lintian's trailer regex admits only `[-+]` followed by four digits;
+    /// anything else (no sign, a letter) stays unparsed.
+    #[test]
+    fn zone_offsets_need_a_sign_and_four_digits() {
+        assert_eq!(zone_offset_seconds("+0530"), Some(19800));
+        assert_eq!(zone_offset_seconds("-5000"), Some(-180000));
+        assert_eq!(zone_offset_seconds("-0075"), Some(-4500));
+        assert_eq!(zone_offset_seconds("0530"), None);
+        assert_eq!(zone_offset_seconds("+05a0"), None);
+        assert_eq!(zone_offset_seconds("+053"), None);
     }
 
     #[test]

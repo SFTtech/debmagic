@@ -50,7 +50,6 @@ pub struct Diagnostic {
 /// The override that suppressed a Diagnostic: the line of its Lintian override
 /// file, as lintian's `Hint::override` (ADR 0057).
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[allow(dead_code)]
 pub struct Overridden {
     /// The Lintian override file in its File tree.
     pub path: PathBuf,
@@ -155,13 +154,11 @@ impl Diagnostic {
     }
 
     /// Whether a line of a Lintian override file suppressed this Diagnostic.
-    #[allow(dead_code)]
     pub fn is_overridden(&self) -> bool {
         self.inner.overridden.is_some()
     }
 
     /// The override that suppressed this Diagnostic, if any.
-    #[allow(dead_code)]
     pub fn overridden(&self) -> Option<&Overridden> {
         self.inner.overridden.as_ref()
     }
@@ -170,7 +167,6 @@ impl Diagnostic {
     /// `Hint::context`: the message, then `[pointer]` when the Location has a
     /// path. The pointer is the path, with `:line` when there is a line above
     /// zero (lintian prints no column). Empty pieces are left out.
-    #[allow(dead_code)]
     pub fn override_context(&self) -> String {
         let mut pieces = Vec::with_capacity(2);
         if !self.inner.message.is_empty() {

@@ -266,6 +266,7 @@ use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
 use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
 use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemFontAdobeCopyrightedFragment;
+use super::rules::LicenseProblemFontAdobeCopyrightedFragmentNoCredit;
 use super::rules::LicenseProblemGfdlInvariants;
 use super::rules::LicenseProblemGfdlNonOfficialText;
 use super::rules::LicenseProblemJsonEvil;
@@ -2319,6 +2320,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TypoInManualPage,
         &CapitalizationErrorInDescriptionSynopsis,
         &LicenseProblemFontAdobeCopyrightedFragment,
+        &LicenseProblemFontAdobeCopyrightedFragmentNoCredit,
     ]
 }
 
@@ -3628,6 +3630,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &TypoInManualPage,
         &CapitalizationErrorInDescriptionSynopsis,
         &LicenseProblemFontAdobeCopyrightedFragment,
+        &LicenseProblemFontAdobeCopyrightedFragmentNoCredit,
     ]
 }
 

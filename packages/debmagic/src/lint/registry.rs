@@ -167,6 +167,7 @@ use super::rules::DjangoPackageDoesNotDependOnDjango;
 use super::rules::DocBaseFileReferencesMissingFile;
 use super::rules::DocPackageDependsOnMainPackage;
 use super::rules::DotBeforeRepackCount;
+use super::rules::DoublyArmoredUpstreamSignature;
 use super::rules::DuplicateFontFile;
 use super::rules::DuplicateGlobbingPatterns;
 use super::rules::DuplicateOverrideContext;
@@ -2319,6 +2320,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &TypoInManualPage,
         &CapitalizationErrorInDescriptionSynopsis,
         &ConcatenatedUpstreamSignatures,
+        &DoublyArmoredUpstreamSignature,
     ]
 }
 
@@ -2755,6 +2757,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &BuildDependsOnPythonDevWithNoArchAny,
         &OredBuildDependsOnObsoletePackage,
         &ConcatenatedUpstreamSignatures,
+        &DoublyArmoredUpstreamSignature,
     ]
 }
 

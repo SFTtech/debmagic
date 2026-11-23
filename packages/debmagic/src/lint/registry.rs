@@ -647,6 +647,7 @@ use super::rules::SpellingErrorInPatchDescription;
 use super::rules::SpellingErrorInReadmeDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::SpellingInOverrideComment;
+use super::rules::SphinxdocButNoSphinxdocDepends;
 use super::rules::SpuriousFieldsInUpstreamSignature;
 use super::rules::StaticLibraryHasUnneededSections;
 use super::rules::StaticLinkTimeOptimization;
@@ -2637,6 +2638,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &StaticLibraryHasUnneededSections,
         &UnstrippedStaticLibrary,
         &DebianFilesListInSource,
+        &SphinxdocButNoSphinxdocDepends,
     ]
 }
 
@@ -3164,6 +3166,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SuperficialTests,
         &TestsuiteOredDependsOnObsoletePackage,
         &DebianFilesListInSource,
+        &SphinxdocButNoSphinxdocDepends,
     ]
 }
 

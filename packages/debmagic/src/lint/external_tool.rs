@@ -176,6 +176,25 @@ impl Sandbox {
     }
 }
 
+/// lintian's `safe_qx(program, args, unpacked_path)` followed by `$?`: whether
+/// `program` exits non-zero on `entry` alone, with `args` before its path.
+/// `None` when the entry cannot be written or the run fails, so there is no
+/// verdict.
+pub(crate) fn rejects(
+    files: &FileTree,
+    entry: &Entry,
+    program: &Path,
+    args: &[&str],
+) -> Option<bool> {
+    let sandbox = Sandbox::new(files, &[entry]).ok()?;
+    let mut argv: Vec<&OsStr> = args.iter().map(OsStr::new).collect();
+    argv.push(entry.path().as_os_str());
+    sandbox
+        .run(program, &argv, Path::new(""), &[], DEFAULT_TIMEOUT)
+        .ok()
+        .map(|captured| !captured.success())
+}
+
 fn read_back(capture: &mut File) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
     capture

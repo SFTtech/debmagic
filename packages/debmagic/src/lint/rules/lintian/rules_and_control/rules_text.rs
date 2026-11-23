@@ -85,25 +85,6 @@ pub(super) fn debhelper_lines(contents: &str) -> Vec<(u32, String)> {
     lines
 }
 
-/// Readable UTF-8 files under `debian/`, path order. Symlinks are followed.
-pub(super) fn debian_texts(files: &FileTree) -> Vec<(PathBuf, String)> {
-    let mut found = Vec::new();
-    for entry in files.entries() {
-        let path = entry.path();
-        if !path.starts_with("debian") {
-            continue;
-        }
-        if entry.kind() == EntryKind::Directory {
-            continue;
-        }
-        let Some(text) = read_utf8(files, &path.to_string_lossy()) else {
-            continue;
-        };
-        found.push((path.to_path_buf(), text));
-    }
-    found
-}
-
 fn perl_lines(contents: &str) -> Vec<String> {
     let mut lines = Vec::new();
     let mut rest = contents;

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): non-empty-dependency_libs-in-la-file (LN0770) -lm -L/usr/lib [usr/lib/libdep.la:1]
+E: example (binary): non-empty-dependency_libs-in-la-file (LN0770) -lm [usr/lib/libdep.la:1]

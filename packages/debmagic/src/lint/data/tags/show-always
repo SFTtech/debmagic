@@ -1,0 +1,10 @@
+# Tags that lintian 2.144.0 declares `Show-Always: yes` (`Tag:` of tags/**/*.tag).
+# An override cannot suppress them (Lintian::Profile durable_tags_by_name), so
+# the override pass ignores their overrides. Sorted.
+alien-tag
+duplicate-override-context
+invalid-override-restriction
+malformed-override
+mismatched-override
+renamed-tag
+unused-override

@@ -922,7 +922,20 @@ Rules
     fn unstripped_elf_in_binary_package_is_reported() -> anyhow::Result<()> {
         let dir = tempfile::TempDir::new()?;
         let path = dir.path().join("example.deb");
-        let elf = std::fs::read(std::env::current_exe()?)?;
+        let mut elf = std::fs::read(std::env::current_exe()?)?;
+        // LN0005 skips an ELF executable that has the OCaml magic as a
+        // standalone printable run, and whether this test binary has one
+        // depends on how the linker lays out its literals. Break every
+        // occurrence (same length) so the skip can never apply. The marker is
+        // built from bytes so this test adds no literal of its own.
+        let marker = *b"Caml1999X";
+        let mut broken = marker;
+        broken[8] = b'Y';
+        let mut at = 0;
+        while let Some(found) = elf[at..].windows(marker.len()).position(|w| w == marker) {
+            elf[at + found..at + found + marker.len()].copy_from_slice(&broken);
+            at += found + marker.len();
+        }
         crate::lint::binary_package_reader::write_test_deb_with_files(
             &path,
             &[(

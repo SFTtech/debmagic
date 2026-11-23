@@ -351,7 +351,7 @@ fn header_owner(header: &tar::Header) -> Owner {
 
 /// The header's modification time, seconds since the epoch. `None` when it is
 /// unreadable or does not fit in an `i64`.
-fn header_mtime(header: &tar::Header) -> Option<i64> {
+pub(crate) fn header_mtime(header: &tar::Header) -> Option<i64> {
     header
         .mtime()
         .ok()
@@ -360,7 +360,7 @@ fn header_mtime(header: &tar::Header) -> Option<i64> {
 
 /// Strip `./` prefixes, one leading `/`, and trailing `/` from a member path.
 /// Works on the stored bytes, so a name that is not UTF-8 stays as it is.
-fn normalize_member_path(path: &Path) -> Option<PathBuf> {
+pub(crate) fn normalize_member_path(path: &Path) -> Option<PathBuf> {
     use std::os::unix::ffi::OsStrExt;
 
     let mut value = path.as_os_str().as_bytes();

@@ -454,6 +454,7 @@ use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OpenpgpFileHasImplementationSpecificExtension;
 use super::rules::OredBuildDependsOnObsoletePackage;
 use super::rules::OredDependsOnObsoletePackage;
+use super::rules::OrigTarballContainsAncientFile;
 use super::rules::OrigTarballMissingUpstreamSignature;
 use super::rules::OutOfDateCopyrightFormatUri;
 use super::rules::OutOfDateStandardsVersion;
@@ -2665,6 +2666,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &UnpackMessageForSource,
         &UnpackMessageForOrig,
+        &OrigTarballContainsAncientFile,
     ]
 }
 
@@ -3200,6 +3202,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SphinxdocButNoSphinxdocDepends,
         &UnpackMessageForSource,
         &UnpackMessageForOrig,
+        &OrigTarballContainsAncientFile,
     ]
 }
 

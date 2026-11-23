@@ -575,6 +575,7 @@ use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
+use super::rules::RulesSilentlyRequireRoot;
 use super::rules::RuntimeTestFileIsNotARegularFile;
 use super::rules::RustBoilerplate;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
@@ -2639,6 +2640,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnstrippedStaticLibrary,
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
+        &RulesSilentlyRequireRoot,
     ]
 }
 
@@ -4149,6 +4151,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &InconsistentMaintainer,
         &SpareManualPage,
         &PackageDoesNotInstallExamples,
+        &RulesSilentlyRequireRoot,
     ]
 }
 

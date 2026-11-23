@@ -60,7 +60,7 @@ mod xml;
 mod zip;
 
 pub use diagnostic::{Diagnostic, DiagnosticInner, Location, ProcessableType};
-pub use intent::{LintIntent, LintIntentInput, resolve_lint_intent};
+pub use intent::{LintIntent, LintIntentInput, OverrideMode, resolve_lint_intent};
 pub use rule::{Code, Severity, Tag};
 pub use run::{
     LintOutcome, LintResult, format_diagnostic, format_finished, format_summary, format_timings,

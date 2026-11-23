@@ -522,7 +522,7 @@ mod tests {
     use super::*;
     use crate::lint::context::{BinaryPackageData, SourcePackageData};
     use crate::lint::diagnostic::{Location, ProcessableType};
-    use crate::lint::intent::{LintIntentInput, resolve_lint_intent};
+    use crate::lint::intent::{LintIntentInput, OverrideMode, resolve_lint_intent};
     use crate::lint::rule::{RuleMeta, Severity};
     use crate::lint::rules::{DebmagicDummyTrigger, RequiredField};
     use crate::lint::selection::resolve_selected_codes;
@@ -537,6 +537,7 @@ mod tests {
             fail_on: vec![],
             threads: None,
             timings: false,
+            overrides: OverrideMode::default(),
         })
         .expect("resolve lint intent")
     }
@@ -614,6 +615,7 @@ mod tests {
             severity_remaps: HashMap::new(),
             threads: None,
             timings: false,
+            overrides: OverrideMode::Hide,
         };
         let LintResult { diagnostics, .. } = run_lint(&intent)?;
         assert!(
@@ -736,6 +738,7 @@ Rules
             severity_remaps: HashMap::new(),
             threads: Some(1),
             timings: true,
+            overrides: OverrideMode::Hide,
         };
         let result = run_lint(&intent)?;
         let timings = result.timings.expect("timings");
@@ -781,6 +784,7 @@ Rules
             severity_remaps: HashMap::new(),
             threads: Some(1),
             timings: false,
+            overrides: OverrideMode::Hide,
         };
         let result = run_lint(&intent)?;
         assert!(result.diagnostics.is_empty(), "{:?}", result.diagnostics);
@@ -831,6 +835,7 @@ Rules
                 severity_remaps: HashMap::new(),
                 threads,
                 timings: false,
+                overrides: OverrideMode::Hide,
             };
             let result = run_lint(&intent)?;
             assert_eq!(result.threads, worker_threads(threads));
@@ -895,6 +900,7 @@ Rules
             severity_remaps: HashMap::new(),
             threads: None,
             timings: false,
+            overrides: OverrideMode::Hide,
         };
         let LintResult {
             diagnostics,
@@ -957,6 +963,7 @@ Rules
             severity_remaps: HashMap::new(),
             threads: None,
             timings: false,
+            overrides: OverrideMode::Hide,
         };
         let LintResult {
             diagnostics,
@@ -996,6 +1003,7 @@ Rules
             severity_remaps: HashMap::new(),
             threads: None,
             timings: false,
+            overrides: OverrideMode::Hide,
         };
         let LintResult {
             diagnostics,
@@ -1028,6 +1036,7 @@ Rules
             severity_remaps: HashMap::new(),
             threads: None,
             timings: false,
+            overrides: OverrideMode::Hide,
         };
         let error = run_lint(&intent).unwrap_err();
         assert!(
@@ -1075,6 +1084,7 @@ Rules
             severity_remaps: HashMap::new(),
             threads: None,
             timings: false,
+            overrides: OverrideMode::Hide,
         };
         let LintResult {
             diagnostics,
@@ -1104,6 +1114,7 @@ Rules
             severity_remaps: HashMap::new(),
             threads: None,
             timings: false,
+            overrides: OverrideMode::Hide,
         };
         let LintResult {
             diagnostics,
@@ -1159,6 +1170,7 @@ Rules
             severity_remaps: HashMap::new(),
             threads: None,
             timings: false,
+            overrides: OverrideMode::Hide,
         };
         let LintResult {
             diagnostics,

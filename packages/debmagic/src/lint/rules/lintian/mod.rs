@@ -1185,6 +1185,7 @@ pub(crate) use po_debconf::{
     NoCompleteDebconfTranslation, NotUsingPoDebconf, TranslatedDefaultField,
     UnknownEncodingInPoFile,
 };
+pub(crate) use rules_and_control::DebhelperCompatNotANumber;
 pub(crate) use rules_and_control::{
     BraceExpansionInDebhelperConfigFile, BuildPrerequisiteInInstallableSection,
     CircularInstallationPrerequisite, DebhelperCompatFileContainsMultipleLevels,

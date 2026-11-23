@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): homepage-for-cran-package-not-canonical (LN1546) https://cran.r-project.org/web/packages/foo/index.html

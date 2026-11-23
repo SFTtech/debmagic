@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): homepage-gitlab-url-ends-with-dot-git (LN1548) https://gitlab.com/foo/bar.git
+I: example (binary): homepage-gitlab-url-ends-with-dot-git (LN1548) <https://gitlab.com/foo/bar.git>
+I: example (udeb): homepage-gitlab-url-ends-with-dot-git (LN1548) https://gitlab.com/foo/bar.git

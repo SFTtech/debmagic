@@ -771,7 +771,7 @@ pub(crate) use fields_relations_more::{
     BuildDependsOnPythonDevWithNoArchAny, ConflictsWithDependency, ConflictsWithVersion,
     DependsOnEssentialPackageWithoutUsingVersion, DependsOnMetapackage, DependsOnObsoleteBootstrap,
     DependsOnPackagingDev, DependsOnPythonMinimal, InvalidArchStringInSourceRelation,
-    InvalidProfileNameInSourceRelation, LibRecommendsDocumentation,
+    InvalidProfileNameInSourceRelation, InvalidVersionedProvides, LibRecommendsDocumentation,
     LibmoduleBuildPerlNeedsToBeInBuildDepends, LibmoduleBuildTinyPerlNeedsToBeInBuildDepends,
     MailTransportAgentDependencyDoesNotSpecifyDefaultMta, NeedlessDependencyOnJre,
     NeedlesslyDependsOnAwk, ObsoleteRelationForm, OredBuildDependsOnObsoletePackage,

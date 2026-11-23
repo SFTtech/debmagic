@@ -624,6 +624,7 @@ use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsPrebuiltSphinxDocumentation;
 use super::rules::SourceContainsPrebuiltWasmBinary;
 use super::rules::SourceContainsPrebuiltYappParser;
+use super::rules::SourceContainsQuiltControlDir;
 use super::rules::SourceContainsSvkCommitFile;
 use super::rules::SourceContainsSvnCommitFile;
 use super::rules::SourceContainsSvnConflictFile;
@@ -2639,6 +2640,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnstrippedStaticLibrary,
         &PatchModifyingDebianFiles,
         &QuiltSeriesReferencesNonExistentPatch,
+        &SourceContainsQuiltControlDir,
     ]
 }
 
@@ -3167,6 +3169,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &TestsuiteOredDependsOnObsoletePackage,
         &PatchModifyingDebianFiles,
         &QuiltSeriesReferencesNonExistentPatch,
+        &SourceContainsQuiltControlDir,
     ]
 }
 

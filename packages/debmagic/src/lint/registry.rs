@@ -207,6 +207,7 @@ use super::rules::EmptyShlibs;
 use super::rules::EmptyUdebPackage;
 use super::rules::EmptyUpstreamSources;
 use super::rules::ExampleIncorrectPathForInterpreter;
+use super::rules::ExampleInterpreterInUsrLocal;
 use super::rules::ExampleInterpreterNotAbsolute;
 use super::rules::ExampleScriptUsesBinEnv;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
@@ -2431,6 +2432,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
         &ExampleUnusualInterpreter,
+        &ExampleInterpreterInUsrLocal,
     ]
 }
 
@@ -3790,6 +3792,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
         &ExampleUnusualInterpreter,
+        &ExampleInterpreterInUsrLocal,
     ]
 }
 

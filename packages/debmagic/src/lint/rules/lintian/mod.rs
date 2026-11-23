@@ -1107,7 +1107,7 @@ pub(crate) use scripts_shell::{
 pub(crate) use scripts_text::{
     ControlInterpreterInUsrLocal, ControlInterpreterWithoutDepends,
     ControlInterpreterWithoutPredepends, ExampleIncorrectPathForInterpreter,
-    ExampleInterpreterNotAbsolute, ExampleScriptUsesBinEnv,
+    ExampleInterpreterInUsrLocal, ExampleInterpreterNotAbsolute, ExampleScriptUsesBinEnv,
     ExampleScriptUsesDeprecatedNodejsLocation, ExampleScriptWithoutInterpreter,
     ExampleUnusualInterpreter, ExampleWrongPathForInterpreter, ForbiddenConfigInterpreter,
     ForbiddenPostrmInterpreter, GawkScriptButNoGawkDep, IncorrectPathForInterpreter,

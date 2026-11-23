@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-hg-control-dir (LN1607) [.hg/]
+P: example (source): source-contains-hg-control-dir (LN1607) [src/.hg/]

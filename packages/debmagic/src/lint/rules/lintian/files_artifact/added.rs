@@ -23,6 +23,7 @@ use debmagic_common::debian::source::SourceFormat;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::rule::Severity;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum Artifact {
@@ -91,6 +92,16 @@ pub(super) fn flag_added(ctx: &mut SourceContext<'_>, want: Artifact) {
 /// classified path in `files()`, with no orig subtraction and no quilt filter.
 /// Nothing is reported for a non-native package.
 pub(super) fn flag_native(ctx: &mut SourceContext<'_>, want: Artifact) {
+    flag_native_at(ctx, want, Severity::Warning);
+}
+
+/// `flag_native` at pedantic severity, the `source-contains-` Tags whose
+/// `.tag` file says `pedantic`.
+pub(super) fn flag_native_pedantic(ctx: &mut SourceContext<'_>, want: Artifact) {
+    flag_native_at(ctx, want, Severity::Pedantic);
+}
+
+fn flag_native_at(ctx: &mut SourceContext<'_>, want: Artifact, severity: Severity) {
     if !super::super::fields_version::is_native(ctx) {
         return;
     }
@@ -109,11 +120,15 @@ pub(super) fn flag_native(ctx: &mut SourceContext<'_>, want: Artifact) {
     };
     found.sort();
     for path in found {
-        ctx.diagnostic(Diagnostic::warn("").with_location(Location {
-            path,
-            line: None,
-            column: None,
-        }));
+        ctx.diagnostic(
+            Diagnostic::warn("")
+                .with_severity(severity)
+                .with_location(Location {
+                    path,
+                    line: None,
+                    column: None,
+                }),
+        );
     }
 }
 

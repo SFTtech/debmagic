@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-svn-control-dir (LN1612) [.svn/]
+P: example (source): source-contains-svn-control-dir (LN1612) [debian/.svn/]

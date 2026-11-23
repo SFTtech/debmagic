@@ -754,8 +754,12 @@ pub(crate) use files_artifact::{
     DebianAddsEditorBackupFile, DebianAddsGitControlDir, DebianAddsHgControlDir,
     DebianAddsHgTagsFile, DebianAddsPatchFailureFile, DebianAddsQuiltControlDir,
     DebianAddsSvkCommitFile, DebianAddsSvnCommitFile, DebianAddsSvnConflictFile,
-    DebianAddsSvnControlDir, NoDebianChanges, SourceContainsEditorBackupFile,
-    SourceContainsPatchFailureFile,
+    DebianAddsSvnControlDir, NoDebianChanges, SourceContainsArchControlDir,
+    SourceContainsArchInventoryFile, SourceContainsBtsControlDir, SourceContainsBzrControlDir,
+    SourceContainsCvsConflictCopy, SourceContainsCvsControlDir, SourceContainsEditorBackupFile,
+    SourceContainsGitControlDir, SourceContainsHgControlDir, SourceContainsHgTagsFile,
+    SourceContainsPatchFailureFile, SourceContainsSvkCommitFile, SourceContainsSvnCommitFile,
+    SourceContainsSvnConflictFile, SourceContainsSvnControlDir,
 };
 pub(crate) use files_build_path::DirOrFileInBuildTree;
 pub(crate) use files_config_scripts::{

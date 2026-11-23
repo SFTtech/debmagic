@@ -193,6 +193,7 @@ use super::rules::DhInstallInsteadOfDhInstallmodules;
 use super::rules::DhInstallmanpagesIsObsolete;
 use super::rules::DhMakeTemplateInSource;
 use super::rules::DhQuiltAddonButQuiltSourceFormat;
+use super::rules::DirectChangesInDiffButNoPatchSystem;
 use super::rules::DirectoryInEtcSvDirectoryWithoutExecutableRunScript;
 use super::rules::DistantPrerequisiteInShlibs;
 use super::rules::DistributionAndChangesMismatch;
@@ -2659,6 +2660,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
+        &DirectChangesInDiffButNoPatchSystem,
     ]
 }
 
@@ -3192,6 +3194,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsQuiltControlDir,
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
+        &DirectChangesInDiffButNoPatchSystem,
     ]
 }
 

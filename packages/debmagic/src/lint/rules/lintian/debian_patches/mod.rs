@@ -24,6 +24,7 @@ mod ln1529_quilt_patch_uses_dpatch_placeholder;
 mod ln1530_quilt_patch_using_template_description;
 mod ln1704_quilt_patch_uses_dpatch_extension;
 mod ln1705_spelling_error_in_patch_description;
+mod ln1706_direct_changes_in_diff_but_no_patch_system;
 mod ln1770_patch_modifying_debian_files;
 mod ln1771_quilt_series_references_non_existent_patch;
 mod series_patches;
@@ -51,5 +52,6 @@ pub(crate) use ln1529_quilt_patch_uses_dpatch_placeholder::QuiltPatchUsesDpatchP
 pub(crate) use ln1530_quilt_patch_using_template_description::QuiltPatchUsingTemplateDescription;
 pub(crate) use ln1704_quilt_patch_uses_dpatch_extension::QuiltPatchUsesDpatchExtension;
 pub(crate) use ln1705_spelling_error_in_patch_description::SpellingErrorInPatchDescription;
+pub(crate) use ln1706_direct_changes_in_diff_but_no_patch_system::DirectChangesInDiffButNoPatchSystem;
 pub(crate) use ln1770_patch_modifying_debian_files::PatchModifyingDebianFiles;
 pub(crate) use ln1771_quilt_series_references_non_existent_patch::QuiltSeriesReferencesNonExistentPatch;

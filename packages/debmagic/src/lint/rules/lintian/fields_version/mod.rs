@@ -17,10 +17,10 @@ mod ln0755_binary_nmu_debian_revision_in_source;
 mod ln0805_dfsg_version_misspelled;
 mod ln0806_dfsg_version_in_native_package;
 mod ln0925_bad_version_number;
-mod ln1558_dfsg_version_with_tilde;
 mod ln1554_anticipated_repack_count;
 mod ln1555_dot_before_repack_count;
 mod ln1556_dfsg_version_with_period;
+mod ln1558_dfsg_version_with_tilde;
 
 pub(crate) use ln0373_debian_revision_is_zero::DebianRevisionIsZero;
 pub(crate) use ln0374_debian_revision_not_well_formed::DebianRevisionNotWellFormed;
@@ -28,10 +28,10 @@ pub(crate) use ln0755_binary_nmu_debian_revision_in_source::BinaryNmuDebianRevis
 pub(crate) use ln0805_dfsg_version_misspelled::DfsgVersionMisspelled;
 pub(crate) use ln0806_dfsg_version_in_native_package::DfsgVersionInNativePackage;
 pub(crate) use ln0925_bad_version_number::BadVersionNumber;
-pub(crate) use ln1558_dfsg_version_with_tilde::DfsgVersionWithTilde;
 pub(crate) use ln1554_anticipated_repack_count::AnticipatedRepackCount;
 pub(crate) use ln1555_dot_before_repack_count::DotBeforeRepackCount;
 pub(crate) use ln1556_dfsg_version_with_period::DfsgVersionWithPeriod;
+pub(crate) use ln1558_dfsg_version_with_tilde::DfsgVersionWithTilde;
 
 static NON_NATIVE_FORMAT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(?:2\.0|3\.0\s+\((?:quilt|git)\))$").expect("valid regex"));

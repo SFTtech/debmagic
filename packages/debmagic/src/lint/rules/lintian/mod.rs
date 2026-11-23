@@ -213,11 +213,11 @@ mod ln0927_missing_depends_on_sensible_utils;
 mod ln1086_source_contains_prebuilt_silverlight_object;
 mod ln1235_trailing_comma_in_maintainer_field;
 mod ln1387_source_contains_prebuilt_binary;
-mod ln1560_bin_sbin_mismatch;
-mod ln1562_empty_udeb_package;
 mod ln1388_source_contains_prebuilt_javascript_object;
 mod ln1389_source_contains_prebuilt_python_object;
 mod ln1390_source_is_missing;
+mod ln1560_bin_sbin_mismatch;
+mod ln1562_empty_udeb_package;
 mod mailbox;
 mod mailcap;
 mod maintainer_scripts_adduser;
@@ -566,12 +566,9 @@ pub(crate) use debian_copyright::{
     UsrShareDocSymlinkWithoutDependency,
 };
 pub(crate) use fields_version::{
-    BadVersionNumber, BinaryNmuDebianRevisionInSource, DebianRevisionIsZero,
-    DebianRevisionNotWellFormed, DfsgVersionInNativePackage, DfsgVersionMisspelled,
-    DfsgVersionWithTilde,
     AnticipatedRepackCount, BadVersionNumber, BinaryNmuDebianRevisionInSource,
     DebianRevisionIsZero, DebianRevisionNotWellFormed, DfsgVersionInNativePackage,
-    DfsgVersionMisspelled, DfsgVersionWithPeriod, DotBeforeRepackCount,
+    DfsgVersionMisspelled, DfsgVersionWithPeriod, DfsgVersionWithTilde, DotBeforeRepackCount,
 };
 
 pub(crate) use debian_debconf::{
@@ -966,11 +963,11 @@ pub(crate) use ln0927_missing_depends_on_sensible_utils::MissingDependsOnSensibl
 pub(crate) use ln1086_source_contains_prebuilt_silverlight_object::SourceContainsPrebuiltSilverlightObject;
 pub(crate) use ln1235_trailing_comma_in_maintainer_field::TrailingCommaInMaintainerField;
 pub(crate) use ln1387_source_contains_prebuilt_binary::SourceContainsPrebuiltBinary;
-pub(crate) use ln1560_bin_sbin_mismatch::BinSbinMismatch;
-pub(crate) use ln1562_empty_udeb_package::EmptyUdebPackage;
 pub(crate) use ln1388_source_contains_prebuilt_javascript_object::SourceContainsPrebuiltJavascriptObject;
 pub(crate) use ln1389_source_contains_prebuilt_python_object::SourceContainsPrebuiltPythonObject;
 pub(crate) use ln1390_source_is_missing::SourceIsMissing;
+pub(crate) use ln1560_bin_sbin_mismatch::BinSbinMismatch;
+pub(crate) use ln1562_empty_udeb_package::EmptyUdebPackage;
 pub(crate) use maintainer_scripts_adduser::AdduserWithHomeVarRun;
 pub(crate) use maintainer_scripts_diversion::{
     DiversionForUnknownFile, OrphanedDiversion, PackageUsesLocalDiversion,

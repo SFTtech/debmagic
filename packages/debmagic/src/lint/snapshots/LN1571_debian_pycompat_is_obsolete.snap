@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): debian-pycompat-is-obsolete (LN1571) [debian/pycompat]
+I: (source): debian-pycompat-is-obsolete (LN1571) [debian/pycompat]
+I: (source): debian-pycompat-is-obsolete (LN1571) [debian/pycompat]
+I: (source): debian-pycompat-is-obsolete (LN1571) [debian/pycompat]

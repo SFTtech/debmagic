@@ -1427,6 +1427,10 @@ const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[
         "the hint is tar's message from unpacking the orig tarball, which a Source tree does not do",
     ),
     (
+        "checks/files/date/orig-tarball-ancient-file",
+        "the hint is about an entry of the orig tarball, which a Source tree does not have",
+    ),
+    (
         "checks/fields/checksums/no-sha256-checksum",
         "the hint is about the built `.dsc`'s `Checksums-Sha256`, and a Source tree has no `.dsc`",
     ),

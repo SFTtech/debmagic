@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+use std::ffi::OsStr;
 use std::fs;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
@@ -7,7 +9,7 @@ use anyhow::{Context, bail};
 use regex::Regex;
 use tempfile::TempDir;
 
-use super::binary_package_reader::guess_package_name;
+use super::binary_package_reader::{guess_package_name, header_mtime, normalize_member_path};
 use super::debian_control::ControlParagraph;
 use super::dsc::Dsc;
 use super::file_tree::FileTree;
@@ -362,6 +364,132 @@ fn merge_tree(src: &Path, dest: &Path) -> anyhow::Result<()> {
             .with_context(|| format!("moving {} to {}", entry.path().display(), to.display()))?;
     }
     Ok(())
+}
+
+/// One entry of an Orig tarball as lintian's orig index names it: its path in
+/// the Orig files, and the modification time in its tar header.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct OrigEntry {
+    pub path: PathBuf,
+    pub mtime: Option<i64>,
+}
+
+/// The entries of the Orig tarballs of the `.dsc` at `dsc_path`, read from
+/// their tar headers beside it (each tarball is decompressed as a stream, not
+/// extracted). Empty for a Native package.
+pub(crate) fn orig_entries(dsc_path: &Path, dsc: &Dsc) -> anyhow::Result<Vec<OrigEntry>> {
+    let identity = DscIdentity {
+        path: dsc_path.to_path_buf(),
+        dsc: dsc.clone(),
+        files: named_files(dsc.fields()),
+    };
+    if identity.is_native() {
+        return Ok(Vec::new());
+    }
+    let mut entries = Vec::new();
+    for (filename, component) in identity.orig_components()? {
+        let members = tarball_members(&identity.directory().join(&filename))?;
+        for (path, mtime) in drop_common_top_directory(members, &component) {
+            let path = if component.is_empty() {
+                path
+            } else {
+                Path::new(&component).join(path)
+            };
+            entries.push(OrigEntry { path, mtime });
+        }
+    }
+    Ok(entries)
+}
+
+/// A member of an Orig tarball, as its header describes it.
+struct TarMember {
+    path: PathBuf,
+    is_dir: bool,
+    mtime: Option<i64>,
+}
+
+/// The members of the tarball at `path`, in archive order.
+fn tarball_members(path: &Path) -> anyhow::Result<Vec<TarMember>> {
+    let mut archive = tar::Archive::new(open_tarball(path)?);
+    let mut members = Vec::new();
+    for entry in archive
+        .entries()
+        .with_context(|| format!("reading {}", path.display()))?
+    {
+        let entry = entry.with_context(|| format!("reading {}", path.display()))?;
+        let name = entry
+            .path()
+            .with_context(|| format!("reading {}", path.display()))?;
+        let Some(normalized) = normalize_member_path(&name) else {
+            continue;
+        };
+        members.push(TarMember {
+            path: normalized,
+            is_dir: entry.header().entry_type().is_dir(),
+            mtime: header_mtime(entry.header()),
+        });
+    }
+    Ok(members)
+}
+
+/// The tarball at `path`, decompressed as a stream. bzip2 is not read.
+fn open_tarball(path: &Path) -> anyhow::Result<Box<dyn std::io::Read>> {
+    let file = fs::File::open(path).with_context(|| format!("opening {}", path.display()))?;
+    let name = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or_default();
+    if name.ends_with(".gz") {
+        Ok(Box::new(flate2::read::GzDecoder::new(file)))
+    } else if name.ends_with(".xz") {
+        Ok(Box::new(xz2::read::XzDecoder::new(file)))
+    } else if name.ends_with(".zst") {
+        Ok(Box::new(zstd::stream::read::Decoder::new(file)?))
+    } else if name.ends_with(".tar") {
+        Ok(Box::new(file))
+    } else {
+        bail!(
+            "{} is compressed in a format debmagic does not read",
+            path.display()
+        )
+    }
+}
+
+/// lintian's orig index names: the Orig files of one tarball lose the one
+/// top directory that every member shares, as the extraction does, unless a
+/// file of that name exists. The component directory is kept (the caller adds
+/// it). Entries left with no name are dropped.
+fn drop_common_top_directory(
+    members: Vec<TarMember>,
+    component: &str,
+) -> Vec<(PathBuf, Option<i64>)> {
+    let common: PathBuf = {
+        let tops: BTreeSet<&OsStr> = members
+            .iter()
+            .filter_map(|member| member.path.iter().next())
+            .collect();
+        match tops.iter().next() {
+            Some(top) if tops.len() == 1 => PathBuf::from(top),
+            _ => PathBuf::new(),
+        }
+    };
+    let conflict = members
+        .iter()
+        .any(|member| !member.is_dir && member.path == common);
+    let strip = !common.as_os_str().is_empty()
+        && !conflict
+        && (common.as_os_str() != OsStr::new(component) || !component.is_empty());
+    members
+        .into_iter()
+        .filter_map(|member| {
+            let path = if strip {
+                member.path.strip_prefix(&common).ok()?.to_path_buf()
+            } else {
+                member.path
+            };
+            (!path.as_os_str().is_empty()).then_some((path, member.mtime))
+        })
+        .collect()
 }
 
 fn named_files(fields: &ControlParagraph) -> Vec<String> {

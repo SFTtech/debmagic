@@ -443,6 +443,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/contents/line-length/cruft-gfdl-invariants",
     "checks/files/contents/line-length/cruft-minified-js",
     "checks/files/contents/line-length/min-js-with-sources",
+    "checks/files/date/orig-tarball-ancient-file",
     "checks/files/encoding/changelog-in-western-encoding",
     "checks/files/encoding/copyright-in-western-encoding",
     "checks/files/encoding/debconf-in-western-encoding",
@@ -1668,6 +1669,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/contents/line-length/cruft-gfdl-invariants",
     "checks/files/contents/line-length/cruft-minified-js",
     "checks/files/contents/line-length/min-js-with-sources",
+    "checks/files/date/orig-tarball-ancient-file",
     "checks/files/encoding/changelog-in-western-encoding",
     "checks/files/encoding/copyright-in-western-encoding",
     "checks/files/encoding/debconf-in-western-encoding",
@@ -2304,6 +2306,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/contents/line-length/cruft-gfdl-invariants"; "checks_files_contents_line_length_cruft_gfdl_invariants")]
 #[test_case("checks/files/contents/line-length/cruft-minified-js"; "checks_files_contents_line_length_cruft_minified_js")]
 #[test_case("checks/files/contents/line-length/min-js-with-sources"; "checks_files_contents_line_length_min_js_with_sources")]
+#[test_case("checks/files/date/orig-tarball-ancient-file"; "checks_files_date_orig_tarball_ancient_file")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
 #[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
 #[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]
@@ -3531,6 +3534,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/contents/line-length/cruft-gfdl-invariants"; "checks_files_contents_line_length_cruft_gfdl_invariants")]
 #[test_case("checks/files/contents/line-length/cruft-minified-js"; "checks_files_contents_line_length_cruft_minified_js")]
 #[test_case("checks/files/contents/line-length/min-js-with-sources"; "checks_files_contents_line_length_min_js_with_sources")]
+#[test_case("checks/files/date/orig-tarball-ancient-file"; "checks_files_date_orig_tarball_ancient_file")]
 #[test_case("checks/files/encoding/changelog-in-western-encoding"; "checks_files_encoding_changelog_in_western_encoding")]
 #[test_case("checks/files/encoding/copyright-in-western-encoding"; "checks_files_encoding_copyright_in_western_encoding")]
 #[test_case("checks/files/encoding/debconf-in-western-encoding"; "checks_files_encoding_debconf_in_western_encoding")]

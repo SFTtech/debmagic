@@ -494,6 +494,7 @@ pub(crate) use files_compressed_lzo::BrokenLzo;
 pub(crate) use files_compressed_xz::BrokenXz;
 pub(crate) use files_compressed_zip::BrokenZip;
 pub(crate) use files_contents_line_length::VeryLongLineLengthInSourceFile;
+pub(crate) use files_date::OrigTarballContainsAncientFile;
 pub(crate) use files_date::PackageContainsAncientFile;
 pub(crate) use files_duplicates::DuplicateChangelogFiles;
 pub(crate) use files_empty_directories::PackageContainsEmptyDirectory;

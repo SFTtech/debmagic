@@ -7,3 +7,5 @@ W: example (binary): postrm-does-not-purge-debconf (LN0883) [postrm]
 W: example (binary): postrm-does-not-purge-debconf (LN0883) postrm
 W: example (binary): postrm-does-not-purge-debconf (LN0883) postrm
 W: example (udeb): postrm-does-not-purge-debconf (LN0883) [postrm]
+W: example (binary): postrm-does-not-purge-debconf (LN0883) postrm
+W: example (binary): postrm-does-not-purge-debconf (LN0883) [postrm]

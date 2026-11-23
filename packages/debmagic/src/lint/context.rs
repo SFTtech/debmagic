@@ -813,7 +813,6 @@ impl<'a> SourceContext<'a> {
     /// (following symlinks), each read and parsed once per Subject, sorted by
     /// path. `None` after a global File tree failure (returned from
     /// [`Self::finish`]).
-    #[allow(dead_code)]
     pub fn signing_key_files(&mut self) -> Option<Arc<Vec<SigningKeyFile>>> {
         self.files()?;
         Some(self.shared_once(|ctx| ctx.read_signing_key_files()))
@@ -992,7 +991,6 @@ fn is_quilt_series_path(path: &Path) -> bool {
 /// dangling, absolute, or escaping links, and loops.
 /// A signing key file of the packaging tree: the path it is found at (the
 /// target's, when it is a symlink) and its parsed contents.
-#[allow(dead_code)]
 pub(crate) struct SigningKeyFile {
     pub path: PathBuf,
     pub key: OpenPgpFile,

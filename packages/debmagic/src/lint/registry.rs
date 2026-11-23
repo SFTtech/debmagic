@@ -143,6 +143,7 @@ use super::rules::DebianRulesShouldNotUseSanitizeAllBuildflag;
 use super::rules::DebianRulesUpdatesControlAutomatically;
 use super::rules::DebianRulesUsesAsNeededLinkerFlag;
 use super::rules::DebianRulesUsesDebBuildOpts;
+use super::rules::DebianRulesUsesDeprecatedMakefile;
 use super::rules::DebianRulesUsesDeprecatedSystemdOverride;
 use super::rules::DebianRulesUsesInstalledPythonVersions;
 use super::rules::DebianRulesUsesSpecialShellVariable;
@@ -1965,6 +1966,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DebianRulesIsSymlink,
         &DebianRulesNotAMakefile,
         &DebianRulesNotExecutable,
+        &DebianRulesUsesDeprecatedMakefile,
         &DebianRulesUsesSpecialShellVariable,
         &DebianRulesUsesWrongEnvironmentVariable,
         &MissingBuildDependsForCleanTargetInDebianRules,
@@ -2917,6 +2919,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DebianRulesIsSymlink,
         &DebianRulesNotAMakefile,
         &DebianRulesNotExecutable,
+        &DebianRulesUsesDeprecatedMakefile,
         &DebianRulesUsesSpecialShellVariable,
         &DebianRulesUsesWrongEnvironmentVariable,
         &MissingBuildDependsForCleanTargetInDebianRules,

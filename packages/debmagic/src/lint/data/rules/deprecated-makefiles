@@ -1,0 +1,5 @@
+# Manually maintained list of Makefiles that can be included from
+# d/rules, but is also known to be deprecated.
+#
+# Please keep it sorted by file name.
+

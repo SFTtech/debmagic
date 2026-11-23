@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): redundant-build-prerequisites (LN0932) foo, foo (>= 1)
+W: example (source): redundant-build-prerequisites (LN0932) foo, foo (>= 1)
+W: example (source): redundant-build-prerequisites (LN0932) foo, foo (>= 1)

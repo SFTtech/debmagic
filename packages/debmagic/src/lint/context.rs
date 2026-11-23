@@ -11,7 +11,7 @@ use super::data;
 use super::deb_members::{DebMembers, Tarball};
 use super::debhelper::DebhelperFacts;
 use super::debian_changelog::DebianChangelog;
-use super::debian_control::DebianControl;
+use super::debian_control::{ControlParagraph, DebianControl};
 use super::debian_copyright::DebianCopyright;
 use super::diagnostic::{Diagnostic, ProcessableType};
 use super::diffstat::Diffstat;
@@ -1070,6 +1070,17 @@ impl<'a> SourceContext<'a> {
         match self.inner {
             SourceInner::Tree(_) => None,
             SourceInner::Package(data) => data.dsc.as_ref(),
+        }
+    }
+
+    /// The source paragraph whose relation fields lintian reads (`Build-Depends`
+    /// and friends): the `.dsc` of a Source package, else the source paragraph
+    /// of `debian/control` on a Source tree. A Source package whose `.dsc` the
+    /// tester omits falls back to `debian/control`.
+    pub fn relation_fields(&self) -> Option<&ControlParagraph> {
+        match self.dsc() {
+            Some(dsc) => Some(dsc.fields()),
+            None => self.debian_control().map(DebianControl::source),
         }
     }
 

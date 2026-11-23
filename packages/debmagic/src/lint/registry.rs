@@ -408,6 +408,10 @@ use super::rules::ObsoleteVimAddonManager;
 use super::rules::OcamlCustomExecutable;
 use super::rules::OcamlDanglingCmi;
 use super::rules::OcamlDanglingCmx;
+use super::rules::OcamlDevFileInNondevPackage;
+use super::rules::OcamlDevFileNotInUsrLibOcaml;
+use super::rules::OcamlMetaWithoutSuggestingFindlib;
+use super::rules::OcamlStrayCmo;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
@@ -2443,6 +2447,10 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &JavalibButNoPublicJars,
         &LinkedWithObsoleteLibrary,
         &ObsoleteVimAddonManager,
+        &OcamlDevFileInNondevPackage,
+        &OcamlDevFileNotInUsrLibOcaml,
+        &OcamlMetaWithoutSuggestingFindlib,
+        &OcamlStrayCmo,
     ]
 }
 
@@ -3808,6 +3816,10 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &JavalibButNoPublicJars,
         &LinkedWithObsoleteLibrary,
         &ObsoleteVimAddonManager,
+        &OcamlDevFileInNondevPackage,
+        &OcamlDevFileNotInUsrLibOcaml,
+        &OcamlMetaWithoutSuggestingFindlib,
+        &OcamlStrayCmo,
     ]
 }
 

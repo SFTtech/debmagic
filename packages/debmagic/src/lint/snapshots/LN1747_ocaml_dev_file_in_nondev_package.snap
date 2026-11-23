@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: libfoo (binary): ocaml-dev-file-in-nondev-package (LN1747) 1 file in usr/lib/ocaml/foo
+P: libfoo (binary): ocaml-dev-file-in-nondev-package (LN1747) 2 files in usr/lib/ocaml
+P: libfoo (binary): ocaml-dev-file-in-nondev-package (LN1747) 1 file in usr/lib/ocaml/foo
+P: libfoo (udeb): ocaml-dev-file-in-nondev-package (LN1747) 1 file in usr/lib/ocaml/foo

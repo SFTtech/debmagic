@@ -991,8 +991,11 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/ocaml/byte-code/compiled/ocaml-general",
     "checks/languages/ocaml/byte-code/interface/ocaml-general",
     "checks/languages/ocaml/byte-code/library/ocaml-general",
+    "checks/languages/ocaml/byte-code/misplaced/package/ocaml-general",
+    "checks/languages/ocaml/byte-code/misplaced/path/ocaml-general",
     "checks/languages/ocaml/byte-code/plugin/ocaml-general",
     "checks/languages/ocaml/custom-executable/binaries-general",
+    "checks/languages/ocaml/meta/ocaml-general",
     "checks/languages/perl/core/provides/fields-perl-provides",
     "checks/languages/perl/files-foo-in-bar",
     "checks/languages/perl/files-uses-perl4-libs-without-dep",
@@ -2739,8 +2742,11 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/languages/ocaml/byte-code/compiled/ocaml-general"; "checks_languages_ocaml_byte_code_compiled_ocaml_general")]
 #[test_case("checks/languages/ocaml/byte-code/interface/ocaml-general"; "checks_languages_ocaml_byte_code_interface_ocaml_general")]
 #[test_case("checks/languages/ocaml/byte-code/library/ocaml-general"; "checks_languages_ocaml_byte_code_library_ocaml_general")]
+#[test_case("checks/languages/ocaml/byte-code/misplaced/package/ocaml-general"; "checks_languages_ocaml_byte_code_misplaced_package_ocaml_general")]
+#[test_case("checks/languages/ocaml/byte-code/misplaced/path/ocaml-general"; "checks_languages_ocaml_byte_code_misplaced_path_ocaml_general")]
 #[test_case("checks/languages/ocaml/byte-code/plugin/ocaml-general"; "checks_languages_ocaml_byte_code_plugin_ocaml_general")]
 #[test_case("checks/languages/ocaml/custom-executable/binaries-general"; "checks_languages_ocaml_custom_executable_binaries_general")]
+#[test_case("checks/languages/ocaml/meta/ocaml-general"; "checks_languages_ocaml_meta_ocaml_general")]
 #[test_case("checks/languages/perl/core/provides/fields-perl-provides"; "checks_languages_perl_core_provides_fields_perl_provides")]
 #[test_case("checks/languages/perl/files-foo-in-bar"; "checks_languages_perl_files_foo_in_bar")]
 #[test_case("checks/languages/perl/files-uses-perl4-libs-without-dep"; "checks_languages_perl_files_uses_perl4_libs_without_dep")]

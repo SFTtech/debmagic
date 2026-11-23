@@ -62,11 +62,20 @@ impl BinaryPackageRule for SyntaxErrorInDebianChangelog {
 }
 
 /// One `(line, extra)` per parser error; the extra is the quoted condition.
+/// An unparseable date is the one condition lintian prefixes with the line
+/// (`line 12 "couldn't parse date ..."`).
 fn reports(changelog: &DebianChangelog) -> Vec<(u32, String)> {
     changelog
         .errors()
         .iter()
-        .map(|error| (error.line(), format!("\"{}\"", error.message())))
+        .map(|error| {
+            let extra = if error.message().starts_with("couldn't parse date ") {
+                format!("line {} \"{}\"", error.line(), error.message())
+            } else {
+                format!("\"{}\"", error.message())
+            };
+            (error.line(), extra)
+        })
         .collect()
 }
 

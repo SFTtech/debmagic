@@ -558,6 +558,7 @@ use super::rules::SourceContainsPrebuiltPythonObject;
 use super::rules::SourceContainsPrebuiltSilverlightObject;
 use super::rules::SourceContainsPrebuiltSphinxDocumentation;
 use super::rules::SourceContainsPrebuiltWasmBinary;
+use super::rules::SourceContainsPrebuiltYappParser;
 use super::rules::SourceContainsWafBinary;
 use super::rules::SourceFieldMalformed;
 use super::rules::SourceIsMissing;
@@ -2449,6 +2450,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SourceContainsPrebuiltPandocDocumentation,
         &SourceContainsPrebuiltSphinxDocumentation,
         &SourceContainsPrebuiltWasmBinary,
+        &SourceContainsPrebuiltYappParser,
     ]
 }
 
@@ -2921,6 +2923,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsPrebuiltPandocDocumentation,
         &SourceContainsPrebuiltSphinxDocumentation,
         &SourceContainsPrebuiltWasmBinary,
+        &SourceContainsPrebuiltYappParser,
     ]
 }
 

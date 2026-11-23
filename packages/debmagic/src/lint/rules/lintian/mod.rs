@@ -881,6 +881,7 @@ pub(crate) use languages_perl::{
     PackageInstallsNonbinaryPerlInUsrLibPerl5, PackageInstallsPacklist,
     PackageInstallsPerllocalPod, PackageSupersededByPerl, PerlModuleInCoreDirectory,
     PerlModuleUsesPerl4LibsWithoutDep, ScriptUsesPerl4LibsWithoutDep,
+    SourceContainsPrebuiltYappParser,
 };
 pub(crate) use languages_python::{
     AncientPythonVersionField, BogusPythonPrerequisite, DebianPycompatIsObsolete,

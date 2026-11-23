@@ -2513,12 +2513,23 @@ fn find_changes(dir: &Path) -> PathBuf {
     found.remove(0)
 }
 
+/// Whether the recipe is a source-only upload: its `Upload-Type` is `source`,
+/// which the importer keeps as `build-spec/upload-type`.
+fn recipe_is_source_only_upload(recipe: &Path) -> bool {
+    fs::read_to_string(recipe.join(VENDORED_BUILD_SPEC).join("upload-type"))
+        .is_ok_and(|text| text.trim() == "source")
+}
+
 /// `dpkg-buildpackage` as lintian's upload builder runs it: source and binary
-/// packages, unsigned, VCS cruft kept. Returns the success flag and the output
-/// of both streams, where `dpkg-source` reports a missing orig tarball.
-fn dpkg_build_upload(source: &Path) -> (bool, String) {
+/// packages (the source only with `-S`, for `Upload-Type: source`), unsigned,
+/// VCS cruft kept. Returns the success flag and the output of both streams,
+/// where `dpkg-source` reports a missing orig tarball.
+fn dpkg_build_upload(source: &Path, source_only: bool) -> (bool, String) {
     ensure_rules_executable(source);
     let mut command = dpkg_buildpackage_command(source, "nocheck");
+    if source_only {
+        command.arg("-S");
+    }
     command
         .args(["-us", "-uc", "-d"])
         .args(["-iNEVER_MATCH_ANYTHING", "-INEVER_MATCH_ANYTHING"])
@@ -2560,7 +2571,8 @@ fn assemble_group(recipe: &Path, work: &Path) -> PathBuf {
 
     let source = work.join("src");
     copy_package_tree(recipe, &source);
-    let (ok, text) = dpkg_build_upload(&source);
+    let source_only = recipe_is_source_only_upload(recipe);
+    let (ok, text) = dpkg_build_upload(&source, source_only);
     if !ok {
         let Some(name) = missing_upstream_tarball(&text) else {
             panic!("{recipe:?}: dpkg-buildpackage failed\n{text}");
@@ -2570,7 +2582,7 @@ fn assemble_group(recipe: &Path, work: &Path) -> PathBuf {
             "{recipe:?}: component orig {name} is not synthesized"
         );
         pack_main_orig(&source, &work.join(&name));
-        let (ok, text) = dpkg_build_upload(&source);
+        let (ok, text) = dpkg_build_upload(&source, source_only);
         assert!(
             ok,
             "{recipe:?}: dpkg-buildpackage failed after orig {name}\n{text}"

@@ -61,6 +61,7 @@ mod ln1516_changelog_distribution_does_not_match_changes_file;
 mod ln1517_debian_news_entry_uses_asterisk;
 mod ln1661_hyphen_in_upstream_part_of_debian_changelog_version;
 mod ln1662_non_consecutive_debian_revision;
+mod ln1663_experimental_to_unstable_without_comment;
 mod nmu;
 pub(in crate::lint::rules::lintian) mod source;
 mod version;
@@ -120,3 +121,4 @@ pub(crate) use ln1516_changelog_distribution_does_not_match_changes_file::Change
 pub(crate) use ln1517_debian_news_entry_uses_asterisk::DebianNewsEntryUsesAsterisk;
 pub(crate) use ln1661_hyphen_in_upstream_part_of_debian_changelog_version::HyphenInUpstreamPartOfDebianChangelogVersion;
 pub(crate) use ln1662_non_consecutive_debian_revision::NonConsecutiveDebianRevision;
+pub(crate) use ln1663_experimental_to_unstable_without_comment::ExperimentalToUnstableWithoutComment;

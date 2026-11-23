@@ -415,6 +415,7 @@ use super::rules::OredDependsOnObsoletePackage;
 use super::rules::OrigTarballMissingUpstreamSignature;
 use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
+use super::rules::OverrideDhAutoTestDoesNotCheckDEBBUILDOPTIONS;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
 use super::rules::OverrideFileInWrongPackage;
 use super::rules::PackageBuildsDbgAndDbgsymVariants;
@@ -2445,6 +2446,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &MissingStaticBuiltUsingFieldForGolangPackage,
         &XsGoImportPathDiffersFromModulePath,
         &BinaryContainsInsecureDefaultgodebugSettings,
+        &OverrideDhAutoTestDoesNotCheckDEBBUILDOPTIONS,
     ]
 }
 
@@ -2914,6 +2916,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UsesPoetryCli,
         &MissingStaticBuiltUsingFieldForGolangPackage,
         &XsGoImportPathDiffersFromModulePath,
+        &OverrideDhAutoTestDoesNotCheckDEBBUILDOPTIONS,
     ]
 }
 

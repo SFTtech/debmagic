@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-bzr-control-dir (LN1603) [.bzr/]
+P: example (source): source-contains-bzr-control-dir (LN1603) [src/.bzr/]

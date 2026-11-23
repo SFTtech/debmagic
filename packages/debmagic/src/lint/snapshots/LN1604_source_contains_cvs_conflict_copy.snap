@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-cvs-conflict-copy (LN1604) [.#foo.1]
+P: example (source): source-contains-cvs-conflict-copy (LN1604) [debian/.#foo.1.1]
+P: example (source): source-contains-cvs-conflict-copy (LN1604) [.#foo.1]

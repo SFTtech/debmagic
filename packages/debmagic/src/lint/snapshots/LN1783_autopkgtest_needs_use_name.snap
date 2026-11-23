@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo-perl (source): autopkgtest-needs-use-name (LN1783)
+W: libfoo-perl (source): autopkgtest-needs-use-name (LN1783)
+W: libfoo-perl (source): autopkgtest-needs-use-name (LN1783)
+W: libfoo-perl (source): autopkgtest-needs-use-name (LN1783)
+W: libfoo-perl (source): autopkgtest-needs-use-name (LN1783)

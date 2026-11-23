@@ -24,6 +24,7 @@ use super::rules::ArchDepPackageHasBigUsrShare;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
 use super::rules::ArchitectureEscape;
+use super::rules::AutopkgtestNeedsUseName;
 use super::rules::BackportsChangesMissing;
 use super::rules::BackportsUploadHasIncorrectVersionNumber;
 use super::rules::BadDistributionInChangesFile;
@@ -2663,6 +2664,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
         &NoTests,
         &NoTestsuiteHeader,
+        &AutopkgtestNeedsUseName,
     ]
 }
 
@@ -3198,6 +3200,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SphinxdocButNoSphinxdocDepends,
         &NoTests,
         &NoTestsuiteHeader,
+        &AutopkgtestNeedsUseName,
     ]
 }
 

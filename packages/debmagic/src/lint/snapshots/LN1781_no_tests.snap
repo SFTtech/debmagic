@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): no-tests (LN1781) [debian/tests/control:1]
+W: (source): no-tests (LN1781) [debian/tests/control:2]
+W: (source): no-tests (LN1781) [debian/tests/control:3]
+W: (source): no-tests (LN1781) [debian/tests/control:4]
+W: (source): no-tests (LN1781) [debian/tests/control:6]
+W: (source): no-tests (LN1781) [debian/tests/control:4]
+W: (source): no-tests (LN1781) [debian/tests/control:6]

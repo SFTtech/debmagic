@@ -1220,7 +1220,7 @@ pub(crate) use systemd::{
 pub(crate) use testsuite::{
     BackgroundedTestCommand, ConflictingTestFields, DebianTestsControlAutodep8IsObsolete,
     DeclarePythonVersionsForTest, DropPythonVersionDeclaration, EmptyDebianTestsControl,
-    IllegalRuntimeTestName, MissingRuntimeTestFile, MissingTestsControl, NoOpTestsuite,
+    IllegalRuntimeTestName, MissingRuntimeTestFile, MissingTestsControl, NoOpTestsuite, NoTests,
     ObsoleteRuntimeTestsRestriction, RuntimeTestFileIsNotARegularFile,
     RuntimeTestFileUsesInstalledPythonVersions,
     RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends, SuperficialTests,

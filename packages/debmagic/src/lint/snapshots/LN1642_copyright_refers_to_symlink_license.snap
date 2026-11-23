@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): copyright-refers-to-symlink-license (LN1642) usr/share/common-licenses/GPL
+P: example (binary): copyright-refers-to-symlink-license (LN1642) usr/share/common-licenses/LGPL

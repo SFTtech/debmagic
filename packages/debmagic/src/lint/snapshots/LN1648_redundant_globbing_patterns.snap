@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): redundant-globbing-patterns (LN1648) (src/* src/a.c) for src/a.c [debian/copyright:7]
+P: (source): redundant-globbing-patterns (LN1648) (src/* src/a.c) for src/a.c [debian/copyright:7]

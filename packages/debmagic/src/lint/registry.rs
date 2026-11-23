@@ -95,6 +95,9 @@ use super::rules::ControlFileIsNotAFile;
 use super::rules::ControlInterpreterInUsrLocal;
 use super::rules::ControlInterpreterWithoutDepends;
 use super::rules::ControlInterpreterWithoutPredepends;
+use super::rules::CopyrightHasCrs;
+use super::rules::CopyrightRefersToSymlinkLicense;
+use super::rules::CopyrightWithOldDhMakeDebianCopyright;
 use super::rules::CshConsideredHarmful;
 use super::rules::CustomLibrarySearchPath;
 use super::rules::CuteField;
@@ -299,6 +302,7 @@ use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
 use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
+use super::rules::LicenseFileListedInDebianCopyright;
 use super::rules::LicenseProblemCcByNcSa;
 use super::rules::LicenseProblemFontAdobeCopyrightedFragment;
 use super::rules::LicenseProblemFontAdobeCopyrightedFragmentNoCredit;
@@ -351,6 +355,8 @@ use super::rules::MissingDependencyOnLibstdc;
 use super::rules::MissingDependencyOnNumpyAbi;
 use super::rules::MissingDependencyOnPhpapi;
 use super::rules::MissingDependsOnSensibleUtils;
+use super::rules::MissingExplanationForContribOrNonFreePackage;
+use super::rules::MissingExplanationForRepackedUpstreamTarball;
 use super::rules::MissingFileFromPotfilesIn;
 use super::rules::MissingIntermediateDirectory;
 use super::rules::MissingManifest;
@@ -410,6 +416,7 @@ use super::rules::OmittedSystemdServiceForInitDScript;
 use super::rules::OredBuildDependsOnObsoletePackage;
 use super::rules::OredDependsOnObsoletePackage;
 use super::rules::OrigTarballMissingUpstreamSignature;
+use super::rules::OutOfDateCopyrightFormatUri;
 use super::rules::OutOfDateStandardsVersion;
 use super::rules::OutdatedRelationInShlibs;
 use super::rules::OverrideDhCleanDoesNotCallDhClean;
@@ -512,10 +519,12 @@ use super::rules::ReadmeDebianContainsDebmakeTemplate;
 use super::rules::ReadmeSourceIsDhMakeTemplate;
 use super::rules::RedundantBuildPrerequisites;
 use super::rules::RedundantControlRelation;
+use super::rules::RedundantGlobbingPatterns;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RedundantPriorityOptionalField;
 use super::rules::RelativeConffile;
 use super::rules::RenamedTag;
+use super::rules::RepackagedSourceNotAdvertised;
 use super::rules::RepeatedTriggerName;
 use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
@@ -571,6 +580,7 @@ use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::SpellingErrorInBinary;
 use super::rules::SpellingErrorInChangelog;
+use super::rules::SpellingErrorInCopyright;
 use super::rules::SpellingErrorInDescription;
 use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
@@ -629,6 +639,7 @@ use super::rules::UnknownArchitecture;
 use super::rules::UnknownConffileInstruction;
 use super::rules::UnknownControlFile;
 use super::rules::UnknownControlInterpreter;
+use super::rules::UnknownCopyrightFormatUri;
 use super::rules::UnknownEncodingInPoFile;
 use super::rules::UnknownEssentialValue;
 use super::rules::UnknownFileInDebianSource;
@@ -649,6 +660,7 @@ use super::rules::UnreleasedChanges;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
+use super::rules::UnversionedCopyrightFormatUri;
 use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploadHasBackportsVersionNumber;
 use super::rules::UploaderNameMissing;
@@ -690,6 +702,7 @@ use super::rules::WeakLibraryDevDependency;
 use super::rules::WebApplicationDependsOnApache2DataPackage;
 use super::rules::WebApplicationWorksOnlyWithApache;
 use super::rules::WhitespaceAfterContinuationCharacter;
+use super::rules::WikiCopyrightFormatUri;
 use super::rules::WindowsDevelFileInPackage;
 use super::rules::WishScriptButNoWishDep;
 use super::rules::WoffFontInWrongDir;
@@ -2455,6 +2468,19 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SourceContainsSvnCommitFile,
         &SourceContainsSvnConflictFile,
         &SourceContainsSvnControlDir,
+        &CopyrightWithOldDhMakeDebianCopyright,
+        &CopyrightHasCrs,
+        &CopyrightRefersToSymlinkLicense,
+        &SpellingErrorInCopyright,
+        &LicenseFileListedInDebianCopyright,
+        &MissingExplanationForContribOrNonFreePackage,
+        &MissingExplanationForRepackedUpstreamTarball,
+        &OutOfDateCopyrightFormatUri,
+        &RedundantGlobbingPatterns,
+        &RepackagedSourceNotAdvertised,
+        &UnknownCopyrightFormatUri,
+        &UnversionedCopyrightFormatUri,
+        &WikiCopyrightFormatUri,
     ]
 }
 
@@ -2930,6 +2956,15 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsSvnCommitFile,
         &SourceContainsSvnConflictFile,
         &SourceContainsSvnControlDir,
+        &LicenseFileListedInDebianCopyright,
+        &MissingExplanationForContribOrNonFreePackage,
+        &MissingExplanationForRepackedUpstreamTarball,
+        &OutOfDateCopyrightFormatUri,
+        &RedundantGlobbingPatterns,
+        &RepackagedSourceNotAdvertised,
+        &UnknownCopyrightFormatUri,
+        &UnversionedCopyrightFormatUri,
+        &WikiCopyrightFormatUri,
     ]
 }
 
@@ -3826,6 +3861,10 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &StaticLinkTimeOptimization,
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
+        &CopyrightWithOldDhMakeDebianCopyright,
+        &CopyrightHasCrs,
+        &CopyrightRefersToSymlinkLicense,
+        &SpellingErrorInCopyright,
     ]
 }
 

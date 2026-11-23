@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): unversioned-copyright-format-uri (LN1651) http://dep.debian.net/deps/dep5/ [debian/copyright]
+P: (source): unversioned-copyright-format-uri (LN1651) https://dep-team.pages.debian.net/deps/dep5 [debian/copyright]
+P: (source): unversioned-copyright-format-uri (LN1651) http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn [debian/copyright]

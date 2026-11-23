@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): wiki-copyright-format-uri (LN1652) http://wiki.debian.org/Proposals/CopyrightFormat?recall=184 [debian/copyright]
+P: (source): wiki-copyright-format-uri (LN1652) http://wiki.debian.org/Proposals/CopyrightFormat?action=recall&rev=196top [debian/copyright]

@@ -390,8 +390,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/version/repack/count/dfsg1",
     "checks/fields/version/repack/count/extra-dot",
     "checks/fields/version/repack/native/fields-version-dfsg-native",
-    "checks/fields/version/repack/tilde/tilde-dfsg",
     "checks/fields/version/repack/period/fields-version-dot-dfsg",
+    "checks/fields/version/repack/tilde/tilde-dfsg",
     "checks/fields/version/repack/typo/fields-version-dsfg",
     "checks/files/artifact/cruft-general-diff",
     "checks/files/artifact/cruft-general-native",
@@ -1518,8 +1518,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/version/repack/count/dfsg1",
     "checks/fields/version/repack/count/extra-dot",
     "checks/fields/version/repack/native/fields-version-dfsg-native",
-    "checks/fields/version/repack/tilde/tilde-dfsg",
     "checks/fields/version/repack/period/fields-version-dot-dfsg",
+    "checks/fields/version/repack/tilde/tilde-dfsg",
     "checks/fields/version/repack/typo/fields-version-dsfg",
     "checks/files/artifact/cruft-empty-diff",
     "checks/files/artifact/cruft-general-diff",
@@ -2089,8 +2089,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/version/repack/count/dfsg1"; "checks_fields_version_repack_count_dfsg1")]
 #[test_case("checks/fields/version/repack/count/extra-dot"; "checks_fields_version_repack_count_extra_dot")]
 #[test_case("checks/fields/version/repack/native/fields-version-dfsg-native"; "checks_fields_version_repack_native_fields_version_dfsg_native")]
-#[test_case("checks/fields/version/repack/tilde/tilde-dfsg"; "checks_fields_version_repack_tilde_tilde_dfsg")]
 #[test_case("checks/fields/version/repack/period/fields-version-dot-dfsg"; "checks_fields_version_repack_period_fields_version_dot_dfsg")]
+#[test_case("checks/fields/version/repack/tilde/tilde-dfsg"; "checks_fields_version_repack_tilde_tilde_dfsg")]
 #[test_case("checks/fields/version/repack/typo/fields-version-dsfg"; "checks_fields_version_repack_typo_fields_version_dsfg")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
 #[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
@@ -3219,8 +3219,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/version/repack/count/dfsg1"; "checks_fields_version_repack_count_dfsg1")]
 #[test_case("checks/fields/version/repack/count/extra-dot"; "checks_fields_version_repack_count_extra_dot")]
 #[test_case("checks/fields/version/repack/native/fields-version-dfsg-native"; "checks_fields_version_repack_native_fields_version_dfsg_native")]
-#[test_case("checks/fields/version/repack/tilde/tilde-dfsg"; "checks_fields_version_repack_tilde_tilde_dfsg")]
 #[test_case("checks/fields/version/repack/period/fields-version-dot-dfsg"; "checks_fields_version_repack_period_fields_version_dot_dfsg")]
+#[test_case("checks/fields/version/repack/tilde/tilde-dfsg"; "checks_fields_version_repack_tilde_tilde_dfsg")]
 #[test_case("checks/fields/version/repack/typo/fields-version-dsfg"; "checks_fields_version_repack_typo_fields_version_dsfg")]
 #[test_case("checks/files/artifact/cruft-empty-diff"; "checks_files_artifact_cruft_empty_diff")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]

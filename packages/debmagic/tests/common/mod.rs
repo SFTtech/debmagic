@@ -2433,11 +2433,12 @@ pub fn catalogued_group_tags() -> GroupTags {
 /// A hint a Group lint shows, per processable type: `changes` and `buildinfo`
 /// hints come from the Changes-file and Buildinfo-file Rules; a Group Rule's
 /// Diagnostics attach to the Source package (`source`) or to an installable
-/// (`binary`, `udeb`). Kept in step with `applies_to_group` in
+/// (`binary`, `udeb`) or to the `.changes` (`changes`, next to a Changes-file
+/// Rule's). Kept in step with `applies_to_group` in
 /// `scripts/import_lintian_parity.py`.
 fn applies_to_group(processable_type: &str, tag: &str, tags: &GroupTags) -> bool {
     match processable_type {
-        "changes" => tags.changes.contains(tag),
+        "changes" => tags.changes.contains(tag) || tags.group.contains(tag),
         "buildinfo" => tags.buildinfo.contains(tag),
         "source" | "binary" | "udeb" => tags.group.contains(tag),
         _ => false,

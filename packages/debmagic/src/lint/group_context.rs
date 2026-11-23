@@ -368,6 +368,13 @@ impl<'a> GroupContext<'a> {
         );
     }
 
+    /// Report on the Group's `.changes`: the Diagnostic gets the processable
+    /// type `changes` (the source name stays its package). For the Tags
+    /// lintian emits on a `.changes` from a Check that needs the `.dsc`.
+    pub fn changes_diagnostic(&mut self, diagnostic: Diagnostic) {
+        self.diagnostic(diagnostic.with_processable_type(ProcessableType::Changes));
+    }
+
     pub fn finish(self) -> anyhow::Result<Vec<Diagnostic>> {
         if let Some(error) = self.runtime_error {
             return Err(error);

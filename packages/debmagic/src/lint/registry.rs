@@ -292,6 +292,7 @@ use super::rules::InvalidSystemdDocumentation;
 use super::rules::IsdefaultFlagIsDeprecated;
 use super::rules::JarContainsSource;
 use super::rules::JarNotInUsrShare;
+use super::rules::JavalibButNoPublicJars;
 use super::rules::KillModeNone;
 use super::rules::LacksLdconfigTrigger;
 use super::rules::LacksUnversionedLinkToSharedLibrary;
@@ -2437,6 +2438,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ExampleInterpreterInUsrLocal,
         &ExampleShellScriptFailsSyntaxCheck,
         &OutputOfUpdatercDNotRedirectedToDevNull,
+        &JavalibButNoPublicJars,
     ]
 }
 
@@ -3799,6 +3801,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ExampleInterpreterInUsrLocal,
         &ExampleShellScriptFailsSyntaxCheck,
         &OutputOfUpdatercDNotRedirectedToDevNull,
+        &JavalibButNoPublicJars,
     ]
 }
 

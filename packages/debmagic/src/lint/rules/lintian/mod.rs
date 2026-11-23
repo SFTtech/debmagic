@@ -500,6 +500,7 @@ pub(crate) use languages_java::ExecutableJarWithoutMainClass;
 pub(crate) use languages_java::IncompatibleJavaBytecodeFormat;
 pub(crate) use languages_java::JarContainsSource;
 pub(crate) use languages_java::JarNotInUsrShare;
+pub(crate) use languages_java::JavalibButNoPublicJars;
 pub(crate) use languages_java::MavenPluginInUsrShareJava;
 pub(crate) use languages_java::MissingDepOnJarwrapper;
 pub(crate) use languages_java::MissingManifest;

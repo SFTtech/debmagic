@@ -156,7 +156,6 @@ impl BinaryPackageReader {
     /// The messages tar printed while unpacking `tarball`, in order. Empty when
     /// the tarball is missing or cannot be read: its failure is reported by the
     /// Files trees, not here.
-    #[allow(dead_code)] // seam API; no Rule reads it yet
     pub(crate) fn unpack_messages(&self, tarball: Tarball) -> Vec<String> {
         let index = match tarball {
             Tarball::Data => self.data_index(),
@@ -1167,61 +1166,66 @@ mod tests {
     }
 }
 
+/// A gzipped tar whose names are written as given. `tar::Header::set_path`
+/// refuses absolute names, so the name bytes go into the header directly.
+#[cfg(test)]
+fn gzip_raw_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
+    use std::io::Write;
+
+    let mut tar_bytes = Vec::new();
+    {
+        let mut builder = tar::Builder::new(&mut tar_bytes);
+        for (name, contents) in members {
+            let mut header = tar::Header::new_gnu();
+            let name = name.as_bytes();
+            header.as_old_mut().name[..name.len()].copy_from_slice(name);
+            header.set_size(contents.len() as u64);
+            header.set_mode(0o644);
+            header.set_cksum();
+            builder.append(&header, *contents)?;
+        }
+        builder.finish()?;
+    }
+    let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
+    encoder.write_all(&tar_bytes)?;
+    Ok(encoder.finish()?)
+}
+
+/// A Binary package whose tarball member names are written as given, absolute
+/// ones included (`write_test_deb_with_files` cannot make them).
+#[cfg(test)]
+pub(crate) fn write_test_deb_with_raw_names(
+    path: &Path,
+    control: &[(&str, &[u8])],
+    data: &[(&str, &[u8])],
+) -> anyhow::Result<()> {
+    let mut builder = ar::Builder::new(std::fs::File::create(path)?);
+    let members: [(&[u8], Vec<u8>); 3] = [
+        (b"debian-binary", b"2.0\n".to_vec()),
+        (b"control.tar.gz", gzip_raw_tar(control)?),
+        (b"data.tar.gz", gzip_raw_tar(data)?),
+    ];
+    for (name, bytes) in &members {
+        let header = ar::Header::new(name.to_vec(), bytes.len() as u64);
+        builder.append(&header, &mut Cursor::new(bytes))?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod unpack_message_tests {
     use super::*;
-    use std::io::Write;
     use tempfile::TempDir;
 
     fn leading_slash() -> Vec<String> {
         vec![LEADING_SLASH_WARNING.to_string()]
     }
 
-    /// A gzipped tar whose names are written as given. `tar::Header::set_path`
-    /// refuses absolute names, so the name bytes go into the header directly.
-    fn gzip_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
-        let mut tar_bytes = Vec::new();
-        {
-            let mut builder = tar::Builder::new(&mut tar_bytes);
-            for (name, contents) in members {
-                let mut header = tar::Header::new_gnu();
-                let name = name.as_bytes();
-                header.as_old_mut().name[..name.len()].copy_from_slice(name);
-                header.set_size(contents.len() as u64);
-                header.set_mode(0o644);
-                header.set_cksum();
-                builder.append(&header, *contents)?;
-            }
-            builder.finish()?;
-        }
-        let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
-        encoder.write_all(&tar_bytes)?;
-        Ok(encoder.finish()?)
-    }
-
-    fn write_deb(
-        path: &Path,
-        control: &[(&str, &[u8])],
-        data: &[(&str, &[u8])],
-    ) -> anyhow::Result<()> {
-        let mut builder = ar::Builder::new(std::fs::File::create(path)?);
-        let members: [(&[u8], Vec<u8>); 3] = [
-            (b"debian-binary", b"2.0\n".to_vec()),
-            (b"control.tar.gz", gzip_tar(control)?),
-            (b"data.tar.gz", gzip_tar(data)?),
-        ];
-        for (name, bytes) in &members {
-            let header = ar::Header::new(name.to_vec(), bytes.len() as u64);
-            builder.append(&header, &mut Cursor::new(bytes))?;
-        }
-        Ok(())
-    }
-
     #[test]
     fn leading_slash_members_warn_once_per_tarball() -> anyhow::Result<()> {
         let dir = TempDir::new()?;
         let path = dir.path().join("pkg.deb");
-        write_deb(
+        write_test_deb_with_raw_names(
             &path,
             &[("control", b"Package: pkg\n"), ("/control-abs", b"x")],
             &[
@@ -1240,7 +1244,7 @@ mod unpack_message_tests {
     fn relative_and_dot_members_report_nothing() -> anyhow::Result<()> {
         let dir = TempDir::new()?;
         let path = dir.path().join("pkg.deb");
-        write_deb(
+        write_test_deb_with_raw_names(
             &path,
             &[("control", b"Package: pkg\n")],
             &[("./usr/bin/a", b"a"), ("usr/bin/b", b"b")],

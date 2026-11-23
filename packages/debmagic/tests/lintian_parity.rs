@@ -74,6 +74,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase",
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same",
     "checks/debian/changelog/changelog-file-etch",
+    "checks/debian/changelog/changelog-file-experimental",
+    "checks/debian/changelog/changelog-file-experimental-false-positive",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-missing-explicit-entry",
     "checks/debian/changelog/changelog-file-new-upstream",
@@ -85,6 +87,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-maintainer-scripts",
+    "checks/debian/changelog/two-dashes-in-non-native-version",
     "checks/debian/control/field/adopted/control-file-general",
     "checks/debian/control/field/adopted/control-file-pedantic",
     "checks/debian/control/field/adopted/legacy-binary",
@@ -105,6 +108,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
+    "checks/debian/control/field/rules-requires-root/control-file-rules-requires-root-no",
     "checks/debian/control/field/rules-requires-root/fields-unknown-fields",
     "checks/debian/control/field/spacing/control-file-pedantic-space",
     "checks/debian/control/link/control-file-symlink",
@@ -328,6 +332,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/homepage/fields-github-homepage",
     "checks/fields/homepage/fields-gitlab-homepage",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
+    "checks/fields/homepage/fields-no-homepage",
     "checks/fields/homepage/fields-no-source-homepage",
     "checks/fields/homepage/fields-salsa-homepage",
     "checks/fields/homepage/homepage-refers-to-filesystem-listing",
@@ -391,7 +396,9 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
     "checks/fields/uploaders/fields-maintainer-general",
+    "checks/fields/vcs/control-has-empty-field",
     "checks/fields/vcs/fields-malformed-vcs-fields",
+    "checks/fields/vcs/fields-missing-vcs-browser",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
     "checks/fields/vcs/fields-uncanonical-salsa-vcs-fields",
@@ -401,6 +408,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
     "checks/fields/vcs/legacy-binary",
+    "checks/fields/vcs/nmu-qa-upload",
     "checks/fields/vcs/orphaned-package-in-private-salsa-space",
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
@@ -606,6 +614,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-dch-wrong-name-native",
     "checks/debian/changelog/changelog-file-empty-entry",
     "checks/debian/changelog/changelog-file-empty-entry-unrel",
+    "checks/debian/changelog/changelog-file-experimental",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-invalid-date",
     "checks/debian/changelog/changelog-file-line-too-short",
@@ -771,6 +780,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/description/description-general",
     "checks/fields/description/description-homepage",
     "checks/fields/description/description-mentions-planned-features",
+    "checks/fields/description/description-perl",
     "checks/fields/description/description-synopsis-might-not-be-phrased-properly",
     "checks/fields/description/description-wording",
     "checks/fields/description/generic-dh-make-2008",
@@ -780,6 +790,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/description/legacy-filenames",
     "checks/fields/description/legacy-relations",
     "checks/fields/description/spelling-multiword",
+    "checks/fields/description/squeezed-comma",
     "checks/fields/empty/empty-section",
     "checks/fields/essential/fields-essential",
     "checks/fields/essential/legacy-fields",
@@ -812,6 +823,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/origin/fields-redundant",
     "checks/fields/origin/legacy-relations",
     "checks/fields/package/fields-general-bad",
+    "checks/fields/package/fields-unusual-doc-package-name",
     "checks/fields/package-relations/fields-depends-general",
     "checks/fields/package-relations/fields-general-bad",
     "checks/fields/package-relations/fields-java",
@@ -1237,6 +1249,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase",
     "checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same",
     "checks/debian/changelog/changelog-file-etch",
+    "checks/debian/changelog/changelog-file-experimental",
+    "checks/debian/changelog/changelog-file-experimental-false-positive",
     "checks/debian/changelog/changelog-file-general",
     "checks/debian/changelog/changelog-file-missing-explicit-entry",
     "checks/debian/changelog/changelog-file-new-upstream",
@@ -1248,6 +1262,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/legacy-filenames",
     "checks/debian/changelog/legacy-foo++",
     "checks/debian/changelog/legacy-maintainer-scripts",
+    "checks/debian/changelog/two-dashes-in-non-native-version",
     "checks/debian/control/field/adopted/control-file-general",
     "checks/debian/control/field/adopted/control-file-pedantic",
     "checks/debian/control/field/adopted/legacy-binary",
@@ -1268,6 +1283,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/control/field/relation/control-file-duplicate",
     "checks/debian/control/field/relation/control-file-general",
     "checks/debian/control/field/relation/control-file-missing-separator",
+    "checks/debian/control/field/rules-requires-root/control-file-rules-requires-root-no",
     "checks/debian/control/field/rules-requires-root/fields-unknown-fields",
     "checks/debian/control/field/spacing/control-file-pedantic-space",
     "checks/debian/control/link/control-file-symlink",
@@ -1492,6 +1508,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/homepage/fields-github-homepage",
     "checks/fields/homepage/fields-gitlab-homepage",
     "checks/fields/homepage/fields-homepage-field-uses-insecure-uri",
+    "checks/fields/homepage/fields-no-homepage",
     "checks/fields/homepage/fields-no-source-homepage",
     "checks/fields/homepage/fields-salsa-homepage",
     "checks/fields/homepage/homepage-refers-to-filesystem-listing",
@@ -1555,7 +1572,9 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/unknown/fields-unknown-fields",
     "checks/fields/unknown/unpack-slashes-in-field-name",
     "checks/fields/uploaders/fields-maintainer-general",
+    "checks/fields/vcs/control-has-empty-field",
     "checks/fields/vcs/fields-malformed-vcs-fields",
+    "checks/fields/vcs/fields-missing-vcs-browser",
     "checks/fields/vcs/fields-not-malformed-vcs-fields",
     "checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure",
     "checks/fields/vcs/fields-uncanonical-salsa-vcs-fields",
@@ -1565,6 +1584,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/vcs/fields-vcs-fields",
     "checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure",
     "checks/fields/vcs/legacy-binary",
+    "checks/fields/vcs/nmu-qa-upload",
     "checks/fields/vcs/orphaned-package-in-private-salsa-space",
     "checks/fields/version/fields-binary-nmu-version",
     "checks/fields/version/fields-version-bad",
@@ -1839,6 +1859,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_increase")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_same")]
 #[test_case("checks/debian/changelog/changelog-file-etch"; "checks_debian_changelog_changelog_file_etch")]
+#[test_case("checks/debian/changelog/changelog-file-experimental"; "checks_debian_changelog_changelog_file_experimental")]
+#[test_case("checks/debian/changelog/changelog-file-experimental-false-positive"; "checks_debian_changelog_changelog_file_experimental_false_positive")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-missing-explicit-entry"; "checks_debian_changelog_changelog_file_missing_explicit_entry")]
 #[test_case("checks/debian/changelog/changelog-file-new-upstream"; "checks_debian_changelog_changelog_file_new_upstream")]
@@ -1850,6 +1872,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
+#[test_case("checks/debian/changelog/two-dashes-in-non-native-version"; "checks_debian_changelog_two_dashes_in_non_native_version")]
 #[test_case("checks/debian/control/field/adopted/control-file-general"; "checks_debian_control_field_adopted_control_file_general")]
 #[test_case("checks/debian/control/field/adopted/control-file-pedantic"; "checks_debian_control_field_adopted_control_file_pedantic")]
 #[test_case("checks/debian/control/field/adopted/legacy-binary"; "checks_debian_control_field_adopted_legacy_binary")]
@@ -1870,6 +1893,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
+#[test_case("checks/debian/control/field/rules-requires-root/control-file-rules-requires-root-no"; "checks_debian_control_field_rules_requires_root_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/control/field/rules-requires-root/fields-unknown-fields"; "checks_debian_control_field_rules_requires_root_fields_unknown_fields")]
 #[test_case("checks/debian/control/field/spacing/control-file-pedantic-space"; "checks_debian_control_field_spacing_control_file_pedantic_space")]
 #[test_case("checks/debian/control/link/control-file-symlink"; "checks_debian_control_link_control_file_symlink")]
@@ -2093,6 +2117,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/homepage/fields-github-homepage"; "checks_fields_homepage_fields_github_homepage")]
 #[test_case("checks/fields/homepage/fields-gitlab-homepage"; "checks_fields_homepage_fields_gitlab_homepage")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
+#[test_case("checks/fields/homepage/fields-no-homepage"; "checks_fields_homepage_fields_no_homepage")]
 #[test_case("checks/fields/homepage/fields-no-source-homepage"; "checks_fields_homepage_fields_no_source_homepage")]
 #[test_case("checks/fields/homepage/fields-salsa-homepage"; "checks_fields_homepage_fields_salsa_homepage")]
 #[test_case("checks/fields/homepage/homepage-refers-to-filesystem-listing"; "checks_fields_homepage_homepage_refers_to_filesystem_listing")]
@@ -2156,7 +2181,9 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
 #[test_case("checks/fields/uploaders/fields-maintainer-general"; "checks_fields_uploaders_fields_maintainer_general")]
+#[test_case("checks/fields/vcs/control-has-empty-field"; "checks_fields_vcs_control_has_empty_field")]
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
+#[test_case("checks/fields/vcs/fields-missing-vcs-browser"; "checks_fields_vcs_fields_missing_vcs_browser")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/fields-uncanonical-salsa-vcs-fields"; "checks_fields_vcs_fields_uncanonical_salsa_vcs_fields")]
@@ -2166,6 +2193,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/legacy-binary"; "checks_fields_vcs_legacy_binary")]
+#[test_case("checks/fields/vcs/nmu-qa-upload"; "checks_fields_vcs_nmu_qa_upload")]
 #[test_case("checks/fields/vcs/orphaned-package-in-private-salsa-space"; "checks_fields_vcs_orphaned_package_in_private_salsa_space")]
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]
@@ -2372,6 +2400,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-dch-wrong-name-native"; "checks_debian_changelog_changelog_file_dch_wrong_name_native")]
 #[test_case("checks/debian/changelog/changelog-file-empty-entry"; "checks_debian_changelog_changelog_file_empty_entry")]
 #[test_case("checks/debian/changelog/changelog-file-empty-entry-unrel"; "checks_debian_changelog_changelog_file_empty_entry_unrel")]
+#[test_case("checks/debian/changelog/changelog-file-experimental"; "checks_debian_changelog_changelog_file_experimental")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-invalid-date"; "checks_debian_changelog_changelog_file_invalid_date")]
 #[test_case("checks/debian/changelog/changelog-file-line-too-short"; "checks_debian_changelog_changelog_file_line_too_short")]
@@ -2537,6 +2566,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/description/description-general"; "checks_fields_description_description_general")]
 #[test_case("checks/fields/description/description-homepage"; "checks_fields_description_description_homepage")]
 #[test_case("checks/fields/description/description-mentions-planned-features"; "checks_fields_description_description_mentions_planned_features")]
+#[test_case("checks/fields/description/description-perl"; "checks_fields_description_description_perl")]
 #[test_case("checks/fields/description/description-synopsis-might-not-be-phrased-properly"; "checks_fields_description_description_synopsis_might_not_be_phrased_properly")]
 #[test_case("checks/fields/description/description-wording"; "checks_fields_description_description_wording")]
 #[test_case("checks/fields/description/generic-dh-make-2008"; "checks_fields_description_generic_dh_make_2008")]
@@ -2546,6 +2576,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/description/legacy-filenames"; "checks_fields_description_legacy_filenames")]
 #[test_case("checks/fields/description/legacy-relations"; "checks_fields_description_legacy_relations")]
 #[test_case("checks/fields/description/spelling-multiword"; "checks_fields_description_spelling_multiword")]
+#[test_case("checks/fields/description/squeezed-comma"; "checks_fields_description_squeezed_comma")]
 #[test_case("checks/fields/empty/empty-section"; "checks_fields_empty_empty_section")]
 #[test_case("checks/fields/essential/fields-essential"; "checks_fields_essential_fields_essential")]
 #[test_case("checks/fields/essential/legacy-fields"; "checks_fields_essential_legacy_fields")]
@@ -2578,6 +2609,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/fields/origin/fields-redundant"; "checks_fields_origin_fields_redundant")]
 #[test_case("checks/fields/origin/legacy-relations"; "checks_fields_origin_legacy_relations")]
 #[test_case("checks/fields/package/fields-general-bad"; "checks_fields_package_fields_general_bad")]
+#[test_case("checks/fields/package/fields-unusual-doc-package-name"; "checks_fields_package_fields_unusual_doc_package_name")]
 #[test_case("checks/fields/package-relations/fields-depends-general"; "checks_fields_package_relations_fields_depends_general")]
 #[test_case("checks/fields/package-relations/fields-general-bad"; "checks_fields_package_relations_fields_general_bad")]
 #[test_case("checks/fields/package-relations/fields-java"; "checks_fields_package_relations_fields_java")]
@@ -3004,6 +3036,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-increase"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_increase")]
 #[test_case("checks/debian/changelog/changelog-file-epoch-changed-upstream-version-same"; "checks_debian_changelog_changelog_file_epoch_changed_upstream_version_same")]
 #[test_case("checks/debian/changelog/changelog-file-etch"; "checks_debian_changelog_changelog_file_etch")]
+#[test_case("checks/debian/changelog/changelog-file-experimental"; "checks_debian_changelog_changelog_file_experimental")]
+#[test_case("checks/debian/changelog/changelog-file-experimental-false-positive"; "checks_debian_changelog_changelog_file_experimental_false_positive")]
 #[test_case("checks/debian/changelog/changelog-file-general"; "checks_debian_changelog_changelog_file_general")]
 #[test_case("checks/debian/changelog/changelog-file-missing-explicit-entry"; "checks_debian_changelog_changelog_file_missing_explicit_entry")]
 #[test_case("checks/debian/changelog/changelog-file-new-upstream"; "checks_debian_changelog_changelog_file_new_upstream")]
@@ -3015,6 +3049,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/changelog/legacy-filenames"; "checks_debian_changelog_legacy_filenames")]
 #[test_case("checks/debian/changelog/legacy-foo++"; "checks_debian_changelog_legacy_foo_")]
 #[test_case("checks/debian/changelog/legacy-maintainer-scripts"; "checks_debian_changelog_legacy_maintainer_scripts")]
+#[test_case("checks/debian/changelog/two-dashes-in-non-native-version"; "checks_debian_changelog_two_dashes_in_non_native_version")]
 #[test_case("checks/debian/control/field/adopted/control-file-general"; "checks_debian_control_field_adopted_control_file_general")]
 #[test_case("checks/debian/control/field/adopted/control-file-pedantic"; "checks_debian_control_field_adopted_control_file_pedantic")]
 #[test_case("checks/debian/control/field/adopted/legacy-binary"; "checks_debian_control_field_adopted_legacy_binary")]
@@ -3035,6 +3070,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/control/field/relation/control-file-duplicate"; "checks_debian_control_field_relation_control_file_duplicate")]
 #[test_case("checks/debian/control/field/relation/control-file-general"; "checks_debian_control_field_relation_control_file_general")]
 #[test_case("checks/debian/control/field/relation/control-file-missing-separator"; "checks_debian_control_field_relation_control_file_missing_separator")]
+#[test_case("checks/debian/control/field/rules-requires-root/control-file-rules-requires-root-no"; "checks_debian_control_field_rules_requires_root_control_file_rules_requires_root_no")]
 #[test_case("checks/debian/control/field/rules-requires-root/fields-unknown-fields"; "checks_debian_control_field_rules_requires_root_fields_unknown_fields")]
 #[test_case("checks/debian/control/field/spacing/control-file-pedantic-space"; "checks_debian_control_field_spacing_control_file_pedantic_space")]
 #[test_case("checks/debian/control/link/control-file-symlink"; "checks_debian_control_link_control_file_symlink")]
@@ -3259,6 +3295,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/homepage/fields-github-homepage"; "checks_fields_homepage_fields_github_homepage")]
 #[test_case("checks/fields/homepage/fields-gitlab-homepage"; "checks_fields_homepage_fields_gitlab_homepage")]
 #[test_case("checks/fields/homepage/fields-homepage-field-uses-insecure-uri"; "checks_fields_homepage_fields_homepage_field_uses_insecure_uri")]
+#[test_case("checks/fields/homepage/fields-no-homepage"; "checks_fields_homepage_fields_no_homepage")]
 #[test_case("checks/fields/homepage/fields-no-source-homepage"; "checks_fields_homepage_fields_no_source_homepage")]
 #[test_case("checks/fields/homepage/fields-salsa-homepage"; "checks_fields_homepage_fields_salsa_homepage")]
 #[test_case("checks/fields/homepage/homepage-refers-to-filesystem-listing"; "checks_fields_homepage_homepage_refers_to_filesystem_listing")]
@@ -3322,7 +3359,9 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/unknown/fields-unknown-fields"; "checks_fields_unknown_fields_unknown_fields")]
 #[test_case("checks/fields/unknown/unpack-slashes-in-field-name"; "checks_fields_unknown_unpack_slashes_in_field_name")]
 #[test_case("checks/fields/uploaders/fields-maintainer-general"; "checks_fields_uploaders_fields_maintainer_general")]
+#[test_case("checks/fields/vcs/control-has-empty-field"; "checks_fields_vcs_control_has_empty_field")]
 #[test_case("checks/fields/vcs/fields-malformed-vcs-fields"; "checks_fields_vcs_fields_malformed_vcs_fields")]
+#[test_case("checks/fields/vcs/fields-missing-vcs-browser"; "checks_fields_vcs_fields_missing_vcs_browser")]
 #[test_case("checks/fields/vcs/fields-not-malformed-vcs-fields"; "checks_fields_vcs_fields_not_malformed_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-orphaned-package-not-maintained-in-debian-infrastructure"; "checks_fields_vcs_fields_orphaned_package_not_maintained_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/fields-uncanonical-salsa-vcs-fields"; "checks_fields_vcs_fields_uncanonical_salsa_vcs_fields")]
@@ -3332,6 +3371,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/vcs/fields-vcs-fields"; "checks_fields_vcs_fields_vcs_fields")]
 #[test_case("checks/fields/vcs/fields-vcs-obsolete-in-debian-infrastructure"; "checks_fields_vcs_fields_vcs_obsolete_in_debian_infrastructure")]
 #[test_case("checks/fields/vcs/legacy-binary"; "checks_fields_vcs_legacy_binary")]
+#[test_case("checks/fields/vcs/nmu-qa-upload"; "checks_fields_vcs_nmu_qa_upload")]
 #[test_case("checks/fields/vcs/orphaned-package-in-private-salsa-space"; "checks_fields_vcs_orphaned_package_in_private_salsa_space")]
 #[test_case("checks/fields/version/fields-binary-nmu-version"; "checks_fields_version_fields_binary_nmu_version")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): redundant-rules-requires-root-no-field (LN1667) [debian/control:4]

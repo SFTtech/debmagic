@@ -77,6 +77,7 @@ use super::rules::ChecksumCountMismatchInChangesFile;
 use super::rules::ChecksumMismatchInChangesFile;
 use super::rules::ClasspathContainsRelativePath;
 use super::rules::ClojurePackageButNotDhClojure;
+use super::rules::CoMaintainedPackageWithNoVcsFields;
 use super::rules::CodelessJar;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
 use super::rules::ComposerPackageWithoutPkgPhpToolsBuilddep;
@@ -224,6 +225,7 @@ use super::rules::ExecutableJarWithoutMainClass;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
+use super::rules::ExperimentalToUnstableWithoutComment;
 use super::rules::ExplicitlyArmoredUpstreamSignature;
 use super::rules::ExtendedDescriptionIsProbablyTooShort;
 use super::rules::ExtraLicenseFile;
@@ -259,6 +261,7 @@ use super::rules::HomepageGitlabUrlEndsWithDotGit;
 use super::rules::HomepageInBinaryPackage;
 use super::rules::HomepageRefersToFilesystemListing;
 use super::rules::HomepageSalsaUrlEndsWithDotGit;
+use super::rules::HyphenInUpstreamPartOfDebianChangelogVersion;
 use super::rules::IllegalMultiArchValue;
 use super::rules::ImageFileHasConflictingName;
 use super::rules::ImageFileHasUnexpectedName;
@@ -368,6 +371,7 @@ use super::rules::MissingPrerequisiteForGfortranModule;
 use super::rules::MissingPrerequisiteForPyprojectBackend;
 use super::rules::MissingTemplatesPot;
 use super::rules::MissingTestsControl;
+use super::rules::MissingVcsBrowserField;
 use super::rules::MissingXsGoImportPathForGolangPackage;
 use super::rules::MisspelledClosesBug;
 use super::rules::MultiArchSamePackageCallsPycompile;
@@ -385,6 +389,7 @@ use super::rules::NoCodeSections;
 use super::rules::NoCompleteDebconfTranslation;
 use super::rules::NoDebianChanges;
 use super::rules::NoDhSequencer;
+use super::rules::NoHomepageField;
 use super::rules::NoMd5sumsControlFile;
 use super::rules::NoPhrase;
 use super::rules::NoShlibs;
@@ -392,6 +397,7 @@ use super::rules::NoStrongDigestsInDsc;
 use super::rules::NoSymbolsControlFile;
 use super::rules::NoTemplateName;
 use super::rules::NodejsModuleInstalledInBadDirectory;
+use super::rules::NonConsecutiveDebianRevision;
 use super::rules::NonStandardApache2ModulePackageName;
 use super::rules::NonStandardDirPerm;
 use super::rules::NonStandardFilePerm;
@@ -408,6 +414,7 @@ use super::rules::ObsoleteRuntimeTestsRestriction;
 use super::rules::OcamlCustomExecutable;
 use super::rules::OcamlDanglingCmi;
 use super::rules::OcamlDanglingCmx;
+use super::rules::OddMarkInDescription;
 use super::rules::OddPermissionsOnSharedLibrary;
 use super::rules::OddPlaceForManualPage;
 use super::rules::OldStyleConfigScript;
@@ -473,6 +480,7 @@ use super::rules::PearPackageButMissingDependency;
 use super::rules::PearPackageNotUsingSubstvar;
 use super::rules::PearPackageWithoutPkgPhpToolsBuilddep;
 use super::rules::PeclPackageRequiresBuildDependency;
+use super::rules::PerlModuleNameNotMentionedInDescription;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
 use super::rules::PhpScriptWithUnusualInterpreter;
 use super::rules::PkgJsAutopkgtestFileDoesNotExist;
@@ -522,6 +530,7 @@ use super::rules::RedundantControlRelation;
 use super::rules::RedundantGlobbingPatterns;
 use super::rules::RedundantInstallationPrerequisite;
 use super::rules::RedundantPriorityOptionalField;
+use super::rules::RedundantRulesRequiresRootNoField;
 use super::rules::RelativeConffile;
 use super::rules::RenamedTag;
 use super::rules::RepackagedSourceNotAdvertised;
@@ -582,6 +591,7 @@ use super::rules::SpellingErrorInBinary;
 use super::rules::SpellingErrorInChangelog;
 use super::rules::SpellingErrorInCopyright;
 use super::rules::SpellingErrorInDescription;
+use super::rules::SpellingErrorInDescriptionSynopsis;
 use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
@@ -661,6 +671,7 @@ use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusedDebconfTemplate;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnversionedCopyrightFormatUri;
+use super::rules::UnusualDocumentationPackageName;
 use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploadHasBackportsVersionNumber;
 use super::rules::UploaderNameMissing;
@@ -2481,6 +2492,17 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnknownCopyrightFormatUri,
         &UnversionedCopyrightFormatUri,
         &WikiCopyrightFormatUri,
+        &CoMaintainedPackageWithNoVcsFields,
+        &HyphenInUpstreamPartOfDebianChangelogVersion,
+        &NonConsecutiveDebianRevision,
+        &ExperimentalToUnstableWithoutComment,
+        &MissingVcsBrowserField,
+        &NoHomepageField,
+        &RedundantRulesRequiresRootNoField,
+        &OddMarkInDescription,
+        &PerlModuleNameNotMentionedInDescription,
+        &SpellingErrorInDescriptionSynopsis,
+        &UnusualDocumentationPackageName,
     ]
 }
 
@@ -2965,6 +2987,12 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UnknownCopyrightFormatUri,
         &UnversionedCopyrightFormatUri,
         &WikiCopyrightFormatUri,
+        &CoMaintainedPackageWithNoVcsFields,
+        &HyphenInUpstreamPartOfDebianChangelogVersion,
+        &NonConsecutiveDebianRevision,
+        &MissingVcsBrowserField,
+        &NoHomepageField,
+        &RedundantRulesRequiresRootNoField,
     ]
 }
 
@@ -3865,6 +3893,11 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &CopyrightHasCrs,
         &CopyrightRefersToSymlinkLicense,
         &SpellingErrorInCopyright,
+        &ExperimentalToUnstableWithoutComment,
+        &OddMarkInDescription,
+        &PerlModuleNameNotMentionedInDescription,
+        &SpellingErrorInDescriptionSynopsis,
+        &UnusualDocumentationPackageName,
     ]
 }
 

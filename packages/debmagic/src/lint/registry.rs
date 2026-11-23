@@ -65,6 +65,7 @@ use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
 use super::rules::ChangelogIsSymlink;
 use super::rules::ChangelogNotCompressedWithMaxCompression;
+use super::rules::ChecksumMismatchInChangesFile;
 use super::rules::ClasspathContainsRelativePath;
 use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
@@ -2345,6 +2346,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CapitalizationErrorInDescriptionSynopsis,
         &IncorrectLocaleCode,
         &LocaleUsesLanguageGroupCode,
+        &ChecksumMismatchInChangesFile,
     ]
 }
 
@@ -3688,6 +3690,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &BadUrgencyInChangesFile,
         &DistributionAndChangesMismatch,
         &DistributionAndExperimentalMismatch,
+        &ChecksumMismatchInChangesFile,
     ]
 }
 

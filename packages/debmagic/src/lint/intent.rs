@@ -8,6 +8,18 @@ use super::rule::Severity;
 use super::selection::resolve_selected_codes;
 use super::subject::{LintTarget, resolve_target};
 
+/// Whether the Lintian override files of each processable suppress Diagnostics.
+///
+/// `Hide` is the default: an overridden Diagnostic is kept but not printed.
+/// `Show` prints it flagged as overridden. `Off` skips the override pass.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum OverrideMode {
+    #[default]
+    Hide,
+    Show,
+    Off,
+}
+
 /// Clap-free inputs for resolving a [`LintIntent`].
 #[derive(Debug, Clone)]
 pub struct LintIntentInput {
@@ -24,6 +36,8 @@ pub struct LintIntentInput {
     pub threads: Option<usize>,
     /// Report bringup, initialization shared across Rules, and per-Rule time.
     pub timings: bool,
+    /// How Lintian override files are applied; see [`OverrideMode`].
+    pub overrides: OverrideMode,
 }
 
 /// Fully resolved description of *how* a lint runs.
@@ -37,6 +51,8 @@ pub struct LintIntent {
     pub threads: Option<usize>,
     /// Report bringup, initialization shared across Rules, and per-Rule time.
     pub timings: bool,
+    /// How Lintian override files are applied; see [`OverrideMode`].
+    pub overrides: OverrideMode,
 }
 
 fn resolve_fail_on(fail_on: &[Severity]) -> HashSet<Severity> {
@@ -68,6 +84,7 @@ pub fn resolve_lint_intent(input: LintIntentInput) -> anyhow::Result<LintIntent>
         severity_remaps: HashMap::new(),
         threads: input.threads,
         timings: input.timings,
+        overrides: input.overrides,
     })
 }
 
@@ -95,6 +112,7 @@ mod tests {
             fail_on: vec![],
             threads: None,
             timings: false,
+            overrides: OverrideMode::default(),
         }
     }
 
@@ -126,6 +144,23 @@ mod tests {
     fn resolve_default_fail_on_is_error_only() -> anyhow::Result<()> {
         let intent = resolve_lint_intent(base_input(std::env::temp_dir()))?;
         assert_eq!(intent.fail_on, HashSet::from([Severity::Error]));
+        Ok(())
+    }
+
+    #[test]
+    fn resolve_carries_override_mode() -> anyhow::Result<()> {
+        let mut input = base_input(std::env::temp_dir());
+        assert_eq!(
+            resolve_lint_intent(input.clone())?.overrides,
+            OverrideMode::Hide
+        );
+        input.overrides = OverrideMode::Show;
+        assert_eq!(
+            resolve_lint_intent(input.clone())?.overrides,
+            OverrideMode::Show
+        );
+        input.overrides = OverrideMode::Off;
+        assert_eq!(resolve_lint_intent(input)?.overrides, OverrideMode::Off);
         Ok(())
     }
 

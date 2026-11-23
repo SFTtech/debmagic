@@ -829,7 +829,7 @@ pub(crate) use files_config_scripts::{
 };
 pub(crate) use files_debug::NonDebugFileInDebugPackage;
 pub(crate) use files_foreign::{
-    CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,
+    BadOwnerForDocFile, CompressedDocumentation, DebugSuffixNotDbg, FileDirectlyInUsrShareDoc,
     MacosDsStoreFileInPackage, MacosResourceForkFileInPackage,
     PackageContainsDocumentationOutsideUsrShareDoc, PackageContainsInfoDirFile,
     PackageContainsLindaOverride, PackageContainsReadmeForOtherPlatformOrDistro,

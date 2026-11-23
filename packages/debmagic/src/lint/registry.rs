@@ -29,6 +29,7 @@ use super::rules::BackportsUploadHasIncorrectVersionNumber;
 use super::rules::BadDistributionInChangesFile;
 use super::rules::BadIntendedDistribution;
 use super::rules::BadJarName;
+use super::rules::BadOwnerForDocFile;
 use super::rules::BadPackageName;
 use super::rules::BadPermForFileInEtcSudoersD;
 use super::rules::BadPermissionsForAliFile;
@@ -2659,6 +2660,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
+        &BadOwnerForDocFile,
     ]
 }
 
@@ -4129,6 +4131,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ManualPageInUdeb,
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
+        &BadOwnerForDocFile,
     ]
 }
 

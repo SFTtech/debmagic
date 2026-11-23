@@ -445,6 +445,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-autopkgtest-test-is-missing",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
+    "checks/languages/perl/yapp/yapp-parser",
     "checks/languages/php/composer/depends-composer",
     "checks/languages/php/pear/phppear-composer",
     "checks/languages/php/pear/phppear-general",
@@ -1605,6 +1606,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-autopkgtest-test-is-missing",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
+    "checks/languages/perl/yapp/yapp-parser",
     "checks/languages/php/composer/depends-composer",
     "checks/languages/php/pear/phppear-composer",
     "checks/languages/php/pear/phppear-general",
@@ -2200,6 +2202,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-autopkgtest-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_autopkgtest_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
+#[test_case("checks/languages/perl/yapp/yapp-parser"; "checks_languages_perl_yapp_yapp_parser")]
 #[test_case("checks/languages/php/composer/depends-composer"; "checks_languages_php_composer_depends_composer")]
 #[test_case("checks/languages/php/pear/phppear-composer"; "checks_languages_php_pear_phppear_composer")]
 #[test_case("checks/languages/php/pear/phppear-general"; "checks_languages_php_pear_phppear_general")]
@@ -3362,6 +3365,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-autopkgtest-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_autopkgtest_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
+#[test_case("checks/languages/perl/yapp/yapp-parser"; "checks_languages_perl_yapp_yapp_parser")]
 #[test_case("checks/languages/php/composer/depends-composer"; "checks_languages_php_composer_depends_composer")]
 #[test_case("checks/languages/php/pear/phppear-composer"; "checks_languages_php_pear_phppear_composer")]
 #[test_case("checks/languages/php/pear/phppear-general"; "checks_languages_php_pear_phppear_general")]

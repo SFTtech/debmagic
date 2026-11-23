@@ -638,6 +638,7 @@ use super::rules::UnparsableMenuItem;
 use super::rules::UnreleasedChanges;
 use super::rules::UnsupportedSourceFormat;
 use super::rules::UnusedDebconfTemplate;
+use super::rules::UnusedEntryInDebianSourceIncludeBinaries;
 use super::rules::UnusualControlInterpreter;
 use super::rules::UnwantedPathTooSpecific;
 use super::rules::UploadHasBackportsVersionNumber;
@@ -2435,6 +2436,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnknownRuntimeTestsFeature,
         &UnknownRuntimeTestsField,
         &UnknownRuntimeTestsRestriction,
+        &UnusedEntryInDebianSourceIncludeBinaries,
     ]
 }
 
@@ -2900,6 +2902,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UnknownRuntimeTestsFeature,
         &UnknownRuntimeTestsField,
         &UnknownRuntimeTestsRestriction,
+        &UnusedEntryInDebianSourceIncludeBinaries,
     ]
 }
 

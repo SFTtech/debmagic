@@ -510,9 +510,10 @@ pub(crate) use udev::UdevRuleUnreadable;
 pub(crate) use usrmerge::{FileInRootAndUsr, LibraryInRootAndUsr};
 
 pub(crate) use debian_changelog::{
-    BogusMailHostInDebianChangelog, ChangelogEmptyEntry, ChangelogFileMissingExplicitEntry,
-    ChangelogIsDhMakeTemplate, ChangelogIsSymlink, ChangelogNewsDebianMismatch,
-    ChangelogNotCompressedWithMaxCompression, ChangelogReferencesTempSecurityIdentifier,
+    BogusMailHostInDebianChangelog, ChangelogDistributionDoesNotMatchChangesFile,
+    ChangelogEmptyEntry, ChangelogFileMissingExplicitEntry, ChangelogIsDhMakeTemplate,
+    ChangelogIsSymlink, ChangelogNewsDebianMismatch, ChangelogNotCompressedWithMaxCompression,
+    ChangelogReferencesTempSecurityIdentifier,
     DebianChangelogFileContainsObsoleteUserEmacsSettings, DebianChangelogHasWrongDayOfWeek,
     DebianChangelogLineTooLong, DebianChangelogLineTooShort, DebianNewsEntryHasStrangeDistribution,
     DebianNewsEntryHasUnknownVersion, DebianNewsFileNotCompressed, EpochChangeWithoutComment,

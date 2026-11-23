@@ -60,6 +60,7 @@ use super::rules::BuildDependsOnVersionedBerkeleyDb;
 use super::rules::CapitalizationErrorInDescription;
 use super::rules::CapitalizationErrorInDescriptionSynopsis;
 use super::rules::CarriageReturnLineFeed;
+use super::rules::ChangelogDistributionDoesNotMatchChangesFile;
 use super::rules::ChangelogFileMissingExplicitEntry;
 use super::rules::ChangelogIsDhMakeTemplate;
 use super::rules::ChangelogIsSymlink;
@@ -2321,6 +2322,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OredBuildDependsOnObsoletePackage,
         &TypoInManualPage,
         &CapitalizationErrorInDescriptionSynopsis,
+        &ChangelogDistributionDoesNotMatchChangesFile,
     ]
 }
 
@@ -3672,6 +3674,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &UsrShareDocSymlinkToForeignPackage,
         &DocBaseFileReferencesMissingFile,
         &BinariesHaveFileConflict,
+        &ChangelogDistributionDoesNotMatchChangesFile,
     ]
 }
 

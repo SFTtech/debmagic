@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+W: example (binary): changelog-distribution-does-not-match-changes-file (LN1516) experimental != unstable [usr/share/doc/example/changelog:1]
+W: example (binary): changelog-distribution-does-not-match-changes-file (LN1516) unstable != experimental [usr/share/doc/example/changelog:1]
+W: example (binary): changelog-distribution-does-not-match-changes-file (LN1516) bookworm != unstable [usr/share/doc/example/changelog:1]
+W: example (binary): changelog-distribution-does-not-match-changes-file (LN1516) unstable experimental != unstable [usr/share/doc/example/changelog:1]

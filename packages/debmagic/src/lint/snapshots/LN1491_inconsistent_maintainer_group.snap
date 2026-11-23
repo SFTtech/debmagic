@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): inconsistent-maintainer (LN1491) B <b@example.org> (changes vs. source) A <a@example.org>
+E: example (changes): inconsistent-maintainer (LN1491) B <b@example.org> (changes vs. source) A <a@example.org>
+E: example (changes): inconsistent-maintainer (LN1491)  (changes vs. source) A <a@example.org>

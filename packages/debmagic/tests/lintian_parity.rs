@@ -1824,12 +1824,18 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/fields/distribution/changes-upload-has-backports-version-number",
     "checks/fields/distribution/distribution-multiple-bad",
     "checks/fields/format/changes-missing-format",
+    "checks/fields/mail-address/changed-by-localhost",
     "checks/fields/mail-address/changed-by-no-name",
+    "checks/fields/mail-address/changed-by-root",
+    "checks/fields/mail-address/changed-by-root-email",
+    "checks/fields/mail-address/fields-maintainer",
     "checks/fields/mail-address/fields-maintainer-bounces",
     "checks/fields/mail-address/fields-qa-maint-address",
     "checks/fields/mail-address/fields-qa-maint-name",
+    "checks/fields/mail-address/fields-root-maint-address",
     "checks/fields/mail-address/legacy-foo++",
     "checks/fields/mail-address/legacy-maintainer-scripts",
+    "checks/fields/mail-address/mismatch-between-changes-and-source",
     "checks/fields/maintainer/mismatch-between-changes-and-source",
     "checks/fields/urgency/generic-empty",
     "checks/fields/version/fields-version-bad",
@@ -3699,12 +3705,18 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/fields/distribution/changes-upload-has-backports-version-number"; "checks_fields_distribution_changes_upload_has_backports_version_number")]
 #[test_case("checks/fields/distribution/distribution-multiple-bad"; "checks_fields_distribution_distribution_multiple_bad")]
 #[test_case("checks/fields/format/changes-missing-format"; "checks_fields_format_changes_missing_format")]
+#[test_case("checks/fields/mail-address/changed-by-localhost"; "checks_fields_mail_address_changed_by_localhost")]
 #[test_case("checks/fields/mail-address/changed-by-no-name"; "checks_fields_mail_address_changed_by_no_name")]
+#[test_case("checks/fields/mail-address/changed-by-root"; "checks_fields_mail_address_changed_by_root")]
+#[test_case("checks/fields/mail-address/changed-by-root-email"; "checks_fields_mail_address_changed_by_root_email")]
+#[test_case("checks/fields/mail-address/fields-maintainer"; "checks_fields_mail_address_fields_maintainer")]
 #[test_case("checks/fields/mail-address/fields-maintainer-bounces"; "checks_fields_mail_address_fields_maintainer_bounces")]
 #[test_case("checks/fields/mail-address/fields-qa-maint-address"; "checks_fields_mail_address_fields_qa_maint_address")]
 #[test_case("checks/fields/mail-address/fields-qa-maint-name"; "checks_fields_mail_address_fields_qa_maint_name")]
+#[test_case("checks/fields/mail-address/fields-root-maint-address"; "checks_fields_mail_address_fields_root_maint_address")]
 #[test_case("checks/fields/mail-address/legacy-foo++"; "checks_fields_mail_address_legacy_foo_")]
 #[test_case("checks/fields/mail-address/legacy-maintainer-scripts"; "checks_fields_mail_address_legacy_maintainer_scripts")]
+#[test_case("checks/fields/mail-address/mismatch-between-changes-and-source"; "checks_fields_mail_address_mismatch_between_changes_and_source")]
 #[test_case("checks/fields/maintainer/mismatch-between-changes-and-source"; "checks_fields_maintainer_mismatch_between_changes_and_source")]
 #[test_case("checks/fields/urgency/generic-empty"; "checks_fields_urgency_generic_empty")]
 #[test_case("checks/fields/version/fields-version-bad"; "checks_fields_version_fields_version_bad")]

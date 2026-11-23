@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): bogus-mail-host (LN0106) Changed-By jane@localhost.localdomain
+E: example (changes): bogus-mail-host (LN0106) Uploaders c@localhost.localdomain

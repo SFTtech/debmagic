@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): copyright-has-crs (LN1641)
+P: example (binary): copyright-has-crs (LN1641)

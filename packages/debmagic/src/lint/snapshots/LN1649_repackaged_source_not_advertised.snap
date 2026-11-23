@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): repackaged-source-not-advertised (LN1649) [debian/copyright]

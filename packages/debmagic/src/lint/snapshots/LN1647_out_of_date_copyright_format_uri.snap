@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): out-of-date-copyright-format-uri (LN1647) http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135 [debian/copyright]
+P: (source): out-of-date-copyright-format-uri (LN1647) https://svn.debian.org/viewvc/dep/web/deps/dep5.mdwn?revision=10 [debian/copyright]

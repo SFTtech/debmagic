@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): license-file-listed-in-debian-copyright (LN1644) COPYING [debian/copyright]
+I: (source): license-file-listed-in-debian-copyright (LN1644) docs/LICENSE [debian/copyright]

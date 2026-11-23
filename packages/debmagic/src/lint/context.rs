@@ -7,7 +7,7 @@ use anyhow::anyhow;
 
 use super::appstream::AppstreamFiles;
 use super::binary_package_reader::BinaryPackageReader;
-use super::deb_members::DebMembers;
+use super::deb_members::{DebMembers, Tarball};
 use super::debhelper::DebhelperFacts;
 use super::debian_changelog::DebianChangelog;
 use super::debian_control::DebianControl;
@@ -284,6 +284,26 @@ impl BinaryPackageData {
     }
 }
 
+/// What tar printed while unpacking one Binary package's Data and Control
+/// tarballs (lintian's `unpack-messages`), in archive order. Read once per
+/// Subject through [`BinaryPackageContext::unpack_messages`].
+#[derive(Debug, Default)]
+pub(crate) struct UnpackMessages {
+    data: Vec<String>,
+    control: Vec<String>,
+}
+
+impl UnpackMessages {
+    /// The messages of one tarball. Empty when it is missing or unreadable.
+    #[allow(dead_code)] // seam API; no Rule reads it yet
+    pub fn get(&self, tarball: Tarball) -> &[String] {
+        match tarball {
+            Tarball::Data => &self.data,
+            Tarball::Control => &self.control,
+        }
+    }
+}
+
 pub(crate) struct BinaryPackageContext<'a> {
     data: &'a BinaryPackageData,
     sink: DiagnosticSink,
@@ -361,6 +381,21 @@ impl<'a> BinaryPackageContext<'a> {
                 None
             }
         }
+    }
+
+    /// What tar printed while unpacking the Data and Control tarballs (lintian's
+    /// `unpack-messages`), read once per Subject and shared by every Rule. Ask
+    /// for one tarball with [`UnpackMessages::get`]. Not a File tree: a broken
+    /// tarball gives no messages here, and its failure shows in the Files trees.
+    #[allow(dead_code)] // seam API; no Rule reads it yet
+    pub fn unpack_messages(&mut self) -> Arc<UnpackMessages> {
+        self.shared_once(|ctx| match ctx.data.reader.as_ref() {
+            Some(reader) => UnpackMessages {
+                data: reader.unpack_messages(Tarball::Data),
+                control: reader.unpack_messages(Tarball::Control),
+            },
+            None => UnpackMessages::default(),
+        })
     }
 
     /// ELF facts of the Data files ELF Entries (regular files and hardlinks),

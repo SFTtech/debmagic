@@ -476,6 +476,7 @@ use super::rules::RequiresRApi;
 use super::rules::RubyInterpreterIsDeprecated;
 use super::rules::RubyScriptButNoRubyDep;
 use super::rules::RubygemHomepage;
+use super::rules::RuntimeTestFileIsNotARegularFile;
 use super::rules::RustBoilerplate;
 use super::rules::ScriptInEtcInitDNotRegisteredViaUpdateRcD;
 use super::rules::ScriptNotExecutable;
@@ -2325,6 +2326,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CapitalizationErrorInDescriptionSynopsis,
         &ChangelogDistributionDoesNotMatchChangesFile,
         &InconsistentMaintainer,
+        &RuntimeTestFileIsNotARegularFile,
     ]
 }
 
@@ -2760,6 +2762,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &HomepageInBinaryPackage,
         &BuildDependsOnPythonDevWithNoArchAny,
         &OredBuildDependsOnObsoletePackage,
+        &RuntimeTestFileIsNotARegularFile,
     ]
 }
 

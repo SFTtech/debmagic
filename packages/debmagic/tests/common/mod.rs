@@ -516,7 +516,8 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
     }
     let recipe = parity_suite_root().join(recipe_rel);
     let catalogued = catalogued_ln_tags();
-    let expected = catalogued_source_tree_hints(&recipe, &catalogued);
+    let mut expected = catalogued_source_tree_hints(&recipe, &catalogued);
+    drop_expected_hints_for_unvendorable_files(recipe_rel, &mut expected);
     assert!(
         !expected.is_empty(),
         "{recipe_rel}: listed Parity recipe has no catalogued Source-tree hints"
@@ -2099,7 +2100,8 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
     }
     let recipe = parity_suite_root().join(recipe_rel);
     let tags = catalogued_source_package_tags();
-    let expected = catalogued_source_package_hints(&recipe, &tags);
+    let mut expected = catalogued_source_package_hints(&recipe, &tags);
+    drop_expected_hints_for_unvendorable_files(recipe_rel, &mut expected);
     assert!(
         !expected.is_empty(),
         "{recipe_rel}: listed Parity recipe has no catalogued Source-package hints"
@@ -2250,8 +2252,18 @@ fn rewrite_font_package_list(recipe_rel: &str, hints: &mut [ParityHint]) {
 
 /// `testsuite-general`'s lintian `pre-build` makes the named pipe
 /// `debian/tests/fifo`; `lfifo` links to it. A pipe cannot be vendored, so the
-/// filled tree lacks both and the Rule reports them missing. Lintian reports
-/// them as not regular files, a Tag we do not have.
+/// filled tree lacks both and the Rule reports them missing, where lintian
+/// reports them as not regular files (`runtime-test-file-is-not-a-regular-file`).
+/// The missing-file hints are dropped from the actual side, and the
+/// not-a-regular-file hints from the expected side: the Rule for them has
+/// native tests, and no vendored tree can show it for these two paths.
+fn drop_expected_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHint>) {
+    if recipe_rel != "checks/testsuite/testsuite-general" {
+        return;
+    }
+    hints.retain(|hint| hint.tag != "runtime-test-file-is-not-a-regular-file");
+}
+
 fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHint>) {
     if recipe_rel != "checks/testsuite/testsuite-general" {
         return;

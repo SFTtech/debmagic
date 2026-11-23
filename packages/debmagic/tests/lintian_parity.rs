@@ -654,6 +654,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/changelog/changelog-file-news-wrong-name",
     "checks/debian/changelog/changelog-file-no-dch",
     "checks/debian/changelog/changelog-file-no-dch-native",
+    "checks/debian/changelog/changelog-file-strange-date",
     "checks/debian/changelog/changelog-file-symlink",
     "checks/debian/changelog/changelog-file-upstream-html-only",
     "checks/debian/changelog/changelog-file-wrong-name-upstream",
@@ -2535,6 +2536,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/debian/changelog/changelog-file-news-wrong-name"; "checks_debian_changelog_changelog_file_news_wrong_name")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch"; "checks_debian_changelog_changelog_file_no_dch")]
 #[test_case("checks/debian/changelog/changelog-file-no-dch-native"; "checks_debian_changelog_changelog_file_no_dch_native")]
+#[test_case("checks/debian/changelog/changelog-file-strange-date"; "checks_debian_changelog_changelog_file_strange_date")]
 #[test_case("checks/debian/changelog/changelog-file-symlink"; "checks_debian_changelog_changelog_file_symlink")]
 #[test_case("checks/debian/changelog/changelog-file-upstream-html-only"; "checks_debian_changelog_changelog_file_upstream_html_only")]
 #[test_case("checks/debian/changelog/changelog-file-wrong-name-upstream"; "checks_debian_changelog_changelog_file_wrong_name_upstream")]

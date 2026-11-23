@@ -67,6 +67,7 @@ use super::rules::BuildDependsOnNonBuildPackage;
 use super::rules::BuildDependsOnPythonDevWithNoArchAny;
 use super::rules::BuildDependsOnSpecificJavaDocPackage;
 use super::rules::BuildDependsOnVersionedBerkeleyDb;
+use super::rules::CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage;
 use super::rules::CapitalizationErrorInDescription;
 use super::rules::CapitalizationErrorInDescriptionSynopsis;
 use super::rules::CapitalizationInOverrideComment;
@@ -2657,6 +2658,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ManualPageInUdeb,
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
+        &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
     ]
 }
 
@@ -4176,6 +4178,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &SpareManualPage,
         &PackageDoesNotInstallExamples,
         &RulesSilentlyRequireRoot,
+        &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
     ]
 }
 

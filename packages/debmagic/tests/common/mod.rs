@@ -340,9 +340,11 @@ fn applies_to_binary_package(processable_type: &str) -> bool {
     processable_type == "binary" || processable_type == "udeb"
 }
 
-/// Tags of LN Rules that implement `BinaryPackageRule`.
+/// Tags of LN Rules that implement `BinaryPackageRule`, and of Group Rules
+/// that run on a lone `.deb` (`runs_without_dsc`, ADR 0056): a deb recipe is
+/// linted as a Group of one installable.
 pub fn catalogued_binary_package_tags() -> HashSet<String> {
-    catalogued_tags_with_impl(&["impl BinaryPackageRule for"])
+    catalogued_tags_with_impl(&["impl BinaryPackageRule for", "fn runs_without_dsc"])
 }
 
 /// Tags of LN Rules that implement `SourceRule`.
@@ -357,6 +359,7 @@ const RULE_IMPL_NEEDLES: &[&str] = &[
     "impl ChangesRule for",
     "impl BuildinfoRule for",
     "impl GroupRule for",
+    "fn runs_without_dsc",
 ];
 
 /// One Rule source file of `src/lint/rules/lintian/`: which Rule kinds it

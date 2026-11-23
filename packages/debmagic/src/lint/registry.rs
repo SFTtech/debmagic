@@ -491,6 +491,7 @@ use super::rules::PrermCallsUpdatercD;
 use super::rules::PriorityExtraIsReplacedByPriorityOptional;
 use super::rules::PrivacyBreachW3cValidHtml;
 use super::rules::ProgramNotLinkedAgainstLibc;
+use super::rules::PublicUpstreamKeyInNativePackage;
 use super::rules::PublicUpstreamKeyUnusable;
 use super::rules::PuppetModuleButNotDhPuppet;
 use super::rules::PypiHomepage;
@@ -2437,6 +2438,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &SpellingInOverrideComment,
         &CapitalizationInOverrideComment,
         &UnicodeTrojan,
+        &PublicUpstreamKeyInNativePackage,
     ]
 }
 
@@ -2444,6 +2446,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
     &[
         &PackageHasLongFileName,
         &UnicodeTrojan,
+        &PublicUpstreamKeyInNativePackage,
         &DebmagicDummyTrigger,
         &RequiredField,
         &SyntaxErrorInDebianChangelog,

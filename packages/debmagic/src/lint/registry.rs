@@ -19,8 +19,10 @@ use super::rules::AppstreamMetadataInvalid;
 use super::rules::AppstreamMetadataLegacyFormat;
 use super::rules::AppstreamMetadataMalformedModaliasProvide;
 use super::rules::AppstreamMetadataMissingModaliasProvide;
+use super::rules::ArchDepPackageHasBigUsrShare;
 use super::rules::ArchIndependentPackageContainsBinaryOrObject;
 use super::rules::ArchWildcardInBinaryPackage;
+use super::rules::ArchitectureEscape;
 use super::rules::BackportsChangesMissing;
 use super::rules::BackportsUploadHasIncorrectVersionNumber;
 use super::rules::BadDistributionInChangesFile;
@@ -36,6 +38,7 @@ use super::rules::BadUrgencyInChangesFile;
 use super::rules::BadVersionInRelation;
 use super::rules::BadVersionNumber;
 use super::rules::BashTermInPosixShell;
+use super::rules::BinSbinMismatch;
 use super::rules::BinariesHaveFileConflict;
 use super::rules::BinaryCompiledWithProfilingEnabled;
 use super::rules::BinaryFromOtherArchitecture;
@@ -69,7 +72,9 @@ use super::rules::ClasspathContainsRelativePath;
 use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
 use super::rules::CommaSeparatedFilesInDep5Copyright;
+use super::rules::ComposerPackageWithoutPkgPhpToolsBuilddep;
 use super::rules::ComposerPrerequisite;
+use super::rules::CompressedDuplicate;
 use super::rules::ConfigDoesNotLoadConfmodule;
 use super::rules::ConfigureGeneratedFileInSource;
 use super::rules::ConflictingNegationInSourceRelation;
@@ -103,6 +108,8 @@ use super::rules::DebianControlHasEmptyField;
 use super::rules::DebianControlHasObsoleteDbgPackage;
 use super::rules::DebianControlHasUnusualFieldSpacing;
 use super::rules::DebianNewsEntryUsesAsterisk;
+use super::rules::DebianPycompatIsObsolete;
+use super::rules::DebianPyversionsIsObsolete;
 use super::rules::DebianRulesContainsUnnecessaryGetOrigSourceTarget;
 use super::rules::DebianRulesDefinesDpkgBuildApi;
 use super::rules::DebianRulesIsDhMakeTemplate;
@@ -155,6 +162,7 @@ use super::rules::DesktopEntryLacksKeywordsEntry;
 use super::rules::DesktopEntryLimitedToEnvironments;
 use super::rules::DevelopmentPackageShipsElfBinaryInPath;
 use super::rules::DfsgVersionWithPeriod;
+use super::rules::DfsgVersionWithTilde;
 use super::rules::DhCleanKIsDeprecated;
 use super::rules::DhExecInstallNotAllowedHere;
 use super::rules::DhExecPrivateHelper;
@@ -187,6 +195,7 @@ use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
 use super::rules::EmptySharedLibrarySymbols;
 use super::rules::EmptyShlibs;
+use super::rules::EmptyUdebPackage;
 use super::rules::EmptyUpstreamSources;
 use super::rules::ExampleIncorrectPathForInterpreter;
 use super::rules::ExampleInterpreterNotAbsolute;
@@ -247,6 +256,8 @@ use super::rules::IncorrectPathForInterpreter;
 use super::rules::InitDScriptContainsSkeletonTemplateContent;
 use super::rules::InitDScriptDependsOnUnknownVirtualFacility;
 use super::rules::InitDScriptDoesNotImplementStatusOption;
+use super::rules::InitDScriptDoesNotProvideItself;
+use super::rules::InitDScriptMissingLsbShortDescription;
 use super::rules::InitDScriptUsesUsrInterpreter;
 use super::rules::InitScriptIsNotAFile;
 use super::rules::InsecureCopyrightFormatUri;
@@ -336,6 +347,7 @@ use super::rules::MissingPrerequisiteForGfortranModule;
 use super::rules::MissingPrerequisiteForPyprojectBackend;
 use super::rules::MissingTemplatesPot;
 use super::rules::MissingTestsControl;
+use super::rules::MissingXsGoImportPathForGolangPackage;
 use super::rules::MisspelledClosesBug;
 use super::rules::MultiArchSamePackageCallsPycompile;
 use super::rules::MultiArchSamePackageHasArchSpecificOverrides;
@@ -431,6 +443,7 @@ use super::rules::PatchNotForwardedUpstream;
 use super::rules::PatchedFileWithoutUtf8Name;
 use super::rules::PearChannelWithoutPkgPhpToolsBuilddep;
 use super::rules::PearPackageButMissingDependency;
+use super::rules::PearPackageNotUsingSubstvar;
 use super::rules::PearPackageWithoutPkgPhpToolsBuilddep;
 use super::rules::PeclPackageRequiresBuildDependency;
 use super::rules::PerlModuleUsesPerl4LibsWithoutDep;
@@ -2258,6 +2271,17 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &DfsgVersionWithTilde,
+        &CompressedDuplicate,
+        &BinSbinMismatch,
+        &EmptyUdebPackage,
+        &ArchitectureEscape,
+        &ArchDepPackageHasBigUsrShare,
+        &InitDScriptDoesNotProvideItself,
+        &InitDScriptMissingLsbShortDescription,
+        &MissingXsGoImportPathForGolangPackage,
+        &ComposerPackageWithoutPkgPhpToolsBuilddep,
+        &PearPackageNotUsingSubstvar,
         &SourceContainsPrebuiltJavascriptObject,
         &SourceContainsPrebuiltPythonObject,
         &SourceIsMissing,
@@ -2345,6 +2369,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CapitalizationErrorInDescriptionSynopsis,
         &IncorrectLocaleCode,
         &LocaleUsesLanguageGroupCode,
+        &DebianPycompatIsObsolete,
+        &DebianPyversionsIsObsolete,
     ]
 }
 
@@ -2745,6 +2771,10 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &RedundantPriorityOptionalField,
         &InstallableFieldMirrorsSource,
         &InconsistentAppstreamMetadataLicense,
+        &DfsgVersionWithTilde,
+        &MissingXsGoImportPathForGolangPackage,
+        &ComposerPackageWithoutPkgPhpToolsBuilddep,
+        &PearPackageNotUsingSubstvar,
         &SourceContainsPrebuiltJavascriptObject,
         &SourceContainsPrebuiltPythonObject,
         &SourceIsMissing,
@@ -2790,6 +2820,8 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &Dep3FormatPatchAuthorOrFromIsBetter,
         &InvalidDep3FormatPatchNoDescriptionAndSubject,
         &InvalidDep3FormatPatchNoOrigin,
+        &DebianPycompatIsObsolete,
+        &DebianPyversionsIsObsolete,
     ]
 }
 
@@ -3643,6 +3675,13 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &ElfError,
         &DebugFileWithNoDebugSymbols,
         &NoCodeSections,
+        &CompressedDuplicate,
+        &BinSbinMismatch,
+        &EmptyUdebPackage,
+        &ArchitectureEscape,
+        &ArchDepPackageHasBigUsrShare,
+        &InitDScriptDoesNotProvideItself,
+        &InitDScriptMissingLsbShortDescription,
         &DbusSessionServiceWrongName,
         &DesktopEntryLacksIconEntry,
         &DesktopEntryLimitedToEnvironments,

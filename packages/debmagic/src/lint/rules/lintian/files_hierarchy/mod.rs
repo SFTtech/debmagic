@@ -32,6 +32,7 @@ mod ln0062_aliased_location;
 mod ln0063_use_of_compat_symlink;
 mod ln0127_non_multi_arch_lib_dir;
 
+mod ln1563_architecture_escape;
 #[cfg(test)]
 mod tree;
 
@@ -56,3 +57,4 @@ pub(crate) use ln0061_non_standard_dir_in_var::NonStandardDirInVar;
 pub(crate) use ln0062_aliased_location::AliasedLocation;
 pub(crate) use ln0063_use_of_compat_symlink::UseOfCompatSymlink;
 pub(crate) use ln0127_non_multi_arch_lib_dir::NonMultiArchLibDir;
+pub(crate) use ln1563_architecture_escape::ArchitectureEscape;

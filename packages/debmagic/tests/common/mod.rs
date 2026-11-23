@@ -2232,6 +2232,29 @@ const POINTER_ONLY_SOURCE_MISSING_TAGS: [&str; 3] = [
     "source-contains-prebuilt-python-object",
 ];
 
+/// The two Tags of lintian 2.144's `languages/python/obsolete` Check, which
+/// emit `pointed_hint(tag, $file->pointer)` with `debian/pycompat` and
+/// `debian/pyversions`: an empty extra or a bare path extra in the
+/// `cruft-python` recipe is compared as an empty extra with the path as
+/// Location (`[path]`), as `legacy-debconf` already prints it. Only these two
+/// Tags and only these two paths are touched.
+const POINTER_ONLY_PYTHON_OBSOLETE_TAGS: [(&str, &str); 2] = [
+    ("debian-pycompat-is-obsolete", "debian/pycompat"),
+    ("debian-pyversions-is-obsolete", "debian/pyversions"),
+];
+
+fn point_python_obsolete_hints(hints: &mut [ParityHint]) {
+    for hint in hints {
+        if let Some((_, path)) = POINTER_ONLY_PYTHON_OBSOLETE_TAGS
+            .iter()
+            .find(|(tag, _)| *tag == hint.tag)
+            && (hint.extra.is_empty() || hint.extra == *path)
+        {
+            hint.extra = format!("[{path}]");
+        }
+    }
+}
+
 fn point_bare_source_missing_hints(hints: &mut [ParityHint]) {
     for hint in hints {
         if POINTER_ONLY_SOURCE_MISSING_TAGS.contains(&hint.tag.as_str())
@@ -2261,6 +2284,7 @@ fn point_bare_source_missing_hints(hints: &mut [ParityHint]) {
 ///   `program-data Depends` (the Perl prints installable and field).
 fn correct_stale_expected_hints(recipe: &Path, hints: &mut Vec<ParityHint>) {
     point_bare_source_missing_hints(hints);
+    point_python_obsolete_hints(hints);
     if recipe.ends_with("checks/cruft/cruft-general-upstream") {
         for hint in hints.iter_mut() {
             if hint.tag == "configure-generated-file-in-source" && hint.extra == "config.cache" {

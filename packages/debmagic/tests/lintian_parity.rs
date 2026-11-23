@@ -397,6 +397,7 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/fields/version/repack/count/extra-dot",
     "checks/fields/version/repack/native/fields-version-dfsg-native",
     "checks/fields/version/repack/period/fields-version-dot-dfsg",
+    "checks/fields/version/repack/tilde/tilde-dfsg",
     "checks/fields/version/repack/typo/fields-version-dsfg",
     "checks/files/artifact/cruft-general-diff",
     "checks/files/artifact/cruft-general-native",
@@ -426,6 +427,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
+    "checks/languages/golang/module-path/binaries-golang",
+    "checks/languages/golang/module-path/control-file-golang-built-using",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
@@ -435,13 +438,17 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/php/composer/depends-composer",
+    "checks/languages/php/pear/phppear-composer",
     "checks/languages/php/pear/phppear-general",
     "checks/languages/php/pear/phppear-pear",
+    "checks/languages/php/pear/rules-missing-pkg-php-tools-phpcomposer",
     "checks/languages/php/pear/rules-missing-pkg-php-tools-phppear",
     "checks/languages/puppet/puppet-module-but-not-dh-puppet",
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
     "checks/languages/python/dist-overrides/duplicate-identifier",
     "checks/languages/python/homepage/pypi",
+    "checks/languages/python/obsolete/cruft-python",
+    "checks/languages/python/obsolete/legacy-debconf",
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-could-use-pyproject-flit",
     "checks/languages/python/python-could-use-pyproject-hatchling",
@@ -835,13 +842,16 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/bugs/files-package-contains-foo",
     "checks/files/bugs/legacy-filenames",
     "checks/files/build-path/files-foo-in-bar",
+    "checks/files/compressed/files-general",
     "checks/files/compressed/gz/files-gzip-ma-same",
     "checks/files/compressed/gz/not-a-gz",
     "checks/files/compressed/gz/timestamp-in-gzip",
+    "checks/files/compressed/legacy-filenames",
     "checks/files/compressed/lzma/not-an-lzma",
     "checks/files/compressed/xz/not-an-xz",
     "checks/files/compressed/zip/not-a-zip",
     "checks/files/config-scripts/files-old-config-script",
+    "checks/files/contents/bin-sbin-confusion-in-script",
     "checks/files/contents/files-missing-depends-on-sensible-utils",
     "checks/files/contents/files-uses-dpkg-database-directly",
     "checks/files/contents/legacy-maintainer-scripts",
@@ -869,6 +879,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/hard-links/files-hardlinks",
     "checks/files/hard-links/legacy-binary",
     "checks/files/hard-links/legacy-etcfiles",
+    "checks/files/hierarchy/links/leaving-architecture",
     "checks/files/hierarchy/standard/copyright-file-general",
     "checks/files/hierarchy/standard/files-foo-in-bar",
     "checks/files/hierarchy/standard/files-general",
@@ -938,6 +949,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/games/files-games-section",
     "checks/games/files-general",
     "checks/games/legacy-filenames",
+    "checks/huge-usr-share/huge-usr-share-percent",
     "checks/images/filenames/conflicting-image-names",
     "checks/images/filenames/unrelated-image-names",
     "checks/images/thumbnails/files-foo-in-bar",
@@ -1521,6 +1533,7 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/fields/version/repack/count/extra-dot",
     "checks/fields/version/repack/native/fields-version-dfsg-native",
     "checks/fields/version/repack/period/fields-version-dot-dfsg",
+    "checks/fields/version/repack/tilde/tilde-dfsg",
     "checks/fields/version/repack/typo/fields-version-dsfg",
     "checks/files/artifact/cruft-empty-diff",
     "checks/files/artifact/cruft-general-diff",
@@ -1551,6 +1564,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/source-missing/min-js-with-sources",
     "checks/files/symbolic-links/cruft-unsafe-symlinks",
     "checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure",
+    "checks/languages/golang/module-path/binaries-golang",
+    "checks/languages/golang/module-path/control-file-golang-built-using",
     "checks/languages/golang/module-path/golang-package-without-version-suffix",
     "checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing",
     "checks/languages/javascript/nodejs/multiple-nodejs-components",
@@ -1560,13 +1575,17 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty",
     "checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing",
     "checks/languages/php/composer/depends-composer",
+    "checks/languages/php/pear/phppear-composer",
     "checks/languages/php/pear/phppear-general",
     "checks/languages/php/pear/phppear-pear",
+    "checks/languages/php/pear/rules-missing-pkg-php-tools-phpcomposer",
     "checks/languages/php/pear/rules-missing-pkg-php-tools-phppear",
     "checks/languages/puppet/puppet-module-but-not-dh-puppet",
     "checks/languages/python/bogus-prerequisites/what-is-python-build-depends",
     "checks/languages/python/dist-overrides/duplicate-identifier",
     "checks/languages/python/homepage/pypi",
+    "checks/languages/python/obsolete/cruft-python",
+    "checks/languages/python/obsolete/legacy-debconf",
     "checks/languages/python/python-ancient-python-version-field",
     "checks/languages/python/python-could-use-pyproject-flit",
     "checks/languages/python/python-could-use-pyproject-hatchling",
@@ -2093,6 +2112,7 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/fields/version/repack/count/extra-dot"; "checks_fields_version_repack_count_extra_dot")]
 #[test_case("checks/fields/version/repack/native/fields-version-dfsg-native"; "checks_fields_version_repack_native_fields_version_dfsg_native")]
 #[test_case("checks/fields/version/repack/period/fields-version-dot-dfsg"; "checks_fields_version_repack_period_fields_version_dot_dfsg")]
+#[test_case("checks/fields/version/repack/tilde/tilde-dfsg"; "checks_fields_version_repack_tilde_tilde_dfsg")]
 #[test_case("checks/fields/version/repack/typo/fields-version-dsfg"; "checks_fields_version_repack_typo_fields_version_dsfg")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
 #[test_case("checks/files/artifact/cruft-general-native"; "checks_files_artifact_cruft_general_native")]
@@ -2122,6 +2142,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
+#[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
+#[test_case("checks/languages/golang/module-path/control-file-golang-built-using"; "checks_languages_golang_module_path_control_file_golang_built_using")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
@@ -2131,13 +2153,17 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/php/composer/depends-composer"; "checks_languages_php_composer_depends_composer")]
+#[test_case("checks/languages/php/pear/phppear-composer"; "checks_languages_php_pear_phppear_composer")]
 #[test_case("checks/languages/php/pear/phppear-general"; "checks_languages_php_pear_phppear_general")]
 #[test_case("checks/languages/php/pear/phppear-pear"; "checks_languages_php_pear_phppear_pear")]
+#[test_case("checks/languages/php/pear/rules-missing-pkg-php-tools-phpcomposer"; "checks_languages_php_pear_rules_missing_pkg_php_tools_phpcomposer")]
 #[test_case("checks/languages/php/pear/rules-missing-pkg-php-tools-phppear"; "checks_languages_php_pear_rules_missing_pkg_php_tools_phppear")]
 #[test_case("checks/languages/puppet/puppet-module-but-not-dh-puppet"; "checks_languages_puppet_puppet_module_but_not_dh_puppet")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
 #[test_case("checks/languages/python/homepage/pypi"; "checks_languages_python_homepage_pypi")]
+#[test_case("checks/languages/python/obsolete/cruft-python"; "checks_languages_python_obsolete_cruft_python")]
+#[test_case("checks/languages/python/obsolete/legacy-debconf"; "checks_languages_python_obsolete_legacy_debconf")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-could-use-pyproject-flit"; "checks_languages_python_python_could_use_pyproject_flit")]
 #[test_case("checks/languages/python/python-could-use-pyproject-hatchling"; "checks_languages_python_python_could_use_pyproject_hatchling")]
@@ -2532,13 +2558,16 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/bugs/files-package-contains-foo"; "checks_files_bugs_files_package_contains_foo")]
 #[test_case("checks/files/bugs/legacy-filenames"; "checks_files_bugs_legacy_filenames")]
 #[test_case("checks/files/build-path/files-foo-in-bar"; "checks_files_build_path_files_foo_in_bar")]
+#[test_case("checks/files/compressed/files-general"; "checks_files_compressed_files_general")]
 #[test_case("checks/files/compressed/gz/files-gzip-ma-same"; "checks_files_compressed_gz_files_gzip_ma_same")]
 #[test_case("checks/files/compressed/gz/not-a-gz"; "checks_files_compressed_gz_not_a_gz")]
 #[test_case("checks/files/compressed/gz/timestamp-in-gzip"; "checks_files_compressed_gz_timestamp_in_gzip")]
+#[test_case("checks/files/compressed/legacy-filenames"; "checks_files_compressed_legacy_filenames")]
 #[test_case("checks/files/compressed/lzma/not-an-lzma"; "checks_files_compressed_lzma_not_an_lzma")]
 #[test_case("checks/files/compressed/xz/not-an-xz"; "checks_files_compressed_xz_not_an_xz")]
 #[test_case("checks/files/compressed/zip/not-a-zip"; "checks_files_compressed_zip_not_a_zip")]
 #[test_case("checks/files/config-scripts/files-old-config-script"; "checks_files_config_scripts_files_old_config_script")]
+#[test_case("checks/files/contents/bin-sbin-confusion-in-script"; "checks_files_contents_bin_sbin_confusion_in_script")]
 #[test_case("checks/files/contents/files-missing-depends-on-sensible-utils"; "checks_files_contents_files_missing_depends_on_sensible_utils")]
 #[test_case("checks/files/contents/files-uses-dpkg-database-directly"; "checks_files_contents_files_uses_dpkg_database_directly")]
 #[test_case("checks/files/contents/legacy-maintainer-scripts"; "checks_files_contents_legacy_maintainer_scripts")]
@@ -2566,6 +2595,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/hard-links/files-hardlinks"; "checks_files_hard_links_files_hardlinks")]
 #[test_case("checks/files/hard-links/legacy-binary"; "checks_files_hard_links_legacy_binary")]
 #[test_case("checks/files/hard-links/legacy-etcfiles"; "checks_files_hard_links_legacy_etcfiles")]
+#[test_case("checks/files/hierarchy/links/leaving-architecture"; "checks_files_hierarchy_links_leaving_architecture")]
 #[test_case("checks/files/hierarchy/standard/copyright-file-general"; "checks_files_hierarchy_standard_copyright_file_general")]
 #[test_case("checks/files/hierarchy/standard/files-foo-in-bar"; "checks_files_hierarchy_standard_files_foo_in_bar")]
 #[test_case("checks/files/hierarchy/standard/files-general"; "checks_files_hierarchy_standard_files_general")]
@@ -2635,6 +2665,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/games/files-games-section"; "checks_games_files_games_section")]
 #[test_case("checks/games/files-general"; "checks_games_files_general")]
 #[test_case("checks/games/legacy-filenames"; "checks_games_legacy_filenames")]
+#[test_case("checks/huge-usr-share/huge-usr-share-percent"; "checks_huge_usr_share_huge_usr_share_percent")]
 #[test_case("checks/images/filenames/conflicting-image-names"; "checks_images_filenames_conflicting_image_names")]
 #[test_case("checks/images/filenames/unrelated-image-names"; "checks_images_filenames_unrelated_image_names")]
 #[test_case("checks/images/thumbnails/files-foo-in-bar"; "checks_images_thumbnails_files_foo_in_bar")]
@@ -3219,6 +3250,7 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/fields/version/repack/count/extra-dot"; "checks_fields_version_repack_count_extra_dot")]
 #[test_case("checks/fields/version/repack/native/fields-version-dfsg-native"; "checks_fields_version_repack_native_fields_version_dfsg_native")]
 #[test_case("checks/fields/version/repack/period/fields-version-dot-dfsg"; "checks_fields_version_repack_period_fields_version_dot_dfsg")]
+#[test_case("checks/fields/version/repack/tilde/tilde-dfsg"; "checks_fields_version_repack_tilde_tilde_dfsg")]
 #[test_case("checks/fields/version/repack/typo/fields-version-dsfg"; "checks_fields_version_repack_typo_fields_version_dsfg")]
 #[test_case("checks/files/artifact/cruft-empty-diff"; "checks_files_artifact_cruft_empty_diff")]
 #[test_case("checks/files/artifact/cruft-general-diff"; "checks_files_artifact_cruft_general_diff")]
@@ -3249,6 +3281,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/files/source-missing/min-js-with-sources"; "checks_files_source_missing_min_js_with_sources")]
 #[test_case("checks/files/symbolic-links/cruft-unsafe-symlinks"; "checks_files_symbolic_links_cruft_unsafe_symlinks")]
 #[test_case("checks/languages/clojure/dh-clojure/lein-but-not-dh-clojure"; "checks_languages_clojure_dh_clojure_lein_but_not_dh_clojure")]
+#[test_case("checks/languages/golang/module-path/binaries-golang"; "checks_languages_golang_module_path_binaries_golang")]
+#[test_case("checks/languages/golang/module-path/control-file-golang-built-using"; "checks_languages_golang_module_path_control_file_golang_built_using")]
 #[test_case("checks/languages/golang/module-path/golang-package-without-version-suffix"; "checks_languages_golang_module_path_golang_package_without_version_suffix")]
 #[test_case("checks/languages/javascript/nodejs/dh-sequence-nodejs-test-is-missing"; "checks_languages_javascript_nodejs_dh_sequence_nodejs_test_is_missing")]
 #[test_case("checks/languages/javascript/nodejs/multiple-nodejs-components"; "checks_languages_javascript_nodejs_multiple_nodejs_components")]
@@ -3258,13 +3292,17 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-empty"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_empty")]
 #[test_case("checks/languages/javascript/nodejs/pkg-js-tools-test-is-missing"; "checks_languages_javascript_nodejs_pkg_js_tools_test_is_missing")]
 #[test_case("checks/languages/php/composer/depends-composer"; "checks_languages_php_composer_depends_composer")]
+#[test_case("checks/languages/php/pear/phppear-composer"; "checks_languages_php_pear_phppear_composer")]
 #[test_case("checks/languages/php/pear/phppear-general"; "checks_languages_php_pear_phppear_general")]
 #[test_case("checks/languages/php/pear/phppear-pear"; "checks_languages_php_pear_phppear_pear")]
+#[test_case("checks/languages/php/pear/rules-missing-pkg-php-tools-phpcomposer"; "checks_languages_php_pear_rules_missing_pkg_php_tools_phpcomposer")]
 #[test_case("checks/languages/php/pear/rules-missing-pkg-php-tools-phppear"; "checks_languages_php_pear_rules_missing_pkg_php_tools_phppear")]
 #[test_case("checks/languages/puppet/puppet-module-but-not-dh-puppet"; "checks_languages_puppet_puppet_module_but_not_dh_puppet")]
 #[test_case("checks/languages/python/bogus-prerequisites/what-is-python-build-depends"; "checks_languages_python_bogus_prerequisites_what_is_python_build_depends")]
 #[test_case("checks/languages/python/dist-overrides/duplicate-identifier"; "checks_languages_python_dist_overrides_duplicate_identifier")]
 #[test_case("checks/languages/python/homepage/pypi"; "checks_languages_python_homepage_pypi")]
+#[test_case("checks/languages/python/obsolete/cruft-python"; "checks_languages_python_obsolete_cruft_python")]
+#[test_case("checks/languages/python/obsolete/legacy-debconf"; "checks_languages_python_obsolete_legacy_debconf")]
 #[test_case("checks/languages/python/python-ancient-python-version-field"; "checks_languages_python_python_ancient_python_version_field")]
 #[test_case("checks/languages/python/python-could-use-pyproject-flit"; "checks_languages_python_python_could_use_pyproject_flit")]
 #[test_case("checks/languages/python/python-could-use-pyproject-hatchling"; "checks_languages_python_python_could_use_pyproject_hatchling")]

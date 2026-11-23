@@ -66,7 +66,7 @@ impl BinaryPackageRule for EmptyBinaryPackage {
 }
 
 /// Transitional or meta package, by lintian's `is_transitional` / `is_meta_package`.
-fn is_dummy(package: &str, fields: &ControlParagraph) -> bool {
+pub(super) fn is_dummy(package: &str, fields: &ControlParagraph) -> bool {
     let description = fields.get("Description").unwrap_or_default();
     let section = fields.get("Section").unwrap_or_default();
     TRANSITIONAL.is_match(description)
@@ -75,7 +75,7 @@ fn is_dummy(package: &str, fields: &ControlParagraph) -> bool {
         || package.starts_with("task-")
 }
 
-fn is_empty(files: &FileTree, package: &str, architecture: &str) -> bool {
+pub(super) fn is_empty(files: &FileTree, package: &str, architecture: &str) -> bool {
     !files
         .query()
         .kinds([

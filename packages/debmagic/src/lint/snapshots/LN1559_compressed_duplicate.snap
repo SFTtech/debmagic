@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): compressed-duplicate (LN1559) [usr/share/doc/foo.txt.gz]
+I: example (binary): compressed-duplicate (LN1559) [usr/share/doc/foo.gz]
+I: example (binary): compressed-duplicate (LN1559) [usr/share/doc/foo.bz2]
+I: example (binary): compressed-duplicate (LN1559) [usr/share/doc/foo.Z]
+I: example (binary): compressed-duplicate (LN1559) [usr/share/doc/foo.tar.xz]
+I: example (binary): compressed-duplicate (LN1559) [usr/share/doc/foo.gz]
+I: example (binary): compressed-duplicate (LN1559) [usr/share/doc/foo.gz]

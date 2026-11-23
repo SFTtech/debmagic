@@ -51,14 +51,19 @@ DECLARE_RULE = re.compile(
     r"experimental\s*=\s*(?P<experimental>true|false),",
     re.DOTALL,
 )
-IMPL_TRAIT = re.compile(r"impl\s+(SourceRule|BinaryPackageRule|ChangesRule|BuildinfoRule|GroupRule)\s+for\s+(\w+)")
+IMPL_TRAIT = re.compile(
+    r"impl\s+(SourceRule|BinaryPackageRule|ChangesRule|BuildinfoRule|GroupRule|OverrideRule)\s+for\s+(\w+)"
+)
 TRAIT_TO_KIND = {
     "SourceRule": "source",
     "BinaryPackageRule": "binary",
     "ChangesRule": "changes",
     "BuildinfoRule": "buildinfo",
     "GroupRule": "group",
+    "OverrideRule": "override",
 }
+# Tags the override pass reports (ADR 0057): not a Rule of a Subject kind of their own.
+OVERRIDE_PASS_TAGS = frozenset({"unused-override", "mismatched-override"})
 SEVERITY_CONSTRUCTOR = re.compile(r"Diagnostic::(error|warn)\(|Severity::(Error|Warning|Info|Pedantic)")
 SEVERITY_NAMES = {"error": "error", "warn": "warning", "Error": "error", "Warning": "warning"}
 TEST_CASE = re.compile(r'#\[test_case\("(?P<rel>[^"]+)";\s*"(?P<name>[^"]+)"\)\]')
@@ -232,6 +237,9 @@ def parse_rust_rules(root: Path, prefix: str) -> list[RustRule]:
         # A Group Rule that runs on a lone `.deb` (ADR 0056) also reports on binary packages.
         if "group" in rule.kinds and "fn runs_without_dsc" in text:
             rule.kinds.add("binary")
+        # An OverrideRule runs on the Source tree, the Source package and the Binary package (ADR 0057).
+        if "override" in rule.kinds:
+            rule.kinds.update({"source", "binary"})
         # Severity lives on the Diagnostic constructor, not in `declare_rule!`; scan non-test code.
         production = text.split("#[cfg(test)]", maxsplit=1)[0]
         for constructor, severity in SEVERITY_CONSTRUCTOR.findall(production):

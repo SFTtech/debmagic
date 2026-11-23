@@ -57,6 +57,8 @@ mod subject;
 pub(crate) mod tester;
 #[cfg(test)]
 mod tester_group;
+#[cfg(test)]
+mod tester_override;
 mod timing;
 mod type1;
 mod upstream_metadata;
@@ -67,7 +69,7 @@ pub use diagnostic::{Diagnostic, DiagnosticInner, Location, ProcessableType};
 pub use intent::{LintIntent, LintIntentInput, OverrideMode, resolve_lint_intent};
 pub use rule::{Code, Severity, Tag};
 pub use run::{
-    LintOutcome, LintResult, format_diagnostic, format_finished, format_summary, format_timings,
-    run_lint,
+    LintOutcome, LintResult, format_diagnostic, format_diagnostic_lines, format_finished,
+    format_override_notes, format_summary, format_timings, run_lint,
 };
 pub use subject::{LintTarget, Subject, SubjectKind};

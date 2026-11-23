@@ -158,8 +158,8 @@ fn discover_parity_recipes(root: &Path) -> Vec<PathBuf> {
 /// How many Rules a lint of a Source tree runs, read from the Rule sources
 /// (one `declare_rule!` per file, ADR 0027) instead of a hand-kept number:
 /// `default` is every non-experimental, default-selected Rule that implements
-/// `SourceRule`; `ln` is every LN Rule that implements it (what `--select LN`
-/// runs, ADR 0014).
+/// `SourceRule` or `OverrideRule` (a Source tree runs both); `ln` is every LN Rule
+/// that implements one (what `--select LN` runs, ADR 0014).
 pub struct SourceRuleCounts {
     pub default: usize,
     pub ln: usize,
@@ -178,7 +178,9 @@ pub fn source_rule_counts() -> SourceRuleCounts {
             let Ok(text) = fs::read_to_string(&path) else {
                 continue;
             };
-            if !text.contains("impl SourceRule for") || !text.contains("declare_rule!") {
+            let source_tree_rule =
+                text.contains("impl SourceRule for") || text.contains("impl OverrideRule for");
+            if !source_tree_rule || !text.contains("declare_rule!") {
                 continue;
             }
             let has = |line: &str| text.lines().any(|candidate| candidate.trim() == line);
@@ -259,10 +261,17 @@ pub fn parse_diagnostic_line(line: &str) -> Option<(String, ParityHint)> {
     parse_hint_line(line, &["E:", "W:", "I:", "P:"])
 }
 
-/// An overridden Diagnostic line, printed by `--show-overrides` as `O:`. Kept apart
-/// from [`parse_diagnostic_line`] so the compared hints do not change.
+/// An overridden Diagnostic line, printed by `--show-overrides` as `O:`. Lintian
+/// lists these hints in its expected output too, so the harness compares them with
+/// the others (see [`parse_printed_hint`]).
 pub fn parse_overridden_line(line: &str) -> Option<(String, ParityHint)> {
     parse_hint_line(line, &["O:"])
+}
+
+/// A hint of `debmagic lint` output as Parity compares it: a printed Diagnostic
+/// or an overridden one (`--show-overrides` is passed for every recipe).
+pub fn parse_printed_hint(line: &str) -> Option<(String, ParityHint)> {
+    parse_diagnostic_line(line).or_else(|| parse_overridden_line(line))
 }
 
 fn parse_hint_line(line: &str, prefixes: &[&str]) -> Option<(String, ParityHint)> {
@@ -370,6 +379,7 @@ const RULE_IMPL_NEEDLES: &[&str] = &[
     "impl ChangesRule for",
     "impl BuildinfoRule for",
     "impl GroupRule for",
+    "impl OverrideRule for",
     "fn runs_without_dsc",
 ];
 
@@ -589,7 +599,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
 
     let mut actual: Vec<ParityHint> = stdout
         .lines()
-        .filter_map(parse_diagnostic_line)
+        .filter_map(parse_printed_hint)
         .filter(|(processable_type, hint)| {
             catalogued.contains(&hint.tag) && applies_to_source_tree(processable_type, &hint.extra)
         })
@@ -1547,7 +1557,7 @@ pub fn assert_binary_package_parity(recipe_rel: &str) {
         actual.extend(
             stdout
                 .lines()
-                .filter_map(parse_diagnostic_line)
+                .filter_map(parse_printed_hint)
                 .filter(|(processable_type, hint)| {
                     catalogued.contains(&hint.tag) && applies_to_binary_package(processable_type)
                 })
@@ -2329,7 +2339,7 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
 
     let mut actual: Vec<ParityHint> = stdout
         .lines()
-        .filter_map(parse_diagnostic_line)
+        .filter_map(parse_printed_hint)
         .filter(|(processable_type, hint)| {
             applies_to_source_package(processable_type, &hint.tag, &tags)
         })
@@ -2960,7 +2970,7 @@ pub fn assert_group_parity(recipe_rel: &str) {
 
     let mut actual: Vec<(String, ParityHint)> = stdout
         .lines()
-        .filter_map(parse_diagnostic_line)
+        .filter_map(parse_printed_hint)
         .filter(|(processable_type, hint)| applies_to_group(processable_type, &hint.tag, &tags))
         .collect();
     rewrite_architecture_in_group_names(recipe_rel, &mut actual);

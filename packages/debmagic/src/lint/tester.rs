@@ -19,6 +19,9 @@ use super::run::format_diagnostic;
 pub use super::tester_group::{
     BuildinfoCase, BuildinfoTester, ChangesCase, ChangesTester, GroupCase, GroupTester,
 };
+#[allow(unused_imports)]
+#[cfg(test)]
+pub use super::tester_override::{OverrideCase, OverrideTester};
 
 /// One Source tree described as a map of relative paths to file contents.
 #[derive(Clone, Debug, Default)]

@@ -6,13 +6,19 @@ use std::time::{Duration, Instant};
 use anyhow::{Context as _, bail};
 use rayon::prelude::*;
 
-use super::context::{BinaryPackageContext, SourceContext, SourceTreeData};
+use super::context::{
+    BinaryPackageContext, BinaryPackageData, SourceContext, SourceTreeData,
+    processable_type_for_binary,
+};
 use super::diagnostic::Diagnostic;
-use super::group::Group;
+use super::diagnostic::ProcessableType;
+use super::group::{DscData, Group};
 use super::group_context::{BuildinfoContext, ChangesContext, GroupContext};
-use super::intent::LintIntent;
+use super::intent::{LintIntent, OverrideMode};
+use super::lintian_overrides::LintianOverrides;
+use super::override_pass::{self, OverrideContext, ProcessableFacts};
 use super::registry;
-use super::rule::{Code, GroupRule, RuleAccess, Severity, Tag};
+use super::rule::{Code, GroupRule, OverrideRule, RuleAccess, Severity, Tag};
 use super::subject::{LintTarget, Subject};
 use super::timing::{self, TimingSession};
 
@@ -28,6 +34,8 @@ pub struct LintResult {
     pub diagnostics: Vec<Diagnostic>,
     pub outcome: LintOutcome,
     pub rules: usize,
+    /// Overrides of Show-Always Tags, which cannot suppress anything (ADR 0057).
+    pub ignored_overrides: usize,
     pub elapsed: Duration,
     /// Size of the thread pool the run used, for running Rules and for
     /// walking and classifying files.
@@ -81,6 +89,8 @@ pub fn run_lint(intent: &LintIntent) -> anyhow::Result<LintResult> {
 /// Lint the Groups the artifacts make up (ADR 0054, 0055). Each artifact of a
 /// Group is a Subject of its own kind, opened only when a selected Rule
 /// applies to it; the Group as a whole is the Subject of the Group Rules.
+/// After a Group's Rules ran, the override pass applies each processable's
+/// Lintian override file (ADR 0057).
 fn run_artifact_lint(
     intent: &LintIntent,
     subjects: &[Subject],
@@ -89,12 +99,15 @@ fn run_artifact_lint(
     let groups = Group::assemble(subjects)?;
     let selected: HashSet<Code> = intent.selected.iter().copied().collect();
     let mut stages = Vec::new();
+    let mut ignored_overrides = 0;
     for group in &groups {
+        let mut group_stages = Vec::new();
         if let Some(changes) = &group.changes
             && any_selected(registry::changes_rules(), &selected)
         {
-            stages.push(run_stage(
+            group_stages.push(run_stage(
                 intent,
+                Owner::Changes,
                 registry::changes_rules(),
                 started,
                 |rule| {
@@ -110,8 +123,9 @@ fn run_artifact_lint(
             let data = source
                 .package()
                 .map_err(|message| anyhow::anyhow!("{message}"))?;
-            stages.push(run_stage(
+            group_stages.push(run_stage(
                 intent,
+                Owner::Source,
                 registry::source_rules(),
                 started,
                 |rule| {
@@ -123,17 +137,24 @@ fn run_artifact_lint(
         }
         let group_rules = applicable_group_rules(registry::group_rules(), group);
         if any_selected(&group_rules, &selected) {
-            stages.push(run_stage(intent, &group_rules, started, |rule| {
-                let mut ctx = GroupContext::bind(group, rule);
-                rule.run(&mut ctx);
-                ctx.finish()
-            })?);
+            group_stages.push(run_stage(
+                intent,
+                Owner::Group,
+                &group_rules,
+                started,
+                |rule| {
+                    let mut ctx = GroupContext::bind(group, rule);
+                    rule.run(&mut ctx);
+                    ctx.finish()
+                },
+            )?);
         }
         if let Some(buildinfo) = &group.buildinfo
             && any_selected(registry::buildinfo_rules(), &selected)
         {
-            stages.push(run_stage(
+            group_stages.push(run_stage(
                 intent,
+                Owner::Buildinfo,
                 registry::buildinfo_rules(),
                 started,
                 |rule| {
@@ -144,9 +165,10 @@ fn run_artifact_lint(
             )?);
         }
         if any_selected(registry::binary_package_rules(), &selected) {
-            for binary in &group.binaries {
-                stages.push(run_stage(
+            for (index, binary) in group.binaries.iter().enumerate() {
+                group_stages.push(run_stage(
                     intent,
+                    Owner::Binary(index),
                     registry::binary_package_rules(),
                     started,
                     |rule| {
@@ -157,8 +179,26 @@ fn run_artifact_lint(
                 )?);
             }
         }
+        let mut processables = Vec::new();
+        if let Some(source) = &group.source {
+            processables.push(Processable::Source(source, group.source_name()));
+        }
+        processables.extend(
+            group
+                .binaries
+                .iter()
+                .enumerate()
+                .map(|(index, binary)| Processable::Binary(index, binary)),
+        );
+        ignored_overrides += apply_overrides(
+            intent.overrides,
+            &selected,
+            &processables,
+            &mut group_stages,
+        )?;
+        stages.extend(group_stages);
     }
-    finish_run(intent, stages, started)
+    finish_run(intent, stages, ignored_overrides, started)
 }
 
 fn run_source_tree_lint(
@@ -175,12 +215,25 @@ fn run_source_tree_lint(
     }
 
     let data = SourceTreeData::new(source_tree.to_path_buf());
-    let stage = run_stage(intent, registry::source_rules(), started, |rule| {
-        let mut ctx = SourceContext::bind_tree(&data, rule);
-        rule.run(&mut ctx);
-        ctx.finish()
-    })?;
-    finish_run(intent, vec![stage], started)
+    let mut stages = vec![run_stage(
+        intent,
+        Owner::Source,
+        registry::source_rules(),
+        started,
+        |rule| {
+            let mut ctx = SourceContext::bind_tree(&data, rule);
+            rule.run(&mut ctx);
+            ctx.finish()
+        },
+    )?];
+    let selected: HashSet<Code> = intent.selected.iter().copied().collect();
+    let ignored_overrides = apply_overrides(
+        intent.overrides,
+        &selected,
+        &[Processable::Tree(&data)],
+        &mut stages,
+    )?;
+    finish_run(intent, stages, ignored_overrides, started)
 }
 
 /// Worker threads for a run: the requested count (0 counts as unset), or the
@@ -197,12 +250,253 @@ struct RuleProduct {
     timing: RuleTiming,
 }
 
+/// Which part of the run a stage ran on: the processable its Diagnostics
+/// belong to, before the override pass attributes them (ADR 0057).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Owner {
+    Changes,
+    Source,
+    Group,
+    Buildinfo,
+    /// The installable at this index of the Group.
+    Binary(usize),
+    /// The `OverrideRule`s of one processable: their Diagnostics belong to no
+    /// processable's override pass (ADR 0057).
+    Override,
+}
+
 /// What running the selected Rules of one kind on one Subject produced.
 struct Stage {
+    owner: Owner,
     diagnostics: Vec<Diagnostic>,
     rules: Vec<RuleTiming>,
     bringup: Duration,
     shared: Duration,
+}
+
+/// A processable the override pass covers: one Source tree, the Source package
+/// of a Group, or one installable of a Group (ADR 0057).
+enum Processable<'g> {
+    Tree(&'g SourceTreeData),
+    /// The Source package of the Group, with the Group's source name.
+    Source(&'g DscData, &'g str),
+    Binary(usize, &'g BinaryPackageData),
+}
+
+impl Processable<'_> {
+    /// The package name Diagnostics of this processable carry.
+    fn package_name(&self) -> String {
+        match self {
+            Self::Tree(data) => data.package_name(),
+            Self::Source(_, name) => (*name).to_string(),
+            Self::Binary(_, binary) => binary.package_name().to_string(),
+        }
+    }
+
+    /// Lintian's processable type: `source`, or `binary` / `udeb` by file name.
+    fn processable_type(&self) -> ProcessableType {
+        match self {
+            Self::Tree(_) | Self::Source(..) => ProcessableType::Source,
+            Self::Binary(_, binary) => processable_type_for_binary(binary.path()),
+        }
+    }
+
+    /// Whether a Diagnostic of a stage with `owner` belongs to this processable.
+    /// A Group Rule's Diagnostic belongs to the source or to the installable it
+    /// names (its package and processable type, as `installable_diagnostic` sets
+    /// them); two installables of one name share such Diagnostics.
+    fn owns(&self, owner: Owner, diagnostic: &Diagnostic) -> bool {
+        match (self, owner) {
+            (Self::Tree(_), Owner::Source) | (Self::Source(..), Owner::Source) => true,
+            (Self::Source(..), Owner::Group) => {
+                diagnostic.processable_type == Some(ProcessableType::Source)
+            }
+            (Self::Binary(index, _), Owner::Binary(other)) => *index == other,
+            (Self::Binary(_, binary), Owner::Group) => {
+                diagnostic.processable_type == Some(processable_type_for_binary(binary.path()))
+                    && diagnostic.package == binary.package_name()
+            }
+            _ => false,
+        }
+    }
+
+    /// Whether a Rule of a stage with `owner` and Tag `tag` ran on this
+    /// processable. Group Rules run on an installable only when they report on
+    /// installables (ADR 0056).
+    fn ran_here(&self, owner: Owner, tag: Tag) -> bool {
+        match (self, owner) {
+            (Self::Tree(_) | Self::Source(..), Owner::Source | Owner::Group) => true,
+            (Self::Binary(index, _), Owner::Binary(other)) => *index == other,
+            (Self::Binary(..), Owner::Group) => registry::group_rules()
+                .iter()
+                .any(|rule| rule.tag() == tag && rule.runs_without_dsc()),
+            _ => false,
+        }
+    }
+
+    /// Lintian's `Processable::architecture`: `source` for a Source tree or
+    /// Source package, the control `Architecture` of an installable.
+    fn architecture(&self) -> &str {
+        match self {
+            Self::Tree(_) | Self::Source(..) => "source",
+            Self::Binary(_, binary) => binary
+                .installation_control()
+                .fields()
+                .get("Architecture")
+                .unwrap_or_default()
+                .trim(),
+        }
+    }
+
+    /// The Lintian override file of this processable, read through a context
+    /// that reports nothing. `None` when there is none, and when the File tree
+    /// it is read from fails: lintian then has no override file (its
+    /// `Processable::overrides` is empty) and does not fail the run, so that
+    /// failure is left to the Rules that read the same File tree. This departs
+    /// from ADR 0057's "runtime failure" for a File tree (see the report of the
+    /// task). An extract failure of a Source package is still a runtime failure.
+    fn load_overrides(&self) -> anyhow::Result<Option<LintianOverrides>> {
+        match self {
+            Self::Tree(data) => {
+                let mut ctx = SourceContext::reading_tree(data);
+                let overrides = ctx.lintian_overrides();
+                let _ = ctx.finish();
+                Ok(overrides)
+            }
+            Self::Source(dsc, _) => {
+                let package = dsc
+                    .package()
+                    .map_err(|message| anyhow::anyhow!("{message}"))?;
+                let mut ctx = SourceContext::reading_package(package);
+                let overrides = ctx.lintian_overrides();
+                let _ = ctx.finish();
+                Ok(overrides)
+            }
+            Self::Binary(_, binary) => {
+                let mut ctx = BinaryPackageContext::reading(binary);
+                let overrides = ctx.lintian_overrides();
+                let _ = ctx.finish();
+                Ok(overrides)
+            }
+        }
+    }
+}
+
+/// Applies the override pass to each processable of a Group or Source tree,
+/// after all its Rules ran (ADR 0057). Sets `overridden` on the Diagnostics
+/// that a line of the processable's override file suppressed, in place. The
+/// override file is read only for a processable with Diagnostics or when an
+/// `OverrideRule` is selected. The selected `OverrideRule`s then run on the
+/// pass's outcome, in a stage of their own. Returns how many overrides of
+/// Show-Always Tags were ignored.
+fn apply_overrides(
+    mode: OverrideMode,
+    selected: &HashSet<Code>,
+    processables: &[Processable<'_>],
+    stages: &mut Vec<Stage>,
+) -> anyhow::Result<usize> {
+    if mode == OverrideMode::Off {
+        return Ok(0);
+    }
+    let override_rules: Vec<&dyn OverrideRule> = registry::override_rules()
+        .iter()
+        .copied()
+        .filter(|rule| selected.contains(&rule.code()))
+        .collect();
+    let mut ignored = 0;
+    for processable in processables {
+        let mut members = Vec::new();
+        for (stage_index, stage) in stages.iter().enumerate() {
+            for (index, diagnostic) in stage.diagnostics.iter().enumerate() {
+                if processable.owns(stage.owner, diagnostic) {
+                    members.push((stage_index, index));
+                }
+            }
+        }
+        if members.is_empty() && override_rules.is_empty() {
+            continue;
+        }
+        let overrides = processable.load_overrides()?;
+        if overrides.is_none() && !override_rules.is_empty() {
+            // No override file: the selected OverrideRules still ran, and found nothing.
+            stages.push(run_override_rules(
+                &override_rules,
+                processable,
+                Path::new(""),
+                &override_pass::PassOutcome::default(),
+            ));
+        }
+        let Some(overrides) = overrides else {
+            continue;
+        };
+        let ran_tags: Vec<Tag> = stages
+            .iter()
+            .flat_map(|stage| {
+                stage
+                    .rules
+                    .iter()
+                    .map(move |timing| (stage.owner, timing.tag))
+            })
+            .filter(|&(owner, tag)| processable.ran_here(owner, tag))
+            .map(|(_, tag)| tag)
+            .collect();
+        let facts = ProcessableFacts {
+            architecture: processable.architecture(),
+            ran_tags: &ran_tags,
+        };
+        let mut subset: Vec<Diagnostic> = members
+            .iter()
+            .map(|&(stage_index, index)| stages[stage_index].diagnostics[index].clone())
+            .collect();
+        let outcome = override_pass::apply(&overrides, &facts, &mut subset);
+        ignored += outcome.ignored_durable;
+        for (&(stage_index, index), updated) in members.iter().zip(subset) {
+            stages[stage_index].diagnostics[index].overridden = updated.overridden.clone();
+        }
+        if !override_rules.is_empty() {
+            stages.push(run_override_rules(
+                &override_rules,
+                processable,
+                overrides.path(),
+                &outcome,
+            ));
+        }
+    }
+    Ok(ignored)
+}
+
+/// Runs the selected `OverrideRule`s on one processable's pass outcome (ADR
+/// 0057). Their Diagnostics form a stage that no processable claims, so they
+/// are never overridden.
+fn run_override_rules(
+    rules: &[&dyn OverrideRule],
+    processable: &Processable<'_>,
+    path: &Path,
+    outcome: &override_pass::PassOutcome,
+) -> Stage {
+    let package = processable.package_name();
+    let processable_type = processable.processable_type();
+    let mut diagnostics = Vec::new();
+    let mut timings = Vec::with_capacity(rules.len());
+    for rule in rules {
+        let start = Instant::now();
+        let mut ctx =
+            OverrideContext::bind(*rule, outcome.clone(), path, &package, processable_type);
+        rule.run(&mut ctx);
+        diagnostics.extend(ctx.finish());
+        timings.push(RuleTiming {
+            code: rule.code(),
+            tag: rule.tag(),
+            elapsed: start.elapsed(),
+        });
+    }
+    Stage {
+        owner: Owner::Override,
+        diagnostics,
+        rules: timings,
+        bringup: Duration::ZERO,
+        shared: Duration::ZERO,
+    }
 }
 
 fn any_selected<R: RuleAccess + ?Sized>(rules: &[&R], selected: &HashSet<Code>) -> bool {
@@ -233,6 +527,7 @@ fn applicable_group_rules<'r>(
 /// subtracted from that Rule and reported once.
 fn run_stage<R: RuleAccess + ?Sized>(
     intent: &LintIntent,
+    owner: Owner,
     rules: &[&R],
     started: Instant,
     run_rule: impl Fn(&R) -> anyhow::Result<Vec<Diagnostic>> + Sync,
@@ -280,6 +575,7 @@ fn run_stage<R: RuleAccess + ?Sized>(
         rule_timings.push(product.timing);
     }
     Ok(Stage {
+        owner,
         diagnostics,
         rules: rule_timings,
         bringup,
@@ -294,6 +590,7 @@ fn run_stage<R: RuleAccess + ?Sized>(
 fn finish_run(
     intent: &LintIntent,
     stages: Vec<Stage>,
+    ignored_overrides: usize,
     started: Instant,
 ) -> anyhow::Result<LintResult> {
     let mut diagnostics = Vec::new();
@@ -324,6 +621,7 @@ fn finish_run(
         diagnostics,
         outcome,
         rules: rule_timings.len(),
+        ignored_overrides,
         elapsed: Duration::ZERO,
         threads: 0,
         timings: intent.timings.then_some(LintTimings {
@@ -342,9 +640,11 @@ fn apply_severity_remaps(diagnostics: &mut [Diagnostic], intent: &LintIntent) {
     }
 }
 
+/// FailOn counts the Diagnostics no override suppressed (ADR 0057).
 pub(crate) fn outcome_for(diagnostics: &[Diagnostic], fail_on: &HashSet<Severity>) -> LintOutcome {
     if diagnostics
         .iter()
+        .filter(|diagnostic| !diagnostic.is_overridden())
         .any(|diagnostic| fail_on.contains(&diagnostic.severity))
     {
         LintOutcome::PolicyFailure
@@ -353,8 +653,83 @@ pub(crate) fn outcome_for(diagnostics: &[Diagnostic], fail_on: &HashSet<Severity
     }
 }
 
+/// The lines `debmagic lint` prints for the Diagnostics (ADR 0057). An
+/// overridden Diagnostic is printed only under `Show`, with the letter `O`, and
+/// after an `N:` line holding its justification when there is one.
+pub fn format_diagnostic_lines(diagnostics: &[Diagnostic], mode: OverrideMode) -> Vec<String> {
+    let mut lines = Vec::new();
+    for diagnostic in diagnostics {
+        if diagnostic.is_overridden() {
+            if mode != OverrideMode::Show {
+                continue;
+            }
+            let justification = diagnostic
+                .overridden()
+                .map(|overridden| overridden.justification.as_str())
+                .unwrap_or_default();
+            if !justification.is_empty() {
+                lines.push(format!("N: {justification}"));
+            }
+        }
+        lines.push(format_diagnostic(diagnostic));
+    }
+    lines
+}
+
+/// The `N:` lines after the summary (ADR 0057): under `Hide`, what was
+/// overridden and which overrides are unused; and the note on Show-Always
+/// overrides that were ignored. Nothing under `Off`.
+pub fn format_override_notes(result: &LintResult, mode: OverrideMode) -> Vec<String> {
+    let mut lines = Vec::new();
+    if mode == OverrideMode::Off {
+        return lines;
+    }
+    if mode == OverrideMode::Hide {
+        let overridden = result
+            .diagnostics
+            .iter()
+            .filter(|diagnostic| diagnostic.is_overridden())
+            .count();
+        let unused = result
+            .diagnostics
+            .iter()
+            .filter(|diagnostic| is_override_report(diagnostic))
+            .count();
+        if overridden > 0 || unused > 0 {
+            let mut parts = Vec::new();
+            if overridden > 0 {
+                parts.push(format!(
+                    "{overridden} {} overridden",
+                    if overridden == 1 { "hint" } else { "hints" }
+                ));
+            }
+            if unused > 0 {
+                parts.push(format!(
+                    "{unused} unused {}",
+                    if unused == 1 { "override" } else { "overrides" }
+                ));
+            }
+            lines.push(format!("N: {}", parts.join("; ")));
+        }
+    }
+    if result.ignored_overrides > 0 {
+        lines.push("N: Some overrides were ignored.".to_string());
+    }
+    lines
+}
+
+/// Whether a Diagnostic is `unused-override` or `mismatched-override` (ADR 0057).
+fn is_override_report(diagnostic: &Diagnostic) -> bool {
+    matches!(diagnostic.tag.0, "unused-override" | "mismatched-override")
+}
+
 pub fn format_diagnostic(diagnostic: &Diagnostic) -> String {
-    let mut output = format!("{}:", diagnostic.severity.letter());
+    let letter = if diagnostic.is_overridden() {
+        'O'
+    } else {
+        diagnostic.severity.letter()
+    };
+    let mut output = format!("{letter}:");
     if !diagnostic.package.is_empty() {
         write!(output, " {}", diagnostic.package).expect("writing to string never fails");
     }
@@ -395,7 +770,12 @@ pub(crate) fn pointer_path(path: &Path) -> String {
 
 /// Ruff-style end-of-run line: `All checks passed!` or `Found 1 warning.`
 pub fn format_summary(diagnostics: &[Diagnostic]) -> String {
-    if diagnostics.is_empty() {
+    // Overridden Diagnostics are not counted (ADR 0057).
+    let reported: Vec<&Diagnostic> = diagnostics
+        .iter()
+        .filter(|diagnostic| !diagnostic.is_overridden())
+        .collect();
+    if reported.is_empty() {
         return "All checks passed!".to_string();
     }
 
@@ -403,7 +783,7 @@ pub fn format_summary(diagnostics: &[Diagnostic]) -> String {
     let mut warnings = 0usize;
     let mut infos = 0usize;
     let mut pedantic = 0usize;
-    for diagnostic in diagnostics {
+    for diagnostic in reported {
         match diagnostic.severity {
             Severity::Error => errors += 1,
             Severity::Warning => warnings += 1,
@@ -1254,5 +1634,213 @@ Rules
         }
         fs::create_dir_all(&dir).with_context(|| format!("creating {}", dir.display()))?;
         Ok(dir)
+    }
+}
+
+#[cfg(test)]
+mod override_application_tests {
+    use super::*;
+    use std::fs;
+    use std::path::PathBuf;
+
+    use crate::lint::diagnostic::{Location, Overridden};
+
+    /// A Source tree whose `debian/source/lintian-overrides` is `overrides`.
+    fn tree_with_overrides(overrides: &str) -> anyhow::Result<(tempfile::TempDir, SourceTreeData)> {
+        let dir = tempfile::tempdir()?;
+        let source = dir.path().join("debian/source");
+        fs::create_dir_all(&source)?;
+        fs::write(source.join("lintian-overrides"), overrides)?;
+        let data = SourceTreeData::new(dir.path().to_path_buf());
+        Ok((dir, data))
+    }
+
+    fn stage(owner: Owner, tag: &'static str, diagnostics: Vec<Diagnostic>) -> Stage {
+        Stage {
+            owner,
+            diagnostics,
+            rules: vec![RuleTiming {
+                code: Code::from_static("LN1370"),
+                tag: Tag(tag),
+                elapsed: Duration::ZERO,
+            }],
+            bringup: Duration::ZERO,
+            shared: Duration::ZERO,
+        }
+    }
+
+    fn cute(message: &str) -> Diagnostic {
+        Diagnostic::warn(message)
+            .with_tag(Tag("cute-field"))
+            .with_code(Code::from_static("LN1370"))
+            .with_location(Location {
+                path: PathBuf::from("debian/control"),
+                line: None,
+                column: None,
+            })
+    }
+
+    fn flagged(message: &str, justification: &str) -> Diagnostic {
+        let mut diagnostic = Diagnostic::warn(message);
+        diagnostic.overridden = Some(Overridden {
+            path: PathBuf::from("debian/source/lintian-overrides"),
+            line: 2,
+            justification: justification.to_string(),
+        });
+        diagnostic
+    }
+
+    #[test]
+    fn source_tree_override_flags_only_matching_diagnostics() -> anyhow::Result<()> {
+        let (_dir, data) = tree_with_overrides("cute-field HOMEPAGE*\n")?;
+        let mut stages = vec![stage(
+            Owner::Source,
+            "cute-field",
+            vec![
+                cute("HOMEPAGE vs Homepage"),
+                cute("X-Dh-Compat vs X-DH-Compat"),
+            ],
+        )];
+        let ignored = apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::new(),
+            &[Processable::Tree(&data)],
+            &mut stages,
+        )?;
+        assert_eq!(ignored, 0);
+        let flags: Vec<bool> = stages[0]
+            .diagnostics
+            .iter()
+            .map(Diagnostic::is_overridden)
+            .collect();
+        assert_eq!(flags, [true, false]);
+        Ok(())
+    }
+
+    #[test]
+    fn off_mode_never_reads_or_flags() -> anyhow::Result<()> {
+        let (_dir, data) = tree_with_overrides("cute-field\n")?;
+        let mut stages = vec![stage(Owner::Source, "cute-field", vec![cute("x")])];
+        apply_overrides(
+            OverrideMode::Off,
+            &HashSet::new(),
+            &[Processable::Tree(&data)],
+            &mut stages,
+        )?;
+        assert!(!stages[0].diagnostics[0].is_overridden());
+        Ok(())
+    }
+
+    #[test]
+    fn processable_without_diagnostics_does_not_read_its_file() -> anyhow::Result<()> {
+        // An unreadable override file is never read when nothing was reported.
+        let (dir, data) = tree_with_overrides("cute-field\n")?;
+        fs::write(
+            dir.path().join("debian/source/lintian-overrides"),
+            [0xff, 0xfe],
+        )?;
+        let mut stages = vec![stage(Owner::Source, "cute-field", vec![])];
+        let ignored = apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::new(),
+            &[Processable::Tree(&data)],
+            &mut stages,
+        )?;
+        assert_eq!(ignored, 0);
+        Ok(())
+    }
+
+    #[test]
+    fn durable_override_is_counted_and_suppresses_nothing() -> anyhow::Result<()> {
+        let (_dir, data) = tree_with_overrides("malformed-override\ncute-field\n")?;
+        let mut stages = vec![stage(Owner::Source, "cute-field", vec![cute("x")])];
+        // The durable Tag's Rule ran, so its override is seen and ignored.
+        stages[0].rules.push(RuleTiming {
+            code: Code::from_static("LN1234"),
+            tag: Tag("malformed-override"),
+            elapsed: Duration::ZERO,
+        });
+        let ignored = apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::new(),
+            &[Processable::Tree(&data)],
+            &mut stages,
+        )?;
+        assert_eq!(ignored, 1);
+        assert!(stages[0].diagnostics[0].is_overridden());
+        Ok(())
+    }
+
+    #[test]
+    fn hide_prints_nothing_for_overridden_and_show_prints_o_after_n() {
+        let diagnostics = vec![
+            flagged("HOMEPAGE vs Homepage", "kept on purpose"),
+            cute("other"),
+        ];
+
+        let hide = format_diagnostic_lines(&diagnostics, OverrideMode::Hide);
+        assert_eq!(hide.len(), 1, "{hide:?}");
+        assert!(hide[0].starts_with("W:"), "{hide:?}");
+
+        let show = format_diagnostic_lines(&diagnostics, OverrideMode::Show);
+        assert_eq!(show.len(), 3, "{show:?}");
+        assert_eq!(show[0], "N: kept on purpose");
+        assert!(show[1].starts_with("O:"), "{show:?}");
+        assert!(show[2].starts_with("W:"), "{show:?}");
+    }
+
+    #[test]
+    fn overridden_diagnostics_do_not_count_for_failon_or_summary() {
+        let fail_on = HashSet::from([Severity::Error]);
+        let overridden = {
+            let mut error = Diagnostic::error("e");
+            error.overridden = Some(Overridden {
+                path: PathBuf::new(),
+                line: 1,
+                justification: String::new(),
+            });
+            error
+        };
+        assert_eq!(
+            outcome_for(std::slice::from_ref(&overridden), &fail_on),
+            LintOutcome::Success
+        );
+        assert_eq!(
+            format_summary(std::slice::from_ref(&overridden)),
+            "All checks passed!"
+        );
+        assert_eq!(
+            outcome_for(&[overridden, Diagnostic::error("e")], &fail_on),
+            LintOutcome::PolicyFailure
+        );
+    }
+
+    #[test]
+    fn override_notes_follow_the_mode() {
+        let result = LintResult {
+            diagnostics: vec![flagged("a", ""), flagged("b", ""), flagged("c", "")],
+            outcome: LintOutcome::Success,
+            rules: 1,
+            ignored_overrides: 0,
+            elapsed: Duration::ZERO,
+            threads: 1,
+            timings: None,
+        };
+        assert_eq!(
+            format_override_notes(&result, OverrideMode::Hide),
+            ["N: 3 hints overridden"]
+        );
+        assert!(format_override_notes(&result, OverrideMode::Show).is_empty());
+        assert!(format_override_notes(&result, OverrideMode::Off).is_empty());
+
+        let ignored = LintResult {
+            diagnostics: vec![],
+            ignored_overrides: 2,
+            ..result
+        };
+        assert_eq!(
+            format_override_notes(&ignored, OverrideMode::Show),
+            ["N: Some overrides were ignored."]
+        );
     }
 }

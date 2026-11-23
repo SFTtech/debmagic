@@ -206,14 +206,12 @@ impl LintianOverride {
     }
 
     /// Architectures and wildcards inside `[…]`, unvalidated; `!` stays.
-    #[allow(dead_code)]
     pub fn architectures(&self) -> &[String] {
         &self.architectures
     }
 
     /// Everything after the Tag, whitespace collapsed; empty when absent.
     /// `*` wildcards are not expanded.
-    #[allow(dead_code)]
     pub fn context(&self) -> &str {
         &self.context
     }
@@ -226,7 +224,6 @@ impl LintianOverride {
     /// The `#` comment lines just above, joined with spaces. Without one, the
     /// previous override's justification when it is the same Tag in the same
     /// block.
-    #[allow(dead_code)]
     pub fn justification(&self) -> &str {
         &self.justification
     }

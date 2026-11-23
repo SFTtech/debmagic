@@ -3,7 +3,9 @@
 mod common;
 
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
+use std::process::Command;
 
 use common::{
     ParityHint, assets_dir, build_native_dsc, missing_upstream_tarball, parse_diagnostic_line,
@@ -504,4 +506,328 @@ fn missing_upstream_tarball_uses_gz_from_brace_list() {
          no upstream tarball found at ../cruft-general-upstream_1.0.orig.tar.{bz2,gz,lzma,xz}";
     assert_eq!(missing_upstream_tarball(tree_relative).as_deref(), expected);
     assert!(missing_upstream_tarball("dpkg-source: error: cannot stat directory src").is_none());
+}
+
+/// The Diagnostic `cute-field` reports for a `HOMEPAGE` field in
+/// `debian/control`, as a line ends (the processable part comes before it).
+const CUTE_FIELD_END: &str = "cute-field (LN1370) HOMEPAGE vs Homepage [debian/control]";
+
+/// A Source tree whose `debian/control` has a `HOMEPAGE` field (a `cute-field`
+/// Diagnostic), with `overrides` as its `debian/source/lintian-overrides`.
+fn cute_field_tree(work: &Path, overrides: Option<&str>) -> PathBuf {
+    let tree = work.join("src");
+    fs::create_dir_all(tree.join("debian/source")).expect("debian/source");
+    fs::write(
+        tree.join("debian/control"),
+        "Source: example\nMaintainer: Example <ex@example.com>\nHOMEPAGE: https://example.org/\n\nPackage: example\nArchitecture: all\nDescription: example\n extra\n",
+    )
+    .expect("control");
+    if let Some(text) = overrides {
+        fs::write(tree.join("debian/source/lintian-overrides"), text).expect("overrides");
+    }
+    tree
+}
+
+fn printed_cute_field(stdout: &str) -> Vec<&str> {
+    stdout
+        .lines()
+        .filter(|line| line.ends_with(CUTE_FIELD_END))
+        .collect()
+}
+
+#[test]
+fn lint_override_hides_matching_diagnostic_by_default() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(work.path(), Some("cute-field HOMEPAGE*\n"));
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field"]);
+
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(printed_cute_field(&stdout).is_empty(), "stdout: {stdout}");
+    assert!(stdout.contains("All checks passed!"), "stdout: {stdout}");
+    assert!(stdout.contains("N: 1 hint overridden"), "stdout: {stdout}");
+    assert_finished(&stdout, 1);
+}
+
+#[test]
+fn lint_show_overrides_prints_the_justification_and_an_o_line() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(
+        work.path(),
+        Some("# the maintainer chose this\ncute-field HOMEPAGE*\n"),
+    );
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field", "--show-overrides"]);
+
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    let lines: Vec<&str> = stdout.lines().collect();
+    let shown = lines
+        .iter()
+        .position(|line| line.starts_with("O:") && line.ends_with(CUTE_FIELD_END))
+        .unwrap_or_else(|| panic!("no O: line, stdout: {stdout}"));
+    assert_eq!(lines[shown - 1], "N: the maintainer chose this", "{stdout}");
+    // Overridden hints do not count in the summary or the note.
+    assert!(stdout.contains("All checks passed!"), "stdout: {stdout}");
+    assert!(!stdout.contains("overridden"), "stdout: {stdout}");
+}
+
+#[test]
+fn lint_no_override_prints_the_diagnostic_and_no_note() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(work.path(), Some("cute-field HOMEPAGE*\n"));
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field", "--no-override"]);
+
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert_eq!(printed_cute_field(&stdout).len(), 1, "stdout: {stdout}");
+    assert!(
+        stdout.lines().all(|line| !line.starts_with("N:")),
+        "stdout: {stdout}"
+    );
+}
+
+#[test]
+fn lint_override_pattern_must_glob_the_context() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(work.path(), Some("cute-field X-Dh*\n"));
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field"]);
+
+    assert_eq!(status.code(), Some(0), "stderr: {stderr}\nstdout: {stdout}");
+    assert_eq!(printed_cute_field(&stdout).len(), 1, "stdout: {stdout}");
+    assert!(!stdout.contains("overridden"), "stdout: {stdout}");
+}
+
+#[test]
+fn lint_override_architecture_list_is_matched_against_source() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(work.path(), Some("[amd64]: cute-field HOMEPAGE*\n"));
+    let (_status, stdout, _stderr) = run_lint(&tree, &["--select", "cute-field"]);
+    assert_eq!(printed_cute_field(&stdout).len(), 1, "stdout: {stdout}");
+
+    let tree = cute_field_tree(work.path(), Some("[source]: cute-field HOMEPAGE*\n"));
+    let (_status, stdout, _stderr) = run_lint(&tree, &["--select", "cute-field"]);
+    assert!(printed_cute_field(&stdout).is_empty(), "stdout: {stdout}");
+}
+
+#[test]
+fn lint_override_durable_tag_is_ignored_with_a_note() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(
+        work.path(),
+        Some("malformed-override\ncute-field HOMEPAGE*\n"),
+    );
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field,malformed-override"]);
+
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(printed_cute_field(&stdout).is_empty(), "stdout: {stdout}");
+    assert!(
+        stdout.contains("N: Some overrides were ignored."),
+        "stdout: {stdout}"
+    );
+}
+
+#[test]
+fn lint_override_for_a_rule_that_did_not_run_is_left_alone() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(work.path(), Some("package-installs-apt-sources\n"));
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field"]);
+
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert_eq!(printed_cute_field(&stdout).len(), 1, "stdout: {stdout}");
+    assert!(
+        stdout.lines().all(|line| !line.starts_with("N:")),
+        "stdout: {stdout}"
+    );
+}
+
+/// A binary package with the given installed files and override file, built
+/// with `dpkg-deb`.
+fn build_deb(work: &Path, arch: &str, overrides: Option<&str>) -> PathBuf {
+    let root = work.join("root");
+    fs::create_dir_all(root.join("DEBIAN")).expect("DEBIAN");
+    fs::write(
+        root.join("DEBIAN/control"),
+        format!(
+            "Package: example\nVersion: 1.0\nArchitecture: {arch}\nMaintainer: Example <ex@example.com>\nDescription: example\n extra\n"
+        ),
+    )
+    .expect("control");
+    let sources = root.join("etc/apt");
+    fs::create_dir_all(&sources).expect("etc/apt");
+    fs::write(
+        sources.join("sources.list"),
+        "deb http://example.org/ stable main\n",
+    )
+    .expect("sources.list");
+    if let Some(text) = overrides {
+        let dir = root.join("usr/share/lintian/overrides");
+        fs::create_dir_all(&dir).expect("overrides dir");
+        fs::write(dir.join("example"), text).expect("override file");
+    }
+    let deb = work.join(format!("example_1.0_{arch}.deb"));
+    let output = Command::new("dpkg-deb")
+        .args(["--root-owner-group", "--build"])
+        .arg(&root)
+        .arg(&deb)
+        .output()
+        .expect("spawning dpkg-deb");
+    assert!(
+        output.status.success(),
+        "dpkg-deb failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    deb
+}
+
+#[test]
+fn lint_binary_override_applies_to_its_installable() {
+    let work = tempfile::tempdir().expect("workdir");
+    let deb = build_deb(
+        work.path(),
+        "amd64",
+        Some("[amd64]: package-installs-apt-sources [etc/apt/sources.list]\n"),
+    );
+    let (status, stdout, stderr) =
+        run_lint_subject(&deb, &["--select", "package-installs-apt-sources"]);
+
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(
+        !stdout.contains("package-installs-apt-sources (LN1003)"),
+        "stdout: {stdout}"
+    );
+    assert!(stdout.contains("N: 1 hint overridden"), "stdout: {stdout}");
+
+    let (_status, stdout, _stderr) = run_lint_subject(
+        &deb,
+        &[
+            "--select",
+            "package-installs-apt-sources",
+            "--show-overrides",
+        ],
+    );
+    assert!(
+        stdout
+            .lines()
+            .any(|line| line.starts_with("O:")
+                && line.contains("package-installs-apt-sources (LN1003)")),
+        "stdout: {stdout}"
+    );
+}
+
+#[test]
+fn lint_binary_override_for_another_architecture_does_not_apply() {
+    let work = tempfile::tempdir().expect("workdir");
+    let deb = build_deb(
+        work.path(),
+        "amd64",
+        Some("[arm64]: package-installs-apt-sources [etc/apt/sources.list]\n"),
+    );
+    let (status, stdout, stderr) =
+        run_lint_subject(&deb, &["--select", "package-installs-apt-sources"]);
+    // An error Diagnostic, so the policy failure is expected.
+    assert_eq!(status.code(), Some(1), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(
+        stdout.contains("package-installs-apt-sources (LN1003)"),
+        "stdout: {stdout}"
+    );
+    assert!(!stdout.contains("overridden"), "stdout: {stdout}");
+}
+
+/// A Source tree whose `debian/control` has no `HOMEPAGE` field, so `cute-field`
+/// makes no Diagnostic, with `overrides` as its override file.
+fn cute_field_free_tree(work: &Path, overrides: Option<&str>) -> PathBuf {
+    let tree = work.join("src");
+    fs::create_dir_all(tree.join("debian/source")).expect("debian/source");
+    fs::write(
+        tree.join("debian/control"),
+        "Source: example\nMaintainer: Example <ex@example.com>\nHomepage: https://example.org/\n\nPackage: example\nArchitecture: all\nDescription: example\n extra\n",
+    )
+    .expect("control");
+    if let Some(text) = overrides {
+        fs::write(tree.join("debian/source/lintian-overrides"), text).expect("overrides");
+    }
+    tree
+}
+
+#[test]
+fn lint_mismatched_override_is_reported_by_default() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(work.path(), Some("cute-field nope\n"));
+    // `--select` replaces the default set, so the default-selected Tag is named.
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field,mismatched-override"]);
+
+    // A warning: printed, and not a policy failure under the default FailOn.
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(
+        stdout.contains(
+            "W: example (source): mismatched-override (LN1780) cute-field nope [debian/source/lintian-overrides:1]"
+        ),
+        "stdout: {stdout}"
+    );
+    assert_eq!(printed_cute_field(&stdout).len(), 1, "stdout: {stdout}");
+    assert!(stdout.contains("N: 1 unused override"), "stdout: {stdout}");
+}
+
+#[test]
+fn lint_unused_override_needs_its_selection() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_free_tree(work.path(), Some("cute-field\n"));
+
+    // Not selected by default: lintian's info Tags are not shown unless enabled.
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field"]);
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(!stdout.contains("unused-override"), "stdout: {stdout}");
+    assert!(!stdout.contains("N:"), "stdout: {stdout}");
+
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field,unused-override"]);
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(
+        stdout.contains(
+            "I: example (source): unused-override (LN1779) cute-field  [debian/source/lintian-overrides:1]"
+        ),
+        "stdout: {stdout}"
+    );
+    assert!(stdout.contains("N: 1 unused override"), "stdout: {stdout}");
+}
+
+#[test]
+fn lint_override_rules_respect_no_override_and_show_overrides() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_tree(work.path(), Some("cute-field nope\n"));
+    let (_status, stdout, stderr) = run_lint(
+        &tree,
+        &[
+            "--select",
+            "cute-field,mismatched-override",
+            "--no-override",
+        ],
+    );
+    assert!(
+        !stdout.contains("mismatched-override"),
+        "stdout: {stdout}\nstderr: {stderr}"
+    );
+
+    // Under --show-overrides the note on what was overridden is left out; the
+    // reports themselves are not overridden and still print.
+    let (_status, stdout, _stderr) = run_lint(
+        &tree,
+        &[
+            "--select",
+            "cute-field,mismatched-override",
+            "--show-overrides",
+        ],
+    );
+    assert!(
+        stdout.contains("mismatched-override (LN1780)"),
+        "stdout: {stdout}"
+    );
+    assert!(!stdout.contains("unused override"), "stdout: {stdout}");
+}
+
+#[test]
+fn lint_selected_unused_override_without_an_override_file_runs_and_reports_nothing() {
+    let work = tempfile::tempdir().expect("workdir");
+    let tree = cute_field_free_tree(work.path(), None);
+    let (status, stdout, stderr) = run_lint(&tree, &["--select", "cute-field,unused-override"]);
+    // The Rule applies to the Source tree; with no file it has nothing to report.
+    assert!(status.success(), "stderr: {stderr}\nstdout: {stdout}");
+    assert!(!stdout.contains("unused-override"), "stdout: {stdout}");
+    assert!(stdout.contains("All checks passed!"), "stdout: {stdout}");
 }

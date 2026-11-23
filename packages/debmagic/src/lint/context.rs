@@ -82,6 +82,18 @@ impl DiagnosticSink {
     pub(super) fn into_diagnostics(self) -> Vec<Diagnostic> {
         self.diagnostics
     }
+
+    /// A sink for a context that reads files and reports nothing, such as the
+    /// override pass (ADR 0057) reading a Lintian override file.
+    fn reading(processable_type: ProcessableType) -> Self {
+        Self {
+            code: Code::from_static("XX0000"),
+            tag: Tag(""),
+            processable_type,
+            package: OnceLock::new(),
+            diagnostics: Vec::new(),
+        }
+    }
 }
 
 pub(crate) struct SourceTreeData {
@@ -130,7 +142,7 @@ impl SourceTreeData {
         .as_ref()
     }
 
-    fn package_name(&self) -> String {
+    pub(super) fn package_name(&self) -> String {
         if let Some(name) = self
             .debian_control()
             .and_then(|control| control.source().get("Source"))
@@ -322,6 +334,16 @@ impl<'a> BinaryPackageContext<'a> {
         }
     }
 
+    /// A context for the override pass: reads the Lintian override file, reports
+    /// nothing (ADR 0057).
+    pub(super) fn reading(data: &'a BinaryPackageData) -> Self {
+        Self {
+            data,
+            sink: DiagnosticSink::reading(processable_type_for_binary(&data.path)),
+            runtime_error: None,
+        }
+    }
+
     pub fn path(&self) -> &Path {
         &self.data.path
     }
@@ -477,8 +499,9 @@ impl<'a> BinaryPackageContext<'a> {
     }
 
     /// Installed Lintian override file (`usr/share/lintian/overrides/<package>`,
-    /// else `.gz`), parsed, not applied. `None` when there is none, and after a
-    /// global File tree failure (returned from [`Self::finish`]).
+    /// else `.gz`), parsed; the override pass applies it (ADR 0057). `None` when
+    /// there is none, and after a global File tree failure (returned from
+    /// [`Self::finish`]).
     pub fn lintian_overrides(&mut self) -> Option<LintianOverrides> {
         let package = self.data.package_name.clone();
         let processable_type = processable_type_for_binary(&self.data.path);
@@ -669,6 +692,24 @@ impl<'a> SourceContext<'a> {
         }
     }
 
+    /// Contexts for the override pass (ADR 0057): read the Lintian override
+    /// file of a Source tree or Source package, report nothing.
+    pub(super) fn reading_tree(data: &'a SourceTreeData) -> Self {
+        Self {
+            inner: SourceInner::Tree(data),
+            sink: DiagnosticSink::reading(ProcessableType::Source),
+            runtime_error: None,
+        }
+    }
+
+    pub(super) fn reading_package(data: &'a SourcePackageData) -> Self {
+        Self {
+            inner: SourceInner::Package(data),
+            sink: DiagnosticSink::reading(ProcessableType::Source),
+            runtime_error: None,
+        }
+    }
+
     /// Source tree or Source package. Rules that care about Orig files or
     /// Dsc branch on this; debian/* and Patched files do not.
     #[allow(dead_code)]
@@ -820,7 +861,6 @@ impl<'a> SourceContext<'a> {
     /// `debian/source.lintian-overrides`) of the packaging tree, parsed, not
     /// applied. `None` when there is none, and after a global File tree
     /// failure (returned from [`Self::finish`]).
-    #[allow(dead_code)]
     pub fn lintian_overrides(&mut self) -> Option<LintianOverrides> {
         let source_name = match self.inner {
             SourceInner::Tree(data) => data.package_name(),

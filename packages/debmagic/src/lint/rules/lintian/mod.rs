@@ -589,6 +589,7 @@ pub(crate) use udev::UdevRuleInEtc;
 pub(crate) use udev::UdevRuleMissingSubsystem;
 pub(crate) use udev::UdevRuleMissingUaccess;
 pub(crate) use udev::UdevRuleUnreadable;
+pub(crate) use unpack::UnpackMessageForDebControl;
 pub(crate) use unpack::UnpackMessageForDebData;
 pub(crate) use unpack::UnpackMessageForOrig;
 pub(crate) use unpack::UnpackMessageForSource;

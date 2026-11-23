@@ -735,6 +735,7 @@ use super::rules::UnknownTestsuite;
 use super::rules::UnknownTrigger;
 use super::rules::UnnecessarySourceDateEpochAssignment;
 use super::rules::UnnecessaryTeamUpload;
+use super::rules::UnpackMessageForDebControl;
 use super::rules::UnpackMessageForDebData;
 use super::rules::UnpackMessageForOrig;
 use super::rules::UnpackMessageForSource;
@@ -2548,6 +2549,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OrigTarballMissingUpstreamSignature,
         &SpuriousFieldsInUpstreamSignature,
         &UnpackMessageForDebData,
+        &UnpackMessageForDebControl,
         &SourceContainsArchControlDir,
         &SourceContainsArchInventoryFile,
         &SourceContainsBtsControlDir,
@@ -4094,6 +4096,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &StaticLinkTimeOptimization,
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
+        &UnpackMessageForDebControl,
         &CopyrightWithOldDhMakeDebianCopyright,
         &CopyrightHasCrs,
         &CopyrightRefersToSymlinkLicense,

@@ -996,6 +996,9 @@ pub(crate) use debian_patches::{
     QuiltSeriesReferencesNonExistentPatch, QuiltSeriesWithoutTrailingNewline,
     SpellingErrorInPatchDescription,
 };
+pub(crate) use debian_patches::{
+    DirectChangesInDiffButNoPatchSystem, PatchSystemButDirectChangesInDiff,
+};
 pub(crate) use debian_po_debconf::{
     StrayTranslatedDebconfTemplates, UntranslatableDebconfTemplates,
 };

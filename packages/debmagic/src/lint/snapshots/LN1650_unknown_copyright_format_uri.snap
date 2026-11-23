@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): unknown-copyright-format-uri (LN1650) https://example.org/dep5/ [debian/copyright]
+P: (source): unknown-copyright-format-uri (LN1650) https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/frag [debian/copyright]
+P: (source): unknown-copyright-format-uri (LN1650) [debian/copyright]

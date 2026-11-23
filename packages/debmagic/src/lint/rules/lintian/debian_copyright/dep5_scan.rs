@@ -4,14 +4,84 @@
 
 use std::collections::BTreeMap;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use regex::Regex;
 
 use crate::lint::context::{ShippedFiles, SourceContext};
-use crate::lint::debian_copyright::CopyrightParagraph;
+use crate::lint::debian_copyright::{
+    CopyrightParagraph, DebianCopyright, Dep5Version, find_dep5_version, format_uri,
+};
 use crate::lint::file_tree::EntryKind;
 
 use super::dep5::follower_wildcards;
+
+/// A Format URI hint of `check_dep5_copyright`, for a machine-readable file.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum FormatUriHint {
+    /// `unknown-copyright-format-uri`: no `Format` field in the first paragraph
+    /// (`None`), or a URI that `find_dep5_version` does not recognise.
+    Unknown(Option<String>),
+    /// A `0~wiki` URI.
+    Wiki(String),
+    /// A `0+svn` URI without a revision.
+    Unversioned(String),
+    /// A `0+svn~N` URI with N before the last significant change.
+    OutOfDate(String),
+}
+
+static BOILERPLATE_URI: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\b(?:rev=REVISION|VERSIONED_FORMAT_URL)\b").expect("valid regex")
+});
+
+/// The Format URI hint of a copyright file, as `check_dep5_copyright` reports
+/// it. `None` for a file that is not machine-readable, for a boilerplate URI
+/// (its own Tag), and for a URI that needs no hint. The insecure `http://`
+/// hint is left to its own Rule.
+pub(super) fn format_uri_hint(text: &str) -> Option<FormatUriHint> {
+    if DebianCopyright::parse(text) == DebianCopyright::NotMachineReadable {
+        return None;
+    }
+    let Some(uri) = format_uri(text) else {
+        return Some(FormatUriHint::Unknown(None));
+    };
+    if BOILERPLATE_URI.is_match(&uri) {
+        return None;
+    }
+    match find_dep5_version(&uri) {
+        None => Some(FormatUriHint::Unknown(Some(uri))),
+        Some(Dep5Version::Wiki) => Some(FormatUriHint::Wiki(uri)),
+        Some(Dep5Version::Svn(None)) => Some(FormatUriHint::Unversioned(uri)),
+        Some(version) if version.is_before_significant_change() => {
+            Some(FormatUriHint::OutOfDate(uri))
+        }
+        Some(_) => None,
+    }
+}
+
+/// lintian's `processable->repacked`: the upstream part of the changelog
+/// version (epoch and Debian revision removed) matches `$PKGREPACK_REGEX`.
+pub(super) fn repacked(ctx: &SourceContext<'_>) -> bool {
+    let Some(version) = ctx
+        .debian_changelog()
+        .and_then(|changelog| changelog.entries().first())
+        .map(|entry| entry.version().to_string())
+    else {
+        return false;
+    };
+    let without_epoch = version.split_once(':').map_or(&*version, |(_, rest)| rest);
+    let upstream = without_epoch
+        .rsplit_once('-')
+        .map_or(without_epoch, |(upstream, _)| upstream);
+    ["dfsg", "debian", "ds", "repack"]
+        .iter()
+        .any(|marker| upstream.contains(marker))
+}
+
+/// lintian's `processable->native`, shared with the source format Rules.
+pub(super) fn native(ctx: &mut SourceContext<'_>) -> bool {
+    super::super::fields_version::is_native(ctx)
+}
 
 /// `debian/copyright` and `debian/<installable>.copyright` with their text.
 /// Symlinks, non-files and files that are not UTF-8 are left out, as lintian
@@ -145,6 +215,9 @@ pub(super) struct Wildcards {
     /// (paragraph index, loosing pattern, winning pattern, file) for every
     /// file that an earlier pattern covers deeper than the winning pattern.
     pub out_of_order: Vec<(usize, String, String, String)>,
+    /// (paragraph index, file, sorted patterns) for every file that two or more
+    /// patterns of the same paragraph cover, repeats included.
+    pub redundant: Vec<(usize, String, Vec<String>)>,
 }
 
 /// Runs the paragraph loop of `Dep5.pm` over the followers of the header.
@@ -188,6 +261,13 @@ pub(super) fn wildcards(followers: &[CopyrightParagraph], shipped: &[String]) ->
                 found
                     .out_of_order
                     .push((index, loosing.clone(), winning.clone(), name.clone()));
+            }
+        }
+        for (name, same) in &covered {
+            if same.len() > 1 {
+                let mut patterns = same.clone();
+                patterns.sort();
+                found.redundant.push((index, name.clone(), patterns));
             }
         }
         for (name, same) in covered {

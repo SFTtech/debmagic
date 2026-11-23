@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): missing-explanation-for-contrib-or-non-free-package (LN1645) [debian/copyright:1]
+I: example (source): missing-explanation-for-contrib-or-non-free-package (LN1645) [debian/copyright:1]

@@ -46,6 +46,7 @@ pub(super) struct InstalledCopyright {
     pub compressed_licenses: Vec<String>,
     pub incorrect_directories: Vec<String>,
     pub versionless: Vec<String>,
+    pub symlink_license: Vec<String>,
     pub nonexistent: Vec<String>,
 }
 
@@ -132,7 +133,9 @@ fn scan_contents(contents: &str, found: &mut InstalledCopyright) {
             .is_some_and(|character| character.is_ascii_alphanumeric())
         {
             found.nonexistent.push(format!("{reference}{separator}"));
-        } else if !later_version(contents, &captures[2]) && regex_version(contents) {
+        } else if later_version(contents, &captures[2]) {
+            found.symlink_license.push(reference);
+        } else if regex_version(contents) {
             found.versionless.push(reference);
         }
     }

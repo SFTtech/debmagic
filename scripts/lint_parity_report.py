@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Report how far `debmagic lint` is from lintian Parity.
 
 Reads three things, all offline:

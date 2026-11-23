@@ -75,7 +75,7 @@ snap-accept filter:
     rm -f packages/debmagic/src/lint/snapshots/*.snap.new
     sed -i '/^assertion_line: /d' packages/debmagic/src/lint/snapshots/*.snap
 
-# Ecosystem test (prototype, needs network + psql): lint samba + key packages from the archive, diff against the lintian results UDD/tracker report, and compare speed with lintian. e.g. `--sample 100`, `--all`, `--packages hello dgit`, `--perf off`
+# Ecosystem test (needs network + psql): lint key packages from the archive
 lint-ecosystem *args:
     uv run scripts/lint_ecosystem.py {{ args }}
 

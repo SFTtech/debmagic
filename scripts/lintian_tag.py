@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Everything deterministic about one lintian Tag, for porting it to an LN Rule.
 
 One command instead of exploring the lintian source and the Parity suite by hand:

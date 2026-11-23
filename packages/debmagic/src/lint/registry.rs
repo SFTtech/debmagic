@@ -736,6 +736,7 @@ use super::rules::UnknownTrigger;
 use super::rules::UnnecessarySourceDateEpochAssignment;
 use super::rules::UnnecessaryTeamUpload;
 use super::rules::UnpackMessageForDebData;
+use super::rules::UnpackMessageForSource;
 use super::rules::UnparsableMenuItem;
 use super::rules::UnreleasedChanges;
 use super::rules::UnstrippedStaticLibrary;
@@ -2659,6 +2660,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InvalidVersionedProvides,
         &OldSourceOverrideLocation,
         &CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,
+        &UnpackMessageForSource,
     ]
 }
 
@@ -3192,6 +3194,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SourceContainsQuiltControlDir,
         &DebianFilesListInSource,
         &SphinxdocButNoSphinxdocDepends,
+        &UnpackMessageForSource,
     ]
 }
 

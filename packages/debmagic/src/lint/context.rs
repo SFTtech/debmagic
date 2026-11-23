@@ -620,6 +620,22 @@ impl SourcePackageData {
         self.tree(&self.orig, |extract| extract.orig_files())
     }
 
+    /// What dpkg-source printed extracting the Patched files. Empty without an
+    /// extract (a test's file trees).
+    pub(super) fn patched_unpack_messages(&self) -> &[String] {
+        self._extract
+            .as_ref()
+            .map_or(&[], SourcePackageExtract::patched_messages)
+    }
+
+    /// What tar printed extracting the Orig tarballs. Empty without an extract.
+    #[allow(dead_code)]
+    pub(super) fn orig_unpack_messages(&self) -> &[String] {
+        self._extract
+            .as_ref()
+            .map_or(&[], SourcePackageExtract::orig_messages)
+    }
+
     pub(super) fn patched_files(&self) -> Result<&FileTree, &str> {
         self.tree(&self.patched, |extract| extract.patched_files())
     }
@@ -735,6 +751,26 @@ impl<'a> SourceContext<'a> {
                     None
                 }
             },
+        }
+    }
+
+    /// What dpkg-source printed while extracting the Patched files (lintian's
+    /// `patched->unpack_messages`), in order. Empty on a Source tree.
+    pub fn patched_unpack_messages(&self) -> &[String] {
+        match self.inner {
+            SourceInner::Tree(_) => &[],
+            SourceInner::Package(data) => data.patched_unpack_messages(),
+        }
+    }
+
+    /// What tar printed while extracting the Orig tarballs (lintian's
+    /// `orig->unpack_messages`), each as `<tarball> . <message>`, in order.
+    /// Empty on a Source tree and for a Native package.
+    #[allow(dead_code)]
+    pub fn orig_unpack_messages(&self) -> &[String] {
+        match self.inner {
+            SourceInner::Tree(_) => &[],
+            SourceInner::Package(data) => data.orig_unpack_messages(),
         }
     }
 

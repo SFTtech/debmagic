@@ -590,6 +590,7 @@ pub(crate) use udev::UdevRuleMissingSubsystem;
 pub(crate) use udev::UdevRuleMissingUaccess;
 pub(crate) use udev::UdevRuleUnreadable;
 pub(crate) use unpack::UnpackMessageForDebData;
+pub(crate) use unpack::UnpackMessageForSource;
 pub(crate) use upstream_signature::ConcatenatedUpstreamSignatures;
 pub(crate) use upstream_signature::DoublyArmoredUpstreamSignature;
 pub(crate) use upstream_signature::ExplicitlyArmoredUpstreamSignature;

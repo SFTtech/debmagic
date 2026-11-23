@@ -12,10 +12,6 @@
 //! isolated: a tool that reaches the network can do so, as it can under
 //! lintian.
 
-// The Rules that call this module land in the same branch; drop this once
-// each item has a caller.
-#![allow(dead_code)]
-
 use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::{Read, Seek, SeekFrom};

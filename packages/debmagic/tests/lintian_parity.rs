@@ -251,6 +251,8 @@ const SOURCE_TREE_RECIPES: &[&str] = &[
     "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
     "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
     "checks/debian/upstream/metadata/yaml-sequence",
+    "checks/debian/upstream/signing-key/upstream-key-empty",
+    "checks/debian/upstream/signing-key/upstream-key-nonsense",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
@@ -1398,6 +1400,8 @@ const SOURCE_PACKAGE_RECIPES: &[&str] = &[
     "checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking",
     "checks/debian/upstream/metadata/upstream-metadata-missing-repository",
     "checks/debian/upstream/metadata/yaml-sequence",
+    "checks/debian/upstream/signing-key/upstream-key-empty",
+    "checks/debian/upstream/signing-key/upstream-key-nonsense",
     "checks/debian/variables/build-multiarch-in-install",
     "checks/debian/variables/build-multiarch-in-links",
     "checks/debian/version-substvars/legacy-binary",
@@ -1682,6 +1686,7 @@ const GROUP_RECIPES: &[&str] = &[
     "checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license",
     "checks/debian/copyright/copyright-file-symlink",
     "checks/desktop/gnome/gir/gir",
+    "checks/documentation/manual/surplus-manpage",
     "checks/fields/distribution/changelog-file-backport",
     "checks/fields/distribution/changes-bad-ubuntu-distribution",
     "checks/fields/distribution/changes-distribution-mismatch",
@@ -1983,6 +1988,8 @@ fn listed_group_recipes_match_vendored_catalogued() {
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
 #[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-empty"; "checks_debian_upstream_signing_key_upstream_key_empty")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-nonsense"; "checks_debian_upstream_signing_key_upstream_key_nonsense")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
@@ -3132,6 +3139,8 @@ fn lintian_parity_binary_package(recipe: &str) {
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-bug-tracking"; "checks_debian_upstream_metadata_upstream_metadata_missing_bug_tracking")]
 #[test_case("checks/debian/upstream/metadata/upstream-metadata-missing-repository"; "checks_debian_upstream_metadata_upstream_metadata_missing_repository")]
 #[test_case("checks/debian/upstream/metadata/yaml-sequence"; "checks_debian_upstream_metadata_yaml_sequence")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-empty"; "checks_debian_upstream_signing_key_upstream_key_empty")]
+#[test_case("checks/debian/upstream/signing-key/upstream-key-nonsense"; "checks_debian_upstream_signing_key_upstream_key_nonsense")]
 #[test_case("checks/debian/variables/build-multiarch-in-install"; "checks_debian_variables_build_multiarch_in_install")]
 #[test_case("checks/debian/variables/build-multiarch-in-links"; "checks_debian_variables_build_multiarch_in_links")]
 #[test_case("checks/debian/version-substvars/legacy-binary"; "checks_debian_version_substvars_legacy_binary")]
@@ -3417,6 +3426,7 @@ fn lintian_parity_source_package(recipe: &str) {
 #[test_case("checks/debian/copyright/apache-notice/source-copyright-missing-notice-file-for-apache-license"; "checks_debian_copyright_apache_notice_source_copyright_missing_notice_file_for_apache_license")]
 #[test_case("checks/debian/copyright/copyright-file-symlink"; "checks_debian_copyright_copyright_file_symlink")]
 #[test_case("checks/desktop/gnome/gir/gir"; "checks_desktop_gnome_gir_gir")]
+#[test_case("checks/documentation/manual/surplus-manpage"; "checks_documentation_manual_surplus_manpage")]
 #[test_case("checks/fields/distribution/changelog-file-backport"; "checks_fields_distribution_changelog_file_backport")]
 #[test_case("checks/fields/distribution/changes-bad-ubuntu-distribution"; "checks_fields_distribution_changes_bad_ubuntu_distribution")]
 #[test_case("checks/fields/distribution/changes-distribution-mismatch"; "checks_fields_distribution_changes_distribution_mismatch")]

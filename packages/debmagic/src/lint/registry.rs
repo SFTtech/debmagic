@@ -74,6 +74,7 @@ use super::rules::ChangelogIsDhMakeTemplate;
 use super::rules::ChangelogIsSymlink;
 use super::rules::ChangelogNotCompressedWithMaxCompression;
 use super::rules::ChecksumCountMismatchInChangesFile;
+use super::rules::ChecksumMismatchInChangesFile;
 use super::rules::ClasspathContainsRelativePath;
 use super::rules::ClojurePackageButNotDhClojure;
 use super::rules::CodelessJar;
@@ -483,6 +484,7 @@ use super::rules::PrermCallsUpdatercD;
 use super::rules::PriorityExtraIsReplacedByPriorityOptional;
 use super::rules::PrivacyBreachW3cValidHtml;
 use super::rules::ProgramNotLinkedAgainstLibc;
+use super::rules::PublicUpstreamKeyUnusable;
 use super::rules::PuppetModuleButNotDhPuppet;
 use super::rules::PypiHomepage;
 use super::rules::Python3DependsButNoPython3Helper;
@@ -545,6 +547,7 @@ use super::rules::SourceFieldMalformed;
 use super::rules::SourceIsMissing;
 use super::rules::SourceOnlyUploadToNonFreeWithoutAutobuild;
 use super::rules::SourcePackageComponentHasLongFileName;
+use super::rules::SpareManualPage;
 use super::rules::SpecialFile;
 use super::rules::SpecificAddressInSharedLibrary;
 use super::rules::SpellingErrorInBinary;
@@ -2405,6 +2408,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &InconsistentMaintainer,
         &RuntimeTestFileIsNotARegularFile,
         &UpstreamFileWithoutUtf8Name,
+        &ChecksumMismatchInChangesFile,
+        &SpareManualPage,
+        &PublicUpstreamKeyUnusable,
     ]
 }
 
@@ -2861,6 +2867,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &NoCompleteDebconfTranslation,
         &RuntimeTestFileIsNotARegularFile,
         &UpstreamFileWithoutUtf8Name,
+        &PublicUpstreamKeyUnusable,
     ]
 }
 
@@ -3775,6 +3782,7 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &DistributionAndChangesMismatch,
         &DistributionAndExperimentalMismatch,
         &ChecksumCountMismatchInChangesFile,
+        &ChecksumMismatchInChangesFile,
     ]
 }
 
@@ -3798,6 +3806,7 @@ pub(crate) fn group_rules() -> &'static [&'static dyn GroupRule] {
         &BinariesHaveFileConflict,
         &ChangelogDistributionDoesNotMatchChangesFile,
         &InconsistentMaintainer,
+        &SpareManualPage,
     ]
 }
 

@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): public-upstream-key-unusable (LN1535) cannot be processed [debian/upstream/signing-key.asc]

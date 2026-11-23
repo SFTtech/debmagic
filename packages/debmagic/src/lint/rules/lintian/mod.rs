@@ -327,6 +327,7 @@ pub(crate) use build_systems_automake::DeprecatedConfigureFilename;
 pub(crate) use build_systems_waf::SourceContainsWafBinary;
 pub(crate) use changes_file::BadSectionInChangesFile;
 pub(crate) use changes_file::ChecksumCountMismatchInChangesFile;
+pub(crate) use changes_file::ChecksumMismatchInChangesFile;
 pub(crate) use changes_file::FileSizeMismatchInChangesFile;
 pub(crate) use changes_file::PackageBuildsDbgAndDbgsymVariants;
 pub(crate) use conffiles::{
@@ -380,6 +381,7 @@ pub(crate) use debian_symbols::PackagePlaceholderInSymbolsFile;
 pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
 pub(crate) use debian_trailing_whitespace::TrailingWhitespace;
 pub(crate) use debian_upstream::DebianUpstreamObsoletePath;
+pub(crate) use debian_upstream::PublicUpstreamKeyUnusable;
 pub(crate) use debian_upstream::UpstreamMetadataFieldUnknown;
 pub(crate) use debian_upstream::UpstreamMetadataFileIsMissing;
 pub(crate) use debian_upstream::UpstreamMetadataInNativeSource;
@@ -681,8 +683,8 @@ pub(crate) use documentation_manual::{
     BuildPathInManual, CountryInManual, EmptyManualPage, ExecutableManualPage,
     FSSTNDDirInManualPage, GroffMessage, ManualPageFromTemplate, ManualPageWithGenericName,
     NoEnglishManualPage, NoManualPage, OddPlaceForManualPage, PodConversionMessage,
-    PoorCompressionInManualPage, PythonTracebackInManpage, StrayFolderInManual, TypoInManualPage,
-    UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
+    PoorCompressionInManualPage, PythonTracebackInManpage, SpareManualPage, StrayFolderInManual,
+    TypoInManualPage, UncompressedManualPage, UndocumentedManualPage, UselessWhatisEntry,
     WrongCompressionInManualPage, WrongManualSection, WrongNameForManualPage,
 };
 pub(crate) use documentation_texinfo::{

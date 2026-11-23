@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): public-upstream-keys-in-multiple-locations (LN1765) upstream-signing-key.pgp upstream/signing-key.asc
+I: example (source): public-upstream-keys-in-multiple-locations (LN1765) upstream-signing-key.pgp upstream/signing-key.asc

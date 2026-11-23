@@ -388,6 +388,7 @@ pub(crate) use debian_trailing_whitespace::NoNewlineAtEnd;
 pub(crate) use debian_trailing_whitespace::TrailingWhitespace;
 pub(crate) use debian_upstream::DebianUpstreamObsoletePath;
 pub(crate) use debian_upstream::PublicUpstreamKeyInNativePackage;
+pub(crate) use debian_upstream::PublicUpstreamKeyNotMinimal;
 pub(crate) use debian_upstream::PublicUpstreamKeyUnusable;
 pub(crate) use debian_upstream::PublicUpstreamKeysInMultipleLocations;
 pub(crate) use debian_upstream::UpstreamMetadataFieldUnknown;

@@ -14,6 +14,7 @@ mod ln1342_upstream_metadata_yaml_invalid;
 mod ln1535_public_upstream_key_unusable;
 mod ln1764_public_upstream_key_in_native_package;
 mod ln1765_public_upstream_keys_in_multiple_locations;
+mod ln1766_public_upstream_key_not_minimal;
 
 pub(crate) use ln0845_debian_upstream_obsolete_path::DebianUpstreamObsoletePath;
 pub(crate) use ln1214_upstream_metadata_in_native_source::UpstreamMetadataInNativeSource;
@@ -27,3 +28,4 @@ pub(crate) use ln1342_upstream_metadata_yaml_invalid::UpstreamMetadataYamlInvali
 pub(crate) use ln1535_public_upstream_key_unusable::PublicUpstreamKeyUnusable;
 pub(crate) use ln1764_public_upstream_key_in_native_package::PublicUpstreamKeyInNativePackage;
 pub(crate) use ln1765_public_upstream_keys_in_multiple_locations::PublicUpstreamKeysInMultipleLocations;
+pub(crate) use ln1766_public_upstream_key_not_minimal::PublicUpstreamKeyNotMinimal;

@@ -492,6 +492,7 @@ use super::rules::PriorityExtraIsReplacedByPriorityOptional;
 use super::rules::PrivacyBreachW3cValidHtml;
 use super::rules::ProgramNotLinkedAgainstLibc;
 use super::rules::PublicUpstreamKeyInNativePackage;
+use super::rules::PublicUpstreamKeyNotMinimal;
 use super::rules::PublicUpstreamKeyUnusable;
 use super::rules::PublicUpstreamKeysInMultipleLocations;
 use super::rules::PuppetModuleButNotDhPuppet;
@@ -2441,6 +2442,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnicodeTrojan,
         &PublicUpstreamKeyInNativePackage,
         &PublicUpstreamKeysInMultipleLocations,
+        &PublicUpstreamKeyNotMinimal,
     ]
 }
 
@@ -2450,6 +2452,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UnicodeTrojan,
         &PublicUpstreamKeyInNativePackage,
         &PublicUpstreamKeysInMultipleLocations,
+        &PublicUpstreamKeyNotMinimal,
         &DebmagicDummyTrigger,
         &RequiredField,
         &SyntaxErrorInDebianChangelog,

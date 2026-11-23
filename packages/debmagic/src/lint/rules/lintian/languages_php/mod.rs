@@ -11,6 +11,7 @@ mod ln1286_pear_package_without_pkg_php_tools_builddep;
 mod ln1287_pecl_package_requires_build_dependency;
 mod ln1569_composer_package_without_pkg_php_tools_builddep;
 mod ln1570_pear_package_not_using_substvar;
+mod ln1790_embedded_pear_module;
 mod pear;
 
 pub(crate) use ln0652_embedded_php_library::EmbeddedPhpLibrary;
@@ -24,3 +25,4 @@ pub(crate) use ln1286_pear_package_without_pkg_php_tools_builddep::PearPackageWi
 pub(crate) use ln1287_pecl_package_requires_build_dependency::PeclPackageRequiresBuildDependency;
 pub(crate) use ln1569_composer_package_without_pkg_php_tools_builddep::ComposerPackageWithoutPkgPhpToolsBuilddep;
 pub(crate) use ln1570_pear_package_not_using_substvar::PearPackageNotUsingSubstvar;
+pub(crate) use ln1790_embedded_pear_module::EmbeddedPearModule;

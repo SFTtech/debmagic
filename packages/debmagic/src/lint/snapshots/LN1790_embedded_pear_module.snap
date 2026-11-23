@@ -1,0 +1,17 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): embedded-pear-module (LN1790) please use php-auth [usr/share/php/Auth.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-auth [usr/share/php/Auth.PHP]
+W: example (binary): embedded-pear-module (LN1790) please use php-log [usr/share/php/Log/file.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-mail-mime [usr/share/php/Mail/mime.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-mail-mime [usr/share/php/Mail/MimePart.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-http [usr/share/php/HTTP.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-auth-http [usr/share/php/Auth/HTTP.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-db [usr/share/php/DB.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-net-socket [usr/share/php/Socket.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-cache-lite [usr/share/php/Cache/Lite.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-auth [usr/share/php/Auth.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-cache [usr/share/php/ÿ/Cache.php]
+W: example (binary): embedded-pear-module (LN1790) please use php-auth [usr/share/php/Auth.php]
+W: example (udeb): embedded-pear-module (LN1790) please use php-auth [usr/share/php/Auth.php]

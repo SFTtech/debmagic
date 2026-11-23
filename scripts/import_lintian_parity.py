@@ -619,7 +619,8 @@ def catalogued_source_package_tags(rules_dir: Path) -> set[str]:
 
 
 def catalogued_binary_package_tags(rules_dir: Path) -> set[str]:
-    return catalogued_tags_with_impl(rules_dir, "impl BinaryPackageRule for")
+    """Binary-package Rules, and Group Rules that run on a lone `.deb` (`runs_without_dsc`, ADR 0056)."""
+    return catalogued_tags_with_impl(rules_dir, "impl BinaryPackageRule for", "fn runs_without_dsc")
 
 
 def catalogued_source_tree_tags(rules_dir: Path) -> set[str]:

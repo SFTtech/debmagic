@@ -214,12 +214,13 @@ fn example_entry(files: &FileTree, entry: &Entry, bytes: &[u8]) -> Vec<Hit> {
             }
         }
         None => {
-            // `/usr/local/` interpreters are another Tag's example; only
-            // `/bin/env` is reported here.
-            if interpreter == "/bin/env" {
+            // The unknown-interpreter branches of the Check, in its order.
+            // The `nodejs` and `php` branches are other Tags' examples.
+            if interpreter.starts_with("/usr/local/") {
+                hits.push(hit("example-interpreter-in-usr-local", interpreter.clone()));
+            } else if interpreter == "/bin/env" {
                 hits.push(hit("example-script-uses-bin-env", interpreter.clone()));
             } else if interpreter != "nodejs"
-                && !interpreter.starts_with("/usr/local/")
                 && !base.starts_with("php")
                 && !shipped_executable(files, &interpreter, hashbang.calls_env())
             {

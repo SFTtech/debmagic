@@ -563,6 +563,7 @@ use super::rules::SpellingErrorInDescription;
 use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
+use super::rules::SpellingErrorInPatchDescription;
 use super::rules::SpellingErrorInRulesRequiresRoot;
 use super::rules::SpuriousFieldsInUpstreamSignature;
 use super::rules::StaticLinkTimeOptimization;
@@ -2439,6 +2440,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnknownRuntimeTestsRestriction,
         &UnusedEntryInDebianSourceIncludeBinaries,
         &QuiltPatchUsesDpatchExtension,
+        &SpellingErrorInPatchDescription,
     ]
 }
 
@@ -2906,6 +2908,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &UnknownRuntimeTestsRestriction,
         &UnusedEntryInDebianSourceIncludeBinaries,
         &QuiltPatchUsesDpatchExtension,
+        &SpellingErrorInPatchDescription,
     ]
 }
 

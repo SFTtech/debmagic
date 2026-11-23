@@ -31,6 +31,7 @@ mod ln1405_uses_deprecated_python_stdlib;
 mod ln1571_debian_pycompat_is_obsolete;
 mod ln1572_debian_pyversions_is_obsolete;
 mod ln1682_old_python_version_field;
+mod ln1683_package_uses_old_python_depends_substvar;
 mod obsolete;
 mod python_version;
 
@@ -62,3 +63,4 @@ pub(crate) use ln1405_uses_deprecated_python_stdlib::UsesDeprecatedPythonStdlib;
 pub(crate) use ln1571_debian_pycompat_is_obsolete::DebianPycompatIsObsolete;
 pub(crate) use ln1572_debian_pyversions_is_obsolete::DebianPyversionsIsObsolete;
 pub(crate) use ln1682_old_python_version_field::OldPythonVersionField;
+pub(crate) use ln1683_package_uses_old_python_depends_substvar::PackageUsesOldPythonDependsSubstvar;

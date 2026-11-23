@@ -353,6 +353,7 @@ use super::rules::MalformedDebianChangelogVersion;
 use super::rules::MalformedOverride;
 use super::rules::MalformedTemplateName;
 use super::rules::ManualPageForSystemCommand;
+use super::rules::ManualPageInUdeb;
 use super::rules::MavenPluginInUsrShareJava;
 use super::rules::MawkScriptButNoMawkDep;
 use super::rules::MenuIconCannotBeParsed;
@@ -2635,6 +2636,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &OcamlStrayCmo,
         &StaticLibraryHasUnneededSections,
         &UnstrippedStaticLibrary,
+        &ManualPageInUdeb,
     ]
 }
 
@@ -4095,6 +4097,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &OcamlStrayCmo,
         &StaticLibraryHasUnneededSections,
         &UnstrippedStaticLibrary,
+        &ManualPageInUdeb,
     ]
 }
 

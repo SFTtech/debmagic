@@ -292,7 +292,7 @@ fn parse_changelog(contents: &str) -> (Vec<ChangelogParseError>, Vec<ChangelogEn
                 if entry.timestamp.is_none() {
                     errors.push(ChangelogParseError {
                         line: position,
-                        message: format!("could not parse date {date}"),
+                        message: format!("couldn't parse date {date}"),
                     });
                 }
             }
@@ -627,7 +627,7 @@ example (1.0-1) unstable; urgency=low
             ),
             vec![(
                 12,
-                "could not parse date The, 15 Apr 2004 23:33:51 +0200".to_string()
+                "couldn't parse date The, 15 Apr 2004 23:33:51 +0200".to_string()
             )]
         );
     }

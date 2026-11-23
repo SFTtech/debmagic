@@ -6,4 +6,4 @@ W: example (source): syntax-error-in-debian-changelog (LN0002) "badly formatted 
 W: example (source): syntax-error-in-debian-changelog (LN0002) "found trailer where expected start of change data" [debian/changelog:10]
 W: example (source): syntax-error-in-debian-changelog (LN0002) "badly formatted heading line" [debian/changelog:15]
 W: example (source): syntax-error-in-debian-changelog (LN0002) "found change data where expected next heading or eof" [debian/changelog:17]
-W: example (source): syntax-error-in-debian-changelog (LN0002) "could not parse date The, 15 Apr 2004 23:33:51 +0200" [debian/changelog:12]
+W: example (source): syntax-error-in-debian-changelog (LN0002) line 12 "couldn't parse date The, 15 Apr 2004 23:33:51 +0200" [debian/changelog:12]

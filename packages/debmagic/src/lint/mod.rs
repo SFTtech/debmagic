@@ -13,6 +13,7 @@ mod debian_changelog;
 mod debian_control;
 mod debian_copyright;
 mod diagnostic;
+mod diffstat;
 mod digest;
 mod diversion;
 mod dsc;

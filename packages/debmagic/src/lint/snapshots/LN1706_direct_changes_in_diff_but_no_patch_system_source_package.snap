@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): direct-changes-in-diff-but-no-patch-system (LN1706) README
+P: example (source): direct-changes-in-diff-but-no-patch-system (LN1706) src/main.c
+P: example (source): direct-changes-in-diff-but-no-patch-system (LN1706) README and 1 more

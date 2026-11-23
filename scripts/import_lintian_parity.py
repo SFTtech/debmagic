@@ -400,6 +400,11 @@ def vendor_build_spec(
         kept.append(("dpkg-overrides", spec / "dpkg-overrides"))
     if orig_has_debian and (spec / "pre-upstream.in").is_file():
         kept.append(("pre-upstream.in", spec / "pre-upstream.in"))
+    # `diff/` files are added to the tree after the orig is made (the Debian diff's direct changes).
+    if (spec / "diff").is_dir():
+        for source in sorted((spec / "diff").iterdir()):
+            if source.is_file():
+                kept.append((f"diff/{source.name}", source))
     pre_build = work / "pre-build" if work is not None else None
     if pre_build is not None and pre_build.is_file() and ORIG_TARBALL_HOOK.search(read_text(pre_build)[0]):
         kept.append(("pre-build", pre_build))

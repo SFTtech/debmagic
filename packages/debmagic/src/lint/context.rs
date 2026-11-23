@@ -14,6 +14,7 @@ use super::debian_changelog::DebianChangelog;
 use super::debian_control::DebianControl;
 use super::debian_copyright::DebianCopyright;
 use super::diagnostic::{Diagnostic, ProcessableType};
+use super::diffstat::Diffstat;
 use super::diversion::Diversions;
 use super::dsc::Dsc;
 use super::elf::{ElfArchiveMembers, ElfFiles};
@@ -26,7 +27,7 @@ use super::openpgp::OpenPgpFile;
 use super::quilt_series::QuiltSeries;
 use super::rule::{Code, RuleAccess, Tag};
 use super::sibling_files::SiblingFiles;
-use super::source_package::SourcePackageExtract;
+use super::source_package::{SourcePackageExtract, strip_epoch};
 use super::strings::FileStrings;
 use super::subject::SubjectKind;
 use super::timing;
@@ -973,6 +974,38 @@ impl<'a> SourceContext<'a> {
                 Some(self.shared_once(|_| SiblingFiles::from_dsc(&data.path, data.dsc.as_ref())))
             }
         }
+    }
+
+    /// The files the Debian diff `<name>_<version>.diff.gz` changes, as
+    /// lintian's `processable->diffstat` lists them. Read from the sibling
+    /// files when the `.dsc` lists the diff, parsed once per Subject. Empty on
+    /// a Source tree, and when there is no diff or it cannot be read.
+    pub fn diffstat(&mut self) -> Arc<Diffstat> {
+        self.shared_once(|ctx| ctx.read_diffstat())
+    }
+
+    fn read_diffstat(&mut self) -> Diffstat {
+        let SourceInner::Package(data) = self.inner else {
+            return Diffstat::default();
+        };
+        let Some(version) = data
+            .dsc
+            .as_ref()
+            .and_then(|dsc| dsc.fields().get("Version"))
+        else {
+            return Diffstat::default();
+        };
+        let name = format!(
+            "{}_{}.diff.gz",
+            data.package_name,
+            strip_epoch(version.trim())
+        );
+        let Some(siblings) = self.sibling_files() else {
+            return Diffstat::default();
+        };
+        siblings
+            .read(&name)
+            .map_or_else(Diffstat::default, |bytes| Diffstat::from_gzip(&bytes))
     }
 
     /// Report a finding. Code and Tag come from the running Rule; Severity is

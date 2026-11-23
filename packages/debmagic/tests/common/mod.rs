@@ -1413,6 +1413,10 @@ const RECIPES_THE_HOST_CANNOT_BUILD: &[(&str, &str)] = &[
 /// tree is not the built product (a patch is not applied, say).
 const RECIPES_SKIPPED_FOR_SOURCE_TREE: &[(&str, &str)] = &[
     (
+        "checks/debian/patches/patch-systems-no-patch-system",
+        "the only expected hint is the Debian diff's direct change (`README`), and a Source tree has no `.diff.gz`",
+    ),
+    (
         "checks/files/names/national-encoding-in-patch",
         "the Latin-1 file name comes from a patch that a Source tree does not apply",
     ),
@@ -2069,15 +2073,39 @@ fn run_tar(mode: &[&str], archive: &Path, dir: &Path, member: Option<&str>) {
     );
 }
 
+/// The file names in the recipe's vendored `build-spec/diff/`, sorted: the
+/// files lintian adds to the tree after the orig, so they are not in the orig.
+fn vendored_diff_adds(recipe: &Path) -> Vec<String> {
+    let Ok(entries) = fs::read_dir(recipe.join("build-spec/diff")) else {
+        return Vec::new();
+    };
+    let mut names: Vec<String> = entries
+        .filter_map(Result::ok)
+        .filter(|entry| entry.path().is_file())
+        .map(|entry| entry.file_name().to_string_lossy().into_owned())
+        .collect();
+    names.sort();
+    names
+}
+
 fn assemble_source_package(recipe: &Path, work: &Path) -> PathBuf {
     let source = work.join("src");
     copy_package_tree(recipe, &source);
+    // lintian's upload builder adds the files of `build-spec/diff/` to the tree
+    // after the orig is made, so they are direct changes of the Debian diff.
+    let diff_adds = vendored_diff_adds(recipe);
+    for name in &diff_adds {
+        let target = source.join(name);
+        fs::copy(recipe.join("build-spec/diff").join(name), &target)
+            .unwrap_or_else(|error| panic!("copying {name} to {}: {error}", target.display()));
+    }
     let pointers = debian_adds_pointers(recipe);
-    let root_adds: Vec<String> = pointers
+    let mut root_adds: Vec<String> = pointers
         .iter()
         .filter(|pointer| outside_debian(pointer))
         .cloned()
         .collect();
+    root_adds.extend(diff_adds);
     let keep_ignored = !pointers.is_empty() || expects_tag_prefix(recipe, "source-contains-");
     let overrides = dpkg_overrides(recipe);
     let hook = vendored_pre_upstream(recipe);

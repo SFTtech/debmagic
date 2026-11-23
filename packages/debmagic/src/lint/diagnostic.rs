@@ -3,6 +3,7 @@ use std::ops::{Deref, DerefMut};
 use std::path::PathBuf;
 
 use super::rule::{Code, Severity, Tag};
+use super::run::pointer_path;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Location {
@@ -46,6 +47,19 @@ pub struct Diagnostic {
     inner: Box<DiagnosticInner>,
 }
 
+/// The override that suppressed a Diagnostic: the line of its Lintian override
+/// file, as lintian's `Hint::override` (ADR 0057).
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(dead_code)]
+pub struct Overridden {
+    /// The Lintian override file in its File tree.
+    pub path: PathBuf,
+    /// 1-based line of the override in that file.
+    pub line: u32,
+    /// The `#` comment above the override, joined with spaces; may be empty.
+    pub justification: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiagnosticInner {
     pub message: String,
@@ -56,6 +70,9 @@ pub struct DiagnosticInner {
     pub package: String,
     pub processable_type: Option<ProcessableType>,
     pub help: Option<String>,
+    /// Set by the override pass when a line of a Lintian override file matched.
+    /// The Diagnostic stays in its Rule's order; it is not a Severity.
+    pub overridden: Option<Overridden>,
 }
 
 impl Deref for Diagnostic {
@@ -97,6 +114,7 @@ impl Diagnostic {
                 package: String::new(),
                 processable_type: None,
                 help: None,
+                overridden: None,
             }),
         }
     }
@@ -135,6 +153,38 @@ impl Diagnostic {
         self.inner.processable_type = Some(processable_type);
         self
     }
+
+    /// Whether a line of a Lintian override file suppressed this Diagnostic.
+    #[allow(dead_code)]
+    pub fn is_overridden(&self) -> bool {
+        self.inner.overridden.is_some()
+    }
+
+    /// The override that suppressed this Diagnostic, if any.
+    #[allow(dead_code)]
+    pub fn overridden(&self) -> Option<&Overridden> {
+        self.inner.overridden.as_ref()
+    }
+
+    /// The text an override pattern is matched against, as lintian's
+    /// `Hint::context`: the message, then `[pointer]` when the Location has a
+    /// path. The pointer is the path, with `:line` when there is a line above
+    /// zero (lintian prints no column). Empty pieces are left out.
+    #[allow(dead_code)]
+    pub fn override_context(&self) -> String {
+        let mut pieces = Vec::with_capacity(2);
+        if !self.inner.message.is_empty() {
+            pieces.push(self.inner.message.clone());
+        }
+        if !self.inner.location.path.as_os_str().is_empty() {
+            let mut pointer = pointer_path(&self.inner.location.path);
+            if let Some(line) = self.inner.location.line.filter(|&line| line > 0) {
+                pointer.push_str(&format!(":{line}"));
+            }
+            pieces.push(format!("[{pointer}]"));
+        }
+        pieces.join(" ")
+    }
 }
 
 #[cfg(test)]
@@ -154,6 +204,41 @@ mod tests {
         assert_eq!(diagnostic.severity, Severity::Warning);
         assert_eq!(diagnostic.help.as_deref(), Some("try this"));
         assert_eq!(diagnostic.location.line, Some(1));
+    }
+
+    #[test]
+    fn override_context_is_message_then_pointer() {
+        let with_line = Diagnostic::warn("extra").with_location(Location {
+            path: PathBuf::from("debian/control"),
+            line: Some(5),
+            column: None,
+        });
+        assert_eq!(with_line.override_context(), "extra [debian/control:5]");
+
+        let without_line = Diagnostic::warn("extra").with_location(Location {
+            path: PathBuf::from("debian/control"),
+            line: None,
+            column: None,
+        });
+        assert_eq!(without_line.override_context(), "extra [debian/control]");
+
+        let no_message = Diagnostic::warn("").with_location(Location {
+            path: PathBuf::from("usr/bin/x"),
+            line: Some(1),
+            column: Some(3),
+        });
+        assert_eq!(no_message.override_context(), "[usr/bin/x:1]");
+
+        let no_location = Diagnostic::warn("only");
+        assert_eq!(no_location.override_context(), "only");
+        assert_eq!(Diagnostic::warn("").override_context(), "");
+    }
+
+    #[test]
+    fn diagnostics_start_not_overridden() {
+        let diagnostic = Diagnostic::warn("msg");
+        assert!(!diagnostic.is_overridden());
+        assert!(diagnostic.overridden().is_none());
     }
 
     #[test]

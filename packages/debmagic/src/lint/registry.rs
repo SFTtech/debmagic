@@ -652,6 +652,7 @@ use super::rules::UpstreamMetadataMissingRepository;
 use super::rules::UpstreamMetadataNotYamlMapping;
 use super::rules::UpstreamMetadataYamlInvalid;
 use super::rules::UselessAutoreconfBuildDepends;
+use super::rules::UselessPydistOverridesFile;
 use super::rules::UsesDeprecatedAdttmp;
 use super::rules::UsesDeprecatedPythonStdlib;
 use super::rules::UsesNoCompressionForControlTarball;
@@ -2433,6 +2434,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnpackMessageForDebData,
         &OldPythonVersionField,
         &PackageUsesOldPythonDependsSubstvar,
+        &UselessPydistOverridesFile,
     ]
 }
 
@@ -2897,6 +2899,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &SpuriousFieldsInUpstreamSignature,
         &OldPythonVersionField,
         &PackageUsesOldPythonDependsSubstvar,
+        &UselessPydistOverridesFile,
     ]
 }
 

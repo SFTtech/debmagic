@@ -883,7 +883,8 @@ pub(crate) use languages_python::{
     PythonDebugInWrongLocation, PythonModuleHasOverlyGenericName, PythonModuleInWrongLocation,
     PythonPackageMissingDependsOnPython, PythonVersionCurrentIsDeprecated,
     ScriptUsesUnversionedPythonInShebang, SourcePackageEncodesPythonVersion,
-    ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory, UsesDeprecatedPythonStdlib,
+    ThirdPartyPackageInPythonDir, UnknownFileInPythonModuleDirectory, UselessPydistOverridesFile,
+    UsesDeprecatedPythonStdlib,
 };
 pub(crate) use libraries_shared_soname::PackageNameDoesntMatchSonames;
 pub(crate) use libraries_shared_soname::SharedobjectInLibraryDirectoryMissingSoname;

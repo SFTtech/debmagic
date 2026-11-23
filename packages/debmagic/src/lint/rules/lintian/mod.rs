@@ -459,6 +459,8 @@ pub(crate) use files_special::SpecialFile;
 pub(crate) use fonts::DuplicateFontFile;
 pub(crate) use fonts::FontInNonFontPackage;
 pub(crate) use fonts::FontOutsideFontDir;
+pub(crate) use fonts::LicenseProblemFontAdobeCopyrightedFragment;
+pub(crate) use fonts::LicenseProblemFontAdobeCopyrightedFragmentNoCredit;
 pub(crate) use fonts::WoffFontInWrongDir;
 pub(crate) use group_checks::BinariesHaveFileConflict;
 pub(crate) use group_checks::DebugPackageForMultiArchSamePkgNotCoinstallable;

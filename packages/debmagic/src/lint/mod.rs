@@ -51,6 +51,7 @@ pub(crate) mod tester;
 #[cfg(test)]
 mod tester_group;
 mod timing;
+mod type1;
 mod upstream_metadata;
 mod xml;
 mod zip;

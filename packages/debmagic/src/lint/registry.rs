@@ -288,6 +288,8 @@ use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
 use super::rules::LibmoduleBuildTinyPerlNeedsToBeInBuildDepends;
 use super::rules::LicenseProblemCcByNcSa;
+use super::rules::LicenseProblemFontAdobeCopyrightedFragment;
+use super::rules::LicenseProblemFontAdobeCopyrightedFragmentNoCredit;
 use super::rules::LicenseProblemGfdlInvariants;
 use super::rules::LicenseProblemGfdlInvariantsEmpty;
 use super::rules::LicenseProblemGfdlNonOfficialText;
@@ -2371,6 +2373,8 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &LocaleUsesLanguageGroupCode,
         &DebianPycompatIsObsolete,
         &DebianPyversionsIsObsolete,
+        &LicenseProblemFontAdobeCopyrightedFragment,
+        &LicenseProblemFontAdobeCopyrightedFragmentNoCredit,
     ]
 }
 
@@ -3706,6 +3710,8 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &DebianNewsEntryUsesAsterisk,
         &IncorrectLocaleCode,
         &LocaleUsesLanguageGroupCode,
+        &LicenseProblemFontAdobeCopyrightedFragment,
+        &LicenseProblemFontAdobeCopyrightedFragmentNoCredit,
     ]
 }
 

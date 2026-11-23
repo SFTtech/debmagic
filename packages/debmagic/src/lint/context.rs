@@ -27,6 +27,7 @@ use super::source_package::SourcePackageExtract;
 use super::strings::FileStrings;
 use super::subject::SubjectKind;
 use super::timing;
+use super::type1::Type1Fonts;
 use super::upstream_metadata::{self, UpstreamMetadata};
 
 pub(super) struct DiagnosticSink {
@@ -395,6 +396,19 @@ impl<'a> BinaryPackageContext<'a> {
         Some(self.shared_once(|ctx| {
             ctx.data_files()
                 .map(JarFiles::from_tree)
+                .unwrap_or_default()
+        }))
+    }
+
+    /// The Type 1 font programs among the Data files, decoded once per Subject
+    /// and shared by every Rule. `None` after a global File tree failure, as
+    /// for [`Self::data_files`].
+    #[allow(dead_code)] // seam API; no Rule reads it yet
+    pub fn data_type1_fonts(&mut self) -> Option<Arc<Type1Fonts>> {
+        self.data_files()?;
+        Some(self.shared_once(|ctx| {
+            ctx.data_files()
+                .map(Type1Fonts::from_tree)
                 .unwrap_or_default()
         }))
     }

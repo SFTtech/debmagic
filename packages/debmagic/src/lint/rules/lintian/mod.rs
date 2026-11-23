@@ -25,6 +25,7 @@ mod build_systems_waf;
 mod changelog_doc;
 mod changes_file;
 mod conffiles;
+mod continuous_integration_salsa;
 mod control_files;
 mod cruft;
 mod deb_format;
@@ -355,6 +356,7 @@ pub(crate) use conffiles::{
     FileInUsrMarkedAsConffile, MissingConffile, NonEtcFileMarkedAsConffile, RelativeConffile,
     UnexpectedConffile, UnknownConffileInstruction,
 };
+pub(crate) use continuous_integration_salsa::InvalidYaml;
 pub(crate) use control_files::ControlFileHasBadOwner;
 pub(crate) use control_files::ControlFileHasBadPermissions;
 pub(crate) use control_files::ControlFileIsEmpty;

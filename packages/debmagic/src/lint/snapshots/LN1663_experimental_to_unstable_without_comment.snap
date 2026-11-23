@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): experimental-to-unstable-without-comment (LN1663) [usr/share/doc/example/changelog.Debian.gz:1]

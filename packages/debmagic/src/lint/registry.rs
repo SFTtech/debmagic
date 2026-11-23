@@ -222,6 +222,7 @@ use super::rules::ExecutableJarWithoutMainClass;
 use super::rules::ExecutableManualPage;
 use super::rules::ExecutableMenuFile;
 use super::rules::ExecutableStackInSharedLibrary;
+use super::rules::ExperimentalToUnstableWithoutComment;
 use super::rules::ExplicitlyArmoredUpstreamSignature;
 use super::rules::ExtendedDescriptionIsProbablyTooShort;
 use super::rules::ExtraLicenseFile;
@@ -2435,6 +2436,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &CoMaintainedPackageWithNoVcsFields,
         &HyphenInUpstreamPartOfDebianChangelogVersion,
         &NonConsecutiveDebianRevision,
+        &ExperimentalToUnstableWithoutComment,
     ]
 }
 
@@ -3796,6 +3798,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &StaticLinkTimeOptimization,
         &NoSymbolsControlFile,
         &UnpackMessageForDebData,
+        &ExperimentalToUnstableWithoutComment,
     ]
 }
 

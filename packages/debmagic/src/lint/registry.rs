@@ -316,6 +316,7 @@ use super::rules::LicenseProblemOldUnicode;
 use super::rules::LinkToSharedLibraryInWrongPackage;
 use super::rules::LocaleUsesLanguageGroupCode;
 use super::rules::MagicArchInArchList;
+use super::rules::MaintainerDesktopEntry;
 use super::rules::MaintainerScriptCallsService;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
 use super::rules::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
@@ -2443,6 +2444,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &QuiltPatchUsesDpatchExtension,
         &SpellingErrorInPatchDescription,
         &OlderDebianWatchFileStandard,
+        &MaintainerDesktopEntry,
     ]
 }
 
@@ -2912,6 +2914,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &QuiltPatchUsesDpatchExtension,
         &SpellingErrorInPatchDescription,
         &OlderDebianWatchFileStandard,
+        &MaintainerDesktopEntry,
     ]
 }
 

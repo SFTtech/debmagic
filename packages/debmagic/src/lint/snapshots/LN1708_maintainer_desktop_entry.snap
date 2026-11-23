@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): maintainer-desktop-entry (LN1708) [debian/example.desktop]
+P: (source): maintainer-desktop-entry (LN1708) [debian/a/b.desktop]
+P: (source): maintainer-desktop-entry (LN1708) [debian/c.desktop]

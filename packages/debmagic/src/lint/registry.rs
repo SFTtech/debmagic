@@ -515,6 +515,7 @@ use super::rules::SpellingErrorInDocBaseAbstractField;
 use super::rules::SpellingErrorInDocBaseTitleField;
 use super::rules::SpellingErrorInNewsDebian;
 use super::rules::SpellingErrorInRulesRequiresRoot;
+use super::rules::SpuriousFieldsInUpstreamSignature;
 use super::rules::StrayFolderInManual;
 use super::rules::StrippedLibrary;
 use super::rules::SubstvarSourceVersionIsDeprecated;
@@ -2325,6 +2326,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &DoublyArmoredUpstreamSignature,
         &ExplicitlyArmoredUpstreamSignature,
         &OrigTarballMissingUpstreamSignature,
+        &SpuriousFieldsInUpstreamSignature,
     ]
 }
 
@@ -2764,6 +2766,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &DoublyArmoredUpstreamSignature,
         &ExplicitlyArmoredUpstreamSignature,
         &OrigTarballMissingUpstreamSignature,
+        &SpuriousFieldsInUpstreamSignature,
     ]
 }
 

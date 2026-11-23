@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+E: example (changes): root-in-contact (LN0731) Changed-By Admin <root@example.com>
+E: example (changes): root-in-contact (LN0731) Maintainer root <jane@example.com>

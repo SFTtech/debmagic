@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): homepage-gitlab-url-ends-with-dot-git (LN1548) https://gitlab.com/foo/bar.git

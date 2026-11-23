@@ -22,7 +22,7 @@ static OBSOLETE: LazyLock<Vec<(String, String)>> = LazyLock::new(|| {
         .collect()
 });
 
-fn replacement(package: &str) -> Option<&'static str> {
+pub(super) fn replacement(package: &str) -> Option<&'static str> {
     OBSOLETE
         .iter()
         .find(|(name, _)| name == package)

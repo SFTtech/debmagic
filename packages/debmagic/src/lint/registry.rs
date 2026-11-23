@@ -3270,6 +3270,7 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
 pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule] {
     &[
         &PackageHasLongFileName,
+        &SyntaxErrorInDebianChangelog,
         &RequiredField,
         &UnstrippedBinaryOrObject,
         &PackageContainsUnsafeSymlink,
@@ -4233,6 +4234,13 @@ pub(crate) fn changes_rules() -> &'static [&'static dyn ChangesRule] {
         &ChecksumCountMismatchInChangesFile,
         &ChecksumMismatchInChangesFile,
         &ChangedByInvalidForDerivative,
+        &MailAddressLoopsOrBounces,
+        &FaultyDebianQaGroupAddress,
+        &FaultyDebianQaGroupPhrase,
+        &RootInContact,
+        &BogusMailHost,
+        &RequiredField,
+        &RecommendedField,
     ]
 }
 

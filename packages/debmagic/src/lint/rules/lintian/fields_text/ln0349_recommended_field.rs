@@ -1,7 +1,8 @@
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::Diagnostic;
-use crate::lint::rule::SourceRule;
+use crate::lint::group_context::ChangesContext;
+use crate::lint::rule::{ChangesRule, SourceRule};
 
 pub struct RecommendedField;
 
@@ -12,7 +13,8 @@ declare_rule! {
     /// Extra is `(in section for source)` then the field. A Source package's
     /// Dsc should declare `Package-List`; extra is the `.dsc` basename then
     /// the field. Installable paragraphs are not checked (lintian's list for
-    /// them is empty). `.changes` `Urgency` is not a Subject here.
+    /// them is empty). A `.changes` should declare `Urgency`; extra is the
+    /// `.changes` basename then `Urgency`.
     RecommendedField,
     code = "LN0349",
     tag = "recommended-field",
@@ -44,10 +46,26 @@ impl SourceRule for RecommendedField {
     }
 }
 
+impl ChangesRule for RecommendedField {
+    fn run(&self, ctx: &mut ChangesContext<'_>) {
+        if !ctx.changes().fields().declares("Urgency") {
+            let basename = ctx
+                .path()
+                .file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or_default();
+            ctx.diagnostic(Diagnostic::warn(format!("{basename} Urgency")));
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::lint::dsc::Dsc;
-    use crate::lint::tester::{SourcePackageCase, SourcePackageTester, SourceTreeTester, TestFile};
+    use crate::lint::tester::{
+        ChangesCase, ChangesTester, SourcePackageCase, SourcePackageTester, SourceTreeTester,
+        TestFile,
+    };
 
     use super::*;
 
@@ -85,6 +103,13 @@ mod tests {
         // not declare Section.
         let fail = vec![Vec::<(&str, TestFile)>::new(), control(false)];
         SourceTreeTester::new(RecommendedField, pass, fail).test_and_snapshot();
+    }
+
+    #[test]
+    fn changes_file() {
+        let pass = vec![ChangesCase::from("Source: example\nUrgency: low\n")];
+        let fail = vec![ChangesCase::from("Source: example\n")];
+        ChangesTester::new(RecommendedField, pass, fail).test_and_snapshot();
     }
 
     #[test]

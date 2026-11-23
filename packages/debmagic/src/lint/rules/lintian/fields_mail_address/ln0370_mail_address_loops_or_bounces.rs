@@ -2,7 +2,8 @@ use crate::declare_rule;
 use crate::lint::context::{BinaryPackageContext, SourceContext};
 use crate::lint::debian_control::ControlParagraph;
 use crate::lint::diagnostic::Diagnostic;
-use crate::lint::rule::{BinaryPackageRule, SourceRule};
+use crate::lint::group_context::ChangesContext;
+use crate::lint::rule::{BinaryPackageRule, ChangesRule, SourceRule};
 
 use super::mailbox::complete_mailboxes;
 
@@ -15,7 +16,8 @@ declare_rule! {
     /// paragraph, and from Installation control on a Binary package. Only
     /// `ubuntu-devel-discuss@lists.ubuntu.com` is known to bounce. The address
     /// needs a non-empty user and host. Each distinct mailbox is reported once.
-    /// Extra is the field name and the bare address. `.changes` has no Subject.
+    /// Extra is the field name and the bare address. On a `.changes` the
+    /// Maintainer, Changed-By and Uploaders of the `.changes` itself are read.
     MailAddressLoopsOrBounces,
     code = "LN0370",
     tag = "mail-address-loops-or-bounces",
@@ -24,16 +26,17 @@ declare_rule! {
 }
 
 const ROLES: &[&str] = &["Maintainer", "Uploaders"];
+const CHANGES_ROLES: &[&str] = &["Maintainer", "Changed-By", "Uploaders"];
 
 const KNOWN_BOUNCE_ADDRESSES: &[&str] = &["ubuntu-devel-discuss@lists.ubuntu.com"];
 
 impl SourceRule for MailAddressLoopsOrBounces {
     fn run(&self, ctx: &mut SourceContext<'_>) {
         let messages = match ctx.dsc() {
-            Some(dsc) => messages(dsc.fields()),
+            Some(dsc) => messages(dsc.fields(), ROLES),
             None => ctx
                 .debian_control()
-                .map(|control| messages(control.source()))
+                .map(|control| messages(control.source(), ROLES))
                 .unwrap_or_default(),
         };
         for message in messages {
@@ -44,16 +47,25 @@ impl SourceRule for MailAddressLoopsOrBounces {
 
 impl BinaryPackageRule for MailAddressLoopsOrBounces {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
-        let messages = messages(ctx.installation_control().fields());
+        let messages = messages(ctx.installation_control().fields(), ROLES);
         for message in messages {
             ctx.diagnostic(Diagnostic::error(message));
         }
     }
 }
 
-fn messages(fields: &ControlParagraph) -> Vec<String> {
+impl ChangesRule for MailAddressLoopsOrBounces {
+    fn run(&self, ctx: &mut ChangesContext<'_>) {
+        let messages = messages(ctx.changes().fields(), CHANGES_ROLES);
+        for message in messages {
+            ctx.diagnostic(Diagnostic::error(message));
+        }
+    }
+}
+
+fn messages(fields: &ControlParagraph, roles: &[&str]) -> Vec<String> {
     let mut found = Vec::new();
-    for role in ROLES {
+    for role in roles {
         for mailbox in complete_mailboxes(fields, role) {
             if KNOWN_BOUNCE_ADDRESSES.contains(&mailbox.address.as_str()) {
                 found.push(format!("{role} {}", mailbox.address));
@@ -65,7 +77,10 @@ fn messages(fields: &ControlParagraph) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, SourceTreeTester, TestFile};
+    use crate::lint::tester::{
+        BinaryPackageCase, BinaryPackageTester, ChangesCase, ChangesTester, SourceTreeTester,
+        TestFile,
+    };
 
     use super::*;
 
@@ -96,6 +111,24 @@ mod tests {
             ),
         ];
         SourceTreeTester::new(MailAddressLoopsOrBounces, pass, fail).test_and_snapshot();
+    }
+
+    #[test]
+    fn changes_file() {
+        let changes =
+            |fields: &str| ChangesCase::from(format!("Source: example\nVersion: 1.0\n{fields}"));
+        let pass = vec![
+            changes("Changed-By: Jane <jane@example.com>\n"),
+            changes("Maintainer: Jane <jane@example.com>\n"),
+            changes("Maintainer: Ubuntu <ubuntu-devel-discuss@lists.ubuntu.com.example>\n"),
+        ];
+        let fail = vec![
+            changes("Changed-By: Ubuntu <ubuntu-devel-discuss@lists.ubuntu.com>\n"),
+            changes(
+                "Maintainer: A <a@example.com>\nUploaders: B <b@example.com>, Bounce <ubuntu-devel-discuss@lists.ubuntu.com>\n",
+            ),
+        ];
+        ChangesTester::new(MailAddressLoopsOrBounces, pass, fail).test_and_snapshot();
     }
 
     #[test]

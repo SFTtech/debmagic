@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): openpgp-file-has-implementation-specific-extension (LN1726) [usr/share/keyrings/archive-keyring.gpg]
+P: example (binary): openpgp-file-has-implementation-specific-extension (LN1726) [usr/share/foo/a.gpg]
+P: example (binary): openpgp-file-has-implementation-specific-extension (LN1726) [etc/apt/trusted.gpg]
+P: example (udeb): openpgp-file-has-implementation-specific-extension (LN1726) [usr/share/keyrings/k.gpg]

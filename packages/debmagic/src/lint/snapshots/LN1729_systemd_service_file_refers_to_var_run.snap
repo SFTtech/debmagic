@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): systemd-service-file-refers-to-var-run (LN1729) PIDFile /var/run/foo.pid [lib/systemd/system/foo.service]
+I: example (binary): systemd-service-file-refers-to-var-run (LN1729) PIDFile /var/run/ foo.pid [lib/systemd/system/foo.service]
+I: example (binary): systemd-service-file-refers-to-var-run (LN1729) ListenStream /var/run/foo.sock [usr/lib/systemd/system/foo.socket]
+I: example (udeb): systemd-service-file-refers-to-var-run (LN1729) PIDFile /var/run/foo.pid [lib/systemd/system/foo.service]

@@ -34,6 +34,7 @@ mod ln1356_python_traceback_in_manpage;
 mod ln1357_stray_folder_in_manual;
 mod ln1540_spare_manual_page;
 mod ln1542_typo_in_manual_page;
+mod ln1720_manual_page_for_system_command;
 mod manual;
 
 pub(crate) use ln0152_no_manual_page::NoManualPage;
@@ -63,3 +64,4 @@ pub(crate) use ln1356_python_traceback_in_manpage::PythonTracebackInManpage;
 pub(crate) use ln1357_stray_folder_in_manual::StrayFolderInManual;
 pub(crate) use ln1540_spare_manual_page::SpareManualPage;
 pub(crate) use ln1542_typo_in_manual_page::TypoInManualPage;
+pub(crate) use ln1720_manual_page_for_system_command::ManualPageForSystemCommand;

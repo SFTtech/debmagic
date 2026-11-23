@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): manual-page-for-system-command (LN1720) [usr/sbin/usr-sbin-binary]
+P: example (binary): manual-page-for-system-command (LN1720) [sbin/foo]
+P: example (binary): manual-page-for-system-command (LN1720) [usr/libexec/foo]
+P: example (binary): manual-page-for-system-command (LN1720) [usr/sbin/foo]
+P: example (binary): manual-page-for-system-command (LN1720) [usr/sbin/foo]

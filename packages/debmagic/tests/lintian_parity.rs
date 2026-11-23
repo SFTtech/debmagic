@@ -747,9 +747,11 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/legacy-binary",
     "checks/documentation/legacy-filenames",
     "checks/documentation/legacy-libbaz",
+    "checks/documentation/legacy-scripts",
     "checks/documentation/manual/acute-accent",
     "checks/documentation/manual/bad-link-to-undocumented-manpage",
     "checks/documentation/manual/bad-so-link-in-manpage",
+    "checks/documentation/manual/command-in-sbin-has-manpage-in-incorrect-section",
     "checks/documentation/manual/executable-without-english-manpage",
     "checks/documentation/manual/executable-without-manpage",
     "checks/documentation/manual/files-general",
@@ -927,6 +929,8 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/hard-links/legacy-binary",
     "checks/files/hard-links/legacy-etcfiles",
     "checks/files/hierarchy/links/leaving-architecture",
+    "checks/files/hierarchy/links/usr-lib-to-opt",
+    "checks/files/hierarchy/path-segments/share-doc-share",
     "checks/files/hierarchy/standard/copyright-file-general",
     "checks/files/hierarchy/standard/files-foo-in-bar",
     "checks/files/hierarchy/standard/files-general",
@@ -962,11 +966,13 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/names/sass-cache-directory",
     "checks/files/non-free/files-flash-non-free",
     "checks/files/obsolete-paths/files-foo-in-bar",
+    "checks/files/openpgp/file-has-implementation-specific-extension",
     "checks/files/p11-kit/files-foo-violates-expected-naming",
     "checks/files/pam/files-general",
     "checks/files/permissions/files-bad-perm-owner",
     "checks/files/permissions/files-general",
     "checks/files/permissions/legacy-scripts",
+    "checks/files/permissions/usr-lib/executable-installed-here",
     "checks/files/pkgconfig/files-pkgconfig",
     "checks/files/privacy-breach/files-privacybreach",
     "checks/files/scripts/legacy-scripts",
@@ -1000,6 +1006,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/huge-usr-share/huge-usr-share-percent",
     "checks/images/filenames/conflicting-image-names",
     "checks/images/filenames/unrelated-image-names",
+    "checks/images/files-foo-in-bar",
     "checks/images/thumbnails/files-foo-in-bar",
     "checks/includes/config-h/package-name-srtp",
     "checks/init-d/directory-in-etc-sv-directory-without-executable-run-script",
@@ -1138,6 +1145,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/modprobe/file-in-etc-modprobe-dh-14",
     "checks/modprobe/files-general",
     "checks/modprobe/obsolete-commands-in-modprobe",
+    "checks/script/deprecated/chown/recursive-chown-with-dot",
     "checks/script/syntax/legacy-libbaz",
     "checks/script/syntax/legacy-maintainer-scripts",
     "checks/script/syntax/legacy-scripts",
@@ -1162,6 +1170,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/scripts/scripts-missing-dep-fp",
     "checks/scripts/scripts-multi-arch-same-calls-pycompile",
     "checks/scripts/scripts-udevadm-called-without-guard",
+    "checks/shell/bash/completion/bash-completion-with-hashbang",
     "checks/shell/csh/scripts-interpreters",
     "checks/shell/non-posix/bash-centric/exec-exception",
     "checks/shell/non-posix/bash-centric/legacy-maintainer-scripts",
@@ -1176,10 +1185,12 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/systemd/systemd-complex-service-file",
     "checks/systemd/systemd-general",
     "checks/systemd/systemd-missing-services",
+    "checks/systemd/systemd-service-file-refers-to-var-run",
     "checks/systemd/systemd-service-file-shutdown-problems",
     "checks/systemd/systemd-service-file-uses-deprecated-syslog-facility",
     "checks/systemd/systemd-service-file-uses-nobody-or-nogroup",
     "checks/systemd/tmpfiles/declared-in-etc",
+    "checks/systemd/tmpfiles/tmpfile-in-var-run",
     "checks/triggers/legacy-maintainer-scripts",
     "checks/triggers/triggers-general",
     "checks/udev/files-foo-in-bar",
@@ -2568,9 +2579,11 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/legacy-binary"; "checks_documentation_legacy_binary")]
 #[test_case("checks/documentation/legacy-filenames"; "checks_documentation_legacy_filenames")]
 #[test_case("checks/documentation/legacy-libbaz"; "checks_documentation_legacy_libbaz")]
+#[test_case("checks/documentation/legacy-scripts"; "checks_documentation_legacy_scripts")]
 #[test_case("checks/documentation/manual/acute-accent"; "checks_documentation_manual_acute_accent")]
 #[test_case("checks/documentation/manual/bad-link-to-undocumented-manpage"; "checks_documentation_manual_bad_link_to_undocumented_manpage")]
 #[test_case("checks/documentation/manual/bad-so-link-in-manpage"; "checks_documentation_manual_bad_so_link_in_manpage")]
+#[test_case("checks/documentation/manual/command-in-sbin-has-manpage-in-incorrect-section"; "checks_documentation_manual_command_in_sbin_has_manpage_in_incorrect_section")]
 #[test_case("checks/documentation/manual/executable-without-english-manpage"; "checks_documentation_manual_executable_without_english_manpage")]
 #[test_case("checks/documentation/manual/executable-without-manpage"; "checks_documentation_manual_executable_without_manpage")]
 #[test_case("checks/documentation/manual/files-general"; "checks_documentation_manual_files_general")]
@@ -2748,6 +2761,8 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/hard-links/legacy-binary"; "checks_files_hard_links_legacy_binary")]
 #[test_case("checks/files/hard-links/legacy-etcfiles"; "checks_files_hard_links_legacy_etcfiles")]
 #[test_case("checks/files/hierarchy/links/leaving-architecture"; "checks_files_hierarchy_links_leaving_architecture")]
+#[test_case("checks/files/hierarchy/links/usr-lib-to-opt"; "checks_files_hierarchy_links_usr_lib_to_opt")]
+#[test_case("checks/files/hierarchy/path-segments/share-doc-share"; "checks_files_hierarchy_path_segments_share_doc_share")]
 #[test_case("checks/files/hierarchy/standard/copyright-file-general"; "checks_files_hierarchy_standard_copyright_file_general")]
 #[test_case("checks/files/hierarchy/standard/files-foo-in-bar"; "checks_files_hierarchy_standard_files_foo_in_bar")]
 #[test_case("checks/files/hierarchy/standard/files-general"; "checks_files_hierarchy_standard_files_general")]
@@ -2783,11 +2798,13 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/names/sass-cache-directory"; "checks_files_names_sass_cache_directory")]
 #[test_case("checks/files/non-free/files-flash-non-free"; "checks_files_non_free_files_flash_non_free")]
 #[test_case("checks/files/obsolete-paths/files-foo-in-bar"; "checks_files_obsolete_paths_files_foo_in_bar")]
+#[test_case("checks/files/openpgp/file-has-implementation-specific-extension"; "checks_files_openpgp_file_has_implementation_specific_extension")]
 #[test_case("checks/files/p11-kit/files-foo-violates-expected-naming"; "checks_files_p11_kit_files_foo_violates_expected_naming")]
 #[test_case("checks/files/pam/files-general"; "checks_files_pam_files_general")]
 #[test_case("checks/files/permissions/files-bad-perm-owner"; "checks_files_permissions_files_bad_perm_owner")]
 #[test_case("checks/files/permissions/files-general"; "checks_files_permissions_files_general")]
 #[test_case("checks/files/permissions/legacy-scripts"; "checks_files_permissions_legacy_scripts")]
+#[test_case("checks/files/permissions/usr-lib/executable-installed-here"; "checks_files_permissions_usr_lib_executable_installed_here")]
 #[test_case("checks/files/pkgconfig/files-pkgconfig"; "checks_files_pkgconfig_files_pkgconfig")]
 #[test_case("checks/files/privacy-breach/files-privacybreach"; "checks_files_privacy_breach_files_privacybreach")]
 #[test_case("checks/files/scripts/legacy-scripts"; "checks_files_scripts_legacy_scripts")]
@@ -2821,6 +2838,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/huge-usr-share/huge-usr-share-percent"; "checks_huge_usr_share_huge_usr_share_percent")]
 #[test_case("checks/images/filenames/conflicting-image-names"; "checks_images_filenames_conflicting_image_names")]
 #[test_case("checks/images/filenames/unrelated-image-names"; "checks_images_filenames_unrelated_image_names")]
+#[test_case("checks/images/files-foo-in-bar"; "checks_images_files_foo_in_bar")]
 #[test_case("checks/images/thumbnails/files-foo-in-bar"; "checks_images_thumbnails_files_foo_in_bar")]
 #[test_case("checks/includes/config-h/package-name-srtp"; "checks_includes_config_h_package_name_srtp")]
 #[test_case("checks/init-d/directory-in-etc-sv-directory-without-executable-run-script"; "checks_init_d_directory_in_etc_sv_directory_without_executable_run_script")]
@@ -2959,6 +2977,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/modprobe/file-in-etc-modprobe-dh-14"; "checks_modprobe_file_in_etc_modprobe_dh_14")]
 #[test_case("checks/modprobe/files-general"; "checks_modprobe_files_general")]
 #[test_case("checks/modprobe/obsolete-commands-in-modprobe"; "checks_modprobe_obsolete_commands_in_modprobe")]
+#[test_case("checks/script/deprecated/chown/recursive-chown-with-dot"; "checks_script_deprecated_chown_recursive_chown_with_dot")]
 #[test_case("checks/script/syntax/legacy-libbaz"; "checks_script_syntax_legacy_libbaz")]
 #[test_case("checks/script/syntax/legacy-maintainer-scripts"; "checks_script_syntax_legacy_maintainer_scripts")]
 #[test_case("checks/script/syntax/legacy-scripts"; "checks_script_syntax_legacy_scripts")]
@@ -2983,6 +3002,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/scripts/scripts-missing-dep-fp"; "checks_scripts_scripts_missing_dep_fp")]
 #[test_case("checks/scripts/scripts-multi-arch-same-calls-pycompile"; "checks_scripts_scripts_multi_arch_same_calls_pycompile")]
 #[test_case("checks/scripts/scripts-udevadm-called-without-guard"; "checks_scripts_scripts_udevadm_called_without_guard")]
+#[test_case("checks/shell/bash/completion/bash-completion-with-hashbang"; "checks_shell_bash_completion_bash_completion_with_hashbang")]
 #[test_case("checks/shell/csh/scripts-interpreters"; "checks_shell_csh_scripts_interpreters")]
 #[test_case("checks/shell/non-posix/bash-centric/exec-exception"; "checks_shell_non_posix_bash_centric_exec_exception")]
 #[test_case("checks/shell/non-posix/bash-centric/legacy-maintainer-scripts"; "checks_shell_non_posix_bash_centric_legacy_maintainer_scripts")]
@@ -2997,10 +3017,12 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/systemd/systemd-complex-service-file"; "checks_systemd_systemd_complex_service_file")]
 #[test_case("checks/systemd/systemd-general"; "checks_systemd_systemd_general")]
 #[test_case("checks/systemd/systemd-missing-services"; "checks_systemd_systemd_missing_services")]
+#[test_case("checks/systemd/systemd-service-file-refers-to-var-run"; "checks_systemd_systemd_service_file_refers_to_var_run")]
 #[test_case("checks/systemd/systemd-service-file-shutdown-problems"; "checks_systemd_systemd_service_file_shutdown_problems")]
 #[test_case("checks/systemd/systemd-service-file-uses-deprecated-syslog-facility"; "checks_systemd_systemd_service_file_uses_deprecated_syslog_facility")]
 #[test_case("checks/systemd/systemd-service-file-uses-nobody-or-nogroup"; "checks_systemd_systemd_service_file_uses_nobody_or_nogroup")]
 #[test_case("checks/systemd/tmpfiles/declared-in-etc"; "checks_systemd_tmpfiles_declared_in_etc")]
+#[test_case("checks/systemd/tmpfiles/tmpfile-in-var-run"; "checks_systemd_tmpfiles_tmpfile_in_var_run")]
 #[test_case("checks/triggers/legacy-maintainer-scripts"; "checks_triggers_legacy_maintainer_scripts")]
 #[test_case("checks/triggers/triggers-general"; "checks_triggers_triggers_general")]
 #[test_case("checks/udev/files-foo-in-bar"; "checks_udev_files_foo_in_bar")]

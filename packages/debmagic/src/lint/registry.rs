@@ -212,6 +212,7 @@ use super::rules::ExampleInterpreterNotAbsolute;
 use super::rules::ExampleScriptUsesBinEnv;
 use super::rules::ExampleScriptUsesDeprecatedNodejsLocation;
 use super::rules::ExampleScriptWithoutInterpreter;
+use super::rules::ExampleShellScriptFailsSyntaxCheck;
 use super::rules::ExampleUnusualInterpreter;
 use super::rules::ExampleWrongPathForInterpreter;
 use super::rules::ExcessiveDebhelperOverrides;
@@ -2433,6 +2434,7 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnpackMessageForDebData,
         &ExampleUnusualInterpreter,
         &ExampleInterpreterInUsrLocal,
+        &ExampleShellScriptFailsSyntaxCheck,
     ]
 }
 
@@ -3793,6 +3795,7 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &UnpackMessageForDebData,
         &ExampleUnusualInterpreter,
         &ExampleInterpreterInUsrLocal,
+        &ExampleShellScriptFailsSyntaxCheck,
     ]
 }
 

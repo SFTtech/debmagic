@@ -529,6 +529,7 @@ pub(crate) use libraries_shared_trigger_ldconfig::PackageHasUnnecessaryActivatio
 pub(crate) use maintainer_scripts_ancient_version::MaintainerScriptSupportsAncientPackageVersion;
 pub(crate) use maintainer_scripts_dpkg_statoverride::UnconditionalUseOfDpkgStatoverride;
 pub(crate) use origtar::EmptyUpstreamSources;
+pub(crate) use script_syntax::ExampleShellScriptFailsSyntaxCheck;
 pub(crate) use script_syntax::MaintainerShellScriptFailsSyntaxCheck;
 pub(crate) use script_syntax::ShellScriptFailsSyntaxCheck;
 pub(crate) use shell_csh::CshConsideredHarmful;

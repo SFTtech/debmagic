@@ -439,6 +439,7 @@ pub(crate) use fields_multi_arch::UnknownMultiArchValue;
 pub(crate) use fields_multi_line::MultilineField;
 pub(crate) use fields_package::BadPackageName;
 pub(crate) use fields_package::PackageNotLowercase;
+pub(crate) use fields_package::UnusualDocumentationPackageName;
 pub(crate) use fields_source::SourceFieldMalformed;
 pub(crate) use fields_style::CuteField;
 pub(crate) use fields_urgency::BadUrgencyInChangesFile;

@@ -87,7 +87,7 @@ mod tests {
             tree(vec![("usr/bin/plain", script(0o744))]),
             tree(vec![("usr/bin/sticky", script(0o1755))]),
             // `root/games` executables that are not setgid with `0755`: the
-            // game Tag, which has no Rule here.
+            // game Tag, LN1792.
             tree(vec![(
                 "usr/games/tool",
                 script(0o4744).owned_by("root", "games"),

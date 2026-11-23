@@ -217,6 +217,7 @@ use super::rules::DuplicateUpdatercDCallsInPostrm;
 use super::rules::ElevatedPrivileges;
 use super::rules::ElfError;
 use super::rules::EmbeddedLibrary;
+use super::rules::EmbeddedPearModule;
 use super::rules::EmbeddedScriptIncludesCopyrightStatement;
 use super::rules::EmptyField;
 use super::rules::EmptyRustLibraryDeclaresProvides;
@@ -327,6 +328,7 @@ use super::rules::LacksVersionedLinkToSharedLibrary;
 use super::rules::LdconfigEscape;
 use super::rules::LdconfigSymlinkIsNotASymlink;
 use super::rules::LdconfigSymlinkReferencingWrongFile;
+use super::rules::LegacyVendorarchDirectory;
 use super::rules::LibRecommendsDocumentation;
 use super::rules::LibappPerlPackageName;
 use super::rules::LibmoduleBuildPerlNeedsToBeInBuildDepends;
@@ -440,6 +442,7 @@ use super::rules::NonStandardApache2ModulePackageName;
 use super::rules::NonStandardDirPerm;
 use super::rules::NonStandardFilePerm;
 use super::rules::NonStandardFilePermissionsForEtcInitDScript;
+use super::rules::NonStandardGameExecutablePerm;
 use super::rules::NonStandardSetuidExecutablePerm;
 use super::rules::NotAllowedControlFile;
 use super::rules::NotUsingPoDebconf;
@@ -2709,6 +2712,9 @@ pub(crate) fn all_rules() -> &'static [&'static dyn RuleAccess] {
         &UnpackMessageForSource,
         &UnpackMessageForOrig,
         &OrigTarballContainsAncientFile,
+        &EmbeddedPearModule,
+        &LegacyVendorarchDirectory,
+        &NonStandardGameExecutablePerm,
     ]
 }
 
@@ -4200,6 +4206,9 @@ pub(crate) fn binary_package_rules() -> &'static [&'static dyn BinaryPackageRule
         &WrongFileOwnerUidOrGid,
         &AnsiEscape,
         &NodejsBadBufferUsage,
+        &EmbeddedPearModule,
+        &LegacyVendorarchDirectory,
+        &NonStandardGameExecutablePerm,
     ]
 }
 

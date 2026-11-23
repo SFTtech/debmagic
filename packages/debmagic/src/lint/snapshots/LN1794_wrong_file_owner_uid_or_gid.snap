@@ -1,0 +1,15 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 100/0 [usr/bin/a]
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 0/100 [usr/bin/a]
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 65535/0 [usr/bin/a]
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 59999/0 [usr/bin/a]
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 65000/0 [usr/bin/a]
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 1000/0 [usr/bin/a]
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 0/1000 [usr/bin/a]
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 1000/1000 [usr/bin/a]
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 1000/1000 [usr/share/doc/pkg]
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 1000/0 [usr/bin/link]
+E: example (binary): wrong-file-owner-uid-or-gid (LN1794) 0/1000 [usr/bin/hard]
+E: example (udeb): wrong-file-owner-uid-or-gid (LN1794) 1000/0 [usr/bin/a]

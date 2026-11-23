@@ -536,6 +536,7 @@ pub fn assert_source_tree_parity(recipe_rel: &str) {
     let catalogued = catalogued_ln_tags();
     let mut expected = catalogued_source_tree_hints(&recipe, &catalogued);
     drop_expected_hints_for_unvendorable_files(recipe_rel, &mut expected);
+    drop_expected_hints_for_non_native_upstream(recipe_rel, &mut expected);
     assert!(
         !expected.is_empty(),
         "{recipe_rel}: listed Parity recipe has no catalogued Source-tree hints"
@@ -2226,6 +2227,7 @@ pub fn assert_source_package_parity(recipe_rel: &str) {
     let tags = catalogued_source_package_tags();
     let mut expected = catalogued_source_package_hints(&recipe, &tags);
     drop_expected_hints_for_unvendorable_files(recipe_rel, &mut expected);
+    drop_expected_hints_for_non_native_upstream(recipe_rel, &mut expected);
     assert!(
         !expected.is_empty(),
         "{recipe_rel}: listed Parity recipe has no catalogued Source-package hints"
@@ -2386,6 +2388,43 @@ fn drop_expected_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<
         return;
     }
     hints.retain(|hint| hint.tag != "runtime-test-file-is-not-a-regular-file");
+}
+
+/// The thirteen `source-contains-*` Tags of lintian's `files/artifact` Check
+/// that the `source-contains-` prefix emits only for a native Subject
+/// (`processable->native`; the non-native prefix is `debian-adds-`). The
+/// Rules implement them with that native gate.
+///
+/// Recipe `checks/cruft/cruft-general-upstream` expects them in its
+/// `eval/hints`, but its vendored build is non-native: `debian/source/format`
+/// is `3.0 (quilt)`, which lintian 2.144.0's `Processable/Source/Format.pm`
+/// treats as non-native, so the Check emits `debian-adds-*` for that package
+/// and nothing for these Tags. No other Check emits them, so the expectation
+/// cannot be produced by lintian 2.144.0 itself. The native oracle is
+/// `checks/files/artifact/cruft-general-native` (the pointer form `[path]`),
+/// which these Rules are compared against. Only these Tags are dropped, and
+/// only from the expected side of this one recipe.
+const NON_NATIVE_UPSTREAM_SOURCE_CONTAINS_TAGS: [&str; 13] = [
+    "source-contains-arch-control-dir",
+    "source-contains-arch-inventory-file",
+    "source-contains-bts-control-dir",
+    "source-contains-bzr-control-dir",
+    "source-contains-cvs-conflict-copy",
+    "source-contains-cvs-control-dir",
+    "source-contains-git-control-dir",
+    "source-contains-hg-control-dir",
+    "source-contains-hg-tags-file",
+    "source-contains-svk-commit-file",
+    "source-contains-svn-commit-file",
+    "source-contains-svn-conflict-file",
+    "source-contains-svn-control-dir",
+];
+
+fn drop_expected_hints_for_non_native_upstream(recipe_rel: &str, hints: &mut Vec<ParityHint>) {
+    if recipe_rel != "checks/cruft/cruft-general-upstream" {
+        return;
+    }
+    hints.retain(|hint| !NON_NATIVE_UPSTREAM_SOURCE_CONTAINS_TAGS.contains(&hint.tag.as_str()));
 }
 
 fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHint>) {

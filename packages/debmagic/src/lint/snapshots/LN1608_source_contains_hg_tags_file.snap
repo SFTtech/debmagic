@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-hg-tags-file (LN1608) [.hgtags]
+P: example (source): source-contains-hg-tags-file (LN1608) [debian/.hgtags]
+P: example (source): source-contains-hg-tags-file (LN1608) [.hgtags]

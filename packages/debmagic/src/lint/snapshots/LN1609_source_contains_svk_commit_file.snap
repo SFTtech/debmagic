@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-svk-commit-file (LN1609) [svk-commit444.tmp]
+P: example (source): source-contains-svk-commit-file (LN1609) [debian/svk-commit1.tmp]

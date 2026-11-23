@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-svn-conflict-file (LN1611) [foo.r1]
+P: example (source): source-contains-svn-conflict-file (LN1611) [debian/foo.r1352]
+P: example (source): source-contains-svn-conflict-file (LN1611) [a.r10]

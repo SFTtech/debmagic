@@ -17,7 +17,8 @@ declare_rule! {
     /// `Build-Path`, nothing is reported. The match is a plain byte search of
     /// the file's contents, as lintian's `bytes_match` on the quoted path.
     /// Symbolic links and other non-regular entries are not read; hardlinks
-    /// are. The Rule runs on a Group with a `.dsc`.
+    /// are. An installable's Check in lintian, so it also runs on a lone
+    /// `.deb` (ADR 0056), where the `.buildinfo` is what decides.
     FileReferencesPackageBuildPath,
     code = "LN1561",
     tag = "file-references-package-build-path",
@@ -26,6 +27,10 @@ declare_rule! {
 }
 
 impl GroupRule for FileReferencesPackageBuildPath {
+    fn runs_without_dsc(&self) -> bool {
+        true
+    }
+
     fn run(&self, ctx: &mut GroupContext<'_>) {
         let Some(build_path) = ctx
             .buildinfo()
@@ -101,6 +106,13 @@ mod tests {
             // A `.buildinfo` without `Build-Path`.
             GroupCase::new(DSC)
                 .buildinfo("Format: 1.0\nSource: example\nVersion: 1.0\n")
+                .installable("example", "")
+                .files(TestCase::from(vec![(
+                    "usr/share/doc/example/build-path",
+                    "/build/example-1.0\n",
+                )])),
+            // A lone .deb without a .buildinfo: no Build-Path to look for.
+            GroupCase::without_dsc()
                 .installable("example", "")
                 .files(TestCase::from(vec![(
                     "usr/share/doc/example/build-path",

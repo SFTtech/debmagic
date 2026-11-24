@@ -69,18 +69,17 @@ impl DebianControl {
         if !path.exists() {
             return Some(Self::default());
         }
-        match Control::from_file(path) {
-            Ok(control) => Some(Self::from_control(&control)),
-            Err(_) => None,
-        }
+        let text = std::fs::read_to_string(path).ok()?;
+        Self::parse(&text)
     }
 
     /// `None` on syntax errors. Same first-paragraph-is-source shape as [`Self::load`].
     pub fn parse(text: &str) -> Option<Self> {
-        match text.parse::<Control>() {
-            Ok(control) => Some(Self::from_control(&control)),
-            Err(_) => None,
-        }
+        let control = text
+            .parse::<Control>()
+            .or_else(|_| whitespace_only_lines_as_blank(text).parse::<Control>())
+            .ok()?;
+        Some(Self::from_control(&control))
     }
 
     fn from_control(control: &Control) -> Self {
@@ -302,6 +301,29 @@ fn is_installable_package_name(name: &str) -> bool {
     rest_len >= 1
 }
 
+/// A whitespace-only line ends a paragraph for lintian (`Lintian::Deb822`
+/// treats `/^\s*$/` as a blank line), so a file with one just before the next
+/// stanza is fine for lintian. `deb822-lossless` rejects that line as an
+/// "empty continuation line" and the whole file would be unavailable. Rewrites
+/// such lines to empty ones, the same stanza split lintian makes. Line count
+/// is unchanged, so reported lines stay correct. Used only as the retry after
+/// a failed parse.
+fn whitespace_only_lines_as_blank(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut in_paragraph = false;
+    for line in text.split_inclusive('\n') {
+        let body = line.trim_end_matches(['\n', '\r']);
+        let ending = &line[body.len()..];
+        if in_paragraph && !body.is_empty() && body.chars().all(|ch| ch == ' ' || ch == '\t') {
+            out.push_str(ending);
+        } else {
+            out.push_str(line);
+        }
+        in_paragraph = !body.is_empty() && !body.chars().all(|ch| ch == ' ' || ch == '\t');
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -376,6 +398,30 @@ mod tests {
         let (_dir, path) = write_control("not a deb822 file\n: \n");
         assert!(DebianControl::load(&path).is_none());
         assert!(DebianControl::parse("not a deb822 file\n: \n").is_none());
+    }
+
+    #[test]
+    fn whitespace_only_line_ends_stanza_like_lintian() {
+        // libcddb's debian/control ends the libcddb2-dev stanza with a line
+        // holding one space, directly followed by the next stanza. lintian
+        // reads that as a paragraph end; the lossless parser alone does not.
+        let text = "Source: libcddb\n\
+Build-Depends: debhelper (>= 9),\n  debhelper-compat (= 13)\n\
+\n\
+Package: libcddb2-dev\n\
+Architecture: any\n\
+Description: development files\n headers.\n\x20\n\
+Package: libcddb2\n\
+Architecture: any\n\
+Description: runtime\n runtime.\n";
+        let parsed = DebianControl::parse(text).expect("blank continuation parses");
+        assert_eq!(
+            parsed.source().get("Build-Depends"),
+            Some("debhelper (>= 9),\ndebhelper-compat (= 13)")
+        );
+        assert_eq!(parsed.installables().len(), 2);
+        assert_eq!(parsed.installables()[0].name(), "libcddb2-dev");
+        assert_eq!(parsed.installables()[1].name(), "libcddb2");
     }
 
     #[test]

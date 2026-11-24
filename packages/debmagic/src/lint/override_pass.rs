@@ -583,6 +583,39 @@ mod tests {
         );
     }
 
+    /// Lintian resolves an override's Tag through `get_current_name` before it
+    /// looks for a Rule that ran, so an override written with a Tag's old name
+    /// applies to the Diagnostic of the Tag that renamed it.
+    #[test]
+    fn override_with_renamed_tag_applies_to_its_current_tag() {
+        let parsed = overrides("exclusive-runtime-tests-field\n");
+        let ran = [Tag("conflicting-test-fields")];
+        let facts = ProcessableFacts {
+            architecture: "amd64",
+            ran_tags: &ran,
+        };
+        let mut diagnostics = vec![diagnostic("conflicting-test-fields", "x")];
+        let outcome = apply(&parsed, &facts, &mut diagnostics);
+        assert!(diagnostics[0].is_overridden());
+        assert_eq!(outcome.matched[0].tag, "conflicting-test-fields");
+        assert!(outcome.unused.is_empty());
+    }
+
+    /// The renamed override takes part only when the current Tag's Rule ran:
+    /// otherwise it is neither applied nor reported as unused, as for any Tag
+    /// that did not run.
+    #[test]
+    fn override_with_renamed_tag_takes_no_part_when_current_tag_did_not_run() {
+        let parsed = overrides("debhelper-compat-file-is-missing\n");
+        let facts = ProcessableFacts {
+            architecture: "amd64",
+            ran_tags: &[Tag("cute-field")],
+        };
+        let mut diagnostics = vec![];
+        let outcome = apply(&parsed, &facts, &mut diagnostics);
+        assert_eq!(outcome, PassOutcome::default());
+    }
+
     #[test]
     fn architecture_list_decides_whether_an_override_takes_part() {
         let text = "[amd64]: cute-field\n[arm64]: cute-field a\n[!amd64]: cute-field b\n";

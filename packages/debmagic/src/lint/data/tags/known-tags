@@ -1,6 +1,6 @@
-# Every Tag name lintian 2.139.0 knows: the `Tag` field of each
+# Every Tag name lintian 2.144.0 knows: the `Tag` field of each
 # tags/**/*.tag, prefixed with `<Check>/` when `Name-Spaced: yes`.
-# Generated from the lintian 2.139.0 source; sorted.
+# Generated from the lintian 2.144.0 source; sorted.
 
 FSSTND-dir-in-manual-page
 FSSTND-dir-in-usr
@@ -11,6 +11,7 @@ acute-accent-in-manual-page
 add-component-copyright
 adduser-with-home-var-run
 adopted-extended-field
+ai-agent-instructions-exist
 aliased-location
 alien-tag
 alternates-not-allowed
@@ -137,6 +138,7 @@ checksum-mismatch-in-changes-file
 chown-with-dot
 circular-installation-prerequisite
 classpath-contains-relative-path
+clojure-package-but-not-dh-clojure
 co-maintained-package-with-no-vcs-fields
 codeless-jar
 comma-separated-files-in-dep5-copyright
@@ -333,6 +335,7 @@ depends-on-packaging-dev
 depends-on-python-minimal
 depends-on-specific-java-doc-package
 deprecated-configure-filename
+deprecated-debian-control-field
 description-contains-dh-make-perl-template
 description-contains-homepage
 description-contains-invalid-control-statement
@@ -545,6 +548,7 @@ git-patches-not-exported
 global-data-in-games-directory
 global-files-wildcard-not-first-paragraph-in-dep5-copyright
 globbing-patterns-out-of-order
+go-library-package-does-not-include-version
 groff-message
 gzip-file-is-not-multi-arch-same-safe
 hardening-no-bindnow
@@ -956,6 +960,7 @@ opentype-font-prohibits-installable-embedding
 opentype-font-wrong-filename
 ored-build-depends-on-obsolete-package
 ored-depends-on-obsolete-package
+orig-tarball-contains-ancient-file
 orig-tarball-missing-upstream-signature
 orphaned-diversion
 orphaned-package-maintained-in-private-space
@@ -1513,6 +1518,7 @@ wiki-copyright-format-uri
 windows-devel-file-in-package
 windows-thumbnail-database-in-package
 wish-script-but-no-wish-dep
+woff-font-in-wrong-dir
 wrong-bug-number-in-closes
 wrong-compression-in-manual-page
 wrong-file-owner-uid-or-gid

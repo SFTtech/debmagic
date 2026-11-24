@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): invalid-dep3-format-patch-wrong-bug-debian-url (LN1526) [debian/patches/fix.patch]
+I: (source): invalid-dep3-format-patch-wrong-bug-debian-url (LN1526) [debian/patches/fix.patch]
+I: (source): invalid-dep3-format-patch-wrong-bug-debian-url (LN1526) [debian/patches/fix.patch]
+I: (source): invalid-dep3-format-patch-wrong-bug-debian-url (LN1526) [debian/patches/fix.patch]
+I: (source): invalid-dep3-format-patch-wrong-bug-debian-url (LN1526) [debian/patches/fix.patch]
+I: (source): invalid-dep3-format-patch-wrong-bug-debian-url (LN1526) [debian/patches/fix.patch]
+I: (source): invalid-dep3-format-patch-wrong-bug-debian-url (LN1526) [debian/patches/two.patch]

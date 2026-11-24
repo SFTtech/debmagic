@@ -1,0 +1,4 @@
+#! /usr/bin/pike7.6
+
+This is not a real pike script but sufficient to trigger a warning that the package 
+is missing a dependency for the interpreter.

@@ -1,0 +1,14 @@
+Source: runtests-options
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 1.2.3
+Build-Depends: debhelper (>= 7)
+
+Package: runtests-options
+Essential: yes
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Test a bad package but use -C to only catch some tags
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

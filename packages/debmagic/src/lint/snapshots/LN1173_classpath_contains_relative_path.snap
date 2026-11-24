@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): classpath-contains-relative-path (LN1173) obviously-relative/stuff.jar [usr/share/java/a-1.0.jar]
+W: example (binary): classpath-contains-relative-path (LN1173) sub/b.jar, ../other/c.jar [usr/share/java/a-1.0.jar]
+W: example (binary): classpath-contains-relative-path (LN1173) ../java/b.jar [usr/share/java/a-1.0.jar]
+W: example (binary): classpath-contains-relative-path (LN1173) ../java/b.jar [usr/share/java/a-1.0.jar]
+W: example (binary): classpath-contains-relative-path (LN1173) ../java/b.jar [usr/share/java/a-1.0.jar]
+W: example (binary): classpath-contains-relative-path (LN1173) ../lib/b.jar [usr/share/java/a-1.0.jar]
+W: example (binary): classpath-contains-relative-path (LN1173) sub/b.jar [usr/share/java/a-1.0.jar]

@@ -1,0 +1,4 @@
+Testname: min-js-with-sources
+Check: files/source-missing
+See-Also:
+ Bug#962583

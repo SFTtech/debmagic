@@ -1,0 +1,31 @@
+//! Rules for lintian's `debian/upstream/metadata` Check.
+//!
+//! Each Rule owns one Tag. Paths here are the packaging File tree.
+
+mod ln0845_debian_upstream_obsolete_path;
+mod ln1214_upstream_metadata_in_native_source;
+mod ln1215_upstream_metadata_is_not_a_file;
+mod ln1337_upstream_metadata_field_unknown;
+mod ln1338_upstream_metadata_file_is_missing;
+mod ln1339_upstream_metadata_missing_bug_tracking;
+mod ln1340_upstream_metadata_missing_repository;
+mod ln1341_upstream_metadata_not_yaml_mapping;
+mod ln1342_upstream_metadata_yaml_invalid;
+mod ln1535_public_upstream_key_unusable;
+mod ln1764_public_upstream_key_in_native_package;
+mod ln1765_public_upstream_keys_in_multiple_locations;
+mod ln1766_public_upstream_key_not_minimal;
+
+pub(crate) use ln0845_debian_upstream_obsolete_path::DebianUpstreamObsoletePath;
+pub(crate) use ln1214_upstream_metadata_in_native_source::UpstreamMetadataInNativeSource;
+pub(crate) use ln1215_upstream_metadata_is_not_a_file::UpstreamMetadataIsNotAFile;
+pub(crate) use ln1337_upstream_metadata_field_unknown::UpstreamMetadataFieldUnknown;
+pub(crate) use ln1338_upstream_metadata_file_is_missing::UpstreamMetadataFileIsMissing;
+pub(crate) use ln1339_upstream_metadata_missing_bug_tracking::UpstreamMetadataMissingBugTracking;
+pub(crate) use ln1340_upstream_metadata_missing_repository::UpstreamMetadataMissingRepository;
+pub(crate) use ln1341_upstream_metadata_not_yaml_mapping::UpstreamMetadataNotYamlMapping;
+pub(crate) use ln1342_upstream_metadata_yaml_invalid::UpstreamMetadataYamlInvalid;
+pub(crate) use ln1535_public_upstream_key_unusable::PublicUpstreamKeyUnusable;
+pub(crate) use ln1764_public_upstream_key_in_native_package::PublicUpstreamKeyInNativePackage;
+pub(crate) use ln1765_public_upstream_keys_in_multiple_locations::PublicUpstreamKeysInMultipleLocations;
+pub(crate) use ln1766_public_upstream_key_not_minimal::PublicUpstreamKeyNotMinimal;

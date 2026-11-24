@@ -1,0 +1,2 @@
+Testname: cruft-file-contains-trailing-whitespace
+Check: debian/trailing-whitespace

@@ -1,0 +1,4 @@
+Testname: control-field-traversal-1
+Output-Format: EWI
+Match-Strategy: literal
+Default-Lintian-Options: --pedantic --display-info --display-experimental

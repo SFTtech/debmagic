@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): quilt-series-references-non-existent-patch (LN1771) gone.patch [debian/patches/series]

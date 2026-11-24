@@ -1,0 +1,4 @@
+Testname: debian-vcs-git-in-non-debian-profile
+Check: fields/unknown
+Profile: ubuntu/main
+Test-Against: unknown-field

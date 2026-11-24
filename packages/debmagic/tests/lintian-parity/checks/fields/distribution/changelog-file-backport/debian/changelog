@@ -1,0 +1,12 @@
+changelog-file-backport (1.0) squeeze-backports; urgency=low
+
+  * Lintian Test Suite.
+  * Test: changelog-file-backport
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+
+changelog-file-backport (0.1) experimental; urgency=low
+
+  * First upload to experimental.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Fri, 06 Feb 2009 22:22:37 -0800

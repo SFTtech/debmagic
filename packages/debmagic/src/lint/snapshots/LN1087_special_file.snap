@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): special-file (LN1087) 0644 [run/foo.fifo]
+E: example (binary): special-file (LN1087) 0600 [dev/foo]
+E: example (binary): special-file (LN1087) 0660 [dev/bar]
+E: example (udeb): special-file (LN1087) 0660 [dev/bar]

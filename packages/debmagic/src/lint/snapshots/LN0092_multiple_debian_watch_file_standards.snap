@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): multiple-debian-watch-file-standards (LN0092) 2 3 [debian/watch]
+W: example (source): multiple-debian-watch-file-standards (LN0092) 2 3 42 [debian/watch]
+W: example (source): multiple-debian-watch-file-standards (LN0092) 2 2 [debian/watch]

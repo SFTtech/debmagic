@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-modifies-ld.so-search-path (LN1082) [etc/ld.so.conf.d/lintian-lib.conf]
+E: example (udeb): package-modifies-ld.so-search-path (LN1082) [etc/ld.so.conf.d/x.conf]
+E: example (binary): package-modifies-ld.so-search-path (LN1082) [etc/ld.so.conf.d/sub/]
+E: example (binary): package-modifies-ld.so-search-path (LN1082) [etc/ld.so.conf.d/link]
+E: lib-x (binary): package-modifies-ld.so-search-path (LN1082) [etc/ld.so.conf.d/a.conf]

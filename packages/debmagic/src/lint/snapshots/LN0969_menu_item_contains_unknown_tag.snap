@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): menu-item-contains-unknown-tag (LN0969) custom [usr/share/menu/example:1]
+W: example (binary): menu-item-contains-unknown-tag (LN0969) alpha [usr/share/menu/example:1]
+W: example (binary): menu-item-contains-unknown-tag (LN0969) zeta [usr/share/menu/example:1]
+W: example (udeb): menu-item-contains-unknown-tag (LN0969) custom [usr/share/menu/example:1]

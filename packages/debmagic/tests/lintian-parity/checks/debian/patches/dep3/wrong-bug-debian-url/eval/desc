@@ -1,0 +1,4 @@
+Testname: wrong-bug-debian-url
+Check: debian/patches/dep3
+Test-Against:
+ invalid-dep3-format-patch-wrong-bug-debian-url

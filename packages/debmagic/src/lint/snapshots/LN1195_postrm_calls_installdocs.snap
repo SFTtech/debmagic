@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): postrm-calls-installdocs (LN1195) [postrm:4]
+E: example (binary): postrm-calls-installdocs (LN1195) [postrm:3]
+E: example (binary): postrm-calls-installdocs (LN1195) [postrm:2]
+E: example (binary): postrm-calls-installdocs (LN1195) [postrm:2]
+E: example (binary): postrm-calls-installdocs (LN1195) [postrm:3]
+E: example (binary): postrm-calls-installdocs (LN1195) [postrm:1]

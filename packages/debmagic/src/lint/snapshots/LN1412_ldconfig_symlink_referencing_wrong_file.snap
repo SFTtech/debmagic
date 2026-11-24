@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): ldconfig-symlink-referencing-wrong-file (LN1412) should point to some-other-file instead of libfoo.so.1.0.1 [usr/lib/libfoo.so.1]
+E: example (udeb): ldconfig-symlink-referencing-wrong-file (LN1412) should point to libfoo.so.1.0 instead of libfoo.so.1.0.1 [usr/lib/x86_64-linux-gnu/libfoo.so.1]

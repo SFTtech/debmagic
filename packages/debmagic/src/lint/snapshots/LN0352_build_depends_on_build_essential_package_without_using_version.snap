@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): build-depends-on-build-essential-package-without-using-version (LN0352) make [Build-Depends: make]
+E: example (source): build-depends-on-build-essential-package-without-using-version (LN0352) gcc [Build-Depends: gcc [amd64]]
+E: example (source): build-depends-on-build-essential-package-without-using-version (LN0352) g++ [Build-Depends: g++]
+E: example (source): build-depends-on-build-essential-package-without-using-version (LN0352) dpkg-dev [Build-Depends-Indep: dpkg-dev]
+E: example (source): build-depends-on-build-essential-package-without-using-version (LN0352) libc-dev [Build-Depends-Arch: libc-dev:native]
+E: example (source): build-depends-on-build-essential-package-without-using-version (LN0352) make [Build-Conflicts: make]
+E: example (source): build-depends-on-build-essential-package-without-using-version (LN0352) make [Build-Depends: make (4.0)]

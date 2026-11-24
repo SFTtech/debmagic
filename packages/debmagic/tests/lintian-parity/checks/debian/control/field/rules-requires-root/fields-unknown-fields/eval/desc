@@ -1,0 +1,2 @@
+Testname: fields-unknown-fields
+Check: debian/control/field/rules-requires-root

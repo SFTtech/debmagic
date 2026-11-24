@@ -1,0 +1,2 @@
+cruft-crlf-eols (source): carriage-return-line-feed [debian/control]
+cruft-crlf-eols (source): carriage-return-line-feed [debian/changelog]

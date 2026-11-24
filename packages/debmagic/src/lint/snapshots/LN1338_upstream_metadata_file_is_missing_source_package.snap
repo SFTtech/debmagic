@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): upstream-metadata-file-is-missing (LN1338)
+P: example (source): upstream-metadata-file-is-missing (LN1338)

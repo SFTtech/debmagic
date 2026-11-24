@@ -1,0 +1,5 @@
+libmultiarch-same-dev (binary): development-package-ships-elf-binary-in-path [usr/bin/same]
+libmultiarch-same-dev (binary): arch-dependent-file-not-in-arch-specific-directory [var/lib/private/same]
+libmultiarch-same-dev (binary): arch-dependent-file-not-in-arch-specific-directory [usr/bin/same]
+libmultiarch-none-dev (binary): development-package-ships-elf-binary-in-path [usr/bin/none]
+libmultiarch-contrib-dev (binary): development-package-ships-elf-binary-in-path [usr/bin/contrib]

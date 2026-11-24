@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): source-contains-prebuilt-silverlight-object (LN1086) ui/app.xac [ui/app.xac]
+E: example (source): source-contains-prebuilt-silverlight-object (LN1086) fakesilverlight.XAC [fakesilverlight.XAC]
+E: example (source): source-contains-prebuilt-silverlight-object (LN1086) ui/app.xac [ui/app.xac]

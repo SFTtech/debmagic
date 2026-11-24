@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): python3-depends-but-no-python3-helper (LN1256) python3-foo
+E: example (source): python3-depends-but-no-python3-helper (LN1256) python3-foo
+E: example (source): python3-depends-but-no-python3-helper (LN1256) python3-foo zeta

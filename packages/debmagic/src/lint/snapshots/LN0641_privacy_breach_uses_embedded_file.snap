@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): privacy-breach-uses-embedded-file (LN0641) You may use the libjs-jquery package. (http://code.jquery.com/jquery-1.8.js) [usr/share/example/a.html]
+E: example (binary): privacy-breach-uses-embedded-file (LN0641) You may use the libjs-mocha package. (//cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.css) [usr/share/example/b.html]
+E: example (binary): privacy-breach-uses-embedded-file (LN0641) You may use the node-html5shiv package (virtual package). (https://example.org/html5shiv.js) [usr/share/example/c.html]

@@ -1,0 +1,3 @@
+s/arch-dep-package-has-big-usr-share .*kB .*%/arch-dep-package-has-big-usr-share/
+/: hardening-.*/ d
+s/\(current is ([0-9]+\.)+[0-9]\)/(current is CURRENT)/

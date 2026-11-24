@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): debian-watch-contains-dh_make-template (LN1536) Example watch control file for uscan [debian/watch]
+I: (source): debian-watch-contains-dh_make-template (LN1536) EXAMPLE WATCH CONTROL FILE FOR USCAN [debian/watch]
+I: (source): debian-watch-contains-dh_make-template (LN1536) <project> [debian/watch]
+I: (source): debian-watch-contains-dh_make-template (LN1536) Example watch control file for uscan [debian/watch]

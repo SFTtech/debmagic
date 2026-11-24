@@ -1,0 +1,2 @@
+Testname: rules-not-makefile
+Check: debian/rules

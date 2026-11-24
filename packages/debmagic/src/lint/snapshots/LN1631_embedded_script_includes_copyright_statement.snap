@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): embedded-script-includes-copyright-statement (LN1631) extract of copyright statement: (c) 2010 example corp [page.html]
+P: example (source): embedded-script-includes-copyright-statement (LN1631) extract of copyright statement: © 2010 example [sign.html]
+P: example (source): embedded-script-includes-copyright-statement (LN1631) extract of copyright statement: copyright notice [word.html]

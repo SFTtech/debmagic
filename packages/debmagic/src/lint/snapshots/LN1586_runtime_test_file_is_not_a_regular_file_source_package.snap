@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): runtime-test-file-is-not-a-regular-file (LN1586) debian/tests/one [debian/tests/control:1]

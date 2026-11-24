@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: a (binary): bad-package-name (LN1059)
+E: -foo (binary): bad-package-name (LN1059)
+E: .foo (binary): bad-package-name (LN1059)
+E: +foo (binary): bad-package-name (LN1059)
+E: foo_bar (binary): bad-package-name (LN1059)
+E: föo (binary): bad-package-name (LN1059)
+E: (udeb): bad-package-name (LN1059)
+E: x_ (udeb): bad-package-name (LN1059)

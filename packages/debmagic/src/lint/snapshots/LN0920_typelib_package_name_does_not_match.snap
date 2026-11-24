@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libbad (binary): typelib-package-name-does-not-match (LN0920) gir1.2-bad-23 [usr/lib/girepository-1.0/Bad-23.typelib]
+W: libbad (binary): typelib-package-name-does-not-match (LN0920) gir1.2-badextras-23 [usr/lib/x86_64-linux-gnu/girepository-1.0/BadExtras-23.typelib]

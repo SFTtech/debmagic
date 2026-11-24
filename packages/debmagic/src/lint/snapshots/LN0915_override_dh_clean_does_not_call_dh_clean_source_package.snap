@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): override_dh_clean-does-not-call-dh_clean (LN0915) [debian/rules:6]

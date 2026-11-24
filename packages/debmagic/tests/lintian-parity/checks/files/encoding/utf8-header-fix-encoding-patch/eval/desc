@@ -1,0 +1,4 @@
+Testname: utf8-header-fix-encoding-patch
+Check: files/encoding
+Test-Against:
+ national-encoding

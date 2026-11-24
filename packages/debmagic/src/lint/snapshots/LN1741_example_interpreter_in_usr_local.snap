@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): example-interpreter-in-usr-local (LN1741) /usr/local/bin/special-perl [usr/share/doc/example/examples/run]
+P: example (binary): example-interpreter-in-usr-local (LN1741) /usr/local/bin/special-perl [usr/share/doc/example/examples/run]
+P: example (udeb): example-interpreter-in-usr-local (LN1741) /usr/local/bin/special-perl [usr/share/doc/example/examples/run]

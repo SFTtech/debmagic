@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): gzip-file-is-not-multi-arch-same-safe (LN1070) [etc/after-changelog.gz]
+E: example (binary): gzip-file-is-not-multi-arch-same-safe (LN1070) [etc/after-changelog.gz]
+E: example (binary): gzip-file-is-not-multi-arch-same-safe (LN1070) [etc/link.gz]
+E: example (binary): gzip-file-is-not-multi-arch-same-safe (LN1070) [etc/target.gz]
+E: example (udeb): gzip-file-is-not-multi-arch-same-safe (LN1070) [etc/after-changelog.gz]

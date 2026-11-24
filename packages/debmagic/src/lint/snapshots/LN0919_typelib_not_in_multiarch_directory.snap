@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libbad (binary): typelib-not-in-multiarch-directory (LN0919) usr/lib/x86_64-linux-gnu/girepository-1.0 [usr/lib/girepository-1.0/Bad-23.typelib]
+W: libbad (binary): typelib-not-in-multiarch-directory (LN0919) usr/lib/${DEB_HOST_MULTIARCH}/girepository-1.0 [usr/lib/girepository-1.0/Bad-23.typelib]

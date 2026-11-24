@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): doc-base-file-references-wrong-path (LN0546) /opt/example/a [usr/share/doc-base/example:4]
+E: example (binary): doc-base-file-references-wrong-path (LN0546) /usr/share/man/x [usr/share/doc-base/example:5]
+E: example (binary): doc-base-file-references-wrong-path (LN0546) /tmp/y [usr/share/doc-base/example:5]
+E: example (udeb): doc-base-file-references-wrong-path (LN0546) /opt/example/a [usr/share/doc-base/example:4]

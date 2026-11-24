@@ -1,0 +1,2 @@
+Testname: cruft-obsolete-upstream-metadata
+Check: debian/upstream/metadata

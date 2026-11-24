@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-multiple-dpi-fonts (LN1044)
+W: example (binary): package-contains-multiple-dpi-fonts (LN1044)
+W: example (binary): package-contains-multiple-dpi-fonts (LN1044)
+W: example (udeb): package-contains-multiple-dpi-fonts (LN1044)

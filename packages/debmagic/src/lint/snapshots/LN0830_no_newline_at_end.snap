@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: x (source): no-newline-at-end (LN0830) [debian/control]
+W: example (source): no-newline-at-end (LN0830) [debian/changelog]
+W: example (source): no-newline-at-end (LN0830) [debian/rules]
+W: example (source): no-newline-at-end (LN0830) [debian/rules]
+W: x (source): no-newline-at-end (LN0830) [debian/control]
+W: example (source): no-newline-at-end (LN0830) [debian/changelog]
+W: example (source): no-newline-at-end (LN0830) [debian/control]

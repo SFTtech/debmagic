@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): executable-manual-page (LN0899) [usr/share/man/man5/foo.5.gz]
+E: example (binary): executable-manual-page (LN0899) [usr/share/man/man5/foo.5.gz]
+E: example (binary): executable-manual-page (LN0899) [usr/share/man/man5/foo.5.gz]

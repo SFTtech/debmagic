@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): missing-license-text-in-dep5-copyright (LN0357) GPL-3 [debian/copyright:4]

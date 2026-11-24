@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-browserified-javascript (LN1622) code fragment:(function(modules, cache, entry) { return modules; })({}); [src/app.js]
+P: example (source): source-contains-browserified-javascript (LN1622) code fragment:if ("object" == typeof exports && "undefined" != typeof module) {} [src/browserify.js]
+P: example (source): source-contains-browserified-javascript (LN1622) code fragment:(function webpackuniversalmoduledefinition(root, factory) { return 1; }) [src/webpack.js]
+P: example (source): source-contains-browserified-javascript (LN1622) code fragment:(function(modules, cache, entry) { return modules; })({}); [page.html]
+P: example (source): source-contains-browserified-javascript (LN1622) code fragment:(function(modules, cache, entry) { return modules; })({}); [doc/searchindex.js]
+P: example (source): source-contains-browserified-javascript (LN1622) code fragment:(function(modules, cache, entry) { return modules; })({}); [debian/missing-sources/app.js]

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): obsolete-relation-form-in-source (LN0569) (in source paragraph) Build-Depends perl (> 5.8)
+E: example (source): obsolete-relation-form-in-source (LN0569) (in source paragraph) Build-Conflicts-Indep bad (<1.0)
+E: example (source): obsolete-relation-form-in-source (LN0569) (in section for example) Depends b (< 2)
+E: example (source): obsolete-relation-form-in-source (LN0569) (in section for example) Breaks libsqlite3-0 (< 3.6.12)
+E: example (source): obsolete-relation-form-in-source (LN0569) (in section for example-two) Suggests c (> 1)

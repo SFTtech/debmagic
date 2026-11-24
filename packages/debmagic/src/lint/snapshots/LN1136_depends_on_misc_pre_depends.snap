@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: depends-on-misc-pre-depends (source): depends-on-misc-pre-depends (LN1136) ${misc:Depends}, ${misc:Pre-Depends} (in section for depends-on-misc-pre-depends) [debian/control:12]
+W: example (source): depends-on-misc-pre-depends (LN1136) foo, ${misc:Pre-Depends} (in section for example) [debian/control:5]
+W: example (source): depends-on-misc-pre-depends (LN1136) ${misc:Pre-Depends} (in section for example-udeb) [debian/control:10]

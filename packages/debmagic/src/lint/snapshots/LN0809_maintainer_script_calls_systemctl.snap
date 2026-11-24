@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-calls-systemctl (LN0809) [postrm:2]
+W: example (binary): maintainer-script-calls-systemctl (LN0809) [postinst:3]
+W: example (binary): maintainer-script-calls-systemctl (LN0809) [postinst:2]
+W: example (binary): maintainer-script-calls-systemctl (LN0809) [postinst:2]
+W: example (binary): maintainer-script-calls-systemctl (LN0809) [preinst:3]
+W: example (udeb): maintainer-script-calls-systemctl (LN0809) [postinst:2]

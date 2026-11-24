@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+P: example (source): package-does-not-install-examples (LN1710) [examples/]
+P: example (source): package-does-not-install-examples (LN1710) [docs/examples/]
+P: example (source): package-does-not-install-examples (LN1710) [examples/]

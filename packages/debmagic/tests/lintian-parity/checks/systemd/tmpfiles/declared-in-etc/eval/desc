@@ -1,0 +1,2 @@
+Testname: declared-in-etc
+Check: systemd/tmpfiles

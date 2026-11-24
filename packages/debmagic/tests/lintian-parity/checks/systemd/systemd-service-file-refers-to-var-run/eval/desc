@@ -1,0 +1,2 @@
+Testname: systemd-service-file-refers-to-var-run
+Check: systemd

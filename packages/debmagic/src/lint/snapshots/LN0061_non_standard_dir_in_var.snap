@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): non-standard-dir-in-var (LN0061) [var/foo/]
+E: example (binary): non-standard-dir-in-var (LN0061) [var/backups/]
+E: example (binary): non-standard-dir-in-var (LN0061) [var/local/]
+E: base-files (binary): non-standard-dir-in-var (LN0061) [var/foo/]
+E: example (binary): non-standard-dir-in-var (LN0061) [var/lib/games/score]
+E: example (binary): non-standard-dir-in-var (LN0061) [var/lib/games/x/]

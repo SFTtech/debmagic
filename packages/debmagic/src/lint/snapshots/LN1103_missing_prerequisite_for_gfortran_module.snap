@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): missing-prerequisite-for-gfortran-module (LN1103) [usr/lib/fortran/mpi.mod]
+W: example (binary): missing-prerequisite-for-gfortran-module (LN1103) [usr/lib/fortran/mpi.mod]
+W: example (binary): missing-prerequisite-for-gfortran-module (LN1103) [usr/lib/fortran/mpi.mod]
+W: example (binary): missing-prerequisite-for-gfortran-module (LN1103) [usr/lib/fortran/mpi.mod]
+W: example (binary): missing-prerequisite-for-gfortran-module (LN1103) [usr/lib/fortran/mpi.mod]
+W: example (binary): missing-prerequisite-for-gfortran-module (LN1103) [usr/lib/fortran/mpi.mod]
+W: example (binary): missing-prerequisite-for-gfortran-module (LN1103) [usr/lib/fortran/other.mod]
+W: example (udeb): missing-prerequisite-for-gfortran-module (LN1103) [usr/lib/fortran/mpi.mod]

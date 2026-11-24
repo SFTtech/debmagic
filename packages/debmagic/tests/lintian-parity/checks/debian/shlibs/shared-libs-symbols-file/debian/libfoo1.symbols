@@ -1,0 +1,10 @@
+libfoo.so.1 libfoo1 #MINVER#
+ e@Base 1.0-1
+ energy@Base 0.9-1
+
+# duplicate
+# - e@Base has a bad index
+# - energy@Base is a syntax error (missing version)
+libfoo.so.1 libfoo1 #MINVER#
+ e@Base 1.0 1
+ energy@Base

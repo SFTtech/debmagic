@@ -1,0 +1,2 @@
+Testname: files-zero-byte-executable-in-path
+Check: executable

@@ -1,0 +1,12 @@
+Package: control-field-traversal-4
+Version: 1.0
+Architecture: all
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Section: devel
+Priority: optional
+Source: ../binary/control-field-traversal-4
+Description: Test for directory traversal issues via field names or values
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

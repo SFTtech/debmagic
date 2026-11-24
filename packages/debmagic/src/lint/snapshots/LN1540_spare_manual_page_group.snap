@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester_group.rs
+---
+I: foo (binary): spare-manual-page (LN1540) [usr/share/man/man1/foo.1.gz]
+I: foo (binary): spare-manual-page (LN1540) [usr/share/man/man1/foo.1.gz]
+I: foo (binary): spare-manual-page (LN1540) [usr/share/man/man8/foo.8.gz]
+I: foo (binary): spare-manual-page (LN1540) [usr/share/man/de/man1/foo.1.gz]
+I: foo (binary): spare-manual-page (LN1540) [usr/share/man/man1/foo.1.gz]
+I: foo (binary): spare-manual-page (LN1540) [usr/share/man/man1/foobar.1.gz]
+I: libfoo (binary): spare-manual-page (LN1540) [usr/share/man/man1/foo.1.gz]

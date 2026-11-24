@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-cmake-private-file (LN0858) [usr/share/cmake-3.1/FindFoo.cmake]
+E: example (binary): package-contains-cmake-private-file (LN0858) [usr/share/cmake-3.1/Modules/FindVar.cmake]
+E: example (binary): package-contains-cmake-private-file (LN0858) [usr/share/cmake-3.1/FindFoo.cmake]
+E: example (udeb): package-contains-cmake-private-file (LN0858) [usr/share/cmake-3.1/FindFoo.cmake]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): rubygem-homepage (LN1121) https://rubygems.org/gems/some-gem/
+W: example (source): rubygem-homepage (LN1121) http://www.RubyGems.org/gems/some-gem

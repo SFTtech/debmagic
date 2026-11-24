@@ -1,0 +1,2 @@
+Testname: debconf-in-western-encoding
+Check: files/encoding

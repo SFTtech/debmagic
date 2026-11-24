@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): build-depends-on-obsolete-bootstrap (LN0268) Build-Depends libjs-bootstrap
+W: example (source): build-depends-on-obsolete-bootstrap (LN0268) Build-Depends fonts-glyphicons-halflings
+W: example (source): build-depends-on-obsolete-bootstrap (LN0268) Build-Depends-Indep libjs-bootstrap4
+W: example (source): build-depends-on-obsolete-bootstrap (LN0268) Build-Depends-Arch libjs-bootstrap

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): udev-rule-unreadable (LN1228) [usr/lib/udev/rules.d/60-dangling-symlink.rules]
+E: example (binary): udev-rule-unreadable (LN1228) [usr/lib/udev/rules.d/60-dangling.rules]
+E: example (binary): udev-rule-unreadable (LN1228) [usr/lib/udev/rules.d/sub]
+E: example (binary): udev-rule-unreadable (LN1228) [lib/udev/rules.d/fifo]
+E: example (udeb): udev-rule-unreadable (LN1228) [usr/lib/udev/rules.d/60-dangling.rules]

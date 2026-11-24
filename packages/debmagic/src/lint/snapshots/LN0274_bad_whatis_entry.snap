@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): bad-whatis-entry (LN0274) [usr/share/man/man/man1/nested.1]
+W: example (binary): bad-whatis-entry (LN0274) [usr/share/man/man1/bad.1]
+W: example (binary): bad-whatis-entry (LN0274) [usr/share/man/man1/bad.1.gz]
+W: example (binary): bad-whatis-entry (LN0274) [usr/share/man/man1/hard.1]
+W: example (binary): bad-whatis-entry (LN0274) [usr/share/man/man1/padded.1]

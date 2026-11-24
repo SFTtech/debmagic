@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): control-interpreter-without-depends (LN0976) /usr/bin/python3 (does not satisfy python3:any | python3-minimal:any) [postinst]
+E: example (binary): control-interpreter-without-depends (LN0976) /bin/python3 (does not satisfy python3:any | python3-minimal:any) [prerm]
+E: example (udeb): control-interpreter-without-depends (LN0976) /usr/bin/python3 (does not satisfy python3:any | python3-minimal:any) [postinst]

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+rootdir="$1"
+name="$2"
+
+docdir="$rootdir/usr/share/doc"
+
+rm -rf "$docdir"
+
+mkdir -p "$docdir/dpkg"
+ln -sf dpkg "$docdir/$name"

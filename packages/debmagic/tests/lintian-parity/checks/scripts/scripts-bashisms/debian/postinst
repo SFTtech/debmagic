@@ -1,0 +1,87 @@
+#! /bin/sh -e
+
+# valid
+. /usr/share/lintian/shell || exit 0
+. /usr/share/lintian/shell >/dev/null
+. /usr/share/lintian/shell 2>/dev/null
+. /usr/share/lintian/shell </dev/null
+. "$(dirname $0)/shell" ; bar
+# invalid
+. /usr/share/lintian/shell foo
+. "$(dirname $0)/shell" bar
+
+print "Hit enter to continue"
+read
+
+H[0]='this is a string'
+echo ${H[0]}
+echo "Index 0's length is ${#H[0]}"
+echo "All of the array is: ${H[@]}"
+
+# This too is a heredoc.
+some-program > /etc/config-file <<'EOF'
+echo "All of the array is: ${H[@]}"
+EOF
+
+# But this isn't.
+cat '<<EOF'
+echo "All of the array is: ${H[@]}"
+EOF
+
+# This is a heredoc
+cat <<-EOF
+echo "All of the array is ${H[@]}"
+EOF
+
+# As is this
+cat <<';'
+echo "All of the array is ${H[@]}"
+;
+
+# and this
+cat <<foo
+echo "All of the array is ${H[@]}"
+foobar
+echo $HOSTNAME
+foo
+
+# and again
+cat <<\bar
+echo "All of the array is ${H[@]}"
+bar
+
+# yet another
+cat <<"x++"
+echo "All of the array is ${H[@]}"
+x++
+
+# Recognize single quotes even if they start at the beginning of a line.
+echo not a bashism \
+'/{ptex,tex}/{amstex,plain,generic,}'
+
+# More bashisms.
+echo -e 'foo\n'
+echo "${!foo}"
+cat $(\< file)
+select foo in a b ; do echo $foo ; done
+cnt=$((cnt + 1))
+if false ; then
+    exec -l /bin/sh
+    exec -c /bin/sh
+    exec -a foo /bin/sh
+fi
+let cnt++
+if test -a /etc/default ; then
+    echo "$RANDOM|stuff"
+fi
+
+# Some comment checking
+# This should flag $RANDOM
+test $# -gt 2 && echo $RANDOM
+# But these shouldn't
+test 1=1 # echo $RANDOM
+(test 1=1)# echo $RANDOM
+test 1=1;# echo $RANDOM
+backgroundtask &#echo $RA
+
+#DEBHELPER#

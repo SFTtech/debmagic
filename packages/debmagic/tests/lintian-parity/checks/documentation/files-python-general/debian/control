@@ -1,0 +1,53 @@
+Source: files-python-general
+Priority: optional
+Section: python
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper (>= 7~), dpkg-dev (>= 1.16.1~)
+Rules-Requires-Root: no
+
+Package: python-kinterbasdb
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Test general Python related tags
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: python-kinterbasdb-dbg
+Architecture: any
+Section: debug
+Depends: ${misc:Depends}, python-kinterbasdb (= ${binary:Version}),
+ ${shlibs:Depends}
+Description: Test general Python related tags - debug
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This is a fake debug package.
+
+Package: python3-modulename
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Test general Python related tags (Python 3.x)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ Python 3.x version.
+
+Package: python3-modulename-dbg
+Architecture: any
+Section: debug
+Depends: ${misc:Depends}, python3-modulename (= ${binary:Version}),
+ ${shlibs:Depends}
+Description: Test general Python related tags - debug (Python 3.x) version
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This is a fake Python 3.x debug package.

@@ -1,0 +1,2 @@
+Testname: lintian-overrides
+Check: debian/lintian-overrides/mystery

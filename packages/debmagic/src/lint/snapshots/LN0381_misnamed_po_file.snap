@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): misnamed-po-file (LN0381) [debian/po/English.po]
+W: example (source): misnamed-po-file (LN0381) [debian/po/lang.po]
+W: example (source): misnamed-po-file (LN0381) [debian/po/sample-file.po]
+W: example (source): misnamed-po-file (LN0381) [debian/po/extra]

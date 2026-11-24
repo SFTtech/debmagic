@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): nodejs-module-installed-in-bad-directory (LN0930) bson badname [usr/share/nodejs/badname/package.json]
+W: example (binary): nodejs-module-installed-in-bad-directory (LN0930) bson badname [usr/lib/nodejs/badname/package.json]
+W: example (binary): nodejs-module-installed-in-bad-directory (LN0930) bson badname [usr/lib/x86_64-linux-gnu/nodejs/badname/package.json]
+W: example (binary): nodejs-module-installed-in-bad-directory (LN0930) @foo/baz @foo/bar [usr/share/nodejs/@foo/bar/package.json]
+W: example (udeb): nodejs-module-installed-in-bad-directory (LN0930) bson badname [usr/share/nodejs/badname/package.json]
+W: example (binary): nodejs-module-installed-in-bad-directory (LN0930) bson badname [usr/share/nodejs/badname/package.json]

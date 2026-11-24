@@ -1,0 +1,2 @@
+Testname: watch-file-missing-with-unknown-upstream-metadata
+Check: debian/watch

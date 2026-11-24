@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): debian-rules-is-symlink (LN0910) [debian/rules]
+W: (source): debian-rules-is-symlink (LN0910) [debian/rules]

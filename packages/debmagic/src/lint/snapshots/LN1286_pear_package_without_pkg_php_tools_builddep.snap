@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: foo (source): pear-package-without-pkg-php-tools-builddep (LN1286)
+W: foo (source): pear-package-without-pkg-php-tools-builddep (LN1286)

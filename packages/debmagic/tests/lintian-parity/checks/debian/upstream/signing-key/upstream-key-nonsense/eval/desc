@@ -1,0 +1,2 @@
+Testname: upstream-key-nonsense
+Check: debian/upstream/signing-key

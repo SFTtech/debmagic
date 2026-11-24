@@ -1,0 +1,12 @@
+Source: lintian-suppress-tags
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: lintian-suppress-tags
+Section: unknown
+Architecture: all
+Description: Test tag suppression (dummy)

@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): python-package-missing-depends-on-python (LN0452)
+E: example (binary): python-package-missing-depends-on-python (LN0452)
+E: example (binary): python-package-missing-depends-on-python (LN0452)
+E: example (udeb): python-package-missing-depends-on-python (LN0452)
+E: example (binary): python-package-missing-depends-on-python (LN0452)
+E: example (binary): python-package-missing-depends-on-python (LN0452)
+E: example (binary): python-package-missing-depends-on-python (LN0452)
+E: example (binary): python-package-missing-depends-on-python (LN0452)
+E: example (binary): python-package-missing-depends-on-python (LN0452)
+E: example (binary): python-package-missing-depends-on-python (LN0452)

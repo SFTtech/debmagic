@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): puppet-module-but-not-dh-puppet (LN1113)

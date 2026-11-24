@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): go-library-package-does-not-include-version (LN1104) golang-x-dev
+W: example (source): go-library-package-does-not-include-version (LN1104) golang-x-dev
+W: example (source): go-library-package-does-not-include-version (LN1104) golang-x-v3-dev
+W: example (source): go-library-package-does-not-include-version (LN1104) golang-x-dev
+W: example (source): go-library-package-does-not-include-version (LN1104) golang-x-dev
+W: example (source): go-library-package-does-not-include-version (LN1104) golang-x-dev
+W: example (source): go-library-package-does-not-include-version (LN1104) golang-x-dev

@@ -1,0 +1,2 @@
+Testname: missing-colon
+Check: debian/lintian-overrides/malformed

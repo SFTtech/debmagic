@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): comma-separated-files-in-dep5-copyright (LN0875) [debian/copyright:7]
+W: (source): comma-separated-files-in-dep5-copyright (LN0875) [debian/copyright:7]

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: foo (source): pear-package-not-using-substvar (LN1570) ${phppear:description}
+I: foo (source): pear-package-not-using-substvar (LN1570) ${phppear:summary}
+I: foo (source): pear-package-not-using-substvar (LN1570) ${phppear:summary}
+I: foo (source): pear-package-not-using-substvar (LN1570) ${phppear:description}

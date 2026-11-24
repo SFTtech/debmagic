@@ -1,0 +1,1 @@
+watch-file-uses-cran-template (source): debian-watch-does-not-check-openpgp-signature [debian/watch]

@@ -1,0 +1,6 @@
+version-refers-to-unstable-distribution-with-exp-version.tag (1.0-1~exp1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: version-refers-to-unstable-distribution-with-exp-version.tag
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200

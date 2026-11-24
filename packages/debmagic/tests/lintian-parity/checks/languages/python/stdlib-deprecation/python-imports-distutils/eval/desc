@@ -1,0 +1,2 @@
+Testname: python-imports-distutils
+Check: languages/python/stdlib-deprecation

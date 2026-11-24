@@ -1,0 +1,2 @@
+Testname: control-field-traversal-2
+Default-Lintian-Options: --pedantic --display-info --display-experimental

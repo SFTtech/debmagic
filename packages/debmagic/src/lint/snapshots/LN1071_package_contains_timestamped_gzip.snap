@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-timestamped-gzip (LN1071) 2020-03-02T23:44:19 [etc/after-changelog.gz]
+W: example (binary): package-contains-timestamped-gzip (LN1071) 2020-03-02T23:44:19 [etc/after-changelog.gz]
+W: example (binary): package-contains-timestamped-gzip (LN1071) 2020-03-02T23:44:19 [usr/lib/amd64/x.gz]
+W: example (binary): package-contains-timestamped-gzip (LN1071) 2020-03-02T23:44:19 [etc/after-changelog.gz]
+W: example (binary): package-contains-timestamped-gzip (LN1071) 2020-03-02T23:44:19 [etc/link.gz]
+W: example (binary): package-contains-timestamped-gzip (LN1071) 2020-03-02T23:44:19 [etc/target.gz]
+W: example (binary): package-contains-timestamped-gzip (LN1071) 2020-03-02T23:44:19 [etc/ÿ.gz]
+W: example (udeb): package-contains-timestamped-gzip (LN1071) 2020-03-02T23:44:19 [etc/after-changelog.gz]

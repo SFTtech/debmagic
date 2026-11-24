@@ -1,0 +1,81 @@
+use anyhow::{Context, bail};
+
+use super::binary_package_reader::BinaryPackageReader;
+use super::debian_control::ControlParagraph;
+
+/// Parsed Installation control: the single Deb822 paragraph in a Binary package.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct InstallationControl {
+    fields: ControlParagraph,
+}
+
+impl InstallationControl {
+    /// Load from a Binary package reader. Not one Deb822 paragraph is a
+    /// runtime failure, not a missing Debian control. An archive without a
+    /// Control tarball has no fields at all (`malformed-deb-archive`).
+    pub fn from_reader(reader: &BinaryPackageReader) -> anyhow::Result<Self> {
+        if !reader.has_control_tarball() {
+            return Ok(Self::default());
+        }
+        let path = reader.path();
+        let Some(bytes) = reader.read_control_file("control")? else {
+            bail!("installation control in {} is missing", path.display());
+        };
+        let text = std::str::from_utf8(bytes)
+            .with_context(|| format!("installation control in {} is not UTF-8", path.display()))?;
+        let what = format!("installation control in {}", path.display());
+        Ok(Self {
+            fields: ControlParagraph::parse_single(text, &what)?,
+        })
+    }
+
+    #[cfg(test)]
+    pub(crate) fn from_fields(
+        fields: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,
+    ) -> Self {
+        Self {
+            fields: ControlParagraph::from_fields(fields),
+        }
+    }
+
+    pub fn fields(&self) -> &ControlParagraph {
+        &self.fields
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::lint::binary_package_reader::{BinaryPackageReader, write_test_deb};
+    use tempfile::TempDir;
+
+    #[test]
+    fn loads_single_paragraph() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("example.deb");
+        write_test_deb(
+            &path,
+            "Package: example\n\
+             Version: 1.0\n\
+             Architecture: all\n\
+             Maintainer: Example <ex@example.com>\n\
+             Description: example\n extra\n",
+        )?;
+        let reader = BinaryPackageReader::from_path(&path)?;
+        let control = InstallationControl::from_reader(&reader)?;
+        assert_eq!(control.fields().get("Package"), Some("example"));
+        assert!(control.fields().declares("Description"));
+        Ok(())
+    }
+
+    #[test]
+    fn two_paragraphs_are_a_runtime_failure() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("example.deb");
+        write_test_deb(&path, "Package: example\n\nPackage: other\n")?;
+        let reader = BinaryPackageReader::from_path(&path)?;
+        let error = InstallationControl::from_reader(&reader).unwrap_err();
+        assert!(error.to_string().contains("exactly one"), "{error}");
+        Ok(())
+    }
+}

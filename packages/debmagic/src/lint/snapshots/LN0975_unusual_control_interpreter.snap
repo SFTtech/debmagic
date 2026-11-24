@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): unusual-control-interpreter (LN0975) /usr/bin/python3 [postinst]
+W: example (binary): unusual-control-interpreter (LN0975) /usr/bin/python3 [preinst]
+W: example (binary): unusual-control-interpreter (LN0975) /bin/python3 [prerm]
+W: example (udeb): unusual-control-interpreter (LN0975) /usr/bin/python3 [postinst]

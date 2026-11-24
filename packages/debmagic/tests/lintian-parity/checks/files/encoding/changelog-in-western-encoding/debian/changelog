@@ -1,0 +1,9 @@
+changelog-in-western-encoding (1.0) UNRELEASED; urgency=low
+
+  * Lintian Test Suite.
+  * Test: changelog-in-western-encoding
+  * Fun fact: did you know that "Rød grød med fløde" has the same
+    colours as the danish flag.
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+

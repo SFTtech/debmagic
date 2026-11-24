@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): unknown-paragraph-in-dep5-copyright (LN1023) [debian/copyright:7]
+W: (source): unknown-paragraph-in-dep5-copyright (LN1023) [debian/copyright:11]

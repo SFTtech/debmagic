@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): wrong-team (LN1053) java » clojure
+W: example (source): wrong-team (LN1053) java » clojure
+W: example (source): wrong-team (LN1053) python » perl

@@ -1,0 +1,2 @@
+quilt-patch-dpatch-file-ext (source): quilt-patch-uses-dpatch-extension dpatch-tag.dpatch
+quilt-patch-dpatch-file-ext (source): quilt-patch-missing-description [debian/patches/dpatch-tag.dpatch]

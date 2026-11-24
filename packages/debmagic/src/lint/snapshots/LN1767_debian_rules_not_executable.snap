@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): debian-rules-not-executable (LN1767) [debian/rules]
+P: (source): debian-rules-not-executable (LN1767) [debian/real]

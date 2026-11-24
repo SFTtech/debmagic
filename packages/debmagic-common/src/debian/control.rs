@@ -44,18 +44,13 @@ pub struct Control {
 
 impl Control {
     pub fn parse(content: &str) -> anyhow::Result<Self> {
-        let deb822 = content
-            .parse::<deb822_lossless::Deb822>()
-            .context("invalid deb822")?;
-        let mut paragraphs = deb822.paragraphs();
+        let mut paragraphs = super::deb822::parse(content)
+            .into_result()
+            .context("invalid deb822")?
+            .into_iter();
         let source = paragraphs.next().context("no source paragraph")?;
-        let relations = |fields: [&str; 3]| {
-            fields.map(|field| {
-                source
-                    .get(field)
-                    .and_then(|value| normalize_relations(&value))
-            })
-        };
+        let relations =
+            |fields: [&str; 3]| fields.map(|field| source.get(field).and_then(normalize_relations));
         Ok(Self {
             rules_requires_root: source
                 .get("Rules-Requires-Root")
@@ -63,8 +58,7 @@ impl Control {
             build_depends: relations(BUILD_DEPENDS_FIELDS),
             build_conflicts: relations(BUILD_CONFLICTS_FIELDS),
             binaries: paragraphs
-                .filter_map(|binary| binary.get("Package"))
-                .map(|name| name.trim().to_string())
+                .filter_map(|binary| binary.get("Package").map(|name| name.trim().to_string()))
                 .collect(),
         })
     }

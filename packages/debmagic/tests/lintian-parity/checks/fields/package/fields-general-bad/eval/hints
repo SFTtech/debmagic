@@ -1,0 +1,2 @@
+fields-general-BAD? (binary): package-not-lowercase
+fields-general-BAD? (binary): bad-package-name

@@ -1,0 +1,9 @@
+Format: 1.8
+Date: Tue, 31 Mar 2026 17:46:22 +0200
+Source: changes-missing-fields
+Binary: changes-missing-fields
+Architecture: source all
+Version: 1.0
+Distribution: unstable
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Changed-By: Debian Lintian Maintainers <lintian-maint@debian.org>

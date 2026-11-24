@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): missing-conffile (LN0424) etc/thin-air [conffiles:1]
+E: example (binary): missing-conffile (LN0424) usr/gone [conffiles:2]
+E: example (binary): missing-conffile (LN0424) var/bye [conffiles:3]
+E: example (udeb): missing-conffile (LN0424) etc/missing [conffiles:1]

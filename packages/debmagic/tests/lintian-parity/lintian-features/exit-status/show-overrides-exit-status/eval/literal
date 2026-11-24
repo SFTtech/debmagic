@@ -1,0 +1,2 @@
+N: package installs a d/rules template not a script
+O: show-overrides-exit-status: missing-dep-for-interpreter /usr/bin/make (does not satisfy make:any | build-essential | dpkg-dev) [usr/share/file/file]

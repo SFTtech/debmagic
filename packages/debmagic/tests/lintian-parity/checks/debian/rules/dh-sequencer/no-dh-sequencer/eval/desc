@@ -1,0 +1,3 @@
+Testname: no-dh-sequencer
+Check: debian/rules/dh-sequencer
+See-Also: Debian Bug#930679

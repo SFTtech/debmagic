@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): patch-modifying-debian-files (LN1770) debian/control [debian/patches/a.patch]
+E: example (source): patch-modifying-debian-files (LN1770) debian/rules [debian/patches/many.patch]
+E: example (source): patch-modifying-debian-files (LN1770) debian/new [debian/patches/many.patch]
+E: example (source): patch-modifying-debian-files (LN1770) ./debian/gone [debian/patches/many.patch]
+E: example (source): patch-modifying-debian-files (LN1770) debian/control [debian/patches/a.patch]
+E: example (source): patch-modifying-debian-files (LN1770) debian/control [debian/patches/real.patch]
+E: example (source): patch-modifying-debian-files (LN1770) debian/control [debian/patches/hard-copy.patch]
+E: example (source): patch-modifying-debian-files (LN1770) debian/control [debian/patches/a.patch]

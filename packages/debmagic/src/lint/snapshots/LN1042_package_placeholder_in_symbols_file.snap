@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: x (source): package-placeholder-in-symbols-file (LN1042) [debian/foo.symbols:1]
+W: x (source): package-placeholder-in-symbols-file (LN1042) [debian/foo.symbols:2]
+W: x (source): package-placeholder-in-symbols-file (LN1042) [debian/foo.symbols:1]
+W: x (source): package-placeholder-in-symbols-file (LN1042) [debian/foo.symbols:1]
+W: x (source): package-placeholder-in-symbols-file (LN1042) [debian/foo.symbols:2]

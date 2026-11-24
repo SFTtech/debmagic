@@ -1,0 +1,5 @@
+udev-rules (binary): udev-rule-unreadable [usr/lib/udev/rules.d/60-dangling-symlink.rules]
+udev-rules (binary): udev-rule-missing-uaccess user accessible device missing TAG+="uaccess" [usr/lib/udev/rules.d/60-udev-rules.rules:5]
+udev-rules (binary): udev-rule-missing-uaccess user accessible device missing TAG+="uaccess" [usr/lib/udev/rules.d/60-udev-rules.rules:2]
+udev-rules (binary): udev-rule-missing-subsystem vendor/product matching missing SUBSYSTEM specifier [usr/lib/udev/rules.d/60-udev-rules.rules:25]
+udev-rules (binary): udev-rule-missing-subsystem vendor/product matching missing SUBSYSTEM specifier [usr/lib/udev/rules.d/60-udev-rules.rules:14]

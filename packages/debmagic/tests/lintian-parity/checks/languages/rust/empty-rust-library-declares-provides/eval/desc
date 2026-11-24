@@ -1,0 +1,4 @@
+Testname: empty-rust-library-declares-provides
+Check: languages/rust
+See-Also:
+ Bug#942898, Bug#945542

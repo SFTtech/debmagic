@@ -1,0 +1,2 @@
+upstream-metadata-is-not-a-file (source): upstream-metadata-is-not-a-file [debian/upstream/metadata]
+upstream-metadata-is-not-a-file (source): upstream-metadata-exists [debian/upstream/metadata]

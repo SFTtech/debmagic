@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): unwanted-path-too-specific (LN1028) usr/lib/x86_64-linux-gnu/does-not-exist.a [debian/not-installed:1]
+W: example (source): unwanted-path-too-specific (LN1028) usr/lib/x86_64-linux-gnu/foo [debian/not-installed:1]
+W: example (source): unwanted-path-too-specific (LN1028) usr/lib/a-b-c/bar [debian/not-installed:2]
+W: example (source): unwanted-path-too-specific (LN1028) usr/lib/x86_64-linux-gnu/foo [debian/not-installed:1]
+W: example (source): unwanted-path-too-specific (LN1028) usr/lib/a-b-c/baz [debian/not-installed:4]
+W: example (source): unwanted-path-too-specific (LN1028) usr/lib/x86_64-linux-gnu/foo [debian/not-installed:1]
+W: example (source): unwanted-path-too-specific (LN1028) usr/lib/x86_64-linux-gnu/� [debian/not-installed:1]
+W: example (source): unwanted-path-too-specific (LN1028) usr/lib/x86_64-linux-gnu/foo [debian/not-installed:1]

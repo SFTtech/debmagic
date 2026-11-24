@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): executable-jar-without-main-class (LN1170) [usr/bin/testc.jar]
+E: example (binary): executable-jar-without-main-class (LN1170) [usr/bin/a.jar]
+E: example (binary): executable-jar-without-main-class (LN1170) [usr/bin/a.jar]
+E: example (binary): executable-jar-without-main-class (LN1170) [usr/bin/a.jar]
+E: example (binary): executable-jar-without-main-class (LN1170) [usr/bin/a.jar]
+E: example (binary): executable-jar-without-main-class (LN1170) [usr/bin/a.jar]

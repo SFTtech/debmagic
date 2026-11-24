@@ -1,0 +1,9 @@
+lintian 2.144.0 (3e81fac95c3eb9201f6b45f4a7e51233d5265352)
+t/recipes/odd-inputs/source/debian-symlink
+
+Filled Source tree from t/templates + t/skeletons, then build-spec overlay
+and hooks (pre-upstream, pre-build). eval/hints is transcribed verbatim.
+Source-tree Parity uses (source) lines whose extra is not a .dsc; other
+processable types wait for those Subjects.
+
+License: GPL-2+ (same as lintian; see lintian debian/copyright).

@@ -1,0 +1,5 @@
+Testname: ubuntu-maintainer-different
+Check: fields/maintainer
+Test-Against: inconsistent-maintainer
+See-Also: Ubuntu Bug#1862787,
+ https://wiki.ubuntu.com/DebianMaintainerField

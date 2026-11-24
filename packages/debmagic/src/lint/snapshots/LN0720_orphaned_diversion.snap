@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): orphaned-diversion (LN0720) usr/bin/bar [preinst:3]
+E: example (binary): orphaned-diversion (LN0720) usr/bin/bar [preinst:3]
+E: example (binary): orphaned-diversion (LN0720) usr/bin/foo [preinst:2]
+E: example (binary): orphaned-diversion (LN0720) etc/scripts/* [preinst:2]
+E: example (binary): orphaned-diversion (LN0720) usr/share/foo/* [preinst:3]
+E: example (binary): orphaned-diversion (LN0720) usr/bin/foo [postinst:2]

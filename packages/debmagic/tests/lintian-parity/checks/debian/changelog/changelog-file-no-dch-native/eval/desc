@@ -1,0 +1,2 @@
+Testname: changelog-file-no-dch-native
+Check: debian/changelog

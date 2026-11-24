@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): windows-thumbnail-database-in-package (LN0411) [usr/share/doc/filenames/Thumbs.db]
+W: example (binary): windows-thumbnail-database-in-package (LN0411) [usr/share/pkg/thumbs.DB.gz]
+W: example (udeb): windows-thumbnail-database-in-package (LN0411) [usr/share/pkg/Thumbs.db]

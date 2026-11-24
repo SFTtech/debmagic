@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-installs-python-bytecode (LN0955) [usr/share/foo/code.pyc]
+E: example (binary): package-installs-python-bytecode (LN0955) [usr/share/foo/code.pyo]
+E: example (udeb): package-installs-python-bytecode (LN0955) [usr/lib/foo/code.pyc]
+E: example (binary): package-installs-python-bytecode (LN0955) [__pycache__/code.pyc]

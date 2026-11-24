@@ -1,0 +1,8 @@
+#!/bin/sh
+
+sensible-editor
+
+# sensible-pager false positive
+
+# Only report on the first match
+select-editor

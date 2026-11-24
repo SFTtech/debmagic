@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): doc-base-file-no-index (LN0545) [usr/share/doc-base/example:4]
+E: example (binary): doc-base-file-no-index (LN0545) [usr/share/doc-base/example:4]
+E: example (udeb): doc-base-file-no-index (LN0545) [usr/share/doc-base/example:4]

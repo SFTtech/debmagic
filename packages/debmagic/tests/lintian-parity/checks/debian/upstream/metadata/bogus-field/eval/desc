@@ -1,0 +1,4 @@
+Testname: bogus-field
+Check: debian/upstream/metadata
+See-Also:
+ https://salsa.debian.org/lintian/lintian/-/merge_requests/356

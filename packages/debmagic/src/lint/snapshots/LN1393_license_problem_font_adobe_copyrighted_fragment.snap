@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): license-problem-font-adobe-copyrighted-fragment (LN1393) [usr/share/fonts/type1/bad.pfa]
+E: example (binary): license-problem-font-adobe-copyrighted-fragment (LN1393) [usr/share/fonts/type1/bad2.pfa]

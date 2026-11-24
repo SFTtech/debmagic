@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): duplicate-font-file (LN1088) also in (fonts-aenigma) [usr/share/fonts/truetype/4shadow.ttf]
+W: example (binary): duplicate-font-file (LN1088) also in (fonts-aenigma) [usr/share/fonts/truetype/4SHADOW.TTF]
+W: example (binary): duplicate-font-file (LN1088) also in (tipa) [usr/share/fonts/type1/tipa/tipa10.pfb]
+W: example (binary): duplicate-font-file (LN1088) also in (fonts-roboto-fontface fonts-roboto-fontface fonts-roboto-unhinted) [usr/share/fonts/truetype/roboto-bold.ttf]
+W: example (binary): duplicate-font-file (LN1088) also in (fonts-aenigma) [usr/lib/example/4shadow.ttf]

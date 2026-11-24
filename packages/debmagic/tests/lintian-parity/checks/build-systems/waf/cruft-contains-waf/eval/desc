@@ -1,0 +1,2 @@
+Testname: cruft-contains-waf
+Check: build-systems/waf

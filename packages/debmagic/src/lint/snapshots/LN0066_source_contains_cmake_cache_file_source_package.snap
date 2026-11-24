@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): source-contains-cmake-cache-file (LN0066) [CMakeCache.txt]

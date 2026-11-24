@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): embedded-feedparser-library (LN0479) [files/feedparser.py]
+W: example (binary): embedded-feedparser-library (LN0479) [usr/share/php/feedparser.py]
+W: example (binary): embedded-feedparser-library (LN0479) [usr/lib/feedparser.py]
+W: example (udeb): embedded-feedparser-library (LN0479) [opt/feedparser.py]
+W: example (binary): embedded-feedparser-library (LN0479) [a/feedparser.py]
+W: example (binary): embedded-feedparser-library (LN0479) [b/feedparser.py]

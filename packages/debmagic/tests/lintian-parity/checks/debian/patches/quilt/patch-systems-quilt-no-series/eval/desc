@@ -1,0 +1,2 @@
+Testname: patch-systems-quilt-no-series
+Check: debian/patches/quilt

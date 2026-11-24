@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): ansi-escape (LN1787) Maintainer [1mExample <ex@example.com>
+W: example (source): ansi-escape (LN1787) Standards-Version 4.7.2

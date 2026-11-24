@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): license-problem-nvidia-intellectual (LN1272) [src/badcv.c]
+E: (source): license-problem-nvidia-intellectual (LN1272) [debian/copyright]

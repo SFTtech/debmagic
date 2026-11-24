@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): non-standard-setuid-executable-perm (LN0943) 4744 [usr/bin/script-wuid]
+W: example (binary): non-standard-setuid-executable-perm (LN0943) 4555 [usr/bin/suidperlfoo]
+W: example (binary): non-standard-setuid-executable-perm (LN0943) 4775 [usr/bin/suid-wide]
+W: example (binary): non-standard-setuid-executable-perm (LN0943) 4644 [usr/bin/suid-ro]
+W: example (binary): non-standard-setuid-executable-perm (LN0943) 4700 [usr/bin/hard]
+W: example (udeb): non-standard-setuid-executable-perm (LN0943) 4750 [bin/su]
+W: example (binary): non-standard-setuid-executable-perm (LN0943) 4744 [usr/games/tool]
+W: example (binary): non-standard-setuid-executable-perm (LN0943) 2750 [usr/games/tool]

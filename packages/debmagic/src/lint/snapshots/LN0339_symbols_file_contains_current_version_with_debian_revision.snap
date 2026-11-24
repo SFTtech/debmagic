@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): symbols-file-contains-current-version-with-debian-revision (LN0339) on symbol e@Base (libfoo.so.1) [symbols]
+E: example (binary): symbols-file-contains-current-version-with-debian-revision (LN0339) on symbol pw (libbaz.so.2) [symbols]
+E: example (binary): symbols-file-contains-current-version-with-debian-revision (LN0339) on symbol a@Base and 1 others (libfoo.so.1) [symbols]
+E: example (binary): symbols-file-contains-current-version-with-debian-revision (LN0339) on symbol sym@Base (libfoo.so.1) [symbols]

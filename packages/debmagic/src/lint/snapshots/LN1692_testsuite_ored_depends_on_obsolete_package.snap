@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): testsuite-ored-depends-on-obsolete-package (LN1692) Depends: gaim
+I: (source): testsuite-ored-depends-on-obsolete-package (LN1692) Depends: xbase-clients
+I: (source): testsuite-ored-depends-on-obsolete-package (LN1692) Depends: xbase-clients (>= 0.1)

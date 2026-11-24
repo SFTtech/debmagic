@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): upstart-job-in-etc-init.d-not-registered-via-update-rc.d (LN1101) [etc/init.d/foo]
+W: example (binary): upstart-job-in-etc-init.d-not-registered-via-update-rc.d (LN1101) [etc/init.d/foo]
+W: example (binary): upstart-job-in-etc-init.d-not-registered-via-update-rc.d (LN1101) [etc/init.d/foo]
+W: example (binary): upstart-job-in-etc-init.d-not-registered-via-update-rc.d (LN1101) [etc/init.d/bar]
+W: example (binary): upstart-job-in-etc-init.d-not-registered-via-update-rc.d (LN1101) [etc/init.d/bokmål]
+W: example (udeb): upstart-job-in-etc-init.d-not-registered-via-update-rc.d (LN1101) [etc/init.d/foo]

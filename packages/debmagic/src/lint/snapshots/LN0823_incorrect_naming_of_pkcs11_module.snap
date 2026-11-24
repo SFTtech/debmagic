@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): incorrect-naming-of-pkcs11-module (LN0823) [usr/share/p11-kit/modules/_bad.module]
+E: example (binary): incorrect-naming-of-pkcs11-module (LN0823) [usr/share/p11-kit/modules/-bad.module]
+E: example (binary): incorrect-naming-of-pkcs11-module (LN0823) [usr/share/p11-kit/modules/bad.conf]
+E: example (binary): incorrect-naming-of-pkcs11-module (LN0823) [usr/share/p11-kit/modules/bad.MODULE]
+E: example (binary): incorrect-naming-of-pkcs11-module (LN0823) [usr/share/p11-kit/modules/sub/foo.module]
+E: example (binary): incorrect-naming-of-pkcs11-module (LN0823) [usr/share/p11-kit/modules/sub/]
+E: example (udeb): incorrect-naming-of-pkcs11-module (LN0823) [usr/share/p11-kit/modules/_bad.module]

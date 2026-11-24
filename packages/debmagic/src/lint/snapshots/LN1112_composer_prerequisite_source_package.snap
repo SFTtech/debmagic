@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): composer-prerequisite (LN1112) Build-Depends (in source paragraph) [debian/control:2]

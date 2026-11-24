@@ -1,0 +1,72 @@
+//! Rules for lintian's `languages/python` Check.
+//!
+//! `python_version` reads the `X-Python-Version` and `X-Python3-Version`
+//! fields. The path Rules match installed names on their own.
+
+mod ln0093_ancient_python_version_field;
+mod ln0103_malformed_python_version;
+mod ln0104_python_version_current_is_deprecated;
+mod ln0105_source_package_encodes_python_version;
+mod ln0129_package_installs_deprecated_python2_path;
+mod ln0130_file_in_usr_lib_site_python;
+mod ln0131_third_party_package_in_python_dir;
+mod ln0386_unknown_file_in_python_module_directory;
+mod ln0452_python_package_missing_depends_on_python;
+mod ln0476_bogus_python_prerequisite;
+mod ln0479_embedded_feedparser_library;
+mod ln0501_python_module_has_overly_generic_name;
+mod ln0814_script_uses_unversioned_python_in_shebang;
+mod ln0819_duplicate_p3dist_override;
+mod ln0955_package_installs_python_bytecode;
+mod ln0956_python_module_in_wrong_location;
+mod ln0957_django_package_does_not_depend_on_django;
+mod ln0958_new_package_should_not_package_python2_module;
+mod ln1114_package_installs_python_egg;
+mod ln1115_package_installs_python_pycache_dir;
+mod ln1116_python_debug_in_wrong_location;
+mod ln1117_pypi_homepage;
+mod ln1403_missing_prerequisite_for_pyproject_backend;
+mod ln1404_package_installs_legacy_python_egg_info;
+mod ln1405_uses_deprecated_python_stdlib;
+mod ln1571_debian_pycompat_is_obsolete;
+mod ln1572_debian_pyversions_is_obsolete;
+mod ln1682_old_python_version_field;
+mod ln1683_package_uses_old_python_depends_substvar;
+mod ln1684_useless_pydist_overrides_file;
+mod ln1685_uses_pdm_cli;
+mod ln1686_uses_poetry_cli;
+mod obsolete;
+mod python_version;
+
+pub(crate) use ln0093_ancient_python_version_field::AncientPythonVersionField;
+pub(crate) use ln0103_malformed_python_version::MalformedPythonVersion;
+pub(crate) use ln0104_python_version_current_is_deprecated::PythonVersionCurrentIsDeprecated;
+pub(crate) use ln0105_source_package_encodes_python_version::SourcePackageEncodesPythonVersion;
+pub(crate) use ln0129_package_installs_deprecated_python2_path::PackageInstallsDeprecatedPython2Path;
+pub(crate) use ln0130_file_in_usr_lib_site_python::FileInUsrLibSitePython;
+pub(crate) use ln0131_third_party_package_in_python_dir::ThirdPartyPackageInPythonDir;
+pub(crate) use ln0386_unknown_file_in_python_module_directory::UnknownFileInPythonModuleDirectory;
+pub(crate) use ln0452_python_package_missing_depends_on_python::PythonPackageMissingDependsOnPython;
+pub(crate) use ln0476_bogus_python_prerequisite::BogusPythonPrerequisite;
+pub(crate) use ln0479_embedded_feedparser_library::EmbeddedFeedparserLibrary;
+pub(crate) use ln0501_python_module_has_overly_generic_name::PythonModuleHasOverlyGenericName;
+pub(crate) use ln0814_script_uses_unversioned_python_in_shebang::ScriptUsesUnversionedPythonInShebang;
+pub(crate) use ln0819_duplicate_p3dist_override::DuplicateP3distOverride;
+pub(crate) use ln0955_package_installs_python_bytecode::PackageInstallsPythonBytecode;
+pub(crate) use ln0956_python_module_in_wrong_location::PythonModuleInWrongLocation;
+pub(crate) use ln0957_django_package_does_not_depend_on_django::DjangoPackageDoesNotDependOnDjango;
+pub(crate) use ln0958_new_package_should_not_package_python2_module::NewPackageShouldNotPackagePython2Module;
+pub(crate) use ln1114_package_installs_python_egg::PackageInstallsPythonEgg;
+pub(crate) use ln1115_package_installs_python_pycache_dir::PackageInstallsPythonPycacheDir;
+pub(crate) use ln1116_python_debug_in_wrong_location::PythonDebugInWrongLocation;
+pub(crate) use ln1117_pypi_homepage::PypiHomepage;
+pub(crate) use ln1403_missing_prerequisite_for_pyproject_backend::MissingPrerequisiteForPyprojectBackend;
+pub(crate) use ln1404_package_installs_legacy_python_egg_info::PackageInstallsLegacyPythonEggInfo;
+pub(crate) use ln1405_uses_deprecated_python_stdlib::UsesDeprecatedPythonStdlib;
+pub(crate) use ln1571_debian_pycompat_is_obsolete::DebianPycompatIsObsolete;
+pub(crate) use ln1572_debian_pyversions_is_obsolete::DebianPyversionsIsObsolete;
+pub(crate) use ln1682_old_python_version_field::OldPythonVersionField;
+pub(crate) use ln1683_package_uses_old_python_depends_substvar::PackageUsesOldPythonDependsSubstvar;
+pub(crate) use ln1684_useless_pydist_overrides_file::UselessPydistOverridesFile;
+pub(crate) use ln1685_uses_pdm_cli::UsesPdmCli;
+pub(crate) use ln1686_uses_poetry_cli::UsesPoetryCli;

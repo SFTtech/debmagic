@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): tab-in-license-text (LN1022) [debian/copyright:5]
+W: (source): tab-in-license-text (LN1022) [debian/copyright:7]
+W: (source): tab-in-license-text (LN1022) [debian/copyright:5]

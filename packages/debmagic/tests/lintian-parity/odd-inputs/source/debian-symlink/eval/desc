@@ -1,0 +1,2 @@
+Testname: debian-symlink
+Default-Lintian-Options: --pedantic --display-info --display-experimental

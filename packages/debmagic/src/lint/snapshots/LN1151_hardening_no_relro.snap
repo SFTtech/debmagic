@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): hardening-no-relro (LN1151) [usr/bin/weak]
+W: example (binary): hardening-no-relro (LN1151) [usr/bin/weak-link]
+W: example (binary): hardening-no-relro (LN1151) [usr/lib/libfoo.so.1]
+W: example (binary): hardening-no-relro (LN1151) [usr/bin/weak]

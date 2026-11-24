@@ -1,0 +1,35 @@
+//! Rules for lintian's `apache2` Check.
+//!
+//! `scan` recognises Apache module and web-application packages and reads
+//! shell maintainer scripts. Each Rule owns one Tag.
+
+mod ln0388_apache2_configuration_files_need_conf_suffix;
+mod ln0390_apache2_reverse_dependency_calls_wrapper_script;
+mod ln0391_apache2_unparsable_dependency;
+mod ln0413_non_standard_apache2_configuration_name;
+mod ln0847_apache2_deprecated_auth_config;
+mod ln0848_apache2_reverse_dependency_calls_invoke_rc_d;
+mod ln0849_apache2_unsupported_dependency;
+mod ln0850_apache2_module_does_not_depend_on_apache2_api;
+mod ln0851_apache2_module_does_not_ship_load_file;
+mod ln0852_apache2_reverse_dependency_ships_file_in_not_allowed_directory;
+mod ln0853_apache2_reverse_dependency_uses_obsolete_directory;
+mod ln0854_non_standard_apache2_module_package_name;
+mod ln0998_web_application_depends_on_apache2_data_package;
+mod ln0999_web_application_works_only_with_apache;
+mod scan;
+
+pub(crate) use ln0388_apache2_configuration_files_need_conf_suffix::Apache2ConfigurationFilesNeedConfSuffix;
+pub(crate) use ln0390_apache2_reverse_dependency_calls_wrapper_script::Apache2ReverseDependencyCallsWrapperScript;
+pub(crate) use ln0391_apache2_unparsable_dependency::Apache2UnparsableDependency;
+pub(crate) use ln0413_non_standard_apache2_configuration_name::NonStandardApache2ConfigurationName;
+pub(crate) use ln0847_apache2_deprecated_auth_config::Apache2DeprecatedAuthConfig;
+pub(crate) use ln0848_apache2_reverse_dependency_calls_invoke_rc_d::Apache2ReverseDependencyCallsInvokeRcD;
+pub(crate) use ln0849_apache2_unsupported_dependency::Apache2UnsupportedDependency;
+pub(crate) use ln0850_apache2_module_does_not_depend_on_apache2_api::Apache2ModuleDoesNotDependOnApache2Api;
+pub(crate) use ln0851_apache2_module_does_not_ship_load_file::Apache2ModuleDoesNotShipLoadFile;
+pub(crate) use ln0852_apache2_reverse_dependency_ships_file_in_not_allowed_directory::Apache2ReverseDependencyShipsFileInNotAllowedDirectory;
+pub(crate) use ln0853_apache2_reverse_dependency_uses_obsolete_directory::Apache2ReverseDependencyUsesObsoleteDirectory;
+pub(crate) use ln0854_non_standard_apache2_module_package_name::NonStandardApache2ModulePackageName;
+pub(crate) use ln0998_web_application_depends_on_apache2_data_package::WebApplicationDependsOnApache2DataPackage;
+pub(crate) use ln0999_web_application_works_only_with_apache::WebApplicationWorksOnlyWithApache;

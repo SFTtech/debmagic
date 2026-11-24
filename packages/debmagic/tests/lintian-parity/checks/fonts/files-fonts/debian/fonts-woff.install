@@ -1,0 +1,7 @@
+# These two files should produce woff-font-in-wrong-dir warnings.
+font.woff usr/share/fonts/woff
+font.woff2 usr/share/fonts/woff2
+
+# These two files should not produce any lintian tags.
+ok.woff usr/share/fonts-test/woff
+ok.woff2 usr/share/fonts-test/woff2

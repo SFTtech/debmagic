@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): source-contains-prebuilt-ms-help-file (LN1067) doc/help.chm [doc/help.chm]
+E: example (source): source-contains-prebuilt-ms-help-file (LN1067) doc/HELP.CHM [doc/HELP.CHM]
+E: example (source): source-contains-prebuilt-ms-help-file (LN1067) doc/copy.chm [doc/copy.chm]
+E: example (source): source-contains-prebuilt-ms-help-file (LN1067) doc/help.chm [doc/help.chm]
+E: example (source): source-contains-prebuilt-ms-help-file (LN1067) debian/missing-sources/help.chm [debian/missing-sources/help.chm]

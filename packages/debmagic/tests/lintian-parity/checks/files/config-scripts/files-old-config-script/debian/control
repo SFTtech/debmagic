@@ -1,0 +1,40 @@
+Source: files-old-config-script
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: config-ma-no
+Architecture: any
+Depends: ${misc:Depends}, ${shlib:Depends}
+Multi-arch: no
+Description: Contains config test file no
+ This is a test package designed to exercise some feature or tag of
+ Lintian for arch any ma no config script.
+ It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: config-ma-foreign
+Architecture: any
+Multi-arch: foreign
+Depends: ${misc:Depends}, ${shlib:Depends}
+Description: Contains config test file foreign
+ This is a test package designed to exercise some feature or tag of
+ Lintian for arch any config script ma foreign.
+ It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+
+Package: config-all
+Architecture: all
+Depends: ${misc:Depends}, ${shlib:Depends}
+Multi-arch: no
+Description: Contains config test file all arch
+ This is a test package designed to exercise some feature or tag of
+ Lintian for arch all ma no config script.
+ It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

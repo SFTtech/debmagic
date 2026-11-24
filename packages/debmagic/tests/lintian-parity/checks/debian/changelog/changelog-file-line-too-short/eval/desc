@@ -1,0 +1,2 @@
+Testname: changelog-file-line-too-short
+Check: debian/changelog

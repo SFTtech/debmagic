@@ -1,0 +1,14 @@
+bin-env                 usr/bin/
+csh-shell               usr/bin/
+cwl-runner              usr/bin/
+no-interpreter          usr/bin/
+not-absolute            usr/bin/
+python2.7               usr/bin/
+syntax                  usr/bin/
+unusual                 usr/bin/
+unversioned-pike        usr/bin/
+usr-bin-env-perl	usr/bin/
+usr-local               usr/bin/
+usr-local-bin-perl	usr/bin/
+versioned-pike          usr/bin/
+wrong-perl-path         usr/bin/

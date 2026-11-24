@@ -1,0 +1,3 @@
+files-games-section-wrong (binary): game-outside-section
+files-games-section-no-games (binary): package-section-games-but-contains-no-game
+files-games-section-both (binary): package-section-games-but-has-usr-bin

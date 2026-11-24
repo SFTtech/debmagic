@@ -1,0 +1,69 @@
+//! Manual-page Rules from lintian's `documentation/manual` Check.
+//!
+//! Path Tags judge where a page lives, how it is named and compressed, and
+//! whether a command has a page. Content Tags read the page for groff,
+//! whatis, `.so` links, and pod2man errors. Spelling and executable-bit Tags
+//! from the same Check are separate. Udebs are skipped: the Check returns
+//! before it walks installed files.
+
+mod content;
+mod ln0152_no_manual_page;
+mod ln0153_uncompressed_manual_page;
+mod ln0154_wrong_compression_in_manual_page;
+mod ln0155_country_in_manual;
+mod ln0156_build_path_in_manual;
+mod ln0157_broken_link_to_undocumented;
+mod ln0270_groff_message;
+mod ln0271_empty_manual_page;
+mod ln0272_undocumented_manual_page;
+mod ln0273_bad_so_link_within_manual_page;
+mod ln0274_bad_whatis_entry;
+mod ln0275_manual_page_from_template;
+mod ln0276_manual_page_with_generic_name;
+mod ln0277_no_english_manual_page;
+mod ln0278_pod_conversion_message;
+mod ln0279_useless_whatis_entry;
+mod ln0405_poor_compression_in_manual_page;
+mod ln0896_wrong_manual_section;
+mod ln0897_wrong_name_for_manual_page;
+mod ln0898_odd_place_for_manual_page;
+mod ln0899_executable_manual_page;
+mod ln1354_fsstnd_dir_in_manual_page;
+mod ln1355_acute_accent_in_manual_page;
+mod ln1356_python_traceback_in_manpage;
+mod ln1357_stray_folder_in_manual;
+mod ln1540_spare_manual_page;
+mod ln1542_typo_in_manual_page;
+mod ln1720_manual_page_for_system_command;
+mod ln1776_manual_page_in_udeb;
+mod manual;
+
+pub(crate) use ln0152_no_manual_page::NoManualPage;
+pub(crate) use ln0153_uncompressed_manual_page::UncompressedManualPage;
+pub(crate) use ln0154_wrong_compression_in_manual_page::WrongCompressionInManualPage;
+pub(crate) use ln0155_country_in_manual::CountryInManual;
+pub(crate) use ln0156_build_path_in_manual::BuildPathInManual;
+pub(crate) use ln0157_broken_link_to_undocumented::BrokenLinkToUndocumented;
+pub(crate) use ln0270_groff_message::GroffMessage;
+pub(crate) use ln0271_empty_manual_page::EmptyManualPage;
+pub(crate) use ln0272_undocumented_manual_page::UndocumentedManualPage;
+pub(crate) use ln0273_bad_so_link_within_manual_page::BadSoLinkWithinManualPage;
+pub(crate) use ln0274_bad_whatis_entry::BadWhatisEntry;
+pub(crate) use ln0275_manual_page_from_template::ManualPageFromTemplate;
+pub(crate) use ln0276_manual_page_with_generic_name::ManualPageWithGenericName;
+pub(crate) use ln0277_no_english_manual_page::NoEnglishManualPage;
+pub(crate) use ln0278_pod_conversion_message::PodConversionMessage;
+pub(crate) use ln0279_useless_whatis_entry::UselessWhatisEntry;
+pub(crate) use ln0405_poor_compression_in_manual_page::PoorCompressionInManualPage;
+pub(crate) use ln0896_wrong_manual_section::WrongManualSection;
+pub(crate) use ln0897_wrong_name_for_manual_page::WrongNameForManualPage;
+pub(crate) use ln0898_odd_place_for_manual_page::OddPlaceForManualPage;
+pub(crate) use ln0899_executable_manual_page::ExecutableManualPage;
+pub(crate) use ln1354_fsstnd_dir_in_manual_page::FSSTNDDirInManualPage;
+pub(crate) use ln1355_acute_accent_in_manual_page::AcuteAccentInManualPage;
+pub(crate) use ln1356_python_traceback_in_manpage::PythonTracebackInManpage;
+pub(crate) use ln1357_stray_folder_in_manual::StrayFolderInManual;
+pub(crate) use ln1540_spare_manual_page::SpareManualPage;
+pub(crate) use ln1542_typo_in_manual_page::TypoInManualPage;
+pub(crate) use ln1720_manual_page_for_system_command::ManualPageForSystemCommand;
+pub(crate) use ln1776_manual_page_in_udeb::ManualPageInUdeb;

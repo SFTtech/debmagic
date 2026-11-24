@@ -1,0 +1,2 @@
+Testname: basic-native-1.0
+Default-Lintian-Options: --pedantic --display-info --display-experimental

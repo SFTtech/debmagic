@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): depends-on-obsolete-package (LN0107) Depends: gaim (>= 0.1)
+W: example (binary): depends-on-obsolete-package (LN0107) Depends: pkg-config => pkgconf
+W: example (binary): depends-on-obsolete-package (LN0107) Recommends: gs
+W: example (binary): depends-on-obsolete-package (LN0107) Suggests: x-dev
+W: example (binary): depends-on-obsolete-package (LN0107) Depends: gaim
+W: example (binary): depends-on-obsolete-package (LN0107) Depends: gs
+W: example (udeb): depends-on-obsolete-package (LN0107) Depends: ruby1.8

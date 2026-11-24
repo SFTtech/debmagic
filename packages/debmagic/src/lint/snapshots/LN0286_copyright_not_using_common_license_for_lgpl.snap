@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): copyright-not-using-common-license-for-lgpl (LN0286)
+E: example (binary): copyright-not-using-common-license-for-lgpl (LN0286)
+E: example (binary): copyright-not-using-common-license-for-lgpl (LN0286)
+E: example (binary): copyright-not-using-common-license-for-lgpl (LN0286)

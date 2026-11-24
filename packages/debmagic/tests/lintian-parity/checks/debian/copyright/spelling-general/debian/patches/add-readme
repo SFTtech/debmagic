@@ -1,0 +1,8 @@
+This is a deliberate speling error. duplicate
+
+duplicate
+
+--- upstream.orig/README
++++ upstream/README
+@@ -0,0 +1 @@
++Added by patch system.

@@ -1,0 +1,11 @@
+//! Rules for lintian's `files/init` Check.
+
+mod ln1078_non_standard_file_permissions_for_etc_init_d_script;
+mod ln1079_package_installs_deprecated_upstart_configuration;
+mod ln1080_package_installs_into_etc_rc_boot;
+mod ln1081_package_installs_into_etc_rc_d;
+
+pub(crate) use ln1078_non_standard_file_permissions_for_etc_init_d_script::NonStandardFilePermissionsForEtcInitDScript;
+pub(crate) use ln1079_package_installs_deprecated_upstart_configuration::PackageInstallsDeprecatedUpstartConfiguration;
+pub(crate) use ln1080_package_installs_into_etc_rc_boot::PackageInstallsIntoEtcRcBoot;
+pub(crate) use ln1081_package_installs_into_etc_rc_d::PackageInstallsIntoEtcRcD;

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): kill-mode-none (LN0993) usr/lib/systemd/system/kill-mode-none.service [usr/lib/systemd/system/kill-mode-none.service]
+W: example (binary): kill-mode-none (LN0993) etc/systemd/system/trailing.service [etc/systemd/system/trailing.service]
+W: example (udeb): kill-mode-none (LN0993) usr/lib/systemd/system/udeb.service [usr/lib/systemd/system/udeb.service]

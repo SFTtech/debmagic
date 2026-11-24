@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): invalid-dep3-format-patch-maybe-bug-debian (LN0763) [debian/patches/fix.patch]

@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+# dwz errors out; no .debug_info section present due to -nostdlib
+override_dh_dwz:

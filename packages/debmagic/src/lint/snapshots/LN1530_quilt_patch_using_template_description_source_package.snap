@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): quilt-patch-using-template-description (LN1530) [debian/patches/01-fix.patch]

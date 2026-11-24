@@ -1,0 +1,2 @@
+Testname: non-existing-file
+Check: debian/source/include-binaries

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: foo (source): pear-package-but-missing-dependency (LN1285) Recommends
+W: foo (source): pear-package-but-missing-dependency (LN1285) Depends
+W: foo (source): pear-package-but-missing-dependency (LN1285) Depends
+W: foo (source): pear-package-but-missing-dependency (LN1285) Recommends
+W: foo (source): pear-package-but-missing-dependency (LN1285) Breaks

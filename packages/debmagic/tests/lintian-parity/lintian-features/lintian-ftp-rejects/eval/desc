@@ -1,0 +1,4 @@
+Testname: lintian-ftp-rejects
+Match-Strategy: literal
+Output-Format: EWI
+Default-Lintian-Options: --ftp-master-rejects --display-info --display-experimental

@@ -1,0 +1,5 @@
+Testname: lintian-check-tags-file
+Default-Lintian-Options: --display-info --display-experimental
+Options: --tags-from-file ./tag-list
+Match-Strategy: literal
+Output-Format: EWI

@@ -1,0 +1,4 @@
+Testname: scripts-missing-call-to-update-fonts-unrel
+Test-Against:
+ missing-call-to-update-fonts
+Check: desktop/x11/font/update

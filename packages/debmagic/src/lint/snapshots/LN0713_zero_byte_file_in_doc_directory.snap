@@ -1,0 +1,16 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/NEWS]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/README.Debian]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/foo__init__.py]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/html/blah.txt]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/html.map]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/htmlfoo.map]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/a/b/examples/empty]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/empty.gz]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/NEWS.gz]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/examples/very_interesting.gz]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/manual/foo.map.gz]
+W: example (binary): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/bokmål]
+W: example (udeb): zero-byte-file-in-doc-directory (LN0713) [usr/share/doc/example/NEWS]

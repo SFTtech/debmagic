@@ -1,0 +1,4 @@
+generic-empty (source): required-field generic-empty_1.0.dsc Standards-Version
+generic-empty (source): required-field (in section for source) Standards-Version [debian/control:1]
+generic-empty (source): required-field (in section for generic-empty) Description [debian/control:4]
+generic-empty (binary): required-field generic-empty_1.0_all.deb Description

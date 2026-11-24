@@ -1,0 +1,87 @@
+//! Menu, menu-method, and doc-base Rules from lintian's `menus` Check.
+//!
+//! Each Rule owns one Tag. `doc-base-file-references-missing-file` is a Group
+//! Rule: lintian treats a path as present when a strongly related installable
+//! ships it.
+
+mod doc_base;
+mod ln0326_postinst_does_not_call_updatemenus;
+mod ln0327_postrm_does_not_call_updatemenus;
+mod ln0328_postinst_has_useless_call_to_install_docs;
+mod ln0329_prerm_has_useless_call_to_install_docs;
+mod ln0331_doc_base_abstract_field_separator_extra_whitespace;
+mod ln0332_doc_base_file_no_format_section;
+mod ln0333_menu_method_lacks_include;
+mod ln0420_doc_base_file_lacks_required_field;
+mod ln0430_doc_base_file_unknown_field;
+mod ln0540_doc_base_abstract_field_is_template;
+mod ln0541_doc_base_abstract_might_contain_extra_leading_whitespace;
+mod ln0542_doc_base_document_field_ends_in_whitespace;
+mod ln0543_doc_base_document_field_not_in_first_line;
+mod ln0544_doc_base_file_no_format;
+mod ln0545_doc_base_file_no_index;
+mod ln0546_doc_base_file_references_wrong_path;
+mod ln0547_doc_base_file_separator_extra_whitespace;
+mod ln0548_doc_base_file_syntax_error;
+mod ln0549_doc_base_file_unknown_format;
+mod ln0550_doc_base_index_references_multiple_files;
+mod ln0551_doc_base_invalid_document_field;
+mod ln0552_doc_base_unknown_section;
+mod ln0553_doc_base_uses_applications_section;
+mod ln0554_duplicate_field_in_doc_base;
+mod ln0555_duplicate_format_in_doc_base;
+mod ln0960_executable_in_usr_share_docbase;
+mod ln0961_executable_menu_file;
+mod ln0962_maintainer_script_does_not_check_for_existence_of_installdocs;
+mod ln0963_maintainer_script_does_not_check_for_existence_of_updatemenus;
+mod ln1194_postinst_has_useless_call_to_update_menus;
+mod ln1195_postrm_calls_installdocs;
+mod ln1196_postrm_has_useless_call_to_update_menus;
+mod ln1197_preinst_calls_installdocs;
+mod ln1198_preinst_calls_updatemenus;
+mod ln1199_prerm_calls_updatemenus;
+mod ln1423_spelling_error_in_doc_base_abstract_field;
+mod ln1468_spelling_error_in_doc_base_title_field;
+mod ln1507_doc_base_file_references_missing_file;
+mod ln1577_possible_documentation_but_no_doc_base_registration;
+mod scan;
+
+pub(crate) use ln0326_postinst_does_not_call_updatemenus::PostinstDoesNotCallUpdatemenus;
+pub(crate) use ln0327_postrm_does_not_call_updatemenus::PostrmDoesNotCallUpdatemenus;
+pub(crate) use ln0328_postinst_has_useless_call_to_install_docs::PostinstHasUselessCallToInstallDocs;
+pub(crate) use ln0329_prerm_has_useless_call_to_install_docs::PrermHasUselessCallToInstallDocs;
+pub(crate) use ln0331_doc_base_abstract_field_separator_extra_whitespace::DocBaseAbstractFieldSeparatorExtraWhitespace;
+pub(crate) use ln0332_doc_base_file_no_format_section::DocBaseFileNoFormatSection;
+pub(crate) use ln0333_menu_method_lacks_include::MenuMethodLacksInclude;
+pub(crate) use ln0420_doc_base_file_lacks_required_field::DocBaseFileLacksRequiredField;
+pub(crate) use ln0430_doc_base_file_unknown_field::DocBaseFileUnknownField;
+pub(crate) use ln0540_doc_base_abstract_field_is_template::DocBaseAbstractFieldIsTemplate;
+pub(crate) use ln0541_doc_base_abstract_might_contain_extra_leading_whitespace::DocBaseAbstractMightContainExtraLeadingWhitespace;
+pub(crate) use ln0542_doc_base_document_field_ends_in_whitespace::DocBaseDocumentFieldEndsInWhitespace;
+pub(crate) use ln0543_doc_base_document_field_not_in_first_line::DocBaseDocumentFieldNotInFirstLine;
+pub(crate) use ln0544_doc_base_file_no_format::DocBaseFileNoFormat;
+pub(crate) use ln0545_doc_base_file_no_index::DocBaseFileNoIndex;
+pub(crate) use ln0546_doc_base_file_references_wrong_path::DocBaseFileReferencesWrongPath;
+pub(crate) use ln0547_doc_base_file_separator_extra_whitespace::DocBaseFileSeparatorExtraWhitespace;
+pub(crate) use ln0548_doc_base_file_syntax_error::DocBaseFileSyntaxError;
+pub(crate) use ln0549_doc_base_file_unknown_format::DocBaseFileUnknownFormat;
+pub(crate) use ln0550_doc_base_index_references_multiple_files::DocBaseIndexReferencesMultipleFiles;
+pub(crate) use ln0551_doc_base_invalid_document_field::DocBaseInvalidDocumentField;
+pub(crate) use ln0552_doc_base_unknown_section::DocBaseUnknownSection;
+pub(crate) use ln0553_doc_base_uses_applications_section::DocBaseUsesApplicationsSection;
+pub(crate) use ln0554_duplicate_field_in_doc_base::DuplicateFieldInDocBase;
+pub(crate) use ln0555_duplicate_format_in_doc_base::DuplicateFormatInDocBase;
+pub(crate) use ln0960_executable_in_usr_share_docbase::ExecutableInUsrShareDocbase;
+pub(crate) use ln0961_executable_menu_file::ExecutableMenuFile;
+pub(crate) use ln0962_maintainer_script_does_not_check_for_existence_of_installdocs::MaintainerScriptDoesNotCheckForExistenceOfInstalldocs;
+pub(crate) use ln0963_maintainer_script_does_not_check_for_existence_of_updatemenus::MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
+pub(crate) use ln1194_postinst_has_useless_call_to_update_menus::PostinstHasUselessCallToUpdateMenus;
+pub(crate) use ln1195_postrm_calls_installdocs::PostrmCallsInstalldocs;
+pub(crate) use ln1196_postrm_has_useless_call_to_update_menus::PostrmHasUselessCallToUpdateMenus;
+pub(crate) use ln1197_preinst_calls_installdocs::PreinstCallsInstalldocs;
+pub(crate) use ln1198_preinst_calls_updatemenus::PreinstCallsUpdatemenus;
+pub(crate) use ln1199_prerm_calls_updatemenus::PrermCallsUpdatemenus;
+pub(crate) use ln1423_spelling_error_in_doc_base_abstract_field::SpellingErrorInDocBaseAbstractField;
+pub(crate) use ln1468_spelling_error_in_doc_base_title_field::SpellingErrorInDocBaseTitleField;
+pub(crate) use ln1507_doc_base_file_references_missing_file::DocBaseFileReferencesMissingFile;
+pub(crate) use ln1577_possible_documentation_but_no_doc_base_registration::PossibleDocumentationButNoDocBaseRegistration;

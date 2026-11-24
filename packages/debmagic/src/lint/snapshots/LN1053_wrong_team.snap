@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: clojure-package (source): wrong-team (LN1053) java » clojure
+W: libfoo-clojure (source): wrong-team (LN1053) java » clojure
+W: golang-foo (source): wrong-team (LN1053) clojure » golang

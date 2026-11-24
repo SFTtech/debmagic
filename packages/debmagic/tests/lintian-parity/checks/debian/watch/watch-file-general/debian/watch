@@ -1,0 +1,32 @@
+# watch file with upstream version mangling
+
+version=2
+opts="uversionmangle=s/$/ds/" \
+http://qa.debian.org/watch/sf.php?project=foo scripts\.([\d.]+)\.tar\.gz debian uupdate
+
+version=3
+http://ftp.sf.net/foo/foo_bar(.+)\.Z 5 uupdate
+
+# Test additional Sourceforge patterns.  (See Bug#510398)
+ftp://upload.sourceforge.net/pub/sourceforge/s/so/soprano/ \
+  soprano-(.*)\.tar\.bz2
+http://sourceforge.net/project/showfiles.php?group_id=100501 \
+  .*/octaviz/octaviz-([\d\.]+).tar.gz.*
+http://sourceforge.net/projects/synce/files http://downloads.sourceforge.net/.+/kcemirror-(.+).tar.gz.*
+
+# Unknown version number.
+version=42
+
+# Specifies the same version number as the package.
+https://example.com/ foo([\d.]+)\.tar\.gz 2.0.ds1-1 uupdate
+
+# Deprecated githubredir
+http://githubredir.debian.net/github/username/project /(.*).tar.gz
+
+# without any pgpsigurlmangle
+
+http://insecure.com /(.*).tar.gz
+https://secure.com /(.*).tar.gz
+
+# False positive for debian-watch-uses-insecure-uri
+http://sf.net/uses/redirector-([^-]+)\.tar\.gz

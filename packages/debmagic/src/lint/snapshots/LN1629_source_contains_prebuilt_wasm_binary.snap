@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-prebuilt-wasm-binary (LN1629) [fake.wasm]
+P: example (source): source-contains-prebuilt-wasm-binary (LN1629) [fake.wasm]

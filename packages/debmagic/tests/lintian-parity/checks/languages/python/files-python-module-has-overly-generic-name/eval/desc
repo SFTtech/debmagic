@@ -1,0 +1,4 @@
+Testname: files-python-module-has-overly-generic-name
+Test-Against:
+ unknown-file-in-python-module-directory
+Check: languages/python

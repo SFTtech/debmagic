@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): declares-possibly-conflicting-debhelper-compat-versions (LN0530) 13 from debian/compat vs DH_COMPAT 8 [debian/rules]

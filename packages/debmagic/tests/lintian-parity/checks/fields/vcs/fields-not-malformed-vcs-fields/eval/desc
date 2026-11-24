@@ -1,0 +1,4 @@
+Testname: fields-not-malformed-vcs-fields
+Test-Against:
+ vcs-field-uses-unknown-uri-format
+Check: fields/vcs

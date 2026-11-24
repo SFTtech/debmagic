@@ -1,0 +1,16 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh_autotools-dev_updateconfig [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh_autotools-dev_restoreconfig [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh_autotools-dev_updateconfig [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh_autotools-dev_restoreconfig [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh_autotools-dev_updateconfig [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh ... --with autotools-dev [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh ... --with autotools-dev [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh ... --with autotools-dev [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh ... --with autotools-dev [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh ... --with autotools_dev [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh ... --with autotools-dev [debian/rules:1]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh_autotools-dev_updateconfig [debian/rules:2]
+W: example (source): debhelper-tools-from-autotools-dev-are-deprecated (LN0217) dh_autotools-dev_restoreconfig [debian/rules:2]

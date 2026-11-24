@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): unwanted-path-too-specific (LN1028) usr/lib/x86_64-linux-gnu/foo [debian/not-installed:1]

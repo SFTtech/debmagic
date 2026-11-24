@@ -1,0 +1,48 @@
+//! Rules for lintian's `systemd` Check.
+//!
+//! `systemd_init` reads `etc/init.d` scripts. Unit-file Rules read service
+//! text through `init_scripts::systemd_unit`. Each Rule owns one Tag.
+
+mod ln0125_missing_systemd_service_for_init_d_script;
+mod ln0126_init_d_script_does_not_source_init_functions;
+mod ln0295_systemd_service_alias_without_extension;
+mod ln0296_systemd_service_file_refers_to_obsolete_bindto;
+mod ln0297_systemd_service_file_uses_nobody_or_nogroup;
+mod ln0412_missing_systemd_timer_for_cron_script;
+mod ln0989_systemd_service_file_refers_to_unusual_wantedby_target;
+mod ln0990_systemd_service_file_uses_deprecated_syslog_facility;
+mod ln0991_systemd_service_in_odd_location;
+mod ln0992_init_script_is_not_a_file;
+mod ln0993_kill_mode_none;
+mod ln0994_omitted_systemd_service_for_init_d_script;
+mod ln1137_misplaced_systemd_tmpfiles;
+mod ln1229_service_file_is_not_a_file;
+mod ln1230_systemd_service_file_shutdown_problems;
+mod ln1432_systemd_service_file_missing_documentation_key;
+mod ln1584_invalid_systemd_documentation;
+mod ln1585_systemd_service_file_missing_install_key;
+mod ln1729_systemd_service_file_refers_to_var_run;
+mod ln1730_systemd_tmpfile_in_var_run;
+mod systemd_init;
+mod targets;
+
+pub(crate) use ln0125_missing_systemd_service_for_init_d_script::MissingSystemdServiceForInitDScript;
+pub(crate) use ln0126_init_d_script_does_not_source_init_functions::InitDScriptDoesNotSourceInitFunctions;
+pub(crate) use ln0295_systemd_service_alias_without_extension::SystemdServiceAliasWithoutExtension;
+pub(crate) use ln0296_systemd_service_file_refers_to_obsolete_bindto::SystemdServiceFileRefersToObsoleteBindto;
+pub(crate) use ln0297_systemd_service_file_uses_nobody_or_nogroup::SystemdServiceFileUsesNobodyOrNogroup;
+pub(crate) use ln0412_missing_systemd_timer_for_cron_script::MissingSystemdTimerForCronScript;
+pub(crate) use ln0989_systemd_service_file_refers_to_unusual_wantedby_target::SystemdServiceFileRefersToUnusualWantedbyTarget;
+pub(crate) use ln0990_systemd_service_file_uses_deprecated_syslog_facility::SystemdServiceFileUsesDeprecatedSyslogFacility;
+pub(crate) use ln0991_systemd_service_in_odd_location::SystemdServiceInOddLocation;
+pub(crate) use ln0992_init_script_is_not_a_file::InitScriptIsNotAFile;
+pub(crate) use ln0993_kill_mode_none::KillModeNone;
+pub(crate) use ln0994_omitted_systemd_service_for_init_d_script::OmittedSystemdServiceForInitDScript;
+pub(crate) use ln1137_misplaced_systemd_tmpfiles::MisplacedSystemdTmpfiles;
+pub(crate) use ln1229_service_file_is_not_a_file::ServiceFileIsNotAFile;
+pub(crate) use ln1230_systemd_service_file_shutdown_problems::SystemdServiceFileShutdownProblems;
+pub(crate) use ln1432_systemd_service_file_missing_documentation_key::SystemdServiceFileMissingDocumentationKey;
+pub(crate) use ln1584_invalid_systemd_documentation::InvalidSystemdDocumentation;
+pub(crate) use ln1585_systemd_service_file_missing_install_key::SystemdServiceFileMissingInstallKey;
+pub(crate) use ln1729_systemd_service_file_refers_to_var_run::SystemdServiceFileRefersToVarRun;
+pub(crate) use ln1730_systemd_tmpfile_in_var_run::SystemdTmpfileInVarRun;

@@ -1,0 +1,11 @@
+Date: Tue, 31 Mar 2026 17:46:22 +0200
+Source: changes-missing-format
+Binary: changes-missing-format
+Architecture: source all
+Version: 1.0
+Distribution: unstable
+Urgency: low
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Changed-By: Debian Lintian Maintainers <lintian-maint@debian.org>
+Description:
+ changes-missing-format - Test for missing format field

@@ -1,0 +1,2 @@
+Testname: control-file-symlink
+Check: debian/control/field/rules-requires-root

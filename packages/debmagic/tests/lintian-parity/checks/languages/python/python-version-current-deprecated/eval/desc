@@ -1,0 +1,4 @@
+Testname: python-version-current-deprecated
+Test-Against:
+ python-version-current-is-deprecated
+Check: languages/python

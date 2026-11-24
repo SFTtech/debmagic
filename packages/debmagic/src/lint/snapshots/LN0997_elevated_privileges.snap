@@ -1,0 +1,19 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): elevated-privileges (LN0997) 4755 root/root [usr/bin/script-uid]
+W: example (binary): elevated-privileges (LN0997) 2755 root/root [usr/bin/script-gid]
+W: example (binary): elevated-privileges (LN0997) 6755 root/root [usr/bin/script-ugid]
+W: example (binary): elevated-privileges (LN0997) 4744 root/root [usr/bin/script-wuid]
+W: example (binary): elevated-privileges (LN0997) 4644 root/root [usr/bin/data]
+W: example (binary): elevated-privileges (LN0997) 4755 root/root [usr/bin/hard]
+W: example (udeb): elevated-privileges (LN0997) 4755 root/root [bin/su]
+W: example (binary): elevated-privileges (LN0997) 4755 bin/bin [usr/bin/owned]
+W: example (binary): elevated-privileges (LN0997) 4755 root/root [usr/bin/other]
+W: example (binary): elevated-privileges (LN0997) 6755 root/root [usr/bin/vga-gid]
+W: example (binary): elevated-privileges (LN0997) 4755 alice/root [usr/bin/vga-user]
+W: example (binary): elevated-privileges (LN0997) 6755 root/staff [usr/games/both]
+W: example (binary): elevated-privileges (LN0997) 2755 root/staff [usr/games/tool]
+W: example (binary): elevated-privileges (LN0997) 2755 root/games [usr/bin/tool]
+W: example (binary): elevated-privileges (LN0997) 2755 root/games [usr/games]
+W: su-helper (binary): elevated-privileges (LN0997) 4755 root/root [usr/bin/su]

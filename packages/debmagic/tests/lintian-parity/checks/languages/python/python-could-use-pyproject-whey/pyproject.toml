@@ -1,0 +1,3 @@
+[build-system]
+requires = [ "whey[readme]",]
+build-backend = "whey"

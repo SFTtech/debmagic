@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): nfs-temporary-file-in-package (LN0790) [usr/share/foo/.nfs0000000012345678]
+W: example (binary): nfs-temporary-file-in-package (LN0790) [usr/share/foo/.nfs-fake-tmpfile]
+W: example (binary): nfs-temporary-file-in-package (LN0790) [usr/share/foo/.nfs0001]
+W: example (udeb): nfs-temporary-file-in-package (LN0790) [usr/share/foo/.nfs-fake-tmpfile]

@@ -1,0 +1,13 @@
+Source: watch-file-missing-with-cpan-upstream-metadata-missing
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+
+Package: watch-file-missing-with-cpan-upstream-metadata-missing
+Architecture: all
+Description: Tests for d/watch missing but missing fields in cpan d/u/metadata
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.

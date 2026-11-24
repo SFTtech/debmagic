@@ -1,0 +1,2 @@
+gi.repository.Gst gir1.2-gst-plugins-base-1.0
+gi.repository.Gst gir1.2-gstreamer-1.0

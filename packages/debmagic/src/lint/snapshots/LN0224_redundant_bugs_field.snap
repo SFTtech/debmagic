@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): redundant-bugs-field (LN0224)
+W: example (binary): redundant-bugs-field (LN0224)
+W: example (binary): redundant-bugs-field (LN0224)
+W: example (binary): redundant-bugs-field (LN0224)
+W: example-dbgsym (binary): redundant-bugs-field (LN0224)
+W: example (udeb): redundant-bugs-field (LN0224)

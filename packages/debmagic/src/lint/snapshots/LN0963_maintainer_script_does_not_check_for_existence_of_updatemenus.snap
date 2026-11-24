@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): maintainer-script-does-not-check-for-existence-of-updatemenus (LN0963) [postinst:2]
+E: example (binary): maintainer-script-does-not-check-for-existence-of-updatemenus (LN0963) [postinst:3]
+E: example (binary): maintainer-script-does-not-check-for-existence-of-updatemenus (LN0963) [preinst:2]
+E: example (binary): maintainer-script-does-not-check-for-existence-of-updatemenus (LN0963) [postrm:2]
+E: example (binary): maintainer-script-does-not-check-for-existence-of-updatemenus (LN0963) [prerm:2]

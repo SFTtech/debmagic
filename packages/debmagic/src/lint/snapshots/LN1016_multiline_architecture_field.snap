@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): multiline-architecture-field (LN1016) Architecture (in section for example) [debian/control:5]
+E: example (source): multiline-architecture-field (LN1016) Architecture (in section for example) [debian/control:5]
+E: example (source): multiline-architecture-field (LN1016) Architecture (in section for other) [debian/control:10]

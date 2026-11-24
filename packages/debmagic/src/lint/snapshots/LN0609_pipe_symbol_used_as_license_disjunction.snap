@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): pipe-symbol-used-as-license-disjunction (LN0609) this | that [debian/copyright:6]
+W: (source): pipe-symbol-used-as-license-disjunction (LN0609) gpl-2 | mit [debian/copyright:6]
+W: (source): pipe-symbol-used-as-license-disjunction (LN0609) a | b   c [debian/copyright:10]

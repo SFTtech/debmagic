@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): doc-base-abstract-might-contain-extra-leading-whitespace (LN0541) [usr/share/doc-base/example:4]
+W: example (binary): doc-base-abstract-might-contain-extra-leading-whitespace (LN0541) [usr/share/doc-base/example:3]
+W: example (udeb): doc-base-abstract-might-contain-extra-leading-whitespace (LN0541) [usr/share/doc-base/example:4]

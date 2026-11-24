@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): changelog-not-compressed-with-max-compression (LN0869) [usr/share/doc/example/changelog.Debian.gz]
+W: example (binary): changelog-not-compressed-with-max-compression (LN0869) [usr/share/doc/example/changelog.gz]
+W: example (binary): changelog-not-compressed-with-max-compression (LN0869) [usr/share/doc/example/changelog.html.gz]
+W: example (binary): changelog-not-compressed-with-max-compression (LN0869) [usr/share/doc/example/changelog.Debian.gz]
+W: example (binary): changelog-not-compressed-with-max-compression (LN0869) [usr/share/doc/example/changelog.gz]
+W: example (binary): changelog-not-compressed-with-max-compression (LN0869) [usr/share/doc/example/changelog.Debian.gz]

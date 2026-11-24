@@ -1,0 +1,3 @@
+bin/* usr/bin/
+libexec/* usr/libexec/
+sbin/* usr/sbin/

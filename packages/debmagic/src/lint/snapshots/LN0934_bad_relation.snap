@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bad-relation (LN0934) Depends: another-package (>< 1.0)
+E: example (binary): bad-relation (LN0934) Depends: a b
+E: example (binary): bad-relation (LN0934) Conflicts: d junk
+E: example (binary): bad-relation (LN0934) Suggests: e (1.0)

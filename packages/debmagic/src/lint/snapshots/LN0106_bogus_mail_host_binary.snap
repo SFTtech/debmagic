@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): bogus-mail-host (LN0106) Maintainer user@localhost.localdomain

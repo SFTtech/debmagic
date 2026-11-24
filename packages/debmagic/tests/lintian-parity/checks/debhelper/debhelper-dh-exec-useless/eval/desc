@@ -1,0 +1,4 @@
+Testname: debhelper-dh-exec-useless
+Test-Against:
+ dh-exec-useless-usage
+Check: debhelper

@@ -1,0 +1,2 @@
+Testname: cruft-upstream-binaries
+Check: files/source-missing

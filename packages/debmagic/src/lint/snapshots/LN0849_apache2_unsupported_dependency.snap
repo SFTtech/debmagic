@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): apache2-unsupported-dependency (LN0849) Conflicts [etc/apache2/conf-available/phpmyfoo.conf:2]
+W: example (binary): apache2-unsupported-dependency (LN0849) Conflicts [etc/apache2/conf.d/foo.conf:1]
+W: example (binary): apache2-unsupported-dependency (LN0849) Conflicts [etc/apache2/site-available/foo:1]
+W: example (binary): apache2-unsupported-dependency (LN0849) Conflicts [etc/apache2/conf-available/foo.conf:1]

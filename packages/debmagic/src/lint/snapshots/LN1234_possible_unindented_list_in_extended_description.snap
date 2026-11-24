@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): possible-unindented-list-in-extended-description (LN1234) line 3
+W: example (binary): possible-unindented-list-in-extended-description (LN1234) line 4
+W: example (binary): possible-unindented-list-in-extended-description (LN1234) line 3
+W: example (binary): possible-unindented-list-in-extended-description (LN1234) line 4
+W: example (udeb): possible-unindented-list-in-extended-description (LN1234) line 3

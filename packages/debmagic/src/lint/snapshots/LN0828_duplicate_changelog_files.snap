@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): duplicate-changelog-files (LN0828) usr/share/doc/example/NEWS.gz usr/share/doc/example/changelog.gz
+W: example (binary): duplicate-changelog-files (LN0828) usr/share/doc/example/COPYING usr/share/doc/example/NEWS usr/share/doc/other/ChangeLog
+W: example (udeb): duplicate-changelog-files (LN0828) usr/share/doc/example/NEWS.gz usr/share/doc/example/changelog.gz

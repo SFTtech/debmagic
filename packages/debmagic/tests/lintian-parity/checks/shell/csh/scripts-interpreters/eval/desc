@@ -1,0 +1,4 @@
+Testname: scripts-interpreters
+Check: shell/csh
+See-Also:
+ Bug#543873

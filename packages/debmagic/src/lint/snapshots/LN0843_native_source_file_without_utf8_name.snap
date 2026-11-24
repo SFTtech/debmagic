@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): native-source-file-without-utf8-name (LN0843) bokmål
+E: example (source): native-source-file-without-utf8-name (LN0843) bokm\ål
+E: example (source): native-source-file-without-utf8-name (LN0843) dir/bokmål
+E: example (source): native-source-file-without-utf8-name (LN0843) bad-dirå/
+E: example (source): native-source-file-without-utf8-name (LN0843) xÿþ

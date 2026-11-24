@@ -1,0 +1,29 @@
+Source: fields-r-package-not-arch-all
+Priority: optional
+Section: gnu-r
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 14)
+Rules-Requires-Root: no
+
+Package: r-cran-positive
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Tests for Architecture of an R package (wrong)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package has an incorrect Architecture field.
+
+Package: r-cran-false-positive
+Architecture: all
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Tests for Architecture of an R package (right)
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.
+ .
+ This package has the correct Architecture field.

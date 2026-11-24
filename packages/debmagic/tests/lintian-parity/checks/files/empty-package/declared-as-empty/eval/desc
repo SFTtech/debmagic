@@ -1,0 +1,4 @@
+Testname: declared-as-empty
+Check: files/empty-package
+Test-Against:
+ empty-binary-package

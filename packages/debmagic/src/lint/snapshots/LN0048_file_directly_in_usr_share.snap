@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): file-directly-in-usr-share (LN0048) [usr/share/bar]
+E: example (binary): file-directly-in-usr-share (LN0048) [usr/share/baz]
+E: example (binary): file-directly-in-usr-share (LN0048) [usr/share/qux]
+E: example (udeb): file-directly-in-usr-share (LN0048) [usr/share/bar]

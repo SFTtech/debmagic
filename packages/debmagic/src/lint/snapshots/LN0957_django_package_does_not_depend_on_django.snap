@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: python3-django-positive (binary): django-package-does-not-depend-on-django (LN0957) python3-django
+W: python3-django-recommends (binary): django-package-does-not-depend-on-django (LN0957) python3-django

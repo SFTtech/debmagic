@@ -1,0 +1,8 @@
+Testname: changelog-file-backport
+Options: --include-dir ./lintian-include-dir
+Profile: lintian-test
+Test-Against:
+ upload-has-backports-version-number
+Check: fields/distribution
+# Overrides the "data/changes-file/known-dists"
+# data file to avoid updating the test every release

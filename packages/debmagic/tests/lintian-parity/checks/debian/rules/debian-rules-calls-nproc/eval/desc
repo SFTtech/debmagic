@@ -1,0 +1,2 @@
+Testname: debian-rules-calls-nproc
+Check: debian/rules

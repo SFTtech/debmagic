@@ -1,0 +1,558 @@
+{
+   "add_ons" : {
+      "acc" : {
+         "installed_by" : [
+            "dh-acc"
+         ]
+      },
+      "ada_library" : {
+         "installed_by" : [
+            "dh-ada-library"
+         ]
+      },
+      "apache2" : {
+         "installed_by" : [
+            "apache2-dev"
+         ]
+      },
+      "aspell_simple" : {
+         "installed_by" : [
+            "dictionaries-common-dev"
+         ]
+      },
+      "asterisk" : {
+         "installed_by" : [
+            "asterisk-dev"
+         ]
+      },
+      "autoreconf" : {
+         "installed_by" : [
+            "dh-autoreconf"
+         ]
+      },
+      "autotools_dev" : {
+         "installed_by" : [
+            "autotools-dev"
+         ]
+      },
+      "bash_completion" : {
+         "installed_by" : [
+            "bash-completion"
+         ]
+      },
+      "build_stamp" : {
+         "installed_by" : [
+            "libdebhelper-perl"
+         ]
+      },
+      "builtusing" : {
+         "installed_by" : [
+            "dh-builtusing"
+         ]
+      },
+      "cargo" : {
+         "installed_by" : [
+            "dh-cargo"
+         ]
+      },
+      "cli" : {
+         "installed_by" : [
+            "cli-common-dev"
+         ]
+      },
+      "cli_nant" : {
+         "installed_by" : [
+            "cli-common-dev"
+         ]
+      },
+      "click" : {
+         "installed_by" : [
+            "click-dev"
+         ]
+      },
+      "cmake" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "cme_upgrade" : {
+         "installed_by" : [
+            "cme"
+         ]
+      },
+      "config_package" : {
+         "installed_by" : [
+            "config-package-dev"
+         ]
+      },
+      "coq" : {
+         "installed_by" : [
+            "dh-coq"
+         ]
+      },
+      "cpack" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "cruft" : {
+         "installed_by" : [
+            "dh-cruft"
+         ]
+      },
+      "ctest" : {
+         "installed_by" : [
+            "dh-cmake"
+         ]
+      },
+      "d_i" : {
+         "installed_by" : [
+            "dh-di"
+         ]
+      },
+      "debputy" : {
+         "installed_by" : [
+            "dh-debputy"
+         ]
+      },
+      "dist_zilla" : {
+         "installed_by" : [
+            "dh-dist-zilla"
+         ]
+      },
+      "dkms" : {
+         "installed_by" : [
+            "dh-dkms"
+         ]
+      },
+      "dlopenlibdeps" : {
+         "installed_by" : [
+            "dh-dlopenlibdeps"
+         ]
+      },
+      "doxygen" : {
+         "installed_by" : [
+            "doxygen"
+         ]
+      },
+      "dwz" : {
+         "installed_by" : [
+            "libdebhelper-perl"
+         ]
+      },
+      "eclipse_helper" : {
+         "installed_by" : [
+            "javahelper"
+         ]
+      },
+      "elf_tools" : {
+         "installed_by" : [
+            "libdebhelper-perl"
+         ]
+      },
+      "elpa" : {
+         "installed_by" : [
+            "dh-elpa"
+         ]
+      },
+      "fortran" : {
+         "installed_by" : [
+            "dh-fortran"
+         ]
+      },
+      "fortran_mod" : {
+         "installed_by" : [
+            "dh-fortran"
+         ]
+      },
+      "germinate" : {
+         "installed_by" : [
+            "germinate"
+         ]
+      },
+      "gir" : {
+         "installed_by" : [
+            "gobject-introspection-bin"
+         ]
+      },
+      "gnome" : {
+         "installed_by" : [
+            "gnome-pkg-tools"
+         ]
+      },
+      "golang" : {
+         "installed_by" : [
+            "dh-golang",
+            "dh-go"
+         ]
+      },
+      "grantlee" : {
+         "installed_by" : [
+            "libgrantlee5-dev"
+         ]
+      },
+      "haskell" : {
+         "installed_by" : [
+            "dh-haskell"
+         ]
+      },
+      "installdebputy" : {
+         "installed_by" : [
+            "dh-debputy"
+         ]
+      },
+      "installinitramfs" : {
+         "installed_by" : [
+            "libdebhelper-perl"
+         ]
+      },
+      "installnss" : {
+         "installed_by" : [
+            "dh-nss"
+         ]
+      },
+      "installsysusers" : {
+         "installed_by" : [
+            "libdebhelper-perl"
+         ]
+      },
+      "javahelper" : {
+         "installed_by" : [
+            "javahelper"
+         ]
+      },
+      "jh_maven_repo_helper" : {
+         "installed_by" : [
+            "maven-repo-helper"
+         ]
+      },
+      "kde" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "kf5" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "kf6" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "kodiaddon" : {
+         "installed_by" : [
+            "kodi-addons-dev-common"
+         ]
+      },
+      "libva" : {
+         "installed_by" : [
+            "libva-dev"
+         ]
+      },
+      "linktree" : {
+         "installed_by" : [
+            "dh-linktree"
+         ]
+      },
+      "lisp" : {
+         "installed_by" : [
+            "dh-lisp"
+         ]
+      },
+      "lua" : {
+         "installed_by" : [
+            "dh-lua"
+         ]
+      },
+      "maven_repo_helper" : {
+         "installed_by" : [
+            "maven-repo-helper"
+         ]
+      },
+      "mkdocs" : {
+         "installed_by" : [
+            "mkdocs"
+         ]
+      },
+      "movetousr" : {
+         "installed_by" : [
+            "libdebhelper-perl"
+         ]
+      },
+      "nginx" : {
+         "installed_by" : [
+            "nginx-dev"
+         ]
+      },
+      "nodejs" : {
+         "installed_by" : [
+            "dh-nodejs"
+         ]
+      },
+      "nodejs_no_lerna" : {
+         "installed_by" : [
+            "dh-nodejs"
+         ]
+      },
+      "numpy3" : {
+         "installed_by" : [
+            "python3-numpy-dev"
+         ]
+      },
+      "ocaml" : {
+         "installed_by" : [
+            "dh-ocaml"
+         ]
+      },
+      "octave" : {
+         "installed_by" : [
+            "dh-octave"
+         ]
+      },
+      "pd_lib_builder" : {
+         "installed_by" : [
+            "dh-puredata"
+         ]
+      },
+      "pdl" : {
+         "installed_by" : [
+            "pdl"
+         ]
+      },
+      "perl_dbi" : {
+         "installed_by" : [
+            "libdbi-perl"
+         ]
+      },
+      "perl_imager" : {
+         "installed_by" : [
+            "libimager-perl"
+         ]
+      },
+      "perl_openssl" : {
+         "installed_by" : [
+            "perl-openssl-defaults"
+         ]
+      },
+      "pgxs" : {
+         "installed_by" : [
+            "postgresql-common-dev"
+         ]
+      },
+      "pgxs_loop" : {
+         "installed_by" : [
+            "postgresql-common-dev"
+         ]
+      },
+      "php" : {
+         "installed_by" : [
+            "dh-php"
+         ]
+      },
+      "phpcomposer" : {
+         "installed_by" : [
+            "pkg-php-tools",
+            "dh-sequence-phpcomposer"
+         ]
+      },
+      "phppear" : {
+         "installed_by" : [
+            "pkg-php-tools",
+            "dh-sequence-phppear"
+         ]
+      },
+      "pkgkde_symbolshelper" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "ppp" : {
+         "installed_by" : [
+            "ppp-dev"
+         ]
+      },
+      "puppet_module" : {
+         "installed_by" : [
+            "dh-puppet"
+         ]
+      },
+      "puredata" : {
+         "installed_by" : [
+            "dh-puredata"
+         ]
+      },
+      "pyppd" : {
+         "installed_by" : [
+            "pyppd"
+         ]
+      },
+      "python3" : {
+         "installed_by" : [
+            "dh-python"
+         ]
+      },
+      "python_virtualenv" : {
+         "installed_by" : [
+            "dh-virtualenv"
+         ]
+      },
+      "qmlcdeps" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "qmldeps" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "quilt" : {
+         "installed_by" : [
+            "quilt"
+         ]
+      },
+      "raku" : {
+         "installed_by" : [
+            "dh-raku"
+         ]
+      },
+      "rebar" : {
+         "installed_by" : [
+            "dh-rebar"
+         ]
+      },
+      "root_sequence" : {
+         "installed_by" : [
+            "libdebhelper-perl"
+         ]
+      },
+      "ruby" : {
+         "installed_by" : [
+            "gem2deb"
+         ]
+      },
+      "runit" : {
+         "installed_by" : [
+            "dh-runit"
+         ]
+      },
+      "rust" : {
+         "installed_by" : [
+            "dh-rust"
+         ]
+      },
+      "scour" : {
+         "installed_by" : [
+            "scour"
+         ]
+      },
+      "setup_copyright" : {
+         "installed_by" : [
+            "dh-setup-copyright"
+         ]
+      },
+      "shell_completions" : {
+         "installed_by" : [
+            "dh-shell-completions"
+         ]
+      },
+      "single_binary" : {
+         "installed_by" : [
+            "dh-sequence-single-binary",
+            "debhelper-compat",
+            "debhelper"
+         ]
+      },
+      "sodeps" : {
+         "installed_by" : [
+            "pkg-kde-tools"
+         ]
+      },
+      "sphinxdoc" : {
+         "installed_by" : [
+            "sphinx-common"
+         ]
+      },
+      "systemd" : {
+         "installed_by" : [
+            "libdebhelper-perl"
+         ]
+      },
+      "sysuser" : {
+         "installed_by" : [
+            "dh-sysuser"
+         ]
+      },
+      "tex" : {
+         "installed_by" : [
+            "tex-common"
+         ]
+      },
+      "user_session_migration" : {
+         "installed_by" : [
+            "dh-user-session-migration"
+         ]
+      },
+      "uwsgi" : {
+         "installed_by" : [
+            "uwsgi-dev"
+         ]
+      },
+      "varnishabi" : {
+         "installed_by" : [
+            "libvarnishapi-dev"
+         ]
+      },
+      "vdrplugin" : {
+         "installed_by" : [
+            "vdr-dev"
+         ]
+      },
+      "vignette" : {
+         "installed_by" : [
+            "dh-r"
+         ]
+      },
+      "vim_addon" : {
+         "installed_by" : [
+            "dh-vim-addon"
+         ]
+      },
+      "xine" : {
+         "installed_by" : [
+            "libxine2-dev"
+         ]
+      },
+      "xml_core" : {
+         "installed_by" : [
+            "xml-core"
+         ]
+      },
+      "xsf" : {
+         "installed_by" : [
+            "xserver-xorg-dev"
+         ]
+      },
+      "zathura" : {
+         "installed_by" : [
+            "zathura-dev"
+         ]
+      },
+      "zz_debputy" : {
+         "installed_by" : [
+            "dh-debputy"
+         ]
+      },
+      "zz_debputy_rrr" : {
+         "installed_by" : [
+            "dh-debputy"
+         ]
+      }
+   },
+   "preamble" : {
+      "cargo" : "add_ons",
+      "title" : "Debhelper Add-ons"
+   }
+}

@@ -1,0 +1,2 @@
+Testname: depends-on-vim-addon-manager
+Check: vim/addons

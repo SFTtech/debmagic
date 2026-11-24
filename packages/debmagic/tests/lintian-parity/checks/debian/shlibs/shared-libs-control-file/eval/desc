@@ -1,0 +1,2 @@
+Testname: shared-libs-control-file
+Check: debian/shlibs

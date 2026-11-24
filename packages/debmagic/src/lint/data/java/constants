@@ -1,0 +1,35 @@
+# This defines the maximal version of Java bytecode
+# to make sure it runs on older JVM
+# Byte code numbers:
+#  45-49 -> Java1
+#     50 -> Java6
+#     51 -> Java7
+#     52 -> Java8
+#     53 -> Java9
+#     54 -> Java10
+#     55 -> Java11
+#     56 -> Java12
+#     57 -> Java13
+#     58 -> Java14
+#     59 -> Java15
+#     60 -> Java16
+#     61 -> Java17
+#     62 -> Java18
+#     63 -> Java19
+#     64 -> Java20
+#     65 -> Java21
+#     66 -> Java22
+#     67 -> Java23
+#     68 -> Java24
+#     69 -> Java25
+#     70 -> Java26 - highest version in Debian unstable
+#     71 -> Java27
+
+# current default in Debian
+default-bytecode-version = 69
+
+# highest known anywhere
+highest-known-bytecode-version = 71
+
+# The following should not change
+lowest-known-bytecode-version = 45

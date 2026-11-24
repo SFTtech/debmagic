@@ -1,0 +1,2 @@
+E: lintian-check-tags-file: section-is-dh_make-template
+W: lintian-check-tags-file source: debhelper-but-no-misc-depends lintian-check-tags-file

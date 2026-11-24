@@ -1,0 +1,21 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): obsolete-url-in-packaging (LN0185) http://code.google.com/p/foo [debian/control]
+W: example (source): obsolete-url-in-packaging (LN0185) https://foo.berlios.de/ [debian/copyright]
+W: example (source): obsolete-url-in-packaging (LN0185) http://freshmeat.net/p/foo [debian/copyright]
+W: example (source): obsolete-url-in-packaging (LN0185) ftp://ftp.debian.org [debian/copyright]
+W: example (source): obsolete-url-in-packaging (LN0185) http://gitorious.org/foo/foo/file-(.*)\.tar\.gz [debian/watch]
+W: example (source): obsolete-url-in-packaging (LN0185) http://freecode.com/p/foo [debian/upstream/metadata]
+W: example (source): obsolete-url-in-packaging (LN0185) git://gitorious.org/foo/foo.git [debian/upstream/metadata]
+W: example (source): obsolete-url-in-packaging (LN0185) http://gitorious.org/foo/foo.git [debian/upstream]
+W: example (source): obsolete-url-in-packaging (LN0185) http://alioth.debian.org/projects/foo/ [debian/upstream-metadata.yaml]
+W: example (source): obsolete-url-in-packaging (LN0185) ftp://security.debian.org [debian/copyright]
+W: example (source): obsolete-url-in-packaging (LN0185) HTTP://Berlios.DE/x [debian/control]
+W: example (source): obsolete-url-in-packaging (LN0185) https://foo.berlios.de/first [debian/copyright]
+W: example (source): obsolete-url-in-packaging (LN0185) http://search.cpan.org/Foo-Bar-9.0_01/ [debian/control]
+W: example (source): obsolete-url-in-packaging (LN0185) https://berlios.de:80/x [debian/copyright]
+W: example (source): obsolete-url-in-packaging (LN0185) http://freshmeat.net/p/foo [debian/copyright]
+W: example (source): obsolete-url-in-packaging (LN0185) http://code.google.com/p/foo [debian/control]
+W: example (source): obsolete-url-in-packaging (LN0185) http://code.google.com/p/foo [debian/control]
+W: example (source): obsolete-url-in-packaging (LN0185) http://gitorious.org/foo [debian/watch]

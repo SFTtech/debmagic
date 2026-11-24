@@ -1,0 +1,16 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_HOST_ARCH [debian/rules:3]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_BUILD_ARCH [debian/rules:3]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_HOST_MULTIARCH [debian/rules:3]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_TARGET_GNU_TYPE [debian/rules:3]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_HOST_ARCH_BITS [debian/rules:3]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_HOST_ARCH_CPU [debian/rules:3]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_HOST_ARCH [debian/rules:3]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_BUILD_ARCH [debian/rules:4]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_HOST_ARCH [debian/rules:4]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_HOST_ARCH [debian/rules:4]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_HOST_ARCH_OS [debian/rules:3]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_HOST_ARCH [debian/rules:4]
+W: example (source): debian-rules-sets-dpkg-architecture-variable (LN0581) DEB_HOST_ARCH [debian/rules:3]

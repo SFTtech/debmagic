@@ -1,0 +1,16 @@
+Source: python-version-current-deprecated
+Priority: optional
+Section: python
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+X-Python3-Version: current
+Build-Depends: debhelper-compat (= 14)
+
+Package: not-python-version-current-deprecated
+Architecture: all
+Depends: ${misc:Depends}
+Description: Test for "current" in the Python3-Version field
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

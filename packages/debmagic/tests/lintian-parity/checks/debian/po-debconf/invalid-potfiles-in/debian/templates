@@ -1,0 +1,22 @@
+Template: test/checksum_error
+Type: error
+# Lintian test note: The space between '# and CHECKSUM' in the lines
+# below is the unicode character NO BREAK SPACE U+00A0 (\302\240 in
+# UTF-8) and the sole reason why intltool-update fails.
+#
+# ERROR: xgettext failed to generate PO template file because there is non-ASCII
+#       string marked for translation. Please make sure that all strings marked
+#       for translation are in uniform encoding (say UTF-8), then *prepend* the
+#       following line to POTFILES.in and rerun intltool-update:
+#
+#           [encoding: UTF-8]
+#
+# taken from preseed 1.90; see #883653; FL
+#
+# Translators : DO NOT TRANSLATE variable names : ALGORITHM, LOCATION
+# and CHECKSUM
+# :sl2:
+_Description: Checksum error
+ The ${ALGORITHM} checksum of the file retrieved from <${LOCATION}> fails
+ to match the expected value of "${CHECKSUM}". The file may be corrupt,
+ or the provided checksums may be out of date.

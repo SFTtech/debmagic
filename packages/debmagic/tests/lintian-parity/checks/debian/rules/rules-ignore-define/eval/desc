@@ -1,0 +1,4 @@
+Testname: rules-ignore-define
+Test-Against: binary-arch-rules-but-pkg-is-arch-indep
+See-Also: Debian Bug#510869
+Check: debian/rules

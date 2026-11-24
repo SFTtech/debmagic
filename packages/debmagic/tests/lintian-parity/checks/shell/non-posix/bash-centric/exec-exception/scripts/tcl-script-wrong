@@ -1,0 +1,6 @@
+#!/bin/sh
+exec >&3
+source x00.tcl
+plinit
+x00
+plend

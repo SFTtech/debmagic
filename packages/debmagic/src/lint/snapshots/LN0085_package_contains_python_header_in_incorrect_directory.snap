@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-python-header-in-incorrect-directory (LN0085) [usr/include/python3.0/x.h]
+E: example (binary): package-contains-python-header-in-incorrect-directory (LN0085) [usr/include/python3.7/bad.h]
+E: example (udeb): package-contains-python-header-in-incorrect-directory (LN0085) [usr/include/python3.7/bad.h]

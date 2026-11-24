@@ -1,0 +1,12 @@
+Format: 1.8
+Date: Tue, 31 Mar 2026 17:46:22 +0200
+Source: changed-by-root-email
+Binary: changed-by-root-email
+Architecture: source all
+Version: 1.0
+Distribution: unstable
+Urgency: low
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Changed-By: someone <root@debian.org>
+Description:
+ changed-by-root-email - Test Changed-By field with root user

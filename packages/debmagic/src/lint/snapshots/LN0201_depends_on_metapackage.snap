@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): depends-on-metapackage (LN0201) Depends: xorg
+E: example (binary): depends-on-metapackage (LN0201) Pre-Depends: xorg
+E: example (binary): depends-on-metapackage (LN0201) Depends: xorg (>= 1)
+E: example (binary): depends-on-metapackage (LN0201) Depends: x-window-system
+E: example (binary): depends-on-metapackage (LN0201) Pre-Depends: qt5-default
+E: example (binary): depends-on-metapackage (LN0201) Suggests: mono-complete
+E: example (udeb): depends-on-metapackage (LN0201) Pre-Depends: xorg

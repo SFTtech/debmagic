@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): maintainer-script-needs-depends-on-ucf (LN0195) ucf (does not satisfy ucf) [postinst:2]
+W: example (binary): maintainer-script-needs-depends-on-ucf (LN0195) ucf (does not satisfy ucf) [config:2]

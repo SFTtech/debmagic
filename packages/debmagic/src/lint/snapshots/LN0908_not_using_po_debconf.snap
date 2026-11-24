@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): not-using-po-debconf (LN0908)
+E: example (source): not-using-po-debconf (LN0908)

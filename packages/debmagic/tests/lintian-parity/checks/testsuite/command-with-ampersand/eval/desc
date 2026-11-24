@@ -1,0 +1,4 @@
+Testname: command-with-ampersand
+Check: testsuite
+See-Also:
+ Bug#988591

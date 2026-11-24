@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): usr-share-doc-symlink-points-outside-of-usr-share-doc (LN1262) /usr/share/doc/foreign [usr/share/doc/example]
+E: example (binary): usr-share-doc-symlink-points-outside-of-usr-share-doc (LN1262) ../foreign [usr/share/doc/example]
+E: example (binary): usr-share-doc-symlink-points-outside-of-usr-share-doc (LN1262) ../../share/doc/x [usr/share/doc/example]

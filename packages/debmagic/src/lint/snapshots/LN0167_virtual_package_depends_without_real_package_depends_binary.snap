@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): virtual-package-depends-without-real-package-depends (LN0167) Depends: mail-transport-agent
+W: example (binary): virtual-package-depends-without-real-package-depends (LN0167) Depends: httpd
+W: example (binary): virtual-package-depends-without-real-package-depends (LN0167) Depends: perl-modules
+W: example (binary): virtual-package-depends-without-real-package-depends (LN0167) Depends: mail-transport-agent
+W: example (binary): virtual-package-depends-without-real-package-depends (LN0167) Pre-Depends: awk
+W: example (binary): virtual-package-depends-without-real-package-depends (LN0167) Depends: mail-transport-agent
+W: base-files (binary): virtual-package-depends-without-real-package-depends (LN0167) Depends: mail-transport-agent
+W: example (udeb): virtual-package-depends-without-real-package-depends (LN0167) Depends: httpd

@@ -1,0 +1,6 @@
+Testname: show-overrides-exit-status
+Check: scripts
+Exit-Status: 0
+Match-Strategy: literal
+Output-Format: EWI
+Default-Lintian-Options: --show-overrides --fail-on error

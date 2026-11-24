@@ -1,0 +1,50 @@
+# Manually maintained list of known binary fields
+
+Package
+Package-Type
+Version
+Architecture
+Depends
+Pre-Depends
+Recommends
+Suggests
+Enhances
+Commands
+Conflicts
+Provides
+Replaces
+Breaks
+Essential
+Maintainer
+Section
+Priority
+Source
+Description
+Installed-Size
+Python-Version
+Homepage
+Bugs
+Origin
+Multi-Arch
+Build-Ids
+Built-Using
+Static-Built-Using
+XB-Ruby-Versions
+XB-Ghc-Package
+XB-Gstreamer-Version
+XB-Gstreamer-Elements
+XB-Gstreamer-Uri-Sources
+XB-Gstreamer-Uri-Sinks
+XB-Gstreamer-Encoders
+XB-Gstreamer-Decoders
+XB-Lua-Versions
+Auto-Built-Package
+X-Cargo-Built-Using
+Protected
+
+# Special-case, original-maintainer is not ok in Debian, but we allow
+# it in any non-Debian profile by default.
+#
+# NB: Do not rely on @if-vendor-is-not in your data files; it may
+# disappear without notice
+@if-vendor-is-not debian Original-Maintainer

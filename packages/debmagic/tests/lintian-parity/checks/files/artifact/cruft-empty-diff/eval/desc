@@ -1,0 +1,4 @@
+Testname: cruft-empty-diff
+Check: files/artifact
+See-Also:
+ Bug#498668

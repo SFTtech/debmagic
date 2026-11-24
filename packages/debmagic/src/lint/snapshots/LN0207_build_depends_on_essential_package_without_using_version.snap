@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): build-depends-on-essential-package-without-using-version (LN0207) Build-Depends: bash
+E: example (source): build-depends-on-essential-package-without-using-version (LN0207) Build-Depends: tar
+E: example (source): build-depends-on-essential-package-without-using-version (LN0207) Build-Depends: diffutils
+E: example (source): build-depends-on-essential-package-without-using-version (LN0207) Build-Depends: bash [amd64]
+E: example (source): build-depends-on-essential-package-without-using-version (LN0207) Build-Depends: findutils
+E: example (source): build-depends-on-essential-package-without-using-version (LN0207) Build-Depends-Indep: grep
+E: example (source): build-depends-on-essential-package-without-using-version (LN0207) Build-Depends-Arch: gzip
+E: example (source): build-depends-on-essential-package-without-using-version (LN0207) Build-Conflicts: dpkg
+E: example (source): build-depends-on-essential-package-without-using-version (LN0207) Build-Depends: bash (1.0)

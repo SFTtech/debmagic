@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): dir-or-file-in-build-tree (LN0728) [build/dir/foo/bar]
+E: example (binary): dir-or-file-in-build-tree (LN0728) [build/dir/]
+E: example (binary): dir-or-file-in-build-tree (LN0728) [build/dir/foo/bar]
+E: example (binary): dir-or-file-in-build-tree (LN0728) [var/lib/sbuild/bar]
+E: example (binary): dir-or-file-in-build-tree (LN0728) [var/lib/buildd/bar]
+E: example (binary): dir-or-file-in-build-tree (LN0728) [var/cache/pbuilder/build/bar]
+E: example (binary): dir-or-file-in-build-tree (LN0728) [tmp/buildd/dir/foo/bar]
+E: example (udeb): dir-or-file-in-build-tree (LN0728) [build/file]
+E: example (binary): dir-or-file-in-build-tree (LN0728) [build/file]

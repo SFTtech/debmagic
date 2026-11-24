@@ -1,0 +1,4 @@
+changes-upload-has-backports-version-number (source): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changes-upload-has-backports-version-number (changes): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changes-upload-has-backports-version-number (changes): mail-contact Changed-By "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changes-upload-has-backports-version-number (binary): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>

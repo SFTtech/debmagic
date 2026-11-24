@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): override_dh_auto_test-does-not-check-DEB_BUILD_OPTIONS (LN1690) [debian/rules:2]
+I: example (source): override_dh_auto_test-does-not-check-DEB_BUILD_OPTIONS (LN1690) [debian/rules:2]
+I: example (source): override_dh_auto_test-does-not-check-DEB_BUILD_OPTIONS (LN1690) [debian/rules:4]

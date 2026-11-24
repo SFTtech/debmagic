@@ -1,0 +1,5 @@
+Testname: changelog-file-epoch-changed-upstream-version-increase
+Test-Against:
+ epoch-change-without-comment
+ latest-debian-changelog-entry-reuses-existing-version
+Check: debian/changelog

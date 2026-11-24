@@ -1,0 +1,4 @@
+debhelper-compat-virtual-relation (source): package-uses-old-debhelper-compat-version 11
+debhelper-compat-virtual-relation (source): debian-build-system dh [debian/rules]
+debhelper-compat-virtual-relation (source): debhelper-compat-virtual-relation 11 [debian/control]
+debhelper-compat-virtual-relation (source): debhelper-compat-level 11

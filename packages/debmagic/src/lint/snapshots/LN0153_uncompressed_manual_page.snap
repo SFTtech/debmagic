@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): uncompressed-manual-page (LN0153) [usr/share/man/man1/not-compressed.1]
+E: example (binary): uncompressed-manual-page (LN0153) [usr/share/man/de/man1/binary-without-english-manpage.1]
+E: example (binary): uncompressed-manual-page (LN0153) [usr/share/man/man1/linked.1]
+E: example (binary): uncompressed-manual-page (LN0153) [usr/share/man/man1/linked.1]
+E: example (binary): uncompressed-manual-page (LN0153) [usr/share/man/man1/bare]
+E: example (binary): uncompressed-manual-page (LN0153) [usr/share/man/man1/perl.1p]
+E: example (binary): uncompressed-manual-page (LN0153) [usr/share/man/man1/upper.1.GZ]
+E: example (binary): uncompressed-manual-page (LN0153) [usr/share/man/man6/game.6]

@@ -1,0 +1,2 @@
+/bin-sbin-confusion-in-script \(binary\): bin-sbin-mismatch usr\/bin\/calls-sbin sbin\/our-script -> usr\/bin\/our-script/ d
+/bin-sbin-confusion-in-script \(binary\): bin-sbin-mismatch usr\/bin\/calls-sbin bin\/our-script -> usr\/bin\/our-script/ d

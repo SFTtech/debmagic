@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): description-mentions-planned-features (LN1360) (line 1)
+I: example (binary): description-mentions-planned-features (LN1360) (line 3)
+I: example (udeb): description-mentions-planned-features (LN1360) (line 2)

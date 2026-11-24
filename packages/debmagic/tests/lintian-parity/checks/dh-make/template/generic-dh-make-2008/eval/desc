@@ -1,0 +1,4 @@
+Testname: generic-dh-make-2008
+Check: dh-make/template
+See-Also:
+ Debian Bug#497347

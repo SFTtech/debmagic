@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): locale-uses-language-group-code (LN1589) aav [usr/share/locale/aav/]
+P: example (binary): locale-uses-language-group-code (LN1589) ber [usr/share/locale/ber/]
+P: example (binary): locale-uses-language-group-code (LN1589) cus.UTF-8 [usr/share/locale/cus.UTF-8/]
+P: example (binary): locale-uses-language-group-code (LN1589) art_XX@euro [usr/share/locale/art_XX@euro/]

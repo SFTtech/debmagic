@@ -1,0 +1,10 @@
+[Unit]
+After=network.target
+Documentation=https://example.com/
+
+[Service]
+ExecStart=/bin/test
+PIDFile=/var/run/$NAME.pid
+
+[Install]
+WantedBy=multi-user.target

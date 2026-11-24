@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): bad-homepage (LN0225) lintian.debian.org
+W: example (source): bad-homepage (LN0225) ttp://lintian.debian.org/
+W: example (source): bad-homepage (LN0225) file:///etc/passwd
+W: example (source): bad-homepage (LN0225) git://example.com/foo
+W: example (source): bad-homepage (LN0225)
+W: example (source): bad-homepage (LN0225) <not-a-url>
+W: example (source): bad-homepage (LN0225) <URL:https://example.com/>

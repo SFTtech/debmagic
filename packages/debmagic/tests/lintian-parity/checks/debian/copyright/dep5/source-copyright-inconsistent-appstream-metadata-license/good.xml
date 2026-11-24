@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component>
+  <id>org.gnupg.scdaemon</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>scdaemon</name>
+  <summary>USB SmartCard Readers</summary>
+  <description>
+    <p>
+      GnuPG's scdaemon provides access to USB tokens and smartcard
+      readers that provide cryptographic functionality (e.g. use of
+      protected secret keys).
+    </p>
+  </description>
+  <provides>
+    <modalias>usb:v046Ap0005d*</modalias>
+    <modalias>usb:v046Ap0010d*</modalias>
+  </provides>
+</component>

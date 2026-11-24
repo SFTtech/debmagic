@@ -1,0 +1,2 @@
+Testname: homepage-refers-to-filesystem-listing
+Check: fields/homepage

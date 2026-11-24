@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions -s [debian/rules:6]
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions -vs [debian/rules:6]
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions -sv [debian/rules:6]
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions --supported [debian/rules:6]
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions --verbose --supported [debian/rules:6]
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions 	-s [debian/rules:7]
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions 	--supported [debian/rules:8]
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions -s [debian/rules:6]
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions --supported [debian/rules:7]
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions -s [debian/rules:6]
+W: example (source): debian-rules-uses-supported-python-versions-without-python-all-build-depends (LN0216) py3versions -s [debian/rules:6]

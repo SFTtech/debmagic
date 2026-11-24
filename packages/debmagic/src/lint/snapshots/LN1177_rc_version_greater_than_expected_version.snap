@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): rc-version-greater-than-expected-version (LN1177) 1.0+rc3 > 1.0 (consider using 1.0~rc3) [debian/changelog:1]
+W: example (source): rc-version-greater-than-expected-version (LN1177) 1.0-rc3 > 1.0 (consider using 1.0~rc3) [debian/changelog:1]
+W: example (source): rc-version-greater-than-expected-version (LN1177) 1.0beta > 1.0 (consider using 1.0~beta) [debian/changelog:1]
+W: example (source): rc-version-greater-than-expected-version (LN1177) 1.0.alpha2 > 1.0 (consider using 1.0~alpha2) [debian/changelog:1]
+W: example (source): rc-version-greater-than-expected-version (LN1177) 1.0+pre > 1.0 (consider using 1.0~pre) [debian/changelog:1]
+W: example (source): rc-version-greater-than-expected-version (LN1177) 2.0+preview1 > 2.0 (consider using 2.0~preview1) [debian/changelog:1]
+W: example (source): rc-version-greater-than-expected-version (LN1177) 2.0prerelease3 > 2.0 (consider using 2.0~prerelease3) [debian/changelog:1]
+W: example (source): rc-version-greater-than-expected-version (LN1177) 2.0+beta1 > 2.0 (consider using 2.0~beta1) [debian/changelog:1]
+W: example (source): rc-version-greater-than-expected-version (LN1177) 2.0.rc1 > 2.0 (consider using 2.0~rc1) [debian/changelog:1]

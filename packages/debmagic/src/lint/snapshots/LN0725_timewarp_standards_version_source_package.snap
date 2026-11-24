@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): timewarp-standards-version (LN0725) (2024-01-01 < 2025-02-27)
+W: example (source): timewarp-standards-version (LN0725) (2024-01-01 < 2025-02-27)

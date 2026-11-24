@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): misplaced-extra-member-in-deb (LN1148) extra-stuff (unexpected member at position 3)
+E: example (binary): misplaced-extra-member-in-deb (LN1148) _extra-stuff (unexpected _member at position 1)
+E: example (binary): misplaced-extra-member-in-deb (LN1148) _extra-stuff (unexpected _member at position 2)
+E: example (binary): misplaced-extra-member-in-deb (LN1148) _a (unexpected _member at position 1)
+E: example (binary): misplaced-extra-member-in-deb (LN1148) _b (unexpected _member at position 2)
+E: example (binary): misplaced-extra-member-in-deb (LN1148) _c (unexpected _member at position 3)
+E: example (udeb): misplaced-extra-member-in-deb (LN1148) extra (unexpected member at position 3)

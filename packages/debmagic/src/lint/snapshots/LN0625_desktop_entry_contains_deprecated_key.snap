@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): desktop-entry-contains-deprecated-key (LN0625) TerminalOptions [usr/share/applications/example.desktop:3]
+W: example (binary): desktop-entry-contains-deprecated-key (LN0625) MiniIcon [usr/share/applications/example.desktop:4]
+W: example (binary): desktop-entry-contains-deprecated-key (LN0625) MiniIcon[de] [usr/share/applications/example.desktop:5]
+W: example (binary): desktop-entry-contains-deprecated-key (LN0625) Protocols [usr/share/applications/example.desktop:6]
+W: example (binary): desktop-entry-contains-deprecated-key (LN0625) MiniIcon [usr/share/applications/example.desktop:3]
+W: example (udeb): desktop-entry-contains-deprecated-key (LN0625) TerminalOptions [usr/share/applications/example.desktop:3]

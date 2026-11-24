@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: (source): unknown-runtime-tests-field (LN1701) Comment [debian/tests/control:1]
+P: (source): unknown-runtime-tests-field (LN1701) Maintainer [debian/tests/control:5]
+P: (source): unknown-runtime-tests-field (LN1701) X-Foo [debian/tests/control:6]

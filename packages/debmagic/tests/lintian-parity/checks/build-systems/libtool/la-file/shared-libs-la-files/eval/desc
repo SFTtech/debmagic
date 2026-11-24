@@ -1,0 +1,2 @@
+Testname: shared-libs-la-files
+Check: build-systems/libtool/la-file

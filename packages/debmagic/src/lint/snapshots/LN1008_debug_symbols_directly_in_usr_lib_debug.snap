@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): debug-symbols-directly-in-usr-lib-debug (LN1008) [usr/lib/debug/basic]
+E: example (binary): debug-symbols-directly-in-usr-lib-debug (LN1008) [usr/lib/debug/libhello.so.0.0]
+E: example (binary): debug-symbols-directly-in-usr-lib-debug (LN1008) [usr/lib/debug/basic.static]
+E: example (binary): debug-symbols-directly-in-usr-lib-debug (LN1008) [usr/lib/debug/hello]
+E: example (binary): debug-symbols-directly-in-usr-lib-debug (LN1008) [usr/lib/debug/basic-link]
+E: example (udeb): debug-symbols-directly-in-usr-lib-debug (LN1008) [usr/lib/debug/basic]

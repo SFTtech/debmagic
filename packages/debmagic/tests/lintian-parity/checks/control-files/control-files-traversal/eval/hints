@@ -1,0 +1,2 @@
+control-files-traversal (binary): no-ctrl-scripts
+control-files-traversal (binary): control-file-is-not-a-file [conffiles]

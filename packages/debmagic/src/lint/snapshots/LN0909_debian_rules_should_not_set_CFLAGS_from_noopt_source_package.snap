@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-rules-should-not-set-CFLAGS-from-noopt (LN0909) [debian/rules]

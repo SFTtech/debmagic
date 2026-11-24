@@ -1,0 +1,18 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): no-manual-page (LN0152) [bin/pwd]
+W: example (binary): no-manual-page (LN0152) [sbin/addpart]
+W: example (binary): no-manual-page (LN0152) [usr/bin/X11/testxbin]
+W: example (binary): no-manual-page (LN0152) [usr/bin/mh/read]
+W: example (binary): no-manual-page (LN0152) [usr/bin/telepathic]
+W: example (binary): no-manual-page (LN0152) [usr/games/yet-another-test-game]
+W: example (binary): no-manual-page (LN0152) [usr/sbin/helper]
+W: example (binary): no-manual-page (LN0152) [usr/bin/rstartd]
+W: example (binary): no-manual-page (LN0152) [usr/bin/static-hello]
+W: example (binary): no-manual-page (LN0152) [usr/bin/rstartd]
+W: example (binary): no-manual-page (LN0152) [usr/bin/foo]
+W: example (binary): no-manual-page (LN0152) [usr/bin/simple]
+W: example (binary): no-manual-page (LN0152) [usr/bin/foo]
+W: example (binary): no-manual-page (LN0152) [usr/bin/tool]
+W: example (binary): no-manual-page (LN0152) [sbin/helper]

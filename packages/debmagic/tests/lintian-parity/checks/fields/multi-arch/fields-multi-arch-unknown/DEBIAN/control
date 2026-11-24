@@ -1,0 +1,12 @@
+Package: fields-multi-arch-unknown
+Version: 1.0
+Architecture: all
+Multi-Arch: cheese
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Section: devel
+Priority: optional
+Description: Test package with an unknown Multi-arch value
+ This is a test package designed to exercise some feature or tag of
+ Lintian.  It is part of the Lintian test suite and may do very odd
+ things.  It should not be installed like a regular package.  It may
+ be an empty package.

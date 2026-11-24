@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): executable-debhelper-file-without-being-executable (LN0863) [debian/manpages]
+E: example (source): executable-debhelper-file-without-being-executable (LN0863) [debian/example.install]
+E: example (source): executable-debhelper-file-without-being-executable (LN0863) [debian/manpages]
+E: example (source): executable-debhelper-file-without-being-executable (LN0863) [debian/manpages]
+E: example (source): executable-debhelper-file-without-being-executable (LN0863) [debian/manpages]

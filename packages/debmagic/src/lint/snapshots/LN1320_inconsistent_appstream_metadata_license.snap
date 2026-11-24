@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): inconsistent-appstream-metadata-license (LN1320) debian/appstream.metadata.xml (gpl-2+ != mit) [debian/copyright]
+W: (source): inconsistent-appstream-metadata-license (LN1320) debian/appstream.metadata.xml (mit != gpl-2+) [debian/copyright]
+W: (source): inconsistent-appstream-metadata-license (LN1320) debian/appstream.metadata.xml (does-not-match-anything != gpl-2+) [debian/copyright]

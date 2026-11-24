@@ -1,0 +1,4 @@
+Testname: rules-dh-auto-test-does-not-check-deb-build-options-unrel-b
+Test-Against:
+ override_dh_auto_test-does-not-check-DEB_BUILD_OPTIONS
+Check: debian/rules

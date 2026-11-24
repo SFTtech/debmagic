@@ -1,0 +1,20 @@
+This is part of the testsuite of lintian. See the file debian/copyright
+in the lintian source directory for more details.
+
+So far as it is copyrightable at all, this template is
+   Copyright (C) 2008 Frank Lichtenheld <djpig@debian.org>
+
+This program is free software; you may redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation in its version 3.
+
+This is distributed in the hope that it will be useful, but without
+any warranty; without even the implied warranty of merchantability or
+fitness for a particular purpose. See the GNU General Public License
+for more details.
+
+A copy of the GNU General Public License version 3 is available as
+/usr/share/common-licenses/GPL in the Debian GNU/Linux distribution
+or at http://www.gnu.org/licenses/old-licenses/gpl-3.0.html.
+You can also obtain it by writing to the Free Software Foundation, Inc.,
+51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.

@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-installs-ieee-data (LN0416) [usr/share/files-ieee-data/oui.txt.gz]
+E: example (binary): package-installs-ieee-data (LN0416) [usr/share/files-ieee-data/oui.idx]
+E: example (binary): package-installs-ieee-data (LN0416) [usr/share/files-ieee-data/oui.db]
+E: example (binary): package-installs-ieee-data (LN0416) [usr/share/files-ieee-data/iab.idx]
+E: example (binary): package-installs-ieee-data (LN0416) [usr/share/misc/x-oui]

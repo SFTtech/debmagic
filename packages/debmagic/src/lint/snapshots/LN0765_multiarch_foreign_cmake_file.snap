@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): multiarch-foreign-cmake-file (LN0765) [usr/lib/x86_64-linux-gnu/cmake/foo.cmake]
+E: example (binary): multiarch-foreign-cmake-file (LN0765) [usr/lib/x86_64-linux-gnu/cmake/a.cmake]
+E: example (binary): multiarch-foreign-cmake-file (LN0765) [usr/lib/x86_64-linux-gnu/cmake/b.cmake]
+E: example (binary): multiarch-foreign-cmake-file (LN0765) [usr/lib/x86_64-linux-gnu/cmake/foo/bar.cmake]
+E: example (binary): multiarch-foreign-cmake-file (LN0765) [usr/lib/x86_64-linux-gnu/cmake/link.cmake]
+E: example (binary): multiarch-foreign-cmake-file (LN0765) [usr/lib/x86_64-linux-gnu/cmake/hard.cmake]
+E: example (udeb): multiarch-foreign-cmake-file (LN0765) [usr/lib/x86_64-linux-gnu/cmake/foo.cmake]

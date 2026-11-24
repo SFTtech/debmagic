@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): md5sum-mismatch (LN0345) usr/bin/foo [md5sums]
+E: example (udeb): md5sum-mismatch (LN0345) usr/bin/foo [md5sums]

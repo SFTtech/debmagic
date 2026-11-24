@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): typelib-missing-gir-depends (LN0916) gir1.2-example-1.0 [debian/control]
+E: example (source): typelib-missing-gir-depends (LN0916) gir1.2-example-1.0 [debian/control]
+E: example (source): typelib-missing-gir-depends (LN0916) gir1.2-example-1.0 [debian/control]

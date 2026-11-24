@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debconf-translation-using-general-list (LN0902) [debian/po/en_US.po]
+W: example (source): debconf-translation-using-general-list (LN0902) [debian/po/de.po]

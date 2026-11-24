@@ -1,0 +1,5 @@
+Testname: no-module-version
+Check: languages/fortran/gfortran
+See-Also: Debian Bug #796352,
+ Debian Bug #714730,
+ https://salsa.debian.org/science-team/dh-fortran-mod/blob/debian/master/dh_fortran_mod.in

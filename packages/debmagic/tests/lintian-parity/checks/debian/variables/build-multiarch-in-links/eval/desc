@@ -1,0 +1,4 @@
+Testname: build-multiarch-in-links
+Check: debian/variables
+See-Also:
+ Bug#983219

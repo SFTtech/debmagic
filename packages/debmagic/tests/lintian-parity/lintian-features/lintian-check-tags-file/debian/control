@@ -1,0 +1,12 @@
+Source: lintian-check-tags-file
+Priority: optional
+Section: devel
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Standards-Version: 4.7.4.1
+Build-Depends: debhelper-compat (= 13)
+Rules-Requires-Root: no
+
+Package: lintian-check-tags-file
+Section: unknown
+Architecture: all
+Description: Test checking a specific list of tags from a file

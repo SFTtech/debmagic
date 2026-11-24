@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): hardening-no-fortify-functions (LN1157) [usr/bin/a]
+I: example (binary): hardening-no-fortify-functions (LN1157) [usr/bin/a]
+I: example (binary): hardening-no-fortify-functions (LN1157) [usr/bin/a]
+I: example (binary): hardening-no-fortify-functions (LN1157) [usr/lib/a.o]
+I: example (udeb): hardening-no-fortify-functions (LN1157) [usr/bin/a]
+I: example (binary): hardening-no-fortify-functions (LN1157) [usr/bin/a]
+I: example (binary): hardening-no-fortify-functions (LN1157) [usr/bin/a]

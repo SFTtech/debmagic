@@ -1,0 +1,3 @@
+debhelper-compat-old (source): package-uses-old-debhelper-compat-version 8
+debhelper-compat-old (source): debian-build-system dh [debian/rules]
+debhelper-compat-old (source): debhelper-compat-level 8

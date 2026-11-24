@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): apache2-deprecated-auth-config (LN0847) Order [etc/apache2/conf-available/foo.conf:1]
+W: example (binary): apache2-deprecated-auth-config (LN0847) <Limit POST PUT DELETE> [etc/apache2/conf.d/foo.conf:1]
+W: example (binary): apache2-deprecated-auth-config (LN0847) </Limit> [etc/apache2/conf.d/foo.conf:3]
+W: example (binary): apache2-deprecated-auth-config (LN0847) <LimitExcept GET> [etc/apache2/site-available/foo:1]
+W: example (binary): apache2-deprecated-auth-config (LN0847) <LimitExcept GET> [etc/apache2/site-available/foo:1]
+W: example (binary): apache2-deprecated-auth-config (LN0847) Deny [etc/apache2/site-available/foo:2]
+W: example (binary): apache2-deprecated-auth-config (LN0847) </LimitExcept> [etc/apache2/site-available/foo:3]
+W: example (binary): apache2-deprecated-auth-config (LN0847) </LimitExcept> [etc/apache2/site-available/foo:3]
+W: example (binary): apache2-deprecated-auth-config (LN0847) Satisfy [etc/apache2/mods-available/foo.load:1]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-arch-inventory-file (LN1601) [.arch-inventory]
+P: example (source): source-contains-arch-inventory-file (LN1601) [debian/.arch-inventory]
+P: example (source): source-contains-arch-inventory-file (LN1601) [.arch-inventory]

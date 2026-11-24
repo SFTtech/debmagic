@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-hg-control-dir (LN0144) [.hg/]
+W: example (source): debian-adds-hg-control-dir (LN0144) [debian/.hg/]
+W: example (source): debian-adds-hg-control-dir (LN0144) [src/.hg/]
+W: example (source): debian-adds-hg-control-dir (LN0144) [.pc/.hg/]

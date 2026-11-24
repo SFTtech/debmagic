@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): su-wrapper-not-su-to-root (LN0429) sux [usr/share/menu/example:1]
+W: example (binary): su-wrapper-not-su-to-root (LN0429) kdesu [usr/share/menu/example:1]
+W: example (binary): su-wrapper-not-su-to-root (LN0429) kdesu [usr/share/applications/hello.desktop]

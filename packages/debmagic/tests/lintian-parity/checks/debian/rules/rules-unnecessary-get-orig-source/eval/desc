@@ -1,0 +1,2 @@
+Testname: rules-unnecessary-get-orig-source
+Check: debian/rules

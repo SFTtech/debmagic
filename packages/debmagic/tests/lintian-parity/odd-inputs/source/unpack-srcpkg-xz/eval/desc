@@ -1,0 +1,2 @@
+Testname: unpack-srcpkg-xz
+Default-Lintian-Options: --pedantic --display-info --display-experimental

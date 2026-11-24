@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo-perl (source): no-testsuite-header (LN1782)

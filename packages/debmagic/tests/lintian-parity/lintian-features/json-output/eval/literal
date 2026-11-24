@@ -1,0 +1,310 @@
+{
+   "groups" : [
+      {
+         "group_id" : "json-output_1.0+dsfg-1.1",
+         "input_files" : [
+            {
+               "hints" : [
+                  {
+                     "experimental" : false,
+                     "note" : "0.0.1-1 -> 1.0+dsfg-1 (missing) -> 1.0+dsfg-1.1",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/changelog"
+                        },
+                        "line_position" : 1
+                     },
+                     "tag" : "changelog-file-missing-explicit-entry",
+                     "visibility" : "warning"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/patches/debian-changes-1.0+dsfg-1.1"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "format-3.0-but-debian-changes-patch",
+                     "visibility" : "warning"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "1.0+dsfg-1.1",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/changelog"
+                        },
+                        "line_position" : 1
+                     },
+                     "tag" : "maintainer-upload-has-incorrect-version-number",
+                     "visibility" : "warning"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "3",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/watch"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "obsolete-debian-watch-file-standard",
+                     "visibility" : "warning"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "(in section for json-output) Section",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/control"
+                        },
+                        "line_position" : 13
+                     },
+                     "tag" : "installable-field-mirrors-source",
+                     "visibility" : "info"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/patches/debian-changes-1.0+dsfg-1.1"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "quilt-patch-using-template-description",
+                     "visibility" : "info"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/upstream/metadata"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "upstream-metadata-missing-bug-tracking",
+                     "visibility" : "info"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/upstream/metadata"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "upstream-metadata-missing-repository",
+                     "visibility" : "info"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "Essential",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/control"
+                        },
+                        "line_position" : 12
+                     },
+                     "tag" : "debian-control-has-unusual-field-spacing",
+                     "visibility" : "pedantic"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "tag" : "no-homepage-field",
+                     "visibility" : "pedantic"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/control"
+                        },
+                        "line_position" : 2
+                     },
+                     "tag" : "redundant-priority-optional-field",
+                     "visibility" : "pedantic"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/control"
+                        },
+                        "line_position" : 7
+                     },
+                     "tag" : "redundant-rules-requires-root-no-field",
+                     "visibility" : "pedantic"
+                  },
+                  {
+                     "experimental" : true,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1.dsc (patched)",
+                           "name" : "debian/watch"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "debian-watch-does-not-check-openpgp-signature",
+                     "visibility" : "pedantic"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "1.0+dsfg-1.1",
+                     "override" : {
+                        "justification" : ""
+                     },
+                     "tag" : "dfsg-version-misspelled",
+                     "visibility" : "warning"
+                  }
+               ],
+               "path" : "PATH"
+            },
+            {
+               "hints" : [
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1_all.deb (installed)",
+                           "name" : "usr/local/share/"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "dir-in-usr-local",
+                     "visibility" : "error"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1_all.deb (installed)",
+                           "name" : "usr/local/share/lintian/"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "dir-in-usr-local",
+                     "visibility" : "error"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1_all.deb (installed)",
+                           "name" : "var/lock/lintian/"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "dir-or-file-in-var-lock",
+                     "visibility" : "error"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "tag" : "new-essential-package",
+                     "visibility" : "error"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1_all.deb (installed)",
+                           "name" : "usr/bin/script"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "no-manual-page",
+                     "visibility" : "warning"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "http://www.example.com/.",
+                     "tag" : "description-possibly-contains-homepage",
+                     "visibility" : "info"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1_all.deb (installed)",
+                           "name" : "usr/share/applications/script.desktop"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "desktop-entry-limited-to-environments",
+                     "visibility" : "info"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1_all.deb (installed)",
+                           "name" : "usr/local/share/lintian/"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "package-contains-empty-directory",
+                     "visibility" : "info"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "\"Test Lintian's JSON output format.\"",
+                     "tag" : "synopsis-is-a-sentence",
+                     "visibility" : "info"
+                  },
+                  {
+                     "experimental" : false,
+                     "note" : "/usr/bin/foo",
+                     "pointer" : {
+                        "item" : {
+                           "index" : "json-output_1.0+dsfg-1.1_all.deb (installed)",
+                           "name" : "usr/share/doc/json-output/examples/example"
+                        },
+                        "line_position" : 0
+                     },
+                     "tag" : "example-unusual-interpreter",
+                     "visibility" : "pedantic"
+                  }
+               ],
+               "path" : "PATH"
+            },
+            {
+               "hints" : [],
+               "path" : "PATH"
+            },
+            {
+               "hints" : [],
+               "path" : "PATH"
+            }
+         ],
+         "source_name" : "json-output",
+         "source_version" : "1.0+dsfg-1.1"
+      }
+   ],
+   "lintian_version" : "VERSION"
+}

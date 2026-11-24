@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): control-file-has-bad-owner (LN1015) nobody/root != root/root (or 0/0) [md5sums]
+E: example (binary): control-file-has-bad-owner (LN1015) root/games != root/root (or 0/0) [postinst]
+E: example (binary): control-file-has-bad-owner (LN1015) alice/alice != root/root (or 0/0) [md5sums]
+E: example (udeb): control-file-has-bad-owner (LN1015) nobody/root != root/root (or 0/0) [postinst]

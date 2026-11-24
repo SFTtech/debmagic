@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): executable-desktop-file (LN0965) 0755 [usr/share/applications/a.desktop]
+E: example (binary): executable-desktop-file (LN0965) 0744 [usr/share/xsessions/a.desktop]
+E: example (binary): executable-desktop-file (LN0965) 0601 [usr/share/applications/a.desktop]
+E: example (binary): executable-desktop-file (LN0965) 0755 [usr/share/applications/a template.desktop]
+E: example (udeb): executable-desktop-file (LN0965) 0755 [usr/share/applications/a.desktop]

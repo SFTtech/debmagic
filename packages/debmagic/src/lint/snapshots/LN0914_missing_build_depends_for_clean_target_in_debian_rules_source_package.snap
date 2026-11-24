@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): missing-build-depends-for-clean-target-in-debian-rules (LN0914) (does not satisfy debhelper | debhelper-compat) [debian/rules]

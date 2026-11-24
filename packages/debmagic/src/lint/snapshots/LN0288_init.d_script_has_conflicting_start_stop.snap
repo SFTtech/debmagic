@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): init.d-script-has-conflicting-start-stop (LN0288) 1 [etc/init.d/digit]
+W: example (binary): init.d-script-has-conflicting-start-stop (LN0288) s [etc/init.d/lower-s]
+W: example (binary): init.d-script-has-conflicting-start-stop (LN0288) 0 [etc/init.d/both-digits]
+W: example (binary): init.d-script-has-conflicting-start-stop (LN0288) 6 [etc/init.d/both-digits]
+W: example (binary): init.d-script-has-conflicting-start-stop (LN0288) 1 [etc/init.d/duplicate]
+W: example (binary): init.d-script-has-conflicting-start-stop (LN0288) 1 [etc/init.d/duplicate]
+W: example (binary): init.d-script-has-conflicting-start-stop (LN0288) 1 [etc/init.d/skeleton]
+W: example (udeb): init.d-script-has-conflicting-start-stop (LN0288) 2 [etc/init.d/udeb-script]

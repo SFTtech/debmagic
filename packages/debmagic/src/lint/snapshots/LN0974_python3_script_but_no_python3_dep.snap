@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): python3-script-but-no-python3-dep (LN0974) /usr/bin/python3 (does not satisfy python3:any | python3-minimal:any) [usr/bin/tool]
+E: example (binary): python3-script-but-no-python3-dep (LN0974) python3 (does not satisfy python3:any | python3-minimal:any) [usr/bin/tool]
+E: example (udeb): python3-script-but-no-python3-dep (LN0974) /usr/bin/python3 (does not satisfy python3:any | python3-minimal:any) [usr/bin/tool]
+E: example (binary): python3-script-but-no-python3-dep (LN0974) /usr/bin/python3 (does not satisfy python3:any | python3-minimal:any) [usr/lib/tool]
+E: example (binary): python3-script-but-no-python3-dep (LN0974) /usr/bin/python3 (does not satisfy python3:any | python3-minimal:any) [usr/share/tool/tool.in]

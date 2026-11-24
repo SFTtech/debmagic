@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): magic-arch-in-arch-list (LN0901)
+E: example (source): magic-arch-in-arch-list (LN0901)
+E: example (source): magic-arch-in-arch-list (LN0901)

@@ -1,0 +1,5 @@
+Testname: dev-null-fp
+Check: files/symbolic-links
+Test-Against:
+ absolute-symbolic-link-target-in-source
+See-Also: Bug#964111, Bug#964234

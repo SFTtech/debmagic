@@ -1,0 +1,5 @@
+Testname: missing-explicit-entry-fp-unrel
+Test-Against:
+ changelog-file-missing-explicit-entry
+Check: debian/changelog
+See-Also: Debian Bug #942411

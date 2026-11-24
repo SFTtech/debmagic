@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): dir-or-file-in-srv (LN0035) [srv/foo/]
+E: example (binary): dir-or-file-in-srv (LN0035) [srv/foo/bar]
+E: example (binary): dir-or-file-in-srv (LN0035) [srv/file]
+E: example (udeb): dir-or-file-in-srv (LN0035) [srv/file]

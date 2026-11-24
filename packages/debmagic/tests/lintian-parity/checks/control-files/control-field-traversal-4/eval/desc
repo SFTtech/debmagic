@@ -1,0 +1,4 @@
+Testname: control-field-traversal-4
+Check: control-files
+Output-Format: EWI
+Match-Strategy: literal

@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): executable-in-usr-share-doc (LN0825) 0755 [usr/share/doc/pkg/tool]
+E: example (binary): executable-in-usr-share-doc (LN0825) 0750 [usr/share/doc/pkg/tool]
+E: example (binary): executable-in-usr-share-doc (LN0825) 4755 [usr/share/doc/pkg/setuid]
+E: example (binary): executable-in-usr-share-doc (LN0825) 0755 [usr/share/doc/pkg/lincity]
+E: example (binary): executable-in-usr-share-doc (LN0825) 0755 [usr/share/doc/examples-x/tool]
+E: example (binary): executable-in-usr-share-doc (LN0825) 0755 [usr/share/doc/tool]
+E: example (udeb): executable-in-usr-share-doc (LN0825) 0755 [usr/share/doc/pkg/tool]

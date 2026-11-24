@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-depends-on-multiple-tclx-versions (LN1238) tclx76 tclx8.0.4 tclx8.2
+E: example (binary): package-depends-on-multiple-tclx-versions (LN1238) tclx8.2 tclx8.2
+E: example (binary): package-depends-on-multiple-tclx-versions (LN1238) tclx8.3 tclx8.4
+E: example (udeb): package-depends-on-multiple-tclx-versions (LN1238) tclx8.2 tclx8.3

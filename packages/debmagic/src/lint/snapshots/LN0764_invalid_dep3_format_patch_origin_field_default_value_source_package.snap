@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): invalid-dep3-format-patch-origin-field-default-value (LN0764) [debian/patches/fix.patch]

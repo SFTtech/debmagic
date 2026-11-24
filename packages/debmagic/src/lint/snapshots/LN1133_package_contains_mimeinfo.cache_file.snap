@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-mimeinfo.cache-file (LN1133) [usr/share/applications/mimeinfo.cache]
+E: example (binary): package-contains-mimeinfo.cache-file (LN1133) [usr/share/applications/mimeinfo.cache.gz]
+E: example (binary): package-contains-mimeinfo.cache-file (LN1133) [usr/share/applications/mimeinfo.cache]
+E: example (binary): package-contains-mimeinfo.cache-file (LN1133) [usr/share/applications/mimeinfo.cache]
+E: example (udeb): package-contains-mimeinfo.cache-file (LN1133) [usr/share/applications/mimeinfo.cache]
+E: example (binary): package-contains-mimeinfo.cache-file (LN1133) [usr/share/applications/mimeinfoXcache]

@@ -1,0 +1,2 @@
+Testname: debian-source-dir-custom-compression-settings
+Check: debian/source-dir

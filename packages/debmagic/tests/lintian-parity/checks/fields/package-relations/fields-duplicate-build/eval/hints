@@ -1,0 +1,1 @@
+fields-duplicate-build (source): redundant-build-prerequisites perl (>= 5.10), perl (>= 5.10) | libmodule-build-perl

@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): unknown-file-in-debian-source (LN1210) [debian/source/formt]
+E: (source): unknown-file-in-debian-source (LN1210) [debian/source/Format]
+E: (source): unknown-file-in-debian-source (LN1210) [debian/source/local]
+E: (source): unknown-file-in-debian-source (LN1210) [debian/source/unknown]

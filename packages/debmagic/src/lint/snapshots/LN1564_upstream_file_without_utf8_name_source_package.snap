@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): upstream-file-without-utf8-name (LN1564) [bokmål]
+I: example (source): upstream-file-without-utf8-name (LN1564) [bokm\ål]
+I: example (source): upstream-file-without-utf8-name (LN1564) [bad-dirå/]
+I: example (source): upstream-file-without-utf8-name (LN1564) [dir/bokmål]
+I: example (source): upstream-file-without-utf8-name (LN1564) [xÿþ]

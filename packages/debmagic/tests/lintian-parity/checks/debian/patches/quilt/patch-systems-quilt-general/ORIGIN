@@ -1,0 +1,16 @@
+lintian 2.144.0 (3e81fac95c3eb9201f6b45f4a7e51233d5265352)
+t/recipes/checks/debian/patches/quilt/patch-systems-quilt-general
+
+Filled Source tree from t/templates + t/skeletons, then build-spec overlay
+and hooks (pre-upstream, pre-build). eval/hints is transcribed verbatim.
+Source-tree Parity uses (source) lines whose extra is not a .dsc; other
+processable types wait for those Subjects.
+
+Hand-added after the fill: build-spec/diff/README is an upstream change that
+dpkg-source auto-commits (upload-make-builder passes --auto-commit) as
+debian/patches/debian-changes-1.0-1 (template description, creates README)
+and appends to debian/patches/series. The importer does not replay diff/.
+The patch header is abbreviated to its template lines, and the patch stays
+unapplied so Source-package Parity can pack the tree.
+
+License: GPL-2+ (same as lintian; see lintian debian/copyright).

@@ -1,0 +1,13 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): r-data-without-readme-source (LN0729) [src/test.rda]
+E: (source): r-data-without-readme-source (LN0729) [src/test.Rda]
+E: (source): r-data-without-readme-source (LN0729) [src/test.rdata]
+E: (source): r-data-without-readme-source (LN0729) [src/test.Rdata]
+E: (source): r-data-without-readme-source (LN0729) [src/test.RData]
+E: (source): r-data-without-readme-source (LN0729) [src/test.rda]
+E: (source): r-data-without-readme-source (LN0729) [src/other.rda]
+E: (source): r-data-without-readme-source (LN0729) [src/test.rda]
+E: (source): r-data-without-readme-source (LN0729) [src/test.rda]
+E: (source): r-data-without-readme-source (LN0729) [src/test.rda]

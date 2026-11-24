@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): conflicting-negation-in-source-relation (LN0562) Build-Depends: baz [i386 !amd64]
+E: example (source): conflicting-negation-in-source-relation (LN0562) Build-Depends: quux [!i386 amd64 arm64]
+E: example (source): conflicting-negation-in-source-relation (LN0562) Build-Depends-Arch: gcc (>= 4) [amd64 !i386]
+E: example (source): conflicting-negation-in-source-relation (LN0562) Build-Conflicts: bad [!amd64 i386]

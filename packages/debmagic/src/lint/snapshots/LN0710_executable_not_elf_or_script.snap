@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): executable-not-elf-or-script (LN0710) [usr/bin/empty]
+W: example (binary): executable-not-elf-or-script (LN0710) [usr/bin/text]
+W: example (binary): executable-not-elf-or-script (LN0710) [usr/share/applications/app.desktop]
+W: example (binary): executable-not-elf-or-script (LN0710) [usr/bin/lincity]
+W: example (binary): executable-not-elf-or-script (LN0710) [usr/bin/late]
+W: example (binary): executable-not-elf-or-script (LN0710) [usr/bin/dos]
+W: example (binary): executable-not-elf-or-script (LN0710) [usr/bin/suid]
+W: example (udeb): executable-not-elf-or-script (LN0710) [bin/udeb-tool]

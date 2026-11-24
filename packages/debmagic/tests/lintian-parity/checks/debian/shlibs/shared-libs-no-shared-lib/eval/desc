@@ -1,0 +1,2 @@
+Testname: shared-libs-no-shared-lib
+Check: debian/shlibs

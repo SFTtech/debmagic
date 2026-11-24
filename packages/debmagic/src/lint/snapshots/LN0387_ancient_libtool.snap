@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): ancient-libtool (LN0387) [ltconfig]
+W: example (source): ancient-libtool (LN0387) 1.3.5 [ltmain.sh]
+W: example (source): ancient-libtool (LN0387) 1.5.2 [ltmain.sh]
+W: example (source): ancient-libtool (LN0387) 1.5.2-1 [src/ltmain.sh]

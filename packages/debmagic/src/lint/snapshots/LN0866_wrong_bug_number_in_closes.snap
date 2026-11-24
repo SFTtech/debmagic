@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): wrong-bug-number-in-closes (LN0866) #nnnn [usr/share/doc/example/changelog.gz:3]
+W: example (binary): wrong-bug-number-in-closes (LN0866) #nnnn [usr/share/doc/example/changelog:3]
+W: example (binary): wrong-bug-number-in-closes (LN0866) bugnnn [usr/share/doc/example/changelog:3]

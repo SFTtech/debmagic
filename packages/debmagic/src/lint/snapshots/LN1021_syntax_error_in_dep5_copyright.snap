@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): syntax-error-in-dep5-copyright (LN1021) Continuation line not in paragraph (line 3). Missing a dot on the previous line? [debian/copyright]
+W: (source): syntax-error-in-dep5-copyright (LN1021) Duplicate field Files (line 4). [debian/copyright]

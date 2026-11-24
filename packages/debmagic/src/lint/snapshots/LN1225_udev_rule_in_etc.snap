@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): udev-rule-in-etc (LN1225) [etc/udev/rules.d/70-foo.rules]
+E: example (binary): udev-rule-in-etc (LN1225) [etc/udev/rules.d/sub]
+E: example (binary): udev-rule-in-etc (LN1225) [etc/udev/rules.d/70-foo.rules]
+E: example (udeb): udev-rule-in-etc (LN1225) [etc/udev/rules.d/70-foo.rules]

@@ -1,0 +1,2 @@
+fields-github-homepage (source): homepage-github-url-ends-with-dot-git https://github.com/foo/bar.git
+fields-github-homepage (binary): homepage-github-url-ends-with-dot-git https://github.com/foo/bar.git

@@ -1,0 +1,2 @@
+Testname: build-depends
+Check: debian/dpkg-build-api

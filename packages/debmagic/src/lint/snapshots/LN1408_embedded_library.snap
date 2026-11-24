@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): embedded-library (LN1408) bzip2 [usr/bin/a]
+E: example (udeb): embedded-library (LN1408) curl [usr/lib/x.so]
+E: example (binary): embedded-library (LN1408) zlib [usr/bin/a]

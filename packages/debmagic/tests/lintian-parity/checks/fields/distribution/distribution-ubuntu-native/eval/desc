@@ -1,0 +1,5 @@
+Testname: distribution-ubuntu-native
+Test-Against: bad-distribution-in-changes-file
+Profile: ubuntu/main
+See-Also: Debian Bug#507740
+Check: fields/distribution

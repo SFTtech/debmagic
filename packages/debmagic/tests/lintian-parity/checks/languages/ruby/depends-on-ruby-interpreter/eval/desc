@@ -1,0 +1,2 @@
+Testname: depends-on-ruby-interpreter
+Check: languages/ruby

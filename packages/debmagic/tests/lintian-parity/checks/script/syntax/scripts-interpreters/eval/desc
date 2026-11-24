@@ -1,0 +1,4 @@
+Testname: scripts-interpreters
+Check: script/syntax
+See-Also:
+ Bug#543873

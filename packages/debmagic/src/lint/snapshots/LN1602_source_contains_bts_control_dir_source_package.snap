@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-bts-control-dir (LN1602) [.be/]
+P: example (source): source-contains-bts-control-dir (LN1602) [.ditrack/]
+P: example (source): source-contains-bts-control-dir (LN1602) [debian/.be/]

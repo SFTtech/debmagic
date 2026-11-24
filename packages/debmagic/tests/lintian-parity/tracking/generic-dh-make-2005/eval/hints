@@ -1,0 +1,31 @@
+generic-dh-make-2005 (source): upstream-metadata-file-is-missing
+generic-dh-make-2005 (source): trailing-whitespace [debian/rules:70]
+generic-dh-make-2005 (source): trailing-whitespace [debian/rules:54]
+generic-dh-make-2005 (source): trailing-whitespace [debian/rules:49]
+generic-dh-make-2005 (source): trailing-whitespace [debian/rules:32]
+generic-dh-make-2005 (source): trailing-whitespace [debian/changelog:6]
+generic-dh-make-2005 (source): redundant-priority-optional-field [debian/control:3]
+generic-dh-make-2005 (source): package-uses-deprecated-debhelper-compat-version 7
+generic-dh-make-2005 (source): older-source-format 1.0
+generic-dh-make-2005 (source): no-versioned-debhelper-prerequisite 7
+generic-dh-make-2005 (source): no-homepage-field
+generic-dh-make-2005 (source): no-dh-sequencer [debian/rules]
+generic-dh-make-2005 (source): no-dep5-copyright [debian/copyright]
+generic-dh-make-2005 (source): missing-debian-source-format
+generic-dh-make-2005 (source): dh-clean-k-is-deprecated [debian/rules]
+generic-dh-make-2005 (source): debian-watch-file-is-missing
+generic-dh-make-2005 (source): debian-rules-should-not-set-CFLAGS-from-noopt [debian/rules]
+generic-dh-make-2005 (source): debian-rules-missing-required-target build-indep [debian/rules]
+generic-dh-make-2005 (source): debian-rules-missing-required-target build-arch [debian/rules]
+generic-dh-make-2005 (source): debian-rules-ignores-make-clean-error [debian/rules:47]
+generic-dh-make-2005 (binary): wrong-bug-number-in-closes #nnnn [usr/share/doc/generic-dh-make-2005/changelog.Debian.gz:3]
+generic-dh-make-2005 (binary): section-is-dh_make-template
+generic-dh-make-2005 (binary): readme-debian-contains-debmake-template [usr/share/doc/generic-dh-make-2005/README.Debian]
+generic-dh-make-2005 (binary): package-contains-no-arch-dependent-files
+generic-dh-make-2005 (binary): initial-upload-closes-no-bugs [usr/share/doc/generic-dh-make-2005/changelog.Debian.gz:1]
+generic-dh-make-2005 (binary): helper-templates-in-copyright
+generic-dh-make-2005 (binary): extended-description-is-probably-too-short
+generic-dh-make-2005 (binary): empty-binary-package
+generic-dh-make-2005 (binary): description-is-dh_make-template
+generic-dh-make-2005 (binary): copyright-without-copyright-notice
+generic-dh-make-2005 (binary): changelog-is-dh_make-template [usr/share/doc/generic-dh-make-2005/changelog.Debian.gz:1]

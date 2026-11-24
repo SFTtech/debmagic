@@ -1,0 +1,2 @@
+Testname: upstream-metadata-invalid-yml
+Check: debian/upstream/metadata

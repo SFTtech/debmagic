@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-installs-nonbinary-perl-in-usr-lib-perl5 (LN0385) [usr/lib/perl5/Foo/Bar.pm]
+W: example (binary): package-installs-nonbinary-perl-in-usr-lib-perl5 (LN0385) [usr/lib/x86_64-linux-gnu/perl5/5.42/foo/bar.pm]
+W: example (binary): package-installs-nonbinary-perl-in-usr-lib-perl5 (LN0385) [usr/lib/perl5/Foo/ancient.pl]

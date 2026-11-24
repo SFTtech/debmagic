@@ -1,0 +1,3 @@
+po-debconf-no-po-debconf (source): untranslatable-debconf-templates [debian/templates:9]
+po-debconf-no-po-debconf (source): untranslatable-debconf-templates [debian/templates:4]
+po-debconf-no-po-debconf (source): not-using-po-debconf

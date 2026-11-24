@@ -1,0 +1,4 @@
+Testname: qa-group-fp
+Check: fields/mail-address
+Test-Against:
+ faulty-debian-qa-group-phrase

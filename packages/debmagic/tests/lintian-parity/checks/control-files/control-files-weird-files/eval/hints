@@ -1,0 +1,4 @@
+control-files-weird-files (binary): unknown-control-file [special-file]
+control-files-weird-files (binary): not-allowed-control-file [isinstallable]
+control-files-weird-files (binary): no-ctrl-scripts
+control-files-weird-files (binary): control-file-is-empty [triggers]

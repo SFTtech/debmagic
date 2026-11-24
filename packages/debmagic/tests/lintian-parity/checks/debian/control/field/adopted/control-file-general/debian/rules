@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_gencontrol:
+	echo 'pv:gcc=4.3' >> debian/substvars
+	echo 'reqv:gcc=(>= 4.3-1)' >> debian/substvars
+	dh_gencontrol

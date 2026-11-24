@@ -1,0 +1,2 @@
+shared-libs-la-files (binary): non-empty-dependency_libs-in-la-file /usr/lib/libdep.la [usr/lib/dependency_libs.la:7]
+shared-libs-la-files (binary): incorrect-libdir-in-la-file build/buildd/kio-locate-0.4.5+ds/debian/kio-locate/usr/lib/kde3/ != usr/lib/kde3/ [usr/lib/kde3/kio_locate.la:15]

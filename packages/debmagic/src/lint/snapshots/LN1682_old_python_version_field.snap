@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): old-python-version-field (LN1682) X-Python3-Version 3.12
+P: example (source): old-python-version-field (LN1682) X-Python3-Version 3.12
+P: example (source): old-python-version-field (LN1682) X-Python3-Version 3.13

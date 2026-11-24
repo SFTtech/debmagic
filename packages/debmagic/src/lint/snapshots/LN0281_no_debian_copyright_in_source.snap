@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): no-debian-copyright-in-source (LN0281)
+W: (source): no-debian-copyright-in-source (LN0281)
+W: (source): no-debian-copyright-in-source (LN0281)

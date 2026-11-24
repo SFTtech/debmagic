@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): init.d-script-depends-on-all-virtual-facility (LN0292) required-start [etc/init.d/all-four]
+E: example (binary): init.d-script-depends-on-all-virtual-facility (LN0292) should-start [etc/init.d/all-four]
+E: example (binary): init.d-script-depends-on-all-virtual-facility (LN0292) required-stop [etc/init.d/all-four]
+E: example (binary): init.d-script-depends-on-all-virtual-facility (LN0292) should-stop [etc/init.d/all-four]
+E: example (binary): init.d-script-depends-on-all-virtual-facility (LN0292) required-stop [etc/init.d/stop-only]
+E: example (binary): init.d-script-depends-on-all-virtual-facility (LN0292) required-start [etc/init.d/mixed]
+E: example (udeb): init.d-script-depends-on-all-virtual-facility (LN0292) should-start [etc/init.d/udeb-script]

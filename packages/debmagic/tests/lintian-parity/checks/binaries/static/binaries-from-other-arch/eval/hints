@@ -1,0 +1,2 @@
+binaries-from-other-arch (binary): statically-linked-binary [usr/lib/foo/binaries-from-other-arch/guile/2.2/fake-guile-object.go]
+binaries-from-other-arch (binary): statically-linked-binary [usr/bin/elfobject]

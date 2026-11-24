@@ -1,0 +1,4 @@
+Testname: pypi
+Check: languages/python/homepage
+See-Also:
+ Bug#981932

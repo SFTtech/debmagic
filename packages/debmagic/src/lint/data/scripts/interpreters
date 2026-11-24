@@ -1,0 +1,95 @@
+# Map interpreter to installation placement (and optionally
+# the dependency relation required to obtain the interpreter)
+#
+# syntax:
+#   <interpreter> => <path>[, <dependency-relation>]
+#
+# an empty <dependency-relation> means the interpreter is provided
+# by an essential package or otherwise does not need a dependency.
+#
+# Do NOT list versioned interpreters here (such as pythonX.Y,
+# rubyX.Y, etc.).  These are handled by the file
+# scripts/versioned-interpreters.
+#
+# Manually maintained table - please keep it sorted (by key,
+# insensitively)!
+#
+
+awk            => /usr/bin
+bash           => /usr/bin
+bltwish        => /usr/bin, blt
+clisp          => /usr/bin, clisp
+csh            => /usr/bin, tcsh | csh | c-shell
+cwl-runner     => /usr/bin, cwltool
+dash           => /usr/bin
+escript        => /usr/bin, erlang-base:any
+expect         => /usr/bin, expect
+fish           => /usr/bin, fish
+fontforge      => /usr/bin, fontforge-nox | fontforge
+gawk           => /usr/bin, gawk
+gbr3           => /usr/bin, gambas3-runtime
+gbx3           => /usr/bin, gambas3-runtime
+gforth         => /usr/bin, gforth
+gjs            => /usr/bin, gjs
+gjs-console    => /usr/bin, gjs
+gnuplot        => /usr/bin, gnuplot
+gosh           => /usr/bin, gauche
+icmake         => /usr/bin, icmake
+init-d-script  => /usr/lib/init
+install-menu   => /usr/bin
+invoke-run     => /usr/lib/runit
+jed            => /usr/bin, jed
+jed-script     => /usr/bin, jed | xjed
+jruby          => /usr/bin, jruby
+jython         => /usr/bin, jython
+ksh            => /usr/bin, ksh93u+m | mksh | zsh
+lefty          => /usr/bin, graphviz
+liquidsoap     => /usr/bin, liquidsoap
+magicfilter    => /usr/sbin, magicfilter
+make           => /usr/bin, make:any | build-essential | dpkg-dev
+mawk           => /usr/bin, mawk
+mksh           => /usr/bin, mksh
+mscgen         => /usr/bin, mscgen
+newlisp        => /usr/bin, newlisp
+ngraph         => /usr/bin, ngraph-gtk
+nickle         => /usr/bin, nickle:any
+node           => /usr/bin, nodejs:any
+ocamlrun       => /usr/bin, ocaml-base | ocaml
+pagsh          => /usr/bin, openafs-client | heimdal-clients
+perl           => /usr/bin
+# Change this for rakudo once #1151560 is fixed
+perl6          => /usr/bin, rakudo
+perl6-m        => /usr/bin, rakudo
+php            => /usr/bin, php-cli
+plackup        => /usr/bin, libplack-perl
+procmail       => /usr/bin, procmail
+# Change this for pypy3 once #1151559 is fixed
+pypy3          => /usr/bin, pypy3
+python3        => /usr/bin, python3:any | python3-minimal:any
+pforth         => /usr/bin, pforth
+racket         => /usr/bin, racket
+rake           => /usr/bin, rake
+# Change this for rakudo once #1151560 is fixed
+raku           => /usr/bin, rakudo
+r              => /usr/bin, littler | r-cran-littler
+rackup         => /usr/bin, ruby-rack
+rc             => /usr/bin, rc
+regina         => /usr/bin, regina-rexx
+rexx           => /usr/bin, regina-rexx
+rrdcgi         => /usr/bin, rrdtool
+Rscript        => /usr/bin, r-base-core
+ruby           => /usr/bin, ruby:any
+run            => /usr/lib/runit/invoke, runit (>= 2.1.2-23)
+runhaskell     => /usr/bin, ghc
+sed            => /usr/bin
+sh             => /usr/bin
+slsh           => /usr/bin, slsh
+stap           => /usr/bin, systemtap
+swipl          => /usr/bin, swi-prolog | swi-prolog-nox
+tcsh           => /usr/bin, tcsh
+texlua         => /usr/bin, texlive-binaries (>= 2014.20140512.33982)
+tixwish        => /usr/bin, tix
+trs            => /usr/bin, konwert
+xjed           => /usr/bin, xjed
+yorick         => /usr/bin, yorick
+zsh            => /usr/bin, zsh

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-installs-apt-preferences (LN1002) [etc/apt/preferences]
+E: example (binary): package-installs-apt-preferences (LN1002) [etc/apt/preferences.d/bar]
+E: example (binary): package-installs-apt-preferences (LN1002) [etc/apt/preferences.d/sub/bar]
+E: example (binary): package-installs-apt-preferences (LN1002) [etc/apt/preferences.d/bar]
+E: example (binary): package-installs-apt-preferences (LN1002) [etc/apt/preferences]
+E: example (udeb): package-installs-apt-preferences (LN1002) [etc/apt/preferences]

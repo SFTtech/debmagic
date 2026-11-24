@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): doc-base-document-field-ends-in-whitespace (LN0542) [usr/share/doc-base/example:1]
+E: example (binary): doc-base-document-field-ends-in-whitespace (LN0542) [usr/share/doc-base/example:1]
+E: example (udeb): doc-base-document-field-ends-in-whitespace (LN0542) [usr/share/doc-base/example:1]

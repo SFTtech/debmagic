@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: Foo (binary): package-not-lowercase (LN1060)
+E: foo_BAR (binary): package-not-lowercase (LN1060)
+E: libFoo1 (binary): package-not-lowercase (LN1060)
+E: FOO (udeb): package-not-lowercase (LN1060)
+E: x-Y (udeb): package-not-lowercase (LN1060)

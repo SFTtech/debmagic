@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): superfluous-clutter-in-homepage (LN0351) <http://lintian.debian.org/>
+W: example (source): superfluous-clutter-in-homepage (LN0351) <insert the upstream URL, if relevant>

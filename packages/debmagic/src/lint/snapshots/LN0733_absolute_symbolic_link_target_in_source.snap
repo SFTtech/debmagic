@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): absolute-symbolic-link-target-in-source (LN0733) /usr/share/x [link]
+W: example (source): absolute-symbolic-link-target-in-source (LN0733) / [link]
+W: example (source): absolute-symbolic-link-target-in-source (LN0733) /dev/null/ [link]
+W: example (source): absolute-symbolic-link-target-in-source (LN0733) /dev/nullx [link]
+W: example (source): absolute-symbolic-link-target-in-source (LN0733) /usr/share/x [debian/link]
+W: example (source): absolute-symbolic-link-target-in-source (LN0733) /usr/share/y [src/link]

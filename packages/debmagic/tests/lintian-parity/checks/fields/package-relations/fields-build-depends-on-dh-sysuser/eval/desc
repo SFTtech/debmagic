@@ -1,0 +1,2 @@
+Testname: fields-build-depends-on-dh-sysuser
+Check: fields/package-relations

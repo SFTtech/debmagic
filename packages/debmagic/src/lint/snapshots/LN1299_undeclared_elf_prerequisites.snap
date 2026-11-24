@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): undeclared-elf-prerequisites (LN1299) (libc.so.6) [usr/bin/foo]
+W: example (binary): undeclared-elf-prerequisites (LN1299) (libc.so.6 libm.so.6) [usr/bin/foo]
+W: example (binary): undeclared-elf-prerequisites (LN1299) (libc.so.6) [usr/bin/b]
+W: example (binary): undeclared-elf-prerequisites (LN1299) (libm.so.6) [usr/lib/a.so]

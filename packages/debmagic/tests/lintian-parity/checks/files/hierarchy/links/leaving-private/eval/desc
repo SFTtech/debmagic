@@ -1,0 +1,7 @@
+Testname: leaving-private
+Check: files/hierarchy/links
+Test-Against:
+ ldconfig-escape
+ architecture-escape
+See-Also:
+ Bug#243158, Bug#964073

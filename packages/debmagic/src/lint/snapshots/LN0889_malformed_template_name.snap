@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): malformed-template-name (LN0889) debconf-malformed-template [templates:1]
+E: example (binary): malformed-template-name (LN0889) a/ [templates:1]
+E: example (binary): malformed-template-name (LN0889) /a [templates:1]
+E: example (binary): malformed-template-name (LN0889) a / b [templates:1]
+E: example (binary): malformed-template-name (LN0889) é/b [templates:1]
+E: example (udeb): malformed-template-name (LN0889) bad-name [templates:1]

@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): broken-xz (LN1075) [etc/not-an.xz]
+W: example (binary): broken-xz (LN1075) [etc/NOT-AN.XZ]
+W: example (binary): broken-xz (LN1075) [etc/empty.xz]
+W: example (binary): broken-xz (LN1075) [usr/share/doc/example/truncated.xz]
+W: example (binary): broken-xz (LN1075) [usr/share/doc/example/corrupt.xz]
+W: example (binary): broken-xz (LN1075) [etc/gzip-as-xz.xz]
+W: example (binary): broken-xz (LN1075) [etc/a.xz]
+W: example (binary): broken-xz (LN1075) [etc/b.xz]
+W: example (udeb): broken-xz (LN1075) [etc/not-an.xz]

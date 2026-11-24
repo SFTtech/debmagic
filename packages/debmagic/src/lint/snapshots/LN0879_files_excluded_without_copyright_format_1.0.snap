@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): files-excluded-without-copyright-format-1.0 (LN0879) [debian/copyright]
+E: (source): files-excluded-without-copyright-format-1.0 (LN0879) [debian/copyright]
+E: (source): files-excluded-without-copyright-format-1.0 (LN0879) [debian/copyright]

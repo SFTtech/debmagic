@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): national-encoding (LN0018) [usr/share/doc/example/readme]
+W: example (binary): national-encoding (LN0018) [usr/share/doc/example/readme]
+W: example (binary): national-encoding (LN0018) [templates]
+W: example (binary): national-encoding (LN0018) [preinst]
+W: example (binary): national-encoding (LN0018) [usr/share/man/man1/example.1.gz]
+W: example (binary): national-encoding (LN0018) [usr/share/man/man1/example.1]
+W: example (udeb): national-encoding (LN0018) [usr/share/doc/example/readme]
+W: example (binary): national-encoding (LN0018) [templates]
+W: example (binary): national-encoding (LN0018) [usr/share/doc/example/readme]

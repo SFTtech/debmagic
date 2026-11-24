@@ -1,0 +1,2 @@
+Testname: changelog-file-empty-entry
+Check: debian/changelog

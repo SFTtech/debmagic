@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): circular-installation-prerequisite (LN0450) (in section for example) Suggests example
+W: example (source): circular-installation-prerequisite (LN0450) (in section for example) Depends other, example (>= 1)
+W: example (source): circular-installation-prerequisite (LN0450) (in section for example) Recommends example | example
+W: example (source): circular-installation-prerequisite (LN0450) (in section for first) Pre-Depends first
+W: example (source): circular-installation-prerequisite (LN0450) (in section for second) Depends bash (>> 2.0 ), second, ${misc:Depends}

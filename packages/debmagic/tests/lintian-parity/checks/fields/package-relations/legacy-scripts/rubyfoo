@@ -1,0 +1,4 @@
+#!/bin/ruby1.8
+
+# Ok, that example is really pathetic, but until we have
+# some better code in checks/scripts, it will do

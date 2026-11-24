@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): example-script-uses-bin-env (LN1581) /bin/env [usr/share/doc/example/examples/run]
+I: example (binary): example-script-uses-bin-env (LN1581) /bin/env [usr/share/doc/example/examples/run]
+I: example (udeb): example-script-uses-bin-env (LN1581) /bin/env [usr/share/doc/example/examples/run]

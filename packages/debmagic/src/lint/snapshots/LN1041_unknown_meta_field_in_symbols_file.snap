@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): unknown-meta-field-in-symbols-file (LN1041) Build-Dep-Foo (libfoo.so.1) [symbols:2]
+E: example (binary): unknown-meta-field-in-symbols-file (LN1041) a:b (libfoo.so.1) [symbols:2]
+E: example (binary): unknown-meta-field-in-symbols-file (LN1041) Bad (libfoo.so.2) [symbols:4]
+E: example (binary): unknown-meta-field-in-symbols-file (LN1041) Bad (libfoo.so.1) [symbols:2]
+E: example (udeb): unknown-meta-field-in-symbols-file (LN1041) Bad (libfoo.so.1) [symbols:2]
+E: example (udeb): unknown-meta-field-in-symbols-file (LN1041) Worse (libfoo.so.1) [symbols:3]

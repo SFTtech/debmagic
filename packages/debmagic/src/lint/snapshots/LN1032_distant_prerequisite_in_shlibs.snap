@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: libfoo1 (binary): distant-prerequisite-in-shlibs (LN1032) libbar [shlibs]
+W: libfoo1 (binary): distant-prerequisite-in-shlibs (LN1032) libbaz (>> 1) [shlibs]
+W: libfoo1 (binary): distant-prerequisite-in-shlibs (LN1032) libbar [shlibs]
+W: libfoo1 (binary): distant-prerequisite-in-shlibs (LN1032) libbar [shlibs]

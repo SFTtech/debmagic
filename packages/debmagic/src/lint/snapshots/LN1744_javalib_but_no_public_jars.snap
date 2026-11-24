@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: libfoo-java (binary): javalib-but-no-public-jars (LN1744)
+I: libfoo-java (binary): javalib-but-no-public-jars (LN1744)
+I: libfoo-java (binary): javalib-but-no-public-jars (LN1744)
+I: libfoo-java (udeb): javalib-but-no-public-jars (LN1744)

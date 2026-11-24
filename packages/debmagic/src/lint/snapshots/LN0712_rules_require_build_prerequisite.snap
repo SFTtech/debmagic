@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (source): rules-require-build-prerequisite (LN0712) (does not satisfy debhelper | debhelper-compat) [debian/rules]
+E: example (source): rules-require-build-prerequisite (LN0712) (does not satisfy debhelper | debhelper-compat) [debian/rules]
+E: example (source): rules-require-build-prerequisite (LN0712) (does not satisfy debhelper | debhelper-compat) [debian/rules]
+E: example (source): rules-require-build-prerequisite (LN0712) (does not satisfy debhelper | debhelper-compat | dh-autoreconf) [debian/rules]
+E: example (source): rules-require-build-prerequisite (LN0712) (does not satisfy python3:any | python3-dev:any | python3-all:any | python3-all-dev:any) [debian/rules]
+E: example (source): rules-require-build-prerequisite (LN0712) (does not satisfy python3:any | python3-dev:any | python3-all:any | python3-all-dev:any | python3.13:any | python3.13-dev:any | python3.14:any | python3.14-dev:any) [debian/rules]
+E: example (source): rules-require-build-prerequisite (LN0712) (does not satisfy debhelper | debhelper-compat) [debian/rules]
+E: example (source): rules-require-build-prerequisite (LN0712) (does not satisfy debhelper | debhelper-compat) [debian/rules]

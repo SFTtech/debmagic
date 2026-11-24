@@ -1,0 +1,2 @@
+systemd-service-file-uses-nobody-or-nogroup-bad (binary): systemd-service-file-uses-nobody-or-nogroup User=nobody [usr/lib/systemd/system/systemd-service-file-uses-nobody-or-nogroup-bad.service]
+systemd-service-file-uses-nobody-or-nogroup-bad (binary): systemd-service-file-uses-nobody-or-nogroup Group=nogroup [usr/lib/systemd/system/systemd-service-file-uses-nobody-or-nogroup-bad.service]

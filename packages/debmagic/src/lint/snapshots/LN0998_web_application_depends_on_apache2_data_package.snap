@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: phpmyfoo (binary): web-application-depends-on-apache2-data-package (LN0998) apache2-bin phpmyfoo.conf [etc/apache2/conf-available/phpmyfoo.conf]
+W: phpmyfoo (binary): web-application-depends-on-apache2-data-package (LN0998) apache2-data phpmyfoo.conf [etc/apache2/conf-available/phpmyfoo.conf]
+W: phpmyfoo (binary): web-application-depends-on-apache2-data-package (LN0998) apache2-common phpmyfoo.conf [etc/apache2/conf-available/phpmyfoo.conf]
+W: phpmyfoo (binary): web-application-depends-on-apache2-data-package (LN0998) apache2.2-bin phpmyfoo.conf [etc/apache2/conf-available/phpmyfoo.conf]
+W: phpmyfoo (binary): web-application-depends-on-apache2-data-package (LN0998) apache2-bin phpmyfoo.conf [etc/apache2/conf-available/phpmyfoo.conf]
+W: phpmyfoo (binary): web-application-depends-on-apache2-data-package (LN0998) apache2-data phpmyfoo.conf [etc/apache2/conf.d/phpmyfoo.conf]
+W: phpmyfoo (binary): web-application-depends-on-apache2-data-package (LN0998) apache2-bin a.conf [etc/apache2/site-available/a.conf]
+W: phpmyfoo (binary): web-application-depends-on-apache2-data-package (LN0998) apache2-bin b.conf [etc/apache2/site-available/b.conf]

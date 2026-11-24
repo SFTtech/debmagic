@@ -1,0 +1,2 @@
+Testname: depends-on-misc-pre-depends
+Check: substvars/misc/pre-depends

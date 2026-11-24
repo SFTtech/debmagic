@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): upstream-metadata-in-native-source (LN1214) [debian/upstream/metadata]

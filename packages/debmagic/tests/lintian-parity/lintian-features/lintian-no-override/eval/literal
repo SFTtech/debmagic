@@ -1,0 +1,3 @@
+W: lintian-no-override: empty-binary-package
+W: lintian-no-override: non-standard-dir-in-usr [usr/bad/]
+I: lintian-no-override: package-contains-empty-directory [usr/bad/dir/]

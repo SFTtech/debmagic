@@ -1,0 +1,2 @@
+Testname: legacy-libbaz
+Check: debian/control/prerequisite/development

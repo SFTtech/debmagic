@@ -1,0 +1,1035 @@
+#!/usr/bin/env python3
+"""Import every filled lintian recipe as Parity fixtures.
+
+Clones (or uses) a pinned lintian tree, runs a Prepare.pm-shaped fill, and
+writes test-package *sources* plus eval/hints + ORIGIN under
+packages/debmagic/tests/lintian-parity, and regenerates
+packages/debmagic/tests/lintian_parity.rs with one test per Source-tree,
+Binary-package, or Source-package recipe whose hints mention a catalogued
+LN Tag (Source-package: `SourceRule`), and one test per Group recipe: a recipe whose product
+is a `.changes` (an `upload-*` or `changes` skeleton) and whose `eval/hints` mention a catalogued
+Tag with Changes-file, Buildinfo-file or Group Applicability (`ChangesRule`, `BuildinfoRule`,
+`GroupRule`).
+
+- upload-* / source-* / upload-builder-only: filled Source tree (orig overlay + debian/)
+- deb: filled DEBIAN/, root/, doc/, and builder scripts
+- changes: filled test.changes and referenced-files
+
+Does not build .deb / .dsc / .changes products (no dpkg-buildpackage, dpkg-source,
+ar, gzip-into-deb, or md5sums). Tests build those artifacts themselves.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import locale
+import os
+import re
+import shutil
+import stat
+import subprocess
+import sys
+import tempfile
+import time
+from collections.abc import Iterable
+from pathlib import Path
+
+LINTIAN_GIT = "https://salsa.debian.org/lintian/lintian.git"
+SUITE_RELATIVE = Path("packages/debmagic/tests/lintian-parity")
+RULES_RELATIVE = Path("packages/debmagic/src/lint/rules/lintian")
+GENERATED_TESTS_RELATIVE = Path("packages/debmagic/tests/lintian_parity.rs")
+SOURCE_TREE_SKELETONS = frozenset(
+    {
+        "upload-native",
+        "upload-non-native",
+        "source-native",
+        "source-non-native",
+        "upload-builder-only",
+    }
+)
+DEB_SKELETON = "deb"
+CHANGES_SKELETON = "changes"
+IMPORTABLE_SKELETONS = SOURCE_TREE_SKELETONS | {DEB_SKELETON, CHANGES_SKELETON}
+# Skeletons whose build product is a `.changes`, which lintian lints as a Group.
+GROUP_SKELETONS = frozenset({"upload-native", "upload-non-native", "upload-builder-only", CHANGES_SKELETON})
+HINT_LINE = re.compile(r"^\S+\s+\((?P<ptype>[^)]+)\):\s+(?P<tag>\S+)(?:\s+(?P<extra>.*))?$")
+TAG_ASSIGNMENT = re.compile(r'^tag = "([^"]+)",\s*$')
+TEMPLATE_VAR = re.compile(r"\[%\s*\$([A-Za-z_][A-Za-z0-9_]*)\s*%\]")
+TEMPLATE_SET = re.compile(r"^\s*([^()\s]+)\s*\(([^()\s]+)\)\s*$")
+SKIP_FROM_WORK = frozenset(
+    {
+        "files",
+        "fill-values",
+        "fill-values.d",
+    }
+)
+
+
+def repo_root() -> Path:
+    return Path(__file__).resolve().parent.parent
+
+
+def field_to_key(name: str) -> str:
+    return name.lower().replace("-", "_")
+
+
+def read_text(path: Path) -> tuple[str, str]:
+    raw = path.read_bytes()
+    try:
+        return raw.decode("utf-8"), "utf-8"
+    except UnicodeDecodeError:
+        return raw.decode("latin-1"), "latin-1"
+
+
+def read_deb822(path: Path) -> dict[str, str]:
+    """Fields of a one-paragraph Deb822 file, as lintian's `Section->value` reads them.
+
+    A continuation line keeps its leading whitespace and joins the value with a
+    newline, so a wrapped field (a multi-line `Description`) stays wrapped when the
+    value is filled into a template. Trailing whitespace of each line goes, and
+    leading and trailing whitespace of the whole value. Comment lines (`#` in
+    column 0) and blank lines are skipped.
+    """
+    fields: dict[str, str] = {}
+    current: str | None = None
+    text, _encoding = read_text(path)
+    for raw_line in text.splitlines():
+        if not raw_line.strip() or raw_line.startswith("#"):
+            continue
+        if raw_line[0] in " \t":
+            if current is None:
+                raise ValueError(f"{path}: continuation without a field")
+            fields[current] = f"{fields[current]}\n{raw_line.rstrip()}"
+            continue
+        name, sep, value = raw_line.partition(":")
+        if not sep:
+            raise ValueError(f"{path}: not a Deb822 field: {raw_line!r}")
+        current = name
+        fields[current] = value.strip()
+    return {name: value.strip() for name, value in fields.items()}
+
+
+def merge_fields(base: dict[str, str], overlay: dict[str, str]) -> dict[str, str]:
+    merged = dict(base)
+    merged.update(overlay)
+    return merged
+
+
+def to_hash(fields: dict[str, str]) -> dict[str, str]:
+    return {field_to_key(name): value for name, value in fields.items()}
+
+
+def fill_text(template: str, values: dict[str, str], *, allow_leftover: bool = False) -> str:
+    def replace(match: re.Match[str]) -> str:
+        return values.get(match.group(1), "")
+
+    filled = TEMPLATE_VAR.sub(replace, template)
+    if not allow_leftover and "[%" in filled:
+        raise ValueError(f"unexpanded template leftover: {filled[:120]!r}")
+    return filled
+
+
+def fill_hash(values: dict[str, str]) -> dict[str, str]:
+    filled = dict(values)
+    for index in range(2):
+        allow_leftover = index == 0
+        filled = {key: fill_text(value, filled, allow_leftover=allow_leftover) for key, value in filled.items()}
+    return filled
+
+
+def parse_placements(instructions: str) -> list[tuple[str, str | None]]:
+    placements: list[tuple[str, str | None]] = []
+    for raw_chunk in instructions.split(","):
+        chunk = raw_chunk.strip()
+        if not chunk:
+            continue
+        matched = TEMPLATE_SET.match(chunk)
+        if matched:
+            placements.append((matched.group(1), matched.group(2)))
+        else:
+            placements.append((chunk, None))
+    return placements
+
+
+def copy_contents(source: Path, destination: Path) -> None:
+    destination.mkdir(parents=True, exist_ok=True)
+    if not any(source.iterdir()):
+        return
+    shutil.copytree(source, destination, dirs_exist_ok=True, symlinks=False)
+
+
+def iter_files(root: Path) -> Iterable[Path]:
+    for path in root.rglob("*"):
+        if path.is_file():
+            yield path
+
+
+def remove_surplus_templates(spec: Path, work: Path) -> None:
+    for original in iter_files(spec):
+        relative = original.relative_to(spec)
+        template = work / f"{relative}.in"
+        if template.is_file():
+            template.unlink()
+
+
+def fill_template_file(template: Path, generated: Path, values: dict[str, str]) -> None:
+    generated.parent.mkdir(parents=True, exist_ok=True)
+    text, encoding = read_text(template)
+    generated.write_text(fill_text(text, values), encoding=encoding)
+    shutil.copymode(template, generated)
+    template.unlink()
+
+
+def fill_whitelisted(work: Path, relative: str, whitelist: Path, values: dict[str, str]) -> None:
+    names = read_deb822(whitelist).get("May-Generate", "").split()
+    destination = work if relative == "." else work / relative
+    for name in names:
+        generated = destination / name
+        template = Path(str(generated) + ".in")
+        if template.is_file():
+            fill_template_file(template, generated, values)
+
+
+def fill_single(work: Path, relative: str, values: dict[str, str]) -> None:
+    generated = work / relative
+    template = Path(str(generated) + ".in")
+    if template.is_file():
+        fill_template_file(template, generated, values)
+
+
+def rfc822date(epoch: int) -> str:
+    previous = locale.setlocale(locale.LC_TIME, "C")
+    try:
+        return time.strftime("%a, %d %b %Y %H:%M:%S %z", time.localtime(epoch))
+    finally:
+        locale.setlocale(locale.LC_TIME, previous)
+
+
+def latest_policy(lintian_root: Path) -> tuple[str, int]:
+    releases = json.loads((lintian_root / "data/debian-policy/releases.json").read_text(encoding="utf-8"))
+    latest = releases["releases"][0]
+    return str(latest["version"]), int(latest["epoch"])
+
+
+def recommended_debhelper_compat(lintian_root: Path) -> str:
+    for line in (lintian_root / "data/debhelper/compat-level").read_text(encoding="utf-8").splitlines():
+        if line.startswith("recommended="):
+            return line.split("=", 1)[1].strip()
+    raise ValueError(f"no recommended= in {lintian_root / 'data/debhelper/compat-level'}")
+
+
+def host_architecture() -> str:
+    result = subprocess.run(
+        ["dpkg-architecture", "-qDEB_HOST_ARCH"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode == 0 and result.stdout.strip():
+        return result.stdout.strip()
+    return "amd64"
+
+
+def derive_versions(fields: dict[str, str]) -> None:
+    version = fields.get("Version")
+    if not version:
+        return
+    upstream = re.sub(r"-[^-]+$", "", version)
+    upstream = re.sub(r"(-|^)(\d+):", r"\1", upstream)
+    fields.setdefault("Upstream-Version", upstream)
+    fields.setdefault("No-Epoch", re.sub(r"^\d+:", "", version))
+    if "Prev-Version" not in fields:
+        prev = "0.0.1"
+        if fields.get("Type") != "native":
+            prev += "-1"
+        fields["Prev-Version"] = prev
+
+
+def combine_build_fields(fields: dict[str, str]) -> None:
+    parts = [fields.pop("Default-Build-Depends", ""), fields.pop("Extra-Build-Depends", "")]
+    combined = ", ".join(part for part in parts if part)
+    if combined:
+        fields["Build-Depends"] = combined
+    parts = [fields.pop("Default-Build-Conflicts", ""), fields.pop("Extra-Build-Conflicts", "")]
+    combined = ", ".join(part for part in parts if part)
+    if combined:
+        fields["Build-Conflicts"] = combined
+
+
+def load_fill_values_folder(work: Path, folder_name: str) -> dict[str, str]:
+    folder = work / folder_name
+    merged: dict[str, str] = {}
+    if not folder.is_dir():
+        return merged
+    for path in sorted(folder.glob("*.values")):
+        merged = merge_fields(merged, read_deb822(path))
+    return merged
+
+
+def prepare_work(lintian_root: Path, spec: Path, work: Path) -> dict[str, str]:
+    testset = lintian_root / "t"
+    defaults = read_deb822(testset / "defaults/fill-values")
+    desc = read_deb822(spec / "fill-values")
+    skeleton_name = desc["Skeleton"]
+    skeleton = read_deb822(testset / "skeletons" / skeleton_name)
+    fields = merge_fields(defaults, skeleton)
+
+    for relative, name in parse_placements(fields.get("Template-Sets", "")):
+        if name is None:
+            raise ValueError(f"template set without a name: {relative}")
+        source = testset / "templates" / name
+        destination = work if relative == "." else work / relative
+        copy_contents(source, destination)
+
+    remove_surplus_templates(spec, work)
+    copy_contents(spec, work)
+
+    fields = merge_fields(fields, load_fill_values_folder(work, fields.get("Fill-Values-Folder", "")))
+    fields = merge_fields(fields, desc)
+    fields.setdefault("Source", fields["Testname"])
+    fields.setdefault("Source-Path", str(work.resolve()))
+    fields.setdefault("Spec-Path", str(spec.resolve()))
+
+    policy_version, policy_epoch = latest_policy(lintian_root)
+    fields.setdefault("Date", rfc822date(policy_epoch))
+    fields.setdefault("Host-Architecture", host_architecture())
+    fields.setdefault("Standards-Version", policy_version)
+    fields.setdefault("Dh-Compat-Level", recommended_debhelper_compat(lintian_root))
+    derive_versions(fields)
+    combine_build_fields(fields)
+
+    values = fill_hash(to_hash(fields))
+    for relative, name in parse_placements(fields.get("Fill-Targets", "")):
+        if name is None:
+            fill_single(work, relative, values)
+            continue
+        fill_whitelisted(work, relative, testset / "whitelists" / name, values)
+    return values
+
+
+def run_hook(hook: Path, *args: Path | str) -> None:
+    if not hook.is_file() or not hook.stat().st_mode & stat.S_IXUSR:
+        return
+    command = [str(hook), *[str(arg) for arg in args]]
+    result = subprocess.run(command, check=False)
+    if result.returncode != 0:
+        print(
+            f"warning: {hook.name} exited {result.returncode} for {args[0] if args else hook}",
+            file=sys.stderr,
+        )
+
+
+def assemble_source_tree(work: Path, dest: Path, values: dict[str, str]) -> bool:
+    """Fill `dest` with the Source tree; true when `pre-upstream` put files under `debian/`.
+
+    That `debian/` is the orig's. The tree carries only the packaged one, so the
+    harness has to rebuild the orig's from the vendored hook (`vendor_build_spec`).
+    """
+    if dest.exists():
+        shutil.rmtree(dest)
+    dest.mkdir(parents=True)
+    orig = work / "orig"
+    if orig.is_dir():
+        copy_contents(orig, dest)
+    orig_has_debian = False
+    if values.get("type") != "native":
+        run_hook(work / "pre-upstream", dest)
+        orig_has_debian = (dest / "debian").exists() and not (orig / "debian").exists()
+    debian_src = work / "debian"
+    if debian_src.is_dir():
+        copy_contents(debian_src, dest / "debian")
+    run_hook(work / "pre-build", dest)
+    return orig_has_debian
+
+
+# A `pre-build` hook that works on the orig tarballs next to the source
+# directory (`${DIR}/../<source>_<version>.orig-component.tar.gz` and the like).
+ORIG_TARBALL_HOOK = re.compile(r"\.orig(?:-[\w-]+)?\.tar")
+# `DEB_BUILD_OPTIONS='buildinfo=+path'` in a recipe's Build-Command: lintian's
+# make passes it to dpkg-buildpackage as an environment variable.
+BUILD_COMMAND_OPTIONS = re.compile(r"DEB_BUILD_OPTIONS='([^']*)'")
+
+
+def vendor_post_build(spec: Path, work: Path, dest: Path, values: dict[str, str]) -> None:
+    """Write the filled `post-build` hook as `dest/build-spec/post-build`.
+
+    lintian's Makefile runs it on the built product (`$(post_build) $(product)`,
+    in the build directory) after `dpkg-source` or `dpkg-buildpackage`. The filled
+    hook names the product as the import host built it (its architecture is in
+    an upload's name), so the name becomes the hook's first argument, as for the
+    hooks that already read `$1`; `[% $source_path %]` becomes the environment
+    variable `LINTIAN_SOURCE_PATH`, which the harness sets to `build-spec/`, where
+    the files the hook reads from there (a signing key) are kept.
+    """
+    hook = work / "post-build"
+    text, _ = read_text(hook)
+    product = values.get("build_product", "")
+    if product:
+        text = text.replace(product, "$1")
+    source_path = values.get("source_path", "")
+    if source_path:
+        text = text.replace(source_path, "${LINTIAN_SOURCE_PATH}")
+    target = dest / "build-spec" / "post-build"
+    target.parent.mkdir(exist_ok=True)
+    target.write_text(text, encoding="utf-8")
+    target.chmod(0o755)
+    for name in re.findall(r"\$\{LINTIAN_SOURCE_PATH\}/([\w.-]+)", text):
+        shutil.copy2(spec / name, target.parent / name)
+
+
+def vendor_build_spec(
+    spec: Path,
+    dest: Path,
+    orig_has_debian: bool,
+    work: Path | None = None,
+    values: dict[str, str] | None = None,
+) -> None:
+    """Keep the build-spec pieces a filled tree cannot show, under `dest/build-spec/`.
+
+    `dpkg-overrides` (`-DField=value` words lintian passes to `dpkg-source`) changes
+    the `.dsc`. `pre-upstream.in` is kept, unfilled, only when it creates `debian/`
+    in the orig. `pre-orig` (the filled one from `work`) is kept for every recipe that
+    has one: it makes files in the orig that the tree cannot hold (non-UTF-8 names,
+    old time stamps). `pre-build` (the filled one from `work`) is kept only when it makes
+    orig tarballs next to the source directory, which the `.dsc` lists as components
+    and signatures; what it does to the sources is in the tree already. The harness
+    reads all three (`tests/common/mod.rs`, ADR 0039). `post-build` (filled, see
+    `vendor_post_build`) is kept for every recipe that has one, and `upload-type`
+    for a source-only upload.
+    """
+    kept: list[tuple[str, Path]] = []
+    if (spec / "dpkg-overrides").is_file():
+        kept.append(("dpkg-overrides", spec / "dpkg-overrides"))
+    if orig_has_debian and (spec / "pre-upstream.in").is_file():
+        kept.append(("pre-upstream.in", spec / "pre-upstream.in"))
+    # `diff/` files are added to the tree after the orig is made (the Debian diff's direct changes).
+    if (spec / "diff").is_dir():
+        for source in sorted((spec / "diff").iterdir()):
+            if source.is_file():
+                kept.append((f"diff/{source.name}", source))
+    pre_build = work / "pre-build" if work is not None else None
+    if pre_build is not None and pre_build.is_file() and ORIG_TARBALL_HOOK.search(read_text(pre_build)[0]):
+        kept.append(("pre-build", pre_build))
+        # lintian's upload builder signs the orig with `upstream/private-key.asc`
+        # before `pre-build` runs; a hook that signs or re-signs the orig needs it.
+        key = spec / "upstream" / "private-key.asc"
+        if key.is_file():
+            kept.append(("upstream/private-key.asc", key))
+    pre_orig = work / "pre-orig" if work is not None else None
+    if pre_orig is not None and pre_orig.is_file():
+        kept.append(("pre-orig", pre_orig))
+    post_build_work = work if work is not None and (work / "post-build").is_file() else None
+    source_only = (values or {}).get("upload_type") == "source"
+    build_options = BUILD_COMMAND_OPTIONS.search((values or {}).get("build_command", ""))
+    if not kept and post_build_work is None and not source_only and build_options is None:
+        return
+    (dest / "build-spec").mkdir(exist_ok=True)
+    if source_only:
+        # `Upload-Type: source` makes lintian's upload builder run `dpkg-buildpackage -S`.
+        (dest / "build-spec" / "upload-type").write_text("source\n", encoding="utf-8")
+    if build_options is not None:
+        # The `DEB_BUILD_OPTIONS` of the Build-Command, for the upload's dpkg-buildpackage.
+        (dest / "build-spec" / "build-options").write_text(build_options.group(1) + "\n", encoding="utf-8")
+    for name, source in kept:
+        target = dest / "build-spec" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+    if post_build_work is not None:
+        vendor_post_build(spec, post_build_work, dest, values or {})
+
+
+def copy_filled_work(work: Path, dest: Path) -> None:
+    """Copy filled recipe sources; leave package builds to the test runner."""
+    if dest.exists():
+        shutil.rmtree(dest)
+    dest.mkdir(parents=True)
+    for child in work.iterdir():
+        if child.name in SKIP_FROM_WORK:
+            continue
+        target = dest / child.name
+        if child.is_dir():
+            copy_contents(child, target)
+        else:
+            shutil.copy2(child, target)
+
+
+def write_origin(dest: Path, version: str, commit: str, recipe_rel: str, skeleton: str) -> None:
+    dest.write_text(
+        "\n".join(
+            [
+                f"lintian {version} ({commit})",
+                f"t/recipes/{recipe_rel}",
+                f"Skeleton: {skeleton}",
+                "",
+                "Filled test-package sources from t/templates + t/skeletons and the",
+                "build-spec overlay. Does not build .deb / .dsc / .changes; tests do that.",
+                "Source-tree Parity lints a filled tree as-is. Binary-package Parity",
+                "assembles deb skeletons. Source-package Parity assembles a .dsc from a",
+                "filled Source tree (ADR 0039). eval/hints is transcribed verbatim.",
+                "",
+                "License: GPL-2+ (same as lintian; see lintian debian/copyright).",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+
+def copy_eval(recipe: Path, dest: Path) -> None:
+    eval_src = recipe / "eval"
+    eval_dir = dest / "eval"
+    eval_dir.mkdir(parents=True, exist_ok=True)
+    if not eval_src.is_dir():
+        return
+    for path in eval_src.iterdir():
+        if path.is_file() and not path.name.endswith(".in"):
+            shutil.copy2(path, eval_dir / path.name)
+
+
+def import_recipe(
+    lintian_root: Path,
+    recipe_rel: str,
+    dest_root: Path,
+    version: str,
+    commit: str,
+) -> Path:
+    recipe = lintian_root / "t/recipes" / recipe_rel
+    spec = recipe / "build-spec"
+    desc = read_deb822(spec / "fill-values")
+    skeleton = desc.get("Skeleton", "")
+    if skeleton not in IMPORTABLE_SKELETONS:
+        raise ValueError(f"{recipe_rel}: skeleton {skeleton!r} is not importable")
+
+    dest = dest_root / Path(recipe_rel)
+    with tempfile.TemporaryDirectory(prefix="debmagic-lintian-import-") as tmp:
+        work = Path(tmp) / "work"
+        work.mkdir()
+        values = prepare_work(lintian_root, spec, work)
+        if skeleton in SOURCE_TREE_SKELETONS:
+            orig_has_debian = assemble_source_tree(work, dest, values)
+            vendor_build_spec(spec, dest, orig_has_debian, work, values)
+        else:
+            copy_filled_work(work, dest)
+
+    escape_git_dirs(dest)
+    copy_eval(recipe, dest)
+    write_origin(dest / "ORIGIN", version, commit, recipe_rel, skeleton)
+    return dest
+
+
+# Git cannot track a directory named `.git`, but `pre-upstream` hooks create
+# them as cruft (lintian makes them at build time for the same reason). The
+# vendored name is restored to `.git` when the Parity harness copies a recipe.
+VENDORED_GIT_DIR = ".git.vendored"
+
+
+def escape_git_dirs(root: Path) -> None:
+    for directory, subdirs, _files in os.walk(root, topdown=False):
+        if ".git" in subdirs:
+            Path(directory, ".git").rename(Path(directory, VENDORED_GIT_DIR))
+
+
+def all_importable_recipes(lintian_root: Path) -> list[str]:
+    recipes: list[str] = []
+    root = lintian_root / "t/recipes"
+    for fill_values in root.glob("**/build-spec/fill-values"):
+        skeleton = read_deb822(fill_values).get("Skeleton", "")
+        if skeleton not in IMPORTABLE_SKELETONS:
+            continue
+        recipe = fill_values.parent.parent
+        recipes.append(str(recipe.relative_to(root)))
+    recipes.sort()
+    return recipes
+
+
+def write_pin(dest_root: Path, version: str, commit: str) -> None:
+    dest_root.mkdir(parents=True, exist_ok=True)
+    (dest_root / "PIN").write_text(f"lintian {version}\ncommit {commit}\n", encoding="utf-8")
+
+
+def strip_location_pointer(extra: str) -> str:
+    before, sep, pointer = extra.rpartition(" [")
+    if sep and pointer.endswith("]"):
+        return before
+    return extra
+
+
+def parse_universal_hint_line(line: str) -> tuple[str, str, str] | None:
+    line = line.strip()
+    if not line or line.startswith("#"):
+        return None
+    match = HINT_LINE.match(line)
+    if not match:
+        return None
+    extra = strip_location_pointer((match.group("extra") or "").strip())
+    return match.group("ptype"), match.group("tag"), extra
+
+
+UPSTREAM_SIGNATURE_TAGS = {
+    "concatenated-upstream-signatures",
+    "doubly-armored-upstream-signature",
+    "explicitly-armored-upstream-signature",
+    "orig-tarball-missing-upstream-signature",
+    "spurious-fields-in-upstream-signature",
+}
+
+
+def source_tree_hint_matches_filled_tree(recipe: Path, tag: str) -> bool:
+    """See `source_tree_hint_matches_filled_tree` in `tests/common/mod.rs`."""
+    if tag == "no-debian-changes":
+        return False
+    # `add-component-copyright` reads the orig tarball names of the `.dsc`; a
+    # Source tree has none, so only the Source package can report it.
+    if tag == "add-component-copyright":
+        return False
+    # `upstream-file-without-utf8-name` walks the Orig files, which a Source tree
+    # does not have, and the files a `pre-orig` hook makes are not in the tree.
+    if tag == "upstream-file-without-utf8-name":
+        return False
+    # The `upstream-signature` Tags read the signature files next to the `.dsc`;
+    # a Source tree has none, so only the Source package can report them.
+    if tag in UPSTREAM_SIGNATURE_TAGS:
+        return False
+    if tag not in {
+        "package-uses-deprecated-debhelper-compat-version",
+        "debhelper-base-compat-level-is-missing",
+    }:
+        return True
+    return not (recipe.name == "debhelper-compat-missing" and recipe.parent.name == "debhelper")
+
+
+def applies_to_source_tree(processable_type: str, extra: str) -> bool:
+    if processable_type != "source":
+        return False
+    parts = extra.split()
+    return not parts or not parts[0].endswith(".dsc")
+
+
+def applies_to_binary_package(processable_type: str) -> bool:
+    return processable_type in {"binary", "udeb"}
+
+
+def catalogued_tags_with_impl(rules_dir: Path, *needles: str) -> set[str]:
+    """Tags of the Rule files that contain any of the `impl <Trait> for` needles."""
+    tags: set[str] = set()
+    if not rules_dir.is_dir():
+        return tags
+    for path in rules_dir.rglob("*.rs"):
+        text = path.read_text(encoding="utf-8")
+        if not any(needle in text for needle in needles):
+            continue
+        for line in text.splitlines():
+            match = TAG_ASSIGNMENT.match(line.strip())
+            if match:
+                tags.add(match.group(1))
+    return tags
+
+
+def catalogued_source_package_tags(rules_dir: Path) -> set[str]:
+    """Source Rules, and OverrideRules (the override pass runs on the Source package, ADR 0057)."""
+    return catalogued_tags_with_impl(rules_dir, "impl SourceRule for", "impl OverrideRule for")
+
+
+def catalogued_binary_package_tags(rules_dir: Path) -> set[str]:
+    """Binary-package Rules, and Group Rules that run on a lone `.deb` (`runs_without_dsc`, ADR 0056)."""
+    return catalogued_tags_with_impl(rules_dir, "impl BinaryPackageRule for", "fn runs_without_dsc")
+
+
+def catalogued_source_tree_tags(rules_dir: Path) -> set[str]:
+    """Tags a Source-tree lint can show: Rules of the Source and Binary kinds (not Group artifacts)."""
+    return catalogued_tags_with_impl(
+        rules_dir, "impl SourceRule for", "impl BinaryPackageRule for", "impl OverrideRule for"
+    )
+
+
+def catalogued_changes_tags(rules_dir: Path) -> set[str]:
+    return catalogued_tags_with_impl(rules_dir, "impl ChangesRule for")
+
+
+def catalogued_buildinfo_tags(rules_dir: Path) -> set[str]:
+    return catalogued_tags_with_impl(rules_dir, "impl BuildinfoRule for")
+
+
+def catalogued_group_tags(rules_dir: Path) -> set[str]:
+    return catalogued_tags_with_impl(rules_dir, "impl GroupRule for")
+
+
+def catalogued_override_tags(rules_dir: Path) -> set[str]:
+    """Tags of the OverrideRule files (the override pass reports, ADR 0057). Not a Subject of a recipe."""
+    return catalogued_tags_with_impl(rules_dir, "impl OverrideRule for")
+
+
+def recipe_is_source_tree(recipe: Path) -> bool:
+    return (recipe / "debian").is_dir()
+
+
+def recipe_is_deb_skeleton(recipe: Path) -> bool:
+    origin = recipe / "ORIGIN"
+    if not origin.is_file():
+        return False
+    text, _encoding = read_text(origin)
+    return any(line.strip() == "Skeleton: deb" for line in text.splitlines())
+
+
+def discover_vendored_recipe_dirs(dest_root: Path) -> list[Path]:
+    if not dest_root.is_dir():
+        return []
+    recipes = [origin.parent for origin in dest_root.glob("**/ORIGIN")]
+    recipes.sort()
+    return recipes
+
+
+def has_catalogued_source_tree_hints(recipe: Path, tags: set[str]) -> bool:
+    hints = recipe / "eval" / "hints"
+    if not hints.is_file():
+        return False
+    text, _encoding = read_text(hints)
+    for line in text.splitlines():
+        parsed = parse_universal_hint_line(line)
+        if parsed is None:
+            continue
+        processable_type, tag, extra = parsed
+        if (
+            tag in tags
+            and applies_to_source_tree(processable_type, extra)
+            and source_tree_hint_matches_filled_tree(recipe, tag)
+        ):
+            return True
+    return False
+
+
+def recipe_path_order(rel: str) -> tuple[str, ...]:
+    """Match Rust `Path` ordering, which compares components.
+
+    A raw string sort puts `files/debug-packages` before `files/debug`
+    because `-` sorts before `/`. `Path` compares `debug` with
+    `debug-packages` as sibling names, so `debug` comes first.
+    """
+    return tuple(rel.split("/"))
+
+
+def catalogued_source_tree_recipe_rels(dest_root: Path, tags: set[str]) -> list[str]:
+    rels: list[str] = []
+    for recipe in discover_vendored_recipe_dirs(dest_root):
+        if not recipe_is_source_tree(recipe):
+            continue
+        if not has_catalogued_source_tree_hints(recipe, tags):
+            continue
+        rels.append(recipe.relative_to(dest_root).as_posix())
+    rels.sort(key=recipe_path_order)
+    return rels
+
+
+def has_catalogued_binary_package_hints(recipe: Path, tags: set[str]) -> bool:
+    hints = recipe / "eval" / "hints"
+    if not hints.is_file():
+        return False
+    text, _encoding = read_text(hints)
+    for line in text.splitlines():
+        parsed = parse_universal_hint_line(line)
+        if parsed is None:
+            continue
+        processable_type, tag, _extra = parsed
+        if tag in tags and applies_to_binary_package(processable_type):
+            return True
+    return False
+
+
+def recipe_needs_cross_compiler(recipe: Path) -> bool:
+    makefile = recipe / "Makefile"
+    if not makefile.is_file():
+        return False
+    text, _encoding = read_text(makefile)
+    for line in text.splitlines():
+        stripped_line = line.strip()
+        if stripped_line.startswith("CC :=") and (
+            "arm-linux-gnueabihf-gcc" in stripped_line or "x86_64-linux-gnu-gcc" in stripped_line
+        ):
+            return True
+    return False
+
+
+def catalogued_binary_package_recipe_rels(dest_root: Path, tags: set[str]) -> list[str]:
+    rels: list[str] = []
+    for recipe in discover_vendored_recipe_dirs(dest_root):
+        if not recipe_is_deb_skeleton(recipe) and not recipe_is_source_tree(recipe):
+            continue
+        if recipe_needs_cross_compiler(recipe):
+            continue
+        if not has_catalogued_binary_package_hints(recipe, tags):
+            continue
+        rels.append(recipe.relative_to(dest_root).as_posix())
+    rels.sort(key=recipe_path_order)
+    return rels
+
+
+def applies_to_source_package(processable_type: str, tag: str, tags: set[str]) -> bool:
+    return tag in tags and processable_type == "source"
+
+
+def has_catalogued_source_package_hints(recipe: Path, tags: set[str]) -> bool:
+    hints = recipe / "eval" / "hints"
+    if not hints.is_file():
+        return False
+    text, _encoding = read_text(hints)
+    for line in text.splitlines():
+        parsed = parse_universal_hint_line(line)
+        if parsed is None:
+            continue
+        processable_type, tag, _extra = parsed
+        if applies_to_source_package(processable_type, tag, tags):
+            return True
+    return False
+
+
+def catalogued_source_package_recipe_rels(dest_root: Path, tags: set[str]) -> list[str]:
+    rels: list[str] = []
+    for recipe in discover_vendored_recipe_dirs(dest_root):
+        if not recipe_is_source_tree(recipe):
+            continue
+        if not has_catalogued_source_package_hints(recipe, tags):
+            continue
+        rels.append(recipe.relative_to(dest_root).as_posix())
+    rels.sort(key=recipe_path_order)
+    return rels
+
+
+def recipe_skeleton(recipe: Path) -> str:
+    origin = recipe / "ORIGIN"
+    if not origin.is_file():
+        return ""
+    text, _encoding = read_text(origin)
+    for line in text.splitlines():
+        if line.startswith("Skeleton:"):
+            return line.partition(":")[2].strip()
+    return ""
+
+
+def applies_to_group(
+    processable_type: str, tag: str, changes_tags: set[str], buildinfo_tags: set[str], group_tags: set[str]
+) -> bool:
+    """A hint a Group lint shows: per processable type, a Tag of the Rule kind that produces it.
+
+    Changes and Buildinfo Rules produce `changes` and `buildinfo` hints; a Group Rule produces `source`
+    hints (its Diagnostics attach to the Source package, ADR 0055) or `binary`/`udeb` hints (it reports on
+    an installable) or `changes` hints (it needs the `.dsc` to judge the `.changes`). See `applies_to_group` in
+    `tests/common/mod.rs`.
+    """
+    return (
+        (processable_type == "changes" and (tag in changes_tags or tag in group_tags))
+        or (processable_type == "buildinfo" and tag in buildinfo_tags)
+        or (processable_type in ("source", "binary", "udeb") and tag in group_tags)
+    )
+
+
+def has_catalogued_group_hints(
+    recipe: Path, changes_tags: set[str], buildinfo_tags: set[str], group_tags: set[str]
+) -> bool:
+    hints = recipe / "eval" / "hints"
+    if not hints.is_file():
+        return False
+    text, _encoding = read_text(hints)
+    for line in text.splitlines():
+        parsed = parse_universal_hint_line(line)
+        if parsed is None:
+            continue
+        processable_type, tag, _extra = parsed
+        if applies_to_group(processable_type, tag, changes_tags, buildinfo_tags, group_tags):
+            return True
+    return False
+
+
+def catalogued_group_recipe_rels(
+    dest_root: Path, changes_tags: set[str], buildinfo_tags: set[str], group_tags: set[str]
+) -> list[str]:
+    rels: list[str] = []
+    for recipe in discover_vendored_recipe_dirs(dest_root):
+        if recipe_skeleton(recipe) not in GROUP_SKELETONS:
+            continue
+        if not has_catalogued_group_hints(recipe, changes_tags, buildinfo_tags, group_tags):
+            continue
+        rels.append(recipe.relative_to(dest_root).as_posix())
+    rels.sort(key=recipe_path_order)
+    return rels
+
+
+def recipe_test_name(rel: str) -> str:
+    # test_case turns every run of non-identifier characters into one `_`
+    # (`foo++` -> `foo_`, `1.0` -> `1_0`); match it so the report finds results.
+    return re.sub(r"[^0-9A-Za-z]+", "_", rel)
+
+
+def _const_slice(name: str, recipes: list[str]) -> str:
+    recipe_lits = ",\n".join(f'    "{rel}"' for rel in recipes)
+    if recipes:
+        recipe_lits += ","
+    return f"const {name}: &[&str] = &[\n{recipe_lits}\n];"
+
+
+def _test_cases(recipes: list[str], fn_name: str, helper: str) -> str:
+    if not recipes:
+        return ""
+    cases = "\n".join(f'#[test_case("{rel}"; "{recipe_test_name(rel)}")]' for rel in recipes)
+    return f"""
+{cases}
+fn {fn_name}(recipe: &str) {{
+    common::{helper}(recipe);
+}}
+"""
+
+
+def render_parity_tests(
+    source_tree: list[str],
+    binary_package: list[str],
+    source_package: list[str],
+    group: list[str],
+) -> str:
+    return f"""//! Generated by `scripts/import_lintian_parity.py`. Do not edit.
+//!
+//! Source-tree, Binary-package, Source-package, and Group Parity recipes whose
+//! `eval/hints` mention a catalogued LN Tag.
+
+mod common;
+
+use test_case::test_case;
+
+{_const_slice("SOURCE_TREE_RECIPES", source_tree)}
+
+{_const_slice("BINARY_PACKAGE_RECIPES", binary_package)}
+
+{_const_slice("SOURCE_PACKAGE_RECIPES", source_package)}
+
+{_const_slice("GROUP_RECIPES", group)}
+
+#[test]
+fn listed_source_tree_recipes_match_vendored_catalogued() {{
+    let listed: Vec<String> = SOURCE_TREE_RECIPES.iter().map(|rel| (*rel).to_string()).collect();
+    assert_eq!(common::catalogued_source_tree_recipe_rels(), listed);
+}}
+
+#[test]
+fn listed_binary_package_recipes_match_vendored_catalogued() {{
+    let listed: Vec<String> = BINARY_PACKAGE_RECIPES.iter().map(|rel| (*rel).to_string()).collect();
+    assert_eq!(common::catalogued_binary_package_recipe_rels(), listed);
+}}
+
+#[test]
+fn listed_source_package_recipes_match_vendored_catalogued() {{
+    let listed: Vec<String> = SOURCE_PACKAGE_RECIPES.iter().map(|rel| (*rel).to_string()).collect();
+    assert_eq!(common::catalogued_source_package_recipe_rels(), listed);
+}}
+
+#[test]
+fn listed_group_recipes_match_vendored_catalogued() {{
+    let listed: Vec<String> = GROUP_RECIPES.iter().map(|rel| (*rel).to_string()).collect();
+    assert_eq!(common::catalogued_group_recipe_rels(), listed);
+}}
+{_test_cases(source_tree, "lintian_parity_source_tree", "assert_source_tree_parity")}{_test_cases(binary_package, "lintian_parity_binary_package", "assert_binary_package_parity")}{_test_cases(source_package, "lintian_parity_source_package", "assert_source_package_parity")}{_test_cases(group, "lintian_parity_group", "assert_group_parity")}
+"""  # noqa: E501
+
+
+def generated_tests_path() -> Path:
+    return repo_root() / GENERATED_TESTS_RELATIVE
+
+
+def write_parity_tests(dest_root: Path) -> Path:
+    rules_dir = repo_root() / RULES_RELATIVE
+    tags = catalogued_source_tree_tags(rules_dir)
+    source_tree = catalogued_source_tree_recipe_rels(dest_root, tags)
+    binary_package = catalogued_binary_package_recipe_rels(dest_root, catalogued_binary_package_tags(rules_dir))
+    source_package = catalogued_source_package_recipe_rels(dest_root, catalogued_source_package_tags(rules_dir))
+    group = catalogued_group_recipe_rels(
+        dest_root,
+        catalogued_changes_tags(rules_dir),
+        catalogued_buildinfo_tags(rules_dir),
+        catalogued_group_tags(rules_dir),
+    )
+    path = generated_tests_path()
+    path.write_text(render_parity_tests(source_tree, binary_package, source_package, group), encoding="utf-8")
+    subprocess.run(["rustfmt", "--edition", "2024", str(path)], check=False)
+    return path
+
+
+def git_clone(version: str, dest: Path) -> str:
+    subprocess.run(
+        ["git", "clone", "--depth", "1", "--branch", version, LINTIAN_GIT, str(dest)],
+        check=True,
+    )
+    return git_head(dest)
+
+
+def git_head(path: Path) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(path), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("version", nargs="?", help="lintian version tag (for example 2.144.0)")
+    parser.add_argument("--lintian-src", type=Path, help="existing lintian source tree (skip clone)")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=repo_root() / SUITE_RELATIVE,
+        help="Parity suite root (default: packages/debmagic/tests/lintian-parity)",
+    )
+    parser.add_argument(
+        "--recipe",
+        action="append",
+        default=[],
+        help="import only this recipe (path under t/recipes, repeatable); leaves PIN alone",
+    )
+    parser.add_argument(
+        "--write-tests",
+        action="store_true",
+        help="regenerate tests/lintian_parity.rs from vendored recipes (also runs after import)",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    if not args.version:
+        if args.write_tests:
+            print(write_parity_tests(args.output))
+            return 0
+        print("pass a lintian version to import, or --write-tests", file=sys.stderr)
+        return 2
+
+    with tempfile.TemporaryDirectory(prefix="debmagic-lintian-src-") as tmp:
+        if args.lintian_src:
+            lintian_root = args.lintian_src.resolve()
+            commit = git_head(lintian_root) if (lintian_root / ".git").exists() else "unknown"
+        else:
+            lintian_root = Path(tmp) / "lintian"
+            commit = git_clone(args.version, lintian_root)
+
+        selected = args.recipe or all_importable_recipes(lintian_root)
+        failed: list[tuple[str, BaseException]] = []
+        for recipe_rel in selected:
+            dest = args.output / Path(recipe_rel)
+            try:
+                dest = import_recipe(lintian_root, recipe_rel, args.output, args.version, commit)
+                print(dest)
+            except (OSError, subprocess.CalledProcessError, UnicodeDecodeError, ValueError) as error:
+                failed.append((recipe_rel, error))
+                print(f"FAIL {recipe_rel}: {error}", file=sys.stderr)
+                if dest.exists() and not (dest / "ORIGIN").is_file():
+                    shutil.rmtree(dest)
+        if not args.recipe:
+            write_pin(args.output, args.version, commit)
+        print(write_parity_tests(args.output))
+        if failed:
+            print(f"{len(failed)} of {len(selected)} recipes failed", file=sys.stderr)
+            return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

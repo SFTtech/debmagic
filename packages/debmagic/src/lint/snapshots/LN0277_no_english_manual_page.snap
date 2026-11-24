@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): no-english-manual-page (LN0277) [usr/bin/alpha]
+W: example (binary): no-english-manual-page (LN0277) [usr/bin/beta]
+W: example (binary): no-english-manual-page (LN0277) [usr/games/game]
+W: example (binary): no-english-manual-page (LN0277) [usr/bin/foo]
+W: example (binary): no-english-manual-page (LN0277) [usr/bin/from-abroad]
+W: example (binary): no-english-manual-page (LN0277) [sbin/helper]
+W: example (binary): no-english-manual-page (LN0277) [usr/bin/tool]
+W: example (binary): no-english-manual-page (LN0277) [usr/bin/foo]

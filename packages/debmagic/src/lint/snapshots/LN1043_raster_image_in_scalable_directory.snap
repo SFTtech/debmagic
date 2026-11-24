@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): raster-image-in-scalable-directory (LN1043) [usr/share/icons/hicolor/scalable/apps/foo.png]
+W: example (binary): raster-image-in-scalable-directory (LN1043) [usr/share/icons/hicolor/scalable/apps/foo.xpm]
+W: example (binary): raster-image-in-scalable-directory (LN1043) [usr/share/icons/hicolor/scalable/apps/foo.png]
+W: example (binary): raster-image-in-scalable-directory (LN1043) [usr/share/icons/Adwaita/scalable/actions/deep/foo.png]
+W: example (udeb): raster-image-in-scalable-directory (LN1043) [usr/share/icons/hicolor/scalable/apps/foo.png]

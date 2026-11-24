@@ -1,0 +1,8 @@
+fields-maintainer (source): mail-contact Uploaders "Debian Lintian Maintainers" <lintian-maint@debian.org>
+fields-maintainer (source): mail-contact Maintainer "Mrs. Localhost" <user@localhost.localdomain>
+fields-maintainer (source): bogus-mail-host Maintainer user@localhost.localdomain
+fields-maintainer (changes): mail-contact Maintainer "Mrs. Localhost" <user@localhost.localdomain>
+fields-maintainer (changes): mail-contact Changed-By "Debian Lintian Maintainers" <lintian-maint@debian.org>
+fields-maintainer (changes): bogus-mail-host Maintainer user@localhost.localdomain
+fields-maintainer (binary): mail-contact Maintainer "Mrs. Localhost" <user@localhost.localdomain>
+fields-maintainer (binary): bogus-mail-host Maintainer user@localhost.localdomain

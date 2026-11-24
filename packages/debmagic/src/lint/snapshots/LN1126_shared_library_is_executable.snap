@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): shared-library-is-executable (LN1126) 0755 [usr/lib/libfoo.so.1.0.1]
+E: example (binary): shared-library-is-executable (LN1126) 0744 [usr/lib/libfoo.so.1.0.1]
+E: example (binary): shared-library-is-executable (LN1126) 4755 [usr/lib/libfoo.so.1.0.1]
+E: example (binary): shared-library-is-executable (LN1126) 0755 [usr/lib/libfoo.so.1.0.1]
+E: example (binary): shared-library-is-executable (LN1126) 0755 [usr/lib/libfoo.so.1.0.1]
+E: example (binary): shared-library-is-executable (LN1126) 0755 [usr/lib/ld-2.31.so]
+E: example (binary): shared-library-is-executable (LN1126) 0755 [lib/ld-linux.so.2]
+E: example (udeb): shared-library-is-executable (LN1126) 0755 [usr/lib/libfoo.so.1.0.1]
+E: example (binary): shared-library-is-executable (LN1126) 0755 [usr/lib/libÿ.so.1]

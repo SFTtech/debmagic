@@ -1,0 +1,6 @@
+Testname: standards-version-old
+Profile: lintian-test
+Options: --include-dir ./lintian-include-dir
+Check: fields/standards-version
+# Overrides the "data/standards-version/ancient-date"
+# data file to avoid turning "old" into "ancient".

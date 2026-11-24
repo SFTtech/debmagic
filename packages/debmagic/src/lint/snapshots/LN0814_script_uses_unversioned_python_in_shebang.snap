@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): script-uses-unversioned-python-in-shebang (LN0814) [usr/bin/script-bad1]
+E: example (binary): script-uses-unversioned-python-in-shebang (LN0814) [usr/bin/script-bad2]
+E: example (binary): script-uses-unversioned-python-in-shebang (LN0814) [bin/foo]
+E: example (binary): script-uses-unversioned-python-in-shebang (LN0814) [usr/share/foo/bin/x]
+E: example (udeb): script-uses-unversioned-python-in-shebang (LN0814) [usr/bin/script-bad3]

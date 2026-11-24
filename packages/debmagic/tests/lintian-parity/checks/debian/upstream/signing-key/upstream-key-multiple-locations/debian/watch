@@ -1,0 +1,5 @@
+Version: 5
+
+Pgp-Sig-Url-Mangle: s/project-$1\.tar\.gz/project-$1\.tar\.gz\.asc/
+Source: https://www.example.com/dist/
+Matching-Pattern: dh7-test\.([\d.]+)\.tar\.gz

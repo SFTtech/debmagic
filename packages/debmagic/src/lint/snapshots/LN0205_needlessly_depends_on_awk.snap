@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): needlessly-depends-on-awk (LN0205) Depends
+E: example (binary): needlessly-depends-on-awk (LN0205) Pre-Depends
+E: example (binary): needlessly-depends-on-awk (LN0205) Depends
+E: example (binary): needlessly-depends-on-awk (LN0205) Suggests
+E: example (udeb): needlessly-depends-on-awk (LN0205) Depends

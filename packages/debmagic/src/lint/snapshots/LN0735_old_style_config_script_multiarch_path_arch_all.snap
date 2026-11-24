@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): old-style-config-script-multiarch-path-arch-all (LN0735) full text contains architecture specific dir x86_64-linux-gnu [usr/bin/arch-all-config]
+E: example (binary): old-style-config-script-multiarch-path-arch-all (LN0735) full text contains architecture specific dir x86_64-linux-gnu [usr/bin/arch-all-config]
+E: example (binary): old-style-config-script-multiarch-path-arch-all (LN0735) full text contains architecture specific dir i386-linux-gnu [usr/bin/arch-all-config]
+E: example (binary): old-style-config-script-multiarch-path-arch-all (LN0735) full text contains architecture specific dir x86_64-linux-gnu [usr/bin/arch-all-config]
+E: example (udeb): old-style-config-script-multiarch-path-arch-all (LN0735) full text contains architecture specific dir x86_64-linux-gnu [usr/bin/arch-all-config]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): source-contains-svn-commit-file (LN1610) [svn-commit.tmp]
+P: example (source): source-contains-svn-commit-file (LN1610) [debian/svn-commit.msg.tmp]

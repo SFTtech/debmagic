@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): doc-base-file-unknown-format (LN0549) esp [usr/share/doc-base/example:3]
+W: example (binary): doc-base-file-unknown-format (LN0549) text   markdown [usr/share/doc-base/example:4]
+W: example (udeb): doc-base-file-unknown-format (LN0549) esp [usr/share/doc-base/example:3]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: gir1.2-bad-23 (binary): gir-in-arch-all-package (LN0922) [usr/share/gir-1.0/Bad-23.gir]
+W: gir1.2-bad-23 (binary): gir-in-arch-all-package (LN0922) [usr/share/gir-1.0/BadExtras-23.gir]

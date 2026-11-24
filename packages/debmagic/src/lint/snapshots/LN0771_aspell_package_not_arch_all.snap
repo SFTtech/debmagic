@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: aspell-en (binary): aspell-package-not-arch-all (LN0771)
+W: aspell-de-extra (binary): aspell-package-not-arch-all (LN0771)
+W: aspell-en-extra (binary): aspell-package-not-arch-all (LN0771)
+W: aspell-en (binary): aspell-package-not-arch-all (LN0771)
+W: aspell-en (udeb): aspell-package-not-arch-all (LN0771)

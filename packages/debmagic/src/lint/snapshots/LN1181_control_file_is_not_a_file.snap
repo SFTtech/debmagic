@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): control-file-is-not-a-file (LN1181) [conffiles]
+E: example (binary): control-file-is-not-a-file (LN1181) [md5sums]
+E: example (binary): control-file-is-not-a-file (LN1181) [special-file]
+E: example (binary): control-file-is-not-a-file (LN1181) [postinst]
+E: example (udeb): control-file-is-not-a-file (LN1181) [config]

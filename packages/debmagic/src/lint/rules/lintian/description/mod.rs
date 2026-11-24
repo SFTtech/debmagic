@@ -1,0 +1,61 @@
+//! Rules for the `Description` field, matching lintian's `fields/description` Check.
+//!
+//! `description_field` splits the field the way that Check does. Each Rule
+//! owns the predicate for its Tag.
+
+mod description_field;
+mod ln0037_extended_description_is_empty;
+mod ln0050_description_synopsis_is_empty;
+mod ln0051_description_starts_with_package_name;
+mod ln0052_description_synopsis_starts_with_article;
+mod ln0053_description_too_short;
+mod ln0054_description_is_pkg_name;
+mod ln0055_synopsis_too_long;
+mod ln0056_extended_description_line_too_long;
+mod ln0432_extended_description_contains_empty_paragraph;
+mod ln0669_description_contains_tabs;
+mod ln0670_description_contains_invalid_control_statement;
+mod ln0671_description_contains_dh_make_perl_template;
+mod ln0672_description_is_debmake_template;
+mod ln0673_description_starts_with_leading_spaces;
+mod ln0923_description_is_dh_make_template;
+mod ln1234_possible_unindented_list_in_extended_description;
+mod ln1359_capitalization_error_in_description;
+mod ln1360_description_mentions_planned_features;
+mod ln1361_extended_description_is_probably_too_short;
+mod ln1362_spelling_error_in_description;
+mod ln1363_synopsis_is_a_sentence;
+mod ln1364_using_first_person_in_description;
+mod ln1543_capitalization_error_in_description_synopsis;
+mod ln1544_description_possibly_contains_homepage;
+mod ln1668_odd_mark_in_description;
+mod ln1669_perl_module_name_not_mentioned_in_description;
+mod ln1670_spelling_error_in_description_synopsis;
+
+pub(crate) use ln0037_extended_description_is_empty::ExtendedDescriptionIsEmpty;
+pub(crate) use ln0050_description_synopsis_is_empty::DescriptionSynopsisIsEmpty;
+pub(crate) use ln0051_description_starts_with_package_name::DescriptionStartsWithPackageName;
+pub(crate) use ln0052_description_synopsis_starts_with_article::DescriptionSynopsisStartsWithArticle;
+pub(crate) use ln0053_description_too_short::DescriptionTooShort;
+pub(crate) use ln0054_description_is_pkg_name::DescriptionIsPkgName;
+pub(crate) use ln0055_synopsis_too_long::SynopsisTooLong;
+pub(crate) use ln0056_extended_description_line_too_long::ExtendedDescriptionLineTooLong;
+pub(crate) use ln0432_extended_description_contains_empty_paragraph::ExtendedDescriptionContainsEmptyParagraph;
+pub(crate) use ln0669_description_contains_tabs::DescriptionContainsTabs;
+pub(crate) use ln0670_description_contains_invalid_control_statement::DescriptionContainsInvalidControlStatement;
+pub(crate) use ln0671_description_contains_dh_make_perl_template::DescriptionContainsDhMakePerlTemplate;
+pub(crate) use ln0672_description_is_debmake_template::DescriptionIsDebmakeTemplate;
+pub(crate) use ln0673_description_starts_with_leading_spaces::DescriptionStartsWithLeadingSpaces;
+pub(crate) use ln0923_description_is_dh_make_template::DescriptionIsDhMakeTemplate;
+pub(crate) use ln1234_possible_unindented_list_in_extended_description::PossibleUnindentedListInExtendedDescription;
+pub(crate) use ln1359_capitalization_error_in_description::CapitalizationErrorInDescription;
+pub(crate) use ln1360_description_mentions_planned_features::DescriptionMentionsPlannedFeatures;
+pub(crate) use ln1361_extended_description_is_probably_too_short::ExtendedDescriptionIsProbablyTooShort;
+pub(crate) use ln1362_spelling_error_in_description::SpellingErrorInDescription;
+pub(crate) use ln1363_synopsis_is_a_sentence::SynopsisIsASentence;
+pub(crate) use ln1364_using_first_person_in_description::UsingFirstPersonInDescription;
+pub(crate) use ln1543_capitalization_error_in_description_synopsis::CapitalizationErrorInDescriptionSynopsis;
+pub(crate) use ln1544_description_possibly_contains_homepage::DescriptionPossiblyContainsHomepage;
+pub(crate) use ln1668_odd_mark_in_description::OddMarkInDescription;
+pub(crate) use ln1669_perl_module_name_not_mentioned_in_description::PerlModuleNameNotMentionedInDescription;
+pub(crate) use ln1670_spelling_error_in_description_synopsis::SpellingErrorInDescriptionSynopsis;

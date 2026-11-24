@@ -1,0 +1,4 @@
+s/mean line length is about [0-9]+ characters$/mean line is about NUMBER characters/
+s/line [0-9]+ is [0-9]+ characters long \(>[0-9]+\)$/line POSITION is LENGTH characters long (>CUTOFF)/
+s/code fragment:.*$/code fragment:CODE/
+s/extract of copyright statement:.*/extract of copyright statement: COPYRIGHT/

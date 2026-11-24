@@ -1,0 +1,4 @@
+binary (source): homepage-field-uses-insecure-uri http://lintian.debian.org/
+binary-data (binary): homepage-field-uses-insecure-uri http://lintian.debian.org/
+binary (binary): superfluous-clutter-in-homepage <http://lintian.debian.org/>
+binary (binary): homepage-field-uses-insecure-uri <http://lintian.debian.org/>

@@ -1,0 +1,2 @@
+Testname: patch-systems-quilt-debian-changes
+Check: debian/patches/quilt

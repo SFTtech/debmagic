@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): executable-in-usr-share-docbase (LN0960) 0755 [usr/share/doc-base/foo.doc1]
+E: example (udeb): executable-in-usr-share-docbase (LN0960) 0700 [usr/share/doc-base/foo.doc1]
+E: example (binary): executable-in-usr-share-docbase (LN0960) 0755 [usr/share/doc-base/foo.doc1]
+E: example (binary): executable-in-usr-share-docbase (LN0960) 0777 [usr/share/doc-base/link]

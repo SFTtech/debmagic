@@ -1,0 +1,1 @@
+python-could-use-pyproject-poetry (source): missing-prerequisite-for-pyproject-backend poetry.core.masonry.api (does not satisfy python3-poetry-core, pybuild-plugin-pyproject) [pyproject.toml:3]

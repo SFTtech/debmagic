@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): run-parts-cron-filename-contains-illegal-chars (LN0406) [etc/cron.daily/cronfile-contains.fullstop]
+W: example (binary): run-parts-cron-filename-contains-illegal-chars (LN0406) [etc/cron.hourly/cron-script.hourly]
+W: example (binary): run-parts-cron-filename-contains-illegal-chars (LN0406) [etc/cron.weekly/job+extra]
+W: example (binary): run-parts-cron-filename-contains-illegal-chars (LN0406) [etc/cron.monthly/a.b]
+W: example (binary): run-parts-cron-filename-contains-illegal-chars (LN0406) [etc/cron.d/foo.bar]
+W: example (udeb): run-parts-cron-filename-contains-illegal-chars (LN0406) [etc/cron.d/foo+bar]

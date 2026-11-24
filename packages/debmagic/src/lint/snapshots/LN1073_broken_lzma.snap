@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): broken-lzma (LN1073) [etc/not-an.lzma]
+W: example (binary): broken-lzma (LN1073) [etc/NOT-AN.LZMA]
+W: example (binary): broken-lzma (LN1073) [etc/empty.lzma]
+W: example (binary): broken-lzma (LN1073) [usr/share/doc/example/truncated.lzma]
+W: example (binary): broken-lzma (LN1073) [etc/xz-as-lzma.lzma]
+W: example (udeb): broken-lzma (LN1073) [etc/not-an.lzma]

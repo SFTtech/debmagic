@@ -1,0 +1,2 @@
+Testname: binaries-doesnt-match-sonames
+Check: libraries/shared/soname

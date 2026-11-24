@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): init.d-script-missing-dependency-on-local_fs (LN0791) required-start [etc/init.d/start]
+E: example (binary): init.d-script-missing-dependency-on-local_fs (LN0791) required-stop [etc/init.d/stop]
+E: example (binary): init.d-script-missing-dependency-on-local_fs (LN0791) required-start [etc/init.d/both]
+E: example (binary): init.d-script-missing-dependency-on-local_fs (LN0791) required-stop [etc/init.d/both]
+E: example (udeb): init.d-script-missing-dependency-on-local_fs (LN0791) required-start [etc/init.d/udeb-script]
+E: example (udeb): init.d-script-missing-dependency-on-local_fs (LN0791) required-stop [etc/init.d/udeb-script]

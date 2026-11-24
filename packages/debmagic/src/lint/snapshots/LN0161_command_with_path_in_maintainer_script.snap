@@ -1,0 +1,14 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): command-with-path-in-maintainer-script (LN0161) /usr/bin/baz (plain script) [postinst:3]
+W: example (binary): command-with-path-in-maintainer-script (LN0161) /usr/bin/foo (in backticks) [postinst:3]
+W: example (binary): command-with-path-in-maintainer-script (LN0161) /usr/bin/foo (in backticks) [postinst:3]
+W: example (binary): command-with-path-in-maintainer-script (LN0161) /bin/grep (plain script) [preinst:2]
+W: example (binary): command-with-path-in-maintainer-script (LN0161) /usr/sbin/dpkg-divert (in backticks) [postinst:3]
+W: example (binary): command-with-path-in-maintainer-script (LN0161) /usr/sbin/dpkg-state-override (in test syntax) [postinst:4]
+W: example (binary): command-with-path-in-maintainer-script (LN0161) /bin/foo (plain script) [postinst:3]
+W: example (binary): command-with-path-in-maintainer-script (LN0161) /usr/bin/foo (in backticks) [postinst:3]
+W: example (binary): command-with-path-in-maintainer-script (LN0161) /bin/bar (in backticks) [postinst:3]
+W: example (binary): command-with-path-in-maintainer-script (LN0161) /usr/bin/before (plain script) [postinst:3]
+W: example (udeb): command-with-path-in-maintainer-script (LN0161) /bin/foo (plain script) [postinst:2]

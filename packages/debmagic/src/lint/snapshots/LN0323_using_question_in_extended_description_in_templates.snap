@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): using-question-in-extended-description-in-templates (LN0323) debconf/question-in-extended [templates:3]
+W: example (binary): using-question-in-extended-description-in-templates (LN0323) debconf/end [templates:3]
+W: example (binary): using-question-in-extended-description-in-templates (LN0323) debconf/space [templates:3]
+W: example (binary): using-question-in-extended-description-in-templates (LN0323) debconf/bare [templates:3]
+W: example (udeb): using-question-in-extended-description-in-templates (LN0323) debconf/udeb [templates:3]

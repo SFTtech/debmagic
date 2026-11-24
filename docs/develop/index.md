@@ -62,4 +62,7 @@ serialized result itself.
 
 ```{toctree}
 
+import-lintian-rule.md
+lint-ecosystem.md
+lint-host-tools.md
 ```

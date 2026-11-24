@@ -1,0 +1,4 @@
+Testname: package-version-0
+Test-Against:
+ malformed-debian-changelog-version
+Check: debian/changelog

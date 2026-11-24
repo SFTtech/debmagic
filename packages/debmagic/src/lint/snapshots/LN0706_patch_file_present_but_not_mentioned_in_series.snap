@@ -1,0 +1,11 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): patch-file-present-but-not-mentioned-in-series (LN0706) [debian/patches/link.patch]
+W: example (source): patch-file-present-but-not-mentioned-in-series (LN0706) [debian/patches/sub/unused-2.patch]
+W: example (source): patch-file-present-but-not-mentioned-in-series (LN0706) [debian/patches/unused.patch]
+W: example (source): patch-file-present-but-not-mentioned-in-series (LN0706) [debian/patches/only.patch]
+W: example (source): patch-file-present-but-not-mentioned-in-series (LN0706) [debian/patches/a.patch]
+W: example (source): patch-file-present-but-not-mentioned-in-series (LN0706) [debian/patches/series]
+W: example (source): patch-file-present-but-not-mentioned-in-series (LN0706) [debian/patches/-p1]
+W: example (source): patch-file-present-but-not-mentioned-in-series (LN0706) [debian/patches/b.patch]

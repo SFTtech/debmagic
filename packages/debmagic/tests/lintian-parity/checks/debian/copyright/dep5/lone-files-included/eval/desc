@@ -1,0 +1,2 @@
+Testname: lone-files-included
+Check: debian/copyright/dep5

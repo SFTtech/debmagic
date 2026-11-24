@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): triplet-dir-and-architecture-mismatch (LN1066) is for i386 instead of amd64 [usr/lib/i386-linux-gnu/]
+E: example (binary): triplet-dir-and-architecture-mismatch (LN1066) is for amd64 instead of i386 [usr/lib/x86_64-linux-gnu/]
+E: example (binary): triplet-dir-and-architecture-mismatch (LN1066) is for i386 instead of amd64 [lib/i386-linux-gnu/]
+E: example (binary): triplet-dir-and-architecture-mismatch (LN1066) is for amd64 instead of all [usr/lib/x86_64-linux-gnu/]
+E: example (udeb): triplet-dir-and-architecture-mismatch (LN1066) is for i386 instead of amd64 [usr/lib/i386-linux-gnu/]

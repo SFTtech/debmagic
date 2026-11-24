@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): build-depends-on-specific-java-doc-package (LN0565) openjdk-6-doc
+W: example (source): build-depends-on-specific-java-doc-package (LN0565) classpath-doc
+W: example (source): build-depends-on-specific-java-doc-package (LN0565) openjdk-17-doc

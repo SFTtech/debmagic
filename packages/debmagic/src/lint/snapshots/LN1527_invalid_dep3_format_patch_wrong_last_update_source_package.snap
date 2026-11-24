@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): invalid-dep3-format-patch-wrong-last-update (LN1527) [debian/patches/fix.patch]

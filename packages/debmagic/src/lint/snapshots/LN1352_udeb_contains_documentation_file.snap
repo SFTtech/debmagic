@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (udeb): udeb-contains-documentation-file (LN1352) [usr/share/doc/example/README]
+E: example (udeb): udeb-contains-documentation-file (LN1352) [usr/share/info/example.info]

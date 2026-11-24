@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): license-problem-cc-by-nc-sa (LN1267) [src/main.c]
+E: (source): license-problem-cc-by-nc-sa (LN1267) [src/main.html]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): wrong-name-for-upstream-changelog (LN1205) [usr/share/doc/example/Changes]
+W: example (binary): wrong-name-for-upstream-changelog (LN1205) [usr/share/doc/example/changes.txt]

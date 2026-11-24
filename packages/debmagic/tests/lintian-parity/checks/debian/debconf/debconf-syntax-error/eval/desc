@@ -1,0 +1,2 @@
+Testname: debconf-syntax-error
+Check: debian/debconf

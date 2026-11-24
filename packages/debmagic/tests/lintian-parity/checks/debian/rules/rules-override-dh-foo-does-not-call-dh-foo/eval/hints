@@ -1,0 +1,4 @@
+rules-override-dh-foo-does-not-call-dh-foo (source): override_dh_fixperms-does-not-call-dh_fixperms [debian/rules:9]
+rules-override-dh-foo-does-not-call-dh-foo (source): override_dh_fixperms-does-not-call-dh_fixperms [debian/rules:8]
+rules-override-dh-foo-does-not-call-dh-foo (source): override_dh_fixperms-does-not-call-dh_fixperms [debian/rules:10]
+rules-override-dh-foo-does-not-call-dh-foo (source): override_dh_clean-does-not-call-dh_clean [debian/rules:7]

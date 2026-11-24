@@ -1,0 +1,2 @@
+changes-missing-fields (changes): mail-contact Maintainer "Debian Lintian Maintainers" <lintian-maint@debian.org>
+changes-missing-fields (changes): mail-contact Changed-By "Debian Lintian Maintainers" <lintian-maint@debian.org>

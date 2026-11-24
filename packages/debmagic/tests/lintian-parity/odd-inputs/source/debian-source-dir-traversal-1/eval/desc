@@ -1,0 +1,2 @@
+Testname: debian-source-dir-traversal-1
+Default-Lintian-Options: --pedantic --display-info --display-experimental

@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): package-contains-info-dir-file (LN0895) [usr/share/info/dir]
+E: example (binary): package-contains-info-dir-file (LN0895) [usr/share/info/dir.gz]
+E: example (binary): package-contains-info-dir-file (LN0895) [usr/share/info/dir.old]
+E: example (binary): package-contains-info-dir-file (LN0895) [usr/share/info/dir.old.gz]
+E: example (binary): package-contains-info-dir-file (LN0895) [usr/share/info/dir]
+E: example (udeb): package-contains-info-dir-file (LN0895) [usr/share/info/dir.gz]

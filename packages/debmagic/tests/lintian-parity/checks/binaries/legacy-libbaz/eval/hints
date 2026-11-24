@@ -1,0 +1,2 @@
+libbaz1-dev (binary): binary-has-unneeded-section .comment [usr/lib/ma-dir/perl/version/auto/Foo/Foo.so]
+libbaz1 (binary): binary-has-unneeded-section .comment [usr/lib/ma-dir/perl/version/auto/Foo/Foo.so]

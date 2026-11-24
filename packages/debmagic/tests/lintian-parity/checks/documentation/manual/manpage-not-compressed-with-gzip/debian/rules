@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+tmp := $(CURDIR)/debian/$(shell dh_listpackages)
+
+%:
+	dh $@
+
+override_dh_compress:
+	dh_compress --exclude=pretend-compress.1
+	mv $(tmp)/usr/share/man/man1/pretend-compress.1 $(tmp)/usr/share/man/man1/pretend-compress.1.gz

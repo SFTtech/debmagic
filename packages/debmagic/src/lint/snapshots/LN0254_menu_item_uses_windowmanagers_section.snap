@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): menu-item-uses-windowmanagers-section (LN0254) [usr/share/menu/example:1]
+W: example (binary): menu-item-uses-windowmanagers-section (LN0254) [usr/share/menu/example:1]
+W: example (binary): menu-item-uses-windowmanagers-section (LN0254) [usr/share/menu/example:1]
+W: example (binary): menu-item-uses-windowmanagers-section (LN0254) [usr/share/menu/menu-section:15]
+W: example (binary): menu-item-uses-windowmanagers-section (LN0254) [usr/lib/menu/example:1]

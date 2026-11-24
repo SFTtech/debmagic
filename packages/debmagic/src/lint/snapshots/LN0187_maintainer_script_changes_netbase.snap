@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): maintainer-script-changes-netbase (LN0187) "> /etc/services" [postinst:2]
+E: example (binary): maintainer-script-changes-netbase (LN0187) "cp /nonexistent /etc/protocols" [postinst:3]
+E: example (binary): maintainer-script-changes-netbase (LN0187) "mv /usr/share/doc/rpc /etc/rpc" [postinst:4]
+E: example (binary): maintainer-script-changes-netbase (LN0187) ">/etc/rpc" [postinst:2]
+E: example (binary): maintainer-script-changes-netbase (LN0187) "cp /tmp/x /etc/services" [postinst:2]
+E: example (binary): maintainer-script-changes-netbase (LN0187) "mv /usr/share/doc/rpc /etc/rpc" [postinst:2]
+E: example (binary): maintainer-script-changes-netbase (LN0187) "cp /nonexistent /etc/protocols" [my-postinst:2]

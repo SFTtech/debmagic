@@ -1,0 +1,8 @@
+nmu-qa-upload (1.0+nmu1) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: nmu-qa-upload
+
+  * Suppress "should close ITP bug" messages.  (Closes: #123456)
+
+ -- Niels Thykier <niels@thykier.net>  Tue, 31 Mar 2026 17:46:22 +0200

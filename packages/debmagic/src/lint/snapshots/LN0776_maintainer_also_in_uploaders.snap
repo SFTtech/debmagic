@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): maintainer-also-in-uploaders (LN0776)
+W: example (source): maintainer-also-in-uploaders (LN0776)
+W: example (source): maintainer-also-in-uploaders (LN0776)
+W: example (source): maintainer-also-in-uploaders (LN0776)

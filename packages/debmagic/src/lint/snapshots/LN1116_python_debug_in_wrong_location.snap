@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): python-debug-in-wrong-location (LN1116) better: usr/lib/debug/usr/lib/pymodules/python2.7/python-module.so [usr/lib/debug/usr/lib/pyshared/python2.7/python-module.so]
+W: example (binary): python-debug-in-wrong-location (LN1116) better: usr/lib/debug/usr/lib/pymodules/python3.12/sub/mod.so [usr/lib/debug/usr/lib/pyshared/python3.12/sub/mod.so]
+W: example (udeb): python-debug-in-wrong-location (LN1116) better: usr/lib/debug/usr/lib/pymodules/python3.11/mod.so [usr/lib/debug/usr/lib/pyshared/python3.11/mod.so]

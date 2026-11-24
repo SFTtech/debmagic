@@ -1,0 +1,4 @@
+cruft-file-contains-trailing-whitespace (source): trailing-whitespace [debian/rules:7]
+cruft-file-contains-trailing-whitespace (source): trailing-whitespace [debian/changelog:9]
+cruft-file-contains-trailing-whitespace (source): trailing-whitespace [debian/changelog:8]
+cruft-file-contains-trailing-whitespace (source): trailing-whitespace [debian/changelog:3]

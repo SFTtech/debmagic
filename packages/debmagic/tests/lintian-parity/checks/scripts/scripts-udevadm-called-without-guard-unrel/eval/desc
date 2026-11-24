@@ -1,0 +1,4 @@
+Testname: scripts-udevadm-called-without-guard-unrel
+Test-Against:
+ udevadm-called-without-guard
+Check: scripts

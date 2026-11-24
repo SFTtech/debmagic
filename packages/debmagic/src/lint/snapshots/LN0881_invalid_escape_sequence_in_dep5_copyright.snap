@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): invalid-escape-sequence-in-dep5-copyright (LN0881) (Files-Excluded) \b [debian/copyright:2]
+W: (source): invalid-escape-sequence-in-dep5-copyright (LN0881) (Files-Included) \d [debian/copyright:2]
+W: (source): invalid-escape-sequence-in-dep5-copyright (LN0881) \n [debian/copyright:3]

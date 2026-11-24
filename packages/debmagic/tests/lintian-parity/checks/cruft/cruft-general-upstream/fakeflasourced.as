@@ -1,0 +1,1 @@
+//fake .as flash

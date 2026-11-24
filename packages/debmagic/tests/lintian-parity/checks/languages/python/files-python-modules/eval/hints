@@ -1,0 +1,21 @@
+python-foo (binary): unknown-file-in-python-module-directory [usr/lib/python3/dist-packages/python-foo]
+python-foo (binary): unknown-file-in-python-module-directory [usr/lib/python3.2/site-packages/python-foo]
+python-foo (binary): unknown-file-in-python-module-directory [usr/lib/python3.2/dist-packages/python-foo]
+python-foo (binary): python-package-missing-depends-on-python
+python-foo (binary): python-module-in-wrong-location usr/lib/python3.2/site-packages/python-foo -> usr/lib/python3/dist-packages/python-foo
+python-foo (binary): python-module-in-wrong-location usr/lib/python3.2/dist-packages/python-foo -> usr/lib/python3/dist-packages/python-foo
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.7/site-packages/python-foo]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.7/site-packages/]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.7/dist-packages/python-foo]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.7/dist-packages/]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.7/]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.6/site-packages/python-foo]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.6/site-packages/]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.6/dist-packages/python-foo]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.6/dist-packages/]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.6/]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.5/site-packages/python-foo]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.5/site-packages/]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.5/dist-packages/python-foo]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.5/dist-packages/]
+python-foo (binary): package-installs-deprecated-python2-path [usr/lib/python2.5/]

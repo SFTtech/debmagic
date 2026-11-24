@@ -1,0 +1,4 @@
+Testname: bug-not-contain-url 
+Check: debian/patches/dep3
+Test-Against:
+ invalid-dep3-format-patch-bug-not-contain-url

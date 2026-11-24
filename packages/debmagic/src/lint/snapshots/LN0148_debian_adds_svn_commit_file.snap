@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): debian-adds-svn-commit-file (LN0148) [svn-commit.tmp]
+W: example (source): debian-adds-svn-commit-file (LN0148) [debian/svn-commit.tmp]
+W: example (source): debian-adds-svn-commit-file (LN0148) [svn-commit.msg.tmp]
+W: example (source): debian-adds-svn-commit-file (LN0148) [dir/svn-commit.1.tmp]
+W: example (source): debian-adds-svn-commit-file (LN0148) [.pc/svn-commit.tmp]

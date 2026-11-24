@@ -1,0 +1,2 @@
+Testname: shared-libs-ldconfig-wrong-file
+Check: libraries/shared/links

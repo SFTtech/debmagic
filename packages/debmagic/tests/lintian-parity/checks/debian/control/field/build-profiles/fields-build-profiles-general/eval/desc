@@ -1,0 +1,6 @@
+Testname: fields-build-profiles-general
+Check: debian/control/field/build-profiles
+See-Also:
+ Debian Bug#540594,
+ Debian Bug#551793,
+ Debian Bug#1126934

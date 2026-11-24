@@ -1,0 +1,6 @@
+patch-systems-quilt-general (source): quilt-patch-with-non-standard-options some-other-file -p0 [debian/patches/series:3]
+patch-systems-quilt-general (source): quilt-patch-using-template-description [debian/patches/debian-changes-1.0-1]
+patch-systems-quilt-general (source): patch-file-present-but-not-mentioned-in-series [debian/patches/subdir/file-not-referenced-in-series-2]
+patch-systems-quilt-general (source): patch-file-present-but-not-mentioned-in-series [debian/patches/file-not-referenced-in-series]
+patch-systems-quilt-general (source): package-uses-vendor-specific-patch-series [debian/patches/vendorname.series]
+patch-systems-quilt-general (source): format-3.0-but-debian-changes-patch [debian/patches/debian-changes-1.0-1]

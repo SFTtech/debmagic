@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): empty-translated-choices (LN0690) debconf/select-empty-trans-choices Choices-Da [templates:3]
+E: example (binary): empty-translated-choices (LN0690) debconf/blank Choices-de [templates:3]
+E: example (binary): empty-translated-choices (LN0690) debconf/two Choices-de [templates:3]
+E: example (binary): empty-translated-choices (LN0690) debconf/two Choices-it [templates:3]
+E: example (udeb): empty-translated-choices (LN0690) no-template-name Choices-de [templates:2]

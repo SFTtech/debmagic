@@ -1,0 +1,5 @@
+generic-dh-make-2008 (binary): helper-templates-in-copyright
+generic-dh-make-2008 (binary): copyright-without-copyright-notice
+generic-dh-make-2008 (binary): copyright-with-old-dh-make-debian-copyright
+generic-dh-make-2008 (binary): copyright-has-url-from-dh_make-boilerplate
+generic-dh-make-2008 (binary): copyright-contains-dh_make-todo-boilerplate

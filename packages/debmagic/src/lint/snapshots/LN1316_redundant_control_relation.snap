@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (source): redundant-control-relation (LN1316) (in source paragraph) Build-Depends foobar, foobar [debian/control:4]
+P: example (source): redundant-control-relation (LN1316) (in source paragraph) Build-Depends-Indep foobar, foobar [debian/control:4]
+P: example (source): redundant-control-relation (LN1316) (in source paragraph) Build-Depends debhelper, debhelper (>= 14~) [debian/control:4]
+P: example (source): redundant-control-relation (LN1316) (in source paragraph) Build-Conflicts bar, bar [i386] [debian/control:4]
+P: example (source): redundant-control-relation (LN1316) (in section for example) Depends ${misc:Depends}, ${misc:Depends} [debian/control:8]
+P: example (source): redundant-control-relation (LN1316) (in section for example) Suggests baz, baz (= 1.0), baz (>= 2.0) [debian/control:7]

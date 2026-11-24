@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): debian-news-entry-has-strange-distribution (LN0364) UNRELEASED [usr/share/doc/example/NEWS.Debian.gz:1]

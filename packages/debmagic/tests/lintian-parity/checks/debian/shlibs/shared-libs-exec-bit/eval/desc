@@ -1,0 +1,2 @@
+Testname: shared-libs-exec-bit
+Check: debian/shlibs

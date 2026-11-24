@@ -1,0 +1,5 @@
+Testname: md5sums-traversal
+Test-Against:
+ file-missing-in-md5sums
+ malformed-md5sums-control-file
+Check: md5sums

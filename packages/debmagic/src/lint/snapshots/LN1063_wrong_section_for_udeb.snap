@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (udeb): wrong-section-for-udeb (LN1063) devel
+W: example (udeb): wrong-section-for-udeb (LN1063) debian-installer/net
+W: example (udeb): wrong-section-for-udeb (LN1063)

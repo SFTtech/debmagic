@@ -1,0 +1,4 @@
+Testname: lacks-depends-on-r-api
+Check: languages/r/site-library
+See-Also:
+ https://wiki.debian.org/Teams/r-pkg-team

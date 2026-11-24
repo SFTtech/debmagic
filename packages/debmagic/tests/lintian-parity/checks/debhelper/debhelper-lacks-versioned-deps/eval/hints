@@ -1,0 +1,4 @@
+debhelper-lacks-versioned-deps (source): package-uses-deprecated-debhelper-compat-version 9
+debhelper-lacks-versioned-deps (source): no-versioned-debhelper-prerequisite 9
+debhelper-lacks-versioned-deps (source): debian-build-system dh [debian/rules]
+debhelper-lacks-versioned-deps (source): debhelper-compat-level 9

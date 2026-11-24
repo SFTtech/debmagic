@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): vcs-git-uses-invalid-user-uri (LN1243) Git git://git.debian.org/~djpig/foobar.git https://anonscm.debian.org/git/users/djpig/foobar.git
+W: example (source): vcs-git-uses-invalid-user-uri (LN1243) Git git://anonscm.debian.org/~djpig/foobar.git https://anonscm.debian.org/git/users/djpig/foobar.git

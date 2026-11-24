@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: librust-foo-dev (binary): empty-rust-library-declares-provides (LN1122)
+E: librust-foo-dev (binary): empty-rust-library-declares-provides (LN1122)
+E: librust-foo-dev (binary): empty-rust-library-declares-provides (LN1122)
+E: librust-foo-dev (udeb): empty-rust-library-declares-provides (LN1122)
+E: librust-foo-dev (binary): empty-rust-library-declares-provides (LN1122)

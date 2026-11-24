@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): stripped-library (LN1124) [usr/lib/debug/usr/share/foo/basic]
+E: example (binary): stripped-library (LN1124) [lib/profile/libfoo.so]
+E: example (binary): stripped-library (LN1124) [lib/debug/libfoo.so.debug]
+E: example (binary): stripped-library (LN1124) [usr/lib/debug/hard]
+E: example (udeb): stripped-library (LN1124) [usr/lib/debug/usr/share/foo/basic]

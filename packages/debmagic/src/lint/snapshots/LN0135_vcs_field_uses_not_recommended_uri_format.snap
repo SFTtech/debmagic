@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): vcs-field-uses-not-recommended-uri-format (LN0135) Git git@git.debian.org:foobar.git
+W: example (source): vcs-field-uses-not-recommended-uri-format (LN0135) Svn svn+ssh://svn.debian.org/svn/foobar/trunk
+W: example (source): vcs-field-uses-not-recommended-uri-format (LN0135) Mtn www.example.org org.debian.foobar

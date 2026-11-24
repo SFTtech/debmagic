@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): invalid-systemd-documentation (LN1584) https://example.com/%i/ [usr/lib/systemd/system/example.service]
+I: example (binary): invalid-systemd-documentation (LN1584) example.com/docs [usr/lib/systemd/system/example.service]
+I: example (binary): invalid-systemd-documentation (LN1584) b [usr/lib/systemd/system/example.service]
+I: example (binary): invalid-systemd-documentation (LN1584) https://example.com/%zz [usr/lib/systemd/system/example.service]
+I: example (udeb): invalid-systemd-documentation (LN1584) https://example.com/%i/ [usr/lib/systemd/system/example.service]

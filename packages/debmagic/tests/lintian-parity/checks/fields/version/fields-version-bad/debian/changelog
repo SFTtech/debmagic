@@ -1,0 +1,7 @@
+fields-version-bad (0-.3) unstable; urgency=low
+
+  * Lintian Test Suite.
+  * Test: fields-version-bad
+
+ -- Debian Lintian Maintainers <lintian-maint@debian.org>  Tue, 31 Mar 2026 17:46:22 +0200
+

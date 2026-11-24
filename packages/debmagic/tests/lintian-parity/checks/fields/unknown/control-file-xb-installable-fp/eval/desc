@@ -1,0 +1,4 @@
+Testname: control-file-xb-installable-fp
+Test-Against:
+ unknown-field
+Check: fields/unknown

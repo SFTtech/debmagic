@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): diversion-for-unknown-file (LN0709) usr/bin/bar [preinst:3]
+E: example (binary): diversion-for-unknown-file (LN0709) usr/bin/bar [preinst:3]
+E: example (binary): diversion-for-unknown-file (LN0709) etc/scripts/* [preinst:2]
+E: example (binary): diversion-for-unknown-file (LN0709) usr/share/foo/* [preinst:3]
+E: example (binary): diversion-for-unknown-file (LN0709) etc/scripts/* [preinst:2]

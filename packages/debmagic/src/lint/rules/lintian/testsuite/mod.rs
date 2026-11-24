@@ -1,0 +1,63 @@
+//! Rules for lintian's `testsuite` Check.
+//!
+//! Each Rule reads the Source tree or Source package `debian/tests` directory.
+//! Each Rule emits one Tag.
+
+mod control;
+mod ln0367_debian_tests_control_autodep8_is_obsolete;
+mod ln0377_runtime_test_file_uses_installed_python_versions;
+mod ln0399_no_op_testsuite;
+mod ln0409_unnecessary_testsuite_autopkgtest_field;
+mod ln0680_empty_debian_tests_control;
+mod ln0681_conflicting_test_fields;
+mod ln0682_backgrounded_test_command;
+mod ln0683_illegal_runtime_test_name;
+mod ln0684_missing_runtime_test_file;
+mod ln0685_runtime_test_file_uses_supported_python_versions_without_test_depends;
+mod ln0686_declare_python_versions_for_test;
+mod ln0687_drop_python_version_declaration;
+mod ln0688_testsuite_depends_on_obsolete_package;
+mod ln0995_missing_tests_control;
+mod ln0996_obsolete_runtime_tests_restriction;
+mod ln1138_test_leaves_python_version_untested;
+mod ln1139_testsuite_dependency_has_unparsable_elements;
+mod ln1140_testsuite_restrictions_has_deprecated_skip_not_installable;
+mod ln1141_unknown_testsuite;
+mod ln1142_uses_deprecated_adttmp;
+mod ln1586_runtime_test_file_is_not_a_regular_file;
+mod ln1691_superficial_tests;
+mod ln1692_testsuite_ored_depends_on_obsolete_package;
+mod ln1700_unknown_runtime_tests_feature;
+mod ln1701_unknown_runtime_tests_field;
+mod ln1702_unknown_runtime_tests_restriction;
+mod ln1781_no_tests;
+mod python;
+mod sections;
+
+pub(crate) use ln0367_debian_tests_control_autodep8_is_obsolete::DebianTestsControlAutodep8IsObsolete;
+pub(crate) use ln0377_runtime_test_file_uses_installed_python_versions::RuntimeTestFileUsesInstalledPythonVersions;
+pub(crate) use ln0399_no_op_testsuite::NoOpTestsuite;
+pub(crate) use ln0409_unnecessary_testsuite_autopkgtest_field::UnnecessaryTestsuiteAutopkgtestField;
+pub(crate) use ln0680_empty_debian_tests_control::EmptyDebianTestsControl;
+pub(crate) use ln0681_conflicting_test_fields::ConflictingTestFields;
+pub(crate) use ln0682_backgrounded_test_command::BackgroundedTestCommand;
+pub(crate) use ln0683_illegal_runtime_test_name::IllegalRuntimeTestName;
+pub(crate) use ln0684_missing_runtime_test_file::MissingRuntimeTestFile;
+pub(crate) use ln0685_runtime_test_file_uses_supported_python_versions_without_test_depends::RuntimeTestFileUsesSupportedPythonVersionsWithoutTestDepends;
+pub(crate) use ln0686_declare_python_versions_for_test::DeclarePythonVersionsForTest;
+pub(crate) use ln0687_drop_python_version_declaration::DropPythonVersionDeclaration;
+pub(crate) use ln0688_testsuite_depends_on_obsolete_package::TestsuiteDependsOnObsoletePackage;
+pub(crate) use ln0995_missing_tests_control::MissingTestsControl;
+pub(crate) use ln0996_obsolete_runtime_tests_restriction::ObsoleteRuntimeTestsRestriction;
+pub(crate) use ln1138_test_leaves_python_version_untested::TestLeavesPythonVersionUntested;
+pub(crate) use ln1139_testsuite_dependency_has_unparsable_elements::TestsuiteDependencyHasUnparsableElements;
+pub(crate) use ln1140_testsuite_restrictions_has_deprecated_skip_not_installable::TestsuiteRestrictionsHasDeprecatedSkipNotInstallable;
+pub(crate) use ln1141_unknown_testsuite::UnknownTestsuite;
+pub(crate) use ln1142_uses_deprecated_adttmp::UsesDeprecatedAdttmp;
+pub(crate) use ln1586_runtime_test_file_is_not_a_regular_file::RuntimeTestFileIsNotARegularFile;
+pub(crate) use ln1691_superficial_tests::SuperficialTests;
+pub(crate) use ln1692_testsuite_ored_depends_on_obsolete_package::TestsuiteOredDependsOnObsoletePackage;
+pub(crate) use ln1700_unknown_runtime_tests_feature::UnknownRuntimeTestsFeature;
+pub(crate) use ln1701_unknown_runtime_tests_field::UnknownRuntimeTestsField;
+pub(crate) use ln1702_unknown_runtime_tests_restriction::UnknownRuntimeTestsRestriction;
+pub(crate) use ln1781_no_tests::NoTests;

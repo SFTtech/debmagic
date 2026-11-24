@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): useless-autoreconf-build-depends (LN0526) (does not need to satisfy dh-autoreconf)
+W: example (source): useless-autoreconf-build-depends (LN0526) (does not need to satisfy autotools-dev)
+W: example (source): useless-autoreconf-build-depends (LN0526) (does not need to satisfy dh-autoreconf)
+W: example (source): useless-autoreconf-build-depends (LN0526) (does not need to satisfy autotools-dev)
+W: example (source): useless-autoreconf-build-depends (LN0526) (does not need to satisfy dh-autoreconf)

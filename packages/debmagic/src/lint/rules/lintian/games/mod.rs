@@ -1,0 +1,12 @@
+//! `games`: section `games` together with `/usr/bin` or `/bin`.
+
+mod ln0401_package_section_games_but_contains_no_game;
+mod ln0402_package_section_games_but_has_usr_bin;
+mod ln0787_game_outside_section;
+mod ln0788_global_data_in_games_directory;
+mod paths;
+
+pub(crate) use ln0401_package_section_games_but_contains_no_game::PackageSectionGamesButContainsNoGame;
+pub(crate) use ln0402_package_section_games_but_has_usr_bin::PackageSectionGamesButHasUsrBin;
+pub(crate) use ln0787_game_outside_section::GameOutsideSection;
+pub(crate) use ln0788_global_data_in_games_directory::GlobalDataInGamesDirectory;

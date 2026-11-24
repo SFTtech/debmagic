@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): truetype-font-wrong-filename (LN1092) [usr/share/fonts/IsTTF.otf]
+W: example (binary): truetype-font-wrong-filename (LN1092) [usr/share/fonts/NoSuffix]
+W: example (binary): truetype-font-wrong-filename (LN1092) [usr/share/fonts/Hardlink.pfb]
+W: example (udeb): truetype-font-wrong-filename (LN1092) [usr/share/fonts/Udeb.ttc]

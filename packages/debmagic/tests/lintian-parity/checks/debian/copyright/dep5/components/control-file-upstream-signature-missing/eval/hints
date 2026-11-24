@@ -1,0 +1,3 @@
+control-file-upstream-signature-missing (source): add-component-copyright signed [debian/copyright]
+control-file-upstream-signature-missing (source): add-component-copyright noext [debian/copyright]
+control-file-upstream-signature-missing (source): add-component-copyright component [debian/copyright]

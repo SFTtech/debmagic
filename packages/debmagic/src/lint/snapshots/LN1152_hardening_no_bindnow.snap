@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): hardening-no-bindnow (LN1152) [usr/bin/weak]
+I: example (binary): hardening-no-bindnow (LN1152) [usr/bin/weak-link]
+I: example (binary): hardening-no-bindnow (LN1152) [usr/lib/libfoo.so.1]
+I: example (binary): hardening-no-bindnow (LN1152) [usr/bin/weak]

@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): dh-install-instead-of-dh-installmodules (LN1578) [debian/install:1]
+I: example (source): dh-install-instead-of-dh-installmodules (LN1578) [debian/example.install:2]
+I: example (source): dh-install-instead-of-dh-installmodules (LN1578) [debian/install:1]

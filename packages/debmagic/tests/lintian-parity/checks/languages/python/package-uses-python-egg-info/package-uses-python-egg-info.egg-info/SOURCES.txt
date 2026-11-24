@@ -1,0 +1,4 @@
+package-uses-python-egg-info.egg-info/PKG-INFO
+package-uses-python-egg-info.egg-info/SOURCES.txt
+package-uses-python-egg-info.egg-info/dependency_links.txt
+package-uses-python-egg-info.egg-info/top_level.txt

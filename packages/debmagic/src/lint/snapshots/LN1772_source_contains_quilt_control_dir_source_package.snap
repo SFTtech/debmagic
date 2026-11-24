@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (source): source-contains-quilt-control-dir (LN1772) [.pc/]
+W: example (source): source-contains-quilt-control-dir (LN1772) [debian/.pc/]
+W: example (source): source-contains-quilt-control-dir (LN1772) [.pc/]
+W: example (source): source-contains-quilt-control-dir (LN1772) [.pc/]

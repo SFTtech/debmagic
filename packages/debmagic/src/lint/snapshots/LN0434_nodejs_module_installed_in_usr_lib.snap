@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: nodejs-module-installed-in-usr-lib (binary): nodejs-module-installed-in-usr-lib (LN0434) [usr/lib/nodejs/module-installed-in-usr-lib/test.js]
+W: nodejs-module-installed-in-usr-lib (binary): nodejs-module-installed-in-usr-lib (LN0434) [usr/lib/nodejs/module-installed-in-usr-lib/package.json]
+W: node-foo (udeb): nodejs-module-installed-in-usr-lib (LN0434) [usr/lib/nodejs/foo/test.js]

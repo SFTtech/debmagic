@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): game-outside-section (LN0787)
+W: example (binary): game-outside-section (LN0787)
+W: example (binary): game-outside-section (LN0787)
+W: example (udeb): game-outside-section (LN0787)

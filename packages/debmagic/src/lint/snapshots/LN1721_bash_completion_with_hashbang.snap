@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+P: example (binary): bash-completion-with-hashbang (LN1721) /bin/sh [usr/share/bash-completion/completions/foo:1]
+P: example (binary): bash-completion-with-hashbang (LN1721) /usr/bin/env bash -e [usr/share/bash-completion/completions/foo:1]
+P: example (binary): bash-completion-with-hashbang (LN1721) /bin/sh [usr/share/bash-completion/completions/sub/foo:1]

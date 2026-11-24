@@ -1,0 +1,12 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): executable-is-not-world-readable (LN0942) 0751 [usr/bin/script-ro]
+W: example (binary): executable-is-not-world-readable (LN0942) 0705 [usr/bin/script-no-group-r]
+W: example (binary): executable-is-not-world-readable (LN0942) 0750 [usr/bin/script-no-other-r]
+W: example (binary): executable-is-not-world-readable (LN0942) 0700 [usr/bin/owner-only]
+W: example (binary): executable-is-not-world-readable (LN0942) 4751 [usr/bin/suidperlfoo2]
+W: example (binary): executable-is-not-world-readable (LN0942) 0700 [usr/bin/hard]
+W: example (udeb): executable-is-not-world-readable (LN0942) 0750 [bin/tool]
+W: example (binary): executable-is-not-world-readable (LN0942) 0700 [usr/games/tool]
+W: example (binary): executable-is-not-world-readable (LN0942) 0700 [usr/games/tool]

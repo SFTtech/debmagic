@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): package-contains-python-coverage-file (LN0083) [usr/share/pkg/.coverage]
+W: example (udeb): package-contains-python-coverage-file (LN0083) [usr/share/pkg/.coverage]

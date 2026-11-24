@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): opentype-font-wrong-filename (LN0784) [usr/share/fonts/IsOTF.ttf]
+W: example (binary): opentype-font-wrong-filename (LN0784) [usr/share/fonts/NoSuffix]
+W: example (binary): opentype-font-wrong-filename (LN0784) [usr/share/fonts/Hardlink.pfb]
+W: example (udeb): opentype-font-wrong-filename (LN0784) [usr/share/fonts/Udeb.ttf]

@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: (source): empty-upstream-sources (LN1134)
+E: (source): empty-upstream-sources (LN1134)

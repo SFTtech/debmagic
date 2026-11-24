@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): desktop-entry-invalid-category (LN0257) Lintian [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-invalid-category (LN0257) utility [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-invalid-category (LN0257) WeirdStuff [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-invalid-category (LN0257) Lintian [usr/share/applications/foo.desktop]
+W: example (binary): desktop-entry-invalid-category (LN0257) [usr/share/applications/foo.desktop]
+W: example (udeb): desktop-entry-invalid-category (LN0257) Lintian [usr/share/applications/foo.desktop]

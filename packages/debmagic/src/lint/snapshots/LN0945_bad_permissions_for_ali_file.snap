@@ -1,0 +1,8 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): bad-permissions-for-ali-file (LN0945) [usr/lib/some-where/sample.ali]
+W: example (binary): bad-permissions-for-ali-file (LN0945) [usr/lib/some-where/writable.ali]
+W: example (binary): bad-permissions-for-ali-file (LN0945) [usr/lib/some-where/owner.ali]
+W: example (binary): bad-permissions-for-ali-file (LN0945) [usr/lib/some-where/hard.ali]
+W: example (udeb): bad-permissions-for-ali-file (LN0945) [usr/lib/x.ali]

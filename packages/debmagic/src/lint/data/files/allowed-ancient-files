@@ -1,0 +1,7 @@
+# Filename regexes to exclude from package-contains-ancient-file
+
+# Rust crates, upstream, have their Cargo.toml canonicalized on upload, and
+# that and other cargo-generated files have their timestamps set to 0 in the
+# resulting crate tarball.
+^usr/share/cargo/registry/.*/Cargo\.toml$
+^usr/share/cargo/registry/.*/\.cargo_vcs_info\.json$

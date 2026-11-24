@@ -1,0 +1,10 @@
+fields-maintainer-bounces (source): mail-contact Uploaders "I Will Loop" <fields-maintainer-bounces@packages.debian.org>
+fields-maintainer-bounces (source): mail-contact Uploaders "I Will Loop Too" <fields-maintainer-bounces@PACKAGES.QA.DEBIAN.ORG>
+fields-maintainer-bounces (source): mail-contact Maintainer "Ubuntu Developers" <ubuntu-devel-discuss@lists.ubuntu.com>
+fields-maintainer-bounces (source): mail-address-loops-or-bounces Maintainer ubuntu-devel-discuss@lists.ubuntu.com
+fields-maintainer-bounces (changes): mail-contact Maintainer "Ubuntu Developers" <ubuntu-devel-discuss@lists.ubuntu.com>
+fields-maintainer-bounces (changes): mail-contact Changed-By "Ubuntu Developers" <ubuntu-devel-discuss@lists.ubuntu.com>
+fields-maintainer-bounces (changes): mail-address-loops-or-bounces Maintainer ubuntu-devel-discuss@lists.ubuntu.com
+fields-maintainer-bounces (changes): mail-address-loops-or-bounces Changed-By ubuntu-devel-discuss@lists.ubuntu.com
+fields-maintainer-bounces (binary): mail-contact Maintainer "Ubuntu Developers" <ubuntu-devel-discuss@lists.ubuntu.com>
+fields-maintainer-bounces (binary): mail-address-loops-or-bounces Maintainer ubuntu-devel-discuss@lists.ubuntu.com

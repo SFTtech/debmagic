@@ -1,0 +1,2 @@
+Testname: legacy-binary
+Check: debian/rules

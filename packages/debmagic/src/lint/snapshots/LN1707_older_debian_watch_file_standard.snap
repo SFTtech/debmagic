@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): older-debian-watch-file-standard (LN1707) 4 [debian/watch]

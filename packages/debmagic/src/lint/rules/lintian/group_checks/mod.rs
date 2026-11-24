@@ -1,0 +1,11 @@
+//! Rules for lintian's `group-checks` Check.
+
+mod ln1441_intra_source_package_circular_dependency;
+mod ln1501_dependency_is_not_multi_archified;
+mod ln1505_debug_package_for_multi_arch_same_pkg_not_coinstallable;
+mod ln1508_binaries_have_file_conflict;
+
+pub(crate) use ln1441_intra_source_package_circular_dependency::IntraSourcePackageCircularDependency;
+pub(crate) use ln1501_dependency_is_not_multi_archified::DependencyIsNotMultiArchified;
+pub(crate) use ln1505_debug_package_for_multi_arch_same_pkg_not_coinstallable::DebugPackageForMultiArchSamePkgNotCoinstallable;
+pub(crate) use ln1508_binaries_have_file_conflict::BinariesHaveFileConflict;

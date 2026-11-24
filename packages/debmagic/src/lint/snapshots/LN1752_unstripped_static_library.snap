@@ -1,0 +1,6 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (binary): unstripped-static-library (LN1752) (code.o) [usr/lib/libfoo.a]
+I: example (binary): unstripped-static-library (LN1752) (a.o b.o) [usr/lib/libfoo.a]
+I: example (udeb): unstripped-static-library (LN1752) (code.o) [usr/lib/libfoo.a]

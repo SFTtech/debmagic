@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: (source): quilt-patch-uses-dpatch-placeholder (LN1529) [debian/patches/01-fix.patch:1]
+I: (source): quilt-patch-uses-dpatch-placeholder (LN1529) [debian/patches/01-fix.patch:3]
+I: (source): quilt-patch-uses-dpatch-placeholder (LN1529) [debian/patches/01-fix.patch:2]
+I: (source): quilt-patch-uses-dpatch-placeholder (LN1529) [debian/patches/01-fix.patch:3]

@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+tmp := $(CURDIR)/debian/$(shell dh_listpackages)
+
+%:
+	dh $@
+
+# In Ubuntu, dh does not catch this file by default.
+#  They have diffed it to reduce the size of packages.
+ifneq (,$(strip $(wildcard Changes)))
+override_dh_installchangelogs:
+	dh_installchangelogs Changes
+endif

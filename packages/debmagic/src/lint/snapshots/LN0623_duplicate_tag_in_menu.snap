@@ -1,0 +1,10 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): duplicate-tag-in-menu (LN0623) longtitle [usr/share/menu/example:1]
+W: example (binary): duplicate-tag-in-menu (LN0623) needs [usr/share/menu/example:1]
+W: example (binary): duplicate-tag-in-menu (LN0623) title [usr/share/menu/example:1]
+W: example (binary): duplicate-tag-in-menu (LN0623) title [usr/share/menu/example:1]
+W: example (binary): duplicate-tag-in-menu (LN0623) title [usr/share/menu/example:1]
+W: example (binary): duplicate-tag-in-menu (LN0623) needs [usr/lib/menu/example:2]
+W: example (udeb): duplicate-tag-in-menu (LN0623) hotkey [usr/share/menu/example:1]

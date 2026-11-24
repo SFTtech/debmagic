@@ -1,0 +1,5 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: (source): dep5-file-paragraph-references-header-paragraph (LN0614) mit [debian/copyright:6]
+W: (source): dep5-file-paragraph-references-header-paragraph (LN0614) mit [debian/copyright:10]

@@ -1,0 +1,6 @@
+Version: 5
+
+Source: https://salsa.debian.org/foo/bar
+Mode: git
+Matching-Pattern: refs/tags/@ANY_VERSION@
+Pgp-Mode: gittag

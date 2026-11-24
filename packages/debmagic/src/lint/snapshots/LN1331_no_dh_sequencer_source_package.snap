@@ -1,0 +1,4 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+I: example (source): no-dh-sequencer (LN1331) [debian/rules]

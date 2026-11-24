@@ -1,0 +1,1 @@
+text/html; /usr/bin/lynx -force_html %s; needsterminal; description=HTML Text; nametemplate=%s.html; priority=3

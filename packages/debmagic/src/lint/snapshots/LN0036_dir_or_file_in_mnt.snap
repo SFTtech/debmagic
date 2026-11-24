@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+E: example (binary): dir-or-file-in-mnt (LN0036) [mnt/foo/]
+E: example (binary): dir-or-file-in-mnt (LN0036) [mnt/foo/bar]
+E: example (binary): dir-or-file-in-mnt (LN0036) [mnt/file]
+E: example (udeb): dir-or-file-in-mnt (LN0036) [mnt/file]

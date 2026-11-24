@@ -1,0 +1,5 @@
+Testname: nmu-ubuntu-native
+Profile: ubuntu/main
+Test-Against: bad-distribution-in-changes-file
+See-Also: Debian Bug #507740
+Check: fields/distribution

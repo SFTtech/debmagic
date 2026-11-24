@@ -37,6 +37,7 @@ Then dive into the pages below — start with [Getting started](usage/getting-st
 usage/getting-started.md
 usage/build.md
 usage/test.md
+usage/lint.md
 usage/env.md
 usage/source.md
 usage/upload.md
@@ -52,6 +53,8 @@ usage/modules/index.md
 :caption: Development
 
 develop/index.md
+develop/import-lintian-rule.md
+develop/lint-host-tools.md
 develop/releasing.md
 ```
 

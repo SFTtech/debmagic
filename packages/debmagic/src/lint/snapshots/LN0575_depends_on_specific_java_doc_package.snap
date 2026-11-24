@@ -1,0 +1,7 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): depends-on-specific-java-doc-package (LN0575) Recommends
+W: example (binary): depends-on-specific-java-doc-package (LN0575) Depends
+W: example (binary): depends-on-specific-java-doc-package (LN0575) Suggests
+W: example (udeb): depends-on-specific-java-doc-package (LN0575) Pre-Depends

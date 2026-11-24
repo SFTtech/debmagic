@@ -1,0 +1,12 @@
+Format: 1.8
+Date: Tue, 31 Mar 2026 17:46:22 +0200
+Source: changed-by-root
+Binary: changed-by-root
+Architecture: source all
+Version: 1.0
+Distribution: unstable
+Urgency: low
+Maintainer: Debian Lintian Maintainers <lintian-maint@debian.org>
+Changed-By: root <someone@debian.org>
+Description:
+ changed-by-root - Test Changed-By field with root user

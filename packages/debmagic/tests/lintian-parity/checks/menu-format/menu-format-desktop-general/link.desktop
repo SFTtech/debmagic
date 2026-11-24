@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Link
+Name=link
+Icon=link
+Comment=This is Type=Link and thus does not require a Keywords key
+URL=http://example.com/

@@ -16,6 +16,8 @@ declare_rule! {
     /// Each non-empty line of the regular file `debian/tests/pkg-js/files`
     /// is trimmed and used as a pattern: each `*` stands for `[^/]*`, and the
     /// pattern must match a whole Patched path, with an optional trailing `/`.
+    /// A directory is matched with its trailing `/`, as lintian names it, so
+    /// `dir/` matches a directory and `dir` matches it too.
     /// A line that matches nothing is reported with the trimmed line as extra
     /// and no Location. Lintian keeps empty lines too, so an empty line is
     /// reported with an empty extra. A pattern that is not a valid regular
@@ -74,10 +76,14 @@ fn exists(files: &FileTree, pattern: &str) -> bool {
         return true;
     };
     files.entries().iter().any(|entry| {
-        entry
-            .path()
-            .to_str()
-            .is_some_and(|path| regex.is_match(path))
+        let Some(path) = entry.path().to_str() else {
+            return false;
+        };
+        if matches!(entry.kind(), EntryKind::Directory) {
+            regex.is_match(&format!("{path}/"))
+        } else {
+            regex.is_match(path)
+        }
     })
 }
 
@@ -112,6 +118,12 @@ mod tests {
                 list("docs\n"),
                 ("docs", TestFile::directory()),
                 ("docs/readme", TestFile::new("x")),
+            ]),
+            // A directory named with its trailing slash, as lintian names it.
+            package(vec![
+                list("test_modules/\n"),
+                ("test_modules", TestFile::directory()),
+                ("test_modules/a.js", TestFile::new("x")),
             ]),
             // Without the nodejs Testsuite the list is not checked.
             SourcePackageCase::from(vec![

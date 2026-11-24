@@ -42,7 +42,7 @@ impl SourceRule for TestsuiteOredDependsOnObsoletePackage {
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{SourceTreeTester, TestFile};
+    use crate::lint::tester::{SourceTreeTester, TestCase, TestFile};
 
     use super::*;
 
@@ -66,5 +66,26 @@ mod tests {
         ];
         SourceTreeTester::new(TestsuiteOredDependsOnObsoletePackage, pass, fail)
             .test_and_snapshot();
+    }
+
+    /// Lintian's hint for an obsolete alternative behind a current one names no
+    /// pointer, so the Diagnostic has no Location and its hint carries no `[path:line]`.
+    #[test]
+    fn hint_has_no_location() {
+        let tester = SourceTreeTester::new(
+            TestsuiteOredDependsOnObsoletePackage,
+            Vec::<TestCase>::new(),
+            Vec::<TestCase>::new(),
+        );
+        for files in [
+            tree("Test-Command: true\nDepends: current | gaim\n"),
+            tree("Test-Command: true\nDepends: @, libc6, current | xbase-clients (>= 0.1)\n"),
+        ] {
+            let diagnostics = tester.diagnostics(files);
+            assert!(!diagnostics.is_empty());
+            for diagnostic in diagnostics {
+                assert!(diagnostic.location.path.as_os_str().is_empty());
+            }
+        }
     }
 }

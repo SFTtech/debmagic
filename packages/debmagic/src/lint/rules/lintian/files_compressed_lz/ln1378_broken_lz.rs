@@ -72,6 +72,14 @@ mod tests {
 
     #[test]
     fn binary() {
+        // The Rule reports nothing without the tool, so the fail cases need it.
+        if external_tool::find("lzip")
+            .or_else(|| external_tool::find("clzip"))
+            .is_none()
+        {
+            eprintln!("skipped: lzip or clzip is not installed");
+            return;
+        }
         let pass = vec![
             BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
             file("usr/share/doc/pkg/ok.lz", VALID),

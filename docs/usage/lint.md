@@ -27,8 +27,7 @@ Artifacts are put into *groups*, as lintian does:
 
 Each artifact is inspected by the Rules for its kind, and a few Rules look at the whole group (for example `intra-source-package-circular-dependency`).
 Diagnostics name their package and kind as lintian does: `foo (changes)`, `foo (source)`, `foo-doc (binary)`, `foo (buildinfo)`.
-A source tree cannot be mixed with artifacts, and nothing is discovered for you: with no path lint reads the current directory, never `../*.changes`
-([ADR 0054](../adr/0054-lint-run-takes-artifacts-and-lints-groups.md), [ADR 0055](../adr/0055-group-rule-and-changes-buildinfo-subjects.md)).
+A source tree cannot be mixed with artifacts, and nothing is discovered for you: with no path lint reads the current directory, never `../*.changes`.
 
 ## Available options
 
@@ -67,8 +66,8 @@ These are the deliberate skips.
 
 | Tags | Why |
 | --- | --- |
-| Classification Tags (`C:`, for example `control-tarball-compression-format`) | They are metadata, not findings. They get no Code and cannot be selected ([ADR 0019](../adr/0019-classification-tags-are-not-rules.md)) |
-| Tags whose Check runs an external program: shell syntax (`*-shell-script-fails-syntax-check`), AppStream validation (`appstream-metadata-*`), integrity of `.bz2`/`.lz`/`.lzo`/`.zip` files (`broken-*`), po-debconf and PostScript font Tags | Lint has no host-tool dependencies and no environment ([ADR 0013](../adr/0013-lint-has-no-environment.md); `file(1)` was dropped for the same reason, [ADR 0041](../adr/0041-file-type-is-goblin-classification.md)) |
+| Classification Tags (`C:`, for example `control-tarball-compression-format`) | They are metadata, not findings. They get no Code and cannot be selected |
+| Tags whose Check runs an external program: shell syntax (`*-shell-script-fails-syntax-check`), AppStream validation (`appstream-metadata-*`), integrity of `.bz2`/`.lz`/`.lzo`/`.zip` files (`broken-*`), po-debconf and PostScript font Tags | Lint has no host-tool dependencies and no environment (`file(1)` was dropped for the same reason) |
 | `elf-error`, `elf-warning` | Their extra is `readelf`'s message text; the ELF parser's errors read differently, so a port could never match |
 
 ### Not yet implemented

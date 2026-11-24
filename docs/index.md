@@ -54,6 +54,7 @@ usage/modules/index.md
 
 develop/index.md
 develop/import-lintian-rule.md
+develop/lint-host-tools.md
 develop/releasing.md
 ```
 

@@ -4,7 +4,7 @@ Primary source: Debian lintian **2.139.0** git tag (`575a2bf1bc98500bbc1c78e82f4
 
 Salsa permalinks below use the `2.139.0` tag (same tree as the clone). Line numbers are from that tree.
 
-This note is for importing **per-tag recipes** into debmagic as native SourceTreeTester fixtures (plain source tree + expected Tags), per [ADR 0012](../adr/0012-parity-oracle-is-lintian-test-suite.md).
+This note is for importing **per-tag recipes** into debmagic as native SourceTreeTester fixtures (plain source tree + expected Tags).
 
 ---
 
@@ -177,12 +177,12 @@ The eval skeleton `testing` ([`t/skeletons/testing`](https://salsa.debian.org/li
 
 Upload makefile copies `build-spec/debian/` onto `packagedir/debian` then runs `dpkg-buildpackage` ([`t/templates/upload-make-builder/Makefile.in`](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/t/templates/upload-make-builder/Makefile.in) 46–55). Source makefile runs `dpkg-source -b` after the same copy ([`t/templates/source-make-builder/Makefile.in`](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/t/templates/source-make-builder/Makefile.in) 60–77). Deb makefile assembles `DEBIAN/` + `root/` into a `.deb` ([`t/templates/deb-make-builder/Makefile.in`](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/t/templates/deb-make-builder/Makefile.in)).
 
-### Mapping to debmagic Subjects ([ADR 0016](../adr/0016-lint-subject-kinds.md))
+### Mapping to debmagic Subjects
 
 - **Source tree**: the filled `packagedir` **before** `dpkg-buildpackage` / `dpkg-source` (debian/ overlay + orig + pre-build). Lintian itself does not run on that tree in these recipes; it runs on `.dsc`/`.deb`/`.changes`. Source-applicable **tags** are the `eval/hints` lines with `(source)` whose extra still makes sense on `debian/` (not `.dsc` basename extras).
 - **Source package**: `source-*` skeletons and `(source)` hints that name a `.dsc`.
 - **Binary package**: `deb` skeleton and `(binary)` hints.
-- **`.changes`**: deferred in ADR 0016; `Skeleton: changes` recipes wait.
+- **`.changes`**: deferred; `Skeleton: changes` recipes wait.
 
 `eval/desc` fields that are **not** a test-type enum: `Testname`, `Check`, `Test-Against`, `Options` (extra CLI), `Profile` (default `debian`), `Match-Strategy` (`hints` | `literal`), `Output-Format`, `Exit-Status`, `Todo`, `Test-Architectures`, `Skeleton` (eval-side, default `testing`). Build-side `fill-values`: `Skeleton`, `Testname`, `Description`, `Version`, `Package-Architecture`, `Extra-Build-Depends`, `Test-Depends`, `Test-Conflicts` ([`t/recipes/README`](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/t/recipes/README) 136–152; [`Hooks.pm`](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/lib/Test/Lintian/Hooks.pm) 156–162).
 
@@ -192,7 +192,7 @@ Default lintian flags: `--pedantic --display-info --display-experimental --displ
 
 ## 5. Reusing recipes as Source-tree fixtures without `Test::Lintian`
 
-**Yes, for the oracle and for a materialized `debian/` tree.** Do not run `private/runtests` or `Test::Lintian::*`. ADR 0012 already says the first lint slice uses native tests (plain source tree + expected Tags), with an importer targeting that shape later.
+**Yes, for the oracle and for a materialized `debian/` tree.** Do not run `private/runtests` or `Test::Lintian::*`. The first lint slice uses native tests (plain source tree + expected Tags), with an importer targeting that shape later.
 
 ### Double debian
 
@@ -235,7 +235,7 @@ Vendoring selected recipe trees into debmagic is a GPL-2+ copy; keep copyright n
 
 ### `/usr/share/lintian` at test time — no
 
-[`debian/lintian.install`](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/debian/lintian.install) installs `bin`, `data`, `lib`, `profiles`, `tags`, `templates`, `vendors` — **not** `t/`. Confirmed: lintian 2.139.0 on this machine has no `/usr/share/lintian/t/`. Autopkgtest runs recipes from the **source** tree via `private/runtests` ([`debian/tests/build-and-evaluate-test-packages`](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/debian/tests/build-and-evaluate-test-packages) lines 5–8). Ubuntu/Debian lintian drift is exactly why [ADR 0012](../adr/0012-parity-oracle-is-lintian-test-suite.md) forbids a live lintian binary as oracle.
+[`debian/lintian.install`](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/debian/lintian.install) installs `bin`, `data`, `lib`, `profiles`, `tags`, `templates`, `vendors` — **not** `t/`. Confirmed: lintian 2.139.0 on this machine has no `/usr/share/lintian/t/`. Autopkgtest runs recipes from the **source** tree via `private/runtests` ([`debian/tests/build-and-evaluate-test-packages`](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/debian/tests/build-and-evaluate-test-packages) lines 5–8). Ubuntu/Debian lintian drift is exactly why a live lintian binary is not used as the oracle.
 
 ### Git submodule of lintian — poor default
 
@@ -247,7 +247,7 @@ Copying `t/recipes/checks/fields/required/generic-empty/` as-is is GPL-clean and
 
 ### Recommended: vendor **imported** native fixtures, pin lintian **2.139.0**
 
-Aligns with ADR 0012: “oracle is a pinned import of lintian’s own recipes — their expected `tags` files” (now `eval/hints`) “not live lintian.”
+The oracle is a pinned import of lintian’s own recipes — their expected `tags` files (now `eval/hints`) — not live lintian.
 
 1. Pin comment/version: lintian **2.139.0** (`575a2bf1`).
 2. One-shot (or checked-in script) importer, **not** in the SourceTreeTester hot path:
@@ -362,4 +362,3 @@ changes-missing-fields (changes): required-field test.changes Changes
 | Defaults | [t/defaults/desc](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/t/defaults/desc), [fill-values](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/t/defaults/fill-values) |
 | Install set (no `t/`) | [debian/lintian.install](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/debian/lintian.install) |
 | License | [debian/copyright](https://salsa.debian.org/lintian/lintian/-/blob/2.139.0/debian/copyright) |
-| Debmagic oracle ADR | [docs/adr/0012-parity-oracle-is-lintian-test-suite.md](../adr/0012-parity-oracle-is-lintian-test-suite.md) |

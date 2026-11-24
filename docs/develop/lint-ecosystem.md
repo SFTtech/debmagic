@@ -3,7 +3,7 @@
 The ecosystem suite (`scripts/lint_ecosystem.py`, `just lint-ecosystem`) lints **real Debian archive
 packages** and diffs `debmagic lint` against the lintian results Debian's infrastructure already
 reports for that exact version (UDD's `lintian_results`, the data behind the lintian link on
-tracker.debian.org). The vendored test-suite stays the CI oracle (ADR 0012); this is the
+tracker.debian.org). The vendored test-suite stays the CI oracle; this is the
 real-world measurement that finds what recipes never isolate.
 
 Use it in two modes:
@@ -139,7 +139,7 @@ line and confirm the Subject dropped out.
   debmagic hid with an override that lintian does not apply.
 - **extra** — debmagic reports it, lintian does not (false positive).
 - **unapplied** — an extra where lintian hides the Tag on this Subject by an override and debmagic
-  shows it as a normal hint: the override pass did not apply the override (ADR 0057).
+  shows it as a normal hint: the override pass did not apply the override.
 - **overridden (both)** — both sides hide the Tag by an override: the override pass agrees.
 - **context** — both report it, but the hint contexts (`[path:line]`, ...) differ as multisets.
 

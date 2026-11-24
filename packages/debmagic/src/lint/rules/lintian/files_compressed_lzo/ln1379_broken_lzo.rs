@@ -71,6 +71,11 @@ mod tests {
 
     #[test]
     fn binary() {
+        // The Rule reports nothing without the tool, so the fail cases need it.
+        if external_tool::find("lzop").is_none() {
+            eprintln!("skipped: lzop is not installed");
+            return;
+        }
         let pass = vec![
             BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
             file("usr/share/doc/pkg/ok.lzo", VALID),

@@ -64,4 +64,5 @@ serialized result itself.
 
 import-lintian-rule.md
 lint-ecosystem.md
+lint-host-tools.md
 ```

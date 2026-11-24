@@ -54,6 +54,7 @@ An override suppresses a Diagnostic when its Tag matches and its context pattern
 - `--show-overrides` prints each suppressed Diagnostic as an `O:` line, after an `N:` line with its justification when there is one.
 - Unless `--show-overrides` or `--no-override` is given, a line after the summary counts what was suppressed and what is unused, for example `N: 3 hints overridden; 1 unused override`.
 - `unused-override` (`LN1779`, info) reports an override that matched no Diagnostic, and `mismatched-override` (`LN1780`, warning) one whose Tag produced a Diagnostic that the pattern did not match. Both only cover Rules that ran: an override of a Tag that is not selected is not reported, so select the Tag (`--select cute-field`) to check its overrides.
+- An override of a Tag we [skip on purpose](#lintian-tags-we-skip) is never reported, because no Rule for it ever runs. This differs from lintian for Classification Tags: lintian runs their Checks (it only hides the `C:` output) and reports a stale override of one as `unused-override`, and debmagic stays silent. For example, `wpasupplicant` overrides the Classification Tag `possible-gpl-code-linked-with-openssl`: lintian reports that override as `unused-override` when its Check emits nothing, and debmagic does not report it at all.
 - An override of a durable Tag is ignored, because lintian declares these Tags `Show-Always` and they cannot be suppressed: `alien-tag`, `duplicate-override-context`, `invalid-override-restriction`, `malformed-override`, `mismatched-override`, `renamed-tag` and `unused-override`. The run then prints `N: Some overrides were ignored.`
 - An override with an `[architecture]` list applies only to a processable of one of those architectures, as in lintian.
 
@@ -72,11 +73,9 @@ These are the deliberate skips.
 
 ### Not yet implemented
 
-Gaps that are missing inspectables, not decisions:
+Every other lintian Tag has a Rule. What remains are gaps inside some Rules, from inputs that are not inspected yet:
 
-- Most `.changes`, `.buildinfo` and group Tags: `.changes`, `.buildinfo` and whole groups are inspected now, but only a few of their Tags are ported (`bad-section-in-changes-file`, `intra-source-package-circular-dependency`, and the Changes and Buildinfo side of `debian-revision-not-well-formed`)
-- `possible-bashism-in-maintainer-script` needs a port of `checkbashisms`
-- `malformed-deb-archive`: a `.deb` that cannot be opened does not become a Subject
+- `malformed-deb-archive` reports a `.deb` whose ar members are wrong; a file that cannot be read as an ar archive at all fails the run instead
 - Members of static libraries (`.a`) are not inspected, so the `elf-by-member` variants of the hardening and obsolete-crypt Tags do not fire
 - Jars using zip64 or compression other than stored and deflate are reported as unreadable
 

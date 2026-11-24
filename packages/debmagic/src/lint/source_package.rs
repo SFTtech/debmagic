@@ -395,10 +395,12 @@ fn merge_tree(src: &Path, dest: &Path) -> anyhow::Result<()> {
 }
 
 /// One entry of an Orig tarball as lintian's orig index names it: its path in
-/// the Orig files, and the modification time in its tar header.
+/// the Orig files, whether it is a directory, and the modification time in its
+/// tar header.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct OrigEntry {
     pub path: PathBuf,
+    pub is_dir: bool,
     pub mtime: Option<i64>,
 }
 
@@ -417,13 +419,17 @@ pub(crate) fn orig_entries(dsc_path: &Path, dsc: &Dsc) -> anyhow::Result<Vec<Ori
     let mut entries = Vec::new();
     for (filename, component) in identity.orig_components()? {
         let members = tarball_members(&identity.directory().join(&filename))?;
-        for (path, mtime) in drop_common_top_directory(members, &component) {
+        for (path, is_dir, mtime) in drop_common_top_directory(members, &component) {
             let path = if component.is_empty() {
                 path
             } else {
                 Path::new(&component).join(path)
             };
-            entries.push(OrigEntry { path, mtime });
+            entries.push(OrigEntry {
+                path,
+                is_dir,
+                mtime,
+            });
         }
     }
     // lintian's orig index is a hash by name (`$catalog{$entry->name} = $entry`),
@@ -466,7 +472,8 @@ fn tarball_members(path: &Path) -> anyhow::Result<Vec<TarMember>> {
     Ok(members)
 }
 
-/// The tarball at `path`, decompressed as a stream. bzip2 is not read.
+/// The tarball at `path`, decompressed as a stream. Reads the compressions the
+/// orig tarball pattern names: gz, bz2, xz and zst (lzma is not read).
 fn open_tarball(path: &Path) -> anyhow::Result<Box<dyn std::io::Read>> {
     let file = fs::File::open(path).with_context(|| format!("opening {}", path.display()))?;
     let name = path
@@ -475,6 +482,8 @@ fn open_tarball(path: &Path) -> anyhow::Result<Box<dyn std::io::Read>> {
         .unwrap_or_default();
     if name.ends_with(".gz") {
         Ok(Box::new(flate2::read::GzDecoder::new(file)))
+    } else if name.ends_with(".bz2") {
+        Ok(Box::new(bzip2::read::BzDecoder::new(file)))
     } else if name.ends_with(".xz") {
         Ok(Box::new(xz2::read::XzDecoder::new(file)))
     } else if name.ends_with(".zst") {
@@ -496,7 +505,7 @@ fn open_tarball(path: &Path) -> anyhow::Result<Box<dyn std::io::Read>> {
 fn drop_common_top_directory(
     members: Vec<TarMember>,
     component: &str,
-) -> Vec<(PathBuf, Option<i64>)> {
+) -> Vec<(PathBuf, bool, Option<i64>)> {
     let common: PathBuf = {
         let tops: BTreeSet<&OsStr> = members
             .iter()
@@ -521,7 +530,7 @@ fn drop_common_top_directory(
             } else {
                 member.path
             };
-            (!path.as_os_str().is_empty()).then_some((path, member.mtime))
+            (!path.as_os_str().is_empty()).then_some((path, member.is_dir, member.mtime))
         })
         .collect()
 }
@@ -706,8 +715,13 @@ fn tar_gz_with_mtimes(members: &[(&str, &[u8], u64)]) -> anyhow::Result<Vec<u8>>
             // a test of tar's leading-slash warning needs.
             let name = member.as_bytes();
             header.as_old_mut().name[..name.len()].copy_from_slice(name);
+            if member.ends_with('/') {
+                header.set_entry_type(tar::EntryType::Directory);
+                header.set_mode(0o755);
+            } else {
+                header.set_mode(0o644);
+            }
             header.set_size(contents.len() as u64);
-            header.set_mode(0o644);
             header.set_mtime(*mtime);
             header.set_cksum();
             builder.append(&header, *contents)?;
@@ -747,7 +761,7 @@ mod tests {
         body
     }
 
-    fn gzip_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
+    fn plain_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
         let mut tar_bytes = Vec::new();
         {
             let mut builder = tar::Builder::new(&mut tar_bytes);
@@ -761,9 +775,51 @@ mod tests {
             }
             builder.finish()?;
         }
+        Ok(tar_bytes)
+    }
+
+    fn gzip_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
         let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
-        encoder.write_all(&tar_bytes)?;
+        encoder.write_all(&plain_tar(members)?)?;
         Ok(encoder.finish()?)
+    }
+
+    fn bzip2_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
+        let mut encoder = bzip2::write::BzEncoder::new(Vec::new(), bzip2::Compression::default());
+        encoder.write_all(&plain_tar(members)?)?;
+        Ok(encoder.finish()?)
+    }
+
+    #[test]
+    fn orig_tarball_bz2_is_read() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        fs::write(
+            dir.path().join("example_1.0.orig.tar.bz2"),
+            bzip2_tar(&[("example-1.0/src/main.c", b"int main(){}\n")])?,
+        )?;
+        fs::write(dir.path().join("example_1.0-1.debian.tar.xz"), b"x")?;
+        let path = write_dsc(
+            dir.path(),
+            &dsc_with_files(
+                "Format: 3.0 (quilt)\nSource: example\nVersion: 1.0-1\n",
+                &[
+                    "d41d8cd98f00b204e9800998ecf8427e 1 example_1.0.orig.tar.bz2",
+                    "d41d8cd98f00b204e9800998ecf8427e 1 example_1.0-1.debian.tar.xz",
+                ],
+            ),
+        );
+        let dsc = DscIdentity::load(&path)?;
+        let members = tarball_members(&dir.path().join("example_1.0.orig.tar.bz2"))?;
+        assert!(
+            members
+                .iter()
+                .any(|m| m.path == Path::new("example-1.0/src/main.c"))
+        );
+        let orig_root = dir.path().join("orig");
+        fs::create_dir_all(&orig_root)?;
+        extract_orig(&dsc, &orig_root)?;
+        assert!(orig_root.join("src/main.c").is_file());
+        Ok(())
     }
 
     #[test]

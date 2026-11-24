@@ -19,7 +19,9 @@ declare_rule! {
     /// with `/usr/share/debconf/confmodule`, `Debconf::Client::ConfModule`, or
     /// `Debian::DebConf::Client::ConfModule` is reported once per script, at
     /// that line, with an empty Extra. Comments are dropped first. Packages
-    /// named `debconf` and udebs are exempt.
+    /// named `debconf` and udebs are exempt, and so is a package with no
+    /// `config`, no `templates` and no `preinst` that loads debconf: lintian
+    /// does not scan its scripts then.
     DebconfIsNotARegistry,
     code = "LN0887",
     tag = "debconf-is-not-a-registry",
@@ -30,6 +32,12 @@ declare_rule! {
 impl BinaryPackageRule for DebconfIsNotARegistry {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
         if ctx.is_udeb() || ctx.package_name() == "debconf" {
+            return;
+        }
+        let gated = ctx
+            .control_files()
+            .is_some_and(|files| files::gate(files).open());
+        if !gated {
             return;
         }
         let hits = {
@@ -124,11 +132,21 @@ mod tests {
         BinaryPackageCase::from(vec![(path, TestFile::new(body))])
     }
 
+    /// A package with a `config`, so that lintian scans its scripts at all.
+    fn gated(case: BinaryPackageCase) -> BinaryPackageCase {
+        case.control_file("config", TestFile::new("#!/bin/sh\n"))
+    }
+
     #[test]
     fn binary() {
         let pass = vec![
             BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
             data("usr/share/doc/x/notes", ". /usr/share/debconf/confmodule\n"),
+            // Without a config, templates or debconf preinst lintian never scans.
+            data(
+                "usr/share/lintian/script",
+                "#!/bin/sh\n. /usr/share/debconf/confmodule\n",
+            ),
             data(
                 "usr/share/lintian/script",
                 "#!/bin/sh\n# . /usr/share/debconf/confmodule\n",
@@ -149,25 +167,25 @@ mod tests {
             .package("debconf"),
         ];
         let fail = vec![
-            data(
+            gated(data(
                 "usr/share/lintian/script",
                 "#!/bin/sh\n\n. /usr/share/debconf/confmodule\n",
-            ),
-            data(
+            )),
+            gated(data(
                 "usr/bin/tool",
                 "#!/usr/bin/perl\nuse Debconf::Client::ConfModule;\n",
-            ),
-            data(
+            )),
+            gated(data(
                 "usr/bin/tool",
                 "#!/usr/bin/perl\nuse Debian::DebConf::Client::ConfModule;\n",
-            ),
-            BinaryPackageCase::from(vec![
+            )),
+            gated(BinaryPackageCase::from(vec![
                 (
                     "usr/bin/real",
                     TestFile::new("#!/bin/sh\n. /usr/share/debconf/confmodule\n"),
                 ),
                 ("usr/bin/link", TestFile::symlink("real")),
-            ]),
+            ])),
         ];
         BinaryPackageTester::new(DebconfIsNotARegistry, pass, fail).test_and_snapshot();
     }

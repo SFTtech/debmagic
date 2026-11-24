@@ -17,11 +17,11 @@ declare_rule! {
     /// Checked on every entry of each Orig tarball, directories included, with
     /// the modification time in its tar header. The Extra is that date as
     /// `YYYY-MM-DD` in UTC, and the location is the entry's path in the Orig
-    /// files: the top directory every member shares is dropped, as lintian's
-    /// orig index does. A dated 1975 or earlier is reported. Info, not selected
-    /// by default. A Source tree has no Orig tarball; a Native package has none
-    /// either. Tarballs compressed with bzip2 are not read, so the Rule fails
-    /// the Subject for them.
+    /// files, with a trailing `/` for a directory: the top directory every
+    /// member shares is dropped, as lintian's orig index does. A dated 1975 or
+    /// earlier is reported. Info, not selected by default. A Source tree has no
+    /// Orig tarball; a Native package has none either. Gzip, bzip2, xz and zstd
+    /// tarballs are read.
     OrigTarballContainsAncientFile,
     code = "LN1461",
     tag = "orig-tarball-contains-ancient-file",
@@ -41,8 +41,17 @@ impl SourceRule for OrigTarballContainsAncientFile {
             .iter()
             .filter_map(|entry| {
                 let time = DateTime::from_timestamp(entry.mtime?, 0)?;
-                (time.year() <= DINSTALL_CUTOFF_YEAR)
-                    .then(|| (entry.path.clone(), time.format("%Y-%m-%d").to_string()))
+                (time.year() <= DINSTALL_CUTOFF_YEAR).then(|| {
+                    // lintian names a directory with a trailing `/`.
+                    let mut path = entry.path.clone().into_os_string();
+                    if entry.is_dir {
+                        path.push("/");
+                    }
+                    (
+                        std::path::PathBuf::from(path),
+                        time.format("%Y-%m-%d").to_string(),
+                    )
+                })
             })
             .collect();
         for (path, date) in ancient {
@@ -140,6 +149,24 @@ mod tests {
         assert_eq!(
             found(dsc),
             [("README".to_string(), "1970-01-01".to_string())]
+        );
+    }
+
+    /// lintian names a directory with a trailing `/`, as its Extra location.
+    #[test]
+    fn ancient_directory_is_reported_with_trailing_slash() {
+        let dir = TempDir::new().expect("temp directory");
+        let dsc = quilt(
+            dir.path(),
+            &[
+                ("example-1.0/", b"", 0),
+                ("example-1.0/docs/", b"", 0),
+                ("example-1.0/docs/manual", b"text\n", 1_000_000_000),
+            ],
+        );
+        assert_eq!(
+            found(dsc),
+            [("docs/".to_string(), "1970-01-01".to_string())]
         );
     }
 

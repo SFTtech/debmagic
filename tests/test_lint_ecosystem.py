@@ -5,6 +5,7 @@ comparison is judged by, so a change to the override pass's output format shows 
 """
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -241,3 +242,23 @@ def test_load_oracle_dedupes_the_snapshot_on_read(tmp_path: Path) -> None:
     rows = [dict(vars(once)), dict(vars(once))]
     (snapshot / "hello_2.10-5.json").write_text(json.dumps({"rows": rows}), encoding="utf-8")
     assert eco.load_oracle([entry], tmp_path, refresh=False)[("hello", "2.10-5")] == [once]
+
+
+def test_tool_version_reports_a_missing_tool_instead_of_failing() -> None:
+    # The report header records host tools; one that is not installed must not abort the run.
+    assert eco.tool_version(["debmagic-no-such-tool-for-tests", "--version"]) == "not found"
+
+
+def test_tool_version_keeps_only_the_asked_for_leading_lines(monkeypatch: pytest.MonkeyPatch) -> None:
+    # A long banner is cut to its first line; `file --version` needs two lines (program and magic database).
+    answer = subprocess.CompletedProcess(["tool"], 0, stdout="file-5.47\nmagic file from /usr/share/misc/magic\nmore\n")
+    monkeypatch.setattr(eco.subprocess, "run", lambda *args, **kwargs: answer)
+    assert eco.tool_version(["tool"]) == "file-5.47"
+    assert eco.tool_version(["tool"], lines=2) == "file-5.47; magic file from /usr/share/misc/magic"
+
+
+def test_report_json_carries_the_host_tool_versions() -> None:
+    # Hints quote host tools (groff in LN0270), so a report must say which ones produced it.
+    comparison = eco.Comparison()
+    host = {"groff": "GNU groff version 1.25.0"}
+    assert eco.report_json(comparison, host)["host_tools"] == host

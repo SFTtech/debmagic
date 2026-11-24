@@ -3,10 +3,10 @@ use std::path::PathBuf;
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::file_tree::FileTree;
+use crate::lint::file_tree::{Entry, FileTree};
 use crate::lint::rule::{BinaryPackageRule, Severity};
 
-use super::syntax::{Checker, fails_syntax_check, host_checkers};
+use super::syntax::{Checker, failing_paths, host_checkers};
 
 pub struct ExampleShellScriptFailsSyntaxCheck;
 
@@ -54,13 +54,12 @@ impl BinaryPackageRule for ExampleShellScriptFailsSyntaxCheck {
 
 /// Installed example files whose shell rejects them with `-n`.
 fn failing_examples(files: &FileTree, checkers: &[Checker]) -> Vec<PathBuf> {
-    files
+    let candidates: Vec<&Entry> = files
         .entries()
         .iter()
         .filter(|entry| is_example(entry.path()))
-        .filter(|entry| fails_syntax_check(files, entry, checkers))
-        .map(|entry| entry.path().to_path_buf())
-        .collect()
+        .collect();
+    failing_paths(files, &candidates, checkers)
 }
 
 /// `usr/share/doc/<package>/examples/…`, and not an `.erb` template.

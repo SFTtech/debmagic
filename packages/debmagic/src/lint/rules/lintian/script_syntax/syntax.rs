@@ -9,6 +9,7 @@ use std::ffi::OsStr;
 use std::path::{Component, Path, PathBuf};
 use std::sync::LazyLock;
 
+use rayon::prelude::*;
 use regex::Regex;
 
 use crate::lint::external_tool;
@@ -44,6 +45,21 @@ pub(super) fn host_checkers() -> Vec<Checker> {
                 program: external_tool::find(program)?,
             })
         })
+        .collect()
+}
+
+/// The paths of the `entries` whose script fails the syntax check, in their
+/// order. Each shell runs on its own thread.
+pub(super) fn failing_paths(
+    files: &FileTree,
+    entries: &[&Entry],
+    checkers: &[Checker],
+) -> Vec<PathBuf> {
+    entries
+        .par_iter()
+        .copied()
+        .filter(|entry| fails_syntax_check(files, entry, checkers))
+        .map(|entry| entry.path().to_path_buf())
         .collect()
 }
 

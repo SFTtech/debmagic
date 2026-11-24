@@ -134,17 +134,18 @@ impl SourcePackageExtract {
         ensure_named_files_exist(&identity)?;
         let workspace = TempDir::new().context("creating Source package extract directory")?;
         let patched_root = workspace.path().join("patched");
-        let patched_messages = extract_patched(&identity.path, &patched_root)?;
-        restore_debian_pc(&identity, workspace.path(), &patched_root)?;
-
-        let (orig_root, orig_messages) = if identity.is_native() {
-            (None, Vec::new())
-        } else {
-            let orig_root = workspace.path().join("orig");
-            fs::create_dir_all(&orig_root)
-                .with_context(|| format!("creating {}", orig_root.display()))?;
-            let messages = extract_orig(&identity, &orig_root)?;
-            (Some(orig_root), messages)
+        // The Patched and Orig trees are independent (separate directories), so
+        // extract them at once. A Patched failure is still reported first, as
+        // it was when the Orig tree was extracted after it.
+        let (patched, orig) = std::thread::scope(|scope| {
+            let orig = scope.spawn(|| extract_orig_tree(&identity, workspace.path()));
+            let patched = extract_patched_tree(&identity, workspace.path(), &patched_root);
+            (patched, orig.join())
+        });
+        let patched_messages = patched?;
+        let (orig_root, orig_messages) = match orig {
+            Ok(result) => result?,
+            Err(panic) => std::panic::resume_unwind(panic),
         };
 
         Ok(Self {
@@ -264,6 +265,33 @@ fn restore_debian_pc(
             .with_context(|| format!("moving {} to {}", source.display(), target.display()))?;
     }
     Ok(())
+}
+
+/// The Patched tree under `patched_root` (with `debian/.pc` restored), and the
+/// messages dpkg-source printed.
+fn extract_patched_tree(
+    identity: &DscIdentity,
+    workspace: &Path,
+    patched_root: &Path,
+) -> anyhow::Result<Vec<String>> {
+    let messages = extract_patched(&identity.path, patched_root)?;
+    restore_debian_pc(identity, workspace, patched_root)?;
+    Ok(messages)
+}
+
+/// The Orig tree under `workspace/orig`, with the messages tar printed. `None`
+/// for a Native package, which has no Orig tree.
+fn extract_orig_tree(
+    identity: &DscIdentity,
+    workspace: &Path,
+) -> anyhow::Result<(Option<PathBuf>, Vec<String>)> {
+    if identity.is_native() {
+        return Ok((None, Vec::new()));
+    }
+    let orig_root = workspace.join("orig");
+    fs::create_dir_all(&orig_root).with_context(|| format!("creating {}", orig_root.display()))?;
+    let messages = extract_orig(identity, &orig_root)?;
+    Ok((Some(orig_root), messages))
 }
 
 fn extract_orig(identity: &DscIdentity, orig_root: &Path) -> anyhow::Result<Vec<String>> {

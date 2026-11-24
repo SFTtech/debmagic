@@ -1,6 +1,7 @@
 use std::sync::LazyLock;
 
 use fancy_regex::{Regex, RegexBuilder};
+use regex::RegexSet;
 
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
@@ -33,23 +34,77 @@ declare_rule! {
     experimental = false,
 }
 
-/// One line of `binaries/embedded-libs`.
+/// One line of `binaries/embedded-libs`, with its pattern matched through
+/// [`Table::set`] or by backtracking.
 struct Embedded {
     libname: &'static str,
     source: &'static str,
     source_regex: Option<Regex>,
-    pattern: Regex,
+    pattern: Pattern,
 }
 
-static EMBEDDED: LazyLock<Vec<Embedded>> = LazyLock::new(|| {
-    data::lines(include_str!("../../../data/binaries/embedded-libs"))
-        .filter_map(parse_line)
-        .collect()
+/// How a line's pattern decides whether a file contains the library.
+enum Pattern {
+    /// No lookaround: the verdict is the pattern's index in [`Table::set`].
+    Set(usize),
+    /// Lookaround: `pattern` runs with backtracking, but only for a file
+    /// where `prefilter`, the pattern without its lookaround groups (a
+    /// superset of its matches), is in [`Table::set`] and matches.
+    Backtrack { pattern: Regex, prefilter: usize },
+}
+
+/// The table, compiled once per process.
+struct Table {
+    libraries: Vec<Embedded>,
+    /// Every pattern (or prefilter) of [`Pattern::Set`] and
+    /// [`Pattern::Backtrack`], in one automaton, so one pass over a file's
+    /// strings tells which patterns can match it.
+    set: RegexSet,
+}
+
+static TABLE: LazyLock<Table> = LazyLock::new(|| {
+    let mut set_patterns: Vec<String> = Vec::new();
+    let mut libraries = Vec::new();
+    for line in data::lines(include_str!("../../../data/binaries/embedded-libs")) {
+        let Some(parsed) = parse_line(line) else {
+            continue;
+        };
+        let pattern = if needs_backtracking(parsed.pattern) {
+            let Some(pattern) = string_pattern(parsed.pattern) else {
+                continue;
+            };
+            set_patterns.push(without_lookaround(parsed.pattern));
+            Pattern::Backtrack {
+                pattern,
+                prefilter: set_patterns.len() - 1,
+            }
+        } else {
+            set_patterns.push(parsed.pattern.to_owned());
+            Pattern::Set(set_patterns.len() - 1)
+        };
+        libraries.push(Embedded {
+            libname: parsed.libname,
+            source: parsed.source,
+            source_regex: parsed.source_regex,
+            pattern,
+        });
+    }
+    let set = RegexSet::new(&set_patterns)
+        .expect("the embedded-libs patterns, without lookaround, compile as regex");
+    Table { libraries, set }
 });
+
+/// A line's fields, before its pattern is compiled.
+struct Line {
+    libname: &'static str,
+    source: &'static str,
+    source_regex: Option<Regex>,
+    pattern: &'static str,
+}
 
 /// `label || key=value ... || pattern`: the label is the text before the first
 /// `||`, the pairs and the pattern are split at the next `||`.
-fn parse_line(line: &'static str) -> Option<Embedded> {
+fn parse_line(line: &'static str) -> Option<Line> {
     let (label, details) = line.split_once("||")?;
     let label = label.trim();
     let (pairs, pattern) = details.split_once("||")?;
@@ -69,12 +124,77 @@ fn parse_line(line: &'static str) -> Option<Embedded> {
         Some(value) => Some(Regex::new(value).ok()?),
         None => None,
     };
-    Some(Embedded {
+    Some(Line {
         libname: libname.unwrap_or(label),
         source: source.unwrap_or(label),
         source_regex,
-        pattern: string_pattern(pattern)?,
+        pattern,
     })
+}
+
+/// Lookaround syntax, which only the backtracking engine supports.
+const LOOKAROUND: [&str; 4] = ["(?=", "(?!", "(?<=", "(?<!"];
+
+/// Whether the pattern needs the backtracking engine: lookaround, or a
+/// backreference (`\1`..`\9`, `\k`). Other patterns go in the [`RegexSet`].
+fn needs_backtracking(pattern: &str) -> bool {
+    let bytes = pattern.as_bytes();
+    LOOKAROUND.iter().any(|syntax| pattern.contains(syntax))
+        || bytes
+            .windows(2)
+            .any(|pair| pair[0] == b'\\' && (matches!(pair[1], b'1'..=b'9') || pair[1] == b'k'))
+}
+
+/// The pattern with every lookaround group removed. Removing a zero-width
+/// assertion only makes a pattern match more, so the result matches wherever
+/// the pattern does. It is the prefilter of [`Pattern::Backtrack`].
+fn without_lookaround(pattern: &str) -> String {
+    let bytes = pattern.as_bytes();
+    let mut kept = Vec::with_capacity(bytes.len());
+    let mut copied_to = 0;
+    let mut index = 0;
+    while index < bytes.len() {
+        if bytes[index] == b'\\' {
+            index += 2;
+            continue;
+        }
+        let starts_lookaround = bytes[index] == b'('
+            && LOOKAROUND
+                .iter()
+                .any(|syntax| bytes[index..].starts_with(syntax.as_bytes()));
+        if starts_lookaround {
+            kept.extend_from_slice(&bytes[copied_to..index]);
+            index = group_end(bytes, index);
+            copied_to = index;
+        } else {
+            index += 1;
+        }
+    }
+    kept.extend_from_slice(&bytes[copied_to..]);
+    // Only whole groups that start and end at ASCII parentheses were cut, so
+    // what remains is still valid UTF-8.
+    String::from_utf8(kept).expect("cutting whole groups keeps UTF-8")
+}
+
+/// The index just past the group that opens at `open`.
+fn group_end(bytes: &[u8], open: usize) -> usize {
+    let mut depth = 0usize;
+    let mut index = open;
+    while index < bytes.len() {
+        match bytes[index] {
+            b'\\' => index += 1,
+            b'(' => depth += 1,
+            b')' => {
+                depth -= 1;
+                if depth == 0 {
+                    return index + 1;
+                }
+            }
+            _ => {}
+        }
+        index += 1;
+    }
+    bytes.len()
 }
 
 /// The table's pattern over the whole `strings` text of a file, which can be
@@ -95,19 +215,34 @@ impl BinaryPackageRule for EmbeddedLibrary {
             return;
         };
         let source = ctx.source_name();
-        for (path, text) in strings.iter() {
-            for library in EMBEDDED.iter() {
-                if library
+        let table = &*TABLE;
+        // Which libraries apply depends only on the source name, so they are
+        // chosen once here, not once per file.
+        let candidates: Vec<&Embedded> = table
+            .libraries
+            .iter()
+            .filter(|library| {
+                let owned_by_regex = library
                     .source_regex
                     .as_ref()
-                    .is_some_and(|regex| regex.is_match(&source).unwrap_or(false))
-                {
-                    continue;
-                }
-                if !library.source.is_empty() && library.source == source {
-                    continue;
-                }
-                if library.pattern.is_match(text).unwrap_or(false) {
+                    .is_some_and(|regex| regex.is_match(&source).unwrap_or(false));
+                let owned_by_name = !library.source.is_empty() && library.source == source;
+                !owned_by_regex && !owned_by_name
+            })
+            .collect();
+        if candidates.is_empty() {
+            return;
+        }
+        for (path, text) in strings.iter() {
+            let hits = table.set.matches(text);
+            for library in &candidates {
+                let found = match &library.pattern {
+                    Pattern::Set(index) => hits.matched(*index),
+                    Pattern::Backtrack { pattern, prefilter } => {
+                        hits.matched(*prefilter) && pattern.is_match(text).unwrap_or(false)
+                    }
+                };
+                if found {
                     ctx.diagnostic(Diagnostic::error(library.libname).with_location(Location {
                         path: path.to_path_buf(),
                         line: None,
@@ -142,8 +277,27 @@ mod tests {
     #[test]
     fn table_lines_parse() {
         let lines = data::lines(include_str!("../../../data/binaries/embedded-libs")).count();
-        assert_eq!(EMBEDDED.len(), lines);
-        assert!(EMBEDDED.iter().any(|library| library.libname == "zlib"));
+        assert_eq!(TABLE.libraries.len(), lines);
+        assert!(
+            TABLE
+                .libraries
+                .iter()
+                .any(|library| library.libname == "zlib")
+        );
+    }
+
+    #[test]
+    fn lookaround_is_removed_for_the_prefilter() {
+        assert_eq!(
+            without_lookaround("(?m)(?<!4 )(?:in|de)flate (?:\\d)"),
+            "(?m)(?:in|de)flate (?:\\d)"
+        );
+        assert_eq!(without_lookaround("a(?=b)c(?!d)"), "ac");
+        // An escaped parenthesis is a literal, not the start of a group.
+        assert_eq!(without_lookaround("\\((?=x)y"), "\\(y");
+        assert!(needs_backtracking("x(?<!4 )y"));
+        assert!(needs_backtracking("(a)\\1"));
+        assert!(!needs_backtracking("(?m)^Punycode"));
     }
 
     #[test]
@@ -191,5 +345,66 @@ mod tests {
         }
         let case = BinaryPackageCase::from(vec![("usr/lib/libexample.so.1", elf_with(&text))]);
         BinaryPackageTester::new(EmbeddedLibrary, vec![case], vec![]).test();
+    }
+
+    /// Pins the matching of patterns that need no lookaround: anchors with
+    /// `(?m)`, case folding, escapes and alternations.
+    #[test]
+    fn pattern_matching_pins() {
+        let pass = vec![
+            // `(?m)^` needs the line start, not just any position.
+            case("usr/bin/a", "some text Punycode failed"),
+            // `ieee-data` needs the dots of `DR. B. STRUCK`.
+            case("usr/bin/a", "DR B STRUCK"),
+            // libswscale needs `,` or a newline after `chosen`.
+            case(
+                "usr/bin/a",
+                "Exactly one scaler algorithm must be chosen later",
+            ),
+            // Nothing in the table matches plain text.
+            case("usr/bin/a", "hello world"),
+        ];
+        let fail = vec![
+            case("usr/bin/a", "x\nPunycode failed"),
+            // `ieee-data` is case-insensitive.
+            case("usr/bin/a", "Dr. B. Struck wrote this"),
+            case("usr/bin/a", "Exactly one scaler algorithm must be chosen,"),
+            case(
+                "usr/bin/a",
+                "Caution: quantization tables are too coarse for baseline JPEG\nmore",
+            )
+            .field("Source", "something-else"),
+        ];
+        BinaryPackageTester::new(EmbeddedLibrary, pass, fail).test();
+    }
+
+    /// The zlib pattern has a negative lookbehind (`(?<!4 )`), so it needs the
+    /// backtracking engine. A Pascal `4 inflate` is not zlib.
+    #[test]
+    fn zlib_lookbehind_pins() {
+        let pass = vec![
+            case("usr/bin/a", "4 inflate 1.2.11 Copyright"),
+            case("usr/bin/a", "deflate without a version here"),
+            case("usr/bin/a", "inflate 1.2.11 Copyright").field("Source", "zlib"),
+        ];
+        let fail = vec![
+            case("usr/bin/a", "inflate 1.2.11 Copyright"),
+            case("usr/bin/a", "deflate 1.2.8 Copyright"),
+            case("usr/bin/a", "x 4inflate 1.2.11 Copyright"),
+        ];
+        BinaryPackageTester::new(EmbeddedLibrary, pass, fail).test();
+    }
+
+    /// Several libraries in one file are each reported. A library whose
+    /// source is the package itself is skipped, and the others still report.
+    #[test]
+    fn several_libraries_in_one_file() {
+        let text = "This is a bug in bzip2\nA libcurl function was given a bad argument";
+        let fail = vec![case("usr/bin/a", text).field("Source", "other")];
+        let pass = vec![
+            case("usr/bin/a", "A libcurl function was given a bad argument")
+                .field("Source", "curl"),
+        ];
+        BinaryPackageTester::new(EmbeddedLibrary, pass, fail).test();
     }
 }

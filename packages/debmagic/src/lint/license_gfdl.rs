@@ -211,11 +211,11 @@ pub(crate) fn gfdl_hint(file: &TextFile) -> Option<GfdlHint> {
     if !KEYWORDS
         .iter()
         .any(|keyword| file.lowercase.contains(keyword))
-        || !file.clean.contains(SENTENCE)
+        || !file.clean().contains(SENTENCE)
     {
         return None;
     }
-    let capture = find_gfdl(&file.clean)?;
+    let capture = find_gfdl(file.clean())?;
     let mut sections = strip_punct(&capture.sections);
     let mut context = strip_punct(&capture.context);
 

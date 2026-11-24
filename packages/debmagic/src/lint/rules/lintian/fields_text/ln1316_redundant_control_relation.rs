@@ -62,13 +62,13 @@ impl SourceRule for RedundantControlRelation {
                 &format!("(in section for {})", installable.name()),
             ));
         }
-        for message in found {
+        for (message, line) in found {
             ctx.diagnostic(
                 Diagnostic::warn(message)
                     .with_severity(Severity::Pedantic)
                     .with_location(Location {
                         path: std::path::PathBuf::from("debian/control"),
-                        line: None,
+                        line,
                         column: None,
                     }),
             );
@@ -76,14 +76,20 @@ impl SourceRule for RedundantControlRelation {
     }
 }
 
-fn redundancy_messages(fields: &ControlParagraph, names: &[&str], explainer: &str) -> Vec<String> {
+/// Each message with the line of its field name (lintian's pointer).
+fn redundancy_messages(
+    fields: &ControlParagraph,
+    names: &[&str],
+    explainer: &str,
+) -> Vec<(String, Option<u32>)> {
     names
         .iter()
         .filter_map(|name| fields.relation(name).map(|relation| (name, relation)))
         .flat_map(|(name, relation)| {
+            let line = fields.position(name);
             redundant_sets(&relation)
                 .into_iter()
-                .map(move |set| format!("{explainer} {name} {set}"))
+                .map(move |set| (format!("{explainer} {name} {set}"), line))
         })
         .collect()
 }
@@ -179,5 +185,27 @@ mod tests {
             ),
         ];
         SourceTreeTester::new(RedundantControlRelation, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian's Relation.pm reports a redundancy at the pointer of its field
+    /// (`$control_item->pointer($position)`), so the Location is the field line.
+    /// The snapshot of `source()` pins the line numbers.
+    #[test]
+    fn redundancy_in_source_field_below_header_is_reported() {
+        let pass = vec![packaged("Build-Depends: foo, bar\n", "")];
+        let fail = vec![packaged(
+            "Vcs-Git: https://example.org/repo.git\nBuild-Depends: foobar, foobar\n",
+            "",
+        )];
+        SourceTreeTester::new(RedundantControlRelation, pass, fail).test();
+    }
+
+    /// lintian checks the installable fields of each binary paragraph
+    /// (`installable_fields`), so a redundancy in a later section is reported.
+    #[test]
+    fn redundancy_in_installable_field_is_reported() {
+        let pass = vec![packaged("", "Recommends: a, b\n")];
+        let fail = vec![packaged("", "Suggests: baz, baz (>= 2.0)\n")];
+        SourceTreeTester::new(RedundantControlRelation, pass, fail).test();
     }
 }

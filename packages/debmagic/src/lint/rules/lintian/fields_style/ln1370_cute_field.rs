@@ -65,12 +65,13 @@ fn capitalize_x_prefix(name: String) -> String {
     }
 }
 
-fn mismatches(fields: &ControlParagraph) -> Vec<String> {
+/// Each mismatch with the line of its field name (lintian's pointer).
+fn mismatches(fields: &ControlParagraph) -> Vec<(String, Option<u32>)> {
     fields
         .names()
         .filter_map(|name| {
             let standard = standard_name(name);
-            (name != standard).then(|| format!("{name} vs {standard}"))
+            (name != standard).then(|| (format!("{name} vs {standard}"), fields.position(name)))
         })
         .collect()
 }
@@ -84,13 +85,13 @@ impl SourceRule for CuteField {
         for installable in control.installables() {
             messages.extend(mismatches(installable.fields()));
         }
-        for message in messages {
+        for (message, line) in messages {
             ctx.diagnostic(
                 Diagnostic::warn(message)
                     .with_severity(Severity::Pedantic)
                     .with_location(Location {
                         path: PathBuf::from("debian/control"),
-                        line: None,
+                        line,
                         column: None,
                     }),
             );
@@ -145,5 +146,26 @@ mod tests {
         ))];
         let fail = vec![SourcePackageCase::from(control("Xs-Python-Version: 3.0\n"))];
         SourcePackageTester::new(CuteField, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian's `fields/style` Check reports each mismatched name at its
+    /// field's pointer (`$item->pointer($position)`), so the Location is the
+    /// line of the field name. The `test()` snapshot pins the line numbers.
+    #[test]
+    fn mismatch_below_header_is_reported_at_its_line() {
+        let pass = vec![control("Homepage: https://example.org/\n")];
+        let fail = vec![control(
+            "Homepage: https://example.org/\nRules-requires-root: no\n",
+        )];
+        SourceTreeTester::new(CuteField, pass, fail).test();
+    }
+
+    /// Boundary: a name that is already in the standard form, including the
+    /// `XS-`/`XB-`/`XC-` prefixes, is not reported (`standard_name`).
+    #[test]
+    fn standard_prefixed_names_are_not_reported() {
+        let pass = vec![control("XS-Python-Version: 3.0\nXB-Ruby-Versions: all\n")];
+        let fail = vec![control("Xs-Python-Version: 3.0\n")];
+        SourceTreeTester::new(CuteField, pass, fail).test();
     }
 }

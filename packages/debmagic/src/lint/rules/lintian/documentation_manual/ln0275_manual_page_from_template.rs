@@ -28,19 +28,14 @@ impl BinaryPackageRule for ManualPageFromTemplate {
         if ctx.is_udeb() {
             return;
         }
-        let Some(files) = ctx.data_files() else {
+        if ctx.data_files().is_none() {
             return;
-        };
+        }
+        let manual = ctx.shared_once(|ctx| content::ManualPages::from_files(ctx.data_files()));
         let mut hits = Vec::new();
-        for page in content::pages(files) {
-            if page.opening.stops() || !page.english_hierarchy {
-                continue;
-            }
-            let Some(whatis) = content::whatis(&page) else {
-                continue;
-            };
-            if whatis.template() {
-                hits.push(page.path);
+        for (page, whatis) in &manual.entries {
+            if whatis.as_ref().is_some_and(content::Whatis::template) {
+                hits.push(page.path.clone());
             }
         }
         for path in hits {

@@ -114,6 +114,77 @@ mod tests {
         ]
     }
 
+    /// Lintian compares the newest and previous entry only when epoch, upstream
+    /// version and source name all match (Lintian::Check::Debian::Changelog,
+    /// the `non_consecutive` block). A new upstream version starts a new sequence.
+    #[test]
+    fn revision_not_compared_across_upstream_change() {
+        SourceTreeTester::new(
+            NonConsecutiveDebianRevision,
+            vec![tree(&format!("{}{}", entry("2.0-3"), entry("1.0-1")))],
+            Vec::<Vec<(&str, TestFile)>>::new(),
+        )
+        .test();
+    }
+
+    /// Same check as above, for a changed epoch.
+    #[test]
+    fn revision_not_compared_across_epoch_change() {
+        SourceTreeTester::new(
+            NonConsecutiveDebianRevision,
+            vec![tree(&format!("{}{}", entry("2:1.0-3"), entry("1.0-1")))],
+            Vec::<Vec<(&str, TestFile)>>::new(),
+        )
+        .test();
+    }
+
+    /// Same check as above, for entries that name different source packages.
+    #[test]
+    fn revision_not_compared_across_source_name_change() {
+        SourceTreeTester::new(
+            NonConsecutiveDebianRevision,
+            vec![tree(&format!(
+                "{}{}",
+                named_entry("other", "1.0-3"),
+                entry("1.0-1")
+            ))],
+            Vec::<Vec<(&str, TestFile)>>::new(),
+        )
+        .test();
+    }
+
+    /// Lintian returns before the revision checks for a native package.
+    #[test]
+    fn revision_not_compared_for_native_package() {
+        let native = vec![
+            ("debian/source/format", TestFile::new("3.0 (native)\n")),
+            (
+                "debian/changelog",
+                TestFile::new(format!("{}{}", entry("3"), entry("1"))),
+            ),
+        ];
+        SourceTreeTester::new(
+            NonConsecutiveDebianRevision,
+            vec![native],
+            Vec::<Vec<(&str, TestFile)>>::new(),
+        )
+        .test();
+    }
+
+    /// Boundary: with epoch and upstream equal, a revision gap is still reported.
+    #[test]
+    fn revision_gap_reported_when_epoch_and_upstream_match() {
+        SourceTreeTester::new(
+            NonConsecutiveDebianRevision,
+            Vec::<Vec<(&str, TestFile)>>::new(),
+            vec![
+                tree(&format!("{}{}", entry("1:1.0-3"), entry("1:1.0-1"))),
+                tree(&format!("{}{}", entry("1.0-3"), entry("1.0-1"))),
+            ],
+        )
+        .test();
+    }
+
     #[test]
     fn test() {
         let native = vec![

@@ -6,6 +6,7 @@ use std::sync::LazyLock;
 use serde::Deserialize;
 
 use crate::declare_rule;
+use crate::lint::content_type::is_ascii_text;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::elf::entry_bytes;
@@ -23,12 +24,12 @@ declare_rule! {
     /// Architecture dependence is shown by a directory directly under
     /// `usr/lib/<triplet>` (a `DEB_HOST_MULTIARCH` triplet), or by a regular
     /// file, hardlink, or other entry there, or by a non-empty file outside
-    /// `usr/share` that is not plain ASCII text. The file type is not
-    /// libmagic: a file of one byte is "very short" and a file whose bytes are
-    /// all printable ASCII or the usual text controls is "ASCII text", as
-    /// `file(1)` would say for them. Other non-ASCII content counts as
-    /// architecture dependent, as in lintian. Skipped for udebs, Architecture
-    /// `all`, and transitional or meta packages (by Description or Section).
+    /// `usr/share` that is not `ASCII text`. That is `file(1)`'s verdict,
+    /// which `content_type::is_ascii_text` sniffs from the bytes: a file of one
+    /// byte is "very short", and a generic INI configuration such as a systemd
+    /// unit is not ASCII text. Other non-ASCII content counts as architecture
+    /// dependent, as in lintian. Skipped for udebs, Architecture `all`, and
+    /// transitional or meta packages (by Description or Section).
     /// Extra and Location are empty. Severity is info, the Tag is experimental
     /// and not selected by default, as in lintian.
     PackageContainsNoArchDependentFiles,
@@ -70,8 +71,8 @@ fn depends_on_architecture(files: &FileTree) -> bool {
     })
 }
 
-/// A non-empty file whose content is not plain ASCII text, as libmagic
-/// classifies it. Unreadable content does not count.
+/// A non-empty file whose content is not `ASCII text` as `file(1)` classifies
+/// it. Unreadable content does not count.
 fn is_arch_dependent_content(files: &FileTree, entry: &crate::lint::file_tree::Entry) -> bool {
     let Some(bytes) = entry_bytes(files, entry) else {
         return false;
@@ -79,9 +80,7 @@ fn is_arch_dependent_content(files: &FileTree, entry: &crate::lint::file_tree::E
     if bytes.is_empty() || bytes.len() < 2 {
         return false;
     }
-    !bytes
-        .iter()
-        .all(|&byte| matches!(byte, 0x08 | 0x09..=0x0d | 0x1b | 0x20..=0x7e))
+    !is_ascii_text(&bytes)
 }
 
 /// The entry sits directly in `usr/lib/<triplet>`, lintian's
@@ -164,5 +163,37 @@ mod tests {
         ];
         BinaryPackageTester::new(PackageContainsNoArchDependentFiles, pass, fail)
             .test_and_snapshot();
+    }
+
+    /// lintian counts a file as architecture dependent unless `file(1)` says
+    /// `ASCII text`, so an INI configuration (a `[Section]` file whose second
+    /// section header is followed by more text) is architecture dependent.
+    #[test]
+    fn ini_configuration_is_not_ascii_text() {
+        let pass = vec![
+            BinaryPackageCase::from(vec![(
+                "usr/bin/foo",
+                TestFile::new("[Unit]\nDescription=x\n[Service]\nExecStart=/bin/true\n"),
+            )])
+            .field("Architecture", "amd64"),
+        ];
+        let fail = vec![
+            // One section header is ASCII text.
+            BinaryPackageCase::from(vec![(
+                "usr/bin/foo",
+                TestFile::new("[Service]\nExecStart=/bin/true\n"),
+            )])
+            .field("Architecture", "amd64"),
+            // A comment before the first section header is ASCII text.
+            BinaryPackageCase::from(vec![(
+                "usr/bin/foo",
+                TestFile::new("# comment\n[A]\nk=v\n[B]\nk=v\n"),
+            )])
+            .field("Architecture", "amd64"),
+            // A second section header with nothing after it is ASCII text.
+            BinaryPackageCase::from(vec![("usr/bin/foo", TestFile::new("[A]\nk=v\n[B]\n"))])
+                .field("Architecture", "amd64"),
+        ];
+        BinaryPackageTester::new(PackageContainsNoArchDependentFiles, pass, fail).test();
     }
 }

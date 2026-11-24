@@ -2,6 +2,7 @@
 source: packages/debmagic/src/lint/tester.rs
 ---
 E: example (source): source-is-missing (LN1390) [tool]
+E: example (source): source-is-missing (LN1390) [bin/tool]
 E: example (source): source-is-missing (LN1390) [bin/tool.o]
 E: example (source): source-is-missing (LN1390) [tool]
 E: example (source): source-is-missing (LN1390) [fake2.pyc]

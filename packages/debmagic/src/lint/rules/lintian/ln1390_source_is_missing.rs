@@ -23,8 +23,8 @@ declare_rule! {
     ///
     /// The file kinds are sniffed from the bytes, standing in for `file(1)`:
     /// the magic number of CPython code, `FWS`/`CWS`/`ZWS`/`FLV` for Flash, an
-    /// OLE2 container named `*.fla` for a Flash project, and the File type for
-    /// ELF. Like lintian's `find_source`, a hardlink always has a missing
+    /// OLE2 container named `*.fla` for a Flash project, and ELF (the File type,
+    /// or else the ELF magic, as `file(1)` says `ELF` for corrupt headers). Like lintian's `find_source`, a hardlink always has a missing
     /// source, and so does every file of a non-free package (`Section` starting
     /// with `non-free/`, `non-free-firmware/`, `restricted/` or `multiverse/`):
     /// `find_source` returns nothing for both. Symlinks in the middle of a
@@ -211,6 +211,11 @@ mod tests {
         ];
         let fail = vec![
             tree(vec![("tool", TestFile::new("elf").file_type(ELF))]),
+            // Corrupt section headers: no File type, but file(1) still says ELF.
+            tree(vec![(
+                "bin/tool",
+                TestFile::from_bytes(b"\x7fELF\x02\x01\x01 corrupt headers".to_vec()),
+            )]),
             tree(vec![
                 ("bin/tool.o", TestFile::new("elf").file_type(ELF)),
                 // A source for another file.

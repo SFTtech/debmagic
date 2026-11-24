@@ -4,7 +4,7 @@ use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{Entry, FileTree};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::syntax::{Checker, fails_syntax_check, host_checkers};
+use super::syntax::{Checker, failing_paths, host_checkers};
 
 pub struct MaintainerShellScriptFailsSyntaxCheck;
 
@@ -47,13 +47,12 @@ impl BinaryPackageRule for MaintainerShellScriptFailsSyntaxCheck {
 
 /// Control files whose shell rejects them with `-n`.
 fn failing_scripts(files: &FileTree, checkers: &[Checker]) -> Vec<std::path::PathBuf> {
-    files
+    let candidates: Vec<&Entry> = files
         .entries()
         .iter()
         .filter(|entry| entry.is_file())
-        .filter(|entry| fails_syntax_check(files, entry, checkers))
-        .map(|entry: &Entry| entry.path().to_path_buf())
-        .collect()
+        .collect();
+    failing_paths(files, &candidates, checkers)
 }
 
 #[cfg(test)]

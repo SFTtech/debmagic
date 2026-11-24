@@ -4,3 +4,5 @@ source: packages/debmagic/src/lint/tester.rs
 I: example (binary): systemd-service-file-missing-documentation-key (LN1432) [usr/lib/systemd/system/e.service]
 I: example (binary): systemd-service-file-missing-documentation-key (LN1432) [usr/lib/systemd/system/f.service]
 I: example (binary): systemd-service-file-missing-documentation-key (LN1432) [etc/systemd/system/g.service]
+I: example (binary): systemd-service-file-missing-documentation-key (LN1432) [usr/lib/systemd/system/i.service]
+I: example (binary): systemd-service-file-missing-documentation-key (LN1432) [usr/lib/systemd/system/j.service]

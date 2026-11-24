@@ -48,8 +48,9 @@ impl BinaryPackageRule for LocaleUsesLanguageGroupCode {
             {
                 continue;
             }
+            // Lintian's pointer names a directory with its trailing slash.
             reports.push((
-                entry.path().to_path_buf(),
+                entry.path().join(""),
                 String::from_utf8_lossy(folder.name).into_owned(),
             ));
         }

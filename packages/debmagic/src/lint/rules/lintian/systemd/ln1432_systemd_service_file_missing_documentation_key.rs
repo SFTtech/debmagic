@@ -6,7 +6,7 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::file_tree::FileTree;
 use crate::lint::rule::{BinaryPackageRule, Severity};
 use crate::lint::rules::lintian::init_scripts::systemd_unit;
 
@@ -15,12 +15,14 @@ pub struct SystemdServiceFileMissingDocumentationKey;
 declare_rule! {
     /// A service unit has no `Documentation=` in its `[Unit]` section.
     ///
-    /// Units are the regular files and hardlinks named `*.service` under
-    /// `systemd/system/`. A masked unit (a symbolic link to `/dev/null`) is
-    /// not reported: the oracle has no hint for it, though lintian's code
-    /// reaches the check. A value in another section does not count. An
-    /// empty assignment is ignored, as lintian's. Extra is empty. The unit
-    /// path is the Location. Severity is info.
+    /// Units are the entries named `*.service` under `systemd/system/` that
+    /// open as a regular file or hardlink. A symbolic link opens through to its
+    /// target when the target stays inside the package, and the link itself is
+    /// the Location, as lintian reports it. A masked unit (a symbolic link to
+    /// `/dev/null`) is not reported: the oracle has no hint for it, though
+    /// lintian's code reaches the check. A value in another section does not
+    /// count. An empty assignment is ignored, as lintian's. Extra is empty.
+    /// The unit path is the Location. Severity is info.
     SystemdServiceFileMissingDocumentationKey,
     code = "LN1432",
     tag = "systemd-service-file-missing-documentation-key",
@@ -57,10 +59,10 @@ fn missing_documentation(files: &FileTree) -> Vec<PathBuf> {
         if !SERVICE_PATH.is_match(&entry.path().to_string_lossy()) {
             continue;
         }
-        if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
+        let Some(target) = files.open_target(entry) else {
             continue;
-        }
-        let Some(text) = service_text(files, entry) else {
+        };
+        let Some(text) = service_text(files, target) else {
             continue;
         };
         let lines = systemd_unit::service_lines(&text);
@@ -120,6 +122,16 @@ mod tests {
                 "[Unit]\nDescription=f\n",
             ),
             unit("etc/systemd/system/g.service", "[Unit]\nDocumentation=\n"),
+            BinaryPackageCase::from(vec![
+                (
+                    "usr/lib/systemd/system/i.service",
+                    TestFile::new("[Service]\nExecStart=/bin/true\n"),
+                ),
+                (
+                    "usr/lib/systemd/system/j.service",
+                    TestFile::symlink("i.service"),
+                ),
+            ]),
         ];
         BinaryPackageTester::new(SystemdServiceFileMissingDocumentationKey, pass, fail)
             .test_and_snapshot();

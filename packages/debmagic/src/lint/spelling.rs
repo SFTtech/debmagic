@@ -7,10 +7,10 @@
 //! [`group_exceptions`]) or none.
 
 use std::collections::{HashMap, HashSet};
-use std::sync::LazyLock;
+use std::sync::{LazyLock, OnceLock};
 
 use fancy_regex::Regex as FancyRegex;
-use regex::Regex;
+use regex::{Regex, RegexSet};
 
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::data;
@@ -33,20 +33,68 @@ static CORRECTIONS: LazyLock<Pairs> =
 static CORRECTIONS_CASE: LazyLock<Pairs> =
     LazyLock::new(|| pairs(include_str!("data/spelling/corrections-case")));
 
-/// lintian's Perl regexes have no step limit. `fancy-regex` defaults to one
-/// and then fails on long texts, so the limit is lifted to match lintian.
-static MULTIWORD: LazyLock<Vec<(FancyRegex, &'static str)>> = LazyLock::new(|| {
+/// The `corrections-multiword` lines: `(pattern, correction)`, in file order.
+static MULTIWORD_LINES: LazyLock<Vec<(&'static str, &'static str)>> = LazyLock::new(|| {
     data::lines(include_str!("data/spelling/corrections-multiword"))
-        .filter_map(|line| {
-            let (pattern, correction) = line.split_once("||")?;
-            let regex = fancy_regex::RegexBuilder::new(&format!(r"\b({pattern})\b"))
-                .backtrack_limit(usize::MAX)
-                .build()
-                .ok()?;
-            Some((regex, correction))
-        })
+        .filter_map(|line| line.split_once("||"))
         .collect()
 });
+
+/// Which `MULTIWORD_LINES` entries are checked for every text: the ones with
+/// lookaround (which `regex` cannot compile), and the ones `MULTIWORD_SET`
+/// holds, mapped back to their line index.
+static MULTIWORD_SPLIT: LazyLock<(RegexSet, Vec<usize>, Vec<usize>)> = LazyLock::new(|| {
+    let (fancy, plain): (Vec<usize>, Vec<usize>) =
+        (0..MULTIWORD_LINES.len()).partition(|&index| needs_fancy(MULTIWORD_LINES[index].0));
+    let set = RegexSet::new(
+        plain
+            .iter()
+            .map(|&index| format!(r"\b(?:{})\b", MULTIWORD_LINES[index].0)),
+    )
+    .expect("multiword pattern");
+    (set, plain, fancy)
+});
+
+/// Patterns that `regex` cannot compile (lookaround) need `fancy-regex`.
+fn needs_fancy(pattern: &str) -> bool {
+    ["(?=", "(?!", "(?<=", "(?<!"]
+        .iter()
+        .any(|look| pattern.contains(look))
+}
+
+/// The fancy-regex of `MULTIWORD_LINES[index]`, compiled on first use. It
+/// captures the text of the pattern; `regex` only tells whether it matches.
+/// `None` when the pattern does not compile.
+///
+/// lintian's Perl regexes have no step limit. `fancy-regex` defaults to one
+/// and then fails on long texts, so the limit is lifted to match lintian.
+fn multiword_regex(index: usize) -> Option<&'static FancyRegex> {
+    static SLOTS: LazyLock<Vec<OnceLock<Option<FancyRegex>>>> =
+        LazyLock::new(|| MULTIWORD_LINES.iter().map(|_| OnceLock::new()).collect());
+    SLOTS[index]
+        .get_or_init(|| {
+            fancy_regex::RegexBuilder::new(&format!(r"\b({})\b", MULTIWORD_LINES[index].0))
+                .backtrack_limit(usize::MAX)
+                .build()
+                .ok()
+        })
+        .as_ref()
+}
+
+/// The `MULTIWORD_LINES` indices that can match `text`, in file order. A line
+/// without a regex match has no fancy-regex match either, so only the lines
+/// the `RegexSet` reports and the lookaround lines need a fancy-regex run.
+fn multiword_candidates(text: &str) -> Vec<usize> {
+    let (set, plain, fancy) = &*MULTIWORD_SPLIT;
+    let mut candidates: Vec<usize> = set
+        .matches(text)
+        .into_iter()
+        .map(|set_index| plain[set_index])
+        .chain(fancy.iter().copied())
+        .collect();
+    candidates.sort_unstable();
+    candidates
+}
 
 static META_PACKAGE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"meta\s+package").expect("valid regex"));
@@ -114,7 +162,10 @@ pub(crate) fn check_spelling(
         }
     }
 
-    for (regex, correction) in MULTIWORD.iter() {
+    for index in multiword_candidates(&normalized) {
+        let Some(regex) = multiword_regex(index) else {
+            continue;
+        };
         let Some(matched) = regex
             .captures(&normalized)
             .ok()
@@ -124,7 +175,7 @@ pub(crate) fn check_spelling(
             continue;
         };
         let matched = matched.as_str();
-        let correction = adjust_case(matched, correction);
+        let correction = adjust_case(matched, MULTIWORD_LINES[index].1);
         if seen.insert(matched.to_lowercase()) {
             found.push((format!("\"{matched}\""), format!("\"{correction}\"")));
         }
@@ -321,6 +372,73 @@ mod tests {
 
     fn found(text: &str) -> Vec<(String, String)> {
         check_spelling(text, &Exceptions::new(), true)
+    }
+
+    fn quoted(found: &str, correction: &str) -> (String, String) {
+        (format!("\"{found}\""), format!("\"{correction}\""))
+    }
+
+    #[test]
+    fn multiword_patterns_match_case_insensitively_on_word_boundaries() {
+        assert_eq!(
+            check_spelling("this is not enable yet", &Exceptions::new(), false),
+            [quoted("is not enable", "is not enabled")]
+        );
+        assert_eq!(
+            check_spelling("IS NOT ENABLE", &Exceptions::new(), false),
+            [quoted("IS NOT ENABLE", "Is not enabled")]
+        );
+        assert_eq!(
+            check_spelling("we have to be pass the tests", &Exceptions::new(), false),
+            [quoted("have to be pass", "have to pass")]
+        );
+        assert_eq!(
+            check_spelling("the debian/gnu linux system", &Exceptions::new(), false),
+            [quoted("debian/gnu linux", "Debian GNU/Linux")]
+        );
+        // `(?i)none? the less`: the `?` makes the `e` optional.
+        assert_eq!(
+            check_spelling("none the less", &Exceptions::new(), false),
+            [quoted("none the less", "nonetheless")]
+        );
+        // Not a word boundary: `allow to` inside `disallow to`.
+        assert!(check_spelling("disallow to run", &Exceptions::new(), false).is_empty());
+        assert!(check_spelling("allows tomorrow", &Exceptions::new(), false).is_empty());
+    }
+
+    #[test]
+    fn multiword_lookahead_pattern_still_applies() {
+        // `these package(?!\s+\w+s\b)` has lookaround, so it is checked on every text.
+        assert_eq!(
+            check_spelling("these package", &Exceptions::new(), false),
+            [quoted("these package", "this package")]
+        );
+        assert!(check_spelling("these packages install", &Exceptions::new(), false).is_empty());
+    }
+
+    #[test]
+    fn multiword_patterns_are_not_fooled_by_non_ascii_text() {
+        assert_eq!(
+            check_spelling("caf\u{e9} is not enable", &Exceptions::new(), false),
+            [quoted("is not enable", "is not enabled")]
+        );
+        // LATIN SMALL LETTER LONG S folds to `s` under Unicode case folding.
+        assert_eq!(
+            check_spelling("\u{17f}eams like it", &Exceptions::new(), false),
+            [quoted("\u{17f}eams like", "seems like")]
+        );
+        // `\b` is Unicode-aware: an accented letter is a word character.
+        assert!(check_spelling("\u{e9}seams like it", &Exceptions::new(), false).is_empty());
+    }
+
+    #[test]
+    fn multiword_hits_keep_file_order() {
+        let text = "per say, over ridden, seams like";
+        let hits: Vec<String> = check_spelling(text, &Exceptions::new(), false)
+            .into_iter()
+            .map(|(found, _)| found)
+            .collect();
+        assert_eq!(hits, ["\"over ridden\"", "\"per say\"", "\"seams like\""]);
     }
 
     #[test]

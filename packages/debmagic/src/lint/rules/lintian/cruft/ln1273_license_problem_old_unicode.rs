@@ -14,12 +14,11 @@ declare_rule! {
     /// supporting the Unicode Standard, and so is not free.
     ///
     /// The file's cleaned text is matched as lintian's `cruft` Check does: a
-    /// keyword, the sentence and the clause regex. Skipped in a non-free
+    /// keyword, the sentence and the clause regex, over the first 32 KiB only
+    /// (lintian's first sliding window). Skipped in a non-free
     /// Source package (see `license_text::is_non_free`). Paths under `.pc/`
     /// are skipped. Each finding has no extra and the path as the Location.
     ///
-    /// Differs from lintian: the file is matched whole, not in 16 KiB
-    /// sliding-window blocks.
     LicenseProblemOldUnicode,
     code = "LN1273",
     tag = "license-problem-old-unicode",
@@ -90,5 +89,27 @@ mod tests {
         )])];
         let fail = vec![TestCase::from(vec![("src/bad.c", CLAUSE)])];
         SourceTreeTester::new(LicenseProblemOldUnicode, pass, fail).test_and_snapshot();
+    }
+
+    /// Lintian's `full_text_check` leaves its block loop after the first
+    /// sliding window (`last BLOCK` at the loop end), so a clause that starts
+    /// past 32 KiB is not matched.
+    #[test]
+    fn only_first_sliding_window_is_matched() {
+        let inside = format!("{}{CLAUSE}", "a".repeat(20_000));
+        let past = format!("{}{CLAUSE}", "a".repeat(40_000));
+        let pass = vec![TestCase::from(vec![("src/past.c", past.as_str())])];
+        let fail = vec![TestCase::from(vec![("src/inside.c", inside.as_str())])];
+        SourceTreeTester::new(LicenseProblemOldUnicode, pass, fail).test();
+    }
+
+    /// The first window is 32 KiB, so a clause that crosses the 16 KiB block
+    /// edge but ends inside the window is matched.
+    #[test]
+    fn clause_across_block_edge_inside_first_window_is_matched() {
+        let straddle = format!("{}{CLAUSE}", "a".repeat(16_300));
+        let pass = vec![];
+        let fail = vec![TestCase::from(vec![("src/straddle.c", straddle.as_str())])];
+        SourceTreeTester::new(LicenseProblemOldUnicode, pass, fail).test();
     }
 }

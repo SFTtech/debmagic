@@ -398,7 +398,13 @@ pub(crate) fn orig_entries(dsc_path: &Path, dsc: &Dsc) -> anyhow::Result<Vec<Ori
             entries.push(OrigEntry { path, mtime });
         }
     }
-    Ok(entries)
+    // lintian's orig index is a hash by name (`$catalog{$entry->name} = $entry`),
+    // so a member the tarball lists twice is the last entry, in name order.
+    let mut by_path = std::collections::BTreeMap::new();
+    for entry in entries {
+        by_path.insert(entry.path.clone(), entry);
+    }
+    Ok(by_path.into_values().collect())
 }
 
 /// A member of an Orig tarball, as its header describes it.

@@ -82,4 +82,22 @@ mod tests {
         let fail = vec![TestCase::from(vec![("doc/manual.txt", NON_OFFICIAL)])];
         SourceTreeTester::new(LicenseProblemGfdlNonOfficialText, pass, fail).test_and_snapshot();
     }
+
+    /// Lintian's `full_text_check` matches only its first sliding window
+    /// (the first 32 KiB; `last BLOCK` at the loop end), so GFDL wording
+    /// that starts past it is not reported.
+    #[test]
+    fn gfdl_wording_past_first_sliding_window_is_not_matched() {
+        let past = format!("{}{NON_OFFICIAL}", "a".repeat(40_000));
+        let pass = vec![TestCase::from(vec![("doc/manual.txt", past.as_str())])];
+        SourceTreeTester::new(LicenseProblemGfdlNonOfficialText, pass, vec![]).test();
+    }
+
+    /// The same wording that ends inside the first 32 KiB is reported.
+    #[test]
+    fn gfdl_wording_inside_first_sliding_window_is_matched() {
+        let inside = format!("{}{NON_OFFICIAL}", "a".repeat(20_000));
+        let fail = vec![TestCase::from(vec![("doc/manual.txt", inside.as_str())])];
+        SourceTreeTester::new(LicenseProblemGfdlNonOfficialText, vec![], fail).test();
+    }
 }

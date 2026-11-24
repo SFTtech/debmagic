@@ -262,14 +262,20 @@ pub(crate) fn parse_paragraphs(text: &str) -> Result<Vec<CopyrightParagraph>, St
                 start_line: position,
                 fields: Vec::new(),
             });
-            if paragraph.fields.iter().any(|field| field.name == name) {
-                return Err(format!("Duplicate field {name} (line {position})."));
+            match paragraph.fields.iter_mut().find(|field| field.name == name) {
+                // lintian's `new empty field?` branch stores an empty field
+                // without the duplicate check, overwriting any earlier value.
+                Some(field) if value.is_empty() => {
+                    field.value = value;
+                    field.line = position;
+                }
+                Some(_) => return Err(format!("Duplicate field {name} (line {position}).")),
+                None => paragraph.fields.push(CopyrightField {
+                    name,
+                    value,
+                    line: position,
+                }),
             }
-            paragraph.fields.push(CopyrightField {
-                name,
-                value,
-                line: position,
-            });
         } else if CONTINUATION_LINE.is_match(line) {
             let Some(field) = open
                 .as_mut()

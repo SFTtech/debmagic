@@ -387,6 +387,12 @@ fn decompress_tar(name: &str, bytes: &[u8]) -> anyhow::Result<Vec<u8>> {
         decoder.read_to_end(&mut out)?;
         return Ok(out);
     }
+    if name.ends_with(".bz2") {
+        let mut decoder = bzip2::read::BzDecoder::new(cursor);
+        let mut out = Vec::new();
+        decoder.read_to_end(&mut out)?;
+        return Ok(out);
+    }
     if name.ends_with(".xz") {
         let mut decoder = xz2::read::XzDecoder::new(cursor);
         let mut out = Vec::new();

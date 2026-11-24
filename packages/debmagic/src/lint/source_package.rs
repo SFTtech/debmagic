@@ -466,7 +466,8 @@ fn tarball_members(path: &Path) -> anyhow::Result<Vec<TarMember>> {
     Ok(members)
 }
 
-/// The tarball at `path`, decompressed as a stream. bzip2 is not read.
+/// The tarball at `path`, decompressed as a stream. Reads the compressions the
+/// orig tarball pattern names: gz, bz2, xz and zst (lzma is not read).
 fn open_tarball(path: &Path) -> anyhow::Result<Box<dyn std::io::Read>> {
     let file = fs::File::open(path).with_context(|| format!("opening {}", path.display()))?;
     let name = path
@@ -475,6 +476,8 @@ fn open_tarball(path: &Path) -> anyhow::Result<Box<dyn std::io::Read>> {
         .unwrap_or_default();
     if name.ends_with(".gz") {
         Ok(Box::new(flate2::read::GzDecoder::new(file)))
+    } else if name.ends_with(".bz2") {
+        Ok(Box::new(bzip2::read::BzDecoder::new(file)))
     } else if name.ends_with(".xz") {
         Ok(Box::new(xz2::read::XzDecoder::new(file)))
     } else if name.ends_with(".zst") {
@@ -747,7 +750,7 @@ mod tests {
         body
     }
 
-    fn gzip_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
+    fn plain_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
         let mut tar_bytes = Vec::new();
         {
             let mut builder = tar::Builder::new(&mut tar_bytes);
@@ -761,9 +764,51 @@ mod tests {
             }
             builder.finish()?;
         }
+        Ok(tar_bytes)
+    }
+
+    fn gzip_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
         let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
-        encoder.write_all(&tar_bytes)?;
+        encoder.write_all(&plain_tar(members)?)?;
         Ok(encoder.finish()?)
+    }
+
+    fn bzip2_tar(members: &[(&str, &[u8])]) -> anyhow::Result<Vec<u8>> {
+        let mut encoder = bzip2::write::BzEncoder::new(Vec::new(), bzip2::Compression::default());
+        encoder.write_all(&plain_tar(members)?)?;
+        Ok(encoder.finish()?)
+    }
+
+    #[test]
+    fn orig_tarball_bz2_is_read() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        fs::write(
+            dir.path().join("example_1.0.orig.tar.bz2"),
+            bzip2_tar(&[("example-1.0/src/main.c", b"int main(){}\n")])?,
+        )?;
+        fs::write(dir.path().join("example_1.0-1.debian.tar.xz"), b"x")?;
+        let path = write_dsc(
+            dir.path(),
+            &dsc_with_files(
+                "Format: 3.0 (quilt)\nSource: example\nVersion: 1.0-1\n",
+                &[
+                    "d41d8cd98f00b204e9800998ecf8427e 1 example_1.0.orig.tar.bz2",
+                    "d41d8cd98f00b204e9800998ecf8427e 1 example_1.0-1.debian.tar.xz",
+                ],
+            ),
+        );
+        let dsc = DscIdentity::load(&path)?;
+        let members = tarball_members(&dir.path().join("example_1.0.orig.tar.bz2"))?;
+        assert!(
+            members
+                .iter()
+                .any(|m| m.path == Path::new("example-1.0/src/main.c"))
+        );
+        let orig_root = dir.path().join("orig");
+        fs::create_dir_all(&orig_root)?;
+        extract_orig(&dsc, &orig_root)?;
+        assert!(orig_root.join("src/main.c").is_file());
+        Ok(())
     }
 
     #[test]

@@ -41,20 +41,19 @@ impl SourceRule for DebianControlHasObsoleteDbgPackage {
         let Some(control) = ctx.debian_control() else {
             return;
         };
-        let obsolete: Vec<String> = control
+        let obsolete: Vec<(String, Option<u32>)> = control
             .installables()
             .iter()
-            .map(|installable| installable.name())
-            .filter(|name| name.ends_with("-dbg"))
-            .filter(|name| !LEGACY_DBG_PATTERNS.iter().any(|re| re.is_match(name)))
-            .map(str::to_string)
+            .filter(|installable| {
+                let name = installable.name();
+                name.ends_with("-dbg") && !LEGACY_DBG_PATTERNS.iter().any(|re| re.is_match(name))
+            })
+            .map(|installable| {
+                let line = installable.fields().position("Package");
+                (installable.name().to_string(), line)
+            })
             .collect();
-        if obsolete.is_empty() {
-            return;
-        }
-        let text = control_text(ctx);
-        for name in obsolete {
-            let line = text.as_deref().and_then(|text| package_line(text, &name));
+        for (name, line) in obsolete {
             ctx.diagnostic(
                 Diagnostic::warn(format!("(in section for {name}) Package"))
                     .with_severity(Severity::Info)
@@ -66,42 +65,6 @@ impl SourceRule for DebianControlHasObsoleteDbgPackage {
             );
         }
     }
-}
-
-fn control_text(ctx: &mut SourceContext<'_>) -> Option<String> {
-    let files = ctx.files()?;
-    let entry = files.get("debian/control")?;
-    String::from_utf8(files.read(entry).ok()?).ok()
-}
-
-/// 1-based line of the `Package` field in the paragraph whose `Package` is `package`.
-fn package_line(text: &str, package: &str) -> Option<u32> {
-    let mut paragraphs: Vec<Vec<(u32, &str)>> = vec![Vec::new()];
-    for (index, line) in text.lines().enumerate() {
-        if line.trim().is_empty() {
-            paragraphs.push(Vec::new());
-        } else if let Some(paragraph) = paragraphs.last_mut() {
-            paragraph.push((u32::try_from(index).unwrap_or(u32::MAX) + 1, line));
-        }
-    }
-    let paragraph = paragraphs.iter().find(|paragraph| {
-        paragraph
-            .iter()
-            .any(|(_, line)| field_value(line, "Package") == Some(package))
-    })?;
-    paragraph
-        .iter()
-        .find(|(_, line)| field_value(line, "Package").is_some())
-        .map(|(number, _)| *number)
-}
-
-/// The value of a `name: value` line; `None` for continuation and comment lines.
-fn field_value<'a>(line: &'a str, name: &str) -> Option<&'a str> {
-    if line.starts_with([' ', '\t', '#']) {
-        return None;
-    }
-    let (key, value) = line.split_once(':')?;
-    key.eq_ignore_ascii_case(name).then(|| value.trim())
 }
 
 #[cfg(test)]

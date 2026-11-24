@@ -27,7 +27,6 @@ const VARIABLE: &str = "${misc:Pre-Depends}";
 
 impl SourceRule for DependsOnMiscPreDepends {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let raw = raw_depends_lines(ctx);
         let Some(control) = ctx.debian_control() else {
             return;
         };
@@ -40,10 +39,7 @@ impl SourceRule for DependsOnMiscPreDepends {
             if !depends.contains(VARIABLE) {
                 continue;
             }
-            let line = raw
-                .iter()
-                .find(|(package, _)| package == installable.name())
-                .map(|(_, line)| *line);
+            let line = installable.fields().position("Depends");
             reports.push((
                 format!("{depends} (in section for {})", installable.name()),
                 line,
@@ -58,51 +54,6 @@ impl SourceRule for DependsOnMiscPreDepends {
             }));
         }
     }
-}
-
-/// For each paragraph of the raw `debian/control` that has a `Package` and a
-/// `Depends` field: the package name and the line of `Depends`. Empty when the
-/// file is missing or unreadable.
-fn raw_depends_lines(ctx: &mut SourceContext<'_>) -> Vec<(String, u32)> {
-    let Some(files) = ctx.files() else {
-        return Vec::new();
-    };
-    let Some(entry) = files.get("debian/control") else {
-        return Vec::new();
-    };
-    let Ok(bytes) = files.read(entry) else {
-        return Vec::new();
-    };
-    let text = String::from_utf8_lossy(&bytes);
-
-    let mut found = Vec::new();
-    let mut package = None;
-    let mut depends = None;
-    for (index, line) in text.lines().enumerate() {
-        let number = u32::try_from(index + 1).unwrap_or(u32::MAX);
-        if line.trim().is_empty() {
-            if let (Some(package), Some(depends)) = (package.take(), depends.take()) {
-                found.push((package, depends));
-            }
-            package = None;
-            depends = None;
-            continue;
-        }
-        if line.starts_with('#') || line.starts_with([' ', '\t']) {
-            continue;
-        }
-        if let Some((name, value)) = line.split_once(':') {
-            if name.eq_ignore_ascii_case("Package") {
-                package = Some(value.trim().to_string());
-            } else if name.eq_ignore_ascii_case("Depends") && depends.is_none() {
-                depends = Some(number);
-            }
-        }
-    }
-    if let (Some(package), Some(depends)) = (package, depends) {
-        found.push((package, depends));
-    }
-    found
 }
 
 #[cfg(test)]

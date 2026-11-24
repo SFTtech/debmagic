@@ -5,9 +5,6 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 
-use super::control_text::installable_paragraphs;
-use super::rules_text::read_utf8;
-
 pub struct DebianControlHasDbgsymPackage;
 
 declare_rule! {
@@ -26,28 +23,24 @@ declare_rule! {
 
 impl SourceRule for DebianControlHasDbgsymPackage {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let names: Vec<String> = ctx
+        let names: Vec<(String, Option<u32>)> = ctx
             .debian_control()
             .map(|control| {
                 control
                     .installables()
                     .iter()
                     .filter(|installable| installable.name().ends_with("-dbgsym"))
-                    .map(|installable| installable.name().to_string())
+                    .map(|installable| {
+                        let line = installable.fields().position("Package");
+                        (installable.name().to_string(), line)
+                    })
                     .collect()
             })
             .unwrap_or_default();
         if names.is_empty() {
             return;
         }
-        let paragraphs = ctx
-            .files()
-            .and_then(|files| read_utf8(files, "debian/control"))
-            .map(|text| installable_paragraphs(&text))
-            .unwrap_or_default();
-        let mut cursor = 0;
-        for name in names {
-            let line = paragraph_line(&paragraphs, &name, &mut cursor, "Package");
+        for (name, line) in names {
             ctx.diagnostic(
                 Diagnostic::error(format!("(in section for {name}) Package")).with_location(
                     Location {
@@ -59,20 +52,6 @@ impl SourceRule for DebianControlHasDbgsymPackage {
             );
         }
     }
-}
-
-fn paragraph_line(
-    paragraphs: &[super::control_text::InstallableParagraph],
-    name: &str,
-    cursor: &mut usize,
-    field: &str,
-) -> Option<u32> {
-    let offset = paragraphs[*cursor..]
-        .iter()
-        .position(|paragraph| paragraph.package == name)?;
-    let paragraph = &paragraphs[*cursor + offset];
-    *cursor += offset + 1;
-    paragraph.field_line(field)
 }
 
 #[cfg(test)]

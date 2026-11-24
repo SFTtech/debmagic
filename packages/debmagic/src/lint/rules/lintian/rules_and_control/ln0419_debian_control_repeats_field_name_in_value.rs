@@ -31,12 +31,16 @@ impl SourceRule for DebianControlRepeatsFieldNameInValue {
                 return;
             };
             let mut planned = Vec::new();
-            for field in repeated(control.source()) {
-                planned.push((None, field));
+            let source = control.source();
+            for field in repeated(source) {
+                let line = source.position(&field);
+                planned.push((None, field, line));
             }
             for installable in control.installables() {
-                for field in repeated(installable.fields()) {
-                    planned.push((Some(installable.name().to_string()), field));
+                let fields = installable.fields();
+                for field in repeated(fields) {
+                    let line = fields.position(&field);
+                    planned.push((Some(installable.name().to_string()), field, line));
                 }
             }
             planned
@@ -44,23 +48,7 @@ impl SourceRule for DebianControlRepeatsFieldNameInValue {
         if planned.is_empty() {
             return;
         }
-        let text = ctx
-            .files()
-            .and_then(|files| {
-                let entry = files.get("debian/control")?;
-                let bytes = files.read(entry).ok()?;
-                String::from_utf8(bytes).ok()
-            })
-            .unwrap_or_default();
-        let paragraphs = raw_paragraphs(&text);
-        for (package, field) in planned {
-            let paragraph = match &package {
-                None => paragraphs.first(),
-                Some(name) => paragraphs.iter().find(|paragraph| {
-                    field_value(paragraph, "Package").as_deref() == Some(name.as_str())
-                }),
-            };
-            let line = paragraph.and_then(|paragraph| field_line(paragraph, &field));
+        for (package, field, line) in planned {
             let section = match package {
                 None => "(in section for source)".to_string(),
                 Some(name) => format!("(in section for {name})"),
@@ -95,50 +83,6 @@ fn repeats_name(paragraph: &ControlParagraph, name: &str) -> bool {
     value.is_char_boundary(name.len())
         && value[..name.len()].eq_ignore_ascii_case(name)
         && rest.trim_start().starts_with(':')
-}
-
-fn raw_paragraphs(text: &str) -> Vec<Vec<(u32, String)>> {
-    let mut paragraphs = vec![Vec::new()];
-    for (index, line) in text.split('\n').enumerate() {
-        let number = u32::try_from(index + 1).unwrap_or(u32::MAX);
-        if line.trim().is_empty() {
-            if paragraphs
-                .last()
-                .is_some_and(|paragraph| !paragraph.is_empty())
-            {
-                paragraphs.push(Vec::new());
-            }
-            continue;
-        }
-        paragraphs
-            .last_mut()
-            .expect("paragraph list starts non-empty")
-            .push((number, line.to_string()));
-    }
-    paragraphs.retain(|paragraph| !paragraph.is_empty());
-    paragraphs
-}
-
-fn field_line(paragraph: &[(u32, String)], field: &str) -> Option<u32> {
-    paragraph.iter().find_map(|(number, line)| {
-        if line.starts_with([' ', '\t']) {
-            return None;
-        }
-        let name = line.split_once(':')?.0.trim();
-        name.eq_ignore_ascii_case(field).then_some(*number)
-    })
-}
-
-fn field_value(paragraph: &[(u32, String)], field: &str) -> Option<String> {
-    paragraph.iter().find_map(|(_, line)| {
-        if line.starts_with([' ', '\t']) {
-            return None;
-        }
-        let (name, value) = line.split_once(':')?;
-        name.trim()
-            .eq_ignore_ascii_case(field)
-            .then(|| value.trim().to_string())
-    })
 }
 
 #[cfg(test)]

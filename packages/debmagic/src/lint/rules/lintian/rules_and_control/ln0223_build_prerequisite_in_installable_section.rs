@@ -5,9 +5,6 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 
-use super::control_text::{InstallableParagraph, installable_paragraphs};
-use super::rules_text::read_utf8;
-
 pub struct BuildPrerequisiteInInstallableSection;
 
 declare_rule! {
@@ -34,62 +31,27 @@ const BUILD_FIELDS: &[&str] = &[
 
 impl SourceRule for BuildPrerequisiteInInstallableSection {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let installables: Vec<(String, Vec<&'static str>)> = ctx
-            .debian_control()
-            .map(|control| {
-                control
-                    .installables()
-                    .iter()
-                    .map(|installable| {
-                        let fields = BUILD_FIELDS
-                            .iter()
-                            .copied()
-                            .filter(|field| installable.fields().declares(field))
-                            .collect();
-                        (installable.name().to_string(), fields)
-                    })
-                    .filter(|(_, fields): &(_, Vec<_>)| !fields.is_empty())
-                    .collect()
-            })
-            .unwrap_or_default();
-        if installables.is_empty() {
+        let Some(control) = ctx.debian_control() else {
             return;
-        }
-        let paragraphs = ctx
-            .files()
-            .and_then(|files| read_utf8(files, "debian/control"))
-            .map(|text| installable_paragraphs(&text))
-            .unwrap_or_default();
-        let mut cursor = 0;
-        for (name, fields) in installables {
-            let paragraph = take_paragraph(&paragraphs, &name, &mut cursor);
-            for field in fields {
-                let line = paragraph.and_then(|paragraph| paragraph.field_line(field));
-                ctx.diagnostic(
-                    Diagnostic::error(format!("{field} (in section for {name})")).with_location(
-                        Location {
-                            path: PathBuf::from("debian/control"),
-                            line,
-                            column: None,
-                        },
-                    ),
-                );
+        };
+        let mut reports = Vec::new();
+        for installable in control.installables() {
+            let fields = installable.fields();
+            for field in BUILD_FIELDS.iter().filter(|field| fields.declares(field)) {
+                reports.push((
+                    format!("{field} (in section for {})", installable.name()),
+                    fields.position(field),
+                ));
             }
         }
+        for (extra, line) in reports {
+            ctx.diagnostic(Diagnostic::error(extra).with_location(Location {
+                path: PathBuf::from("debian/control"),
+                line,
+                column: None,
+            }));
+        }
     }
-}
-
-fn take_paragraph<'a>(
-    paragraphs: &'a [InstallableParagraph],
-    name: &str,
-    cursor: &mut usize,
-) -> Option<&'a InstallableParagraph> {
-    let offset = paragraphs[*cursor..]
-        .iter()
-        .position(|paragraph| paragraph.package == name)?;
-    let paragraph = &paragraphs[*cursor + offset];
-    *cursor += offset + 1;
-    Some(paragraph)
 }
 
 #[cfg(test)]

@@ -69,27 +69,15 @@ pub(super) fn restrictions(ctx: &mut SourceContext<'_>) -> Vec<Restriction> {
     let Some(control) = ctx.debian_control() else {
         return Vec::new();
     };
-    let raw: Vec<(String, String)> = control
+    control
         .installables()
         .iter()
         .filter_map(|installable| {
-            let value = installable
-                .fields()
-                .untrimmed_value("Build-Profiles")?
-                .trim();
-            (!value.is_empty()).then(|| (installable.name().to_string(), value.to_string()))
-        })
-        .collect();
-    let text = control_text(ctx);
-    raw.into_iter()
-        .filter_map(|(installable, value)| {
-            let profiles = profiles(&value)?;
-            let line = text
-                .as_deref()
-                .and_then(|text| field_line(text, &installable, "Build-Profiles"));
+            let fields = installable.fields();
+            let profiles = profiles(fields.untrimmed_value("Build-Profiles")?.trim())?;
             Some(Restriction {
-                installable,
-                line,
+                installable: installable.name().to_string(),
+                line: fields.position("Build-Profiles"),
                 profiles,
             })
         })
@@ -131,42 +119,6 @@ fn profiles(value: &str) -> Option<Vec<String>> {
             .map(|profile| profile.strip_prefix('!').unwrap_or(profile).to_string())
             .collect(),
     )
-}
-
-fn control_text(ctx: &mut SourceContext<'_>) -> Option<String> {
-    let files = ctx.files()?;
-    let entry = files.get("debian/control")?;
-    String::from_utf8(files.read(entry).ok()?).ok()
-}
-
-/// 1-based line where `field` starts in the paragraph whose `Package` is `package`.
-pub(super) fn field_line(text: &str, package: &str, field: &str) -> Option<u32> {
-    let mut paragraphs: Vec<Vec<(u32, &str)>> = vec![Vec::new()];
-    for (index, line) in text.lines().enumerate() {
-        if line.trim().is_empty() {
-            paragraphs.push(Vec::new());
-        } else if let Some(paragraph) = paragraphs.last_mut() {
-            paragraph.push((u32::try_from(index).unwrap_or(u32::MAX) + 1, line));
-        }
-    }
-    let paragraph = paragraphs.iter().find(|paragraph| {
-        paragraph
-            .iter()
-            .any(|(_, line)| field_value(line, "Package") == Some(package))
-    })?;
-    paragraph
-        .iter()
-        .find(|(_, line)| field_value(line, field).is_some())
-        .map(|(number, _)| *number)
-}
-
-/// The value of a `name: value` line; `None` for continuation and comment lines.
-fn field_value<'a>(line: &'a str, name: &str) -> Option<&'a str> {
-    if line.starts_with([' ', '\t', '#']) {
-        return None;
-    }
-    let (key, value) = line.split_once(':')?;
-    key.eq_ignore_ascii_case(name).then(|| value.trim())
 }
 
 #[cfg(test)]

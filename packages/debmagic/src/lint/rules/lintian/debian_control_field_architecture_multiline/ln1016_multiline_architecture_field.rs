@@ -29,7 +29,7 @@ impl SourceRule for MultilineArchitectureField {
         let Some(control) = ctx.debian_control() else {
             return;
         };
-        let multiline: Vec<String> = control
+        let multiline: Vec<(String, Option<u32>)> = control
             .installables()
             .iter()
             .filter(|installable| {
@@ -38,16 +38,12 @@ impl SourceRule for MultilineArchitectureField {
                     .untrimmed_value("Architecture")
                     .is_some_and(is_multiline)
             })
-            .map(|installable| installable.name().to_string())
+            .map(|installable| {
+                let line = installable.fields().position("Architecture");
+                (installable.name().to_string(), line)
+            })
             .collect();
-        if multiline.is_empty() {
-            return;
-        }
-        let text = control_text(ctx);
-        for name in multiline {
-            let line = text
-                .as_deref()
-                .and_then(|text| field_line(text, &name, "Architecture"));
+        for (name, line) in multiline {
             ctx.diagnostic(
                 Diagnostic::error(format!("Architecture (in section for {name})")).with_location(
                     Location {
@@ -68,42 +64,6 @@ fn is_multiline(untrimmed: &str) -> bool {
         .split('\n')
         .skip(1)
         .any(|line| !line.is_empty())
-}
-
-fn control_text(ctx: &mut SourceContext<'_>) -> Option<String> {
-    let files = ctx.files()?;
-    let entry = files.get("debian/control")?;
-    String::from_utf8(files.read(entry).ok()?).ok()
-}
-
-/// 1-based line where `field` starts in the paragraph whose `Package` is `package`.
-fn field_line(text: &str, package: &str, field: &str) -> Option<u32> {
-    let mut paragraphs: Vec<Vec<(u32, &str)>> = vec![Vec::new()];
-    for (index, line) in text.lines().enumerate() {
-        if line.trim().is_empty() {
-            paragraphs.push(Vec::new());
-        } else if let Some(paragraph) = paragraphs.last_mut() {
-            paragraph.push((u32::try_from(index).unwrap_or(u32::MAX) + 1, line));
-        }
-    }
-    let paragraph = paragraphs.iter().find(|paragraph| {
-        paragraph
-            .iter()
-            .any(|(_, line)| field_value(line, "Package") == Some(package))
-    })?;
-    paragraph
-        .iter()
-        .find(|(_, line)| field_value(line, field).is_some())
-        .map(|(number, _)| *number)
-}
-
-/// The value of a `name: value` line; `None` for continuation and comment lines.
-fn field_value<'a>(line: &'a str, name: &str) -> Option<&'a str> {
-    if line.starts_with([' ', '\t', '#']) {
-        return None;
-    }
-    let (key, value) = line.split_once(':')?;
-    key.eq_ignore_ascii_case(name).then(|| value.trim())
 }
 
 #[cfg(test)]

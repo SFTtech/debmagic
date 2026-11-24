@@ -544,6 +544,27 @@ impl FileTree {
         Some(&self.entries[index])
     }
 
+    /// The regular file or hardlink an entry opens as, following symlinks that
+    /// stay inside the tree. `None` when it does not open, such as a symlink
+    /// to `/dev/null`, one that leaves the tree, or a directory.
+    pub fn open_target(&self, entry: &Entry) -> Option<&Entry> {
+        let mut current = self.get(entry.path())?;
+        for _ in 0..8 {
+            match current.kind() {
+                EntryKind::RegularFile | EntryKind::Hardlink => return Some(current),
+                EntryKind::Directory
+                | EntryKind::Fifo
+                | EntryKind::CharDevice
+                | EntryKind::BlockDevice => return None,
+                EntryKind::Symlink => {
+                    let next = resolve_link(current.path(), current.link_target()?)?;
+                    current = self.get(&next)?;
+                }
+            }
+        }
+        None
+    }
+
     pub fn query(&self) -> Query<'_, 'static> {
         Query {
             tree: self,
@@ -935,6 +956,29 @@ fn classify_path(path: &Path) -> Option<FileType> {
     drop(file);
     let bytes = fs::read(path).ok()?;
     FileType::from_bytes(&bytes)
+}
+
+/// Where a symlink at `from` points, as a tree path. `None` for an absolute
+/// target or one that climbs above the root.
+fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
+    use std::path::Component;
+    if target.is_absolute() {
+        return None;
+    }
+    let mut resolved = from.parent().unwrap_or(Path::new("")).to_path_buf();
+    for component in target.components() {
+        match component {
+            Component::Normal(part) => resolved.push(part),
+            Component::CurDir => {}
+            Component::ParentDir => {
+                if !resolved.pop() {
+                    return None;
+                }
+            }
+            Component::RootDir | Component::Prefix(_) => return None,
+        }
+    }
+    Some(resolved)
 }
 
 #[cfg(test)]

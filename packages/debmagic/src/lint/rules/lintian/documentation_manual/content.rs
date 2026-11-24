@@ -10,6 +10,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use regex::Regex;
 
+use crate::lint::external_tool;
 use crate::lint::file_tree::{EntryKind, FileTree};
 
 use super::manual::{is_file, is_gzip, section_page};
@@ -453,8 +454,14 @@ fn man_command(file: &Path, localdir: &Path) -> Command {
     command
 }
 
-fn tool(program: &str) -> Command {
-    let mut command = Command::new(program);
+/// A host tool with a cleared environment. `PATH` is the host's, as before.
+/// The program is spawned by its resolved absolute path: a bare name with
+/// `PATH` set in the environment makes std fork and `execve` each `PATH`
+/// entry in turn. A program that is not found keeps its bare name, so it
+/// fails to start exactly as before.
+fn tool(program: &'static str) -> Command {
+    let resolved = external_tool::find_cached(program).unwrap_or_else(|| PathBuf::from(program));
+    let mut command = Command::new(resolved);
     command
         .env_clear()
         .env("LC_ALL", "C.UTF-8")

@@ -7,6 +7,7 @@
 //! are not compared.
 
 use std::path::Path;
+use std::sync::OnceLock;
 
 use regex::Regex;
 
@@ -19,12 +20,34 @@ use crate::lint::maintainer_script::{Continuations, maintainer_script_lines};
 static OR_TRUE: std::sync::LazyLock<Regex> =
     std::sync::LazyLock::new(|| Regex::new(r"\|\|\s*true\b").expect("valid regex"));
 
+/// A regex compiled on its first use. The guards of a `CommandNeed` only run
+/// on lines that call the command, which most scripts never do.
+struct LazyRegex {
+    source: String,
+    regex: OnceLock<Regex>,
+}
+
+impl LazyRegex {
+    fn new(source: String) -> Self {
+        Self {
+            source,
+            regex: OnceLock::new(),
+        }
+    }
+
+    fn is_match(&self, text: &str) -> bool {
+        self.regex
+            .get_or_init(|| Regex::new(&self.source).expect("valid regex"))
+            .is_match(text)
+    }
+}
+
 /// One command that requires a package name in a strong dependency.
 pub(super) struct CommandNeed {
     pattern: Regex,
-    dash_x: Regex,
-    which_or_type: Regex,
-    command: Regex,
+    dash_x: LazyRegex,
+    which_or_type: LazyRegex,
+    command: LazyRegex,
     package: &'static str,
 }
 
@@ -33,10 +56,9 @@ impl CommandNeed {
     pub(super) fn new(pattern: &str, package: &'static str) -> Self {
         Self {
             pattern: Regex::new(pattern).expect("valid regex"),
-            dash_x: Regex::new(&format!(r"-x\s+\S*{pattern}")).expect("valid regex"),
-            which_or_type: Regex::new(&format!(r"(?:which|type)\s+{pattern}"))
-                .expect("valid regex"),
-            command: Regex::new(&format!(r"command\s+.*?{pattern}")).expect("valid regex"),
+            dash_x: LazyRegex::new(format!(r"-x\s+\S*{pattern}")),
+            which_or_type: LazyRegex::new(format!(r"(?:which|type)\s+{pattern}")),
+            command: LazyRegex::new(format!(r"command\s+.*?{pattern}")),
             package,
         }
     }
@@ -102,5 +124,27 @@ pub(super) fn flag_missing_dependency(ctx: &mut BinaryPackageContext<'_>, need: 
                     column: None,
                 }),
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unguarded_calls_are_found_unless_a_guard_exempts_them() {
+        let need = CommandNeed::new(r"\bucf\s", "ucf");
+        assert_eq!(need.unguarded("ucf foo"), Some("ucf"));
+        assert_eq!(need.unguarded("echo hi ucf "), Some("ucf"));
+        // Guards: `-x`, `which`/`type`, `command`, and `|| true` on the line.
+        assert_eq!(need.unguarded("sh -x ucf foo"), None);
+        assert_eq!(need.unguarded("which ucf >/dev/null"), None);
+        assert_eq!(need.unguarded("type ucf >/dev/null"), None);
+        assert_eq!(need.unguarded("command -v ucf foo"), None);
+        assert_eq!(need.unguarded("ucf foo || true"), None);
+        // The command must be a whole word followed by whitespace.
+        assert_eq!(need.unguarded("ucf-like foo"), None);
+        assert_eq!(need.unguarded("echo \u{e9}ucf foo"), None);
+        assert_eq!(need.package(), "ucf");
     }
 }

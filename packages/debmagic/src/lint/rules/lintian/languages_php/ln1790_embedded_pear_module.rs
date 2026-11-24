@@ -98,6 +98,26 @@ impl Provider {
     }
 }
 
+/// Whether `name` ends in `.php`, in any ASCII case. Every provider pattern
+/// ends in `(?i:\.php)$`, and no non-ASCII character case-folds to `.`, `p` or
+/// `h`, so a name without this suffix matches no provider. Checking it first
+/// spares the `COMPILED` patterns for the packages without PHP files.
+fn ends_with_php(name: &[u8]) -> bool {
+    name.len() >= 4 && name[name.len() - 4..].eq_ignore_ascii_case(b".php")
+}
+
+/// The packages whose modules `name` matches, in `PROVIDERS` order.
+fn providers_of(name: &[u8]) -> Vec<&'static str> {
+    if !ends_with_php(name) {
+        return Vec::new();
+    }
+    COMPILED
+        .iter()
+        .filter(|provider| provider.matches(name))
+        .map(|provider| provider.package)
+        .collect()
+}
+
 impl BinaryPackageRule for EmbeddedPearModule {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
         let package = ctx.package_name().to_string();
@@ -110,10 +130,9 @@ impl BinaryPackageRule for EmbeddedPearModule {
                 continue;
             }
             let name = entry.path().as_os_str().as_bytes();
-            let providers: Vec<&'static str> = COMPILED
-                .iter()
-                .filter(|provider| provider.package != package && provider.matches(name))
-                .map(|provider| provider.package)
+            let providers: Vec<&'static str> = providers_of(name)
+                .into_iter()
+                .filter(|provider| *provider != package)
                 .collect();
             if providers.is_empty() {
                 continue;
@@ -215,5 +234,37 @@ mod tests {
             tree("usr/share/php/Auth.php", "pear.php").udeb(),
         ];
         BinaryPackageTester::new(EmbeddedPearModule, pass, fail).test_and_snapshot();
+    }
+
+    #[test]
+    fn provider_paths_match_in_any_ascii_case_of_php() {
+        assert_eq!(providers_of(b"usr/share/php/Auth.php"), ["php-auth"]);
+        assert_eq!(providers_of(b"usr/share/php/Auth.PhP"), ["php-auth"]);
+        assert_eq!(
+            providers_of(b"usr/share/php/Auth.php.bak"),
+            Vec::<&str>::new()
+        );
+        assert_eq!(providers_of(b"usr/share/php/Auth.phpx"), Vec::<&str>::new());
+        assert_eq!(providers_of(b"usr/share/php/Auth"), Vec::<&str>::new());
+        assert_eq!(providers_of(b"php"), Vec::<&str>::new());
+        assert!(ends_with_php(b".php"));
+        assert!(!ends_with_php(b"php"));
+    }
+
+    #[test]
+    fn provider_paths_are_not_fooled_by_non_ascii_names() {
+        // `/Auth` needs a `/` right before it; an accented letter is not one.
+        assert!(providers_of("usr/share/php/\u{e9}Auth.php".as_bytes()).is_empty());
+        assert!(providers_of("usr/share/php/Auth.php\u{e9}".as_bytes()).is_empty());
+        // Lookalike Unicode letters do not change `Socket`, which is case-sensitive.
+        assert!(providers_of("usr/share/php/FTP/SOCKET.php".as_bytes()).is_empty());
+        assert_eq!(
+            providers_of("usr/share/php/FTP/Socket.php".as_bytes()),
+            Vec::<&str>::new()
+        );
+        assert_eq!(
+            providers_of(b"usr/share/php/Auth/HTTP.php"),
+            ["php-auth-http"]
+        );
     }
 }

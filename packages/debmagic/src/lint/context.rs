@@ -798,7 +798,7 @@ impl<'a> SourceContext<'a> {
     /// Packaging File tree: Source tree on disk, or Source package Patched
     /// files. `None` after a global File type failure; that failure is
     /// returned from [`Self::finish`].
-    pub fn files(&mut self) -> Option<&FileTree> {
+    pub fn files(&mut self) -> Option<&'a FileTree> {
         match self.inner {
             SourceInner::Tree(data) => match data.file_tree() {
                 Ok(tree) => Some(tree),
@@ -861,7 +861,7 @@ impl<'a> SourceContext<'a> {
 
     /// Orig files. `None` on a Source tree, and after a global File type
     /// failure (returned from [`Self::finish`]). Native Orig files is empty.
-    pub fn orig_files(&mut self) -> Option<&FileTree> {
+    pub fn orig_files(&mut self) -> Option<&'a FileTree> {
         match self.inner {
             SourceInner::Tree(_) => None,
             SourceInner::Package(data) => match data.orig_files() {

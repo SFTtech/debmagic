@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::fs;
 use std::io::Read;
 use std::os::unix::fs::{FileExt, FileTypeExt, MetadataExt};
@@ -10,7 +11,6 @@ use globset::{Glob, GlobMatcher};
 use regex::Regex;
 
 use super::digest::{DigestAlgorithm, hex_digest};
-use super::elf::entry_bytes;
 use super::file_type::FileType;
 
 /// Which variant an [`Entry`] is, without its data. For filtering and matching.
@@ -553,12 +553,20 @@ impl FileTree {
         }
     }
 
+    /// The whole content of a file Entry: a copy of the bytes.
+    /// Hot paths that only look at the bytes should use [`FileTree::bytes`].
     pub fn read(&self, entry: &Entry) -> anyhow::Result<Vec<u8>> {
+        self.bytes(entry).map(Cow::into_owned)
+    }
+
+    /// The whole content of a file Entry, borrowed when the tree holds it in
+    /// memory and read from the host directory otherwise.
+    pub fn bytes<'a>(&'a self, entry: &'a Entry) -> anyhow::Result<Cow<'a, [u8]>> {
         let (Entry::RegularFile { content, .. } | Entry::Hardlink { content, .. }) = entry else {
             bail!("Entry {} is not a file", entry.path().display());
         };
         if let Some(bytes) = content {
-            return Ok(bytes.clone());
+            return Ok(Cow::Borrowed(bytes));
         }
         let Some(root) = &self.root else {
             bail!(
@@ -567,6 +575,7 @@ impl FileTree {
             );
         };
         fs::read(root.join(entry.path()))
+            .map(Cow::Owned)
             .with_context(|| format!("reading {}", entry.path().display()))
     }
 
@@ -900,7 +909,10 @@ fn classify_files(files: &[PendingFile], threads: usize) -> anyhow::Result<Vec<O
 
 #[allow(dead_code)]
 fn digest_md5(files: &FileTree, entry: &Entry) -> Option<String> {
-    entry_bytes(files, entry).map(|bytes| hex_digest(DigestAlgorithm::Md5, &bytes))
+    files
+        .bytes(entry)
+        .ok()
+        .map(|bytes| hex_digest(DigestAlgorithm::Md5, &bytes))
 }
 
 fn set_file_type(entry: &mut Entry, classified: Option<FileType>) {

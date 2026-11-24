@@ -1,13 +1,13 @@
+use std::borrow::Cow;
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use debmagic_common::debian::source::SourceFormat;
-use sha2::{Digest, Sha256};
 
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::Diagnostic;
-use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 use crate::lint::rule::SourceRule;
 
 pub struct NoDebianChanges;
@@ -20,9 +20,9 @@ declare_rule! {
     /// when some Patched path is absent from the Orig files (an addition), or
     /// when a path in both differs in content (a file in one and not the
     /// other counts as a difference). Each Patched path is compared with its
-    /// Orig counterpart by SHA-256 of its bytes, which stands for lintian's
-    /// md5sum: only regular files and hardlinks have a content digest, so a
-    /// directory or symlink in both trees counts as unchanged. Under
+    /// Orig counterpart by its bytes, which stands for lintian's md5sum: only
+    /// regular files and hardlinks have content, so a directory or symlink in
+    /// both trees counts as unchanged. Under
     /// `3.0 (quilt)`, additions under `.pc/` do not count. Empty Orig files
     /// (a native Source package, or a Source tree) are never reported: lintian
     /// does not report native packages, and this Rule takes an empty Orig tree
@@ -35,56 +35,53 @@ declare_rule! {
     experimental = false,
 }
 
-/// Content digest of a regular file or hardlink; `None` for other kinds.
-type Digest256 = Option<Vec<u8>>;
-
 impl SourceRule for NoDebianChanges {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let orig: HashMap<PathBuf, Digest256> = match ctx.orig_files() {
-            Some(tree) => digests(tree).into_iter().collect(),
-            None => HashMap::new(),
+        let Some(orig) = ctx.orig_files() else {
+            return;
         };
         // Empty Orig files: a native package (or a Source tree), nothing to compare.
-        if orig.is_empty() {
+        if orig.entries().is_empty() {
             return;
         }
         let quilt = is_quilt(ctx);
-        let Some(tree) = ctx.files() else {
+        let Some(patched) = ctx.files() else {
             return;
         };
-        let patched = digests(tree);
+        // A later entry with the same path wins, as in a map built from the tree.
+        let orig_entries: HashMap<&Path, &Entry> = orig
+            .entries()
+            .iter()
+            .map(|entry| (entry.path(), entry))
+            .collect();
 
-        let mut added = false;
-        let mut touched = false;
-        for (path, digest) in &patched {
-            match orig.get(path) {
-                None => {
-                    if quilt && path.starts_with(".pc") {
-                        continue;
-                    }
-                    added = true;
-                }
-                Some(orig_digest) => touched |= digest != orig_digest,
+        // An addition reports nothing, whatever the content, so the first
+        // one ends the Rule before any bytes are looked at.
+        let mut pairs = Vec::new();
+        for entry in patched.entries() {
+            match orig_entries.get(entry.path()) {
+                Some(orig_entry) => pairs.push((entry, *orig_entry)),
+                None if quilt && entry.path().starts_with(".pc") => {}
+                None => return,
             }
         }
-        if !added && !touched {
+
+        let touched = pairs
+            .iter()
+            .any(|(entry, orig_entry)| content(patched, entry) != content(orig, orig_entry));
+        if !touched {
             ctx.diagnostic(Diagnostic::warn(""));
         }
     }
 }
 
-/// Every entry of the tree with its content digest, in tree order.
-fn digests(tree: &FileTree) -> Vec<(PathBuf, Digest256)> {
-    tree.entries()
-        .iter()
-        .map(|entry| {
-            let digest = matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink)
-                .then(|| tree.read(entry).ok())
-                .flatten()
-                .map(|bytes| Sha256::digest(&bytes).to_vec());
-            (entry.path().to_path_buf(), digest)
-        })
-        .collect()
+/// The bytes of a regular file or hardlink; `None` for other kinds and for
+/// bytes that cannot be read. Borrowed from the tree when it holds them in
+/// memory, so comparing two trees copies nothing.
+fn content<'t>(tree: &'t FileTree, entry: &'t Entry) -> Option<Cow<'t, [u8]>> {
+    matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink)
+        .then(|| tree.bytes(entry).ok())
+        .flatten()
 }
 
 /// Dsc `Format` when that field is present, otherwise `debian/source/format`.

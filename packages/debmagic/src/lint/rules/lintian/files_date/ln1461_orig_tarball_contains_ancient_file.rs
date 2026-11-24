@@ -109,6 +109,40 @@ mod tests {
         );
     }
 
+    /// Lintian's orig index is a hash by name (`$catalog{$entry->name} = $entry`
+    /// in `create_from_piped_tar`), so a member that the tarball lists twice
+    /// is judged by its last header only.
+    #[test]
+    fn repeated_member_is_judged_by_its_last_header() {
+        let dir = TempDir::new().expect("temp directory");
+        let dsc = quilt(
+            dir.path(),
+            &[
+                ("example-1.0/README", b"text\n", 0),
+                ("example-1.0/README", b"text\n", 1_000_000_000),
+            ],
+        );
+        assert!(found(dsc).is_empty());
+    }
+
+    /// The same rule the other way round: a repeat whose last header is
+    /// ancient is reported.
+    #[test]
+    fn repeated_member_with_ancient_last_header_is_reported() {
+        let dir = TempDir::new().expect("temp directory");
+        let dsc = quilt(
+            dir.path(),
+            &[
+                ("example-1.0/README", b"text\n", 1_000_000_000),
+                ("example-1.0/README", b"text\n", 0),
+            ],
+        );
+        assert_eq!(
+            found(dsc),
+            [("README".to_string(), "1970-01-01".to_string())]
+        );
+    }
+
     #[test]
     fn modern_orig_reports_nothing() {
         let dir = TempDir::new().expect("temp directory");

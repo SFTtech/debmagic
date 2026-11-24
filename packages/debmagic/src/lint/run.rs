@@ -69,7 +69,7 @@ pub struct LintTimings {
 
 pub fn run_lint(intent: &LintIntent) -> anyhow::Result<LintResult> {
     let started = Instant::now();
-    let threads = worker_threads(intent.threads);
+    let threads = worker_threads(intent.threads, intent.selected.len());
     // The whole run happens inside this pool, so everything that
     // parallelizes (Rules, file classification) follows `--threads`.
     let pool = rayon::ThreadPoolBuilder::new()
@@ -236,13 +236,24 @@ fn run_source_tree_lint(
     finish_run(intent, stages, ignored_overrides, started)
 }
 
-/// Worker threads for a run: the requested count (0 counts as unset), or the
-/// machine's available parallelism. At least 1.
-fn worker_threads(requested: Option<usize>) -> usize {
-    requested
-        .filter(|&threads| threads > 0)
-        .or_else(|| std::thread::available_parallelism().ok().map(Into::into))
-        .unwrap_or(1)
+/// Most worker threads a run uses unless `--threads` says otherwise. Past
+/// this, wider pools add CPU (idle workers, startup) without shortening a
+/// samba Subject's wall time.
+const DEFAULT_MAX_THREADS: usize = 16;
+
+/// Worker threads for a run: the requested count exactly when given (0 counts
+/// as unset). Otherwise the available parallelism, capped by the number of
+/// selected Rules and by `DEFAULT_MAX_THREADS`, and never below one.
+fn worker_threads(requested: Option<usize>, selected_rules: usize) -> usize {
+    if let Some(threads) = requested.filter(|&threads| threads > 0) {
+        return threads;
+    }
+    let parallelism: usize = std::thread::available_parallelism()
+        .map(Into::into)
+        .unwrap_or(1);
+    parallelism
+        .min(selected_rules)
+        .clamp(1, DEFAULT_MAX_THREADS)
 }
 
 struct RuleProduct {
@@ -1245,11 +1256,22 @@ Rules
     }
 
     #[test]
-    fn worker_threads_uses_request_or_available_parallelism() {
-        assert_eq!(worker_threads(Some(8)), 8);
-        assert_eq!(worker_threads(Some(1)), 1);
-        assert!(worker_threads(Some(0)) >= 1);
-        assert!(worker_threads(None) >= 1);
+    fn worker_threads_honours_request_and_caps_the_default() {
+        // An explicit count is exact, even above the Rule count or the default cap.
+        assert_eq!(worker_threads(Some(8), 1), 8);
+        assert_eq!(worker_threads(Some(40), 500), 40);
+        assert_eq!(worker_threads(Some(1), 500), 1);
+        // Unset or zero: the machine, capped by the Rules and DEFAULT_MAX_THREADS.
+        let parallelism: usize = std::thread::available_parallelism().map_or(1, Into::into);
+        assert_eq!(
+            worker_threads(Some(0), 500),
+            parallelism.min(DEFAULT_MAX_THREADS)
+        );
+        assert_eq!(worker_threads(None, 1), 1);
+        assert_eq!(
+            worker_threads(None, 500),
+            parallelism.min(DEFAULT_MAX_THREADS)
+        );
     }
 
     #[test]
@@ -1284,7 +1306,7 @@ Rules
                 overrides: OverrideMode::Hide,
             };
             let result = run_lint(&intent)?;
-            assert_eq!(result.threads, worker_threads(threads));
+            assert_eq!(result.threads, worker_threads(threads, selected.len()));
             Ok(result.diagnostics.iter().map(format_diagnostic).collect())
         };
 

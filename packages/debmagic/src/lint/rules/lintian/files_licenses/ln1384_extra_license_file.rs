@@ -97,7 +97,7 @@ fn is_extra_license_file(files: &FileTree, entry: &Entry) -> bool {
         return false;
     };
     if !BASENAME.is_match(basename)
-        || entry.is_executable_file()
+        || entry.is_executable()
         || entry.link_target().is_some()
         || entry.hardlink_target().is_some()
         || NON_LICENSE_EXTENSION.is_match(name)
@@ -135,6 +135,12 @@ mod tests {
                     has_static_symbol_table: false,
                     executable: false,
                 }),
+            )]),
+            // lintian's `is_executable` is any execute bit, so a directory with
+            // mode 0755 is skipped too.
+            BinaryPackageCase::from(vec![(
+                "usr/share/perl5/Regexp/Pattern/License",
+                TestFile::directory().mode(0o755),
             )]),
         ];
         let fail = vec![

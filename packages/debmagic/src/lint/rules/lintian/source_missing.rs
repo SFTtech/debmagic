@@ -83,6 +83,20 @@ pub(super) fn is_python_byte_code(prefix: &[u8]) -> bool {
     )
 }
 
+/// Whether `file(1)` says `ELF` for the file: its File type, or else the ELF
+/// magic with a 32 or 64 bit class and an LSB or MSB encoding. `file(1)` keeps
+/// the `ELF` description when the section headers are corrupt, where debmagic's
+/// File type (a full parse) is absent; patchelf's `tests/invalid-elf` files are
+/// such.
+pub(super) fn is_elf(files: &FileTree, entry: &Entry) -> bool {
+    matches!(entry.file_type(), Some(FileType::Elf { .. })) || is_elf_magic(&prefix(files, entry))
+}
+
+/// The ELF magic, a class (1 or 2) and a data encoding (1 or 2).
+fn is_elf_magic(prefix: &[u8]) -> bool {
+    matches!(prefix, [0x7f, b'E', b'L', b'F', 1 | 2, 1 | 2, ..])
+}
+
 /// lintian's `file_type =~ m{^Macromedia \s Flash}x`: a Flash movie (`FWS`,
 /// compressed `CWS` and `ZWS`) or a Flash video (`FLV\x01`).
 pub(super) fn is_macromedia_flash(prefix: &[u8]) -> bool {
@@ -324,9 +338,7 @@ pub(super) fn source_is_missing(non_free: bool, files: &FileTree, entry: &Entry)
     if is_python_byte_code(&magic) && !find_source(files, entry, non_free, &PYTHON) {
         return true;
     }
-    if matches!(entry.file_type(), Some(FileType::Elf { .. }))
-        && !find_source(files, entry, non_free, &ELF)
-    {
+    if is_elf(files, entry) && !find_source(files, entry, non_free, &ELF) {
         return true;
     }
     if is_macromedia_flash(&magic) && !find_source(files, entry, non_free, &FLASH_OBJECT) {

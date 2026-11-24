@@ -85,6 +85,10 @@ mod tests {
                 r#"<!--[if IE]><script src="http://tracker.example/t.js"></script><![endif]-->"#,
             )]),
             tree(&[(
+                r#"usr/share/example/multi.html"#,
+                "<link href=\"http://tracker.example/s.css\" rel=\"stylesheet\"\n type=\"text/css\">",
+            )]),
+            tree(&[(
                 r#"usr/share/example/e.html"#,
                 r#"<img src="http://tracker.example/a.png"><img src="http://tracker.example/b.png"><img src="http://other.example/b.png">"#,
             )]),

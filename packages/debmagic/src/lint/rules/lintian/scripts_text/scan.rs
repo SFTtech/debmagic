@@ -179,12 +179,16 @@ fn logical_lines(path: &Path, text: &str, shell: bool) -> Vec<ScriptLine> {
     let mut lines = Vec::new();
     let mut stashed = String::new();
     let mut automatic = false;
+    let physical = text.split('\n').count();
     for (index, raw) in text.split('\n').enumerate() {
         let number = u32::try_from(index + 1).unwrap_or(u32::MAX);
         if AUTO_START.is_match(raw) {
             automatic = true;
         }
-        if raw.trim_end_matches('\r') == AUTO_END {
+        // lintian compares the raw readline, newline included, with the End
+        // marker. Only an unterminated last line can match, so a section
+        // stays open until the end of the file otherwise.
+        if raw == AUTO_END && index + 1 == physical {
             automatic = false;
         }
         if BLANK.is_match(raw) || COMMENT_LINE.is_match(raw) {
@@ -325,7 +329,8 @@ mod tests {
     }
 
     #[test]
-    fn automatic_section_covers_only_its_body() {
+    fn automatic_section_stays_open_like_lintian() {
+        // lintian never closes the section on a terminated End line.
         let text = "\
 #!/bin/sh
 dpkg-maintscript-helper before
@@ -340,7 +345,7 @@ dpkg-maintscript-helper after
             .filter(|line| line.text.contains("dpkg-maintscript-helper"))
             .map(|line| (line.line, line.automatic))
             .collect();
-        assert_eq!(flagged, vec![(2, false), (4, true), (6, false)]);
+        assert_eq!(flagged, vec![(2, false), (4, true), (6, true)]);
     }
 
     #[test]

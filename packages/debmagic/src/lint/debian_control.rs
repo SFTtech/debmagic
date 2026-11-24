@@ -1,32 +1,10 @@
 use std::path::Path;
 
-use std::sync::LazyLock;
-
-use deb822_lossless::Entry;
-use debian_control::lossless::Control;
-use regex::Regex;
+use debmagic_common::debian::deb822::{self, Paragraph};
 
 use super::package_relation::PackageRelation;
 
-static FOLD: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\n\s*").expect("valid regex"));
-
-/// See [`ControlParagraph::unfolded_value`].
-pub(crate) fn unfold(value: &str) -> String {
-    FOLD.replace_all(value.trim(), " ").into_owned()
-}
-
-/// What follows `Name:` in a field's text: leading blanks of the first line and
-/// the final line break dropped, comment lines removed.
-fn untrimmed_from_text(text: &str) -> String {
-    let after_colon = text.split_once(':').map_or(text, |(_, rest)| rest);
-    let value = after_colon.trim_start_matches([' ', '\t']);
-    let value = value.strip_suffix('\n').unwrap_or(value);
-    value
-        .split('\n')
-        .filter(|line| !line.starts_with('#'))
-        .collect::<Vec<_>>()
-        .join("\n")
-}
+pub(crate) use debmagic_common::debian::deb822::unfold;
 
 /// Parsed `debian/control`: first paragraph is source; later named paragraphs are
 /// installables. Matches lintian's `Lintian::Debian::Control`, not
@@ -37,16 +15,10 @@ pub struct DebianControl {
     installables: Vec<Installable>,
 }
 
+/// One Deb822 paragraph of a control file, read through the common
+/// [`Paragraph`], plus lintian's relation parsing.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct ControlParagraph {
-    fields: Vec<(String, String)>,
-    /// Values as lintian's `untrimmed_value` reads them (continuation lines
-    /// keep their indentation). Empty for paragraphs built from plain values.
-    untrimmed: Vec<(String, String)>,
-    /// 1-based line of each field name in the file, parallel to `fields`.
-    /// `None` for paragraphs built from plain values.
-    lines: Vec<Option<u32>>,
-}
+pub struct ControlParagraph(Paragraph);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InstallablePackageType {
@@ -75,26 +47,18 @@ impl DebianControl {
 
     /// `None` on syntax errors. Same first-paragraph-is-source shape as [`Self::load`].
     pub fn parse(text: &str) -> Option<Self> {
-        let control = text
-            .parse::<Control>()
-            .or_else(|_| whitespace_only_lines_as_blank(text).parse::<Control>())
+        let paragraphs = deb822::parse(text)
+            .into_result()
+            .or_else(|_| deb822::parse(&whitespace_only_lines_as_blank(text)).into_result())
             .ok()?;
-        Some(Self::from_control(&control))
+        Some(Self::from_paragraphs(paragraphs))
     }
 
-    fn from_control(control: &Control) -> Self {
-        let mut paragraphs = control.as_deb822().paragraphs();
-        let source = paragraphs
-            .next()
-            .map(|paragraph| {
-                ControlParagraph::from_entries(paragraph.entries().filter_map(located_entry))
-            })
-            .unwrap_or_default();
-
+    fn from_paragraphs(paragraphs: Vec<Paragraph>) -> Self {
+        let mut paragraphs = paragraphs.into_iter().map(ControlParagraph);
+        let source = paragraphs.next().unwrap_or_default();
         let installables = paragraphs
-            .filter_map(|paragraph| {
-                let fields =
-                    ControlParagraph::from_entries(paragraph.entries().filter_map(located_entry));
+            .filter_map(|fields| {
                 let name = fields.get("Package")?;
                 if !is_installable_package_name(name) {
                     return None;
@@ -125,46 +89,27 @@ impl DebianControl {
 
 impl ControlParagraph {
     #[cfg(test)]
-    pub(crate) fn from_items(items: impl IntoIterator<Item = (String, String)>) -> Self {
-        let fields: Vec<(String, String)> = items.into_iter().collect();
-        let lines = vec![None; fields.len()];
-        Self {
-            fields,
-            untrimmed: Vec::new(),
-            lines,
-        }
-    }
-
-    /// From `(name, value, entry text, line)`; the entry text is the field as
-    /// written, which is where the indentation of continuation lines lives.
-    /// `line` is the 1-based line of the field name in the file.
-    pub(crate) fn from_entries(
-        entries: impl IntoIterator<Item = (String, String, String, Option<u32>)>,
+    pub(crate) fn from_fields(
+        fields: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,
     ) -> Self {
-        let mut fields = Vec::new();
-        let mut untrimmed = Vec::new();
-        let mut lines = Vec::new();
-        for (name, value, text, line) in entries {
-            untrimmed.push((name.clone(), untrimmed_from_text(&text)));
-            fields.push((name, value));
-            lines.push(line);
-        }
-        Self {
-            fields,
-            untrimmed,
-            lines,
-        }
+        Self(Paragraph::from_values(fields))
     }
 
-    /// The 1-based line in `debian/control` where the field's name is written
-    /// (the first one when a name repeats). `None` for paragraphs built from
-    /// plain values.
-    pub fn position(&self, name: &str) -> Option<u32> {
-        let index = self
-            .fields
-            .iter()
-            .position(|(key, _)| key.eq_ignore_ascii_case(name))?;
-        self.lines.get(index).copied().flatten()
+    /// The only paragraph of a control file, or `Err` naming `what` when
+    /// the text is not valid Deb822 or not exactly one paragraph.
+    pub(crate) fn parse_single(text: &str, what: &str) -> anyhow::Result<Self> {
+        use anyhow::Context as _;
+        let mut paragraphs = deb822::parse(text)
+            .into_result()
+            .with_context(|| format!("{what} is not valid Deb822"))?
+            .into_iter();
+        let Some(first) = paragraphs.next() else {
+            anyhow::bail!("{what} has no Deb822 paragraph");
+        };
+        if paragraphs.next().is_some() {
+            anyhow::bail!("{what} is not exactly one Deb822 paragraph");
+        }
+        Ok(Self(first))
     }
 
     /// The first Deb822 paragraph of a file that may carry a PGP signature
@@ -174,61 +119,42 @@ impl ControlParagraph {
         use anyhow::Context as _;
         let (payload, _) = debian_control::pgp::strip_pgp_signature(text)
             .with_context(|| format!("{what} is not readable Deb822"))?;
-        let control: Control = payload
-            .parse()
+        let paragraphs = deb822::parse(&payload)
+            .into_result()
             .with_context(|| format!("{what} is not valid Deb822"))?;
-        let Some(first) = control.as_deb822().paragraphs().next() else {
+        let Some(first) = paragraphs.into_iter().next() else {
             anyhow::bail!("{what} has no Deb822 paragraph");
         };
-        Ok(Self::from_entries(
-            first.entries().filter_map(located_entry),
-        ))
+        Ok(Self(first))
     }
 
-    /// The value with continuation lines as written (a leading space and all),
-    /// comment lines dropped: lintian's `untrimmed_value`. Falls back to
-    /// [`Self::get`] when the paragraph was built from plain values.
-    pub fn untrimmed_value(&self, name: &str) -> Option<&str> {
-        self.untrimmed
-            .iter()
-            .find(|(key, _)| key.eq_ignore_ascii_case(name))
-            .map(|(_, value)| value.as_str())
-            .or_else(|| self.get(name))
-    }
-
-    #[cfg(test)]
-    pub(crate) fn from_fields(
-        fields: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,
-    ) -> Self {
-        Self::from_items(
-            fields
-                .into_iter()
-                .map(|(key, value)| (key.into(), value.into())),
-        )
+    pub fn get(&self, name: &str) -> Option<&str> {
+        self.0.get(name)
     }
 
     pub fn declares(&self, name: &str) -> bool {
-        self.fields
-            .iter()
-            .any(|(key, _)| key.eq_ignore_ascii_case(name))
+        self.0.declares(name)
     }
 
     /// Field names in file order, as written.
     pub fn names(&self) -> impl Iterator<Item = &str> {
-        self.fields.iter().map(|(name, _)| name.as_str())
+        self.0.names()
     }
 
-    pub fn get(&self, name: &str) -> Option<&str> {
-        self.fields
-            .iter()
-            .find(|(key, _)| key.eq_ignore_ascii_case(name))
-            .map(|(_, value)| value.as_str())
-    }
-
-    /// The value on one line: surrounding space trimmed, each line break and
-    /// the indentation after it a single space (lintian's `unfolded_value`).
+    /// The value on one line (lintian's `unfolded_value`); see [`unfold`].
     pub fn unfolded_value(&self, name: &str) -> Option<String> {
-        self.get(name).map(unfold)
+        self.0.unfolded_value(name)
+    }
+
+    /// lintian's `untrimmed_value`; see [`Paragraph::untrimmed_value`].
+    pub fn untrimmed_value(&self, name: &str) -> Option<&str> {
+        self.0.untrimmed_value(name)
+    }
+
+    /// The 1-based line where the field's name is written; see
+    /// [`Paragraph::position`].
+    pub fn position(&self, name: &str) -> Option<u32> {
+        self.0.position(name)
     }
 
     /// A relation field (`Depends`, `Build-Depends`, ...) parsed per Policy
@@ -264,12 +190,6 @@ impl Installable {
     pub fn fields(&self) -> &ControlParagraph {
         &self.fields
     }
-}
-
-/// `(name, value, entry text, line)` for [`ControlParagraph::from_entries`].
-pub(crate) fn located_entry(entry: Entry) -> Option<(String, String, String, Option<u32>)> {
-    let line = u32::try_from(entry.line()).ok()?.checked_add(1);
-    Some((entry.key()?, entry.value(), entry.to_string(), line))
 }
 
 fn installable_package_type(fields: &ControlParagraph) -> InstallablePackageType {

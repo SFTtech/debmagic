@@ -7,7 +7,7 @@
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
-use debian_control::lossless::Control;
+use debmagic_common::debian::deb822;
 use regex::Regex;
 
 use crate::lint::file_tree::{EntryKind, FileTree};
@@ -105,26 +105,8 @@ pub(super) fn read_regular(files: &FileTree, path: &str) -> Option<(PathBuf, Str
 }
 
 /// Paragraphs of a tests control file. `None` when the text is not Deb822.
-pub(super) fn paragraphs(text: &str) -> Option<Vec<Vec<(String, String)>>> {
-    let control: Control = text.parse().ok()?;
-    let paragraphs = control
-        .as_deb822()
-        .paragraphs()
-        .map(|paragraph| {
-            paragraph
-                .entries()
-                .filter_map(|entry| Some((entry.key()?.to_string(), entry.value().to_string())))
-                .collect()
-        })
-        .collect();
-    Some(paragraphs)
-}
-
-pub(super) fn field<'a>(paragraph: &'a [(String, String)], name: &str) -> Option<&'a str> {
-    paragraph
-        .iter()
-        .find(|(key, _)| key.eq_ignore_ascii_case(name))
-        .map(|(_, value)| value.as_str())
+pub(super) fn paragraphs(text: &str) -> Option<Vec<deb822::Paragraph>> {
+    deb822::parse(text).into_result().ok()
 }
 
 /// `debian/tests` is a directory and `debian/tests/control` exists.

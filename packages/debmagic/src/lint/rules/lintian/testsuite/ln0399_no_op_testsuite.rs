@@ -8,7 +8,7 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 
-use super::control::{field, paragraphs, read};
+use super::control::{paragraphs, read};
 
 pub struct NoOpTestsuite;
 
@@ -54,7 +54,7 @@ impl SourceRule for NoOpTestsuite {
         if sections.len() != 1 {
             return;
         }
-        let Some(command) = field(&sections[0], "Test-Command") else {
+        let Some(command) = sections[0].get("Test-Command") else {
             return;
         };
         if !NO_OP.is_match(command.trim()) {

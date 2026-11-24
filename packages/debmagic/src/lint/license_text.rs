@@ -392,6 +392,45 @@ mod tests {
         assert_eq!(clean_text("\\href{http://x}{name}"), "name");
     }
 
+    /// Pins `clean_text` on inputs that hit each kind of step, so a faster
+    /// implementation that changes any of them fails here before it reaches
+    /// the lint output.
+    #[test]
+    fn clean_text_pins_representative_inputs() {
+        let cases: &[(&str, &str)] = &[
+            ("", ""),
+            ("plain text", "plain text"),
+            ("  leading and   trailing \n\n", "leading and trailing"),
+            (
+                "line one\nline two\r\nline three",
+                "line one line two line three",
+            ),
+            ("@gnu{}", "@gnu{"),
+            ("\\*(L\"quoted\"", "quoted"),
+            ("non\\-breaking", "non-breaking"),
+            (
+                "the &fsf; and &nbsp;here",
+                "the free software foundation and here",
+            ),
+            ("<p>hello</p>\n\"a\",\n", "hello a"),
+            ("<a href=\"x\">link</a> and <br/>break", "link and break"),
+            ("\\href{http://x}{name}", "name"),
+            ("\\url{http://x} and \\emph{x}", "and x"),
+            ("@c comment text", "comment text"),
+            ("``quoted'' text", "quoted text"),
+            (
+                "/*\n * unicode,  inc.\n * hereby\n */",
+                "/ unicode, inc. hereby /",
+            ),
+            ("\\section{Title}", ""),
+            ("@@ -1,2 +3,4 @@", ""),
+            ("a{b}c", "a{b c"),
+        ];
+        for (input, expected) in cases {
+            assert_eq!(clean_text(input), *expected, "input {input:?}");
+        }
+    }
+
     #[test]
     fn bad_license_needs_keyword_sentence_and_regex() {
         let plain = BadLicense::new(&["evil"], &["good not evil"], None);

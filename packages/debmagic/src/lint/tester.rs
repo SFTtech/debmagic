@@ -455,8 +455,11 @@ impl SourceTreeTester {
         unexpected
     }
 
-    fn run(&mut self, case: &TestCase) -> TestResult {
-        let root = materialize(case);
+    /// The Diagnostics the Rule reports for one tree, unformatted, with paths
+    /// relative to the tree. For tests that pin a field the snapshot does not show.
+    pub fn diagnostics(&self, files: impl Into<TestCase>) -> Vec<Diagnostic> {
+        let case = files.into();
+        let root = materialize(&case);
         let data = SourceTreeData::with_file_tree(root.path().to_path_buf(), case.file_tree());
         let mut ctx = SourceContext::bind_tree(&data, self.rule.as_ref());
         self.rule.run(&mut ctx);
@@ -466,7 +469,11 @@ impl SourceTreeTester {
         for diagnostic in &mut diagnostics {
             relativize_location(diagnostic, root.path());
         }
+        diagnostics
+    }
 
+    fn run(&mut self, case: &TestCase) -> TestResult {
+        let diagnostics = self.diagnostics(case.clone());
         if diagnostics.is_empty() {
             return TestResult::Passed;
         }
@@ -674,7 +681,10 @@ impl BinaryPackageTester {
         unexpected
     }
 
-    fn run(&mut self, case: &BinaryPackageCase) -> TestResult {
+    /// The Diagnostics the Rule reports for one package, unformatted. For tests
+    /// that pin a message the snapshot does not show in isolation.
+    pub fn diagnostics(&self, case: impl Into<BinaryPackageCase>) -> Vec<Diagnostic> {
+        let case = case.into();
         let mut fields = vec![("Package".to_string(), case.package.clone())];
         fields.extend(case.fields.iter().cloned());
         let data = BinaryPackageData::with_data_files(
@@ -694,10 +704,12 @@ impl BinaryPackageTester {
         });
         let mut ctx = BinaryPackageContext::bind(&data, self.rule.as_ref());
         self.rule.run(&mut ctx);
-        let diagnostics = ctx
-            .finish()
-            .expect("BinaryPackageTester Data files do not fail File type classification");
+        ctx.finish()
+            .expect("BinaryPackageTester Data files do not fail File type classification")
+    }
 
+    fn run(&mut self, case: &BinaryPackageCase) -> TestResult {
+        let diagnostics = self.diagnostics(case.clone());
         if diagnostics.is_empty() {
             return TestResult::Passed;
         }
@@ -876,7 +888,10 @@ impl SourcePackageTester {
         unexpected
     }
 
-    fn run(&mut self, case: &SourcePackageCase) -> TestResult {
+    /// The Diagnostics the Rule reports for one package, unformatted. For tests
+    /// that pin a field the snapshot does not show.
+    pub fn diagnostics(&self, case: impl Into<SourcePackageCase>) -> Vec<Diagnostic> {
+        let case = case.into();
         let siblings = materialize(&case.siblings);
         // A case with siblings but no `.dsc` lists them all in its `Files`.
         let dsc = match &case.dsc {
@@ -895,10 +910,12 @@ impl SourcePackageTester {
         );
         let mut ctx = SourceContext::bind_package(&data, self.rule.as_ref());
         self.rule.run(&mut ctx);
-        let diagnostics = ctx
-            .finish()
-            .expect("SourcePackageTester File trees do not call the File type producer");
+        ctx.finish()
+            .expect("SourcePackageTester File trees do not call the File type producer")
+    }
 
+    fn run(&mut self, case: &SourcePackageCase) -> TestResult {
+        let diagnostics = self.diagnostics(case.clone());
         if diagnostics.is_empty() {
             return TestResult::Passed;
         }

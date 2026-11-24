@@ -114,7 +114,7 @@ pub(super) fn obsolete_messages(sections: &[Section], ored: bool) -> Vec<String>
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{SourceTreeTester, TestFile};
+    use crate::lint::tester::{SourceTreeTester, TestCase, TestFile};
 
     use super::*;
 
@@ -138,5 +138,26 @@ mod tests {
             tree("Test-Command: true\nDepends:\n @,\n pkg-config:any\n"),
         ];
         SourceTreeTester::new(TestsuiteDependsOnObsoletePackage, pass, fail).test_and_snapshot();
+    }
+
+    /// Lintian's hint for an obsolete dependency names no pointer, so the
+    /// Diagnostic has no Location and its hint carries no `[path:line]`.
+    #[test]
+    fn hint_has_no_location() {
+        let tester = SourceTreeTester::new(
+            TestsuiteDependsOnObsoletePackage,
+            Vec::<TestCase>::new(),
+            Vec::<TestCase>::new(),
+        );
+        for files in [
+            tree("Test-Command: true\nDepends: gaim | xbase-clients\n"),
+            tree("Test-Command: true\nDepends: @, gaim (>= 0.1), pkg-config\n"),
+        ] {
+            let diagnostics = tester.diagnostics(files);
+            assert!(!diagnostics.is_empty());
+            for diagnostic in diagnostics {
+                assert!(diagnostic.location.path.as_os_str().is_empty());
+            }
+        }
     }
 }

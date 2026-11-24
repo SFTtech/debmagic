@@ -7,7 +7,7 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::SourceRule;
 
-use super::sections::{Section, control_location, tests_control_sections};
+use super::sections::{Section, tests_control_sections};
 
 pub struct TestsuiteDependsOnObsoletePackage;
 
@@ -19,7 +19,8 @@ declare_rule! {
     /// dependency or every alternative is obsolete; a later obsolete
     /// alternative beside a current one is `testsuite-ored-depends-on-obsolete-package`.
     /// Extra is `Depends: `, the alternative as written, and ` => replacement`
-    /// when the data file names one. The Location is `debian/tests/control`.
+    /// when the data file names one. There is no Location: lintian's hint has
+    /// no pointer, so the hint carries no `[path:line]`.
     /// Applies to the Source tree and Source package.
     TestsuiteDependsOnObsoletePackage,
     code = "LN0688",
@@ -70,7 +71,7 @@ impl SourceRule for TestsuiteDependsOnObsoletePackage {
             return;
         };
         for message in obsolete_messages(&sections, false) {
-            ctx.diagnostic(Diagnostic::warn(message).with_location(control_location(None)));
+            ctx.diagnostic(Diagnostic::warn(message));
         }
     }
 }

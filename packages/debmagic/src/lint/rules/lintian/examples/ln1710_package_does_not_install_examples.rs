@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Component, Path, PathBuf};
 use std::sync::LazyLock;
 
 use regex::Regex;
@@ -24,6 +24,11 @@ declare_rule! {
     /// Location (a directory with a trailing slash, as lintian's pointer) and
     /// an empty extra. A Group Rule: the finding is on the source
     /// package. Udebs count as installables, as lintian's `get_installables`.
+    ///
+    /// Where we differ from lintian: none for the Rule itself. Lintian's
+    /// `Screen/Examples/InTests.pm` masks the hint for an entry under a
+    /// top-level `test/` or `tests/` directory of the source (test fixtures,
+    /// not examples), and we do the same; a nested `test` directory is reported.
     PackageDoesNotInstallExamples,
     code = "LN1710",
     tag = "package-does-not-install-examples",
@@ -35,6 +40,14 @@ static SHIPPED_EXAMPLES: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^usr/share/doc/(.+/)?examples/?$").expect("valid regex"));
 static VENDORED_DIR: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?:^|/)(?:vendor|third_party)/").expect("valid regex"));
+
+/// lintian's `Screen/Examples/InTests.pm`: an item named `test/...` or
+/// `tests/...`, with the directory at the top of the source.
+fn in_top_level_test_directory(path: &Path) -> bool {
+    let mut parts = path.components();
+    matches!(parts.next(), Some(Component::Normal(dir)) if dir == "test" || dir == "tests")
+        && parts.next().is_some()
+}
 
 impl GroupRule for PackageDoesNotInstallExamples {
     fn run(&self, ctx: &mut GroupContext<'_>) {
@@ -78,6 +91,7 @@ impl GroupRule for PackageDoesNotInstallExamples {
                     .is_some_and(|name| name == "examples")
             })
             .filter(|entry| !entry.path().starts_with(".pc"))
+            .filter(|entry| !in_top_level_test_directory(entry.path()))
             .filter(|entry| {
                 let dir = entry
                     .path()
@@ -167,5 +181,42 @@ mod tests {
                 .source_files(source(&["docs/examples", "examples"])),
         ];
         GroupTester::new(PackageDoesNotInstallExamples, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian `Screen/Examples/InTests.pm` masks the hint for an item whose name
+    /// starts with `test/` or `tests/` at the top of the source: test fixtures are
+    /// not examples of the package. Only the top-level directory counts, so a
+    /// nested `test` folder, a similar name such as `testing/`, and an `examples`
+    /// entry outside the tests are still reported.
+    #[test]
+    fn examples_under_a_top_level_test_directory_are_masked() {
+        let pass = vec![
+            GroupCase::new(DSC)
+                .installable("foo", "")
+                .files([("usr/bin/foo", "x")])
+                .source_files(source(&[
+                    "test/examples",
+                    "tests/examples",
+                    "tests/x/examples",
+                ])),
+        ];
+        let fail = vec![
+            // Nested under another directory: not the top-level test folder.
+            GroupCase::new(DSC)
+                .installable("foo", "")
+                .files([("usr/bin/foo", "x")])
+                .source_files(source(&["src/test/examples"])),
+            // A similar name is not the test folder.
+            GroupCase::new(DSC)
+                .installable("foo", "")
+                .files([("usr/bin/foo", "x")])
+                .source_files(source(&["testing/examples", "test-data/examples"])),
+            // The unmasked neighbour in the same source is still reported.
+            GroupCase::new(DSC)
+                .installable("foo", "")
+                .files([("usr/bin/foo", "x")])
+                .source_files(source(&["test/examples", "examples"])),
+        ];
+        GroupTester::new(PackageDoesNotInstallExamples, pass, fail).test();
     }
 }

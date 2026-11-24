@@ -20,6 +20,10 @@ declare_rule! {
     /// across lines. Extra is empty. The Location is the file with no line
     /// number. A udeb whose Control file is exactly `postinst` is skipped
     /// (lintian reports that case as another Tag).
+    ///
+    /// Where we differ from lintian: none. Lintian's `Screen/Glibc/Control/Ldconfig.pm`
+    /// masks every hint for a package whose source is `glibc` (the glibc
+    /// packages need `ldconfig` for their trigger), and so is this Rule.
     MaintscriptCallsLdconfig,
     code = "LN0188",
     tag = "maintscript-calls-ldconfig",
@@ -32,6 +36,9 @@ static LDCONFIG: LazyLock<Regex> =
 
 impl BinaryPackageRule for MaintscriptCallsLdconfig {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
+        if ctx.source_name() == "glibc" {
+            return;
+        }
         let udeb = ctx.is_udeb();
         let Some(files) = ctx.control_files() else {
             return;
@@ -99,5 +106,36 @@ mod tests {
                 .udeb(),
         ];
         BinaryPackageTester::new(MaintscriptCallsLdconfig, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian `Screen/Glibc/Control/Ldconfig.pm` masks every hint for a binary
+    /// package whose source package is `glibc`, which needs `ldconfig` in its
+    /// maintainer scripts. The source is the first word of `Source`, or the
+    /// package name when there is no `Source`; a different source is reported.
+    #[test]
+    fn ldconfig_calls_are_masked_for_the_glibc_source_only() {
+        let call = "#!/bin/sh\nldconfig\n";
+        let pass = vec![
+            control("postinst", call).field("Source", "glibc"),
+            // A version in parentheses after the source name is ignored.
+            control("postinst", call).field("Source", "glibc (2.39-1)"),
+            // Without Source, the package name is the source name.
+            control("postinst", call).package("glibc"),
+            // Other glibc-built binaries (for example libc-bin) share the source.
+            control("postrm", call)
+                .package("libc-bin")
+                .field("Source", "glibc"),
+        ];
+        let fail = vec![
+            control("postinst", call).field("Source", "glibc-helper"),
+            control("postinst", call).field("Source", "libc6"),
+            // Source takes precedence over the package name.
+            control("postinst", call)
+                .package("glibc")
+                .field("Source", "other"),
+            // The comparison is case-sensitive.
+            control("postinst", call).field("Source", "GLIBC"),
+        ];
+        BinaryPackageTester::new(MaintscriptCallsLdconfig, pass, fail).test();
     }
 }

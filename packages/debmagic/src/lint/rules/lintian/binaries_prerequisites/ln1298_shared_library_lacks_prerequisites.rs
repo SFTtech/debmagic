@@ -23,6 +23,12 @@ declare_rule! {
     /// the dynamic loader `ld-<version>.so` directly under `lib/`, `lib32/`,
     /// `libx32/`, or `lib64/` (or one directory down under them). Skipped for
     /// udebs. The Location is the file.
+    ///
+    /// Where we differ from lintian: none. Lintian's
+    /// `Screen/Coq/Cmxs/Prerequisites.pm` masks the hint for any `*.cmxs` file
+    /// in a binary or udeb package (OCaml native plugins, whose undefined
+    /// symbols are expected); so does this Rule. Udebs never reach that mask
+    /// here because they are skipped above, as in lintian.
     SharedLibraryLacksPrerequisites,
     code = "LN1298",
     tag = "shared-library-lacks-prerequisites",
@@ -48,7 +54,8 @@ static JAVA_DEBUGINFO: LazyLock<Regex> =
 
 /// Files lintian's `shared-library-lacks-prerequisites` does not report.
 fn excluded(name: &str) -> bool {
-    KERNEL_OR_BOOT.is_match(name)
+    name.ends_with(".cmxs")
+        || KERNEL_OR_BOOT.is_match(name)
         || name.starts_with("usr/lib/debug/")
         || EXCLUDED_SUFFIX.is_match(name)
         || JAVA_DEBUGINFO.is_match(name)
@@ -135,5 +142,31 @@ mod tests {
             case(vec![("usr/lib/libfoo.e32x", shared(&[]))]),
         ];
         BinaryPackageTester::new(SharedLibraryLacksPrerequisites, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian `Screen/Coq/Cmxs/Prerequisites.pm` masks the hint for any file
+    /// whose name ends in `.cmxs` in a binary or udeb package: such files are
+    /// ELF shared objects with undefined symbols by design. Only the name's
+    /// suffix counts, so `.cmxs.so`, `.cmx` and a bare `cmxs` are still reported.
+    #[test]
+    fn cmxs_files_are_masked_and_nothing_else_is_masked() {
+        let pass = vec![
+            case(vec![("usr/lib/ocaml/foo/foo.cmxs", shared(&[]))]),
+            case(vec![("usr/lib/ocaml/foo.cmxs", shared(&[]))]),
+            // Masked in udebs too (udebs are skipped by this Rule anyway).
+            case(vec![("usr/lib/ocaml/foo/foo.cmxs", shared(&[]))]).udeb(),
+        ];
+        let fail = vec![
+            // Neighbours with the same shared-object content are still reported.
+            case(vec![("usr/lib/ocaml/foo/foo.cmxs.so", shared(&[]))]),
+            case(vec![("usr/lib/ocaml/foo/foo.cmx", shared(&[]))]),
+            case(vec![("usr/lib/ocaml/foo/foocmxs", shared(&[]))]),
+            // The mask is per file: an unmasked library beside a .cmxs is reported.
+            case(vec![
+                ("usr/lib/ocaml/foo/foo.cmxs", shared(&[])),
+                ("usr/lib/libfoo.so.1", shared(&[])),
+            ]),
+        ];
+        BinaryPackageTester::new(SharedLibraryLacksPrerequisites, pass, fail).test();
     }
 }

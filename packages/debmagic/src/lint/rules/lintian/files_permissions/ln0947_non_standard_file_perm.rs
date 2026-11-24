@@ -1,4 +1,7 @@
 use std::os::unix::ffi::OsStrExt;
+use std::sync::LazyLock;
+
+use regex::bytes::Regex;
 
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
@@ -21,6 +24,13 @@ declare_rule! {
     /// and game data below `var/games/` or `var/lib/games/` at `0664` owned
     /// by `root/games`. Game data with another owner is reported. Udebs are
     /// checked too.
+    ///
+    /// Where we differ from lintian: none. Lintian's
+    /// `Screen/Toolchain/Gnat/AliReadOnly.pm` masks the hint for a read-only
+    /// `usr/lib/<dir>/ada/adalib/<dir>/<name>.ali` in a `-dev` binary or udeb
+    /// whose strong relation (Pre-Depends and Depends) satisfies `gnat`; that
+    /// is modelled here for the `.ali` files at `0444`, the only ones this Rule
+    /// reports.
     NonStandardFilePerm,
     code = "LN0947",
     tag = "non-standard-file-perm",
@@ -34,8 +44,16 @@ const BACKUP_NINJA_FILE: u32 = 0o600;
 const GAME_DATA: u32 = 0o664;
 const SETUID_OR_SETGID: u32 = 0o6000;
 
+/// lintian's `Screen/Toolchain/Gnat/AliReadOnly.pm` path: the `\b` is the
+/// word boundary after `ali`, so `.alix` does not match.
+static GNAT_ALI: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^usr/lib/[^/]+/ada/adalib/[^/]+/[^/]+\.ali\b").expect("valid regex")
+});
+
 impl BinaryPackageRule for NonStandardFilePerm {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
+        let gnat_dev =
+            ctx.package_name().ends_with("-dev") && ctx.strong_relation().satisfies("gnat");
         let Some(files) = ctx.data_files() else {
             return;
         };
@@ -48,6 +66,7 @@ impl BinaryPackageRule for NonStandardFilePerm {
                     && entry.mode() & SETUID_OR_SETGID == 0
                     && entry.mode() != STANDARD_FILE
                     && !is_left_to_other_rules(entry)
+                    && !(gnat_dev && is_gnat_ali_masked(entry))
             })
             .map(|entry| (entry.path().to_path_buf(), entry.mode()))
             .collect();
@@ -63,6 +82,11 @@ impl BinaryPackageRule for NonStandardFilePerm {
             );
         }
     }
+}
+
+/// lintian's `Screen/Toolchain/Gnat/AliReadOnly.pm` path test.
+fn is_gnat_ali_masked(entry: &Entry) -> bool {
+    GNAT_ALI.is_match(entry.path().as_os_str().as_bytes())
 }
 
 /// The paths and modes lintian's Check handles before its generic
@@ -146,5 +170,68 @@ mod tests {
             tree(vec![("usr/share/doc/binary/udeb", file(0o444))]).udeb(),
         ];
         BinaryPackageTester::new(NonStandardFilePerm, pass, fail).test_and_snapshot();
+    }
+
+    fn ali_at_0444(path: &str) -> (&str, TestFile) {
+        (path, file(0o444))
+    }
+
+    /// lintian `Screen/Toolchain/Gnat/AliReadOnly.pm` masks the hint for a
+    /// read-only `.ali` under `usr/lib/<dir>/ada/adalib/<dir>/` in a `-dev` binary
+    /// or udeb whose strong relation satisfies `gnat`. Only that exact depth and
+    /// the `.ali` suffix count, and the mask needs the strong relation.
+    #[test]
+    fn gnat_ali_files_are_masked_in_gnat_dev_packages() {
+        let gnat_dev = |fields: &[(&str, &str)]| {
+            let mut case = tree(vec![ali_at_0444(
+                "usr/lib/x86_64-linux-gnu/ada/adalib/foo/foo.ali",
+            )])
+            .package("libfoo-dev");
+            for (name, value) in fields {
+                case = case.field(*name, *value);
+            }
+            case
+        };
+        let pass = vec![
+            gnat_dev(&[("Depends", "gnat")]),
+            gnat_dev(&[("Depends", "gnat (>= 2)")]),
+            gnat_dev(&[("Pre-Depends", "gnat")]),
+            // A udeb of a -dev package is masked too.
+            gnat_dev(&[("Depends", "gnat")]).udeb(),
+        ];
+        let fail = vec![
+            // Not a -dev package.
+            tree(vec![ali_at_0444("usr/lib/x/ada/adalib/foo/foo.ali")])
+                .package("libfoo")
+                .field("Depends", "gnat"),
+            // No strong dependency on gnat: Recommends is not strong, and an
+            // alternative does not satisfy the name.
+            gnat_dev(&[("Recommends", "gnat")]),
+            gnat_dev(&[("Depends", "gnat | gcc")]),
+            gnat_dev(&[]),
+            // The path must be exactly usr/lib/<dir>/ada/adalib/<dir>/<name>.ali.
+            tree(vec![ali_at_0444("usr/lib/x/ada/adalib/foo.ali")])
+                .package("libfoo-dev")
+                .field("Depends", "gnat"),
+            tree(vec![ali_at_0444("usr/lib/x/ada/adalib/foo/bar/foo.ali")])
+                .package("libfoo-dev")
+                .field("Depends", "gnat"),
+            tree(vec![ali_at_0444("usr/lib/x/ada/other/foo/foo.ali")])
+                .package("libfoo-dev")
+                .field("Depends", "gnat"),
+            // The suffix must be `.ali` and end the name's word.
+            tree(vec![ali_at_0444("usr/lib/x/ada/adalib/foo/foo.alix")])
+                .package("libfoo-dev")
+                .field("Depends", "gnat"),
+            // A sibling that is not an .ali is still reported.
+            tree(vec![
+                ali_at_0444("usr/lib/x/ada/adalib/foo/foo.ali"),
+                ("usr/lib/x/ada/adalib/foo/foo.adb", file(0o444)),
+            ])
+            .package("libfoo-dev")
+            .field("Depends", "gnat")
+            .udeb(),
+        ];
+        BinaryPackageTester::new(NonStandardFilePerm, pass, fail).test();
     }
 }

@@ -4,6 +4,8 @@ No network, no UDD, no lintian: the oracle rows and debmagic output are syntheti
 comparison is judged by, so a change to the override pass's output format shows up here first.
 """
 
+import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -183,3 +185,80 @@ def test_write_package_list_round_trips_with_header(tmp_path: Path) -> None:
     assert "oracle lintian 2.144.0" in text
     assert "--sample 2 --seed 20261123 --pool key" in text
     assert eco.read_package_list(target) == [("hello", "2.10-5"), ("samba", "2:4.25.1+dfsg-1")]
+
+
+def row(tag: str, information: str = "[debian/control:3]", **fields: str) -> eco.OracleRow:
+    base = {"package": "", "package_version": "", "architecture": "source", "tag_type": "warning", **fields}
+    return eco.OracleRow(
+        base["package"], base["package_version"], base["architecture"], base["tag_type"], tag, information
+    )
+
+
+def test_exact_repeated_oracle_rows_count_once_and_keep_order() -> None:
+    # Lintian emits each hint once per package; a repeated row with every field equal is a snapshot artefact.
+    first, second = row("a-tag"), row("b-tag")
+    assert eco.dedupe_oracle_rows([first, first, second, first]) == [first, second]
+
+
+def test_repeated_tag_with_different_information_is_kept() -> None:
+    # One Tag may legitimately fire several times, each time about another file.
+    rows = [row("a-tag", "[usr/bin/one]"), row("a-tag", "[usr/bin/two]")]
+    assert eco.dedupe_oracle_rows(rows) == rows
+
+
+def test_rows_differing_in_one_field_are_not_duplicates() -> None:
+    # The same Tag and text on another package, version, architecture or tag type is another hint.
+    binary = {"package": "pkg", "package_version": "1.0", "architecture": "amd64", "tag_type": "warning"}
+    base = row("a-tag", "[usr/bin/one]", **binary)
+    others = [
+        row("a-tag", "[usr/bin/one]", **{**binary, "package": "other"}),
+        row("a-tag", "[usr/bin/one]", **{**binary, "package_version": "1.0+b1"}),
+        row("a-tag", "[usr/bin/one]", **{**binary, "architecture": "arm64"}),
+        row("a-tag", "[usr/bin/one]", **{**binary, "tag_type": "error"}),
+    ]
+    assert eco.dedupe_oracle_rows([base, *others]) == [base, *others]
+
+
+def test_copies_of_truncated_information_are_kept() -> None:
+    # UDD cuts information at ORACLE_INFO_LIMIT characters, and with it the pointer that tells hints apart:
+    # identical cut copies may be distinct hints, so they all stay.
+    cut = row("a-tag", "(" + "x.o " * 400)
+    assert len(cut.information) >= eco.ORACLE_INFO_LIMIT
+    assert eco.dedupe_oracle_rows([cut, cut, cut]) == [cut, cut, cut]
+
+
+def test_repeats_of_untruncated_rows_are_removed_next_to_truncated_ones() -> None:
+    cut = row("a-tag", "(" + "x.o " * 400)
+    short = row("b-tag", "[usr/bin/one]")
+    assert eco.dedupe_oracle_rows([short, cut, short, cut]) == [short, cut, cut]
+
+
+def test_load_oracle_dedupes_the_snapshot_on_read(tmp_path: Path) -> None:
+    # The snapshot keeps the UDD rows as they came; the reader dedupes, so the rule can change without a re-query.
+    entry = eco.SourceEntry("hello", "2.10-5", "main", [])
+    once = row("a-tag")
+    snapshot = tmp_path / "oracle"
+    snapshot.mkdir()
+    rows = [dict(vars(once)), dict(vars(once))]
+    (snapshot / "hello_2.10-5.json").write_text(json.dumps({"rows": rows}), encoding="utf-8")
+    assert eco.load_oracle([entry], tmp_path, refresh=False)[("hello", "2.10-5")] == [once]
+
+
+def test_tool_version_reports_a_missing_tool_instead_of_failing() -> None:
+    # The report header records host tools; one that is not installed must not abort the run.
+    assert eco.tool_version(["debmagic-no-such-tool-for-tests", "--version"]) == "not found"
+
+
+def test_tool_version_keeps_only_the_asked_for_leading_lines(monkeypatch: pytest.MonkeyPatch) -> None:
+    # A long banner is cut to its first line; `file --version` needs two lines (program and magic database).
+    answer = subprocess.CompletedProcess(["tool"], 0, stdout="file-5.47\nmagic file from /usr/share/misc/magic\nmore\n")
+    monkeypatch.setattr(eco.subprocess, "run", lambda *args, **kwargs: answer)
+    assert eco.tool_version(["tool"]) == "file-5.47"
+    assert eco.tool_version(["tool"], lines=2) == "file-5.47; magic file from /usr/share/misc/magic"
+
+
+def test_report_json_carries_the_host_tool_versions() -> None:
+    # Hints quote host tools (groff in LN0270), so a report must say which ones produced it.
+    comparison = eco.Comparison()
+    host = {"groff": "GNU groff version 1.25.0"}
+    assert eco.report_json(comparison, host)["host_tools"] == host

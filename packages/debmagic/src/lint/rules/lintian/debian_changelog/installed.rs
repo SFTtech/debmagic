@@ -188,16 +188,14 @@ pub(super) fn wrong_weekday(date: &str, timestamp: i64) -> Option<String> {
     }
 }
 
+/// Whether `date` names an invalid day or month. `\b(?:A|B)\b` matches exactly
+/// where `\bA\b` or `\bB\b` does, so one regex over all alternatives answers
+/// the same as one regex per name, with one compilation instead of eighteen.
 fn invalid_changelog_date(date: &str) -> bool {
-    static PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
-        INVALID_DATES
-            .iter()
-            .map(|pattern| {
-                Regex::new(&format!(r"(?i)\b(?:{pattern})\b")).expect("invalid date pattern")
-            })
-            .collect()
+    static INVALID: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(&format!(r"(?i)\b(?:{})\b", INVALID_DATES.join("|"))).expect("invalid date")
     });
-    PATTERNS.iter().any(|pattern| pattern.is_match(date))
+    INVALID.is_match(date)
 }
 
 fn offset_seconds(tz: &str) -> Option<i32> {
@@ -216,4 +214,51 @@ fn offset_seconds(tz: &str) -> Option<i32> {
     let hours: i32 = rest[..2].parse().ok()?;
     let mins: i32 = rest[2..].parse().ok()?;
     Some(sign * (hours * 3600 + mins * 60))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn spelled_out_day_or_month_names_are_invalid() {
+        for date in [
+            "Monday, 05 Nov 2013 23:59:59 +0000",
+            "monday, 05 Nov 2013",
+            "MONDAY",
+            "Tues, 14 Nov 2017",
+            "Tuesday, 14 Nov 2017",
+            "Thursday",
+            "Thurs, 14 Sept 2017",
+            "September",
+            "14 Sept 2017",
+            "Sunday 14 Nov",
+            "14 December 2017",
+            // Unicode case folding: LATIN SMALL LETTER LONG S folds to `s`.
+            "\u{17f}unday 14 Nov 2017",
+        ] {
+            assert!(invalid_changelog_date(date), "{date:?} should be invalid");
+        }
+    }
+
+    #[test]
+    fn abbreviations_and_embedded_words_are_valid() {
+        for date in [
+            "Tue, 14 Nov 2017 10:47:43 +0000",
+            "Mon, 06 Nov 2013 23:59:59 +0000",
+            "Mar, 14 Nov 2017",
+            "Sep 2017",
+            "Monkey",
+            "Sunshine",
+            "Marchant",
+            "Mayday",
+            "Juneau",
+            "Octobers",
+            "not a date",
+            "",
+            "M\u{f6}nday",
+        ] {
+            assert!(!invalid_changelog_date(date), "{date:?} should be valid");
+        }
+    }
 }

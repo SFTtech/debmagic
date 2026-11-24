@@ -2,7 +2,7 @@ use std::path::Path;
 use std::sync::LazyLock;
 
 use chrono::NaiveDateTime;
-use regex::Regex;
+use regex::{Regex, RegexSet};
 
 /// One parser error from `Lintian::Changelog`, as `[line, message]`.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -168,25 +168,6 @@ fn parse_changelog(contents: &str) -> (Vec<ChangelogParseError>, Vec<ChangelogEn
     });
     static LOCAL_VARIABLES: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"(?i)^(?:;;\s*)?Local variables:").expect("regex"));
-    static OLD_GNU: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"^(?:\w+\s+\w+\s+\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}\s+[\w\s]*\d{4})\s+(?:.*)\s+[<(](?:.*)[)>]")
-            .expect("regex")
-    });
-    static OLD_SHORT_DATE: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"^(?:\w+\s+\w+\s+\d{1,2},?\s*\d{4})\s+(?:.*)\s+[<(](?:.*)[)>]").expect("regex")
-    });
-    static OLD_HEADING: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"(?i)^(?:\w[-+0-9a-z.]*) \((?:[^() \t]+)\)\;?").expect("regex")
-    });
-    static OLD_DEBIAN: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"(?i)^(?:[\w.+-]+)[- ]\S+ Debian \S+").expect("regex"));
-    static OLD_CHANGES_FROM: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"(?i)^Changes from version (?:.*) to (?:.*):").expect("regex")
-    });
-    static OLD_CHANGES_FOR: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"(?i)^Changes for [\w.+-]+-[\w.+-]+:?$").expect("regex"));
-    static OLD_VERSION_ONLY: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^(?:\d+:)?\w[\w.+~-]*:?$").expect("regex"));
     static CHANGE_DATA: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^\s{2,}(\S)").expect("regex"));
     static MALFORMED_TRAILER: LazyLock<Regex> =
@@ -254,15 +235,7 @@ fn parse_changelog(contents: &str) -> (Vec<ChangelogParseError>, Vec<ChangelogEn
             || BLOCK_COMMENT.is_match(line)
         {
             continue;
-        } else if OLD_GNU.is_match(line)
-            || OLD_SHORT_DATE.is_match(line)
-            || OLD_HEADING.is_match(line)
-            || OLD_DEBIAN.is_match(line)
-            || OLD_CHANGES_FROM.is_match(line)
-            || OLD_CHANGES_FOR.is_match(line)
-            || line.eq_ignore_ascii_case("Old Changelog:")
-            || OLD_VERSION_ONLY.is_match(line)
-        {
+        } else if old_format_line(line) || line.eq_ignore_ascii_case("Old Changelog:") {
             break;
         } else if line.starts_with(|ch: char| !ch.is_whitespace()) {
             errors.push(ChangelogParseError {
@@ -367,6 +340,25 @@ fn parse_changelog(contents: &str) -> (Vec<ChangelogParseError>, Vec<ChangelogEn
     }
 
     (errors, entries)
+}
+
+/// Whether `line` has the shape of a heading of an old changelog format (lintian
+/// stops parsing there). Any-of over the patterns, so one `RegexSet` answers
+/// the same as one regex each.
+fn old_format_line(line: &str) -> bool {
+    static OLD_FORMATS: LazyLock<RegexSet> = LazyLock::new(|| {
+        RegexSet::new([
+            r"^(?:\w+\s+\w+\s+\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}\s+[\w\s]*\d{4})\s+(?:.*)\s+[<(](?:.*)[)>]",
+            r"^(?:\w+\s+\w+\s+\d{1,2},?\s*\d{4})\s+(?:.*)\s+[<(](?:.*)[)>]",
+            r"(?i)^(?:\w[-+0-9a-z.]*) \((?:[^() \t]+)\)\;?",
+            r"(?i)^(?:[\w.+-]+)[- ]\S+ Debian \S+",
+            r"(?i)^Changes from version (?:.*) to (?:.*):",
+            r"(?i)^Changes for [\w.+-]+-[\w.+-]+:?$",
+            r"^(?:\d+:)?\w[\w.+~-]*:?$",
+        ])
+        .expect("regex")
+    });
+    OLD_FORMATS.is_match(line)
 }
 
 fn push_change_line(entry: &mut ChangelogEntry, blank_lines: &mut usize, line: &str) {
@@ -678,6 +670,36 @@ example (1.0-1) unstable; urgency=low
                 "couldn't parse date The, 15 Apr 2004 23:33:51 +0200".to_string()
             )]
         );
+    }
+
+    #[test]
+    fn old_format_headings_stop_the_parse() {
+        for line in [
+            "Mon Nov 14 10:47:43 2011 Uthor <a@example.com>",
+            "Tue Nov 14 2011  Uthor <a@example.com>",
+            "example-1.0 (1.0-1) stable",
+            "foo-1.0 Debian 1.0",
+            "Changes from version 1.0 to 1.1:",
+            "Changes for foo-1.0:",
+            "1:2.3~rc1",
+            "2.3.4-1:",
+        ] {
+            assert!(old_format_line(line), "{line:?} should be an old heading");
+        }
+        for line in [
+            "  * a bullet",
+            " -- A Uthor <a@example.com>  Tue, 30 Dec 2008 17:34:02 -0800",
+            "Changes for foo-1.0 and more text",
+            "not a heading !",
+            "",
+            // `[-+0-9a-z.]` is ASCII only, so the accented letters end the name.
+            "\u{e9}t\u{e9}-1.0 (1.0-1) stable",
+        ] {
+            assert!(
+                !old_format_line(line),
+                "{line:?} should not be an old heading"
+            );
+        }
     }
 
     #[test]

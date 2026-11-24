@@ -39,13 +39,11 @@ impl SourceRule for LicenseProblemJsonEvil {
         if license_text::is_non_free(ctx) {
             return;
         }
-        let Some(files) = ctx.files() else {
-            return;
-        };
-        let flagged: Vec<_> = license_text::text_files(files)
-            .into_iter()
+        let texts = license_text::shared_text_files(ctx);
+        let flagged: Vec<_> = texts
+            .iter()
             .filter(|file| JSON_EVIL.matches(file))
-            .map(|file| file.path)
+            .map(|file| file.path.clone())
             .collect();
         for path in flagged {
             ctx.diagnostic(Diagnostic::error("").with_location(Location {

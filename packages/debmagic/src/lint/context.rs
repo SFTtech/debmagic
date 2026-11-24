@@ -28,7 +28,7 @@ use super::package_relation::PackageRelation;
 use super::quilt_series::QuiltSeries;
 use super::rule::{Code, RuleAccess, Tag};
 use super::sibling_files::SiblingFiles;
-use super::source_package::{self, OrigEntry, SourcePackageExtract, strip_epoch};
+use super::source_package::{self, OrigEntry, SourcePackageExtract};
 use super::strings::FileStrings;
 use super::subject::SubjectKind;
 use super::timing;
@@ -945,11 +945,7 @@ impl<'a> SourceContext<'a> {
         candidates
             .into_iter()
             .filter_map(|path| {
-                let entry = files.get(&path)?;
-                if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-                    return None;
-                }
-                let bytes = files.read(entry).ok()?;
+                let bytes = files.read_file(&path)?;
                 let text = std::str::from_utf8(&bytes).ok()?;
                 Some((path, DebianCopyright::parse(text)))
             })
@@ -1145,11 +1141,14 @@ impl<'a> SourceContext<'a> {
         else {
             return Diffstat::default();
         };
-        let name = format!(
-            "{}_{}.diff.gz",
-            data.package_name,
-            strip_epoch(version.trim())
-        );
+        // Diffstat.pm strips `s/^\d://`: one digit only, unlike
+        // `strip_epoch`, so `10:1.0-1` keeps its epoch and finds no diff.
+        let version = version.trim();
+        let noepoch = match version.as_bytes() {
+            [digit, b':', ..] if digit.is_ascii_digit() => &version[2..],
+            _ => version,
+        };
+        let name = format!("{}_{noepoch}.diff.gz", data.package_name);
         let Some(siblings) = self.sibling_files() else {
             return Diffstat::default();
         };

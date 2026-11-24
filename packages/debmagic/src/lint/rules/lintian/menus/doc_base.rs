@@ -19,6 +19,7 @@ use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{EntryKind, FileTree};
 use crate::lint::rule::Severity;
 use crate::lint::spelling::{Exceptions, check_spelling, check_spelling_picky, group_exceptions};
+use crate::lint::text::perl_lines;
 
 static FIELD: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(\S+)\s*:\s*(.*)$").expect("valid regex"));
@@ -153,15 +154,6 @@ fn is_doc_base_child(path: &Path) -> bool {
         return false;
     };
     !name.is_empty() && !name.contains('/')
-}
-
-/// Lines as Perl's `split(/\n/)`: trailing empty lines vanish.
-fn perl_lines(text: &str) -> Vec<&str> {
-    let mut lines: Vec<&str> = text.split('\n').collect();
-    while lines.last().is_some_and(|line| line.is_empty()) {
-        lines.pop();
-    }
-    lines
 }
 
 struct OpenField {

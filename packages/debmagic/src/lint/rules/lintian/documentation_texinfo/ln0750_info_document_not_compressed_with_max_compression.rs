@@ -7,6 +7,7 @@ use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
 use super::scan;
+use crate::lint::file_tree::file_name_lossy;
 
 pub struct InfoDocumentNotCompressedWithMaxCompression;
 
@@ -32,7 +33,7 @@ impl BinaryPackageRule for InfoDocumentNotCompressedWithMaxCompression {
                 if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
                     return false;
                 }
-                let basename = scan::basename(entry);
+                let basename = file_name_lossy(entry.path());
                 if scan::name_pieces(&basename).last() != Some(&"gz") {
                     return false;
                 }

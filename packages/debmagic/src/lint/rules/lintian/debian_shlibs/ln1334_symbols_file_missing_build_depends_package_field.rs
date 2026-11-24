@@ -8,8 +8,9 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::{BinaryPackageRule, Severity};
 
-use super::lines::{is_blank_or_comment, perl_lines, symbols_text};
+use super::lines::{is_blank_or_comment, symbols_text};
 use super::symbols;
+use crate::lint::text::perl_lines;
 
 pub struct SymbolsFileMissingBuildDependsPackageField;
 

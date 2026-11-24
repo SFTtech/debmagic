@@ -8,6 +8,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 use crate::lint::file_type::FileType;
+use crate::lint::interpreter::Hashbang;
 use crate::lint::rule::BinaryPackageRule;
 
 pub struct UsesDpkgDatabaseDirectly;
@@ -100,7 +101,7 @@ fn mentions_in_operation(entry: &Entry, bytes: &[u8]) -> bool {
     if is_elf(entry, bytes) && !is_debug_path(entry.path()) && contains(bytes) {
         return true;
     }
-    is_script(bytes) && contains(bytes)
+    Hashbang::is_script(bytes) && contains(bytes)
 }
 
 fn is_elf(entry: &Entry, bytes: &[u8]) -> bool {
@@ -110,10 +111,6 @@ fn is_elf(entry: &Entry, bytes: &[u8]) -> bool {
 fn is_debug_path(path: &Path) -> bool {
     path.to_str()
         .is_some_and(|name| name.starts_with("usr/lib/debug/"))
-}
-
-fn is_script(bytes: &[u8]) -> bool {
-    bytes.starts_with(b"#!") && !bytes.starts_with(b"#!#!#!")
 }
 
 fn contains(bytes: &[u8]) -> bool {

@@ -6,7 +6,7 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::file_tree::FileTree;
 use crate::lint::rule::BinaryPackageRule;
 
 pub struct MaintainerScriptDoesNotCheckForExistenceOfUpdatemenus;
@@ -86,11 +86,7 @@ pub(super) fn unchecked_calls(
 /// A maintainer script as text, or `None` for a symlink, a non-file and an
 /// ELF binary.
 fn script_text(files: &FileTree, name: &str) -> Option<String> {
-    let entry = files.get(name)?;
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return None;
-    }
-    let bytes = files.read(entry).ok()?;
+    let bytes = files.read_file(name)?;
     if bytes.starts_with(b"\x7fELF") {
         return None;
     }

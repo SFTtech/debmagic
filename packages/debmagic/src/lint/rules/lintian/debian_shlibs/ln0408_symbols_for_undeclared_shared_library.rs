@@ -8,7 +8,8 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::lines::{is_blank_or_comment, perl_lines, read_text};
+use super::lines::{is_blank_or_comment, read_text};
+use crate::lint::text::perl_lines;
 
 pub struct SymbolsForUndeclaredSharedLibrary;
 

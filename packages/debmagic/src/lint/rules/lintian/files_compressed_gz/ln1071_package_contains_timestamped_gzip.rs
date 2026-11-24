@@ -1,5 +1,5 @@
 use std::os::unix::ffi::OsStrExt;
-use std::path::{Component, Path, PathBuf};
+use std::path::{Path, PathBuf};
 
 use chrono::DateTime;
 
@@ -7,6 +7,7 @@ use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::debian_changelog::DebianChangelog;
 use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::file_tree::resolve_link;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 use crate::lint::gzip::gunzip;
 use crate::lint::rule::BinaryPackageRule;
@@ -157,26 +158,6 @@ fn resolve<'a>(files: &'a FileTree, entry: &'a Entry) -> Option<&'a Entry> {
         current = files.get(&next)?;
     }
     None
-}
-
-fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
-    if target.is_absolute() {
-        return None;
-    }
-    let mut resolved = from.parent().unwrap_or(Path::new("")).to_path_buf();
-    for component in target.components() {
-        match component {
-            Component::Normal(part) => resolved.push(part),
-            Component::CurDir => {}
-            Component::ParentDir => {
-                if !resolved.pop() {
-                    return None;
-                }
-            }
-            Component::RootDir | Component::Prefix(_) => return None,
-        }
-    }
-    Some(resolved)
 }
 
 /// lintian's branch in `visit_installed_files` for one file. `None` when the

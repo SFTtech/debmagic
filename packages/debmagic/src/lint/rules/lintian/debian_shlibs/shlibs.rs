@@ -13,6 +13,7 @@ use regex::Regex;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Location;
 use crate::lint::rules::lintian::fields_relations_more::architectures::is_ldconfig_folder;
+use crate::lint::text::perl_lines;
 
 use super::lines;
 
@@ -31,7 +32,7 @@ pub(super) fn inspect(ctx: &mut BinaryPackageContext<'_>) -> Option<Vec<String>>
 
 pub(super) fn parse(text: &str) -> Vec<String> {
     let mut positions: HashMap<String, Vec<u32>> = HashMap::new();
-    for (index, line) in lines::perl_lines(text).into_iter().enumerate() {
+    for (index, line) in perl_lines(text).into_iter().enumerate() {
         let position = index as u32 + 1;
         if lines::is_blank_or_comment(line) {
             continue;
@@ -122,7 +123,7 @@ pub(super) fn is_nss_plugin(path: &Path) -> bool {
 pub(super) fn prerequisites(text: &str) -> Vec<String> {
     let mut seen = std::collections::HashSet::new();
     let mut prerequisites = Vec::new();
-    for line in lines::perl_lines(text) {
+    for line in perl_lines(text) {
         if lines::is_blank_or_comment(line) {
             continue;
         }

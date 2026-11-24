@@ -4,6 +4,7 @@ use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{Entry, FileTree};
+use crate::lint::interpreter::Hashbang;
 use crate::lint::rule::{BinaryPackageRule, Severity};
 
 pub struct ExecutableInUsrLib;
@@ -76,7 +77,7 @@ fn is_cgi_script_or_elf(files: &FileTree, entry: &Entry) -> bool {
         return false;
     };
     let elf = bytes.starts_with(b"\x7fELF");
-    let script = bytes.starts_with(b"#!") && !bytes.starts_with(b"#!#!#!");
+    let script = Hashbang::is_script(&bytes);
     elf || script
 }
 

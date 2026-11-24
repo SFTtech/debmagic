@@ -12,6 +12,7 @@ use crate::lint::gzip::gunzip;
 use crate::lint::rule::BinaryPackageRule;
 
 use super::scan;
+use crate::lint::file_tree::file_name_lossy;
 
 static INFO_GZ: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\.info(?:-\d+)?\.gz$").expect("valid regex"));
@@ -45,7 +46,7 @@ impl BinaryPackageRule for InfoDocumentMissingImageFile {
             if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
                 continue;
             }
-            let basename = scan::basename(entry);
+            let basename = file_name_lossy(entry.path());
             if !INFO_GZ.is_match(&basename) {
                 continue;
             }

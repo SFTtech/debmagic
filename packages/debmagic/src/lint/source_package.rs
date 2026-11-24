@@ -614,10 +614,14 @@ fn filenames_from_checksums_field(value: &str) -> Vec<String> {
     names
 }
 
+/// lintian's `s/^\d+://`: one leading all-digit epoch. A version whose
+/// prefix before `:` is not all digits is returned unchanged.
 pub(crate) fn strip_epoch(version: &str) -> &str {
     match version.split_once(':') {
-        Some((_, rest)) => rest,
-        None => version,
+        Some((epoch, rest)) if !epoch.is_empty() && epoch.bytes().all(|b| b.is_ascii_digit()) => {
+            rest
+        }
+        _ => version,
     }
 }
 
@@ -792,6 +796,16 @@ mod tests {
     use super::*;
     use flate2::Compression;
     use flate2::write::GzEncoder;
+
+    #[test]
+    fn strip_epoch_strips_one_all_digit_epoch() {
+        assert_eq!(strip_epoch("1:1.0-1"), "1.0-1");
+        assert_eq!(strip_epoch("10:1.0"), "1.0");
+        assert_eq!(strip_epoch("1.0-1"), "1.0-1");
+        assert_eq!(strip_epoch("a:1.0"), "a:1.0");
+        assert_eq!(strip_epoch(":1.0"), ":1.0");
+        assert_eq!(strip_epoch("1:2:3"), "2:3");
+    }
     use std::io::Write;
     use tempfile::TempDir;
 

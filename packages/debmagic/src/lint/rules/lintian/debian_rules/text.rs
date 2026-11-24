@@ -1,11 +1,12 @@
 //! `debian/rules` as lintian's `debian/rules` Check reads it.
 
-use std::path::{Component, Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use regex::Regex;
 
 use crate::lint::diagnostic::Location;
+use crate::lint::file_tree::resolve_link;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 
 static COMMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^\s*#").expect("regex"));
@@ -29,27 +30,6 @@ pub(in super::super) fn follow_rules(files: &FileTree) -> Option<(PathBuf, &Entr
         }
     }
     None
-}
-
-/// A relative link resolved against the directory of `from`.
-fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
-    if target.is_absolute() {
-        return None;
-    }
-    let mut resolved = from.parent().unwrap_or(Path::new("")).to_path_buf();
-    for component in target.components() {
-        match component {
-            Component::Normal(part) => resolved.push(part),
-            Component::CurDir => {}
-            Component::ParentDir => {
-                if !resolved.pop() {
-                    return None;
-                }
-            }
-            Component::RootDir | Component::Prefix(_) => return None,
-        }
-    }
-    Some(resolved)
 }
 
 /// `debian/rules` contents from the packaging File tree, following a

@@ -571,6 +571,17 @@ impl FileTree {
         None
     }
 
+    /// The content of the regular file or hardlink at `path`. `None` when
+    /// there is no Entry, it is not a file (symlinks are not followed), or
+    /// it cannot be read.
+    pub fn read_file(&self, path: impl AsRef<Path>) -> Option<Vec<u8>> {
+        let entry = self.get(path)?;
+        if !entry.is_file() {
+            return None;
+        }
+        self.read(entry).ok()
+    }
+
     pub fn query(&self) -> Query<'_, 'static> {
         Query {
             tree: self,
@@ -964,9 +975,18 @@ fn classify_path(path: &Path) -> Option<FileType> {
     FileType::from_bytes(&bytes)
 }
 
+/// The last component of `path` as text, empty when there is none. A
+/// non-UTF-8 name is decoded lossily: a behavior choice for messages and
+/// matching, not a detail.
+pub(crate) fn file_name_lossy(path: &Path) -> String {
+    path.file_name()
+        .map(|name| name.to_string_lossy().into_owned())
+        .unwrap_or_default()
+}
+
 /// Where a symlink at `from` points, as a tree path. `None` for an absolute
 /// target or one that climbs above the root.
-fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
+pub(crate) fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
     use std::path::Component;
     if target.is_absolute() {
         return None;

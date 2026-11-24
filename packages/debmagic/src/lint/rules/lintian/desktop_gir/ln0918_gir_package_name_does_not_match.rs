@@ -3,7 +3,8 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::gir_paths::{basename, gir_files, gir_package_stem, location, triplet};
+use super::gir_paths::{gir_files, gir_package_stem, location, triplet};
+use crate::lint::file_tree::file_name_lossy;
 
 pub struct GirPackageNameDoesNotMatch;
 
@@ -40,7 +41,7 @@ impl BinaryPackageRule for GirPackageNameDoesNotMatch {
         let hits: Vec<_> = gir_files(files, triplet(&architecture))
             .into_iter()
             .filter_map(|gir| {
-                let expected = format!("{}-dev", gir_package_stem(&basename(gir)));
+                let expected = format!("{}-dev", gir_package_stem(&file_name_lossy(gir.path())));
                 let missing = package != expected
                     && !provides.satisfies(&format!("{expected} (= {version})"));
                 missing.then(|| (location(gir), expected))

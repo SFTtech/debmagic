@@ -6,6 +6,7 @@ use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
 use super::scan;
+use crate::lint::file_tree::file_name_lossy;
 
 pub struct InfoDocumentNotCompressed;
 
@@ -27,7 +28,7 @@ impl BinaryPackageRule for InfoDocumentNotCompressed {
         };
         let plain: Vec<PathBuf> = scan::info_items(files)
             .filter(|entry| {
-                let basename = scan::basename(entry);
+                let basename = file_name_lossy(entry.path());
                 let pieces = scan::name_pieces(&basename);
                 match pieces.last().copied() {
                     Some("gz") => false,

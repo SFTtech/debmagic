@@ -9,6 +9,7 @@ use crate::lint::context::{BinaryPackageContext, SourceContext};
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::external_tool;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
+use crate::lint::interpreter::Hashbang;
 use crate::lint::rule::{BinaryPackageRule, SourceRule};
 
 pub struct NationalEncoding;
@@ -155,7 +156,7 @@ fn needs_description(bytes: &[u8], path: &Path, place: Place) -> bool {
     if std::str::from_utf8(bytes).is_ok() {
         return false;
     }
-    !(matches!(place, Place::Control) && is_script(bytes))
+    !(matches!(place, Place::Control) && Hashbang::is_script(bytes))
 }
 
 fn is_content_file(entry: &Entry) -> bool {
@@ -179,7 +180,7 @@ fn message_for(
     if std::str::from_utf8(bytes).is_ok() {
         return None;
     }
-    if matches!(place, Place::Control) && is_script(bytes) {
+    if matches!(place, Place::Control) && Hashbang::is_script(bytes) {
         return Some("");
     }
     let description = description?;
@@ -211,11 +212,6 @@ fn dep3_header(bytes: &[u8]) -> &[u8] {
         }
     }
     bytes
-}
-
-/// `#!`, except the lincity data magic `#!#!#!`.
-fn is_script(bytes: &[u8]) -> bool {
-    bytes.starts_with(b"#!") && !bytes.starts_with(b"#!#!#!")
 }
 
 fn under(path: &Path, prefix: &[&str]) -> bool {

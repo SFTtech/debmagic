@@ -6,7 +6,7 @@ use std::sync::LazyLock;
 use regex::Regex;
 
 use crate::lint::context::SourceContext;
-use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::file_tree::FileTree;
 
 use super::super::rules_and_control::{
     build_depends_all_names, names_package, read_rules, rules_lines,
@@ -100,11 +100,7 @@ fn suppresses(rules: &str) -> bool {
 /// `Some` when the path is a readable file. `true` when no line has a word
 /// character before a `#`.
 fn file_is_empty(files: &FileTree, path: &str) -> Option<bool> {
-    let entry = files.get(path)?;
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return None;
-    }
-    let bytes = files.read(entry).ok()?;
+    let bytes = files.read_file(path)?;
     let text = String::from_utf8_lossy(&bytes);
     Some(!NONEMPTY.is_match(&text))
 }

@@ -11,6 +11,7 @@ use regex::Regex;
 
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Location;
+use crate::lint::text::{perl_lines, perl_split};
 
 use super::lines;
 
@@ -82,7 +83,7 @@ pub(super) fn parse(text: &str, package_version: &str) -> Findings {
     let mut current_soname = String::new();
     let mut template_count = 0u32;
 
-    for (index, line) in lines::perl_lines(text).into_iter().enumerate() {
+    for (index, line) in perl_lines(text).into_iter().enumerate() {
         let position = index as u32 + 1;
         if lines::is_blank_or_comment(line) {
             continue;
@@ -176,12 +177,12 @@ pub(super) fn parse(text: &str, package_version: &str) -> Findings {
 }
 
 fn dependencies_malformed(rest: &str) -> bool {
-    let conjunctives = lines::perl_split(&COMMA, rest);
+    let conjunctives = perl_split(&COMMA, rest);
     if conjunctives.is_empty() {
         return false;
     }
     for conjunctive in conjunctives {
-        let disjunctives = lines::perl_split(&PIPE, conjunctive);
+        let disjunctives = perl_split(&PIPE, conjunctive);
         if disjunctives.is_empty() {
             return true;
         }

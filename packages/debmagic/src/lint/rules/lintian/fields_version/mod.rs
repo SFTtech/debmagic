@@ -10,6 +10,7 @@ use regex::Regex;
 
 use crate::lint::context::SourceContext;
 use crate::lint::dsc::Dsc;
+use crate::lint::source_package::strip_epoch;
 
 mod ln0373_debian_revision_is_zero;
 mod ln0374_debian_revision_not_well_formed;
@@ -111,13 +112,4 @@ fn dsc_file_names(dsc: &Dsc) -> Vec<&str> {
         .lines()
         .filter_map(|line| line.split_whitespace().last())
         .collect()
-}
-
-fn strip_epoch(version: &str) -> &str {
-    match version.split_once(':') {
-        Some((epoch, rest)) if !epoch.is_empty() && epoch.bytes().all(|b| b.is_ascii_digit()) => {
-            rest
-        }
-        _ => version,
-    }
 }

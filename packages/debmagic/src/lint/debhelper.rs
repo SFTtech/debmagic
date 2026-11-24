@@ -15,13 +15,14 @@
 //! addons of `dh` lines are stored the same way. `dh-sequence-*` build
 //! dependencies are not stored here yet.
 
-use std::path::{Component, Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use regex::Regex;
 
 use super::debian_control::DebianControl;
 use super::file_tree::{EntryKind, FileTree};
+use crate::lint::file_tree::resolve_link;
 
 pub(crate) mod prerequisites;
 
@@ -545,26 +546,6 @@ fn read_packaging(files: &FileTree, path: &str) -> PackagingFile {
         }
     }
     PackagingFile::Unreadable
-}
-
-fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
-    if target.is_absolute() {
-        return None;
-    }
-    let mut resolved = from.parent().unwrap_or(Path::new("")).to_path_buf();
-    for component in target.components() {
-        match component {
-            Component::Normal(part) => resolved.push(part),
-            Component::CurDir => {}
-            Component::ParentDir => {
-                if !resolved.pop() {
-                    return None;
-                }
-            }
-            Component::RootDir | Component::Prefix(_) => return None,
-        }
-    }
-    Some(resolved)
 }
 
 #[cfg(test)]

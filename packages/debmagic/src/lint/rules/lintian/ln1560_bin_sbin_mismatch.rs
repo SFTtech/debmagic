@@ -10,6 +10,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 use crate::lint::file_type::FileType;
+use crate::lint::interpreter::Hashbang;
 use crate::lint::rule::{BinaryPackageRule, Severity};
 
 pub struct BinSbinMismatch;
@@ -157,16 +158,12 @@ fn is_maintainer_script(entry: &Entry) -> bool {
 fn searchable(entry: &Entry, bytes: &[u8]) -> bool {
     let elf =
         matches!(entry.file_type(), Some(FileType::Elf { .. })) || bytes.starts_with(b"\x7fELF");
-    (elf && !is_debug_path(entry.path())) || is_script(bytes)
+    (elf && !is_debug_path(entry.path())) || Hashbang::is_script(bytes)
 }
 
 fn is_debug_path(path: &Path) -> bool {
     path.to_str()
         .is_some_and(|name| name.starts_with("usr/lib/debug/"))
-}
-
-fn is_script(bytes: &[u8]) -> bool {
-    bytes.starts_with(b"#!") && !bytes.starts_with(b"#!#!#!")
 }
 
 /// `qr{ \B / \Q$confused\E (?![\w.-]) }x`. The `\B` is written as a

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
-use md5::{Digest, Md5};
 use regex::Regex;
 
 use crate::declare_rule;
@@ -107,19 +106,11 @@ fn known_files<'table>(
         .into_iter()
         .filter(|entry| !entry.path().starts_with(".pc"))
         .filter_map(|entry| {
-            let bytes = files.read(entry).ok()?;
-            let digest = md5_hex(&bytes);
+            let digest = files.md5sum(entry)?;
             table
                 .get(&digest)
                 .map(|known| (entry.path().to_path_buf(), known))
         })
-        .collect()
-}
-
-fn md5_hex(bytes: &[u8]) -> String {
-    Md5::digest(bytes)
-        .iter()
-        .map(|byte| format!("{byte:02x}"))
         .collect()
 }
 
@@ -130,7 +121,13 @@ mod tests {
     use crate::lint::file_tree::Entry;
     use crate::lint::tester::{SourcePackageCase, SourcePackageTester, TestFile};
 
+    use crate::lint::digest::{DigestAlgorithm, hex_digest};
+
     use super::*;
+
+    fn md5_hex(bytes: &[u8]) -> String {
+        hex_digest(DigestAlgorithm::Md5, bytes)
+    }
 
     #[test]
     fn parses_the_table_fields() {

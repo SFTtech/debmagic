@@ -69,10 +69,15 @@ Performance (`--perf`, on by default; `--perf off` skips it)
     starts a fresh process (cold lintian lab, no daemon). `--perf-repeat N` takes the median of N runs.
     Timings are only meaningful for a release build, which is the default build profile.
 
-Groups (`--group`, on by default with `--perf off`)
-    Each source package's `.dsc` and `.deb`s are linted in one debmagic run (ADR 0054), so Group Rules
-    and the overrides of their Tags take part as in lintian; the output is split per Subject by the
-    `package (kind)` of each line. With `--perf` on, or `--group off`, every Subject is its own run.
+Groups (`--group on`; off by default)
+    The UDD oracle lints every file alone: each `.deb` as a group of one installable, the `.dsc` with no
+    installables. Evidence: lintian 2.144 cannot emit cannot-check-whether-usr-share-doc-symlink-points-
+    to-foreign-package when the link target is in the group, yet UDD reports it for binaries whose
+    target is a sibling .deb of the same source. So the default lints each Subject in its own run too.
+    `--group on` lints each source package's `.dsc` and `.deb`s in one run (ADR 0054) and splits the
+    output per Subject by `package (kind)`; its disagreements against UDD are expected for Group Rules,
+    whose reference is lintian run on the same full group. A group over `--max-group-mb` falls back
+    to one run per Subject.
 
 Progress
     Each stage logs a line, and downloads and linting show a tqdm bar on stderr (`--progress off`
@@ -1373,11 +1378,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--group",
-        choices=["auto", "on", "off"],
-        default="auto",
+        choices=["on", "off"],
+        default="off",
         help=(
-            "on: lint each source package's .dsc and .debs in one debmagic run, so Group Rules and their\n"
-            "overrides take part (ADR 0054); off: one run per Subject; auto (default): on unless --perf runs"
+            "off (default): one debmagic run per Subject, as the UDD oracle runs lintian; on: one run per\n"
+            "source package (ADR 0054), compared against the same per-file oracle (see Groups above)"
         ),
     )
     parser.add_argument(
@@ -1412,7 +1417,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         args.sample = DEFAULT_SAMPLE
     if args.group == "on" and args.perf != "off":
         parser.error("--group on needs --perf off: performance is measured one Subject per run")
-    args.group = args.group == "on" or (args.group == "auto" and args.perf == "off")
+    args.group = args.group == "on"
     return args
 
 

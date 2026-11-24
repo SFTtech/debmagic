@@ -1592,6 +1592,33 @@ fn recipe_include_dir(recipe: &Path) -> Option<String> {
     None
 }
 
+/// Whether the host groff prints warnings as lintian 2.144.0's recipes expect.
+/// groff 1.25 ends each warning in its category (`[-w space]`), and the
+/// recipes' `groff-message` hints carry that suffix. An older or missing groff
+/// prints other text, so those hints are left out of the comparison. Stopgap
+/// until debmagic carries a pinned groff of its own. Asked once per process.
+fn host_groff_matches_recipes() -> bool {
+    static MATCHES: OnceLock<bool> = OnceLock::new();
+    *MATCHES.get_or_init(|| {
+        let Ok(output) = Command::new("groff").arg("--version").output() else {
+            return false;
+        };
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let version: Vec<u32> = stdout
+            .lines()
+            .next()
+            .and_then(|line| line.split_whitespace().last())
+            .map(|version| {
+                version
+                    .split('.')
+                    .map_while(|part| part.parse().ok())
+                    .collect()
+            })
+            .unwrap_or_default();
+        version >= vec![1, 25]
+    })
+}
+
 /// `dpkg-architecture --query=DEB_HOST_ARCH`, asked once per test process.
 fn host_architecture() -> Option<&'static str> {
     static HOST: OnceLock<Option<String>> = OnceLock::new();
@@ -1659,7 +1686,17 @@ pub fn assert_binary_package_parity(recipe_rel: &str) {
         return;
     }
     let catalogued = catalogued_binary_package_tags();
-    let expected = catalogued_binary_package_hints(&recipe, &catalogued);
+    let mut expected = catalogued_binary_package_hints(&recipe, &catalogued);
+    if !host_groff_matches_recipes() {
+        let before = expected.len();
+        expected.retain(|hint| hint.tag != "groff-message");
+        if expected.is_empty() && before > 0 {
+            eprintln!(
+                "{recipe_rel}: skipped, its groff-message hints need groff 1.25 or newer on the host"
+            );
+            return;
+        }
+    }
     assert!(
         !expected.is_empty(),
         "{recipe_rel}: listed Parity recipe has no catalogued Binary-package hints"

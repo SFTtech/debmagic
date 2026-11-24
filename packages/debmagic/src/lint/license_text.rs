@@ -2,9 +2,10 @@
 //!
 //! Each text file is lower-cased and folded by [`clean_text`], then matched
 //! against the table entries of lintian's `check_for_single_bad_license`
-//! ([`BadLicense`]). Lintian reads 16 KiB blocks through a sliding window and
-//! stops at the first hit of a file; this module reads each file whole, so a
-//! match that straddles a block edge is found here and missed by lintian.
+//! ([`BadLicense`]). Lintian's `full_text_check` reads one sliding window and
+//! then leaves its loop unconditionally (`last BLOCK` at the end of the body),
+//! so only the first window is matched: the first 32 KiB of the file, two
+//! 16 KiB blocks. This module does the same ([`WINDOW`]).
 
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
@@ -18,10 +19,14 @@ use super::file_tree::{EntryKind, FileTree};
 /// Bytes probed for a NUL, as lintian's `-T` test reads the first block.
 const BINARY_PROBE: usize = 512;
 
+/// The bytes lintian matches: its first sliding window, which reads twice the
+/// 16 KiB block size on the first call (`SlidingWindow::readwindow`).
+const WINDOW: usize = 2 * 16_384;
+
 /// A Patched file that reads as text.
 pub(crate) struct TextFile {
     pub(crate) path: PathBuf,
-    /// The lower-cased contents (lintian's `$lowercase`).
+    /// The lower-cased first window of the contents (lintian's `$lowercase`).
     pub(crate) lowercase: String,
     /// [`clean_text`] of `lowercase` (lintian's `$clean`).
     pub(crate) clean: String,
@@ -44,7 +49,7 @@ pub(crate) fn is_non_free(ctx: &SourceContext<'_>) -> bool {
 }
 
 /// The regular files of `files` outside `.pc/` that read as text, in tree
-/// order. Hardlinks are not read, as lintian's `full_text_check` skips them.
+/// order, with their first [`WINDOW`] bytes. Hardlinks are not read, as lintian's `full_text_check` skips them.
 pub(crate) fn text_files(files: &FileTree) -> Vec<TextFile> {
     files
         .query()
@@ -56,7 +61,8 @@ pub(crate) fn text_files(files: &FileTree) -> Vec<TextFile> {
             if bytes[..bytes.len().min(BINARY_PROBE)].contains(&0) {
                 return None;
             }
-            let lowercase = String::from_utf8_lossy(&bytes).to_lowercase();
+            let window = &bytes[..bytes.len().min(WINDOW)];
+            let lowercase = String::from_utf8_lossy(window).to_lowercase();
             let clean = clean_text(&lowercase);
             Some(TextFile {
                 path: entry.path().to_path_buf(),

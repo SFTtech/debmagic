@@ -6,6 +6,7 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::file_tree::FileTree;
 use crate::lint::rule::{BinaryPackageRule, Severity};
 
 pub struct PackageContainsDocumentationOutsideUsrShareDoc;
@@ -18,8 +19,12 @@ declare_rule! {
     /// case-insensitively) are reported unless they are under `etc/`,
     /// `usr/share/doc/` or `usr/share/help/`, or one of lintian's exemptions
     /// applies: R site-library, SNMP MIBs, `template(s)` directories, a README
-    /// that says "this directory", ocaml and gtk-doc and GNUstep files, and
-    /// GNUstep Gorm `data.info`. Requirements files and `CMakeLists.txt` are
+    /// whose text reads `thisdirectory` (lintian's `x` flag drops the space in
+    /// "this directory", so the spaced text does not exempt it), ocaml and
+    /// gtk-doc and GNUstep files, GNUstep Gorm `data.info`, and the Python
+    /// Screen: a file in a `*.dist-info/` folder beside METADATA, or in a
+    /// `*.egg-info/` folder beside PKG-INFO. Requirements files and
+    /// `CMakeLists.txt` are
     /// not documentation. Udebs skip what they would report as
     /// `udeb-contains-documentation-file` (under `usr/share/doc` or
     /// `usr/share/info`). The entry's path is the Location; no extra. Reported
@@ -60,9 +65,26 @@ static NOT_DOCUMENTATION: LazyLock<Vec<Regex>> = LazyLock::new(|| {
 static TEMPLATES_DIR: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"templates?(?:[.]d)?/").expect("valid regex"));
 
-/// The README exemption: lintian's `$item->bytes =~ m{this directory}xi`.
+/// The README exemption: lintian's `$item->bytes =~ m{this directory}xi`. The
+/// `x` flag ignores the space in the pattern, so the text must read
+/// `thisdirectory` (any case) to exempt a README.
 static THIS_DIRECTORY: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?i)this directory").expect("valid regex"));
+    LazyLock::new(|| Regex::new(r"(?i)thisdirectory").expect("valid regex"));
+
+/// lintian `Screen/Python/Egg/Metadata.pm`: a file in a `*.dist-info/` folder
+/// beside a METADATA, or in a `*.egg-info/` folder beside a PKG-INFO, is masked.
+/// `dirname` ends in `/` (or is empty at the top of the package).
+fn masked_by_python_egg_screen(files: &FileTree, dirname: &str) -> bool {
+    let Some(folder) = dirname.strip_suffix('/') else {
+        return false;
+    };
+    let name = folder.rsplit('/').next().unwrap_or(folder);
+    let beside = |sibling: &str| files.get(format!("{dirname}{sibling}")).is_some();
+    // lintian's `[^/] [.] dist-info /`: a character before the suffix.
+    let dist_info = name.len() > ".dist-info".len() && name.ends_with(".dist-info");
+    let egg_info = name.len() > ".egg-info".len() && name.ends_with(".egg-info");
+    (dist_info && beside("METADATA")) || (egg_info && beside("PKG-INFO"))
+}
 
 /// Udebs stop at these before the documentation test (lintian's early `return`).
 static UDEB_DOC_OR_INFO: LazyLock<Regex> =
@@ -118,7 +140,8 @@ impl BinaryPackageRule for PackageContainsDocumentationOutsideUsrShareDoc {
                     && (name.ends_with(".html") || name.ends_with(".htm"))
                 || name.starts_with("usr/share/GNUstep/Documentation/")
                     && (name.ends_with(".html") || name.ends_with(".pdf"))
-                || (dirname.contains(".gorm") && basename == "data.info");
+                || (dirname.contains(".gorm") && basename == "data.info")
+                || masked_by_python_egg_screen(files, &dirname);
             if !exempt {
                 reported.push(path.to_path_buf());
             }
@@ -153,7 +176,7 @@ mod tests {
             case("usr/share/doc/example/README.txt", "docs"),
             case("etc/example/NOTES.txt", "notes"),
             case("usr/share/example/requirements.txt", "dependency"),
-            case("usr/share/example/README", "this directory is empty"),
+            case("usr/share/example/README", "ThisDirectory is empty"),
             case("usr/share/example/template/LICENSE.md", "license"),
             case("usr/share/example/doc.pdf/inner", "not a doc"),
             // Udebs skip usr/share/info (the udeb early return).
@@ -174,5 +197,110 @@ mod tests {
         ];
         BinaryPackageTester::new(PackageContainsDocumentationOutsideUsrShareDoc, pass, fail)
             .test_and_snapshot();
+    }
+
+    fn folder(entries: &[(&str, &str)]) -> BinaryPackageCase {
+        BinaryPackageCase::from(
+            entries
+                .iter()
+                .map(|(path, content)| (path.to_string(), TestFile::new(*content)))
+                .collect::<Vec<(String, TestFile)>>(),
+        )
+        .field("Architecture", "all")
+    }
+
+    /// lintian `Screen/Python/Egg/Metadata.pm` masks the hint for a file in a
+    /// `*.dist-info/` folder that has a METADATA file beside it. The folder name
+    /// needs at least one character before `.dist-info`.
+    #[test]
+    fn dist_info_documentation_is_masked_beside_metadata() {
+        let pass = vec![folder(&[
+            (
+                "usr/lib/python3/dist-packages/foo-1.0.dist-info/METADATA",
+                "m",
+            ),
+            (
+                "usr/lib/python3/dist-packages/foo-1.0.dist-info/NOTES.txt",
+                "n",
+            ),
+        ])];
+        let fail = vec![
+            // No METADATA beside the file.
+            folder(&[(
+                "usr/lib/python3/dist-packages/foo-1.0.dist-info/NOTES.txt",
+                "n",
+            )]),
+            // A METADATA in a subfolder is not beside the file.
+            folder(&[
+                (
+                    "usr/lib/python3/dist-packages/foo-1.0.dist-info/sub/METADATA",
+                    "m",
+                ),
+                (
+                    "usr/lib/python3/dist-packages/foo-1.0.dist-info/NOTES.txt",
+                    "n",
+                ),
+            ]),
+            // Only a folder whose name ends in .dist-info is masked.
+            folder(&[
+                (
+                    "usr/lib/python3/dist-packages/foo-1.0.dist-info-old/METADATA",
+                    "m",
+                ),
+                (
+                    "usr/lib/python3/dist-packages/foo-1.0.dist-info-old/NOTES.txt",
+                    "n",
+                ),
+            ]),
+            // The folder name needs a character before .dist-info.
+            folder(&[
+                ("usr/lib/python3/dist-packages/.dist-info/METADATA", "m"),
+                ("usr/lib/python3/dist-packages/.dist-info/NOTES.txt", "n"),
+            ]),
+            // An egg-info folder is not masked by METADATA.
+            folder(&[
+                ("usr/lib/python3/dist-packages/foo.egg-info/METADATA", "m"),
+                ("usr/lib/python3/dist-packages/foo.egg-info/NOTES.txt", "n"),
+            ]),
+        ];
+        BinaryPackageTester::new(PackageContainsDocumentationOutsideUsrShareDoc, pass, fail).test();
+    }
+
+    /// lintian `Screen/Python/Egg/Metadata.pm` masks the hint for a file in a
+    /// `*.egg-info/` folder that has PKG-INFO beside it. METADATA does not count
+    /// for an egg-info folder, and PKG-INFO does not count for a dist-info one.
+    #[test]
+    fn egg_info_documentation_is_masked_beside_pkg_info() {
+        let pass = vec![folder(&[
+            ("usr/lib/python3/dist-packages/foo.egg-info/PKG-INFO", "p"),
+            ("usr/lib/python3/dist-packages/foo.egg-info/NOTES.txt", "n"),
+        ])];
+        let fail = vec![
+            folder(&[("usr/lib/python3/dist-packages/foo.egg-info/NOTES.txt", "n")]),
+            folder(&[
+                (
+                    "usr/lib/python3/dist-packages/foo-1.0.dist-info/PKG-INFO",
+                    "p",
+                ),
+                (
+                    "usr/lib/python3/dist-packages/foo-1.0.dist-info/NOTES.txt",
+                    "n",
+                ),
+            ]),
+        ];
+        BinaryPackageTester::new(PackageContainsDocumentationOutsideUsrShareDoc, pass, fail).test();
+    }
+
+    /// lintian `Check/Documentation.pm` exempts a README whose text contains
+    /// "this directory", matched with `m{this directory}xi`. The `x` flag drops
+    /// the space from the pattern, so only the run-together text exempts a file.
+    #[test]
+    fn readme_this_directory_exemption_needs_no_space() {
+        let pass = vec![case("usr/share/example/README", "ThisDirectory is empty")];
+        let fail = vec![
+            case("usr/share/example/README", "This directory holds shims."),
+            case("usr/share/example/README.md", "This directory holds shims."),
+        ];
+        BinaryPackageTester::new(PackageContainsDocumentationOutsideUsrShareDoc, pass, fail).test();
     }
 }

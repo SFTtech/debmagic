@@ -1,8 +1,10 @@
 ---
 source: packages/debmagic/src/lint/tester.rs
+assertion_line: 651
 ---
 E: example (binary): interpreter-in-usr-local (LN0985) /usr/local/bin/special-perl [usr/bin/tool]
 E: example (binary): interpreter-in-usr-local (LN0985) /usr/local/bin/python3.7 [usr/bin/tool]
 E: example (binary): interpreter-in-usr-local (LN0985) /usr/local/bin/special [usr/bin/tool]
 E: example (binary): interpreter-in-usr-local (LN0985) /usr/local/bin/special [usr/share/foo/tool]
 E: example (udeb): interpreter-in-usr-local (LN0985) /usr/local/bin/special [usr/bin/tool]
+E: example (binary): interpreter-in-usr-local (LN0985) /usr/local/bin/special [usr/lib/python3/dist-packages/tool]

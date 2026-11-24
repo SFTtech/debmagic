@@ -95,4 +95,28 @@ mod tests {
         ))];
         SourcePackageTester::new(DebianWatchNotManglingVersion, pass, fail).test_and_snapshot();
     }
+
+    /// Lintian's `stringify` trims a hint's text and escapes its newlines as `\n`, so a
+    /// multi-line version 5 stanza is one line of hint text.
+    #[test]
+    fn stanza_extra_is_one_line_with_escaped_newlines() {
+        use super::super::file::{WatchFileHit, WatchInput, watch_file_findings};
+
+        let findings = watch_file_findings(&WatchInput {
+            text: "Version: 5\n\nTemplate: GitHub\nOwner: example\nProject: example\n".to_string(),
+            native: false,
+            upstream: "1+dfsg".to_string(),
+            versions: Some(vec!["1+dfsg-1".to_string()]),
+            keyfile: None,
+        });
+        let extras: Vec<String> = findings
+            .into_iter()
+            .filter(|finding| matches!(finding.hit, WatchFileHit::NotManglingVersion(_)))
+            .map(|finding| finding.hit.extra())
+            .collect();
+        assert_eq!(
+            extras,
+            vec!["Template: GitHub\\nOwner: example\\nProject: example".to_string()]
+        );
+    }
 }

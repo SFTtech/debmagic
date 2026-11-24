@@ -2671,12 +2671,13 @@ fn drop_hints_for_unvendorable_files(recipe_rel: &str, hints: &mut Vec<ParityHin
 /// not touched; the vendored hint files stay as lintian shipped them.
 /// The two flash Tags are `files/source-missing` `pointed_hint`s too, and their
 /// `cruft-general-upstream` expectations are bare.
-const POINTER_ONLY_SOURCE_MISSING_TAGS: [&str; 5] = [
+const POINTER_ONLY_SOURCE_MISSING_TAGS: [&str; 6] = [
     "source-is-missing",
     "source-contains-prebuilt-javascript-object",
     "source-contains-prebuilt-python-object",
     "source-contains-prebuilt-flash-object",
     "source-contains-prebuilt-flash-project",
+    "source-contains-prebuilt-windows-binary",
 ];
 
 /// The two Tags of lintian 2.144's `languages/python/obsolete` Check, which

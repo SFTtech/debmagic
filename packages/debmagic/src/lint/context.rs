@@ -861,6 +861,16 @@ impl<'a> SourceContext<'a> {
 
     /// Orig files. `None` on a Source tree, and after a global File type
     /// failure (returned from [`Self::finish`]). Native Orig files is empty.
+    /// The Orig tarballs' header entries, without recording a runtime error:
+    /// the Orig tree already reports an unreadable tarball, and a Rule falls
+    /// back to the tree when there are none.
+    fn header_orig_entries(&self) -> Option<&[OrigEntry]> {
+        match self.inner {
+            SourceInner::Tree(_) => None,
+            SourceInner::Package(data) => data.orig_entries().ok(),
+        }
+    }
+
     pub fn orig_files(&mut self) -> Option<&'a FileTree> {
         match self.inner {
             SourceInner::Tree(_) => None,
@@ -895,7 +905,6 @@ impl<'a> SourceContext<'a> {
             .is_some_and(|format| format.trim() == "3.0 (quilt)");
         let orig = self.orig_files()?;
         let native = orig.entries().is_empty();
-        let orig_names = file_names(orig, |path| !(quilt && path.starts_with("debian/")));
         let orig_directories = directory_names(orig);
         let patched = self.files()?;
         if native {
@@ -904,6 +913,17 @@ impl<'a> SourceContext<'a> {
                 directory_names(patched),
             ));
         }
+        // lintian names the Orig files from the tarball headers, where a `./`
+        // segment after the top directory is kept; the extracted tree has none.
+        let orig_names = match self.header_orig_entries() {
+            Some(entries) if !entries.is_empty() => entries
+                .iter()
+                .filter(|entry| entry.is_file)
+                .map(|entry| collapse_slashes(&entry.path.to_string_lossy()))
+                .filter(|path| !(quilt && path.starts_with("debian/")))
+                .collect(),
+            _ => file_names(orig, |path| !(quilt && path.starts_with("debian/"))),
+        };
         let mut names = orig_names;
         names.extend(file_names(patched, |path| path.starts_with("debian/")));
         Some(ShippedFiles::new(names, orig_directories))
@@ -1274,6 +1294,17 @@ fn file_names(tree: &FileTree, keep: impl Fn(&str) -> bool) -> Vec<String> {
         .map(|entry| entry.path().to_string_lossy().into_owned())
         .filter(|path| keep(path))
         .collect()
+}
+
+/// lintian's `s{/+}{/}g` on a name.
+fn collapse_slashes(name: &str) -> String {
+    let mut collapsed = String::with_capacity(name.len());
+    for character in name.chars() {
+        if !(character == '/' && collapsed.ends_with('/')) {
+            collapsed.push(character);
+        }
+    }
+    collapsed
 }
 
 fn directory_names(tree: &FileTree) -> HashSet<String> {

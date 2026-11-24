@@ -1,7 +1,7 @@
 ---
 source: packages/debmagic/src/lint/tester.rs
 ---
-P: example (source): unicode-trojan (LN1763) File name U+202E "RIGHT-TO-LEFT OVERRIDE" [scripts/example‮fig.exe]
+P: example (source): unicode-trojan (LN1763) File name U+202E "RIGHT-TO-LEFT OVERRIDE" [scripts/exampleâ?®fig.exe]
 P: example (source): unicode-trojan (LN1763) Contents U+202B "RIGHT-TO-LEFT EMBEDDING" [scripts/careful:3]
-P: example (source): unicode-trojan (LN1763) File name U+2066 "LEFT-TO-RIGHT ISOLATE" [scripts/both⁦]
-P: example (source): unicode-trojan (LN1763) Contents U+2069 "POP DIRECTIONAL ISOLATE" [scripts/both⁦:2]
+P: example (source): unicode-trojan (LN1763) File name U+2066 "LEFT-TO-RIGHT ISOLATE" [scripts/bothâ?¦]
+P: example (source): unicode-trojan (LN1763) Contents U+2069 "POP DIRECTIONAL ISOLATE" [scripts/bothâ?¦:2]

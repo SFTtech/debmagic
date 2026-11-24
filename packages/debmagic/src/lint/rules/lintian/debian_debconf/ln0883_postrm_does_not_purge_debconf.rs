@@ -162,4 +162,63 @@ mod tests {
         ];
         BinaryPackageTester::new(PostrmDoesNotPurgeDebconf, pass, fail).test_and_snapshot();
     }
+
+    /// The Check returns before its installable Tags unless the package ships
+    /// `config`, `templates`, or a `preinst` loading the debconf confmodule, so
+    /// a package with none of them is not examined at all.
+    #[test]
+    fn gate_closed_without_debconf_control_files_reports_nothing() {
+        let pass = vec![
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new())
+                .control_file("postrm", TestFile::new("#!/bin/sh\necho\n")),
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new())
+                .control_file("preinst", TestFile::new("#!/bin/sh\necho\n")),
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()),
+        ];
+        BinaryPackageTester::new(
+            PostrmDoesNotPurgeDebconf,
+            pass,
+            Vec::<BinaryPackageCase>::new(),
+        )
+        .test();
+    }
+
+    /// Either of the gate's openers alone makes the Check examine the package:
+    /// a `templates` file, or a `preinst` that loads the confmodule.
+    #[test]
+    fn gate_opens_on_templates_or_preinst_confmodule() {
+        let fail = vec![
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new())
+                .control_file("templates", TestFile::new("Template: a/b\nType: note\n")),
+            BinaryPackageCase::from(Vec::<(&str, TestFile)>::new()).control_file(
+                "preinst",
+                TestFile::new("#!/bin/sh\n. /usr/share/debconf/confmodule\n"),
+            ),
+        ];
+        BinaryPackageTester::new(
+            PostrmDoesNotPurgeDebconf,
+            Vec::<BinaryPackageCase>::new(),
+            fail,
+        )
+        .test();
+    }
+
+    /// The Check keeps one `db_purge` flag across the scripts it scans in order
+    /// (`config`, `prerm`, `postrm`), so a `db_purge` in `config` satisfies the
+    /// `postrm` Tag. A commented `db_purge` is not a call.
+    #[test]
+    fn db_purge_in_config_satisfies_postrm() {
+        let pass = vec![
+            debconf_package()
+                .control_file("config", TestFile::new("#!/bin/sh\ndb_purge\n"))
+                .control_file("postrm", TestFile::new("#!/bin/sh\necho\n")),
+        ];
+        // The comment form is not a `db_purge` call, in any script.
+        let fail = vec![
+            debconf_package()
+                .control_file("config", TestFile::new("#!/bin/sh\n# db_purge\n"))
+                .control_file("postrm", TestFile::new("#!/bin/sh\necho\n")),
+        ];
+        BinaryPackageTester::new(PostrmDoesNotPurgeDebconf, pass, fail).test();
+    }
 }

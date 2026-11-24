@@ -1,10 +1,10 @@
 use std::path::PathBuf;
 
+use super::source_missing::is_elf;
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{EntryKind, FileTree};
-use crate::lint::file_type::FileType;
 use crate::lint::rule::{Severity, SourceRule};
 
 pub struct SourceContainsPrebuiltBinary;
@@ -17,8 +17,8 @@ declare_rule! {
     ///
     /// Walks the packaging File tree (Source tree, or Source package Patched
     /// files). Quilt `.pc/` is filtered out, and `debian/missing-sources/` is
-    /// skipped. The ELF test uses debmagic's File type, which is absent for a
-    /// file whose headers do not parse, where `file(1)` would still say ELF.
+    /// skipped. The ELF test is `file(1)`'s `ELF`: debmagic's File type, or,
+    /// where its headers do not parse, the ELF magic (see `source_missing`).
     ///
     /// The sibling `source-is-missing` (LN1390) reports the same files when no
     /// source for them is in the tree.
@@ -58,9 +58,7 @@ fn elf_paths(files: &FileTree) -> Vec<PathBuf> {
             let path = entry.path();
             !path.starts_with(".pc")
                 && !path.starts_with("debian/missing-sources")
-                && entry
-                    .file_type()
-                    .is_some_and(|file_type| matches!(file_type, FileType::Elf { .. }))
+                && is_elf(files, entry)
         })
         .map(|entry| entry.path().to_path_buf())
         .collect()
@@ -123,6 +121,14 @@ mod tests {
             vec![
                 ("debian/control", TestFile::from(CONTROL)),
                 ("bin/tool", TestFile::new("elf").file_type(ELF).hardlink()),
+            ],
+            // Corrupt section headers: no File type, but file(1) still says ELF.
+            vec![
+                ("debian/control", TestFile::from(CONTROL)),
+                (
+                    "tests/invalid-elf/bad",
+                    TestFile::from_bytes(b"\x7fELF\x02\x01\x01 corrupt headers".to_vec()),
+                ),
             ],
         ];
         SourceTreeTester::new(SourceContainsPrebuiltBinary, pass, fail).test_and_snapshot();

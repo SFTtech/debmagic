@@ -192,11 +192,13 @@ pub(crate) fn is_ascii_image(bytes: &[u8]) -> bool {
 /// other than the image formats of [`is_ascii_image`], RTF, a FontForge file,
 /// a generic INI file, an OpenSSH key or PEM armour, a Perl script, a FIG
 /// (`#FIG`: an image, and lintian skips it whichever way it is read) or TeX
-/// file, a LyX file, a mailbox (`From ` at the start), a sendmail m4 file, or
-/// JSON.
+/// file, a LyX file, a mailbox (`From ` at the start), a sendmail m4 file, a
+/// Rust source file (`#![` at the start, which `file(1)` 5.47 names `Rust
+/// Source file` with no text in it), or JSON.
 fn is_other_magic(bytes: &[u8]) -> bool {
     matches!(ContentType::sniff(bytes), Some(kind) if kind != ContentType::Netpbm)
         || bytes.starts_with(b"{\\rtf")
+        || bytes.starts_with(b"#![")
         || bytes.starts_with(b"SplineFontDB:")
         || bytes.starts_with(b"#FIG")
         || bytes.starts_with(b"%!TEX root")
@@ -877,6 +879,10 @@ mod tests {
         fixtures.push([vec![b'x'; 65535], vec![0xc3, b'\n']].concat());
         fixtures.push([vec![b'x'; 65535], vec![0xc3, 0xa9, b'\n', 0x93]].concat());
         fixtures.push(vec![b'x'; 70_000]);
+        // `file(1)` names a Rust source by its inner attribute, with no text.
+        fixtures.push(b"#![no_std]\nfn main() {}\n".to_vec());
+        fixtures.push(b"#![cfg(feature = \"x\")]\n".to_vec());
+        fixtures.push(b"// comment\n#![no_std]\n".to_vec());
         for text in [
             "a",
             "",

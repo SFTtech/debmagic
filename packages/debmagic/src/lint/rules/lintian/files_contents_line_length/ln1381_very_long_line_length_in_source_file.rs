@@ -92,13 +92,18 @@ impl SourceRule for VeryLongLineLengthInSourceFile {
 /// for the root `configure` beside `configure.ac` or `configure.in`, a
 /// `Makefile.in` beside its `Makefile.am`, and a file under `m4/` when a root
 /// `configure` exists.
+///
+/// A root `Makefile.in` is never masked: lintian looks for `/Makefile.am`, an
+/// absolute reference, and a Source index is not anchored, so it resolves to
+/// nothing.
 fn masked_by_autotools_screen(files: &FileTree, path: &Path) -> bool {
     let exists = |name: &str| files.get(name).is_some();
     if path == Path::new("configure") {
         return exists("configure.ac") || exists("configure.in");
     }
     if path.file_name() == Some(OsStr::new("Makefile.in")) {
-        return files.get(path.with_file_name("Makefile.am")).is_some();
+        return path.parent().is_some_and(|dir| !dir.as_os_str().is_empty())
+            && files.get(path.with_file_name("Makefile.am")).is_some();
     }
     path.starts_with("m4") && exists("configure")
 }
@@ -229,6 +234,11 @@ mod tests {
             with_control(vec![
                 file("Makefile.am", "all:\n".to_string()),
                 file("sub/Makefile.in", long.clone()),
+            ]),
+            // A root Makefile.in is not masked: lintian's `/Makefile.am` lookup is absolute.
+            with_control(vec![
+                file("Makefile.am", "all:\n".to_string()),
+                file("Makefile.in", long.clone()),
             ]),
             // An m4 macro needs ./configure, and must be under m4/.
             with_control(vec![file("m4/libtool.m4", long.clone())]),

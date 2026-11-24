@@ -1,8 +1,7 @@
 use anyhow::{Context, bail};
-use debian_control::lossless::Control;
 
 use super::binary_package_reader::BinaryPackageReader;
-use super::debian_control::{ControlParagraph, located_entry};
+use super::debian_control::ControlParagraph;
 
 /// Parsed Installation control: the single Deb822 paragraph in a Binary package.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -24,27 +23,9 @@ impl InstallationControl {
         };
         let text = std::str::from_utf8(bytes)
             .with_context(|| format!("installation control in {} is not UTF-8", path.display()))?;
-        let control: Control = text.parse().with_context(|| {
-            format!(
-                "installation control in {} is not valid Deb822",
-                path.display()
-            )
-        })?;
-        let mut paragraphs = control.as_deb822().paragraphs();
-        let Some(first) = paragraphs.next() else {
-            bail!(
-                "installation control in {} has no Deb822 paragraph",
-                path.display()
-            );
-        };
-        if paragraphs.next().is_some() {
-            bail!(
-                "installation control in {} is not exactly one Deb822 paragraph",
-                path.display()
-            );
-        }
+        let what = format!("installation control in {}", path.display());
         Ok(Self {
-            fields: ControlParagraph::from_entries(first.entries().filter_map(located_entry)),
+            fields: ControlParagraph::parse_single(text, &what)?,
         })
     }
 

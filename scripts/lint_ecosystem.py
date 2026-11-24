@@ -1212,8 +1212,35 @@ def render(comparison: Comparison, meta: dict[str, object], top_uncovered: int, 
     return "\n".join(lines) + "\n"
 
 
-def report_json(comparison: Comparison) -> dict[str, Any]:
+def tool_version(argv: list[str], lines: int = 1) -> str:
+    """The first `lines` non-empty lines of what a host tool prints for its version, joined by '; ';
+    'not found' if it cannot run."""
+    try:
+        run = subprocess.run(argv, capture_output=True, text=True, check=False, timeout=20)
+    except (OSError, subprocess.TimeoutExpired):
+        return "not found"
+    text = [line.strip() for line in (run.stdout or run.stderr).splitlines() if line.strip()]
+    return "; ".join(text[:lines]) or "unknown"
+
+
+def host_tool_versions() -> dict[str, str]:
+    """The host tools whose output can change the hints (LN0270 quotes groff's messages), so a report must say which
+    ones produced it. The debmagic commit is the tree the binary was built from."""
+    commit = subprocess.run(
+        ["git", "-C", str(ROOT), "describe", "--always", "--dirty"], check=False, capture_output=True, text=True
+    )
     return {
+        "groff": tool_version(["groff", "--version"]),
+        "man-db": tool_version(["man", "--version"]),
+        "file (libmagic)": tool_version(["file", "--version"], lines=2),
+        "lintian (host)": tool_version(["lintian", "--version"]),
+        "debmagic commit": commit.stdout.strip() or "unknown",
+    }
+
+
+def report_json(comparison: Comparison, host_tools: dict[str, str]) -> dict[str, Any]:
+    return {
+        "host_tools": host_tools,
         "subjects": comparison.subjects,
         "failures": comparison.failures,
         "tags": {
@@ -1515,6 +1542,8 @@ def write_report(
         "debmagic binary": f"{debmagic} ({args.profile} profile)",
         "source packages": ", ".join(e.source for e in entries) if len(entries) <= 40 else len(entries),
     }
+    host_tools = host_tool_versions()
+    meta.update({f"host {name}": version for name, version in host_tools.items()})
     if args.perf != "off":
         installed = subprocess.run(["lintian", "--version"], capture_output=True, text=True, check=False).stdout.strip()
         meta["perf"] = f"{args.perf}, {args.perf_repeat} run(s) per tool, {os.cpu_count()} CPUs, {installed}"
@@ -1524,7 +1553,7 @@ def write_report(
     if packets:
         meta["work packets (agents)"] = f"{len(packets) - 1} Rules, see rules/index.md"
     args.work_dir.mkdir(parents=True, exist_ok=True)
-    (args.work_dir / "report.json").write_text(json.dumps(report_json(comparison), indent=2))
+    (args.work_dir / "report.json").write_text(json.dumps(report_json(comparison, host_tools), indent=2))
     text = render(comparison, meta, args.top_uncovered, args.top_slow)
     (args.work_dir / "report.md").write_text(text)
     packet_dir = args.work_dir / "rules"

@@ -172,11 +172,7 @@ pub(super) fn po_children<'a>(files: &'a FileTree, directory: &str) -> Vec<&'a E
 }
 
 pub(super) fn read(files: &FileTree, path: &Path) -> Option<Vec<u8>> {
-    let entry = files.get(path)?;
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return None;
-    }
-    files.read(entry).ok()
+    files.read_file(path)
 }
 
 pub(super) fn basename(entry: &Entry) -> Option<&str> {

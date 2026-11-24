@@ -3,9 +3,8 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::BinaryPackageRule;
 
-use super::gir_paths::{
-    basename, location, triplet_or_placeholder, typelib_files, typelib_package_stem,
-};
+use super::gir_paths::{location, triplet_or_placeholder, typelib_files, typelib_package_stem};
+use crate::lint::file_tree::file_name_lossy;
 
 pub struct TypelibPackageNameDoesNotMatch;
 
@@ -40,7 +39,7 @@ impl BinaryPackageRule for TypelibPackageNameDoesNotMatch {
         let hits: Vec<_> = typelib_files(files, triplet_or_placeholder(&architecture))
             .into_iter()
             .filter_map(|typelib| {
-                let expected = typelib_package_stem(&basename(typelib));
+                let expected = typelib_package_stem(&file_name_lossy(typelib.path()));
                 let missing = package != expected && !provides.satisfies(&expected);
                 missing.then(|| (location(typelib), expected))
             })

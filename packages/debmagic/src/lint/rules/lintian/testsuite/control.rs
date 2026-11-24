@@ -90,11 +90,7 @@ pub(super) fn test_paths(text: &str) -> Vec<String> {
 }
 
 pub(super) fn read_tests_control(files: &FileTree) -> Option<String> {
-    let entry = files.get(Path::new("debian/tests/control"))?;
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return None;
-    }
-    let bytes = files.read(entry).ok()?;
+    let bytes = files.read_file(Path::new("debian/tests/control"))?;
     String::from_utf8(bytes).ok()
 }
 
@@ -143,10 +139,6 @@ pub(super) fn tests_control_present(files: &FileTree) -> bool {
 }
 
 pub(super) fn read(files: &FileTree, path: &str) -> Option<String> {
-    let entry = files.get(path)?;
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return None;
-    }
-    let bytes = files.read(entry).ok()?;
+    let bytes = files.read_file(path)?;
     String::from_utf8(bytes).ok()
 }

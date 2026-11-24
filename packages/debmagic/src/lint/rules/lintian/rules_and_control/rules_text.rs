@@ -7,11 +7,12 @@
 //! its line counter, so a later hint can sit on an earlier number than the
 //! physical line.
 
-use std::path::{Component, Path, PathBuf};
+use std::path::Path;
 
 use regex::Regex;
 use std::sync::LazyLock;
 
+use crate::lint::file_tree::resolve_link;
 use crate::lint::file_tree::{EntryKind, FileTree};
 
 static COMMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^\s*#").expect("regex"));
@@ -57,7 +58,7 @@ pub(in super::super) fn rules_lines(contents: &str) -> Vec<(u32, String)> {
 /// Logical lines of the `debhelper` Check. Comment lines are absent. The
 /// number is lintian's pointer, which lags after a continuation.
 pub(super) fn debhelper_lines(contents: &str) -> Vec<(u32, String)> {
-    let physical = perl_lines(contents);
+    let physical = lines_with_newline(contents);
     let mut lines = Vec::new();
     let mut index = 0;
     let mut position = 1u32;
@@ -85,18 +86,10 @@ pub(super) fn debhelper_lines(contents: &str) -> Vec<(u32, String)> {
     lines
 }
 
-fn perl_lines(contents: &str) -> Vec<String> {
-    let mut lines = Vec::new();
-    let mut rest = contents;
-    while let Some(index) = rest.find('\n') {
-        let (line, after) = rest.split_at(index + 1);
-        lines.push(line.to_string());
-        rest = after;
-    }
-    if !rest.is_empty() {
-        lines.push(rest.to_string());
-    }
-    lines
+/// Perl `<$fd>` lines: each keeps its newline, so continuations can be
+/// joined as written. Not [`crate::lint::text::perl_lines`].
+fn lines_with_newline(contents: &str) -> Vec<String> {
+    contents.split_inclusive('\n').map(str::to_string).collect()
 }
 
 /// Perl `s/\\$//`: drop one backslash that sits at the end or just before a
@@ -130,26 +123,6 @@ fn read_bytes(files: &FileTree, path: &Path) -> Option<Vec<u8>> {
         }
     }
     None
-}
-
-fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
-    if target.is_absolute() {
-        return None;
-    }
-    let mut resolved = from.parent().unwrap_or(Path::new("")).to_path_buf();
-    for component in target.components() {
-        match component {
-            Component::Normal(part) => resolved.push(part),
-            Component::CurDir => {}
-            Component::ParentDir => {
-                if !resolved.pop() {
-                    return None;
-                }
-            }
-            Component::RootDir | Component::Prefix(_) => return None,
-        }
-    }
-    Some(resolved)
 }
 
 #[cfg(test)]

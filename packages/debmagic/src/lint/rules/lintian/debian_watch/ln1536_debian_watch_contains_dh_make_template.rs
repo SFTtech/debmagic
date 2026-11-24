@@ -6,7 +6,7 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::file_tree::FileTree;
 use crate::lint::rule::{Severity, SourceRule};
 
 pub struct DebianWatchContainsDhMakeTemplate;
@@ -53,13 +53,9 @@ impl SourceRule for DebianWatchContainsDhMakeTemplate {
 
 /// The `debian/watch` file and its text, when it is a regular file or hardlink.
 fn read_watch(files: &FileTree) -> Option<(PathBuf, String)> {
-    let entry = files.get("debian/watch")?;
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return None;
-    }
-    let bytes = files.read(entry).ok()?;
+    let bytes = files.read_file("debian/watch")?;
     Some((
-        entry.path().to_path_buf(),
+        PathBuf::from("debian/watch"),
         String::from_utf8_lossy(&bytes).into_owned(),
     ))
 }

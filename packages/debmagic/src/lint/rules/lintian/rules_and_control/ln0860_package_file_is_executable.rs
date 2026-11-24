@@ -1,4 +1,4 @@
-use std::path::{Component, Path, PathBuf};
+use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
 use regex::Regex;
@@ -6,6 +6,7 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::file_tree::resolve_link;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 use crate::lint::rule::SourceRule;
 
@@ -127,26 +128,6 @@ fn resolve<'t>(files: &'t FileTree, path: &Path) -> Option<&'t Entry> {
         current = files.get(&target)?;
     }
     None
-}
-
-fn resolve_link(from: &Path, target: &Path) -> Option<PathBuf> {
-    if target.is_absolute() {
-        return None;
-    }
-    let mut resolved = from.parent().unwrap_or(Path::new("")).to_path_buf();
-    for component in target.components() {
-        match component {
-            Component::Normal(part) => resolved.push(part),
-            Component::CurDir => {}
-            Component::ParentDir => {
-                if !resolved.pop() {
-                    return None;
-                }
-            }
-            Component::RootDir | Component::Prefix(_) => return None,
-        }
-    }
-    Some(resolved)
 }
 
 #[cfg(test)]

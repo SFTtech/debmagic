@@ -11,6 +11,7 @@ use regex::Regex;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::Location;
 use crate::lint::file_tree::EntryKind;
+use crate::lint::text::perl_lines;
 
 static LINE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^((?:\\)?\S{32})  (.*)$").expect("md5sums line"));
@@ -40,11 +41,7 @@ pub(super) fn at() -> Location {
 /// or unreadable. Empty bytes are the skip; there is no separate size field.
 pub(super) fn load(ctx: &mut BinaryPackageContext<'_>) -> Option<Md5sumsFile> {
     let files = ctx.control_files()?;
-    let entry = files.get("md5sums")?;
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return None;
-    }
-    let bytes = files.read(entry).ok()?;
+    let bytes = files.read_file("md5sums")?;
     if bytes.is_empty() {
         return None;
     }
@@ -170,14 +167,6 @@ fn unescape(path: &str, problematic: bool) -> Result<String, ()> {
 fn decode(bytes: &[u8]) -> String {
     String::from_utf8(bytes.to_vec())
         .unwrap_or_else(|_| bytes.iter().map(|byte| char::from(*byte)).collect())
-}
-
-fn perl_lines(text: &str) -> Vec<&str> {
-    let mut lines: Vec<&str> = text.split('\n').collect();
-    while lines.last().is_some_and(|line| line.is_empty()) {
-        lines.pop();
-    }
-    lines
 }
 
 pub(super) fn md5_hex(bytes: &[u8]) -> String {

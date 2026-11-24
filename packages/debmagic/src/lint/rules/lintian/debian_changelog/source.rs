@@ -11,7 +11,8 @@ use crate::lint::debian_changelog::ChangelogEntry;
 use crate::lint::diagnostic::Location;
 use crate::lint::file_tree::EntryKind;
 
-use super::version::{ParsedVersion, historical_no_epoch, parse_version, strip_epoch, versions_gt};
+use super::version::{ParsedVersion, historical_no_epoch, parse_version, versions_gt};
+use crate::lint::source_package::strip_epoch;
 
 static EXPLICIT_TWO: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^\s*2\.0\s*$").expect("valid regex"));

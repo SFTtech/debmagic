@@ -14,6 +14,7 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{EntryKind, FileTree};
 use crate::lint::rule::Severity;
+use crate::lint::text::perl_lines;
 
 const SIGNING_KEYS: &[&str] = &[
     "debian/upstream-signing-key.pgp",
@@ -198,11 +199,7 @@ fn watch_file_from_context(
 }
 
 fn read_text(files: &FileTree, path: &str) -> Option<String> {
-    let entry = files.get(path)?;
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return None;
-    }
-    let bytes = files.read(entry).ok()?;
+    let bytes = files.read_file(path)?;
     Some(String::from_utf8_lossy(&bytes).into_owned())
 }
 
@@ -534,14 +531,6 @@ fn strip_final_backslash(contents: &str) -> String {
     } else {
         contents.to_string()
     }
-}
-
-fn perl_lines(contents: &str) -> Vec<&str> {
-    let mut lines: Vec<&str> = contents.split('\n').collect();
-    while lines.last() == Some(&"") {
-        lines.pop();
-    }
-    lines
 }
 
 fn split_space(text: &str, limit: usize) -> Vec<&str> {

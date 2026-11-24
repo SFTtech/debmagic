@@ -7,6 +7,7 @@
 use std::path::Path;
 
 use crate::lint::diagnostic::Location;
+use crate::lint::file_tree::file_name_lossy;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 use crate::lint::rules::lintian::fields_relations_more::architectures::deb_host_multiarch;
 
@@ -39,7 +40,7 @@ fn children<'a>(files: &'a FileTree, dir: &str) -> Vec<&'a Entry> {
 fn girs_in<'a>(files: &'a FileTree, dir: &str) -> Vec<&'a Entry> {
     children(files, dir)
         .into_iter()
-        .filter(|entry| basename(entry).ends_with(".gir"))
+        .filter(|entry| file_name_lossy(entry.path()).ends_with(".gir"))
         .collect()
 }
 
@@ -66,15 +67,6 @@ pub(super) fn typelib_files<'a>(files: &'a FileTree, triplet: &str) -> Vec<&'a E
         &format!("usr/lib/{triplet}/girepository-1.0"),
     ));
     libs
-}
-
-/// The file name of an Entry, lossily.
-pub(super) fn basename(entry: &Entry) -> String {
-    entry
-        .path()
-        .file_name()
-        .map(|name| name.to_string_lossy().into_owned())
-        .unwrap_or_default()
 }
 
 /// The Location of an Entry: its path, no line.

@@ -167,18 +167,6 @@ fn order(byte: Option<u8>) -> i32 {
     }
 }
 
-/// `s/^\d+://` — one leading epoch.
-pub(super) fn strip_epoch(version: &str) -> &str {
-    let Some(index) = version.find(':') else {
-        return version;
-    };
-    if index > 0 && version[..index].bytes().all(|byte| byte.is_ascii_digit()) {
-        &version[index + 1..]
-    } else {
-        version
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -244,6 +232,5 @@ mod tests {
         assert_eq!(historical_no_epoch("1:1.0-1"), Some("1.0-1"));
         assert_eq!(historical_no_epoch("1.0-1"), Some("1.0-1"));
         assert_eq!(historical_no_epoch("2:1.0"), Some("1.0"));
-        assert_eq!(strip_epoch("1:1.0-1"), "1.0-1");
     }
 }

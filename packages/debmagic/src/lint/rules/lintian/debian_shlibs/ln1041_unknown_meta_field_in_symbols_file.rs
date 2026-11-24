@@ -6,7 +6,6 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::BinaryPackageRule;
 
 pub struct UnknownMetaFieldInSymbolsFile;
@@ -105,11 +104,7 @@ impl BinaryPackageRule for UnknownMetaFieldInSymbolsFile {
 /// when there is no regular file of that name.
 fn symbols_text(ctx: &mut BinaryPackageContext<'_>) -> Option<String> {
     let files = ctx.control_files()?;
-    let entry = files.get("symbols")?;
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return None;
-    }
-    let bytes = files.read(entry).ok()?;
+    let bytes = files.read_file("symbols")?;
     Some(String::from_utf8(bytes).unwrap_or_default())
 }
 

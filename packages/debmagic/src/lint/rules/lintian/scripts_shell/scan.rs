@@ -17,6 +17,7 @@ use std::sync::LazyLock;
 use regex::Regex;
 
 use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::interpreter::basename;
 
 /// `^config|(?:pre|post)(?:inst|rm)$` — lintian's maintainer-script names.
 static SCRIPT_NAME: LazyLock<Regex> =
@@ -256,10 +257,6 @@ fn shebang_enables_errexit(raw: &str, basename: &str) -> bool {
 
 fn first_word(text: &str) -> &str {
     text.split_whitespace().next().unwrap_or("")
-}
-
-fn basename(path: &str) -> &str {
-    path.rsplit('/').next().unwrap_or(path)
 }
 
 fn physical_lines(text: &str) -> Vec<&str> {

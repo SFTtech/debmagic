@@ -8,7 +8,7 @@ use std::sync::LazyLock;
 use regex::Regex;
 
 use crate::lint::context::SourceContext;
-use crate::lint::file_tree::{EntryKind, FileTree};
+use crate::lint::file_tree::FileTree;
 use crate::lint::package_relation::PackageRelation;
 
 pub(super) const PACKAGE_XML: &str = "package.xml";
@@ -122,11 +122,7 @@ pub(super) struct RulesFacts {
 /// `debian/rules` as an open file, when the Check reads it: a regular file
 /// or hardlink. Symlinks are not followed.
 pub(super) fn rules_facts(files: &FileTree, build_depends: &PackageRelation) -> Option<RulesFacts> {
-    let entry = files.get(RULES)?;
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return None;
-    }
-    let bytes = files.read(entry).ok()?;
+    let bytes = files.read_file(RULES)?;
     let text = String::from_utf8_lossy(&bytes);
 
     static BUILDSYSTEM_PHPPEAR: LazyLock<Regex> = LazyLock::new(|| {

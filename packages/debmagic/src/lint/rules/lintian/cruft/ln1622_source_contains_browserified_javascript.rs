@@ -5,7 +5,8 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::license_text::{self, TextFile};
+use crate::lint::file_tree::file_name_lossy;
+use crate::lint::license_text::{self};
 use crate::lint::rule::{Severity, SourceRule};
 
 pub struct SourceContainsBrowserifiedJavascript;
@@ -67,19 +68,12 @@ fn is_exempt_script(basename: &str, lowercase: &str) -> bool {
     lowercase.contains("css_browser_selector(") || lowercase.contains("jush.tr.")
 }
 
-fn basename(file: &TextFile) -> String {
-    file.path
-        .file_name()
-        .map(|name| name.to_string_lossy().into_owned())
-        .unwrap_or_default()
-}
-
 impl SourceRule for SourceContainsBrowserifiedJavascript {
     fn run(&self, ctx: &mut SourceContext<'_>) {
         let texts = license_text::shared_text_files(ctx);
         let mut findings = Vec::new();
         for file in texts.iter() {
-            let name = basename(file);
+            let name = file_name_lossy(&file.path);
             if HTML_NAME.is_match(&name) {
                 for script in license_text::inline_scripts(&file.lowercase) {
                     let contiguous = license_text::contiguous_code(script);

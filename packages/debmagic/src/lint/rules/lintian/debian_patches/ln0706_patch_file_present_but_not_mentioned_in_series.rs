@@ -8,6 +8,7 @@ use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::SourceRule;
 
 use super::ln0396_format_3_0_but_debian_changes_patch::{is_quilt_format, source_format};
+use crate::lint::file_tree::file_name_lossy;
 
 pub struct PatchFilePresentButNotMentionedInSeries;
 
@@ -49,7 +50,7 @@ impl SourceRule for PatchFilePresentButNotMentionedInSeries {
         }
         let mut known: HashSet<String> = HashSet::new();
         for (path, series) in ctx.quilt_series() {
-            known.insert(basename(&path));
+            known.insert(file_name_lossy(&path));
             known.extend(series.mentions().map(str::to_string));
         }
         let Some(files) = ctx.files() else {
@@ -65,7 +66,7 @@ impl SourceRule for PatchFilePresentButNotMentionedInSeries {
                 if name.as_os_str().is_empty() {
                     return None;
                 }
-                let base = basename(entry.path());
+                let base = file_name_lossy(entry.path());
                 if base == "README" || base == "README.patches" || base.contains(".in") {
                     return None;
                 }
@@ -83,12 +84,6 @@ impl SourceRule for PatchFilePresentButNotMentionedInSeries {
             }));
         }
     }
-}
-
-fn basename(path: &Path) -> String {
-    path.file_name()
-        .map(|name| name.to_string_lossy().into_owned())
-        .unwrap_or_default()
 }
 
 #[cfg(test)]

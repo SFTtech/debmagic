@@ -5,6 +5,7 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 use crate::lint::file_type::FileType;
+use crate::lint::interpreter::Hashbang;
 use crate::lint::rule::BinaryPackageRule;
 
 pub struct ExecutableNotElfOrScript;
@@ -70,15 +71,11 @@ fn is_unexpected(files: &FileTree, entry: &Entry) -> bool {
     }
     files
         .read(entry)
-        .is_ok_and(|bytes| !is_elf(&bytes) && !is_script(&bytes))
+        .is_ok_and(|bytes| !is_elf(&bytes) && !Hashbang::is_script(&bytes))
 }
 
 fn is_elf(bytes: &[u8]) -> bool {
     bytes.starts_with(b"\x7fELF")
-}
-
-fn is_script(bytes: &[u8]) -> bool {
-    bytes.starts_with(b"#!") && !bytes.starts_with(b"#!#!#!")
 }
 
 #[cfg(test)]

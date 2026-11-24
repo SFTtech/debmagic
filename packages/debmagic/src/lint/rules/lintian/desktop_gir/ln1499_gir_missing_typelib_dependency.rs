@@ -3,7 +3,8 @@ use crate::lint::diagnostic::Diagnostic;
 use crate::lint::group_context::GroupContext;
 use crate::lint::rule::GroupRule;
 
-use super::gir_paths::{basename, gir_files, gir_package_stem, location, triplet};
+use super::gir_paths::{gir_files, gir_package_stem, location, triplet};
+use crate::lint::file_tree::file_name_lossy;
 
 pub struct GirMissingTypelibDependency;
 
@@ -43,7 +44,7 @@ impl GroupRule for GirMissingTypelibDependency {
             let strong = installable.strong_relation();
             let mut findings = Vec::new();
             'gir: for gir in gir_files(files, triplet(installable.architecture())) {
-                let expected = gir_package_stem(&basename(gir));
+                let expected = gir_package_stem(&file_name_lossy(gir.path()));
                 for sibling in installables
                     .iter()
                     .filter(|sibling| sibling.name().starts_with("gir1.2-"))

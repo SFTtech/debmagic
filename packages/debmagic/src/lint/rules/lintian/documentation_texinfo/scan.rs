@@ -10,6 +10,7 @@ use std::sync::LazyLock;
 use flate2::read::GzDecoder;
 use regex::Regex;
 
+use crate::lint::file_tree::file_name_lossy;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 
 static NUMBERED: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"-\d+\.gz").expect("valid regex"));
@@ -89,17 +90,8 @@ pub(super) fn info_items<'a>(files: &'a FileTree) -> impl Iterator<Item = &'a En
             entry.kind(),
             EntryKind::RegularFile | EntryKind::Hardlink | EntryKind::Symlink
         ) && entry.path().starts_with("usr/share/info")
-            && !basename(entry).starts_with("dir")
+            && !file_name_lossy(entry.path()).starts_with("dir")
     })
-}
-
-/// Final path component, lossily decoded.
-pub(super) fn basename(entry: &Entry) -> String {
-    entry
-        .path()
-        .file_name()
-        .map(|name| name.to_string_lossy().into_owned())
-        .unwrap_or_default()
 }
 
 /// Perl `split /\./`: trailing empty fields are dropped.

@@ -16,6 +16,7 @@ use std::cmp::Ordering;
 use std::str::FromStr;
 use std::sync::LazyLock;
 
+use crate::lint::text::perl_split;
 use debmagic_common::debian::version::PackageVersion;
 use regex::Regex;
 
@@ -573,16 +574,6 @@ fn version_ord(left: &str, right: &str) -> Option<Ordering> {
     let left = PackageVersion::from_str(left.trim()).ok()?;
     let right = PackageVersion::from_str(right.trim()).ok()?;
     Some(left.cmp(&right))
-}
-
-/// Perl's `split`: a leading empty field stays, trailing empty fields go, and
-/// an empty string has no fields.
-fn perl_split<'a>(separator: &Regex, value: &'a str) -> Vec<&'a str> {
-    let mut fields: Vec<&str> = separator.split(value).collect();
-    while fields.last() == Some(&"") {
-        fields.pop();
-    }
-    fields
 }
 
 #[cfg(test)]

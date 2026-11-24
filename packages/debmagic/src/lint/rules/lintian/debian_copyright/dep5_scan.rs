@@ -12,7 +12,6 @@ use crate::lint::context::{ShippedFiles, SourceContext};
 use crate::lint::debian_copyright::{
     CopyrightParagraph, DebianCopyright, Dep5Version, find_dep5_version, format_uri,
 };
-use crate::lint::file_tree::EntryKind;
 
 use super::dep5::follower_wildcards;
 
@@ -101,11 +100,7 @@ pub(super) fn copyright_texts(ctx: &mut SourceContext<'_>) -> Vec<(PathBuf, Stri
     candidates
         .into_iter()
         .filter_map(|path| {
-            let entry = files.get(&path)?;
-            if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-                return None;
-            }
-            let bytes = files.read(entry).ok()?;
+            let bytes = files.read_file(&path)?;
             let text = std::str::from_utf8(&bytes).ok()?.to_string();
             Some((path, text))
         })

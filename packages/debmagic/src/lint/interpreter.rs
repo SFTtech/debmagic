@@ -28,7 +28,7 @@ impl Hashbang {
     /// lintian's `is_script` and `hashbang`: `None` when the content does not
     /// start with `#!`, or starts with `#!#!#!` (lincity data files).
     pub(crate) fn read(content: &[u8]) -> Option<Self> {
-        if !content.starts_with(b"#!") || content.starts_with(b"#!#!#!") {
+        if !Self::is_script(content) {
             return None;
         }
         let rest = &content[2..];
@@ -39,6 +39,12 @@ impl Hashbang {
         Some(Self {
             line: trim(line).to_vec(),
         })
+    }
+
+    /// lintian's `is_script`: whether [`Hashbang::read`] would return a
+    /// hashbang, without building it.
+    pub(crate) fn is_script(content: &[u8]) -> bool {
+        content.starts_with(b"#!") && !content.starts_with(b"#!#!#!")
     }
 
     /// lintian's `hashbang`: the trimmed text after `#!`, as stored.

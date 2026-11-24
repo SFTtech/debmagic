@@ -9,6 +9,7 @@ use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{EntryKind, FileTree};
 use crate::lint::rule::{BinaryPackageRule, Severity};
 use crate::lint::rules::lintian::init_scripts::systemd_unit;
+use crate::lint::text::perl_split;
 
 pub struct InvalidSystemdDocumentation;
 
@@ -69,7 +70,7 @@ fn invalid_documentation(files: &FileTree) -> Vec<(PathBuf, String)> {
         };
         let lines = systemd_unit::service_lines(&text);
         for value in systemd_unit::service_values(&lines, "Unit", "Documentation") {
-            for word in perl_split_whitespace(&value) {
+            for word in perl_split(&WHITESPACE, &value) {
                 if !is_uri(word) {
                     invalid.push((entry.path().to_path_buf(), word.to_string()));
                 }
@@ -77,16 +78,6 @@ fn invalid_documentation(files: &FileTree) -> Vec<(PathBuf, String)> {
         }
     }
     invalid
-}
-
-/// Perl's `split(m{\s+}, $text)`: a leading empty field is kept, trailing
-/// empty fields are dropped, and an empty text has no fields.
-fn perl_split_whitespace(text: &str) -> Vec<&str> {
-    let mut parts: Vec<&str> = WHITESPACE.split(text).collect();
-    while parts.last().is_some_and(|part| part.is_empty()) {
-        parts.pop();
-    }
-    parts
 }
 
 fn service_text(files: &FileTree, entry: &crate::lint::file_tree::Entry) -> Option<String> {

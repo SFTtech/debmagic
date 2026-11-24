@@ -5,18 +5,10 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
-use std::path::Path;
-
 use super::shared::shared_libraries;
+use crate::lint::file_tree::file_name_lossy;
 
 pub struct LdconfigSymlinkReferencingWrongFile;
-
-/// The last component of a path as text, for messages.
-pub(super) fn basename(path: &Path) -> String {
-    path.file_name()
-        .map(|name| name.to_string_lossy().into_owned())
-        .unwrap_or_default()
-}
 
 declare_rule! {
     /// The versioned link of a shared library's SONAME is a symbolic link to
@@ -51,7 +43,7 @@ impl BinaryPackageRule for LdconfigSymlinkReferencingWrongFile {
             let Some(target) = link.link_target() else {
                 continue;
             };
-            let name = basename(&library);
+            let name = file_name_lossy(&library);
             if target.as_os_str().as_encoded_bytes() != name.as_bytes() {
                 findings.push((
                     link.path().to_path_buf(),

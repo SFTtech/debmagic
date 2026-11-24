@@ -69,6 +69,11 @@ Performance (`--perf`, on by default; `--perf off` skips it)
     starts a fresh process (cold lintian lab, no daemon). `--perf-repeat N` takes the median of N runs.
     Timings are only meaningful for a release build, which is the default build profile.
 
+Groups (`--group`, on by default with `--perf off`)
+    Each source package's `.dsc` and `.deb`s are linted in one debmagic run (ADR 0054), so Group Rules
+    and the overrides of their Tags take part as in lintian; the output is split per Subject by the
+    `package (kind)` of each line. With `--perf` on, or `--group off`, every Subject is its own run.
+
 Progress
     Each stage logs a line, and downloads and linting show a tqdm bar on stderr (`--progress off`
     for plain logs; a non-TTY disables the bars automatically). `-v` keeps a line per Subject.
@@ -703,8 +708,9 @@ def timed_run(cmd: list[str], timeout: float) -> Timed:
     return Timed(proc.returncode, output, metrics, timed_out.is_set())
 
 
-def run_debmagic(debmagic: Path, subject: Path, lint_args: list[str], timeout: int) -> RunResult:
-    run = timed_run([str(debmagic), "lint", "--color", "never", *lint_args, str(subject)], timeout)
+def run_debmagic(debmagic: Path, subject: Path | list[Path], lint_args: list[str], timeout: int) -> RunResult:
+    paths = subject if isinstance(subject, list) else [subject]
+    run = timed_run([str(debmagic), "lint", "--color", "never", *lint_args, *(str(path) for path in paths)], timeout)
     if run.timed_out:
         return RunResult([], False, run.metrics, f"timed out after {timeout}s")
     # Exit 1 means "found errors" as well as "crashed" (ADR 0011); only the closing summary tells them apart.
@@ -1365,6 +1371,21 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="all",
         help="off: skip; tags: lintian restricted to the Tags debmagic implements; all: also lintian's default profile",
     )
+    parser.add_argument(
+        "--group",
+        choices=["auto", "on", "off"],
+        default="auto",
+        help=(
+            "on: lint each source package's .dsc and .debs in one debmagic run, so Group Rules and their\n"
+            "overrides take part (ADR 0054); off: one run per Subject; auto (default): on unless --perf runs"
+        ),
+    )
+    parser.add_argument(
+        "--max-group-mb",
+        type=int,
+        default=200,
+        help="with --group, lint a source package one Subject per run above this input size (default 200)",
+    )
     perf.add_argument("--perf-repeat", type=int, default=1, metavar="N", help="runs per tool and Subject (median)")
     perf.add_argument("--lintian-timeout", type=int, default=1800, help="seconds per lintian run")
     perf.add_argument("--top-slow", type=int, default=5, help="Subjects listed where debmagic is relatively slowest")
@@ -1389,6 +1410,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         parser.error("--all and --sample are alternatives")
     if args.sample is None:
         args.sample = DEFAULT_SAMPLE
+    if args.group == "on" and args.perf != "off":
+        parser.error("--group on needs --perf off: performance is measured one Subject per run")
+    args.group = args.group == "on" or (args.group == "auto" and args.perf == "off")
     return args
 
 
@@ -1629,6 +1653,35 @@ def build_debmagic(args: argparse.Namespace) -> Path:
     return debmagic
 
 
+GROUP_FAILED = SubjectKey("group", "", "")
+
+
+def lint_group(
+    run: Run, entry: SourceEntry, failures: dict[Path, str], comparison: Comparison
+) -> dict[SubjectKey, RunResult] | None:
+    """One debmagic run over the downloaded Subjects of `entry`, split back into a result per Subject by the
+    `package (kind)` of each line. A failed run is returned under GROUP_FAILED for every Subject. None for a
+    group over `--max-group-mb`: debmagic holds a whole group in memory (gcc-16-cross, 1.6 GB of .debs, needs
+    more than 10 GB), so such a group is linted one Subject per run."""
+    sized = subjects_of(entry, run.args.kinds, run.args.work_dir)
+    if sum(mb for _, _, mb in sized) > run.args.max_group_mb:
+        PROGRESS.line(f"{entry.source}: group over {run.args.max_group_mb} MB, linting one Subject per run")
+        return None
+    subjects = [(key, path) for key, path, _ in sized]
+    paths = [path for _, path in subjects if path not in failures]
+    if not paths:
+        return {GROUP_FAILED: RunResult([], False, Metrics(0, 0, 0), "download failed")}
+    result = run_debmagic(run.debmagic, paths, run.lint_args, run.args.timeout)
+    comparison.seconds += result.metrics.wall
+    if not result.ok:
+        return {GROUP_FAILED: result}
+    split: dict[SubjectKey, RunResult] = {GROUP_FAILED: RunResult([], False, result.metrics, "not in group output")}
+    for key, _ in subjects:
+        diagnostics = [d for d in result.diagnostics if d.kind == key.kind and d.package == key.name]
+        split[key] = RunResult(diagnostics, True, result.metrics)
+    return split
+
+
 def lint_subjects(
     run: Run,
     entries: list[SourceEntry],
@@ -1645,6 +1698,7 @@ def lint_subjects(
     for entry in entries:
         failures = pending[entry.source].result()
         rows = oracle[(entry.source, entry.version)]
+        grouped = lint_group(run, entry, failures, comparison) if args.group else None
         for key, path, input_mb in subjects_of(entry, args.kinds, args.work_dir):
             lint_bar.set_postfix_str(key.label()[:60])
             try:
@@ -1652,8 +1706,11 @@ def lint_subjects(
                     comparison.failures.append((key.label(), f"download: {failures[path]}"))
                     PROGRESS.line(f"skip {key.label()}: download failed")
                     continue
-                result = run_debmagic(run.debmagic, path, run.lint_args, args.timeout)
-                comparison.seconds += result.metrics.wall
+                if grouped is not None:
+                    result = grouped.get(key) or grouped[GROUP_FAILED]
+                else:
+                    result = run_debmagic(run.debmagic, path, run.lint_args, args.timeout)
+                    comparison.seconds += result.metrics.wall
                 if not result.ok:
                     comparison.failures.append((key.label(), result.error))
                     PROGRESS.line(f"FAILED {key.label()}: {result.error.splitlines()[0][:120]}")

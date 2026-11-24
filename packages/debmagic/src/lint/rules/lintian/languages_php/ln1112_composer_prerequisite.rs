@@ -47,15 +47,6 @@ const INSTALLABLE_FIELDS: &[&str] = &[
 
 impl SourceRule for ComposerPrerequisite {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        // Read the text before borrowing the parsed control, for the line numbers.
-        let text = ctx
-            .files()
-            .and_then(|files| {
-                let entry = files.get("debian/control")?;
-                files.read(entry).ok()
-            })
-            .map(|bytes| String::from_utf8_lossy(&bytes).into_owned())
-            .unwrap_or_default();
         let Some(control) = ctx.debian_control() else {
             return;
         };
@@ -68,7 +59,7 @@ impl SourceRule for ComposerPrerequisite {
                 .is_some_and(|relation| relation.satisfies("composer"));
             if satisfies {
                 hits.push((
-                    field_line(&text, None, field),
+                    control.source().position(field),
                     format!("{field} (in source paragraph)"),
                 ));
             }
@@ -81,7 +72,7 @@ impl SourceRule for ComposerPrerequisite {
                     .is_some_and(|relation| relation.satisfies("composer"));
                 if satisfies {
                     hits.push((
-                        field_line(&text, Some(installable.name()), field),
+                        installable.fields().position(field),
                         format!("{field} (in section for {})", installable.name()),
                     ));
                 }
@@ -95,46 +86,6 @@ impl SourceRule for ComposerPrerequisite {
             }));
         }
     }
-}
-
-/// The line of `field` in the source paragraph (`package` is `None`) or in the
-/// paragraph whose Package is `package`. `None` when the text does not show it.
-fn field_line(text: &str, package: Option<&str>, field: &str) -> Option<u32> {
-    let mut paragraphs: Vec<Vec<(u32, &str)>> = Vec::new();
-    let mut current = Vec::new();
-    for (index, line) in text.lines().enumerate() {
-        let number = u32::try_from(index + 1).unwrap_or(u32::MAX);
-        if line.trim().is_empty() {
-            if !current.is_empty() {
-                paragraphs.push(std::mem::take(&mut current));
-            }
-            continue;
-        }
-        current.push((number, line));
-    }
-    if !current.is_empty() {
-        paragraphs.push(current);
-    }
-
-    let paragraph = match package {
-        None => paragraphs.first()?,
-        Some(name) => paragraphs.iter().find(|paragraph| {
-            paragraph
-                .iter()
-                .any(|(_, line)| field_value(line, "Package") == Some(name))
-        })?,
-    };
-    paragraph
-        .iter()
-        .find(|(_, line)| field_value(line, field).is_some())
-        .map(|(number, _)| *number)
-}
-
-/// The value of a `Name: value` line, when the line names `name`
-/// (case-insensitively).
-fn field_value<'a>(line: &'a str, name: &str) -> Option<&'a str> {
-    let (key, value) = line.split_once(':')?;
-    (!key.starts_with(char::is_whitespace) && key.eq_ignore_ascii_case(name)).then(|| value.trim())
 }
 
 #[cfg(test)]

@@ -31,7 +31,6 @@ const PREREQUISITE_FIELDS: &[&str] = &["Pre-Depends", "Depends", "Recommends", "
 
 impl SourceRule for PackageDependsOnHardcodedLibc {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let paragraphs = raw_control_paragraphs(ctx);
         let Some(control) = ctx.debian_control() else {
             return;
         };
@@ -42,12 +41,6 @@ impl SourceRule for PackageDependsOnHardcodedLibc {
         let mut reports = Vec::new();
         for installable in control.installables() {
             let fields = installable.fields();
-            let line_of = |field: &str| {
-                paragraphs
-                    .iter()
-                    .find(|paragraph| paragraph.package.as_deref() == Some(installable.name()))
-                    .and_then(|paragraph| paragraph.line_of(field))
-            };
             for field in PREREQUISITE_FIELDS {
                 if !fields.declares(field) {
                     continue;
@@ -65,7 +58,7 @@ impl SourceRule for PackageDependsOnHardcodedLibc {
                         field,
                         relation.to_lintian_string()
                     ),
-                    line_of(field),
+                    fields.position(field),
                 ));
             }
         }
@@ -78,64 +71,6 @@ impl SourceRule for PackageDependsOnHardcodedLibc {
             }));
         }
     }
-}
-
-/// One paragraph of the raw `debian/control`: its `Package` value and the
-/// 1-based line of each field it starts.
-#[derive(Default)]
-struct RawParagraph {
-    package: Option<String>,
-    fields: Vec<(String, u32)>,
-}
-
-impl RawParagraph {
-    fn line_of(&self, field: &str) -> Option<u32> {
-        self.fields
-            .iter()
-            .find(|(name, _)| name.eq_ignore_ascii_case(field))
-            .map(|(_, line)| *line)
-    }
-}
-
-/// The paragraphs of the packaging `debian/control` as its text has them,
-/// for the field lines that the parsed control does not keep. Empty when the
-/// file is missing or unreadable.
-fn raw_control_paragraphs(ctx: &mut SourceContext<'_>) -> Vec<RawParagraph> {
-    let Some(files) = ctx.files() else {
-        return Vec::new();
-    };
-    let Some(entry) = files.get("debian/control") else {
-        return Vec::new();
-    };
-    let Ok(bytes) = files.read(entry) else {
-        return Vec::new();
-    };
-    let text = String::from_utf8_lossy(&bytes);
-
-    let mut paragraphs = Vec::new();
-    let mut current = RawParagraph::default();
-    for (index, line) in text.lines().enumerate() {
-        let number = u32::try_from(index + 1).unwrap_or(u32::MAX);
-        if line.trim().is_empty() {
-            if !current.fields.is_empty() {
-                paragraphs.push(std::mem::take(&mut current));
-            }
-            continue;
-        }
-        if line.starts_with('#') || line.starts_with([' ', '\t']) {
-            continue;
-        }
-        if let Some((name, value)) = line.split_once(':') {
-            if name.eq_ignore_ascii_case("Package") {
-                current.package = Some(value.trim().to_string());
-            }
-            current.fields.push((name.to_string(), number));
-        }
-    }
-    if !current.fields.is_empty() {
-        paragraphs.push(current);
-    }
-    paragraphs
 }
 
 #[cfg(test)]

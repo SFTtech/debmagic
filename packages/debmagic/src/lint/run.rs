@@ -69,7 +69,11 @@ pub struct LintTimings {
 
 pub fn run_lint(intent: &LintIntent) -> anyhow::Result<LintResult> {
     let started = Instant::now();
-    let threads = worker_threads(intent.threads);
+    let input_bytes = match &intent.target {
+        LintTarget::SourceTree(_) => None,
+        LintTarget::Artifacts(subjects) => Some(subjects.iter().map(subject_bytes).sum()),
+    };
+    let threads = worker_threads(intent.threads, intent.selected.len(), input_bytes);
     // The whole run happens inside this pool, so everything that
     // parallelizes (Rules, file classification) follows `--threads`.
     let pool = rayon::ThreadPoolBuilder::new()
@@ -236,13 +240,71 @@ fn run_source_tree_lint(
     finish_run(intent, stages, ignored_overrides, started)
 }
 
-/// Worker threads for a run: the requested count (0 counts as unset), or the
-/// machine's available parallelism. At least 1.
-fn worker_threads(requested: Option<usize>) -> usize {
-    requested
-        .filter(|&threads| threads > 0)
-        .or_else(|| std::thread::available_parallelism().ok().map(Into::into))
-        .unwrap_or(1)
+/// Input bytes per worker thread for a small Subject. Its Rules finish in
+/// milliseconds, and every extra thread costs startup and idle-spin CPU.
+const BYTES_PER_THREAD: u64 = 256 * 1024;
+
+/// Input size from which a Subject takes the whole pool. Below it the Rules
+/// run in a few hundred milliseconds and a wide pool only adds CPU; above it
+/// (the large samba `.deb`s) the wall time depends on running Rules side by side.
+const FULL_POOL_BYTES: u64 = 1024 * 1024;
+
+/// Worker threads for a run: the requested count exactly when given (0 counts
+/// as unset). Otherwise sized to the input (see the constants above), capped
+/// by the available parallelism and by the number of selected Rules, and never
+/// below one. `input_bytes` is `None` for a Source tree, which is not sized
+/// and takes the whole pool.
+fn worker_threads(
+    requested: Option<usize>,
+    selected_rules: usize,
+    input_bytes: Option<u64>,
+) -> usize {
+    if let Some(threads) = requested.filter(|&threads| threads > 0) {
+        return threads;
+    }
+    let parallelism: usize = std::thread::available_parallelism()
+        .map(Into::into)
+        .unwrap_or(1);
+    let cap = parallelism.min(selected_rules).max(1);
+    let wanted = match input_bytes {
+        None => cap,
+        Some(bytes) if bytes >= FULL_POOL_BYTES => cap,
+        Some(bytes) => usize::try_from(bytes.div_ceil(BYTES_PER_THREAD)).unwrap_or(usize::MAX),
+    };
+    wanted.clamp(1, cap)
+}
+
+/// The input a Subject's Rules read: the file itself and, for a `.dsc`, the
+/// files its `Files:` field lists (the orig tarball is most of that work).
+fn subject_bytes(subject: &Subject) -> u64 {
+    let own = std::fs::metadata(subject.path()).map_or(0, |meta| meta.len());
+    match subject {
+        Subject::SourcePackage(path) => {
+            let listed = std::fs::read_to_string(path).map_or(0, |text| dsc_listed_bytes(&text));
+            own + listed
+        }
+        _ => own,
+    }
+}
+
+/// Sum of the sizes in a `.dsc` `Files:` block (` <md5> <size> <name>` lines).
+fn dsc_listed_bytes(text: &str) -> u64 {
+    let mut in_files = false;
+    let mut total = 0;
+    for line in text.lines() {
+        if line.starts_with("Files:") {
+            in_files = true;
+        } else if in_files && line.starts_with(' ') {
+            total += line
+                .split_whitespace()
+                .nth(1)
+                .and_then(|size| size.parse::<u64>().ok())
+                .unwrap_or(0);
+        } else {
+            in_files = false;
+        }
+    }
+    total
 }
 
 struct RuleProduct {
@@ -1245,11 +1307,35 @@ Rules
     }
 
     #[test]
-    fn worker_threads_uses_request_or_available_parallelism() {
-        assert_eq!(worker_threads(Some(8)), 8);
-        assert_eq!(worker_threads(Some(1)), 1);
-        assert!(worker_threads(Some(0)) >= 1);
-        assert!(worker_threads(None) >= 1);
+    fn worker_threads_honours_request_and_sizes_to_input() {
+        // An explicit count is exact, even above the Rule count or the input size.
+        assert_eq!(worker_threads(Some(8), 1, Some(1)), 8);
+        assert_eq!(worker_threads(Some(1), 500, None), 1);
+        // Unset or zero: sized to the input, never above the Rules or the machine.
+        assert_eq!(worker_threads(Some(0), 500, Some(0)), 1);
+        // Just over three chunks of input asks for four threads, unless the machine has fewer.
+        let four = worker_threads(None, 500, Some(BYTES_PER_THREAD * 3 + 1));
+        assert!((1..=4).contains(&four));
+        // A large Subject, and a Source tree, take the whole pool.
+        let parallelism: usize = std::thread::available_parallelism().map_or(1, Into::into);
+        assert_eq!(
+            worker_threads(None, 500, Some(FULL_POOL_BYTES)),
+            parallelism.min(500)
+        );
+        assert_eq!(worker_threads(None, 500, None), parallelism.min(500));
+        assert_eq!(worker_threads(None, 1, None), 1);
+        assert!(worker_threads(None, 500, None) >= 1);
+    }
+
+    #[test]
+    fn dsc_listed_bytes_sums_the_files_field() {
+        let text = "Format: 3.0 (quilt)\n\
+            Files:\n \
+            d41d8cd98f00b204e9800998ecf8427e 100 a.orig.tar.xz\n \
+            d41d8cd98f00b204e9800998ecf8427e 25 a.debian.tar.xz\n\
+            Checksums-Sha1:\n \
+            d41d8cd98f00b204e9800998ecf8427e 999 ignored\n";
+        assert_eq!(dsc_listed_bytes(text), 125);
     }
 
     #[test]
@@ -1284,7 +1370,10 @@ Rules
                 overrides: OverrideMode::Hide,
             };
             let result = run_lint(&intent)?;
-            assert_eq!(result.threads, worker_threads(threads));
+            assert_eq!(
+                result.threads,
+                worker_threads(threads, selected.len(), None)
+            );
             Ok(result.diagnostics.iter().map(format_diagnostic).collect())
         };
 

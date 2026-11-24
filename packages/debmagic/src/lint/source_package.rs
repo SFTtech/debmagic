@@ -399,9 +399,13 @@ fn merge_tree(src: &Path, dest: &Path) -> anyhow::Result<()> {
 /// tar header.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct OrigEntry {
+    /// The name lintian's orig index gives the entry: the top directory is
+    /// dropped, and a `./` segment after it is kept (lintian does not strip it).
     pub path: PathBuf,
     pub is_dir: bool,
     pub mtime: Option<i64>,
+    /// A regular file or a hardlink, as lintian's `is_file` counts them.
+    pub is_file: bool,
 }
 
 /// The entries of the Orig tarballs of the `.dsc` at `dsc_path`, read from
@@ -419,16 +423,17 @@ pub(crate) fn orig_entries(dsc_path: &Path, dsc: &Dsc) -> anyhow::Result<Vec<Ori
     let mut entries = Vec::new();
     for (filename, component) in identity.orig_components()? {
         let members = tarball_members(&identity.directory().join(&filename))?;
-        for (path, is_dir, mtime) in drop_common_top_directory(members, &component) {
+        for member in drop_common_top_directory(members, &component) {
             let path = if component.is_empty() {
-                path
+                member.path
             } else {
-                Path::new(&component).join(path)
+                Path::new(&component).join(member.path)
             };
             entries.push(OrigEntry {
                 path,
-                is_dir,
-                mtime,
+                is_dir: member.is_dir,
+                mtime: member.mtime,
+                is_file: member.is_file,
             });
         }
     }
@@ -445,6 +450,7 @@ pub(crate) fn orig_entries(dsc_path: &Path, dsc: &Dsc) -> anyhow::Result<Vec<Ori
 struct TarMember {
     path: PathBuf,
     is_dir: bool,
+    is_file: bool,
     mtime: Option<i64>,
 }
 
@@ -463,9 +469,11 @@ fn tarball_members(path: &Path) -> anyhow::Result<Vec<TarMember>> {
         let Some(normalized) = normalize_member_path(&name) else {
             continue;
         };
+        let kind = entry.header().entry_type();
         members.push(TarMember {
             path: normalized,
-            is_dir: entry.header().entry_type().is_dir(),
+            is_dir: kind.is_dir(),
+            is_file: kind.is_file() || kind.is_hard_link(),
             mtime: header_mtime(entry.header()),
         });
     }
@@ -502,10 +510,7 @@ fn open_tarball(path: &Path) -> anyhow::Result<Box<dyn std::io::Read>> {
 /// top directory that every member shares, as the extraction does, unless a
 /// file of that name exists. The component directory is kept (the caller adds
 /// it). Entries left with no name are dropped.
-fn drop_common_top_directory(
-    members: Vec<TarMember>,
-    component: &str,
-) -> Vec<(PathBuf, bool, Option<i64>)> {
+fn drop_common_top_directory(members: Vec<TarMember>, component: &str) -> Vec<TarMember> {
     let common: PathBuf = {
         let tops: BTreeSet<&OsStr> = members
             .iter()
@@ -526,13 +531,27 @@ fn drop_common_top_directory(
         .into_iter()
         .filter_map(|member| {
             let path = if strip {
-                member.path.strip_prefix(&common).ok()?.to_path_buf()
+                strip_top_directory(&member.path, &common)?
             } else {
-                member.path
+                member.path.clone()
             };
-            (!path.as_os_str().is_empty()).then_some((path, member.is_dir, member.mtime))
+            (!path.as_os_str().is_empty()).then_some(TarMember { path, ..member })
         })
         .collect()
+}
+
+/// `path` without its leading `top/` segment, every other byte kept: a `./`
+/// segment after the top directory survives, as in lintian's orig index.
+fn strip_top_directory(path: &Path, top: &Path) -> Option<PathBuf> {
+    use std::os::unix::ffi::OsStrExt;
+
+    let bytes = path.as_os_str().as_bytes();
+    let top = top.as_os_str().as_bytes();
+    if bytes == top {
+        return Some(PathBuf::new());
+    }
+    let rest = bytes.strip_prefix(top)?.strip_prefix(b"/")?;
+    Some(PathBuf::from(OsStr::from_bytes(rest)))
 }
 
 fn named_files(fields: &ControlParagraph) -> Vec<String> {
@@ -966,5 +985,36 @@ mod tests {
         let dsc = DscIdentity::load(&path)?;
         assert_eq!(dsc.package_name(), "foo");
         Ok(())
+    }
+
+    fn member(path: &str, is_dir: bool) -> TarMember {
+        TarMember {
+            path: PathBuf::from(path),
+            is_dir,
+            is_file: !is_dir,
+            mtime: None,
+        }
+    }
+
+    #[test]
+    fn orig_names_keep_a_dot_segment_after_the_top_directory() {
+        // vulkan-loader's orig tarball lists `top/./loader/x`; lintian's index
+        // drops only `top/`, so the name keeps its `./` (LN0008 depends on it).
+        let members = vec![
+            member("vulkan-loader-1.0", true),
+            member("vulkan-loader-1.0/./loader/cJSON.c", false),
+            member("vulkan-loader-1.0/loader/plain.c", false),
+        ];
+        let names: Vec<PathBuf> = drop_common_top_directory(members, "")
+            .into_iter()
+            .map(|member| member.path)
+            .collect();
+        assert_eq!(
+            names,
+            vec![
+                PathBuf::from("./loader/cJSON.c"),
+                PathBuf::from("loader/plain.c")
+            ]
+        );
     }
 }

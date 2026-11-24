@@ -321,6 +321,17 @@ mod tests {
         files
     }
 
+    /// Lintian's orig names keep a `./` segment after the top directory
+    /// (`./loader/cJSON.c`), so a wildcard spelled without it matches nothing.
+    #[test]
+    fn dot_segment_in_an_orig_name_is_not_matched() {
+        let names = vec!["./loader/cJSON.c".to_string()];
+        assert!(match_glob("loader/cJSON.*", &names).is_empty());
+        assert_eq!(match_glob("*", &names), vec!["./loader/cJSON.c"]);
+        // The wildcard's own `./` is dropped, the name's is not.
+        assert!(match_glob("./loader/cJSON.*", &names).is_empty());
+    }
+
     #[test]
     fn test() {
         let pass = vec![

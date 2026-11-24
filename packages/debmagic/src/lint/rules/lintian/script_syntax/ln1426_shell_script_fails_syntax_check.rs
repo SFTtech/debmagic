@@ -3,10 +3,10 @@ use std::path::PathBuf;
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::file_tree::FileTree;
+use crate::lint::file_tree::{Entry, FileTree};
 use crate::lint::rule::BinaryPackageRule;
 
-use super::syntax::{Checker, fails_syntax_check, host_checkers};
+use super::syntax::{Checker, failing_paths, host_checkers};
 
 pub struct ShellScriptFailsSyntaxCheck;
 
@@ -51,13 +51,12 @@ impl BinaryPackageRule for ShellScriptFailsSyntaxCheck {
 /// Installed files whose shell rejects them with `-n`, outside the skipped
 /// trees.
 fn failing_scripts(files: &FileTree, checkers: &[Checker]) -> Vec<PathBuf> {
-    files
+    let candidates: Vec<&Entry> = files
         .entries()
         .iter()
         .filter(|entry| !skipped(entry.path()))
-        .filter(|entry| fails_syntax_check(files, entry, checkers))
-        .map(|entry| entry.path().to_path_buf())
-        .collect()
+        .collect();
+    failing_paths(files, &candidates, checkers)
 }
 
 /// lintian's `visit_installed_files` skips: documentation (examples are a

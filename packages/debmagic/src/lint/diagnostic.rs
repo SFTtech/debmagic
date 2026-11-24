@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 use std::path::PathBuf;
 
 use super::rule::{Code, Severity, Tag};
-use super::run::pointer_path;
+use super::run::override_pointer_path;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Location {
@@ -173,7 +173,7 @@ impl Diagnostic {
             pieces.push(self.inner.message.clone());
         }
         if !self.inner.location.path.as_os_str().is_empty() {
-            let mut pointer = pointer_path(&self.inner.location.path);
+            let mut pointer = override_pointer_path(&self.inner.location.path);
             if let Some(line) = self.inner.location.line.filter(|&line| line > 0) {
                 pointer.push_str(&format!(":{line}"));
             }

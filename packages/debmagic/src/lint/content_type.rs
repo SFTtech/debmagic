@@ -14,7 +14,7 @@ pub(crate) enum ContentType {
     Tiff,
     /// Windows or OS/2 bitmap (`BM` header), `file(1)`: `PC bitmap`.
     Bmp,
-    /// `/* XPM */` text.
+    /// `/* XPM */` text with a `static` declaration (see [`is_xpm`]).
     Xpm,
     /// Netpbm `P1` to `P7` followed by white space.
     Netpbm,
@@ -45,7 +45,7 @@ impl ContentType {
         if bytes.starts_with(b"II*\0") || bytes.starts_with(b"MM\0*") {
             return Some(Self::Tiff);
         }
-        if bytes.starts_with(b"/* XPM */") {
+        if is_xpm(bytes) {
             return Some(Self::Xpm);
         }
         if bytes.len() > 2
@@ -93,22 +93,393 @@ pub(crate) fn is_type1_font(bytes: &[u8]) -> bool {
     bytes.len() > 6 && bytes[0] == 0x80 && bytes[1] == 1 && bytes[6..].starts_with(b"%!")
 }
 
-/// Whether `file(1)` would call `bytes` `ASCII text` (lintian's
-/// `\bASCII text\b`): non-empty, every byte printable ASCII or a usual text
-/// control, and not a generic INI configuration (see [`is_ini_config`]). A
-/// single byte is `very short file (no magic)` and an empty file is `empty`,
-/// so neither is. Valid UTF-8 with non-ASCII bytes is `UTF-8 Unicode text` to
-/// `file(1)`, so it is not ASCII text either.
-pub(crate) fn is_ascii_text(bytes: &[u8]) -> bool {
-    bytes.len() > 1 && is_text_bytes(bytes) && !is_ini_config(bytes)
+/// The text `file(1)` 5.47 describes its input as, when it describes it as
+/// text. lintian's Checks match these descriptions by regex: `(ASCII|Unicode)
+/// text` and `\bASCII text\b`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum TextKind {
+    /// `ASCII text`.
+    Ascii,
+    /// `Non-ISO extended-ASCII text`: bytes that are not UTF-8 and hold C1
+    /// controls (0x80 to 0x9f). The substring `ASCII text` matches both regexes.
+    ExtendedAscii,
+    /// `Unicode text`: UTF-8, with or without a byte order mark, or UTF-16 with
+    /// a little-endian one.
+    Unicode,
 }
 
-/// Whether every byte is printable ASCII or one of the usual text controls,
-/// as `file(1)` accepts in ASCII text.
-fn is_text_bytes(bytes: &[u8]) -> bool {
-    bytes
+/// The text `file(1)` 5.47 gives `bytes`, or `None` when it names them by
+/// another magic (see [`is_other_magic`]) or does not call them text. Only the
+/// first 64 KiB are examined for text. The bytes of ASCII text are printable
+/// ASCII, BEL, backspace, the whitespace controls, SUB, ESC and NEL (0x85).
+/// A single byte is `very short file (no magic)` and an empty file is
+/// `empty`, so neither is text.
+pub(crate) fn text_kind(bytes: &[u8]) -> Option<TextKind> {
+    // `file(1)` drops trailing NUL bytes before it looks at the text.
+    let end = bytes
         .iter()
-        .all(|&byte| matches!(byte, 0x08 | 0x09..=0x0d | 0x1b | 0x20..=0x7e))
+        .rposition(|&byte| byte != 0)
+        .map_or(0, |last| last + 1);
+    let bytes = &bytes[..end];
+    if bytes.len() < 2 || is_other_magic(bytes) {
+        return None;
+    }
+    let window = &bytes[..bytes.len().min(TEXT_WINDOW)];
+    if let Some(body) = window.strip_prefix(b"\xff\xfe") {
+        return utf16_is_text(body, u16::from_le_bytes).then_some(TextKind::Unicode);
+    }
+    if let Some(body) = window.strip_prefix(b"\xfe\xff") {
+        return utf16_is_text(body, u16::from_be_bytes).then_some(TextKind::Unicode);
+    }
+    if window.iter().all(|&byte| is_ascii_text_byte(byte)) {
+        return Some(TextKind::Ascii);
+    }
+    if window
+        .iter()
+        .all(|&byte| byte >= 0x80 || is_ascii_text_byte(byte))
+        && std::str::from_utf8(window).is_ok()
+    {
+        return Some(TextKind::Unicode);
+    }
+    // ISO-8859 text is Latin-1 without C1 controls, which lintian does not match.
+    if window
+        .iter()
+        .all(|&byte| byte >= 0x80 || is_ascii_text_byte(byte))
+        && window.iter().any(|&byte| (0x80..=0x9f).contains(&byte))
+    {
+        return Some(TextKind::ExtendedAscii);
+    }
+    None
+}
+
+/// Whether `file(1)` 5.47 describes `bytes` as `(ASCII|Unicode) text`, lintian's
+/// test for the `Contents::LineLength` Check. The non-ASCII descriptions match
+/// it too, since `Non-ISO extended-ASCII text` contains `ASCII text`.
+pub(crate) fn is_text(bytes: &[u8]) -> bool {
+    text_kind(bytes).is_some()
+}
+
+/// Whether `file(1)` 5.47 describes `bytes` as `ASCII text` in lintian's
+/// `\bASCII text\b` sense, which also matches `Non-ISO extended-ASCII text`.
+/// Valid UTF-8 with non-ASCII bytes is `UTF-8 Unicode text`, so it is not.
+pub(crate) fn is_ascii_text(bytes: &[u8]) -> bool {
+    matches!(
+        text_kind(bytes),
+        Some(TextKind::Ascii | TextKind::ExtendedAscii)
+    )
+}
+
+/// The first 64 KiB of a file: the window `file(1)` runs its text test on.
+const TEXT_WINDOW: usize = 64 * 1024;
+
+/// The bytes of ASCII text in `file(1)`: printable ASCII, BEL, backspace, tab,
+/// line feed, vertical tab, form feed, carriage return, SUB, ESC and NEL.
+fn is_ascii_text_byte(byte: u8) -> bool {
+    matches!(byte, 0x07..=0x0d | 0x1a | 0x1b | 0x20..=0x7e | 0x85)
+}
+
+/// Whether `file(1)` 5.47 describes `bytes` as an image that still ends in
+/// `ASCII text`, such as `Netpbm image data, ... ASCII text` or `xbm image
+/// (16x16), ASCII text`. lintian's `image|bitmap|JSON` test skips these, so
+/// they are text for [`is_text`] and `is_ascii_text`, but not for a Check
+/// that skips images.
+pub(crate) fn is_ascii_image(bytes: &[u8]) -> bool {
+    ContentType::sniff(bytes) == Some(ContentType::Netpbm) || is_xbm(bytes)
+}
+
+/// Whether `file(1)` names `bytes` by a magic that is not text, so that it
+/// does not describe them as `ASCII text` or `Unicode text`: a sniffed format
+/// other than the image formats of [`is_ascii_image`], RTF, a FontForge file,
+/// a generic INI file, an OpenSSH key or PEM armour, a Perl script, a FIG
+/// (`#FIG`: an image, and lintian skips it whichever way it is read) or TeX
+/// file, a LyX file, a mailbox (`From ` at the start), a sendmail m4 file, or
+/// JSON.
+fn is_other_magic(bytes: &[u8]) -> bool {
+    matches!(ContentType::sniff(bytes), Some(kind) if kind != ContentType::Netpbm)
+        || bytes.starts_with(b"{\\rtf")
+        || bytes.starts_with(b"SplineFontDB:")
+        || bytes.starts_with(b"#FIG")
+        || bytes.starts_with(b"%!TEX root")
+        || bytes.starts_with(b"#LyX")
+        || bytes.starts_with(b"From ")
+        || bytes.starts_with(b"divert(-1)\n")
+        || is_perl_script(bytes)
+        || is_key_or_armor(bytes)
+        || is_ini_config(bytes)
+        || is_json(bytes)
+}
+
+/// Whether the first line is `#!` and a Perl interpreter (`file(1)` 5.47 names
+/// it `Perl script text executable`): an absolute path ending `/perl`, or
+/// `/usr/bin/env perl`, followed by white space (`#!./perl` is `Perl5 module
+/// source`, which is text). The line must end with a newline, since
+/// `#!/usr/bin/perl` alone is `ASCII text`.
+fn is_perl_script(bytes: &[u8]) -> bool {
+    let Some(end) = bytes.iter().position(|&byte| byte == b'\n') else {
+        return false;
+    };
+    let Some(line) = bytes[..end].strip_prefix(b"#!") else {
+        return false;
+    };
+    let words: Vec<&[u8]> = line
+        .split(u8::is_ascii_whitespace)
+        .filter(|word| !word.is_empty())
+        .collect();
+    // A relative `./perl` is `Perl5 module source, ASCII text` to file(1).
+    match words.as_slice() {
+        [path, ..] if path.starts_with(b"/") && path.ends_with(b"/perl") => true,
+        [path, interpreter, ..] => {
+            path.starts_with(b"/") && path.ends_with(b"/env") && *interpreter == b"perl"
+        }
+        _ => false,
+    }
+}
+
+/// Whether the first line is `#define <name>_width <n>`, which `file(1)` 5.47
+/// names `xbm image` (an X bitmap).
+fn is_xbm(bytes: &[u8]) -> bool {
+    let Some(rest) = bytes.strip_prefix(b"#define ") else {
+        return false;
+    };
+    let name_end = rest
+        .iter()
+        .position(u8::is_ascii_whitespace)
+        .unwrap_or(rest.len());
+    rest[..name_end].ends_with(b"_width") && rest.get(name_end) == Some(&b' ')
+}
+
+/// The PEM and PGP armour headers `file(1)` 5.47 names by magic (probed). The
+/// other PEM labels, such as `X509 CERTIFICATE`, `TRUSTED CERTIFICATE` and
+/// `PKCS7`, are `ASCII text`.
+const ARMOR_HEADERS: [&[u8]; 11] = [
+    b"-----BEGIN CERTIFICATE-----",
+    b"-----BEGIN CERTIFICATE REQUEST-----",
+    b"-----BEGIN PUBLIC KEY-----",
+    b"-----BEGIN RSA PUBLIC KEY-----",
+    b"-----BEGIN PRIVATE KEY-----",
+    b"-----BEGIN RSA PRIVATE KEY-----",
+    b"-----BEGIN DSA PRIVATE KEY-----",
+    b"-----BEGIN EC PRIVATE KEY-----",
+    b"-----BEGIN ENCRYPTED PRIVATE KEY-----",
+    b"-----BEGIN OPENSSH PRIVATE KEY-----",
+    b"-----BEGIN PGP ",
+];
+
+/// Whether `bytes` starts like an OpenSSH key or a PEM or PGP armour: the key
+/// magics `file(1)` 5.47 names at offset 0 (`ssh-rsa` and `ssh-dss` followed by
+/// a space, the ED25519 and ECDSA key types as a prefix, also of their
+/// certificates, and the U2F keys), or one of [`ARMOR_HEADERS`].
+fn is_key_or_armor(bytes: &[u8]) -> bool {
+    const KEY_PREFIXES: [&[u8]; 6] = [
+        b"ssh-ed25519",
+        b"ecdsa-sha2-nistp256",
+        b"ecdsa-sha2-nistp384",
+        b"ecdsa-sha2-nistp521",
+        b"sk-ssh-ed25519@openssh.com",
+        b"sk-ecdsa-sha2-nistp256@openssh.com",
+    ];
+    bytes.starts_with(b"ssh-rsa ")
+        || bytes.starts_with(b"ssh-dss ")
+        || KEY_PREFIXES.iter().any(|prefix| bytes.starts_with(prefix))
+        || ARMOR_HEADERS.iter().any(|header| bytes.starts_with(header))
+}
+
+/// Whether `body`, the bytes after a UTF-16 byte order mark, is text to
+/// `file(1)` (`Unicode text, UTF-16, little-endian text` or big-endian): every
+/// code point is non-ASCII or an ASCII text byte, and there are no unpaired
+/// surrogates. Without the mark, UTF-16 is `data`.
+fn utf16_is_text(body: &[u8], decode: fn([u8; 2]) -> u16) -> bool {
+    let (pairs, _odd_byte) = body.as_chunks::<2>();
+    let units = pairs.iter().map(|&pair| decode(pair));
+    char::decode_utf16(units).all(|unit| {
+        unit.is_ok_and(|character| !character.is_ascii() || is_ascii_text_byte(character as u8))
+    })
+}
+
+/// Whether `bytes` is a JSON document to `file(1)` 5.47: a sequence of
+/// top-level objects or arrays separated by white space (a single one is
+/// `JSON text data`, several are `New Line Delimited JSON text data`). The
+/// grammar is lenient as `file(1)` is: a trailing comma, a leading zero and a
+/// control byte in a string are accepted. A scalar, a bare comma, or an
+/// unquoted key is not JSON. File reads at most 7 MiB, so a longer file
+/// is judged by its first 7 MiB, which is then incomplete.
+fn is_json(bytes: &[u8]) -> bool {
+    let mut scan = JsonScan {
+        bytes: &bytes[..bytes.len().min(JSON_LIMIT)],
+        pos: 0,
+    };
+    let mut kinds = Vec::new();
+    loop {
+        scan.skip_whitespace();
+        let Some(first) = scan.peek() else { break };
+        if !matches!(first, b'{' | b'[') || scan.value(1).is_none() {
+            return false;
+        }
+        kinds.push(first);
+    }
+    match kinds.as_slice() {
+        [] => false,
+        [_] => true,
+        // `file(1)` tells a line-delimited sequence apart by its first two
+        // values, which must be of the same kind.
+        [first, second, ..] => first == second,
+    }
+}
+
+/// The largest JSON input `file(1)` 5.47 reads: 7 MiB.
+const JSON_LIMIT: usize = 7 * 1024 * 1024;
+
+/// The deepest nested array (251) and object (250) `file(1)` 5.47 accepts,
+/// probed: one level more makes the document ASCII text.
+const JSON_ARRAY_MAX_DEPTH: usize = 251;
+const JSON_OBJECT_MAX_DEPTH: usize = 250;
+
+/// A lenient JSON scanner over the bytes of a file (see [`is_json`]).
+struct JsonScan<'a> {
+    bytes: &'a [u8],
+    pos: usize,
+}
+
+impl JsonScan<'_> {
+    fn peek(&self) -> Option<u8> {
+        self.bytes.get(self.pos).copied()
+    }
+
+    fn eat(&mut self, byte: u8) -> Option<()> {
+        (self.peek()? == byte).then(|| self.pos += 1)
+    }
+
+    fn skip_whitespace(&mut self) {
+        while matches!(self.peek(), Some(b' ' | b'\t' | b'\r' | b'\n')) {
+            self.pos += 1;
+        }
+    }
+
+    /// A value at `depth`, the number of containers around it plus one.
+    fn value(&mut self, depth: usize) -> Option<()> {
+        match self.peek()? {
+            b'{' => self.object(depth),
+            b'[' => self.array(depth),
+            b'"' => self.string(),
+            b'-' | b'0'..=b'9' => self.number(),
+            b't' => self.literal(b"true"),
+            b'f' => self.literal(b"false"),
+            b'n' => self.literal(b"null"),
+            _ => None,
+        }
+    }
+
+    fn literal(&mut self, word: &[u8]) -> Option<()> {
+        self.bytes[self.pos..]
+            .starts_with(word)
+            .then(|| self.pos += word.len())
+    }
+
+    fn array(&mut self, depth: usize) -> Option<()> {
+        if depth > JSON_ARRAY_MAX_DEPTH {
+            return None;
+        }
+        self.eat(b'[')?;
+        self.skip_whitespace();
+        if self.eat(b']').is_some() {
+            return Some(());
+        }
+        loop {
+            self.value(depth + 1)?;
+            self.skip_whitespace();
+            if self.eat(b',').is_some() {
+                self.skip_whitespace();
+                if self.eat(b']').is_some() {
+                    return Some(());
+                }
+            } else {
+                return self.eat(b']');
+            }
+        }
+    }
+
+    fn object(&mut self, depth: usize) -> Option<()> {
+        if depth > JSON_OBJECT_MAX_DEPTH {
+            return None;
+        }
+        self.eat(b'{')?;
+        self.skip_whitespace();
+        if self.eat(b'}').is_some() {
+            return Some(());
+        }
+        loop {
+            self.string()?;
+            self.skip_whitespace();
+            self.eat(b':')?;
+            self.skip_whitespace();
+            self.value(depth + 1)?;
+            self.skip_whitespace();
+            if self.eat(b',').is_some() {
+                self.skip_whitespace();
+                if self.eat(b'}').is_some() {
+                    return Some(());
+                }
+            } else {
+                return self.eat(b'}');
+            }
+        }
+    }
+
+    fn string(&mut self) -> Option<()> {
+        self.eat(b'"')?;
+        loop {
+            match self.peek()? {
+                b'"' => {
+                    self.pos += 1;
+                    return Some(());
+                }
+                b'\\' => {
+                    self.pos += 1;
+                    match self.peek()? {
+                        b'"' | b'\\' | b'/' | b'b' | b'f' | b'n' | b'r' | b't' => self.pos += 1,
+                        b'u' => {
+                            self.pos += 1;
+                            for _ in 0..4 {
+                                if !self.peek()?.is_ascii_hexdigit() {
+                                    return None;
+                                }
+                                self.pos += 1;
+                            }
+                        }
+                        _ => return None,
+                    }
+                }
+                _ => self.pos += 1,
+            }
+        }
+    }
+
+    fn number(&mut self) -> Option<()> {
+        if self.peek() == Some(b'-') {
+            self.pos += 1;
+        }
+        self.digits()?;
+        if self.peek() == Some(b'.') {
+            self.pos += 1;
+            self.digits()?;
+        }
+        if matches!(self.peek(), Some(b'e' | b'E')) {
+            self.pos += 1;
+            if matches!(self.peek(), Some(b'+' | b'-')) {
+                self.pos += 1;
+            }
+            self.digits()?;
+        }
+        Some(())
+    }
+
+    fn digits(&mut self) -> Option<()> {
+        let start = self.pos;
+        while matches!(self.peek(), Some(b'0'..=b'9')) {
+            self.pos += 1;
+        }
+        (self.pos > start).then_some(())
+    }
 }
 
 /// Whether `file(1)` 5.47 names `bytes` `Generic INItialization configuration`
@@ -116,24 +487,24 @@ fn is_text_bytes(bytes: &[u8]) -> bool {
 /// files get instead of `ASCII text`. The rule is probed from `file`'s output,
 /// not copied from its magic source, and it is narrower than `file`'s:
 ///
-/// - The text starts with `[`, and the first `[` after its first byte opens a
-///   section header whose `[` is at or before byte 8193. A header is `[`, a
-///   name of ASCII letters, digits, spaces, `_`, `(` or `)`, then `]`, then
-///   `\r\n`, or `\r` or `\n` with at least one byte after it.
-/// - A text that starts with `;` (a comment in some INI files) is not
-///   modelled: `file(1)` names some of those INI too, and no `;` rule matched
-///   every probed file.
+/// - The text starts with `[` or `;` (a comment in many INI files; `#` is
+///   ASCII text), and the second `[` in the text, counting a `[` at the start,
+///   opens a section header whose `[` is at or before byte 8193. It may sit in
+///   a comment: `[x] junk` and `; see [note]` count as brackets too, and only
+///   the second one is looked at (probed on both starts).
+/// - A header is `[`, a name of ASCII letters, digits, spaces, `_`, `(` or
+///   `)`, then `]`, then `\r\n`, or `\r` or `\n` with at least one byte after it.
 ///
 /// Other rules that `file(1)` applies first (JSON, for one) are not modelled.
 pub(crate) fn is_ini_config(bytes: &[u8]) -> bool {
-    if bytes.first() != Some(&b'[') {
+    if !matches!(bytes.first(), Some(b'[' | b';')) {
         return false;
     }
-    let window = &bytes[1..bytes.len().min(INI_HEADER_LAST_START + 1)];
-    window
-        .iter()
-        .position(|&byte| byte == b'[')
-        .is_some_and(|offset| is_ini_header(&bytes[1 + offset..]))
+    let limit = bytes.len().min(INI_HEADER_LAST_START + 1);
+    (0..limit)
+        .filter(|&index| bytes[index] == b'[')
+        .nth(1)
+        .is_some_and(|index| is_ini_header(&bytes[index..]))
 }
 
 /// The last byte offset at which an INI section header may start.
@@ -155,6 +526,16 @@ fn is_ini_header(text: &[u8]) -> bool {
         text.get(1 + name_len..),
         Some([b']', b'\r', b'\n', ..] | [b']', b'\r' | b'\n', _, ..])
     )
+}
+
+/// `/* XPM */` text with a `static` declaration in its first 8 KiB. The header
+/// alone is `ASCII text` to `file(1)` 5.47; the declaration makes it `X pixmap
+/// image text` (probed).
+fn is_xpm(bytes: &[u8]) -> bool {
+    bytes.starts_with(b"/* XPM */")
+        && bytes[..bytes.len().min(8192)]
+            .windows(7)
+            .any(|window| window == b"static ")
 }
 
 /// An XML or SVG document with `<svg` within its first 8 KiB, after an optional
@@ -212,7 +593,12 @@ mod tests {
         );
         assert_eq!(ContentType::sniff(b"GIF89a rest"), Some(ContentType::Gif));
         assert_eq!(ContentType::sniff(b"II*\0rest"), Some(ContentType::Tiff));
-        assert_eq!(ContentType::sniff(b"/* XPM */\n"), Some(ContentType::Xpm));
+        assert_eq!(
+            ContentType::sniff(b"/* XPM */\nstatic char *x[] = {\n"),
+            Some(ContentType::Xpm)
+        );
+        // The header alone is ASCII text to file(1).
+        assert_eq!(ContentType::sniff(b"/* XPM */\nx\n"), None);
         assert_eq!(
             ContentType::sniff(b"P4\n# c\n8 1\n\x00"),
             Some(ContentType::Netpbm)
@@ -373,6 +759,18 @@ mod tests {
             "]\n[A]\nk=v\n[B]\nk=v\n",
             "=[A]\nk=v\n[B]\nk=v\n",
             "[A]\nk=v\n\n[B]",
+            // A `;` text: the second `[` anywhere decides, even in a comment.
+            ";c\n[x] junk\n[A]\nk=v\n[B]\nk=v\n",
+            ";c\n; [note]\n[A]\nk=v\n[B]\nk=v\n",
+            ";c\n[see here\n[A]\nk=v\n[B]\nk=v\n",
+            ";c\n; - the [Top] section\n[A]\nk=v\n[B]\nk=v\n",
+            ";c\n[A]\n; - the [Top] section\nk=v\n[B]\nk=v\n",
+            ";c\n[A] x\n[B]\nk=v\n",
+            ";c\n[A]\n; x\n[B]\nk=v\n",
+            ";c\n[A]\nk=v\n",
+            ";c\n[A]\n[B]\n",
+            ";c\n[A]\n[B]\nk=v",
+            "[A]\n; [note]\n[B]\nk=v\n",
             // Plain text, and the usual text controls.
             "plain text\n",
             "a=1\nb=2\n",
@@ -454,6 +852,212 @@ mod tests {
                 ascii,
                 "ASCII text for {:?}: file says {description:?}",
                 String::from_utf8_lossy(bytes)
+            );
+        }
+    }
+
+    /// Generated files for [`text_kind`]: every byte value in two contexts,
+    /// the 64 KiB window edge, UTF-8 and UTF-16 forms, and the magics that name
+    /// a text file otherwise (PostScript, OpenSSH keys, JSON, SVG, XPM, Netpbm).
+    fn text_fixtures() -> Vec<Vec<u8>> {
+        let mut fixtures: Vec<Vec<u8>> = Vec::new();
+        for byte in 0..=255u8 {
+            fixtures.push([b"ab".as_slice(), &[byte], b"cd\n"].concat());
+            fixtures.push([b"x=".as_slice(), &[byte], b" au lait\n"].concat());
+        }
+        for byte in [0x01, 0x07, 0x1a, 0x1f, 0x85, 0x93, 0xe9] {
+            let mut inside = vec![b'x'; 65535];
+            inside.extend([byte, b'\n', b'a']);
+            fixtures.push(inside);
+            let mut outside = vec![b'x'; 65536];
+            outside.extend([byte, b'\n']);
+            fixtures.push(outside);
+        }
+        fixtures.push([vec![b'x'; 65535], vec![0xc3, 0xa9, b'\n']].concat());
+        fixtures.push([vec![b'x'; 65535], vec![0xc3, b'\n']].concat());
+        fixtures.push([vec![b'x'; 65535], vec![0xc3, 0xa9, b'\n', 0x93]].concat());
+        fixtures.push(vec![b'x'; 70_000]);
+        for text in [
+            "a",
+            "",
+            "\u{80}",
+            "caf\u{e9}\n",
+            "\u{200b}x\n",
+            "\u{fffd}x\n",
+            "\u{10ffff}\n",
+            "\u{feff}x\n",
+            "\"str\"\n",
+            "123\n",
+            "true\n",
+            "null\n",
+            "[1, 2, 3]\n",
+            "[1,\n",
+            "{\"a\":1} x\n",
+            "{a: 1}\n",
+            "{}\n",
+            "[]\n",
+            "{\n  \"a\": 1\n}\n",
+            "{\"a\": 1,}\n",
+            "[1,2,]\n",
+            "[01]\n",
+            "[NaN]\n",
+            "[,]\n",
+            "[1,,2]\n",
+            "{1:2}\n",
+            "{\"a\\q\": 1}\n",
+            "{\"a\": \"\\n\\u00e9\"}\n",
+            "{\"a\": \"x\u{1}y\"}\n",
+            "{\"a\": 1}\n{\"a\": 2}\n",
+            "{\"a\": 1}\n[2]\n",
+            "{}\n{}\n[]\n",
+            "[1]\n{}\n",
+            "{}\n\"x\"\n",
+            "{}{}\n",
+            "{\"a\": 1}\n\n{\"a\": 2}\n",
+            "   \n",
+            "# c\n{\"a\":1}\n",
+            "\u{feff}{\"a\": 1}\n",
+            "-5e+3\n",
+            "%!PS-Adobe-3.0\nx\n",
+            "%!FontType1-1.0: X\nx\n",
+            "ssh-rsa AAAA user\n",
+            "ssh-rsa \n",
+            "ssh-rsa\tAAAA\n",
+            "ssh-rsaAAAA\n",
+            "ssh-dss AAAA\n",
+            "ssh-dss-cert-v01@openssh.com AAAA\n",
+            "ssh-ed25519\n",
+            "ssh-ed25519-cert-v01@openssh.com AAAA\n",
+            "ecdsa-sha2-nistp256 AAAA\n",
+            "ecdsa-sha2-nistp255 AAAA\n",
+            "sk-ssh-ed25519@openssh.com AAAA\n",
+            "-----BEGIN OPENSSH PRIVATE KEY-----\nx\n",
+            "/* XPM */\nx\n",
+            "P1\n1 1\n0\n",
+            "P3\n1 1\n255\n0 0 0\n",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\"/>\n",
+            "<?xml version=\"1.0\"?>\n<doc><svg/></doc>\n",
+            "<?xml version=\"1.0\"?>\n<doc/>\n",
+            "{\\rtf1 hi}\n",
+            "SplineFontDB: 3.0\nx\n",
+            "[A]\nk=v\n[B]\nk=v\n",
+            "\u{feff}hello\n",
+            "#!/usr/bin/perl\n",
+            "#!/usr/bin/perl -w\n",
+            "#! /usr/bin/perl\n",
+            "#!/usr/bin/env perl\n",
+            "#!/usr/bin/env python3\n",
+            "#!/usr/bin/perl",
+            "#!/usr/bin/perl5.36\n",
+            "#!perl\n",
+            "#!/opt/perl/bin/perl\n",
+            "#define a_width 16\n#define a_height 16\n",
+            "#define foo 1\n",
+            "%!TEX root = x.tex\n",
+            "From the man page:\n",
+            "From x\n",
+            "From  x\n",
+            "From - Fri\n",
+            "From x",
+            "From\n",
+            "From: me\n",
+            "x\nFrom the\n",
+            "from x\n",
+            "#LyX 2.5 created this file\n",
+            "#LyX\n",
+            "abc\n\u{0}\u{0}",
+            "caf\u{e9}\n\u{0}\u{0}",
+            "caf\u{e9}\n\u{0}x\u{0}",
+            "a\u{0}b\u{0}\u{0}",
+            "\u{0}\u{0}",
+            "%!TEX program = pdflatex\n",
+            "%!TEX  root\n",
+            "#!./perl -w\n",
+            "% c\n",
+            "divert(-1)\n",
+            "divert(-1) \n",
+            "divert(0)\n",
+            "-----BEGIN CERTIFICATE-----\nx\n",
+            "-----BEGIN X509 CERTIFICATE-----\nx\n",
+            "-----BEGIN CERTIFICATE REQUEST-----\nx\n",
+            "-----BEGIN NEW CERTIFICATE REQUEST-----\nx\n",
+            "-----BEGIN PUBLIC KEY-----\nx\n",
+            "-----BEGIN PRIVATE KEY-----\nx\n",
+            "-----BEGIN ENCRYPTED PRIVATE KEY-----\nx\n",
+            "-----BEGIN PGP PUBLIC KEY BLOCK-----\nx\n",
+            "-----BEGIN TRUSTED CERTIFICATE-----\nx\n",
+            "-----BEGIN PKCS7-----\nx\n",
+            "-----BEGIN FOO-----\nx\n",
+            ";c\n[A]\n[B]\n",
+            ";c\n[A]\nk=v\n[B]\nk=v\n",
+            "; c\r\n[A]\r\nk=v\r\n[B]\r\nk=v\r\n",
+            "#c\n[A]\nk=v\n[B]\nk=v\n",
+        ] {
+            fixtures.push(text.as_bytes().to_vec());
+        }
+        fixtures.push(
+            "hello\n"
+                .encode_utf16()
+                .flat_map(u16::to_le_bytes)
+                .collect(),
+        );
+        fixtures.push(
+            [
+                &[0xff, 0xfe][..],
+                &"hello\n"
+                    .encode_utf16()
+                    .flat_map(u16::to_le_bytes)
+                    .collect::<Vec<u8>>(),
+            ]
+            .concat(),
+        );
+        fixtures.push(
+            [
+                &[0xff, 0xfe][..],
+                &"h\u{e9}llo\n"
+                    .encode_utf16()
+                    .flat_map(u16::to_le_bytes)
+                    .collect::<Vec<u8>>(),
+            ]
+            .concat(),
+        );
+        fixtures.push([&[0xff, 0xfe][..], &[0x00, 0xd8, b'a', 0x00]].concat());
+        fixtures.push(
+            [
+                &[0xfe, 0xff][..],
+                &"hello\n"
+                    .encode_utf16()
+                    .flat_map(u16::to_be_bytes)
+                    .collect::<Vec<u8>>(),
+            ]
+            .concat(),
+        );
+        fixtures
+    }
+
+    /// `text_kind` against `file -b` (file 5.47, the version lintian ran with)
+    /// on [`text_fixtures`]. lintian's `(ASCII|Unicode) text` and
+    /// `\bASCII text\b` are substring tests, so `Non-ISO extended-ASCII text`
+    /// counts for both. Skipped when `file(1)` is not installed.
+    #[test]
+    fn text_kind_agrees_with_file_on_generated_fixtures() {
+        let fixtures = text_fixtures();
+        let Some(descriptions) = file_descriptions(&fixtures) else {
+            eprintln!("file(1) is not installed; skipping the differential test");
+            return;
+        };
+        for (bytes, description) in fixtures.iter().zip(&descriptions) {
+            let shown = String::from_utf8_lossy(&bytes[..bytes.len().min(40)]).into_owned();
+            let text = description.contains("ASCII text") || description.contains("Unicode text");
+            assert_eq!(
+                is_text(bytes),
+                text,
+                "text for {shown:?}: file says {description:?}"
+            );
+            assert_eq!(
+                is_ascii_text(bytes),
+                description.contains("ASCII text"),
+                "ASCII text for {shown:?}: file says {description:?}"
             );
         }
     }

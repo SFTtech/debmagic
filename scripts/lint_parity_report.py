@@ -107,6 +107,12 @@ class LintianTag:
     check: str
     experimental: bool
     renamed_from: list[str]
+    name_spaced: bool = False
+
+    @property
+    def lintian_name(self) -> str:
+        """The name lintian itself uses: Name-Spaced tags (team checks) are `<check>/<tag>`."""
+        return f"{self.check}/{self.tag}" if self.name_spaced else self.tag
 
     @property
     def rule_eligible(self) -> bool:
@@ -170,6 +176,7 @@ def parse_tag_file(path: Path) -> LintianTag | None:
         check=(fields.get("Check") or [""])[0],
         experimental=(fields.get("Experimental") or [""])[0] == "yes",
         renamed_from=fields.get("Renamed-From", []),
+        name_spaced=(fields.get("Name-Spaced") or [""])[0] == "yes",
     )
 
 

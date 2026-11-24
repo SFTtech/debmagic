@@ -2733,7 +2733,6 @@ pub(crate) fn source_rules() -> &'static [&'static dyn SourceRule] {
         &PublicUpstreamKeyNotMinimal,
         &DebmagicDummyTrigger,
         &RequiredField,
-        &SyntaxErrorInDebianChangelog,
         &DebianRulesMissingRequiredTarget,
         &SourceContainsPrebuiltWindowsBinary,
         &SuperfluousFilePattern,

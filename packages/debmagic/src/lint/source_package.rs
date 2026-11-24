@@ -462,7 +462,7 @@ fn tarball_members(path: &Path) -> anyhow::Result<Vec<TarMember>> {
         .entries()
         .with_context(|| format!("reading {}", path.display()))?
     {
-        let entry = entry.with_context(|| format!("reading {}", path.display()))?;
+        let mut entry = entry.with_context(|| format!("reading {}", path.display()))?;
         let name = entry
             .path()
             .with_context(|| format!("reading {}", path.display()))?;
@@ -470,14 +470,30 @@ fn tarball_members(path: &Path) -> anyhow::Result<Vec<TarMember>> {
             continue;
         };
         let kind = entry.header().entry_type();
+        let mtime = pax_mtime(&mut entry).or_else(|| header_mtime(entry.header()));
         members.push(TarMember {
             path: normalized,
             is_dir: kind.is_dir(),
             is_file: kind.is_file() || kind.is_hard_link(),
-            mtime: header_mtime(entry.header()),
+            mtime,
         });
     }
     Ok(members)
+}
+
+/// The whole seconds of the pax `mtime` extended header of `entry`, truncated
+/// as tar does (`1745484012.237914` is `1745484012`). `None` when there is no
+/// such record. The ustar header's mtime is then the one tar reports.
+fn pax_mtime<R: std::io::Read>(entry: &mut tar::Entry<'_, R>) -> Option<i64> {
+    let extensions = entry.pax_extensions().ok()??;
+    extensions.filter_map(Result::ok).find_map(|extension| {
+        if extension.key().ok()? != "mtime" {
+            return None;
+        }
+        let value = extension.value().ok()?;
+        let seconds = value.split('.').next()?;
+        seconds.parse::<i64>().ok()
+    })
 }
 
 /// The tarball at `path`, decompressed as a stream. Reads the compressions the
@@ -807,6 +823,33 @@ mod tests {
         let mut encoder = bzip2::write::BzEncoder::new(Vec::new(), bzip2::Compression::default());
         encoder.write_all(&plain_tar(members)?)?;
         Ok(encoder.finish()?)
+    }
+
+    /// A member whose ustar header says mtime 0 but whose pax `mtime` record
+    /// gives the real time is dated by the record, truncated to whole seconds.
+    #[test]
+    fn pax_mtime_overrides_the_header_mtime() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("example_1.0.orig.tar");
+        {
+            let mut builder = tar::Builder::new(fs::File::create(&path)?);
+            builder.append_pax_extensions([("mtime", b"1745484012.237914".as_slice())])?;
+            let mut header = tar::Header::new_ustar();
+            header.set_path("example-1.0/README")?;
+            header.set_size(5);
+            header.set_mode(0o644);
+            header.set_mtime(0);
+            header.set_cksum();
+            builder.append(&header, &b"text\n"[..])?;
+            builder.finish()?;
+        }
+        let members = tarball_members(&path)?;
+        let readme = members
+            .iter()
+            .find(|member| member.path == Path::new("example-1.0/README"))
+            .expect("README member");
+        assert_eq!(readme.mtime, Some(1_745_484_012));
+        Ok(())
     }
 
     #[test]

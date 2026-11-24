@@ -48,7 +48,13 @@ impl BinaryPackageRule for NonStandardDirPerm {
                     && entry.mode() != STANDARD_FOLDER
                     && !has_owner_specific_mode(entry)
             })
-            .map(|entry| (entry.path().to_path_buf(), entry.mode()))
+            .map(|entry| {
+                // Lintian's pointer for a directory keeps its trailing `/`, which an
+                // override pattern such as `[etc/audit/]` matches.
+                let mut path = entry.path().to_path_buf();
+                path.as_mut_os_string().push("/");
+                (path, entry.mode())
+            })
             .collect();
         for (path, mode) in hits {
             ctx.diagnostic(
@@ -154,5 +160,22 @@ mod tests {
             tree(vec![("usr/share/doc/binary", dir(0o744))]).udeb(),
         ];
         BinaryPackageTester::new(NonStandardDirPerm, pass, fail).test_and_snapshot();
+    }
+
+    /// Lintian points at a directory with its trailing `/`, so an override
+    /// written as `[etc/audit/]` suppresses this Diagnostic (ADR 0057).
+    #[test]
+    fn directory_pointer_keeps_trailing_slash_for_overrides() {
+        let tester = BinaryPackageTester::new(
+            NonStandardDirPerm,
+            Vec::<BinaryPackageCase>::new(),
+            Vec::<BinaryPackageCase>::new(),
+        );
+        let diagnostics = tester.diagnostics(tree(vec![("etc/audit", dir(0o750))]));
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(
+            diagnostics[0].override_context(),
+            "0750 != 0755 [etc/audit/]"
+        );
     }
 }

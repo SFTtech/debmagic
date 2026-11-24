@@ -15,8 +15,9 @@ declare_rule! {
     /// A maintainer script calls `dpkg-maintscript-helper` itself.
     ///
     /// Any shebang interpreter is scanned. The name matches as a substring.
-    /// Lines between `# Automatically added by …` and
-    /// `# End automatically added section` are skipped. A shell `\`
+    /// Lines after a `# Automatically added by …` marker are skipped. lintian
+    /// never closes that section, because it compares the raw line, newline
+    /// included, with `# End automatically added section`. A shell `\`
     /// continuation points at its last physical line. Extra is
     /// `"dpkg-maintscript-helper"`.
     MaintainerScriptShouldNotUseDpkgMaintscriptHelper,
@@ -82,6 +83,11 @@ mod tests {
                 "triggers",
                 "#!/bin/sh\ndpkg-maintscript-helper symlink_to_dir /a /b 1.0\n",
             ),
+            // lintian never closes the automatic section, so this is skipped.
+            control(
+                "postinst",
+                "#!/bin/sh\n# Automatically added by dh_dummy/12\ndpkg-maintscript-helper rm_conffile /etc/foo 1.0 -- \"$@\"\n# End automatically added section\ndpkg-maintscript-helper symlink_to_dir /a /b 1.0\n",
+            ),
         ];
         let fail = vec![
             control(
@@ -91,10 +97,6 @@ mod tests {
             control(
                 "postinst",
                 "#!/bin/sh\ndpkg-maintscript-helper symlink_to_dir \\\n              /usr/share/autoconf-archive/html \\\n              ../../autoconf-archive/html \\\n               20111221-2~ -- \"$@\"\n",
-            ),
-            control(
-                "postinst",
-                "#!/bin/sh\n# Automatically added by dh_dummy/12\ndpkg-maintscript-helper rm_conffile /etc/foo 1.0 -- \"$@\"\n# End automatically added section\ndpkg-maintscript-helper symlink_to_dir /a /b 1.0\n",
             ),
             control(
                 "postinst",

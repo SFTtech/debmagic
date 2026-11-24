@@ -19,7 +19,7 @@ pub(crate) use ln0774_invalid_standards_version::InvalidStandardsVersion;
 pub(crate) use ln0775_newer_standards_version::NewerStandardsVersion;
 pub(crate) use ln1369_out_of_date_standards_version::OutOfDateStandardsVersion;
 
-/// Policy releases and their epochs, from lintian 2.139.0's
+/// Policy releases and their epochs, from lintian 2.144.0's
 /// `debian-policy/releases.json`.
 const POLICY_RELEASES: &str = include_str!("debian_policy_releases");
 

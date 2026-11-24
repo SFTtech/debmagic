@@ -1,4 +1,5 @@
 use std::ffi::OsStr;
+use std::fs;
 use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -6,6 +7,7 @@ use std::process::{Command, Stdio};
 use crate::declare_rule;
 use crate::lint::context::{BinaryPackageContext, SourceContext};
 use crate::lint::diagnostic::{Diagnostic, Location};
+use crate::lint::external_tool;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 use crate::lint::rule::{BinaryPackageRule, SourceRule};
 
@@ -85,8 +87,15 @@ impl Hit {
     }
 }
 
+/// A candidate whose verdict is known, or one that needs `file`'s description
+/// of its bytes before it can be judged.
+enum Slot {
+    Settled(Option<Hit>),
+    Pending { path: PathBuf, bytes: Vec<u8> },
+}
+
 fn inspect(files: &FileTree, place: Place) -> Vec<Hit> {
-    let mut hits = Vec::new();
+    let mut slots = Vec::new();
     for entry in files.entries() {
         if !is_content_file(entry) || entry.file_type().is_some() {
             continue;
@@ -98,26 +107,74 @@ fn inspect(files: &FileTree, place: Place) -> Vec<Hit> {
         let Ok(bytes) = files.read(entry) else {
             continue;
         };
-        if let Some(message) = message_for(&bytes, path, place) {
-            hits.push(Hit {
-                message,
+        if needs_description(&bytes, path, place) {
+            slots.push(Slot::Pending {
                 path: path.to_path_buf(),
+                bytes,
             });
+        } else {
+            slots.push(Slot::Settled(hit_for(&bytes, path, place, None)));
         }
     }
-    hits
+
+    let descriptions = {
+        let buffers: Vec<&[u8]> = slots
+            .iter()
+            .filter_map(|slot| match slot {
+                Slot::Pending { bytes, .. } => Some(bytes.as_slice()),
+                Slot::Settled(_) => None,
+            })
+            .collect();
+        file_descriptions(&buffers)
+    };
+    let mut descriptions = descriptions.into_iter();
+    slots
+        .into_iter()
+        .filter_map(|slot| match slot {
+            Slot::Settled(hit) => hit,
+            Slot::Pending { path, bytes } => {
+                let description = descriptions.next().flatten();
+                hit_for(&bytes, &path, place, description)
+            }
+        })
+        .collect()
+}
+
+fn hit_for(bytes: &[u8], path: &Path, place: Place, description: Option<Vec<u8>>) -> Option<Hit> {
+    message_for(bytes, path, place, description).map(|message| Hit {
+        message,
+        path: path.to_path_buf(),
+    })
+}
+
+/// Whether [`message_for`] reaches for `file`'s description of these bytes.
+fn needs_description(bytes: &[u8], path: &Path, place: Place) -> bool {
+    if matches!(place, Place::Debian) && under(path, &["debian", "patches"]) {
+        return !(bytes.is_empty() || std::str::from_utf8(dep3_header(bytes)).is_ok());
+    }
+    if std::str::from_utf8(bytes).is_ok() {
+        return false;
+    }
+    !(matches!(place, Place::Control) && is_script(bytes))
 }
 
 fn is_content_file(entry: &Entry) -> bool {
     matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink)
 }
 
-fn message_for(bytes: &[u8], path: &Path, place: Place) -> Option<&'static str> {
+/// The Hit message for one file. `description` is `file`'s output for `bytes`;
+/// it is consulted only where [`needs_description`] says it is needed.
+fn message_for(
+    bytes: &[u8],
+    path: &Path,
+    place: Place,
+    description: Option<Vec<u8>>,
+) -> Option<&'static str> {
     if matches!(place, Place::Debian) && under(path, &["debian", "patches"]) {
         if bytes.is_empty() || std::str::from_utf8(dep3_header(bytes)).is_ok() {
             return None;
         }
-        return ends_with_text(&file_description(bytes)?).then_some("DEP-3 header");
+        return ends_with_text(&description?).then_some("DEP-3 header");
     }
     if std::str::from_utf8(bytes).is_ok() {
         return None;
@@ -125,7 +182,7 @@ fn message_for(bytes: &[u8], path: &Path, place: Place) -> Option<&'static str> 
     if matches!(place, Place::Control) && is_script(bytes) {
         return Some("");
     }
-    let description = file_description(bytes)?;
+    let description = description?;
     if ends_with_text(&description) {
         return Some("");
     }
@@ -189,9 +246,87 @@ fn trim_ascii_end(bytes: &[u8]) -> &[u8] {
     &bytes[..end]
 }
 
-/// lintian's `file --raw` description. `None` when `file` produces no output.
+/// Buffers per `file` run. Keeps the argument list short.
+const BATCH: usize = 512;
+
+/// The `file` program: the absolute path when the host has one, else the bare
+/// name, which then fails to spawn as it always did.
+fn file_program() -> PathBuf {
+    external_tool::find_cached("file").unwrap_or_else(|| PathBuf::from("file"))
+}
+
+/// lintian's `file --raw` description of each buffer, in order. Runs `file`
+/// once per [`BATCH`] buffers instead of once per buffer. `None` where `file`
+/// gives no output or cannot be run.
+fn file_descriptions(buffers: &[&[u8]]) -> Vec<Option<Vec<u8>>> {
+    buffers.chunks(BATCH).flat_map(batch_descriptions).collect()
+}
+
+fn batch_descriptions(buffers: &[&[u8]]) -> Vec<Option<Vec<u8>>> {
+    let none = || vec![None; buffers.len()];
+    let Ok(dir) = tempfile::tempdir() else {
+        return none();
+    };
+    // Buffers are staged under their index, so no file name needs parsing.
+    for (index, bytes) in buffers.iter().enumerate() {
+        if fs::write(dir.path().join(index.to_string()), bytes).is_err() {
+            return none();
+        }
+    }
+    let names: Vec<String> = (0..buffers.len()).map(|index| index.to_string()).collect();
+    let Ok(output) = Command::new(file_program())
+        .args(["--raw", "--print0", "--"])
+        .args(&names)
+        .current_dir(dir.path())
+        .env("LC_ALL", "C")
+        .env("LANG", "C")
+        .env("LANGUAGE", "C")
+        .stdin(Stdio::null())
+        .stderr(Stdio::null())
+        .output()
+    else {
+        return none();
+    };
+    match parse_batch(&output.stdout, buffers.len()) {
+        Some(descriptions) => descriptions
+            .into_iter()
+            .map(|description| (!description.is_empty()).then_some(description))
+            .collect(),
+        // Output that does not parse back to the buffers: ask one at a time.
+        None => buffers
+            .iter()
+            .map(|bytes| file_description(bytes))
+            .collect(),
+    }
+}
+
+/// The descriptions in a `file --raw --print0` run over `count` staged
+/// buffers named `0..count`. Each record is `name NUL ": " description`, where
+/// the description ends with a newline and the next record's name follows it
+/// directly. `None` when the output does not have that shape.
+fn parse_batch(stdout: &[u8], count: usize) -> Option<Vec<Vec<u8>>> {
+    let tokens: Vec<&[u8]> = stdout.split(|byte| *byte == 0).collect();
+    if tokens.len() != count + 1 || tokens[0] != &b"0"[..] {
+        return None;
+    }
+    (0..count)
+        .map(|index| {
+            let mut body = tokens[index + 1];
+            if index + 1 < count {
+                body = body.strip_suffix((index + 1).to_string().as_bytes())?;
+                if !body.ends_with(b"\n") {
+                    return None;
+                }
+            }
+            body.strip_prefix(b": ").map(<[u8]>::to_vec)
+        })
+        .collect()
+}
+
+/// lintian's `file --raw` description of one buffer, through `file -` on
+/// stdin. `None` when `file` produces no output.
 fn file_description(bytes: &[u8]) -> Option<Vec<u8>> {
-    let mut child = Command::new("file")
+    let mut child = Command::new(file_program())
         .args(["--raw", "--brief", "-"])
         .env("LC_ALL", "C")
         .env("LANG", "C")
@@ -248,6 +383,25 @@ mod tests {
         let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
         encoder.write_all(bytes).expect("gzip");
         encoder.finish().expect("gzip")
+    }
+
+    #[test]
+    fn batch_output_parses_back_to_each_description() {
+        // Multi-line descriptions and an empty one: the names of the next
+        // records are found by their position, not by splitting lines.
+        let stdout = b"0\0: ISO-8859 text\n1\0: first\nsecond\n2\0: empty\n3\0: x\n";
+        assert_eq!(
+            parse_batch(stdout, 4),
+            Some(vec![
+                b"ISO-8859 text\n".to_vec(),
+                b"first\nsecond\n".to_vec(),
+                b"empty\n".to_vec(),
+                b"x\n".to_vec(),
+            ])
+        );
+        // A record count that does not match is not parsed.
+        assert_eq!(parse_batch(stdout, 3), None);
+        assert_eq!(parse_batch(b"0\0ISO text\n", 1), None);
     }
 
     #[test]

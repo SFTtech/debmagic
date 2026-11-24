@@ -2,6 +2,7 @@ use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
+use rayon::prelude::*;
 
 use super::content;
 
@@ -35,31 +36,32 @@ impl BinaryPackageRule for GroffMessage {
         if ctx.is_udeb() {
             return;
         }
-        let Some(files) = ctx.data_files() else {
+        if ctx.data_files().is_none() {
+            return;
+        }
+        let manual = ctx.shared_once(|ctx| content::ManualPages::from_files(ctx.data_files()));
+        let Some(root) = manual.root() else {
             return;
         };
-        let pages: Vec<_> = content::pages(files)
-            .into_iter()
+        let pages: Vec<&content::Page> = manual
+            .entries
+            .iter()
+            .map(|(page, _)| page)
             .filter(|page| !page.opening.stops())
             .collect();
-        if pages.is_empty() {
-            return;
-        }
-        let Some(root) = content::stage_manuals(files) else {
-            return;
-        };
-        let mut hits = Vec::new();
-        for page in &pages {
-            for (line, message) in content::man_warnings(root.path(), page) {
-                hits.push((page.path.clone(), line, message));
+        // `collect` keeps input order, so the diagnostics stay in page order.
+        let warnings: Vec<Vec<(u32, String)>> = pages
+            .par_iter()
+            .map(|page| content::man_warnings(root, page))
+            .collect();
+        for (page, warnings) in pages.iter().zip(warnings) {
+            for (line, message) in warnings {
+                ctx.diagnostic(Diagnostic::warn(message).with_location(Location {
+                    path: page.path.clone(),
+                    line: Some(line),
+                    column: None,
+                }));
             }
-        }
-        for (path, line, message) in hits {
-            ctx.diagnostic(Diagnostic::warn(message).with_location(Location {
-                path,
-                line: Some(line),
-                column: None,
-            }));
         }
     }
 }

@@ -6,9 +6,11 @@
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::LazyLock;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use regex::Regex;
 
+use crate::lint::external_tool;
 use crate::lint::file_tree::{EntryKind, FileTree};
 
 use super::manual::{is_file, is_gzip, section_page};
@@ -189,20 +191,107 @@ pub(super) fn man_warnings(root: &Path, page: &Page) -> Vec<(u32, String)> {
     )
 }
 
-/// Run `lexgrog` on the stored bytes. `None` when the tool cannot be started.
-pub(super) fn whatis(page: &Page) -> Option<Whatis> {
-    let dir = tempfile::TempDir::new().ok()?;
-    let path = dir.path().join(&page.path);
-    if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent).ok()?;
-    }
-    std::fs::write(&path, &page.stored).ok()?;
-    let output = tool("lexgrog").arg(&path).output().ok()?;
+/// Run `lexgrog` on a page staged under `root`. `None` when the tool cannot be
+/// started.
+fn whatis_in(root: &Path, page: &Page) -> Option<Whatis> {
+    let output = tool("lexgrog").arg(root.join(&page.path)).output().ok()?;
     let stdout = String::from_utf8_lossy(&output.stdout);
     Some(Whatis {
         status: output.status.code().unwrap_or(0),
         description: whatis_description(&stdout),
     })
+}
+
+/// Every manual page of a Subject, each with its `lexgrog` result, and the
+/// staged `usr/share/man/` tree that `man` and `lexgrog` read. Built once per
+/// Subject through `shared_once`, so the whatis Rules only classify.
+#[derive(Default)]
+pub(super) struct ManualPages {
+    /// In [`pages`] order. The whatis is `Some` only for pages that are not
+    /// stopped and are in the English hierarchy, and only when `lexgrog`
+    /// could run.
+    pub entries: Vec<(Page, Option<Whatis>)>,
+    /// `None` when no page needs the tree, or when staging failed.
+    root: Option<tempfile::TempDir>,
+}
+
+impl ManualPages {
+    /// Parse the pages of `files` (none when `files` is `None`), stage them
+    /// into one temp tree, and run `lexgrog` on the English pages in parallel.
+    pub(super) fn from_files(files: Option<&FileTree>) -> Self {
+        let Some(files) = files else {
+            return Self::default();
+        };
+        let pages = pages(files);
+        let root = if pages.iter().any(|page| !page.opening.stops()) {
+            stage_manuals(files)
+        } else {
+            None
+        };
+        let candidates: Vec<usize> = (0..pages.len())
+            .filter(|&index| pages[index].english_hierarchy && !pages[index].opening.stops())
+            .collect();
+        let mut whatis: Vec<Option<Whatis>> = pages.iter().map(|_| None).collect();
+        if let Some(root) = &root {
+            let results = par_map(&candidates, |&index| whatis_in(root.path(), &pages[index]));
+            for (index, result) in candidates.into_iter().zip(results) {
+                whatis[index] = result;
+            }
+        }
+        Self {
+            entries: pages.into_iter().zip(whatis).collect(),
+            root,
+        }
+    }
+
+    /// The staged tree `man` and `lexgrog` read; `None` when there is none.
+    pub(super) fn root(&self) -> Option<&Path> {
+        self.root.as_ref().map(tempfile::TempDir::path)
+    }
+}
+
+/// `f` applied to each item, on up to `rayon::current_num_threads()` threads,
+/// with results in input order. Plain scoped threads, not rayon: this runs
+/// inside a `shared_once` initializer that other Rules wait on, and a rayon
+/// worker waiting there could run a Rule that waits for this initializer.
+fn par_map<T: Sync, R: Send>(items: &[T], f: impl Fn(&T) -> R + Sync) -> Vec<R> {
+    let threads = rayon::current_num_threads().min(items.len());
+    if threads <= 1 {
+        return items.iter().map(f).collect();
+    }
+    let next = AtomicUsize::new(0);
+    let done: Vec<Vec<(usize, R)>> = std::thread::scope(|scope| {
+        let workers: Vec<_> = (0..threads)
+            .map(|_| {
+                scope.spawn(|| {
+                    let mut done = Vec::new();
+                    loop {
+                        let index = next.fetch_add(1, Ordering::Relaxed);
+                        let Some(item) = items.get(index) else {
+                            return done;
+                        };
+                        done.push((index, f(item)));
+                    }
+                })
+            })
+            .collect();
+        workers
+            .into_iter()
+            .map(|worker| {
+                worker
+                    .join()
+                    .unwrap_or_else(|panic| std::panic::resume_unwind(panic))
+            })
+            .collect()
+    });
+    let mut results: Vec<Option<R>> = items.iter().map(|_| None).collect();
+    for (index, result) in done.into_iter().flatten() {
+        results[index] = Some(result);
+    }
+    results
+        .into_iter()
+        .map(|result| result.expect("every item is mapped once"))
+        .collect()
 }
 
 fn classify_opening(lines: &[String]) -> Opening {
@@ -365,8 +454,14 @@ fn man_command(file: &Path, localdir: &Path) -> Command {
     command
 }
 
-fn tool(program: &str) -> Command {
-    let mut command = Command::new(program);
+/// A host tool with a cleared environment. `PATH` is the host's, as before.
+/// The program is spawned by its resolved absolute path: a bare name with
+/// `PATH` set in the environment makes std fork and `execve` each `PATH`
+/// entry in turn. A program that is not found keeps its bare name, so it
+/// fails to start exactly as before.
+fn tool(program: &'static str) -> Command {
+    let resolved = external_tool::find_cached(program).unwrap_or_else(|| PathBuf::from(program));
+    let mut command = Command::new(resolved);
     command
         .env_clear()
         .env("LC_ALL", "C.UTF-8")

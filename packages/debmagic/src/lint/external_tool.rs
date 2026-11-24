@@ -12,12 +12,15 @@
 //! isolated: a tool that reaches the network can do so, as it can under
 //! lintian.
 
+use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs::{self, File};
-use std::io::{Read, Seek, SeekFrom};
+use std::io::{self, ErrorKind, Read, Seek, SeekFrom};
+use std::os::fd::{AsRawFd, FromRawFd, OwnedFd, RawFd};
 use std::os::unix::fs::{PermissionsExt, symlink};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::{Child, Command, ExitStatus, Stdio};
+use std::sync::{Mutex, PoisonError};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -59,6 +62,18 @@ pub(crate) fn find(program: &str) -> Option<PathBuf> {
     std::env::split_paths(&std::env::var_os("PATH")?)
         .map(|dir| dir.join(program))
         .find(|candidate| is_executable(candidate))
+}
+
+/// [`find`], memoised per program name for the life of the process. The
+/// result is an absolute path (or `None`), so a spawn of it does not make std
+/// fork and search `PATH` itself.
+pub(crate) fn find_cached(program: &'static str) -> Option<PathBuf> {
+    static FOUND: Mutex<BTreeMap<&'static str, Option<PathBuf>>> = Mutex::new(BTreeMap::new());
+    let mut found = FOUND.lock().unwrap_or_else(PoisonError::into_inner);
+    found
+        .entry(program)
+        .or_insert_with(|| find(program))
+        .clone()
 }
 
 fn is_executable(path: &Path) -> bool {
@@ -151,17 +166,13 @@ impl Sandbox {
             .spawn()
             .with_context(|| format!("starting {}", program.display()))?;
 
-        let started = Instant::now();
-        let status = loop {
-            if let Some(status) = child.try_wait()? {
-                break status;
-            }
-            if started.elapsed() >= timeout {
+        let status = match wait_timeout(&mut child, timeout)? {
+            Some(status) => status,
+            None => {
                 let _ = child.kill();
                 let _ = child.wait();
                 bail!("{} ran longer than {timeout:?}", program.display());
             }
-            thread::sleep(Duration::from_millis(5));
         };
 
         Ok(Captured {
@@ -189,6 +200,69 @@ pub(crate) fn rejects(
         .run(program, &argv, Path::new(""), &[], DEFAULT_TIMEOUT)
         .ok()
         .map(|captured| !captured.success())
+}
+
+/// Waits for `child` to exit, for at most `timeout`. `Ok(None)` when it is
+/// still running then; the child has not been reaped, so the caller may still
+/// kill it without the pid being reused.
+///
+/// The wait is on a pidfd, so an exit is seen as it happens, with no polling
+/// latency. Where pidfds are unavailable (kernels before 5.3) it polls
+/// `try_wait` every 5 ms.
+fn wait_timeout(child: &mut Child, timeout: Duration) -> io::Result<Option<ExitStatus>> {
+    let Some(pidfd) = pidfd_open(child.id()) else {
+        return wait_polling(child, timeout);
+    };
+    let deadline = Instant::now() + timeout;
+    loop {
+        let remaining = deadline.saturating_duration_since(Instant::now());
+        // Round up, so a sub-millisecond remainder still waits instead of spinning.
+        let millis = remaining
+            .as_nanos()
+            .div_ceil(1_000_000)
+            .min(i32::MAX as u128) as i32;
+        let mut pollfd = libc::pollfd {
+            fd: pidfd.as_raw_fd(),
+            events: libc::POLLIN,
+            revents: 0,
+        };
+        // SAFETY: one valid pollfd, and the pidfd stays open for the call.
+        let ready = unsafe { libc::poll(&mut pollfd, 1, millis) };
+        match ready {
+            0 => return Ok(None),
+            1.. => return child.wait().map(Some),
+            _ => {
+                let error = io::Error::last_os_error();
+                if error.kind() != ErrorKind::Interrupted {
+                    return Err(error);
+                }
+            }
+        }
+    }
+}
+
+/// A pidfd for `pid`, or `None` when the kernel has no `pidfd_open`.
+fn pidfd_open(pid: u32) -> Option<OwnedFd> {
+    // SAFETY: a plain syscall with integer arguments; a non-negative result
+    // is a fresh descriptor that nothing else owns.
+    let fd = unsafe { libc::syscall(libc::SYS_pidfd_open, pid as libc::pid_t, 0) };
+    let fd = RawFd::try_from(fd).ok()?;
+    // SAFETY: `fd` was just returned by the kernel and is owned only here.
+    Some(unsafe { OwnedFd::from_raw_fd(fd) })
+}
+
+/// [`wait_timeout`] for kernels without pidfds.
+fn wait_polling(child: &mut Child, timeout: Duration) -> io::Result<Option<ExitStatus>> {
+    let started = Instant::now();
+    loop {
+        if let Some(status) = child.try_wait()? {
+            return Ok(Some(status));
+        }
+        if started.elapsed() >= timeout {
+            return Ok(None);
+        }
+        thread::sleep(Duration::from_millis(5));
+    }
 }
 
 fn read_back(capture: &mut File) -> Result<Vec<u8>> {

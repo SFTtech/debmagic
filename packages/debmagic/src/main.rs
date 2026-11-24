@@ -33,17 +33,71 @@ pub mod upload;
 pub mod upstream;
 
 fn main() -> ExitCode {
-    let runtime = tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
-        .expect("failed to build the tokio runtime");
-    match runtime.block_on(run()) {
+    let cli = Cli::parse();
+    output::init_color(cli.color);
+    let result = match &cli.command {
+        // Lint is synchronous (Rules run on their own rayon pool), so it does
+        // not pay for a tokio runtime with a worker per core.
+        Commands::Lint(args) => lint_command(&cli, args),
+        _ => {
+            let runtime = tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()
+                .expect("failed to build the tokio runtime");
+            runtime.block_on(run(cli))
+        }
+    };
+    match result {
         Ok(code) => code,
         Err(error) => {
             eprintln!("{error:?}");
             ExitCode::FAILURE
         }
     }
+}
+
+fn lint_command(cli: &Cli, args: &cli::LintSubcommandArgs) -> anyhow::Result<ExitCode> {
+    if !args.subjects.is_empty() && args.common.source_dir.is_some() {
+        anyhow::bail!("cannot specify both a subject path and --source-dir");
+    }
+    if let Some(dir) = &args.include_dir {
+        lint::data::set_include_dir(dir.clone());
+    }
+    let subjects = if args.subjects.is_empty() {
+        args.common.source_dir.clone().into_iter().collect()
+    } else {
+        args.subjects.clone()
+    };
+    let intent = lint::resolve_lint_intent(lint::LintIntentInput {
+        fallback_dir: std::env::current_dir()?,
+        subjects,
+        config_file: cli.config.clone(),
+        select: args.select.clone(),
+        ignore: args.ignore.clone(),
+        fail_on: args.fail_on.clone(),
+        threads: args.threads,
+        timings: args.timings,
+        overrides: args.override_mode(),
+    })?;
+    let result = lint::run_lint(&intent).context("linting the package failed")?;
+    for line in lint::format_diagnostic_lines(&result.diagnostics, intent.overrides) {
+        println!("{line}");
+    }
+    println!("{}", lint::format_summary(&result.diagnostics));
+    for line in lint::format_override_notes(&result, intent.overrides) {
+        println!("{line}");
+    }
+    if let Some(timings) = &result.timings {
+        println!("{}", lint::format_timings(timings));
+    }
+    println!(
+        "{}",
+        lint::format_finished(result.elapsed, result.rules, result.threads)
+    );
+    Ok(match result.outcome {
+        lint::LintOutcome::Success => ExitCode::SUCCESS,
+        lint::LintOutcome::PolicyFailure => ExitCode::from(1),
+    })
 }
 
 fn upstream_fetch_command(
@@ -66,10 +120,7 @@ fn upstream_fetch_command(
     })
 }
 
-async fn run() -> anyhow::Result<ExitCode> {
-    let cli = Cli::parse();
-    output::init_color(cli.color);
-
+async fn run(cli: Cli) -> anyhow::Result<ExitCode> {
     let current_dir = std::env::current_dir()?;
     match &cli.command {
         Commands::Build(args) => {
@@ -189,49 +240,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 test::TestOutcome::StrictFailure => ExitCode::from(2),
             });
         }
-        Commands::Lint(args) => {
-            if !args.subjects.is_empty() && args.common.source_dir.is_some() {
-                anyhow::bail!("cannot specify both a subject path and --source-dir");
-            }
-            if let Some(dir) = &args.include_dir {
-                lint::data::set_include_dir(dir.clone());
-            }
-            let subjects = if args.subjects.is_empty() {
-                args.common.source_dir.clone().into_iter().collect()
-            } else {
-                args.subjects.clone()
-            };
-            let intent = lint::resolve_lint_intent(lint::LintIntentInput {
-                fallback_dir: current_dir.clone(),
-                subjects,
-                config_file: cli.config.clone(),
-                select: args.select.clone(),
-                ignore: args.ignore.clone(),
-                fail_on: args.fail_on.clone(),
-                threads: args.threads,
-                timings: args.timings,
-                overrides: args.override_mode(),
-            })?;
-            let result = lint::run_lint(&intent).context("linting the package failed")?;
-            for line in lint::format_diagnostic_lines(&result.diagnostics, intent.overrides) {
-                println!("{line}");
-            }
-            println!("{}", lint::format_summary(&result.diagnostics));
-            for line in lint::format_override_notes(&result, intent.overrides) {
-                println!("{line}");
-            }
-            if let Some(timings) = &result.timings {
-                println!("{}", lint::format_timings(timings));
-            }
-            println!(
-                "{}",
-                lint::format_finished(result.elapsed, result.rules, result.threads)
-            );
-            return Ok(match result.outcome {
-                lint::LintOutcome::Success => ExitCode::SUCCESS,
-                lint::LintOutcome::PolicyFailure => ExitCode::from(1),
-            });
-        }
+        Commands::Lint(args) => return lint_command(&cli, args),
         Commands::Upload(args) => {
             upload::upload(upload::UploadIntent {
                 source_dir: package::resolve_source_dir(

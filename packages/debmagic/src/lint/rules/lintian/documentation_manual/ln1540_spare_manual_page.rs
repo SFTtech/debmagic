@@ -27,7 +27,9 @@ declare_rule! {
     /// sections are not. The Location is the page. Udebs are skipped.
     ///
     /// A Group Rule: it reports on the installable that has the page, and runs
-    /// once per Group that has a `.dsc`. Differences from lintian: the reliant
+    /// once per Group, with or without a `.dsc` (lintian's per-binary check
+    /// reads no source, so a lone `.deb` is checked as well; ADR 0056).
+    /// Differences from lintian: the reliant
     /// commands are read from the reliant's Data files, which lintian reads
     /// from its installed list; for both, a sibling whose files cannot be read
     /// adds nothing.
@@ -42,6 +44,10 @@ const USER_DIRS: &[&str] = &["bin", "usr/bin", "usr/bin/X11", "usr/bin/mh", "usr
 const ADMIN_DIRS: &[&str] = &["sbin", "usr/sbin", "usr/libexec"];
 
 impl GroupRule for SpareManualPage {
+    fn runs_without_dsc(&self) -> bool {
+        true
+    }
+
     fn run(&self, ctx: &mut GroupContext<'_>) {
         let installables = ctx.installables();
         for installable in &installables {
@@ -223,6 +229,10 @@ mod tests {
         ];
         let fail = vec![
             package("foo", &[("usr/share/man/man1/foo.1.gz", "x")]),
+            // A lone .deb is checked too: lintian's per-binary check has no `.dsc`.
+            GroupCase::without_dsc()
+                .installable("foo", "")
+                .files([("usr/share/man/man1/foo.1.gz", "x")]),
             package("foo", &[("usr/share/man/man8/foo.8.gz", "x")]),
             package("foo", &[("usr/share/man/de/man1/foo.1.gz", "x")]),
             // A command outside the user and admin directories does not count.

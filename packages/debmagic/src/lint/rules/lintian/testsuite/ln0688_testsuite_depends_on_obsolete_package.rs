@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::sync::LazyLock;
 
 use regex::Regex;
@@ -80,8 +81,12 @@ impl SourceRule for TestsuiteDependsOnObsoletePackage {
 /// alternatives lintian reports as `testsuite-depends-on-obsolete-package`;
 /// with `ored` true, the obsolete alternatives beside a current one, which
 /// lintian reports as `testsuite-ored-depends-on-obsolete-package`.
+///
+/// Lintian drops a hint whose tag and text it already issued, so an identical
+/// message from a second paragraph is reported once.
 pub(super) fn obsolete_messages(sections: &[Section], ored: bool) -> Vec<String> {
     let mut messages = Vec::new();
+    let mut seen = HashSet::new();
     for section in sections {
         if !section.declares("Depends") {
             continue;
@@ -105,7 +110,10 @@ pub(super) fn obsolete_messages(sections: &[Section], ored: bool) -> Vec<String>
                     .filter(|value| !value.is_empty())
                     .map(|value| format!(" => {value}"))
                     .unwrap_or_default();
-                messages.push(format!("Depends: {alternative}{suffix}"));
+                let message = format!("Depends: {alternative}{suffix}");
+                if seen.insert(message.clone()) {
+                    messages.push(message);
+                }
             }
         }
     }
@@ -138,6 +146,24 @@ mod tests {
             tree("Test-Command: true\nDepends:\n @,\n pkg-config:any\n"),
         ];
         SourceTreeTester::new(TestsuiteDependsOnObsoletePackage, pass, fail).test_and_snapshot();
+    }
+
+    /// Lintian issues an identical obsolete-dependency hint once per package,
+    /// even when several paragraphs depend on the same obsolete package.
+    #[test]
+    fn identical_hints_are_reported_once() {
+        let tester = SourceTreeTester::new(
+            TestsuiteDependsOnObsoletePackage,
+            Vec::<TestCase>::new(),
+            Vec::<TestCase>::new(),
+        );
+        let files = vec![(
+            "debian/tests/control",
+            TestFile::new(
+                "Tests: a\nDepends: pkg-config\n\nTests: b\nDepends: build-essential, pkg-config\n",
+            ),
+        )];
+        assert_eq!(tester.diagnostics(files).len(), 1);
     }
 
     /// Lintian's hint for an obsolete dependency names no pointer, so the

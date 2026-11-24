@@ -1,4 +1,4 @@
-//! Lines of a vendored lintian `data/` file, pinned to lintian 2.139.0.
+//! Lines of a vendored lintian `data/` file, copied from the lintian clone that the parity suite pins (2.144.0).
 //!
 //! Blank lines and `#` comments are absent. `@if-vendor-is-not` lines stay;
 //! a caller that treats Debian as the vendor drops those itself.

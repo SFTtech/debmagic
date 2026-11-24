@@ -1,0 +1,9 @@
+---
+source: packages/debmagic/src/lint/tester.rs
+---
+W: example (binary): syntax-error-in-debian-changelog (LN0002) "not a Debian changelog" [usr/share/doc/example/changelog.Debian.gz:1]
+W: example (binary): syntax-error-in-debian-changelog (LN0002) "badly formatted trailer line" [usr/share/doc/example/changelog.Debian.gz:6]
+W: example (binary): syntax-error-in-debian-changelog (LN0002) "found trailer where expected start of change data" [usr/share/doc/example/changelog.Debian.gz:10]
+W: example (binary): syntax-error-in-debian-changelog (LN0002) "badly formatted heading line" [usr/share/doc/example/changelog.Debian.gz:15]
+W: example (binary): syntax-error-in-debian-changelog (LN0002) "found change data where expected next heading or eof" [usr/share/doc/example/changelog.Debian.gz:17]
+W: example (binary): syntax-error-in-debian-changelog (LN0002) line 12 "couldn't parse date The, 15 Apr 2004 23:33:51 +0200" [usr/share/doc/example/changelog.Debian.gz:12]

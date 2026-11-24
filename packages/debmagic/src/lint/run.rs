@@ -320,16 +320,17 @@ impl Processable<'_> {
         }
     }
 
-    /// Whether a Rule of a stage with `owner` and Tag `tag` ran on this
-    /// processable. Group Rules run on an installable only when they report on
-    /// installables (ADR 0056).
-    fn ran_here(&self, owner: Owner, tag: Tag) -> bool {
+    /// Whether a Rule of a stage with `owner` ran on this processable. A Group
+    /// stage holds exactly the Group Rules that ran on the Group: all selected
+    /// ones for a Group with a `.dsc`, and for a lone `.deb` only those that
+    /// opt in with `runs_without_dsc` (ADR 0056). Each of them counts as run on
+    /// the Source package and on every installable of its Group, as lintian's
+    /// Checks do; a Rule that reports nothing there leaves its override unused.
+    fn ran_here(&self, owner: Owner) -> bool {
         match (self, owner) {
             (Self::Tree(_) | Self::Source(..), Owner::Source | Owner::Group) => true,
             (Self::Binary(index, _), Owner::Binary(other)) => *index == other,
-            (Self::Binary(..), Owner::Group) => registry::group_rules()
-                .iter()
-                .any(|rule| rule.tag() == tag && rule.runs_without_dsc()),
+            (Self::Binary(..), Owner::Group) => true,
             _ => false,
         }
     }
@@ -437,7 +438,7 @@ fn apply_overrides(
                     .iter()
                     .map(move |timing| (stage.owner, timing.tag))
             })
-            .filter(|&(owner, tag)| processable.ran_here(owner, tag))
+            .filter(|&(owner, _)| processable.ran_here(owner))
             .map(|(_, tag)| tag)
             .collect();
         let facts = ProcessableFacts {
@@ -1785,6 +1786,123 @@ mod override_application_tests {
             &mut stages,
         )?;
         assert_eq!(ignored, 1);
+        assert!(stages[0].diagnostics[0].is_overridden());
+        Ok(())
+    }
+
+    /// A `.deb` of `example` whose lintian override file is `overrides`.
+    fn binary_with_overrides(
+        overrides: &str,
+    ) -> anyhow::Result<(tempfile::TempDir, BinaryPackageData)> {
+        let dir = tempfile::tempdir()?;
+        let path = dir.path().join("example_1.0_amd64.deb");
+        crate::lint::binary_package_reader::write_test_deb_with_files(
+            &path,
+            &[(
+                "control",
+                "Package: example\nVersion: 1.0\nArchitecture: amd64\nDescription: example\n extra\n"
+                    .as_bytes(),
+            )],
+            &[(
+                "usr/share/lintian/overrides/example",
+                overrides.as_bytes(),
+            )],
+        )?;
+        let data = BinaryPackageData::new(path)?;
+        Ok((dir, data))
+    }
+
+    /// An installable Diagnostic of a Group Rule, as `installable_diagnostic` sets it.
+    fn installable_hint(tag: &'static str, message: &str, path: &str) -> Diagnostic {
+        Diagnostic::warn(message)
+            .with_tag(Tag(tag))
+            .with_code(Code::from_static("LN1503"))
+            .with_package("example")
+            .with_processable_type(ProcessableType::Binary)
+            .with_location(Location {
+                path: PathBuf::from(path),
+                line: None,
+                column: None,
+            })
+    }
+
+    const LIBRARY: &str = "lacks-unversioned-link-to-shared-library";
+
+    /// lintian's `Group::process` judges an override of an installable-reporting
+    /// Group Rule's Tag on each installable, the Group having a `.dsc` (ADR 0056):
+    /// the Rule ran on the binary, so an override whose pattern matches is used.
+    #[test]
+    fn group_rule_override_on_installable_is_used_when_it_matches() -> anyhow::Result<()> {
+        let (_dir, data) = binary_with_overrides(&format!("{LIBRARY} example: *\n"))?;
+        let mut stages = vec![stage(
+            Owner::Group,
+            LIBRARY,
+            vec![installable_hint(
+                LIBRARY,
+                "example: usr/lib/libexample.so",
+                "usr/lib/libexample.so",
+            )],
+        )];
+        apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::from([Code::from_static("LN1503")]),
+            &[Processable::Binary(0, &data)],
+            &mut stages,
+        )?;
+        assert!(stages[0].diagnostics[0].is_overridden());
+        Ok(())
+    }
+
+    /// The same Group Rule ran on the binary and reported nothing matching the
+    /// pattern, so lintian's `unused-override` applies (ADR 0057, LN1779).
+    #[test]
+    fn group_rule_override_on_installable_is_unused_when_nothing_matches() -> anyhow::Result<()> {
+        let (_dir, data) = binary_with_overrides(&format!("{LIBRARY} usr/lib/*/libother.so\n"))?;
+        let mut stages = vec![stage(Owner::Group, LIBRARY, vec![])];
+        apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::from([Code::from_static("LN1779")]),
+            &[Processable::Binary(0, &data)],
+            &mut stages,
+        )?;
+        let unused: Vec<String> = stages
+            .iter()
+            .flat_map(|stage| stage.diagnostics.iter())
+            .filter(|diagnostic| diagnostic.tag.0 == "unused-override")
+            .map(|diagnostic| diagnostic.message.clone())
+            .collect();
+        assert_eq!(unused, [format!("{LIBRARY} usr/lib/*/libother.so")]);
+        Ok(())
+    }
+
+    /// An override for a Tag whose Rule did not run on the Group is neither applied
+    /// nor reported: its Rule is not known to have judged this installable.
+    #[test]
+    fn override_for_a_tag_whose_group_rule_did_not_run_takes_no_part() -> anyhow::Result<()> {
+        let (_dir, data) = binary_with_overrides(&format!(
+            "file-references-package-build-path example: *\n{LIBRARY} example: *\n"
+        ))?;
+        let mut stages = vec![stage(
+            Owner::Group,
+            LIBRARY,
+            vec![installable_hint(
+                LIBRARY,
+                "example: usr/lib/libexample.so",
+                "usr/lib/libexample.so",
+            )],
+        )];
+        apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::from([Code::from_static("LN1779")]),
+            &[Processable::Binary(0, &data)],
+            &mut stages,
+        )?;
+        let unused = stages
+            .iter()
+            .flat_map(|stage| stage.diagnostics.iter())
+            .filter(|diagnostic| diagnostic.tag.0 == "unused-override")
+            .count();
+        assert_eq!(unused, 0);
         assert!(stages[0].diagnostics[0].is_overridden());
         Ok(())
     }

@@ -158,6 +158,21 @@ mod tests {
             "Homepage: https://example.org/\nRules-requires-root: no\n",
         )];
         SourceTreeTester::new(CuteField, pass, fail).test();
+        // Source, Maintainer, Homepage, then the mismatched name on line 4.
+        let tester = SourcePackageTester::new(
+            CuteField,
+            Vec::<SourcePackageCase>::new(),
+            Vec::<SourcePackageCase>::new(),
+        );
+        let diagnostics = tester.diagnostics(SourcePackageCase::from(control(
+            "Homepage: https://example.org/\nRules-requires-root: no\n",
+        )));
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(
+            diagnostics[0].location.path,
+            PathBuf::from("debian/control")
+        );
+        assert_eq!(diagnostics[0].location.line, Some(4));
     }
 
     /// Boundary: a name that is already in the standard form, including the

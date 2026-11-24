@@ -153,4 +153,45 @@ mod tests {
         ];
         SourceTreeTester::new(NonConsecutiveDebianRevision, pass, fail).test_and_snapshot();
     }
+
+    /// Lintian compares the newest entry with the previous one only when both
+    /// name the same source package: entries of another source are not a line.
+    /// The same source with a skipped revision is still reported.
+    #[test]
+    fn entries_of_another_source_are_not_compared() {
+        let pass = vec![tree(&format!(
+            "{}{}",
+            named_entry("other", "1.0-3"),
+            entry("1.0-1")
+        ))];
+        let fail = vec![tree(&format!("{}{}", entry("1.0-3"), entry("1.0-1")))];
+        SourceTreeTester::new(NonConsecutiveDebianRevision, pass, fail).test();
+    }
+
+    /// Lintian compares the revisions only within one epoch and upstream
+    /// version: a changed epoch or upstream starts a new sequence. The same
+    /// epoch and upstream with a skipped revision is still reported.
+    #[test]
+    fn entries_of_another_epoch_or_upstream_are_not_compared() {
+        let pass = vec![
+            tree(&format!("{}{}", entry("2:1.0-3"), entry("1.0-1"))),
+            tree(&format!("{}{}", entry("2.0-3"), entry("1.0-1"))),
+        ];
+        let fail = vec![tree(&format!("{}{}", entry("1.0-3"), entry("1.0-1")))];
+        SourceTreeTester::new(NonConsecutiveDebianRevision, pass, fail).test();
+    }
+
+    /// A native package has no Debian revision, so the Tag is quiet for it.
+    #[test]
+    fn native_package_is_not_compared() {
+        let pass = vec![vec![
+            ("debian/source/format", TestFile::new("3.0 (native)\n")),
+            (
+                "debian/changelog",
+                TestFile::new(format!("{}{}", entry("3"), entry("1"))),
+            ),
+        ]];
+        let fail = vec![tree(&format!("{}{}", entry("1.0-3"), entry("1.0-1")))];
+        SourceTreeTester::new(NonConsecutiveDebianRevision, pass, fail).test();
+    }
 }

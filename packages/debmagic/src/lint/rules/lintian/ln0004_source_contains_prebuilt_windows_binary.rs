@@ -16,8 +16,10 @@ declare_rule! {
     /// are reported, as lintian's `(?:PE(?:32|64)|MS-DOS)` file type match.
     /// Walks the packaging File tree (Source tree, or Source package Patched
     /// files). Quilt `.pc/` is filtered out; `debian/missing-sources/` is
-    /// skipped. Extra is the Entry path. No path heuristic: a `.com` text
-    /// file (VMS command procedure, domain welcomelist) is not a binary.
+    /// skipped. The Entry path is the Location and the extra is empty, as
+    /// lintian's `pointed_hint(tag, $item->pointer)` prints `tag [path]`.
+    /// No path heuristic: a `.com` text file (VMS command procedure, domain
+    /// welcomelist) is not a binary.
     SourceContainsPrebuiltWindowsBinary,
     code = "LN0004",
     tag = "source-contains-prebuilt-windows-binary",
@@ -31,8 +33,7 @@ impl SourceRule for SourceContainsPrebuiltWindowsBinary {
             return;
         };
         for path in windows_binary_paths(files) {
-            let extra = path.display().to_string();
-            ctx.diagnostic(Diagnostic::warn(extra).with_location(Location {
+            ctx.diagnostic(Diagnostic::warn("").with_location(Location {
                 path,
                 line: None,
                 column: None,

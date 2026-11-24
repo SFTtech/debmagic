@@ -1,7 +1,9 @@
+use std::path::PathBuf;
+
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::debian_control::DebianControl;
-use crate::lint::diagnostic::Diagnostic;
+use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::SourceRule;
 
 use super::comma_list;
@@ -29,14 +31,19 @@ const ORDERED_FIELDS: &[&str] = &["Pre-Depends", "Depends", "Recommends", "Sugge
 
 impl SourceRule for RedundantInstallationPrerequisite {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let messages = ctx.debian_control().map(messages).unwrap_or_default();
-        for message in messages {
-            ctx.diagnostic(Diagnostic::warn(message));
+        let hits = ctx.debian_control().map(messages).unwrap_or_default();
+        for (message, line) in hits {
+            ctx.diagnostic(Diagnostic::warn(message).with_location(Location {
+                path: PathBuf::from("debian/control"),
+                line,
+                column: None,
+            }));
         }
     }
 }
 
-fn messages(control: &DebianControl) -> Vec<String> {
+/// Each hit with the line of the stronger field, which lintian points at.
+fn messages(control: &DebianControl) -> Vec<(String, Option<u32>)> {
     let mut hits = Vec::new();
     for installable in control.installables() {
         let fields = installable.fields();
@@ -44,13 +51,15 @@ fn messages(control: &DebianControl) -> Vec<String> {
             let Some(relation) = fields.relation(stronger) else {
                 continue;
             };
+            let line = fields.position(stronger);
             for weaker in &ORDERED_FIELDS[index + 1..] {
                 for prerequisite in comma_list(fields, weaker) {
                     if relation.satisfies(&prerequisite) {
-                        hits.push(format!(
+                        let message = format!(
                             "(in section for {}) {weaker} -> {stronger} {prerequisite}",
                             installable.name()
-                        ));
+                        );
+                        hits.push((message, line));
                     }
                 }
             }

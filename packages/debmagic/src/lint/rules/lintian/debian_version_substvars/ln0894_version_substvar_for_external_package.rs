@@ -23,7 +23,8 @@ declare_rule! {
     /// the installable's `Provides` lists `pkg (= ${substvar})` exactly, or
     /// `pkg` itself contains a `${…}` substitution. Extra is
     /// `<field> <substvar> <installable> -> <pkg>`. The Location is
-    /// `debian/control`, with no line. Applies to the Source tree and Source
+    /// `debian/control` at the line of the field name, as lintian's pointer
+    /// is, so an override such as `[debian/control:*]` matches it. Applies to the Source tree and Source
     /// package. Like lintian, only the `source:` and `binary:` forms count:
     /// the obsolete `${Source-Version}` is not matched here (lintian reports
     /// it as `substvar-source-version-is-deprecated`). The vendored
@@ -63,10 +64,10 @@ impl SourceRule for VersionSubstvarForExternalPackage {
             Some(control) => external_relations(control),
             None => return,
         };
-        for message in messages {
+        for (line, message) in messages {
             ctx.diagnostic(Diagnostic::error(message).with_location(Location {
                 path: "debian/control".into(),
-                line: None,
+                line,
                 column: None,
             }));
         }
@@ -74,7 +75,7 @@ impl SourceRule for VersionSubstvarForExternalPackage {
 }
 
 /// The extra of each external versioned relation, in lintian's order.
-fn external_relations(control: &DebianControl) -> Vec<String> {
+fn external_relations(control: &DebianControl) -> Vec<(Option<u32>, String)> {
     let provides: Vec<String> = control
         .installables()
         .iter()
@@ -121,9 +122,9 @@ fn external_relations(control: &DebianControl) -> Vec<String> {
                 if declared_here || provided || SUBSTVAR_IN_NAME.is_match(&other) {
                     continue;
                 }
-                messages.push(format!(
-                    "{field} {substvar} {} -> {other}",
-                    installable.name()
+                messages.push((
+                    fields.position(field),
+                    format!("{field} {substvar} {} -> {other}", installable.name()),
                 ));
             }
         }
@@ -191,5 +192,22 @@ Maintainer: Maintainer <m@example.com>
             )),
         ];
         SourceTreeTester::new(VersionSubstvarForExternalPackage, pass, fail).test_and_snapshot();
+    }
+
+    #[test]
+    fn location_is_the_field_line() {
+        // lintian's pointer is `debian/control:<line of the field>`, which
+        // overrides such as `[debian/control:*]` match.
+        let text = format!(
+            "{HEAD}Package: program-data\nArchitecture: all\nDepends: foreign-pkg (= ${{source:Version}})\n"
+        );
+        let control = DebianControl::parse(&text).expect("parses");
+        assert_eq!(
+            external_relations(&control),
+            vec![(
+                Some(6),
+                "Depends ${source:Version} program-data -> foreign-pkg".to_string()
+            )]
+        );
     }
 }

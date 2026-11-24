@@ -1,7 +1,8 @@
 ---
 source: packages/debmagic/src/lint/tester.rs
+assertion_line: 425
 ---
-E: example (source): version-substvar-for-external-package (LN0894) Depends ${source:Version} program-data -> foreign-pkg [debian/control]
-E: example (source): version-substvar-for-external-package (LN0894) Replaces ${binary:Version} program-data -> other-foreign-pkg [debian/control]
-E: example (source): version-substvar-for-external-package (LN0894) Recommends ${source:Upstream-Version} program-data -> foreign-pkg [debian/control]
-E: example (source): version-substvar-for-external-package (LN0894) Suggests ${binary:Version} program-data -> foreign-pkg [debian/control]
+E: example (source): version-substvar-for-external-package (LN0894) Depends ${source:Version} program-data -> foreign-pkg [debian/control:6]
+E: example (source): version-substvar-for-external-package (LN0894) Replaces ${binary:Version} program-data -> other-foreign-pkg [debian/control:6]
+E: example (source): version-substvar-for-external-package (LN0894) Recommends ${source:Upstream-Version} program-data -> foreign-pkg [debian/control:6]
+E: example (source): version-substvar-for-external-package (LN0894) Suggests ${binary:Version} program-data -> foreign-pkg [debian/control:6]

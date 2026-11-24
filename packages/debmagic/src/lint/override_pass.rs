@@ -699,6 +699,41 @@ mod tests {
         assert_eq!(hit_count(&diagnostics), 0);
     }
 
+    /// The audit packages (ecosystem report, LN0946 and LN1780): lintian points at
+    /// a directory with its trailing `/`, so `[etc/audit/]` suppresses it and the
+    /// override is neither mismatched nor unused.
+    #[test]
+    fn directory_override_with_trailing_slash_suppresses_directory_pointer() {
+        let parsed = overrides(
+            "non-standard-dir-perm 0750 != 0755 [etc/audit/]\n\
+             non-standard-dir-perm 0750 != 0755 [var/log/audit/]\n",
+        );
+        let facts = ProcessableFacts {
+            architecture: "amd64",
+            ran_tags: &[Tag("non-standard-dir-perm")],
+        };
+        let mut diagnostics = vec![
+            Diagnostic::warn("0750 != 0755")
+                .with_tag(Tag("non-standard-dir-perm"))
+                .with_location(Location {
+                    path: PathBuf::from("etc/audit/"),
+                    line: None,
+                    column: None,
+                }),
+            Diagnostic::warn("0750 != 0755")
+                .with_tag(Tag("non-standard-dir-perm"))
+                .with_location(Location {
+                    path: PathBuf::from("var/log/audit/"),
+                    line: None,
+                    column: None,
+                }),
+        ];
+        let outcome = apply(&parsed, &facts, &mut diagnostics);
+        assert_eq!(hit_count(&diagnostics), 2);
+        assert!(outcome.unused.is_empty());
+        assert!(outcome.mismatched.is_empty());
+    }
+
     #[test]
     fn empty_file_changes_nothing() {
         let parsed = overrides("# only a comment\n\n");

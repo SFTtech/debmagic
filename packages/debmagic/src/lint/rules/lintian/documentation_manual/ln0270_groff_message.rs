@@ -100,8 +100,37 @@ mod tests {
         BinaryPackageCase::from(entries)
     }
 
+    /// The snapshot holds groff 1.25 warnings, which end in the warning
+    /// category (`[-w space]`). An older or missing groff prints other text.
+    /// Stopgap until debmagic carries a pinned groff of its own.
+    fn host_groff_matches_snapshot() -> bool {
+        let Ok(output) = std::process::Command::new("groff")
+            .arg("--version")
+            .output()
+        else {
+            return false;
+        };
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let version: Vec<u32> = stdout
+            .lines()
+            .next()
+            .and_then(|line| line.split_whitespace().last())
+            .map(|version| {
+                version
+                    .split('.')
+                    .map_while(|part| part.parse().ok())
+                    .collect()
+            })
+            .unwrap_or_default();
+        version >= vec![1, 25]
+    }
+
     #[test]
     fn test() {
+        if !host_groff_matches_snapshot() {
+            eprintln!("skipped: the snapshot needs groff 1.25 or newer on the host");
+            return;
+        }
         let pass = vec![
             case(vec![]),
             case(vec![text("usr/share/man/man1/clean.1", CLEAN)]),

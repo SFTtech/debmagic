@@ -40,13 +40,11 @@ static NVIDIA: LazyLock<BadLicense> = LazyLock::new(|| {
 
 impl SourceRule for LicenseProblemNvidiaIntellectual {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let Some(files) = ctx.files() else {
-            return;
-        };
-        let flagged: Vec<_> = license_text::text_files(files)
-            .into_iter()
+        let texts = license_text::shared_text_files(ctx);
+        let flagged: Vec<_> = texts
+            .iter()
             .filter(|file| NVIDIA.matches(file))
-            .map(|file| file.path)
+            .map(|file| file.path.clone())
             .collect();
         for path in flagged {
             ctx.diagnostic(Diagnostic::error("").with_location(Location {

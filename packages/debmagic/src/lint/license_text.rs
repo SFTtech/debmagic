@@ -7,8 +7,9 @@
 //! so only the first window is matched: the first 32 KiB of the file, two
 //! 16 KiB blocks. This module does the same ([`WINDOW`]).
 
+use std::borrow::Cow;
 use std::path::{Path, PathBuf};
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use regex::Regex;
 
@@ -28,8 +29,25 @@ pub(crate) struct TextFile {
     pub(crate) path: PathBuf,
     /// The lower-cased first window of the contents (lintian's `$lowercase`).
     pub(crate) lowercase: String,
-    /// [`clean_text`] of `lowercase` (lintian's `$clean`).
-    pub(crate) clean: String,
+    /// [`clean_text`] of `lowercase`, computed on first use (see [`Self::clean`]).
+    clean: OnceLock<String>,
+}
+
+impl TextFile {
+    pub(crate) fn new(path: PathBuf, lowercase: String) -> Self {
+        Self {
+            path,
+            lowercase,
+            clean: OnceLock::new(),
+        }
+    }
+
+    /// lintian's `$clean`: [`clean_text`] of `lowercase`. Most files fail a
+    /// keyword check before a Rule reads it, so the cleaning is paid only for
+    /// the files that reach it.
+    pub(crate) fn clean(&self) -> &str {
+        self.clean.get_or_init(|| clean_text(&self.lowercase))
+    }
 }
 
 static NON_FREE_SECTION: LazyLock<Regex> = LazyLock::new(|| {
@@ -48,6 +66,12 @@ pub(crate) fn is_non_free(ctx: &SourceContext<'_>) -> bool {
     NON_FREE_SECTION.is_match(&section)
 }
 
+/// The Patched text files of `ctx`'s Subject, built once and shared by every
+/// Rule that matches them. Empty when the Patched files are unavailable.
+pub(crate) fn shared_text_files(ctx: &mut SourceContext<'_>) -> Arc<Vec<TextFile>> {
+    ctx.shared_once(|ctx| ctx.files().map_or_else(Vec::new, text_files))
+}
+
 /// The regular files of `files` outside `.pc/` that read as text, in tree
 /// order, with their first [`WINDOW`] bytes. Hardlinks are not read, as lintian's `full_text_check` skips them.
 pub(crate) fn text_files(files: &FileTree) -> Vec<TextFile> {
@@ -57,100 +81,117 @@ pub(crate) fn text_files(files: &FileTree) -> Vec<TextFile> {
         .into_iter()
         .filter(|entry| !entry.path().starts_with(".pc"))
         .filter_map(|entry| {
-            let bytes = files.read(entry).ok()?;
-            if bytes[..bytes.len().min(BINARY_PROBE)].contains(&0) {
+            let window = files.read_prefix(entry, WINDOW).ok()?;
+            if window[..window.len().min(BINARY_PROBE)].contains(&0) {
                 return None;
             }
-            let window = &bytes[..bytes.len().min(WINDOW)];
-            let lowercase = String::from_utf8_lossy(window).to_lowercase();
-            let clean = clean_text(&lowercase);
-            Some(TextFile {
-                path: entry.path().to_path_buf(),
-                lowercase,
-                clean,
-            })
+            let lowercase = String::from_utf8_lossy(&window).to_lowercase();
+            Some(TextFile::new(entry.path().to_path_buf(), lowercase))
         })
         .collect()
 }
 
 /// lintian's `clean_text` steps, in order: Texinfo, pod, TeX, HTML and
 /// comment markup folded to spaces, then all whitespace collapsed.
-const CLEAN_TABLE: &[(&str, &str)] = &[
-    (r"(?:@[[:alpha:]]*?\{)?\s*gnu\s*\}", " gnu "),
-    (r#"\\\*\([LR]""#, "\""),
-    (r"\\-", "-"),
-    (r"\(&fdl;\)", " "),
-    (r"&fsf;", "free software foundation"),
-    (r"&nbsp;", " "),
-    (r#"^\.\\""#, " "),
-    (r#""\s?[\n\x0B\x0C\r]#~\s?""#, ""),
-    (r"\\par\b", ""),
-    (r"\\url\{[^}]*?\}", " "),
-    (r"\\emph\{", " "),
-    (r"\\href\{[^}]*?\}\{([^}]*?)\}", " ${1} "),
-    (r"\\hyperlink\{[^}]*?\}\{([^}]*?)\}", " ${1} "),
-    (r"-\\/", "-"),
-    (r"\\char", " "),
-    (r"@c(?:omment)?[ \t]+end[ \t]+ifman\s+", " "),
-    (r"@c(?:omment)?\s+noman\s+", " "),
-    (r"@c(?:omment)?\s+", " "),
-    (r"@[birt]\{", " "),
-    (r"@sansserif\{", " "),
-    (r"@slanted\{", " "),
-    (r"@var\{", " "),
-    (r"@(?:small)?example\s+", " "),
-    (r"@end[ \t]+(?:small)example\s+", " "),
-    (r"@group\s+", " "),
-    (r"@end[ \t]+group\s+", " "),
-    (r"<!--", " "),
-    (r"-->", " "),
-    (r"</?a[^>]*?>", " "),
-    (r"<br\s*/?>", " "),
-    (r"</?citetitle[^>]*?>", " "),
-    (r"</?div[^>]*?>", " "),
-    (r"</?font[^>]*?>", " "),
-    (r"</?b[^>]*?>", " "),
-    (r"</?i[^>]*?>", " "),
-    (r"</?link[^>]*?>", " "),
-    (r"</?p[^>]*?>", " "),
-    (r"</?quote[^>]*?>", " "),
-    (r"</?span[^>]*?>", " "),
-    (r"</?ulink[^>]*?>", " "),
-    (r"</?var[^>]*?>", " "),
-    (r"&[lr]dquo;", " "),
-    (r"\(\*note.*?::\)", " "),
-    (r#""\s*,"#, " "),
-    (r#",\s*""#, " "),
-    (r"\\n", " "),
-    (r"\\&", " "),
-    (r"\\s(?:0|-1)", " "),
-    (r"``|''", " "),
-    (r"^[-\+!<>]", " "),
-    (r"@@\s*[-+]\d+,\d+\s+[-+]\d+,\d+\s*@@", " "),
-    (r"\}", " "),
-    (r"^\s*\\(sub)*section\*?\{\s*\S+", " "),
-    (r#"[%\*"\|\\#~]"#, " "),
-    (r"\s+", " "),
+const CLEAN_TABLE: &[(&str, &str, &[&str])] = &[
+    (r"(?:@[[:alpha:]]*?\{)?\s*gnu\s*\}", " gnu ", &[r"gnu"]),
+    (r#"\\\*\([LR]""#, "\"", &[r"\*("]),
+    (r"\\-", "-", &[r"\-"]),
+    (r"\(&fdl;\)", " ", &[r"&fdl;"]),
+    (r"&fsf;", "free software foundation", &[r"&fsf;"]),
+    (r"&nbsp;", " ", &[r"&nbsp;"]),
+    (r#"^\.\\""#, " ", &[r#".\""#]),
+    (r#""\s?[\n\x0B\x0C\r]#~\s?""#, "", &[r"#~"]),
+    (r"\\par\b", "", &[r"\par"]),
+    (r"\\url\{[^}]*?\}", " ", &[r"\url{"]),
+    (r"\\emph\{", " ", &[r"\emph{"]),
+    (r"\\href\{[^}]*?\}\{([^}]*?)\}", " ${1} ", &[r"\href{"]),
+    (
+        r"\\hyperlink\{[^}]*?\}\{([^}]*?)\}",
+        " ${1} ",
+        &[r"\hyperlink{"],
+    ),
+    (r"-\\/", "-", &[r"-\/"]),
+    (r"\\char", " ", &[r"\char"]),
+    (r"@c(?:omment)?[ \t]+end[ \t]+ifman\s+", " ", &[r"@c"]),
+    (r"@c(?:omment)?\s+noman\s+", " ", &[r"@c"]),
+    (r"@c(?:omment)?\s+", " ", &[r"@c"]),
+    (r"@[birt]\{", " ", &[r"@"]),
+    (r"@sansserif\{", " ", &[r"@sansserif{"]),
+    (r"@slanted\{", " ", &[r"@slanted{"]),
+    (r"@var\{", " ", &[r"@var{"]),
+    (r"@(?:small)?example\s+", " ", &[r"example"]),
+    (r"@end[ \t]+(?:small)example\s+", " ", &[r"example"]),
+    (r"@group\s+", " ", &[r"@group"]),
+    (r"@end[ \t]+group\s+", " ", &[r"group"]),
+    (r"<!--", " ", &[r"<!--"]),
+    (r"-->", " ", &[r"-->"]),
+    (r"</?a[^>]*?>", " ", &[r"<"]),
+    (r"<br\s*/?>", " ", &[r"<br"]),
+    (r"</?citetitle[^>]*?>", " ", &[r"<"]),
+    (r"</?div[^>]*?>", " ", &[r"<"]),
+    (r"</?font[^>]*?>", " ", &[r"<"]),
+    (r"</?b[^>]*?>", " ", &[r"<"]),
+    (r"</?i[^>]*?>", " ", &[r"<"]),
+    (r"</?link[^>]*?>", " ", &[r"<"]),
+    (r"</?p[^>]*?>", " ", &[r"<"]),
+    (r"</?quote[^>]*?>", " ", &[r"<"]),
+    (r"</?span[^>]*?>", " ", &[r"<"]),
+    (r"</?ulink[^>]*?>", " ", &[r"<"]),
+    (r"</?var[^>]*?>", " ", &[r"<"]),
+    (r"&[lr]dquo;", " ", &[r"dquo;"]),
+    (r"\(\*note.*?::\)", " ", &[r"(*note"]),
+    (r#""\s*,"#, " ", &[r#"""#]),
+    (r#",\s*""#, " ", &[r","]),
+    (r"\\n", " ", &[r"\n"]),
+    (r"\\&", " ", &[r"\&"]),
+    (r"\\s(?:0|-1)", " ", &[r"\s"]),
+    (r"``|''", " ", &[r"``", r"''"]),
+    (r"^[-\+!<>]", " ", &[]),
+    (r"@@\s*[-+]\d+,\d+\s+[-+]\d+,\d+\s*@@", " ", &[r"@@"]),
+    (r"\}", " ", &[r"}"]),
+    (r"^\s*\\(sub)*section\*?\{\s*\S+", " ", &[r"section"]),
+    (r#"[%\*"\|\\#~]"#, " ", &[]),
+    (r"\s+", " ", &[]),
 ];
 
-static CLEAN_STEPS: LazyLock<Vec<(Regex, &'static str)>> = LazyLock::new(|| {
+/// One compiled step of [`CLEAN_TABLE`].
+struct CleanStep {
+    regex: Regex,
+    replacement: &'static str,
+    /// Literals of which every match of `regex` contains one. Empty when the
+    /// step has no such literal, so it always runs.
+    literals: &'static [&'static str],
+}
+
+static CLEAN_STEPS: LazyLock<Vec<CleanStep>> = LazyLock::new(|| {
     CLEAN_TABLE
         .iter()
-        .map(|(pattern, replacement)| {
-            (
-                Regex::new(&format!("(?ms){pattern}")).expect("valid regex"),
-                *replacement,
-            )
+        .map(|(pattern, replacement, literals)| CleanStep {
+            regex: Regex::new(&format!("(?ms){pattern}")).expect("valid regex"),
+            replacement,
+            literals,
         })
         .collect()
 });
 
 /// lintian's `clean_text`: the lower-cased text with comment markers, markup
 /// and line breaks folded into single spaces, trimmed.
+///
+/// A step is skipped when the text has none of its literals, as no match of
+/// its pattern can then exist. A step that matches nothing keeps the text
+/// borrowed, so no copy is made for it.
 pub(crate) fn clean_text(lowercase: &str) -> String {
-    let mut text = lowercase.to_string();
-    for (pattern, replacement) in CLEAN_STEPS.iter() {
-        text = pattern.replace_all(&text, *replacement).into_owned();
+    let mut text = Cow::Borrowed(lowercase);
+    for step in CLEAN_STEPS.iter() {
+        if !step.literals.is_empty() && !step.literals.iter().any(|literal| text.contains(literal))
+        {
+            continue;
+        }
+        let replaced = step.regex.replace_all(&text, step.replacement);
+        if let Cow::Owned(owned) = replaced {
+            text = Cow::Owned(owned);
+        }
     }
     text.trim().to_string()
 }
@@ -189,11 +230,11 @@ impl BadLicense {
             && self
                 .sentences
                 .iter()
-                .any(|sentence| text.clean.contains(sentence))
+                .any(|sentence| text.clean().contains(sentence))
             && self
                 .regex
                 .as_ref()
-                .is_none_or(|regex| regex.is_match(&text.clean))
+                .is_none_or(|regex| regex.is_match(text.clean()))
     }
 }
 
@@ -374,12 +415,7 @@ mod tests {
     use super::*;
 
     fn text(content: &str) -> TextFile {
-        let lowercase = content.to_lowercase();
-        TextFile {
-            path: PathBuf::from("file.c"),
-            clean: clean_text(&lowercase),
-            lowercase,
-        }
+        TextFile::new(PathBuf::from("file.c"), content.to_lowercase())
     }
 
     #[test]
@@ -390,6 +426,45 @@ mod tests {
         );
         assert_eq!(clean_text("<p>hello</p>\n\"a\",\n"), "hello a");
         assert_eq!(clean_text("\\href{http://x}{name}"), "name");
+    }
+
+    /// Pins `clean_text` on inputs that hit each kind of step, so a faster
+    /// implementation that changes any of them fails here before it reaches
+    /// the lint output.
+    #[test]
+    fn clean_text_pins_representative_inputs() {
+        let cases: &[(&str, &str)] = &[
+            ("", ""),
+            ("plain text", "plain text"),
+            ("  leading and   trailing \n\n", "leading and trailing"),
+            (
+                "line one\nline two\r\nline three",
+                "line one line two line three",
+            ),
+            ("@gnu{}", "@gnu{"),
+            ("\\*(L\"quoted\"", "quoted"),
+            ("non\\-breaking", "non-breaking"),
+            (
+                "the &fsf; and &nbsp;here",
+                "the free software foundation and here",
+            ),
+            ("<p>hello</p>\n\"a\",\n", "hello a"),
+            ("<a href=\"x\">link</a> and <br/>break", "link and break"),
+            ("\\href{http://x}{name}", "name"),
+            ("\\url{http://x} and \\emph{x}", "and x"),
+            ("@c comment text", "comment text"),
+            ("``quoted'' text", "quoted text"),
+            (
+                "/*\n * unicode,  inc.\n * hereby\n */",
+                "/ unicode, inc. hereby /",
+            ),
+            ("\\section{Title}", ""),
+            ("@@ -1,2 +3,4 @@", ""),
+            ("a{b}c", "a{b c"),
+        ];
+        for (input, expected) in cases {
+            assert_eq!(clean_text(input), *expected, "input {input:?}");
+        }
     }
 
     #[test]

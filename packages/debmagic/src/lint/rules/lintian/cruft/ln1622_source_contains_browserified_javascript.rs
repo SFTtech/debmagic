@@ -76,12 +76,10 @@ fn basename(file: &TextFile) -> String {
 
 impl SourceRule for SourceContainsBrowserifiedJavascript {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let Some(files) = ctx.files() else {
-            return;
-        };
+        let texts = license_text::shared_text_files(ctx);
         let mut findings = Vec::new();
-        for file in license_text::text_files(files) {
-            let name = basename(&file);
+        for file in texts.iter() {
+            let name = basename(file);
             if HTML_NAME.is_match(&name) {
                 for script in license_text::inline_scripts(&file.lowercase) {
                     let contiguous = license_text::contiguous_code(script);

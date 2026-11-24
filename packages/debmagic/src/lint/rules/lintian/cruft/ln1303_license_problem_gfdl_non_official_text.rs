@@ -4,7 +4,7 @@ use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::license_gfdl::gfdl_hint;
-use crate::lint::license_text::{self, text_files};
+use crate::lint::license_text;
 use crate::lint::rule::{Severity, SourceRule};
 
 pub struct LicenseProblemGfdlNonOfficialText;
@@ -39,14 +39,12 @@ impl SourceRule for LicenseProblemGfdlNonOfficialText {
         if license_text::is_non_free(ctx) {
             return;
         }
-        let Some(files) = ctx.files() else {
-            return;
-        };
-        let flagged: Vec<(PathBuf, String)> = text_files(files)
-            .into_iter()
+        let texts = license_text::shared_text_files(ctx);
+        let flagged: Vec<(PathBuf, String)> = texts
+            .iter()
             .filter_map(|file| {
-                let hint = gfdl_hint(&file)?;
-                (hint.tag == TAG).then_some((file.path, hint.extra))
+                let hint = gfdl_hint(file)?;
+                (hint.tag == TAG).then_some((file.path.clone(), hint.extra))
             })
             .collect();
         for (path, extra) in flagged {

@@ -805,9 +805,35 @@ mod tests {
         fixtures
     }
 
+    /// Whether the host `file(1)` is 5.47 or newer. Older releases describe
+    /// some fixtures differently (no INI detection before 5.44, and `\x1a`
+    /// reads as `data`), so the differential tests need at least the version
+    /// lintian ran with. CI's ubuntu-latest ships 5.45.
+    fn host_file_is_recent_enough() -> bool {
+        let Ok(output) = std::process::Command::new("file").arg("--version").output() else {
+            return false;
+        };
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let version: Vec<u32> = stdout
+            .lines()
+            .next()
+            .and_then(|line| line.trim().strip_prefix("file-"))
+            .map(|version| {
+                version
+                    .split('.')
+                    .map_while(|part| part.parse().ok())
+                    .collect()
+            })
+            .unwrap_or_default();
+        version >= vec![5, 47]
+    }
+
     /// `file -b` over the fixtures, one description per fixture, or `None` when
-    /// `file(1)` is not installed.
+    /// `file(1)` is not installed or older than 5.47.
     fn file_descriptions(fixtures: &[Vec<u8>]) -> Option<Vec<String>> {
+        if !host_file_is_recent_enough() {
+            return None;
+        }
         let dir = tempfile::tempdir().ok()?;
         let paths: Vec<_> = fixtures
             .iter()
@@ -837,7 +863,7 @@ mod tests {
     fn ini_and_ascii_text_agree_with_file_on_generated_fixtures() {
         let fixtures = ini_fixtures();
         let Some(descriptions) = file_descriptions(&fixtures) else {
-            eprintln!("file(1) is not installed; skipping the differential test");
+            eprintln!("file(1) 5.47 or newer is not installed; skipping the differential test");
             return;
         };
         for (bytes, description) in fixtures.iter().zip(&descriptions) {
@@ -1044,12 +1070,12 @@ mod tests {
     /// `text_kind` against `file -b` (file 5.47, the version lintian ran with)
     /// on [`text_fixtures`]. lintian's `(ASCII|Unicode) text` and
     /// `\bASCII text\b` are substring tests, so `Non-ISO extended-ASCII text`
-    /// counts for both. Skipped when `file(1)` is not installed.
+    /// counts for both. Skipped when `file(1)` is not installed or older than 5.47.
     #[test]
     fn text_kind_agrees_with_file_on_generated_fixtures() {
         let fixtures = text_fixtures();
         let Some(descriptions) = file_descriptions(&fixtures) else {
-            eprintln!("file(1) is not installed; skipping the differential test");
+            eprintln!("file(1) 5.47 or newer is not installed; skipping the differential test");
             return;
         };
         for (bytes, description) in fixtures.iter().zip(&descriptions) {

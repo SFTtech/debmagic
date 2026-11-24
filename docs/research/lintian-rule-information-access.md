@@ -1,6 +1,6 @@
 # What lintian rules need to inspect
 
-Primary source: Debian lintian **2.139.0** as installed (`/usr/share/lintian/`). Upstream git: [salsa.debian.org/lintian/lintian](https://salsa.debian.org/lintian/lintian). Tag catalog: 1529 `.tag` files (658 warning, 563 error, 166 info, 103 pedantic, 39 classification). Check modules: 343 under `lib/Lintian/Check/`. Classification tags are not Rules (ADR 0019) and are ignored below.
+Primary source: Debian lintian **2.139.0** as installed (`/usr/share/lintian/`). Upstream git: [salsa.debian.org/lintian/lintian](https://salsa.debian.org/lintian/lintian). Tag catalog: 1529 `.tag` files (658 warning, 563 error, 166 info, 103 pedantic, 39 classification). Check modules: 343 under `lib/Lintian/Check/`. Classification tags are not Rules and are ignored below.
 
 Lintian does not run a Rule against “the package” as a blob. Each Check module is a Moo role on `Lintian::Check`; `run` walks processable-specific **indexes** and then calls type hooks (`source`, `installable`/`binary`, `always`). Source walks `orig` then `patched` file indexes; binary/udeb walk `control` then `installed` ([`lib/Lintian/Check.pm`](https://salsa.debian.org/lintian/lintian/-/blob/master/lib/Lintian/Check.pm) `run` / `visit_files`).
 
@@ -106,13 +106,13 @@ Chosen to force five **different I/O surfaces**, default-visible severity (error
 | `missing-dep-for-interpreter` | Covers scripts (**69**) *and* Depends, but needs `data/scripts/interpreters` and a `.deb`. Prefer ELF as the first binary pipeline; scripts next. |
 | `script-not-executable` | Warning, good, but thinner than ELF for unlocking Binaries/Libraries. |
 | `no-copyright-file` | Binary-only path presence (`/usr/share/doc/<pkg>/copyright`); too little parser surface. |
-| `out-of-date-standards-version` | Info — not default Selection (ADR 0010). Needs policy-release dates vs changelog timestamp. |
+| `out-of-date-standards-version` | Info — not default Selection. Needs policy-release dates vs changelog timestamp. |
 | `debian-rules-not-executable` | Pedantic. |
 | `debian-watch-file-is-missing` / `missing-debian-source-format` | File existence only. |
 | `source-contains-prebuilt-binary` | Pedantic; Windows-PE sibling is warning and enough to force magic. |
 | `hardening-no-pie` | Needs full ELF notes / hardening collector; `unstripped-*` is the thinner ELF on-ramp. |
 | `invalid-standards-version` | Error, but a single field format check — subset of Deb822, less leverage than `required-field`. |
-| Group / `.changes` tags | No Subject kind yet (ADR 0016). |
+| Group / `.changes` tags | No Subject kind yet. |
 | Language-specific (Java bytecode, Python `.pyc`, …) | Niche collectors; `source-contains-prebuilt-windows-binary` already forces magic. |
 | `package-installs-python-bytecode` | Error, but language-specific installed-file name check. |
 

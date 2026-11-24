@@ -8,18 +8,18 @@ The first column is matched against Check sources by `scripts/lintian_tag.py`. K
 
 | lintian | debmagic | Notes |
 | --- | --- | --- |
-| `sub source` | `impl SourceRule` → `run(&self, ctx: &mut SourceContext)` | One trait covers Source tree and Source package (ADR 0040). |
-| `sub installable` | `impl BinaryPackageRule` → `run(&self, ctx: &mut BinaryPackageContext)` | Covers deb, udeb, and ddeb (ADR 0023). |
+| `sub source` | `impl SourceRule` → `run(&self, ctx: &mut SourceContext)` | One trait covers Source tree and Source package. |
+| `sub installable` | `impl BinaryPackageRule` → `run(&self, ctx: &mut BinaryPackageContext)` | Covers deb, udeb, and ddeb. |
 | `sub binary` | `impl BinaryPackageRule`, return early when `ctx.is_udeb()` | |
 | `sub udeb` | `impl BinaryPackageRule`, only when `ctx.is_udeb()` | |
 | `sub always` | implement both traits | |
-| `sub changes` | `impl ChangesRule` → `run(&self, ctx: &mut ChangesContext)` | The `.changes` of a Group (ADR 0055). `ctx.changes()` is the parsed file, `ctx.changes().files()` its `Files` and `Checksums-*` entries (lintian's `files` hash); `ctx.sibling(name)` is a file next to it. Hints get processable type `changes`. |
+| `sub changes` | `impl ChangesRule` → `run(&self, ctx: &mut ChangesContext)` | The `.changes` of a Group. `ctx.changes()` is the parsed file, `ctx.changes().files()` its `Files` and `Checksums-*` entries (lintian's `files` hash); `ctx.sibling(name)` is a file next to it. Hints get processable type `changes`. |
 | `sub buildinfo` | `impl BuildinfoRule` → `run(&self, ctx: &mut BuildinfoContext)` | The `.buildinfo` of a Group; `ctx.buildinfo()`. Hints get processable type `buildinfo`. |
 | `visit_installed_files` | iterate `ctx.data_files()?.entries()` or `.query()` | Entries are sorted by path, like `sorted_list`. |
-| `visit_control_files` | iterate `ctx.control_files()?` | Maintainer scripts and `control`, `md5sums`, … (ADR 0045). |
+| `visit_control_files` | iterate `ctx.control_files()?` | Maintainer scripts and `control`, `md5sums`, … |
 | `visit_patched_files` | iterate `ctx.files()?`, **skip paths under `.pc/`** | lintian drops `.pc/` in `visit_files`; `files()` does not. |
 | `visit_orig_files` | iterate `ctx.orig_files()?` | `None` on a Source tree; empty when Native. |
-| `$self->group` | `impl GroupRule` → `run(&self, ctx: &mut GroupContext)` | Runs once per Group that has a `.dsc`, as lintian runs a Check's `source` hook on the Group's source processable; hints attach to the Source package (ADR 0055). `ctx.changes()`, `ctx.dsc()`, `ctx.buildinfo()`, `ctx.installables()`. |
+| `$self->group` | `impl GroupRule` → `run(&self, ctx: &mut GroupContext)` | Runs once per Group that has a `.dsc`, as lintian runs a Check's `source` hook on the Group's source processable; hints attach to the Source package. `ctx.changes()`, `ctx.dsc()`, `ctx.buildinfo()`, `ctx.installables()`. |
 | `$group->get_installables` | `ctx.installables()` | `GroupInstallable`: `name()`, `version()`, `architecture()`, `multi_arch()`, `provides()`, `is_udeb()`, `fields()`, `relation(field)`, `strong_relation()`. Debs and ddebs before udebs. |
 | `$group->direct_dependencies` | `ctx.direct_dependencies(&installable)` | Strong dependencies (Pre-Depends, Depends) on sibling installables; self-dependencies are left out. |
 | `$installable->installed` (of a sibling) | `ctx.data_files(&installable)?` | The sibling's Data files File tree, shared with Binary-package Rules; `ctx.control_files(&installable)` for its Control files. |
@@ -57,7 +57,7 @@ Extras keep lintian's words and order. Recipes are the oracle.
 | `$item->bytes` | `tree.read(entry)?` | |
 | `$item->decoded_utf8` | `std::str::from_utf8(&tree.read(entry)?)` | lintian yields empty on invalid UTF-8; match that. |
 | `$item->size` | `tree.read(entry)?.len()` | No size field yet. |
-| `$item->operm` | `entry.mode()` | Permission bits `0o7777` (ADR 0046). |
+| `$item->operm` | `entry.mode()` | Permission bits `0o7777`. |
 | `$item->octal_permissions` | `format!("{:04o}", entry.mode())` | |
 | `$item->is_executable` | `entry.is_executable_file()` (file or hardlink), or `entry.mode() & 0o111 != 0` | |
 | `$item->is_setuid` | `entry.mode() & 0o4000 != 0` | |
@@ -67,8 +67,8 @@ Extras keep lintian's words and order. Recipes are the oracle.
 | `$item->group` | `entry.owner()?.group()` | As `owner`. |
 | `$item->uid` | `entry.owner()?.uid()` | |
 | `$item->gid` | `entry.owner()?.gid()` | |
-| `$item->file_type` | `entry.file_type()` (ELF, PE, DOS MZ only), `ElfFacts`, `SfntMagic`, or a sniff in the Rule | No `file(1)` strings (ADR 0041). Match the lintian regex against the facts it implies. |
-| `$item->is_elf` | `entry.file_type()` is `FileType::Elf`, or `ElfFacts::from_bytes` is `Some` | `ElfFacts` also covers ELF files whose section headers are cut off (ADR 0047). |
+| `$item->file_type` | `entry.file_type()` (ELF, PE, DOS MZ only), `ElfFacts`, `SfntMagic`, or a sniff in the Rule | No `file(1)` strings. Match the lintian regex against the facts it implies. |
+| `$item->is_elf` | `entry.file_type()` is `FileType::Elf`, or `ElfFacts::from_bytes` is `Some` | `ElfFacts` also covers ELF files whose section headers are cut off. |
 | `$item->elf` | `ctx.data_elf_files()?.get(path)` → `ElfFacts` | `needed()`, `soname()`, `rpath()`, `runpath()`, `interpreter()`. No symbols or hardening yet. |
 | `$item->hashbang` | `Hashbang::read(&bytes)` | `interpreter.rs`. |
 | `$item->interpreter` | `Hashbang::read(&bytes)?.interpreter()` | Look it up with `interpreter::lookup(basename)`. |
@@ -103,8 +103,8 @@ Extras keep lintian's words and order. Recipes are the oracle.
 | `processable->installed` | `ctx.data_files()` | `lookup` → `get`, `sorted_list` → `entries()`. |
 | `processable->control` | `ctx.control_files()` | |
 | `processable->orig` | `ctx.orig_files()` | |
-| `processable->compat_level` | `ctx.debhelper()?.level()` | `DebhelperFacts` also has `commands()` and `addons()` (ADR 0049). |
-| `processable->overrides` | `ctx.lintian_overrides()` | Parsed, never applied (ADR 0051). |
+| `processable->compat_level` | `ctx.debhelper()?.level()` | `DebhelperFacts` also has `commands()` and `addons()`. |
+| `processable->overrides` | `ctx.lintian_overrides()` | Parsed, never applied. |
 | `processable->is_non_free` | Section starts with `non-free` (or `non-free-firmware`, `contrib`, as the Check says) | |
 | `processable->is_transitional` | Description starts with `transitional` | |
 
@@ -113,12 +113,12 @@ Extras keep lintian's words and order. Recipes are the oracle.
 | lintian | debmagic | Notes |
 | --- | --- | --- |
 | `$self->data` | vendored file under `packages/debmagic/src/lint/data/` read with `include_str!` and `data::lines` | Vendor from the pinned clone, never `/usr/share/lintian`. |
-| `$self->profile` | `lintian_tags::current_tag_name` | Tag catalogue only (ADR 0051). |
-| `added_diversions` | `ctx.diversions()?.added()` | ADR 0053. |
+| `$self->profile` | `lintian_tags::current_tag_name` | Tag catalogue only. |
+| `added_diversions` | `ctx.diversions()?.added()` | — |
 | `Lintian::Relation` | `PackageRelation` | |
 | `Lintian::Deb822` | `ControlParagraph`, `DebianControl::parse`, `Dsc::parse` | |
-| `quilt` | `ctx.quilt_series()` | `patches()` and `mentions()` (ADR 0050). |
-| `Font::TTF` | `sfnt::Sfnt`, `sfnt::SfntMagic` | ADR 0052. |
+| `quilt` | `ctx.quilt_series()` | `patches()` and `mentions()`. |
+| `Font::TTF` | `sfnt::Sfnt`, `sfnt::SfntMagic` | — |
 
 ## Vendored iso-codes tables
 

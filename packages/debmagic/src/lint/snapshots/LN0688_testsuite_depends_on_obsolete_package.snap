@@ -1,8 +1,8 @@
 ---
 source: packages/debmagic/src/lint/tester.rs
 ---
-W: (source): testsuite-depends-on-obsolete-package (LN0688) Depends: gaim (>= 0.1) [debian/tests/control]
-W: (source): testsuite-depends-on-obsolete-package (LN0688) Depends: pkg-config => pkgconf [debian/tests/control]
-W: (source): testsuite-depends-on-obsolete-package (LN0688) Depends: gaim [debian/tests/control]
-W: (source): testsuite-depends-on-obsolete-package (LN0688) Depends: xbase-clients [debian/tests/control]
-W: (source): testsuite-depends-on-obsolete-package (LN0688) Depends: pkg-config:any => pkgconf [debian/tests/control]
+W: (source): testsuite-depends-on-obsolete-package (LN0688) Depends: gaim (>= 0.1)
+W: (source): testsuite-depends-on-obsolete-package (LN0688) Depends: pkg-config => pkgconf
+W: (source): testsuite-depends-on-obsolete-package (LN0688) Depends: gaim
+W: (source): testsuite-depends-on-obsolete-package (LN0688) Depends: xbase-clients
+W: (source): testsuite-depends-on-obsolete-package (LN0688) Depends: pkg-config:any => pkgconf

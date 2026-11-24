@@ -13,7 +13,8 @@ declare_rule! {
     ///
     /// The package's relations are Pre-Depends, Depends, Recommends, Suggests,
     /// Provides and its own name. Extra is the interpreter and the dependency
-    /// it lacks. Skipped: `usr/share/doc/` (examples too), `usr/src/`, a Python
+    /// it lacks. Skipped: `usr/share/doc/` (examples too), `usr/src/`,
+    /// `usr/share/cargo/registry/`, a Python
     /// script under `usr/lib/python3/dist-packages/`, a non-executable file
     /// outside a `bin/` directory with no absolute interpreter, and a `.in`
     /// file whose interpreter is a build placeholder such as `@PERL@`. Udebs
@@ -85,5 +86,32 @@ mod tests {
             script("usr/share/tool/tool.in", "#!/usr/bin/python3\n", 0o755),
         ];
         BinaryPackageTester::new(Python3ScriptButNoPython3Dep, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian's Scripts check (`visit_installed_files`) returns before any
+    /// interpreter check for every path under `usr/share/cargo/registry/`,
+    /// so upstream source shipped there is not checked for a python3 dependency.
+    #[test]
+    fn cargo_registry_scripts_are_not_checked() {
+        let pass = vec![
+            script(
+                "usr/share/cargo/registry/pkg-1.0/tool.py",
+                "#!/usr/bin/python3\n",
+                0o755,
+            ),
+            script(
+                "usr/share/cargo/registry/pkg-1.0/c/test.py",
+                "#!/usr/bin/env python3\n",
+                0o755,
+            ),
+        ];
+        // Boundaries: the same script outside the registry tree is reported,
+        // and so is one in a sibling directory of `registry/`.
+        let fail = vec![
+            script("usr/share/tool/tool.py", "#!/usr/bin/python3\n", 0o755),
+            script("usr/share/cargo/tool.py", "#!/usr/bin/python3\n", 0o755),
+        ];
+        BinaryPackageTester::new(Python3ScriptButNoPython3Dep, pass, fail)
+            .test_and_snapshot_with_suffix("cargo_registry");
     }
 }

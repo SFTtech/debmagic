@@ -15,7 +15,8 @@ declare_rule! {
     /// slashes are ignored, as lintian's `split` drops trailing empty fields.
     /// The Tag fires when the final segment occurs more than once in the
     /// whole path, such as `usr/lib/lib` or `usr/share/myprogram/share`.
-    /// Extra is the repeated segment; the Location is the directory. Non-UTF-8
+    /// Extra is the repeated segment; the Location is the directory with a
+    /// trailing `/`, as lintian's pointer prints a directory. Non-UTF-8
     /// paths are skipped. Udebs are checked too.
     RepeatedPathSegment,
     code = "LN1727",
@@ -57,7 +58,8 @@ fn repeated_segment(entry: &Entry) -> Option<(PathBuf, String)> {
     let segments: Vec<&str> = name.split('/').collect();
     let last = *segments.last()?;
     let count = segments.iter().filter(|segment| **segment == last).count();
-    (count > 1).then(|| (entry.path().to_path_buf(), last.to_string()))
+    // lintian's pointer for a directory ends in `/`.
+    (count > 1).then(|| (PathBuf::from(format!("{name}/")), last.to_string()))
 }
 
 #[cfg(test)]
@@ -91,7 +93,25 @@ mod tests {
             dir("usr/share/myprogram/share"),
             // Udebs are checked too.
             dir("usr/lib/lib").udeb(),
+            // A repeat deeper in the path: the hint pointer of a directory
+            // keeps its trailing `/` (lintian's Item::pointer for a dir).
+            dir("usr/share/a/b/c/d/c"),
         ];
         BinaryPackageTester::new(RepeatedPathSegment, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian's Files::Hierarchy check reports `$item->pointer` for a
+    /// directory, whose name ends in `/`, so the hint pointer keeps the slash.
+    #[test]
+    fn directory_pointer_keeps_trailing_slash() {
+        let pass = vec![
+            // A regular file with a repeated name is not a directory.
+            BinaryPackageCase::from(vec![("usr/lib/lib", TestFile::new("x"))]),
+            // Boundary: a repeat that is not the final segment is not reported.
+            dir("usr/lib/lib/foo"),
+        ];
+        let fail = vec![dir("usr/lib/lib")];
+        BinaryPackageTester::new(RepeatedPathSegment, pass, fail)
+            .test_and_snapshot_with_suffix("trailing_slash");
     }
 }

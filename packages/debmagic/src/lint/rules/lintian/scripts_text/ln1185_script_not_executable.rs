@@ -24,9 +24,11 @@ declare_rule! {
     /// `.ex`, `etc/init.d/skeleton`, `etc/menu-methods`, bash completions,
     /// and `etc/X11/Xsession.d`. Python scripts under
     /// `usr/lib/python3/dist-packages/` are skipped. Paths under
-    /// `usr/share/doc/` (except examples), `usr/src/`, and
-    /// `usr/share/cargo/registry/` are skipped. Extra is empty; the path is
-    /// the Location. Udebs are checked too.
+    /// `usr/share/doc/` (examples included), `usr/src/`, and
+    /// `usr/share/cargo/registry/` are skipped. A file outside `bin/` and
+    /// `etc/init.d/` whose interpreter is not absolute (`/usr/bin/env` counts
+    /// as absolute) is probably not a script and is skipped. Extra is empty;
+    /// the path is the Location. Udebs are checked too.
     ScriptNotExecutable,
     code = "LN1185",
     tag = "script-not-executable",
@@ -71,7 +73,7 @@ fn not_executable(files: &FileTree) -> Vec<PathBuf> {
             let name = entry.path().to_str()?;
             if name.starts_with("usr/share/cargo/registry/")
                 || name.starts_with("usr/src/")
-                || (name.starts_with("usr/share/doc/") && !is_examples(name))
+                || name.starts_with("usr/share/doc/")
             {
                 return None;
             }
@@ -79,11 +81,15 @@ fn not_executable(files: &FileTree) -> Vec<PathBuf> {
                 return None;
             }
             let bytes = files.read(entry).ok()?;
-            if bytes.starts_with(b"#!#!#!") {
+            let hashbang = Hashbang::read(&bytes)?;
+            let interpreter = hashbang.interpreter();
+            if interpreter.is_empty() {
                 return None;
             }
-            let interpreter = Hashbang::read(&bytes)?.interpreter();
-            if interpreter.is_empty() {
+            // Outside `bin/` and `etc/init.d/` a non-absolute interpreter in a
+            // file that is not executable means it is probably not a script.
+            let is_absolute = interpreter.starts_with('/') || hashbang.calls_env();
+            if !is_absolute && !name.contains("bin/") && !name.contains("etc/init.d/") {
                 return None;
             }
             if basename(&interpreter) == "python"
@@ -100,13 +106,6 @@ fn not_executable(files: &FileTree) -> Vec<PathBuf> {
             Some(entry.path().to_path_buf())
         })
         .collect()
-}
-
-/// `usr/share/doc/<package>/examples/…`.
-fn is_examples(name: &str) -> bool {
-    name.strip_prefix("usr/share/doc/")
-        .and_then(|rest| rest.split_once('/'))
-        .is_some_and(|(package, after)| !package.is_empty() && after.starts_with("examples/"))
 }
 
 #[cfg(test)]
@@ -154,8 +153,6 @@ mod tests {
         let fail = vec![
             script("usr/bin/tool", "#!/bin/sh\n"),
             script("usr/bin/tool", "#!/usr/bin/env python3\n"),
-            // Examples are reported too.
-            script("usr/share/doc/pkg/examples/tool", "#!/bin/sh\n"),
             // Placeholders are skipped only for .in files.
             script("usr/bin/tool", "#!@PERL@\n"),
             script("usr/share/pkg/tool.pl", "#!/usr/bin/perl\n"),
@@ -166,5 +163,43 @@ mod tests {
             )]),
         ];
         BinaryPackageTester::new(ScriptNotExecutable, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian's Scripts check returns for every `usr/share/doc/` path before
+    /// `script-not-executable` (its final emission excludes that tree), so
+    /// example scripts under it are not reported either.
+    #[test]
+    fn documentation_tree_scripts_are_never_reported_even_examples() {
+        let pass = vec![
+            script("usr/share/doc/pkg/examples/tool", "#!/bin/sh\n"),
+            script("usr/share/doc/pkg/examples/tool.pl", "#!/usr/bin/perl\n"),
+            script("usr/share/doc/pkg/tool", "#!/bin/sh\n"),
+        ];
+        // Boundary: the same script outside the documentation tree is reported.
+        let fail = vec![script("usr/share/pkg/tool", "#!/bin/sh\n")];
+        BinaryPackageTester::new(ScriptNotExecutable, pass, fail)
+            .test_and_snapshot_with_suffix("doc");
+    }
+
+    /// lintian's Scripts check returns early for a file that is not
+    /// executable, is outside `bin/` and `etc/init.d/`, and whose interpreter
+    /// is not absolute (`calls_env` counts as absolute): such a file is
+    /// probably not a script after all.
+    #[test]
+    fn relative_interpreter_outside_bin_is_not_a_script() {
+        let pass = vec![
+            script("usr/share/pkg/tool", "#!python3\n"),
+            script("usr/share/pkg/tool", "#!perl -w\n"),
+        ];
+        let fail = vec![
+            // Boundary: the same relative interpreter under `bin/` is reported.
+            script("usr/share/pkg/bin/tool", "#!python3\n"),
+            // Boundary: `/usr/bin/env` makes the interpreter absolute.
+            script("usr/share/pkg/tool", "#!/usr/bin/env python3\n"),
+            // Boundary: an absolute interpreter outside `bin/` is reported.
+            script("usr/share/pkg/tool", "#!/bin/sh\n"),
+        ];
+        BinaryPackageTester::new(ScriptNotExecutable, pass, fail)
+            .test_and_snapshot_with_suffix("relative");
     }
 }

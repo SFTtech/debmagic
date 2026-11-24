@@ -864,6 +864,23 @@ def subject_oracle(key: SubjectKey, rows: list[OracleRow]) -> list[OracleRow]:
     ]
 
 
+def resolve_truncated(oracle: Counter[str], ours: Counter[str], truncated: Counter[str]) -> None:
+    """Replace each oracle text that UDD cut at ORACLE_INFO_LIMIT with the debmagic text it is a prefix of.
+
+    The cut lands anywhere, mid-word included, so a prefix match is all the oracle can confirm. Each debmagic
+    text absorbs at most as many cut rows as it has copies left over after the exact matches."""
+    spare = ours - oracle
+    for text, count in truncated.items():
+        for _ in range(count):
+            full = next((t for t in sorted(spare) if spare[t] > 0 and t.startswith(text)), None)
+            if full is None:
+                break
+            spare[full] -= 1
+            oracle[text] -= 1
+            oracle[full] += 1
+    oracle += Counter()  # drop the zero counts
+
+
 def compare_subject(
     comparison: Comparison,
     key: SubjectKey,
@@ -877,10 +894,14 @@ def compare_subject(
     visible: dict[str, Counter[str]] = defaultdict(Counter)
     visible_types: dict[str, set[str]] = defaultdict(set)
     suppressed: set[str] = set()
+    truncated: dict[str, Counter[str]] = defaultdict(Counter)
     for row in oracle_rows:
         tag = renames.get(row.tag, row.tag)
         if row.tag_type in VISIBLE_TYPES:
-            visible[tag][" ".join(row.information.split())] += 1
+            text = " ".join(row.information.split())
+            visible[tag][text] += 1
+            if len(row.information) >= ORACLE_INFO_LIMIT:
+                truncated[tag][text] += 1
             visible_types[tag].add(row.tag_type)
         elif row.tag_type in SUPPRESSED_TYPES:
             suppressed.add(tag)
@@ -901,6 +922,9 @@ def compare_subject(
         else:
             actual[tag][text] += 1
             actual_severity[tag].add(diag.severity)
+
+    for tag, texts in visible.items():
+        resolve_truncated(texts, actual.get(tag, Counter()) + overridden.get(tag, Counter()), truncated[tag])
 
     judge_tags(
         comparison,

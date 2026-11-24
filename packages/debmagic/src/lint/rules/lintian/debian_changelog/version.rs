@@ -3,6 +3,7 @@
 
 use std::sync::LazyLock;
 
+use debmagic_common::debian::version::verrevcmp;
 use regex::Regex;
 
 static NON_NATIVE: LazyLock<Regex> = LazyLock::new(|| {
@@ -102,69 +103,13 @@ pub(super) fn historical_no_epoch(version: &str) -> Option<&str> {
         .map(|found| found.as_str())
 }
 
-/// `versions_gt`: dpkg upstream comparison. Equal strings are not greater.
+/// `versions_gt`: dpkg upstream comparison (the whole string through
+/// [`verrevcmp`]). Equal strings are not greater.
 pub(super) fn versions_gt(left: &str, right: &str) -> bool {
     if left == right {
         return false;
     }
-    verrevcmp(left.as_bytes(), right.as_bytes()) > 0
-}
-
-fn verrevcmp(mut left: &[u8], mut right: &[u8]) -> i32 {
-    while !left.is_empty() || !right.is_empty() {
-        let mut first_diff = 0i32;
-        while left.first().is_some_and(|byte| !byte.is_ascii_digit())
-            || right.first().is_some_and(|byte| !byte.is_ascii_digit())
-        {
-            let left_order = order(left.first().copied());
-            let right_order = order(right.first().copied());
-            if left_order != right_order {
-                return left_order - right_order;
-            }
-            if !left.is_empty() {
-                left = &left[1..];
-            }
-            if !right.is_empty() {
-                right = &right[1..];
-            }
-        }
-        while left.first() == Some(&b'0') {
-            left = &left[1..];
-        }
-        while right.first() == Some(&b'0') {
-            right = &right[1..];
-        }
-        while left.first().is_some_and(|byte| byte.is_ascii_digit())
-            && right.first().is_some_and(|byte| byte.is_ascii_digit())
-        {
-            if first_diff == 0 {
-                first_diff = i32::from(left[0]) - i32::from(right[0]);
-            }
-            left = &left[1..];
-            right = &right[1..];
-        }
-        if left.first().is_some_and(|byte| byte.is_ascii_digit()) {
-            return 1;
-        }
-        if right.first().is_some_and(|byte| byte.is_ascii_digit()) {
-            return -1;
-        }
-        if first_diff != 0 {
-            return first_diff;
-        }
-    }
-    0
-}
-
-fn order(byte: Option<u8>) -> i32 {
-    match byte {
-        None => 0,
-        Some(byte) if byte.is_ascii_digit() => 0,
-        Some(byte) if byte.is_ascii_alphabetic() => i32::from(byte),
-        Some(b'~') => -1,
-        Some(0) => 0,
-        Some(byte) => i32::from(byte) + 256,
-    }
+    verrevcmp(left, right).is_gt()
 }
 
 #[cfg(test)]

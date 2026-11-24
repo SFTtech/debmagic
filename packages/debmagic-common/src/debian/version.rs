@@ -79,9 +79,9 @@ impl Ord for PackageVersion {
         let other_epoch = other.epoch.unwrap_or(0);
         epoch
             .cmp(&other_epoch)
-            .then_with(|| compare_version_parts(&self.upstream, &other.upstream))
+            .then_with(|| verrevcmp(&self.upstream, &other.upstream))
             .then_with(|| {
-                compare_version_parts(
+                verrevcmp(
                     self.revision.as_deref().unwrap_or(""),
                     other.revision.as_deref().unwrap_or(""),
                 )
@@ -89,40 +89,49 @@ impl Ord for PackageVersion {
     }
 }
 
-/// Compare one non-epoch part of a debian version (upstream or revision)
-/// like dpkg's `verrevcmp`: alternating non-digit / digit runs; non-digit
-/// runs compare character-wise by [`char_order`], digit runs numerically.
-fn compare_version_parts(a: &str, b: &str) -> std::cmp::Ordering {
-    let mut a = a.as_bytes();
-    let mut b = b.as_bytes();
-    while !a.is_empty() || !b.is_empty() {
-        while a.first().is_some_and(|c| !c.is_ascii_digit())
-            || b.first().is_some_and(|c| !c.is_ascii_digit())
+/// dpkg's `verrevcmp` on one version part (upstream or revision), ported
+/// literally from the C: alternating non-digit and digit runs, non-digit
+/// runs compared character-wise by [`char_order`], digit runs numerically
+/// at any length. lintian compares the same way through libapt-pkg.
+pub fn verrevcmp(left: &str, right: &str) -> std::cmp::Ordering {
+    let (mut left, mut right) = (left.as_bytes(), right.as_bytes());
+    while !left.is_empty() || !right.is_empty() {
+        let mut first_diff = 0i32;
+        while left.first().is_some_and(|byte| !byte.is_ascii_digit())
+            || right.first().is_some_and(|byte| !byte.is_ascii_digit())
         {
-            let (a_order, b_order) = (char_order(a.first()), char_order(b.first()));
-            if a_order != b_order {
-                return a_order.cmp(&b_order);
+            let left_order = char_order(left.first());
+            let right_order = char_order(right.first());
+            if left_order != right_order {
+                return left_order.cmp(&right_order);
             }
-            // equal orders are never 0 here, so both sides have a non-digit
-            a = &a[1..];
-            b = &b[1..];
+            left = left.get(1..).unwrap_or_default();
+            right = right.get(1..).unwrap_or_default();
         }
-
-        let (a_digits, a_rest) = a.split_at(a.iter().take_while(|c| c.is_ascii_digit()).count());
-        let (b_digits, b_rest) = b.split_at(b.iter().take_while(|c| c.is_ascii_digit()).count());
-        let trim = |digits: &[u8]| -> usize { digits.iter().take_while(|&&c| c == b'0').count() };
-        let (a_digits, b_digits) = (&a_digits[trim(a_digits)..], &b_digits[trim(b_digits)..]);
-        // arbitrary length, so no integer parsing: longer means larger
-        match a_digits
-            .len()
-            .cmp(&b_digits.len())
-            .then(a_digits.cmp(b_digits))
+        while left.first() == Some(&b'0') {
+            left = &left[1..];
+        }
+        while right.first() == Some(&b'0') {
+            right = &right[1..];
+        }
+        while left.first().is_some_and(u8::is_ascii_digit)
+            && right.first().is_some_and(u8::is_ascii_digit)
         {
-            std::cmp::Ordering::Equal => {}
-            other => return other,
+            if first_diff == 0 {
+                first_diff = i32::from(left[0]) - i32::from(right[0]);
+            }
+            left = &left[1..];
+            right = &right[1..];
         }
-        a = a_rest;
-        b = b_rest;
+        if left.first().is_some_and(u8::is_ascii_digit) {
+            return std::cmp::Ordering::Greater;
+        }
+        if right.first().is_some_and(u8::is_ascii_digit) {
+            return std::cmp::Ordering::Less;
+        }
+        if first_diff != 0 {
+            return first_diff.cmp(&0);
+        }
     }
     std::cmp::Ordering::Equal
 }
@@ -132,7 +141,8 @@ fn compare_version_parts(a: &str, b: &str) -> std::cmp::Ordering {
 fn char_order(c: Option<&u8>) -> i32 {
     match c {
         Some(b'~') => -1,
-        None => 0,
+        // dpkg and libapt-pkg read C strings: a NUL weighs like the end.
+        None | Some(0) => 0,
         Some(c) if c.is_ascii_digit() => 0,
         Some(c) if c.is_ascii_alphabetic() => i32::from(*c),
         Some(c) => i32::from(*c) + 256,
@@ -232,5 +242,16 @@ mod tests {
         let a = PackageVersion::from_str(a).unwrap();
         let b = PackageVersion::from_str(b).unwrap();
         assert_eq!(a.cmp(&b), expected);
+    }
+
+    #[test_case("1.0", "1.0", std::cmp::Ordering::Equal; "equal")]
+    #[test_case("1.0~rc1", "1.0", std::cmp::Ordering::Less; "tilde before end")]
+    #[test_case("0.0.1", "1.5+important~personal1-stable", std::cmp::Ordering::Less; "digits first")]
+    #[test_case("1.0a\0", "1.0a", std::cmp::Ordering::Equal; "nul weighs like the end")]
+    #[test_case("1.0\0a", "1.0a", std::cmp::Ordering::Less; "nul before letter")]
+    #[test_case("", "~", std::cmp::Ordering::Greater; "empty after tilde")]
+    fn test_verrevcmp(a: &str, b: &str, expected: std::cmp::Ordering) {
+        assert_eq!(verrevcmp(a, b), expected);
+        assert_eq!(verrevcmp(b, a), expected.reverse());
     }
 }

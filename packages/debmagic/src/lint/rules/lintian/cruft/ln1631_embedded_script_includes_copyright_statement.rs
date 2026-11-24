@@ -41,11 +41,9 @@ static COPYRIGHT: LazyLock<Regex> = LazyLock::new(|| {
 
 impl SourceRule for EmbeddedScriptIncludesCopyrightStatement {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let Some(files) = ctx.files() else {
-            return;
-        };
+        let texts = license_text::shared_text_files(ctx);
         let mut findings = Vec::new();
-        for file in license_text::text_files(files) {
+        for file in texts.iter() {
             let basename = file
                 .path
                 .file_name()

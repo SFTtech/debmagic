@@ -148,7 +148,7 @@ fn redundant_sets(relation: &PackageRelation) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::lint::tester::{SourceTreeTester, TestFile};
+    use crate::lint::tester::{SourceTreeTester, TestCase, TestFile};
 
     use super::*;
 
@@ -198,6 +198,20 @@ mod tests {
             "",
         )];
         SourceTreeTester::new(RedundantControlRelation, pass, fail).test();
+        // Source, Maintainer, Standards-Version, Vcs-Git, then Build-Depends on line 5.
+        let diagnostics = SourceTreeTester::new(
+            RedundantControlRelation,
+            Vec::<TestCase>::new(),
+            Vec::<TestCase>::new(),
+        )
+        .diagnostics(packaged(
+            "Vcs-Git: https://example.org/repo.git\nBuild-Depends: foobar, foobar\n",
+            "",
+        ));
+        assert!(!diagnostics.is_empty());
+        for diagnostic in diagnostics {
+            assert_eq!(diagnostic.location.line, Some(5));
+        }
     }
 
     /// lintian checks the installable fields of each binary paragraph

@@ -589,6 +589,8 @@ example (1.0-1) unstable; urgency=low
         assert_eq!(zone_offset_seconds("-5000"), Some(-180000));
         assert_eq!(zone_offset_seconds("-0075"), Some(-4500));
         assert_eq!(zone_offset_seconds("0530"), None);
+        // Four digits with no sign: the sign is what is missing, not the length.
+        assert_eq!(zone_offset_seconds("05300"), None);
         assert_eq!(zone_offset_seconds("+05a0"), None);
         assert_eq!(zone_offset_seconds("+053"), None);
     }

@@ -738,12 +738,17 @@ def lintian_tag_files(covered: dict[str, dict[str, str]], lintian_data: Path, di
 
     An unknown tag name is fatal to lintian, so renamed-away or removed Tags are filtered out.
     """
-    known = set(parity.load_lintian_tags(lintian_data)) if lintian_data.is_dir() else set()
+    # Name-Spaced Tags (team checks) are known to lintian as `<check>/<tag>`, not by their bare name.
+    known = (
+        {t.tag: t.lintian_name for t in parity.load_lintian_tags(lintian_data).values()}
+        if lintian_data.is_dir()
+        else {}
+    )
     directory.mkdir(parents=True, exist_ok=True)
     files = {}
     for kind, tags in covered.items():
         path = directory / f"tags-{kind}.txt"
-        path.write_text("".join(f"{tag}\n" for tag in sorted(tags) if tag in known))
+        path.write_text("".join(f"{known[tag]}\n" for tag in sorted(tags) if tag in known))
         files[kind] = path
     return files
 

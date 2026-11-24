@@ -29,6 +29,7 @@ Build-Depends:
  librust-uuid-dev (>=1.10.0),
  librust-chrono-dev (>=0.4.42),
  librust-regex-dev (>=1.12.2),
+ librust-fancy-regex-dev (>=0.11),
  librust-reqwest-dev (>= 0.13),
  librust-futures-util-dev (>= 0.3),
  librust-tokio-dev (>= 1.43),
@@ -53,8 +54,11 @@ Build-Depends:
  librust-tar-dev (>=0.4.45),
  librust-flate2-dev (>=1.1.9),
  librust-xz2-dev (>=0.1.7),
+ librust-bzip2-dev (>=0.6.1),
  librust-zstd-dev (>=0.13.3),
  librust-goblin-dev (>=0.10.7),
+ librust-yaml-rust2-dev (>=0.10.4),
+ librust-roxmltree-dev (>=0.20),
  librust-rayon-dev (>=1.12.0)
 Rules-Requires-Root: no
 X-Style: black

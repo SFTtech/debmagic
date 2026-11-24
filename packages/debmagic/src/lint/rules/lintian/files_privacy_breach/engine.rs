@@ -34,7 +34,8 @@ pub(super) fn report(ctx: &mut BinaryPackageContext<'_>, tag: &str, severity: Se
     let hits = scan(ctx);
     for hit in hits.iter().filter(|hit| hit.tag == tag) {
         ctx.diagnostic(
-            Diagnostic::warn(hit.extra.join(" "))
+            // lintian shows a newline inside a matched tag as the two characters `\n`.
+            Diagnostic::warn(hit.extra.join(" ").replace('\n', "\\n"))
                 .with_severity(severity)
                 .with_location(Location {
                     path: hit.path.clone(),

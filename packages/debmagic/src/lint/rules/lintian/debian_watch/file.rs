@@ -81,7 +81,9 @@ pub(super) enum WatchFileHit {
 }
 
 impl WatchFileHit {
-    fn extra(&self) -> String {
+    /// The hint text, as lintian's `stringify` makes it: trimmed at both ends, with
+    /// each newline escaped as `\n`. A multi-line stanza is one line of hint text.
+    pub(super) fn extra(&self) -> String {
         match self {
             Self::LineInvalid(extra)
             | Self::LacksSourceforgeRedirector(extra)
@@ -93,7 +95,7 @@ impl WatchFileHit {
             | Self::CouldVerifyDownload(extra)
             | Self::InsecureUri(extra)
             | Self::DebianVersionMangledImproperly(extra)
-            | Self::UpstreamVersionMangledImproperly(extra) => extra.clone(),
+            | Self::UpstreamVersionMangledImproperly(extra) => extra.trim().replace('\n', "\\n"),
             Self::PubkeyFileIsMissing | Self::DoesNotCheckOpenpgpSignature => String::new(),
         }
     }

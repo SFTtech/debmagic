@@ -1,4 +1,5 @@
-use std::path::PathBuf;
+use std::ffi::OsStr;
+use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
 use regex::Regex;
@@ -23,7 +24,10 @@ declare_rule! {
     /// `jsonl`), `LICENSES/**.txt`, and, for names containing `sql`, lines
     /// starting `INSERT ` or `SELECT `. The length of a line is its character
     /// count with the newline, or its byte count when it is not UTF-8. The
-    /// first longest line is the Location; Extra is `<length> > 512`.
+    /// first longest line is the Location; Extra is `<length> > 512`. The
+    /// autotools screen masks the hint for generated `configure`,
+    /// `Makefile.in` and `m4/` files beside their sources (lintian's
+    /// `autotools/long-lines`), and it is not reported.
     /// Severity is pedantic and the Tag is experimental and not selected by
     /// default, as in lintian. "Text" is a sniff, not `file(1)`: it knows the
     /// RTF magic and nothing else that libmagic names by magic.
@@ -64,6 +68,7 @@ impl SourceRule for VeryLongLineLengthInSourceFile {
             .into_iter()
             .filter_map(|entry| longest_line_of(files, entry))
             .map(|(path, line, length)| (path, line as u32, length))
+            .filter(|(path, _, _)| !masked_by_autotools_screen(files, path))
             .collect();
         for (path, line, length) in hits {
             ctx.diagnostic(
@@ -77,6 +82,21 @@ impl SourceRule for VeryLongLineLengthInSourceFile {
             );
         }
     }
+}
+
+/// lintian's `Screen/Autotools/LongLines.pm`: the hint is masked (not reported)
+/// for the root `configure` beside `configure.ac` or `configure.in`, a
+/// `Makefile.in` beside its `Makefile.am`, and a file under `m4/` when a root
+/// `configure` exists.
+fn masked_by_autotools_screen(files: &FileTree, path: &Path) -> bool {
+    let exists = |name: &str| files.get(name).is_some();
+    if path == Path::new("configure") {
+        return exists("configure.ac") || exists("configure.in");
+    }
+    if path.file_name() == Some(OsStr::new("Makefile.in")) {
+        return files.get(path.with_file_name("Makefile.am")).is_some();
+    }
+    path.starts_with("m4") && exists("configure")
 }
 
 /// The path, line number and length of the longest line, if it is too long.
@@ -124,6 +144,7 @@ fn line_length(line: &[u8]) -> usize {
 fn is_text(bytes: &[u8]) -> bool {
     !bytes.is_empty()
         && !bytes.starts_with(b"{\\rtf")
+        && !bytes.starts_with(b"SplineFontDB:")
         && bytes
             .iter()
             .all(|&byte| matches!(byte, 0x08 | 0x09..=0x0d | 0x1b | 0x20..=0x7e) || byte >= 0x80)
@@ -171,5 +192,73 @@ mod tests {
             with_control(vec![file("db/schema.sql", format!("{long}\n"))]),
         ];
         SourceTreeTester::new(VeryLongLineLengthInSourceFile, pass, fail).test_and_snapshot();
+    }
+
+    /// lintian `Screen/Autotools/LongLines.pm` masks the hint for a `./configure`
+    /// beside `configure.ac` or `configure.in`, a `Makefile.in` beside its
+    /// `Makefile.am`, and an `m4/` macro when `./configure` exists. Only the root
+    /// `configure` counts; the same files elsewhere are reported.
+    #[test]
+    fn autotools_generated_files_are_masked_only_beside_their_source() {
+        let long = "x".repeat(600);
+        let pass = vec![
+            with_control(vec![
+                file("configure.ac", "AC_INIT\n".to_string()),
+                file("configure", long.clone()),
+            ]),
+            with_control(vec![
+                file("configure.in", "AC_INIT\n".to_string()),
+                file("configure", long.clone()),
+            ]),
+            with_control(vec![
+                file("sub/Makefile.am", "all:\n".to_string()),
+                file("sub/Makefile.in", long.clone()),
+            ]),
+            with_control(vec![
+                file("configure", "short\n".to_string()),
+                file("m4/libtool.m4", long.clone()),
+            ]),
+        ];
+        let fail = vec![
+            // No configure.ac or configure.in: the root configure is not generated.
+            with_control(vec![file("configure", long.clone())]),
+            // configure only counts at the root.
+            with_control(vec![
+                file("configure.ac", "AC_INIT\n".to_string()),
+                file("sub/configure", long.clone()),
+            ]),
+            // Makefile.in needs its Makefile.am in the same folder.
+            with_control(vec![
+                file("Makefile.am", "all:\n".to_string()),
+                file("sub/Makefile.in", long.clone()),
+            ]),
+            // An m4 macro needs ./configure, and must be under m4/.
+            with_control(vec![file("m4/libtool.m4", long.clone())]),
+            with_control(vec![
+                file("configure", "short\n".to_string()),
+                file("aclocal/libtool.m4", long.clone()),
+            ]),
+        ];
+        SourceTreeTester::new(VeryLongLineLengthInSourceFile, pass, fail).test();
+    }
+
+    /// lintian `Check/Files/Contents/LineLength.pm` checks only files whose
+    /// `file(1)` type is `(ASCII|Unicode) text`; libmagic names a FontForge
+    /// `SplineFontDB:` file by its magic, so it is not text.
+    #[test]
+    fn spline_font_database_is_not_text() {
+        let long = "x".repeat(600);
+        let pass = vec![with_control(vec![file(
+            "fonts/Example.sfd",
+            format!("SplineFontDB: 3.0\nFontName: Example\n{long}\n"),
+        )])];
+        let fail = vec![
+            // Neighbour: the same text without the magic is still text.
+            with_control(vec![file(
+                "fonts/example.txt",
+                format!("SplineFont: 3.0\n{long}\n"),
+            )]),
+        ];
+        SourceTreeTester::new(VeryLongLineLengthInSourceFile, pass, fail).test();
     }
 }

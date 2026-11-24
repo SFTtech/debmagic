@@ -796,6 +796,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/documentation/manual/manpages-wrong-dir",
     "checks/documentation/manual/scripts-ocamlrun",
     "checks/documentation/manual/spelling-error-in-manpage",
+    "checks/documentation/manual/surplus-manpage",
     "checks/documentation/texinfo/infofiles-general",
     "checks/documentation/udeb-with-doc",
     "checks/emacs/elpa/emacsen-common",
@@ -2684,6 +2685,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/documentation/manual/manpages-wrong-dir"; "checks_documentation_manual_manpages_wrong_dir")]
 #[test_case("checks/documentation/manual/scripts-ocamlrun"; "checks_documentation_manual_scripts_ocamlrun")]
 #[test_case("checks/documentation/manual/spelling-error-in-manpage"; "checks_documentation_manual_spelling_error_in_manpage")]
+#[test_case("checks/documentation/manual/surplus-manpage"; "checks_documentation_manual_surplus_manpage")]
 #[test_case("checks/documentation/texinfo/infofiles-general"; "checks_documentation_texinfo_infofiles_general")]
 #[test_case("checks/documentation/udeb-with-doc"; "checks_documentation_udeb_with_doc")]
 #[test_case("checks/emacs/elpa/emacsen-common"; "checks_emacs_elpa_emacsen_common")]

@@ -1,6 +1,6 @@
-use std::sync::LazyLock;
+use std::sync::{LazyLock, OnceLock};
 
-use regex::Regex;
+use regex::{Regex, RegexSet};
 
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
@@ -75,10 +75,12 @@ impl BinaryPackageRule for InvalidDateInDebianChangelog {
 }
 
 fn invalid_date_hits(date: &str) -> Vec<String> {
-    patterns()
-        .iter()
-        .filter_map(|(pattern, replacement)| {
-            pattern
+    matcher()
+        .matches(date)
+        .into_iter()
+        .filter_map(|index| {
+            let (_, replacement) = INVALID[index];
+            compiled(index)
                 .find(date)
                 .map(|found| format!("({} -> {replacement})", found.as_str()))
         })
@@ -90,10 +92,32 @@ fn date_is_parsed(date: &str) -> bool {
         return true;
     }
     let mut normalized = date.to_string();
-    for (pattern, replacement) in patterns() {
-        normalized = pattern.replace_all(&normalized, *replacement).into_owned();
+    for (index, (_, replacement)) in INVALID.iter().enumerate() {
+        normalized = compiled(index)
+            .replace_all(&normalized, *replacement)
+            .into_owned();
     }
     changelog_date_parses(&normalized)
+}
+
+/// Set of all `INVALID` patterns, to find which of them a date contains
+/// without compiling the others.
+fn matcher() -> &'static RegexSet {
+    static MATCHER: LazyLock<RegexSet> = LazyLock::new(|| {
+        RegexSet::new(INVALID.iter().map(|(pattern, _)| format!("(?i){pattern}")))
+            .expect("invalid date pattern")
+    });
+    &MATCHER
+}
+
+/// The `INVALID` pattern at `index`, compiled on first use. Most dates contain
+/// none of the names, so most of the patterns are never compiled.
+fn compiled(index: usize) -> &'static Regex {
+    static SLOTS: LazyLock<Vec<OnceLock<Regex>>> =
+        LazyLock::new(|| INVALID.iter().map(|_| OnceLock::new()).collect());
+    SLOTS[index].get_or_init(|| {
+        Regex::new(&format!("(?i){}", INVALID[index].0)).expect("invalid date pattern")
+    })
 }
 
 fn changelog_date_parses(date: &str) -> bool {
@@ -105,21 +129,6 @@ fn changelog_date_parses(date: &str) -> bool {
         .first()
         .and_then(|entry| entry.timestamp())
         .is_some_and(|time| time != 0)
-}
-
-fn patterns() -> &'static Vec<(Regex, &'static str)> {
-    static PATTERNS: LazyLock<Vec<(Regex, &'static str)>> = LazyLock::new(|| {
-        INVALID
-            .iter()
-            .map(|(pattern, replacement)| {
-                (
-                    Regex::new(&format!("(?i){pattern}")).expect("invalid date pattern"),
-                    *replacement,
-                )
-            })
-            .collect()
-    });
-    &PATTERNS
 }
 
 #[cfg(test)]
@@ -141,6 +150,35 @@ mod tests {
             "example (1.0) unstable; urgency=low\n\n  * Change.\n\n -- A Uthor <a@example.com>  {date}\n"
         );
         BinaryPackageCase::from(vec![("usr/share/doc/example/changelog.gz", gzip(&text))])
+    }
+
+    #[test]
+    fn hits_name_each_spelled_out_name_once_with_its_abbreviation() {
+        assert_eq!(
+            invalid_date_hits("Monday, 05 Nov 2013"),
+            ["(Monday -> Mon)"]
+        );
+        assert_eq!(invalid_date_hits("monday"), ["(monday -> Mon)"]);
+        assert_eq!(invalid_date_hits("Tuesday"), ["(Tuesday -> Tue)"]);
+        assert_eq!(
+            invalid_date_hits("Thurs, 14 Sept 2017 10:47:43 +0000"),
+            ["(Thurs -> Thu)", "(Sept -> Sep)"]
+        );
+        // No word boundaries: a name inside a longer word still counts.
+        assert_eq!(invalid_date_hits("Mondays"), ["(Monday -> Mon)"]);
+        // LATIN SMALL LETTER LONG S folds to `s` under Unicode case folding.
+        assert_eq!(invalid_date_hits("\u{17f}unday"), ["(\u{17f}unday -> Sun)"]);
+        assert!(invalid_date_hits("Tue, 14 Nov 2017 10:47:43 +0000").is_empty());
+        assert!(invalid_date_hits("Sunshine").is_empty());
+        assert!(invalid_date_hits("Mon, 06 Nov 2013").is_empty());
+    }
+
+    #[test]
+    fn dates_parse_once_their_names_are_abbreviated() {
+        assert!(date_is_parsed("Tue, 14 Nov 2017 10:47:43 +0000"));
+        assert!(date_is_parsed("Thurs, 14 Sept 2017 10:47:43 +0000"));
+        assert!(date_is_parsed("Monday, 05 Nov 2013 23:59:59 +0000"));
+        assert!(!date_is_parsed("not a date"));
     }
 
     #[test]

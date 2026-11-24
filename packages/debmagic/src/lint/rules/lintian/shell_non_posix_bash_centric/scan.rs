@@ -372,3 +372,37 @@ fn double_bracket(text: &str) -> Option<(usize, usize)> {
         (opens && !colon_follows).then_some((start, start + 2))
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// What `check_line` reports for each line, pinned on bashisms and on near
+    /// misses, so that the pattern tables can change without changing output.
+    #[test]
+    fn reports_each_bashism_once_per_line() {
+        let cases: [(&str, Vec<&str>); 16] = [
+            ("function foo() {", vec!["function foo("]),
+            ("if [[ $x == y ]]; then", vec!["[ $x ==", "[["]),
+            ("echo hi |& cat", vec!["|&"]),
+            ("read -p x var", vec!["read -p"]),
+            ("echo hello", vec![]),
+            ("cat foo >&2", vec![]),
+            ("echo -n -e \"a\\tb\"", vec!["echo -n -e"]),
+            // A non-ASCII letter before a bashism does not hide it.
+            ("caf\u{e9}; function f() {", vec!["function f("]),
+            // LATIN SMALL LETTER LONG S is not `s`, so `select` is not matched.
+            ("\u{17f}elect foo", vec![]),
+            ("let x=1", vec!["let"]),
+            ("x=(a b)", vec![]),
+            ("a=1 b=2 ; declare -a z", vec!["; declare"]),
+            ("source ./x.sh", vec!["source ./x.sh"]),
+            ("[ -a x ]", vec!["[ -a"]),
+            ("echo ${x:0:2}", vec!["${x:0:2}"]),
+            ("sh -O extglob x", vec!["sh -O"]),
+        ];
+        for (line, expected) in cases {
+            assert_eq!(check_line(line), expected, "{line:?}");
+        }
+    }
+}

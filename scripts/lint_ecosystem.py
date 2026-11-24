@@ -835,10 +835,16 @@ class Comparison:
 
 
 def canonical_tags(lintian_data: Path) -> dict[str, str]:
-    """Old tag name -> current name, from the installed lintian's catalogue (empty if unavailable)."""
+    """Old tag name -> current name, from the installed lintian's catalogue (empty if unavailable).
+
+    Name-Spaced Tags (team checks) reach UDD as `<check>/<tag>` while debmagic reports the bare name, so the
+    spaced name folds onto the bare one too."""
     if not lintian_data.is_dir():
         return {}
-    return {old: tag.tag for tag in parity.load_lintian_tags(lintian_data).values() for old in tag.renamed_from}
+    tags = parity.load_lintian_tags(lintian_data).values()
+    renames = {old: tag.tag for tag in tags for old in tag.renamed_from}
+    renames.update({tag.lintian_name: tag.tag for tag in tags if tag.lintian_name != tag.tag})
+    return renames
 
 
 def covered_tags(root: Path, renames: dict[str, str]) -> dict[str, dict[str, str]]:

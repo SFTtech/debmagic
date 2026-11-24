@@ -463,6 +463,11 @@ fn tarball_members(path: &Path) -> anyhow::Result<Vec<TarMember>> {
         .with_context(|| format!("reading {}", path.display()))?
     {
         let mut entry = entry.with_context(|| format!("reading {}", path.display()))?;
+        // A pax global header (GitHub archives start with `pax_global_header`)
+        // is metadata, not a member: tar's listing, which lintian reads, omits it.
+        if entry.header().entry_type().is_pax_global_extensions() {
+            continue;
+        }
         let name = entry
             .path()
             .with_context(|| format!("reading {}", path.display()))?;
@@ -849,6 +854,40 @@ mod tests {
             .find(|member| member.path == Path::new("example-1.0/README"))
             .expect("README member");
         assert_eq!(readme.mtime, Some(1_745_484_012));
+        Ok(())
+    }
+
+    #[test]
+    fn pax_global_header_is_not_a_member() -> anyhow::Result<()> {
+        // GitHub archives start with a `pax_global_header` entry; counting it
+        // as a member would leave no common top directory to drop.
+        let mut tar_bytes = Vec::new();
+        {
+            let mut builder = tar::Builder::new(&mut tar_bytes);
+            let comment = b"52 comment=44380e5a44706ab7347f400698c703eb2a196202\n";
+            let mut global = tar::Header::new_ustar();
+            global.set_path("pax_global_header")?;
+            global.set_entry_type(tar::EntryType::XGlobalHeader);
+            global.set_size(comment.len() as u64);
+            global.set_cksum();
+            builder.append(&global, &comment[..])?;
+            let mut file = tar::Header::new_gnu();
+            file.set_path("example-1.0/test/catch.hpp")?;
+            file.set_size(1);
+            file.set_mode(0o644);
+            file.set_cksum();
+            builder.append(&file, &b"x"[..])?;
+            builder.finish()?;
+        }
+        let dir = TempDir::new()?;
+        let tarball = dir.path().join("example_1.0.orig.tar");
+        fs::write(&tarball, tar_bytes)?;
+        let members = tarball_members(&tarball)?;
+        let names: Vec<_> = drop_common_top_directory(members, "")
+            .into_iter()
+            .map(|member| member.path)
+            .collect();
+        assert_eq!(names, vec![PathBuf::from("test/catch.hpp")]);
         Ok(())
     }
 

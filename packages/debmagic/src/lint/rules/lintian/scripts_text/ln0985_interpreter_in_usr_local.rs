@@ -61,7 +61,13 @@ fn in_usr_local(files: &FileTree) -> Vec<(PathBuf, String)> {
             if !interpreter.starts_with("/usr/local/") {
                 return None;
             }
-            if interpreter::lookup(interpreter::basename(&interpreter)).is_some() {
+            let base = interpreter::basename(&interpreter);
+            // lintian ignores a bare `python` script under dist-packages: those
+            // files are modules, not scripts (`visit_installed_files`).
+            if base == "python" && name.starts_with("usr/lib/python3/dist-packages/") {
+                return None;
+            }
+            if interpreter::lookup(base).is_some() {
                 return None;
             }
             Some((entry.path().to_path_buf(), interpreter))
@@ -103,6 +109,11 @@ mod tests {
                 "usr/share/cargo/registry/pkg/tool",
                 "#!/usr/local/bin/special\n",
             ),
+            // A bare `python` under dist-packages is a module, not a script.
+            script(
+                "usr/lib/python3/dist-packages/cgi.py",
+                "#!/usr/local/bin/python\n",
+            ),
         ];
         let fail = vec![
             script("usr/bin/tool", "#!/usr/local/bin/special-perl\n"),
@@ -115,6 +126,11 @@ mod tests {
                 TestFile::new("#!/usr/local/bin/special\n"),
             )]),
             script("usr/bin/tool", "#!/usr/local/bin/special\n").udeb(),
+            // Only a bare `python` is exempt under dist-packages.
+            script(
+                "usr/lib/python3/dist-packages/tool",
+                "#!/usr/local/bin/special\n",
+            ),
         ];
         BinaryPackageTester::new(InterpreterInUsrLocal, pass, fail).test_and_snapshot();
     }

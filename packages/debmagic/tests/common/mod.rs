@@ -245,21 +245,17 @@ pub fn parse_universal_hint_line(line: &str) -> Option<(String, ParityHint)> {
     ))
 }
 
-/// lintian 2.144 prints a pointer path that is valid non-ASCII UTF-8 with
-/// every byte read as Latin-1 (`鳥` shows as `é³¥`). Read such text back as the
-/// UTF-8 it came from; text whose bytes are not UTF-8 (a Latin-1 file name)
-/// stays as it is.
+/// lintian 2.144 prints a pointer path with every byte read as Latin-1
+/// (`鳥` shows as `é³¥`), and a C1 control among them as `?` (`の` shows as
+/// `ã?®`). debmagic prints the same, so both sides are read with the C1
+/// controls as `?`; an eval file written before that quoting still has them.
 fn undo_double_encoding(text: &str) -> String {
-    if text.is_ascii() {
-        return text.to_string();
-    }
-    let bytes: Option<Vec<u8>> = text
-        .chars()
-        .map(|character| u8::try_from(u32::from(character)).ok())
-        .collect();
-    bytes
-        .and_then(|bytes| String::from_utf8(bytes).ok())
-        .unwrap_or_else(|| text.to_string())
+    text.chars()
+        .map(|character| match character {
+            '\u{80}'..='\u{9f}' => '?',
+            _ => character,
+        })
+        .collect()
 }
 
 /// A Diagnostic line of `debmagic lint` that is not overridden (`E:`, `W:`, `I:`, `P:`).

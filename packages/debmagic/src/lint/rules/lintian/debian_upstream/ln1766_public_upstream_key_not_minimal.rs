@@ -37,9 +37,6 @@ impl SourceRule for PublicUpstreamKeyNotMinimal {
             return;
         };
         for file in files.iter() {
-            // A key id can repeat within one file (the same key packed twice);
-            // the Output keeps one copy of an identical hint, as UDD does.
-            let mut reported = std::collections::BTreeSet::new();
             for key in file.key.public_keys() {
                 let Some(key_id) = key.key_id() else {
                     continue;
@@ -54,12 +51,8 @@ impl SourceRule for PublicUpstreamKeyNotMinimal {
                     continue;
                 }
                 let keyid = format!("{:016X}", u64::from_be_bytes(key_id));
-                let message = format!("has {extra} extra signature(s) for keyid {keyid}");
-                if !reported.insert(message.clone()) {
-                    continue;
-                }
                 ctx.diagnostic(
-                    Diagnostic::warn(message)
+                    Diagnostic::warn(format!("has {extra} extra signature(s) for keyid {keyid}"))
                         .with_severity(Severity::Info)
                         .with_location(Location {
                             path: file.path.clone(),

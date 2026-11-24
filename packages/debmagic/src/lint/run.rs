@@ -407,6 +407,7 @@ fn apply_overrides(
     processables: &[Processable<'_>],
     stages: &mut Vec<Stage>,
 ) -> anyhow::Result<usize> {
+    drop_repeated_hints(processables, stages);
     if mode == OverrideMode::Off {
         return Ok(0);
     }
@@ -475,6 +476,34 @@ fn apply_overrides(
         }
     }
     Ok(ignored)
+}
+
+/// lintian's `Lintian::Group` issues a hint once per processable: a repeat of
+/// the same tag and context is dropped (with a warning) before the overrides
+/// see it, so the override pass and the counts never meet the copy. The context
+/// is the text lintian matches, the note and the pointer.
+fn drop_repeated_hints(processables: &[Processable<'_>], stages: &mut [Stage]) {
+    let mut repeated: HashSet<(usize, usize)> = HashSet::new();
+    for processable in processables {
+        let mut seen: HashSet<(Code, String)> = HashSet::new();
+        for (stage_index, stage) in stages.iter().enumerate() {
+            for (index, diagnostic) in stage.diagnostics.iter().enumerate() {
+                if processable.owns(stage.owner, diagnostic)
+                    && !seen.insert((diagnostic.code, diagnostic.override_context()))
+                {
+                    repeated.insert((stage_index, index));
+                }
+            }
+        }
+    }
+    for (stage_index, stage) in stages.iter_mut().enumerate() {
+        let mut index = 0;
+        stage.diagnostics.retain(|_| {
+            let keep = !repeated.contains(&(stage_index, index));
+            index += 1;
+            keep
+        });
+    }
 }
 
 /// Runs the selected `OverrideRule`s on one processable's pass outcome (ADR
@@ -766,9 +795,25 @@ pub fn format_diagnostic(diagnostic: &Diagnostic) -> String {
     output
 }
 
-/// A Location path as lintian prints a pointer: as is when it is UTF-8,
-/// otherwise every byte read as Latin-1, so the bytes stay visible.
+/// A Location path as lintian prints it in a hint: lintian keeps every item
+/// name as undecoded bytes, reads each byte as a Latin-1 character, and prints
+/// a non-printable as `?` (`EWI::_quote_print`). So `公共` shows as `å?¬å?±`,
+/// and a name in valid UTF-8 is not shown as UTF-8. Printable means not an
+/// ASCII control (0x00 to 0x1f, 0x7f) and not a C1 control (0x80 to 0x9f).
 pub(crate) fn pointer_path(path: &Path) -> String {
+    path.as_os_str()
+        .as_encoded_bytes()
+        .iter()
+        .map(|&byte| match byte {
+            0x00..=0x1f | 0x7f..=0x9f => '?',
+            _ => char::from(byte),
+        })
+        .collect()
+}
+
+/// The Location path as the override context spells it: UTF-8 as is, other
+/// bytes read as Latin-1. An override pattern is matched against this text.
+pub(crate) fn override_pointer_path(path: &Path) -> String {
     match path.to_str() {
         Some(text) => text.to_string(),
         None => path
@@ -1030,7 +1075,7 @@ mod tests {
     }
 
     #[test]
-    fn format_diagnostic_prints_non_utf8_pointer_as_latin1() {
+    fn format_diagnostic_prints_pointer_bytes_as_lintian_does() {
         use std::ffi::OsStr;
         use std::os::unix::ffi::OsStrExt;
 
@@ -1040,12 +1085,17 @@ mod tests {
             column: None,
         });
         assert!(format_diagnostic(&diagnostic).ends_with(" [usr/share/foo/bokm\u{e5}l]"));
+        // UTF-8 `公共` is the bytes E5 85 AC E5 85 B1: C1 bytes print as `?`.
         let utf8 = Diagnostic::error("").with_location(Location {
-            path: PathBuf::from("usr/bin/\u{9ce5}"),
+            path: PathBuf::from("usr/bin/\u{516c}\u{5171}"),
             line: None,
             column: None,
         });
-        assert!(format_diagnostic(&utf8).ends_with(" [usr/bin/\u{9ce5}]"));
+        assert!(format_diagnostic(&utf8).ends_with(" [usr/bin/\u{e5}?\u{ac}\u{e5}?\u{b1}]"));
+        assert_eq!(
+            override_pointer_path(Path::new("usr/bin/\u{516c}")),
+            "usr/bin/\u{516c}"
+        );
     }
 
     #[test]
@@ -1711,6 +1761,37 @@ mod override_application_tests {
             justification: justification.to_string(),
         });
         diagnostic
+    }
+
+    /// lintian `Group.pm` drops a repeat of a Tag and context before the
+    /// overrides, so the repeat is neither reported nor counted by an override.
+    #[test]
+    fn repeated_hints_are_dropped_before_the_override_pass() -> anyhow::Result<()> {
+        let (_dir, data) = tree_with_overrides("cute-field HOMEPAGE*\n")?;
+        let mut stages = vec![stage(
+            Owner::Source,
+            "cute-field",
+            vec![
+                cute("HOMEPAGE vs Homepage"),
+                cute("HOMEPAGE vs Homepage"),
+                cute("X-Dh-Compat vs X-DH-Compat"),
+                cute("X-Dh-Compat vs X-DH-Compat"),
+            ],
+        )];
+        let ignored = apply_overrides(
+            OverrideMode::Hide,
+            &HashSet::new(),
+            &[Processable::Tree(&data)],
+            &mut stages,
+        )?;
+        assert_eq!(ignored, 0);
+        let flags: Vec<bool> = stages[0]
+            .diagnostics
+            .iter()
+            .map(Diagnostic::is_overridden)
+            .collect();
+        assert_eq!(flags, [true, false]);
+        Ok(())
     }
 
     #[test]

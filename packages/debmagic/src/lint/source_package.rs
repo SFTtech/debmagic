@@ -475,7 +475,7 @@ fn tarball_members(path: &Path) -> anyhow::Result<Vec<TarMember>> {
             continue;
         };
         let kind = entry.header().entry_type();
-        let mtime = pax_mtime(&mut entry).or_else(|| header_mtime(entry.header()));
+        let mtime = pax_mtime(&mut entry).or_else(|| tarball_header_mtime(entry.header()));
         members.push(TarMember {
             path: normalized,
             is_dir: kind.is_dir(),
@@ -484,6 +484,20 @@ fn tarball_members(path: &Path) -> anyhow::Result<Vec<TarMember>> {
         });
     }
     Ok(members)
+}
+
+/// The ustar header's mtime. tar-rs rejects an mtime field that is all NULs,
+/// which some tarballs write for a member dated the epoch; tar and lintian read
+/// it as 0 (1970-01-01), so it is dated 0 here.
+fn tarball_header_mtime(header: &tar::Header) -> Option<i64> {
+    header_mtime(header).or_else(|| {
+        // The `mtime` field is bytes 136..148 of the ustar header.
+        let field = &header.as_bytes()[136..148];
+        field
+            .iter()
+            .all(|&byte| byte == 0 || byte == b' ')
+            .then_some(0)
+    })
 }
 
 /// The whole seconds of the pax `mtime` extended header of `entry`, truncated
@@ -854,6 +868,28 @@ mod tests {
             .find(|member| member.path == Path::new("example-1.0/README"))
             .expect("README member");
         assert_eq!(readme.mtime, Some(1_745_484_012));
+        Ok(())
+    }
+
+    /// A member whose ustar mtime field is all NULs (not octal zeros) is dated
+    /// the epoch, as tar and lintian read it, rather than left undated.
+    #[test]
+    fn all_nul_mtime_field_is_the_epoch() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("example_1.0.orig.tar");
+        {
+            let mut builder = tar::Builder::new(fs::File::create(&path)?);
+            let mut header = tar::Header::new_ustar();
+            header.set_path("example-1.0/Cargo.toml")?;
+            header.set_size(5);
+            header.set_mode(0o644);
+            header.as_mut_bytes()[136..148].fill(0);
+            header.set_cksum();
+            builder.append(&header, &b"text\n"[..])?;
+            builder.finish()?;
+        }
+        let members = tarball_members(&path)?;
+        assert_eq!(members[0].mtime, Some(0));
         Ok(())
     }
 

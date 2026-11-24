@@ -395,10 +395,12 @@ fn merge_tree(src: &Path, dest: &Path) -> anyhow::Result<()> {
 }
 
 /// One entry of an Orig tarball as lintian's orig index names it: its path in
-/// the Orig files, and the modification time in its tar header.
+/// the Orig files, whether it is a directory, and the modification time in its
+/// tar header.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct OrigEntry {
     pub path: PathBuf,
+    pub is_dir: bool,
     pub mtime: Option<i64>,
 }
 
@@ -417,13 +419,17 @@ pub(crate) fn orig_entries(dsc_path: &Path, dsc: &Dsc) -> anyhow::Result<Vec<Ori
     let mut entries = Vec::new();
     for (filename, component) in identity.orig_components()? {
         let members = tarball_members(&identity.directory().join(&filename))?;
-        for (path, mtime) in drop_common_top_directory(members, &component) {
+        for (path, is_dir, mtime) in drop_common_top_directory(members, &component) {
             let path = if component.is_empty() {
                 path
             } else {
                 Path::new(&component).join(path)
             };
-            entries.push(OrigEntry { path, mtime });
+            entries.push(OrigEntry {
+                path,
+                is_dir,
+                mtime,
+            });
         }
     }
     // lintian's orig index is a hash by name (`$catalog{$entry->name} = $entry`),
@@ -499,7 +505,7 @@ fn open_tarball(path: &Path) -> anyhow::Result<Box<dyn std::io::Read>> {
 fn drop_common_top_directory(
     members: Vec<TarMember>,
     component: &str,
-) -> Vec<(PathBuf, Option<i64>)> {
+) -> Vec<(PathBuf, bool, Option<i64>)> {
     let common: PathBuf = {
         let tops: BTreeSet<&OsStr> = members
             .iter()
@@ -524,7 +530,7 @@ fn drop_common_top_directory(
             } else {
                 member.path
             };
-            (!path.as_os_str().is_empty()).then_some((path, member.mtime))
+            (!path.as_os_str().is_empty()).then_some((path, member.is_dir, member.mtime))
         })
         .collect()
 }
@@ -709,8 +715,13 @@ fn tar_gz_with_mtimes(members: &[(&str, &[u8], u64)]) -> anyhow::Result<Vec<u8>>
             // a test of tar's leading-slash warning needs.
             let name = member.as_bytes();
             header.as_old_mut().name[..name.len()].copy_from_slice(name);
+            if member.ends_with('/') {
+                header.set_entry_type(tar::EntryType::Directory);
+                header.set_mode(0o755);
+            } else {
+                header.set_mode(0o644);
+            }
             header.set_size(contents.len() as u64);
-            header.set_mode(0o644);
             header.set_mtime(*mtime);
             header.set_cksum();
             builder.append(&header, *contents)?;

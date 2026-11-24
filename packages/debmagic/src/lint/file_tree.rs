@@ -395,6 +395,12 @@ impl Entry {
             .is_some_and(|owner| owner.identity() == identity)
     }
 
+    /// Any entry with an execute bit set, a directory included. Lintian's
+    /// `is_executable`, which tests the mode bits of every item.
+    pub fn is_executable(&self) -> bool {
+        self.mode() & EXECUTE_BITS != 0
+    }
+
     /// A regular file or hardlink with any execute bit set. Lintian's
     /// `is_file && is_executable`.
     pub fn is_executable_file(&self) -> bool {

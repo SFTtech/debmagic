@@ -1,6 +1,6 @@
-# Old Tag names lintian 2.139.0 still accepts: each `Renamed-From` entry of
+# Old Tag names lintian 2.144.0 still accepts: each `Renamed-From` entry of
 # tags/**/*.tag, as `old-name => current-name`.
-# Generated from the lintian 2.139.0 source; sorted by old name.
+# Generated from the lintian 2.144.0 source; sorted by old name.
 
 acute-accent-in-manpage => acute-accent-in-manual-page
 apparently-corrupted-elf-binary => elf-error
@@ -28,6 +28,7 @@ copyright-should-refer-to-common-license-file-for-apache-2 => copyright-not-usin
 copyright-should-refer-to-common-license-file-for-gfdl => copyright-not-using-common-license-for-gfdl
 copyright-should-refer-to-common-license-file-for-gpl => copyright-not-using-common-license-for-gpl
 copyright-should-refer-to-common-license-file-for-lgpl => copyright-not-using-common-license-for-lgpl
+debhelper-compat-file-is-missing => debhelper-base-compat-level-is-missing
 debian-changelog-file-contains-invalid-email-address => bogus-mail-host-in-debian-changelog
 debian-changelog-file-missing => no-changelog
 debian-changelog-file-uses-obsolete-national-encoding => national-encoding
@@ -55,6 +56,7 @@ debian-watch-file-unknown-version => unknown-debian-watch-file-standard
 debian-watch-may-check-gpg-signature => debian-watch-does-not-check-openpgp-signature
 debug-file-should-use-detached-symbols => debug-symbols-not-detached
 debug-package-should-be-named-dbg => debug-suffix-not-dbg
+declare-requested-python-versions-for-test => declare-python-versions-for-test
 dep5-file-paragraph-reference-header-paragraph => dep5-file-paragraph-references-header-paragraph
 depends-on-build-essential-package-without-using-version => build-depends-on-build-essential-package-without-using-version
 description-synopsis-might-not-be-phrased-properly => synopsis-is-a-sentence
@@ -87,6 +89,7 @@ duplicated-compressed-file => compressed-duplicate
 duplicated-key-in-desktop-entry => duplicate-key-in-desktop
 duplicated-tag-in-menu-item => duplicate-tag-in-menu
 empty-debian-diff => no-debian-changes
+exclusive-runtime-tests-field => conflicting-test-fields
 executable-manpage => executable-manual-page
 file-contains-trailing-whitespace => trailing-whitespace
 file-name-is-not-valid-UTF-8 => shipped-file-without-utf8-name
@@ -205,6 +208,7 @@ symlink-should-be-relative => absolute-symlink-in-top-level-folder
 systemd-no-service-for-init-rcS-script => missing-systemd-service-for-init.d-rcS-script
 systemd-no-service-for-init-script => omitted-systemd-service-for-init.d-script
 systemd-service-file-pidfile-refers-to-var-run => systemd-service-file-refers-to-var-run
+systemd-tmpfiles.d-outside-usr-lib => misplaced-systemd-tmpfiles
 testsuite-autopkgtest-missing => missing-tests-control
 transitional-package-should-be-oldlibs-extra => transitional-package-not-oldlibs-optional
 transitional-package-should-be-oldlibs-optional => transitional-package-not-oldlibs-optional

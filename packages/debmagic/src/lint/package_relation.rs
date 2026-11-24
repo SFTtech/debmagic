@@ -13,11 +13,10 @@
 //! one package name, and answers whether this relation implies the condition.
 
 use std::cmp::Ordering;
-use std::str::FromStr;
 use std::sync::LazyLock;
 
 use crate::lint::text::perl_split;
-use debmagic_common::debian::version::PackageVersion;
+use debmagic_common::debian::version::apt_compare;
 use regex::Regex;
 
 static PACKAGE: LazyLock<Regex> =
@@ -551,9 +550,7 @@ fn version_implies(have_op: &str, have_version: &str, want_op: &str, want_versio
 }
 
 fn version_matches(left: &str, operator: &str, right: &str) -> bool {
-    let Some(order) = version_ord(left, right) else {
-        return false;
-    };
+    let order = version_ord(left, right);
     match operator {
         "=" => order == Ordering::Equal,
         "<=" => order != Ordering::Greater,
@@ -564,16 +561,10 @@ fn version_matches(left: &str, operator: &str, right: &str) -> bool {
     }
 }
 
-/// dpkg's version order. Equal strings compare equal before parsing, as
-/// lintian's `versions_equal` does. Surrounding space from the predicate
-/// capture is not part of the version.
-fn version_ord(left: &str, right: &str) -> Option<Ordering> {
-    if left == right {
-        return Some(Ordering::Equal);
-    }
-    let left = PackageVersion::from_str(left.trim()).ok()?;
-    let right = PackageVersion::from_str(right.trim()).ok()?;
-    Some(left.cmp(&right))
+/// lintian's version order: libapt-pkg's, which never rejects a version.
+/// Surrounding space from the predicate capture is not part of the version.
+fn version_ord(left: &str, right: &str) -> Ordering {
+    apt_compare(left.trim(), right.trim())
 }
 
 #[cfg(test)]
@@ -674,6 +665,8 @@ mod tests {
         assert!(PackageRelation::parse("foo, bar").satisfies("foo"));
         assert!(PackageRelation::parse("foo, bar").satisfies("foo, bar"));
         assert!(!PackageRelation::parse("foo").satisfies("foo, bar"));
+        // libapt orders versions dpkg would reject instead of giving up.
+        assert!(PackageRelation::parse("foo (>= 1.0_1)").satisfies("foo (>= 1.0)"));
         assert!(!PackageRelation::parse("foo | bar").satisfies("foo"));
         assert!(PackageRelation::parse("foo | bar").satisfies("foo | bar | baz"));
         assert!(!PackageRelation::parse("foo | baz").satisfies("foo | bar"));

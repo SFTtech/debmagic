@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use debmagic_common::debian::version::PackageVersion;
+use debmagic_common::debian::version::{PackageVersion, apt_compare};
 
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
@@ -42,17 +42,16 @@ impl BinaryPackageRule for PackageSupersededByPerl {
         let Some(core_version) = core_version(name) else {
             return;
         };
-        let Ok(core) = PackageVersion::from_str(core_version) else {
-            return;
-        };
-        // lintian compares against `<epoch>:<upstream>`, without the revision.
+        // lintian compares against `<epoch>:<upstream>`, without the revision,
+        // once Dpkg::Version accepts it; the comparison itself is libapt-pkg's.
         let Ok(own) = PackageVersion::from_str(&version) else {
             return;
         };
-        let Ok(own) = PackageVersion::from_str(&own.epoch_upstream()) else {
+        let no_revision = own.epoch_upstream();
+        if PackageVersion::from_str(&no_revision).is_err() {
             return;
-        };
-        if core >= own {
+        }
+        if apt_compare(core_version, &no_revision).is_ge() {
             ctx.diagnostic(Diagnostic::warn(format!("with {core_version}")));
         }
     }

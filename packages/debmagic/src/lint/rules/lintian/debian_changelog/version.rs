@@ -3,7 +3,7 @@
 
 use std::sync::LazyLock;
 
-use debmagic_common::debian::version::verrevcmp;
+use debmagic_common::debian::version::apt_compare;
 use regex::Regex;
 
 static NON_NATIVE: LazyLock<Regex> = LazyLock::new(|| {
@@ -103,13 +103,13 @@ pub(super) fn historical_no_epoch(version: &str) -> Option<&str> {
         .map(|found| found.as_str())
 }
 
-/// `versions_gt`: dpkg upstream comparison (the whole string through
-/// [`verrevcmp`]). Equal strings are not greater.
+/// lintian's `versions_gt`: libapt-pkg's comparison, which splits epoch and
+/// revision out of each argument again. Equal strings are not greater.
 pub(super) fn versions_gt(left: &str, right: &str) -> bool {
     if left == right {
         return false;
     }
-    verrevcmp(left, right).is_gt()
+    apt_compare(left, right).is_gt()
 }
 
 #[cfg(test)]
@@ -170,6 +170,10 @@ mod tests {
         assert!(!versions_gt("1.0", "1.0"));
         assert!(!versions_gt("0.0.1", "1.5+important~personal1-stable"));
         assert!(versions_gt("1.0", "1.0~rc1"));
+        // libapt splits each argument again: `1:` is an epoch and the last
+        // `-` starts a revision, so neither is compared as text.
+        assert!(versions_gt("1:0", "2"));
+        assert!(!versions_gt("1.0-", "1.0"));
     }
 
     #[test]

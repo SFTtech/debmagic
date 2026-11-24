@@ -136,6 +136,179 @@ pub fn verrevcmp(left: &str, right: &str) -> std::cmp::Ordering {
     std::cmp::Ordering::Equal
 }
 
+/// libapt-pkg's `debVersioningSystem::CmpVersion`, which lintian compares
+/// versions with (`Lintian::Relation::Version` through `AptPkg`). Unlike
+/// [`PackageVersion`] it never rejects a version: the epoch is everything
+/// before the first `:` (an all-zero epoch is no epoch), the revision
+/// everything after the last `-`, and an empty revision after a `-` sorts
+/// below a missing one.
+pub fn apt_compare(left: &str, right: &str) -> std::cmp::Ordering {
+    apt_cmp_version(left.as_bytes(), right.as_bytes()).cmp(&0)
+}
+
+/// The byte at `index`, or 0 outside the text: libapt reads C strings and
+/// peeks one byte past a fragment's end, where the next delimiter or the
+/// terminating NUL sits.
+fn byte_at(text: &[u8], index: isize) -> u8 {
+    usize::try_from(index)
+        .ok()
+        .and_then(|index| text.get(index))
+        .copied()
+        .unwrap_or(0)
+}
+
+/// libapt's `order`: `char` is signed, so a byte above 0x7f weighs
+/// `(byte as i8) + 256`.
+fn apt_order(byte: u8) -> i32 {
+    if byte.is_ascii_digit() || byte == 0 {
+        0
+    } else if byte.is_ascii_alphabetic() {
+        i32::from(byte)
+    } else if byte == b'~' {
+        -1
+    } else {
+        i32::from(byte as i8) + 256
+    }
+}
+
+/// libapt's `CmpFragment` on `a[a_start..a_end]` and `b[b_start..b_end]`.
+fn apt_cmp_fragment(
+    a: &[u8],
+    a_start: isize,
+    a_end: isize,
+    b: &[u8],
+    b_start: isize,
+    b_end: isize,
+) -> i32 {
+    let (mut lhs, mut rhs) = (a_start, b_start);
+    while lhs != a_end && rhs != b_end {
+        let mut first_diff = 0;
+        while lhs != a_end
+            && rhs != b_end
+            && (!byte_at(a, lhs).is_ascii_digit() || !byte_at(b, rhs).is_ascii_digit())
+        {
+            let (vc, rc) = (apt_order(byte_at(a, lhs)), apt_order(byte_at(b, rhs)));
+            if vc != rc {
+                return vc - rc;
+            }
+            lhs += 1;
+            rhs += 1;
+        }
+        while byte_at(a, lhs) == b'0' {
+            lhs += 1;
+        }
+        while byte_at(b, rhs) == b'0' {
+            rhs += 1;
+        }
+        while byte_at(a, lhs).is_ascii_digit() && byte_at(b, rhs).is_ascii_digit() {
+            if first_diff == 0 {
+                first_diff = i32::from(byte_at(a, lhs)) - i32::from(byte_at(b, rhs));
+            }
+            lhs += 1;
+            rhs += 1;
+        }
+        if byte_at(a, lhs).is_ascii_digit() {
+            return 1;
+        }
+        if byte_at(b, rhs).is_ascii_digit() {
+            return -1;
+        }
+        if first_diff != 0 {
+            return first_diff;
+        }
+    }
+    if lhs == a_end && rhs == b_end {
+        return 0;
+    }
+    if lhs == a_end {
+        return if byte_at(b, rhs) == b'~' { 1 } else { -1 };
+    }
+    if rhs == b_end {
+        return if byte_at(a, lhs) == b'~' { -1 } else { 1 };
+    }
+    1
+}
+
+/// libapt's `DoCmpVersion`, with its pointer arithmetic as signed indices.
+fn apt_cmp_version(a: &[u8], b: &[u8]) -> i32 {
+    let len = |text: &[u8]| isize::try_from(text.len()).unwrap_or(isize::MAX);
+    let (a_end, b_end) = (len(a), len(b));
+    let colon = |text: &[u8]| {
+        text.iter()
+            .position(|&byte| byte == b':')
+            .and_then(|index| isize::try_from(index).ok())
+    };
+    let (mut a_start, mut b_start) = (0, 0);
+    let mut lhs = colon(a).unwrap_or(0);
+    let mut rhs = colon(b).unwrap_or(0);
+
+    // A zero epoch is the same as no epoch.
+    if lhs != a_start {
+        while byte_at(a, a_start) == b'0' {
+            a_start += 1;
+        }
+        if a_start == lhs {
+            a_start += 1;
+            lhs += 1;
+        }
+    }
+    if rhs != b_start {
+        while byte_at(b, b_start) == b'0' {
+            b_start += 1;
+        }
+        if b_start == rhs {
+            b_start += 1;
+            rhs += 1;
+        }
+    }
+
+    let result = apt_cmp_fragment(a, a_start, lhs, b, b_start, rhs);
+    if result != 0 {
+        return result;
+    }
+
+    // Skip the `:`.
+    if lhs != a_start {
+        lhs += 1;
+    }
+    if rhs != b_start {
+        rhs += 1;
+    }
+
+    let last_dash = |text: &[u8], from: isize, end: isize| {
+        let from_index = usize::try_from(from).unwrap_or(0).min(text.len());
+        text[from_index..]
+            .iter()
+            .rposition(|&byte| byte == b'-')
+            .and_then(|index| isize::try_from(from_index + index).ok())
+            .unwrap_or(end)
+    };
+    let mut dlhs = last_dash(a, lhs, a_end);
+    let mut drhs = last_dash(b, rhs, b_end);
+
+    let result = apt_cmp_fragment(a, lhs, dlhs, b, rhs, drhs);
+    if result != 0 {
+        return result;
+    }
+
+    // Skip the `-`.
+    if dlhs != lhs {
+        dlhs += 1;
+    }
+    if drhs != rhs {
+        drhs += 1;
+    }
+
+    // No revision after a `-` compares like `-0`.
+    let zero: &[u8] = b"0";
+    match (byte_at(a, dlhs - 1) == b'-', byte_at(b, drhs - 1) == b'-') {
+        (true, true) => apt_cmp_fragment(a, dlhs, a_end, b, drhs, b_end),
+        (true, false) => apt_cmp_fragment(a, dlhs, a_end, zero, 0, 1),
+        (false, true) => apt_cmp_fragment(zero, 0, 1, b, drhs, b_end),
+        (false, false) => 0,
+    }
+}
+
 /// dpkg's sort weight of one character in a non-digit run: `~` sorts before
 /// the end of the part, letters before every other character.
 fn char_order(c: Option<&u8>) -> i32 {
@@ -253,5 +426,25 @@ mod tests {
     fn test_verrevcmp(a: &str, b: &str, expected: std::cmp::Ordering) {
         assert_eq!(verrevcmp(a, b), expected);
         assert_eq!(verrevcmp(b, a), expected.reverse());
+    }
+
+    /// Pairs and the sign libapt-pkg's `CmpVersion` gives them, recorded
+    /// with Perl `AptPkg` (the module lintian uses); see
+    /// `testdata/apt_version_compare.tsv`.
+    #[test]
+    fn apt_compare_matches_libapt() {
+        let data = include_str!("testdata/apt_version_compare.tsv");
+        let mut checked = 0;
+        for line in data.lines() {
+            let mut fields = line.split('\t');
+            let (Some(a), Some(b), Some(expected)) = (fields.next(), fields.next(), fields.next())
+            else {
+                panic!("malformed line {line:?}");
+            };
+            let expected: i32 = expected.parse().expect("sign");
+            assert_eq!(apt_compare(a, b), expected.cmp(&0), "{a:?} vs {b:?}");
+            checked += 1;
+        }
+        assert!(checked > 1000);
     }
 }

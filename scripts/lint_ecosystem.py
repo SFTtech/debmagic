@@ -515,8 +515,26 @@ def attach_binaries(entries: list[SourceEntry], args: argparse.Namespace) -> Non
             by_source[(row["source"], row["source_version"])].binaries.append(binary)
 
 
+ORACLE_INFO_LIMIT = 1000  # UDD cuts lintian_results.information at this many characters
+
+
+def dedupe_oracle_rows(rows: list[OracleRow]) -> list[OracleRow]:
+    """Keep one copy of each exactly repeated row, in order. Lintian emits a hint once per package, so a repeat with
+    every field equal is an artefact of the UDD snapshot. A row whose information reached ORACLE_INFO_LIMIT is kept
+    however often it repeats: UDD cut the text there, so identical copies may still be distinct hints."""
+    seen: set[OracleRow] = set()
+    kept: list[OracleRow] = []
+    for row in rows:
+        if len(row.information) < ORACLE_INFO_LIMIT and row in seen:
+            continue
+        seen.add(row)
+        kept.append(row)
+    return kept
+
+
 def load_oracle(entries: list[SourceEntry], work_dir: Path, refresh: bool) -> dict[tuple[str, str], list[OracleRow]]:
-    """Oracle rows per (source, version), snapshotted under the work dir so a run can be redone offline."""
+    """Oracle rows per (source, version), snapshotted under the work dir so a run can be redone offline. The
+    snapshot keeps UDD's rows as returned; the duplicates are dropped on read (see dedupe_oracle_rows)."""
     snapshot_dir = work_dir / "oracle"
     snapshot_dir.mkdir(parents=True, exist_ok=True)
     oracle: dict[tuple[str, str], list[OracleRow]] = {}
@@ -524,7 +542,8 @@ def load_oracle(entries: list[SourceEntry], work_dir: Path, refresh: bool) -> di
     for entry in entries:
         path = snapshot_dir / f"{entry.source}_{entry.version.replace(':', '%3a')}.json"
         if path.exists() and not refresh:
-            oracle[(entry.source, entry.version)] = [OracleRow(**row) for row in json.loads(path.read_text())["rows"]]
+            rows = [OracleRow(**row) for row in json.loads(path.read_text())["rows"]]
+            oracle[(entry.source, entry.version)] = dedupe_oracle_rows(rows)
         else:
             missing.append(entry)
     cached = len(entries) - len(missing)
@@ -564,7 +583,7 @@ def load_oracle(entries: list[SourceEntry], work_dir: Path, refresh: bool) -> di
                     }
                 )
             )
-            oracle[(entry.source, entry.version)] = parsed
+            oracle[(entry.source, entry.version)] = dedupe_oracle_rows(parsed)
     return oracle
 
 

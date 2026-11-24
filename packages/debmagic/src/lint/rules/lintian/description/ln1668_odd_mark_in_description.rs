@@ -102,6 +102,18 @@ mod tests {
         ];
         BinaryPackageTester::new(OddMarkInDescription, pass, fail)
             .test_and_snapshot_with_suffix("extended_line_comma_reports_position");
+        // N counts the ` .` separator: the offending line is the third after the synopsis.
+        let tester = BinaryPackageTester::new(
+            OddMarkInDescription,
+            Vec::<BinaryPackageCase>::new(),
+            Vec::<BinaryPackageCase>::new(),
+        );
+        let messages: Vec<String> = tester
+            .diagnostics(synopsis("tools\n A tool.\n .\n Uses {heap,stack} memory."))
+            .into_iter()
+            .map(|diagnostic| diagnostic.message.clone())
+            .collect();
+        assert_eq!(messages, ["comma not followed by whitespace (line 3)"]);
     }
 
     /// Boundary for the extended-line check: a comma followed by whitespace, a

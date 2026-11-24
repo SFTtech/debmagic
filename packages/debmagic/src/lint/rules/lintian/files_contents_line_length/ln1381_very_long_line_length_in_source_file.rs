@@ -79,13 +79,29 @@ impl SourceRule for VeryLongLineLengthInSourceFile {
                 Diagnostic::warn(format!("{length} > {VERY_LONG}"))
                     .with_severity(Severity::Pedantic)
                     .with_location(Location {
-                        path,
+                        path: pointer_name(&path),
                         line: Some(line),
                         column: None,
                     }),
             );
         }
     }
+}
+
+/// The file name as lintian's pointer shows it. lintian keeps the name's
+/// bytes undecoded, so each byte reads as a Latin-1 character, and a C1
+/// control (0x80 to 0x9f) prints as `?`: `公共` shows as `å?¬å?±`.
+fn pointer_name(path: &Path) -> PathBuf {
+    let text: String = path
+        .as_os_str()
+        .as_encoded_bytes()
+        .iter()
+        .map(|&byte| match byte {
+            0x80..=0x9f => '?',
+            _ => char::from(byte),
+        })
+        .collect();
+    PathBuf::from(text)
 }
 
 /// lintian's `Screen/Autotools/LongLines.pm`: the hint is masked (not reported)
@@ -175,6 +191,18 @@ mod tests {
         )];
         all.extend(files);
         all
+    }
+
+    #[test]
+    fn pointer_name_reads_name_bytes_as_latin1_with_c1_as_question_mark() {
+        assert_eq!(
+            pointer_name(Path::new("fixtures/\u{516c}\u{5171}/a.js")),
+            PathBuf::from("fixtures/\u{e5}?\u{ac}\u{e5}?\u{b1}/a.js")
+        );
+        assert_eq!(
+            pointer_name(Path::new("src/main.c")),
+            Path::new("src/main.c")
+        );
     }
 
     #[test]

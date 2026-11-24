@@ -516,7 +516,7 @@ fn missing_upstream_tarball_uses_gz_from_brace_list() {
 
 /// The Diagnostic `cute-field` reports for a `HOMEPAGE` field in
 /// `debian/control`, as a line ends (the processable part comes before it).
-const CUTE_FIELD_END: &str = "cute-field (LN1370) HOMEPAGE vs Homepage [debian/control]";
+const CUTE_FIELD_END: &str = "cute-field (LN1370) HOMEPAGE vs Homepage [debian/control:3]";
 
 /// A Source tree whose `debian/control` has a `HOMEPAGE` field (a `cute-field`
 /// Diagnostic), with `overrides` as its `debian/source/lintian-overrides`.

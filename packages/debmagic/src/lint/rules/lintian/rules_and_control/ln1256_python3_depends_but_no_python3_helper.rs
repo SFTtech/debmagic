@@ -14,7 +14,9 @@ declare_rule! {
     /// Scans `debian/rules` the way lintian's `debhelper` Check does. Reported
     /// when a `dh` sequencer line was seen, and neither a `dh_python3` command,
     /// a `python3` addon of a `dh` line, nor a `dh-sequence-python3` build
-    /// dependency (with build profiles ignored) is present. Each installable
+    /// dependency (with build profiles ignored) is present. A `dh` line with a
+    /// make variable (`$(DH_ADDONS)`) may hold any add-on, so it counts as
+    /// seeing `python3`. Each installable
     /// whose `Pre-Depends`, `Depends`, `Recommends`, or `Suggests` mention
     /// `${python3:Depends}` is named. The extra is those names, sorted and
     /// joined by spaces; there is no Location. Only reached after a dh command
@@ -40,10 +42,11 @@ impl SourceRule for Python3DependsButNoPython3Helper {
         let Some(control) = ctx.debian_control() else {
             return;
         };
-        let seen_python3 = facts
-            .commands()
-            .iter()
-            .any(|command| command.name() == "dh_python3")
+        let seen_python3 = facts.has_dynamic_addons()
+            || facts
+                .commands()
+                .iter()
+                .any(|command| command.name() == "dh_python3")
             || facts.addons().iter().any(|addon| addon == "python3")
             || control
                 .source()
@@ -133,6 +136,11 @@ Description: example\n extra\n";
             ),
             // A python3 addon of a dh line.
             package(&python, "%:\n\tdh $@ --with python3\n"),
+            // A make variable in a dh line may hold python3 (audit's DH_ADDONS).
+            package(
+                &python,
+                "DH_ADDONS =\nifeq ($(X),y)\nDH_ADDONS += --with python3\nendif\n%:\n\tdh $@ $(DH_ADDONS)\n",
+            ),
             // The build dependency provides the sequence.
             package(
                 &python.replace(

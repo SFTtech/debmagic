@@ -42,11 +42,9 @@ pub(crate) fn directory_pointer(path: &Path) -> PathBuf {
 
 impl SourceRule for SourceContainsPrebuiltPandocDocumentation {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let Some(files) = ctx.files() else {
-            return;
-        };
-        let flagged: Vec<_> = license_text::text_files(files)
-            .into_iter()
+        let texts = license_text::shared_text_files(ctx);
+        let flagged: Vec<_> = texts
+            .iter()
             .filter(|file| {
                 file.path
                     .file_name()

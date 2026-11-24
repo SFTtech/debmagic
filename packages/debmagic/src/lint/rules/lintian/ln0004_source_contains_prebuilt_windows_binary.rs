@@ -64,7 +64,9 @@ fn is_windows_binary(entry: &Entry) -> bool {
 #[cfg(test)]
 mod tests {
     use crate::lint::file_type::FileType;
-    use crate::lint::tester::{SourcePackageCase, SourcePackageTester, SourceTreeTester, TestFile};
+    use crate::lint::tester::{
+        SourcePackageCase, SourcePackageTester, SourceTreeTester, TestCase, TestFile,
+    };
 
     use super::*;
 
@@ -187,6 +189,24 @@ mod tests {
         ];
         let fail = vec![];
         SourceTreeTester::new(SourceContainsPrebuiltWindowsBinary, pass, fail).test();
+    }
+
+    /// Lintian's hint is `tag [path]`, so the Entry path is the pointer: the
+    /// Diagnostic has it as its Location and an empty message.
+    #[test]
+    fn hint_points_at_the_entry_path() {
+        let tester = SourceTreeTester::new(
+            SourceContainsPrebuiltWindowsBinary,
+            Vec::<TestCase>::new(),
+            Vec::<TestCase>::new(),
+        );
+        let diagnostics = tester.diagnostics(vec![
+            ("debian/control", TestFile::from(CONTROL)),
+            ("bin/app", TestFile::new("pe").file_type(FileType::Pe32)),
+        ]);
+        assert_eq!(diagnostics.len(), 1);
+        assert!(diagnostics[0].message.is_empty());
+        assert_eq!(diagnostics[0].location.path, PathBuf::from("bin/app"));
     }
 
     /// The File type decides regardless of the name: a PE or DOS MZ file

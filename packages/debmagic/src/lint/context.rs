@@ -24,6 +24,7 @@ use super::installed_changelog::{InstalledChangelog, read_installed_changelog};
 use super::jar::JarFiles;
 use super::lintian_overrides::LintianOverrides;
 use super::openpgp::OpenPgpFile;
+use super::package_relation::PackageRelation;
 use super::quilt_series::QuiltSeries;
 use super::rule::{Code, RuleAccess, Tag};
 use super::sibling_files::SiblingFiles;
@@ -370,6 +371,14 @@ impl<'a> BinaryPackageContext<'a> {
     /// The Binary package is a udeb (`.udeb` file name), not a deb.
     pub fn is_udeb(&self) -> bool {
         processable_type_for_binary(&self.data.path) == ProcessableType::Udeb
+    }
+
+    /// Pre-Depends and Depends together: lintian's `relation('strong')` for a
+    /// binary package. Other fields (Recommends, Suggests, ...) are not in it.
+    pub(crate) fn strong_relation(&self) -> PackageRelation {
+        self.installation_control()
+            .fields()
+            .relations_and(&["Pre-Depends", "Depends"])
     }
 
     /// The ar members of the `.deb`, in archive order. `None` for a fixture

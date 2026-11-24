@@ -4,7 +4,7 @@ use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::{Severity, SourceRule};
 
 use super::ln0688_testsuite_depends_on_obsolete_package::obsolete_messages;
-use super::sections::{control_location, tests_control_sections};
+use super::sections::tests_control_sections;
 
 pub struct TestsuiteOredDependsOnObsoletePackage;
 
@@ -13,7 +13,8 @@ declare_rule! {
     /// among ORed alternatives that include a current package, and that
     /// obsolete alternative is not the first one. Reported at info severity
     /// with extra `Depends: <alternative>` and ` => <replacement>` when the
-    /// data file names one, and the `debian/tests/control` Location.
+    /// data file names one. There is no Location: lintian's hint has no
+    /// pointer, so the hint carries no `[path:line]`.
     ///
     /// The split and the rule are those of LN0688, which reports the other
     /// case (an obsolete first alternative, or one where every alternative is
@@ -34,11 +35,7 @@ impl SourceRule for TestsuiteOredDependsOnObsoletePackage {
             return;
         };
         for message in obsolete_messages(&sections, true) {
-            ctx.diagnostic(
-                Diagnostic::warn(message)
-                    .with_severity(Severity::Info)
-                    .with_location(control_location(None)),
-            );
+            ctx.diagnostic(Diagnostic::warn(message).with_severity(Severity::Info));
         }
     }
 }

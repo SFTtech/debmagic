@@ -79,6 +79,11 @@ fn installed_entry(entry: &Entry, bytes: &[u8], all: &PackageRelation) -> Vec<Hi
     let Some(hashbang) = Hashbang::read(bytes) else {
         return Vec::new();
     };
+    // lintian's Scripts check returns for the whole cargo registry before any
+    // interpreter check (`visit_installed_files`).
+    if name.starts_with("usr/share/cargo/registry/") {
+        return Vec::new();
+    }
     let examples = is_examples(name);
     if (name.starts_with("usr/share/doc/") || name.starts_with("usr/src/")) && !examples {
         return Vec::new();

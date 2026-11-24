@@ -29,9 +29,11 @@ declare_rule! {
     /// version, under `usr/` when the library is not (a library in `/lib`
     /// needs its link in `/usr/lib`).
     ///
-    /// A Group Rule: it needs the `-dev` packages' files, so it runs once per
-    /// Group that has a `.dsc`, and the Diagnostic attaches to the library's
-    /// installable (binary or udeb), as in lintian.
+    /// A Group Rule of an installable (lintian's per-binary Check): it needs
+    /// the `-dev` packages' files and no source, so it also runs on a lone
+    /// `.deb` (ADR 0056), where it has no `-dev` package and reports nothing.
+    /// The Diagnostic attaches to the library's installable (binary or udeb),
+    /// as in lintian.
     LacksUnversionedLinkToSharedLibrary,
     code = "LN1503",
     tag = "lacks-unversioned-link-to-shared-library",
@@ -40,6 +42,10 @@ declare_rule! {
 }
 
 impl GroupRule for LacksUnversionedLinkToSharedLibrary {
+    fn runs_without_dsc(&self) -> bool {
+        true
+    }
+
     fn run(&self, ctx: &mut GroupContext<'_>) {
         let installables = ctx.installables();
         for installable in &installables {
@@ -253,6 +259,10 @@ mod tests {
                 .files(lib())
                 .installable("libfoo-dev", "Depends: other\n"),
             GroupCase::new(DSC).installable("libfoo1", "").files(lib()),
+            // A lone .deb: no -dev package in the Group, nothing to link.
+            GroupCase::without_dsc()
+                .installable("libfoo1", "")
+                .files(lib()),
             // A weak relation does not make a -dev package of it.
             GroupCase::new(DSC)
                 .installable("libfoo1", "")
@@ -270,6 +280,11 @@ mod tests {
         ];
         let fail = vec![
             group(lib(), vec![]),
+            // A lone -dev package of the Group, without a .dsc, lacks the link.
+            GroupCase::without_dsc()
+                .installable("libfoo1", "")
+                .files(lib())
+                .installable("libfoo-dev", "Depends: libfoo1 (= 1.0)\n"),
             // A link that does not end in .so, or goes elsewhere.
             group(
                 lib(),

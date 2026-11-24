@@ -918,6 +918,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/files/compressed/zip/not-a-zip",
     "checks/files/config-scripts/files-old-config-script",
     "checks/files/contents/bin-sbin-confusion-in-script",
+    "checks/files/contents/contains-build-path",
     "checks/files/contents/files-missing-depends-on-sensible-utils",
     "checks/files/contents/files-uses-dpkg-database-directly",
     "checks/files/contents/legacy-maintainer-scripts",
@@ -1091,6 +1092,7 @@ const BINARY_PACKAGE_RECIPES: &[&str] = &[
     "checks/libraries/shared/file-permissions/legacy-libbaz",
     "checks/libraries/shared/file-permissions/shared-libs-exec-bit",
     "checks/libraries/shared/links/legacy-libbaz",
+    "checks/libraries/shared/links/shared-libs-dev-symlink",
     "checks/libraries/shared/links/shared-libs-ldconfig-not-symlink",
     "checks/libraries/shared/links/shared-libs-ldconfig-wrong-file",
     "checks/libraries/shared/links/shared-libs-missing-ldconfig-symlink",
@@ -2804,6 +2806,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/files/compressed/zip/not-a-zip"; "checks_files_compressed_zip_not_a_zip")]
 #[test_case("checks/files/config-scripts/files-old-config-script"; "checks_files_config_scripts_files_old_config_script")]
 #[test_case("checks/files/contents/bin-sbin-confusion-in-script"; "checks_files_contents_bin_sbin_confusion_in_script")]
+#[test_case("checks/files/contents/contains-build-path"; "checks_files_contents_contains_build_path")]
 #[test_case("checks/files/contents/files-missing-depends-on-sensible-utils"; "checks_files_contents_files_missing_depends_on_sensible_utils")]
 #[test_case("checks/files/contents/files-uses-dpkg-database-directly"; "checks_files_contents_files_uses_dpkg_database_directly")]
 #[test_case("checks/files/contents/legacy-maintainer-scripts"; "checks_files_contents_legacy_maintainer_scripts")]
@@ -2977,6 +2980,7 @@ fn lintian_parity_source_tree(recipe: &str) {
 #[test_case("checks/libraries/shared/file-permissions/legacy-libbaz"; "checks_libraries_shared_file_permissions_legacy_libbaz")]
 #[test_case("checks/libraries/shared/file-permissions/shared-libs-exec-bit"; "checks_libraries_shared_file_permissions_shared_libs_exec_bit")]
 #[test_case("checks/libraries/shared/links/legacy-libbaz"; "checks_libraries_shared_links_legacy_libbaz")]
+#[test_case("checks/libraries/shared/links/shared-libs-dev-symlink"; "checks_libraries_shared_links_shared_libs_dev_symlink")]
 #[test_case("checks/libraries/shared/links/shared-libs-ldconfig-not-symlink"; "checks_libraries_shared_links_shared_libs_ldconfig_not_symlink")]
 #[test_case("checks/libraries/shared/links/shared-libs-ldconfig-wrong-file"; "checks_libraries_shared_links_shared_libs_ldconfig_wrong_file")]
 #[test_case("checks/libraries/shared/links/shared-libs-missing-ldconfig-symlink"; "checks_libraries_shared_links_shared_libs_missing_ldconfig_symlink")]

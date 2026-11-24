@@ -1630,10 +1630,29 @@ fn unmet_test_architectures(recipe: &Path) -> Option<String> {
     (!line.split_whitespace().any(matches)).then(|| line.trim().to_string())
 }
 
+/// Binary-package recipes whose expected hints of an opted-in Group Rule (ADR 0056) need more than
+/// the one `.deb` the binary harness lints: a sibling `-dev` package, or a `.buildinfo`. The Group-level
+/// harness (`assert_group_parity`) judges them; the binary harness cannot.
+const RECIPES_NEEDING_THE_GROUP_HARNESS: &[(&str, &str)] = &[
+    (
+        "checks/libraries/shared/links/legacy-libbaz",
+        "lacks-unversioned-link-to-shared-library needs the -dev sibling; judged by the group harness",
+    ),
+    (
+        "checks/libraries/shared/links/shared-libs-dev-symlink",
+        "lacks-unversioned-link-to-shared-library needs the -dev sibling; judged by the group harness",
+    ),
+    (
+        "checks/files/contents/contains-build-path",
+        "file-references-package-build-path needs a .buildinfo; judged by the group harness",
+    ),
+];
+
 pub fn assert_binary_package_parity(recipe_rel: &str) {
     let recipe = parity_suite_root().join(recipe_rel);
     if let Some((_, reason)) = RECIPES_THE_HOST_CANNOT_BUILD
         .iter()
+        .chain(RECIPES_NEEDING_THE_GROUP_HARNESS.iter())
         .find(|(name, _)| *name == recipe_rel)
     {
         eprintln!("{recipe_rel}: skipped, {reason}");

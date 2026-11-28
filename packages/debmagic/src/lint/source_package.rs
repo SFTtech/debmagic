@@ -6,34 +6,42 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 use anyhow::{Context, bail};
+use debmagic_common::checksums;
 use regex::Regex;
 use tempfile::TempDir;
 
 use super::binary_package_reader::{guess_package_name, header_mtime, normalize_member_path};
-use super::debian_control::ControlParagraph;
 use super::dsc::Dsc;
 use super::file_tree::FileTree;
 
-/// `.dsc` identity for extract: Dsc plus the Files list and path.
+/// `.dsc` identity for extract: Dsc, path, and its two file lists.
 #[derive(Debug)]
 struct DscIdentity {
     path: PathBuf,
     dsc: Dsc,
+    /// Every file the checksum fields list: what `dpkg-source` needs.
     files: Vec<String>,
+    /// lintian's `files` ([`Dsc::files`]): what its native and orig
+    /// decisions look at.
+    listed: Vec<String>,
 }
 
 impl DscIdentity {
+    fn new(path: &Path, dsc: Dsc) -> Self {
+        Self {
+            path: path.to_path_buf(),
+            files: checksums::filenames(dsc.fields().paragraph()),
+            listed: dsc.files(),
+            dsc,
+        }
+    }
+
     fn load(path: &Path) -> anyhow::Result<Self> {
-        let dsc = Dsc::load(path)?;
-        let files = named_files(dsc.fields());
-        if files.is_empty() {
+        let identity = Self::new(path, Dsc::load(path)?);
+        if identity.files.is_empty() {
             bail!("{} names no files", path.display());
         }
-        Ok(Self {
-            path: path.to_path_buf(),
-            dsc,
-            files,
-        })
+        Ok(identity)
     }
 
     fn source(&self) -> &str {
@@ -76,7 +84,7 @@ impl DscIdentity {
         }
         let version = strip_epoch(self.version());
         let diffname = format!("{}_{version}.diff.gz", self.package_name());
-        !self.files.iter().any(|name| name == &diffname)
+        !self.listed.iter().any(|name| name == &diffname)
     }
 
     fn orig_components(&self) -> anyhow::Result<Vec<(String, String)>> {
@@ -90,7 +98,7 @@ impl DscIdentity {
         ))
         .expect("orig tarball name pattern");
         let mut found = Vec::new();
-        for filename in &self.files {
+        for filename in &self.listed {
             let basename = Path::new(filename)
                 .file_name()
                 .and_then(|name| name.to_str())
@@ -103,6 +111,10 @@ impl DscIdentity {
                 found.push((filename.clone(), component));
             }
         }
+        // lintian unpacks them `sort_by { $components{$_} }`: the main
+        // tarball first, then by component name (stable, so ties keep the
+        // sorted file order).
+        found.sort_by(|left, right| left.1.cmp(&right.1));
         if found.is_empty() {
             bail!(
                 "{} is not Native and names no orig tarball",
@@ -412,11 +424,7 @@ pub(crate) struct OrigEntry {
 /// their tar headers beside it (each tarball is decompressed as a stream, not
 /// extracted). Empty for a Native package.
 pub(crate) fn orig_entries(dsc_path: &Path, dsc: &Dsc) -> anyhow::Result<Vec<OrigEntry>> {
-    let identity = DscIdentity {
-        path: dsc_path.to_path_buf(),
-        dsc: dsc.clone(),
-        files: named_files(dsc.fields()),
-    };
+    let identity = DscIdentity::new(dsc_path, dsc.clone());
     if identity.is_native() {
         return Ok(Vec::new());
     }
@@ -587,31 +595,6 @@ fn strip_top_directory(path: &Path, top: &Path) -> Option<PathBuf> {
     }
     let rest = bytes.strip_prefix(top)?.strip_prefix(b"/")?;
     Some(PathBuf::from(OsStr::from_bytes(rest)))
-}
-
-fn named_files(fields: &ControlParagraph) -> Vec<String> {
-    let mut names = Vec::new();
-    for field in ["Files", "Checksums-Sha1", "Checksums-Sha256"] {
-        if let Some(value) = fields.get(field) {
-            for name in filenames_from_checksums_field(value) {
-                if !names.contains(&name) {
-                    names.push(name);
-                }
-            }
-        }
-    }
-    names
-}
-
-fn filenames_from_checksums_field(value: &str) -> Vec<String> {
-    let mut names = Vec::new();
-    for line in value.lines() {
-        let parts: Vec<&str> = line.split_whitespace().collect();
-        if parts.len() >= 3 {
-            names.push(parts[parts.len() - 1].to_string());
-        }
-    }
-    names
 }
 
 /// lintian's `s/^\d+://`: one leading all-digit epoch. A version whose

@@ -59,6 +59,25 @@ pub const CHECKSUM_FIELDS: &[(&str, Hash)] = &[
     ("Checksums-Sha256", Hash::Sha256),
 ];
 
+/// Every file the checksum fields list, as `dpkg-source` needs them all
+/// present: the last word of each line with checksum, size and name, from
+/// [`CHECKSUM_FIELDS`] in that order, each name once.
+pub fn filenames(paragraph: &crate::debian::deb822::Paragraph) -> Vec<String> {
+    let mut names: Vec<String> = Vec::new();
+    for (field, _) in CHECKSUM_FIELDS {
+        for line in paragraph.get(field).unwrap_or_default().lines() {
+            let words: Vec<&str> = line.split_whitespace().collect();
+            if let [_, _, .., name] = words.as_slice()
+                && words.len() >= 3
+                && !names.iter().any(|known| known == name)
+            {
+                names.push((*name).to_string());
+            }
+        }
+    }
+    names
+}
+
 /// Rewrite one `Files:`/`Checksums-*:` line: the first token is the
 /// checksum, the second the size, the last the filename; entries for
 /// other files pass through unchanged.
@@ -197,6 +216,15 @@ mod tests {
 
     fn parse_control(content: &str) -> Paragraph {
         content.parse().unwrap()
+    }
+
+    #[test]
+    fn filenames_lists_every_checksum_field_once() {
+        let paragraph = crate::debian::deb822::Paragraph::from_values([
+            ("Files", "\n abc 1 a.tar.xz\n short\n def 2 b.dsc"),
+            ("Checksums-Sha256", "\n 123 1 a.tar.xz\n 456 3 c.asc"),
+        ]);
+        assert_eq!(filenames(&paragraph), ["a.tar.xz", "b.dsc", "c.asc"]);
     }
 
     #[test]

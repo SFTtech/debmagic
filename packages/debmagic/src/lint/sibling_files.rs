@@ -4,11 +4,9 @@
 //! Sha256 checksum fields), keeping each entry's basename. Names are taken
 //! from the `.dsc` alone; bytes are read only when a Rule asks for them.
 
-use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use super::debian_control::ControlParagraph;
 use super::dsc::Dsc;
 
 /// The files a `.dsc` lists, by basename, sorted. `read` reads one of them
@@ -27,9 +25,7 @@ impl SiblingFiles {
             .parent()
             .filter(|parent| !parent.as_os_str().is_empty())
             .map_or_else(|| PathBuf::from("."), Path::to_path_buf);
-        let names = dsc
-            .map(|dsc| listed_names(dsc.fields()))
-            .unwrap_or_default();
+        let names = dsc.map(Dsc::files).unwrap_or_default();
         Self { dir, names }
     }
 
@@ -53,33 +49,6 @@ impl SiblingFiles {
         }
         fs::read(self.dir.join(name)).ok()
     }
-}
-
-/// lintian's `Processable::Fields::Files` keys: the last word of each `Files`
-/// line, the third word of each `Checksums-Sha1` and `Checksums-Sha256` line,
-/// blank lines skipped, and any name with a `/` left out.
-fn listed_names(fields: &ControlParagraph) -> Vec<String> {
-    let mut names = BTreeSet::new();
-    if let Some(value) = fields.get("Files") {
-        for line in value.lines() {
-            if let Some(name) = line.split_whitespace().last() {
-                names.insert(name.to_string());
-            }
-        }
-    }
-    for field in ["Checksums-Sha1", "Checksums-Sha256"] {
-        if let Some(value) = fields.get(field) {
-            for line in value.lines() {
-                if let Some(name) = line.split_whitespace().nth(2) {
-                    names.insert(name.to_string());
-                }
-            }
-        }
-    }
-    names
-        .into_iter()
-        .filter(|name| !name.contains('/'))
-        .collect()
 }
 
 #[cfg(test)]

@@ -9,7 +9,6 @@ use std::sync::LazyLock;
 use regex::Regex;
 
 use crate::lint::context::SourceContext;
-use crate::lint::dsc::Dsc;
 use crate::lint::source_package::strip_epoch;
 
 mod ln0373_debian_revision_is_zero;
@@ -74,7 +73,7 @@ pub(super) fn is_native(ctx: &mut SourceContext<'_>) -> bool {
         Some(dsc) => {
             let source = dsc.fields().get("Source").unwrap_or_default().trim();
             let diff = format!("{source}_{version}.diff.gz");
-            !dsc_file_names(dsc).contains(&diff.as_str())
+            !dsc.files().contains(&diff)
         }
         None => !version.contains('-'),
     }
@@ -102,14 +101,4 @@ fn source_format(ctx: &mut SourceContext<'_>) -> String {
             || "1.0".to_string(),
             |bytes| String::from_utf8_lossy(&bytes).trim().to_string(),
         )
-}
-
-/// File names of a Dsc's `Files` field, the last word of each line.
-fn dsc_file_names(dsc: &Dsc) -> Vec<&str> {
-    dsc.fields()
-        .untrimmed_value("Files")
-        .unwrap_or_default()
-        .lines()
-        .filter_map(|line| line.split_whitespace().last())
-        .collect()
 }

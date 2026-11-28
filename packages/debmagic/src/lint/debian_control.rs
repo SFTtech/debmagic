@@ -128,6 +128,11 @@ impl ControlParagraph {
         Ok(Self(first))
     }
 
+    /// The common paragraph underneath.
+    pub(crate) fn paragraph(&self) -> &Paragraph {
+        &self.0
+    }
+
     pub fn get(&self, name: &str) -> Option<&str> {
         self.0.get(name)
     }

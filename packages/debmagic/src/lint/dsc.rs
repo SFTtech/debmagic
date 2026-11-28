@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use std::path::Path;
 
 use anyhow::Context;
@@ -29,6 +30,32 @@ impl Dsc {
     pub fn fields(&self) -> &ControlParagraph {
         &self.fields
     }
+
+    /// lintian's `files` keys (`Processable::Fields::Files`), sorted: the last
+    /// word of each `Files` line and the third word of each `Checksums-Sha1`
+    /// and `Checksums-Sha256` line, blank lines skipped, any name with a `/`
+    /// left out. Not every file `dpkg-source` needs; see
+    /// `debmagic_common::checksums::filenames`.
+    pub fn files(&self) -> Vec<String> {
+        let mut names = BTreeSet::new();
+        for line in self.fields.get("Files").unwrap_or_default().lines() {
+            if let Some(name) = line.split_whitespace().last() {
+                names.insert(name);
+            }
+        }
+        for field in ["Checksums-Sha1", "Checksums-Sha256"] {
+            for line in self.fields.get(field).unwrap_or_default().lines() {
+                if let Some(name) = line.split_whitespace().nth(2) {
+                    names.insert(name);
+                }
+            }
+        }
+        names
+            .into_iter()
+            .filter(|name| !name.contains('/'))
+            .map(str::to_string)
+            .collect()
+    }
 }
 
 #[cfg(test)]
@@ -49,6 +76,18 @@ mod tests {
         assert!(dsc.fields().declares("Files"));
         assert!(!dsc.fields().declares("Standards-Version"));
         Ok(())
+    }
+
+    #[test]
+    fn files_are_lintians_listed_names() {
+        let dsc = Dsc::parse(
+            "Source: example\n\
+             Files:\n 0 1 b.tar.xz\n 0 1 ../escape.tar.xz\n\
+             Checksums-Sha256:\n 0 1 c.asc extra\n 0 1 b.tar.xz\n short line\n",
+        )
+        .expect("dsc");
+        // Checksums lines give their third word, not their last.
+        assert_eq!(dsc.files(), ["b.tar.xz", "c.asc"]);
     }
 
     #[test]

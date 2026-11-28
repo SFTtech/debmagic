@@ -16,6 +16,7 @@ mod ln1031_unknown_encoding_in_po_file;
 mod ln1326_invalid_potfiles_in;
 mod ln1327_newer_debconf_templates;
 mod ln1531_no_complete_debconf_translation;
+mod msgfmt;
 mod pot;
 
 pub(crate) use ln0381_misnamed_po_file::MisnamedPoFile;

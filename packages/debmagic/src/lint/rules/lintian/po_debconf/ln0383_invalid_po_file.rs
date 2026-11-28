@@ -1,5 +1,3 @@
-use std::process::{Command, Stdio};
-
 use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
@@ -7,6 +5,7 @@ use crate::lint::file_tree::EntryKind;
 use crate::lint::rule::SourceRule;
 
 use super::files;
+use super::msgfmt;
 
 pub struct InvalidPoFile;
 
@@ -35,6 +34,7 @@ impl SourceRule for InvalidPoFile {
             .into_iter()
             .map(files::path_buf)
             .collect();
+        let statistics = msgfmt::statistics(ctx);
         let mut hits = Vec::new();
         for path in children {
             let Some(entry) = tree.get(&path) else {
@@ -46,7 +46,7 @@ impl SourceRule for InvalidPoFile {
             let Some(bytes) = files::read(tree, &path) else {
                 continue;
             };
-            if !has_msgstr(&bytes) || msgfmt_fails(&bytes) {
+            if !has_msgstr(&bytes) || statistics.fails(&path) {
                 hits.push(path);
             }
         }
@@ -64,26 +64,6 @@ fn has_msgstr(bytes: &[u8]) -> bool {
     String::from_utf8_lossy(bytes)
         .lines()
         .any(|line| line.starts_with("msgstr"))
-}
-
-fn msgfmt_fails(bytes: &[u8]) -> bool {
-    let Ok(mut file) = tempfile::NamedTempFile::new() else {
-        return false;
-    };
-    if std::io::Write::write_all(&mut file, bytes).is_err() {
-        return false;
-    }
-    let Ok(status) = Command::new("msgfmt")
-        .args(["-o", "/dev/null", "--statistics"])
-        .arg(file.path())
-        .env("LC_ALL", "C")
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status()
-    else {
-        return false;
-    };
-    !status.success()
 }
 
 #[cfg(test)]

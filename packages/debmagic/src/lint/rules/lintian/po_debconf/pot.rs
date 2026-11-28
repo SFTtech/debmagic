@@ -15,6 +15,7 @@ use crate::lint::external_tool::{self, Sandbox};
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
 
 use super::files;
+use super::msgfmt;
 
 /// intltool's wrapper, which lintian calls by this absolute path.
 const INTLTOOL_UPDATE: &str = "/usr/share/intltool-debian/intltool-update";
@@ -70,12 +71,28 @@ impl PoState {
 /// The shared state of `ctx`'s Subject, computed on first use.
 pub(super) fn state(ctx: &mut SourceContext<'_>) -> Arc<PoState> {
     ctx.shared_once(|ctx| match ctx.files() {
-        Some(tree) => analyse(tree),
+        Some(tree) => analyse(ctx, tree),
         None => PoState::not_using(),
     })
 }
 
-fn analyse(tree: &FileTree) -> PoState {
+/// The Subject's `debian/` files staged for host tools, built once and shared
+/// by the PO Rules. `None` when staging fails.
+pub(super) fn staged(ctx: &mut SourceContext<'_>) -> Arc<Option<Sandbox>> {
+    ctx.shared_once(|ctx| match ctx.files() {
+        Some(tree) => {
+            let entries: Vec<&Entry> = tree
+                .entries()
+                .iter()
+                .filter(|entry| entry.path().starts_with("debian"))
+                .collect();
+            Sandbox::new(tree, &entries).ok()
+        }
+        None => None,
+    })
+}
+
+fn analyse(ctx: &mut SourceContext<'_>, tree: &FileTree) -> PoState {
     if !files::has_translatable_template(tree) {
         return PoState::not_using();
     }
@@ -93,21 +110,18 @@ fn analyse(tree: &FileTree) -> PoState {
         full_translation: None,
     };
 
-    let entries: Vec<&Entry> = tree
-        .entries()
-        .iter()
-        .filter(|entry| entry.path().starts_with("debian"))
-        .collect();
-    let Ok(sandbox) = Sandbox::new(tree, &entries) else {
+    let staged = staged(ctx);
+    let Some(sandbox) = &*staged else {
         state.pot = Pot::Unknown;
         return state;
     };
 
     if inputs_complete(tree, &potfiles_in, &templates_pot) {
-        state.pot = compare_pot(&sandbox, po);
+        state.pot = compare_pot(sandbox, po);
     }
     if state.pot != Pot::Invalid {
-        state.full_translation = full_translation(tree, &sandbox, directory);
+        let statistics = msgfmt::statistics(ctx);
+        state.full_translation = full_translation(tree, &statistics, directory);
     }
     state
 }
@@ -205,44 +219,22 @@ fn compare_pot(sandbox: &Sandbox, po: &Path) -> Pot {
 /// lintian's loop over the PO directory: a `.po` file with a `msgstr` line
 /// that `msgfmt --statistics` reports as fully translated. `None` when the
 /// tool could not run.
-fn full_translation(tree: &FileTree, sandbox: &Sandbox, directory: &str) -> Option<bool> {
-    let msgfmt = external_tool::find("msgfmt")?;
+fn full_translation(
+    tree: &FileTree,
+    statistics: &msgfmt::Statistics,
+    directory: &str,
+) -> Option<bool> {
+    if !statistics.found {
+        return None;
+    }
     let mut full = false;
     for entry in files::po_children(tree, directory) {
-        if entry.kind() == EntryKind::Directory {
+        if !msgfmt::is_checked(tree, entry) {
             continue;
         }
-        if !files::basename(entry).is_some_and(|name| name.ends_with(".po")) {
-            continue;
-        }
-        let Some(open) = files::open_file(tree, entry.path()) else {
-            continue;
-        };
-        let Ok(bytes) = tree.read(open) else {
-            continue;
-        };
-        if !bytes
-            .split(|&byte| byte == b'\n')
-            .any(|line| line.starts_with(b"msgstr"))
-        {
-            continue;
-        }
-        let statistics = sandbox
-            .run(
-                &msgfmt,
-                &[
-                    OsStr::new("-o"),
-                    OsStr::new("/dev/null"),
-                    OsStr::new("--statistics"),
-                    entry.path().as_os_str(),
-                ],
-                Path::new(""),
-                &[],
-                external_tool::DEFAULT_TIMEOUT,
-            )
-            .ok()?;
+        let run = statistics.run(entry.path())?;
         // Perl's `$stats` is stderr; its `$` also matches before one final newline.
-        let stderr = String::from_utf8_lossy(&statistics.stderr);
+        let stderr = String::from_utf8_lossy(&run.stderr);
         let stderr = stderr.strip_suffix('\n').unwrap_or(&stderr);
         if FULL_STATISTICS.is_match(stderr) {
             full = true;

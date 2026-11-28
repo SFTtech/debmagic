@@ -24,11 +24,6 @@ pub(super) struct Md5sumsFile {
     pub entries: Vec<(String, String)>,
 }
 
-pub(super) struct Installed {
-    pub path: String,
-    pub bytes: Option<Vec<u8>>,
-}
-
 pub(super) fn at() -> Location {
     Location {
         path: "md5sums".into(),
@@ -82,7 +77,9 @@ pub(super) fn parse(bytes: &[u8]) -> Md5sumsFile {
     Md5sumsFile { errors, entries }
 }
 
-pub(super) fn installed_files(ctx: &mut BinaryPackageContext<'_>) -> Option<Vec<Installed>> {
+/// The paths of the installed files (regular files and hardlinks), in tree
+/// order. Reads no bytes.
+pub(super) fn installed_paths(ctx: &mut BinaryPackageContext<'_>) -> Option<Vec<String>> {
     let files = ctx.data_files()?;
     Some(
         files
@@ -92,9 +89,35 @@ pub(super) fn installed_files(ctx: &mut BinaryPackageContext<'_>) -> Option<Vec<
                 if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
                     return None;
                 }
-                let path = entry.path().to_str()?.to_string();
-                let bytes = files.read(entry).ok();
-                Some(Installed { path, bytes })
+                Some(entry.path().to_str()?.to_string())
+            })
+            .collect(),
+    )
+}
+
+/// The MD5 (lowercase hex) of each installed file whose path `wanted` accepts,
+/// as `(path, digest)` in tree order. Files whose bytes cannot be read have no
+/// digest and are left out. Each digest is computed while the tree is walked,
+/// from the bytes in place: no file is copied.
+pub(super) fn installed_md5sums(
+    ctx: &mut BinaryPackageContext<'_>,
+    wanted: impl Fn(&str) -> bool,
+) -> Option<Vec<(String, String)>> {
+    let files = ctx.data_files()?;
+    Some(
+        files
+            .entries()
+            .iter()
+            .filter_map(|entry| {
+                if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
+                    return None;
+                }
+                let path = entry.path().to_str()?;
+                if !wanted(path) {
+                    return None;
+                }
+                let digest = files.md5sum(entry)?;
+                Some((path.to_string(), digest))
             })
             .collect(),
     )
@@ -167,10 +190,6 @@ fn unescape(path: &str, problematic: bool) -> Result<String, ()> {
 fn decode(bytes: &[u8]) -> String {
     String::from_utf8(bytes.to_vec())
         .unwrap_or_else(|_| bytes.iter().map(|byte| char::from(*byte)).collect())
-}
-
-pub(super) fn md5_hex(bytes: &[u8]) -> String {
-    debmagic_common::checksums::Hash::Md5.hex(bytes)
 }
 
 #[cfg(test)]

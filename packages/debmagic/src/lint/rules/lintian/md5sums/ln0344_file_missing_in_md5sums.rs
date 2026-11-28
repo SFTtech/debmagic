@@ -28,19 +28,19 @@ impl BinaryPackageRule for FileMissingInMd5sums {
         let Some(file) = text::load(ctx) else {
             return;
         };
-        let Some(installed) = text::installed_files(ctx) else {
+        let Some(installed) = text::installed_paths(ctx) else {
             return;
         };
         let declared = text::conffiles(ctx);
         let listed: HashSet<&str> = file.entries.iter().map(|(path, _)| path.as_str()).collect();
-        for item in installed {
-            if listed.contains(item.path.as_str())
-                || declared.contains(&item.path)
-                || text::aspell_path(&item.path)
+        for path in installed {
+            if listed.contains(path.as_str())
+                || declared.contains(&path)
+                || text::aspell_path(&path)
             {
                 continue;
             }
-            ctx.diagnostic(Diagnostic::warn(item.path).with_location(text::at()));
+            ctx.diagnostic(Diagnostic::warn(path).with_location(text::at()));
         }
     }
 }

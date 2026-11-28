@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::ffi::OsStr;
 use std::fs;
 use std::io::Write;
@@ -90,13 +91,13 @@ impl Hit {
 
 /// A candidate whose verdict is known, or one that needs `file`'s description
 /// of its bytes before it can be judged.
-enum Slot {
+enum Slot<'a> {
     Settled(Option<Hit>),
-    Pending { path: PathBuf, bytes: Vec<u8> },
+    Pending { path: PathBuf, bytes: Cow<'a, [u8]> },
 }
 
 fn inspect(files: &FileTree, place: Place) -> Vec<Hit> {
-    let mut slots = Vec::new();
+    let mut slots: Vec<Slot<'_>> = Vec::new();
     for entry in files.entries() {
         if !is_content_file(entry) || entry.file_type().is_some() {
             continue;
@@ -105,7 +106,7 @@ fn inspect(files: &FileTree, place: Place) -> Vec<Hit> {
         if matches!(place, Place::Debian) && !under(path, &["debian"]) {
             continue;
         }
-        let Ok(bytes) = files.read(entry) else {
+        let Ok(bytes) = files.bytes(entry) else {
             continue;
         };
         if needs_description(&bytes, path, place) {
@@ -122,7 +123,7 @@ fn inspect(files: &FileTree, place: Place) -> Vec<Hit> {
         let buffers: Vec<&[u8]> = slots
             .iter()
             .filter_map(|slot| match slot {
-                Slot::Pending { bytes, .. } => Some(bytes.as_slice()),
+                Slot::Pending { bytes, .. } => Some(bytes.as_ref()),
                 Slot::Settled(_) => None,
             })
             .collect();

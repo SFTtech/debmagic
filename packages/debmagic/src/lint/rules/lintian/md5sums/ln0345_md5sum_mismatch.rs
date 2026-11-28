@@ -27,18 +27,24 @@ impl BinaryPackageRule for Md5sumMismatch {
         let Some(file) = text::load(ctx) else {
             return;
         };
-        let Some(installed) = text::installed_files(ctx) else {
+        // Only the files the md5sums control file lists are digested.
+        let listed: HashMap<&str, &str> = file
+            .entries
+            .iter()
+            .map(|(path, checksum)| (path.as_str(), checksum.as_str()))
+            .collect();
+        let Some(installed) = text::installed_md5sums(ctx, |path| listed.contains_key(path)) else {
             return;
         };
-        let by_path: HashMap<&str, &[u8]> = installed
+        let digests: HashMap<&str, &str> = installed
             .iter()
-            .filter_map(|item| Some((item.path.as_str(), item.bytes.as_deref()?)))
+            .map(|(path, digest)| (path.as_str(), digest.as_str()))
             .collect();
         for (path, checksum) in file.entries {
-            let Some(bytes) = by_path.get(path.as_str()) else {
+            let Some(digest) = digests.get(path.as_str()) else {
                 continue;
             };
-            if text::md5_hex(bytes) != checksum {
+            if *digest != checksum {
                 ctx.diagnostic(Diagnostic::error(path).with_location(text::at()));
             }
         }

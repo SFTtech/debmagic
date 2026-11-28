@@ -28,10 +28,10 @@ impl BinaryPackageRule for Md5sumsListsNonexistentFile {
         let Some(file) = text::load(ctx) else {
             return;
         };
-        let Some(installed) = text::installed_files(ctx) else {
+        let Some(installed) = text::installed_paths(ctx) else {
             return;
         };
-        let found: HashSet<&str> = installed.iter().map(|item| item.path.as_str()).collect();
+        let found: HashSet<&str> = installed.iter().map(String::as_str).collect();
         for (path, _) in file.entries {
             if !found.contains(path.as_str()) {
                 ctx.diagnostic(Diagnostic::error(path).with_location(text::at()));

@@ -11,8 +11,9 @@
 //! interpreter). `config` and `postrm` are scanned for any interpreter, as
 //! are `/usr/local/…` shebangs.
 
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use std::sync::LazyLock;
+use std::sync::{LazyLock, Mutex, PoisonError};
 
 use regex::Regex;
 
@@ -250,9 +251,25 @@ fn is_shell_script(hashbang: &str) -> bool {
     SHELL_BASENAME.is_match(basename(first_word(rest)))
 }
 
+/// `/{basename}\s*.*\s-\w*e\w*\b` for each basename seen, compiled once per
+/// process: the shebang of every shell script is checked with it.
+static ERREXIT_BY_BASENAME: LazyLock<Mutex<HashMap<String, Regex>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+
 fn shebang_enables_errexit(raw: &str, basename: &str) -> bool {
-    let pattern = format!(r"/{}\s*.*\s-\w*e\w*\b", regex::escape(basename));
-    Regex::new(&pattern).expect("valid regex").is_match(raw)
+    let regex = {
+        let mut cache = ERREXIT_BY_BASENAME
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        cache
+            .entry(basename.to_string())
+            .or_insert_with(|| {
+                let pattern = format!(r"/{}\s*.*\s-\w*e\w*\b", regex::escape(basename));
+                Regex::new(&pattern).expect("valid regex")
+            })
+            .clone()
+    };
+    regex.is_match(raw)
 }
 
 fn first_word(text: &str) -> &str {

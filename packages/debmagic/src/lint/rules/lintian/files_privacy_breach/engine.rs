@@ -7,7 +7,7 @@
 
 use std::collections::{BTreeMap, HashSet};
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, LazyLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use regex::{Regex, RegexBuilder};
 
@@ -46,15 +46,36 @@ pub(super) fn report(ctx: &mut BinaryPackageContext<'_>, tag: &str, severity: Se
     }
 }
 
+/// A table pattern, translated when the table is built and compiled when it is
+/// first matched against. Most patterns are only needed when a keyword or a
+/// trigger of the same entry is present, so most are never compiled.
+struct Lazy {
+    pattern: String,
+    regex: OnceLock<Regex>,
+}
+
+impl Lazy {
+    fn new(pattern: String) -> Self {
+        Lazy {
+            pattern,
+            regex: OnceLock::new(),
+        }
+    }
+
+    fn regex(&self) -> &Regex {
+        self.regex.get_or_init(|| build(&self.pattern))
+    }
+}
+
 struct Website {
     tag: String,
-    regex: Regex,
+    regex: Lazy,
     suggest: Option<String>,
 }
 
 struct Fragment {
     keyword: String,
-    regex: Regex,
+    regex: Lazy,
     /// Perl's `(?!\()(?!<)` after the match; the regex crate has no lookahead.
     not_followed_by: &'static [char],
     tag: String,
@@ -62,7 +83,7 @@ struct Fragment {
 
 struct TagAttr {
     keywords: Vec<Vec<String>>,
-    regex: Regex,
+    regex: Lazy,
 }
 
 struct Tables {
@@ -71,8 +92,9 @@ struct Tables {
     tag_attrs: BTreeMap<String, TagAttr>,
 }
 
-/// Compile a Perl pattern that lintian applies with `/xsm`.
-fn compile(pattern: &str) -> (Regex, &'static [char]) {
+/// Translate a Perl pattern that lintian applies with `/xsm` to the regex
+/// crate's syntax. Also returns the characters that may not follow a match.
+fn translate(pattern: &str) -> (String, &'static [char]) {
     let mut pattern = pattern.replace("(?!doxygen.*)", "");
     let mut not_followed_by: &'static [char] = &[];
     if let Some(stripped) = pattern.strip_suffix(r"(?!\()(?!<)") {
@@ -80,13 +102,17 @@ fn compile(pattern: &str) -> (Regex, &'static [char]) {
         not_followed_by = &['(', '<'];
     }
     let pattern = pattern.replace(r"\Z", r"\z").replace(r"\h", r"[ \t]");
-    let regex = RegexBuilder::new(&pattern)
+    (pattern, not_followed_by)
+}
+
+/// Compile a translated pattern with the flags lintian uses.
+fn build(pattern: &str) -> Regex {
+    RegexBuilder::new(pattern)
         .ignore_whitespace(true)
         .dot_matches_new_line(true)
         .multi_line(true)
         .build()
-        .unwrap_or_else(|error| panic!("privacy-breach pattern {pattern:?}: {error}"));
-    (regex, not_followed_by)
+        .unwrap_or_else(|error| panic!("privacy-breach pattern {pattern:?}: {error}"))
 }
 
 fn split_first<'a>(text: &'a str, separator: &str) -> (&'a str, Option<&'a str>) {
@@ -108,7 +134,7 @@ static TABLES: LazyLock<Tables> = LazyLock::new(|| {
             key.to_string(),
             Website {
                 tag: if tag.is_empty() { key } else { tag }.to_string(),
-                regex: compile(pattern).0,
+                regex: Lazy::new(translate(pattern).0),
                 suggest,
             },
         );
@@ -117,10 +143,10 @@ static TABLES: LazyLock<Tables> = LazyLock::new(|| {
     for line in crate::lint::data::lines(FRAGMENTS) {
         let (key, value) = split_first(line, "~~");
         let (pattern, tag) = split_first(value.unwrap_or(""), "~~");
-        let (regex, not_followed_by) = compile(pattern);
+        let (translated, not_followed_by) = translate(pattern);
         fragments.push(Fragment {
             keyword: key.to_string(),
-            regex,
+            regex: Lazy::new(translated),
             not_followed_by,
             tag: tag.unwrap_or("").trim().to_string(),
         });
@@ -142,7 +168,7 @@ static TABLES: LazyLock<Tables> = LazyLock::new(|| {
             key.to_string(),
             TagAttr {
                 keywords,
-                regex: compile(&pattern).0,
+                regex: Lazy::new(translate(&pattern).0),
             },
         );
     }
@@ -329,6 +355,7 @@ fn detect(path: &Path, basename: &str, bytes: &[u8], hits: &mut Vec<Hit>) {
 fn fragment_match<'t>(fragment: &Fragment, text: &'t str) -> Option<&'t str> {
     fragment
         .regex
+        .regex()
         .find_iter(text)
         .find(|found| {
             fragment.not_followed_by.is_empty()
@@ -356,7 +383,7 @@ fn detect_generic(
         if !triggered {
             continue;
         }
-        for captures in attr.regex.captures_iter(text) {
+        for captures in attr.regex.regex().captures_iter(text) {
             let (Some(full), Some(element), Some(url)) =
                 (captures.get(1), captures.get(2), captures.get(3))
             else {
@@ -419,7 +446,7 @@ fn check_url(
     }
 
     for (key, value) in &TABLES.websites {
-        if value.regex.is_match(website) {
+        if value.regex.regex().is_match(website) {
             if seen.insert(format!("tag-{key}")) {
                 let mut extra = Vec::new();
                 if let Some(suggest) = value.suggest.as_ref().filter(|s| !s.is_empty()) {
@@ -455,11 +482,22 @@ fn contains(haystack: &[u8], needle: &[u8]) -> bool {
 mod tests {
     use super::*;
 
+    /// Every table pattern compiles. The tables compile lazily, so this is what
+    /// catches a bad pattern in the data.
     #[test]
     fn tables_compile() {
         assert!(!TABLES.websites.is_empty());
         assert!(!TABLES.fragments.is_empty());
         assert!(!TABLES.tag_attrs.is_empty());
+        for website in TABLES.websites.values() {
+            website.regex.regex();
+        }
+        for fragment in &TABLES.fragments {
+            fragment.regex.regex();
+        }
+        for attr in TABLES.tag_attrs.values() {
+            attr.regex.regex();
+        }
     }
 
     #[test]

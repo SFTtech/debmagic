@@ -7,7 +7,7 @@
 //! `regex` crate, so three patterns are small hand-written scanners. The
 //! matched text is the first match on the unmodified line, as in Perl.
 
-use std::sync::LazyLock;
+use std::sync::{LazyLock, OnceLock};
 
 use regex::Regex;
 
@@ -18,7 +18,7 @@ const LEADING: &str = r#"(?:(?:^|[`&;(|{])\s*|(?:if|then|do|while|!)\s+|env(?:\s
 
 /// One pattern of the Check. Most are regexes; three need a scanner.
 enum Test {
-    Re(Regex),
+    Re(Re),
     /// `"(?!…)…"(*SKIP)(*F)|<<<`: `<<<` outside a double-quoted string.
     HereString,
     /// `(?<![$(])\(\(.*\)\)`
@@ -31,7 +31,7 @@ impl Test {
     /// The leftmost match in `text`, as Perl's `($text =~ /($regex)/)`.
     fn find<'a>(&self, text: &'a str) -> Option<&'a str> {
         match self {
-            Test::Re(regex) => regex.find(text).map(|found| found.as_str()),
+            Test::Re(re) => re.find(text),
             Test::HereString => here_string(text).map(|(start, end)| &text[start..end]),
             Test::DoubleParen => double_paren(text).map(|(start, end)| &text[start..end]),
             Test::DoubleBracket => double_bracket(text).map(|(start, end)| &text[start..end]),
@@ -39,8 +39,34 @@ impl Test {
     }
 }
 
-fn re(pattern: &str) -> Test {
-    Test::Re(Regex::new(pattern).expect("valid regex"))
+/// A pattern compiled on first use. Every match of the pattern contains one
+/// of `needs` (a literal, or one of several alternatives), so a text with none
+/// of them cannot match and the regex is neither run nor compiled for it. The
+/// Unicode semantics of the pattern are kept.
+struct Re {
+    pattern: String,
+    needs: &'static [&'static str],
+    regex: OnceLock<Regex>,
+}
+
+impl Re {
+    fn find<'a>(&self, text: &'a str) -> Option<&'a str> {
+        if !self.needs.iter().any(|literal| text.contains(literal)) {
+            return None;
+        }
+        let regex = self
+            .regex
+            .get_or_init(|| Regex::new(&self.pattern).expect("valid regex"));
+        regex.find(text).map(|found| found.as_str())
+    }
+}
+
+fn re(pattern: &str, needs: &'static [&'static str]) -> Test {
+    Test::Re(Re {
+        pattern: pattern.to_string(),
+        needs,
+        regex: OnceLock::new(),
+    })
 }
 
 fn lead(command: &str) -> String {
@@ -50,86 +76,96 @@ fn lead(command: &str) -> String {
 /// `source`, `echo` and the other patterns that run on the unmodified line.
 static SINGLE_QUOTE_TESTS: LazyLock<Vec<Test>> = LazyLock::new(|| {
     vec![
-        re(&lead(r"echo\s+(?:-[^e\s]+\s+)?'[^']*(\\[abcEfnrtv0])+.*?'")),
-        re(&lead(r#"source\s+["']?(?:\./|[/$\w~.-])\S*"#)),
+        re(
+            &lead(r"echo\s+(?:-[^e\s]+\s+)?'[^']*(\\[abcEfnrtv0])+.*?'"),
+            &["echo"],
+        ),
+        re(&lead(r#"source\s+["']?(?:\./|[/$\w~.-])\S*"#), &["source"]),
     ]
 });
 
 /// Checked after quoted strings are blanked, but reported from the line.
 static STRING_TESTS: LazyLock<Vec<Test>> = LazyLock::new(|| {
     vec![
-        re(r"\$\[\w+\]"),
-        re(r"\$\{\w+:\d+(?::\d+)?\}"),
-        re(r"\$\{\w+(/.+?){1,2}\}"),
-        re(r"\$\{#?\w+\[[0-9*@]+\]\}"),
-        re(r"\$\{!\w+[@*]\}"),
-        re(r"\$\{!\w+\}"),
-        re(r"(\$\(|`)\s*<\s*\S+\s*([\)`])"),
-        re(r"\$\{?RANDOM\}?\b"),
-        re(r"\$\{?(OS|MACH)TYPE\}?\b"),
-        re(r"\$\{?HOST(TYPE|NAME)\}?\b"),
-        re(r"\$\{?DIRSTACK\}?\b"),
-        re(r"\$\{?EUID\}?\b"),
-        re(r"\$\{?UID\}?\b"),
-        re(r"\$\{?SECONDS\}?\b"),
-        re(r"\$\{?BASH_[A-Z]+\}?\b"),
-        re(r"\$\{?SHELLOPTS\}?\b"),
-        re(r"\$\{?PIPESTATUS\}?\b"),
-        re(r"\$\{?SHLVL\}?\b"),
+        re(r"\$\[\w+\]", &["$["]),
+        re(r"\$\{\w+:\d+(?::\d+)?\}", &["${"]),
+        re(r"\$\{\w+(/.+?){1,2}\}", &["${"]),
+        re(r"\$\{#?\w+\[[0-9*@]+\]\}", &["${"]),
+        re(r"\$\{!\w+[@*]\}", &["${!"]),
+        re(r"\$\{!\w+\}", &["${!"]),
+        re(r"(\$\(|`)\s*<\s*\S+\s*([\)`])", &["$(", "`"]),
+        re(r"\$\{?RANDOM\}?\b", &["RANDOM"]),
+        re(r"\$\{?(OS|MACH)TYPE\}?\b", &["TYPE"]),
+        re(r"\$\{?HOST(TYPE|NAME)\}?\b", &["HOST"]),
+        re(r"\$\{?DIRSTACK\}?\b", &["DIRSTACK"]),
+        re(r"\$\{?EUID\}?\b", &["EUID"]),
+        re(r"\$\{?UID\}?\b", &["UID"]),
+        re(r"\$\{?SECONDS\}?\b", &["SECONDS"]),
+        re(r"\$\{?BASH_[A-Z]+\}?\b", &["BASH_"]),
+        re(r"\$\{?SHELLOPTS\}?\b", &["SHELLOPTS"]),
+        re(r"\$\{?PIPESTATUS\}?\b", &["PIPESTATUS"]),
+        re(r"\$\{?SHLVL\}?\b", &["SHLVL"]),
         Test::HereString,
-        re(&lead(
-            r#"echo\s+(?:-[^e\s]+\s+)?"[^"]*(\\[abcEfnrtv0])+.*?""#,
-        )),
+        re(
+            &lead(r#"echo\s+(?:-[^e\s]+\s+)?"[^"]*(\\[abcEfnrtv0])+.*?""#),
+            &["echo"],
+        ),
     ]
 });
 
 /// Checked after single-quoted strings are blanked.
 static BASHISM_TESTS: LazyLock<Vec<Test>> = LazyLock::new(|| {
     vec![
-        re(r"(?:^|\s+)function \w+(\s|\(|$)"),
-        re(r"(test|-o|-a)\s*[^\s]+\s+==\s"),
-        re(r"\[\s+[^\]]+\s+==\s"),
-        re(r"\s(\|&)"),
-        re(r"[^\\$]\{(?:[^\s\\}]*?,)+[^\\}\s]*\}"),
-        re(r"(?:^|\s+)\w+\[\d+\]="),
-        re(&lead(r"read\s+(?:-[a-qs-zA-Z\d-]+)")),
-        re(&lead(r#"read\s*(?:-\w+\s*)*(?:".*?"|'.*?')?\s*(?:;|$)"#)),
-        re(r"&>"),
-        re(r"(<&|>&)\s*((-|\d+)[^\s;|)`&\\]|[^-\d\s]+)"),
+        re(r"(?:^|\s+)function \w+(\s|\(|$)", &["function "]),
+        re(r"(test|-o|-a)\s*[^\s]+\s+==\s", &["=="]),
+        re(r"\[\s+[^\]]+\s+==\s", &["=="]),
+        re(r"\s(\|&)", &["|&"]),
+        re(r"[^\\$]\{(?:[^\s\\}]*?,)+[^\\}\s]*\}", &["{"]),
+        re(r"(?:^|\s+)\w+\[\d+\]=", &["]="]),
+        re(&lead(r"read\s+(?:-[a-qs-zA-Z\d-]+)"), &["read"]),
+        re(
+            &lead(r#"read\s*(?:-\w+\s*)*(?:".*?"|'.*?')?\s*(?:;|$)"#),
+            &["read"],
+        ),
+        re(r"&>", &["&>"]),
+        re(r"(<&|>&)\s*((-|\d+)[^\s;|)`&\\]|[^-\d\s]+)", &["&"]),
         Test::DoubleBracket,
-        re(&lead(r"select\s+\w+")),
-        re(&lead(r"echo\s+(-n\s+)?-n?en?")),
-        re(&lead(r"exec\s+-[acl]")),
-        re(r"(?:^|\s+)let\s"),
+        re(&lead(r"select\s+\w+"), &["select"]),
+        re(&lead(r"echo\s+(-n\s+)?-n?en?"), &["echo"]),
+        re(&lead(r"exec\s+-[acl]"), &["exec"]),
+        re(r"(?:^|\s+)let\s", &["let"]),
         Test::DoubleParen,
-        re(r"\$\[[^\]\[]+\]"),
-        re(r"(\[|test)\s+-a"),
-        re(r"/dev/(tcp|udp)"),
-        re(&lead(r"\w+\+=")),
-        re(&lead(r"suspend\s")),
-        re(&lead(r"caller\s")),
-        re(&lead(r"complete\s")),
-        re(&lead(r"compgen\s")),
-        re(&lead(r"declare\s")),
-        re(&lead(r"typeset\s")),
-        re(&lead(r"disown\s")),
-        re(&lead(r"builtin\s")),
-        re(&lead(r"set\s+-[BHT]+")),
-        re(&lead(r"alias\s+-p")),
-        re(&lead(r"unalias\s+-a")),
-        re(&lead(r"local\s+-[a-zA-Z]+")),
-        re(r"(?:^|\s+)\s*\(?\w*[^(\w\s]+\S*?\s*\(\)\s*([{|(]|$)"),
-        re(&lead(r"(push|pop)d(\s|$)")),
-        re(&lead(r"export\s+-[^p]")),
-        re(&lead(r"ulimit(\s|$)")),
-        re(&lead(r"shopt(\s|$)")),
-        re(&lead(r"time\s")),
-        re(&lead(r"dirs(\s|$)")),
-        re(r"(?:^|\s+)[<>]\(.*?\)"),
-        re(r"(?:^|\s+)readonly\s+-[af]"),
-        re(&lead(r"(sh|\$\{?SHELL\}?) -[rD]")),
-        re(&lead(r"(sh|\$\{?SHELL\}?) --\w+")),
-        re(&lead(r"(sh|\$\{?SHELL\}?) [-+]O")),
+        re(r"\$\[[^\]\[]+\]", &["$["]),
+        re(r"(\[|test)\s+-a", &["-a"]),
+        re(r"/dev/(tcp|udp)", &["/dev/"]),
+        re(&lead(r"\w+\+="), &["+="]),
+        re(&lead(r"suspend\s"), &["suspend"]),
+        re(&lead(r"caller\s"), &["caller"]),
+        re(&lead(r"complete\s"), &["complete"]),
+        re(&lead(r"compgen\s"), &["compgen"]),
+        re(&lead(r"declare\s"), &["declare"]),
+        re(&lead(r"typeset\s"), &["typeset"]),
+        re(&lead(r"disown\s"), &["disown"]),
+        re(&lead(r"builtin\s"), &["builtin"]),
+        re(&lead(r"set\s+-[BHT]+"), &["set"]),
+        re(&lead(r"alias\s+-p"), &["alias"]),
+        re(&lead(r"unalias\s+-a"), &["unalias"]),
+        re(&lead(r"local\s+-[a-zA-Z]+"), &["local"]),
+        re(
+            r"(?:^|\s+)\s*\(?\w*[^(\w\s]+\S*?\s*\(\)\s*([{|(]|$)",
+            &["()"],
+        ),
+        re(&lead(r"(push|pop)d(\s|$)"), &["pushd", "popd"]),
+        re(&lead(r"export\s+-[^p]"), &["export"]),
+        re(&lead(r"ulimit(\s|$)"), &["ulimit"]),
+        re(&lead(r"shopt(\s|$)"), &["shopt"]),
+        re(&lead(r"time\s"), &["time"]),
+        re(&lead(r"dirs(\s|$)"), &["dirs"]),
+        re(r"(?:^|\s+)[<>]\(.*?\)", &["("]),
+        re(r"(?:^|\s+)readonly\s+-[af]", &["readonly"]),
+        re(&lead(r"(sh|\$\{?SHELL\}?) -[rD]"), &["sh", "SHELL"]),
+        re(&lead(r"(sh|\$\{?SHELL\}?) --\w+"), &["sh", "SHELL"]),
+        re(&lead(r"(sh|\$\{?SHELL\}?) [-+]O"), &["sh", "SHELL"]),
     ]
 });
 

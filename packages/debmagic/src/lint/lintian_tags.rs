@@ -22,7 +22,7 @@ static DURABLE: LazyLock<HashSet<&'static str>> =
     LazyLock::new(|| crate::lint::data::lines(include_str!("data/tags/show-always")).collect());
 
 /// Whether lintian declares the Tag `Show-Always: yes` (by current name). An
-/// override cannot suppress such a Tag (ADR 0057).
+/// override cannot suppress such a Tag.
 pub(crate) fn is_durable(current_name: &str) -> bool {
     DURABLE.contains(current_name)
 }

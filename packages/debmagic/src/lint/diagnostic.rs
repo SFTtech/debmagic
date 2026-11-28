@@ -48,7 +48,7 @@ pub struct Diagnostic {
 }
 
 /// The override that suppressed a Diagnostic: the line of its Lintian override
-/// file, as lintian's `Hint::override` (ADR 0057).
+/// file, as lintian's `Hint::override`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Overridden {
     /// The Lintian override file in its File tree.

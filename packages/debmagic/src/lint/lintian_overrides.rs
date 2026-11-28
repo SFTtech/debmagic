@@ -2,7 +2,7 @@
 //!
 //! Mirrors `Lintian::Processable::Overrides::parse_overrides` and the
 //! `override_file` lookups of `Lintian::Processable::{Installable,Source}::Overrides`
-//! in lintian 2.139.0. Nothing here suppresses a Diagnostic (ADR 0051).
+//! in lintian 2.139.0. Nothing here suppresses a Diagnostic.
 
 use std::path::{Path, PathBuf};
 

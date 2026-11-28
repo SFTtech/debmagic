@@ -75,7 +75,7 @@ pub fn resolve_subject(path: PathBuf) -> anyhow::Result<Subject> {
 }
 
 /// What one lint run inspects: one Source tree, or the Groups the artifacts
-/// named on the command line make up (ADR 0054). A Source tree is never part
+/// named on the command line make up. A Source tree is never part
 /// of a Group.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LintTarget {

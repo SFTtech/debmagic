@@ -28,7 +28,7 @@ declare_rule! {
     ///
     /// A Group Rule: it reports on the installable that has the page, and runs
     /// once per Group, with or without a `.dsc` (lintian's per-binary check
-    /// reads no source, so a lone `.deb` is checked as well; ADR 0056).
+    /// reads no source, so a lone `.deb` is checked as well).
     /// Differences from lintian: the reliant
     /// commands are read from the reliant's Data files, which lintian reads
     /// from its installed list; for both, a sibling whose files cannot be read

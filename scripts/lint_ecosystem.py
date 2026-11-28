@@ -1,8 +1,8 @@
 """Ecosystem test for `debmagic lint`: run it on real Debian archive packages and diff it against the
 lintian results the Debian infrastructure currently reports for the same package versions.
 
-PROTOTYPE. Needs network access and `psql`; it is a measurement, not a CI gate (ADR 0012 keeps the
-vendored lintian test-suite as the CI oracle; this complements it with real-world volume).
+PROTOTYPE. Needs network access and `psql`; it is a measurement, not a CI gate (the
+vendored lintian test-suite stays the CI oracle; this complements it with real-world volume).
 
 Oracle
     UDD's `lintian_results` table (public read-only mirror, udd-mirror.debian.net). It is the data
@@ -23,7 +23,7 @@ Packages
     the header records the UDD release, the date and the oracle's lintian version.
     `tests/ecosystem/packages-400-seed20261123.txt` is the committed 400-package sample.
 
-Subjects (ADR 0016, 0017: one Subject per lint run)
+Subjects (one Subject per lint run)
     For each selected source package of the chosen release: the `.dsc` (Source package) and every
     `.deb` of the chosen architectures (Binary package), all fetched from the archive pool and
     checked against UDD's sha256 sums. Downloads overlap with linting; downloads and oracle
@@ -38,7 +38,7 @@ Comparison
                   suppressed with an override that lintian does not suppress
     - extra       debmagic reports it, lintian does not (false positive)
     - unapplied   an extra where lintian suppresses the Tag by an override and debmagic reports it as
-                  a normal hint: "override not applied", a real finding of the override pass (ADR 0057)
+                  a normal hint: "override not applied", a real finding of the override pass
     - overridden  both sides suppress the Tag by an override (debmagic's `O:` line, lintian's
                   `overridden`/`masked` row)
 
@@ -74,7 +74,7 @@ Groups (`--group on`; off by default)
     installables. Evidence: lintian 2.144 cannot emit cannot-check-whether-usr-share-doc-symlink-points-
     to-foreign-package when the link target is in the group, yet UDD reports it for binaries whose
     target is a sibling .deb of the same source. So the default lints each Subject in its own run too.
-    `--group on` lints each source package's `.dsc` and `.deb`s in one run (ADR 0054) and splits the
+    `--group on` lints each source package's `.dsc` and `.deb`s in one run and splits the
     output per Subject by `package (kind)`; its disagreements against UDD are expected for Group Rules,
     whose reference is lintian run on the same full group. A group over `--max-group-mb` falls back
     to one run per Subject.
@@ -142,8 +142,8 @@ UDD_PASSWORD = "udd-mirror"
 # lintian tag types that are visible output, versus ones lintian hides on purpose.
 VISIBLE_TYPES = frozenset({"error", "warning", "information", "pedantic", "experimental"})
 SUPPRESSED_TYPES = frozenset({"overridden", "masked"})
-# `classification` hints are lintian bookkeeping, not diagnostics (ADR 0019).
-# `O` is an overridden Diagnostic, printed by `debmagic lint --show-overrides` (ADR 0057).
+# `classification` hints are lintian bookkeeping, not diagnostics.
+# `O` is an overridden Diagnostic, printed by `debmagic lint --show-overrides`.
 OVERRIDDEN_SEVERITY = "overridden"
 SEVERITY_LETTER = {"E": "error", "W": "warning", "I": "information", "P": "pedantic", "O": OVERRIDDEN_SEVERITY}
 
@@ -718,7 +718,7 @@ def run_debmagic(debmagic: Path, subject: Path | list[Path], lint_args: list[str
     run = timed_run([str(debmagic), "lint", "--color", "never", *lint_args, *(str(path) for path in paths)], timeout)
     if run.timed_out:
         return RunResult([], False, run.metrics, f"timed out after {timeout}s")
-    # Exit 1 means "found errors" as well as "crashed" (ADR 0011); only the closing summary tells them apart.
+    # Exit 1 means "found errors" as well as "crashed"; only the closing summary tells them apart.
     if not FINISHED_LINE.search(run.output):
         return RunResult([], False, run.metrics, run.output.strip()[-600:] or f"exit {run.returncode}, no output")
     return RunResult(parse_diagnostics(run.output), True, run.metrics)
@@ -1382,7 +1382,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="off",
         help=(
             "off (default): one debmagic run per Subject, as the UDD oracle runs lintian; on: one run per\n"
-            "source package (ADR 0054), compared against the same per-file oracle (see Groups above)"
+            "source package, compared against the same per-file oracle (see Groups above)"
         ),
     )
     parser.add_argument(
@@ -1548,7 +1548,7 @@ def render_packet(tag: str, code: str, records: list[Disagreement], rule_path: s
         f"- Packet: `{rel}`",
         "- Closure: the Rule's native tests cover the new behaviour, `just lint-parity` is unchanged, "
         "and the Subject below no longer disagrees (an `override not applied` extra is the override pass, "
-        "ADR 0057, not the Rule)",
+        "not the Rule)",
         "",
         "## Reproduce",
         "",

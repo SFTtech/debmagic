@@ -1,4 +1,4 @@
-//! Group assembly (ADR 0054): the artifacts of one source package and version.
+//! Group assembly: the artifacts of one source package and version.
 //!
 //! Lintian's `bin/lintian` and `Lintian::Pool`: every path on the command line
 //! becomes a Group; a `.changes`, `.buildinfo` or `.dsc` pulls in the sibling

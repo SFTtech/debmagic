@@ -85,7 +85,7 @@ impl DiagnosticSink {
     }
 
     /// A sink for a context that reads files and reports nothing, such as the
-    /// override pass (ADR 0057) reading a Lintian override file.
+    /// override pass reading a Lintian override file.
     fn reading(processable_type: ProcessableType) -> Self {
         Self {
             code: Code::from_static("XX0000"),
@@ -336,7 +336,7 @@ impl<'a> BinaryPackageContext<'a> {
     }
 
     /// A context for the override pass: reads the Lintian override file, reports
-    /// nothing (ADR 0057).
+    /// nothing.
     pub(super) fn reading(data: &'a BinaryPackageData) -> Self {
         Self {
             data,
@@ -508,7 +508,7 @@ impl<'a> BinaryPackageContext<'a> {
     }
 
     /// Installed Lintian override file (`usr/share/lintian/overrides/<package>`,
-    /// else `.gz`), parsed; the override pass applies it (ADR 0057). `None` when
+    /// else `.gz`), parsed; the override pass applies it. `None` when
     /// there is none, and after a global File tree failure (returned from
     /// [`Self::finish`]).
     pub fn lintian_overrides(&mut self) -> Option<LintianOverrides> {
@@ -733,7 +733,7 @@ impl<'a> SourceContext<'a> {
         }
     }
 
-    /// Contexts for the override pass (ADR 0057): read the Lintian override
+    /// Contexts for the override pass: read the Lintian override
     /// file of a Source tree or Source package, report nothing.
     pub(super) fn reading_tree(data: &'a SourceTreeData) -> Self {
         Self {

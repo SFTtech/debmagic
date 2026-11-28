@@ -10,7 +10,7 @@
 //! and nothing else, so an ELF whose Section header table or symbol tables
 //! are damaged or cut off still has facts (`file(1)` and `readelf` still name
 //! it). File type is a different, cheaper classification every File tree
-//! computes; see ADR 0047.
+//! computes.
 
 use std::borrow::Cow;
 use std::collections::BTreeMap;

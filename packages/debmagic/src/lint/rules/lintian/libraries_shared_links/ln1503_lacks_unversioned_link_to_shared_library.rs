@@ -31,7 +31,7 @@ declare_rule! {
     ///
     /// A Group Rule of an installable (lintian's per-binary Check): it needs
     /// the `-dev` packages' files and no source, so it also runs on a lone
-    /// `.deb` (ADR 0056), where it has no `-dev` package and reports nothing.
+    /// `.deb`, where it has no `-dev` package and reports nothing.
     /// The Diagnostic attaches to the library's installable (binary or udeb),
     /// as in lintian.
     LacksUnversionedLinkToSharedLibrary,

@@ -178,27 +178,27 @@ pub trait BinaryPackageRule: RuleAccess {
 /// Applicability to a processable's Lintian override file: a Source tree, a
 /// Source package and a Binary package. The override pass runs these after the
 /// other Rules and the matching, because they need what the pass left unmatched
-/// (ADR 0057). Their Diagnostics cannot be overridden.
+///. Their Diagnostics cannot be overridden.
 pub trait OverrideRule: RuleAccess {
     fn run(&self, ctx: &mut super::override_pass::OverrideContext<'_>);
 }
 
-/// Applicability to the Changes file of a Group (ADR 0055).
+/// Applicability to the Changes file of a Group.
 pub trait ChangesRule: RuleAccess {
     fn run(&self, ctx: &mut super::group_context::ChangesContext<'_>);
 }
 
-/// Applicability to the Buildinfo file of a Group (ADR 0055).
+/// Applicability to the Buildinfo file of a Group.
 pub trait BuildinfoRule: RuleAccess {
     fn run(&self, ctx: &mut super::group_context::BuildinfoContext<'_>);
 }
 
 /// Applicability to a whole Group: runs once per Group that has a `.dsc`, and
-/// its Diagnostics attach to the Source package (ADR 0055).
+/// its Diagnostics attach to the Source package.
 ///
 /// A Rule that reports on an installable (lintian's per-binary checks, which
 /// get the Group's source as an optional field) overrides
-/// [`Self::runs_without_dsc`] and runs for every Group (ADR 0056). It must
+/// [`Self::runs_without_dsc`] and runs for every Group. It must
 /// then treat a missing `.dsc` (`ctx.dsc()`, `ctx.debian_control()`) as
 /// "not known", not as "no source".
 pub trait GroupRule: RuleAccess {

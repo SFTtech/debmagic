@@ -15,7 +15,7 @@ declare_rule! {
     /// Tag whatever its display level, so `--select unused-override` reports
     /// them. Applies to the Source tree, Source package and Binary package. An
     /// override of a Tag no Rule ran for, of an architecture the processable is
-    /// not, or of a Show-Always Tag is not reported (ADR 0057).
+    /// not, or of a Show-Always Tag is not reported.
     UnusedOverride,
     code = "LN1779",
     tag = "unused-override",

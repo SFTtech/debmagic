@@ -1,4 +1,4 @@
-//! Rules for lintian's `lintian` Check: the reports on override files (ADR 0057).
+//! Rules for lintian's `lintian` Check: the reports on override files.
 
 mod ln1779_unused_override;
 mod ln1780_mismatched_override;

@@ -163,7 +163,7 @@ mod tests {
     }
 
     /// Lintian points at a directory with its trailing `/`, so an override
-    /// written as `[etc/audit/]` suppresses this Diagnostic (ADR 0057).
+    /// written as `[etc/audit/]` suppresses this Diagnostic.
     #[test]
     fn directory_pointer_keeps_trailing_slash_for_overrides() {
         let tester = BinaryPackageTester::new(

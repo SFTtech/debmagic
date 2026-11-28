@@ -394,7 +394,7 @@ def vendor_build_spec(
     old time stamps). `pre-build` (the filled one from `work`) is kept only when it makes
     orig tarballs next to the source directory, which the `.dsc` lists as components
     and signatures; what it does to the sources is in the tree already. The harness
-    reads all three (`tests/common/mod.rs`, ADR 0039). `post-build` (filled, see
+    reads all three (`tests/common/mod.rs`). `post-build` (filled, see
     `vendor_post_build`) is kept for every recipe that has one, and `upload-type`
     for a source-only upload.
     """
@@ -466,7 +466,7 @@ def write_origin(dest: Path, version: str, commit: str, recipe_rel: str, skeleto
                 "build-spec overlay. Does not build .deb / .dsc / .changes; tests do that.",
                 "Source-tree Parity lints a filled tree as-is. Binary-package Parity",
                 "assembles deb skeletons. Source-package Parity assembles a .dsc from a",
-                "filled Source tree (ADR 0039). eval/hints is transcribed verbatim.",
+                "filled Source tree. eval/hints is transcribed verbatim.",
                 "",
                 "License: GPL-2+ (same as lintian; see lintian debian/copyright).",
                 "",
@@ -627,12 +627,12 @@ def catalogued_tags_with_impl(rules_dir: Path, *needles: str) -> set[str]:
 
 
 def catalogued_source_package_tags(rules_dir: Path) -> set[str]:
-    """Source Rules, and OverrideRules (the override pass runs on the Source package, ADR 0057)."""
+    """Source Rules, and OverrideRules (the override pass runs on the Source package)."""
     return catalogued_tags_with_impl(rules_dir, "impl SourceRule for", "impl OverrideRule for")
 
 
 def catalogued_binary_package_tags(rules_dir: Path) -> set[str]:
-    """Binary-package Rules, and Group Rules that run on a lone `.deb` (`runs_without_dsc`, ADR 0056)."""
+    """Binary-package Rules, and Group Rules that run on a lone `.deb` (`runs_without_dsc`)."""
     return catalogued_tags_with_impl(rules_dir, "impl BinaryPackageRule for", "fn runs_without_dsc")
 
 
@@ -656,7 +656,7 @@ def catalogued_group_tags(rules_dir: Path) -> set[str]:
 
 
 def catalogued_override_tags(rules_dir: Path) -> set[str]:
-    """Tags of the OverrideRule files (the override pass reports, ADR 0057). Not a Subject of a recipe."""
+    """Tags of the OverrideRule files (the override pass reports). Not a Subject of a recipe."""
     return catalogued_tags_with_impl(rules_dir, "impl OverrideRule for")
 
 
@@ -812,7 +812,7 @@ def applies_to_group(
     """A hint a Group lint shows: per processable type, a Tag of the Rule kind that produces it.
 
     Changes and Buildinfo Rules produce `changes` and `buildinfo` hints; a Group Rule produces `source`
-    hints (its Diagnostics attach to the Source package, ADR 0055) or `binary`/`udeb` hints (it reports on
+    hints (its Diagnostics attach to the Source package) or `binary`/`udeb` hints (it reports on
     an installable) or `changes` hints (it needs the `.dsc` to judge the `.changes`). See `applies_to_group` in
     `tests/common/mod.rs`.
     """

@@ -23,7 +23,7 @@ declare_rule! {
     /// of the Group is fine (the Group is one source). Udebs are skipped.
     ///
     /// A Group Rule that runs on a Group without a `.dsc` (lintian's per-binary
-    /// check, which gets the source only when there is one, ADR 0056). With a
+    /// check, which gets the source only when there is one). With a
     /// `.dsc` this Rule is silent: `usr-share-doc-symlink-to-foreign-package`
     /// decides from the source's `debian/control` instead.
     CannotCheckWhetherUsrShareDocSymlinkPointsToForeignPackage,

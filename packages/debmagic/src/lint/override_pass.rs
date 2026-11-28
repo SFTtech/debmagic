@@ -1,4 +1,4 @@
-//! The override pass of ADR 0057: matches one processable's Lintian override
+//! The override pass: matches one processable's Lintian override
 //! file against that processable's Diagnostics, as the per-processable loop of
 //! lintian's `Lintian::Group::process` does.
 //!

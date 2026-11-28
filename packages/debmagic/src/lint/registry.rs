@@ -4297,7 +4297,7 @@ mod tests {
     use crate::lint::rule::Code;
 
     /// Codes of the Rules whose source file implements `trait_name`, read from
-    /// `src/lint/rules/` (one `declare_rule!` per file, ADR 0027). The lists
+    /// `src/lint/rules/` (one `declare_rule!` per file). The lists
     /// above must register exactly these, so a new Rule file needs no edit here.
     fn implemented_codes(trait_name: &str) -> BTreeSet<String> {
         let code = Regex::new(r#"code\s*=\s*"([A-Z]{2}\d{4})""#).expect("code regex");

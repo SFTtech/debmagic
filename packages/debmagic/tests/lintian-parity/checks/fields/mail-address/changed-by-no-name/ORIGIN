@@ -6,6 +6,6 @@ Filled test-package sources from t/templates + t/skeletons and the
 build-spec overlay. Does not build .deb / .dsc / .changes; tests do that.
 Source-tree Parity lints a filled tree as-is. Binary-package Parity
 assembles deb skeletons. Source-package Parity assembles a .dsc from a
-filled Source tree (ADR 0039). eval/hints is transcribed verbatim.
+filled Source tree. eval/hints is transcribed verbatim.
 
 License: GPL-2+ (same as lintian; see lintian debian/copyright).

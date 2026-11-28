@@ -1,5 +1,5 @@
 //! Contexts of the Rules that inspect the artifacts of a Group: the Changes
-//! file, the Buildinfo file, and the Group as a whole (ADR 0055).
+//! file, the Buildinfo file, and the Group as a whole.
 
 use std::path::{Path, PathBuf};
 

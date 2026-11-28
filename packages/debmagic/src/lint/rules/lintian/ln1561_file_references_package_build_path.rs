@@ -18,7 +18,7 @@ declare_rule! {
     /// the file's contents, as lintian's `bytes_match` on the quoted path.
     /// Symbolic links and other non-regular entries are not read; hardlinks
     /// are. An installable's Check in lintian, so it also runs on a lone
-    /// `.deb` (ADR 0056), where the `.buildinfo` is what decides.
+    /// `.deb`, where the `.buildinfo` is what decides.
     FileReferencesPackageBuildPath,
     code = "LN1561",
     tag = "file-references-package-build-path",

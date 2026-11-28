@@ -13,7 +13,7 @@ Reads three things, all offline:
 
 Optionally (`--run`, or `--test-log FILE`) it includes the pass/fail of the generated Parity tests.
 
-Parity is Tag-set parity on the vendored recipes (ADR 0007, 0012): this report measures that, not
+Parity is Tag-set parity on the vendored recipes: this report measures that, not
 output format, not message text, and not live lintian.
 """
 
@@ -62,7 +62,7 @@ TRAIT_TO_KIND = {
     "GroupRule": "group",
     "OverrideRule": "override",
 }
-# Tags the override pass reports (ADR 0057): not a Rule of a Subject kind of their own.
+# Tags the override pass reports: not a Rule of a Subject kind of their own.
 OVERRIDE_PASS_TAGS = frozenset({"unused-override", "mismatched-override"})
 SEVERITY_CONSTRUCTOR = re.compile(r"Diagnostic::(error|warn)\(|Severity::(Error|Warning|Info|Pedantic)")
 SEVERITY_NAMES = {"error": "error", "warn": "warning", "Error": "error", "Warning": "warning"}
@@ -89,7 +89,7 @@ KIND_TO_TEST = {
 def hint_kind(rule_kinds: set[str], ptype: str) -> str | None:
     """The Applicability of a Rule that produces a hint of this processable type, if the Rule has it.
 
-    A Group Rule's Diagnostics attach to the Source package (`source` hints, ADR 0055) or to an
+    A Group Rule's Diagnostics attach to the Source package (`source` hints) or to an
     installable (`binary`, `udeb`) or to the `.changes` (`changes`, when it needs the `.dsc` to judge it).
     """
     kind = PTYPE_TO_KIND.get(ptype)
@@ -116,7 +116,7 @@ class LintianTag:
 
     @property
     def rule_eligible(self) -> bool:
-        """Classification tags are not Rules (ADR 0019)."""
+        """Classification tags are not Rules."""
         return self.severity != "classification"
 
     @property
@@ -241,10 +241,10 @@ def parse_rust_rules(root: Path, prefix: str) -> list[RustRule]:
         for trait, struct in IMPL_TRAIT.findall(text):
             if struct == rule.struct:
                 rule.kinds.add(TRAIT_TO_KIND[trait])
-        # A Group Rule that runs on a lone `.deb` (ADR 0056) also reports on binary packages.
+        # A Group Rule that runs on a lone `.deb` also reports on binary packages.
         if "group" in rule.kinds and "fn runs_without_dsc" in text:
             rule.kinds.add("binary")
-        # An OverrideRule runs on the Source tree, the Source package and the Binary package (ADR 0057).
+        # An OverrideRule runs on the Source tree, the Source package and the Binary package.
         if "override" in rule.kinds:
             rule.kinds.update({"source", "binary"})
         # Severity lives on the Diagnostic constructor, not in `declare_rule!`; scan non-test code.
@@ -650,7 +650,7 @@ def render_header(report: dict) -> list[str]:
 
 
 def render_coverage(report: dict) -> list[str]:
-    lines = ["", "== Rule coverage (lintian tags that could be Rules; classification tags excluded, ADR 0019)"]
+    lines = ["", "== Rule coverage (lintian tags that could be Rules; classification tags excluded)"]
     rows = [
         [name, str(v["implemented"]), str(v["total"]), pct(v["implemented"], v["total"])]
         for name, v in report["tag_coverage"].items()

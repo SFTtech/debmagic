@@ -14,7 +14,7 @@ declare_rule! {
     /// the override file and the override's line. Warning, default Selection, as
     /// lintian. Applies to the Source tree, Source package and Binary package.
     /// Rules with partial coverage of a Tag can report a mismatch lintian would
-    /// not (ADR 0057).
+    /// not.
     MismatchedOverride,
     code = "LN1780",
     tag = "mismatched-override",

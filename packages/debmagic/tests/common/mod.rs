@@ -158,10 +158,10 @@ fn discover_parity_recipes(root: &Path) -> Vec<PathBuf> {
 
 /// Tags of catalogued LN Rules, read from `src/lint/rules/lintian/`.
 /// How many Rules a lint of a Source tree runs, read from the Rule sources
-/// (one `declare_rule!` per file, ADR 0027) instead of a hand-kept number:
+/// (one `declare_rule!` per file) instead of a hand-kept number:
 /// `default` is every non-experimental, default-selected Rule that implements
 /// `SourceRule` or `OverrideRule` (a Source tree runs both); `ln` is every LN Rule
-/// that implements one (what `--select LN` runs, ADR 0014).
+/// that implements one (what `--select LN` runs).
 pub struct SourceRuleCounts {
     pub default: usize,
     pub ln: usize,
@@ -363,14 +363,14 @@ fn applies_to_binary_package(processable_type: &str) -> bool {
 }
 
 /// Tags of LN Rules that implement `BinaryPackageRule`, and of Group Rules
-/// that run on a lone `.deb` (`runs_without_dsc`, ADR 0056): a deb recipe is
+/// that run on a lone `.deb` (`runs_without_dsc`): a deb recipe is
 /// linted as a Group of one installable.
 pub fn catalogued_binary_package_tags() -> HashSet<String> {
     catalogued_tags_with_impl(&["impl BinaryPackageRule for", "fn runs_without_dsc"])
 }
 
 /// Tags of LN Rules that implement `SourceRule` or `OverrideRule` (the override
-/// pass runs on the Source package too, ADR 0057).
+/// pass runs on the Source package too).
 pub fn catalogued_source_package_tags() -> HashSet<String> {
     catalogued_tags_with_impl(&["impl SourceRule for", "impl OverrideRule for"])
 }
@@ -517,7 +517,7 @@ fn recipe_rel(root: &Path, recipe: &Path) -> String {
         .replace('\\', "/")
 }
 
-/// The override Tags of ADR 0057: the two Parity cases that compare the
+/// The override Tags: the two Parity cases that compare the
 /// override pass's own Diagnostics.
 const OVERRIDE_TAGS: &[&str] = &["unused-override", "mismatched-override"];
 
@@ -545,7 +545,7 @@ fn source_override_file_words(recipe: &Path) -> Vec<String> {
 /// them is an override Tag, also the current Tags its Source override file names
 /// that have Rules, as `checks/lintian/override-not-used` needs: lintian had
 /// `cute-field` enabled there and it emits nothing, so only a selected Rule
-/// makes the override unused (ADR 0057).
+/// makes the override unused.
 fn selected_tags(
     recipe: &Path,
     expected: &[ParityHint],
@@ -567,7 +567,7 @@ fn selected_tags(
     selected
 }
 
-/// A recipe that carries a Source override file (ADR 0057): the run without
+/// A recipe that carries a Source override file: the run without
 /// `--show-overrides` prints a subset of the hints of the run with it, and no
 /// overridden (`O:`) hint of the shown run is printed by the hidden one. `keep`
 /// is the filter the hints are compared with.
@@ -1671,7 +1671,7 @@ fn unmet_test_architectures(recipe: &Path) -> Option<String> {
     (!line.split_whitespace().any(matches)).then(|| line.trim().to_string())
 }
 
-/// Binary-package recipes whose expected hints of an opted-in Group Rule (ADR 0056) need more than
+/// Binary-package recipes whose expected hints of an opted-in Group Rule need more than
 /// the one `.deb` the binary harness lints: a sibling `-dev` package, or a `.buildinfo`. The Group-level
 /// harness (`assert_group_parity`) judges them; the binary harness cannot.
 const RECIPES_NEEDING_THE_GROUP_HARNESS: &[(&str, &str)] = &[
@@ -2927,7 +2927,7 @@ fn rewrite_minified_js_post_test(recipe_rel: &str, hints: &mut [ParityHint]) {
     }
 }
 
-// --- Group Parity (ADR 0055) -------------------------------------------------------------------
+// --- Group Parity -------------------------------------------------------------------
 
 /// Tags of the Rules that inspect the artifacts of a Group, by Rule kind.
 pub struct GroupTags {

@@ -371,7 +371,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"# {tag.tag} (lintian {version})")
     print_tag(tag, find_tag_file(lintian, tag.tag))
     if not tag.rule_eligible:
-        print("\nClassification tag: not a Rule (ADR 0019). Stop.")
+        print("\nClassification tag: not a Rule. Stop.")
         return 0
     ln_rules = report.parse_rust_rules(ROOT, "LN")
     code = print_catalogue(tag, tags, ln_rules)

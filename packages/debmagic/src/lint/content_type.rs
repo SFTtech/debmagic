@@ -1,6 +1,6 @@
 //! Content type of a file from its leading bytes, for the formats lint Rules
 //! tell apart: the image formats of lintian's `images/filenames` Check, Matlab
-//! v4 to v7.3 files, PDF and PostScript. No `file(1)` is run (ADR 0041); a
+//! v4 to v7.3 files, PDF and PostScript. No `file(1)` is run; a
 //! file whose bytes are none of these has no content type. The text verdicts
 //! `ASCII text` and generic INI configuration are separate functions, since
 //! they are not content types of their own.

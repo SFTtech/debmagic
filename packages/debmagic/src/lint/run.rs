@@ -34,7 +34,7 @@ pub struct LintResult {
     pub diagnostics: Vec<Diagnostic>,
     pub outcome: LintOutcome,
     pub rules: usize,
-    /// Overrides of Show-Always Tags, which cannot suppress anything (ADR 0057).
+    /// Overrides of Show-Always Tags, which cannot suppress anything.
     pub ignored_overrides: usize,
     pub elapsed: Duration,
     /// Size of the thread pool the run used, for running Rules and for
@@ -86,11 +86,11 @@ pub fn run_lint(intent: &LintIntent) -> anyhow::Result<LintResult> {
     Ok(result)
 }
 
-/// Lint the Groups the artifacts make up (ADR 0054, 0055). Each artifact of a
+/// Lint the Groups the artifacts make up. Each artifact of a
 /// Group is a Subject of its own kind, opened only when a selected Rule
 /// applies to it; the Group as a whole is the Subject of the Group Rules.
 /// After a Group's Rules ran, the override pass applies each processable's
-/// Lintian override file (ADR 0057).
+/// Lintian override file.
 fn run_artifact_lint(
     intent: &LintIntent,
     subjects: &[Subject],
@@ -262,7 +262,7 @@ struct RuleProduct {
 }
 
 /// Which part of the run a stage ran on: the processable its Diagnostics
-/// belong to, before the override pass attributes them (ADR 0057).
+/// belong to, before the override pass attributes them.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Owner {
     Changes,
@@ -272,7 +272,7 @@ enum Owner {
     /// The installable at this index of the Group.
     Binary(usize),
     /// The `OverrideRule`s of one processable: their Diagnostics belong to no
-    /// processable's override pass (ADR 0057).
+    /// processable's override pass.
     Override,
 }
 
@@ -286,7 +286,7 @@ struct Stage {
 }
 
 /// A processable the override pass covers: one Source tree, the Source package
-/// of a Group, or one installable of a Group (ADR 0057).
+/// of a Group, or one installable of a Group.
 enum Processable<'g> {
     Tree(&'g SourceTreeData),
     /// The Source package of the Group, with the Group's source name.
@@ -334,7 +334,7 @@ impl Processable<'_> {
     /// Whether a Rule of a stage with `owner` ran on this processable. A Group
     /// stage holds exactly the Group Rules that ran on the Group: all selected
     /// ones for a Group with a `.dsc`, and for a lone `.deb` only those that
-    /// opt in with `runs_without_dsc` (ADR 0056). Each of them counts as run on
+    /// opt in with `runs_without_dsc`. Each of them counts as run on
     /// the Source package and on every installable of its Group, as lintian's
     /// Checks do; a Rule that reports nothing there leaves its override unused.
     fn ran_here(&self, owner: Owner) -> bool {
@@ -365,8 +365,8 @@ impl Processable<'_> {
     /// it is read from fails: lintian then has no override file (its
     /// `Processable::overrides` is empty) and does not fail the run, so that
     /// failure is left to the Rules that read the same File tree. This departs
-    /// from ADR 0057's "runtime failure" for a File tree (see the report of the
-    /// task). An extract failure of a Source package is still a runtime failure.
+    /// from treating it as a "runtime failure" for a File tree. An extract failure of a
+    /// Source package is still a runtime failure.
     fn load_overrides(&self) -> anyhow::Result<Option<LintianOverrides>> {
         match self {
             Self::Tree(data) => {
@@ -395,7 +395,7 @@ impl Processable<'_> {
 }
 
 /// Applies the override pass to each processable of a Group or Source tree,
-/// after all its Rules ran (ADR 0057). Sets `overridden` on the Diagnostics
+/// after all its Rules ran. Sets `overridden` on the Diagnostics
 /// that a line of the processable's override file suppressed, in place. The
 /// override file is read only for a processable with Diagnostics or when an
 /// `OverrideRule` is selected. The selected `OverrideRule`s then run on the
@@ -506,9 +506,8 @@ fn drop_repeated_hints(processables: &[Processable<'_>], stages: &mut [Stage]) {
     }
 }
 
-/// Runs the selected `OverrideRule`s on one processable's pass outcome (ADR
-/// 0057). Their Diagnostics form a stage that no processable claims, so they
-/// are never overridden.
+/// Runs the selected `OverrideRule`s on one processable's pass outcome. Their
+/// Diagnostics form a stage that no processable claims, so they are never overridden.
 fn run_override_rules(
     rules: &[&dyn OverrideRule],
     processable: &Processable<'_>,
@@ -546,7 +545,7 @@ fn any_selected<R: RuleAccess + ?Sized>(rules: &[&R], selected: &HashSet<Code>) 
 
 /// The Group Rules that run on `group`: all of them for a Group with a `.dsc`;
 /// for a Group without one (a lone `.deb`, or `.deb`s and a `.changes`), only
-/// the Rules that report on an installable (ADR 0056).
+/// the Rules that report on an installable.
 fn applicable_group_rules<'r>(
     rules: &[&'r dyn GroupRule],
     group: &Group,
@@ -627,7 +626,7 @@ fn run_stage<R: RuleAccess + ?Sized>(
 /// Put the stages of a run together: diagnostics in stage order, one timing
 /// per Rule (the time it took on every Subject it ran on), and the Rules that
 /// ran at least once. If Selection is non-empty and no Rule ran anywhere, the
-/// selected Rules do not apply to what was named (ADR 0018).
+/// selected Rules do not apply to what was named.
 fn finish_run(
     intent: &LintIntent,
     stages: Vec<Stage>,
@@ -681,7 +680,7 @@ fn apply_severity_remaps(diagnostics: &mut [Diagnostic], intent: &LintIntent) {
     }
 }
 
-/// FailOn counts the Diagnostics no override suppressed (ADR 0057).
+/// FailOn counts the Diagnostics no override suppressed.
 pub(crate) fn outcome_for(diagnostics: &[Diagnostic], fail_on: &HashSet<Severity>) -> LintOutcome {
     if diagnostics
         .iter()
@@ -694,7 +693,7 @@ pub(crate) fn outcome_for(diagnostics: &[Diagnostic], fail_on: &HashSet<Severity
     }
 }
 
-/// The lines `debmagic lint` prints for the Diagnostics (ADR 0057). An
+/// The lines `debmagic lint` prints for the Diagnostics. An
 /// overridden Diagnostic is printed only under `Show`, with the letter `O`, and
 /// after an `N:` line holding its justification when there is one.
 pub fn format_diagnostic_lines(diagnostics: &[Diagnostic], mode: OverrideMode) -> Vec<String> {
@@ -717,7 +716,7 @@ pub fn format_diagnostic_lines(diagnostics: &[Diagnostic], mode: OverrideMode) -
     lines
 }
 
-/// The `N:` lines after the summary (ADR 0057): under `Hide`, what was
+/// The `N:` lines after the summary: under `Hide`, what was
 /// overridden and which overrides are unused; and the note on Show-Always
 /// overrides that were ignored. Nothing under `Off`.
 pub fn format_override_notes(result: &LintResult, mode: OverrideMode) -> Vec<String> {
@@ -759,7 +758,7 @@ pub fn format_override_notes(result: &LintResult, mode: OverrideMode) -> Vec<Str
     lines
 }
 
-/// Whether a Diagnostic is `unused-override` or `mismatched-override` (ADR 0057).
+/// Whether a Diagnostic is `unused-override` or `mismatched-override`.
 fn is_override_report(diagnostic: &Diagnostic) -> bool {
     matches!(diagnostic.tag.0, "unused-override" | "mismatched-override")
 }
@@ -827,7 +826,7 @@ pub(crate) fn override_pointer_path(path: &Path) -> String {
 
 /// Ruff-style end-of-run line: `All checks passed!` or `Found 1 warning.`
 pub fn format_summary(diagnostics: &[Diagnostic]) -> String {
-    // Overridden Diagnostics are not counted (ADR 0057).
+    // Overridden Diagnostics are not counted.
     let reported: Vec<&Diagnostic> = diagnostics
         .iter()
         .filter(|diagnostic| !diagnostic.is_overridden())
@@ -1672,7 +1671,7 @@ Rules
         )?;
         let selected = resolve_selected_codes(&["LN".to_string()], &[])?;
         // A Code prefix selects every Rule with that prefix, default-selected
-        // or not, sorted by Code (ADR 0014).
+        // or not, sorted by Code.
         let mut expected: Vec<Code> = crate::lint::registry::all_rules()
             .iter()
             .map(|rule| rule.code())
@@ -1932,7 +1931,7 @@ mod override_application_tests {
     const LIBRARY: &str = "lacks-unversioned-link-to-shared-library";
 
     /// lintian's `Group::process` judges an override of an installable-reporting
-    /// Group Rule's Tag on each installable, the Group having a `.dsc` (ADR 0056):
+    /// Group Rule's Tag on each installable, the Group having a `.dsc`:
     /// the Rule ran on the binary, so an override whose pattern matches is used.
     #[test]
     fn group_rule_override_on_installable_is_used_when_it_matches() -> anyhow::Result<()> {
@@ -1957,7 +1956,7 @@ mod override_application_tests {
     }
 
     /// The same Group Rule ran on the binary and reported nothing matching the
-    /// pattern, so lintian's `unused-override` applies (ADR 0057, LN1779).
+    /// pattern, so lintian's `unused-override` applies (LN1779).
     #[test]
     fn group_rule_override_on_installable_is_unused_when_nothing_matches() -> anyhow::Result<()> {
         let (_dir, data) = binary_with_overrides(&format!("{LIBRARY} usr/lib/*/libother.so\n"))?;

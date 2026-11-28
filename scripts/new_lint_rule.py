@@ -243,7 +243,7 @@ def main(argv: list[str] | None = None) -> int:
     if tag is None:
         raise SystemExit(f"no Tag {args.tag!r} in the pinned lintian (check `just lintian-tag {args.tag}`)")
     if not tag.rule_eligible:
-        raise SystemExit(f"{args.tag} is a classification tag, not a Rule (ADR 0019)")
+        raise SystemExit(f"{args.tag} is a classification tag, not a Rule")
     rules = report.parse_rust_rules(ROOT, "LN")
     if any(rule.tag == tag.tag for rule in rules):
         raise SystemExit(f"{tag.tag} is already catalogued")

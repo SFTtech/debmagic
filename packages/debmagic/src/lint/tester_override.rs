@@ -1,4 +1,4 @@
-//! Rule-level harness for `OverrideRule`s (ADR 0057).
+//! Rule-level harness for `OverrideRule`s.
 //!
 //! A case is one processable's Lintian override file, the Tags of the Rules
 //! that ran on it, and the Diagnostics those Rules made. The harness runs the

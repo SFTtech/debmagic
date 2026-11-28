@@ -78,19 +78,25 @@ pub(super) fn state(ctx: &mut SourceContext<'_>) -> Arc<PoState> {
 
 /// The Subject's `debian/` files staged for host tools, built once and shared
 /// by the PO Rules. `None` when staging fails.
-pub(super) fn staged(ctx: &mut SourceContext<'_>) -> Arc<Option<Sandbox>> {
-    ctx.shared_once(|ctx| match ctx.files() {
-        Some(tree) => {
-            let entries: Vec<&Entry> = tree
-                .entries()
-                .iter()
-                .filter(|entry| entry.path().starts_with("debian"))
-                .collect();
-            Sandbox::new(tree, &entries).ok()
-        }
-        None => None,
+pub(super) fn staged(ctx: &mut SourceContext<'_>) -> Arc<StagedDebian> {
+    ctx.shared_once(|ctx| {
+        StagedDebian(match ctx.files() {
+            Some(tree) => {
+                let entries: Vec<&Entry> = tree
+                    .entries()
+                    .iter()
+                    .filter(|entry| entry.path().starts_with("debian"))
+                    .collect();
+                Sandbox::new(tree, &entries).ok()
+            }
+            None => None,
+        })
     })
 }
+
+/// The result of [`staged`]. A type of its own because `shared_once` keys its
+/// slots by type, and a bare `Option<Sandbox>` could collide with another user.
+pub(super) struct StagedDebian(pub(super) Option<Sandbox>);
 
 fn analyse(ctx: &mut SourceContext<'_>, tree: &FileTree) -> PoState {
     if !files::has_translatable_template(tree) {
@@ -111,7 +117,7 @@ fn analyse(ctx: &mut SourceContext<'_>, tree: &FileTree) -> PoState {
     };
 
     let staged = staged(ctx);
-    let Some(sandbox) = &*staged else {
+    let Some(sandbox) = &staged.0 else {
         state.pot = Pot::Unknown;
         return state;
     };

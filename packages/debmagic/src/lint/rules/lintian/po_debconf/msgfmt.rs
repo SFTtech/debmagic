@@ -84,7 +84,7 @@ pub(super) fn statistics(ctx: &mut SourceContext<'_>) -> Arc<Statistics> {
             Vec::new()
         } else {
             let staged = pot::staged(ctx);
-            match staged.as_ref() {
+            match staged.0.as_ref() {
                 Some(sandbox) => run_all(sandbox, &msgfmt, &paths),
                 None => vec![None; paths.len()],
             }

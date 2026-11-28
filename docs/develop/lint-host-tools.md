@@ -1,4 +1,4 @@
-# Lint: host tool dependencies and known CI limitations
+# Lint: host tool dependencies and test environments
 
 `debmagic lint` runs in-process on the host, but some Rules shell out to programs the wheel and the
 binary do **not** bundle. Every such dependency is a limitation twice over:
@@ -16,8 +16,7 @@ goblin-based classification); until
 then, an entry should say what happens when the tool is absent.
 
 ```{note}
-`docs/usage/lint.md` still says lint has "no external tools". That is no longer true; this page is
-the accurate list.
+`docs/usage/lint.md` carries the short, user-facing version of the first table. Keep the two in step.
 ```
 
 ## Tools the Rules run
@@ -47,25 +46,51 @@ Notes:
 - Everything else lint needs is a Rust crate linked at build time (`flate2`, `xz2`, `bzip2`, `zstd`,
   `goblin`, `ar`, `tar`) or vendored data, so it is not a runtime host dependency.
 
-## Known CI limitations
+## Test environments
 
-CI's `cargo test` job runs on `ubuntu-latest` and installs only `debhelper` and `fakeroot` on top.
-These are the tests that cannot check what they were written to check there, and what we do about
-each. The first three are observed failures; the version numbers of the `file` row are what the
-Ubuntu release ships, not something CI prints.
+The Rules' tools above are the runtime side. The tests need more: the Parity harness builds the
+vendored lintian recipes, so it needs a build toolchain and whatever each recipe itself runs. Two
+environments matter, and they differ.
 
-| Limitation on CI | Effect | Workaround today |
+### The Parity harness (any host that runs `cargo test`)
+
+| Needs | Why |
+| --- | --- |
+| `dpkg-dev` (`dpkg-buildpackage`, `dpkg-source`, `dpkg-deb`, `dpkg-parsechangelog`, `dpkg-architecture`, `dpkg-vendor`), `perl`, `make`, `tar`, `fakeroot` | Building the recipes into `.deb`, `.dsc` and Source trees |
+| `debhelper` | Nearly every recipe's `debian/rules` calls `dh` |
+| `python3` | The `dpkg-deb --nocheck` wrapper the harness writes is a Python script |
+| `gpg` (`gnupg`) | Signing the packed orig tarball with the recipe's vendored upstream key |
+| `sqv` | dpkg's gpgv backend aborts `dpkg-source -b` on the recipes' fake 27-byte `debian/upstream/signing-key.asc` ("partial read"); with `sqv` installed dpkg uses its Sequoia backend, which does not. Needed by the three `*upstream_signature_missing` source-package tests |
+| `lzip`, `lzop` | The `broken-lz` and `broken-lzo` recipes: without them the Rule reports nothing and the Parity test fails |
+| `t1utils` (`t1asm`) | The font recipes (`files-adobe-font`) assemble Type 1 fonts while building |
+
+Recipes build with `dpkg-buildpackage -d`, so their `Build-Depends` are **not** checked: a recipe whose
+build runs a tool the host lacks fails with that tool's error instead of being skipped. `t1utils`
+and `mtools` are examples. Recipes known to be unbuildable on a host are skipped with a reason in
+`RECIPES_THE_HOST_CANNOT_BUILD` in `packages/debmagic/tests/common/mod.rs`. Other tests call
+`mkfifo` (coreutils) to build fixtures.
+
+### CI (`ubuntu-latest`, currently Ubuntu 26.04)
+
+CI's `cargo test` job installs `debhelper fakeroot lzip lzop t1utils sqv` on top of the runner image
+(`.github/workflows/ci.yaml`). Everything in the table above that is not in that list comes from the
+image, so a change to the list or to the runner image changes what the tests can check. Ubuntu's
+tools are older than the Debian sid host the snapshots and recipes were produced on:
+
+| Difference on CI | Effect | Handling |
 | --- | --- | --- |
+| Ubuntu's dpkg adds the `noudeb` build profile to every build (`Dpkg::Vendor::Ubuntu`) | debhelper skips udeb packages, so a udeb-only recipe builds nothing (`dpkg-genbuildinfo: binary build with no binary artifacts found`) and a mixed recipe loses its udeb half | The harness sets `DEB_BUILD_PROFILES=!noudeb` when `dpkg-vendor --derives-from ubuntu` succeeds (`dpkg_buildpackage_command`). Debian dpkg does not strip that value and warns about it, hence the condition |
+| `sqv` is not installed on the runner image | See the table above | Installed in the workflow |
 | `groff` older than 1.25 (Ubuntu ships 1.23) | groff 1.25 ends each warning in its category (`[-w space]`); the LN0270 snapshot and lintian 2.144.0's recipes carry that suffix | The LN0270 unit test returns early (`host_groff_matches_snapshot`). The Parity harness drops expected `groff-message` hints (`host_groff_matches_recipes`) and skips a recipe left with none (`manpage-errors-from-man`) |
 | `file` older than 5.47 | No INI detection, and `\x1a` reads as `data`, so the differential tests against `file -b` disagree with our sniffing | `content_type::tests::file_descriptions` returns `None` below 5.47, so `ini_and_ascii_text_agree_with_file_on_generated_fixtures` and `text_kind_agrees_with_file_on_generated_fixtures` skip |
-| `lzip` / `clzip` and `lzop` not installed | LN1378 and LN1379 report nothing, so their "must fail" cases pass | Their `binary` tests return early when the tool is missing |
-| No JDK, `javahelper`, `dh-r`, `compress`, and a libxcrypt without `setkey` / `encrypt` | Some Parity recipes cannot be built | Listed with a reason in `RECIPES_THE_HOST_CANNOT_BUILD` in `packages/debmagic/tests/common/mod.rs`; recipes whose `Test-Architectures` exclude the host are skipped as well |
+| No JDK, `javahelper`, `dh-r`, `compress`, and a libxcrypt without `setkey` / `encrypt` | Some Parity recipes cannot be built | Listed with a reason in `RECIPES_THE_HOST_CANNOT_BUILD`; recipes whose `Test-Architectures` exclude the host are skipped as well |
 
-Skipping means the Rule is **not tested on CI** in those cases, not that it passes. They run on a
-developer host that has the tools (`just lint-parity` reports what ran). Other tests call `mkfifo`
-(coreutils) to build fixtures and the Parity harness calls `dpkg-source`, `dpkg-buildpackage`,
-`dpkg-deb`, `dpkg-parsechangelog`, `dpkg-architecture`, `perl`, `make` and `tar`; those are
-development-host requirements, not runtime ones.
+The `lzip`/`lzop` unit tests of LN1378 and LN1379 return early when the tool is missing. The Parity
+recipes for them do not skip, so a missing tool fails them rather than hiding the Rule.
+
+Skipping means the Rule is **not tested** in those cases, not that it passes. `just lint-parity`
+reports what ran on a developer host. The three Ubuntu-only rows above were seen failing in CI; the
+`file` version threshold is what the Ubuntu release ships, not something CI prints.
 
 ## Adding a host tool
 

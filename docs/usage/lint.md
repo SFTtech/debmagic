@@ -5,7 +5,7 @@ Quick reference for `debmagic lint`, a built-in port of [lintian](https://lintia
 ## TL;DR
 
 - Entry point: `debmagic lint [PATH...]` — a source tree (default, the current directory), or any number of artifacts: `.deb`/`.udeb`/`.ddeb`, `.dsc`, `.changes`, `.buildinfo`
-- Runs in-process on the host: no container, no `lintian`, no external tools
+- Runs in-process on the host: no container, no `lintian`. A few Rules call host programs when they are installed, see [Host tools](#host-tools)
 - Exits non-zero when a Diagnostic of a `--fail-on` severity is found (default: `error` only)
 
 ```shell
@@ -59,6 +59,27 @@ An override suppresses a Diagnostic when its Tag matches and its context pattern
 
 Overrides are checked per processable: a source override never suppresses a binary package's Diagnostic, and the other way round.
 
+(host-tools)=
+## Host tools
+
+Archive formats, ELF and Type 1 fonts, file classification and everything else lint needs are built in. These host programs are the exception.
+Install them for the matching Rules to run.
+
+| Program (Debian package) | Needed for |
+| --- | --- |
+| `dpkg-source` (`dpkg-dev`), GNU `tar` | Linting a `.dsc`, which is unpacked as `dpkg-source -x` does |
+| `man`, `lexgrog` (`man-db`) and `groff` | `groff-message` and the manual-page `whatis` Tags |
+| `file` | `national-encoding` |
+| `bzip2`, `lzip` (or `clzip`), `lzop` | `broken-bz2`, `broken-lz`, `broken-lzo` |
+| `appstreamcli` (`appstream`) | `appstream-metadata-validation-failed` |
+| `msgfmt`, `msgcmp` (`gettext`) and `intltool-update` (`intltool-debian`) | `invalid-po-file`, `invalid-potfiles-in`, `newer-debconf-templates`, `no-complete-debconf-translation` |
+| `dash`, `bash` at `/bin/dash` and `/bin/bash` | `*-shell-script-fails-syntax-check` |
+
+Without a program, lint does not fail: the Rules that need it report nothing, so a clean run on a bare system proves less than on a full one.
+The exception is a `.dsc`, whose lint fails when `dpkg-source` or `tar` is missing.
+Some Tags also differ between versions of a program, for example `groff-message` needs groff 1.25 or newer to match lintian's text.
+The developer-facing [list of host tools](../develop/lint-host-tools.md) says what each program does and how the tests cope without it.
+
 ## Lintian Tags we skip
 
 Rules are ported from lintian and checked against lintian's own test suite, so a Tag that is not here is either not ported *yet* or skipped on purpose.
@@ -67,7 +88,6 @@ These are the deliberate skips.
 | Tags | Why |
 | --- | --- |
 | Classification Tags (`C:`, for example `control-tarball-compression-format`) | They are metadata, not findings. They get no Code and cannot be selected |
-| Tags whose Check runs an external program: shell syntax (`*-shell-script-fails-syntax-check`), AppStream validation (`appstream-metadata-*`), integrity of `.bz2`/`.lz`/`.lzo`/`.zip` files (`broken-*`), po-debconf and PostScript font Tags | Lint has no host-tool dependencies and no environment (`file(1)` was dropped for the same reason) |
 | `elf-error`, `elf-warning` | Their extra is `readelf`'s message text; the ELF parser's errors read differently, so a port could never match |
 
 ### Not yet implemented

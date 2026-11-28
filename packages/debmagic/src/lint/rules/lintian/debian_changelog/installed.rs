@@ -195,7 +195,45 @@ fn invalid_changelog_date(date: &str) -> bool {
     static INVALID: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(&format!(r"(?i)\b(?:{})\b", INVALID_DATES.join("|"))).expect("invalid date")
     });
-    INVALID.is_match(date)
+    may_name_invalid_date(date) && INVALID.is_match(date)
+}
+
+/// The word every pattern of [`INVALID_DATES`] (and the table of
+/// `invalid-date-in-debian-changelog`) contains: `Tues(day)?` contains `Tues`
+/// and `Sept(ember)?` contains `Sept`.
+const INVALID_DATE_WORDS: &[&str] = &[
+    "Monday",
+    "Tues",
+    "Wednesday",
+    "Thurs",
+    "Friday",
+    "Saturday",
+    "Sunday",
+    "January",
+    "February",
+    "March",
+    "April",
+    "June",
+    "July",
+    "August",
+    "Sept",
+    "October",
+    "November",
+    "December",
+];
+
+/// Whether `date` could name an invalid day or month. False means no pattern
+/// of the two tables matches, so they need not be consulted. An ASCII date is
+/// decided exactly here: a pattern matches only where its word appears,
+/// ASCII case-insensitively. A non-ASCII date may match through Unicode case
+/// folding (a long `ſ` matches `s`), so it is always left to the patterns.
+pub(super) fn may_name_invalid_date(date: &str) -> bool {
+    !date.is_ascii()
+        || INVALID_DATE_WORDS.iter().any(|word| {
+            date.as_bytes()
+                .windows(word.len())
+                .any(|window| window.eq_ignore_ascii_case(word.as_bytes()))
+        })
 }
 
 fn offset_seconds(tz: &str) -> Option<i32> {

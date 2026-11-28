@@ -8,6 +8,8 @@ use crate::lint::debian_changelog::DebianChangelog;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
 
+use super::installed::may_name_invalid_date;
+
 pub struct InvalidDateInDebianChangelog;
 
 declare_rule! {
@@ -75,6 +77,9 @@ impl BinaryPackageRule for InvalidDateInDebianChangelog {
 }
 
 fn invalid_date_hits(date: &str) -> Vec<String> {
+    if !may_name_invalid_date(date) {
+        return Vec::new();
+    }
     matcher()
         .matches(date)
         .into_iter()
@@ -90,6 +95,11 @@ fn invalid_date_hits(date: &str) -> Vec<String> {
 fn date_is_parsed(date: &str) -> bool {
     if changelog_date_parses(date) {
         return true;
+    }
+    // Without a name the normalisation below changes nothing, and parsing the
+    // same text again gives the same answer.
+    if !may_name_invalid_date(date) {
+        return false;
     }
     let mut normalized = date.to_string();
     for (index, (_, replacement)) in INVALID.iter().enumerate() {

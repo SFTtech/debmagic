@@ -1,12 +1,9 @@
-use std::path::PathBuf;
-use std::sync::LazyLock;
-
-use regex::Regex;
-
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
+use crate::lint::text::AsciiTwin;
+use std::path::PathBuf;
 
 pub struct WrongBugNumberInCloses;
 
@@ -27,14 +24,15 @@ declare_rule! {
     experimental = false,
 }
 
-static CLOSES_NON_NUMERIC: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?i)closes:\s*(((?:bug)?#?\s?\d*)[[:alpha:]]\w*)").expect("valid regex")
-});
+static CLOSES_NON_NUMERIC: AsciiTwin = AsciiTwin::new(
+    r"(?i)closes:\s*(((?:bug)?#?\s?(?-u:\d*))[[:alpha:]](?-u:\w*))",
+    r"(?i)closes:\s*(((?:bug)?#?\s?\d*)[[:alpha:]]\w*)",
+);
 
-static CLOSES_LIST_NON_NUMERIC: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?i)closes:\s*(?:bug)?#?\s?\d+(?:,\s*(?:bug)?#?\s?\d+)*,\s*(((?:bug)?#?\s?\d*)[[:alpha:]]\w*)")
-        .expect("valid regex")
-});
+static CLOSES_LIST_NON_NUMERIC: AsciiTwin = AsciiTwin::new(
+    r"(?i)closes:\s*(?:bug)?#?\s?(?-u:\d+)(?:,\s*(?:bug)?#?\s?(?-u:\d+))*,\s*(((?:bug)?#?\s?(?-u:\d*))[[:alpha:]](?-u:\w*))",
+    r"(?i)closes:\s*(?:bug)?#?\s?\d+(?:,\s*(?:bug)?#?\s?\d+)*,\s*(((?:bug)?#?\s?\d*)[[:alpha:]]\w*)",
+);
 
 impl BinaryPackageRule for WrongBugNumberInCloses {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
@@ -47,8 +45,9 @@ impl BinaryPackageRule for WrongBugNumberInCloses {
         let path: PathBuf = installed.path.clone();
         for (index, line) in installed.text.split('\n').enumerate() {
             let captures = CLOSES_NON_NUMERIC
+                .regex_for(line)
                 .captures(line)
-                .or_else(|| CLOSES_LIST_NON_NUMERIC.captures(line));
+                .or_else(|| CLOSES_LIST_NON_NUMERIC.regex_for(line).captures(line));
             let Some(captures) = captures else {
                 continue;
             };

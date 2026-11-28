@@ -1,7 +1,45 @@
 //! Text helpers that follow Perl semantics, shared by the Rules that port
 //! lintian's line and field walks.
 
+use std::sync::OnceLock;
+
 use regex::Regex;
+
+/// A pattern with Unicode `\w` or `\d`, and its ASCII twin.
+///
+/// Building a Unicode `\w` or `\d` costs far more than the ASCII class, and most inputs are
+/// ASCII. On an ASCII haystack, Unicode `\w` is `[0-9A-Za-z_]` and `\d` is `[0-9]`, so the twin
+/// (the same pattern with `(?-u:\w)` / `(?-u:\d)`) matches the same text with the same groups.
+/// [`AsciiTwin::regex_for`] therefore returns the twin for an ASCII haystack and builds the Unicode
+/// regex only on the first non-ASCII one.
+pub(crate) struct AsciiTwin {
+    ascii_pattern: &'static str,
+    unicode_pattern: &'static str,
+    ascii: OnceLock<Regex>,
+    unicode: OnceLock<Regex>,
+}
+
+impl AsciiTwin {
+    pub(crate) const fn new(ascii_pattern: &'static str, unicode_pattern: &'static str) -> Self {
+        Self {
+            ascii_pattern,
+            unicode_pattern,
+            ascii: OnceLock::new(),
+            unicode: OnceLock::new(),
+        }
+    }
+
+    /// The regex to run on `haystack`, which must be the text it is then matched against.
+    pub(crate) fn regex_for(&self, haystack: &str) -> &Regex {
+        if haystack.is_ascii() {
+            self.ascii
+                .get_or_init(|| Regex::new(self.ascii_pattern).expect("valid regex"))
+        } else {
+            self.unicode
+                .get_or_init(|| Regex::new(self.unicode_pattern).expect("valid regex"))
+        }
+    }
+}
 
 /// Perl `split /\n/, $text`: lines without their newline, with trailing
 /// empty fields dropped. Empty lines in the middle are kept.

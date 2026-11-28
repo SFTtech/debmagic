@@ -1,11 +1,8 @@
-use std::sync::LazyLock;
-
-use regex::Regex;
-
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::rule::BinaryPackageRule;
+use crate::lint::text::AsciiTwin;
 
 pub struct PossibleMissingColonInCloses;
 
@@ -26,9 +23,10 @@ declare_rule! {
     experimental = false,
 }
 
-static MISSING_COLON: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?i)(closes[\s;]*(?:bug)?#?\s?\d{6,})[^\w]").expect("valid regex")
-});
+static MISSING_COLON: AsciiTwin = AsciiTwin::new(
+    r"(?i)(closes[\s;]*(?:bug)?#?\s?(?-u:\d{6,}))[^0-9A-Za-z_]",
+    r"(?i)(closes[\s;]*(?:bug)?#?\s?\d{6,})[^\w]",
+);
 
 impl BinaryPackageRule for PossibleMissingColonInCloses {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
@@ -43,6 +41,7 @@ impl BinaryPackageRule for PossibleMissingColonInCloses {
         };
         let line = latest.line();
         let matches: Vec<String> = MISSING_COLON
+            .regex_for(latest.changes())
             .captures_iter(latest.changes())
             .filter_map(|captures| captures.get(1))
             .map(|closes| closes.as_str().to_string())

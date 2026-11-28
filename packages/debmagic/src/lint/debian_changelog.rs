@@ -4,6 +4,8 @@ use std::sync::LazyLock;
 use chrono::NaiveDateTime;
 use regex::{Regex, RegexSet};
 
+use crate::lint::text::AsciiTwin;
+
 /// One parser error from `Lintian::Changelog`, as `[line, message]`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChangelogParseError {
@@ -153,27 +155,26 @@ fn parse_changelog(contents: &str) -> (Vec<ChangelogParseError>, Vec<ChangelogEn
     static LOOKS_LIKE_CHANGELOG: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"(?mx)^ \S+ \s* [(] [^\)]+ [)] \s* (?:[^ \t;]+ \s*)+ ; ").expect("regex")
     });
-    static HEADING: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"(?i)^(?P<source>\w[-+0-9a-z.]*) \((?P<version>[^() \t]+)\)(?P<distribution>(?:\s+[-+0-9a-z.]+)+);\s*(?P<kvpairs>.*)$")
-            .expect("regex")
-    });
+    static HEADING: AsciiTwin = AsciiTwin::new(
+        r"(?i)^(?P<source>(?-u:\w)[-+0-9a-z.]*) \((?P<version>[^() \t]+)\)(?P<distribution>(?:\s+[-+0-9a-z.]+)+);\s*(?P<kvpairs>.*)$",
+        r"(?i)^(?P<source>\w[-+0-9a-z.]*) \((?P<version>[^() \t]+)\)(?P<distribution>(?:\s+[-+0-9a-z.]+)+);\s*(?P<kvpairs>.*)$",
+    );
     static KV: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"(?i)^([-0-9a-z]+)=\s*(.*\S)$").expect("regex"));
     static URGENCY: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"(?i)^([-0-9a-z]+)((\s+.*)?)$").expect("regex"));
     static XBCS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(?i)^X[BCS]+-").expect("regex"));
-    static TRAILER: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"^ -- (?P<name>.*) <(?P<email>.*)>(?P<sep>  ?)(?P<date>(?:\w+,\s*)?\d{1,2}\s+\w+\s+\d{4}\s+\d{1,2}:\d{2}:\d{2}\s+[-+]\d{4}(?:\s+\([^\\()]\))?)$")
-            .expect("regex")
-    });
+    static TRAILER: AsciiTwin = AsciiTwin::new(
+        r"^ -- (?P<name>.*) <(?P<email>.*)>(?P<sep>  ?)(?P<date>(?:(?-u:\w+),\s*)?(?-u:\d{1,2})\s+(?-u:\w+)\s+(?-u:\d{4})\s+(?-u:\d{1,2}):(?-u:\d{2}):(?-u:\d{2})\s+[-+](?-u:\d{4})(?:\s+\([^\\()]\))?)$",
+        r"^ -- (?P<name>.*) <(?P<email>.*)>(?P<sep>  ?)(?P<date>(?:\w+,\s*)?\d{1,2}\s+\w+\s+\d{4}\s+\d{1,2}:\d{2}:\d{2}\s+[-+]\d{4}(?:\s+\([^\\()]\))?)$",
+    );
     static LOCAL_VARIABLES: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"(?i)^(?:;;\s*)?Local variables:").expect("regex"));
     static CHANGE_DATA: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^\s{2,}(\S)").expect("regex"));
     static MALFORMED_TRAILER: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^ --").expect("regex"));
-    static CVS_KEYWORD: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^\$\w+:.*\$").expect("regex"));
+    static CVS_KEYWORD: AsciiTwin = AsciiTwin::new(r"^\$(?-u:\w+):.*\$", r"^\$\w+:.*\$");
     static BLOCK_COMMENT: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^/\*.*\*/").expect("regex"));
 
@@ -202,7 +203,7 @@ fn parse_changelog(contents: &str) -> (Vec<ChangelogParseError>, Vec<ChangelogEn
         let position = (index + 1) as u32;
         let line = raw_line.trim_end();
 
-        if let Some(heading) = HEADING.captures(line) {
+        if let Some(heading) = HEADING.regex_for(line).captures(line) {
             if expect != Expect::FirstHeading && expect != Expect::NextHeadingOrEof {
                 errors.push(ChangelogParseError {
                     line: position,
@@ -230,7 +231,7 @@ fn parse_changelog(contents: &str) -> (Vec<ChangelogParseError>, Vec<ChangelogEn
             expect = Expect::StartOfChangeData;
         } else if LOCAL_VARIABLES.is_match(line) || line.to_ascii_lowercase().starts_with("vim:") {
             break;
-        } else if CVS_KEYWORD.is_match(line)
+        } else if CVS_KEYWORD.regex_for(line).is_match(line)
             || line.starts_with("# ")
             || BLOCK_COMMENT.is_match(line)
         {
@@ -242,7 +243,7 @@ fn parse_changelog(contents: &str) -> (Vec<ChangelogParseError>, Vec<ChangelogEn
                 line: position,
                 message: "badly formatted heading line".to_string(),
             });
-        } else if let Some(trailer) = TRAILER.captures(line) {
+        } else if let Some(trailer) = TRAILER.regex_for(line).captures(line) {
             if expect != Expect::MoreChangeDataOrTrailer {
                 errors.push(ChangelogParseError {
                     line: position,
@@ -346,20 +347,33 @@ fn parse_changelog(contents: &str) -> (Vec<ChangelogParseError>, Vec<ChangelogEn
 /// stops parsing there). Any-of over the patterns, so one `RegexSet` answers
 /// the same as one regex each.
 fn old_format_line(line: &str) -> bool {
-    static OLD_FORMATS: LazyLock<RegexSet> = LazyLock::new(|| {
-        RegexSet::new([
-            r"^(?:\w+\s+\w+\s+\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}\s+[\w\s]*\d{4})\s+(?:.*)\s+[<(](?:.*)[)>]",
-            r"^(?:\w+\s+\w+\s+\d{1,2},?\s*\d{4})\s+(?:.*)\s+[<(](?:.*)[)>]",
-            r"(?i)^(?:\w[-+0-9a-z.]*) \((?:[^() \t]+)\)\;?",
-            r"(?i)^(?:[\w.+-]+)[- ]\S+ Debian \S+",
-            r"(?i)^Changes from version (?:.*) to (?:.*):",
-            r"(?i)^Changes for [\w.+-]+-[\w.+-]+:?$",
-            r"^(?:\d+:)?\w[\w.+~-]*:?$",
-        ])
-        .expect("regex")
-    });
+    // Every pattern below is anchored at the start of the line and begins with a word
+    // character, or with `.`, `+` or `-` (`[\w.+-]`), or with a digit. An ASCII first character
+    // of any other kind (indentation, `*`, `-- ` and so on, or an empty line) cannot match, so
+    // the set is not consulted for them. Most lines of a changelog are such lines.
+    let Some(first) = line.chars().next() else {
+        return false;
+    };
+    if first.is_ascii()
+        && !(first.is_ascii_alphanumeric() || matches!(first, '_' | '.' | '+' | '-'))
+    {
+        return false;
+    }
     OLD_FORMATS.is_match(line)
 }
+
+static OLD_FORMATS: LazyLock<RegexSet> = LazyLock::new(|| {
+    RegexSet::new([
+        r"^(?:\w+\s+\w+\s+\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}\s+[\w\s]*\d{4})\s+(?:.*)\s+[<(](?:.*)[)>]",
+        r"^(?:\w+\s+\w+\s+\d{1,2},?\s*\d{4})\s+(?:.*)\s+[<(](?:.*)[)>]",
+        r"(?i)^(?:\w[-+0-9a-z.]*) \((?:[^() \t]+)\)\;?",
+        r"(?i)^(?:[\w.+-]+)[- ]\S+ Debian \S+",
+        r"(?i)^Changes from version (?:.*) to (?:.*):",
+        r"(?i)^Changes for [\w.+-]+-[\w.+-]+:?$",
+        r"^(?:\d+:)?\w[\w.+~-]*:?$",
+    ])
+    .expect("regex")
+});
 
 fn push_change_line(entry: &mut ChangelogEntry, blank_lines: &mut usize, line: &str) {
     for _ in 0..*blank_lines {
@@ -708,6 +722,19 @@ example (1.0-1) unstable; urgency=low
             "example (1.0) unstable; urgency=low\n\n  * test\n\n -- A Uthor <a@example.com>  Tue, 30 Dec 2008 17:34:02 -0800\n\nOld Changelog:\n\nexample (0.1) whatever\n",
         )
         .is_empty());
+    }
+
+    #[test]
+    fn non_ascii_heading_and_trailer_use_unicode_classes() {
+        // A non-ASCII line takes the Unicode regex, where `\w` matches the accented letters.
+        let changelog = DebianChangelog::parse(
+            "\u{e9}xample (1.0-1) unstable; urgency=low\n\n  * test\n\n -- J\u{f6}rg Uthor <a@example.com>  Tue, 30 Dec 2008 17:34:02 -0800\n",
+        );
+        assert!(changelog.errors().is_empty(), "{:?}", changelog.errors());
+        let entry = &changelog.entries()[0];
+        assert_eq!(entry.source(), "\u{e9}xample");
+        assert_eq!(entry.maintainer(), "J\u{f6}rg Uthor <a@example.com>");
+        assert_eq!(entry.timestamp(), Some(1230687242));
     }
 
     #[test]

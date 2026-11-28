@@ -456,15 +456,23 @@ mod tests {
         let tree = FileTree::from_entries(
             None,
             vec![
-                Entry::regular_file("usr/share/java/a.jar", None, Some(jar.clone())),
-                Entry::regular_file("usr/share/java/b.JAR", None, Some(jar.clone()))
+                Entry::regular_file("usr/share/java/a.jar", None, Some(jar.clone().into())),
+                Entry::regular_file("usr/share/java/b.JAR", None, Some(jar.clone().into()))
                     .with_mode(0o755),
-                Entry::hardlink("usr/share/java/c.jar", None, Some(jar.clone())),
-                Entry::regular_file("usr/share/java/not.jar", None, Some(b"text".to_vec())),
-                Entry::regular_file("usr/share/java/a.zip", None, Some(jar.clone())),
-                Entry::regular_file("usr/lib/jvm/java-21/lib/j.jar", None, Some(jar.clone())),
-                Entry::regular_file("usr/lib/xulrunner-1/x.jar", None, Some(jar.clone())),
-                Entry::regular_file("usr/lib/jvm/direct.jar", None, Some(jar)),
+                Entry::hardlink("usr/share/java/c.jar", None, Some(jar.clone().into())),
+                Entry::regular_file(
+                    "usr/share/java/not.jar",
+                    None,
+                    Some(b"text".to_vec().into()),
+                ),
+                Entry::regular_file("usr/share/java/a.zip", None, Some(jar.clone().into())),
+                Entry::regular_file(
+                    "usr/lib/jvm/java-21/lib/j.jar",
+                    None,
+                    Some(jar.clone().into()),
+                ),
+                Entry::regular_file("usr/lib/xulrunner-1/x.jar", None, Some(jar.clone().into())),
+                Entry::regular_file("usr/lib/jvm/direct.jar", None, Some(jar.into())),
             ],
         );
         let jars = JarFiles::from_tree(&tree);

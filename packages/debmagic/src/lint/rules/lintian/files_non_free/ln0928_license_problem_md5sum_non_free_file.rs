@@ -162,12 +162,16 @@ mod tests {
         let files = FileTree::from_entries(
             None,
             vec![
-                Entry::regular_file("README", None, Some(b"readme".to_vec())),
-                Entry::regular_file("docs/data.bin", None, Some(b"non-free content".to_vec())),
+                Entry::regular_file("README", None, Some(b"readme".to_vec().into())),
+                Entry::regular_file(
+                    "docs/data.bin",
+                    None,
+                    Some(b"non-free content".to_vec().into()),
+                ),
                 Entry::regular_file(
                     ".pc/docs/data.bin",
                     None,
-                    Some(b"non-free content".to_vec()),
+                    Some(b"non-free content".to_vec().into()),
                 ),
             ],
         );

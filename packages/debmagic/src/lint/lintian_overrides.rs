@@ -404,7 +404,7 @@ mod tests {
             vec![Entry::regular_file(
                 "usr/share/lintian/overrides/foo.gz",
                 None,
-                Some(gz.clone()),
+                Some(gz.clone().into()),
             )],
         );
         let found = LintianOverrides::installed(&tree, "foo", ProcessableType::Binary).unwrap();
@@ -417,11 +417,11 @@ mod tests {
         let tree = FileTree::from_entries(
             None,
             vec![
-                Entry::regular_file("usr/share/lintian/overrides/foo.gz", None, Some(gz)),
+                Entry::regular_file("usr/share/lintian/overrides/foo.gz", None, Some(gz.into())),
                 Entry::regular_file(
                     "usr/share/lintian/overrides/foo",
                     None,
-                    Some(b"plain\n".to_vec()),
+                    Some(b"plain\n".to_vec().into()),
                 ),
             ],
         );
@@ -436,7 +436,11 @@ mod tests {
             None,
             vec![
                 Entry::directory("usr/share/lintian/overrides/foo"),
-                Entry::regular_file("usr/share/lintian/overrides/bar", None, Some(vec![0xff])),
+                Entry::regular_file(
+                    "usr/share/lintian/overrides/bar",
+                    None,
+                    Some(vec![0xff].into()),
+                ),
             ],
         );
         assert!(LintianOverrides::installed(&tree, "foo", ProcessableType::Binary).is_none());
@@ -464,12 +468,12 @@ mod tests {
                 Entry::regular_file(
                     "debian/source.lintian-overrides",
                     None,
-                    Some(b"old\n".to_vec()),
+                    Some(b"old\n".to_vec().into()),
                 ),
                 Entry::regular_file(
                     "debian/source/lintian-overrides",
                     None,
-                    Some(b"src source: new\n".to_vec()),
+                    Some(b"src source: new\n".to_vec().into()),
                 ),
             ],
         );
@@ -482,7 +486,7 @@ mod tests {
             vec![Entry::regular_file(
                 "debian/source.lintian-overrides",
                 None,
-                Some(b"old\n".to_vec()),
+                Some(b"old\n".to_vec().into()),
             )],
         );
         let found = LintianOverrides::source(&tree, "src").unwrap();

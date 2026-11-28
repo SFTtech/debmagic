@@ -12,6 +12,7 @@ rust-version.workspace = true
 [dependencies]
 anyhow = { workspace = true }
 ar = { workspace = true }
+bytes = { workspace = true }
 bzip2 = { workspace = true }
 chrono = { workspace = true }
 deb822-lossless = { workspace = true }

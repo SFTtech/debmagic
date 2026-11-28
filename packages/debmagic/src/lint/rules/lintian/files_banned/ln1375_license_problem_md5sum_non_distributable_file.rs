@@ -147,10 +147,10 @@ mod tests {
         let files = FileTree::from_entries(
             None,
             vec![
-                Entry::regular_file("README", None, Some(b"readme".to_vec())),
-                Entry::regular_file("docs/data.bin", None, Some(CONTENT.to_vec())),
-                Entry::hardlink("docs/copy.bin", None, Some(CONTENT.to_vec())),
-                Entry::regular_file(".pc/docs/data.bin", None, Some(CONTENT.to_vec())),
+                Entry::regular_file("README", None, Some(b"readme".to_vec().into())),
+                Entry::regular_file("docs/data.bin", None, Some(CONTENT.to_vec().into())),
+                Entry::hardlink("docs/copy.bin", None, Some(CONTENT.to_vec().into())),
+                Entry::regular_file(".pc/docs/data.bin", None, Some(CONTENT.to_vec().into())),
             ],
         );
         let hits = known_files(&files, &table);

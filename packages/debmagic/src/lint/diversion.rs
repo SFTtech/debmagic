@@ -531,7 +531,7 @@ mod tests {
             files
                 .iter()
                 .map(|(path, content)| {
-                    Entry::regular_file(*path, None, Some(content.as_bytes().to_vec()))
+                    Entry::regular_file(*path, None, Some(content.as_bytes().to_vec().into()))
                 })
                 .collect(),
         )
@@ -544,7 +544,7 @@ mod tests {
                 .iter()
                 .map(|path| match path.strip_suffix('/') {
                     Some(directory) => Entry::directory(directory),
-                    None => Entry::regular_file(*path, None, Some(Vec::new())),
+                    None => Entry::regular_file(*path, None, Some(Vec::new().into())),
                 })
                 .collect(),
         )

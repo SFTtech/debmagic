@@ -11,6 +11,7 @@ use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, bail};
+use bytes::Bytes;
 
 use crate::compression;
 
@@ -68,6 +69,9 @@ fn member_name(identifier: &[u8]) -> String {
         .to_string()
 }
 
+/// Most bytes a header may reserve up front for one file's content (16 MiB).
+const MAX_PREALLOCATION: u64 = 16 << 20;
+
 /// The members of one tarball, in archive order.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct TarContents {
@@ -97,7 +101,8 @@ pub struct TarMember {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TarKind {
-    File(Vec<u8>),
+    /// The content, shared with the caller: cloning it does not copy the bytes.
+    File(Bytes),
     Directory,
     /// The link target as stored.
     Symlink(PathBuf),
@@ -142,9 +147,12 @@ pub fn read_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarContents
                 .into_owned())
         };
         let kind = if entry_type.is_file() {
-            let mut bytes = Vec::new();
+            // Sized from the header so the bytes are not kept in a buffer with
+            // doubled capacity. The header is not trusted for more than this.
+            let size = usize::try_from(entry.size().min(MAX_PREALLOCATION)).unwrap_or(0);
+            let mut bytes = Vec::with_capacity(size);
             entry.read_to_end(&mut bytes)?;
-            TarKind::File(bytes)
+            TarKind::File(Bytes::from(bytes))
         } else if entry_type.is_dir() {
             TarKind::Directory
         } else if entry_type.is_symlink() {
@@ -245,7 +253,10 @@ mod tests {
         let contents = read_tarball("data.tar", &builder.into_inner()?)?;
         assert!(contents.leading_slash);
         assert_eq!(contents.members[0].path, PathBuf::from("usr/file"));
-        assert_eq!(contents.members[0].kind, TarKind::File(b"bytes".to_vec()));
+        assert_eq!(
+            contents.members[0].kind,
+            TarKind::File(Bytes::from_static(b"bytes"))
+        );
         assert_eq!(contents.members[0].mode, 0o644);
         assert_eq!(
             contents.members[1].kind,

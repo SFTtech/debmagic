@@ -219,7 +219,7 @@ impl TestFile {
                 mode,
                 owner,
             } => (
-                Entry::regular_file(path, *file_type, Some(content.clone())),
+                Entry::regular_file(path, *file_type, Some(content.clone().into())),
                 mode,
                 owner,
             ),
@@ -230,7 +230,7 @@ impl TestFile {
                 owner,
                 target,
             } => {
-                let entry = Entry::hardlink(path, *file_type, Some(content.clone()));
+                let entry = Entry::hardlink(path, *file_type, Some(content.clone().into()));
                 match target {
                     Some(target) => (entry.with_hardlink_target(target), mode, owner),
                     None => (entry, mode, owner),

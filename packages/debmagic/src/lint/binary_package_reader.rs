@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 use anyhow::{Context, bail};
+use bytes::Bytes;
 use debmagic_common::debian::binary::{
     ArMember, BinaryPackage, TarKind, normalize_member_path, read_tarball,
 };
@@ -44,11 +45,13 @@ struct TarballIndex {
 const LEADING_SLASH_WARNING: &str = "tar: Removing leading `/' from member names";
 
 /// A regular file member: its bytes, the header's permission bits and owner.
+/// The bytes are shared: the Data File tree and hardlinks take a handle on
+/// them, so each file's content is held once.
 struct TarFile {
     mode: u32,
     owner: Owner,
     mtime: Option<i64>,
-    bytes: Vec<u8>,
+    bytes: Bytes,
 }
 
 /// A member that is not a regular file, with the header's permission bits and
@@ -232,7 +235,7 @@ fn init_index<'a>(
 
 fn lookup_file<'a>(index: &'a TarballIndex, path: &str) -> Option<&'a [u8]> {
     let key = normalize_member_path(Path::new(path))?;
-    index.files.get(&key).map(|file| file.bytes.as_slice())
+    index.files.get(&key).map(|file| file.bytes.as_ref())
 }
 
 fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> {
@@ -577,7 +580,7 @@ mod tests {
         }
         assert_eq!(
             entries,
-            vec![(PathBuf::from("usr/bin/a\\b"), b"data".to_vec())]
+            vec![(PathBuf::from("usr/bin/a\\b"), Bytes::from_static(b"data"))]
         );
         let [
             (

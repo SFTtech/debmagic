@@ -391,9 +391,9 @@ mod tests {
         let tree = FileTree::from_entries(
             None,
             vec![
-                Entry::regular_file("usr/share/fonts/a.pfa", None, Some(CLEAR.to_vec())),
-                Entry::hardlink("usr/share/fonts/b.pfa", None, Some(CLEAR.to_vec())),
-                Entry::regular_file("usr/share/doc/README", None, Some(b"text".to_vec())),
+                Entry::regular_file("usr/share/fonts/a.pfa", None, Some(CLEAR.to_vec().into())),
+                Entry::hardlink("usr/share/fonts/b.pfa", None, Some(CLEAR.to_vec().into())),
+                Entry::regular_file("usr/share/doc/README", None, Some(b"text".to_vec().into())),
                 Entry::symlink("usr/share/fonts/c.pfa", "a.pfa"),
             ],
         );

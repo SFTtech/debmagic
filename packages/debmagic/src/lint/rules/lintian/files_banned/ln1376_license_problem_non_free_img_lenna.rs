@@ -133,7 +133,9 @@ mod tests {
             None,
             files
                 .into_iter()
-                .map(|(path, content)| Entry::regular_file(path, None, Some(content.to_vec())))
+                .map(|(path, content)| {
+                    Entry::regular_file(path, None, Some(content.to_vec().into()))
+                })
                 .collect(),
         )
     }

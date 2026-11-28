@@ -1524,9 +1524,9 @@ mod tests {
         let tree = FileTree::from_entries(
             None,
             vec![
-                Entry::regular_file("usr/bin/static", None, Some(elf.clone())),
-                Entry::hardlink("usr/bin/link", None, Some(elf)),
-                Entry::regular_file("usr/share/doc/README", None, Some(b"text".to_vec())),
+                Entry::regular_file("usr/bin/static", None, Some(elf.clone().into())),
+                Entry::hardlink("usr/bin/link", None, Some(elf.into())),
+                Entry::regular_file("usr/share/doc/README", None, Some(b"text".to_vec().into())),
                 Entry::symlink("usr/bin/alias", "static"),
             ],
         );
@@ -1605,8 +1605,8 @@ mod tests {
         let tree = FileTree::from_entries(
             None,
             vec![
-                Entry::regular_file("usr/lib/libfoo.a", None, Some(archive)),
-                Entry::regular_file("usr/lib/libbar.so", None, Some(text)),
+                Entry::regular_file("usr/lib/libfoo.a", None, Some(archive.into())),
+                Entry::regular_file("usr/lib/libbar.so", None, Some(text.into())),
             ],
         );
         let members = ElfArchiveMembers::from_tree(&tree);

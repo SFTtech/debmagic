@@ -623,7 +623,11 @@ mod tests {
     fn postinst(text: &str) -> FileTree {
         FileTree::from_entries(
             None,
-            vec![Entry::regular_file("postinst", None, Some(text.into()))],
+            vec![Entry::regular_file(
+                "postinst",
+                None,
+                Some(text.as_bytes().to_vec().into()),
+            )],
         )
     }
 

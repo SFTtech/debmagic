@@ -7,6 +7,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Mutex, OnceLock, PoisonError};
 
 use anyhow::{Context, bail};
+use bytes::Bytes;
 use globset::{Glob, GlobMatcher};
 use regex::Regex;
 
@@ -108,7 +109,8 @@ fn display_id(name: Option<&str>, id: u64) -> String {
 /// A path in a File tree, with the data that variant has.
 ///
 /// File `content` is `None` when the bytes live on the host and are read on
-/// demand through [`FileTree::read`].
+/// demand through [`FileTree::bytes`]. Shared content is cheap to clone, so an
+/// index of a package can hand its bytes to a tree without copying them.
 ///
 /// `mode` is the permission bits (`0o7777`: setuid, setgid, sticky, and
 /// `rwx` for owner, group and other) as stored in the tar header or read from
@@ -125,7 +127,7 @@ pub enum Entry {
         owner: Option<Owner>,
         mtime: Option<i64>,
         file_type: Option<FileType>,
-        content: Option<Vec<u8>>,
+        content: Option<Bytes>,
     },
     /// `target` is the member the tar header links to, normalized like
     /// member paths (no `./` or `/` prefix). `None` on host File trees, where
@@ -136,7 +138,7 @@ pub enum Entry {
         owner: Option<Owner>,
         mtime: Option<i64>,
         file_type: Option<FileType>,
-        content: Option<Vec<u8>>,
+        content: Option<Bytes>,
         target: Option<PathBuf>,
     },
     Directory {
@@ -186,7 +188,7 @@ impl Entry {
     pub(crate) fn regular_file(
         path: impl Into<PathBuf>,
         file_type: Option<FileType>,
-        content: Option<Vec<u8>>,
+        content: Option<Bytes>,
     ) -> Self {
         Self::RegularFile {
             path: path.into(),
@@ -201,7 +203,7 @@ impl Entry {
     pub(crate) fn hardlink(
         path: impl Into<PathBuf>,
         file_type: Option<FileType>,
-        content: Option<Vec<u8>>,
+        content: Option<Bytes>,
     ) -> Self {
         Self::Hardlink {
             path: path.into(),
@@ -1142,7 +1144,11 @@ mod tests {
 
         let memory = FileTree::from_entries(
             None,
-            vec![Entry::regular_file("f", None, Some(b"abcdef".to_vec()))],
+            vec![Entry::regular_file(
+                "f",
+                None,
+                Some(Bytes::from_static(b"abcdef")),
+            )],
         );
         assert_eq!(memory.read_prefix(memory.get("f").expect("f"), 3)?, b"abc");
         Ok(())
@@ -1444,7 +1450,11 @@ mod tests {
         let tree = FileTree::from_entries(
             None,
             vec![
-                Entry::regular_file("debian/control", None, Some(b"Source: example\n".to_vec())),
+                Entry::regular_file(
+                    "debian/control",
+                    None,
+                    Some(b"Source: example\n".to_vec().into()),
+                ),
                 Entry::directory("debian"),
             ],
         );
@@ -1467,8 +1477,8 @@ mod md5_tests {
         let tree = FileTree::from_entries(
             None,
             vec![
-                Entry::regular_file("a.bin", None, Some(b"same".to_vec())),
-                Entry::hardlink("b.bin", None, Some(b"same".to_vec())),
+                Entry::regular_file("a.bin", None, Some(b"same".to_vec().into())),
+                Entry::hardlink("b.bin", None, Some(b"same".to_vec().into())),
                 Entry::directory("dir"),
                 Entry::symlink("link", "a.bin"),
             ],
@@ -1487,7 +1497,11 @@ mod md5_tests {
     fn md5sum_is_shared_by_repeated_asks() {
         let tree = FileTree::from_entries(
             None,
-            vec![Entry::regular_file("a.bin", None, Some(b"x".to_vec()))],
+            vec![Entry::regular_file(
+                "a.bin",
+                None,
+                Some(b"x".to_vec().into()),
+            )],
         );
         let entry = tree.get("a.bin").expect("a");
         let first = tree.md5sum(entry);
@@ -1502,9 +1516,13 @@ mod md5_tests {
     fn md5sum_of_an_entry_outside_the_tree_is_computed_without_caching() {
         let tree = FileTree::from_entries(
             None,
-            vec![Entry::regular_file("a.bin", None, Some(b"x".to_vec()))],
+            vec![Entry::regular_file(
+                "a.bin",
+                None,
+                Some(b"x".to_vec().into()),
+            )],
         );
-        let foreign = Entry::regular_file("a.bin", None, Some(b"x".to_vec()));
+        let foreign = Entry::regular_file("a.bin", None, Some(b"x".to_vec().into()));
         assert_eq!(
             tree.md5sum(&foreign),
             Some(hex_digest(DigestAlgorithm::Md5, b"x"))

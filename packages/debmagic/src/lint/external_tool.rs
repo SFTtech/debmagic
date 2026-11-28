@@ -283,7 +283,7 @@ mod tests {
     }
 
     fn file(path: &str, content: &[u8], mode: u32) -> Entry {
-        Entry::regular_file(path, None, Some(content.to_vec())).with_mode(mode)
+        Entry::regular_file(path, None, Some(content.to_vec().into())).with_mode(mode)
     }
 
     #[test]

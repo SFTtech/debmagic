@@ -1381,6 +1381,12 @@ fn dpkg_buildpackage_command(source: &Path, build_options: &str) -> Command {
         .env("DEB_BUILD_OPTIONS", build_options)
         .env("PATH", &path)
         .stdin(Stdio::null());
+    if host_derives_from_ubuntu() {
+        // Ubuntu's dpkg adds the `noudeb` build profile to every build, so
+        // debhelper skips udeb packages and the build produces no artifacts.
+        // `!noudeb` is the vendor's documented opt-out (it is stripped there).
+        command.env("DEB_BUILD_PROFILES", "!noudeb");
+    }
     if use_nodejs_stub {
         let mut perl5lib = stub.into_os_string();
         if let Some(existing) = std::env::var_os("PERL5LIB") {
@@ -1403,6 +1409,18 @@ fn dpkg_buildpackage_command(source: &Path, build_options: &str) -> Command {
         }
     }
     command
+}
+
+/// Whether the host's dpkg vendor is Ubuntu or derives from it. Asked once per
+/// test process.
+fn host_derives_from_ubuntu() -> bool {
+    static UBUNTU: OnceLock<bool> = OnceLock::new();
+    *UBUNTU.get_or_init(|| {
+        Command::new("dpkg-vendor")
+            .args(["--derives-from", "ubuntu"])
+            .status()
+            .is_ok_and(|status| status.success())
+    })
 }
 
 /// `DEB_BUILD_OPTIONS` and arguments of the Binary-package build. Part of the

@@ -133,8 +133,13 @@ jobs:
         run: rustup show
       # The Binary-package Parity tests build the lintian recipes with
       # dpkg-buildpackage, whose rules call debhelper.
+      # - lzip, lzop: the broken-lz / broken-lzo checks run them.
+      # - t1utils: the font recipes assemble Type 1 fonts with `t1asm`.
+      # - sqv: dpkg-source's gpgv backend rejects the recipes' fake 27-byte
+      #   `debian/upstream/signing-key.asc`; with sqv installed dpkg uses the
+      #   Sequoia backend, as on the dev host.
       - name: "Install build tools for the Parity tests"
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends debhelper fakeroot
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends debhelper fakeroot lzip lzop t1utils sqv
       - name: "Run tests"
         run: cargo test
 

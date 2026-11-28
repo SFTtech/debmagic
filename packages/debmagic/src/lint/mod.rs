@@ -49,6 +49,7 @@ mod run;
 mod selection;
 mod sfnt;
 mod sibling_files;
+mod source_format;
 mod source_package;
 mod spelling;
 mod strings;

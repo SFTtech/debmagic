@@ -8,6 +8,7 @@ use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::{EntryKind, FileTree};
 use crate::lint::rule::SourceRule;
+use crate::lint::source_format;
 
 pub struct Format30ButDebianChangesPatch;
 
@@ -60,28 +61,10 @@ impl SourceRule for Format30ButDebianChangesPatch {
     }
 }
 
-/// Format from the Dsc when there is one, otherwise the first line of
-/// `debian/source/format`; empty when neither is readable.
+/// The declared source format ([`source_format::field`]); empty when there
+/// is none, which no patch Rule reads as a quilt format.
 pub(super) fn source_format(ctx: &mut SourceContext<'_>) -> String {
-    if let Some(format) = ctx.dsc().and_then(|dsc| dsc.fields().get("Format")) {
-        return format.trim().to_string();
-    }
-    let Some(files) = ctx.files() else {
-        return String::new();
-    };
-    let Some(entry) = files.get(Path::new("debian/source/format")) else {
-        return String::new();
-    };
-    if !is_file_entry(entry.kind()) {
-        return String::new();
-    }
-    let Ok(bytes) = files.read(entry) else {
-        return String::new();
-    };
-    let Ok(text) = std::str::from_utf8(&bytes) else {
-        return String::new();
-    };
-    text.lines().next().unwrap_or("").trim().to_string()
+    source_format::field(ctx).unwrap_or_default()
 }
 
 fn package_version(ctx: &SourceContext<'_>) -> Option<String> {

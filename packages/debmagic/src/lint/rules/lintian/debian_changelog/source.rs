@@ -1,7 +1,7 @@
 //! Nativeness and the source-changelog facts the epoch, reuse, and historical
 //! Tags share. Version pieces stay in this module.
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use regex::Regex;
@@ -9,22 +9,11 @@ use regex::Regex;
 use crate::lint::context::SourceContext;
 use crate::lint::debian_changelog::ChangelogEntry;
 use crate::lint::diagnostic::Location;
-use crate::lint::file_tree::EntryKind;
+use crate::lint::source_format;
 
 use super::version::{ParsedVersion, historical_no_epoch, parse_version, versions_gt};
 use crate::lint::source_package::strip_epoch;
 
-static EXPLICIT_TWO: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^\s*2\.0\s*$").expect("valid regex"));
-/// Perl `/^\s*3\.0\s+\(quilt|git\)\s*$/` alternates at `|`, not inside the
-/// `3.0` prefix: `3.0 (quilt` anywhere from the start, or a string ending in
-/// `git)`.
-static QUILT_PREFIX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^\s*3\.0\s+\(quilt").expect("valid regex"));
-static GIT_SUFFIX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"git\)\s*$").expect("valid regex"));
-static EXPLICIT_NATIVE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^\s*3\.0\s+\(native\)\s*$").expect("valid regex"));
 static EPOCH_WORD: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?i)\bepoch\b").expect("valid regex"));
 
@@ -54,18 +43,15 @@ pub(super) fn changelog_location(line: u32) -> Location {
 /// `1.0-1 (for native)`. The Version's hyphen alone says nothing about the
 /// diff. Source packages never use this branch.
 pub(in crate::lint::rules::lintian) fn package_is_native(ctx: &mut SourceContext<'_>) -> bool {
-    let format = source_format(ctx);
+    let format = source_format::lintian_format(ctx);
     let version = ctx
         .debian_changelog()
         .and_then(|changelog| changelog.entries().first())
         .map(|entry| entry.version().to_string())
         .unwrap_or_default();
     let diff_present = diff_gz_present(ctx, &version);
-    if explicit_non_native(&format) {
-        return false;
-    }
-    if EXPLICIT_NATIVE.is_match(&format) {
-        return true;
+    if let Some(native) = source_format::nativeness(&format) {
+        return native;
     }
     if version.is_empty() {
         return false;
@@ -74,32 +60,6 @@ pub(in crate::lint::rules::lintian) fn package_is_native(ctx: &mut SourceContext
         Some(present) => !present,
         None => !source_tree_has_orig(ctx, &version),
     }
-}
-
-fn explicit_non_native(format: &str) -> bool {
-    EXPLICIT_TWO.is_match(format) || QUILT_PREFIX.is_match(format) || GIT_SUFFIX.is_match(format)
-}
-
-fn source_format(ctx: &mut SourceContext<'_>) -> String {
-    if let Some(format) = ctx.dsc().and_then(|dsc| dsc.fields().get("Format")) {
-        return format.trim().to_string();
-    }
-    let Some(files) = ctx.files() else {
-        return "1.0".to_string();
-    };
-    let Some(entry) = files.get(Path::new("debian/source/format")) else {
-        return "1.0".to_string();
-    };
-    if !matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink) {
-        return "1.0".to_string();
-    }
-    let Ok(bytes) = files.read(entry) else {
-        return "1.0".to_string();
-    };
-    let Ok(text) = std::str::from_utf8(&bytes) else {
-        return "1.0".to_string();
-    };
-    text.lines().next().unwrap_or("1.0").trim().to_string()
 }
 
 fn diff_gz_present(ctx: &SourceContext<'_>, version: &str) -> Option<bool> {

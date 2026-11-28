@@ -4,11 +4,8 @@
 //! `debian/changelog` heading on a Source tree, and from Installation control
 //! on a Binary package. Each Rule emits one Tag.
 
-use std::sync::LazyLock;
-
-use regex::Regex;
-
 use crate::lint::context::SourceContext;
+use crate::lint::source_format;
 use crate::lint::source_package::strip_epoch;
 
 mod ln0373_debian_revision_is_zero;
@@ -35,11 +32,6 @@ pub(crate) use ln1556_dfsg_version_with_period::DfsgVersionWithPeriod;
 pub(crate) use ln1558_dfsg_version_with_tilde::DfsgVersionWithTilde;
 pub(crate) use ln1797_invalid_version_number_for_derivative::InvalidVersionNumberForDerivative;
 
-static NON_NATIVE_FORMAT: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^(?:2\.0|3\.0\s+\((?:quilt|git)\))$").expect("valid regex"));
-static NATIVE_FORMAT: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^3\.0\s+\(native\)$").expect("valid regex"));
-
 /// The Version of a Source package (its Dsc) or of a Source tree (the newest
 /// changelog heading). `None` when neither gives one.
 pub(super) fn source_version(ctx: &SourceContext<'_>) -> Option<String> {
@@ -50,17 +42,13 @@ pub(super) fn source_version(ctx: &SourceContext<'_>) -> Option<String> {
     Some(entry.version().to_string())
 }
 
-/// Lintian's `native`. A `2.0`, `3.0 (quilt)` or `3.0 (git)` format is not
-/// native and `3.0 (native)` is. Otherwise the Version without its epoch is
+/// Lintian's `native`. The format decides first ([`source_format::nativeness`]).
+/// Otherwise the Version without its epoch is
 /// native when it has no `.diff.gz`: a Dsc lists it in Files, and a Source
 /// tree has none, so its Version must have no revision.
 pub(super) fn is_native(ctx: &mut SourceContext<'_>) -> bool {
-    let format = source_format(ctx);
-    if NON_NATIVE_FORMAT.is_match(&format) {
-        return false;
-    }
-    if NATIVE_FORMAT.is_match(&format) {
-        return true;
+    if let Some(native) = source_format::nativeness(&source_format::lintian_format(ctx)) {
+        return native;
     }
     let Some(version) = source_version(ctx) else {
         return false;
@@ -77,28 +65,4 @@ pub(super) fn is_native(ctx: &mut SourceContext<'_>) -> bool {
         }
         None => !version.contains('-'),
     }
-}
-
-/// The Dsc's `Format`, else `debian/source/format` of a Source tree, else
-/// `1.0`.
-fn source_format(ctx: &mut SourceContext<'_>) -> String {
-    if let Some(dsc) = ctx.dsc() {
-        return dsc
-            .fields()
-            .get("Format")
-            .map(str::trim)
-            .filter(|format| !format.is_empty())
-            .unwrap_or("1.0")
-            .to_string();
-    }
-    let Some(files) = ctx.files() else {
-        return "1.0".to_string();
-    };
-    files
-        .get("debian/source/format")
-        .and_then(|entry| files.read(entry).ok())
-        .map_or_else(
-            || "1.0".to_string(),
-            |bytes| String::from_utf8_lossy(&bytes).trim().to_string(),
-        )
 }

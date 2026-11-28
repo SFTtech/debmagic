@@ -1,4 +1,3 @@
-use std::path::Path;
 use std::sync::LazyLock;
 
 use regex::Regex;
@@ -7,6 +6,7 @@ use crate::declare_rule;
 use crate::lint::context::SourceContext;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::rule::SourceRule;
+use crate::lint::source_format;
 
 pub struct UnsupportedSourceFormat;
 
@@ -35,34 +35,13 @@ static SUPPORTED_FORMAT: LazyLock<Regex> = LazyLock::new(|| {
 
 impl SourceRule for UnsupportedSourceFormat {
     fn run(&self, ctx: &mut SourceContext<'_>) {
-        let Some(format) = source_format(ctx) else {
+        let Some(format) = source_format::field(ctx) else {
             return;
         };
         if !SUPPORTED_FORMAT.is_match(&format) {
             ctx.diagnostic(Diagnostic::error(format));
         }
     }
-}
-
-/// The format as lintian reads it: the Dsc `Format` when there is a Dsc,
-/// otherwise the first line of `debian/source/format`. `None` when the format
-/// is not declared or the file cannot be read.
-fn source_format(ctx: &mut SourceContext<'_>) -> Option<String> {
-    if let Some(fields) = ctx.dsc().map(|dsc| dsc.fields()) {
-        if !fields.declares("Format") {
-            return None;
-        }
-        return Some(fields.unfolded_value("Format").unwrap_or_default());
-    }
-    let files = ctx.files()?;
-    let entry = files.get(Path::new("debian/source/format"))?;
-    if !entry.is_file() {
-        return None;
-    }
-    let bytes = files.read(entry).ok()?;
-    let text = std::str::from_utf8(&bytes).ok()?;
-    let first = text.lines().next()?.trim();
-    (!first.is_empty()).then(|| first.to_string())
 }
 
 #[cfg(test)]

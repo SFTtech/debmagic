@@ -8,8 +8,8 @@ use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::EntryKind;
-use crate::lint::gzip::gunzip;
 use crate::lint::rule::BinaryPackageRule;
+use debmagic_common::compression::gunzip;
 
 use super::scan;
 use crate::lint::file_tree::file_name_lossy;

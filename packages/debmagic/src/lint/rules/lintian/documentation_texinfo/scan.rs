@@ -3,11 +3,10 @@
 //! `dir`, `dir.old`, and their `.gz` forms are ignored. Directory entries are
 //! read only from gzip members whose names are not `*-<digits>.gz`.
 
-use std::io::Read;
 use std::path::PathBuf;
 use std::sync::LazyLock;
 
-use flate2::read::GzDecoder;
+use debmagic_common::compression::gunzip;
 use regex::Regex;
 
 use crate::lint::file_tree::file_name_lossy;
@@ -54,11 +53,9 @@ pub(super) fn info_documents(files: &FileTree) -> Vec<InfoDocument> {
         if !bytes.starts_with(&[0x1f, 0x8b]) {
             continue;
         }
-        let mut decoder = GzDecoder::new(bytes.as_slice());
-        let mut text = String::new();
-        if decoder.read_to_string(&mut text).is_err() {
+        let Some(text) = gunzip(&bytes).and_then(|plain| String::from_utf8(plain).ok()) else {
             continue;
-        }
+        };
         let mut section = false;
         let mut start = false;
         let mut end = false;

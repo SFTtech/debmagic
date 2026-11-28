@@ -72,7 +72,7 @@ pub(crate) fn changelog_text(files: &FileTree, entry: &Entry) -> Option<String> 
         .and_then(|name| name.to_str())
         .is_some_and(|name| name.ends_with(".gz"))
     {
-        crate::lint::gzip::gunzip(&bytes)?
+        debmagic_common::compression::gunzip(&bytes)?
     } else {
         bytes
     };

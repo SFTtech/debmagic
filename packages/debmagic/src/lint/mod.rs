@@ -26,7 +26,6 @@ mod file_tree;
 mod file_type;
 mod group;
 mod group_context;
-mod gzip;
 mod hardening;
 mod installation_control;
 mod installed_changelog;

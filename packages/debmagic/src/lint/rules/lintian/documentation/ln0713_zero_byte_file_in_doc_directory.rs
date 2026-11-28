@@ -82,7 +82,7 @@ fn is_flagged(name: &[u8], bytes: &[u8]) -> bool {
     name.ends_with(b".gz")
         && bytes.len() <= MAXIMUM_EMPTY_GZIP_SIZE
         && bytes.starts_with(GZIP_MAGIC)
-        && crate::lint::gzip::gunzip(bytes).is_some_and(|plain| plain.is_empty())
+        && debmagic_common::compression::gunzip(bytes).is_some_and(|plain| plain.is_empty())
 }
 
 #[cfg(test)]

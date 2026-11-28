@@ -1,9 +1,13 @@
 use std::collections::{HashMap, HashSet};
-use std::io::{Cursor, Read};
+#[cfg(test)]
+use std::io::Cursor;
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 use anyhow::{Context, bail};
+use debmagic_common::debian::binary::{
+    ArMember, BinaryPackage, TarKind, normalize_member_path, read_tarball,
+};
 
 use super::deb_members::{DebMember, DebMembers, Tarball};
 use super::file_tree::Owner;
@@ -71,35 +75,17 @@ impl BinaryPackageReader {
     /// A file without the ar magic is not a Binary package. A missing Control
     /// or Data tarball fails only when its contents are asked for.
     pub(crate) fn from_path(path: impl Into<PathBuf>) -> anyhow::Result<Self> {
-        use std::io::{Seek, SeekFrom};
-
         let path = path.into();
-        let mut file = std::fs::File::open(&path)
-            .with_context(|| format!("opening {} failed", path.display()))?;
-        let mut magic = [0u8; 8];
-        if file.read_exact(&mut magic).is_err() || &magic != b"!<arch>\n" {
-            bail!("{} is not an ar archive", path.display());
-        }
-        file.seek(SeekFrom::Start(0))
-            .with_context(|| format!("rewinding {} failed", path.display()))?;
-        let mut archive = ar::Archive::new(file);
+        let package = BinaryPackage::open(&path)?;
         let mut control_tar = None;
         let mut data_tar = None;
         let mut deb_members: Vec<DebMember> = Vec::new();
-        while let Some(entry) = archive.next_entry() {
-            let mut entry =
-                entry.with_context(|| format!("reading ar member from {}", path.display()))?;
-            let name = ar_member_name(entry.header().identifier());
-            let size = entry.header().size();
-            let mut bytes = Vec::new();
-            entry
-                .read_to_end(&mut bytes)
-                .with_context(|| format!("reading {name} from {}", path.display()))?;
+        for ArMember { name, size, bytes } in package.members {
             let first_debian_binary =
                 name == "debian-binary" && !deb_members.iter().any(|m| m.name() == name);
             let mut member = DebMember::new(name.clone(), size);
             if first_debian_binary {
-                member = member.with_contents(bytes.clone());
+                member = member.with_contents(bytes);
             } else if name.starts_with("control.tar") {
                 if control_tar.is_none() {
                     control_tar = Some((name.clone(), bytes));
@@ -249,85 +235,62 @@ fn lookup_file<'a>(index: &'a TarballIndex, path: &str) -> Option<&'a [u8]> {
     index.files.get(&key).map(|file| file.bytes.as_slice())
 }
 
-fn ar_member_name(identifier: &[u8]) -> String {
-    String::from_utf8_lossy(identifier)
-        .trim()
-        .trim_end_matches('/')
-        .to_string()
-}
-
 fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> {
-    let tar_bytes = decompress_tar(name, compressed)?;
-    let mut archive = tar::Archive::new(Cursor::new(tar_bytes));
+    let contents = read_tarball(name, compressed)?;
     let mut members = Vec::new();
     let mut seen = HashSet::new();
     let mut files = HashMap::new();
     let mut links_and_dirs = Vec::new();
     let mut unpack_messages = Vec::new();
-    for entry in archive.entries()? {
-        let mut entry = entry?;
-        let path = entry.path()?;
-        if path.as_os_str().as_encoded_bytes().starts_with(b"/")
-            && !unpack_messages
-                .iter()
-                .any(|message| message == LEADING_SLASH_WARNING)
-        {
-            unpack_messages.push(LEADING_SLASH_WARNING.to_string());
+    if contents.leading_slash {
+        unpack_messages.push(LEADING_SLASH_WARNING.to_string());
+    }
+    for member in contents.members {
+        if seen.insert(member.path.clone()) {
+            members.push(member.path.clone());
         }
-        let Some(normalized) = normalize_member_path(path.as_ref()) else {
-            continue;
-        };
-        if seen.insert(normalized.clone()) {
-            members.push(normalized.clone());
-        }
-        let entry_type = entry.header().entry_type();
-        let mode = entry
-            .header()
-            .mode()
-            .with_context(|| format!("{} has no valid mode", normalized.display()))?;
-        let owner = header_owner(entry.header());
-        let mtime = header_mtime(entry.header());
-        let member = |kind| TarMember {
+        let name =
+            |bytes: Option<Vec<u8>>| bytes.map(|name| String::from_utf8_lossy(&name).into_owned());
+        let owner = Owner::new(
+            member.uid,
+            member.gid,
+            name(member.user_name),
+            name(member.group_name),
+        );
+        let (mode, mtime) = (member.mode, member.mtime);
+        let other = |kind| TarMember {
             kind,
             mode,
             owner: owner.clone(),
             mtime,
         };
-        if entry_type.is_file() {
-            let mut bytes = Vec::new();
-            entry.read_to_end(&mut bytes)?;
-            files.insert(
-                normalized,
-                TarFile {
-                    mode,
-                    owner,
-                    mtime,
-                    bytes,
-                },
-            );
-        } else if entry_type.is_dir() {
-            links_and_dirs.push((normalized, member(MemberKind::Directory)));
-        } else if entry_type.is_symlink() {
-            let target = entry
-                .link_name()?
-                .with_context(|| format!("symlink {} has no target", normalized.display()))?
-                .into_owned();
-            links_and_dirs.push((normalized, member(MemberKind::Symlink(target))));
-        } else if entry_type.is_hard_link() {
-            let target = entry
-                .link_name()?
-                .with_context(|| format!("hardlink {} has no target", normalized.display()))?;
-            let Some(target) = normalize_member_path(target.as_ref()) else {
+        let kind = match member.kind {
+            TarKind::File(bytes) => {
+                files.insert(
+                    member.path,
+                    TarFile {
+                        mode,
+                        owner,
+                        mtime,
+                        bytes,
+                    },
+                );
                 continue;
-            };
-            links_and_dirs.push((normalized, member(MemberKind::Hardlink(target))));
-        } else if entry_type.is_fifo() {
-            links_and_dirs.push((normalized, member(MemberKind::Fifo)));
-        } else if entry_type.is_character_special() {
-            links_and_dirs.push((normalized, member(MemberKind::CharDevice)));
-        } else if entry_type.is_block_special() {
-            links_and_dirs.push((normalized, member(MemberKind::BlockDevice)));
-        }
+            }
+            TarKind::Directory => MemberKind::Directory,
+            TarKind::Symlink(target) => MemberKind::Symlink(target),
+            TarKind::Hardlink(target) => {
+                let Some(target) = normalize_member_path(&target) else {
+                    continue;
+                };
+                MemberKind::Hardlink(target)
+            }
+            TarKind::Fifo => MemberKind::Fifo,
+            TarKind::CharDevice => MemberKind::CharDevice,
+            TarKind::BlockDevice => MemberKind::BlockDevice,
+            TarKind::Other => continue,
+        };
+        links_and_dirs.push((member.path, other(kind)));
     }
     Ok(TarballIndex {
         members,
@@ -335,80 +298,6 @@ fn index_tarball(name: &str, compressed: &[u8]) -> anyhow::Result<TarballIndex> 
         links_and_dirs,
         unpack_messages,
     })
-}
-
-/// The header's numeric ids and, when it has them, user and group names. An id
-/// field that is blank or not a number reads as `0`, lintian's default.
-fn header_owner(header: &tar::Header) -> Owner {
-    let name = |bytes: Option<&[u8]>| bytes.map(|name| String::from_utf8_lossy(name).into_owned());
-    Owner::new(
-        header.uid().unwrap_or(0),
-        header.gid().unwrap_or(0),
-        name(header.username_bytes()),
-        name(header.groupname_bytes()),
-    )
-}
-
-/// The header's modification time, seconds since the epoch. `None` when it is
-/// unreadable or does not fit in an `i64`.
-pub(crate) fn header_mtime(header: &tar::Header) -> Option<i64> {
-    header
-        .mtime()
-        .ok()
-        .and_then(|mtime| i64::try_from(mtime).ok())
-}
-
-/// Strip `./` prefixes, one leading `/`, and trailing `/` from a member path.
-/// Works on the stored bytes, so a name that is not UTF-8 stays as it is.
-pub(crate) fn normalize_member_path(path: &Path) -> Option<PathBuf> {
-    use std::os::unix::ffi::OsStrExt;
-
-    let mut value = path.as_os_str().as_bytes();
-    while let Some(stripped) = value.strip_prefix(b"./") {
-        value = stripped;
-    }
-    if let Some(stripped) = value.strip_prefix(b"/") {
-        value = stripped;
-    }
-    while let Some(stripped) = value.strip_suffix(b"/") {
-        value = stripped;
-    }
-    if value.is_empty() || value == b"." || value == b".." {
-        return None;
-    }
-    Some(PathBuf::from(std::ffi::OsStr::from_bytes(value)))
-}
-
-fn decompress_tar(name: &str, bytes: &[u8]) -> anyhow::Result<Vec<u8>> {
-    let cursor = Cursor::new(bytes);
-    if name.ends_with(".gz") {
-        let mut decoder = flate2::read::GzDecoder::new(cursor);
-        let mut out = Vec::new();
-        decoder.read_to_end(&mut out)?;
-        return Ok(out);
-    }
-    if name.ends_with(".bz2") {
-        let mut decoder = bzip2::read::BzDecoder::new(cursor);
-        let mut out = Vec::new();
-        decoder.read_to_end(&mut out)?;
-        return Ok(out);
-    }
-    if name.ends_with(".xz") {
-        let mut decoder = xz2::read::XzDecoder::new(cursor);
-        let mut out = Vec::new();
-        decoder.read_to_end(&mut out)?;
-        return Ok(out);
-    }
-    if name.ends_with(".zst") {
-        let mut decoder = zstd::stream::read::Decoder::new(cursor)?;
-        let mut out = Vec::new();
-        decoder.read_to_end(&mut out)?;
-        return Ok(out);
-    }
-    if name.ends_with(".tar") {
-        return Ok(bytes.to_vec());
-    }
-    bail!("unsupported tarball {name}");
 }
 
 /// Lintian's `guess_name`: basename, drop extension, drop after the first `_`.

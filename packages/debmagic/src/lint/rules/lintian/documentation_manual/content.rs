@@ -133,7 +133,7 @@ pub(super) fn pages(files: &FileTree) -> Vec<Page> {
             continue;
         };
         let plain = if is_gzip(&stored) {
-            let Some(plain) = crate::lint::gzip::gunzip(&stored) else {
+            let Some(plain) = debmagic_common::compression::gunzip(&stored) else {
                 continue;
             };
             plain

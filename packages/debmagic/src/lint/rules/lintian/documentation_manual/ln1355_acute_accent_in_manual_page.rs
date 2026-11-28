@@ -5,8 +5,8 @@ use regex::Regex;
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
 use crate::lint::diagnostic::{Diagnostic, Location};
-use crate::lint::gzip;
 use crate::lint::rule::{BinaryPackageRule, Severity};
+use debmagic_common::compression::gunzip;
 
 use super::content;
 use super::manual::is_gzip;
@@ -51,7 +51,7 @@ impl BinaryPackageRule for AcuteAccentInManualPage {
                 continue;
             }
             let plain = if is_gzip(&page.stored) {
-                match gzip::gunzip(&page.stored) {
+                match gunzip(&page.stored) {
                     Some(plain) => plain,
                     None => continue,
                 }

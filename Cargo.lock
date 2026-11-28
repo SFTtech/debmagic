@@ -675,16 +675,22 @@ name = "debmagic-common"
 version = "0.0.1-alpha.9"
 dependencies = [
  "anyhow",
+ "ar",
+ "bzip2",
  "chrono",
  "deb822-lossless",
  "debian-changelog",
+ "flate2",
  "md-5",
  "regex",
  "serde",
  "serde_json",
  "sha1",
  "sha2 0.11.0",
+ "tar",
  "test-case",
+ "xz2",
+ "zstd",
 ]
 
 [[package]]

@@ -106,7 +106,7 @@ pub(super) fn text(files: &FileTree, package: &str) -> Option<String> {
             .read(gzip.expect("gzip entry"))
             .ok()
             .as_deref()
-            .and_then(crate::lint::gzip::gunzip)
+            .and_then(debmagic_common::compression::gunzip)
     } else if let Some(entry) = plain.filter(|entry| is_regular(entry)) {
         files.read(entry).ok()
     } else if let Some(Entry::Symlink { target, .. }) = plain {

@@ -6,11 +6,13 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 use anyhow::{Context, bail};
-use debmagic_common::checksums;
+use debmagic_common::{checksums, compression};
 use regex::Regex;
 use tempfile::TempDir;
 
-use super::binary_package_reader::{guess_package_name, header_mtime, normalize_member_path};
+use debmagic_common::debian::binary::{header_mtime, normalize_member_path};
+
+use super::binary_package_reader::guess_package_name;
 use super::dsc::Dsc;
 use super::file_tree::FileTree;
 
@@ -531,22 +533,7 @@ fn open_tarball(path: &Path) -> anyhow::Result<Box<dyn std::io::Read>> {
         .file_name()
         .and_then(|name| name.to_str())
         .unwrap_or_default();
-    if name.ends_with(".gz") {
-        Ok(Box::new(flate2::read::GzDecoder::new(file)))
-    } else if name.ends_with(".bz2") {
-        Ok(Box::new(bzip2::read::BzDecoder::new(file)))
-    } else if name.ends_with(".xz") {
-        Ok(Box::new(xz2::read::XzDecoder::new(file)))
-    } else if name.ends_with(".zst") {
-        Ok(Box::new(zstd::stream::read::Decoder::new(file)?))
-    } else if name.ends_with(".tar") {
-        Ok(Box::new(file))
-    } else {
-        bail!(
-            "{} is compressed in a format debmagic does not read",
-            path.display()
-        )
-    }
+    compression::decoder(name, file).with_context(|| format!("reading {}", path.display()))
 }
 
 /// lintian's orig index names: the Orig files of one tarball lose the one

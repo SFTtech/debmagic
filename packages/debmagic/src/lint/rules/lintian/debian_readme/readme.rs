@@ -7,7 +7,7 @@
 use std::path::PathBuf;
 
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
-use crate::lint::gzip::gunzip;
+use debmagic_common::compression::gunzip;
 
 const README_NAMES: [&str; 4] = [
     "README.Debian.gz",

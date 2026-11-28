@@ -51,7 +51,7 @@ impl LintianOverrides {
         let candidates = [PathBuf::from(&plain), PathBuf::from(format!("{plain}.gz"))];
         let (path, bytes) = first_present(files, &candidates)?;
         let bytes = if path.extension().is_some_and(|extension| extension == "gz") {
-            super::gzip::gunzip(&bytes).unwrap_or_default()
+            debmagic_common::compression::gunzip(&bytes).unwrap_or_default()
         } else {
             bytes
         };

@@ -9,8 +9,8 @@ use crate::lint::debian_changelog::DebianChangelog;
 use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::file_tree::resolve_link;
 use crate::lint::file_tree::{Entry, EntryKind, FileTree};
-use crate::lint::gzip::gunzip;
 use crate::lint::rule::BinaryPackageRule;
+use debmagic_common::compression::gunzip;
 
 pub struct PackageContainsTimestampedGzip;
 

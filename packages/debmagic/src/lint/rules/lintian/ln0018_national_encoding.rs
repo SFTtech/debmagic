@@ -190,7 +190,7 @@ fn message_for(
     if matches!(place, Place::Installed)
         && under(path, &["usr", "share", "man"])
         && contains_gzip(&description)
-        && crate::lint::gzip::gunzip(bytes)
+        && debmagic_common::compression::gunzip(bytes)
             .is_some_and(|plain| std::str::from_utf8(&plain).is_err())
     {
         return Some("");

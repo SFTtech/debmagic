@@ -8,8 +8,8 @@ use crate::lint::context::BinaryPackageContext;
 use crate::lint::debian_changelog::DebianChangelog;
 use crate::lint::diagnostic::Diagnostic;
 use crate::lint::file_tree::{EntryKind, FileTree};
-use crate::lint::gzip::gunzip;
 use crate::lint::rule::BinaryPackageRule;
+use debmagic_common::compression::gunzip;
 
 pub struct NewPackageShouldNotPackagePython2Module;
 

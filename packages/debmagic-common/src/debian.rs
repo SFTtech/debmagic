@@ -1,3 +1,4 @@
+pub mod binary;
 pub mod changelog;
 pub mod control;
 pub mod copyright;

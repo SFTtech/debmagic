@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::sync::LazyLock;
 
 use regex::Regex;
@@ -79,13 +80,13 @@ impl BinaryPackageRule for MaintainerScriptEmpty {
 }
 
 /// Regular Control files lintian treats as maintainer scripts, with their bytes.
-fn maintainer_scripts(files: &FileTree) -> impl Iterator<Item = (&Entry, Vec<u8>)> {
+fn maintainer_scripts(files: &FileTree) -> impl Iterator<Item = (&Entry, Cow<'_, [u8]>)> {
     files
         .query()
         .kinds([EntryKind::RegularFile])
         .path(&SCRIPT_NAME)
         .into_iter()
-        .filter_map(|entry| Some((entry, files.read(entry).ok()?)))
+        .filter_map(|entry| Some((entry, files.bytes(entry).ok()?)))
 }
 
 /// lintian's `interpreter`: the command on the shebang line, `env` stripped.

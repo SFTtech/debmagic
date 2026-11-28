@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::path::PathBuf;
 
 use crate::declare_rule;
@@ -36,7 +37,7 @@ impl SourceRule for FileContainsFixmePlaceholder {
         let Some(files) = ctx.files() else {
             return;
         };
-        let targets: Vec<(PathBuf, Vec<u8>)> = files
+        let targets: Vec<(PathBuf, Cow<'_, [u8]>)> = files
             .entries()
             .iter()
             .filter(|entry| matches!(entry.kind(), EntryKind::RegularFile | EntryKind::Hardlink))
@@ -46,7 +47,7 @@ impl SourceRule for FileContainsFixmePlaceholder {
                     .to_str()
                     .is_some_and(|path| CHECKED.contains(&path))
             })
-            .filter_map(|entry| Some((entry.path().to_path_buf(), files.read(entry).ok()?)))
+            .filter_map(|entry| Some((entry.path().to_path_buf(), files.bytes(entry).ok()?)))
             .collect();
         let mut findings = Vec::new();
         for (path, bytes) in targets {

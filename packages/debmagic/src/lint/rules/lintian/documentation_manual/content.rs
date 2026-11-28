@@ -202,6 +202,122 @@ fn whatis_in(root: &Path, page: &Page) -> Option<Whatis> {
     })
 }
 
+/// Pages per `lexgrog` call. Keeps the argument list well under the kernel's
+/// limit for long staged paths.
+const LEXGROG_CHUNK: usize = 100;
+
+/// `lexgrog` results for `pages`, in order. One call covers the chunk and its
+/// output is split back per page. A chunk whose output does not split with
+/// certainty runs page by page, and a page the output does not account for
+/// runs alone, so every result matches a single-page call.
+fn whatis_chunk(root: &Path, pages: &[&Page]) -> Vec<Option<Whatis>> {
+    let paths: Vec<PathBuf> = pages.iter().map(|page| root.join(&page.path)).collect();
+    let shares = paths
+        .iter()
+        .map(|path| path.to_str())
+        .collect::<Option<Vec<&str>>>()
+        .and_then(|texts| {
+            let output = tool("lexgrog").args(&paths).output().ok()?;
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            split_lexgrog(&texts, &stdout, output.status.code())
+        });
+    let Some(shares) = shares else {
+        return pages.iter().map(|page| whatis_in(root, page)).collect();
+    };
+    shares
+        .into_iter()
+        .zip(pages)
+        .map(|(share, page)| match share {
+            Share::Known { status, stdout } => Some(Whatis {
+                status,
+                description: whatis_description(&stdout),
+            }),
+            Share::Alone => whatis_in(root, page),
+        })
+        .collect()
+}
+
+/// What a batched `lexgrog` call said about one page.
+#[derive(Debug, PartialEq, Eq)]
+enum Share {
+    /// The stdout and exit status of a single-page call on that page.
+    Known { status: i32, stdout: String },
+    /// No line in the output names this page, so its status is unknown and it
+    /// runs on its own.
+    Alone,
+}
+
+/// Splits the stdout of one `lexgrog` call over `paths`, in argument order,
+/// into one [`Share`] per path. `code` is the exit status of the call.
+///
+/// `lexgrog` prints one `path: "whatis"` line per name on a page (a long NAME
+/// is joined onto one line) and `path: parse failed` for a page it cannot
+/// parse, in argument order. A line belongs to the path that is its prefix
+/// followed by `: ` and whose remainder has one of those two forms. A line
+/// must match exactly one path, at or after the path of the line before it,
+/// so a path that is a prefix of another (`a` and `a: b.1`) is told apart by
+/// its remainder. `None` when a line matches none or several, when a page
+/// mixes both forms, or when the statuses disagree with `code`.
+fn split_lexgrog(paths: &[&str], stdout: &str, code: Option<i32>) -> Option<Vec<Share>> {
+    let mut blocks = vec![String::new(); paths.len()];
+    let mut statuses: Vec<Option<i32>> = vec![None; paths.len()];
+    let mut owner = 0;
+    for line in stdout.split_inclusive('\n') {
+        let mut found = None;
+        for (index, path) in paths.iter().enumerate().skip(owner) {
+            let Some(rest) = line
+                .strip_prefix(path)
+                .and_then(|rest| rest.strip_prefix(": "))
+            else {
+                continue;
+            };
+            let status = if rest == "parse failed\n" {
+                2
+            } else if rest.len() >= 3 && rest.starts_with('"') && rest.ends_with("\"\n") {
+                0
+            } else {
+                continue;
+            };
+            if found.replace((index, status)).is_some() {
+                return None;
+            }
+        }
+        let (index, status) = found?;
+        if statuses[index].is_some_and(|seen| seen != status) {
+            return None;
+        }
+        statuses[index] = Some(status);
+        blocks[index].push_str(line);
+        owner = index;
+    }
+
+    let failed = statuses.contains(&Some(2));
+    match code {
+        Some(0) if failed => return None,
+        Some(2) if !failed && statuses.iter().all(Option::is_some) => return None,
+        Some(0 | 2) => {}
+        _ => return None,
+    }
+
+    let mut shares = Vec::with_capacity(paths.len());
+    for (status, block) in statuses.into_iter().zip(blocks) {
+        let share = match status {
+            None => Share::Alone,
+            Some(2) if block.matches('\n').count() == 1 => Share::Known {
+                status: 2,
+                stdout: block,
+            },
+            Some(0) => Share::Known {
+                status: 0,
+                stdout: block,
+            },
+            _ => return None,
+        };
+        shares.push(share);
+    }
+    Some(shares)
+}
+
 /// Every manual page of a Subject, each with its `lexgrog` result, and the
 /// staged `usr/share/man/` tree that `man` and `lexgrog` read. Built once per
 /// Subject through `shared_once`, so the whatis Rules only classify.
@@ -217,7 +333,8 @@ pub(super) struct ManualPages {
 
 impl ManualPages {
     /// Parse the pages of `files` (none when `files` is `None`), stage them
-    /// into one temp tree, and run `lexgrog` on the English pages in parallel.
+    /// into one temp tree, and run `lexgrog` on the English pages, in chunks
+    /// of [`LEXGROG_CHUNK`] pages, in parallel.
     pub(super) fn from_files(files: Option<&FileTree>) -> Self {
         let Some(files) = files else {
             return Self::default();
@@ -233,9 +350,15 @@ impl ManualPages {
             .collect();
         let mut whatis: Vec<Option<Whatis>> = pages.iter().map(|_| None).collect();
         if let Some(root) = &root {
-            let results = par_map(&candidates, |&index| whatis_in(root.path(), &pages[index]));
-            for (index, result) in candidates.into_iter().zip(results) {
-                whatis[index] = result;
+            let chunks: Vec<&[usize]> = candidates.chunks(LEXGROG_CHUNK).collect();
+            let results = par_map(&chunks, |chunk| {
+                let chunk_pages: Vec<&Page> = chunk.iter().map(|&index| &pages[index]).collect();
+                whatis_chunk(root.path(), &chunk_pages)
+            });
+            for (chunk, results) in chunks.into_iter().zip(results) {
+                for (&index, result) in chunk.iter().zip(results) {
+                    whatis[index] = result;
+                }
             }
         }
         Self {
@@ -749,5 +872,99 @@ mod tests {
         assert!(!other.bad());
         assert!(!other.useless());
         assert!(!other.template());
+    }
+
+    fn known(status: i32, stdout: &str) -> Share {
+        Share::Known {
+            status,
+            stdout: stdout.to_string(),
+        }
+    }
+
+    #[test]
+    fn split_gives_each_page_its_own_stdout() {
+        let stdout = "/r/a: \"a - first thing\"\n\
+            /r/b: \"b - multi name thing\"\n\
+            /r/b: \"bb - multi name thing\"\n\
+            /r/c: parse failed\n";
+        let shares = split_lexgrog(&["/r/a", "/r/b", "/r/c"], stdout, Some(2));
+        assert_eq!(
+            shares,
+            Some(vec![
+                known(0, "/r/a: \"a - first thing\"\n"),
+                known(
+                    0,
+                    "/r/b: \"b - multi name thing\"\n/r/b: \"bb - multi name thing\"\n"
+                ),
+                known(2, "/r/c: parse failed\n"),
+            ])
+        );
+    }
+
+    #[test]
+    fn split_keeps_pages_without_output_alone() {
+        // An unreadable page prints nothing and exits 2.
+        let stdout = "/r/a: \"a - x\"\n";
+        assert_eq!(
+            split_lexgrog(&["/r/a", "/r/unreadable", "/r/c"], stdout, Some(0)),
+            Some(vec![
+                known(0, "/r/a: \"a - x\"\n"),
+                Share::Alone,
+                Share::Alone,
+            ])
+        );
+        assert_eq!(
+            split_lexgrog(&["/r/u"], "", Some(2)),
+            Some(vec![Share::Alone])
+        );
+    }
+
+    #[test]
+    fn split_tells_apart_a_path_that_prefixes_another() {
+        // `/r/f` and `/r/f: g.1` both occur; the line of `/r/f: g.1` must not go to `/r/f`.
+        let stdout = "/r/f: g.1: \"f - x\"\n/r/f: parse failed\n";
+        assert_eq!(
+            split_lexgrog(&["/r/f: g.1", "/r/f"], stdout, Some(2)),
+            Some(vec![
+                known(0, "/r/f: g.1: \"f - x\"\n"),
+                known(2, "/r/f: parse failed\n"),
+            ])
+        );
+        assert_eq!(
+            split_lexgrog(&["/r/f", "/r/f: g.1"], "/r/f: g.1: \"f - x\"\n", Some(0)),
+            Some(vec![Share::Alone, known(0, "/r/f: g.1: \"f - x\"\n")])
+        );
+    }
+
+    #[test]
+    fn split_refuses_ambiguous_or_inconsistent_output() {
+        // `/r` and `/r: "x"` both fit this line, since each leaves a quoted remainder.
+        assert_eq!(
+            split_lexgrog(&["/r", "/r: \"x\""], "/r: \"x\": \"x\"\n", Some(0)),
+            None
+        );
+        // A line that no path accounts for.
+        assert_eq!(split_lexgrog(&["/r/a"], "other: \"x\"\n", Some(0)), None);
+        // A final line without its newline.
+        assert_eq!(split_lexgrog(&["/r/a"], "/r/a: \"x\"", Some(0)), None);
+        // Exit status disagrees with the lines.
+        assert_eq!(
+            split_lexgrog(&["/r/a"], "/r/a: parse failed\n", Some(0)),
+            None
+        );
+        assert_eq!(split_lexgrog(&["/r/a"], "/r/a: \"x\"\n", Some(2)), None);
+        // Killed by a signal, or a status other than 0 or 2.
+        assert_eq!(split_lexgrog(&["/r/a"], "/r/a: \"x\"\n", None), None);
+        assert_eq!(split_lexgrog(&["/r/a"], "/r/a: \"x\"\n", Some(1)), None);
+        // One page with both forms.
+        assert_eq!(
+            split_lexgrog(&["/r/a"], "/r/a: \"x\"\n/r/a: parse failed\n", Some(2)),
+            None
+        );
+        // Lines out of argument order cannot come from one lexgrog call.
+        assert_eq!(
+            split_lexgrog(&["/r/a", "/r/b"], "/r/b: \"x\"\n/r/a: \"y\"\n", Some(0)),
+            None
+        );
     }
 }

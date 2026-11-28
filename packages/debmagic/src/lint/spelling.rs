@@ -6,6 +6,7 @@
 //! A caller passes the exceptions of the lintian group (see
 //! [`group_exceptions`]) or none.
 
+use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::sync::{LazyLock, OnceLock};
 
@@ -40,10 +41,19 @@ static MULTIWORD_LINES: LazyLock<Vec<(&'static str, &'static str)>> = LazyLock::
         .collect()
 });
 
-/// Which `MULTIWORD_LINES` entries are checked for every text: the ones with
-/// lookaround (which `regex` cannot compile), and the ones `MULTIWORD_SET`
-/// holds, mapped back to their line index.
-static MULTIWORD_SPLIT: LazyLock<(RegexSet, Vec<usize>, Vec<usize>)> = LazyLock::new(|| {
+/// How `multiword_candidates` finds the `MULTIWORD_LINES` that can match a text.
+struct MultiwordSplit {
+    /// The lines without lookaround, as one set over `\b(?:…)\b`.
+    set: RegexSet,
+    /// The line index of each `set` pattern.
+    plain: Vec<usize>,
+    /// The lines with lookaround (which `regex` cannot compile), each with a
+    /// prefilter: a `regex` that matches wherever the line can match. `None`
+    /// when the pattern cannot be relaxed, so the line is checked on every text.
+    lookaround: Vec<(usize, Option<Regex>)>,
+}
+
+static MULTIWORD_SPLIT: LazyLock<MultiwordSplit> = LazyLock::new(|| {
     let (fancy, plain): (Vec<usize>, Vec<usize>) =
         (0..MULTIWORD_LINES.len()).partition(|&index| needs_fancy(MULTIWORD_LINES[index].0));
     let set = RegexSet::new(
@@ -52,7 +62,19 @@ static MULTIWORD_SPLIT: LazyLock<(RegexSet, Vec<usize>, Vec<usize>)> = LazyLock:
             .map(|&index| format!(r"\b(?:{})\b", MULTIWORD_LINES[index].0)),
     )
     .expect("multiword pattern");
-    (set, plain, fancy)
+    let lookaround = fancy
+        .into_iter()
+        .map(|index| {
+            let relaxed = without_lookaround(MULTIWORD_LINES[index].0)
+                .and_then(|pattern| Regex::new(&format!(r"\b(?:{pattern})\b")).ok());
+            (index, relaxed)
+        })
+        .collect();
+    MultiwordSplit {
+        set,
+        plain,
+        lookaround,
+    }
 });
 
 /// Patterns that `regex` cannot compile (lookaround) need `fancy-regex`.
@@ -60,6 +82,86 @@ fn needs_fancy(pattern: &str) -> bool {
     ["(?=", "(?!", "(?<=", "(?<!"]
         .iter()
         .any(|look| pattern.contains(look))
+}
+
+/// `pattern` with its lookaround groups removed. A lookaround is zero-width, so
+/// the result matches at every position where `pattern` matches, and the
+/// first such position is a valid starting point for the confirming run.
+/// `None` for a pattern this does not understand (nested character classes,
+/// unbalanced groups), which then gets no prefilter.
+fn without_lookaround(pattern: &str) -> Option<String> {
+    const LOOKAROUND: [&str; 4] = ["(?=", "(?!", "(?<=", "(?<!"];
+    let mut out = String::with_capacity(pattern.len());
+    let mut rest = pattern;
+    while let Some(at) = rest.find(['\\', '[', '(']) {
+        out.push_str(&rest[..at]);
+        let tail = &rest[at..];
+        if let Some(escaped) = tail.strip_prefix('\\') {
+            let next = escaped.chars().next()?;
+            out.push('\\');
+            out.push(next);
+            rest = &escaped[next.len_utf8()..];
+        } else if tail.starts_with('[') {
+            let end = class_end(tail)?;
+            out.push_str(&tail[..end]);
+            rest = &tail[end..];
+        } else if LOOKAROUND.iter().any(|look| tail.starts_with(look)) {
+            rest = &tail[group_end(tail)?..];
+        } else {
+            out.push('(');
+            rest = &tail[1..];
+        }
+    }
+    out.push_str(rest);
+    Some(out)
+}
+
+/// The byte past the `]` closing the character class at the start of `text`.
+fn class_end(text: &str) -> Option<usize> {
+    let mut chars = text.char_indices().skip(1).peekable();
+    if chars.peek().is_some_and(|&(_, c)| c == '^') {
+        chars.next();
+    }
+    // A `]` first in the class is a literal.
+    if chars.peek().is_some_and(|&(_, c)| c == ']') {
+        chars.next();
+    }
+    while let Some((index, c)) = chars.next() {
+        match c {
+            ']' => return Some(index + 1),
+            '[' => return None,
+            '\\' => {
+                chars.next()?;
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// The byte past the `)` closing the group at the start of `text`.
+fn group_end(text: &str) -> Option<usize> {
+    let mut depth = 0usize;
+    let mut at = 0;
+    while let Some(c) = text[at..].chars().next() {
+        match c {
+            '\\' => at += 1 + text[at + 1..].chars().next()?.len_utf8(),
+            '[' => at += class_end(&text[at..])?,
+            '(' | ')' => {
+                depth = if c == '(' {
+                    depth + 1
+                } else {
+                    depth.checked_sub(1)?
+                };
+                at += 1;
+                if depth == 0 {
+                    return Some(at);
+                }
+            }
+            _ => at += c.len_utf8(),
+        }
+    }
+    None
 }
 
 /// The fancy-regex of `MULTIWORD_LINES[index]`, compiled on first use. It
@@ -81,17 +183,29 @@ fn multiword_regex(index: usize) -> Option<&'static FancyRegex> {
         .as_ref()
 }
 
-/// The `MULTIWORD_LINES` indices that can match `text`, in file order. A line
-/// without a regex match has no fancy-regex match either, so only the lines
-/// the `RegexSet` reports and the lookaround lines need a fancy-regex run.
-fn multiword_candidates(text: &str) -> Vec<usize> {
-    let (set, plain, fancy) = &*MULTIWORD_SPLIT;
-    let mut candidates: Vec<usize> = set
+/// The `MULTIWORD_LINES` that can match `text`, in file order, each with the
+/// byte position its confirming fancy-regex run starts at. A line without a
+/// prefilter match has no match at all, so it is not a candidate. Lines the
+/// `RegexSet` reports start at 0; a lookaround line starts at the first
+/// position of its relaxed pattern, which no real match precedes.
+fn multiword_candidates(text: &str) -> Vec<(usize, usize)> {
+    let split = &*MULTIWORD_SPLIT;
+    let mut candidates: Vec<(usize, usize)> = split
+        .set
         .matches(text)
         .into_iter()
-        .map(|set_index| plain[set_index])
-        .chain(fancy.iter().copied())
+        .map(|set_index| (split.plain[set_index], 0))
         .collect();
+    for (index, relaxed) in &split.lookaround {
+        match relaxed {
+            Some(relaxed) => {
+                if let Some(first) = relaxed.find(text) {
+                    candidates.push((*index, first.start()));
+                }
+            }
+            None => candidates.push((*index, 0)),
+        }
+    }
     candidates.sort_unstable();
     candidates
 }
@@ -123,9 +237,10 @@ pub(crate) fn check_spelling(
     let mut found = Vec::new();
     let normalized = normalize(text);
     let mut seen: HashSet<String> = HashSet::new();
-    let mut duplicates: HashSet<String> = HashSet::new();
-    let mut last_word: Option<String> = None;
+    let mut duplicates: HashSet<&str> = HashSet::new();
+    let mut last_word: Option<&str> = None;
     let mut quoted = false;
+    let mut lower = String::new();
 
     for raw in normalized.split_whitespace() {
         let ends_with_punct = raw.ends_with(TRAILING_PUNCTUATION);
@@ -135,39 +250,39 @@ pub(crate) fn check_spelling(
             if word.matches('"').count() % 2 == 1 {
                 quoted = !quoted;
             }
-            if last_word.as_deref() == Some(word)
+            if last_word == Some(word)
                 && !quoted
-                && duplicates.insert(word.to_string())
+                && duplicates.insert(word)
                 && !ends_with_punct
                 && !repeated_in_parens(text, word)
             {
                 found.push((format!("{word} {word} (duplicate word)"), word.to_string()));
             }
-            last_word = (is_ascii_alpha(word) && !ends_with_punct).then(|| word.to_string());
+            last_word = (is_ascii_alpha(word) && !ends_with_punct).then_some(word);
         }
 
-        let lcword = word.to_lowercase();
-        let Some(correction) = CORRECTIONS.get(lcword.as_str()) else {
+        let Some(lcword) = lowercase_key(word, &mut lower) else {
             continue;
         };
-        if is_one_to_five_capitals(word)
-            || exceptions.contains(word)
-            || exceptions.contains(&lcword)
+        let Some(correction) = CORRECTIONS.get(lcword) else {
+            continue;
+        };
+        if is_one_to_five_capitals(word) || exceptions.contains(word) || exceptions.contains(lcword)
         {
             continue;
         }
         let correction = adjust_case(word, correction);
-        if seen.insert(lcword) {
+        if seen.insert(lcword.to_string()) {
             found.push((word.to_string(), correction));
         }
     }
 
-    for index in multiword_candidates(&normalized) {
+    for (index, start) in multiword_candidates(&normalized) {
         let Some(regex) = multiword_regex(index) else {
             continue;
         };
         let Some(matched) = regex
-            .captures(&normalized)
+            .captures_from_pos(&normalized, start)
             .ok()
             .flatten()
             .and_then(|caps| caps.get(1))
@@ -209,36 +324,76 @@ pub(crate) fn check_spelling_picky(text: &str) -> Vec<(String, String)> {
 /// parentheses are dropped except `(s)`, a hyphen at a line break is joined,
 /// and whitespace runs become single spaces.
 fn normalize(text: &str) -> String {
-    let no_brackets: String = text.chars().filter(|c| !matches!(c, '[' | ']')).collect();
-    let no_parens = strip_parentheses(&no_brackets);
-    let joined = HYPHEN_BREAK.replacen(&no_parens, 1, "$1");
-    joined.split_whitespace().collect::<Vec<_>>().join(" ")
+    let no_parens = strip_brackets_and_parentheses(text);
+    // `(\w-)\s*\n\s*` needs a newline, so most texts skip the regex.
+    let joined = if no_parens.contains('\n') {
+        HYPHEN_BREAK.replacen(&no_parens, 1, "$1")
+    } else {
+        Cow::Borrowed(no_parens.as_str())
+    };
+    let mut out = String::with_capacity(joined.len());
+    for word in joined.split_whitespace() {
+        if !out.is_empty() {
+            out.push(' ');
+        }
+        out.push_str(word);
+    }
+    out
 }
 
-/// `s/(\((?!s\))|(?<!\(s)\))//gi`: `(` is dropped unless `s)` follows it, and
-/// `)` is dropped unless `(s` precedes it.
-fn strip_parentheses(text: &str) -> String {
-    let chars: Vec<char> = text.chars().collect();
+/// `s/[\[\]]//g`, then `s/(\((?!s\))|(?<!\(s)\))//gi` on the result, in one
+/// pass: `(` is dropped unless `s)` follows it, and `)` is dropped unless `(s`
+/// precedes it. Both look at the text with the brackets gone, as lintian does.
+fn strip_brackets_and_parentheses(text: &str) -> String {
+    let mut kept = text.chars().filter(|c| !matches!(c, '[' | ']'));
     let mut out = String::with_capacity(text.len());
-    for (index, &c) in chars.iter().enumerate() {
+    // The two kept characters before the current one, nearest first.
+    let mut before: [Option<char>; 2] = [None, None];
+    while let Some(c) = kept.next() {
         let keep = match c {
             '(' => {
-                chars
-                    .get(index + 1)
-                    .is_some_and(|n| n.eq_ignore_ascii_case(&'s'))
-                    && chars.get(index + 2) == Some(&')')
+                let mut ahead = kept.clone();
+                ahead.next().is_some_and(|n| n.eq_ignore_ascii_case(&'s'))
+                    && ahead.next() == Some(')')
             }
             ')' => {
-                index >= 2 && chars[index - 2] == '(' && chars[index - 1].eq_ignore_ascii_case(&'s')
+                before[1] == Some('(') && before[0].is_some_and(|p| p.eq_ignore_ascii_case(&'s'))
             }
             _ => true,
         };
         if keep {
             out.push(c);
         }
+        before = [Some(c), before[0]];
     }
     out
 }
+
+/// The lowercase form of `word` as a `CORRECTIONS` key would be written, in
+/// `buf`. An ASCII word is lowered in place and skipped when no key can have
+/// its length. Any other word takes Unicode lowercasing (`str::to_lowercase`,
+/// which also maps a final `Σ` to `ς`), since a non-ASCII letter can lower to
+/// an ASCII one (KELVIN SIGN to `k`). `None` when no key can match.
+fn lowercase_key<'a>(word: &str, buf: &'a mut String) -> Option<&'a str> {
+    if word.is_ascii() {
+        let (min, max) = *CORRECTION_KEY_LENGTHS;
+        if !(min..=max).contains(&word.len()) {
+            return None;
+        }
+        buf.clear();
+        buf.extend(word.chars().map(|c| c.to_ascii_lowercase()));
+    } else {
+        *buf = word.to_lowercase();
+    }
+    Some(buf.as_str())
+}
+
+/// The shortest and longest `CORRECTIONS` key, in bytes.
+static CORRECTION_KEY_LENGTHS: LazyLock<(usize, usize)> = LazyLock::new(|| {
+    CORRECTIONS.keys().fold((usize::MAX, 0), |(min, max), key| {
+        (min.min(key.len()), max.max(key.len()))
+    })
+});
 
 /// `\b<word>\s*\(<word>\b` or `\b<word>\)\s*<word>\b` in the original text:
 /// the word is shown in parentheses, which is not a duplicate.
@@ -594,5 +749,89 @@ mod tests {
     #[test]
     fn multiword_phrase_needs_word_boundaries() {
         assert!(found("We will allow tomorrow and disallow to stop.").is_empty());
+    }
+
+    /// A plain multi-word pattern is confirmed from 0, so its first match
+    /// after a rejected `\b` candidate is the one reported.
+    #[test]
+    fn multiword_match_after_a_non_boundary_occurrence() {
+        assert_eq!(
+            found("disallow to run; allow to stop"),
+            [quoted("allow to", "allow one to")]
+        );
+    }
+
+    /// The lookaround line is confirmed from its prefilter's first position. The
+    /// first `these package` is rejected by the lookahead (`tools` ends in s),
+    /// so the confirming run goes on to the second one.
+    #[test]
+    fn lookaround_match_after_a_rejected_candidate_is_found() {
+        assert_eq!(
+            found("xx these package tools; yy these package x"),
+            [quoted("these package", "this package")]
+        );
+        assert!(found("rethese package x").is_empty());
+    }
+
+    #[test]
+    fn lookaround_candidate_starts_at_the_prefilter_position() {
+        let index = MULTIWORD_LINES
+            .iter()
+            .position(|(pattern, _)| pattern.starts_with("(?i)these package("))
+            .expect("line");
+        let candidates = multiword_candidates("xx these package tools; yy these package x");
+        assert!(candidates.contains(&(index, 3)), "{candidates:?}");
+        assert!(!multiword_candidates("nothing here").contains(&(index, 0)));
+    }
+
+    #[test]
+    fn lookaround_groups_are_removed_for_the_prefilter() {
+        assert_eq!(
+            without_lookaround(r"these package(?!\s+\w+s\b)").as_deref(),
+            Some("these package")
+        );
+        assert_eq!(
+            without_lookaround(r"a(?<=b)c[(?=]d").as_deref(),
+            Some("ac[(?=]d")
+        );
+        assert_eq!(without_lookaround(r"x(?=a(b)c)y").as_deref(), Some("xy"));
+        // A `)` inside a class does not close the group.
+        assert_eq!(without_lookaround(r"x(?=[)]a)y").as_deref(), Some("xy"));
+        assert_eq!(without_lookaround(r"a\(?=b").as_deref(), Some(r"a\(?=b"));
+        assert_eq!(without_lookaround("[]a](?!b)").as_deref(), Some("[]a]"));
+        assert_eq!(without_lookaround("[[a]]"), None);
+        assert_eq!(without_lookaround("x(?=a"), None);
+    }
+
+    /// Non-ASCII words take Unicode lowercasing: a CYRILLIC letter is its own
+    /// key, and a KELVIN SIGN lowers to the ASCII `k` of a key.
+    #[test]
+    fn non_ascii_words_are_lowercased_as_unicode() {
+        assert_eq!(
+            found("a \u{441}ontain b"),
+            [("\u{441}ontain".to_string(), "contain".to_string())]
+        );
+        assert_eq!(
+            found("a \u{421}ontain b"),
+            [("\u{421}ontain".to_string(), "contain".to_string())]
+        );
+        assert_eq!(
+            found("\u{212a}enrel tool"),
+            [("\u{212a}enrel".to_string(), "kernel".to_string())]
+        );
+    }
+
+    #[test]
+    fn normalize_drops_brackets_and_parentheses_except_s() {
+        assert_eq!(normalize("a [b] (c) (s) x(s)y"), "a b c (s) x(s)y");
+        // The brackets go first, so `(s)` around a bracket is kept.
+        assert_eq!(normalize("([s])"), "(s)");
+    }
+
+    #[test]
+    fn normalize_joins_only_the_first_hyphen_break() {
+        assert_eq!(normalize("foo-\n   bar"), "foo-bar");
+        assert_eq!(normalize("a-\nb c-\nd"), "a-b c- d");
+        assert_eq!(normalize("  one \t two\n\nthree  "), "one two three");
     }
 }

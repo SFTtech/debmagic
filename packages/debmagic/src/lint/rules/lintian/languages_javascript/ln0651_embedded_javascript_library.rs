@@ -1,6 +1,7 @@
 use std::sync::LazyLock;
 
-use regex::{Regex, bytes::Regex as BytesRegex};
+use regex::Regex;
+use regex::bytes::{Regex as BytesRegex, RegexBuilder as BytesRegexBuilder};
 
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
@@ -113,14 +114,34 @@ const PROVIDERS: &[(&str, &str, bool)] = &[
     ("libjs-punycode", r"punycode(?:\.es\d+)?", true),
 ];
 
-struct Provider {
-    name: &'static str,
-    package: Regex,
-    file: Regex,
+/// Matching one provider pattern against a package or path name.
+trait Pattern {
+    fn matches(&self, text: &str) -> bool;
 }
 
-static PROVIDER_REGEXES: LazyLock<Vec<Provider>> = LazyLock::new(|| {
-    let mut providers: Vec<Provider> = PROVIDERS
+impl Pattern for Regex {
+    fn matches(&self, text: &str) -> bool {
+        self.is_match(text)
+    }
+}
+
+impl Pattern for BytesRegex {
+    fn matches(&self, text: &str) -> bool {
+        self.is_match(text.as_bytes())
+    }
+}
+
+struct Provider<R> {
+    name: &'static str,
+    package: R,
+    file: R,
+}
+
+/// The table in Unicode mode. Used for a package or path name that is not
+/// ASCII, since Unicode case folding and classes can match what ASCII mode
+/// does not.
+static PROVIDER_REGEXES: LazyLock<Vec<Provider<Regex>>> = LazyLock::new(|| {
+    let mut providers: Vec<Provider<Regex>> = PROVIDERS
         .iter()
         .map(|(name, prefix, extension)| Provider {
             name,
@@ -135,6 +156,47 @@ static PROVIDER_REGEXES: LazyLock<Vec<Provider>> = LazyLock::new(|| {
     providers.sort_by_key(|provider| provider.name);
     providers
 });
+
+/// The table in ASCII mode, for a package and a path that are both ASCII. On
+/// ASCII text, every pattern of the table matches exactly what it matches in
+/// Unicode mode: `\d`, `\w`, `.`, the classes and `(?i)` agree on ASCII
+/// characters, and the only characters that fold to ASCII letters (KELVIN
+/// SIGN, LONG S) are not ASCII. ASCII classes are far cheaper to compile. The
+/// bytes API is used because `.` in non-Unicode mode may match part of a
+/// character, which `regex` rejects for `&str`.
+static ASCII_PROVIDER_REGEXES: LazyLock<Vec<Provider<BytesRegex>>> = LazyLock::new(|| {
+    let compile = |pattern: &str| {
+        BytesRegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("valid regex")
+    };
+    let mut providers: Vec<Provider<BytesRegex>> = PROVIDERS
+        .iter()
+        .map(|(name, prefix, extension)| Provider {
+            name,
+            package: compile(&format!("^{name}$")),
+            file: compile(&format!(
+                "(?i){prefix}{}",
+                if *extension { EXT } else { "" }
+            )),
+        })
+        .collect();
+    providers.sort_by_key(|provider| provider.name);
+    providers
+});
+
+/// The names of the providers whose package and file pattern match, in table
+/// order, before the bootstrap magic check.
+fn matching_providers<'a, R: Pattern>(
+    providers: &'a [Provider<R>],
+    package: &'a str,
+    name: &'a str,
+) -> impl Iterator<Item = &'static str> + 'a {
+    providers.iter().filter_map(move |provider| {
+        (!provider.package.matches(package) && provider.file.matches(name)).then_some(provider.name)
+    })
+}
 
 static INTERESTING: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?i)\.(?:js|css)").expect("valid regex"));
@@ -165,11 +227,13 @@ impl BinaryPackageRule for EmbeddedJavascriptLibrary {
             {
                 continue;
             }
-            for provider in PROVIDER_REGEXES.iter() {
-                if provider.package.is_match(&package) || !provider.file.is_match(name) {
-                    continue;
-                }
-                if provider.name == "libjs-bootstrap" {
+            let providers: Vec<&str> = if package.is_ascii() && name.is_ascii() {
+                matching_providers(&ASCII_PROVIDER_REGEXES, &package, name).collect()
+            } else {
+                matching_providers(&PROVIDER_REGEXES, &package, name).collect()
+            };
+            for provider in providers {
+                if provider == "libjs-bootstrap" {
                     let magic = files
                         .read(entry)
                         .is_ok_and(|bytes| BOOTSTRAP_MAGIC.is_match(&bytes));
@@ -177,7 +241,7 @@ impl BinaryPackageRule for EmbeddedJavascriptLibrary {
                         continue;
                     }
                 }
-                found.push((entry.path().to_path_buf(), provider.name));
+                found.push((entry.path().to_path_buf(), provider));
             }
         }
         for (path, name) in found {
@@ -195,6 +259,26 @@ impl BinaryPackageRule for EmbeddedJavascriptLibrary {
 #[cfg(test)]
 mod tests {
     use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
+
+    /// The ASCII table keeps every provider of the Unicode table.
+    #[test]
+    fn ascii_table_has_every_provider() {
+        assert_eq!(
+            super::ASCII_PROVIDER_REGEXES.len(),
+            super::PROVIDER_REGEXES.len()
+        );
+    }
+
+    /// A non-ASCII path takes the Unicode table, and is still found.
+    #[test]
+    fn non_ascii_path_is_found() {
+        BinaryPackageTester::new(
+            EmbeddedJavascriptLibrary,
+            vec![],
+            vec![tree(&[("usr/share/exämple/jquery.min.js", "x")])],
+        )
+        .test();
+    }
 
     use super::*;
 

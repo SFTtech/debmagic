@@ -1,5 +1,6 @@
 use std::sync::LazyLock;
 
+use regex::bytes::{Regex as BytesRegex, RegexBuilder as BytesRegexBuilder};
 use regex::{Regex, RegexBuilder};
 
 use crate::declare_rule;
@@ -29,6 +30,7 @@ declare_rule! {
     experimental = false,
 }
 
+/// The table in Unicode mode, for a package name that is not ASCII.
 static MAPPINGS: LazyLock<Vec<(Regex, &'static str)>> = LazyLock::new(|| {
     data::lines(include_str!("../../../data/fields/name_section_mappings"))
         .filter_map(|line| {
@@ -41,6 +43,39 @@ static MAPPINGS: LazyLock<Vec<(Regex, &'static str)>> = LazyLock::new(|| {
         })
         .collect()
 });
+
+/// The table in ASCII mode, for an ASCII package name. On ASCII text the
+/// patterns match the same as in Unicode mode, and ASCII classes are much
+/// cheaper to compile. The bytes API takes `.` and `\S` without the `&str`
+/// restriction on partial characters.
+static ASCII_MAPPINGS: LazyLock<Vec<(BytesRegex, &'static str)>> = LazyLock::new(|| {
+    data::lines(include_str!("../../../data/fields/name_section_mappings"))
+        .filter_map(|line| {
+            let (pattern, section) = line.split_once("=>")?;
+            let regex = BytesRegexBuilder::new(pattern.trim())
+                .ignore_whitespace(true)
+                .unicode(false)
+                .build()
+                .ok()?;
+            Some((regex, section.trim()))
+        })
+        .collect()
+});
+
+/// The section of the first table pattern that matches `package`.
+fn mapped_section(package: &str) -> Option<&'static str> {
+    if package.is_ascii() {
+        ASCII_MAPPINGS
+            .iter()
+            .find(|(pattern, _)| pattern.is_match(package.as_bytes()))
+            .map(|(_, section)| *section)
+    } else {
+        MAPPINGS
+            .iter()
+            .find(|(pattern, _)| pattern.is_match(package))
+            .map(|(_, section)| *section)
+    }
+}
 
 static DEBUG_PACKAGE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"-dbg(?:sym)?$").expect("valid regex"));
@@ -61,19 +96,15 @@ impl BinaryPackageRule for WrongSectionAccordingToPackageName {
         let package = ctx.package_name().to_string();
 
         let mut messages = Vec::new();
-        if fraction != "oldlibs" {
-            let matched = MAPPINGS
-                .iter()
-                .find(|(pattern, _)| pattern.is_match(&package));
-            if let Some((_, want)) = matched
-                && fraction != *want
-            {
-                let better = match division {
-                    Some(division) => format!("{division}/{want}"),
-                    None => (*want).to_string(),
-                };
-                messages.push(format!("{section} => {better}"));
-            }
+        if fraction != "oldlibs"
+            && let Some(want) = mapped_section(&package)
+            && fraction != want
+        {
+            let better = match division {
+                Some(division) => format!("{division}/{want}"),
+                None => want.to_string(),
+            };
+            messages.push(format!("{section} => {better}"));
         }
         if fraction == "debug" && !DEBUG_PACKAGE.is_match(&package) {
             messages.push(section.clone());
@@ -87,6 +118,12 @@ impl BinaryPackageRule for WrongSectionAccordingToPackageName {
 #[cfg(test)]
 mod tests {
     use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
+
+    /// The ASCII table keeps every mapping of the Unicode table, in order.
+    #[test]
+    fn ascii_table_has_every_mapping() {
+        assert_eq!(super::ASCII_MAPPINGS.len(), super::MAPPINGS.len());
+    }
 
     use super::*;
 

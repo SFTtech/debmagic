@@ -1,5 +1,6 @@
 use std::sync::LazyLock;
 
+use regex::bytes::{Regex as BytesRegex, RegexBuilder as BytesRegexBuilder};
 use regex::{Regex, RegexBuilder};
 
 use crate::declare_rule;
@@ -29,6 +30,7 @@ declare_rule! {
     experimental = false,
 }
 
+/// The table in Unicode mode, for a line that is not ASCII.
 static PLANNED_FEATURES: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     data::lines(include_str!("../../../data/description/planned-features"))
         .filter_map(|pattern| {
@@ -40,13 +42,38 @@ static PLANNED_FEATURES: LazyLock<Vec<Regex>> = LazyLock::new(|| {
         .collect()
 });
 
+/// The table in ASCII mode, for an ASCII line. Case folding and the classes
+/// agree with Unicode mode on ASCII text, and ASCII compiles much faster.
+static ASCII_PLANNED_FEATURES: LazyLock<Vec<BytesRegex>> = LazyLock::new(|| {
+    data::lines(include_str!("../../../data/description/planned-features"))
+        .filter_map(|pattern| {
+            BytesRegexBuilder::new(pattern)
+                .case_insensitive(true)
+                .unicode(false)
+                .build()
+                .ok()
+        })
+        .collect()
+});
+
+/// Whether any table pattern matches `line`.
+fn planned_feature(line: &str) -> bool {
+    if line.is_ascii() {
+        ASCII_PLANNED_FEATURES
+            .iter()
+            .any(|regex| regex.is_match(line.as_bytes()))
+    } else {
+        PLANNED_FEATURES.iter().any(|regex| regex.is_match(line))
+    }
+}
+
 impl BinaryPackageRule for DescriptionMentionsPlannedFeatures {
     fn run(&self, ctx: &mut BinaryPackageContext<'_>) {
         let Some(description) = description(ctx) else {
             return;
         };
         for (position, line) in description.numbered_lines() {
-            if PLANNED_FEATURES.iter().any(|regex| regex.is_match(line)) {
+            if planned_feature(line) {
                 ctx.diagnostic(
                     Diagnostic::warn(format!("(line {position})")).with_severity(Severity::Info),
                 );
@@ -58,6 +85,16 @@ impl BinaryPackageRule for DescriptionMentionsPlannedFeatures {
 #[cfg(test)]
 mod tests {
     use crate::lint::tester::{BinaryPackageCase, BinaryPackageTester, TestFile};
+
+    /// The ASCII table keeps every pattern of the Unicode table, so that the
+    /// two agree on the same lines.
+    #[test]
+    fn ascii_table_has_every_pattern() {
+        assert_eq!(
+            super::ASCII_PLANNED_FEATURES.len(),
+            super::PLANNED_FEATURES.len()
+        );
+    }
 
     use super::*;
 

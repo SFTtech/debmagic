@@ -1,7 +1,7 @@
 use std::sync::LazyLock;
 
 use fancy_regex::{Regex, RegexBuilder};
-use regex::RegexSet;
+use regex::bytes::{RegexSet, RegexSetBuilder};
 
 use crate::declare_rule;
 use crate::lint::context::BinaryPackageContext;
@@ -53,13 +53,13 @@ enum Pattern {
     Backtrack { pattern: Regex, prefilter: usize },
 }
 
-/// The table, compiled once per process.
+/// The table, parsed once per process. Its regex set is built apart, in
+/// [`SET`], only for a Subject that has candidates and ELF strings.
 struct Table {
     libraries: Vec<Embedded>,
     /// Every pattern (or prefilter) of [`Pattern::Set`] and
-    /// [`Pattern::Backtrack`], in one automaton, so one pass over a file's
-    /// strings tells which patterns can match it.
-    set: RegexSet,
+    /// [`Pattern::Backtrack`], in the order of their indexes.
+    set_patterns: Vec<String>,
 }
 
 static TABLE: LazyLock<Table> = LazyLock::new(|| {
@@ -89,9 +89,28 @@ static TABLE: LazyLock<Table> = LazyLock::new(|| {
             pattern,
         });
     }
-    let set = RegexSet::new(&set_patterns)
-        .expect("the embedded-libs patterns, without lookaround, compile as regex");
-    Table { libraries, set }
+    Table {
+        libraries,
+        set_patterns,
+    }
+});
+
+/// [`Table::set_patterns`] in one automaton, so one pass over a file's strings
+/// tells which patterns can match it.
+///
+/// The text it runs on is printable ASCII by construction (see
+/// `strings_text`). On ASCII text, a pattern without Unicode-only syntax
+/// matches exactly what it matches in Unicode mode: `\w`, `\d`, `\s`, `\b`,
+/// `.` and `(?i)` agree on the ASCII characters, and the only characters that
+/// fold to ASCII letters (KELVIN SIGN, LONG S) are not ASCII themselves. The
+/// ASCII classes are far cheaper to compile than the Unicode ones. The bytes
+/// API is used because a non-Unicode `str` pattern may match part of a
+/// character, which `regex` rejects for `&str`.
+static SET: LazyLock<RegexSet> = LazyLock::new(|| {
+    RegexSetBuilder::new(&TABLE.set_patterns)
+        .unicode(false)
+        .build()
+        .expect("the embedded-libs patterns, without lookaround, compile as ASCII regex")
 });
 
 /// A line's fields, before its pattern is compiled.
@@ -214,6 +233,10 @@ impl BinaryPackageRule for EmbeddedLibrary {
         let Some(strings) = ctx.data_strings() else {
             return;
         };
+        // No ELF Data file, so nothing to match: the table is not even built.
+        if strings.iter().next().is_none() {
+            return;
+        }
         let source = ctx.source_name();
         let table = &*TABLE;
         // Which libraries apply depends only on the source name, so they are
@@ -233,8 +256,9 @@ impl BinaryPackageRule for EmbeddedLibrary {
         if candidates.is_empty() {
             return;
         }
+        let set = &*SET;
         for (path, text) in strings.iter() {
-            let hits = table.set.matches(text);
+            let hits = set.matches(text.as_bytes());
             for library in &candidates {
                 let found = match &library.pattern {
                     Pattern::Set(index) => hits.matched(*index),
@@ -284,6 +308,31 @@ mod tests {
                 .iter()
                 .any(|library| library.libname == "zlib")
         );
+    }
+
+    /// [`SET`] is built in ASCII mode. On ASCII text it must give the same
+    /// matches as the Unicode set of the same patterns.
+    #[test]
+    fn ascii_set_agrees_with_unicode_set() {
+        let unicode = regex::RegexSet::new(&TABLE.set_patterns).expect("unicode set");
+        let texts = [
+            "This is a bug in bzip2",
+            "inflate 1.2.11 Copyright",
+            "4 inflate 1.2.11 Copyright",
+            "deflate 1.2.8 Copyright",
+            "Punycode failed",
+            "x\nPunycode failed",
+            "DR B STRUCK",
+            "Dr. B. Struck wrote this",
+            "Exactly one scaler algorithm must be chosen later",
+            "A libcurl function was given a bad argument",
+            "tabs\tand words_1 here\u{20}",
+        ];
+        for text in texts {
+            let from_unicode: Vec<usize> = unicode.matches(text).into_iter().collect();
+            let from_ascii: Vec<usize> = SET.matches(text.as_bytes()).into_iter().collect();
+            assert_eq!(from_unicode, from_ascii, "{text:?}");
+        }
     }
 
     #[test]

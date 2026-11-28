@@ -4,4 +4,5 @@ pub mod control;
 pub mod copyright;
 pub mod deb822;
 pub mod source;
+pub mod source_extract;
 pub mod version;

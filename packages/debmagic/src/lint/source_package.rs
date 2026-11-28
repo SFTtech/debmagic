@@ -1,16 +1,16 @@
 use std::collections::BTreeSet;
 use std::ffi::OsStr;
 use std::fs;
-use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
+#[cfg(test)]
 use std::process::{Command, Stdio};
 
 use anyhow::{Context, bail};
+use debmagic_common::debian::binary::{header_mtime, normalize_member_path};
+use debmagic_common::debian::source_extract;
 use debmagic_common::{checksums, compression};
 use regex::Regex;
 use tempfile::TempDir;
-
-use debmagic_common::debian::binary::{header_mtime, normalize_member_path};
 
 use super::binary_package_reader::guess_package_name;
 use super::dsc::Dsc;
@@ -142,7 +142,8 @@ pub(crate) struct SourcePackageExtract {
 impl SourcePackageExtract {
     pub fn from_dsc(path: PathBuf) -> anyhow::Result<Self> {
         let identity = DscIdentity::load(&path)?;
-        ensure_named_files_exist(&identity)?;
+        source_extract::ensure_files_present(identity.directory(), &identity.files)
+            .with_context(|| format!("{} names a missing file", identity.path.display()))?;
         let workspace = TempDir::new().context("creating Source package extract directory")?;
         let patched_root = workspace.path().join("patched");
         // The Patched and Orig trees are independent (separate directories), so
@@ -204,50 +205,6 @@ fn unpack_message_lines(stderr: &[u8]) -> Vec<String> {
         .collect()
 }
 
-fn ensure_named_files_exist(identity: &DscIdentity) -> anyhow::Result<()> {
-    let dir = identity.directory();
-    for filename in &identity.files {
-        let path = dir.join(filename);
-        if !path.is_file() {
-            bail!(
-                "{} names missing file {}",
-                identity.path.display(),
-                path.display()
-            );
-        }
-    }
-    Ok(())
-}
-
-fn extract_patched(dsc: &Path, dest: &Path) -> anyhow::Result<Vec<String>> {
-    let output = Command::new("dpkg-source")
-        .args(["-q", "--no-check", "--extract"])
-        .arg(dsc)
-        .arg(dest)
-        .stdin(Stdio::null())
-        .output()
-        .map_err(|error| {
-            if error.kind() == ErrorKind::NotFound {
-                anyhow::anyhow!("dpkg-source is unavailable")
-            } else {
-                anyhow::anyhow!("running dpkg-source failed: {error}")
-            }
-        })?;
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        bail!(
-            "dpkg-source --extract {} failed{}",
-            dsc.display(),
-            if stderr.trim().is_empty() {
-                String::new()
-            } else {
-                format!(": {}", stderr.trim())
-            }
-        );
-    }
-    Ok(unpack_message_lines(&output.stderr))
-}
-
 /// `dpkg-source --extract` skips `*/.pc` so a hostile tarball cannot plant
 /// symlinks quilt would follow. Lintian still sees `debian/.pc` as shipped, so
 /// put it back from the debian tarball.
@@ -267,7 +224,7 @@ fn restore_debian_pc(
         return Ok(());
     };
     let stage = workspace.join("debian-stage");
-    extract_tarball(&identity.directory().join(tarball), &stage)?;
+    source_extract::extract_tarball(&identity.directory().join(tarball), &stage)?;
     let source = stage.join("debian/.pc");
     if fs::symlink_metadata(&source).is_ok() {
         fs::create_dir_all(patched_root.join("debian"))
@@ -285,7 +242,8 @@ fn extract_patched_tree(
     workspace: &Path,
     patched_root: &Path,
 ) -> anyhow::Result<Vec<String>> {
-    let messages = extract_patched(&identity.path, patched_root)?;
+    let stderr = source_extract::dpkg_source_extract(&identity.path, patched_root)?;
+    let messages = unpack_message_lines(&stderr);
     restore_debian_pc(identity, workspace, patched_root)?;
     Ok(messages)
 }
@@ -305,17 +263,17 @@ fn extract_orig_tree(
     Ok((Some(orig_root), messages))
 }
 
+/// Extract the orig components into `orig_root` and return lintian's
+/// `orig->unpack_messages`: each tarball's tar messages (but `tar: Ignoring`),
+/// each once, as `<tarball> . <message>`.
 fn extract_orig(identity: &DscIdentity, orig_root: &Path) -> anyhow::Result<Vec<String>> {
-    let dir = identity.directory();
+    let components = identity.orig_components();
+    let stderr =
+        source_extract::extract_orig_components(identity.directory(), &components, orig_root)?;
     let mut messages = Vec::new();
-    for (index, (filename, component)) in identity.orig_components().into_iter().enumerate() {
-        let tarball = dir.join(&filename);
-        let stage = orig_root
-            .parent()
-            .unwrap_or(orig_root)
-            .join(format!("orig-stage-{index}"));
+    for ((filename, _), stderr) in components.iter().zip(stderr) {
         let mut tarball_messages = Vec::<String>::new();
-        for line in unpack_message_lines(&extract_tarball(&tarball, &stage)?) {
+        for line in unpack_message_lines(&stderr) {
             if !tarball_messages.contains(&line) {
                 tarball_messages.push(line);
             }
@@ -325,84 +283,8 @@ fn extract_orig(identity: &DscIdentity, orig_root: &Path) -> anyhow::Result<Vec<
                 .into_iter()
                 .map(|line| format!("{filename} . {line}")),
         );
-        let stripped = apply_common_prefix(&stage)?;
-        let dest = if component.is_empty() {
-            orig_root.to_path_buf()
-        } else {
-            orig_root.join(&component)
-        };
-        merge_tree(&stripped, &dest)?;
     }
     Ok(messages)
-}
-
-/// Extracts `tarball` into `dest` and returns the stderr lines tar printed.
-/// `--touch` keeps the header time stamps off the extracted files, as
-/// lintian's extraction does, so tar does not warn about ancient ones.
-fn extract_tarball(tarball: &Path, dest: &Path) -> anyhow::Result<Vec<u8>> {
-    fs::create_dir_all(dest).with_context(|| format!("creating {}", dest.display()))?;
-    let output = Command::new("tar")
-        .arg("-C")
-        .arg(dest)
-        .args(["--no-same-owner", "--touch", "-xf"])
-        .arg(tarball)
-        .stdin(Stdio::null())
-        .output()
-        .map_err(|error| {
-            if error.kind() == ErrorKind::NotFound {
-                anyhow::anyhow!("tar is unavailable")
-            } else {
-                anyhow::anyhow!("running tar failed: {error}")
-            }
-        })?;
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        bail!(
-            "extracting {} failed{}",
-            tarball.display(),
-            if stderr.trim().is_empty() {
-                String::new()
-            } else {
-                format!(": {}", stderr.trim())
-            }
-        );
-    }
-    Ok(output.stderr)
-}
-
-fn apply_common_prefix(extract_dir: &Path) -> anyhow::Result<PathBuf> {
-    let mut dirs = Vec::new();
-    let mut other = 0usize;
-    let read =
-        fs::read_dir(extract_dir).with_context(|| format!("reading {}", extract_dir.display()))?;
-    for entry in read {
-        let entry = entry.with_context(|| format!("reading {}", extract_dir.display()))?;
-        let file_type = entry
-            .file_type()
-            .with_context(|| format!("stat {}", entry.path().display()))?;
-        if file_type.is_dir() && !file_type.is_symlink() {
-            dirs.push(entry.path());
-        } else {
-            other += 1;
-        }
-    }
-    if other == 0 && dirs.len() == 1 {
-        Ok(dirs.remove(0))
-    } else {
-        Ok(extract_dir.to_path_buf())
-    }
-}
-
-fn merge_tree(src: &Path, dest: &Path) -> anyhow::Result<()> {
-    fs::create_dir_all(dest).with_context(|| format!("creating {}", dest.display()))?;
-    let read = fs::read_dir(src).with_context(|| format!("reading {}", src.display()))?;
-    for entry in read {
-        let entry = entry.with_context(|| format!("reading {}", src.display()))?;
-        let to = dest.join(entry.file_name());
-        fs::rename(entry.path(), &to)
-            .with_context(|| format!("moving {} to {}", entry.path().display(), to.display()))?;
-    }
-    Ok(())
 }
 
 /// One entry of an Orig tarball as lintian's orig index names it: its path in

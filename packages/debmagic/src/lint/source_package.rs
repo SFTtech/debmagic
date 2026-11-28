@@ -89,41 +89,38 @@ impl DscIdentity {
         !self.listed.iter().any(|name| name == &diffname)
     }
 
-    fn orig_components(&self) -> anyhow::Result<Vec<(String, String)>> {
-        let name = self.package_name();
+    /// lintian's `components` (`Processable/Source/Components.pm`): each
+    /// listed `{source}_{upstream}.orig[-{component}].tar.{gz,bz2,lzma,xz}`,
+    /// and the `{source}_{version}.tar.*` a 1.0 package may carry, with its
+    /// component (empty for the main tarball). `{source}` is the `Source`
+    /// field as written. Sorted as lintian unpacks them,
+    /// `sort_by { $components{$_} }`: main first, then by component, ties in
+    /// file order. Empty when none matches; lintian then indexes no orig files.
+    fn orig_components(&self) -> Vec<(String, String)> {
         let noepoch = strip_epoch(self.version());
-        let upstream = strip_debian_revision(noepoch);
-        let base = format!("{name}_{upstream}");
+        // `s/(.+)-(?:.*)$/$1/`: the last `-` that has something before it.
+        let upstream = match noepoch.rfind('-') {
+            Some(index) if index > 0 => &noepoch[..index],
+            _ => noepoch,
+        };
+        let source = self.source();
         let pattern = Regex::new(&format!(
-            r"^{}\.orig(?:-(.*))?\.tar\.(?:gz|bz2|lzma|xz|zst)$",
-            regex::escape(&base)
+            r"^(?:{}\.orig(?:-(.*))?|{})\.tar\.(?:gz|bz2|lzma|xz)$",
+            regex::escape(&format!("{source}_{upstream}")),
+            regex::escape(&format!("{source}_{noepoch}")),
         ))
         .expect("orig tarball name pattern");
-        let mut found = Vec::new();
-        for filename in &self.listed {
-            let basename = Path::new(filename)
-                .file_name()
-                .and_then(|name| name.to_str())
-                .unwrap_or(filename);
-            if let Some(captures) = pattern.captures(basename) {
-                let component = captures
-                    .get(1)
-                    .map(|m| m.as_str().to_string())
-                    .unwrap_or_default();
-                found.push((filename.clone(), component));
-            }
-        }
-        // lintian unpacks them `sort_by { $components{$_} }`: the main
-        // tarball first, then by component name (stable, so ties keep the
-        // sorted file order).
+        let mut found: Vec<(String, String)> = self
+            .listed
+            .iter()
+            .filter_map(|filename| {
+                let captures = pattern.captures(filename)?;
+                let component = captures.get(1).map_or("", |m| m.as_str());
+                Some((filename.clone(), component.to_string()))
+            })
+            .collect();
         found.sort_by(|left, right| left.1.cmp(&right.1));
-        if found.is_empty() {
-            bail!(
-                "{} is not Native and names no orig tarball",
-                self.path.display()
-            );
-        }
-        Ok(found)
+        found
     }
 }
 
@@ -311,7 +308,7 @@ fn extract_orig_tree(
 fn extract_orig(identity: &DscIdentity, orig_root: &Path) -> anyhow::Result<Vec<String>> {
     let dir = identity.directory();
     let mut messages = Vec::new();
-    for (index, (filename, component)) in identity.orig_components()?.into_iter().enumerate() {
+    for (index, (filename, component)) in identity.orig_components().into_iter().enumerate() {
         let tarball = dir.join(&filename);
         let stage = orig_root
             .parent()
@@ -431,7 +428,7 @@ pub(crate) fn orig_entries(dsc_path: &Path, dsc: &Dsc) -> anyhow::Result<Vec<Ori
         return Ok(Vec::new());
     }
     let mut entries = Vec::new();
-    for (filename, component) in identity.orig_components()? {
+    for (filename, component) in identity.orig_components() {
         let members = tarball_members(&identity.directory().join(&filename))?;
         for member in drop_common_top_directory(members, &component) {
             let path = if component.is_empty() {
@@ -979,7 +976,7 @@ mod tests {
         );
         let dsc = DscIdentity::load(&path)?;
         assert!(!dsc.is_native());
-        let components = dsc.orig_components()?;
+        let components = dsc.orig_components();
         assert_eq!(
             components,
             vec![
@@ -987,6 +984,50 @@ mod tests {
                 ("example_1.0.orig-docs.tar.gz".into(), "docs".into()),
             ]
         );
+        Ok(())
+    }
+
+    #[test]
+    fn orig_components_follow_lintians_pattern() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = write_dsc(
+            dir.path(),
+            &dsc_with_files(
+                "Format: 3.0 (quilt)\nSource: example\nVersion: 2:1.0-1\n",
+                &[
+                    // lintian 2.144 does not know zst as an orig compression.
+                    "d41d8cd98f00b204e9800998ecf8427e 1 example_1.0.orig.tar.zst",
+                    "d41d8cd98f00b204e9800998ecf8427e 1 example_1.0.orig-b.tar.lzma",
+                    // The native name `{source}_{version}` counts too.
+                    "d41d8cd98f00b204e9800998ecf8427e 1 example_1.0-1.tar.gz",
+                    "d41d8cd98f00b204e9800998ecf8427e 1 example_1.0-1.debian.tar.xz",
+                ],
+            ),
+        );
+        let dsc = DscIdentity::load(&path)?;
+        assert_eq!(
+            dsc.orig_components(),
+            vec![
+                ("example_1.0-1.tar.gz".into(), String::new()),
+                ("example_1.0.orig-b.tar.lzma".into(), "b".into()),
+            ]
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn no_orig_tarball_is_an_empty_list_not_an_error() -> anyhow::Result<()> {
+        let dir = TempDir::new()?;
+        let path = write_dsc(
+            dir.path(),
+            &dsc_with_files(
+                "Format: 3.0 (quilt)\nSource: example\nVersion: 1.0-1\n",
+                &["d41d8cd98f00b204e9800998ecf8427e 1 example_1.0.orig.tar.zst"],
+            ),
+        );
+        let dsc = DscIdentity::load(&path)?;
+        assert!(!dsc.is_native());
+        assert!(dsc.orig_components().is_empty());
         Ok(())
     }
 

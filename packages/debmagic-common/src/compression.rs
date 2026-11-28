@@ -5,7 +5,7 @@ use std::io::{Cursor, Read};
 use anyhow::bail;
 
 /// A decoder for `reader`, picked by the extension of `name`: `.gz`, `.bz2`,
-/// `.xz`, `.zst`, or a plain `.tar`. Each decoder reads one stream (no
+/// `.xz`, `.lzma` (legacy LZMA-alone), `.zst`, or a plain `.tar`. Each decoder reads one stream (no
 /// multi-member gzip, no concatenated xz). `Err` for any other name.
 pub fn decoder<'a>(name: &str, reader: impl Read + 'a) -> anyhow::Result<Box<dyn Read + 'a>> {
     if name.ends_with(".gz") {
@@ -14,6 +14,9 @@ pub fn decoder<'a>(name: &str, reader: impl Read + 'a) -> anyhow::Result<Box<dyn
         Ok(Box::new(bzip2::read::BzDecoder::new(reader)))
     } else if name.ends_with(".xz") {
         Ok(Box::new(xz2::read::XzDecoder::new(reader)))
+    } else if name.ends_with(".lzma") {
+        let stream = xz2::stream::Stream::new_lzma_decoder(u64::MAX)?;
+        Ok(Box::new(xz2::read::XzDecoder::new_stream(reader, stream)))
     } else if name.ends_with(".zst") {
         Ok(Box::new(zstd::stream::read::Decoder::new(reader)?))
     } else if name.ends_with(".tar") {
@@ -69,7 +72,18 @@ mod tests {
             b"zst payload"
         );
         assert_eq!(decompress_by_name("a.tar", b"plain").unwrap(), b"plain");
-        assert!(decompress_by_name("a.tar.lzma", b"").is_err());
+        let lzma = {
+            let options = xz2::stream::LzmaOptions::new_preset(6).unwrap();
+            let stream = xz2::stream::Stream::new_lzma_encoder(&options).unwrap();
+            let mut encoder = xz2::write::XzEncoder::new_stream(Vec::new(), stream);
+            encoder.write_all(b"lzma payload").unwrap();
+            encoder.finish().unwrap()
+        };
+        assert_eq!(
+            decompress_by_name("a.tar.lzma", &lzma).unwrap(),
+            b"lzma payload"
+        );
+        assert!(decompress_by_name("a.tar.lz", b"").is_err());
     }
 
     #[test]
